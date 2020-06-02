@@ -1,0 +1,281 @@
+{
+    "Departments": [
+	    {
+            "DepartmentName": "DAYZ EXPANSION",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_LEAD",
+                    "SectionLines": [
+                        "Stephan Moser (Steve aka Salutesh)"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_SCRIPTERS",
+                    "SectionLines": [
+                        "Rémi Simonin (NiiRoZz)",
+                        "Ruslans Aleksejevs (CAMINOonPC)",
+						"George Thurston (Thurston)",
+						"Stephan Moser (Steve aka Salutesh)",
+						"Jacob Kumar (Jacob_Mango)"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_PROGRAMMERS",
+                    "SectionLines": [
+                        "Miroslav Maněna - @DayZ"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_MAPING",
+                    "SectionLines": [
+                       "DanceOfJesus"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_3DARTISTS",
+                    "SectionLines": [
+                        "ComatoseBadger",
+                        "Not A Banana",
+						"m_kola",
+						"Helion4",
+						"ZeRoY"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_COMMUNITYMANAGE",
+                    "SectionLines": [
+                        "George Thurston (Thurston)"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_MOVIES",
+                    "SectionLines": [
+                        "OPTiX"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_TRANSLATORS",
+                    "SectionLines": [
+                        "Billy Herrington",
+                        "Adam Franců",
+                        "GrosTon1",
+                        "Catzf19",
+                        "MPH2210",
+                        "卢迪乌斯",
+                        "Jeremy",
+                        "Kalmar",
+                        "Vernon",
+                        "Inkota",
+                        "Polak",
+                        "Creep",
+                        "NDRW",
+                        "Hugo",
+                        "Js"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_THX",
+                    "SectionLines": [
+                        "Miroslav Maněna",
+                        "Eugen Harton",
+                        "Adam Franců",
+                        "rVn",
+                        
+                        "           ",
+
+                        "Jamesjwgallagher",
+                        "LieutenantMaster",
+                        "SuperTrottoir",
+                        "DeanosBeano",
+                        "DivineFury",
+                        "Credidred",
+                        "Niphoria",
+                        "DrDeSync",
+                        "Arkensor",
+                        "Shedmon",
+						"Cleetus",
+						"MoonDC"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "",
+            "Sections": [
+                {
+                    "SectionName": "#STR_EXPANSION_CREDITS_SUPPORTERS",
+                    "SectionLines": [
+                        "Matthew Salsamendi",
+
+                        "           ",
+
+                        "Js",
+                        "GL",
+                        "MK",
+                        "Shu",
+                        "KAZ",
+                        "OSH",
+                        "NDRW",
+                        "Jinx",
+                        "Phil",
+                        "Zisb",
+                        "Coma",
+                        "TomZF", 
+                        "1312K",
+                        "Ondra",
+                        "BeeRz",
+                        "Kedzi",
+                        "Muzzy", 
+                        "Gabba",     
+                        "Tuuza",
+                        "Wydox", 
+                        "Se7en",  
+                        "Neojr",
+                        "Volym",
+                        "Fozzie",
+                        "Square",
+                        "Deceit",
+                        "Hunter",
+                        "RIPx47", 
+                        "Wardog",
+                        "Zombie",  
+                        "Syntax",  
+                        "Caesar",
+                        "Khubba",
+                        "Jfetko",
+                        "Juanky",
+                        "SmashT", 
+                        "Nazzgy",
+                        "Paunae",  
+                        "Kongur",   
+                        "Boothy",
+                        "BigDad", 
+                        "LaGTeK",
+                        "ReVive",
+                        "LucyLu",
+                        "F3tt4ct",
+                        "Kopareo",
+                        "Daruman",
+                        "Progger",
+                        "Killjoy",
+                        "YaseSki",
+                        "Sabione",
+                        "RanCove",    
+                        "Stricken",     
+                        "Bierbaer",
+                        "Crocodoc",
+                        "Peresvet", 
+                        "Asmodeus",
+                        "MrTedNRW",
+                        "Triforce",
+                        "Lionclaw",
+                        "GrosTon1",
+                        "Stardawg",
+                        "DjCtavia",
+                        "KingMike",
+                        "WiiDevil",
+                        "Lunchbox",  
+                        "VonNeuman",
+                        "Lordcashy",
+                        "Cooltrain",
+                        "LabelFive",        
+                        "Nightbird",
+                        "JoeyDaddy",
+                        "CTremblay",
+                        "JonAngelo",
+                        "SleepyDuck",
+                        "Jackouille",
+                        "MadStalk3r",
+                        "FutureSixx",
+                        "StairusOSX",
+                        "WhiskyBlues",
+                        "KeiraStokes",  
+                        "TommyBruise",
+                        "AlfredHagen",
+                        "ModernKilla",    
+                        "KrakenSkulls",
+                        "KeganHollern",
+                        "EinfachRobin",
+                        "RubberbandMan",
+                        "PhillipeCartel",
+                        "AntiSocialYogg",
+                        "CaptainCuddles",
+                        "ThatProfileName",
+                        "ChainsawSquirrel",
+                        "Meeooowtaaastiic"
+                    ]
+                }
+            ]
+        },
+		{
+            "DepartmentName": "#legal_notices",
+            "Sections": [
+                {
+                    "SectionName": "Our work is licensed under:",
+                    "SectionLines": [
+                        "Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)"
+                    ]
+                },
+				{
+                    "SectionName": "Font Awesome",
+                    "SectionLines": [
+                        "© Fonticons, Inc."
+                    ]
+                },
+				{
+                    "SectionName": "Flaticon",
+                    "SectionLines": [
+						"Some icons used are made by Pixel perfect from www.flaticon.com",
+                        "Copyright © 2013-2020 Freepik Company S.L. All rights reserved."
+                    ]
+                },
+                {
+                    "SectionName": "Allegorithmic",
+                    "SectionLines": [
+                        "Copyright © 2020 Adobe. All rights reserved."
+                    ]
+                }
+            ]
+        }
+    ]
+}

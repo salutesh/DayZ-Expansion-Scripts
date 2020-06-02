@@ -1,0 +1,77 @@
+[
+	{
+		"m_Headline": "#str_hint_notarunner0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_notarunner1"
+	},
+	{
+		"m_Headline": "#str_hint_goinland0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_goinland1"
+	},	
+	{
+		"m_Headline": "#str_hint_mytrustyknife0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_mytrustyknife1"
+	},
+	{
+		"m_Headline": "#str_hint_patchyourselfup0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_patchyourselfup1"
+	},
+	{
+		"m_Headline": "#str_hint_theapple0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_theapple1"
+	},
+	{
+		"m_Headline": "#str_hint_gunjam0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_gunjam1"
+	},	
+	{
+		"m_Headline": "#str_hint_badblood0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_badblood1"
+	},	
+	{
+		"m_Headline": "#str_hint_infectedslayer0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_infectedslayer1"
+	},	
+	{
+		"m_Headline": "#str_hint_hope0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_hope1"
+	},	
+	{
+		"m_Headline": "#str_hint_handyman0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_handyman1"
+	},	
+	{
+		"m_Headline": "#str_hint_navigator0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_navigator1"
+	},	
+	{
+		"m_Headline": "#str_hint_beans0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_beans1"
+	},	
+	{
+		"m_Headline": "#str_hint_weather0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_weather1"
+	},	
+	{
+		"m_Headline": "#str_hint_nutrition0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_nutrition1"
+	},	
+	{
+		"m_Headline": "#str_hint_nighttime0",
+		"m_ImagePath": "",
+		"m_Description": "#str_hint_nighttime1"
+	}
+]
