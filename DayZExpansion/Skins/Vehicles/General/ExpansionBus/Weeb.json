@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "body",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\Bus\\Data\\bus_weeb_exterior_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\Bus\\Data\\bus_weeb_exterior.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

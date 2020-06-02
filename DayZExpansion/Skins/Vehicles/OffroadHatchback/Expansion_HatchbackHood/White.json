@@ -1,0 +1,41 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "dmgZone_doors",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\white\\niva_hood.rvmat"
+		}
+	],
+	"DamageZones": [
+		{
+			"Zone": "Doors",
+			"HiddenSelections": [
+				"dmgZone_doors"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\white\\niva_hood.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\white\\niva_hood.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\white\\niva_hood_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\white\\niva_hood_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\white\\niva_hood_destruct.rvmat"
+				}
+			]
+		}
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}
