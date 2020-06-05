@@ -114,23 +114,20 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------	
 	void LoadMapExtentions()
 	{
+		if (!GetExpansionSettings().GetMap())
+			return;
+		
 		// Marker creation Window
-		if (GetExpansionSettings() && GetExpansionSettings().GetMap().CanCreateMarker)
-		{
-			if (!m_MarkerWindow)	
-			{			
-				m_MarkerWindow = new ExpansionMapMenuMarkerWindow(layoutRoot, this, m_MapWidget);
-				m_MarkerWindow.ShowMarkerWindow(false);
-			}
+		if (!m_MarkerWindow)	
+		{			
+			m_MarkerWindow = new ExpansionMapMenuMarkerWindow(layoutRoot, this, m_MapWidget);
+			m_MarkerWindow.ShowMarkerWindow(false);
 		}
 		
 		// Map player position Arrow
-		if (GetExpansionSettings() && GetExpansionSettings().GetMap().ShowPlayerPosition)
+		if (!m_MapPositionArrow)
 		{
-			if (!m_MapPositionArrow)
-			{
-				m_MapPositionArrow = new ExpansionMapMenuPositionArrow(layoutRoot, this);
-			}
+			m_MapPositionArrow = new ExpansionMapMenuPositionArrow(layoutRoot, this);
 		}
 	}
 	
@@ -322,12 +319,14 @@ class ExpansionMapMenu extends UIScriptedMenu
 			}
 			
 			// Party member Markers
-			if ( GetExpansionSettings() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
+			if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
 			{
-				PlayerBase m_Player = PlayerBase.Cast( GetGame().GetPlayer() );		
+				PlayerBase m_Player = PlayerBase.Cast( GetGame().GetPlayer() );	
 
 				if ( m_Player )
 				{
+					vector selfPosition = m_Player.GetPosition();	
+					
 					ref array< ref ExpansionPartySaveFormatPlayer > players = m_PartyModule.GetParty().GetPlayers();
 					if (players)
 					{
@@ -339,7 +338,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 							if ( currPlayer.UID != m_Player.GetIdentityUID() )
 							{
 								PlayerBase player = PlayerBase.GetPlayerByUID(currPlayer.UID);
-								if (player)
+								if (player && vector.Distance( player.GetPosition(), selfPosition) <= GetExpansionSettings().GetMap().DistanceForPartyMarkers)
 								{
 									ExpansionMapMenuPlayerMarker playerMarker = new ExpansionMapMenuPlayerMarker(layoutRoot, m_MapWidget, player );
 									m_MapPartyPlayerMarkers.Insert(playerMarker);
@@ -467,7 +466,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 		if ( !GetExpansionClientSettings().Show2DGlobalMarkers )
 			return;
 
-		if ( GetExpansionSettings() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowServerMarkers )
+		if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowServerMarkers )
 		{
 			ExpansionMapMarker currentMarker;
 			ExpansionMapMenuServerMarker mapMarker;
@@ -792,7 +791,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 		{
 			if ( w == m_MapWidget && GetExpansionSettings().GetMap().CanCreateMarker )
 			{
-				GetGame().GetMousePos (mouse_x, mouse_y );
+				GetGame().GetMousePos(mouse_x, mouse_y );
 				m_PositionCreateMarker = m_MapWidget.ScreenToMap( Vector( mouse_x, mouse_y, 0 ) );
 
 				if ( m_TempMarker )
@@ -811,7 +810,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 
 		if (button == MouseState.LEFT && !GetMarkerWindow().GetArrowColorPanelState())
 		{
-			if ((w == GetPlayerPositionArrow().GetArrowWidget()) && GetExpansionSettings().GetMap().ShowPlayerPosition)
+			if (w == GetPlayerPositionArrow().GetArrowWidget())
 			{
 				GetMarkerWindow().ShowArrowColorPanel(true);
 				
@@ -873,26 +872,34 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		UpdateMapPosition();
 
-		if( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
+		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
 			Hide();
 			Close();
 		}		
 		
-		if( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.75 && !m_MarkerWindow.GetMarkerWindowState() )
+		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.75 && !m_MarkerWindow.GetMarkerWindowState() )
 		{
 			Hide();
 			Close();
 		}
 		
-		if( GetGame().GetInput().LocalPress( "UAExpansionMapDeleteMarker", false ) )
+		if ( GetGame().GetInput().LocalPress( "UAExpansionMapDeleteMarker", false ) )
 		{
 			RemoveMarker();
 		}
 		
-		if( layoutRoot.IsVisible() )
+		if ( layoutRoot.IsVisible() )
 		{
-			m_MarkerWindow.ShowPartyMarkerOption( m_PartyModule.HasParty() );
+			//! Marker
+			if (GetExpansionSettings().GetMap())
+			{
+				m_MarkerWindow.ShowPartyMarkerOption( m_PartyModule.HasParty() && GetExpansionSettings().GetMap().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties );
+				m_MarkerWindow.Show3DMarkerOption(GetExpansionSettings().GetMap().CanCreate3DMarker);
+			}
+			
+			m_MarkerWindow.RefreshPositionValue();
+			m_MarkerWindow.UpdateVisiblityOptionsHeader();
 			
 			for (int i = 0; i < m_MapMarkers.Count(); ++i)
 			{

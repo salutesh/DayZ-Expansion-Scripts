@@ -23,7 +23,7 @@ modded class Land_House_1W08
 		SpawnInteriorObject( "ExpansionPropPetCarrier", "6.452236 0.339996 3.596090", "97.000015 0.000000 0.000000", -1 );
 		SpawnInteriorObject( "ExpansionPropBin", "4.934920 -1.709999 3.344626", "-74.000000 0.000000 0.000000", 0.7 );
 		SpawnInteriorObject( "ExpansionPropBleach", "4.869251 -1.790001 3.994313", "-46.999992 0.000000 0.000000", 0.7 );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "-0.948960 0.250076 4.225716", "179.999924 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "-0.948960 0.250076 4.225716", "179.999924 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_switch_lights", "-0.524806 -0.680008 4.345000", "90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_light_kitchen_03", "5.685676 -0.079971 2.425008", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "5.027799 -0.580002 0.175000", "-90.000000 0.000000 0.000000" );
@@ -33,7 +33,7 @@ modded class Land_House_1W08
 		SpawnInteriorObject( "ExpansionPropShelf3", "6.447513 -0.899994 1.475894", "0.000000 0.000000 0.000000", 0.6 );
 		SpawnInteriorObject( "ExpansionPropTackleBox2", "6.020502 -1.769997 3.395480", "167.000015 0.000000 0.000000", 0.65 );
 		SpawnInteriorObject( "bldr_carpet_big", "0.414586 -1.880081 2.628098", "92.000031 0.000000 0.000000", 0.7 );
-		SpawnInteriorObject( "ExpansionPropClampLight2", "1.701040 0.220001 4.225716", "179.999924 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight2", "1.701040 0.220001 4.225716", "179.999924 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_light_kitchen_03", "-0.373348 -0.079971 -0.800035", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "4.485000 -0.580002 0.965262", "179.998993 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_kitchen_unit_a_dz", "0.700000 -1.900009 -0.113271", "0.000000 0.000000 0.000000" );

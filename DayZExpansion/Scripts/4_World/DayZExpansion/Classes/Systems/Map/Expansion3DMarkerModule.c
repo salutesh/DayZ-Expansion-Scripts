@@ -12,7 +12,8 @@
 
 class Expansion3DMarkerModule: JMModuleBase
 {
-    protected autoptr array< ref Expansion3DMarker > m_Markers;
+    protected autoptr array< ref Expansion3DMarker > 	m_Markers;
+	protected bool										m_ShowMarkers;
 	
 	// ------------------------------------------------------------
 	// Expansion3DMarkerModule Constructor
@@ -20,7 +21,18 @@ class Expansion3DMarkerModule: JMModuleBase
     void Expansion3DMarkerModule()
     {
         m_Markers = new array< ref Expansion3DMarker >;
+		m_ShowMarkers = true;
     }
+	
+	void ToggleShowMaarkers()
+	{
+		m_ShowMarkers = !m_ShowMarkers;
+	}
+	
+	bool GetShowMarkers()
+	{
+		return m_ShowMarkers;
+	}
 	
 	override bool IsEnabled()
 	{
@@ -142,6 +154,7 @@ class Expansion3DMarkerModule: JMModuleBase
             return;
 
         selfUID = player.GetIdentityUID();
+		vector selfPosition = player.GetPosition();
 		
 		ref ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
 
@@ -158,7 +171,7 @@ class Expansion3DMarkerModule: JMModuleBase
 		                if ( !currPlayer || currPlayer.UID == selfUID ) continue;
 		
 						PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
-						if (partyPlayer && partyPlayer.IsAlive())
+						if (partyPlayer && partyPlayer.IsAlive() && vector.Distance( partyPlayer.GetPosition(), selfPosition) <= GetExpansionSettings().GetMap().DistanceForPartyMarkers)
 						{
 							//TODO: add it back when exp hit : GetExpansionClientSettings().RedColorHUDOnTopOfHeadOfPlayers
 							Create3DMarker( currPlayer.Name, "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", ARGB( 255, 255, 180, 24), vector.Zero, partyPlayer, "0 0.25 0", partyPlayer.GetBoneIndexByName( "Head" ) );
@@ -213,7 +226,7 @@ class Expansion3DMarkerModule: JMModuleBase
 			ref Expansion3DMarker marker = m_Markers[i];
 			if (!marker)
 			{
-				m_Markers.Remove(i);
+				m_Markers.RemoveOrdered(i);
 				//We do i-- because we need to stay at the same position, because we have removed one marker
 				i--;
 				delete marker;

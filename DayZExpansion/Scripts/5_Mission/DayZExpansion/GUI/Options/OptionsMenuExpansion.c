@@ -102,7 +102,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 		GetExpansionClientSettings().Save();
 
 		//GetGame().GetWorld().SetPreferredViewDistance(GetExpansionClientSettings().DrawDistance);
-		GetGame().GetWorld().SetPreferredViewDistance(1600.0);
+		//GetGame().GetWorld().SetPreferredViewDistance(1600.0);
 
 		PPEffects.UpdateSaturation();
 		PPEffects.UpdateVignette();

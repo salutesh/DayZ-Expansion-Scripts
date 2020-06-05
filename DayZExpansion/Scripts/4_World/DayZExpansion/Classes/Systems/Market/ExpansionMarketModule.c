@@ -510,10 +510,10 @@ class ExpansionMarketModule: JMModuleBase
 
 		if ( vehicle.CanBeLocked() )
 		{
-			ExpansionCarKeys key;
-			if ( !Class.CastTo( key, parent.GetInventory().CreateInInventory( "ExpansionCarKeys" ) ) )
+			ExpansionCarKey key;
+			if ( !Class.CastTo( key, parent.GetInventory().CreateInInventory( "ExpansionCarKey" ) ) )
 			{
-				Class.CastTo( key, GetGame().CreateObject( "ExpansionCarKeys", parent.GetPosition() ) );
+				Class.CastTo( key, GetGame().CreateObject( "ExpansionCarKey", parent.GetPosition() ) );
 			}
 
 			if ( key )

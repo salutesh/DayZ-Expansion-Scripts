@@ -35,8 +35,6 @@ class ExpansionBoatScript extends OffroadHatchback
 	private bool m_UseBoatController;
 
 	private bool m_MotorOn;
-
-	private bool m_ShouldSimulate;
 	
 	// ------------------------------------------------------------
 	//! Effects
@@ -329,9 +327,9 @@ class ExpansionBoatScript extends OffroadHatchback
 		// stabilize
 		if ( buoyancyForce > 0 )
 		{
-			// https://www.youtube.com/watch?v=weUDuqA6dF4 
+			// https://www.youtube.com/watch?v=weUDuqA6dF4?t=9
 			vector upWanted = Vector( 0, 1, 0 );
-			vector estOrient = GetEstimatedOrientation( pDt ).data[1];
+			vector estOrient = GetEstimatedOrientation( 0.025 ).data[1];
 
 			vector stabilize = vector.Zero;
 			stabilize[0] = upWanted[0] - estOrient[0];

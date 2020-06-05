@@ -252,4 +252,19 @@ modded class MissionServer
 		EXPrint("MissionServer::SetStartingGear - End");
 		#endif
 	}
+	
+	override void HandleBody(PlayerBase player)
+	{
+		player.SetAllowDamage(true);
+		
+		super.HandleBody(player);
+	}
+	
+	override void OnClientRespawnEvent(PlayerIdentity identity, PlayerBase player)
+	{
+		if (player)
+			player.SetAllowDamage(true);
+		
+		super.OnClientRespawnEvent(identity, player);
+	}
 }

@@ -35,7 +35,7 @@ class ExpansionMerlin: ExpansionHelicopterScript
 		m_AltitudeFullForce							= 1000.0;
 		m_AltitudeNoForce							= 2000.0;
 
-		m_EngineStartDuration						= 5.0;
+		m_EngineStartDuration						= 20.0;
 
 		m_MinAutoRotateSpeed						= 2.0;
 		m_MaxAutoRotateSpeed						= 10.0;
@@ -51,12 +51,12 @@ class ExpansionMerlin: ExpansionHelicopterScript
 
 		m_CyclicForwardSpeed						= 10.0;
 		m_CyclicForwardMax							= 1.0;
-		m_CyclicForwardCoef							= 1.6;
+		m_CyclicForwardCoef							= 0.4;
 
 		m_AntiTorqueSpeed							= 1.5;
 		m_AntiTorqueMax								= 0.04;
 
-		m_BankForceCoef								= 0.7;
+		m_BankForceCoef								= 0.2;
 		m_TailForceCoef								= 8.0;
 
 		RegisterNetSyncVariableBool( "m_MonitorEnabled" );

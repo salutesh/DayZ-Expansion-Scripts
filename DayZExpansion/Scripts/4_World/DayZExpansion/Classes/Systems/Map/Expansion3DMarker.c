@@ -116,11 +116,31 @@ class Expansion3DMarker extends UIScriptedMenu
 
     void UpdateUI()
     {
+		if (!layoutRoot)
+		{
+			Close();
+            return;
+		}
+		
         if ( m_UsingLinkedObject && m_LinkedObject == NULL )
         {
             Close();
             return;
         }
+		
+		Hud inGameHUD = GetGame().GetMission().GetHud();
+        if ( inGameHUD && !inGameHUD.GetHudState() )
+        {
+            layoutRoot.Show( false );
+            return;
+        }
+		
+		Expansion3DMarkerModule module;
+		if ( !Class.CastTo( module, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) || !module.GetShowMarkers() )
+		{
+			layoutRoot.Show( false );
+            return;
+		}
 
         vector worldPosition;
 
@@ -161,19 +181,6 @@ class Expansion3DMarker extends UIScriptedMenu
         m_MarkerText.SetColor( ARGB(alpha, 255, 255, 255) );
         m_MarkerDistanceText.SetColor( ARGB(alpha, 255, 255, 255) );
         m_MarkerIcon.SetColor( ARGB(alpha, m_RedColor, m_GreenColor, m_BlueColor) );
-
-        Hud inGameHUD;
-        Mission mission = Mission.Cast( GetGame().GetMission() );
-		if( mission )
-		{
-            inGameHUD = mission.GetHud();
-        }
-
-        if ( layoutRoot && inGameHUD && !inGameHUD.GetHudState() )
-        {
-            layoutRoot.Show( false );
-            return;
-        }
 
         if ( layoutRoot && !layoutRoot.IsVisible() )
             layoutRoot.Show( true );

@@ -20,6 +20,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	protected SliderWidget m_MarkerColorGreenSlider;
 	protected SliderWidget m_MarkerColorBlueSlider;
 	protected SliderWidget m_MarkerAlphaSlider;
+	protected TextWidget m_OptionsHeaderText;
 	protected Widget m_PartyOptionsPanel;
 	protected CheckBoxWidget m_PartyMarkerCheckBox;
 	protected Widget m_3DOptionsPanel;
@@ -90,6 +91,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 		m_MarkerColorBlueSlider = SliderWidget.Cast( m_Root.FindAnyWidget( "marker_color_blue_setting_slider" ) );
 		m_MarkerAlphaSlider	= SliderWidget.Cast( m_Root.FindAnyWidget( "marker_alpha_setting_slider" ) );
 
+		m_OptionsHeaderText = TextWidget.Cast( m_Root.FindAnyWidget( "marker_options_header_text" ) );
 		m_PartyOptionsPanel = Widget.Cast( m_Root.FindAnyWidget( "marker_party_option" ) );
 		m_PartyMarkerCheckBox = CheckBoxWidget.Cast( m_Root.FindAnyWidget( "marker_party_option_checkbox" ) );
 		m_3DOptionsPanel = Widget.Cast( m_Root.FindAnyWidget( "marker_3D_option" ) );
@@ -165,25 +167,22 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	// Expansion FillMarkerList
 	// ! Fills the marker list with entrys for each marker in m_MarkersIconList
 	// ------------------------------------------------------------
-	void FillMarkerList(array<ref ExpansionMarkerIcon> icons)
+	void FillMarkerList(ref array<ref ExpansionMarkerIcon> icons)
 	{
 		GridSpacerWidget markerGrid = GridSpacerWidget.Cast(m_Root.FindAnyWidget("marker_icons_content"));
 		if (markerGrid && icons)
 		{
-			if (icons.Count() > 0)
+			for (int i = 0; i < icons.Count(); ++i)
 			{
-				for (int i = 0; i < icons.Count(); ++i)
+				ExpansionMarkerIcon currentIcon = icons.Get(i);
+				if (currentIcon)
 				{
-					ExpansionMarkerIcon currentIcon = icons.Get(i);
-					if (currentIcon)
-					{
-						ExpansionMapMenuMarkerEntry markerEntry = new ExpansionMapMenuMarkerEntry(m_MarkerEntrysGrid, currentIcon, this);
-						m_MarkerIconsEntrys.Insert(markerEntry);
+					ExpansionMapMenuMarkerEntry markerEntry = new ExpansionMapMenuMarkerEntry(m_MarkerEntrysGrid, currentIcon, this);
+					m_MarkerIconsEntrys.Insert(markerEntry);
 
-						//Set by default the first marker entry
-						if (i == 0)
-							SetMarkerSelection( markerEntry );
-					}
+					//Set by default the first marker entry
+					/*if (i == 0)
+						SetMarkerSelection( markerEntry );*/
 				}
 			}
 		}
@@ -287,7 +286,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void UpdateMarkerPreview()
 	{
-		if (GetSelecterMarker().GetMarkerData().Path != "")
+		if (m_CurrentSelectedMarker && m_CurrentSelectedMarker.GetMarkerData().Path != "")
 		{
 			m_MarkerIconPreview.LoadImageFile(0, GetSelecterMarker().GetMarkerData().Path);
 			m_MarkerIconPreview.Show(true);
@@ -348,7 +347,15 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	{
 		m_3DOptionsPanel.Show(state);
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateVisiblityOptionsHeader
+	// ------------------------------------------------------------	
+	void UpdateVisiblityOptionsHeader()
+	{
+		m_OptionsHeaderText.Show( m_PartyOptionsPanel.IsVisible() || m_3DOptionsPanel.IsVisible() );
+	}
+	
 	// ------------------------------------------------------------
 	// Expansion CreateMarker
 	// Events when marker creation button is clicked
@@ -357,7 +364,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	{
 		int minNameLength = 3;
 		int maxNameLength = 15;
-		TStringArray allowedCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," ","-","?","!","&"}
+		TStringArray allowedCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," ","-","?","!","&"};
 
 		string markerName 	= m_MarkerNameEditBox.GetText();
 		
@@ -383,7 +390,6 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 		if (markerName.Length() < minNameLength || markerName.Length() > maxNameLength) 
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_NAME_LENGHT" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5 );
-			
 			return;
 		}
 
@@ -393,13 +399,12 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 			if (allowedCharacters.Find(markerName.Get(i)) == -1)
 			{
 				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_ILLEGAL_CHARACTER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5 );
-				
 				return;
 			}
 		}
 
 		//! Check if a marker icon is selected
-		if (!m_MarkerIconIndex || m_MarkerIconIndex <= 0)
+		if ( m_MarkerIconIndex <= 0 )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_MARKER_NO_MARKER_SELECTED" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5 );
 			
@@ -647,7 +652,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	{
 		int minNameLength = 3;
 		int maxNameLength = 15;
-		TStringArray allowedCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," "}
+		TStringArray allowedCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," "};
 
 		string markerName = m_MarkerNameEditBox.GetText();
 		m_MarkerIconIndex = GetSelecterMarker().GetMarkerIconIndex();
@@ -940,21 +945,6 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 		z = Math.Round(positionCursor[2]);
 		
 		m_MapStatsCursorPositionValue.SetText( x.ToString() + " : " + z.ToString() );
-	}
-	
-	//============================================
-	// Expansion Update
-	//============================================
-	override bool OnUpdate(Widget w)
-	{
-		if (GetMapStatWindowState())
-		{
-			RefreshPositionValue();
-			
-			return true;
-		}
-
-		return super.OnUpdate(w);
 	}
 
 	// ------------------------------------------------------------

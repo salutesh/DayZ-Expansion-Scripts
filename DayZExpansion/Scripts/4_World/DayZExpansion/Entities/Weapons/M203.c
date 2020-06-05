@@ -243,13 +243,17 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 				PlayerBase player = PlayerBase.Cast( nearest_object );
 				if ( player )
 				{
-					if ( !player.FindAttachmentBySlotName("Mask").IsKindOf("GasMask") && !player.FindAttachmentBySlotName("Mask").IsKindOf("GP5GasMask") && !player.FindAttachmentBySlotName("Mask").IsKindOf("Expansion_Gasmask")  )
+					EntityAI foundMask = player.FindAttachmentBySlotName("Mask"); 
+					if ( foundMask != NULL) 
 					{
-						player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
-						player.AddHealth("","Shock", -20);
+						if ( foundMask.IsKindOf("GasMask") && foundMask.IsKindOf("GP5GasMask") && foundMask.IsKindOf("Expansion_Gasmask")  )
+						{
+							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
+							player.AddHealth("","Shock", -20);
 
-						Print("Teargas MakePlayerCough Player has no mask");
-					}
+							Print("Teargas MakePlayerCough Player has no mask");
+						}
+					};
 				}
 			}	
 		}

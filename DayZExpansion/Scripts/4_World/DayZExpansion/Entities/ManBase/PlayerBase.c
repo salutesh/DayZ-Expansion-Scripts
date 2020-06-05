@@ -63,8 +63,8 @@ modded class PlayerBase
 	protected string m_PlayerSteam;
 	protected string m_PlayerName;
 
-	private static ref map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
-	private static ref array< PlayerBase > m_AllPlayers = new array< PlayerBase >;
+	private static autoptr map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
+	private static autoptr array< PlayerBase > m_AllPlayers = new array< PlayerBase >;
 
 	protected bool m_HasMap;
 	protected bool m_HasGPS;
@@ -80,7 +80,7 @@ modded class PlayerBase
 
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredClientInit );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.DeferredClientInit, 100, false );
 		}
 
 		m_SafeZone = false;
@@ -101,6 +101,8 @@ modded class PlayerBase
 
 		m_HasMap = false;
 		m_HasGPS = false;
+		
+		m_AllPlayers.Insert( this );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
@@ -191,7 +193,7 @@ modded class PlayerBase
 			//! Print( "Player Has Entered Network Bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
 		}
 
-		if ( GetGame() && IsMissionClient() && !IsMissionHost() && GetModuleManager() )
+		if ( GetGame() && IsMissionClient() && GetModuleManager() )
 		{
 			Expansion3DMarkerModule module;
 			if ( Class.CastTo( module, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
@@ -220,8 +222,6 @@ modded class PlayerBase
 				mod.SpawnMoney( PlayerBase.Cast(GetGame().GetPlayer()), 14555.9 );
 			}
 		}
-
-		m_AllPlayers.Insert( this );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::DeferredClientInit - End");

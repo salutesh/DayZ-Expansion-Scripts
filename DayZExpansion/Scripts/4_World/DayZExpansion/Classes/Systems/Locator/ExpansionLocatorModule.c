@@ -15,9 +15,9 @@
  **/
 class ExpansionLocatorModule: JMModuleBase
 {
-	protected ref array<ref ExpansionLocatorArray> m_AreaArray;
+	protected autoptr array<ref ExpansionLocatorArray> m_AreaArray;
 	protected string m_CurrentAreaName;
-	protected ref ExpansionLocatorUI m_UICallback;
+	protected autoptr ExpansionLocatorUI m_UICallback;
 		
 	// ------------------------------------------------------------
 	// ExpansionLocatorModule Constructor
@@ -26,7 +26,7 @@ class ExpansionLocatorModule: JMModuleBase
 	{
 		m_AreaArray = new array< ref ExpansionLocatorArray >;
 		m_CurrentAreaName = "";
-		m_UICallback = NULL;
+		m_UICallback = null;
 	}
 	
 	// ------------------------------------------------------------
@@ -34,7 +34,6 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ~ExpansionLocatorModule()
 	{
-		delete m_AreaArray;
 	}
 	
 	// ------------------------------------------------------------
@@ -42,12 +41,12 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{		
-		if ( IsMissionClient() && m_UICallback == NULL )
+		if ( IsMissionClient() && !m_UICallback )
 		{
 			m_UICallback = new ExpansionLocatorUI();
 			GetWorldLocations();
 			
-			GetGame().GameScript.Call( this, "ThreadLocator", NULL );
+			GetGame().GameScript.Call( this, "ThreadLocator", null );
 		}
 	}
 	
@@ -64,7 +63,7 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	private int GetRadius( string type )
 	{
-		switch( type )
+		switch ( type )
 		{
 			case "Capital":
 			{
@@ -86,11 +85,8 @@ class ExpansionLocatorModule: JMModuleBase
 			{
 				return 100;
 			}
-			default:
-			{
-				return 100;
-			}
 		}
+		
 		return 100;
 	}
 
@@ -120,7 +116,7 @@ class ExpansionLocatorModule: JMModuleBase
 				return;
 			}
 
-			if ( GetExpansionSettings() && !GetExpansionSettings().GetGeneral().PlayerLocationNotifier )
+			if ( GetExpansionSettings().GetGeneral() && !GetExpansionSettings().GetGeneral().PlayerLocationNotifier )
 			{
 				nmbError++;
 				Sleep( 10000 );
@@ -140,34 +136,31 @@ class ExpansionLocatorModule: JMModuleBase
 	{
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		if ( !player )
-		{
 			return;
-		}
 		
-		ExpansionLocatorArray currentLocation;
-		float shortestDistance = 1000000;
+		ref ExpansionLocatorArray shortestLocation;
+		float shortestDistance = 2147483645;
 
-		for ( int j = 0; j < m_AreaArray.Count(); j++ )
+		for ( int j = 0; j < m_AreaArray.Count(); ++j )
 		{
-			float distance = vector.Distance( player.GetPosition(), m_AreaArray[j].position );
+			float distance = vector.Distance( player.GetPosition() * "1 0 1", m_AreaArray[j].position );
 
 			if ( distance <= shortestDistance )
 			{
 				shortestDistance = distance;
-				currentLocation = m_AreaArray[j];
+				shortestLocation = m_AreaArray[j];
 			}
 		}
 
-		if ( currentLocation == null )
+		if ( !shortestLocation )
 		{
 			m_CurrentAreaName = "";
 		} 
-		else if ( m_CurrentAreaName != currentLocation.name )
+		else if ( shortestDistance <= GetRadius( shortestLocation.type ) )
 		{
-			if ( shortestDistance <= GetRadius( currentLocation.type ) )
+			if ( m_CurrentAreaName != shortestLocation.name )
 			{
-				m_CurrentAreaName = currentLocation.name;
-
+				m_CurrentAreaName = shortestLocation.name;
 				m_UICallback.OnShowCityClient( m_CurrentAreaName );
 			} 
 			else
@@ -183,37 +176,44 @@ class ExpansionLocatorModule: JMModuleBase
 	private void GetWorldLocations()
     {    
         string location_config_path = "CfgWorlds " + GetGame().GetWorldName() + " Names";
-        int classNamesCount = g_Game.ConfigGetChildrenCount( location_config_path );
+        int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );
         
 		for ( int l = 0; l < classNamesCount; ++l ) 
         {
 			string location_class_name;
-			g_Game.ConfigGetChildName( location_config_path, l, location_class_name );
+			GetGame().ConfigGetChildName( location_config_path, l, location_class_name );
 
 			string location_class_name_path = location_config_path + " " + location_class_name;
 
-			string location_type_path = location_class_name_path + " " + "type";
-			string location_name_path = location_class_name_path + " " + "name";
-			string location_position_path = location_class_name_path + " " + "position";
+			string location_type_path = location_class_name_path + " type";
+			string location_name_path = location_class_name_path + " name";
+			string location_position_path = location_class_name_path + " position";
 
 			string location_type;
 			string location_name;
 			GetGame().ConfigGetText( location_type_path, location_type );
 			GetGame().ConfigGetText( location_name_path, location_name );
 
-			vector location_position = GetGame().ConfigGetVector( location_position_path );
+			TFloatArray location_position = new TFloatArray;
+			GetGame().ConfigGetFloatArray( location_position_path, location_position );
+			
+			if (location_position.Count() != 2)
+			{
+				Error("ExpansionLocatorModule::GetWorldLocations location_position.Count() != 2 count : " + location_position.Count());
+				continue;
+			}
 
 			if ( location_type.Contains( "LocalOffice" ) )
-				return;
+				continue;
 			
 			if ( location_type.Contains( "ViewPoint" ) )
-				return;
+				continue;
 			
 			if ( location_type.Contains( "RailroadStation" ) )
-				return;
+				continue;
 
 			if ( location_class_name.Contains( "ZalivGuba" ) )
-				return;
+				continue;
 			
 			if ( location_class_name.Contains( "Dubovo" ) )
 				location_type = "Village";

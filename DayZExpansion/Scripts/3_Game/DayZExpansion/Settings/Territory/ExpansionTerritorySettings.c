@@ -17,6 +17,8 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 {
 	bool EnableTerritories;
 	bool UseWholeMapForInviteList; // Use it if you want whole map available in invite list, instead only nearby players
+	float TerritorySize;
+	int MaxMembersInTerritory; // If <= 0, unlimited territory size
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -98,6 +100,8 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 	{
 		EnableTerritories = s.EnableTerritories;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
+		TerritorySize = s.TerritorySize;
+		MaxMembersInTerritory = s.MaxMembersInTerritory;
     }
 	
 	// ------------------------------------------------------------
@@ -160,6 +164,8 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		
 		EnableTerritories = true;
 		UseWholeMapForInviteList = false;
+		TerritorySize = 150.0;
+		MaxMembersInTerritory = 10;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionTerritorySettings::Defaults - End");

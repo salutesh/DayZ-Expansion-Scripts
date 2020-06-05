@@ -321,14 +321,11 @@ class ExpansionMapMarkerModule: JMModuleBase
             marker = new ExpansionMapMarker( name, iconIndex, position, color, false, marker3D );
             AddMarker( marker );
 			
-			if ( GetGame().GetUIManager().IsMenuOpen( MENU_EXPANSION_MAP ) )
-	        {
-	            UIScriptedMenu mapM = GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP );
-	            if ( mapM )
-	            {
-	                mapM.Refresh();
-	            }
-	        }
+			UIScriptedMenu mapM = GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP );
+            if ( mapM )
+            {
+                mapM.Refresh();
+            }
 			
 			if ( marker3D )
 			{

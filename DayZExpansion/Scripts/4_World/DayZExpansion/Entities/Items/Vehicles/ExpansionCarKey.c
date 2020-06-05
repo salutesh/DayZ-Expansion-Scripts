@@ -1,5 +1,5 @@
 /*
- * ExpansionCarKeys.c
+ * ExpansionCarKey.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-enum ExpansionCarKeysRPC
+enum ExpansionCarKeyRPC
 {
 	NONE,
 	RequestItemData = 20602,
@@ -18,8 +18,27 @@ enum ExpansionCarKeysRPC
 	COUNT
 }
 
-class ExpansionCarKeys extends ItemBase
+class ExpansionCarKey extends ItemBase
 {
+	protected static autoptr array<ExpansionCarKey> m_AllKeys = new array<ExpansionCarKey>;
+	
+	static ExpansionCarKey GetKeyByVehicle( CarScript vehicle )
+	{
+		if (!vehicle)
+			return null;
+		
+		for ( int i = 0; i < m_AllKeys.Count(); ++i )
+		{
+			if (!m_AllKeys[i] || !m_AllKeys[i].IsPaired())
+				continue;
+			
+			if ( m_AllKeys[i].IsPairedTo( vehicle ) )
+				return m_AllKeys[i];
+		}
+		
+		return null;
+	}
+	
 	protected int m_VehicleIDA = 0;
 	protected int m_VehicleIDB = 0;
 	protected int m_VehicleIDC = 0;
@@ -28,9 +47,9 @@ class ExpansionCarKeys extends ItemBase
 	protected string m_VehicleDisplayName;
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys Constructor
+	// ExpansionCarKey Constructor
 	// ------------------------------------------------------------
-	void ExpansionCarKeys()
+	void ExpansionCarKey()
 	{
 		RegisterNetSyncVariableInt( "m_VehicleIDA" );
 		RegisterNetSyncVariableInt( "m_VehicleIDB" );
@@ -38,6 +57,16 @@ class ExpansionCarKeys extends ItemBase
 		RegisterNetSyncVariableInt( "m_VehicleIDD" );
 
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
+		
+		m_AllKeys.Insert(this);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCarKey DeConstructor
+	// ------------------------------------------------------------
+	void ~ExpansionCarKey()
+	{
+		m_AllKeys.RemoveItem(this);
 	}
 
 	// ------------------------------------------------------------
@@ -54,7 +83,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys GetDisplayName
+	// ExpansionCarKey GetDisplayName
 	// ------------------------------------------------------------
 	override string GetDisplayName()
 	{
@@ -62,45 +91,65 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys PairToVehicle
+	// ExpansionCarKey PairToVehicle
 	// ------------------------------------------------------------
 	void PairToVehicle( CarScript vehicle )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKeys::PairToVehicle - Start vehicle : " + vehicle);
+		EXLogPrint("ExpansionCarKey::PairToVehicle - Start vehicle : " + vehicle);
 		#endif
 		
 		m_VehicleIDA = vehicle.GetPersistentIDA();
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKeys::PairToVehicle - m_VehicleIDA : " + m_VehicleIDA);
+		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDA : " + m_VehicleIDA);
 		#endif
 		
 		m_VehicleIDB = vehicle.GetPersistentIDB();
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKeys::PairToVehicle - m_VehicleIDB : " + m_VehicleIDB);
+		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDB : " + m_VehicleIDB);
 		#endif
 		
 		m_VehicleIDC = vehicle.GetPersistentIDC();
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKeys::PairToVehicle - m_VehicleIDC : " + m_VehicleIDC);
+		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDC : " + m_VehicleIDC);
 		#endif
 		
 		m_VehicleIDD = vehicle.GetPersistentIDD();
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKeys::PairToVehicle - m_VehicleIDD : " + m_VehicleIDD);
+		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDD : " + m_VehicleIDD);
 		#endif
 
 		m_VehicleDisplayName = vehicle.ConfigGetString( "displayName" );
+		
+		PlayerBase ownerPlayer = GetHierarchyRootPlayer();
+		if ( ownerPlayer && ownerPlayer.GetIdentity() )
+			RPC_RequestItemData( ownerPlayer.GetIdentity() );
 
 		SetSynchDirty();
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKeys::PairToVehicle - End vehicle : " + vehicle);
+		EXLogPrint("ExpansionCarKey::PairToVehicle - End vehicle : " + vehicle);
 		#endif
 	}
 	
+	void UnPair()
+	{
+		m_VehicleIDA = 0;
+		m_VehicleIDB = 0;
+		m_VehicleIDC = 0;
+		m_VehicleIDD = 0;
+		
+		m_VehicleDisplayName = ConfigGetString( "displayName" );
+		
+		PlayerBase ownerPlayer = GetHierarchyRootPlayer();
+		if ( ownerPlayer && ownerPlayer.GetIdentity() )
+			RPC_RequestItemData( ownerPlayer.GetIdentity() );
+		
+		SetSynchDirty();
+	}
+	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys PairToVehicle
+	// ExpansionCarKey PairToVehicle
 	// ------------------------------------------------------------
 	void PairToVehicle( ExpansionVehicleScript vehicle )
 	{
@@ -122,23 +171,23 @@ class ExpansionCarKeys extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionCarKeys IsPaired
+	// ExpansionCarKey IsPaired
 	// ------------------------------------------------------------
 	bool IsPaired()
 	{
 		if ( m_VehicleIDA != 0 && m_VehicleIDB != 0 && m_VehicleIDC != 0 && m_VehicleIDD != 0 )
 		{
-			//KeyMessage("ExpansionCarKeys::IsPaired true");
+			//KeyMessage("ExpansionCarKey::IsPaired true");
 			return true;
 		}
 		
-		//KeyMessage("ExpansionCarKeys::IsPaired false");
+		//KeyMessage("ExpansionCarKey::IsPaired false");
 
 		return false;
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys IsPairedTo
+	// ExpansionCarKey IsPairedTo
 	// ------------------------------------------------------------
 	bool IsPairedTo( CarScript vehicle )
 	{
@@ -166,7 +215,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys IsPairedTo
+	// ExpansionCarKey IsPairedTo
 	// ------------------------------------------------------------
 	bool IsPairedTo( ExpansionVehicleScript vehicle )
 	{
@@ -175,7 +224,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys OnStoreSave
+	// ExpansionCarKey OnStoreSave
 	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
@@ -189,7 +238,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys OnStoreLoad
+	// ExpansionCarKey OnStoreLoad
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
@@ -215,7 +264,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys OnItemLocationChanged
+	// ExpansionCarKey OnItemLocationChanged
 	// ------------------------------------------------------------
 	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner ) 
 	{
@@ -231,7 +280,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys OnRPC
+	// ExpansionCarKey OnRPC
 	// ------------------------------------------------------------		
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
 	{
@@ -239,12 +288,12 @@ class ExpansionCarKeys extends ItemBase
 		
 		switch (rpc_type)
 		{
-			case ExpansionCarKeysRPC.RequestItemData:
+			case ExpansionCarKeyRPC.RequestItemData:
 			{
-				RPC_RequestItemData( ctx, sender );
+				RPC_RequestItemData( sender );
 				break;
 			}
-			case ExpansionCarKeysRPC.SendItemData:
+			case ExpansionCarKeyRPC.SendItemData:
 			{
 				RPC_SendItemData( ctx, sender );
 				break;
@@ -253,7 +302,7 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys RPC_SendItemData
+	// ExpansionCarKey RPC_SendItemData
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_SendItemData( ref ParamsReadContext ctx, PlayerIdentity senderRPC )
@@ -263,18 +312,18 @@ class ExpansionCarKeys extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys RPC_RequestItemData
+	// ExpansionCarKey RPC_RequestItemData
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestItemData( ref ParamsReadContext ctx, PlayerIdentity senderRPC )
+	private void RPC_RequestItemData( PlayerIdentity senderRPC )
 	{
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write( m_VehicleDisplayName );
-		rpc.Send( this, ExpansionCarKeysRPC.SendItemData, true, senderRPC );
+		rpc.Send( this, ExpansionCarKeyRPC.SendItemData, true, senderRPC );
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys SendItemData
+	// ExpansionCarKey SendItemData
 	// Called on client
 	// ------------------------------------------------------------
 	void RequestItemData()
@@ -282,7 +331,7 @@ class ExpansionCarKeys extends ItemBase
 		if ( IsMissionClient() )
 		{
 			ScriptRPC rpc = new ScriptRPC();
-			rpc.Send( this, ExpansionCarKeysRPC.RequestItemData, true, NULL );
+			rpc.Send( this, ExpansionCarKeyRPC.RequestItemData, true, NULL );
 		}
 	}
 }

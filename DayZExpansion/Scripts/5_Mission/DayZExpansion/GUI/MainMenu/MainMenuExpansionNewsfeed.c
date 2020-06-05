@@ -57,7 +57,7 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_MainText2.Show(false);
 		m_SecText2.Show(false);
 		
-		ShowNewsfeed();
+		//ShowNewsfeed();
 		
 		m_Root.SetHandler( this );
 	}

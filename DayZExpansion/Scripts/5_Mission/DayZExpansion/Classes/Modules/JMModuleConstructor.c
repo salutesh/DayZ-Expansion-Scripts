@@ -20,7 +20,7 @@ modded class JMModuleConstructor
 		#ifdef EXPANSION_MARKET
 		// modules.Insert( ExpansionMarketModule );			
 		#endif		
-		// modules.Insert( ExpansionSafeZoneModule );
+		modules.Insert( ExpansionSafeZoneModule );
 		modules.Insert( ExpansionLocatorModule );
 		modules.Insert( ExpansionPartyModule );
 		modules.Insert( ExpansionMissionModule ); 

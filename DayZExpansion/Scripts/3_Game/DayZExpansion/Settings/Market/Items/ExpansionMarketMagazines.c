@@ -64,7 +64,7 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		AddItem("Mag_Expansion_M9_15Rnd", 		5,		7,		1,		250,	0 );
 		AddItem("Mag_Expansion_MPX_40Rnd", 		20,		22,		1,		250,	0 );
 		AddItem("Mag_Expansion_MPX_50Rnd", 		22,		24,		1,		250,	0 );
-		AddItem("Mag_Expansion_Keldr_20Rnd", 	15,		17,		1,		250,	0 );
+		AddItem("Mag_Expansion_Kedr_20Rnd", 	15,		17,		1,		250,	0 );
 		AddItem("Mag_Expansion_AWM_5Rnd", 		15,		17,		1,		250,	0 );
 	}
 }

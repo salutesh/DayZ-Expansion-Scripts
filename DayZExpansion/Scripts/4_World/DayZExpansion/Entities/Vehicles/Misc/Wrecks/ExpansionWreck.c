@@ -63,7 +63,6 @@ class ExpansionWreck: Container_Base
             {
                 GetGame().ObjectDelete( m_Crater );
             }
-            
         }
     }
 

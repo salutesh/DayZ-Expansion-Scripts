@@ -107,7 +107,7 @@ class Land_City_Hospital extends BuildingSuper
 		SpawnInteriorObject("bldr_flowers_02", "20.311176 2.161507 5.701402", "36.000000 0.000000 0.000000");
 		SpawnInteriorObject("bldr_flowers_01", "16.473728 2.667900 5.687332", "0.000000 0.000000 0.000000");
 		SpawnInteriorObject("bldr_fluor_lamp", "15.315670 0.211388 0.860523", "-36.999996 17.999990 164.000015");
-		SpawnInteriorObject("bldr_box_c_multi", "18.519211 3.330002 -1.186070", "-6.000000 0.000000 0.000000");
+		SpawnInteriorObject("bldr_box_c_multi", "18.519211 3.330002 -1.186070", "0.000000 0.000000 0.000000", 0.40 );
 		SpawnInteriorObject("bldr_hospital_transport_bed", "-6.556181 -6.985001 6.509215", "-20.000032 0.000000 -92.500000");
 		SpawnInteriorObject("bldr_hospital_transport_bed", "-4.927142 -7.355003 6.231168", "14.000003 0.000000 0.000000");
 		SpawnInteriorObject("bldr_Rubble_Glass", "-6.260639 -7.332108 7.168685", "153.000031 0.000000 0.000000");

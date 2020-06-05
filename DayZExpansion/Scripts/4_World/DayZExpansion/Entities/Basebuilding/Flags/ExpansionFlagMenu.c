@@ -200,6 +200,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		//! Call request of territory creation
 		if ( m_CurrentFlag && !m_CurrentFlag.IsTerritoryFlag() )
 		{
+			ChangeFlag();
 			m_TerritoryModule.CreateTerritory( territoryName, m_CurrentFlag );
 		}
 	}
@@ -273,7 +274,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	override void Update( float timeslice )
 	{
 		Input input = GetGame().GetInput();
-		if (input.LocalPress("UAUIBack", false) || input.LocalHold("UAExpansionMapToggle", false))
+		if (input.LocalPress("UAUIBack", false))
 		{			
 			Close();
 			return;

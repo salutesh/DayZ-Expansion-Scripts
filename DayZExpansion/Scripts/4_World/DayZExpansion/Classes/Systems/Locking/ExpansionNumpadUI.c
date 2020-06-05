@@ -48,7 +48,7 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 	
 	void ExpansionNumpadUI()
 	{
-		m_CodeLength = 4; // use settings for this later
+		m_CodeLength = 4;
 
 		m_Target = NULL;
 		m_Selection = "";
@@ -133,6 +133,11 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 		super.OnShow();
 
 		SetFocus( layoutRoot );
+		
+		m_CodeLength = 4;
+		
+		if (GetExpansionSettings().GetBaseBuilding())
+			m_CodeLength = GetExpansionSettings().GetBaseBuilding().CodeLockLength;
 	}
 
 	override Widget Init()

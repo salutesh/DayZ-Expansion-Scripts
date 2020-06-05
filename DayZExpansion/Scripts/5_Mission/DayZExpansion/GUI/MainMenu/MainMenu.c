@@ -99,9 +99,9 @@ modded class MainMenu
 		m_NewsFeedRoot.GetPos(feed_x, feed_y);
 		
 		//! Add Expansion newsfeed
-		m_ExpansionNewsFeedRoot	= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/newsfeed.layout", layoutRoot );
-		m_ExpansionNewsFeedRoot.SetPos(feed_x, feed_y);
-		m_ExpansionNewsfeed	= new MainMenuExpansionNewsfeed( m_ExpansionNewsFeedRoot.FindAnyWidget( "news_feed_root" ) );
+		//m_ExpansionNewsFeedRoot	= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/newsfeed.layout", layoutRoot );
+		//m_ExpansionNewsFeedRoot.SetPos(feed_x, feed_y);
+		//m_ExpansionNewsfeed	= new MainMenuExpansionNewsfeed( m_ExpansionNewsFeedRoot.FindAnyWidget( "news_feed_root" ) );
 		
 		Refresh();
 		
@@ -273,7 +273,7 @@ modded class MainMenu
 		SetFocus( null );
 		OnChangeCharacter();
 		LoadMods();
-		ShowNewsfeed();
+		//ShowNewsfeed();
 		HideModWarning();
 		CheckLicenze();
 

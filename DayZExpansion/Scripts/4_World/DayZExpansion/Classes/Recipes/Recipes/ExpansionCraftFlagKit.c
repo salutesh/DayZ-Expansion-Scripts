@@ -28,13 +28,13 @@ class ExpansionCraftFlagKit extends RecipeBase
 		m_MaxDamageIngredient[0] = 3;
 		
 		m_MinQuantityIngredient[0] = 2;
-		m_MaxQuantityIngredient[0] = 2;
+		m_MaxQuantityIngredient[0] = -1;
 		
 		m_MinDamageIngredient[1] = -1;
 		m_MaxDamageIngredient[1] = 3;
 		
 		m_MinQuantityIngredient[1] = 1;
-		m_MaxQuantityIngredient[1] = 1;
+		m_MaxQuantityIngredient[1] = -1;
 		
 		//----------------------------------------------------------------------------------------------------------------------
 		
@@ -48,7 +48,7 @@ class ExpansionCraftFlagKit extends RecipeBase
 		m_IngredientUseSoftSkills[0] = false;
 		
 		//! Ingredient 2
-		InsertIngredient(1, "Rope"); //! You can insert multiple ingredients this way
+		InsertIngredient(1, "Rag"); //! You can insert multiple ingredients this way
 		
 		m_IngredientAddHealth[1] = 0;
 		m_IngredientSetHealth[1] = -1; 
@@ -73,7 +73,7 @@ class ExpansionCraftFlagKit extends RecipeBase
 
     override bool CanDo(ItemBase ingredients[], PlayerBase player)
 	{
-		bool canCraft = GetExpansionSettings().GetBaseBuilding().CanCraftExpansionBasebuilding;
+		bool canCraft = GetExpansionSettings().GetBaseBuilding().CanCraftTerritoryFlag;
 
 		if ( canCraft )
 		{

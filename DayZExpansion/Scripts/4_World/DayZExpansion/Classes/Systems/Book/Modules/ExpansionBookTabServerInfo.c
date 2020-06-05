@@ -15,14 +15,14 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 	protected int COLOR_EXPANSION_SERVERINFO_BOOKMARK_ICON = ARGB( 255, 26, 188, 156 );
 	
 	protected TextWidget m_book_ServerName;
-	protected GridSpacerWidget m_book_ServerDescriptionRoot;
+	protected Widget m_book_ServerDescriptionRoot;
 	
-	protected TextWidget m_book_ServerDescriptionTitle1;
-	protected TextWidget m_book_ServerDescriptionText1;
-	protected TextWidget m_book_ServerDescriptionTitle2;
-	protected TextWidget m_book_ServerDescriptionText2;
-	protected TextWidget m_book_ServerDescriptionTitle3;
-	protected TextWidget m_book_ServerDescriptionText3;
+	protected HtmlWidget m_book_ServerDescriptionTitle1;
+	protected HtmlWidget m_book_ServerDescriptionText1;
+	protected HtmlWidget m_book_ServerDescriptionTitle2;
+	protected HtmlWidget m_book_ServerDescriptionText2;
+	protected HtmlWidget m_book_ServerDescriptionTitle3;
+	protected HtmlWidget m_book_ServerDescriptionText3;
 	protected ref ExpansionServerInfos m_ServerInfo;
 	
 	protected ButtonWidget m_book_ServerPageButton;
@@ -97,15 +97,15 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 			m_book_PlayerCountPanel.Show( true );
 		}
 		
-		m_book_ServerDescriptionRoot			= GridSpacerWidget.Cast( m_RootLayout.FindAnyWidget( "server_description_content" ) );
+		m_book_ServerDescriptionRoot			= m_RootLayout.FindAnyWidget( "server_description_content" );
 		if (m_book_ServerDescriptionRoot)
 		{
-			m_book_ServerDescriptionTitle1 			= TextWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_T1" ) );
-			m_book_ServerDescriptionText1 			= TextWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_C1" ) );
-			m_book_ServerDescriptionTitle2 			= TextWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_T2" ) );
-			m_book_ServerDescriptionText2 			= TextWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_C2" ) );
-			m_book_ServerDescriptionTitle3 			= TextWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_T3" ) );
-			m_book_ServerDescriptionText3 			= TextWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_C3" ) );
+			m_book_ServerDescriptionTitle1 			= HtmlWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_T1" ) );
+			m_book_ServerDescriptionText1 			= HtmlWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_C1" ) );
+			m_book_ServerDescriptionTitle2 			= HtmlWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_T2" ) );
+			m_book_ServerDescriptionText2 			= HtmlWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_C2" ) );
+			m_book_ServerDescriptionTitle3 			= HtmlWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_T3" ) );
+			m_book_ServerDescriptionText3 			= HtmlWidget.Cast( m_book_ServerDescriptionRoot.FindAnyWidget( "server_info_C3" ) );
 		}
 		
 		LoadServerInfos();
@@ -236,7 +236,7 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	override bool CanBeShow()
 	{
-		return GetExpansionSettings().GetBook().EnableServerInfoTab;
+		return (GetExpansionSettings().GetBook().EnableServerInfoTab && !GetExpansionClientSettings().StreamerMode);
 	}
 	
 	// ------------------------------------------------------------

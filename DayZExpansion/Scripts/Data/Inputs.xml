@@ -62,6 +62,8 @@
             <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" />
 
 			<input name="UAExpansionChatToggle" loc="STR_EXPANSION_TOGGLE_CHAT" />
+			
+			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
 
 			<input name="UAExpansionSampleMenuToggle" visible="false" />
         </actions>
@@ -276,6 +278,9 @@
         </input>
 		<input name="UAExpansionChatToggle">
             <btn name="kSlash" />
+        </input>
+		<input name="UAExpansion3DMarkerToggle">
+            <btn name="kK" />
         </input>
     </preset>
 </modded_inputs>

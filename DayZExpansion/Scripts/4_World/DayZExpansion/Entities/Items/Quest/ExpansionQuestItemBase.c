@@ -98,7 +98,7 @@ class ExpansionQuestItemBase extends GiftBox_Base
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys EEInventoryIn
+	// ExpansionCarKey EEInventoryIn
 	// ------------------------------------------------------------	
 	override void EEInventoryIn(Man newParentMan, EntityAI diz, EntityAI newParent)
 	{
@@ -106,7 +106,7 @@ class ExpansionQuestItemBase extends GiftBox_Base
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCarKeys EEInventoryOut
+	// ExpansionCarKey EEInventoryOut
 	// ------------------------------------------------------------	
 	override void EEInventoryOut(Man oldParentMan, EntityAI diz, EntityAI newParent)
 	{

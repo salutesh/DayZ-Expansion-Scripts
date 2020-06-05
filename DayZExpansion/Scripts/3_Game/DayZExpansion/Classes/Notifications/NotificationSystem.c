@@ -100,12 +100,27 @@ modded class NotificationSystem
 		EXLogPrint("NotificationSystem::CreateNotification title.GetText() : " + title.GetText());
 		#endif
 		
+		bool joinNotif = false;
+		bool leaveNotif = false;
+				
 		//! Don't show player notification if setting is off, same with leave notification
-		if ((title.GetText() == "STR_EXPANSION_PLAYER_JOINED_TITLE" && !GetExpansionClientSettings().NotificationJoin) || (title.GetText() == "STR_EXPANSION_PLAYER_LEFT_TITLE" && !GetExpansionClientSettings().NotificationLeave))
+		if (title.GetText() == "STR_EXPANSION_PLAYER_JOINED_TITLE")
+			joinNotif = true;
+		
+		if (title.GetText() == "STR_EXPANSION_PLAYER_LEFT_TITLE")
+			leaveNotif = true;
+		
+		if ( joinNotif && !GetExpansionClientSettings().NotificationJoin )
 			return;
+		
+		if ( leaveNotif && !GetExpansionClientSettings().NotificationLeave )
+			return;
+		
+		bool leaveJoinNotif = joinNotif || leaveNotif;
 		
 		ref NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
 		data.SetColor( color );
+		data.m_LeaveJoinNotif = leaveJoinNotif;
 
         AddNotif( data );
 		

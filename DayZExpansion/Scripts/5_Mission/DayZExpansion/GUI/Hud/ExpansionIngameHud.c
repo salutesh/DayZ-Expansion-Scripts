@@ -26,6 +26,7 @@ class ExpansionIngameHud
 	protected bool											m_ExpansionClockState;
 	protected bool											m_ExpansionHumanityState;
 	protected bool											m_ExpansionEarplugState;
+	protected float											m_ExpansionEarplugVolume;
 	protected bool 											m_ExpansionGPSSetting;
 	protected bool											m_ExpansionGPSPosSetting;
 	protected bool											m_ExpansionNVSetting;
@@ -113,6 +114,9 @@ class ExpansionIngameHud
 		m_MapServerMarkers = new array<ref ExpansionMapMenuServerMarker>;
 		m_MapSavedServerMarkers = new array<ref ExpansionMapMarker>;
 		m_MapPartyPlayerMarkers = new array<ref ExpansionMapMenuPlayerMarker>;
+		
+		
+		m_ExpansionEarplugVolume = 0.05;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
@@ -263,7 +267,7 @@ class ExpansionIngameHud
 		if ( !GetExpansionClientSettings().Show2DGlobalMarkers )
 			return;
 
-		if ( GetExpansionSettings() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowServerMarkers )
+		if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowServerMarkers )
 		{
 			ExpansionMapMarker currentMarker;
 			ExpansionMapMenuServerMarker mapMarker;
@@ -311,7 +315,7 @@ class ExpansionIngameHud
 			}
 			
 			// Party member Markers
-			if ( GetExpansionSettings() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
+			if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
 			{
 				PlayerBase m_Player = PlayerBase.Cast( GetGame().GetPlayer() );		
 
@@ -545,7 +549,7 @@ class ExpansionIngameHud
 		m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
 		if ( m_ExpansionEarplugState )
 		{
-			GetGame().GetSoundScene().SetSoundVolume( 0.05, 1 );
+			GetGame().GetSoundScene().SetSoundVolume( m_ExpansionEarplugVolume, 1 );
 		}
 		else
 		{
@@ -1011,6 +1015,15 @@ class ExpansionIngameHud
 	void ToggleEarplugs()
 	{
 		m_ExpansionEarplugState = !m_ExpansionEarplugState;
+		RefreshExpansionHudVisibility();
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetEarplugsVolume
+	// ------------------------------------------------------------
+	void AddEarplugsVolume(float value)
+	{
+		m_ExpansionEarplugVolume = Math.Clamp( m_ExpansionEarplugVolume + value, 0.0, 1.0 );
 		RefreshExpansionHudVisibility();
 	}
 	

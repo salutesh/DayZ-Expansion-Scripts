@@ -10,6 +10,7 @@
  *
 */
 
+/*
 modded class ActionBuildPartCB
 {
 	override void CreateActionComponent()
@@ -20,6 +21,7 @@ modded class ActionBuildPartCB
 		m_ActionData.m_ActionComponent = new CAContinuousTime( 0.1 );
 	}
 }
+*/
 
 modded class ActionBuildPart
 {

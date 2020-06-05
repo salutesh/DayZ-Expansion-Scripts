@@ -418,7 +418,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		vector position = territory.GetPosition();
 		array<Object> objects = new array<Object>;
 		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( position, ExpansionTerritoryModule.m_TerritorySize_MAX, objects, proxyCargos );
+		GetGame().GetObjectsAtPosition3D( position, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
 		
 		if ( objects && objects.Count() > 0 )
 		{

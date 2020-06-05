@@ -53,6 +53,14 @@ class ExpansionTerritory
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion NumberOfMembers
+	// ------------------------------------------------------------
+	int NumberOfMembers()
+	{
+		return TerritoryMembers.Count();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion AddMember
 	// ------------------------------------------------------------
 	void AddMember(string id, string name, bool owner = false)

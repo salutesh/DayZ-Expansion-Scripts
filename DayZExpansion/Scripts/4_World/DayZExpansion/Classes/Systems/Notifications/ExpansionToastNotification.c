@@ -168,7 +168,7 @@ class ExpansionNotificationUI extends ScriptedWidgetEventHandler
 		
 		UpdateElements();
 
-		if ( GetExpansionClientSettings() && GetExpansionClientSettings().ShowNotifications && GetExpansionClientSettings().NotificationSound && GetGame() && GetGame().GetPlayer() )
+		if ( GetExpansionClientSettings().ShowNotifications && GetExpansionClientSettings().NotificationSound && GetGame() && GetGame().GetPlayer() && ( !m_Data.m_LeaveJoinNotif || ( m_Data.m_LeaveJoinNotif && GetExpansionClientSettings().NotificationSoundLeaveJoin ) ) )
 		{
 			SEffectManager.PlaySoundOnObject("Expansion_Hint_Sound_SoundSet", GetGame().GetPlayer(), 0, 0.15, false );
 		}

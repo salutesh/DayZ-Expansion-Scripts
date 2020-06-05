@@ -15,7 +15,7 @@
  **/
 class ExpansionSafeZoneModule: JMModuleBase
 {
-	private ExpansionSafeZoneSettings m_Settings;
+	private autoptr ExpansionSafeZoneSettings m_Settings;
 
 	override void OnMissionLoaded()
 	{
@@ -29,11 +29,6 @@ class ExpansionSafeZoneModule: JMModuleBase
 	override bool IsClient()
 	{
 		return false;
-	}
-	
-	override bool IsEnabled()
-	{
-		return m_Enabled && m_Settings.Enabled;
 	}
 
 	bool IsInside( vector position )
@@ -98,7 +93,7 @@ class ExpansionSafeZoneModule: JMModuleBase
 				if ( !polyZone )
 					continue;
 
-				array< ref vector > polygonPosition = polyZone.Positions;
+				ref TVectorArray polygonPosition = polyZone.Positions;
 					
 				for ( int k = 0, l = polygonPosition.Count() - 1; k < polygonPosition.Count(); ++k)
 				{
@@ -210,8 +205,8 @@ class ExpansionSafeZoneModule: JMModuleBase
 		while ( true )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneModule:: ThreadSafeZone - Start");
-		#endif
+			EXPrint("ExpansionSafeZoneModule:: ThreadSafeZone - Start");
+			#endif
 
 			if ( !IsEnabled() )
 			{

@@ -34,6 +34,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		super.SetActions();
 
 		AddAction( ExpansionActionEnterCodeLock );
+		AddAction( ExpansionActionChangeCodeLock );
 	}
 
 	override string GetConstructionKitType()
@@ -79,6 +80,20 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		super.AfterStoreLoad();
 		
 		UpdateVisuals();	
+	}
+
+	override bool CanReleaseAttachment( EntityAI attachment )
+	{
+		if ( attachment.IsInherited( ExpansionCodeLock ) )
+		{
+			ExpansionCodeLock codelock = ExpansionCodeLock.Cast( attachment );
+			if ( !codelock.IsLocked() )
+			{
+				return true;
+			}
+		}
+
+		return super.CanReleaseAttachment( attachment );
 	}
 
 	override bool HasCodeLock( string selection )
@@ -216,6 +231,17 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		}
 
 		return true;
+	}
+	
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+		
+		if ( item && (slot_name == "Att_ExpansionCodeLock_1" || slot_name == "Att_ExpansionCodeLock_2") && HasCode() )
+		{
+			//Reset code on the building
+			SetCode("");
+		}
 	}
 	
 	override bool CanDisplayAttachmentCategory( string category_name )

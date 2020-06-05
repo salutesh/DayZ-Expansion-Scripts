@@ -35,13 +35,13 @@ class Land_House_2B04 extends BuildingSuper
 		SpawnInteriorObject( "bldr_couch_dz", "7.849232 -5.760002 4.110126", "90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_case_bedroom_a", "7.772810 -5.458954 5.308692", "0.000000 0.023906 0.000014" );
 		SpawnInteriorObject( "bldr_flowers_02", "7.708210 -5.741486 2.534368", "133.999954 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "8.164967 -3.799927 -0.917621", "-89.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "8.164968 -3.800003 1.687030", "-90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight2", "8.164914 -3.800003 4.019087", "-90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "8.164968 -3.800003 6.328601", "-90.000000 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "8.164967 -3.799927 -0.917621", "-89.000000 0.000000 -179.999998" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "8.164968 -3.800003 1.687030", "-90.000000 0.000000 -179.999998" );
+		SpawnInteriorObject( "ExpansionPropClampLight2", "8.164914 -3.800003 4.019087", "-90.000000 0.000000 -179.999998" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "8.164968 -3.800003 6.328601", "-90.000000 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_switch_lights", "4.931149 -4.392883 -2.540000", "-90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "6.562960 -4.400002 7.555000", "90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "3.975600 -2.541740 1.240000", "-90.000000 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "3.975600 -2.541740 1.240000", "-90.000000 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_switch_lights", "-0.096499 -1.691475 1.873713", "90.000038 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_almara", "3.090000 -5.790001 7.170000", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_tac_board_posters_level2", "1.924980 -4.791290 2.231000", "-179.999985 0.000000 0.000000" );

@@ -27,14 +27,14 @@ class ExpansionCraftWallKit extends RecipeBase
 		m_MinDamageIngredient[0] = -1;
 		m_MaxDamageIngredient[0] = 3;
 		
-		m_MinQuantityIngredient[0] = 2;
-		m_MaxQuantityIngredient[0] = 2;
+		m_MinQuantityIngredient[0] = 1;
+		m_MaxQuantityIngredient[0] = -1;
 		
 		m_MinDamageIngredient[1] = -1;
 		m_MaxDamageIngredient[1] = 3;
 		
-		m_MinQuantityIngredient[1] = 2;
-		m_MaxQuantityIngredient[1] = 2;
+		m_MinQuantityIngredient[1] = 1;
+		m_MaxQuantityIngredient[1] = -1;
 		
 		//----------------------------------------------------------------------------------------------------------------------
 		
@@ -61,10 +61,10 @@ class ExpansionCraftWallKit extends RecipeBase
 		//! Result
 		AddResult("ExpansionWallKit"); //! Add results here
 
-		m_ResultSetFullQuantity[0] = true;
+		m_ResultSetFullQuantity[0] = false;
 		m_ResultSetQuantity[0] = 1;
 		m_ResultSetHealth[0] = -1;
-		m_ResultInheritsHealth[0] = -1;
+		m_ResultInheritsHealth[0] = -2;
 		m_ResultInheritsColor[0] = -1;
 		m_ResultToInventory[0] = -2;
 		m_ResultUseSoftSkills[0] = false;
@@ -89,6 +89,6 @@ class ExpansionCraftWallKit extends RecipeBase
 
 	override void Do(ItemBase ingredients[], PlayerBase player,array<ItemBase> results, float specialty_weight) //! Gets called upon recipe's completion
 	{
-		Debug.Log( "Recipe Do method called", "recipes" );
+		Debug.Log("Recipe Do method called", "recipes" );
 	}
 }

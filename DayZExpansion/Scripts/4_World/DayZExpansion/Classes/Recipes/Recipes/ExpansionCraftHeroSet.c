@@ -121,34 +121,34 @@ class ExpansionCraftHeroSet extends RecipeBase
 
 		ItemBase item1 = ItemBase.Cast( player.GetInventory().CreateInInventory( "UKAssVest_Black" ) );
         if ( !item1 )
-            item1 = ExpansionCarKeys.Cast( GetGame().CreateObject( "UKAssVest_Black", player.GetPosition() ) );
+            item1 = ExpansionCarKey.Cast( GetGame().CreateObject( "UKAssVest_Black", player.GetPosition() ) );
 
 		ItemBase item2 = ItemBase.Cast( player.GetInventory().CreateInInventory( "Jeans_Black" ) );
         if ( !item2 )
-            item2 = ExpansionCarKeys.Cast( GetGame().CreateObject( "Jeans_Black", player.GetPosition() ) );
+            item2 = ExpansionCarKey.Cast( GetGame().CreateObject( "Jeans_Black", player.GetPosition() ) );
 
 		ItemBase item3 = ItemBase.Cast( player.GetInventory().CreateInInventory( "Shirt_WhiteCheck" ) );
         if ( !item3 )
-            item3 = ExpansionCarKeys.Cast( GetGame().CreateObject( "Shirt_WhiteCheck", player.GetPosition() ) );
+            item3 = ExpansionCarKey.Cast( GetGame().CreateObject( "Shirt_WhiteCheck", player.GetPosition() ) );
 
 		ItemBase item4 = ItemBase.Cast( player.GetInventory().CreateInInventory( "BaseballCap_Beige" ) );
         if ( !item4 )
-            item4 = ExpansionCarKeys.Cast( GetGame().CreateObject( "BaseballCap_Beige", player.GetPosition() ) );
+            item4 = ExpansionCarKey.Cast( GetGame().CreateObject( "BaseballCap_Beige", player.GetPosition() ) );
 
 		ItemBase item5 = ItemBase.Cast( player.GetInventory().CreateInInventory( "DesignerGlasses" ) );
         if ( !item5 )
-            item5 = ExpansionCarKeys.Cast( GetGame().CreateObject( "DesignerGlasses", player.GetPosition() ) );
+            item5 = ExpansionCarKey.Cast( GetGame().CreateObject( "DesignerGlasses", player.GetPosition() ) );
 
 		ItemBase item6 = ItemBase.Cast( player.GetInventory().CreateInInventory( "CoyoteBag_Brown" ) );
         if ( !item6 )
-            item6 = ExpansionCarKeys.Cast( GetGame().CreateObject( "CoyoteBag_Brown", player.GetPosition() ) );
+            item6 = ExpansionCarKey.Cast( GetGame().CreateObject( "CoyoteBag_Brown", player.GetPosition() ) );
 
 		ItemBase item7 = ItemBase.Cast( player.GetInventory().CreateInInventory( "CombatBoots_Black" ) );
         if ( !item7 )
-            item7 = ExpansionCarKeys.Cast( GetGame().CreateObject( "CombatBoots_Black", player.GetPosition() ) );
+            item7 = ExpansionCarKey.Cast( GetGame().CreateObject( "CombatBoots_Black", player.GetPosition() ) );
 
 		ItemBase item8 = ItemBase.Cast( player.GetInventory().CreateInInventory( "ExpansionShemag" ) );
         if ( !item8 )
-            item8 = ExpansionCarKeys.Cast( GetGame().CreateObject( "ExpansionShemag", player.GetPosition() ) );
+            item8 = ExpansionCarKey.Cast( GetGame().CreateObject( "ExpansionShemag", player.GetPosition() ) );
 	}
 }

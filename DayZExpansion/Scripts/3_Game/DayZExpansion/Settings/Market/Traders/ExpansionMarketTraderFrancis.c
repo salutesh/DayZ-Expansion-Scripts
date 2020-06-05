@@ -48,7 +48,7 @@ class ExpansionMarketTraderFrancis: ExpansionMarketTrader
 		AddItem("Mag_UMP_25Rnd");
 		AddItem("Mag_VSS_10Rnd");
 		
-		AddItem("Mag_Expansion_Keldr_20Rnd");
+		AddItem("Mag_Expansion_Kedr_20Rnd");
 		AddItem("Mag_Expansion_MPX_40Rnd");
 		AddItem("Mag_Expansion_MPX_50Rnd");
 		AddItem("Mag_Expansion_AWM_5Rnd");

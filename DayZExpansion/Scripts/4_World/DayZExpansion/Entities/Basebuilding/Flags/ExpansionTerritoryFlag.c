@@ -34,6 +34,9 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		RegisterNetSyncVariableInt( "m_TerritoryID" );
 		SetEventMask( EntityEvent.INIT );
 		
+		//Make it invicible
+		SetAllowDamage(false);
+		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryFlag::ExpansionTerritoryFlag - End");
 		#endif

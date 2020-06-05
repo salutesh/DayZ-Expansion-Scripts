@@ -15,14 +15,14 @@
  **/
 class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 {
-	ref array<ref vector> Positions;
+	autoptr TVectorArray Positions;
 	vector CenterPolygon;
 	float RadiusPolygon;
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionSafeZonePolygon
 	// ------------------------------------------------------------
-    void ExpansionSafeZonePolygon( ref array<ref vector> positions )
+    void ExpansionSafeZonePolygon( ref TVectorArray positions )
 	{
         Type = ExpansionSafeZoneTypes.POLYGON;
         Positions = positions;

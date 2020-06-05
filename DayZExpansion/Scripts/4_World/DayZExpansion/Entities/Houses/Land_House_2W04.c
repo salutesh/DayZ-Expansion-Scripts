@@ -27,9 +27,9 @@ class Land_House_2W04 extends BuildingSuper
 		SpawnInteriorObject( "bldr_switch_lights", "2.038327 0.602684 4.808000", "90.000038 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "4.070000 0.602684 5.164487", "0.000000 -0.000002 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "-2.185590 -3.899933 -0.431000", "-90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "-1.496232 -2.000969 -0.352506", "0.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight2", "-5.140000 -3.060791 0.383008", "90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "-5.140000 -3.070000 3.612909", "90.000000 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "-1.496232 -2.000969 -0.352506", "0.000000 0.000000 -179.999998" );
+		SpawnInteriorObject( "ExpansionPropClampLight2", "-5.140000 -3.060791 0.383008", "90.000000 0.000000 -179.999998" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "-5.140000 -3.070000 3.612909", "90.000000 0.000000 -179.999998" );
 		SpawnInteriorObject( "Broom", "-2.710567 -3.994888 4.560000", "-52.999996 0.000000 -170.999954" );
 		SpawnInteriorObject( "ExpansionPropTrashBarrel1", "-4.958586 -4.809998 3.188791", "45.000145 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_wall_board_02", "-5.258430 -5.168098 0.399763", "90.000015 0.000000 -2.000000" );

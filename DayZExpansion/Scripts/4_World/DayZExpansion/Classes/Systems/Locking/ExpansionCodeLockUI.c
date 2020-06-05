@@ -12,6 +12,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 	protected string m_Code;
 	protected int m_CodeLength;
 	protected bool m_HasPin;
+	protected bool m_RpcChange;
 	
 	protected ButtonWidget m_Button0;
 	protected TextWidget m_Button0_Text;
@@ -51,7 +52,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 	
 	void ExpansionCodeLockUI()
 	{
-		m_CodeLength = 4; // use settings for this later
+		m_CodeLength = 4;
 
 		m_Target = NULL;
 		m_Selection = "";
@@ -90,6 +91,11 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 			m_TextCodePanel.SetText( "Error #1" );
 		}
 	}
+
+	void SetChangeCodelock( bool state )
+	{
+		m_RpcChange = state;
+	}
 	
 	override void SetTarget( ItemBase target, string selection )
 	{
@@ -123,6 +129,8 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
         int rpcType = ExpansionLockRPC.UNLOCK;
 		if ( !m_HasPin )
             rpcType = ExpansionLockRPC.SET;
+		if ( m_RpcChange )
+			rpcType = ExpansionLockRPC.CHANGE;
 
 		rpc.Write( m_Code );
 		rpc.Write( m_Selection );
@@ -134,6 +142,11 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 		super.OnShow();
 
 		SetFocus( layoutRoot );
+		
+		m_CodeLength = 4;
+		
+		if (GetExpansionSettings().GetBaseBuilding())
+			m_CodeLength = GetExpansionSettings().GetBaseBuilding().CodeLockLength;
 	}
 
 	override Widget Init()

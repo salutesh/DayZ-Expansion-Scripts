@@ -416,16 +416,7 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		float explosionDamageMultiplier = GetExpansionSettings().GetBaseBuilding().ExplosionDamageMultiplier; 
 		float projectileDamageMultiplier = GetExpansionSettings().GetBaseBuilding().ProjectileDamageMultiplier; 
 
-		bool canRaid = GetExpansionSettings().GetBaseBuilding().CanRaid;
 
-		if ( !canRaid )
-			return;
-
-		if ( !CanBeDamaged() )
-			return;
-
-		if ( source.IsInherited( CarScript ) )
-			return;
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);	
 
@@ -470,16 +461,6 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	//================================================================
 	override void EEKilled( Object killer )
 	{
-		bool canRaid = GetExpansionSettings().GetBaseBuilding().CanRaid;
-
-		if ( !canRaid )
-			return;
-
-		if ( !CanBeDamaged() )
-			return;
-
-		if ( killer.IsInherited( CarScript ) )
-			return;
 
 		super.EEKilled( killer );
 	}

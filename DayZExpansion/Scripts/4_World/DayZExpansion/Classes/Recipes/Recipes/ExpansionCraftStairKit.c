@@ -17,7 +17,7 @@ class ExpansionCraftStairKit extends RecipeBase
 {	
 	override void Init()
 	{
-		m_Name = "#STR_USRACT_CRAFT_WOOD_STAIRS_KIT";
+		m_Name = "#STR_USRACT_CRAFT_STAIRS_KIT";
 		
 		m_IsInstaRecipe = false;
 		m_AnimationLength = 1.5;

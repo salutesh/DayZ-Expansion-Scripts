@@ -63,11 +63,25 @@ class ExpansionActionClose: ActionInteractBase
 			attachment = m_ExBB.GetInventory().GetAttachmentFromIndex( j );
 			if ( attachment.GetType() == "ExpansionCodeLock" )
 			{
-				if ( !m_ExBB.IsLocked() )
+				if ( m_ExBB.IsInherited( ExpansionWallBase ) )
 				{
-					m_ExBB.Lock();
+					ExpansionWallBase wallBase = ExpansionWallBase.Cast( m_ExBB );
+					if ( wallBase )
+					{
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( LockLater, 1000, false, wallBase );
+					}
 				}
 			}
+		}
+	}
+
+	void LockLater( ExpansionWallBase wallBase )
+	{
+		// Message( GetPlayer(), "m_ExBB " + wallBase.IsOpened() );
+
+		if ( !wallBase.IsLocked() && !wallBase.IsOpened() )
+		{
+			wallBase.Lock();
 		}
 	}
 }

@@ -20,8 +20,8 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	//Frame rate check in ms.
 	int  FrameRateCheckSafeZoneInMs;
 
-	ref array<ref ExpansionSafeZoneCircle> CircleZones;
-	ref array<ref ExpansionSafeZonePolygon> PolygonZones;
+	autoptr array<ref ExpansionSafeZoneCircle> CircleZones;
+	autoptr array<ref ExpansionSafeZonePolygon> PolygonZones;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -144,16 +144,14 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 		FrameRateCheckSafeZoneInMs = 5000;
 
 		//Example for adding a safezone with a polygon zone
-		/*
-		ref array<ref vector> points = new array<ref vector>;
+		TVectorArray points = new TVectorArray;
 		points.Insert( Vector(6345, 0, 2181) );
 		points.Insert( Vector(6198, 0, 2433) );
 		points.Insert( Vector(6565, 0, 2945) );
 		points.Insert( Vector(7000, 0, 2521) );
 		PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
-		*/
 
-       //CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
+       	CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
 	}
 
 	// ------------------------------------------------------------

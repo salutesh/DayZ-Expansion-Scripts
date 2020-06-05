@@ -1599,7 +1599,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	void PairKeyTo( ExpansionCarKeys key )
+	void PairKeyTo( ExpansionCarKey key )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::PairKeyTo - Start");
@@ -1648,7 +1648,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	bool IsCarKeys( ExpansionCarKeys key )
+	bool IsCarKeys( ExpansionCarKey key )
 	{
 		if ( !HasKey() )
 		{
@@ -1666,7 +1666,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	void LockCar( ExpansionCarKeys key = NULL )
+	void LockCar( ExpansionCarKey key = NULL )
 	{
 		if ( key && !IsCarKeys( key ) )
 			return;
@@ -1678,7 +1678,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	void UnlockCar( ExpansionCarKeys key = NULL )
+	void UnlockCar( ExpansionCarKey key = NULL )
 	{
 		if ( key && !IsCarKeys( key ) )
 			return;

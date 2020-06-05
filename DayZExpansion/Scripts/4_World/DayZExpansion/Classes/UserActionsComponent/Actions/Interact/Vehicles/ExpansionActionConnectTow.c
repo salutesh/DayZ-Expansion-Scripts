@@ -38,8 +38,9 @@ class ExpansionActionConnectTow: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		//Disabled for now
-		//return false;
+		#ifndef EXPANSION_VEHICLE_TOWING
+		return false;
+		#endif
 		
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 
@@ -50,8 +51,10 @@ class ExpansionActionConnectTow: ActionInteractBase
 			{
 				if ( Class.CastTo( m_DrivingVehicle, trans ) )
 				{
+					#ifdef EXPANSION_VEHICLE_TOWING
 					if ( m_DrivingVehicle.IsTowed() )
 						return false;
+					#endif
 						
 					if ( m_DrivingVehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 					{
@@ -68,7 +71,9 @@ class ExpansionActionConnectTow: ActionInteractBase
                         {
                             if ( Class.CastTo( m_RayCastObject, objects[0] ) )
                             {
+								#ifdef EXPANSION_VEHICLE_TOWING
                                 return !m_RayCastObject.IsTowed();
+								#endif
                             }
                         }
                     }
@@ -88,7 +93,9 @@ class ExpansionActionConnectTow: ActionInteractBase
         if ( !m_RayCastObject )
             return;
 
+		#ifdef EXPANSION_VEHICLE_TOWING
         m_DrivingVehicle.CreateTow( m_RayCastObject );
+		#endif
 	}
 	
 	override bool CanBeUsedInVehicle()

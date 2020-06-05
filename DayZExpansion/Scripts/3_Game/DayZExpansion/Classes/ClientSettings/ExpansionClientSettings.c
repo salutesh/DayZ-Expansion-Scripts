@@ -54,6 +54,7 @@ class ExpansionClientSettings
 	// Notifications
 	bool ShowNotifications;
 	bool NotificationSound;
+	bool NotificationSoundLeaveJoin;
 	bool NotificationJoin;
 	bool NotificationLeave;
 	// int NotificationSoundType;
@@ -145,7 +146,7 @@ class ExpansionClientSettings
 		NotificationJoin = true;
 		NotificationLeave = true;
 
-		StreamerMode = true;
+		StreamerMode = false;
 		ShowPINCode = true;
 
 		HUDShowClientClock = false;
@@ -217,6 +218,8 @@ class ExpansionClientSettings
 		CreateToggle( "ShowNotifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_DISPLAY", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_DISPLAY_DESC" );
 		//! Option to toggle notification sounds
 		CreateToggle( "NotificationSound", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_DESC" );
+		//! Option to toggle notification sounds
+		CreateToggle( "NotificationSoundLeaveJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_LEAVE_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_SOUND_LEAVE_JOIN_DESC" );
 		//! Option to toggle display of player join notifications
 		CreateToggle( "NotificationJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN_DESC" );
 		//! Option to toggle display of player left notifications

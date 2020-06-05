@@ -25,8 +25,9 @@ class ExpansionFlagBase extends ItemBase
 	// ExpansionFlagBase Constructor
 	// ------------------------------------------------------------
 	void ExpansionFlagBase()
-    {
+    {	
 		SetEventMask( EntityEvent.INIT );
+
 		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
 	}
 	
@@ -98,6 +99,7 @@ class ExpansionFlagBase extends ItemBase
 		super.SetActions();
 
 		AddAction( ExpansionActionEnterFlagMenu );
+		AddAction( ActionDismantleFlag );
 	}
 	
 	// ------------------------------------------------------------
@@ -105,6 +107,8 @@ class ExpansionFlagBase extends ItemBase
 	// ------------------------------------------------------------
 	override void EOnInit( IEntity other, int extra)
 	{
+		SetAllowDamage( false );
+		
 		super.EOnInit( other, extra );
 	}
 	

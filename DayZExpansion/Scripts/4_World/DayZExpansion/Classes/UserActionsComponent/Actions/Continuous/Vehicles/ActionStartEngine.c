@@ -82,7 +82,7 @@ modded class ActionStartEngine
 	override void OnStartServer( ActionData action_data )
 	{
 		EntityAI item = NULL;
-
+		super.OnStartServer(action_data);
 		if ( !m_ExCar.EngineIsOn() )
 		{
 			m_ExCar.SetCarBatteryStateForVanilla( true );
@@ -92,14 +92,14 @@ modded class ActionStartEngine
 			{
 				if ( heli.IsVitalIgniterPlug() )
 					item = heli.FindAttachmentBySlotName("ExpansionIgniterPlug");
-				if ( heli.IsVitalHydraulicHoses() )
+				if ( heli.IsVitalHydraulicHoses() && item )
 					item = heli.FindAttachmentBySlotName("ExpansionHydraulicHoses");
 				if ( !item || item.IsRuined() )
 					m_SparkCon = false;
 			}
 		}
 
-		super.OnStartServer(action_data);
+		
 
 		if ( m_ExCar )
 		{

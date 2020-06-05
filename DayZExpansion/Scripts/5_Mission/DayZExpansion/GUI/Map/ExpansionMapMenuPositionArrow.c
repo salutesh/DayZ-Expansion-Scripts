@@ -96,6 +96,12 @@ class ExpansionMapMenuPositionArrow extends ScriptedWidgetEventHandler
 	//============================================
 	void Update( float timeslice )
 	{
+		if (GetExpansionSettings().GetMap() && !GetExpansionSettings().GetMap().ShowPlayerPosition)
+		{
+			m_Root.Show( false );
+			return;
+		}
+		
 		SetPlayerArrowPosition();
 	}
 	

@@ -36,7 +36,7 @@ class Land_House_1W12 extends BuildingSuper
 		SpawnInteriorObject( "bldr_vaulting_box_large", "-0.555051 -2.682999 -5.751089", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_picture_c", "4.945172 -1.750000 0.155000", "179.998993 0.000000 -0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "-0.547000 -1.162918 -1.789685", "0.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "1.792214 -0.595947 -3.831100", "0.000000 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "1.792214 -0.595947 -3.831100", "0.000000 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_library_a_open", "8.230000 -2.513000 -0.490173", "-90.000038 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_metalcrate_02", "8.090000 -2.625000 -1.635202", "4.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_lekarnicka", "2.045000 -1.262924 -1.077381", "-89.999992 0.000000 0.000000", 0.75 );

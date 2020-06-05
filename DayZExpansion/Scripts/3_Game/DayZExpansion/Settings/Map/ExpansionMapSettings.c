@@ -19,10 +19,11 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool UseMapOnMapItem;
 	bool CanCreateMarker;
     bool ShowPlayerPosition;
-	bool PartyMarkers;
+	bool CanCreatePartyMarkers;
 	bool ShowMapStats;
 	bool CanCreate3DMarker;
 	bool ShowPartyMembersMapMarkers;
+	float DistanceForPartyMarkers; //Can't go over network bubble distance for player
 	bool ShowServerMarkers;
 	bool CanOpenMapWithKeyBinding;
 
@@ -141,9 +142,9 @@ class ExpansionMapSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::CopyInternal 6 s.ShowPlayerPosition : " + s.ShowPlayerPosition);
 		#endif
-		PartyMarkers = s.PartyMarkers;
+		CanCreatePartyMarkers = s.CanCreatePartyMarkers;
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMapSettings::CopyInternal 7 s.PartyMarkers : " + s.PartyMarkers);
+		EXPrint("ExpansionMapSettings::CopyInternal 7 s.CanCreatePartyMarkers : " + s.CanCreatePartyMarkers);
 		#endif
 		ShowMapStats = s.ShowMapStats;
 		#ifdef EXPANSIONEXPRINT
@@ -157,13 +158,17 @@ class ExpansionMapSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::CopyInternal 10 s.ShowPartyMembersMapMarkers : " + s.ShowPartyMembersMapMarkers);
 		#endif
+		DistanceForPartyMarkers = s.DistanceForPartyMarkers;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMapSettings::CopyInternal 11 s.DistanceForPartyMarkers : " + s.DistanceForPartyMarkers);
+		#endif
 		ShowServerMarkers = s.ShowServerMarkers;
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMapSettings::CopyInternal 11 s.ShowServerMarkers : " + s.ShowServerMarkers);
+		EXPrint("ExpansionMapSettings::CopyInternal 12 s.ShowServerMarkers : " + s.ShowServerMarkers);
 		#endif
 		CanOpenMapWithKeyBinding = s.CanOpenMapWithKeyBinding;
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMapSettings::CopyInternal 12 s.CanOpenMapWithKeyBinding : " + s.CanOpenMapWithKeyBinding);
+		EXPrint("ExpansionMapSettings::CopyInternal 13 s.CanOpenMapWithKeyBinding : " + s.CanOpenMapWithKeyBinding);
 		#endif
     }
 	
@@ -235,11 +240,12 @@ class ExpansionMapSettings: ExpansionSettingBase
 		UseMapOnMapItem = true;
         CanCreateMarker = true;
         ShowPlayerPosition = true;
-        PartyMarkers = true;
+		CanCreatePartyMarkers = true;
 		ShowMapStats = true;
 		CanCreate3DMarker = true;
 		
 		ShowPartyMembersMapMarkers = true;
+		DistanceForPartyMarkers = 2048.0;
 		ShowServerMarkers = true;
 
 		CanOpenMapWithKeyBinding = true;

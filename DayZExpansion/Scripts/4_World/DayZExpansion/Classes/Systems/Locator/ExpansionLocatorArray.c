@@ -6,7 +6,8 @@
 class ExpansionLocatorArray
 {
     vector position;
-    string name, type;
+    string name;
+	string type;
 	
     void ExpansionLocatorArray( vector pos, string Name, string Type ) 
 	{

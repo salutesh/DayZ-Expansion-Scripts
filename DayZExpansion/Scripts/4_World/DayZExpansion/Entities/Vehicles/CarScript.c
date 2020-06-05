@@ -91,7 +91,7 @@ modded class CarScript
 	protected CarScript m_TowObject;
 	protected dJoint m_TowJoint;
 	protected bool m_IsBeingTowwed;
-	protected bool m_IsTowwing;
+	protected bool m_IsTowing;
 
 	// Physics
 	protected float m_BodyMass;
@@ -387,6 +387,7 @@ modded class CarScript
 		AddAction( ExpansionActionConnectTow );
 
 		AddAction( ExpansionActionPairKey );
+		AddAction( ExpansionActionUnPairKey );
 
 		AddAction( ExpansionActionLockVehicle );
 		AddAction( ExpansionActionUnlockVehicle );
@@ -454,6 +455,7 @@ modded class CarScript
 		return m_IsWinched;
 	}
 
+#ifdef EXPANSION_VEHICLE_TOWING
 	void CreateTow( CarScript tow )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -493,7 +495,7 @@ modded class CarScript
 
 		tow.SetTowCar( this, m_TowJoint );
 
-		m_IsTowwing = true;
+		m_IsTowing = true;
 		m_TowObject = tow;
 
 		#ifdef EXPANSIONEXPRINT
@@ -501,12 +503,9 @@ modded class CarScript
 		#endif
 	}
 
-	// ------------------------------------------------------------
-	// IsTowed
-	// ------------------------------------------------------------
 	bool IsTowed()
 	{
-		return m_IsBeingTowwed || m_IsTowwing;
+		return m_IsBeingTowwed || m_IsTowing;
 	}
 
 	protected void SetTowCar( CarScript parent, dJoint joint )
@@ -522,6 +521,7 @@ modded class CarScript
 		EXPrint("CarScript::SetTowCar - End");
 		#endif
 	}
+#endif
 
 	ExpansionVehicleLockState GetLockedState()
 	{
@@ -592,7 +592,7 @@ modded class CarScript
 	// ------------------------------------------------------------
 	// Expansion PairKeyTo
 	// ------------------------------------------------------------
-	void PairKeyTo( ExpansionCarKeys key )
+	void PairKeyTo( ExpansionCarKey key )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("CarScript::PairKeyTo - Start");
@@ -612,6 +612,17 @@ modded class CarScript
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("CarScript::PairKeyTo - End");
 		#endif
+	}
+	
+	void UnPairKey()
+	{
+		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
+		
+		ExpansionCarKey key = ExpansionCarKey.GetKeyByVehicle( this );
+		if (key)
+			key.UnPair();
+		
+		SetSynchDirty();
 	}
 
 	bool CanBeLocked()
@@ -638,7 +649,7 @@ modded class CarScript
 
 	}
 
-	bool IsCarKeys( ExpansionCarKeys key )
+	bool IsCarKeys( ExpansionCarKey key )
 	{
 		if ( !HasKey() )
 		{
@@ -655,9 +666,9 @@ modded class CarScript
 		return true;
 	}
 
-	void LockCar( ExpansionCarKeys key )
+	void LockCar( ExpansionCarKey key )
 	{
-		if ( key && !IsCarKeys( key ) )
+		if ( key && !IsCarKeys( key ) && !key.IsInherited(ExpansionCarAdminKey) )
 			return;
 
 		m_VehicleLockedState = ExpansionVehicleLockState.READY_TO_LOCK;
@@ -666,9 +677,9 @@ modded class CarScript
 		SetSynchDirty();
 	}
 
-	void UnlockCar( ExpansionCarKeys key )
+	void UnlockCar( ExpansionCarKey key )
 	{
-		if ( key && !IsCarKeys( key ) )
+		if ( key && !IsCarKeys( key ) && !key.IsInherited(ExpansionCarAdminKey) )
 			return;
 
 		m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
@@ -2456,7 +2467,7 @@ modded class CarScript
 		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 		for ( int i = 0; i < items.Count(); i++ )
 		{
-			ExpansionCarKeys key;
+			ExpansionCarKey key;
 			if ( Class.CastTo( key, items[i] ) )
 			{
 				PairKeyTo( key );

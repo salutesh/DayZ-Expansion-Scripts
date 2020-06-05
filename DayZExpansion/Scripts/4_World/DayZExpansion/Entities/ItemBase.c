@@ -221,7 +221,7 @@ modded class ItemBase
 				if ( !IsMissionHost() )
 					return;
 				
-				if ( !ctx.Read( code ) || code.Length() != 4 )
+				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
 					SendServerLockReply( false, false, sender );
@@ -270,7 +270,7 @@ modded class ItemBase
 				if ( !IsMissionHost() )
 					return;
 				
-				if ( !ctx.Read( code ) || code.Length() != 4 )
+				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, sender );
@@ -293,6 +293,33 @@ modded class ItemBase
 					return;
 				}
 
+				SetCode( code );
+
+				SendServerLockReply( true, false, sender );
+				return;
+			}
+
+			case ExpansionLockRPC.CHANGE:
+			{
+				if ( !IsMissionHost() )
+					return;
+				
+				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
+				{
+					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
+					SendServerLockReply( false, false, sender );
+					//TODO: notification here
+					return;
+				}
+
+				if ( !ctx.Read( selection ) )
+				{
+					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
+					SendServerLockReply( false, false, sender );
+					//TODO: notification here
+					return;
+				}
+				
 				SetCode( code );
 
 				SendServerLockReply( true, false, sender );

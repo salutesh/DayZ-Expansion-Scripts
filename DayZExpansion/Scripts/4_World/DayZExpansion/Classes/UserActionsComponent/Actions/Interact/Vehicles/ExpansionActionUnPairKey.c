@@ -1,5 +1,5 @@
 /**
- * ExpansionActionPairKey.c
+ * ExpansionActionUnPairKey.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,12 +10,11 @@
  *
 */
 
-class ExpansionActionPairKey: ActionInteractBase
+class ExpansionActionUnPairKey: ActionInteractBase
 {
 	protected CarScript m_Car;
-	protected ExpansionCarKey m_KeysInHand;
 
-	void ExpansionActionPairKey()
+	void ExpansionActionUnPairKey()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 	}
@@ -28,13 +27,12 @@ class ExpansionActionPairKey: ActionInteractBase
 
 	override string GetText()
 	{
-		return "#STR_EXPANSION_PAIR_KEY";
+		return "#STR_EXPANSION_UNPAIR_KEY";
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Car = NULL;
-        m_KeysInHand = NULL;
 
 		if ( !target || !player )
 			return false;
@@ -44,22 +42,13 @@ class ExpansionActionPairKey: ActionInteractBase
 			return false;
 		}
 
-		if ( !Class.CastTo( m_KeysInHand, player.GetItemInHands() ) )
+		ExpansionCarAdminKey key = null;
+		if ( !Class.CastTo( key, player.GetItemInHands() ) )
 		{
 			return false;
 		}
 
-        if ( m_Car.HasKey() )
-        {
-			return false;
-        }
-
-        if ( m_KeysInHand.IsPaired() )
-        {
-			return false;
-        }
-		
-		if ( m_KeysInHand.IsInherited(ExpansionCarAdminKey) )
+        if ( !m_Car.HasKey() )
         {
 			return false;
         }
@@ -71,7 +60,7 @@ class ExpansionActionPairKey: ActionInteractBase
 	{
 		super.Start( action_data );
 
-        m_Car.PairKeyTo( m_KeysInHand );
+        m_Car.UnPairKey();
 	}
 
 	override bool CanBeUsedInRestrain()

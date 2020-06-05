@@ -88,8 +88,6 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	private vector m_AutoHoverSpeed;
 	private vector m_AutoHoverSpeedTarget;
 
-	private bool m_ShouldSimulate;
-
 	private bool m_Hit;
 	private bool m_HitDetermined;
 	private Object m_HitObject;
@@ -760,13 +758,12 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
-		if ( !EngineIsOn() && m_RotorSpeed < 1 )
+		float yPosHitDiffWaitingFor108 = GetPosition()[1] - m_HitPosition[1];
+		if ( m_RotorSpeed < 1 && yPosHitDiffWaitingFor108 < 5.0 )
 		{
 			dBodySetAngularVelocity( this, vector.Zero );
 
 			SetVelocity( this, vector.Zero );
-
-			m_ShouldSimulate = false;
 		}
 
 		if ( !dBodyIsActive( this ) )

@@ -45,6 +45,7 @@ modded class ActionConstructor
 
 		actions.Insert( ExpansionActionSwitchGear );
 		actions.Insert( ExpansionActionPairKey );
+		actions.Insert( ExpansionActionUnPairKey );
 		actions.Insert( ExpansionActionLockVehicle );
 		actions.Insert( ExpansionActionUnlockVehicle );
 		actions.Insert( ExpansionActionCarHorn );
@@ -77,6 +78,7 @@ modded class ActionConstructor
 
 		//! Locks
 		actions.Insert( ExpansionActionEnterCodeLock );
+		actions.Insert( ExpansionActionChangeCodeLock );
 		actions.Insert( ExpansionActionEnterSafeLock );
 
 		//! Removed because it wont be in first release
@@ -86,6 +88,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionCycleOpticsMode );
 		actions.Insert( ExpansionActionWritePaper );
 		actions.Insert( ExpansionActionEnterFlagMenu );
+		actions.Insert( ActionDismantleFlag );
 		
 		// actions.Insert( ExpansionActionGetQuest );
 		// actions.Insert( ExpansionActionTakeInQuest );

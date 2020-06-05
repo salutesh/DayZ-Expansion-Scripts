@@ -23,11 +23,6 @@ class ExpansionCodeLock extends ItemBase
 		}
 		
 		ItemBase target = ItemBase.Cast( parent );
-		
-		if ( target && target.HasCode() )
-		{
-			return false;
-		}
 
 		if ( target && target.IsLocked() )
 		{
@@ -36,4 +31,5 @@ class ExpansionCodeLock extends ItemBase
 		
 		return true;
 	}
+	
 }

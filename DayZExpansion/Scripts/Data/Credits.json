@@ -41,7 +41,7 @@
             "DepartmentName": "",
             "Sections": [
                 {
-                    "SectionName": "#STR_EXPANSION_CREDITS_MAPING",
+                    "SectionName": "#STR_EXPANSION_CREDITS_MAPPING",
                     "SectionLines": [
                        "DanceOfJesus"
                     ]
@@ -114,7 +114,7 @@
             "DepartmentName": "",
             "Sections": [
                 {
-                    "SectionName": "#STR_EXPANSION_CREDITS_THX",
+                    "SectionName": "#STR_EXPANSION_CREDITS_SPECIAL_THANKS",
                     "SectionLines": [
                         "Miroslav Maněna",
                         "Eugen Harton",

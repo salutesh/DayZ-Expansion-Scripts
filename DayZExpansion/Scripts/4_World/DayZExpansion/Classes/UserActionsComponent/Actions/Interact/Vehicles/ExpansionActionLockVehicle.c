@@ -13,7 +13,7 @@
 class ExpansionActionLockVehicle: ActionInteractBase
 {
 	protected CarScript m_Car;
-	protected ExpansionCarKeys m_KeysInHand;
+	protected ExpansionCarKey m_KeysInHand;
 	
 	// Sound
 	protected PlayerBase								m_Player;

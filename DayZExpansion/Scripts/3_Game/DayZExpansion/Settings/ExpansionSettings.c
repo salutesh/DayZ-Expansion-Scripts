@@ -498,11 +498,11 @@ class ExpansionSettings
 			m_SettingsBook.Save();
 			m_SettingsGeneral.Save();
 			m_SettingsMap.Save();
-			//! m_SettingsMarket.Save();
+			m_SettingsMarket.Save();
 			m_SettingsMission.Save();
 			m_SettingsParty.Save();
-			//! m_SettingsSafeZone.Save();
-			//! m_SettingsSpawn.Save();
+			m_SettingsSafeZone.Save();
+			m_SettingsSpawn.Save();
 			m_SettingsBaseBuilding.Save();
 			m_SettingsTerritory.Save();
 		}

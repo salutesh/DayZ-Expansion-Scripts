@@ -617,6 +617,16 @@ modded class MissionGameplay
 					{
 						ToggleChat();
 					}
+					
+					//! Toogle 3d marker visiblity
+					if ( input.LocalPress( "UAExpansion3DMarkerToggle", false ) )
+					{
+						Expansion3DMarkerModule module3DMarker;
+						if ( Class.CastTo( module3DMarker, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
+						{
+							module3DMarker.ToggleShowMaarkers();
+						}
+					}
 				}
 
 				//! Basebuilding Snaping
@@ -819,6 +829,23 @@ modded class MissionGameplay
 		menu = NULL;
 		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_CODELOCK_MENU ) ) )
 			menu.OnKeyPress( key );
+		
+		switch (key)
+		{
+			case KeyCode.KC_PRIOR:
+			{
+				if (m_ExpansionHud.GetEarplugsState())
+					m_ExpansionHud.AddEarplugsVolume(0.01);
+				break;
+			}
+			
+			case KeyCode.KC_NEXT:
+			{
+				if (m_ExpansionHud.GetEarplugsState())
+					m_ExpansionHud.AddEarplugsVolume(-0.01);
+				break;
+			}
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnKeyPress - End");

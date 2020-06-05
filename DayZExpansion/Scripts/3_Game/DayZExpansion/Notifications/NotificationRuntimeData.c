@@ -1,5 +1,5 @@
 /**
- * ExpansionLockEnums.c
+ * NotificationRuntimeData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,14 +10,7 @@
  *
 */
 
-/**@class		ExpansionLockRPC
- * @brief		
- **/
-enum ExpansionLockRPC
+modded class NotificationRuntimeData
 {
-	LOCK = 5464150, 
-	UNLOCK,
-	SET,
-	SERVERREPLY,
-	CHANGE
+	bool m_LeaveJoinNotif = false;
 }

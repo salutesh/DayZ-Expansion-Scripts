@@ -1,5 +1,5 @@
 /**
- * ExpansionActionEnterCodeLock.c
+ * ExpansionActionChangeCodeLock.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,17 +10,17 @@
  *
 */
 
-/**@class		ExpansionActionEnterCodeLock
+/**@class		ExpansionActionChangeCodeLock
  * @brief		
  **/
-class ExpansionActionEnterCodeLock: ActionInteractBase
+class ExpansionActionChangeCodeLock: ActionInteractBase
 {
 	protected ItemBase m_Target;
 	
 	// -----------------------------------------------------------
-	// ExpansionActionEnterCodeLock Destructor
+	// ExpansionActionChangeCodeLock Destructor
 	// -----------------------------------------------------------
-	void ExpansionActionEnterCodeLock()
+	void ExpansionActionChangeCodeLock()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -41,12 +41,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
-		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
-		{
-			return "Lock";
-		}
-
-		return "Enter Code";
+		return "Change Code";
 	}
 
 	// -----------------------------------------------------------
@@ -63,8 +58,8 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Target = ItemBase.Cast( target.GetObject() );
-
-		if ( m_Target )
+		
+		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
 		{
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
@@ -86,12 +81,12 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		
 		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( m_Target.IsLocked() || !m_Target.HasCode() )
+		if ( !m_Target.IsLocked() && m_Target.HasCode() )
 		{
 			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
 			if ( menu )
 			{
-				menu.SetChangeCodelock( false );
+				menu.SetChangeCodelock( true );
 				menu.SetTarget( m_Target, selection );
 			}
 		} 
@@ -99,7 +94,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		{
 			ScriptRPC rpc = new ScriptRPC;
 			rpc.Write(selection);
-			rpc.Send(m_Target, ExpansionLockRPC.LOCK, true);
+			rpc.Send(m_Target, ExpansionLockRPC.SET, true);
 		}
 	}
 }

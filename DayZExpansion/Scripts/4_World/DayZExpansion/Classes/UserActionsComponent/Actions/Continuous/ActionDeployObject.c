@@ -83,6 +83,8 @@ modded class ActionDeployObject
 		
 		if ( ExpansionSafeZone_IsInside( player.GetPosition() ) )
 			return false;
+		
+		int i = 0;
 			
 		if ( GetExpansionSettings().GetBaseBuilding() )
 		{
@@ -90,16 +92,61 @@ modded class ActionDeployObject
 			{
 				if ( player.IsInTerritory() )
 				{
-					return player.IsInsideOwnTerritory();
-				} else
+					if (player.IsInsideOwnTerritory())
+					{
+						return true;
+					}
+					else
+					{
+						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory.Count(); ++i)
+						{
+							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory[i]))
+							{
+								return true;
+							}
+						}
+						
+						return false;
+					}
+				}
+				else
 				{
 					return true;
 				}
-			} else
+			}
+			else
 			{
-				if ( player.IsInTerritory() && player.IsInsideOwnTerritory() )
+				//Place stuff other than flag should be possible inside your territory
+				if ( player.IsInTerritory() )
 				{
-					return true;
+					if (player.IsInsideOwnTerritory())
+					{
+						return true;
+					}
+					else
+					{
+						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory.Count(); ++i)
+						{
+							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory[i]))
+							{
+								return true;
+							}
+						}
+						
+						return false;
+					}
+				}
+				else
+				{
+					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Count(); ++i)
+					{
+						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory[i]))
+						{
+							return true;
+						}
+					}
+					
+					return false;
 				}
 			}
 		}
@@ -130,94 +177,110 @@ modded class ActionDeployObject
 		ItemBase entity_for_placing = action_data.m_MainItem;
 		ExpansionKitBase kit = ExpansionKitBase.Cast( entity_for_placing );
 
-		if ( GetGame().IsMultiplayer() )
+		if ( kit.IsInherited( ExpansionKitBase ) )
 		{
-			if ( !poActionData )
-				return;
-			
-			if ( kit )
+			if ( GetGame().IsMultiplayer() )
 			{
-				kit.SetPlacingIndex( poActionData.m_PlacingObject );
-			}
+				if ( !poActionData )
+					return;
 
-			if ( poActionData.m_PlacingParent )
-			{
-				SetLocalProjectionTransform( poActionData.m_PlacingParent, poActionData.m_Position, poActionData.m_Orientation, poActionData.m_Position, poActionData.m_Orientation );
-			}
-
-			poActionData.m_Player.SetLocalProjectionPosition( poActionData.m_Position );
-			poActionData.m_Player.SetLocalProjectionOrientation( poActionData.m_Orientation );
-			
-			if ( entity_for_placing )
-			{
-				poActionData.m_Player.PlacingStartServer( entity_for_placing );
-				if ( kit.GetPlacingTypeChosen() )
+				if ( kit )
 				{
-					if ( action_data.m_Player.GetHologramServer() )
-					{
-						action_data.m_Player.GetHologramServer().SetPlacingTypeChosen( kit.GetPlacingTypeChosen() );
-					}
+					kit.SetPlacingIndex( poActionData.m_PlacingObject );
 				}
+
+				if ( poActionData.m_PlacingParent )
+				{
+					SetLocalProjectionTransform( poActionData.m_PlacingParent, poActionData.m_Position, poActionData.m_Orientation, poActionData.m_Position, poActionData.m_Orientation );
+				}
+
+				poActionData.m_Player.SetLocalProjectionPosition( poActionData.m_Position );
+				poActionData.m_Player.SetLocalProjectionOrientation( poActionData.m_Orientation );
+
+				if ( entity_for_placing )
+				{
+					poActionData.m_Player.PlacingStartServer( entity_for_placing );
+					if ( kit.GetPlacingTypeChosen() )
+					{
+						if ( action_data.m_Player.GetHologramServer() )
+						{
+							action_data.m_Player.GetHologramServer().SetPlacingTypeChosen( kit.GetPlacingTypeChosen() );
+						}
+					}
 			
-				GetGame().AddActionJuncture( action_data.m_Player, entity_for_placing, 10000 );
+					GetGame().AddActionJuncture( action_data.m_Player, entity_for_placing, 10000 );
+					entity_for_placing.SetIsBeingPlaced( true );
+				}
+			} else
+			{
+				//! Local singleplayer
+				if ( kit && poActionData )
+				{
+					kit.SetPlacingIndex( poActionData.m_PlacingObject );
+				}
+
+				action_data.m_Player.PlacingStartServer( entity_for_placing );
+				action_data.m_Player.GetHologramServer().SetPlacingTypeChosen( kit.GetPlacingTypeChosen() );
+				action_data.m_Player.GetHologramLocal().SetUpdatePosition( false );
 				entity_for_placing.SetIsBeingPlaced( true );
 			}
-		} else
+		}
+		else 
 		{
-			//local singleplayer
-			if ( kit && poActionData )
-			{
-				kit.SetPlacingIndex( poActionData.m_PlacingObject );
-			}
-			
-			action_data.m_Player.PlacingStartServer( entity_for_placing );
-			action_data.m_Player.GetHologramServer().SetPlacingTypeChosen( kit.GetPlacingTypeChosen() );
-			action_data.m_Player.GetHologramLocal().SetUpdatePosition( false );
-			entity_for_placing.SetIsBeingPlaced( true );
+			super.OnStartServer( action_data );
 		}
 	}
 
 	// ------------------------------------------------------------	
-	override void OnEndServer( ActionData action_data  )
+	override void OnEndServer( ActionData action_data )
 	{
-		PlaceObjectActionData poActionData;		
-		if ( !action_data.m_MainItem || !Class.CastTo( poActionData, action_data ) )
-			return;
+		ItemBase entity_for_placing = action_data.m_MainItem;
+		ExpansionKitBase kit = ExpansionKitBase.Cast( entity_for_placing );
 
-		if ( !poActionData.m_AlreadyPlaced )
+		if ( kit.IsInherited( ExpansionKitBase ) )
 		{
-			EntityAI entity_for_placing = action_data.m_MainItem;
-			GetGame().ClearJuncture( action_data.m_Player, entity_for_placing );
-			action_data.m_MainItem.SetIsBeingPlaced( false );
-		
-			if ( GetGame().IsMultiplayer() )
-			{
-				action_data.m_Player.PlacingCancelServer();
-				action_data.m_Player.ServerTakeEntityToHands( entity_for_placing );
-				action_data.m_MainItem.SoundSynchRemoteReset();
-			} else
-			{
-				//local singleplayer
-				action_data.m_Player.PlacingCancelLocal();
-				action_data.m_Player.PlacingCancelServer();
-				action_data.m_Player.LocalTakeEntityToHands( entity_for_placing );
-			}
+			PlaceObjectActionData poActionData;		
+			if ( !action_data.m_MainItem || !Class.CastTo( poActionData, action_data ) )
+				return;
 
-			GetGame().ClearJuncture( action_data.m_Player, action_data.m_MainItem );
-		} else
-		{
-			//TODO: make OnEND placement event and move there
-			
-			action_data.m_MainItem.SetIsDeploySound( false );
-			action_data.m_MainItem.SetIsPlaceSound( false );
-			action_data.m_MainItem.SoundSynchRemoteReset();
-			if ( action_data.m_MainItem.IsKindOf( "FenceKit" ) || action_data.m_MainItem.IsKindOf( "WatchtowerKit" ) || action_data.m_MainItem.IsKindOf( "ExpansionKitBase" ) )
+			if ( !poActionData.m_AlreadyPlaced )
 			{
-				action_data.m_MainItem.Delete();
-			} else
-			{
+				GetGame().ClearJuncture( action_data.m_Player, entity_for_placing );
+				action_data.m_MainItem.SetIsBeingPlaced( false );
+
+				if ( GetGame().IsMultiplayer() )
+				{
+					action_data.m_Player.PlacingCancelServer();
+					action_data.m_Player.ServerTakeEntityToHands( entity_for_placing );
+					action_data.m_MainItem.SoundSynchRemoteReset();
+				} else
+				{
+					//! Local singleplayer
+					action_data.m_Player.PlacingCancelLocal();
+					action_data.m_Player.PlacingCancelServer();
+					action_data.m_Player.LocalTakeEntityToHands( entity_for_placing );
+				}
+
 				GetGame().ClearJuncture( action_data.m_Player, action_data.m_MainItem );
+			} else
+			{
+				//TODO: make OnEND placement event and move there
+
+				action_data.m_MainItem.SetIsDeploySound( false );
+				action_data.m_MainItem.SetIsPlaceSound( false );
+				action_data.m_MainItem.SoundSynchRemoteReset();
+				if ( action_data.m_MainItem.IsKindOf( "FenceKit" ) || action_data.m_MainItem.IsKindOf( "WatchtowerKit" ) || action_data.m_MainItem.IsKindOf( "ExpansionKitBase" ) )
+				{
+					action_data.m_MainItem.Delete();
+				} else
+				{
+					GetGame().ClearJuncture( action_data.m_Player, action_data.m_MainItem );
+				}
 			}
+		}	
+		else
+		{
+			super.OnEndServer( action_data );
 		}
 	}
 

@@ -36,7 +36,7 @@ class ExpansionBookConstructor
 	// ------------------------------------------------------------
 	// Expansion RegisterTabs
 	// ------------------------------------------------------------
-    void RegisterTabs( TTypenameArray tabs )
+    void RegisterTabs( out TTypenameArray tabs )
 	{
 		tabs.Insert( ExpansionBookTabServerInfo );
 		tabs.Insert( ExpansionBookTabStatus );

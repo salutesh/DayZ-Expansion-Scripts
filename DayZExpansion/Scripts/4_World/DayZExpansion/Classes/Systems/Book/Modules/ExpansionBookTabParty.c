@@ -326,7 +326,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	override bool CanBeShow()
 	{
-		return GetExpansionSettings().GetBook().EnablePartyTab;
+		return (GetExpansionSettings().GetBook().EnablePartyTab && GetExpansionSettings().GetParty().EnableParties);
 	}
 	
 	// ------------------------------------------------------------

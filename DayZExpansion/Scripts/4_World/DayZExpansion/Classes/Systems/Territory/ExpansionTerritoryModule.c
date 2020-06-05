@@ -141,7 +141,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 		m_TimeSliceCheckPlayer += timeslice;
 		
-		if ( m_TimeSliceCheckPlayer > 1.0 )
+		if ( m_TimeSliceCheckPlayer > 2.5 )
 		{
 			Exec_CheckPlayer();
 			m_TimeSliceCheckPlayer = 0;
@@ -613,7 +613,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - Start");
 		#endif
 
-		if ( !textureID )
+		if ( !textureID || !flag )
 			return;
 		
 		string path = GetFlagTexturePath( textureID );
@@ -701,14 +701,30 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			int territoryID = currentTerritory.GetTerritoryID();
 			
-			ref array<ref ExpansionTerritoryMember> members = currentTerritory.GetTerritoryMembers();
-			for (int i = 0; i < members.Count(); ++i)
+			autoptr array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+			for ( int i = 0; i < members.Count(); ++i )
 			{
-				PlayerBase currPlayer = PlayerBase.GetPlayerByUID( members.Get(i).GetID() );
-				if (currPlayer && currPlayer.GetIdentity())
-				{
-					Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
-				}
+				if (!members[i])
+					continue;
+				
+				PlayerBase currPlayer = PlayerBase.GetPlayerByUID( members[i].GetID() );
+				if (!currPlayer || !currPlayer.GetIdentity())
+					continue;
+				
+				Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
+			}
+			
+			autoptr array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+			for ( int j = 0; j < invites.Count(); ++j )
+			{
+				if (!invites[j])
+					continue;
+				
+				PlayerBase currPlayerInvite = PlayerBase.GetPlayerByUID( invites[j].UID );
+				if (!currPlayerInvite)
+					continue;
+				
+				SyncPlayersInvites(currPlayerInvite);
 			}
 			
 			//Don't forget to set it as null before to delete, to not do a infinte loop
@@ -798,23 +814,41 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !currentTerritory )
 			return;
 		
-		array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+		autoptr array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 		for ( int i = 0; i < members.Count(); ++i )
 		{
+			if (!members[i])
+				continue;
+			
 			PlayerBase currPlayer = PlayerBase.GetPlayerByUID( members[i].GetID() );
-			if ( currPlayer && currPlayer.GetIdentity() )
-			{
-				Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
-			}
+			if (!currPlayer || !currPlayer.GetIdentity())
+				continue;
+			
+			Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
+		}
+		
+		autoptr array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+		for ( int j = 0; j < invites.Count(); ++j )
+		{
+			if (!invites[j])
+				continue;
+			
+			PlayerBase currPlayerInvite = PlayerBase.GetPlayerByUID( invites[j].UID );
+			if (!currPlayerInvite)
+				continue;
+			
+			SyncPlayersInvites(currPlayerInvite);
 		}
 		
 		//Don't forget to set it as null before to delete, to not do a infinte loop
 		flag.SetTerritory( null );
-		flag.Delete();
+		if (!flag.ToDelete())
+			flag.Delete();
 		
 		m_TerritoryFlags.Remove( territoryID );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		if (sender)
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryAdmin - End");
@@ -977,6 +1011,12 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( territory.IsMember( targetID ) || territory.HasInvite(targetID) )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		if ( GetExpansionSettings().GetTerritory() && GetExpansionSettings().GetTerritory().MaxMembersInTerritory > 1 && territory.NumberOfMembers() >= GetExpansionSettings().GetTerritory().MaxMembersInTerritory )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY", GetExpansionSettings().GetTerritory().MaxMembersInTerritory.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
 			return;
 		}
 		
@@ -1562,12 +1602,12 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::RPC_PlayerEnteredTerritory - Start");
 		#endif
 		
-		int territoryID
-		if ( !ctx.Read( territoryID ) )
-			return;
-		
 		int type;
 		if ( !ctx.Read( type ) )
+			return;
+		
+		int territoryID
+		if ( !ctx.Read( territoryID ) )
 			return;
 
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
@@ -1583,14 +1623,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENTER_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );	
 			return;
 		}
-
-		if ( type == 1 )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENTER_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );
-			return;
-		}
-
-		if ( type == 2 )
+		else if ( type == 1 )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_LEFT_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );
 			return;
@@ -1625,34 +1658,26 @@ class ExpansionTerritoryModule: JMModuleBase
 			territoryId = flag.GetTerritoryID();
 			if ( territoryId != player.GetTerritoryIDInside() )
 			{
-				if ( player.GetTerritoryIDInside() != -1 )
-				{
-					type = 0;
-				} else
-				{
-					type = 1;
-				}
-
+				type = 0;
 				player.SetTerritoryIDInside( territoryId );
 			}
-		} else
+		}
+		else
 		{
 			if ( player.GetTerritoryIDInside() != -1 )
-			{
-				type = 2;
-			}
+				type = 1;
 
 			territoryId = player.GetTerritoryIDInside();
 
 			player.SetTerritoryIDInside( -1 );
 		}
 
-		if ( type != -1 )
+		if ( type > -1 )
 		{
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write( type );
 			rpc.Write( territoryId );
- 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.PlayerEnteredTerritory, true );
+ 			rpc.Send( null, ExpansionTerritoryModuleRPC.PlayerEnteredTerritory, true );
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -1782,29 +1807,27 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion FindNearestTerritoryFlag
 	// ------------------------------------------------------------
-	ref ExpansionTerritoryFlag FindNearestTerritoryFlag( PlayerBase player )
+	ExpansionTerritoryFlag FindNearestTerritoryFlag( PlayerBase player )
 	{
 		if (!player)
-			return NULL;
+			return null;
 		
 		vector position = player.GetPosition();
 		array<Object> objects = new array<Object>;
 		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( position, ExpansionTerritoryModule.m_TerritorySize_MAX, objects, proxyCargos );
+		GetGame().GetObjectsAtPosition3D( position, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
 		
-		if ( objects && objects.Count() > 0 )
+		if ( objects )
 		{
 			for ( int i = 0; i < objects.Count(); ++i )
 			{
 				ExpansionTerritoryFlag flag = ExpansionTerritoryFlag.Cast( objects.Get( i ) );
 				if ( flag )
-				{
 					return flag;
-				}
 			}
 		}
 		
-		return NULL;
+		return null;
 	}
 	
 	// ------------------------------------------------------------
@@ -1870,7 +1893,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( territorySize <= 0 )
 		{
-			territorySize = ExpansionTerritoryModule.m_TerritorySize_MAX;
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 		}
 		
 		if (IsMissionHost())
@@ -1913,7 +1936,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	{
 		if ( territorySize <= 0 )
 		{
-			territorySize = ExpansionTerritoryModule.m_TerritorySize_MAX;
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 		}
 		
 		array<Object> objects = new array<Object>;

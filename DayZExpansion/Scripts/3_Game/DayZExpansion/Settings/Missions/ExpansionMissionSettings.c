@@ -171,7 +171,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		
 		Enabled = true;
 
-		TimeBetweenMissions = 120; // 3600; // 1 hour
+		TimeBetweenMissions = 3600000; // 3600000; // 1 hour
 
 		MinMissions = 0;
 		MaxMissions = 1;

@@ -23,7 +23,7 @@ class Land_House_1W11 extends BuildingSuper
 		SpawnInteriorObject( "bldr_case_d", "-6.154066 -2.823242 -5.580000", "179.998993 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_box_c_multi", "-6.084473 -2.823242 1.099020", "96.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_case_sink_a", "-5.184223 -2.754997 -2.740691", "0.000000 0.000000 0.000019" );
-		SpawnInteriorObject( "ExpansionPropClampLight1", "-5.013886 -0.956192 -2.714652", "-90.000000 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropClampLight1", "-5.013886 -0.956192 -2.714652", "-90.000000 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_switch_lights", "-4.927000 -1.449783 -3.871687", "-179.999985 0.000000 0.000000" );
 		SpawnInteriorObject( "ExpansionPropBleach", "-6.415559 -1.875000 -5.546024", "-63.000011 0.000000 0.000000", 0.9 );
 		SpawnInteriorObject( "ExpansionPropGrill2", "-7.312764 -2.260002 -2.984483", "-93.000031 0.000000 0.000000", 0.2 );

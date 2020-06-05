@@ -1008,7 +1008,7 @@ class ExpansionPartyModule: JMModuleBase
 	{		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write( party );
-		rpc.Send( NULL, ExpansionPartyModuleRPC.UpdateClient, true, toSendToParty );
+		rpc.Send( null, ExpansionPartyModuleRPC.UpdateClient, true, toSendToParty );
 	}
 
 	// ------------------------------------------------------------
