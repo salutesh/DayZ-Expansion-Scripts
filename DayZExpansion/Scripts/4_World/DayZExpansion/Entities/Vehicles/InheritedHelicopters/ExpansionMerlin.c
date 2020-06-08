@@ -40,8 +40,8 @@ class ExpansionMerlin: ExpansionHelicopterScript
 		m_MinAutoRotateSpeed						= 2.0;
 		m_MaxAutoRotateSpeed						= 10.0;
 
-		m_BodyFrictionCoef							= 1.3;
-		m_LiftForceCoef								= 1.5;
+		m_BodyFrictionCoef							= 1.6;
+		m_LiftForceCoef								= 1.0;
 
 		m_CyclicForceCoef							= 1.5;
 
@@ -53,11 +53,11 @@ class ExpansionMerlin: ExpansionHelicopterScript
 		m_CyclicForwardMax							= 1.0;
 		m_CyclicForwardCoef							= 0.4;
 
-		m_AntiTorqueSpeed							= 1.5;
+		m_AntiTorqueSpeed							= 1.8;
 		m_AntiTorqueMax								= 0.04;
 
 		m_BankForceCoef								= 0.2;
-		m_TailForceCoef								= 8.0;
+		m_TailForceCoef								= 6.0;
 
 		RegisterNetSyncVariableBool( "m_MonitorEnabled" );
 
@@ -224,14 +224,8 @@ class ExpansionMerlin: ExpansionHelicopterScript
 		{
 			ItemBase battery;
 			
-			if ( IsVitalCarBattery() )
-				battery = FindAttachmentBySlotName("CarBattery");
-			if ( IsVitalTruckBattery() )
-				battery = FindAttachmentBySlotName("TruckBattery");
 			if ( IsVitalHelicopterBattery() )
-				battery = FindAttachmentBySlotName("ExpansionHelicopterBattery");
-			if ( IsVitalAircraftBattery() )
-				battery = FindAttachmentBySlotName("ExpansionAircraftBattery");
+				battery = ItemBase.Cast( FindAttachmentBySlotName("ExpansionHelicopterBattery") );
 			
 			if ( battery )
 			{

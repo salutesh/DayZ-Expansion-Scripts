@@ -184,6 +184,7 @@ static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors
 
 //! On Client Only
 static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.json";
+static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.json";
 
 /**
  * InGame Menu
@@ -247,7 +248,7 @@ static const string EXPANSION_FLAG_COLOR_WHITE = "DayZExpansion\\Objects\\Struct
 static const string EXPANSION_FLAG_COUNTRIES_AUSTRALIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_australia_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_CANADA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_canada_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_CHERNARUS = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_chernarus_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_FRANACE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_france_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_FRANCE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_france_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_GERMANY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_germany_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_LATVIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_latvia_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_LUXEMBOURG = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_luxembourg_co.paa";
@@ -264,7 +265,7 @@ static const string EXPANSION_FLAG_COUNTRIES_USA = "DayZExpansion\\Objects\\Stru
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 2;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 3;
 
 /**
  * Expansion Debugging types

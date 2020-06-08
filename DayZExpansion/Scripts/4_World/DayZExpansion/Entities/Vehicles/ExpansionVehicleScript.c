@@ -538,7 +538,7 @@ class ExpansionVehicleScript extends ItemBase
 
 		ExpansionDebugUI( "[[ " + this + " ]]" );
 
-		DayZPlayerImplement driver = CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER );
+		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 
 		if ( GetGame().IsClient() )
 		{
@@ -1061,7 +1061,7 @@ class ExpansionVehicleScript extends ItemBase
 					{
 						for( int j = 0; j < lodSelections[i].GetVertexCount(); j++ )
 						{
-							ExpansionPointLight light = ExpansionPointLight.CreateLight( type, "0 0 0" );
+							ExpansionPointLight light = ExpansionPointLight.Cast( ExpansionPointLight.CreateLight( type, "0 0 0" ) );
 							light.m_Val = default;
  
 							light.SetRadiusTo( radius );

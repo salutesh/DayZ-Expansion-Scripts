@@ -36,10 +36,11 @@ class ActionDismantleFlag: ActionContinuousBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		Object targetObject = target.GetObject();
+		bool canDismantle = GetExpansionSettings().GetBaseBuilding().CanDismantleFlag;
 		
 		if ( targetObject.IsKindOf("ExpansionFlagBase") )
 		{
-			return true;
+			return canDismantle;
 		}
 		
 		return false;

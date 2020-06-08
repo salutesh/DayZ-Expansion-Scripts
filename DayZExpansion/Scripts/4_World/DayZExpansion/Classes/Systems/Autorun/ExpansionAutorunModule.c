@@ -22,6 +22,7 @@ class ExpansionAutorunModule: JMModuleBase
 {
 	protected int m_AutoWalkMode = 0;
 	protected int m_OldAutoWalkMode = m_AutoWalkMode;
+	protected bool m_StartedWithSprint = false;
 	
 	void ExpansionAutorunModule()
 	{
@@ -159,14 +160,17 @@ class ExpansionAutorunModule: JMModuleBase
             m_AutoWalkMode = 0;
             player.GetInputController().OverrideMovementSpeed( false, 0 );
             player.GetInputController().OverrideMovementAngle( false, 0 );
+			m_StartedWithSprint = false;
         } else if ( m_AutoWalkMode == 0 )
         {
             if ( SHIFT() )
             {
                 m_AutoWalkMode = 2;
+				m_StartedWithSprint = true;
             } else
             {
                 m_AutoWalkMode = 1;
+				m_StartedWithSprint = false;
             }
         }
 		
@@ -190,13 +194,15 @@ class ExpansionAutorunModule: JMModuleBase
 			
 			if ( m_AutoWalkMode > 0 )
       		{
-       	    	if ( ( player.GetInputController().LimitsIsSprintDisabled() ) || ( m_AutoWalkMode == 1 ) )
+       	    	if ( ( player.GetInputController().LimitsIsSprintDisabled() && m_StartedWithSprint ) || ( m_AutoWalkMode == 1 && !m_StartedWithSprint ) )
        	   		{
        	        	player.GetInputController().OverrideMovementSpeed( true, 2 );
+					m_AutoWalkMode = 1;
        	    	}
        	    	else
        	    	{
        	        	player.GetInputController().OverrideMovementSpeed( true, 3 );
+					m_AutoWalkMode = 2;
        	    	}
 
        	    	player.GetInputController().OverrideMovementAngle( true, 1 );

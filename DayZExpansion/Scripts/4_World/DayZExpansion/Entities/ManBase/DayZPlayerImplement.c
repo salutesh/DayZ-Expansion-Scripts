@@ -274,4 +274,9 @@ modded class DayZPlayerImplement
 		EXPrint("DayZPlayerImplement::CommandHandler - End");
 		#endif
 	}
+	override bool IsShootingFromCamera()
+	{
+		bool disableMagicCrosshair = GetExpansionSettings().GetGeneral().DisableMagicCrosshair; 
+		return !disableMagicCrosshair;
+	}	
 }

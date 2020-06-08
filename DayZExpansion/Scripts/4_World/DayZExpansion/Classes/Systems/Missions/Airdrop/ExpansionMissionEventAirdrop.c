@@ -119,11 +119,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{			
 			if ( m_Plane.CheckForDrop() && !m_Container )
 			{
+				m_LootHasSpawned = false;
+
 				m_Container = m_Plane.CreateDrop( Container );
 				m_Container.InitAirdrop( DropLocation.Name );
 
-				//SpawnInfected( m_Container.GetPosition(), 0, 30 );
-				
 				CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 10 );
 			}
 
@@ -140,17 +140,15 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		if ( m_Container )
 		{
-			if ( !m_Container.m_LootHasSpawned )
+			if ( m_Container.m_ItemCount == 0 && !m_LootHasSpawned )
 			{
-				m_CurrentMissionTime = 0;
-			}
-			else if ( !m_LootHasSpawned )
-			{
-				m_LootHasSpawned = true;
-
 				SpawnLoot( m_Container.GetPosition(), 30 );
 
 				SpawnInfected( m_Container.GetPosition(), 50 );
+
+				m_CurrentMissionTime = 0;
+
+				m_LootHasSpawned = true;
 			}
 		}
 	}
@@ -294,7 +292,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		TStringArray cz75_1 = { "TLRLight" };
 
-
 		TStringArray fnx1_1 = { "TLRLight" };
 		
 		TStringArray kedr_1 = { "PistolSuppressor" };  
@@ -313,7 +310,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		TStringArray firstaidkit_6 = { "PainkillerTablets","Epinephrine" };
 		TStringArray firstaidkit_7 = { "TetracyclineAntiBiotics","Morphine" };
 		TStringArray firstaidkit_8 = { "BandageDressing","VitaminBottle" };
-
 
 		Container = "ExpansionAirdropContainer";
 

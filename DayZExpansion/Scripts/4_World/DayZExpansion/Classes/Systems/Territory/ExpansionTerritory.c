@@ -17,14 +17,14 @@ class ExpansionTerritory
 	private vector TerritoryPosition;
 	private int TerritoryLevel;
 	private string TerritoryOwnerID;
-	private int TerritoryFlagTextureID;
+	private string TerritoryFlagTexturePath;
 	private autoptr array< ref ExpansionTerritoryMember > TerritoryMembers;
 	private autoptr array< ref ExpansionTerritoryInvite > Invites;
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritory Constructor
 	// ------------------------------------------------------------
-	void ExpansionTerritory(int id, string name, int level, string ownerID, vector position, int textureID)
+	void ExpansionTerritory(int id, string name, int level, string ownerID, vector position, string texturePath)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritory::ExpansionTerritory:: - Start");
@@ -35,7 +35,7 @@ class ExpansionTerritory
 		TerritoryPosition = position;
 		TerritoryLevel = level;
 		TerritoryOwnerID = ownerID;
-		TerritoryFlagTextureID = textureID;
+		TerritoryFlagTexturePath = texturePath;
 		TerritoryMembers = new array<ref ExpansionTerritoryMember>;
 		Invites = new array<ref ExpansionTerritoryInvite>;
 		
@@ -232,11 +232,11 @@ class ExpansionTerritory
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion GetFlagTextureID
+	// Expansion GetFlagTexturePath
 	// ------------------------------------------------------------
-	int GetFlagTextureID()
+	string GetFlagTexturePath()
 	{
-		return TerritoryFlagTextureID;
+		return TerritoryFlagTexturePath;
 	}
 	
 	// ------------------------------------------------------------

@@ -10,6 +10,39 @@
  *
 */
 
+class ExpansionGPSUI extends ScriptedWidgetEventHandler
+{	
+	protected Widget m_Root;
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionGPSUI Constructor
+	// ------------------------------------------------------------
+	void ExpansionGPSUI(Widget parent)
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionGPSUI::ExpansionGPSUI - Start");
+		#endif
+	
+		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/hud/expansion_gps.layout", parent ) );
+		
+		m_Root.SetHandler(this);
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionGPSUI::ExpansionGPSUI - End");
+		#endif
+	}
+	
+		
+	// ------------------------------------------------------------
+	// Expansion ExpansionPartyTabInvitesListEntry Destructor
+	// ------------------------------------------------------------
+	void ~ExpansionGPSUI()
+	{
+		delete m_Root;
+	}
+}
+
+
 class ExpansionIngameHud
 {
 	//! HUD UI META
@@ -64,9 +97,15 @@ class ExpansionIngameHud
 	//! EARPLUG
 	protected ImageWidget 									m_EarPlugIcon;
 
+	//! DEBUGER
 	protected MultilineTextWidget							m_ExpansionDebug;
 	protected autoptr array< string >						m_DebugLines;
 
+	//! MISC
+	protected WrapSpacerWidget 								m_RightHUDPanel;
+	
+	protected ref ExpansionGPSUI							m_GPSUI;
+	
 	protected ref array<ref ExpansionMapMenuMarker> 		m_MapMarkers;
 	protected ref array<ref ExpansionMapMarker> 			m_MapSavedMarkers;
 	
@@ -81,7 +120,7 @@ class ExpansionIngameHud
 	//! MARKER MODULES
 	protected ref ExpansionMapMarkerModule 					m_MarkerModule;
 	protected ref ExpansionPartyModule 						m_PartyModule;
-	
+
 	//============================================
 	// ExpansionIngameHud Constructor
 	//============================================
@@ -149,6 +188,10 @@ class ExpansionIngameHud
 		#endif
 		m_WgtRoot = hud_panel_widget;
 		m_WgtRoot.Show( true );		
+		
+		/*m_RightHUDPanel 						= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("RightHUDPanel") );
+		if ( !m_GPSUI )
+			m_GPSUI = new ExpansionGPSUI( m_RightHUDPanel );*/
 		
 		//! GPS
 		m_GPSPanel								= Widget.Cast( m_WgtRoot.FindAnyWidget("GPSPanel") );
@@ -534,6 +577,8 @@ class ExpansionIngameHud
 				UpdateTime();
 			}
 		}
+		if ( m_EarPlugIcon )
+			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
 		
 		/*
 		if ( m_HumanityPanel )
@@ -546,7 +591,8 @@ class ExpansionIngameHud
 		}
 		*/
 		
-		m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
+		
+		/*
 		if ( m_ExpansionEarplugState )
 		{
 			GetGame().GetSoundScene().SetSoundVolume( m_ExpansionEarplugVolume, 1 );
@@ -555,6 +601,7 @@ class ExpansionIngameHud
 		{
 			GetGame().GetSoundScene().SetSoundVolume( g_Game.m_volume_sound, 1 );
 		}
+		*/
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::RefreshExpansionHudVisibility End");
@@ -1015,6 +1062,15 @@ class ExpansionIngameHud
 	void ToggleEarplugs()
 	{
 		m_ExpansionEarplugState = !m_ExpansionEarplugState;
+			
+		if ( m_ExpansionEarplugState )
+		{
+			GetGame().GetSoundScene().SetSoundVolume( 0.05, 1 );
+		}
+		else
+		{
+			GetGame().GetSoundScene().SetSoundVolume( g_Game.m_volume_sound, 1 );
+		}
 		RefreshExpansionHudVisibility();
 	}
 	

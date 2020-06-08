@@ -39,9 +39,8 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	protected ExpansionTerritoryFlag m_CurrentTerritoryFlag;
 	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
-	protected autoptr ref array<ref ExpansionFlagTexture> m_FlagTextures;
 	protected ref array<ref ExpansionFlagMenuTextureEntry> m_TextureEntrys;
-	protected int m_CurrentSelectedTexture;
+	protected string m_CurrentSelectedTexture;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionFlagMenu Constructor
@@ -49,12 +48,9 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	void ExpansionFlagMenu()
 	{
 		m_TerritoryModule = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule( ExpansionTerritoryModule ) );
-		m_FlagTextures = new array<ref ExpansionFlagTexture>;
 		m_TextureEntrys = new array<ref ExpansionFlagMenuTextureEntry>;
 		
-		LoadFlagTextures();
-		
-		m_CurrentSelectedTexture = -1;
+		m_CurrentSelectedTexture = "";
 	}
 
 	// ------------------------------------------------------------
@@ -93,54 +89,23 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion LoadFlagTextures
-	// Contains id and name information for each flag texture
-	// ------------------------------------------------------------
-	void LoadFlagTextures()
-	{
-		AddFlagTexture(1, "Expansion");
-		AddFlagTexture(2, "White");
-		AddFlagTexture(3, "Australia");
-		AddFlagTexture(4, "Canada");
-		AddFlagTexture(5, "Chernarus");
-		AddFlagTexture(6, "France");
-		AddFlagTexture(7, "Germany");
-		AddFlagTexture(8, "Latvia");
-		AddFlagTexture(9, "Luxembourg");
-		AddFlagTexture(10, "Mexico");
-		AddFlagTexture(11, "Netherlands");
-		AddFlagTexture(12, "New Zealand");
-		AddFlagTexture(13, "Norway");
-		AddFlagTexture(14, "Poland");
-		AddFlagTexture(15, "Russia");
-		AddFlagTexture(16, "UK");
-		AddFlagTexture(17, "USA");
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion AddFlagTexture
-	// ------------------------------------------------------------
-	void AddFlagTexture( int id, string name )
-	{
-		ExpansionFlagTexture flagTexture = new ExpansionFlagTexture( id, name );
-		
-		m_FlagTextures.Insert( flagTexture );
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion LoadTextureList
 	// ------------------------------------------------------------
 	void LoadTextureList()
 	{
-		if (m_FlagTextures.Count() == 0)
+		ref array<ref ExpansionFlagTexture> flagTextures = GetExpansionStatic().GetFlagTextures();
+		if (flagTextures.Count() == 0)
 			return;
 		
 		if (m_TextureEntrys.Count() > 0)
 			m_TextureEntrys.Clear();
 		
-		for ( int i = 0; i < m_FlagTextures.Count(); i++ )
+		for ( int i = 0; i < flagTextures.Count(); i++ )
    		{
-			ExpansionFlagTexture texture = ExpansionFlagTexture.Cast( m_FlagTextures.Get(i) );
+			ExpansionFlagTexture texture = ExpansionFlagTexture.Cast( flagTextures.Get(i) );
+			if (!texture)
+				continue;
+			
 			ExpansionFlagMenuTextureEntry texture_entry = new ExpansionFlagMenuTextureEntry(m_FlagEntrysGrid, texture);
 			
 			m_TextureEntrys.Insert( texture_entry );
@@ -150,14 +115,15 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion SetCurrentTexture
 	// ------------------------------------------------------------
-	void SetCurrentTexture(ExpansionFlagTexture texture)
+	void SetCurrentTexture(ref ExpansionFlagTexture texture)
 	{
-		string path = GetFlagTexturePath( texture.ID );
+		if (!texture)
+			return;
 		
-		m_FlagPreview.LoadImageFile( 0, path );
+		m_FlagPreview.LoadImageFile( 0, texture.Path );
 		m_FlagPreview.Show( true );
 		
-		m_CurrentSelectedTexture = texture.ID;
+		m_CurrentSelectedTexture = texture.Path;
 	}
 	
 	// ------------------------------------------------------------
@@ -165,7 +131,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	void ChangeFlag()
 	{
-		if ( m_CurrentSelectedTexture != -1 )
+		if ( m_CurrentSelectedTexture != "" )
 		{
 			if ( m_TerritoryModule && m_CurrentFlag && !m_CurrentFlag.IsTerritoryFlag() )
 			{
@@ -252,8 +218,11 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	{
 		PlayerBase clientPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
 		
-		m_TerritoryOwnerName.SetText( clientPlayer.GetIdentityName() );
-		m_TerritoryPosition.SetText( "X: " + Math.Round( m_CurrentFlag.GetPosition()[0] ) + " Y: " + Math.Round( m_CurrentFlag.GetPosition()[2] ) );
+		if (clientPlayer)
+			m_TerritoryOwnerName.SetText( clientPlayer.GetIdentityName() );
+		
+		if (m_CurrentFlag)
+			m_TerritoryPosition.SetText( "X: " + Math.Round( m_CurrentFlag.GetPosition()[0] ) + " Y: " + Math.Round( m_CurrentFlag.GetPosition()[2] ) );
 	}
 	
 	// ------------------------------------------------------------

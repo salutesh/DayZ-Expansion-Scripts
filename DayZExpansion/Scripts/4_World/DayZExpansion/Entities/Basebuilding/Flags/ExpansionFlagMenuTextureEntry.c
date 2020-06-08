@@ -20,13 +20,13 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	protected ButtonWidget						m_Button;
 	protected ImageWidget						m_Icon;
 	protected TextWidget						m_Name;
-	protected ExpansionFlagTexture				m_Texture;
+	protected autoptr ExpansionFlagTexture		m_Texture;
 	protected ExpansionFlagMenu					m_FlagMenu;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionFlagMenuTextureEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionFlagMenuTextureEntry(Widget parent, ExpansionFlagTexture texture)
+	void ExpansionFlagMenuTextureEntry(Widget parent, ref ExpansionFlagTexture texture)
 	{
 		m_Root			= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/flag/expansion_flag_menu_texture_entry.layout", parent ) );
 		m_Button		= ButtonWidget.Cast( m_Root.FindAnyWidget("texture_entry_button") );
@@ -53,20 +53,16 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void SetEntry()
 	{
-		int icon = GetTextureData().ID;
-		string name = GetTextureData().Name;
-		string path = GetFlagTexturePath( icon );
-		
-		m_Icon.LoadImageFile( 0, path );
+		m_Icon.LoadImageFile( 0, GetTextureData().Path );
 		m_Icon.Show( true );
 
-		m_Name.SetText( name );
+		m_Name.SetText( GetTextureData().Name );
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion GetTextureData
 	// ------------------------------------------------------------
-	ExpansionFlagTexture GetTextureData()
+	ref ExpansionFlagTexture GetTextureData()
 	{
 		return m_Texture;
 	}
@@ -76,7 +72,7 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnMouseButtonUp(Widget w, int x, int y, int button)
 	{
-		if(w == m_Button)
+		if (w == m_Button)
 		{
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionMapMenuMarkerEntry::OnMouseButtonUp - Clicked m_Button");

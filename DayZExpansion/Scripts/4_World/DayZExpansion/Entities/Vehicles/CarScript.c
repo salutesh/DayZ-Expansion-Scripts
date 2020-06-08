@@ -198,23 +198,24 @@ modded class CarScript
 
 		m_CanHaveLock = m_Doors.Count() > 0;
 
-		string cHSSE = "hornSoundSetEXT";
-		if ( ConfigIsExisting( cHSSE ) )
+		if( m_CurrentSkin )
 		{
-			m_HornSoundSetEXT = ConfigGetString( cHSSE );
-		} 
-		else
-		{
-			m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-		}	
-		
-		string cHSSI = "hornSoundSetINT";
-		if ( ConfigIsExisting( cHSSI ) )
-		{
-			m_HornSoundSetINT = ConfigGetString( cHSSI );
-		} else
-		{		
-			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
+			if ( m_CurrentSkin.HornEXT != "" )
+			{
+				m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
+			} 
+			else
+			{
+				m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+			}
+			
+			if ( m_CurrentSkin.HornINT != "" )
+			{
+				m_HornSoundSetINT = m_CurrentSkin.HornINT;
+			} else
+			{		
+				m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
+			}
 		}
 
 		LoadConstantVariables();
@@ -1740,7 +1741,7 @@ modded class CarScript
 					{
 						for( int j = 0; j < lodSelections[i].GetVertexCount(); j++ )
 						{
-							ExpansionPointLight light = ExpansionPointLight.CreateLight( type, "0 0 0" );
+							ExpansionPointLight light = ExpansionPointLight.Cast( ExpansionPointLight.CreateLight( type, "0 0 0" ) );
 							light.m_Val = default;
  
 							light.SetRadiusTo( radius );
@@ -1953,7 +1954,7 @@ modded class CarScript
 
 		ExpansionDebugUI( "[[ " + this + " ]]" );
 
-		DayZPlayerImplement driver = CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER );
+		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 
 		if ( GetGame().IsClient() )
 		{
@@ -2375,7 +2376,7 @@ modded class CarScript
 		EXPrint("CarScript::ExpansionOnSkinUpdate - Start");
 		#endif
 
-		if ( !m_CurrentSkin )
+		if ( !m_CurrentSkin || !m_CurrentSkin.HiddenSelections )
 		{
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("CarScript::ExpansionOnSkinUpdate - End No Skin");

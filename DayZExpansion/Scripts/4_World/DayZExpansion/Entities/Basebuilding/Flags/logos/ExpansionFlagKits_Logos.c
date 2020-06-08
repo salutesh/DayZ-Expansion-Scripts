@@ -15,8 +15,8 @@
  **/
 class ExpansionFlagKitExpansion: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 1;
+		return EXPANSION_FLAG_LOGO_EXPANSION;
 	}
 }

@@ -288,33 +288,33 @@ class ExpansionMh6: ExpansionHelicopterScript
 		{
 			case "mh6door_1_1": {
 				if ( GetAnimationPhase("mh6door_1_1") > 0.5 ) {
-					return CarDoorState.DOORS_CLOSED;
-                } else {
 					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
                 }
                 break;
             }
 			case "mh6door_1_2": {
 				if ( GetAnimationPhase("mh6door_1_2") > 0.5 ) {
-					return CarDoorState.DOORS_CLOSED;
-                } else {
 					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
                 }
                 break;
             }
 			case "mh6door_2_1": {
 				if ( GetAnimationPhase("mh6door_2_1") > 0.5 ) {
-					return CarDoorState.DOORS_CLOSED;
-                } else {
 					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
                 }
                 break;
             }
 			case "mh6door_2_2": {
 				if ( GetAnimationPhase("mh6door_2_2") > 0.5 ) {
-					return CarDoorState.DOORS_CLOSED;
-                } else {
 					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
                 }
                 break;
             }
@@ -456,10 +456,8 @@ class ExpansionMh6: ExpansionHelicopterScript
 		{
 			ItemBase battery;
 			
-			if ( IsVitalCarBattery() ) battery = FindAttachmentBySlotName("CarBattery");
-			if ( IsVitalTruckBattery() ) battery = FindAttachmentBySlotName("TruckBattery");
-			if ( IsVitalHelicopterBattery() ) battery = FindAttachmentBySlotName("ExpansionHelicopterBattery");
-			if ( IsVitalAircraftBattery() ) battery = FindAttachmentBySlotName("ExpansionAircraftBattery");
+			if ( IsVitalHelicopterBattery() )
+				battery = ItemBase.Cast( FindAttachmentBySlotName("ExpansionHelicopterBattery") );
 			
 			if ( battery )
 			{

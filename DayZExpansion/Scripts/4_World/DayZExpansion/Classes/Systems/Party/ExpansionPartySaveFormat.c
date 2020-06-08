@@ -24,25 +24,37 @@ class ExpansionPartySaveFormatPlayer
 	bool Promoted;
 }
 
+class ExpansionQuickMarker
+{
+	[NonSerialized()]
+	string UID;
+	
+	vector Pos;
+	int Color;
+}
+
 class ExpansionPartySaveFormat 
 {
-    private int PartyID;
+    protected int PartyID;
 
-    private string PartyName;
-    private string OwnerUID;
-	private string OwnerName;
+    protected string PartyName;
+    protected string OwnerUID;
+	protected string OwnerName;
 
     //string inside map is the uid of the player, so can easily search in log n instead n with array
-    private autoptr array< ref ExpansionPartySaveFormatPlayer > Players;
-	private autoptr array< ref ExpansionPartyInvite > Invites;
+    protected autoptr array< ref ExpansionPartySaveFormatPlayer > Players;
+	protected autoptr array< ref ExpansionPartyInvite > Invites;
     
-    private autoptr array< ref ExpansionMapMarker > Markers;
+    protected autoptr array< ref ExpansionMapMarker > Markers;
 	
 	[NonSerialized()]
-    private autoptr map< string, ref ExpansionPartySaveFormatPlayer > PlayersMap;
+    protected autoptr map< string, ref ExpansionPartySaveFormatPlayer > PlayersMap;
 
     [NonSerialized()]
-	private autoptr map< string, ref ExpansionPartyInvite > InvitesMap;
+	protected autoptr map< string, ref ExpansionPartyInvite > InvitesMap;
+	
+	[NonSerialized()]
+	protected autoptr array<ref ExpansionQuickMarker> m_QuickMarkers;
 		
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartySaveFormat Consturctor
@@ -58,6 +70,8 @@ class ExpansionPartySaveFormat
 		
 		PlayersMap = new map< string, ref ExpansionPartySaveFormatPlayer >;
 		InvitesMap = new map< string, ref ExpansionPartyInvite >;
+		
+		m_QuickMarkers = new array<ref ExpansionQuickMarker>;
     }
 	
 	// ------------------------------------------------------------
@@ -72,8 +86,11 @@ class ExpansionPartySaveFormat
 	// ------------------------------------------------------------
 	void InitMaps()
 	{
-		if (!PlayersMap) PlayersMap = new map< string, ref ExpansionPartySaveFormatPlayer >;
-		if (!InvitesMap) InvitesMap = new map< string, ref ExpansionPartyInvite >;
+		if (!PlayersMap)
+			PlayersMap = new map< string, ref ExpansionPartySaveFormatPlayer >;
+		
+		if (!InvitesMap)
+			InvitesMap = new map< string, ref ExpansionPartyInvite >;
 		
 		PlayersMap.Clear();
 		InvitesMap.Clear();
@@ -95,6 +112,69 @@ class ExpansionPartySaveFormat
 				InvitesMap.Insert( invite.UID, invite );
 			}
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetQuickMarkers
+	// ------------------------------------------------------------
+	void SetQuickMarkers(ref array<ref ExpansionQuickMarker> quickMarkers)
+	{
+		m_QuickMarkers = quickMarkers;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetQuickMarkers
+	// ------------------------------------------------------------
+	ref array<ref ExpansionQuickMarker> GetQuickMarkers()
+	{
+		return m_QuickMarkers;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateQuickMarker
+	// ------------------------------------------------------------
+	void UpdateQuickMarker(ref ExpansionQuickMarker quickMarker)
+	{
+		if (!IsMissionHost())
+			return;
+		
+		if (!m_QuickMarkers)
+			m_QuickMarkers = new array<ref ExpansionQuickMarker>;
+		
+		for (int i = 0; i < m_QuickMarkers.Count(); ++i)
+		{
+			if (m_QuickMarkers[i] && m_QuickMarkers[i].UID == quickMarker.UID)
+			{
+				delete m_QuickMarkers[i];
+				m_QuickMarkers[i] = quickMarker;
+				return;
+			}
+		}
+		
+		m_QuickMarkers.Insert( quickMarker );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateQuickMarker
+	// ------------------------------------------------------------
+	bool RemoveQuickMarker(string id)
+	{
+		if (!IsMissionHost())
+			return false;
+		
+		if (!m_QuickMarkers)
+			m_QuickMarkers = new array<ref ExpansionQuickMarker>;
+		
+		for (int i = 0; i < m_QuickMarkers.Count(); ++i)
+		{
+			if (m_QuickMarkers[i] && m_QuickMarkers[i].UID == id)
+			{
+				m_QuickMarkers.Remove(i);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	// ------------------------------------------------------------

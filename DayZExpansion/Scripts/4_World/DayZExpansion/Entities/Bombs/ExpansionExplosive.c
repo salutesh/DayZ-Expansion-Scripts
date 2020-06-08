@@ -16,6 +16,7 @@
 class ExpansionExplosiveBase extends ItemBase
 {	
 	protected int m_Time;
+	protected int m_Timer;
 
 	protected bool m_Executed;
 	protected bool m_ExecutedSynchRemote;
@@ -150,7 +151,8 @@ class ExpansionExplosiveBase extends ItemBase
 			m_ExplodedSynchRemote = true;
 
 			//! Explode( DT_EXPLOSION, "ExpansionRocket_Ammo" );
-			ExpansionCreateExplosion( this, "ExpansionRocket_Ammo", 5, 500 );
+			//ExpansionCreateExplosion( this, "ExpansionRocket_Ammo", 5, 500 );
+			GetGame().CreateObject( "Expansion_C4_Explosion", this.GetPosition() );
 			
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveLater, 150, false ); 
 
@@ -166,26 +168,19 @@ class ExpansionExplosiveBase extends ItemBase
 
 	void TriggerSound( int time, float dT )
 	{
-		if ( IsMissionClient() )
-		{	
-			static int timer;
-
-			float explosionTime = GetExpansionSettings().GetBaseBuilding().ExplosionTime; 
-
-			if ( time <= 10 )
+		if ( time <= 10 )
+		{
+			if ( m_Timer < ( time * 100 ) )
 			{
-				if ( timer < ( time * 100 ) )
-				{
-					timer += 10 * dT;
-				}
-				else 
-				{
-					timer = 0;
-					
-					m_Sound = SEffectManager.PlaySound("Expansion_Explosive_C4_SoundSet", GetPosition());
-				}
-			}	
-		}
+				m_Timer += 10 * dT;
+			}
+			else 
+			{
+				m_Timer = 0;
+				
+				m_Sound = SEffectManager.PlaySound("Expansion_Explosive_C4_SoundSet", GetPosition());
+			}
+		}	
 	}
 
 	private void HandleClientExplosion()

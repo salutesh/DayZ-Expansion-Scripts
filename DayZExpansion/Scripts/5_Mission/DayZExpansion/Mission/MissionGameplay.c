@@ -624,7 +624,17 @@ modded class MissionGameplay
 						Expansion3DMarkerModule module3DMarker;
 						if ( Class.CastTo( module3DMarker, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
 						{
-							module3DMarker.ToggleShowMaarkers();
+							module3DMarker.ToggleShowMarkers();
+						}
+					}
+					
+					//! Toogle 3d party members markers visiblity
+					if ( input.LocalPress( "UAExpansionOnlyPartyMembersMarkersToggle", false ) )
+					{
+						Expansion3DMarkerModule module3DMarker2;
+						if ( Class.CastTo( module3DMarker2, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
+						{
+							module3DMarker2.ToggleOnlyPartyMembersMarkers();
 						}
 					}
 				}

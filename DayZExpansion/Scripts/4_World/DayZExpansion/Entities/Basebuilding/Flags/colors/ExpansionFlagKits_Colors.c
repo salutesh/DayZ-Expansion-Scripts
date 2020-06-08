@@ -15,8 +15,8 @@
  **/
 class ExpansionFlagKitWhite: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 2;
+		return EXPANSION_FLAG_COLOR_WHITE;
 	}
 }

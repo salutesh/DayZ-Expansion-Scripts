@@ -15,12 +15,12 @@
  **/
 class ExpansionFlagTexture
 {
-	int ID;
+	string Path;
 	string Name;
 	
-	void ExpansionFlagTexture(int id, string name)
+	void ExpansionFlagTexture(string path, string name)
 	{
-		ID = id;
+		Path = path;
 		Name = name;
 	}
 }

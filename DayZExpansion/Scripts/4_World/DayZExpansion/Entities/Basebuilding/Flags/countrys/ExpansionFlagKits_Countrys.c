@@ -15,9 +15,9 @@
  **/
 class ExpansionFlagKitAustralia: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 3;
+		return EXPANSION_FLAG_COUNTRIES_AUSTRALIA;
 	}
 }
 
@@ -26,9 +26,9 @@ class ExpansionFlagKitAustralia: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitCanada: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 4;
+		return EXPANSION_FLAG_COUNTRIES_CANADA;
 	}
 }
 
@@ -38,9 +38,9 @@ class ExpansionFlagKitCanada: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitChernarus: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 5;
+		return EXPANSION_FLAG_COUNTRIES_CHERNARUS;
 	}
 }
 
@@ -49,9 +49,9 @@ class ExpansionFlagKitChernarus: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitFrance: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 6;
+		return EXPANSION_FLAG_COUNTRIES_FRANCE;
 	}
 }
 
@@ -60,9 +60,9 @@ class ExpansionFlagKitFrance: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitGermany: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 7;
+		return EXPANSION_FLAG_COUNTRIES_GERMANY;
 	}
 }
 
@@ -71,9 +71,9 @@ class ExpansionFlagKitGermany: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitLatvia: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 8;
+		return EXPANSION_FLAG_COUNTRIES_LATVIA;
 	}
 }
 
@@ -82,9 +82,9 @@ class ExpansionFlagKitLatvia: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitLuxembourg: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 9;
+		return EXPANSION_FLAG_COUNTRIES_LUXEMBOURG;
 	}
 }
 
@@ -93,9 +93,9 @@ class ExpansionFlagKitLuxembourg: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitMexico: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 10;
+		return EXPANSION_FLAG_COUNTRIES_MEXICO;
 	}
 }
 
@@ -104,9 +104,9 @@ class ExpansionFlagKitMexico: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitNetherlands: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 11;
+		return EXPANSION_FLAG_COUNTRIES_NETHERLANDS;
 	}
 }
 
@@ -115,9 +115,9 @@ class ExpansionFlagKitNetherlands: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitNewZealand: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 12;
+		return EXPANSION_FLAG_COUNTRIES_NEWZEALAND;
 	}
 }
 
@@ -126,9 +126,9 @@ class ExpansionFlagKitNewZealand: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitNorway: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 13;
+		return EXPANSION_FLAG_COUNTRIES_NORWAY;
 	}
 }
 
@@ -137,9 +137,9 @@ class ExpansionFlagKitNorway: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitPoland: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 14;
+		return EXPANSION_FLAG_COUNTRIES_POLAND;
 	}
 }
 
@@ -148,9 +148,9 @@ class ExpansionFlagKitPoland: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitUk: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 15;
+		return EXPANSION_FLAG_COUNTRIES_UK;
 	}
 }
 
@@ -159,9 +159,9 @@ class ExpansionFlagKitUk: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitRussia: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 16;
+		return EXPANSION_FLAG_COUNTRIES_RUSSIA;
 	}
 }
 
@@ -170,8 +170,8 @@ class ExpansionFlagKitRussia: ExpansionFlagKitBase
  **/
 class ExpansionFlagKitUsa: ExpansionFlagKitBase
 {
-	override int GetTextureID()
+	override string GetTexturePath()
 	{
-		return 17;
+		return EXPANSION_FLAG_COUNTRIES_USA;
 	}
 }

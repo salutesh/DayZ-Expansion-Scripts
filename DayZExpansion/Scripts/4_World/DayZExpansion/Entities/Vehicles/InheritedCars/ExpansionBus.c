@@ -109,8 +109,6 @@ class ExpansionBus extends OffroadHatchback
 			
 			if (battery)
 			{
-				// HEADLIGHTS
-				
 				if (m_HeadlightsOn)
 				{
 					if (!m_BusLight1 && m_HeadlightsState != CarHeadlightBulbsState.NONE)
@@ -218,14 +216,10 @@ class ExpansionBus extends OffroadHatchback
 					}
 				}
 			
-				// REAR LIGHTS (brakes, reverse & tail lights)
-			
 				if ( EngineIsOn() )
 				{
 					int reverse_light_state = CarRearLightType.NONE;
-					
-					// reverse
-					
+								
 					int gear;
 					
 					if (new_gear == -1)
@@ -242,8 +236,6 @@ class ExpansionBus extends OffroadHatchback
 					{
 						reverse_light_state = CarRearLightType.NONE;
 					}
-					
-					// brakes
 					
 					if (m_BrakesArePressed)
 					{

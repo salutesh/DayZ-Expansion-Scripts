@@ -295,6 +295,8 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 
+		SetSynchDirty();
+
 		return true;
 	}
 	

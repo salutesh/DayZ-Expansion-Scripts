@@ -14,6 +14,7 @@ class Expansion3DMarkerModule: JMModuleBase
 {
     protected autoptr array< ref Expansion3DMarker > 	m_Markers;
 	protected bool										m_ShowMarkers;
+	protected bool										m_ShowOnlyPartyMembersMarkers;
 	
 	// ------------------------------------------------------------
 	// Expansion3DMarkerModule Constructor
@@ -22,9 +23,10 @@ class Expansion3DMarkerModule: JMModuleBase
     {
         m_Markers = new array< ref Expansion3DMarker >;
 		m_ShowMarkers = true;
+		m_ShowOnlyPartyMembersMarkers = false;
     }
 	
-	void ToggleShowMaarkers()
+	void ToggleShowMarkers()
 	{
 		m_ShowMarkers = !m_ShowMarkers;
 	}
@@ -32,6 +34,13 @@ class Expansion3DMarkerModule: JMModuleBase
 	bool GetShowMarkers()
 	{
 		return m_ShowMarkers;
+	}
+	
+	void ToggleOnlyPartyMembersMarkers()
+	{
+		m_ShowOnlyPartyMembersMarkers = !m_ShowOnlyPartyMembersMarkers;
+		
+		RefreshMarkers();
 	}
 	
 	override bool IsEnabled()
@@ -116,36 +125,30 @@ class Expansion3DMarkerModule: JMModuleBase
         if ( !GetExpansionClientSettings().Show3DMarkers )
             return;
 
-        if ( GetExpansionClientSettings().Show3DClientMarkers )
+        if ( GetExpansionClientSettings().Show3DClientMarkers && !m_ShowOnlyPartyMembersMarkers )
         {
-			if ( module.Count() > 0 )
-			{
-	            for ( idx = 0; idx < module.Count(); idx++ )
-	            {
-	                marker = module.GetMarker( idx );
-	
-	                if ( !marker || !marker.Is3DMarker() )
-	                    continue;
-	
-	                Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
-	            }
-			}
+			for ( idx = 0; idx < module.Count(); idx++ )
+            {
+                marker = module.GetMarker( idx );
+
+                if ( !marker || !marker.Is3DMarker() )
+                    continue;
+
+                Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
+            }
         }
 
-        if ( GetExpansionClientSettings().Show3DGlobalMarkers )
+        if ( GetExpansionClientSettings().Show3DGlobalMarkers && !m_ShowOnlyPartyMembersMarkers )
         {
-			if ( module.ServerCount() > 0 )
-			{
-	            for ( idx = 0; idx < module.ServerCount(); idx++ )
-	            {
-	                marker = module.GetServerMarker( idx );
-	
-	                if ( !marker || !marker.Is3DMarker() )
-	                    continue;
-	
-	                Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
-	            }
-			}
+			for ( idx = 0; idx < module.ServerCount(); idx++ )
+            {
+                marker = module.GetServerMarker( idx );
+
+                if ( !marker || !marker.Is3DMarker() )
+                    continue;
+
+                Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
+            }
         }
 
         PlayerBase player;
@@ -157,6 +160,8 @@ class Expansion3DMarkerModule: JMModuleBase
 		vector selfPosition = player.GetPosition();
 		
 		ref ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		if (!partyModule)
+			return;
 
         if ( GetExpansionClientSettings().Show3DPlayerMarkers && GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
         {
@@ -180,8 +185,23 @@ class Expansion3DMarkerModule: JMModuleBase
 				}
 			}
         }
+		
+		if ( partyModule.HasParty() && GetExpansionSettings().GetParty().EnableQuickMarker )
+        {
+			ref array<ref ExpansionQuickMarker> quickMarkers = partyModule.GetParty().GetQuickMarkers();
+			if ( quickMarkers )
+			{
+				for ( idx = 0; idx < quickMarkers.Count(); idx++ )
+	            {
+					ref ExpansionQuickMarker quickMarker = quickMarkers[idx];
+	                if ( !quickMarker ) continue;
+					
+					Create3DMarker( "", "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", quickMarker.Color, quickMarker.Pos );
+	            }
+			}
+		}
 
-        if ( partyModule.HasParty() && GetExpansionClientSettings().Show3DPartyMarkers )
+        if ( partyModule.HasParty() && GetExpansionClientSettings().Show3DPartyMarkers && !m_ShowOnlyPartyMembersMarkers )
         {
 			array<ref ExpansionMapMarker> partyMarkers = partyModule.GetParty().GetAllMarkers();
 			if ( partyMarkers.Count() > 0 )

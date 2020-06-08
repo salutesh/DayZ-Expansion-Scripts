@@ -91,13 +91,10 @@ class ExpansionActionHelicopterHoverRefill: ActionContinuousBase
 
 			// Initiate the raycast
 			array< ref RaycastRVResult > results = new array< ref RaycastRVResult >();
-			if ( DayZPhysics.RaycastRVProxy( params, results ) )
+			if ( DayZPhysics.RaycastRVProxy( params, results ))
 			{
 				for ( int i = 0; i < results.Count(); ++i )
 				{
-					if ( !results[i].obj.GetType() )
-						return false;
-
 					if ( results[i].obj.GetType() == "Land_FuelStation_Feed" )
 						return true;
 
@@ -106,6 +103,8 @@ class ExpansionActionHelicopterHoverRefill: ActionContinuousBase
 						
 					if ( results[i].obj.GetType() == "Static_FuelStation_Shed_Enoch" )
 						return true;
+						
+					return false;
 				}
 			}
 		}

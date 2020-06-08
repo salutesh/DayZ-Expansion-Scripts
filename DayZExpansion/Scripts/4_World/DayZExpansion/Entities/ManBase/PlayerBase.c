@@ -69,6 +69,9 @@ modded class PlayerBase
 	protected bool m_HasMap;
 	protected bool m_HasGPS;
 	
+	//Only server side
+	protected int m_QuickMarkerColor;
+	
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
 	// ------------------------------------------------------------
@@ -101,6 +104,9 @@ modded class PlayerBase
 
 		m_HasMap = false;
 		m_HasGPS = false;
+		
+		if (IsMissionHost())
+			m_QuickMarkerColor = ARGB(255, Math.RandomIntInclusive(0, 255), Math.RandomIntInclusive(0, 255), Math.RandomIntInclusive(0, 255));
 		
 		m_AllPlayers.Insert( this );
 		
@@ -588,29 +594,29 @@ modded class PlayerBase
 	// PlayerBase IsInTerritory
 	// Check if player is in a territory
 	// ------------------------------------------------------------
-	bool IsInTerritory()
+	bool IsInTerritory(float territorySize = -1)
 	{
 		if ( !m_TerritoryModule )
 			return false;
 			
-		return m_TerritoryModule.IsInTerritory( GetPosition() );
+		return m_TerritoryModule.IsInTerritory( GetPosition(), territorySize );
 	}
 	
 	// ------------------------------------------------------------
 	// PlayerBase IsInsideOwnTerritory
 	// Check if player is in own territory
 	// ------------------------------------------------------------
-	bool IsInsideOwnTerritory()
+	bool IsInsideOwnTerritory(float territorySize = -1)
 	{
 		if ( !m_TerritoryModule )
 			return false;
 
 		if ( IsMissionHost() )
 		{
-			return m_TerritoryModule.IsInsideOwnTerritory( GetPosition(), -1, m_PlayerUID );
+			return m_TerritoryModule.IsInsideOwnTerritory( GetPosition(), territorySize, m_PlayerUID );
 		}
 
-		return m_TerritoryModule.IsInsideOwnTerritory( GetPosition() );
+		return m_TerritoryModule.IsInsideOwnTerritory( GetPosition(), territorySize );
 	}
 	
 	// ------------------------------------------------------------
@@ -1400,6 +1406,14 @@ modded class PlayerBase
 				return;
 		}
 	*/
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase GetQuickMarkerColor
+	// ------------------------------------------------------------
+	int GetQuickMarkerColor()
+	{
+		return m_QuickMarkerColor;
 	}
 
 	// ------------------------------------------------------------

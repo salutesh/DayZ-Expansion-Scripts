@@ -64,6 +64,10 @@
 			<input name="UAExpansionChatToggle" loc="STR_EXPANSION_TOGGLE_CHAT" />
 			
 			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
+			
+			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" />
+			
+			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
 
 			<input name="UAExpansionSampleMenuToggle" visible="false" />
         </actions>
@@ -281,6 +285,12 @@
         </input>
 		<input name="UAExpansion3DMarkerToggle">
             <btn name="kK" />
+        </input>
+		<input name="UAExpansionOnlyPartyMembersMarkersToggle">
+            <btn name="kMultiply" />
+        </input>
+		<input name="UAExpansionQuickMarker">
+            <btn name="kH" />
         </input>
     </preset>
 </modded_inputs>

@@ -277,7 +277,7 @@ modded class MainMenu
 		HideModWarning();
 		CheckLicenze();
 
-		ExpansionBook book = GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU );
+		ExpansionBook book = ExpansionBook.Cast( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) );
 		if ( book && book.IsVisible() )
 		{
 			#ifdef EXPANSIONEXPRINT

@@ -41,7 +41,7 @@ modded class Land_House_1W03
 
 
 		SpawnInteriorObject( "bldr_picture_c", "-4.035000 -1.999944 -5.123661", "90.000000 0.500000 0.000000" );
-		SpawnInteriorObject( "Carp", "-0.869814 -0.450615 -3.098000", "-3.000006 0.000000 90.000000", 0.35 );
+		SpawnInteriorObject( "bldr_Carp", "-0.869814 -0.450615 -3.098000", "-3.000006 0.000000 90.000000", 0.35 );
 		SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-0.159371 -2.416870 -1.166253", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-1.304961 -2.449997 -0.788165", "5.003724 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-1.747044 -2.459999 0.212906", "-68.999969 0.000000 0.000000" );

@@ -327,36 +327,47 @@ class ExpansionUAZ extends OffroadHatchback
 
 		switch( posIdx )
 		{
-			case 0:
-				if ( GetCarDoorsState( "uazdriverdoor" ) == CarDoorState.DOORS_CLOSED )
-					return false;
-
-				return true;
-			break;
-			
-			case 1:
-				if ( GetCarDoorsState( "uazcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
-					return false;
-
-				return true;
-			break;
-
-			case 2:
-				if ( GetCarDoorsState( "uazcargo1door" ) == CarDoorState.DOORS_CLOSED )
-					return false;
-
-				return true;
-			break;
-
-			case 3:
-				if ( GetCarDoorsState( "uazcargo2door" ) == CarDoorState.DOORS_CLOSED )
-					return false;
-
-				return true;
-			break;
+			case 0: {
+				if ( GetAnimationPhase("uazdriverdoor") > 0.5 ) {
+					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
+                }
+                break;
+            }
+			case 1: {
+				if ( GetAnimationPhase("uazcodriverdoor") > 0.5 ) {
+					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
+                }
+                break;
+            }
+			case 2: {
+				if ( GetAnimationPhase("uazcargo1door") > 0.5 ) {
+					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
+                }
+                break;
+            }
+			case 3: {
+				if ( GetAnimationPhase("uazcargo2door") > 0.5 ) {
+					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
+                }
+                break;
+            }
+			case 4: {
+				return CarDoorState.DOORS_CLOSED;
+            }
+            default: {
+                return CarDoorState.DOORS_MISSING;
+			}
 		}
 
-		return false;
+		return CarDoorState.DOORS_MISSING;
 	}
 
 	// ------------------------------------------------------------

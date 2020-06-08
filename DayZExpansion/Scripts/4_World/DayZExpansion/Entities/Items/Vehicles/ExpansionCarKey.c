@@ -121,7 +121,7 @@ class ExpansionCarKey extends ItemBase
 
 		m_VehicleDisplayName = vehicle.ConfigGetString( "displayName" );
 		
-		PlayerBase ownerPlayer = GetHierarchyRootPlayer();
+		PlayerBase ownerPlayer = PlayerBase.Cast( GetHierarchyRootPlayer() );
 		if ( ownerPlayer && ownerPlayer.GetIdentity() )
 			RPC_RequestItemData( ownerPlayer.GetIdentity() );
 
@@ -141,7 +141,7 @@ class ExpansionCarKey extends ItemBase
 		
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
-		PlayerBase ownerPlayer = GetHierarchyRootPlayer();
+		PlayerBase ownerPlayer = PlayerBase.Cast( GetHierarchyRootPlayer() );
 		if ( ownerPlayer && ownerPlayer.GetIdentity() )
 			RPC_RequestItemData( ownerPlayer.GetIdentity() );
 		

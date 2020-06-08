@@ -168,7 +168,7 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		if ( type & EXVT_PLANE )
 		{
 			color = ARGB( 255, 243, 156, 18 );
-			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa";
+			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa"; //! TODO: Change to a plane marker
 			return;
 		}
 	}

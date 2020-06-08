@@ -58,6 +58,10 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	protected TextWidget m_territoryInviteListInfo;
 	protected GridSpacerWidget m_territoryInviteListGrid;
 	
+	protected Widget m_PlayerListFilerPanel;
+	protected EditBoxWidget m_PlayerListFilterEditbox;
+	protected ButtonWidget m_PlayerListFilterClearButton;
+	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
 	protected ExpansionTerritoryFlag m_CurrentFlag;
 	protected ref ExpansionTerritory m_CurrentTerritory;
@@ -139,6 +143,10 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		m_territoryInviteListGrid 	= GridSpacerWidget.Cast( m_RootLayout.FindAnyWidget( "territory_invites_list_content" ) );
 		m_territoryInviteListInfo	= TextWidget.Cast( m_RootLayout.FindAnyWidget( "territory_invites_list_info" ) );
 		
+		m_PlayerListFilerPanel			= Widget.Cast( m_RootLayout.FindAnyWidget( "player_list_filter" ) );
+		m_PlayerListFilterEditbox		= EditBoxWidget.Cast( m_RootLayout.FindAnyWidget( "player_list_filter_editbox" ) );
+		m_PlayerListFilterClearButton	= ButtonWidget.Cast( m_RootLayout.FindAnyWidget( "player_list_filter_clear" ) );
+		
 		m_memberName.SetText( "" );
 		m_memberRank.SetText( "" );
 		m_memberState.SetText( "" );	
@@ -188,7 +196,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// Expansion LoadPlayerListEntries
 	// ! Adds a entry for each active player in the player list
 	// ------------------------------------------------------------
-	void LoadPlayerListEntries()
+	void LoadPlayerListEntries(string filter)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionBookTabTerritory::LoadPlayerListEntries - Start");
@@ -206,7 +214,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			for ( int playerIdx = 0; playerIdx < ClientData.m_PlayerList.m_PlayerList.Count(); ++playerIdx )
 			{
 				ref SyncPlayer playerSync = ClientData.m_PlayerList.m_PlayerList.Get( playerIdx );
-				if ( !playerSync || m_CurrentTerritory.IsMember( playerSync.m_RUID ) || m_CurrentTerritory.HasInvite( playerSync.m_RUID ) )
+				if ( !playerSync || m_CurrentTerritory.IsMember( playerSync.m_RUID ) || m_CurrentTerritory.HasInvite( playerSync.m_RUID ) || ( filter != "" && !playerSync.m_PlayerName.Contains(filter) ) )
 					continue;
 				
 				nmbPlayer++;
@@ -236,7 +244,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 					#endif	
 
 					// Don't show players that are in this therritory and have a existing invite from this territory already
-					if ( !m_CurrentTerritory.IsMember( player.GetIdentityUID() ) && !m_CurrentTerritory.HasInvite( player.GetIdentityUID() ) )
+					if ( !m_CurrentTerritory.IsMember( player.GetIdentityUID() ) && !m_CurrentTerritory.HasInvite( player.GetIdentityUID() ) && ( filter == "" || ( filter != "" && player.GetIdentityName().Contains(filter) ) ) )
 					{
 						nmbPlayer++;
 
@@ -320,7 +328,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	// Expansion RefreshPlayersList
 	// ------------------------------------------------------------
-	void RefreshPlayersList()
+	void RefreshPlayersList(string filter = "")
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionBookTabTerritory::RefreshPlayersList - Start");
@@ -328,7 +336,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		m_PlayerListEntrys.Clear();
 		
-		LoadPlayerListEntries();
+		LoadPlayerListEntries(filter);
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionBookTabTerritory::RefreshPlayersList - End");
@@ -563,6 +571,13 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			return true;
 		}
 		
+		if ( w == m_PlayerListFilterClearButton )
+		{
+			m_PlayerListFilterEditbox.SetText("");
+			RefreshPlayersList();
+			return true;
+		}
+		
 		return false;
 	}
 	
@@ -668,7 +683,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	override bool IsFocusable( Widget w )
 	{
-		if( w )
+		if ( w )
 		{
 			return ( w == m_kickMemberButton || w == m_addMemberButton || w == m_searchPlayerButton  || w == m_promotePlayerButton || w == m_demotePlayerButton || w == m_deleteTerritoryButton );
 		}
@@ -801,6 +816,20 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		if ( w == m_memberCancelButton )
 		{
 			m_memberCancelButtonLabel.SetColor( ARGB( 255, 0, 0, 0 ) );		
+			return true;
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnChange
+	// ------------------------------------------------------------
+	override bool OnChange(Widget w, int x, int y, bool finished)
+	{
+		if ( w == m_PlayerListFilterEditbox )
+		{
+			RefreshPlayersList( m_PlayerListFilterEditbox.GetText() );
 			return true;
 		}
 		

@@ -42,6 +42,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool NeedMapItemForKeyBinding;
 
 	bool EnableHUDNightvisionOverlay;
+	bool DisableMagicCrosshair;
 	bool EnablePlayerTags;
 	int PlayerTagViewRange;
 
@@ -50,6 +51,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool EnablePlayerList;
 	
 	bool UnlimitedStamina;
+	
 
 	bool SpawnVehicleWithRandomSkin;
 	ExpansionVehicleNetworkMode VehicleSync;
@@ -157,6 +159,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
 		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
 		EnableHUDNightvisionOverlay = s.EnableHUDNightvisionOverlay;
+		DisableMagicCrosshair = s.DisableMagicCrosshair;
 		EnablePlayerTags = s.EnablePlayerTags;
 		PlayerTagViewRange = s.PlayerTagViewRange;
 		EnableHumanityOnPlayerTags  = s.EnableHumanityOnPlayerTags;
@@ -278,6 +281,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		NeedMapItemForKeyBinding = false;
 		
 		EnableHUDNightvisionOverlay = true;
+		DisableMagicCrosshair = false;
 		EnablePlayerTags = true;
 		PlayerTagViewRange = 5;
 		EnableHumanityOnPlayerTags = false;

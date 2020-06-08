@@ -84,15 +84,19 @@ modded class ActionDeployObject
 		if ( ExpansionSafeZone_IsInside( player.GetPosition() ) )
 			return false;
 		
-		int i = 0;
+		int i;
+		float size = GetExpansionSettings().GetTerritory().TerritorySize;
+		
+		if (item.IsInherited(ExpansionFlagKitBase))
+			size *= 2;
 			
 		if ( GetExpansionSettings().GetBaseBuilding() )
 		{
 			if ( GetExpansionSettings().GetBaseBuilding().TerritoryMode == 0 )
 			{
-				if ( player.IsInTerritory() )
+				if ( player.IsInTerritory(size) )
 				{
-					if (player.IsInsideOwnTerritory())
+					if (player.IsInsideOwnTerritory(size))
 					{
 						return true;
 					}
@@ -117,9 +121,9 @@ modded class ActionDeployObject
 			else
 			{
 				//Place stuff other than flag should be possible inside your territory
-				if ( player.IsInTerritory() )
+				if ( player.IsInTerritory(size) )
 				{
-					if (player.IsInsideOwnTerritory())
+					if (player.IsInsideOwnTerritory(size))
 					{
 						return true;
 					}
@@ -177,7 +181,7 @@ modded class ActionDeployObject
 		ItemBase entity_for_placing = action_data.m_MainItem;
 		ExpansionKitBase kit = ExpansionKitBase.Cast( entity_for_placing );
 
-		if ( kit.IsInherited( ExpansionKitBase ) )
+		if ( kit && kit.IsInherited( ExpansionKitBase ) )
 		{
 			if ( GetGame().IsMultiplayer() )
 			{
@@ -237,7 +241,7 @@ modded class ActionDeployObject
 		ItemBase entity_for_placing = action_data.m_MainItem;
 		ExpansionKitBase kit = ExpansionKitBase.Cast( entity_for_placing );
 
-		if ( kit.IsInherited( ExpansionKitBase ) )
+		if ( kit && kit.IsInherited( ExpansionKitBase ) )
 		{
 			PlaceObjectActionData poActionData;		
 			if ( !action_data.m_MainItem || !Class.CastTo( poActionData, action_data ) )

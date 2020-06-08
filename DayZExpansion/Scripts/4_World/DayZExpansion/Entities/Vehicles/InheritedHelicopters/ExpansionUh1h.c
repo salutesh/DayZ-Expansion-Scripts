@@ -53,13 +53,13 @@ class ExpansionUh1h: ExpansionHelicopterScript
 
 		m_CyclicForwardSpeed						= 10.0;
 		m_CyclicForwardMax							= 1.0;
-		m_CyclicForwardCoef							= 1.3;
+		m_CyclicForwardCoef							= 0.8;
 
 		m_AntiTorqueSpeed							= 1.5;
 		m_AntiTorqueMax								= 125.04;
 
 		m_BankForceCoef								= 0.1;
-		m_TailForceCoef								= 0.35;
+		m_TailForceCoef								= 0.5;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUh1h::Constructor - End");
@@ -381,10 +381,10 @@ class ExpansionUh1h: ExpansionHelicopterScript
 		{
 			ItemBase battery;
 			
-			if ( IsVitalCarBattery() ) battery = FindAttachmentBySlotName("CarBattery");
-			if ( IsVitalTruckBattery() ) battery = FindAttachmentBySlotName("TruckBattery");
-			if ( IsVitalHelicopterBattery() ) battery = FindAttachmentBySlotName("ExpansionHelicopterBattery");
-			if ( IsVitalAircraftBattery() ) battery = FindAttachmentBySlotName("ExpansionAircraftBattery");
+			if ( IsVitalCarBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
+			if ( IsVitalTruckBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
+			if ( IsVitalHelicopterBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("ExpansionHelicopterBattery") );
+			if ( IsVitalAircraftBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("ExpansionAircraftBattery") );
 			
 			if ( battery )
 			{

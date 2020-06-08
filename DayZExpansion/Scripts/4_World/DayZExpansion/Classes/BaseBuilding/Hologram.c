@@ -81,14 +81,11 @@ modded class Hologram
 	protected Object m_PlacingParent;
 	protected vector m_PlacingPositionMS;
 	protected vector m_PlacingOrientationMS;
-	
-	protected ExpansionTerritoryModule m_TerritoryModule;
 
 	void Hologram( PlayerBase player, vector pos, ItemBase item )
 	{
 		m_DebugPositions = new array< Object >;
 		m_DebugDirections = new array< Object >;
-		m_TerritoryModule = GetModuleManager().GetModule( ExpansionTerritoryModule );
 	}
 	
 	void ~Hologram()
@@ -215,35 +212,6 @@ modded class Hologram
 		RefreshVisual();
 		
 		vector projPosition = GetProjectionEntityPosition( m_Player );
-		
-		//Check only when we are sure he is not colliding first
-		if ( !IsColliding() )
-		{
-			if ( IsMissionClient() )
-			{
-				bool safeZone = ExpansionSafeZone_IsInside( projPosition );
-				
-				bool flagKit = false;
-				float size = GetExpansionSettings().GetTerritory().TerritorySize;
-				if (m_Projection && m_Projection.IsInherited(ExpansionFlagKitBase))
-				{
-					size *= 2;
-					flagKit = true;
-				}
-				
-				bool territory = false;
-				if (m_TerritoryModule)
-				{
-					territory = ( m_TerritoryModule.IsInTerritory(projPosition, size) && ( ( !flagKit && !m_Player.IsInsideOwnTerritory() ) || flagKit ) );
-				}
-				else
-				{
-					m_TerritoryModule = GetModuleManager().GetModule( ExpansionTerritoryModule );
-				}
-				
-				SetIsColliding( safeZone || territory );
-			}
-		}
 
 		if ( !GetUpdatePosition() )
 		{

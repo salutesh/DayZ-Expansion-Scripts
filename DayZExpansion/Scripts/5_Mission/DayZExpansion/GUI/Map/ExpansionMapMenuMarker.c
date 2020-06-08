@@ -23,10 +23,10 @@ class ExpansionMapMenuMarker extends ScriptedWidgetEventHandler
 	protected string m_MarkerIcon;
 	protected int m_MarkerColor;
 	protected int m_MarkerAlpha;
-	protected ref ExpansionMapMenu m_MapMenu;
+	protected autoptr ExpansionMapMenu m_MapMenu;
 
-	protected ref ExpansionMapMarker m_MarkerData;
-	protected ref Expansion3DMarkerModule m_3DMarkerModule;
+	protected autoptr ExpansionMapMarker m_MarkerData;
+	protected autoptr Expansion3DMarkerModule m_3DMarkerModule;
 	
 	protected float m_OffsetX;
 	protected float m_OffsetY;
@@ -277,6 +277,12 @@ class ExpansionMapMenuMarker extends ScriptedWidgetEventHandler
 			if ( partyModule && m_MarkerData && m_MarkerData.IsPartyMarker())
 			{
 				partyModule.UpdatePositionMarker( m_MarkerData.GetMarkerText(), m_MarkerPos );
+			}
+			
+			ExpansionMapMarkerModule mapMarkerModule = ExpansionMapMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMapMarkerModule));
+			if ( mapMarkerModule && m_MarkerData && !m_MarkerData.IsPartyMarker() )
+			{
+				mapMarkerModule.SaveClientMarkers();
 			}
 		}
 		

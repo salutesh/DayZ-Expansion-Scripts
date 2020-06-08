@@ -48,10 +48,10 @@ modded class DayZPlayerImplement
 		if ( res.m_bFinishWithFall )
 			return;
 
-		if ( !ExpansionAttachmentHelper.CanAttachTo( this, res.m_ClimbStandPointParent ) )
+		if ( !ExpansionAttachmentHelper.CanAttachTo( this, Object.Cast( res.m_ClimbStandPointParent ) ) )
 			return;
 
-		m_ExAttachmentObject = res.m_ClimbStandPointParent;
+		m_ExAttachmentObject = Object.Cast( res.m_ClimbStandPointParent );
 		m_ExClimbPosition = res.m_ClimbStandPoint;
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.CLIMB_START;

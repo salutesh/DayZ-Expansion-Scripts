@@ -14,3 +14,6 @@
 
 //#define EXPANSION_VEHICLE_TOWING
 //#define EXPANSION_VEHICLE_WINCHING
+
+//! Used for third party mod, if they want to know if expansion is loaded
+#define EXPANSIONMOD

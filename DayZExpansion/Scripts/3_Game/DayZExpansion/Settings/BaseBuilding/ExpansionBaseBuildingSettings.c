@@ -19,6 +19,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool CanCraftExpansionBasebuilding;
 	bool CanCraftTerritoryFlag;
 	bool DestroyFlagOnDismantle;
+	bool CanDismantleFlag;
 	bool DismantleOutsideTerritory;
 
 	bool CanRaidSafes;
@@ -122,6 +123,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CanCraftExpansionBasebuilding = s.CanCraftExpansionBasebuilding;
 		CanCraftTerritoryFlag = s.CanCraftTerritoryFlag;
 		DestroyFlagOnDismantle = s.DestroyFlagOnDismantle;
+		CanDismantleFlag = s.CanDismantleFlag;
 		DismantleOutsideTerritory = s.DismantleOutsideTerritory;
 
 		CanRaidSafes = s.CanRaidSafes;
@@ -210,6 +212,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CanCraftExpansionBasebuilding = true;
 		CanCraftTerritoryFlag = true;
 		DestroyFlagOnDismantle = true;
+		CanDismantleFlag = true;
 		DismantleOutsideTerritory = false;
 
 		CanRaidSafes = true;
@@ -217,7 +220,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		ExplosionTime = 60;
 
 		ExplosionDamageMultiplier = 50;
-		ProjectileDamageMultiplier = 2;
+		ProjectileDamageMultiplier = 1;
 		TerritoryMode = 0;
 		CodeLockLength = 4;
 		

@@ -514,7 +514,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		//! Get the needed data for territory creation
 		vector position = flag.GetPosition();
 		vector direction = flag.GetDirection();
-		int textureID = flag.GetFlagTextureID();
+		string texturePath = flag.GetFlagTexturePath();
 		string senderID = sender.GetId();
 		
 		//! Delete the normal flag
@@ -528,11 +528,11 @@ class ExpansionTerritoryModule: JMModuleBase
 		territoryFlag.SetTerritoryID( m_NextTerritoryID );
 		territoryFlag.SetPosition( position );
 		territoryFlag.SetDirection( direction );
-		territoryFlag.SetFlagTexture( textureID );
+		territoryFlag.SetFlagTexture( texturePath );
 		territoryFlag.SetOwnerID( senderID );
 		
 		//! Create new territory
-	    ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, textureID );
+	    ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
 		if ( !newTerritory )
 			return;
 		
@@ -559,7 +559,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule ChangeFlagTexture
 	// Called on client
 	// ------------------------------------------------------------
-	void ChangeFlagTexture( int textureID, ExpansionFlagBase flag )
+	void ChangeFlagTexture( string texturePath, ExpansionFlagBase flag )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryModule::ChangeFlagTexture - Start");
@@ -568,7 +568,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( IsMissionClient() )
 		{
 			ScriptRPC rpc = new ScriptRPC();
-			rpc.Write( textureID );
+			rpc.Write( texturePath );
 			rpc.Write( flag );
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.ChangeTexture, true, NULL );
 		}
@@ -588,15 +588,15 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - Start");
 		#endif
 		
-		int textureID;
-		if ( !ctx.Read( textureID ) )
+		string texturePath;
+		if ( !ctx.Read( texturePath ) )
 			return;
 		
 		ExpansionFlagBase flag;
 		if ( !ctx.Read( flag ) )
 			return;
 
-		Exec_ChangeFlagTexture( textureID, flag, senderRPC );
+		Exec_ChangeFlagTexture( texturePath, flag, senderRPC );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - End");
@@ -607,19 +607,16 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_ChangeFlagTexture
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_ChangeFlagTexture( int textureID, ExpansionFlagBase flag, PlayerIdentity ident )
+	private void Exec_ChangeFlagTexture( string texturePath, ExpansionFlagBase flag, PlayerIdentity ident )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - Start");
 		#endif
 
-		if ( !textureID || !flag )
+		if ( texturePath == "" || !flag )
 			return;
 		
-		string path = GetFlagTexturePath( textureID );
-		flag.SetFlagTextureID( textureID );
-		flag.SetObjectTexture( 0, path );
-		flag.SetSynchDirty();
+		flag.SetFlagTexture( texturePath );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - End");

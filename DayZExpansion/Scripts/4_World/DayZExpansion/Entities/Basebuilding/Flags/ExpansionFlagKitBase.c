@@ -47,7 +47,7 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 			ExpansionFlagBase flag = ExpansionFlagBase.Cast( GetGame().CreateObject( "ExpansionFlagBase", GetPosition() ) );
 			flag.SetPosition( position );
 			flag.SetOrientation( orientation );
-			flag.SetFlagTexture( GetTextureID() );
+			flag.SetFlagTexture( GetTexturePath() );
 			flag.SetOwnerID( player_base.GetIdentityUID() );
 			
 			//player_base.AddFlag( flag );
@@ -60,10 +60,10 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion GetTexture
+	// Expansion GetTexturePath
 	// ------------------------------------------------------------
-	int GetTextureID()
+	string GetTexturePath()
 	{
-		return 1;
+		return EXPANSION_FLAG_LOGO_EXPANSION;
 	}
 }

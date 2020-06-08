@@ -31,6 +31,10 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	protected GridSpacerWidget m_GroupListEntrysGrid;
 	protected GridSpacerWidget m_MemberListEntrysGrid;
 	
+	protected Widget m_PlayerListFilerPanel;
+	protected EditBoxWidget m_PlayerListFilterEditbox;
+	protected ButtonWidget m_PlayerListFilterClearButton;
+	
 	protected ref ExpansionPartyModule m_PartyModule;
 	protected ref array<ref ExpansionPartyTabPlayerListEntry> m_PlayerListEntrys;
 	protected ref array<ref ExpansionPartyTabMemberListEntry> m_MemberListEntrys;
@@ -92,6 +96,10 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 		m_GroupListPanel						= m_RootLayout.FindAnyWidget( "book_create_group_content_right" );
 		m_GroupListEntrysGrid					= GridSpacerWidget.Cast( m_RootLayout.FindAnyWidget("groups_list_content") );
 		
+		m_PlayerListFilerPanel					= m_RootLayout.FindAnyWidget( "player_list_filter" );
+		m_PlayerListFilterEditbox				= EditBoxWidget.Cast( m_RootLayout.FindAnyWidget( "player_list_filter_editbox" ) );
+		m_PlayerListFilterClearButton			= ButtonWidget.Cast( m_RootLayout.FindAnyWidget( "player_list_filter_clear" ) );
+		
 		OnRefresh();
 	}
 		
@@ -147,7 +155,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	// Expansion LoadPlayerListEntrys
 	// ! Adds a entry for each active player in the player list
 	// ------------------------------------------------------------
-	void LoadPlayerListEntrys()
+	void LoadPlayerListEntrys(string filter)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionBookTabParty::LoadPlayerListEntrys - Start");
@@ -165,7 +173,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 			for ( int playerIdx = 0; playerIdx < ClientData.m_PlayerList.m_PlayerList.Count(); ++playerIdx )
 			{
 				ref SyncPlayer playerSync = ClientData.m_PlayerList.m_PlayerList.Get( playerIdx );
-				if ( !playerSync || m_PartyModule.GetParty().GetPlayer(playerSync.m_RUID) )
+				if ( !playerSync || m_PartyModule.GetParty().GetPlayer(playerSync.m_RUID) || m_PartyModule.GetParty().HasPlayerInvite(playerSync.m_RUID) || ( filter != "" && !playerSync.m_PlayerName.Contains(filter) ) )
 					continue;
 				
 				nmbPlayer++;
@@ -191,7 +199,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 				if ( player && player.GetIdentity() )
 				{
 					// Only show the players that aren't in our current party
-					if (!(m_PartyModule.GetParty().GetPlayer(player.GetIdentityUID())))
+					if (!(m_PartyModule.GetParty().GetPlayer(player.GetIdentityUID())) && !m_PartyModule.GetParty().HasPlayerInvite(player.GetIdentityUID()) && ( filter == "" || ( filter != "" && player.GetIdentityName().Contains(filter) ) ) )
 					{
 						nmbPlayer++;
 						ExpansionPartyTabPlayerListEntry list_entry2 = new ExpansionPartyTabPlayerListEntry( m_PlayerListEntrysGrid, player.GetIdentityName(), player.GetIdentityUID() );
@@ -272,11 +280,11 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	// Expansion RefreshPlayersList
 	// ------------------------------------------------------------
-	void RefreshPlayersList()
+	void RefreshPlayersList(string filter = "")
 	{
 		m_PlayerListEntrys.Clear();
 		
-		LoadPlayerListEntrys();
+		LoadPlayerListEntrys(filter);
 	}
 	
 	// ------------------------------------------------------------
@@ -454,10 +462,18 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 		if ( w == m_book_PartyCreateGroupButton )
 		{
 			OnCreatePartyButtonClick();
+			return true;
 		}
 		else if ( w == m_book_PartyExitGroupButton )
 		{
 			OnExitPartyButtonClick();
+			return true;
+		}
+		else if ( w == m_PlayerListFilterClearButton )
+		{
+			m_PlayerListFilterEditbox.SetText("");
+			RefreshPlayersList();
+			return true;
 		}
 		
 		return false;
@@ -499,6 +515,20 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 			
 			return true;
 		}
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnChange
+	// ------------------------------------------------------------
+	override bool OnChange(Widget w, int x, int y, bool finished)
+	{
+		if ( w == m_PlayerListFilterEditbox )
+		{
+			RefreshPlayersList( m_PlayerListFilterEditbox.GetText() );
+			return true;
+		}
+		
 		return false;
 	}
 }

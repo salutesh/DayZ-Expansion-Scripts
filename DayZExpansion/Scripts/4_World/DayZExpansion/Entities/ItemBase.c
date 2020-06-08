@@ -12,7 +12,7 @@
 
 modded class ItemBase
 {
-	private int m_ExpansionSaveVersion;
+	protected int m_ExpansionSaveVersion;
 
 	protected ExpansionSkinModule m_SkinModule;
 	protected ExpansionSkin m_CurrentSkin;
@@ -254,7 +254,7 @@ modded class ItemBase
 					PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
 					if ( player )
 					{
-						player.DecreaseHealth( "", "Health", -10 );
+						player.DecreaseHealth( "", "", 10 );
 					}
 
 					return;
@@ -820,7 +820,7 @@ modded class ItemBase
 				target.GetTransform( tmTarget );
 				Math3D.MatrixInvMultiply4( tmTarget, tmItem, tmLocal );
 
-				LinkToLocalSpaceOf( target, tmLocal );
+				LinkToLocalSpaceOf( EntityAI.Cast( target ), tmLocal );
 			}
 		}
 

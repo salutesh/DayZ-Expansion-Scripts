@@ -173,6 +173,12 @@ class ExpansionPartyModule: JMModuleBase
 		case ExpansionPartyModuleRPC.SyncPlayersInvites:
 			RPC_SyncPlayersInvites( ctx, sender, target );
 			break;
+		case ExpansionPartyModuleRPC.UpdateQuickMarker:
+			RPC_UpdateQuickMarker( ctx, sender, target );
+			break;
+		case ExpansionPartyModuleRPC.SyncQuickMarkers:
+			RPC_SyncQuickMarkers( ctx, sender, target );
+			break;
 		}
 	}
 	
@@ -1031,7 +1037,7 @@ class ExpansionPartyModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_UpdateClient( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		if ( IsMissionHost() )
+		if ( !IsMissionClient() )
 			return;
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -1070,6 +1076,9 @@ class ExpansionPartyModule: JMModuleBase
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionPartyModule::Exec_UpdateClient before set m_Party");
 			#endif
+			
+			if (m_Party)
+				party.SetQuickMarkers( m_Party.GetQuickMarkers() );
 
 			m_Party = party;
 
@@ -1297,7 +1306,139 @@ class ExpansionPartyModule: JMModuleBase
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
 	    }
     }
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateQuickMarker
+	// Called on client
+	// ------------------------------------------------------------
+	void UpdateQuickMarker( vector pos )
+	{
+		if ( !IsMissionClient() )
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( pos );
+		rpc.Send( null, ExpansionPartyModuleRPC.UpdateQuickMarker, true );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RPC_UpdateQuickMarker
+	// Called on server
+	// ------------------------------------------------------------
+	private void RPC_UpdateQuickMarker( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	{
+		vector position;
+		if ( !ctx.Read( position ) )
+			return;
+		
+		Exec_UpdateQuickMarker( position, senderRPC );
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion Exec_DeleteMarker
+	// -----------------------------------------------------------
+	private void Exec_UpdateQuickMarker( vector position, PlayerIdentity sender )
+	{
+		if (!sender || !GetExpansionSettings().GetParty() || !GetExpansionSettings().GetParty().EnableQuickMarker)
+			return;
+		
+		string senderID = sender.GetId();
+		
+		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(senderID);
+		if ( !senderPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			return;
+		}
 
+		int partyId = GetPartyID(senderPlayer);
+		ref ExpansionPartySaveFormat party = m_Parties.Get( partyId );
+		if ( !party || partyId == -1 )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			return;
+		}
+		
+		if (position == vector.Zero)
+		{
+			if (party.RemoveQuickMarker(senderID))
+				SyncQuickMarkers(party);
+		}
+		else
+		{
+			ExpansionQuickMarker quickMarker = new ExpansionQuickMarker;
+			quickMarker.UID = senderID;
+			quickMarker.Pos = position;
+			quickMarker.Color = senderPlayer.GetQuickMarkerColor();
+			
+			party.UpdateQuickMarker( quickMarker );
+			
+			SyncQuickMarkers(party);
+		}
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion SyncQuickMarkers
+	// -----------------------------------------------------------
+	void SyncQuickMarkers(ref ExpansionPartySaveFormat party)
+	{
+		if ( !IsMissionHost() || !party)
+			return;
+		
+		ref array< ref ExpansionPartySaveFormatPlayer > players = party.GetPlayers();
+		if ( !players )
+			return;
+		
+		ref array<ref ExpansionQuickMarker> quickMarkers = party.GetQuickMarkers();
+		
+		for ( int i = 0; i < players.Count(); i++ )
+		{
+			ref ExpansionPartySaveFormatPlayer playerData = players[i];
+			if (!playerData) continue;
+			
+			PlayerBase player = PlayerBase.GetPlayerByUID(playerData.UID);
+			if ( !player || !player.GetIdentity() )
+				continue;
+
+			ScriptRPC rpc = new ScriptRPC;
+			rpc.Write(quickMarkers);
+			rpc.Send(null, ExpansionPartyModuleRPC.SyncQuickMarkers, true, player.GetIdentity());
+		}
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion RPC_SyncQuickMarkers
+	// -----------------------------------------------------------
+	private void RPC_SyncQuickMarkers( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	{
+		if (!IsMissionClient())
+			return;
+		
+		array<ref ExpansionQuickMarker> quickMarkers;
+		if ( !ctx.Read( quickMarkers ) )
+			return;
+		
+		Exec_SyncQuickMarkers( quickMarkers );
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion Exec_SyncQuickMarkers
+	// -----------------------------------------------------------
+	private void Exec_SyncQuickMarkers( ref array<ref ExpansionQuickMarker> quickMarkers )
+	{
+		if ( !IsMissionClient() || !m_Party || !quickMarkers)
+			return;
+		
+		m_Party.SetQuickMarkers( quickMarkers );
+		
+		Expansion3DMarkerModule module;
+		if ( Class.CastTo( module, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
+			module.RefreshMarkers();
+	}
+
+	// -----------------------------------------------------------
+	// Expansion OnClientRespawn
+	// -----------------------------------------------------------
 	override void OnClientRespawn( PlayerBase player, PlayerIdentity identity )
 	{
 		OnInvokeConnect( player, identity );
@@ -1342,6 +1483,54 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::OnPlayerConnect - End");
 		#endif
     }
+	
+	// -----------------------------------------------------------
+	// Expansion OnInvokeDisconnect
+	// -----------------------------------------------------------
+	override void OnInvokeDisconnect( PlayerBase player )
+	{
+		if (!player)
+			return;
+		
+		int partyId = GetPartyID(player);
+		ref ExpansionPartySaveFormat party = m_Parties.Get( partyId );
+		if ( !party || partyId == -1 )
+		{
+			return;
+		}
+		
+		if (party.RemoveQuickMarker(player.GetIdentityUID()))
+			SyncQuickMarkers(party);
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion OnUpdate
+	// -----------------------------------------------------------
+	override void OnUpdate( float timeslice )
+	{
+		if (!IsMissionClient() || !m_Party)
+			return;
+		
+		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		
+		if ( player && GetGame().GetInput() && GetGame().GetInput().LocalPress( "UAExpansionQuickMarker", false ) && GetExpansionSettings().GetParty() && GetExpansionSettings().GetParty().EnableQuickMarker )
+		{
+			vector pos = vector.Zero;
+			
+			vector rayStart = GetGame().GetCurrentCameraPosition();
+			vector rayEnd = rayStart + GetGame().GetCurrentCameraDirection() * 10000;
+			vector hitPos;
+			vector hitNormal;
+			int hitComponentIndex;
+			
+			if ( DayZPhysics.RaycastRV(rayStart, rayEnd, hitPos, hitNormal, hitComponentIndex, null, null, null, false, true) )
+			{
+				pos = hitPos;
+			}
+			
+			UpdateQuickMarker( pos );
+		}
+	}
 	
 	// -----------------------------------------------------------
 	// Expansion SendNotificationToMembers
@@ -1424,7 +1613,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		string id = player.GetIdentityUID();
 		
-		for(int i = 0; i < m_Parties.Count(); ++i)
+		for (int i = 0; i < m_Parties.Count(); ++i)
 		{
 			ref ExpansionPartySaveFormat party = m_Parties.GetElement(i);
 			if (party)

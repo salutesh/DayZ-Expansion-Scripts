@@ -16,7 +16,7 @@
 
 class ExpansionFlagBase extends ItemBase
 {
-	int m_FlagTextureID = 0;
+	string m_FlagTexturePath = "";
 	string m_OwnerID = "";
 
 	protected ExpansionTerritoryModule m_TerritoryModule;
@@ -42,25 +42,24 @@ class ExpansionFlagBase extends ItemBase
 	// ------------------------------------------------------------
 	// Expansion SetTexture
 	// ------------------------------------------------------------
-	void SetFlagTexture(int id)
+	void SetFlagTexture(string texturePath)
 	{
 		if ( !IsMissionHost() ) return;
 		
-		m_FlagTextureID = id;
-		string path = GetFlagTexturePath( id );
-		SetObjectTexture( 0, path );
+		m_FlagTexturePath = texturePath;
+		SetObjectTexture( 0, m_FlagTexturePath );
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionFlagBase::SetFlagTexture:: - Set flag texture path to: " + m_FlagTextureID);
+		EXLogPrint("ExpansionFlagBase::SetFlagTexture:: - Set flag texture path to: " + m_FlagTexturePath);
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion GetFlagTextureID
+	// Expansion GetFlagTexturePath
 	// ------------------------------------------------------------
-	int GetFlagTextureID()
+	string GetFlagTexturePath()
 	{
-		return m_FlagTextureID;
+		return m_FlagTexturePath;
 	}
 	
 	// ------------------------------------------------------------
@@ -81,14 +80,6 @@ class ExpansionFlagBase extends ItemBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionFlagBase::SetOwnerID:: - Set flag owner id to: " + m_OwnerID );
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// SetFlagTextureID
-	// ------------------------------------------------------------
-	void SetFlagTextureID(int id)
-	{
-		m_FlagTextureID = id;
 	}
 	
 	// ------------------------------------------------------------
@@ -122,7 +113,7 @@ class ExpansionFlagBase extends ItemBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionFlagBase::OnStoreSave:: - Save data for object <" + this.GetID().ToString() +  ">: [m_FlagTextureID: " + m_FlagTextureID + ", m_OwnerID: " + m_OwnerID + "]");
 		#endif
-		ctx.Write( m_FlagTextureID );
+		ctx.Write( m_FlagTexturePath );
 		ctx.Write( m_OwnerID );
 	}
 	
@@ -134,16 +125,29 @@ class ExpansionFlagBase extends ItemBase
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
-		if ( !ctx.Read( m_FlagTextureID ) )
-			return false;
+		if (m_ExpansionSaveVersion >= 3)
+		{
+			if ( !ctx.Read( m_FlagTexturePath ) )
+				return false;
+			
+			SetFlagTexture(m_FlagTexturePath);
+		}
+		else
+		{
+			int flagTextureID
+			if ( !ctx.Read( flagTextureID ) )
+				return false;
+			
+			string texturePath = GetExpansionStatic().GetFlagTexturePath( flagTextureID );
+		
+			SetFlagTexture(texturePath);
+		}
 		
 		if ( !ctx.Read( m_OwnerID ) )
 			return false;
 		
-		SetFlagTexture( m_FlagTextureID );
-		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionFlagBase::OnStoreLoad:: - Loaded data for object <" + this.ToString() +  ">: [m_FlagTextureID: " + m_FlagTextureID + ", m_OwnerID: " + m_OwnerID + "]");
+		EXLogPrint("ExpansionFlagBase::OnStoreLoad:: - Loaded data for object <" + this.ToString() +  ">: [m_FlagTexturePath: " + m_FlagTexturePath + ", m_OwnerID: " + m_OwnerID + "]");
 		#endif
 		
 		return true;

@@ -29,5 +29,8 @@ enum ExpansionPartyModuleRPC
 	AcceptInvite,
 	
 	SyncPlayersInvites,
+	
+	UpdateQuickMarker,
+	SyncQuickMarkers,
 	COUNT
 }

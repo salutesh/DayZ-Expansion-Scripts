@@ -19,6 +19,7 @@ class ExpansionPartySettings: ExpansionSettingBase
     int MaxInParty; // If <= 0, unlimited party size
 	bool ShowPartyMembers3DMarkers;
 	bool UseWholeMapForInviteList; // Use it if you want whole map available in invite list, instead only nearby players
+	bool EnableQuickMarker;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -96,6 +97,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		MaxInParty = s.MaxInParty;
 		ShowPartyMembers3DMarkers = s.ShowPartyMembers3DMarkers;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
+		EnableQuickMarker = s.EnableQuickMarker;
     }
 	
 	// ------------------------------------------------------------
@@ -164,5 +166,6 @@ class ExpansionPartySettings: ExpansionSettingBase
 		MaxInParty = 10;
         ShowPartyMembers3DMarkers = true;
 		UseWholeMapForInviteList = false;
+		EnableQuickMarker = true;
 	}
 }

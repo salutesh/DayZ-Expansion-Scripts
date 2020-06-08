@@ -10,10 +10,27 @@
  *
 */
 
+class ExpansionLocalServerMarkers
+{
+	string m_IP;
+	int m_Port;
+	autoptr array< ref ExpansionMapMarker > m_Markers;
+	
+	void ExpansionLocalServerMarkers()
+	{
+		m_Markers = new array< ref ExpansionMapMarker >;
+	}
+}
+
+
 class ExpansionMapMarkerModule: JMModuleBase
 {
-    protected autoptr array< ref ExpansionMapMarker > m_Markers;
+    protected autoptr array< ref ExpansionLocalServerMarkers > m_LocalServersMarkers;
+	protected autoptr ExpansionLocalServerMarkers m_Markers;
+	
     protected autoptr array< ref ExpansionMapMarker > m_ServerMarkers;
+	
+	protected static autoptr JsonSerializer m_Serializer = new JsonSerializer;
 	
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerModule Constructor
@@ -24,7 +41,8 @@ class ExpansionMapMarkerModule: JMModuleBase
 		EXPrint("ExpansionMapMarkerModule::ExpansionMapMarkerModule - Start");
 		#endif
        
-		m_Markers = new array<ref ExpansionMapMarker>;
+		m_LocalServersMarkers = new array<ref ExpansionLocalServerMarkers>;
+		m_Markers = null;
         m_ServerMarkers = new array< ref ExpansionMapMarker >;
 
 		#ifdef EXPANSIONEXPRINT
@@ -43,14 +61,17 @@ class ExpansionMapMarkerModule: JMModuleBase
         {
             m_ServerMarkers = GetExpansionSettings().GetMap().ServerMarkers;
         }
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMapMarkerModule IsEnabled
-	// ------------------------------------------------------------
-	override bool IsEnabled()
-	{
-		return (super.IsEnabled() && GetExpansionSettings().GetMap().EnableMap && GetExpansionSettings().GetMap().CanCreateMarker);
+		
+		if (FileExist(EXPANSION_CLIENT_MARKERS))
+		{
+			JsonFileLoader<ref array< ref ExpansionLocalServerMarkers >>.JsonLoadFile( EXPANSION_CLIENT_MARKERS, m_LocalServersMarkers );
+		}
+		else
+		{
+			SaveClientMarkers();
+		}
+		
+		GetCurrentLocalServerMarkers();
 	}
 	
 	// ------------------------------------------------------------
@@ -69,6 +90,66 @@ class ExpansionMapMarkerModule: JMModuleBase
 		EXPrint("ExpansionMapMarkerModule::OnSettingsUpdated - End");
 		#endif
     }
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarkerModule GetCurrentLocalServerMarkers
+	// ------------------------------------------------------------
+	protected void GetCurrentLocalServerMarkers()
+	{
+		if (!GetGame().IsMultiplayer())
+			return;
+		
+		string addr;
+		int port;
+		if ( !GetGame().GetHostAddress( addr, port ) )
+			return;
+		
+		for (int i = 0; i < m_LocalServersMarkers.Count(); ++i)
+		{
+			ref ExpansionLocalServerMarkers currLocalServer = m_LocalServersMarkers[i];
+			
+			if (currLocalServer && currLocalServer.m_IP == addr && currLocalServer.m_Port == port)
+			{
+				m_Markers = currLocalServer;
+				return;
+			}
+		}
+		
+		ExpansionLocalServerMarkers newServerMarkers = new ExpansionLocalServerMarkers;
+		newServerMarkers.m_IP = addr;
+		newServerMarkers.m_Port = port;
+		
+		m_LocalServersMarkers.Insert(newServerMarkers);
+		
+		m_Markers = newServerMarkers;
+		
+		SaveClientMarkers();
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarkerModule SaveClientMarkers
+	// ------------------------------------------------------------	
+	void SaveClientMarkers()
+	{
+		string file_content;
+		if ( !m_Serializer )
+			m_Serializer = new JsonSerializer;
+		
+		m_Serializer.WriteToString( m_LocalServersMarkers, true, file_content );
+		
+		FileHandle handle = OpenFile( EXPANSION_CLIENT_MARKERS, FileMode.WRITE );
+		if ( handle == 0 )
+			return;
+		
+		for (int i = 0; i < file_content.Length(); )
+		{
+			FPrint( handle, file_content.Substring(i, 250) );
+			i += 250;
+		}
+		
+		
+		CloseFile( handle );
+	}
 
 	// ------------------------------------------------------------
 	// Expansion AddServerMarker
@@ -255,15 +336,21 @@ class ExpansionMapMarkerModule: JMModuleBase
 	// ------------------------------------------------------------ 
     int Count()
     {
-        return m_Markers.Count();
+		if (!m_Markers)
+			return 0;
+		
+        return m_Markers.m_Markers.Count();
     }
 
 	// ------------------------------------------------------------
 	// Expansion GetMarker
 	// ------------------------------------------------------------ 
-    ExpansionMapMarker GetMarker( int idx )
+   	ref ExpansionMapMarker GetMarker( int idx )
     {
-        return m_Markers.Get( idx );
+		if (!m_Markers)
+			return null;
+		
+        return m_Markers.m_Markers.Get( idx );
     }
 	
 	// ------------------------------------------------------------
@@ -271,7 +358,10 @@ class ExpansionMapMarkerModule: JMModuleBase
 	// ------------------------------------------------------------ 
 	autoptr array< ref ExpansionMapMarker > GetMarkers()
 	{
-		return m_Markers;
+		if (!m_Markers)
+			return null;
+		
+		return m_Markers.m_Markers;
 	}
 	
 	// ------------------------------------------------------------
@@ -279,7 +369,12 @@ class ExpansionMapMarkerModule: JMModuleBase
 	// ------------------------------------------------------------ 
     void AddMarker( ref ExpansionMapMarker marker )
     {
-        m_Markers.Insert(marker);
+		if (!m_Markers)
+			GetCurrentLocalServerMarkers();
+		
+        m_Markers.m_Markers.Insert(marker);
+		
+		SaveClientMarkers();
     }
 	
 	// ------------------------------------------------------------
@@ -287,11 +382,15 @@ class ExpansionMapMarkerModule: JMModuleBase
 	// ------------------------------------------------------------ 
     bool RemoveMarker( ref ExpansionMapMarker marker )
     {
-        int index = m_Markers.Find(marker);
+		if (!m_Markers)
+			GetCurrentLocalServerMarkers();
+		
+        int index = m_Markers.m_Markers.Find(marker);
 
         if ( index > -1 )
         {
-            m_Markers.Remove( index );
+            m_Markers.m_Markers.Remove( index );
+			SaveClientMarkers();
             return true;
         }
 

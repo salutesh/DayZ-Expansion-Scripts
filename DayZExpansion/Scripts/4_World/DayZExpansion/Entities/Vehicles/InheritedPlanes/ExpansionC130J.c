@@ -143,10 +143,10 @@ class ExpansionC130J extends ExpansionPlaneScript
 		{
 			ItemBase battery;
 			
-			if ( IsVitalCarBattery() ) battery = FindAttachmentBySlotName("CarBattery");
-			if ( IsVitalTruckBattery() ) battery = FindAttachmentBySlotName("TruckBattery");
-			if ( IsVitalHelicopterBattery() ) battery = FindAttachmentBySlotName("ExpansionHelicopterBattery");
-			if ( IsVitalAircraftBattery() ) battery = FindAttachmentBySlotName("ExpansionAircraftBattery");
+			if ( IsVitalCarBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
+			if ( IsVitalTruckBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
+			if ( IsVitalHelicopterBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("ExpansionHelicopterBattery") );
+			if ( IsVitalAircraftBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("ExpansionAircraftBattery") );
 			
 			if ( battery )
 			{

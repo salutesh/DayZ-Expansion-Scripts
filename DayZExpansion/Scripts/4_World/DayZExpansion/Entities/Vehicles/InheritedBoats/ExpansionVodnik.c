@@ -285,22 +285,28 @@ class ExpansionVodnik extends ExpansionBoatScript
 
 		switch( posIdx )
 		{
-			case 0:
-				if ( GetCarDoorsState( "vodnikdriverdoor" ) == CarDoorState.DOORS_CLOSED )
-					return false;
-
-				return true;
-			break;
-			
-			case 1:
-				if ( GetCarDoorsState( "vodnikcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
-					return false;
-
-				return true;
-			break;
+			case 0: {
+				if ( GetAnimationPhase("vodnikdriverdoor") > 0.5 ) {
+					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
+                }
+                break;
+            }
+			case 1: {
+				if ( GetAnimationPhase("vodnikcodriverdoor") > 0.5 ) {
+					return CarDoorState.DOORS_OPEN;
+                } else {
+					return CarDoorState.DOORS_CLOSED;
+                }
+                break;
+            }
+            default: {
+                return CarDoorState.DOORS_MISSING;
+			}
 		}
 
-		return true;
+		return CarDoorState.DOORS_MISSING;
 	}
 
 	// ------------------------------------------------------------
@@ -378,10 +384,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		{
 			ItemBase battery;
 			
-			if ( IsVitalCarBattery() ) battery = FindAttachmentBySlotName("CarBattery");
-			if ( IsVitalTruckBattery() ) battery = FindAttachmentBySlotName("TruckBattery");
-			if ( IsVitalHelicopterBattery() ) battery = FindAttachmentBySlotName("ExpansionHelicopterBattery");
-			if ( IsVitalAircraftBattery() ) battery = FindAttachmentBySlotName("ExpansionAircraftBattery");
+			if ( IsVitalCarBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
 			
 			if ( battery )
 			{

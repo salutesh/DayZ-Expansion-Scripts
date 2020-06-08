@@ -17,17 +17,17 @@ class ExpansionMapSettings: ExpansionSettingBase
 {
 	bool EnableMap;
 	bool UseMapOnMapItem;
-	bool CanCreateMarker;
-    bool ShowPlayerPosition;
-	bool CanCreatePartyMarkers;
+	bool CanCreateMarker;				// Allow player to create markers
+    bool ShowPlayerPosition;			// Allow player to see his position on the map
+	bool CanCreatePartyMarkers;			// Allow player to create party markers
 	bool ShowMapStats;
-	bool CanCreate3DMarker;
-	bool ShowPartyMembersMapMarkers;
-	float DistanceForPartyMarkers; //Can't go over network bubble distance for player
-	bool ShowServerMarkers;
+	bool CanCreate3DMarker;				// Allow player to create 3D markers
+	bool ShowPartyMembersMapMarkers;	// Allow player to see his teammates position on the map
+	float DistanceForPartyMarkers; 		// Can't go over network bubble distance for player
+	bool ShowServerMarkers;				// Show server markers
 	bool CanOpenMapWithKeyBinding;
 
-	ref array< ref ExpansionMapMarker > ServerMarkers;
+	autoptr array< ref ExpansionMapMarker > ServerMarkers;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;

@@ -76,8 +76,8 @@ class Land_House_2W01 extends BuildingSuper
 		SpawnInteriorObject("bldr_BookRobinsonCrusoe", "3.763103 -2.574997 3.242116", "94.000000 89.965729 0.000000");
 		SpawnInteriorObject("bldr_BookRussian", "3.770000 -2.519997 3.240000", "-91.000023 -90.000000 179.999985");
 		SpawnInteriorObject("bldr_BookTheCallOfCthulhu", "3.763103 -2.465721 3.237533", "-81.000023 -90.000000 179.999985");
-		SpawnInteriorObject("bldr_BakedBeansCan_Opened", "-1.774000 -2.338997 4.075006", "-164.371490 0.000000 11.000003");
-		SpawnInteriorObject("bldr_SardinesCan_Opened", "-1.955353 -2.370003 3.850000", "-179.999985 9.000000 0.000000");
+		// SpawnInteriorObject("bldr_BakedBeansCan_Opened", "-1.774000 -2.338997 4.075006", "-164.371490 0.000000 11.000003");
+		// SpawnInteriorObject("bldr_SardinesCan_Opened", "-1.955353 -2.370003 3.850000", "-179.999985 9.000000 0.000000");
 		// SpawnInteriorObject("bldr_lekarnicka", "-3.569052 -1.931717 4.580000", "0.000000 0.000000 0.000000");
 		// SpawnInteriorObject("FirstAidKit", "-3.951769 -1.129997 4.150000", "17.999990 -89.965729 0.000000");
 		// SpawnInteriorObject("bldr_VitaminBottle", "-3.741039 -3.165001 4.069036", "0.000000 0.000000 0.000000");

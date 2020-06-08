@@ -236,7 +236,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void AddItem( ref ExpansionAirdropLootAttachments className )
 	{
-		ItemBase item = GetInventory().CreateInInventory( className.Name ); 
+		ItemBase item = ItemBase.Cast( GetInventory().CreateInInventory( className.Name ) ); 
 
 		if ( className.Attachments != NULL )
 		{

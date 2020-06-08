@@ -114,9 +114,9 @@ class ExpansionMapping
 		Mapping.Insert( "SvetRoadForestNoCollision" );
 		Mapping.Insert( "TisyNoCollision" );
 	
-		UseCustomMappingModule 			= true;
-		InteriorBuilding 				= true;
-		Ivies							= true;
+		UseCustomMappingModule 			= false;
+		InteriorBuilding 				= false;
+		Ivies							= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMapping::Defaults - End");

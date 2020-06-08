@@ -385,6 +385,8 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		{
 			return false;
 		}
+		
+		SetSynchDirty();
 
 		return true;
 	}

@@ -341,106 +341,189 @@ static string FormatTime( float time )
 	return timestring;
 }
 
-// ------------------------------------------------------------
-// Expansion GetFlagTexture
-// Hardcoded flag texture paths
-// ------------------------------------------------------------	
-static string GetFlagTexturePath( int id )
+class ExpansionStatic
 {
-	string path = "";
+	protected autoptr array<ref ExpansionFlagTexture> m_FlagTextures;
 	
-	switch (id)
+	void ExpansionStatic()
 	{
-		case (1):
-		{
-			path = EXPANSION_FLAG_LOGO_EXPANSION;
-			break;
-		}
-		case (2):
-		{
-			path = EXPANSION_FLAG_COLOR_WHITE;
-			break;
-		}
-		case (3):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_AUSTRALIA;
-			break;
-		}
-		case (4):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_CANADA;
-			break;
-		}
-		case (5):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_CHERNARUS;
-			break;
-		}
-		case (6):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_FRANACE;
-			break;
-		}
-		case (7):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_GERMANY;
-			break;
-		}
-		case (8):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_LATVIA;
-			break;
-		}
-		case (9):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_LUXEMBOURG;
-			break;
-		}
-		case (10):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_MEXICO;
-			break;
-		}
-		case (11):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_NETHERLANDS;
-			break;
-		}
-		case (12):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_NEWZEALAND;
-			break;
-		}
-		case (13):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_NORWAY;
-			break;
-		}
-		case (14):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_POLAND;
-			break;
-		}
-		case (15):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_RUSSIA;
-			break;
-		}
-		case (16):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_UK;
-			break;
-		}
-		case (17):
-		{
-			path = EXPANSION_FLAG_COUNTRIES_USA;
-			break;
-		}
+		m_FlagTextures = new array<ref ExpansionFlagTexture>;
+		
+		LoadFlagTextures();
 	}
 	
-	#ifdef EXPANSIONEXLOGPRINT
-	EXLogPrint( "ExpansionStatic::GetFlagTexturePath - Return texture path: " + path + " for ID:" + id.ToString() );
-	#endif
+	ref array<ref ExpansionFlagTexture> GetFlagTextures()
+	{
+		return m_FlagTextures;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion LoadFlagTextures
+	// Contains path and name information for each flag texture
+	// ------------------------------------------------------------
+	void LoadFlagTextures()
+	{
+		AddFlagTexture(EXPANSION_FLAG_LOGO_EXPANSION, "Expansion");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_WHITE, "White");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_AUSTRALIA, "Australia");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CANADA, "Canada");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CHERNARUS, "Chernarus");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_FRANCE, "France");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_GERMANY, "Germany");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_LATVIA, "Latvia");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_LUXEMBOURG, "Luxembourg");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_MEXICO, "Mexico");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NETHERLANDS, "Netherlands");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NEWZEALAND, "New Zealand");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NORWAY, "Norway");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_POLAND, "Poland");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_RUSSIA, "Russia");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_UK, "UK");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_USA, "USA");
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion AddFlagTexture
+	// ------------------------------------------------------------
+	void AddFlagTexture( string path, string name )
+	{
+		ExpansionFlagTexture flagTexture = new ExpansionFlagTexture( path, name );
+		
+		m_FlagTextures.Insert( flagTexture );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RemoveFlagTexture
+	// ------------------------------------------------------------
+	bool RemoveFlagTexture( string path )
+	{
+		for (int i = 0; i < m_FlagTextures.Count(); ++i)
+		{
+			if (m_FlagTextures[i] && m_FlagTextures[i].Path == path)
+			{
+				m_FlagTextures.Remove(i);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetFlagTexture
+	// Hardcoded flag texture paths
+	// Not used anymore
+	// Will be removed in next update
+	// ------------------------------------------------------------	
+	string GetFlagTexturePath( int id )
+	{
+		string path = "";
+		
+		switch (id)
+		{
+			case 1:
+			{
+				path = EXPANSION_FLAG_LOGO_EXPANSION;
+				break;
+			}
+			case 2:
+			{
+				path = EXPANSION_FLAG_COLOR_WHITE;
+				break;
+			}
+			case 3:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_AUSTRALIA;
+				break;
+			}
+			case 4:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_CANADA;
+				break;
+			}
+			case 5:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_CHERNARUS;
+				break;
+			}
+			case 6:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_FRANCE;
+				break;
+			}
+			case 7:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_GERMANY;
+				break;
+			}
+			case 8:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_LATVIA;
+				break;
+			}
+			case 9:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_LUXEMBOURG;
+				break;
+			}
+			case 10:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_MEXICO;
+				break;
+			}
+			case 11:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_NETHERLANDS;
+				break;
+			}
+			case 12:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_NEWZEALAND;
+				break;
+			}
+			case 13:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_NORWAY;
+				break;
+			}
+			case 14:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_POLAND;
+				break;
+			}
+			case 15:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_RUSSIA;
+				break;
+			}
+			case 16:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_UK;
+				break;
+			}
+			case 17:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_USA;
+				break;
+			}
+		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionStatic::GetFlagTexturePath - Return texture path: " + path + " for ID:" + id.ToString() );
+		#endif
+	
+		return path;
+	}
+}
 
-	return path;
+static ref ExpansionStatic GetExpansionStatic()
+{
+	static ref ExpansionStatic g_exGlobalStatic;
+	
+	if ( !g_exGlobalStatic )
+	{
+		g_exGlobalStatic = new ExpansionStatic();
+	}
+
+	return g_exGlobalStatic;
 }
