@@ -138,7 +138,7 @@ class Expansion3DMarkerModule: JMModuleBase
             }
         }
 
-        if ( GetExpansionClientSettings().Show3DGlobalMarkers && !m_ShowOnlyPartyMembersMarkers )
+        if ( GetExpansionClientSettings().Show3DGlobalMarkers && GetExpansionSettings().GetMap().ShowServerMarkers && !m_ShowOnlyPartyMembersMarkers )
         {
 			for ( idx = 0; idx < module.ServerCount(); idx++ )
             {

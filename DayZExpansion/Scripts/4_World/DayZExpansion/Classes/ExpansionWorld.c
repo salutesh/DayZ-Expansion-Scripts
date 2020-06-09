@@ -145,6 +145,11 @@ class ExpansionWorld: ExpansionGame
 			{
 				GetGame().CreateObject( "Expansion_RPG_Explosion", pos );
 				break;
+			}				
+			case "ExpansionRocketLAW":
+			{
+				GetGame().CreateObject( "Expansion_RPG_Explosion", pos );
+				break;
 			}			
 		}
 		

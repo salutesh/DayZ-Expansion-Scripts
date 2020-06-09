@@ -88,10 +88,21 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 
 		if ( m_Target.IsLocked() || !m_Target.HasCode() )
 		{
-			ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
-			if ( menu )
+			string savedCode = ExpansionLockSaver.GetInstance().GetSavedCode(m_Target);
+			if (m_Target.HasCode() && savedCode != "")
 			{
-				menu.SetTarget( m_Target, selection );
+				ScriptRPC rpc2 = new ScriptRPC;
+				rpc2.Write( savedCode );
+				rpc2.Write( selection );
+				rpc2.Send( m_Target, ExpansionLockRPC.UNLOCK, true );
+			}
+			else
+			{
+				ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
+				if ( menu )
+				{
+					menu.SetTarget( m_Target, selection );
+				}
 			}
 		} 
 		else

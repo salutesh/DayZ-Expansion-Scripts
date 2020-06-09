@@ -15,9 +15,6 @@
  **/
 class ExpansionActionGetOutTransport: ActionInteractBase
 {
-	private Transport m_transport;
-	private int m_crewIdx;
-
 	void ExpansionActionGetOutTransport()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -47,16 +44,14 @@ class ExpansionActionGetOutTransport: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
- 		m_transport = null;
-
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 		if ( vehCommand )
 		{
-			m_transport = vehCommand.GetTransport();
-			if ( m_transport )
+			Transport transport = vehCommand.GetTransport();
+			if ( transport )
 			{
-				m_crewIdx = m_transport.CrewMemberIndex( player );
-				if ( m_crewIdx >= 0 && m_transport.CrewCanGetThrough( m_crewIdx ) )
+				int crewIdx = transport.CrewMemberIndex( player );
+				if ( crewIdx >= 0 && transport.CrewCanGetThrough( crewIdx ) )
 					return true;
 			}
 		}

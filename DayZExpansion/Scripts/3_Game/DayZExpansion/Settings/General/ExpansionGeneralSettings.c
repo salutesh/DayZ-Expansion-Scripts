@@ -278,7 +278,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		EnableHUDGPS = true;
 		NeedGPSItemForKeyBinding = true;
-		NeedMapItemForKeyBinding = false;
+		NeedMapItemForKeyBinding = true;
 		
 		EnableHUDNightvisionOverlay = true;
 		DisableMagicCrosshair = false;

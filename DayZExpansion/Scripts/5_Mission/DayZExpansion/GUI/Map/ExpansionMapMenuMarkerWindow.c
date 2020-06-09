@@ -363,7 +363,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	void CreateMarker()
 	{
 		int minNameLength = 3;
-		int maxNameLength = 15;
+		int maxNameLength = 32;
 		TStringArray allowedCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," ","-","?","!","&"};
 
 		string markerName 	= m_MarkerNameEditBox.GetText();
@@ -386,7 +386,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 		string currentMarkerName;
 		ExpansionMapMarker currentMarker;
 
-		//! Check marker name lenght (Min:3 / Max: 15 characters)
+		//! Check marker name lenght (Min:3 / Max: 32 characters)
 		if (markerName.Length() < minNameLength || markerName.Length() > maxNameLength) 
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_NAME_LENGHT" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5 );

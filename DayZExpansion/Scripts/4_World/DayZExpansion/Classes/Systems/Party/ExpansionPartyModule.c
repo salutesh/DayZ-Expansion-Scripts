@@ -1475,6 +1475,8 @@ class ExpansionPartyModule: JMModuleBase
 					
 					//Update our current client
 					UpdateClient( party.GetPartyID(), player );
+					
+					SyncQuickMarkers(party);
 				}
 			}
 		}

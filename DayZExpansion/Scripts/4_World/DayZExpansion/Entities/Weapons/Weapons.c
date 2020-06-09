@@ -49,10 +49,7 @@ void FoldOpticsUp(EntityAI ParentItem)
 
 class ExpansionLAW: SKS_Base
 {
-	override typename GetExpansionFireType()
-	{
-		return ExpansionWeaponFireRocket;
-	}
+
 	
 	override void InitStateMachine()
 	{
@@ -930,7 +927,24 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 
         return true;
     }	
-
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+    {
+        if  ( attachment.IsKindOf("ItemOptics") )
+        {            
+            if (  FindAttachmentBySlotName("ExpansionSniperOptics") != NULL )
+            {
+                return false;
+            }    
+        }          
+		if  ( attachment.IsKindOf("Expansion_PMII25Optic") )
+        {            
+            if ( FindAttachmentBySlotName("weaponOptics") != NULL)
+            {
+                return false;
+            }    
+        }     
+        return super.CanReceiveAttachment(attachment, slotId);
+    }
 	override RecoilBase SpawnRecoilObject()
 	{
 		return new CZ527Recoil(this);

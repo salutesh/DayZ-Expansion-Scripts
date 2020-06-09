@@ -27,7 +27,11 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	float ExplosionTime;
 
 	float ExplosionDamageMultiplier;
-	float ProjectileDamageMultiplier;
+	float ProjectileDamageMultiplier;	
+
+
+	float SafeExplosionDamageMultiplier;
+	float SafeProjectileDamageMultiplier;
 	
 	int TerritoryMode; //! 0 Means that you can build without territory, but nobody else can build near your territory || 1 Means that you can only build if you are in your territory
 	
@@ -131,7 +135,10 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		ExplosionTime = s.ExplosionTime;
 
 		ExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
-		ProjectileDamageMultiplier = s.ProjectileDamageMultiplier;
+		ProjectileDamageMultiplier = s.ProjectileDamageMultiplier;		
+		
+		SafeExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
+		SafeProjectileDamageMultiplier = s.ProjectileDamageMultiplier;
 		TerritoryMode = s.TerritoryMode;
 		CodeLockLength = s.CodeLockLength;
 		
@@ -220,7 +227,10 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		ExplosionTime = 60;
 
 		ExplosionDamageMultiplier = 50;
-		ProjectileDamageMultiplier = 1;
+		ProjectileDamageMultiplier = 1;		
+		
+		SafeExplosionDamageMultiplier = 17;
+		SafeProjectileDamageMultiplier = 1;
 		TerritoryMode = 0;
 		CodeLockLength = 4;
 		

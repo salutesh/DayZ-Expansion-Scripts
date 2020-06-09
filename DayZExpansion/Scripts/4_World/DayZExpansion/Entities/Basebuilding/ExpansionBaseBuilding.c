@@ -417,44 +417,80 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	{
 		float explosionDamageMultiplier = GetExpansionSettings().GetBaseBuilding().ExplosionDamageMultiplier; 
 		float projectileDamageMultiplier = GetExpansionSettings().GetBaseBuilding().ProjectileDamageMultiplier; 
-
-
-
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);	
-
+		PlayerBase player;
+		PlayerIdentity playerID;
+		GetGame().AdminLog("------------------------- Expansion BaseRaiding Damage Report -------------------------")
 		if (damageType == 2) 
 		{
 			float exposionBonusDamage;
 			if ( explosionDamageMultiplier > 1)
 			{
 				exposionBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * ( explosionDamageMultiplier + 1 ) );
-
+				if ( source != NULL)
+				{
+					player = source.GetHierarchyRootPlayer();
+					playerID = PlayerIdentity.Cast(player.GetIdentity());
+					GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) " );
+					GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source + " at " + this.GetPosition() );
+				}
 				AddHealth("", "Health", -exposionBonusDamage);
+
 			}
 
-			if ( explosionDamageMultiplier < 1)
+			else if ( explosionDamageMultiplier < 1)
 			{
 				exposionBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * explosionDamageMultiplier );
+
+				player = source.GetHierarchyRootPlayer();
+				playerID = PlayerIdentity.Cast(player.GetIdentity());
+				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "\"" + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" )) + " current health) "  );
+				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) - exposionBonusDamage ) + " damage with a " + source + " at " + this.GetPosition() );
 				AddHealth("", "Health", ( damageResult.GetDamage( dmgZone, "Health" ) -exposionBonusDamage ) ); 
+
+			}
+			else 
+			{
+				player = source.GetHierarchyRootPlayer();
+				playerID = PlayerIdentity.Cast(player.GetIdentity());
+				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "\"" + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) " );
+				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source + " at " + this.GetPosition());
 			}
 		}	
-
+		GetGame().AdminLog("asdasdasd " + damageType);
 		if (damageType == 1) 
 		{
 			float projectileBonusDamage;
 			if ( projectileDamageMultiplier > 1)
 			{
 				projectileBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * ( projectileDamageMultiplier + 1 ) );
+				player = source.GetHierarchyRootPlayer();
+				playerID = PlayerIdentity.Cast(player.GetIdentity());
+				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
+				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
 				AddHealth("", "Health", -projectileBonusDamage);
+				
 			}
-
-			if ( projectileDamageMultiplier < 1)
+			else if ( projectileDamageMultiplier < 1)
 			{
 				projectileBonusDamage = ( damageResult.GetDamage( dmgZone,"Health" ) * projectileDamageMultiplier );
-
+				player = source.GetHierarchyRootPlayer();
+				playerID = PlayerIdentity.Cast(player.GetIdentity());
+				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
+				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
 				AddHealth("", "Health", ( damageResult.GetDamage( dmgZone,"Health" ) -projectileBonusDamage ) ); 
 			}
+			else
+			{
+				player = source.GetHierarchyRootPlayer();
+				playerID = PlayerIdentity.Cast(player.GetIdentity());
+				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
+				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
+			}
+			
 		}
+		GetGame().AdminLog("Expansion BaseRaiding: Health after damage applied: " + this.GetHealth());
+		GetGame().AdminLog("--------------------------------------------------------------------------------------");
 	}
 	
 	//================================================================

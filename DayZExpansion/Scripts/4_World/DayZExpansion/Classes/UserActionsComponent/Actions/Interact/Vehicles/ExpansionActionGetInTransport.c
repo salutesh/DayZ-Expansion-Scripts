@@ -15,10 +15,6 @@
  **/
 class ExpansionActionGetInTransport: ActionBase
 {
-	private Transport m_Transport;
-
-	private int m_CrewIdx;
-
 	void ExpansionActionGetInTransport()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -47,13 +43,12 @@ class ExpansionActionGetInTransport: ActionBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Transport = NULL;
-		m_CrewIdx = -1;
-
 		if ( !target )
 			return false;
+		
+		Transport transport;
 
-		if ( !Class.CastTo( m_Transport, target.GetObject() ) )
+		if ( !Class.CastTo( transport, target.GetObject() ) )
 			return false;
 
 		if ( player.GetCommand_Vehicle() )
@@ -73,26 +68,26 @@ class ExpansionActionGetInTransport: ActionBase
 
 		int componentIndex = target.GetComponentIndex();
 
-		m_CrewIdx = m_Transport.CrewPositionIndex( componentIndex );
-		if ( m_CrewIdx < 0 )
+		int crewIdx = transport.CrewPositionIndex( componentIndex );
+		if ( crewIdx < 0 )
 			return false;
 
-		Human crew = m_Transport.CrewMember( m_CrewIdx );
+		Human crew = transport.CrewMember( crewIdx );
 		if ( crew )
 			return false;
 		
-		if ( !m_Transport.CrewCanGetThrough( m_CrewIdx ) )
+		if ( !transport.CrewCanGetThrough( crewIdx ) )
 			return false;
 
 		array<string> selections = new array<string>();
 
-		m_Transport.GetActionComponentNameList( componentIndex, selections );
+		transport.GetActionComponentNameList( componentIndex, selections );
 		
 		for ( int i = 0; i < selections.Count(); i++ )
 		{
-			if ( m_Transport.CanReachSeatFromDoors(selections[i], player.GetPosition(), 1.0) )
+			if ( transport.CanReachSeatFromDoors(selections[i], player.GetPosition(), 1.0) )
 			{
-				CarScript car = CarScript.Cast(m_Transport);
+				CarScript car = CarScript.Cast(transport);
 				
 				if ( car.DoorCount() <= 0 )
 				{
@@ -111,6 +106,20 @@ class ExpansionActionGetInTransport: ActionBase
 	{
 		super.Start( action_data );
 		
+		if (!action_data.m_Target)
+			return;
+		
+		Transport transport;
+
+		if ( !Class.CastTo( transport, action_data.m_Target.GetObject() ) )
+			return;
+		
+		int componentIndex = action_data.m_Target.GetComponentIndex();
+
+		int crewIdx = transport.CrewPositionIndex( componentIndex );
+		if ( crewIdx < 0 )
+			return;
+		
 		action_data.m_Player.AttachmentDebugPrint( "ExpansionActionGetInTransport::Start" );
 
 		IEntity parent = action_data.m_Player.GetParent();
@@ -124,11 +133,11 @@ class ExpansionActionGetInTransport: ActionBase
 		
 		action_data.m_Player.AttachmentDebugPrint( "ExpansionActionGetInTransport::StartCommand" );
 
-		int seat = m_Transport.GetSeatAnimationType( m_CrewIdx );
-		HumanCommandVehicle vehCommand = action_data.m_Player.StartCommand_Vehicle( m_Transport, m_CrewIdx, seat );
+		int seat = transport.GetSeatAnimationType( crewIdx );
+		HumanCommandVehicle vehCommand = action_data.m_Player.StartCommand_Vehicle( transport, crewIdx, seat );
 		if ( vehCommand )
 		{
-			vehCommand.SetVehicleType( m_Transport.GetAnimInstance() );
+			vehCommand.SetVehicleType( transport.GetAnimInstance() );
 			action_data.m_Player.GetItemAccessor().HideItemInHands( true );
 			
 			GetDayZGame().GetBacklit().OnEnterCar();	
@@ -139,7 +148,7 @@ class ExpansionActionGetInTransport: ActionBase
 			//	action_data.m_Player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
 		}
 
-		CarScript car = CarScript.Cast( m_Transport );
+		CarScript car = CarScript.Cast( transport );
 
 		if ( IsMissionClient() )
 		{

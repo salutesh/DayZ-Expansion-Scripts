@@ -66,7 +66,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		ToggleLight();
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CheckAirdrop, 5000, true );
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearAirdrop, 60000, false );
+		//! GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearAirdrop, 60000, false );
 	}
 	
 	// ------------------------------------------------------------

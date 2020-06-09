@@ -111,7 +111,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 		string party_name = m_book_PartyClanName.GetText();
 		TStringArray allCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," ","'","\""};
 
-		if ( party_name.Length() < 3 || party_name.Length() > 12 )
+		if ( party_name.Length() < 3 || party_name.Length() > 32 )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_SYSTEM_NAME" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7 );
 			return;

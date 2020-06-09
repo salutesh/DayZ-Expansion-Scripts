@@ -81,7 +81,9 @@ modded class ActionStartEngine
 
 	override void OnStartServer( ActionData action_data )
 	{
-		EntityAI item = NULL;
+		EntityAI item2 = NULL;
+		EntityAI item3 = NULL;
+		EntityAI item4 = NULL;
 		super.OnStartServer(action_data);
 		if ( !m_ExCar.EngineIsOn() )
 		{
@@ -91,10 +93,21 @@ modded class ActionStartEngine
 			if ( Class.CastTo( heli, m_ExCar ) )
 			{
 				if ( heli.IsVitalIgniterPlug() )
-					item = heli.FindAttachmentBySlotName("ExpansionIgniterPlug");
-				if ( heli.IsVitalHydraulicHoses() && item )
-					item = heli.FindAttachmentBySlotName("ExpansionHydraulicHoses");
-				if ( !item || item.IsRuined() )
+					item2 = heli.FindAttachmentBySlotName("ExpansionIgniterPlug");
+				else
+					item2 = heli;
+				
+				if ( heli.IsVitalHydraulicHoses() )
+					item3 = heli.FindAttachmentBySlotName("ExpansionHydraulicHoses");
+				else
+					item3 = heli;
+				
+				if ( heli.IsVitalHelicopterBattery() )
+					item4 = heli.FindAttachmentBySlotName("ExpansionHelicopterBattery");
+				else
+					item4 = heli;
+				
+				if (!item2 || !item3 || !item4 || item2.IsRuined() || item3.IsRuined() || item4.IsRuined() )
 					m_SparkCon = false;
 			}
 		}

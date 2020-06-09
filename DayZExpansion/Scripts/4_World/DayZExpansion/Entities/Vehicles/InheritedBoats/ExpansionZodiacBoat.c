@@ -23,11 +23,11 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 		m_dmgContactCoef			= 0.018;
 
 		//! Custom
-		m_MaxSpeed					= 60.0;
+		m_MaxSpeed					= 30.0;
 
-		m_TurnCoef					= 0.2;
+		m_TurnCoef					= 0.05;
 
-		m_Offset					= 1.9;
+		m_Offset					= 2.05;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZodiacBoat::Constructor - End");

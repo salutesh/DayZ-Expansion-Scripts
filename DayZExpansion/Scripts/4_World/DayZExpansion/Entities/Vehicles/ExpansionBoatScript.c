@@ -42,6 +42,11 @@ class ExpansionBoatScript extends OffroadHatchback
 	private Particle m_ParticleFirst;
 	private Particle m_ParticleSecond;
 
+	private Particle m_ParticleSideFirst;
+	private Particle m_ParticleSideSecond;
+
+	private Particle m_ParticleEngine;
+
 	private ExpansionBoatScriptSoundProxyBase m_BoatSoundProxy;
 
 	// ------------------------------------------------------------
@@ -94,6 +99,34 @@ class ExpansionBoatScript extends OffroadHatchback
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::Constructor end");
 		#endif
+	}
+
+	void ~ExpansionBoatScript()
+	{
+		if ( m_ParticleEngine )
+		{
+			m_ParticleEngine.Stop();
+		}
+
+		if ( m_ParticleFirst ) 
+		{
+			m_ParticleFirst.Stop();
+		}
+			
+		if ( m_ParticleSecond ) 
+		{
+			m_ParticleSecond.Stop();
+		}
+
+		if ( m_ParticleSideFirst ) 
+		{
+			m_ParticleSideFirst.Stop();
+		}
+			
+		if ( m_ParticleSideSecond ) 
+		{
+			m_ParticleSideSecond.Stop();
+		}
 	}
 	
 	override void DeferredInit()
@@ -195,17 +228,36 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	protected override void OnParticleUpdate( float pDt )
 	{
+		int gear = GetController().GetGear();
+
 		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine")); 
-		if ( enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 10 ) 
+		if ( enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 2 ) 
 		{
-			if (!m_ParticleFirst && MemoryPointExists("waterstream1"))
+			if (!m_ParticleFirst && MemoryPointExists("waterdecal"))
 			{
-				m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream1"), Vector(-35, 90, 0));	
+				if ( gear != CarGear.REVERSE )
+				{
+					m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_DECAL, this, GetMemoryPointPos("waterdecal") + Vector(0, 0, 2.5), Vector(-180, 0, 0));	
+				}
+				else 
+				{
+					m_ParticleFirst.Stop();
+				}
 			}
 
-			if (!m_ParticleSecond && MemoryPointExists("waterstream2"))
+			if (!m_ParticleEngine && MemoryPointExists("engine"))
 			{
-				m_ParticleSecond = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream2"), Vector(35, 90, 0));	
+				m_ParticleEngine = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_ENGINE, this, GetMemoryPointPos("engine"), Vector(0, 90, 0));	
+			}
+
+			if (!m_ParticleSideFirst && MemoryPointExists("waterstream1_side"))
+			{
+				m_ParticleSideFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream1_side"), Vector(-25, 90, 0));	
+			}
+
+			if (!m_ParticleSideSecond && MemoryPointExists("waterstream2_side"))
+			{
+				m_ParticleSideSecond = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream2_side"), Vector(25, 90, 0));	
 			}
 		} else 
 		{
@@ -213,11 +265,26 @@ class ExpansionBoatScript extends OffroadHatchback
 			{
 				m_ParticleFirst.Stop();
 			}
+			
+			if ( m_ParticleEngine )
+			{
+				m_ParticleEngine.Stop();
+			}
 				
 			if ( m_ParticleSecond ) 
 			{
 				m_ParticleSecond.Stop();
 			}	
+
+			if ( m_ParticleSideFirst ) 
+			{
+				m_ParticleSideFirst.Stop();
+			}
+				
+			if ( m_ParticleSideSecond ) 
+			{
+				m_ParticleSideSecond.Stop();
+			}
 		}
 	}
 
@@ -388,6 +455,9 @@ class ExpansionBoatScript extends OffroadHatchback
 		#endif
 
 		super.ExpansionOnSpawnExploded();
+
+		if (m_ParticleEngine)
+			m_ParticleEngine.Stop();
 		
 		if (m_ParticleFirst) 
 			m_ParticleFirst.Stop();

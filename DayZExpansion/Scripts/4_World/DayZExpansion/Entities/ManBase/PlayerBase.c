@@ -1484,8 +1484,57 @@ modded class PlayerBase
 		{
 			if ( m_WasInVehicle )
 			{
-				vector ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
-				SetPosition( ground );
+				vector rayStart = GetPosition();
+				vector rayEnd = rayStart + "0 -6000 0";
+				vector ground;
+				
+				RaycastRVParams params = new RaycastRVParams( rayStart, rayEnd, this, 0.2 );
+				params.sorted = true;
+				//params.type = ObjIntersectFire;
+				params.flags = CollisionFlags.ALLOBJECTS;
+				
+				array< ref RaycastRVResult > results = new array< ref RaycastRVResult >();
+				if ( DayZPhysics.RaycastRVProxy( params, results ) )
+				{
+					vector hitPos = vector.Zero;
+					for (int i = 0; i < results.Count(); ++i)
+					{
+						ref RaycastRVResult currResult = results[i];
+						if (!currResult)
+							continue;
+						
+						Object obj;
+						if (currResult.hierLevel > 0)
+						{
+							obj = currResult.parent;
+						}	
+						else
+						{
+							obj = currResult.obj;
+						}
+						
+						if ( !obj || obj.IsTree() || obj.IsBush() || obj.IsScriptedLight() || obj.IsTransport() || obj.GetType() == string.Empty)
+							continue;
+						
+						hitPos = currResult.pos;
+						break;
+					}
+					
+					if (hitPos != vector.Zero)
+					{
+						SetPosition( hitPos );
+					}
+					else
+					{
+						ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
+						SetPosition( ground );
+					}
+				}
+				else
+				{
+					ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
+					SetPosition( ground );
+				}
 
 				m_WasInVehicle = false;
 			}
