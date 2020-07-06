@@ -1,0 +1,1414 @@
+FrameWidgetClass market_menu_root {
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ {
+  FrameWidgetClass market_menu_content {
+   ignorepointer 0
+   position 0 0
+   size 0.74 1
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   {
+    FrameWidgetClass market_container {
+     ignorepointer 1
+     color 1 1 1 0
+     size 0.99 0.94
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      PanelWidgetClass market_root {
+       visible 1
+       ignorepointer 1
+       color 0 0 0 0
+       position 0 0
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       priority 3
+       style blank
+       "no focus" 1
+       {
+        WrapSpacerWidgetClass market_frame {
+         visible 1
+         clipchildren 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         {
+          PanelWidgetClass market_header {
+           visible 1
+           ignorepointer 1
+           color 0.0902 0.0902 0.0902 1
+           position 0 0
+           size 1 50
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 1
+           style DayZDefaultPanelTop
+           {
+            TextWidgetClass market_text {
+             visible 1
+             ignorepointer 1
+             position 0 0
+             size 1 0.6
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Normal
+             text "UNKNOWN TRADER"
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 25 2
+             "bold text" 0
+             "text sharpness" 1.014
+             "exact text" 0
+             "text valign" center
+            }
+            EditBoxWidgetClass market_filter_box {
+             position 40 0
+             size 0.28 0.6
+             halign right_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style ServerBrowser
+             text "#STR_EXPANSION_UPPERCASE_SEARCH"
+             "limit visible" 0
+             "Use default text" 1
+             "exact text" 1
+             font "gui/fonts/etelkatextpro22"
+            }
+            ButtonWidgetClass market_filter_clear {
+             position 0.006 0
+             size 0.6 0.6
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scaled 1
+             fixaspect fixwidth
+             style Empty
+             {
+              ImageWidgetClass market_filter_clear_icon {
+               ignorepointer 1
+               color 0.9451 0.7686 0.0588 1
+               size 0.75 0.75
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               image0 "set:expansion_iconset image:icon_cancle"
+               mode blend
+               "src alpha" 1
+              }
+             }
+            }
+            PanelWidgetClass market_filter_icon {
+             ignorepointer 1
+             position 0.17 0
+             size 0.5 0.5
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scaled 1
+             fixaspect fixwidth
+             {
+              ImageWidgetClass market_filter_search_icon {
+               ignorepointer 1
+               color 1 1 1 0.549
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               image0 "set:expansion_iconset image:icon_search"
+               mode blend
+               "src alpha" 1
+              }
+             }
+            }
+            PanelWidgetClass market_filter_outline {
+             ignorepointer 1
+             color 1 1 1 0.549
+             position 0.00589 0
+             size 0.34 0.6
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Outline
+            }
+           }
+          }
+          ScrollWidgetClass market_items_scroller {
+           ignorepointer 0
+           color 1 1 1 0.549
+           position 0 0
+           size 1 0.95
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style blank
+           "Scrollbar V" 1
+           {
+            GridSpacerWidgetClass market_items_container {
+             color 0 0 0 0
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             Padding 10
+             Margin 10
+             "Size To Content H" 1
+             "Size To Content V" 1
+             Columns 1
+             Rows 100
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass player_info_content {
+   ignorepointer 0
+   color 0.6196 0.3176 0 0.549
+   position 0.005 0.01
+   size 0.25 0.1
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style blank
+   {
+    PanelWidgetClass player_info_background {
+     ignorepointer 1
+     color 0.2039 0.2863 0.3686 1
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+    }
+    FrameWidgetClass player_info_container {
+     ignorepointer 1
+     size 0.95 0.9
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      PanelWidgetClass player_info_root {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 3
+       style blank
+       "no focus" 1
+       {
+        PanelWidgetClass player_info_header_panel {
+         visible 1
+         ignorepointer 1
+         color 0 0 0 0.6667
+         position 0 0
+         size 1.01 0.3
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style DayZDefaultPanelTop
+         {
+          TextWidgetClass player_info_header_text {
+           visible 1
+           ignorepointer 1
+           position 0.02 0
+           size 0.48 0.8
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_MARKET_CURRENCY_TITLE"
+           font "gui/fonts/etelkatextpro22"
+           "text offset" 0 0
+           "exact text" 1
+           "size to text v" 0
+           "text valign" center
+          }
+          TextWidgetClass player_total {
+           ignorepointer 1
+           position 0.02 0
+           size 0.48 0.8
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 1
+           "size to text v" 0
+           "text halign" right
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass player_info_frame {
+         visible 1
+         clipchildren 1
+         ignorepointer 1
+         size 1 0.7
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         "no focus" 1
+         {
+          GridSpacerWidgetClass player_info_spacer {
+           ignorepointer 1
+           position 0 0
+           size 1 0.95
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           Columns 2
+           Rows 2
+           {
+            TextWidgetClass player_info_goldbar {
+             visible 1
+             ignorepointer 1
+             position 0 0.1
+             size 1 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Normal
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 0 0
+             "exact text" 1
+             "text valign" center
+            }
+            TextWidgetClass player_info_silverbar {
+             visible 1
+             ignorepointer 1
+             position 0 0.1
+             size 1 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Normal
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 0 0
+             "exact text" 1
+             "text valign" center
+            }
+            TextWidgetClass player_info_goldnugget {
+             visible 1
+             ignorepointer 1
+             position 0 0.1
+             size 1 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Normal
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 0 0
+             "exact text" 1
+             "text valign" center
+            }
+            TextWidgetClass player_info_silvernugget {
+             visible 1
+             ignorepointer 1
+             position 0 0.1
+             size 1 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Normal
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 0 0
+             "exact text" 1
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass menu_info_content {
+   visible 1
+   clipchildren 1
+   ignorepointer 0
+   position 0.005 0.05162
+   size 0.25 0.8668
+   halign right_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style blank
+   {
+    PanelWidgetClass menu_info_background {
+     ignorepointer 1
+     color 0.2039 0.2863 0.3686 1
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+    }
+    FrameWidgetClass menu_info_container {
+     ignorepointer 1
+     size 0.95 0.96
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      PanelWidgetClass menu_info_root {
+       visible 1
+       ignorepointer 1
+       position -2.46496 0
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       priority 3
+       style blank
+       "no focus" 1
+       {
+        PanelWidgetClass market_item_header_panel {
+         visible 1
+         ignorepointer 1
+         color 0 0 0 0.6667
+         size 1 50
+         halign center_ref
+         hexactpos 0
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style DayZDefaultPanelTop
+         {
+          TextWidgetClass market_item_header_text {
+           visible 1
+           ignorepointer 1
+           position 0 0
+           size 1 0.69
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           font "gui/fonts/etelkatextpro22"
+           "text offset" 0 0
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass market_item_info_frame {
+         visible 1
+         clipchildren 1
+         ignorepointer 1
+         position 0 0
+         size 1 0.77
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         "no focus" 1
+        }
+        PanelWidgetClass market_item_preview_container {
+         ignorepointer 1
+         color 0 0 0 0.549
+         position 0 0.05
+         size 0.97 0.35
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 100
+         style rover_sim_colorable
+         {
+          ItemPreviewWidgetClass market_item_preview {
+           visible 1
+           clipchildren 1
+           ignorepointer 0
+           keepsafezone 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 100
+          }
+         }
+        }
+        FrameWidgetClass market_item_amount_panel {
+         clipchildren 0
+         ignorepointer 0
+         position 0 0.2
+         size 0.97 0.07
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass market_item_info_stock_player {
+           visible 1
+           ignorepointer 1
+           position 0 0
+           size 0.45 0.35
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           font "gui/fonts/etelkatextpro22"
+           "bold text" 1
+           "exact text" 1
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass market_item_info_stock {
+           visible 1
+           ignorepointer 1
+           size 0.45 0.35
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           font "gui/fonts/etelkatextpro22"
+           "bold text" 1
+           "exact text" 1
+           "text halign" center
+           "text valign" center
+          }
+          FrameWidgetClass market_item_amount_frame {
+           ignorepointer 1
+           position 0 0
+           size 0.89 0.6
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            PanelWidgetClass market_item_amount_button_panel {
+             ignorepointer 0
+             size 0.2 0.9
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             {
+              ButtonWidgetClass market_item_amount_button {
+               color 0.3333 0.3333 0.3333 1
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Empty
+               {
+                TextWidgetClass market_item_amount_text {
+                 clipchildren 1
+                 ignorepointer 1
+                 position 0 0
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 style Bold
+                 font "gui/fonts/etelkatextpro22"
+                 "text color" 0 0 0 1
+                 "exact text" 1
+                 "size to text h" 0
+                 "size to text v" 0
+                 "text halign" center
+                 "text valign" center
+                }
+               }
+              }
+             }
+            }
+            FrameWidgetClass market_item_amount_left_panel {
+             clipchildren 1
+             ignorepointer 0
+             size 0.365 0.9
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             {
+              ButtonWidgetClass market_item_amount_button_left {
+               visible 1
+               clipchildren 0
+               color 0.9059 0.298 0.2353 1
+               position 0 0
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Editor
+               "disabled text color" 0.2353 0.2353 0.2353 1
+               {
+                ImageWidgetClass market_item_amount_left_icon {
+                 clipchildren 0
+                 ignorepointer 1
+                 color 0.9059 0.298 0.2353 1
+                 position 0 0
+                 size 25 25
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 image0 "set:expansion_iconset image:icon_minus"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+               }
+              }
+             }
+            }
+            FrameWidgetClass market_item_amount_right_panel {
+             clipchildren 1
+             ignorepointer 0
+             size 0.375 0.9
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             {
+              ButtonWidgetClass market_item_amount_button_right {
+               clipchildren 0
+               color 0.1804 0.8 0.4431 1
+               position 0 0
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Editor
+               "disabled text color" 0.2353 0.2353 0.2353 1
+               {
+                ImageWidgetClass market_item_amount_right_icon {
+                 visible 1
+                 clipchildren 0
+                 ignorepointer 1
+                 color 0.1804 0.8 0.4431 1
+                 position 0 0
+                 size 25 25
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 image0 "set:expansion_iconset image:icon_plus"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass market_item_price_panel {
+         ignorepointer 1
+         size 1 0.2
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          PanelWidgetClass market_item_sell_panel {
+           ignorepointer 1
+           size 0.45 1
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            ButtonWidgetClass market_item_sell {
+             color 0.9059 0.298 0.2353 1
+             position 0 0
+             size 0.7 0.25
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Editor
+             "disabled text color" 0.2353 0.2353 0.2353 1
+             {
+              TextWidgetClass market_item_sell_text {
+               ignorepointer 1
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               text "#STR_EXPANSION_MARKET_SELL"
+               font "gui/fonts/etelkatextpro22"
+               "exact text" 1
+               "size to text h" 0
+               "size to text v" 0
+               "text halign" center
+               "text valign" center
+              }
+             }
+            }
+            PanelWidgetClass market_item_sell_price {
+             disabled 0
+             color 0.4941 0.4157 0.1843 0.3922
+             position 0 0.3
+             size 1 0.15
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style blank
+             {
+              TextWidgetClass market_item_sell_price_text {
+               visible 1
+               ignorepointer 1
+               position 0 0
+               size 1 1
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+             }
+            }
+            PanelWidgetClass market_item_sell_breakdown {
+             ignorepointer 1
+             position 0 0.05
+             size 1 0.5
+             halign center_ref
+             valign bottom_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             {
+              TextWidgetClass market_item_info_goldbar_sell_price {
+               visible 1
+               ignorepointer 1
+               position 0 0
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+              TextWidgetClass market_item_info_goldnugget_sell_price {
+               visible 1
+               ignorepointer 1
+               position 0 0.25
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+              TextWidgetClass market_item_info_silverbar_sell_price {
+               visible 1
+               ignorepointer 1
+               position 0 0.5
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+              TextWidgetClass market_item_info_silvernugget_sell_price {
+               visible 1
+               ignorepointer 1
+               position 0 0.75
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass market_item_buy_panel {
+           visible 1
+           ignorepointer 1
+           position 0 0
+           size 0.46 1
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            ButtonWidgetClass market_item_buy {
+             disabled 0
+             color 0.1804 0.8 0.4431 1
+             position 0 0
+             size 0.7 0.25
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Editor
+             {
+              TextWidgetClass market_item_buy_text {
+               disabled 0
+               ignorepointer 1
+               position 0 0.02
+               size 1 1
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               text "#STR_EXPANSION_MARKET_BUY"
+               font "gui/fonts/etelkatextpro22"
+               "bold text" 0
+               "exact text" 1
+               "size to text h" 0
+               "size to text v" 0
+               "text halign" center
+               "text valign" center
+              }
+             }
+            }
+            PanelWidgetClass market_item_buy_price {
+             disabled 0
+             color 0.4941 0.4157 0.1843 0.3922
+             position 0 0.3
+             size 1 0.15
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style blank
+             {
+              TextWidgetClass market_item_buy_price_text {
+               visible 1
+               ignorepointer 1
+               position 0 0
+               size 1 1
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+             }
+            }
+            PanelWidgetClass market_item_buy_breakdown {
+             ignorepointer 1
+             position 0 0.05
+             size 1 0.5
+             halign center_ref
+             valign bottom_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             {
+              TextWidgetClass market_item_info_goldbar_buy_price {
+               visible 1
+               ignorepointer 1
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+              TextWidgetClass market_item_info_goldnugget_buy_price {
+               visible 1
+               ignorepointer 1
+               position 0 0.25
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+              TextWidgetClass market_item_info_silverbar_buy_price {
+               visible 1
+               ignorepointer 1
+               position 0 0.5
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+              TextWidgetClass market_item_info_silvernugget_buy_price {
+               visible 1
+               ignorepointer 1
+               position 0 0.75
+               size 1 0.2
+               halign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style Normal
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 0
+               "exact text" 1
+               "text halign" center
+               "text valign" center
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass market_item_description_container {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0 0 0 0.549
+         position 0 0.07
+         size 0.956 0.28997
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         style rover_sim_colorable
+         {
+          ScrollWidgetClass market_item_description_panel {
+           ignorepointer 0
+           keepsafezone 0
+           color 0.498 0.549 0.5529 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style blank
+           "Scrollbar V" 1
+           {
+            GridSpacerWidgetClass market_item_description_spacer {
+             ignorepointer 1
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             fixaspect outside
+             Columns 1
+             Rows 1
+             {
+              RichTextWidgetClass market_item_description {
+               clipchildren 1
+               ignorepointer 1
+               color 1 1 1 1
+               position 0 0
+               size 1 1
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               text "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et"
+               font "gui/fonts/etelkatextpro22"
+               "text offset" 0 5
+               "exact text" 1
+               "size to text h" 0
+               "size to text v" 0
+               wrap 1
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass count_dialog_panel {
+   visible 0
+   color 0.1725 0.2431 0.3137 1
+   position 0.36839 0.09324
+   size 0.23005 0.29122
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   priority 900
+   style blank
+   {
+    ButtonWidgetClass count_dialog_apply_button {
+     visible 1
+     inheritalpha 0
+     color 0.1725 0.2431 0.3137 1
+     position 25 14
+     size 120.5 40
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Editor
+     text_proportion 0.5
+     font "gui/fonts/etelkatextpro22"
+     {
+      TextWidgetClass count_dialog_apply_text {
+       ignorepointer 1
+       size 1 0.7
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "#STR_EXPANSION_MARKET_QUANTITY_APPLY"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       text_proportion 0.8
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass count_dialog_cancel_button {
+     visible 1
+     inheritalpha 0
+     color 0.1725 0.2431 0.3137 1
+     position 25 14
+     size 120.5 40
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Editor
+     text_proportion 0.5
+     font "gui/fonts/etelkatextpro22"
+     {
+      TextWidgetClass count_dialog_cancel_text {
+       ignorepointer 1
+       size 1 0.7
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "#STR_EXPANSION_MARKET_QUANTITY_CANCEL"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       text_proportion 0.8
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    TextWidgetClass count_dialog_title_text {
+     visible 1
+     clipchildren 0
+     position 0 0.1
+     size 0.95 0.15
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Bold
+     text "#STR_EXPANSION_MARKET_QUANTITY_TITLE"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 1 1 1 1
+     "exact text" 1
+     "exact text size" 14
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+    PanelWidgetClass separator_panel {
+     color 0.1725 0.2431 0.3137 1
+     position 2 80
+     size 0.95 0.021
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     priority 10
+     style rover_sim_colorable
+    }
+    EditBoxWidgetClass count_dialog_editbox {
+     size 206 39
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style DefaultBorder
+     "limit visible" 0
+     "exact text" 1
+     font "gui/fonts/etelkatextpro22"
+    }
+    PanelWidgetClass count_dialog_background {
+     ignorepointer 1
+     color 0 0 0 0.549
+     size 206 39
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+   }
+  }
+  PanelWidgetClass market_loading {
+   visible 0
+   ignorepointer 0
+   color 0.0588 0.0588 0.0588 0.7843
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style rover_sim_colorable
+   {
+    TextWidgetClass market_loading_text {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "#STR_EXPANSION_MARKET_LOADING"
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+  ImageWidgetClass market_blur {
+   visible 0
+   ignorepointer 1
+   color 0.8784 0.7686 0.6118 0.025
+   position 0 0
+   size 1 1
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+  PanelWidgetClass popup_dialog_panel {
+   visible 0
+   color 0.2039 0.2863 0.3686 1
+   position 0 0.00125
+   size 0.23005 0.28873
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   priority 900
+   style rover_sim_colorable
+   {
+    TextWidgetClass popup_dialog_title_text {
+     clipchildren 0
+     position 0 0.03
+     size 0.95 0.15
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Bold
+     text "#STR_EXPANSION_MARKET_QUANTITY_TITLE"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 1 1 1 1
+     "exact text" 1
+     "exact text size" 14
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+    PanelWidgetClass popup_dialog_separator_panel {
+     color 0.1725 0.2431 0.3137 1
+     position 2 59
+     size 0.95 0.021
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     priority 10
+     style rover_sim_colorable
+    }
+    RichTextWidgetClass popup_dialog_text {
+     position 0 0.02052
+     size 0.95 0.58687
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam"
+     font "gui/fonts/etelkatextpro14"
+     "exact text" 1
+     wrap 1
+    }
+    GridSpacerWidgetClass popup_dialog_buttons {
+     ignorepointer 1
+     position 0 0.02
+     size 0.95 0.15
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Columns 1
+     Rows 1
+     {
+      ButtonWidgetClass popup_dialog_confirm_button {
+       size 0.201 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "OK"
+       font "gui/fonts/metron-bold16"
+      }
+     }
+    }
+   }
+  }
+ }
+}

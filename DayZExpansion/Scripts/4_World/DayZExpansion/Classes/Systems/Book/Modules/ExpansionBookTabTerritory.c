@@ -752,13 +752,6 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnUpdate
-	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
-	{
-	}
-	
-	// ------------------------------------------------------------
 	// Override OnMouseEnter
 	// ------------------------------------------------------------	
 	override bool OnMouseEnter( Widget w, int x, int y )

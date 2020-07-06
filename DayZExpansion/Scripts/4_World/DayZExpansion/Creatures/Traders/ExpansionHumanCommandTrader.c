@@ -8,10 +8,10 @@ class ExpansionHumanCommandTrader_ST
 
 class ExpansionHumanCommandTrader extends HumanCommandScript
 {
-    private ExpansionHumanCommandTrader_ST m_Table;
+	private ExpansionHumanCommandTrader_ST m_Table;
 
 	void ExpansionHumanCommandTrader( DayZPlayer player, ExpansionHumanCommandTrader_ST table )
 	{
-        m_Table = table;
-    }
+		m_Table = table;
+	}
 }

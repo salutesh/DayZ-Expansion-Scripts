@@ -10,7 +10,7 @@
  *
 */
 
-class Land_House_1B01_Pub extends BuildingSuper
+modded class Land_House_1B01_Pub
 {
 	override bool HasInterior()
 	{

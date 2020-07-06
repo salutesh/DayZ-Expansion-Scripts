@@ -15,31 +15,23 @@
  **/
 class ExpansionBaseBuildingSettings: ExpansionSettingBase
 {
-	bool CanCraftVanillaBasebuilding;
-	bool CanCraftExpansionBasebuilding;
-	bool CanCraftTerritoryFlag;
-	bool DestroyFlagOnDismantle;
-	bool CanDismantleFlag;
-	bool DismantleOutsideTerritory;
-
-	bool CanRaidSafes;
-
-	float ExplosionTime;
-
-	float ExplosionDamageMultiplier;
-	float ProjectileDamageMultiplier;	
-
-
-	float SafeExplosionDamageMultiplier;
-	float SafeProjectileDamageMultiplier;
+	bool CanBuildAnywhere;					//! If enabled, allows players to build anywhere.
+	bool AllowBuildingWithoutATerritory; 	//! 0 - You can build without territory, but nobody else can build near your territory. | 1 - You can only build if you are in your own territory.
 	
-	int TerritoryMode; //! 0 Means that you can build without territory, but nobody else can build near your territory || 1 Means that you can only build if you are in your territory
+	autoptr TStringArray DeployableOutsideATerritory;	//! List of items that you can place everywhere but not in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1.
+	autoptr TStringArray DeployableInsideAEnemyTerritory;					//! List of items that are allowed to place in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1 or 0.
 	
-	int CodeLockLength;
+	bool CanCraftVanillaBasebuilding;		//! When enabled, allows players to craft Vanilla basebuilding.
+	bool CanCraftExpansionBasebuilding;		//! When enabled, allows players to craft Expansion basebuilding.
+
+	bool CanCraftTerritoryFlag;				//! When enabled, allows players to craft the territory flag
+	bool DestroyFlagOnDismantle;			//! When enabled, destroys both flag pole and the flag kit on dismantle.
+	bool CanDismantleFlag;					//! When enabled, allows players to dismantle flags.
+	bool DismantleOutsideTerritory;			//! When enabled, allows players to dismantle basebuilding without territory.
 	
-	//For these 2, it's the item in the hand. sometimes it's the kit, but not the item itself, for example flag, is flagkit instead 
-	autoptr TStringArray AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory;	// Only used when TerritoryMode == 1
-	autoptr TStringArray AllowedItemsToPlaceInEnemyTerritory;	// Used when TerritoryMode == 1 OR == 0
+	int CodeLockLength;						//! Lenght of pin code required for the code lock.
+	bool DoDamageWhenEnterWrongCodeLock;	//! If enabled, deals the damage to the player when entering the wrong code lock.
+	float DamageWhenEnterWrongCodeLock;		//! Amount of damage player takes when entering the wrong code in the code lock.
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -51,8 +43,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		EXPrint("ExpansionBaseBuildingSettings::ExpansionBaseBuildingSettings - Start");
 		#endif
 		
-		AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory = new TStringArray;
-		AllowedItemsToPlaceInEnemyTerritory = new TStringArray;
+		DeployableOutsideATerritory = new TStringArray;
+		DeployableInsideAEnemyTerritory = new TStringArray;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBaseBuildingSettings::ExpansionBaseBuildingSettings - End");
@@ -82,7 +74,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBaseBuildingSettings::HandleRPC - End");
 		#endif
-    }
+	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -110,8 +102,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionBaseBuildingSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -123,37 +115,32 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionBaseBuildingSettings s )
 	{
+		CanBuildAnywhere = s.CanBuildAnywhere;
+		AllowBuildingWithoutATerritory = s.AllowBuildingWithoutATerritory;
+		
+		DeployableOutsideATerritory.Clear();
+		for (int i = 0; i < s.DeployableOutsideATerritory.Count(); i++)
+		{
+			DeployableOutsideATerritory.Insert( s.DeployableOutsideATerritory[i] );
+		}
+		
+		DeployableInsideAEnemyTerritory.Clear();
+		for (i = 0; i < s.DeployableInsideAEnemyTerritory.Count(); i++)
+		{
+			DeployableInsideAEnemyTerritory.Insert( s.DeployableInsideAEnemyTerritory[i] );
+		}
+
 		CanCraftVanillaBasebuilding = s.CanCraftVanillaBasebuilding;
 		CanCraftExpansionBasebuilding = s.CanCraftExpansionBasebuilding;
 		CanCraftTerritoryFlag = s.CanCraftTerritoryFlag;
 		DestroyFlagOnDismantle = s.DestroyFlagOnDismantle;
 		CanDismantleFlag = s.CanDismantleFlag;
 		DismantleOutsideTerritory = s.DismantleOutsideTerritory;
-
-		CanRaidSafes = s.CanRaidSafes;
-
-		ExplosionTime = s.ExplosionTime;
-
-		ExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
-		ProjectileDamageMultiplier = s.ProjectileDamageMultiplier;		
 		
-		SafeExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
-		SafeProjectileDamageMultiplier = s.ProjectileDamageMultiplier;
-		TerritoryMode = s.TerritoryMode;
 		CodeLockLength = s.CodeLockLength;
-		
-		AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Clear();
-		for (int i = 0; i < s.AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Count(); i++)
-		{
-			AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Insert( s.AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory[i] );
-		}
-		
-		AllowedItemsToPlaceInEnemyTerritory.Clear();
-		for (i = 0; i < s.AllowedItemsToPlaceInEnemyTerritory.Count(); i++)
-		{
-			AllowedItemsToPlaceInEnemyTerritory.Insert( s.AllowedItemsToPlaceInEnemyTerritory[i] );
-		}
-    }
+		DoDamageWhenEnterWrongCodeLock = s.DoDamageWhenEnterWrongCodeLock;
+		DamageWhenEnterWrongCodeLock = s.DamageWhenEnterWrongCodeLock;
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -215,30 +202,27 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		EXPrint("ExpansionBaseBuildingSettings::Defaults - Start");
 		#endif
 
+		CanBuildAnywhere = true;
+		AllowBuildingWithoutATerritory = true;
+
+		DeployableOutsideATerritory.Insert("ExpansionSatchel");
+		DeployableOutsideATerritory.Insert("Fireplace");
+		DeployableOutsideATerritory.Insert("ExpansionFlagKitBase");
+		
+		DeployableInsideAEnemyTerritory.Insert("ExpansionSatchel");
+		DeployableInsideAEnemyTerritory.Insert("LandMineTrap");
+		DeployableInsideAEnemyTerritory.Insert("BearTrap");
+
 		CanCraftVanillaBasebuilding = false;
 		CanCraftExpansionBasebuilding = true;
 		CanCraftTerritoryFlag = true;
 		DestroyFlagOnDismantle = true;
 		CanDismantleFlag = true;
 		DismantleOutsideTerritory = false;
-
-		CanRaidSafes = true;
 		
-		ExplosionTime = 60;
-
-		ExplosionDamageMultiplier = 50;
-		ProjectileDamageMultiplier = 1;		
-		
-		SafeExplosionDamageMultiplier = 17;
-		SafeProjectileDamageMultiplier = 1;
-		TerritoryMode = 0;
 		CodeLockLength = 4;
-		
-		AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Insert("ExpansionExplosiveBase");
-		AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Insert("Fireplace");
-		AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Insert("ExpansionFlagKitBase");
-		
-		AllowedItemsToPlaceInEnemyTerritory.Insert("ExpansionExplosiveBase");
+		DoDamageWhenEnterWrongCodeLock = true;
+		DamageWhenEnterWrongCodeLock = 10.0;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBaseBuildingSettings::Defaults - End");

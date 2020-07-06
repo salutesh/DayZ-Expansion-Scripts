@@ -84,6 +84,8 @@ modded class Hologram
 
 	void Hologram( PlayerBase player, vector pos, ItemBase item )
 	{
+		m_UsingSnap = true;
+
 		m_DebugPositions = new array< Object >;
 		m_DebugDirections = new array< Object >;
 	}
@@ -136,16 +138,20 @@ modded class Hologram
 		#endif
 	}
 
-	override void EvaluateCollision()
-	{	
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-
-		if ( item_in_hands && item_in_hands.CanMakeGardenplot() )
+	override void EvaluateCollision( ItemBase action_item = NULL  )
+	{
+		if ( GetProjectionEntity().IsInherited(GardenPlot) )
 		{
-			super.EvaluateCollision();
+			super.EvaluateCollision( action_item );
 		}
-
-		SetIsColliding(false);
+		else if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere )
+		{
+			SetIsColliding( false );
+		}
+		else 
+		{
+			super.EvaluateCollision( action_item );
+		}
 	}
 
 	private Object CreateDebugObject( string name, vector pos )
@@ -187,7 +193,6 @@ modded class Hologram
 		return hitPosition;
 	}
 
-	// update loop for visuals and collisions of the hologram
 	override void UpdateHologram( float timeslice )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -216,8 +221,9 @@ modded class Hologram
 		if ( !GetUpdatePosition() )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("Hologram::UpdateHologram - End");
-		#endif
+			EXPrint("Hologram::UpdateHologram - End");
+			#endif
+			
 			return;
 		}
 
@@ -252,30 +258,30 @@ modded class Hologram
 	}
 
 	override EntityAI PlaceEntity( EntityAI entity_for_placing )
-    {    
-        ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-    
-        if ( item_in_hands && item_in_hands.CanMakeGardenplot() )
-        {
-            Class.CastTo(entity_for_placing, GetGame().CreateObject( m_Projection.GetType(), m_Projection.GetPosition() ));
-        }
-            
-        if( entity_for_placing.CanAffectPathgraph() )
-        {        
-            entity_for_placing.SetAffectPathgraph( true, false );
-            
-            GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, entity_for_placing);
-        }
-        
-        return entity_for_placing;
-    } 
+	{	
+		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
+	
+		if ( item_in_hands && !item_in_hands.CanMakeGardenplot() )
+		{
+			if( entity_for_placing.CanAffectPathgraph() )
+	   		{		
+	   			entity_for_placing.SetAffectPathgraph( true, false );
+	
+	   			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, entity_for_placing);
+	   		}
 
+			return entity_for_placing;
+		}
+
+		return super.PlaceEntity( entity_for_placing );
+	} 
 
 	void HandleSnapping( out vector projPosition, out vector projOrientation )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Hologram::HandleSnapping - Start");
 		#endif
+
 		projOrientation[1] = 0;
 		projOrientation[2] = 0;
 
@@ -506,12 +512,10 @@ modded class Hologram
 
 	void NextDirection()
 	{
-
 	}
 
 	void PreviousDirection()
 	{
-
 	}
 
 	bool CanWallBePlacedAtDirection()
@@ -1021,15 +1025,13 @@ modded class Hologram
 			EntityAI projection_entity;
 			if ( GetGame().IsMultiplayer() && GetGame().IsServer() )
 			{	
-				projection_entity = EntityAI.Cast( GetGame().CreateObject( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ) ) );
+				projection_entity = EntityAI.Cast( GetGame().CreateObjectEx( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), ECE_PLACE_ON_SURFACE ) );
 				SetProjectionEntity( projection_entity );
-				SetProjectionIB( projection_entity );
 				SetAnimations();
 			} else
 			{
-				projection_entity = EntityAI.Cast( GetGame().CreateObject( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), true, false, false ) );
-				SetProjectionEntity( projection_entity );	
-				SetProjectionIB( projection_entity );	
+				projection_entity = EntityAI.Cast( GetGame().CreateObjectEx( ProjectionBasedOnParent(), GetProjectionEntityPosition( m_Player ), ECE_TRACE|ECE_LOCAL ) );
+				SetProjectionEntity( projection_entity );
 				SetAnimations();
 				CreateTrigger();
 			}
@@ -1057,74 +1059,6 @@ modded class Hologram
 	}
 
 	// ------------------------------------------------------------
-	/*
-	protected override vector GetProjectionEntityPosition( PlayerBase player )
-	{
-		float min_projection_dist;
-		float max_projection_dist; 
-		m_ContactDir = vector.Zero;
-		vector min_max[2];
-		float projection_radius = GetProjectionRadius();
-		float camera_to_player_distance = vector.Distance( GetGame().GetCurrentCameraPosition(), player.GetPosition() );
-
-		if( projection_radius < SMALL_PROJECTION_RADIUS )	// objects with radius smaller than 1m
-		{
-			min_projection_dist = DISTANCE_SMALL_PROJECTION;
-			max_projection_dist = DISTANCE_SMALL_PROJECTION * 2;
-		}
-		else
-		{
-			min_projection_dist = projection_radius;
-			max_projection_dist = projection_radius * 2;
-			max_projection_dist = Math.Clamp( max_projection_dist, 0, LARGE_PROJECTION_DISTANCE_LIMIT );
-		}
-		
-		vector from = GetGame().GetCurrentCameraPosition();
-		vector to = from + ( GetGame().GetCurrentCameraDirection() * ( max_projection_dist + camera_to_player_distance ) );
-		vector contact_pos;
-		int contact_component;
-		float contact_amt;
-		Object hit_object;
-
-		int interactLayers = PhxInteractionLayers.BUILDING | PhxInteractionLayers.ROADWAY | PhxInteractionLayers.TERRAIN;
-		DayZPhysics.RayCastBullet( from, to, interactLayers, m_Projection, hit_object, contact_pos, m_ContactDir, contact_amt );
-
-		float player_to_projection_distance = vector.Distance( player.GetPosition(), contact_pos );
-		vector player_to_projection_vector;
-
-		//hologram is at min distance from player
-		if( player_to_projection_distance <= min_projection_dist )
-		{
-			player_to_projection_vector = contact_pos - player.GetPosition();		  
-			player_to_projection_vector.Normalize();
-			//prevents the hologram to go underground/floor while hologram exceeds min_projection_dist
-			player_to_projection_vector[1] = player_to_projection_vector[1] + PROJECTION_TRANSITION_MIN;
-			
-			contact_pos = player.GetPosition() + (player_to_projection_vector * min_projection_dist);			
-			SetIsFloating( true );
-		}
-		//hologram is at max distance from player
-		else if( player_to_projection_distance >= max_projection_dist )
-		{
-			player_to_projection_vector = contact_pos - player.GetPosition();	
-			player_to_projection_vector.Normalize();
-			//prevents the hologram to go underground/floor while hologram exceeds max_projection_dist
-			player_to_projection_vector[1] = player_to_projection_vector[1] + PROJECTION_TRANSITION_MAX;		
-			
-			contact_pos = player.GetPosition() + (player_to_projection_vector * max_projection_dist);
-			SetIsFloating( true );
-		}
-		//hologram is between min and max distance from player
-		else
-		{
-			SetIsFloating( false );
-		}			
-			
-		return contact_pos;
-	}
-	*/
-
-	// ------------------------------------------------------------
 	override string ProjectionBasedOnParent()
 	{
 		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
@@ -1133,7 +1067,7 @@ modded class Hologram
 		if ( Class.CastTo( kit, item_in_hands ) && kit.GetPlacingTypes().Count() > 0 )
 			return kit.GetPlacingTypes()[m_PlacingTypeChosen];
 
-		if ( item_in_hands.IsInherited( ExpansionExplosiveBase ) )
+		if ( item_in_hands.IsInherited( ExpansionExplosive ) )
 			return item_in_hands.GetType() + "Placing";
 
 		if ( item_in_hands.IsInherited( ExpansionFlagKitBase ) )
@@ -1164,9 +1098,9 @@ modded class Hologram
 	{
 		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
 
-		if ( item_in_hands )
+		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && item_in_hands )
 		{
-			if ( item_in_hands.IsInherited( ExpansionExplosiveBase ) || item_in_hands.IsInherited( ExpansionKitBase ) )
+			if ( item_in_hands.IsInherited( ExpansionExplosive ) || item_in_hands.IsInherited( ExpansionKitBase ) )
 				return false;
 		}
 		
@@ -1176,33 +1110,15 @@ modded class Hologram
 	// ------------------------------------------------------------
 	// IsCollidingBBox
 	// ------------------------------------------------------------
-	override bool IsCollidingBBox()
+	override bool IsCollidingBBox( ItemBase action_item = NULL )
 	{
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-
-		if ( item_in_hands )
+		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && action_item )
 		{
-			if ( item_in_hands.IsInherited( ExpansionExplosiveBase ) || item_in_hands.IsInherited( ExpansionKitBase ) )
+			if ( action_item.IsInherited( ExpansionExplosive ) || action_item.IsInherited( ExpansionKitBase ) )
 				return false;
 		}
 		
-		return super.IsCollidingBBox();
-	}
-
-	// ------------------------------------------------------------
-	// IsCollidingBase
-	// ------------------------------------------------------------
-	override bool IsCollidingBase()
-	{
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-
-		if ( item_in_hands )
-		{
-			if ( item_in_hands.IsInherited( ExpansionExplosiveBase ) || item_in_hands.IsInherited( ExpansionKitBase ) )
-				return false;
-		}
-			
-		return super.IsCollidingBase();
+		return super.IsCollidingBBox( action_item );
 	}
 
 	// ------------------------------------------------------------
@@ -1212,9 +1128,9 @@ modded class Hologram
 	{
 		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
 
-		if ( item_in_hands )
+		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && item_in_hands )
 		{
-			if ( item_in_hands.IsInherited( ExpansionExplosiveBase ) || item_in_hands.IsInherited( ExpansionKitBase ) )
+			if ( item_in_hands.IsInherited( ExpansionExplosive ) || item_in_hands.IsInherited( ExpansionKitBase ) )
 				return false;
 		}	
 			

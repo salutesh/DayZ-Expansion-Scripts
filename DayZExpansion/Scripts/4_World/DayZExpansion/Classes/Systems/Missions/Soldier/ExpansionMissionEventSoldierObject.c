@@ -1,6 +1,6 @@
 class ExpansionMissionEventSoldierObject
 {
-    string ObjectName;
-    vector Position;
-    vector Orientation;
+	string ObjectName;
+	vector Position;
+	vector Orientation;
 };

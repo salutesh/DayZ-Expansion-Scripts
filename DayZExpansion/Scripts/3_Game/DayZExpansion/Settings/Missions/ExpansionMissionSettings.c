@@ -32,7 +32,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 	// Expansion ExpansionMissionSettings
 	// ------------------------------------------------------------
 	void ExpansionMissionSettings()
@@ -43,7 +43,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	override void HandleRPC( ref ParamsReadContext ctx )
 	{
 		//No send to client
-    }
+	}
 
 	override int Send( PlayerIdentity identity )
 	{
@@ -53,8 +53,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// Expansion Send
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionMissionSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -77,7 +77,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		TimeBetweenMissions = s.TimeBetweenMissions;
 		MinMissions = s.MinMissions;
 		MaxMissions = s.MaxMissions;
-    }
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -165,7 +165,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-        #ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionMissionSettings] Loading default settings");
 		#endif
 		

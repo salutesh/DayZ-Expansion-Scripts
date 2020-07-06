@@ -15,17 +15,17 @@
  **/
 class ExpansionStartingGear
 {
-	bool UseStartingGear
-	bool UsingUpperGear;
-	bool UsingPantsGear;
-	bool UsingBackpackGear;
+	bool UseStartingGear				// If enabled, will use the starting gear configured in this file
+	bool UsingUpperGear;				// If enabled, use the upper gear configured
+	bool UsingPantsGear;				// If enabled, use the pants gear configured
+	bool UsingBackpackGear;				// If enabled, use the backpack gear configured
 
-	ref array<string> SpawnBackpacks;
-	ref array<string> UpperGear;
-	ref array<string> PantsGear;
-	ref array<string> BackpackGear;
+	ref array<string> SpawnBackpacks;	// Array of classnames used for the items spawning inside the backpack
+	ref array<string> UpperGear;		// Array of classnames used for the upper gear
+	ref array<string> PantsGear;		// Array of classnames used for the pants gear
+	ref array<string> BackpackGear;		// Array of classnames used for the backpack gear
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 	// Expansion ExpansionStartingGear
 	// ------------------------------------------------------------
 	void ExpansionStartingGear()
@@ -42,7 +42,7 @@ class ExpansionStartingGear
 	// ------------------------------------------------------------
 	// Expansion Defaults
 	// ------------------------------------------------------------
-    void Defaults()
+	void Defaults()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGear::Defaults - Start");
@@ -54,8 +54,8 @@ class ExpansionStartingGear
 		BackpackGear = new array<string>;
 		
 		UseStartingGear = true;
-        UsingUpperGear = true;
-        UsingPantsGear = false;
+		UsingUpperGear = true;
+		UsingPantsGear = false;
 		UsingBackpackGear = true;
 
 		SpawnBackpacks.Insert("TaloonBag_Blue");
@@ -63,9 +63,9 @@ class ExpansionStartingGear
 		SpawnBackpacks.Insert("TaloonBag_Orange");
 		SpawnBackpacks.Insert("TaloonBag_Violet");
 		
-        UpperGear.Insert("Rag");
-        UpperGear.Insert("Chemlight_White");
-        UpperGear.Insert("StoneKnife");
+		UpperGear.Insert("Rag");
+		UpperGear.Insert("Chemlight_White");
+		UpperGear.Insert("StoneKnife");
 		UpperGear.Insert("Apple");
 
 		BackpackGear.Insert("SpaghettiCan");

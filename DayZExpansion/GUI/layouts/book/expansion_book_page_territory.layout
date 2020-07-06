@@ -1,0 +1,1000 @@
+FrameWidgetClass book_module_territory {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ {
+  PanelWidgetClass book_territory_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 937 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_menu_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ImageWidgetClass territory_members_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass territory_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_TERRITORY_MEMBERS_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      PanelWidgetClass sticky_delete_content {
+       ignorepointer 0
+       position 0.01 0.01
+       size 0.35 0.23
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        ButtonWidgetClass sticky_delete_button {
+         color 0 0 0 1
+         position 0.00102 0.02571
+         size 0.9 0.8
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         style Empty
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text color" 0 0 0 1
+         {
+          TextWidgetClass sticky_delete_button_label {
+           visible 1
+           disabled 0
+           clipchildren 1
+           ignorepointer 1
+           color 0 0 0 1
+           position 0 0
+           size 1 0.3
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "exact text" 1
+           "size to text h" 0
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ImageWidgetClass sticky_dissolve_image {
+         disabled 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{4B07193E966C799D}DayZExpansion/GUI/textures/book/stick_note_3.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 0
+         stretch 1
+        }
+       }
+      }
+      ScrollWidgetClass member_list_scroller {
+       ignorepointer 0
+       position 0 0.1
+       size 1 0.64137
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass member_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 10
+         {
+          TextWidgetClass member_list_info {
+           visible 1
+           ignorepointer 1
+           keepsafezone 0
+           color 0 0 0 1
+           position 0.102 1.2744
+           size 1 0.08
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "No other Members Online"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text offset" 5 0
+           "size to text h" 0
+           "size to text v" 0
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass group_players_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_TERRITORY_INVITE_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass territory_players_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_1"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass player_list_scroller {
+       ignorepointer 0
+       position 0 0.145
+       size 1 0.86
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass player_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 10
+         {
+          TextWidgetClass player_list_info {
+           visible 1
+           ignorepointer 1
+           keepsafezone 0
+           color 0 0 0 1
+           position 0.102 1.2744
+           size 1 0.08
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "No other Players Online"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text offset" 5 0
+           "size to text h" 0
+           "size to text v" 0
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass player_list_filter {
+       ignorepointer 1
+       position 0 0.09
+       size 1 0.05
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        EditBoxWidgetClass player_list_filter_editbox {
+         position 0.1 0
+         size 0.81 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Search Player"
+         "Use default text" 1
+         "exact text" 1
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text color" 0 0 0 1
+        }
+        ButtonWidgetClass player_list_filter_clear {
+         size 1 1
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         fixaspect fixwidth
+         style Empty
+         {
+          ImageWidgetClass player_list_filter_clear_icon {
+           ignorepointer 1
+           color 0.9451 0.9451 0.9451 1
+           size 0.75 0.75
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:expansion_iconset image:icon_cancle"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        PanelWidgetClass player_list_filter_icon_panel {
+         ignorepointer 1
+         size 1 1
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         fixaspect fixwidth
+         {
+          ImageWidgetClass player_list_filter_icon {
+           ignorepointer 1
+           color 0.9451 0.9451 0.9451 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:expansion_iconset image:icon_search"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass book_dialog {
+   visible 0
+   clipchildren 0
+   ignorepointer 0
+   color 0.1176 0.1176 0.1176 0.549
+   position 0 0
+   size 480 224
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   style rover_sim_colorable
+   {
+    TextWidgetClass book_dialog_title {
+     clipchildren 0
+     position 0 0.04
+     size 0.95 0.14025
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "DELETE TERRITORY"
+     font "DayZExpansion/GUI/fonts/etelkatextpro24"
+     "text color" 1 1 1 1
+     "exact text" 1
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+    RichTextWidgetClass book_dialog_text {
+     position 0 -0.04068
+     size 0.95 0.50475
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZNormal
+     text "Are you sure you want to delete this territory? There is no way to undo this!"
+     font "DayZExpansion/GUI/fonts/etelkatextpro24"
+     "exact text" 1
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+    }
+    ButtonWidgetClass book_dialog_ok_button {
+     visible 1
+     color 0.1529 0.6824 0.3765 1
+     position 80 14
+     size 120.5 40
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     userID 1
+     style EmptyHighlight
+     text "YES"
+     font "DayZExpansion/GUI/fonts/etelkatextpro24"
+    }
+    ButtonWidgetClass book_dialog_cancel_button {
+     visible 1
+     color 1 0 0 1
+     position 80 14
+     size 120.5 40
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     userID 1
+     style EmptyHighlight
+     text "CANCEL"
+     font "DayZExpansion/GUI/fonts/etelkatextpro24"
+    }
+    PanelWidgetClass Separator0 {
+     ignorepointer 1
+     position 0 60
+     size 400 2
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    PanelWidgetClass Separator {
+     ignorepointer 1
+     position 0 40
+     size 400 2
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+   }
+  }
+  PanelWidgetClass book_member_edit_tab {
+   visible 0
+   ignorepointer 1
+   position 491 191
+   size 937 579
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_member_edit_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ImageWidgetClass book_member_options_label_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass book_member_options_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "MANAGE MEMBER"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass book_member_options_spacer {
+       ignorepointer 1
+       size 1 0.3
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 5
+       Margin 0
+       Columns 1
+       Rows 5
+       {
+        ButtonWidgetClass option_promote_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Empty
+         {
+          TextWidgetClass option_promote_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "PROMOTE"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_promote_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_1"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+        }
+        ButtonWidgetClass option_demote_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Empty
+         {
+          TextWidgetClass option_demote_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "DEMOTE"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_demote_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_3"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+        }
+        ButtonWidgetClass option_kick_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Empty
+         {
+          TextWidgetClass option_kick_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "KICK"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_kick_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_4"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+        }
+        ButtonWidgetClass option_cancel_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Empty
+         {
+          TextWidgetClass option_cancel_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "CANCEL"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_cancel_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_1"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+        }
+       }
+      }
+      PlayerPreviewWidgetClass book_member_preview {
+       ignorepointer 1
+       position 0 0.09
+       size 1 0.6
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+      }
+     }
+    }
+    PanelWidgetClass book_member_edit_content_left {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ImageWidgetClass book_member_data_label_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass book_member_data_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "MEMBER INFO"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass book_member_data_spacer {
+       ignorepointer 1
+       position 0 0.1
+       size 1 0.3
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Columns 1
+       Rows 6
+       {
+        WrapSpacerWidgetClass data_name_spacer {
+         ignorepointer 1
+         position 0 0
+         size 1 0.1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         {
+          TextWidgetClass data_name_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           position 0.034 0.487
+           size 0.3 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Name:"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text color" 0 0 0 1
+           "text valign" center
+          }
+          TextWidgetClass data_name_value {
+           ignorepointer 1
+           color 0 0 0 1
+           position 0.034 0.487
+           size 0.7 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Survivor"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text color" 0 0 0 1
+           "exact text" 0
+           "size to text h" 0
+           "size to text v" 0
+           "text valign" center
+          }
+         }
+        }
+        WrapSpacerWidgetClass data_rank_spacer {
+         ignorepointer 1
+         position 0 0
+         size 1 0.1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         {
+          TextWidgetClass data_rank_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           position 0.034 0.487
+           size 0.3 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Rank:"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text color" 0 0 0 1
+           "text valign" center
+          }
+          TextWidgetClass data_rank_value {
+           ignorepointer 1
+           color 0 0 0 1
+           position 0.034 0.487
+           size 0.7 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Member"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text color" 0 0 0 1
+           "size to text h" 0
+           "size to text v" 0
+           "text valign" center
+          }
+         }
+        }
+        WrapSpacerWidgetClass data_status_spacer {
+         ignorepointer 1
+         position 0 0
+         size 1 0.1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         {
+          TextWidgetClass data_status_lable {
+           ignorepointer 1
+           color 0 0 0 1
+           position 0.034 0.487
+           size 0.3 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Status:"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text color" 0 0 0 1
+           "text valign" center
+          }
+          PanelWidgetClass data_status_value_spacer {
+           ignorepointer 1
+           position 0 0
+           size 0.7 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            ImageWidgetClass data_status_icon {
+             ignorepointer 1
+             color 1 0 0 1
+             size 15 15
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             image0 "set:dayz_gui image:circle"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            TextWidgetClass data_status_value {
+             ignorepointer 1
+             color 0 0 0 1
+             position 0.08 0
+             size 0.55 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "Offline"
+             font "DayZExpansion/GUI/fonts/etelkatextpro24"
+             "text color" 0 0 0 1
+             "size to text h" 0
+             "size to text v" 0
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass book_invites_panel {
+   visible 1
+   ignorepointer 1
+   position 609.50403 255.05
+   size 270 480
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   {
+    ImageWidgetClass book_invites_panel_background {
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     imageTexture "{D40A90179E83E720}DayZExpansion/GUI/textures/paper_vertical.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    ScrollWidgetClass territory_invites_list_scroller {
+     ignorepointer 0
+     position 0.09277 0.02188
+     size 0.8384 0.95555
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      GridSpacerWidgetClass territory_invites_list_content {
+       ignorepointer 0
+       color 0 0 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       Columns 1
+       Rows 100
+       {
+        TextWidgetClass territory_invites_list_info {
+         visible 1
+         ignorepointer 1
+         keepsafezone 0
+         color 0 0 0 1
+         position 0.102 1.162
+         size 1 0.06
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "No pending invites"
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text offset" 5 0
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

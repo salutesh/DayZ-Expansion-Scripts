@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{D6B51BCAB916C44F}DayZExpansion/GUI/textures/battle_icon.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate -854399140
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "battle_icon.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

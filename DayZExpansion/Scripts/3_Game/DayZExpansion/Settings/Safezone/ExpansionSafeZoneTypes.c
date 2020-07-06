@@ -12,7 +12,7 @@
 
 enum ExpansionSafeZoneTypes
 {
-    UNKNOWN = 0,
-    CIRCLE,
-    POLYGON
+	UNKNOWN = 0,
+	CIRCLE,
+	POLYGON
 }

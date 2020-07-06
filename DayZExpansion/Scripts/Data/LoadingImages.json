@@ -46,5 +46,8 @@
     },
 	{
         "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_16_co.edds"
+    },
+	{
+        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_17_co.edds"
     }
 ]

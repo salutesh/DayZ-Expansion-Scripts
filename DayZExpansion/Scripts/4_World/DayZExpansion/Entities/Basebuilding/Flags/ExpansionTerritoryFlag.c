@@ -17,19 +17,19 @@
 class ExpansionTerritoryFlag extends ExpansionFlagBase
 {
 	protected int m_TerritoryID;
-	protected ref ExpansionTerritory m_Territory;
+	protected autoptr ExpansionTerritory m_Territory;
 	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionTerritoryFlag()
-    {
+	void ExpansionTerritoryFlag()
+	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryFlag::ExpansionTerritoryFlag - Start");
 		#endif
 
 		m_TerritoryID = -1;
-		m_Territory = NULL;
+		m_Territory = new ExpansionTerritory(-1, "", 1, "", vector.Zero, "");
 		
 		RegisterNetSyncVariableInt( "m_TerritoryID" );
 		SetEventMask( EntityEvent.INIT );
@@ -40,10 +40,10 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryFlag::ExpansionTerritoryFlag - End");
 		#endif
-    }	
+	}	
 	
 	void ~ExpansionTerritoryFlag()
-    {
+	{
 		if ( m_TerritoryModule && m_TerritoryID > -1 )
 		{
 			m_TerritoryModule.RemoveTerritoryFlag( m_TerritoryID );
@@ -127,7 +127,15 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_TerritoryID );
-		ctx.Write( m_Territory );
+		
+		if (GetExpansionSaveVersion() >= 3)
+		{
+			m_Territory.OnStoreSave(ctx);
+		}
+		else
+		{
+			ctx.Write( m_Territory );
+		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryFlag::OnStoreSave - End");
@@ -150,12 +158,32 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		if ( !ctx.Read( m_TerritoryID ) )
 			return false;
 		
-		if ( !ctx.Read( m_Territory ) )
-			return false;
+		if (GetExpansionSaveVersion() >= 3)
+		{
+			if (!m_Territory.OnStoreLoad(ctx, GetExpansionSaveVersion()))
+				return false;
+		}
+		else
+		{
+			ExpansionOldTerritory oldTerritory;
+			if ( !ctx.Read( oldTerritory ) )
+				return false;
+			
+			string texturePath = GetExpansionStatic().GetFlagTexturePath(oldTerritory.TerritoryFlagTextureID);
+			
+			ExpansionTerritory newTerritory = new ExpansionTerritory(oldTerritory.TerritoryID, oldTerritory.TerritoryName, oldTerritory.TerritoryLevel, oldTerritory.TerritoryOwnerID, oldTerritory.TerritoryPosition, texturePath);
+			newTerritory.SetMembers(oldTerritory.TerritoryMembers);
+			newTerritory.SetInvites(oldTerritory.Invites);
+			m_Territory = newTerritory;
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryFlag::OnStoreLoad:: - Loaded data for object " + this.ToString() +  ": [m_FlagTextureID: " + m_FlagTextureID + ", m_TerritoryID: " + m_TerritoryID.ToString() + ", m_OwnerID: " + m_OwnerID + "]");
-		#endif
+			#ifdef EXPANSIONEXLOGPRINT
+			EXLogPrint("ExpansionTerritoryFlag::OnStoreLoad:: - Loaded data for object " + this.ToString() +  ": [m_FlagTextureID: " + oldTerritory.TerritoryFlagTextureID + ", m_TerritoryID: " + m_TerritoryID.ToString() + ", m_OwnerID: " + m_OwnerID + "]");
+			#endif
+		}
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		//EXLogPrint("ExpansionTerritoryFlag::OnStoreLoad:: - Loaded data for object " + this.ToString() +  ": [m_FlagTextureID: " + m_FlagTextureID + ", m_TerritoryID: " + m_TerritoryID.ToString() + ", m_OwnerID: " + m_OwnerID + "]");
+		//#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryFlag::OnStoreLoad - End");

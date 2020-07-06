@@ -5,7 +5,7 @@ class ExpansionAITestForm extends JMFormBase
 
 	void ExpansionAITestForm()
 	{
-    }
+	}
 
 	void ~ExpansionAITestForm()
 	{
@@ -15,8 +15,8 @@ class ExpansionAITestForm extends JMFormBase
 	{
 		m_ActionsWrapper = layoutRoot.FindAnyWidget( "actions_wrapper" );
 
-        UIActionManager.CreateButton( m_ActionsWrapper, "Spawn AKM", this, "SpawnAKM" );
-        UIActionManager.CreateButton( m_ActionsWrapper, "Spawn Soldier", this, "SpawnSoldier" );
+		UIActionManager.CreateButton( m_ActionsWrapper, "Spawn AKM", this, "SpawnAKM" );
+		UIActionManager.CreateButton( m_ActionsWrapper, "Spawn Soldier", this, "SpawnSoldier" );
 	}
 
 	private vector GetPointerPosition()

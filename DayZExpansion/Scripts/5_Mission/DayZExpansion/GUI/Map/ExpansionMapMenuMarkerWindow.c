@@ -28,8 +28,10 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	protected EditBoxWidget m_MarkerNameEditBox;
 	protected ImageWidget m_MarkerIconPreview;
 	protected ButtonWidget m_CancelButton;
+	protected TextWidget m_CancelButtonLable;
 	protected ButtonWidget m_CreateButton;
-
+	protected TextWidget m_CreateButtonLable;
+	protected ButtonWidget m_DeleteButton;
 	protected ButtonWidget m_TooltipButton;
 	protected ImageWidget m_TooltipButtonIcon;
 
@@ -100,8 +102,11 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 		m_MarkerIconPreview	= ImageWidget.Cast( m_Root.FindAnyWidget( "marker_icon_image" ) );
 		m_MarkerIconPreview.Show(false);
 
-		m_CancelButton = ButtonWidget.Cast( m_Root.FindAnyWidget( "cancel" ) );
-		m_CreateButton = ButtonWidget.Cast( m_Root.FindAnyWidget( "create" ) );
+		m_CancelButton = ButtonWidget.Cast( m_Root.FindAnyWidget( "cancel_button" ) );
+		m_CancelButtonLable = TextWidget.Cast( m_Root.FindAnyWidget( "cancel_lable" ) );
+		m_CreateButton = ButtonWidget.Cast( m_Root.FindAnyWidget( "create_button" ) );
+		m_CreateButtonLable = TextWidget.Cast( m_Root.FindAnyWidget( "create_lable" ) );
+		m_DeleteButton = ButtonWidget.Cast( m_Root.FindAnyWidget( "delete_button" ) );
 		
 		m_TooltipButton = ButtonWidget.Cast( m_Root.FindAnyWidget("marker_info_button") );
 		m_TooltipButtonIcon = ImageWidget.Cast( m_Root.FindAnyWidget("marker_info_icon") );
@@ -445,7 +450,8 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 			
 			CancelMarkerEdit();
 			
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_ADDED_MARKER" ), EXPANSION_NOTIFICATION_ICON_CHECK, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5 );
+			// The player already have a notification for party marker being created in ExpansionPartyModule.c line 1206
+			// GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_MARKER_SYSTEM_ADDED_MARKER" ), EXPANSION_NOTIFICATION_ICON_CHECK, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5 );
 		}
 		else
 		{
@@ -487,8 +493,10 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	void CancelMarkerEdit()
 	{
 		m_MarkerCreationWindowLable.SetText("#STR_EXPANSION_MAP_MARKER_CREATION_TITLE");
-		m_CreateButton.SetText("#STR_EXPANSION_MAP_MARKER_CREATE_BUTTON_LABLE");
-		m_CancelButton.SetText("#STR_EXPANSION_MAP_MARKER_CANCEL_BUTTON_LABLE");
+		m_CreateButtonLable.SetText("#STR_EXPANSION_MAP_MARKER_CREATE_BUTTON_LABLE");
+		m_CancelButtonLable.SetText("#STR_EXPANSION_MAP_MARKER_CANCEL_BUTTON_LABLE");
+		m_DeleteButton.Show(false);
+		
 		m_MarkerIconPreview.Show(false);
 		m_MarkerNameEditBox.SetText("");
 		
@@ -597,9 +605,10 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 				ToggleMarkerWindow();
 
 			m_MarkerCreationWindowLable.SetText("#STR_EXPANSION_MAP_MARKER_EDIT_TITLE");
-			m_CreateButton.SetText("#STR_EXPANSION_MAP_MARKER_EDIT_BUTTON_LABLE");
-			m_CancelButton.SetText("#STR_EXPANSION_MAP_MARKER_CANCEL_EDIT_BUTTON_LABLE");
-
+			m_CreateButtonLable.SetText("#STR_EXPANSION_MAP_MARKER_EDIT_BUTTON_LABLE");
+			m_CancelButtonLable.SetText("#STR_EXPANSION_MAP_MARKER_CANCEL_EDIT_BUTTON_LABLE");
+			m_DeleteButton.Show( true );
+			
 			GetARGB(markerColorOld, alphaOld, redOld, greenOld, blueOld);
 			m_MarkerAlpha = alphaOld;
 			m_MarkerColorRed = redOld;
@@ -1041,6 +1050,68 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion DeleteEditingMarker
+	// ------------------------------------------------------------	
+	void DeleteEditingMarker(ExpansionMapMarker marker)
+	{
+		string removeMarkerName;
+		ExpansionMapMarker currentMarker;
+		ExpansionMapMarker removeMarker;
+		
+		//! Check if marker is personal marker
+		for (int i = 0; i < m_MarkerModule.Count(); ++i)
+		{
+			currentMarker = m_MarkerModule.GetMarker(i);
+
+			if ( currentMarker.GetMarkerText() == marker.GetMarkerText() )
+			{
+				removeMarker = currentMarker;
+			}
+		}
+
+		//! Delete personal marker
+		if (removeMarker)
+		{
+			removeMarkerName = removeMarker.GetMarkerText();
+			m_MapMenu.RemovePersonalMarker(removeMarkerName);
+		}
+
+		// Check if marker is party marker
+		if (m_PartyModule.HasParty())
+		{
+			ref array<ref ExpansionMapMarker> markers = m_PartyModule.GetParty().GetAllMarkers();
+			if (markers.Count() > 0)
+			{
+				for (int j = 0; j < markers.Count(); ++j)
+				{
+					currentMarker = markers.Get(j);
+	
+					if ( currentMarker.GetMarkerText() == marker.GetMarkerText() )
+					{
+						removeMarker = currentMarker;
+					}
+				}
+			}
+			
+			//! Delete party marker
+			if (removeMarker && m_PartyModule.HasParty())
+			{
+				if (removeMarker.IsPartyMarker())
+				{
+					ExpansionPartyModule module;
+					if (Class.CastTo( module, GetModuleManager().GetModule(ExpansionPartyModule)))
+					{
+						removeMarkerName = removeMarker.GetMarkerText();
+						m_MapMenu.RemovePartyMarker(removeMarkerName);
+					}
+				}
+			}
+		}
+		
+		CancelMarkerEdit();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion Override OnClick
 	// ------------------------------------------------------------	
 	override bool OnClick(Widget w, int x, int y, int button)
@@ -1069,12 +1140,20 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 			{
 				CreateMarker();
 			} 
-			else
+			else if (m_IsEditingMarker && m_CurrentEditingMarker)
 			{
 				CreateEditedMarker(m_CurrentEditingMarker);
 			}
 
 			return true;
+		}
+		
+		if (w == m_DeleteButton)
+		{
+			if (m_IsEditingMarker && m_CurrentEditingMarker)
+			{
+				DeleteEditingMarker(m_CurrentEditingMarker);
+			}
 		}
 
 		if (w == m_ArrowConfirmButton)
@@ -1094,7 +1173,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 
 		return false;
 	}
-
+	
 	// ------------------------------------------------------------
 	// Expansion OnChange Update
 	// ------------------------------------------------------------	

@@ -12,11 +12,11 @@
 
 enum ExpansionWorldMappingModuleRPC
 {
-    INVALID = 20040,
+	INVALID = 20040,
 	TurnOn,
 	TurnOff,
 	Load,
-    COUNT
+	COUNT
 }
 
 class ExpansionWorldMappingModule: JMModuleBase
@@ -26,36 +26,36 @@ class ExpansionWorldMappingModule: JMModuleBase
 
 	private autoptr array< vector > m_LightGenerators;
 
-    private autoptr map< string, ref array< Object > > m_Objects;
-    private string m_WorldName;
+	private autoptr map< string, ref array< Object > > m_Objects;
+	private string m_WorldName;
 	
 	protected ExpansionInteriorBuildingModule m_InteriorModule
  	
 	// ------------------------------------------------------------
 	// ExpansionWorldMappingModule Constructor
 	// ------------------------------------------------------------
-    void ExpansionWorldMappingModule()
-    {
+	void ExpansionWorldMappingModule()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::ExpansionWorldMappingModule - Start");
 		#endif
 
 		m_LightGenerators = new array< vector >;
 
-        m_Objects = new map< string, ref array< Object > >;
+		m_Objects = new map< string, ref array< Object > >;
 		
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::ExpansionWorldMappingModule - End");
 		#endif
-    }
+	}
  	
 	// ------------------------------------------------------------
 	// ExpansionWorldMappingModule Destructor
 	// ------------------------------------------------------------
-    void ~ExpansionWorldMappingModule()
-    {
+	void ~ExpansionWorldMappingModule()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::~ExpansionWorldMappingModule - Start");
 		#endif
@@ -65,7 +65,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::~ExpansionWorldMappingModule - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion OnInit
@@ -74,7 +74,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	{
 		super.OnInit();
 		
-		Class.CastTo( m_InteriorModule, GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
+		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
 	}
  	
 	// ------------------------------------------------------------
@@ -86,7 +86,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXLogPrint("ExpansionWorldMappingModule::OnMissionLoaded - Start");
 		#endif
 		
-        m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
+		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
 
 		if ( !IsMissionOffline() && IsMissionClient() )
 		{
@@ -108,7 +108,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXPrint("ExpansionWorldMappingModule::OnMissionFinish - Start");
 		#endif
 		
-        UnloadMapping( m_Objects.GetKeyArray() );
+		UnloadMapping( m_Objects.GetKeyArray() );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::OnMissionFinish - End");
@@ -124,21 +124,13 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXLogPrint("ExpansionWorldMappingModule::OnSettingsUpdated - Start");
 		#endif
 		
-        if ( !GetExpansionSettings().GetGeneral() )
-            return;
-
-		Mission mission = GetGame().GetMission();
-		if ( mission )
-		{
-			WorldLighting wLighting = mission.GetWorldLighting();
-			if ( wLighting )
-				wLighting.SetGlobalLighting( GetExpansionSettings().GetGeneral().LightingConfig );
-		}
+		if ( !GetExpansionSettings().GetGeneral() )
+			return;
 
 		if ( g_Game.IsLoading() )
 			return;
 
-        if ( GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule )
+		if ( GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule )
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLaterByName( this, "LoadMappings", 500 );
 		}
@@ -170,23 +162,23 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion FindDifference
 	// ------------------------------------------------------------	
-    private void FindDifference( TStringArray newFiles, out TStringArray load, out TStringArray unload )
-    {
+	private void FindDifference( TStringArray newFiles, out TStringArray load, out TStringArray unload )
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::FindDifference - Start");
 		#endif
 		
-        for ( int i = 0; i < newFiles.Count(); ++i )
-        {
+		for ( int i = 0; i < newFiles.Count(); ++i )
+		{
 			#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::FindDifference newFiles[" + i +  "] : " + newFiles[i]);
 		#endif
 
-            if ( !m_Objects.Contains( newFiles[i] ) )
-            {
-                load.Insert( newFiles[i] );
-            }
-        }
+			if ( !m_Objects.Contains( newFiles[i] ) )
+			{
+				load.Insert( newFiles[i] );
+			}
+		}
 		
 		for ( int j = 0; j < m_Objects.Count(); ++j )
 		{
@@ -195,22 +187,22 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXPrint("ExpansionWorldMappingModule::FindDifference m_Objects[" + j +  "] : " + objName );
 		#endif
 
-            if ( newFiles.Find( objName ) == -1 )
-            {
-			    unload.Insert( objName );
-            }
+			if ( newFiles.Find( objName ) == -1 )
+			{
+				unload.Insert( objName );
+			}
 		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::FindDifference - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion LoadMapping
 	// ------------------------------------------------------------	
-    private void LoadMapping( TStringArray files )
-    {
+	private void LoadMapping( TStringArray files )
+	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - Start files.Count() : " + files.Count());
 		#endif
@@ -220,9 +212,9 @@ class ExpansionWorldMappingModule: JMModuleBase
 			m_InteriorModule.LoadCachedCollisions();
 			
 			for ( int i = 0; i < files.Count(); ++i )
-	        {
+			{
 				LoadFile( files[i] );
-	        }
+			}
 			
 			m_InteriorModule.SaveCachedCollisions();
 		}
@@ -230,20 +222,20 @@ class ExpansionWorldMappingModule: JMModuleBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion UnloadMapping
 	// ------------------------------------------------------------	
-    private void UnloadMapping( TStringArray files )
-    {
+	private void UnloadMapping( TStringArray files )
+	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionWorldMappingModule::UnloadMapping - Start");
 		#endif
 		
-        for ( int i = 0; i < files.Count(); i++ )
-        {
-            array< Object > objects = m_Objects.Get( files[i] );
+		for ( int i = 0; i < files.Count(); i++ )
+		{
+			array< Object > objects = m_Objects.Get( files[i] );
 			
 			if ( objects )
 			{
@@ -252,10 +244,10 @@ class ExpansionWorldMappingModule: JMModuleBase
 				#endif
 
 				for ( int j = 0; j < objects.Count(); j++ )
-                {
+				{
 					if ( objects[j] && !objects[j].ToDelete() )
 						GetGame().ObjectDelete(objects[j]);
-                }
+				}
 				
 				objects.Clear();
 				m_Objects.Remove( files[i] );
@@ -264,56 +256,56 @@ class ExpansionWorldMappingModule: JMModuleBase
 				EXLogPrint("ExpansionWorldMappingModule::UnloadMapping end file : " + files[i]);
 				#endif
 			} 
-        }
+		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionWorldMappingModule::UnloadMapping - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion DeleteMapObjects
 	// ------------------------------------------------------------		
 	private void DeleteMapObjects( TStringArray files )
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::DeleteMapObjects - Start");
 		#endif
 		
-        for ( int i = 0; i < files.Count(); i++ )
-        {
-            LoadToDeleteFile( files[i] );
-        }
+		for ( int i = 0; i < files.Count(); i++ )
+		{
+			LoadToDeleteFile( files[i] );
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::DeleteMapObjects - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion AdjustWorldName
 	// ------------------------------------------------------------	
-    private string AdjustWorldName( string name )
-    {
+	private string AdjustWorldName( string name )
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::AdjustWorldName - Start");
 		#endif
 		
-        string nName = name;
-        nName.ToLower();
-        if ( nName.Contains( "chernarusplus" ) )
-        {
-            return "chernarusplus";
-        }
+		string nName = name;
+		nName.ToLower();
+		if ( nName.Contains( "chernarusplus" ) )
+		{
+			return "chernarusplus";
+		}
 
-        return nName;
+		return nName;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::AdjustWorldName - End");
 		#endif
-    }
-    
-    // ------------------------------------------------------------
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion GetObjectFromFile
 	// ------------------------------------------------------------
 	private bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out string special = "false" )
@@ -369,13 +361,13 @@ class ExpansionWorldMappingModule: JMModuleBase
 		vector rotation;
 		string special;
 
-        string filePath = EXPANSION_MAPPING_FOLDER + m_WorldName + "/" + name + EXPANSION_MAPPING_EXT;
+		string filePath = EXPANSION_MAPPING_FOLDER + m_WorldName + "/" + name + EXPANSION_MAPPING_EXT;
 		FileHandle file = OpenFile( filePath, FileMode.READ );
 	
 		if ( !file )
 			return;
 
-        array< Object > objects = new array< Object >;
+		array< Object > objects = new array< Object >;
 		
 		while ( GetObjectFromFile( file, className, position, rotation, special ) )
 		{
@@ -384,7 +376,13 @@ class ExpansionWorldMappingModule: JMModuleBase
 			Object obj;
 			if (!m_InteriorModule.m_CachedCollision.Find(className, collisionBox))
 			{
-				obj = GetGame().CreateObject_WIP( className, position, ECE_CREATEPHYSICS | ECE_CREATELOCAL );
+				Print("Spawning interior item: " + className);
+				obj = GetGame().CreateObjectEx( className, position, ECE_CREATEPHYSICS | ECE_LOCAL );
+				
+				if( position )
+					obj.SetPosition( position );
+
+				Print("Succesfully spawned interior item: " + className);
 				if ( !obj )
 				{
 					m_InteriorModule.m_CachedCollision.Insert( className, false );
@@ -407,16 +405,15 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXPrint( "ExpansionWorldMappingModule::LoadFile Attempt to create object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
 		#endif
 
-            //Only spawn object with collision at server side, and object without collision at client side 
+			//! Only spawn object with collision at server side, and object without collision at client side 
 			if (collisionBox && IsMissionClient() && GetGame().IsMultiplayer()) continue;
 			if (!collisionBox && IsMissionHost() && GetGame().IsMultiplayer()) continue;
 			
-			// don't use CreateObject, it does a bunch of unnecessary stuff
 			int flags = ECE_CREATEPHYSICS;
 			if ( IsMissionClient() )
-				flags |= ECE_CREATELOCAL; // create_local
+				flags |= ECE_LOCAL;
 			
-			obj = GetGame().CreateObject_WIP( className, position, flags );
+			obj = GetGame().CreateObjectEx( className, position, flags );
 			if ( !obj )
 				continue;
 			
@@ -424,7 +421,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXPrint( "ExpansionWorldMappingModule::LoadFile Created object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
 		#endif
 			
-			//Tell engine it will represent static object
 			obj.SetFlags(EntityFlags.STATIC, false);
 						
 			obj.SetPosition( position );
@@ -466,7 +462,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			objects.Insert( obj );
 		}
 
-        m_Objects.Insert( name, objects );
+		m_Objects.Insert( name, objects );
 
 		CloseFile( file );
 
@@ -616,7 +612,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		vector position;
 		vector rotation;
 
-        string filePath = EXPANSION_MAPPING_FOLDER + m_WorldName + "/" + name + EXPANSION_MAPPING_EXT;
+		string filePath = EXPANSION_MAPPING_FOLDER + m_WorldName + "/" + name + EXPANSION_MAPPING_EXT;
 		FileHandle file = OpenFile( filePath, FileMode.READ );
 	
 		if ( !file )
@@ -624,7 +620,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		
 		while ( GetObjectFromFile( file, className, position, rotation ) )
 		{
-	        array<Object> objects = new array<Object>;
+			array<Object> objects = new array<Object>;
 			array<CargoBase> proxies = new array<CargoBase>;
 			
 			GetGame().GetObjectsAtPosition3D( position, 5, objects, proxies );

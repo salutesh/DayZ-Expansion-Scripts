@@ -1,5 +1,5 @@
 /**
- * ExpansionCURLCallback.c
+ * ExpansionRestCallback.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionCURLCallback extends CURLCallback
+class ExpansionRestCallback extends RestCallback
 {
 	override void OnError( int errorCode )
 	{

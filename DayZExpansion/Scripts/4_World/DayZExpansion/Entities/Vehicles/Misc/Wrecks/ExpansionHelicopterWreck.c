@@ -12,7 +12,7 @@
 
 class ExpansionHelicopterWreck: ExpansionWreck
 {
-    Particle m_ParticleEfx;
+	Particle m_ParticleEfx;
 
 	void ExpansionHelicopterWreck()
 	{
@@ -23,7 +23,7 @@ class ExpansionHelicopterWreck: ExpansionWreck
 
 		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
 		{
-			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_FIRE_HELICOPTER, this, GetMemoryPointPos( "fire_pos" ), "0 0 0", true );
+			m_ParticleEfx = Particle.PlayOnObject( ParticleList.EXPANSION_FIRE_HELICOPTER, this, GetMemoryPointPos( "fire_pos" ), "0 0 0", true );
 		}
 	}
 	

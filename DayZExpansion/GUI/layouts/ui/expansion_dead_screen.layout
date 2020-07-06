@@ -1,0 +1,44 @@
+PanelWidgetClass ExpansionDeadScreen {
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass dead_screen {
+   visible 1
+   ignorepointer 1
+   color 0.1216 0.1373 0.1373 1
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   style rover_sim_colorable
+   {
+    ImageWidgetClass dead_screen_image {
+     visible 1
+     ignorepointer 1
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     imageTexture "{0FB141339ACA8CF1}DayZExpansion/GUI/textures/dead_screens/dead_screen.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 0
+     stretch 1
+     filter 1
+     "Transition width" 0.919
+     Progress 0.811
+    }
+   }
+  }
+ }
+}

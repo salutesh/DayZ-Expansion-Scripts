@@ -77,18 +77,10 @@ class ExpansionActionPaint: ActionContinuousBase
 			if ( !Class.CastTo( m_Item, target.GetObject() ) )
 				return false;
 
-		TStringArray objectList = new TStringArray;
-		GetGame().ConfigGetTextArray( "cfgVehicles " + m_SprayCan.GetType() + " ExpansionSkin obj", objectList );
-
-		//objectList.Debug();
-
 		m_TargetName = target.GetObject().GetType();
-		//! Print( m_TargetName );
-		if ( objectList.Find( m_TargetName ) < 0 )
-			return false;
 
 		string spraySkin;
-		GetGame().ConfigGetText( "cfgVehicles " + m_SprayCan.GetType() + " ExpansionSkin skin", spraySkin );
+		GetGame().ConfigGetText( "cfgVehicles " + m_SprayCan.GetType() + " skinName", spraySkin );
 
 		m_SkinIndex = m_SkinModule.GetSkinIndex( m_TargetName, spraySkin );
 
@@ -118,6 +110,13 @@ class ExpansionActionPaint: ActionContinuousBase
 		{
 			m_Item.ExpansionSetSkin( m_SkinIndex );
 		}
+		
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			SEffectManager.PlaySound("Expansion_Spraying_SoundSet", m_Item.GetPosition());
+		}
+
+		m_SprayCan.AddQuantity( -10 );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionActionPaint::OnStartServer - End m_Car : " + m_Car);

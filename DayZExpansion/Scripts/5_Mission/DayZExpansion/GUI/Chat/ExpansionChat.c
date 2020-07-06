@@ -70,15 +70,21 @@ modded class Chat
 			GridSpacerWidget rows;
 			if ( Class.CastTo( rows, UIActionManager.CreateActionRows( m_Handler.GetContentWidget() ) ) )
 			{
-				//rows.SetContentAlignmentV( WidgetAlignment.WA_BOTTOM );
+				int totalInContentRow = 100;
+				int currentContentRow = 0;
+
+				GridSpacerWidget gsw;
+
 				for ( int i = 0; i < 10; i++ )
 				{
-					GridSpacerWidget gsw;
-					if ( !Class.CastTo( gsw, rows.FindAnyWidget( "Content_Row_0" + i ) ) )
-						continue;
-
-					//gsw.SetContentAlignmentV( WidgetAlignment.WA_BOTTOM );
-
+					if ( totalInContentRow >= 100 )
+					{
+						Class.CastTo( gsw, rows.FindAnyWidget( "Content_Row_0" + currentContentRow ) );
+						gsw.Show( true );
+						currentContentRow++;
+						totalInContentRow = 0;
+					}
+					
 					for ( int j = 0; j < 100; j++ )
 					{
 						m_ChatLines.Insert( new ExpansionChatLine( gsw ) );
@@ -181,8 +187,8 @@ modded class Chat
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.PLAYER_MESSAGES ) )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::Add End");
-		#endif
+				EXPrint("Chat::Add End");
+				#endif
 				return;
 			}
 		}

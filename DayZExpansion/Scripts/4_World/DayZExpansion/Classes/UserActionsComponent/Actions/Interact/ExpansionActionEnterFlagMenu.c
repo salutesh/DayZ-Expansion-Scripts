@@ -59,7 +59,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	override void OnStartClient(ActionData action_data)
 	{
 		if (GetGame().GetUIManager() && GetGame().GetUIManager().IsMenuOpen(MENU_EXPANSION_FLAG_MENU))
-            GetGame().GetUIManager().FindMenu(MENU_EXPANSION_FLAG_MENU).Close();
+			GetGame().GetUIManager().FindMenu(MENU_EXPANSION_FLAG_MENU).Close();
 	}
 
 	override void OnStartServer(ActionData action_data)

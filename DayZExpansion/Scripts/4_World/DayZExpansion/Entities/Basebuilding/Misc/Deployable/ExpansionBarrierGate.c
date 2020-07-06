@@ -20,9 +20,9 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionBarrierGate()
-    {
-    }
+	void ExpansionBarrierGate()
+	{
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -43,14 +43,14 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// IsInventoryVisible
 	// ------------------------------------------------------------
 	override bool IsInventoryVisible()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// GetConstructionKitType
 	// ------------------------------------------------------------
-    override string GetConstructionKitType()
+	override string GetConstructionKitType()
 	{
 		return "ExpansionBarrierGateKit";
 	}

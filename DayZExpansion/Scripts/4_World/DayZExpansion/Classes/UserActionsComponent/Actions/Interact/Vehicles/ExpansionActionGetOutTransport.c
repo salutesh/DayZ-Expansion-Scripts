@@ -72,6 +72,14 @@ class ExpansionActionGetOutTransport: ActionInteractBase
 			CarScript car;
 			if ( Class.CastTo( car, vehCommand.GetTransport() ) )
 			{
+				if ( car.CanObjectAttach( action_data.m_Player ) && car.LeavingSeatDoesAttachment( vehCommand.GetVehicleSeat() ) )
+				{
+					vehCommand.KeepInVehicleSpaceAfterLeave( true );
+				} else
+				{
+					vehCommand.KeepInVehicleSpaceAfterLeave( false );
+				}
+
 				if ( !car.IsCar() || car.IsBoat() )
 				{
 					vehCommand.GetOutVehicle();

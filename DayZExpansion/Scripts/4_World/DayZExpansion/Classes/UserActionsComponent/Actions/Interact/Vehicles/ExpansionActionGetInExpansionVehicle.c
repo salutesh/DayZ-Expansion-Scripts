@@ -15,9 +15,6 @@
  **/
 class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 {
-	private ExpansionVehicleScript m_Transport;
-	private int m_CrewIdx;
-
 	void ExpansionActionGetInExpansionVehicle()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -47,13 +44,16 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Transport = NULL;
-		m_CrewIdx = -1;
+		Message( GetPlayer(), "condition " );
 
 		if ( !target )
 			return false;
 
-		if ( !Class.CastTo( m_Transport, target.GetObject() ) )
+		Message( GetPlayer(), "target "  + target );
+
+		ExpansionVehicleScript transport;
+
+		if ( !Class.CastTo( transport, target.GetObject() ) )
 			return false;
 
 		if ( player.GetCommand_Vehicle() )
@@ -71,22 +71,24 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 		if ( player.GetCommand_ExpansionVehicle() )
 			return false;
 
-		m_CrewIdx = 0;
-
 		int componentIndex = target.GetComponentIndex();
 
-		m_CrewIdx = m_Transport.CrewPositionIndexSelection( componentIndex );
+		Message( GetPlayer(), "componentIndex "  + componentIndex );
 
-		// That's why you cant get in mh6
-		if ( m_CrewIdx < 0 )
+		int crewIdx = transport.CrewPositionIndex( componentIndex );
+		Message( GetPlayer(), "crewIdx "  + crewIdx );
+		if ( crewIdx < 0 )
 			return false;
 
-		// Human crew = m_Transport.CrewMember( m_CrewIdx );
+		
+
+		// Human crew = m_Transport.CrewMember( crewIdx );
 		// if ( crew )
 		// 	return false;
 		// 
-		if ( !m_Transport.CrewCanGetThrough( m_CrewIdx ) )
-		 	return false;
+
+		//if ( !m_Transport.CrewCanGetThrough( crewIdx ) )
+		// 	return false;
 // 
 		// array<string> selections = new array<string>();
 // 
@@ -117,8 +119,22 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 	override void Start( ActionData action_data )
 	{
 		super.Start( action_data );
+
+		if (!action_data.m_Target)
+			return;
+
+		ExpansionVehicleScript transport;
+
+		if ( !Class.CastTo( transport, action_data.m_Target.GetObject() ) )
+			return;
+
+		int componentIndex = action_data.m_Target.GetComponentIndex();
+
+		int crewIdx = transport.CrewPositionIndex( componentIndex );
+		if ( crewIdx < 0 )
+			return;
 		
-		int seat = m_Transport.GetSeatAnimationType( m_CrewIdx );
-		action_data.m_Player.StartCommand_ExpansionVehicle( m_Transport, m_CrewIdx, seat );
+		int seat = transport.GetSeatAnimationType( crewIdx );
+		action_data.m_Player.StartCommand_ExpansionVehicle( transport, crewIdx, seat );
 	}
 }

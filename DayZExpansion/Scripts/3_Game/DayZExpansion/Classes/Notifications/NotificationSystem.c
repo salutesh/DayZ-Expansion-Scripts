@@ -122,7 +122,7 @@ modded class NotificationSystem
 		data.SetColor( color );
 		data.m_LeaveJoinNotif = leaveJoinNotif;
 
-        AddNotif( data );
+		AddNotif( data );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::Exec_CreateNotification - End");

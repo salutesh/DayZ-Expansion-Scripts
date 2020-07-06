@@ -19,7 +19,7 @@ class ExpansionLockSaver
 		return m_Instance;
 	}
 	
-    protected autoptr array<ref ExpansionLock> m_LockSaved;
+	protected autoptr array<ref ExpansionLock> m_LockSaved;
 	
 	void ExpansionLockSaver()
 	{

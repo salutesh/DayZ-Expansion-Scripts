@@ -1,5 +1,5 @@
 /**
- * ExpansionCURLBrowserCB.c
+ * ExpansionRestBrowserCB.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionCURLBrowserCB extends CURLCallback
+class ExpansionRestBrowserCB extends RestCallback
 {
 	autoptr ScriptInvoker data_servers = new ScriptInvoker();
 	

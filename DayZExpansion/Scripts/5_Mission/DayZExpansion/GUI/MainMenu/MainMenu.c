@@ -93,10 +93,11 @@ modded class MainMenu
 			m_DialogAcceptButton = ButtonWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "DialogAgreeButton" ) );
 		}
 		
-		m_NewsFeedRoot = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "news_feed_root" ) );
-		float feed_x = 0;
-		float feed_y = 0;
-		m_NewsFeedRoot.GetPos(feed_x, feed_y);
+		//! Disabled Expansion News-Feed
+		//m_NewsFeedRoot = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "news_feed_root" ) );
+		//float feed_x = 0;
+		//float feed_y = 0;
+		//m_NewsFeedRoot.GetPos(feed_x, feed_y);
 		
 		//! Add Expansion newsfeed
 		//m_ExpansionNewsFeedRoot	= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/newsfeed.layout", layoutRoot );
@@ -350,27 +351,5 @@ modded class MainMenu
 		EXPrint("MainMenu::OnClick - End");
 		#endif
 		return super.OnClick(w, x, y, button);;
-	}
-	
-	// ------------------------------------------------------------
-	// Override ShowNewsfeed
-	// ------------------------------------------------------------
-	override void ShowNewsfeed()
-	{
-		super.ShowNewsfeed();
-		
-		if (m_ExpansionNewsfeed)
-			m_ExpansionNewsfeed.ShowNewsfeed();
-	}
-	
-	// ------------------------------------------------------------
-	// Override HideNewsfeed
-	// ------------------------------------------------------------
-	override void HideNewsfeed()
-	{
-		super.HideNewsfeed();
-
-		if (m_ExpansionNewsfeed)
-			m_ExpansionNewsfeed.HideNewsfeed();
 	}
 }

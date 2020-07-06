@@ -1,31 +1,14 @@
-class Expansion_HatchbackDoors_Driver: HatchbackDoors_Driver
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_HatchbackDoors_Driver";
-	}
-}
-class Expansion_HatchbackDoors_CoDriver: HatchbackDoors_CoDriver
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_HatchbackDoors_CoDriver";
-	}
-}
-class Expansion_HatchbackHood: HatchbackHood
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_HatchbackHood";
-	}
-}
-class Expansion_HatchbackTrunk: HatchbackTrunk
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_HatchbackTrunk";
-	}
-}
+/**
+ * OffroadHatchback.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
 modded class OffroadHatchback
 {

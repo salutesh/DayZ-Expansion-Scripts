@@ -1,0 +1,44 @@
+FrameWidgetClass expansion_tab_root {
+ ignorepointer 0
+ position 0 0
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ {
+  ScrollWidgetClass expansion_settings_scroll {
+   ignorepointer 0
+   color 0 0 0 1
+   position 0 0
+   size 600 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 0
+   style blank
+   "Scrollbar V" 1
+   {
+    GridSpacerWidgetClass expansion_tab_content {
+     visible 1
+     ignorepointer 0
+     color 0 0 0 0
+     position 0 0
+     size 1 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     priority 3
+     "no focus" 1
+     Padding 8
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     Columns 1
+     Rows 1
+    }
+   }
+  }
+ }
+}

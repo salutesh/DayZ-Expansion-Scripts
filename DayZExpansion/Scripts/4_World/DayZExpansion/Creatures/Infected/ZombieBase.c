@@ -75,23 +75,4 @@ modded class ZombieBase
 
 		super.RegisterTransportHit( transport );
 	}
-	
-	// ------------------------------------------------------------
-	/*
-	override void EEKilled( Object killer )
-	{
-		super.EEKilled(killer);
-		
-		//! Humanity
-		if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHumanity )
-		{
-			ExpansionHumanityModule humanityModule = ExpansionHumanityModule.Cast( GetModuleManager().GetModule( ExpansionHumanityModule ) );
-			if ( humanityModule )
-			{
-				humanityModule.OnInfectedKilledEvent( killer );
-			}
-		}
-
-	}
-	*/
 }

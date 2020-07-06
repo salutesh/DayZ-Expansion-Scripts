@@ -37,6 +37,6 @@ class ExpansionMarketCrossbows: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CROSSBOWS";
 		m_FileName = "Crossbows";
 
-		AddItem("ExpansionCrossbow", 			100,		500,		1,		100,	0 );
+		AddItem("Expansion_Crossbow", 			100,		500,		1,		100,	0 );
 	}
 }

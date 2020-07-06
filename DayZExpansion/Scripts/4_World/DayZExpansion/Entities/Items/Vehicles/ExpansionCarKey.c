@@ -12,8 +12,8 @@
 
 enum ExpansionCarKeyRPC
 {
-	NONE,
-	RequestItemData = 20602,
+	INVALID = 20600,
+	RequestItemData,
 	SendItemData,
 	COUNT
 }
@@ -22,29 +22,87 @@ class ExpansionCarKey extends ItemBase
 {
 	protected static autoptr array<ExpansionCarKey> m_AllKeys = new array<ExpansionCarKey>;
 	
-	static ExpansionCarKey GetKeyByVehicle( CarScript vehicle )
+	/**
+	 * @note 	Does not get keys which may be stored in a 
+	 * 			player inventory while they are not logged in
+	 */
+	static ExpansionCarKey GetFirstKeyForVehicle( Object obj )
 	{
-		if (!vehicle)
-			return null;
-		
-		for ( int i = 0; i < m_AllKeys.Count(); ++i )
+		if ( !obj )
+			return NULL;
+
+		CarScript car;
+		ExpansionVehicleScript veh;
+		if ( Class.CastTo( car, obj ) )
 		{
-			if (!m_AllKeys[i] || !m_AllKeys[i].IsPaired())
-				continue;
-			
-			if ( m_AllKeys[i].IsPairedTo( vehicle ) )
-				return m_AllKeys[i];
+			for ( int i = 0; i < m_AllKeys.Count(); ++i )
+			{
+				if (!m_AllKeys[i] || !m_AllKeys[i].IsPaired())
+					continue;
+				
+				if ( m_AllKeys[i].IsPairedTo( car ) )
+					return m_AllKeys[i];
+			}
+		} else if ( Class.CastTo( veh, obj ) )
+		{
+			for ( i = 0; i < m_AllKeys.Count(); ++i )
+			{
+				if ( !m_AllKeys[i] || !m_AllKeys[i].IsPaired() )
+					continue;
+				
+				if ( m_AllKeys[i].IsPairedTo( veh ) )
+					return m_AllKeys[i];
+			}
 		}
 		
-		return null;
+		return NULL;
 	}
 	
-	protected int m_VehicleIDA = 0;
-	protected int m_VehicleIDB = 0;
-	protected int m_VehicleIDC = 0;
-	protected int m_VehicleIDD = 0;
+	/**
+	 * @note 	Does not get keys which may be stored in a 
+	 * 			player inventory while they are not logged in
+	 */
+	static void GetKeysForVehicle( Object obj, inout array< ExpansionCarKey > keys )
+	{
+		if ( !keys )
+			keys = new array< ExpansionCarKey >;
 
-	protected string m_VehicleDisplayName;
+		if ( !obj )
+			return;
+
+		CarScript car;
+		ExpansionVehicleScript veh;
+		if ( Class.CastTo( car, obj ) )
+		{
+			for ( int i = 0; i < m_AllKeys.Count(); ++i )
+			{
+				if (!m_AllKeys[i] || !m_AllKeys[i].IsPaired())
+					continue;
+				
+				if ( m_AllKeys[i].IsPairedTo( car ) )
+					keys.Insert( m_AllKeys[i] );
+			}
+		} else if ( Class.CastTo( veh, obj ) )
+		{
+			for ( i = 0; i < m_AllKeys.Count(); ++i )
+			{
+				if ( !m_AllKeys[i] || !m_AllKeys[i].IsPaired() )
+					continue;
+				
+				if ( m_AllKeys[i].IsPairedTo( veh ) )
+					keys.Insert( m_AllKeys[i] );
+			}
+		}
+	}
+	
+	private int m_VehicleIDA = 0;
+	private int m_VehicleIDB = 0;
+	private int m_VehicleIDC = 0;
+	private int m_VehicleIDD = 0;
+
+	private string m_VehicleDisplayName;
+
+	private Object m_Vehicle;
 	
 	// ------------------------------------------------------------
 	// ExpansionCarKey Constructor
@@ -81,6 +139,13 @@ class ExpansionCarKey extends ItemBase
 			RequestItemData();
 		}
 	}
+
+	override void EEOnAfterLoad()
+	{
+		super.EEOnAfterLoad();
+
+		m_Vehicle = GetGame().GetEntityByPersitentID( m_VehicleIDA, m_VehicleIDB, m_VehicleIDC, m_VehicleIDD );
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCarKey GetDisplayName
@@ -100,22 +165,14 @@ class ExpansionCarKey extends ItemBase
 		#endif
 		
 		m_VehicleIDA = vehicle.GetPersistentIDA();
+		m_VehicleIDB = vehicle.GetPersistentIDB();
+		m_VehicleIDC = vehicle.GetPersistentIDC();
+		m_VehicleIDD = vehicle.GetPersistentIDD();
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDA : " + m_VehicleIDA);
-		#endif
-		
-		m_VehicleIDB = vehicle.GetPersistentIDB();
-		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDB : " + m_VehicleIDB);
-		#endif
-		
-		m_VehicleIDC = vehicle.GetPersistentIDC();
-		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDC : " + m_VehicleIDC);
-		#endif
-		
-		m_VehicleIDD = vehicle.GetPersistentIDD();
-		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDD : " + m_VehicleIDD);
 		#endif
 
@@ -125,6 +182,8 @@ class ExpansionCarKey extends ItemBase
 		if ( ownerPlayer && ownerPlayer.GetIdentity() )
 			RPC_RequestItemData( ownerPlayer.GetIdentity() );
 
+		m_Vehicle = vehicle;
+
 		SetSynchDirty();
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -132,12 +191,45 @@ class ExpansionCarKey extends ItemBase
 		#endif
 	}
 	
-	void UnPair()
+	// ------------------------------------------------------------
+	// ExpansionCarKey PairToVehicle
+	// ------------------------------------------------------------
+	void PairToVehicle( ExpansionVehicleScript vehicle )
 	{
+		m_Vehicle = vehicle;
+		
+		// TODO
+	}
+	
+	void Unpair( bool ignore_check = false )
+	{
+		if ( !ignore_check )
+		{
+			array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
+			ExpansionCarKey.GetKeysForVehicle( m_Vehicle, keys );
+
+			if ( keys.Count() <= 1 )
+			{
+				ExpansionVehicleScript exveh;
+				if ( Class.CastTo( exveh, m_Vehicle ) )
+				{
+					//exveh.ResetKeyPairing();
+				}
+
+				CarScript vnveh;
+				if ( Class.CastTo( vnveh, m_Vehicle ) )
+				{
+					vnveh.ResetKeyPairing();
+				}
+			}
+		}
+
 		m_VehicleIDA = 0;
 		m_VehicleIDB = 0;
 		m_VehicleIDC = 0;
 		m_VehicleIDD = 0;
+
+		m_Vehicle = NULL;
 		
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
@@ -146,14 +238,6 @@ class ExpansionCarKey extends ItemBase
 			RPC_RequestItemData( ownerPlayer.GetIdentity() );
 		
 		SetSynchDirty();
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCarKey PairToVehicle
-	// ------------------------------------------------------------
-	void PairToVehicle( ExpansionVehicleScript vehicle )
-	{
-		// TODO
 	}
 	
 	protected void KeyMessage( string message )

@@ -1,4 +1,4 @@
-class Expansion_C4_Explosion: Building
+class Expansion_C4_Explosion: BuildingBase
 {
 	ref Timer m_Delay;
 	protected Particle 		m_ParticleExplosion;
@@ -22,7 +22,7 @@ class Expansion_C4_Explosion: Building
 		EXPrint("Expansion_C4_Explosion::ExplodeNow Start");
 		#endif
 		
-		Explode(DT_EXPLOSION, "ExpansionRocket_Ammo");
+		Explode(DT_EXPLOSION, "ExpansionC4_Ammo");
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 			m_ParticleExplosion = Particle.PlayInWorld(ParticleList.EXPANSION_EXPLOSION_ROCKET, this.GetPosition());
 		

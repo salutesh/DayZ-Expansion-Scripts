@@ -1,0 +1,672 @@
+FrameWidgetClass ExpansionIngameHudFrame {
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ halign right_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass HudPanel {
+   ignorepointer 1
+   position 0 0
+   size 0.9 0.9
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   {
+    GridSpacerWidgetClass InfoPanel {
+     visible 1
+     clipchildren 1
+     position 0 88
+     size 221 78
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     style Empty
+     Padding 5
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_valign center
+     Columns 1
+     Rows 2
+     {
+      GridSpacerWidgetClass TimePanel {
+       visible 0
+       clipchildren 0
+       inheritalpha 1
+       size 150 35
+       halign right_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scaled 1
+       style Colorable
+       Padding 5
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       Columns 2
+       Rows 1
+       {
+        ImageWidgetClass ClockImage {
+         clipchildren 0
+         ignorepointer 1
+         keepsafezone 1
+         color 0.8627 0.8627 0.8627 1
+         position 0.02 0
+         size 32 32
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_iconset image:clock_filled"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass Time {
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 0.7894 1
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         text "12:00"
+         font "gui/fonts/etelkatextpro16"
+         "exact text" 0
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass SidePanel {
+     visible 1
+     ignorepointer 1
+     position 0 78.56
+     size 65 138
+     halign right_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     Padding 8
+     Margin 0
+     Columns 1
+     Rows 2
+     {
+      ImageWidgetClass EarPlug_Icon {
+       visible 0
+       ignorepointer 1
+       size 65 65
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       imageTexture "{8244D921344E1DEA}DayZExpansion/GUI/textures/earplug_icon.edds"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ImageWidgetClass Battle_Icon {
+       visible 0
+       ignorepointer 1
+       size 65 65
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       imageTexture "{D6B51BCAB916C44F}DayZExpansion/GUI/textures/battle_icon.edds"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass NVPanel {
+   visible 0
+   ignorepointer 1
+   color 0 0 0 1
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   draggable 1
+   style blank
+   {
+    ImageWidgetClass NVOverlay {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     imageTexture "{D6E1D0FF81F35A23}DayZExpansion/GUI/textures/overlays/nightvision.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     filter 1
+     "Transition width" 0
+    }
+   }
+  }
+  PanelWidgetClass ChatChannelPanel {
+   visible 0
+   inheritalpha 1
+   color 0.1961 0.1961 0.1961 0.549
+   position 0.01 0
+   size 0.225 0.025
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   fixaspect fixwidth
+   style rover_sim_colorable
+   {
+    TextWidgetClass ChatChannelName {
+     visible 1
+     clipchildren 0
+     inheritalpha 0
+     size 0.96 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     font "gui/fonts/etelkatextpro16"
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text valign" center
+    }
+   }
+  }
+  MultilineTextWidgetClass ExpansionDebugger {
+   visible 1
+   disabled 0
+   ignorepointer 1
+   position 0 0
+   size 0.99 0.99
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   font "gui/fonts/system"
+   "exact text" 1
+   wrap 1
+  }
+  PanelWidgetClass GPSPanel {
+   visible 0
+   keepsafezone 1
+   position 100 108
+   size 0.156 0.29
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   {
+    ImageWidgetClass GPSImage {
+     visible 1
+     ignorepointer 1
+     keepsafezone 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     imageTexture "{11F16516797A17F7}DayZExpansion/GUI/textures/gps_new.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 0
+     stretch 1
+     "flip u" 0
+     "flip v" 0
+     filter 1
+     nocache 0
+    }
+    PanelWidgetClass MapStatsPanel {
+     visible 1
+     ignorepointer 1
+     keepsafezone 1
+     position 0 0
+     size 0.85 0.66
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     {
+      PanelWidgetClass player_direction {
+       ignorepointer 1
+       position 0 0.02
+       size 0.9 0.2
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        TextWidgetClass player_direction_value {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.25 0
+         size 0.77 0.95
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "360"
+         font "gui/fonts/metron-bold28"
+         "size to text h" 1
+         "size to text v" 0
+         "text valign" center
+        }
+        ImageWidgetClass player_direction_icon {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.05 0
+         size 34 34
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_iconset image:compass"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+       }
+      }
+      PanelWidgetClass player_alt {
+       ignorepointer 1
+       position 0 0.22
+       size 0.9 0.2
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        TextWidgetClass player_alt_value {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.25 0
+         size 0.77 0.95
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "9999"
+         font "gui/fonts/metron-bold28"
+         "size to text h" 1
+         "size to text v" 0
+         "text valign" center
+        }
+        ImageWidgetClass player_alt_icon {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.05 0
+         size 38 24
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:expansion_iconset image:mountains"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+       }
+      }
+      PanelWidgetClass player_position {
+       visible 1
+       ignorepointer 1
+       position 0 0.42
+       size 0.9 0.30045
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        TextWidgetClass player_position_value {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "9999 9999"
+         font "gui/fonts/metron-bold28"
+         "exact text" 0
+         "size to text h" 1
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass separator_0 {
+       ignorepointer 1
+       color 0.2039 0.2118 0.1608 0.549
+       position 0 0.22
+       size 1 0.01
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass separator_1 {
+       ignorepointer 1
+       color 0.2039 0.2118 0.1608 0.549
+       position 0 0.42
+       size 1 0.01
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style rover_sim_colorable
+      }
+      GridSpacerWidgetClass GPSStateStatsPanel {
+       ignorepointer 1
+       position 0 0.08
+       size 0.97 0.2
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       Padding 0
+       Margin 0
+       Columns 2
+       Rows 1
+       {
+        PanelWidgetClass GPSStateCoordStatsPanel {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.041 0.281
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Outline
+         {
+          TextWidgetClass GPSStateCoordState {
+           ignorepointer 1
+           color 0.2039 0.2118 0.1608 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "COORDS"
+           font "gui/fonts/metron22"
+           "text color" 0 0 0 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass GPSStateMapStatsPanel {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.041 0.281
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+         {
+          TextWidgetClass GPSStateMapState {
+           ignorepointer 1
+           color 0.451 0.4784 0.3529 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "MAP"
+           font "gui/fonts/metron22"
+           "text color" 0 0 0 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass GPSBackgroundStats {
+       visible 1
+       ignorepointer 1
+       color 0.451 0.4784 0.3529 1
+       size 1 1
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style rover_sim_colorable
+      }
+     }
+    }
+    PanelWidgetClass GPSMapPanel {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 0.85 0.66
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     priority 3
+     style blank
+     {
+      FrameWidgetClass GPSMapFrame {
+       visible 1
+       clipchildren 1
+       keepsafezone 1
+       position 0 3
+       size 0.95707 0.70343
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       priority 2
+       {
+        MapWidgetClass Map {
+         keepsafezone 0
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         scriptclass ""
+        }
+       }
+      }
+      PanelWidgetClass GPSStateMap {
+       ignorepointer 1
+       position 0 0.08
+       size 0.97 0.2
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        GridSpacerWidgetClass GPSStateMapPanel {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         Padding 0
+         Margin 0
+         Columns 2
+         Rows 1
+         {
+          PanelWidgetClass GPSStateCoodsMapPanel {
+           ignorepointer 1
+           color 0.2039 0.2118 0.1608 1
+           position 0.041 0.281
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style rover_sim_colorable
+           {
+            TextWidgetClass GPSStateCoodsStateMap {
+             ignorepointer 1
+             color 0.451 0.4784 0.3529 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "COORDS"
+             font "gui/fonts/metron22"
+             "text color" 0 0 0 1
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass GPSStateMapMapPanel {
+           ignorepointer 1
+           color 0.2039 0.2118 0.1608 1
+           position 0.041 0.281
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Outline
+           {
+            TextWidgetClass GPSStateMapMap {
+             ignorepointer 1
+             color 0.2039 0.2118 0.1608 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "MAP"
+             font "gui/fonts/metron22"
+             "text color" 0 0 0 1
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass GPSBackgroundStatsState {
+         visible 1
+         ignorepointer 1
+         color 0.451 0.4784 0.3529 1
+         size 1 0.97
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

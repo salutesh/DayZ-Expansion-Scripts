@@ -45,6 +45,14 @@ modded class InGameMenu
 		m_OptionsButton		= layoutRoot.FindAnyWidget( "optionsbtn" );
 		m_ModdedWarning		= TextWidget.Cast( layoutRoot.FindAnyWidget( "ModdedWarning" ) );
 		m_HintPanel			= new UiHintPanel(layoutRoot.FindAnyWidget( "hint_frame" ));
+		m_ServerInfoPanel 	= layoutRoot.FindAnyWidget( "server_info" );
+		m_ServerIP 			= TextWidget.Cast( layoutRoot.FindAnyWidget( "server_ip" ) );
+		m_ServerPort 		= TextWidget.Cast( layoutRoot.FindAnyWidget( "server_port" ) );
+		m_ServerName 		= TextWidget.Cast( layoutRoot.FindAnyWidget( "server_name" ) );
+		//m_FavoriteButton 	= layoutRoot.FindAnyWidget( "favorite_button" );
+		m_FavoriteImage 	= layoutRoot.FindAnyWidget( "favorite_image" );
+		m_UnfavoriteImage 	= layoutRoot.FindAnyWidget( "unfavorite_image" );
+		m_CopyInfoButton 	= layoutRoot.FindAnyWidget( "copy_button" );
 		
 		if (GetGame().IsMultiplayer())
 		{
@@ -53,7 +61,7 @@ modded class InGameMenu
 		else
 		{
 			ButtonSetText(m_RestartButton, "#main_menu_restart");
-		}		
+		}	
 		
 	#ifdef BULDOZER		
 		delete m_RestartButton;
@@ -85,11 +93,16 @@ modded class InGameMenu
 		m_DeadScreenFadeInIncrement	= 1 / DEAD_SCREEN_FADEIN_TIME;
 		m_DeadScreenImageFadeInIncrement = 1 / DEAD_SCREEN_IMAGE_FADEIN_TIME;
 		
+		HudShow( false );
 		SetGameVersion();
-
+		SetServerInfoVisibility(SetServerInfo() && g_Game.GetProfileOption( EDayZProfilesOptions.SERVERINFO_DISPLAY ) && !GetExpansionClientSettings().StreamerMode );
 		m_ModdedWarning.Show( g_Game.ReportModded() );
 		
 		Refresh();
+		
+		GetExpansionClientSettings().Load();
+		PPEffects.UpdateSaturation();
+		PPEffects.UpdateVignette();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("InGameMenu::Init - End");

@@ -10,7 +10,7 @@
  *
 */
 
-class Land_House_2B01 extends BuildingSuper
+modded class Land_House_2B01
 {
 	override bool HasInterior()
 	{
@@ -19,8 +19,9 @@ class Land_House_2B01 extends BuildingSuper
 	
 	override void SpawnInterior()
 	{
-		SpawnInteriorObject( "bldr_kitchenstove_elec", "-3.119998 -4.185204 4.700000", "-3.000004 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_kitchendesk_a", "-1.904803 -3.122353 4.730000", "90.000015 0.000000 0.000000" );
+		SpawnInteriorObject( "bldr_kitchenstove_elec", "-5.100001 -4.170000 2.549999", "-89.000000 0.000000 0.000000" );
+		SpawnInteriorObject( "bldr_kitchendesk_a", "-5.125000 -3.110000 1.300000", "0.000000 0.000000 0.000000" );
+
 		
 		if ( false )
 		{
@@ -42,26 +43,26 @@ class Land_House_2B01 extends BuildingSuper
 
 		SpawnInteriorObject( "bldr_luxury_lamp", "0.743000 -2.211052 0.069126", "-90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "2.880000 -2.900177 1.001644", "179.998993 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_bar_shelves_dz", "2.890000 -4.185204 3.805449", "90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_switch_lights", "0.864743 -2.835121 -1.924000", "-90.000000 0.000000 0.000000" );
 		if ( false )
 		{
-			SpawnInteriorObject( "bldr_couch_beige84x213x75_dz", "-1.117144 -4.185204 0.907791", "178.999939 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_case_bedroom_a", "0.235250 -3.903786 0.884116", "91.000015 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_case_bedroom_a", "-2.503156 -3.903786 0.906404", "93.000031 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_carpet_big", "-1.104304 -4.150002 2.252933", "91.000015 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_lobby_table", "-1.057147 -4.185204 2.226109", "6.000000 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_flowers_01", "0.208648 -3.625000 0.786965", "0.000000 0.000000 0.000000" );
+			//SpawnInteriorObject( "Land_House_2B01", "0.000000 0.000000 0.000000", "0.000000 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_couch_beige84x213x75_dz", "-1.518206 -4.215000 0.798205", "178.999954 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_carpet_big", "-1.495404 -4.160000 2.251707", "-179.000061 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_chest_dz", "-1.278499 -4.420000 4.586817", "91.000015 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_tv_a", "-1.298150 -3.540768 4.600974", "-2.000000 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_bar_shelves_dz", "2.868677 -4.210288 4.013774", "90.000000 0.000000 0.000000" );
 		}
 		else
 		{
-			SpawnInteriorObject( "bldr_sofacorner", "-0.416380 -3.736702 1.771917", "0.000000 0.000024 0.000000" );
-			SpawnInteriorObject( "bldr_carpet_big", "-0.694287 -4.150002 2.075473", "0.000000 0.000024 0.000000" );
-			SpawnInteriorObject( "bldr_lobby_table", "-0.744337 -4.149208 2.125558", "97.000015 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_case_bedroom_b", "-1.862221 -4.599236 0.589494", "90.000038 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_bar_shelves_dz", "2.890000 -4.185204 3.805449", "90.000000 0.000000 0.000000" );
-			SpawnInteriorObject( "ExpansionPropRadio", "-0.824191 -3.507004 2.464426", "30.000006 0.000024 0.000000" );
-			SpawnInteriorObject( "bldr_chest_dz", "0.982335 -4.335213 2.056118", "0.000000 0.000000 0.000000", 0.2 );
+			//SpawnInteriorObject( "Land_House_2B01", "0.000000 0.000000 0.000000", "0.000000 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_SofaCorner", "1.550000 -3.760000 3.980000", "-90.000038 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_carpet_big", "1.000000 -4.160000 3.499998", "-92.000031 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_lobby_table", "0.850000 -4.170000 3.349998", "0.000000 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_bar_shelves_dz", "-1.649999 -4.170000 0.400000", "179.999939 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_chest_dz", "-0.990215 -4.424000 4.569054", "88.000000 0.000000 0.000000" );
+			SpawnInteriorObject( "bldr_flowers_01", "-1.450000 -3.545000 4.700000", "0.000000 0.000000 0.000000" );
+			SpawnInteriorObject( "ExpansionPropRadio", "-0.568495 -3.479000 4.684999", "110.999969 0.000000 -90.000000" );
 		}
 		
 		SpawnInteriorObject( "bldr_washing_machine", "0.447248 -4.185204 -2.490000", "0.000000 0.000000 0.000000" );
@@ -91,7 +92,6 @@ class Land_House_2B01 extends BuildingSuper
 		}
 
 		SpawnInteriorObject( "ExpansionPropTrashBarrel1", "-0.405428 -3.808998 -2.595276", "29.000008 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_flowers_02", "-4.938713 -4.185204 3.131339", "61.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_picture_e_02", "-3.728860 -3.385155 -1.940000", "0.000000 0.000024 0.000000" );
 		SpawnInteriorObject( "bldr_postel_manz_kov", "0.905674 -1.176048 3.960339", "91.000015 -0.000003 0.000000" );
 		SpawnInteriorObject( "bldr_case_bedroom_a", "2.211682 -0.816254 4.069431", "0.000000 0.000000 0.000000", 0.8 );

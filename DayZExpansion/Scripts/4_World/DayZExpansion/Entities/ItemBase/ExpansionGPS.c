@@ -65,9 +65,11 @@ class ExpansionGPS extends ItemBase
 
 					return;
 				}
-				
-				player.SetHasItemGPS( true );
-				player.SetHasItemMap( true );
+				if ( HasEnergyManager() && GetCompEM().CanWork() )
+				{
+					player.SetHasItemGPS( true );
+					player.SetHasItemMap( true );
+				}
 			}
 		}
 		

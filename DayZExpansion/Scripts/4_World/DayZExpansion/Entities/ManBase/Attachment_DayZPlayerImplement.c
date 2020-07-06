@@ -15,56 +15,50 @@ modded class DayZPlayerImplement
 	protected Object m_ExAttachmentObject;
 	protected ExpansionPlayerLink m_ExPlayerLinkType;
 
-	protected bool m_ExAttachAfterSeat;
-
-	protected vector m_ExClimbPosition;
-	protected bool m_IsClimbAttaching;
-
-	protected int m_ExSeatPosition;
-
-	protected bool m_ExCanPerformRaycast;
+	protected SHumanCommandClimbResult m_ExClimbRes;
+	protected int m_ExClimbType;
 
 	protected float m_ExAttachmentRadius;
 
 	protected bool m_ExAttachingBlockingCommandStart;
 	protected bool m_ExAttachingBlockingCommandFinished;
 
-	protected ref ExpansionHumanLeavingVehicleCommand_ST m_ExpansionLeavingVehicleCommandST;
+	protected ref ExpansionHumanCommandLeavingVehicle_ST m_ExpansionLeavingVehicleCommandST;
 
 	// ------------------------------------------------------------
 	void DayZPlayerImplement()
 	{
-		m_ExCanPerformRaycast = true;
 	}
 
 	// ------------------------------------------------------------
 	void StartCommand_ExpansionFall( float pYVelocity );
 
 	// ------------------------------------------------------------
-	void OnClimbStart( SHumanCommandClimbResult res )
+	void OnClimbStart( SHumanCommandClimbResult pClimbRes, int climbType )
 	{
-		m_IsClimbAttaching = false;
-
-		if ( res.m_bFinishWithFall )
+		if ( m_ExPlayerLinkType != ExpansionPlayerLink.NONE )
 			return;
 
-		if ( !ExpansionAttachmentHelper.CanAttachTo( this, Object.Cast( res.m_ClimbStandPointParent ) ) )
-			return;
+		Object.CastTo( m_ExAttachmentObject, pClimbRes.m_ClimbStandPointParent );
 
-		m_ExAttachmentObject = Object.Cast( res.m_ClimbStandPointParent );
-		m_ExClimbPosition = res.m_ClimbStandPoint;
+		if ( !ExpansionAttachmentHelper.CanAttachTo( this, m_ExAttachmentObject ) )
+		{
+			m_ExAttachmentObject = NULL;
+
+			StartCommand_Climb( pClimbRes, climbType );
+
+			return;
+		}
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.CLIMB_START;
-
-		m_IsClimbAttaching = true;
+		m_ExClimbRes = pClimbRes;
+		m_ExClimbType = climbType;
 	}
 	
 	// ------------------------------------------------------------
 	override bool CanClimb( int climbType, SHumanCommandClimbResult climbRes )
 	{
-		// it's too buggy, prevent climbing while attached to anything
-		// unfortunately it means no climbing while on the LHD
-		if ( GetParent() )
+		if ( m_ExPlayerLinkType != ExpansionPlayerLink.NONE )
 			return false;
 
 		return super.CanClimb( climbType, climbRes );
@@ -76,16 +70,16 @@ modded class DayZPlayerImplement
 		if ( GetCommand_Vehicle() )
 			return true;
 		
-		if ( ExpansionHumanVehicleCommand.Cast( GetCommand_Script() ) )
+		if ( ExpansionHumanCommandVehicle.Cast( GetCommand_Script() ) )
 			return true;
 
 		return false;
 	}
 	
 	// ------------------------------------------------------------
-	ExpansionHumanLeavingVehicleCommand GetCommand_ExpansionLeaveVehicle()
+	ExpansionHumanCommandLeavingVehicle GetCommand_ExpansionLeaveVehicle()
 	{
-		return ExpansionHumanLeavingVehicleCommand.Cast( GetCommand_Script() );
+		return ExpansionHumanCommandLeavingVehicle.Cast( GetCommand_Script() );
 	}
 	
 	// ------------------------------------------------------------
@@ -97,11 +91,11 @@ modded class DayZPlayerImplement
 		
 		if ( m_ExpansionLeavingVehicleCommandST == NULL )
 		{
-			m_ExpansionLeavingVehicleCommandST = new ExpansionHumanLeavingVehicleCommand_ST( this );
+			m_ExpansionLeavingVehicleCommandST = new ExpansionHumanCommandLeavingVehicle_ST( this );
 		}
 	
 		PlayerBase player = PlayerBase.Cast( this );
-		StartCommand_Script( new ExpansionHumanLeavingVehicleCommand( player, obj, m_ExpansionLeavingVehicleCommandST ) );
+		StartCommand_Script( new ExpansionHumanCommandLeavingVehicle( player, obj, m_ExpansionLeavingVehicleCommandST ) );
 	
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerImplement::StartCommand_ExpansionLeaveVehicle - End");
@@ -174,44 +168,21 @@ modded class DayZPlayerImplement
 		{
 			if ( !ctx.Read( m_ExPlayerLinkType ) )
 			{
+				m_ExPlayerLinkType == ExpansionPlayerLink.NONE;
+
 				Error( "[ERROR] PlayerBase::OnInputUserDataProcess() -> Could not read task type for EXPANSION_INPUT_UDT_PLAYER_LINK" );
 				return false;
 			}
 
-			if ( m_ExPlayerLinkType == ExpansionPlayerLink.ATTACH || m_ExPlayerLinkType == ExpansionPlayerLink.GET_OUT_VEHICLE || m_ExPlayerLinkType == ExpansionPlayerLink.CLIMB_FINISHED )
+			if ( m_ExPlayerLinkType == ExpansionPlayerLink.ATTACH )
 			{
 				if ( !ctx.Read( m_ExAttachmentObject ) )
 				{
+					m_ExPlayerLinkType == ExpansionPlayerLink.NONE;
+
 					Error( "[ERROR] PlayerBase::OnInputUserDataProcess() -> Could not read parent object for EXPANSION_INPUT_UDT_PLAYER_LINK" );
 					return false;
 				}
-
-				if ( m_ExPlayerLinkType == ExpansionPlayerLink.GET_OUT_VEHICLE )
-				{
-					if ( !ctx.Read( m_ExSeatPosition ) )
-					{
-						Error( "[ERROR] PlayerBase::OnInputUserDataProcess() -> Could not read parent object for EXPANSION_INPUT_UDT_PLAYER_LINK" );
-						return false;
-					}
-				}
-			} else if ( m_ExPlayerLinkType == ExpansionPlayerLink.CLIMB_START )
-			{
-				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
-
-				if ( !ctx.Read( m_ExClimbPosition ) )
-				{
-					Error( "[ERROR] PlayerBase::OnInputUserDataProcess() -> Could not read climb position for EXPANSION_INPUT_UDT_PLAYER_CLIMB" );
-					return false;
-				}
-
-			} else if ( m_ExPlayerLinkType == ExpansionPlayerLink.REQUEST_LINK )
-			{
-				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
-
-				m_ExCanPerformRaycast = true;
-				
-				ScriptRPC rpc = new ScriptRPC();
-				rpc.Send( this, EXPANSION_INPUT_RPC_PLAYER_LINK, true, GetIdentity() );
 			}
 
 			// AttachmentDebugPrint("PlayerBase::OnInputUserDataProcess end");
@@ -222,31 +193,14 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
-	// ------------------------------------------------------------	
-	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
-	{
-		if ( rpc_type == EXPANSION_INPUT_RPC_PLAYER_LINK )
-		{
-			if ( GetGame().IsServer() && sender != GetIdentity() )
-			{
-				return;
-			}
-
-			m_ExCanPerformRaycast = true;
-
-			return;
-		}
-
-		super.OnRPC( sender, rpc_type, ctx );
-	}
-
 	// ------------------------------------------------------------
 	private ExpansionPlayerRaycastResult AttachRaycastCheck()
 	{
 		IEntity parent = GetParent();
 		HumanCommandLadder ladderCommand = GetCommand_Ladder();
 		HumanCommandSwim swimCommand = GetCommand_Swim();
-		ExpansionHumanFallCommand fallCommand = ExpansionHumanFallCommand.Cast( GetCommand_Script() );
+		HumanCommandFall fallCommand = GetCommand_Fall();
+		ExpansionHumanCommandFall exFallCommand = ExpansionHumanCommandFall.Cast( GetCommand_Script() );
 
 		if ( swimCommand && parent )
 			return ExpansionPlayerRaycastResult.DETACH;
@@ -254,13 +208,13 @@ modded class DayZPlayerImplement
 		if ( swimCommand )
 			return ExpansionPlayerRaycastResult.FALSE;
 
-		if ( fallCommand && fallCommand.IsParachuteDeployed() )
+		if ( exFallCommand && exFallCommand.IsParachuteDeployed() )
 			return ExpansionPlayerRaycastResult.FALSE;
 
-		if ( fallCommand && parent )
+		if ( ( exFallCommand || fallCommand ) && parent )
 			return ExpansionPlayerRaycastResult.DETECT_FALL;
 
-		if ( fallCommand )
+		if ( exFallCommand || fallCommand )
 			return ExpansionPlayerRaycastResult.FALSE;
 
 		if ( ladderCommand )
@@ -276,12 +230,6 @@ modded class DayZPlayerImplement
 		{
 			if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_UNCONSCIOUS )
 			{
-				if ( m_LastCommandBeforeUnconscious == DayZPlayerConstants.COMMANDID_SWIM)
-				{
-					StartCommand_Swim();
-					return true;
-				}
-
 				if ( ( m_LastCommandBeforeUnconscious == DayZPlayerConstants.COMMANDID_VEHICLE || m_LastCommandBeforeUnconscious == DayZPlayerConstants.COMMANDID_DAMAGE ) && ( m_TransportCache != null ) )
 				{
 					int crew_index = m_TransportCache.CrewMemberIndex( this );
@@ -292,66 +240,18 @@ modded class DayZPlayerImplement
 				}
 			}
 
-			if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_CLIMB && m_IsClimbAttaching )
-			{
-				m_IsClimbAttaching = false;
-				m_ExCanPerformRaycast = false;
-
-				m_ExPlayerLinkType = ExpansionPlayerLink.CLIMB_FINISHED;
-
-				StartCommand_Move();
-
-				return true;
-			}
-
 			if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
 			{
+				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
+
 				CarScript car;
-				int seatIdx = -1;
 				HumanCommandVehicle hcv = GetCommand_Vehicle();
-				if ( hcv )
+
+				if ( hcv && Class.CastTo( car, hcv.GetTransport() ) && car.CanObjectAttach( this ) && car.LeavingSeatDoesAttachment( hcv.GetVehicleSeat() ) )
 				{
-					m_ExSeatPosition = hcv.GetVehicleSeat();
-
-					Class.CastTo( car, hcv.GetTransport() );
-					
-					if ( !car.CanObjectAttach( this ) )
-						car = NULL;
-				}
-				
-				if ( m_ExSeatPosition > -1 && car != NULL && car.LeavingSeatDoesAttachment( m_ExSeatPosition ) )
-				{
-					m_ExAttachAfterSeat = true;
-
-					m_ExCanPerformRaycast = false;
-					m_ExPlayerLinkType = ExpansionPlayerLink.REQUEST_LINK;
-
-					m_ExAttachmentObject = car;
-
 					StartCommand_Move();
-
-					vector crewTrans[4];
-					car.CrewTransform( m_ExSeatPosition, crewTrans );
-
-					vector tmPlayer[4];
-					vector tmTarget[4];
-					vector tmLocal[4];
-
-					GetTransform( tmPlayer );
-					m_ExAttachmentObject.GetTransform( tmTarget );
-					Math3D.MatrixInvMultiply4( tmTarget, tmPlayer, tmLocal );
-					// tmLocal[3] = crewTrans[3];
-
-					LinkToLocalSpaceOf( m_ExAttachmentObject, tmLocal );
-
-					m_ExAttachmentObject.Update();
-					Update();
-
+					
 					return true;
-				} else
-				{
-					// Hopeful 108 prep
-					// UnlinkFromLocalSpace();
 				}
 			}
 			
@@ -359,6 +259,13 @@ modded class DayZPlayerImplement
 			{
 				StartCommand_ExpansionFall( 0 );
 				m_FallYDiff = GetPosition()[1];
+
+				return true;
+			}
+
+			if ( m_Swimming.m_bWasSwimming )
+			{
+				StartCommand_Swim();
 
 				return true;
 			}
@@ -384,27 +291,6 @@ modded class DayZPlayerImplement
 		bool attachmentSuccess = true;
 		IEntity parent = GetParent();
 
-		if ( IsMissionClient() )
-		{
-			if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
-			{
-				m_ExCanPerformRaycast = false;
-				m_ExAttachingBlockingCommandStart = true;
-			}
-
-			if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_CLIMB )
-			{
-				m_ExCanPerformRaycast = false;
-				m_ExAttachingBlockingCommandStart = true;
-			}
-
-			if ( m_ExAttachingBlockingCommandStart && pCurrentCommandFinished )
-			{
-				m_ExAttachingBlockingCommandStart = false;
-				m_ExAttachingBlockingCommandFinished = true;
-			}
-		}
-
 		super.CommandHandler( pDt, pCurrentCommandID, pCurrentCommandFinished );
 		
 		if ( IsMissionClient() && m_ExPlayerLinkType == ExpansionPlayerLink.NONE )
@@ -429,7 +315,6 @@ modded class DayZPlayerImplement
 			// AttachmentDebugPrint( "COMMANDID_SCRIPT: " + DayZPlayerConstants.COMMANDID_SCRIPT );
 			// AttachmentDebugPrint( "pCurrentCommandID: " + pCurrentCommandID );
 			// AttachmentDebugPrint( "pCurrentCommandFinished: " + pCurrentCommandFinished );
-			// AttachmentDebugPrint( "m_ExCanPerformRaycast: " + m_ExCanPerformRaycast );
 			// AttachmentDebugPrint( "m_ExAttachingBlockingCommandStart: " + m_ExAttachingBlockingCommandStart );
 			// AttachmentDebugPrint( "m_ExAttachingBlockingCommandFinished: " + m_ExAttachingBlockingCommandFinished );
 			// AttachmentDebugPrint( "parent: " + parent );
@@ -440,25 +325,7 @@ modded class DayZPlayerImplement
 				#ifdef EXPANSIONEXLOGPRINT
 				EXLogPrint("Expansion Player attachment info can't be sent, not performing raycast!");
 				#endif
-				
-			} else if ( m_ExAttachAfterSeat && m_ExCanPerformRaycast )
-			{
-				m_ExPlayerLinkType = ExpansionPlayerLink.GET_OUT_VEHICLE;
-				m_ExAttachAfterSeat = false;
-			} else if ( !m_ExAttachAfterSeat && !m_ExCanPerformRaycast )
-			{
-				if ( m_ExAttachingBlockingCommandFinished && !parent )
-				{					
-					if ( GetGame().IsServer() )
-					{
-						m_ExCanPerformRaycast = true;
-					}
-
-					m_ExPlayerLinkType = ExpansionPlayerLink.REQUEST_LINK;
-
-					m_ExAttachingBlockingCommandFinished = false;
-				}
-			} else if ( m_ExCanPerformRaycast )
+			} else
 			{
 				ExpansionPlayerRaycastResult res = AttachRaycastCheck();
 
@@ -549,6 +416,14 @@ modded class DayZPlayerImplement
 		{
 			// AttachmentDebugPrint( "ExPlayerLinkType Changed" );
 
+			bool isClimbing = false;
+			if ( m_ExPlayerLinkType == ExpansionPlayerLink.CLIMB_START )
+			{
+				isClimbing = true;
+
+				m_ExPlayerLinkType = ExpansionPlayerLink.ATTACH;
+			}
+
 			vector tmPlayer[ 4 ];
 			vector tmTarget[ 4 ];
 			vector tmLocal[ 4 ];
@@ -583,77 +458,22 @@ modded class DayZPlayerImplement
 					// AttachmentDebugPrint( "END ATTACH" );
 					break;
 				}
-				case ExpansionPlayerLink.GET_OUT_VEHICLE:
-				{
-					// AttachmentDebugPrint( "START GET_OUT_VEHICLE" );
-
-					CarScript ex_link_to_car;
-					if ( Class.CastTo( ex_link_to_car, m_ExAttachmentObject ) )
-					{
-						HumanCommandMove hcm = GetCommand_Move();
-						if ( hcm )
-							hcm.ForceStance( DayZPlayerConstants.STANCEIDX_CROUCH );
-
-						/*
-						vector contact_pos;
-						vector contact_dir;
-						float contact_amt;
-						Object contact_obj;
-
-						GetTransform( tmPlayer );
-						m_ExAttachmentObject.GetTransform( tmTarget );
-
-						vector rayVehStart = tmPlayer[3] * (tmTarget[1] * 1.0 );
-						vector rayVehEnd = tmPlayer[3] * (tmTarget[1] * -1.0 ); 
-
-						if ( DayZPhysics.RayCastBullet( rayVehStart, rayVehEnd, PhxInteractionLayers.VEHICLE, this, contact_obj, contact_pos, contact_dir, contact_amt ) )
-						{
-							tmPlayer[3] = contact_pos;
-						}
-
-						Math3D.MatrixInvMultiply4( tmTarget, tmPlayer, tmLocal );
-
-						LinkToLocalSpaceOf( m_ExAttachmentObject, tmLocal );
-						*/
-
-						/*
-						vector crewTrans[4];
-						ex_link_to_car.CrewTransform( m_ExSeatPosition, crewTrans );
-
-						GetTransform( tmPlayer );
-						m_ExAttachmentObject.GetTransform( tmTarget );
-						Math3D.MatrixInvMultiply4( tmTarget, tmPlayer, tmLocal );
-						tmLocal[3] = crewTrans[3];
-
-						LinkToLocalSpaceOf( m_ExAttachmentObject, tmLocal );
-
-						m_ExAttachmentObject.Update();
-						*/
-					}
-
-					// AttachmentDebugPrint( "END GET_OUT_VEHICLE" );
-					break;
-				}
-				case ExpansionPlayerLink.CLIMB_FINISHED:
-				{
-					// AttachmentDebugPrint( "START CLIMB_FINISHED" );
-
-					GetTransform( tmPlayer );
-					m_ExAttachmentObject.GetTransform( tmTarget );
-					Math3D.MatrixInvMultiply4( tmTarget, tmPlayer, tmLocal );
-					tmLocal[3] = m_ExClimbPosition;
-
-					LinkToLocalSpaceOf( m_ExAttachmentObject, tmLocal );
-
-					m_ExAttachmentObject.Update();
-
-					// AttachmentDebugPrint( "END CLIMB_FINISHED" );
-					break;
-				}
 			}
 
+			if ( m_ExPlayerLinkType == ExpansionPlayerLink.CLIMB_FINISHED )
+			{
+				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
+
+				StartCommand_Climb( m_ExClimbRes, m_ExClimbType );
+
+				isClimbing = true;
+			} else if ( isClimbing )
+			{
+				m_ExPlayerLinkType = ExpansionPlayerLink.CLIMB_FINISHED;
+			}
+			
 			// Send the user input to the server
-			if ( GetGame().IsClient() && ScriptInputUserData.CanStoreInputUserData() )
+			if ( !isClimbing && GetGame().IsClient() && ScriptInputUserData.CanStoreInputUserData() )
 			{
 				// AttachmentDebugPrint( "Sending Context to Server" );
 
@@ -661,43 +481,23 @@ modded class DayZPlayerImplement
 				ctx.Write( EXPANSION_INPUT_UDT_PLAYER_LINK );
 				ctx.Write( m_ExPlayerLinkType );
 
-				if ( m_ExPlayerLinkType == ExpansionPlayerLink.ATTACH || m_ExPlayerLinkType == ExpansionPlayerLink.GET_OUT_VEHICLE || m_ExPlayerLinkType == ExpansionPlayerLink.CLIMB_FINISHED )
+				if ( m_ExPlayerLinkType == ExpansionPlayerLink.ATTACH )
 				{
 					ctx.Write( m_ExAttachmentObject );
-
-					if ( m_ExPlayerLinkType == ExpansionPlayerLink.GET_OUT_VEHICLE )
-					{
-						ctx.Write( m_ExSeatPosition );
-					}
-				} else if ( m_ExPlayerLinkType == ExpansionPlayerLink.CLIMB_START )
-				{
-					ctx.Write( m_ExClimbPosition );
 				} else if ( m_ExPlayerLinkType == ExpansionPlayerLink.REQUEST_LINK )
 				{
 				}
 
 				ctx.Send();
-
+			
 				// AttachmentDebugPrint( "Sent Context to Server" );
 			}
 
-			// Reset the data
-			// m_ExAttachmentObject = NULL;
-			m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
-
-			if ( GetGame().IsServer() )
+			if ( m_ExPlayerLinkType != ExpansionPlayerLink.CLIMB_FINISHED )
 			{
-				// AttachmentDebugPrint( "Attempting to send update" );
-
-				m_ExCanPerformRaycast = true;
-
-				ScriptRPC rpc = new ScriptRPC();
-				rpc.Send( this, EXPANSION_INPUT_RPC_PLAYER_LINK, true, GetIdentity() );
-
-				// AttachmentDebugPrint( "Hopefully sent update" );
-			} else
-			{
-				m_ExCanPerformRaycast = false;
+				// Reset the data
+				// m_ExAttachmentObject = NULL;
+				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 			}
 
 			// AttachmentDebugPrint( "ExPlayerLinkType Processed" );

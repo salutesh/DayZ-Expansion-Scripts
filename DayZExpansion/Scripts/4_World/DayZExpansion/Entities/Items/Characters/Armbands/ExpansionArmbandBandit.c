@@ -12,5 +12,5 @@
 
 class ExpansionArmbandBandit extends Armband_ColorBase
 {
-    
+	
 }

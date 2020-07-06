@@ -97,7 +97,7 @@ class ExpansionBicycle extends ExpansionBikeScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
-        return false;
-    }
+	{
+		return false;
+	}
 }

@@ -153,7 +153,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 			selectWidget.SetColor( ARGB( 255, 0, 0, 0 ) );
 			settingLable.SetColor( ARGB( 255, 255, 0, 0 ) );
 			
-			if ( m_Selector.GetOptionTextWidget() ) m_Selector.GetOptionTextWidget().SetColor( ARGB( 255, 255, 0, 0 ) );
+			if ( m_Selector && m_Selector.GetOptionTextWidget() ) m_Selector.GetOptionTextWidget().SetColor( ARGB( 255, 255, 0, 0 ) );
 			
 			return true;
 		}
@@ -180,7 +180,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 			selectWidget.SetColor( ARGB( 0, 0, 0, 0 ) );
 			settingLable.SetColor( ARGB( 255, 255, 255, 255 ) );
 			
-			if ( m_Selector.GetOptionTextWidget() ) m_Selector.GetOptionTextWidget().SetColor( ARGB( 255, 255, 255, 255 ) );
+			if ( m_Selector && m_Selector.GetOptionTextWidget() ) m_Selector.GetOptionTextWidget().SetColor( ARGB( 255, 255, 255, 255 ) );
 			
 			return true;
 		}

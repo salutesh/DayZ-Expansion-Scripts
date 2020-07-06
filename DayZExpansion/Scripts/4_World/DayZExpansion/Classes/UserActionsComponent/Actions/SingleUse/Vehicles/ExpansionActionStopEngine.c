@@ -1,12 +1,12 @@
 class ExpansionActionStopEngine: ActionSingleUseBase
 {
-    ExpansionVehicleScript m_Vehicle;
+	ExpansionVehicleScript m_Vehicle;
 
 	void ExpansionActionStopEngine()
 	{
-		m_CommandUID        = DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
-		m_StanceMask        = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		//m_HUDCursorIcon     = CursorIcons.LootCorpse;
+		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
+		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		//m_HUDCursorIcon	 = CursorIcons.LootCorpse;
 	}
 
 	override void CreateConditionComponents()  
@@ -30,7 +30,7 @@ class ExpansionActionStopEngine: ActionSingleUseBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-        ExpansionHumanVehicleCommand vehCmd = player.GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle vehCmd = player.GetCommand_ExpansionVehicle();
 		
 		if ( vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 		{

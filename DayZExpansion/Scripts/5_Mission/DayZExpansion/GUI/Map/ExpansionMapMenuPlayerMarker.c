@@ -81,7 +81,7 @@ class ExpansionMapMenuPlayerMarker extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion SetPlayerArrowPosition 
+	// Expansion UpdatePlayerMarker 
 	// ------------------------------------------------------------
 	void UpdatePlayerMarker()
 	{

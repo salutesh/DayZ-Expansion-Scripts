@@ -63,7 +63,7 @@ class ExpansionMapMenuMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void Init()
 	{
-		if (!m_MarkerData)
+		if (m_MarkerData == NULL)
 			m_IsTempMarker = true;
 		else
 			m_IsTempMarker = false;

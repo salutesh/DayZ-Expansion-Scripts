@@ -14,9 +14,9 @@ class ExpansionActionStopBoat: ActionSingleUseBase
 {
 	void ExpansionActionStopBoat()
 	{
-		m_CommandUID        = DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-		m_StanceMask        = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		//m_HUDCursorIcon     = CursorIcons.LootCorpse;
+		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
+		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		//m_HUDCursorIcon	 = CursorIcons.LootCorpse;
 	}
 
 	override void CreateConditionComponents()  

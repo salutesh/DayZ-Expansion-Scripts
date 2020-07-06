@@ -226,10 +226,10 @@ class ExpansionPlaneScript extends CarScript
 			SetAnimationPhase( "rotor", m_RotorAnimationPosition );
 		}
 
-        SetAnimationPhase( "aileron", m_Aileron );
-        SetAnimationPhase( "elevator", m_Elevator );
-        SetAnimationPhase( "rudder", m_Rudder );
-        SetAnimationPhase( "flap", m_Flaps );
+		SetAnimationPhase( "aileron", m_Aileron );
+		SetAnimationPhase( "elevator", m_Elevator );
+		SetAnimationPhase( "rudder", m_Rudder );
+		SetAnimationPhase( "flap", m_Flaps );
 
 		SetAnimationPhase( "compasspointer", GetOrientation()[0] * Math.DEG2RAD );
 		SetAnimationPhase( "attitudeDiveRTD", GetDirection()[1] );
@@ -245,10 +245,7 @@ class ExpansionPlaneScript extends CarScript
 		{
 			if ( extra.Impulse > m_BodyMass * 25 )
 			{
-				if ( !m_DisablePhysics )
-				{
-					Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
-				}
+				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
 			}
 		}
 	}

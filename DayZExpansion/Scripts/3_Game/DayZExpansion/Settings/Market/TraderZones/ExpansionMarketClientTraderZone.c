@@ -9,7 +9,7 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 	{
 	}
 
-    override void RemoveStock( string className, int stock, bool inReserve = false )
+	override void RemoveStock( string className, int stock, bool inReserve = false )
 	{
 		className.ToLower();
 
@@ -50,7 +50,7 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 		}
 	}
 
-    override int GetStock( string className, bool actual = false )
+	override int GetStock( string className, bool actual = false )
 	{
 		className.ToLower();
 

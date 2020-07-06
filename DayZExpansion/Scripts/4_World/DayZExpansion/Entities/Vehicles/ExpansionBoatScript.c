@@ -228,26 +228,18 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	protected override void OnParticleUpdate( float pDt )
 	{
-		int gear = GetController().GetGear();
-
 		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine")); 
-		if ( enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 2 ) 
+		//! TODO: Make particles for reverse gear too
+		if ( enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 5 ) 
 		{
-			if (!m_ParticleFirst && MemoryPointExists("waterdecal"))
-			{
-				if ( gear != CarGear.REVERSE )
-				{
-					m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_DECAL, this, GetMemoryPointPos("waterdecal") + Vector(0, 0, 2.5), Vector(-180, 0, 0));	
-				}
-				else 
-				{
-					m_ParticleFirst.Stop();
-				}
-			}
-
 			if (!m_ParticleEngine && MemoryPointExists("engine"))
 			{
 				m_ParticleEngine = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_ENGINE, this, GetMemoryPointPos("engine"), Vector(0, 90, 0));	
+			}
+
+			if (!m_ParticleFirst && MemoryPointExists("waterdecal"))
+			{
+				m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_DECAL, this, GetMemoryPointPos("waterdecal") + Vector(0, 0, 2.5), Vector(-180, 0, 0));	
 			}
 
 			if (!m_ParticleSideFirst && MemoryPointExists("waterstream1_side"))
@@ -261,14 +253,14 @@ class ExpansionBoatScript extends OffroadHatchback
 			}
 		} else 
 		{
-			if ( m_ParticleFirst ) 
-			{
-				m_ParticleFirst.Stop();
-			}
-			
 			if ( m_ParticleEngine )
 			{
 				m_ParticleEngine.Stop();
+			}
+
+			if ( m_ParticleFirst ) 
+			{
+				m_ParticleFirst.Stop();
 			}
 				
 			if ( m_ParticleSecond ) 
@@ -297,6 +289,12 @@ class ExpansionBoatScript extends OffroadHatchback
 			m_RotorAnimationPosition -= 1;
 
 		SetAnimationPhase("rotor", m_RotorAnimationPosition );
+
+		SetAnimationPhase( "compasspointer", GetOrientation()[0] * Math.DEG2RAD );
+
+		float steering = m_BoatController.GetTurnLeft() - m_BoatController.GetTurnRight();
+
+		SetAnimationPhase( "drivingWheel", steering );
 
 		super.OnAnimationUpdate( pDt );
 	}

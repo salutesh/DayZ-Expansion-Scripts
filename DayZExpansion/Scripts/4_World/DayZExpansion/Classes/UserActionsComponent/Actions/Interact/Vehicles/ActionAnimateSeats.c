@@ -12,11 +12,11 @@
 
 modded class ActionAnimateSeats
 {
-    override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-        if ( target.GetObject().IsInherited( ExpansionHelicopterScript ) || target.GetObject().IsInherited( ExpansionPlaneScript ) ) 
-		    return false;
+		if ( target.GetObject().IsInherited( ExpansionHelicopterScript ) || target.GetObject().IsInherited( ExpansionPlaneScript ) ) 
+			return false;
 
-        return super.ActionCondition(player, target, item);
-    }
+		return super.ActionCondition(player, target, item);
+	}
 }

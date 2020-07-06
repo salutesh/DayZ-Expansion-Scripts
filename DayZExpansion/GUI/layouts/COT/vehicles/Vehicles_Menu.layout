@@ -1,0 +1,658 @@
+PanelWidgetClass ExpansionCOTVehiclesMenu {
+ visible 1
+ ignorepointer 1
+ color 0 0 0 0
+ size 800 500
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ draggable 0
+ scriptclass "ExpansionCOTVehiclesMenu"
+ style EditorPanel
+ {
+  FrameWidgetClass vehicles_markers_panel {
+   ignorepointer 0
+   keepsafezone 1
+   size 0.64 500
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+  }
+  PanelWidgetClass vehicles_window_panel {
+   ignorepointer 1
+   size 800 500
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   {
+    PanelWidgetClass vehicles_list_panel {
+     ignorepointer 1
+     position 0 0
+     size 0.35 500
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     {
+      PanelWidgetClass vehicles_list_lable_panel {
+       ignorepointer 1
+       position 0 0
+       size 1 20
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass vehicles_list_lable {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "SERVER VEHICLES"
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      ScrollWidgetClass vehicles_list_scroller {
+       ignorepointer 0
+       position 0 20
+       size 1 400
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass vehicles_list_content {
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 2
+        }
+       }
+      }
+      GridSpacerWidgetClass vehicles_list_buttons {
+       ignorepointer 1
+       position 0 5
+       size 1 75
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Empty
+       Padding 0
+       Margin 0
+       Columns 1
+       Rows 4
+       {
+        ButtonWidgetClass vehicles_refresh_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass vehicles_refresh_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "REFRESH LIST"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass delete_all_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_all_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "DELETE ALL"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass delete_destroyed_vehicle_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_destroyed_vehicle_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "DELETE DESTROYED"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass delete_unclaimed_vehicle_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_unclaimed_vehicle_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "DELETE UNCLAIMED"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass vehicles_map_panel {
+     visible 1
+     clipchildren 1
+     keepsafezone 1
+     size 0.64 500
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     style Outline
+     {
+      MapWidgetClass vehicles_map {
+       visible 1
+       clipchildren 1
+       keepsafezone 1
+       position 0 0
+       size 1 500
+       halign right_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       scriptclass ""
+      }
+     }
+    }
+    PanelWidgetClass vehicle_info_panel {
+     visible 0
+     ignorepointer 1
+     position 290 0
+     size 0.43 250
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style blank
+     {
+      TextWidgetClass vehicle_info_lable {
+       ignorepointer 1
+       position 0 0
+       size 1 20
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Bold
+       text "VEHICLE INFORMATION"
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass vehicle_info_spacer {
+       ignorepointer 1
+       position 0 27
+       size 1 0.7
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       Columns 1
+       Rows 10
+       {
+        PanelWidgetClass vehicle_info_id {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.176
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_id_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicles ID:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_id_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_name {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_name_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Name:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_name_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_classname {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_classname_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Class Name:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_classname_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_pos {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_pos_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Position:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_pos_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_ori {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_ori_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Orientation:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_ori_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_type {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_type_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Type:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_type_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_exploded {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_exploded_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Exploded:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_exploded_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_destroyed {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_destroyed_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Destroyed:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_destroyed_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_keys {
+         ignorepointer 1
+         position 8 5
+         size 0.13 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_keys_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Vehicle Keys:"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_keys_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass vehicle_info_buttons_panel {
+     visible 1
+     ignorepointer 1
+     size 150 150
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      TextWidgetClass vehicle_info_buttons_lable {
+       ignorepointer 1
+       position 0 0
+       size 1 20
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       style Bold
+       text "VEHICLE OPTIONS"
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass vehicle_info_buttons_spacer {
+       ignorepointer 1
+       size 1 0.85
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       Columns 1
+       Rows 6
+       {
+        ButtonWidgetClass delete_vehicle_button {
+         color 0 0 0 1
+         position 6 5
+         size 0.196 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_vehicle_button_label {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Delete Vehicle"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass cancel_edit_button {
+         visible 1
+         color 0 0 0 1
+         position 6 5
+         size 0.196 0.173
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass cancel_edit_button_label {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "Cancel Edit"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

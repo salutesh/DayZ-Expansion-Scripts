@@ -184,7 +184,7 @@ class ExpansionChatHandler extends ScriptedWidgetEventHandler
 			}
 		}
 		
-		UpdateScroller();
+		//UpdateScroller();
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionChatHandler::UpdateDragScroll End");
@@ -247,7 +247,7 @@ class ExpansionChatHandler extends ScriptedWidgetEventHandler
 		if ( m_IsMouseScrolling )
 		{
 			UpdateMouseScroll();
-			UpdateScroller();
+			//UpdateScroller();
 		}
 
 		#ifdef EXPANSIONEXLOGPRINT
@@ -303,7 +303,7 @@ class ExpansionChatHandler extends ScriptedWidgetEventHandler
 		float step = ( 1.0 / ( m_ContentHeight - m_RootHeight ) ) * WHEEL_STEP;
 		m_Position += wheel * step;
 
-		UpdateScroller();
+		//UpdateScroller();
 
 		return true;
 	}
@@ -350,8 +350,8 @@ class ExpansionChatHandler extends ScriptedWidgetEventHandler
 		m_FadeInTimerScroller	= new WidgetFadeTimer;
 		m_FadeInTimerScroller.FadeIn(m_Scroller, FADE_IN_DURATION);
 		
-		m_FadeInTimerBorder	= new WidgetFadeTimer;
-		m_FadeInTimerBorder.FadeIn(m_ContentBorder, FADE_IN_DURATION);
+		//m_FadeInTimerBorder	= new WidgetFadeTimer;
+		//m_FadeInTimerBorder.FadeIn(m_ContentBorder, FADE_IN_DURATION);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatHandler::ShowChat End");
@@ -373,8 +373,8 @@ class ExpansionChatHandler extends ScriptedWidgetEventHandler
 		m_TimeOutTimerScroller = new Timer(CALL_CATEGORY_GUI);
 		m_TimeOutTimerScroller.Run(CHAT_FADEOUT_TIME, m_FadeInTimerScroller, "FadeOut", new Param2<Widget, float>(m_Scroller, FADE_OUT_DURATION));
 		
-		m_TimeOutTimerBorder = new Timer(CALL_CATEGORY_GUI);
-		m_TimeOutTimerBorder.Run(CHAT_FADEOUT_TIME, m_FadeInTimerBorder, "FadeOut", new Param2<Widget, float>(m_ContentBorder, FADE_OUT_DURATION));
+		//m_TimeOutTimerBorder = new Timer(CALL_CATEGORY_GUI);
+		//m_TimeOutTimerBorder.Run(CHAT_FADEOUT_TIME, m_FadeInTimerBorder, "FadeOut", new Param2<Widget, float>(m_ContentBorder, FADE_OUT_DURATION));
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatHandler::HideChat End");

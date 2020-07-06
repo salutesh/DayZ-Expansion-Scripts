@@ -512,13 +512,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		{
 			if ( extra.Impulse > m_BodyMass * 11 * 2 )
 			{
-				if ( !m_DisablePhysics )
-				{
-					if ( GetVelocity(this).Length() > 2.5 )
-					{
-						Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
-					}
-				}
+				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
 			}
 		}
 	}
@@ -530,32 +524,8 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - Start");
 		#endif
 
-		ref array<Object> objects = new array<Object>;
-		ref array<CargoBase> proxy = new array<CargoBase>;
-
-		EntityAI item = null;
-		item = FindAttachmentBySlotName( "GlowPlug" );
-		if ( item )
-			item.SetHealth( "", "", 0 );
-					
-		item = FindAttachmentBySlotName( "ExpansionHelicopterBattery" );
-		if ( item )
-			item.SetHealth( "", "", 0 );
-			
-		item = FindAttachmentBySlotName( "Reflector_1_1" );
-		if ( item )
-			item.SetHealth( "", "", 0 );
-		
-		item = FindAttachmentBySlotName( "Reflector_2_1" );
-		if ( item )
-			item.SetHealth( "", "", 0 );
-
-		m_Exploded = true;
-		m_ExplodedSynchRemote = true;
-
 		vector position = GetPosition();
 		vector orientation = GetOrientation();
-		vector velocity = GetVelocity( this );
 
 		SetInvisible( true );
 
@@ -567,98 +537,41 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, attachment );
 		}
 
-		GetGame().GetObjectsAtPosition( GetPosition(), 10, objects, proxy );
-
-		for ( int n = 0; n < objects.Count(); n++ ) 
-		{
-			Object tree = objects.Get(n);
-			if ( tree.IsTree() || tree.IsBush() )
-			{
-				EntityAI cutting_tool = EntityAI.Cast( GetGame().CreateObject("WoodAxe", vector.Zero, false, true) );
-
-				if ( IsMissionClient() )
-				{
-					SoundHardTreeFallingPlay();
-				}
-				if ( tree.GetType().Contains("TreeHard") )
-				{
-					TreeHard treeHard = TreeHard.Cast( tree );
-					if ( treeHard )
-					{
-						treeHard.DecreaseHealth("", "", 100, true);		
-						treeHard.OnTreeCutDown( cutting_tool );
-					}
-				}
-
-				if ( tree.GetType().Contains("TreeSoft") )
-				{
-					TreeSoft treeSoft= TreeSoft.Cast( tree );
-					if ( treeSoft )
-					{
-						treeSoft.DecreaseHealth("", "", 100, true);		
-						treeSoft.OnTreeCutDown( cutting_tool );
-					}
-				}
-
-				dBodyDestroy(tree);
-
-				GetGame().ObjectDelete(cutting_tool);
-			}
-		}
-
-		PlayerBase playerForTransfer;
+		PlayerBase player;
 		for ( int i = 0; i < CrewSize(); i++ )
 		{
 			Human crew = CrewMember( i );
-			if ( !crew )
-				continue;
-
-			PlayerBase player = PlayerBase.Cast( crew );
-			if ( !player )
-				continue;
-
-			if ( GetGame().IsMultiplayer() )
+			if ( Class.CastTo( player, crew ) )
 			{
-				player.SetAllowDamage( true );
-				player.SetHealth( 0.0 );
-			}
-
-			if ( !playerForTransfer )
-			{
-				playerForTransfer = player;
-			}
-
-			if ( player.GetInventory() ) 
-			{
-				player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
-			}	
-
-			if ( GetGame().IsClient() )
-			{
-				EjectPlayerFromVehicleClient( player );
-			}
-
-			if ( GetGame().IsServer() )
-			{
-				EjectPlayerFromVehicleServer( player );
+				if ( GetGame().IsMultiplayer() )
+				{
+					player.SetAllowDamage( true );
+					player.SetHealth( 0.0 );
+				}
+				
+				player.UnlinkFromLocalSpace();
 			}
 		}
 
 		IEntity child = GetChildren();
 		while ( child )
 		{
-			PlayerBase attachedPlayer;
-			if ( Class.CastTo( attachedPlayer, child ) )
-			{	
-				attachedPlayer.SetAllowDamage( true );
-				attachedPlayer.SetHealth( 0.0 );
+			if ( Class.CastTo( player, child ) )
+			{
+				if ( GetGame().IsMultiplayer() )
+				{
+					player.SetAllowDamage( true );
+					player.SetHealth( 0.0 );
+				}
+
+				player.UnlinkFromLocalSpace();
 			}
 			
 			child = child.GetSibling();
 		}
 
-		ExpansionWreck wreck = ExpansionWreck.Cast( GetGame().CreateObject( GetWreck(), position + "0 2.5 0" ) );
-		if ( wreck )
+		ExpansionWreck wreck;
+		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_OBJECT_SWAP ) ) )
 		{
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
@@ -670,10 +583,61 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			wreck.SetAltitude( GetWreckAltitude() );
 
 			wreck.SetHealth( 0.0 );
+			dBodySetMass( wreck, dBodyGetMass( this ) );
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 100, false, this );
+			vector inertiaM[3];
+			dBodyGetInvInertiaTensorWorld( this, inertiaM );
+			dBodySetInertiaTensorM( wreck, inertiaM );
+			dBodySetInertiaTensorV( wreck, dBodyGetLocalInertia( this ) );
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
+			SetVelocity( wreck, m_LinearVelocity );
+			dBodySetAngularVelocity( wreck, m_AngularVelocity );
+
+			dBodyApplyForce( wreck, m_LinearVelocity * m_BodyMass );
+
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
+
+			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
+		
+			array<Object> objects = new array<Object>;
+			array<CargoBase> proxy = new array<CargoBase>;
+			GetGame().GetObjectsAtPosition( GetPosition(), 10, objects, proxy );
+
+			for ( int n = 0; n < objects.Count(); ++n ) 
+			{
+				Object obj = objects[n];
+
+				TreeHard treeHard;
+				TreeSoft treeSoft;
+				BushHard bushHard;
+				BushSoft bushSoft;
+				if ( Class.CastTo( treeHard, obj ) )
+				{
+					GetGame().RPCSingleParam( wreck, PlantType.TREE_HARD, new Param1< vector >( obj.GetPosition() ), true );
+				} else if ( Class.CastTo( treeSoft, obj ) )
+				{
+					GetGame().RPCSingleParam( wreck, PlantType.TREE_SOFT, new Param1< vector >( obj.GetPosition() ), true );
+				} else if ( Class.CastTo( bushHard, obj ) )
+				{
+					GetGame().RPCSingleParam( wreck, PlantType.BUSH_HARD, new Param1< vector >( obj.GetPosition() ), true );
+				} else if ( Class.CastTo( bushSoft, obj ) )
+				{
+					GetGame().RPCSingleParam( wreck, PlantType.BUSH_SOFT, new Param1< vector >( obj.GetPosition() ), true );
+				} else 
+				{
+					continue;
+				}
+
+				if ( obj.GetHealth( "", "" ) > 0 )
+				{
+					obj.SetHealth( "", "", 0 );
+
+					if ( dBodyIsSet( obj ) )
+						dBodyDestroy( obj );
+						
+					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, obj );
+				}
+			}
 		}
 
 		super.ExpansionOnExplodeServer( damageType, ammoType );
@@ -691,6 +655,11 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		#endif
 
 		super.ExpansionOnExplodeClient( damageType, ammoType );
+
+		if ( !IsMissionOffline() && GetGame().GetPlayer().GetParent() == this )
+		{
+			GetGame().GetPlayer().UnlinkFromLocalSpace();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeClient - End");
@@ -758,14 +727,6 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
-		float yPosHitDiffWaitingFor108 = GetPosition()[1] - m_HitPosition[1];
-		if ( m_RotorSpeed < 1 && yPosHitDiffWaitingFor108 < 5.0 )
-		{
-			dBodySetAngularVelocity( this, vector.Zero );
-
-			SetVelocity( this, vector.Zero );
-		}
-
 		if ( !dBodyIsActive( this ) )
 			return;
 
@@ -797,7 +758,12 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		}
 
 		if ( EngineIsOn() )
-		{
+		{				
+			if ( IsMissionHost() && m_NoiseParams )
+			{
+				GetGame().GetNoiseSystem().AddNoise( this, m_NoiseParams );
+			}
+
 			if ( !m_Hit && !m_HasDriver && !m_HeliController.IsAutoHover() )
 			{
 				m_MainRotorSpeedTarget = Math.RandomFloatInclusive( -1, 1 );
@@ -969,6 +935,8 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			// tail
 			{
 				float tailRotorMalfunction = GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
+				if (GetExpansionSettings().GetGeneral().DisableDamagedHeliSpin) 
+					tailRotorMalfunction = 0;
 				float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;
 				float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * ( m_RotorSpeed + 0.1 );
 
@@ -1042,11 +1010,6 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Applying Torque: " + torque );
 
 		dBodySetDamping( this, 0.0, 0.5 );
-		
-		if ( IsMissionHost() && m_NoiseParams )
-		{
-			GetGame().GetNoiseSystem().AddNoise( this, m_NoiseParams );
-		}
 	}
 
 	// ------------------------------------------------------------
@@ -1205,10 +1168,12 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
+		#ifdef EXPANSION_HELI_TEMP
 		if ( m_CarBatteryVanillaState )
 		{
 			return IsVitalHelicopterBattery() || IsVitalAircraftBattery();
 		}
+		#endif
 
 		return false;
 	}

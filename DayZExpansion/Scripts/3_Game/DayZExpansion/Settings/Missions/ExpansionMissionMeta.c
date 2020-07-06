@@ -15,9 +15,9 @@
  **/
 class ExpansionMissionMeta
 {
-    string MissionType;
-    string MissionPath;
+	string MissionType;
+	string MissionPath;
 
 	[NonSerialized()]
-    ExpansionMissionEventBase MissionEvent;
+	ExpansionMissionEventBase MissionEvent;
 }

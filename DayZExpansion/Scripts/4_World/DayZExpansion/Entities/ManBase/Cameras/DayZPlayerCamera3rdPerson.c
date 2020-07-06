@@ -13,7 +13,7 @@ modded class DayZPlayerCamera3rdPerson
 		#endif
 	}
 
-    override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
+	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
 		super.OnUpdate( pDt, pOutResult );
 		
@@ -26,5 +26,5 @@ modded class DayZPlayerCamera3rdPerson
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate End");
 		#endif
-    }
+	}
 }

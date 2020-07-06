@@ -10,6 +10,18 @@
  *
 */
 
+class ExpansionOldTerritory
+{
+	int TerritoryID;
+	string TerritoryName;
+	vector TerritoryPosition;
+	int TerritoryLevel;
+	string TerritoryOwnerID;
+	int TerritoryFlagTextureID;
+	autoptr array< ref ExpansionTerritoryMember > TerritoryMembers;
+	autoptr array< ref ExpansionTerritoryInvite > Invites;
+}
+
 class ExpansionTerritory
 {
 	private int TerritoryID;
@@ -61,6 +73,14 @@ class ExpansionTerritory
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion SetMembers
+	// ------------------------------------------------------------
+	void SetMembers(ref array<ref ExpansionTerritoryMember> members)
+	{
+		TerritoryMembers = members;
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion AddMember
 	// ------------------------------------------------------------
 	void AddMember(string id, string name, bool owner = false)
@@ -87,7 +107,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool IsMember(string uid)
 	{
-		for(int i = 0; i < TerritoryMembers.Count(); ++i)
+		for (int i = 0; i < TerritoryMembers.Count(); ++i)
 		{
 			if (TerritoryMembers[i] && TerritoryMembers[i].GetID() == uid)
 			{
@@ -130,6 +150,14 @@ class ExpansionTerritory
 		}
 		
 		return null;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetInvites
+	// ------------------------------------------------------------
+	void SetInvites(ref array<ref ExpansionTerritoryInvite> invites)
+	{
+		Invites = invites;
 	}
 	
 	void AddTerritoryInvite(ExpansionTerritoryInvite invite)
@@ -253,5 +281,45 @@ class ExpansionTerritory
 	int GetTerritoryLevel()
 	{
 		return TerritoryLevel;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnStoreSave
+	// ------------------------------------------------------------
+	void OnStoreSave( ParamsWriteContext ctx )
+	{
+		ctx.Write( TerritoryID );
+		ctx.Write( TerritoryName );
+		ctx.Write( TerritoryPosition );
+		ctx.Write( TerritoryLevel );
+		ctx.Write( TerritoryOwnerID );
+		ctx.Write( TerritoryFlagTexturePath );
+		ctx.Write( TerritoryMembers );
+		ctx.Write( Invites );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnStoreLoad
+	// ------------------------------------------------------------
+	bool OnStoreLoad( ParamsReadContext ctx, int expansionVersion )
+	{
+		if ( !ctx.Read( TerritoryID ) )
+			return false;
+		if ( !ctx.Read( TerritoryName ) )
+			return false;
+		if ( !ctx.Read( TerritoryPosition ) )
+			return false;
+		if ( !ctx.Read( TerritoryLevel ) )
+			return false;
+		if ( !ctx.Read( TerritoryOwnerID ) )
+			return false;
+		if ( !ctx.Read( TerritoryFlagTexturePath ) )
+			return false;
+		if ( !ctx.Read( TerritoryMembers ) )
+			return false;
+		if ( !ctx.Read( Invites ) )
+			return false;
+		
+		return true;
 	}
 }

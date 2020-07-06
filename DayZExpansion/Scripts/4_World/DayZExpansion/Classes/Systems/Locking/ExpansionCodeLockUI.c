@@ -1,10 +1,23 @@
-/**@class		ExpansionCodeLockUI
- * @brief		
+/**
+ * ExpansionActionLockVehicle.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
+/** @class		ExpansionCodeLockUI
+ * @brief Handles the UI for the CodeKicj		
  */
 
 class ExpansionCodeLockUI extends ExpansionLockUIBase
 {
-	const static string m_SoundsShock[4] = {"Expansion_Shock1_SoundSet", "Expansion_Shock2_SoundSet", "Expansion_Shock3_SoundSet", "Expansion_Shock4_SoundSet"};
+	ref protected EffectSound m_Sound;
+	PlayerBase m_Player;
 
 	protected ItemBase m_Target;
 	protected string m_Selection;
@@ -56,6 +69,13 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 
 		m_Target = NULL;
 		m_Selection = "";
+
+		m_Sound = new EffectSound;
+		
+		if (GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer())) 
+		{
+			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
+		}
 	}
 	
 	override void RefreshCode()
@@ -102,7 +122,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 		m_Target = target;
 		m_Selection = selection;
 
-        super.SetTarget( m_Target, m_Selection );
+		super.SetTarget( m_Target, m_Selection );
 	}
 	
 	override void ShowLockState()
@@ -122,13 +142,13 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 	protected override void SendRPC()
 	{
 		if ( m_Code.Length() != m_CodeLength )
-            return;
+			return;
 		
 		ScriptRPC rpc = new ScriptRPC;
 
-        int rpcType = ExpansionLockRPC.UNLOCK;
+		int rpcType = ExpansionLockRPC.UNLOCK;
 		if ( !m_HasPin )
-            rpcType = ExpansionLockRPC.SET;
+			rpcType = ExpansionLockRPC.SET;
 		if ( m_RpcChange )
 			rpcType = ExpansionLockRPC.CHANGE;
 
@@ -198,7 +218,52 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 		
 		return layoutRoot;
 	}
-	
+
+	protected void SoundOnclick()
+	{
+		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		{
+			if ( m_Player )
+			{
+				m_Sound = SEffectManager.PlaySound("Expansion_Click_SoundSet", m_Player.GetPosition());
+				m_Sound.SetSoundAutodestroy( true );
+			}
+		}
+	}
+	protected void SoundOnReset()
+	{
+		if ( GetGame().IsMultiplayer() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		{
+			if ( m_Player )
+			{
+				m_Sound = SEffectManager.PlaySound( "Expansion_ClickBeeps_SoundSet", m_Player.GetPosition() );
+				m_Sound.SetSoundAutodestroy( true );
+			}
+		}
+	}
+	protected void SoundOnSuccess()
+	{
+		if ( GetGame().IsMultiplayer() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		{
+			if ( m_Player )
+			{
+				m_Sound = SEffectManager.PlaySound( "Expansion_Succes_SoundSet", m_Player.GetPosition() );
+				m_Sound.SetSoundAutodestroy( true );
+			}
+		}
+	}
+	protected void SoundOnFail()
+	{
+		if ( GetGame().IsMultiplayer() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		{
+			if ( m_Player )
+			{
+				m_Sound = SEffectManager.PlaySound( "Expansion_Denied_SoundSet", m_Player.GetPosition() );
+				m_Sound.SetSoundAutodestroy( true );
+			}
+		}
+	}
+    
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		super.OnMouseEnter(w, x, y);
@@ -383,60 +448,70 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 				{
 					m_Code += "0";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button1:
 				{
 					m_Code += "1";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button2:
 				{
 					m_Code += "2";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button3:
 				{
 					m_Code += "3";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button4:
 				{
 					m_Code += "4";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button5:
 				{
 					m_Code += "5";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button6:
 				{
 					m_Code += "6";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button7:
 				{
 					m_Code += "7";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button8:
 				{
 					m_Code += "8";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 				case m_Button9:
 				{
 					m_Code += "9";
 					RefreshCode();
+					SoundOnclick();
 					break;
 				}
 			}
@@ -450,6 +525,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 			{
 				SendRPC();
 			}
+			SoundOnclick();
 
 			return true;
 		}
@@ -459,6 +535,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 			m_Code = "";
 			
 			RefreshCode();
+			SoundOnReset();
 
 			return true;
 		}
@@ -477,42 +554,52 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 				case KeyCode.KC_0:
 				case KeyCode.KC_NUMPAD0:
 					m_Code += "0";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_1:
 				case KeyCode.KC_NUMPAD1:
 					m_Code += "1";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_2:
 				case KeyCode.KC_NUMPAD2:
 					m_Code += "2";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_3:
 				case KeyCode.KC_NUMPAD3:
 					m_Code += "3";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_4:
 				case KeyCode.KC_NUMPAD4:
 					m_Code += "4";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_5:
 				case KeyCode.KC_NUMPAD5:
 					m_Code += "5";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_6:
 				case KeyCode.KC_NUMPAD6:
 					m_Code += "6";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_7:
 				case KeyCode.KC_NUMPAD7:
 					m_Code += "7";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_8:
 				case KeyCode.KC_NUMPAD8:
 					m_Code += "8";
+					SoundOnclick();
 					break;
 				case KeyCode.KC_9:
 				case KeyCode.KC_NUMPAD9:
 					m_Code += "9";
+					SoundOnclick();
 					break;
 			}
 			
@@ -525,6 +612,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 			{
 				SendRPC();
 			}
+			SoundOnclick();
 		}
 		
 		if ( key == KeyCode.KC_BACK )
@@ -533,6 +621,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 			{
 				m_Code = ExpansionRemoveLastChar( m_Code );
 				RefreshCode();
+				SoundOnReset();
 			}
 		}
 	}

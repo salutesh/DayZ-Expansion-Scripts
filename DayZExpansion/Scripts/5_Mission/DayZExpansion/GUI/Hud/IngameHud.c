@@ -250,7 +250,7 @@ modded class IngameHud
 
 		if ( m_ExpansionVehicle == NULL )
 		{
-			ExpansionHumanVehicleCommand exHcv = player.GetCommand_ExpansionVehicle();
+			ExpansionHumanCommandVehicle exHcv = player.GetCommand_ExpansionVehicle();
 			if ( exHcv && exHcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
 				m_ExpansionVehicle = exHcv.GetTransport();
@@ -724,7 +724,6 @@ modded class IngameHud
 		#endif
 	}
 	
-	ImageWidget	m_PlayerTagIcon;
 	//============================================
 	// Override ShowPlayerTag
 	//============================================
@@ -739,8 +738,6 @@ modded class IngameHud
 			{
 				m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/hud/expansion_hud_player_tag.layout");
 				m_PlayerTagText = TextWidget.Cast( m_PlayerTag.FindAnyWidget( "TagText" ) );
-				m_PlayerTagIcon = ImageWidget.Cast( m_PlayerTag.FindAnyWidget( "TagIcon" ) );
-				m_PlayerTagIcon.Show(false);
 			}
 
 			m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex( "Spine2" );
@@ -756,13 +753,6 @@ modded class IngameHud
 						m_PlayerTagText.SetAlpha( Math.Clamp( m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1 ) );
 						m_PlayerTag.SetPos( 0.55, 0.55 );
 						m_PlayerTagText.SetText( m_CurrentTaggedPlayer.GetIdentityName() );
-						/*
-						if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHumanity && GetExpansionSettings().GetGeneral().EnableHumanityOnPlayerTags )
-						{
-							m_PlayerTagIcon.LoadImageFile(0, GetKarmaIcon());
-							m_PlayerTagIcon.Show(true);
-						}
-						*/
 						//! m_PlayerTagText.SetSize( 1, 1 - screen_pos[2] / 25  );
 						return;
 					}
@@ -778,83 +768,10 @@ modded class IngameHud
 			{
 				m_PlayerTagText.SetText( "" );
 				m_CurrentTaggedPlayer = null;
-				m_PlayerTagIcon.Show(false);
 			}
 		}
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::ShowPlayerTag - End");
 		#endif
 	}
-	
-	//============================================
-	// Expansion GetKarmaIcon
-	//============================================
-	/*
-	string GetKarmaIcon()
-	{
-		PlayerBase player;
-		if ( Class.CastTo(player, GetGame().GetPlayer()) )
-		{	
-			int humanity = player.GetKarma();
-			string iconpath;
-			
-			if (humanity > 1 || humanity < -1)
-			{
-				iconpath = "set:expansion_iconset image:icon_profile";
-			}
-			
-			if (humanity > 2000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_1";
-			}
-			
-			if (humanity > 3000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_2";
-			}
-			
-			if (humanity > 4000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_3";
-			}
-			
-			if (humanity > 5000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_4";
-			}
-			
-			if (humanity > 6000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_5";
-			}
-			
-			if (humanity < -1000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_1";
-			}
-			
-			if (humanity < -2000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_2";
-			}
-			
-			if (humanity < -3000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_3";
-			}
-			
-			if (humanity < -4000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_4";
-			}
-			
-			if (humanity < -5000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_5";
-			}			
-		}
-		
-		return iconpath;
-	}
-	*/
 }

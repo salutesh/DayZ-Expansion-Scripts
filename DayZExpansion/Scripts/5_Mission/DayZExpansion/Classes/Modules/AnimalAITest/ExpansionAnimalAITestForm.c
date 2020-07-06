@@ -15,7 +15,7 @@ class ExpansionAnimalAITestForm extends JMFormBase
 
 	void ExpansionAnimalAITestForm()
 	{
-    }
+	}
 
 	void ~ExpansionAnimalAITestForm()
 	{
@@ -25,19 +25,19 @@ class ExpansionAnimalAITestForm extends JMFormBase
 	{
 		m_ActionsFilterWrapper = layoutRoot.FindAnyWidget( "actions_filter_wrapper" );
 
-        UIActionManager.CreateButton( m_ActionsFilterWrapper, "Spawn", this, "Spawn" );
+		UIActionManager.CreateButton( m_ActionsFilterWrapper, "Spawn", this, "Spawn" );
 
 		m_MissionsList = TextListboxWidget.Cast( layoutRoot.FindAnyWidget("game_missions_list") );
 
 		m_ActionsWrapper = layoutRoot.FindAnyWidget( "actions_wrapper" );
 
-        UIActionManager.CreateButton( m_ActionsWrapper, "Run", this, "Run" );
-        m_Int = UIActionManager.CreateEditableText( m_ActionsWrapper, "Int: " );
+		UIActionManager.CreateButton( m_ActionsWrapper, "Run", this, "Run" );
+		m_Int = UIActionManager.CreateEditableText( m_ActionsWrapper, "Int: " );
 		m_Int.SetOnlyNumbers( true, true );
-        m_Float = UIActionManager.CreateEditableText( m_ActionsWrapper, "Float: " );
+		m_Float = UIActionManager.CreateEditableText( m_ActionsWrapper, "Float: " );
 		m_Float.SetOnlyNumbers( true, false );
 
-        UpdateList();
+		UpdateList();
 	}
 
 	void UpdateList()

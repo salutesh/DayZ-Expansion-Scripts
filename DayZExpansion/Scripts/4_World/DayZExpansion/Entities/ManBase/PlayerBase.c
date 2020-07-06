@@ -13,12 +13,6 @@
 /**@class		Modified Expansion PlayerBase
  * @brief		
  **/
-enum ExpansionPlayerBaseRPC
-{
-	INVALID = 20500,
-	SyncQuests,
-	COUNT
-}
 
 modded class PlayerBase
 {
@@ -27,37 +21,23 @@ modded class PlayerBase
 	Object m_PlayerHeadingDir;
 
 	protected ref Timer m_SafezoneUpdateTimer;
-	protected ref Timer m_RadiationZoneUpdateTimer;
-	protected ref Timer m_HumanityUpdateTimer;
-	protected ref Timer m_HumanityTimer;
 
 	protected bool m_SafeZone;
 	protected bool m_SafeZoneSynchRemote;
 
-	protected bool m_IsHumanityHero;
-	protected bool m_IsHumanityBandit;
-	protected bool m_PlayerHasHeroSet;
-	protected bool m_PlayerHasBanditSet;
-
 	protected bool m_WasInVehicle;
 
-	protected int m_CurrentHumanity;
 	protected int m_TerritoryIdInside;
 
 	protected ExpansionTerritoryModule m_TerritoryModule;
-	protected ExpansionKillFeedModule m_KillfeedModule;
-	protected ExpansionHumanityModule m_HumanityModule;
 
 	protected autoptr array< ExpansionMoneyBase > m_Money;
 
 	protected ref ExpansionMarketReserve m_MarketReserve;
 	protected ref ExpansionMarketSell m_MarketSell;
 
-	protected ref ExpansionHumanVehicleCommand_ST m_ExpansionVehicleCommandST;
-	protected ref ExpansionHumanFallCommand_ST m_ExpansionFallCommandST;
-
-	protected ref ExpansionKillFeedData m_KillFeedData;
-	//! protected ref array<ref ExpansionQuest> m_Quests;
+	protected ref ExpansionHumanCommandVehicle_ST m_ExpansionVehicleCommandST;
+	protected ref ExpansionHumanCommandFall_ST m_ExpansionFallCommandST;
 	
 	protected string m_PlayerUID;
 	protected string m_PlayerSteam;
@@ -91,16 +71,11 @@ modded class PlayerBase
 		m_TerritoryIdInside = -1;
 
 		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
-		Class.CastTo( m_KillfeedModule, GetModuleManager().GetModule( ExpansionHumanityModule ) );
-		Class.CastTo( m_HumanityModule, GetModuleManager().GetModule( ExpansionKillFeedModule ) );
-
-		//! m_KillFeedData = null;
 
 		m_MarketReserve = new ExpansionMarketReserve; 
 		m_MarketSell = new ExpansionMarketSell;
 		
 		m_Money = new array< ExpansionMoneyBase >;
-		//! m_Quests = new array<ref ExpansionQuest >;
 
 		m_HasMap = false;
 		m_HasGPS = false;
@@ -110,10 +85,43 @@ modded class PlayerBase
 		
 		m_AllPlayers.Insert( this );
 		
+		// SetEventMask( EntityEvent.POSTFRAME );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
 		#endif
 	}
+	
+/*
+	void ScaleObject( Object obj, float scale )
+	{
+		vector currTrans[4];
+		vector newTrans[4];
+
+		obj.GetTransform( currTrans );
+
+		vector scaleMatrix[4] = { 
+			Vector( scale, 0, 0 ), 
+			Vector( 0, scale, 0 ), 
+			Vector( 0, 0, scale ), 
+			"0 0 0 1" };
+
+		Math3D.MatrixMultiply4( scaleMatrix, currTrans, newTrans );
+
+		newTrans[3] = currTrans[3];
+
+		obj.SetTransform( newTrans );
+	}
+
+	override void EOnPostFrame( IEntity other, int extra )
+	{
+		Print( "PlayerBase::EOnPostFrame" );
+
+		super.EOnPostFrame( other, extra );
+
+		ScaleObject( this, 3.0 );
+	}
+*/
 
 	// ------------------------------------------------------------
 	// PlayerBase Destructor
@@ -148,34 +156,6 @@ modded class PlayerBase
 				m_AllPlayers.Remove( remove_index );
 			}
 		}
-
-		
-		if ( m_HumanityTimer )
-		{
-			m_HumanityTimer.Stop();
-			delete m_HumanityTimer;
-		}
-
-		if ( m_SafezoneUpdateTimer )
-		{
-			m_SafezoneUpdateTimer.Stop();
-			delete m_SafezoneUpdateTimer;
-		}
-		
-		if ( m_RadiationZoneUpdateTimer )
-		{
-			m_RadiationZoneUpdateTimer.Stop();
-			delete m_RadiationZoneUpdateTimer;
-		}
-
-		if ( m_HumanityUpdateTimer )
-		{
-			m_HumanityUpdateTimer.Stop();
-			delete m_HumanityUpdateTimer;
-		}
-
-		if ( m_KillFeedData )
-			delete m_KillFeedData;
 
 		delete m_MarketReserve; 
 		delete m_MarketSell;
@@ -245,9 +225,9 @@ modded class PlayerBase
 
 		super.SetActions();
 
-		RemoveAction( ActionGetOutTransport );	
+		//RemoveAction( ActionGetOutTransport );	
 
-		AddAction( ExpansionActionGetOutTransport );
+		//AddAction( ExpansionActionGetOutTransport );
 		AddAction( ExpansionActionGetOutExpansionVehicle );
 		
 		AddAction( ExpansionActionCarHorn );
@@ -269,11 +249,11 @@ modded class PlayerBase
 
 		AddAction( ExpansionActionPaint );
 
-		// AddAction( ExpansionActionConnectWinch );
-		// AddAction( ExpansionActionDisconnectWinch );
+		//AddAction( ExpansionActionConnectWinch );
+		//AddAction( ExpansionActionDisconnectWinch );
 		
-		// AddAction( ExpansionActionStartPlane );
-		// AddAction( ExpansionActionStopPlane );
+		//AddAction( ExpansionActionStartPlane );
+		//AddAction( ExpansionActionStopPlane );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::SetActions end");
@@ -318,26 +298,6 @@ modded class PlayerBase
 
 		m_SafezoneUpdateTimer = new Timer();
 		m_SafezoneUpdateTimer.Run(1, this, "SafezoneUpdate", null, true);
-
-		/*
-		m_RadiationZoneUpdateTimer = new Timer();
-		m_RadiationZoneUpdateTimer.Run(1, this, "RadiationZoneUpdate", null, true);
-		
-		m_HumanityTimer = new Timer();
-		m_HumanityTimer.Run(3600, this, "AddHumanity", new Param1<int>( 10 ), true);
-		m_HumanityUpdateTimer = new Timer();
-		m_HumanityUpdateTimer.Run(5, this, "HumanityUpdate", null, true);
-
-		m_IsHumanityBandit = false;
-		m_IsHumanityHero = false;
-		m_CurrentHumanity = 0;
-		m_PlayerHasHeroSet = false;
-		m_PlayerHasBanditSet = false;
-		
-		RegisterNetSyncVariableBool( "m_IsHumanityBandit" );
-		RegisterNetSyncVariableBool( "m_IsHumanityHero" );	
-		RegisterNetSyncVariableInt( "m_CurrentHumanity" );
-		*/
 
 		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" );
 
@@ -411,151 +371,6 @@ modded class PlayerBase
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::OnLeftSafeZone - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase AddHumanity
-	// ------------------------------------------------------------
-	void AddHumanity(int value)
-	{
-		if ( !GetGame().IsServer() )
-		{
-			Error( "[EXPANSION] AddHumanity can only be called on the server!" );
-			return;
-		}
-
-		m_CurrentHumanity += value;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase DecreaseHumanity
-	// ------------------------------------------------------------
-	void DecreaseHumanity(int value)
-	{
-		if ( !GetGame().IsServer() )
-		{
-			Error( "[EXPANSION] DecreaseHumanity can only be called on the server!" );
-			return;
-		}
-
-		m_CurrentHumanity -= value;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase SetHumanity
-	// ------------------------------------------------------------
-	void SetHumanity(int value)
-	{
-		if ( !GetGame().IsServer() )
-		{
-			Error( "[EXPANSION] SetHumanity can only be called on the server!" );
-			return;
-		}
-
-		m_CurrentHumanity = value;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase GetKarma
-	// ------------------------------------------------------------
-	int GetKarma()
-	{
-		return m_CurrentHumanity;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase IsBandit
-	// ------------------------------------------------------------
-	bool IsBandit()
-	{
-		if (m_CurrentHumanity < -1000)
-			return true;
-
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase IsHero
-	// ------------------------------------------------------------
-	bool IsHero()
-	{
-		if (m_CurrentHumanity > 2000)
-			return true;
-
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase HasHeroSet
-	// ------------------------------------------------------------
-	bool HasHeroSet()
-	{
-		return m_PlayerHasHeroSet;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase HasBanditSet
-	// ------------------------------------------------------------
-	bool HasBanditSet()
-	{
-		return m_PlayerHasBanditSet;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase KarmaUpdate
-	// ------------------------------------------------------------
-	void KarmaUpdate()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::KarmaUpdate start");
-		#endif
-
-		if ( IsMissionHost() )
-		{
-			if ( IsBandit() && !m_IsHumanityBandit ) 
-			{
-				if ( !HasBanditSet() )
-				{
-					ItemBase banditSet;
-	
-					if (banditSet)
-						GetGame().ObjectDelete(banditSet);
-	
-					banditSet = ItemBase.Cast( GetInventory().CreateInInventory( "ExpansionBanditSet" ) );
-					if ( !banditSet )
-						banditSet = ItemBase.Cast( GetGame().CreateObject( "ExpansionBanditSet", GetPosition() ) );
-				}
-				
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_HUMANITY_TITLE" ), new StringLocaliser( "STR_EXPANSION_HUMANITY_BECOME_BANDIT" ), EXPANSION_NOTIFICATION_ICON_BANDIT, COLOR_EXPANSION_NOTIFICATION_AMETHYST, 5, GetIdentity() );
-				m_IsHumanityBandit = true;
-				m_IsHumanityHero = false;
-				m_PlayerHasBanditSet = true;
-			}
-
-			if ( IsHero() && !m_IsHumanityHero ) 
-			{
-				if ( !HasHeroSet() )
-				{
-					ItemBase heroSet;
-	
-					if (heroSet)
-						GetGame().ObjectDelete(heroSet);
-	
-					heroSet = ItemBase.Cast( GetInventory().CreateInInventory( "ExpansionHeroSet" ) );
-					if ( !heroSet )
-						heroSet = ItemBase.Cast( GetGame().CreateObject( "ExpansionHeroSet", GetPosition() ) );
-				}
-
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_HUMANITY_TITLE" ), new StringLocaliser( "STR_EXPANSION_HUMANITY_BECOME_HERO" ), EXPANSION_NOTIFICATION_ICON_HERO, COLOR_EXPANSION_NOTIFICATION_AMETHYST, 5, GetIdentity() );
-				m_IsHumanityHero = true;
-				m_IsHumanityBandit = false;
-				m_PlayerHasHeroSet = true;
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::KarmaUpdate end");
 		#endif
 	}
 
@@ -794,10 +609,10 @@ modded class PlayerBase
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
 			#ifdef EXPANSIONEXPRINT
-			EXPrint("PlayerBase::ModCommandHandlerInside - Cast ExpansionHumanVehicleCommand");
+			EXPrint("PlayerBase::ModCommandHandlerInside - Cast ExpansionHumanCommandVehicle");
 			#endif
 
-			if ( ExpansionHumanVehicleCommand.Cast( hcScript ) != NULL )
+			if ( ExpansionHumanCommandVehicle.Cast( hcScript ) != NULL )
 			{
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("PlayerBase::ModCommandHandlerInside - End");
@@ -818,14 +633,9 @@ modded class PlayerBase
 		EXPrint("PlayerBase::ModCommandHandlerInside - Handled Inside");
 		#endif
 
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
-		{		
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("PlayerBase::ModCommandHandlerInside - Cast ExpansionHumanFallCommand");
-			#endif
-
-			ExpansionHumanFallCommand fall;
-
+		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_FALL )
+		{
+			ExpansionHumanCommandFall fall;
 			if ( Class.CastTo( fall, hcScript ) )
 			{
 				int landType;
@@ -900,10 +710,79 @@ modded class PlayerBase
 
 				return true;
 			}
+		} else if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
+		{
+			ExpansionHumanCommandFall exFall;
+			if ( Class.CastTo( exFall, hcScript ) )
+			{
+				if ( exFall.HasLanded() )
+				{
+					#ifdef EXPANSIONEXPRINT
+					EXPrint("PlayerBase::ModCommandHandlerInside - HasLanded");
+					#endif
 
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("PlayerBase::ModCommandHandlerInside - NoCustomScript");
-			#endif
+					if ( parent )
+					{
+						landType = 0; 
+						npar = type.GetNoiseParamsLandLight();
+						m_FallYDiff = 0;
+					} else
+					{
+						m_FallYDiff = m_FallYDiff - GetPosition()[1];
+						if ( m_FallYDiff < 0.5 )
+						{
+							landType = 0; 
+							npar = type.GetNoiseParamsLandLight();
+						} else if ( m_FallYDiff < 1.0 )
+						{
+							landType = 0;
+							npar = type.GetNoiseParamsLandLight();
+						} else if ( m_FallYDiff < 2.0 )
+						{
+							landType = 1;
+							npar = type.GetNoiseParamsLandHeavy();
+						} else
+						{
+							landType = 2;
+							npar = type.GetNoiseParamsLandHeavy();
+						}
+					}
+					
+					exFall.Land( landType );
+
+					#ifdef EXPANSIONEXPRINT
+					EXPrint("PlayerBase::ModCommandHandlerInside - Land Called");
+					#endif
+
+					AddNoise( npar );
+
+					#ifdef EXPANSIONEXPRINT
+					EXPrint("PlayerBase::ModCommandHandlerInside - Noise Added");
+					#endif
+
+					if ( m_FallYDiff >= DayZPlayerImplementFallDamage.FD_DMG_FROM_HEIGHT && GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_CLIENT )
+					{
+						SpawnDamageDealtEffect();
+					}
+					
+					#ifdef EXPANSIONEXPRINT
+					EXPrint("PlayerBase::ModCommandHandlerInside - Effect");
+					#endif
+
+					m_FallDamage.HandleFallDamage( m_FallYDiff );
+					m_JumpClimb.CheckAndFinishJump( landType );
+
+					#ifdef EXPANSIONEXPRINT
+					EXPrint("PlayerBase::ModCommandHandlerInside - Finished JumpClimb");
+					#endif
+				}
+
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("PlayerBase::ModCommandHandlerInside - End");
+				#endif
+
+				return true;
+			}
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -932,32 +811,6 @@ modded class PlayerBase
 
 		return false;
 	}
-
-	/*
-	// ------------------------------------------------------------
-	// Expansion CanReleaseAttachment 
-	// ------------------------------------------------------------
-	override bool CanReleaseAttachment ( EntityAI attachment )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "PlayerBase::CanReleaseAttachment start" );
-		#endif
-
-		if ( IsBandit() )
-		{
-			if ( FindAttachmentBySlotName( "Armband" ) )
-			{
-				return false;
-			} 
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "PlayerBase::CanReleaseAttachment end" );
-		#endif
-
-		return super.CanReleaseAttachment( attachment );
-	}
-	*/
 	
 	// ------------------------------------------------------------
 	// Expansion SendChatMessage 
@@ -1105,14 +958,14 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
-	override ExpansionHumanVehicleCommand StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
+	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
 	{
 		if ( m_ExpansionVehicleCommandST == NULL )
 		{
-			m_ExpansionVehicleCommandST = new ExpansionHumanVehicleCommand_ST( this );
+			m_ExpansionVehicleCommandST = new ExpansionHumanCommandVehicle_ST( this );
 		}
 	
-		ExpansionHumanVehicleCommand cmd = new ExpansionHumanVehicleCommand( this, vehicle, seatIdx, seat_anim, m_ExpansionVehicleCommandST );
+		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, vehicle, seatIdx, seat_anim, m_ExpansionVehicleCommandST );
 		StartCommand_Script( cmd );
 		return cmd;
 	}
@@ -1122,12 +975,16 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void StartCommand_ExpansionFall( float pYVelocity )
 	{
+		#ifndef EXPANSION_DISABLE_FALL
 		if ( m_ExpansionFallCommandST == NULL )
 		{
-			m_ExpansionFallCommandST = new ExpansionHumanFallCommand_ST( this );
+			m_ExpansionFallCommandST = new ExpansionHumanCommandFall_ST( this );
 		}
 	
-		StartCommand_Script( new ExpansionHumanFallCommand( this, pYVelocity, m_ExpansionFallCommandST ) );
+		StartCommand_Script( new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionFallCommandST ) );
+		#else
+		StartCommand_Fall( pYVelocity );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1177,7 +1034,7 @@ modded class PlayerBase
 			}
 		}
 		
-		ExpansionHumanVehicleCommand hcv = GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle hcv = GetCommand_ExpansionVehicle();
 		if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 		{
 			OnVehicleSeatDriverEnter();
@@ -1221,192 +1078,6 @@ modded class PlayerBase
 
 		return super.HeadingModel( pDt, pModel );
 	}
-
-	// ------------------------------------------------------------
-	// PlayerBase ClearKillFeedData
-	// ------------------------------------------------------------
-	void ClearKillFeedData()
-	{
-		m_KillFeedData = null;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion EEHitBy
-	// ------------------------------------------------------------
-	/*
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::EEHitBy - Start");
-		#endif
-
-		super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );		
-
-		//! Kill-Feed
-		if ( GetExpansionSettings().GetGeneral().EnableKillFeed )
-		{
-			if ( m_KillFeedData )
-				delete m_KillFeedData;
-			
-			m_KillFeedData = new ExpansionKillFeedData( damageType, source, ammo );
-			
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearKillFeedData, 3000, false );
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::EEHitBy - End");
-		#endif
-	}
-	*/
-
-	// ------------------------------------------------------------
-	// Expansion EEKilled
-	// ------------------------------------------------------------
-	/*
-	override void EEKilled( Object killer )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::EEKilled - Start");
-		#endif
-
-		if ( GetExpansionSettings().GetGeneral().EnableKillFeed && m_KillfeedModule )
-		{
-			m_KillfeedModule.OnPlayerKilledEventNew( this, killer );
-		}
-
-		if ( GetExpansionSettings().GetGeneral().EnableHumanity && m_HumanityModule )
-		{
-			m_HumanityModule.OnPlayerKilledEvent( this, killer );
-		}
-
-		super.EEKilled( killer );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::EEKilled - End");
-		#endif
-	}
-	*/
-	
-	// ------------------------------------------------------------
-	// PlayerBase GetCurrentHitData
-	// ------------------------------------------------------------
-	ExpansionKillFeedData GetCurrentHitData()
-	{
-		return m_KillFeedData;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase AddQuest
-	// ------------------------------------------------------------
-	/*
-	int AddQuest(ExpansionQuest quest, out ExpansionQuest playerquest)
-	{
-		return 0;
-
-		playerquest = new ExpansionQuest(quest.QuestID, quest.QuestName, quest.QuestItemTitle, quest.QuestItemText, quest.QuestText, quest.QuestType, quest.QuestPosition, quest.QuestItemClassName, quest.QuestItemPosition, quest.QuestItemDirection );
-		
-		int index = m_Quests.Insert( playerquest );
-		
-		playerquest.SetQuestIndex(index);
-		
-		SyncQuests();
-		
-		return index;
-	}
-	*/
-	
-	// ------------------------------------------------------------
-	// PlayerBase RemoveQuest
-	// ------------------------------------------------------------
-	void RemoveQuest(int index)
-	{
-	/*
-		m_Quests.Remove( index );
-	*/
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase ClearQuests
-	// ------------------------------------------------------------
-	void ClearQuests()
-	{
-	/*
-		m_Quests.Clear();
-	*/
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase GetQuests
-	// ------------------------------------------------------------		
-	/*
-	array<ref ExpansionQuest> GetQuests()
-	{
-		return NULL;
-		// return m_Quests;
-	}
-	*/
-	
-	// ------------------------------------------------------------
-	// PlayerBase SetQuestState
-	// ------------------------------------------------------------
-	/*
-	void SetQuestState(int index, ExpansionQuestStates state)
-	{
-		ExpansionQuest quest = m_Quests.Get( index );
-		if ( quest )
-		{
-			quest.SetQuestState( state );
-		}
-		
-		SyncQuests();
-	}
-	*/
-
-	// ------------------------------------------------------------
-	// Expansion OnRPC
-	// ------------------------------------------------------------	
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		switch ( rpc_type )
-		{
-			case ExpansionPlayerBaseRPC.SyncQuests:
-			{
-				RPC_SyncQuests( ctx, sender );
-				return;
-			}
-		}
-
-		super.OnRPC(sender, rpc_type, ctx);
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase SyncQuests
-	// ------------------------------------------------------------
-	void SyncQuests()
-	{
-	/*
-		if ( IsMissionHost() )
-		{
-			ScriptRPC rpc = new ScriptRPC();
-			rpc.Write( m_Quests );
-			rpc.Send( this, ExpansionPlayerBaseRPC.SyncQuests, true, GetIdentity() );
-		}
-	*/
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase RPC_SyncQuests
-	// ------------------------------------------------------------
-	private void RPC_SyncQuests(ref ParamsReadContext ctx, PlayerIdentity sender)
-	{
-	/*
-		if ( IsMissionClient() )
-		{
-			if ( !ctx.Read( m_Quests ) )
-				return;
-		}
-	*/
-	}
 	
 	// ------------------------------------------------------------
 	// PlayerBase GetQuickMarkerColor
@@ -1435,9 +1106,6 @@ modded class PlayerBase
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_WasInVehicle );
-		ctx.Write( m_CurrentHumanity );
-
-		// ctx.Write( m_Quests );
 	}
 	
 	// ------------------------------------------------------------
@@ -1456,19 +1124,6 @@ modded class PlayerBase
 		
 		if ( !ctx.Read( m_WasInVehicle ) )
 			return false;
-
-		if ( GetExpansionSaveVersion() >= 2 )
-		{
-			if ( !ctx.Read( m_CurrentHumanity ) )
-				return false;
-		}
-
-		/*
-		if ( !ctx.Read( m_Quests ) )
-		 	return false;
-		else
-			SyncQuests();
-		*/
 	
 		return true;
 	}
@@ -1545,7 +1200,12 @@ modded class PlayerBase
 	string GetIdentityUID()
 	{
 		if ( IsMissionClient() )
-			return GetIdentity().GetId();
+		{
+			if ( GetIdentity() )
+				return GetIdentity().GetId();
+			else if ( IsMissionOffline() )
+				return "OFFLINE";
+		}
 
 		return m_PlayerUID;
 	}
@@ -1554,7 +1214,12 @@ modded class PlayerBase
 	string GetIdentitySteam()
 	{
 		if ( IsMissionClient() )
-			return GetIdentity().GetPlainId();
+		{
+			if ( GetIdentity() )
+				return GetIdentity().GetPlainId();
+			else if ( IsMissionOffline() )
+				return "OFFLINE";
+		}
 
 		return m_PlayerSteam;
 	}
@@ -1563,7 +1228,12 @@ modded class PlayerBase
 	string GetIdentityName()
 	{
 		if ( IsMissionClient() )
-			return GetIdentity().GetName();
+		{
+			if ( GetIdentity() )
+				return GetIdentity().GetName();
+			else if ( IsMissionOffline() )
+				return "OFFLINE";
+		}
 
 		return m_PlayerName;
 	}

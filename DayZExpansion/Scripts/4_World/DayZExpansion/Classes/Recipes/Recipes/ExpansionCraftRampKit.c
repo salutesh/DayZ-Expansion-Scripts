@@ -71,7 +71,7 @@ class ExpansionCraftRampKit extends RecipeBase
 		m_ResultReplacesIngredient[0] = -1;
 	}
 
-    override bool CanDo(ItemBase ingredients[], PlayerBase player)
+	override bool CanDo(ItemBase ingredients[], PlayerBase player)
 	{
 		bool canCraft = GetExpansionSettings().GetBaseBuilding().CanCraftExpansionBasebuilding;
 

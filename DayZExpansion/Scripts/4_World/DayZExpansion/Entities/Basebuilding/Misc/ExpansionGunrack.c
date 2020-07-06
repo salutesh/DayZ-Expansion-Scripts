@@ -42,8 +42,8 @@ class ExpansionGunrack extends Container_Base
 	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour() 
 	{
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// OnPlacementComplete
@@ -102,5 +102,15 @@ class ExpansionGunrack extends Container_Base
 			return true;
 		}
 		return false;
+	}
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		
+		if (this.GetHierarchyRootPlayer())
+		{
+			return false;
+		}
+		
+		return super.CanReceiveAttachment(attachment, slotId);
 	}
 } 

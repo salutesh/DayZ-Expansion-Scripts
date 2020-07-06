@@ -13,9 +13,6 @@
 class ExpansionBookTabStatus extends ExpansionBookTabBase
 {
 	protected int COLOR_EXPANSION_STATUS_BOOKMARK_ICON = ARGB( 255, 231, 76, 60 );
-	protected int COLOR_EXPANSION_STATUS_HUMANITY_HERO = ARGB( 255, 120, 175, 66 );
-	protected int COLOR_EXPANSION_STATUS_HUMANITY_BANDIT = ARGB( 255, 159, 40, 40 );
-	protected int COLOR_EXPANSION_STATUS_HUMANITY_NORMAL = ARGB( 255, 255, 255, 255 );
 	protected int COLOR_EXPANSION_STATUS_TOXICITY_NORMAL = ARGB( 255, 255, 255, 255 );
 	protected int COLOR_EXPANSION_STATUS_TOXICITY_POISONED = ARGB( 255, 255, 255, 255 );
 	protected int COLOR_EXPANSION_STATUS_TOXICITY_HPOISONED = ARGB( 255, 255, 255, 255 );
@@ -27,8 +24,6 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	protected TextWidget m_ProfileLongestShotVal;
 	protected TextWidget m_ProfileDistanceTravelledVal;
 	protected TextWidget m_ProfileWeightVal;
-	protected TextWidget m_condition_HumanityValue;
-	protected TextWidget m_condition_HumanityState;
 	protected TextWidget m_stat_HealthValue;
 	protected ProgressBarWidget m_stat_HealthBar;
 	protected TextWidget m_stat_BloodValue;
@@ -91,10 +86,6 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		m_ProfileLongestShotVal					= TextWidget.Cast( m_RootLayout.FindAnyWidget( "profile_shot_value" ) );
 		m_ProfileDistanceTravelledVal			= TextWidget.Cast( m_RootLayout.FindAnyWidget( "profile_distance_value" ) );
 		m_ProfileWeightVal						= TextWidget.Cast( m_RootLayout.FindAnyWidget( "profile_weight_value" ) );
-		
-		// CONDITIONS
-		//! m_condition_HumanityValue				= TextWidget.Cast( m_RootLayout.FindAnyWidget( "condition_humanity_value" ) );
-		//! m_condition_HumanityState				= TextWidget.Cast( m_RootLayout.FindAnyWidget( "condition_humanity_state" ) );
 		
 		// STATS
 		m_stat_HealthValue						= TextWidget.Cast( m_RootLayout.FindAnyWidget( "stat_health_value" ) );
@@ -193,55 +184,6 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion String HumanityState
-	// ------------------------------------------------------------
-	string HumanityState()
-	{
-		string humanstate;
-		if ( m_Karma < 1 ||  m_Karma > -1 )
-		{
-			humanstate = "NORMAL";
-		}
-		
-		if ( m_Karma > 2000 )
-		{
-			humanstate = "HERO";
-		}
-		
-		if ( m_Karma < -1000 )
-		{
-			humanstate = "BANDIT";
-		}
-		
-		return humanstate;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion String HumanityStateColor
-	// ------------------------------------------------------------
-	int HumanityStateColor()
-	{
-		int humanstatecolor;
-		
-		if ( m_Karma < 0 )
-		{
-			humanstatecolor = COLOR_EXPANSION_STATUS_HUMANITY_BANDIT;
-		}
-		
-		if ( m_Karma < 2000 )
-		{
-			humanstatecolor = COLOR_EXPANSION_STATUS_HUMANITY_NORMAL;
-		}
-		
-		if ( m_Karma > -1000 )
-		{
-			humanstatecolor = COLOR_EXPANSION_STATUS_HUMANITY_HERO;
-		}
-		
-		return humanstatecolor;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion String BloodType
 	// ------------------------------------------------------------
 	string BloodType(PlayerBase player)
@@ -331,12 +273,7 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		// StaminaUpEnd
 		m_stat_StaminaValue.SetText( m_Stamina.ToString() + "%" );
 		m_stat_StaminaBar.SetCurrent( m_Stamina );
-		
-		// Humanity
-		//! m_condition_HumanityValue.SetText( m_Karma.ToString() );
-		//! m_condition_HumanityState.SetText( HumanityState() );
-		//! m_condition_HumanityState.SetColor( HumanityStateColor() );
-		
+
 		// Profile Stats
 		m_ProfileTimeSurviedVal.SetText( GetTimeString( m_Playtime ) );
 		m_ProfilePlayerKillsVal.SetText( GetValueString( m_PlayersKilled ) );
@@ -353,21 +290,21 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	protected string GetTimeString( float total_time )
 	{
 		if( total_time < 0 )
-			return "0h";
+			return "0 Hours";
 	
-		int time_seconds = total_time; 							//convert total time to int
+		int time_seconds = total_time; 									//convert total time to int
 		string time_string;
 		
 		int hours = time_seconds / 3600;
 		if ( hours > 0 )
 		{
-			time_string += GetValueString( hours ) + "H";		//hours
+			time_string += GetValueString( hours ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
 		}
 		
-		time_string += " ";										//separator
+		time_string += " ";												//separator
 		
 		int minutes = ( time_seconds % 3600 ) / 60;
-		time_string += GetValueString( minutes ) + "M";			//minutes
+		time_string += GetValueString( minutes ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
 		
 		return time_string;
 	}
@@ -386,12 +323,12 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		int kilograms = weight_grams / 1000;
 		if ( kilograms > 0 && !grams_only )
 		{
-			weight_string += GetValueString( kilograms ) + " Kg";				//kilograms
+			weight_string += GetValueString( kilograms ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KG";				//kilograms
 			weight_string += " ";												//separator
 		}
 		else
 		{
-			weight_string += GetValueString( weight_grams ) + " Grams";	//grams
+			weight_string += GetValueString( weight_grams ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";	//grams
 		}
 		
 		return weight_string;
@@ -411,12 +348,12 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		int kilometers = distance_meters / 1000;
 		if ( kilometers > 0 && !meters_only )
 		{
-			distance_string += GetValueString( kilometers ) + "Km";				//kilometers
+			distance_string += GetValueString( kilometers ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KM";				//kilometers
 			distance_string += " ";												//separator
 		}
 		else
 		{
-			distance_string += GetValueString( distance_meters ) + " Meters";	//meters
+			distance_string += GetValueString( distance_meters ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
 		}
 		
 		return distance_string;

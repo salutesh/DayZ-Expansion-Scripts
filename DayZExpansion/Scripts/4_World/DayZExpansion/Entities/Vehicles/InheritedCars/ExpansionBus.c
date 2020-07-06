@@ -23,7 +23,7 @@ class ExpansionBus extends OffroadHatchback
 		EXPrint("ExpansionBus::Constructor - Start");
 		#endif
 
-		m_dmgContactCoef = 0.018;
+		m_dmgContactCoef = 0.035;
 
 		// SetEventMask(EntityEvent.SIMULATE);
 
@@ -249,7 +249,7 @@ class ExpansionBus extends OffroadHatchback
 						}
 					}
 					
-					if (reverse_light_state != CarRearLightType.NONE    &&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
+					if (reverse_light_state != CarRearLightType.NONE	&&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
 					{
 						m_RearLight = CreateRearLight();
 						vector local_pos = GetMemoryPointPos(m_ReverseLightPoint);
@@ -643,13 +643,13 @@ class ExpansionBus extends OffroadHatchback
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBus::IsVitalTruckBattery");
 		#endif
 
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
@@ -693,9 +693,10 @@ class ExpansionBus extends OffroadHatchback
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
+/* 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 
-		return true;
+		return true; */
+		return false;
 	}
 }

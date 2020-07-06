@@ -2,7 +2,7 @@
 <modded_inputs>
     <inputs>
         <actions>
-            <input name="UAExpansionHeliRocket" loc="STR_EXPANSION_HELICOPTER_ROCKET" />
+            <input name="UAExpansionHeliRocket" loc="STR_EXPANSION_HELICOPTER_ROCKET" visible="false" />
             <input name="UAExpansionHeliFreeLook" loc="STR_EXPANSION_HELICOPTER_FREELOOK" />
             <input name="UAExpansionHeliAutoHover" loc="STR_EXPANSION_HELICOPTER_TOGGLE_AUTOHOVER" />
             <input name="UAExpansionHeliCollectiveUp" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_UP" />
@@ -16,8 +16,8 @@
             <input name="UAExpansionHeliCargoDoorUp" visible="false" />
             <input name="UAExpansionHeliCargoDoorDown" visible="false" />
 
-            <input name="UAExpansionPlaneRocket" loc="STR_EXPANSION_PLANE_ROCKET" />
-            <input name="UAExpansionPlaneFlare" loc="STR_EXPANSION_PLANE_FLARE" />
+            <input name="UAExpansionPlaneRocket" loc="STR_EXPANSION_PLANE_ROCKET" visible="false" /> 
+            <input name="UAExpansionPlaneFlare" loc="STR_EXPANSION_PLANE_FLARE" visible="false" />
 			<input name="UAExpansionPlaneEngine" loc="STR_EXPANSION_PLANE_ENGINE" />
             <input name="UAExpansionPlaneElevatorUp" loc="STR_EXPANSION_PLANE_ELEVATOR_UP" />
             <input name="UAExpansionPlaneElevatorDown" loc="STR_EXPANSION_PLANE_ELEVATOR_DOWN" />

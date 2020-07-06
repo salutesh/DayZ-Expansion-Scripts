@@ -10,7 +10,7 @@
  *
 */
 
-class Land_House_1W12 extends BuildingSuper
+modded class Land_House_1W12
 {
 	override bool HasInterior()
 	{

@@ -89,14 +89,6 @@ class ExpansionLocatorModule: JMModuleBase
 		
 		return 100;
 	}
-
-	// ------------------------------------------------------------
-	// ExpansionLocatorModule GetCurrentAreaName
-	// ------------------------------------------------------------
-	private string GetCurrentAreaName()
-	{
-		return m_CurrentAreaName;
-	}
 	
 	// ------------------------------------------------------------
 	// ExpansionLocatorModule OnUpdate
@@ -106,44 +98,38 @@ class ExpansionLocatorModule: JMModuleBase
 		int nmbError = 0;
 		while ( true )
 		{
-			if ( !GetGame() )
-			{
-				return;
-			}
+			Sleep( 5000 );
 			
-			if ( nmbError > 20 )
-			{
+			if ( !GetGame() || nmbError > 20 )
 				return;
-			}
 
 			if ( GetExpansionSettings().GetGeneral() && !GetExpansionSettings().GetGeneral().PlayerLocationNotifier )
 			{
 				nmbError++;
-				Sleep( 10000 );
 				continue;
 			}
 
 			CheckPlayer();
-
-			Sleep( 2000 );
 		}
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionLocatorModule CheckPlayer
 	// ------------------------------------------------------------
-	void CheckPlayer()
+	protected void CheckPlayer()
 	{
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		if ( !player )
 			return;
 		
-		ref ExpansionLocatorArray shortestLocation;
-		float shortestDistance = 2147483645;
+		ref ExpansionLocatorArray shortestLocation = null;
+		float shortestDistance = int.MAX;
+		vector myPos = player.GetPosition();
+		vector myPos2D = Vector( myPos[0], 0, myPos[2] );
 
 		for ( int j = 0; j < m_AreaArray.Count(); ++j )
 		{
-			float distance = vector.Distance( player.GetPosition() * "1 0 1", m_AreaArray[j].position );
+			float distance = vector.Distance( myPos2D, m_AreaArray[j].position );
 
 			if ( distance <= shortestDistance )
 			{
@@ -152,21 +138,17 @@ class ExpansionLocatorModule: JMModuleBase
 			}
 		}
 
-		if ( !shortestLocation )
-		{
-			m_CurrentAreaName = "";
-		} 
-		else if ( shortestDistance <= GetRadius( shortestLocation.type ) )
+		if ( shortestLocation && shortestDistance <= GetRadius( shortestLocation.type ) )
 		{
 			if ( m_CurrentAreaName != shortestLocation.name )
 			{
 				m_CurrentAreaName = shortestLocation.name;
 				m_UICallback.OnShowCityClient( m_CurrentAreaName );
-			} 
-			else
-			{
-				m_CurrentAreaName = "";
 			}
+		}
+		else
+		{
+			m_CurrentAreaName = "";
 		}
 	}
 	
@@ -174,12 +156,12 @@ class ExpansionLocatorModule: JMModuleBase
 	// ExpansionLocatorModule GetWorldLocations
 	// ------------------------------------------------------------
 	private void GetWorldLocations()
-    {    
-        string location_config_path = "CfgWorlds " + GetGame().GetWorldName() + " Names";
-        int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );
-        
+	{	
+		string location_config_path = "CfgWorlds " + GetGame().GetWorldName() + " Names";
+		int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );
+		
 		for ( int l = 0; l < classNamesCount; ++l ) 
-        {
+		{
 			string location_class_name;
 			GetGame().ConfigGetChildName( location_config_path, l, location_class_name );
 
@@ -226,5 +208,5 @@ class ExpansionLocatorModule: JMModuleBase
 
 			m_AreaArray.Insert( new ExpansionLocatorArray( Vector( location_position[0], 0, location_position[1] ), location_name, location_type ) );
 		}
-    }
+	}
 }

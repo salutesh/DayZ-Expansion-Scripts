@@ -1,0 +1,535 @@
+FrameWidgetClass ExpansionSpawnSelectionUI {
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ priority 1000
+ {
+  PanelWidgetClass selection_panel {
+   ignorepointer 1
+   position 0.1 0
+   size 0.667 1
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   {
+    PanelWidgetClass spawn0Panel {
+     ignorepointer 1
+     position 0.44305 0.06794
+     size 0.5 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ButtonWidgetClass spawn0Button {
+       inheritalpha 1
+       ignorepointer 0
+       color 0.1294 0.5961 0.7451 1
+       position 0 0
+       size 0.74701 0.74766
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       {
+        ImageWidgetClass spawn0Image {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{3F9462280A4C4C6B}DayZExpansion/GUI/textures/spawn_selection/berezino_oldschool.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass spawn0Text {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.021 0.031
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Spawn 0"
+         font "DayZExpansion/GUI/fonts/grundschrift-bold"
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass spawn1Panel {
+     ignorepointer 1
+     position 0.45592 0.28729
+     size 0.5 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      ButtonWidgetClass spawn1Button {
+       inheritalpha 1
+       ignorepointer 0
+       color 0.7412 0.5922 0.102 1
+       size 0.75762 0.7504
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       {
+        ImageWidgetClass spawn1Image {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{B6E85292B2A7B02D}DayZExpansion/GUI/textures/spawn_selection/solin_oldschool.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass spawn1Text {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.021 0.031
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Spawn 1"
+         font "DayZExpansion/GUI/fonts/grundschrift-bold"
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass spawn2Panel {
+     ignorepointer 1
+     position 0.44066 0.55212
+     size 0.5 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ButtonWidgetClass spawn2Button {
+       inheritalpha 1
+       ignorepointer 0
+       color 0.8745 0.7686 0.6039 1
+       size 0.75222 0.74823
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       {
+        ImageWidgetClass spawn2Image {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{BDB4D0D6DC971636}DayZExpansion/GUI/textures/spawn_selection/kamenka_oldschool.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass spawn2Text {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.021 0.031
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Spawn 2"
+         font "DayZExpansion/GUI/fonts/grundschrift-bold"
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass spawn3Panel {
+     ignorepointer 1
+     color 0.3922 0.6196 0.4 1
+     position 0.02294 0.06537
+     size 0.5 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ButtonWidgetClass spawn3Button {
+       inheritalpha 1
+       ignorepointer 0
+       color 0.3922 0.7373 0.4118 1
+       size 0.76581 0.74589
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       {
+        ImageWidgetClass spawn3Image {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{87EC69B1EB4D9C13}DayZExpansion/GUI/textures/spawn_selection/cherno_oldschool.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass spawn3Text {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.021 0.031
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Spawn 3"
+         font "DayZExpansion/GUI/fonts/grundschrift-bold"
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass spawn4Panel {
+     ignorepointer 1
+     position -0.05204 0.31194
+     size 0.5 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      ButtonWidgetClass spawn4Button {
+       inheritalpha 1
+       ignorepointer 0
+       color 0.3725 0.6824 0.5333 1
+       size 0.75222 0.74823
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       {
+        ImageWidgetClass spawn4Image {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{68CD73A9176ADC53}DayZExpansion/GUI/textures/spawn_selection/elektro_oldschool.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass spawn4Text {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.021 0.031
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Spawn 4"
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass spawn5Panel {
+     ignorepointer 1
+     position -0.01622 0.5663
+     size 0.5 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ButtonWidgetClass spawn5Button {
+       inheritalpha 1
+       ignorepointer 0
+       color 0.6314 0.5765 0.4039 1
+       size 0.74701 0.74766
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       {
+        ImageWidgetClass spawn5Image {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{4EACD73DAAE68D2C}DayZExpansion/GUI/textures/spawn_selection/balota_oldschool.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass spawn5Text {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.021 0.031
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Spawn 5"
+         font "DayZExpansion/GUI/fonts/grundschrift-bold"
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ImageWidgetClass vignette {
+   visible 1
+   ignorepointer 1
+   color 0 0 0 0.7843
+   position 0 0
+   size 1.61 0.9
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   fixaspect outside
+   priority 1
+   imageTexture "{E6B3EF816E067499}Gui/textures/inventory_bgvignette.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 0
+   nocache 1
+  }
+  WrapSpacerWidgetClass random_panel {
+   visible 1
+   ignorepointer 1
+   position 100 130
+   size 399 249
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 3
+   "Ignore invisible" 0
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   content_halign center
+   content_valign bottom
+   {
+    ButtonWidgetClass randomSpawn {
+     color 0.0392 0.0392 0.0392 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultButtonSides
+     "no focus" 0
+     text_proportion 0.55
+     switch normal
+     {
+      ImageWidgetClass randomImage {
+       visible 1
+       ignorepointer 1
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       imageTexture "{4AF63022401AEF77}DayZExpansion/GUI/textures/spawn_selection/chernarus.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+      }
+      TextWidgetClass randomText {
+       visible 0
+       ignorepointer 1
+       position 0.021 0.031
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "Random"
+       font "DayZExpansion/GUI/fonts/grundschrift-bold"
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+   }
+  }
+  TextWidgetClass menu_title {
+   ignorepointer 1
+   position 0.05 80
+   size 0.35 50
+   halign right_ref
+   hexactpos 0
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   priority 1
+   style Normal
+   text "SPAWN SELECTION"
+   font "gui/fonts/sdf_MetronLight72"
+   "text color" 0.8157 0.1255 0.7843 1
+   "exact text" 0
+   "size to text h" 0
+   "size to text v" 1
+   "text halign" right
+   "text valign" center
+  }
+  ImageWidgetClass book_background {
+   ignorepointer 1
+   position 0.1 0.05
+   size 0.6176 0.83988
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   imageTexture "{81A1728D8C6A973A}DayZExpansion/GUI/textures/book/book_background.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+  ImageWidgetClass selection_background {
+   visible 1
+   ignorepointer 1
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   imageTexture "{C595ED9ED316D080}DayZExpansion/GUI/textures/wood_background.edds"
+   mode opaque
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+ }
+}

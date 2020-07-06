@@ -129,11 +129,14 @@ static void DisablePhysics(Object ent)
 // -----------------------------------------------------------
 static void EnablePhysics(Object ent)
 {
-	SetVelocity( ent, Vector( 0, 0, 0 ) );
+	if( ent )
+	{
+		SetVelocity( ent, Vector( 0, 0, 0 ) );
 
-	dBodySetAngularVelocity( ent, Vector( 0, 0, 0 ) );
-	dBodyActive( ent, ActiveState.ALWAYS_ACTIVE );
-	dBodyDynamic( ent, true );
+		dBodySetAngularVelocity( ent, Vector( 0, 0, 0 ) );
+		dBodyActive( ent, ActiveState.ALWAYS_ACTIVE );
+		dBodyDynamic( ent, true );
+	}
 }
 
 

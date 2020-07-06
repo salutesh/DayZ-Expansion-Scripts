@@ -78,7 +78,6 @@ class ExpansionGlobalChatModule: JMModuleBase
 				string idtable = sender.GetPlayerId().ToString();
 
 				string format = ( "[" + GetDateTime() + "] [" + channelName + "] " + data.param2 + ": " + data.param3 + " (SteamID = " + steamid + ", BIUid = " + biuid + ", PlayerID = " + idtable + ")");
-				GetExpansionLogger().ChatLog( format );
 
 				if ( GetGame().IsMultiplayer() )
 				{

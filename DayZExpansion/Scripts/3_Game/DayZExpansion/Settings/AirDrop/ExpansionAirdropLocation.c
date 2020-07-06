@@ -15,17 +15,17 @@
  **/
 class ExpansionAirdropLocation
 {
-	float x, y;
+	float x, z;
 	string Name;
 	float Radius;
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionAirdropLocation
 	// ------------------------------------------------------------
-	void ExpansionAirdropLocation(float xx, float yy, float radius, string name)
+	void ExpansionAirdropLocation(float xx, float zz, float radius, string name)
 	{
 		x = xx;
-		y = yy;
+		z = zz;
 		Radius = radius;
 		Name = name;
 	}

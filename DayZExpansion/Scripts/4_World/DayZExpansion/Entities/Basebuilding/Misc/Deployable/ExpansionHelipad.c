@@ -18,9 +18,9 @@ class ExpansionHelipad: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionHelipad()
-    {
-    }
+	void ExpansionHelipad()
+	{
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -40,7 +40,7 @@ class ExpansionHelipad: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// GetConstructionKitType
 	// ------------------------------------------------------------
-    override string GetConstructionKitType()
+	override string GetConstructionKitType()
 	{
 		return "ExpansionHelipadKit";
 	}

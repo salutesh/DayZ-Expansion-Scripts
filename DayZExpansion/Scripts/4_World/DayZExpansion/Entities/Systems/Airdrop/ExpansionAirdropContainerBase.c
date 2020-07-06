@@ -25,7 +25,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 	ExpansionAirdropLoot m_LootTier;
 
-    private int m_StartTime;
+	private int m_StartTime;
 	
 	//! Light
 	ExpansionPointLight m_Light;
@@ -37,7 +37,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	protected AIGroup m_AIGroup;
 	
 	int m_ServerMarker;
-	string m_Location;
+	
 	bool m_IsLooted;
 	bool m_Cleanup;
 	
@@ -66,7 +66,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 		ToggleLight();
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CheckAirdrop, 5000, true );
-		//! GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearAirdrop, 60000, false );
 	}
 	
 	// ------------------------------------------------------------
@@ -89,8 +88,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
 				
-			//RemoveServerMarker();
-
 			foreach ( EntityAI item : items )
 			{
 				GetGame().ObjectDelete( item );
@@ -115,8 +112,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#endif	
 
 		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
-			
-		//RemoveServerMarker();
 		
 		DestroyLight();
 		
@@ -138,24 +133,19 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// InitAirdrop
 	// ------------------------------------------------------------
-	void InitAirdrop(string location)
+	void InitAirdrop()
 	{
-		if ( !location )
-			return;	
-		
 		if ( GetGame() && GetGame().IsMultiplayer() || !GetGame().IsClient() )
 		{				
 			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( this.OnUpdate );
 	
-			m_Location = location;
-			
 			SetAnimationPhase( "parachute", 0 );
 			SetOrientation( Vector( GetOrientation()[0], 0, 0 ) );
 			SetDirection( GetDirection() );
 			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			EnableDynamicCCD( true );
 			SetDynamicPhysicsLifeTime( -1 );
-        	
+			
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.ClearAirdrop );
 			
 			m_StartTime = GetGame().GetTime();
@@ -172,29 +162,20 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		if ( items.Count() < m_ItemCount )
 		{
-			if ( !m_IsLooted && GetGame().IsServer() )
+			if ( !m_IsLooted && IsMissionHost() )
 			{
-				//! Delete light source
 				ToggleLight();
-				
-				//! Delete drop server map and 3D marker
-				//RemoveServerMarker();
-				
-				//! Announce player who hase claimed aidrop
-				//! GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "AIRDROP" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_LOOTED", nearbyPlayer.GetIdentityName(), m_Location ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 7 );
-			
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearAirdrop, 3600000, false, this ); //! Remove crate after 15 minutes
+
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearAirdrop, 3600000, false, this );
 
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CheckAirdrop );
 				
 				m_IsLooted = true;
 			} 
-			else if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-			{				
-				//! Stop smoke
-				StopSmokeEffect();
 
-				m_IsLooted = true;
+			if ( m_IsLooted && IsMissionClient() )
+			{				
+				StopSmokeEffect();
 			}
 		}
 	}
@@ -215,14 +196,11 @@ class ExpansionAirdropContainerBase extends Container_Base
 		} 
 		else if ( !m_LootHasSpawned )
 		{
-       		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
+	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
 
-			//! Create server map and 3D marker on crate pos
-			//CreateServerMarker( m_Location );
-			
 			m_LootHasSpawned = true;
 		}
 		
@@ -249,7 +227,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 			}
 		}
 
-		m_ItemCount++;
+		array< EntityAI > items = new array< EntityAI >;
+		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
+
+		m_ItemCount = items.Count();
 	}
 	
 	// ------------------------------------------------------------
@@ -315,7 +296,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
-        float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
+		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
 
 		float spawnX = r * Math.Cos( a );
 		float spawnZ = r * Math.Sin( a );
@@ -327,7 +308,12 @@ class ExpansionAirdropContainerBase extends Container_Base
 		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
 
 		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
-		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, nPosition );
+
+		PGFilter filter = new PGFilter();
+		filter.SetFlags( PGPolyFlags.NONE, PGPolyFlags.NONE, PGPolyFlags.NONE );
+		filter.SetCost( PGAreaType.TERRAIN, 10 );
+
+		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
 		return nPosition;
 	}
@@ -517,7 +503,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		EXLogPrint("ExpansionAirdropContainerBase::StopSmokeEffect - Start");
 		#endif
 		
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() ) //! Client side
+		if ( IsMissionClient() )
 		{	
 			if ( m_ParticleEfx )
 			{
@@ -536,17 +522,17 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// IsInventoryVisible
 	// ------------------------------------------------------------
 	override bool IsInventoryVisible()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// CanUseConstruction
 	// ------------------------------------------------------------
 	override bool CanUseConstruction()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// CanPutIntoHands

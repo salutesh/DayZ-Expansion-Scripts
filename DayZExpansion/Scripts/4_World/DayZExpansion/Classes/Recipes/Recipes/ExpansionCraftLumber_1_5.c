@@ -60,8 +60,8 @@ class ExpansionCraftLumber_1_5 extends RecipeBase
 		//----------------------------------------------------------------------------------------------------------------------
 		
 		//! Result
-		AddResult( "ExpansionLumber15" ); //! Add results here
-		AddResult( "ExpansionLumber15" ); //! Add results here
+		AddResult( "ExpansionLumber1_5" ); //! Add results here
+		AddResult( "ExpansionLumber1_5" ); //! Add results here
 
 		m_ResultSetFullQuantity[0] = true;
 		m_ResultSetQuantity[0] = 2;
@@ -73,7 +73,7 @@ class ExpansionCraftLumber_1_5 extends RecipeBase
 		m_ResultReplacesIngredient[0] = -1;
 	}
 
-    override bool CanDo(ItemBase ingredients[], PlayerBase player)
+	override bool CanDo(ItemBase ingredients[], PlayerBase player)
 	{
 		bool canCraft = GetExpansionSettings().GetBaseBuilding().CanCraftExpansionBasebuilding;
 

@@ -10,54 +10,6 @@
  *
 */
 
-class Expansion_Hatchback_02_Door_1_1: Hatchback_02_Door_1_1
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Hatchback_02_Door_1_1";
-	}
-}
-
-class Expansion_Hatchback_02_Door_1_2: Hatchback_02_Door_1_2
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Hatchback_02_Door_1_2";
-	}
-}
-
-class Expansion_Hatchback_02_Door_2_1: Hatchback_02_Door_2_1
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Hatchback_02_Door_2_1";
-	}
-}
-
-class Expansion_Hatchback_02_Door_2_2: Hatchback_02_Door_2_2
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Hatchback_02_Door_2_2";
-	}
-}
-
-class Expansion_Hatchback_02_Hood: Hatchback_02_Hood
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Hatchback_02_Hood";
-	}
-}
-
-class Expansion_Hatchback_02_Trunk: Hatchback_02_Trunk
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Hatchback_02_Trunk";
-	}
-}
-
 modded class Hatchback_02
 {
 	override bool IsVitalCarBattery()

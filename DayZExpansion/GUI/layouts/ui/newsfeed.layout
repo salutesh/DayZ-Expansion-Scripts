@@ -1,0 +1,582 @@
+PanelWidgetClass ExpansionNewsFeed {
+ ignorepointer 1
+ position 0 0
+ size 550 630
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 4
+ {
+  GridSpacerWidgetClass news_feed_root {
+   visible 1
+   disabled 0
+   ignorepointer 1
+   size 550 630
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 4
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+   Columns 1
+   Rows 2
+   {
+    ImageWidgetClass news_feed_header {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0.8627
+     position 0 0
+     size 1 36
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     image0 "set:dayz_gui image:inv_header_1"
+     mode blend
+     "src alpha" 1
+     {
+      ButtonWidgetClass news_feed_close {
+       visible 0
+       color 1 1 1 0
+       position 6 0
+       size 36 36
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style Empty
+       font "gui/fonts/sdf_MetronLight24"
+       {
+        ImageWidgetClass news_feed_close_screenshot {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         image0 "set:dayz_gui image:icon_x"
+         mode blend
+         "src alpha" 1
+         "no wrap" 0
+         stretch 0
+         "flip u" 0
+         "flip v" 0
+         filter 1
+        }
+       }
+      }
+      TextWidgetClass news_feed_text {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 1 26
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Normal
+       text "#layout_main_menu_main_news_header"
+       font "gui/fonts/sdf_MetronLight24"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    GridSpacerWidgetClass news_feed_content {
+     ignorepointer 1
+     color 0 0 0 0.549
+     position 0 0
+     size 1 594
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style DayZDefaultPanelBottom
+     "no focus" 1
+     Padding 0
+     Margin 10
+     "Size To Content V" 1
+     Columns 1
+     Rows 7
+     {
+      MultilineTextWidgetClass InfoT1 {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "DayZ Expansion is now available to everyone!"
+       font "gui/fonts/sdf_MetronLight24"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 20
+       "size to text h" 0
+       "size to text v" 1
+       "text valign" center
+       wrap 1
+      }
+      MultilineTextWidgetClass InfoC1 {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "PLACEHOLDER"
+       font "gui/fonts/sdf_MetronLight24"
+       "exact text" 1
+       "exact text size" 18
+       "size to text h" 0
+       "size to text v" 1
+       wrap 1
+      }
+      MultilineTextWidgetClass InfoT2 {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "#layout_mainmenu_newsfeed_sgz_title_2"
+       font "gui/fonts/sdf_MetronLight24"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 20
+       "size to text h" 0
+       "size to text v" 1
+       "text valign" center
+       wrap 1
+      }
+      MultilineTextWidgetClass InfoC2 {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "PLACEHOLDER"
+       font "gui/fonts/sdf_MetronLight24"
+       "exact text" 1
+       "exact text size" 18
+       "size to text h" 0
+       "size to text v" 1
+       wrap 1
+      }
+      MultilineTextWidgetClass InfoT3 {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "Is this a offical DLC?"
+       font "gui/fonts/sdf_MetronLight24"
+       "bold text" 1
+       "exact text" 1
+       "exact text size" 20
+       "size to text h" 0
+       "size to text v" 1
+       "text valign" center
+       wrap 1
+      }
+      MultilineTextWidgetClass InfoC3 {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "Nope!"
+       font "gui/fonts/sdf_MetronLight24"
+       "exact text" 1
+       "exact text size" 18
+       "size to text h" 0
+       "size to text v" 1
+       wrap 1
+      }
+      WrapSpacerWidgetClass news_links {
+       ignorepointer 1
+       position 10.2986 5
+       size 1.03745 72
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       {
+        ButtonWidgetClass feedback_tracker {
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.22 36
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "play"
+         "next right" "dayz_forums"
+         "next up" "news_sec_1"
+         "next down" "news_sec_1"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass feedback_tracker_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 65 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 150
+           text "#layout_main_menu_feedback"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass feedback_tracker_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 -4
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:dayz_gui image:icon_feedback"
+           mode blend
+           "src alpha" 1
+           stretch 0
+          }
+         }
+        }
+        ButtonWidgetClass expansion_forums {
+         ignorepointer 0
+         color 1 1 1 0.549
+         position 101 0
+         size 0.2 36
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "feedback_tracker"
+         "next right" "twitter"
+         "next up" "news_sec_1"
+         "next down" "news_sec_1"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass expansion_forums_text {
+           clipchildren 0
+           ignorepointer 1
+           keepsafezone 0
+           position 36 0
+           size 60 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 151
+           text "Forums"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass expansion_forums_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 2
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:expansion_iconset image:icon_forums"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        ButtonWidgetClass twitter {
+         ignorepointer 0
+         color 1 1 1 0.549
+         position 214 0
+         size 0.27 36
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "dayz_forums"
+         "next right" "youtube"
+         "next up" "news_sec_2"
+         "next down" "news_sec_2"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass twitter_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 94 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 152
+           text "@DayZExpansion#"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass twitter_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:dayz_gui image:icon_twitter"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        ButtonWidgetClass youtube {
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.25 36
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "twitter"
+         "next right" "play"
+         "next up" "news_sec_2"
+         "next down" "news_sec_2"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass youtube_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 90 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 153
+           text "DayZExpansion"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass youtube_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:dayz_gui image:icon_youtube"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        ButtonWidgetClass discord {
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.22 36
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "twitter"
+         "next right" "play"
+         "next up" "news_sec_2"
+         "next down" "news_sec_2"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass discord_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 60 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 153
+           text "Discord"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass discord_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:expansion_iconset image:icon_discord"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        ButtonWidgetClass github {
+         visible 1
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.2 36
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "twitter"
+         "next right" "play"
+         "next up" "news_sec_2"
+         "next down" "news_sec_2"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass github_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 60 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 153
+           text "GitHub"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass github_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:expansion_iconset image:icon_github"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        ButtonWidgetClass patreon {
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.2 36
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "twitter"
+         "next right" "play"
+         "next up" "news_sec_2"
+         "next down" "news_sec_2"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass patreon_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 60 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 153
+           text "Patreon"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass patreon_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:expansion_iconset image:icon_patreon"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

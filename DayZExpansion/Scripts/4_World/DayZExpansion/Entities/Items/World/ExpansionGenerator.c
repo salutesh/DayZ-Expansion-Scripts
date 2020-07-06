@@ -113,9 +113,9 @@ class ExpansionGenerator: ItemBase
 		if ( !IsMissionHost() )
 			return;
 
-        ExpansionWorldMappingModule module;
-        if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionWorldMappingModule ) ) )
-        {
+		ExpansionWorldMappingModule module;
+		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionWorldMappingModule ) ) )
+		{
 			module.TurnOnGenerator( GetPosition() );
 		}
 	}
@@ -131,9 +131,9 @@ class ExpansionGenerator: ItemBase
 		if ( !IsMissionHost() )
 			return;
 
-        ExpansionWorldMappingModule module;
-        if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionWorldMappingModule ) ) )
-        {
+		ExpansionWorldMappingModule module;
+		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionWorldMappingModule ) ) )
+		{
 			module.TurnOffGenerator( GetPosition() );
 		}
 	}
@@ -184,9 +184,9 @@ class ExpansionGenerator: ItemBase
 	// IsInventoryVisible
 	// ------------------------------------------------------------
 	override bool IsInventoryVisible()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// CanPutIntoHands

@@ -107,52 +107,9 @@ class ExpansionAirdropPlane extends House
 		if ( IsMissionClient() )
 		{
 			PlayLoop();
-		
-			// SpawnLights();
 		}
 	}
 
-	void SpawnLights()
-	{
-		/* 
-		if (!m_Light1)
-		{
-			m_Light1 = ExpansionPointLight.Cast(GetGame().CreateObject("ExpansionPointLight", ModelToWorld("-20 0 -2.589028"), true));
-
-			m_Light1.SetDiffuseColor(1, 0, 0);
-			m_Light1.SetRadiusTo(500);
-			m_Light1.SetBrightnessTo(0.01);
-			m_Light1.SetPosition(WorldToModel(m_Light1.GetPosition()));
-
-			AddChild(m_Light1, 0);
-		}
-		
-		if (!m_Light2)
-		{
-			m_Light2 = ExpansionPointLight.Cast(GetGame().CreateObject("ExpansionPointLight", ModelToWorld("20 0 -2.589026"), true));
-
-			m_Light2.SetDiffuseColor(1, 0, 0);
-			m_Light2.SetRadiusTo(500);
-			m_Light2.SetBrightnessTo(0.01);
-			m_Light2.SetPosition(WorldToModel(m_Light2.GetPosition()));
-
-			AddChild(m_Light2, 0);
-		}
-		
-		if (!m_Light3)
-		{
-			m_Light3 = ExpansionPointLight.Cast(GetGame().CreateObject("ExpansionPointLight", ModelToWorld("0.001175 6 12.296854"), true));
-
-			m_Light3.SetDiffuseColor(1, 1, 1);
-			m_Light3.SetRadiusTo(500);
-			m_Light3.SetBrightnessTo(0.01);
-			m_Light3.SetPosition(WorldToModel(m_Light3.GetPosition()));
-
-			AddChild(m_Light3, 0);
-		}
-		*/
-	}
-	
 	void PlayLoop()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -175,6 +132,9 @@ class ExpansionAirdropPlane extends House
 		vector position = GetPosition();
 
 		m_Speed = speed;
+		
+		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "m_Speed " + m_Speed );
+		// Message( PlayerBase.Cast( GetGame().GetPlayer() ), "speed " + speed );
 
 		m_SpawnRadius = Math.RandomFloat( 0, maxRadius );
 
@@ -188,8 +148,6 @@ class ExpansionAirdropPlane extends House
 		
 		m_PreviousDistance = vector.Distance( position, Vector( m_AirdropPosition[0], position[1], m_AirdropPosition[2] ) );
 
-		//GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_EVENT", m_AirdropName ), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 7 );
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[ExpansionAirdropPlane] SetupPlane end");
 		#endif
@@ -247,8 +205,6 @@ class ExpansionAirdropPlane extends House
 
 	bool CheckForDrop()
 	{
-		//! Print("CheckForDrop " + GetPosition() );
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[ExpansionAirdropPlane] CheckPosition start");
 		#endif
@@ -256,15 +212,11 @@ class ExpansionAirdropPlane extends House
 		if ( !IsMissionHost() )
 			return false;
 
-		//! Print("CheckForDrop 1");
-
 		if ( GetPosition()[0] == 0 || GetPosition()[2] == 0 )
 			return false;
 
 		if ( m_AirdropPosition[0] == 0 || m_AirdropPosition[2] == 0 )
 			return false;
-
-		//! Print("CheckForDrop 2");
 
 		vector position = GetPosition();
 
@@ -274,24 +226,14 @@ class ExpansionAirdropPlane extends House
 
 		m_WarnedProximity = false;
 
-		//! Print("CheckForDrop 3 " + distance);
-
 		if ( distance <= 1500 && !m_HasWarnedProximity )
 		{
 			m_HasWarnedProximity = true;
 			m_WarnedProximity = true;	
-			
-			//GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_EVENT_CLOSE", m_AirdropName ), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 7 );
 		} else if ( !m_AirdropCreated )
 		{
-			//! Print("CheckForDrop 4 " + distance);
-			//! Print("CheckForDrop 5 " + m_SpawnRadius);
-			//! Print("CheckForDrop 6 " + m_PreviousDistance);
-
-			if ( distance <= Math.RandomFloat( 10, m_SpawnRadius ) )
+			if ( distance <= m_SpawnRadius )
 			{
-				//! Print("CheckForDrop 7 " + m_PreviousDistance);
-
 				return true;
 			}
 		}

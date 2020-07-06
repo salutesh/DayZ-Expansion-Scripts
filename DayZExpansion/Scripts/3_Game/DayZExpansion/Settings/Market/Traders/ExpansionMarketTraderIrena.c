@@ -26,31 +26,5 @@ class ExpansionMarketTraderIrena: ExpansionMarketTrader
 		AddItem( "ExpansionMerlin" );
 		AddItem( "ExpansionUh1h" );
 		AddItem( "ExpansionMh6" );
-
-		AddItem( "ExpansionSpraycanMerlinDefault" );
-		AddItem( "ExpansionSpraycanMerlinDahoman" );
-		AddItem( "ExpansionSpraycanMerlinIon" );
-		AddItem( "ExpansionSpraycanMerlinPresident" );
-		AddItem( "ExpansionSpraycanMerlinVrana" );
-		AddItem( "ExpansionSpraycanMerlinWave" );
-
-		AddItem( "ExpansionSpraycanUh1hDefault" );
-		AddItem( "ExpansionSpraycanUh1hCivilian" );
-		AddItem( "ExpansionSpraycanUh1hMedical" );
-		AddItem( "ExpansionSpraycanUh1hUber" );
-
-		AddItem( "ExpansionSpraycanMh6Default" );
-		AddItem( "ExpansionSpraycanMh6Blueline" );
-		AddItem( "ExpansionSpraycanMh6Digital" );
-		AddItem( "ExpansionSpraycanMh6Elliptical" );
-		AddItem( "ExpansionSpraycanMh6Furious" );
-		AddItem( "ExpansionSpraycanMh6GrayWatcher" );
-		AddItem( "ExpansionSpraycanMh6Jeans" );
-		AddItem( "ExpansionSpraycanMh6Shadow" );
-		AddItem( "ExpansionSpraycanMh6Speedy" );
-		AddItem( "ExpansionSpraycanMh6Sunset" );
-		AddItem( "ExpansionSpraycanMh6Vrana" );
-		AddItem( "ExpansionSpraycanMh6Wasp" );
-		AddItem( "ExpansionSpraycanMh6Wave" );
 	}
 }

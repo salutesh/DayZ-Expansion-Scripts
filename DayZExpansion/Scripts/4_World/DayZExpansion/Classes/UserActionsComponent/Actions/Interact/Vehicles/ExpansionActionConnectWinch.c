@@ -15,7 +15,7 @@ class ExpansionActionConnectWinch: ActionInteractBase
 	protected ExpansionHelicopterScript m_Helicopter;
 	protected CarScript m_RayCastObject;
 	
-    float ropeLength = 10;
+	float ropeLength = 10;
 	float radius = 5;
 	float stiffness = 10;
 	float damping = 0.5;
@@ -57,41 +57,41 @@ class ExpansionActionConnectWinch: ActionInteractBase
 				{
 					if ( m_Helicopter.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 					{
-                        vector contactPos;
-                        vector contactDir;
-                        int contactComponent;
-                        set<Object> objects = new set<Object>;
+						vector contactPos;
+						vector contactDir;
+						int contactComponent;
+						set<Object> objects = new set<Object>;
 
-                        vector start = m_Helicopter.GetPosition() + dBodyGetCenterOfMass( m_Helicopter );
-                        vector end = start - Vector( 0, ropeLength, 0 );
+						vector start = m_Helicopter.GetPosition() + dBodyGetCenterOfMass( m_Helicopter );
+						vector end = start - Vector( 0, ropeLength, 0 );
 
-                        // Initiate the raycast
-                        if ( DayZPhysics.RaycastRV( start, end, contactPos, contactDir, contactComponent, objects, NULL, m_Helicopter, false, false, ObjIntersectGeom, radius ) )
-                        {
-                            if ( Class.CastTo( m_RayCastObject, objects[0] ) )
-                            {
-                                return !m_RayCastObject.IsWinched();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+						// Initiate the raycast
+						if ( DayZPhysics.RaycastRV( start, end, contactPos, contactDir, contactComponent, objects, NULL, m_Helicopter, false, false, ObjIntersectGeom, radius ) )
+						{
+							if ( Class.CastTo( m_RayCastObject, objects[0] ) )
+							{
+								return !m_RayCastObject.IsWinched();
+							}
+						}
+					}
+				}
+			}
+		}
 		return false;
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-        super.OnStartServer( action_data );
+		super.OnStartServer( action_data );
 
-        if ( !m_Helicopter )
-            return;
+		if ( !m_Helicopter )
+			return;
 
-        if ( !m_RayCastObject )
-            return;
+		if ( !m_RayCastObject )
+			return;
 
-        vector heliTransform[4];
-        vector objTransform[4];
+		vector heliTransform[4];
+		vector objTransform[4];
 
 		m_Helicopter.GetTransform( heliTransform );
 		m_RayCastObject.GetTransform( objTransform );
@@ -120,10 +120,10 @@ class ExpansionActionConnectWinch: ActionInteractBase
 		dJoint6DOFSpringSetSpring( joint, 4, -1, -1 );
 		dJoint6DOFSpringSetSpring( joint, 5, -1, -1 );
 
-        //m_Helicopter.SetWinch( m_RayCastObject, joint );
-        //m_RayCastObject.SetWinch( m_Helicopter, joint );
+		//m_Helicopter.SetWinch( m_RayCastObject, joint );
+		//m_RayCastObject.SetWinch( m_Helicopter, joint );
 
-        Message( action_data.m_Player, "Winched: " + m_RayCastObject );
+		Message( action_data.m_Player, "Winched: " + m_RayCastObject );
 	}
 	
 	override bool CanBeUsedInVehicle()

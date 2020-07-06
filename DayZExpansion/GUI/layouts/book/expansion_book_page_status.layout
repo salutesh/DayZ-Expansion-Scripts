@@ -1,0 +1,905 @@
+FrameWidgetClass book_module_status {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ {
+  PanelWidgetClass book_status_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 937 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass character_name_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass character_name_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_5"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      PanelWidgetClass page_content_left {
+       color 0.349 0.2 0.1451 1
+       position 0 0.05582
+       size 1 0.87786
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        GridSpacerWidgetClass status_spacer {
+         ignorepointer 1
+         position 0.023 0.00918
+         size 0.95 0.4
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Columns 1
+         Rows 7
+         {
+          PanelWidgetClass profile_time_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_time_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_PLAYTIME"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_time_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass profile_shot_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_shot_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_SHOT"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_shot_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass profile_player_kills_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_player_kills_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_KILLS"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_player_kills_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass profile_zombie_kills_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_zombie_kills_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_ZOMBIE_KILLS"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_zombie_kills_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass profile_animal_kills_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_animal_kills_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_ANIMAL_KILLS"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_animal_kills_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass profile_distance_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_distance_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_DISTANCE"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_distance_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass profile_weight_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass profile_weight_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_WEIGHT"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+            TextWidgetClass profile_weight_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "gui/fonts/etelkatextpro16"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+        TextWidgetClass conditions_name_label {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0 0
+         size 1 0.08
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         text "#STR_EXPANSION_BOOK_STATUS_CONDITION_TITLE"
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text halign" center
+         "text valign" center
+        }
+        ImageWidgetClass conditions_name_background {
+         visible 0
+         ignorepointer 1
+         position 2.096 0
+         size 440 45
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:book_assets image:menu_element_5"
+         mode blend
+         "src alpha" 1
+         stretch 1
+        }
+        GridSpacerWidgetClass conditions_spacer {
+         visible 0
+         ignorepointer 1
+         position 0 0
+         size 0.95 0.4
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Columns 1
+         Rows 7
+         {
+          PanelWidgetClass condition_radiation_spacer {
+           visible 0
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass condition_radiation_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.25 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "RADIATION:"
+             font "DayZExpansion/GUI/fonts/etelkatextpro24"
+             "text valign" center
+            }
+            TextWidgetClass condition_radiation_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.75 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "DayZExpansion/GUI/fonts/etelkatextpro24"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass condition_effects_spacer {
+           visible 0
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass condition_effects_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.25 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "EFFECTS:"
+             font "DayZExpansion/GUI/fonts/etelkatextpro24"
+             "text valign" center
+            }
+            TextWidgetClass condition_effects_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.75 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             font "DayZExpansion/GUI/fonts/etelkatextpro24"
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_right {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      PanelWidgetClass page_content_right {
+       color 0.349 0.2 0.1451 1
+       position 0 0.05582
+       size 1 0.87786
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        PanelWidgetClass player_preview_content {
+         color 0.349 0.2 0.1451 1
+         position 0 0
+         size 1 0.4
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style blank
+         {
+          PlayerPreviewWidgetClass player_preview {
+           ignorepointer 0
+           size 0.5 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        GridSpacerWidgetClass stats_spacer {
+         ignorepointer 1
+         position 0 0.01899
+         size 0.95 0.56428
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Columns 1
+         Rows 10
+         {
+          PanelWidgetClass stat_health_header_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_health_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_STATS_HEALTH"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass stat_health_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_health_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.2 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "50"
+             font "gui/fonts/etelkatextpro16"
+             "exact text" 0
+             "text halign" center
+             "text valign" center
+            }
+            ProgressBarWidgetClass stat_health_bar {
+             ignorepointer 1
+             color 0.1529 0.6824 0.3765 1
+             position 0 0
+             size 0.8 0.5
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Stamina
+            }
+           }
+          }
+          PanelWidgetClass stat_blood_header_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_blood_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_STATS_BLOOD"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass stat_blood_spacer {
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_blood_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.2 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "80"
+             font "gui/fonts/etelkatextpro16"
+             "text halign" center
+             "text valign" center
+            }
+            ProgressBarWidgetClass stat_blood_bar {
+             ignorepointer 1
+             color 0.502 0 0 1
+             position 0 0
+             size 0.8 0.5
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Stamina
+             current 80
+            }
+           }
+          }
+          PanelWidgetClass stat_water_header_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_water_label {
+             color 0 0 0 1
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_STATS_WATER"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass stat_water_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_water_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.2 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "20"
+             font "gui/fonts/etelkatextpro16"
+             "text halign" center
+             "text valign" center
+            }
+            ProgressBarWidgetClass stat_water_bar {
+             ignorepointer 1
+             color 0.2588 0.6863 0.6863 1
+             position 0 0
+             size 0.8 0.5
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Stamina
+             current 20
+            }
+           }
+          }
+          PanelWidgetClass stat_energy_header_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_energy_label {
+             color 0 0 0 1
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_STATS_ENERGY"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass stat_energy_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_energy_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.2 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "20"
+             font "gui/fonts/etelkatextpro16"
+             "text halign" center
+             "text valign" center
+            }
+            ProgressBarWidgetClass stat_energy_bar {
+             ignorepointer 1
+             color 0.8118 0.7373 0.5059 1
+             position 0 0
+             size 0.8 0.5
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Stamina
+             current 20
+            }
+           }
+          }
+          PanelWidgetClass stat_stamina_header_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_stamina_label {
+             color 0 0 0 1
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_STATUS_STATS_STAMINA"
+             font "gui/fonts/etelkatextpro16"
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass stat_stamina_spacer {
+           visible 1
+           size 0.29 0.207
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass stat_stamina_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.2 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "20"
+             font "gui/fonts/etelkatextpro16"
+             "text halign" center
+             "text valign" center
+            }
+            ProgressBarWidgetClass stat_stamina_bar {
+             ignorepointer 1
+             color 0.2039 0.2863 0.3686 1
+             position 0 0
+             size 0.8 0.5
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Stamina
+             current 20
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      ImageWidgetClass stats_name_background {
+       ignorepointer 1
+       position 0 0
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_5"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass stats_name_label {
+       ignorepointer 1
+       color 0 0 0 1
+       position 0 0
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_STATUS_STATS_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+   }
+  }
+ }
+}

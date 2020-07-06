@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{4B07193E966C799D}DayZExpansion/GUI/textures/stick_note_3.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1591518801
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "stick_note_3.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

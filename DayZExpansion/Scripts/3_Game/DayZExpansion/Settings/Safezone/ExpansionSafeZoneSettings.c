@@ -15,13 +15,11 @@
  **/
 class ExpansionSafeZoneSettings: ExpansionSettingBase
 {
-	bool Enabled;
-	bool EnableVehicleinvincibleInsideSafeZone;
-	//Frame rate check in ms.
-	int  FrameRateCheckSafeZoneInMs;
-
-	autoptr array<ref ExpansionSafeZoneCircle> CircleZones;
-	autoptr array<ref ExpansionSafeZonePolygon> PolygonZones;
+	bool Enabled;												// Enable Safezone when set to 1
+	bool EnableVehicleinvincibleInsideSafeZone;					// When enabled, Vehicle damage is disabled
+	int  FrameRateCheckSafeZoneInMs;							// How often in ms the server need to check if the player is inside a Safezone
+	autoptr array<ref ExpansionSafeZoneCircle> CircleZones;		// 
+	autoptr array<ref ExpansionSafeZonePolygon> PolygonZones;	// 
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -39,7 +37,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 		//Not sent to client
 
 		m_IsLoaded = true;
-    }
+	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -48,8 +46,8 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionSafeZoneSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -78,7 +76,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 		Enabled = s.Enabled;
 		EnableVehicleinvincibleInsideSafeZone = s.EnableVehicleinvincibleInsideSafeZone;
 		FrameRateCheckSafeZoneInMs = s.FrameRateCheckSafeZoneInMs;
-    }
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -106,8 +104,9 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 			JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile( EXPANSION_SAFE_ZONES_SETTINGS, this );
 
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::Load - End");
-		#endif
+			EXPrint("ExpansionSafeZoneSettings::Load - End");
+			#endif
+			
 			return true;
 		}
 		
@@ -135,7 +134,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-        #ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionSafeZoneSettings] Loading default settings");
 		#endif
 		
@@ -151,7 +150,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 		points.Insert( Vector(7000, 0, 2521) );
 		PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
 
-       	CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
+	   	CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
 	}
 
 	// ------------------------------------------------------------

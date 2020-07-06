@@ -34,7 +34,7 @@ class ExpansionActionPairKey: ActionInteractBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Car = NULL;
-        m_KeysInHand = NULL;
+		m_KeysInHand = NULL;
 
 		if ( !target || !player )
 			return false;
@@ -49,20 +49,20 @@ class ExpansionActionPairKey: ActionInteractBase
 			return false;
 		}
 
-        if ( m_Car.HasKey() )
-        {
+		if ( m_Car.HasKey() )
+		{
 			return false;
-        }
+		}
 
-        if ( m_KeysInHand.IsPaired() )
-        {
+		if ( m_KeysInHand.IsPaired() )
+		{
 			return false;
-        }
+		}
 		
-		if ( m_KeysInHand.IsInherited(ExpansionCarAdminKey) )
-        {
+		if ( m_KeysInHand.IsInherited( ExpansionCarAdminKey ) )
+		{
 			return false;
-        }
+		}
 		
 		return true;
 	}
@@ -71,7 +71,7 @@ class ExpansionActionPairKey: ActionInteractBase
 	{
 		super.Start( action_data );
 
-        m_Car.PairKeyTo( m_KeysInHand );
+		m_Car.PairKeyTo( m_KeysInHand );
 	}
 
 	override bool CanBeUsedInRestrain()

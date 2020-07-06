@@ -15,6 +15,13 @@
  **/
 class ExpansionCodeLock extends ItemBase
 {
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionAttachToConstruction);
+	}
+	
 	override bool CanDetachAttachment(EntityAI parent)
 	{
 		if ( !super.CanDetachAttachment( parent ) )

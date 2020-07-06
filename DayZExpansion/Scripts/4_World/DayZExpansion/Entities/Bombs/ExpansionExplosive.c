@@ -10,13 +10,14 @@
  *
 */
 
-/**@class		ExpansionExplosiveBase
+/**@class		ExpansionExplosive
  * @brief		
  **/
-class ExpansionExplosiveBase extends ItemBase
+class ExpansionExplosive extends ItemBase
 {	
 	protected int m_Time;
 	protected int m_Timer;
+	protected float m_ExplosionTime;
 
 	protected bool m_Executed;
 	protected bool m_ExecutedSynchRemote;
@@ -33,7 +34,7 @@ class ExpansionExplosiveBase extends ItemBase
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-	void ExpansionExplosiveBase()
+	void ExpansionExplosive()
 	{
 		SetEventMask( EntityEvent.FRAME );
 		
@@ -51,7 +52,7 @@ class ExpansionExplosiveBase extends ItemBase
 	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
-	void ~ExpansionExplosiveBase()
+	void ~ExpansionExplosive()
 	{
 		if ( GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer()) ) 
 		{
@@ -75,13 +76,13 @@ class ExpansionExplosiveBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	// EOnFrame
+	// OnFrame
 	// ------------------------------------------------------------
-	override void EOnFrame(IEntity other, float timeSlice)
+	void OnFrame()
 	{
 		if ( IsMissionHost() && m_Executed )
 		{
-			if ( m_ExplosionTimer.GetRemaining() > 10 )
+			if (m_ExplosionTimer.GetRemaining() > 10 )
 			{
 				m_Time = 10;
 			}
@@ -95,24 +96,28 @@ class ExpansionExplosiveBase extends ItemBase
 
 		if ( IsMissionClient() && m_ExecutedSynchRemote )
 		{
-			TriggerSound( m_Time, timeSlice );
+			TriggerSound( m_Time );
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
 	override void OnPlacementComplete( Man player )
 	{
-		float explosionTime = GetExpansionSettings().GetBaseBuilding().ExplosionTime; 
+		m_ExplosionTime = GetExpansionSettings().GetRaid().ExplosionTime; 
 
 		m_Executed = true;
 		m_ExecutedSynchRemote = true;
 
 		if ( IsMissionHost() )
 		{
-			m_ExplosionTimer.Run( explosionTime, this, "Trigger", NULL, false ); 
+			m_ExplosionTimer.Run( m_ExplosionTime, this, "Trigger", NULL, false ); 
 		}
+
+		// That's the only fix I have found
+		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( OnFrame, 1, true );
+
 
 		SetSynchDirty();
 	}
@@ -166,13 +171,13 @@ class ExpansionExplosiveBase extends ItemBase
 		}
 	}
 
-	void TriggerSound( int time, float dT )
+	void TriggerSound( int time )
 	{
-		if ( time <= 10 )
+		if (time <= m_ExplosionTime )
 		{
 			if ( m_Timer < ( time * 100 ) )
 			{
-				m_Timer += 10 * dT;
+				m_Timer += 10;
 			}
 			else 
 			{
@@ -195,7 +200,8 @@ class ExpansionExplosiveBase extends ItemBase
 
 		float strength_factor = Math.InverseLerp(GameConstants.CAMERA_SHAKE_GRENADE_DISTANCE, 0, distance_to_player);
 
-		// GetGame().GetPlayer().GetCurrentCamera().SpawnCameraShake(strength_factor * 4);
+		// just don't
+		//GetGame().GetPlayer().GetCurrentCamera().SpawnCameraShake(strength_factor * 4);
 
 		SEffectManager.PlaySound("Expansion_Explosive_Large_SoundSet", GetPosition());
 

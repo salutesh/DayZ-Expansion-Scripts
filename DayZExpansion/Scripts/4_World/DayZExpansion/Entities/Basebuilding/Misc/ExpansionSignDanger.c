@@ -18,9 +18,9 @@ class ExpansionSignDanger: Container_Base
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionSignDanger()
-    {
-    }
+	void ExpansionSignDanger()
+	{
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -61,8 +61,8 @@ class ExpansionSignDanger: Container_Base
 	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour() 
 	{
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// OnPlacementComplete

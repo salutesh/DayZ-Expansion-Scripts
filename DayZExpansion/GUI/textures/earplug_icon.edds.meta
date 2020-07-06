@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{8244D921344E1DEA}DayZExpansion/GUI/textures/earplug_icon.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1028826972
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "earplug_icon.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

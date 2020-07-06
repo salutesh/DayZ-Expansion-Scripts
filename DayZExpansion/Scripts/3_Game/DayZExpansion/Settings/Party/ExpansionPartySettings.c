@@ -16,15 +16,17 @@
 class ExpansionPartySettings: ExpansionSettingBase
 {
 	bool EnableParties;
-    int MaxInParty; // If <= 0, unlimited party size
-	bool ShowPartyMembers3DMarkers;
-	bool UseWholeMapForInviteList; // Use it if you want whole map available in invite list, instead only nearby players
-	bool EnableQuickMarker;
+	int MaxInParty; 					// If <= 0, unlimited party size
+	bool UseWholeMapForInviteList; 		// Use it if you want whole map available in invite list, instead only nearby players
+	bool ShowPartyMembers3DMarkers;		// If enabled, allow to see 3D marker above teammates location
+	float DistanceForPartyMarkers; 		// Can't go over network bubble distance for player
+	bool EnableQuickMarker;				// 
+	bool ShowDistanceUnderQuickMarkers;	// 
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
-    // ------------------------------------------------------------
+	// ------------------------------------------------------------
 	// Expansion ExpansionPartySettings
 	// ------------------------------------------------------------
 	void ExpansionPartySettings()
@@ -53,7 +55,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPartySettings::HandleRPC - End");
 		#endif
-    }
+	}
 
 	override int Send( PlayerIdentity identity )
 	{
@@ -81,8 +83,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// Expansion Send
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionPartySettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -98,7 +100,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowPartyMembers3DMarkers = s.ShowPartyMembers3DMarkers;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
 		EnableQuickMarker = s.EnableQuickMarker;
-    }
+		ShowDistanceUnderQuickMarkers = s.ShowDistanceUnderQuickMarkers;
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -156,16 +159,18 @@ class ExpansionPartySettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// Expansion Defaults
 	// ------------------------------------------------------------
-    override void Defaults()
+	override void Defaults()
 	{
-        #ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionPartySettings] Loading default settings");
 		#endif
 		
 		EnableParties = true;
 		MaxInParty = 10;
-        ShowPartyMembers3DMarkers = true;
+		ShowPartyMembers3DMarkers = true;
+		DistanceForPartyMarkers = 2048.0;
 		UseWholeMapForInviteList = false;
 		EnableQuickMarker = true;
+		ShowDistanceUnderQuickMarkers = true;
 	}
 }

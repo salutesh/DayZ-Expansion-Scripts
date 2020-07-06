@@ -110,9 +110,6 @@ modded class CarScript
 
 	protected vector m_LastAngularVelocity;
 
-	protected bool m_DisablePhysics;
-	protected bool m_WasPhysicsDisabled;
-
 	protected bool m_IsPhysicsHost;
 	
 	protected float m_BoundingRadius;
@@ -144,7 +141,7 @@ modded class CarScript
 	protected int m_CurrentSkinSynchRemote;
 
 	protected bool m_CanBeSkinned;
-	protected autoptr array< ref ExpansionSkin > m_Skins;
+	protected autoptr array< ExpansionSkin > m_Skins;
 
 	// Lights
 	ref array< ref ExpansionPointLight > m_Lights;
@@ -152,9 +149,6 @@ modded class CarScript
 
 	protected ExpansionMapMarkerModule m_MarkerModule;
 	protected int m_ServerMarker;
-
-	protected bool m_IsSpawning;
-	protected bool m_IsCESpawn;
 
 	protected vector m_Orientation;
 	protected vector m_Position;
@@ -237,18 +231,16 @@ modded class CarScript
 		RegisterNetSyncVariableInt( "m_VehicleLockedState", ExpansionVehicleLockState.NOLOCK, ExpansionVehicleLockState.COUNT );
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
 		m_MarkerModule = ExpansionMapMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMapMarkerModule ) );
 		m_ServerMarker = -1;
-
-		//! m_IsSpawning = true;
-		//! GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( UpdateSpawning, Math.RandomIntInclusive( 100, 1000 ), false );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
 		#endif
 	}
-		
+
 	// ------------------------------------------------------------
 	// Expansion CreateServerMarker
 	// ------------------------------------------------------------
@@ -341,6 +333,20 @@ modded class CarScript
 	{
 	}
 
+	void LongDeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::LongDeferredInit - Start");
+		#endif
+
+		if ( m_SkinModule )
+			m_SkinModule.PerformCESkinSwap( this );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::LongDeferredInit - End");
+		#endif
+	}
+
 	void DeferredInit()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -379,16 +385,14 @@ modded class CarScript
 
 		super.SetActions();
 
-		RemoveAction( ActionGetInTransport );
+		//RemoveAction( ActionGetInTransport );
 
-		AddAction( ExpansionActionGetInTransport );
-
-		//AddAction( ExpansionActionCarHorn );
+		//AddAction( ExpansionActionGetInTransport );
 
 		AddAction( ExpansionActionConnectTow );
 
 		AddAction( ExpansionActionPairKey );
-		AddAction( ExpansionActionUnPairKey );
+		AddAction( ExpansionActionAdminUnpairKey );
 
 		AddAction( ExpansionActionLockVehicle );
 		AddAction( ExpansionActionUnlockVehicle );
@@ -615,14 +619,11 @@ modded class CarScript
 		#endif
 	}
 	
-	void UnPairKey()
+	// Only call this after all keys have been confirmed to be removed
+	void ResetKeyPairing()
 	{
 		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
-		
-		ExpansionCarKey key = ExpansionCarKey.GetKeyByVehicle( this );
-		if (key)
-			key.UnPair();
-		
+
 		SetSynchDirty();
 	}
 
@@ -1664,7 +1665,7 @@ modded class CarScript
 	{
 		ref NoiseParams npar = new NoiseParams();
 		npar.LoadFromPath( "CfgVehicles " + GetType() + " NoiseCarHorn" );
-		GetGame().GetNoiseSystem().AddNoise( this, npar );
+		//GetGame().GetNoiseSystem().AddNoise( this, npar );
 	}
 
 	// ------------------------------------------------------------	
@@ -1885,12 +1886,6 @@ modded class CarScript
 	protected bool CanSimulate()
 	{
 		return false;
-	}
-
-	// ------------------------------------------------------------
-	private void UpdateSpawning()
-	{
-		m_IsSpawning = false;
 	}
 
 	// ------------------------------------------------------------
@@ -2253,19 +2248,32 @@ modded class CarScript
 		EXPrint("CarScript::ExpansionSetupSkins - Start");
 		#endif
 
+		m_Skins = new array< ExpansionSkin >;
+
 		if ( Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) ) )
 		{
-			m_Skins = m_SkinModule.RetrieveSkins( GetType() );
-
-			if ( m_Skins && m_Skins.Count() != 0 )
-			{
-				m_CanBeSkinned = true;
-				return;
-			}
+			m_SkinModule.RetrieveSkins( GetType(), m_Skins, m_CurrentSkinName );
 		}
 
-		m_Skins = new array< ref ExpansionSkin >;
-		m_CanBeSkinned = false;
+		m_CanBeSkinned = m_Skins.Count() != 0;
+
+		if ( m_CanBeSkinned )
+		{
+			if ( m_CurrentSkinName != "" )
+			{
+				m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
+			} else
+			{
+				m_CurrentSkinIndex = 0;
+				
+				m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
+			}
+			
+			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
+			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
+
+			ExpansionOnSkinUpdate();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::ExpansionSetupSkins - End");
@@ -2317,6 +2325,11 @@ modded class CarScript
 		EXPrint("CarScript::ExpansionSetSkin - Start");
 		#endif
 		
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( m_CanBeSkinned );
+		Print( skinIndex );
+		#endif
+
 		if ( !m_CanBeSkinned )
 		{
 			m_CurrentSkinName = "";
@@ -2335,9 +2348,19 @@ modded class CarScript
 			m_CurrentSkinIndex = 0;
 		}
 
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( m_CurrentSkinIndex );
+		#endif
+
 		m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
 		m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
 		m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
+
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( m_CurrentSkinName );
+		Print( m_CurrentSkinSynchRemote );
+		Print( m_CurrentSkin );
+		#endif
 
 		ExpansionOnSkinUpdate();
 
@@ -2354,14 +2377,31 @@ modded class CarScript
 		EXPrint("CarScript::ExpansionOnSkinDamageZoneUpdate - Start");
 		#endif
 		
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( zone );
+		Print( level );
+		#endif
+
 		for ( int i = 0; i < zone.HiddenSelections.Count(); i++ )
 		{
 			int selectionIndex = GetHiddenSelectionIndex( zone.HiddenSelections[i] );
-					
+
+			#ifdef EXPANSION_SKIN_LOGGING
+			Print( "HiddenSelection: " + zone.HiddenSelections[i] );
+			Print( "SelectionIndex: " + selectionIndex );
+			#endif
+
 			if ( level >= 0 && level < zone.HealthLevels.Count() )
 			{
-				SetObjectTexture( selectionIndex, zone.HealthLevels[level].RVTexture );
-				SetObjectMaterial( selectionIndex, zone.HealthLevels[level].RVMaterial );
+				ExpansionSkinHealthLevel healthLevel = zone.HealthLevels[level];
+
+				#ifdef EXPANSION_SKIN_LOGGING
+				Print( "RVTexture: " + healthLevel.RVTexture );
+				Print( "RVMaterial: " + healthLevel.RVMaterial );
+				#endif
+
+				SetObjectTexture( selectionIndex, healthLevel.RVTexture );
+				SetObjectMaterial( selectionIndex, healthLevel.RVMaterial );
 			}
 		}
 
@@ -2376,11 +2416,12 @@ modded class CarScript
 		EXPrint("CarScript::ExpansionOnSkinUpdate - Start");
 		#endif
 
-		if ( !m_CurrentSkin || !m_CurrentSkin.HiddenSelections )
+		if ( !m_CurrentSkin )
 		{
 			#ifdef EXPANSIONEXPRINT
-			EXPrint("CarScript::ExpansionOnSkinUpdate - End No Skin");
+			EXPrint( "ItemBase::ExpansionOnSkinUpdate called but m_CurrentSkin is NULL!" );
 			#endif
+
 			return;
 		}
 
@@ -2389,6 +2430,13 @@ modded class CarScript
 			ExpansionSkinHiddenSelection selection = m_CurrentSkin.HiddenSelections[ i ];
 
 			int selectionIndex = GetHiddenSelectionIndex(  selection.HiddenSelection );
+
+			#ifdef EXPANSION_SKIN_LOGGING
+			Print( "HiddenSelection: " + selection.HiddenSelection );
+			Print( "SelectionIndex: " + selectionIndex );
+			Print( "RVTexture: " + selection.RVTexture );
+			Print( "RVMaterial: " + selection.RVMaterial );
+			#endif
 
 			SetObjectTexture( selectionIndex, selection.RVTexture );
 			SetObjectMaterial( selectionIndex, selection.RVMaterial );
@@ -2406,11 +2454,10 @@ modded class CarScript
 
 	bool IsSurfaceWater( vector position )
 	{
-		if( GetGame().SurfaceIsSea( position[0], position[2] ) )
+		if ( GetGame().SurfaceIsSea( position[0], position[2] ) )
 		{
 			return true;
-		}
-		else if( GetGame().SurfaceIsPond( position[0], position[2] ) )
+		} else if( GetGame().SurfaceIsPond( position[0], position[2] ) )
 		{
 			return true;
 		}
@@ -2436,7 +2483,7 @@ modded class CarScript
 	
 	override bool IsInventoryVisible()
 	{
-		if( !super.IsInventoryVisible() )
+		if ( !super.IsInventoryVisible() )
 			return false;
 
 		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
@@ -2474,17 +2521,12 @@ modded class CarScript
 				PairKeyTo( key );
 			}
 		}
-
-		if ( GetExpansionSettings().GetGeneral().SpawnVehicleWithRandomSkin )
+		
+		if ( GetExpansionSettings().GetMap().ShowVehicleDebugMarkers )
 		{
-			if ( m_CanBeSkinned )
-			{
-				ExpansionSetSkin( Math.RandomInt( 0, m_Skins.Count() ) );
-
-				ExpansionOnSkinUpdate();
-			}
+			CreateServerMarker();
 		}
-
+		
 		#ifdef EXPANSIONEXPRINT
 		Print("CarScript::EEOnCECreate - End");
 		#endif
@@ -2518,7 +2560,7 @@ modded class CarScript
 	string GetWreck()
 	{
 		return GetType() + "Wreck";
-	}	
+	}
 
 	override void OnContact( string zoneName, vector localPos, IEntity other, Contact data )
 	{
@@ -2531,7 +2573,7 @@ modded class CarScript
 			{
 				EntityAI cutting_tool = EntityAI.Cast( GetGame().CreateObject("WoodAxe", vector.Zero, false, true) );
 
-				if ( data.Impulse > 10000 )
+				if ( data.Impulse > 7500 )
 				{
 					if ( IsMissionClient() )
 					{
@@ -2601,52 +2643,6 @@ modded class CarScript
 			}
 		}
 	}
-}
-
-static void EjectPlayerFromVehicleClient( DayZPlayerImplement impl )
-{
-	if ( GetGame().IsMultiplayer() )
-		impl.SetAllowDamage( true );
-
-	impl.SetHealth( 0.0 );
-
-  	Transport trans;
-  	if ( !Class.CastTo( trans, impl.GetParent() ) )
-    	return;
-
-  	HumanCommandVehicle vehCmd = impl.GetCommand_Vehicle();
-	if ( !vehCmd )
-		return;
-
-	vehCmd.JumpOutVehicle();
-
-  	trans.CrewGetOut( trans.CrewMemberIndex( impl ) );
-  	impl.UnlinkFromLocalSpace();
-
-  	impl.StartCommand_Move();
-}
-
-static void EjectPlayerFromVehicleServer( DayZPlayerImplement impl )
-{
-	if ( GetGame().IsMultiplayer() )
-		impl.SetAllowDamage( true );
-
-	impl.SetHealth( 0.0 );
-
-  	Transport trans;
-  	if ( !Class.CastTo( trans, impl.GetParent() ) )
-    	return;
-
-  	HumanCommandVehicle vehCmd = impl.GetCommand_Vehicle();
-	if ( !vehCmd )
-		return;
-
-	vehCmd.JumpOutVehicle();
-
-  	trans.CrewGetOut( trans.CrewMemberIndex( impl ) );
-  	impl.UnlinkFromLocalSpace();
-
-  	impl.StartCommand_Move();
 }
 
 static TransferInventoryResult ExpansionTransferInventory( EntityAI sourceItem, EntityAI targetItem )

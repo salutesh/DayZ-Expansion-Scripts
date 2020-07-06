@@ -16,13 +16,16 @@ enum ExpansionSettingsRPC
 	ListToLoad,
 	
 	Book,
-	General,
+	BaseBuilding,
 	Map,
 	Market,
+	Notification,
 	Party,
+	Raid,
 	Spawn,
-	BaseBuilding,
 	Territory,
+	Vehicle,
+	General,
 
 	// when an admin requests these, not sent under normal circumstances
 	SafeZone,
@@ -41,7 +44,7 @@ enum ExpansionCOTBookModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTGeneralModuleRPC
+enum ExpansionCOTBaseBuildingModuleRPC
 {
 	INVALID = 30025,
 
@@ -68,7 +71,7 @@ enum ExpansionCOTMarketModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTPartyModuleRPC
+enum ExpansionCOTNotificationModuleRPC
 {
 	INVALID = 30040,
 
@@ -77,7 +80,7 @@ enum ExpansionCOTPartyModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTSpawnModuleRPC
+enum ExpansionCOTPartyModuleRPC
 {
 	INVALID = 30045,
 
@@ -86,7 +89,7 @@ enum ExpansionCOTSpawnModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTBaseBuildingModuleRPC
+enum ExpansionCOTRaidModuleRPC
 {
 	INVALID = 30050,
 
@@ -95,7 +98,7 @@ enum ExpansionCOTBaseBuildingModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTSafeZoneModuleRPC
+enum ExpansionCOTSpawnModuleRPC
 {
 	INVALID = 30055,
 
@@ -104,7 +107,7 @@ enum ExpansionCOTSafeZoneModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTMissionModuleRPC
+enum ExpansionCOTTerritoryModuleRPC
 {
 	INVALID = 30060,
 
@@ -113,9 +116,45 @@ enum ExpansionCOTMissionModuleRPC
 	COUNT
 }
 
-enum ExpansionCOTAirDropModuleRPC
+enum ExpansionCOTVehicleModuleRPC
 {
 	INVALID = 30065,
+
+	Update,
+	
+	COUNT
+}
+
+enum ExpansionCOTGeneralModuleRPC
+{
+	INVALID = 30070,
+
+	Update,
+	
+	COUNT
+}
+
+enum ExpansionCOTSafeZoneModuleRPC
+{
+	INVALID = 30080,
+
+	Update,
+	
+	COUNT
+}
+
+enum ExpansionCOTMissionModuleRPC
+{
+	INVALID = 30085,
+
+	Update,
+	
+	COUNT
+}
+
+enum ExpansionCOTAirDropModuleRPC
+{
+	INVALID = 30090,
 
 	Update,
 	

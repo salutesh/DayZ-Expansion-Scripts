@@ -17,25 +17,12 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 {
 	bool PlayerLocationNotifier;
 
-	bool ShowPlayerJoinServer;
-	ExpansionAnnouncementType JoinMessageType;
-	bool ShowPlayerLeftServer;
-	ExpansionAnnouncementType LeftMessageType;
-
-	bool EnableKillFeed;
-	ExpansionAnnouncementType KillFeedMessageType;
-	
-	bool EnableHumanity;
-
 	bool EnableGlobalChat;
-    ref ExpansionMapping Mapping;
-	int LightingConfig;										//! 0 - Default | 1 - Dark | 2 - Gloom
+	ref ExpansionMapping Mapping;
 
 	int EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
 	bool EnableGenerators;
 	bool EnableLighthouses;
-
-	bool EnableAutoRun;
 
 	bool EnableHUDGPS;
 	bool NeedGPSItemForKeyBinding;
@@ -45,16 +32,13 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool DisableMagicCrosshair;
 	bool EnablePlayerTags;
 	int PlayerTagViewRange;
-
-	bool EnableHumanityOnPlayerTags;
 	
 	bool EnablePlayerList;
-	
-	bool UnlimitedStamina;
-	
 
-	bool SpawnVehicleWithRandomSkin;
-	ExpansionVehicleNetworkMode VehicleSync;
+	bool EnableAutoRun;
+	bool UnlimitedStamina;
+	bool DisableDamagedHeliSpin;
+	
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -63,6 +47,12 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	void ExpansionGeneralSettings()
 	{
 		Mapping = new ExpansionMapping;
+	}
+
+	// ------------------------------------------------------------
+	void ~ExpansionGeneralSettings()
+	{
+		delete Mapping;
 	}
 	
 	// ------------------------------------------------------------
@@ -88,7 +78,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::HandleRPC - End");
 		#endif
-    }
+	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -115,8 +105,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::Copy - Start");
 		#endif
@@ -141,20 +131,11 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		#endif
 		
 		PlayerLocationNotifier = s.PlayerLocationNotifier;
-		ShowPlayerJoinServer = s.ShowPlayerJoinServer;
-		JoinMessageType = s.JoinMessageType;
-		ShowPlayerLeftServer = s.ShowPlayerLeftServer;
-		LeftMessageType = s.LeftMessageType;
-		EnableKillFeed = s.EnableKillFeed;
-		EnableHumanity = s.EnableHumanity;
-		KillFeedMessageType = s.KillFeedMessageType;
 		EnableGlobalChat = s.EnableGlobalChat;
 		Mapping.Copy( s.Mapping );
-		LightingConfig = s.LightingConfig;
 		EnableLamps = s.EnableLamps;
 		EnableGenerators = s.EnableGenerators;
 		EnableLighthouses = s.EnableLighthouses;
-		EnableAutoRun = s.EnableAutoRun;
 		EnableHUDGPS = s.EnableHUDGPS;
 		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
 		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
@@ -162,16 +143,15 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		DisableMagicCrosshair = s.DisableMagicCrosshair;
 		EnablePlayerTags = s.EnablePlayerTags;
 		PlayerTagViewRange = s.PlayerTagViewRange;
-		EnableHumanityOnPlayerTags  = s.EnableHumanityOnPlayerTags;
 		EnablePlayerList = s.EnablePlayerList;
+		EnableAutoRun = s.EnableAutoRun;
 		UnlimitedStamina = s.UnlimitedStamina;
-		SpawnVehicleWithRandomSkin = s.SpawnVehicleWithRandomSkin;
-		VehicleSync = s.VehicleSync;
+		DisableDamagedHeliSpin = s.DisableDamagedHeliSpin;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -238,7 +218,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-    override void Update( ExpansionSettingBase setting )
+	override void Update( ExpansionSettingBase setting )
 	{
 		super.Update( setting );
 
@@ -246,49 +226,37 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override void Defaults()
+	override void Defaults()
 	{
-        #ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionGeneralSettings] Loading default settings..");
 		#endif
 		
 		PlayerLocationNotifier = true;
-
-        ShowPlayerJoinServer = true;
-        JoinMessageType = ExpansionAnnouncementType.NOTIFICATION;
-        ShowPlayerLeftServer = true;
-        LeftMessageType = ExpansionAnnouncementType.NOTIFICATION;
-
-		EnableKillFeed = false;	
-		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
-
-		EnableHumanity = false;
 		
-        EnableGlobalChat = true;
+		EnableGlobalChat = true;
 
-        Mapping.Defaults();
+		Mapping.Defaults();
 
-		LightingConfig = 2;
-
-        EnableLamps = 3;						//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on | 3 - Street-Lights always on everywhere
-        EnableGenerators = false;
-        EnableLighthouses = true;
-
-		EnableAutoRun = true;
+		EnableLamps = 3;						//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on | 3 - Street-Lights always on everywhere
+		EnableGenerators = false;
+		EnableLighthouses = true;
 		
 		EnableHUDGPS = true;
 		NeedGPSItemForKeyBinding = true;
-		NeedMapItemForKeyBinding = true;
+		NeedMapItemForKeyBinding = false;
 		
 		EnableHUDNightvisionOverlay = true;
-		DisableMagicCrosshair = false;
+
+
 		EnablePlayerTags = true;
 		PlayerTagViewRange = 5;
-		EnableHumanityOnPlayerTags = false;
-		EnablePlayerList = true;
-		UnlimitedStamina = false;
+		DisableDamagedHeliSpin = true;
 
-		SpawnVehicleWithRandomSkin = true;
+		EnablePlayerList = true;
+
+		EnableAutoRun = true;
+		UnlimitedStamina = false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");

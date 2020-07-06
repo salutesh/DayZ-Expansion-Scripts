@@ -18,9 +18,9 @@ class ExpansionHesco: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionHesco()
-    {
-    }
+	void ExpansionHesco()
+	{
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -40,7 +40,7 @@ class ExpansionHesco: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// GetConstructionKitType
 	// ------------------------------------------------------------
-    override string GetConstructionKitType()
+	override string GetConstructionKitType()
 	{
 		return "ExpansionHescoKit";
 	}

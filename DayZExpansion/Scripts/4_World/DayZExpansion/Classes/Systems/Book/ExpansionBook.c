@@ -45,6 +45,9 @@ class ExpansionBook extends UIScriptedMenu
 	protected ImageWidget						m_Book_Pages_Background;
 	protected ImageWidget						m_Book_Cover_Background;
 	
+	protected GridSpacerWidget					m_book_GridSpacerWidgetBookmarks_side_left
+	protected GridSpacerWidget					m_book_GridSpacerWidgetBookmarks_bottom
+	
 	protected PlayerBase						m_Player;
 	protected EffectSound 						m_Sound;
 	
@@ -72,7 +75,7 @@ class ExpansionBook extends UIScriptedMenu
 		if (GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer())) 
 		{
 			if (m_Sound) 
-                m_Sound.SoundStop();
+				m_Sound.SoundStop();
 		}
 	}
 	
@@ -109,6 +112,9 @@ class ExpansionBook extends UIScriptedMenu
 		
 		m_Book_Pages_Background					= ImageWidget.Cast( layoutRoot.FindAnyWidget( "book_pages_background" ) );
 		m_Book_Cover_Background					= ImageWidget.Cast( layoutRoot.FindAnyWidget( "book_cover_background" ) );
+		
+		m_book_GridSpacerWidgetBookmarks_side_left = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "bookmarks_spacer_side_left" ) );
+		m_book_GridSpacerWidgetBookmarks_bottom = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "bookmarks_spacer_bottom" ) );
 		
 		ExpansionBookConstructor bookCstr = new ExpansionBookConstructor;
 		bookCstr.GenerateTabs( m_Tabs );
@@ -228,6 +234,7 @@ class ExpansionBook extends UIScriptedMenu
 		Input input = GetGame().GetInput();
 		if ( input.LocalPress( "UAUIBack", false ) )
 		{
+			CheckOnClose();
 			Hide();
 			Close();
 			return;
@@ -235,6 +242,7 @@ class ExpansionBook extends UIScriptedMenu
 		
 		if ( input.LocalPress( "UAExpansionBookToggle", false ) && m_OpenBookTime > 0.75 && !m_HasFocus )
 		{
+			CheckOnClose();
 			Hide();
 			Close();
 			return;
@@ -243,6 +251,17 @@ class ExpansionBook extends UIScriptedMenu
 		if ( m_CurrentOpenTab )
 		{
 			m_CurrentOpenTab.OnUpdate( timeslice );
+		}
+	}
+		
+	// ------------------------------------------------------------
+	// Expansion CheckOnClose
+	// ------------------------------------------------------------
+	void CheckOnClose()
+	{
+		if ( m_CurrentOpenTab )
+		{			
+			m_CurrentOpenTab.OnTabClose();
 		}
 	}
 	
@@ -412,10 +431,17 @@ class ExpansionBook extends UIScriptedMenu
 		HideCurrentPage( m_CurrentPage );
 		LastOpenedTab = openedTab;
 		
-		//m_book_TAB_BOOKMARKS.Show( false );
+		if ( m_CurrentOpenTab )
+			m_CurrentOpenTab.OnTabOpen();
+		
+		if ( m_CurrentOpenTab.IsServerInfoTab() )
+		{
+			if ( !GetLeftBookMarkGrid().IsVisible() )
+				GetLeftBookMarkGrid().Show( true );
+		}
+		
 		m_Book_Button_Left_Spacer.Show( false );
 		m_Book_Button_Right_Spacer.Show( false );
-		//m_book_BackButtonClass.SetBackButtonImage( true );
 		
 		m_book_PageNextButton.Show( false );
 		m_book_PageBackButton.Show( false );
@@ -430,8 +456,15 @@ class ExpansionBook extends UIScriptedMenu
 	{
 		if ( m_CurrentOpenTab )
 		{
+			m_CurrentOpenTab.OnTabClose();
+			
+			if ( m_CurrentOpenTab.IsServerInfoTab() )
+			{
+				if ( GetLeftBookMarkGrid().IsVisible() )
+					GetLeftBookMarkGrid().Show( false );
+			}
+			
 			m_CurrentOpenTab.HideLayout();
-			//m_book_TAB_BOOKMARKS.Show( true );
 			m_Book_Button_Left_Spacer.Show( true );
 			m_Book_Button_Right_Spacer.Show( true );
 			ShowCurrentPage( m_CurrentPage );
@@ -710,5 +743,21 @@ class ExpansionBook extends UIScriptedMenu
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionBook::SetHasFocus - m_HasFocus: " + m_HasFocus.ToString() );
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionBook GetLeftBookMarkGrid
+	// ------------------------------------------------------------
+	GridSpacerWidget GetLeftBookMarkGrid()
+	{
+		return m_book_GridSpacerWidgetBookmarks_side_left;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionBook GetBottomBookMarkGrid
+	// ------------------------------------------------------------
+	GridSpacerWidget GetBottomBookMarkGrid()
+	{
+		return m_book_GridSpacerWidgetBookmarks_bottom;
 	}
 }

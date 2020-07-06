@@ -74,7 +74,7 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		AddItem("Expansion_M79");
 		
 		// Crossbows
-		AddItem("ExpansionCrossbow");
+		AddItem("Expansion_Crossbow");
 		
 		// Melee
 		AddItem("BrassKnuckles_Shiny");
@@ -103,7 +103,7 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		AddItem("Ammo_556x45");
 		//AddItem("Ammo_Flare");
 		//AddItem("Ammo_DartSyringe");
-		AddItem("Ammo_ArrowComposite");
+		AddItem("Expansion_Ammo_ArrowBolt");
 		
 		AddItem("Ammo_Expansion_46x30");
 		AddItem("Ammo_Expansion_338");

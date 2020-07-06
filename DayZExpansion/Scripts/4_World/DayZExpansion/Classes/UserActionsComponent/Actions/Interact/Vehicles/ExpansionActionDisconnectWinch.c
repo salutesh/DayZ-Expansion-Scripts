@@ -48,24 +48,24 @@ class ExpansionActionDisconnectWinch: ActionInteractBase
 				{
 					if ( m_Helicopter.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 					{
-                        return false;//m_Helicopter.IsWinched();
-                    }
-                }
-            }
-        }
+						return false;//m_Helicopter.IsWinched();
+					}
+				}
+			}
+		}
 		return false;
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-        super.OnStartServer( action_data );
+		super.OnStartServer( action_data );
 
-        if ( !m_Helicopter )
-            return;
+		if ( !m_Helicopter )
+			return;
 
-        // m_Helicopter.DestroyWinch();
+		// m_Helicopter.DestroyWinch();
 
-        Message( action_data.m_Player, "Disconnected winch" );
+		Message( action_data.m_Player, "Disconnected winch" );
 	}
 	
 	override bool CanBeUsedInVehicle()

@@ -1,43 +1,43 @@
 class ExpansionLockUIBase extends UIScriptedMenu
 {
-    void ExpansionLockUIBase()
+	void ExpansionLockUIBase()
 	{
 		GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Insert( Update );
 	}
 
-    void ~ExpansionLockUIBase()
+	void ~ExpansionLockUIBase()
 	{
 		GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Remove( Update );
 	}
 
-    bool HidePinCode()
+	bool HidePinCode()
 	{
 		return !GetExpansionClientSettings().ShowPINCode;
 	}
 
-    void RefreshCode()
+	void RefreshCode()
 	{
-    }
-    
-    void SetTarget( ItemBase target, string selection )
+	}
+	
+	void SetTarget( ItemBase target, string selection )
 	{
-        RefreshCode();
+		RefreshCode();
 	}
 
-    void ShowLockState()
+	void ShowLockState()
 	{
-    }
-    
-    protected void SendRPC()
+	}
+	
+	protected void SendRPC()
 	{
-    }
-    
-    void OnServerResponse( bool success, bool injurePlayer )
+	}
+	
+	void OnServerResponse( bool success, bool injurePlayer )
 	{
-        if ( injurePlayer )
-        {
-            OnInjurePlayer();
-        }
+		if ( injurePlayer )
+		{
+			OnInjurePlayer();
+		}
 
 		if ( success )
 		{
@@ -48,12 +48,12 @@ class ExpansionLockUIBase extends UIScriptedMenu
 		}
 	}
 
-    void OnInjurePlayer()
-    {
+	void OnInjurePlayer()
+	{
 
-    }
-    
-    override void Update(float timeslice)
+	}
+	
+	override void Update(float timeslice)
 	{
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
@@ -64,7 +64,7 @@ class ExpansionLockUIBase extends UIScriptedMenu
 		RefreshCode();
 		ShowLockState();
 	}
-    
+	
 	override void OnShow()
 	{
 		super.OnShow();
@@ -82,8 +82,8 @@ class ExpansionLockUIBase extends UIScriptedMenu
 
 		GetGame().GetMission().PlayerControlEnable(true);
 	}
-    
-    override bool UseKeyboard() 
+	
+	override bool UseKeyboard() 
 	{ 
 		return true; 
 	}
@@ -95,5 +95,5 @@ class ExpansionLockUIBase extends UIScriptedMenu
 
 	void OnKeyPress( int key )
 	{
-    }
+	}
 }

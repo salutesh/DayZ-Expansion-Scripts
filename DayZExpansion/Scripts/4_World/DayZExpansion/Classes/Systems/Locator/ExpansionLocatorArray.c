@@ -5,14 +5,14 @@
  **/
 class ExpansionLocatorArray
 {
-    vector position;
-    string name;
+	vector position;
+	string name;
 	string type;
 	
-    void ExpansionLocatorArray( vector pos, string Name, string Type ) 
+	void ExpansionLocatorArray( vector pos, string Name, string Type ) 
 	{
-        this.position = pos;
-        this.name = Name;
+		this.position = pos;
+		this.name = Name;
 		this.type = Type;
-    }
+	}
 }

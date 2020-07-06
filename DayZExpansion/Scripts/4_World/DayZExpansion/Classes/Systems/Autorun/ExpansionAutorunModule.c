@@ -100,17 +100,17 @@ class ExpansionAutorunModule: JMModuleBase
 		}
 
 		if ( autoWalkMode > 0 )
-       	{
-           	if ( ( player.GetInputController().LimitsIsSprintDisabled() ) || ( autoWalkMode == 1 ) )
-            {
-           	    player.GetInputController().OverrideMovementSpeed( true, 2 );
-           	} else
-           	{
-               	player.GetInputController().OverrideMovementSpeed( true, 3 );
-           	}
+	   	{
+		   	if ( ( player.GetInputController().LimitsIsSprintDisabled() ) || ( autoWalkMode == 1 ) )
+			{
+		   		player.GetInputController().OverrideMovementSpeed( true, 2 );
+		   	} else
+		   	{
+			   	player.GetInputController().OverrideMovementSpeed( true, 3 );
+		   	}
 
-           	player.GetInputController().OverrideMovementAngle( true, 1 );
-       	}
+		   	player.GetInputController().OverrideMovementAngle( true, 1 );
+	   	}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorun::AutorunSync - End");
@@ -147,8 +147,8 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion AutoRun
 	// ------------------------------------------------------------
-    void AutoRun()
-    {
+	void AutoRun()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorun::AutoRun - Start");
 		#endif
@@ -156,34 +156,34 @@ class ExpansionAutorunModule: JMModuleBase
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		
 		if ( m_AutoWalkMode > 0 && !SHIFT() )
-        {
-            m_AutoWalkMode = 0;
-            player.GetInputController().OverrideMovementSpeed( false, 0 );
-            player.GetInputController().OverrideMovementAngle( false, 0 );
+		{
+			m_AutoWalkMode = 0;
+			player.GetInputController().OverrideMovementSpeed( false, 0 );
+			player.GetInputController().OverrideMovementAngle( false, 0 );
 			m_StartedWithSprint = false;
-        } else if ( m_AutoWalkMode == 0 )
-        {
-            if ( SHIFT() )
-            {
-                m_AutoWalkMode = 2;
+		} else if ( m_AutoWalkMode == 0 )
+		{
+			if ( SHIFT() )
+			{
+				m_AutoWalkMode = 2;
 				m_StartedWithSprint = true;
-            } else
-            {
-                m_AutoWalkMode = 1;
+			} else
+			{
+				m_AutoWalkMode = 1;
 				m_StartedWithSprint = false;
-            }
-        }
+			}
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorun::AutoRun - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion UpdateAutoWalk
 	// ------------------------------------------------------------
-    void UpdateAutoWalk()
-    {
+	void UpdateAutoWalk()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorun::UpdateAutoWalk - Start");
 		#endif
@@ -193,19 +193,19 @@ class ExpansionAutorunModule: JMModuleBase
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 			
 			if ( m_AutoWalkMode > 0 )
-      		{
-       	    	if ( ( player.GetInputController().LimitsIsSprintDisabled() && m_StartedWithSprint ) || ( m_AutoWalkMode == 1 && !m_StartedWithSprint ) )
-       	   		{
-       	        	player.GetInputController().OverrideMovementSpeed( true, 2 );
+	  		{
+	   			if ( ( player.GetInputController().LimitsIsSprintDisabled() && m_StartedWithSprint ) || ( m_AutoWalkMode == 1 && !m_StartedWithSprint ) )
+	   	   		{
+	   				player.GetInputController().OverrideMovementSpeed( true, 2 );
 					m_AutoWalkMode = 1;
-       	    	}
-       	    	else
-       	    	{
-       	        	player.GetInputController().OverrideMovementSpeed( true, 3 );
+	   			}
+	   			else
+	   			{
+	   				player.GetInputController().OverrideMovementSpeed( true, 3 );
 					m_AutoWalkMode = 2;
-       	    	}
+	   			}
 
-       	    	player.GetInputController().OverrideMovementAngle( true, 1 );
+	   			player.GetInputController().OverrideMovementAngle( true, 1 );
 				
 				if (m_OldAutoWalkMode != m_AutoWalkMode)
 				{
@@ -215,7 +215,7 @@ class ExpansionAutorunModule: JMModuleBase
 					
 					m_OldAutoWalkMode = m_AutoWalkMode;
 				}
-       		}
+	   		}
 			else
 			{
 				if (m_OldAutoWalkMode != m_AutoWalkMode)
@@ -231,7 +231,7 @@ class ExpansionAutorunModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorun::UpdateAutoWalk - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion IsDisabled

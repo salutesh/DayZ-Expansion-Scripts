@@ -1,5 +1,5 @@
 class ExpansionMissionEventSoldier extends ExpansionMissionEventBase
-{    
+{	
 	autoptr array< ref ExpansionMissionEventSoldierObject > Objects;
 	autoptr array< ref ExpansionMissionEventSoldierLoot > Loot;
 
@@ -32,7 +32,7 @@ class ExpansionMissionEventSoldier extends ExpansionMissionEventBase
 			End();
 
 		m_Container.Open();
-    }
+	}
 
 	// handle mission cleanup
 	override void Event_OnEnd()
@@ -76,9 +76,9 @@ class ExpansionMissionEventSoldier extends ExpansionMissionEventBase
 		Enabled = false;
 		
 		switch ( index )
-        {
-        default:
-        case 0:
+		{
+		default:
+		case 0:
 			Weight = 5;
 			MissionName = "Vybor";
 			break;
@@ -86,6 +86,6 @@ class ExpansionMissionEventSoldier extends ExpansionMissionEventBase
 
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
-        return fname;
+		return fname;
 	}
 }

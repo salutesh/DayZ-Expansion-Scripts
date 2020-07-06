@@ -53,7 +53,7 @@ class ExpansionActionGetOutExpansionVehicle: ActionInteractBase
 		if ( !player.GetCommand_ExpansionVehicle() )
 			return false;
 
-        m_Transport = ExpansionVehicleScript.Cast( player.GetCommand_ExpansionVehicle().m_Vehicle );
+		m_Transport = ExpansionVehicleScript.Cast( player.GetCommand_ExpansionVehicle().m_Vehicle );
 
 		return true;
 	}

@@ -14,7 +14,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 	protected float m_ExLagOffsetVelocityPitch[1];
 	protected float m_ExLagOffsetVelocityRoll[1];
 
-    void DayZPlayerCamera3rdPersonVehicle( DayZPlayer pPlayer, HumanInputController pInput )
+	void DayZPlayerCamera3rdPersonVehicle( DayZPlayer pPlayer, HumanInputController pInput )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::DayZPlayerCamera3rdPersonVehicle - Start");
@@ -86,7 +86,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		#endif
 	}
 
-    override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
+	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - Start");
@@ -109,7 +109,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		float cameraHeight;
 		float cameraDistance;
 
-        if ( Class.CastTo( helicopter, m_pPlayer.GetParent() ) )
+		if ( Class.CastTo( helicopter, m_pPlayer.GetParent() ) )
 		{
 			freeLookKey = helicopter.IsFreeLook();
 			cameraHeight = helicopter.GetCameraHeight();
@@ -126,12 +126,12 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		// vehicle.FilterNextTrace();
 
-        vector playerTransformWS[4];
-        m_pPlayer.GetTransform( playerTransformWS );
+		vector playerTransformWS[4];
+		m_pPlayer.GetTransform( playerTransformWS );
 
-        vector vehiclePositionWS = entParent.GetOrigin();
-        vector vehiclePositionMS = vehiclePositionWS.InvMultiply4( playerTransformWS );
-        vector cameraPosition = vehiclePositionMS + m_CameraOffsetMS;
+		vector vehiclePositionWS = entParent.GetOrigin();
+		vector vehiclePositionMS = vehiclePositionWS.InvMultiply4( playerTransformWS );
+		vector cameraPosition = vehiclePositionMS + m_CameraOffsetMS;
 
 		vector newOrientation = entParent.GetOrientation();
 		vector orientDiff = vector.Zero;
@@ -143,7 +143,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		vector posDiffWS = GetVelocity( entParent ) * pDt;
 		vector posDiffLS = posDiffWS.InvMultiply3( playerTransformWS );
 
-        vector rotation = vector.Zero;
+		vector rotation = vector.Zero;
 
 		//! smooth it!
 		m_ExLagOffsetPosition[0] = Math.SmoothCD( m_ExLagOffsetPosition[0], posDiffLS[0], m_ExLagOffsetVelocityX, 0.4, 1000, pDt );
@@ -161,17 +161,17 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			rotation[0] = m_fLeftRightAngle;
 			rotation[1] = m_ExLagOffsetOrientation[1];
 
-        	Math3D.YawPitchRollMatrix( rotation, pOutResult.m_CameraTM );
+			Math3D.YawPitchRollMatrix( rotation, pOutResult.m_CameraTM );
 		}
 			
-        pOutResult.m_CameraTM[3] = cameraPosition + Vector( 0, cameraHeight, 0 ) - m_ExLagOffsetPosition;
+		pOutResult.m_CameraTM[3] = cameraPosition + Vector( 0, cameraHeight, 0 ) - m_ExLagOffsetPosition;
 
 		pOutResult.m_fIgnoreParentRoll		= 1.0;
-		pOutResult.m_fInsideCamera          = 0.0;
-		pOutResult.m_iDirectBone            = -1.0;
-		pOutResult.m_fUseHeading            = 0.0;
-		pOutResult.m_fDistance              = cameraDistance;
-        pOutResult.m_fPositionModelSpace    = 1.0;
+		pOutResult.m_fInsideCamera		  = 0.0;
+		pOutResult.m_iDirectBone			= -1.0;
+		pOutResult.m_fUseHeading			= 0.0;
+		pOutResult.m_fDistance			  = cameraDistance;
+		pOutResult.m_fPositionModelSpace	= 1.0;
 
 		m_PreviousOrientation = newOrientation;
 		

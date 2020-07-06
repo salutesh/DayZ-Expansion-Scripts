@@ -389,8 +389,8 @@ class ExpansionMonitorModule: JMModuleBase
 	// Expansion GetStats
 	// Called on client
 	// ------------------------------------------------------------ 
-    ExpansionSyncedPlayerStats GetStats()
-    {
-        return m_PlayerStats;
-    }
+	ExpansionSyncedPlayerStats GetStats()
+	{
+		return m_PlayerStats;
+	}
 }

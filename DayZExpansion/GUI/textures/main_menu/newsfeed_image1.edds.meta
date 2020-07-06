@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{EC8CE6BC9B4A240F}DayZExpansion/GUI/textures/main_menu/newsfeed_image1.tga"
+ Author "Steve aka Salutesh"
+ ChangeDate 118761122
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "newsfeed_image1.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

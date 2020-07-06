@@ -36,8 +36,8 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionInteriorBuildingModule Constructor
 	// ------------------------------------------------------------
-    void ExpansionInteriorBuildingModule()
-    {
+	void ExpansionInteriorBuildingModule()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionInteriorBuildingModule::ExpansionInteriorBuildingModule - Start");
 		#endif
@@ -60,13 +60,13 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionInteriorBuildingModule::ExpansionInteriorBuildingModule - End");
 		#endif
-    }
+	}
  	
 	// ------------------------------------------------------------
 	// ExpansionInteriorBuildingModule Destructor
 	// ------------------------------------------------------------
-    void ~ExpansionInteriorBuildingModule()
-    {
+	void ~ExpansionInteriorBuildingModule()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionInteriorBuildingModule::~ExpansionInteriorBuildingModule - Start");
 		#endif
@@ -76,7 +76,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionInteriorBuildingModule::~ExpansionInteriorBuildingModule - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion OnMissionFinish
@@ -100,8 +100,8 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnSettingsUpdated()
 	{
-        if ( !GetExpansionSettings().GetGeneral() )
-            return;
+		if ( !GetExpansionSettings().GetGeneral() )
+			return;
 
 		if ( g_Game.IsLoading() )
 			return;

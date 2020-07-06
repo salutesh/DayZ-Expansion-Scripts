@@ -94,7 +94,10 @@ class ExpansionActionHelicopterHoverRefill: ActionContinuousBase
 			if ( DayZPhysics.RaycastRVProxy( params, results ))
 			{
 				for ( int i = 0; i < results.Count(); ++i )
-				{
+				{						
+					if ( results[i].obj == NULL )
+						return false;
+
 					if ( results[i].obj.GetType() == "Land_FuelStation_Feed" )
 						return true;
 

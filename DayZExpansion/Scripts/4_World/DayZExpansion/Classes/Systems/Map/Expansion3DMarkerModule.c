@@ -12,19 +12,29 @@
 
 class Expansion3DMarkerModule: JMModuleBase
 {
-    protected autoptr array< ref Expansion3DMarker > 	m_Markers;
+	protected autoptr array< ref Expansion3DMarker > 	m_Markers;
 	protected bool										m_ShowMarkers;
 	protected bool										m_ShowOnlyPartyMembersMarkers;
 	
 	// ------------------------------------------------------------
 	// Expansion3DMarkerModule Constructor
 	// ------------------------------------------------------------
-    void Expansion3DMarkerModule()
-    {
-        m_Markers = new array< ref Expansion3DMarker >;
+	void Expansion3DMarkerModule()
+	{
+		m_Markers = new array< ref Expansion3DMarker >;
 		m_ShowMarkers = true;
 		m_ShowOnlyPartyMembersMarkers = false;
-    }
+		
+		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshMarkers );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion3DMarkerModule DeConstructor
+	// ------------------------------------------------------------
+	void ~Expansion3DMarkerModule()
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshMarkers );
+	}
 	
 	void ToggleShowMarkers()
 	{
@@ -56,186 +66,188 @@ class Expansion3DMarkerModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion3DMarkerModule::OnSettingsUpdated Start");
 		#endif
-       
+	   
 		RefreshMarkers();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion3DMarkerModule::OnSettingsUpdated End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion RefreshMarkers
 	// ------------------------------------------------------------
-    void RefreshMarkers()
-    {
-        if ( !IsMissionClient() )
-            return;
+	void RefreshMarkers()
+	{
+		if ( !IsMissionClient() )
+			return;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Expansion3DMarkerModule::RefreshMarkers Start");
 		#endif
 		
-        CreateMarkers();
+		CreateMarkers();
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Expansion3DMarkerModule::RefreshMarkers End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion ClearMarkers
 	// ------------------------------------------------------------
-    private void ClearMarkers()
-    {
+	private void ClearMarkers()
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion3DMarkerModule::ClearMarkers - Start");
 		#endif
 		
-        while ( m_Markers.Count() > 0 )
-        {
+		while ( m_Markers.Count() > 0 )
+		{
 			delete m_Markers.Get(m_Markers.Count() - 1);
-            m_Markers.Remove(m_Markers.Count() - 1);
-        }
+			m_Markers.Remove(m_Markers.Count() - 1);
+		}
 
-        m_Markers.Clear();
+		m_Markers.Clear();
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion3DMarkerModule::ClearMarkers - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion CreateMarkers
 	// ------------------------------------------------------------
-    private void CreateMarkers()
-    {
-        ClearMarkers();
+	private void CreateMarkers()
+	{
+		ClearMarkers();
 
-        ExpansionMapMarker marker = null;
-        int idx = 0;
+		ExpansionMapMarker marker = null;
+		int idx = 0;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Expansion3DMarkerModule::CreateMarkers Start");
 		#endif
 
-        ExpansionMapMarkerModule module;
-        if ( !Class.CastTo( module, GetModuleManager().GetModule( ExpansionMapMarkerModule ) ) )
-            return;
+		ExpansionMapMarkerModule module;
+		if ( !Class.CastTo( module, GetModuleManager().GetModule( ExpansionMapMarkerModule ) ) )
+			return;
 
-        if ( !GetExpansionClientSettings().Show3DMarkers )
-            return;
+		if ( !GetExpansionClientSettings().Show3DMarkers )
+			return;
 
-        if ( GetExpansionClientSettings().Show3DClientMarkers && !m_ShowOnlyPartyMembersMarkers )
-        {
+		if ( GetExpansionClientSettings().Show3DClientMarkers && !m_ShowOnlyPartyMembersMarkers )
+		{
 			for ( idx = 0; idx < module.Count(); idx++ )
-            {
-                marker = module.GetMarker( idx );
+			{
+				marker = module.GetMarker( idx );
 
-                if ( !marker || !marker.Is3DMarker() )
-                    continue;
+				if ( !marker || !marker.Is3DMarker() )
+					continue;
 
-                Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
-            }
-        }
+				Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
+			}
+		}
 
-        if ( GetExpansionClientSettings().Show3DGlobalMarkers && GetExpansionSettings().GetMap().ShowServerMarkers && !m_ShowOnlyPartyMembersMarkers )
-        {
+		if ( GetExpansionClientSettings().Show3DGlobalMarkers && GetExpansionSettings().GetMap().ShowServerMarkers && !m_ShowOnlyPartyMembersMarkers )
+		{
 			for ( idx = 0; idx < module.ServerCount(); idx++ )
-            {
-                marker = module.GetServerMarker( idx );
+			{
+				marker = module.GetServerMarker( idx );
 
-                if ( !marker || !marker.Is3DMarker() )
-                    continue;
+				if ( !marker || !marker.Is3DMarker() )
+					continue;
 
-                Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
-            }
-        }
+				Create3DMarker( marker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( marker.GetIconIndex() ), marker.GetMarkerColor(), marker.GetMarkerPosition() );
+			}
+		}
 
-        PlayerBase player;
-        string selfUID;
-        if ( !Class.CastTo( player, GetGame().GetPlayer() ) || !player.GetIdentity() )
-            return;
+		PlayerBase player;
+		string selfUID;
+		if ( !Class.CastTo( player, GetGame().GetPlayer() ) || !player.GetIdentity() )
+			return;
 
-        selfUID = player.GetIdentityUID();
+		selfUID = player.GetIdentityUID();
 		vector selfPosition = player.GetPosition();
 		
 		ref ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
 		if (!partyModule)
 			return;
 
-        if ( GetExpansionClientSettings().Show3DPlayerMarkers && GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
-        {
+		//! Player 3D tag above their head
+		if ( GetExpansionClientSettings().Show3DPlayerMarkers && GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
+		{
 			if ( partyModule.HasParty() && partyModule.GetParty() )
 			{
-	           	ref array< ref ExpansionPartySaveFormatPlayer > players = partyModule.GetParty().GetPlayers();
-	            if ( players )
+			   	ref array< ref ExpansionPartySaveFormatPlayer > players = partyModule.GetParty().GetPlayers();
+				if ( players )
 				{
 					for ( idx = 0; idx < players.Count(); idx++ )
-		            {
+					{
 						ref ExpansionPartySaveFormatPlayer currPlayer = players[idx];
-		                if ( !currPlayer || currPlayer.UID == selfUID ) continue;
+						if ( !currPlayer || currPlayer.UID == selfUID ) continue;
 		
 						PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
-						if (partyPlayer && partyPlayer.IsAlive() && vector.Distance( partyPlayer.GetPosition(), selfPosition) <= GetExpansionSettings().GetMap().DistanceForPartyMarkers)
+						if (partyPlayer && partyPlayer.IsAlive() && vector.Distance( partyPlayer.GetPosition(), selfPosition) <= GetExpansionSettings().GetParty().DistanceForPartyMarkers)
 						{
-							//TODO: add it back when exp hit : GetExpansionClientSettings().RedColorHUDOnTopOfHeadOfPlayers
-							Create3DMarker( currPlayer.Name, "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", ARGB( 255, 255, 180, 24), vector.Zero, partyPlayer, "0 0.25 0", partyPlayer.GetBoneIndexByName( "Head" ) );
+							Create3DMarker( currPlayer.Name, "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", ARGB( GetExpansionClientSettings().AlphaColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().RedColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().GreenColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().BlueColorHUDOnTopOfHeadOfPlayers), vector.Zero, partyPlayer, "0 0.25 0", partyPlayer.GetBoneIndexByName( "Head" ) );
 						}
-		            }
+					}
 				}
 			}
-        }
+		}
 		
+		//! QuickMarker
 		if ( partyModule.HasParty() && GetExpansionSettings().GetParty().EnableQuickMarker )
-        {
+		{
 			ref array<ref ExpansionQuickMarker> quickMarkers = partyModule.GetParty().GetQuickMarkers();
 			if ( quickMarkers )
 			{
 				for ( idx = 0; idx < quickMarkers.Count(); idx++ )
-	            {
+				{
 					ref ExpansionQuickMarker quickMarker = quickMarkers[idx];
-	                if ( !quickMarker ) continue;
+					if ( !quickMarker ) continue;
 					
-					Create3DMarker( "", "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", quickMarker.Color, quickMarker.Pos );
-	            }
+					Create3DMarker( "", "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", quickMarker.Color, quickMarker.Pos, null, "0 0 0", -1, GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers );
+				}
 			}
 		}
 
-        if ( partyModule.HasParty() && GetExpansionClientSettings().Show3DPartyMarkers && !m_ShowOnlyPartyMembersMarkers )
-        {
+		//! Party 3D Markers
+		if ( partyModule.HasParty() && GetExpansionClientSettings().Show3DPartyMarkers && !m_ShowOnlyPartyMembersMarkers )
+		{
 			array<ref ExpansionMapMarker> partyMarkers = partyModule.GetParty().GetAllMarkers();
 			if ( partyMarkers.Count() > 0 )
 			{
 				for ( idx = 0; idx < partyMarkers.Count(); idx++ )
-		        {
+				{
 					ExpansionMapMarker partyMarker = partyMarkers[idx];
-	                if ( !partyMarker.Is3DMarker() )
-	                    continue;
+					if ( !partyMarker.Is3DMarker() )
+						continue;
 	
-		            Create3DMarker( partyMarker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( partyMarker.GetIconIndex() ), partyMarker.GetMarkerColor(), partyMarker.GetMarkerPosition() );
+					Create3DMarker( partyMarker.GetMarkerText(), ExpansionMarkerIcons.GetMarkerPath( partyMarker.GetIconIndex() ), partyMarker.GetMarkerColor(), partyMarker.GetMarkerPosition() );
 				}
 			}
-        }
+		}
 				
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Expansion3DMarkerModule::CreateMarkers End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion Create3DMarker
 	// ------------------------------------------------------------
-    private void Create3DMarker( string name, string iconpath, int color, vector position, Object linkedObject = NULL, vector offset = "0 0 0", int bone = -1 )
-    {
-        m_Markers.Insert( new Expansion3DMarker( name, iconpath, color, position, linkedObject, offset, bone ) );
-    }
+	private void Create3DMarker( string name, string iconpath, int color, vector position, Object linkedObject = NULL, vector offset = "0 0 0", int bone = -1, bool showDistance = true )
+	{
+		m_Markers.Insert( new Expansion3DMarker( name, iconpath, color, position, linkedObject, offset, bone, showDistance ) );
+	}
 	
 	// ------------------------------------------------------------
 	// Override OnUpdate
 	// ------------------------------------------------------------
-    override void OnUpdate( float timeslice )
-    {
-        super.OnUpdate( timeslice );
+	override void OnUpdate( float timeslice )
+	{
+		super.OnUpdate( timeslice );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion3DMarkerModule::OnUpdate - Start");
@@ -260,5 +272,5 @@ class Expansion3DMarkerModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion3DMarkerModule::OnUpdate - End");
 		#endif
-    }
+	}
 }

@@ -25,6 +25,9 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	
 	protected bool m_IsChanged;
 	
+	//! Expansion Hud
+	ref ExpansionIngameHud 						m_ExpansionHud;
+	
 	// -----------------------------------------------------------
 	// OptionsMenuExpansion Constructor
 	// -----------------------------------------------------------
@@ -106,6 +109,11 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 
 		PPEffects.UpdateSaturation();
 		PPEffects.UpdateVignette();
+		
+		 
+		MissionGameplay missiongameplay = MissionGameplay.Cast( GetGame().GetMission() );
+		if (missiongameplay.GetExpansionHud().GetEarplugsState())
+			missiongameplay.GetExpansionHud().UpdateEarplugs();
 	}
 	
 	// -----------------------------------------------------------

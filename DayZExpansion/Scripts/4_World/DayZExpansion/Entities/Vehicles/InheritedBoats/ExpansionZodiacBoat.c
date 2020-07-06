@@ -27,7 +27,7 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 
 		m_TurnCoef					= 0.05;
 
-		m_Offset					= 2.05;
+		m_Offset					= 1.9;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZodiacBoat::Constructor - End");
@@ -85,23 +85,23 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZodiacBoat::IsVitalCarBattery");
 		#endif
 
-        return false;
-    }
+		return false;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZodiacBoat::IsVitalTruckBattery");
 		#endif
 
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
@@ -146,13 +146,14 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		if ( !obj.IsInherited( PlayerBase ) ) 
+/* 		if ( !obj.IsInherited( PlayerBase ) ) 
 			return false;
 
 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 
-		return true;
+		return true; */
+		return false;
 	}
 	
 	// ------------------------------------------------------------

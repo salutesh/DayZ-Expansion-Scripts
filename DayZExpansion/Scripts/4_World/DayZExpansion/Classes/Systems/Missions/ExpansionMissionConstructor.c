@@ -1,6 +1,6 @@
 class ExpansionMissionConstructor
 {
-    void GenerateMissionTypes( out map< string, typename > missionMap )
+	void GenerateMissionTypes( out map< string, typename > missionMap )
 	{
 		TTypenameArray missionArrayNames = new TTypenameArray;
 		RegisterMissions( missionArrayNames);
@@ -18,12 +18,12 @@ class ExpansionMissionConstructor
 		}
 	}
 
-    void RegisterMissions( out TTypenameArray missions )
+	void RegisterMissions( out TTypenameArray missions )
 	{
 		missions.Insert( ExpansionMissionEventAirdrop );
 		//missions.Insert( ExpansionMissionEventHorde );
 		//missions.Insert( ExpansionMissionEventSoldier );
 		//missions.Insert( ExpansionMissionEventAI );
 		//missions.Insert( ExpansionMissionEventQuest );
-    }
+	}
 }

@@ -12,7 +12,7 @@
 
 enum ExpansionTerritoryModuleRPC
 {
-    INVALID = 20400,
+	INVALID = 20400,
 	OpenFlagMenu,
 	CreateTerritory,
 	ChangeTexture,
@@ -30,5 +30,5 @@ enum ExpansionTerritoryModuleRPC
 	SendServerTerritories,
 	Leave,
 	PlayerEnteredTerritory,
-    COUNT
+	COUNT
 }

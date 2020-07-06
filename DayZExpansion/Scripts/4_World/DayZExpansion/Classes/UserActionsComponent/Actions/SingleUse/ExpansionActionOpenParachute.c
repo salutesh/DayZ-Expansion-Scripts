@@ -51,32 +51,32 @@ class ExpansionActionOpenParachute: ActionSingleUseBase
 		ExpansionDebugger.Push( EXPANSION_DEBUG_PLAYER_PARACHUTES );
 
 		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_PARACHUTES, "Expansion Fall: " + player.GetCommand_ExpansionFall() );
-        if ( !player.GetCommand_ExpansionFall() )
+		if ( !player.GetCommand_ExpansionFall() )
 		{
-            return false;
+			return false;
 		}
 		
 		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_PARACHUTES, "Parachute Deployed: " + player.GetCommand_ExpansionFall().IsParachuteDeployed() );
-        if ( player.GetCommand_ExpansionFall().IsParachuteDeployed() )
+		if ( player.GetCommand_ExpansionFall().IsParachuteDeployed() )
 		{
 			return false;
 		}
 
 		vector contactPos;
-        vector contactDir;
-        int contactComponent;
-        set<Object> objects = new set<Object>;
+		vector contactDir;
+		int contactComponent;
+		set<Object> objects = new set<Object>;
 
-        vector start = player.GetPosition();
-        vector end = start - "0 2.0 0";
+		vector start = player.GetPosition();
+		vector end = start - "0 2.0 0";
 
 		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_PARACHUTES, "Raycast" );
 		if ( GetGame().IsServer() )
 		{
 			if ( DayZPhysics.RaycastRV( start, end, contactPos, contactDir, contactComponent, objects, player, player, false, false, ObjIntersectGeom, 0.1 ) )
-        	{
+			{
 				return false;
-        	}
+			}
 		}
 
 		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_PARACHUTES, "Bag: " + player.GetAttachmentByType( ExpansionParachuteBag ) );
@@ -97,8 +97,8 @@ class ExpansionActionOpenParachute: ActionSingleUseBase
 	
 	override void Start( ActionData action_data )
 	{
-        super.Start( action_data );
-        
-        action_data.m_Player.DeployParachute( m_Bag );
+		super.Start( action_data );
+		
+		action_data.m_Player.DeployParachute( m_Bag );
 	}
 }

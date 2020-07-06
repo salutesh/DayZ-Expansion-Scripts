@@ -357,8 +357,8 @@ class ExpansionStove extends Container_Base
 	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour() 
 	{
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// IsIgnited

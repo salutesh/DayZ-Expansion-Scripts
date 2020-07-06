@@ -26,15 +26,12 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionMissionModule ); 
 		modules.Insert( Expansion3DMarkerModule );
 		modules.Insert( ExpansionMapMarkerModule );
+		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionTerritoryModule );
 		modules.Insert( ExpansionWorldMappingModule );
-		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionSkinModule );						
 		modules.Insert( ExpansionAutorunModule );
-		modules.Insert( ExpansionMonitorModule );					
-		// modules.Insert( ExpansionKillFeedModule );				
-		// modules.Insert( ExpansionHumanityModule );				
-		// modules.Insert( ExpansionQuestModule );					
+		modules.Insert( ExpansionMonitorModule );		
 		
 		// COT Modules
 		// modules.Insert( ExpansionGameMissionSelecterModule );

@@ -38,7 +38,6 @@ modded class MissionGameplay
 	
 	//! Client settings
 	protected bool								m_ClientClockShow;
-	protected bool								m_ClientHumanityShow;
 
 	protected bool 								m_WasEarplugToggled;
 	//! Client/Player Data
@@ -60,6 +59,7 @@ modded class MissionGameplay
 		
 		m_ExpansionHudRootWidget = null;		
 		m_ChatRootWidget = null;
+		
 		exp_m_ChannelFadeTimer = new ExpansionWidgetFadeTimer();
 		exp_m_ChannelTimeoutTimer = new Timer(CALL_CATEGORY_GUI);
 		exp_m_ChannelNameFadeTimer = new ExpansionWidgetFadeTimer();
@@ -768,8 +768,7 @@ modded class MissionGameplay
 		#endif
 
 		// m_ClientClockShow = GetExpansionClientSettings().HUDShowClientClock;
-		// m_ClientHumanityShow = GetExpansionClientSettings().HUDShowClientHumanity;
-
+		
 		if ( GetGame().IsMultiplayer() )
 		{
 			// GetGame().GetWorld().SetPreferredViewDistance(GetExpansionClientSettings().DrawDistance);
@@ -777,10 +776,6 @@ modded class MissionGameplay
 		}
 
 		// ToggleHUDClock();
-		// ToggleHUDHumanity();
-
-		PPEffects.UpdateSaturation();
-		PPEffects.UpdateVignette();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::CheckClientSettings - End");
@@ -845,14 +840,26 @@ modded class MissionGameplay
 			case KeyCode.KC_PRIOR:
 			{
 				if (m_ExpansionHud.GetEarplugsState())
-					m_ExpansionHud.AddEarplugsVolume(0.01);
+				{
+					GetExpansionClientSettings().EarplugLevel = Math.Clamp( GetExpansionClientSettings().EarplugLevel + 0.01, 0.0, 1.0 );
+					GetExpansionClientSettings().Save();
+					
+					m_ExpansionHud.UpdateEarplugs();
+				}
+					
 				break;
 			}
 			
 			case KeyCode.KC_NEXT:
 			{
 				if (m_ExpansionHud.GetEarplugsState())
-					m_ExpansionHud.AddEarplugsVolume(-0.01);
+				{
+					GetExpansionClientSettings().EarplugLevel = Math.Clamp( GetExpansionClientSettings().EarplugLevel - 0.01, 0.0, 1.0 );
+					GetExpansionClientSettings().Save();
+					
+					m_ExpansionHud.UpdateEarplugs();
+				}
+				
 				break;
 			}
 		}
@@ -1065,31 +1072,6 @@ modded class MissionGameplay
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ToggleHUDHumanity
-	//! Hides/Shows HUD Humanity notifier elements
-	// ------------------------------------------------------------
-	void ToggleHUDHumanity()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ToggleHUDHumanity - Start");
-		#endif
-
-		//! Humanity Toggle
-		if ( m_ClientHumanityShow )
-		{
-			m_ExpansionHud.HumanityToggle( true );
-		}
-		else
-		{
-			m_ExpansionHud.HumanityToggle( false );
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ToggleHUDHumanity - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion ToggleChat
 	// ------------------------------------------------------------
 	void ToggleChat()
@@ -1134,7 +1116,6 @@ modded class MissionGameplay
 			{
 				m_ExpansionHud.ShowDebugger( false );
 				m_ExpansionHud.ShowClock( false );
-				m_ExpansionHud.ShowHumanity( false );
 				
 				//m_ExpansionChatState = false;
 				//m_ChatRootWidget.Show( false );
@@ -1149,7 +1130,6 @@ modded class MissionGameplay
 			{
 				m_ExpansionHud.ShowDebugger( true );
 				m_ExpansionHud.ShowClock( true );
-				m_ExpansionHud.ShowHumanity( true );
 				
 				m_ChatRootWidget.Show( true );
 				

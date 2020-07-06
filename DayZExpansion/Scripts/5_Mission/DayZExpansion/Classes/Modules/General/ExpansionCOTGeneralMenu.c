@@ -10,31 +10,26 @@ class ExpansionCOTGeneralMenu: JMFormBase
 	private Widget m_ActionListContainer;
 
 	private UIActionCheckbox m_PlayerLocationNotifier;
-	private UIActionCheckbox m_ShowPlayerJoinServer;
-	private UIActionSelectBox m_JoinMessageType;
-	private UIActionCheckbox m_ShowPlayerLeftServer;
-	private UIActionSelectBox m_LeftMessageType;
-	//! private UIActionCheckbox m_EnableKillFeed;
-	//! private UIActionSelectBox m_KillFeedMessageType;
-	//! private UIActionCheckbox m_EnableHumanity;
+	// private UIActionCheckbox m_ShowPlayerJoinServer;
+	// private UIActionSelectBox m_JoinMessageType;
+	// private UIActionCheckbox m_ShowPlayerLeftServer;
+	// private UIActionSelectBox m_LeftMessageType;
 	private UIActionCheckbox m_EnableGlobalChat;
 	private UIActionCheckbox m_UseCustomMappingModule;
 	private UIActionCheckbox m_InteriorBuilding;
-	private UIActionSelectBox m_LightingConfig;
 	private UIActionSelectBox m_EnableLamps;
 	private UIActionCheckbox m_EnableGenerators;
 	private UIActionCheckbox m_EnableLighthouses;
-	private UIActionCheckbox m_EnableAutoRun;
 	private UIActionCheckbox m_EnableHUDGPS;
 	private UIActionCheckbox m_NeedGPSItemForKeyBinding;
 	private UIActionCheckbox m_NeedMapItemForKeyBinding;
 	private UIActionCheckbox m_EnableHUDNightvisionOverlay;
 	private UIActionCheckbox m_EnablePlayerTags;
 	private UIActionSlider m_PlayerTagViewRange;
-	//! private UIActionCheckbox m_EnableHumanityOnPlayerTags;
 	private UIActionCheckbox m_EnablePlayerList;
+	private UIActionCheckbox m_EnableAutoRun;
 	private UIActionCheckbox m_UnlimitedStamina;
-	private UIActionSelectBox m_VehicleSync;
+	// private UIActionSelectBox m_VehicleSync;
 
 	void ExpansionCOTGeneralMenu()
 	{
@@ -65,22 +60,13 @@ class ExpansionCOTGeneralMenu: JMFormBase
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
-		m_ShowPlayerJoinServer			= UIActionManager.CreateCheckbox( actions, "Player Join:" );
-		m_JoinMessageType				= UIActionManager.CreateSelectionBox( actions, "  Type:", { "Chat", "Notification" } );
-
-		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
-
-		m_ShowPlayerLeftServer			= UIActionManager.CreateCheckbox( actions, "Player Left:" );
-		m_LeftMessageType				= UIActionManager.CreateSelectionBox( actions, "  Type:", { "Chat", "Notification" } );
-
-		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
-
-		// m_EnableKillFeed				= UIActionManager.CreateCheckbox( actions, "Kill Feed:" );
-		// m_KillFeedMessageType		= UIActionManager.CreateSelectionBox( actions, "  Type:", { "Chat", "Notification" } );
+		// m_ShowPlayerJoinServer			= UIActionManager.CreateCheckbox( actions, "Player Join:" );
+		// m_JoinMessageType				= UIActionManager.CreateSelectionBox( actions, "  Type:", { "Chat", "Notification" } );
 
 		// UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
-		// m_EnableHumanity				= UIActionManager.CreateCheckbox( actions, "Humanity:" );
+		// m_ShowPlayerLeftServer			= UIActionManager.CreateCheckbox( actions, "Player Left:" );
+		// m_LeftMessageType				= UIActionManager.CreateSelectionBox( actions, "  Type:", { "Chat", "Notification" } );
 
 		// UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
@@ -89,11 +75,12 @@ class ExpansionCOTGeneralMenu: JMFormBase
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
 		m_UseCustomMappingModule		= UIActionManager.CreateCheckbox( actions, "Custom Mapping:" );
-		m_InteriorBuilding				= UIActionManager.CreateCheckbox( actions, "Interior Building:" );
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
-		m_LightingConfig					= UIActionManager.CreateSelectionBox( actions, "Lighting Config:", { "Default", "Dark", "Gloom" } );
+		m_InteriorBuilding				= UIActionManager.CreateCheckbox( actions, "Interior Building:" );
+
+		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
 		m_EnableLamps					= UIActionManager.CreateSelectionBox( actions, "Lamps:", { "Disable", "Generators", "Always On", "Always On Everywhere" } );
 
@@ -107,15 +94,14 @@ class ExpansionCOTGeneralMenu: JMFormBase
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
-		m_EnableAutoRun					= UIActionManager.CreateCheckbox( actions, "Autorun:" );
-
-		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
-
 		m_EnableHUDGPS					= UIActionManager.CreateCheckbox( actions, "Global Positioning System:" );
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
 		m_NeedGPSItemForKeyBinding 		= UIActionManager.CreateCheckbox( actions, "Require GPS Item:" );
+
+		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
+
 		m_NeedMapItemForKeyBinding 		= UIActionManager.CreateCheckbox( actions, "Require Map Item:" );
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
@@ -125,13 +111,16 @@ class ExpansionCOTGeneralMenu: JMFormBase
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
 		m_EnablePlayerTags				= UIActionManager.CreateCheckbox( actions, "Player Tags:" );
-		m_PlayerTagViewRange			= UIActionManager.CreateSlider( actions, "  View Range:", 0, 100 );
-		
-		// m_EnableHumanityOnPlayerTags	= UIActionManager.CreateCheckbox( actions, "  Humanity:" );
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
+		m_PlayerTagViewRange			= UIActionManager.CreateSlider( actions, "  View Range:", 0, 100 );
+
 		m_EnablePlayerList				= UIActionManager.CreateCheckbox( actions, "Player List:" );
+
+		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
+
+		m_EnableAutoRun					= UIActionManager.CreateCheckbox( actions, "Autorun:" );
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 
@@ -139,7 +128,7 @@ class ExpansionCOTGeneralMenu: JMFormBase
 
 		UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 		
-		m_VehicleSync					= UIActionManager.CreateSelectionBox( actions, "Vehicle Sync:", { "Server", "Predictive", "Client" } );
+		// m_VehicleSync					= UIActionManager.CreateSelectionBox( actions, "Vehicle Sync:", { "Server", "Predictive", "Client" } );
 
 		m_ActionListScroller.UpdateScroller();
 	}
@@ -176,31 +165,26 @@ class ExpansionCOTGeneralMenu: JMFormBase
 		ExpansionGeneralSettings settings = GetExpansionSettings().GetGeneral();
 		
 		m_PlayerLocationNotifier.SetChecked( settings.PlayerLocationNotifier );
-		m_ShowPlayerJoinServer.SetChecked( settings.ShowPlayerJoinServer );
-		m_JoinMessageType.SetSelection( settings.JoinMessageType, false );
-		m_ShowPlayerLeftServer.SetChecked( settings.ShowPlayerLeftServer );
-		m_LeftMessageType.SetSelection( settings.LeftMessageType, false );
-		// m_EnableKillFeed.SetChecked( settings.EnableKillFeed );
-		// m_KillFeedMessageType.SetSelection( settings.KillFeedMessageType, false );
-		// m_EnableHumanity.SetChecked( settings.EnableHumanity );
+		// m_ShowPlayerJoinServer.SetChecked( settings.ShowPlayerJoinServer );
+		// m_JoinMessageType.SetSelection( settings.JoinMessageType, false );
+		// m_ShowPlayerLeftServer.SetChecked( settings.ShowPlayerLeftServer );
+		// m_LeftMessageType.SetSelection( settings.LeftMessageType, false );
 		m_EnableGlobalChat.SetChecked( settings.EnableGlobalChat );
 		m_UseCustomMappingModule.SetChecked( settings.Mapping.UseCustomMappingModule );
 		m_InteriorBuilding.SetChecked( settings.Mapping.InteriorBuilding );
-		m_LightingConfig.SetSelection( settings.LightingConfig, false );
 		m_EnableLamps.SetSelection( settings.EnableLamps, false );
 		m_EnableGenerators.SetChecked( settings.EnableGenerators );
 		m_EnableLighthouses.SetChecked( settings.EnableLighthouses );
-		m_EnableAutoRun.SetChecked( settings.EnableAutoRun );
 		m_EnableHUDGPS.SetChecked( settings.EnableHUDGPS );
 		m_NeedGPSItemForKeyBinding.SetChecked( settings.NeedGPSItemForKeyBinding );
 		m_NeedMapItemForKeyBinding.SetChecked( settings.NeedMapItemForKeyBinding );
 		m_EnableHUDNightvisionOverlay.SetChecked( settings.EnableHUDNightvisionOverlay );
 		m_EnablePlayerTags.SetChecked( settings.EnablePlayerTags );
 		m_PlayerTagViewRange.SetCurrent( settings.PlayerTagViewRange );
-		// m_EnableHumanityOnPlayerTags.SetChecked( settings.EnableHumanityOnPlayerTags );
 		m_EnablePlayerList.SetChecked( settings.EnablePlayerList );
+		m_EnableAutoRun.SetChecked( settings.EnableAutoRun );
 		m_UnlimitedStamina.SetChecked( settings.UnlimitedStamina );
-		m_VehicleSync.SetSelection( settings.VehicleSync, false );
+		// m_VehicleSync.SetSelection( settings.VehicleSync, false );
 	}
 
 	void Click_Apply( UIEvent eid, ref UIActionBase action )
@@ -212,31 +196,26 @@ class ExpansionCOTGeneralMenu: JMFormBase
 		settings.Copy( GetExpansionSettings().GetGeneral() );
 
 		settings.PlayerLocationNotifier = m_PlayerLocationNotifier.IsChecked();
-		settings.ShowPlayerJoinServer = m_ShowPlayerJoinServer.IsChecked();
-		settings.JoinMessageType = m_JoinMessageType.GetSelection();
-		settings.ShowPlayerLeftServer = m_ShowPlayerLeftServer.IsChecked();
-		settings.LeftMessageType = m_LeftMessageType.GetSelection();
-		// settings.EnableKillFeed = m_EnableKillFeed.IsChecked();
-		// settings.KillFeedMessageType = m_KillFeedMessageType.GetSelection();
-		// settings.EnableHumanity = m_EnableHumanity.IsChecked();
+		// settings.ShowPlayerJoinServer = m_ShowPlayerJoinServer.IsChecked();
+		// settings.JoinMessageType = m_JoinMessageType.GetSelection();
+		// settings.ShowPlayerLeftServer = m_ShowPlayerLeftServer.IsChecked();
+		// settings.LeftMessageType = m_LeftMessageType.GetSelection();
 		settings.EnableGlobalChat = m_EnableGlobalChat.IsChecked();
 		settings.Mapping.UseCustomMappingModule = m_UseCustomMappingModule.IsChecked();
 		settings.Mapping.InteriorBuilding = m_InteriorBuilding.IsChecked();
-		settings.LightingConfig = m_LightingConfig.GetSelection();
 		settings.EnableLamps = m_EnableLamps.GetSelection();
 		settings.EnableGenerators = m_EnableGenerators.IsChecked();
 		settings.EnableLighthouses = m_EnableLighthouses.IsChecked();
-		settings.EnableAutoRun = m_EnableAutoRun.IsChecked();
 		settings.EnableHUDGPS = m_EnableHUDGPS.IsChecked();
 		settings.NeedGPSItemForKeyBinding = m_NeedGPSItemForKeyBinding.IsChecked();
 		settings.NeedMapItemForKeyBinding = m_NeedMapItemForKeyBinding.IsChecked();
 		settings.EnableHUDNightvisionOverlay = m_EnableHUDNightvisionOverlay.IsChecked();
 		settings.EnablePlayerTags = m_EnablePlayerTags.IsChecked();
 		settings.PlayerTagViewRange = m_PlayerTagViewRange.GetCurrent();
-		// settings.EnableHumanityOnPlayerTags = m_EnableHumanityOnPlayerTags.IsChecked();
 		settings.EnablePlayerList = m_EnablePlayerList.IsChecked();
+		settings.EnableAutoRun = m_EnableAutoRun.IsChecked();
 		settings.UnlimitedStamina = m_UnlimitedStamina.IsChecked();
-		settings.VehicleSync = m_VehicleSync.GetSelection();
+		// settings.VehicleSync = m_VehicleSync.GetSelection();
 
 		m_Module.Update( settings );
 	}

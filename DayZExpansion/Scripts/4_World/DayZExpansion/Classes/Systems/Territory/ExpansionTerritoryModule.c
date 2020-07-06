@@ -36,7 +36,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Gets called on server and client
 	// ------------------------------------------------------------
 	void ExpansionTerritoryModule()
-    {
+	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionTerritoryModule::ExpansionTerritoryModule - Start");
 		#endif
@@ -61,7 +61,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Gets called on server and client
 	// ------------------------------------------------------------
 	void ~ExpansionTerritoryModule()
-    {
+	{
 	}
 	
 	// ------------------------------------------------------------
@@ -136,7 +136,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnUpdate( float timeslice )
 	{
-		if ( !IsMissionClient() )
+		if ( !IsMissionClient() || !GetExpansionSettings().GetNotification() && !GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
 			return;
 			
 		m_TimeSliceCheckPlayer += timeslice;
@@ -283,7 +283,10 @@ class ExpansionTerritoryModule: JMModuleBase
 
 			break;
 		case ExpansionTerritoryModuleRPC.PlayerEnteredTerritory:
-			RPC_PlayerEnteredTerritory( ctx, sender, target );
+			if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
+			{
+				RPC_PlayerEnteredTerritory( ctx, sender, target );
+			}
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteObject");
 			#endif
@@ -391,8 +394,8 @@ class ExpansionTerritoryModule: JMModuleBase
 		#endif
 
 		PlayerBase player;
-        if ( Class.CastTo( player, GetGame().GetPlayer() ) )
-        {
+		if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+		{
 			ExpansionTerritory oldTerritory = m_Territories.Get( territoryID );
 			if ( oldTerritory )
 			{
@@ -420,7 +423,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			UIScriptedMenu menu;
 			if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
 			{
-	            menu.Refresh();
+				menu.Refresh();
 			}
 		}
 	}
@@ -497,16 +500,16 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 			
-	    //! Check if the territory name is not already used
-	    for ( int i = 0; i < m_TerritoryFlags.Count(); ++i )
-	    {
+		//! Check if the territory name is not already used
+		for ( int i = 0; i < m_TerritoryFlags.Count(); ++i )
+		{
 			ExpansionTerritory territory = m_TerritoryFlags.GetElement(i).GetTerritory();
 			if ( territory.GetTerritoryName() == territoryName )
 			{
 				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
-	            return;
+				return;
 			}
-	    }
+		}
 		
 		bool territoryCreated = false;
 		bool flagCreated = false;
@@ -532,7 +535,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		territoryFlag.SetOwnerID( senderID );
 		
 		//! Create new territory
-	    ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
+		ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
 		if ( !newTerritory )
 			return;
 		
@@ -905,7 +908,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		UIScriptedMenu menu;
 		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
 		{
-            menu.Refresh();
+			menu.Refresh();
 		}
 	}
 		
@@ -1124,6 +1127,12 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !senderPlayer )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
 			return;
 		}
 		
@@ -1581,7 +1590,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		UpdateClient( territoryID );
 		
-		//TODO: message
+		// TODO: message
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_LEAVE", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -1783,12 +1792,15 @@ class ExpansionTerritoryModule: JMModuleBase
 	bool IsPlayerInsideTerritory( notnull PlayerIdentity identity )
 	{
 		for ( int i = 0; i < m_Territories.Count(); i++ )
-	    {
+		{
 			ExpansionTerritory currentTerritory = ExpansionTerritory.Cast( m_Territories.Get(i) );
+			if (!currentTerritory)
+				continue;
+			
 			array<ref ExpansionTerritoryMember> territoryMembers = currentTerritory.GetTerritoryMembers();
 			
 			for ( int j = 0; j < territoryMembers.Count(); j++ )
-	    	{
+			{
 				ExpansionTerritoryMember currentMember = ExpansionTerritoryMember.Cast( territoryMembers.Get(j) );
 				
 				if ( currentMember && currentMember.GetID() == identity.GetPlainId() )
@@ -1799,6 +1811,44 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 
 		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionTerritoryModule GetNumberOfTerritory
+	// ------------------------------------------------------------
+	int GetNumberOfTerritory(string playerUID = "")
+	{
+		if (IsMissionClient())
+		{
+			return m_Territories.Count();
+		}
+		else
+		{
+			if (playerUID == "")
+				return 0;
+			
+			int nmb = 0;
+			
+			for (int idx = 0; idx < m_TerritoryFlags.Count(); ++idx)
+			{
+				ExpansionTerritoryFlag flag = m_TerritoryFlags.GetElement(idx);
+				if (!flag)
+					continue;
+				
+				ExpansionTerritory currTerritory = flag.GetTerritory();
+				if (!currTerritory)
+					continue;
+				
+				if ( currTerritory.IsMember(playerUID) )
+				{
+					nmb++;
+				}
+			}
+			
+			return nmb;
+		}
+		
+		return 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -1895,7 +1945,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		if (IsMissionHost())
 		{
-			for (int idx; idx < m_TerritoryFlags.Count(); ++idx)
+			for (int idx = 0; idx < m_TerritoryFlags.Count(); ++idx)
 			{
 				ExpansionTerritoryFlag flag = m_TerritoryFlags.GetElement(idx);
 				if (!flag) continue;
@@ -1927,7 +1977,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion IsInTerritory
 	// Called server/client
-	// Check if a posiition is in territory
+	// Check if a position is in territory
 	// ------------------------------------------------------------
 	bool IsInTerritory( vector position, float territorySize = -1 )
 	{

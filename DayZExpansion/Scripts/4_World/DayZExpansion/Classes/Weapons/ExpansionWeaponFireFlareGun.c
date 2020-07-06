@@ -11,7 +11,7 @@ class ExpansionWeaponFireFlareGun: ExpansionWeaponFireBase
 			flare.CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			flare.EnableDynamicCCD( true );
 
-			vector velocity = dir * 70.0;
+			vector velocity = dir * 300.0;
 			float mass = dBodyGetMass( flare );
 
 			SetVelocity( flare, velocity );

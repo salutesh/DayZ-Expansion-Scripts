@@ -120,31 +120,31 @@ class ExpansionCraftBanditSet extends RecipeBase
 		Debug.Log("Recipe Do method called", "recipes");
 
 		ItemBase item1 = ItemBase.Cast( player.GetInventory().CreateInInventory( "USMCPants_Desert" ) );
-        if ( !item1 )
-            item1 = ExpansionCarKey.Cast( GetGame().CreateObject( "USMCPants_Desert", player.GetPosition() ) );
+		if ( !item1 )
+			item1 = ExpansionCarKey.Cast( GetGame().CreateObject( "USMCPants_Desert", player.GetPosition() ) );
 
 		ItemBase item2 = ItemBase.Cast( player.GetInventory().CreateInInventory( "USMCJacket_Desert" ) );
-        if ( !item2 )
-            item2 = ExpansionCarKey.Cast( GetGame().CreateObject( "USMCJacket_Desert", player.GetPosition() ) );
+		if ( !item2 )
+			item2 = ExpansionCarKey.Cast( GetGame().CreateObject( "USMCJacket_Desert", player.GetPosition() ) );
 
 		ItemBase item3 = ItemBase.Cast( player.GetInventory().CreateInInventory( "PlateCarrierVest" ) );
-        if ( !item3 )
-            item3 = ExpansionCarKey.Cast( GetGame().CreateObject( "PlateCarrierVest", player.GetPosition() ) );
+		if ( !item3 )
+			item3 = ExpansionCarKey.Cast( GetGame().CreateObject( "PlateCarrierVest", player.GetPosition() ) );
 
 		ItemBase item4 = ItemBase.Cast( player.GetInventory().CreateInInventory( "TacticalGloves_Beige" ) );
-        if ( !item4 )
-            item4 = ExpansionCarKey.Cast( GetGame().CreateObject( "TacticalGloves_Beige", player.GetPosition() ) );
+		if ( !item4 )
+			item4 = ExpansionCarKey.Cast( GetGame().CreateObject( "TacticalGloves_Beige", player.GetPosition() ) );
 
 		ItemBase item5 = ItemBase.Cast( player.GetInventory().CreateInInventory( "CoyoteBag_Brown" ) );
-        if ( !item5 )
-            item5 = ExpansionCarKey.Cast( GetGame().CreateObject( "CoyoteBag_Brown", player.GetPosition() ) );
+		if ( !item5 )
+			item5 = ExpansionCarKey.Cast( GetGame().CreateObject( "CoyoteBag_Brown", player.GetPosition() ) );
 
 		ItemBase item6 = ItemBase.Cast( player.GetInventory().CreateInInventory( "HikingBoots_Black" ) );
-        if ( !item6 )
-            item6 = ExpansionCarKey.Cast( GetGame().CreateObject( "HikingBoots_Black", player.GetPosition() ) );
+		if ( !item6 )
+			item6 = ExpansionCarKey.Cast( GetGame().CreateObject( "HikingBoots_Black", player.GetPosition() ) );
 
 		ItemBase item7 = ItemBase.Cast( player.GetInventory().CreateInInventory( "BalaclavaMask_Beige" ) );
-        if ( !item7 )
-            item7 = ExpansionCarKey.Cast( GetGame().CreateObject( "BalaclavaMask_Beige", player.GetPosition() ) );
+		if ( !item7 )
+			item7 = ExpansionCarKey.Cast( GetGame().CreateObject( "BalaclavaMask_Beige", player.GetPosition() ) );
 	}
 }

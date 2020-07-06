@@ -2,14 +2,14 @@ class ExpansionMarketCOTForm extends JMFormBase
 {
 	private Widget m_ActionsWrapper;
 
-    private UIActionEditableText m_Number;
+	private UIActionEditableText m_Number;
 
    	private autoptr array< ExpansionMoneyBase > m_Money;
 
 	void ExpansionMarketCOTForm()
 	{
 		m_Money = new array< ExpansionMoneyBase >;
-    }
+	}
 
 	void ~ExpansionMarketCOTForm()
 	{
@@ -19,18 +19,18 @@ class ExpansionMarketCOTForm extends JMFormBase
 	{
 		Widget wrapper = layoutRoot.FindAnyWidget( "actions_wrapper" );
 
-        m_Number = UIActionManager.CreateEditableText( wrapper, "Number:" );
+		m_Number = UIActionManager.CreateEditableText( wrapper, "Number:" );
 		m_Number.SetOnlyNumbers( true );
 
-        UIActionManager.CreateButton( wrapper, "Give Money", this, "Give" );
+		UIActionManager.CreateButton( wrapper, "Give Money", this, "Give" );
 
-        UIActionManager.CreateButton( wrapper, "Reserve Money", this, "Reserve" );
+		UIActionManager.CreateButton( wrapper, "Reserve Money", this, "Reserve" );
 
-        UIActionManager.CreateButton( wrapper, "Delete Money", this, "Delete" );
+		UIActionManager.CreateButton( wrapper, "Delete Money", this, "Delete" );
 
-        UIActionManager.CreateButton( wrapper, "Unlock Money", this, "Unlock" );
+		UIActionManager.CreateButton( wrapper, "Unlock Money", this, "Unlock" );
 
-        UIActionManager.CreateButton( wrapper, "Open Random Market Menu", this, "OpenRandom" );
+		UIActionManager.CreateButton( wrapper, "Open Random Market Menu", this, "OpenRandom" );
 	}
 
 	void OpenRandom( UIEvent eid, ref UIActionBase action ) 
@@ -59,10 +59,10 @@ class ExpansionMarketCOTForm extends JMFormBase
 		ExpansionMarketModule mod;
 		if ( Class.CastTo( mod, GetModuleManager().GetModule( ExpansionMarketModule ) ) )
 		{
-		    float amount = m_Number.GetText().ToFloat();
+			float amount = m_Number.GetText().ToFloat();
 
-		    mod.SpawnMoney( PlayerBase.Cast(GetGame().GetPlayer()), amount );
-        }
+			mod.SpawnMoney( PlayerBase.Cast(GetGame().GetPlayer()), amount );
+		}
 	}
 
 	void Reserve( UIEvent eid, ref UIActionBase action ) 
@@ -70,10 +70,10 @@ class ExpansionMarketCOTForm extends JMFormBase
 		ExpansionMarketModule mod;
 		if ( Class.CastTo( mod, GetModuleManager().GetModule( ExpansionMarketModule ) ) )
 		{
-		    float amount = m_Number.GetText().ToFloat();
+			float amount = m_Number.GetText().ToFloat();
 
-		    mod.FindMoneyAndReserve( PlayerBase.Cast(GetGame().GetPlayer()), amount, m_Money );
-        }
+			mod.FindMoneyAndReserve( PlayerBase.Cast(GetGame().GetPlayer()), amount, m_Money );
+		}
 	}
 
 	void Delete( UIEvent eid, ref UIActionBase action ) 
@@ -81,8 +81,8 @@ class ExpansionMarketCOTForm extends JMFormBase
 		ExpansionMarketModule mod;
 		if ( Class.CastTo( mod, GetModuleManager().GetModule( ExpansionMarketModule ) ) )
 		{
-		    mod.RemoveMoney( m_Money );
-        }
+			mod.RemoveMoney( m_Money );
+		}
 	}
 
 	void Unlock( UIEvent eid, ref UIActionBase action ) 
@@ -90,7 +90,7 @@ class ExpansionMarketCOTForm extends JMFormBase
 		ExpansionMarketModule mod;
 		if ( Class.CastTo( mod, GetModuleManager().GetModule( ExpansionMarketModule ) ) )
 		{
-		    mod.UnlockMoney( PlayerBase.Cast(GetGame().GetPlayer()) );
-        }
+			mod.UnlockMoney( PlayerBase.Cast(GetGame().GetPlayer()) );
+		}
 	}
 }

@@ -12,7 +12,7 @@
 
 modded class StaminaHandler
 {
-    override void Update(float deltaT, int pCurrentCommandID)
+	override void Update(float deltaT, int pCurrentCommandID)
 	{
 		if ( GetExpansionSettings().GetGeneral().UnlimitedStamina )
 		{
@@ -100,5 +100,5 @@ modded class StaminaHandler
 		{
 			super.Update( deltaT, pCurrentCommandID );
 		}
-    }
+	}
 }

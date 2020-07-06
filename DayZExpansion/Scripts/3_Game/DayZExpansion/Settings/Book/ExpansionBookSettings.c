@@ -15,27 +15,20 @@
  **/
 class ExpansionBookSettings: ExpansionSettingBase
 {
-    bool EnableBook;
+	bool EnableBook;
 	bool EnableStatusTab;
-	bool DisplayServerUptimeInStatusTab;
-	bool DisplayPlayerCountInStatusTab;
 	
 	bool EnablePartyTab;
 	bool EnableServerInfoTab;
+	bool EnableServerRulesTab;
 	bool EnableTerritoryTab;
 	
+	bool ShowServerSettings;
+	
 	ref ExpansionServerInfos ServerInfo;
+	ref ExpansionServerRules ServerRules;
 	
 	string ServerLogoPath;
-
-	bool WebsiteButton;
-	string WebsiteURL;
-
-	bool ForumsButton;
-	string ForumsURL;
-
-	bool DiscordButton;
-	string DiscordURL;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -67,7 +60,7 @@ class ExpansionBookSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBookSettings::HandleRPC - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -94,8 +87,8 @@ class ExpansionBookSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionBookSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -109,21 +102,17 @@ class ExpansionBookSettings: ExpansionSettingBase
 	{
 		EnableBook = s.EnableBook;
 		EnableStatusTab = s.EnableStatusTab;
-		DisplayServerUptimeInStatusTab = s.DisplayServerUptimeInStatusTab;
-		DisplayPlayerCountInStatusTab = s.DisplayPlayerCountInStatusTab;
 		EnablePartyTab = s.EnablePartyTab;
 		EnableServerInfoTab = s.EnableServerInfoTab;
+		EnableServerRulesTab = s.EnableServerRulesTab;
 		EnableTerritoryTab = s.EnableTerritoryTab;
 
+		ShowServerSettings = s.ShowServerSettings;
+		
 		ServerInfo = s.ServerInfo;
+		ServerRules = s.ServerRules;
 		ServerLogoPath = s.ServerLogoPath;
-		WebsiteButton = s.WebsiteButton;
-		WebsiteURL = s.WebsiteURL;
-		ForumsButton = s.ForumsButton;
-		ForumsURL = s.ForumsURL;
-		DiscordButton = s.DiscordButton;
-		DiscordURL = s.DiscordURL;
-    }
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -177,33 +166,72 @@ class ExpansionBookSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override void Defaults()
+	override void Defaults()
 	{
-        #ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("[ExpansionBookSettings] Loading default settings");
 		#endif
 		
 		EnableBook = true;
-       
+	   
 		EnableStatusTab = true;
-		DisplayServerUptimeInStatusTab = true;
-		DisplayPlayerCountInStatusTab = true;
        
 		EnablePartyTab = true;
 		EnableServerInfoTab = true;
+		EnableServerRulesTab = true;
 		EnableTerritoryTab = true;
 		
-        ServerInfo = new ExpansionServerInfos("DAYZ EXPANSION TEST SERVER", "DAYZ EXPANSION", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-	
-		ServerLogoPath = "set:expansion_gui_logos image:expansion_logo_black";
+		ShowServerSettings = true;
 		
-        WebsiteButton = false;
-        WebsiteURL = "https://www.dayzexpansion.com/page";
-
-        ForumsButton = false;
-        ForumsURL = "https://www.dayzexpansion.com/forums";
-
-        DiscordButton = true;
-        DiscordURL = "https://discord.io/expansion";
-    }
+		array<ref ExpansionServerInfoButtonData> ServerButtons = new array<ref ExpansionServerInfoButtonData>;
+		ExpansionServerInfoButtonData button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_group", "https://exp.thurston.pw", "Feedback", ARGB(255,255,255,255) );
+		ServerButtons.Insert( button );
+		
+		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_discord", "https://discord.io/expansion", "Discord", ARGB(255,255,255,255) );
+		ServerButtons.Insert( button );
+		
+		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_home", "https://www.google.com", "Homepage", ARGB(255,255,255,255) );
+		ServerButtons.Insert( button );
+		
+		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_forums", "https://www.google.com", "Forums", ARGB(255,255,255,255) );
+		ServerButtons.Insert( button );
+		
+		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_patreon", "https://www.patreon.com/dayzexpansion", "Patreon", ARGB(255,255,255,255) );
+		ServerButtons.Insert( button );
+		
+		array<ref ExpansionServerInfoSection> ServerSections = new array<ref ExpansionServerInfoSection>;
+		ExpansionServerInfoSection section = new ExpansionServerInfoSection(true, "PLACEHOLDER", "<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>");
+		ServerSections.Insert( section );
+		
+		section = new ExpansionServerInfoSection(true, "PLACEHOLDER 2", "<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>");
+		ServerSections.Insert( section );
+		
+		section = new ExpansionServerInfoSection(true, "PLACEHOLDER 3", "<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>");
+		ServerSections.Insert( section );
+		
+		section = new ExpansionServerInfoSection(true, "PLACEHOLDER 4", "<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>");
+		ServerSections.Insert( section );
+		
+		section = new ExpansionServerInfoSection(true, "PLACEHOLDER 5", "<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>");
+		ServerSections.Insert( section );
+		
+		string servername = "SERVER NAME";
+		
+		ServerInfo = new ExpansionServerInfos(ServerButtons, ServerSections, servername);
+		
+		array<ref ExpansionServerRulesPage> RulesPages = new array<ref ExpansionServerRulesPage>;
+		ExpansionServerRulesPage rule = new ExpansionServerRulesPage("Rule 1", "This is a simple test text.");
+		RulesPages.Insert( rule );
+		
+		rule = new ExpansionServerRulesPage("Rule 2", "This is a simple test text.");
+		RulesPages.Insert( rule );
+		
+		array<ref ExpansionServerRulesSection> RulesSections = new array<ref ExpansionServerRulesSection>;		
+		ExpansionServerRulesSection rulesection = new ExpansionServerRulesSection("General Rules", RulesPages);
+		RulesSections.Insert( rulesection );
+		
+		ServerRules = new ExpansionServerRules(RulesSections);
+		
+		ServerLogoPath = "set:expansion_gui_logos image:expansion_logo_black";
+	}
 }

@@ -100,9 +100,9 @@ class ExpansionMissionEventAI extends ExpansionMissionEventBase
 		MissionMaxTime = 100;
 	
 		switch ( index )
-        {
-        default:
-        case 0:
+		{
+		default:
+		case 0:
 			Weight = 5;
 			MissionMeta = new ExpansionAIMissionMeta( "Zaprudino", "A high tier soldiers mission appeared near Zaprudino" );
 
@@ -141,7 +141,7 @@ class ExpansionMissionEventAI extends ExpansionMissionEventBase
 
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
-        return fname;
+		return fname;
 	}
 
 	ExpansionAIBase CreateExpansionAI( string type, vector position, vector orientation, array<string> gear )

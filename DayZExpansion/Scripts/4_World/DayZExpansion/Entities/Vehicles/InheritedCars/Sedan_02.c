@@ -10,49 +10,6 @@
  *
 */
 
-class Expansion_Sedan_02_Door_1_1: Sedan_02_Door_1_1
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Sedan_02_Door_1_1";
-	}
-}
-class Expansion_Sedan_02_Door_1_2: Sedan_02_Door_1_2
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Sedan_02_Door_1_2";
-	}
-}
-class Expansion_Sedan_02_Door_2_1: Sedan_02_Door_2_1
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Sedan_02_Door_2_1";
-	}
-}
-class Expansion_Sedan_02_Door_2_2: Sedan_02_Door_2_2
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Sedan_02_Door_2_2";
-	}
-}
-class Expansion_Sedan_02_Hood: Sedan_02_Hood
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Sedan_02_Hood";
-	}
-}
-class Expansion_Sedan_02_Trunk: Sedan_02_Trunk
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_Sedan_02_Trunk";
-	}
-}
-
 modded class Sedan_02
 {
 	override bool IsVitalCarBattery()

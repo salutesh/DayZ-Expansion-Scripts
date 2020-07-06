@@ -51,7 +51,7 @@ class ExpansionMapMenuServerMarker extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionMapMenuPositionArrow Deconstructor
+	// Expansion ExpansionMapMenuServerMarker Deconstructor
 	// ------------------------------------------------------------
 	void ~ExpansionMapMenuServerMarker()
 	{

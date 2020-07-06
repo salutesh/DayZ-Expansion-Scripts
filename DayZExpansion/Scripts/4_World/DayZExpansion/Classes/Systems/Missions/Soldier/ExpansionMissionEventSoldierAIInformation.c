@@ -1,6 +1,6 @@
 class ExpansionMissionEventSoldierAIInformation
 {
-    string AIClassName;
+	string AIClassName;
 
-    vector Position;
+	vector Position;
 }

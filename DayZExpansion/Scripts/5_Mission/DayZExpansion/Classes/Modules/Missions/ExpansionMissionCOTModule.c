@@ -1,9 +1,9 @@
 
 enum ExpansionMissionCOTModuleRPC
 {
-    INVALID = 20120,
+	INVALID = 20120,
 	Load,
-    COUNT
+	COUNT
 }
 
 class ExpansionMissionCOTModule: JMRenderableModuleBase
@@ -81,7 +81,7 @@ class ExpansionMissionCOTModule: JMRenderableModuleBase
 			RPC_Load( ctx, sender, target );
 			break;
 		}
-    }
+	}
 
 	void Load()
 	{

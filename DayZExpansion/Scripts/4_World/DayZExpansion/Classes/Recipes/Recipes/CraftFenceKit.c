@@ -11,11 +11,11 @@
 */
 
 /**@class		CraftFenceKit
- * @brief	    Removing craft of vanilla fence	
+ * @brief		Removing craft of vanilla fence	
  **/
 modded class CraftFenceKit
 {	
-    override bool CanDo(ItemBase ingredients[], PlayerBase player)
+	override bool CanDo(ItemBase ingredients[], PlayerBase player)
 	{
 		bool canCraft = GetExpansionSettings().GetBaseBuilding().CanCraftVanillaBasebuilding;
 

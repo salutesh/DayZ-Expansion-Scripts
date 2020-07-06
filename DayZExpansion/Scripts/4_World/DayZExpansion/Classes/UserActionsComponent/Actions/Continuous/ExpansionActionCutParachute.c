@@ -42,7 +42,7 @@ class ExpansionActionCutParachute: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{		
-        if ( !player.HasParachute() )
+		if ( !player.HasParachute() )
 		{
 			return false;
 		}
@@ -52,11 +52,11 @@ class ExpansionActionCutParachute: ActionContinuousBase
 	
 	override void OnEndClient( ActionData action_data )
 	{
-        action_data.m_Player.CutParachute();
+		action_data.m_Player.CutParachute();
 	}
 	
 	override void OnEndServer( ActionData action_data )
 	{
-        action_data.m_Player.CutParachute();
+		action_data.m_Player.CutParachute();
 	}
 }

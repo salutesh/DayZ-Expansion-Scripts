@@ -117,20 +117,20 @@ class ExpansionMarketModule: JMModuleBase
 		}
 
 		for ( i = 0; i < m_MoneyDenominations.Count() - 1; i++ ) 
-        {
-            int min_idx = i;
-            for ( int j = i + 1; j < m_MoneyDenominations.Count(); j++ ) 
+		{
+			int min_idx = i;
+			for ( int j = i + 1; j < m_MoneyDenominations.Count(); j++ ) 
 			{
 				ExpansionMarketCurrency jMoney = GetMoneyPrice( m_MoneyDenominations[ j ] );
 				ExpansionMarketCurrency minIndexMoney = GetMoneyPrice( m_MoneyDenominations[ min_idx ] );
-                if ( jMoney < minIndexMoney )
+				if ( jMoney < minIndexMoney )
 				{
-                    min_idx = j;
+					min_idx = j;
 				}
 			}
 
 			m_MoneyDenominations.SwapItems( min_idx, i );
-        }
+		}
 
 		m_MoneyDenominations.Invert();
 	}
@@ -894,8 +894,8 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RemoveMoney( array< ExpansionMoneyBase > monies )
 	{
-        for ( int i = 0; i < monies.Count(); i++ )
-        {
+		for ( int i = 0; i < monies.Count(); i++ )
+		{
 			int max = monies[i].GetQuantityMax();
 
 			if ( monies[i].ReservedAmount < max )
@@ -909,7 +909,7 @@ class ExpansionMarketModule: JMModuleBase
 			{
 				GetGame().ObjectDelete( monies[i] );
 			}
-        }
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -1456,7 +1456,7 @@ class ExpansionMarketModule: JMModuleBase
 		
 		array< Object > objs = Spawn( reserve.Trader, player, reserve.Reserved[0] );
 
-        zone.ClearReservedStock( reserve.Reserved[0].ClassName, reserve.Reserved[0].Amount );
+		zone.ClearReservedStock( reserve.Reserved[0].ClassName, reserve.Reserved[0].Amount );
 
 		//! TODO: Fix stock bug here
 		#ifdef EXPANSIONEXLOGPRINT
@@ -1467,7 +1467,7 @@ class ExpansionMarketModule: JMModuleBase
 		Print("_Exec_ConfirmPurchase " + reserve.Reserved[0].ClassName + " " + reserve.Reserved[0].Amount + " " + reserve.Reserved.Count());
 		#endif
 
-        zone.RemoveStock( reserve.Reserved[0].ClassName, reserve.Reserved[0].Amount, false );
+		zone.RemoveStock( reserve.Reserved[0].ClassName, reserve.Reserved[0].Amount, false );
 
 		if ( reserve.Reserved.Count() > 1 )
 		{

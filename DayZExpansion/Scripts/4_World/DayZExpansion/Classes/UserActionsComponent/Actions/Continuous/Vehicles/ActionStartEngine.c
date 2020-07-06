@@ -72,7 +72,25 @@ modded class ActionStartEngine
 					return false;
 				
 				if ( m_ExCar.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-					return true;
+				{
+					if ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1 && m_ExCar.HasKey() )
+					{
+						array<EntityAI> playerItems = new array<EntityAI>;
+						player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, playerItems );
+						for ( int i = 0; i < playerItems.Count(); ++i )
+						{
+							ExpansionCarKey key;
+							if ( Class.CastTo( key, playerItems[i] ) )
+							{
+								if ( key.IsPairedTo( m_ExCar ) )
+									return true;
+							}
+						}
+					} else
+					{
+						return true;
+					}
+				}
 			}
 		}
 
@@ -81,42 +99,50 @@ modded class ActionStartEngine
 
 	override void OnStartServer( ActionData action_data )
 	{
-		EntityAI item2 = NULL;
-		EntityAI item3 = NULL;
-		EntityAI item4 = NULL;
-		super.OnStartServer(action_data);
-		if ( !m_ExCar.EngineIsOn() )
-		{
-			m_ExCar.SetCarBatteryStateForVanilla( true );
+		super.OnStartServer( action_data );
 
+		CarScript car;
+		if ( !Class.CastTo( car, action_data.m_Player.GetParent() ) )
+			return;
+
+		car.SetCarBatteryStateForVanilla( true );
+
+		if ( !car.EngineIsOn() )
+		{
 			ExpansionHelicopterScript heli;
-			if ( Class.CastTo( heli, m_ExCar ) )
+			if ( Class.CastTo( heli, car ) )
 			{
-				if ( heli.IsVitalIgniterPlug() )
-					item2 = heli.FindAttachmentBySlotName("ExpansionIgniterPlug");
-				else
-					item2 = heli;
-				
-				if ( heli.IsVitalHydraulicHoses() )
-					item3 = heli.FindAttachmentBySlotName("ExpansionHydraulicHoses");
-				else
-					item3 = heli;
-				
-				if ( heli.IsVitalHelicopterBattery() )
-					item4 = heli.FindAttachmentBySlotName("ExpansionHelicopterBattery");
-				else
-					item4 = heli;
-				
-				if (!item2 || !item3 || !item4 || item2.IsRuined() || item3.IsRuined() || item4.IsRuined() )
-					m_SparkCon = false;
+				EntityAI item2;
+
+				if ( m_SparkCon )
+				{
+					item2 = NULL;
+					if ( heli.IsVitalIgniterPlug() )
+						item2 = heli.FindAttachmentBySlotName( "ExpansionIgniterPlug" );
+
+					m_SparkCon = item2 && !item2.IsRuined();
+				}
+
+				if ( m_SparkCon )
+				{
+					item2 = NULL;
+					if ( heli.IsVitalHydraulicHoses() )
+						item2 = heli.FindAttachmentBySlotName( "ExpansionHydraulicHoses" );
+
+					m_SparkCon = item2 && !item2.IsRuined();
+				}
+
+				if ( m_SparkCon )
+				{
+					item2 = NULL;
+					if ( heli.IsVitalHelicopterBattery() )
+						item2 = heli.FindAttachmentBySlotName( "ExpansionHelicopterBattery" );
+
+					m_SparkCon = item2 && !item2.IsRuined();
+				}
 			}
 		}
 
-		
-
-		if ( m_ExCar )
-		{
-			m_ExCar.SetCarBatteryStateForVanilla( false );
-		}
+		car.SetCarBatteryStateForVanilla( false );
 	}
 }

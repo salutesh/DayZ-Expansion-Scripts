@@ -53,7 +53,8 @@ class ExpansionGPSPositionArrow extends ScriptedWidgetEventHandler
 		
 		m_Root.SetHandler(this);
 
-		SetPlayerArrowPosition();
+		if( m_ExpansionHud.GetGPSState() )
+			SetPlayerArrowPosition();
 
 		//! Update Timer
 		m_ArrowUpdateTimer = new Timer();

@@ -249,10 +249,11 @@ modded class DayZGame
 
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
+		super.OnRPC( sender, target, rpc_type, ctx );
+				
 		//! Move below if there becomes some problems
+		//! Steve moved below on 30.06.2020 to fix a NULL pointer
 		if ( m_ExpansionGame.OnRPC( sender, target, rpc_type, ctx ) )
 			return;
-
-		super.OnRPC( sender, target, rpc_type, ctx );		
 	}
 }

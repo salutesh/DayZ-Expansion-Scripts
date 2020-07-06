@@ -66,8 +66,8 @@ class ExpansionAIBase extends DayZPlayerImplement
 
   	void ~ExpansionAIBase()
 	{
-        if ( m_WeaponManager )
-            delete m_WeaponManager;
+		if ( m_WeaponManager )
+			delete m_WeaponManager;
 	}
 
 	ItemBase GetItemInHands()

@@ -86,13 +86,14 @@ modded class ActionDeployObject
 		
 		int i;
 		float size = GetExpansionSettings().GetTerritory().TerritorySize;
+		float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimterSize;
 		
 		if (item.IsInherited(ExpansionFlagKitBase))
-			size *= 2;
+			size += Psize;
 			
 		if ( GetExpansionSettings().GetBaseBuilding() )
 		{
-			if ( GetExpansionSettings().GetBaseBuilding().TerritoryMode == 0 )
+			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true )
 			{
 				if ( player.IsInTerritory(size) )
 				{
@@ -102,9 +103,9 @@ modded class ActionDeployObject
 					}
 					else
 					{
-						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory.Count(); ++i)
+						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory.Count(); ++i)
 						{
-							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory[i]))
+							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]))
 							{
 								return true;
 							}
@@ -129,9 +130,9 @@ modded class ActionDeployObject
 					}
 					else
 					{
-						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory.Count(); ++i)
+						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory.Count(); ++i)
 						{
-							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceInEnemyTerritory[i]))
+							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]))
 							{
 								return true;
 							}
@@ -142,9 +143,9 @@ modded class ActionDeployObject
 				}
 				else
 				{
-					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory.Count(); ++i)
+					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory.Count(); ++i)
 					{
-						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().AllowedItemsToPlaceEveryWhereButNotInEnnemyTerritory[i]))
+						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i]))
 						{
 							return true;
 						}

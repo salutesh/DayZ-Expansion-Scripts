@@ -139,45 +139,45 @@ class ExpansionUAZCargoRooflessTest extends ExpansionCarScript
 			case "uazdriverdoor": {
 				if ( GetAnimationPhase("uazdriverdoor") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uazcodriverdoor": {
 				if ( GetAnimationPhase("uazcodriverdoor") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uazcargo1door": {
 				if ( GetAnimationPhase("uazcargo1door") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uazcargo2door": {
 				if ( GetAnimationPhase("uazcargo2door") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uaztrunkdoor": {
 				if ( GetAnimationPhase("uaztrunkdoor") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
-            default: {
-                return CarDoorState.DOORS_MISSING;
+				}
+				break;
+			}
+			default: {
+				return CarDoorState.DOORS_MISSING;
 			}
 		}
 
@@ -362,13 +362,13 @@ class ExpansionUAZCargoRooflessTest extends ExpansionCarScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUAZ::IsVitalTruckBattery");
 		#endif
 
-        return false;
-    }
+		return false;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()

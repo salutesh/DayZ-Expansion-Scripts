@@ -28,8 +28,11 @@ class ExpansionNotificationSystem
 		EXLogPrint( "NOTIFICATION: " + title.Format() + ": " + text.Format() );
 		#endif
 
-		NotificationSystem.Create_Expansion( title, text, icon, color, time );
-		
+		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
+		{
+			NotificationSystem.Create_Expansion( title, text, icon, color, time );
+		}
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationSystem::CreateNotification - End");
 		#endif

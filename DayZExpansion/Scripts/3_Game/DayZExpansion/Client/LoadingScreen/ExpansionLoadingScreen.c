@@ -19,7 +19,7 @@ modded class LoadingScreen
 
 	protected autoptr ExpansionLoadingScreenMessage m_Message;
 	
-	protected autoptr ExpansionLoadingScreenMessageCurl m_MessageCURL;
+	protected autoptr ExpansionLoadingScreenMessageCurl m_MessageRest;
 
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
 	
@@ -33,7 +33,7 @@ modded class LoadingScreen
 	string m_ExpansionClientVersion;
 	string m_ExpansionCurrentVersion;
 	
-	protected CURLCore m_ExpansionCURLCore;
+	protected RestApi m_ExpansionRestApi;
 
 	// ------------------------------------------------------------
 	// LoadingScreen Constructor
@@ -106,17 +106,17 @@ modded class LoadingScreen
 		// Expansion Mod version check
 		m_ExpansionVersionChecked = false;
 		
-		m_ExpansionCURLCore = CreateCURLCore();
-		if ( m_ExpansionCURLCore )
+		m_ExpansionRestApi = CreateRestApi();
+		if ( m_ExpansionRestApi )
 		{
-			CURLContext ctx = m_ExpansionCURLCore.GetCURLContext( EXPANSION_CURL_URL );
+			RestContext ctx = m_ExpansionRestApi.GetRestContext( EXPANSION_Rest_URL );
 
 			string data = ctx.GET_now( "loadingtext" );
 			string error;
 			
-			DestroyCURLCore();
+			DestroyRestApi();
 
-			if ( !m_Serializer.ReadFromString( m_MessageCURL, data, error ) )
+			if ( !m_Serializer.ReadFromString( m_MessageRest, data, error ) )
 			{
 				m_LoadingMessage.Show(false);
 				m_LoadingMessageAuthor.Show(false);
@@ -139,8 +139,8 @@ modded class LoadingScreen
 	// ------------------------------------------------------------
 	void ~LoadingScreen()
 	{
-		if(m_ExpansionCURLCore)
-			DestroyCURLCore();
+		if(m_ExpansionRestApi)
+			DestroyRestApi();
 	}
 
 	// ------------------------------------------------------------
@@ -186,10 +186,10 @@ modded class LoadingScreen
 		if ( m_ImageBackground )
 			ProgressAsync.SetUserData( m_ImageBackground );
 		
-		if ( m_MessageCURL )
+		if ( m_MessageRest )
 		{
-			m_LoadingMessage.SetText( m_MessageCURL.message );
-			m_LoadingMessageAuthor.SetText( "Submitted by " + m_MessageCURL.submitter );
+			m_LoadingMessage.SetText( m_MessageRest.message );
+			m_LoadingMessageAuthor.SetText( "Submitted by " + m_MessageRest.submitter );
 		} 
 		else
 		{
@@ -203,10 +203,10 @@ modded class LoadingScreen
 		//! Version check
 		if ( GetDayZGame() )
 		{
-			m_ExpansionCURLCore = CreateCURLCore();
-			if ( m_ExpansionCURLCore )
+			m_ExpansionRestApi = CreateRestApi();
+			if ( m_ExpansionRestApi )
 			{
-				CURLContext ctx = m_ExpansionCURLCore.GetCURLContext( EXPANSION_CURL_URL );
+				RestContext ctx = m_ExpansionRestApi.GetRestContext( EXPANSION_Rest_URL );
 				string data_version = ctx.GET_now( "version" );
 			}
 			else
@@ -223,7 +223,7 @@ modded class LoadingScreen
 			if (m_ExpansionCurrentVersion)
 				m_ExpansionCurrentVersion.Replace("\"","");
 			
-			//! If CURL API times-out and client dont get the current mod version.
+			//! If Rest API times-out and client dont get the current mod version.
 			if ( m_ExpansionCurrentVersion == "App Error" )
 			{
 				m_ExpansionVersionChecked = true;
@@ -234,7 +234,7 @@ modded class LoadingScreen
 			int client_version = client_version_format.Replace(".", "");
 			int current_version = current_version_format.Replace(".", "");
 			
-			//! If CURL API current version is older then loaded client version for some reason
+			//! If Rest API current version is older then loaded client version for some reason
 			if ( client_version >= current_version )
 			{
 				m_ExpansionVersionChecked = true;
@@ -252,7 +252,7 @@ modded class LoadingScreen
 				//! The version should always display in the scripts.log.
 				Print("[Expansion Mod] Client Mod Version from Mod Config: " + m_ExpansionClientVersion);
 
-				Print("[Expansion Mod] Current Mod Version from CURL API: " + m_ExpansionCurrentVersion);
+				Print("[Expansion Mod] Current Mod Version from Rest API: " + m_ExpansionCurrentVersion);
 				
 				if ( m_ExpansionClientVersion != m_ExpansionCurrentVersion )
 				{

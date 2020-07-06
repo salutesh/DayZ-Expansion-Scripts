@@ -98,7 +98,7 @@ modded class BuildingBase
 
 		ConvertTransformToWorld( position, orientation, position, orientation );
 
-		Object obj = GetGame().CreateObject_WIP( type, position, ECE_CREATELOCAL );
+		Object obj = GetGame().CreateObjectEx( type, position, ECE_LOCAL );
 		if ( !obj )
 			return NULL;
 		
@@ -137,7 +137,7 @@ modded class BuildingBase
 			Object obj;
 			if ( !m_InteriorModule.m_CachedCollision.Find( type, hasCollision ) )
 			{
-				obj = GetGame().CreateObject_WIP( type, position, ECE_CREATEPHYSICS | ECE_CREATELOCAL );
+				obj = GetGame().CreateObjectEx( type, position, ECE_CREATEPHYSICS | ECE_LOCAL );
 				if ( !obj )
 				{
 					m_InteriorModule.m_CachedCollision.Insert( type, false );
@@ -170,9 +170,9 @@ modded class BuildingBase
 			// don't use CreateObject, it does a bunch of unnecessary stuff
 			int flags = ECE_CREATEPHYSICS;
 			if ( IsMissionClient() )
-				flags |= ECE_CREATELOCAL; // create_local
+				flags |= ECE_LOCAL; // create_local
 			
-			obj = GetGame().CreateObject_WIP( type, position, flags );
+			obj = GetGame().CreateObjectEx( type, position, flags );
 			if ( !obj )
 				return NULL;
 			
@@ -286,7 +286,52 @@ modded class BuildingBase
 	protected void SpawnInterior()
 	{
 	}
+ 	override void Explode(int damageType, string ammoType = "")
+	{
+		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
+		float blastDropoff = 1;
+		float blastDistance;
+		float blastRange = 5;
+		float blastDropoffRange = 2.5;
+		super.Explode(damageType, ammoType);
+		//(point - min ) / (max - min ) 
+		if (ammoType == "")
+			ammoType = this.ConfigGetString("ammoType");
+		
 
+		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
+		int explosionDamage = GetGame().ConfigGetInt(dmgPath);
+		
+		ref array<Object> nearest_objects = new array<Object>;
+		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
+		GetGame().GetObjectsAtPosition3D( this.GetPosition(), blastRange, nearest_objects, proxy_cargos );
+		for ( int i = 0; i < nearest_objects.Count(); i++ )
+		{
+			bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
+			Object nearest_object = nearest_objects.Get(i);
+
+			if ( nearest_object.IsInherited( ExpansionBaseBuilding ) )
+			{
+				blastDistance = vector.Distance(nearest_object.GetPosition(), this.GetPosition());
+				if (blastDistance > blastDropoffRange)
+					blastDropoff = (1 - (blastDistance - blastDropoffRange) / (blastRange - blastDropoffRange));
+				else 
+					blastDropoff = 1;
+				
+				
+				for (int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); ++x)
+				{
+
+					if (this.IsKindOf(GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x]))
+					{
+						dealDamage = true;
+					}
+				}
+				if (dealDamage)
+					nearest_object.AddHealth( "GlobalHealth", "Health", ( explosionDamage * blastDropoff * explosionDamageMultiplier * -1) ); 
+			}
+		}
+	} 
 	/*void RemoveInterior()
 	{
 		#ifdef EXPANSIONEXLOGPRINT

@@ -14,9 +14,9 @@ class ExpansionActionSwitchGear: ActionInteractBase
 {
 	void ExpansionActionSwitchGear()
 	{
-		m_CommandUID        = DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
-		m_StanceMask        = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		m_HUDCursorIcon     = CursorIcons.LootCorpse;
+		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
+		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_HUDCursorIcon	 = CursorIcons.LootCorpse;
 	}
 
 	override void CreateConditionComponents()  

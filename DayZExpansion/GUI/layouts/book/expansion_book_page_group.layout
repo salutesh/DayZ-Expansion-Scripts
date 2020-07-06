@@ -1,0 +1,700 @@
+FrameWidgetClass book_module_group {
+ ignorepointer 1
+ position 0 -0.00095
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ {
+  PanelWidgetClass book_group_tab {
+   visible 0
+   ignorepointer 1
+   position 0 200
+   size 937 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 3
+   {
+    PanelWidgetClass book_menu_content_right {
+     visible 1
+     ignorepointer 1
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass group_members_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_GROUP_MEMBERS_LIST_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      PanelWidgetClass sticky_dissolve_content {
+       ignorepointer 0
+       position 0 0.02
+       size 0.4 0.25
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        ButtonWidgetClass sticky_dissolve_button {
+         visible 1
+         position 0.00102 0.02571
+         size 0.9 0.8491
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         style Empty
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text color" 0 0 0 1
+         {
+          TextWidgetClass sticky_dissolve_button_text {
+           visible 1
+           disabled 0
+           clipchildren 1
+           ignorepointer 1
+           color 0 0 0 1
+           position 0 0.25
+           size 1 0.4
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_GROUP_DISSOLVE"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "exact text" 1
+           "size to text h" 0
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass sticky_dissolve_button_text_1 {
+           visible 1
+           disabled 0
+           clipchildren 1
+           ignorepointer 1
+           color 0 0 0 1
+           position 0 0.25
+           size 1 0.4
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_GROUP_DISSOLVE"
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "exact text" 1
+           "exact text size" 0
+           "size to text h" 0
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ImageWidgetClass sticky_dissolve_image {
+         disabled 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{4B07193E966C799D}DayZExpansion/GUI/textures/book/stick_note_3.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 0
+         stretch 1
+        }
+       }
+      }
+      ImageWidgetClass group_members_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      GridSpacerWidgetClass group_info_spacer {
+       ignorepointer 1
+       position 0 0.1
+       size 0.95 0.21017
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Columns 1
+       Rows 4
+       {
+        PanelWidgetClass group_info_name_spacer {
+         size 0.29 0.207
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass group_info_name_label {
+           color 0 0 0 1
+           position 0 0
+           size 0.5 1
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_GROUP_NAME"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 0
+           "size to text h" 0
+           "text valign" center
+          }
+          TextWidgetClass group_info_name_value {
+           color 0 0 0 1
+           size 0.5 1
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           font "gui/fonts/etelkatextpro16"
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass group_info_members_spacer {
+         size 0.29 0.207
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass group_info_members_label {
+           color 0 0 0 1
+           position 0 0
+           size 0.5 1
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_GROUP_MEMBERS_COUNT"
+           font "gui/fonts/etelkatextpro16"
+           "text valign" center
+          }
+          TextWidgetClass group_info_members_value {
+           color 0 0 0 1
+           size 0.5 1
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           font "gui/fonts/etelkatextpro16"
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      ScrollWidgetClass group_list_scroller {
+       ignorepointer 0
+       position 0 0.1
+       size 1 0.38
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass group_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 20
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass group_players_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_GROUP_INVITE_LIST_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass group_players_background {
+       visible 1
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_4"
+       imageTexture "{CDD31846A020A3ED}DayZExpansion/GUI/textures/book/paper_2.edds"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass player_list_scroller {
+       ignorepointer 0
+       position 0 0.14501
+       size 1 0.86
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass player_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 100
+         {
+          TextWidgetClass player_list_info {
+           visible 1
+           ignorepointer 1
+           keepsafezone 0
+           color 0 0 0 1
+           position 0.102 1.162
+           size 1 0.05
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_GROUP_INVITE_NOPLAYERS"
+           font "gui/fonts/etelkatextpro16"
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass player_list_filter {
+       ignorepointer 1
+       position 0 0.09
+       size 1 0.05
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        EditBoxWidgetClass player_list_filter_editbox {
+         position 0.1 0
+         size 0.81 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_USRACT_SEARCH"
+         "Use default text" 1
+         "exact text" 1
+         font "gui/fonts/etelkatextpro16"
+         "text color" 0 0 0 1
+        }
+        ButtonWidgetClass player_list_filter_clear {
+         size 1 1
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         fixaspect fixwidth
+         style Empty
+         {
+          ImageWidgetClass player_list_filter_clear_icon {
+           ignorepointer 1
+           color 0.9451 0.9451 0.9451 1
+           size 0.75 0.75
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:expansion_iconset image:icon_cancle"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        PanelWidgetClass player_list_filter_icon_panel {
+         ignorepointer 1
+         size 1 1
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         fixaspect fixwidth
+         {
+          ImageWidgetClass player_list_filter_icon {
+           ignorepointer 1
+           color 0.9451 0.9451 0.9451 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:expansion_iconset image:icon_search"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass book_create_group_tab {
+   visible 1
+   ignorepointer 1
+   position 491 191
+   size 937 579
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_create_group_content_left {
+     visible 1
+     ignorepointer 1
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      PanelWidgetClass sticky_create_group_content {
+       ignorepointer 0
+       size 137.256 143.688
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       {
+        ImageWidgetClass sticky_create_group_image {
+         disabled 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{E8FDC278CB8A2AE4}DayZExpansion/GUI/textures/book/stick_note_2.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 0
+         stretch 1
+         {
+          TextWidgetClass sticky_create_group_button_label {
+           visible 1
+           disabled 1
+           clipchildren 1
+           ignorepointer 1
+           color 0 0 0 1
+           position 0 0
+           size 1 0.285
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           style Normal
+           text "#STR_EXPANSION_BOOK_GROUP_CREATE_BUTTON_label"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 1
+           "size to text h" 1
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+          ButtonWidgetClass sticky_create_group_button {
+           position -0.00079 0.02571
+           size 0.75736 0.84912
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           style Empty
+           font "DayZExpansion/GUI/fonts/etelkatextpro24"
+           "text color" 0 0 0 1
+          }
+         }
+        }
+       }
+      }
+      TextWidgetClass create_group_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.083
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_GROUP_PAGE_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+      PanelWidgetClass create_group_content {
+       ignorepointer 1
+       color 0.349 0.2 0.1451 1
+       position 0 -0.21377
+       size 1 0.40601
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style blank
+       {
+        EditBoxWidgetClass group_name_editbox {
+         color 0.4588 0.3412 0.2157 1
+         position 0 0.05
+         size 0.95 0.15
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style ExpansionBookEditBox
+         "Default text color" 0.4588 0.3412 0.2157 1
+         "exact text" 1
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text color" 0.4588 0.3412 0.2157 1
+         "disabled text color" 0.4588 0.3412 0.2157 1
+        }
+        TextWidgetClass group_name_label {
+         ignorepointer 1
+         color 0 0 0 1
+         position 0 -0.1
+         size 0.4 0.1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_BOOK_GROUP_CREATE_TITLE_label"
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 1
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      ImageWidgetClass create_group_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_3"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+     }
+    }
+    PanelWidgetClass book_create_group_content_right {
+     visible 0
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass group_invites_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_GROUP_INVITES_LIST_TITLE"
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass group_invites_background {
+       visible 1
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_4"
+       imageTexture "{CDD31846A020A3ED}DayZExpansion/GUI/textures/book/paper_2.edds"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass groups_list_scroller {
+       ignorepointer 0
+       position 0 0.1
+       size 1 0.4
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass groups_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 100
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

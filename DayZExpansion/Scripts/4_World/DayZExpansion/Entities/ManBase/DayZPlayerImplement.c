@@ -80,7 +80,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
-	ExpansionHumanVehicleCommand StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
+	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
 	{
 		return NULL;
 	}
@@ -88,9 +88,9 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement GetCommand_ExpansionVehicle
 	// ------------------------------------------------------------
-	ExpansionHumanVehicleCommand GetCommand_ExpansionVehicle()
+	ExpansionHumanCommandVehicle GetCommand_ExpansionVehicle()
 	{
-		return ExpansionHumanVehicleCommand.Cast( GetCommand_Script() );
+		return ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
 	}
 	
 	// ------------------------------------------------------------
@@ -98,7 +98,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	ExpansionVehicleScript GetExpansionTransport()
 	{
-		ExpansionHumanVehicleCommand script;
+		ExpansionHumanCommandVehicle script;
 		if ( Class.CastTo( script, GetCommand_Script() ) )
 		{
 			return script.GetTransport();
@@ -124,7 +124,7 @@ modded class DayZPlayerImplement
 		EXPrint("DayZPlayerImplement::DeployParachute - Start");
 		#endif
 		
-		ExpansionHumanFallCommand fallCommand;
+		ExpansionHumanCommandFall fallCommand;
 		if ( Class.CastTo( fallCommand, GetCommand_Script() ) )
 		{
 			m_ActiveParachute = fallCommand.DeployParachute( bag );
@@ -178,9 +178,9 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement GetCommand_ExpansionFall
 	// ------------------------------------------------------------
-	ExpansionHumanFallCommand GetCommand_ExpansionFall()
+	ExpansionHumanCommandFall GetCommand_ExpansionFall()
 	{		
-		return ExpansionHumanFallCommand.Cast( GetCommand_Script() );
+		return ExpansionHumanCommandFall.Cast( GetCommand_Script() );
 	}
 				
 	// ------------------------------------------------------------
@@ -206,7 +206,7 @@ modded class DayZPlayerImplement
 	override int CameraHandler( int pCameraMode )
 	{
 		ExpansionVehicleScript exTrans;
-		ExpansionHumanVehicleCommand vehicleCommand = GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle vehicleCommand = GetCommand_ExpansionVehicle();
 		if ( vehicleCommand )
 			exTrans = vehicleCommand.GetTransport();
 

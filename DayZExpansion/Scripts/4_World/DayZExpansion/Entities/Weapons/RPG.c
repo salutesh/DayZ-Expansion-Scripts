@@ -1,7 +1,9 @@
-class Expansion_RPG_Explosion: Building
+class Expansion_RPG_Explosion: BuildingBase
 {
 	ref Timer m_Delay;
-	protected Particle 		m_ParticleExplosion;
+
+	protected Particle m_ParticleExplosion;
+
 	void Expansion_RPG_Explosion()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -9,7 +11,7 @@ class Expansion_RPG_Explosion: Building
 		#endif
 		
 		m_Delay = new Timer;
-		m_Delay.Run(0.1, this, "ExplodeNow", null, false); //just simply running ExplodeNow() here doesnt work for some reason? copying explosiontest for now
+		m_Delay.Run(0.1, this, "ExplodeNow", null, false); 
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_RPG_Explosion::Expansion_RPG_Explosion End");

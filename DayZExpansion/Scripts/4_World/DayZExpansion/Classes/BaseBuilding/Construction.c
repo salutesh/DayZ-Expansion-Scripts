@@ -12,17 +12,31 @@
 
 modded class Construction
 {
+	//============================================
+	// IsColliding
+	//============================================
+	override bool IsColliding( string part_name )
+	{
+		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere )
+		{
+			return false;
+		}
+		else
+		{
+			return super.IsColliding(part_name);
+		}
+	}
 	override bool CanBuildPart( string part_name, ItemBase tool )
 	{
-        if ( tool.GetType() == "ExpansionAdminHammer" )
+		if ( tool.GetType() == "ExpansionAdminHammer" )
 		{
 			if ( !IsPartConstructed( part_name ) && HasRequiredPart( part_name ) && !HasConflictPart( part_name ) && CanUseToolToBuildPart( part_name, tool ) )
-		    {
-			    return true;
-		    }
+			{
+				return true;
+			}
 		}
 
-        return super.CanBuildPart( part_name, tool );
+		return super.CanBuildPart( part_name, tool );
 	}
 	
 	override protected void UpdateConstructionParts()
@@ -87,20 +101,20 @@ modded class Construction
 	}
 	
 	//Get all construction parts that can be build (at that current time)
-	override void GetConstructionPartsToBuild( string main_part_name, out array<ConstructionPart> construction_parts, ItemBase tool )
+	override void GetConstructionPartsToBuild( string main_part_name, out array<ConstructionPart> construction_parts, ItemBase tool, out string real_constructionTarget )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Construction::GetConstructionPartsToBuild - Start");
 		#endif
 		
-		super.GetConstructionPartsToBuild(main_part_name, construction_parts, tool);
+		super.GetConstructionPartsToBuild( main_part_name, construction_parts, tool, real_constructionTarget );
 		
 		//Descending order
-		for (int j = 0; j < construction_parts.Count(); ++j)
+		for ( int j = 0; j < construction_parts.Count(); ++j )
 		{
-			for (int k = 0; k < construction_parts.Count(); ++k)
+			for ( int k = 0; k < construction_parts.Count(); ++k )
 			{
-				if (construction_parts[k].m_Order < construction_parts[j].m_Order)
+				if ( construction_parts[k].m_Order < construction_parts[j].m_Order )
 				{
 					construction_parts.SwapItems(j,k);
 				}  

@@ -77,7 +77,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	override void OnCreatedLayout()
 	{
 		m_book_TAB_GROUP						= m_RootLayout.FindAnyWidget( "book_group_tab" );
-		m_book_TAB_GROUPCREATION    			= m_RootLayout.FindAnyWidget( "book_create_group_tab" );
+		m_book_TAB_GROUPCREATION				= m_RootLayout.FindAnyWidget( "book_create_group_tab" );
 
 		m_book_PartyClanName 					= EditBoxWidget.Cast( m_RootLayout.FindAnyWidget( "group_name_editbox" ) );
 		m_book_PartyCreateGroupButton 			= ButtonWidget.Cast( m_RootLayout.FindAnyWidget( "sticky_create_group_button" ) );
@@ -127,7 +127,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 			}
 		}
 
-       	m_PartyModule.Create( party_name );
+	   	m_PartyModule.Create( party_name );
 	}
 			
 	// ------------------------------------------------------------

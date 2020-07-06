@@ -23,11 +23,11 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 		m_dmgContactCoef			= 0.018;
 
 		//! Custom
-		m_MaxSpeed					= 25.0;
+		m_MaxSpeed					= 60.0;
 
-		m_TurnCoef					= 0.2;
+		m_TurnCoef					= 0.075;
 	
-		m_Offset					= 3.5;
+		m_Offset					= 3.25;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUtilityBoat::Constructor - End");
@@ -58,16 +58,19 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUtilityBoat::GetSeatAnimationType");
 		#endif
+		
 		switch( posIdx )
 		{
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
 		case 1:
-			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
 		case 2:
-			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
 		case 3:
-			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+		case 4:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
 		}
 
 		return 0;
@@ -102,12 +105,12 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUtilityBoat::IsVitalTruckBattery");
 		#endif
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
@@ -148,9 +151,202 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
+/* 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 
-		return true;
+		return true; */
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	override void UpdateLights(int new_gear = -1)
+	{
+		if ( IsMissionClient() )
+		{
+			ItemBase battery;
+			
+			if ( IsVitalTruckBattery() ) 
+				battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
+			
+			if (battery)
+			{
+				if (m_HeadlightsOn)
+				{
+					DashboardShineOn();
+					
+					if (!m_Headlight  &&  m_HeadlightsState != CarHeadlightBulbsState.NONE)
+					{
+						m_Headlight = CreateFrontLight();
+						TailLightsShineOn();
+					}
+					
+					if (m_HeadlightsState == CarHeadlightBulbsState.LEFT)
+					{
+						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
+						m_Headlight.SegregateLight();
+						LeftFrontLightShineOn();
+						RightFrontLightShineOff();
+					}
+					else if (m_HeadlightsState == CarHeadlightBulbsState.RIGHT)
+					{
+						m_Headlight.AttachOnMemoryPoint(this, m_RightHeadlightPoint, m_RightHeadlightTargetPoint);
+						m_Headlight.SegregateLight();
+						RightFrontLightShineOn();
+						LeftFrontLightShineOff();
+					}
+					else if (m_HeadlightsState == CarHeadlightBulbsState.BOTH)
+					{
+						vector local_pos_left = GetMemoryPointPos(m_LeftHeadlightPoint);
+						vector local_pos_right = GetMemoryPointPos(m_RightHeadlightPoint);
+						
+						vector local_pos_middle = (local_pos_left + local_pos_right) *0.5;
+						m_Headlight.AttachOnObject(this, local_pos_middle);
+						m_Headlight.AggregateLight();
+						LeftFrontLightShineOn();
+						RightFrontLightShineOn();
+					}
+					
+					if (m_Headlight  &&  m_HeadlightsState == CarHeadlightBulbsState.NONE)
+					{
+						m_Headlight.FadeOut();
+						m_Headlight = null;
+						LeftFrontLightShineOff();
+						RightFrontLightShineOff();
+						TailLightsShineOff();
+					}
+				}
+				else
+				{
+					TailLightsShineOff();
+					DashboardShineOff();
+					LeftFrontLightShineOff();
+					RightFrontLightShineOff();
+					
+					if (m_Headlight)
+					{
+						m_Headlight.FadeOut();
+						m_Headlight = null;
+					}
+				}
+			
+				if ( EngineIsOn() )
+				{
+					int reverse_light_state = CarRearLightType.NONE;
+								
+					int gear;
+					
+					if (new_gear == -1)
+						gear = GetController().GetGear();
+					else
+						gear = new_gear;
+					
+					
+					if (gear == CarGear.REVERSE)
+					{
+						reverse_light_state = CarRearLightType.REVERSE_ONLY;
+					}
+					else
+					{
+						reverse_light_state = CarRearLightType.NONE;
+					}
+					
+					if (m_BrakesArePressed)
+					{
+						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
+						{
+							reverse_light_state = CarRearLightType.BRAKES_AND_REVERSE;
+						}
+						else
+						{
+							reverse_light_state = CarRearLightType.BRAKES_ONLY;
+						}
+					}
+					
+					if (reverse_light_state != CarRearLightType.NONE	&&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
+					{
+						m_RearLight = CreateRearLight();
+						vector local_pos = GetMemoryPointPos(m_ReverseLightPoint);
+						m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
+					}
+					
+					if (m_RearLight)
+					{
+						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
+						{
+							m_RearLight.SetAsSegregatedReverseLight();
+
+							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
+							{
+								ReverseLightsShineOn();
+								BrakeLightsShineOff();
+							}
+						}
+						else if (reverse_light_state == CarRearLightType.BRAKES_ONLY)
+						{
+							m_RearLight.SetAsSegregatedBrakeLight();
+							
+							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
+							{
+								ReverseLightsShineOff();
+								BrakeLightsShineOn();
+							}
+						}
+						else if (reverse_light_state == CarRearLightType.BRAKES_AND_REVERSE)
+						{
+							m_RearLight.AggregateLight();
+							m_RearLight.SetFadeOutTime(1);
+							
+							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
+							{
+								BrakeLightsShineOn();
+								ReverseLightsShineOn();
+							}
+						}
+						else if (reverse_light_state == CarRearLightType.NONE)
+						{
+							m_RearLight.FadeOut();
+							m_RearLight = null;
+							ReverseLightsShineOff();
+						}
+					}
+					else
+					{
+						ReverseLightsShineOff();
+						BrakeLightsShineOff();
+					}
+				}
+				else
+				{
+					BrakeLightsShineOff();
+					ReverseLightsShineOff();
+					
+					if (m_RearLight)
+					{
+						m_RearLight.FadeOut();
+						m_RearLight = null;
+					}
+				}
+			}
+			else
+			{
+				LeftFrontLightShineOff();
+				RightFrontLightShineOff();
+				DashboardShineOff();
+				BrakeLightsShineOff();
+				ReverseLightsShineOff();
+				
+				if (m_RearLight)
+				{
+					m_RearLight.FadeOut();
+					m_RearLight = null;
+				}
+				
+				if (m_Headlight)
+				{
+					m_Headlight.FadeOut();
+					m_Headlight = null;
+				}
+			}
+		}
 	}
 }

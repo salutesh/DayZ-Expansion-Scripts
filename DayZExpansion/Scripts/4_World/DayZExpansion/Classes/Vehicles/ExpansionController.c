@@ -56,7 +56,7 @@ class ExpansionController
 		}
 
 		HumanCommandVehicle hcv = m_Player.GetCommand_Vehicle();
-		ExpansionHumanVehicleCommand hcev = m_Player.GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle hcev = m_Player.GetCommand_ExpansionVehicle();
 
 		if ( hcv || hcev )
 		{

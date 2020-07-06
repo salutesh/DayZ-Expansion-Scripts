@@ -52,7 +52,7 @@ class ExpansionChicken extends Inventory_Base
 		{
 			m_Chicken = Animal_GallusGallusDomesticus.Cast( GetGame().CreateObject( m_TypeChicken, Vector( 0, 0, 0 ), false, false ) );
 
-            dBodySetInteractionLayer( m_Chicken, PhxInteractionLayers.AI_NO_COLLISION );
+			dBodySetInteractionLayer( m_Chicken, PhxInteractionLayers.AI_NO_COLLISION );
 
 			SetLocalSpace();
 		}
@@ -62,7 +62,7 @@ class ExpansionChicken extends Inventory_Base
 	{
 		m_TypeChicken = chicken.GetType();
 
-        CreateChicken();
+		CreateChicken();
 	}
 
 	void SetLocalSpace()
@@ -97,9 +97,9 @@ class ExpansionChicken extends Inventory_Base
 			m_Chicken.Update();
 			Update();
 
-            m_Chicken.InitAIAgent( GetGame().GetWorld().GetAIWorld().CreateGroup("DZdomesticGroupBeh") );
+			m_Chicken.InitAIAgent( GetGame().GetWorld().GetAIWorld().CreateGroup("DZdomesticGroupBeh") );
 
-            dBodySetInteractionLayer( m_Chicken, PhxInteractionLayers.AI );
+			dBodySetInteractionLayer( m_Chicken, PhxInteractionLayers.AI );
 		}
 	}
 
@@ -138,9 +138,9 @@ class ExpansionChicken extends Inventory_Base
 	}
 
 	override void AfterStoreLoad()
-    {
+	{
 		CreateChicken();
-    }
+	}
 
 	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner )
 	{
@@ -151,7 +151,7 @@ class ExpansionChicken extends Inventory_Base
 			if ( new_owner == NULL )
 			{
 				Human man = Human.Cast( old_owner );
-                ExpansionBreader breader = ExpansionBreader.Cast( old_owner );
+				ExpansionBreader breader = ExpansionBreader.Cast( old_owner );
 				
 				if ( m_Chicken )
 				{
@@ -159,17 +159,17 @@ class ExpansionChicken extends Inventory_Base
 					{
 						SetWorldSpace();
 					}
-                    else if ( breader )
-                    {
-                        SetWorldSpaceAt( breader.GetPosition() + Vector(0, 0, 0.75) );
-                    }
+					else if ( breader )
+					{
+						SetWorldSpaceAt( breader.GetPosition() + Vector(0, 0, 0.75) );
+					}
 
 					if ( m_IsThrowing )
 					{
 						dBodyApplyImpulse( m_Chicken, m_ThrowImpulse );
 					}
 
-                    m_Chicken = NULL;
+					m_Chicken = NULL;
 				}
 
 				if ( man )
@@ -178,7 +178,7 @@ class ExpansionChicken extends Inventory_Base
 				}
 			} else if ( old_owner != NULL )
 			{
-                CreateChicken();
+				CreateChicken();
 			}
 		}
 	}

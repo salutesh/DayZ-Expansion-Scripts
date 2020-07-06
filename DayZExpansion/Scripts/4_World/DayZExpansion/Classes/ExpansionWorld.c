@@ -20,27 +20,29 @@ class ExpansionWorld: ExpansionGame
 		EXPrint("ExpansionWorld::FirearmEffects Start");
 		#endif
 
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
+		if ( g_Game.IsClient() || !g_Game.IsMultiplayer() )
 		{
-			//GetGame().CreateObject( "ExpansionDebugBox_Red", pos, true );
-			//GetGame().CreateObject( "ExpansionDebugBox_Blue", exitPos, true );
+			g_Game.CreateObject( "ExpansionDebugBox_Red", pos, true );
+			g_Game.CreateObject( "ExpansionDebugBox_Blue", exitPos, true );
 
-			//! Print( pos );
-			//! Print( exitPos );
-			//! Print( ammoType );
+			Print( pos );
+			Print( exitPos );
+			Print( ammoType );
 		}
+		#endif
 
 		string M203SmokeItem = "Expansion_M203Round_Smoke_White";
 		switch ( ammoType )
 		{
-			case "Arrow_Composite":
+			case "Expansion_Arrow_Bolt":
 			{
 				if ( IsMissionHost() )
 				{
-					if ( ammoType == "Arrow_Composite" )
+					if ( ammoType == "Expansion_Arrow_Bolt" )
 					{
 						vector setDir = vector.Direction( pos, source.GetPosition() );
-						EntityAI arrow_obj = EntityAI.Cast(g_Game.CreateObject("Ammo_ArrowComposite", pos));
+						EntityAI arrow_obj = EntityAI.Cast( g_Game.CreateObject( "Expansion_Ammo_ArrowBolt", pos ) );
 						arrow_obj.SetOrientation( setDir.VectorToAngles() );
 						Magazine arrow_obj2 = Magazine.Cast( arrow_obj );
 						arrow_obj2.LocalSetAmmoCount(1);

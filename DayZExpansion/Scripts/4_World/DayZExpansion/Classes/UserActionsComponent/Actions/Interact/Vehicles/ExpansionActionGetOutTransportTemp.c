@@ -68,7 +68,7 @@ class ExpansionActionGetOutTransportTemp: ActionInteractBase
 	{
 		super.Start( action_data );
 
-		ExpansionHumanLeavingVehicleCommand vehCommand;
+		ExpansionHumanCommandLeavingVehicle vehCommand;
 		action_data.m_Player.StartCommand_ExpansionLeaveVehicle( m_transport );
 		if ( Class.CastTo( vehCommand, action_data.m_Player.GetCommand_Script() ) )
 		{

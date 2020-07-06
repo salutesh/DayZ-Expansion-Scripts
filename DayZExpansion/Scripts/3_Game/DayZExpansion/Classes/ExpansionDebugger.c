@@ -21,7 +21,7 @@ class ExpansionDebugger
 	// () -> ( ExpansionDebuggerType type, array< string > text )
 	static ref ScriptInvoker OnPush = new ScriptInvoker();
 
-	static bool GlobalEnable = false;
+	static bool GlobalEnable = true;
 	
 	private static ref array< ref ExpansionDebuggerBlock > _blocks = new array< ref ExpansionDebuggerBlock >;
 

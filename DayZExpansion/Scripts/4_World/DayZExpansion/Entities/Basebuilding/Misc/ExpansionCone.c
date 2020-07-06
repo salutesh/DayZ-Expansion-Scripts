@@ -18,9 +18,9 @@ class ExpansionCone: Container_Base
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionCone()
-    {
-    }
+	void ExpansionCone()
+	{
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -61,8 +61,8 @@ class ExpansionCone: Container_Base
 	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour() 
 	{
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// OnPlacementComplete

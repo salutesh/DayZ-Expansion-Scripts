@@ -23,7 +23,7 @@ class ExpansionMarketTents: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TENTS";
 		m_FileName = "Tents";
 
-		AddItem("ExpansionATent",				100,	120,	1,		250,	0 );
+		AddItem("ExpansionCamoTent",				100,	120,	1,		250,	0 );
 		AddItem("MediumTent", 					300,	320,	1,		250,	0 );	
 		AddItem("CarTent", 						500,	520,	1,		250,	0 );
 		AddItem("LargeTent", 					700,	720,	1,		250,	0 );

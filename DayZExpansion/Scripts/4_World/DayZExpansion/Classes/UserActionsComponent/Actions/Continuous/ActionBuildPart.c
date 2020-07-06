@@ -10,18 +10,17 @@
  *
 */
 
-/*
+
 modded class ActionBuildPartCB
 {
-	override void CreateActionComponent()
+	override float SetCallbackDuration( ItemBase item )
 	{
-		super.CreateActionComponent();
+		if ( item.IsKindOf("ExpansionAdminHammer") )
+			return 0.1;
 		
-		// m_ActionData.m_ActionComponent = new CAContinuousTime( UATimeSpent.DEFAULT_CONSTRUCT );
-		m_ActionData.m_ActionComponent = new CAContinuousTime( 0.1 );
+		return super.SetCallbackDuration(item);
 	}
 }
-*/
 
 modded class ActionBuildPart
 {

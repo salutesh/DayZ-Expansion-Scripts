@@ -21,7 +21,7 @@ modded class Land_House_1W08
 	{
 		SpawnInteriorObject( "bldr_washing_machine", "5.450486 -1.879997 4.002013", "0.013444 0.000000 0.000000" );
 		SpawnInteriorObject( "ExpansionPropPetCarrier", "6.452236 0.339996 3.596090", "97.000015 0.000000 0.000000", -1 );
-		SpawnInteriorObject( "ExpansionPropBin", "4.934920 -1.709999 3.344626", "-74.000000 0.000000 0.000000", 0.7 );
+		SpawnInteriorObject( "ExpansionPropBin", "5.034920 -1.690000 3.290000", "-74.000000 0.000000 0.000000", 0.7 );
 		SpawnInteriorObject( "ExpansionPropBleach", "4.869251 -1.790001 3.994313", "-46.999992 0.000000 0.000000", 0.7 );
 		SpawnInteriorObject( "ExpansionPropClampLight1", "-0.948960 0.250076 4.225716", "179.999924 0.000000 -179.999998" );
 		SpawnInteriorObject( "bldr_switch_lights", "-0.524806 -0.680008 4.345000", "90.000000 0.000000 0.000000" );

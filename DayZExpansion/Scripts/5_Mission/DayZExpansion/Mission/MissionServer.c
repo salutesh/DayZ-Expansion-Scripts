@@ -24,7 +24,6 @@ modded class MissionServer
 		EXPrint("MissionServer::MissionServer - Start");
 		#endif
 
-		//! CreateExpansionLogger();
 		CreateDayZExpansion();
 
 		#ifdef EXPANSIONEXPRINT
@@ -43,8 +42,7 @@ modded class MissionServer
 		
 		DestroyDayZExpansion();
 		DestroyNotificationSystem();
-		//! DestroyExpansionLogger();
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::~MissionServer - End");
 		#endif
@@ -110,7 +108,7 @@ modded class MissionServer
 	{
 		super.OnClientReadyEvent( identity, player );
 
-		if ( GetExpansionSettings().GetGeneral().ShowPlayerJoinServer ) 
+		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && player.GetIdentity() ) 
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" ), new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
 		}
@@ -138,7 +136,7 @@ modded class MissionServer
 	override void InvokeOnDisconnect( PlayerBase player )
 	{
 		//! TODO: Move into a module
-		if ( GetExpansionSettings().GetGeneral().ShowPlayerLeftServer && player.GetIdentity() ) 
+		if ( GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity() ) 
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TITLE" ), new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
 		}

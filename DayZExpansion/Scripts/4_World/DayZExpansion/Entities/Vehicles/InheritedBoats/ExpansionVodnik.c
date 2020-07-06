@@ -30,9 +30,9 @@ class ExpansionVodnik extends ExpansionBoatScript
 		m_dmgContactCoef			= 0.018;
 
 		//! Custom
-		m_MaxSpeed					= 25.0;
+		m_MaxSpeed					= 20.0;
 
-		m_TurnCoef					= 0.2;
+		m_TurnCoef					= 0.15;
 	
 		m_Offset					= 1.8;
 
@@ -155,23 +155,23 @@ class ExpansionVodnik extends ExpansionBoatScript
 			case "vodnikdriverdoor": {
 				if ( GetAnimationPhase("vodnikdriverdoor") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } 
+				} 
 				else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "vodnikcodriverdoor": {
 				if ( GetAnimationPhase("vodnikcodriverdoor") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } 
+				} 
 				else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
-            default: {
-                return CarDoorState.DOORS_MISSING;
+				}
+				break;
+			}
+			default: {
+				return CarDoorState.DOORS_MISSING;
 			}
 		}
 
@@ -285,28 +285,21 @@ class ExpansionVodnik extends ExpansionBoatScript
 
 		switch( posIdx )
 		{
-			case 0: {
-				if ( GetAnimationPhase("vodnikdriverdoor") > 0.5 ) {
-					return CarDoorState.DOORS_OPEN;
-                } else {
-					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
-			case 1: {
-				if ( GetAnimationPhase("vodnikcodriverdoor") > 0.5 ) {
-					return CarDoorState.DOORS_OPEN;
-                } else {
-					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
-            default: {
-                return CarDoorState.DOORS_MISSING;
-			}
-		}
+			case 0:
+				if ( GetCarDoorsState( "vodnikdriverdoor" ) == CarDoorState.DOORS_CLOSED )
+					return false;
 
-		return CarDoorState.DOORS_MISSING;
+				return true;
+			break;
+
+			case 1:
+				if ( GetCarDoorsState( "vodnikcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
+					return false;
+
+				return true;
+			break;
+		}
+		return true;
 	}
 
 	// ------------------------------------------------------------
@@ -324,14 +317,14 @@ class ExpansionVodnik extends ExpansionBoatScript
 	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
-		return true;
+		return false;
 	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
-        return false;
-    }
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
@@ -366,59 +359,60 @@ class ExpansionVodnik extends ExpansionBoatScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		if ( !obj.IsInherited( PlayerBase ) ) 
+/* 		if ( !obj.IsInherited( PlayerBase ) ) 
 			return false;
 
 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 
-		return true;
+		return true; */
+		return false;
 	}
 
 	// --------------------------------------------------------- ---
-    override void UpdateLights(int new_gear = -1) 
+	override void UpdateLights(int new_gear = -1) 
 	{
-        super.UpdateLights( new_gear );
+		super.UpdateLights( new_gear );
 
-        if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) 
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) 
 		{
 			ItemBase battery;
 			
-			if ( IsVitalCarBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
+			if ( IsVitalTruckBattery() ) battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
 			
 			if ( battery )
 			{
-                int b;
+				int b;
 
-                vector color;
-                vector ambient;
+				vector color;
+				vector ambient;
 
-                if ( m_HeadlightsOn )
+				if ( m_HeadlightsOn )
 				{
-                    if ( m_Lights.Count() == 0 )
-                    {
-                        CreateLights( this, "intlight", ExpansionPointLight, Vector(1, 1, 1), Vector(1, 1, 1), 5, 1, false, true );
-                    }
-                }
-                else
+					if ( m_Lights.Count() == 0 )
+					{
+						CreateLights( this, "intlight", ExpansionPointLight, Vector(1, 1, 1), Vector(1, 1, 1), 5, 1, false, true );
+					}
+				}
+				else
 				{
-                    for ( b = 0; b < m_Particles.Count(); b++ )
-			        {
-                        m_Particles[b].Stop( );
+					for ( b = 0; b < m_Particles.Count(); b++ )
+					{
+						m_Particles[b].Stop( );
 
-                        GetGame().ObjectDelete( m_Particles[b] );
-                    }
+						GetGame().ObjectDelete( m_Particles[b] );
+					}
 
-                    for ( b =- 0; b < m_Lights.Count(); b++ )
-			        {
-                        m_Lights[b].ExpansionSetEnabled( false );
+					for ( b =- 0; b < m_Lights.Count(); b++ )
+					{
+						m_Lights[b].ExpansionSetEnabled( false );
 
-                        GetGame().ObjectDelete( m_Lights[b] );
-                    }
+						GetGame().ObjectDelete( m_Lights[b] );
+					}
 
-                    m_Lights.Clear();
-                }
-            }
-        }
-    }
+					m_Lights.Clear();
+				}
+			}
+		}
+	}
 }

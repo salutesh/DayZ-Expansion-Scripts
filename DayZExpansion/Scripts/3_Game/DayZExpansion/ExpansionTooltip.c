@@ -213,4 +213,12 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		EXPrint("ExpansionUITooltip::UpdateTooltip - End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	// Expansion IsVisable
+	// ------------------------------------------------------------		
+	bool IsVisable()
+	{
+		return m_Root.IsVisible();
+	}
 }

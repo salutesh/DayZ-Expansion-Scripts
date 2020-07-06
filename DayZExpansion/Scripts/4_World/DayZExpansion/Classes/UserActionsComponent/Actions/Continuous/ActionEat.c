@@ -13,7 +13,7 @@
 /*
 modded class ActionEat
 {
-    override bool CanBeUsedInVehicle()
+	override bool CanBeUsedInVehicle()
 	{
 		return true;
 	}

@@ -36,7 +36,7 @@ class ExpansionMarketTraderHelga: ExpansionMarketTrader
 		AddItem("FlashGrenade");
 		
 		//Expansion Explosives
-		AddItem("ExpansionExplosiveBase");
+		AddItem("ExpansionExplosive");
 		
 		AddItem("NVGoggles");
 		AddItem("NVGHeadstrap");

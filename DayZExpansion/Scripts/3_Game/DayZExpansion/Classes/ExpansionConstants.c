@@ -48,12 +48,6 @@ class ExpansionChatInformation
 	}
 }
 
-enum ExpansioneDisplayElements
-{
-	DELM_TDCY_HUMANITY,
-	DELM_TDCY_WEIGHT
-}
-
 const float EXP_FADE_TIMEOUT = 2.5;
 const float EXP_FADE_OUT_DURATION = 0.25;
 const float EXP_FADE_IN_DURATION = 0.25;
@@ -83,7 +77,6 @@ const int INPUT_EXCLUDE_CHAT_EXPANSION		= 50;		// Create with ai
  * @{
  */
 const int ECE_ENABLEAI		= 0x800;		// Create with ai
-const int ECE_CREATELOCAL	= 0x40000000;	// Create locally the object
 
 /**
  * Expansion UI Menu IDs
@@ -154,6 +147,7 @@ static const string EXPANSION_MAPPING_EXT = ".map";
 
 static const string EXPANSION_GENERAL_SETTINGS = EXPANSION_SETTINGS_FOLDER + "GeneralSettings.json";
 static const string EXPANSION_BOOK_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BookSettings.json";
+static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
 static const string EXPANSION_SPAWN_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SpawnSettings.json";
 static const string EXPANSION_AIRDROP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "AirdropSettings.json";
 static const string EXPANSION_BOT_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BotSettings.json";
@@ -162,29 +156,16 @@ static const string EXPANSION_PARTY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "Part
 static const string EXPANSION_SAFE_ZONES_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SafeZoneSettings.json";
 static const string EXPANSION_MISSION_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MissionSettings.json";
 static const string EXPANSION_MARKET_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MarketSettings.json";
-static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
+static const string EXPANSION_NOTIFICATION_SETTINGS = EXPANSION_SETTINGS_FOLDER + "NotificationSettings.json";
+static const string EXPANSION_RAID_SETTINGS = EXPANSION_SETTINGS_FOLDER + "RaidSettings.json";
 static const string EXPANSION_TERRITORY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "TerritorySettings.json";
-static const string EXPANSION_RADIATION_ZONES_SETTINGS = EXPANSION_SETTINGS_FOLDER + "RadiationZoneSettings.json";
-
-static const string EXPANSION_LOG_FOLDER = EXPANSION_FOLDER + "Logs\\";
-static const string EXPANSION_CHAT_LOG_FOLDER = EXPANSION_LOG_FOLDER + "Chat\\";
-static const string EXPANSION_MARKET_LOG_FOLDER = EXPANSION_LOG_FOLDER + "Market\\";
-static const string EXPANSION_KILLFEED_LOG_FOLDER = EXPANSION_LOG_FOLDER + "KillFeed\\";
-static const string EXPANSION_PARTY_LOG_FOLDER = EXPANSION_LOG_FOLDER + "Parties\\";
-static const string EXPANSION_MISSIONS_LOG_FOLDER = EXPANSION_LOG_FOLDER + "Missions\\";
-
-static const string EXPANSION_SERVERSTATS_FOLDER = EXPANSION_FOLDER + "Stats\\";
-
-static const string EXPANSION_QUESTS_FOLDER = EXPANSION_FOLDER + "Quests\\";
-static const string EXPANSION_QUESTS = EXPANSION_QUESTS_FOLDER + "Quests\\";
-static const string EXPANSION_QUEST_NPCS = EXPANSION_QUESTS_FOLDER + "QuestNPCs\\";
-static const string EXPANSION_QUEST_REWARDS = EXPANSION_QUESTS_FOLDER + "QuestRewards.json";
+static const string EXPANSION_VEHICLE_SETTINGS = EXPANSION_SETTINGS_FOLDER + "VehicleSettings.json";
 
 static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors.bin";
 
 //! On Client Only
-static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.json";
-static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.json";
+static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.bin";
+static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.bin";
 
 /**
  * InGame Menu
@@ -204,7 +185,6 @@ enum ExpansionPlayerLink
 	NONE = 0,
 	ATTACH,
 	DETACH,
-	GET_OUT_VEHICLE,
 	CLIMB_START,
 	CLIMB_FINISHED,
 	REQUEST_LINK
@@ -222,7 +202,7 @@ enum ExpansionPlayerRaycastResult
  * Expansion URLs
  * @{
  */
-const string EXPANSION_CURL_URL = "https://api.thurston.pw/expansion/";
+const string EXPANSION_Rest_URL = "https://api.thurston.pw/expansion/";
 
 /**
  * Expansion notification Icons
@@ -265,7 +245,7 @@ static const string EXPANSION_FLAG_COUNTRIES_USA = "DayZExpansion\\Objects\\Stru
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 3;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 5;
 
 /**
  * Expansion Debugging types
@@ -314,5 +294,5 @@ static void Expansion_SetupDebugger()
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_AI );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
 
-	// ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_HELICOPTER );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_AI );
 }

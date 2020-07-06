@@ -24,7 +24,7 @@ class ExpansionUAZ extends OffroadHatchback
 		EXPrint("ExpansionUAZ::Constructor - Start");
 		#endif
 
-		m_dmgContactCoef = 0.018;
+		m_dmgContactCoef = 0.040;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUAZ::Constructor - End");
@@ -143,47 +143,48 @@ class ExpansionUAZ extends OffroadHatchback
 		switch( slotType )
 		{
 			case "uazdriverdoor": {
-				if ( GetAnimationPhase("uazdriverdoor") > 0.5 ) {
+				if ( GetAnimationPhase("uazdriverdoor") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uazcodriverdoor": {
-				if ( GetAnimationPhase("uazcodriverdoor") > 0.5 ) {
+				if ( GetAnimationPhase("uazcodriverdoor") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uazcargo1door": {
-				if ( GetAnimationPhase("uazcargo1door") > 0.5 ) {
+				if ( GetAnimationPhase("uazcargo1door") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uazcargo2door": {
-				if ( GetAnimationPhase("uazcargo2door") > 0.5 ) {
+				if ( GetAnimationPhase("uazcargo2door") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "uaztrunkdoor": {
-				if ( GetAnimationPhase("uaztrunkdoor") > 0.5 ) {
-					return CarDoorState.DOORS_OPEN;
-                } else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
-            default: {
-                return CarDoorState.DOORS_MISSING;
+				//if ( GetAnimationPhase("uaztrunkdoor") > 0.5 ) {
+				//	return CarDoorState.DOORS_OPEN;
+				//} else {
+				//	return CarDoorState.DOORS_CLOSED;
+				//}
+				break;
+			}
+			default: {
+				return CarDoorState.DOORS_MISSING;
 			}
 		}
 
@@ -328,42 +329,42 @@ class ExpansionUAZ extends OffroadHatchback
 		switch( posIdx )
 		{
 			case 0: {
-				if ( GetAnimationPhase("uazdriverdoor") > 0.5 ) {
+				if ( GetAnimationPhase("uazdriverdoor") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case 1: {
-				if ( GetAnimationPhase("uazcodriverdoor") > 0.5 ) {
+				if ( GetAnimationPhase("uazcodriverdoor") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case 2: {
-				if ( GetAnimationPhase("uazcargo1door") > 0.5 ) {
+				if ( GetAnimationPhase("uazcargo1door") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case 3: {
-				if ( GetAnimationPhase("uazcargo2door") > 0.5 ) {
+				if ( GetAnimationPhase("uazcargo2door") > 0 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case 4: {
 				return CarDoorState.DOORS_CLOSED;
-            }
-            default: {
-                return CarDoorState.DOORS_MISSING;
+			}
+			default: {
+				return CarDoorState.DOORS_MISSING;
 			}
 		}
 
@@ -382,13 +383,13 @@ class ExpansionUAZ extends OffroadHatchback
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUAZ::IsVitalTruckBattery");
 		#endif
 
-        return false;
-    }
+		return false;
+	}
 
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
@@ -464,13 +465,14 @@ class ExpansionUAZCargoRoofless extends ExpansionUAZ
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		if ( !obj.IsInherited( PlayerBase ) ) 
+/* 		if ( !obj.IsInherited( PlayerBase ) ) 
 			return false;
 
 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 
-		return true;
+		return true; */
+		return false;
 	}
 }
 

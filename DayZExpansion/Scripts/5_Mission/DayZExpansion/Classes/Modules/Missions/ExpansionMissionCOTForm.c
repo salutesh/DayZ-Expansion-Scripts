@@ -28,7 +28,7 @@ class ExpansionMissionCOTForm extends JMFormBase
 	{
 		ExpansionMissionModule.SI_Started.Insert( Event_Started );
 		ExpansionMissionModule.SI_Ended.Insert( Event_Ended );
-    }
+	}
 
 	void ~ExpansionMissionCOTForm()
 	{

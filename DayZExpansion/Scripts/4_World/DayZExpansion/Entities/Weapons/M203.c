@@ -10,7 +10,7 @@
  *
 */
 
-class Expansion_M203_HE_Explosion: Building
+class Expansion_M203_HE_Explosion: BuildingBase
 {
 	ref Timer m_Delay;
 	protected Particle 		m_ParticleExplosion;
@@ -246,14 +246,21 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 					EntityAI foundMask = player.FindAttachmentBySlotName("Mask"); 
 					if ( foundMask != NULL) 
 					{
-						if ( foundMask.IsKindOf("GasMask") && foundMask.IsKindOf("GP5GasMask") && foundMask.IsKindOf("Expansion_Gasmask")  )
+						if ( !foundMask.IsKindOf("GasMask") && !foundMask.IsKindOf("GP5GasMask") && !foundMask.IsKindOf("Expansion_Gasmask")  )
 						{
 							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
 							player.AddHealth("","Shock", -20);
 
-							Print("Teargas MakePlayerCough Player has no mask");
+							Print("Teargas MakePlayerCough Player has item in mask slot, but player is not protected.");
 						}
-					};
+					}
+					else 
+					{
+							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
+							player.AddHealth("","Shock", -20);
+
+							Print("Teargas MakePlayerCough Player has no mask.");
+					}
 				}
 			}	
 		}

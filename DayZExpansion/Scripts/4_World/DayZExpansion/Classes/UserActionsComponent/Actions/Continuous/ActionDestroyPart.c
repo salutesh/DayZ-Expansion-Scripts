@@ -12,8 +12,22 @@
 
 modded class ActionDestroyPart
 {
-    override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		/*
+		//! Legacy Melee raiding
+		if ( GetExpansionSettings().GetRaid() )
+		{
+			if ( GetExpansionSettings().GetRaid().AllowMeleeRaidingOnVanilla )
+			{
+				if ( item.IsInherited(FenceKit) || item.IsInherited(WatchtowerKit) )
+				{
+					super.ActionCondition( player, target, item );					
+				}
+			}
+		}
+		*/
+		
 		return false;
 	}
 }

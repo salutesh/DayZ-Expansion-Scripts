@@ -81,8 +81,6 @@ class ExpansionVehicleSyncState
 	}
 }
 
-// #define EXPANSION_USING_TRANSPORT_BASE
-
 #ifdef EXPANSION_USING_TRANSPORT_BASE
 class ExpansionVehicleScript extends Transport
 #else
@@ -154,6 +152,13 @@ class ExpansionVehicleScript extends ItemBase
 	vector m_AdjustCenterOfMass;
 
 	ref Transform m_Transform;
+	
+	// Floating
+	protected float m_WaterVolume;
+	protected float m_TotalVolume;
+
+	// Effects
+	protected float m_AltitudeLimiter;
 
 	vector m_InertiaTensor;
 	vector m_InvInertiaTensor;
@@ -180,9 +185,9 @@ class ExpansionVehicleScript extends ItemBase
 	{
 		//! Print( "[" + this + "] ExpansionVehicleScript" );
 
-		if ( IsMissionHost() && GetExpansionSettings().GetGeneral() )
+		if ( IsMissionHost() && GetExpansionSettings().GetVehicle() )
 		{
-			m_NetworkMode = GetExpansionSettings().GetGeneral().VehicleSync;
+			m_NetworkMode = GetExpansionSettings().GetVehicle().VehicleSync;
 		} else
 		{
 			m_NetworkMode = ExpansionVehicleNetworkMode.SERVER_ONLY;
@@ -327,8 +332,6 @@ class ExpansionVehicleScript extends ItemBase
 		// #endif
 
 		LoadConstantVariables();
-
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 	}
 
 	// ------------------------------------------------------------
@@ -351,27 +354,33 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	void DeferredInit()
+	override void DeferredInit()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::DeferredInit - Start");
+		EXPrint("ExpansionVehicleScript::DeferredInit - Start");
 		#endif
 
-		m_BoundingRadius = ClippingInfo( m_BoundingBox );
+		if ( !m_SkinModule || !m_SkinModule.PerformCESkinSwap( this ) )
+		{
+			m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
-		m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
+			m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
+		} else
+		{
+			//! This car instance will be destroyed
+		}
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::DeferredInit - End");
+		EXPrint("ExpansionVehicleScript::DeferredInit - End");
 		#endif
 	}
 
 	// ------------------------------------------------------------
 	override void OnCreatePhysics()
 	{
-		//! Print( "[" + this + "] OnCreatePhysics" );
+		//Print( "[" + this + "] OnCreatePhysics" );
 
 		if ( m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
 		{
@@ -420,7 +429,7 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	override void EOnContact(IEntity other, Contact extra) //!EntityEvent.CONTACT
 	{
-		//! Print( "[" + this + "] EOnContact " + other );
+		//Print( "[" + this + "] EOnContact " + other );
 	}
 
 	// ------------------------------------------------------------
@@ -480,12 +489,6 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	private void UpdateSpawning()
-	{
-		//m_IsSpawning = false;
-	}
-
-	// ------------------------------------------------------------
 	protected void OnHumanPilot( PlayerBase driver, float pDt )
 	{
 	}
@@ -531,7 +534,7 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
 	{
-		//! Print( "[" + this + "] EOnSimulate" );
+		//Print( "[" + this + "] EOnSimulate" );
 
 		if ( !CanSimulate() )
 			return;
@@ -947,6 +950,32 @@ class ExpansionVehicleScript extends ItemBase
 	vector GetWorldVelocityAt( vector relPos )
 	{
 		return GetModelVelocityAt( relPos ).Multiply3( m_Transform.GetBasis().data );
+	}
+
+	// ------------------------------------------------------------
+	vector GetEstimatedPosition( float pDt )
+	{
+		return GetPosition() + ( m_LinearVelocity * pDt );
+	}
+
+	// ------------------------------------------------------------
+	private void CalculateAltitudeLimiter()
+	{
+		float altitude = GetPosition()[1];
+		
+		if ( altitude > m_AltitudeFullForce )
+		{
+			if ( altitude > m_AltitudeNoForce )
+			{
+				m_AltitudeLimiter = 0;
+			} else
+			{
+				m_AltitudeLimiter = 1 - ( altitude - m_AltitudeFullForce ) * ( 1 / ( m_AltitudeNoForce - m_AltitudeFullForce ) );
+			}
+		} else
+		{
+			m_AltitudeLimiter = 1;
+		}
 	}
 
 	/**
@@ -1949,6 +1978,20 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
+	bool IsSurfaceWater( vector position )
+	{
+		if ( GetGame().SurfaceIsSea( position[0], position[2] ) )
+		{
+			return true;
+		} else if( GetGame().SurfaceIsPond( position[0], position[2] ) )
+		{
+			return true;
+		}
+		
+		return false;
+	}
+
+	// ------------------------------------------------------------
 	override bool CanPutAsAttachment( EntityAI parent )
 	{
 		return false;
@@ -2135,7 +2178,7 @@ class ExpansionVehicleScript extends ItemBase
 	{
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	float GetWreckAltitude()
 	{
@@ -2146,6 +2189,12 @@ class ExpansionVehicleScript extends ItemBase
 	vector GetWreckOffset()
 	{
 		return "0 0 1";
+	}
+
+	// ------------------------------------------------------------
+	string GetWreck()
+	{
+		return GetType() + "Wreck";
 	}
 
 	// ------------------------------------------------------------

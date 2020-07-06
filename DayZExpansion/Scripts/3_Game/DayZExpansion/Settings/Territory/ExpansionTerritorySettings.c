@@ -10,15 +10,17 @@
  *
 */
 
-/**@class		ExpansionBaseBuildingSettings
+/**@class		ExpansionTerritorySettings
  * @brief		Spawn settings class
  **/
 class ExpansionTerritorySettings: ExpansionSettingBase
 {
-	bool EnableTerritories;
-	bool UseWholeMapForInviteList; // Use it if you want whole map available in invite list, instead only nearby players
-	float TerritorySize;
-	int MaxMembersInTerritory; // If <= 0, unlimited territory size
+	bool EnableTerritories;				//! If enabled, use the expansion territory system
+	bool UseWholeMapForInviteList; 		//! Use it if you want whole map available in invite list, instead only nearby players.
+	float TerritorySize;				//! The radius of a territory in meters.
+	float TerritoryPerimterSize			//! The radius who prevent territories to overlap
+	int MaxMembersInTerritory; 			//! If <= 0, unlimited territory size.
+	int MaxTerritoryPerPlayer;			//! If <= 0, unlimited territory number.
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -58,7 +60,7 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionTerritorySettings::HandleRPC - End");
 		#endif
-    }
+	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -85,8 +87,8 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionTerritorySettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -101,8 +103,10 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		EnableTerritories = s.EnableTerritories;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
 		TerritorySize = s.TerritorySize;
+		TerritoryPerimterSize = s.TerritoryPerimterSize;
 		MaxMembersInTerritory = s.MaxMembersInTerritory;
-    }
+		MaxTerritoryPerPlayer = s.MaxTerritoryPerPlayer;
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -165,7 +169,9 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		EnableTerritories = true;
 		UseWholeMapForInviteList = false;
 		TerritorySize = 150.0;
+		TerritoryPerimterSize = 150.0;
 		MaxMembersInTerritory = 10;
+		MaxTerritoryPerPlayer = 1;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionTerritorySettings::Defaults - End");

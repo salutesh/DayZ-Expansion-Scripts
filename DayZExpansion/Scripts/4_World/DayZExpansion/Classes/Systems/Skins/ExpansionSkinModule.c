@@ -1,17 +1,87 @@
+class ExpansionSkins : Managed
+{
+	private ref map< string, ref ExpansionSkin > m_Skins;
+	private ref array< string > m_Order;
+
+	private string m_DefaultSkin;
+
+	void ExpansionSkins( string defaultSkin )
+	{
+		m_DefaultSkin = defaultSkin;
+		m_Skins = new map< string, ref ExpansionSkin >;
+		m_Order = new array< string >;
+	}
+
+	void ~ExpansionSkins()
+	{
+		delete m_Skins;
+		delete m_Order;
+	}
+
+	void AddSkin( string name, string path )
+	{
+		ref ExpansionSkin skin = new ExpansionSkin;
+		JsonFileLoader< ExpansionSkin >.JsonLoadFile( path, skin );
+		
+		m_Skins.Insert( name, skin );
+		m_Order.Insert( name );
+	}
+
+	int Count()
+	{
+		return m_Skins.Count();
+	}
+	
+	int Find( string name )
+	{
+		return m_Order.Find( name );
+	}
+
+	string GetName( int index )
+	{
+		return m_Order[index];
+	}
+
+	ExpansionSkin Get( int index )
+	{
+		return m_Skins[GetName(index)];
+	}
+
+	ExpansionSkin Get( string name )
+	{
+		return m_Skins[name];
+	}
+
+	string GetDefaultSkin()
+	{
+		return m_DefaultSkin;
+	}
+
+	void Sort()
+	{
+		m_Order.Sort();
+	}
+};
+
 class ExpansionSkinModule: JMModuleBase
 {	
-	private autoptr map< string, ref array< ref ExpansionSkin > > m_Skins;
+	private ref map< string, ref ExpansionSkins > m_Skins;
 
 	void ExpansionSkinModule()
 	{
-		m_Skins = new map< string, ref array< ref ExpansionSkin > >;
+		m_Skins = new map< string, ref ExpansionSkins >;
+	}
+
+	void ~ExpansionSkinModule()
+	{
+		delete m_Skins;
 	}
 
 	override void OnInit()
 	{
 		int mod_count = GetGame().ConfigGetChildrenCount( "CfgMods" );
 		
-		for( int i = 0; i < mod_count; i++ )
+		for ( int i = 0; i < mod_count; ++i )
 		{
 			string mod_name;
 			GetGame().ConfigGetChildName( "CfgMods", i, mod_name );
@@ -47,7 +117,7 @@ class ExpansionSkinModule: JMModuleBase
 				
 				if ( findFileHandle )
 				{
-					if ( folderName.Length() > 0 ) // && ( fileAttr & FileAttr.DIRECTORY) )
+					if ( folderName.Length() > 0 )
 					{
 						if ( filePatching )
 						{
@@ -60,7 +130,7 @@ class ExpansionSkinModule: JMModuleBase
 					
 					while ( FindNextFile( findFileHandle, folderName, fileAttr ) )
 					{
-						if ( folderName.Length() > 0 ) // && ( fileAttr & FileAttr.DIRECTORY) )
+						if ( folderName.Length() > 0 )
 						{
 							if ( filePatching )
 							{
@@ -73,6 +143,11 @@ class ExpansionSkinModule: JMModuleBase
 					}
 				}
 			}
+		}
+
+		for ( int k = 0; k < m_Skins.Count(); ++k )
+		{
+			m_Skins.GetElement( k ).Sort();
 		}
 	}
 
@@ -107,14 +182,15 @@ class ExpansionSkinModule: JMModuleBase
 
 	private void LoadSkinsForObject( string file, string rootFolder )
 	{
-		SkinPrint( file );
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( file );
+		#endif
 
 		int idx = file.IndexOf( "\\" );
 
 		string classname = file.Substring( 0, idx );
 		string skinname = file.Substring( idx + 1, file.Length() - idx - 1 );
-
-		skinname.ToLower();
+		classname.ToLower();
 
 		int pos = skinname.IndexOf( "." );
 		if ( pos > -1 )
@@ -122,34 +198,48 @@ class ExpansionSkinModule: JMModuleBase
 			skinname = skinname.Substring( 0, pos );
 		}
 
+		skinname.ToLower();
+
+		string path = "cfgVehicles";
+		if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+		{
+			path = "cfgWeapons";
+			if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+			{
+				path = "cfgMagazines";
+				if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+				{
+					path = "cfgNonAIVehicles";
+					if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
+					{
+						Error( "Invalid class name " + classname );
+						return;
+					}
+				}
+			}
+		}
+
 		TStringArray applySkinsTo = new TStringArray;
-		GetGame().ConfigGetTextArray( "cfgVehicles " + classname + " applySkinsTo", applySkinsTo );
+		GetGame().ConfigGetTextArray( path + " " + classname + " applySkinsTo", applySkinsTo );
+
+		string defaultSkin = "";
+		GetGame().ConfigGetText( path + " " + classname + " defaultSkin", defaultSkin );
 
 		applySkinsTo.Insert( classname );
-
-		ref ExpansionSkin skin = new ExpansionSkin;
-		JsonFileLoader< ExpansionSkin >.JsonLoadFile( rootFolder + file, skin );
-		skin.SkinFileName = skinname;
 
 		for ( int i = 0; i < applySkinsTo.Count(); i++ )
 		{
 			classname = applySkinsTo[i];
 			classname.ToLower();
 
-			SkinPrint( "Trying to apply " + skinname + " to " + classname );
-
-			array< ref ExpansionSkin > skins = m_Skins.Get( classname );
+			ExpansionSkins skins = m_Skins.Get( classname );
 			if ( !skins )
 			{
-				m_Skins.Insert( classname, new array< ref ExpansionSkin > );
+				m_Skins.Insert( classname, new ExpansionSkins( defaultSkin ) );
 				skins = m_Skins.Get( classname );
-
-				SkinPrint( "  Creating new array" );
 			}
 
-			skins.Insert( skin );
-
-			SkinPrint( "  Added skin=" + skin + " to " + skins + " for " + classname );
+			skins.AddSkin( skinname, rootFolder + file );
 		}
 	}
 
@@ -158,22 +248,13 @@ class ExpansionSkinModule: JMModuleBase
 		classname.ToLower();
 		skin.ToLower();
 
-		SkinPrint( "GetSkinIndex " + classname + ", " + skin );
+		ExpansionSkins skins = m_Skins.Get( classname );
+		if ( !skins || skins.Count() == 0 )
+			return -1;
 
-		array< ref ExpansionSkin > skins;
-
-		if ( m_Skins.Find( classname, skins ) )
-		{
-			for ( int i = 0; i < skins.Count(); i++ )
-			{
-				SkinPrint( "  skin " + skins[i].SkinFileName );
-				
-				if ( skins[i].SkinFileName == skin )
-				{
-					return i;
-				}
-			}
-		}
+		for ( int i = 0; i < skins.Count(); i++ )
+			if ( skins.GetName( i ) == skin )
+				return i;
 
 		return -1;
 	}
@@ -183,63 +264,81 @@ class ExpansionSkinModule: JMModuleBase
 		if ( index < 0 )
 			return "";
 
-		classname.ToLower();
+		ExpansionSkins skins = m_Skins.Get( classname );
+		if ( !skins || index >= skins.Count() )
+			return "";
 
-		array< ref ExpansionSkin > skins;
-
-		if ( m_Skins.Find( classname, skins ) )
-		{
-			if ( index >= skins.Count() )
-				return "";
-
-			return skins[index].SkinFileName;
-		}
-
-		return "";
+		return skins.GetName( index );
 	}
 
-	array< ref ExpansionSkin > RetrieveSkins( string classname )
+	void RetrieveSkins( string classname, out array< ExpansionSkin > skinCopy, out string defaultSkin )
 	{
+		defaultSkin = "";
+
 		classname.ToLower();
 
-		array< ref ExpansionSkin > skins;
-		if ( m_Skins.Find( classname, skins ) )
-		{
-			return skins;
-		}
+		ExpansionSkins skins = m_Skins.Get( classname );
+		if ( !skins )
+			return;
 
-		return NULL;
+		defaultSkin = skins.GetDefaultSkin();
+
+		for ( int i = 0; i < skins.Count(); ++i )
+			skinCopy.Insert( skins.Get( i ) );
 	}
 
-	void SkinCarDoor( CarDoor door )
+	bool PerformCESkinSwap( EntityAI ent )
 	{
-		return;
-
-		string mainType = door.ExpansionMainType();
-		string doorType = door.GetType();
-		mainType.ToLower();
-		doorType.ToLower();
+		string base = ent.ConfigGetString( "skinBase" );
+		string skin = ent.ConfigGetString( "skinName" );
 		
-		if ( mainType != "" && mainType != doorType )
+		if ( base != "" && skin != "" && base != ent.GetType() )
 		{
-			if ( GetGame().IsKindOf( doorType, mainType ) )
+			ExpansionSkinObjectLambda lambda = new ExpansionSkinObjectLambda( ent, base, NULL, this, skin );
+			
+			//InventoryLocation newDst = new InventoryLocation;
+			//ent.GetInventory().GetCurrentInventoryLocation( newDst );
+
+			//lambda.OverrideNewLocation( newDst );
+
+			if ( GetGame().IsClient() )
 			{
-				int doorLen = doorType.Length();
-				int mainLen = mainType.Length();
 
-				int start = doorLen + 1;
-				int end = doorLen - mainLen - 1;
-
-				string skin = mainType.Substring( start, end );
-
-				ReplaceItemWithNewLambdaBase lambda = new ExpansionSkinCarDoorFromObjectLambda( door, mainType, this, skin );
-				lambda.Execute( NULL );
+			} else
+			{
+				ent.GetInventory().ReplaceItemWithNew( InventoryMode.SERVER, lambda );
 			}
+
+			return true;
 		}
+
+		return false;
 	}
 
-	void SkinPrint( string message )
+	bool PerformSkinFixOldVersion( EntityAI ent, string skin )
 	{
-		//! Print( message );
+		string base = ent.ConfigGetString( "newBase" );
+		
+		if ( base != "" && base != ent.GetType() )
+		{
+			ExpansionSkinObjectLambda lambda = new ExpansionSkinObjectLambda( ent, base, NULL, this, skin );
+			
+			//InventoryLocation newDst = new InventoryLocation;
+			//ent.GetInventory().GetCurrentInventoryLocation( newDst );
+
+			//lambda.OverrideNewLocation( newDst );
+
+			if ( GetGame().IsClient() )
+			{
+
+			} else
+			{
+				ent.GetInventory().ReplaceItemWithNew( InventoryMode.SERVER, lambda );
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -18,15 +18,15 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool EnableMap;
 	bool UseMapOnMapItem;
 	bool CanCreateMarker;				// Allow player to create markers
-    bool ShowPlayerPosition;			// Allow player to see his position on the map
+	bool ShowPlayerPosition;			// Allow player to see his position on the map
 	bool CanCreatePartyMarkers;			// Allow player to create party markers
 	bool ShowMapStats;
 	bool CanCreate3DMarker;				// Allow player to create 3D markers
 	bool ShowPartyMembersMapMarkers;	// Allow player to see his teammates position on the map
-	float DistanceForPartyMarkers; 		// Can't go over network bubble distance for player
 	bool ShowServerMarkers;				// Show server markers
 	bool CanOpenMapWithKeyBinding;
-
+	bool ShowVehicleDebugMarkers;		// Creates a debug server marker for every single vehicle created by the CE
+	
 	autoptr array< ref ExpansionMapMarker > ServerMarkers;
 	
 	[NonSerialized()]
@@ -69,7 +69,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::HandleRPC - End");
 		#endif
-    }
+	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -96,8 +96,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionMapSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -158,10 +158,6 @@ class ExpansionMapSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::CopyInternal 10 s.ShowPartyMembersMapMarkers : " + s.ShowPartyMembersMapMarkers);
 		#endif
-		DistanceForPartyMarkers = s.DistanceForPartyMarkers;
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMapSettings::CopyInternal 11 s.DistanceForPartyMarkers : " + s.DistanceForPartyMarkers);
-		#endif
 		ShowServerMarkers = s.ShowServerMarkers;
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::CopyInternal 12 s.ShowServerMarkers : " + s.ShowServerMarkers);
@@ -170,7 +166,11 @@ class ExpansionMapSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::CopyInternal 13 s.CanOpenMapWithKeyBinding : " + s.CanOpenMapWithKeyBinding);
 		#endif
-    }
+		ShowVehicleDebugMarkers = s.ShowVehicleDebugMarkers;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMapSettings::CopyInternal 14 s.ShowVehicleDebugMarkers : " + s.ShowVehicleDebugMarkers);
+		#endif
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()
@@ -230,7 +230,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override void Defaults()
+	override void Defaults()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[ExpansionMapSettings] Loading default settings..");
@@ -238,17 +238,18 @@ class ExpansionMapSettings: ExpansionSettingBase
 		
 		EnableMap = true;
 		UseMapOnMapItem = true;
-        CanCreateMarker = true;
-        ShowPlayerPosition = true;
+		CanCreateMarker = true;
+		ShowPlayerPosition = true;
 		CanCreatePartyMarkers = true;
 		ShowMapStats = true;
 		CanCreate3DMarker = true;
 		
 		ShowPartyMembersMapMarkers = true;
-		DistanceForPartyMarkers = 2048.0;
 		ShowServerMarkers = true;
 
 		CanOpenMapWithKeyBinding = true;
+		
+		ShowVehicleDebugMarkers = false;
 		
 		// Set default markers depending on map name
 		string world_name = "empty";
@@ -256,8 +257,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 		world_name.ToLower();
 
 		// Vanilla Maps
-        if ( world_name.Contains( "chernarusplus" ) )
-        {
+		if ( world_name.Contains( "chernarusplus" ) )
+		{
 			//All 3D server markers - Chernarus
 			//ServerMarkers.Insert( new ExpansionMapMarker( "Hero Trader-Zone", 		6, Vector( 11844.678711, 0, 12466.84082 ), 	ARGB( 255, 46, 204, 113 ), 	false, /*3D marker*/true ) ); 	// Color Emerald green: #2ecc71 
 			//ServerMarkers.Insert( new ExpansionMapMarker( "Bandit Trader-Zone", 		6, Vector( 1127.144531, 0, 2419.871582 ), 	ARGB( 255, 231, 76, 60 ), 	false, /*3D marker*/true ) ); 	// Color Alizarin red: #e74c3c	
@@ -266,7 +267,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 			//ServerMarkers.Insert( new ExpansionMapMarker( "Aircraft Trader", 		10, Vector( 4971.664063, 0, 2438.656494 ), 	ARGB( 255, 52, 73, 94 ), 	false, /*3D marker*/true ) );	// Color Wet Asphalt gray: #34495e
 		} 
 		else if ( world_name.Contains( "enoch" ) )
-        {
+		{
 			//! TODO: Livonia Server Markers
 		}
 

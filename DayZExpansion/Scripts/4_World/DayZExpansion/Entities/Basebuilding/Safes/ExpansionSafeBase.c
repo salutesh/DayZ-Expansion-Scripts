@@ -12,6 +12,8 @@
 
 class ExpansionSafeBase extends Container_Base
 {
+	protected EffectSound m_Sound;
+	
 	protected bool m_IsOpen;
 
 	protected bool m_Locked;
@@ -56,6 +58,7 @@ class ExpansionSafeBase extends Container_Base
 		AddAction( ExpansionActionClose );
 		
 		AddAction( ExpansionActionEnterSafeLock );
+		AddAction( ExpansionActionChangeSafeLock );
 	}
 
 	// ------------------------------------------------------------
@@ -198,6 +201,11 @@ class ExpansionSafeBase extends Container_Base
 			m_Locked = true;
 			
 			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
+			
+			if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+			{
+				//m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Locks_SoundSet", GetPosition());
+			}
 		}
 
 		SetSynchDirty();
@@ -212,7 +220,25 @@ class ExpansionSafeBase extends Container_Base
 		m_Locked = false;
 		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
 		Open("safe_door");
+
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock_SoundSet", GetPosition());
+		}
+		
 		SetSynchDirty();
+	}
+	
+	/**
+	\brief Failed attempt to unlock base build
+		\param 	
+	*/
+	override void FailedUnlock()
+	{
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			m_Sound = SEffectManager.PlaySound("Expansion_Shocks_SoundSet", GetPosition());
+		}
 	}
 	
 	/**
@@ -356,12 +382,7 @@ class ExpansionSafeBase extends Container_Base
             return false;
         }
 
-		if ( GetNumberOfItems() == 0 )
-		{
-			return true;
-		}
-		
-		if ( !IsOpened() )
+		if ( GetNumberOfItems() == 0 && !IsOpened()  )
 		{
 			return true;
 		}
@@ -393,12 +414,13 @@ class ExpansionSafeBase extends Container_Base
 	}
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		float explosionDamageMultiplier = GetExpansionSettings().GetBaseBuilding().SafeExplosionDamageMultiplier; 
-		float projectileDamageMultiplier = GetExpansionSettings().GetBaseBuilding().SafeProjectileDamageMultiplier; 
+		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().SafeExplosionDamageMultiplier; 
+		float projectileDamageMultiplier = GetExpansionSettings().GetRaid().SafeProjectileDamageMultiplier; 
+		
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);	
 		PlayerBase player;
 		PlayerIdentity playerID;
-		GetGame().AdminLog("------------------------- Expansion BaseRaiding Damage Report -------------------------")
+		GetGame().AdminLog("------------------------- Expansion BaseRaiding Damage Report -------------------------");
 		if (damageType == 2) 
 		{
 			float exposionBonusDamage;
@@ -407,7 +429,7 @@ class ExpansionSafeBase extends Container_Base
 				exposionBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * ( explosionDamageMultiplier + 1 ) );
 				if ( source != NULL)
 				{
-					player = source.GetHierarchyRootPlayer();
+					player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 					playerID = PlayerIdentity.Cast(player.GetIdentity());
 					GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) " );
 					GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source + " at " + this.GetPosition() );
@@ -420,7 +442,7 @@ class ExpansionSafeBase extends Container_Base
 			{
 				exposionBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * explosionDamageMultiplier );
 
-				player = source.GetHierarchyRootPlayer();
+				player = PlayerBase.Cast(source.GetHierarchyRootPlayer() );
 				playerID = PlayerIdentity.Cast(player.GetIdentity());
 				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "\"" + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" )) + " current health) "  );
 				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) - exposionBonusDamage ) + " damage with a " + source + " at " + this.GetPosition() );
@@ -429,7 +451,7 @@ class ExpansionSafeBase extends Container_Base
 			}
 			else 
 			{
-				player = source.GetHierarchyRootPlayer();
+				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 				playerID = PlayerIdentity.Cast(player.GetIdentity());
 				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "\"" + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) " );
 				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source + " at " + this.GetPosition());
@@ -442,7 +464,7 @@ class ExpansionSafeBase extends Container_Base
 			if ( projectileDamageMultiplier > 1)
 			{
 				projectileBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * ( projectileDamageMultiplier + 1 ) );
-				player = source.GetHierarchyRootPlayer();
+				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 				playerID = PlayerIdentity.Cast(player.GetIdentity());
 				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
 				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
@@ -452,7 +474,7 @@ class ExpansionSafeBase extends Container_Base
 			else if ( projectileDamageMultiplier < 1)
 			{
 				projectileBonusDamage = ( damageResult.GetDamage( dmgZone,"Health" ) * projectileDamageMultiplier );
-				player = source.GetHierarchyRootPlayer();
+				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 				playerID = PlayerIdentity.Cast(player.GetIdentity());
 				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
 				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
@@ -460,7 +482,7 @@ class ExpansionSafeBase extends Container_Base
 			}
 			else
 			{
-				player = source.GetHierarchyRootPlayer();
+				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
 				playerID = PlayerIdentity.Cast(player.GetIdentity());
 				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + playerID.GetName() + "(ID = \"" + playerID.GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
 				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
@@ -477,7 +499,7 @@ class ExpansionSafeBase extends Container_Base
 	}
 	override void EEKilled( Object killer )
 	{
-		bool canRaidSafes = GetExpansionSettings().GetBaseBuilding().CanRaidSafes;
+		bool canRaidSafes = GetExpansionSettings().GetRaid().CanRaidSafes;
 
 		if ( !canRaidSafes )
 			return;

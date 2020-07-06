@@ -38,7 +38,7 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		m_Car = NULL;
-        m_KeysInHand = NULL;
+		m_KeysInHand = NULL;
 
 		if ( !target || !player )
 			return false;
@@ -65,11 +65,11 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 			}
 		}
 	
-        if ( !m_Car.HasKey() )
+		if ( !m_Car.HasKey() )
 			return false;
 
-        if ( m_Car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
-        	return false;
+		if ( m_Car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
+			return false;
 		
 		return true;
 	}

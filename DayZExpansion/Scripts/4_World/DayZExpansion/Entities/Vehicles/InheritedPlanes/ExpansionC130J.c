@@ -115,9 +115,9 @@ class ExpansionC130J extends ExpansionPlaneScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
-        return false;
-    }
+	{
+		return false;
+	}
 
 	// ------------------------------------------------------------
 	override float GetCameraDistance()
@@ -128,18 +128,19 @@ class ExpansionC130J extends ExpansionPlaneScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
+/* 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 
-		return true;
+		return true; */
+		return false;
 	}
 
 	// --------------------------------------------------------- ---
-    override void UpdateLights(int new_gear = -1) 
+	override void UpdateLights(int new_gear = -1) 
 	{
-        super.UpdateLights( new_gear );
+		super.UpdateLights( new_gear );
 
-        if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) 
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) 
 		{
 			ItemBase battery;
 			
@@ -150,47 +151,47 @@ class ExpansionC130J extends ExpansionPlaneScript
 			
 			if ( battery )
 			{
-                int b;
+				int b;
 
-                vector color;
-                vector ambient;
+				vector color;
+				vector ambient;
 
-                if ( m_HeadlightsOn )
+				if ( m_HeadlightsOn )
 				{
-                    if ( m_Lights.Count() == 0 )
-                    {
+					if ( m_Lights.Count() == 0 )
+					{
 						CreateLights( this, "l2 svetlo", ExpansionHelicopterFrontLight, Vector(1.0, 0.8, 0.6), Vector(1.0, 0.8, 0.6), 220, 5, false, true );
 						CreateLights( this, "p2 svetlo", ExpansionHelicopterFrontLight, Vector(1.0, 0.8, 0.6), Vector(1.0, 0.8, 0.6), 220, 5, false, true );
 						CreateLights( this, "zamerny", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 5, 0.85, false, true );
 
-                        //CreateLights( this, "interiorlight1", ExpansionPointLight, Vector(0.1, 0.1, 0.1), Vector(0.1, 0.1, 0.1), 2, 0.1, false, true );
+						//CreateLights( this, "interiorlight1", ExpansionPointLight, Vector(0.1, 0.1, 0.1), Vector(0.1, 0.1, 0.1), 2, 0.1, false, true );
 						//CreateLights( this, "interiorlight2", ExpansionPointLight, Vector(0.1, 0.1, 0.1), Vector(0.1, 0.1, 0.1), 2, 0.1, false, true );
 
-                        // CreateParticle( this, "bily pozicni", ParticleList.EXPANSION_LIGHT_WHITE );
+						// CreateParticle( this, "bily pozicni", ParticleList.EXPANSION_LIGHT_WHITE );
 						// CreateParticle( this, "zeleny pozicni", ParticleList.EXPANSION_LIGHT_YELLOW );
 						// CreateParticle( this, "cerveny pozicni", ParticleList.EXPANSION_LIGHT_RED );
 						// CreateParticle( this, "cerveny pozicni blik", ParticleList.EXPANSION_LIGHT_RED );
-                    }
-                }
-                else
+					}
+				}
+				else
 				{
-                    for ( b = 0; b < m_Particles.Count(); b++ )
-			        {
-                        m_Particles[b].Stop( );
+					for ( b = 0; b < m_Particles.Count(); b++ )
+					{
+						m_Particles[b].Stop( );
 
-                        GetGame().ObjectDelete( m_Particles[b] );
-                    }
+						GetGame().ObjectDelete( m_Particles[b] );
+					}
 
-                    for ( b =- 0; b < m_Lights.Count(); b++ )
-			        {
-                        m_Lights[b].ExpansionSetEnabled( false );
+					for ( b =- 0; b < m_Lights.Count(); b++ )
+					{
+						m_Lights[b].ExpansionSetEnabled( false );
 
-                        GetGame().ObjectDelete( m_Lights[b] );
-                    }
+						GetGame().ObjectDelete( m_Lights[b] );
+					}
 
-                    m_Lights.Clear();
-                }
-            }
-        }
-    }
+					m_Lights.Clear();
+				}
+			}
+		}
+	}
 }

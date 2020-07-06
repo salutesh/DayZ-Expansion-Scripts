@@ -53,7 +53,7 @@ class ExpansionActionCloseVehicleDoor: ActionInteractBase
 		{
 			//! reach check from outside of vehicle
 			if ( !IsInReach(player, target, UAMaxDistances.DEFAULT) )
-                return false;
+				return false;
 
 			//! player is outside of vehicle
 			if ( Class.CastTo(vehicle, target.GetParent()) )

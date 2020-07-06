@@ -22,7 +22,7 @@ modded class ItemBase
 	protected int m_CurrentSkinSynchRemote;
 
 	protected bool m_CanBeSkinned;
-	protected autoptr array< ref ExpansionSkin > m_Skins;
+	protected autoptr array< ExpansionSkin > m_Skins;
 	
 	protected EntityAI m_WorldAttachment;
 	protected vector m_AttachmentTransform[4];
@@ -45,8 +45,36 @@ modded class ItemBase
 		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote", 0, m_Skins.Count() );
 		RegisterNetSyncVariableBool( "m_IsAttached" );
 
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::ItemBase End");
+		#endif
+	}
+
+	void LongDeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ItemBase::LongDeferredInit - Start");
+		#endif
+
+		if ( m_SkinModule )
+			m_SkinModule.PerformCESkinSwap( this );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ItemBase::LongDeferredInit - End");
+		#endif
+	}
+
+	void DeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ItemBase::DeferredInit - Start");
+		#endif
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ItemBase::DeferredInit - End");
 		#endif
 	}
 
@@ -171,6 +199,14 @@ modded class ItemBase
 	{
 	}
 	
+	/**
+	\brief Failed attempt to unlock base build
+		\param 	
+	*/
+	void FailedUnlock()
+	{
+	}
+	
 	private void SendServerLockReply(bool reply, bool injuring, bool unlock, string code, PlayerIdentity sender)
 	{
 		ScriptRPC rpc = new ScriptRPC;
@@ -220,7 +256,7 @@ modded class ItemBase
 			
 			case ExpansionLockRPC.UNLOCK:
 			{
-				if ( !IsMissionHost() )
+				if ( !IsMissionHost() || !GetExpansionSettings().GetBaseBuilding() )
 					return;
 				
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
@@ -251,12 +287,20 @@ modded class ItemBase
 					#ifdef EXPANSIONEXLOGPRINT
 					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK GetCode() != code");
 					#endif
+					
+					
+					bool InjuryPlayer = GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock;
 
-					SendServerLockReply( false, true, true, "", sender );
-					PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
-					if ( player )
+					SendServerLockReply( false, InjuryPlayer, true, "", sender );
+					
+					if (InjuryPlayer)
 					{
-						player.DecreaseHealth( "", "", 10 );
+						PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
+						if ( player )
+						{
+							FailedUnlock();
+							player.DecreaseHealth( "", "", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
+						}
 					}
 
 					return;
@@ -389,29 +433,31 @@ modded class ItemBase
 
 		ExpansionAIBase new_player = null;
 		ExpansionAIBase old_player = null;
-
-		if( newLoc.GetParent() )
-			new_player = ExpansionAIBase.Cast( newLoc.GetParent().GetHierarchyRootPlayer() );
 		
-		if( oldLoc.GetParent() )
-			old_player = ExpansionAIBase.Cast( oldLoc.GetParent().GetHierarchyRootPlayer() );
+		if ( oldLoc.GetItem() )
+			old_player = ExpansionAIBase.Cast( oldLoc.GetItem().GetHierarchyRootPlayer() );
+
+		if ( newLoc.GetParent() )
+			new_player = ExpansionAIBase.Cast( newLoc.GetParent().GetHierarchyRootPlayer() );
 		
 		if ( !new_player && !old_player )
 		{	
 			super.EEItemLocationChanged( oldLoc, newLoc );
 
-			//! Print("ItemBase::EEItemLocationChanged - End - Not AI");
+			#ifdef EXPANSIONEXPRINT
+			Print("ItemBase::EEItemLocationChanged - End - Not AI");
+			#endif
 
 			return;
 		}
 
-		EntityAI old_owner = oldLoc.GetParent();
-		EntityAI new_owner = newLoc.GetParent();
+		EntityAI old_owner = oldLoc.GetItem();
+		EntityAI new_owner = newLoc.GetItem();
 		OnItemLocationChanged( old_owner, new_owner );
 
 		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT && newLoc.GetType() == InventoryLocationType.ATTACHMENT )
 		{
-			OnItemAttachmentSlotChanged(oldLoc,newLoc);
+			OnItemAttachmentSlotChanged( oldLoc, newLoc );
 		}
 		
 		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT )
@@ -450,7 +496,7 @@ modded class ItemBase
 
 	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner )
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print("ItemBase::OnItemLocationChanged - Start");
 		#endif
 
@@ -490,48 +536,62 @@ modded class ItemBase
 			shouldSuper = false;
 		}
 
-		//! Print( shouldSuper );
-		//! Print( old_owner );
-		//! Print( new_owner );
-		//! Print( old_owner_dpi );
-		//! Print( new_owner_dpi );
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( shouldSuper );
+		Print( old_owner );
+		Print( new_owner );
+		Print( old_owner_dpi );
+		Print( new_owner_dpi );
 		
-		//! if ( new_owner )
-		//!	Print( "new_owner IsMan: " + new_owner.IsMan() );
+		if ( new_owner )
+			Print( "new_owner IsMan: " + new_owner.IsMan() );
 
-		//! if ( old_owner )
-		//!	Print( "old_owner IsMan: " + old_owner.IsMan() );
+		if ( old_owner )
+			Print( "old_owner IsMan: " + old_owner.IsMan() );
+		#endif
 		
 		if ( shouldSuper )
 		{
-			//! Print( "ItemBase::OnItemLocationChanged - Start - Calling Super" );
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - Start - Calling Super" );
+			#endif
 
 			super.OnItemLocationChanged( old_owner, new_owner );
 
-			//! Print( "ItemBase::OnItemLocationChanged - End - Calling Super" );
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - End - Calling Super" );
+			#endif
 		}
 
 		if ( !GetGame().IsServer() )
 		{
-			//! Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
+			#endif
 
 			return;
 		}
 
 		EntityAI parent = NULL;
 
-		//! Attaching or detaching the items to the vehicle
+		//Attaching or detaching the items to the vehicle
 		if ( old_owner_dpi && !new_owner ) // on drop
 		{
 			if ( dBodyIsDynamic( this ) && dBodyIsActive( this ) )
 			{
-				//! Print("ItemBase::OnItemLocationChanged - End - Is Dynamic");
+				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+				Print( "ItemBase::OnItemLocationChanged - End - Is Dynamic" );
+				#endif
+
 				return;
 			}
 
 			if ( !Class.CastTo( parent, old_owner_dpi.GetParent() ) )
 			{
-				//! Print("ItemBase::OnItemLocationChanged - End - No Parent");
+				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+				Print( "ItemBase::OnItemLocationChanged - End - No Parent" );
+				#endif
+
 				return;
 			}
 
@@ -539,18 +599,25 @@ modded class ItemBase
 			ExpansionVehicleScript veh;
 			if ( !Class.CastTo( car, parent ) && !Class.CastTo( veh, parent ) )
 			{
-				//! Print("ItemBase::OnItemLocationChanged - End - Not Valid Parent");
+				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+				Print( "ItemBase::OnItemLocationChanged - End - No Valid Parent" );
+				#endif
+
 				return;
 			}
 
-			//! Print( car );
-			//! Print( veh );
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( car );
+			Print( veh );
+			#endif
 
 			bool carAttach = car && car.CanObjectAttach( this );
 			bool vehAttach = veh && veh.CanObjectAttach( this );
 
-			//! Print( carAttach );
-			//! Print( vehAttach );
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( carAttach );
+			Print( vehAttach );
+			#endif
 
 			if ( carAttach || vehAttach )
 			{
@@ -558,7 +625,12 @@ modded class ItemBase
 				vector tmTarget[4];
 				vector tmLocal[4];
 
-				GetTransform( tmItem );
+				vector pPos = old_owner_dpi.GetPosition();
+				vector pOri = old_owner_dpi.GetOrientation();
+
+				old_owner_dpi.GetTransform( tmItem );
+				PlaceOnSurfaceRotated( tmItem, pPos, 0, 0, 0, false );
+
 				parent.GetTransform( tmTarget );
 				Math3D.MatrixInvMultiply4( tmTarget, tmItem, tmLocal );
 
@@ -569,7 +641,7 @@ modded class ItemBase
 			UnlinkFromLocalSpace();
 		}
 		
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print("ItemBase::OnItemLocationChanged - End");
 		#endif
 	}
@@ -582,14 +654,47 @@ modded class ItemBase
 
 	void LinkToLocalSpaceOf( notnull EntityAI pParent, vector pLocalSpaceMatrix[4] )
 	{
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( "ItemBase::LinkToLocalSpaceOf - Start - Target=" + pParent );
+		#endif
 
 		if ( !GetGame().IsServer() )
 		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::LinkToLocalSpaceOf - End - Not Server" );
+			#endif
 
 			return;
 		}
+/*
+		InventoryLocation child_src = new InventoryLocation;
+		GetInventory().GetCurrentInventoryLocation( child_src );
+				
+		InventoryLocation child_dst = new InventoryLocation;
+		child_dst.SetGround( this, pLocalSpaceMatrix );
+		child_dst.SetParent( pParent );
+
+		if ( !GameInventory.LocationCanMoveEntity( child_src, child_dst ) )
+		{
+			Print( "ItemBase::LinkToLocalSpaceOf - End - LocationCanMoveEntity" );
+
+			return;
+		}
+
+		if ( !GameInventory.LocationSyncMoveEntity( child_src, child_dst ) )
+		{
+			Print( "ItemBase::LinkToLocalSpaceOf - End - LocationSyncMoveEntity" );
+
+			return;
+		}
+*/
+
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( pLocalSpaceMatrix[0] );
+		Print( pLocalSpaceMatrix[1] );
+		Print( pLocalSpaceMatrix[2] );
+		Print( pLocalSpaceMatrix[3] );
+		#endif
 
 		m_IsAttached = true;
 		m_WorldAttachment = pParent;
@@ -601,23 +706,31 @@ modded class ItemBase
 
 		// m_Block = dBodyCollisionBlock( m_WorldAttachment, this );
 
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( "ItemBase::LinkToLocalSpaceOf - End - Target=" + m_WorldAttachment );
+		#endif
 	}
 
 	void UnlinkFromLocalSpace()
 	{
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( "ItemBase::UnlinkFromLocalSpace - Start" );
+		#endif
 
 		if ( !GetGame().IsServer() )
 		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::UnlinkFromLocalSpace - End - Not Server" );
+			#endif
 
 			return;
 		}
 
 		if ( !m_WorldAttachment )
 		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::UnlinkFromLocalSpace - End - No World Attachment" );
+			#endif
 
 			return;
 		}
@@ -639,7 +752,9 @@ modded class ItemBase
 
 		// dBodyRemoveBlock( this, m_Block );
 
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( "ItemBase::UnlinkFromLocalSpace - End" );
+		#endif
 	}
 
 	int GetExpansionSaveVersion()
@@ -797,13 +912,14 @@ modded class ItemBase
 			return;
 		}
 
-		//! GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).Call( CheckForAttachmentRaycast );
+		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).Call( CheckForAttachmentRaycast );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ItemBase::OnCreatePhysics - End" );
 		#endif
 	}
 
+	#ifdef EXPANSION_ITEM_ATTACHING
 	void CheckForAttachmentRaycast()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -854,6 +970,11 @@ modded class ItemBase
 		EXPrint( "ItemBase::CheckForAttachmentRaycast - End" );
 		#endif
 	}
+	#else
+	void CheckForAttachmentRaycast()
+	{
+	}
+	#endif
 	
 	override void EEDelete( EntityAI parent )
 	{
@@ -924,24 +1045,32 @@ modded class ItemBase
 		EXPrint("ItemBase::ExpansionSetupSkins Start");
 		#endif
 
+		m_Skins = new array< ExpansionSkin >;
+
 		if ( Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) ) )
 		{
-			m_Skins = m_SkinModule.RetrieveSkins( GetType() );
-
-			if ( m_Skins && m_Skins.Count() != 0 )
-			{
-				m_CanBeSkinned = true;
-
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ItemBase::ExpansionSetupSkins End");
-				#endif
-
-				return;
-			}
+			m_SkinModule.RetrieveSkins( GetType(), m_Skins, m_CurrentSkinName );
 		}
 
-		m_Skins = new array< ref ExpansionSkin >;
-		m_CanBeSkinned = false;
+		m_CanBeSkinned = m_Skins.Count() != 0;
+
+		if ( m_CanBeSkinned )
+		{
+			if ( m_CurrentSkinName != "" )
+			{
+				m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
+			} else
+			{
+				m_CurrentSkinIndex = 0;
+				
+				m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
+			}
+			
+			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
+			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
+
+			ExpansionOnSkinUpdate();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::ExpansionSetupSkins End");
@@ -956,7 +1085,7 @@ modded class ItemBase
 		EXPrint("ItemBase::EEHealthLevelChanged Start");
 		#endif
 
-		if ( m_CanBeSkinned )
+		if ( m_CanBeSkinned && m_CurrentSkin )
 		{
 			string sZone = zone;
 			sZone.ToLower();
@@ -984,6 +1113,11 @@ modded class ItemBase
 		EXPrint("ItemBase::ExpansionSetSkin Start");
 		#endif
 
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( m_CanBeSkinned );
+		Print( skinIndex );
+		#endif
+
 		if ( !m_CanBeSkinned )
 		{
 			m_CurrentSkinName = "";
@@ -1007,9 +1141,19 @@ modded class ItemBase
 			m_CurrentSkinIndex = 0;
 		}
 
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( m_CurrentSkinIndex );
+		#endif
+
 		m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
 		m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
 		m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
+
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( m_CurrentSkinName );
+		Print( m_CurrentSkinSynchRemote );
+		Print( m_CurrentSkin );
+		#endif
 
 		ExpansionOnSkinUpdate();
 
@@ -1026,14 +1170,31 @@ modded class ItemBase
 		EXPrint("ItemBase::ExpansionOnSkinDamageZoneUpdate Start");
 		#endif
 
+		#ifdef EXPANSION_SKIN_LOGGING
+		Print( zone );
+		Print( level );
+		#endif
+
 		for ( int i = 0; i < zone.HiddenSelections.Count(); i++ )
 		{
 			int selectionIndex = GetHiddenSelectionIndex( zone.HiddenSelections[i] );
-					
+
+			#ifdef EXPANSION_SKIN_LOGGING
+			Print( "HiddenSelection: " + zone.HiddenSelections[i] );
+			Print( "SelectionIndex: " + selectionIndex );
+			#endif
+
 			if ( level >= 0 && level < zone.HealthLevels.Count() )
 			{
-				SetObjectTexture( selectionIndex, zone.HealthLevels[level].RVTexture );
-				SetObjectMaterial( selectionIndex, zone.HealthLevels[level].RVMaterial );
+				ExpansionSkinHealthLevel healthLevel = zone.HealthLevels[level];
+
+				#ifdef EXPANSION_SKIN_LOGGING
+				Print( "RVTexture: " + healthLevel.RVTexture );
+				Print( "RVMaterial: " + healthLevel.RVMaterial );
+				#endif
+
+				SetObjectTexture( selectionIndex, healthLevel.RVTexture );
+				SetObjectMaterial( selectionIndex, healthLevel.RVMaterial );
 			}
 		}
 		
@@ -1047,6 +1208,16 @@ modded class ItemBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::ExpansionOnSkinUpdate Start");
 		#endif
+
+		if ( !m_CurrentSkin )
+		{
+			// Removed the public log, was spamming everyone
+			#ifdef EXPANSIONEXPRINT
+			EXPrint("ItemBase::ExpansionOnSkinUpdate called but m_CurrentSkin is NULL!");
+			#endif
+
+			return;
+		}
 		
 		for ( int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++ )
 		{
@@ -1054,10 +1225,12 @@ modded class ItemBase
 
 			int selectionIndex = GetHiddenSelectionIndex( selection.HiddenSelection );
 
-			//! SkinMessage( "HiddenSelection: " + selection.HiddenSelection );
-			//! SkinMessage( "SelectionIndex: " + selectionIndex );
-			//! SkinMessage( "RVTexture: " + selection.RVTexture );
-			//! SkinMessage( "RVMaterial: " + selection.RVMaterial );
+			#ifdef EXPANSION_SKIN_LOGGING
+			Print( "HiddenSelection: " + selection.HiddenSelection );
+			Print( "SelectionIndex: " + selectionIndex );
+			Print( "RVTexture: " + selection.RVTexture );
+			Print( "RVMaterial: " + selection.RVMaterial );
+			#endif
 
 			SetObjectTexture( selectionIndex, selection.RVTexture );
 			SetObjectMaterial( selectionIndex, selection.RVMaterial );
@@ -1077,10 +1250,64 @@ modded class ItemBase
 	{
 		return false;
 	}
+ 	override void Explode(int damageType, string ammoType = "")
+	{
+		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
+		float blastDropoff = 1;
+		float blastDistance;
+		float blastRange = 5;
+		float blastDropoffRange = 2.5;
+		super.Explode(damageType, ammoType);
+		//(point - min ) / (max - min ) 
+		if (ammoType == "")
+			ammoType = this.ConfigGetString("ammoType");
 
+		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
+		int explosionDamage = GetGame().ConfigGetInt(dmgPath);
+		
+		ref array<Object> nearest_objects = new array<Object>;
+		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
+		GetGame().GetObjectsAtPosition3D( this.GetPosition(), blastRange, nearest_objects, proxy_cargos );
+		for ( int i = 0; i < nearest_objects.Count(); i++ )
+		{
+			bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
+			Object nearest_object = nearest_objects.Get(i);
+
+			if ( nearest_object.IsInherited( ExpansionBaseBuilding ) )
+			{
+				blastDistance = vector.Distance(nearest_object.GetPosition(), this.GetPosition());
+				if (blastDistance > blastDropoffRange)
+					blastDropoff = (1 - (blastDistance - blastDropoffRange) / (blastRange - blastDropoffRange));
+				else 
+					blastDropoff = 1;
+				
+				
+				for (int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); ++x)
+				{
+
+					if (this.IsKindOf(GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x]))
+					{
+						dealDamage = true;
+					}
+				}
+				if (dealDamage)
+					nearest_object.AddHealth( "GlobalHealth", "Health", ( explosionDamage * blastDropoff * explosionDamageMultiplier * -1) ); 
+			}
+		}
+	}
+	
 	override void SetActions()
 	{
-		// AddAction(ExpansionActionDamageBaseBuilding);
+		/*
+		//! Legacy melee raiding
+		if ( GetExpansionSettings().GetRaid() )
+		{
+			if ( GetExpansionSettings().GetRaid().AllowMeleeRaidingOnExpansion )
+			{
+				AddAction(ExpansionActionDamageBaseBuilding);
+			}
+		}
+		*/
 
 		super.SetActions();
 	}

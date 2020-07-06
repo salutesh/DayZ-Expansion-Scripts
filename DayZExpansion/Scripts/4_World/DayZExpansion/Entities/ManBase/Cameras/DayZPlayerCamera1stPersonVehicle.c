@@ -9,7 +9,7 @@ modded class DayZPlayerCamera1stPersonVehicle
 		#endif
 
 		ExpansionVehicleScript vehicle;
-        if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
+		if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
 		{
 			pOutResult.m_fUseHeading 		= 1.0;
 			pOutResult.m_fInsideCamera 		= 0.0;

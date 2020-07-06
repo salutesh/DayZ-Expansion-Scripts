@@ -18,7 +18,7 @@ class ExpansionActionSwitchBoatController: ActionInteractBase
 	{
 		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
 		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		m_HUDCursorIcon     = CursorIcons.LootCorpse;
+		m_HUDCursorIcon	 = CursorIcons.LootCorpse;
 	}
 
 	override void CreateConditionComponents()  
@@ -48,7 +48,7 @@ class ExpansionActionSwitchBoatController: ActionInteractBase
 					if ( m_Boat.EngineIsOn() || m_Boat.MotorIsOn() )
 						return false;
 
-                    return m_Boat.IsCar();
+					return m_Boat.IsCar();
 				}
 			}
 		}
@@ -59,9 +59,9 @@ class ExpansionActionSwitchBoatController: ActionInteractBase
 	override void OnAnimationEvent( ActionData action_data )
 	{
 		if ( IsMissionClient() && !action_data.m_WasExecuted )
-        {
+		{
 			m_Boat.SetUsingBoatController( !m_Boat.IsUsingBoatController() );
-        }
+		}
 		
 		super.OnAnimationEvent( action_data );
 	}

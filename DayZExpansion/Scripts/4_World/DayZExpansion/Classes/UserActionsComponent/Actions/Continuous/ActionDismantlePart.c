@@ -21,7 +21,7 @@ modded class ActionDismantlePart
 	}
 	*/
 
-    override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
+	override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
 	{
 		ExpansionDebugger.Push( EXPANSION_DEBUG_BASEBUILDING );
 		bool dismantleWithoutTerritory = GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;

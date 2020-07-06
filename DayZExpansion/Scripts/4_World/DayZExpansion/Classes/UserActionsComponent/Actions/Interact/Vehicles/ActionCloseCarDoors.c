@@ -12,15 +12,13 @@
 
 modded class ActionCloseCarDoors
 {
-	CarScript m_CarScript;
-
 	override void OnStartClient( ActionData action_data )
 	{
 		super.OnStartClient( action_data );
 
-		if ( IsMissionHost() && Class.CastTo( m_CarScript, action_data.m_Target.GetParent() ) )
+		if ( IsMissionHost() && m_Car )
 		{
-			m_CarScript.OnCarDoorClosed( m_AnimSource );
+			m_Car.OnCarDoorClosed( m_AnimSource );
 		}
 	}
 
@@ -28,9 +26,9 @@ modded class ActionCloseCarDoors
 	{
 		super.OnStartServer( action_data );
 
-		if ( Class.CastTo( m_CarScript, action_data.m_Target.GetParent() ) )
+		if ( m_Car )
 		{
-			m_CarScript.OnCarDoorClosed( m_AnimSource );
+			m_Car.OnCarDoorClosed( m_AnimSource );
 		}
 	}
 }

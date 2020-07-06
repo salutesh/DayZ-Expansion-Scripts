@@ -13,7 +13,7 @@
 /*
 modded class ActionDrink
 {
-    override bool CanBeUsedInVehicle()
+	override bool CanBeUsedInVehicle()
 	{
 		return true;
 	}

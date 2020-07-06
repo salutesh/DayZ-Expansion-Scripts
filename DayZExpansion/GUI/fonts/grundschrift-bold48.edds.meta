@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{CDCEA4BD2BCF36F1}DayZExpansion/GUI/fonts/grundschrift-bold48.edds"
+ Author "Steve alias Salutesh"
+ ChangeDate -354228654
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "grundschrift-bold48.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

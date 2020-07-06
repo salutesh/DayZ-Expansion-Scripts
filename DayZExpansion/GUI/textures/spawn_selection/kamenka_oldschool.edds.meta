@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{BDB4D0D6DC971636}DayZExpansion/GUI/textures/spawn_selection/kamenka_oldschool.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1266509473
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "kamenka_oldschool.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

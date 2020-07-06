@@ -65,11 +65,12 @@ class ExpansionClientSettings
 
 	// HUD Settings
 	bool HUDShowClientClock;
-	bool HUDShowClientHumanity;
 	float EarplugLevel;
+	float AlphaColorHUDOnTopOfHeadOfPlayers;
 	float RedColorHUDOnTopOfHeadOfPlayers;
 	float GreenColorHUDOnTopOfHeadOfPlayers;
 	float BlueColorHUDOnTopOfHeadOfPlayers;
+	float AlphaColor3DMarkerWhenPointingAtHim;
 
 	void ExpansionClientSettings()
 	{
@@ -83,7 +84,8 @@ class ExpansionClientSettings
 
 		Init();
 
-		Load();
+		if (!Load())
+			Defaults();
 
 		Save();
 		
@@ -92,13 +94,233 @@ class ExpansionClientSettings
 		#endif
 	}
 
-	void Load()
+	bool Load()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Load - Start");
 		#endif
 		
-		JsonFileLoader< ExpansionClientSettings >.JsonLoadFile( EXPANSION_CLIENT_SETTINGS, this );
+		//Delete old file
+		if ( FileExist(EXPANSION_FOLDER + "settings.json") )
+			DeleteFile(EXPANSION_FOLDER + "settings.json");
+		
+		FileSerializer file = new FileSerializer;
+		
+		if (file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.READ ))
+		{
+			int version;
+			if (!file.Read(version))
+			{
+				file.Close();
+				return false;
+			}
+			
+			// Vehicles
+			if (!file.Read(UseCameraLock))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(UseInvertedMouseControl))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(UseHelicopterMouseControl))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(UsePlaneMouseControl))
+			{
+				file.Close();
+				return false;
+			}
+			
+			// Video
+			if (!file.Read(DrawDistance))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(ColorGrading))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(ColorVignette))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(CastLightShadows))
+			{
+				file.Close();
+				return false;
+			}
+			
+			// Mapping
+			if (!file.Read(Show3DMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show3DClientMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show3DPlayerMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show3DPartyMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show3DGlobalMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show2DMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show2DClientMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show2DPlayerMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show2DPartyMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(Show2DGlobalMarkers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			// Notifications
+			if (!file.Read(ShowNotifications))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(NotificationSound))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(NotificationSoundLeaveJoin))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(NotificationJoin))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(NotificationLeave))
+			{
+				file.Close();
+				return false;
+			}
+			
+			// Streamer mode
+			if (!file.Read(StreamerMode))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(ShowPINCode))
+			{
+				file.Close();
+				return false;
+			}
+			
+			// HUD Settings
+			if (!file.Read(HUDShowClientClock))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(EarplugLevel))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(AlphaColorHUDOnTopOfHeadOfPlayers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(RedColorHUDOnTopOfHeadOfPlayers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(GreenColorHUDOnTopOfHeadOfPlayers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(BlueColorHUDOnTopOfHeadOfPlayers))
+			{
+				file.Close();
+				return false;
+			}
+			
+			if (!file.Read(AlphaColor3DMarkerWhenPointingAtHim))
+			{
+				file.Close();
+				return false;
+			}
+			
+			file.Close();
+		}
+		else
+		{
+			return false;
+		}
+		
+		return true;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Load - End");
@@ -111,7 +333,60 @@ class ExpansionClientSettings
 		EXPrint("ExpansionClientSettings::Load - Start");
 		#endif
 		
-		JsonFileLoader< ExpansionClientSettings >.JsonSaveFile( EXPANSION_CLIENT_SETTINGS, this );
+		FileSerializer file = new FileSerializer;
+		
+		if (file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ))
+		{
+			file.Write(EXPANSION_VERSION_CURRENT_SAVE);
+			
+			// Vehicles
+			file.Write( UseCameraLock );
+			file.Write( UseInvertedMouseControl );
+
+			file.Write( UseHelicopterMouseControl );
+			file.Write( UsePlaneMouseControl );
+
+			// Video
+			file.Write( DrawDistance );
+			file.Write( ColorGrading );
+			file.Write( ColorVignette );
+			file.Write( CastLightShadows );
+
+			// Mapping
+			file.Write( Show3DMarkers );
+			file.Write( Show3DClientMarkers );
+			file.Write( Show3DPlayerMarkers );
+			file.Write( Show3DPartyMarkers );
+			file.Write( Show3DGlobalMarkers );
+
+			file.Write( Show2DMarkers );
+			file.Write( Show2DClientMarkers );
+			file.Write( Show2DPlayerMarkers );
+			file.Write( Show2DPartyMarkers );
+			file.Write( Show2DGlobalMarkers );
+
+			// Notifications
+			file.Write( ShowNotifications );
+			file.Write( NotificationSound );
+			file.Write( NotificationSoundLeaveJoin );
+			file.Write( NotificationJoin );
+			file.Write( NotificationLeave );
+
+			// Streamer mode
+			file.Write( StreamerMode );
+			file.Write( ShowPINCode );
+
+			// HUD Settings
+			file.Write( HUDShowClientClock );
+			file.Write( EarplugLevel );
+			file.Write( AlphaColorHUDOnTopOfHeadOfPlayers );
+			file.Write( RedColorHUDOnTopOfHeadOfPlayers );
+			file.Write( GreenColorHUDOnTopOfHeadOfPlayers );
+			file.Write( BlueColorHUDOnTopOfHeadOfPlayers );
+			file.Write( AlphaColor3DMarkerWhenPointingAtHim );
+			
+			file.Close();
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Load - End");
@@ -126,8 +401,8 @@ class ExpansionClientSettings
 		
 		DrawDistance = 1600.0;
 		ColorGrading = true;
-		ColorVignette = false;
-		CastLightShadows = false;
+		ColorVignette = true;
+		CastLightShadows = true;
 
 		Show3DMarkers = true;
 		Show3DClientMarkers = true;
@@ -150,11 +425,12 @@ class ExpansionClientSettings
 		ShowPINCode = true;
 
 		HUDShowClientClock = false;
-		HUDShowClientHumanity = false;
 		EarplugLevel = 0.05;
+		AlphaColorHUDOnTopOfHeadOfPlayers = 255;
 		RedColorHUDOnTopOfHeadOfPlayers = 255;
 		GreenColorHUDOnTopOfHeadOfPlayers = 180;
 		BlueColorHUDOnTopOfHeadOfPlayers = 24;
+		AlphaColor3DMarkerWhenPointingAtHim = 80;
 
 		UseCameraLock = false;
 		UseInvertedMouseControl = true;
@@ -232,21 +508,22 @@ class ExpansionClientSettings
 		//! Option to toggle display of pins and passwords
 		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
 		
-		//CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
+		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
 
 		//! Option to toggle the display of the clock in the ingame hud
 		//CreateToggle( "HUDShowClientClock", "#STR_EXPANSION_SETTINGS_HUD_SHOW_CLOCK", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_CLOCK_DESC" );
-		//! Option to toggle the display of the humanity idicator in the ingame hud
-		//CreateToggle( "HUDShowClientHumanity", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY_DESC" );
-
+		
 		//! Option to change ear plug level 
-		// CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY_DESC", 0, 0.2 );
+		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0 );
 	
 		//Color slider for party member on top of player head
-		// CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY_DESC" );
-		// CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY_DESC" );
-		// CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_HUMANITY_DESC" );
+		CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0 );
 
+		CreateSlider( "AlphaColor3DMarkerWhenPointingAtHim", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0 );
+		
 		CreateCategory( "Vehicles", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES" );
 		
 		//! Option to toggle the vehicle camera

@@ -1,45 +1,14 @@
-class Expansion_CivSedanDoors_Driver: CivSedanDoors_Driver
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_CivSedanDoors_Driver";
-	}
-}
-class Expansion_CivSedanDoors_CoDriver: CivSedanDoors_CoDriver
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_CivSedanDoors_CoDriver";
-	}
-}
-class Expansion_CivSedanDoors_BackLeft: CivSedanDoors_BackLeft
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_CivSedanDoors_BackLeft";
-	}
-}
-class Expansion_CivSedanDoors_BackRight: CivSedanDoors_BackRight
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_CivSedanDoors_BackRight";
-	}
-}
-class Expansion_CivSedanHood: CivSedanHood
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_CivSedanHood";
-	}
-}
-class Expansion_CivSedanTrunk: CivSedanTrunk
-{
-	override string ExpansionMainType()
-	{
-		return "Expansion_CivSedanTrunk";
-	}
-}
+/**
+ * CivilianSedan.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
 modded class CivilianSedan
 {

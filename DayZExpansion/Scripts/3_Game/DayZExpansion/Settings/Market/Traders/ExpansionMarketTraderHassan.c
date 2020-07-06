@@ -35,34 +35,34 @@ class ExpansionMarketTraderHassan: ExpansionMarketTrader
 		AddItem("CarRadiator");
 		
 		AddItem("HeadlightH7_Box");
-		//AddItem("Expansion_HatchbackHood");
-		//AddItem("Expansion_HatchbackTrunk");
-		//AddItem("Expansion_HatchbackDoors_Driver");
-		//AddItem("Expansion_HatchbackDoors_CoDriver");
+		AddItem("HatchbackHood");
+		AddItem("HatchbackTrunk");
+		AddItem("HatchbackDoors_Driver");
+		AddItem("HatchbackDoors_CoDriver");
 		AddItem("HatchbackWheel");
 
-		AddItem("Expansion_Hatchback_02_Door_1_1");
-		AddItem("Expansion_Hatchback_02_Door_1_2");
-		AddItem("Expansion_Hatchback_02_Door_2_1");
-		AddItem("Expansion_Hatchback_02_Door_2_2");
-		AddItem("Expansion_Hatchback_02_Hood");
-		AddItem("Expansion_Hatchback_02_Trunk");
+		AddItem("Hatchback_02_Door_1_1");
+		AddItem("Hatchback_02_Door_1_2");
+		AddItem("Hatchback_02_Door_2_1");
+		AddItem("Hatchback_02_Door_2_2");
+		AddItem("Hatchback_02_Hood");
+		AddItem("Hatchback_02_Trunk");
 		AddItem("Hatchback_02_Wheel");
 
-		AddItem("Expansion_CivSedanHood");
-		AddItem("Expansion_CivSedanTrunk");
-		AddItem("Expansion_CivSedanDoors_Driver");
-		AddItem("Expansion_CivSedanDoors_CoDriver");
-		AddItem("Expansion_CivSedanDoors_BackLeft");
-		AddItem("Expansion_CivSedanDoors_BackRight");
+		AddItem("CivSedanHood");
+		AddItem("CivSedanTrunk");
+		AddItem("CivSedanDoors_Driver");
+		AddItem("CivSedanDoors_CoDriver");
+		AddItem("CivSedanDoors_BackLeft");
+		AddItem("CivSedanDoors_BackRight");
 		AddItem("CivSedanWheel");
 
-		AddItem("Expansion_Sedan_02_Hood");
-		AddItem("Expansion_Sedan_02_Trunk");
-		AddItem("Expansion_Sedan_02_Door_1_1");
-		AddItem("Expansion_Sedan_02_Door_1_2");
-		AddItem("Expansion_Sedan_02_Door_2_1");
-		AddItem("Expansion_Sedan_02_Door_2_2");
+		AddItem("Sedan_02_Hood");
+		AddItem("Sedan_02_Trunk");
+		AddItem("Sedan_02_Door_1_1");
+		AddItem("Sedan_02_Door_1_2");
+		AddItem("Sedan_02_Door_2_1");
+		AddItem("Sedan_02_Door_2_2");
 		AddItem("Sedan_02_Wheel");
 
 		AddItem("ExpansionUAZWheel"	);

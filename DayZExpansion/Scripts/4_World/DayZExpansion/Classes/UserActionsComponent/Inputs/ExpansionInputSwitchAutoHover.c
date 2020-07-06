@@ -25,15 +25,11 @@ class ExpansionInputSwitchAutoHover : DefaultActionInput
 
 		if ( player && player.IsInVehicle() )
 		{
-			HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-			if ( vehCommand )
+			ExpansionHelicopterScript heli;
+			if ( Class.CastTo( heli, player.GetParent() ) )
 			{
-				Transport trans = vehCommand.GetTransport();
-				if ( ExpansionHelicopterScript.Cast( trans ) )
-				{
-					target_new = new ActionTarget(trans, null, -1, vector.Zero, -1);
-					ForceActionTarget( target_new );
-				}
+				target_new = new ActionTarget( heli, NULL, -1, vector.Zero, -1 );
+				ForceActionTarget( target_new );
 			}
 			
 			if ( !target_new )

@@ -1,13 +1,19 @@
-class ExpansionSkinDamageZone
+class ExpansionSkinDamageZone : Managed
 {
 	string Zone;
 	
-	autoptr array< string > HiddenSelections;
-	autoptr array< ref ExpansionSkinHealthLevel > HealthLevels;
+	ref array< string > HiddenSelections;
+	ref array< ref ExpansionSkinHealthLevel > HealthLevels;
 	
 	void ExpansionSkinDamageZone()
 	{
 		HiddenSelections = new array< string >;
 		HealthLevels = new array< ref ExpansionSkinHealthLevel >;
+	}
+
+	void ~ExpansionSkinDamageZone()
+	{
+		delete HiddenSelections;
+		delete HealthLevels;
 	}
 }

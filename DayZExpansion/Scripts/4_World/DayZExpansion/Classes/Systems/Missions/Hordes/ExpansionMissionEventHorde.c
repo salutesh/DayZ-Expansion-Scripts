@@ -4,9 +4,9 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 
 	vector Position;
 
-    float MinimumSpawnRadius;
-    float MaximumSpawnRadius;
-    
+	float MinimumSpawnRadius;
+	float MaximumSpawnRadius;
+	
 	autoptr array< ref BehaviourGroupInfectedPackWaypointParams > WayPoints;
 
 	[NonSerialized()]
@@ -30,7 +30,7 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 	// handle mission start
 	override void Event_OnStart()
 	{
-        m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
+		m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
 
 		BehaviourGroupInfectedPack bgip;
 		Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
@@ -42,7 +42,7 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 		// SpawnInfectedRemaining( Position, MinimumSpawnRadius, MaximumSpawnRadius, MaxInfectedAmount );
 	
 		CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_HORDE_SPAWNED", MissionName ), "set:expansion_notification_iconset image:icon_bandit", 7 );
-    }
+	}
 
 	// handle mission cleanup
 	override void Event_OnEnd()
@@ -94,69 +94,69 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 		string name = "";
 
 		switch ( index )
-        {
-        default:
-        case 0:
+		{
+		default:
+		case 0:
 			Weight = 5;
 			Position = Vector( 4807, 9812, 100 );
 			MissionName = "NWAF";
 			break;
-        case 1:
+		case 1:
 			Weight = 10;
 			Position = Vector( 12159, 12583, 100 );
 			MissionName = "NEAF";
 			break;
-        case 2:
+		case 2:
 			Weight = 15;
 			Position = Vector( 11464, 0, 8908 );
 			MissionName = "Berezino";
 			break;
-        case 3:
+		case 3:
 			Weight = 20;
 			Position = Vector( 5043, 0, 2505 );
 			MissionName = "Balota";
 			break;
-        case 4:
+		case 4:
 			Weight = 25;
 			Position = Vector( 2351, 0, 5393 );
 			MissionName = "Zelenogorsk";
 			break;
-        case 5:
+		case 5:
 			Weight = 30;
 			Position = Vector( 2036, 0, 7491 );
 			MissionName = "Myshkinko";
 			break;
-        case 6:
+		case 6:
 			Weight = 35;
 			Position = Vector( 11125, 0, 14040 );
 			MissionName = "Novodmitrovsk";
 			break;
-        case 7:
+		case 7:
 			Weight = 40;
 			Position = Vector( 6128, 0, 2497 );
 			MissionName = "Chernogorsk";
 			break;
-        case 8:
+		case 8:
 			Weight = 45;
 			Position = Vector( 9371, 0, 2229 );
 			MissionName = "Elektrozavodsk";
 			break;
-        case 9:
+		case 9:
 			Weight = 50;
 			Position = Vector( 13452, 0, 3112 );
 			MissionName = "Skalisty Island";
 			break;
-        case 10:
+		case 10:
 			Weight = 55;
 			Position = Vector( 2700, 0, 6193 );
 			MissionName = "Sosnovka";
 			break;
-        case 11:
+		case 11:
 			Weight = 60;
 			Position = Vector( 7436, 0, 7720 );
 			MissionName = "Novy Sobor";
 			break;
-        case 12:
+		case 12:
 			Weight = 65;
 			Position = Vector( 5823, 0, 7764 );
 			MissionName = "Stary Sobor";
@@ -164,19 +164,19 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 		}
 
 		Enabled = false;
-        MissionMaxTime = 1800; // 20 minutes
+		MissionMaxTime = 1800; // 20 minutes
 
-        MaxInfectedAmount = 300.0;
-        MinimumSpawnRadius = 10.0;
-        MaximumSpawnRadius = 150.0;
+		MaxInfectedAmount = 300.0;
+		MinimumSpawnRadius = 10.0;
+		MaximumSpawnRadius = 150.0;
 
-        Position[1] = GetGame().SurfaceY( Position[0], Position[2] );
+		Position[1] = GetGame().SurfaceY( Position[0], Position[2] );
 
-        WayPoints.Insert( new BehaviourGroupInfectedPackWaypointParams( Position, 40.0 ) );
+		WayPoints.Insert( new BehaviourGroupInfectedPackWaypointParams( Position, 40.0 ) );
 
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
-        return fname;
+		return fname;
 	}
 
 	protected void SpawnInfectedRemaining( vector centerPosition, float innerRadius, float spawnRadius, int remaining )
@@ -204,7 +204,7 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
-        float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
+		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
 
 		float spawnX = r * Math.Cos( a );
 		float spawnZ = r * Math.Sin( a );
@@ -216,7 +216,12 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
 
 		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
-		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, nPosition );
+
+		PGFilter filter = new PGFilter();
+		filter.SetFlags( PGPolyFlags.NONE, PGPolyFlags.NONE, PGPolyFlags.NONE );
+		filter.SetCost( PGAreaType.TERRAIN, 10 );
+
+		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
 		return nPosition;
 	}

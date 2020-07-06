@@ -2,7 +2,7 @@ class ExpansionActionStartEngine: ActionContinuousBase
 {
 	private const float ROUGH_SPECIALTY_WEIGHT = 0.5;
 	
-    ExpansionVehicleScript m_Vehicle;
+	ExpansionVehicleScript m_Vehicle;
 
 	void ExpansionActionStartEngine()
 	{
@@ -34,7 +34,7 @@ class ExpansionActionStartEngine: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-        ExpansionHumanVehicleCommand vehCmd = player.GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle vehCmd = player.GetCommand_ExpansionVehicle();
 		
 		if ( vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 		{

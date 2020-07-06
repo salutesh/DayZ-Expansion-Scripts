@@ -15,13 +15,13 @@
  **/
 class ExpansionSafeZoneElement
 {
-    ExpansionSafeZoneTypes Type;
+	ExpansionSafeZoneTypes Type;
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionSafeZoneElement
 	// ------------------------------------------------------------
-    void ExpansionSafeZoneElement()
+	void ExpansionSafeZoneElement()
 	{
-        Type = ExpansionSafeZoneTypes.UNKNOWN;
-    }
+		Type = ExpansionSafeZoneTypes.UNKNOWN;
+	}
 }

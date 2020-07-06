@@ -12,6 +12,8 @@
 
 class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 {
+	bool ShowNotification;
+	
 	float Height;
 	float Speed;
 
@@ -19,10 +21,12 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	
 	ref ExpansionAirdropLocation DropLocation;
 
-    ref array < ref ExpansionAirdropLootAttachments > Loot;
-    ref TStringArray Infected;
-    int ItemCount;
-    int InfectedCount;
+	ref array < ref ExpansionAirdropLootAttachments > Loot;
+	ref TStringArray Infected;
+	int ItemCount;
+	int InfectedCount;
+
+	//int m_AirdropMarker;
 
 	[NonSerialized()]
 	ExpansionAirdropPlane m_Plane;
@@ -84,9 +88,13 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		if ( m_Plane )
 		{
-			CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
+			if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropStarted)
+			{
+				CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
+			}
+				m_Plane.SetupPlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Speed );
 
-			m_Plane.SetupPlane( Vector( DropLocation.x, 0, DropLocation.y ), DropLocation.Name, DropLocation.Radius, Speed );
+			m_Plane.SetupPlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Speed );
 			m_Plane.m_Height = Height;
 		} 
 		else
@@ -101,6 +109,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		RemovePlane();
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, m_Container );
+
+		//CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", GetValueString(m_AirdropMarker) ), "set:expansion_notification_iconset image:icon_airdrop", 10 );
+		//ExpansionMapMarkerModule().RemoveServerMarker(m_AirdropMarker);
 		
 		while ( m_Infected.Count() > 0 )
 		{
@@ -110,6 +121,48 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 			m_Infected.Remove( index );
 		}
+	}
+
+	// ------------------------------------------------------------
+	// Expansion GetValueString
+	// ------------------------------------------------------------
+	protected string GetValueString( float total_value )
+	{
+		if( total_value < 0 )
+			return "0";
+	
+		int value = total_value;
+		string out_string;
+		
+		if ( value >= 1000 )
+		{
+			string value_string = value.ToString();
+			
+			int count;		
+			int first_length = value_string.Length() % 3;		//calculate position of the first separator
+			if ( first_length > 0 )
+			{
+				count = 3 - first_length;
+			}
+			
+			for ( int i = 0; i < value_string.Length(); ++i )
+			{
+				out_string += value_string.Get( i );
+				count ++;
+				
+				if ( count >= 3 )
+				{
+					out_string += " ";			//separator
+					count = 0;
+				}
+			}
+		}
+		else
+		{
+			out_string = value.ToString();
+		}
+		
+		return out_string;
 	}
 
 	// update tick for the mission
@@ -122,19 +175,24 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				m_LootHasSpawned = false;
 
 				m_Container = m_Plane.CreateDrop( Container );
-				m_Container.InitAirdrop( DropLocation.Name );
+				m_Container.InitAirdrop( );
 
-				CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 10 );
+				if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropDropped)
+					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 10 );
 			}
 
 			if ( m_Plane.IsWarningProximity() )
 			{
-				CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );	
+				//if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropClosingOn)
+				//	m_AirdropMarker = ExpansionMapMarkerModule().AddServerMarker( ("Airdrop "+ DropLocation.Name), 10, Vector( DropLocation.x, 0, DropLocation.z ), ARGB( 255, 52, 73, 94 ), false );
+				
+				if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropClosingOn)
+					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );	
 			}
 
 			if ( m_Plane.CheckForRemove() )
 			{
-				RemovePlane();
+				RemovePlane( );
 			}
 		}
 
@@ -192,11 +250,13 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		Enabled = true;
 
-        Weight = 1 + ( ( index + 1 ) * 5 );
-        MissionMaxTime = 1200; // 20 minutes
+		Weight = 1 + ( ( index + 1 ) * 5 );
+		MissionMaxTime = 1200; // 20 minutes
 
 		Speed = 25.0;
 		Height = 750.0;
+		
+		ShowNotification = true;
 
 		int idx = (int) Math.Floor( index / 4.0 );
 		int lootIdx = index - ( idx * 4 );
@@ -223,45 +283,45 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		}
 
 		switch ( idx )
-        {
-        default:
-        case 0:
+		{
+		default:
+		case 0:
 			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
 			break;
-        case 1:
+		case 1:
 			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
 			break;
-        case 2:
+		case 2:
 			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
 			break;
-        case 3:
+		case 3:
 			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
 			break;
-        case 4:
+		case 4:
 			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
 			break;
-        case 5:
+		case 5:
 			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
 			break;
-        case 6:
+		case 6:
 			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
 			break;
-        case 7:
+		case 7:
 			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
 			break;
-        case 8:
+		case 8:
 			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
 			break;
-        case 9:
+		case 9:
 			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
 			break;
-        case 10:
+		case 10:
 			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
 			break;
-        case 11:
+		case 11:
 			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
 			break;
-        case 12:
+		case 12:
 			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
 			break;
 		}
@@ -270,7 +330,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
-        return fname;
+		return fname;
 	}
 	
 	private void DefaultGeneralLoot()
@@ -319,26 +379,26 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			new ExpansionAirdropLootAttachments( "AKM", akm_1, 0.05 ),
 
 			new ExpansionAirdropLootAttachments( "SKS", sks_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "SKS", sks_2, 0.1  ),
-    		new ExpansionAirdropLootAttachments( "SKS", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "SKS", sks_2, 0.1  ),
+			new ExpansionAirdropLootAttachments( "SKS", NULL, 0.3 ),
 
 			new ExpansionAirdropLootAttachments( "UMP45", ump_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "UMP45", NULL, 0.15 ),
+			new ExpansionAirdropLootAttachments( "UMP45", NULL, 0.15 ),
  
 			new ExpansionAirdropLootAttachments( "Mosin9130", mosin_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "Mosin9130", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "Mosin9130", NULL, 0.3 ),
  
-    		new ExpansionAirdropLootAttachments( "B95", b95_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "B95", NULL, 0.2 ),
+			new ExpansionAirdropLootAttachments( "B95", b95_1, 0.1 ),
+			new ExpansionAirdropLootAttachments( "B95", NULL, 0.2 ),
 
-    		new ExpansionAirdropLootAttachments( "CZ527", cz527_1, 0.3 ),
-    		new ExpansionAirdropLootAttachments( "CZ527", NULL, 0.2 ),
+			new ExpansionAirdropLootAttachments( "CZ527", cz527_1, 0.3 ),
+			new ExpansionAirdropLootAttachments( "CZ527", NULL, 0.2 ),
 
-    		new ExpansionAirdropLootAttachments( "CZ75", cz75_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "CZ75", NULL, 0.1 ),
+			new ExpansionAirdropLootAttachments( "CZ75", cz75_1, 0.1 ),
+			new ExpansionAirdropLootAttachments( "CZ75", NULL, 0.1 ),
 
-    		new ExpansionAirdropLootAttachments( "FNX45", fnx1_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "FNX45", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "FNX45", fnx1_1, 0.1 ),
+			new ExpansionAirdropLootAttachments( "FNX45", NULL, 0.3 ),
 
 			new ExpansionAirdropLootAttachments( "Expansion_Kedr", kedr_1, 0.2 ),
 			new ExpansionAirdropLootAttachments( "Expansion_Kedr", NULL, 0.3 ),
@@ -346,62 +406,62 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
    			new ExpansionAirdropLootAttachments( "Mp133Shotgun", NULL, 0.8 ),
 
 			new ExpansionAirdropLootAttachments( "Winchester70", winchester70_1, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "Winchester70", NULL, 0.4 ),
+			new ExpansionAirdropLootAttachments( "Winchester70", NULL, 0.4 ),
 				
-    		new ExpansionAirdropLootAttachments( "Expansion_DT11", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "Expansion_DT11", NULL, 0.3 ),
 			
-    		new ExpansionAirdropLootAttachments( "Binoculars", NULL, 0.3 ),
-    		new ExpansionAirdropLootAttachments( "ChernarusMap", NULL, 0.3 ),
-    		new ExpansionAirdropLootAttachments( "Rangefinder", battery, 0.05 ),
-    		new ExpansionAirdropLootAttachments( "ExpansionGPS", NULL, 0.05 ),
+			new ExpansionAirdropLootAttachments( "Binoculars", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "ChernarusMap", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "Rangefinder", battery, 0.05 ),
+			new ExpansionAirdropLootAttachments( "ExpansionGPS", NULL, 0.05 ),
 			
-    		new ExpansionAirdropLootAttachments( "BoxCerealCrunchin", NULL, 0.05 ),
-    		new ExpansionAirdropLootAttachments( "PeachesCan", NULL, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "BakedBeansCan", NULL, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "SpaghettiCan", NULL, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "SardinesCan", NULL, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "TunaCan", NULL, 0.1 ),
-    		new ExpansionAirdropLootAttachments( "WaterBottle", NULL, 0.5 ),
+			new ExpansionAirdropLootAttachments( "BoxCerealCrunchin", NULL, 0.05 ),
+			new ExpansionAirdropLootAttachments( "PeachesCan", NULL, 0.1 ),
+			new ExpansionAirdropLootAttachments( "BakedBeansCan", NULL, 0.1 ),
+			new ExpansionAirdropLootAttachments( "SpaghettiCan", NULL, 0.1 ),
+			new ExpansionAirdropLootAttachments( "SardinesCan", NULL, 0.1 ),
+			new ExpansionAirdropLootAttachments( "TunaCan", NULL, 0.1 ),
+			new ExpansionAirdropLootAttachments( "WaterBottle", NULL, 0.5 ),
 			
-    		new ExpansionAirdropLootAttachments( "CanOpener", NULL, 0.5 ),
-    		new ExpansionAirdropLootAttachments( "KitchenKnife", NULL, 0.3 ),
+			new ExpansionAirdropLootAttachments( "CanOpener", NULL, 0.5 ),
+			new ExpansionAirdropLootAttachments( "KitchenKnife", NULL, 0.3 ),
 			
-    		new ExpansionAirdropLootAttachments( "BallisticHelmet_UN", NULL, 0.08 ),
-    		new ExpansionAirdropLootAttachments( "DirtBikeHelmet_Chernarus", visor, 0.3 ),
+			new ExpansionAirdropLootAttachments( "BallisticHelmet_UN", NULL, 0.08 ),
+			new ExpansionAirdropLootAttachments( "DirtBikeHelmet_Chernarus", visor, 0.3 ),
 			
-    		new ExpansionAirdropLootAttachments( "SewingKit", NULL, 0.25 ),
-    		new ExpansionAirdropLootAttachments( "LeatherSewingKit", NULL, 0.25 ),
-    		new ExpansionAirdropLootAttachments( "WeaponCleaningKit", NULL, 0.05 ),
-    		new ExpansionAirdropLootAttachments( "Lockpick", NULL, 0.05 ),
+			new ExpansionAirdropLootAttachments( "SewingKit", NULL, 0.25 ),
+			new ExpansionAirdropLootAttachments( "LeatherSewingKit", NULL, 0.25 ),
+			new ExpansionAirdropLootAttachments( "WeaponCleaningKit", NULL, 0.05 ),
+			new ExpansionAirdropLootAttachments( "Lockpick", NULL, 0.05 ),
 			
-    		new ExpansionAirdropLootAttachments( "GhillieAtt_Mossy", NULL, 0.05 ),
+			new ExpansionAirdropLootAttachments( "GhillieAtt_Mossy", NULL, 0.05 ),
 
 			new ExpansionAirdropLootAttachments( "Mag_Expansion_Kedr_20Rnd", NULL, 0.8 ),
 			new ExpansionAirdropLootAttachments( "Mag_CZ527_5rnd", NULL, 0.9 ),
-    		new ExpansionAirdropLootAttachments( "Mag_CZ75_15Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "Mag_CZ75_15Rnd", NULL, 1 ),
 			new ExpansionAirdropLootAttachments( "Mag_FNX45_15Rnd", NULL, 1 ),
 			new ExpansionAirdropLootAttachments( "Mag_UMP_25Rnd", NULL, 0.5 ),
 
 			new ExpansionAirdropLootAttachments( "AmmoBox_9x39_20Rnd", NULL, 0.5 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_9x19_25Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_9x19_25Rnd", NULL, 1 ),
 			new ExpansionAirdropLootAttachments( "AmmoBox_762x39Tracer_20Rnd", NULL, 0.5 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_762x39_20Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_762x39_20Rnd", NULL, 1 ),
 			new ExpansionAirdropLootAttachments( "AmmoBox_45ACP_25Rnd", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_308WinTracer_20Rnd", NULL, 0.5 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_308Win_20Rnd", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_12gaSlug_10Rnd", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_12gaRubberSlug_10Rnd", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_12gaPellets_10Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_308WinTracer_20Rnd", NULL, 0.5 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_308Win_20Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_12gaSlug_10Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_12gaRubberSlug_10Rnd", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "AmmoBox_12gaPellets_10Rnd", NULL, 1 ),
 			
 			new ExpansionAirdropLootAttachments( "Ammo_9x39", NULL, 0.5 ),
 			new ExpansionAirdropLootAttachments( "Ammo_762x39Tracer", NULL, 0.5 ),
-    		new ExpansionAirdropLootAttachments( "Ammo_762x39", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "Ammo_762x39", NULL, 1 ),
 			new ExpansionAirdropLootAttachments( "Ammo_45ACP", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "Ammo_308WinTracer", NULL, 0.5 ),
-    		new ExpansionAirdropLootAttachments( "Ammo_308Win", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "Ammo_12gaSlug", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "Ammo_12gaRubberSlug", NULL, 1 ),
-    		new ExpansionAirdropLootAttachments( "Ammo_12gaPellets", NULL,  0.5 ),
+			new ExpansionAirdropLootAttachments( "Ammo_308WinTracer", NULL, 0.5 ),
+			new ExpansionAirdropLootAttachments( "Ammo_308Win", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "Ammo_12gaSlug", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "Ammo_12gaRubberSlug", NULL, 1 ),
+			new ExpansionAirdropLootAttachments( "Ammo_12gaPellets", NULL,  0.5 ),
 			
 			new ExpansionAirdropLootAttachments( "FirstAidKit", firstaidkit_1 , 0.03),
 			new ExpansionAirdropLootAttachments( "FirstAidKit", firstaidkit_2 , 0.05),
@@ -536,7 +596,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		TStringArray firstaidkit_13 = { "BandageDressing","VitaminBottle" };
 		TStringArray firstaidkit_14 = { "CharcoalTablets","DisinfectantAlcohol" };
 		
-
 		Container = "ExpansionAirdropContainer_Medical";
 
 		Loot = {
@@ -707,9 +766,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 	private void DefaultBasebuildingLoot()
 	{
-		TStringArray battery = { "Battery9V" };
-		TStringArray vest = { "PlateCarrierHolster","PlateCarrierPouches" };
-
 		Container = "ExpansionAirdropContainer_Basebuilding";
 
 		Loot = {
@@ -745,7 +801,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			new ExpansionAirdropLootAttachments( "ExpansionSafeMedium", NULL , 0.15),
 			new ExpansionAirdropLootAttachments( "ExpansionSafeLarge", NULL , 0.1),
 
-			new ExpansionAirdropLootAttachments( "ExpansionATentKit", NULL , 0.25),
+			new ExpansionAirdropLootAttachments( "ExpansionCamoTentKit", NULL , 0.25),
 			new ExpansionAirdropLootAttachments( "MediumTent", NULL , 0.2),
 			new ExpansionAirdropLootAttachments( "LargeTent", NULL , 0.1),
 			new ExpansionAirdropLootAttachments( "CarTent", NULL , 0.15),
@@ -921,151 +977,151 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		Loot = {
 			new ExpansionAirdropLootAttachments( "AK101", ak101_1 , 0.12),
 
-    		new ExpansionAirdropLootAttachments( "AK74", ak74_1 , 0.135),
-    		new ExpansionAirdropLootAttachments( "AK74", ak74_2 , 0.115),
-    		new ExpansionAirdropLootAttachments( "AK74", ak74_3 , 0.125),
-    		new ExpansionAirdropLootAttachments( "AK74", ak74_4 , 0.12),
+			new ExpansionAirdropLootAttachments( "AK74", ak74_1 , 0.135),
+			new ExpansionAirdropLootAttachments( "AK74", ak74_2 , 0.115),
+			new ExpansionAirdropLootAttachments( "AK74", ak74_3 , 0.125),
+			new ExpansionAirdropLootAttachments( "AK74", ak74_4 , 0.12),
 
 			new ExpansionAirdropLootAttachments( "AKS74U", ak74u_1 , 0.25),
-    		new ExpansionAirdropLootAttachments( "AKS74U", ak74u_2 , 0.3),
+			new ExpansionAirdropLootAttachments( "AKS74U", ak74u_2 , 0.3),
 			
-    		new ExpansionAirdropLootAttachments( "AKM", akm_1 , 0.25),
-    		new ExpansionAirdropLootAttachments( "AKM", akm_2 , 0.26),
-    		new ExpansionAirdropLootAttachments( "AKM", akm_3 , 0.26),
-    		new ExpansionAirdropLootAttachments( "AKM", akm_4 , 0.27),
-    		new ExpansionAirdropLootAttachments( "AKM", akm_5 , 0.26),
+			new ExpansionAirdropLootAttachments( "AKM", akm_1 , 0.25),
+			new ExpansionAirdropLootAttachments( "AKM", akm_2 , 0.26),
+			new ExpansionAirdropLootAttachments( "AKM", akm_3 , 0.26),
+			new ExpansionAirdropLootAttachments( "AKM", akm_4 , 0.27),
+			new ExpansionAirdropLootAttachments( "AKM", akm_5 , 0.26),
 
 			new ExpansionAirdropLootAttachments( "Expansion_M16", m16_1 , 0.14),
-    		new ExpansionAirdropLootAttachments( "Expansion_M16", m16_2 , 0.13),
-    		new ExpansionAirdropLootAttachments( "Expansion_M16", NULL , 0.18),
+			new ExpansionAirdropLootAttachments( "Expansion_M16", m16_2 , 0.13),
+			new ExpansionAirdropLootAttachments( "Expansion_M16", NULL , 0.18),
 
 			new ExpansionAirdropLootAttachments( "M4A1", m4a1_1 , 0.14),
-    		new ExpansionAirdropLootAttachments( "M4A1", m4a1_2 , 0.13),
-    		new ExpansionAirdropLootAttachments( "M4A1", m4a1_3 , 0.14),
-    		new ExpansionAirdropLootAttachments( "M4A1", m4a1_4 , 0.18),
+			new ExpansionAirdropLootAttachments( "M4A1", m4a1_2 , 0.13),
+			new ExpansionAirdropLootAttachments( "M4A1", m4a1_3 , 0.14),
+			new ExpansionAirdropLootAttachments( "M4A1", m4a1_4 , 0.18),
 
 			new ExpansionAirdropLootAttachments( "FAL", fal_1 , 0.12),
-    		new ExpansionAirdropLootAttachments( "FAL", fal_2 , 0.12),
+			new ExpansionAirdropLootAttachments( "FAL", fal_2 , 0.12),
 
 			new ExpansionAirdropLootAttachments( "SVD", svd_1 , 0.1),
-    		new ExpansionAirdropLootAttachments( "SVD", NULL , 0.18),
+			new ExpansionAirdropLootAttachments( "SVD", NULL , 0.18),
 
 			new ExpansionAirdropLootAttachments( "Saiga", saiga_1 , 0.10),
-    		new ExpansionAirdropLootAttachments( "Saiga", saiga_2 , 0.12),
+			new ExpansionAirdropLootAttachments( "Saiga", saiga_2 , 0.12),
 
 			new ExpansionAirdropLootAttachments( "Expansion_M79", NULL , 0.1 ),
 
-    		new ExpansionAirdropLootAttachments( "ExpansionRPG7", NULL , 0.1 ),
-    		new ExpansionAirdropLootAttachments( "ExpansionLAW", NULL , 0.1 ),
+			new ExpansionAirdropLootAttachments( "ExpansionRPG7", NULL , 0.1 ),
+			new ExpansionAirdropLootAttachments( "ExpansionLAW", NULL , 0.1 ),
 
-    		new ExpansionAirdropLootAttachments( "AK_RailHndgrd", NULL , 0.1 ),
-    		new ExpansionAirdropLootAttachments( "AK_Bayonet", NULL , 0.1 ),
-    		new ExpansionAirdropLootAttachments( "KobraOptic", NULL , 0.08 ),
-    		new ExpansionAirdropLootAttachments( "UniversalLight", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "KobraOptic", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "UniversalLight", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "ACOGOptic", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "M4_RisHndgrd", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M9A1_Bayonet", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "Mosin_Bayonet", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "PUScopeOptic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "TLRLight", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "TLRLight", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "SKS_Bayonet", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "AK_RailHndgrd", NULL , 0.1 ),
+			new ExpansionAirdropLootAttachments( "AK_Bayonet", NULL , 0.1 ),
+			new ExpansionAirdropLootAttachments( "KobraOptic", NULL , 0.08 ),
+			new ExpansionAirdropLootAttachments( "UniversalLight", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "KobraOptic", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "UniversalLight", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "ACOGOptic", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "M4_RisHndgrd", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M9A1_Bayonet", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Mosin_Bayonet", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "PUScopeOptic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "TLRLight", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "TLRLight", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "SKS_Bayonet", NULL , 0.1),
 
-    		new ExpansionAirdropLootAttachments( "M68Optic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M4_T3NRDSOptic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "FNP45_MRDSOptic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "ExpansionReflexMRSOptic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "PSO1Optic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "PSO11Optic", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M68Optic", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "M4_T3NRDSOptic", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "ExpansionReflexMRSOptic", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "PSO1Optic", battery , 0.08),
-    		new ExpansionAirdropLootAttachments( "PSO11Optic", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "M68Optic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M4_T3NRDSOptic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "FNP45_MRDSOptic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "ExpansionReflexMRSOptic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "PSO1Optic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "PSO11Optic", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M68Optic", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "M4_T3NRDSOptic", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "ExpansionReflexMRSOptic", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "PSO1Optic", battery , 0.08),
+			new ExpansionAirdropLootAttachments( "PSO11Optic", battery , 0.08),
 
-    		new ExpansionAirdropLootAttachments( "RGD5Grenade", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "M67Grenade", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Red", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Green", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Yellow", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Purple", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "M18SmokeGrenade_White", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "RDG2SmokeGrenade_Black", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "RDG2SmokeGrenade_White", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "LandMineTrap", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "RGD5Grenade", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "M67Grenade", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Red", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Green", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Yellow", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M18SmokeGrenade_Purple", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "M18SmokeGrenade_White", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "RDG2SmokeGrenade_Black", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "RDG2SmokeGrenade_White", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "LandMineTrap", NULL , 0.1),
 
 			new ExpansionAirdropLootAttachments( "Mag_AK101_30Rnd", NULL , 0.10),
-    		new ExpansionAirdropLootAttachments( "Mag_AK74_30Rnd", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "Mag_AKM_30Rnd", NULL , 0.2),
-    		new ExpansionAirdropLootAttachments( "Mag_AKM_Drum75Rnd", NULL , 0.06),
-    		new ExpansionAirdropLootAttachments( "Mag_AKM_Palm30Rnd", NULL , 0.15),
-    		new ExpansionAirdropLootAttachments( "Mag_CMAG_20Rnd", NULL , 0.3),
-    		new ExpansionAirdropLootAttachments( "Mag_CMAG_30Rnd", NULL , 0.15),
-    		new ExpansionAirdropLootAttachments( "Mag_CMAG_40Rnd", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Mag_AK74_30Rnd", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Mag_AKM_30Rnd", NULL , 0.2),
+			new ExpansionAirdropLootAttachments( "Mag_AKM_Drum75Rnd", NULL , 0.06),
+			new ExpansionAirdropLootAttachments( "Mag_AKM_Palm30Rnd", NULL , 0.15),
+			new ExpansionAirdropLootAttachments( "Mag_CMAG_20Rnd", NULL , 0.3),
+			new ExpansionAirdropLootAttachments( "Mag_CMAG_30Rnd", NULL , 0.15),
+			new ExpansionAirdropLootAttachments( "Mag_CMAG_40Rnd", NULL , 0.1),
 			new ExpansionAirdropLootAttachments( "Mag_FAL_20Rnd", NULL , 0.1),
 			new ExpansionAirdropLootAttachments( "Mag_STANAGCoupled_30Rnd", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Mag_STANAG_30Rnd", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "Mag_SVD_10Rnd", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Mag_Saiga_5Rnd", NULL , 0.15),
-    		new ExpansionAirdropLootAttachments( "Mag_Saiga_8Rnd", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "Mag_Saiga_Drum20Rnd", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "Mag_STANAG_30Rnd", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Mag_SVD_10Rnd", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "Mag_Saiga_5Rnd", NULL , 0.15),
+			new ExpansionAirdropLootAttachments( "Mag_Saiga_8Rnd", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Mag_Saiga_Drum20Rnd", NULL , 0.08),
 
 			new ExpansionAirdropLootAttachments( "AmmoBox_762x54Tracer_20Rnd", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_762x54_20Rnd", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_762x39Tracer_20Rnd", NULL , 0.06),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_762x39_20Rnd", NULL , 0.09),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_556x45Tracer_20Rnd", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_556x45_20Rnd", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_545x39Tracer_20Rnd", NULL , 0.06),
-    		new ExpansionAirdropLootAttachments( "AmmoBox_545x39_20Rnd", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "AmmoBox_762x54_20Rnd", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "AmmoBox_762x39Tracer_20Rnd", NULL , 0.06),
+			new ExpansionAirdropLootAttachments( "AmmoBox_762x39_20Rnd", NULL , 0.09),
+			new ExpansionAirdropLootAttachments( "AmmoBox_556x45Tracer_20Rnd", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "AmmoBox_556x45_20Rnd", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "AmmoBox_545x39Tracer_20Rnd", NULL , 0.06),
+			new ExpansionAirdropLootAttachments( "AmmoBox_545x39_20Rnd", NULL , 0.08),
 			new ExpansionAirdropLootAttachments( "Ammo_762x54Tracer", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Ammo_762x54", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "Ammo_762x39Tracer", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "Ammo_762x39", NULL , 0.12),
-    		new ExpansionAirdropLootAttachments( "Ammo_556x45Tracer", NULL , 0.07),
-    		new ExpansionAirdropLootAttachments( "Ammo_556x45", NULL , 0.11),
-    		new ExpansionAirdropLootAttachments( "Ammo_545x39Tracer", NULL , 0.07),
-    		new ExpansionAirdropLootAttachments( "Ammo_545x39", NULL , 0.10),
+			new ExpansionAirdropLootAttachments( "Ammo_762x54", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Ammo_762x39Tracer", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Ammo_762x39", NULL , 0.12),
+			new ExpansionAirdropLootAttachments( "Ammo_556x45Tracer", NULL , 0.07),
+			new ExpansionAirdropLootAttachments( "Ammo_556x45", NULL , 0.11),
+			new ExpansionAirdropLootAttachments( "Ammo_545x39Tracer", NULL , 0.07),
+			new ExpansionAirdropLootAttachments( "Ammo_545x39", NULL , 0.10),
 
 			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_White", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Red", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Green", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Yellow", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Purple", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Red", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Green", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Yellow", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Purple", NULL , 0.08),
 			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Smoke_Teargas", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_White", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Red", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Green", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Yellow", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Purple", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Teargas", NULL , 0.02),
-    		new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_HE", NULL , 0.7),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_White", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Red", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Green", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Yellow", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Purple", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_Sticky_Smoke_Teargas", NULL , 0.02),
+			new ExpansionAirdropLootAttachments( "Ammo_Expansion_M203_HE", NULL , 0.7),
 
-    		new ExpansionAirdropLootAttachments( "ExpansionAmmoRPG", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "ExpansionAmmoRPG", NULL , 0.05),
 
 			new ExpansionAirdropLootAttachments( "UKAssVest_Black", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "UKAssVest_Camo", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "UKAssVest_Khaki", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "UKAssVest_Olive", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "UKAssVest_Camo", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "UKAssVest_Khaki", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "UKAssVest_Olive", NULL , 0.1),
 
-    		new ExpansionAirdropLootAttachments( "HighCapacityVest_Black", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "HighCapacityVest_Olive", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "HighCapacityVest_Black", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "HighCapacityVest_Olive", NULL , 0.1),
 
-    		new ExpansionAirdropLootAttachments( "PlateCarrierVest", NULL , 0.08),
-    		new ExpansionAirdropLootAttachments( "PlateCarrierHolster", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "PlateCarrierPouches", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "PlateCarrierVest", vest , 0.05),
+			new ExpansionAirdropLootAttachments( "PlateCarrierVest", NULL , 0.08),
+			new ExpansionAirdropLootAttachments( "PlateCarrierHolster", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "PlateCarrierPouches", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "PlateCarrierVest", vest , 0.05),
 
 			new ExpansionAirdropLootAttachments( "TacticalBaconCan", NULL , 0.1),
 
-    		new ExpansionAirdropLootAttachments( "Bear_Pink", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "Bear_Pink", NULL , 0.1),
 			
-    		new ExpansionAirdropLootAttachments( "GhillieAtt_Mossy", NULL , 0.2),
-    		new ExpansionAirdropLootAttachments( "GhillieHood_Mossy", NULL , 0.1),
-    		new ExpansionAirdropLootAttachments( "GhillieBushrag_Mossy", NULL , 0.05),
-    		new ExpansionAirdropLootAttachments( "GhillieSuit_Mossy", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "GhillieAtt_Mossy", NULL , 0.2),
+			new ExpansionAirdropLootAttachments( "GhillieHood_Mossy", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "GhillieBushrag_Mossy", NULL , 0.05),
+			new ExpansionAirdropLootAttachments( "GhillieSuit_Mossy", NULL , 0.05),
 		};
 
 		Infected = {	
@@ -1193,7 +1249,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	private vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
-        float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
+		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
 
 		float spawnX = r * Math.Cos( a );
 		float spawnZ = r * Math.Sin( a );
@@ -1205,7 +1261,12 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
 
 		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
-		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, nPosition );
+
+		PGFilter filter = new PGFilter();
+		filter.SetFlags( PGPolyFlags.NONE, PGPolyFlags.NONE, PGPolyFlags.NONE );
+		filter.SetCost( PGAreaType.TERRAIN, 10 );
+
+		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
 		return nPosition;
 	}

@@ -18,7 +18,7 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 	{
 		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
 		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		m_HUDCursorIcon	 = CursorIcons.LootCorpse;
+		m_HUDCursorIcon		= CursorIcons.LootCorpse;
 	}
 
 	override void CreateConditionComponents()  
@@ -37,19 +37,11 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-
-		if ( vehCommand )
+		if ( Class.CastTo( m_Vehicle, player.GetParent() ) )
 		{
-			if ( Class.CastTo( m_Vehicle, vehCommand.GetTransport() ) )
+			if ( m_Vehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
-				if ( m_Vehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-				{
-					if ( player.GetParent().IsInherited( ExpansionHelicopterScript ) )
-					{
-						return true;
-					}
-				}
+				return true;
 			}
 		}
 

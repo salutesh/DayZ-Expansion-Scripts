@@ -12,7 +12,7 @@
 
 modded class EffVehicleSmoke
 {
-    void SetParticleStateExpansion()
+	void SetParticleStateExpansion()
 	{
 		SetParticleState( -1 );
 	}

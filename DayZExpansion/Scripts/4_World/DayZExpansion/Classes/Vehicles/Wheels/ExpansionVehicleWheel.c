@@ -12,7 +12,7 @@
 
 class ExpansionVehicleWheel
 {
-    private string m_InventorySlot;
+	private string m_InventorySlot;
 	private string m_Selection;
 	private string m_Name;
 	private ExpansionVehicleAxle m_Axle;
@@ -91,19 +91,19 @@ class ExpansionVehicleWheel
 		m_WheelAxleMS = "-1 0 0"; // TODO: get from model
 
 		string inventory_slot_path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " inventorySlot";
-        m_InventorySlot = GetGame().ConfigGetTextOut( inventory_slot_path );
+		m_InventorySlot = GetGame().ConfigGetTextOut( inventory_slot_path );
 
 		string anim_turn_path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " animTurn";
-        m_AnimTurn = GetGame().ConfigGetTextOut( anim_turn_path );
-        
+		m_AnimTurn = GetGame().ConfigGetTextOut( anim_turn_path );
+		
 		string anim_rotation_path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " animRotation";
-        m_AnimRotation = GetGame().ConfigGetTextOut( anim_rotation_path );
-        
+		m_AnimRotation = GetGame().ConfigGetTextOut( anim_rotation_path );
+		
 		string anim_damper_path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " animDamper";
-        m_AnimDamper = GetGame().ConfigGetTextOut( anim_damper_path );
-        
+		m_AnimDamper = GetGame().ConfigGetTextOut( anim_damper_path );
+		
 		string wheel_hub_path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " wheelHub";
-        m_WheelHub = GetGame().ConfigGetTextOut( wheel_hub_path );
+		m_WheelHub = GetGame().ConfigGetTextOut( wheel_hub_path );
 
 		m_InitialWheelPositionMS = GetCenterPositionSelection( "geometry", m_WheelHub );
 		m_RestLength = m_Axle.GetTravelMax() * 0.5;
@@ -416,7 +416,7 @@ class ExpansionVehicleWheel
 			if ( m_BrakeForce )
 				maxImpulse = m_BrakeForce;
 				
-        	forwardImpulse = CalculateRollingFriction( numWheelsGrounded, maxImpulse );
+			forwardImpulse = CalculateRollingFriction( numWheelsGrounded, maxImpulse );
 		}
 */
 

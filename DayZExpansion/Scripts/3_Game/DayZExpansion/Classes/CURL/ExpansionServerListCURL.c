@@ -1,5 +1,5 @@
 /**
- * ExpansionServerListCURL.c
+ * ExpansionServerListRest.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,22 +10,22 @@
  *
 */
 
-class ExpansionServerCURL
+class ExpansionServerRest
 {
 	string Adress;
 	int Port;
 	
 	// ------------------------------------------------------------
-	// ExpansionServerCURL Constructor
+	// ExpansionServerRest Constructor
 	// ------------------------------------------------------------
-	void ExpansionServerCURL( string adr, int prt )
+	void ExpansionServerRest( string adr, int prt )
 	{
 		Adress = adr;
 		Port = prt;
 	}
 }
 
-class ExpansionServerListCURL
+class ExpansionServerListRest
 {
 	string serverip;
 	int serverport;

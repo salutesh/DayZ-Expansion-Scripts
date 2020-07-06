@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{154B9F14088E2110}DayZExpansion/GUI/textures/spawn_selection/solin.tga"
+ Author "Steve aka Salutesh"
+ ChangeDate 1448371873
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "solin.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

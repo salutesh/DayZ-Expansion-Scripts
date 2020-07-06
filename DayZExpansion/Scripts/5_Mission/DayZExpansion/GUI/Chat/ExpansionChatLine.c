@@ -47,10 +47,10 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine Start");
 		#endif
-		m_RootWidget	= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/chat/expansion_chat_entry.layout", root_widget) );
+		m_RootWidget	= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/chat/expansion_chat_entry_new.layout", root_widget) );
 		
-		m_NameWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "SenderName" ) );
-		m_TextWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "Message" ) );
+		m_NameWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemSenderWidget" ) );
+		m_TextWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemTextWidget" ) );
 		
 		m_RootWidget.Update();
 		m_RootWidget.Show(false);

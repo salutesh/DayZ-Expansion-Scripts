@@ -1,0 +1,55 @@
+FrameWidgetClass FrameWidget {
+ color 1 1 1 0.7843
+ position 0.0009 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactsize 0
+ vexactsize 0
+ fixaspect none
+ {
+  PanelWidgetClass ChatPanel {
+   visible 1
+   clipchildren 0
+   color 0.1961 0.1961 0.1961 0.549
+   position 0.05002 0
+   size 0.812 0.025
+   halign right_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scaled 0
+   style rover_sim_colorable
+   {
+    PanelWidgetClass Background {
+     ignorepointer 1
+     size 1 1
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      EditBoxWidgetClass InputEditBoxWidget {
+       visible 1
+       color 0 0 0 1
+       size 0.995 1
+       halign center_ref
+       valign center_ref
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style Default
+       "limit visible" 1
+       "exact text" 1
+       font "gui/fonts/etelkatextpro16"
+      }
+     }
+    }
+   }
+  }
+ }
+}

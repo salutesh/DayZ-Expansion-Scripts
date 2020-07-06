@@ -24,14 +24,14 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionBarbedWire()
-    {
+	void ExpansionBarbedWire()
+	{
 		m_TriggerActive = false;
 
 		m_AreaDamageTimer = new Timer();
 
 		SetEventMask( EntityEvent.INIT );
-    }
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -64,7 +64,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// GetConstructionKitType
 	// ------------------------------------------------------------
-    override string GetConstructionKitType()
+	override string GetConstructionKitType()
 	{
 		return "ExpansionBarbedWireKit";
 	}

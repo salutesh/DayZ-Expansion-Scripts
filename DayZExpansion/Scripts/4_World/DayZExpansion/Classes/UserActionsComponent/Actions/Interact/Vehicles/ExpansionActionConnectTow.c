@@ -58,43 +58,43 @@ class ExpansionActionConnectTow: ActionInteractBase
 						
 					if ( m_DrivingVehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 					{
-                        vector contactPos;
-                        vector contactDir;
-                        int contactComponent;
-                        set<Object> objects = new set<Object>;
+						vector contactPos;
+						vector contactDir;
+						int contactComponent;
+						set<Object> objects = new set<Object>;
 
-                        vector start = m_DrivingVehicle.GetPosition();
-                        vector end = start - Vector( 0, 0, -5 );
+						vector start = m_DrivingVehicle.GetPosition();
+						vector end = start - Vector( 0, 0, -5 );
 
-                        // Initiate the raycast
-                        if ( DayZPhysics.RaycastRV( start, end, contactPos, contactDir, contactComponent, objects, NULL, m_DrivingVehicle, false, false, ObjIntersectNone, 3 ) )
-                        {
-                            if ( Class.CastTo( m_RayCastObject, objects[0] ) )
-                            {
+						// Initiate the raycast
+						if ( DayZPhysics.RaycastRV( start, end, contactPos, contactDir, contactComponent, objects, NULL, m_DrivingVehicle, false, false, ObjIntersectNone, 3 ) )
+						{
+							if ( Class.CastTo( m_RayCastObject, objects[0] ) )
+							{
 								#ifdef EXPANSION_VEHICLE_TOWING
-                                return !m_RayCastObject.IsTowed();
+								return !m_RayCastObject.IsTowed();
 								#endif
-                            }
-                        }
-                    }
-                }
-            }
-        }
+							}
+						}
+					}
+				}
+			}
+		}
 		return false;
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-        super.OnStartServer( action_data );
+		super.OnStartServer( action_data );
 
-        if ( !m_DrivingVehicle )
-            return;
+		if ( !m_DrivingVehicle )
+			return;
 
-        if ( !m_RayCastObject )
-            return;
+		if ( !m_RayCastObject )
+			return;
 
 		#ifdef EXPANSION_VEHICLE_TOWING
-        m_DrivingVehicle.CreateTow( m_RayCastObject );
+		m_DrivingVehicle.CreateTow( m_RayCastObject );
 		#endif
 	}
 	

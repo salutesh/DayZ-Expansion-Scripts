@@ -12,27 +12,35 @@
 
 class ExpansionSettings
 {
+	static ref ScriptInvoker SI_Airdrop = new ScriptInvoker();
 	static ref ScriptInvoker SI_Book = new ScriptInvoker();
+	static ref ScriptInvoker SI_BaseBuilding = new ScriptInvoker();
 	static ref ScriptInvoker SI_General = new ScriptInvoker();
 	static ref ScriptInvoker SI_Map = new ScriptInvoker();
 	static ref ScriptInvoker SI_Market = new ScriptInvoker();
 	static ref ScriptInvoker SI_Mission = new ScriptInvoker();
+	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
 	static ref ScriptInvoker SI_Party = new ScriptInvoker();
+	static ref ScriptInvoker SI_Raid = new ScriptInvoker();
 	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 	static ref ScriptInvoker SI_Spawn = new ScriptInvoker();
-	static ref ScriptInvoker SI_BaseBuilding = new ScriptInvoker();
 	static ref ScriptInvoker SI_Territory = new ScriptInvoker();
+	static ref ScriptInvoker SI_Vehicle = new ScriptInvoker();
 	
-    protected ref ExpansionBookSettings m_SettingsBook;
+	protected ref ExpansionAirdropSettings m_SettingsAirdrop;
+	protected ref ExpansionBookSettings m_SettingsBook;
+	protected ref ExpansionBaseBuildingSettings m_SettingsBaseBuilding;
 	protected ref ExpansionGeneralSettings m_SettingsGeneral;
-    protected ref ExpansionMapSettings m_SettingsMap;
+	protected ref ExpansionMapSettings m_SettingsMap;
 	protected ref ExpansionMarketSettings m_SettingsMarket;
 	protected ref ExpansionMissionSettings m_SettingsMission;
-    protected ref ExpansionPartySettings m_SettingsParty;
+	protected ref ExpansionNotificationSettings m_SettingsNotification;
+	protected ref ExpansionPartySettings m_SettingsParty;
 	protected ref ExpansionSafeZoneSettings m_SettingsSafeZone;
 	protected ref ExpansionSpawnSettings m_SettingsSpawn;
-	protected ref ExpansionBaseBuildingSettings m_SettingsBaseBuilding;
+	protected ref ExpansionRaidSettings m_SettingsRaid;
 	protected ref ExpansionTerritorySettings m_SettingsTerritory;
+	protected ref ExpansionVehicleSettings m_SettingsVehicle;
 	
 	protected bool m_SettingsLoaded;
 	
@@ -46,7 +54,7 @@ class ExpansionSettings
 	// Gets called on server and client
 	// ------------------------------------------------------------
 	void ExpansionSettings()
-    {
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::ExpansionSettings - Start");
 		#endif
@@ -61,14 +69,20 @@ class ExpansionSettings
 	// Gets called on server and client
 	// ------------------------------------------------------------
 	void ~ExpansionSettings()
-    {
+	{
+		if ( m_SettingsAirdrop ) 
+			delete m_SettingsAirdrop;
+
 		if ( m_SettingsBook ) 
 			delete m_SettingsBook;
+
+		if ( m_SettingsBaseBuilding ) 
+			delete m_SettingsBaseBuilding;
 
 		if ( m_SettingsGeneral ) 
 			delete m_SettingsGeneral;
 
-    	if ( m_SettingsMap ) 
+		if ( m_SettingsMap ) 
 			delete m_SettingsMap;
 
 		if ( m_SettingsMarket ) 
@@ -77,8 +91,14 @@ class ExpansionSettings
 		if ( m_SettingsMission ) 
 			delete m_SettingsMission;
 
-    	if ( m_SettingsParty ) 
+		if ( m_SettingsNotification ) 
+			delete m_SettingsNotification;
+
+		if ( m_SettingsParty ) 
 			delete m_SettingsParty;
+
+		if ( m_SettingsRaid ) 
+			delete m_SettingsRaid;
 
 		if ( m_SettingsSafeZone ) 
 			delete m_SettingsSafeZone;
@@ -86,11 +106,11 @@ class ExpansionSettings
 		if ( m_SettingsSpawn ) 
 			delete m_SettingsSpawn;
 
-		if ( m_SettingsBaseBuilding ) 
-			delete m_SettingsBaseBuilding;
-
 		if ( m_SettingsTerritory ) 
 			delete m_SettingsTerritory;
+
+		if ( m_SettingsVehicle ) 
+			delete m_SettingsVehicle;
 	}
 	
 	// ------------------------------------------------------------
@@ -109,32 +129,39 @@ class ExpansionSettings
 			MakeDirectory( EXPANSION_SETTINGS_FOLDER );
 		}
 
+		LoadSetting( m_SettingsAirdrop );
 		LoadSetting( m_SettingsBook );
+		LoadSetting( m_SettingsBaseBuilding );
 		LoadSetting( m_SettingsGeneral );
 		LoadSetting( m_SettingsMap );
 		#ifdef EXPANSION_MARKET
 		LoadSetting( m_SettingsMarket );
 		#endif
 		LoadSetting( m_SettingsMission );
+		LoadSetting( m_SettingsNotification );
 		LoadSetting( m_SettingsParty );
+		LoadSetting( m_SettingsRaid );
 		LoadSetting( m_SettingsSafeZone );
 		LoadSetting( m_SettingsSpawn );
-		LoadSetting( m_SettingsBaseBuilding );
 		LoadSetting( m_SettingsTerritory );
+		LoadSetting( m_SettingsVehicle );
 
-		// m_NetworkedSettings.Insert( "expansionairdropsettings" );
+		//m_NetworkedSettings.Insert( "expansionairdropsettings" );
 		m_NetworkedSettings.Insert( "expansionbooksettings" );
+		m_NetworkedSettings.Insert( "expansionbasebuildingsettings" );
 		m_NetworkedSettings.Insert( "expansiongeneralsettings" );
 		m_NetworkedSettings.Insert( "expansionmapsettings" );
 		#ifdef EXPANSION_MARKET
 		m_NetworkedSettings.Insert( "expansionmarketsettings" );
 		#endif
 		// m_NetworkedSettings.Insert( "expansionmissionsettings" );
+		m_NetworkedSettings.Insert( "expansionnotificationsettings" );
 		m_NetworkedSettings.Insert( "expansionpartysettings" );
+		m_NetworkedSettings.Insert( "expansionraidsettings" );
 		// m_NetworkedSettings.Insert( "expansionsafezonesettings" );
 		m_NetworkedSettings.Insert( "expansionspawnsettings" );
-		m_NetworkedSettings.Insert( "expansionbasebuildingsettings" );
 		m_NetworkedSettings.Insert( "expansionterritorysettings" );
+		m_NetworkedSettings.Insert( "expansionvehiclesettings" );
 
 		m_SettingsLoaded = true;
 
@@ -146,16 +173,20 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	void Unload()
 	{
+		m_SettingsAirdrop.Unload();
 		m_SettingsBook.Unload();
+		m_SettingsBaseBuilding.Unload();
 		m_SettingsGeneral.Unload();
 		m_SettingsMap.Unload();
 		m_SettingsMarket.Unload();
 		m_SettingsMission.Unload();
+		m_SettingsNotification.Unload();
+		m_SettingsRaid.Unload();
 		m_SettingsParty.Unload();
 		m_SettingsSafeZone.Unload();
 		m_SettingsSpawn.Unload();
-		m_SettingsBaseBuilding.Unload();
 		m_SettingsTerritory.Unload();
+		m_SettingsVehicle.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -261,7 +292,13 @@ class ExpansionSettings
 		if ( m_SettingsLoaded )
 			return;
 		
+		if ( !IsSettingLoaded( m_SettingsAirdrop, m_SettingsLoaded ) )
+			return;
+		
 		if ( !IsSettingLoaded( m_SettingsBook, m_SettingsLoaded ) )
+			return;
+
+		if ( !IsSettingLoaded( m_SettingsBaseBuilding, m_SettingsLoaded ) )
 			return;
 
 		if ( !IsSettingLoaded( m_SettingsGeneral, m_SettingsLoaded ) )
@@ -276,6 +313,12 @@ class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsMission, m_SettingsLoaded ) )
 			return;
 
+		if ( !IsSettingLoaded( m_SettingsNotification, m_SettingsLoaded ) )
+			return;
+
+		if ( !IsSettingLoaded( m_SettingsRaid, m_SettingsLoaded ) )
+			return;
+
 		if ( !IsSettingLoaded( m_SettingsParty, m_SettingsLoaded ) )
 			return;
 
@@ -285,10 +328,10 @@ class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsSpawn, m_SettingsLoaded ) )
 			return;
 
-		if ( !IsSettingLoaded( m_SettingsBaseBuilding, m_SettingsLoaded ) )
+		if ( !IsSettingLoaded( m_SettingsTerritory, m_SettingsLoaded ) )
 			return;
 
-		if ( !IsSettingLoaded( m_SettingsTerritory, m_SettingsLoaded ) )
+		if ( !IsSettingLoaded( m_SettingsVehicle, m_SettingsLoaded ) )
 			return;
 
 		m_SettingsLoaded = true;
@@ -303,17 +346,21 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	void Init()
 	{
+		m_SettingsAirdrop = new ExpansionAirdropSettings;
 		m_SettingsBook = new ExpansionBookSettings;
+		m_SettingsBaseBuilding = new ExpansionBaseBuildingSettings;
 		m_SettingsGeneral = new ExpansionGeneralSettings;
 		m_SettingsMap = new ExpansionMapSettings;
 		m_SettingsMarket = new ExpansionMarketSettings;
 		m_SettingsMission = new ExpansionMissionSettings;
+		m_SettingsNotification = new ExpansionNotificationSettings;
+		m_SettingsRaid = new ExpansionRaidSettings;
 		m_SettingsParty = new ExpansionPartySettings;
 		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
 		m_SettingsSpawn = new ExpansionSpawnSettings;
-		m_SettingsBaseBuilding = new ExpansionBaseBuildingSettings;
 		m_SettingsTerritory = new ExpansionTerritorySettings;
-		
+		m_SettingsVehicle = new ExpansionVehicleSettings;
+
 		m_NetworkedSettings = new TStringArray;
 
 		if ( IsMissionClient() )
@@ -321,7 +368,7 @@ class ExpansionSettings
 			OnClientInit();
 		} else if ( IsMissionHost() )
 		{			
-        	OnServerInit();
+			OnServerInit();
 		}
 	}
 	
@@ -329,8 +376,8 @@ class ExpansionSettings
 	// Expansion Send
 	// Can only be called on the server.
 	// ------------------------------------------------------------
-    void Send( notnull PlayerIdentity identity )
-    {
+	void Send( notnull PlayerIdentity identity )
+	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionSettings::SendSettings - Start identity : " + identity );
 		#endif
@@ -342,21 +389,25 @@ class ExpansionSettings
 		rpc.Write( m_NetworkedSettings );
 		rpc.Send( NULL, ExpansionSettingsRPC.ListToLoad, true, identity );
 
+		m_SettingsAirdrop.Send( identity );
 		m_SettingsBook.Send( identity );
+		m_SettingsBaseBuilding.Send( identity );
 		m_SettingsGeneral.Send( identity );
 		m_SettingsMap.Send( identity );
 		#ifdef EXPANSION_MARKET
 		m_SettingsMarket.Send( identity );
 		#endif
+		m_SettingsNotification.Send( identity );
+		m_SettingsRaid.Send( identity );
 		m_SettingsParty.Send( identity );
 		m_SettingsSpawn.Send( identity );
-		m_SettingsBaseBuilding.Send( identity );
 		m_SettingsTerritory.Send( identity );
+		m_SettingsVehicle.Send( identity );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionSettings::SendSettings - End");
 		#endif
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// OnRPC
@@ -382,11 +433,31 @@ class ExpansionSettings
 				return true;
 			}
 			
+			case ExpansionSettingsRPC.AirDrop:
+			{
+				m_SettingsAirdrop.HandleRPC( ctx );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC RPC_AirDrop");
+				#endif
+
+				break;
+			}
+			
 			case ExpansionSettingsRPC.Book:
 			{
 				m_SettingsBook.HandleRPC( ctx );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Book");
+				#endif
+
+				break;
+			}
+			
+			case ExpansionSettingsRPC.BaseBuilding:
+			{
+				m_SettingsBaseBuilding.HandleRPC( ctx );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC RPC_BaseBuilding");
 				#endif
 
 				break;
@@ -422,6 +493,26 @@ class ExpansionSettings
 				break;
 			}
 			
+			case ExpansionSettingsRPC.Notification:
+			{
+				m_SettingsNotification.HandleRPC( ctx );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC RPC_Notification");
+				#endif
+
+				break;
+			}
+			
+			case ExpansionSettingsRPC.Raid:
+			{
+				m_SettingsRaid.HandleRPC( ctx );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC RPC_Raid");
+				#endif
+
+				break;
+			}
+			
 			case ExpansionSettingsRPC.Party:
 			{
 				m_SettingsParty.HandleRPC( ctx );
@@ -442,21 +533,21 @@ class ExpansionSettings
 				break;
 			}
 			
-			case ExpansionSettingsRPC.BaseBuilding:
+			case ExpansionSettingsRPC.Territory:
 			{
-				m_SettingsBaseBuilding.HandleRPC( ctx );
+				m_SettingsTerritory.HandleRPC( ctx );
 				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_BaseBuilding");
+				EXPrint("ExpansionSettings::OnRPC RPC_Territory");
 				#endif
 
 				break;
 			}
 			
-			case ExpansionSettingsRPC.Territory:
+			case ExpansionSettingsRPC.Vehicle:
 			{
-				m_SettingsTerritory.HandleRPC( ctx );
+				m_SettingsVehicle.HandleRPC( ctx );
 				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_BaseBuilding");
+				EXPrint("ExpansionSettings::OnRPC RPC_Vehicle");
 				#endif
 
 				break;
@@ -495,21 +586,49 @@ class ExpansionSettings
 
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
+			m_SettingsAirdrop.Save();
 			m_SettingsBook.Save();
+			m_SettingsBaseBuilding.Save();
 			m_SettingsGeneral.Save();
 			m_SettingsMap.Save();
 			m_SettingsMarket.Save();
 			m_SettingsMission.Save();
+			m_SettingsNotification.Save();
+			m_SettingsRaid.Save();
 			m_SettingsParty.Save();
 			m_SettingsSafeZone.Save();
 			m_SettingsSpawn.Save();
-			m_SettingsBaseBuilding.Save();
 			m_SettingsTerritory.Save();
+			m_SettingsVehicle.Save();
 		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::Save - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionVehicleSettings GetAirdrop
+	// ------------------------------------------------------------
+	ref ExpansionAirdropSettings GetAirdrop()
+	{
+		return m_SettingsAirdrop;
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionBookSettings GetBook
+	// ------------------------------------------------------------
+	ref ExpansionBookSettings GetBook()
+	{
+		return m_SettingsBook;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionPartySettings GetBaseBuilding
+	// ------------------------------------------------------------
+	ref ExpansionBaseBuildingSettings GetBaseBuilding()
+	{
+		return m_SettingsBaseBuilding;
 	}
 	
 	// ------------------------------------------------------------
@@ -521,27 +640,35 @@ class ExpansionSettings
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionPartySettings GetParty
-	// ------------------------------------------------------------
-	ref ExpansionPartySettings GetParty()
-	{
-		return m_SettingsParty;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion ExpansionBookSettings GetBook
-	// ------------------------------------------------------------
-	ref ExpansionBookSettings GetBook()
-	{
-		return m_SettingsBook;
-	}
-
-	// ------------------------------------------------------------
 	// Expansion ExpansionMapSettings GetMap
 	// ------------------------------------------------------------
 	ref ExpansionMapSettings GetMap()
 	{
 		return m_SettingsMap;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionMissionSettings GetMission
+	// ------------------------------------------------------------
+	ref ExpansionMissionSettings GetMission()
+	{
+		return m_SettingsMission;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionPartySettings GetRaid
+	// ------------------------------------------------------------
+	ref ExpansionRaidSettings GetRaid()
+	{
+		return m_SettingsRaid;
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionPartySettings GetParty
+	// ------------------------------------------------------------
+	ref ExpansionPartySettings GetParty()
+	{
+		return m_SettingsParty;
 	}
 
 	// ------------------------------------------------------------
@@ -569,14 +696,6 @@ class ExpansionSettings
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionPartySettings GetBaseBuilding
-	// ------------------------------------------------------------
-	ref ExpansionBaseBuildingSettings GetBaseBuilding()
-	{
-		return m_SettingsBaseBuilding;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion ExpansionPartySettings GetTerritory
 	// ------------------------------------------------------------
 	ref ExpansionTerritorySettings GetTerritory()
@@ -585,11 +704,19 @@ class ExpansionSettings
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionMissionSettings GetMission
+	// Expansion ExpansionVehicleSettings GetVehicle
 	// ------------------------------------------------------------
-	ref ExpansionMissionSettings GetMission()
+	ref ExpansionVehicleSettings GetVehicle()
 	{
-		return m_SettingsMission;
+		return m_SettingsVehicle;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionNotificationSettings GetNotification
+	// ------------------------------------------------------------
+	ref ExpansionNotificationSettings GetNotification()
+	{
+		return m_SettingsNotification;
 	}
 }
 

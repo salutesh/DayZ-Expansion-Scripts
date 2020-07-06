@@ -79,7 +79,7 @@ class ExpansionTT650 extends ExpansionBikeScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
-    {
-        return false;
-    }
+	{
+		return false;
+	}
 }

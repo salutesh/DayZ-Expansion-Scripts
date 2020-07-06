@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{C6177A11CA9BB220}DayZExpansion/GUI/textures/book/page_corner.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1099130455
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "page_corner.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

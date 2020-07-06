@@ -49,8 +49,6 @@ void FoldOpticsUp(EntityAI ParentItem)
 
 class ExpansionLAW: SKS_Base
 {
-
-	
 	override void InitStateMachine()
 	{
 		m_abilities.Insert(new AbilityRecord(WeaponActions.CHAMBERING, WeaponActionChamberingTypes.CHAMBERING_STARTLOOPABLE_CLOSED_KEEP));
@@ -218,6 +216,16 @@ class ExpansionLAW: SKS_Base
 		HideMagazine();
 
 		m_fsm.Start();
+	}
+
+	override void EEFired(int muzzleType, int mode, string ammoType)
+  	{
+		if ( IsMissionClient() )
+		{
+			Particle.PlayOnObject( ParticleList.EXPANSION_ROCKET_DUST, this, GetMemoryPointPos("usti hlavne") );
+		}
+
+		super.EEFired(muzzleType, mode, ammoType);
 	}
 }
 
@@ -729,6 +737,16 @@ class ExpansionRPG7Base extends RifleSingleShot_Base
 	{
 		return new Izh18Recoil(this);
 	}
+
+	override void EEFired(int muzzleType, int mode, string ammoType)
+  	{
+		if ( IsMissionClient() )
+		{
+			Particle.PlayOnObject( ParticleList.EXPANSION_ROCKET_DUST, this, GetMemoryPointPos("usti hlavne") );
+		}
+
+		super.EEFired(muzzleType, mode, ammoType);
+	}
 }
 
 class Expansion_M16_Base : RifleBoltLock_Base
@@ -851,30 +869,30 @@ class Expansion_M1A_Base : RifleBoltLock_Base
 	}
 	
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
-    {
-        if  ( attachment.IsKindOf("ItemOptics") )
-        {            
-            if ( FindAttachmentBySlotName("weaponOptics") != NULL || FindAttachmentBySlotName("ExpansionSniperOptics") != NULL || ( !attachment.IsKindOf("Expansion_PMII25Optic") && FindAttachmentBySlotName("Expansion_M1AScopeRail") != NULL ))
-            {
-                return false;
-            }    
-        }          
+	{
+		if  ( attachment.IsKindOf("ItemOptics") )
+		{			
+			if ( FindAttachmentBySlotName("weaponOptics") != NULL || FindAttachmentBySlotName("ExpansionSniperOptics") != NULL || ( !attachment.IsKindOf("Expansion_PMII25Optic") && FindAttachmentBySlotName("Expansion_M1AScopeRail") != NULL ))
+			{
+				return false;
+			}	
+		}		  
 		if  ( attachment.IsKindOf("Expansion_PMII25Optic") )
-        {            
-            if ( FindAttachmentBySlotName("Expansion_M1AScopeRail") == NULL)
-            {
-                return false;
-            }    
-        }     
+		{			
+			if ( FindAttachmentBySlotName("Expansion_M1AScopeRail") == NULL)
+			{
+				return false;
+			}	
+		}	 
 		if (attachment.IsKindOf("Expansion_M1A_RailAtt") )
-        {            
-            if ( FindAttachmentBySlotName("weaponOptics") != NULL)
-            {
-                return false;
-            }    
-        }  
-        return super.CanReceiveAttachment(attachment, slotId);
-    }
+		{			
+			if ( FindAttachmentBySlotName("weaponOptics") != NULL)
+			{
+				return false;
+			}	
+		}  
+		return super.CanReceiveAttachment(attachment, slotId);
+	}
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
 		if ( attachment.IsKindOf("Expansion_M1A_RailAtt") && FindAttachmentBySlotName("ExpansionSniperOptics") )
@@ -884,20 +902,20 @@ class Expansion_M1A_Base : RifleBoltLock_Base
 		return super.CanReleaseAttachment(attachment);
 	}
 	override bool CanDisplayAttachmentSlot( string slot_name )
-    {    
-        if (!super.CanDisplayAttachmentSlot(slot_name))
-            return false;   
+	{	
+		if (!super.CanDisplayAttachmentSlot(slot_name))
+			return false;   
 		
-        if ( slot_name == "ExpansionSniperOptics" )
-        {
-            return this.FindAttachmentBySlotName("ExpansionSniperOptics") != NULL;
-        }
-        if ( slot_name == "weaponOptics" )
-        {
-            return this.FindAttachmentBySlotName("ExpansionSniperOptics") == NULL;    
-        }        
-        return true;
-    }		
+		if ( slot_name == "ExpansionSniperOptics" )
+		{
+			return this.FindAttachmentBySlotName("ExpansionSniperOptics") != NULL;
+		}
+		if ( slot_name == "weaponOptics" )
+		{
+			return this.FindAttachmentBySlotName("ExpansionSniperOptics") == NULL;	
+		}		
+		return true;
+	}		
 }
 class Expansion_AWM_Base: BoltActionRifle_Base
 {
@@ -911,40 +929,40 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 	ref	WeaponStateBase JF1;
    
 	override bool CanDisplayAttachmentSlot( string slot_name )
-    {    
-        if (!super.CanDisplayAttachmentSlot(slot_name))
-            return false;   
+	{	
+		if (!super.CanDisplayAttachmentSlot(slot_name))
+			return false;   
 		
-        if ( slot_name == "sniperOptics" )
-        {
-            return this.FindAttachmentBySlotName("sniperOptics") != NULL;
-        }
+		if ( slot_name == "sniperOptics" )
+		{
+			return this.FindAttachmentBySlotName("sniperOptics") != NULL;
+		}
 
-        if ( slot_name == "weaponOptics" )
-        {
-            return this.FindAttachmentBySlotName("sniperOptics") == NULL;    
-        } 
+		if ( slot_name == "weaponOptics" )
+		{
+			return this.FindAttachmentBySlotName("sniperOptics") == NULL;	
+		} 
 
-        return true;
-    }	
+		return true;
+	}	
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
-    {
-        if  ( attachment.IsKindOf("ItemOptics") )
-        {            
-            if (  FindAttachmentBySlotName("ExpansionSniperOptics") != NULL )
-            {
-                return false;
-            }    
-        }          
+	{
+		if  ( attachment.IsKindOf("ItemOptics") )
+		{			
+			if (  FindAttachmentBySlotName("ExpansionSniperOptics") != NULL )
+			{
+				return false;
+			}	
+		}		  
 		if  ( attachment.IsKindOf("Expansion_PMII25Optic") )
-        {            
-            if ( FindAttachmentBySlotName("weaponOptics") != NULL)
-            {
-                return false;
-            }    
-        }     
-        return super.CanReceiveAttachment(attachment, slotId);
-    }
+		{			
+			if ( FindAttachmentBySlotName("weaponOptics") != NULL)
+			{
+				return false;
+			}	
+		}	 
+		return super.CanReceiveAttachment(attachment, slotId);
+	}
 	override RecoilBase SpawnRecoilObject()
 	{
 		return new CZ527Recoil(this);

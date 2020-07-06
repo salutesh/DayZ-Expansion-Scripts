@@ -12,7 +12,7 @@
 
 class ExpansionMapping
 {
-	bool UseCustomMappingModule;  		//Use per default to false, so not loading in main menu, only loading on server     Same for InteriorBuilding
+	bool UseCustomMappingModule;  		//Use per default to false, so not loading in main menu, only loading on server	 Same for InteriorBuilding
 	
 	autoptr TStringArray Mapping;
 	autoptr TStringArray ObjectsToDelete;
@@ -84,6 +84,7 @@ class ExpansionMapping
 		Mapping.Insert( "Sea_Platform" );
 		Mapping.Insert( "Solnechniy" );
 		Mapping.Insert( "Staroye" );
+		Mapping.Insert( "StaryYarBkr" );
 		Mapping.Insert( "Svetloyarsk" );
 		Mapping.Insert( "Tisy" );
 		
@@ -110,13 +111,23 @@ class ExpansionMapping
 		Mapping.Insert( "RoadsNoCollision" );
 		Mapping.Insert( "Solnechniy_GrassNoCollision" );
 		Mapping.Insert( "StaroyeNoCollision" );
+		Mapping.Insert( "StaryYarBkrNoCollision" );
 		Mapping.Insert( "SvetloyarskNoCollision" );
 		Mapping.Insert( "SvetRoadForestNoCollision" );
 		Mapping.Insert( "TisyNoCollision" );
 	
+		#ifdef EXPANSION_DISABLE_MAPPING
+		
 		UseCustomMappingModule 			= false;
 		InteriorBuilding 				= false;
 		Ivies							= false;
+		
+		#else
+		
+		UseCustomMappingModule 			= true;
+		InteriorBuilding 				= true;
+		Ivies							= true;
+		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMapping::Defaults - End");

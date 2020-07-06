@@ -96,8 +96,8 @@ class ExpansionRoadflare extends Roadflare
 				m_FlareLight.SetDiffuseColor(1, 0.1, 0.1);
 
 				m_FlareLight.SetPosition(GetPosition());
-				m_FlareLight.SetRadiusTo(100);
-				m_FlareLight.SetBrightnessTo(0.25); 
+				m_FlareLight.SetRadiusTo(300);
+				m_FlareLight.SetBrightnessTo(0.85); 
 				m_FlareLight.AttachOnObject(this, "0 1 0");
 			}
 		}

@@ -23,50 +23,32 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SPRAYCANS";
 		m_FileName = "Spraycans";
 
-		AddItem( "ExpansionSpraycanOffroadHatchbackGreen",		100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanOffroadHatchbackBlue",		100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanOffroadHatchbackWhite",		100,	120,	1,		250,	0,	{} );
-
-		AddItem( "ExpansionSpraycanHatchback_02Red",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanHatchback_02Blue",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanHatchback_02Black",			100,	120,	1,		250,	0,	{} );
-		
-		AddItem( "ExpansionSpraycanCivilianSedanWhite",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanCivilianSedanGrey",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanCivilianSedanWine",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanCivilianSedanLime",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanCivilianSedanBlack",			100,	120,	1,		250,	0,	{} );
-		
-		AddItem( "ExpansionSpraycanSedan_02Blue",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanSedan_02Grey",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanSedan_02Red",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanSedan_02Yellow",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanSedan_02YellowBright",		100,	120,	1,		250,	0,	{} );
-
-		AddItem( "ExpansionSpraycanBusDefault",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanBusWeeb",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMerlinDefault",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMerlinDahoman",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMerlinIon",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMerlinPresident",			100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMerlinVrana",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMerlinWave",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanUh1hDefault",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanUh1hCivilian",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanUh1hMedical",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanUh1hUber",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Default",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Blueline",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Digital",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Elliptical",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Furious",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6GrayWatcher",				100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Jeans",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Shadow",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Speedy",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Sunset",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Vrana",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Wasp",					100,	120,	1,		250,	0,	{} );
-		AddItem( "ExpansionSpraycanMh6Wave",					100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanGreen",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanBlue",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanWhite",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanRed",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanBlack",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanGrey",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanWine",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanYellow",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanWeeb",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanDahoman",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanIon",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanPresident",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanVrana",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanWave",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanCivilian",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanMedical",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanUber",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanBlueline",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanDigital",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanElliptical",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanFurious",		100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanGrayWatcher",	100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanJeans",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanShadow",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanSpeedy",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanSunset",			100,	120,	1,		250,	0,	{} );
+		AddItem( "ExpansionSpraycanWasp",			100,	120,	1,		250,	0,	{} );
 	}
 }

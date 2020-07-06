@@ -205,19 +205,15 @@ class ExpansionMh6: ExpansionHelicopterScript
 			case CarSoundCtrl.DOORS:
 				float newValue = 0;
 				
-				//-----
 				if ( GetCarDoorsState( "mh6door_1_1" ) == CarDoorState.DOORS_CLOSED )
 					newValue += 0.25;
 
-				//-----
 				if ( GetCarDoorsState( "mh6door_1_2" ) == CarDoorState.DOORS_CLOSED )
 					newValue += 0.25;
 			
-				//-----
 				if ( GetCarDoorsState( "mh6door_2_1" ) == CarDoorState.DOORS_CLOSED )
 					newValue += 0.25;
 
-				//-----
 				if ( GetCarDoorsState( "mh6door_2_2" ) == CarDoorState.DOORS_CLOSED )
 					newValue += 0.25;
 
@@ -289,37 +285,37 @@ class ExpansionMh6: ExpansionHelicopterScript
 			case "mh6door_1_1": {
 				if ( GetAnimationPhase("mh6door_1_1") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "mh6door_1_2": {
 				if ( GetAnimationPhase("mh6door_1_2") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "mh6door_2_1": {
 				if ( GetAnimationPhase("mh6door_2_1") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
+				}
+				break;
+			}
 			case "mh6door_2_2": {
 				if ( GetAnimationPhase("mh6door_2_2") > 0.5 ) {
 					return CarDoorState.DOORS_OPEN;
-                } else {
+				} else {
 					return CarDoorState.DOORS_CLOSED;
-                }
-                break;
-            }
-            default: {
-                return CarDoorState.DOORS_MISSING;
+				}
+				break;
+			}
+			default: {
+				return CarDoorState.DOORS_MISSING;
 			}
 		}
 
@@ -448,11 +444,9 @@ class ExpansionMh6: ExpansionHelicopterScript
 	}
 
 	// --------------------------------------------------------- ---
-    override void UpdateLights(int new_gear = -1) 
+	override void UpdateLights(int new_gear = -1) 
 	{
-        super.UpdateLights( new_gear );
-
-        if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) 
+		if ( IsMissionClient() ) 
 		{
 			ItemBase battery;
 			
@@ -461,42 +455,49 @@ class ExpansionMh6: ExpansionHelicopterScript
 			
 			if ( battery )
 			{
-                int b;
-
-                vector color;
-                vector ambient;
-
-                if ( m_HeadlightsOn )
+				if ( m_HeadlightsOn )
 				{
-                    if ( m_Lights.Count() == 0 )
-                    {
-                        CreateLights( this, "interior", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 3, 0.35, false, true );
+					if ( !m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE )
+					{
+						m_Headlight = CreateFrontLight();
 
-                        // CreateParticle( this, "bily pozicni", ParticleList.EXPANSION_LIGHT_WHITE );
-						// CreateParticle( this, "zeleny pozicni", ParticleList.EXPANSION_LIGHT_YELLOW );
-						// CreateParticle( this, "cerveny pozicni", ParticleList.EXPANSION_LIGHT_RED );
-						// CreateParticle( this, "cerveny pozicni blik", ParticleList.EXPANSION_LIGHT_RED );
-                    }
-                }
-                else
+						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
+						m_Headlight.SegregateLight();
+						TailLightsShineOn();
+					}
+
+					if ( m_HeadlightsState != CarHeadlightBulbsState.NONE )
+					{
+						LeftFrontLightShineOn();
+						RightFrontLightShineOn();
+					}
+
+					if ( m_Lights.Count() == 0 )
+					{
+						CreateLights( this, "interior", ExpansionPointLight, Vector(1, 0.01, 0.01), Vector(1, 0.01, 0.01), 3, 0.35, false, true );
+					}
+				}
+				else
 				{
-                    for ( b = 0; b < m_Particles.Count(); b++ )
-			        {
-                        m_Particles[b].Stop( );
+					LeftFrontLightShineOff();
+					RightFrontLightShineOff();
 
-                        GetGame().ObjectDelete( m_Particles[b] );
-                    }
+					if ( m_Headlight )
+					{
+						m_Headlight.FadeOut();
+						m_Headlight = null;
+					}
 
-                    for ( b =- 0; b < m_Lights.Count(); b++ )
-			        {
-                        m_Lights[b].ExpansionSetEnabled( false );
+					for ( int b = 0; b < m_Lights.Count(); b++ )
+					{
+						m_Lights[b].ExpansionSetEnabled( false );
 
-                        GetGame().ObjectDelete( m_Lights[b] );
-                    }
+						GetGame().ObjectDelete( m_Lights[b] );
+					}
 
-                    m_Lights.Clear();
-                }
-            }
-        }
-    }
+					m_Lights.Clear();
+				}
+			}
+		}
+	}
 }

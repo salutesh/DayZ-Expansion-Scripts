@@ -21,7 +21,8 @@
                         "Ruslans Aleksejevs (CAMINOonPC)",
 						"George Thurston (Thurston)",
 						"Stephan Moser (Steve aka Salutesh)",
-						"Jacob Kumar (Jacob_Mango)"
+                        "Jacob Kumar (Jacob_Mango)",
+                        "Jesse Ficarra (Not A Banana)"
                     ]
                 }
             ]
@@ -43,7 +44,7 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_MAPPING",
                     "SectionLines": [
-                       "DanceOfJesus"
+                       "Florian Pelloux (DanceOfJesus)"
                     ]
                 }
             ]
@@ -69,7 +70,8 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_COMMUNITYMANAGE",
                     "SectionLines": [
-                        "George Thurston (Thurston)"
+                        "George Thurston (Thurston)",
+                        "Guillaume Jouve (LieutenantMaster)"
                     ]
                 }
             ]

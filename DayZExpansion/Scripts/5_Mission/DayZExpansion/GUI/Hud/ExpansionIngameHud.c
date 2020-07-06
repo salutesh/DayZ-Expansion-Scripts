@@ -57,14 +57,11 @@ class ExpansionIngameHud
 	protected bool											m_ExpansionHudGPSMapStatsState;
 	protected bool											m_ExpansionHudNVState;
 	protected bool											m_ExpansionClockState;
-	protected bool											m_ExpansionHumanityState;
 	protected bool											m_ExpansionEarplugState;
-	protected float											m_ExpansionEarplugVolume;
 	protected bool 											m_ExpansionGPSSetting;
 	protected bool											m_ExpansionGPSPosSetting;
 	protected bool											m_ExpansionNVSetting;
 	protected bool											m_ClientClockShow;
-	protected bool											m_ClientHumanityShow;
 	
 	//! GPS
 	protected Widget										m_GPSPanel;
@@ -90,16 +87,11 @@ class ExpansionIngameHud
 	//! CLOCK
 	protected Widget										m_ClockPanel;
 	protected TextWidget									m_Time;
-	//! HUMANITY
-	protected Widget										m_HumanityPanel;
-	protected ImageWidget 									m_HumanityIcon;
-	protected TextWidget									m_HumanityValue;
 	//! EARPLUG
 	protected ImageWidget 									m_EarPlugIcon;
 
 	//! DEBUGER
 	protected MultilineTextWidget							m_ExpansionDebug;
-	protected autoptr array< string >						m_DebugLines;
 
 	//! MISC
 	protected WrapSpacerWidget 								m_RightHUDPanel;
@@ -129,14 +121,6 @@ class ExpansionIngameHud
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud Start");
 		#endif
-		m_DebugLines = new array< string >;
-
-		for ( int i = 0; i < 256; i++ )
-		{
-			m_DebugLines.Insert( "" );
-		}
-
-		ExpansionDebugger.OnPush.Insert( OnExpansionDebug );
 		
 		m_ExpansionEarplugState = false;
 		
@@ -154,8 +138,7 @@ class ExpansionIngameHud
 		m_MapSavedServerMarkers = new array<ref ExpansionMapMarker>;
 		m_MapPartyPlayerMarkers = new array<ref ExpansionMapMenuPlayerMarker>;
 		
-		
-		m_ExpansionEarplugVolume = 0.05;
+		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshExpansionHudVisibility );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
@@ -170,9 +153,11 @@ class ExpansionIngameHud
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud Start");
 		#endif
+		
+		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshExpansionHudVisibility );
+
 		delete m_WgtRoot;
 
-		ExpansionDebugger.OnPush.Remove( OnExpansionDebug );
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud End");
 		#endif
@@ -232,14 +217,6 @@ class ExpansionIngameHud
 		if (m_ClockPanel)
 		{
 			m_Time									= TextWidget.Cast( m_WgtRoot.FindAnyWidget("Time") );
-		}
-		
-		m_HumanityPanel							= Widget.Cast( m_WgtRoot.FindAnyWidget("HumanityPanel") );
-		m_HumanityPanel.Show( false );
-		if (m_HumanityPanel)
-		{
-			m_HumanityIcon							= ImageWidget.Cast( m_HumanityPanel.FindAnyWidget("HumanityState") );
-			m_HumanityValue							= TextWidget.Cast( m_HumanityPanel.FindAnyWidget("HumanityValue") );
 		}
 		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
@@ -421,26 +398,6 @@ class ExpansionIngameHud
 	}
 	
 	//============================================
-	// Expansion OnExpansionDebug
-	//============================================
-	void OnExpansionDebug( array< string > text )
-	{
-		m_DebugLines.Clear();
-
-		int i = 0;
-
-		for ( i = 0; i < text.Count(); i++ )
-		{
-			m_DebugLines.Insert( text[i] );
-		}
-
-		for ( int k = i; k < 256; k++ )
-		{
-			m_DebugLines.Insert( "" );
-		}
-	}
-	
-	//============================================
 	// Expansion UpdateExpansionDebugText
 	//============================================
 	void UpdateExpansionDebugText()
@@ -577,31 +534,9 @@ class ExpansionIngameHud
 				UpdateTime();
 			}
 		}
+		
 		if ( m_EarPlugIcon )
-			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
-		
-		/*
-		if ( m_HumanityPanel )
-		{
-			m_HumanityPanel.Show( m_ExpansionHudState && m_ExpansionHumanityState && m_ClientHumanityShow && GetExpansionSettings().GetGeneral().EnableHumanity );
-			if ( m_HumanityPanel.IsVisible() )
-			{
-				UpdateHumanity();
-			}
-		}
-		*/
-		
-		
-		/*
-		if ( m_ExpansionEarplugState )
-		{
-			GetGame().GetSoundScene().SetSoundVolume( m_ExpansionEarplugVolume, 1 );
-		}
-		else
-		{
-			GetGame().GetSoundScene().SetSoundVolume( g_Game.m_volume_sound, 1 );
-		}
-		*/
+			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );	
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::RefreshExpansionHudVisibility End");
@@ -780,102 +715,6 @@ class ExpansionIngameHud
 	}
 	
 	//============================================
-	// Expansion UpdateHumanity
-	//============================================
-	/*
-	void UpdateHumanity()
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionIngameHud::UpdateHumanity Start");
-		#endif
-
-		PlayerBase player;
-		if ( Class.CastTo(player, GetGame().GetPlayer()) )
-		{
-			int humanity;
-			string iconpath;
-			int color;
-			
-			humanity = player.GetKarma();
-			
-			if (humanity >= 0 || humanity <= -1)
-			{
-				iconpath = "set:expansion_iconset image:icon_profile";
-				color = ARGB(255, 44, 62, 80);
-			}
-			
-			if (humanity >= 2000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_1";
-				color = ARGB(255, 39, 174, 96);
-			}
-			
-			if (humanity >= 3000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_2";
-				color = ARGB(255, 39, 174, 96);
-			}
-			
-			if (humanity >= 4000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_3";
-				color = ARGB(255, 39, 174, 96);
-			}
-			
-			if (humanity >= 5000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_4";
-				color = ARGB(255, 39, 174, 96);
-			}
-			
-			if (humanity >= 6000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_hero_5";
-				color = ARGB(255, 39, 174, 96);
-			}
-			
-			if (humanity <= -1000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_1";
-				color = ARGB(255, 192, 57, 43);
-			}
-			
-			if (humanity <= -2000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_2";
-				color = ARGB(255, 192, 57, 43);
-			}
-			
-			if (humanity <= -3000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_3";
-				color = ARGB(255, 192, 57, 43);
-			}
-			
-			if (humanity <= -4000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_4";
-				color = ARGB(255, 192, 57, 43);
-			}
-			
-			if (humanity <= -5000)
-			{
-				iconpath = "set:expansion_notification_iconset image:icon_bandit_5";
-				color = ARGB(255, 192, 57, 43);
-			}
-			
-			m_HumanityValue.SetText(humanity.ToString());
-			m_HumanityIcon.LoadImageFile(0, iconpath);
-			m_HumanityIcon.SetColor(color);
-		}
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionIngameHud::UpdateHumanity End");
-		#endif
-	}
-	*/
-	
-	//============================================
 	// Expansion ShowHud
 	//============================================
 	void ShowHud( bool show )
@@ -1013,32 +852,6 @@ class ExpansionIngameHud
 	}
 	
 	//============================================
-	// Expansion ShowHumanity
-	//============================================
-	void ShowHumanity( bool show )
-	{
-		m_ExpansionHumanityState = show;
-		RefreshExpansionHudVisibility();
-	}
-	
-	//============================================
-	// Expansion HumanityToggle
-	//============================================
-	void HumanityToggle(bool show)
-	{
-		m_ClientHumanityShow = show;
-		RefreshExpansionHudVisibility();
-	}
-	
-	//============================================
-	// Expansion GetHumanityState
-	//============================================
-	bool GetHumanityState()
-	{
-		return m_ExpansionHumanityState;
-	}
-	
-	//============================================
 	// Expansion GetEarplugsState
 	//============================================
 	bool GetEarplugsState()
@@ -1062,24 +875,26 @@ class ExpansionIngameHud
 	void ToggleEarplugs()
 	{
 		m_ExpansionEarplugState = !m_ExpansionEarplugState;
-			
+		
 		if ( m_ExpansionEarplugState )
 		{
-			GetGame().GetSoundScene().SetSoundVolume( 0.05, 1 );
+			GetGame().GetSoundScene().SetSoundVolume( GetExpansionClientSettings().EarplugLevel, 1 );
 		}
 		else
 		{
 			GetGame().GetSoundScene().SetSoundVolume( g_Game.m_volume_sound, 1 );
 		}
+
 		RefreshExpansionHudVisibility();
 	}
-	
+
 	// ------------------------------------------------------------
-	// Expansion SetEarplugsVolume
+	// Expansion ToggleEarplugs
 	// ------------------------------------------------------------
-	void AddEarplugsVolume(float value)
+	void UpdateEarplugs()
 	{
-		m_ExpansionEarplugVolume = Math.Clamp( m_ExpansionEarplugVolume + value, 0.0, 1.0 );
+		GetGame().GetSoundScene().SetSoundVolume( GetExpansionClientSettings().EarplugLevel, 1 );
+		
 		RefreshExpansionHudVisibility();
 	}
 	

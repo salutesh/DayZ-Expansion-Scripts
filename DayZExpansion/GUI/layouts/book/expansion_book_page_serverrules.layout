@@ -1,0 +1,440 @@
+FrameWidgetClass book_module_rules {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ {
+  PanelWidgetClass book_rules_tab {
+   visible 0
+   ignorepointer 1
+   position 0 200
+   size 938 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 1
+   {
+    PanelWidgetClass book_menu_content_left {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      WrapSpacerWidgetClass rules_content_left {
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_right {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      WrapSpacerWidgetClass rules_content_right {
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass book_rules_main_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 938 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 1
+   {
+    PanelWidgetClass book_menu_main_content_left {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      PanelWidgetClass rules_main_content_left {
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        ImageWidgetClass rules_main_server_icon {
+         ignorepointer 1
+         position 0 100
+         size 128 128
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         imageTexture "{83F4855ACB544999}DayZExpansion/GUI/textures/expansion_icon.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        TextWidgetClass rules_main_server_name {
+         ignorepointer 1
+         color 0 0 0 1
+         position 0 0
+         size 1 0.1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "Server Name"
+         font "gui/fonts/etelkatextpro22"
+         "text color" 0 0 0 1
+         "text halign" center
+         "text valign" center
+        }
+        TextWidgetClass rules_main_server_rules_lable {
+         ignorepointer 1
+         color 0 0 0 1
+         position 0 0.06
+         size 1 0.1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "RULES"
+         font "gui/fonts/etelkatextpro22"
+         "text color" 0 0 0 1
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_main_content_right {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      PanelWidgetClass rules_main_content_right {
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        PanelWidgetClass rules_main_rules_list_panel {
+         ignorepointer 1
+         size 0.9 0.9
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          ScrollWidgetClass rules_main_rules_list_scroller {
+           ignorepointer 0
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "Scrollbar V" 1
+           {
+            WrapSpacerWidgetClass rules_main_rules_list_content {
+             ignorepointer 1
+             position 0 0
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             Padding 5
+             Margin 0
+             "Size To Content V" 1
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass book_page_frame {
+   visible 0
+   clipchildren 0
+   inheritalpha 0
+   ignorepointer 1
+   position 0 271
+   size 960 32
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   style blank
+   {
+    ButtonWidgetClass page_back_button {
+     color 0 0 0 1
+     position 0 0
+     size 0.05 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ImageWidgetClass page_back_image {
+       visible 1
+       ignorepointer 1
+       color 0.6706 0.349 0.1961 0.5686
+       position 0 0
+       size 0.9 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       image0 "set:expansion_iconset image:arrow_left"
+       mode blend
+       "src alpha" 1
+       "no wrap" 0
+       stretch 1
+       filter 1
+      }
+     }
+    }
+    ButtonWidgetClass page_next_button {
+     color 0 0 0 1
+     size 0.05 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ImageWidgetClass page_next_image {
+       ignorepointer 1
+       color 0.6706 0.349 0.1961 0.5686
+       size 0.9 1
+       halign right_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       image0 "set:expansion_iconset image:arrow_right"
+       mode blend
+       "src alpha" 1
+       "no wrap" 0
+       stretch 1
+      }
+     }
+    }
+    TextWidgetClass page_number_left {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0.5686
+     size 0.09 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "10"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 0 1
+     "text halign" right
+     "text valign" center
+    }
+    TextWidgetClass page_number_right {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0.5686
+     size 0.09 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "10"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 0 1
+     "text valign" center
+    }
+   }
+  }
+  PanelWidgetClass book_page_frame0 {
+   clipchildren 0
+   inheritalpha 0
+   ignorepointer 1
+   position 0 271
+   size 960 32
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   style blank
+   {
+    ButtonWidgetClass page_back_button0 {
+     color 0 0 0 1
+     position 0 0
+     size 0.05 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ImageWidgetClass page_back_image0 {
+       visible 1
+       ignorepointer 1
+       color 0.6706 0.349 0.1961 0.5686
+       position 0 0
+       size 0.9 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       image0 "set:expansion_iconset image:arrow_left"
+       mode blend
+       "src alpha" 1
+       "no wrap" 0
+       stretch 1
+       filter 1
+      }
+     }
+    }
+    ButtonWidgetClass page_next_button0 {
+     color 0 0 0 1
+     size 0.05 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      ImageWidgetClass page_next_image0 {
+       ignorepointer 1
+       color 0.6706 0.349 0.1961 0.5686
+       size 0.9 1
+       halign right_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       image0 "set:expansion_iconset image:arrow_right"
+       mode blend
+       "src alpha" 1
+       "no wrap" 0
+       stretch 1
+      }
+     }
+    }
+    TextWidgetClass page_number_left0 {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0.5686
+     size 0.09 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "10"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 0 1
+     "text halign" right
+     "text valign" center
+    }
+    TextWidgetClass page_number_right0 {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0.5686
+     size 0.09 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "10"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 0 1
+     "text valign" center
+    }
+   }
+  }
+ }
+}

@@ -25,7 +25,7 @@ class ExpansionFlagBase extends ItemBase
 	// ExpansionFlagBase Constructor
 	// ------------------------------------------------------------
 	void ExpansionFlagBase()
-    {	
+	{	
 		SetEventMask( EntityEvent.INIT );
 
 		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
@@ -110,9 +110,9 @@ class ExpansionFlagBase extends ItemBase
 	{
 		super.OnStoreSave( ctx );
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionFlagBase::OnStoreSave:: - Save data for object <" + this.GetID().ToString() +  ">: [m_FlagTextureID: " + m_FlagTextureID + ", m_OwnerID: " + m_OwnerID + "]");
-		#endif
+		//#ifdef EXPANSIONEXLOGPRINT
+		//EXLogPrint("ExpansionFlagBase::OnStoreSave:: - Save data for object <" + this.GetID().ToString() +  ">: [m_FlagTextureID: " + m_FlagTextureID + ", m_OwnerID: " + m_OwnerID + "]");
+		//#endif
 		ctx.Write( m_FlagTexturePath );
 		ctx.Write( m_OwnerID );
 	}
@@ -166,40 +166,40 @@ class ExpansionFlagBase extends ItemBase
 	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour()
 	{
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// Override IsTwoHandedBehaviour
 	// ------------------------------------------------------------
-    override bool IsTwoHandedBehaviour()
+	override bool IsTwoHandedBehaviour()
 	{
-        return false;
-    }
+		return false;
+	}
 
 	// ------------------------------------------------------------
 	// Override CanPutIntoHands
 	// ------------------------------------------------------------
 	override bool CanPutIntoHands(EntityAI parent)
-    {
+	{
 		return false;
-    }
+	}
 
 	// ------------------------------------------------------------
 	// Override CanPutInCargo
 	// ------------------------------------------------------------
 	override bool CanPutInCargo(EntityAI parent)
-    {
+	{
 		return false;
-    }
+	}
 	
 	// ------------------------------------------------------------
 	// Override OnPlacementComplete
 	// ------------------------------------------------------------
 	override void OnPlacementComplete( Man player )
-    {
-        super.OnPlacementComplete( player );
-    }
+	{
+		super.OnPlacementComplete( player );
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion IsInTerritory

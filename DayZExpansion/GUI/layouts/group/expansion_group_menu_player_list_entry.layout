@@ -1,0 +1,102 @@
+GridSpacerWidgetClass ExpansionGroupMenuPlayerListUIEntry {
+ visible 1
+ clipchildren 1
+ ignorepointer 0
+ position 0 0
+ size 1 0.05
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ scriptclass ""
+ style Empty
+ Padding 0
+ Margin 3
+ "Size To Content H" 1
+ "Size To Content V" 1
+ Columns 1
+ Rows 2
+ {
+  PanelWidgetClass player_entry {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0 0 0 0.3922
+   position 0 0
+   size 1 27
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   style DayZDefaultPanel
+   "no focus" 1
+   {
+    ImageWidgetClass player_icon {
+     clipchildren 1
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.02 0
+     size 24 24
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     image0 "set:expansion_iconset image:icon_gender"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    TextWidgetClass player_name {
+     clipchildren 0
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.1 0
+     size 0.6 0.5314
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "Player Name"
+     font "gui/fonts/etelkatextpro16"
+     "exact text" 0
+     "text valign" center
+    }
+    ButtonWidgetClass player_invite_button {
+     clipchildren 1
+     ignorepointer 0
+     position 0.01 0
+     size 0.1 0.9
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      ImageWidgetClass player_invite_button_icon {
+       clipchildren 1
+       ignorepointer 1
+       color 0 0 0 1
+       size 24 24
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:expansion_notification_iconset image:icon_check"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+      }
+     }
+    }
+   }
+  }
+ }
+}

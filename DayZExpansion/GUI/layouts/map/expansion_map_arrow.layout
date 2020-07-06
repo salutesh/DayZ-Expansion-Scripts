@@ -1,0 +1,83 @@
+FrameWidgetClass ExpansionMapArrow {
+ clipchildren 0
+ ignorepointer 1
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ {
+  PanelWidgetClass arrow_panel {
+   clipchildren 0
+   ignorepointer 1
+   position -23 0
+   size 500 50
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   priority 100
+   {
+    TextWidgetClass player_name_tag {
+     ignorepointer 1
+     keepsafezone 0
+     color 0.9176 0.1255 0.1529 1
+     position 0.1 0
+     size 575.38403 25
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     style Bold
+     text "PLAYER NAME"
+     font "gui/fonts/etelkatextpro22"
+     "shadow size" 20
+     "shadow color" 0 0 0 1
+     "shadow offset" 1 1
+     "exact text" 1
+     "size to text h" 1
+     "size to text v" 0
+     "text valign" center
+    }
+    PanelWidgetClass arrow_image_panel {
+     ignorepointer 1
+     keepsafezone 0
+     size 45 45
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     {
+      ImageWidgetClass arrow_image {
+       clipchildren 0
+       ignorepointer 0
+       keepsafezone 0
+       color 0.9176 0.1255 0.1529 1
+       position 0 0
+       size 36 36
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:expansion_iconset image:icon_position"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+       nocache 0
+       pivot 0 0
+       "Transition width" 0
+       Progress 0
+      }
+     }
+    }
+   }
+  }
+ }
+}

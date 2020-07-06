@@ -17,7 +17,7 @@ class ExpansionWoodPillar extends ExpansionBaseBuilding
 		return false;
 	}
 
-    override string GetConstructionKitType()
+	override string GetConstructionKitType()
 	{
 		return "ExpansionWoodPillarKit";
 	}

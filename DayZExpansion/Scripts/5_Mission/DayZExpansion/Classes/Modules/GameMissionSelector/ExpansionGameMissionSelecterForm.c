@@ -8,11 +8,11 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 
 	private TextListboxWidget m_MissionsList;
 
-    private string m_PathToMissions;
+	private string m_PathToMissions;
 
 	void ExpansionGameMissionSelecterForm()
 	{
-    }
+	}
 
 	void ~ExpansionGameMissionSelecterForm()
 	{
@@ -28,11 +28,11 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 
 		m_ActionsWrapper = layoutRoot.FindAnyWidget( "actions_wrapper" );
 
-        m_SelectedMission = UIActionManager.CreateEditableText( m_ActionsWrapper, "Mission: ", this, "Type_SelectedMission" );
+		m_SelectedMission = UIActionManager.CreateEditableText( m_ActionsWrapper, "Mission: ", this, "Type_SelectedMission" );
 
-        UIActionManager.CreateButton( m_ActionsWrapper, "Load Mission", this, "LoadMission" );
+		UIActionManager.CreateButton( m_ActionsWrapper, "Load Mission", this, "LoadMission" );
 
-        UpdateList();
+		UpdateList();
 	}
 
 	void Type_UpdateList( UIEvent eid, ref UIActionBase action )
@@ -115,54 +115,54 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 
 	override bool OnItemSelected( Widget w, int x, int y, int row, int column, int oldRow, int oldColumn )
 	{
-        m_SelectedMission.SetText( GetCurrentSelectedMissionName() );
+		m_SelectedMission.SetText( GetCurrentSelectedMissionName() );
 
 		return true;
 	}
-    
+	
 	void LoadMission( UIEvent eid, ref UIActionBase action ) 
 	{
-		//CURLCore curlCore = GetCURLCore();
+		//RestApi curlCore = GetRestApi();
 		//if ( curlCore == NULL )
-		//	curlCore = CreateCURLCore();
+		//	curlCore = CreateRestApi();
 //
 		//curlCore.EnableDebug( true );
-		//CURLContext curlCtx = curlCore.GetCURLContext("https://la-quarantaine.fr/uploads/affiches/");
+		//RestContext curlCtx = curlCore.GetRestContext("https://la-quarantaine.fr/uploads/affiches/");
 		//if ( curlCtx )
 		//{
 		//	curlCtx.SetHeader( "text/plain" );
 //
-		// Print( "ECURL_EMPTY" + ECURLResultState.ECURL_EMPTY ); 
-		// Print( "ECURL_PENDING" + ECURLResultState.ECURL_PENDING ); 
-		// Print( "ECURL_FEEDING" + ECURLResultState.ECURL_FEEDING ); 
-		// Print( "ECURL_SUCCESS" + ECURLResultState.ECURL_SUCCESS ); 
-		// Print( "ECURL_PROCESSED" + ECURLResultState.ECURL_PROCESSED ); 
-		// Print( "ECURL_ERROR" + ECURLResultState.ECURL_ERROR ); 
-		// Print( "ECURL_ERROR_CLIENTERROR" + ECURLResultState.ECURL_ERROR_CLIENTERROR ); 
-		// Print( "ECURL_ERROR_SERVERERROR" + ECURLResultState.ECURL_ERROR_SERVERERROR ); 
-		// Print( "ECURL_ERROR_APPERROR" + ECURLResultState.ECURL_ERROR_APPERROR ); 
-		// Print( "ECURL_ERROR_TIMEOUT" + ECURLResultState.ECURL_ERROR_TIMEOUT ); 
-		// Print( "ECURL_ERROR_NOTIMPLEMENTED" + ECURLResultState.ECURL_ERROR_NOTIMPLEMENTED ); 
-		// Print( "ECURL_ERROR_UNKNOWN" + ECURLResultState.ECURL_ERROR_UNKNOWN ); 
+		// Print( "EREST_EMPTY" + ERESTResultState.EREST_EMPTY ); 
+		// Print( "EREST_PENDING" + ERESTResultState.EREST_PENDING ); 
+		// Print( "EREST_FEEDING" + ERESTResultState.EREST_FEEDING ); 
+		// Print( "EREST_SUCCESS" + ERESTResultState.EREST_SUCCESS ); 
+		// Print( "EREST_PROCESSED" + ERESTResultState.EREST_PROCESSED ); 
+		// Print( "EREST_ERROR" + ERESTResultState.EREST_ERROR ); 
+		// Print( "EREST_ERROR_CLIENTERROR" + ERESTResultState.EREST_ERROR_CLIENTERROR ); 
+		// Print( "EREST_ERROR_SERVERERROR" + ERESTResultState.EREST_ERROR_SERVERERROR ); 
+		// Print( "EREST_ERROR_APPERROR" + ERESTResultState.EREST_ERROR_APPERROR ); 
+		// Print( "EREST_ERROR_TIMEOUT" + ERESTResultState.EREST_ERROR_TIMEOUT ); 
+		// Print( "EREST_ERROR_NOTIMPLEMENTED" + ERESTResultState.EREST_ERROR_NOTIMPLEMENTED ); 
+		// Print( "EREST_ERROR_UNKNOWN" + ERESTResultState.EREST_ERROR_UNKNOWN ); 
 //
 		//	ExpansionTestCallback callback = new ExpansionTestCallback;
 		//	Print( curlCtx.FILE( callback, "test.txt", "$profile:test.txt" ) );
 		//}
 
 		string mission_name = m_SelectedMission.GetText();
-        if ( mission_name != "" )
+		if ( mission_name != "" )
 		{
-            string mission_path = m_PathToMissions + "\\" + mission_name;
-                    
-            GetGame().PlayMission( mission_path );
-        }
+			string mission_path = m_PathToMissions + "\\" + mission_name;
+					
+			GetGame().PlayMission( mission_path );
+		}
 	}
 }
 
-class ExpansionTestCallback: CURLCallback
+class ExpansionTestCallback: RestCallback
 {
 	/**
-	\brief Called in case request failed (ECURLResultState) - Note! May be called multiple times in case of (RetryCount > 1)
+	\brief Called in case request failed (ERESTResultState) - Note! May be called multiple times in case of (RetryCount > 1)
 	*/
 	override void OnError( int errorCode )
 	{

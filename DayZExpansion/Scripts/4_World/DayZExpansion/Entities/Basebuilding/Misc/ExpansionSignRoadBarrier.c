@@ -15,14 +15,32 @@
  **/
 class ExpansionSignRoadBarrier: Container_Base 
 {
+
+	typename ATTACHMENT_BATTERY = Battery9V;
+
+	//! Expansion turn on sound
+	const string SOUND_TURN_ON		= "Flashlight_TurnOn_SoundSet";
+
+	//! Expansion turn off sound
+	const string SOUND_TURN_OFF		= "Flashlight_TurnOff_SoundSet";
+
+	//! Expansion burning sound instance
+	protected EffectSound m_SoundBurningLoop;
+
+	//! Expansion turn on sound instance
+	protected EffectSound m_SoundTurnOn;
+
+	//! Expansion turn off sound instance
+	protected EffectSound m_SoundTurnOff;
+	
 	protected ScriptedLightBase m_Light;
 
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
-    void ExpansionSignRoadBarrier()
-    {
-    }
+	void ExpansionSignRoadBarrier()
+	{
+	}
 
 	// ------------------------------------------------------------
 	// Destructor
@@ -54,7 +72,8 @@ class ExpansionSignRoadBarrier: Container_Base
 
 		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
 		{
-			SetObjectMaterial( 0, "dayzexpansion\objects\basebuilding\misc\signs\data\bariera_lampa_on.rvmat" );
+			SoundTurnOn();
+			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa_on.rvmat" );
 
 			if ( !m_Light )
 			{
@@ -74,7 +93,7 @@ class ExpansionSignRoadBarrier: Container_Base
 
 				m_Light.SetEnabled( true );
 			}
-			else 
+			else
 			{
 				m_Light.SetEnabled( true );
 			}
@@ -90,13 +109,30 @@ class ExpansionSignRoadBarrier: Container_Base
 
 		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
 		{
-			SetObjectMaterial( 0, "dayzexpansion\objects\basebuilding\misc\signs\data\bariera_lampa.rvmat" );
+			SoundTurnOff();
+			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa.rvmat" );
 
 			if ( m_Light )
 			{
 				m_Light.Destroy();
 			}
 		}
+	}
+
+	// ------------------------------------------------------------
+	// Expansion SoundTurnOn
+	// ------------------------------------------------------------
+	protected void SoundTurnOn()
+	{
+		PlaySoundSet( m_SoundTurnOn, SOUND_TURN_ON, 0.1, 0.1 );
+	}
+
+	// ------------------------------------------------------------
+	// Expansion SoundTurnOff
+	// ------------------------------------------------------------
+	protected void SoundTurnOff()
+	{
+		PlaySoundSet( m_SoundTurnOff, SOUND_TURN_OFF, 0.1, 0.1 );
 	}
 
 	// ------------------------------------------------------------
@@ -120,8 +156,8 @@ class ExpansionSignRoadBarrier: Container_Base
 	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour() 
 	{
-        return true;
-    }
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// OnPlacementComplete
@@ -143,5 +179,45 @@ class ExpansionSignRoadBarrier: Container_Base
 		}	
 		
 		SetIsDeploySound( true );
+	}
+
+	
+	// ------------------------------------------------------------
+	// OnWork
+	// ------------------------------------------------------------
+	override void OnWork( float consumed_energy )
+	{
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // Client side
+		{
+			Battery9V battery = Battery9V.Cast( GetCompEM().GetEnergySource() );
+			
+			if (battery  &&  m_Light)
+			{
+				float efficiency = battery.GetEfficiency0To1();
+				
+				if ( efficiency < 1 )
+				{
+					OnSwitchOn();
+				}
+				else
+				{
+					OnSwitchOff();
+				}
+			}
+		}
+	}
+
+	// ------------------------------------------------------------
+	// EEItemDetached
+	// ------------------------------------------------------------
+	override void EEItemDetached( EntityAI item, string slot_name ) 
+	{
+		super.EEItemDetached( item, slot_name );
+			Battery9V battery = Battery9V.Cast( GetCompEM().GetEnergySource() );
+		
+		if ( item.Type() == ATTACHMENT_BATTERY )
+		{	
+			OnSwitchOff();
+		}	
 	}
 } 

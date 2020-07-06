@@ -28,11 +28,17 @@ modded class ServerBrowserMenuNew
 	
 	// ------------------------------------------------------------
 	// Override Init
-	// ------------------------------------------------------------
+	// ------------------------------------------------------------	
 	override Widget Init()
 	{
-		layoutRoot = super.Init();
-
+#ifdef PLATFORM_CONSOLE
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "gui/layouts/new_ui/server_browser/xbox/server_browser.layout" );
+		m_OfficialTab	= new ServerBrowserTabConsolePages( layoutRoot.FindAnyWidget( "Tab_0" ), this, TabType.OFFICIAL );
+		m_CommunityTab	= new ServerBrowserTabConsolePages( layoutRoot.FindAnyWidget( "Tab_1" ), this, TabType.COMMUNITY );
+		LoadFavoriteServers();
+#else
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "gui/layouts/new_ui/server_browser/pc/server_browser.layout" );
+		
 		layoutRoot.FindAnyWidget( "Tabber" ).Unlink();
 		layoutRoot.FindAnyWidget( "play_panel_root" ).Unlink();
 		
@@ -44,10 +50,10 @@ modded class ServerBrowserMenuNew
 			m_CommunityTab	= new ServerBrowserTabPc( m_TabberPanel.FindAnyWidget( "Tab_1" ), this, TabType.COMMUNITY );
 			m_LANTab		= new ServerBrowserTabPc( m_TabberPanel.FindAnyWidget( "Tab_2" ), this, TabType.LAN );
 			m_DirectTab		= new ExpansionDirectConnectTab( m_TabberPanel.FindAnyWidget( "Tab_3" ), this, ExpansionTabType.DIRECT );
-			//m_ExpansionTab	= new ExpansionServerBrowserTab( m_TabberPanel.FindAnyWidget( "Tab_4" ), this, ExpansionTabType.EXPANSION );
-			
-			layoutRoot.FindAnyWidget( "Tabber" ).GetScript( m_Tabber );
 		}
+#endif
+		
+		layoutRoot.FindAnyWidget( "Tabber" ).GetScript( m_Tabber );
 		
 		m_PlayPanel				= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/server_browser/expansion_server_browser_buttons.layout", layoutRoot );
 		
@@ -61,31 +67,70 @@ modded class ServerBrowserMenuNew
 		m_PlayerName			= TextWidget.Cast( layoutRoot.FindAnyWidget( "character_name_text" ) );
 		m_Version				= TextWidget.Cast( layoutRoot.FindAnyWidget( "version" ) );
 		
+#ifndef PLATFORM_CONSOLE
+		// TODO: Temporary Hide for 1.0
+		layoutRoot.FindAnyWidget( "customize_character" ).Show( false );
+		layoutRoot.FindAnyWidget( "character" ).Show( false );
+#endif
+		
 		Refresh();
 		
 		string version;
 		GetGame().GetVersion( version );
-		string expansion_version;	
 		
-		if ( GetDayZGame() )
+#ifdef PLATFORM_CONSOLE
+		version = "#main_menu_version" + " " + version + " (" + g_Game.GetDatabaseID() + ")";
+		if( GetGame().GetInput().IsEnabledMouseAndKeyboard() )
 		{
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
+			layoutRoot.FindAnyWidget( "play_panel_root" ).Show( true );
+			layoutRoot.FindAnyWidget( "MouseAndKeyboardWarning" ).Show( true );
+			layoutRoot.FindAnyWidget( "toolbar_bg" ).Show( false );
 		}
-		else
-		{
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
-		}
+		m_Version.SetText( version );
+#else
+		string expansion_version;
+		version = "#main_menu_version" + " " + version;
+		expansion_version = GetDayZGame().GetExpansionClientVersion();
+		m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
+#endif
 		
 		OnlineServices.m_ServersAsyncInvoker.Insert( OnLoadServersAsync );
 		OnlineServices.m_ServerModLoadAsyncInvoker.Insert( OnLoadServerModsAsync );
 		m_Tabber.m_OnTabSwitch.Insert( OnTabSwitch );
 				
 		m_OfficialTab.RefreshList();
-		//m_ExpansionTab.RefreshList();
+		//m_OfficialTab.LoadFakeData( 100 );
+		
+#ifdef PLATFORM_PS4
+		string confirm = "cross";
+		string back = "circle";
+		if( GetGame().GetInput().GetEnterButton() == GamepadButton.A )
+		{
+			confirm = "cross";
+			back = "circle";
+		}
+		else
+		{
+			confirm = "circle";
+			back = "cross";
+		}
+		ImageWidget toolbar_a = layoutRoot.FindAnyWidget( "ConnectIcon" );
+		ImageWidget toolbar_b = layoutRoot.FindAnyWidget( "BackIcon" );
+		ImageWidget toolbar_x = layoutRoot.FindAnyWidget( "RefreshIcon" );
+		ImageWidget toolbar_y = layoutRoot.FindAnyWidget( "ResetIcon" );
+		toolbar_a.LoadImageFile( 0, "set:playstation_buttons image:" + confirm );
+		toolbar_b.LoadImageFile( 0, "set:playstation_buttons image:" + back );
+		toolbar_x.LoadImageFile( 0, "set:playstation_buttons image:square" );
+		toolbar_y.LoadImageFile( 0, "set:playstation_buttons image:triangle" );
+#endif
+		
+#ifdef PLATFORM_CONSOLE
+		//Sort init
+		TextWidget sort_text = TextWidget.Cast( layoutRoot.FindAnyWidget( "SortText" ) );
+		sort_text.SetText( "#str_serverbrowserroot_toolbar_bg_consoletoolbar_sort_sorttext0" );
+#endif
 		
 		PPEffects.SetBlurMenu( 0.5 );
-		
 		return layoutRoot;
 	}
 		

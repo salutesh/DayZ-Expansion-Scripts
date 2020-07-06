@@ -15,7 +15,7 @@ class ExpansionBookConstructor
 	// ------------------------------------------------------------
 	// Expansion GenerateTabs
 	// ------------------------------------------------------------
-    void GenerateTabs( out array< ref ExpansionBookTabBase > tabs )
+	void GenerateTabs( out array< ref ExpansionBookTabBase > tabs )
 	{
 		TTypenameArray tabArrayNames = new TTypenameArray;
 		RegisterTabs( tabArrayNames);
@@ -36,11 +36,12 @@ class ExpansionBookConstructor
 	// ------------------------------------------------------------
 	// Expansion RegisterTabs
 	// ------------------------------------------------------------
-    void RegisterTabs( out TTypenameArray tabs )
+	void RegisterTabs( out TTypenameArray tabs )
 	{
 		tabs.Insert( ExpansionBookTabServerInfo );
+		//tabs.Insert( ExpansionBookTabServerRules ); //! NOT YET READY
 		tabs.Insert( ExpansionBookTabStatus );
 		tabs.Insert( ExpansionBookTabParty );
 		tabs.Insert( ExpansionBookTabTerritory );
-    }
+	}
 }

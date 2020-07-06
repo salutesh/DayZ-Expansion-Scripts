@@ -1,17 +1,20 @@
-class ExpansionSkin
+class ExpansionSkin : Managed
 {
-	autoptr array< ref ExpansionSkinHiddenSelection > HiddenSelections;
-	autoptr array< ref ExpansionSkinDamageZone > DamageZones;
+	ref array< ref ExpansionSkinHiddenSelection > HiddenSelections;
+	ref array< ref ExpansionSkinDamageZone > DamageZones;
 
 	string HornEXT;
 	string HornINT;
-
-	[NonSerialized()]
-	string SkinFileName;
 	
 	void ExpansionSkin()
 	{
 		HiddenSelections = new array< ref ExpansionSkinHiddenSelection >;
 		DamageZones = new array< ref ExpansionSkinDamageZone >;
+	}
+
+	void ~ExpansionSkin()
+	{
+		delete HiddenSelections;
+		delete DamageZones;
 	}
 }

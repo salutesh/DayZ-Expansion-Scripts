@@ -15,25 +15,34 @@
  **/
 class ExpansionServerInfos
 {
-    string serverName;
-	string infoTitle1;
-	string infoContent1;
-	string infoTitle2;
-	string infoContent2;
-	string infoTitle3;
-	string infoContent3;
-
+	ref array<ref ExpansionServerInfoButtonData> ServerButtons;
+	ref array<ref ExpansionServerInfoSection> ServerSections;
+	
+	string ServerName;
+	
 	// ------------------------------------------------------------
-	// Expansion ExpansionServerDescription
+	// ExpansionServerInfos Constructor
 	// ------------------------------------------------------------
-    void ExpansionServerInfos( string ServerName = "", string Title1 = "", string Content1 = "", string Title2 = "", string Content2 = "", string Title3 = "", string Content3 = "")
+	void ExpansionServerInfos(array<ref ExpansionServerInfoButtonData> buttons, array<ref ExpansionServerInfoSection> sections, string name)
 	{
-        this.serverName = ServerName;
-        this.infoTitle1 = Title1;
-		this.infoContent1 = Content1;
-		this.infoTitle2 = Title2;
-		this.infoContent2 = Content2;
-		this.infoTitle3 = Title3;
-		this.infoContent3 = Content3;
-    }
+		this.ServerButtons = buttons;
+		this.ServerSections = sections;
+		this.ServerName = name;
+	}
+}
+
+/**@class		ExpansionServerRules
+ * @brief
+ **/
+class ExpansionServerRules
+{
+	ref array<ref ExpansionServerRulesSection> RuleSections;
+	
+	// ------------------------------------------------------------
+	// ExpansionServerRules Constructor
+	// ------------------------------------------------------------
+	void ExpansionServerRules(array<ref ExpansionServerRulesSection> rules)
+	{
+		this.RuleSections = rules;
+	}
 }

@@ -12,14 +12,14 @@
 
 class ExpansionAirdropLootAttachments
 {
-    string Name;
-    ref TStringArray Attachments;
-    float Chance; 
+	string Name;
+	ref TStringArray Attachments;
+	float Chance; 
 
-    void ExpansionAirdropLootAttachments( string name, ref TStringArray attachments, float chance = 1 )
-    {
-        Name = name;
-        Attachments = attachments;
-        Chance = chance;
-    }
+	void ExpansionAirdropLootAttachments( string name, ref TStringArray attachments, float chance = 1 )
+	{
+		Name = name;
+		Attachments = attachments;
+		Chance = chance;
+	}
 }

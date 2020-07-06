@@ -26,7 +26,7 @@ class ExpansionActiveSwitchSeats: ActionBase
 		ExpansionVehicleScript trans = null;
 		int nextSeatIdx = -1;
 		
-		ExpansionHumanVehicleCommand vehCommand = player.GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle vehCommand = player.GetCommand_ExpansionVehicle();
 
 		if ( !vehCommand  )
 			return false;
@@ -57,7 +57,7 @@ class ExpansionActiveSwitchSeats: ActionBase
 	override void Start( ActionData action_data )
 	{
 		super.Start( action_data );
-		ExpansionHumanVehicleCommand vehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
+		ExpansionHumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
 		if ( vehCommand )
 		{
 			ExpansionVehicleScript trans;
@@ -83,7 +83,7 @@ class ExpansionActiveSwitchSeats: ActionBase
 	{
 		if(action_data.m_State == UA_START)
 		{
-			ExpansionHumanVehicleCommand hcv = action_data.m_Player.GetCommand_ExpansionVehicle();
+			ExpansionHumanCommandVehicle hcv = action_data.m_Player.GetCommand_ExpansionVehicle();
 			if( !hcv || !action_data.m_Player.GetCommand_ExpansionVehicle().IsSwitchSeat() )
 			{
 				End(action_data);

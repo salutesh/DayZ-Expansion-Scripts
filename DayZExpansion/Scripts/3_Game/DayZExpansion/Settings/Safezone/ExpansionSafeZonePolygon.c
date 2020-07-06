@@ -22,10 +22,10 @@ class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 	// ------------------------------------------------------------
 	// Expansion ExpansionSafeZonePolygon
 	// ------------------------------------------------------------
-    void ExpansionSafeZonePolygon( ref TVectorArray positions )
+	void ExpansionSafeZonePolygon( ref TVectorArray positions )
 	{
-        Type = ExpansionSafeZoneTypes.POLYGON;
-        Positions = positions;
+		Type = ExpansionSafeZoneTypes.POLYGON;
+		Positions = positions;
 
 		if ( !IsPolygon() || IsPolygonComplex() )
 		{
@@ -39,7 +39,7 @@ class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 
 		UpdateCenter();
 		UpdateRadius();
-    }
+	}
 
 	private void UpdateCenter()
 	{

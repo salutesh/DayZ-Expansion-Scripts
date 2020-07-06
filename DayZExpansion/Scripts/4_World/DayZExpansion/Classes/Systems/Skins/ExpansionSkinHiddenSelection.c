@@ -1,4 +1,4 @@
-class ExpansionSkinHiddenSelection
+class ExpansionSkinHiddenSelection : Managed
 {
 	string HiddenSelection;
 	string RVTexture;

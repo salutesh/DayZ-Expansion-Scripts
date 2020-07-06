@@ -12,33 +12,33 @@
 
 class ExpansionMapMenu extends UIScriptedMenu
 {
-	protected PlayerBase m_Player;
+	protected PlayerBase m_PlayerB;
 
 	protected MapWidget m_MapWidget;
 	protected vector m_PositionCreateMarker;
 	protected int COLOR_EXPANSION_MARKER_PLAYER_POSITION = ARGB( 255, 255, 180, 24 );
 	
-	protected ref ExpansionMapMenuMarkerWindow m_MarkerWindow;
-	protected ref ExpansionMapMenuPositionArrow m_MapPositionArrow;
+	protected autoptr ExpansionMapMenuMarkerWindow m_MarkerWindow;
+	protected autoptr ExpansionMapMenuPositionArrow m_MapPositionArrow;
 
-	protected ref array<ref ExpansionMapMenuMarker> m_MapMarkers;
-	protected ref array<ref ExpansionMapMarker> m_MapSavedMarkers;
+	protected autoptr array<ref ExpansionMapMenuMarker> m_MapMarkers;
+	protected autoptr array<ref ExpansionMapMarker> m_MapSavedMarkers;
 	
-	protected ref array<ref ExpansionMapMenuMarker> m_MapPartyMarkers;
-	protected ref array<ref ExpansionMapMarker> m_MapSavedPartyMarkers;
+	protected autoptr array<ref ExpansionMapMenuMarker> m_MapPartyMarkers;
+	protected autoptr array<ref ExpansionMapMarker> m_MapSavedPartyMarkers;
 
-	protected ref array<ref ExpansionMapMenuServerMarker> m_MapServerMarkers;
-	protected ref array<ref ExpansionMapMarker> m_MapSavedServerMarkers;
+	protected autoptr array<ref ExpansionMapMenuServerMarker> m_MapServerMarkers;
+	protected autoptr array<ref ExpansionMapMarker> m_MapSavedServerMarkers;
 
-	protected ref array<ref ExpansionMapMenuPlayerMarker> m_MapPartyPlayerMarkers;
+	protected autoptr array<ref ExpansionMapMenuPlayerMarker> m_MapPartyPlayerMarkers;
 	
 	protected bool m_IsEditingMarker;
 
-	protected ref ExpansionMapMarkerModule m_MarkerModule;
-	protected ref Expansion3DMarkerModule m_3DMarkerModule;
-	protected ref ExpansionPartyModule m_PartyModule;
+	protected autoptr ExpansionMapMarkerModule m_MarkerModule;
+	protected autoptr Expansion3DMarkerModule m_3DMarkerModule;
+	protected autoptr ExpansionPartyModule m_PartyModule;
 	
-	ref ExpansionMapMenuMarker m_TempMarker;
+	autoptr ExpansionMapMenuMarker m_TempMarker;
 	
 	private bool m_GpsWasOpen = false;
 	
@@ -57,6 +57,9 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		if (!m_PartyModule)
 			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		
+		if (!m_PlayerB)
+			m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );
 	}
 	
 	void ~ExpansionMapMenu()
@@ -182,6 +185,11 @@ class ExpansionMapMenu extends UIScriptedMenu
 		m_MapMarkers.Insert(mapMarker);
 		m_MapSavedMarkers.Insert(newMarker);
 		
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
+		}
+		
 		LoadMarkers();
 	}
 	
@@ -190,11 +198,12 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------	
 	void CreateTempMarker(vector pos)
 	{
-		if (m_TempMarker)
-			m_TempMarker = null;
+		m_TempMarker = new ExpansionMapMenuMarker( layoutRoot, m_MapWidget, pos, "NEW MARKER", ARGB(255, 0, 0, 0), ExpansionMarkerIcons.GetMarkerPath(1) );
 		
-		ExpansionMapMenuMarker tempMarker = new ExpansionMapMenuMarker(layoutRoot, m_MapWidget, pos, "NEW MARKER", ARGB(255, 0, 0, 0), ExpansionMarkerIcons.GetMarkerPath(1), NULL);
-		m_TempMarker = tempMarker;
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -321,11 +330,12 @@ class ExpansionMapMenu extends UIScriptedMenu
 			// Party member Markers
 			if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
 			{
-				PlayerBase m_Player = PlayerBase.Cast( GetGame().GetPlayer() );	
+				if (!m_PlayerB)
+					m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );	
 
-				if ( m_Player )
+				if ( m_PlayerB )
 				{
-					vector selfPosition = m_Player.GetPosition();	
+					vector selfPosition = m_PlayerB.GetPosition();	
 					
 					ref array< ref ExpansionPartySaveFormatPlayer > players = m_PartyModule.GetParty().GetPlayers();
 					if (players)
@@ -335,10 +345,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 							ref ExpansionPartySaveFormatPlayer currPlayer = players[j];
 							if (!currPlayer) continue;
 							
-							if ( currPlayer.UID != m_Player.GetIdentityUID() )
+							if ( currPlayer.UID != m_PlayerB.GetIdentityUID() )
 							{
 								PlayerBase player = PlayerBase.GetPlayerByUID(currPlayer.UID);
-								if (player && vector.Distance( player.GetPosition(), selfPosition) <= GetExpansionSettings().GetMap().DistanceForPartyMarkers)
+								if (player && vector.Distance( player.GetPosition(), selfPosition) <= GetExpansionSettings().GetParty().DistanceForPartyMarkers)
 								{
 									ExpansionMapMenuPlayerMarker playerMarker = new ExpansionMapMenuPlayerMarker(layoutRoot, m_MapWidget, player );
 									m_MapPartyPlayerMarkers.Insert(playerMarker);
@@ -362,6 +372,11 @@ class ExpansionMapMenu extends UIScriptedMenu
 		ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker(layoutRoot, m_MapWidget, pos, name, color, ExpansionMarkerIcons.GetMarkerPath(icon), newMarker);
 		m_MapPartyMarkers.Insert(mapMarker);
 		m_MapSavedPartyMarkers.Insert(newMarker);
+		
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
+		}
 		
 		LoadMarkers();
 	}
@@ -703,8 +718,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 		vector player_pos;
 		vector camera_pos;
 		
-		PlayerBase m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
-		if(m_Player && !m_Player.GetLastMapInfo(scale,map_pos))
+		if(!m_PlayerB)
+			m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );
+		
+		if(m_PlayerB && !m_PlayerB.GetLastMapInfo(scale,map_pos))
 		{
 			//! Lower number zooms in / Higher number zooms out
 			scale = 0.10; // Float between 0-1 ?!
@@ -713,7 +730,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current scale is: " + scale.ToString());
 			#endif
 
-			player_pos = m_Player.GetPosition();
+			player_pos = m_PlayerB.GetPosition();
 			camera_pos = GetGame().GetCurrentCameraPosition();
 
 			#ifdef EXPANSIONEXLOGPRINT
@@ -869,8 +886,6 @@ class ExpansionMapMenu extends UIScriptedMenu
 	override void Update( float timeslice )
 	{		
 		m_OpenMapTime += timeslice;
-		
-		UpdateMapPosition();
 
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
@@ -889,6 +904,8 @@ class ExpansionMapMenu extends UIScriptedMenu
 			RemoveMarker();
 		}
 		
+		UpdateMapPosition();
+		
 		if ( layoutRoot.IsVisible() )
 		{
 			//! Marker
@@ -901,22 +918,30 @@ class ExpansionMapMenu extends UIScriptedMenu
 			m_MarkerWindow.RefreshPositionValue();
 			m_MarkerWindow.UpdateVisiblityOptionsHeader();
 			
+			//! Update all existing markers
 			for (int i = 0; i < m_MapMarkers.Count(); ++i)
 			{
-				if (m_MapMarkers[i]) m_MapMarkers[i].Update( timeslice );
+				if (m_MapMarkers[i])
+					m_MapMarkers[i].Update( timeslice );
 			}
 			
 			for (int j = 0; j < m_MapPartyMarkers.Count(); ++j)
 			{
-				if (m_MapPartyMarkers[j]) m_MapPartyMarkers[j].Update( timeslice );
+				if (m_MapPartyMarkers[j])
+					m_MapPartyMarkers[j].Update( timeslice );
 			}
 			
 			for (int k = 0; k < m_MapPartyPlayerMarkers.Count(); ++k)
 			{
-				if (m_MapPartyPlayerMarkers[k]) m_MapPartyPlayerMarkers[k].Update( timeslice );
+				if (m_MapPartyPlayerMarkers[k])
+					m_MapPartyPlayerMarkers[k].Update( timeslice );
 			}
 			
-			m_MapPositionArrow.Update( timeslice );
+			if ( m_TempMarker )
+				m_TempMarker.Update( timeslice );
+			
+			if ( m_MapPositionArrow )
+				m_MapPositionArrow.Update( timeslice );
 		}
 	}
 }

@@ -55,7 +55,7 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::HandleRPC - End");
 		#endif
-    }
+	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
@@ -82,8 +82,8 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-    override bool Copy( ExpansionSettingBase setting )
-    {
+	override bool Copy( ExpansionSettingBase setting )
+	{
 		ExpansionSpawnSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -96,7 +96,7 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	private void CopyInternal( ref ExpansionSpawnSettings s )
 	{
 		StartingGear = s.StartingGear;
-    }
+	}
 	
 	// ------------------------------------------------------------
 	override bool IsLoaded()

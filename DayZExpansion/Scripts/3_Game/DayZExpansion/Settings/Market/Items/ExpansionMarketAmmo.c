@@ -54,7 +54,7 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 		AddItem("Ammo_545x39Tracer", 			0.50,		1.00,		1,		500,	0 );
 		AddItem("Ammo_556x45", 					0.50,		1.00,		1,		500,	0 );
 		AddItem("Ammo_Flare", 					0.50,		1.00,		1,		500,	0 );
-		AddItem("Ammo_ArrowComposite", 			0.50,		1.00,		1,		500,	0 );
+		AddItem("Expansion_Ammo_ArrowBolt", 			0.50,		1.00,		1,		500,	0 );
 		
 		AddItem("ExpansionAmmoFlare", 			100.00,		125.00,		1,		500,	0 );
 		AddItem("ExpansionAmmoLAW", 			50.00,		75.00,		1,		500,	0 );

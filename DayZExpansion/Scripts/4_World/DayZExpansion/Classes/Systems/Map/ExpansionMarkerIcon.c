@@ -1,5 +1,5 @@
 class ExpansionMarkerIcon
 {
-    string Name;
-    string Path;
+	string Name;
+	string Path;
 }

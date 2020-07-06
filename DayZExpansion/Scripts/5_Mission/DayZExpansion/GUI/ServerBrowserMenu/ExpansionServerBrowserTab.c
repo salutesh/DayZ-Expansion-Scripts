@@ -41,13 +41,13 @@
 	protected ref TStringArray					  		m_TempTime = new TStringArray;
 
 	protected static ref JsonSerializer 					m_Serializer = new JsonSerializer;;
-	protected autoptr array< ExpansionServerListCURL > 		m_ServersCURL;
-	protected ref array< ref ExpansionServerCURL >  		m_ExpansionServers;
+	protected autoptr array< ExpansionServerListRest > 		m_ServersRest;
+	protected ref array< ref ExpansionServerRest >  		m_ExpansionServers;
 	
 	protected int								   		m_LoadedIndex;
 	
-	protected CURLCore 										m_ExpansionCURLCore;
-	protected CURLContext									m_ExpansionCURLContext;
+	protected RestApi 										m_ExpansionRestApi;
+	protected RestContext									m_ExpansionRestContext;
 	
 	// ------------------------------------------------------------
 	// ExpansionServerBrowserTab Constructor
@@ -72,8 +72,8 @@
 		EXPrint("ExpansionServerBrowserTab::Construct - Start");
 		#endif
 		m_LoadedIndex = 0;
-		m_ServersCURL = new array< ExpansionServerListCURL >;
-		m_ExpansionServers = new array< ref ExpansionServerCURL >;
+		m_ServersRest = new array< ExpansionServerListRest >;
+		m_ExpansionServers = new array< ref ExpansionServerRest >;
 
 		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/server_browser/expansion_server_browser_tab.layout", parent );
 
@@ -187,8 +187,8 @@
 		if(m_Root)
 			delete m_Root;
 		
-		if(m_ExpansionCURLCore)
-			DestroyCURLCore();
+		if(m_ExpansionRestApi)
+			DestroyRestApi();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionDirectConnectTab::~ExpansionServerBrowserTab - End");
@@ -196,23 +196,23 @@
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion GetExpansionCURLContext
+	// Expansion GetExpansionRestContext
 	// ------------------------------------------------------------
-	CURLContext GetExpansionCURLContext(string url)
+	RestContext GetExpansionRestContext(string url)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionServerBrowserTab::GetExpansionCURLContext - Start");
+		EXPrint("ExpansionServerBrowserTab::GetExpansionRestContext - Start");
 		#endif
-		m_ExpansionCURLCore = CreateCURLCore();
-		m_ExpansionCURLContext = m_ExpansionCURLCore.GetCURLContext( url );
+		m_ExpansionRestApi = CreateRestApi();
+		m_ExpansionRestContext = m_ExpansionRestApi.GetRestContext( url );
 		
-		if ( m_ExpansionCURLContext )
+		if ( m_ExpansionRestContext )
 		{ 
-			DestroyCURLCore();
+			DestroyRestApi();
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionServerBrowserTab::GetExpansionCURLContext - Return: " + m_ExpansionCURLContext );
+		EXPrint("ExpansionServerBrowserTab::GetExpansionRestContext - Return: " + m_ExpansionRestContext );
 		#endif
-			return m_ExpansionCURLContext;
+			return m_ExpansionRestContext;
 		}
 		
 		return NULL;
@@ -295,10 +295,10 @@
 		m_PageIndex = 0;
 
 		m_LoadedIndex = 0;
-		m_ServersCURL.Clear();
+		m_ServersRest.Clear();
 		m_ExpansionServers.Clear();
 
-		CURLRequestServerdata();
+		RestRequestServerdata();
 
 		m_ServerListScroller.VScrollToPos01( 0 );
 		ButtonRefreshToCancel();
@@ -311,58 +311,58 @@
 	}
 
 	// ------------------------------------------------------------
-	// Expansion CURLRequestServerdata
+	// Expansion RestRequestServerdata
 	// ------------------------------------------------------------
-	void CURLRequestServerdata()
+	void RestRequestServerdata()
 	{	
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionServerBrowserTab::CURLRequestServerdata - Start");
+		EXPrint("ExpansionServerBrowserTab::RestRequestServerdata - Start");
 		#endif
 		
-		ExpansionCURLBrowserCB cbx1 = new ExpansionCURLBrowserCB;
-		cbx1.data_servers.Insert(this.CURLObtainExpansionServers);
-		CURLContext curl_ctx = GetExpansionCURLContext(EXPANSION_CURL_URL);
+		ExpansionRestBrowserCB cbx1 = new ExpansionRestBrowserCB;
+		cbx1.data_servers.Insert(this.RestObtainExpansionServers);
+		RestContext curl_ctx = GetExpansionRestContext(EXPANSION_Rest_URL);
 		curl_ctx.GET( cbx1, "serverinfo" );
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionServerBrowserTab::CURLRequestServerdata - End");
+		EXPrint("ExpansionServerBrowserTab::RestRequestServerdata - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CURLObtainExpansionServers
+	// Expansion RestObtainExpansionServers
 	// ------------------------------------------------------------
-	void CURLObtainExpansionServers(string data_servers)
+	void RestObtainExpansionServers(string data_servers)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionServerBrowserTab::CURLObtainExpansionServers - Start");
+		EXPrint("ExpansionServerBrowserTab::RestObtainExpansionServers - Start");
 		#endif
 		string js_error;
 
-		if ( !m_Serializer.ReadFromString( m_ServersCURL, data_servers, js_error ) )
+		if ( !m_Serializer.ReadFromString( m_ServersRest, data_servers, js_error ) )
 		{
-			Print("JSON ERROR => [CURLObtainExpansionServers::CURLObtainExpansionServers]: " + js_error);
+			Print("JSON ERROR => [RestObtainExpansionServers::RestObtainExpansionServers]: " + js_error);
 		}
 		
-		if ( m_ServersCURL && !js_error )
+		if ( m_ServersRest && !js_error )
 		{
-			for (int i = 0; i < m_ServersCURL.Count(); ++i)
+			for (int i = 0; i < m_ServersRest.Count(); ++i)
 			{
-				m_ExpansionServers.Insert( new ExpansionServerCURL( m_ServersCURL.Get(i).serverip, m_ServersCURL.Get(i).serverport ) );
-				// Print( "ExpansionServerBrowserTab::CURLObtainExpansionServers - Added Server: [" + m_ServersCURL.Get(i).serverip + ":" + m_ServersCURL.Get(i).serverport.ToString() + "]" );
+				m_ExpansionServers.Insert( new ExpansionServerRest( m_ServersRest.Get(i).serverip, m_ServersRest.Get(i).serverport ) );
+				// Print( "ExpansionServerBrowserTab::RestObtainExpansionServers - Added Server: [" + m_ServersRest.Get(i).serverip + ":" + m_ServersRest.Get(i).serverport.ToString() + "]" );
 			}
-			// Print("ExpansionServerbrowsertab::CURLObtainExpansionServers - m_ExpansionServers: " + m_ExpansionServers);
-			CURLObtainExpansionServersCallback();
+			// Print("ExpansionServerbrowsertab::RestObtainExpansionServers - m_ExpansionServers: " + m_ExpansionServers);
+			RestObtainExpansionServersCallback();
 		}
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionServerBrowserTab::CURLObtainExpansionServers - End");
+		EXPrint("ExpansionServerBrowserTab::RestObtainExpansionServers - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CURLObtainExpansionServersCallback
+	// Expansion RestObtainExpansionServersCallback
 	// ------------------------------------------------------------
-	void CURLObtainExpansionServersCallback()
+	void RestObtainExpansionServersCallback()
 	{
 		LoadNextServer();
 	}
@@ -413,7 +413,7 @@
 		#endif
 		for ( int i = 0; i < m_ExpansionServers.Count(); i++ )
 		{
-			ExpansionServerCURL esc = m_ExpansionServers[i];
+			ExpansionServerRest esc = m_ExpansionServers[i];
 			if ( esc )
 			{
 				string address = esc.Adress + ":" + esc.Port;

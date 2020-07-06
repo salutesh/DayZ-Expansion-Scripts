@@ -1,47 +1,47 @@
 class ExpansionMoneyBase extends ItemBase
 {
-    int ReservedAmount;
+	int ReservedAmount;
 
-    bool IsReserved;
+	bool IsReserved;
 
-    float Worth;
+	float Worth;
 
-    void ExpansionMoneyBase()
-    {
+	void ExpansionMoneyBase()
+	{
 		ExpansionMarketModule module;
 		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarketModule ) ) )
 		{
-            Worth = module.GetMoneyPrice( GetType() );
+			Worth = module.GetMoneyPrice( GetType() );
 		}
 
-        #ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( GetType() + " Worth is " + Worth );
 		#endif
 
 		RegisterNetSyncVariableBool( "IsReserved" );
-    }
+	}
 
-    // register net var "IsReserved"
-    // any methods that need to be overridden, do so to prevent this 
-    // item from being moved to any other inventory except the player 
-    // while IsReserved is true.
-    
+	// register net var "IsReserved"
+	// any methods that need to be overridden, do so to prevent this 
+	// item from being moved to any other inventory except the player 
+	// while IsReserved is true.
+	
 	override bool CanRemoveFromCargo( EntityAI parent )
 	{
-        if ( !super.CanRemoveFromCargo( parent ) )
-            return false;
+		if ( !super.CanRemoveFromCargo( parent ) )
+			return false;
 
 		return !IsReserved;
 	}
 
 	override bool CanRemoveFromHands( EntityAI parent )
 	{
-        if ( !super.CanRemoveFromHands( parent ) )
-            return false;
+		if ( !super.CanRemoveFromHands( parent ) )
+			return false;
 
 		return !IsReserved;
 	}
-    
+	
 }
 
 class ExpansionSilverNugget: ExpansionMoneyBase {}

@@ -12,18 +12,18 @@
 
 class ExpansionAirdropLoot
 {
-    string Name;
-    ref array < ref ExpansionAirdropLootAttachments > Loot;
-    ref TStringArray Infected;
-    int ItemCount;
-    int InfectedCount;
+	string Name;
+	ref array < ref ExpansionAirdropLootAttachments > Loot;
+	ref TStringArray Infected;
+	int ItemCount;
+	int InfectedCount;
 
-    void ExpansionAirdropLoot( string name, ref array < ref ExpansionAirdropLootAttachments > loot, ref TStringArray infected, int itemCount, int infectedCount )
-    {
-        Name = name;
-        Loot = loot;
-        Infected = infected;
-        ItemCount = itemCount;
-        InfectedCount = infectedCount;
-    }
+	void ExpansionAirdropLoot( string name, ref array < ref ExpansionAirdropLootAttachments > loot, ref TStringArray infected, int itemCount, int infectedCount )
+	{
+		Name = name;
+		Loot = loot;
+		Infected = infected;
+		ItemCount = itemCount;
+		InfectedCount = infectedCount;
+	}
 }

@@ -103,6 +103,8 @@ class ExpansionClientSettingSlider: ExpansionClientSetting
 		EXPrint("ExpansionClientSettingToggle::SetRawValue - Start");
 		#endif
 		
+		amt = Math.Clamp( amt, m_Min, m_Max );
+		
 		EnScript.SetClassVar( GetExpansionClientSettings(), m_Variable, 0, amt );
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Invoke();

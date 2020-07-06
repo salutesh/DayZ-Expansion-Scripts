@@ -53,6 +53,6 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		AddItem("FlashGrenade", 			6,		8,		1,		250,	0 );
 		
 		// Expansion Explosives
-		AddItem("ExpansionExplosiveBase", 	25000,	26000,	1,		100,	0 );
+		AddItem("ExpansionExplosive", 	25000,	26000,	1,		100,	0 );
 	}
 }

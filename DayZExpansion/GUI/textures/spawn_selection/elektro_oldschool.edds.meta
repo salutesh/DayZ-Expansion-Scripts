@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{68CD73A9176ADC53}DayZExpansion/GUI/textures/spawn_selection/elektro_oldschool.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 163931809
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "elektro_oldschool.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

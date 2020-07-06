@@ -34,23 +34,5 @@ class ExpansionMarketTraderElias: ExpansionMarketTrader
 		AddItem("ExpansionUAZCargo");
 		AddItem("ExpansionUAZCargoRoofless");
 		AddItem("ExpansionVodnik");
-		AddItem("ExpansionSpraycanOffroadHatchbackGreen");
-		AddItem("ExpansionSpraycanOffroadHatchbackBlue");
-		AddItem("ExpansionSpraycanOffroadHatchbackWhite");
-		AddItem("ExpansionSpraycanHatchback_02Red");
-		AddItem("ExpansionSpraycanHatchback_02Blue");
-		AddItem("ExpansionSpraycanHatchback_02Black");  
-		AddItem("ExpansionSpraycanCivilianSedanWhite");
-		AddItem("ExpansionSpraycanCivilianSedanGrey");
-		AddItem("ExpansionSpraycanCivilianSedanWine");
-		AddItem("ExpansionSpraycanCivilianSedanLime");
-		AddItem("ExpansionSpraycanCivilianSedanBlack");
-		AddItem("ExpansionSpraycanSedan_02Blue");
-		AddItem("ExpansionSpraycanSedan_02Grey");
-		AddItem("ExpansionSpraycanSedan_02Red");
-		AddItem("ExpansionSpraycanSedan_02Yellow");
-		AddItem("ExpansionSpraycanSedan_02YellowBright");
-		AddItem("ExpansionSpraycanBusDefault");
-		AddItem("ExpansionSpraycanBusWeeb");
 	}
 }
