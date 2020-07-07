@@ -1196,6 +1196,24 @@
 		<pos x="12046.332031" z="5117.61377" a="89.640213" />
 		<pos x="10257.797851" z="3617.499512" a="270.770691" />
 	</event>
+	<event name="VehicleV3SCargo" />
+    <event name="VehicleTransitBus" />
+    <event name="InfectedVillage" />
+    <event name="InfectedSolitude" />
+    <event name="InfectedArmy" />
+    <event name="InfectedCity" />
+    <event name="InfectedMedic" />
+    <event name="InfectedPolice" />
+    <event name="InfectedFirefighter" />
+    <event name="InfectedPrisoner" />
+    <event name="AnimalDeer" />
+    <event name="AnimalCow" />
+    <event name="AnimalSheep" />
+    <event name="AnimalRoeDeer" />
+    <event name="AnimalWolf" />
+    <event name="AnimalWildBoar" />
+	<!-- EXPANSION EVENT SPAWN POINTS -->
+	<!-- EXPANSION CARS -->
 	<event name="VehicleUAZ">
 		<!-- Airfield Vyvor -->
 		<pos x="5419.167969" y="333.421509" z="9886.763672" a="178.721161" />
@@ -1213,6 +1231,10 @@
 		<pos x="2209.268066" y="93.761986" z="3369.180420" a="45.016136" />
 	</event>
 	<event name="VehicleVodnik">
+		<!-- Military Base Tisy -->
+		<pos x="567.561096" y="503.953217" z="13655.631836" a="0.000000" />
+		<!-- Plotina Tishina Dam -->
+		<pos x="1159.035278" y="153.176682" z="6219.569824" a="0.000000" />
 	</event>
 	<event name="VehicleBus">
 		<!-- Cherno -->
@@ -1228,10 +1250,7 @@
 		<!-- Berezino -->
 		<pos x="12300.703125" y="34.068638" z="9174.880859" a="0.000000" />
 	</event>
-	<event name="VehicleAtv">
-		<!-- Krasnostav -->
-		<pos x="12750.009766" y="127.082420" z="12274.975586" a="194.770325‬" />
-	</event>
+	<!-- EXPANSION HELICOPTERS -->
 	<event name="VehicleMH6Helicopter">
 		<!-- Airfield Vyvor -->
 		<pos x="4169.207031" y="338.414795" z="10990.304688" a="71.035965" />
@@ -1245,7 +1264,7 @@
 		<pos x="4675.005859" y="342.870758" z="10362.887695" a="304.364269‬" />
 	</event>
 	<event name="VehicleUh1hHelicopter">
-		<!-- Airfield Vyvor -->
+		<!-- Airfield Vybor -->
 		<pos x="4096.730957" y="342.045197" z="10652.285156" a="26.790075" />
 		<!-- Military Base Kamensk -->
 		<pos x="8007.443848" y="342.698883" z="14627.948242" a="29.346302" />
@@ -1256,6 +1275,7 @@
 		<!-- Airfield Balota -->
 		<pos x="5030.672363" y="9.536390" z="2356.444824" a="40.269878" />
 	</event>
+	<!-- EXPANSION BOATS -->
 	<event name="VehicleUtilityBoat">
 		<!-- Prison Island -->
 		<pos x="2694.401367" y="2.893368" z="1386.396973" a="3.000063" />
@@ -1298,20 +1318,8 @@
 		<!-- Svetlo -->
 		<pos x="14297.227539" y="1.070972" z="13244.783203" a="261.999641‬" />
 	</event>
-	<event name="VehicleV3SCargo" />
-    <event name="VehicleTransitBus" />
-    <event name="InfectedVillage" />
-    <event name="InfectedSolitude" />
-    <event name="InfectedArmy" />
-    <event name="InfectedCity" />
-    <event name="InfectedMedic" />
-    <event name="InfectedPolice" />
-    <event name="InfectedFirefighter" />
-    <event name="InfectedPrisoner" />
-    <event name="AnimalDeer" />
-    <event name="AnimalCow" />
-    <event name="AnimalSheep" />
-    <event name="AnimalRoeDeer" />
-    <event name="AnimalWolf" />
-    <event name="AnimalWildBoar" />
+	<event name="VehicleAn2Plane">
+		<!-- Airfield Vybor -->
+		<pos x="4128.941895" y="338.637085" z="10842.748047" a="0.000000‬" />
+	</event>
 </eventposdef>

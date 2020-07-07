@@ -2,8 +2,8 @@ class COM_WeatherMenu extends PopupMenu
 {
 	private static const int m_DaysInMonth [ 12 ] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-    protected ButtonWidget m_BtnSave;
-    protected ButtonWidget m_BtnCancel;
+	protected ButtonWidget m_BtnSave;
+	protected ButtonWidget m_BtnCancel;
 	protected TextWidget m_TxtWeatherTime;
 	protected TextWidget m_TxtAirTemperature;
 	protected SliderWidget m_SldStartTime;
@@ -50,8 +50,8 @@ class COM_WeatherMenu extends PopupMenu
 	void Init()
 	{
 
-        m_BtnSave			= ButtonWidget.Cast( layoutRoot.FindAnyWidget( "btn_save" ) );
-        m_BtnCancel			= ButtonWidget.Cast( layoutRoot.FindAnyWidget( "btn_cancel" ) );
+		m_BtnSave			= ButtonWidget.Cast( layoutRoot.FindAnyWidget( "btn_save" ) );
+		m_BtnCancel			= ButtonWidget.Cast( layoutRoot.FindAnyWidget( "btn_cancel" ) );
 
 		m_TxtWeatherTime	= TextWidget.Cast( layoutRoot.FindAnyWidget( "txt_ppp_st_w_time_value" ) );
 		m_TxtAirTemperature	= TextWidget.Cast( layoutRoot.FindAnyWidget( "txt_ppp_st_w_air_temp_value" ) );
@@ -94,7 +94,7 @@ class COM_WeatherMenu extends PopupMenu
 			editor.SetWeather(m_CurrOvercast, m_CurrRain, m_CurrFog, m_CurrWindForce);
 			editor.SetDate(m_CurrYear, m_CurrMonth, m_CurrDay, m_CurrHour, m_CurrMinute);
 
-            GetGame().GetWeather().SetWindFunctionParams( m_OrigWindForce, m_CurrWindForce, 1 );
+			GetGame().GetWeather().SetWindFunctionParams( m_OrigWindForce, m_CurrWindForce, 1 );
 
 			return true;
 		}
@@ -185,7 +185,7 @@ class COM_WeatherMenu extends PopupMenu
 
 			m_CurrWindForce = m_SldWindForce.GetCurrent() * 0.01;
 
-            GetGame().GetWeather().SetWindFunctionParams( m_OrigWindForce, m_CurrWindForce, 1 );
+			GetGame().GetWeather().SetWindFunctionParams( m_OrigWindForce, m_CurrWindForce, 1 );
 
 			return true;
 		}
@@ -279,7 +279,7 @@ class COM_WeatherMenu extends PopupMenu
 
 		if( weather.GetWindSpeed() < 0.01 )
 		{
-		    slider_wind_value = 0.0;
+			slider_wind_value = 0.0;
 		}
 
 		m_SldWindForce.SetCurrent( slider_wind_value );

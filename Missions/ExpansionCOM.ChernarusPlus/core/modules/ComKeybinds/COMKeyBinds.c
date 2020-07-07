@@ -37,7 +37,7 @@ class COMKeyBinds extends COM_Module
 		COM_KeyMouseBinding autoRun		 = new COM_KeyMouseBinding( GetModuleType() , "AutoRun"	   ,  "Toggle autorun."				 );
 		//COM_KeyMouseBinding keyFrame		= new COM_KeyMouseBinding( GetModuleType() , "OpenKeyframe"  ,  "Toggle dayz dev cinematic tool." );
 		COM_KeyMouseBinding closeMenu	   = new COM_KeyMouseBinding( GetModuleType() , "CloseOpenMenu" ,  "Close the menu on esc.", true	);
-        COM_KeyMouseBinding decayGetPos       = new COM_KeyMouseBinding( GetModuleType() , "DecayGetPos" ,  "Close the menu on esc.", true    );
+		COM_KeyMouseBinding decayGetPos	   = new COM_KeyMouseBinding( GetModuleType() , "DecayGetPos" ,  "Close the menu on esc.", true	);
 
 		//toggleCursor   .AddBinding( "kU" );
 		toggleCOMEditor.AddBinding( "kU" );
@@ -48,7 +48,7 @@ class COMKeyBinds extends COM_Module
 		autoRun		.AddBinding( "kComma" );
 		//keyFrame	   .AddBinding( "kPrior" );
 		closeMenu	  .AddBinding( "kEscape" );
-        decayGetPos      .AddBinding( "kL" );
+		decayGetPos	  .AddBinding( "kL" );
 
 		RegisterCOM_KeyMouseBinding( toggleCursor );
 		RegisterCOM_KeyMouseBinding( toggleCOMEditor );
@@ -59,7 +59,7 @@ class COMKeyBinds extends COM_Module
 		RegisterCOM_KeyMouseBinding( autoRun );
 		//RegisterCOM_KeyMouseBinding( keyFrame );
 		RegisterCOM_KeyMouseBinding( closeMenu );
-        RegisterCOM_KeyMouseBinding( decayGetPos );
+		RegisterCOM_KeyMouseBinding( decayGetPos );
 	}
 
 	void OpenKeyframe() 
@@ -67,9 +67,9 @@ class COMKeyBinds extends COM_Module
 		GetGame().GetUIManager().ShowScriptedMenu( GetMission().CreateScriptedMenu(MENU_CAMERA_TOOLS) , NULL );
 	}
 
-    void DecayGetPos()
-    {
-    }
+	void DecayGetPos()
+	{
+	}
 
 	void ToggleCursor()
 	{

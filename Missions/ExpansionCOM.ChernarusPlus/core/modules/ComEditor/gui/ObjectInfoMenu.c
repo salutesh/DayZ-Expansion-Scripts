@@ -139,7 +139,7 @@ class ObjectInfoMenu extends PopupMenu
 
 			if( Math.AbsFloat( orientation[0] ) < 0.001 )
 			{
-			    orientation[0] = 0;
+				orientation[0] = 0;
 			}
 
 			GetSelectedObject().SetOrientation( orientation );
@@ -154,10 +154,10 @@ class ObjectInfoMenu extends PopupMenu
 
 			orientation[1] = orientation[1] + value;
 
-            if( Math.AbsFloat( orientation[1] ) < 0.001 )
-            {
-                orientation[1] = 0;
-            }
+			if( Math.AbsFloat( orientation[1] ) < 0.001 )
+			{
+				orientation[1] = 0;
+			}
 
 			GetSelectedObject().SetOrientation( orientation );
 			infoPosPitch.SetText( orientation[1].ToString() );
@@ -167,10 +167,10 @@ class ObjectInfoMenu extends PopupMenu
 		{
 			orientation[2] = orientation[2] + value;
 
-            if( Math.AbsFloat( orientation[2] ) < 0.001 )
-            {
-                orientation[2] = 0;
-            }
+			if( Math.AbsFloat( orientation[2] ) < 0.001 )
+			{
+				orientation[2] = 0;
+			}
 
 			GetSelectedObject().SetOrientation( orientation );
 			infoPosRoll.SetText( orientation[2].ToString() );
@@ -246,40 +246,40 @@ class ObjectInfoMenu extends PopupMenu
 /*
 		bool check = false; //?????????????
 
-        if ( editWidget == infoPosPitch )
-        {
-        	for(int i = 0; i < text.Length(); i++ )
-        	{
-        		string token;
-        		string character = text.Get(i);
-        		int result = character.ParseStringEx(token);
+		if ( editWidget == infoPosPitch )
+		{
+			for(int i = 0; i < text.Length(); i++ )
+			{
+				string token;
+				string character = text.Get(i);
+				int result = character.ParseStringEx(token);
 
-        		if ( result == 4 || text.Get(i) == "." )
-        		{
-        			newText = newText + token;
-        			check = true; // lol wtf why this crashing. come back to this
-        		}
-        	}
+				if ( result == 4 || text.Get(i) == "." )
+				{
+					newText = newText + token;
+					check = true; // lol wtf why this crashing. come back to this
+				}
+			}
 
-        	if ( check ) // idk why this bool is causing unknown module crash
-        	{
-        		orientation[1] = newText.ToFloat();
-        		GetSelectedObject().SetOrientation(orientation);
-        	}
-        	else
-        	{
-        		editWidget.SetText( newText );
-        	}
+			if ( check ) // idk why this bool is causing unknown module crash
+			{
+				orientation[1] = newText.ToFloat();
+				GetSelectedObject().SetOrientation(orientation);
+			}
+			else
+			{
+				editWidget.SetText( newText );
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        */
+		*/
 
-        return false;
-    }
+		return false;
+	}
 
-    override bool OnMouseEnter(Widget w, int x, int y)
+	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		return false;
 	}
@@ -289,16 +289,16 @@ class ObjectInfoMenu extends PopupMenu
 		return false;
 	}
 
-    override void OnShow()
-    {
-    	UpdateObjectList();
-    	GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( Update, 100, true );
-    }
+	override void OnShow()
+	{
+		UpdateObjectList();
+		GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( Update, 100, true );
+	}
 
-    override void OnHide()
-    {
-    	//GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Remove( Update );
-    }
+	override void OnHide()
+	{
+		//GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Remove( Update );
+	}
 
 	void Update()
 	{

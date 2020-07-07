@@ -15,6 +15,11 @@
 		<file path="env/hare_territories.xml" />
 		<file path="env/zombie_territories.xml" />
 		<file path="env/bear_territories.xml" />
+		<file path="env/hare_territories.xml" /> 								<!-- EXPANSION -->
+
+		<territory type="Herd" name="AmbientHare" behavior="DZDeerGroupBeh"> 	<!-- EXPANSION -->
+			<file usable="hare_territories" /> 									<!-- EXPANSION -->
+		</territory>															<!-- EXPANSION -->
 
 		<territory type="Herd" name="Deer" behavior="DZDeerGroupBeh">
 			<file usable="red_deer_territories" />

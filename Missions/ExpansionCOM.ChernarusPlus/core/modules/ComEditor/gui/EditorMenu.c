@@ -18,7 +18,7 @@ class EditorMenu extends UIScriptedMenu
 
 	void EditorMenu()
 	{
-	    SetID( 133742 );
+		SetID( 133742 );
 		
 		m_toogleDOJCode = false;
 	}
@@ -28,14 +28,14 @@ class EditorMenu extends UIScriptedMenu
 	}
 	
 	override Widget Init()
-    {
-        layoutRoot = GetGame().GetWorkspace().CreateWidgets( "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\ComEditor\\gui\\layouts\\EditorMenu.layout" );
+	{
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\ComEditor\\gui\\layouts\\EditorMenu.layout" );
 
 		m_ObjectButton   = ButtonWidget.Cast( layoutRoot.FindAnyWidget("objects_button") );
 		m_PositionButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget("position_button") );
 		m_WeatherButton  = ButtonWidget.Cast( layoutRoot.FindAnyWidget("weather_button") );
-		m_GameButton     = ButtonWidget.Cast( layoutRoot.FindAnyWidget("game_button") );
-		m_MatButton     = ButtonWidget.Cast( layoutRoot.FindAnyWidget("mat_button") );
+		m_GameButton	 = ButtonWidget.Cast( layoutRoot.FindAnyWidget("game_button") );
+		m_MatButton	 = ButtonWidget.Cast( layoutRoot.FindAnyWidget("mat_button") );
 		m_ObjectEditorButton = layoutRoot.FindAnyWidget( "objectEditor_button" );
 
 		m_aiMenu   = GetGame().GetWorkspace().CreateWidgets( "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\ComEditor\\gui\\layouts\\AIMenu.layout", layoutRoot );
@@ -46,7 +46,7 @@ class EditorMenu extends UIScriptedMenu
 		m_matMenu 	   = GetGame().GetWorkspace().CreateWidgets( "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\ComEditor\\gui\\layouts\\CameraMenu.layout", layoutRoot );
 		m_objectInfoMenu = GetGame().GetWorkspace().CreateWidgets( "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\ComEditor\\gui\\layouts\\ObjectEditorInfo.layout", layoutRoot );
 
-        return layoutRoot;
+		return layoutRoot;
 	}
 
 	override bool UseMouse() 
@@ -59,45 +59,45 @@ class EditorMenu extends UIScriptedMenu
 		return false;
 	}
 
-    override void OnShow()
-    {
-        super.OnShow();
+	override void OnShow()
+	{
+		super.OnShow();
 
-        GetGame().GetInput().ChangeGameFocus( 1 );
-        GetGame().GetUIManager().ShowUICursor( true );
-    }
+		GetGame().GetInput().ChangeGameFocus( 1 );
+		GetGame().GetUIManager().ShowUICursor( true );
+	}
 
-    override void OnHide()
-    {
-        super.OnHide();
+	override void OnHide()
+	{
+		super.OnHide();
 
-        ObjectEditor.Cast( GetCOMModuleManager().GetModule( ObjectEditor )).EditorState( false );
+		ObjectEditor.Cast( GetCOMModuleManager().GetModule( ObjectEditor )).EditorState( false );
 
-        GetGame().GetInput().ResetGameFocus();
-    }
+		GetGame().GetInput().ResetGameFocus();
+	}
 
-    override bool OnDoubleClick( Widget w, int x, int y, int button ) 
-    {
-    	if ( w == layoutRoot ) 
-    	{
-	    	COM_ObjectMenu objectMenu;
-	    	m_objectMenu.GetScript( objectMenu );
-	    	string strSelection = objectMenu.GetCurrentSelection();
+	override bool OnDoubleClick( Widget w, int x, int y, int button ) 
+	{
+		if ( w == layoutRoot ) 
+		{
+			COM_ObjectMenu objectMenu;
+			m_objectMenu.GetScript( objectMenu );
+			string strSelection = objectMenu.GetCurrentSelection();
 
-	    	if ( strSelection != "" ) 
-	    	{
-	    		bool ai = false;
+			if ( strSelection != "" ) 
+			{
+				bool ai = false;
 
-	        	if ( GetGame().IsKindOf( strSelection, "DZ_LightAI" ) ) 
-	        	{
-	        		ai = false;
-	        	}
+				if ( GetGame().IsKindOf( strSelection, "DZ_LightAI" ) ) 
+				{
+					ai = false;
+				}
 
-	    		Object obj = GetGame().CreateObject( strSelection, GetPointerPos(), true, ai );
-	    		obj.PlaceOnSurface(); 
-	    		ForceTargetCollisionUpdate( obj );
-	    		ObjectEditor.Cast(GetCOMModuleManager().GetModule( ObjectEditor )).SelectObject( obj );
-	    		ObjectEditor.Cast(GetCOMModuleManager().GetModule( ObjectEditor )).addObject( obj );
+				Object obj = GetGame().CreateObject( strSelection, GetPointerPos(), true, ai );
+				obj.PlaceOnSurface(); 
+				ForceTargetCollisionUpdate( obj );
+				ObjectEditor.Cast(GetCOMModuleManager().GetModule( ObjectEditor )).SelectObject( obj );
+				ObjectEditor.Cast(GetCOMModuleManager().GetModule( ObjectEditor )).addObject( obj );
 				
 				ProcessObject( obj );
 				
@@ -113,12 +113,12 @@ class EditorMenu extends UIScriptedMenu
 					// GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RandomOri, 100, false, obj);
 				}
 
-	    		ObjectInfoMenu.listBox.AddItem(obj.GetType(), obj, 0);
-	    	}
-    	}
+				ObjectInfoMenu.listBox.AddItem(obj.GetType(), obj, 0);
+			}
+		}
 
-    	return false;
-    }
+		return false;
+	}
 
 	void ProcessObject(Object obj)
 	{
@@ -234,7 +234,7 @@ class EditorMenu extends UIScriptedMenu
 		// objtoedit.SetOrientation( Vector(objtoedit.GetOrientation()[0], objtoedit.GetOrientation()[1], objtoedit.GetOrientation()[2]) );
 	}
 
-    override bool OnClick( Widget w, int x, int y, int button )
+	override bool OnClick( Widget w, int x, int y, int button )
 	{
 		PopupMenu popMenu;
 
@@ -295,8 +295,8 @@ class EditorMenu extends UIScriptedMenu
 		Widget m_ObjectButtonBkg   = layoutRoot.FindAnyWidget("objects_button_bkg");
 		Widget m_PositionButtonBkg = layoutRoot.FindAnyWidget("position_button_bkg");
 		Widget m_WeatherButtonBkg  = layoutRoot.FindAnyWidget("weather_button_bkg");
-		Widget m_GameButtonBkg     = layoutRoot.FindAnyWidget("game_button_bkg");
-		Widget m_MatButtonBkg     = layoutRoot.FindAnyWidget("mat_button_bkg");
+		Widget m_GameButtonBkg	 = layoutRoot.FindAnyWidget("game_button_bkg");
+		Widget m_MatButtonBkg	 = layoutRoot.FindAnyWidget("mat_button_bkg");
 		Widget m_ObjectEditorBkg   = layoutRoot.FindAnyWidget("objectEditor_button_bkg");
 
 		m_ObjectButtonBkg.SetColor(ARGB(0, 255, 255, 255)); // reset colors
