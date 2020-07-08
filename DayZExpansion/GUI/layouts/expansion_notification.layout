@@ -132,7 +132,7 @@ WrapSpacerWidgetClass NotificationRoot {
            visible 1
            ignorepointer 1
            position 0 0
-           size 27 27
+           size 32 32
            halign center_ref
            valign center_ref
            hexactpos 1
@@ -158,10 +158,10 @@ WrapSpacerWidgetClass NotificationRoot {
          hexactsize 0
          vexactsize 0
          style DayZNormal
-         text "Title"
          font "gui/fonts/etelkatextpro22"
          "text offset" 2 0
          "exact text" 1
+         "exact text size" 22
          "size to text h" 1
          "size to text v" 1
          "text valign" center
@@ -210,10 +210,10 @@ WrapSpacerWidgetClass NotificationRoot {
          vexactpos 1
          hexactsize 0
          vexactsize 0
-         text "This is my fancy test message and i type a extra long message now to see how the text looks like in game now. "
          font "gui/fonts/etelkatextpro16"
          "text offset" 2 0
          "exact text" 1
+         "exact text size" 16
          "size to text h" 1
          "size to text v" 1
          "text valign" center

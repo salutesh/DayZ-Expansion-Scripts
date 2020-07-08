@@ -48,6 +48,10 @@ modded class MissionGameplay
 	protected bool								m_WasGPSToggled;
 	protected bool								m_ExpansionChatState;
 	
+	Widget										m_ChatPanel;
+	Widget										m_VoiceLevelSeperator;
+	ref WidgetFadeTimer							m_SeperatorFadeTimer;
+	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -75,6 +79,8 @@ modded class MissionGameplay
 		m_DataSent = false;
 		
 		m_ExpansionChatState = true;
+		
+		m_SeperatorFadeTimer = new WidgetFadeTimer;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::MissionGameplay - End");
@@ -236,7 +242,7 @@ modded class MissionGameplay
 		
 		PlayerControlDisable( INPUT_EXCLUDE_CHAT_EXPANSION );
 		
-		// SetFocus( m_ChatRootWidget.FindAnyWidget("ScrollerContainer") );
+		//SetFocus( m_ChatRootWidget.FindAnyWidget("ScrollerContainer") );
 		
 		GetUApi().GetInputByName("UAPersonView").Supress();	
 		GetUApi().GetInputByName( "UAPersonView" ).ForceDisable( true );
@@ -310,7 +316,22 @@ modded class MissionGameplay
 		
 		super.OnInit();
 		
-		//! EXPANSION HUD
+		//! Expansion Hud
+		InitExpansionHud();
+		
+		//! Expansion Chat
+		InitChat();
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::OnInit - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// InitExpansionHud
+	// ------------------------------------------------------------
+	void InitExpansionHud()
+	{
 		if ( !m_ExpansionHudRootWidget )
 		{
 			m_ExpansionHudRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/hud/expansion_hud.layout");
@@ -321,16 +342,24 @@ modded class MissionGameplay
 			
 			if (m_Hud && m_ExpansionHud)
 				m_Hud.SetExpansionHUD(true);
-		}
-		
-		//! CHAT
-		if ( !m_ChatRootWidget )
-		{			
-			Widget ChatFrameWidget = m_HudRootWidget.FindAnyWidget("ChatFrameWidget");
 			
-			m_ChatRootWidget = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/chat/expansion_chat_panel.layout", ChatFrameWidget );
+			InitVoiceLevelIndicator();
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// InitChat
+	// ------------------------------------------------------------
+	void InitChat()
+	{
+		if ( !m_ChatRootWidget && m_HudRootWidget )
+		{
+			m_ChatPanel = Widget.Cast( m_HudRootWidget.FindAnyWidget("ChatFrameWidget") );
+			m_ChatPanel.SetFlags( WidgetFlags.IGNOREPOINTER, true );
+			
+			m_ChatRootWidget = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/chat/expansion_chat_panel.layout", m_ChatPanel );
 			m_Chat.Init( m_ChatRootWidget );
-
+	
 			if ( m_Chat )
 			{
 				m_WidgetChatChannel = Widget.Cast( m_ExpansionHudRootWidget.FindAnyWidget("ChatChannelPanel") );
@@ -347,10 +376,42 @@ modded class MissionGameplay
 			
 			m_ChatRootWidget.Show( true );
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnInit - End");
-		#endif
+	}
+	
+	void InitVoiceLevelIndicator()
+	{
+		//! Unlink vanilla voice level indicator
+		m_HudRootWidget.FindAnyWidget("mic").Unlink();
+		m_HudRootWidget.FindAnyWidget("VoiceLevelsPanel").Unlink();
+		
+		m_VoiceLevelsWidgets.Clear();
+		m_VoiceLevelTimers.Clear();
+		
+		//! Von enabled icon
+		m_MicrophoneIcon = ImageWidget.Cast( m_ExpansionHudRootWidget.FindAnyWidget("mic") );
+		m_MicrophoneIcon.Show(false);
+		
+		//! Seperator
+		m_VoiceLevelSeperator = Widget.Cast( m_ExpansionHudRootWidget.FindAnyWidget("BadgesSpacer") );
+		m_VoiceLevelSeperator.Show(false);
+		
+		//! Von voice level
+		m_VoiceLevels = m_ExpansionHudRootWidget.FindAnyWidget("VoiceLevelsPanel");
+		m_VoiceLevelsWidgets = new map<int, ImageWidget>; // [key] voice level
+		m_VoiceLevelTimers = new map<int,ref WidgetFadeTimer>; // [key] voice level
+	
+		if( m_VoiceLevels )
+		{
+			m_VoiceLevelsWidgets.Set(VoiceLevelWhisper, ImageWidget.Cast( m_VoiceLevels.FindAnyWidget("Whisper") ));
+			m_VoiceLevelsWidgets.Set(VoiceLevelTalk, ImageWidget.Cast( m_VoiceLevels.FindAnyWidget("Talk") ));
+			m_VoiceLevelsWidgets.Set(VoiceLevelShout, ImageWidget.Cast( m_VoiceLevels.FindAnyWidget("Shout") ));
+			
+			m_VoiceLevelTimers.Set(VoiceLevelWhisper, new WidgetFadeTimer);
+			m_VoiceLevelTimers.Set(VoiceLevelTalk, new WidgetFadeTimer);
+			m_VoiceLevelTimers.Set(VoiceLevelShout, new WidgetFadeTimer);
+		}
+		
+		HideVoiceLevelWidgets();
 	}
 
 	// ------------------------------------------------------------
@@ -689,42 +750,7 @@ modded class MissionGameplay
 		
 		if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay )
 		{
-			//! Nightvision Overlay
-			if ( playerPB && playerPB.GetCurrentCamera() )
-			{
-				private DayZPlayerCameraBase camera = DayZPlayerCameraBase.Cast( GetGame().GetPlayer().GetCurrentCamera() );
-				if ( camera )
-				{
-					if ( camera && camera.IsCameraNV() ) 
-					{
-						if ( !m_ExpansionHud.GetNVState() )
-					 		m_ExpansionHud.ShowNV( true );
-					}
-					else
-					{
-						if ( m_ExpansionHud.GetNVState() )
-					 		m_ExpansionHud.ShowNV( false );
-					}
-				}
-			}
-			
-			if ( playerPB && playerPB.GetInventory() )
-			{
-				NVGoggles nvgoogles = NVGoggles.Cast( playerPB.GetHumanInventory().GetEntityInHands() );
-				if ( nvgoogles )
-				{
-					if ( nvgoogles.IsWorking() && nvgoogles.IsInOptics() )
-					{
-						if ( !m_ExpansionHud.GetNVState() )
-							m_ExpansionHud.ShowNV( true );
-					}
-					else
-					{
-						if ( m_ExpansionHud.GetNVState() )
-							m_ExpansionHud.ShowNV( true );
-					}
-				}
-			}
+			PlayerCheckNV( playerPB );
 		}
 
 		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
@@ -736,14 +762,128 @@ modded class MissionGameplay
 		//! Toggle HUD elements in different menus
 		if ( m_Hud && m_ExpansionHud.IsInitialized() && m_Chat && GetCommunityOnlineTools() )
 			RefreshHUDElements();
-
+		
+		//! Expansion hud update
 		m_ExpansionHud.Update( timeslice );
 		
+		//! Chat update
 		m_Chat.Update( timeslice );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion PlayerCheckNV
+	// ------------------------------------------------------------
+	void PlayerCheckNV(PlayerBase player)
+	{		
+		if ( !GetGame() )
+			return;
+		
+		if ( player && player.GetCurrentCamera() )
+		{
+			private DayZPlayerCameraBase camera = DayZPlayerCameraBase.Cast( GetGame().GetPlayer().GetCurrentCamera() );
+			if ( camera )
+			{
+				if ( camera && camera.IsCameraNV() ) 
+				{
+					if ( !m_ExpansionHud.GetNVState() )
+				 		m_ExpansionHud.ShowNV( true );
+				}
+				else
+				{
+					if ( m_ExpansionHud.GetNVState() )
+				 		m_ExpansionHud.ShowNV( false );
+				}
+			}
+		}
+		
+		/*ItemBase nvgoogles = ItemBase.Cast(player.GetHumanInventory().GetEntityInHands());
+		if ( nvgoogles && nvgoogles.IsKindOf( "NVGoggles" ) )
+		{
+			GetNVBatteryState( nvgoogles );
+			
+			if ( nvgoogles.IsWorking() && nvgoogles.IsInOptics() )
+			{
+				if ( !m_ExpansionHud.GetNVState() )
+					m_ExpansionHud.ShowNV( true );
+			}
+			else
+			{
+				if ( m_ExpansionHud.GetNVState() )
+					m_ExpansionHud.ShowNV( false );
+			}
+		}*/
+		
+		EntityAI entity;
+		NVGoggles googles;
+		ItemBase headgear;
+		ItemBase eyewear;
+		ItemBase handitem;
+		
+		if (player && player.FindAttachmentBySlotName("Headgear") != null)
+			headgear = ItemBase.Cast(player.FindAttachmentBySlotName("Headgear"));
+		
+		if (player && player.FindAttachmentBySlotName("Eyewear") != null)
+			eyewear = ItemBase.Cast(player.FindAttachmentBySlotName("Eyewear"));
+		
+		if (player && player.GetHumanInventory().GetEntityInHands() != null)
+			handitem = ItemBase.Cast( player.GetHumanInventory().GetEntityInHands() );
+		
+		// Nvg - Headgear check
+		if ( headgear )
+		{
+			entity = headgear.FindAttachmentBySlotName("NVG");
+			if (entity)
+			{
+				Class.CastTo(googles, entity);
+				GetNVBatteryState( googles );
+			}
+		}
+		// Nvg - Eyewear check
+		if ( eyewear )
+		{
+			entity = eyewear.FindAttachmentBySlotName("NVG");
+			if (entity)
+			{
+				Class.CastTo(googles, entity);
+				GetNVBatteryState( googles );
+			}
+		}
+		// Nvg - In hands check
+		if ( handitem )
+		{
+			entity = EntityAI.Cast( handitem );
+			if (entity)
+			{
+				Class.CastTo(googles, entity);
+				GetNVBatteryState( googles );
+			}
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion PlayerCheckNV
+	// ------------------------------------------------------------
+	void GetNVBatteryState(NVGoggles googles)
+	{
+		Print( "MissionGameplas::GetNVBatteryState - googles: " + googles.ToString() );
+		
+		if ( GetGame().IsClient() )
+		{
+			int energy_percent = 0;
+			
+			if ( googles && googles.GetCompEM().CanWork() )
+			{
+				energy_percent = googles.GetBatteryEnergy();
+					
+				Print( "MissionGameplas::GetNVBatteryState - energy_percent: " + energy_percent.ToString() );
+					
+				m_ExpansionHud.SetNVBatteryState( energy_percent );
+			}
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -936,19 +1076,20 @@ modded class MissionGameplay
 		bool isOpenBookMenu = m_ExUIManager.IsMenuOpen(MENU_EXPANSION_BOOK_MENU);
 		bool isOpenCOTMenu = GetCommunityOnlineTools().IsOpen();
 		bool isChatVisible = m_ChatRootWidget.IsVisible();
-
-		if (isOpenInGameMenu || isOpenInventoryMenu || isOpenInspectMenu || isOpenMapMenu || isOpenMarketMenu || isOpenCOTMenu)
+		bool isOpenPlayerListMenu = m_ExUIManager.IsMenuOpen(MENU_EXPANSION_PLAYER_LIST_MENU);
+		
+		if (isOpenInGameMenu || isOpenInventoryMenu || isOpenInspectMenu || isOpenMapMenu || isOpenMarketMenu || isOpenCOTMenu || isOpenPlayerListMenu)
 		{
 			ShowExpansionHudElements(false);
-			if (isOpenMapMenu || isOpenMarketMenu || isOpenCOTMenu)
+			if (isOpenMapMenu || isOpenMarketMenu || isOpenCOTMenu || isOpenPlayerListMenu)
 			{
 				ShowHudElements(false);
 			}
 		}
-		else if ( (!isOpenInGameMenu || !isOpenInventoryMenu || !isOpenInspectMenu || !isOpenMapMenu || !isOpenMarketMenu || !isOpenCOTMenu) && !m_UIManager.GetMenu() )
+		else if ( (!isOpenInGameMenu || !isOpenInventoryMenu || !isOpenInspectMenu || !isOpenMapMenu || !isOpenMarketMenu || !isOpenCOTMenu) && !m_UIManager.GetMenu() || !isOpenPlayerListMenu)
 		{
 			ShowExpansionHudElements(true);
-			if (!isOpenMapMenu || !isOpenMarketMenu || !isOpenCOTMenu)
+			if (!isOpenMapMenu || !isOpenMarketMenu || !isOpenCOTMenu || !isOpenPlayerListMenu)
 			{
 				ShowHudElements(true);
 			}
@@ -1144,5 +1285,60 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::ShowHudElements - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetChat
+	// ------------------------------------------------------------
+	ref Chat GetChat()
+	{
+		return m_Chat;
+	}
+	
+	// ------------------------------------------------------------
+	// Override UpdateVoiceLevelWidgets
+	// ------------------------------------------------------------
+	override void UpdateVoiceLevelWidgets(int level)
+	{
+		for( int n = 0; n < m_VoiceLevelsWidgets.Count(); n++ )
+		{
+			int voiceKey = m_VoiceLevelsWidgets.GetKey(n);
+			ImageWidget voiceWidget = m_VoiceLevelsWidgets.Get(n);
+			
+			// stop fade timer since it will be refreshed
+			ref WidgetFadeTimer timer = m_VoiceLevelTimers.Get(n);		
+			timer.Stop();
+		
+			// show widgets according to the level
+			if( voiceKey <= level )
+			{
+				voiceWidget.SetAlpha(1.0); // reset from possible previous fade out 
+				voiceWidget.Show(true);
+				
+				if( !m_VoNActive && !GetUIManager().FindMenu(MENU_CHAT_INPUT) ) 	
+					timer.FadeOut(voiceWidget, 3.0);	
+			}
+			else
+				voiceWidget.Show(false);
+		}
+		
+		// fade out microphone icon when switching levels without von on
+		if( !m_VoNActive )
+		{
+		  	if( !GetUIManager().FindMenu(MENU_CHAT_INPUT) )
+			{
+				m_MicrophoneIcon.SetAlpha(1.0); 
+				m_MicrophoneIcon.Show(true);
+				
+				m_MicFadeTimer.FadeOut(m_MicrophoneIcon, 3.0);
+				m_SeperatorFadeTimer.FadeOut(m_VoiceLevelSeperator, 3.0);
+			}
+		}
+		else
+		{
+			// stop mic icon fade timer when von is activated
+			m_MicFadeTimer.Stop();
+			m_SeperatorFadeTimer.Stop();
+		}
 	}
 }

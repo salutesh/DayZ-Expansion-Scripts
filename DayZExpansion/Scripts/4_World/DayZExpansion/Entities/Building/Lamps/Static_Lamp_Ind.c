@@ -16,3 +16,6 @@
 class Static_Lamp_Ind: ExpansionLampLightBase
 {
 }
+class bldr_lamp_ind: ExpansionPropLampLightBase
+{
+}

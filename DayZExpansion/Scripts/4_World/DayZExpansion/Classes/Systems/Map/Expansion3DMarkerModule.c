@@ -189,7 +189,7 @@ class Expansion3DMarkerModule: JMModuleBase
 						PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
 						if (partyPlayer && partyPlayer.IsAlive() && vector.Distance( partyPlayer.GetPosition(), selfPosition) <= GetExpansionSettings().GetParty().DistanceForPartyMarkers)
 						{
-							Create3DMarker( currPlayer.Name, "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", ARGB( GetExpansionClientSettings().AlphaColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().RedColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().GreenColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().BlueColorHUDOnTopOfHeadOfPlayers), vector.Zero, partyPlayer, "0 0.25 0", partyPlayer.GetBoneIndexByName( "Head" ) );
+							Create3DMarker( currPlayer.Name, "DayZExpansion/GUI/icons/hud/marker_64x64.edds", ARGB( GetExpansionClientSettings().AlphaColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().RedColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().GreenColorHUDOnTopOfHeadOfPlayers, GetExpansionClientSettings().BlueColorHUDOnTopOfHeadOfPlayers), vector.Zero, partyPlayer, "0 0.25 0", partyPlayer.GetBoneIndexByName( "Head" ) );
 						}
 					}
 				}
@@ -207,7 +207,7 @@ class Expansion3DMarkerModule: JMModuleBase
 					ref ExpansionQuickMarker quickMarker = quickMarkers[idx];
 					if ( !quickMarker ) continue;
 					
-					Create3DMarker( "", "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa", quickMarker.Color, quickMarker.Pos, null, "0 0 0", -1, GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers );
+					Create3DMarker( "", "DayZExpansion/GUI/icons/hud/marker_64x64.edds", quickMarker.Color, quickMarker.Pos, null, "0 0 0", -1, GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers );
 				}
 			}
 		}

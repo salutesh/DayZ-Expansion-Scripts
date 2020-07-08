@@ -112,53 +112,10 @@ class ExpansionPlayerList extends UIScriptedMenu
 				ExpansionPlayerListEntry entry = new ExpansionPlayerListEntry( m_PlayerListGrid, player.m_PlayerName );
 				m_PlayerList.Insert( entry );
 			}
-			else
-			{
-				m_PlayerTotal.SetText( GetValueString(i) );
-			}
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion GetValueString
-	// ------------------------------------------------------------
-	protected string GetValueString( float total_value )
-	{
-		if( total_value < 0 )
-			return "0";
-	
-		int value = total_value;
-		string out_string;
-		
-		if ( value >= 1000 )
-		{
-			string value_string = value.ToString();
-			
-			int count;		
-			int first_length = value_string.Length() % 3;		//calculate position of the first separator
-			if ( first_length > 0 )
-			{
-				count = 3 - first_length;
-			}
-			
-			for ( int i = 0; i < value_string.Length(); ++i )
-			{
-				out_string += value_string.Get( i );
-				count ++;
-				
-				if ( count >= 3 )
-				{
-					out_string += " ";			//separator
-					count = 0;
-				}
-			}
-		}
-		else
-		{
-			out_string = value.ToString();
 		}
 		
-		return out_string;
+		if ( m_PlayerList.Count() > 0 )
+			m_PlayerTotal.SetText( m_PlayerList.Count().ToString() );
 	}
 	
 	// ------------------------------------------------------------

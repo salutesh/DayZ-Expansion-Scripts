@@ -111,7 +111,10 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 
 		return false;
 	}
-
+	override bool CanBeRepairedToPristine()
+	{
+		return true;
+	}
 	override vector GetKitSpawnPosition()
 	{
 		if ( MemoryPointExists( "kit_spawn_position" ) )

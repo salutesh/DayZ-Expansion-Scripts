@@ -383,6 +383,28 @@ class ExpansionStatic
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_RUSSIA, "Russia");
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_UK, "UK");
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_USA, "USA");
+		
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SCOTTISH, "Scottish");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_FINNISH, "Finnish");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SWEDISH, "Swedish");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SPAIN, "Spain");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_BRAZIL, "Brazil");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_PORTUGAL, "Portugal");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_BELGIUM, "Belgium");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_LIVONIA, "Livonia");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_JAPAN, "Japan");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CHINA, "China");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SOUTHKOREA, "SouthKorea");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_UN, "UN");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NATO, "NATO");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_PIRATE, "Pirate");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CHEDAKI, "Chedaki");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NAPA, "NAPA");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CDF, "CDF");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NUEVORICO, "NuevoRico");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_BORDURIENS, "Borduriens");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_BIOHAZARD, "Biohazard");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO, "AnyoneInCherno");
 	}
 	
 	// ------------------------------------------------------------
@@ -507,6 +529,111 @@ class ExpansionStatic
 			case 17:
 			{
 				path = EXPANSION_FLAG_COUNTRIES_USA;
+				break;
+			}			
+			case 18:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SCOTTISH;
+				break;
+			}
+			case 19:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_FINNISH;
+				break;
+			}
+			case 20:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SWEDISH;
+				break;
+			}
+			case 21:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SPAIN;
+				break;
+			}
+			case 22:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_BRAZIL;
+				break;
+			}
+			case 23:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_PORTUGAL;
+				break;
+			}
+			case 24:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_BELGIUM;
+				break;
+			}
+			case 25:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_LIVONIA;
+				break;
+			}
+			case 26:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_JAPAN;
+				break;
+			}
+			case 27:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_CHINA;
+				break;
+			}
+			case 28:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SOUTHKOREA;
+				break;
+			}
+			case 29:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_UN;
+				break;
+			}
+			case 30:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_NATO;
+				break;
+			}
+			case 31:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_PIRATE;
+				break;
+			}
+			case 32:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_CHEDAKI;
+				break;
+			}
+			case 33:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_NAPA;
+				break;
+			}
+			case 34:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_CDF;
+				break;
+			}
+			case 35:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_NUEVORICO;
+				break;
+			}
+			case 36:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_BORDURIENS;
+				break;
+			}
+			case 37:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_BIOHAZARD;
+				break;
+			}
+			case 38:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO;
 				break;
 			}
 		}

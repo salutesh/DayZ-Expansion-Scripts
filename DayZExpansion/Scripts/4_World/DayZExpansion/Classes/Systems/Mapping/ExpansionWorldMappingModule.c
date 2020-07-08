@@ -29,7 +29,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	private autoptr map< string, ref array< Object > > m_Objects;
 	private string m_WorldName;
 	
-	protected ExpansionInteriorBuildingModule m_InteriorModule
+	protected ExpansionInteriorBuildingModule m_InteriorModule;
  	
 	// ------------------------------------------------------------
 	// ExpansionWorldMappingModule Constructor
@@ -73,8 +73,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	override void OnInit()
 	{
 		super.OnInit();
-		
-		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
 	}
  	
 	// ------------------------------------------------------------
@@ -206,6 +204,8 @@ class ExpansionWorldMappingModule: JMModuleBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - Start files.Count() : " + files.Count());
 		#endif
+		
+		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
 		
 		if ( m_InteriorModule )
 		{
@@ -356,6 +356,11 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXLogPrint("ExpansionWorldMappingModule::LoadFile - Start name : " + name);
 		#endif
 
+		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
+		
+		if (!m_InteriorModule)
+			return;
+		
 		string className;
 		vector position;
 		vector rotation;

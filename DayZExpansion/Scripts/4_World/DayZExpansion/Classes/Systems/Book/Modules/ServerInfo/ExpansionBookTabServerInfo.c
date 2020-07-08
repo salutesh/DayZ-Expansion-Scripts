@@ -46,7 +46,7 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void ExpansionBookTabServerInfo()
 	{
-		SetButtonIconPath( "set:expansion_iconset image:icon_info" );
+		SetButtonIconPath( "DayZExpansion/GUI/icons/hud/info_64x64.edds" );
 		SetButtonText( "#STR_BOOK_SERVERINFOMENU" );
 		SetButtonColor( COLOR_EXPANSION_SERVERINFO_BOOKMARK_ICON );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_serverinfo.layout" );

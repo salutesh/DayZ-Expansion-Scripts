@@ -117,7 +117,7 @@ class CfgMods
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
-		version = "1.02.3";
+		version = "1.02.5";
 		expansionSkins[] = {"DayZExpansion/Skins/Character/HeadGear/","DayZExpansion/Skins/Gear/Container/","DayZExpansion/Skins/Gear/Cooking/","DayZExpansion/Skins/Gear/Tools/","DayZExpansion/Skins/Gear/Traps/","DayZExpansion/Skins/Vehicles/Air/","DayZExpansion/Skins/Vehicles/Water/","DayZExpansion/Skins/Vehicles/Ground/","DayZExpansion/Skins/Weapons/Explosives/","DayZExpansion/Skins/Weapons/Firearms/","DayZExpansion/Skins/Weapons/Melee/","DayZExpansion/Skins/Weapons/Pistols/","DayZExpansion/Skins/Weapons/Shotguns/"};
 		dependencies[] = {"Game","World","Mission"};
 		class defs

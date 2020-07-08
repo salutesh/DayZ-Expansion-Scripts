@@ -10,13 +10,19 @@
  *
 */
 
-modded class ChatInputMenu
+modded class ChatInputMenu 
 {
 	static ref ScriptInvoker SI_OnChatInputShow = new ScriptInvoker();
 	static ref ScriptInvoker SI_OnChatInputHide = new ScriptInvoker();
-
 	private EditBoxWidget m_edit_box;
-
+	
+	const int WHEEL_STEP = 20;
+	private float m_Position;
+	ref Chat m_Chat;
+	
+	// ------------------------------------------------------------
+	// ChatInputMenu Constructor
+	// ------------------------------------------------------------
 	void ChatInputMenu()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -33,7 +39,10 @@ modded class ChatInputMenu
 		EXPrint("ChatInputMenu::ChatInputMenu End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ChatInputMenu Destructor
+	// ------------------------------------------------------------
 	void ~ChatInputMenu()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -52,7 +61,10 @@ modded class ChatInputMenu
 		EXPrint("ChatInputMenu::~ChatInputMenu End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// Override Init
+	// ------------------------------------------------------------
 	// Don't want the vanilla layout to load at all...
 	override Widget Init()
 	{
@@ -63,24 +75,40 @@ modded class ChatInputMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/chat/expansion_chat_input.layout" );
 		m_edit_box = EditBoxWidget.Cast( layoutRoot.FindAnyWidget( "InputEditBoxWidget" ) );
 
+		m_Position = 1;
+		
+		MissionGameplay mission = MissionGameplay.Cast( GetGame().GetMission() );
+		if ( mission && mission.GetChat() )
+			m_Chat = mission.GetChat();
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ChatInputMenu::Init End");
 		#endif
+		
 		return layoutRoot;
 	}
-
+	
+	// ------------------------------------------------------------
+	// Override UseKeyboard
+	// ------------------------------------------------------------
 	override bool UseKeyboard()
 	{
 		return true;
 	}
 	
+	// ------------------------------------------------------------
+	// Override UseMouse
+	// ------------------------------------------------------------
 	override bool UseMouse()
 	{
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// Override OnChange
+	// ------------------------------------------------------------
 	override bool OnChange( Widget w, int x, int y, bool finished )
-	{		
+	{				
 		if ( !finished )
 			return false;
 
@@ -122,37 +150,27 @@ modded class ChatInputMenu
 				m_close_timer.Run(0.1, this, "Close");
 
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("ChatInputMenu::OnChange End");
-		#endif
+				EXPrint("ChatInputMenu::OnChange End");
+				#endif
+				
 				return true;
 			}
 		}
 		
-		SupressInputs();
-		
 		return super.OnChange( w, x, y, finished );
 	}
-
-	void SupressInputs()
-	{
-		GetUApi().GetInputByName("UAPersonView").Supress();	
-		GetUApi().GetInputByName("UAMoveForward").Supress();	
-		GetUApi().GetInputByName("UAMoveBack").Supress();
-		GetUApi().GetInputByName("UAMoveLeft").Supress();
-		GetUApi().GetInputByName("UAMoveRight").Supress();
-		GetUApi().GetInputByName("UAGetOver").Supress();
-		GetUApi().GetInputByName("UAStance").Supress();
-	}
-	
+		
+	// ------------------------------------------------------------
+	// Override OnShow
+	// ------------------------------------------------------------
 	override void OnShow()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ChatInputMenu::OnShow Start");
 		#endif
 		
-		SetFocus( m_edit_box );
-		
-		SupressInputs();
+		//SetFocus( m_edit_box );
+		//SupressInputs();
 		
 		SI_OnChatInputShow.Invoke();
 
@@ -160,7 +178,10 @@ modded class ChatInputMenu
 		EXPrint("ChatInputMenu::OnShow End");
 		#endif
 	}
-	
+			
+	// ------------------------------------------------------------
+	// Override OnHide
+	// ------------------------------------------------------------
 	override void OnHide()
 	{
 		super.OnHide();
@@ -174,5 +195,20 @@ modded class ChatInputMenu
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ChatInputMenu::OnHide End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnHide
+	// ------------------------------------------------------------
+	override bool OnMouseWheel( Widget w, int x, int y, int wheel )
+	{			
+		//! Controlls scroll steps in the chat panel grid
+		float step = ( 1.0 / ( m_Chat.GetContentHeight() - m_Chat.GetRootHeight() ) ) * WHEEL_STEP;
+		m_Position += wheel * step;
+
+		m_Chat.SetPosition(m_Position);
+		m_Chat.UpdateScroller();
+
+		return true;
 	}
 }

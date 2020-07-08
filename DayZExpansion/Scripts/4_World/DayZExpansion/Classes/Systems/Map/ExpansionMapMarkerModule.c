@@ -233,39 +233,41 @@ class ExpansionMapMarkerModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private bool LoadClientMarkers()
 	{
-		FileSerializer file = new FileSerializer;
-			
-		if (file.Open(EXPANSION_CLIENT_MARKERS, FileMode.READ))
-		{		
-			int version;
-			if (!file.Read(version))
-			{
-				file.Close();
-				return false;
-			}
+		if ( m_LocalServersMarkers.Count() )
+        {
+            // Clear the array so it doesn't grow in size each time
+            m_LocalServersMarkers.Clear();
+        }
 
-			int countArray;
-			if (!file.Read(countArray))
-			{
-				file.Close();
+        // Remove any duplicates that were in existing file
+        autoptr array< ref ExpansionLocalServerMarkers > seenServersMarkers = new array<ref ExpansionLocalServerMarkers>;
+        bool seen;
+        for ( int i = m_LocalServersMarkers.Count() - 1; i >= 0; i-- )
+        {
+            if ( !m_LocalServersMarkers[i] )
 				return false;
-			}
-			
-			for (int i = 0; i < countArray; ++i)
-			{
-				ExpansionLocalServerMarkers newServer = new ExpansionLocalServerMarkers;
-				if (!newServer.OnStoreLoad(file, version))
-				{
-					file.Close();
-					return false;
-				}
-				
-				m_LocalServersMarkers.Insert(newServer);
-			}
-		}
-		
-		return true;
-	}
+
+            seen = false;
+            for ( int j = 0; j < seenServersMarkers.Count(); j++ )
+            {
+                if ( m_LocalServersMarkers[i].m_IP == seenServersMarkers[j].m_IP && m_LocalServersMarkers[i].m_Port == seenServersMarkers[j].m_Port )
+                {
+                    seen = true;
+                    break;
+                }
+            }
+            if ( seen )
+            {
+                m_LocalServersMarkers.Remove(i);
+            }
+            else
+            {
+                seenServersMarkers.Insert( m_LocalServersMarkers[i] );
+            }
+        }
+
+        return true;
+    }
 
 	// ------------------------------------------------------------
 	// Expansion AddServerMarker

@@ -12,8 +12,6 @@
 
 class ExpansionActionClose: ActionInteractBase
 {
-	protected ItemBase m_ExBB;
-
 	void ExpansionActionClose()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
@@ -34,54 +32,29 @@ class ExpansionActionClose: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_ExBB = ItemBase.Cast( target.GetObject() );
+		ItemBase tgt;
+		if ( !Class.CastTo( tgt, target.GetObject() ) )
+			if ( !Class.CastTo( tgt, target.GetParent() ) )
+				return false;
 
-		if ( !m_ExBB && !Class.CastTo( m_ExBB, target.GetParent() ) )
-			return false;
+		string selection = tgt.GetActionComponentName( target.GetComponentIndex() );
 
-		if ( m_ExBB )
-		{
-			string selection = m_ExBB.GetActionComponentName( target.GetComponentIndex() );
-				
-			if ( m_ExBB && m_ExBB.CanClose(selection) )
-			{
-				return true;
-			}
-		}
-		
-		return false;
+		return tgt.CanClose( selection );
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		string selection = m_ExBB.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
-		m_ExBB.Close( selection );
+		ItemBase tgt;
+		if ( !Class.CastTo( tgt, action_data.m_Target.GetObject() ) )
+			if ( !Class.CastTo( tgt, action_data.m_Target.GetParent() ) )
+				return;
 
-		EntityAI attachment;
-		for ( int j = 0; j < m_ExBB.GetInventory().AttachmentCount(); j++ )
-		{	
-			attachment = m_ExBB.GetInventory().GetAttachmentFromIndex( j );
-			if ( attachment.GetType() == "ExpansionCodeLock" )
-			{
-				if ( m_ExBB.IsInherited( ExpansionWallBase ) )
-				{
-					ExpansionWallBase wallBase = ExpansionWallBase.Cast( m_ExBB );
-					if ( wallBase )
-					{
-						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( LockLater, 1000, false, wallBase );
-					}
-				}
-			}
-		}
-	}
-
-	void LockLater( ExpansionWallBase wallBase )
-	{
-		// Message( GetPlayer(), "m_ExBB " + wallBase.IsOpened() );
-
-		if ( !wallBase.IsLocked() && !wallBase.IsOpened() )
-		{
+		string selection = tgt.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+		
+		ExpansionWallBase wallBase = ExpansionWallBase.Cast( tgt );
+		if ( wallBase )
 			wallBase.Lock();
-		}
+			
+		tgt.Close( selection );
 	}
 }

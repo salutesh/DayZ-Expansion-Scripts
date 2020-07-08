@@ -993,7 +993,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Black_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Black_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Black";
 	};
 	class ExpansionUAZ_Black: ExpansionUAZ

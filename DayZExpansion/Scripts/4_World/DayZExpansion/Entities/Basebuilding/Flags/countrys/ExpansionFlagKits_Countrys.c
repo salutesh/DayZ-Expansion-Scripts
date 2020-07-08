@@ -175,3 +175,212 @@ class ExpansionFlagKitUsa: ExpansionFlagKitBase
 		return EXPANSION_FLAG_COUNTRIES_USA;
 	}
 }
+
+/**@class		ExpansionFlagKitScottish
+ * @brief		
+ **/
+class ExpansionFlagKitScottish: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_SCOTTISH;
+	}
+}
+
+/**@class		ExpansionFlagKitFinnish
+ * @brief		
+ **/
+class ExpansionFlagKitFinnish: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_FINNISH;
+	}
+}
+
+/**@class		ExpansionFlagKitSwedish
+ * @brief		
+ **/
+class ExpansionFlagKitSwedish: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_SWEDISH;
+	}
+}
+
+/**@class		ExpansionFlagKitSpain
+ * @brief		
+ **/
+class ExpansionFlagKitSpain: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_SPAIN;
+	}
+}
+
+/**@class		ExpansionFlagKitBrazil
+ * @brief		
+ **/
+class ExpansionFlagKitBrazil: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_BRAZIL;
+	}
+}
+
+/**@class		ExpansionFlagKitPortugal
+ * @brief		
+ **/
+class ExpansionFlagKitPortugal: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_PORTUGAL;
+	}
+}
+
+/**@class		ExpansionFlagKitBelgium
+ * @brief		
+ **/
+class ExpansionFlagKitBelgium: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_BELGIUM;
+	}
+}
+
+/**@class		ExpansionFlagKitLivonia
+ * @brief		
+ **/
+class ExpansionFlagKitLivonia: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_LIVONIA;
+	}
+}
+
+/**@class		ExpansionFlagKitJapan
+ * @brief		
+ **/
+class ExpansionFlagKitJapan: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_JAPAN;
+	}
+}
+
+/**@class		ExpansionFlagKitChina
+ * @brief		
+ **/
+class ExpansionFlagKitChina: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_CHINA;
+	}
+}
+
+/**@class		ExpansionFlagKitSouthKorea
+ * @brief		
+ **/
+class ExpansionFlagKitSouthKorea: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_SOUTHKOREA;
+	}
+}
+
+/**@class		ExpansionFlagKitUN
+ * @brief		
+ **/
+class ExpansionFlagKitUN: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_UN;
+	}
+}
+
+/**@class		ExpansionFlagKitNato
+ * @brief		
+ **/
+class ExpansionFlagKitNato: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_NATO;
+	}
+}
+
+/**@class		ExpansionFlagKitPirate
+ * @brief		
+ **/
+class ExpansionFlagKitPirate: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_PIRATE;
+	}
+}
+
+/**@class		ExpansionFlagKitChedaki
+ * @brief		
+ **/
+class ExpansionFlagKitChedaki: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_CHEDAKI;
+	}
+}
+
+/**@class		ExpansionFlagKitNAPA
+ * @brief		
+ **/
+class ExpansionFlagKitNAPA: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_NAPA;
+	}
+}
+
+/**@class		ExpansionFlagKitCDF
+ * @brief		
+ **/
+class ExpansionFlagKitCDF: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_CDF;
+	}
+}
+
+/**@class		ExpansionFlagKitNuevorico
+ * @brief		
+ **/
+class ExpansionFlagKitNuevorico: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_NUEVORICO;
+	}
+}
+
+/**@class		ExpansionFlagKitBorduriens
+ * @brief		
+ **/
+class ExpansionFlagKitBorduriens: ExpansionFlagKitBase
+{
+	override string GetTexturePath()
+	{
+		return EXPANSION_FLAG_COUNTRIES_BORDURIENS;
+	}
+}

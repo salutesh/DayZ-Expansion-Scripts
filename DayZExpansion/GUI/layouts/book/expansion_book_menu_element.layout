@@ -59,7 +59,8 @@ FrameWidgetClass Bookmark_Frame {
      font "gui/fonts/etelkatextpro22"
      "text color" 0 0 0 1
      "text offset" 0 1
-     "exact text" 0
+     "exact text" 1
+     "exact text size" 22
      "text valign" center
     }
     ImageWidgetClass book_menu_background {

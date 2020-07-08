@@ -16,3 +16,6 @@
 class Static_Lamp_Rail: ExpansionLampLightBase
 {
 }
+class bldr_Lamp_Rail: ExpansionPropLampLightBase
+{
+}

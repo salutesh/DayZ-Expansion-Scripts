@@ -510,7 +510,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	{
 		if ( IsMissionHost() )
 		{
-			if ( extra.Impulse > m_BodyMass * 11 * 2 )
+			if ( (extra.Impulse > m_BodyMass * 11 * 2) && GetOrientation()[1] > 8 && GetOrientation()[1] < 352 && GetOrientation()[2] > 8 && GetOrientation()[2] < 352  ) //hack fix until someone smarter than me fixes helis randomly blowing up while parked. Sorry but this is needed!  
 			{
 				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
 			}

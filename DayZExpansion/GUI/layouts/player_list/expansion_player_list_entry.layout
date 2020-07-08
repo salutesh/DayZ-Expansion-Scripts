@@ -3,7 +3,7 @@ GridSpacerWidgetClass ExpansionPlayerListEntry {
  clipchildren 1
  ignorepointer 0
  position 0 0
- size 1 0.05
+ size 1 0.1
  hexactpos 1
  vexactpos 1
  hexactsize 0
@@ -11,7 +11,7 @@ GridSpacerWidgetClass ExpansionPlayerListEntry {
  scriptclass ""
  style Empty
  Padding 0
- Margin 3
+ Margin 0
  "Size To Content H" 1
  "Size To Content V" 1
  Columns 1
@@ -23,7 +23,7 @@ GridSpacerWidgetClass ExpansionPlayerListEntry {
    ignorepointer 1
    color 0 0 0 0.3922
    position 0 0
-   size 1 27
+   size 1 35
    hexactpos 1
    vexactpos 1
    hexactsize 0
@@ -34,15 +34,16 @@ GridSpacerWidgetClass ExpansionPlayerListEntry {
     ImageWidgetClass player_icon {
      clipchildren 1
      ignorepointer 1
-     color 0.1529 0.6824 0.3765 1
-     position 0.02 0
-     size 24 24
+     color 0.8627 0.8627 0.8627 1
+     position 0.05 0
+     size 32 32
      valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 1
      vexactsize 1
-     image0 "set:expansion_iconset image:icon_gender"
+     image0 ""
+     imageTexture "{C46EFC659DD3BDAB}DayZExpansion/GUI/icons/hud/persona_64x64.edds"
      mode blend
      "src alpha" 1
      "no wrap" 1
@@ -51,8 +52,9 @@ GridSpacerWidgetClass ExpansionPlayerListEntry {
     TextWidgetClass player_name {
      clipchildren 0
      ignorepointer 1
+     color 0.8627 0.8627 0.8627 1
      position 0.1 0
-     size 0.6 0.5314
+     size 0.9 0.9
      valign center_ref
      hexactpos 0
      vexactpos 0

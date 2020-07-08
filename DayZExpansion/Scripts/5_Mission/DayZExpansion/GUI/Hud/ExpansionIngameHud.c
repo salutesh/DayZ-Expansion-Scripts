@@ -84,6 +84,9 @@ class ExpansionIngameHud
 	//! NIGHTVISION
 	protected Widget 										m_NVPanel;
 	protected ImageWidget 									m_NVOverlayImage;
+	protected ImageWidget 									m_NVBatteryIcon;
+	protected TextWidget									m_NVBatteryVal;
+	protected int											m_NVBatteryState;
 	//! CLOCK
 	protected Widget										m_ClockPanel;
 	protected TextWidget									m_Time;
@@ -209,6 +212,14 @@ class ExpansionIngameHud
 		if (m_NVPanel)
 		{
 			m_NVOverlayImage 						= ImageWidget.Cast( m_NVPanel.FindAnyWidget("NVOverlay") );
+			m_NVBatteryIcon							= ImageWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryIcon") );
+			
+			m_NVBatteryIcon.LoadImageFile( 0, "DayZExpansion/GUI/icons/hud/battery_empty_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 1, "DayZExpansion/GUI/icons/hud/battery_low_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 2, "DayZExpansion/GUI/icons/hud/battery_med_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 3, "DayZExpansion/GUI/icons/hud/battery_high_64x64.edds");
+			
+			m_NVBatteryVal							= TextWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryVal") );
 		}
 				
 		//! CLOCK
@@ -509,9 +520,7 @@ class ExpansionIngameHud
 			m_GPSPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionGPSSetting );
 			m_MapPositionArrow.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionGPSSetting && m_ExpansionGPSPosSetting );
 			if ( m_GPSPanel.IsVisible() )
-			{
 				UpdateGPS();
-			}
 		}
 		
 		if ( m_GPSMapPanel )
@@ -524,15 +533,17 @@ class ExpansionIngameHud
 			m_MapStatsPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapStatsState && m_ExpansionGPSSetting );
 		
 		if ( m_NVPanel )
+		{
 			m_NVPanel.Show( m_ExpansionHudNVState && m_ExpansionNVSetting );
+			if ( m_NVPanel.IsVisible() )
+				UpdateNV();
+		}	
 		
 		if ( m_ClockPanel )
 		{
 			m_ClockPanel.Show( m_ExpansionHudState && m_ExpansionClockState && m_ClientClockShow );
 			if ( m_ClockPanel.IsVisible() )
-			{
 				UpdateTime();
-			}
 		}
 		
 		if ( m_EarPlugIcon )
@@ -823,6 +834,59 @@ class ExpansionIngameHud
 	bool GetNVState()
 	{
 		return m_ExpansionHudNVState;
+	}
+	
+	protected int BATTERY_EMPTY_COLOR = ARGB(255,231,76,60);
+	protected int BATTERY_LOW_COLOR = ARGB(255,230,126,34);
+	protected int BATTERY_MED_COLOR = ARGB(255,243,156,18);
+	protected int BATTERY_FULL_COLOR = ARGB(255,46,204,113);
+	//============================================
+	// Expansion GetNVState
+	//============================================
+	void RefreshNVBatteryState(int percent)
+	{
+		if (percent <= 25)
+		{
+			//! 1/4 energy
+			m_NVBatteryIcon.SetImage( 0 );
+			m_NVBatteryIcon.SetColor( BATTERY_EMPTY_COLOR );
+		}
+		else if (percent > 25 && percent <= 50)
+		{
+			//! 2/4 energy
+			m_NVBatteryIcon.SetImage( 1 );
+			m_NVBatteryIcon.SetColor( BATTERY_LOW_COLOR );		
+		}
+		else if (percent > 50 && percent <= 75)
+		{
+			//! 3/4 energy
+			m_NVBatteryIcon.SetImage( 2 );	
+			m_NVBatteryIcon.SetColor( BATTERY_MED_COLOR );
+		}
+		else if (percent > 75)
+		{
+			//! Fully energy
+			m_NVBatteryIcon.SetImage( 3 );	
+			m_NVBatteryIcon.SetColor( BATTERY_FULL_COLOR );
+		}
+		
+		m_NVBatteryVal.SetText( percent.ToString() + "%" );
+	}
+	
+	//============================================
+	// Expansion SetNVBatteryState
+	//============================================
+	void SetNVBatteryState(int percent)
+	{
+		m_NVBatteryState = percent;
+	}
+	
+	//============================================
+	// Expansion UpdateNV
+	//============================================
+	void UpdateNV()
+	{
+		RefreshNVBatteryState( m_NVBatteryState );
 	}
 
 	//============================================

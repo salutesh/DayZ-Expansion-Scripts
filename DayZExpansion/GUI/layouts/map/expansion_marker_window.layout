@@ -22,7 +22,7 @@ FrameWidgetClass ExpansionMarkerWindow {
    style blank
    {
     ButtonWidgetClass marker_info_button {
-     size 34 34
+     size 64 64
      halign center_ref
      valign center_ref
      hexactpos 1
@@ -33,15 +33,16 @@ FrameWidgetClass ExpansionMarkerWindow {
      {
       ImageWidgetClass marker_info_icon {
        ignorepointer 1
-       color 0.1843 0.3412 0.4941 1
-       size 34 34
+       color 0.9529 0.6118 0.0706 1
+       size 64 64
        halign center_ref
        valign center_ref
        hexactpos 1
        vexactpos 1
        hexactsize 1
        vexactsize 1
-       image0 "set:expansion_notification_iconset image:icon_info"
+       image0 ""
+       imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
        mode blend
        "src alpha" 1
        "no wrap" 1
@@ -183,7 +184,7 @@ FrameWidgetClass ExpansionMarkerWindow {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           Padding 0
+           Padding 5
            Margin 0
            "Size To Content H" 1
            "Size To Content V" 1

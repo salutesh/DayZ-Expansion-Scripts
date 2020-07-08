@@ -631,7 +631,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
 		skinName = "Red";
 	};
 	class ExpansionTractor_Red: ExpansionTractor
@@ -664,7 +664,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blue_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blue_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
 		skinName = "Blue";
 	};
 	class ExpansionTractor_Blue: ExpansionTractor
@@ -697,7 +697,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
 		skinName = "Green";
 	};
 	class ExpansionTractor_Green: ExpansionTractor

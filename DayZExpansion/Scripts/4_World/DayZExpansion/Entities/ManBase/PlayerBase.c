@@ -80,8 +80,7 @@ modded class PlayerBase
 		m_HasMap = false;
 		m_HasGPS = false;
 		
-		if (IsMissionHost())
-			m_QuickMarkerColor = ARGB(255, Math.RandomIntInclusive(0, 255), Math.RandomIntInclusive(0, 255), Math.RandomIntInclusive(0, 255));
+		SetRandomQuickMarkerColor();
 		
 		m_AllPlayers.Insert( this );
 		
@@ -90,6 +89,53 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
 		#endif
+	}
+		
+	// ------------------------------------------------------------
+	// Expansion SetRandomQuickMarkerColor
+	// ------------------------------------------------------------
+	void SetRandomQuickMarkerColor()
+	{
+		if ( IsMissionHost() )
+		{
+			array<int> colors = new array<int>;
+			
+			int geen_sea = ARGB(255, 22, 160, 133);
+			colors.Insert(geen_sea);
+			
+			int nephritis = ARGB(255, 39, 174, 96);
+			colors.Insert(nephritis);
+			
+			int belize_hole = ARGB(255, 41, 128, 185);
+			colors.Insert(belize_hole);
+			
+			int wisteria = ARGB(255, 142, 68, 173);
+			colors.Insert(wisteria);
+			
+			int orange = ARGB(255, 243, 156, 18);
+			colors.Insert(orange);
+			
+			int pumpkin = ARGB(255, 211, 84, 0);
+			colors.Insert(pumpkin);
+			
+			int pomegranate = ARGB(255, 192, 57, 43);
+			colors.Insert(pomegranate);
+			
+			int greenland_green = ARGB(255, 34, 166, 179);
+			colors.Insert(greenland_green);
+			
+			int steel_pink = ARGB(255, 190, 46, 221);
+			colors.Insert(steel_pink);
+			
+			//! Generate some random colors to select from
+			/*for ( int y = 0; y < 5; y++ )
+			{
+				int random_color = ARGB(255, Math.RandomIntInclusive(0, 255), Math.RandomIntInclusive(0, 255), Math.RandomIntInclusive(0, 255));
+				colors.Insert(random_color);
+			}*/
+	
+			m_QuickMarkerColor = colors.GetRandomElement();
+		}
 	}
 	
 /*
@@ -868,8 +914,8 @@ modded class PlayerBase
 							if ( cargo_item.GetType() == name )
 							{
 								#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::HasItem - End");
-		#endif
+								EXPrint("PlayerBase::HasItem - End");
+								#endif
 
 								return Class.CastTo( item, cargo_item );
 							}

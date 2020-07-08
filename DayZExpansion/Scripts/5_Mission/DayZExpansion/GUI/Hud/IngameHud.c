@@ -61,9 +61,6 @@ modded class IngameHud
 	protected Widget			m_HelicopterHoverAltitudePanel;
 	protected TextWidget		m_HelicopterHoverAltitudeValue;
 	protected TextWidget		m_HelicopterHoverAltitudeLabel;
-	
-	protected Widget			m_Monitor_1_Container;
-	protected Widget			m_Monitor_1;
 
 	//! Plane	
 	protected Widget			m_PlanePanel;
@@ -85,6 +82,13 @@ modded class IngameHud
 	protected ProgressBarWidget m_PlaneFlaps;
 
 	protected EntityAI			m_ExpansionVehicle;
+	
+	//! Notifiers
+	protected ImageWidget 		m_IconThirst;
+	protected ImageWidget 		m_IconHungry;
+	protected ImageWidget 		m_IconTemperature;
+	protected ImageWidget		m_IconBlood;
+	protected ImageWidget		m_IconHealth;
 	
 	// ------------------------------------------------------------
 	// IngameHud Constructor
@@ -202,14 +206,30 @@ modded class IngameHud
 				m_PlaneThrottle						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneThrottleIndicator") );
 				m_PlaneFlaps						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneFlapsIndicator") );
 			}
-			
-			m_Monitor_1_Container = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/merlin_monitor_1.layout" );
-			if ( m_Monitor_1_Container )
-			{
-				m_Monitor_1_Container.Show( false );
-				m_Monitor_1 = m_Monitor_1_Container.FindAnyWidget( "monitor" );
-			}
 		}
+		
+/*
+		m_IconThirst = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconThirsty") );
+		m_IconThirst.SetFlags(WidgetFlags.STRETCH);		
+		m_IconHungry = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconHungry") );
+		m_IconHungry.SetFlags(WidgetFlags.STRETCH);
+		m_IconTemperature = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconTemperature") ); 
+		m_IconTemperature.SetFlags(WidgetFlags.STRETCH);
+		m_IconBlood = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconBlood") );	
+		m_IconBlood.SetFlags(WidgetFlags.STRETCH);
+		m_IconHealth = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconHealth") );
+		m_IconHealth.SetFlags(WidgetFlags.STRETCH);
+		
+		for ( int y = 0; y < 5; y++ )
+		{
+			m_IconThirst.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/water_64x64.edds" );
+			m_IconHungry.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/heart_64x64.edds" );
+			m_IconTemperature.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/thermometer_1_64x64.edds" );
+			m_IconBlood.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/drip_64x64.edds" );
+			m_IconHealth.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/health_64x64.edds" );
+		}
+*/
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::Init - End");
 		#endif

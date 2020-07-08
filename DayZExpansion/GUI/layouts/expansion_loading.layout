@@ -39,7 +39,6 @@ FrameWidgetClass LoadingFrame {
      mode blend
      "src alpha" 0
      stretch 1
-     Mask ""
      "Transition width" 1
      Progress 0
     }
@@ -95,11 +94,11 @@ FrameWidgetClass LoadingFrame {
       ProgressBarWidgetClass LoadingBar {
        ignorepointer 1
        position 0 70
-       size 600 3
+       size 0.8 3
        halign center_ref
        hexactpos 1
        vexactpos 1
-       hexactsize 1
+       hexactsize 0
        vexactsize 1
        style Loading
        current 45
@@ -108,17 +107,17 @@ FrameWidgetClass LoadingFrame {
        visible 1
        inheritalpha 1
        position 0 40
-       size 600 30
+       size 0.8 30
        halign center_ref
        valign bottom_ref
        hexactpos 1
        vexactpos 1
-       hexactsize 1
+       hexactsize 0
        vexactsize 1
        fixaspect outside
        priority 1
        text "Baking beans..."
-       font "gui/fonts/etelkatextpro"
+       font "gui/fonts/etelkatextpro22"
        "exact text" 1
       }
       RichTextWidgetClass LoadingAuthor {
@@ -126,16 +125,16 @@ FrameWidgetClass LoadingFrame {
        inheritalpha 1
        color 0.7843 0 0 1
        position 0 10
-       size 600 30
+       size 0.8 30
        halign center_ref
        valign bottom_ref
        hexactpos 1
        vexactpos 1
-       hexactsize 1
+       hexactsize 0
        vexactsize 1
        fixaspect outside
        priority 1
-       font "gui/fonts/etelkatextpro"
+       font "gui/fonts/etelkatextpro16"
        "text color" 0.2353 0.4314 1 1
        "exact text" 1
       }

@@ -79,6 +79,14 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion OnInit
+	// ------------------------------------------------------------
+	override void OnInit()
+	{
+		super.OnInit();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion OnMissionFinish
 	// ------------------------------------------------------------
 	override void OnMissionFinish()

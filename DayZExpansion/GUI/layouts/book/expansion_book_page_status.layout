@@ -44,6 +44,8 @@ FrameWidgetClass book_module_status {
        priority 1
        text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_TITLE"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 1
+       "exact text size" 24
        "text halign" center
        "text valign" center
       }
@@ -74,8 +76,8 @@ FrameWidgetClass book_module_status {
        {
         GridSpacerWidgetClass status_spacer {
          ignorepointer 1
-         position 0.023 0.00918
-         size 0.95 0.4
+         position 0.01 0.0092
+         size 0.98 0.4
          hexactpos 0
          vexactpos 0
          hexactsize 0
@@ -85,7 +87,7 @@ FrameWidgetClass book_module_status {
          {
           PanelWidgetClass profile_time_spacer {
            visible 1
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -103,7 +105,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_PLAYTIME"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_time_value {
@@ -116,7 +120,9 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
@@ -124,7 +130,7 @@ FrameWidgetClass book_module_status {
           }
           PanelWidgetClass profile_shot_spacer {
            visible 1
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -142,7 +148,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_SHOT"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_shot_value {
@@ -155,14 +163,16 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
            }
           }
           PanelWidgetClass profile_player_kills_spacer {
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -180,7 +190,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_KILLS"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_player_kills_value {
@@ -193,14 +205,16 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
            }
           }
           PanelWidgetClass profile_zombie_kills_spacer {
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -218,7 +232,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_ZOMBIE_KILLS"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_zombie_kills_value {
@@ -231,14 +247,16 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
            }
           }
           PanelWidgetClass profile_animal_kills_spacer {
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -256,7 +274,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_ANIMAL_KILLS"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_animal_kills_value {
@@ -269,7 +289,9 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
@@ -277,7 +299,7 @@ FrameWidgetClass book_module_status {
           }
           PanelWidgetClass profile_distance_spacer {
            visible 1
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -295,7 +317,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_DISTANCE"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_distance_value {
@@ -308,7 +332,9 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
@@ -316,7 +342,7 @@ FrameWidgetClass book_module_status {
           }
           PanelWidgetClass profile_weight_spacer {
            visible 1
-           size 0.29 0.207
+           size 0.29 0.2
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -334,7 +360,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_PLAYER_WEIGHT"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
             TextWidgetClass profile_weight_value {
@@ -347,7 +375,9 @@ FrameWidgetClass book_module_status {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" right
              "text valign" center
             }
@@ -370,6 +400,8 @@ FrameWidgetClass book_module_status {
          priority 1
          text "#STR_EXPANSION_BOOK_STATUS_CONDITION_TITLE"
          font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "exact text" 1
+         "exact text size" 24
          "text halign" center
          "text valign" center
         }
@@ -500,8 +532,8 @@ FrameWidgetClass book_module_status {
      {
       PanelWidgetClass page_content_right {
        color 0.349 0.2 0.1451 1
-       position 0 0.05582
-       size 1 0.87786
+       position 0 0.04
+       size 1 0.92
        halign center_ref
        valign center_ref
        hexactpos 0
@@ -513,7 +545,7 @@ FrameWidgetClass book_module_status {
         PanelWidgetClass player_preview_content {
          color 0.349 0.2 0.1451 1
          position 0 0
-         size 1 0.4
+         size 1 0.42
          halign center_ref
          hexactpos 0
          vexactpos 0
@@ -523,6 +555,7 @@ FrameWidgetClass book_module_status {
          {
           PlayerPreviewWidgetClass player_preview {
            ignorepointer 0
+           position 0 0
            size 0.5 1
            halign center_ref
            hexactpos 0
@@ -534,8 +567,8 @@ FrameWidgetClass book_module_status {
         }
         GridSpacerWidgetClass stats_spacer {
          ignorepointer 1
-         position 0 0.01899
-         size 0.95 0.56428
+         position 0 0.01
+         size 0.99 0.5643
          halign center_ref
          valign bottom_ref
          hexactpos 0
@@ -564,7 +597,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_STATS_HEALTH"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
            }
@@ -589,8 +624,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "50"
-             font "gui/fonts/etelkatextpro16"
-             "exact text" 0
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -627,7 +663,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_STATS_BLOOD"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
            }
@@ -652,7 +690,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "80"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -690,7 +730,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_STATS_WATER"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
            }
@@ -716,7 +758,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "20"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -754,7 +798,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_STATS_ENERGY"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
            }
@@ -780,7 +826,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "20"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -818,7 +866,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_BOOK_STATUS_STATS_STAMINA"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text valign" center
             }
            }
@@ -844,7 +894,9 @@ FrameWidgetClass book_module_status {
              hexactsize 0
              vexactsize 0
              text "20"
-             font "gui/fonts/etelkatextpro16"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
              "text halign" center
              "text valign" center
             }
@@ -894,6 +946,8 @@ FrameWidgetClass book_module_status {
        priority 1
        text "#STR_EXPANSION_BOOK_STATUS_STATS_TITLE"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 1
+       "exact text size" 24
        "text halign" center
        "text valign" center
       }

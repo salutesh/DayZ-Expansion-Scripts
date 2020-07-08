@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_C130J
 	{
-		units[] = {"ExpansionC130JWheel","ExpansionC130J","ExpansionSpraycanGray","ExpansionC130J_Gray"};
+		units[] = {"ExpansionC130JWheel","ExpansionC130J","ExpansionSpraycanGrey","ExpansionC130J_Gray"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -316,13 +316,13 @@ class CfgVehicles
 		};
 	};
 	class ExpansionSpraycanBase;
-	class ExpansionSpraycanGray: ExpansionSpraycanBase
+	class ExpansionSpraycanGrey: ExpansionSpraycanBase
 	{
 		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_Gray_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Gray_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
-		skinName = "Gray";
+		displayName = "$STR_EXPANSION_SPRAYCAN_Grey_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
+		skinName = "Grey";
 	};
 	class ExpansionC130J_Gray: ExpansionC130J
 	{

@@ -20,3 +20,10 @@ class Static_Power_Pole_Wood1_Lamp: ExpansionLampLightBase
 		return "-0.000977 3.65 0.418945";
 	}
 }
+class bldr_Power_Pole_Wood1_Lamp: ExpansionPropLampLightBase
+{
+	override vector GetLampPosition()
+	{
+		return "-0.000977 3.65 0.418945";
+	}
+}

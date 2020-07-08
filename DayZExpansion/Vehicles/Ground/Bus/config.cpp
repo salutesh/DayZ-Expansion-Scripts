@@ -409,7 +409,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blue_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blue_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
 		skinName = "Blue";
 	};
 	class ExpansionBus_Blue: ExpansionBus
@@ -435,7 +435,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
 		skinName = "Red";
 	};
 	class ExpansionBus_Red: ExpansionBus

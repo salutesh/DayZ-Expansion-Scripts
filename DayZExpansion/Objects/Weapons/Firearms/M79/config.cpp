@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_M79
 	{
-		units[] = {"Expansion_M203_HE_Explosion"};
+		units[] = {"Expansion_M203_HE_Explosion","Expansion_M203Round_Smoke_White","Expansion_M203Round_Smoke_Teargas","Expansion_M203Round_Smoke_Red","Expansion_M203Round_Smoke_Green","Expansion_M203Round_Smoke_Yellow","Expansion_M203Round_Smoke_Purple"};
 		weapons[] = {"Expansion_M79"};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
@@ -121,6 +121,9 @@ class CfgMagazines
 		iconCartridge = 1;
 		weight = 12;
 		count = 4;
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\M203.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -138,30 +141,40 @@ class CfgMagazines
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_WHITE";
 		ammo = "Bullet_Expansion_M203_Smoke_White";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_white_co.paa"};
 	};
 	class Ammo_Expansion_M203_Smoke_Red: Ammo_Expansion_M203_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_RED";
 		ammo = "Bullet_Expansion_M203_Smoke_Red";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_red_co.paa"};
 	};
 	class Ammo_Expansion_M203_Smoke_Green: Ammo_Expansion_M203_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_GREEN";
 		ammo = "Bullet_Expansion_M203_Smoke_Green";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_green_co.paa"};
 	};
 	class Ammo_Expansion_M203_Smoke_Yellow: Ammo_Expansion_M203_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_YELLOW";
 		ammo = "Bullet_Expansion_M203_Smoke_Yellow";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_yellow_co.paa"};
 	};
 	class Ammo_Expansion_M203_Smoke_Purple: Ammo_Expansion_M203_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_PURPLE";
 		ammo = "Bullet_Expansion_M203_Smoke_Purple";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_purple_co.paa"};
 	};
 	class Ammo_Expansion_M203_Smoke_Teargas: Ammo_Expansion_M203_Smoke_Base
 	{
@@ -181,30 +194,40 @@ class CfgMagazines
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_WHITE";
 		ammo = "Bullet_Expansion_M203_Sticky_Smoke_White";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_white_co.paa"};
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_Red: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_RED";
 		ammo = "Bullet_Expansion_M203_Sticky_Smoke_Red";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_red_co.paa"};
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_Green: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_GREEN";
 		ammo = "Bullet_Expansion_M203_Sticky_Smoke_Green";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_green_co.paa"};
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_Yellow: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_YELLOW";
 		ammo = "Bullet_Expansion_M203_Sticky_Smoke_Yellow";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_yellow_co.paa"};
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_Purple: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_PURPLE";
 		ammo = "Bullet_Expansion_M203_Sticky_Smoke_Purple";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_purple_co.paa"};
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_Teargas: Ammo_Expansion_M203_Sticky_Smoke_Base
 	{
@@ -462,6 +485,7 @@ class cfgVehicles
 	class FxCartridge;
 	class FxRound;
 	class HouseNoDestruct;
+	class Grenade_Base;
 	class Expansion_M203_HE_Explosion: HouseNoDestruct
 	{
 		scope = 2;
@@ -475,5 +499,67 @@ class cfgVehicles
 	class FxRound_Expansion_M203: FxRound
 	{
 		model = "DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\m203_fxround.p3d";
+	};
+	class Expansion_M203Round_Smoke_Colorbase: Grenade_Base
+	{
+		displayName = "";
+		descriptionShort = "";
+		model = "DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\m79_projectile.p3d";
+		rotationFlags = 17;
+		weight = 500;
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\M203.rvmat"};
+		class EnergyManager
+		{
+			energyAtSpawn = 90;
+			energyUsagePerSecond = 1;
+			wetnessExposure = 0.1;
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class Unpin
+				{
+					soundSet = "SmokegGrenades_M18_oneshot_ignite_SoundSet";
+					id = 201;
+				};
+			};
+		};
+	};
+	class Expansion_M203Round_Smoke_White: Expansion_M203Round_Smoke_Colorbase
+	{
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_white_co.paa"};
+		scope = 2;
+	};
+	class Expansion_M203Round_Smoke_Teargas: Expansion_M203Round_Smoke_Colorbase
+	{
+		scope = 2;
+	};
+	class Expansion_M203Round_Smoke_Red: Expansion_M203Round_Smoke_Colorbase
+	{
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_red_co.paa"};
+		scope = 2;
+	};
+	class Expansion_M203Round_Smoke_Green: Expansion_M203Round_Smoke_Colorbase
+	{
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_green_co.paa"};
+		scope = 2;
+	};
+	class Expansion_M203Round_Smoke_Yellow: Expansion_M203Round_Smoke_Colorbase
+	{
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_yellow_co.paa"};
+		scope = 2;
+	};
+	class Expansion_M203Round_Smoke_Purple: Expansion_M203Round_Smoke_Colorbase
+	{
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\data\dayz_purple_co.paa"};
+		scope = 2;
 	};
 };

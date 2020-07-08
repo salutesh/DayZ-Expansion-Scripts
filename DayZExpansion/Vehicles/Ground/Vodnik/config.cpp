@@ -426,7 +426,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Camo_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Camo_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_camo_co.paa"};
 		skinName = "Camo";
 	};
 	class ExpansionVodnik_Camo: ExpansionVodnik
@@ -449,7 +449,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_CamoMedical_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_CamoMedical_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_camo_co.paa"};
 		skinName = "CamoMedical";
 	};
 	class ExpansionVodnik_CamoMedical: ExpansionVodnik

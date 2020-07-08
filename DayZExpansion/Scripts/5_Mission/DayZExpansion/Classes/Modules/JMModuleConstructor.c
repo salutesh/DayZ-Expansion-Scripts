@@ -26,8 +26,8 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionMissionModule ); 
 		modules.Insert( Expansion3DMarkerModule );
 		modules.Insert( ExpansionMapMarkerModule );
-		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionTerritoryModule );
+		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionWorldMappingModule );
 		modules.Insert( ExpansionSkinModule );						
 		modules.Insert( ExpansionAutorunModule );

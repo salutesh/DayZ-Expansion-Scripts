@@ -68,8 +68,6 @@
 			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" />
 			
 			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
-
-			<input name="UAExpansionSampleMenuToggle" visible="false" />
         </actions>
 		
 		<exclude name="movementexpansion">

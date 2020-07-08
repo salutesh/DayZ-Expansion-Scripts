@@ -284,7 +284,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
 		skinName = "Green";
 	};
 	class ExpansionUh1h_Green: ExpansionUh1h

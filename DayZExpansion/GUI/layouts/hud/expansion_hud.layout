@@ -105,7 +105,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
      visible 1
      ignorepointer 1
      position 0 78.56
-     size 65 138
+     size 64 138
      halign right_ref
      valign center_ref
      hexactpos 1
@@ -114,19 +114,22 @@ FrameWidgetClass ExpansionIngameHudFrame {
      vexactsize 1
      Padding 8
      Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
      Columns 1
      Rows 2
      {
       ImageWidgetClass EarPlug_Icon {
        visible 0
        ignorepointer 1
-       size 65 65
+       color 0.8627 0.8627 0.8627 1
+       size 64 64
        halign center_ref
        hexactpos 1
        vexactpos 1
        hexactsize 1
        vexactsize 1
-       imageTexture "{8244D921344E1DEA}DayZExpansion/GUI/textures/earplug_icon.edds"
+       imageTexture "{FC3F3834EDFFA2A2}DayZExpansion/GUI/icons/hud/ear_64x64.edds"
        mode blend
        "src alpha" 1
        stretch 1
@@ -144,6 +147,135 @@ FrameWidgetClass ExpansionIngameHudFrame {
        mode blend
        "src alpha" 1
        stretch 1
+      }
+     }
+    }
+    WrapSpacerWidgetClass VoiceLevelsPanel {
+     visible 1
+     clipchildren 0
+     ignorepointer 1
+     position 0.165 0
+     size 0.0216 32
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     fixaspect fixwidth
+     priority 100
+     scriptclass ""
+     Padding 0
+     Margin 0
+     content_valign center
+     {
+      ImageWidgetClass Whisper {
+       visible 1
+       clipchildren 1
+       color 0.8627 0.8627 0.8627 1
+       position 1.00061 20.8232
+       size 9 31
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect fixwidth
+       image0 "set:dayz_gui image:Presence0"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 0
+       filter 1
+       nocache 0
+       rotation 0 0 180
+      }
+      ImageWidgetClass Talk {
+       visible 1
+       clipchildren 0
+       color 0.8627 0.8627 0.8627 1
+       position 0.9183 1.2741
+       size 9 31
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect fixwidth
+       image0 "set:dayz_gui image:Presence1"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 0
+       filter 1
+       nocache 0
+       rotation 0 0 180
+      }
+      ImageWidgetClass Shout {
+       visible 1
+       clipchildren 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.9063 1.7324
+       size 9 31
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect fixwidth
+       image0 "set:dayz_gui image:Presence2"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 0
+       filter 1
+       nocache 0
+       rotation 0 0 180
+      }
+     }
+    }
+    ImageWidgetClass mic {
+     visible 1
+     color 0.8627 0.8627 0.8627 1
+     position 0.15 0
+     size 32 32
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     image0 "set:dayz_gui image:mic"
+     mode blend
+     "src alpha" 1
+     "no wrap" 0
+     "flip u" 0
+     rotation 0 0 15
+    }
+    FrameWidgetClass BadgesSpacer {
+     visible 1
+     position 0.14 0
+     size 32 32
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     priority 100
+     {
+      PanelWidgetClass BadgeNotifierDivider {
+       color 1 1 1 0.2941
+       size 3 19
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
       }
      }
     }
@@ -184,6 +316,37 @@ FrameWidgetClass ExpansionIngameHudFrame {
      filter 1
      "Transition width" 0
     }
+    ImageWidgetClass NVBatteryIcon {
+     ignorepointer 1
+     position 0.05 0.05
+     size 64 64
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     imageTexture "{A0E9814C75266D63}DayZExpansion/GUI/icons/hud/battery_high_64x64.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    TextWidgetClass NVBatteryVal {
+     ignorepointer 1
+     position 0.05 0.09
+     size 64 0.05
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 0
+     font "gui/fonts/etelkatextpro16"
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
    }
   }
   PanelWidgetClass ChatChannelPanel {
@@ -213,8 +376,9 @@ FrameWidgetClass ExpansionIngameHudFrame {
      hexactsize 0
      vexactsize 0
      scaled 1
-     font "gui/fonts/etelkatextpro16"
-     "exact text" 0
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 1
+     "exact text size" 22
      "size to text h" 0
      "size to text v" 0
      "text valign" center

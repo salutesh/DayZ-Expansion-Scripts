@@ -296,14 +296,20 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 5000;
 				};
 			};
 			class GlobalArmor
 			{
 				class Projectile
 				{
-					Health = 0;
+					Health = 1;
+					Blood = 0;
+					Shock = 0;
+				};
+				class FragGrenade
+				{
+					Health = 10;
 					Blood = 0;
 					Shock = 0;
 				};

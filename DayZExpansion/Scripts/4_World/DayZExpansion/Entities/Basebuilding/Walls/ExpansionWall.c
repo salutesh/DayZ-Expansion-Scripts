@@ -126,7 +126,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{
 		return m_HasWindow || m_HasDoor || m_HasGate;
 	}
-
+	bool HasGate()
+	{
+		return m_HasGate;
+	}
+	
 	override void OnPartBuiltServer( string part_name, int action_id )
 	{
 		m_HasWindow = false;
@@ -345,13 +349,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				return true;
 		}
 
-		if ( m_HasDoor && !IsLocked() )
+		if ( m_HasDoor )
 		{
 			if ( selection == (m_CurrentBuild + "_door") && GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) > 0.5 )
 				return true;
 		}
 
-		if ( m_HasGate && !IsLocked() )
+		if ( m_HasGate )
 		{
 			if ( selection == (m_CurrentBuild + "_gate_l") && GetAnimationPhase( m_CurrentBuild +"_gate_l_rotate" ) > 0.5 )
 				return true;

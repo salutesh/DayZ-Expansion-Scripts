@@ -28,7 +28,8 @@ PanelWidgetClass ExpansionPageElement {
      vexactsize 0
      priority 1
      font "DayZExpansion/GUI/fonts/etelkatextpro24"
-     "exact text" 0
+     "exact text" 1
+     "exact text size" 24
      "size to text h" 0
      "text halign" center
      "text valign" center
@@ -67,8 +68,9 @@ PanelWidgetClass ExpansionPageElement {
        vexactpos 0
        hexactsize 0
        vexactsize 0
-       font "gui/fonts/etelkatextpro16"
+       font "gui/fonts/etelkatextpro22"
        "exact text" 1
+       "exact text size" 22
        wrap 1
       }
      }

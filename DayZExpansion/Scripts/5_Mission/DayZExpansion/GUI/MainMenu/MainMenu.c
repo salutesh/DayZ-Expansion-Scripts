@@ -13,10 +13,12 @@
 modded class MainMenu
 {
 	protected ref MainMenuExpansionNewsfeed		m_ExpansionNewsfeed;
+	protected Widget							m_SettingsButtonPanel;
 	protected ImageWidget 						m_Logo;
 	protected ImageWidget 						m_SettingsIcon;
 	protected ImageWidget 						m_ExitIcon;
 	protected ImageWidget 						m_TutorialIcon;
+	protected ImageWidget						m_CreditsIcon;
 	protected Widget 							m_ExpansionLicenceRoot;
 	protected Widget							m_LicencePanel;
 	protected TextWidget						m_LicenceTitle;
@@ -38,26 +40,59 @@ modded class MainMenu
 	void MainMenu()
 	{
 	}
-
+	
 	// ------------------------------------------------------------
-	// Override Widget Init
+	// Override MainMenu Init
 	// ------------------------------------------------------------
 	override Widget Init()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MainMenu::Init - Start");
 		#endif
-		super.Init();
 		
-		m_Logo 						= ImageWidget.Cast( layoutRoot.FindAnyWidget( "dayz_logo" ) );
-		m_SettingsIcon				= ImageWidget.Cast( layoutRoot.FindAnyWidget( "settings_button_image" ) );
-		m_ExitIcon					= ImageWidget.Cast( layoutRoot.FindAnyWidget( "exit_button_image" ) );
-		m_TutorialIcon				= ImageWidget.Cast( layoutRoot.FindAnyWidget( "tutorial_button_image" ) );
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/gui/layouts/expansion_main_menu.layout" );
 		
-		m_Logo.LoadImageFile( 0, "set:expansion_iconset image:logo_expansion_white" );
-		m_SettingsIcon.LoadImageFile( 0, "set:expansion_iconset image:icon_settings" );
-		m_ExitIcon.LoadImageFile( 0, "set:expansion_iconset image:icon_exit" );
-		m_TutorialIcon.LoadImageFile( 0, "set:expansion_notification_iconset image:icon_info" );
+		m_Play						= layoutRoot.FindAnyWidget( "play" );
+		m_ChooseServer				= layoutRoot.FindAnyWidget( "choose_server" );
+		m_CustomizeCharacter		= layoutRoot.FindAnyWidget( "customize_character" );
+		m_PlayVideo					= layoutRoot.FindAnyWidget( "play_video" );
+		m_Tutorials					= layoutRoot.FindAnyWidget( "tutorials" );
+		m_TutorialButton			= layoutRoot.FindAnyWidget( "tutorial_button" );
+		m_MessageButton				= layoutRoot.FindAnyWidget( "message_button" );
+		m_SettingsButton			= layoutRoot.FindAnyWidget( "settings_button" );
+		m_Exit						= layoutRoot.FindAnyWidget( "exit_button" );
+		m_PrevCharacter				= layoutRoot.FindAnyWidget( "prev_character" );
+		m_NextCharacter				= layoutRoot.FindAnyWidget( "next_character" );
+
+		m_Version					= TextWidget.Cast( layoutRoot.FindAnyWidget( "version" ) );
+		m_ModdedWarning				= TextWidget.Cast( layoutRoot.FindAnyWidget( "ModdedWarning" ) );
+		m_CharacterRotationFrame	= layoutRoot.FindAnyWidget( "character_rotation_frame" );
+		
+		m_LastPlayedTooltip			= layoutRoot.FindAnyWidget( "last_server_info" );
+		m_LastPlayedTooltip.Show(false);
+		m_LastPlayedTooltipLabel	= m_LastPlayedTooltip.FindAnyWidget( "last_server_info_label" );
+		m_LastPlayedTooltipName 	= TextWidget.Cast( m_LastPlayedTooltip.FindAnyWidget( "last_server_info_name" ) );
+		m_LastPlayedTooltipIP		= TextWidget.Cast( m_LastPlayedTooltip.FindAnyWidget( "last_server_info_ip" ) );
+		m_LastPlayedTooltipPort		= TextWidget.Cast( m_LastPlayedTooltip.FindAnyWidget( "last_server_info_port" ) );
+		
+		m_LastPlayedTooltipTimer	= new WidgetFadeTimer();
+		
+		m_Stats						= new MainMenuStats( layoutRoot.FindAnyWidget( "character_stats_root" ) );
+		
+		m_Mission					= MissionMainMenu.Cast( GetGame().GetMission() );
+		
+		m_LastFocusedButton = 		m_Play;
+
+		m_ScenePC					= m_Mission.GetIntroScenePC();
+		
+		if( m_ScenePC )
+		{
+			m_ScenePC.ResetIntroCamera();
+		}
+		
+		m_PlayVideo.Show( false );
+		
+		m_PlayerName				= TextWidget.Cast( layoutRoot.FindAnyWidget("character_name_text") );
 		
 		//! Set Version
 		string version;
@@ -104,9 +139,17 @@ modded class MainMenu
 		//m_ExpansionNewsFeedRoot.SetPos(feed_x, feed_y);
 		//m_ExpansionNewsfeed	= new MainMenuExpansionNewsfeed( m_ExpansionNewsFeedRoot.FindAnyWidget( "news_feed_root" ) );
 		
+		GetGame().GetUIManager().ScreenFadeOut(0);
+
+		SetFocus( null );
+		
 		Refresh();
 		
+		LoadMods();
+		
 		GetDayZGame().GetBacklit().MainMenu_OnShow();
+	
+		g_Game.SetLoadState( DayZLoadState.MAIN_MENU_CONTROLLER_SELECT );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MainMenu::Init - End");

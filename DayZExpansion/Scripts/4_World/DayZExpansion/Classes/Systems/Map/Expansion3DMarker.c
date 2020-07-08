@@ -12,13 +12,13 @@
 
 class Expansion3DMarker extends UIScriptedMenu
 {
-	protected float			 m_OriginalHeight;
-	protected float			 m_OriginalWidth;
+	protected float				m_OriginalHeight;
+	protected float				m_OriginalWidth;
 
 	protected Object			m_LinkedObject;
-	protected bool			  m_UsingLinkedObject;
+	protected bool				m_UsingLinkedObject;
 	protected vector			m_OffsetPosition;
-	protected int			   m_BoneIndex;
+	protected int				m_BoneIndex;
 
 	protected vector			m_MarkerPosition;
 
@@ -27,16 +27,16 @@ class Expansion3DMarker extends UIScriptedMenu
 
 	protected TextWidget		m_MarkerText;
 
-	protected ImageWidget	   m_MarkerIcon;
+	protected ImageWidget		m_MarkerIcon;
 
-	protected int 				m_DefaultAlphaColor;
+	protected int				m_DefaultAlphaColor;
 	protected int				m_AlphaColor;
 	protected int				m_MinAlphaColor;
 	protected int				m_RedColor;
 	protected int				m_GreenColor;
 	protected int				m_BlueColor;
 	
-	protected bool 				m_ShowDistance;
+	protected bool				m_ShowDistance;
 
 	void Expansion3DMarker( string name, string iconpath, int color, vector position, Object linkedObject = NULL, vector offset = "0 0 0", int bone = -1, bool showDistance = true )
 	{

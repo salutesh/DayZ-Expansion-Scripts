@@ -68,7 +68,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
 		skinName = "Red";
 	};
 	class ExpansionSpraycanBlack: ExpansionSpraycanBase
@@ -84,7 +84,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blue_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blue_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
 		skinName = "Blue";
 	};
 	class ExpansionSpraycanBanditKitty: ExpansionSpraycanBase
@@ -100,7 +100,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Yellow_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Yellow_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_yellow_co.paa"};
 		skinName = "Yellow";
 	};
 	class ExpansionSpraycanGrey: ExpansionSpraycanBase
@@ -108,7 +108,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Grey_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
 		skinName = "Grey";
 	};
 	class ExpansionSpraycanWine: ExpansionSpraycanBase
@@ -124,7 +124,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_White_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_White_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_white_co.paa"};
 		skinName = "White";
 	};
 	class OffroadHatchback: CarScript

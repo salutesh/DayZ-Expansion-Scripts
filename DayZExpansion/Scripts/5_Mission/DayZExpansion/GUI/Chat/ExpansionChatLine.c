@@ -41,24 +41,32 @@ class ExpansionChatLine
 	ref Timer 				 				m_ScrollerTimer;
 
 	bool									m_IsShown;
-
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine Constructor
+	// ------------------------------------------------------------
 	void ExpansionChatLine( Widget root_widget )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine Start");
 		#endif
-		m_RootWidget	= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/chat/expansion_chat_entry_new.layout", root_widget) );
+		
+		m_RootWidget	= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/chat/expansion_chat_entry.layout", root_widget) );
 		
 		m_NameWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemSenderWidget" ) );
 		m_TextWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemTextWidget" ) );
 		
 		m_RootWidget.Update();
 		m_RootWidget.Show(false);
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine Destructor
+	// ------------------------------------------------------------
 	void ~ExpansionChatLine()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -69,17 +77,26 @@ class ExpansionChatLine
 		EXPrint("ExpansionChatLine::~ExpansionChatLine End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine ExpSetTextColor
+	// ------------------------------------------------------------
 	private void ExpSetTextColor(int colour)
 	{
 		m_TextWidget.SetColor(colour);
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionChatLine ExpSenderSetColour
+	// ------------------------------------------------------------
 	private void ExpSenderSetColour(int colour)
 	{
 		m_NameWidget.SetColor(colour);
 	}
-	
+		
+	// ------------------------------------------------------------
+	// ExpansionChatLine Set
+	// ------------------------------------------------------------
 	void Set( ExpansionChatMessage message )	// Param 1 --> Channel, Param 2 --> sender name, Param 3 --> message, Param 4 ?? 
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -186,7 +203,10 @@ class ExpansionChatLine
 		EXPrint("ExpansionChatLine::Set End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine FadeInChatLine
+	// ------------------------------------------------------------
 	private void FadeInChatLine()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -201,7 +221,10 @@ class ExpansionChatLine
 		EXPrint("ExpansionChatLine::FadeInChatLine End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine FadeOutChatLine
+	// ------------------------------------------------------------
 	//! Not used
 	private void FadeOutChatLine()
 	{
@@ -217,7 +240,10 @@ class ExpansionChatLine
 		EXPrint("ExpansionChatLine::FadeOutChatLine End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine Clear
+	// ------------------------------------------------------------
 	void Clear()
 	{
 		#ifdef EXPANSIONEXPRINT

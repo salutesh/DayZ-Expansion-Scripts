@@ -1002,7 +1002,7 @@ class ExpansionMapMenuMarkerWindow extends ScriptedWidgetEventHandler
 			#endif
 			
 			m_Tooltip.HideTooltip();
-			m_TooltipButtonIcon.SetColor( ARGB(255, 47, 87, 126) );
+			m_TooltipButtonIcon.SetColor( ARGB(255, 243, 156, 18) );
 
 			return true;
 		}

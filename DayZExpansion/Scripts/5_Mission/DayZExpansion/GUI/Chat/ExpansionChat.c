@@ -13,14 +13,40 @@
 modded class Chat
 {
 	const int MAX_CHAT_HISTORY = 100;
-
-	private ref ExpansionChatHandler m_Handler;
-
+	
 	private ref array< ref ExpansionChatMessage > m_ChatParams;
 	private ref array< ref ExpansionChatLine > m_ChatLines;
 
 	private bool m_IsChatInputVisible;
 
+	//! Chat Handling
+	const int WHEEL_STEP = 20;
+	const float CHAT_FADEOUT_TIME = 3;
+	const float FADE_OUT_DURATION = 3;
+	const float FADE_IN_DURATION = 0.5;
+
+	GridSpacerWidget m_Content;
+	Widget m_ScrollerContainer;
+	Widget m_Scroller;
+
+	private float m_RootHeight;
+	private float m_ContentHeight;
+	private float m_Position;
+
+	private float m_ScrollStartPos;
+	private int m_MouseStartPos;
+
+	private bool m_IsDragScrolling;
+	private bool m_IsMouseScrolling;
+
+	private bool m_ShowScroller;
+
+	private ref WidgetFadeTimer m_FadeInTimerScroller;
+	private ref Timer m_TimeOutTimerScroller;
+	
+	// ------------------------------------------------------------
+	// Chat Constructor
+	// ------------------------------------------------------------
 	void Chat()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -37,7 +63,10 @@ modded class Chat
 		EXPrint("Chat::Chat End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// Chat Destructor
+	// ------------------------------------------------------------
 	void ~Chat()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -52,6 +81,9 @@ modded class Chat
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Chat Init
+	// ------------------------------------------------------------
 	override void Init( Widget root_widget )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -64,11 +96,15 @@ modded class Chat
 		
 		if ( m_RootWidget )
 		{
-			m_Handler = new ExpansionChatHandler( this );
-			m_RootWidget.SetHandler( m_Handler );
+			m_Content = GridSpacerWidget.Cast( m_RootWidget.FindAnyWidget( "Content" ) );
+			m_ScrollerContainer = Widget.Cast( m_RootWidget.FindAnyWidget( "ScrollerContainer" ) );
+			m_ScrollerContainer.Show(false);
+			m_Scroller = Widget.Cast( m_RootWidget.FindAnyWidget( "Scroller" ) );
 
+			m_Position = 1;
+			
 			GridSpacerWidget rows;
-			if ( Class.CastTo( rows, UIActionManager.CreateActionRows( m_Handler.GetContentWidget() ) ) )
+			if ( Class.CastTo( rows, UIActionManager.CreateActionRows( m_Content ) ) )
 			{
 				int totalInContentRow = 100;
 				int currentContentRow = 0;
@@ -91,25 +127,24 @@ modded class Chat
 					}
 				}
 			}
-
-			UpdateScroller();
 		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Init End");
 		#endif
 	}
-	
-	Widget GetRootWidget()
-	{
-		return m_RootWidget;
-	}
 
+	// ------------------------------------------------------------
+	// Override Destroy
+	// ------------------------------------------------------------
 	override void Destroy()
 	{
 		m_ChatLines.Clear();
 	}
 	
+	// ------------------------------------------------------------
+	// Override Clear
+	// ------------------------------------------------------------
 	override void Clear()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -129,6 +164,9 @@ modded class Chat
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Override Add
+	// ------------------------------------------------------------
 	override void Add( ChatMessageEventParams params )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -146,8 +184,8 @@ modded class Chat
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.GAME_MESSAGES ) )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::Add End");
-		#endif
+				EXPrint("Chat::Add End");
+				#endif
 				return;
 			}
  		} else if ( channel & CCAdmin )
@@ -155,8 +193,8 @@ modded class Chat
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.ADMIN_MESSAGES ) )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::Add End");
-		#endif
+				EXPrint("Chat::Add End");
+				#endif
 				return;
 			}
 		}
@@ -165,8 +203,8 @@ modded class Chat
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.PLAYER_MESSAGES ) )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::Add End");
-		#endif
+				EXPrint("Chat::Add End");
+				#endif
 				return;
 			}
 		}
@@ -177,8 +215,8 @@ modded class Chat
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.PLAYER_MESSAGES ) )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::Add End");
-		#endif
+				EXPrint("Chat::Add End");
+				#endif
 				return;
 			}
 		}
@@ -198,7 +236,10 @@ modded class Chat
 		EXPrint("Chat::Add End");
 		#endif
 	}
-	
+		
+	// ------------------------------------------------------------
+	// Override AddInternal
+	// ------------------------------------------------------------
 	override void AddInternal( ChatMessageEventParams params )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -234,88 +275,260 @@ modded class Chat
 
 		if ( !m_IsChatInputVisible )
 		{
-			m_Handler.ScrollTo( 0 );
+			ScrollTo( 0 );
 		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::AddInternal End");
 		#endif
 	}
-
-	void UpdateScroller()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::UpdateScroller Start");
-		#endif
-
-		m_Handler.UpdateScroller();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::UpdateScroller End");
-		#endif
-	}
-
-	void ScrollTo( float x )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::ScrollTo Start");
-		#endif
-
-		m_Handler.ScrollTo( x );
-
-		m_Handler.UpdateScroller();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Chat::ScrollTo End");
-		#endif
-	}
-
+		
+	// ------------------------------------------------------------
+	// Chat Update
+	// ------------------------------------------------------------
 	void Update( float timeSlice )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Update Start");
 		#endif
 
-		m_Handler.Update( timeSlice );
+		if ( m_IsMouseScrolling )
+		{
+			UpdateMouseScroll();
+			UpdateScroller();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Update End");
 		#endif
 	}
-
+		
+	// ------------------------------------------------------------
+	// Chat OnChatInputShow
+	// ------------------------------------------------------------
 	void OnChatInputShow()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputShow Start");
 		#endif
-
-		m_Handler.ShowScroller();
-
-		m_Handler.UpdateScroller();
-
-		m_Handler.ShowChat();
+		
+		ShowScroller();
+		UpdateScroller();
+		ShowChat();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputShow End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// Chat OnChatInputHide
+	// ------------------------------------------------------------
 	void OnChatInputHide()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputHide Start");
 		#endif
 
-		m_Handler.HideScroller();
-
-		m_Handler.ScrollTo( 0 );
-
-		m_Handler.UpdateScroller();
-
-		m_Handler.HideChat();
+		HideScroller();
+		ScrollTo( 0 );
+		UpdateScroller();
+		HideChat();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputHide End");
 		#endif
+	}
+		
+	// ------------------------------------------------------------
+	// Chat ScrollTo
+	// ------------------------------------------------------------
+	void ScrollTo( float x )
+	{
+		m_Position = x;
+	}
+		
+	// ------------------------------------------------------------
+	// Chat ShowScroller
+	// ------------------------------------------------------------
+	void ShowScroller()
+	{
+		m_ShowScroller = true;
+	}
+		
+	// ------------------------------------------------------------
+	// Chat HideScroller
+	// ------------------------------------------------------------
+	void HideScroller()
+	{
+		m_ShowScroller = false;
+	}
+			
+	// ------------------------------------------------------------
+	// Chat UpdateScroller
+	// ------------------------------------------------------------
+	void UpdateScroller()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("Chat::UpdateScroller Start");
+		#endif
+
+		float width;
+		float height;
+		float diff;
+		float scroller_height;
+		float scroller_width;
+	
+		m_ScrollerContainer.GetScreenSize( scroller_width, m_RootHeight );
+		m_Content.GetScreenSize( width, m_ContentHeight );
+
+		float layoutRootWidth;
+		float layoutRootHeight;
+		m_RootWidget.GetScreenSize( layoutRootWidth, layoutRootHeight );
+
+		diff = m_ContentHeight - m_RootHeight;
+		
+		if ( diff < 0 )
+		{
+			m_Content.SetPos( 0, m_RootHeight );
+			m_ScrollerContainer.Show( false );
+			m_Scroller.Show( false );
+
+			m_Content.SetSize( layoutRootWidth, m_ContentHeight );
+			m_Position = 0;
+			
+			#ifdef EXPANSIONEXPRINT
+			EXPrint("Chat::UpdateScroller End");
+			#endif
+			
+			return;
+		}
+		
+		m_Content.SetSize( layoutRootWidth - scroller_width, m_ContentHeight );
+		m_ScrollerContainer.SetSize( scroller_width, 1 );
+		m_ScrollerContainer.SetPos( layoutRootWidth - scroller_width, 0 );
+		m_ScrollerContainer.SetSort( 1 );
+		
+		scroller_height = ( m_RootHeight / m_ContentHeight ) * m_RootHeight;
+
+		m_ScrollerContainer.Show( m_ShowScroller );
+		m_Scroller.Show( m_ShowScroller );
+		m_Scroller.GetSize( width, height );
+		m_Scroller.SetSize( width, scroller_height );
+
+		if ( m_Position < 0 )
+			m_Position = 0;
+
+		if ( m_Position > 1 )
+			m_Position = 1;
+
+		float scrollerPos = ( m_RootHeight - scroller_height ) * (1.0 - m_Position);
+
+		float contentPos = m_RootHeight + ( ( m_ContentHeight - m_RootHeight ) * m_Position );
+
+		m_Scroller.SetPos( 0, scrollerPos );
+		m_Content.SetPos( 0, contentPos );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("Chat::UpdateScroller End");
+		#endif
+	}
+				
+	// ------------------------------------------------------------
+	// Chat UpdateMouseScroll
+	// ------------------------------------------------------------
+	void UpdateMouseScroll()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("Chat::UpdateMouseScroll Start");
+		#endif
+
+		float posX;
+		float posY;
+		int mouse_x;
+		int mouse_y;
+
+		m_Scroller.GetScreenPos( posX, posY );
+		GetMousePos( mouse_x, mouse_y );
+
+		int wheel = 0;
+		if ( posY > mouse_y - WHEEL_STEP )
+		{
+			wheel = 1;
+		} else if ( posY < mouse_y + WHEEL_STEP )
+		{
+			wheel = -1;
+		}
+
+		float step = ( 1.0 / ( m_ContentHeight - m_RootHeight ) ) * WHEEL_STEP;
+		m_Position += wheel * step;
+
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("Chat::UpdateMouseScroll End");
+		#endif
+	}
+				
+	// ------------------------------------------------------------
+	// Chat ShowChat
+	// ------------------------------------------------------------
+	void ShowChat()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Chat::ShowChat Start");
+		#endif
+		
+		if (m_FadeInTimerScroller)
+			m_FadeInTimerScroller.Stop();
+		
+		m_FadeInTimerScroller	= new WidgetFadeTimer;
+		m_FadeInTimerScroller.FadeIn(m_Scroller, FADE_IN_DURATION);
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Chat::ShowChat End");
+		#endif
+	}
+					
+	// ------------------------------------------------------------
+	// Chat HideChat
+	// ------------------------------------------------------------
+	void HideChat()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Chat::HideChat Start");
+		#endif
+		
+		if (m_TimeOutTimerScroller)
+			m_TimeOutTimerScroller.Stop();
+
+		m_TimeOutTimerScroller = new Timer(CALL_CATEGORY_GUI);
+		m_TimeOutTimerScroller.Run(CHAT_FADEOUT_TIME, m_FadeInTimerScroller, "FadeOut", new Param2<Widget, float>(m_Scroller, FADE_OUT_DURATION));
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Chat::HideChat End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Chat GetContentHeight
+	// ------------------------------------------------------------
+	float GetContentHeight()
+	{
+		return m_ContentHeight;
+	}
+	
+	// ------------------------------------------------------------
+	// Chat GetContentHeight
+	// ------------------------------------------------------------
+	float GetRootHeight()
+	{
+		return m_RootHeight;
+	}
+	
+	// ------------------------------------------------------------
+	// Chat SetPosition
+	// ------------------------------------------------------------
+	void SetPosition(float pos)
+	{
+		m_Position = pos;
 	}
 }

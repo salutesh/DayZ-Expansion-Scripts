@@ -37,7 +37,7 @@ class ExpansionBookTabServerRules extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void ExpansionBookTabServerRules()
 	{
-		SetButtonIconPath( "set:expansion_iconset image:icon_info" );
+		SetButtonIconPath( "DayZExpansion/GUI/icons/hud/info_64x64.edds" );
 		SetButtonText( "SERVER RULES" );
 		SetButtonColor( ARGB( 255, 26, 188, 156 ) );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_serverrules.layout" );

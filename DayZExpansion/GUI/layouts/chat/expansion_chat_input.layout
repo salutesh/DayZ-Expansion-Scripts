@@ -45,7 +45,8 @@ FrameWidgetClass FrameWidget {
        style Default
        "limit visible" 1
        "exact text" 1
-       font "gui/fonts/etelkatextpro16"
+       "exact text size 22"
+       font "gui/fonts/etelkatextpro22"
       }
      }
     }

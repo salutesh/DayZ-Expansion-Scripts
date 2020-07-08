@@ -5,54 +5,98 @@
     },
     {
 		"Name": "Airdop",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_airdrop.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_airdrop.paa"
     },
     {
 		"Name": "Car",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_car.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_car.paa"
     },
     {
 		"Name": "Deliver",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_deliver.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_deliver.paa"
     },
     {
 		"Name": "Map Marker",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_mapmarker.paa"
     },
     {
 		"Name": "Radiation",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_radiation.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_radiation.paa"
     },
     {
 		"Name": "Trader",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_trader.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_trader.paa"
     },
     {
 		"Name": "Water",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_water.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_water.paa"
     },
     {
 		"Name": "Infected",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_zombie.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_zombie.paa"
     },
     {
 		"Name": "Skull",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_skull.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_skull.paa"
     },
 	{
 		"Name": "Helicopter",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_helicopter.paa"
     },
 	{
 		"Name": "Base",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_home.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_home.paa"
     },
 	{
 		"Name": "Boat",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_boat.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_boat.paa"
     },
 	{
 		"Name": "Fishing",
-        "Path": "DayZExpansion\\GUI\\icons\\marker\\marker_fishing.paa"
+        "Path": "DayZExpansion/GUI/icons/marker/marker_fishing.paa"
+    },
+	{
+		"Name": "Map Marker 2",
+        "Path": "DayZExpansion/GUI/icons/hud/marker_64x64.edds"
+    },
+	{
+		"Name": "Water 2",
+        "Path": "DayZExpansion/GUI/icons/hud/water_64x64.edds"
+    },
+	{
+		"Name": "Questionmark",
+        "Path": "DayZExpansion/GUI/icons/hud/questionmark_64x64.edds"
+    },
+	{
+		"Name": "Person",
+        "Path": "DayZExpansion/GUI/icons/hud/persona_64x64.edds"
+    },
+	{
+		"Name": "Hearth",
+        "Path": "DayZExpansion/GUI/icons/hud/heart_64x64.edds"
+    },
+	{
+		"Name": "Eye",
+        "Path": "DayZExpansion/GUI/icons/hud/eye_64x64.edds"
+    },
+	{
+		"Name": "Claw",
+        "Path": "DayZExpansion/GUI/icons/hud/claw_64x64.edds"
+    },
+	{
+		"Name": "Bear",
+        "Path": "DayZExpansion/GUI/icons/hud/bear_64x64.edds"
+    },
+	{
+		"Name": "Skull 2",
+        "Path": "DayZExpansion/GUI/icons/hud/skull_1_64x64.edds"
+    },
+	{
+		"Name": "Skull 3",
+        "Path": "DayZExpansion/GUI/icons/hud/skull_2_64x64.edds"
+    },
+	{
+		"Name": "Tent",
+        "Path": "DayZExpansion/GUI/icons/hud/tent_64x64.edds"
     }
 ]

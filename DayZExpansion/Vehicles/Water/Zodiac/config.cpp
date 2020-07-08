@@ -192,7 +192,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Orange_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Orange_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_orange_co.paa"};
 		skinName = "Orange";
 	};
 	class ExpansionZodiacBoat_Orange: ExpansionZodiacBoat
@@ -218,7 +218,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
 		skinName = "Green";
 	};
 	class ExpansionZodiacBoat_Green: ExpansionZodiacBoat

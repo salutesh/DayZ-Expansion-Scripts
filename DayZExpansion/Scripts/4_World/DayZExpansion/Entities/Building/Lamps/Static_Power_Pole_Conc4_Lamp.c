@@ -20,3 +20,10 @@ class Static_Power_Pole_Conc4_Lamp: ExpansionLampLightBase
 		return "-0.81982 5.0445 -0.01017";
 	}
 }
+class bldr_Power_Pole_Conc4_Lamp: ExpansionPropLampLightBase
+{
+	override vector GetLampPosition()
+	{
+		return "-0.81982 5.0445 -0.01017";
+	}
+}

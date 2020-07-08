@@ -76,7 +76,10 @@ class ExpansionSafeBase extends Container_Base
 	{
 		return IsOpened();
 	}
-
+	override bool CanBeRepairedToPristine()
+	{
+		return true;
+	}
 	// ------------------------------------------------------------
 	// Expansion IsOpenable
 	// ------------------------------------------------------------

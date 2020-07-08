@@ -37,7 +37,9 @@ GridSpacerWidgetClass ExpansionSettingUICategory {
      vexactsize 1
      style Normal
      text "CATEGORY TITLE"
-     font "DayZExpansion/GUI/fonts/grundschrift-bold16"
+     font "DayZExpansion/GUI/fonts/etelkatextpro24"
+     "exact text" 1
+     "exact text size" 24
      "exact text" 0
      "text halign" center
      "text valign" center

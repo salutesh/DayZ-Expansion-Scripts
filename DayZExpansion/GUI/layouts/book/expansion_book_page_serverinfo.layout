@@ -45,7 +45,8 @@ FrameWidgetClass book_module_info {
        priority 1
        text "SERVER NAME"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
-       "exact text" 0
+       "exact text" 1
+       "exact text size" 24
        "size to text h" 0
        "size to text v" 0
        "text halign" center
@@ -142,7 +143,8 @@ FrameWidgetClass book_module_info {
          priority 1
          text "SERVER SETTINGS"
          font "DayZExpansion/GUI/fonts/etelkatextpro24"
-         "exact text" 0
+         "exact text" 1
+         "exact text size" 24
          "size to text h" 0
          "size to text v" 0
          "text halign" center
@@ -188,7 +190,8 @@ FrameWidgetClass book_module_info {
        priority 1
        text "#STR_EXPANSION_BOOK_SERVERINFO_LABEL"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
-       "exact text" 0
+       "exact text" 1
+       "exact text size" 24
        "size to text h" 0
        "text halign" center
        "text valign" center

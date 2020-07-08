@@ -3,7 +3,7 @@ PanelWidgetClass ExpansionChatFrame {
  ignorepointer 1
  color 0.8627 0.8627 0.8627 0
  position 0.01 0.12
- size 0.25 250
+ size 0.35 250
  valign bottom_ref
  hexactpos 0
  vexactpos 0
@@ -11,57 +11,56 @@ PanelWidgetClass ExpansionChatFrame {
  vexactsize 1
  style blank
  {
-  GridSpacerWidgetClass Content {
-   ignorepointer 0
-   position 0 10
-   size 375 1
-   valign bottom
-   hexactpos 1
-   vexactpos 1
-   hexactsize 1
-   vexactsize 0
-   "Size To Content V" 1
-   Columns 1
-   Rows 1
-  }
-  PanelWidgetClass ScrollerContainer {
-   ignorepointer 0
-   color 0 0 0 0.1961
-   size 8 1
-   valign bottom_ref
-   hexactpos 1
-   vexactpos 1
-   hexactsize 1
-   vexactsize 0
-   style rover_sim_colorable
-   {
-    PanelWidgetClass Scroller {
-     ignorepointer 0
-     color 0.8627 0.8627 0.8627 1
-     position 0 0
-     size 1 100
-     halign center_ref
-     valign top_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 0
-     vexactsize 1
-     style rover_sim_colorable
-    }
-   }
-  }
-  PanelWidgetClass FrameBorder {
-   visible 0
-   clipchildren 1
+  PanelWidgetClass ChatContentPanel {
    ignorepointer 1
-   color 1 1 1 0.2745
-   size 1 1
+   position 0 0
+   size 1 250
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
-   priority 1000
-   style Outline
+   vexactsize 1
+   {
+    GridSpacerWidgetClass Content {
+     ignorepointer 1
+     position 0 10
+     size 530 1
+     valign bottom
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 0
+     "Size To Content V" 1
+     Columns 1
+     Rows 1
+    }
+    PanelWidgetClass ScrollerContainer {
+     visible 0
+     ignorepointer 1
+     color 0 0 0 0.1961
+     size 8 1
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 0
+     style rover_sim_colorable
+     {
+      PanelWidgetClass Scroller {
+       ignorepointer 0
+       color 0.8627 0.8627 0.8627 1
+       position 0 0
+       size 1 100
+       halign center_ref
+       valign top_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style rover_sim_colorable
+      }
+     }
+    }
+   }
   }
  }
 }

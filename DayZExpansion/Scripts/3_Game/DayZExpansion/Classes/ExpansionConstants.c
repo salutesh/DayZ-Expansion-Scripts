@@ -208,16 +208,14 @@ const string EXPANSION_Rest_URL = "https://api.thurston.pw/expansion/";
  * Expansion notification Icons
  * @{
  */
-static const string EXPANSION_NOTIFICATION_ICON_INFO = "set:expansion_iconset image:icon_info";
+static const string EXPANSION_NOTIFICATION_ICON_INFO = "DayZExpansion/GUI/icons/hud/info_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_ERROR = "set:expansion_notification_iconset image:icon_error";
 static const string EXPANSION_NOTIFICATION_ICON_CHECK = "set:expansion_notification_iconset image:icon_check";
-static const string EXPANSION_NOTIFICATION_ICON_MARKER = "set:expansion_notification_iconset image:icon_marker";
+static const string EXPANSION_NOTIFICATION_ICON_MARKER = "DayZExpansion/GUI/icons/hud/marker_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_CAR = "set:expansion_notification_iconset image:icon_car";
 static const string EXPANSION_NOTIFICATION_ICON_GROUP = "set:expansion_notification_iconset image:icon_group";
 static const string EXPANSION_NOTIFICATION_ICON_TERRITORY = "set:expansion_iconset image:icon_territory";
 static const string EXPANSION_NOTIFICATION_ICON_AIRDROP = "set:expansion_notification_iconset image:icon_airdrop";
-static const string EXPANSION_NOTIFICATION_ICON_HERO = "set:expansion_notification_iconset image:icon_hero";
-static const string EXPANSION_NOTIFICATION_ICON_BANDIT = "set:expansion_notification_iconset image:icon_bandit";
 
 /**
  * Expansion Flags texture paths
@@ -240,6 +238,28 @@ static const string EXPANSION_FLAG_COUNTRIES_POLAND = "DayZExpansion\\Objects\\S
 static const string EXPANSION_FLAG_COUNTRIES_RUSSIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_russia_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_UK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_uk_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_USA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_usa_co.paa";
+
+static const string EXPANSION_FLAG_COUNTRIES_SCOTTISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_scottish_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_FINNISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_finnish_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SWEDISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_swedish_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SPAIN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_spain_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_BRAZIL = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_brazil_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_PORTUGAL = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_portugal_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_BELGIUM = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_belgium_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_LIVONIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_livonia_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_JAPAN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_japan_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_CHINA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_china_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SOUTHKOREA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_southkorea_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_UN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_un_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_NATO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_nato_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_PIRATE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_pirate_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_CHEDAKI = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_chedaki_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_NAPA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_napa_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_CDF = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_cdf_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_NUEVORICO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_nuevorico_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_BORDURIENS = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_borduriens_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_BIOHAZARD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_biohazard_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_anyoneincherno_co.paa";
 
 /**
  * Expansion Object Serialization

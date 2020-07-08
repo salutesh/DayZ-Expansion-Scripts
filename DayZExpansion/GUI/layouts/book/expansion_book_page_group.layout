@@ -45,6 +45,8 @@ FrameWidgetClass book_module_group {
        priority 1
        text "#STR_EXPANSION_BOOK_GROUP_MEMBERS_LIST_TITLE"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 1
+       "exact text size" 24
        "text halign" center
        "text valign" center
       }
@@ -90,6 +92,7 @@ FrameWidgetClass book_module_group {
            text "#STR_EXPANSION_BOOK_GROUP_DISSOLVE"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "exact text" 1
+           "exact text size" 24
            "size to text h" 0
            "size to text v" 1
            "text halign" center
@@ -112,7 +115,7 @@ FrameWidgetClass book_module_group {
            text "#STR_EXPANSION_BOOK_GROUP_DISSOLVE"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "exact text" 1
-           "exact text size" 0
+           "exact text size" 24
            "size to text h" 0
            "size to text v" 1
            "text halign" center
@@ -185,7 +188,8 @@ FrameWidgetClass book_module_group {
            vexactsize 0
            text "#STR_EXPANSION_BOOK_GROUP_NAME"
            font "gui/fonts/etelkatextpro16"
-           "exact text" 0
+           "exact text" 1
+           "exact text size" 16
            "size to text h" 0
            "text valign" center
           }
@@ -200,6 +204,8 @@ FrameWidgetClass book_module_group {
            vexactsize 0
            font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
          }
@@ -224,6 +230,8 @@ FrameWidgetClass book_module_group {
            vexactsize 0
            text "#STR_EXPANSION_BOOK_GROUP_MEMBERS_COUNT"
            font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass group_info_members_value {
@@ -237,6 +245,8 @@ FrameWidgetClass book_module_group {
            vexactsize 0
            font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
          }
@@ -297,6 +307,8 @@ FrameWidgetClass book_module_group {
        priority 1
        text "#STR_EXPANSION_BOOK_GROUP_INVITE_LIST_TITLE"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 1
+       "exact text size" 24
        "text halign" center
        "text valign" center
       }
@@ -356,6 +368,8 @@ FrameWidgetClass book_module_group {
            text "#STR_EXPANSION_BOOK_GROUP_INVITE_NOPLAYERS"
            font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
          }
@@ -365,34 +379,38 @@ FrameWidgetClass book_module_group {
       PanelWidgetClass player_list_filter {
        ignorepointer 1
        position 0 0.09
-       size 1 0.05
+       size 1 32
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        style blank
        {
         EditBoxWidgetClass player_list_filter_editbox {
+         color 0 0 0 1
          position 0.1 0
          size 0.81 1
          hexactpos 0
          vexactpos 0
          hexactsize 0
          vexactsize 0
+         style ServerBrowser
          text "#STR_USRACT_SEARCH"
+         "Default text color" 0 0 0 1
          "Use default text" 1
          "exact text" 1
          font "gui/fonts/etelkatextpro16"
          "text color" 0 0 0 1
+         "disabled text color" 0 0 0 1
         }
         ButtonWidgetClass player_list_filter_clear {
-         size 1 1
+         size 32 32
          halign right_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          scaled 1
          fixaspect fixwidth
          style Empty
@@ -400,27 +418,29 @@ FrameWidgetClass book_module_group {
           ImageWidgetClass player_list_filter_clear_icon {
            ignorepointer 1
            color 0.9451 0.9451 0.9451 1
-           size 0.75 0.75
+           size 32 32
            halign center_ref
            valign center_ref
            hexactpos 0
            vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           image0 "set:expansion_iconset image:icon_cancle"
+           hexactsize 1
+           vexactsize 1
+           image0 "DayZExpansion/GUI/icons/hud/cross_64x64.edds"
            mode blend
            "src alpha" 1
+           "no wrap" 1
+           stretch 1
           }
          }
         }
         PanelWidgetClass player_list_filter_icon_panel {
          ignorepointer 1
-         size 1 1
+         size 32 32
          valign center_ref
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          scaled 1
          fixaspect fixwidth
          {
@@ -434,9 +454,11 @@ FrameWidgetClass book_module_group {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           image0 "set:expansion_iconset image:icon_search"
+           image0 "DayZExpansion/GUI/icons/hud/eye_64x64.edds"
            mode blend
            "src alpha" 1
+           "no wrap" 1
+           stretch 1
           }
          }
         }
@@ -514,6 +536,7 @@ FrameWidgetClass book_module_group {
            text "#STR_EXPANSION_BOOK_GROUP_CREATE_BUTTON_label"
            font "gui/fonts/etelkatextpro22"
            "exact text" 1
+           "exact text size" 22
            "size to text h" 1
            "size to text v" 1
            "text halign" center
@@ -549,6 +572,8 @@ FrameWidgetClass book_module_group {
        priority 1
        text "#STR_EXPANSION_BOOK_GROUP_PAGE_TITLE"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 1
+       "exact text size" 24
        "size to text h" 0
        "size to text v" 0
        "text halign" center
@@ -569,7 +594,7 @@ FrameWidgetClass book_module_group {
        style blank
        {
         EditBoxWidgetClass group_name_editbox {
-         color 0.4588 0.3412 0.2157 1
+         color 0.5333 0.4549 0.298 1
          position 0 0.05
          size 0.95 0.15
          halign center_ref
@@ -578,7 +603,7 @@ FrameWidgetClass book_module_group {
          vexactpos 0
          hexactsize 0
          vexactsize 0
-         style ExpansionBookEditBox
+         style DefaultBorder
          "Default text color" 0.4588 0.3412 0.2157 1
          "exact text" 1
          font "DayZExpansion/GUI/fonts/etelkatextpro24"
@@ -599,6 +624,7 @@ FrameWidgetClass book_module_group {
          text "#STR_EXPANSION_BOOK_GROUP_CREATE_TITLE_label"
          font "DayZExpansion/GUI/fonts/etelkatextpro24"
          "exact text" 1
+         "exact text size" 24
          "size to text h" 1
          "size to text v" 1
          "text halign" center
@@ -645,6 +671,8 @@ FrameWidgetClass book_module_group {
        priority 1
        text "#STR_EXPANSION_BOOK_GROUP_INVITES_LIST_TITLE"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 1
+       "exact text size" 24
        "text halign" center
        "text valign" center
       }

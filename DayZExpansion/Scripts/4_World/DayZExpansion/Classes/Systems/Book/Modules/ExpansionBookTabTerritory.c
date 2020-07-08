@@ -77,7 +77,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void ExpansionBookTabTerritory()
 	{
-		SetButtonIconPath( "set:expansion_iconset image:icon_territory" );
+		SetButtonIconPath( "DayZExpansion/GUI/icons/hud/menu_64x64.edds" );
 		SetButtonText( "TERRITORY" );
 		SetButtonColor( COLOR_EXPANSION_TERRITORY_BOOKMARK_ICON );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_territory.layout" );

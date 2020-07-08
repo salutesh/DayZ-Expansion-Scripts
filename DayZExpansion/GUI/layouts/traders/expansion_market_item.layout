@@ -182,14 +182,15 @@ PanelWidgetClass ExpansionMarketUIItem {
        {
         ImageWidgetClass market_item_info_icon {
          ignorepointer 1
-         size 34 34
+         size 32 32
          halign center_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         image0 "set:expansion_notification_iconset image:icon_info"
+         image0 ""
+         imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
          mode blend
          "src alpha" 1
          "no wrap" 1

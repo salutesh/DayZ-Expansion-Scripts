@@ -35,6 +35,7 @@ WrapSpacerWidgetClass ExpansionBookTextSection {
      text "Title"
      font "DayZExpansion/GUI/fonts/etelkatextpro24"
      "exact text" 1
+     "exact text size" 24
      "size to text h" 0
      "size to text v" 1
      "text halign" center
@@ -52,6 +53,7 @@ WrapSpacerWidgetClass ExpansionBookTextSection {
      font "gui/fonts/etelkatextpro22"
      "text color" 0 0 0 1
      "exact text" 1
+     "exact text size" 22
      "size to text h" 1
      "size to text v" 1
      wrap 1

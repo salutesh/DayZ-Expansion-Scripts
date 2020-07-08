@@ -400,7 +400,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_White_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_White_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_white_co.paa"};
 		skinName = "White";
 	};
 	class ExpansionAn2_White: ExpansionAn2
@@ -413,7 +413,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Orange_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Orange_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_Orange_co.paa"};
 		skinName = "Orange";
 	};
 	class ExpansionAn2_Orange: ExpansionAn2

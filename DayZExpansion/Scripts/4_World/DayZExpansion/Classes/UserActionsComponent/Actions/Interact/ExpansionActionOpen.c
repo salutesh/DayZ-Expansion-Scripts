@@ -12,8 +12,6 @@
 
 class ExpansionActionOpen: ActionInteractBase
 {
-	protected ItemBase m_ExBB;
-
 	void ExpansionActionOpen()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
@@ -34,30 +32,28 @@ class ExpansionActionOpen: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if (!player)
-			return false;
-		
-		m_ExBB = ItemBase.Cast( target.GetObject() );
-
-		if ( !m_ExBB && !Class.CastTo( m_ExBB, target.GetParent() ) )
+		if ( !player )
 			return false;
 
-		if ( m_ExBB )
-		{
-			string selection = m_ExBB.GetActionComponentName( target.GetComponentIndex() );
-				
-			if ( m_ExBB && m_ExBB.CanOpen( player, selection ) )
-			{
-				return true;
-			}
-		}
+		ItemBase tgt;
+		if ( !Class.CastTo( tgt, target.GetObject() ) )
+			if ( !Class.CastTo( tgt, target.GetParent() ) )
+				return false;
+
+		string selection = tgt.GetActionComponentName( target.GetComponentIndex() );
 		
-		return false;
+		return tgt.CanOpen( player, selection );
 	}
 	
 	override void OnStartServer( ActionData action_data )
-	{		
-		string selection = m_ExBB.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
-		m_ExBB.Open( selection );
+	{
+		ItemBase tgt;
+		if ( !Class.CastTo( tgt, action_data.m_Target.GetObject() ) )
+			if ( !Class.CastTo( tgt, action_data.m_Target.GetParent() ) )
+				return;
+
+		string selection = tgt.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+		
+		tgt.Open( selection );
 	}
 }

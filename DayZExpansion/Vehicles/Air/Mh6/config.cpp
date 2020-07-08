@@ -349,7 +349,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
 		skinName = "Green";
 	};
 	class ExpansionMh6_Green: ExpansionMh6
@@ -382,7 +382,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blueline_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blueline_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
 		skinName = "Blueline";
 	};
 	class ExpansionMh6_Blueline: ExpansionMh6
@@ -415,7 +415,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Digital_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Digital_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
 		skinName = "Digital";
 	};
 	class ExpansionMh6_Digital: ExpansionMh6
