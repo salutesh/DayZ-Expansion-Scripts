@@ -1,3 +1,5 @@
+#define EXPANSION_LOOT_SPAWN_POSITION_THINGY
+
 #include "$CurrentDir:\\Missions\\ExpansionCOM.ChernarusPlus\\core\\BaseModuleInclude.c"
 
 #include "$CurrentDir:\\Missions\\ExpansionCOM.ChernarusPlus\\expansion\\ExpansionObjectSpawnTools.c"
@@ -10,26 +12,12 @@ Mission CreateCustomMission(string path)
 
 void main()
 {
-	bool loadTraderObjects = true;
-	bool loadTraderNPCs = true;
+	bool loadTraderObjects = false;
+	bool loadTraderNPCs = false;
 
 	string MissionWorldName = "empty";
 	GetGame().GetWorldName(MissionWorldName);
-
-	switch(MissionWorldName)
-	{
-		case "ChernarusPlusGloom":
-		{
-			MissionWorldName = "ChernarusPlus";
-			break;
-		}
-		case "enochGloom":
-		{
-			MissionWorldName = "enoch";
-			break;
-		}
-	}
-
+	
 	if (MissionWorldName != "empty")
 	{
 		//! Spawn mission objects and traders
@@ -37,7 +25,7 @@ void main()
 	}
 	
 	//! Init server central economy
-	//Hive ce = CreateHive();
-	//if ( ce )
-	//	ce.InitOffline();
+	// Hive ce = CreateHive();
+	// if ( ce )
+	// 	ce.InitOffline();
 }

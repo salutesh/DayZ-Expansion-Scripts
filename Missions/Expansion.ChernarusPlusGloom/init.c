@@ -20,60 +20,29 @@ void main()
 	string MissionWorldName = "empty";
 	GetGame().GetWorldName(MissionWorldName);
 
-	switch(MissionWorldName)
-	{
-		case "ChernarusPlusGloom":
-		{
-			MissionWorldName = "ChernarusPlus";
-			break;
-		}
-		case "enochGloom":
-		{
-			MissionWorldName = "enoch";
-			break;
-		}
-	}
-
 	if (MissionWorldName != "empty")
 	{
 		//! Spawn mission objects and traders
 		FindMissionFiles(MissionWorldName, loadTraderObjects, loadTraderNPCs);
 	}
 
-	//! Returning weather class reference
+	//INIT WEATHER BEFORE ECONOMY INIT------------------------
 	Weather weather = g_Game.GetWeather();
 
-	//! Disable weather controller from mission
-	weather.MissionWeather(true); 
-	
-	//! Setup weather propperties
-	weather.GetRain().SetLimits( 0.0 , 0.0 );
-    weather.GetOvercast().SetLimits( 0.0 , 0.0 );
-    weather.GetFog().SetLimits( 0.0 , 0.01 );
+	weather.MissionWeather(false);	// false = use weather controller from Weather.c
 
-    weather.GetOvercast().SetForecastChangeLimits( 0.0, 0.1 );
-    weather.GetRain().SetForecastChangeLimits( 0.0, 0.0 );
-    weather.GetFog().SetForecastChangeLimits( 0.0, 0.0 );
+	weather.GetOvercast().Set( Math.RandomFloatInclusive(0.02, 0.1), 1, 0);
+	weather.GetRain().Set( 0, 1, 0);
+	weather.GetFog().Set( 0, 1, 0);
 
-    weather.GetOvercast().SetForecastTimeLimits( 1800 , 1800 );
-    weather.GetRain().SetForecastTimeLimits( 600 , 600 );
-    weather.GetFog().SetForecastTimeLimits( 1800 , 1800 );
-    
-    weather.GetOvercast().Set( Math.RandomFloatInclusive(0.0, 0.3), 0, 0);
-    weather.GetRain().Set( Math.RandomFloatInclusive(0.0, 0.0), 0, 0);
-    weather.GetFog().Set( Math.RandomFloatInclusive(0.0, 0.1), 0, 0);
-    
-    weather.SetWindMaximumSpeed(15);
-    weather.SetWindFunctionParams(0.1, 0.3, 50);    
-
-	//! Init server central economy
+	//INIT ECONOMY--------------------------------------
 	Hive ce = CreateHive();
 	if ( ce )
 		ce.InitOffline();
-	
-	//! Setup time and date
+
+	//DATE RESET AFTER ECONOMY INIT-------------------------
 	int year, month, day, hour, minute;
-	int reset_month = 9, reset_day = 20;
+	int reset_month = 8, reset_day = 10;
 	GetGame().GetWorld().GetDate(year, month, day, hour, minute);
 
 	if ((month == reset_month) && (day < reset_day))
@@ -128,13 +97,13 @@ class CustomMission: MissionServer
 	// Override PlayerBase CreateCharacter
 	// ------------------------------------------------------------
 	override PlayerBase CreateCharacter(PlayerIdentity identity, vector pos, ParamsReadContext ctx, string characterName)
-	{		
+	{
 		Entity playerEnt;
-		playerEnt = GetGame().CreatePlayer(identity, characterName, pos, 0, "NONE");
+		playerEnt = GetGame().CreatePlayer(identity, characterName, pos, 0, "NONE");//Creates random player
 		Class.CastTo(m_player, playerEnt);
-		
+
 		GetGame().SelectPlayer(identity, m_player);
-		
+
 		return m_player;
 	}
 
@@ -153,9 +122,9 @@ class CustomMission: MissionServer
 			EntityAI itemEnt;
 			ItemBase itemBs;
 			float rand;
-			
+
 			itemTop = player.FindAttachmentBySlotName("Body");
-			
+
 			if ( itemTop )
 			{
 				itemEnt = itemTop.GetInventory().CreateInInventory("Rag");
@@ -163,23 +132,15 @@ class CustomMission: MissionServer
 					itemBs.SetQuantity(4);
 
 				SetRandomHealth(itemEnt);
-				
-				itemEnt = itemTop.GetInventory().CreateInInventory("RoadFlare");
-				SetRandomHealth(itemEnt);
-				
-				rand = Math.RandomFloatInclusive(0.0, 1.0);
-				if ( rand < 0.35 )
-					itemEnt = player.GetInventory().CreateInInventory("Apple");
-				else if ( rand > 0.65 )
-					itemEnt = player.GetInventory().CreateInInventory("Pear");
-				else
-					itemEnt = player.GetInventory().CreateInInventory("Plum");
-			
+
+				string chemlightArray[] = { "Chemlight_White", "Chemlight_Yellow", "Chemlight_Green", "Chemlight_Red" };
+				int rndIndex = Math.RandomInt(0, 4);
+				itemEnt = itemTop.GetInventory().CreateInInventory(chemlightArray[rndIndex]);
 				SetRandomHealth(itemEnt);
 			}
 		}
 	}
-}
+};
 
 Mission CreateCustomMission(string path)
 {
