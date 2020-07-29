@@ -236,7 +236,7 @@ class CommunityOfflineClient : MissionGameplay
 			
 			item = player.GetInventory().CreateInInventory("Shovel");
 
-			player.SetGodMode(true);
+			player.COTSetGodMode(true);
 		}
 
 		pPos[1] = GetGame().SurfaceY(pPos[0], pPos[2]);
@@ -391,8 +391,9 @@ class CommunityOfflineClient : MissionGameplay
 		weather.GetRain().Set(0.0, 0, 0);
 		weather.GetFog().Set(0.0, 0, 0);
 
-		weather.SetWindMaximumSpeed(50);
-		weather.SetWindFunctionParams(0, 0, 1);
+		weather.SetWindMaximumSpeed( 20 );
+		weather.SetWindFunctionParams( 0.1, 1.0, 20 );
+		weather.SetWindSpeed( 0.1 );
 	}
 
 	static void SetupDateAndTime()

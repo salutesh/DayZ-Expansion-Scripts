@@ -219,6 +219,7 @@
 				<item name="ACOGOptic" chance="0.20" />
 				<item name="M68Optic" chance="0.20" />
 				<item name="BUISOptic" chance="0.20" />
+				<item name="ReflexOptic" chance="0.20" />
 				<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<!-- -------------------------------------------------------------------------------------------- -->

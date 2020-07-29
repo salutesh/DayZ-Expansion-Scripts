@@ -96,6 +96,14 @@ class ObjectEditor extends COM_Module
 		m_SelectedObject = NULL;
 	}
 
+	static string VectorToStringCOM( vector vec, int decimals ) 
+	{
+		string result = "";
+		result = FormatFloat(vec[0], decimals) + "|" + FormatFloat(vec[1], decimals) + "|" + FormatFloat(vec[2], decimals);
+
+		return result;
+	}
+
 	static string VectorToStringCOM( vector vec )
 	{
 		string result = vec.ToString();
@@ -106,42 +114,16 @@ class ObjectEditor extends COM_Module
 		return result;
 	}
 
-	static string VectorToStringCOM( vector vec, int decimals ) 
-	{
-		string result = "";
-		result = FormatFloat(vec[0], decimals) + "|" + FormatFloat(vec[1], decimals) + "|" + FormatFloat(vec[2], decimals);
-
-		return result;
-	}
-
 	void ExportScene()
 	{
 		string toCopy;
-		// toCopy += "//Spawn helper function\n";
-		// toCopy += "void SpawnObject( string type, vector position, vector orientation )\n";
-		// toCopy += "{\n";
-		// toCopy += "	auto obj = GetGame().CreateObject( type, position );\n";
-		// toCopy += "	obj.SetPosition( position );\n";
-		// toCopy += "	obj.SetOrientation( orientation );\n";
-		// toCopy += "	//Force collision update\n";
-		// toCopy += "	vector roll = obj.GetOrientation();\n";
-		// toCopy += "	roll [ 2 ] = roll [ 2 ] - 1;\n";
-		// toCopy += "	obj.SetOrientation( roll );\n";
-		// toCopy += "	roll [ 2 ] = roll [ 2 ] + 1;\n";
-		// toCopy += "	obj.SetOrientation( roll );\n";
-		// toCopy += "}\n";
-		// toCopy += "\n";
-		// toCopy += "//Your custom spawned objects\n";
 
 		foreach( Object m_object : m_Objects )
 		{
-			//toCopy = toCopy + "SpawnObject(\"" + m_object.GetType() + "\", \"" + VectorToStringCOM( m_object.GetPosition() ) + "\", \"" + VectorToStringCOM( m_object.GetOrientation() ) + "\");\n";
-			toCopy = toCopy  + m_object.GetType() + "|" + VectorToStringCOM( m_object.GetPosition() ) + "|" + VectorToStringCOM( m_object.GetOrientation() ) + "\n"; // For .map files, only used for Expansion Mapping
+			toCopy = toCopy + m_object.GetType() + "|" + VectorToStringCOM( m_object.GetPosition() ) + "|" + VectorToStringCOM( m_object.GetOrientation() ) + "\n"; // For .map files, only used for Expansion Mapping
 		}
 
 		GetGame().CopyToClipboard( toCopy );
-
-		// // Message(  "Copied to clipboard" );
 	}
 
 	void SaveScene()
@@ -227,7 +209,7 @@ class ObjectEditor extends COM_Module
 		foreach( auto param : scene.m_SceneObjects )
 		{
 
-			Object object = GetGame().CreateObject( param.param1, param.param2, false, false );
+            Object object = GetGame().CreateObjectEx( param.param1, param.param2, ECE_CREATEPHYSICS | ECE_NOSURFACEALIGN );
 			object.SetOrientation( param.param3 );
 
 			m_Objects.Insert( object );
@@ -451,10 +433,19 @@ class ObjectEditor extends COM_Module
 
 				//contact_pos [ 1 ] = contact_pos [ 1 ] + nHightOffsetToGround;
 
-				m_SelectedObject.SetPosition( contact_pos );
-				m_SelectedObject.PlaceOnSurface();
+				if ( dBodyIsActive( m_SelectedObject ) && dBodyIsDynamic( m_SelectedObject ) )
+				{
+					vector transform[4];
+					m_SelectedObject.GetTransform( transform );
+					transform[3] = contact_pos;
+					dBodySetTargetMatrix( m_SelectedObject, transform, 1.0 / 40.0 );
+				} else
+				{
+					m_SelectedObject.SetPosition( contact_pos );
+					m_SelectedObject.PlaceOnSurface();
 
-				ForceTargetCollisionUpdate( m_SelectedObject );
+					ForceTargetCollisionUpdate( m_SelectedObject );
+				}
 
 				ObjectInfoMenu.infoPosX.SetText( m_SelectedObject.GetPosition()[0].ToString() );
 				ObjectInfoMenu.infoPosY.SetText( m_SelectedObject.GetPosition()[1].ToString() );

@@ -178,22 +178,19 @@ class ObjectInfoMenu extends PopupMenu
 		if ( w == infoPosY )
 		{
 			position[1] = position[1] + value * 0.05;
-			SetSelectedObjectPosition( position );
-			ForceTargetCollisionUpdate( GetSelectedObject() );
+			SetSelectedObjectTransform( position, GetSelectedObject().GetOrientation() );
 			infoPosY.SetText( position[1].ToString() );
 		}
 		if ( w == infoPosX )
 		{
 			position[0] = position[0] + (value * 0.05);
-			SetSelectedObjectPosition( position );
-			ForceTargetCollisionUpdate( GetSelectedObject() );
+			SetSelectedObjectTransform( position, GetSelectedObject().GetOrientation() );
 			infoPosX.SetText( position[0].ToString() );
 		}
 		if ( w == infoPosZ )
 		{
 			position[2] = position[2] + value * 0.05;
-			SetSelectedObjectPosition( position );
-			ForceTargetCollisionUpdate( GetSelectedObject() );
+			SetSelectedObjectTransform( position, GetSelectedObject().GetOrientation() );
 			infoPosZ.SetText( position[2].ToString() );
 		}
 		return false;
@@ -240,8 +237,7 @@ class ObjectInfoMenu extends PopupMenu
 		{
 			pos[2] = value;
 		}
-		SetSelectedObjectPosition( pos );
-		GetSelectedObject().SetOrientation( orientation );
+		SetSelectedObjectTransform( pos, orientation );
 
 /*
 		bool check = false; //?????????????
@@ -367,16 +363,36 @@ class ObjectInfoMenu extends PopupMenu
 		return obj.GetPosition();
 	}
 
-	void SetSelectedObjectPosition( vector position )
+	void SetSelectedObjectTransform( vector position, vector orientation )
 	{
 		Object obj = GetSelectedObject();
+
+		if ( dBodyIsActive( obj ) && dBodyIsDynamic( obj ) )
+		{
+			vector transform[4];
+			obj.GetTransform( transform );
+			float distance = vector.Distance( transform[3], position );
+			float time = 1.0 / 40.0;
+			//time *= distance * 0.001;
+
+			Math3D.YawPitchRollMatrix( orientation, transform );
+			transform[3] = position;
+			dBodySetTargetMatrix( obj, transform, time );
+
+			return;
+		}
+
 		Object parent = Object.Cast( obj.GetParent() );
 		if ( parent )
 		{
 			obj.SetPosition( parent.ModelToWorld( position ) );
+			obj.SetOrientation( orientation );
+			ForceTargetCollisionUpdate( obj );
 		} else
 		{
 			obj.SetPosition( position );
+			obj.SetOrientation( orientation );
+			ForceTargetCollisionUpdate( obj );
 		}
 	}
 

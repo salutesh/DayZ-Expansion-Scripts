@@ -1822,8 +1822,9 @@
 			<item name="BUISOptic" chance="0.30" />
 			<item name="M68Optic" chance="0.20" />
 			<item name="M4_T3NRDSOptic" chance="0.20" />
-			<item name="ExpansionReflexMRSOptic" chance="0.20" />
+			<item name="ReflexOptic" chance="0.20" />
 			<item name="ACOGOptic" chance="0.10" />
+			<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<attachments chance="0.10">
 			<item name="MP5_Compensator" chance="1.00" />
@@ -1841,8 +1842,9 @@
 			<item name="BUISOptic" chance="0.15" />
 			<item name="M68Optic" chance="0.15" />
 			<item name="M4_T3NRDSOptic" chance="0.20" />
-			<item name="ExpansionReflexMRSOptic" chance="0.20" />
+			<item name="ReflexOptic" chance="0.20" />
 			<item name="ACOGOptic" chance="0.30" />
+			<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<attachments chance="0.05">
 			<item name="PistolSuppressor" chance="1.00" />
@@ -2036,8 +2038,9 @@
 			<item name="BUISOptic" chance="0.20" />
 			<item name="M68Optic" chance="0.20" />
 			<item name="M4_T3NRDSOptic" chance="0.20" />
-			<item name="ExpansionReflexMRSOptic" chance="0.20" />
+			<item name="ReflexOptic" chance="0.20" />
 			<item name="ACOGOptic" chance="0.20" />
+			<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<attachments chance="0.10">
 			<item name="Mag_FAL_20Rnd" chance="1.00" />
@@ -2358,7 +2361,7 @@
 	</type>
 	<type name="GiftBox_Medium_1">
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2414,7 +2417,7 @@
 	</type>
 	<type name="GiftBox_Medium_2">
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2470,7 +2473,7 @@
 	</type>
 	<type name="GiftBox_Medium_3">
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2526,7 +2529,7 @@
 	</type>
 	<type name="GiftBox_Medium_4">
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2586,7 +2589,7 @@
 			<item name="CZ61" chance="0.40" />
 		</cargo>
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2655,7 +2658,7 @@
 			<item name="CZ61" chance="0.40" />
 		</cargo>
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2724,7 +2727,7 @@
 			<item name="CZ61" chance="0.40" />
 		</cargo>
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />
@@ -2793,7 +2796,7 @@
 			<item name="CZ61" chance="0.40" />
 		</cargo>
 		<cargo chance="0.10">
-			<item name="CombinationLock" chance="0.00" />
+			<item name="CombinationLock" chance="1.00" />
 		</cargo>
 		<cargo chance="0.50">
 			<item name="PersonalRadio" chance="1.00" />

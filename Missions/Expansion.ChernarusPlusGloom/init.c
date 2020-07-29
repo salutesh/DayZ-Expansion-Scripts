@@ -19,7 +19,7 @@ void main()
 
 	string MissionWorldName = "empty";
 	GetGame().GetWorldName(MissionWorldName);
-
+          
 	if (MissionWorldName != "empty")
 	{
 		//! Spawn mission objects and traders

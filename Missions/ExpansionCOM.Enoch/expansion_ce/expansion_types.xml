@@ -3,7 +3,7 @@
     <!-- HELICOPTERS -->
 	<type name="ExpansionMh6">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -13,7 +13,7 @@
     </type>
     <type name="ExpansionUh1h">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -23,7 +23,7 @@
     </type>
 	<type name="ExpansionMerlin">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -33,7 +33,7 @@
     </type>
 	<type name="ExpansionGyrocopter">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -42,25 +42,25 @@
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
     </type>
 	<type name="ExpansionMh6Wreck">
-        <lifetime>2700</lifetime>
+        <lifetime>3</lifetime>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
     </type>
     <type name="ExpansionUh1hWreck">
-        <lifetime>2700</lifetime>
+        <lifetime>3</lifetime>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
     </type>
 	<type name="ExpansionMerlinWreck">
-        <lifetime>2700</lifetime>
+        <lifetime>3</lifetime>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
     </type>
 	<type name="ExpansionGyrocopterWreck">
-        <lifetime>2700</lifetime>
+        <lifetime>3</lifetime>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
     </type>
 	<!-- BOATS -->
 	<type name="ExpansionUtilityBoat">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -70,7 +70,7 @@
     </type>
     <type name="ExpansionZodiacBoat">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -80,7 +80,7 @@
     </type>
 	<type name="ExpansionLHD">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -91,7 +91,7 @@
 	<!-- CARS -->
 	<type name="ExpansionUAZ">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -101,7 +101,7 @@
     </type>
 	<type name="ExpansionUAZRoofless">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -111,7 +111,7 @@
     </type>
 	<type name="ExpansionUAZCargo">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -121,7 +121,7 @@
     </type>
 	<type name="ExpansionUAZCargoRoofless">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -131,7 +131,7 @@
     </type>
 	<type name="ExpansionVodnik">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -141,7 +141,7 @@
     </type>
 	<type name="ExpansionBus">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -151,7 +151,7 @@
     </type>
 	<type name="ExpansionTractor">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -162,7 +162,7 @@
 	<!-- PLANES -->
 	<type name="ExpansionAn2">
         <nominal>0</nominal>
-        <lifetime>3888000</lifetime>
+        <lifetime>3</lifetime>
         <restock>1800</restock>
         <min>0</min>
         <quantmin>-1</quantmin>
@@ -301,7 +301,7 @@
         <category name="tools"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
-    </type>
+    </type>	
 	<type name="ExpansionUAZWheel">
         <nominal>25</nominal>
         <lifetime>2700</lifetime>
@@ -311,7 +311,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -376,7 +376,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -389,7 +389,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -402,7 +402,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -415,7 +415,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -428,7 +428,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -441,7 +441,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -454,7 +454,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -467,7 +467,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -480,7 +480,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -493,7 +493,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -506,7 +506,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -519,7 +519,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -532,7 +532,7 @@
         <quantmax>-1</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
-        <category name="vehiclesparts"/>
+        <category name="vehicleparts"/>
         <tag name="floor"/>
         <usage name="Industrial"/>
     </type>
@@ -1148,19 +1148,18 @@
         <usage name="Military"/>
     </type>
     <type name="Expansion_Ammo_ArrowBolt">
-        <nominal>25</nominal>
+        <nominal>75</nominal>
         <lifetime>10800</lifetime>
         <restock>0</restock>
-        <min>15</min>
+        <min>55</min>
         <quantmin>20</quantmin>
-        <quantmax>80</quantmax>
+        <quantmax>100</quantmax>
         <cost>100</cost>
         <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
         <category name="weapons"/>
         <usage name="Farm"/>
         <usage name="Village"/>
-        <value name="Tier1"/>
-        <value name="Tier2"/>
+        <usage name="Hunting"/>
     </type>
 	<!-- MAGAZINES -->
     <type name="Mag_Expansion_M14_20Rnd">

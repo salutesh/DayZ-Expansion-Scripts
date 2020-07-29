@@ -1822,8 +1822,9 @@
 			<item name="BUISOptic" chance="0.30" />
 			<item name="M68Optic" chance="0.20" />
 			<item name="M4_T3NRDSOptic" chance="0.20" />
-			<item name="ExpansionReflexMRSOptic" chance="0.20" />
+			<item name="ReflexOptic" chance="0.20" />
 			<item name="ACOGOptic" chance="0.10" />
+			<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<attachments chance="0.10">
 			<item name="MP5_Compensator" chance="1.00" />
@@ -1841,8 +1842,9 @@
 			<item name="BUISOptic" chance="0.15" />
 			<item name="M68Optic" chance="0.15" />
 			<item name="M4_T3NRDSOptic" chance="0.20" />
-			<item name="ExpansionReflexMRSOptic" chance="0.20" />
+			<item name="ReflexOptic" chance="0.20" />
 			<item name="ACOGOptic" chance="0.30" />
+			<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<attachments chance="0.05">
 			<item name="PistolSuppressor" chance="1.00" />
@@ -2036,8 +2038,9 @@
 			<item name="BUISOptic" chance="0.20" />
 			<item name="M68Optic" chance="0.20" />
 			<item name="M4_T3NRDSOptic" chance="0.20" />
-			<item name="ExpansionReflexMRSOptic" chance="0.20" />
+			<item name="ReflexOptic" chance="0.20" />
 			<item name="ACOGOptic" chance="0.20" />
+			<item name="ExpansionReflexMRSOptic" chance="0.20" />
 		</attachments>
 		<attachments chance="0.10">
 			<item name="Mag_FAL_20Rnd" chance="1.00" />
@@ -2901,7 +2904,6 @@
 			<item name="HatchbackTrunk" chance="0.20" />
 		</attachments>
 	</type>
-<!--
 	<type name="OffroadHatchback_Blue">
 		<attachments chance="1.00">
 			<item name="HatchbackWheel" chance="0.80" />
@@ -2990,7 +2992,6 @@
 			<item name="HatchbackTrunk_White" chance="0.20" />
 		</attachments>
 	</type>
--->
 	<!-- -->
 	<type name="CivilianSedan">
 		<attachments chance="1.00">
@@ -3039,7 +3040,6 @@
 			<item name="CivSedanTrunk" chance="0.20" />
 		</attachments>
 	</type>
-<!--
 	<type name="CivilianSedan_Wine">
 		<attachments chance="1.00">
 			<item name="CivSedanWheel" chance="0.80" />
@@ -3134,7 +3134,6 @@
 			<item name="CivSedanTrunk_Black" chance="0.20" />
 		</attachments>
 	</type>
--->
 	<!-- -->
 	<type name="Hatchback_02">
 		<attachments chance="1.00">
@@ -3183,7 +3182,6 @@
 			<item name="Hatchback_02_Trunk" chance="0.20" />
 		</attachments>
 	</type>
-<!--
 	<type name="Hatchback_02_Black">
 		<attachments chance="1.00">
 			<item name="Hatchback_02_Wheel" chance="0.80" />
@@ -3278,7 +3276,6 @@
 			<item name="Hatchback_02_Trunk_Blue" chance="0.20" />
 		</attachments>
 	</type>
--->
 	<!-- -->
 	<type name="Sedan_02">
 		<attachments chance="1.00">
@@ -3327,7 +3324,6 @@
 			<item name="Sedan_02_Trunk" chance="0.20" />
 		</attachments>
 	</type>
-<!--
 	<type name="Sedan_02_Red">
 		<attachments chance="1.00">
 			<item name="Sedan_02_Wheel" chance="0.80" />
@@ -3422,7 +3418,6 @@
 			<item name="Sedan_02_Trunk_Grey" chance="0.20" />
 		</attachments>
 	</type>
--->
 <!--
 	<type name="V3S_Chassis">
 		<attachments chance="1.00">

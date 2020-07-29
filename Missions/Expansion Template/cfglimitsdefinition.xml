@@ -1,0 +1,16 @@
+<!-- Compare the categories and make sure non of these listed here are missing -->
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lists>
+    <categories>
+        <category name="tools"/>
+        <category name="containers"/>
+        <category name="clothes"/>
+        <category name="vehiclesparts"/>
+		<category name="vehicleparts"/>
+        <category name="food"/>
+        <category name="weapons"/>
+        <category name="books"/>
+        <category name="explosives"/>
+    </categories>
+</lists>

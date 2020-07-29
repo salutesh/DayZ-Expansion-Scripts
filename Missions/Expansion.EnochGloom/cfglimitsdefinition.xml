@@ -5,6 +5,7 @@
         <category name="containers"/>
         <category name="clothes"/>
         <category name="vehiclesparts"/>
+		<category name="vehicleparts"/>
         <category name="food"/>
         <category name="weapons"/>
         <category name="books"/>
