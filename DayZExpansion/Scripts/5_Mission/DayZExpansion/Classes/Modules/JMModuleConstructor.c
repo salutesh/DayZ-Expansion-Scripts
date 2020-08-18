@@ -18,35 +18,38 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionGlobalChatModule );
 		modules.Insert( ExpansionNotificationModule );
 		#ifdef EXPANSION_MARKET
-		// modules.Insert( ExpansionMarketModule );			
+		modules.Insert( ExpansionMarketModule );				// WIP			
 		#endif		
 		modules.Insert( ExpansionSafeZoneModule );
 		modules.Insert( ExpansionLocatorModule );
 		modules.Insert( ExpansionPartyModule );
-		modules.Insert( ExpansionMissionModule ); 
-		modules.Insert( Expansion3DMarkerModule );
-		modules.Insert( ExpansionMapMarkerModule );
+		modules.Insert( ExpansionMarkerModule );
+		modules.Insert( ExpansionMissionModule );
 		modules.Insert( ExpansionTerritoryModule );
 		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionWorldMappingModule );
-		modules.Insert( ExpansionSkinModule );						
+		modules.Insert( ExpansionSkinModule );
 		modules.Insert( ExpansionAutorunModule );
 		modules.Insert( ExpansionMonitorModule );		
+		modules.Insert( ExpansionKillFeedModule );				// WIP
 		
-		// COT Modules
-		// modules.Insert( ExpansionGameMissionSelecterModule );
-		// modules.Insert( ExpansionAnimalAITestModule );			
-		// modules.Insert( ExpansionAITestModule );					
-		// modules.Insert( ExpansionMarketCOTModule );					
-		// modules.Insert( ExpansionMissionCOTModule );	
+		modules.Insert( ExpansionESPModificationModule );
 
-		// modules.Insert( ExpansionCOTBookModule );
+		modules.Insert( ExpansionCOTTerritoriesModule );
+		modules.Insert( ExpansionCOTVehiclesModule ); 			// TODO: move to COT
+
+		modules.Insert( ExpansionCOTAirdropModule );
+		modules.Insert( ExpansionCOTBaseBuildingModule );
+		modules.Insert( ExpansionCOTBookModule );
 		modules.Insert( ExpansionCOTGeneralModule );
-	   	// modules.Insert( ExpansionCOTMapModule );
-		// modules.Insert( ExpansionCOTPartyModule );
-		// modules.Insert( ExpansionCOTSafeZoneModule );
-		// modules.Insert( ExpansionCOTTerritoriesModule );
-		modules.Insert( ExpansionCOTVehiclesModule ); // TODO: move to COT
+		modules.Insert( ExpansionCOTMapModule );
+		modules.Insert( ExpansionCOTNotificationModule );
+		modules.Insert( ExpansionCOTPartyModule );
+		modules.Insert( ExpansionCOTRaidModule );
+		modules.Insert( ExpansionCOTSpawningModule );
+		modules.Insert( ExpansionCOTVehicleModule );
+
+		modules.Insert( ExpansionGameMissionSelecterModule );
 		
 		super.RegisterModules( modules );
 	}

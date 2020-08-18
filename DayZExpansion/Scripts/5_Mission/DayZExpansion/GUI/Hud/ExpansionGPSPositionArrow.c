@@ -18,11 +18,6 @@ class ExpansionGPSPositionArrow extends ScriptedWidgetEventHandler
 	protected TextWidget m_PlayerPosArrowName;
 	protected ImageWidget m_PlayerPosArrowImage;
 
-	protected int m_ArrowColorAlpha;
-	protected int m_ArrowColorRed;
-	protected int m_ArrowColorGreen;
-	protected int m_ArrowColorBlue;
-
 	protected ExpansionIngameHud m_ExpansionHud;
 	
 	protected ref Timer	m_ArrowUpdateTimer;

@@ -53,6 +53,7 @@ class CfgVehicles
 	class ExpansionBread1: Apple
 	{
 		scope = 2;
+		rotationFlags = 2;
 		displayName = "$STR_EXPANSION_BAGUETTE";
 		descriptionShort = "$STR_EXPANSION_BAGUETTE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Bread1.p3d";
@@ -124,6 +125,7 @@ class CfgVehicles
 	class ExpansionBread2: Apple
 	{
 		scope = 2;
+		rotationFlags = 2;
 		displayName = "$STR_EXPANSION_BREAD";
 		descriptionShort = "$STR_EXPANSION_BREAD_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Bread2.p3d";
@@ -300,6 +302,7 @@ class CfgVehicles
 	class ExpansionCheese2: Apple
 	{
 		scope = 2;
+		rotationFlags = 2;
 		displayName = "$STR_EXPANSION_CHEESE";
 		descriptionShort = "$STR_EXPANSION_CHEESE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Cheese2.p3d";

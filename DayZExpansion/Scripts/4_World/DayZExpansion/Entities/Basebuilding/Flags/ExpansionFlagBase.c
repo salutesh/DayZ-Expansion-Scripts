@@ -125,17 +125,16 @@ class ExpansionFlagBase extends ItemBase
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
-		if (m_ExpansionSaveVersion >= 3)
+		if ( GetExpansionSaveVersion() >= 3 )
 		{
-			if ( !ctx.Read( m_FlagTexturePath ) )
+			if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 				return false;
 			
 			SetFlagTexture(m_FlagTexturePath);
-		}
-		else
+		} else
 		{
 			int flagTextureID
-			if ( !ctx.Read( flagTextureID ) )
+			if ( Expansion_Assert_False( ctx.Read( flagTextureID ), "[" + this + "] Failed reading flagTextureID" ) )
 				return false;
 			
 			string texturePath = GetExpansionStatic().GetFlagTexturePath( flagTextureID );
@@ -143,7 +142,7 @@ class ExpansionFlagBase extends ItemBase
 			SetFlagTexture(texturePath);
 		}
 		
-		if ( !ctx.Read( m_OwnerID ) )
+		if ( Expansion_Assert_False( ctx.Read( m_OwnerID ), "[" + this + "] Failed reading m_OwnerID" ) )
 			return false;
 		
 		#ifdef EXPANSIONEXLOGPRINT

@@ -277,7 +277,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 
 		if ( m_IsJumping && m_JumpTime < m_JumpMaxTime )
 		{
-			PrePhys_SetTranslation( vector.Zero );
+			//PrePhys_SetTranslation( vector.Zero );
 
 			vector impulse = vector.Zero;
 

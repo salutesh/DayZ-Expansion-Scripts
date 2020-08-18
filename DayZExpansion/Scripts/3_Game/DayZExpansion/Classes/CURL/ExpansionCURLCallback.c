@@ -15,7 +15,7 @@ class ExpansionRestCallback extends RestCallback
 	override void OnError( int errorCode )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("Error Code:" + errorCode);
+		EXLogPrint("ExpansionRestCallback::Error Code:" + errorCode);
 		#endif
 	}
 

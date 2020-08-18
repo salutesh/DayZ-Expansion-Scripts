@@ -76,7 +76,8 @@ modded class CarScript
 	protected bool m_ExplodedSynchRemote;
 	protected int m_ExplosionSize;
 
-	protected int m_FluidCheckTime;
+	//Timeslice for Engine damage via rev or fluids
+	protected float m_FluidCheckTime;
 	
 	// Safezone
 	protected bool m_SafeZone;
@@ -88,10 +89,25 @@ modded class CarScript
 	protected bool m_IsWinched;
 
 	// Towing
-	protected CarScript m_TowObject;
-	protected dJoint m_TowJoint;
-	protected bool m_IsBeingTowwed;
+	protected vector m_TowPointCenter;
+	protected bool m_IsBeingTowed;
 	protected bool m_IsTowing;
+
+	protected CarScript m_ParentTow;
+	protected int m_ParentTowNetworkIDLow;
+	protected int m_ParentTowNetworkIDHigh;
+	protected int m_ParentTowPersistentIDA;
+	protected int m_ParentTowPersistentIDB;
+	protected int m_ParentTowPersistentIDC;
+	protected int m_ParentTowPersistentIDD;
+
+	protected CarScript m_ChildTow;
+	protected int m_ChildTowNetworkIDLow;
+	protected int m_ChildTowNetworkIDHigh;
+	protected int m_ChildTowPersistentIDA;
+	protected int m_ChildTowPersistentIDB;
+	protected int m_ChildTowPersistentIDC;
+	protected int m_ChildTowPersistentIDD;
 
 	// Physics
 	protected float m_BodyMass;
@@ -147,8 +163,9 @@ modded class CarScript
 	ref array< ref ExpansionPointLight > m_Lights;
 	ref array< ref Particle > m_Particles;
 
-	protected ExpansionMapMarkerModule m_MarkerModule;
-	protected int m_ServerMarker;
+	protected ExpansionMarkerModule m_MarkerModule;
+	protected string m_ServerMarker;
+	protected static int m_ServerMarkerIndex = 0;
 
 	protected vector m_Orientation;
 	protected vector m_Position;
@@ -167,7 +184,7 @@ modded class CarScript
 		EXPrint("CarScript::CarScript - Start");
 		#endif
 
-		SetEventMask( EntityEvent.PHYSICSMOVE | EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT );
+		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT );
 
 		m_allVehicles.Insert( this );
 
@@ -176,12 +193,7 @@ modded class CarScript
 		m_Lights = new array< ref ExpansionPointLight >;
 		m_Particles = new array< ref Particle >;
 		
-		if (!m_SkinModule)
-		{
-			m_SkinModule = ExpansionSkinModule.Cast(GetModuleManager().GetModule(ExpansionSkinModule));
-		}
-			
-		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
+		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
 
 		m_Controller = new ExpansionCarController( this );
 
@@ -191,26 +203,6 @@ modded class CarScript
 		ConfigGetTextArray( "doors", m_Doors );
 
 		m_CanHaveLock = m_Doors.Count() > 0;
-
-		if( m_CurrentSkin )
-		{
-			if ( m_CurrentSkin.HornEXT != "" )
-			{
-				m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
-			} 
-			else
-			{
-				m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-			}
-			
-			if ( m_CurrentSkin.HornINT != "" )
-			{
-				m_HornSoundSetINT = m_CurrentSkin.HornINT;
-			} else
-			{		
-				m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-			}
-		}
 
 		LoadConstantVariables();
 
@@ -223,6 +215,13 @@ modded class CarScript
 		RegisterNetSyncVariableInt( "m_PersistentIDC" );
 		RegisterNetSyncVariableInt( "m_PersistentIDD" );
 
+		RegisterNetSyncVariableBool( "m_IsBeingTowed" );
+		RegisterNetSyncVariableBool( "m_IsTowing" );
+		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDLow" );
+		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDHigh" );
+		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDLow" );
+		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDHigh" );
+
 		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
 		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
 		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" ); 
@@ -233,8 +232,11 @@ modded class CarScript
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
-		m_MarkerModule = ExpansionMapMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMapMarkerModule ) );
-		m_ServerMarker = -1;
+		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		m_ServerMarker = "";
+
+		ExpansionSettings.SI_Vehicle.Insert( OnSettingsUpdated );
+		OnSettingsUpdated();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
@@ -245,18 +247,21 @@ modded class CarScript
 	// Expansion CreateServerMarker
 	// ------------------------------------------------------------
 	void CreateServerMarker()
-	{		
-		if ( GetGame() && GetGame().IsMultiplayer() || !GetGame().IsClient() )
+	{
+		if ( IsMissionHost() )
 		{
-			if ( m_ServerMarker != -1 )
-				RemoveServerMarker();
+			if ( m_ServerMarker != "" )
+				return;
+			
+			m_ServerMarkerIndex++;
+			m_ServerMarker = "[DBG:" + m_ServerMarkerIndex + "]" + GetDisplayName();
 			
 			if ( IsCar() )
-				m_ServerMarker = m_MarkerModule.AddServerMarker( GetDisplayName(), 2, GetPosition(), ARGB(255, 255, 0, 0), true );
+				m_MarkerModule.CreateServerMarker( m_ServerMarker, "Car", GetPosition(), ARGB(255, 255, 0, 0), true );
 			else if ( IsHelicopter() )
-				m_ServerMarker = m_MarkerModule.AddServerMarker( GetDisplayName(), 10, GetPosition(), ARGB(255, 0, 255, 0), true );
+				m_MarkerModule.CreateServerMarker( m_ServerMarker, "Helicopter", GetPosition(), ARGB(255, 0, 255, 0), true );
 			else if ( IsBoat() )
-				m_ServerMarker = m_MarkerModule.AddServerMarker( GetDisplayName(), 12, GetPosition(), ARGB(255, 0, 0, 255), true );
+				m_MarkerModule.CreateServerMarker( m_ServerMarker, "Boat", GetPosition(), ARGB(255, 0, 0, 255), true );
 		}
 	}
 	
@@ -264,12 +269,13 @@ modded class CarScript
 	// Expansion RemoveServerMarker
 	// ------------------------------------------------------------
 	void RemoveServerMarker()
-	{	
-		if ( GetGame() && GetGame().IsMultiplayer() || !GetGame().IsClient() )
+	{
+		if ( IsMissionHost() )
 		{
-			if ( m_ServerMarker != -1 )
+			if ( m_ServerMarker != "" )
 			{
 				m_MarkerModule.RemoveServerMarker( m_ServerMarker );
+				m_ServerMarker = "";
 			}
 		}
 	}
@@ -313,10 +319,7 @@ modded class CarScript
 			}
 		}
 
-		if ( IsMissionHost() )
-		{
-			DestroyWinch();
-		}
+		ExpansionSettings.SI_Vehicle.Remove( OnSettingsUpdated );
 
 		//RemoveServerMarker();
 		
@@ -339,8 +342,10 @@ modded class CarScript
 		EXPrint("CarScript::LongDeferredInit - Start");
 		#endif
 
+		#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
 		if ( m_SkinModule )
 			m_SkinModule.PerformCESkinSwap( this );
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::LongDeferredInit - End");
@@ -362,6 +367,11 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::DeferredInit - End");
 		#endif
+	}
+
+	void OnSettingsUpdated()
+	{
+
 	}
 
 	static set< CarScript > GetAll()
@@ -389,8 +399,6 @@ modded class CarScript
 
 		//AddAction( ExpansionActionGetInTransport );
 
-		AddAction( ExpansionActionConnectTow );
-
 		AddAction( ExpansionActionPairKey );
 		AddAction( ExpansionActionAdminUnpairKey );
 
@@ -402,64 +410,6 @@ modded class CarScript
 		#endif
 	}
 
-	// ------------------------------------------------------------
-	// SetWinch
-	// ------------------------------------------------------------
-	void SetWinch( notnull CarScript target, dJoint joint )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetWinch - Start");
-		#endif
-
-		m_WinchedObject = target;
-		m_WinchedJoint = joint;
-
-		m_IsWinched = true;
-
-		SetSynchDirty();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetWinch - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// DestroyWinch
-	// ------------------------------------------------------------
-	void DestroyWinch()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::DestroyWinch - Start");
-		#endif
-
-		if ( m_WinchedJoint )
-		{
-			dJointDestroy( m_WinchedJoint );
-		}
-
-		if ( m_WinchedObject )
-		{
-			m_WinchedObject.m_WinchedObject = NULL;
-			m_WinchedObject = NULL;
-		}
-
-		m_IsWinched = false;
-
-		SetSynchDirty();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::DestroyWinch - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// IsWinched
-	// ------------------------------------------------------------
-	bool IsWinched()
-	{
-		return m_IsWinched;
-	}
-
 #ifdef EXPANSION_VEHICLE_TOWING
 	void CreateTow( CarScript tow )
 	{
@@ -467,66 +417,97 @@ modded class CarScript
 		EXPrint("CarScript::CreateTow - Start");
 		#endif
 
-		vector transform[4];
-		vector objTransform[4];
+		if ( tow.m_IsBeingTowed || !IsMissionHost() )
+			return;
 
-		GetTransform( transform );
-		tow.GetTransform( objTransform );
-
-		transform[3] = dBodyGetCenterOfMass( this ) + "0 0 -3";
-		objTransform[3] = dBodyGetCenterOfMass( tow ) + "0 0 3";
-
-		m_TowJoint = dJointCreate6DOFSpring( this, tow, transform, objTransform, false, 1000 );
-
-		float stiffness = 10;
-		float damping = 0.5;
-		float towLength = 0.1;
-
-		vector hingelin_min = Vector( -towLength, -towLength, -towLength );
-		vector hingelin_max = Vector( towLength, towLength, towLength );
-
-		vector hingeang_min = Vector( -Math.DEG2RAD * 45, -Math.DEG2RAD * 45, -Math.DEG2RAD * 45 );
-		vector hingeang_max = Vector( Math.DEG2RAD * 45, Math.DEG2RAD * 45, Math.DEG2RAD * 45 );
-
-		dJoint6DOFSetLinearLimits( m_TowJoint, hingelin_min, hingelin_max );
-		dJoint6DOFSetAngularLimits( m_TowJoint, hingeang_min, hingeang_max );
-
-		dJoint6DOFSpringSetSpring( m_TowJoint, 0, stiffness, damping );
-		dJoint6DOFSpringSetSpring( m_TowJoint, 1, stiffness, damping );
-		dJoint6DOFSpringSetSpring( m_TowJoint, 2, stiffness, damping );
-		dJoint6DOFSpringSetSpring( m_TowJoint, 3, stiffness, damping );
-		dJoint6DOFSpringSetSpring( m_TowJoint, 4, stiffness, damping );
-		dJoint6DOFSpringSetSpring( m_TowJoint, 5, stiffness, damping );
-
-		tow.SetTowCar( this, m_TowJoint );
-
+		m_ChildTow = tow;
 		m_IsTowing = true;
-		m_TowObject = tow;
+
+		m_ChildTow.m_ParentTow = this;
+		m_ChildTow.m_IsBeingTowed = true;
+
+		m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
+		
+		if ( !IsMissionOffline() )
+		{
+			m_ChildTow.GetNetworkID( m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh );
+			GetNetworkID( m_ChildTow.m_ParentTowNetworkIDLow, m_ChildTow.m_ParentTowNetworkIDHigh );
+			
+			m_ChildTow.SetSynchDirty();
+			SetSynchDirty();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CreateTow - End");
 		#endif
 	}
 
-	bool IsTowed()
-	{
-		return m_IsBeingTowwed || m_IsTowing;
-	}
-
-	protected void SetTowCar( CarScript parent, dJoint joint )
+	void DestroyTow()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetTowCar - Start");
+		EXPrint("CarScript::DestroyTow - Start");
 		#endif
-		
-		m_TowObject = parent;
-		m_IsBeingTowwed = true;
+
+		if ( m_IsTowing )
+		{
+			m_ChildTow.m_IsBeingTowed = false;
+			m_ChildTow = NULL;
+
+			m_IsTowing = false;
+		}
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetTowCar - End");
+		EXPrint("CarScript::DestroyTow - End");
 		#endif
 	}
 #endif
+
+	vector GetTowCenterPosition( CarScript other )
+	{
+		vector minMax[2];
+		GetCollisionBox( minMax );
+		vector pos = Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() );
+		other.GetCollisionBox( minMax );
+		return pos + Vector( 0.0, 0.0, -minMax[1][2] );
+	}
+
+	bool IsBeingTowed()
+	{
+		return m_IsBeingTowed;
+	}
+
+	bool IsTowing()
+	{
+		return m_IsTowing;
+	}
+	
+	vector GetTowPosition()
+	{
+		vector minMax[2];
+		GetCollisionBox( minMax );
+
+		return ModelToWorld( Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() ) );
+	}
+
+	vector GetTowDirection()
+	{
+		return -GetDirection();
+	}
+
+	vector GetTowExtents()
+	{
+		return { 1.0, 1.0, 1.0 };
+	}
+
+	float GetTowLength()
+	{
+		return 0.1;
+	}
+
+	bool CanConnectTow( CarScript other )
+	{
+		return other.IsCar() && !other.IsTowing();
+	}
 
 	ExpansionVehicleLockState GetLockedState()
 	{
@@ -1175,18 +1156,6 @@ modded class CarScript
 	{
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	override bool IsVitalCarBattery()
-	{
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	override bool IsVitalTruckBattery()
-	{
-		return false;
-	}
 
 	// ------------------------------------------------------------
 	bool IsCar()
@@ -1329,8 +1298,8 @@ modded class CarScript
 		if ( m_Exploded )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnBeforeEngineStart - End - Exploded");
-		#endif
+			EXPrint("CarScript::OnBeforeEngineStart - End - Exploded");
+			#endif
 			return false;
 		}
 
@@ -1876,6 +1845,37 @@ modded class CarScript
 		return estimatedOrientation;
 	}
 
+	void GetHeadingTransform( Object obj, out vector trans[4] )
+	{
+		float heading = obj.GetOrientation()[0] * Math.DEG2RAD;
+
+		trans[1] = "0 1 0";
+		trans[2] = Vector( Math.Sin( heading ), 0, Math.Cos( heading ) );
+		trans[0] = -(trans[2] * trans[1]);
+
+		trans[3] = obj.GetPosition();
+	}
+
+	void GetBoundingPositionTransform( Object obj, vector position, vector wsTrans[4], out vector trans[4] )
+	{
+		vector bbTrans[4];
+		Math3D.YawPitchRollMatrix( "0 0 0", bbTrans );
+		bbTrans[3] = position;
+
+		Math3D.MatrixMultiply4( wsTrans, bbTrans, trans );
+
+		vector contact_pos;
+		vector contact_dir
+		vector hitNormal;
+		int contactComponent;
+		float hitFraction;
+		Object hitObject;
+		
+		PhxInteractionLayers collisionLayerMask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.DYNAMICITEM | PhxInteractionLayers.ROADWAY | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.WATERLAYER;
+		DayZPhysics.RayCastBullet( trans[3] + "0 10 0", trans[3] - "0 10 0", collisionLayerMask, obj, hitObject, contact_pos, hitNormal, hitFraction );
+		trans[3] = contact_pos;
+	}
+
 	// ------------------------------------------------------------
 	protected void ExpansionDebugUI( string message = "" )
 	{
@@ -1940,15 +1940,6 @@ modded class CarScript
 		EXLogPrint( "[" + this + "] EOnSimulate" );
 		#endif
 
-		if ( !CanSimulate() )
-			return;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EOnSimulate - Start");
-		#endif
-
-		ExpansionDebugUI( "[[ " + this + " ]]" );
-
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 
 		if ( GetGame().IsClient() )
@@ -1961,6 +1952,37 @@ modded class CarScript
 		{
 			m_IsPhysicsHost = false;
 		}
+
+		//Print( this );
+		//Print( m_IsPhysicsHost );
+		//Print( m_IsBeingTowed );
+		//Print( m_ParentTow );
+
+		if ( m_IsPhysicsHost && m_IsBeingTowed )
+		{
+			if ( m_ParentTow ) // shouldn't ever be NULL but just incase
+			{
+				if ( dBodyIsActive( m_ParentTow ) && dBodyIsDynamic( m_ParentTow ) )
+				{
+					vector towTransform[4];
+					m_ParentTow.GetTransform( towTransform );
+					towTransform[3] = m_ParentTow.ModelToWorld( m_ParentTow.m_TowPointCenter );
+
+					dBodySetTargetMatrix( this, towTransform, 1.0 / 40.0 );
+				}
+			}
+
+			return;
+		}
+
+		if ( !CanSimulate() )
+			return;
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::EOnSimulate - Start");
+		#endif
+
+		ExpansionDebugUI( "[[ " + this + " ]]" );
 
 		OnPreSimulation( dt );
 
@@ -2008,8 +2030,11 @@ modded class CarScript
 
 			OnSimulation( dt, force, torque );
 
-			dBodyApplyImpulse( this, force * dt );
-			dBodyApplyTorqueImpulse( this, torque * dt );
+			//if ( force.Length() != 0 )
+				dBodyApplyImpulse( this, force * dt );
+
+			//if ( torque.Length() != 0 )
+				dBodyApplyTorqueImpulse( this, torque * dt );
 
 			if ( GetGame().IsMultiplayer() )
 			{
@@ -2074,7 +2099,9 @@ modded class CarScript
 		ctx.Write( m_PersistentIDB );
 		ctx.Write( m_PersistentIDC );
 		ctx.Write( m_PersistentIDD );
-		ctx.Write( m_VehicleLockedState );
+
+		int lockState = m_VehicleLockedState;
+		ctx.Write( lockState );
 
 		ctx.Write( m_Exploded );
 
@@ -2087,9 +2114,29 @@ modded class CarScript
 		ctx.Write( m_Position );
 
 		ctx.Write( m_allAttachments );
+
+		
+		ctx.Write( m_IsBeingTowed );
+		ctx.Write( m_IsTowing );
+
+		if ( m_IsBeingTowed )
+		{
+			ctx.Write( m_ParentTowPersistentIDA );
+			ctx.Write( m_ParentTowPersistentIDB );
+			ctx.Write( m_ParentTowPersistentIDC );
+			ctx.Write( m_ParentTowPersistentIDD );
+		}
+
+		if ( m_IsTowing )
+		{
+			ctx.Write( m_ChildTowPersistentIDA );
+			ctx.Write( m_ChildTowPersistentIDB );
+			ctx.Write( m_ChildTowPersistentIDC );
+			ctx.Write( m_ChildTowPersistentIDD );
+		}
 	}
 	
-	override bool OnStoreLoad(ParamsReadContext ctx, int version)
+	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("CarScript::OnStoreLoad - Start");
@@ -2097,41 +2144,83 @@ modded class CarScript
 
 		// Use GetExpansionSaveVersion()
 		// Making sure this is read before everything else.
-		if ( !ctx.Read( m_ExpansionSaveVersion ) )
+		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		if ( !ctx.Read( m_PersistentIDA ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
 
-		if ( !ctx.Read( m_PersistentIDB ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
 			return false;
 
-		if ( !ctx.Read( m_PersistentIDC ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
 			return false;
 
-		if ( !ctx.Read( m_PersistentIDD ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
 			return false;
 		
-		if ( !ctx.Read( m_VehicleLockedState ) )
+		if ( GetExpansionSaveVersion() <= 5 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_VehicleLockedState ), "[" + this + "] Failed reading m_VehicleLockedState" ) )
+				return false;
+		} else
+		{
+			int lockState;
+			if ( Expansion_Assert_False( ctx.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
+				return false;
+
+			m_VehicleLockedState = lockState;
+		}
+
+		if ( Expansion_Assert_False( ctx.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
 			return false;
 
-		if ( !ctx.Read( m_Exploded ) )
-			return false;
-
-		if ( !ctx.Read( m_CurrentSkinName ) )
+		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
 			return false;
 		
-		if ( !ctx.Read( m_Orientation ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
 			return false;
 			
-		if ( !ctx.Read( m_Position ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Position ), "[" + this + "] Failed reading m_Position" ) )
 			return false;
 
-		if ( !ctx.Read( m_allAttachments ) )
+		if ( Expansion_Assert_False( ctx.Read( m_allAttachments ), "[" + this + "] Failed reading m_allAttachments" ) )
 			return false;
+
+		if ( GetExpansionSaveVersion() >= 7 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+				return false;
+
+			if ( m_IsBeingTowed )
+			{
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+					return false;
+			}
+
+			if ( m_IsTowing )
+			{
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+					return false;
+			}
+		}
 		
 		SetSynchDirty();
 		
@@ -2151,9 +2240,35 @@ modded class CarScript
 		{
 			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
 			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-			m_CurrentSkin = ExpansionSkin.Cast(m_Skins[ m_CurrentSkinIndex ]);
+			m_CurrentSkin = ExpansionSkin.Cast( m_Skins[ m_CurrentSkinIndex ] );
 
 			ExpansionOnSkinUpdate();
+		}
+
+		if ( m_IsBeingTowed && !m_ParentTow )
+		{
+			m_ParentTow = CarScript.Cast( GetGame().GetEntityByPersitentID( m_ParentTowPersistentIDA, m_ParentTowPersistentIDB, m_ParentTowPersistentIDC, m_ParentTowPersistentIDD ) );
+			if ( m_ParentTow )
+			{
+				m_ParentTow.m_IsTowing = true;
+				m_ParentTow.m_ChildTow = this;
+			} else
+			{
+				m_IsBeingTowed = false;
+			}
+		}
+
+		if ( m_IsTowing && !m_ChildTow )
+		{
+			m_ChildTow = CarScript.Cast( GetGame().GetEntityByPersitentID( m_ChildTowPersistentIDA, m_ChildTowPersistentIDB, m_ChildTowPersistentIDC, m_ChildTowPersistentIDD ) );
+			if ( m_ParentTow )
+			{
+				m_ChildTow.m_IsBeingTowed = true;
+				m_ChildTow.m_ParentTow = this;
+			} else
+			{
+				m_IsTowing = false;
+			}
 		}
 	}
 
@@ -2237,6 +2352,22 @@ modded class CarScript
 			SetAnimationPhase( "EnableMonitor", -1 );
 		}
 
+		if ( m_IsBeingTowed )
+		{
+			m_ParentTow = CarScript.Cast( GetGame().GetObjectByNetworkId( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh ) );
+		} else
+		{
+			m_ParentTow = NULL;
+		}
+
+		if ( m_IsTowing )
+		{
+			m_ChildTow = CarScript.Cast( GetGame().GetObjectByNetworkId( m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh ) );
+		} else
+		{
+			m_ChildTow = NULL;
+		}
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::OnVariablesSynchronized - End");
 		#endif
@@ -2278,7 +2409,7 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::ExpansionSetupSkins - End");
 		#endif
-	}
+	}	
 
 	override void EEHealthLevelChanged( int oldLevel, int newLevel, string zone )
 	{
@@ -2425,6 +2556,22 @@ modded class CarScript
 			return;
 		}
 
+		if ( m_CurrentSkin.HornEXT != "" )
+		{
+			m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
+		} else
+		{
+			m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+		}
+		
+		if ( m_CurrentSkin.HornINT != "" )
+		{
+			m_HornSoundSetINT = m_CurrentSkin.HornINT;
+		} else
+		{		
+			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
+		}
+
 		for ( int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++ )
 		{
 			ExpansionSkinHiddenSelection selection = m_CurrentSkin.HiddenSelections[ i ];
@@ -2522,7 +2669,7 @@ modded class CarScript
 			}
 		}
 		
-		if ( GetExpansionSettings().GetMap().ShowVehicleDebugMarkers )
+		if ( GetExpansionSettings().GetDebug().ShowVehicleDebugMarkers )
 		{
 			CreateServerMarker();
 		}
@@ -2561,13 +2708,21 @@ modded class CarScript
 	{
 		return GetType() + "Wreck";
 	}
+	
+	string ExpansionGetWheelType(int slot_id)
+	{
+		return "ExpansionUniversalWheel"; //this should never happen
+	}
 
 	override void OnContact( string zoneName, vector localPos, IEntity other, Contact data )
 	{
-		super.OnContact(zoneName, localPos, other, data);
+		if ( m_IsBeingTowed )
+			return;
+
+		super.OnContact( zoneName, localPos, other, data );
 		
 		Object tree = Object.Cast( other );
-		if ( tree.GetType().Contains("TreeHard") ||  tree.GetType().Contains("TreeSoft") )
+		if ( tree.GetType().Contains( "TreeHard" ) ||  tree.GetType().Contains( "TreeSoft" ) )
 		{
 			if ( tree.IsTree() || tree.IsBush() )
 			{
@@ -2615,26 +2770,25 @@ modded class CarScript
 			float dmg = data.Impulse * m_dmgContactCoef;
 
 			if ( dmg >= dmgThreshold )
-			{		
+			{
 				IEntity child = GetChildren();
 				while ( child )
 				{
 					PlayerBase player;
-					if ( Class.CastTo(player, child ) )
+					if ( Class.CastTo( player, child ) )
 					{
 						if ( dmg > dmgKillCrew )
-						{		
+						{
 							player.SetHealth(0.0);
-						}
-						else
+						} else
 						{
 							//! Deal shock to player
-							float shockTemp = Math.InverseLerp(dmgThreshold, dmgKillCrew, dmg);
+							float shockTemp = Math.InverseLerp( dmgThreshold, dmgKillCrew, dmg );
 							float shock = Math.Lerp( 50, 100, shockTemp );
 							float hp = Math.Lerp( 2, 60, shockTemp );
 
-							player.AddHealth("", "Shock", -shock );
-							player.AddHealth("", "Health", -hp );
+							player.AddHealth( "", "Shock", -shock );
+							player.AddHealth( "", "Health", -hp );
 						}
 					}
 					

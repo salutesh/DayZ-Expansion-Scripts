@@ -17,10 +17,14 @@ class CfgVehicles
 	class ExpansionBarrierGateKit: ExpansionKitLarge
 	{
 		scope = 2;
+		rotationFlags = 4;
 		displayName = "$STR_EXPANSION_GATE";
 		descriptionShort = "$STR_EXPANSION_GATE_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Gates\BarrierGateKit.p3d";
 		itemSize[] = {10,10};
+		physLayer = "item_large";
+		itemBehaviour = 0;
+		attachments[] = {};
 	};
 	class ExpansionBarrierGateKitPlacing: ExpansionBarrierGateKit
 	{

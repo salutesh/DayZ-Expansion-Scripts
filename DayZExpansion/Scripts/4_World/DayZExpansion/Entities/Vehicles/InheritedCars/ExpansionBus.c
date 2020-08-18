@@ -24,7 +24,7 @@ class ExpansionBus extends OffroadHatchback
 		#endif
 
 		m_dmgContactCoef = 0.035;
-
+		
 		// SetEventMask(EntityEvent.SIMULATE);
 
 		#ifdef EXPANSIONEXPRINT
@@ -55,7 +55,13 @@ class ExpansionBus extends OffroadHatchback
 		EXPrint("ExpansionBus::Deconstructor - End");
 		#endif
 	}
-
+	override string ExpansionGetWheelType(int slot_id)
+	{
+		if (InventorySlots.GetSlotName(slot_id) == "BusWheel_1_1" || InventorySlots.GetSlotName(slot_id) == "BusWheel_2_1"  )
+			return "ExpansionBusWheel";
+		else
+			return "ExpansionBusWheelDouble";
+	}
 	// ------------------------------------------------------------
 	void PartyBus()
 	{
@@ -667,7 +673,7 @@ class ExpansionBus extends OffroadHatchback
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBus::IsVitalRadiator");
 		#endif
-		return false;
+		return true;
 	}
 	
 	// ------------------------------------------------------------
@@ -691,12 +697,24 @@ class ExpansionBus extends OffroadHatchback
 	}
 
 	// ------------------------------------------------------------
+	override float GetCameraDistance()
+	{
+		return 10;
+	}
+
+
+	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-/* 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
+ 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
+		
+		return true;
+	}
 
-		return true; */
-		return false;
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return true;
 	}
 }

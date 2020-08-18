@@ -329,19 +329,15 @@ class ExpansionCarKey extends ItemBase
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
-		if ( !ctx.Read( m_VehicleIDA ) )
+		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDA ), "[" + this + "] Failed reading m_VehicleIDA" ) )
 			return false;
-
-		if ( !ctx.Read( m_VehicleIDB ) )
+		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDB ), "[" + this + "] Failed reading m_VehicleIDB" ) )
 			return false;
-
-		if ( !ctx.Read( m_VehicleIDC ) )
+		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDC ), "[" + this + "] Failed reading m_VehicleIDC" ) )
 			return false;
-
-		if ( !ctx.Read( m_VehicleIDD ) )
+		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDD ), "[" + this + "] Failed reading m_VehicleIDD" ) )
 			return false;
-
-		if ( !ctx.Read( m_VehicleDisplayName ) )
+		if ( Expansion_Assert_False( ctx.Read( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
 			return false;
 
 		return true;

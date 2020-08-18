@@ -22,10 +22,10 @@ class ExpansionServerInfoSection
 	// ------------------------------------------------------------
 	// ExpansionServerInfoSection Constructor
 	// ------------------------------------------------------------
-    void ExpansionServerInfoSection(bool hasheading, string title = "", string text = "")
+	void ExpansionServerInfoSection(bool hasheading, string title = "", string text = "")
 	{
-        this.HasHeading = hasheading;
+		this.HasHeading = hasheading;
 		this.HeadText = title;
 		this.BodyText = text;
-    }
+	}
 }

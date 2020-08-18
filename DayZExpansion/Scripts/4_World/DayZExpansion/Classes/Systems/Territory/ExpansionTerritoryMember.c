@@ -32,24 +32,24 @@ class ExpansionTerritoryMember
 		{
 			case ExpansionTerritoryRank.ADMIN:
 			{
-				return "Admin";
+				return "#STR_EXPANSION_PARTY_RANK_ADMIN";
 			}
 			break;
 			
 			case ExpansionTerritoryRank.MODERATOR:
 			{
-				return "Moderator";
+				return "#STR_EXPANSION_PARTY_RANK_MOD";
 			}
 			break;
 			
 			case ExpansionTerritoryRank.MEMBER:
 			{
-				return "Member";
+				return "#STR_EXPANSION_PARTY_RANK_MEMBER";
 			}
 			break;
 		}
 		
-		return "Member";
+		return "#STR_EXPANSION_PARTY_RANK_MEMBER";
 	}
 	
 	ExpansionTerritoryRank GetRank()

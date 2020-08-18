@@ -32,6 +32,8 @@ modded class DayZGame
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZGame::DayZGame - Start");
 		#endif
+
+		Expansion_SetupDebugger();
 		
 		m_WaterDensity = 0.5;
 		m_WorldGravity = 9.81;

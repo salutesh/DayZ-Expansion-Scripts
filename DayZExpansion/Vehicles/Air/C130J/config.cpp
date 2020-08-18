@@ -99,9 +99,9 @@ class CfgVehicles
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"ExpansionAircraftBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_c130jwheel_1_1","expansion_c130jwheel_2_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
-		hiddenSelections[] = {"zbytek"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Air\C130J\Data\c130j_body_co.paa"};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Air\C130J\Data\c130j_body.rvmat"};
+		hiddenSelections[] = {};
+		hiddenSelectionsTextures[] = {};
+		hiddenSelectionsMaterials[] = {};
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_RWD";
@@ -120,6 +120,7 @@ class CfgVehicles
 				turboCoef = 5.0;
 				gentleCoef = 0.7;
 			};
+			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Engine
 			{
 				inertia = 0.45;

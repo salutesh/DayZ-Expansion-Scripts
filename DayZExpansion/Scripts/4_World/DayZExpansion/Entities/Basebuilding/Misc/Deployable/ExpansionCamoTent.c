@@ -56,7 +56,7 @@ class ExpansionCamoTent: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// GetConstructionKitType
 	// ------------------------------------------------------------
-	string GetConstructionKitType()
+	override string GetConstructionKitType()
 	{
 		return "ExpansionCamoTentKit";
 	}

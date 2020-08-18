@@ -12,25 +12,26 @@
 
 class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 {
-	protected Widget m_Root;
-	protected TextWidget m_Name;
-	protected ImageWidget m_Icon;
-	protected ButtonWidget m_MarkerButton;
-	protected Widget m_MarkerDragging;
-	protected MapWidget m_MapWidget;
-	protected vector m_MarkerPos;
-	protected string m_MarkerName;
-	protected string m_MarkerIcon;
-	protected int m_MarkerColor;
-	protected int m_MarkerAlpha;
-	protected ref Timer m_MarkerUpdateTimer;
+	private Widget m_Root;
+	private Widget m_MarkerFrame;
+	private TextWidget m_Name;
+	private ImageWidget m_Icon;
+	private ButtonWidget m_MarkerButton;
+	private Widget m_MarkerDragging;
+	private MapWidget m_MapWidget;
+	private vector m_MarkerPos;
+	private string m_MarkerName;
+	private string m_MarkerIcon;
+	private int m_MarkerColor;
+	private int m_MarkerAlpha;
+	private ref Timer m_MarkerUpdateTimer;
 	
-	protected float m_OffsetX;
-	protected float m_OffsetY;
+	private float m_OffsetX;
+	private float m_OffsetY;
 	
-	protected bool m_IsTempMarker;
-	protected ref ExpansionTerritory m_Territory;
-	protected ref ExpansionCOTTerritoriesMenu m_COTTerritoryMenu;
+	private bool m_IsTempMarker;
+	private ref ExpansionTerritory m_Territory;
+	private ref ExpansionCOTTerritoriesMenu m_COTTerritoryMenu;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesMapMarker Constructor
@@ -39,6 +40,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	{
 		m_Root 			= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map_marker.layout", parent);
 
+		m_MarkerFrame	= Widget.Cast( m_Root.FindAnyWidget("marker_frame") );
 		m_Name			= TextWidget.Cast( m_Root.FindAnyWidget("marker_name") );
 		m_Icon			= ImageWidget.Cast( m_Root.FindAnyWidget("marker_icon") );
 		m_MarkerButton	= ButtonWidget.Cast( m_Root.FindAnyWidget("marker_button") );
@@ -51,6 +53,12 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 		m_MarkerColor	= color;
 		m_Territory 	= territory;
 		m_COTTerritoryMenu = menu;
+		
+		m_MarkerFrame.SetAlpha(0);
+		m_Icon.LoadImageFile(0, m_MarkerIcon);
+		m_Icon.SetColor(m_MarkerColor);
+		m_Name.SetColor(m_MarkerColor);
+		m_Name.SetText(m_MarkerName);
 		
 		m_Root.SetHandler(this);
 		
@@ -95,9 +103,9 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ChangePositon
+	// Expansion SetPosition
 	// ------------------------------------------------------------
-	void ChangePositon(vector position)
+	void SetPosition(vector position)
 	{
 		m_MarkerPos = position;
 	}
@@ -130,22 +138,14 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// Expansion Update
 	// ------------------------------------------------------------
 	void Update( float timeslice )
-	{
-		if (m_MarkerIcon)
-			m_Icon.LoadImageFile(0, m_MarkerIcon);
-		
-		if (m_MarkerColor)
-			m_Icon.SetColor(m_MarkerColor);
-			m_Name.SetColor(m_MarkerColor);
-		
-		if (m_MarkerName)
-			m_Name.SetText(m_MarkerName);
-		
-		if (m_MarkerPos)
-		{
-			vector mapPos = m_MapWidget.MapToScreen(m_MarkerPos);
-			m_Root.SetPos(mapPos[0], mapPos[1], true);
-		}
+	{		
+		vector mapPos = m_MapWidget.MapToScreen( m_MarkerPos );
+
+		float x;
+		float y;
+		m_Root.GetParent().GetScreenPos( x, y );
+
+		m_Root.SetPos( mapPos[0] - x, mapPos[1] - y, true );
 	}
 	
 	// ------------------------------------------------------------
@@ -159,7 +159,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 				m_MarkerUpdateTimer.Stop();
 
 			m_Icon.SetColor(ARGB(255,255,255,255));
-			return true;
+			m_Name.SetColor(ARGB(255,255,255,255));
 		}
 
 		return false;
@@ -179,7 +179,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 			}
 
 			m_Icon.SetColor(color);
-			return true;
+			m_Name.SetColor(color);
 		}
 
 		return false;
@@ -193,7 +193,6 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 		if ( m_MarkerButton && w == m_MarkerButton )
 		{
 			m_COTTerritoryMenu.SetTerritoryInfo( m_Territory );
-			return true;
 		}
 
 		return false;

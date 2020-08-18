@@ -18,3 +18,4 @@ class Mag_Expansion_MPX_50Rnd: MagazineStorage {}
 class Mag_Expansion_MP7_40Rnd: MagazineStorage {}
 class Mag_Expansion_Kedr_20Rnd: MagazineStorage {}
 class Mag_Expansion_AWM_5rnd: MagazineStorage {}
+class Mag_Expansion_Vityaz_30Rnd: MagazineStorage {}

@@ -21,7 +21,7 @@ class ExpansionMissionConstructor
 	void RegisterMissions( out TTypenameArray missions )
 	{
 		missions.Insert( ExpansionMissionEventAirdrop );
-		//missions.Insert( ExpansionMissionEventHorde );
+		//missions.Insert( ExpansionMissionEventHorde ); //! Not Ready
 		//missions.Insert( ExpansionMissionEventSoldier );
 		//missions.Insert( ExpansionMissionEventAI );
 		//missions.Insert( ExpansionMissionEventQuest );

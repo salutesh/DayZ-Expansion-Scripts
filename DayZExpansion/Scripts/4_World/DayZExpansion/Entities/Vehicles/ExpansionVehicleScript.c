@@ -360,16 +360,15 @@ class ExpansionVehicleScript extends ItemBase
 		EXPrint("ExpansionVehicleScript::DeferredInit - Start");
 		#endif
 
+		#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
 		if ( !m_SkinModule || !m_SkinModule.PerformCESkinSwap( this ) )
+		#endif
 		{
 			m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
 			m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
-		} else
-		{
-			//! This car instance will be destroyed
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -776,7 +775,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	bool OnNetworkTransformUpdate( out vector pos, out vector ypr )
+	override bool OnNetworkTransformUpdate( out vector pos, out vector ypr )
 	{
 		if ( m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
 			return true;
@@ -1413,7 +1412,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 #endif
 
-	void SetActions()
+	override void SetActions()
 	{
 		AddAction( ExpansionActionGetInExpansionVehicle );
 		AddAction( ExpansionActionOpenVehicleDoor );
@@ -1611,7 +1610,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	bool IsLocked()
+	override bool IsLocked()
 	{
 		if ( HasKey() )
 		{
@@ -1829,7 +1828,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	bool IsSoundSynchRemote()
+	override bool IsSoundSynchRemote()
 	{	
 		return m_HornSynchRemote;
 	}
@@ -1928,7 +1927,7 @@ class ExpansionVehicleScript extends ItemBase
 		StopSounds();
 		EffectSound sound =	SEffectManager.PlaySound( "Expansion_Explosive_Vehicle_SoundSet", GetPosition() );
 		sound.SetSoundAutodestroy( true );
-/*
+		/*
 		ExpansionPointLight explosionLight = ExpansionPointLight.Cast( ScriptedLightBase.CreateLight( ExpansionPointLight, Vector( 0, 0, 0 ) )  ); 
 
 		explosionLight.SetDiffuseColor( 1, 0.25, 0 );
@@ -1946,7 +1945,7 @@ class ExpansionVehicleScript extends ItemBase
 		Particle fire = Particle.PlayOnObject( ParticleList.EXPANSION_FIRE_HELICOPTER, this, localPos );
 		//fire.SetOrientation( n );
 		//AddChild(fire, 0);
-*/
+		*/
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::ExpansionOnExplodeClient - End");
 		#endif
@@ -2174,7 +2173,7 @@ class ExpansionVehicleScript extends ItemBase
 		return false;
 	}
 
-	bool IsTransport()
+	override bool IsTransport()
 	{
 		return true;
 	}

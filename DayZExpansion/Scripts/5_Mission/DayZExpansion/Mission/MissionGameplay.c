@@ -33,12 +33,7 @@ modded class MissionGameplay
 	TextWidget 									m_ChatChannelName;
 	//! Expansion Hud
 	ref ExpansionIngameHud 						m_ExpansionHud;
-	//! Autorun module
-	ref ExpansionAutorunModule 					m_AutoRunModule;
-	
-	//! Client settings
-	protected bool								m_ClientClockShow;
-
+	//!	Earplug check
 	protected bool 								m_WasEarplugToggled;
 	//! Client/Player Data
 	protected bool 								m_DataSent;
@@ -46,11 +41,14 @@ modded class MissionGameplay
 	Widget										m_ChatRootWidget;
 	
 	protected bool								m_WasGPSToggled;
-	protected bool								m_ExpansionChatState;
 	
 	Widget										m_ChatPanel;
 	Widget										m_VoiceLevelSeperator;
 	ref WidgetFadeTimer							m_SeperatorFadeTimer;
+
+	//! Modules
+	ref ExpansionAutorunModule 					m_AutoRunModule;
+	ExpansionMarkerModule 						m_MarkerModule;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -70,16 +68,18 @@ modded class MissionGameplay
 		exp_m_ChannelNameTimeoutTimer = new Timer(CALL_CATEGORY_GUI);
 		
 		CreateDayZExpansion();
+		
+		if ( IsMissionClient() )
+			GetExpansionClientSettings().Load();
 
 		if ( !IsMissionOffline() )
 			g_exGlobalSettings.Unload();
 
-		m_AutoRunModule = ExpansionAutorunModule.Cast( GetModuleManager().GetModule( ExpansionAutorunModule ) );
-		
+		Class.CastTo( m_AutoRunModule, GetModuleManager().GetModule( ExpansionAutorunModule ) );
+		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
+
 		m_DataSent = false;
-		
-		m_ExpansionChatState = true;
-		
+			
 		m_SeperatorFadeTimer = new WidgetFadeTimer;
 		
 		#ifdef EXPANSIONEXPRINT
@@ -237,7 +237,7 @@ modded class MissionGameplay
 		UpdateVoiceLevelWidgets( level );
 
 		m_UIManager.EnterScriptedMenu( MENU_CHAT_INPUT, NULL );
-		
+	
 		PlayerControlDisable( INPUT_EXCLUDE_ALL );
 		
 		PlayerControlDisable( INPUT_EXCLUDE_CHAT_EXPANSION );
@@ -276,8 +276,6 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	override void PlayerControlDisable(int mode)
 	{
-		// Print("Disabling Controls");
-
 		switch (mode)
 		{
 			case INPUT_EXCLUDE_ALL:
@@ -377,7 +375,10 @@ modded class MissionGameplay
 			m_ChatRootWidget.Show( true );
 		}
 	}
-	
+		
+	// ------------------------------------------------------------
+	// InitChat
+	// ------------------------------------------------------------
 	void InitVoiceLevelIndicator()
 	{
 		//! Unlink vanilla voice level indicator
@@ -577,14 +578,18 @@ modded class MissionGameplay
 					//! Map Menu
 					if ( input.LocalPress( "UAExpansionMapToggle", false ) )
 					{
-						if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
+						ExpansionMapMenu map_menu;
+						if ( Class.CastTo( map_menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
+						{
+							map_menu.Hide();
+							map_menu.Close();
+						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
 						{
 							if ( GetExpansionSettings().GetGeneral().NeedMapItemForKeyBinding )
 							{
 								if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemMap() || PlayerBase.Cast( GetGame().GetPlayer() ).HasItemGPS() )
 									GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
-							}
-							else
+							} else
 							{
 								GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
 							}
@@ -607,11 +612,11 @@ modded class MissionGameplay
 								#endif
 								
 								if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemGPS() )
-									ToogleHUDGPSMode();
+									ToggleHUDGPSMode();
 							}
 							else
 							{
-								ToogleHUDGPSMode();
+								ToggleHUDGPSMode();
 							}
 						}
 					}
@@ -672,30 +677,25 @@ modded class MissionGameplay
 					{
 						m_ExpansionHud.ToggleEarplugs();
 					}
-					
-					//! Toogle chat window
-					if ( input.LocalPress( "UAExpansionChatToggle", false ) )
+
+					if ( m_MarkerModule )
 					{
-						ToggleChat();
-					}
-					
-					//! Toogle 3d marker visiblity
-					if ( input.LocalPress( "UAExpansion3DMarkerToggle", false ) )
-					{
-						Expansion3DMarkerModule module3DMarker;
-						if ( Class.CastTo( module3DMarker, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
+						//! Toggle 3d marker visiblity
+						if ( input.LocalPress( "UAExpansion3DMarkerToggle", false ) )
 						{
-							module3DMarker.ToggleShowMarkers();
+							//if ( m_MarkerModule.IsWorldVisible() )
+							//{
+							//	m_MarkerModule.RemoveVisibility( EXPANSION_MARKER_VIS_WORLD );
+							//} else
+							//{
+							//	m_MarkerModule.SetVisibility( EXPANSION_MARKER_VIS_WORLD );
+							//}
 						}
-					}
-					
-					//! Toogle 3d party members markers visiblity
-					if ( input.LocalPress( "UAExpansionOnlyPartyMembersMarkersToggle", false ) )
-					{
-						Expansion3DMarkerModule module3DMarker2;
-						if ( Class.CastTo( module3DMarker2, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
+						
+						//! Toggle 3d party members markers visiblity
+						if ( input.LocalPress( "UAExpansionOnlyPartyMembersMarkersToggle", false ) )
 						{
-							module3DMarker2.ToggleOnlyPartyMembersMarkers();
+							//m_MarkerModule.ToggleOnlyPartyMembersMarkers();
 						}
 					}
 				}
@@ -724,23 +724,26 @@ modded class MissionGameplay
 					}
 				}
 
-				//! Autowalk
-				if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableAutoRun )
+				if ( m_AutoRunModule )
 				{
-					m_AutoRunModule.UpdateAutoWalk();
-				}
-				
-				//! Stop autorun when different inputs are pressed
-				if ( !m_AutoRunModule.IsDisabled() )
-				{
-					if ( INPUT_FORWARD() || INPUT_BACK() || INPUT_LEFT() || INPUT_RIGHT() || INPUT_GETOVER() || INPUT_STANCE() )
+					//! Autowalk
+					if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableAutoRun )
 					{
-						m_AutoRunModule.AutoRun();
+						m_AutoRunModule.UpdateAutoWalk();
+					}
+					
+					//! Stop autorun when different inputs are pressed
+					if ( !m_AutoRunModule.IsDisabled() )
+					{
+						if ( INPUT_FORWARD() || INPUT_BACK() || INPUT_LEFT() || INPUT_RIGHT() || INPUT_GETOVER() || INPUT_STANCE() )
+						{
+							m_AutoRunModule.AutoRun();
+						}
 					}
 				}
 						
 				//! Data
-				if (!m_DataSent) 
+				if ( !m_DataSent ) 
 				{
 					ExpansionPlayerData();
 					m_DataSent = true;
@@ -752,19 +755,14 @@ modded class MissionGameplay
 		{
 			PlayerCheckNV( playerPB );
 		}
-
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
-		{
-			//! Get Client Settings from player and set ui Elemets
-			CheckClientSettings();
-		}
 		
 		//! Toggle HUD elements in different menus
 		if ( m_Hud && m_ExpansionHud.IsInitialized() && m_Chat && GetCommunityOnlineTools() )
 			RefreshHUDElements();
 		
 		//! Expansion hud update
-		m_ExpansionHud.Update( timeslice );
+		if ( m_Hud &&  m_ExpansionHud.IsInitialized() )
+			m_ExpansionHud.Update( timeslice );
 		
 		//! Chat update
 		m_Chat.Update( timeslice );
@@ -799,23 +797,6 @@ modded class MissionGameplay
 				}
 			}
 		}
-		
-		/*ItemBase nvgoogles = ItemBase.Cast(player.GetHumanInventory().GetEntityInHands());
-		if ( nvgoogles && nvgoogles.IsKindOf( "NVGoggles" ) )
-		{
-			GetNVBatteryState( nvgoogles );
-			
-			if ( nvgoogles.IsWorking() && nvgoogles.IsInOptics() )
-			{
-				if ( !m_ExpansionHud.GetNVState() )
-					m_ExpansionHud.ShowNV( true );
-			}
-			else
-			{
-				if ( m_ExpansionHud.GetNVState() )
-					m_ExpansionHud.ShowNV( false );
-			}
-		}*/
 		
 		EntityAI entity;
 		NVGoggles googles;
@@ -855,7 +836,7 @@ modded class MissionGameplay
 		// Nvg - In hands check
 		if ( handitem )
 		{
-			entity = EntityAI.Cast( handitem );
+			entity = handitem;
 			if (entity)
 			{
 				Class.CastTo(googles, entity);
@@ -869,18 +850,12 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	void GetNVBatteryState(NVGoggles googles)
 	{
-		Print( "MissionGameplas::GetNVBatteryState - googles: " + googles.ToString() );
-		
 		if ( GetGame().IsClient() )
 		{
 			int energy_percent = 0;
-			
 			if ( googles && googles.GetCompEM().CanWork() )
 			{
-				energy_percent = googles.GetBatteryEnergy();
-					
-				Print( "MissionGameplas::GetNVBatteryState - energy_percent: " + energy_percent.ToString() );
-					
+				energy_percent = googles.GetBatteryEnergy();					
 				m_ExpansionHud.SetNVBatteryState( energy_percent );
 			}
 		}
@@ -896,30 +871,6 @@ modded class MissionGameplay
 		#endif
 
 		return m_ExpansionHud;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CheckClientSettings
-	// ------------------------------------------------------------
-	void CheckClientSettings()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::CheckClientSettings - Start");
-		#endif
-
-		// m_ClientClockShow = GetExpansionClientSettings().HUDShowClientClock;
-		
-		if ( GetGame().IsMultiplayer() )
-		{
-			// GetGame().GetWorld().SetPreferredViewDistance(GetExpansionClientSettings().DrawDistance);
-			// GetGame().GetWorld().SetPreferredViewDistance(1600.0);
-		}
-
-		// ToggleHUDClock();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::CheckClientSettings - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -1095,10 +1046,7 @@ modded class MissionGameplay
 			}
 		}
 		
-		if ( m_ExpansionChatState )
-			m_ChatRootWidget.Show( true );
-		else
-			m_ChatRootWidget.Show( false );
+		//m_ChatRootWidget.Show( m_ExpansionChatState );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::RefreshHUDElements - End");
@@ -1162,13 +1110,13 @@ modded class MissionGameplay
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ToogleHUDGPSMode
+	// Expansion ToggleHUDGPSMode
 	//! Changes GPS Mode
 	// ------------------------------------------------------------
-	void ToogleHUDGPSMode()
+	void ToggleHUDGPSMode()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("MissionGameplay::ToogleHUDGPSMode - Start");
+		EXLogPrint("MissionGameplay::ToggleHUDGPSMode - Start");
 		#endif
 
 		if ( !m_ExpansionHud.GetGPSMapState() && m_ExpansionHud.GetGPSMapStatsState() )
@@ -1183,43 +1131,8 @@ modded class MissionGameplay
 		}
 
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("MissionGameplay::ToogleHUDGPSMode - End");
+		EXLogPrint("MissionGameplay::ToggleHUDGPSMode - End");
 		#endif
-	}
-		
-	// ------------------------------------------------------------
-	// Expansion ToggleHUDClock
-	//! Hides/Shows HUD Clock elements
-	// ------------------------------------------------------------
-	void ToggleHUDClock()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ToggleHUDClock - Start");
-		#endif
-
-		//! Clock Toggle
-		if ( m_ClientClockShow )
-		{
-			m_ExpansionHud.ClockToggle( true );
-		} 
-		else
-		{
-			m_ExpansionHud.ClockToggle( false );
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ToggleHUDClock - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ToggleChat
-	// ------------------------------------------------------------
-	void ToggleChat()
-	{
-		m_ExpansionChatState = !m_ExpansionChatState;
-		
-		RefreshHUDElements();
 	}
 	
 	// ------------------------------------------------------------
@@ -1256,10 +1169,6 @@ modded class MissionGameplay
 			if ( !show )
 			{
 				m_ExpansionHud.ShowDebugger( false );
-				m_ExpansionHud.ShowClock( false );
-				
-				//m_ExpansionChatState = false;
-				//m_ChatRootWidget.Show( false );
 				
 				if ( m_ExpansionHud.GetGPSState() )
 				{
@@ -1269,11 +1178,7 @@ modded class MissionGameplay
 			} 
 			else 
 			{
-				m_ExpansionHud.ShowDebugger( true );
-				m_ExpansionHud.ShowClock( true );
-				
-				m_ChatRootWidget.Show( true );
-				
+				m_ExpansionHud.ShowDebugger( true );				
 				if ( m_WasGPSToggled && !m_ExpansionHud.GetEarplugsState() && !GetGame().GetUIManager().GetMenu() )
 				{
 					m_ExpansionHud.ShowGPS( true );

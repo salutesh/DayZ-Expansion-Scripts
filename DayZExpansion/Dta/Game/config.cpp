@@ -34,10 +34,16 @@ class CfgVehicles
 		model = "\dz\vehicles\parts\helicopter_battery.p3d";
 		attachments[] = {"MetalWire"};
 		weight = 10000;
-		repairableWithKits[] = {5,7};
-		repairCosts[] = {30.0,25.0};
+		absorbency = 0.1;
 		itemSize[] = {4,4};
-		absorbency = 0;
+		stackedUnit = "w";
+		quantityBar = 1;
+		varQuantityInit = 50;
+		varQuantityMin = 0;
+		varQuantityMax = 50;
+		varQuantityDestroyOnMin = 0;
+		repairableWithKits[] = {5,7};
+		repairCosts[] = {30,25};
 		inventorySlot = "ExpansionHelicopterBattery";
 		rotationFlags = 2;
 		tooltipResources[] = {"power"};
@@ -57,6 +63,7 @@ class CfgVehicles
 			plugType = 4;
 			compatiblePlugTypes[] = {5,8,6};
 			attachmentAction = 2;
+			convertEnergyToQuantity = 1;
 		};
 		class DamageSystem
 		{
@@ -82,6 +89,8 @@ class CfgVehicles
 		repairableWithKits[] = {5,7};
 		repairCosts[] = {30.0,25.0};
 		itemSize[] = {4,4};
+		itemBehaviour = 0;
+		heavyItem = 1;
 		absorbency = 0;
 		inventorySlot = "ExpansionAircraftBattery";
 		rotationFlags = 2;

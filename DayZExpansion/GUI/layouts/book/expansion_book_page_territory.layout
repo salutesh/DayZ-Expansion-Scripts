@@ -172,7 +172,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "No other Members Online"
+           text "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_MEMBERS"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text offset" 5 0
            "exact text" 1
@@ -266,7 +266,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "No other Players Online"
+           text "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_PLAYERS"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text offset" 5 0
            "exact text" 1
@@ -303,7 +303,7 @@ FrameWidgetClass book_module_territory {
          {
           ImageWidgetClass player_list_filter_clear_icon {
            ignorepointer 1
-           color 0.9451 0.9451 0.9451 1
+           color 0 0 0 1
            size 32 32
            halign center_ref
            valign center_ref
@@ -312,7 +312,7 @@ FrameWidgetClass book_module_territory {
            hexactsize 1
            vexactsize 1
            image0 ""
-           imageTexture "{986F135C99A8DCDA}DayZExpansion/GUI/icons/hud/cross_64x64.edds"
+           imageTexture "{50590D86B12E21D3}DayZExpansion/GUI/icons/hud/refresh_64x64.edds"
            mode blend
            "src alpha" 1
            "no wrap" 1
@@ -333,7 +333,7 @@ FrameWidgetClass book_module_territory {
          {
           ImageWidgetClass player_list_filter_icon {
            ignorepointer 1
-           color 0.9451 0.9451 0.9451 1
+           color 0 0 0 1
            size 1 1
            halign center_ref
            valign center_ref
@@ -397,7 +397,7 @@ FrameWidgetClass book_module_territory {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     text "DELETE TERRITORY"
+     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY"
      font "DayZExpansion/GUI/fonts/etelkatextpro24"
      "text color" 1 1 1 1
      "exact text" 1
@@ -417,7 +417,7 @@ FrameWidgetClass book_module_territory {
      hexactsize 0
      vexactsize 0
      style DayZNormal
-     text "Are you sure you want to delete this territory? There is no way to undo this!"
+     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_DESC"
      font "DayZExpansion/GUI/fonts/etelkatextpro24"
      "exact text" 1
      "exact text size" 24
@@ -437,7 +437,7 @@ FrameWidgetClass book_module_territory {
      vexactsize 1
      userID 1
      style EmptyHighlight
-     text "YES"
+     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CONFIRM"
      font "DayZExpansion/GUI/fonts/etelkatextpro24"
     }
     ButtonWidgetClass book_dialog_cancel_button {
@@ -453,7 +453,7 @@ FrameWidgetClass book_module_territory {
      vexactsize 1
      userID 1
      style EmptyHighlight
-     text "CANCEL"
+     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
      font "DayZExpansion/GUI/fonts/etelkatextpro24"
     }
     PanelWidgetClass Separator0 {
@@ -527,7 +527,7 @@ FrameWidgetClass book_module_territory {
        hexactsize 0
        vexactsize 0
        priority 1
-       text "MANAGE MEMBER"
+       text "#STR_EXPANSION_BOOK_TERRITORY_MANAGE_MEMBER"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
        "exact text" 1
        "exact text size" 24
@@ -568,7 +568,7 @@ FrameWidgetClass book_module_territory {
            hexactsize 0
            vexactsize 0
            priority 1
-           text "PROMOTE"
+           text "#STR_EXPANSION_BOOK_TERRITORY_PROMOTE"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "exact text" 1
            "exact text size" 24
@@ -612,7 +612,7 @@ FrameWidgetClass book_module_territory {
            hexactsize 0
            vexactsize 0
            priority 1
-           text "DEMOTE"
+           text "#STR_EXPANSION_BOOK_TERRITORY_DEMOTE"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "exact text" 1
            "exact text size" 24
@@ -656,7 +656,7 @@ FrameWidgetClass book_module_territory {
            hexactsize 0
            vexactsize 0
            priority 1
-           text "KICK"
+           text "#STR_EXPANSION_BOOK_TERRITORY_KICK"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "exact text" 1
            "exact text size" 24
@@ -700,7 +700,7 @@ FrameWidgetClass book_module_territory {
            hexactsize 0
            vexactsize 0
            priority 1
-           text "CANCEL"
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "exact text" 1
            "exact text size" 24
@@ -770,7 +770,7 @@ FrameWidgetClass book_module_territory {
        hexactsize 0
        vexactsize 0
        priority 1
-       text "MEMBER INFO"
+       text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_INFO"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
        "exact text" 1
        "exact text size" 24
@@ -810,7 +810,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Name:"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_NAME"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text color" 0 0 0 1
            "exact text" 1
@@ -826,7 +826,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Survivor"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_DEFAULT"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text color" 0 0 0 1
            "exact text" 1
@@ -859,7 +859,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Rank:"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_RANK"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text color" 0 0 0 1
            "exact text" 1
@@ -875,7 +875,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Member"
+           text "#STR_EXPANSION_PARTY_RANK_MEMBER"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text color" 0 0 0 1
            "exact text" 1
@@ -908,7 +908,7 @@ FrameWidgetClass book_module_territory {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Status:"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_STATUS"
            font "DayZExpansion/GUI/fonts/etelkatextpro24"
            "text color" 0 0 0 1
            "exact text" 1
@@ -948,7 +948,7 @@ FrameWidgetClass book_module_territory {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "Offline"
+             text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_OFFLINE"
              font "DayZExpansion/GUI/fonts/etelkatextpro24"
              "text color" 0 0 0 1
              "exact text" 1
@@ -1028,7 +1028,7 @@ FrameWidgetClass book_module_territory {
          vexactpos 0
          hexactsize 0
          vexactsize 0
-         text "No pending invites"
+         text "#STR_EXPANSION_BOOK_TERRITORY_NO_PENDING_INVITES"
          font "DayZExpansion/GUI/fonts/etelkatextpro24"
          "text offset" 5 0
          "exact text" 1

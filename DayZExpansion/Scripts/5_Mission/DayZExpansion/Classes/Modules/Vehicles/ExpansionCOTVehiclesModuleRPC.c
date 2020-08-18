@@ -19,5 +19,6 @@ enum ExpansionCOTVehiclesModuleRPC
 	DeleteVehicleAll,
 	DeleteVehicleUnclaimed,
 	DeleteVehicleDestroyed,
+	TeleportToVehicle,
 	COUNT
 }

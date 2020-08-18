@@ -20,6 +20,10 @@ class ExpansionCamoBoxKit: ExpansionKitLarge
 	// ------------------------------------------------------------
 	override void OnPlacementComplete( Man player )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionCamoBoxKit::OnPlacementComplete - Start");
+		#endif
+		
 		if ( IsMissionHost() )
 		{
 			//! Create camo box
@@ -38,6 +42,10 @@ class ExpansionCamoBoxKit: ExpansionKitLarge
 		}	
 		
 		SetIsDeploySound( true );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionCamoBoxKit::OnPlacementComplete - End");
+		#endif
 	}
 
 	override string GetDeploySoundset()

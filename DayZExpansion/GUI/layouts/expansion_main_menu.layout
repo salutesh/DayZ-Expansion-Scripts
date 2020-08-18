@@ -1178,5 +1178,16 @@ FrameWidgetClass main_menu_root {
    content_halign right
    content_valign bottom
   }
+  PanelWidgetClass NewsFeedPanel {
+   visible 1
+   ignorepointer 0
+   position 100 340.444
+   size 550 630
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 4
+  }
  }
 }

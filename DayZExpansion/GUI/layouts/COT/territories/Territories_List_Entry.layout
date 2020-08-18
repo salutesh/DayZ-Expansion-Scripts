@@ -11,7 +11,7 @@ GridSpacerWidgetClass ExpansionCOTTerritoriesListEntry {
  scriptclass ""
  style Empty
  Padding 0
- Margin 3
+ Margin 0
  "Size To Content H" 1
  "Size To Content V" 1
  Columns 1
@@ -31,36 +31,6 @@ GridSpacerWidgetClass ExpansionCOTTerritoriesListEntry {
    style DayZDefaultPanel
    "no focus" 1
    {
-    TextWidgetClass territory_name {
-     clipchildren 0
-     ignorepointer 1
-     position 0.05 0
-     size 0.25 0.53
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     text "Territorie Name"
-     font "gui/fonts/etelkatextpro16"
-     "exact text" 0
-     "text valign" center
-    }
-    TextWidgetClass territory_id {
-     clipchildren 0
-     ignorepointer 1
-     position 0.35 0
-     size 0.3 0.53
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     text "ID: XXX"
-     font "gui/fonts/etelkatextpro16"
-     "exact text" 0
-     "text valign" center
-    }
     ButtonWidgetClass edit_button {
      clipchildren 1
      ignorepointer 0
@@ -69,7 +39,53 @@ GridSpacerWidgetClass ExpansionCOTTerritoriesListEntry {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Empty
+     style Default
+    }
+    PanelWidgetClass territory_entry_content {
+     ignorepointer 1
+     position 30 0
+     size 0.9 1
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     {
+      TextWidgetClass territory_name {
+       clipchildren 0
+       ignorepointer 1
+       position 0.05 0
+       size 0.3 1
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "Territory Name"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "size to text h" 1
+       "text valign" center
+      }
+      TextWidgetClass territory_id {
+       clipchildren 0
+       ignorepointer 1
+       position 0.4 0
+       size 0.3 1
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "ID: XXX"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "size to text h" 1
+       "text valign" center
+      }
+     }
     }
    }
   }

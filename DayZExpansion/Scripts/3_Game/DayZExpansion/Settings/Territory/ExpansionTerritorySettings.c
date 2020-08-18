@@ -18,7 +18,7 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 	bool EnableTerritories;				//! If enabled, use the expansion territory system
 	bool UseWholeMapForInviteList; 		//! Use it if you want whole map available in invite list, instead only nearby players.
 	float TerritorySize;				//! The radius of a territory in meters.
-	float TerritoryPerimterSize			//! The radius who prevent territories to overlap
+	float TerritoryPerimeterSize		//! The radius who prevent territories to overlap
 	int MaxMembersInTerritory; 			//! If <= 0, unlimited territory size.
 	int MaxTerritoryPerPlayer;			//! If <= 0, unlimited territory number.
 	
@@ -38,17 +38,17 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionTerritorySettings::HandleRPC - Start");
+		EXPrint("ExpansionTerritorySettings::OnRecieve - Start");
 		#endif
 		
 		ExpansionTerritorySettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionTerritorySettings::HandleRPC setting");
-			return;
+			Error("ExpansionTerritorySettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -58,8 +58,17 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		ExpansionSettings.SI_Territory.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionTerritorySettings::HandleRPC - End");
+		EXPrint("ExpansionTerritorySettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionTerritorySettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 
 	// ------------------------------------------------------------
@@ -74,10 +83,8 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionTerritorySettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Territory, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -103,7 +110,7 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		EnableTerritories = s.EnableTerritories;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
 		TerritorySize = s.TerritorySize;
-		TerritoryPerimterSize = s.TerritoryPerimterSize;
+		TerritoryPerimeterSize = s.TerritoryPerimeterSize;
 		MaxMembersInTerritory = s.MaxMembersInTerritory;
 		MaxTerritoryPerPlayer = s.MaxTerritoryPerPlayer;
 	}
@@ -169,7 +176,7 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		EnableTerritories = true;
 		UseWholeMapForInviteList = false;
 		TerritorySize = 150.0;
-		TerritoryPerimterSize = 150.0;
+		TerritoryPerimeterSize = 150.0;
 		MaxMembersInTerritory = 10;
 		MaxTerritoryPerPlayer = 1;
 		

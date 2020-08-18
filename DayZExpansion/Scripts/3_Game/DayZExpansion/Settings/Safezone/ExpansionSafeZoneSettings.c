@@ -32,11 +32,38 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		//Not sent to client
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSafeZoneSettings::OnRecieve - Start");
+		#endif
+
+		//Not sent to client under normal operation
+		m_IsLoaded = true;
+
+		ExpansionSafeZoneSettings setting;
+		if ( !ctx.Read( setting ) )
+		{
+			Error("ExpansionSafeZoneSettings::OnRecieve setting");
+			return false;
+		}
+
+		CopyInternal( setting );
 
 		m_IsLoaded = true;
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSafeZoneSettings::OnRecieve - End");
+		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionSafeZoneSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 
 	// ------------------------------------------------------------
@@ -101,6 +128,8 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 
 		if ( FileExist( EXPANSION_SAFE_ZONES_SETTINGS ) )
 		{
+			Print("[ExpansionSafeZoneSettings] Loading settings");
+
 			JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile( EXPANSION_SAFE_ZONES_SETTINGS, this );
 
 			#ifdef EXPANSIONEXPRINT
@@ -122,9 +151,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionSafeZoneSettings] Saving settings");
-		#endif
+		Print("[ExpansionSafeZoneSettings] Saving settings");
 		
 		JsonFileLoader<ExpansionSafeZoneSettings>.JsonSaveFile( EXPANSION_SAFE_ZONES_SETTINGS, this );
 
@@ -134,9 +161,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionSafeZoneSettings] Loading default settings");
-		#endif
+		Print("[ExpansionSafeZoneSettings] Loading default settings");
 		
 		Enabled = false;
 		EnableVehicleinvincibleInsideSafeZone = true;

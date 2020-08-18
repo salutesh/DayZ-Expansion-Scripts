@@ -43,10 +43,10 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	{
 		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
 		{
-			return "Lock";
+			return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
 		}
 
-		return "Enter Code";
+		return "#STR_EXPANSION_BB_CODE_LOCK_ENTER_CODE";
 	}
 
 	// -----------------------------------------------------------

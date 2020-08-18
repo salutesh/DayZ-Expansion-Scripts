@@ -38,7 +38,13 @@ class ExpansionTractor extends CarScript
 		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(TractorRearLight) );
 	}
 	*/
-
+	override string ExpansionGetWheelType(int slot_id)
+	{
+		if (InventorySlots.GetSlotName(slot_id) == "ExpansionTractorFrontWheel_1_1" || InventorySlots.GetSlotName(slot_id) == "ExpansionTractorFrontWheel_2_1"  )
+			return "ExpansionTractorFrontWheel";
+		else
+			return "ExpansionTractorBackWheel";
+	}
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
 		if( !super.CanReleaseAttachment( attachment ) )
@@ -105,12 +111,12 @@ class ExpansionTractor extends CarScript
 
 	override bool CrewCanGetThrough( int posIdx )
 	{
-		if ( GetCarDoorsState( "ExpansionTractorDoorsDriver" ) == CarDoorState.DOORS_OPEN || GetCarDoorsState( "ExpansionTractorDoorsDriver" ) == CarDoorState.DOORS_MISSING )
+		if ( GetCarDoorsState( "expansiontractordoorsdriver" ) == CarDoorState.DOORS_OPEN || GetCarDoorsState( "expansiontractordoorsdriver" ) == CarDoorState.DOORS_MISSING )
 		{
 			return true;
 		}
 
-		if ( GetCarDoorsState( "ExpansionTractorDoorsCodriver" ) == CarDoorState.DOORS_OPEN )
+		if ( GetCarDoorsState( "expansiontractordoorscodriver" ) == CarDoorState.DOORS_OPEN || GetCarDoorsState( "expansiontractordoorscodriver" ) == CarDoorState.DOORS_MISSING )
 		{
 			return true;
 		}
@@ -126,6 +132,9 @@ class ExpansionTractor extends CarScript
 		case 0:
 			return "expansiontractordoorsdriver";
 		break;
+		case 1:
+			return "expansiontractordoorscodriver";
+		break;
 		}
 		
 		return super.GetDoorSelectionNameFromSeatPos(posIdx);
@@ -137,7 +146,10 @@ class ExpansionTractor extends CarScript
 		switch( posIdx )
 		{
 		case 0:
-			return "ExpansionTractorDoorsDriver";
+			return "expansiontractordoorsdriver";
+		break;
+		case 1:
+			return "expansiontractordoorscodriver";
 		break;
 		}
 		
@@ -152,12 +164,12 @@ class ExpansionTractor extends CarScript
 				float newValue = 0;
 
 				//-----
-				if ( GetCarDoorsState( "ExpansionTractorDoorsDriver" ) == CarDoorState.DOORS_CLOSED )
+				if ( GetCarDoorsState( "expansiontractordoorsdriver" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.25;
 				}
 
-				if ( GetCarDoorsState( "ExpansionTractorDoorsCodriver" ) == CarDoorState.DOORS_CLOSED )
+				if ( GetCarDoorsState( "expansiontractordoorscodriver" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.25;
 				}
@@ -214,6 +226,12 @@ class ExpansionTractor extends CarScript
 		return false;
 	}
 
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return false;
+	}
+
 	override bool CanReachSeatFromSeat( int currentSeat, int nextSeat )
 	{
 		switch( currentSeat )
@@ -221,8 +239,7 @@ class ExpansionTractor extends CarScript
 		case 0:
 			if ( nextSeat == 1 )
 				return true;
-		break;
-		
+		break;		
 		case 1:
 			if ( nextSeat == 0 )
 				return true;
@@ -257,7 +274,6 @@ class ExpansionTractor extends CarScript
 				return true;
 			}
 		break;
-
 		case 1:
 			if (pDoorsSelection == "expansiontractordoorscodriver")
 			{
@@ -267,5 +283,11 @@ class ExpansionTractor extends CarScript
 		}
 		
 		return false;		
+	}
+
+	// ------------------------------------------------------------
+	override float GetCameraDistance()
+	{
+		return 10;
 	}
 }

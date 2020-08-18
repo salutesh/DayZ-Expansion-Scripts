@@ -17,7 +17,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 {
 	bool m_FromSettings;
 	bool m_LootHasSpawned;
-
+	bool m_IsLooted;
+	
 	int m_ItemsCount;
 	int m_Infected;
 
@@ -36,18 +37,19 @@ class ExpansionAirdropContainerBase extends Container_Base
 	
 	protected AIGroup m_AIGroup;
 	
-	int m_ServerMarker;
+	string m_ServerMarker;
 	
-	bool m_IsLooted;
-	bool m_Cleanup;
-	
-	protected ExpansionMapMarkerModule m_MarkerModule;
+	protected ExpansionMarkerModule m_MarkerModule;
 
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
 	void ExpansionAirdropContainerBase()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::ExpansionAirdropContainerBase - Start");
+		#endif	
+
 		RegisterNetSyncVariableBool("m_LightOn");
 		
 		SetEventMask( EntityEvent.INIT ); 
@@ -56,16 +58,18 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		m_FromSettings = true;
 		m_LootHasSpawned = false;
-		m_IsLooted = false;
-		m_Cleanup = false;
 		
-		m_ServerMarker = -1;
-		m_MarkerModule = ExpansionMapMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMapMarkerModule ) );
+		m_ServerMarker = "";
+		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		
 		CreateSmoke();
 		ToggleLight();
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CheckAirdrop, 5000, true );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::ExpansionAirdropContainerBase - End");
+		#endif	
 	}
 	
 	// ------------------------------------------------------------
@@ -73,13 +77,35 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void ~ExpansionAirdropContainerBase()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
+		#endif	
+		
+		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
+		
+		DestroyLight();
+		
+		StopSmokeEffect();
+		
+		if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
+		{
+			RemoveServerMarker();
+		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
+		#endif	
 	}
 	
 	// ------------------------------------------------------------
 	// ClearAirdrop
 	// ------------------------------------------------------------
-	void ClearAirdrop()
+	/*void ClearAirdrop()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::ClearAirdrop - Start");
+		#endif	
+		
 		array< EntityAI > items = new array< EntityAI >;
 
 		if ( GetGame().IsServer() ) 
@@ -99,35 +125,26 @@ class ExpansionAirdropContainerBase extends Container_Base
 		}
 		
 		GetGame().ObjectDelete( this );
-	}
-	
-	// ------------------------------------------------------------
-	// EEDelete
-	//! Not sure if this gets executed on object deletion
-	// ------------------------------------------------------------
-	override void EEDelete(EntityAI parent)
-	{		
+		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionAirdropContainerBase::EEDelete - Start");
+		EXLogPrint("ExpansionAirdropContainerBase::ClearAirdrop - End");
 		#endif	
-
-		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
-		
-		DestroyLight();
-		
-		StopSmokeEffect();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionAirdropContainerBase::EEDelete - End");
-		#endif
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// LoadFromMission
 	// ------------------------------------------------------------
 	void LoadFromMission( ref Class mission )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::LoadFromMission - Start");
+		#endif	
+
 		m_FromSettings = false;
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::LoadFromMission - End");
+		#endif	
 	}
 	
 	// ------------------------------------------------------------
@@ -135,7 +152,11 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void InitAirdrop()
 	{
-		if ( GetGame() && GetGame().IsMultiplayer() || !GetGame().IsClient() )
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - Start");
+		#endif
+		
+		if ( IsMissionHost() )
 		{				
 			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( this.OnUpdate );
 	
@@ -145,11 +166,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			EnableDynamicCCD( true );
 			SetDynamicPhysicsLifeTime( -1 );
-			
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.ClearAirdrop );
+			SetLifetimeMax( 1.0 );
 			
 			m_StartTime = GetGame().GetTime();
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -157,6 +181,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void CheckAirdrop()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::CheckAirdrop - Start");
+		#endif
+		
 		array< EntityAI > items = new array< EntityAI >;
 		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 
@@ -165,8 +193,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 			if ( !m_IsLooted && IsMissionHost() )
 			{
 				ToggleLight();
-
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearAirdrop, 3600000, false, this );
 
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CheckAirdrop );
 				
@@ -178,6 +204,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 				StopSmokeEffect();
 			}
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::CheckAirdrop - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -193,7 +223,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		{		
 			float mass = dBodyGetMass( this );
 			dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
-		} 
+		}
 		else if ( !m_LootHasSpawned )
 		{
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
@@ -201,6 +231,12 @@ class ExpansionAirdropContainerBase extends Container_Base
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
 
+			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
+			{
+				//! Set server map marker on drop position
+				CreateServerMarker();
+			}
+			
 			m_LootHasSpawned = true;
 		}
 		
@@ -214,6 +250,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void AddItem( ref ExpansionAirdropLootAttachments className )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::AddItem - Start");
+		#endif
+		
 		ItemBase item = ItemBase.Cast( GetInventory().CreateInInventory( className.Name ) ); 
 
 		if ( className.Attachments != NULL )
@@ -231,39 +271,69 @@ class ExpansionAirdropContainerBase extends Container_Base
 		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 
 		m_ItemCount = items.Count();
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::AddItem - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion CreateServerMarker
 	// ------------------------------------------------------------
-	void CreateServerMarker(string name)
+	void CreateServerMarker()
 	{
-		if ( GetGame() && GetGame().IsMultiplayer() || !GetGame().IsClient() )
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - Start");
+		#endif
+		
+		if ( IsMissionHost() )
 		{
-			m_ServerMarker = m_MarkerModule.AddServerMarker( "[" + name + "] " + GetDisplayName(), 1, GetPosition(), ARGB(255, 235, 59, 90), true );
+			if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
+			{
+				m_ServerMarker = "[" + this.GetDisplayName() + "] " + "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
+			} else
+			{
+				m_ServerMarker = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
+			}
+			
+			m_MarkerModule.CreateServerMarker( m_ServerMarker, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
 
 			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker index is: " + m_ServerMarker );
+			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker name is: " + m_ServerMarker );
 			#endif
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion RemoveServerMarker
 	// ------------------------------------------------------------
 	void RemoveServerMarker()
-	{	
-		if ( GetGame() && GetGame().IsMultiplayer() || !GetGame().IsClient() )
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Start");
+		#endif
+		
+		if ( IsMissionHost() )
 		{
-			if ( m_ServerMarker != -1 )
+			if (m_ServerMarker && m_ServerMarker != "" )
 			{
 				m_MarkerModule.RemoveServerMarker( m_ServerMarker );
 				
 				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - m_ServerMarker index is: " + m_ServerMarker );
+				EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - m_ServerMarker name is: " + m_ServerMarker );
 				#endif
+
+				m_ServerMarker = "";
 			}
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -271,6 +341,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected void SpawnInfected( vector centerPosition, float innerRadius, float spawnRadius )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - Start");
+		#endif
+		
 		m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
 		array<ref BehaviourGroupInfectedPackWaypointParams> waypointParams = new array<ref BehaviourGroupInfectedPackWaypointParams>;
 
@@ -288,6 +362,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 		}
 
 		// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, m_Settings.Infected );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -295,6 +373,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::SampleSpawnPosition - Start");
+		#endif
+		
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
 		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
 
@@ -315,6 +397,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::SampleSpawnPosition - End and return nPosition: " + nPosition.ToString());
+		#endif
+		
 		return nPosition;
 	}
 
@@ -324,6 +410,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	private bool IsGround( float height )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::IsGround - Start");
+		#endif
+		
 		//! Ray input
 		vector start = GetPosition();
 		vector end = GetPosition() - Vector( 0, height, 0 );
@@ -335,6 +425,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 		//! Ray hitindex output
 		int hitindex;
 
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::IsGround - End and return height: " + DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this ).ToString());
+		#endif
+		
 		//! Ray
 		return DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this );
 	}	
@@ -343,9 +437,13 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// Expansion IsPlayerNearby
 	// Check if player is nearby container
 	// ------------------------------------------------------------
-	private bool IsPlayerNearby(float radius)
+	bool IsPlayerNearby(float radius)
 	{		
-		vector pos = GetPosition();
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::IsPlayerNearby - Start");
+		#endif
+		
+		vector pos = this.GetPosition();
 		array<Man> players = new array<Man>;
 		GetGame().GetWorld().GetPlayerList(players);
 		float distance;
@@ -358,8 +456,17 @@ class ExpansionAirdropContainerBase extends Container_Base
 			distance = vector.Distance( pos, player.GetPosition() );
 			
 			if ( distance <= radius )
+			{
+				#ifdef EXPANSIONEXLOGPRINT
+				EXLogPrint("ExpansionAirdropContainerBase::IsPlayerNearby - End and return true");
+				#endif
 				return true;
+			}
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::IsPlayerNearby - End and return false");
+		#endif
 		
 		return false;
 	}
@@ -369,9 +476,17 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::OnVariablesSynchronized - Start");
+		#endif
+		
 		super.OnVariablesSynchronized();
 		
 		UpdateLight();
+
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::OnVariablesSynchronized - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -419,11 +534,19 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void ToggleLight()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::ToggleLight - Start");
+		#endif
+		
 		m_LightOn = !m_LightOn;
 		
 		SetSynchDirty();
 		
 		UpdateLight();
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::ToggleLight - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -431,6 +554,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void UpdateLight()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::UpdateLight - Start");
+		#endif
+		
 		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() ) // Client side
 		{
 			if ( m_LightOn )
@@ -455,6 +582,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 				}
 			}
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionAirdropContainerBase::UpdateLight - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -548,5 +679,34 @@ class ExpansionAirdropContainerBase extends Container_Base
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// CanReceiveItemIntoCargo
+	// ------------------------------------------------------------
+	override bool CanReceiveItemIntoCargo( EntityAI cargo )
+	{
+		if ( GetHealthLevel() == GameConstants.STATE_RUINED )
+			return false;
+
+		return super.CanReceiveItemIntoCargo( cargo );
+	}
+	
+	// ------------------------------------------------------------
+	// AfterStoreLoad
+	// ------------------------------------------------------------
+	//! Called when entity is being loaded from DB or Storage.
+	// This will remove the saved containers after they got loaded from CE.
+	override void AfterStoreLoad()
+	{
+		array< EntityAI > items = new array< EntityAI >;
+		this.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
+		
+		for ( int i = 0; i < items.Count(); ++i )
+		{
+			GetGame().ObjectDelete(items[i]);
+		}
+		
+		GetGame().ObjectDelete( this );
 	}
 }

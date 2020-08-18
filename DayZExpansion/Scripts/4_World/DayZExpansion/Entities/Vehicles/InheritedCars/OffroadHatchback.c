@@ -16,4 +16,14 @@ modded class OffroadHatchback
 	{
 		return true;
 	}
+	override string ExpansionGetWheelType(int slot_id)
+	{
+		return "HatchbackWheel";
+	}
+
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return false;
+	}
 }

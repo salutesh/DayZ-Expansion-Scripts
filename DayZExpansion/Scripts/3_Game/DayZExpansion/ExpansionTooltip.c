@@ -13,14 +13,16 @@
 class ExpansionUITooltip extends ScriptedWidgetEventHandler
 {
 	protected Widget				m_Root;
-	protected RichTextWidget		m_Title;
+	protected HtmlWidget			m_Title;
 	protected Widget				m_Seperator;
-	protected RichTextWidget		m_Text;
+	protected HtmlWidget			m_Text;
 
 	protected string				m_TooltipTitle;
 	protected string				m_TooltipText;
 
 	protected ref Timer				m_ToolTipUpdateTimer;
+	
+	private bool					m_FixPos;
 	
 	// ------------------------------------------------------------
 	// ExpansionUITooltip Constructor
@@ -32,9 +34,9 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		#endif
 		
 		m_Root = Widget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_tooltip.layout") );
-		m_Title = RichTextWidget.Cast(m_Root.FindAnyWidget("TooltipTitle"));
+		m_Title = HtmlWidget.Cast(m_Root.FindAnyWidget("TooltipTitle"));
 		m_Seperator = Widget.Cast(m_Root.FindAnyWidget("Separator"));
-		m_Text = RichTextWidget.Cast(m_Root.FindAnyWidget("TooltipText"));
+		m_Text = HtmlWidget.Cast(m_Root.FindAnyWidget("TooltipText"));
 		
 		m_TooltipTitle = title;
 		m_TooltipText = text;
@@ -53,6 +55,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void ~ExpansionUITooltip()
 	{
+		HideTooltip();
 		delete m_Root;
 	}
 	
@@ -67,7 +70,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 	
 		if (m_TooltipTitle != "")
 		{
-			m_Title.SetText(m_TooltipTitle);
+			m_Title.SetText("<p>" + m_TooltipTitle + "</p>");
 		}
 		else
 		{
@@ -75,7 +78,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 			m_Seperator.Show(false);
 		}
 
-		m_Text.SetText(m_TooltipText);
+		m_Text.SetText("<p>" + m_TooltipText + "</p>");
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUITooltip::SetToolTip - End");
@@ -105,13 +108,16 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 			m_ToolTipUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
 		}
 		
-		m_Root.Show( true );
+		m_Root.Show(true);
 		
 		SetToolTip();
 		
-		int x, y;
-		GetMousePos(x,y);
-		m_Root.SetPos(x, y);
+		if (!HasFixPosition())
+		{
+			int x, y;
+			GetMousePos(x,y);
+			m_Root.SetPos(x, y);
+		}
 		
 		m_Text.Update();
 		m_Root.Update();
@@ -133,8 +139,12 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		if (m_ToolTipUpdateTimer)
 			m_ToolTipUpdateTimer.Stop();
 		
-		m_Root.Show(false);
-		m_Root.SetPos(0, 0);
+		if (m_Root.IsVisible())
+			m_Root.Show(false);
+		
+		if (!HasFixPosition())
+			m_Root.SetPos(0, 0);
+		
 		m_Title.SetText("");
 		m_Text.SetText("");
 		
@@ -202,12 +212,15 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		EXPrint("ExpansionUITooltip::UpdateTooltip - Start");
 		#endif
 		
-		int mouse_x;
-		int mouse_y;
-			
-		GetGame().GetMousePos( mouse_x, mouse_y );
-		m_Root.SetPos( mouse_x, mouse_y );
-		m_Root.Update();
+		if (m_FixPos)
+		{
+			int mouse_x;
+			int mouse_y;
+				
+			GetGame().GetMousePos( mouse_x, mouse_y );
+			m_Root.SetPos( mouse_x, mouse_y );
+			m_Root.Update();
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUITooltip::UpdateTooltip - End");
@@ -215,10 +228,44 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion IsVisable
+	// Expansion IsVisible
 	// ------------------------------------------------------------		
-	bool IsVisable()
+	bool IsVisible()
 	{
 		return m_Root.IsVisible();
+	}
+	
+	void SetParent(Widget parent)
+	{
+		parent.AddChild(m_Root);
+	}
+	
+	void SetFixPostion(bool state)
+	{
+		m_FixPos = state;
+	}
+	
+	bool HasFixPosition()
+	{
+		return m_FixPos;
+	}
+	
+	void SetText(string text)
+	{
+		m_TooltipText = text;
+	}
+	
+	void SetTextPos(string pos)
+	{
+		if(pos == "center")
+		{
+			m_Text.SetFlags(WidgetFlags.CENTER);
+		} else if(pos == "right")
+		{
+			m_Text.SetFlags(WidgetFlags.RALIGN);
+		} else if(pos == "left")
+		{
+			m_Text.ClearFlags(WidgetFlags.RALIGN | WidgetFlags.CENTER);
+		}
 	}
 }

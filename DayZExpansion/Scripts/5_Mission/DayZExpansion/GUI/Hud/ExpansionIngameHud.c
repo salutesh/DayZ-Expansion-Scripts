@@ -10,39 +10,6 @@
  *
 */
 
-class ExpansionGPSUI extends ScriptedWidgetEventHandler
-{	
-	protected Widget m_Root;
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionGPSUI Constructor
-	// ------------------------------------------------------------
-	void ExpansionGPSUI(Widget parent)
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionGPSUI::ExpansionGPSUI - Start");
-		#endif
-	
-		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/hud/expansion_gps.layout", parent ) );
-		
-		m_Root.SetHandler(this);
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionGPSUI::ExpansionGPSUI - End");
-		#endif
-	}
-	
-		
-	// ------------------------------------------------------------
-	// Expansion ExpansionPartyTabInvitesListEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionGPSUI()
-	{
-		delete m_Root;
-	}
-}
-
-
 class ExpansionIngameHud
 {
 	//! HUD UI META
@@ -56,7 +23,6 @@ class ExpansionIngameHud
 	protected bool											m_ExpansionHudGPSMapState;
 	protected bool											m_ExpansionHudGPSMapStatsState;
 	protected bool											m_ExpansionHudNVState;
-	protected bool											m_ExpansionClockState;
 	protected bool											m_ExpansionEarplugState;
 	protected bool 											m_ExpansionGPSSetting;
 	protected bool											m_ExpansionGPSPosSetting;
@@ -77,7 +43,7 @@ class ExpansionIngameHud
 	protected Widget										m_GPSMapPanel;
 	protected Widget										m_MapFrame;
 	protected MapWidget										m_MapWidget;
-	protected ref ExpansionGPSPositionArrow 				m_MapPositionArrow;
+	protected ref ExpansionMapMarkerPlayerArrow 			m_PlayerArrowMarker;
 	
 	protected float											m_GPSMapScale = 0.1;
 	
@@ -87,38 +53,15 @@ class ExpansionIngameHud
 	protected ImageWidget 									m_NVBatteryIcon;
 	protected TextWidget									m_NVBatteryVal;
 	protected int											m_NVBatteryState;
-	//! CLOCK
-	protected Widget										m_ClockPanel;
-	protected TextWidget									m_Time;
 	//! EARPLUG
 	protected ImageWidget 									m_EarPlugIcon;
 
 	//! DEBUGER
 	protected MultilineTextWidget							m_ExpansionDebug;
 
-	//! MISC
-	protected WrapSpacerWidget 								m_RightHUDPanel;
-	
-	protected ref ExpansionGPSUI							m_GPSUI;
-	
-	protected ref array<ref ExpansionMapMenuMarker> 		m_MapMarkers;
-	protected ref array<ref ExpansionMapMarker> 			m_MapSavedMarkers;
-	
-	protected ref array<ref ExpansionMapMenuMarker> 		m_MapPartyMarkers;
-	protected ref array<ref ExpansionMapMarker> 			m_MapSavedPartyMarkers;
-
-	protected ref array<ref ExpansionMapMenuServerMarker> 	m_MapServerMarkers;
-	protected ref array<ref ExpansionMapMarker> 			m_MapSavedServerMarkers;
-
-	protected ref array<ref ExpansionMapMenuPlayerMarker> 	m_MapPartyPlayerMarkers;
-	
-	//! MARKER MODULES
-	protected ref ExpansionMapMarkerModule 					m_MarkerModule;
-	protected ref ExpansionPartyModule 						m_PartyModule;
-
-	//============================================
+	// ------------------------------------------------------------
 	// ExpansionIngameHud Constructor
-	//============================================
+	// ------------------------------------------------------------
 	void ExpansionIngameHud()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -126,21 +69,7 @@ class ExpansionIngameHud
 		#endif
 		
 		m_ExpansionEarplugState = false;
-		
-		if (!m_MarkerModule)
-			m_MarkerModule = ExpansionMapMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMapMarkerModule));
-		
-		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-		
-		m_MapMarkers = new array<ref ExpansionMapMenuMarker>;
-		m_MapSavedMarkers = new array<ref ExpansionMapMarker>;
-		m_MapPartyMarkers = new array<ref ExpansionMapMenuMarker>;
-		m_MapSavedPartyMarkers = new array<ref ExpansionMapMarker>;
-		m_MapServerMarkers = new array<ref ExpansionMapMenuServerMarker>;
-		m_MapSavedServerMarkers = new array<ref ExpansionMapMarker>;
-		m_MapPartyPlayerMarkers = new array<ref ExpansionMapMenuPlayerMarker>;
-		
+			
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshExpansionHudVisibility );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -148,9 +77,9 @@ class ExpansionIngameHud
 		#endif
 	}
 
-	//============================================
+	// ------------------------------------------------------------
 	// ~ExpansionIngameHud Destructor
-	//============================================
+	// ------------------------------------------------------------
 	void ~ExpansionIngameHud()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -166,20 +95,16 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion Init
-	//============================================
+	// ------------------------------------------------------------
 	void Init( Widget hud_panel_widget )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Init Start");
 		#endif
 		m_WgtRoot = hud_panel_widget;
-		m_WgtRoot.Show( true );		
-		
-		/*m_RightHUDPanel 						= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("RightHUDPanel") );
-		if ( !m_GPSUI )
-			m_GPSUI = new ExpansionGPSUI( m_RightHUDPanel );*/
+		m_WgtRoot.Show( true );
 		
 		//! GPS
 		m_GPSPanel								= Widget.Cast( m_WgtRoot.FindAnyWidget("GPSPanel") );
@@ -199,12 +124,8 @@ class ExpansionIngameHud
 			m_MapFrame								= Widget.Cast( m_GPSPanel.FindAnyWidget("GPSMapFrame") );
 			m_MapWidget 							= MapWidget.Cast( m_GPSPanel.FindAnyWidget("Map") );
 			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "ExpansionIngameHud::Init - m_MapFrame: " + m_MapFrame.ToString() );
-			#endif
-			
-			m_MapPositionArrow = new ExpansionGPSPositionArrow( m_WgtRoot, this );
-			m_MapPositionArrow.Show(false);
+			m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
+			m_PlayerArrowMarker.SetName("");
 		}
 		
 		//! NIGHTVISION OVERLAY
@@ -221,15 +142,8 @@ class ExpansionIngameHud
 			
 			m_NVBatteryVal							= TextWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryVal") );
 		}
-				
-		//! CLOCK
-		m_ClockPanel							= Widget.Cast( m_WgtRoot.FindAnyWidget("TimePanel") );
-		m_ClockPanel.Show( false );
-		if (m_ClockPanel)
-		{
-			m_Time									= TextWidget.Cast( m_WgtRoot.FindAnyWidget("Time") );
-		}
 		
+		//! EARPLUGS		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
 		
 		Class.CastTo( m_ExpansionDebug, m_WgtRoot.FindAnyWidget( "ExpansionDebugger" ) );
@@ -243,137 +157,6 @@ class ExpansionIngameHud
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::Init End");
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion LoadMarkers
-	// Events when loading all existing (saved) map markers
-	// ------------------------------------------------------------	
-	void LoadMarkers()
-	{
-		if ( !GetExpansionClientSettings().Show2DMarkers )
-			return;
-		
-		LoadPersonnalMarkers();
-		LoadServerMarkers();
-		LoadPartyMarkers();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion LoadPersonnalMarkers
-	// Events load personnal stored markers on gpsmap
-	// ------------------------------------------------------------
-	void LoadPersonnalMarkers()
-	{
-		if ( !GetExpansionClientSettings().Show2DClientMarkers )
-			return;
-
-		m_MapMarkers.Clear();
-		m_MapSavedMarkers.Clear();
-		
-		if (m_MarkerModule && m_MarkerModule.GetMarkers() && m_MarkerModule.GetMarkers().Count() >= 0)
-		{
-			for (int i = 0; i < m_MarkerModule.GetMarkers().Count(); ++i)
-			{
-				ExpansionMapMarker currentMarker = m_MarkerModule.GetMarker(i);
-				ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker( m_MapFrame, m_MapWidget, currentMarker.GetMarkerPosition(), " " + currentMarker.GetMarkerText(), currentMarker.GetMarkerColor(), ExpansionMarkerIcons.GetMarkerPath(currentMarker.GetIconIndex()), currentMarker );
-				m_MapMarkers.Insert(mapMarker);
-				m_MapSavedMarkers.Insert(currentMarker);
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion LoadServerMarkers
-	// Events load server markers on map
-	// ------------------------------------------------------------	
-	void LoadServerMarkers()
-	{
-		m_MapServerMarkers.Clear();
-		m_MapSavedServerMarkers.Clear();
-
-		if ( !m_MarkerModule || m_MarkerModule.ServerCount() < 1 )
-			return;
-		
-		if ( !GetExpansionClientSettings().Show2DGlobalMarkers )
-			return;
-
-		if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowServerMarkers )
-		{
-			ExpansionMapMarker currentMarker;
-			ExpansionMapMenuServerMarker mapMarker;
-	
-			for ( int i = 0; i < m_MarkerModule.ServerCount(); ++i )
-			{
-				currentMarker = m_MarkerModule.GetServerMarker( i );
-				if (currentMarker)
-				{
-					mapMarker = new ExpansionMapMenuServerMarker( m_MapFrame, m_MapWidget, currentMarker.GetMarkerPosition(), " " + currentMarker.GetMarkerText(), currentMarker.GetMarkerColor(), ExpansionMarkerIcons.GetMarkerPath(currentMarker.GetIconIndex()) );
-					
-					m_MapServerMarkers.Insert(mapMarker);
-					m_MapSavedServerMarkers.Insert(currentMarker);
-				}
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion LoadPartyMarkers
-	// Events load party markers on map
-	// ------------------------------------------------------------	
-	void LoadPartyMarkers()
-	{
-		m_MapPartyMarkers.Clear();
-		m_MapSavedPartyMarkers.Clear();
-		m_MapPartyPlayerMarkers.Clear();
-		
-		if (m_PartyModule.HasParty())
-		{
-			array<ref ExpansionMapMarker> markers = m_PartyModule.GetParty().GetAllMarkers();
-			
-			if (markers.Count() > 0)
-			{
-				for (int i = 0; i < markers.Count(); ++i)
-				{
-					ExpansionMapMarker currentMarker = markers.Get(i);
-					if (currentMarker)
-					{
-						ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker( m_MapFrame, m_MapWidget, currentMarker.GetMarkerPosition(), " " + currentMarker.GetMarkerText(), currentMarker.GetMarkerColor(), ExpansionMarkerIcons.GetMarkerPath(currentMarker.GetIconIndex()), currentMarker );
-						m_MapPartyMarkers.Insert( mapMarker );
-						m_MapSavedPartyMarkers.Insert( currentMarker );
-					}
-				}
-			}
-			
-			// Party member Markers
-			if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
-			{
-				PlayerBase m_Player = PlayerBase.Cast( GetGame().GetPlayer() );		
-
-				if ( m_Player )
-				{
-					ref array< ref ExpansionPartySaveFormatPlayer > players = m_PartyModule.GetParty().GetPlayers();
-					if (players)
-					{
-						for (int j = 0; j < players.Count(); ++j)
-						{
-							ref ExpansionPartySaveFormatPlayer currPlayer = players[j];
-							if (!currPlayer) continue;
-							
-							if ( currPlayer.UID != m_Player.GetIdentityUID() )
-							{
-								PlayerBase player = PlayerBase.GetPlayerByUID(currPlayer.UID);
-								if (player)
-								{
-									ExpansionMapMenuPlayerMarker playerMarker = new ExpansionMapMenuPlayerMarker( m_MapFrame, m_MapWidget, player );
-									m_MapPartyPlayerMarkers.Insert(playerMarker);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 	
 	// ------------------------------------------------------------
@@ -408,9 +191,9 @@ class ExpansionIngameHud
 		return dir;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion UpdateExpansionDebugText
-	//============================================
+	// ------------------------------------------------------------
 	void UpdateExpansionDebugText()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -448,17 +231,17 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion Show
-	//============================================
+	// ------------------------------------------------------------
 	void Show( bool show )
 	{
 		m_WgtRoot.Show( show );
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion Update
-	//============================================
+	// ------------------------------------------------------------
 	void Update( float timeslice )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -466,41 +249,23 @@ class ExpansionIngameHud
 		#endif
 
 		RefreshExpansionHudVisibility();
-
-		UpdateExpansionDebugText();
 		
-		if ( m_GPSMapPanel.IsVisible() )
-		{
-			for (int i = 0; i < m_MapMarkers.Count(); ++i)
-			{
-				if (m_MapMarkers[i])
-					m_MapMarkers[i].Update( timeslice );
-			}
-			
-			for (int j = 0; j < m_MapPartyMarkers.Count(); ++j)
-			{
-				if (m_MapPartyMarkers[j])
-					m_MapPartyMarkers[j].Update( timeslice );
-			}
-			
-			for (int k = 0; k < m_MapPartyPlayerMarkers.Count(); ++k)
-			{
-				if (m_MapPartyPlayerMarkers[k])
-					m_MapPartyPlayerMarkers[k].Update( timeslice );
-			}
-		}
+		UpdateExpansionDebugText();
 		
 		if (m_ExpansionEventHandler)
 			m_ExpansionEventHandler.Update(timeslice);
+		
+		if ( m_PlayerArrowMarker )
+			m_PlayerArrowMarker.Update( timeslice );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Update End");
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion RefreshExpansionHudVisibility
-	//============================================
+	// ------------------------------------------------------------
 	void RefreshExpansionHudVisibility()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -518,7 +283,6 @@ class ExpansionIngameHud
 		if ( m_GPSPanel )
 		{
 			m_GPSPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionGPSSetting );
-			m_MapPositionArrow.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionGPSSetting && m_ExpansionGPSPosSetting );
 			if ( m_GPSPanel.IsVisible() )
 				UpdateGPS();
 		}
@@ -526,8 +290,8 @@ class ExpansionIngameHud
 		if ( m_GPSMapPanel )
 			m_GPSMapPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
 		
-		if ( m_MapPositionArrow )
-			m_MapPositionArrow.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
+		if ( m_PlayerArrowMarker )
+			m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
 		
 		if ( m_MapStatsPanel )
 			m_MapStatsPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapStatsState && m_ExpansionGPSSetting );
@@ -537,13 +301,6 @@ class ExpansionIngameHud
 			m_NVPanel.Show( m_ExpansionHudNVState && m_ExpansionNVSetting );
 			if ( m_NVPanel.IsVisible() )
 				UpdateNV();
-		}	
-		
-		if ( m_ClockPanel )
-		{
-			m_ClockPanel.Show( m_ExpansionHudState && m_ExpansionClockState && m_ClientClockShow );
-			if ( m_ClockPanel.IsVisible() )
-				UpdateTime();
 		}
 		
 		if ( m_EarPlugIcon )
@@ -554,9 +311,9 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion IsInitialized
-	//============================================
+	// ------------------------------------------------------------
 	bool IsInitialized()
 	{
 		if ( m_WgtRoot == NULL || !m_WgtRoot )
@@ -567,25 +324,25 @@ class ExpansionIngameHud
 		return true;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion OnClick
-	//============================================
+	// ------------------------------------------------------------
 	bool OnClick( Widget w, int x, int y, int button )
 	{
 		return false;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion OnMouseWheel
-	//============================================
+	// ------------------------------------------------------------
 	bool OnMouseWheel(Widget w, int x, int y, int wheel)
 	{
 		return false;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion UpdateGPS
-	//============================================
+	// ------------------------------------------------------------
 	void UpdateGPS()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -605,9 +362,9 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion UpdateGPSMapStats
-	//============================================
+	// ------------------------------------------------------------
 	void UpdateGPSMapStats()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -637,9 +394,9 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion UpdateGPSMap
-	//============================================
+	// ------------------------------------------------------------
 	void UpdateGPSMap()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -696,38 +453,9 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
-	// Expansion UpdateTime
-	//! Updates clock world time
-	//============================================
-	void UpdateTime()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionIngameHud::UpdateTime Start");
-		#endif
-		int year, month, day, hour, minute;
-		string hours, minutes;
-		GetGame().GetWorld().GetDate( year, month, day, hour, minute );
-		
-		if (hour < 10)
-			hours = "0" + hour.ToString();
-		else
-			hours = hour.ToString();
-		
-		if (minute < 10)
-			minutes = "0" + minute.ToString();
-		else
-			minutes = minute.ToString();
-		
-		m_Time.SetText( hours + ":" + minutes );
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionIngameHud::UpdateTime End");
-		#endif
-	}
-	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion ShowHud
-	//============================================
+	// ------------------------------------------------------------
 	void ShowHud( bool show )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -740,97 +468,95 @@ class ExpansionIngameHud
 		#endif
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion Bool GetExpansionHudState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetHudState()
 	{		
 		return m_ExpansionHudState;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion Bool ShowDebugger
-	//============================================
+	// ------------------------------------------------------------
 	void ShowDebugger( bool show )
 	{
 		m_ExpansionHudDebuggerState = show;
 		RefreshExpansionHudVisibility();
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetDebuggerState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetDebuggerState()
 	{
 		return m_ExpansionHudDebuggerState;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion ShowGPS
-	//============================================
+	// ------------------------------------------------------------
 	void ShowGPS( bool show )
 	{
 		m_ExpansionHudGPSState = show;
 		
 		RefreshExpansionHudVisibility();
-		
-		LoadMarkers();
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetGPSState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetGPSState()
 	{
 		return m_ExpansionHudGPSState;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetGPSMapState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetGPSMapState()
 	{
 		return m_ExpansionHudGPSMapState;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion ShowGPSMap
-	//============================================
+	// ------------------------------------------------------------
 	void ShowGPSMap(bool show)
 	{
 		m_ExpansionHudGPSMapState = show;
 		RefreshExpansionHudVisibility();
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetGPSMapStatsState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetGPSMapStatsState()
 	{
 		return m_ExpansionHudGPSMapStatsState;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion ShowGPSMapStats
-	//============================================
+	// ------------------------------------------------------------
 	void ShowGPSMapStats(bool show)
 	{
 		m_ExpansionHudGPSMapStatsState = show;
 		RefreshExpansionHudVisibility();
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion ShowNV
-	//============================================
+	// ------------------------------------------------------------
 	void ShowNV( bool show )
 	{
 		m_ExpansionHudNVState = show;
 		RefreshExpansionHudVisibility();
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetNVState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetNVState()
 	{
 		return m_ExpansionHudNVState;
@@ -840,32 +566,32 @@ class ExpansionIngameHud
 	protected int BATTERY_LOW_COLOR = ARGB(255,230,126,34);
 	protected int BATTERY_MED_COLOR = ARGB(255,243,156,18);
 	protected int BATTERY_FULL_COLOR = ARGB(255,46,204,113);
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetNVState
-	//============================================
+	// ------------------------------------------------------------
 	void RefreshNVBatteryState(int percent)
 	{
-		if (percent <= 25)
+		if( percent < 25 )
 		{
-			//! 1/4 energy
+			//! 0 - 25% Energy 
 			m_NVBatteryIcon.SetImage( 0 );
 			m_NVBatteryIcon.SetColor( BATTERY_EMPTY_COLOR );
 		}
-		else if (percent > 25 && percent <= 50)
+		else if( percent >= 25 && percent < 30 )
 		{
-			//! 2/4 energy
+			//! 25 - 30% Energy 
 			m_NVBatteryIcon.SetImage( 1 );
 			m_NVBatteryIcon.SetColor( BATTERY_LOW_COLOR );		
 		}
-		else if (percent > 50 && percent <= 75)
+		else if( percent >= 30 && percent < 75 )
 		{
-			//! 3/4 energy
+			//! 30 - 75% Energy 
 			m_NVBatteryIcon.SetImage( 2 );	
 			m_NVBatteryIcon.SetColor( BATTERY_MED_COLOR );
 		}
-		else if (percent > 75)
+		else if( percent >= 75 )
 		{
-			//! Fully energy
+			//! 75 - 100% Energy 
 			m_NVBatteryIcon.SetImage( 3 );	
 			m_NVBatteryIcon.SetColor( BATTERY_FULL_COLOR );
 		}
@@ -873,59 +599,33 @@ class ExpansionIngameHud
 		m_NVBatteryVal.SetText( percent.ToString() + "%" );
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion SetNVBatteryState
-	//============================================
+	// ------------------------------------------------------------
 	void SetNVBatteryState(int percent)
 	{
 		m_NVBatteryState = percent;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion UpdateNV
-	//============================================
+	// ------------------------------------------------------------
 	void UpdateNV()
 	{
 		RefreshNVBatteryState( m_NVBatteryState );
 	}
-
-	//============================================
-	// Expansion ShowClock
-	//============================================
-	void ShowClock( bool show )
-	{
-		m_ExpansionClockState = show;
-		RefreshExpansionHudVisibility();
-	}
 	
-	//============================================
-	// Expansion ClockToggle
-	//============================================
-	void ClockToggle(bool show)
-	{
-		m_ClientClockShow = show;
-		RefreshExpansionHudVisibility();
-	}
-	
-	//============================================
-	// Expansion GetClockState
-	//============================================
-	bool GetClockState()
-	{
-		return m_ExpansionClockState;
-	}
-	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion GetEarplugsState
-	//============================================
+	// ------------------------------------------------------------
 	bool GetEarplugsState()
 	{
 		return m_ExpansionEarplugState;
 	}
 	
-	//============================================
+	// ------------------------------------------------------------
 	// Expansion OnResizeScreen
-	//============================================
+	// ------------------------------------------------------------
 	void OnResizeScreen()
 	{
 		float x, y;
@@ -942,7 +642,14 @@ class ExpansionIngameHud
 		
 		if ( m_ExpansionEarplugState )
 		{
-			GetGame().GetSoundScene().SetSoundVolume( GetExpansionClientSettings().EarplugLevel, 1 );
+			if ( GetExpansionClientSettings() )
+			{
+				GetGame().GetSoundScene().SetSoundVolume( GetExpansionClientSettings().EarplugLevel, 1 );
+			}
+			else
+			{
+				GetGame().GetSoundScene().SetSoundVolume( 0.5, 1 );
+			}
 		}
 		else
 		{
@@ -957,9 +664,12 @@ class ExpansionIngameHud
 	// ------------------------------------------------------------
 	void UpdateEarplugs()
 	{
-		GetGame().GetSoundScene().SetSoundVolume( GetExpansionClientSettings().EarplugLevel, 1 );
-		
-		RefreshExpansionHudVisibility();
+		if ( GetExpansionClientSettings() )
+		{
+			GetGame().GetSoundScene().SetSoundVolume( GetExpansionClientSettings().EarplugLevel, 1 );
+			
+			RefreshExpansionHudVisibility();
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -981,13 +691,5 @@ class ExpansionIngameHud
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::SetGPSMapScale:: m_GPSMapScale set to: " + m_GPSMapScale.ToString());
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetGPSArrow
-	// ------------------------------------------------------------
-	ExpansionGPSPositionArrow GetGPSArrow()
-	{
-		return m_MapPositionArrow;
 	}
 }

@@ -36,8 +36,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	protected ButtonWidget m_TerritoryDialogCancelButton;
 	
 	protected ExpansionFlagBase m_CurrentFlag;
-	protected ExpansionTerritoryFlag m_CurrentTerritoryFlag;
-	
+
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
 	protected ref array<ref ExpansionFlagMenuTextureEntry> m_TextureEntrys;
 	protected string m_CurrentSelectedTexture;
@@ -133,13 +132,9 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	{
 		if ( m_CurrentSelectedTexture != "" )
 		{
-			if ( m_TerritoryModule && m_CurrentFlag && !m_CurrentFlag.IsTerritoryFlag() )
+			if ( m_TerritoryModule && m_CurrentFlag )
 			{
 				m_TerritoryModule.ChangeFlagTexture( m_CurrentSelectedTexture, m_CurrentFlag );
-			} 
-			else if ( m_TerritoryModule && !m_CurrentFlag && m_CurrentTerritoryFlag && m_CurrentTerritoryFlag.IsTerritoryFlag() )
-			{
-				m_TerritoryModule.ChangeFlagTexture( m_CurrentSelectedTexture, m_CurrentTerritoryFlag );
 			}
 
 			Close();
@@ -189,8 +184,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		
 		m_CurrentFlag = player.FindNearestFlag();
-		m_CurrentTerritoryFlag = m_TerritoryModule.FindNearestTerritoryFlag(player);
-		
+
 		if ( m_CurrentFlag && !m_CurrentFlag.IsTerritoryFlag() )
 		{
 			if ( player.IsInTerritory() )
@@ -204,7 +198,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 			
 			m_FlagWindowLable.SetText( "Flag" );
 		} 
-		else if ( !m_CurrentFlag && m_CurrentTerritoryFlag && m_CurrentTerritoryFlag.IsTerritoryFlag() )
+		else if ( m_CurrentFlag && m_CurrentFlag.IsTerritoryFlag() )
 		{
 			m_FlagCreateButton.Show( false );
 			m_FlagWindowLable.SetText( "Territory Flag" );
@@ -218,10 +212,13 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	{
 		PlayerBase clientPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
 		
-		if (clientPlayer)
+		if ( clientPlayer )
+		{
 			m_TerritoryOwnerName.SetText( clientPlayer.GetIdentityName() );
+			m_CurrentFlag = clientPlayer.FindNearestFlag();
+		}
 		
-		if (m_CurrentFlag)
+		if ( m_CurrentFlag )
 			m_TerritoryPosition.SetText( "X: " + Math.Round( m_CurrentFlag.GetPosition()[0] ) + " Y: " + Math.Round( m_CurrentFlag.GetPosition()[2] ) );
 	}
 	

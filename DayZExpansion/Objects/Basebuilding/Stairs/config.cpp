@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Objects_BaseBuilding_Floors
+	class DayZExpansion_Objects_BaseBuilding_Stairs
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
@@ -19,7 +19,6 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_BB_STAIR_KIT";
 		descriptionShort = "$STR_EXPANSION_BB_STAIR_KIT_DESC";
-		model = "\DZ\gear\camping\fence_kit.p3d";
 		placingTypes[] = {"ExpansionStairS1_5x3x3KitPlacing"};
 	};
 	class ExpansionStairBaseKitPlacing: ExpansionStairKit
@@ -52,12 +51,13 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_BB_STAIR_BASE";
 		model = "\DayZExpansion\Objects\Basebuilding\Stairs\Stair_S_1_5x3x3.p3d";
 		vehicleClass = "Expansion_Construction";
+		bounding = "BSphere";
+		overrideDrawArea = "1.0";
+		forceFarBubble = "true";
+		carveNavmesh = 1;
+		physLayer = "item_large";
 		createProxyPhysicsOnInit = "true";
 		createdProxiesOnInit[] = {"Deployed"};
-		bounding = "BSphere";
-		overrideDrawArea = "3.0";
-		forceFarBubble = "true";
-		physLayer = "item_large";
 		rotationFlags = 2;
 		attachments[] = {"Att_ExpansionLumber","Material_Nails","Material_WoodenPlanks"};
 		class DamageSystem
@@ -187,7 +187,7 @@ class CfgVehicles
 					name = "$STR_EXPANSION_BB_WOOD_STAIR_HANDRAIL";
 					is_base = 0;
 					id = 2;
-					required_parts[] = {"wood_base"};
+					required_parts[] = {"wood_tread"};
 					conflicted_parts[] = {};
 					collision_data[] = {};
 					build_action_type = 10;
@@ -241,7 +241,7 @@ class CfgVehicles
 					name = "$STR_EXPANSION_BB_WOOD_STAIR_TREAD";
 					is_base = 0;
 					id = 4;
-					required_parts[] = {"wood_base"};
+					required_parts[] = {"wood_support"};
 					conflicted_parts[] = {};
 					collision_data[] = {};
 					build_action_type = 10;

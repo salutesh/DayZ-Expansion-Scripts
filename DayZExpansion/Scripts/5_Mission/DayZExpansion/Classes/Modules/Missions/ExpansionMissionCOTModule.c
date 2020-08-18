@@ -50,12 +50,12 @@ class ExpansionMissionCOTModule: JMRenderableModuleBase
 
 	override string GetTitle()
 	{
-		return "Expansion Mission";
+		return "[EX] Mission Management";
 	}
 	
 	override string GetIconName()
 	{
-		return "EM";
+		return "M";
 	}
 
 	override bool ImageIsIcon()

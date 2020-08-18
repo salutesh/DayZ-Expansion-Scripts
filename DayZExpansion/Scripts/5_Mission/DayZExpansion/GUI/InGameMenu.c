@@ -14,19 +14,46 @@ modded class InGameMenu
 {
 	protected static float 		DEAD_SCREEN_FADEIN_TIME = 3.0;					//fade starts as soon as deadscreen gets diplayed
 	protected static float 		DEAD_SCREEN_IMAGE_FADEIN_TIME = 1.5;			//fade starts halfway through deadscreen fade in
+	
 	protected float				m_DeadScreenFadeInIncrement;
 	protected float				m_DeadScreenFadeInLevel;
 	protected float				m_DeadScreenImageFadeInIncrement;
 	protected float				m_DeadScreenImageFadeInLevel;
+
+	protected float 			m_Distance;
+	protected float 			m_Playtime;
+	protected float 			m_PlayersKilled;
+	protected float 			m_InfectedKilled;
+	protected float 			m_AnimalsKilled;
+	protected float				m_LongestShot;
+	
+	protected TextWidget		m_DeadSourceVal;
+	protected TextWidget		m_LongestShotVal;
+	protected TextWidget		m_DistanceVal;
+	protected TextWidget		m_AnimalsKilledVal;
+	protected TextWidget		m_InfectedKilledVal;
+	protected TextWidget		m_PlayersKilledVal;
+	protected TextWidget		m_TimeSurvivedVal;
+	protected ButtonWidget		m_DeadScreenStatsHideButton;
+	protected TextWidget		m_DeadSceenStatsPanelTitle;
+	protected Widget			m_DeadSceenStatsPanel;
+	protected TextWidget		m_DeadSceenStatsButtonLable;
+	protected ButtonWidget		m_DeadSceenStatsButton;
+	protected Widget			m_DeadSceenStatsButtonPanel;
 	protected ImageWidget 		m_DeadScreenImage;
 	protected Widget 			m_DeadScreenRoot;
 	protected Widget 			m_DeadScreen;
+
 	protected float 			m_ShowAlpha;
 	protected float 			m_TimerSlice;	
 	protected bool 				m_WasGPSVisible;
 	protected bool 				m_WasClockVisible;
+	
 	protected ImageWidget		m_Logo;
 	protected WrapSpacerWidget	m_Licensing;
+	
+	protected Widget			m_NewsfeedPanel;
+	protected ref ExpansionNewsfeed m_ExpansionNewsfeed;
 	
 	// ------------------------------------------------------------
 	// Override Init
@@ -90,19 +117,34 @@ modded class InGameMenu
 		m_DeadScreenImage.SetAlpha(0);
 		m_DeadScreenImage.LoadImageFile( 0, "DayZExpansion/GUI/textures/dead_screens/dead_screen.edds" );
 		
+		m_DeadSceenStatsButtonPanel			= Widget.Cast( m_DeadScreenRoot.FindAnyWidget( "ButtonPanel" ) );
+		m_DeadSceenStatsButton				= ButtonWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "bStats" ) );
+		m_DeadSceenStatsButtonLable			= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "bStatsLable" ) );	
+		
+		m_DeadSceenStatsPanel				= Widget.Cast( m_DeadScreenRoot.FindAnyWidget( "PlayerStatisticsPanel" ) );
+		m_DeadSceenStatsPanelTitle			= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "Caption" ) );
+		m_DeadSourceVal						= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "DeadSourceValue" ) );
+		m_LongestShotVal					= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "LongRangeShotValue" ) );
+		m_DistanceVal						= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "DistanceTraveledValue" ) );
+		m_AnimalsKilledVal					= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "AnimalsKilledValue" ) );
+		m_InfectedKilledVal					= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "InfectedKilledValue" ) );
+		m_PlayersKilledVal					= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "PlayersKilledValue" ) );
+		m_TimeSurvivedVal					= TextWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "TimeSurvivedValue" ) );
+		m_DeadScreenStatsHideButton			= ButtonWidget.Cast( m_DeadScreenRoot.FindAnyWidget( "bHide" ) );
+		
 		m_DeadScreenFadeInIncrement	= 1 / DEAD_SCREEN_FADEIN_TIME;
 		m_DeadScreenImageFadeInIncrement = 1 / DEAD_SCREEN_IMAGE_FADEIN_TIME;
 		
 		HudShow( false );
 		SetGameVersion();
-		SetServerInfoVisibility(SetServerInfo() && g_Game.GetProfileOption( EDayZProfilesOptions.SERVERINFO_DISPLAY ) && !GetExpansionClientSettings().StreamerMode );
-		m_ModdedWarning.Show( g_Game.ReportModded() );
+		SetServerInfoVisibility( SetServerInfo() && g_Game.GetProfileOption( EDayZProfilesOptions.SERVERINFO_DISPLAY ) && !GetExpansionClientSettings().StreamerMode );
+		m_ModdedWarning.Show( false );
+		
+		//! Newsfeed
+		m_NewsfeedPanel 					= Widget.Cast(layoutRoot.FindAnyWidget( "NewsFeedPanel" ));
+		m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
 		
 		Refresh();
-		
-		GetExpansionClientSettings().Load();
-		PPEffects.UpdateSaturation();
-		PPEffects.UpdateVignette();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("InGameMenu::Init - End");
@@ -158,6 +200,158 @@ modded class InGameMenu
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion GetValuesFromMonitor
+	// ------------------------------------------------------------
+	void GetValuesFromMonitor()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("InGameMenu::GetValuesFromMonitor:: - Start");
+		#endif	
+		
+		ExpansionMonitorModule monitor = ExpansionMonitorModule.Cast( GetModuleManager().GetModule( ExpansionMonitorModule ) );
+		if (!monitor) return;
+		
+		ref ExpansionSyncedPlayerStats player_stats = ExpansionSyncedPlayerStats.Cast( monitor.GetStats() );
+		if (player_stats)
+		{
+			m_Distance = player_stats.m_Distance;
+			m_Playtime = player_stats.m_Playtime;
+			m_PlayersKilled = player_stats.m_PlayersKilled;
+			m_InfectedKilled = player_stats.m_InfectedKilled;
+			m_AnimalsKilled = player_stats.m_AnimalsKilled;
+			m_LongestShot = player_stats.m_LongestShot;
+			
+			#ifdef EXPANSIONEXLOGPRINT
+			EXLogPrint("InGameMenu::GetValuesFromMonitor:: - Get stats for " + PlayerBase.Cast( GetGame().GetPlayer() ).GetIdentityName() + "[" + GetGame().GetPlayer().GetIdentity().GetPlayerId() + "] - Health: " + player_stats.m_Health + ", Blood: " + player_stats.m_Blood + ", Water: " + player_stats.m_Water + ", Energy: " + player_stats.m_Energy + ", Karma: " + player_stats.m_Karma);
+			#endif
+		}
+
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("InGameMenu::GetValuesFromMonitor:: - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetTimeString
+	// ------------------------------------------------------------
+	private string GetTimeString( float total_time )
+	{
+		string time_string;
+
+		if( total_time < 0 )
+		{
+			time_string =  "0 " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";
+			return time_string;
+		}
+	
+		int time_seconds = total_time; 									//convert total time to int
+		
+		int hours = time_seconds / 3600;
+		if ( hours > 0 )
+		{
+			time_string += GetValueString( hours ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
+		}
+		
+		time_string += " ";												//separator
+		
+		int minutes = ( time_seconds % 3600 ) / 60;
+		time_string += GetValueString( minutes ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
+		
+		return time_string;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetDistanceString
+	// ------------------------------------------------------------
+	private string GetDistanceString( float total_distance, bool meters_only = false )
+	{
+		string distance_string;
+		
+		if( total_distance < 0 )
+		{
+			distance_string =  "0" + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";
+			return distance_string;
+		}
+	
+		int distance_meters = total_distance;
+		
+		int kilometers = distance_meters / 1000;
+		if ( kilometers > 0 && !meters_only )
+		{
+			distance_string += GetValueString( kilometers ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KM";				//kilometers
+			distance_string += " ";												//separator
+		}
+		else
+		{
+			distance_string += GetValueString( distance_meters ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
+		}
+		
+		return distance_string;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetValueString
+	// ------------------------------------------------------------
+	private string GetValueString( float total_value )
+	{
+		if( total_value < 0 )
+			return "0";
+	
+		int value = total_value;
+		string out_string;
+		
+		if ( value >= 1000 )
+		{
+			string value_string = value.ToString();
+			
+			int count;		
+			int first_length = value_string.Length() % 3;		//calculate position of the first separator
+			if ( first_length > 0 )
+			{
+				count = 3 - first_length;
+			}
+			
+			for ( int i = 0; i < value_string.Length(); ++i )
+			{
+				out_string += value_string.Get( i );
+				count ++;
+				
+				if ( count >= 3 )
+				{
+					out_string += " ";			//separator
+					count = 0;
+				}
+			}
+		}
+		else
+		{
+			out_string = value.ToString();
+		}
+		
+		return out_string;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdatePlayerStatValues
+	// ------------------------------------------------------------
+	private void UpdatePlayerStatValues()
+	{
+		GetValuesFromMonitor();
+		
+		string name = GetGame().GetPlayer().GetIdentity().GetName();
+		ref StringLocaliser player_name = new StringLocaliser( "STR_EXPANSION_DEADSCREEN_STATS_TITLE", name );
+		
+		m_DeadSceenStatsPanelTitle.SetText( player_name.Format() );
+		//m_DeadSourceVal.SetText( "" );
+		m_LongestShotVal.SetText( GetDistanceString( m_LongestShot ) );
+		m_DistanceVal.SetText( GetDistanceString( m_Distance ) );
+		m_AnimalsKilledVal.SetText( GetValueString( m_AnimalsKilled ) );
+		m_InfectedKilledVal.SetText( GetValueString( m_InfectedKilled ) );
+		m_PlayersKilledVal.SetText( GetValueString( m_PlayersKilled ) );
+		m_TimeSurvivedVal.SetText( GetTimeString( m_Playtime ) );
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion DeadScreenShow
 	// ------------------------------------------------------------
 	void DeadScreenShow(float timeslice)
@@ -169,15 +363,14 @@ modded class InGameMenu
 		if ( m_DeadScreenImageFadeInLevel != 1 )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 1");
-		#endif
-			m_Logo.Show( false );
-			m_Licensing.Show( false );
+			EXPrint("InGameMenu::DeadScreenShow - 1");
+			#endif
+
 			m_DeadScreenRoot.Show( true );
 			
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 2");
-		#endif
+			EXPrint("InGameMenu::DeadScreenShow - 2");
+			#endif
 			
 			new_deadscreen_val = m_DeadScreenFadeInLevel + m_DeadScreenFadeInIncrement * timeslice;
 			if ( new_deadscreen_val < 1 )
@@ -186,14 +379,14 @@ modded class InGameMenu
 				m_DeadScreenFadeInLevel = 1;
 			
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 3");
-		#endif
+			EXPrint("InGameMenu::DeadScreenShow - 3");
+			#endif
 			
 			if ( m_DeadScreenFadeInLevel > 0.5 )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 4");
-		#endif
+				EXPrint("InGameMenu::DeadScreenShow - 4");
+				#endif
 				float new_logo_val = m_DeadScreenImageFadeInLevel + m_DeadScreenImageFadeInIncrement * timeslice;
 				if ( new_deadscreen_val < 1 )
 					m_DeadScreenImageFadeInLevel = new_logo_val;
@@ -201,24 +394,65 @@ modded class InGameMenu
 					m_DeadScreenImageFadeInLevel = 1;
 				
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 5");
-		#endif
+				EXPrint("InGameMenu::DeadScreenShow - 5");
+				#endif
 			}
 			
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 5");
-		#endif
+			EXPrint("InGameMenu::DeadScreenShow - 5");
+			#endif
 			
 			m_DeadScreenRoot.SetAlpha( m_DeadScreenFadeInLevel );
 			m_DeadScreen.SetAlpha( m_DeadScreenFadeInLevel );
 			m_DeadScreenImage.SetAlpha( m_DeadScreenImageFadeInLevel );
 			
+			m_Logo.SetAlpha(-m_DeadScreenFadeInLevel);
+			m_Licensing.SetAlpha(-m_DeadScreenFadeInLevel);
+			m_ExpansionNewsfeed.ShowNewsfeed(false);
+			
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - 6");
-		#endif
+			EXPrint("InGameMenu::DeadScreenShow - 6");
+			#endif
 		}
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("InGameMenu::DeadScreenShow - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnClick
+	// ------------------------------------------------------------
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		super.OnClick(w, x, y, button);
+		
+		if ( w == m_DeadSceenStatsButton )
+		{
+			UpdatePlayerStatValues();
+			ShowPlayerStats();
+		} else if ( w == m_DeadScreenStatsHideButton )
+		{
+			HidePlayerStats();
+		}
+
+		return false;
+	}
+		
+	// ------------------------------------------------------------
+	// Expansion ShowPlayerStats
+	// ------------------------------------------------------------
+	private void ShowPlayerStats()
+	{
+		m_DeadSceenStatsPanel.Show( true );
+		m_DeadSceenStatsButtonPanel.Show( false );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion HidePlayerStats
+	// ------------------------------------------------------------
+	private void HidePlayerStats()
+	{
+		m_DeadSceenStatsPanel.Show( false );
+		m_DeadSceenStatsButtonPanel.Show( true );
 	}
 }

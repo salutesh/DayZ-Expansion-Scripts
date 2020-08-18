@@ -15,6 +15,7 @@ enum ExpansionSettingsRPC
 	INVALID = 30000,
 	ListToLoad,
 	
+	Debug,
 	Book,
 	BaseBuilding,
 	Map,
@@ -38,125 +39,97 @@ enum ExpansionSettingsRPC
 enum ExpansionCOTBookModuleRPC
 {
 	INVALID = 30020,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTBaseBuildingModuleRPC
 {
 	INVALID = 30025,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTMapModuleRPC
 {
 	INVALID = 30030,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTMarketModuleRPC
 {
 	INVALID = 30035,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTNotificationModuleRPC
 {
 	INVALID = 30040,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTPartyModuleRPC
 {
 	INVALID = 30045,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTRaidModuleRPC
 {
 	INVALID = 30050,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTSpawnModuleRPC
 {
 	INVALID = 30055,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTTerritoryModuleRPC
 {
 	INVALID = 30060,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTVehicleModuleRPC
 {
 	INVALID = 30065,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTGeneralModuleRPC
 {
 	INVALID = 30070,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTSafeZoneModuleRPC
 {
 	INVALID = 30080,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTMissionModuleRPC
 {
 	INVALID = 30085,
-
 	Update,
-	
 	COUNT
 }
 
 enum ExpansionCOTAirDropModuleRPC
 {
 	INVALID = 30090,
-
 	Update,
-	
 	COUNT
 }

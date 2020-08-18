@@ -35,11 +35,8 @@ class DayZExpansion: ExpansionWorld
 		//! Confirm firing
 		GetRPCManager().AddRPC( "DayZExpansion", "ConfirmWeaponFire", this, SingeplayerExecutionType.Server );
 
-		if ( IsMissionClient() )
-		{
-			//! Version checking
-			LoadModVersion();
-		}
+		//! Version checking
+		Expansion_LoadVersion();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::DayZExpansion - End");
@@ -63,40 +60,33 @@ class DayZExpansion: ExpansionWorld
 	}
 
 	// ------------------------------------------------------------
-	// Expansion LoadModVersion
+	// Expansion Expansion_LoadVersion
 	// ------------------------------------------------------------
-	void LoadModVersion()
+	void Expansion_LoadVersion()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::LoadModVersion - Start");
+		EXPrint("DayZExpansion::Expansion_LoadVersion - Start");
 		#endif
 		
-		array<ref ModInfo> mods = new array<ref ModInfo>;
-		GetGame().GetModInfos( mods );
-		for (int i = 0; i < mods.Count(); ++i)
-		{
-			if (mods[i].GetName() == "DayZ Expansion")
-			{
-				m_Version = mods[i].GetVersion();
-			}
-		}
+		m_Version = LoadingScreen.GetClientExpansionVersion();
 
-		array<string> values = new array<string>;
-		m_Version.Split(".", values);
-
-		if (values.Count() == 3)
+		array<string> values = new array<string>();
+		m_Version.Split( ".", values );
+		if ( values.Count() == 3 )
 		{
 			m_MajorVersion = values[0].ToInt();
 			m_MinorVersion = values[1].ToInt();
 			m_BuildVersion = values[2].ToInt();
 
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Major: " + m_MajorVersion + " Minor: " + m_MinorVersion + " Build: " + m_BuildVersion );
-			#endif
+			Print( "Expansion version: " + m_MajorVersion + "." + m_MinorVersion + "." + m_BuildVersion );
 		}
 		
+		string versionTest;
+		GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
+		Print( versionTest );
+
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::LoadModVersion - End");
+		EXPrint("DayZExpansion::Expansion_LoadVersion - End");
 		#endif
 	}
 

@@ -14,5 +14,6 @@ enum ExpansionMonitorRPC
 {
 	INVALID = 20300,
 	SyncStats,
+	SendMessage
 	COUNT
 }

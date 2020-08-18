@@ -59,7 +59,7 @@ GridSpacerWidgetClass ExpansionGroupMenuPlayerListUIEntry {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     text "Group Name"
+     text ""
      font "gui/fonts/etelkatextpro22"
      "exact text" 0
      "text valign" center

@@ -33,17 +33,17 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::HandleRPC - Start");
+		EXPrint("ExpansionSpawnSettings::OnRecieve - Start");
 		#endif
 		
 		ExpansionSpawnSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionSpawnSettings::HandleRPC setting");
-			return;
+			Error("ExpansionSpawnSettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -53,8 +53,17 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		ExpansionSettings.SI_Spawn.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::HandleRPC - End");
+		EXPrint("ExpansionSpawnSettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionSpawnSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 
 	// ------------------------------------------------------------
@@ -69,10 +78,8 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionSpawnSettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Spawn, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -121,11 +128,14 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 
 		if ( FileExist( EXPANSION_SPAWN_SETTINGS ) )
 		{
+			Print("[ExpansionSpawnSettings] Loading settings");
+
 			JsonFileLoader<ExpansionSpawnSettings>.JsonLoadFile( EXPANSION_SPAWN_SETTINGS, this );
 
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Load - End");
-		#endif
+			EXPrint("ExpansionSpawnSettings::Load - End");
+			#endif
+
 			return true;
 		}
 		
@@ -141,11 +151,10 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionSpawnSettings] Saving settings");
-		#endif
+		Print("[ExpansionSpawnSettings] Saving settings");
 
 		JsonFileLoader<ExpansionSpawnSettings>.JsonSaveFile( EXPANSION_SPAWN_SETTINGS, this );
+
 		return true;
 	}
 
@@ -168,19 +177,9 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionSpawnSettings] Loading default settings");
-		#endif
 		
 		StartingGear = new ExpansionStartingGear;
 		StartingGear.Defaults();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Defaults - End");
-		#endif
 	}
 }

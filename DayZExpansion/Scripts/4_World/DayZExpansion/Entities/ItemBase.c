@@ -32,13 +32,29 @@ modded class ItemBase
 	protected int m_AttachIDC;
 	protected int m_AttachIDD;
 
-	protected dBlock m_Block;
-
+	protected ref ExpansionElectricityConnection m_ElectricitySource;
+	protected ref array< ItemBase > m_ElectricityConnections;
+	
+	//============================================
+	// ItemBase Constructor
+	//============================================
 	void ItemBase()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ItemBase Start");
+		EXPrint("ItemBase::ItemBase - Start");
+		EXPrint("ItemBase::ItemBase - Classname: " + ClassName());
+		EXPrint("ItemBase::ItemBase - Type: " + GetType());
 		#endif
+		
+		m_ElectricitySource = new ExpansionElectricityConnection( this );
+		m_ElectricityConnections = new array< ItemBase >();
+		if ( ExpansionCanRecievePower() )
+		{
+			//RegisterNetSyncVariableBool( "m_IsPairedSynch" );
+			//RegisterNetSyncVariableBool( "m_IsOnSynch" );
+			//RegisterNetSyncVariableInt( "m_SourceNetLow" );
+			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
+		}
 
 		ExpansionSetupSkins();
 		
@@ -47,26 +63,120 @@ modded class ItemBase
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
-
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ItemBase End");
+		EXPrint("ItemBase::ItemBase - End");
 		#endif
 	}
+	
+	//============================================
+	// ItemBase Destructor
+	//============================================
+	void ~ItemBase()
+	{
+	}
 
+	/**
+	 * /note	This is a static boolean, do not change during runtime
+	 * 
+	 * /brief	Override this to determine if the item can be powered using the expansion power system
+	 */
+	bool ExpansionCanRecievePower()
+	{
+		return false;
+	}
+
+	/**
+	 * /note	This is a static boolean, do not change during runtime
+	 * 
+	 * /brief	Override this to determine if the item powers other items
+	 */
+	bool ExpansionIsPowerSource()
+	{
+		return false;
+	}
+
+	bool ExpansionIsConnected( ItemBase source = NULL )
+	{
+		return m_ElectricitySource.IsConnected( source );
+	}
+
+	void ExpansionDisconnect()
+	{
+		m_ElectricitySource.Disconnect();
+
+		SetSynchDirty();
+	}
+
+	void ExpansionAddConnection( ItemBase item )
+	{
+		Print( "[" + this + "] ExpansionAddConnection item=" + item );
+		if ( !ExpansionIsPowerSource() || !item.ExpansionCanRecievePower() )
+			return;
+
+		item.m_ElectricitySource.Pair( this );
+
+		SetSynchDirty();
+		
+		Print( "[" + this + "] ~ExpansionAddConnection" );
+	}
+
+	void _ExpansionAddConnection( ItemBase item )
+	{
+		int idx = m_ElectricityConnections.Find( item );
+		if ( idx == -1 )
+			m_ElectricityConnections.Insert( item );
+	}
+
+	void _ExpansionRemoveConnection( ItemBase item )
+	{
+		int idx = m_ElectricityConnections.Find( item );
+		if ( idx != -1 )
+			m_ElectricityConnections.Remove( idx );
+	}
+
+	override void OnWorkStart()
+	{
+		super.OnWorkStart();
+
+		for ( int i = 0; i < m_ElectricityConnections.Count(); ++i )
+		{
+			m_ElectricityConnections[i].OnWorkStart();
+		}
+	}
+
+	override void OnWorkStop()
+	{
+		super.OnWorkStop();
+		
+		for ( int i = 0; i < m_ElectricityConnections.Count(); ++i )
+		{
+			m_ElectricityConnections[i].OnWorkStop();
+		}
+	}
+		
+	//============================================
+	// LongDeferredInit
+	//============================================	
 	void LongDeferredInit()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::LongDeferredInit - Start");
 		#endif
 
+		#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
 		if ( m_SkinModule )
 			m_SkinModule.PerformCESkinSwap( this );
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::LongDeferredInit - End");
 		#endif
 	}
-
+	
+	//============================================
+	// DeferredInit
+	//============================================	
 	void DeferredInit()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -77,7 +187,10 @@ modded class ItemBase
 		EXPrint("ItemBase::DeferredInit - End");
 		#endif
 	}
-
+	
+	//============================================
+	// IsBasebuilding
+	//============================================	
 	/**
 	\brief Returning if can be built
 		\param 	
@@ -86,7 +199,10 @@ modded class ItemBase
 	{
 		return false;
 	}
-
+	
+	//============================================
+	// IsOpenable
+	//============================================	
 	/**
 	\brief Returning if can be opened
 		\param 	
@@ -97,7 +213,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Returning if wall is open
+	\brief Returning if wall/safe is open
 		\param 	
 	*/
 	bool IsOpened()
@@ -106,7 +222,7 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Returning if player can open gate from selection
+	\brief Returning if player can open gate/safe from selection
 		\param 
 	*/
 	bool CanOpen( PlayerBase player, string selection )
@@ -115,7 +231,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Returning if player can close gate from selection
+	\brief Returning if player can close gate/safe from selection
 		\param 	
 	*/
 	bool CanClose( string selection )
@@ -124,7 +240,7 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Opening gate on defined selection
+	\brief Opening gate/safe on defined selection
 		\param 	
 	*/
 	void Open( string selection ) 
@@ -132,7 +248,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Closing gate on defined selection
+	\brief Closing gate/safe on defined selection
 		\param 	
 	*/
 	void Close( string selection ) 
@@ -140,7 +256,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Set code of wall
+	\brief Set code of wall/safe
 		\param 	
 	*/
 	void SetCode( string code )
@@ -148,7 +264,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Returning code of wall
+	\brief Returning code of wall/safe
 		\param 	
 	*/
 	string GetCode()
@@ -157,7 +273,7 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Returning if the wall has a code
+	\brief Returning if the wall/safe has a code
 		\param 	
 	*/
 	bool HasCode()
@@ -166,7 +282,7 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Returning if the wall has a code
+	\brief Returning if the wall/safe has a code
 		\param "selection" selection for codelock
 	*/
 	bool HasCodeLock( string selection )
@@ -175,7 +291,16 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Returning if wall is locked
+	\brief Returning codelock entity
+		\param
+	*/
+	ExpansionCodeLock GetCodeLock()
+	{
+		return null;
+	}
+
+	/**
+	\brief Returning if wall/safe is locked
 		\param 	
 	*/
 	bool IsLocked()
@@ -184,7 +309,7 @@ modded class ItemBase
 	}
 
 	/**
-	\brief Locking base build
+	\brief Locking base build/safe
 		\param 	
 	*/
 	void Lock()
@@ -192,7 +317,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Unlocking base build
+	\brief Unlocking base build/safe
 		\param 	
 	*/
 	void Unlock()
@@ -200,13 +325,16 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Failed attempt to unlock base build
+	\brief Failed attempt to unlock base build/safe
 		\param 	
 	*/
 	void FailedUnlock()
 	{
 	}
 	
+	//============================================
+	// SendServerLockReply
+	//============================================	
 	private void SendServerLockReply(bool reply, bool injuring, bool unlock, string code, PlayerIdentity sender)
 	{
 		ScriptRPC rpc = new ScriptRPC;
@@ -217,6 +345,9 @@ modded class ItemBase
 		rpc.Send( this, ExpansionLockRPC.SERVERREPLY, true, sender );
 	}
 	
+	//============================================
+	// OnRPC
+	//============================================	
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
 	{
 		super.OnRPC(sender, rpc_type, ctx);
@@ -277,7 +408,10 @@ modded class ItemBase
 				
 				if ( !HasCode() || !IsLocked() )
 				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
+					#ifdef EXPANSIONEXLOGPRINT
+					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
+					#endif
+					
 					SendServerLockReply( false, false, false, "", sender );
 					return;
 				}
@@ -423,7 +557,10 @@ modded class ItemBase
 			}
 		}
 	}
-
+	
+	//============================================
+	// EEItemLocationChanged
+	//============================================	
 	#ifdef EXPANSION_ITEM_ATTACHING
 	override void EEItemLocationChanged( notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc )
 	{
@@ -493,7 +630,10 @@ modded class ItemBase
 		Print("ItemBase::EEItemLocationChanged - End");
 		#endif
 	}
-
+	
+	//============================================
+	// OnItemLocationChanged
+	//============================================	
 	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner )
 	{
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
@@ -646,12 +786,18 @@ modded class ItemBase
 		#endif
 	}
 	#endif
-
+	
+	//============================================
+	// IsInventoryVisible
+	//============================================	
 	override bool IsInventoryVisible()
 	{
 		return ( m_IsAttached || super.IsInventoryVisible() );
 	}
-
+	
+	//============================================
+	// LinkToLocalSpaceOf
+	//============================================
 	void LinkToLocalSpaceOf( notnull EntityAI pParent, vector pLocalSpaceMatrix[4] )
 	{
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
@@ -666,7 +812,7 @@ modded class ItemBase
 
 			return;
 		}
-/*
+		/*
 		InventoryLocation child_src = new InventoryLocation;
 		GetInventory().GetCurrentInventoryLocation( child_src );
 				
@@ -687,7 +833,7 @@ modded class ItemBase
 
 			return;
 		}
-*/
+		*/
 
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( pLocalSpaceMatrix[0] );
@@ -704,13 +850,14 @@ modded class ItemBase
 		m_WorldAttachment.AddChild( this, -1 );
 		m_WorldAttachment.Update();
 
-		// m_Block = dBodyCollisionBlock( m_WorldAttachment, this );
-
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( "ItemBase::LinkToLocalSpaceOf - End - Target=" + m_WorldAttachment );
 		#endif
 	}
-
+	
+	//============================================
+	// UnlinkFromLocalSpace
+	//============================================
 	void UnlinkFromLocalSpace()
 	{
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
@@ -750,18 +897,22 @@ modded class ItemBase
 
 		Update();
 
-		// dBodyRemoveBlock( this, m_Block );
-
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 		Print( "ItemBase::UnlinkFromLocalSpace - End" );
 		#endif
 	}
-
+	
+	//============================================
+	// GetExpansionSaveVersion
+	//============================================
 	int GetExpansionSaveVersion()
 	{
 		return m_ExpansionSaveVersion;
 	}
 	
+	//============================================
+	// OnStoreSave
+	//============================================
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -801,11 +952,16 @@ modded class ItemBase
 			ctx.Write( false );
 		}
 
+		m_ElectricitySource.OnStoreSave( ctx );
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreSave - End");
 		#endif
 	}
-	
+		
+	//============================================
+	// OnStoreLoad
+	//============================================
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -813,37 +969,41 @@ modded class ItemBase
 		#endif
 
 		//! Use GetExpansionSaveVersion(), making sure this is read before everything else
-		if ( !ctx.Read( m_ExpansionSaveVersion ) )
+		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		if ( !ctx.Read( m_CurrentSkinName ) )
+		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
 			return false;
 
-		if ( !ctx.Read( m_IsAttached ) )
+		if ( Expansion_Assert_False( ctx.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
 			return false;
 
 		if ( m_IsAttached )
 		{
-			if ( !ctx.Read( m_AttachIDA ) )
+			if ( Expansion_Assert_False( ctx.Read( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
 				return false;
-				
-			if ( !ctx.Read( m_AttachIDB ) )
+			if ( Expansion_Assert_False( ctx.Read( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
 				return false;
-				
-			if ( !ctx.Read( m_AttachIDC ) )
+			if ( Expansion_Assert_False( ctx.Read( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
 				return false;
-
-			if ( !ctx.Read( m_AttachIDD ) )
+			if ( Expansion_Assert_False( ctx.Read( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
 				return false;
 				
 			vector transSide;
 			vector transUp;
 			vector transForward;
 			vector transPos;
-			if ( !ctx.Read( transSide ) || !ctx.Read( transUp ) || !ctx.Read( transForward ) || !ctx.Read( transPos ) )
+
+			if ( Expansion_Assert_False( ctx.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
 				return false;
 
 			m_AttachmentTransform[0] = transSide;
@@ -852,13 +1012,25 @@ modded class ItemBase
 			m_AttachmentTransform[3] = transPos;
 		}
 
+		if ( GetExpansionSaveVersion() < 8 )
+		{
+			m_ElectricitySource.Setup();
+		} else
+		{
+			m_ElectricitySource.OnStoreLoad( ctx, version, GetExpansionSaveVersion() );
+		}
+
+		//SetSynchDirty();
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreLoad - End");
 		#endif
 
 		return true;
 	}
-
+	
+	//============================================
+	// EEOnAfterLoad
+	//============================================
 	override void EEOnAfterLoad()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -866,6 +1038,9 @@ modded class ItemBase
 		#endif
 
 		super.EEOnAfterLoad();
+
+		Print( m_CanBeSkinned );
+		Print( m_CurrentSkinName );
 
 		if ( m_CanBeSkinned )
 		{
@@ -875,6 +1050,9 @@ modded class ItemBase
 
 			ExpansionOnSkinUpdate();
 		}
+
+		Print( m_CurrentSkinIndex );
+		Print( m_CurrentSkin );
 
 		if ( m_IsAttached )
 		{
@@ -889,12 +1067,17 @@ modded class ItemBase
 				LinkToLocalSpaceOf( m_WorldAttachment, m_AttachmentTransform );
 			}
 		}
+
+		m_ElectricitySource.OnAfterLoad();
 		
 		#ifdef EXPANSIONEXPRINT
 		Print("ItemBase::EEOnAfterLoad - End");
 		#endif
 	}
-
+	
+	//============================================
+	// OnCreatePhysics
+	//============================================
 	override void OnCreatePhysics()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -918,7 +1101,10 @@ modded class ItemBase
 		EXPrint( "ItemBase::OnCreatePhysics - End" );
 		#endif
 	}
-
+		
+	//============================================
+	// CheckForAttachmentRaycast
+	//============================================
 	#ifdef EXPANSION_ITEM_ATTACHING
 	void CheckForAttachmentRaycast()
 	{
@@ -976,11 +1162,9 @@ modded class ItemBase
 	}
 	#endif
 	
-	override void EEDelete( EntityAI parent )
-	{
-		super.EEDelete( parent );
-	}
-
+	//============================================
+	// SkinMessage
+	//============================================
 	protected void SkinMessage( string message )
 	{
 		if ( IsMissionClient() )
@@ -994,6 +1178,9 @@ modded class ItemBase
 		}	
 	}
 
+	//============================================
+	// GetHiddenSelectionIndex
+	//============================================
 	override int GetHiddenSelectionIndex( string selection )
 	{
 		array<string> config_selections	= new array<string>;
@@ -1010,6 +1197,9 @@ modded class ItemBase
 		return -1;
 	}
 
+	//============================================
+	// OnVariablesSynchronized
+	//============================================
 	override void OnVariablesSynchronized()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1017,6 +1207,8 @@ modded class ItemBase
 		#endif
 
 		super.OnVariablesSynchronized();
+
+		m_ElectricitySource.OnVariablesSynchronized();
 
 		if ( m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex )
 		{
@@ -1039,6 +1231,9 @@ modded class ItemBase
 		#endif
 	}
 
+	//============================================
+	// ExpansionSetupSkins
+	//============================================
 	protected void ExpansionSetupSkins()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1077,6 +1272,9 @@ modded class ItemBase
 		#endif
 	}
 
+	//============================================
+	// EEHealthLevelChanged
+	//============================================
 	override void EEHealthLevelChanged( int oldLevel, int newLevel, string zone )
 	{
 		super.EEHealthLevelChanged( oldLevel, newLevel, zone );
@@ -1107,6 +1305,9 @@ modded class ItemBase
 		#endif
 	}
 
+	//============================================
+	// ExpansionSetSkin
+	//============================================
 	void ExpansionSetSkin( int skinIndex )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1164,6 +1365,9 @@ modded class ItemBase
 		#endif
 	}
 
+	//============================================
+	// ExpansionOnSkinDamageZoneUpdate
+	//============================================
 	void ExpansionOnSkinDamageZoneUpdate( ExpansionSkinDamageZone zone, int level )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1203,6 +1407,9 @@ modded class ItemBase
 		#endif
 	}
 
+	//============================================
+	// ExpansionOnSkinUpdate
+	//============================================
 	void ExpansionOnSkinUpdate()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1246,10 +1453,9 @@ modded class ItemBase
 		#endif
 	}
 	
-	bool IsQuestItem()
-	{
-		return false;
-	}
+	//============================================
+	// Explode
+	//============================================
  	override void Explode(int damageType, string ammoType = "")
 	{
 		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
@@ -1296,6 +1502,9 @@ modded class ItemBase
 		}
 	}
 	
+	//============================================
+	// SetActions
+	//============================================	
 	override void SetActions()
 	{
 		/*
@@ -1310,5 +1519,10 @@ modded class ItemBase
 		*/
 
 		super.SetActions();
+	}
+
+	void UpdateLaser()
+	{
+		
 	}
 }

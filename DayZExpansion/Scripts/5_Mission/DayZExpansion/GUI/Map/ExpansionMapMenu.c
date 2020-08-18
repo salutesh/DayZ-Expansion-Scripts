@@ -15,56 +15,78 @@ class ExpansionMapMenu extends UIScriptedMenu
 	protected PlayerBase m_PlayerB;
 
 	protected MapWidget m_MapWidget;
-	protected vector m_PositionCreateMarker;
+
 	protected int COLOR_EXPANSION_MARKER_PLAYER_POSITION = ARGB( 255, 255, 180, 24 );
 	
-	protected autoptr ExpansionMapMenuMarkerWindow m_MarkerWindow;
-	protected autoptr ExpansionMapMenuPositionArrow m_MapPositionArrow;
+	protected ref ExpansionMapMarkerPlayerArrow m_PlayerArrowMarker;
 
-	protected autoptr array<ref ExpansionMapMenuMarker> m_MapMarkers;
-	protected autoptr array<ref ExpansionMapMarker> m_MapSavedMarkers;
+	protected ref array< ref ExpansionMapMarker > m_Markers;
+
+	protected ref map< string, ExpansionMapMarker > m_PersonalMarkers;
+	protected ref map< string, ExpansionMapMarker > m_PartyMarkers;
+	protected ref map< string, ExpansionMapMarker > m_ServerMarkers;
+	protected ref map< string, ExpansionMapMarker > m_PlayerMarkers;
 	
-	protected autoptr array<ref ExpansionMapMenuMarker> m_MapPartyMarkers;
-	protected autoptr array<ref ExpansionMapMarker> m_MapSavedPartyMarkers;
+	private ref set< ExpansionMapMarker > m_DeletingMarkers;
 
-	protected autoptr array<ref ExpansionMapMenuServerMarker> m_MapServerMarkers;
-	protected autoptr array<ref ExpansionMapMarker> m_MapSavedServerMarkers;
+	private ExpansionMapMarker m_SelectedMarker;
 
-	protected autoptr array<ref ExpansionMapMenuPlayerMarker> m_MapPartyPlayerMarkers;
-	
-	protected bool m_IsEditingMarker;
-
-	protected autoptr ExpansionMapMarkerModule m_MarkerModule;
-	protected autoptr Expansion3DMarkerModule m_3DMarkerModule;
-	protected autoptr ExpansionPartyModule m_PartyModule;
-	
-	autoptr ExpansionMapMenuMarker m_TempMarker;
+	protected ExpansionMarkerModule m_MarkerModule;
+	protected ExpansionPartyModule m_PartyModule;
 	
 	private bool m_GpsWasOpen = false;
-	
-	private float m_OpenMapTime = 0;
 
+	private ref ExpansionMapMarkerList m_MarkerList;
+	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapMenu Constructor
 	// ------------------------------------------------------------	
 	void ExpansionMapMenu()
 	{
-		if (!m_MarkerModule)
-			m_MarkerModule = ExpansionMapMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMapMarkerModule));
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::ExpansionMapMenu - Start");
+		#endif
 		
-		if (!m_3DMarkerModule)
-			m_3DMarkerModule = Expansion3DMarkerModule.Cast(GetModuleManager().GetModule(Expansion3DMarkerModule));
+		m_Markers = new array<ref ExpansionMapMarker>();
+
+		m_PersonalMarkers = new map< string, ExpansionMapMarker >();
+		m_PartyMarkers = new map< string, ExpansionMapMarker >();
+		m_ServerMarkers = new map< string, ExpansionMapMarker >();
+		m_PlayerMarkers = new map< string, ExpansionMapMarker >();
+
+		m_DeletingMarkers = new set< ExpansionMapMarker >();
+
+		Class.CastTo( m_PlayerB, GetGame().GetPlayer() );
+
+		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		Class.CastTo( m_PartyModule, GetModuleManager().GetModule( ExpansionPartyModule ) );
 		
-		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-		
-		if (!m_PlayerB)
-			m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::ExpansionMapMenu - End");
+		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion ExpansionMapMenu Destructor
+	// ------------------------------------------------------------	
 	void ~ExpansionMapMenu()
 	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::~ExpansionMapMenu - Start");
+		#endif
 		
+		delete m_Markers;
+
+		delete m_PersonalMarkers;
+		delete m_PartyMarkers;
+		delete m_ServerMarkers;
+		delete m_PlayerMarkers;
+
+		delete m_DeletingMarkers;
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::~ExpansionMapMenu - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -72,25 +94,437 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
-		m_MapWidget = MapWidget.Cast(layoutRoot.FindAnyWidget("Map"));
-		m_MapMarkers = new array<ref ExpansionMapMenuMarker>;
-		m_MapSavedMarkers = new array<ref ExpansionMapMarker>;
-		m_MapPartyMarkers = new array<ref ExpansionMapMenuMarker>;
-		m_MapSavedPartyMarkers = new array<ref ExpansionMapMarker>;
-		m_MapServerMarkers = new array<ref ExpansionMapMenuServerMarker>;
-		m_MapSavedServerMarkers = new array<ref ExpansionMapMarker>;
-		m_MapPartyPlayerMarkers = new array<ref ExpansionMapMenuPlayerMarker>;
-
-		if (!m_3DMarkerModule)
-			m_3DMarkerModule = Expansion3DMarkerModule.Cast(GetModuleManager().GetModule(Expansion3DMarkerModule));
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Init - Start");
+		#endif
 		
-		LoadMapExtentions();
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
+		Class.CastTo( m_MapWidget, layoutRoot.FindAnyWidget( "Map" ) );
+		
+		m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
+		
+		PlayerBase player;
+		if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+		{
+			m_PlayerArrowMarker.SetName( "(YOU) " + player.GetIdentityName() );
+		}
+		
+		GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/map/expansion_map_markerlist.layout", layoutRoot ).GetScript( m_MarkerList );
 
-		if (m_MapWidget)
-			SetMapPosition();
+		if ( GetExpansionSettings().GetMap().CanCreateMarker )
+			m_MarkerList.Init( this );
+		
+		SetMapPosition();
 
+		UpdateMarkers();
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Init - End and return layoutRoot: " + layoutRoot.ToString());
+		#endif
+		
 		return layoutRoot;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion Override Refresh
+	// ------------------------------------------------------------
+	override void Refresh()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Refresh - Start");
+		#endif
+		
+		super.Refresh();
+
+		UpdateMarkers();
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Refresh - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateMarkers
+	// ------------------------------------------------------------
+	void UpdateMarkers()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateMarkers - Start");
+		#endif
+		
+		UpdatePersonalMarkers();
+		UpdatePartyMarkers();
+		UpdateServerMarkers();
+		UpdatePlayerMarkers();
+
+		for ( int i = 0; i < m_DeletingMarkers.Count(); ++i )
+		{
+			ExpansionMapMarker marker = m_DeletingMarkers[i];
+			if ( marker == NULL )
+				continue;
+
+			if ( marker.GetMarkerData() != NULL )
+			{
+				if ( marker.GetMarkerData().GetType() == ExpansionMapMarkerType.PERSONAL )
+					continue;
+
+				if ( marker.GetMarkerData().GetType() == ExpansionMapMarkerType.PARTY )
+					continue;
+			}
+
+			int index = m_Markers.Find( marker );
+			if ( index != -1 )
+				m_Markers.Remove( index );
+
+			delete marker;
+
+			m_DeletingMarkers.Remove( i );
+
+			i--;
+		}
+		
+		m_MarkerModule.Refresh();
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateMarkers - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdatePersonalMarkers
+	// ------------------------------------------------------------
+	private void UpdatePersonalMarkers()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdatePersonalMarkers - Start");
+		#endif
+		
+		array< string > checkArr = m_PersonalMarkers.GetKeyArray();
+
+		int removeIndex = 0;
+		int count = m_MarkerModule.GetData().PersonalCount();
+		int index = 0;
+		
+		ExpansionMapMarker marker = NULL;
+		string uid = "";
+
+		for ( int i = 0; i < m_DeletingMarkers.Count(); ++i )
+		{
+			marker = m_DeletingMarkers[i];
+			if ( marker && marker.GetMarkerData() != NULL )
+			{
+				if ( marker.GetMarkerData().GetType() == ExpansionMapMarkerType.PERSONAL )
+				{
+					int idx2 = m_Markers.Find( marker );
+					if ( idx2 != -1 )
+						m_Markers.Remove( idx2 );
+					delete marker;
+
+					m_DeletingMarkers.Remove( i );
+					
+					i--;
+				}
+			}
+		}
+
+		for ( index = 0; index < count; ++index )
+		{
+			uid = m_MarkerModule.GetData().PersonalGet( index ).GetUID();
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+				checkArr.Remove( removeIndex );
+
+			marker = m_PersonalMarkers.Get( uid );
+			if ( !marker )
+			{
+				marker = new ExpansionMapMarker( layoutRoot, m_MapWidget, false );
+				marker.SetMarkerData( m_MarkerModule.GetData().PersonalGet( index ) );
+				marker.SetMapMenu( this );
+				marker.Init();
+				m_PersonalMarkers.Insert( uid, marker );
+				m_Markers.Insert( marker );
+				m_MarkerList.AddPersonalEntry(marker);
+			}
+
+			marker.SetMarkerData( m_MarkerModule.GetData().PersonalGet( index ) );
+			marker.SetMapMenu( this );
+			
+			
+		}
+		for ( index = 0; index < checkArr.Count(); ++index )
+		{
+			marker = m_PersonalMarkers.Get( checkArr[index] );
+			if ( marker )
+			{
+				removeIndex = m_Markers.Find( marker );
+				if ( removeIndex != -1 )
+					m_Markers.Remove( removeIndex );
+
+				m_PersonalMarkers.Remove( checkArr[index] );
+				m_MarkerList.RemovePersonalEntry(marker);
+				delete marker;
+			}
+		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdatePersonalMarkers - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdatePartyMarkers
+	// ------------------------------------------------------------
+	private void UpdatePartyMarkers()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdatePartyMarkers - Start");
+		#endif
+		
+		int removeIndex = 0;
+		int count = m_PartyMarkers.Count();
+		int index = 0;
+
+		ExpansionMapMarker marker = NULL;
+		string uid = "";
+		if ( !m_PartyModule || !m_PartyModule.HasParty() )
+		{
+			foreach ( string uuid, ref ExpansionMapMarker mmarker : m_PartyMarkers )
+			{
+				if ( mmarker )
+				{
+					removeIndex = m_Markers.Find( mmarker );
+					if ( removeIndex != -1 )
+						m_Markers.Remove( removeIndex );
+
+					m_PartyMarkers.Set( uuid, NULL );
+					m_MarkerList.RemovePartyEntry( mmarker );
+					delete mmarker;
+				}
+			}
+
+			m_PartyMarkers.Clear();
+
+			return;
+		}
+
+		array< ref ExpansionMarkerData > markers = m_PartyModule.GetParty().GetAllMarkers();
+		array< string > checkArr = m_PartyMarkers.GetKeyArray();
+
+		for ( int i = 0; i < m_DeletingMarkers.Count(); ++i )
+		{
+			marker = m_DeletingMarkers[i];
+			if ( marker && marker.GetMarkerData() != NULL )
+			{
+				if ( marker.GetMarkerData().GetType() == ExpansionMapMarkerType.PARTY )
+				{
+					int idx2 = m_Markers.Find( marker );
+					if ( idx2 != -1 )
+						m_Markers.Remove( idx2 );
+					
+					delete marker;
+
+					m_DeletingMarkers.Remove( i );
+					
+					i--;
+				}
+			}
+		}
+
+		count = markers.Count();
+
+		for ( index = 0; index < count; ++index )
+		{
+			uid = markers[index].GetUID();
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+				checkArr.Remove( removeIndex );
+
+			marker = m_PartyMarkers.Get( uid );
+			if ( !marker )
+			{
+				marker = new ExpansionMapMarker( layoutRoot, m_MapWidget, false );
+				marker.SetMarkerData( markers[index] );
+				marker.SetMapMenu( this );
+				marker.Init();
+				m_PartyMarkers.Insert( uid, marker );
+				m_Markers.Insert( marker );
+				m_MarkerList.AddPartyEntry(marker);
+			}
+
+			marker.SetMarkerData( markers[index] );
+			marker.SetMapMenu( this );
+		}
+		for ( index = 0; index < checkArr.Count(); ++index )
+		{
+			marker = m_PartyMarkers.Get( checkArr[index] );
+			if ( marker )
+			{
+				removeIndex = m_Markers.Find( marker );
+				if ( removeIndex != -1 )
+					m_Markers.Remove( removeIndex );
+
+				m_PartyMarkers.Remove( checkArr[index] );
+				m_MarkerList.RemovePartyEntry(marker);
+				delete marker;
+			}
+		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdatePartyMarkers - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateServerMarkers
+	// ------------------------------------------------------------
+	private void UpdateServerMarkers()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateServerMarkers - Start");
+		#endif
+		
+		if ( !m_MarkerModule )
+			return;
+		
+		array< string > checkArr = m_ServerMarkers.GetKeyArray();
+
+		int removeIndex = 0;
+		int count = m_MarkerModule.GetData().ServerCount();
+		int index = 0;
+		ExpansionMapMarker marker = NULL;
+		string uid = "";
+
+		for ( index = 0; index < count; ++index )
+		{
+			uid = m_MarkerModule.GetData().ServerGet( index ).GetUID();
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+				checkArr.Remove( removeIndex );
+
+			marker = m_ServerMarkers.Get( uid );
+			if ( !marker )
+			{
+				marker = new ExpansionMapMarkerServer( layoutRoot, m_MapWidget, false );
+				marker.SetMarkerData( m_MarkerModule.GetData().ServerGet( index ) );
+				marker.SetMapMenu( this );
+				marker.Init();
+				m_ServerMarkers.Insert( uid, marker );
+				m_Markers.Insert( marker );
+				m_MarkerList.AddServerEntry(marker);
+			}
+
+			marker.SetMarkerData( m_MarkerModule.GetData().ServerGet( index ) );
+			marker.SetMapMenu( this );
+		}
+		for ( index = 0; index < checkArr.Count(); ++index )
+		{
+			marker = m_ServerMarkers.Get( checkArr[index] );
+			if ( marker )
+			{
+				removeIndex = m_Markers.Find( marker );
+				if ( removeIndex != -1 )
+					m_Markers.Remove( removeIndex );
+
+				m_ServerMarkers.Remove( checkArr[index] );
+				m_MarkerList.RemoveServerEntry(marker);
+				delete marker;
+			}
+		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateServerMarkers - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion UpdatePlayerMarkers
+	// ------------------------------------------------------------
+	private void UpdatePlayerMarkers()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdatePlayerMarkers - Start");
+		#endif
+		
+		int removeIndex = 0;
+		int count = m_PlayerMarkers.Count();
+		int index = 0;
+
+		ExpansionMapMarker marker = NULL;
+		string uid = "";
+		if ( !m_PartyModule || !m_PartyModule.HasParty() )
+		{
+			foreach ( string uuid, ref ExpansionMapMarker mmarker : m_PlayerMarkers )
+			{
+				if ( mmarker )
+				{
+					removeIndex = m_Markers.Find( mmarker );
+					if ( removeIndex != -1 )
+						m_Markers.Remove( removeIndex );
+
+					m_PlayerMarkers.Set( uuid, NULL );
+					m_MarkerList.RemovePartyEntry( mmarker );
+					delete mmarker;
+				}
+			}
+
+			m_PlayerMarkers.Clear();
+
+			return;
+		}
+
+		PlayerBase localPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
+		string localUid = "";
+		if ( localPlayer )
+			localUid = localPlayer.GetIdentityUID();
+
+		array< ref ExpansionPartyPlayerData > players = m_PartyModule.GetParty().GetPlayers();
+		array< string > checkArr = m_PlayerMarkers.GetKeyArray();
+
+		count = players.Count();
+
+		for ( index = 0; index < count; ++index )
+		{
+			uid = players[index].UID;
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+				checkArr.Remove( removeIndex );
+
+			if ( uid == localUid )
+				continue;
+
+			marker = ExpansionMapMarkerPlayer.Cast( m_PlayerMarkers.Get( uid ) );
+			if ( !marker )
+			{
+				marker = new ExpansionMapMarkerPlayer( layoutRoot, m_MapWidget, false );
+				marker.SetMarkerData( players[index].Marker );
+				marker.SetMapMenu( this );
+				marker.Init();
+				m_PlayerMarkers.Insert( uid, marker );
+				m_Markers.Insert( marker );
+				m_MarkerList.AddMemberEntry(marker);
+			}
+
+			marker.SetMarkerData( players[index].Marker );
+			marker.SetMapMenu( this );
+		}
+		for ( index = 0; index < checkArr.Count(); ++index )
+		{
+			marker = ExpansionMapMarkerPlayer.Cast( m_PlayerMarkers.Get( checkArr[index] ) );
+			if ( marker )
+			{
+				removeIndex = m_Markers.Find( marker );
+				if ( removeIndex != -1 )
+					m_Markers.Remove( removeIndex );
+
+				m_PlayerMarkers.Remove( checkArr[index] );
+				m_MarkerList.RemoveMemberEntry(marker);
+				delete marker;
+			}
+		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdatePlayerMarkers - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -98,425 +532,255 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------	
 	void Show()
 	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Show - Start");
+		#endif
+		
 		if (layoutRoot)
 			layoutRoot.Show(true);
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Show - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion Hide
 	// ------------------------------------------------------------	
 	void Hide()
-	{
+	{	
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Hide - Start");
+		#endif
+		
 		if (layoutRoot)
 			layoutRoot.Show(false);
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Hide - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion Override LoadMapExtentions
-	// Loads additional map extentions and event handler
+	// Expansion CreateNewMarker
 	// ------------------------------------------------------------	
-	void LoadMapExtentions()
+	void CreateNewMarker( int x, int y )
 	{
-		if (!GetExpansionSettings().GetMap())
-			return;
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::CreateNewMarker - Start");
+		#endif
 		
-		// Marker creation Window
-		if (!m_MarkerWindow)	
-		{			
-			m_MarkerWindow = new ExpansionMapMenuMarkerWindow(layoutRoot, this, m_MapWidget);
-			m_MarkerWindow.ShowMarkerWindow(false);
-		}
+		ExpansionMapMarker marker = new ExpansionMapMarker( layoutRoot, m_MapWidget, false );
+		marker.Init();
+
+		marker.SetIcon( ExpansionIcons.Get( 0 ) );
+		marker.SetCreation( true );
+		marker.SetPosition( x, y );
+		marker.SetMapMenu( this );
+
+		marker.ShowEditPanel();
+
+		m_SelectedMarker = marker;
+
+		m_Markers.Insert( marker );
 		
-		// Map player position Arrow
-		if (!m_MapPositionArrow)
-		{
-			m_MapPositionArrow = new ExpansionMapMenuPositionArrow(layoutRoot, this);
-		}
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::CreateNewMarker - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion LoadMarkers
-	// Events when loading all existing (saved) map markers
-	// ------------------------------------------------------------	
-	void LoadMarkers()
+	// Expansion GetSelectedMarker
+	// ------------------------------------------------------------
+	ExpansionMapMarker GetSelectedMarker()
 	{
-		if ( !GetExpansionClientSettings().Show2DMarkers )
-			return;
-		
-		LoadPersonnalMarkers();
-		LoadServerMarkers();
-		LoadPartyMarkers();
-		m_3DMarkerModule.RefreshMarkers();
+		return m_SelectedMarker;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion LoadPersonnalMarkers
-	// Events load personnal stored markers on map
-	// ------------------------------------------------------------
-	void LoadPersonnalMarkers()
+	bool HasSelectedMarker()
 	{
-		if ( !GetExpansionClientSettings().Show2DClientMarkers )
-			return;
-
-		m_MapMarkers.Clear();
-		m_MapSavedMarkers.Clear();
+		return m_SelectedMarker != NULL;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetSelectedMarker
+	// ------------------------------------------------------------
+	bool SetSelectedMarker( ref ExpansionMarkerData data )
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::SetSelectedMarker - Start");
+		#endif
 		
-		if (m_MarkerModule && m_MarkerModule.GetMarkers() && m_MarkerModule.GetMarkers().Count() >= 0)
+		if ( m_SelectedMarker != NULL )
 		{
-			for (int i = 0; i < m_MarkerModule.GetMarkers().Count(); ++i)
+			CancelCurrentSelectedMarker();
+		}
+		
+		for ( int i = 0; i < m_Markers.Count(); ++i )
+		{
+			if ( m_Markers[i].GetMarkerData() == data )
 			{
-				ExpansionMapMarker currentMarker = m_MarkerModule.GetMarker(i);
-				ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker(layoutRoot, m_MapWidget, currentMarker.GetMarkerPosition(), " " + currentMarker.GetMarkerText(), currentMarker.GetMarkerColor(), ExpansionMarkerIcons.GetMarkerPath(currentMarker.GetIconIndex()), currentMarker);
-				m_MapMarkers.Insert(mapMarker);
-				m_MapSavedMarkers.Insert(currentMarker);
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion AddPersonalMarker
-	// Events when adding personal map marker on map
-	// Adds a map marker and saved maker entry
-	// ------------------------------------------------------------	
-	void AddPersonalMarker(string name, int icon, vector pos, int color, bool is3D)
-	{
-		ExpansionMapMarker newMarker = m_MarkerModule.CreateClientMarker(name, icon, pos, color, false, is3D);
-		ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker(layoutRoot, m_MapWidget, pos, name, color, ExpansionMarkerIcons.GetMarkerPath(icon), newMarker);
-		m_MapMarkers.Insert(mapMarker);
-		m_MapSavedMarkers.Insert(newMarker);
-		
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
-		{
-			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
-		}
-		
-		LoadMarkers();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CreateTempMarker
-	// ------------------------------------------------------------	
-	void CreateTempMarker(vector pos)
-	{
-		m_TempMarker = new ExpansionMapMenuMarker( layoutRoot, m_MapWidget, pos, "NEW MARKER", ARGB(255, 0, 0, 0), ExpansionMarkerIcons.GetMarkerPath(1) );
-		
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
-		{
-			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetTempMarker
-	// ------------------------------------------------------------
-	ExpansionMapMenuMarker GetTempMarker()
-	{
-		return m_TempMarker;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion RemoveTempMarker
-	// ------------------------------------------------------------	
-	void RemoveTempMarker()
-	{
-		if (!m_TempMarker || m_TempMarker == NULL)
-			return;
-		
-		m_TempMarker.DeleteMarker();
-		m_TempMarker = null;
-	}
+				m_SelectedMarker = m_Markers[i];
 
-	// ------------------------------------------------------------
-	// Expansion RemovePersonalMarker
-	// Events when removing personal map marker on map
-	// ------------------------------------------------------------	
-	void RemovePersonalMarker(string name)
-	{
-		int index;
-		string markerName;
-		string markerName2;
-
-		if ( name != "")
-		{
-			markerName = name;
-			markerName.ToLower();
-
-			if (m_MapMarkers && m_MapMarkers.Count() >= 0)
-			{
-				//! Delete map marker
-				for (int i = 0; i < m_MapMarkers.Count(); ++i)
-				{
-					ExpansionMapMenuMarker mapmarker = m_MapMarkers.Get(i);
-					if (mapmarker)
-					{
-						markerName2 = mapmarker.GetMarkerName();
-						markerName2.ToLower();
-		
-						if ( markerName == markerName2 )
-						{
-							index = m_MapMarkers.Find(mapmarker);
-		
-							if ( index > -1 )
-							{
-								delete m_MapMarkers[index];
-								m_MapMarkers.Remove(index);
-							}
-						}
-					}
-				}
-			}
-			
-			if (m_MarkerModule && m_MarkerModule.GetMarkers() && m_MarkerModule.GetMarkers().Count() >= 0)
-			{
-				//! Delete saved marker entry
-				for (int j = 0; j < m_MarkerModule.GetMarkers().Count(); ++j)
-				{
-					ExpansionMapMarker savedmarker = m_MarkerModule.GetMarker(j);
-					if (savedmarker)
-					{
-						markerName2 = savedmarker.GetMarkerText();
-						markerName2.ToLower();
-		
-						if ( markerName == markerName2 )
-						{
-							m_MarkerModule.RemoveMarker(savedmarker);
-							index = m_MapSavedMarkers.Find(savedmarker);
-		
-							if ( index > -1 )
-							{
-								delete m_MapSavedMarkers[index];
-								m_MapSavedMarkers.Remove(index);
-							}
-						}
-					}
-				}
-			}
-			
-			LoadMarkers();
-		}
-
-		if (!m_IsEditingMarker)	
-			GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKER_SYSTEM_TITLE"), new StringLocaliser("STR_EXPANSION_MARKER_SYSTEM_REMOVED_MARKER"), EXPANSION_NOTIFICATION_ICON_CHECK, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5 );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion LoadPartyMarkers
-	// Events load party markers on map
-	// ------------------------------------------------------------	
-	void LoadPartyMarkers()
-	{
-		m_MapPartyMarkers.Clear();
-		m_MapSavedPartyMarkers.Clear();
-		m_MapPartyPlayerMarkers.Clear();
-		
-		if (m_PartyModule.HasParty())
-		{
-			array<ref ExpansionMapMarker> markers = m_PartyModule.GetParty().GetAllMarkers();
-			
-			if (markers.Count() > 0)
-			{
-				for (int i = 0; i < markers.Count(); ++i)
-				{
-					ExpansionMapMarker currentMarker = markers.Get(i);
-					if (currentMarker)
-					{
-						ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker( layoutRoot, m_MapWidget, currentMarker.GetMarkerPosition(), " " + currentMarker.GetMarkerText(), currentMarker.GetMarkerColor(), ExpansionMarkerIcons.GetMarkerPath(currentMarker.GetIconIndex()), currentMarker );
-						m_MapPartyMarkers.Insert( mapMarker );
-						m_MapSavedPartyMarkers.Insert( currentMarker );
-					}
-				}
-			}
-			
-			// Party member Markers
-			if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers )
-			{
-				if (!m_PlayerB)
-					m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );	
-
-				if ( m_PlayerB )
-				{
-					vector selfPosition = m_PlayerB.GetPosition();	
-					
-					ref array< ref ExpansionPartySaveFormatPlayer > players = m_PartyModule.GetParty().GetPlayers();
-					if (players)
-					{
-						for (int j = 0; j < players.Count(); ++j)
-						{
-							ref ExpansionPartySaveFormatPlayer currPlayer = players[j];
-							if (!currPlayer) continue;
-							
-							if ( currPlayer.UID != m_PlayerB.GetIdentityUID() )
-							{
-								PlayerBase player = PlayerBase.GetPlayerByUID(currPlayer.UID);
-								if (player && vector.Distance( player.GetPosition(), selfPosition) <= GetExpansionSettings().GetParty().DistanceForPartyMarkers)
-								{
-									ExpansionMapMenuPlayerMarker playerMarker = new ExpansionMapMenuPlayerMarker(layoutRoot, m_MapWidget, player );
-									m_MapPartyPlayerMarkers.Insert(playerMarker);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion AddPartyMarker
-	// Events when creating new party map marker on map
-	// Adds a map marker and saved maker entry
-	// ------------------------------------------------------------	
-	void AddPartyMarker(string name, int icon, vector pos, int color, bool is3D)
-	{
-		ExpansionMapMarker newMarker = m_MarkerModule.CreateClientMarker(name, icon, pos, color, true, is3D);
-		ExpansionMapMenuMarker mapMarker = new ExpansionMapMenuMarker(layoutRoot, m_MapWidget, pos, name, color, ExpansionMarkerIcons.GetMarkerPath(icon), newMarker);
-		m_MapPartyMarkers.Insert(mapMarker);
-		m_MapSavedPartyMarkers.Insert(newMarker);
-		
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
-		{
-			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
-		}
-		
-		LoadMarkers();
-	}
-
-	// ------------------------------------------------------------
-	// Expansion RemovePartyMarker
-	// Events when removing party map marker on map
-	// ------------------------------------------------------------	
-	void RemovePartyMarker(string name)
-	{
-		int index;
-		string markerName;
-		string markerName2;
-		ExpansionMapMarker currentMarker;
-		ExpansionMapMarker removeMarker;
-
-		if ( name != "")
-		{
-			markerName = name;
-			markerName.ToLower();
-
-			//! Delete map marker
-			for ( int i = 0; i < m_MapPartyMarkers.Count(); ++i )
-			{
-				ExpansionMapMenuMarker marker = m_MapPartyMarkers.Get(i);
-				if (marker)
-				{
-					markerName2 = marker.GetMarkerName();
-					markerName2.ToLower();
-	
-					if ( markerName == markerName2 )
-					{
-						index = m_MapPartyMarkers.Find(marker);
-	
-						if ( index > -1 )
-						{
-							delete m_MapPartyMarkers[index];
-							m_MapPartyMarkers.Remove(index);
-						}
-					}
-				}
-			}
-			
-			//! Search saved party marker entry
-			if ( m_PartyModule.HasParty() )
-			{
-				array<ref ExpansionMapMarker> markers = m_PartyModule.GetParty().GetAllMarkers();
+				#ifdef EXPANSION_MAP_MENU_DEBUG
+				EXLogPrint("ExpansionMapMenu::SetSelectedMarker - return true for m_SelectedMarker: " + m_SelectedMarker.ToString());
+				#endif
 				
-				if (markers.Count() > 0)
-				{
-					for (int k = 0; k < markers.Count(); ++k)
-					{
-						currentMarker = markers.Get(k);
-						markerName2 = currentMarker.GetMarkerText();
-						markerName2.ToLower();
-	
-						if (markerName == markerName2)
-						{
-							removeMarker = currentMarker;
-						}
-					}
-				}
-			}
-
-			//! Delete saved party marker entry
-			if (removeMarker)
-			{
-				if (removeMarker.IsPartyMarker())
-				{
-					ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-
-					if (partyModule)
-					{
-						partyModule.DeleteMarker( removeMarker.GetMarkerText() );
-						index = m_MapSavedPartyMarkers.Find(removeMarker);
-
-						if ( index > -1 )
-						{
-							delete m_MapSavedPartyMarkers[index];
-							m_MapSavedPartyMarkers.Remove(index);
-									
-							Refresh();
-						}
-					}
-				}
+				return true;
 			}
 		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::SetSelectedMarker - return false");
+		#endif
+
+		return false;
 	}
 
 	// ------------------------------------------------------------
-	// Expansion LoadServerMarkers
-	// Events load server markers on map
-	// ------------------------------------------------------------	
-	void LoadServerMarkers()
+	// Expansion CompleteCreationNewMarker
+	// ------------------------------------------------------------
+	void CompleteCreationNewMarker()
 	{
-		m_MapServerMarkers.Clear();
-		m_MapSavedServerMarkers.Clear();
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::CompleteCreationNewMarker - Start");
+		#endif
+		
+		if ( m_SelectedMarker == NULL )
+			return;
 
-		if ( !m_MarkerModule || m_MarkerModule.ServerCount() < 1 )
+		if ( !m_MarkerModule.CreateMarker( m_SelectedMarker.GetMarkerData() ) )
+			return;
+
+		m_DeletingMarkers.Insert( m_SelectedMarker );
+
+		PlayDrawSound();
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::CompleteCreationNewMarker - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion UpdateSelectedMarker
+	// ------------------------------------------------------------
+	void UpdateSelectedMarker()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateSelectedMarker - Start");
+		#endif
+		
+		if ( m_SelectedMarker == NULL )
+			return;
+
+		if ( !m_MarkerModule.UpdateMarker( m_SelectedMarker.GetMarkerData() ) )
 			return;
 		
-		if ( !GetExpansionClientSettings().Show2DGlobalMarkers )
-			return;
+		m_SelectedMarker = NULL;
 
-		if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().ShowServerMarkers )
-		{
-			ExpansionMapMarker currentMarker;
-			ExpansionMapMenuServerMarker mapMarker;
-	
-			for ( int i = 0; i < m_MarkerModule.ServerCount(); ++i )
-			{
-				currentMarker = m_MarkerModule.GetServerMarker( i );
-				if (currentMarker)
-				{
-					mapMarker = new ExpansionMapMenuServerMarker(layoutRoot, m_MapWidget, currentMarker.GetMarkerPosition(), " " + currentMarker.GetMarkerText(), currentMarker.GetMarkerColor(), ExpansionMarkerIcons.GetMarkerPath(currentMarker.GetIconIndex()));
-					
-					m_MapServerMarkers.Insert(mapMarker);
-					m_MapSavedServerMarkers.Insert(currentMarker);
-				}
-			}
-		}
+		PlayDrawSound();
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateSelectedMarker - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
-	// Expansion AddServerMarker
-	// Events when creating new server map marker on map
-	// ------------------------------------------------------------	
-	void AddServerMarker(string name, int icon, vector pos, int color, bool is3D)
-	{	
-		int index = m_MarkerModule.AddServerMarker(name, icon, pos, color, is3D);
+	// Expansion CancelCurrentSelectedMarker
+	// ------------------------------------------------------------
+	/**
+	 * Cancels what ever is currently happening to the selected marker
+	 * If the selected marker is the creation of a new marker, then it deletes it
+	 * Otherwise it chucks out the new data
+	 */
+	void CancelCurrentSelectedMarker()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::CancelCurrentSelectedMarker - Start");
+		#endif
+		
+		if ( m_SelectedMarker == NULL )
+			return;
 
-		if (index > -1)
+		m_SelectedMarker.CloseEditPanel();
+
+		if ( m_SelectedMarker.GetMarkerData() )
 		{
-			ExpansionMapMarker newMarker = ExpansionMapMarker.Cast(m_MarkerModule.GetServerMarker(index));
-			ExpansionMapMenuServerMarker mapMarker = new ExpansionMapMenuServerMarker(layoutRoot, m_MapWidget, pos, name, color, ExpansionMarkerIcons.GetMarkerPath(icon));
-			m_MapServerMarkers.Insert(mapMarker);
-			m_MapSavedServerMarkers.Insert(newMarker);
-			
-			LoadMarkers();
+			string uid = m_SelectedMarker.GetMarkerData().GetUID();
+			if ( m_PersonalMarkers.Get( uid ) == m_SelectedMarker || m_PartyMarkers.Get( uid ) == m_SelectedMarker )
+			{
+				m_SelectedMarker = NULL;
+				return;
+			}
 		}
+
+		int index = m_Markers.Find( m_SelectedMarker );
+		if ( index != -1 )
+			m_Markers.Remove( index );
+
+		delete m_SelectedMarker;
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::CancelCurrentSelectedMarker - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion DeleteMarker
+	// ------------------------------------------------------------	
+	void DeleteMarker( ref ExpansionMapMarker marker )
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::DeleteMarker - Start");
+		#endif
+		
+		if ( marker == NULL )
+			return;
+
+		if ( marker.GetMarkerData() != NULL )
+		{
+			string uid = marker.GetMarkerData().GetUID();
+
+			if ( m_PersonalMarkers.Get( uid ) == marker )
+			{
+				m_MarkerModule.GetData().PersonalRemove( uid );
+
+				return;
+			}
+
+			if ( m_PartyMarkers.Get( uid ) == marker )
+			{
+				m_MarkerModule.GetData().PartyRemove( uid );
+
+				return;
+			}
+
+			return;
+		}
+
+		m_DeletingMarkers.Insert( marker );
+
+		GetGame().GetCallQueue( CALL_CATEGORY_GUI ).Call( Refresh );
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::DeleteMarker - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion DeleteSelectedMarker
+	// ------------------------------------------------------------	
+	void DeleteSelectedMarker()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::DeleteSelectedMarker - Start");
+		#endif
+
+		DeleteMarker( m_SelectedMarker );
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::DeleteSelectedMarker - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -564,6 +828,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	void ToggleGPS()
 	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::ToggleGPS - Start");
+		#endif
+		
 		MissionGameplay missiongameplay = MissionGameplay.Cast( GetGame().GetMission() );
 		if ( missiongameplay )
 		{
@@ -582,22 +850,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 				}
 			}
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetCurrentMarkerPosition
-	// ------------------------------------------------------------	
-	vector GetCurrentMarkerPosition()
-	{
-		return m_PositionCreateMarker;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion SetCurrentMarkerPosition
-	// ------------------------------------------------------------
-	void SetCurrentMarkerPosition(vector pos)
-	{
-		m_PositionCreateMarker = pos;
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::ToggleGPS - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -614,105 +870,34 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------	
 	void RemoveMarker()
 	{
-		float minimumDistance = 1000000000;
-		float distance;
-		const float distanceFromCursor = 75;
-		int mouse_x;
-		int mouse_y;
-		GetGame().GetMousePos( mouse_x, mouse_y );
-		vector positionCursor = m_MapWidget.ScreenToMap(Vector( mouse_x, mouse_y, 0 ));
-		ExpansionMapMarker currentMarker;
-		ExpansionMapMarker removeMarker;
-		string removeMarkerName;
-
-		//! Check if marker is personal marker
-		for (int i = 0; i < m_MarkerModule.Count(); ++i)
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::RemoveMarker - Start");
+		#endif
+		
+		for ( int i = 0; i < m_Markers.Count(); ++i )
 		{
-			currentMarker = m_MarkerModule.GetMarker(i);
-
-			distance = vector.Distance( currentMarker.GetMarkerPosition(), positionCursor );
-			if ( distance < distanceFromCursor && distance < minimumDistance )
+			if ( m_Markers[i].IsMouseHovering() && m_Markers[i].CanEdit() )
 			{
-				removeMarker = currentMarker;
-				minimumDistance = distance;
+				DeleteMarker( m_Markers[i] );
+
+				return;
 			}
 		}
-
-		//! Delete personal marker
-		if (removeMarker)
-		{
-			removeMarkerName = removeMarker.GetMarkerText();
-			RemovePersonalMarker(removeMarkerName);
-		}
-
-		// Check if marker is party marker
-		if (m_PartyModule.HasParty())
-		{
-			ref array<ref ExpansionMapMarker> markers = m_PartyModule.GetParty().GetAllMarkers();
-			if (markers.Count() > 0)
-			{
-				for (int j = 0; j < markers.Count(); ++j)
-				{
-					currentMarker = markers.Get(j);
-	
-					if (distance < distanceFromCursor && distance < minimumDistance)
-					{
-						removeMarker = currentMarker;
-						minimumDistance = distance;
-					}
-				}
-			}
-			
-			//! Delete party marker
-			if (removeMarker && m_PartyModule.HasParty())
-			{
-				if (removeMarker.IsPartyMarker())
-				{
-					ExpansionPartyModule module;
-					if (Class.CastTo( module, GetModuleManager().GetModule(ExpansionPartyModule)))
-					{
-						removeMarkerName = removeMarker.GetMarkerText();
-						RemovePartyMarker(removeMarkerName);
-					}
-				}
-			}
-		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::RemoveMarker - End");
+		#endif
 	}
 
-	// ------------------------------------------------------------
-	// Expansion SetEditingMarker
-	// ------------------------------------------------------------	
-	void SetEditingMarker(bool state)
-	{
-		m_IsEditingMarker = state;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetMarkerWindow
-	// ------------------------------------------------------------	
-	ExpansionMapMenuMarkerWindow GetMarkerWindow()
-	{
-		return m_MarkerWindow;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion GetPlayerPositionArrow
-	// ------------------------------------------------------------	
-	ref ExpansionMapMenuPositionArrow GetPlayerPositionArrow()
-	{
-		if (!m_MapPositionArrow)
-		{
-			m_MapPositionArrow = new ExpansionMapMenuPositionArrow(layoutRoot, this);
-		}
-			
-		return m_MapPositionArrow;
-	}
-	
 	// ------------------------------------------------------------
 	// Expansion SetMapPosition
 	// ------------------------------------------------------------	
 	void SetMapPosition()
 	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::SetMapPosition - Start");
+		#endif
+		
 		float scale;
 		vector map_pos;
 		vector player_pos;
@@ -726,24 +911,24 @@ class ExpansionMapMenu extends UIScriptedMenu
 			//! Lower number zooms in / Higher number zooms out
 			scale = 0.10; // Float between 0-1 ?!
 			
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAP_MENU_DEBUG
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current scale is: " + scale.ToString());
 			#endif
 
 			player_pos = m_PlayerB.GetPosition();
 			camera_pos = GetGame().GetCurrentCameraPosition();
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAP_MENU_DEBUG
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current player position is: " + player_pos.ToString());
 			#endif
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAP_MENU_DEBUG
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current camera position is: " + camera_pos.ToString());
 			#endif
 			
 			map_pos = camera_pos;
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAP_MENU_DEBUG
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Map Position is: " + map_pos.ToString());
 			#endif
 		}
@@ -751,12 +936,16 @@ class ExpansionMapMenu extends UIScriptedMenu
 		m_MapWidget.SetScale(scale);
 		m_MapWidget.SetMapPos(map_pos);
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::SetMapPosition:: SetMapPos with values: " + map_pos.ToString());
 		#endif
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::SetMapPosition:: GetMapPos is: " + m_MapWidget.GetMapPos().ToString());
+		#endif
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::SetMapPosition - End");
 		#endif
 	}
 	
@@ -765,6 +954,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------	
 	void UpdateMapPosition()
 	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateMapPosition - Start");
+		#endif
+		
 		float scale;
 		vector map_pos;
 		
@@ -775,77 +968,59 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		if (m_Player)
 			m_Player.SetLastMapInfo(scale, map_pos);
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateMapPosition - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
 	// Override OnDoubleClick
 	// ------------------------------------------------------------
 	override bool OnDoubleClick( Widget w, int x, int y, int button )
-	{		
-		bool superbool = super.OnDoubleClick( w, x, y, button );
-		
-		int mouse_x;
-		int mouse_y;
-
-		if ( button == MouseState.LEFT && !m_MarkerWindow.GetMarkerWindowState() )
-		{
-			if ( w == m_MapWidget && GetExpansionSettings().GetMap().CanCreateMarker )
-			{		
-				GetGame().GetMousePos( mouse_x, mouse_y );
-				m_PositionCreateMarker = m_MapWidget.ScreenToMap( Vector( mouse_x, mouse_y, 0 ) );
-				m_MarkerWindow.ShowMarkerWindow( true );
-				m_MarkerWindow.ShowMapStatWindow( true );
-				
-				if ( !m_TempMarker || m_TempMarker == NULL )
-				{
-					CreateTempMarker( m_PositionCreateMarker );
-				}
-				
-				return true;
-			}
-		}
-		else if ( button == MouseState.LEFT && m_MarkerWindow.GetMarkerWindowState() )
+	{
+		if ( button == MouseState.LEFT )
 		{
 			if ( w == m_MapWidget && GetExpansionSettings().GetMap().CanCreateMarker )
 			{
-				GetGame().GetMousePos(mouse_x, mouse_y );
-				m_PositionCreateMarker = m_MapWidget.ScreenToMap( Vector( mouse_x, mouse_y, 0 ) );
-
-				if ( m_TempMarker )
+				if ( HasSelectedMarker() )
 				{
-					m_TempMarker.ChangePositon(m_PositionCreateMarker);
-				}
-				
-				if ( m_MarkerWindow.GetCurrentMapMarker() )
-				{
-					m_MarkerWindow.GetCurrentMapMarker().ChangePositon( m_PositionCreateMarker );
-				}
-				
-				return true;
-			}
-		}
+					CancelCurrentSelectedMarker();
 
-		if (button == MouseState.LEFT && !GetMarkerWindow().GetArrowColorPanelState())
-		{
-			if (w == GetPlayerPositionArrow().GetArrowWidget())
-			{
-				GetMarkerWindow().ShowArrowColorPanel(true);
-				
-				return true;
+					return true;
+				} else
+				{
+					int mouse_x;
+					int mouse_y;
+
+					GetGame().GetMousePos( mouse_x, mouse_y );
+					CreateNewMarker( mouse_x, mouse_y );
+
+					//! This works but not sure if we should do this, doesn't feel right.
+					//m_SelectedMarker.FocusOnMarker( false );
+
+					return true;
+				}
 			}
 		}
 		
-		return superbool;
+		return super.OnDoubleClick( w, x, y, button );
 	}
-
+	
+	// ------------------------------------------------------------
+	// Override OnClick
+	// ------------------------------------------------------------
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		return super.OnClick(w, x, y, button);
+	}
+	
 	// ------------------------------------------------------------
 	// Expansion Override OnShow
 	// ------------------------------------------------------------	
 	override void OnShow()
 	{
 		super.OnShow();
-		
-		m_OpenMapTime = 0;
 
 		ToggleGPS();
 
@@ -853,10 +1028,6 @@ class ExpansionMapMenu extends UIScriptedMenu
 		GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
 		
 		PPEffects.SetBlurMenu(0.5);
-
-		LoadMarkers();
-		
-		GetMarkerWindow().LoadArrowColor();
 		
 		Show();
 	}
@@ -870,14 +1041,13 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		ToggleGPS();
 
+		m_MarkerModule.SaveLocalServerMarkers();
+		
+		m_MarkerList.HideTooltips();
+
 		GetGame().GetMission().PlayerControlEnable(true);
 		
 		PPEffects.SetBlurMenu( 0.0 );
-
-		if (m_IsEditingMarker)
-			m_MarkerWindow.CancelMarkerEdit();
-		else
-			m_MarkerWindow.ClearChages();
 	}
 
 	// ------------------------------------------------------------
@@ -885,18 +1055,16 @@ class ExpansionMapMenu extends UIScriptedMenu
 	// ------------------------------------------------------------	
 	override void Update( float timeslice )
 	{		
-		m_OpenMapTime += timeslice;
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Update - Start");
+		#endif
 
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
 			Hide();
 			Close();
-		}		
-		
-		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.75 && !m_MarkerWindow.GetMarkerWindowState() )
-		{
-			Hide();
-			Close();
+
+			return;
 		}
 		
 		if ( GetGame().GetInput().LocalPress( "UAExpansionMapDeleteMarker", false ) )
@@ -908,40 +1076,88 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		if ( layoutRoot.IsVisible() )
 		{
-			//! Marker
-			if (GetExpansionSettings().GetMap())
+			for ( int i = 0; i < m_Markers.Count(); ++i )
+				if ( m_Markers[i] )
+					m_Markers[i].Update( timeslice );
+			
+			if ( m_PlayerArrowMarker )
+				m_PlayerArrowMarker.Update( timeslice );
+		}
+		
+		if ( m_MarkerList.IsListVisible() ) 
+			UpdateMarkerList();
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::Update - End");
+		#endif
+	}
+	
+	private void UpdateMarkerList()
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateMarkerList - Start");
+		#endif
+		
+		int j;
+		ref ExpansionMapMarkerListEntry entry;
+		for ( j = 0; j < m_MarkerList.GetPersonalEntrys().Count(); ++j )
+		{			
+			entry = m_MarkerList.GetPersonalEntrys()[j];
+			if ( entry.GetMarker() == NULL || entry.GetData() == NULL )
 			{
-				m_MarkerWindow.ShowPartyMarkerOption( m_PartyModule.HasParty() && GetExpansionSettings().GetMap().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties );
-				m_MarkerWindow.Show3DMarkerOption(GetExpansionSettings().GetMap().CanCreate3DMarker);
+				delete entry;
+				return;
 			}
 			
-			m_MarkerWindow.RefreshPositionValue();
-			m_MarkerWindow.UpdateVisiblityOptionsHeader();
-			
-			//! Update all existing markers
-			for (int i = 0; i < m_MapMarkers.Count(); ++i)
+			entry.Update();
+		}
+		for ( j = 0; j < m_MarkerList.GetPartyEntrys().Count(); ++j )
+		{
+			entry = m_MarkerList.GetPartyEntrys()[j];
+			if ( entry.GetMarker() == NULL || entry.GetData() == NULL )
 			{
-				if (m_MapMarkers[i])
-					m_MapMarkers[i].Update( timeslice );
+				delete entry;
+				return;
 			}
 			
-			for (int j = 0; j < m_MapPartyMarkers.Count(); ++j)
+			entry.Update();
+		}
+		for ( j = 0; j < m_MarkerList.GetMemberEntrys().Count(); ++j )
+		{
+			entry = m_MarkerList.GetMemberEntrys()[j];
+			if ( entry.GetMarker() == NULL || entry.GetData() == NULL )
 			{
-				if (m_MapPartyMarkers[j])
-					m_MapPartyMarkers[j].Update( timeslice );
+				delete entry;
+				return;
 			}
 			
-			for (int k = 0; k < m_MapPartyPlayerMarkers.Count(); ++k)
+			entry.Update();
+		}
+		for ( j = 0; j < m_MarkerList.GetServerEntrys().Count(); ++j )
+		{
+			entry = m_MarkerList.GetServerEntrys()[j];
+			if ( entry.GetMarker() == NULL || entry.GetData() == NULL )
 			{
-				if (m_MapPartyPlayerMarkers[k])
-					m_MapPartyPlayerMarkers[k].Update( timeslice );
+				delete entry;
+				return;
 			}
 			
-			if ( m_TempMarker )
-				m_TempMarker.Update( timeslice );
-			
-			if ( m_MapPositionArrow )
-				m_MapPositionArrow.Update( timeslice );
+			entry.Update();
+		}
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMenu::UpdateMarkerList - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion PlayDrawSound
+	// ------------------------------------------------------------	
+	void PlayDrawSound()
+	{
+		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		{
+			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
 		}
 	}
 }

@@ -290,7 +290,7 @@ modded class LoadingScreen
 	// ------------------------------------------------------------
 	// Expansion GetClientExpansionVersion
 	// ------------------------------------------------------------
-   	string GetClientExpansionVersion()
+   	static string GetClientExpansionVersion()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("LoadingScreen::GetClientExpansionVersion - Start");
@@ -300,9 +300,9 @@ modded class LoadingScreen
 		string version;
 		
 		GetDayZGame().GetModInfos( mods );
-		for (int i = 0; i < mods.Count(); ++i)
+		for ( int i = 0; i < mods.Count(); ++i )
 		{
-			if (mods[i].GetName() == "DayZ Expansion")
+			if ( mods[i].GetName().IndexOf( "DayZ" ) == 0 && mods[i].GetName().IndexOf( "Expansion" ) == 5 )
 			{
 				version = mods[i].GetVersion();
 				break;

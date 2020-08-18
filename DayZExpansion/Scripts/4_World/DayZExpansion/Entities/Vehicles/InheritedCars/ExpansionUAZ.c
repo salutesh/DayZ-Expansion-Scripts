@@ -30,7 +30,11 @@ class ExpansionUAZ extends OffroadHatchback
 		EXPrint("ExpansionUAZ::Constructor - End");
 		#endif
 	}
-	
+	// ------------------------------------------------------------
+	override string ExpansionGetWheelType(int slot_id)
+	{
+		return "ExpansionUAZWheel";
+	}
 	// ------------------------------------------------------------
 	override int GetAnimInstance()
 	{
@@ -330,45 +334,43 @@ class ExpansionUAZ extends OffroadHatchback
 		{
 			case 0: {
 				if ( GetAnimationPhase("uazdriverdoor") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
+					return true;
 				}
+				if ( FindAttachmentBySlotName("uazdriverdoor") == NULL ) 
+					return true;
+				
 				break;
 			}
 			case 1: {
 				if ( GetAnimationPhase("uazcodriverdoor") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
+					return true;
 				}
+				if ( FindAttachmentBySlotName("uazcodriverdoor") == NULL ) 
+					return true;
+				
 				break;
 			}
 			case 2: {
 				if ( GetAnimationPhase("uazcargo1door") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
+					return true;
 				}
+				if ( FindAttachmentBySlotName("uazcargo1door") == NULL ) 
+					return true;
+				
 				break;
 			}
 			case 3: {
 				if ( GetAnimationPhase("uazcargo2door") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
+					return true;
 				}
+				if ( FindAttachmentBySlotName("uazcargo2door") == NULL ) 
+					return true;
+				
 				break;
-			}
-			case 4: {
-				return CarDoorState.DOORS_CLOSED;
-			}
-			default: {
-				return CarDoorState.DOORS_MISSING;
 			}
 		}
 
-		return CarDoorState.DOORS_MISSING;
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -436,6 +438,13 @@ class ExpansionUAZ extends OffroadHatchback
 	{
 		return false;
 	}
+
+	// ------------------------------------------------------------
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return false;
+	}
 }
 
 class ExpansionUAZCargoRoofless extends ExpansionUAZ
@@ -465,16 +474,13 @@ class ExpansionUAZCargoRoofless extends ExpansionUAZ
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-/* 		if ( !obj.IsInherited( PlayerBase ) ) 
+ 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
-
-		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
-
-		return true; */
-		return false;
+		
+		return true;
 	}
 }
+
 
 class ExpansionUAZDoorTrunk extends CarDoor 
 {

@@ -21,7 +21,7 @@ FrameWidgetClass ExpansionFlagMenu {
    {
     PanelWidgetClass flag_window_background {
      ignorepointer 1
-     color 0.2039 0.2863 0.3686 1
+     color 0 0 0 0.8627
      position 0 0
      size 1 1
      hexactpos 0
@@ -32,7 +32,7 @@ FrameWidgetClass ExpansionFlagMenu {
     }
     FrameWidgetClass flag_window_container {
      ignorepointer 1
-     size 0.95 0.96
+     size 0.95 0.98
      halign center_ref
      valign center_ref
      hexactpos 0
@@ -56,7 +56,7 @@ FrameWidgetClass ExpansionFlagMenu {
         PanelWidgetClass flag_window_header_panel {
          visible 1
          ignorepointer 1
-         color 0 0 0 0.6667
+         color 0 0 0 0.9412
          size 1 50
          halign center_ref
          hexactpos 0
@@ -76,10 +76,11 @@ FrameWidgetClass ExpansionFlagMenu {
            hexactsize 0
            vexactsize 0
            style Bold
-           text "FLAG"
+           text "#STR_EXPANSION_FLAG_TITLE"
            font "gui/fonts/etelkatextpro22"
            "text offset" 0 0
-           "exact text" 0
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
           }
@@ -96,10 +97,11 @@ FrameWidgetClass ExpansionFlagMenu {
          hexactsize 0
          vexactsize 0
          style Normal
-         text "FLAG TEXTURE:"
-         font "gui/fonts/etelkatextpro16"
+         text "#STR_EXPANSION_FLAG_TEXTURE"
+         font "gui/fonts/etelkatextpro22"
          "text offset" 10 0
          "exact text" 1
+         "exact text size" 22
          "text valign" center
         }
         ScrollWidgetClass flag_textures_scroller {
@@ -122,7 +124,7 @@ FrameWidgetClass ExpansionFlagMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           Padding 0
+           Padding 5
            Margin 0
            "Size To Content H" 1
            "Size To Content V" 1
@@ -142,13 +144,14 @@ FrameWidgetClass ExpansionFlagMenu {
          hexactsize 0
          vexactsize 0
          style Normal
-         text "FLAG PREVIEW:"
-         font "gui/fonts/etelkatextpro16"
+         text "#STR_EXPANSION_FLAG_PREVIEW"
+         font "gui/fonts/etelkatextpro22"
          "text offset" 10 0
          "exact text" 1
+         "exact text size" 22
          "text valign" center
         }
-        WrapSpacerWidgetClass flag_preview_spacer {
+        PanelWidgetClass flag_preview_spacer {
          visible 1
          ignorepointer 1
          position 0 0.54
@@ -158,15 +161,12 @@ FrameWidgetClass ExpansionFlagMenu {
          vexactpos 0
          hexactsize 0
          vexactsize 0
-         Padding 5
-         "Size To Content H" 1
-         content_halign center
          {
           ImageWidgetClass flag_icon_image {
            ignorepointer 1
-           position 0 0
-           size 0.9 0.9
+           size 1 1
            halign center_ref
+           valign center_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
@@ -211,9 +211,9 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "CHANGE FLAG"
+           text "#STR_EXPANSION_FLAG_CHANGE"
            text_proportion 0.55
-           font "gui/fonts/etelkatextpro16"
+           font "gui/fonts/etelkatextpro22"
            switch normal
           }
           ButtonWidgetClass create {
@@ -232,9 +232,9 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "CREATE TERRITORY"
+           text "#STR_EXPANSION_FLAG_CREATE_TERRITORY"
            text_proportion 0.55
-           font "gui/fonts/etelkatextpro16"
+           font "gui/fonts/etelkatextpro22"
            switch normal
           }
           ButtonWidgetClass cancel {
@@ -253,9 +253,9 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "CANCEL"
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
            text_proportion 0.55
-           font "gui/fonts/etelkatextpro16"
+           font "gui/fonts/etelkatextpro22"
            switch normal
           }
          }
@@ -280,8 +280,9 @@ FrameWidgetClass ExpansionFlagMenu {
    style blank
    {
     PanelWidgetClass territory_window_background {
+     inheritalpha 0
      ignorepointer 1
-     color 0.2039 0.2863 0.3686 1
+     color 0 0 0 0.8627
      position 0 0
      size 1 1
      hexactpos 0
@@ -316,7 +317,7 @@ FrameWidgetClass ExpansionFlagMenu {
         PanelWidgetClass territory_window_header_panel {
          visible 1
          ignorepointer 1
-         color 0 0 0 0.6667
+         color 0 0 0 0.9412
          size 1 50
          halign center_ref
          hexactpos 0
@@ -336,10 +337,11 @@ FrameWidgetClass ExpansionFlagMenu {
            hexactsize 0
            vexactsize 0
            style Bold
-           text "TERRITORY"
+           text "#STR_EXPANSION_FLAG_TERRITORY_TITLE"
            font "gui/fonts/etelkatextpro22"
            "text offset" 0 0
-           "exact text" 0
+           "exact text" 1
+           "exact text size" 22
            "text halign" center
            "text valign" center
           }
@@ -356,10 +358,11 @@ FrameWidgetClass ExpansionFlagMenu {
          hexactsize 0
          vexactsize 0
          style Normal
-         text "TERRITORY DATA:"
+         text "#STR_EXPANSION_FLAG_TERRITORY_DATA"
          font "gui/fonts/etelkatextpro16"
          "text offset" 10 0
          "exact text" 1
+         "exact text size" 22
          "text valign" center
         }
         WrapSpacerWidgetClass territory_buttons_spacer {
@@ -393,9 +396,9 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "CREATE TERRITORY"
+           text "#STR_EXPANSION_FLAG_CREATE_TERRITORY"
            text_proportion 0.55
-           font "gui/fonts/etelkatextpro16"
+           font "gui/fonts/etelkatextpro22"
            switch normal
           }
           ButtonWidgetClass cancel_territory {
@@ -414,9 +417,9 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "CANCEL"
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
            text_proportion 0.55
-           font "gui/fonts/etelkatextpro16"
+           font "gui/fonts/etelkatextpro22"
            switch normal
           }
          }
@@ -443,8 +446,10 @@ FrameWidgetClass ExpansionFlagMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Owner Name:"
-           font "gui/fonts/etelkatextpro12"
+           text "#STR_EXPANSION_FLAG_TERRITORY_OWNER_NAME"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 1
+           "exact text size" 22
            "text valign" center
           }
           TextWidgetClass territory_owner_name {
@@ -455,8 +460,10 @@ FrameWidgetClass ExpansionFlagMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Survivor"
-           font "gui/fonts/etelkatextpro12"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_DEFAULT"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 1
+           "exact text size" 22
            "text valign" center
           }
           TextWidgetClass territory_pos_lable {
@@ -467,8 +474,10 @@ FrameWidgetClass ExpansionFlagMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Position:"
-           font "gui/fonts/etelkatextpro12"
+           text "#STR_EXPANSION_FLAG_TERRITORY_POSITION"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 1
+           "exact text size" 22
            "text valign" center
           }
           TextWidgetClass territory_pos {
@@ -479,8 +488,10 @@ FrameWidgetClass ExpansionFlagMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "5000:5000"
-           font "gui/fonts/etelkatextpro12"
+           text ""
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 1
+           "exact text size" 22
            "text valign" center
           }
          }
@@ -500,10 +511,11 @@ FrameWidgetClass ExpansionFlagMenu {
      hexactsize 0
      vexactsize 0
      style Normal
-     text "TERRITORY NAME:"
-     font "gui/fonts/etelkatextpro16"
+     text "#STR_EXPANSION_FLAG_TERRITORY_NAME"
+     font "gui/fonts/etelkatextpro22"
      "text offset" 10 0
      "exact text" 1
+     "exact text size" 22
      "text valign" center
     }
     EditBoxWidgetClass territory_name_editbox {
@@ -516,7 +528,7 @@ FrameWidgetClass ExpansionFlagMenu {
      vexactsize 0
      style EditorProperty
      "exact text" 1
-     font "gui/fonts/etelkatextpro16"
+     font "gui/fonts/etelkatextpro22"
     }
    }
   }
@@ -584,18 +596,19 @@ FrameWidgetClass ExpansionFlagMenu {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     text "TERRITORY FLAG"
+     text "#STR_EXPANSION_FLAG_TERRITORY_FLAG"
      font "gui/fonts/etelkatextpro22"
      "text color" 1 1 1 1
      "exact text" 1
+     "exact text size" 22
      "size to text h" 0
      "size to text v" 0
      "text halign" center
      "text valign" center
     }
     RichTextWidgetClass territory_dialog_text {
-     position 0 -0.04068
-     size 0.95 0.50475
+     position 0 -0.05
+     size 0.95 0.5
      halign center_ref
      valign center_ref
      hexactpos 0
@@ -603,9 +616,10 @@ FrameWidgetClass ExpansionFlagMenu {
      hexactsize 0
      vexactsize 0
      style DayZNormal
-     text "Are you sure you want to convert this flag to a territory? You cannot undo this change!"
-     font "gui/fonts/etelkatextpro12"
+     text "#STR_EXPANSION_FLAG_TERRITORY_CONFIRM_DESC"
+     font "gui/fonts/etelkatextpro22"
      "exact text" 1
+     "exact text size" 22
      wrap 1
      "condense whitespace" 1
      "strip newlines" 1
@@ -613,53 +627,55 @@ FrameWidgetClass ExpansionFlagMenu {
     ButtonWidgetClass territory_dialog_ok_button {
      visible 1
      color 0.1529 0.6824 0.3765 1
-     position 80 14
-     size 120.5 40
+     position 0.15 0.05
+     size 0.25 0.15
      valign bottom_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 1
-     vexactsize 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
      userID 1
      style EmptyHighlight
-     text "OK"
-     font "gui/fonts/etelkatextpro16"
+     text "#STR_EXPANSION_FLAG_TERRITORY_CONFIRM_OK"
+     font "gui/fonts/etelkatextpro22"
     }
     ButtonWidgetClass territory_dialog_cancel_button {
      visible 1
      color 1 0 0 1
-     position 80 14
-     size 120.5 40
+     position 0.15 0.05
+     size 0.25 0.15
      halign right_ref
      valign bottom_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 1
-     vexactsize 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
      userID 1
      style EmptyHighlight
-     text "CANCEL"
-     font "gui/fonts/etelkatextpro16"
+     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
+     font "gui/fonts/etelkatextpro22"
     }
     PanelWidgetClass Separator {
      ignorepointer 1
-     position 10 40
-     size 400 2
-     hexactpos 1
-     vexactpos 1
-     hexactsize 1
-     vexactsize 1
+     position 0 0.18
+     size 0.95 0.009
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
      style rover_sim_colorable
     }
     PanelWidgetClass Separator0 {
      ignorepointer 1
-     position 10 60
-     size 400 2
+     position 0 0.27
+     size 0.95 0.009
+     halign center_ref
      valign bottom_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 1
-     vexactsize 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
      style rover_sim_colorable
     }
    }

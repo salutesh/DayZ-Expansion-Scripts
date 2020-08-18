@@ -16,6 +16,7 @@ modded class Crowbar
 	{
 		super.SetActions();
 		
+		AddAction( ActionRepairPart );
 		AddAction( ActionDismantlePart );
 		AddAction( ActionBuildPart );
 		AddAction( ActionBuildPartSwitch );

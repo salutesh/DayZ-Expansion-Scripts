@@ -6,7 +6,7 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionHelipadKit","ExpansionHelipadKitPlacing","ExpansionHelipad","ExpansionHescoKit","ExpansionHescoKitPlacing","ExpansionHesco","ExpansionBarbedWireKit","ExpansionBarbedWireKitPlacing","ExpansionBarbedWire","ExpansionGunrack","ExpansionGunrackPlacing","ExpansionCone","ExpansionConePlacing","ExpansionSignDanger","ExpansionSignDangerPlacing","ExpansionSignDanger2","ExpansionSignDanger2Placing","ExpansionSignDanger3","ExpansionSignDanger3Placing","ExpansionSignRoadBarrier","ExpansionSignRoadBarrierPlacing","ExpansionStove","ExpansionStovePlacing"};
+		units[] = {"ExpansionHelipadKit","ExpansionHelipadKitPlacing","ExpansionHelipad","ExpansionHescoKit","ExpansionHescoKitPlacing","ExpansionHesco","ExpansionBarbedWireKit","ExpansionBarbedWireKitPlacing","ExpansionBarbedWire","ExpansionGunrack","ExpansionCone","ExpansionConePlacing","ExpansionSignDanger","ExpansionSignDangerPlacing","ExpansionSignDanger2","ExpansionSignDanger2Placing","ExpansionSignDanger3","ExpansionSignDanger3Placing","ExpansionSignRoadBarrier","ExpansionSignRoadBarrierPlacing","ExpansionStove","ExpansionStovePlacing"};
 		weapons[] = {};
 		ammo[] = {"BarbedWireDamage"};
 	};
@@ -267,6 +267,7 @@ class CfgVehicles
 	class ExpansionHescoKit: ExpansionKitLarge
 	{
 		scope = 2;
+		rotationFlags = 4;
 		displayName = "$STR_EXPANSION_HESCO";
 		descriptionShort = "$STR_EXPANSION_HESCO_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\Hesco\HescoKit.p3d";
@@ -368,14 +369,13 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_GUNRACK";
 		descriptionShort = "$STR_EXPANSION_GUNRACK_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\gunrack\gunrack.p3d";
-		vehicleClass = "Expansion_Construction";
-		heavyItem = 1;
-		lootCategory = "Crafted";
-		useEntityHierarchy = "true";
-		physLayer = "item_large";
-		bounding = "BSphere";
-		allowOwnedCargoManipulation = 1;
+		hologramMaterial = "sea_chest";
+		hologramMaterialPath = "dz\gear\camping\data";
+		weight = 10000;
+		itemBehaviour = 0;
 		itemSize[] = {10,10};
+		carveNavmesh = 1;
+		rotationFlags = 2;
 		hiddenSelections[] = {"camo"};
 		hiddenSelectionsTextures[] = {"\dayzexpansion\objects\basebuilding\misc\gunrack\data\expansion_gunrack_co.paa"};
 		class DamageSystem
@@ -384,16 +384,56 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 600;
 				};
 			};
 			class GlobalArmor
 			{
-				class Projectile
+				class FragGrenade
 				{
-					Health = 0;
-					Blood = 0;
-					Shock = 0;
+					class Health
+					{
+						damage = 8;
+					};
+					class Blood
+					{
+						damage = 8;
+					};
+					class Shock
+					{
+						damage = 8;
+					};
+				};
+			};
+		};
+		class Cargo
+		{
+			openable = 0;
+			allowOwnedCargoManipulation = 1;
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class movement
+				{
+					soundSet = "seachest_movement_SoundSet";
+					id = 1;
+				};
+				class pickUpItem_Light
+				{
+					soundSet = "pickUpSeaChest_SoundSet";
+					id = 796;
+				};
+				class pickUpItem
+				{
+					soundSet = "pickUpSeaChest_SoundSet";
+					id = 797;
+				};
+				class drop
+				{
+					soundset = "seachest_drop_SoundSet";
+					id = 898;
 				};
 			};
 		};
@@ -402,18 +442,12 @@ class CfgVehicles
 		{
 			class Attachments
 			{
-				name = "$STR_CfgVehicles_Fence_Att_Category_Attachments";
+				name = "$STR_EXPANSION_GUNRACK";
 				description = "";
 				attachmentSlots[] = {"Shoulder1","Shoulder2","Shoulder3","Shoulder4","Shoulder5","Shoulder6","Shoulder7","Shoulder8","Shoulder9","Shoulder10","Shoulder11","Shoulder12","Shoulder13","Shoulder14","Shoulder15","Shoulder16","Shoulder17","Shoulder18","Shoulder19","Shoulder20","Shoulder21","Shoulder22","Shoulder23","Shoulder24"};
-				icon = "combolock";
-				selection = "wall";
+				icon = "weaponwrap";
 			};
 		};
-	};
-	class ExpansionGunrackPlacing: ExpansionGunrack
-	{
-		scope = 2;
-		model = "\DayZExpansion\Objects\Basebuilding\Misc\gunrack\gunrack.p3d";
 	};
 	class ExpansionCone: Container_Base
 	{

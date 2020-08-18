@@ -69,7 +69,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 		return "ExpansionBarbedWireKit";
 	}
 
-	void DeferredInit()
+	override void DeferredInit()
 	{
 		m_AreaDamageTimer.Run( 1, this, "CreateDamageTrigger", NULL, false ); 
 	}

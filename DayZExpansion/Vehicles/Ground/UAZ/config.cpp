@@ -215,6 +215,7 @@ class CfgVehicles
 		vehicleClass = "Expansion_Car";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
+		defaultSkin = "Green";
 		fuelCapacity = 42;
 		fuelConsumption = 11;
 		class Crew: Crew

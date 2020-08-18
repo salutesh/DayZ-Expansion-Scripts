@@ -23,21 +23,21 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	protected string m_MarkerIcon;
 	protected int m_MarkerColor;
 	protected int m_MarkerAlpha;
-	protected ref Timer m_MarkerUpdateTimer;
 	
 	protected float m_OffsetX;
 	protected float m_OffsetY;
-	
-	protected bool m_IsTempMarker;
+
 	protected ref ExpansionVehicleMetaData m_Vehicle;
 	protected ref ExpansionCOTVehiclesMenu m_COTVehicleMenu;
+	
+	protected ref Timer m_MarkerUpdateTimer;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTVehiclesMapMarker Constructor
 	// ------------------------------------------------------------
 	void ExpansionCOTVehiclesMapMarker(Widget parent, MapWidget mapwidget, vector pos, int color, string icon, ExpansionVehicleMetaData vehicle, ExpansionCOTVehiclesMenu menu)
 	{
-		m_Root 				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map_marker.layout", parent);
+		m_Root 				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/COT/vehicles/Vehicles_Marker.layout", parent);
 
 		m_Name				= TextWidget.Cast( m_Root.FindAnyWidget("marker_name") );
 		m_Icon				= ImageWidget.Cast( m_Root.FindAnyWidget("marker_icon") );
@@ -53,19 +53,12 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 		
 		GetGame().ConfigGetText( "cfgVehicles " + m_Vehicle.m_ClassName + " displayName", m_MarkerName );
 		
-		m_Root.SetHandler(this);
+		if (m_MarkerIcon)
+			m_Icon.LoadImageFile(0, m_MarkerIcon);
 		
-		Init();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionCOTVehiclesMapMarker Init
-	// ------------------------------------------------------------
-	void Init()
-	{			
-		//! Update Timer
-		m_MarkerUpdateTimer = new Timer();
-		m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
+		RunUpdateTimer();
+		
+		m_Root.SetHandler(this);
 	}
 	
 	// ------------------------------------------------------------
@@ -73,7 +66,6 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ~ExpansionCOTVehiclesMapMarker()
 	{
-		m_MarkerUpdateTimer.Stop();
 		delete m_Root;
 	}
 	
@@ -82,8 +74,6 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void DeleteMarker()
 	{
-		m_MarkerUpdateTimer.Stop();
-		
 		m_Root.Unlink();
 	}
 	
@@ -96,9 +86,9 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ChangePositon
+	// Expansion SetPosition
 	// ------------------------------------------------------------
-	void ChangePositon(vector position)
+	void SetPosition(vector position)
 	{
 		m_MarkerPos = position;
 	}
@@ -130,23 +120,20 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion Update
 	// ------------------------------------------------------------
-	void Update( float timeslice )
-	{
-		if (m_MarkerIcon)
-			m_Icon.LoadImageFile(0, m_MarkerIcon);
+	void Update(float timeslice)
+	{		
+		m_Icon.SetColor(m_MarkerColor);
+		m_Name.SetColor(m_MarkerColor);
 		
-		if (m_MarkerColor)
-			m_Icon.SetColor(m_MarkerColor);
-			m_Name.SetColor(m_MarkerColor);
+		m_Name.SetText(m_MarkerName);
 		
-		if (m_MarkerName)
-			m_Name.SetText(m_MarkerName);
-		
-		if (m_MarkerPos)
-		{
-			vector mapPos = m_MapWidget.MapToScreen(m_MarkerPos);
-			m_Root.SetPos(mapPos[0], mapPos[1], true);
-		}
+		vector mapPos = m_MapWidget.MapToScreen( m_MarkerPos );
+
+		float x;
+		float y;
+		m_Root.GetParent().GetScreenPos( x, y );
+
+		m_Root.SetPos( mapPos[0] - x, mapPos[1] - y, true );
 	}
 	
 	// ------------------------------------------------------------
@@ -154,12 +141,12 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseEnter( Widget w, int x, int y )
 	{
-		if (m_MarkerButton && w == m_MarkerButton && !m_IsTempMarker)
+		if (m_MarkerButton && w == m_MarkerButton)
 		{
-			if (m_MarkerUpdateTimer)
-				m_MarkerUpdateTimer.Stop();
-
+			StopUpdateTimer();
+			
 			m_Icon.SetColor(ARGB(255,255,255,255));
+			m_Name.SetColor(ARGB(255,255,255,255));
 			return true;
 		}
 
@@ -171,15 +158,12 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseLeave( Widget w, Widget enterW, int x, int y )
 	{
-		int color = m_MarkerColor;
 		if (m_MarkerButton && w == m_MarkerButton)
 		{
-			if (m_MarkerUpdateTimer)
-			{
-				m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
-			}
-
-			m_Icon.SetColor(color);
+			RunUpdateTimer();
+			
+			m_Icon.SetColor(m_MarkerColor);
+			m_Name.SetColor(m_MarkerColor);
 			return true;
 		}
 
@@ -223,5 +207,32 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	void ShowMarker()
 	{
 		m_Root.Show( true );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion StopUpdateTimer
+	// ------------------------------------------------------------
+	void StopUpdateTimer()
+	{
+		if (m_MarkerUpdateTimer && !m_MarkerUpdateTimer.IsRunning())
+		{
+			m_MarkerUpdateTimer.Stop();
+			m_MarkerUpdateTimer = NULL;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RunUpdateTimer
+	// ------------------------------------------------------------
+	void RunUpdateTimer()
+	{
+		if (!m_MarkerUpdateTimer)
+		{
+			m_MarkerUpdateTimer = new Timer( CALL_CATEGORY_GUI );
+			if (!m_MarkerUpdateTimer.IsRunning())
+			{
+				m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
+			}
+		}
 	}
 }

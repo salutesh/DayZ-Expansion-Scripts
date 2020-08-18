@@ -18,12 +18,12 @@ class ExpansionGameMissionSelecterModule: JMRenderableModuleBase
 
 	override string GetTitle()
 	{
-		return "Mission Selecter";
+		return "[EX] Offline Mission";
 	}
 	
 	override string GetIconName()
 	{
-		return "MS";
+		return "M";
 	}
 
 	override bool ImageIsIcon()

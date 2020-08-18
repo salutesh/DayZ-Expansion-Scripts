@@ -47,12 +47,11 @@ class ExpansionActionCycleOpticsMode: ActionSingleUseBase
 				{
 					m_optic = ExpansionReflexMRSOptic.Cast( optic );
 				}
+				else { return false; }
 			}
+			else { return false; }
 		}
-		else
-		{
-			return false;
-		}
+		else { return false; }
 		
 		if ( m_optic && m_optic.HasEnergyManager() && m_optic.GetCompEM().CanWork() && item.FindAttachmentBySlotName("weaponOptics").IsKindOf("ExpansionReflexMRSOptic") ) //TODO review conditions for turning off
 		{

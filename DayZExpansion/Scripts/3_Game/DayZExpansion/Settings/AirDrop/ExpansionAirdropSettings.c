@@ -22,6 +22,10 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	ref array < ref ExpansionAirdropLootContainers > Containers;
 
+	bool ServerMarkerOnDropLocation;
+	bool Server3DMarkerOnDropLocation;
+	bool ShowAirdropTypeOnMarker;
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -32,17 +36,17 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAirdropSettings::HandleRPC - Start");
+		EXPrint("ExpansionAirdropSettings::OnRecieve - Start");
 		#endif
 
 		ExpansionAirdropSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionAirdropSettings::HandleRPC setting");
-			return;
+			Error("ExpansionAirdropSettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -52,8 +56,17 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		ExpansionSettings.SI_Airdrop.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAirdropSettings::HandleRPC - End");
+		EXPrint("ExpansionAirdropSettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionAirdropSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 	
 	// ------------------------------------------------------------
@@ -68,10 +81,8 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionAirdropSettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.AirDrop, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -121,6 +132,8 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		
 		if ( FileExist( EXPANSION_AIRDROP_SETTINGS ) )
 		{
+			Print("[ExpansionAirdropSettings] Loading settings");
+
 			JsonFileLoader<ExpansionAirdropSettings>.JsonLoadFile( EXPANSION_AIRDROP_SETTINGS, this );
 	
 			#ifdef EXPANSIONEXPRINT
@@ -142,25 +155,11 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAirdropSettings::Save - Start");
-		#endif
-		
-		if ( IsMissionHost() )
-		{
-			JsonFileLoader<ExpansionAirdropSettings>.JsonSaveFile( EXPANSION_AIRDROP_SETTINGS, this );
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionAirdropSettings::Save - Settings saved!");
-			#endif
+		Print("[ExpansionAirdropSettings] Saving settings");
 
-			return true;
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAirdropSettings::Save - End");
-		#endif
+		JsonFileLoader<ExpansionAirdropSettings>.JsonSaveFile( EXPANSION_AIRDROP_SETTINGS, this );
 
-		return false;
+		return true;
 	}
 	
 	// ------------------------------------------------------------
@@ -174,9 +173,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropSettings] Loading default settings");
-		#endif
+		Print("[ExpansionAirdropSettings] Loading default settings");
 
 		Height = 750;
 		Speed = 1500;
@@ -187,6 +184,10 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		DefaultMedical();
 		DefaultBaseBuilding();
 		DefaultMilitary();
+		
+		ServerMarkerOnDropLocation = true;
+		Server3DMarkerOnDropLocation = true;
+		ShowAirdropTypeOnMarker = true;
 	}
 
 	void DefaultRegular()
@@ -440,7 +441,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 			new ExpansionAirdropLootAttachments( "MetalWire", NULL , 0.2),
 
 			new ExpansionAirdropLootAttachments( "ExpansionHescoKit", NULL , 0.05),
-			new ExpansionAirdropLootAttachments( "EspansionBarbedWireKit", NULL , 0.1),
+			new ExpansionAirdropLootAttachments( "ExpansionBarbedWireKit", NULL , 0.1),
 			new ExpansionAirdropLootAttachments( "ExpansionCamoBoxKit", NULL , 0.18),
 			new ExpansionAirdropLootAttachments( "ExpansionGunrack", NULL , 0.05),
 

@@ -11,39 +11,29 @@
 */
 
 class ExpansionBookTabServerRules extends ExpansionBookTabBase
-{
-	protected Widget m_RulesMainPanel;
-	protected TextWidget m_ServerName;
-	protected WrapSpacerWidget m_RulesListContent;
-	
+{	
 	protected Widget m_RulesPagesPanel;
 	protected WrapSpacerWidget m_Book_Spacer_Left;
 	protected WrapSpacerWidget m_Book_Spacer_Right;
 	
-	protected Widget m_PageSwitchButtonsPanel;
+	protected ref array<ref ExpansionBookButtonWidget> m_ButtonWidgets;
 	
-	protected ref array<ref ExpansionBookTabRulesEntry> m_RulesEntrys;
-	protected ref ExpansionServerRulesSection m_CurrentSection;
-	protected ref ExpansionServerRulesPageSection m_CurrentPageSection;
-	protected ref array<ref ExpansionBookTabRulesPage> m_CurrentPages;
-	
-	static int m_CurrentPage = 0;
-	static int LastPageOpened = 1;
-	static const int NumberOfPages = 2;
-	static const int NumberOfPagesOnOnePage = 1;
+	protected ref ExpansionBookRuleSectionWidget m_CurrentSection;
 	
 	// ------------------------------------------------------------
 	// ExpansionBookTabServerRules Contructor
 	// ------------------------------------------------------------
 	void ExpansionBookTabServerRules()
 	{
-		SetButtonIconPath( "DayZExpansion/GUI/icons/hud/info_64x64.edds" );
+		SetButtonIconPath( ExpansionIcons.GetPath("Questionmark") );
 		SetButtonText( "SERVER RULES" );
-		SetButtonColor( ARGB( 255, 26, 188, 156 ) );
+		SetButtonColor( ARGB( 255, 155, 89, 182 ) );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_serverrules.layout" );
 		
-		m_RulesEntrys = new array<ref ExpansionBookTabRulesEntry>;
-		m_CurrentPages = new array<ref ExpansionBookTabRulesPage>;
+		if ( !m_ButtonWidgets )
+			m_ButtonWidgets = new array<ref ExpansionBookButtonWidget>;
+		else
+			m_ButtonWidgets.Clear();
 	}
 	
 	// ------------------------------------------------------------
@@ -60,101 +50,79 @@ class ExpansionBookTabServerRules extends ExpansionBookTabBase
 	//Layout root var is m_RootLayout
 	override void OnCreatedLayout()
 	{
-		m_RulesMainPanel = Widget.Cast( m_RootLayout.FindAnyWidget( "book_rules_main_tab" ) );
-		m_ServerName = TextWidget.Cast( m_RootLayout.FindAnyWidget( "rules_main_server_name" ) );
-		m_RulesListContent = WrapSpacerWidget.Cast( m_RootLayout.FindAnyWidget( "rules_main_rules_list_content" ) );
-		
 		m_RulesPagesPanel = Widget.Cast( m_RootLayout.FindAnyWidget( "book_rules_tab" ) );
 		m_Book_Spacer_Left = WrapSpacerWidget.Cast( m_RootLayout.FindAnyWidget( "rules_content_left" ) );
 		m_Book_Spacer_Right = WrapSpacerWidget.Cast( m_RootLayout.FindAnyWidget( "rules_content_right" ) );
 		
-		m_PageSwitchButtonsPanel = Widget.Cast( m_RootLayout.FindAnyWidget( "book_page_frame" ) ); 
-		
-		Init();
+		CreateRules();
 	}
 	
 	// ------------------------------------------------------------
-	// Init
+	// CreateRules
 	// ------------------------------------------------------------
-	void Init()
-	{		
-		if ( GetExpansionSettings().GetBook().ServerRules.RuleSections.Count() > 0 )
+	private void CreateRules()
+	{
+		for ( int i = 0; i < GetExpansionSettings().GetBook().RuleCategorys.Count(); i++ )
 		{
-			//! Create rule section entrys from settings
-			for (int i = 0; i < GetExpansionSettings().GetBook().ServerRules.RuleSections.Count(); ++i)
+			ref ExpansionRulesCategory category = GetExpansionSettings().GetBook().RuleCategorys[i];
+			Widget categoryWidget = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/book/rules/expansion_book_rule_section.layout", m_Book_Spacer_Left ) );
+			TextWidget categoryLable = TextWidget.Cast( categoryWidget.FindAnyWidget( "expansion_rule_section_text" ) );
+			categoryLable.SetText( category.DisplayName );
+			GridSpacerWidget categoryGrid = GridSpacerWidget.Cast( categoryWidget.FindAnyWidget( "expansion_options_category_content" ) );
+			
+			for ( int j = 0; j < category.RuleButtons.Count(); j++ )
 			{
-				if (m_RulesEntrys && m_RulesEntrys.Count() > 0)
-					m_RulesEntrys.Clear();
+				ExpansionBookButtonWidget button = new ExpansionBookButtonWidget( categoryGrid, category.RuleButtons[j], this );
 				
-				ExpansionBookTabRulesEntry entry = new ExpansionBookTabRulesEntry(m_RulesListContent, this, GetExpansionSettings().GetBook().ServerRules.RuleSections[i]);
-				m_RulesEntrys.Insert( entry );
+				if ( button )
+				{
+					m_ButtonWidgets.Insert( button );
+				}
 			}
 		}
-		
-		if ( GetExpansionSettings().GetBook().ServerInfo.ServerName )
-		{
-			m_ServerName.SetText( GetExpansionSettings().GetBook().ServerInfo.ServerName );
-		}
 	}
-		
+	
 	// ------------------------------------------------------------
 	// SetRuleSection
-	// Events called when a rule section entry is clicked
-	// ------------------------------------------------------------
-	void SetRuleSection(ExpansionServerRulesSection section)
+	// ------------------------------------------------------------	
+	void SetRuleSection(ref ExpansionRuleSection section)
 	{
-		ShowRuleSection();
-		
-		m_CurrentSection = section;
-		m_CurrentPageSection = m_CurrentSection.GetPageSection( 0 );
-		
-		Print( "ExpansionBookTabServerRules::SetRuleSection - m_CurrentPageSection: " + m_CurrentPageSection.ToString() );
-		
-		Refresh();
-		
-		if ( m_CurrentSection.NumberOfPages() > 2 )
-			m_PageSwitchButtonsPanel.Show( true );
-	}
-	
-	// ------------------------------------------------------------
-	// Refresh
-	// ------------------------------------------------------------
-	void Refresh()
-	{
-		if (m_CurrentPages.Count() > 0)
-			m_CurrentPages.Clear();
-		
-		if (m_CurrentPageSection.Left != -1)
+		if ( !section ) return;
+
+		if ( m_CurrentSection )
 		{
-			ExpansionServerRulesPage left_page =  m_CurrentSection.GetPage( m_CurrentPageSection.Left );
-			ExpansionBookTabRulesPage left = new ExpansionBookTabRulesPage(m_Book_Spacer_Left, left_page.HeadText, left_page.BodyText );
-			m_CurrentPages.Insert(left);
+			delete m_CurrentSection;
+			m_CurrentSection = null;
 		}
 		
-		if (m_CurrentPageSection.Right != -1)
+		ExpansionBookRuleSectionWidget sectionWidget = new ExpansionBookRuleSectionWidget(m_Book_Spacer_Right, section, this);
+		m_CurrentSection = sectionWidget;
+	}
+	
+	// ------------------------------------------------------------
+	// OnTabClose
+	// ------------------------------------------------------------	
+	override void OnTabClose()
+	{			
+		if ( GetExpansionSettings().GetBook().ShowTooltipOnRuleButton )
+			HideTooltips();
+		
+		super.OnTabClose();
+	}
+	
+	// ------------------------------------------------------------
+	// HideTooltips
+	// ------------------------------------------------------------	
+	void HideTooltips()
+	{
+		if (m_ButtonWidgets && m_ButtonWidgets.Count() > 0)
 		{
-			ExpansionServerRulesPage right_page =  m_CurrentSection.GetPage( m_CurrentPageSection.Right );
-			ExpansionBookTabRulesPage right = new ExpansionBookTabRulesPage(m_Book_Spacer_Right, right_page.HeadText, right_page.BodyText );
-			m_CurrentPages.Insert(right);
+			for (int i = 0; i < m_ButtonWidgets.Count(); i++)
+			{
+				if ( m_ButtonWidgets[i].GetTooltip().IsVisible() )
+					m_ButtonWidgets[i].GetTooltip().HideTooltip();
+			}
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// ShowRuleSection
-	// ------------------------------------------------------------
-	void ShowRuleSection()
-	{
-		m_RulesMainPanel.Show( false );
-		m_RulesPagesPanel.Show( true );
-	}
-	
-	// ------------------------------------------------------------
-	// ShowMain
-	// ------------------------------------------------------------
-	void ShowMain()
-	{
-		m_RulesMainPanel.Show( true );
-		m_RulesPagesPanel.Show( false );
 	}
 	
 	// ------------------------------------------------------------

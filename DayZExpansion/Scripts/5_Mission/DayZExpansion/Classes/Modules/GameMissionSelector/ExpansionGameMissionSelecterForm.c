@@ -30,7 +30,8 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 
 		m_SelectedMission = UIActionManager.CreateEditableText( m_ActionsWrapper, "Mission: ", this, "Type_SelectedMission" );
 
-		UIActionManager.CreateButton( m_ActionsWrapper, "Load Mission", this, "LoadMission" );
+		if ( IsMissionOffline() )
+			UIActionManager.CreateButton( m_ActionsWrapper, "Load Mission", this, "LoadMission" );
 
 		UpdateList();
 	}
@@ -47,7 +48,6 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 	{
 		if ( eid != UIEvent.CHANGE )
 			return;
-
 	}
 
 	void UpdateList()
@@ -122,33 +122,6 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 	
 	void LoadMission( UIEvent eid, ref UIActionBase action ) 
 	{
-		//RestApi curlCore = GetRestApi();
-		//if ( curlCore == NULL )
-		//	curlCore = CreateRestApi();
-//
-		//curlCore.EnableDebug( true );
-		//RestContext curlCtx = curlCore.GetRestContext("https://la-quarantaine.fr/uploads/affiches/");
-		//if ( curlCtx )
-		//{
-		//	curlCtx.SetHeader( "text/plain" );
-//
-		// Print( "EREST_EMPTY" + ERESTResultState.EREST_EMPTY ); 
-		// Print( "EREST_PENDING" + ERESTResultState.EREST_PENDING ); 
-		// Print( "EREST_FEEDING" + ERESTResultState.EREST_FEEDING ); 
-		// Print( "EREST_SUCCESS" + ERESTResultState.EREST_SUCCESS ); 
-		// Print( "EREST_PROCESSED" + ERESTResultState.EREST_PROCESSED ); 
-		// Print( "EREST_ERROR" + ERESTResultState.EREST_ERROR ); 
-		// Print( "EREST_ERROR_CLIENTERROR" + ERESTResultState.EREST_ERROR_CLIENTERROR ); 
-		// Print( "EREST_ERROR_SERVERERROR" + ERESTResultState.EREST_ERROR_SERVERERROR ); 
-		// Print( "EREST_ERROR_APPERROR" + ERESTResultState.EREST_ERROR_APPERROR ); 
-		// Print( "EREST_ERROR_TIMEOUT" + ERESTResultState.EREST_ERROR_TIMEOUT ); 
-		// Print( "EREST_ERROR_NOTIMPLEMENTED" + ERESTResultState.EREST_ERROR_NOTIMPLEMENTED ); 
-		// Print( "EREST_ERROR_UNKNOWN" + ERESTResultState.EREST_ERROR_UNKNOWN ); 
-//
-		//	ExpansionTestCallback callback = new ExpansionTestCallback;
-		//	Print( curlCtx.FILE( callback, "test.txt", "$profile:test.txt" ) );
-		//}
-
 		string mission_name = m_SelectedMission.GetText();
 		if ( mission_name != "" )
 		{
@@ -157,54 +130,4 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 			GetGame().PlayMission( mission_path );
 		}
 	}
-}
-
-class ExpansionTestCallback: RestCallback
-{
-	/**
-	\brief Called in case request failed (ERESTResultState) - Note! May be called multiple times in case of (RetryCount > 1)
-	*/
-	override void OnError( int errorCode )
-	{
-		// override this with your implementation
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint(" !!! OnError() ");
-		#endif
-	}
-
-	/**
-	\brief Called in case request timed out or handled improperly (no error, no success, no data)
-	*/
-	override void OnTimeout()
-	{
-		// override this with your implementation
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint(" !!! OnTimeout() ");
-		#endif
-	}
-
-	/**
-	\brief Called when data arrived and/ or response processed successfully
-	*/
-	override void OnSuccess( string data, int dataSize )
-	{
-		// override this with your implementation
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint(" !!! OnSuccess() size=" + dataSize );
-		#endif
-		
-		if( dataSize > 0 )
-		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint(data);
-			#endif
-		}
-	}
-
-	override void OnFileCreated( string fileName, int dataSize )
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint(" !!! OnFileCreated() file=" + fileName + " size=" + dataSize );
-		#endif
-	}
-}
+};

@@ -10,11 +10,14 @@ modded class DayZPlayerImplementSwimming
 
 	override bool HandleSwimming( int pCurrentCommandID, HumanCommandMove pCMove, HumanMovementState pState )
 	{
+		return super.HandleSwimming( pCurrentCommandID, pCMove, pState );
+/*
 		if ( m_WasCalledCurrentCommand )
 			return m_LastReturn;
 
 		m_LastReturn = super.HandleSwimming( pCurrentCommandID, pCMove, pState );
 		m_WasCalledCurrentCommand = true;
 		return m_LastReturn;
+*/
 	}
 }

@@ -1,3 +1,4 @@
+/*
 class ExpansionCarDoorFix: CarDoor
 {
 	private bool m_EEOnAfterLoadCalled = false;
@@ -29,4 +30,5 @@ class ExpansionCarDoorFix: CarDoor
 
 		m_EEOnAfterLoadCalled = true;
 	}
-};
+}
+*/

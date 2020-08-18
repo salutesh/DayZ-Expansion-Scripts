@@ -12,12 +12,15 @@
 
 class ExpansionCOTTerritoriesContainerListEntry extends ScriptedWidgetEventHandler
 {
-	protected Widget m_Root;
-	protected TextWidget m_ObjectName;
-	protected ButtonWidget m_EditButton;
+	private Widget m_Root;
+	private TextWidget m_ObjectName;
+	private ButtonWidget m_EditButton;
 	
-	protected ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
-	protected EntityAI m_Object;
+	private ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
+	private EntityAI m_Object;
+	
+	private static int COLOR_NOFOCUS = ARGB(255,255,255,255);
+	private static int COLOR_FOCUS = ARGB(255,0,0,0);
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesContainerListEntry Constructor
@@ -99,7 +102,7 @@ class ExpansionCOTTerritoriesContainerListEntry extends ScriptedWidgetEventHandl
 	{
 		if ( m_EditButton && w == m_EditButton )
 		{
-			m_ObjectName.SetColor( ARGB( 255, 0, 0, 0 ) );
+			m_ObjectName.SetColor(COLOR_FOCUS);
 			return true;
 		}
 
@@ -113,7 +116,7 @@ class ExpansionCOTTerritoriesContainerListEntry extends ScriptedWidgetEventHandl
 	{
 		if ( m_EditButton && w == m_EditButton )
 		{
-			m_ObjectName.SetColor( ARGB( 255, 255, 255, 255 ) );
+			m_ObjectName.SetColor(COLOR_NOFOCUS);
 			return true;
 		}
 

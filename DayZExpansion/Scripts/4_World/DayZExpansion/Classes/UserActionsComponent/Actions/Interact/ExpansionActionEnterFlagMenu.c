@@ -39,9 +39,12 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
-		return "Change Flag";
+		return "#STR_EXPANSION_BB_FLAG_CHANGE";
 	}
 	
+	// -----------------------------------------------------------
+	// Override IsInstant
+	// -----------------------------------------------------------
 	override bool IsInstant()
 	{
 		return true;
@@ -53,15 +56,33 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		ExpansionFlagBase flag = ExpansionFlagBase.Cast( target.GetObject() );
-		return (flag && !(flag.IsTerritoryFlag()));
+
+		// Is this a flag ?
+		if ( flag )
+		{
+			// Is he in a territory ?
+			if ( player.IsInTerritory() )
+				return player.IsInsideOwnTerritory(); // show the prompt only if it's his territory
+
+			// Even if a user can place a flag, he can't create a territory if the limit is reached
+			return true; // Show the prompt
+		}
+		
+		return false; // Nope
 	}
 	
+	// -----------------------------------------------------------
+	// Override OnStartClient
+	// -----------------------------------------------------------
 	override void OnStartClient(ActionData action_data)
 	{
 		if (GetGame().GetUIManager() && GetGame().GetUIManager().IsMenuOpen(MENU_EXPANSION_FLAG_MENU))
 			GetGame().GetUIManager().FindMenu(MENU_EXPANSION_FLAG_MENU).Close();
 	}
-
+	
+	// -----------------------------------------------------------
+	// Override OnStartServer
+	// -----------------------------------------------------------
 	override void OnStartServer(ActionData action_data)
 	{
 		if (!(action_data.m_Player) || !(action_data.m_Player.GetIdentity()) || !(action_data.m_Target) || !(action_data.m_Target.GetObject())) return;

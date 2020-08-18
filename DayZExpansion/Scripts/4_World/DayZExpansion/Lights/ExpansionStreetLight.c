@@ -10,7 +10,7 @@
  *
 */
 
-/**@class		ExpansionSpotLight
+/**@class		ExpansionStreetLight
  * @brief		
  **/
 class ExpansionStreetLight extends SpotLightBase

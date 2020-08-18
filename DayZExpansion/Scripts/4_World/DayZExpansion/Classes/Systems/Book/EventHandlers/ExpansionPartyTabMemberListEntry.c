@@ -22,13 +22,13 @@ class ExpansionPartyTabMemberListEntry extends ScriptedWidgetEventHandler
 	protected ImageWidget m_DemoteButtonIcon;
 	protected ImageWidget m_MemberStateIcon;
 	
-	protected ref ExpansionPartySaveFormatPlayer m_Player;
+	protected ref ExpansionPartyPlayerData m_Player;
 	protected ref ExpansionPartyModule m_PartyModule;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartyTabMemberListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionPartyTabMemberListEntry(Widget parent, ref ExpansionPartySaveFormatPlayer player)
+	void ExpansionPartyTabMemberListEntry(Widget parent, ref ExpansionPartyPlayerData player)
 	{
 		m_Root					= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/group/expansion_group_menu_member_list_entry.layout", parent ) );
 		m_MemberName			= TextWidget.Cast(m_Root.FindAnyWidget("member_name"));
@@ -107,7 +107,7 @@ class ExpansionPartyTabMemberListEntry extends ScriptedWidgetEventHandler
 				m_DemoteButton.Show( false );
 			}
 			
-			ref ExpansionPartySaveFormatPlayer myPlayer = m_PartyModule.GetParty().GetPlayer( player.GetIdentityUID() );
+			ref ExpansionPartyPlayerData myPlayer = m_PartyModule.GetParty().GetPlayer( player.GetIdentityUID() );
 			if (!myPlayer) return;
 			
 			m_KickButton.Show( myPlayer.Promoted || isOwner );

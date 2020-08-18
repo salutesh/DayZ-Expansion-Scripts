@@ -9,13 +9,10 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
-//! Note: This is unofficial implementation of helicopter, please contribute if you found a bug or a way to make this better
 	
 /**@class		ExpansionHelicopterScript
  * @brief		This class handle helicopter movement and physics
  **/
-
 #ifdef EXPANSION_HELI_TEMP
 class ExpansionHelicopterScript extends CarScript
 #else
@@ -96,6 +93,10 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	private float m_HitFraction;
 
 	private vector m_WindSpeedSync;
+	private bool m_EnableWind;
+	private Object m_WindDebugObject;
+
+	private bool m_EnableTailRotorDamage;
 
 	// ------------------------------------------------------------
 	//! Particles
@@ -162,24 +163,6 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		EXPrint("ExpansionHelicopterScript::Destructor - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	override void DeferredInit()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHelicopterScript::DeferredInit - Start");
-		#endif
-
-		DisablePhysics( this );
-
-		super.DeferredInit();
-
-		EnablePhysics( this );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHelicopterScript::DeferredInit - End");
-		#endif
-	}
 
 	// ------------------------------------------------------------
 	override void OnAfterLoadConstantVariables()
@@ -196,6 +179,14 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		{
 			m_EngineStartDuration = 1.0 / m_EngineStartDuration;
 		}
+	}
+
+	override void OnSettingsUpdated()
+	{
+		super.OnSettingsUpdated();
+
+		m_EnableWind = GetExpansionSettings().GetVehicle().EnableWindAerodynamics;
+		m_EnableTailRotorDamage = GetExpansionSettings().GetVehicle().EnableTailRotorDamage;
 	}
 
 	// ------------------------------------------------------------
@@ -222,7 +213,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	}
 
 	// ------------------------------------------------------------
-	void SwitchGear()
+	override void SwitchGear()
 	{
 		Error( "Not implemented!" );
 	}
@@ -306,15 +297,45 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		if ( m_IsPhysicsHost )
 		{
-			if ( IsMissionClient() )
+			if ( IsMissionClient() && m_EnableWind )
 			{
-				m_WindSpeedSync = "0 0 0"; // GetGame().GetWeather().GetWind() * ( 1.0 / 3.6 );
+				m_WindSpeedSync = GetGame().GetWeather().GetWind();
 
-				float length = m_WindSpeedSync.Normalize();
-				//if ( length > 10 )
-				//	length = 10.0;
+				if ( m_Hit )
+				{
 
-				m_WindSpeedSync = m_WindSpeedSync * length;
+					float distance = 0;
+
+					if ( IsSurfaceWater( m_HitPosition ) )
+					{
+						distance = GetPosition()[1] - GetGame().SurfaceGetSeaLevel();
+					} else
+					{
+						distance = GetPosition()[1] - m_HitPosition[1];
+					}
+
+					distance /= ( ( m_BoundingRadius * 1.5 ) + 10.0 );
+					m_WindSpeedSync = m_WindSpeedSync * distance;
+				} else
+				{
+					//float rnd = fad.m_Player.GetRandomGeneratorSyncManager().GetRandom01(RandomGeneratorSyncUsage.RGSGeneric);
+
+					//m_HasDriver
+
+					// turbulence?
+				}
+
+#ifdef EXPANSION_HELI_WIND_DEBUG
+				if ( !m_WindDebugObject )
+				{
+					m_WindDebugObject = GetGame().CreateObject( "ExpansionDebugBox_Red", "0 0 0", true );
+					AddChild( GetGame().CreateObject( "ExpansionDebugBox", "0 0 0", true ), -1 );
+					AddChild( m_WindDebugObject, -1 );
+				}
+#endif
+			} else
+			{
+				m_WindSpeedSync = "0 0 0";
 			}
 		}
 	}
@@ -343,7 +364,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		vector start = GetPosition();
 		vector end = GetPosition() - Vector( 0, modelSize, 0 );
 
-		PhxInteractionLayers collisionLayerMask = PhxInteractionLayers.BUILDING|PhxInteractionLayers.DOOR|PhxInteractionLayers.VEHICLE|PhxInteractionLayers.ROADWAY|PhxInteractionLayers.TERRAIN|PhxInteractionLayers.ITEM_SMALL|PhxInteractionLayers.ITEM_LARGE|PhxInteractionLayers.FENCE;
+		PhxInteractionLayers collisionLayerMask = PhxInteractionLayers.BUILDING|PhxInteractionLayers.DOOR|PhxInteractionLayers.ROADWAY|PhxInteractionLayers.TERRAIN|PhxInteractionLayers.ITEM_SMALL|PhxInteractionLayers.ITEM_LARGE|PhxInteractionLayers.FENCE;
 		
 		m_Hit = DayZPhysics.SphereCastBullet( start, end, 5.0, collisionLayerMask, this, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction );
 		m_HitDetermined = true;
@@ -508,11 +529,40 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	override void EOnContact( IEntity other, Contact extra ) 
 	{
+		if ( m_IsBeingTowed )
+			return;
+
 		if ( IsMissionHost() )
 		{
-			if ( (extra.Impulse > m_BodyMass * 11 * 2) && GetOrientation()[1] > 8 && GetOrientation()[1] < 352 && GetOrientation()[2] > 8 && GetOrientation()[2] < 352  ) //hack fix until someone smarter than me fixes helis randomly blowing up while parked. Sorry but this is needed!  
+			#ifdef EXPANSION_HELI_EXPLOSION_DISABLE
+			//hack fix until someone smarter than me fixes helis randomly blowing up while parked. Sorry but this is needed! - not a banana
+			if ( !(GetOrientation()[1] > 8 && GetOrientation()[1] < 352 && GetOrientation()[2] > 8 && GetOrientation()[2] < 352) ) 
+				return;
+			#else // - well here is jacob now going to implement a proper fix.
+			#endif
+			
+			vector transform[4];
+			GetTransform( transform );
+			vector upDir = vector.Up;
+			#ifdef EXPANSION_HELI_USE_CONTACT_NORMAL
+			upDir = extra.Normal;
+			#ifdef EXPANSION_HELI_USE_CONTACT_NORMAL_TEST
+			upDir = vector.Lerp( upDir, vector.Up, ( 1 - vector.Dot( upDir, vector.Up ) ) * 0.4 );
+			#endif
+			#endif
+			float dot = 1 - vector.Dot( transform[1], upDir );
+			const float maxSpeedForContact = 11.0; // ~40km/h
+			float impulseRequired = (maxSpeedForContact * m_BodyMass) / ((dot * dot) + 0.1); 
+			if ( extra.Impulse > impulseRequired )
 			{
-				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
+				//Print( "Explode called" )
+				//Print( upDir );
+				//Print( transform[1] );
+				//Print( extra.Impulse );
+				//Print( impulseRequired );
+				//Print( dot );
+				//Print( extra.Normal );
+				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );  //! Maybe find a better solution for this?!
 			}
 		}
 	}
@@ -571,19 +621,20 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		}
 
 		ExpansionWreck wreck;
-		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_OBJECT_SWAP ) ) )
+		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
 
 			wreck.CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
+			wreck.SetDynamicPhysicsLifeTime( 60 );
 			wreck.EnableDynamicCCD( true );
 
 			wreck.SetOffset( GetWreckOffset() );
 			wreck.SetAltitude( GetWreckAltitude() );
 
 			wreck.SetHealth( 0.0 );
-			dBodySetMass( wreck, dBodyGetMass( this ) );
+			dBodySetMass( wreck, m_BodyMass );
 
 			vector inertiaM[3];
 			dBodyGetInvInertiaTensorWorld( this, inertiaM );
@@ -593,7 +644,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			SetVelocity( wreck, m_LinearVelocity );
 			dBodySetAngularVelocity( wreck, m_AngularVelocity );
 
-			dBodyApplyForce( wreck, m_LinearVelocity * m_BodyMass );
+			dBodyApplyForce( wreck, (m_LastLinearVelocity - m_LinearVelocity) * m_BodyMass );
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
 
@@ -717,48 +768,37 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		ctx.Read( m_WindSpeedSync );
 
-		float length = m_WindSpeedSync.Normalize();
-		//if ( length > 10 )
-		//	length = 10.0;
-
-		m_WindSpeedSync = m_WindSpeedSync * length;
+		if ( !m_EnableWind )
+			m_WindSpeedSync = "0 0 0";
 	}
 	
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
-		if ( !dBodyIsActive( this ) )
-			return;
-
 		bool isAboveWater;
 		float buoyancyForce;
 
 		if ( m_Exploded )
 		{
-			if ( dBodyIsActive( this ) )
+			// if the heli isn't over water no force will be applied and the game will clean up physics for us
+			if ( m_WaterVolume < m_TotalVolume )
 			{
-				// if the heli isn't over water no force will be applied and the game will clean up physics for us
-				if ( m_WaterVolume < m_TotalVolume )
+				buoyancyForce = g_Game.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_BodyMass, 2.0, m_LinearVelocity, isAboveWater );
+
+				if ( !isAboveWater )
 				{
-					buoyancyForce = g_Game.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_BodyMass, 2.0, m_LinearVelocity, isAboveWater );
+					// slowly sink helicopter
+					m_WaterVolume += 0.05 * pDt * m_WaterVolume;
 
-					if ( !isAboveWater )
-					{
-						// slowly sink helicopter
-						m_WaterVolume += 0.05 * pDt * m_WaterVolume;
-
-						force += Vector( 0, buoyancyForce * ( m_TotalVolume - m_WaterVolume ) / m_TotalVolume, 0 );
-					}
+					force += Vector( 0, buoyancyForce * ( m_TotalVolume - m_WaterVolume ) / m_TotalVolume, 0 );
 				}
 			}
 
 			dBodySetDamping( this, 0.0, 0.0 );
 
 			return;
-		}
-
-		if ( EngineIsOn() )
-		{				
+		} else if ( EngineIsOn() )
+		{
 			if ( IsMissionHost() && m_NoiseParams )
 			{
 				GetGame().GetNoiseSystem().AddNoise( this, m_NoiseParams );
@@ -817,11 +857,26 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			}
 		} else
 		{
-			m_MainRotorSpeedTarget = 0;
-			m_BackRotorSpeedTarget = 0;
+			if ( m_HasDriver )
+			{
+				m_MainRotorSpeedTarget = 0;
+				m_BackRotorSpeedTarget = 0;
 
-			m_CyclicForwardTarget = 0;
-			m_CyclicSideTarget = 0;
+				m_CyclicForwardTarget *= 0.25;
+				m_CyclicSideTarget *= 0.25;
+			} else
+			{
+				m_MainRotorSpeedTarget = 0;
+				m_BackRotorSpeedTarget = 0;
+
+				m_CyclicForwardTarget = 0;
+				m_CyclicSideTarget = 0;
+
+				// gravity can still take over if it's in the sky, or somehow dayz wheels activate randomly
+				// this should still be fine though.
+				if ( m_LinearVelocity.Length() < pDt && m_LastLinearVelocity.Length() < pDt )
+					return;
+			}
 		}
 
 		float change;
@@ -934,13 +989,14 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 			// tail
 			{
-				float tailRotorMalfunction = GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
-				if (GetExpansionSettings().GetGeneral().DisableDamagedHeliSpin) 
-					tailRotorMalfunction = 0;
+				float tailRotorMalfunction = 0.0;
+				if ( m_EnableTailRotorDamage ) 
+					tailRotorMalfunction = GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
+
 				float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;
 				float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * ( m_RotorSpeed + 0.1 );
 
-				const float maxSpeedTailEffect = 1.0 / 80.0; // at ~300km/h, tail rotor has no effect
+				const float maxSpeedTailEffect = 1.0 / 55.0; // at ~200km/h, tail rotor has no effect
 				float scaledSpeedFactor = 1.0 - Math.Min( Math.AbsFloat( m_LinearVelocityMS[2] * maxSpeedTailEffect ), 1.0 );
 
 				float bankForce = Math.Asin( m_Bank ) * m_BankForceCoef * m_TailRotateFactor;
@@ -951,23 +1007,48 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				// apply torque to change the heading of the heli
 				torque[1] = torque[1] - ( m_BoundingRadius * tailForce );
 
-				// apply a little bit of torque on the side of the heli
+				// apply a little bit of torque on the side of the heli to simulate some roll
 				torque[2] = torque[2] - ( m_BoundingRadius * 0.01 * tailForce );
+			}
+
+			// rotate to the direction of the speed
+			{
+				float heliSpeedY = m_LinearVelocityMS[1] * ( m_LinearVelocityMS[0] * 0.1 );
+
+				float rotateX = m_TailRotateFactor * ( ( m_LinearVelocityMS[0] * -0.500 ) + ( MathHelper.SquareSign( m_LinearVelocityMS[0] ) * -0.010 ) ) * m_BodyMass;
+				float rotateY = m_TailRotateFactor * ( ( heliSpeedY * -0.005 ) + ( MathHelper.SquareSign( heliSpeedY ) * -0.0003 ) ) * m_BodyMass;
+
+				vector heliRotateDir = Vector( 0, 0, -m_BoundingRadius ) * Vector( rotateX, rotateY, 0 );
+
+				torque[0] = torque[0] + heliRotateDir[0];
+				torque[1] = torque[1] + heliRotateDir[1];
+				torque[2] = torque[2] + heliRotateDir[2];
 			}
 
 			// friction
 			{
 				vector friction;
 
-				vector windSpeed = m_LinearVelocityMS;
-				// windSpeed += m_WindSpeedSync.InvMultiply3( m_Transform.GetBasis().data );
+				vector frictionSpeed = m_LinearVelocityMS;
+				#ifdef EXPANSION_HELI_WIND
+				vector windSpeed = m_WindSpeedSync.InvMultiply3( m_Transform.GetBasis().data );
+				#else
+				vector windSpeed = "0 0 0";
+				#endif
+
+				if ( m_WindDebugObject )
+				{
+					m_WindDebugObject.SetOrigin( windSpeed );
+				}
+
+				frictionSpeed += windSpeed;
 
 				// if the helicopter is turned on then more force is applied to create psuedo-friction
 				float stabilizeXY = 0.4 + ( m_RotorSpeed * m_RotorSpeed * 0.6 );
 
-				friction[0] = MathHelper.SquareSign( windSpeed[0] ) * 0.4 * m_BodyMass * stabilizeXY;
-				friction[1] = MathHelper.SquareSign( windSpeed[1] ) * 0.001 * m_BodyMass * stabilizeXY;
-				friction[2] = MathHelper.SquareSign( windSpeed[2] ) * 0.001 * m_BodyMass;
+				friction[0] = MathHelper.SquareSign( frictionSpeed[0] ) * 0.4 * m_BodyMass * stabilizeXY;
+				friction[1] = MathHelper.SquareSign( frictionSpeed[1] ) * 0.001 * m_BodyMass * stabilizeXY;
+				friction[2] = MathHelper.SquareSign( frictionSpeed[2] ) * 0.001 * m_BodyMass;
 
 				force -= friction * m_BodyFrictionCoef;
 			}
@@ -1090,15 +1171,13 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		super.OnEngineStart();
 
+		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
+		dBodyDynamic( this, true );
+
 		m_RotorSpeedTarget = 1;
 
 		m_AutoHoverAltitude = GetPosition()[1];
 		m_AutoHoverSpeed = m_LinearVelocityMS;
-
-		if ( IsMissionHost() )
-		{
-			//! EnablePhysics( this );
-		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::OnEngineStart - End");
@@ -1156,7 +1235,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
 	{
-		return true;		
+		return true;
 	}
 
 	// ------------------------------------------------------------
@@ -1181,7 +1260,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
-		return true;
+		return dBodyIsActive( this ) && dBodyIsDynamic( this );
 	}
 
 	// ------------------------------------------------------------
@@ -1264,5 +1343,54 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	float GetAutoHoverTargetHeight()
 	{
 		return m_AutoHoverAltitude;
+	}
+
+	override vector GetTowCenterPosition( CarScript other )
+	{
+		vector minMax[2];
+		GetCollisionBox( minMax );
+		vector pos = Vector( 0.0, minMax[0][1] - GetTowLength() - GetTowExtents()[1], 0.0 );
+		other.GetCollisionBox( minMax );
+		return pos + Vector( 0.0, -minMax[1][1], 0.0 );
+	}
+
+	override bool IsBeingTowed()
+	{
+		return m_IsBeingTowed;
+	}
+
+	override bool IsTowing()
+	{
+		return m_IsTowing;
+	}
+	
+	override vector GetTowPosition()
+	{
+		vector minMax[2];
+		GetCollisionBox( minMax );
+
+		return ModelToWorld( Vector( 0.0, minMax[0][1] - GetTowLength(), 0.0 ) );
+	}
+
+	override vector GetTowDirection()
+	{
+		vector transform[4];
+		GetTransform( transform );
+		return -transform[1];
+	}
+
+	override vector GetTowExtents()
+	{
+		return { 2.0, 2.0, 2.0 };
+	}
+
+	override float GetTowLength()
+	{
+		return 5.0;
+	}
+
+	override bool CanConnectTow( CarScript other )
+	{
+		return !other.IsTowing();
 	}
 }

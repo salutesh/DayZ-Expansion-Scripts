@@ -182,9 +182,23 @@ class ExpansionMh6: ExpansionHelicopterScript
 	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
-		return 20;
+		return 10;
+	}
+
+	// ------------------------------------------------------------
+	override bool CanObjectAttach( Object obj )
+	{
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return false;
 	}
 	
+	// ------------------------------------------------------------
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
 		string attType = attachment.GetType();
@@ -198,6 +212,7 @@ class ExpansionMh6: ExpansionHelicopterScript
 		return super.CanReleaseAttachment( attachment );
 	}
 	
+	// ------------------------------------------------------------
 	override float OnSound( CarSoundCtrl ctrl, float oldValue )
 	{
 		switch ( ctrl )

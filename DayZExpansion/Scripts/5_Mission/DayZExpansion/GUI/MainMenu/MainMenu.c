@@ -12,33 +12,23 @@
 
 modded class MainMenu
 {
-	protected ref MainMenuExpansionNewsfeed		m_ExpansionNewsfeed;
-	protected Widget							m_SettingsButtonPanel;
-	protected ImageWidget 						m_Logo;
-	protected ImageWidget 						m_SettingsIcon;
-	protected ImageWidget 						m_ExitIcon;
-	protected ImageWidget 						m_TutorialIcon;
-	protected ImageWidget						m_CreditsIcon;
-	protected Widget 							m_ExpansionLicenceRoot;
-	protected Widget							m_LicencePanel;
-	protected TextWidget						m_LicenceTitle;
-	protected RichTextWidget   	 				m_LicenceText;
-	protected ButtonWidget						m_AcceptButton;
-	protected ButtonWidget						m_DisagreeButton;
-	protected ButtonWidget						m_ViewLicenceButton;
-	protected Widget							m_DialogPanel;
-	protected TextWidget						m_DialogTitle;
-	protected RichTextWidget					m_DialogText;
-	protected ButtonWidget						m_DialogAcceptButton;
-	protected bool								m_isLicenceVisible;
-	protected GridSpacerWidget					m_NewsFeedRoot;
-	protected Widget							m_ExpansionNewsFeedRoot;
+	#ifndef DISABLEMAINMENUCHANGE
+	protected DayZIntroSceneExpansion 			m_CustomScene;
+	#endif
+	
+	protected Widget m_ModsInfoPanel;
+	protected Widget m_NewsfeedPanel;
+	ref ExpansionNewsfeed m_ExpansionNewsfeed;
 	
 	// ------------------------------------------------------------
 	// MainMenu Constructor
 	// ------------------------------------------------------------
 	void MainMenu()
 	{
+		#ifndef DISABLEMAINMENUCHANGE
+		m_Mission					= MissionMainMenu.Cast( GetGame().GetMission() );
+		m_CustomScene				= m_Mission.GetIntroSceneExpansion();
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -109,35 +99,11 @@ modded class MainMenu
 			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
 		}
 		
-		//! Licence
-		m_ExpansionLicenceRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/expansion_licence_dialog.layout", layoutRoot );
-		m_ExpansionLicenceRoot.Show(false);
+		//m_ModsInfoPanel = Widget.Cast(layoutRoot.FindAnyWidget("ModsDetailed"));
 		
-		if ( m_ExpansionLicenceRoot )
-		{
-			m_LicencePanel = Widget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "ExpansionLicenceDialog" ) );
-			m_LicenceTitle = TextWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "LicenceDialogTitle" ) );
-			m_LicenceText = RichTextWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "LicenceDialogText" ) );
-			m_AcceptButton = ButtonWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "LicenceDialogAgreeButton" ) );
-			m_DisagreeButton = ButtonWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "LicenceDialogDisagreeButton" ) );
-			m_ViewLicenceButton	= ButtonWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "LicenceDialogLicenseButton" ) );
-			
-			m_DialogPanel = Widget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "ExpansionDialog" ) );
-			m_DialogTitle = TextWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "DialogTitle" ) );
-			m_DialogText = RichTextWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "DialogText" ) );
-			m_DialogAcceptButton = ButtonWidget.Cast( m_ExpansionLicenceRoot.FindAnyWidget( "DialogAgreeButton" ) );
-		}
-		
-		//! Disabled Expansion News-Feed
-		//m_NewsFeedRoot = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "news_feed_root" ) );
-		//float feed_x = 0;
-		//float feed_y = 0;
-		//m_NewsFeedRoot.GetPos(feed_x, feed_y);
-		
-		//! Add Expansion newsfeed
-		//m_ExpansionNewsFeedRoot	= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/newsfeed.layout", layoutRoot );
-		//m_ExpansionNewsFeedRoot.SetPos(feed_x, feed_y);
-		//m_ExpansionNewsfeed	= new MainMenuExpansionNewsfeed( m_ExpansionNewsFeedRoot.FindAnyWidget( "news_feed_root" ) );
+		//! Newsfeed
+		m_NewsfeedPanel = Widget.Cast(layoutRoot.FindAnyWidget("NewsFeedPanel"));
+		m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
 		
 		GetGame().GetUIManager().ScreenFadeOut(0);
 
@@ -156,6 +122,20 @@ modded class MainMenu
 		#endif
 		
 		return layoutRoot;
+	}
+	
+	// ------------------------------------------------------------
+	// Override LoadMods
+	// ------------------------------------------------------------
+	override void LoadMods()
+	{
+		super.LoadMods();
+				
+		if (m_ModsDetailed)
+			m_ModsDetailed.SetMainMenu(this);
+		
+		if (m_ModsSimple) 
+			m_ModsSimple.SetMainMenu(this);
 	}
 	
 	// ------------------------------------------------------------
@@ -189,123 +169,6 @@ modded class MainMenu
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CheckLicenze
-	// ------------------------------------------------------------
-	void CheckLicenze()
-	{
-		string hasSeen;
-		if ( GetGame().GetProfileString( "ExpansionLicence", hasSeen ) )
-		{
-			if ( hasSeen == "" || hasSeen == "false" )
-			{
-				ShowLicence();
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ShowLicence
-	// ------------------------------------------------------------
-	void ShowLicence()
-	{
-		m_ExpansionLicenceRoot.Show( true );
-		
-		string title = "DayZ Expansion - End User License Agreement";
-		string text = "\nThis License Agreement (\"Agreement\") is made between you (the \"Licensee\") and DayZ Expansion (the \"Licensor\"). The terms of this Agreement apply to all current and future versions and updates of the DayZ Expansion Project (\"DayZ Expansion\").\n \n \nBy agreeing to this license, you agree to any and all terms listed below. The licensor reserves all rights not specifically granted and transferred to Licensee.\n \n \nLicensee understands, acknowledges and agrees with the following:\n \n- Licensor provides DayZ Expansion on an \"as is\" basis without warranty of any kind. Licensor neither guarantees the correct, error-free functioning of DayZ Expansion nor is Licensor responsible for any damage caused by the use of DayZ Expansion.\n \n- Licensee may not decompile, disassemble, reverse-engineer, modify or redistribute DayZ Expansion in any way. Doing this will result in a legal matter.\n \n- DayZ Expansion will automatically, without notice to Licensee, download and install updates from time to time.\n \n- DayZ Expansion may further report and store Licensee\'s game account name and identifier, in-game nickname, and system-related and hardware-related information including, but not limited to, device identifiers and hardware serial numbers.\n \n- Licensor values Licensee\'s privacy and does its utmost to protect it at all times. DayZ Expansion does not report any personally identifiable information or personal data except for any information/data specifically mentioned herein.\n \n- Licensor stores all information collected by DayZ Expansion on servers located in Europe. Licensor may share the information with its partners and/or affiliates.\n \n- Licensee acknowledges that the invasive nature of DayZ Expansion is necessary to meet its purpose and goal of preventing and detecting license breaches.\n \n- Licensor is allowed to terminate the license at any time for any reason and without notice to Licensee.\n \n \nThis License Agreement constitutes the entire agreement between Licensor and Licensee and supersedes any prior statements.";
-	
-		m_LicenceTitle.SetText(title);
-		m_LicenceText.SetText(text);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CloseLicence
-	// ------------------------------------------------------------
-	void CloseLicence(bool accepted)
-	{			
-		GetGame().SetProfileString( "ExpansionLicence", accepted.ToString() );
-			
-		if ( accepted )
-		{
-			m_ExpansionLicenceRoot.Show( false );
-			m_ExpansionLicenceRoot.Unlink();
-		} 
-		else if ( !accepted )
-		{
-			m_LicencePanel.Show( false );
-			m_DialogPanel.Show( true );
-			OnDisagreeDialogShow();
-		}
-	}
-		
-	// ------------------------------------------------------------
-	// Expansion Accept
-	// ------------------------------------------------------------
-	void Accept()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Accept - Start");
-		#endif
-		
-		CloseLicence(true);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Accept - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Disagree
-	// ------------------------------------------------------------
-	void Disagree()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Disagree - Start");
-		#endif
-		
-		CloseLicence(false);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Disagree - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnDisagreeDialogShow
-	// ------------------------------------------------------------
-	void OnDisagreeDialogShow()
-	{
-		string title = "Programm Termination";
-		string text = "The End User Agreemend has been declined. The programm will be terminated now..";
-	
-		m_DialogTitle.SetText(title);
-		m_DialogText.SetText(text);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Terminate
-	// ------------------------------------------------------------
-	void Terminate()
-	{
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).Call(g_Game.RequestExit, IDC_MAIN_QUIT);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ViewLicence
-	// ------------------------------------------------------------
-	void ViewLicence()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::ViewLicence - Start");
-		#endif
-		
-		GetGame().OpenURL( "https://www.dayzexpansion.com/" );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::ViewLicence - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// Override OnShow
 	// ------------------------------------------------------------
 	override void OnShow()
@@ -317,9 +180,7 @@ modded class MainMenu
 		SetFocus( null );
 		OnChangeCharacter();
 		LoadMods();
-		//ShowNewsfeed();
 		HideModWarning();
-		CheckLicenze();
 
 		ExpansionBook book = ExpansionBook.Cast( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) );
 		if ( book && book.IsVisible() )
@@ -353,46 +214,45 @@ modded class MainMenu
 		EXPrint("MainMenu::HideModWarning - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// Override OnClick
-	// ------------------------------------------------------------
-	override bool OnClick( Widget w, int x, int y, int button )
+	#ifndef DISABLEMAINMENUCHANGE
+	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::OnClick - Start");
-		#endif
-		
-		if( button == MouseState.LEFT )
+		if ( w == m_CharacterRotationFrame )
 		{
-			if( w == m_AcceptButton )
-			{
-				m_LastFocusedButton = m_AcceptButton;
-				Accept();
-				return true;
-			}
-			else if ( w == m_DisagreeButton )
-			{
-				m_LastFocusedButton = m_DisagreeButton;
-				Disagree();
-				return true;
-			}
-			else if ( w == m_ViewLicenceButton )
-			{
-				m_LastFocusedButton = m_ViewLicenceButton;
-				ViewLicence();
-				return true;
-			}
-			else if (w == m_DialogAcceptButton)
-			{
-				Terminate();
-				return true;
-			}
+			if (m_CustomScene)
+				m_CustomScene.CharacterRotationStart();
+			return true;
+		}
+		else if ( w == m_Play )
+		{
+			m_LastFocusedButton = m_Play;
+			Play();
+			return true;
+		}
+		else if ( w == m_ChooseServer )
+		{
+			m_LastFocusedButton = m_ChooseServer;
+			OpenMenuServerBrowser();
+			return true;
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::OnClick - End");
-		#endif
-		return super.OnClick(w, x, y, button);;
+		return false;
+	}
+	
+	override bool OnMouseButtonUp( Widget w, int x, int y, int button )
+	{
+		if (m_CustomScene)
+			m_CustomScene.CharacterRotationStop();
+		return false;
+	}	
+	#endif
+	
+	// ------------------------------------------------------------
+	// ShowNewsfeed
+	// ------------------------------------------------------------
+	void ShowNewsfeed(bool state)
+	{
+		m_NewsfeedPanel.Show(state);
+		m_ExpansionNewsfeed.ShowNewsfeed(state);
 	}
 }

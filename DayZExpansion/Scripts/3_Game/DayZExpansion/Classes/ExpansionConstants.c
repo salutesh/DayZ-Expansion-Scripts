@@ -160,12 +160,14 @@ static const string EXPANSION_NOTIFICATION_SETTINGS = EXPANSION_SETTINGS_FOLDER 
 static const string EXPANSION_RAID_SETTINGS = EXPANSION_SETTINGS_FOLDER + "RaidSettings.json";
 static const string EXPANSION_TERRITORY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "TerritorySettings.json";
 static const string EXPANSION_VEHICLE_SETTINGS = EXPANSION_SETTINGS_FOLDER + "VehicleSettings.json";
+static const string EXPANSION_DEBUG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "DebugSettings.json";
 
 static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors.bin";
 
 //! On Client Only
 static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.bin";
 static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.bin";
+static const string EXPANSION_CLIENT_MARKERS_OLD = EXPANSION_FOLDER + "markers.json";
 
 /**
  * InGame Menu
@@ -178,6 +180,9 @@ const int EXPANSION_IDC_MAIN_CONTINUE		= 50000103;
 const int EXPANSION_IDC_Int_DIRECT			= 50000104;
 
 const int EXPANSION_INPUT_UDT_PLAYER_LINK	= 40003000;
+const int EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK	= 40003001;
+const int EXPANSION_INPUT_UDT_PERFORM_CLIMB	= 40003002;
+
 const int EXPANSION_INPUT_RPC_PLAYER_LINK	= 40003003;
 
 enum ExpansionPlayerLink
@@ -186,8 +191,7 @@ enum ExpansionPlayerLink
 	ATTACH,
 	DETACH,
 	CLIMB_START,
-	CLIMB_FINISHED,
-	REQUEST_LINK
+	CLIMB_FINISH
 }
 
 enum ExpansionPlayerRaycastResult
@@ -208,14 +212,74 @@ const string EXPANSION_Rest_URL = "https://api.thurston.pw/expansion/";
  * Expansion notification Icons
  * @{
  */
-static const string EXPANSION_NOTIFICATION_ICON_INFO = "DayZExpansion/GUI/icons/hud/info_64x64.edds";
+//! Old icons
+static const string EXPANSION_NOTIFICATION_ICON_POSITION = "set:expansion_iconset image:icon_position";
 static const string EXPANSION_NOTIFICATION_ICON_ERROR = "set:expansion_notification_iconset image:icon_error";
-static const string EXPANSION_NOTIFICATION_ICON_CHECK = "set:expansion_notification_iconset image:icon_check";
-static const string EXPANSION_NOTIFICATION_ICON_MARKER = "DayZExpansion/GUI/icons/hud/marker_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_CAR = "set:expansion_notification_iconset image:icon_car";
 static const string EXPANSION_NOTIFICATION_ICON_GROUP = "set:expansion_notification_iconset image:icon_group";
 static const string EXPANSION_NOTIFICATION_ICON_TERRITORY = "set:expansion_iconset image:icon_territory";
 static const string EXPANSION_NOTIFICATION_ICON_AIRDROP = "set:expansion_notification_iconset image:icon_airdrop";
+static const string EXPANSION_NOTIFICATION_ICON_DELIVER = "DayZExpansion\\GUI\\icons\\marker\\marker_deliver.paa";
+static const string EXPANSION_NOTIFICATION_ICON_RADIATION = "DayZExpansion\\GUI\\icons\\marker\\marker_radiation.paa";
+static const string EXPANSION_NOTIFICATION_ICON_TRADER = "DayZExpansion\\GUI\\icons\\marker\\marker_trader.paa";
+static const string EXPANSION_NOTIFICATION_ICON_WATER_1 = "DayZExpansion\\GUI\\icons\\marker\\marker_water.paa";
+static const string EXPANSION_NOTIFICATION_ICON_INFECTED_1 = "DayZExpansion\\GUI\\icons\\marker\\marker_zombie.paa";
+static const string EXPANSION_NOTIFICATION_ICON_INFECTED_2 = "DayZExpansion\\GUI\\icons\\marker\\zombie.paa";
+static const string EXPANSION_NOTIFICATION_ICON_SKULL_1 = "DayZExpansion\\GUI\\icons\\marker\\marker_skull.paa";
+static const string EXPANSION_NOTIFICATION_ICON_HELI = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa";
+static const string EXPANSION_NOTIFICATION_ICON_HOME = "DayZExpansion\\GUI\\icons\\marker\\marker_home.paa";
+static const string EXPANSION_NOTIFICATION_ICON_BOAT = "DayZExpansion\\GUI\\icons\\marker\\marker_boat.paa";
+static const string EXPANSION_NOTIFICATION_ICON_FISHING = "DayZExpansion\\GUI\\icons\\marker\\marker_fishing.paa";
+static const string EXPANSION_NOTIFICATION_ICON_VEHICLE_CRASH = "DayZExpansion\\GUI\\icons\\marker\\crash.paa";
+
+//! New icons
+static const string EXPANSION_NOTIFICATION_ICON_BEAR = "DayZExpansion\\GUI\\icons\\hud\\bear_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_CLAW = "DayZExpansion\\GUI\\icons\\hud\\claw_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_CROSS = "DayZExpansion\\GUI\\icons\\hud\\cross_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_DRIP = "DayZExpansion\\GUI\\icons\\hud\\drip_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_EAR = "DayZExpansion\\GUI\\icons\\hud\\ear_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_EYE = "DayZExpansion\\GUI\\icons\\hud\\eye_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_FIREPLACE = "DayZExpansion\\GUI\\icons\\hud\\fireplace_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_HEART = "DayZExpansion\\GUI\\icons\\hud\\heart_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_HOOK = "DayZExpansion\\GUI\\icons\\hud\\hook_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_INFO = "DayZExpansion\\GUI\\icons\\hud\\info_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_KNIFE = "DayZExpansion\\GUI\\icons\\hud\\knife_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_MARKER = "DayZExpansion\\GUI\\icons\\hud\\marker_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_MENU = "DayZExpansion\\GUI\\icons\\hud\\menu_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_MOON = "DayZExpansion\\GUI\\icons\\hud\\moon_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_PEN = "DayZExpansion\\GUI\\icons\\hud\\pen_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_PERSONA = "DayZExpansion\\GUI\\icons\\hud\\persona_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_PILL = "DayZExpansion\\GUI\\icons\\hud\\pill_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_QUESTIONMARK = "DayZExpansion\\GUI\\icons\\hud\\questionmark_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_SKULL_2 = "DayZExpansion\\GUI\\icons\\hud\\skull_1_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_SKULL_3 = "DayZExpansion\\GUI\\icons\\hud\\skull_2_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_STAR = "DayZExpansion\\GUI\\icons\\hud\\star_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_SUN = "DayZExpansion\\GUI\\icons\\hud\\sun_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_TENT = "DayZExpansion\\GUI\\icons\\hud\\tent_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_THERMOMETER = "DayZExpansion\\GUI\\icons\\hud\\thermometer_1_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_WATER_2 = "DayZExpansion\\GUI\\icons\\hud\\water_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_BOOK_1 = "DayZExpansion\\GUI\\icons\\hud\\book_1_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_BOOK_2 = "DayZExpansion\\GUI\\icons\\hud\\book_2_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_ELLIPSE = "DayZExpansion\\GUI\\icons\\hud\\ellipse_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_GRAB = "DayZExpansion\\GUI\\icons\\hud\\grab_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_HAND_OPEN = "DayZExpansion\\GUI\\icons\\hud\\hand_open_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_MAP = "DayZExpansion\\GUI\\icons\\hud\\map_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_NOTE = "DayZExpansion\\GUI\\icons\\hud\\note_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_ORIENTATION = "DayZExpansion\\GUI\\icons\\hud\\orientation_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_RADIO = "DayZExpansion\\GUI\\icons\\hud\\radio_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_SHIELD = "DayZExpansion\\GUI\\icons\\hud\\shield_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_SNOW = "DayZExpansion\\GUI\\icons\\hud\\snow_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_ARROW = "DayZExpansion\\GUI\\icons\\hud\\arrow_64x64.edds";
+
+static const string EXPANSION_NOTIFICATION_ICON_BATTERY_FULL = "DayZExpansion\\GUI\\icons\\hud\\battery_high_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_BATTERY_MED = "DayZExpansion\\GUI\\icons\\hud\\battery_med_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_BATTERY_LOW = "DayZExpansion\\GUI\\icons\\hud\\battery_low_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_BATTERY_EMPTY = "DayZExpansion\\GUI\\icons\\hud\\battery_empty_64x64.edds";
+
+static const string EXPANSION_NOTIFICATION_ICON_3D_ON = "DayZExpansion\\GUI\\icons\\hud\\3D_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_3D_OFF = "DayZExpansion\\GUI\\icons\\hud\\3D_off_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_2D_ON = "DayZExpansion\\GUI\\icons\\hud\\2D_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_2D_OFF = "DayZExpansion\\GUI\\icons\\hud\\2D_off_64x64.edds";
 
 /**
  * Expansion Flags texture paths
@@ -258,14 +322,39 @@ static const string EXPANSION_FLAG_COUNTRIES_NAPA = "DayZExpansion\\Objects\\Str
 static const string EXPANSION_FLAG_COUNTRIES_CDF = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_cdf_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_NUEVORICO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_nuevorico_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_BORDURIENS = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_borduriens_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_BIOHAZARD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_biohazard_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_anyoneincherno_co.paa";
+static const string EXPANSION_FLAG_LOGO_BIOHAZARD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_biohazard_co.paa";
+static const string EXPANSION_FLAG_LOGO_ANYONEINCHERNO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_anyoneincherno_co.paa";
 
+static const string EXPANSION_FLAG_COUNTRIES_IRISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_irish_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_WALES = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_wales_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SWITZERLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_switzerland_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SKILAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_skilanka_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SOUTHAFRICA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_southafrica_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SICILY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_sicily_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_OFFWITHHEAD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_offwithhead_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_GIBRALTAR = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_gibraltar_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_CZECH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_czech_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_FARI = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_fari_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_FINLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_finland_co.paa";
+static const string EXPANSION_FLAG_LOGO_DAYZWHITE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_dayzwhite_co.paa";
+static const string EXPANSION_FLAG_LOGO_DAYZBLACK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_dayzblack_co.paa";
+static const string EXPANSION_FLAG_LOGO_DOUBLEAXE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_doubleaxe_co.paa";
+static const string EXPANSION_FLAG_LOGO_GRENADE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_grenade_co.paa";
+static const string EXPANSION_FLAG_COLOR_RED = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_red_co.paa";
+static const string EXPANSION_FLAG_COLOR_BLUE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_blue_co.paa";
+static const string EXPANSION_FLAG_COLOR_GREEN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_green_co.paa";
+static const string EXPANSION_FLAG_COLOR_YELLOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_yellow_co.paa";
+static const string EXPANSION_FLAG_COLOR_ORANGE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_orange_co.paa";
+static const string EXPANSION_FLAG_COLOR_PINK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_pink_co.paa";
+static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_purple_co.paa";
+static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
 /**
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 5;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 9;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 7;
+static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 
 /**
  * Expansion Debugging types
@@ -294,8 +383,15 @@ static const ExpansionDebuggerType EXPANSION_DEBUG_AI = 60; // reserve 20
 
 static const ExpansionDebuggerType EXPANSION_DEBUG_XOB_OBJ = 80; // reserve 20
 
+static bool EXPANSION_DEBUG_SETUP = false;
+
 static void Expansion_SetupDebugger()
 {
+	if ( EXPANSION_DEBUG_SETUP )
+		return;
+	
+	EXPANSION_DEBUG_SETUP = true;
+	
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CAR );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CONTROLLER );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_HELICOPTER );

@@ -212,8 +212,6 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 		//! m_Delay.Run(2, this, "MakePlayerCough", null, false);	
 
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, 2000, false);
-		Print("Teargas OnWorkStart MakePlayerCough");
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Teargas::OnWorkStart End");
 		#endif
@@ -225,7 +223,6 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 		EXPrint("Expansion_M203Round_Smoke_Teargas::MakePlayerCough Start");
 		#endif
 		
-		Print("Teargas MakePlayerCough Start");
 
 		CoughTimer = Math.RandomInt(1000, 5000);
 		ref array<Object> nearest_objects = new array<Object>;
@@ -238,8 +235,6 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 			
 			if ( nearest_object.IsInherited( PlayerBase ) )
 			{
-				Print("Teargas MakePlayerCough Found Player");
-
 				PlayerBase player = PlayerBase.Cast( nearest_object );
 				if ( player )
 				{
@@ -251,7 +246,6 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
 							player.AddHealth("","Shock", -20);
 
-							Print("Teargas MakePlayerCough Player has item in mask slot, but player is not protected.");
 						}
 					}
 					else 
@@ -259,7 +253,6 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
 							player.AddHealth("","Shock", -20);
 
-							Print("Teargas MakePlayerCough Player has no mask.");
 					}
 				}
 			}	
@@ -267,8 +260,6 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 
 		if ( ZoneActive )
 		{
-			Print("Teargas MakePlayerCough ZoneActive is true");
-
 			//! m_Delay3 = new Timer;
 			//! m_Delay3.Run(CoughTimer, this, "MakePlayerCough", null, false);	
 
@@ -279,19 +270,12 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Teargas::MakePlayerCough End");
 		#endif
-
-		 Print("Teargas MakePlayerCough End");
 	}
 
 	override void OnWorkStop()
 	{
 		super.OnWorkStop();
-
-		Print("Teargas OnWorkStop This should say true: " + ZoneActive);
-
 		ZoneActive = false;
-
-		Print("Teargas OnWorkStop ZoneActive now false.");
 	}	
 }
 

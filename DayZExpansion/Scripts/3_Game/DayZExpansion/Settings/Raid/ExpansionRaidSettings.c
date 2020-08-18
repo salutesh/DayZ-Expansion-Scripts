@@ -15,7 +15,6 @@
  **/
 class ExpansionRaidSettings: ExpansionSettingBase
 {
-	
 	float ExplosionTime;							//! Ammount of time it takes for explosive to explode.
 
 	autoptr TStringArray ExplosiveDamageWhitelist;	//! List of damage sources allowed to damage bases when whitelist is enabled. 
@@ -27,8 +26,8 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	float SafeExplosionDamageMultiplier;			//! Damage multiplier from explosion on safes.
 	float SafeProjectileDamageMultiplier;			//! Damage multiplier from explosion on safes.
 	
-	bool AllowMeleeRaidingOnVanilla;				//! If enabled, make safes raidable
-	bool AllowMeleeRaidingOnExpansion;				//! If enabled, make safes raidable
+	// bool AllowMeleeRaidingOnVanilla;				//! If enabled, make safes raidable
+	// bool AllowMeleeRaidingOnExpansion;			//! If enabled, make safes raidable
 	
 	//ref array < ref ExpansionRaidValues > RaidValues;
 	
@@ -50,17 +49,17 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRaidSettings::HandleRPC - Start");
+		EXPrint("ExpansionRaidSettings::OnRecieve - Start");
 		#endif
 		
 		ExpansionRaidSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionRaidSettings::HandleRPC setting");
-			return;
+			Error("ExpansionRaidSettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -70,8 +69,17 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ExpansionSettings.SI_Raid.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRaidSettings::HandleRPC - End");
+		EXPrint("ExpansionRaidSettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionRaidSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 
 	// ------------------------------------------------------------
@@ -85,11 +93,9 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		{
 			return 0;
 		}
-		
-		ref ExpansionRaidSettings thisSetting = this;
-		
+
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Raid, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -138,8 +144,8 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		SafeExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
 		SafeProjectileDamageMultiplier = s.ProjectileDamageMultiplier;
 
-		AllowMeleeRaidingOnVanilla = s.AllowMeleeRaidingOnVanilla;
-		AllowMeleeRaidingOnExpansion = s.AllowMeleeRaidingOnExpansion;
+		// AllowMeleeRaidingOnVanilla = s.AllowMeleeRaidingOnVanilla;
+		// AllowMeleeRaidingOnExpansion = s.AllowMeleeRaidingOnExpansion;
 	}
 	
 	// ------------------------------------------------------------
@@ -228,8 +234,8 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
 		
-		AllowMeleeRaidingOnVanilla = false;
-		AllowMeleeRaidingOnExpansion = false;
+		// AllowMeleeRaidingOnVanilla = false;
+		// AllowMeleeRaidingOnExpansion = false;
 
 		/*
 		TStringArray BaseBuildingArr = new TStringArray;

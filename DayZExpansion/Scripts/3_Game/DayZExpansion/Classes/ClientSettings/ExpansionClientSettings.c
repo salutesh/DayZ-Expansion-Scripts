@@ -13,7 +13,6 @@
 /**@class		ExpansionClientSettings
  * @brief		Expansion Main Client Settings class
  **/
- 
 class ExpansionClientSettings
 {
 	[NonSerialized()]
@@ -64,13 +63,15 @@ class ExpansionClientSettings
 	bool ShowPINCode;
 
 	// HUD Settings
-	bool HUDShowClientClock;
 	float EarplugLevel;
 	float AlphaColorHUDOnTopOfHeadOfPlayers;
 	float RedColorHUDOnTopOfHeadOfPlayers;
 	float GreenColorHUDOnTopOfHeadOfPlayers;
 	float BlueColorHUDOnTopOfHeadOfPlayers;
-	float AlphaColor3DMarkerWhenPointingAtHim;
+	float AlphaColorLookAtMinimum;
+
+	ExpansionClientUIChatSize HUDChatSize;
+	float HUDChatFadeOut;
 
 	void ExpansionClientSettings()
 	{
@@ -79,19 +80,165 @@ class ExpansionClientSettings
 		#endif
 		
 		m_Categories = new array< ref ExpansionClientSettingCategory >;
-
-		Defaults();
-
+		
 		Init();
 
-		if (!Load())
+		if ( !FileExist( EXPANSION_CLIENT_SETTINGS ) || !Load() )
+		{
+			Print( "Creating client settings." );
 			Defaults();
-
-		Save();
+			Save();
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::ExpansionClientSettings - End");
 		#endif
+	}
+
+	private bool OnRead( ParamsReadContext ctx, int version )
+	{
+		// Vehicles
+		if ( !ctx.Read( UseCameraLock ) )
+			return false;
+		if ( !ctx.Read( UseInvertedMouseControl ) )
+			return false;
+		if ( !ctx.Read( UseHelicopterMouseControl ) )
+			return false;
+		if ( !ctx.Read( UsePlaneMouseControl ) )
+			return false;
+		
+		// Video
+		if ( !ctx.Read( DrawDistance ) )
+			return false;
+		if ( !ctx.Read( ColorGrading ) )
+			return false;
+		if ( !ctx.Read( ColorVignette ) )
+			return false;
+		if ( !ctx.Read( CastLightShadows ) )
+			return false;
+		
+		// 3D Markers
+		if ( !ctx.Read( Show3DMarkers ) )
+			return false;
+		if ( !ctx.Read( Show3DClientMarkers ) )
+			return false;
+		if ( !ctx.Read( Show3DPlayerMarkers ) )
+			return false;
+		if ( !ctx.Read( Show3DPartyMarkers ) )
+			return false;
+		if ( !ctx.Read( Show3DGlobalMarkers ) )
+			return false;
+		
+		// 2D Markers
+		if ( !ctx.Read( Show2DMarkers ) )
+			return false;
+		if ( !ctx.Read( Show2DClientMarkers ) )
+			return false;
+		if ( !ctx.Read( Show2DPlayerMarkers ) )
+			return false;
+		if ( !ctx.Read( Show2DPartyMarkers ) )
+			return false;
+		if ( !ctx.Read( Show2DGlobalMarkers ) )
+			return false;
+		
+		// Notifications
+		if ( !ctx.Read( ShowNotifications ) )
+			return false;
+		if ( !ctx.Read( NotificationSound ) )
+			return false;
+		if ( !ctx.Read( NotificationSoundLeaveJoin ) )
+			return false;
+		if ( !ctx.Read( NotificationJoin ) )
+			return false;
+		if ( !ctx.Read( NotificationLeave ) )
+			return false;
+		
+		// Streamer mode
+		if ( !ctx.Read( StreamerMode ) )
+			return false;
+		if ( !ctx.Read( ShowPINCode ) )
+			return false;
+		
+		// HUD Settings
+		if ( !ctx.Read( EarplugLevel ) )
+			return false;
+		if ( !ctx.Read( AlphaColorHUDOnTopOfHeadOfPlayers ) )
+			return false;
+		if ( !ctx.Read( RedColorHUDOnTopOfHeadOfPlayers ) )
+			return false;
+		if ( !ctx.Read( GreenColorHUDOnTopOfHeadOfPlayers ) )
+			return false;
+		if ( !ctx.Read( BlueColorHUDOnTopOfHeadOfPlayers ) )
+			return false;
+		if ( !ctx.Read( AlphaColorLookAtMinimum ) )
+			return false;
+		
+		if ( version < 7 )
+			return true;
+
+		// Chat settings
+		if ( !ctx.Read( HUDChatSize ) )
+			return false;
+		if ( !ctx.Read( HUDChatFadeOut ) )
+			return false;
+
+		return true;
+	}
+
+	private void OnSave( ParamsWriteContext ctx, int version )
+	{
+		// Vehicles
+		ctx.Write( UseCameraLock );
+		ctx.Write( UseInvertedMouseControl );
+
+		ctx.Write( UseHelicopterMouseControl );
+		ctx.Write( UsePlaneMouseControl );
+
+		// Video
+		ctx.Write( DrawDistance );
+		ctx.Write( ColorGrading );
+		ctx.Write( ColorVignette );
+		ctx.Write( CastLightShadows );
+
+		// 3D Markers
+		ctx.Write( Show3DMarkers );
+		ctx.Write( Show3DClientMarkers );
+		ctx.Write( Show3DPlayerMarkers );
+		ctx.Write( Show3DPartyMarkers );
+		ctx.Write( Show3DGlobalMarkers );
+
+		// 2D Markers
+		ctx.Write( Show2DMarkers );
+		ctx.Write( Show2DClientMarkers );
+		ctx.Write( Show2DPlayerMarkers );
+		ctx.Write( Show2DPartyMarkers );
+		ctx.Write( Show2DGlobalMarkers );
+
+		// Notifications
+		ctx.Write( ShowNotifications );
+		ctx.Write( NotificationSound );
+		ctx.Write( NotificationSoundLeaveJoin );
+		ctx.Write( NotificationJoin );
+		ctx.Write( NotificationLeave );
+
+		// Streamer mode
+		ctx.Write( StreamerMode );
+		ctx.Write( ShowPINCode );
+
+		// HUD Settings
+		ctx.Write( EarplugLevel );
+		ctx.Write( AlphaColorHUDOnTopOfHeadOfPlayers );
+		ctx.Write( RedColorHUDOnTopOfHeadOfPlayers );
+		ctx.Write( GreenColorHUDOnTopOfHeadOfPlayers );
+		ctx.Write( BlueColorHUDOnTopOfHeadOfPlayers );
+		ctx.Write( AlphaColorLookAtMinimum );
+
+		if ( version < 7 )
+			return;
+		
+		// Chat settings
+		ctx.Write( HUDChatSize );
+		ctx.Write( HUDChatFadeOut );
 	}
 
 	bool Load()
@@ -99,223 +246,26 @@ class ExpansionClientSettings
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Load - Start");
 		#endif
-		
-		//Delete old file
-		if ( FileExist(EXPANSION_FOLDER + "settings.json") )
-			DeleteFile(EXPANSION_FOLDER + "settings.json");
-		
+
 		FileSerializer file = new FileSerializer;
 		
-		if (file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.READ ))
+		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.READ ) )
 		{
 			int version;
-			if (!file.Read(version))
+			if ( !file.Read( version ) )
 			{
 				file.Close();
 				return false;
 			}
-			
-			// Vehicles
-			if (!file.Read(UseCameraLock))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(UseInvertedMouseControl))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(UseHelicopterMouseControl))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(UsePlaneMouseControl))
-			{
-				file.Close();
-				return false;
-			}
-			
-			// Video
-			if (!file.Read(DrawDistance))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(ColorGrading))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(ColorVignette))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(CastLightShadows))
-			{
-				file.Close();
-				return false;
-			}
-			
-			// Mapping
-			if (!file.Read(Show3DMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show3DClientMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show3DPlayerMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show3DPartyMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show3DGlobalMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show2DMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show2DClientMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show2DPlayerMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show2DPartyMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(Show2DGlobalMarkers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			// Notifications
-			if (!file.Read(ShowNotifications))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(NotificationSound))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(NotificationSoundLeaveJoin))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(NotificationJoin))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(NotificationLeave))
-			{
-				file.Close();
-				return false;
-			}
-			
-			// Streamer mode
-			if (!file.Read(StreamerMode))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(ShowPINCode))
-			{
-				file.Close();
-				return false;
-			}
-			
-			// HUD Settings
-			if (!file.Read(HUDShowClientClock))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(EarplugLevel))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(AlphaColorHUDOnTopOfHeadOfPlayers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(RedColorHUDOnTopOfHeadOfPlayers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(GreenColorHUDOnTopOfHeadOfPlayers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(BlueColorHUDOnTopOfHeadOfPlayers))
-			{
-				file.Close();
-				return false;
-			}
-			
-			if (!file.Read(AlphaColor3DMarkerWhenPointingAtHim))
+
+			if ( !OnRead( file, version ) )
 			{
 				file.Close();
 				return false;
 			}
 			
 			file.Close();
-		}
-		else
+		} else
 		{
 			return false;
 		}
@@ -332,58 +282,14 @@ class ExpansionClientSettings
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Load - Start");
 		#endif
-		
-		FileSerializer file = new FileSerializer;
-		
-		if (file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ))
-		{
-			file.Write(EXPANSION_VERSION_CURRENT_SAVE);
 			
-			// Vehicles
-			file.Write( UseCameraLock );
-			file.Write( UseInvertedMouseControl );
-
-			file.Write( UseHelicopterMouseControl );
-			file.Write( UsePlaneMouseControl );
-
-			// Video
-			file.Write( DrawDistance );
-			file.Write( ColorGrading );
-			file.Write( ColorVignette );
-			file.Write( CastLightShadows );
-
-			// Mapping
-			file.Write( Show3DMarkers );
-			file.Write( Show3DClientMarkers );
-			file.Write( Show3DPlayerMarkers );
-			file.Write( Show3DPartyMarkers );
-			file.Write( Show3DGlobalMarkers );
-
-			file.Write( Show2DMarkers );
-			file.Write( Show2DClientMarkers );
-			file.Write( Show2DPlayerMarkers );
-			file.Write( Show2DPartyMarkers );
-			file.Write( Show2DGlobalMarkers );
-
-			// Notifications
-			file.Write( ShowNotifications );
-			file.Write( NotificationSound );
-			file.Write( NotificationSoundLeaveJoin );
-			file.Write( NotificationJoin );
-			file.Write( NotificationLeave );
-
-			// Streamer mode
-			file.Write( StreamerMode );
-			file.Write( ShowPINCode );
-
-			// HUD Settings
-			file.Write( HUDShowClientClock );
-			file.Write( EarplugLevel );
-			file.Write( AlphaColorHUDOnTopOfHeadOfPlayers );
-			file.Write( RedColorHUDOnTopOfHeadOfPlayers );
-			file.Write( GreenColorHUDOnTopOfHeadOfPlayers );
-			file.Write( BlueColorHUDOnTopOfHeadOfPlayers );
-			file.Write( AlphaColor3DMarkerWhenPointingAtHim );
+		FileSerializer file = new FileSerializer;
+		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ) )
+		{
+			int version = EXPANSION_VERSION_CLIENT_SETTING_SAVE;
+			file.Write( version );
+			
+			OnSave( file, version );
 			
 			file.Close();
 		}
@@ -424,21 +330,23 @@ class ExpansionClientSettings
 		StreamerMode = false;
 		ShowPINCode = true;
 
-		HUDShowClientClock = false;
 		EarplugLevel = 0.05;
 		AlphaColorHUDOnTopOfHeadOfPlayers = 255;
 		RedColorHUDOnTopOfHeadOfPlayers = 255;
 		GreenColorHUDOnTopOfHeadOfPlayers = 180;
 		BlueColorHUDOnTopOfHeadOfPlayers = 24;
-		AlphaColor3DMarkerWhenPointingAtHim = 80;
+		AlphaColorLookAtMinimum = 80;
 
 		UseCameraLock = false;
 		UseInvertedMouseControl = true;
 		
 		UseHelicopterMouseControl = false;
 
+		HUDChatSize = ExpansionClientUIChatSize.SMALL;
+		HUDChatFadeOut = 10;
+
 		// UsePlaneMouseControlInverted = true;
-		//  UsePlaneMouseControl = false;
+		// UsePlaneMouseControl = false;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Defaults - End");
@@ -510,9 +418,6 @@ class ExpansionClientSettings
 		
 		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
 
-		//! Option to toggle the display of the clock in the ingame hud
-		//CreateToggle( "HUDShowClientClock", "#STR_EXPANSION_SETTINGS_HUD_SHOW_CLOCK", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_SHOW_CLOCK_DESC" );
-		
 		//! Option to change ear plug level 
 		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0 );
 	
@@ -522,7 +427,10 @@ class ExpansionClientSettings
 		CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0 );
 		CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0 );
 
-		CreateSlider( "AlphaColor3DMarkerWhenPointingAtHim", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0 );
+		CreateSlider( "AlphaColorLookAtMinimum", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0 );
+		
+		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
+		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 60.0 );
 		
 		CreateCategory( "Vehicles", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES" );
 		
@@ -535,6 +443,11 @@ class ExpansionClientSettings
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionClientSettings::Init - End");
 		#endif
+	}
+
+	void OnSettingsUpdated( typename type, ExpansionSettingSerializationBase setting )
+	{
+		GetExpansionClientSettings().SI_UpdateSetting.Invoke();
 	}
 
 	private void CreateCategory( string name, string displayName )
@@ -562,14 +475,11 @@ class ExpansionClientSettings
 		EXPrint("ExpansionClientSettings::CreateToggle - Start");
 		#endif
 		
-		ExpansionClientSettingToggle setting = new ref ExpansionClientSettingToggle;
-
-		//name.Replace( "#", "" );
-		//detailLabel.Replace( "#", "" );
-		//detailContent.Replace( "#", "" );
+		ExpansionSettingSerializationToggle setting = new ref ExpansionSettingSerializationToggle;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
+		setting.m_Instance = this;
 		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 
@@ -583,17 +493,14 @@ class ExpansionClientSettings
 	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min = 0.0, float max = 1.0 )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionClientSettings::CreateToggle - Start");
+		EXPrint("ExpansionClientSettings::CreateSlider - Start");
 		#endif
 		
-		ExpansionClientSettingSlider setting = new ref ExpansionClientSettingSlider;
-
-		//name.Replace( "#", "" );
-		//detailLabel.Replace( "#", "" );
-		//detailContent.Replace( "#", "" );
+		ExpansionSettingSerializationSlider setting = new ref ExpansionSettingSerializationSlider;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
+		setting.m_Instance = this;
 		setting.m_DetailLabel = detailLabel;
 		setting.m_DetailContent = detailContent;
 		setting.m_Min = min;
@@ -602,7 +509,58 @@ class ExpansionClientSettings
 		m_CurrentCategory.m_Settings.Insert( setting );
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionClientSettings::CreateToggle - End");
+		EXPrint("ExpansionClientSettings::CreateSlider - End");
+		#endif
+	}
+
+	//! Not working.
+	private void CreateInt( string variable, string name, string detailLabel, string detailContent )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionClientSettings::CreateInt - Start");
+		#endif
+		
+		ExpansionSettingSerializationInt setting = new ref ExpansionSettingSerializationInt;
+
+		setting.m_Variable = variable;
+		setting.m_Name = name;
+		setting.m_Instance = this;
+		setting.m_DetailLabel = detailLabel;
+		setting.m_DetailContent = detailContent;
+
+		m_CurrentCategory.m_Settings.Insert( setting );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionClientSettings::CreateInt - End");
+		#endif
+	}
+
+	private void CreateEnum( string variable, typename enm, string name, string detailLabel, string detailContent )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionClientSettings::CreateEnum - Start");
+		#endif
+		
+		ExpansionSettingSerializationEnum setting = new ref ExpansionSettingSerializationEnum;
+
+		setting.m_Variable = variable;
+		setting.m_Name = name;
+		setting.m_Instance = this;
+		setting.m_DetailLabel = detailLabel;
+		setting.m_DetailContent = detailContent;
+
+		for ( int j = 0; j < enm.GetVariableCount(); ++j )
+		{
+			if ( enm.GetVariableType( j ) == int )
+			{
+				setting.m_Values.Insert( enm.GetVariableName( j ) );
+			}
+		}
+
+		m_CurrentCategory.m_Settings.Insert( setting );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionClientSettings::CreateEnum - End");
 		#endif
 	}
 }
@@ -612,8 +570,8 @@ static ref ExpansionClientSettings g_ExClientSettings;
 ref ExpansionClientSettings GetExpansionClientSettings()
 {
 	#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionClientSettings::GetExpansionClientSettings - Start");
-		#endif
+	EXPrint("ExpansionClientSettings::GetExpansionClientSettings - Start");
+	#endif
 	
 	if ( !g_ExClientSettings )
 	{
@@ -621,7 +579,7 @@ ref ExpansionClientSettings GetExpansionClientSettings()
 	}
 
 	#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionClientSettings::GetExpansionClientSettings - Return: " + g_ExClientSettings.ToString() );
-		#endif
+	EXPrint( "ExpansionClientSettings::GetExpansionClientSettings - Return: " + g_ExClientSettings.ToString() );
+	#endif
 	return g_ExClientSettings;
 }

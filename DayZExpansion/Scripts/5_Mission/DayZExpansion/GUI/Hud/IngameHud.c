@@ -83,12 +83,8 @@ modded class IngameHud
 
 	protected EntityAI			m_ExpansionVehicle;
 	
-	//! Notifiers
-	protected ImageWidget 		m_IconThirst;
-	protected ImageWidget 		m_IconHungry;
-	protected ImageWidget 		m_IconTemperature;
-	protected ImageWidget		m_IconBlood;
-	protected ImageWidget		m_IconHealth;
+	//! Player Tag
+	protected ImageWidget		m_PlayerTagIcon;
 	
 	// ------------------------------------------------------------
 	// IngameHud Constructor
@@ -208,28 +204,6 @@ modded class IngameHud
 			}
 		}
 		
-/*
-		m_IconThirst = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconThirsty") );
-		m_IconThirst.SetFlags(WidgetFlags.STRETCH);		
-		m_IconHungry = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconHungry") );
-		m_IconHungry.SetFlags(WidgetFlags.STRETCH);
-		m_IconTemperature = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconTemperature") ); 
-		m_IconTemperature.SetFlags(WidgetFlags.STRETCH);
-		m_IconBlood = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconBlood") );	
-		m_IconBlood.SetFlags(WidgetFlags.STRETCH);
-		m_IconHealth = ImageWidget.Cast( m_HudPanelWidget.FindAnyWidget("IconHealth") );
-		m_IconHealth.SetFlags(WidgetFlags.STRETCH);
-		
-		for ( int y = 0; y < 5; y++ )
-		{
-			m_IconThirst.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/water_64x64.edds" );
-			m_IconHungry.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/heart_64x64.edds" );
-			m_IconTemperature.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/thermometer_1_64x64.edds" );
-			m_IconBlood.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/drip_64x64.edds" );
-			m_IconHealth.LoadImageFile( y, "DayZExpansion/GUI/icons/hud/health_64x64.edds" );
-		}
-*/
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::Init - End");
 		#endif
@@ -248,8 +222,8 @@ modded class IngameHud
 		{
 			super.ShowVehicleInfo();
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::ShowVehicleInfo - First Return");
-		#endif
+			EXPrint("IngameHud::ShowVehicleInfo - First Return");
+			#endif
 			return;
 		}
 
@@ -259,8 +233,8 @@ modded class IngameHud
 		if ( !Class.CastTo( player, GetGame().GetPlayer() ) )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::ShowVehicleInfo - Second Return");
-		#endif
+			EXPrint("IngameHud::ShowVehicleInfo - Second Return");
+			#endif
 			return;
 		}
 
@@ -277,8 +251,8 @@ modded class IngameHud
 			} else
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::ShowVehicleInfo - Third Return");
-		#endif
+				EXPrint("IngameHud::ShowVehicleInfo - Third Return");
+				#endif
 				return;
 			}
 		}
@@ -390,8 +364,8 @@ modded class IngameHud
 			super.HideVehicleInfo();
 
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::HideVehicleInfo - First Return");
-		#endif
+			EXPrint("IngameHud::HideVehicleInfo - First Return");
+			#endif
 			return;
 		}
 
@@ -427,16 +401,16 @@ modded class IngameHud
 			super.RefreshVehicleHud( timeslice );
 
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshVehicleHud - First Return");
-		#endif
+			EXPrint("IngameHud::RefreshVehicleHud - First Return");
+			#endif
 			return;
 		}
 
 		if ( GetGame().GetUIManager().GetMenu() )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshVehicleHud - Second Return");
-		#endif
+			EXPrint("IngameHud::RefreshVehicleHud - Second Return");
+			#endif
 			return;
 		}
 
@@ -446,8 +420,8 @@ modded class IngameHud
 			m_HelicopterPanel.Show( true );
 			RefreshHelicopterHud( helicopter, timeslice );
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionIngameHud::RefreshVehicleHud - Helicopter");
-		#endif
+			EXPrint("ExpansionIngameHud::RefreshVehicleHud - Helicopter");
+			#endif
 			return;
 		}
 
@@ -758,6 +732,7 @@ modded class IngameHud
 			{
 				m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/hud/expansion_hud_player_tag.layout");
 				m_PlayerTagText = TextWidget.Cast( m_PlayerTag.FindAnyWidget( "TagText" ) );
+				m_PlayerTagIcon = ImageWidget.Cast( m_PlayerTag.FindAnyWidget( "TagIcon" ) );
 			}
 
 			m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex( "Spine2" );
@@ -773,7 +748,8 @@ modded class IngameHud
 						m_PlayerTagText.SetAlpha( Math.Clamp( m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1 ) );
 						m_PlayerTag.SetPos( 0.55, 0.55 );
 						m_PlayerTagText.SetText( m_CurrentTaggedPlayer.GetIdentityName() );
-						//! m_PlayerTagText.SetSize( 1, 1 - screen_pos[2] / 25  );
+						m_PlayerTagIcon.SetAlpha( Math.Clamp( m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1 ) );
+						m_PlayerTagIcon.Show( true );
 						return;
 					}
 				}
@@ -784,9 +760,11 @@ modded class IngameHud
 		{
 			float new_alpha = Math.Clamp( m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1 );
 			m_PlayerTagText.SetAlpha( Math.Clamp( m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1 ) );
+			m_PlayerTagIcon.SetAlpha( Math.Clamp( m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1 ) );
 			if ( new_alpha == 0 )
 			{
 				m_PlayerTagText.SetText( "" );
+				m_PlayerTagIcon.Show( false );
 				m_CurrentTaggedPlayer = null;
 			}
 		}

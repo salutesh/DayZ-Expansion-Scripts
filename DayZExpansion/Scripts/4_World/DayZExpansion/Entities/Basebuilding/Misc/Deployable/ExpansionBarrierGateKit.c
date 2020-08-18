@@ -16,6 +16,16 @@
 class ExpansionBarrierGateKit: ExpansionKitLarge
 {
 	// ------------------------------------------------------------
+	// EEInit
+	// ------------------------------------------------------------
+	override void EEInit()
+	{
+		//set visual on init
+		UpdateVisuals();
+		UpdatePhysics();
+	}
+	
+	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
 	override void OnPlacementComplete( Man player )

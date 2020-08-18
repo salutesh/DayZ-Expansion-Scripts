@@ -21,7 +21,9 @@ modded class ActionFoldObject
 			
 			if ( hesco && hesco.GetState() == HescoBox.UNFOLDED )
 			{
-				return true;
+				// Is he in a territory ?
+				if ( player.IsInTerritory() )
+					return player.IsInsideOwnTerritory(); // show the prompt if it's his territory
 			}
 		}
 

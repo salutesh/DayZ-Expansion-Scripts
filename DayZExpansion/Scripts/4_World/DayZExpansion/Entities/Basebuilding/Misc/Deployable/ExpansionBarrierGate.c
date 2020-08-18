@@ -131,20 +131,15 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		if ( !super.OnStoreLoad( ctx, version ) )
-		{
 			return false;
-		}
 
-		if ( !ctx.Read( m_IsOpened ) )
-		{
+		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
 			return false;
-		}
 
 		if ( m_IsOpened )
 		{
 			SetAnimationPhase( "gate", 0 );
-		}
-		else 
+		} else 
 		{
 			SetAnimationPhase( "gate", 1 );
 		}

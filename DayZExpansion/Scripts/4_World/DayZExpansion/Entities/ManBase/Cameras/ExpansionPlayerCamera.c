@@ -6,9 +6,9 @@ class ExpansionPlayerCamera extends Camera
 		EXPrint("ExpansionPlayerCamera::ExpansionPlayerCamera Start");
 		#endif
 		
-		SetEventMask( EntityEvent.FRAME );
+		//SetEventMask( EntityEvent.FRAME );
 		
-		SetFlags( EntityFlags.ACTIVE | EntityFlags.VISIBLE, true );
+		//SetFlags( EntityFlags.ACTIVE | EntityFlags.VISIBLE, true );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPlayerCamera::ExpansionPlayerCamera End");

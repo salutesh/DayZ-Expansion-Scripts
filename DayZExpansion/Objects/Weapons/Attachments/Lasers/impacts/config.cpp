@@ -29,7 +29,9 @@ class cfgVehicles
 		displayName = "You should not have this.";
 		descriptionShort = "You should not have this.";
 		model = "DayZExpansion\Objects\Weapons\Attachments\Lasers\impacts\laser_beam.p3d";
-		inventorySlot[] = {"expansionLaserBeam"};
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1.0,co)"};
+		hiddenSelectionsMaterials[] = {"dz\weapons\projectiles\data\tracer_red.rvmat"};
 		itemSize[] = {1,3};
 	};
 	class Expansion_Laser_Impact1: HouseNoDestruct

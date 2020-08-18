@@ -35,14 +35,13 @@ modded class MissionBase
 		
 		UIScriptedMenu menu = NULL; 
 	
-		switch (id)
+		switch ( id )
 		{
 		case MENU_MAP:
 			if ( GetExpansionSettings().GetMap().UseMapOnMapItem )
 			{
 				menu = new ExpansionMapMenu;
-			}
-			else
+			} else
 			{
 				menu = new MapMenu;
 			}
@@ -78,11 +77,10 @@ modded class MissionBase
 
 		if ( menu )
 		{
-			menu.SetID(id);
-		} 
-		else
+			menu.SetID( id );
+		} else
 		{
-			menu = super.CreateScriptedMenu(id);
+			menu = super.CreateScriptedMenu( id );
 		}
 
 		#ifdef EXPANSIONEXPRINT

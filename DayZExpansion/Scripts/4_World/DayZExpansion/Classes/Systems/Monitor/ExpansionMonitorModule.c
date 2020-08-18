@@ -77,13 +77,46 @@ class ExpansionMonitorModule: JMModuleBase
 		case ExpansionMonitorRPC.SyncStats:
 			RPC_SyncPlayerStats( ctx, sender, target );
 			break;
+		case ExpansionMonitorRPC.SendMessage:
+			RPC_SendMessage( ctx );
+			break;
 		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::OnRPC - End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	// Override OnClientReady
+	// ------------------------------------------------------------
+	override void OnClientReady( PlayerBase player, PlayerIdentity identity )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionPartyModule::OnClientReady - Start" );
+		#endif
 
+		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && identity )
+		{
+			ref StringLocaliser title = new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" );
+			ref StringLocaliser text = new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName() );
+			
+			if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION ) 
+			{
+				GetNotificationSystem().CreateNotification( title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
+			} else if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT )
+			{
+				ServerChatMessage( title, text );
+			}
+		}
+
+		ServerChatMessage( new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" ), new StringLocaliser( "Expansion Version is = " + LoadingScreen.GetClientExpansionVersion() ) );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionPartyModule::OnClientReady - End");
+		#endif
+	}
+	
 	// ------------------------------------------------------------
 	// Override OnInvokeConnect
 	// ------------------------------------------------------------
@@ -100,10 +133,31 @@ class ExpansionMonitorModule: JMModuleBase
 			AddPlayerStats( player, identity );
 			SyncStats( identity );
 		}
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPartyModule::OnInvokeConnect - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnInvokeDisconnect
+	// Called on server
+	// ------------------------------------------------------------
+	override void OnInvokeDisconnect( PlayerBase player )
+	{
+		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && player.GetIdentity() ) 
+		{
+			ref StringLocaliser title = new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TITLE" );
+			ref StringLocaliser text = new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName() );
+			
+			if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION ) 
+			{
+				GetNotificationSystem().CreateNotification( title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
+			} else if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT )
+			{
+				ServerChatMessage(title, text);
+			}
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -190,7 +244,11 @@ class ExpansionMonitorModule: JMModuleBase
 		EXPrint("ExpansionMonitorModule::RemovePlayerStats - Start");
 		#endif
 		
-		m_Stats.Remove(identity.GetId());
+		ExpansionSyncedPlayerStats stat;
+		if( m_Stats.Find( identity.GetId(), stat ) )
+		{
+			m_Stats.Remove(identity.GetId());
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::RemovePlayerStats - End");
@@ -222,7 +280,6 @@ class ExpansionMonitorModule: JMModuleBase
 			current_stats.m_Water = CalcWater(active_player);
 			current_stats.m_Energy = CalcEnergy(active_player);
 			current_stats.m_Stamina = CalcStamina(active_player);
-			//! current_stats.m_Karma = active_player.GetKarma();
 			
 			current_stats.m_Distance = active_player.StatGet("dist");
 			current_stats.m_Playtime = active_player.StatGet("playtime");
@@ -295,6 +352,52 @@ class ExpansionMonitorModule: JMModuleBase
 	{
 		if ( !ctx.Read( m_PlayerStats ) )
 			return;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ServerChatMessage
+	// Called on server
+	// ------------------------------------------------------------
+	void ServerChatMessage( ref StringLocaliser tag, ref StringLocaliser message)
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionKillFeedModule::Message - Start" );
+		#endif
+
+		ScriptRPC message_rpc = new ScriptRPC();
+		message_rpc.Write( tag );
+		message_rpc.Write( message );
+		message_rpc.Send( null, ExpansionMonitorRPC.SendMessage, true );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionKillFeedModule::Message - End" );
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RPC_SendMessage
+	// Called on all Clients
+	// ------------------------------------------------------------
+	private void RPC_SendMessage( ref ParamsReadContext ctx )
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RPC_SendMessage - Start" );
+		#endif
+		
+		if ( !IsMissionClient() )
+			return;
+
+		ref StringLocaliser tag;
+		ctx.Read(tag);
+		
+		ref StringLocaliser message;
+		ctx.Read(message);
+		
+		GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", tag.Format() + " - " + message.Format(), "" ) );
+
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RPC_SendMessage - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------

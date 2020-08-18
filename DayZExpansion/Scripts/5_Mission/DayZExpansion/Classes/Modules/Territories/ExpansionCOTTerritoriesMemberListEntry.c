@@ -12,14 +12,14 @@
 
 class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 {
-	protected Widget m_Root;
-	protected TextWidget m_MemberName;
-	protected TextWidget m_MemberID;
-	protected ButtonWidget m_EditMemberButton;
-	protected ImageWidget m_MemberStateIcon;
+	private Widget m_Root;
+	private TextWidget m_MemberName;
+	private TextWidget m_MemberID;
+	private ButtonWidget m_EditMemberButton;
+	private ImageWidget m_MemberStateIcon;
 	
-	protected ref ExpansionTerritoryMember m_Member;
-	protected ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
+	private ref ExpansionTerritoryMember m_Member;
+	private ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesMemberListEntry Constructor
@@ -95,40 +95,9 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 			if ( m_TerritoryCOTMenu )
 			{
 				m_TerritoryCOTMenu.SetTerritoryMemberInfo( m_Member );
-				return true;
 			}
 		}
 		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnMouseEnter
-	// ------------------------------------------------------------	
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		if ( m_EditMemberButton && w == m_EditMemberButton )
-		{
-			m_MemberName.SetColor( ARGB( 255, 0, 0, 0 ) );
-			m_MemberID.SetColor( ARGB( 255, 0, 0, 0 ) );
-			return true;
-		}
-
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// Override OnMouseLeave
-	// ------------------------------------------------------------	
-	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
-	{
-		if ( m_EditMemberButton && w == m_EditMemberButton )
-		{
-			m_MemberName.SetColor( ARGB( 255, 255, 255, 255 ) );
-			m_MemberID.SetColor( ARGB( 255, 255, 255, 255 ) );
-			return true;
-		}
-
 		return false;
 	}
 }

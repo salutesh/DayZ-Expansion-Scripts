@@ -18,9 +18,12 @@ enum ExpansionPartyModuleRPC
 	Leave,
 	RemovePlayer,
 	UpdateClient,
+
 	CreateMarker,
+	UpdateMarker,
 	UpdatePositionMarker,
 	DeleteMarker,
+	
 	PromotePlayer,
 	DemotePlayer,
 
@@ -29,8 +32,8 @@ enum ExpansionPartyModuleRPC
 	AcceptInvite,
 	
 	SyncPlayersInvites,
-	
+
 	UpdateQuickMarker,
-	SyncQuickMarkers,
+	
 	COUNT
 }

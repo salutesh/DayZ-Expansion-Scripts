@@ -142,6 +142,9 @@ class ExpansionWorldMappingModule: JMModuleBase
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion LoadMappings
+	// ------------------------------------------------------------
 	private void LoadMappings()
 	{
 		TStringArray load = new TStringArray;
@@ -169,8 +172,8 @@ class ExpansionWorldMappingModule: JMModuleBase
 		for ( int i = 0; i < newFiles.Count(); ++i )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionWorldMappingModule::FindDifference newFiles[" + i +  "] : " + newFiles[i]);
-		#endif
+			EXPrint("ExpansionWorldMappingModule::FindDifference newFiles[" + i +  "] : " + newFiles[i]);
+			#endif
 
 			if ( !m_Objects.Contains( newFiles[i] ) )
 			{
@@ -182,8 +185,8 @@ class ExpansionWorldMappingModule: JMModuleBase
 		{
 			string objName = m_Objects.GetKey( j );
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionWorldMappingModule::FindDifference m_Objects[" + j +  "] : " + objName );
-		#endif
+			EXPrint("ExpansionWorldMappingModule::FindDifference m_Objects[" + j +  "] : " + objName );
+			#endif
 
 			if ( newFiles.Find( objName ) == -1 )
 			{
@@ -314,19 +317,34 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - Start");
 		#endif
 		
+		#ifdef EXPANSIONEXPRINT
+		//EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - Handle file: " + file.ToString());
+		#endif
+		
 		string line;
 		int lineSize = FGets( file, line );
-	
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - Line: " + line);
+		#endif
+		
 		if ( lineSize < 1 )
 			return false;
 		
-		TStringArray tokens = new TStringArray;
+		ref TStringArray tokens = new TStringArray;
 		line.Split( "|", tokens );
 
-		name = tokens.Get( 0 );
+		name = tokens.Get( 0 );		
 		position = tokens.Get( 1 ).ToVector();
-		rotation = tokens.Get( 2 ).ToVector();
+		rotation = tokens.Get( 2 ).ToVector();	
 		special = tokens.Get( 3 );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - name: " + name);
+		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - position: " + position.ToString());
+		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - rotation: " + position.ToString());
+		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - special: " + special);
+		#endif
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionWorldMappingModule::GetObjectFromFile - End");
@@ -381,13 +399,26 @@ class ExpansionWorldMappingModule: JMModuleBase
 			Object obj;
 			if (!m_InteriorModule.m_CachedCollision.Find(className, collisionBox))
 			{
-				Print("Spawning interior item: " + className);
-				obj = GetGame().CreateObjectEx( className, position, ECE_CREATEPHYSICS | ECE_LOCAL );
+				Print("Spawning object with chached collition: " + className + " on pos: " + position.ToString());
+				obj = GetGame().CreateObjectEx( className, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_LOCAL );
+				
+				obj.SetFlags(EntityFlags.STATIC, false);
 				
 				if( position )
 					obj.SetPosition( position );
+				
+				if( rotation )
+					obj.SetOrientation( rotation );
 
-				Print("Succesfully spawned interior item: " + className);
+				//FixObjectCollision( obj );
+
+				/*if ( obj.CanAffectPathgraph() )
+				{
+					obj.SetAffectPathgraph( true, false );
+					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
+				}*/
+				
+				Print("Succesfully spawned object with chached collition: " + className + " on pos: " + position.ToString());
 				if ( !obj )
 				{
 					m_InteriorModule.m_CachedCollision.Insert( className, false );
@@ -407,24 +438,24 @@ class ExpansionWorldMappingModule: JMModuleBase
 			}
 			
 			#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionWorldMappingModule::LoadFile Attempt to create object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
-		#endif
+			EXPrint( "ExpansionWorldMappingModule::LoadFile Attempt to create object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
+			#endif
 
 			//! Only spawn object with collision at server side, and object without collision at client side 
 			if (collisionBox && IsMissionClient() && GetGame().IsMultiplayer()) continue;
 			if (!collisionBox && IsMissionHost() && GetGame().IsMultiplayer()) continue;
 			
-			int flags = ECE_CREATEPHYSICS;
+			int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 			if ( IsMissionClient() )
-				flags |= ECE_LOCAL;
+				flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_LOCAL;
 			
 			obj = GetGame().CreateObjectEx( className, position, flags );
 			if ( !obj )
 				continue;
 			
 			#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionWorldMappingModule::LoadFile Created object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
-		#endif
+			EXPrint( "ExpansionWorldMappingModule::LoadFile Created object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
+			#endif
 			
 			obj.SetFlags(EntityFlags.STATIC, false);
 						
@@ -439,26 +470,19 @@ class ExpansionWorldMappingModule: JMModuleBase
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
 			}
 			
-			EntityAI entityAI = EntityAI.Cast( obj );
-			if ( entityAI )
+			ItemBase item = ItemBase.Cast( obj );
+			if ( item )
 			{
-				//Make it not CE saved	
-				if (IsMissionHost()) entityAI.SetLifetime(1.0);
+				item.SetTakeable( false );
+				
+				if ( IsMissionHost() ) 
+					item.SetLifetimeMax(1.0);
 			}
 			
 			Building building = Building.Cast( obj );
 			if ( building )
 			{
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CheckDoors, 100, false, building );
-			}
-			else
-			{
-				ItemBase item = ItemBase.Cast( obj );
-				if (item)
-				{
-					//Make it not takeable
-					item.SetTakeable( false );
-				}
 			}
 			
 			if ( special == "true")
@@ -507,7 +531,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 						}
 					}
 				}
-				
 				//! After all doors are opened close them again
 				for ( i_selection = 0; i_selection < door_sources_count; i_selection++ )
 				{

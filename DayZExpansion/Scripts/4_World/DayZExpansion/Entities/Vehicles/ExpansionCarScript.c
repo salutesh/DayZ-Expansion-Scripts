@@ -108,7 +108,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	}
 
 	// ------------------------------------------------------------
-	float GetCameraDistance()
+	override float GetCameraDistance()
 	{
 		return 4;
 	}
@@ -122,7 +122,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	}
 
 	// ------------------------------------------------------------
-	protected void OnHumanPilot( PlayerBase driver, float pDt )
+	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
 		m_TargetTurn = ( m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
 		m_EngineForce = ( m_CarController.GetForward() );
@@ -144,7 +144,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	}
 
 	// ------------------------------------------------------------
-	protected void OnAIPilot( ExpansionAIBase driver, float pDt )
+	protected override void OnAIPilot( ExpansionAIBase driver, float pDt )
 	{
 	}
 

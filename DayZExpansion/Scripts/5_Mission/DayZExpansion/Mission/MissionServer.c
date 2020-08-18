@@ -16,7 +16,7 @@
 modded class MissionServer
 {
 	// ------------------------------------------------------------
-	// Constructor
+	// MissionServer Constructor
 	// ------------------------------------------------------------
 	void MissionServer()
 	{
@@ -32,7 +32,7 @@ modded class MissionServer
 	}
 
 	// ------------------------------------------------------------
-	// Destructor
+	// MissionServer Destructor
 	// ------------------------------------------------------------
 	void ~MissionServer()
 	{
@@ -102,18 +102,9 @@ modded class MissionServer
 		EXPrint("MissionServer::OnMissionFinish - End");
 		#endif
 	}
-
-	// ------------------------------------------------------------
-	override void OnClientReadyEvent( PlayerIdentity identity, PlayerBase player )
-	{
-		super.OnClientReadyEvent( identity, player );
-
-		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && player.GetIdentity() ) 
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" ), new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
-		}
-	}
 	
+	// ------------------------------------------------------------
+	// OnClientReconnectEvent
 	// ------------------------------------------------------------
 	override void OnClientReconnectEvent( PlayerIdentity identity, PlayerBase player )
 	{
@@ -122,6 +113,8 @@ modded class MissionServer
 		g_exGlobalSettings.Send( identity );
 	}	
 	
+	// ------------------------------------------------------------
+	// InvokeOnConnect
 	// ------------------------------------------------------------
 	override void InvokeOnConnect( PlayerBase player, PlayerIdentity identity )
 	{
@@ -133,17 +126,8 @@ modded class MissionServer
 		super.InvokeOnConnect( player, identity );
 	}
 
-	override void InvokeOnDisconnect( PlayerBase player )
-	{
-		//! TODO: Move into a module
-		if ( GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity() ) 
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TITLE" ), new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
-		}
-
-		super.InvokeOnDisconnect( player );
-	}
-
+	// ------------------------------------------------------------
+	// PlayerDisconnected
 	// ------------------------------------------------------------
 	override void PlayerDisconnected( PlayerBase player, PlayerIdentity identity, string uid )
 	{
@@ -162,7 +146,7 @@ modded class MissionServer
 		EntityAI item3;
 		
 		//! Creates clothes from DayZIntroScene's m_demoUnit
-		if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 && m_skin != -1 )
+		if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 /*&& m_skin != -1*/ )
 		{
 			item = m_player.GetInventory().CreateInInventory( topsArray.Get( m_top ) );
 			item2 = m_player.GetInventory().CreateInInventory( pantsArray.Get( m_bottom ) );
@@ -181,6 +165,9 @@ modded class MissionServer
 		}
 	}
 
+	// ------------------------------------------------------------
+	// SetStartingGear
+	// ------------------------------------------------------------
 	void SetStartingGear(PlayerBase player)
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -251,6 +238,10 @@ modded class MissionServer
 		#endif
 	}
 	
+
+	// ------------------------------------------------------------
+	// Override HandleBody
+	// ------------------------------------------------------------
 	override void HandleBody(PlayerBase player)
 	{
 		player.SetAllowDamage(true);
@@ -258,6 +249,9 @@ modded class MissionServer
 		super.HandleBody(player);
 	}
 	
+	// ------------------------------------------------------------
+	// Override OnClientRespawnEvent
+	// ------------------------------------------------------------
 	override void OnClientRespawnEvent(PlayerIdentity identity, PlayerBase player)
 	{
 		if (player)

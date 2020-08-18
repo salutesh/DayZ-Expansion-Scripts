@@ -125,10 +125,16 @@ class ExpansionAn2 extends ExpansionPlaneScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-/* 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
+ 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
+		
+		return true;
+	}
 
-		return true; */
-		return false;
+	// ------------------------------------------------------------
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return true;
 	}
 }

@@ -42,7 +42,7 @@ GridSpacerWidgetClass ExpansionGroupMenuMemberListUIEntry {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     text "Member Name"
+     text ""
      font "gui/fonts/etelkatextpro22"
      "exact text" 0
      "text valign" center

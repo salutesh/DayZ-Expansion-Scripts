@@ -154,16 +154,15 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		//! Loads flag owner and texture from ExpansionFlagBase
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
-				
-		if ( !ctx.Read( m_TerritoryID ) )
+
+		if ( Expansion_Assert_False( ctx.Read( m_TerritoryID ), "[" + this + "] Failed reading m_TerritoryID" ) )
 			return false;
 		
-		if (GetExpansionSaveVersion() >= 3)
+		if ( GetExpansionSaveVersion() >= 3 )
 		{
-			if (!m_Territory.OnStoreLoad(ctx, GetExpansionSaveVersion()))
+			if ( !m_Territory.OnStoreLoad( ctx, GetExpansionSaveVersion() ) )
 				return false;
-		}
-		else
+		} else
 		{
 			ExpansionOldTerritory oldTerritory;
 			if ( !ctx.Read( oldTerritory ) )

@@ -98,12 +98,10 @@ class ExpansionLHD: ExpansionZodiacBoat
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-		return false;
-/* 		m_BoundingRadius = 150.0;
-		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * m_BoundingRadius )
+ 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 150.0 )
 			return false;
-
-		return true; */
+		
+		return true;
 	}
 
 	// ------------------------------------------------------------

@@ -13,6 +13,5 @@
 enum ExpansionMarkerRPC
 {
 	INVALID = 20160,
-	SyncServerMarkers,
 	COUNT
 }

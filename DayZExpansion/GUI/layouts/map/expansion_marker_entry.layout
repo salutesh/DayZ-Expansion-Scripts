@@ -1,82 +1,61 @@
-GridSpacerWidgetClass ExpansionMapMenuMarkerUIEntry {
+PanelWidgetClass marker_icon_container {
  visible 1
  clipchildren 1
  ignorepointer 1
  position 0 0
- size 1 0.04
+ size 1 30
  hexactpos 1
  vexactpos 1
  hexactsize 0
- vexactsize 0
+ vexactsize 1
  scriptclass ""
- style Empty
- Padding 0
- Margin 0
- "Size To Content H" 1
- "Size To Content V" 1
- Columns 1
- Rows 2
+ style rover_sim_colorable
  {
-  ButtonWidgetClass marker_entry_button {
+  ButtonWidgetClass marker_icon_button {
+   visible 1
    clipchildren 1
    ignorepointer 0
-   color 0.1843 0.3412 0.4941 1
-   position 10 10
-   size 1 32
+   color 0 0 0 0.3922
+   position 0 0
+   size 1 1
    hexactpos 1
    vexactpos 1
    hexactsize 0
-   vexactsize 1
+   vexactsize 0
    style Default
+   "no focus" 1
    {
-    PanelWidgetClass marker_entry {
+    ImageWidgetClass marker_icon_image {
      visible 1
-     clipchildren 0
+     clipchildren 1
      ignorepointer 1
-     color 0 0 0 0.3922
-     position 0 0
-     size 1 32
+     size 30 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 0
+     imageTexture "{83F4855ACB544999}DayZExpansion/GUI/textures/expansion_icon.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    TextWidgetClass marker_icon_name {
+     clipchildren 1
+     ignorepointer 1
+     position 30 0
+     size 1 1
+     valign center_ref
      hexactpos 1
-     vexactpos 1
+     vexactpos 0
      hexactsize 0
-     vexactsize 1
-     style DayZDefaultPanel
-     "no focus" 1
-     {
-      ImageWidgetClass marker_icon {
-       visible 1
-       clipchildren 1
-       ignorepointer 1
-       position 0.04 0
-       size 32 32
-       halign right_ref
-       valign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 1
-       vexactsize 1
-       imageTexture "{83F4855ACB544999}DayZExpansion/GUI/textures/expansion_icon.edds"
-       mode blend
-       "src alpha" 1
-       "no wrap" 1
-       stretch 1
-      }
-      TextWidgetClass marker_name {
-       clipchildren 0
-       ignorepointer 1
-       position 4 0
-       size 0.995 1
-       valign center_ref
-       hexactpos 1
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       font "gui/fonts/etelkatextpro16"
-       "text offset" 10 0
-       "exact text" 0
-       "text valign" center
-      }
-     }
+     vexactsize 0
+     font "gui/fonts/etelkatextpro16"
+     "text offset" 10 0
+     "exact text" 0
+     "size to text h" 0
+     "text valign" center
     }
    }
   }

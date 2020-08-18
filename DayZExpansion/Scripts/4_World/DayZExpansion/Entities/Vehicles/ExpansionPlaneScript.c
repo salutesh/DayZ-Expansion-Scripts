@@ -663,22 +663,6 @@ class ExpansionPlaneScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	override void EOnInit( IEntity other, int extra )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlaneScript::EOnInit start");
-		#endif
-
-		DisablePhysics( this );
-
-		EnablePhysics( this );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlaneScript::EOnInit end");
-		#endif
-	}
-
-	// ------------------------------------------------------------
 	override int Get3rdPersonCameraType()
 	{
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;

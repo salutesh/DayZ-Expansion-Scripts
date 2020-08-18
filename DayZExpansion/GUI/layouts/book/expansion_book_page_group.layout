@@ -417,7 +417,7 @@ FrameWidgetClass book_module_group {
          {
           ImageWidgetClass player_list_filter_clear_icon {
            ignorepointer 1
-           color 0.9451 0.9451 0.9451 1
+           color 0 0 0 1
            size 32 32
            halign center_ref
            valign center_ref
@@ -425,7 +425,8 @@ FrameWidgetClass book_module_group {
            vexactpos 0
            hexactsize 1
            vexactsize 1
-           image0 "DayZExpansion/GUI/icons/hud/cross_64x64.edds"
+           image0 ""
+           imageTexture "{50590D86B12E21D3}DayZExpansion/GUI/icons/hud/refresh_64x64.edds"
            mode blend
            "src alpha" 1
            "no wrap" 1
@@ -446,7 +447,7 @@ FrameWidgetClass book_module_group {
          {
           ImageWidgetClass player_list_filter_icon {
            ignorepointer 1
-           color 0.9451 0.9451 0.9451 1
+           color 0 0 0 1
            size 1 1
            halign center_ref
            valign center_ref

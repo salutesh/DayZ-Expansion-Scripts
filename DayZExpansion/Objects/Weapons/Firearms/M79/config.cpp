@@ -43,7 +43,7 @@ class cfgWeapons
 		modes[] = {"Single"};
 		class Single: Mode_SemiAuto
 		{
-			soundSetShot[] = {"Expansion_M79_Shot_SoundSet","IZH18_Tail_SoundSet","IZH18_InteriorTail_SoundSet"};
+			soundSetShot[] = {"Expansion_M79_Shot_SoundSet"};
 			reloadTime = 1;
 			recoil = "recoil_izh18";
 			recoilProne = "recoil_izh18_prone";

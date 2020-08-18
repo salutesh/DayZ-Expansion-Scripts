@@ -12,7 +12,7 @@ PanelWidgetClass ExpansionMarketUIItem {
  {
   ImageWidgetClass market_item_background {
    visible 1
-   color 0.498 0.549 0.5529 1
+   color 0 0 0 0.8627
    size 0.98 0.97
    halign center_ref
    valign center_ref
@@ -25,7 +25,9 @@ PanelWidgetClass ExpansionMarketUIItem {
    imageTexture "{DFF0ECEDCACA17B7}DayZExpansion/GUI/textures/polaroid.edds"
    mode blend
    "src alpha" 1
+   "no wrap" 0
    stretch 1
+   filter 1
    {
     ButtonWidgetClass market_item_button {
      size 1 1
@@ -39,7 +41,7 @@ PanelWidgetClass ExpansionMarketUIItem {
      {
       PanelWidgetClass market_item_preview_container {
        ignorepointer 1
-       color 0.102 0.102 0.102 1
+       color 0 0 0 1
        size 0.87 0.6
        halign center_ref
        valign center_ref
@@ -67,7 +69,7 @@ PanelWidgetClass ExpansionMarketUIItem {
       PanelWidgetClass market_item_header_panel {
        visible 1
        ignorepointer 1
-       color 0 0 0 0.549
+       color 0 0 0 0.9412
        position 0 0.03
        size 1 0.1
        halign center_ref
@@ -101,7 +103,7 @@ PanelWidgetClass ExpansionMarketUIItem {
       GridSpacerWidgetClass market_item_info_panel {
        visible 1
        ignorepointer 1
-       color 0 0 0 0.549
+       color 0 0 0 0.8627
        position 0 0.04
        size 1 0.1105
        halign center_ref

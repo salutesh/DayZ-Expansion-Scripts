@@ -128,26 +128,6 @@ class ExpansionBoatScript extends OffroadHatchback
 			m_ParticleSideSecond.Stop();
 		}
 	}
-	
-	override void DeferredInit()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::DeferredInit start");
-		#endif
-
-		DisablePhysics( this );
-
-		super.DeferredInit();
-
-		EnablePhysics( this );
-
-		HideSelection( "hiderotorblur" );
-		ShowSelection( "hiderotor" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::DeferredInit end");
-		#endif
-	}
 
 	bool IsUsingBoatController()
 	{
@@ -469,33 +449,32 @@ class ExpansionBoatScript extends OffroadHatchback
 	}
 
 	// ------------------------------------------------------------
-	override void EOnInit( IEntity other, int extra )
+	override void DeferredInit()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::EOnInit start");
+		EXPrint("ExpansionBoatScript::DeferredInit start");
 		#endif
 
-		DisablePhysics( this );
+		super.DeferredInit();
 
+		HideSelection( "hiderotorblur" );
+		ShowSelection( "hiderotor" );
+
+		SetVelocity( this, "0 0 0" );
+		dBodySetAngularVelocity( this, "0 0 0" );
+		
 		vector position = GetPosition();
-	
-		if ( g_Game.SurfaceIsSea( position[0], position[2] ) )
-		{
-			position[1] = g_Game.SurfaceGetSeaLevel() + m_Offset;
-			SetPosition( position );
-		} else if ( g_Game.SurfaceIsPond( position[0], position[2] ) )
+		vector orientation = GetOrientation();
+		if ( g_Game.SurfaceIsSea( position[0], position[2] ) || g_Game.SurfaceIsPond( position[0], position[2] ) )
 		{
 			float depth = g_Game.GetWaterDepth( position ) + m_Offset;
 			position[1] = position[1] + depth;
 			SetPosition( position );
+			SetOrientation( Vector( orientation[0], 0, 0 ) );
 		}
 
-		SetOrientation( "0 0 0" );
-
-		EnablePhysics( this );
-
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::EOnInit end");
+		EXPrint("ExpansionBoatScript::DeferredInit end");
 		#endif
 	}
 
@@ -670,5 +649,10 @@ class ExpansionBoatScript extends OffroadHatchback
 	override float GetCameraDistance()
 	{
 		return 12;
+	}
+
+	override bool CanConnectTow( CarScript other )
+	{
+		return false;
 	}
 }

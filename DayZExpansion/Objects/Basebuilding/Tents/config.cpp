@@ -19,7 +19,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_CAMO_BOX";
 		descriptionShort = "$STR_EXPANSION_CAMO_BOX_DESC";
-		model = "\DayZExpansion\Objects\Structures\Props\tent.p3d";
+		model = "\DayZExpansion\Objects\Structures\Props\atent.p3d";
 		itemSize[] = {8,8};
 	};
 	class ExpansionCamoBoxKitPlacing: ExpansionCamoBoxKit
@@ -120,9 +120,5 @@ class CfgVehicles
 				};
 			};
 		};
-	};
-	class ExpansionATent: ExpansionCamoTent
-	{
-		scope = 1;
 	};
 };

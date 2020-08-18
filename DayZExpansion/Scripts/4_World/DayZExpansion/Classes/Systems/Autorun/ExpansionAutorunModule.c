@@ -1,5 +1,5 @@
 /**
- * ExpansionAutorun.c
+ * ExpansionAutorunModule.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -47,13 +47,13 @@ class ExpansionAutorunModule: JMModuleBase
 	static bool SHIFT()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::SHIFT - Start");
+		EXPrint("ExpansionAutorunModule::SHIFT - Start");
 		#endif
 		
    		return( ( KeyState( KeyCode.KC_LSHIFT ) > 0 ) || ( KeyState( KeyCode.KC_RSHIFT ) > 0 ) );
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::SHIFT - End");
+		EXPrint("ExpansionAutorunModule::SHIFT - End");
 		#endif
 	}
 	
@@ -63,13 +63,13 @@ class ExpansionAutorunModule: JMModuleBase
 	static bool CTRL()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::CTRL - Start");
+		EXPrint("ExpansionAutorunModule::CTRL - Start");
 		#endif
 		
    		return( ( KeyState( KeyCode.KC_LCONTROL ) > 0 ) || ( KeyState( KeyCode.KC_RCONTROL ) > 0 ) );
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::CTRL - End");
+		EXPrint("ExpansionAutorunModule::CTRL - End");
 		#endif
 	}
 	
@@ -79,7 +79,7 @@ class ExpansionAutorunModule: JMModuleBase
 	void AutorunSync(ref ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::AutorunSync - Start");
+		EXPrint("ExpansionAutorunModule::AutorunSync - Start");
 		#endif
 		
 		if ( !IsMissionHost() )
@@ -113,7 +113,7 @@ class ExpansionAutorunModule: JMModuleBase
 	   	}
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::AutorunSync - End");
+		EXPrint("ExpansionAutorunModule::AutorunSync - End");
 		#endif
 	}
 	
@@ -123,7 +123,7 @@ class ExpansionAutorunModule: JMModuleBase
 	void AutorunDisable(ref ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::AutorunDisable - Start");
+		EXPrint("ExpansionAutorunModule::AutorunDisable - Start");
 		#endif
 		
 		if ( !IsMissionHost() )
@@ -140,7 +140,7 @@ class ExpansionAutorunModule: JMModuleBase
 		player.GetInputController().OverrideMovementAngle( false, 1 );
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::AutorunDisable - End");
+		EXPrint("ExpansionAutorunModule::AutorunDisable - End");
 		#endif
 	}
 	
@@ -150,7 +150,7 @@ class ExpansionAutorunModule: JMModuleBase
 	void AutoRun()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::AutoRun - Start");
+		EXPrint("ExpansionAutorunModule::AutoRun - Start");
 		#endif
 		
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -175,7 +175,7 @@ class ExpansionAutorunModule: JMModuleBase
 		}
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::AutoRun - End");
+		EXPrint("ExpansionAutorunModule::AutoRun - End");
 		#endif
 	}
 	
@@ -185,7 +185,7 @@ class ExpansionAutorunModule: JMModuleBase
 	void UpdateAutoWalk()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::UpdateAutoWalk - Start");
+		EXPrint("ExpansionAutorunModule::UpdateAutoWalk - Start");
 		#endif
 		
 		if (GetGame() && GetGame().GetPlayer()) 
@@ -229,7 +229,7 @@ class ExpansionAutorunModule: JMModuleBase
 		}
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorun::UpdateAutoWalk - End");
+		EXPrint("ExpansionAutorunModule::UpdateAutoWalk - End");
 		#endif
 	}
 	
@@ -263,7 +263,7 @@ class ExpansionAutorunModule: JMModuleBase
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGlobalChatModule::OnRPC - Start");
+		EXPrint("ExpansionAutorunModule::OnRPC - Start");
 		#endif
 		switch ( rpc_type )
 		{
@@ -276,7 +276,7 @@ class ExpansionAutorunModule: JMModuleBase
 			break;
 		}
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGlobalChatModule::OnRPC - End");
+		EXPrint("ExpansionAutorunModule::OnRPC - End");
 		#endif
 	}
 }

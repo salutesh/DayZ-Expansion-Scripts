@@ -23,11 +23,11 @@ class ExpansionServerInfoButtonData
 	// ------------------------------------------------------------
 	// ExpansionServerInfoButtonData Constructor
 	// ------------------------------------------------------------
-    void ExpansionServerInfoButtonData(string icon, string url, string tooltip, int color)
+	void ExpansionServerInfoButtonData(string icon, string url, string tooltip, int color)
 	{
-        this.IconPath = icon;
+		this.IconPath = icon;
 		this.URL = url;
 		this.Tooltip = tooltip;
 		this.Color = color;
-    }
+	}
 }

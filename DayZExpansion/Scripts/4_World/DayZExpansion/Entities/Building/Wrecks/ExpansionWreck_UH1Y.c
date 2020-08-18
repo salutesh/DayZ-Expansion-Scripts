@@ -16,14 +16,14 @@ modded class Wreck_UH1Y
 	Particle m_ParticleEfx;
 	int m_ServerMarker;
 	
-	protected ExpansionMapMarkerModule m_MarkerModule;
+	protected ExpansionMarkerModule m_MarkerModule;
 
 	// ------------------------------------------------------------
 	// Wreck_UH1Y Constructor
 	// ------------------------------------------------------------
 	void Wreck_UH1Y()
 	{
-		m_MarkerModule = ExpansionMapMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMapMarkerModule ) );
+		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		
 		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
 		{

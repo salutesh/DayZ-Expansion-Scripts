@@ -80,48 +80,102 @@ modded class OptionsMenu
 			}
 			case 4:
 			{
-				m_ExpansionTab.Focus();
+				// Just do nothing
 				break;
 			}
 		}
 	}
-
+	
 	override void OnChanged()
 	{
 		bool changed = false;
-		if( m_Options.IsChanged() || m_GameTab.IsChanged() || m_SoundsTab.IsChanged() || m_ControlsTab.IsChanged() || m_ExpansionTab.IsChanged() )
+		if( m_Options.IsChanged() || m_GameTab.IsChanged() || m_SoundsTab.IsChanged() || m_ControlsTab.IsChanged() )
 		{
 			changed = true;
 		}
-		
-		if( m_VideoTab.IsChanged() )
+		#ifdef PLATFORM_WINDOWS
+		#ifndef PLATFORM_CONSOLE
+		else if( m_VideoTab.IsChanged() )
 		{
 			changed = true;
 		}
-		
-		if ( changed )
+		else if( m_ExpansionTab.IsChanged() )
 		{
-			m_Apply.ClearFlags( WidgetFlags.IGNOREPOINTER );
-			ColorNormal( m_Apply );
-		} else
-		{
-			m_Apply.SetFlags( WidgetFlags.IGNOREPOINTER );
-			ColorDisable( m_Apply );
+			changed = true;
 		}
+		#endif
+		#endif
+		
+		#ifdef PLATFORM_CONSOLE
+			layoutRoot.FindAnyWidget( "Apply" ).Show( changed );
+			layoutRoot.FindAnyWidget( "Reset" ).Show( changed );
+		#else
+		#ifdef PLATFORM_WINDOWS
+			//m_Apply.Enable( changed );
+			//m_Reset.Enable( changed );
+		
+			if( changed )
+			{
+				//m_Reset.ClearFlags( WidgetFlags.IGNOREPOINTER );
+				//ColorNormal( m_Reset );
+				m_Apply.ClearFlags( WidgetFlags.IGNOREPOINTER );
+				ColorNormal( m_Apply );
+			}
+			else
+			{
+				m_Apply.SetFlags( WidgetFlags.IGNOREPOINTER );
+				ColorDisable( m_Apply );
+				//m_Reset.SetFlags( WidgetFlags.IGNOREPOINTER );
+				//ColorDisable( m_Reset );
+				
+			}
+		#endif
+		#endif
 		
 		m_Tabber.AlignTabbers();
 	}
 
 	override void Apply()
 	{
-		super.Apply();
+		m_ControlsTab.Apply();
 		
-		if ( m_ExpansionTab.IsChanged() )
+		if( m_Options.IsChanged() || m_GameTab.IsChanged() )
+		{
+			m_Options.Test();
+			m_Options.Apply();
+		}
+		
+		if( m_GameTab.IsChanged() )
+		{
+			m_GameTab.Apply();
+		}
+		
+		if( m_ExpansionTab.IsChanged() )
 		{
 			m_ExpansionTab.Apply();
 		}
+		
+		// save input configuration
+		GetUApi().Export();	
+		
+		#ifdef PLATFORM_CONSOLE
+			layoutRoot.FindAnyWidget( "Reset" ).Show( false );
+			layoutRoot.FindAnyWidget( "Apply" ).Show( false );
+		#else
+		#ifdef PLATFORM_WINDOWS
+			//m_Apply.Enable( false );
+			m_Apply.SetFlags( WidgetFlags.IGNOREPOINTER );
+			ColorDisable(m_Apply);
+			//m_Reset.Enable( false );
+			//m_Reset.SetFlags( WidgetFlags.IGNOREPOINTER );
+			//ColorDisable(m_Reset);
+		#endif
+		#endif
+		
+		if( m_Options.NeedRestart() )
+			g_Game.GetUIManager().ShowDialog("#main_menu_configure", "#menu_restart_needed", 117, DBT_YESNO, DBB_YES, DMT_QUESTION, this);
 	}
-
+	
 	protected void SetGameVersion()
 	{
 		TextWidget version_widget = TextWidget.Cast( layoutRoot.FindAnyWidget("version") );

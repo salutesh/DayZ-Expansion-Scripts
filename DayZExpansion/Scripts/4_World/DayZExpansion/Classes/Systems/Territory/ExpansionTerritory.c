@@ -303,21 +303,28 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool OnStoreLoad( ParamsReadContext ctx, int expansionVersion )
 	{
-		if ( !ctx.Read( TerritoryID ) )
+		if ( Expansion_Assert_False( ctx.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
 			return false;
-		if ( !ctx.Read( TerritoryName ) )
+			
+		if ( Expansion_Assert_False( ctx.Read( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
 			return false;
-		if ( !ctx.Read( TerritoryPosition ) )
+
+		if ( Expansion_Assert_False( ctx.Read( TerritoryPosition ), "[" + this + "] Failed reading TerritoryPosition" ) )
 			return false;
-		if ( !ctx.Read( TerritoryLevel ) )
+
+		if ( Expansion_Assert_False( ctx.Read( TerritoryLevel ), "[" + this + "] Failed reading TerritoryLevel" ) )
 			return false;
-		if ( !ctx.Read( TerritoryOwnerID ) )
+
+		if ( Expansion_Assert_False( ctx.Read( TerritoryOwnerID ), "[" + this + "] Failed reading TerritoryOwnerID" ) )
 			return false;
-		if ( !ctx.Read( TerritoryFlagTexturePath ) )
+
+		if ( Expansion_Assert_False( ctx.Read( TerritoryFlagTexturePath ), "[" + this + "] Failed reading TerritoryFlagTexturePath" ) )
 			return false;
-		if ( !ctx.Read( TerritoryMembers ) )
+
+		if ( Expansion_Assert_False( ctx.Read( TerritoryMembers ), "[" + this + "] Failed reading TerritoryMembers" ) )
 			return false;
-		if ( !ctx.Read( Invites ) )
+
+		if ( Expansion_Assert_False( ctx.Read( Invites ), "[" + this + "] Failed reading Invites" ) )
 			return false;
 		
 		return true;

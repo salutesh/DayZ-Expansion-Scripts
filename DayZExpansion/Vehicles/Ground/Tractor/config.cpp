@@ -222,6 +222,7 @@ class CfgVehicles
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat"};
 		doors[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver"};
 		applySkinsTo[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver"};
+		defaultSkin = "Red";
 		fuelCapacity = 67;
 		fuelConsumption = 13;
 		batterySlot = "CarBattery";
@@ -267,11 +268,11 @@ class CfgVehicles
 			};
 			class Gearbox
 			{
-				reverse = 4.526;
+				reverse = 6.526;
 				ratios[] = {3.667,3.25};
 				timeToUncoupleClutch = 0.15;
 				timeToCoupleClutch = 0.14999999;
-				maxClutchTorque = 260;
+				maxClutchTorque = 560;
 			};
 			class Axles: Axles
 			{

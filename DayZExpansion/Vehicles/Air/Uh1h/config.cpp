@@ -95,6 +95,7 @@ class CfgVehicles
 		hiddenSelections[] = {"camo1","camo2"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d_co.paa","dayzexpansion\vehicles\air\uh1h\data\uh1d_in_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d.rvmat","dayzexpansion\vehicles\air\uh1h\data\uh1d_in.rvmat"};
+		defaultSkin = "Green";
 		class Cargo
 		{
 			itemsCargoSize[] = {10,50};

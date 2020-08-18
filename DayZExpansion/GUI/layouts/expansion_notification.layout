@@ -11,7 +11,9 @@ WrapSpacerWidgetClass NotificationRoot {
  hexactsize 0
  vexactsize 0
  scaled 1
+ priority 1000
  draggable 0
+ style Empty
  "no focus" 1
  Padding 0
  Margin 0
@@ -21,6 +23,7 @@ WrapSpacerWidgetClass NotificationRoot {
    inheritalpha 0
    ignorepointer 1
    keepsafezone 0
+   color 0.3137 0.3137 0.3137 0.4706
    position 0 0
    size 1 1
    hexactpos 1
@@ -28,9 +31,8 @@ WrapSpacerWidgetClass NotificationRoot {
    hexactsize 0
    vexactsize 0
    scaled 1
-   priority 999
    draggable 0
-   style Empty
+   style DayZDefaultPanel
    "no focus" 1
    Padding 0
    Margin 0
@@ -44,7 +46,6 @@ WrapSpacerWidgetClass NotificationRoot {
      inheritalpha 0
      ignorepointer 1
      keepsafezone 0
-     color 1 1 1 0.7882
      position 0 0
      size 0.02 1
      hexactpos 1
@@ -62,7 +63,7 @@ WrapSpacerWidgetClass NotificationRoot {
        visible 1
        disabled 1
        ignorepointer 1
-       color 1 1 1 0.7843
+       color 1 1 1 0.4706
        position 5 0
        size 1 1
        hexactpos 1
@@ -70,9 +71,9 @@ WrapSpacerWidgetClass NotificationRoot {
        hexactsize 0
        vexactsize 0
        scaled 1
-       mode blend
+       mode opaque
        "src alpha" 1
-       "no wrap" 0
+       "no wrap" 1
        stretch 1
        "Transition width" 0.032
       }
@@ -82,7 +83,6 @@ WrapSpacerWidgetClass NotificationRoot {
      inheritalpha 0
      ignorepointer 1
      keepsafezone 0
-     color 0.1451 0.2039 0.2667 1
      position 0 0
      size 0.98 1
      hexactpos 1
@@ -91,7 +91,7 @@ WrapSpacerWidgetClass NotificationRoot {
      vexactsize 0
      scaled 1
      draggable 0
-     style Colorable
+     style Empty
      "no focus" 1
      Padding 0
      Margin 0
@@ -103,7 +103,6 @@ WrapSpacerWidgetClass NotificationRoot {
       GridSpacerWidgetClass TopSpacer {
        inheritalpha 0
        ignorepointer 1
-       color 1 1 1 0.9961
        position 0 0
        size 1 0.08
        hexactpos 1
@@ -253,6 +252,37 @@ WrapSpacerWidgetClass NotificationRoot {
        }
       }
      }
+    }
+   }
+  }
+  GridSpacerWidgetClass HeaderSpcaer {
+   visible 1
+   ignorepointer 1
+   color 1 1 1 0.9961
+   position 0 0
+   size 1 0.116
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   style Empty
+   "no focus" 1
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 2
+   Rows 1
+   {
+    PanelWidgetClass Spacer0 {
+     ignorepointer 1
+     position 11 6
+     size 1 5
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     "no focus" 1
     }
    }
   }

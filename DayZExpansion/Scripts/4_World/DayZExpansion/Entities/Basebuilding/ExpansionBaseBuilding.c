@@ -111,10 +111,12 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 
 		return false;
 	}
+	
 	override bool CanBeRepairedToPristine()
 	{
 		return true;
 	}
+	
 	override vector GetKitSpawnPosition()
 	{
 		if ( MemoryPointExists( "kit_spawn_position" ) )
@@ -297,12 +299,21 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		return false;
 	}
 
+	/**
+	\brief Returning codelock entity
+		\param
+	*/
+	override ExpansionCodeLock GetCodeLock()
+	{
+		return ExpansionCodeLock.Cast( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) );
+	}
+
 
 	//! For some reasons doing this fixed the null pointer. It's 3AM I need to sleep, good luck guys <3
 	//! -LieutenantMaster
 
 
-    // avoid calling this function on frequent occasions, it's a massive performance hit
+	// avoid calling this function on frequent occasions, it's a massive performance hit
 	override void UpdatePhysics()
 	{
 		//update attachments physics
@@ -474,24 +485,14 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		if ( !super.OnStoreLoad( ctx, version ) )
-		{
 			return false;
-		}
 		
-		if ( !ctx.Read( m_Locked ) )
-		{
+		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
 			return false;
-		}
-		
-		if ( !ctx.Read( m_Code ) )
-		{
+		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
 			return false;
-		}
-
-		if ( !ctx.Read( m_HasCode ) )
-		{
+		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
 			return false;
-		}
 		
 		SetSynchDirty();
 

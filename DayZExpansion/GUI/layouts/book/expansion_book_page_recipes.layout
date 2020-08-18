@@ -1,0 +1,120 @@
+FrameWidgetClass book_module_recipes {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ {
+  PanelWidgetClass book_recipes_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 938 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 1
+   {
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+    }
+    PanelWidgetClass book_menu_content_right {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      TextWidgetClass recipes_catecorys_description_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       font "DayZExpansion/GUI/fonts/etelkatextpro24"
+       "exact text" 0
+       "size to text h" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass recipes_catecorys_description_background {
+       ignorepointer 1
+       position 0 0
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_5"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      PanelWidgetClass recipes_categorys_content {
+       ignorepointer 1
+       position 0 50
+       size 1 0.9
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "no focus" 1
+       {
+        ScrollWidgetClass recipes_categorys_scroller {
+         ignorepointer 0
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         "Scrollbar V" 1
+         {
+          WrapSpacerWidgetClass recipes_categorys_scroller_content {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           Padding 3
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

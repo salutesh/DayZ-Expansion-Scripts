@@ -21,8 +21,6 @@ class ExpansionGame
 		EXPrint("ExpansionGame::ExpansionGame - Start");
 		#endif
 
-		Expansion_SetupDebugger();
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGame::ExpansionGame - End");
 		#endif

@@ -126,16 +126,19 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 	{
 		return false;
 	}
+	
 	// ------------------------------------------------------------
 	override bool IsVitalIgniterPlug()
 	{
 		return false;
 	}
+
 	// ------------------------------------------------------------	
 	override bool IsVitalHydraulicHoses()
 	{
 		return false;
 	}
+
 	// ------------------------------------------------------------
 	override bool IsVitalGlowPlug()
 	{
@@ -144,12 +147,6 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 
 	// ------------------------------------------------------------
 	override bool IsVitalEngineBelt()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
 	{
 		return false;
 	}
@@ -170,6 +167,19 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 	override float GetCameraDistance()
 	{
 		return 6;
+	}
+
+	// ------------------------------------------------------------
+	override bool CanObjectAttach( Object obj )
+	{
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return false;
 	}
 
 	// ------------------------------------------------------------

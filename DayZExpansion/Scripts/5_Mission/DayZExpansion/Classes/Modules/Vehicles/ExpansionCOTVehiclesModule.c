@@ -23,7 +23,8 @@ const int EXDT_DESTROYED = 4;
 
 class ExpansionVehicleMetaData
 {
-	int m_ID;
+	int m_NetworkIDLow;
+	int m_NetworkIDHigh;
 	string m_ClassName;
 	vector m_Position;
 	vector m_Orientation;
@@ -35,7 +36,8 @@ class ExpansionVehicleMetaData
 	
 	void ExpansionVehicleMetaData( CarScript car )
 	{
-		m_ID = car.GetID();
+		car.GetNetworkID( m_NetworkIDLow, m_NetworkIDHigh );
+
 		m_ClassName = car.ClassName();
 		m_Position = car.GetPosition();
 		m_Orientation = car.GetOrientation();
@@ -122,7 +124,12 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	void ExpansionCOTVehiclesModule()
 	{
 		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.View" );
-		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.Apply" );
+		
+		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.Delete" );
+		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.Delete.All" );
+		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.Delete.Destroyed" );
+		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.Delete.Unclaimed" );
+		GetPermissionsManager().RegisterPermission( "Expansion.Vehicles.Teleport" );
 		
 		m_Vehicles = new array<ref ExpansionVehicleMetaData>;
 	}
@@ -153,7 +160,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	override string GetTitle()
 	{
-		return "Vehicles";
+		return "[EX] Vehicle Management";
 	}
 	
 	// ------------------------------------------------------------
@@ -161,7 +168,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	override string GetIconName()
 	{
-		return "EX";
+		return "V";
 	}
 	
 	// ------------------------------------------------------------
@@ -244,6 +251,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		case ExpansionCOTVehiclesModuleRPC.DeleteVehicleAll:
 			RPC_DeleteVehicleAll( ctx, sender, target );
 			break;
+		case ExpansionCOTVehiclesModuleRPC.TeleportToVehicle:
+			RPC_TeleportToVehicle( ctx, sender, target );
+			break;
 		}
 	}
 	
@@ -267,6 +277,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	void RPC_RequestServerVehicles( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
 	{
 		if ( !IsMissionHost() )
+			return;
+
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.View", senderRPC ) )
 			return;
 		
 		UpdateVehiclesMetaData();
@@ -344,14 +357,13 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	// ExpansionCOTVehiclesModule DeleteVehicle
 	// ------------------------------------------------------------	
-	void DeleteVehicle( int id )
+	void DeleteVehicle( int netLow, int netHigh )
 	{
 		if ( IsMissionClient() )
 		{
 			ScriptRPC rpc = new ScriptRPC();
-			
-			rpc.Write( id );
- 			
+			rpc.Write( netLow );
+			rpc.Write( netHigh );
 			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.DeleteVehicle, true );
 		}
 	}
@@ -364,23 +376,24 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( !IsMissionHost() )
 			return;
-		
-		int id;
-		if ( !ctx.Read( id ) )
+
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete", senderRPC ) )
 			return;
 		
-		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
-		{
-			CarScript car = CarScript.GetAll()[i];
-			if ( !car )
-				return;
+		int netLow;
+		if ( !ctx.Read( netLow ) )
+			return;
 
-			if ( car.GetID() == id )
-			{
-				GetGame().ObjectDelete( car );
-				return;
-			}
-		}
+		int netHigh;
+		if ( !ctx.Read( netHigh ) )
+			return;
+		
+		CarScript car = CarScript.Cast( GetGame().GetObjectByNetworkId( netLow, netHigh ) );
+
+		if ( !car )
+			return;
+
+		GetGame().ObjectDelete( car );
 	}
 
 	// ------------------------------------------------------------
@@ -390,6 +403,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	private void RPC_DeleteVehicleUnclaimed( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
 	{
 		if ( !IsMissionHost() )
+			return;
+
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete.Unclaimed", senderRPC ) )
 			return;
 		
 		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
@@ -413,6 +429,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( !IsMissionHost() )
 			return;
+
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete.Destroyed", senderRPC ) )
+			return;
 		
 		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
 		{
@@ -435,6 +454,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( !IsMissionHost() )
 			return;
+
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete.All", senderRPC ) )
+			return;
 		
 		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
 		{
@@ -444,6 +466,58 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 
 			GetGame().ObjectDelete( car );
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTVehiclesModule RequestTeleportToVehicle
+	// Called on client
+	// ------------------------------------------------------------
+	void RequestTeleportToVehicle( int netLow, int netHigh )
+	{
+		if ( IsMissionClient() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Write( netLow );
+			rpc.Write( netHigh );
+ 			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.TeleportToVehicle, true );
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTVehiclesModule RPC_TeleportToVehicle
+	// Called on Server
+	// ------------------------------------------------------------
+	private void RPC_TeleportToVehicle( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	{
+		if ( !IsMissionHost() )
+			return;
+
+		JMPlayerInstance instance;
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Teleport", senderRPC, instance ) )
+			return;
+
+		int netLow;
+		if ( !ctx.Read( netLow ) )
+			return;
+
+		int netHigh;
+		if ( !ctx.Read( netHigh ) )
+			return;
+		
+		PlayerBase player = GetPlayerObjectByIdentity( senderRPC );
+		if ( !player )
+			return;
+
+		CarScript car = CarScript.Cast( GetGame().GetObjectByNetworkId( netLow, netHigh ) );
+		if ( !car )
+			return;
+
+		vector pos = car.GetPosition();
+		vector minMax[2];
+		car.ClippingInfo( minMax );
+
+		player.SetLastPosition();
+		player.SetWorldPosition( pos + minMax[1] );
 	}
 	
 	// ------------------------------------------------------------

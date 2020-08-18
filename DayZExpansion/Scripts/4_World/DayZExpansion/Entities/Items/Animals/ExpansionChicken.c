@@ -125,14 +125,10 @@ class ExpansionChicken extends Inventory_Base
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
 		if ( !super.OnStoreLoad( ctx, version ) )
-		{
 			return false;
-		}
 
-		if ( !ctx.Read( m_TypeChicken ) )
-		{
+		if ( Expansion_Assert_False( ctx.Read( m_TypeChicken ), "[" + this + "] Failed reading m_TypeChicken" ) )
 			return false;
-		}
 
 		return true;
 	}

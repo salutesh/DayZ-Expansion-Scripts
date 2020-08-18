@@ -45,12 +45,27 @@ FrameWidgetClass FrameWidget {
        style Default
        "limit visible" 1
        "exact text" 1
-       "exact text size 22"
-       font "gui/fonts/etelkatextpro22"
       }
      }
     }
    }
+  }
+  ImageWidgetClass ChatInfo {
+   visible 0
+   ignorepointer 0
+   position 0.025 0
+   size 32 32
+   halign right_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
   }
  }
 }

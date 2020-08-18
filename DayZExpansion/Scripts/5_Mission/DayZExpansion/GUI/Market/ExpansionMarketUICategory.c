@@ -51,7 +51,7 @@ class ExpansionMarketUICategory: ScriptedWidgetEventHandler
 		m_CategroyGrid.Show(false);
 	}
 
-	void ToogleItemGrid()
+	void ToggleItemGrid()
 	{
 		if ( m_CategroyGrid.IsVisible() )
 			m_CategroyGrid.Show(false);
@@ -66,7 +66,7 @@ class ExpansionMarketUICategory: ScriptedWidgetEventHandler
 	{
 		if (w == m_CategroyButton)
 		{
-			ToogleItemGrid();
+			ToggleItemGrid();
 		}
 
 		return super.OnClick(w, x, y, button);

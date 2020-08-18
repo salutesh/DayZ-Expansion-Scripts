@@ -24,6 +24,8 @@ class ExpansionCarAdminKey extends ExpansionCarKey
 	// ------------------------------------------------------------
 	override string GetDisplayName()
 	{
-		return "Admin Car Key";
+		string result;
+		result = "#STR_EXPANSION_PARTY_RANK_ADMIN" + " " + "#STR_EXPANSION_CAR_KEYS";
+		return result;
 	}
 }

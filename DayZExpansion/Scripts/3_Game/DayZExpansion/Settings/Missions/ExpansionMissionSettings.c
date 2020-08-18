@@ -21,7 +21,9 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	int MinMissions;
 	int MaxMissions;
 
-	autoptr array< ref ExpansionMissionMeta > Missions;
+	int MinPlayersToStartMissions;
+
+	ref array< ref ExpansionMissionMeta > Missions;
 
 	[NonSerialized()]
 	private bool m_GenerateDefaults;
@@ -39,15 +41,23 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	{		
 		Missions = new array< ref ExpansionMissionMeta >;
 	}
+
+	void ~ExpansionMissionSettings()
+	{		
+		delete Missions;
+	}
 	
-	override void HandleRPC( ref ParamsReadContext ctx )
+	//TODO: COT module sending optimization
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		//No send to client
+		//! Don't send to client
+
+		return true;
 	}
 
 	override int Send( PlayerIdentity identity )
 	{
-		//No send to client
+		//! Don't send to client
 	}
 
 	// ------------------------------------------------------------
@@ -77,6 +87,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		TimeBetweenMissions = s.TimeBetweenMissions;
 		MinMissions = s.MinMissions;
 		MaxMissions = s.MaxMissions;
+		MinPlayersToStartMissions = s.MinPlayersToStartMissions;
 	}
 	
 	// ------------------------------------------------------------
@@ -103,33 +114,37 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		if ( !FileExist( EXPANSION_MISSIONS_FOLDER ) ) 
 		{
 			MakeDirectory( EXPANSION_MISSIONS_FOLDER );
+			
+			m_GenerateDefaults = true;
 		}
 
 		if ( FileExist( EXPANSION_MISSION_SETTINGS ) )
 		{
+			Print("[ExpansionMissionSettings] Loading settings");
+
 			JsonFileLoader<ExpansionMissionSettings>.JsonLoadFile( EXPANSION_MISSION_SETTINGS, this );
 
-			if ( MinMissions < 0 )
-			{
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint( "[ExpansionMissionSettings] MinMissions can't be lower than 0!" );
-				#endif
+			Expansion_Assert_False( MinPlayersToStartMissions >= 0, "[ExpansionMissionSettings] MinPlayersToStartMissions can't be lower than 0!" );
+			Expansion_Assert_False( MinMissions >= 0, "[ExpansionMissionSettings] MinMissions can't be lower than 0!" );
+			Expansion_Assert_False( MaxMissions >= 0, "[ExpansionMissionSettings] MaxMissions can't be lower than 0!" );
+			Expansion_Assert_False( MinMissions >= MaxMissions, "[ExpansionMissionSettings] MaxMissions can't be lower than MinMissions!" );
 
+			array< int > toRemove = new array< int >();
+			for ( int i = 0; i < Missions.Count(); ++i )
+			{
+				if ( !FileExist( Missions[i].MissionPath ) )
+				{
+					Print( "[ExpansionMissionSettings] Mission \"" + Missions[i].MissionPath + "\" doesn't exist, removing entry." );
+					toRemove.Insert( i );
+				}
 			}
 
-			if ( MaxMissions < 0 )
+			for ( int j = 0; j < toRemove.Count(); ++j )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint( "[ExpansionMissionSettings] MinMissions can't be lower than 0!" );
-				#endif
-
-			} else if ( MaxMissions < MinMissions )
-			{
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint( "[ExpansionMissionSettings] MaxMissions can't be lower than MinMissions!" );
-				#endif
-				
+				Missions.Remove( toRemove[j] );
 			}
+
+			Save();
 
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionMissionSettings::Load - End");
@@ -151,9 +166,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionMissionSettings] Saving settings");
-		#endif
+		Print("[ExpansionMissionSettings] Saving settings");
 
 		JsonFileLoader<ExpansionMissionSettings>.JsonSaveFile( EXPANSION_MISSION_SETTINGS, this );
 
@@ -165,9 +178,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionMissionSettings] Loading default settings");
-		#endif
+		Print("[ExpansionMissionSettings] Loading default settings");
 		
 		Enabled = true;
 
@@ -175,6 +186,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 
 		MinMissions = 0;
 		MaxMissions = 1;
+
+		MinPlayersToStartMissions = 0;
 
 		m_GenerateDefaults = true;
 	}

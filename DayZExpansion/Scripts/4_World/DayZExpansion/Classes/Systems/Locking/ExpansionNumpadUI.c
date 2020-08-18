@@ -119,7 +119,7 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 		m_Target = target;
 		m_Selection = selection;
 
-    	super.SetTarget( m_Target, m_Selection );
+		super.SetTarget( m_Target, m_Selection );
 	}
 
 	override void ShowLockState()
@@ -141,13 +141,13 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 	protected override void SendRPC()
 	{
 		if ( m_Code.Length() != m_CodeLength )
-        	return;
+			return;
 		
 		ScriptRPC rpc = new ScriptRPC;
 
 		int rpcType = ExpansionLockRPC.UNLOCK;
 		if ( !m_HasPin )
-        	rpcType = ExpansionLockRPC.SET;
+			rpcType = ExpansionLockRPC.SET;
 		if ( m_RpcChange )
 			rpcType = ExpansionLockRPC.CHANGE;
 
@@ -264,7 +264,7 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 			}
 		}
 	}
-    
+	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		super.OnMouseEnter(w, x, y);

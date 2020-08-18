@@ -4,59 +4,113 @@ class ExpansionSkins : Managed
 	private ref array< string > m_Order;
 
 	private string m_DefaultSkin;
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins Constructor
+	// ------------------------------------------------------------	
 	void ExpansionSkins( string defaultSkin )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::ExpansionSkins - Start");
+		#endif
+		
 		m_DefaultSkin = defaultSkin;
 		m_Skins = new map< string, ref ExpansionSkin >;
 		m_Order = new array< string >;
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::ExpansionSkins - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins Destructor
+	// ------------------------------------------------------------	
 	void ~ExpansionSkins()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::~ExpansionSkins - Start");
+		#endif
+		
 		delete m_Skins;
 		delete m_Order;
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::~ExpansionSkins - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins AddSkin
+	// ------------------------------------------------------------	
 	void AddSkin( string name, string path )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::AddSkin - Start");
+		#endif
+		
 		ref ExpansionSkin skin = new ExpansionSkin;
 		JsonFileLoader< ExpansionSkin >.JsonLoadFile( path, skin );
 		
 		m_Skins.Insert( name, skin );
 		m_Order.Insert( name );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::AddSkin - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins Count
+	// ------------------------------------------------------------
 	int Count()
 	{
 		return m_Skins.Count();
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionSkins Find
+	// ------------------------------------------------------------	
 	int Find( string name )
 	{
 		return m_Order.Find( name );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins GetName
+	// ------------------------------------------------------------
 	string GetName( int index )
 	{
 		return m_Order[index];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins Get
+	// ------------------------------------------------------------
 	ExpansionSkin Get( int index )
 	{
 		return m_Skins[GetName(index)];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins Get
+	// ------------------------------------------------------------
 	ExpansionSkin Get( string name )
 	{
 		return m_Skins[name];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins GetDefaultSkin
+	// ------------------------------------------------------------
 	string GetDefaultSkin()
 	{
 		return m_DefaultSkin;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkins Sort
+	// ------------------------------------------------------------
 	void Sort()
 	{
 		m_Order.Sort();
@@ -66,19 +120,32 @@ class ExpansionSkins : Managed
 class ExpansionSkinModule: JMModuleBase
 {	
 	private ref map< string, ref ExpansionSkins > m_Skins;
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule Constructor
+	// ------------------------------------------------------------
 	void ExpansionSkinModule()
 	{
 		m_Skins = new map< string, ref ExpansionSkins >;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule Destructor
+	// ------------------------------------------------------------
 	void ~ExpansionSkinModule()
 	{
 		delete m_Skins;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule OnInit
+	// ------------------------------------------------------------
 	override void OnInit()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::OnInit - Start");
+		#endif
+		
 		int mod_count = GetGame().ConfigGetChildrenCount( "CfgMods" );
 		
 		for ( int i = 0; i < mod_count; ++i )
@@ -119,10 +186,10 @@ class ExpansionSkinModule: JMModuleBase
 				{
 					if ( folderName.Length() > 0 )
 					{
-						if ( filePatching )
-						{
-							LoadClassSkins( folderName, folder );
-						} else 
+						//if ( filePatching )
+						//{
+						//	LoadClassSkins( folderName, folder );
+						//} else 
 						{
 							LoadSkinsForObject( folderName, folder );
 						}
@@ -132,10 +199,10 @@ class ExpansionSkinModule: JMModuleBase
 					{
 						if ( folderName.Length() > 0 )
 						{
-							if ( filePatching )
-							{
-								LoadClassSkins( folderName, folder );
-							} else 
+							//if ( filePatching )
+							//{
+							//	LoadClassSkins( folderName, folder );
+							//} else 
 							{
 								LoadSkinsForObject( folderName, folder );
 							}
@@ -149,10 +216,21 @@ class ExpansionSkinModule: JMModuleBase
 		{
 			m_Skins.GetElement( k ).Sort();
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::OnInit - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule LoadClassSkins
+	// ------------------------------------------------------------
 	private void LoadClassSkins( string folder, string rootFolder )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::LoadClassSkins - Start");
+		#endif
+		
 		string path = rootFolder + "\\" + folder + "\\";
 		
 		string fileName;
@@ -178,8 +256,15 @@ class ExpansionSkinModule: JMModuleBase
 				}
 			}
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkins::LoadClassSkins - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule LoadSkinsForObject
+	// ------------------------------------------------------------
 	private void LoadSkinsForObject( string file, string rootFolder )
 	{
 		#ifdef EXPANSION_SKIN_LOGGING
@@ -212,7 +297,9 @@ class ExpansionSkinModule: JMModuleBase
 					path = "cfgNonAIVehicles";
 					if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
 					{
-						Error( "Invalid class name " + classname );
+						if(classname)
+							Error( "Invalid class name " + classname );
+						
 						return;
 					}
 				}
@@ -242,7 +329,10 @@ class ExpansionSkinModule: JMModuleBase
 			skins.AddSkin( skinname, rootFolder + file );
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule GetSkinIndex
+	// ------------------------------------------------------------
 	int GetSkinIndex( string classname, string skin )
 	{
 		classname.ToLower();
@@ -258,7 +348,10 @@ class ExpansionSkinModule: JMModuleBase
 
 		return -1;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule GetSkinName
+	// ------------------------------------------------------------
 	string GetSkinName( string classname, int index )
 	{
 		if ( index < 0 )
@@ -270,53 +363,87 @@ class ExpansionSkinModule: JMModuleBase
 
 		return skins.GetName( index );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule RetrieveSkins
+	// ------------------------------------------------------------
 	void RetrieveSkins( string classname, out array< ExpansionSkin > skinCopy, out string defaultSkin )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkinModule::RetrieveSkins - Start");
+		#endif
+		
 		defaultSkin = "";
 
 		classname.ToLower();
 
 		ExpansionSkins skins = m_Skins.Get( classname );
 		if ( !skins )
+		{
+			#ifdef EXPANSIONEXLOGPRINT
+			Print("ExpansionSkinModule::RetrieveSkins - No Skins!");
+			#endif
 			return;
-
+		}
+		
 		defaultSkin = skins.GetDefaultSkin();
 
 		for ( int i = 0; i < skins.Count(); ++i )
 			skinCopy.Insert( skins.Get( i ) );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkinModule::RetrieveSkins - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule PerformCESkinSwap
+	// ------------------------------------------------------------
 	bool PerformCESkinSwap( EntityAI ent )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkinModule::PerformCESkinSwap - Start");
+		#endif
+		
 		string base = ent.ConfigGetString( "skinBase" );
 		string skin = ent.ConfigGetString( "skinName" );
+		string currentType = ent.GetType();
 		
-		if ( base != "" && skin != "" && base != ent.GetType() )
+		base.ToLower();
+		currentType.ToLower();
+		
+		if ( base != "" && skin != "" && base != currentType )
 		{
 			ExpansionSkinObjectLambda lambda = new ExpansionSkinObjectLambda( ent, base, NULL, this, skin );
-			
+	
 			//InventoryLocation newDst = new InventoryLocation;
 			//ent.GetInventory().GetCurrentInventoryLocation( newDst );
-
 			//lambda.OverrideNewLocation( newDst );
 
-			if ( GetGame().IsClient() )
-			{
-
-			} else
+			if ( !GetGame().IsClient() )
 			{
 				ent.GetInventory().ReplaceItemWithNew( InventoryMode.SERVER, lambda );
 			}
 
 			return true;
 		}
-
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkinModule::PerformCESkinSwap - End");
+		#endif
+		
 		return false;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule PerformSkinFixOldVersion
+	// ------------------------------------------------------------
 	bool PerformSkinFixOldVersion( EntityAI ent, string skin )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkinModule::PerformSkinFixOldVersion - Start");
+		#endif
+		
 		string base = ent.ConfigGetString( "newBase" );
 		
 		if ( base != "" && base != ent.GetType() )
@@ -325,7 +452,6 @@ class ExpansionSkinModule: JMModuleBase
 			
 			//InventoryLocation newDst = new InventoryLocation;
 			//ent.GetInventory().GetCurrentInventoryLocation( newDst );
-
 			//lambda.OverrideNewLocation( newDst );
 
 			if ( GetGame().IsClient() )
@@ -338,6 +464,10 @@ class ExpansionSkinModule: JMModuleBase
 
 			return true;
 		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		Print("ExpansionSkinModule::PerformSkinFixOldVersion - End");
+		#endif
 
 		return false;
 	}

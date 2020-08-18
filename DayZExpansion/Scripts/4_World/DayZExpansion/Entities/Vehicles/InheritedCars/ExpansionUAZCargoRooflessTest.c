@@ -35,7 +35,6 @@ class ExpansionUAZCargoRooflessTest extends ExpansionCarScript
 
 		return ExpansionVehicleAnimInstances.EX_SEDAN;
 	}
-
 	// ------------------------------------------------------------
 	override CarRearLightBase CreateRearLight()
 	{

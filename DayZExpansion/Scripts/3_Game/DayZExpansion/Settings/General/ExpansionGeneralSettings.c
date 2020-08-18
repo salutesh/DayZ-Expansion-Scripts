@@ -18,6 +18,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool PlayerLocationNotifier;
 
 	bool EnableGlobalChat;
+	bool EnableGravecross;
+	bool GravecrossDeleteBody;
+	int GravecrossTimeThreshold;
 	ref ExpansionMapping Mapping;
 
 	int EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
@@ -37,8 +40,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 
 	bool EnableAutoRun;
 	bool UnlimitedStamina;
-	bool DisableDamagedHeliSpin;
-	
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -56,17 +57,17 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::HandleRPC - Start");
+		EXPrint("ExpansionGeneralSettings::OnRecieve - Start");
 		#endif
 		
 		ExpansionGeneralSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
 			Error("Failed to read param");
-			return;
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -76,8 +77,17 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ExpansionSettings.SI_General.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::HandleRPC - End");
+		EXPrint("ExpansionGeneralSettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionGeneralSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 
 	// ------------------------------------------------------------
@@ -92,10 +102,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionGeneralSettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.General, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -132,6 +140,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		PlayerLocationNotifier = s.PlayerLocationNotifier;
 		EnableGlobalChat = s.EnableGlobalChat;
+		EnableGravecross = s.EnableGravecross;
+		GravecrossDeleteBody = s.GravecrossDeleteBody;
+		GravecrossTimeThreshold = s.GravecrossTimeThreshold;
 		Mapping.Copy( s.Mapping );
 		EnableLamps = s.EnableLamps;
 		EnableGenerators = s.EnableGenerators;
@@ -146,7 +157,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnablePlayerList = s.EnablePlayerList;
 		EnableAutoRun = s.EnableAutoRun;
 		UnlimitedStamina = s.UnlimitedStamina;
-		DisableDamagedHeliSpin = s.DisableDamagedHeliSpin;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
@@ -176,6 +186,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		if ( FileExist( EXPANSION_GENERAL_SETTINGS ) )
 		{
+			Print("[ExpansionGeneralSettings] Loading settings");
+
 			JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile( EXPANSION_GENERAL_SETTINGS, this );
 	
 			#ifdef EXPANSIONEXPRINT
@@ -197,24 +209,11 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Save - Start");
-		#endif
-		
-		if ( IsMissionHost() )
-		{
-			JsonFileLoader<ExpansionGeneralSettings>.JsonSaveFile( EXPANSION_GENERAL_SETTINGS, this );
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionGeneralSettings::Save - Settings saved!");
-			#endif
+		Print("[ExpansionGeneralSettings] Saving settings");
 
-			return true;
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Save - End");
-		#endif
-		return false;
+		JsonFileLoader<ExpansionGeneralSettings>.JsonSaveFile( EXPANSION_GENERAL_SETTINGS, this );
+
+		return true;
 	}
 	
 	// ------------------------------------------------------------
@@ -228,30 +227,36 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionGeneralSettings] Loading default settings..");
-		#endif
+		Print("[ExpansionGeneralSettings] Loading default settings");
 		
 		PlayerLocationNotifier = true;
 		
 		EnableGlobalChat = true;
-
+		EnableGravecross = false;
+		GravecrossDeleteBody = true;
+		GravecrossTimeThreshold = 1200;
+		
 		Mapping.Defaults();
 
 		EnableLamps = 3;						//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on | 3 - Street-Lights always on everywhere
 		EnableGenerators = false;
 		EnableLighthouses = true;
-		
+
 		EnableHUDGPS = true;
-		NeedGPSItemForKeyBinding = true;
+
+		#ifdef EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
+		NeedGPSItemForKeyBinding = false;
 		NeedMapItemForKeyBinding = false;
+		#else
+		NeedGPSItemForKeyBinding = true;
+		NeedMapItemForKeyBinding = true;
+		#endif
 		
 		EnableHUDNightvisionOverlay = true;
 
-
+		DisableMagicCrosshair = true;
 		EnablePlayerTags = true;
 		PlayerTagViewRange = 5;
-		DisableDamagedHeliSpin = true;
 
 		EnablePlayerList = true;
 

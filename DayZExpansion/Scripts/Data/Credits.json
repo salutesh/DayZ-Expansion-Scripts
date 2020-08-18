@@ -20,9 +20,12 @@
                         "Rémi Simonin (NiiRoZz)",
                         "Ruslans Aleksejevs (CAMINOonPC)",
 						"George Thurston (Thurston)",
-						"Stephan Moser (Steve aka Salutesh)",
                         "Jacob Kumar (Jacob_Mango)",
-                        "Jesse Ficarra (Not A Banana)"
+                        "Jesse Ficarra (Not A Banana)",
+                        "Guillaume Jouve (LieutenantMaster)",
+                        "(Cooltrain)",
+                        "(Wardog)",
+						"Stephan Moser (Steve aka Salutesh)"
                     ]
                 }
             ]
@@ -56,10 +59,11 @@
                     "SectionName": "#STR_EXPANSION_CREDITS_3DARTISTS",
                     "SectionLines": [
                         "ComatoseBadger",
-                        "Not A Banana",
+                        "Jesse Ficarra (Not A Banana)",
 						"m_kola",
 						"Helion4",
-						"ZeRoY"
+						"ZeRoY",
+                        "Rhys Hendra (Fourth)"
                     ]
                 }
             ]
@@ -70,8 +74,7 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_COMMUNITYMANAGE",
                     "SectionLines": [
-                        "George Thurston (Thurston)",
-                        "Guillaume Jouve (LieutenantMaster)"
+                        "George Thurston (Thurston)"
                     ]
                 }
             ]
@@ -136,7 +139,13 @@
                         "Arkensor",
                         "Shedmon",
 						"Cleetus",
-						"MoonDC"
+						"MoonDC",
+						"Def (Mapping converter tool 'DayZPosConv')",
+                        "liquidrock (fixing bugs for us)",
+                        
+                        "           ",
+
+                        "Thank you all of you <3"
                     ]
                 }
             ]

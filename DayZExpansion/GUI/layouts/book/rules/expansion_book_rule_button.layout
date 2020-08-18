@@ -1,0 +1,84 @@
+FrameWidgetClass expansion_rule_button_root {
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 435 45
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ fixaspect fixwidth
+ {
+  PanelWidgetClass expansion_rule_button_panel {
+   color 0.6863 0.2588 0.2588 1
+   size 435 45
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ButtonWidgetClass expansion_rule_button {
+     size 435 45
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     style Empty
+    }
+    ImageWidgetClass expansion_rule_button_icon {
+     ignorepointer 1
+     color 0 0 0 1
+     position 15 0
+     size 32 32
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     image0 ""
+     imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+    TextWidgetClass expansion_rule_button_label {
+     ignorepointer 1
+     color 0 0 0 1
+     size 0.88 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     text "CATEGORY NAME"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 0 1
+     "exact text" 1
+     "exact text size" 22
+     "text valign" center
+    }
+    ImageWidgetClass expansion_rule_button_image {
+     ignorepointer 1
+     position 0 0
+     size 435 45
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     image0 "set:book_assets image:menu_element_1"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+   }
+  }
+ }
+}

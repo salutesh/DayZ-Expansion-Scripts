@@ -17,7 +17,7 @@ class ExpansionRestBrowserCB extends RestCallback
 	override void OnError( int errorCode )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("Error Code:" + errorCode);
+		EXLogPrint("ExpansionRestBrowserCB::OnError:" + errorCode);
 		#endif
 	}
 

@@ -21,6 +21,12 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	bool VehicleRequireAllDoors;
 	bool VehicleLockedAllowInventoryAccess;
 	bool VehicleLockedAllowInventoryAccessWithoutDoors;
+
+	bool EnableWindAerodynamics;
+	bool EnableTailRotorDamage;
+
+	bool PlayerAttachment;
+	bool Towing;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -31,29 +37,38 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::HandleRPC - Start");
+		EXPrint("ExpansionVehicleSettings::OnRecieve - Start");
 		#endif
 		ExpansionVehicleSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionVehicleSettings::HandleRPC setting");
-			return;
+			Error("ExpansionVehicleSettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
 
 		m_IsLoaded = true;
 
-		ExpansionSettings.SI_Vehicle.Invoke();
+		Update( this );
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::HandleRPC - End");
+		EXPrint("ExpansionVehicleSettings::OnRecieve - End");
 		#endif
+
+		return true;
 	}
 	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionVehicleSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
+	}
+
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
@@ -66,15 +81,14 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionVehicleSettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Vehicle, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Send - End and return");
 		#endif
+
 		return 0;
 	}
 
@@ -103,6 +117,12 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		VehicleLockedAllowInventoryAccess = s.VehicleLockedAllowInventoryAccess;
 		VehicleLockedAllowInventoryAccessWithoutDoors = s.VehicleLockedAllowInventoryAccessWithoutDoors;
 		
+		EnableWindAerodynamics = s.EnableWindAerodynamics;
+		EnableTailRotorDamage = s.EnableTailRotorDamage;
+
+		PlayerAttachment = s.PlayerAttachment;
+		Towing = s.Towing;
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
 		#endif
@@ -131,8 +151,12 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		
 		if ( FileExist( EXPANSION_VEHICLE_SETTINGS ) )
 		{
+			Print("[ExpansionVehicleSettings] Loading settings");
+
 			JsonFileLoader<ExpansionVehicleSettings>.JsonLoadFile( EXPANSION_VEHICLE_SETTINGS, this );
 	
+			Update( this );
+
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionVehicleSettings::Load - End - Loaded");
 			#endif
@@ -143,6 +167,8 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		Defaults();
 		Save();
 
+		Update( this );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Load - End - Not Loaded");
 		#endif
@@ -152,24 +178,11 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Save - Start");
-		#endif
-		
-		if ( IsMissionHost() )
-		{
-			JsonFileLoader<ExpansionVehicleSettings>.JsonSaveFile( EXPANSION_VEHICLE_SETTINGS, this );
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionVehicleSettings::Save - Settings saved!");
-			#endif
+		Print("[ExpansionVehicleSettings] Saving settings");
 
-			return true;
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Save - End");
-		#endif
-		return false;
+		JsonFileLoader<ExpansionVehicleSettings>.JsonSaveFile( EXPANSION_VEHICLE_SETTINGS, this );
+
+		return true;
 	}
 	
 	// ------------------------------------------------------------
@@ -177,19 +190,33 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	{
 		super.Update( setting );
 
-		ExpansionSettings.SI_General.Invoke();
+		ExpansionSettings.SI_Vehicle.Invoke();
+
+		#ifdef EXPANSION_PLAYER_ATTACHMENT
+		s_ExpansionPlayerAttachment = PlayerAttachment;
+		#else
+		s_ExpansionPlayerAttachment = false;
+		#endif
 	}
 
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionVehicleSettings] Loading default settings..");
-		#endif
+		Print("[ExpansionVehicleSettings] Loading default settings");
+
+		VehicleSync = ExpansionVehicleNetworkMode.PREDICTION;
 
 		VehicleRequireKeyToStart = true;
 		VehicleRequireAllDoors = true;
 		VehicleLockedAllowInventoryAccess = false;
 		VehicleLockedAllowInventoryAccessWithoutDoors = true;
+
+		EnableWindAerodynamics = true;
+		EnableTailRotorDamage = true;
+
+		PlayerAttachment = true;
+		Towing = true;
 	}
 }
+
+static bool s_ExpansionPlayerAttachment;

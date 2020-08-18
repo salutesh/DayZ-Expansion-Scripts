@@ -52,6 +52,8 @@ modded class PlayerBase
 	//Only server side
 	protected int m_QuickMarkerColor;
 	
+	ExpansionKillFeedModule m_KillfeedModule;
+	
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
 	// ------------------------------------------------------------
@@ -85,12 +87,54 @@ modded class PlayerBase
 		m_AllPlayers.Insert( this );
 		
 		// SetEventMask( EntityEvent.POSTFRAME );
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	// Override EEKilled
+	// ------------------------------------------------------------
+	override void EEKilled( Object killer )
+	{
+		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
+		{
+			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
+			if ( m_KillfeedModule )
+			{
+				m_KillfeedModule.PlayerKilled( this, killer );
+			}
+		}
+
+		if (GetExpansionSettings().GetGeneral().EnableGravecross)
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false, true);
+		}
 		
+		super.EEKilled(killer);
+	}
+	
+	// ------------------------------------------------------------
+	// Override EEHitBy
+	// ------------------------------------------------------------
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
+		{
+			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
+			if ( m_KillfeedModule )
+			{
+				m_KillfeedModule.PlayerHitBy( damageType, this, source, ammo );
+			}
+		}
+		if (ammo == "Bullet_Expansion_Taser")
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
+		}
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
 	// ------------------------------------------------------------
 	// Expansion SetRandomQuickMarkerColor
 	// ------------------------------------------------------------
@@ -136,6 +180,14 @@ modded class PlayerBase
 	
 			m_QuickMarkerColor = colors.GetRandomElement();
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase GetQuickMarkerColor
+	// ------------------------------------------------------------
+	int GetQuickMarkerColor()
+	{
+		return m_QuickMarkerColor;
 	}
 	
 /*
@@ -227,11 +279,9 @@ modded class PlayerBase
 
 		if ( GetGame() && IsMissionClient() && GetModuleManager() )
 		{
-			Expansion3DMarkerModule module;
-			if ( Class.CastTo( module, GetModuleManager().GetModule( Expansion3DMarkerModule ) ) )
-			{
-				module.RefreshMarkers();
-			}
+			ExpansionMarkerModule module;
+			if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
+				module.Refresh();
 		}
 
 		/*
@@ -295,8 +345,10 @@ modded class PlayerBase
 
 		AddAction( ExpansionActionPaint );
 
-		//AddAction( ExpansionActionConnectWinch );
-		//AddAction( ExpansionActionDisconnectWinch );
+		#ifdef EXPANSION_VEHICLE_TOWING
+		AddAction( ExpansionActionConnectTow );
+		AddAction( ExpansionActionDisconnectTow );
+		#endif
 		
 		//AddAction( ExpansionActionStartPlane );
 		//AddAction( ExpansionActionStopPlane );
@@ -527,6 +579,48 @@ modded class PlayerBase
 
 		return NULL;
 	}
+
+	// ------------------------------------------------------------
+	// Expansion SpawnGraveCross
+	// ------------------------------------------------------------
+	void CreateGraveCross()
+	{
+		vector crossOffset = GetPosition() - "0.3 -0.3 0.3";
+			
+		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
+		bool deleteBody = GetExpansionSettings().GetGeneral().GravecrossDeleteBody;
+		float playtime = StatGet("playtime");
+
+		Expansion_GraveBase graveCross;
+		if (playtime <= lifetimeThreshhold) 
+		{
+			graveCross = Expansion_GraveBase.Cast(GetGame().CreateObjectEx("Expansion_Gravecross_LowLifetime", crossOffset, ECE_PLACE_ON_SURFACE));
+		}
+		else 
+		{
+			graveCross = Expansion_GraveBase.Cast(GetGame().CreateObjectEx("Expansion_Gravecross", crossOffset, ECE_PLACE_ON_SURFACE));
+		}
+
+		for (int i = 0; i < GetInventory().GetAttachmentSlotsCount(); i++)
+		{
+			int slot = GetInventory().GetAttachmentSlotId(i);
+			EntityAI item = GetInventory().FindAttachment(slot);
+
+			if (item && graveCross.GetInventory().CanAddAttachment(item))
+			{
+				if (GetGame().IsMultiplayer())
+					ServerTakeEntityToTargetInventory(graveCross, FindInventoryLocationType.ATTACHMENT, item);
+				else
+					LocalTakeEntityToTargetInventory(graveCross, FindInventoryLocationType.ATTACHMENT, item);
+			}
+		}
+
+		graveCross.SetOrientation(GetOrientation());
+		graveCross.SetReceivedAttachments(true);
+		
+		if (deleteBody)
+			Delete();
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion EOnContact
@@ -626,6 +720,17 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	
 	{
+		ItemBase item = GetItemInHands();
+		if ( item )
+		{
+			item.UpdateLaser();
+		}
+
+		//if ( !s_ExpansionPlayerAttachment )
+		{
+			return super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished );
+		}
+
 		IEntity parent = GetParent();
 		HumanCommandMove hcm = GetCommand_Move();
 		HumanCommandVehicle hcv = GetCommand_Vehicle();
@@ -679,88 +784,15 @@ modded class PlayerBase
 		EXPrint("PlayerBase::ModCommandHandlerInside - Handled Inside");
 		#endif
 
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_FALL )
-		{
-			ExpansionHumanCommandFall fall;
-			if ( Class.CastTo( fall, hcScript ) )
-			{
-				int landType;
-				if ( fall.HasLanded() )
-				{
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - HasLanded");
-					#endif
-
-					DayZPlayerType type = GetDayZPlayerType();
-					NoiseParams npar;
-
-					if ( parent )
-					{
-						landType = 0; 
-						npar = type.GetNoiseParamsLandLight();
-						m_FallYDiff = 0;
-					} else
-					{
-						m_FallYDiff = m_FallYDiff - GetPosition()[1];
-						if ( m_FallYDiff < 0.5 )
-						{
-							landType = 0; 
-							npar = type.GetNoiseParamsLandLight();
-						} else if ( m_FallYDiff < 1.0 )
-						{
-							landType = 0;
-							npar = type.GetNoiseParamsLandLight();
-						} else if ( m_FallYDiff < 2.0 )
-						{
-							landType = 1;
-							npar = type.GetNoiseParamsLandHeavy();
-						} else
-						{
-							landType = 2;
-							npar = type.GetNoiseParamsLandHeavy();
-						}
-					}
-					
-					fall.Land( landType );
-
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Land Called");
-					#endif
-
-					AddNoise( npar );
-
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Noise Added");
-					#endif
-
-					if ( m_FallYDiff >= DayZPlayerImplementFallDamage.FD_DMG_FROM_HEIGHT && GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_CLIENT )
-					{
-						SpawnDamageDealtEffect();
-					}
-					
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Effect");
-					#endif
-
-					m_FallDamage.HandleFallDamage( m_FallYDiff );
-					m_JumpClimb.CheckAndFinishJump( landType );
-
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Finished JumpClimb");
-					#endif
-				}
-
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("PlayerBase::ModCommandHandlerInside - End");
-				#endif
-
-				return true;
-			}
-		} else if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
+		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
 			ExpansionHumanCommandFall exFall;
 			if ( Class.CastTo( exFall, hcScript ) )
 			{
+				DayZPlayerType type = GetDayZPlayerType();
+				NoiseParams npar;
+				int landType;
+
 				if ( exFall.HasLanded() )
 				{
 					#ifdef EXPANSIONEXPRINT
@@ -869,7 +901,7 @@ modded class PlayerBase
 
 		if ( IsMissionClient() )
 		{
-			GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( CCDirect, "", message, "" ) );
+			GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCDirect, "", message, "" ) );
 		}
 		else
 		{
@@ -1022,15 +1054,19 @@ modded class PlayerBase
 	override void StartCommand_ExpansionFall( float pYVelocity )
 	{
 		#ifndef EXPANSION_DISABLE_FALL
-		if ( m_ExpansionFallCommandST == NULL )
+		if ( s_ExpansionPlayerAttachment )
 		{
-			m_ExpansionFallCommandST = new ExpansionHumanCommandFall_ST( this );
+			if ( m_ExpansionFallCommandST == NULL )
+			{
+				m_ExpansionFallCommandST = new ExpansionHumanCommandFall_ST( this );
+			}
+		
+			StartCommand_Script( new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionFallCommandST ) );
+			return;
 		}
-	
-		StartCommand_Script( new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionFallCommandST ) );
-		#else
-		StartCommand_Fall( pYVelocity );
 		#endif
+		
+		StartCommand_Fall( pYVelocity );
 	}
 
 	// ------------------------------------------------------------
@@ -1124,14 +1160,6 @@ modded class PlayerBase
 
 		return super.HeadingModel( pDt, pModel );
 	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase GetQuickMarkerColor
-	// ------------------------------------------------------------
-	int GetQuickMarkerColor()
-	{
-		return m_QuickMarkerColor;
-	}
 
 	// ------------------------------------------------------------
 	// Expansion GetExpansionSaveVersion
@@ -1162,13 +1190,13 @@ modded class PlayerBase
 		//! Use GetExpansionSaveVersion()
 		//! Making sure this is read before everything else.
 
-		if ( !ctx.Read( m_ExpansionSaveVersion ) )
+		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 		
-		if ( !ctx.Read( m_WasInVehicle ) )
+		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 	
 		return true;
@@ -1377,5 +1405,9 @@ modded class PlayerBase
 	bool HasItemGPS()
 	{
 		return m_HasGPS;
+	}
+	void WakePlayer()
+	{
+		this.AddHealth("","Shock", 100);
 	}
 }

@@ -60,6 +60,7 @@ class CfgVehicles
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior_co.paa"};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat"};
+		defaultSkin = "Blue";
 		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
 		dashboardMatOff = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboard.rvmat";
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\bus\data\bus_exterior_on.rvmat";
@@ -261,11 +262,11 @@ class CfgVehicles
 			};
 			class Gearbox
 			{
-				reverse = 3.526;
+				reverse = 6.526;
 				ratios[] = {5.667,4.5,2.861,2.3};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 260;
+				maxClutchTorque = 660;
 			};
 			class Axles: Axles
 			{

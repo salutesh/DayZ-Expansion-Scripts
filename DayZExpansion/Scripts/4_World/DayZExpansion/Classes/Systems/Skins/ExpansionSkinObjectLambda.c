@@ -69,6 +69,20 @@ class ExpansionSkinObjectLambda : TurnItemIntoItemLambda
 				Print( car );
 				#endif
 			}
+
+			ItemBase old_item_ib = ItemBase.Cast( old_item );
+			ItemBase new_item_ib = ItemBase.Cast( new_item );
+
+			if ( new_item_ib && old_item_ib )
+			{
+				new_item_ib.TransferAgents( old_item_ib.GetAgents() );
+				MiscGameplayFunctions.TransferItemVariables( ItemBase.Cast(old_item), ItemBase.Cast(new_item), false );
+			}
+
+			if ( !GetGame().IsClient() )
+			{
+				new_item.SetHealth( "", "", old_item.GetHealth01( "", "" ) * new_item.GetMaxHealth( "", "" ) );
+			}
 		} else
 		{
 			Print( "Error!" );

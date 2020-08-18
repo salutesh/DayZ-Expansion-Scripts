@@ -42,7 +42,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	override string GetTitle()
 	{
-		return "Territories";
+		return "[EX] Territory Management";
 	}
 	
 	// ------------------------------------------------------------
@@ -50,7 +50,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	override string GetIconName()
 	{
-		return "EX";
+		return "T";
 	}
 	
 	// ------------------------------------------------------------

@@ -19,7 +19,6 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_BB_FLOOR_KIT";
 		descriptionShort = "$STR_EXPANSION_BB_FLOOR_KIT_DESC";
-		model = "\DZ\gear\camping\fence_kit.p3d";
 		placingTypes[] = {"ExpansionFloor6x6KitPlacing"};
 	};
 	class ExpansionFloorBaseKitPlacing: ExpansionFloorKit

@@ -54,7 +54,6 @@ class CfgVehicles
 	class ExpansionAirdropContainer: ExpansionAirdropContainerBase
 	{
 		scope = 2;
-		vehicleClass = "Expansion_Airdrop";
 		displayName = "$STR_EXPANSION_AIRDROP";
 		hiddenSelections[] = {"body"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Airdrop\data\Airdrop_co.paa"};

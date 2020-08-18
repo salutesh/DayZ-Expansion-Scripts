@@ -25,6 +25,11 @@ modded class ActionConstructor
 		//! Basebuilding
 		actions.Insert( ExpansionActionSelectNextPlacement );
 		actions.Insert( ExpansionActionDamageBaseBuilding );
+
+		actions.Insert( ExpansionActionConnectElectricityToSource );
+		actions.Insert( ExpansionActionDisconnectElectricityToSource );
+		
+		actions.Insert( ExpansionActionTogglePowerSwitch );
 		
 		//! Generator
 		actions.Insert( ExpansionActionTurnOnGeneratorOnGround );
@@ -41,8 +46,13 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionGetInExpansionVehicle );
 		actions.Insert( ExpansionActionGetOutExpansionVehicle );
 		
-		// actions.Insert( ExpansionActionGetOutTransportTemp );
-
+		//actions.Insert( ExpansionActionGetOutTransportTemp );
+		
+		#ifdef EXPANSION_VEHICLE_TOWING
+		actions.Insert( ExpansionActionConnectTow );
+		actions.Insert( ExpansionActionDisconnectTow );
+		#endif
+		
 		actions.Insert( ExpansionActionSwitchGear );
 		actions.Insert( ExpansionActionPairKey );
 		actions.Insert( ExpansionActionAdminUnpairKey );
@@ -67,10 +77,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionSwitchAutoHover );
 		actions.Insert( ExpansionActionSwitchAutoHoverInput );
 
-		//! Removed because it wont be in first release
-		//actions.Insert( ExpansionActionConnectTow );
-		//actions.Insert( ExpansionActionConnectWinch );
-		//actions.Insert( ExpansionActionDisconnectWinch );
 		actions.Insert( ExpansionActionOpenTraderMenu );
 		actions.Insert( ExpansionActionSwitchLightsOn );
 		actions.Insert( ExpansionActionClose );
@@ -82,8 +88,10 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionEnterSafeLock );
 		actions.Insert( ExpansionActionChangeSafeLock );
 
-		//! Removed because it wont be in first release
-		// actions.Insert( ExpansionActionTakeChicken );
+		//! Safes
+		actions.Insert( ExpansionActionCloseSafeLock );
+		actions.Insert( ExpansionActionCloseSafeUnlock ); 
+
 		actions.Insert( ExpansionActionPaint );
 		actions.Insert( ExpansionActionCycleOpticsModeInHands );
 		actions.Insert( ExpansionActionCycleOpticsMode );
@@ -91,7 +99,9 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionEnterFlagMenu );
 		actions.Insert( ActionDismantleFlag );
 		
-		// actions.Insert( ExpansionActionGetQuest );
-		// actions.Insert( ExpansionActionTakeInQuest );
+		//! Removed because it wont be in first release
+		//actions.Insert( ExpansionActionTakeChicken );
+		//actions.Insert( ExpansionActionGetQuest );
+		//actions.Insert( ExpansionActionTakeInQuest );
 	}
 }

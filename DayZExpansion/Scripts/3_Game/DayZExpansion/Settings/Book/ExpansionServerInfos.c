@@ -30,19 +30,3 @@ class ExpansionServerInfos
 		this.ServerName = name;
 	}
 }
-
-/**@class		ExpansionServerRules
- * @brief
- **/
-class ExpansionServerRules
-{
-	ref array<ref ExpansionServerRulesSection> RuleSections;
-	
-	// ------------------------------------------------------------
-	// ExpansionServerRules Constructor
-	// ------------------------------------------------------------
-	void ExpansionServerRules(array<ref ExpansionServerRulesSection> rules)
-	{
-		this.RuleSections = rules;
-	}
-}

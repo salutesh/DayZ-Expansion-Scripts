@@ -9,6 +9,8 @@ class ExpansionMissionModule: JMModuleBase
 	private typename m_MissionConstructor;
 	private autoptr map< string, typename > m_MissionTypes;
 	private autoptr array< typename > m_MissionTypesArray;
+	
+	private bool m_lowPlayerCheckRunning;
 
 	//! Local reference to the actual settings, this is handled by the GC 
 	private ExpansionMissionSettings m_MissionSettings;
@@ -29,6 +31,12 @@ class ExpansionMissionModule: JMModuleBase
 	{
 		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
 
+		if(m_lowPlayerCheckRunning)
+		{
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
+			m_lowPlayerCheckRunning = false;
+		}
+		
 		SI_OnMissionEnd.Remove( RemoveMission );
 	}
 
@@ -39,18 +47,13 @@ class ExpansionMissionModule: JMModuleBase
 			m_MissionConstructor = missionConstructor;
 		} else
 		{
-			Error( "Parameter 'missionConstructor' is not of type 'ExpansionMissionConstructor'" );
+			Error( "Parameter '" + missionConstructor + "' is not of type 'ExpansionMissionConstructor'" );
 		}
 	}
-	
-	override void OnSettingsUpdated()
-	{
-		StartNewMissions();
-	}
 
-	override void OnMissionStart()
+	override void OnInit()
 	{
-		super.OnMissionStart();
+		super.OnInit();
 
 		SI_OnMissionEnd.Insert( RemoveMission );
 
@@ -104,16 +107,6 @@ class ExpansionMissionModule: JMModuleBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMissionModule::OnMissionLoaded - End" );
 		#endif
-	}
-
-	override void OnMissionFinish()
-	{
-		super.OnMissionFinish();
-
-		delete m_Missions;
-		delete m_MissionTypes;
-
-		ExpansionMissionSettings.SI_OnSave.Remove( SaveMissions );
 	}
 
 	override bool IsServer()
@@ -257,6 +250,39 @@ class ExpansionMissionModule: JMModuleBase
 		if ( !m_MissionSettings || !m_MissionSettings.Enabled )
 			return;
 
+		#ifdef EXPANSION_MISSION_PLAYERCOUNT_CHECK
+		//Check if Min Players is disabled
+		if ( m_MissionSettings.MinPlayersToStartMissions != 0 )
+		{
+			int playerCount = PlayerBase.GetAll().Count();
+
+			#ifdef EXPANSIONEXLOGPRINT
+			Print( "ExpansionMissionModule::StartNewMissions - ["+ playerCount + "/" + m_MissionSettings.MinPlayersToStartMissions +"] players" );
+			#endif
+
+			//If player count is too low
+			if ( playerCount < m_MissionSettings.MinPlayersToStartMissions )
+			{				
+				if( !m_lowPlayerCheckRunning )
+				{
+					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, 10000, true );
+					m_lowPlayerCheckRunning = true;
+				}
+
+				return;
+			}
+
+			if( m_lowPlayerCheckRunning )
+			{
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
+				m_lowPlayerCheckRunning = false;
+			}
+
+			
+		}
+		#endif
+		
+		//If we reach this we should have the correct setting/player count on the server/ find the missions like normal
 		while ( m_RunningMissions.Count() < m_MissionSettings.MaxMissions )
 			FindNewMission();
 	}

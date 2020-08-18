@@ -14,6 +14,9 @@ class ExpansionAttachmentHelper
 {
 	static bool CanAttachTo( Object child, Object target )
 	{
+		if ( !s_ExpansionPlayerAttachment )
+			return false;
+
 		if ( !target )
 			return false;
 
@@ -59,6 +62,9 @@ class ExpansionAttachmentHelper
 	
 	static Object FindBestAttach( Object child, array< ref RaycastRVResult > results )
 	{
+		if ( !s_ExpansionPlayerAttachment )
+			return NULL;
+
 		for ( int i = 0; i < results.Count(); i++ )
 		{
 			Object attch = FindRootAttach( child, results[i].obj );
@@ -73,6 +79,9 @@ class ExpansionAttachmentHelper
 	
 	static Object FindBestAttach( Object child, set<Object> objects )
 	{
+		if ( !s_ExpansionPlayerAttachment )
+			return NULL;
+			
 		for ( int i = 0; i < objects.Count(); i++ )
 		{
 			Object attch = FindRootAttach( child, objects[i] );

@@ -23,6 +23,12 @@ class cfgWeapons
 	class ExpansionCrossbow_Base: Rifle_Base
 	{
 		scope = 0;
+		rotationFlags = 3;
+		displayName = "$STR_EXPANSION_CROSSBOW";
+		descriptionShort = "$STR_EXPANSION_CROSSBOW_DESC";
+		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
+		attachments[] = {};
+		itemSize[] = {9,3};
 		weight = 1500;
 		absorbency = 0;
 		repairableWithKits[] = {5,1};
@@ -40,7 +46,7 @@ class cfgWeapons
 		swayModifier[] = {2,2,1};
 		reloadAction = "ReloadIZH18";
 		shotAction = "";
-		hiddenSelections[] = {};
+		hiddenSelections[] = {"camo"};
 		modes[] = {"Single"};
 		class Single: Mode_SemiAuto
 		{
@@ -73,24 +79,6 @@ class cfgWeapons
 			distanceZoomMin = 25;
 			distanceZoomMax = 25;
 		};
-	};
-	class Expansion_Crossbow: ExpansionCrossbow_Base
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_CROSSBOW";
-		descriptionShort = "$STR_EXPANSION_CROSSBOW_DESC";
-		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
-		attachments[] = {};
-		itemSize[] = {9,3};
-		hiddenSelectionsTextures[] = {};
-		hiddenSelectionsMaterials[] = {};
-		class Particles
-		{
-			class OnFire
-			{
-				class MuzzleFlash{};
-			};
-		};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -102,6 +90,12 @@ class cfgWeapons
 				};
 			};
 		};
+	};
+	class Expansion_Crossbow: ExpansionCrossbow_Base
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"dz\weapons\archery\crossbow\data\crossbow_leaves_co.paa"};
+		hiddenSelectionsMaterials[] = {"dz\weapons\archery\crossbow\data\crossbow.rvmat"};
 	};
 };
 class cfgMagazines
@@ -173,7 +167,7 @@ class CfgAmmo
 			defaultDamageOverride[] = {{0.5,1}};
 			class Health
 			{
-				damage = 40;
+				damage = 60;
 			};
 			class Blood
 			{

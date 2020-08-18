@@ -132,6 +132,7 @@ class CfgVehicles
 		hiddenSelections[] = {"light_1_1","light_2_1","camo1"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_off.rvmat","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_off.rvmat","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext.rvmat"};
+		defaultSkin = "Green";
 		class Cargo
 		{
 			itemsCargoSize[] = {10,20};

@@ -75,7 +75,7 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 		if (w == m_Button)
 		{
 			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionMapMenuMarkerEntry::OnMouseButtonUp - Clicked m_Button");
+			EXLogPrint("ExpansionFlagMenuTextureEntry::OnMouseButtonUp - Clicked m_Button");
 			#endif
 
 			if (!m_FlagMenu)

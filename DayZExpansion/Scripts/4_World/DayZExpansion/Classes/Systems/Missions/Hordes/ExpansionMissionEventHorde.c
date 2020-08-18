@@ -1,5 +1,6 @@
 class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 {
+	int MinInfectedAmount;
 	int MaxInfectedAmount;
 
 	vector Position;
@@ -20,6 +21,10 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void ExpansionMissionEventHorde()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionEventHorde::ExpansionMissionEventHorde");
+		#endif
+
 		m_EventName = "Hordes";
 
 		WayPoints = new array< ref BehaviourGroupInfectedPackWaypointParams >;
@@ -30,6 +35,10 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 	// handle mission start
 	override void Event_OnStart()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionEventHorde::Event_OnStart");
+		#endif
+
 		m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
 
 		BehaviourGroupInfectedPack bgip;
@@ -39,7 +48,22 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 			bgip.SetWaypoints( WayPoints, 0, true, false );
 		}
 
-		// SpawnInfectedRemaining( Position, MinimumSpawnRadius, MaximumSpawnRadius, MaxInfectedAmount );
+		int TargetInfectedAmount = Math.RandomInt(MinInfectedAmount, MaxInfectedAmount);
+
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionEventHorde::Event_OnStart - MinInfectedAmount is "+MinInfectedAmount);
+		EXLogPrint("ExpansionMissionEventHorde::Event_OnStart - TargetInfectedAmount is "+TargetInfectedAmount);
+		EXLogPrint("ExpansionMissionEventHorde::Event_OnStart - MaxInfectedAmount is "+MaxInfectedAmount);
+		#endif
+
+		while ( m_Infected.Count() < TargetInfectedAmount )
+		{
+			int index = m_Infected.Count() + 1;
+
+			SpawnInfectedRemaining( Position, MinimumSpawnRadius, MaximumSpawnRadius, TargetInfectedAmount );
+
+			m_Infected.Remove( index );
+		}
 	
 		CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_HORDE_SPAWNED", MissionName ), "set:expansion_notification_iconset image:icon_bandit", 7 );
 	}
@@ -47,6 +71,10 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 	// handle mission cleanup
 	override void Event_OnEnd()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionEventHorde::Event_OnEnd");
+		#endif
+
 		while ( m_Infected.Count() > 0 )
 		{
 			int index = m_Infected.Count() - 1;
@@ -163,12 +191,13 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 			break;
 		}
 
-		Enabled = false;
-		MissionMaxTime = 1800; // 20 minutes
+		Enabled = true;
+		MissionMaxTime = 120; // 20 minutes
 
-		MaxInfectedAmount = 300.0;
+		MinInfectedAmount = 10.0;
+		MaxInfectedAmount = 20.0;
 		MinimumSpawnRadius = 10.0;
-		MaximumSpawnRadius = 150.0;
+		MaximumSpawnRadius = 20.0;
 
 		Position[1] = GetGame().SurfaceY( Position[0], Position[2] );
 
@@ -181,12 +210,16 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 
 	protected void SpawnInfectedRemaining( vector centerPosition, float innerRadius, float spawnRadius, int remaining )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining");
+		#endif
+
 		if ( remaining <= 0 )
 			return;
 
 		vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
 
-		Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
+		Object obj = GetGame().CreateObject( ExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
 
 		DayZCreatureAI creature;
 		Class.CastTo( creature, obj );
@@ -203,6 +236,10 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 
 	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition");
+		#endif
+
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
 		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
 

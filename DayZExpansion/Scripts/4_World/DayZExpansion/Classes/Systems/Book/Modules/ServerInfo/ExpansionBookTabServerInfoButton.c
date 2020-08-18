@@ -47,7 +47,7 @@ class ExpansionBookTabServerInfoButton extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ~ExpansionBookTabServerInfoButton()
 	{
-		if ( m_TooltipUI.IsVisable() )
+		if ( m_TooltipUI.IsVisible() )
 			m_TooltipUI.HideTooltip();
 			
 		delete m_TooltipUI;

@@ -47,7 +47,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void ExpansionBookTabParty()
 	{
-		SetButtonIconPath( "set:expansion_iconset image:icon_group" );
+		SetButtonIconPath( ExpansionIcons.GetPath("Persona") );
 		SetButtonText( "#STR_BOOK_GROUPMENU" );
 		SetButtonColor( COLOR_EXPANSION_GROUP_BOOKMARK_ICON );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_group.layout" );
@@ -189,7 +189,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 			
 			if ( !objects )
 			{
-				m_PlayersListInfo.SetText("No players to invite!");
+				m_PlayersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_EMPTY");
 				return;
 			}
 			
@@ -211,10 +211,10 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 	
 		if (nmbPlayer > 0)
 	 	{
-			m_PlayersListInfo.SetText("Select a player to invite:");
+			m_PlayersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_SELECT");
 		} else
 		{
-			m_PlayersListInfo.SetText("No players to invite!");
+			m_PlayersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_EMPTY");
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -231,15 +231,15 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 		
 		if ( m_PartyModule.HasParty() )
 		{
-			ref ExpansionPartySaveFormat playerParty = m_PartyModule.GetParty();
+			ref ExpansionPartyData playerParty = m_PartyModule.GetParty();
 			if (!playerParty) return;
 			
-			ref array< ref ExpansionPartySaveFormatPlayer > players = playerParty.GetPlayers();
+			ref array< ref ExpansionPartyPlayerData > players = playerParty.GetPlayers();
 			if (!players) return;
 			
 			for ( int i = 0; i < players.Count(); i++ )
 			{
-				ref ExpansionPartySaveFormatPlayer playerFormat = players[i];
+				ref ExpansionPartyPlayerData playerFormat = players[i];
 				if (!playerFormat) return;
 				
 				ExpansionPartyTabMemberListEntry member_entry = new ExpansionPartyTabMemberListEntry(m_MemberListEntrysGrid, playerFormat);
@@ -259,7 +259,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 		
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		
-		array<ref ExpansionPartyInvite> invites = m_PartyModule.GetPartyInvites();
+		array<ref ExpansionPartyInviteData> invites = m_PartyModule.GetPartyInvites();
 		
 		if ( invites.Count() > 0 )
 		{
@@ -356,7 +356,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 			m_book_TAB_GROUPCREATION.Show( false );
 			m_book_TAB_GROUP.Show( true );
 			
-			ref ExpansionPartySaveFormat party = m_PartyModule.GetParty();
+			ref ExpansionPartyData party = m_PartyModule.GetParty();
 			
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionBookTabParty::OnRefresh - party : " + party);
@@ -377,7 +377,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 			EXLogPrint("ExpansionBookTabParty::OnRefresh - before GetPlayer");
 			#endif
 
-			ref ExpansionPartySaveFormatPlayer player = party.GetPlayer( m_Player.GetIdentityUID() );
+			ref ExpansionPartyPlayerData player = party.GetPlayer( m_Player.GetIdentityUID() );
 
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionBookTabParty::OnRefresh - player : " + player);

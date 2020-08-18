@@ -56,13 +56,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
-		if ( !ctx.Read( m_HasWindow ) )
+		if ( Expansion_Assert_False( ctx.Read( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
 			return false;
-
-		if ( !ctx.Read( m_HasDoor ) )
+		if ( Expansion_Assert_False( ctx.Read( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
 			return false;
-
-		if ( !ctx.Read( m_HasGate ) )
+		if ( Expansion_Assert_False( ctx.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
 			return false;
 		
 		return true;
@@ -117,6 +115,17 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 
+	override ExpansionCodeLock GetCodeLock()
+	{
+		if (m_HasDoor)
+			return ExpansionCodeLock.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_1"));
+
+		if (m_HasGate)
+			return ExpansionCodeLock.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_2"));
+
+		return null;
+	}
+
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		return false;
@@ -126,9 +135,15 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{
 		return m_HasWindow || m_HasDoor || m_HasGate;
 	}
+
 	bool HasGate()
 	{
 		return m_HasGate;
+	}
+
+	bool HasDoor()
+	{
+		return m_HasDoor;
 	}
 	
 	override void OnPartBuiltServer( string part_name, int action_id )

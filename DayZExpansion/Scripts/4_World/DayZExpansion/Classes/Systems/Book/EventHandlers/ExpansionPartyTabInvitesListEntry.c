@@ -21,13 +21,13 @@ class ExpansionPartyTabInvitesListEntry extends ScriptedWidgetEventHandler
 	
 	protected Man m_Player;
 	protected ref ExpansionPartyModule m_PartyModule;
-	protected ref ExpansionPartyInvite m_Invite;
+	protected ref ExpansionPartyInviteData m_Invite;
 	protected ref ExpansionBookTabParty m_GroupMenu;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartyTabInvitesListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionPartyTabInvitesListEntry(Widget parent, ExpansionPartyInvite invite)
+	void ExpansionPartyTabInvitesListEntry(Widget parent, ExpansionPartyInviteData invite)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionPartyTabInvitesListEntry::ExpansionPartyTabInvitesListEntry - Start");
@@ -114,7 +114,7 @@ class ExpansionPartyTabInvitesListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion GetInvite
 	// ------------------------------------------------------------
-	ref ExpansionPartyInvite GetInvite()
+	ref ExpansionPartyInviteData GetInvite()
 	{
 		return m_Invite;
 	}

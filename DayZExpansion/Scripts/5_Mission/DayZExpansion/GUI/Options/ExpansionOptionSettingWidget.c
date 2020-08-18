@@ -15,16 +15,17 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	protected Widget layoutRoot;
 	protected Widget selectWidget;
 	protected Widget optionWidget;
-	protected TextWidget settingLable;
+	protected TextWidget settingLabel;
 	protected ButtonWidget settingButton;
 
-	protected ref ExpansionClientSetting m_Setting;
+	protected ExpansionSettingSerializationBase m_Setting;
+
 	protected ref OptionsMenuExpansion m_Menu;
 	protected ref OptionSelectorMultistate m_Selector;
 	protected ref OptionSelectorSlider m_Slider;
 	protected ref ScriptInvoker m_ApplySetting = new ScriptInvoker;
 	
-	void ExpansionOptionSettingWidget( Widget parent, ref ExpansionClientSetting setting, ref OptionsMenuExpansion menu )
+	void ExpansionOptionSettingWidget( Widget parent, notnull ref ExpansionSettingSerializationBase setting, ref OptionsMenuExpansion menu )
 	{
 		layoutRoot = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/options/expansion_options_setting_new.layout", parent ) );
 		
@@ -32,16 +33,16 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 		m_Menu = menu;
 
 		selectWidget = Widget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting" ) );
-		settingLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_label" ) );
-		settingLable.SetText( m_Setting.m_Name );
+		settingLabel = TextWidget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_label" ) );
+		settingLabel.SetText( m_Setting.m_Name );
 		optionWidget = Widget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_option" ) );
 		settingButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_button" ) );
 		
 		layoutRoot.SetHandler( this );
-		
-		if ( !ConstructToggle( ExpansionClientSettingToggle.Cast( m_Setting ) ) && !ConstructSlider( ExpansionClientSettingSlider.Cast( m_Setting ) ) )
+
+		if ( !ConstructToggle() && !ConstructSlider() && !ConstructEnum() )
 		{
-			Error("ExpansionOptionSettingWidget::ExpansionOptionSettingWidget It was not ExpansionClientSettingToggle and ExpansionClientSettingSlider");
+			Error( "ExpansionOptionSettingWidget construction failed!" );
 		}
 	}
 	
@@ -56,13 +57,14 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	// ExpansionOptionSettingWidget ConstructToggle
 	// -----------------------------------------------------------
-	bool ConstructToggle( ExpansionClientSettingToggle toggle )
+	bool ConstructToggle()
 	{
-		if ( !toggle )
+		ExpansionSettingSerializationToggle setting;
+		if ( !Class.CastTo( setting, m_Setting ) )
 			return false;
 
 		int selection = 0;
-		if ( toggle.GetValue() )
+		if ( setting.GetValue() )
 			selection = 1;
 
 		array<string> options = { "NO", "YES" };
@@ -87,28 +89,28 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	private void OnApplySetting_Toggle()
 	{
-		int selection = OptionSelectorMultistate.Cast( m_Selector ).GetValue();
-		
-		if ( selection == 0 )
-		{
-			ExpansionClientSettingToggle.Cast( m_Setting ).SetValue( false );
-		} else
-		{
-			ExpansionClientSettingToggle.Cast( m_Setting ).SetValue( true );
-		}
+		ExpansionSettingSerializationToggle setting;
+		if ( !Class.CastTo( setting, m_Setting ) )
+			return;
+
+		if ( m_Selector.GetValue() == 1 )
+			setting.SetValue( true );
+		else
+			setting.SetValue( false );
 	}
 	
 	// -----------------------------------------------------------
 	// ExpansionOptionSettingWidget ConstructSlider
 	// -----------------------------------------------------------
-	bool ConstructSlider( ExpansionClientSettingSlider toggle )
+	bool ConstructSlider()
 	{
-		if ( !toggle )
+		ExpansionSettingSerializationSlider setting;
+		if ( !Class.CastTo( setting, m_Setting ) )
 			return false;
 
-		float value = toggle.GetValue();
+		float value = setting.GetValue();
 
-		m_Slider = new OptionSelectorSlider( optionWidget, value, this, false, toggle.m_Min, toggle.m_Max );
+		m_Slider = new OptionSelectorSlider( optionWidget, value, this, false, setting.m_Min, setting.m_Max );
 		m_Slider.m_OptionChanged.Insert( OnSliderOptionChanged );
 
 		m_ApplySetting.Insert( OnApplySetting_Slider );
@@ -129,9 +131,50 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	private void OnApplySetting_Slider()
 	{
-		float value = OptionSelectorSlider.Cast( m_Slider ).GetValue();
-		
-		ExpansionClientSettingSlider.Cast( m_Setting ).SetValue( value );
+		ExpansionSettingSerializationSlider setting;
+		if ( !Class.CastTo( setting, m_Setting ) )
+			return;
+
+		setting.SetValue( m_Slider.GetValue() );
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionOptionSettingWidget ConstructEnum
+	// -----------------------------------------------------------
+	bool ConstructEnum()
+	{
+		ExpansionSettingSerializationEnum setting;
+		if ( !Class.CastTo( setting, m_Setting ) )
+			return false;
+
+		int value = setting.GetValue();
+
+		m_Selector = new OptionSelectorMultistate( optionWidget, value, this, false, setting.m_Values );
+		m_Selector.m_OptionChanged.Insert( OnEnumOptionChanged );
+
+		m_ApplySetting.Insert( OnApplySetting_Enum );
+
+		return true;
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionOptionSettingWidget OnEnumOptionChanged
+	// -----------------------------------------------------------
+	private void OnEnumOptionChanged( float value )
+	{
+		m_Menu.SetChanged();
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionOptionSettingWidget OnApplySetting_Enum
+	// -----------------------------------------------------------
+	private void OnApplySetting_Enum()
+	{
+		ExpansionSettingSerializationEnum setting;
+		if ( !Class.CastTo( setting, m_Setting ) )
+			return;
+
+		setting.SetValue( m_Selector.GetValue() );
 	}
 	
 	// -----------------------------------------------------------
@@ -151,7 +194,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 
 			m_Menu.ShowDetails( m_Setting.m_DetailLabel, m_Setting.m_DetailContent );
 			selectWidget.SetColor( ARGB( 255, 0, 0, 0 ) );
-			settingLable.SetColor( ARGB( 255, 255, 0, 0 ) );
+			settingLabel.SetColor( ARGB( 255, 255, 0, 0 ) );
 			
 			if ( m_Selector && m_Selector.GetOptionTextWidget() ) m_Selector.GetOptionTextWidget().SetColor( ARGB( 255, 255, 0, 0 ) );
 			
@@ -178,7 +221,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 
 			m_Menu.HideDetails();
 			selectWidget.SetColor( ARGB( 0, 0, 0, 0 ) );
-			settingLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+			settingLabel.SetColor( ARGB( 255, 255, 255, 255 ) );
 			
 			if ( m_Selector && m_Selector.GetOptionTextWidget() ) m_Selector.GetOptionTextWidget().SetColor( ARGB( 255, 255, 255, 255 ) );
 			

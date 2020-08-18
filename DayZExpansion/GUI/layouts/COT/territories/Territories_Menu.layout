@@ -1,7 +1,7 @@
 PanelWidgetClass ExpansionCOTTerritoriesMenu {
  visible 1
  color 0 0 0 0
- size 1600 900
+ size 1250 600
  hexactpos 0
  vexactpos 0
  hexactsize 1
@@ -13,180 +13,223 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
   PanelWidgetClass territory_window_panel {
    position 0 0
    size 1 1
+   hexactsize 0
+   vexactsize 0
    {
     PanelWidgetClass territory_map_panel {
      visible 1
+     clipchildren 1
      keepsafezone 1
-     position 0 0.01
-     size 1000 1000
+     position 0 0
+     size 0.7 1
      halign right_ref
      hexactpos 0
      vexactpos 0
-     hexactsize 1
-     vexactsize 1
-     style Outline
+     hexactsize 0
+     vexactsize 0
      {
       MapWidgetClass territory_map {
        visible 1
        clipchildren 1
        keepsafezone 1
        position 0 0
-       size 1000 1000
+       size 1 1
        halign right_ref
        hexactpos 0
        vexactpos 0
-       hexactsize 1
-       vexactsize 1
-       priority 1
+       hexactsize 0
+       vexactsize 0
        scriptclass ""
       }
      }
     }
-    PanelWidgetClass territory_list_panel {
+    WrapSpacerWidgetClass territory_list_panel {
      visible 1
      ignorepointer 1
-     position 0.01 0.01
-     size 0.36 0.935
+     color 0 0 0 1
+     position 0 0
+     size 0.3 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     priority 101
+     style DayZDefaultPanel
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
-      TextWidgetClass territory_list_lable {
+      PanelWidgetClass territory_list_lable_panel {
        ignorepointer 1
        position 0 0
-       size 0.99 0.03
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "SERVER TERRITORIES"
-       font "gui/fonts/etelkatextpro"
-       "text halign" center
-       "text valign" center
+       size 375 20
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass territory_list_lable {
+         ignorepointer 1
+         position 0 0
+         size 375 20
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style Bold
+         text "##STR_EXPANSION_COT_TERRITORY_TERRITORIES"
+         font "gui/fonts/etelkatextpro16"
+         "exact text" 1
+         "exact text size" 16
+         "text halign" center
+         "text valign" center
+        }
+       }
       }
       ScrollWidgetClass territory_list_scroller {
        ignorepointer 0
-       position 0 0.04
-       size 1 0.9
+       position 0 20
+       size 375 520
        halign center_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
        style blank
        "Scrollbar V" 1
        {
         GridSpacerWidgetClass territory_list_content {
-         ignorepointer 0
-         color 0 0 0 0
-         size 1 1
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         Padding 0
-         Margin 0
-         "Size To Content H" 1
+         position 0 0
+         size 375 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
          "Size To Content V" 1
          Columns 1
-         Rows 10
+         Rows 2
         }
        }
       }
-      GridSpacerWidgetClass territory_list_buttons {
+      WrapSpacerWidgetClass territory_list_buttons {
        ignorepointer 1
-       size 1 0.05
+       size 375 50
+       halign center_ref
        valign bottom_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style Empty
        Padding 0
        Margin 0
-       Columns 1
-       Rows 1
+       "Size To Content V" 1
        {
         ButtonWidgetClass territory_refresh_button {
-         position 0.017 0.2
-         size 1 0.962
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         text "REFRESH LIST"
-         font "gui/fonts/etelkatextpro22"
+         position 8 10
+         size 375 24
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass vehicles_refresh_button_lable {
+           ignorepointer 1
+           size 375 24
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           style Bold
+           text "#STR_EXPANSION_COT_TERRITORY_REFRESH"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "text halign" center
+           "text valign" center
+          }
+         }
         }
        }
       }
      }
     }
-    PanelWidgetClass territory_info_panel {
+    WrapSpacerWidgetClass territory_info_panel {
      visible 0
      ignorepointer 1
-     position 0.38 0.01
-     size 0.45 0.43
+     position 0.3 0
+     size 0.53 0.49
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
       TextWidgetClass territory_info_lable {
        ignorepointer 1
        position 0 0
-       size 1 0.06
+       size 662 24
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "TERRITORY INFORMATION"
-       font "gui/fonts/etelkatextpro"
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_INFORMATION"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
-      GridSpacerWidgetClass territory_info_spacer {
+      WrapSpacerWidgetClass territory_info_spacer {
        ignorepointer 1
        position 0 0.08
-       size 1 0.95
+       size 662 279
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       Columns 1
-       Rows 16
+       hexactsize 1
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
        {
         PanelWidgetClass territory_info_name {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass info_name_label {
            ignorepointer 1
-           size 0.3 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Territory Name:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_NAME"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass info_name_value {
            ignorepointer 1
-           position 0.3 0
-           size 0.7 1
+           size 0.5 24
+           halign right_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
            "text valign" center
           }
          }
@@ -194,33 +237,37 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass territory_info_id {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass info_id_label {
            ignorepointer 1
-           size 0.3 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Territory ID:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_ID"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass info_id_value {
            ignorepointer 1
-           position 0.3 0
-           size 0.7 1
+           size 0.5 24
+           halign right_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
            "text valign" center
           }
          }
@@ -228,33 +275,37 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass territory_info_ownerid {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.21267
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass info_ownerid_label {
            ignorepointer 1
-           size 0.3 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Territory Owner ID:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_OWNER_ID"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass info_ownerid_value {
            ignorepointer 1
-           position 0.3 0
-           size 0.7 1
+           size 0.5 24
+           halign right_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
            "text valign" center
           }
          }
@@ -262,33 +313,37 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass territory_info_position {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass info_position_label {
            ignorepointer 1
-           size 0.3 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Territory Position:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_POSITION"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass info_position_value {
            ignorepointer 1
-           position 0.3 0
-           size 0.7 1
+           size 0.5 24
+           halign right_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
            "text valign" center
           }
          }
@@ -296,33 +351,37 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass territory_info_level {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass info_level_label {
            ignorepointer 1
-           size 0.3 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Territory Level:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_LEVEL"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass info_level_value {
            ignorepointer 1
-           position 0.3 0
-           size 0.7 1
+           size 0.5 24
+           halign right_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
            "text valign" center
           }
          }
@@ -331,20 +390,147 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
      }
     }
-    PanelWidgetClass member_list_panel {
+    WrapSpacerWidgetClass territory_info_buttons_panel {
      visible 0
      ignorepointer 1
-     position 0.38 0.45
-     size 0.61 0.43
+     size 0.16 0.49
+     halign right_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
      {
+      TextWidgetClass territory_info_buttons_lable {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 200 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_OPTIONS"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "text halign" center
+       "text valign" center
+      }
+      WrapSpacerWidgetClass territory_info_buttons_spacer {
+       ignorepointer 1
+       position 0 0.08
+       size 200 279
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
+       {
+        ButtonWidgetClass delete_territory_button {
+         visible 1
+         color 0 0 0 1
+         position 0 0
+         size 200 24
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass delete_territory_button_label {
+           ignorepointer 1
+           size 200 0
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_DELETE"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "size to text h" 0
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass cancel_edit_button {
+         visible 1
+         color 0 0 0 1
+         position 0 0
+         size 200 24
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass cancel_edit_button_label {
+           ignorepointer 1
+           size 200 0
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_CANCEL_EDIT"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "size to text h" 0
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    WrapSpacerWidgetClass member_list_panel {
+     visible 0
+     ignorepointer 1
+     position 0.31 0
+     size 0.69 0.49
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     {
+      TextWidgetClass member_list_lable {
+       ignorepointer 1
+       position 0 0
+       size 863 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_MEMBERS"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "text halign" center
+       "text valign" center
+      }
       ScrollWidgetClass member_list_scroller {
        ignorepointer 0
-       size 1 0.92
+       size 1 0.9
        valign bottom_ref
        hexactpos 0
        vexactpos 0
@@ -356,11 +542,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         GridSpacerWidgetClass member_list_content {
          ignorepointer 0
          color 0 0 0 0
-         size 1 1
+         size 863 270
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          Padding 0
          Margin 0
          "Size To Content H" 1
@@ -370,64 +556,57 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         }
        }
       }
-      TextWidgetClass member_list_lable {
-       ignorepointer 1
-       position 0 0
-       size 1 0.06
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "TERRITORY MEMBERS"
-       font "gui/fonts/etelkatextpro"
-       "text halign" center
-       "text valign" center
-      }
      }
     }
-    PanelWidgetClass member_info_panel {
+    WrapSpacerWidgetClass member_info_panel {
      visible 0
      ignorepointer 1
-     position 0.38 0.01
-     size 0.36 0.43
+     position 0.31 0
+     size 0.53 0.49
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
       TextWidgetClass member_info_lable {
        ignorepointer 1
        position 0 0
-       size 1 0.06
+       size 662 24
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "MEMBER INFORMATION"
-       font "gui/fonts/etelkatextpro"
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_MEMBER_INFORMATION"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
-      GridSpacerWidgetClass member_info_spacer {
+      WrapSpacerWidgetClass member_info_spacer {
        ignorepointer 1
        position 0 0.08
-       size 1 0.95
+       size 662 279
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       Columns 1
-       Rows 16
+       hexactsize 1
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
        {
         PanelWidgetClass member_info_name {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass member_info_name_label {
            ignorepointer 1
@@ -436,9 +615,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Name:"
-           font "gui/fonts/etelkatextpro"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_NAME"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass member_info_name_value {
@@ -457,11 +638,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass member_info_id {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass member_info_id_label {
            ignorepointer 1
@@ -470,9 +651,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Steam ID:"
-           font "gui/fonts/etelkatextpro"
+           text "#STR_EXPANSION_COT_TERRITORY_MEMBER_STEAMID"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass member_info_id_value {
@@ -483,7 +666,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
+           "size to text h" 0
            "text valign" center
           }
          }
@@ -491,11 +678,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass member_info_rank {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass member_info_rank_label {
            ignorepointer 1
@@ -504,9 +691,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Territory Rank:"
-           font "gui/fonts/etelkatextpro"
+           text "#STR_EXPANSION_COT_TERRITORY_RANK"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass member_info_rank_value {
@@ -517,7 +706,10 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
          }
@@ -525,11 +717,11 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass member_info_status {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass member_info_status_label {
            ignorepointer 1
@@ -538,21 +730,26 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Status:"
-           font "gui/fonts/etelkatextpro"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_STATUS"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass member_info_status_value {
            ignorepointer 1
-           size 0.45 0.99
+           size 0.45 1
            halign right_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "Offline"
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_OFFLINE"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           ImageWidgetClass member_info_status_icon {
@@ -577,143 +774,70 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
      }
     }
-    PanelWidgetClass territory_info_buttons_panel {
+    WrapSpacerWidgetClass member_info_buttons_panel {
      visible 0
      ignorepointer 1
-     position 0.01 0.01
-     size 0.15 0.43
+     size 0.16 0.49
      halign right_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
-     {
-      TextWidgetClass territory_info_buttons_lable {
-       ignorepointer 1
-       position 0 0
-       size 1 0.06
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "TERRITORY OPTIONS"
-       font "gui/fonts/etelkatextpro"
-       "text halign" center
-       "text valign" center
-      }
-      GridSpacerWidgetClass territory_info_buttons_spacer {
-       ignorepointer 1
-       position 0 0.08
-       size 1 0.95
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       Columns 1
-       Rows 16
-       {
-        ButtonWidgetClass delete_territory_button {
-         color 0 0 0 1
-         position 0.041 0.036
-         size 0.196 0.173
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         {
-          TextWidgetClass delete_territory_button_label {
-           ignorepointer 1
-           size 1 1
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           text "Delete Territory"
-           "text halign" center
-           "text valign" center
-          }
-         }
-        }
-        ButtonWidgetClass cancel_edit_button {
-         color 0 0 0 1
-         position 0.041 0.036
-         size 0.196 0.173
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         {
-          TextWidgetClass cancel_edit_button_label {
-           ignorepointer 1
-           size 1 1
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           text "Cancel Edit"
-           "text halign" center
-           "text valign" center
-          }
-         }
-        }
-       }
-      }
-     }
-    }
-    PanelWidgetClass member_info_buttons_panel {
-     visible 0
-     ignorepointer 1
-     position 0.01 0.01
-     size 0.24 0.43
-     halign right_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
       TextWidgetClass member_info_buttons_lable {
        ignorepointer 1
        position 0 0
-       size 1 0.06
+       size 200 24
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "MEMBER OPTIONS"
-       font "gui/fonts/etelkatextpro"
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_MEMBERS_OPTIONS"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
-      GridSpacerWidgetClass member_info_buttons_spacer {
+      WrapSpacerWidgetClass member_info_buttons_spacer {
        ignorepointer 1
        position 0 0.08
-       size 1 0.95
+       size 200 279
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       Columns 1
-       Rows 16
+       hexactsize 1
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
        {
         ButtonWidgetClass cancel_member_edit_button {
          color 0 0 0 1
          position 0.041 0.036
-         size 0.196 0.173
+         size 200 24
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          {
-          TextWidgetClass cancel_edit_button_label0 {
+          TextWidgetClass cancel_member_edit_button_lable {
            ignorepointer 1
-           size 1 1
+           size 200 0
+           valign center_ref
            hexactpos 0
            vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           text "Cancel Edit"
+           hexactsize 1
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_CANCEL_EDIT"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "size to text h" 0
+           "size to text v" 1
            "text halign" center
            "text valign" center
           }
@@ -723,36 +847,53 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
      }
     }
-    PanelWidgetClass object_list_panel {
+    WrapSpacerWidgetClass object_list_panel {
      visible 0
      ignorepointer 1
-     position 0.01 0.01
-     size 0.36 0.935
+     size 0.3 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
+      TextWidgetClass object_list_lable {
+       ignorepointer 1
+       position 0 0
+       size 375 18
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_OBJECTS"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "text halign" center
+       "text valign" center
+      }
       ScrollWidgetClass object_list_scroller {
        ignorepointer 0
        position 0 0.04
-       size 1 0.9
+       size 375 540
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
+       hexactsize 1
+       vexactsize 1
        style blank
        "Scrollbar V" 1
        {
         GridSpacerWidgetClass object_list_content {
          ignorepointer 0
          color 0 0 0 0
-         size 1 1
+         size 375 540
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          Padding 0
          Margin 0
          "Size To Content H" 1
@@ -762,110 +903,120 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         }
        }
       }
-      TextWidgetClass object_list_lable {
+      WrapSpacerWidgetClass object_list_buttons {
        ignorepointer 1
-       position 0 0
-       size 1 0.03
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "TERRITORY OBJECTS"
-       font "gui/fonts/etelkatextpro"
-       "text halign" center
-       "text valign" center
-      }
-      GridSpacerWidgetClass object_list_buttons {
-       ignorepointer 1
-       size 1 0.05
+       size 375 24
        valign bottom_ref
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
+       hexactsize 1
+       vexactsize 1
        Padding 0
        Margin 0
-       Columns 1
-       Rows 1
+       "Size To Content V" 1
        {
         ButtonWidgetClass objects_refresh_button {
          position 0.017 0.2
-         size 1 0.962
+         size 375 24
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         text "REFRESH LIST"
-         font "gui/fonts/etelkatextpro22"
+         hexactsize 1
+         vexactsize 1
+         font "gui/fonts/etelkatextpro16"
+         {
+          TextWidgetClass objects_refresh_button_lable {
+           ignorepointer 1
+           size 375 24
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           style Bold
+           text "#STR_EXPANSION_COT_TERRITORY_REFRESH"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "text halign" center
+           "text valign" center
+          }
+         }
         }
        }
       }
      }
     }
-    PanelWidgetClass object_info_panel {
+    WrapSpacerWidgetClass object_info_panel {
      visible 0
      ignorepointer 1
-     position 0.38 0.01
-     size 0.36 0.43
+     position 0.31 0
+     size 0.53 0.49
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
       TextWidgetClass object_info_lable {
        ignorepointer 1
        position 0 0
-       size 1 0.06
+       size 662 24
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "OBJECT INFORMATION"
-       font "gui/fonts/etelkatextpro"
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_OBJECT_INFORMATION"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
-      GridSpacerWidgetClass object_info_spacer {
+      WrapSpacerWidgetClass object_info_spacer {
        ignorepointer 1
        position 0 0.08
-       size 1 0.95
+       size 662 279
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       Columns 1
-       Rows 16
+       hexactsize 1
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
        {
         PanelWidgetClass object_info_name {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass object_info_name_label {
            ignorepointer 1
-           size 0.5 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Name:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_NAME"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass object_info_name_value {
            ignorepointer 1
            position 0.5 0
-           size 0.5 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
            "text offset" 5 0
            "text valign" center
           }
@@ -874,32 +1025,34 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         PanelWidgetClass object_info_id {
          ignorepointer 1
          position 0.027 0.036
-         size 0.13 0.173
+         size 1 24
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          {
           TextWidgetClass object_info_id_label {
            ignorepointer 1
-           size 0.5 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
-           text "Object ID:"
-           font "gui/fonts/etelkatextpro"
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_OBJECT_ID"
+           font "gui/fonts/etelkatextpro16"
            "text offset" 5 0
+           "exact text" 1
+           "exact text size" 16
            "text valign" center
           }
           TextWidgetClass object_info_id_value {
            ignorepointer 1
            position 0.5 0
-           size 0.5 1
+           size 0.5 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
            "text offset" 5 0
            "text valign" center
           }
@@ -909,36 +1062,52 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
      }
     }
-    PanelWidgetClass object_container_list_panel {
+    WrapSpacerWidgetClass object_container_list_panel {
      visible 0
      ignorepointer 1
-     position 0.01 0.01
-     size 0.36 0.935
+     size 0.3 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Outline
+     style Colorable
+     Padding 0
+     Margin 0
      {
+      TextWidgetClass object_container_list_lable {
+       ignorepointer 1
+       position 0 0
+       size 375 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_OBJECT_CONTAINER_CONTENT"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "text halign" center
+       "text valign" center
+      }
       ScrollWidgetClass object_container_list_scroller {
        ignorepointer 0
-       size 1 0.96
+       size 375 520
        valign bottom_ref
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
+       hexactsize 1
+       vexactsize 1
        style blank
        "Scrollbar V" 1
        {
         GridSpacerWidgetClass object_container_list_content {
          ignorepointer 0
          color 0 0 0 0
-         size 1 1
+         size 375 576
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          Padding 0
          Margin 0
          "Size To Content H" 1
@@ -948,96 +1117,40 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
         }
        }
       }
-      TextWidgetClass object_container_list_lable {
+      WrapSpacerWidgetClass object_container_list_buttons {
        ignorepointer 1
-       position 0 0
-       size 1 0.03
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "OBJECTS CONTAINER CONTENT"
-       font "gui/fonts/etelkatextpro"
-       "text halign" center
-       "text valign" center
-      }
-     }
-    }
-    PanelWidgetClass object_info_buttons_panel {
-     visible 0
-     ignorepointer 1
-     position 0.01 0.01
-     size 0.24 0.43
-     halign right_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     style Outline
-     {
-      TextWidgetClass object_info_buttons_lable {
-       ignorepointer 1
-       position 0 0
-       size 1 0.06
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "OBJECT OPTIONS"
-       font "gui/fonts/etelkatextpro"
-       "text halign" center
-       "text valign" center
-      }
-      GridSpacerWidgetClass object_info_buttons_spacer {
-       ignorepointer 1
-       position 0 0.08
-       size 1 0.95
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       Columns 1
-       Rows 16
+       size 375 50
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style Empty
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
        {
-        ButtonWidgetClass delete_object_button {
-         color 0 0 0 1
-         position 0.041 0.036
-         size 0.196 0.173
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
+        ButtonWidgetClass container_refresh_button {
+         position 8 10
+         size 375 24
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
          {
-          TextWidgetClass delete_object_button_label {
+          TextWidgetClass container_refresh_button_lable {
            ignorepointer 1
-           size 1 1
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           text "Delete Object"
-           "text halign" center
-           "text valign" center
-          }
-         }
-        }
-        ButtonWidgetClass cancel_object_edit_button {
-         color 0 0 0 1
-         position 0.041 0.036
-         size 0.196 0.173
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         {
-          TextWidgetClass cancel_object_edit_button_label {
-           ignorepointer 1
-           size 1 1
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           text "Cancel Edit"
+           size 375 24
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           style Bold
+           text "#STR_EXPANSION_COT_TERRITORY_REFRESH"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
            "text halign" center
            "text valign" center
           }
@@ -1047,34 +1160,139 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
      }
     }
-    PanelWidgetClass object_preview_panel {
+    WrapSpacerWidgetClass object_info_buttons_panel {
      visible 0
      ignorepointer 1
-     position 0.38 0.5
+     size 0.16 0.49
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Colorable
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     {
+      TextWidgetClass object_info_buttons_lable {
+       ignorepointer 1
+       position 0 0
+       size 200 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_OBJECT_OPTIONS"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
+       "text halign" center
+       "text valign" center
+      }
+      WrapSpacerWidgetClass object_info_buttons_spacer {
+       ignorepointer 1
+       position 0 0.08
+       size 200 279
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
+       {
+        ButtonWidgetClass delete_object_button {
+         color 0 0 0 1
+         position 0 0
+         size 200 24
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass delete_object_button_label {
+           ignorepointer 1
+           size 200 0
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_OBJECT_DELETE"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass cancel_object_edit_button {
+         color 0 0 0 1
+         position 0 0
+         size 200 24
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass cancel_object_edit_button_label {
+           ignorepointer 1
+           size 200 0
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           text "#STR_EXPANSION_COT_TERRITORY_CANCEL_EDIT"
+           font "gui/fonts/etelkatextpro16"
+           "exact text" 1
+           "exact text size" 16
+           "size to text v" 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    WrapSpacerWidgetClass object_preview_panel {
+     visible 0
+     ignorepointer 1
+     position 0.3 0
      size 0.36 0.43
+     valign bottom_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
      style Outline
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
      {
       TextWidgetClass object_preview_lable {
        ignorepointer 1
        position 0 0
-       size 1 0.06
+       size 450 24
        hexactpos 0
        vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       text "OBJECT PREVIEW"
-       font "gui/fonts/etelkatextpro"
+       hexactsize 1
+       vexactsize 1
+       text "#STR_EXPANSION_COT_TERRITORY_OBJECT_PREVIEW"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 1
+       "exact text size" 16
        "text halign" center
        "text valign" center
       }
       ItemPreviewWidgetClass object_preview {
        ignorepointer 1
        position 0 0.08
-       size 1 0.95
+       size 1 0.9
        hexactpos 0
        vexactpos 0
        hexactsize 0

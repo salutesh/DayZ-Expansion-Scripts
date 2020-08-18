@@ -26,7 +26,7 @@ class ExpansionPaper extends Paper
 		if ( !super.OnStoreLoad(ctx, version) )
 			return false;
 		
-		if (!ctx.Read(m_NoteContents))
+		if ( Expansion_Assert_False( ctx.Read( m_NoteContents ), "[" + this + "] Failed reading m_NoteContents" ) )
 			return false;
 				
 		return true;

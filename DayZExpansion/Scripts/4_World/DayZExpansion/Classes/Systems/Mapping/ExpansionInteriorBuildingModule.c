@@ -253,7 +253,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		iviesPosition.Insert("12050 10 3715");
 		iviesPosition.Insert("12040 10 3734");
 		iviesPosition.Insert("12049 8.48 3646");
-		iviesPosition.Insert("12435 9 3563",);
+		iviesPosition.Insert("12435 9 3563");
 		iviesPosition.Insert("12459 12 3555");
 		iviesPosition.Insert("11931 8 3486");
 		iviesPosition.Insert("11949 9 3489");

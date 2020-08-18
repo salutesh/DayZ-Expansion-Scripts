@@ -263,7 +263,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 			}
 		}
 	}
-    
+	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		super.OnMouseEnter(w, x, y);

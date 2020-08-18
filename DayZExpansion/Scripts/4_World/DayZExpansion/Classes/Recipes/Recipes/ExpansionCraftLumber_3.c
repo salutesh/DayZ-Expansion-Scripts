@@ -50,6 +50,7 @@ class ExpansionCraftLumber_3 extends RecipeBase
 		//! Ingredient 2
 		InsertIngredient( 1, "Hacksaw" );
 		InsertIngredient( 1, "HandSaw" );
+		InsertIngredient( 1, "Chainsaw" );
 		
 		m_IngredientAddHealth[1] = -5;// 0 = do nothing
 		m_IngredientSetHealth[1] = -1; 

@@ -26,6 +26,7 @@ class ExpansionSettings
 	static ref ScriptInvoker SI_Spawn = new ScriptInvoker();
 	static ref ScriptInvoker SI_Territory = new ScriptInvoker();
 	static ref ScriptInvoker SI_Vehicle = new ScriptInvoker();
+	static ref ScriptInvoker SI_Debug = new ScriptInvoker();
 	
 	protected ref ExpansionAirdropSettings m_SettingsAirdrop;
 	protected ref ExpansionBookSettings m_SettingsBook;
@@ -41,6 +42,7 @@ class ExpansionSettings
 	protected ref ExpansionRaidSettings m_SettingsRaid;
 	protected ref ExpansionTerritorySettings m_SettingsTerritory;
 	protected ref ExpansionVehicleSettings m_SettingsVehicle;
+	protected ref ExpansionDebugSettings m_SettingsDebug;
 	
 	protected bool m_SettingsLoaded;
 	
@@ -111,6 +113,9 @@ class ExpansionSettings
 
 		if ( m_SettingsVehicle ) 
 			delete m_SettingsVehicle;
+		
+		if ( m_SettingsDebug ) 
+			delete m_SettingsDebug;
 	}
 	
 	// ------------------------------------------------------------
@@ -145,6 +150,7 @@ class ExpansionSettings
 		LoadSetting( m_SettingsSpawn );
 		LoadSetting( m_SettingsTerritory );
 		LoadSetting( m_SettingsVehicle );
+		LoadSetting( m_SettingsDebug );
 
 		//m_NetworkedSettings.Insert( "expansionairdropsettings" );
 		m_NetworkedSettings.Insert( "expansionbooksettings" );
@@ -162,7 +168,8 @@ class ExpansionSettings
 		m_NetworkedSettings.Insert( "expansionspawnsettings" );
 		m_NetworkedSettings.Insert( "expansionterritorysettings" );
 		m_NetworkedSettings.Insert( "expansionvehiclesettings" );
-
+		m_NetworkedSettings.Insert( "expansiondebugsettings" );
+		
 		m_SettingsLoaded = true;
 
 		#ifdef EXPANSIONEXPRINT
@@ -187,6 +194,7 @@ class ExpansionSettings
 		m_SettingsSpawn.Unload();
 		m_SettingsTerritory.Unload();
 		m_SettingsVehicle.Unload();
+		m_SettingsDebug.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -333,6 +341,9 @@ class ExpansionSettings
 
 		if ( !IsSettingLoaded( m_SettingsVehicle, m_SettingsLoaded ) )
 			return;
+		
+		if ( !IsSettingLoaded( m_SettingsDebug, m_SettingsLoaded ) )
+			return;
 
 		m_SettingsLoaded = true;
 		
@@ -360,6 +371,7 @@ class ExpansionSettings
 		m_SettingsSpawn = new ExpansionSpawnSettings;
 		m_SettingsTerritory = new ExpansionTerritorySettings;
 		m_SettingsVehicle = new ExpansionVehicleSettings;
+		m_SettingsDebug = new ExpansionDebugSettings;
 
 		m_NetworkedSettings = new TStringArray;
 
@@ -403,6 +415,7 @@ class ExpansionSettings
 		m_SettingsSpawn.Send( identity );
 		m_SettingsTerritory.Send( identity );
 		m_SettingsVehicle.Send( identity );
+		m_SettingsDebug.Send( identity );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionSettings::SendSettings - End");
@@ -435,7 +448,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.AirDrop:
 			{
-				m_SettingsAirdrop.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsAirdrop.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_AirDrop");
 				#endif
@@ -445,7 +458,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Book:
 			{
-				m_SettingsBook.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsBook.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Book");
 				#endif
@@ -455,7 +468,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.BaseBuilding:
 			{
-				m_SettingsBaseBuilding.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsBaseBuilding.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_BaseBuilding");
 				#endif
@@ -465,7 +478,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.General:
 			{
-				m_SettingsGeneral.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsGeneral.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_General");
 				#endif
@@ -475,7 +488,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Map:
 			{
-				m_SettingsMap.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsMap.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Map");
 				#endif
@@ -485,7 +498,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Market:
 			{
-				m_SettingsMarket.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsMarket.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Market");
 				#endif
@@ -495,7 +508,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Notification:
 			{
-				m_SettingsNotification.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsNotification.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Notification");
 				#endif
@@ -505,7 +518,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Raid:
 			{
-				m_SettingsRaid.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsRaid.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Raid");
 				#endif
@@ -515,7 +528,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Party:
 			{
-				m_SettingsParty.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsParty.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Party");
 				#endif
@@ -525,7 +538,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Spawn:
 			{
-				m_SettingsSpawn.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsSpawn.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Spawn");
 				#endif
@@ -535,7 +548,7 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Territory:
 			{
-				m_SettingsTerritory.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsTerritory.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Territory");
 				#endif
@@ -545,9 +558,19 @@ class ExpansionSettings
 			
 			case ExpansionSettingsRPC.Vehicle:
 			{
-				m_SettingsVehicle.HandleRPC( ctx );
+				Expansion_Assert_False( m_SettingsVehicle.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_Vehicle");
+				#endif
+
+				break;
+			}
+			
+			case ExpansionSettingsRPC.Debug:
+			{
+				Expansion_Assert_False( m_SettingsDebug.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC m_SettingsDebug");
 				#endif
 
 				break;
@@ -600,6 +623,7 @@ class ExpansionSettings
 			m_SettingsSpawn.Save();
 			m_SettingsTerritory.Save();
 			m_SettingsVehicle.Save();
+			m_SettingsDebug.Save();
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -717,6 +741,14 @@ class ExpansionSettings
 	ref ExpansionNotificationSettings GetNotification()
 	{
 		return m_SettingsNotification;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionDebugSettings GetMap
+	// ------------------------------------------------------------
+	ref ExpansionDebugSettings GetDebug()
+	{
+		return m_SettingsDebug;
 	}
 }
 

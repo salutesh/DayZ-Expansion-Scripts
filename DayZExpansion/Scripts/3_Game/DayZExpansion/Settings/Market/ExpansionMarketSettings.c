@@ -172,15 +172,15 @@ class ExpansionMarketSettings: ExpansionSettingBase
 	}	
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		//TraderPrint("ExpansionMarketSettings::HandleRPC - Start");
+		//TraderPrint("ExpansionMarketSettings::OnRecieve - Start");
 		
 		ExpansionMarketSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionMarketSettings::HandleRPC setting");
-			return;
+			Error("ExpansionMarketSettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -189,7 +189,16 @@ class ExpansionMarketSettings: ExpansionSettingBase
 		
 		ExpansionSettings.SI_Market.Invoke();
 		
-		//TraderPrint("ExpansionMarketSettings::HandleRPC - End");
+		//TraderPrint("ExpansionMarketSettings::OnRecieve - End");
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionMarketSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 	
 	// ------------------------------------------------------------
@@ -202,10 +211,8 @@ class ExpansionMarketSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionMarketSettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Market, true, identity );
 		
 		//TraderPrint("ExpansionMarketSettings::Send - End and return");

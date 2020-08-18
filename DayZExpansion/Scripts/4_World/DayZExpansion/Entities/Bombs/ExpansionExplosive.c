@@ -112,12 +112,11 @@ class ExpansionExplosive extends ItemBase
 
 		if ( IsMissionHost() )
 		{
-			m_ExplosionTimer.Run( m_ExplosionTime, this, "Trigger", NULL, false ); 
+			m_ExplosionTimer.Run( m_ExplosionTime, this, "TriggerExplosion", NULL, false ); 
 		}
 
 		// That's the only fix I have found
 		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( OnFrame, 1, true );
-
 
 		SetSynchDirty();
 	}
@@ -148,7 +147,17 @@ class ExpansionExplosive extends ItemBase
 		GetGame().ObjectDelete( this );
 	}
 
-	void Trigger()
+	override bool ExpansionCanRecievePower()
+	{
+		return true;
+	}
+	
+	override void OnWorkStart()
+	{
+		TriggerExplosion();
+	}
+	
+	void TriggerExplosion()
 	{
 		if ( IsMissionHost() && !m_Exploded )
 		{
@@ -240,6 +249,11 @@ class ExpansionExplosive extends ItemBase
 	}	
 
 	override bool IsOneHandedBehaviour()
+	{
+		return true;
+	}
+	
+	override bool IsExplosive()
 	{
 		return true;
 	}

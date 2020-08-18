@@ -78,7 +78,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	void ExpansionBookTabTerritory()
 	{
 		SetButtonIconPath( "DayZExpansion/GUI/icons/hud/menu_64x64.edds" );
-		SetButtonText( "TERRITORY" );
+		SetButtonText( "#STR_BOOK_TERRITORYMENU" );
 		SetButtonColor( COLOR_EXPANSION_TERRITORY_BOOKMARK_ICON );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_territory.layout" );
 
@@ -230,7 +230,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			
 			if ( !objects )
 			{
-				m_playersListInfo.SetText("No players to invite!");
+				m_playersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_EMPTY");
 				return;
 			}
 			
@@ -261,11 +261,11 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		if (nmbPlayer > 0)
 		{
-			m_playersListInfo.SetText("Select a player to invite:");
+			m_playersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_SELECT");
 		}
 		else
 		{
-			m_playersListInfo.SetText("No players to invite!");
+			m_playersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_EMPTY");
 		}
 	
 		#ifdef EXPANSIONEXLOGPRINT
@@ -317,7 +317,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		if ( m_CurrentTerritory && m_CurrentTerritory.GetTerritoryMembers().Count() == 1 )
 		{
 			m_membersListInfo.Show( true );
-			m_membersListInfo.SetText("Territory has no other members!");
+			m_membersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_MEMBER_LIST_EMPTY");
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT

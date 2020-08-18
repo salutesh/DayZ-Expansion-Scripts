@@ -10,6 +10,24 @@
  *
 */
 
+void FoldOpticsDown( EntityAI item )
+{
+	TStringArray selectionNames = new TStringArray;
+	item.ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
+
+	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_raised" ), false );
+	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_lowered" ), true );
+}
+
+void FoldOpticsUp( EntityAI item )
+{
+	TStringArray selectionNames = new TStringArray;
+	item.ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
+
+	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_raised" ), true );
+	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_lowered" ), false );
+}
+
 modded class Weapon_Base
 {
 	private int m_ExShouldFire;
@@ -20,12 +38,47 @@ modded class Weapon_Base
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Weapon_Base::Weapon_Base - Start");
 		#endif
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Weapon_Base::Weapon_Base - Class: " + this.ToString());
+		#endif
 		
 		m_ExMuzzleIndices = new array< int >;
 
+		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
+		SetEventMask( EntityEvent.SIMULATE );
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Weapon_Base::Weapon_Base - End");
 		#endif
+	}
+
+	override void EOnSimulate( IEntity other, float dt )
+	{
+		//super.EOnSimulate( other, dt );
+
+		UpdateLaser();
+	}
+
+	override void UpdateLaser()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Weapon_Base::UpdateLaser - Start");
+		#endif
+		
+		if ( GetGame().IsServer() && GetGame().IsMultiplayer() )
+			return;
+
+		ItemBase laser = ItemBase.Cast( FindAttachmentBySlotName( "weaponFlashlight" ) );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Weapon_Base::UpdateLaser - Laser: " + laser.ToString());
+		#endif
+
+		if ( laser )
+		{
+			laser.UpdateLaser();
+		}
 	}
 
 	float CalculateBarrelLength()
@@ -43,6 +96,8 @@ modded class Weapon_Base
 
 	vector GetFirePosition( DayZPlayerImplement player )
 	{
+		if ( !player.IsAlive() )
+			return "0 0 0";
 		return player.GetBonePositionWS( player.GetBoneIndexByName( "Weapon_Bone_06" ) );
 	}
 

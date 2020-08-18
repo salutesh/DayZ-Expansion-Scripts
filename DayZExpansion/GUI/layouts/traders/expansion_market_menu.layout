@@ -20,7 +20,7 @@ FrameWidgetClass market_menu_root {
     FrameWidgetClass market_container {
      ignorepointer 1
      color 1 1 1 0
-     size 0.99 0.94
+     size 0.99 0.98
      halign right_ref
      valign center_ref
      hexactpos 0
@@ -60,7 +60,7 @@ FrameWidgetClass market_menu_root {
           PanelWidgetClass market_header {
            visible 1
            ignorepointer 1
-           color 0.0902 0.0902 0.0902 1
+           color 0 0 0 0.9412
            position 0 0
            size 1 50
            hexactpos 1
@@ -216,7 +216,6 @@ FrameWidgetClass market_menu_root {
   }
   PanelWidgetClass player_info_content {
    ignorepointer 0
-   color 0.6196 0.3176 0 0.549
    position 0.005 0.01
    size 0.25 0.1
    halign right_ref
@@ -228,7 +227,7 @@ FrameWidgetClass market_menu_root {
    {
     PanelWidgetClass player_info_background {
      ignorepointer 1
-     color 0.2039 0.2863 0.3686 1
+     color 0 0 0 0.8627
      position 0 0
      size 1 1
      hexactpos 0
@@ -263,7 +262,7 @@ FrameWidgetClass market_menu_root {
         PanelWidgetClass player_info_header_panel {
          visible 1
          ignorepointer 1
-         color 0 0 0 0.6667
+         color 0 0 0 0.9412
          position 0 0
          size 1.01 0.3
          halign center_ref
@@ -425,7 +424,7 @@ FrameWidgetClass market_menu_root {
    {
     PanelWidgetClass menu_info_background {
      ignorepointer 1
-     color 0.2039 0.2863 0.3686 1
+     color 0 0 0 0.8627
      position 0 0
      size 1 1
      hexactpos 0
@@ -460,7 +459,7 @@ FrameWidgetClass market_menu_root {
         PanelWidgetClass market_item_header_panel {
          visible 1
          ignorepointer 1
-         color 0 0 0 0.6667
+         color 0 0 0 0.9412
          size 1 50
          halign center_ref
          hexactpos 0
@@ -504,7 +503,7 @@ FrameWidgetClass market_menu_root {
         }
         PanelWidgetClass market_item_preview_container {
          ignorepointer 1
-         color 0 0 0 0.549
+         color 1 1 1 0
          position 0 0.05
          size 0.97 0.35
          halign center_ref
@@ -514,7 +513,7 @@ FrameWidgetClass market_menu_root {
          hexactsize 0
          vexactsize 0
          priority 100
-         style rover_sim_colorable
+         style blank
          {
           ItemPreviewWidgetClass market_item_preview {
            visible 1
@@ -645,7 +644,7 @@ FrameWidgetClass market_menu_root {
               ButtonWidgetClass market_item_amount_button_left {
                visible 1
                clipchildren 0
-               color 0.9059 0.298 0.2353 1
+               color 0.9059 0.298 0.2353 0.9412
                position 0 0
                size 1 1
                halign center_ref
@@ -660,7 +659,7 @@ FrameWidgetClass market_menu_root {
                 ImageWidgetClass market_item_amount_left_icon {
                  clipchildren 0
                  ignorepointer 1
-                 color 0.9059 0.298 0.2353 1
+                 color 0.9059 0.298 0.2353 0.9412
                  position 0 0
                  size 25 25
                  halign center_ref
@@ -692,7 +691,7 @@ FrameWidgetClass market_menu_root {
              {
               ButtonWidgetClass market_item_amount_button_right {
                clipchildren 0
-               color 0.1804 0.8 0.4431 1
+               color 0.1804 0.8 0.4431 0.9412
                position 0 0
                size 1 1
                halign center_ref
@@ -708,7 +707,7 @@ FrameWidgetClass market_menu_root {
                  visible 1
                  clipchildren 0
                  ignorepointer 1
-                 color 0.1804 0.8 0.4431 1
+                 color 0.1804 0.8 0.4431 0.9412
                  position 0 0
                  size 25 25
                  halign center_ref
@@ -751,7 +750,7 @@ FrameWidgetClass market_menu_root {
            vexactsize 0
            {
             ButtonWidgetClass market_item_sell {
-             color 0.9059 0.298 0.2353 1
+             color 0.9059 0.298 0.2353 0.9412
              position 0 0
              size 0.7 0.25
              halign center_ref
@@ -909,7 +908,7 @@ FrameWidgetClass market_menu_root {
            {
             ButtonWidgetClass market_item_buy {
              disabled 0
-             color 0.1804 0.8 0.4431 1
+             color 0.1804 0.8 0.4431 0.9412
              position 0 0
              size 0.7 0.25
              halign center_ref
@@ -1058,7 +1057,7 @@ FrameWidgetClass market_menu_root {
          visible 1
          clipchildren 0
          ignorepointer 1
-         color 0 0 0 0.549
+         color 1 1 1 0
          position 0 0.07
          size 0.956 0.28997
          halign center_ref
@@ -1067,12 +1066,11 @@ FrameWidgetClass market_menu_root {
          hexactsize 0
          vexactsize 0
          priority 1
-         style rover_sim_colorable
+         style blank
          {
           ScrollWidgetClass market_item_description_panel {
            ignorepointer 0
            keepsafezone 0
-           color 0.498 0.549 0.5529 1
            position 0 0
            size 1 1
            halign center_ref

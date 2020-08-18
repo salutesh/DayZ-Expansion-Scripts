@@ -41,7 +41,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
-		return "Change Code";
+		return "#STR_EXPANSION_BB_CODE_LOCK_CHANGE";
 	}
 
 	// -----------------------------------------------------------

@@ -19,7 +19,6 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_BB_RAMP_KIT";
 		descriptionShort = "$STR_EXPANSION_BB_RAMP_KIT_DESC";
-		model = "\DZ\gear\camping\fence_kit.p3d";
 		placingTypes[] = {"ExpansionRamp6x1_5x6KitPlacing"};
 	};
 	class ExpansionRampBaseKitPlacing: ExpansionRampKit

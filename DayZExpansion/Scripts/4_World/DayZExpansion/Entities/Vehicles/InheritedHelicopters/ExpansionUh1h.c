@@ -166,12 +166,6 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	}
 
 	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
 	override float GetActionDistanceFuel()
 	{
 		return 2.5;
@@ -193,6 +187,19 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	override float GetCameraDistance()
 	{
 		return 20;
+	}
+
+	// ------------------------------------------------------------
+	override bool CanObjectAttach( Object obj )
+	{
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -260,8 +267,8 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	override int GetCarDoorsState( string slotType )
 	{
 		CarDoor carDoor;
-		if ( !Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) ) )
-		{
+		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
+		if ( !carDoor ) {
 			return CarDoorState.DOORS_MISSING;
 		}
 
@@ -290,23 +297,6 @@ class ExpansionUh1h: ExpansionHelicopterScript
 
 		return CarDoorState.DOORS_MISSING;
 	}
-	
-	override bool CanReachSeatFromSeat( int currentSeat, int nextSeat )
-	{
-		switch( currentSeat )
-		{
-		case 0:
-			if ( nextSeat == 1 )
-				return true;
-			break;
-		case 1:
-			if ( nextSeat == 0 )
-				return true;
-			break;
-		}
-		
-		return false;
-	}
 
 	// ------------------------------------------------------------
 	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
@@ -334,31 +324,37 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	// ------------------------------------------------------------
 	override bool CrewCanGetThrough( int posIdx )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionUH1H::CrewCanGetThrough");
+		#endif
+
 		switch( posIdx )
 		{
 			case 0:
-				if ( GetAnimationPhase( "uh1hdoor_1_1" ) > 0.5 )
-					return true;		
-				
-				if ( FindAttachmentBySlotName("uh1hdoor_1_1") == NULL ) 
-					return true;
+				if ( GetCarDoorsState( "uh1hdoor_1_1" ) == CarDoorState.DOORS_CLOSED )
+					return false;
+
+				return true;
 			break;
 
 			case 1:
-				if ( GetAnimationPhase( "uh1hdoor_1_2" ) > 0.5 )
-					return true;
-				
-				if ( FindAttachmentBySlotName("uh1hdoor_1_2") == NULL ) 
-					return true;
+				//Uncomment this once the door has been fixed
+				/*if ( GetCarDoorsState( "uh1hdoor_1_2" ) == CarDoorState.DOORS_CLOSED )
+					return false;*/
+
+				return true;
 			break;
 		}
-
 		return true;
 	}
 
 	// ------------------------------------------------------------
 	override string GetAnimSourceFromSelection( string selection )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionUH1H::GetAnimSourceFromSelection");
+		#endif
+		
 		switch( selection )
 		{
 			case "uh1hdoor_1_1":

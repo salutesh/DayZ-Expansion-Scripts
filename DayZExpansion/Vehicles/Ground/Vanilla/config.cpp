@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Vanilla
 	{
-		units[] = {"ExpansionCarDoorFix","ExpansionSpraycanRed","ExpansionSpraycanBlack","ExpansionSpraycanBlue","ExpansionSpraycanBanditKitty","ExpansionSpraycanYellow","ExpansionSpraycanGrey","ExpansionSpraycanWine","ExpansionSpraycanWhite","Expansion_HatchbackDoors_Driver","Expansion_HatchbackDoors_CoDriver","Expansion_HatchbackHood","Expansion_HatchbackTrunk","ExpansionCivSedanWheel","ExpansionCivilianSedanTest","Expansion_CivSedanDoors_Driver","Expansion_CivSedanDoors_CoDriver","Expansion_CivSedanDoors_BackLeft","Expansion_CivSedanDoors_BackRight","Expansion_CivSedanHood","Expansion_CivSedanTrunk","Expansion_Hatchback_02_Door_1_1","Expansion_Hatchback_02_Door_1_2","Expansion_Hatchback_02_Door_2_1","Expansion_Hatchback_02_Door_2_2","Expansion_Hatchback_02_Hood","Expansion_Hatchback_02_Trunk","Expansion_Sedan_02_Door_1_1","Expansion_Sedan_02_Door_1_2","Expansion_Sedan_02_Door_2_1","Expansion_Sedan_02_Door_2_2","Expansion_Sedan_02_Hood","Expansion_Sedan_02_Trunk"};
+		units[] = {"ExpansionCarDoorFix","ExpansionSpraycanBlack","ExpansionSpraycanGrey","ExpansionSpraycanWhite","ExpansionSpraycanGreen","ExpansionSpraycanRed","ExpansionSpraycanBlue","ExpansionSpraycanBanditKitty","ExpansionSpraycanYellow","ExpansionSpraycanWine","Expansion_HatchbackDoors_Driver","Expansion_HatchbackDoors_CoDriver","Expansion_HatchbackHood","Expansion_HatchbackTrunk","ExpansionCivSedanWheel","ExpansionCivilianSedanTest","Expansion_CivSedanDoors_Driver","Expansion_CivSedanDoors_CoDriver","Expansion_CivSedanDoors_BackLeft","Expansion_CivSedanDoors_BackRight","Expansion_CivSedanHood","Expansion_CivSedanTrunk","Expansion_Hatchback_02_Door_1_1","Expansion_Hatchback_02_Door_1_2","Expansion_Hatchback_02_Door_2_1","Expansion_Hatchback_02_Door_2_2","Expansion_Hatchback_02_Hood","Expansion_Hatchback_02_Trunk","Expansion_Sedan_02_Door_1_1","Expansion_Sedan_02_Door_1_2","Expansion_Sedan_02_Door_2_1","Expansion_Sedan_02_Door_2_2","Expansion_Sedan_02_Hood","Expansion_Sedan_02_Trunk"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -63,14 +63,6 @@ class CfgVehicles
 		scope = 2;
 	};
 	class ExpansionSpraycanBase;
-	class ExpansionSpraycanRed: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
-		skinName = "Red";
-	};
 	class ExpansionSpraycanBlack: ExpansionSpraycanBase
 	{
 		scope = 2;
@@ -78,6 +70,38 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Black_DESC";
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Black";
+	};
+	class ExpansionSpraycanGrey: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Grey_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
+		skinName = "Grey";
+	};
+	class ExpansionSpraycanWhite: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_White_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_White_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_white_co.paa"};
+		skinName = "White";
+	};
+	class ExpansionSpraycanGreen: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
+		skinName = "Green";
+	};
+	class ExpansionSpraycanRed: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
+		skinName = "Red";
 	};
 	class ExpansionSpraycanBlue: ExpansionSpraycanBase
 	{
@@ -92,7 +116,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_BanditKitty_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_BanditKitty_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_pink_co.paa"};
 		skinName = "BanditKitty";
 	};
 	class ExpansionSpraycanYellow: ExpansionSpraycanBase
@@ -103,29 +127,13 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_yellow_co.paa"};
 		skinName = "Yellow";
 	};
-	class ExpansionSpraycanGrey: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_Grey_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
-		skinName = "Grey";
-	};
 	class ExpansionSpraycanWine: ExpansionSpraycanBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Wine_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Wine_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_wine_co.paa"};
 		skinName = "Wine";
-	};
-	class ExpansionSpraycanWhite: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_White_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_White_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_white_co.paa"};
-		skinName = "White";
 	};
 	class OffroadHatchback: CarScript
 	{
@@ -333,6 +341,15 @@ class CfgVehicles
 				};
 			};
 		};
+	};
+	class Transport;
+	class Car: Transport
+	{
+		acceleration = 3;
+	};
+	class OffroadHatchback_Test: OffroadHatchback
+	{
+		acceleration = 1;
 	};
 	class HatchbackDoors_Driver: CarDoor
 	{

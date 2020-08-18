@@ -1,5 +1,6 @@
 FrameWidgetClass ContainerWidget {
  clipchildren 0
+ ignorepointer 1
  position 0 0
  size 1 1
  halign center_ref
@@ -23,6 +24,7 @@ FrameWidgetClass ContainerWidget {
    {
     PanelWidgetClass Background {
      clipchildren 0
+     ignorepointer 1
      position 0 0
      size 1 1
      hexactpos 1
@@ -34,6 +36,7 @@ FrameWidgetClass ContainerWidget {
     }
     PanelWidgetClass BackPanelWidget {
      visible 1
+     ignorepointer 1
      position 0 0
      size 1 1
      halign center_ref
@@ -45,6 +48,7 @@ FrameWidgetClass ContainerWidget {
      style blank
      {
       MapWidgetClass Map {
+       ignorepointer 0
        position 0 0
        size 1 1
        hexactpos 1

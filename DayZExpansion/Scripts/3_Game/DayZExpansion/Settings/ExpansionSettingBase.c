@@ -8,7 +8,14 @@ class ExpansionSettingBase
 	{
 	}
 
-	void HandleRPC( ref ParamsReadContext ctx )
+	bool OnRecieve( ParamsReadContext ctx )
+	{
+		Error("Not implemented");
+
+		return false;
+	}
+
+	void OnSend( ParamsWriteContext ctx )
 	{
 		Error("Not implemented");
 	}

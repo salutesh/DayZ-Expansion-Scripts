@@ -10,83 +10,87 @@
  *
 */
 
-class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
+class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 {
-	protected Widget		m_Root;
+	protected Widget m_Root;
+	protected Widget m_Feedback;
+	protected Widget m_Twitter;
+	protected Widget m_Youtube;
+	protected Widget m_Discord;
+	protected Widget m_Patreon;
 	
-	protected Widget		m_Feedback;
-	protected Widget		m_ExpansionForum;
-	protected Widget		m_Twitter;
-	protected Widget		m_Youtube;
-	protected Widget		m_Discord;
-	protected Widget		m_Github;
-	protected Widget		m_Patreon;
-	
-	protected TextWidget	m_MainText1;
-	protected TextWidget	m_MainText2;
-	protected TextWidget	m_MainText3;
-	protected TextWidget	m_SecText1;
-	protected TextWidget	m_SecText2;
-	protected TextWidget	m_SecText3;
+	protected RichTextWidget m_MainText1;
+	protected RichTextWidget m_MainText2;
+	protected RichTextWidget m_MainText3;
+	protected RichTextWidget m_SecText1;
+	protected RichTextWidget m_SecText2;
+	protected RichTextWidget m_SecText3;
 	
 	// ------------------------------------------------------------
-	// MainMenuExpansionNewsfeed Contructor
+	// ExpansionNewsfeed Contructor
 	// ------------------------------------------------------------	
-	void MainMenuExpansionNewsfeed( Widget root )
-	{
-		m_Root				= root;
+	void ExpansionNewsfeed( Widget parent )
+	{		
+		Print("ExpansionNewsfeed::ExpansionNewsfeed - Start");
 		
-		m_Feedback			= m_Root.FindAnyWidget( "feedback_tracker" );
-		m_ExpansionForum	= m_Root.FindAnyWidget( "expansion_forums" );
-		m_Twitter			= m_Root.FindAnyWidget( "twitter" );
-		m_Youtube			= m_Root.FindAnyWidget( "youtube" );
-		m_Discord			= m_Root.FindAnyWidget( "discord" );
-		m_Github			= m_Root.FindAnyWidget( "github" );
-		m_Patreon			= m_Root.FindAnyWidget( "patreon" );
+		m_Root				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_newsfeed.layout", parent);
 		
-		m_ExpansionForum.Show(false);
-		m_Github.Show(false);
+		m_Feedback			= Widget.Cast(m_Root.FindAnyWidget("feedback_tracker"));
+		m_Twitter			= Widget.Cast(m_Root.FindAnyWidget("twitter"));
+		m_Youtube			= Widget.Cast(m_Root.FindAnyWidget("youtube"));
+		m_Discord			= Widget.Cast(m_Root.FindAnyWidget("discord"));
+		m_Patreon			= Widget.Cast(m_Root.FindAnyWidget("patreon"));
 		
-		m_MainText1			= TextWidget.Cast( m_Root.FindAnyWidget( "InfoT1" ) );
-		m_MainText2			= TextWidget.Cast( m_Root.FindAnyWidget( "InfoT2" ) );
-		m_MainText3			= TextWidget.Cast( m_Root.FindAnyWidget( "InfoT3" ) );
-		m_SecText1			= TextWidget.Cast( m_Root.FindAnyWidget( "InfoC1" ) );
-		m_SecText2			= TextWidget.Cast( m_Root.FindAnyWidget( "InfoC2" ) );
-		m_SecText3			= TextWidget.Cast( m_Root.FindAnyWidget( "InfoC3" ) );
+		m_MainText1			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT1"));
+		m_MainText2			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT2"));
+		m_MainText3			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT3"));
+		m_SecText1			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoC1"));
+		m_SecText2			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoC2"));
+		m_SecText3			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoC3"));
 		
-		m_MainText2.Show(false);
-		m_SecText2.Show(false);
-		
-		//ShowNewsfeed();
+		SetNewsfeed();
 		
 		m_Root.SetHandler( this );
+		
+		Print("ExpansionNewsfeed::ExpansionNewsfeed - End");
 	}
 	
 	// ------------------------------------------------------------
 	// ShowNewsfeed
 	// ------------------------------------------------------------	
-	void ShowNewsfeed()
+	void SetNewsfeed()
 	{
-		m_MainText1.SetText( "#STR_EXPANSION_NEWSFEED_TITLE_1" );
+		Print("ExpansionNewsfeed::SetNewsfeed - Start");
+		
+		string client_version = "";
+		
+		if(GetDayZGame())
+			client_version = GetDayZGame().GetExpansionClientVersion();
+		
+		//! Section 1
+		m_MainText1.SetText("Expansion Update " + client_version);
 		m_MainText1.Update();
-		//m_MainText2.SetText( "#STR_EXPANSION_NEWSFEED_TITLE_2" );
-		//m_MainText2.Update();
-		m_MainText3.SetText( "#STR_EXPANSION_NEWSFEED_TITLE_3" );
-		m_MainText3.Update();
-		m_SecText1.SetText( "#STR_EXPANSION_NEWSFEED_TEXT_1" );
-		m_SecText1.Update();
-		//m_SecText2.SetText( "#STR_EXPANSION_NEWSFEED_TEXT_2" );
-		//m_SecText2.Update();
-		m_SecText3.SetText( "#STR_EXPANSION_NEWSFEED_TEXT_3" );
-		m_SecText3.Update();
-	}
 	
-	// ------------------------------------------------------------
-	// HideNewsfeed
-	// ------------------------------------------------------------	
-	void HideNewsfeed()
-	{
-		m_Root.Show( false );
+		m_SecText1.SetText("Join our Discord for a detailed list of the latest changes and additions.");
+		m_SecText1.Update();
+		
+		//! Section 2
+		m_MainText2.SetText("Help us improving!");
+		m_MainText2.Update();
+		
+		m_SecText2.SetText("Please consider using the Expansion feedback tracker by using the Feedback button to report bugs and issues with the mod.");
+		m_SecText2.Update();
+		
+		//! Section 3
+		m_MainText3.Show(false);
+		//m_MainText3.SetText("");
+		//m_MainText3.Update();
+		
+		m_SecText3.Show(false);
+		//m_SecText3.SetText("");
+		//m_SecText3.Update();
+		
+		Print("ExpansionNewsfeed::SetNewsfeed - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -94,7 +98,7 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenDiscord()
 	{
-		GetGame().OpenURL( "https://discord.gg/jvqw5yS" );
+		GetGame().OpenURL("https://discord.gg/jvqw5yS");
 	}
 
 	// ------------------------------------------------------------
@@ -102,7 +106,7 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenFeedback()
 	{
-		GetGame().OpenURL( "https://exp.thurston.pw/" );
+		GetGame().OpenURL("https://exp.thurston.pw/");
 	}
 	
 	// ------------------------------------------------------------
@@ -110,7 +114,7 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------		
 	void OpenTwitter()
 	{
-		GetGame().OpenURL( "https://twitter.com/dayzexpansion" );
+		GetGame().OpenURL("https://twitter.com/dayzexpansion");
 	}
 	
 	// ------------------------------------------------------------
@@ -118,7 +122,7 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenYoutube()
 	{
-		GetGame().OpenURL( "https://www.youtube.com/channel/UCZNgSvIEWfru963tQZOAVJg" );
+		GetGame().OpenURL("https://www.youtube.com/channel/UCZNgSvIEWfru963tQZOAVJg");
 	}
 	
 	// ------------------------------------------------------------
@@ -126,39 +130,37 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenPatreon()
 	{
-		GetGame().OpenURL( "https://www.patreon.com/dayzexpansion" );
+		GetGame().OpenURL("https://www.patreon.com/dayzexpansion");
 	}
 	
 	// ------------------------------------------------------------
 	// Override OnClick
 	// ------------------------------------------------------------		
-	override bool OnClick( Widget w, int x, int y, int button )
+	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		super.OnClick(w, x, y, button);
-		
-		if( button == MouseState.LEFT )
+		if(button == MouseState.LEFT)
 		{
-			if ( w == m_Feedback )
+			if (w == m_Feedback)
 			{
 				OpenFeedback();
 				return true;
 			}
-			else if ( w == m_Twitter )
+			else if (w == m_Twitter)
 			{
 				OpenTwitter();
 				return true;
 			}
-			else if ( w == m_Youtube )
+			else if (w == m_Youtube)
 			{
 				OpenYoutube();
 				return true;
 			}
-			else if ( w == m_Discord )
+			else if (w == m_Discord)
 			{
 				OpenDiscord();
 				return true;
 			}
-			else if ( w == m_Patreon )
+			else if (w == m_Patreon)
 			{
 				OpenPatreon();
 				return true;
@@ -170,11 +172,11 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Override OnMouseEnter
 	// ------------------------------------------------------------	
-	override bool OnMouseEnter( Widget w, int x, int y )
+	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		if( IsFocusable( w ) )
+		if(IsFocusable(w))
 		{
-			ColorRed( w, x, y );
+			ColorRed(w, x, y);
 			return true;
 		}
 		return false;
@@ -183,11 +185,11 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Override OnMouseLeave
 	// ------------------------------------------------------------	
-	override bool OnMouseLeave( Widget w, Widget enterW, int x, int y )
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if( IsFocusable( w ) )
+		if(IsFocusable(w))
 		{
-			ColorWhite( w, enterW, x, y );
+			ColorWhite(w, enterW, x, y);
 			return true;
 		}
 		return false;
@@ -196,11 +198,11 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Override OnFocus
 	// ------------------------------------------------------------
-	override bool OnFocus( Widget w, int x, int y )
+	override bool OnFocus(Widget w, int x, int y)
 	{
-		if( IsFocusable( w ) )
+		if(IsFocusable(w))
 		{
-			ColorRed( w, x, y );
+			ColorRed(w, x, y);
 			return true;
 		}
 		return false;
@@ -209,11 +211,11 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Override OnFocusLost
 	// ------------------------------------------------------------
-	override bool OnFocusLost( Widget w, int x, int y )
+	override bool OnFocusLost(Widget w, int x, int y)
 	{
-		if( IsFocusable( w ) )
+		if(IsFocusable(w))
 		{
-			ColorWhite( w, null, x, y );
+			ColorWhite(w, null, x, y);
 			return true;
 		}
 		return false;
@@ -224,9 +226,9 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	bool IsFocusable( Widget w )
 	{
-		if( w )
+		if(w)
 		{
-			return ( w == m_Feedback || w == m_ExpansionForum || w == m_Twitter || w == m_Youtube || w == m_Discord || w == m_Github );
+			return (w == m_Feedback || w == m_Twitter || w == m_Youtube || w == m_Discord);
 		}
 		return false;
 	}
@@ -235,33 +237,33 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ColorRed
 	// ------------------------------------------------------------
-	void ColorRed( Widget w, int x, int y )
+	void ColorRed(Widget w, int x, int y)
 	{
-		SetFocus( w );
-		if( w.IsInherited( ButtonWidget ) )
+		SetFocus(w);
+		if(w.IsInherited(ButtonWidget))
 		{
-			ButtonWidget button = ButtonWidget.Cast( w );
-			button.SetTextColor( ARGB( 255, 255, 0, 0 ) );
-			button.SetAlpha( 0.9 );
+			ButtonWidget button = ButtonWidget.Cast(w);
+			button.SetTextColor(ARGB( 255, 255, 0, 0 ));
+			button.SetAlpha(0.9);
 		}
 		
-		TextWidget text		= TextWidget.Cast(w.FindWidget( w.GetName() + "_text" ) );
-		TextWidget text2	= TextWidget.Cast(w.FindWidget( w.GetName() + "_text_1" ) );
-		ImageWidget image	= ImageWidget.Cast( w.FindWidget( w.GetName() + "_image" ) );
+		TextWidget text	= TextWidget.Cast(w.FindWidget(w.GetName() + "_text"));
+		TextWidget text2 = TextWidget.Cast(w.FindWidget(w.GetName() + "_text_1"));
+		ImageWidget image = ImageWidget.Cast(w.FindWidget( w.GetName() + "_image"));
 		
-		if( text )
+		if(text)
 		{
-			text.SetColor( ARGB( 255, 255, 0, 0 ) );
+			text.SetColor(ARGB(255, 255, 0, 0));
 		}
 		
-		if( text2 )
+		if(text2)
 		{
-			text2.SetColor( ARGB( 255, 255, 0, 0 ) );
+			text2.SetColor(ARGB(255, 255, 0, 0));
 		}
 		
-		if( image )
+		if(image)
 		{
-			image.SetColor( ARGB( 255, 255, 0, 0 ) );
+			image.SetColor(ARGB(255, 255, 0, 0));
 		}
 	}
 	
@@ -272,28 +274,44 @@ class MainMenuExpansionNewsfeed extends ScriptedWidgetEventHandler
 	{
 		if( w.IsInherited( ButtonWidget ) )
 		{
-			ButtonWidget button = ButtonWidget.Cast( w );
-			button.SetTextColor( ARGB( 255, 255, 255, 255 ) );
-			button.SetAlpha( 0.75 );
+			ButtonWidget button = ButtonWidget.Cast(w);
+			button.SetTextColor(ARGB( 255, 255, 255, 255));
+			button.SetAlpha(0.75);
 		}
 		
-		TextWidget text		= TextWidget.Cast(w.FindWidget( w.GetName() + "_text" ) );
-		TextWidget text2	= TextWidget.Cast(w.FindWidget( w.GetName() + "_text_1" ) );
-		ImageWidget image	= ImageWidget.Cast( w.FindWidget( w.GetName() + "_image" ) );
+		TextWidget text	= TextWidget.Cast(w.FindWidget(w.GetName() + "_text"));
+		TextWidget text2 = TextWidget.Cast(w.FindWidget(w.GetName() + "_text_1"));
+		ImageWidget image = ImageWidget.Cast( w.FindWidget(w.GetName() + "_image"));
 		
-		if( text )
+		if(text)
 		{
-			text.SetColor( ARGB( 255, 255, 255, 255 ) );
+			text.SetColor(ARGB(255, 255, 255, 255));
 		}
 		
-		if( text2 )
+		if(text2)
 		{
-			text2.SetColor( ARGB( 255, 255, 255, 255 ) );
+			text2.SetColor(ARGB(255, 255, 255, 255));
 		}
 		
-		if( image )
+		if(image)
 		{
-			image.SetColor( ARGB( 255, 255, 255, 255 ) );
+			image.SetColor(ARGB(255, 255, 255, 255));
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// ShowNewsfeed
+	// ------------------------------------------------------------
+	void ShowNewsfeed(bool state)
+	{
+		m_Root.Show(state);
+	}
+	
+	// ------------------------------------------------------------
+	// GetRoot
+	// ------------------------------------------------------------
+	Widget GetRoot()
+	{
+		return m_Root;
 	}
 }

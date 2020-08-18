@@ -24,12 +24,12 @@ class ExpansionMarketCOTModule: JMRenderableModuleBase
 
 	override string GetTitle()
 	{
-		return "Expansion Market";
+		return "[EX] Market Management";
 	}
 	
 	override string GetIconName()
 	{
-		return "EM";
+		return "M";
 	}
 
 	override bool ImageIsIcon()

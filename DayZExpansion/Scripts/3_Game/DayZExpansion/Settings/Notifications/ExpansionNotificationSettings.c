@@ -32,6 +32,10 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	
 	bool ShowTerritoryNotifications;				//! Show the notifications when entering or leaving territory.
 
+	bool EnableKillFeed;
+	ExpansionAnnouncementType KillFeedMessageType;
+	bool EnableKillFeedDiscordMsg;
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -41,16 +45,16 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSettings::HandleRPC - Start");
+		EXPrint("ExpansionNotificationSettings::OnRecieve - Start");
 		#endif
 		ExpansionNotificationSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionNotificationSettings::HandleRPC setting");
-			return;
+			Error("ExpansionNotificationSettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -60,8 +64,17 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		ExpansionSettings.SI_Notification.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSettings::HandleRPC - End");
+		EXPrint("ExpansionNotificationSettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionNotificationSettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 	
 	// ------------------------------------------------------------
@@ -76,10 +89,8 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionNotificationSettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Notification, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -114,6 +125,12 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		ShowPlayerAirdropStarted = s.ShowPlayerAirdropStarted;
 		ShowPlayerAirdropClosingOn = s.ShowPlayerAirdropClosingOn;
 		ShowPlayerAirdropDropped = s.ShowPlayerAirdropDropped;
+		
+		ShowTerritoryNotifications = s.ShowTerritoryNotifications;
+		
+		EnableKillFeed = s.EnableKillFeed;
+		KillFeedMessageType = s.KillFeedMessageType;
+		EnableKillFeedDiscordMsg = s.EnableKillFeedDiscordMsg;
 	}
 	
 	// ------------------------------------------------------------
@@ -139,6 +156,8 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		if ( FileExist( EXPANSION_NOTIFICATION_SETTINGS ) )
 		{
+			Print("[ExpansionNotificationSettings] Loading settings");
+
 			JsonFileLoader<ExpansionNotificationSettings>.JsonLoadFile( EXPANSION_NOTIFICATION_SETTINGS, this );
 	
 			#ifdef EXPANSIONEXPRINT
@@ -160,24 +179,11 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSettings::Save - Start");
-		#endif
-		
-		if ( IsMissionHost() )
-		{
-			JsonFileLoader<ExpansionNotificationSettings>.JsonSaveFile( EXPANSION_NOTIFICATION_SETTINGS, this );
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionNotificationSettings::Save - Settings saved!");
-			#endif
+		Print("[ExpansionNotificationSettings] Saving settings");
 
-			return true;
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSettings::Save - End");
-		#endif
-		return false;
+		JsonFileLoader<ExpansionNotificationSettings>.JsonSaveFile( EXPANSION_NOTIFICATION_SETTINGS, this );
+
+		return true;
 	}
 	
 	// ------------------------------------------------------------
@@ -191,9 +197,7 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionNotificationSettings] Loading default settings");
-		#endif
+		Print("[ExpansionNotificationSettings] Loading default settings");
 		
 		EnableNotification = true;
 
@@ -211,5 +215,9 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		ShowPlayerAirdropDropped = true;
 		
 		ShowTerritoryNotifications = true;
+		
+		EnableKillFeed = true;
+		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
+		EnableKillFeedDiscordMsg = true;
 	}
 }

@@ -10,6 +10,17 @@
  *
 */
 
+static bool Expansion_Assert_False( bool check, string message )
+{
+	if ( check == false )
+	{
+		Assert_Log( message );
+		return true;
+	}
+
+	return false;
+}
+
 // -----------------------------------------------------------
 // Expansion GetARGB
 // -----------------------------------------------------------
@@ -111,34 +122,6 @@ static string ExpansionRemoveLastChar( string str )
 {
 	return str.Substring( 0, str.Length() - 1 );
 }
-
-// -----------------------------------------------------------
-// Expansion DisablePhysics
-// -----------------------------------------------------------
-static void DisablePhysics(Object ent)
-{
-	SetVelocity( ent, Vector( 0, 0, 0 ) );
-
-	dBodySetAngularVelocity( ent, Vector( 0, 0, 0 ) );
-	dBodyActive( ent, ActiveState.INACTIVE );
-	dBodyDynamic( ent, false );
-}
-
-// -----------------------------------------------------------
-// Expansion EnablePhysics
-// -----------------------------------------------------------
-static void EnablePhysics(Object ent)
-{
-	if( ent )
-	{
-		SetVelocity( ent, Vector( 0, 0, 0 ) );
-
-		dBodySetAngularVelocity( ent, Vector( 0, 0, 0 ) );
-		dBodyActive( ent, ActiveState.ALWAYS_ACTIVE );
-		dBodyDynamic( ent, true );
-	}
-}
-
 
 // -----------------------------------------------------------
 // Expansion TStringArray ExpansionWorkingZombieClasses
@@ -348,13 +331,19 @@ class ExpansionStatic
 {
 	protected autoptr array<ref ExpansionFlagTexture> m_FlagTextures;
 	
+	// ------------------------------------------------------------
+	// ExpansionStatic Constructor
+	// ------------------------------------------------------------
 	void ExpansionStatic()
 	{
 		m_FlagTextures = new array<ref ExpansionFlagTexture>;
 		
 		LoadFlagTextures();
 	}
-	
+		
+	// ------------------------------------------------------------
+	// ExpansionStatic GetFlagTextures
+	// ------------------------------------------------------------
 	ref array<ref ExpansionFlagTexture> GetFlagTextures()
 	{
 		return m_FlagTextures;
@@ -403,8 +392,33 @@ class ExpansionStatic
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CDF, "CDF");
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_NUEVORICO, "NuevoRico");
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_BORDURIENS, "Borduriens");
-		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_BIOHAZARD, "Biohazard");
-		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO, "AnyoneInCherno");
+		AddFlagTexture(EXPANSION_FLAG_LOGO_BIOHAZARD, "Biohazard");
+		AddFlagTexture(EXPANSION_FLAG_LOGO_ANYONEINCHERNO, "AnyoneInCherno");
+
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_IRISH, "Irish");
+
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_WALES, "Wales");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SWITZERLAND, "Switzerland");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SKILAND, "SkiLand");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SOUTHAFRICA, "SouthAfrica");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_SICILY, "Sicly");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_OFFWITHHEAD, "OffWithHead");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_GIBRALTAR, "Gibraltar");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_CZECH, "Czech");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_FARI, "Fari");
+		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_FINLAND, "Finland");
+		AddFlagTexture(EXPANSION_FLAG_LOGO_DAYZWHITE, "DayZWhite");
+		AddFlagTexture(EXPANSION_FLAG_LOGO_DAYZBLACK, "DayZBlack");
+		AddFlagTexture(EXPANSION_FLAG_LOGO_DOUBLEAXE, "DoubleAxe");
+		AddFlagTexture(EXPANSION_FLAG_LOGO_GRENADE, "Grenade");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_RED, "Red");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_BLUE, "Blue");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_GREEN, "Green");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_YELLOW, "Yellow");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_ORANGE, "Orange");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_PINK, "Pink");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_PURPLE, "Purple");
+		AddFlagTexture(EXPANSION_FLAG_COLOR_RAINBOW, "Rainbow");
 	}
 	
 	// ------------------------------------------------------------
@@ -628,12 +642,127 @@ class ExpansionStatic
 			}
 			case 37:
 			{
-				path = EXPANSION_FLAG_COUNTRIES_BIOHAZARD;
+				path = EXPANSION_FLAG_LOGO_BIOHAZARD;
 				break;
 			}
 			case 38:
 			{
-				path = EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO;
+				path = EXPANSION_FLAG_LOGO_ANYONEINCHERNO;
+				break;
+			}
+			case 39:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_IRISH;
+				break;
+			}
+			case 40:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_WALES;
+				break;
+			}
+			case 41:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SWITZERLAND;
+				break;
+			}
+			case 42:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SKILAND;
+				break;
+			}
+			case 43:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SOUTHAFRICA;
+				break;
+			}
+			case 44:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_SICILY;
+				break;
+			}
+			case 45:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_OFFWITHHEAD;
+				break;
+			}
+			case 46:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_GIBRALTAR;
+				break;
+			}
+			case 47:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_CZECH;
+				break;
+			}
+			case 48:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_FARI;
+				break;
+			}
+			case 49:
+			{
+				path = EXPANSION_FLAG_COUNTRIES_FINLAND;
+				break;
+			}
+			case 50:
+			{
+				path = EXPANSION_FLAG_LOGO_DAYZWHITE;
+				break;
+			}
+			case 51:
+			{
+				path = EXPANSION_FLAG_LOGO_DAYZBLACK;
+				break;
+			}
+			case 52:
+			{
+				path = EXPANSION_FLAG_LOGO_DOUBLEAXE;
+				break;
+			}
+			case 53:
+			{
+				path = EXPANSION_FLAG_LOGO_GRENADE;
+				break;
+			}
+			case 54:
+			{
+				path = EXPANSION_FLAG_COLOR_RED;
+				break;
+			}
+			case 55:
+			{
+				path = EXPANSION_FLAG_COLOR_BLUE;
+				break;
+			}
+			case 56:
+			{
+				path = EXPANSION_FLAG_COLOR_GREEN;
+				break;
+			}
+			case 57:
+			{
+				path = EXPANSION_FLAG_COLOR_YELLOW;
+				break;
+			}
+			case 58:
+			{
+				path = EXPANSION_FLAG_COLOR_ORANGE;
+				break;
+			}
+			case 59:
+			{
+				path = EXPANSION_FLAG_COLOR_PINK;
+				break;
+			}
+			case 60:
+			{
+				path = EXPANSION_FLAG_COLOR_PURPLE;
+				break;
+			}
+			case 61:
+			{
+				path = EXPANSION_FLAG_COLOR_RAINBOW;
 				break;
 			}
 		}

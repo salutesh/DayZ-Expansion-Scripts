@@ -37,7 +37,7 @@ class ExpansionActionDamageBaseBuilding: ActionContinuousBase
 		
 	override string GetText()
 	{		
-		return "Damage"; //! placeholder, pls fix
+		return "#destroy"; //! placeholder, pls fix
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

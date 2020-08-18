@@ -46,7 +46,7 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void ExpansionBookTabServerInfo()
 	{
-		SetButtonIconPath( "DayZExpansion/GUI/icons/hud/info_64x64.edds" );
+		SetButtonIconPath( ExpansionIcons.GetPath("Info"));
 		SetButtonText( "#STR_BOOK_SERVERINFOMENU" );
 		SetButtonColor( COLOR_EXPANSION_SERVERINFO_BOOKMARK_ICON );
 		SetLayoutPath( "DayZExpansion/GUI/layouts/book/expansion_book_page_serverinfo.layout" );
@@ -305,18 +305,6 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CloseTab
-	// ------------------------------------------------------------	
-	override void CloseTab()
-	{			
-		//! Check if there is still a tooltip visable when tab is closed.
-		HideTooltips();
-		m_ServerSettings.Clear();
-		
-		super.CloseTab();
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion HideTooltips
 	// ------------------------------------------------------------	
 	void HideTooltips()
@@ -325,7 +313,7 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 		{
 			for (int i = 0; i < m_ServerSettings.Count(); i++)
 			{
-				if ( m_ServerSettings[i].GetTooltip().IsVisable() )
+				if ( m_ServerSettings[i].GetTooltip().IsVisible() )
 					m_ServerSettings[i].GetTooltip().HideTooltip();
 			}
 		}
@@ -334,7 +322,7 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 		{
 			for (int j = 0; j < m_ServerButtons.Count(); j++)
 			{
-				if ( m_ServerButtons[i].GetTooltip().IsVisable() )
+				if ( m_ServerButtons[i].GetTooltip().IsVisible() )
 					m_ServerButtons[i].GetTooltip().HideTooltip();
 			}
 		}
@@ -355,5 +343,6 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 	{
 		m_ServerSettings.Clear();
 		m_ServerButtons.Clear();
+		HideTooltips();
 	}
 }

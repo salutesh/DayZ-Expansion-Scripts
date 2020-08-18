@@ -43,7 +43,7 @@ FrameWidgetClass book_module_info {
        hexactsize 0
        vexactsize 0
        priority 1
-       text "SERVER NAME"
+       text "#STR_EXPANSION_BOOK_SERVERINFO_NAME"
        font "DayZExpansion/GUI/fonts/etelkatextpro24"
        "exact text" 1
        "exact text size" 24
@@ -141,7 +141,7 @@ FrameWidgetClass book_module_info {
          hexactsize 0
          vexactsize 0
          priority 1
-         text "SERVER SETTINGS"
+         text "#STR_EXPANSION_BOOK_SERVERINFO_SETTINGS"
          font "DayZExpansion/GUI/fonts/etelkatextpro24"
          "exact text" 1
          "exact text size" 24

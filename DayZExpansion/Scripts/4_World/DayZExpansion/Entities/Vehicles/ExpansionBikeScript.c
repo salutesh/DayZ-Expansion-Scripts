@@ -100,13 +100,13 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	}
 
 	// ------------------------------------------------------------
-	float GetCameraDistance()
+	override float GetCameraDistance()
 	{
 		return 3;
 	}
 
 	// ------------------------------------------------------------
-	protected void OnHumanPilot( PlayerBase driver, float pDt )
+	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
 		m_TargetTurn = ( m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
 		m_EngineForce = ( m_BikeController.GetForward() );

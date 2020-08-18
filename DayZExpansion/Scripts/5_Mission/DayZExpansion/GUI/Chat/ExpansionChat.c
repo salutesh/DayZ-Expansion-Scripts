@@ -21,8 +21,8 @@ modded class Chat
 
 	//! Chat Handling
 	const int WHEEL_STEP = 20;
-	const float CHAT_FADEOUT_TIME = 3;
-	const float FADE_OUT_DURATION = 3;
+	private float CHAT_FADEOUT_TIME = 10;
+	const float FADE_OUT_DURATION = 0.5;
 	const float FADE_IN_DURATION = 0.5;
 
 	GridSpacerWidget m_Content;
@@ -41,8 +41,12 @@ modded class Chat
 
 	private bool m_ShowScroller;
 
-	private ref WidgetFadeTimer m_FadeInTimerScroller;
-	private ref Timer m_TimeOutTimerScroller;
+	ref WidgetFadeTimer m_FadeInTimerChat;
+	ref Timer m_TimeOutTimerChat;
+	
+	private GridSpacerWidget m_ContentRow;
+	
+	private string m_LayoutPath;
 	
 	// ------------------------------------------------------------
 	// Chat Constructor
@@ -56,9 +60,10 @@ modded class Chat
 		m_ChatParams = new array< ref ExpansionChatMessage >;
 		m_ChatLines = new array< ref ExpansionChatLine >;
 
-		ChatInputMenu.SI_OnChatInputHide.Insert( OnChatInputHide );
-		ChatInputMenu.SI_OnChatInputShow.Insert( OnChatInputShow );
-
+		GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingChanged );
+				
+		GetClientSettings();
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Chat End");
 		#endif
@@ -73,9 +78,8 @@ modded class Chat
 		EXPrint("Chat::~Chat Start");
 		#endif
 
-		ChatInputMenu.SI_OnChatInputHide.Remove( OnChatInputHide );
-		ChatInputMenu.SI_OnChatInputShow.Remove( OnChatInputShow );
-
+		GetExpansionClientSettings().SI_UpdateSetting.Remove( OnSettingChanged );
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::~Chat End");
 		#endif
@@ -98,13 +102,11 @@ modded class Chat
 		{
 			m_Content = GridSpacerWidget.Cast( m_RootWidget.FindAnyWidget( "Content" ) );
 			m_ScrollerContainer = Widget.Cast( m_RootWidget.FindAnyWidget( "ScrollerContainer" ) );
-			m_ScrollerContainer.Show(false);
 			m_Scroller = Widget.Cast( m_RootWidget.FindAnyWidget( "Scroller" ) );
 
 			m_Position = 1;
 			
-			GridSpacerWidget rows;
-			if ( Class.CastTo( rows, UIActionManager.CreateActionRows( m_Content ) ) )
+			if ( Class.CastTo( m_ContentRow, UIActionManager.CreateActionRows( m_Content ) ) )
 			{
 				int totalInContentRow = 100;
 				int currentContentRow = 0;
@@ -115,16 +117,13 @@ modded class Chat
 				{
 					if ( totalInContentRow >= 100 )
 					{
-						Class.CastTo( gsw, rows.FindAnyWidget( "Content_Row_0" + currentContentRow ) );
+						Class.CastTo( gsw, m_ContentRow.FindAnyWidget( "Content_Row_0" + currentContentRow ) );
 						gsw.Show( true );
 						currentContentRow++;
 						totalInContentRow = 0;
 					}
 					
-					for ( int j = 0; j < 100; j++ )
-					{
-						m_ChatLines.Insert( new ExpansionChatLine( gsw ) );
-					}
+					CreateChatLines(gsw);
 				}
 			}
 		}
@@ -132,6 +131,68 @@ modded class Chat
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Init End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionChat CreateChatLines
+	// ------------------------------------------------------------
+	void CreateChatLines(GridSpacerWidget gsw)
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Chat::CreateChatLines - Start");
+		#endif
+		
+		GetClientSettings();
+		
+		for ( int j = 0; j < 100; j++ )
+		{
+			m_ChatLines.Insert( new ExpansionChatLine( gsw, m_LayoutPath, this ) );
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("Chat::CreateChatLines - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Chat OnSettingChanged
+	// ------------------------------------------------------------
+	void OnSettingChanged()
+	{
+		Destroy();
+		
+		if ( m_ContentRow )
+			m_ContentRow.Unlink();
+		
+		if ( m_RootWidget )
+		{
+			m_Content = GridSpacerWidget.Cast( m_RootWidget.FindAnyWidget( "Content" ) );
+			m_ScrollerContainer = Widget.Cast( m_RootWidget.FindAnyWidget( "ScrollerContainer" ) );
+			m_Scroller = Widget.Cast( m_RootWidget.FindAnyWidget( "Scroller" ) );
+
+			m_Position = 1;
+			
+			if ( Class.CastTo( m_ContentRow, UIActionManager.CreateActionRows( m_Content ) ) )
+			{
+				int totalInContentRow = 100;
+				int currentContentRow = 0;
+
+				GridSpacerWidget gsw;
+
+				for ( int i = 0; i < 10; i++ )
+				{
+					if ( totalInContentRow >= 100 )
+					{
+						Class.CastTo( gsw, m_ContentRow.FindAnyWidget( "Content_Row_0" + currentContentRow ) );
+						gsw.Show( true );
+						currentContentRow++;
+						totalInContentRow = 0;
+					}
+					
+					CreateChatLines(gsw);
+				}
+			}
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -477,11 +538,11 @@ modded class Chat
 		EXPrint("Chat::ShowChat Start");
 		#endif
 		
-		if (m_FadeInTimerScroller)
-			m_FadeInTimerScroller.Stop();
+		if (m_FadeInTimerChat)
+			m_FadeInTimerChat.Stop();
 		
-		m_FadeInTimerScroller	= new WidgetFadeTimer;
-		m_FadeInTimerScroller.FadeIn(m_Scroller, FADE_IN_DURATION);
+		m_FadeInTimerChat = new WidgetFadeTimer;
+		m_FadeInTimerChat.FadeIn(m_RootWidget, FADE_IN_DURATION);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::ShowChat End");
@@ -496,12 +557,12 @@ modded class Chat
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::HideChat Start");
 		#endif
-		
-		if (m_TimeOutTimerScroller)
-			m_TimeOutTimerScroller.Stop();
 
-		m_TimeOutTimerScroller = new Timer(CALL_CATEGORY_GUI);
-		m_TimeOutTimerScroller.Run(CHAT_FADEOUT_TIME, m_FadeInTimerScroller, "FadeOut", new Param2<Widget, float>(m_Scroller, FADE_OUT_DURATION));
+		if (m_TimeOutTimerChat)
+			m_TimeOutTimerChat.Stop();
+		
+		m_TimeOutTimerChat = new Timer(CALL_CATEGORY_GUI);
+		m_TimeOutTimerChat.Run(CHAT_FADEOUT_TIME, m_FadeInTimerChat, "FadeOut", new Param2<Widget, float>(m_RootWidget, EXP_FADE_OUT_DURATION));
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::HideChat End");
@@ -530,5 +591,41 @@ modded class Chat
 	void SetPosition(float pos)
 	{
 		m_Position = pos;
+	}
+	
+	// ------------------------------------------------------------
+	// Chat SetPosition
+	// ------------------------------------------------------------
+	void SetIsInputVisible(bool state)
+	{
+		m_IsChatInputVisible = state;
+	}
+		
+	// ------------------------------------------------------------
+	// Chat GetClientSettings
+	// ------------------------------------------------------------
+	void GetClientSettings()
+	{
+		if ( GetExpansionClientSettings() )
+		{
+			ExpansionClientUIChatSize chatsize = GetExpansionClientSettings().HUDChatSize;
+			switch ( chatsize )
+			{
+				case ExpansionClientUIChatSize.VERYSMALL:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_12.layout";
+					break;
+				case ExpansionClientUIChatSize.SMALL:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_14.layout";
+					break;
+				case ExpansionClientUIChatSize.MEDIUM:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_16.layout";
+					break;
+				case ExpansionClientUIChatSize.LARGE:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_22.layout";
+					break;
+			}
+
+			CHAT_FADEOUT_TIME = Math.Round( GetExpansionClientSettings().HUDChatFadeOut );
+		}
 	}
 }

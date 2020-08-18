@@ -37,7 +37,7 @@ class ExpansionActionOpenParachute: ActionSingleUseBase
 	override bool HasTarget()
 	{
 		return false;
-	}
+	} 
 
 /*
 	override typename GetInputType()

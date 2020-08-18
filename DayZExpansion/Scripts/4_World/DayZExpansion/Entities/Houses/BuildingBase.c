@@ -123,98 +123,92 @@ modded class BuildingBase
 	
 	protected Object SpawnInteriorObject( string type, vector position, vector orientation, float random = 1.0 )
 	{
+		#ifdef EXPANSION_INTERIOR_RANDONMIZATION
 		if ( random == -1 )
-		{
 			random = Math.RandomFloatInclusive( 0, 1 );
+		
+		if ( !( Math.RandomFloatInclusive( 0, 1 ) <= random ) )
+			return NULL;
+		#endif
+
+		bool hasCollision = false;
+		
+		ConvertTransformToWorld( position, orientation, position, orientation );
+
+		Object obj;
+		if ( !m_InteriorModule.m_CachedCollision.Find( type, hasCollision ) )
+		{
+			obj = GetGame().CreateObjectEx( type, position, ECE_CREATEPHYSICS | ECE_LOCAL );
+			if ( !obj )
+			{
+				m_InteriorModule.m_CachedCollision.Insert( type, false );
+				return NULL;
+			}
+			
+			vector minMax[2];
+			hasCollision = obj.GetCollisionBox( minMax );
+			
+			m_InteriorModule.m_CachedCollision.Insert( type, hasCollision );
+			
+			GetGame().ObjectDelete( obj );
+		}
+
+		//Only spawn object with collision at server side, and object without collision at client side 
+		if ( hasCollision )
+		{
+			if ( GetGame().IsClient() )
+				return NULL;
+		} else
+		{
+			if ( GetGame().IsServer() && GetGame().IsMultiplayer() )
+				return NULL;
 		}
 		
-		if ( Math.RandomFloatInclusive( 0, 1 ) <= random )
-		{
-			bool hasCollision = false;
-			
-			ConvertTransformToWorld( position, orientation, position, orientation );
-
-			Object obj;
-			if ( !m_InteriorModule.m_CachedCollision.Find( type, hasCollision ) )
-			{
-				obj = GetGame().CreateObjectEx( type, position, ECE_CREATEPHYSICS | ECE_LOCAL );
-				if ( !obj )
-				{
-					m_InteriorModule.m_CachedCollision.Insert( type, false );
-					return NULL;
-				}
-				
-				vector minMax[2];
-				hasCollision = obj.GetCollisionBox( minMax );
-				
-				m_InteriorModule.m_CachedCollision.Insert( type, hasCollision );
-				
-				GetGame().ObjectDelete( obj );
-			}
-
-			//Only spawn object with collision at server side, and object without collision at client side 
-			if ( hasCollision )
-			{
-				if ( GetGame().IsClient() )
-					return NULL;
-			} else
-			{
-				if ( GetGame().IsServer() && GetGame().IsMultiplayer() )
-					return NULL;
-			}
-			
-			#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::SpawnInteriorObject spawning " + type + " for " + GetType() + " at " + position);
 		#endif
 
-			// don't use CreateObject, it does a bunch of unnecessary stuff
-			int flags = ECE_CREATEPHYSICS;
-			if ( IsMissionClient() )
-				flags |= ECE_LOCAL; // create_local
-			
-			obj = GetGame().CreateObjectEx( type, position, flags );
-			if ( !obj )
-				return NULL;
-			
-			//Tell engine it will represent static object
-			obj.SetFlags( EntityFlags.STATIC, false );
-
-			obj.SetPosition( position );
-			obj.SetOrientation( orientation );
-
-			FixObjectCollision( obj );
+		// don't use CreateObject, it does a bunch of unnecessary stuff
+		int flags = ECE_CREATEPHYSICS;
+		if ( IsMissionClient() )
+			flags |= ECE_LOCAL; // create_local
 		
-			if ( obj.CanAffectPathgraph() )
-			{
-				obj.SetAffectPathgraph( true, false );
-			}
+		obj = GetGame().CreateObjectEx( type, position, flags );
+		if ( !obj )
+			return NULL;
+		
+		//Tell engine it will represent static object
+		obj.SetFlags( EntityFlags.STATIC, false );
 
-			Entity ent = Entity.Cast( obj );
-			if ( ent )
-			{
-				EntityAI entityAI = EntityAI.Cast( obj );
-				if ( entityAI )
-				{
-					//Make it not CE saved	
-					if (IsMissionHost()) entityAI.SetLifetime(1.0);
-				}
-				
-				ItemBase item = ItemBase.Cast( ent );
-				if ( item )
-				{
-					//Make it not takeable
-					item.SetTakeable( false );
-				}
-			
-				ent.DisableSimulation( true );
-			}
+		obj.SetPosition( position );
+		obj.SetOrientation( orientation );
 
-			m_InteriorModule.m_InteriorObjects.Insert( obj );
-
-			return obj;
+		FixObjectCollision( obj );
+		
+		if ( obj.CanAffectPathgraph() )
+		{
+			obj.SetAffectPathgraph( true, false );
 		}
+
+		Entity ent = Entity.Cast( obj );
+		if ( ent )
+		{			
+			ItemBase item = ItemBase.Cast( ent );
+			if ( item )
+			{
+				//Make it not takeable
+				item.SetTakeable( false );
+				
+				if ( IsMissionHost() ) 
+					item.SetLifetimeMax(1.0);
+			}
 		
-		return NULL;
+			ent.DisableSimulation( true );
+		}
+
+		m_InteriorModule.m_InteriorObjects.Insert( obj );
+
+		return obj;
 	}
 	
 	void LoadInterior()

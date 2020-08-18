@@ -39,7 +39,7 @@ GridSpacerWidgetClass ExpansionCOTVehiclesListEntry {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     style Empty
+     style Default
     }
     ImageWidgetClass vehicle_status_icon {
      clipchildren 1

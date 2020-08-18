@@ -12,13 +12,13 @@
 
 class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 {
-	protected Widget m_Root;
-	protected TextWidget m_ObjectName;
-	protected ButtonWidget m_EditButton;
+	private Widget m_Root;
+	private TextWidget m_ObjectName;
+	private ButtonWidget m_EditButton;
 	
-	protected ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
-	protected Object m_Object;
-	
+	private ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
+	private Object m_Object;
+
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesObjectsListEntry Constructor
 	// ------------------------------------------------------------
@@ -85,38 +85,9 @@ class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 			if ( m_TerritoryCOTMenu )
 			{
 				m_TerritoryCOTMenu.SetTerritoryObjectInfo( m_Object );
-				return true;
 			}
 		}
 		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnMouseEnter
-	// ------------------------------------------------------------	
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		if ( m_EditButton && w == m_EditButton )
-		{
-			m_ObjectName.SetColor( ARGB( 255, 0, 0, 0 ) );
-			return true;
-		}
-
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// Override OnMouseLeave
-	// ------------------------------------------------------------	
-	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
-	{
-		if ( m_EditButton && w == m_EditButton )
-		{
-			m_ObjectName.SetColor( ARGB( 255, 255, 255, 255 ) );
-			return true;
-		}
-
 		return false;
 	}
 }

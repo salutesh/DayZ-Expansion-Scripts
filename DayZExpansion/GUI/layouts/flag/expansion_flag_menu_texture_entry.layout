@@ -11,7 +11,7 @@ GridSpacerWidgetClass ExpansionFlagMenuTextureEntry {
  scriptclass ""
  style Empty
  Padding 0
- Margin 3
+ Margin 0
  "Size To Content H" 1
  "Size To Content V" 1
  Columns 1
@@ -22,7 +22,7 @@ GridSpacerWidgetClass ExpansionFlagMenuTextureEntry {
    ignorepointer 0
    color 0.1843 0.3412 0.4941 1
    position 10 10
-   size 1 27
+   size 1 32
    hexactpos 1
    vexactpos 1
    hexactsize 0
@@ -35,7 +35,7 @@ GridSpacerWidgetClass ExpansionFlagMenuTextureEntry {
      ignorepointer 1
      color 0 0 0 0.3922
      position 0 0
-     size 1 25
+     size 1 32
      hexactpos 1
      vexactpos 1
      hexactsize 0
@@ -48,7 +48,7 @@ GridSpacerWidgetClass ExpansionFlagMenuTextureEntry {
        clipchildren 1
        ignorepointer 1
        position 0.04 0
-       size 24 24
+       size 64 32
        halign right_ref
        valign center_ref
        hexactpos 0

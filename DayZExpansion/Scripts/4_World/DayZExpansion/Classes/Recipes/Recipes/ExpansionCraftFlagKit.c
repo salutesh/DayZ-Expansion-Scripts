@@ -27,7 +27,7 @@ class ExpansionCraftFlagKit extends RecipeBase
 		m_MinDamageIngredient[0] = -1;
 		m_MaxDamageIngredient[0] = 3;
 		
-		m_MinQuantityIngredient[0] = 2;
+		m_MinQuantityIngredient[0] = 1;
 		m_MaxQuantityIngredient[0] = -1;
 		
 		m_MinDamageIngredient[1] = -1;
@@ -51,7 +51,7 @@ class ExpansionCraftFlagKit extends RecipeBase
 		InsertIngredient(1, "Rag"); //! You can insert multiple ingredients this way
 		
 		m_IngredientAddHealth[1] = 0;
-		m_IngredientSetHealth[1] = -1; 
+		m_IngredientSetHealth[1] = -1;
 		m_IngredientAddQuantity[1] = -1;
 		m_IngredientDestroy[1] = true;
 		m_IngredientUseSoftSkills[1] = false;

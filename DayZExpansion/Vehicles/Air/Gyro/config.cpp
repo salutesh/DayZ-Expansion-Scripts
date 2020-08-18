@@ -34,6 +34,7 @@ class CfgVehicles
 	class DamageZones;
 	class GlobalHealth;
 	class HatchbackDoors_Driver;
+	class Suspension;
 	class ExpansionGyrocopterWreck: ExpansionWreck
 	{
 		scope = 2;
@@ -145,6 +146,37 @@ class CfgVehicles
 			itemsCargoSize[] = {5,2};
 			allowOwnedCargoManipulation = 1;
 			openable = 0;
+		};
+		class SimulationModule: SimulationModule
+		{
+			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Axles: Axles
+			{
+				class Front: Front
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
+				};
+				class Rear: Rear
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
+				};
+			};
 		};
 	};
 };

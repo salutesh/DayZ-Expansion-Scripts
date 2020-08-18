@@ -13,28 +13,14 @@
 /**@class		ExpansionGunrack
  * @brief		
  **/
-class ExpansionGunrack extends Container_Base 
+class ExpansionGunrack extends DeployableContainer_Base 
 {
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
 	void ExpansionGunrack()
 	{
-	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionGunrack()
-	{
-	}
-	
-	// ------------------------------------------------------------
-	// IsContainer
-	// ------------------------------------------------------------
-	override bool IsContainer()
-	{
-		return true;
+		m_HalfExtents = Vector(0.2,0.5,0.4); //! TODO: Need adjustment
 	}
 
 	// ------------------------------------------------------------
@@ -64,18 +50,10 @@ class ExpansionGunrack extends Container_Base
 			
 		SetIsPlaceSound( true );
 	}
-
+	
 	// ------------------------------------------------------------
-	// SetActions
+	// CanPutInCargo
 	// ------------------------------------------------------------
-	override void SetActions()
-	{
-		super.SetActions();
-
-		AddAction( ActionTogglePlaceObject );
-		AddAction( ActionPlaceObject );
-	}
-
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		if( !super.CanPutInCargo( parent ) )
@@ -89,7 +67,10 @@ class ExpansionGunrack extends Container_Base
 		}
 		return false;
 	}
-
+	
+	// ------------------------------------------------------------
+	// CanPutIntoHands
+	// ------------------------------------------------------------
 	override bool CanPutIntoHands( EntityAI parent )
 	{
 		if( !super.CanPutIntoHands( parent ) )
@@ -103,6 +84,10 @@ class ExpansionGunrack extends Container_Base
 		}
 		return false;
 	}
+	
+	// ------------------------------------------------------------
+	// CanReceiveAttachment
+	// ------------------------------------------------------------
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
 		

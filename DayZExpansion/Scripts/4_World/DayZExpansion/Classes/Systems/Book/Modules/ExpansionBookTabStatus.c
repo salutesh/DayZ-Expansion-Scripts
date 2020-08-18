@@ -289,11 +289,15 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	protected string GetTimeString( float total_time )
 	{
+		string time_string;
+
 		if( total_time < 0 )
-			return "0 Hours";
+		{
+			time_string =  "0 " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";
+			return time_string;
+		}
 	
 		int time_seconds = total_time; 									//convert total time to int
-		string time_string;
 		
 		int hours = time_seconds / 3600;
 		if ( hours > 0 )
@@ -314,11 +318,15 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	protected string GetWeightString(int weight, bool grams_only = false)
 	{
+		string weight_string;
+		
 		if( weight < 0 )
-			return "0 Grams";
+		{
+			weight_string =  "0 " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";
+			return weight_string;
+		}
 		
 		int weight_grams = weight;
-		string weight_string;
 		
 		int kilograms = weight_grams / 1000;
 		if ( kilograms > 0 && !grams_only )
@@ -339,11 +347,15 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	protected string GetDistanceString( float total_distance, bool meters_only = false )
 	{
+		string distance_string;
+		
 		if( total_distance < 0 )
-			return "0m";
+		{
+			distance_string =  "0" + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";
+			return distance_string;
+		}
 	
 		int distance_meters = total_distance;
-		string distance_string;
 		
 		int kilometers = distance_meters / 1000;
 		if ( kilometers > 0 && !meters_only )

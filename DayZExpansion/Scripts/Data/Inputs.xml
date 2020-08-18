@@ -61,8 +61,6 @@
 
             <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" />
 
-			<input name="UAExpansionChatToggle" loc="STR_EXPANSION_TOGGLE_CHAT" />
-			
 			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
 			
 			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" />
@@ -78,7 +76,6 @@
 			<input name="UAExpansionHeliCollectiveUp" />
 			<input name="UAExpansionHeliCollectiveDown" />
 			<input name="UAExpansionHeliAntiTorqueLeft" />
-			<input name="UAExpansionHeliAntiTorqueRight" />
 			<input name="UAExpansionHeliAntiTorqueRight" />
 			<input name="UAExpansionPlaneElevatorUp" />
 			<input name="UAExpansionPlaneElevatorDown" />
@@ -115,7 +112,6 @@
 			<input name="UAExpansionSnappingToggle" />
 			<input name="UAExpansionAutoRunToggle" />
 			<input name="UAExpansionOpenParachute" />
-			<input name="UAExpansionSampleMenuToggle" />
 		</exclude>
     </inputs>
 
@@ -274,12 +270,6 @@
         </input>
         <input name="UAExpansionOpenParachute">
             <btn name="kO" />
-        </input>
-		<input name="UAExpansionSampleMenuToggle">
-            <btn name="kJ" />
-        </input>
-		<input name="UAExpansionChatToggle">
-            <btn name="kSlash" />
         </input>
 		<input name="UAExpansion3DMarkerToggle">
             <btn name="kK" />

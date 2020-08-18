@@ -19,45 +19,52 @@ class ExpansionChatMessage
 
 class ExpansionChatLine
 {
-	// Consts
 	const float FADE_TIMEOUT = 30;
 	const float FADE_OUT_DURATION = 3;
-	const float FADE_IN_DURATION = 0.5;
+	const float FADE_IN_DURATION = 1;
 	
 	private const string EXP_RADIO_PREFIX = "Radio: ";
 	private const string EXP_GAME_PREFIX = "Game: ";
 	private const string EXP_ADMIN_PREFIX = "Admin: ";
 	private const string EXP_TRANSPORT_PREFIX = "Transport: ";
-	
-	// Widgets
-	GridSpacerWidget						m_RootWidget;
-	TextWidget								m_NameWidget;
-	TextWidget								m_TextWidget;
-	
-	private ref WidgetFadeTimer 			m_FadeInTimer;
-	private ref Timer 						m_FadeOutTimer;
-	
-	ref Timer 				  				m_ShowTimer;
-	ref Timer 				 				m_ScrollerTimer;
 
-	bool									m_IsShown;
+	Widget	m_RootWidget;
+	TextWidget	m_NameWidget;
+	MultilineTextWidget	m_TextWidget;
+	
+	private ref WidgetFadeTimer m_FadeInTimer;
+	private ref Timer m_FadeOutTimer;
+
+	private bool m_IsShown;
+	
+	private ref Chat m_Chat;
+	
+	private string m_CurrentLayout;
 	
 	// ------------------------------------------------------------
 	// ExpansionChatLine Constructor
 	// ------------------------------------------------------------
-	void ExpansionChatLine( Widget root_widget )
+	void ExpansionChatLine( Widget root_widget, string layout, ref Chat chat)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine Start");
 		#endif
 		
-		m_RootWidget	= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/chat/expansion_chat_entry.layout", root_widget) );
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionChatLine::ExpansionChatLine - Create layout: " + layout );
+		#endif
+		
+		m_CurrentLayout = layout;
+
+		m_RootWidget	= GetGame().GetWorkspace().CreateWidgets( layout, root_widget );
 		
 		m_NameWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemSenderWidget" ) );
-		m_TextWidget	= TextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemTextWidget" ) );
+		m_TextWidget	= MultilineTextWidget.Cast( m_RootWidget.FindAnyWidget( "ChatItemTextWidget" ) );
 		
 		m_RootWidget.Update();
 		m_RootWidget.Show(false);
+		
+		m_Chat = chat;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine End");
@@ -72,7 +79,11 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::~ExpansionChatLine Start");
 		#endif
-		delete m_TextWidget;
+		
+		Clear();
+		
+		delete m_RootWidget;
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::~ExpansionChatLine End");
 		#endif
@@ -102,12 +113,13 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::Set Start");
 		#endif
+		
 		MissionGameplay mission;
 		if ( !Class.CastTo( mission, GetGame().GetMission() ) )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionChatLine::Set End");
-		#endif
+			EXPrint("ExpansionChatLine::Set End");
+			#endif
 			return;
 		}
 		
@@ -119,8 +131,8 @@ class ExpansionChatLine
 		if ( message == NULL )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionChatLine::Set End");
-		#endif
+			EXPrint("ExpansionChatLine::Set End");
+			#endif
 			return;
 		}
 		
@@ -212,11 +224,15 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::FadeInChatLine Start");
 		#endif
+		
+		m_Chat.OnChatInputShow();
+		
 		if (m_FadeInTimer)
 			m_FadeInTimer.Stop();	
 
 		m_FadeInTimer = new WidgetFadeTimer;
 		m_FadeInTimer.FadeIn(m_RootWidget, FADE_IN_DURATION);
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::FadeInChatLine End");
 		#endif
@@ -231,11 +247,13 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::FadeOutChatLine Start");
 		#endif
+		
 		if (m_FadeOutTimer)
 			m_FadeOutTimer.Stop();
 
 		m_FadeOutTimer	= new Timer(CALL_CATEGORY_GUI);
 		m_FadeOutTimer.Run(FADE_TIMEOUT, m_FadeInTimer, "FadeOut", new Param2<Widget, float>(m_RootWidget, FADE_OUT_DURATION));
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::FadeOutChatLine End");
 		#endif
@@ -249,7 +267,6 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::Clear Start");
 		#endif
-		m_RootWidget.Show( false );
 		
 		if (m_FadeOutTimer)
 			m_FadeOutTimer.Stop();
@@ -260,5 +277,13 @@ class ExpansionChatLine
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::Clear End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionChatLine GetCurrentLayout
+	// ------------------------------------------------------------
+	string GetCurrentLayout()
+	{
+		return m_CurrentLayout;
 	}
 }

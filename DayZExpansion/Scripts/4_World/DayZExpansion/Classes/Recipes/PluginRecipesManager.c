@@ -21,22 +21,27 @@ modded class PluginRecipesManager
 		RegisterRecipe(new ExpansionCraftStairKit);
 		RegisterRecipe(new ExpansionCraftRampKit);
 		RegisterRecipe(new ExpansionCraftWallKit);
-		//RegisterRecipe(new ExpansionCraftPillarKit);
+		//RegisterRecipe(new ExpansionCraftPillarKit);				//! NOT USED YET
 
-		//RegisterRecipe(new ExpansionCraftLumber_0_5);
-		//RegisterRecipe(new ExpansionCraftLumber_1);
-		//RegisterRecipe(new ExpansionCraftLumber_1_5);
+		//RegisterRecipe(new ExpansionCraftLumber_0_5);				//! NOT USED YET
+		//RegisterRecipe(new ExpansionCraftLumber_1);				//! NOT USED YET
+		//RegisterRecipe(new ExpansionCraftLumber_1_5);				//! NOT USED YET
 		RegisterRecipe(new ExpansionCraftLumber_3);
 		
 		RegisterRecipe(new ExpansionCraftFlagKit);
 		
+		RegisterRecipe(new ExpansionCraftBarbedWireKit);
+		
 		//RegisterRecipe(new ExpansionCraftChickenBreaderKit);		//! NOT YET READY
 		
 		//! Sets
-		RegisterRecipe(new ExpansionCraftHeroSet);
-		RegisterRecipe(new ExpansionCraftBanditSet);
+		//RegisterRecipe(new ExpansionCraftHeroSet);				//! NOT USED YET
+		//RegisterRecipe(new ExpansionCraftBanditSet);				//! NOT USED YET
 
 		//! Consumables
 		RegisterRecipe(new ExpansionCraftMilkBottle);
+
+		//! Ammunitions
+		RegisterRecipe(new ExpansionCraftStickySmoke);
 	}
 }

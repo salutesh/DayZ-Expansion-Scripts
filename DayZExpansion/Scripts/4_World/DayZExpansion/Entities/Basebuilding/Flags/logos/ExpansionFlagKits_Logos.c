@@ -28,7 +28,7 @@ class ExpansionFlagKitBiohazard: ExpansionFlagKitBase
 {
 	override string GetTexturePath()
 	{
-		return EXPANSION_FLAG_COUNTRIES_BIOHAZARD;
+		return EXPANSION_FLAG_LOGO_BIOHAZARD;
 	}
 }
 
@@ -39,6 +39,6 @@ class ExpansionFlagKitAnyoneInCherno: ExpansionFlagKitBase
 {
 	override string GetTexturePath()
 	{
-		return EXPANSION_FLAG_COUNTRIES_ANYONEINCHERNO;
+		return EXPANSION_FLAG_LOGO_ANYONEINCHERNO;
 	}
 }

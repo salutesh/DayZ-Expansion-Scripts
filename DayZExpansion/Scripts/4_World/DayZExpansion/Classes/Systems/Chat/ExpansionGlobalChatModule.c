@@ -12,7 +12,7 @@
 
 enum ExpansionGlobalChatRPC
 {
-	INVALID = 205460,
+	INVALID = 20500,
 	AddChatMessage,
 	COUNT
 }

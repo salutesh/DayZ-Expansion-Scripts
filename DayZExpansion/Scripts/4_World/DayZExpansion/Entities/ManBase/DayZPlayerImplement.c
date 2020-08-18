@@ -38,15 +38,11 @@ modded class DayZPlayerImplement
 	#ifndef NO_GUI		
 		if ( show && IsPlayerSelected() )
 		{
-			GetGame().GetUIManager().ScreenFadeIn( duration, "", FadeColors.BLACK, FadeColors.WHITE );
-			GetGame().GetUIManager().EnterScriptedMenu(MENU_INGAME, null);
-			//! m_ExpansionShowDeadScreen = true;
+			GetGame().GetUIManager().ScreenFadeIn( duration, "#dayz_implement_dead", FadeColors.BLACK, FadeColors.WHITE );
 		}
 		else
 		{
 			GetGame().GetUIManager().ScreenFadeOut(0);
-			//! GetGame().GetUIManager().CloseAll();
-			//! m_ExpansionShowDeadScreen = false;
 		}
 		
 		if (duration > 0)
@@ -57,7 +53,6 @@ modded class DayZPlayerImplement
 		else
 		{
 			GetGame().GetCallQueue( CALL_CATEGORY_GUI ).Call( StopDeathDarkeningEffect );
-			GetGame().GetUIManager().CloseAll();
 			m_ExpansionShowDeadScreen = false;
 		}
 	#endif
@@ -164,7 +159,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionFall
 	// ------------------------------------------------------------
-	void StartCommand_ExpansionFall( float pYVelocity )
+	override void StartCommand_ExpansionFall( float pYVelocity )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerImplement::StartCommand_ExpansionFall - Start");
@@ -192,8 +187,8 @@ modded class DayZPlayerImplement
 		{
 			m_fLastHeadingDiff = 0;
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::HeadingModel - Return false");
-		#endif
+			EXPrint("DayZPlayerImplement::HeadingModel - Return false");
+			#endif
 			return false;
 		}
 		
@@ -226,8 +221,8 @@ modded class DayZPlayerImplement
 				if ( carCameraType != -1 )
 				{
 					#ifdef EXPANSIONEXPRINT
-		EXPrint( "DayZPlayerImplement::CameraHandler - Return carCameraType: " + carCameraType.ToString() );
-		#endif
+					EXPrint( "DayZPlayerImplement::CameraHandler - Return carCameraType: " + carCameraType.ToString() );
+					#endif
 					return carCameraType;
 				}
 			}*/
@@ -246,34 +241,7 @@ modded class DayZPlayerImplement
 
 		return super.CameraHandler( pCameraMode );
 	}
-		
-	// ------------------------------------------------------------
-	// DayZPlayerImplement CommandHandler
-	// ------------------------------------------------------------
-	override void CommandHandler( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished ) 
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::CommandHandler - Start");
-		#endif
-
-		/*	
-		Print( "Player Instance Type: " + GetInstanceType() );
-
-		Print( "INSTANCETYPE_SERVER: " + DayZPlayerInstanceType.INSTANCETYPE_SERVER );
-		Print( "INSTANCETYPE_CLIENT: " + DayZPlayerInstanceType.INSTANCETYPE_CLIENT );
-		Print( "INSTANCETYPE_REMOTE: " + DayZPlayerInstanceType.INSTANCETYPE_REMOTE );
-
-		Print( "INSTANCETYPE_AI_SERVER: " + DayZPlayerInstanceType.INSTANCETYPE_AI_SERVER );
-		Print( "INSTANCETYPE_AI_REMOTE: " + DayZPlayerInstanceType.INSTANCETYPE_AI_REMOTE );
-		Print( "INSTANCETYPE_AI_SINGLEPLAYER: " + DayZPlayerInstanceType.INSTANCETYPE_AI_SINGLEPLAYER );
-		*/
-		
-		super.CommandHandler( pDt, pCurrentCommandID, pCurrentCommandFinished );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::CommandHandler - End");
-		#endif
-	}
+	
 	override bool IsShootingFromCamera()
 	{
 		bool disableMagicCrosshair = GetExpansionSettings().GetGeneral().DisableMagicCrosshair; 

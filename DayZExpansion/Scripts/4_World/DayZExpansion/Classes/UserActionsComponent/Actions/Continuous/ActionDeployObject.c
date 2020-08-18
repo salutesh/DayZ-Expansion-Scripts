@@ -86,7 +86,7 @@ modded class ActionDeployObject
 		
 		int i;
 		float size = GetExpansionSettings().GetTerritory().TerritorySize;
-		float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimterSize;
+		float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize;
 		
 		if (item.IsInherited(ExpansionFlagKitBase))
 			size += Psize;

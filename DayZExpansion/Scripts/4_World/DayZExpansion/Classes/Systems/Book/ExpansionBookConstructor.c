@@ -39,7 +39,7 @@ class ExpansionBookConstructor
 	void RegisterTabs( out TTypenameArray tabs )
 	{
 		tabs.Insert( ExpansionBookTabServerInfo );
-		//tabs.Insert( ExpansionBookTabServerRules ); //! NOT YET READY
+		tabs.Insert( ExpansionBookTabServerRules );
 		tabs.Insert( ExpansionBookTabStatus );
 		tabs.Insert( ExpansionBookTabParty );
 		tabs.Insert( ExpansionBookTabTerritory );

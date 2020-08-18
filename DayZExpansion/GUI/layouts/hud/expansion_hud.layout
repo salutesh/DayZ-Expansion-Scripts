@@ -40,66 +40,6 @@ FrameWidgetClass ExpansionIngameHudFrame {
      content_valign center
      Columns 1
      Rows 2
-     {
-      GridSpacerWidgetClass TimePanel {
-       visible 0
-       clipchildren 0
-       inheritalpha 1
-       size 150 35
-       halign right_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 1
-       vexactsize 1
-       scaled 1
-       style Colorable
-       Padding 5
-       Margin 0
-       "Size To Content H" 1
-       "Size To Content V" 1
-       content_halign center
-       Columns 2
-       Rows 1
-       {
-        ImageWidgetClass ClockImage {
-         clipchildren 0
-         ignorepointer 1
-         keepsafezone 1
-         color 0.8627 0.8627 0.8627 1
-         position 0.02 0
-         size 32 32
-         valign center_ref
-         hexactpos 0
-         vexactpos 0
-         hexactsize 1
-         vexactsize 1
-         image0 "set:expansion_iconset image:clock_filled"
-         mode blend
-         "src alpha" 1
-         "no wrap" 1
-         stretch 1
-        }
-        TextWidgetClass Time {
-         ignorepointer 1
-         color 0.8627 0.8627 0.8627 1
-         position 0 0
-         size 0.7894 1
-         halign right_ref
-         valign center_ref
-         hexactpos 1
-         vexactpos 1
-         hexactsize 0
-         vexactsize 0
-         text "12:00"
-         font "gui/fonts/etelkatextpro16"
-         "exact text" 0
-         "size to text h" 1
-         "size to text v" 1
-         "text valign" center
-        }
-       }
-      }
-     }
     }
     GridSpacerWidgetClass SidePanel {
      visible 1
@@ -130,20 +70,6 @@ FrameWidgetClass ExpansionIngameHudFrame {
        hexactsize 1
        vexactsize 1
        imageTexture "{FC3F3834EDFFA2A2}DayZExpansion/GUI/icons/hud/ear_64x64.edds"
-       mode blend
-       "src alpha" 1
-       stretch 1
-      }
-      ImageWidgetClass Battle_Icon {
-       visible 0
-       ignorepointer 1
-       size 65 65
-       halign center_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 1
-       vexactsize 1
-       imageTexture "{D6B51BCAB916C44F}DayZExpansion/GUI/textures/battle_icon.edds"
        mode blend
        "src alpha" 1
        stretch 1
@@ -421,8 +347,8 @@ FrameWidgetClass ExpansionIngameHudFrame {
      size 1 1
      halign center_ref
      valign center_ref
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
      vexactsize 0
      priority 2
@@ -444,8 +370,8 @@ FrameWidgetClass ExpansionIngameHudFrame {
      size 0.85 0.66
      halign center_ref
      valign center_ref
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
      vexactsize 0
      priority 1
@@ -474,7 +400,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
          vexactsize 0
          text "360"
          font "gui/fonts/metron-bold28"
-         "size to text h" 1
+         "size to text h" 0
          "size to text v" 0
          "text valign" center
         }
@@ -482,13 +408,14 @@ FrameWidgetClass ExpansionIngameHudFrame {
          ignorepointer 1
          color 0.2039 0.2118 0.1608 1
          position 0.05 0
-         size 34 34
+         size 32 32
          valign center_ref
          hexactpos 0
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         image0 "set:expansion_iconset image:compass"
+         image0 ""
+         imageTexture "{F8DFE59A7D484C6F}DayZExpansion/GUI/icons/hud/orientation_64x64.edds"
          mode blend
          "src alpha" 1
          "no wrap" 1
@@ -519,7 +446,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
          vexactsize 0
          text "9999"
          font "gui/fonts/metron-bold28"
-         "size to text h" 1
+         "size to text h" 0
          "size to text v" 0
          "text valign" center
         }
@@ -527,13 +454,14 @@ FrameWidgetClass ExpansionIngameHudFrame {
          ignorepointer 1
          color 0.2039 0.2118 0.1608 1
          position 0.05 0
-         size 38 24
+         size 32 32
          valign center_ref
          hexactpos 0
          vexactpos 0
          hexactsize 1
          vexactsize 1
-         image0 "set:expansion_iconset image:mountains"
+         image0 ""
+         imageTexture "{9E98F03477BC76EC}DayZExpansion/GUI/icons/hud/map_64x64.edds"
          mode blend
          "src alpha" 1
          "no wrap" 1
@@ -566,7 +494,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
          text "9999 9999"
          font "gui/fonts/metron-bold28"
          "exact text" 0
-         "size to text h" 1
+         "size to text h" 0
          "size to text v" 0
          "text halign" center
          "text valign" center
@@ -696,8 +624,8 @@ FrameWidgetClass ExpansionIngameHudFrame {
      size 0.85 0.66
      halign center_ref
      valign center_ref
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
      vexactsize 0
      priority 3
@@ -707,11 +635,11 @@ FrameWidgetClass ExpansionIngameHudFrame {
        visible 1
        clipchildren 1
        keepsafezone 1
-       position 0 3
+       position 0 0.015
        size 0.95707 0.70343
        halign center_ref
-       hexactpos 1
-       vexactpos 1
+       hexactpos 0
+       vexactpos 0
        hexactsize 0
        vexactsize 0
        priority 2
@@ -720,8 +648,8 @@ FrameWidgetClass ExpansionIngameHudFrame {
          keepsafezone 0
          position 0 0
          size 1 1
-         hexactpos 1
-         vexactpos 1
+         hexactpos 0
+         vexactpos 0
          hexactsize 0
          vexactsize 0
          priority 1

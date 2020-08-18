@@ -92,6 +92,11 @@ class ExpansionActionPaint: ActionContinuousBase
 		m_TargetDisplayName = target.GetObject().GetDisplayName();
 		//! Print( m_TargetDisplayName );
 
+		// Is he in a territory ?
+		if ( player.IsInTerritory() )
+			return player.IsInsideOwnTerritory(); // show the prompt if it's his territory
+
+
 		return true;
 	}
 	

@@ -339,6 +339,7 @@ class CfgMagazines
 	class Mag_Expansion_MPX_50Rnd: Magazine_Base
 	{
 		scope = 2;
+		rotationFlags = 8;
 		displayName = "$STR_EXPANSION_MPX_MAG";
 		descriptionShort = "$STR_EXPANSION_MPX_MAG_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\SMG\GTM\MPXMagazine.p3d";

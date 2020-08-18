@@ -14,23 +14,23 @@ class CfgSoundShaders
 {
 	class Expansion_Gyro_Base_Int_SoundShader
 	{
-		range = 20;
+		range = 2000;
 	};
 	class Expansion_Gyro_Base_Ext_SoundShader
 	{
-		range = 400;
+		range = 2000;
 	};
 	class Expansion_Gyro_Engine_Int_SoundShader: Expansion_Gyro_Base_Int_SoundShader
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Gyro\Expansion_Gyro_Engine_Int",1}};
 		frequency = "rpm";
-		volume = "rpm * (1-camPos) * 0.4";
+		volume = "engineOn * rpm * (1-camPos) * 0.4";
 	};
 	class Expansion_Gyro_Engine_Ext_SoundShader: Expansion_Gyro_Base_Ext_SoundShader
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Gyro\Expansion_Gyro_Engine_Ext",1}};
 		frequency = "rpm";
-		volume = "rpm * camPos";
+		volume = "engineOn * rpm * camPos";
 	};
 	class Expansion_Gyro_Rotor_Int_SoundShader: Expansion_Gyro_Base_Int_SoundShader
 	{

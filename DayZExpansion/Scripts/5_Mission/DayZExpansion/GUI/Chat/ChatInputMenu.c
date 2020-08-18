@@ -12,10 +12,8 @@
 
 modded class ChatInputMenu 
 {
-	static ref ScriptInvoker SI_OnChatInputShow = new ScriptInvoker();
-	static ref ScriptInvoker SI_OnChatInputHide = new ScriptInvoker();
 	private EditBoxWidget m_edit_box;
-	
+
 	const int WHEEL_STEP = 20;
 	private float m_Position;
 	ref Chat m_Chat;
@@ -169,10 +167,7 @@ modded class ChatInputMenu
 		EXPrint("ChatInputMenu::OnShow Start");
 		#endif
 		
-		//SetFocus( m_edit_box );
-		//SupressInputs();
-		
-		SI_OnChatInputShow.Invoke();
+		m_Chat.OnChatInputShow();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ChatInputMenu::OnShow End");
@@ -190,7 +185,7 @@ modded class ChatInputMenu
 		EXPrint("ChatInputMenu::OnHide Start");
 		#endif
 		
-		SI_OnChatInputHide.Invoke();
+		m_Chat.OnChatInputHide();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ChatInputMenu::OnHide End");

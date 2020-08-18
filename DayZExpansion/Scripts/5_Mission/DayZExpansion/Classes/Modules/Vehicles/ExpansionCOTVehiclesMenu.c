@@ -13,19 +13,23 @@
 class ExpansionCOTVehiclesMenu: JMFormBase
 {
 	private ExpansionCOTVehiclesModule m_Module;
-		
+	
+	protected Widget m_VehicleMapPanel;	
 	protected Widget m_VehicleListPanel;
 	protected GridSpacerWidget m_VehiclesListContent;
 	protected ButtonWidget m_VehicleListRefreshButton;
+	protected TextWidget m_VehicleListRefreshButtonLable;
 	
-	protected Widget m_VehiclesMarkersPanel;
 	protected Widget m_VehiclesMapPanel;
 	protected MapWidget m_VehiclesMap;
 	
 	protected Widget m_VehiclesOptionsPanel;
 	protected ButtonWidget m_DeleteUnclaimedButton;
+	protected TextWidget m_DeleteUnclaimedButtonLable;
 	protected ButtonWidget m_DeleteDestroyedButton;
+	protected TextWidget m_DeleteDestroyedButtonLable;
 	protected ButtonWidget m_DeleteAllButton;
+	protected TextWidget m_DeleteAllButtonLable;
 	
 	protected Widget m_VehicleInfoPanel;
 	protected TextWidget m_VehicleInfoID;
@@ -40,12 +44,17 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	
 	protected Widget m_VehicleOptionsPanel;
 	protected ButtonWidget m_DeleteVehicleButton;
+	protected TextWidget m_DeleteVehicleButtonLable;
 	protected ButtonWidget m_CancleVehicleEdit;
+	protected TextWidget m_CancleVehicleEditLable;
+	protected ButtonWidget m_TeleportButton;
+	protected TextWidget m_TeleportButtonLable;
 	
 	protected ref array<ref ExpansionCOTVehiclesMapMarker> m_MapMarkers;
 	protected ref array<ref ExpansionCOTVehiclesListEntry> m_VehicleEntries;
 	
 	protected ExpansionVehicleMetaData m_CurrentVehicle;
+	protected bool m_IsInVehicleInfo = false;
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTVehiclesMenu Constructor
@@ -57,10 +66,11 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTVehiclesMenu Destructor
+	// ExpansionCOTVehiclesMenu Constructor
 	// ------------------------------------------------------------
 	void ~ExpansionCOTVehiclesMenu()
 	{
+		delete layoutRoot;
 	}
 	
 	// ------------------------------------------------------------
@@ -76,13 +86,11 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	// ------------------------------------------------------------
 	override void OnInit()
 	{
+		m_VehicleMapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "map_window_panel" ) );
+		
 		//! Vehicles List
 		m_VehicleListPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicles_list_panel" ) );
 		m_VehiclesListContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_list_content" ) );
-		m_VehicleListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_refresh_button" ) );
-		
-		//! Marker Panel
-		m_VehiclesMarkersPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicles_markers_panel" ) );
 		
 		//! Vehicles Map
 		m_VehiclesMapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicles_map_panel" ) );
@@ -90,9 +98,14 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		
 		//! Vehicles Options
 		m_VehiclesOptionsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicles_buttons_panel" ) );
+		m_VehicleListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_refresh_button" ) );
+		m_VehicleListRefreshButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_refresh_button_lable" ) );
 		m_DeleteUnclaimedButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_unclaimed_vehicle_button" ) );
+		m_DeleteUnclaimedButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "delete_unclaimed_vehicle_button_lable" ) );
 		m_DeleteDestroyedButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_destroyed_vehicle_button" ) );
+		m_DeleteDestroyedButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "delete_destroyed_vehicle_button_lable" ) );
 		m_DeleteAllButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_all_button" ) );
+		m_DeleteAllButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "delete_all_button_lable" ) );
 		
 		//! Vehicle Info
 		m_VehicleInfoPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicle_info_panel" ) );
@@ -109,7 +122,11 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		//! Vehicle Options
 		m_VehicleOptionsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicle_info_buttons_panel" ) );
 		m_DeleteVehicleButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_vehicle_button" ) );
+		m_DeleteVehicleButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "delete_vehicle_button_label" ) );
+		m_TeleportButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "teleport_to_button" ) );
+		m_TeleportButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "teleport_to_button_label" ) );
 		m_CancleVehicleEdit = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "cancel_edit_button" ) );
+		m_CancleVehicleEditLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "cancel_edit_button_label" ) );
 	}
 
 	// ------------------------------------------------------------
@@ -132,8 +149,11 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 				GetVehicleTypeInfo( currentVehicle.m_VehicleType, color, marker );
 				
 				//! Create map marker for vehicle
-				ExpansionCOTVehiclesMapMarker vehicleMapMarker = new ExpansionCOTVehiclesMapMarker( m_VehiclesMarkersPanel, m_VehiclesMap, currentVehicle.m_Position, color, marker, currentVehicle, this );
-				m_MapMarkers.Insert( vehicleMapMarker );
+				if (!m_IsInVehicleInfo)
+				{
+					ExpansionCOTVehiclesMapMarker vehicleMapMarker = new ExpansionCOTVehiclesMapMarker( m_VehicleMapPanel, m_VehiclesMap, currentVehicle.m_Position, color, marker, currentVehicle, this );
+					m_MapMarkers.Insert( vehicleMapMarker );
+				}
 				
 				//! Create list entry for vehicle
 				ExpansionCOTVehiclesListEntry vehicleListEntry = new ExpansionCOTVehiclesListEntry(m_VehiclesListContent, this, currentVehicle);
@@ -147,29 +167,22 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	// ------------------------------------------------------------
 	private void GetVehicleTypeInfo( int type, out int color, out string marker )
 	{
-		if ( type & EXVT_CAR )
+		if ( ( type & EXVT_CAR ) != 0 )
 		{
 			color = ARGB( 255, 243, 156, 18 );
 			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_car.paa";
-			return;
-		}
-		if ( type & EXVT_BOAT )
+		} else if ( ( type & EXVT_BOAT ) != 0 )
 		{
-			color = ARGB( 255, 243, 156, 18 );
+			color = ARGB( 255, 41, 128, 185 );
 			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_boat.paa";
-			return;
-		}
-		if ( type & EXVT_HELICOPTER )
+		} else if ( ( type & EXVT_HELICOPTER ) != 0 )
 		{
-			color = ARGB( 255, 243, 156, 18 );
+			color = ARGB( 255, 142, 68, 173 );
 			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa";
-			return;
-		}
-		if ( type & EXVT_PLANE )
+		} else if ( ( type & EXVT_PLANE ) != 0 )
 		{
-			color = ARGB( 255, 243, 156, 18 );
+			color = ARGB( 255, 34, 166, 179 );
 			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa"; //! TODO: Change to a plane marker
-			return;
 		}
 	}
 	
@@ -178,7 +191,8 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	// ------------------------------------------------------------
 	void SetVehicleInfo(ExpansionVehicleMetaData vehicle)
 	{		
-		//! m_VehicleListPanel.Show( false );
+		m_IsInVehicleInfo = true;
+		
 		m_VehiclesMapPanel.Show( false );
 		m_VehiclesOptionsPanel.Show( false );
 		
@@ -187,7 +201,7 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		m_VehicleInfoPanel.Show( true );
 		m_VehicleOptionsPanel.Show( true );
 		
-		m_VehicleInfoID.SetText( vehicle.m_ID.ToString() );
+		m_VehicleInfoID.SetText( vehicle.m_NetworkIDLow.ToString() + "-" + vehicle.m_NetworkIDHigh.ToString() );
 
 		string displayName;
 		GetGame().ConfigGetText( "cfgVehicles " + vehicle.m_ClassName + " displayName", displayName );
@@ -243,6 +257,8 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	// ------------------------------------------------------------	
 	void BackToList()
 	{
+		m_IsInVehicleInfo = false;
+		
 		SyncAndRefreshVehicles();
 		
 		m_VehicleListPanel.Show( true );
@@ -280,35 +296,49 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		if ( w == m_CancleVehicleEdit )
 		{
 			BackToList();
+			SyncAndRefreshVehicles();
 			
 			return true;
 		}
 
 		if ( w == m_DeleteAllButton )
 		{
-			m_Module.DeleteVehicleAll( );
+			m_Module.DeleteVehicleAll();
+			SyncAndRefreshVehicles();
 		}
 
 		if ( w == m_DeleteDestroyedButton )
 		{
-			m_Module.DeleteVehicleDestroyed( );
+			m_Module.DeleteVehicleDestroyed();
+			SyncAndRefreshVehicles();
 		}
 
 		if ( w == m_DeleteUnclaimedButton )
 		{
-			m_Module.DeleteVehicleUnclaimed( );
+			m_Module.DeleteVehicleUnclaimed();
+			SyncAndRefreshVehicles();
 		}
 		
 		if ( w == m_DeleteVehicleButton )
 		{
 			if ( m_CurrentVehicle )
 			{
-				m_Module.DeleteVehicle( m_CurrentVehicle.m_ID );
-				
+				m_Module.DeleteVehicle( m_CurrentVehicle.m_NetworkIDLow, m_CurrentVehicle.m_NetworkIDHigh );
 				BackToList();
+				SyncAndRefreshVehicles();
 			}
 			
 			return true;
+		}
+		
+		if ( w == m_TeleportButton )
+		{
+			if ( m_CurrentVehicle )
+			{
+				TeleportToVehicle( m_CurrentVehicle.m_NetworkIDLow, m_CurrentVehicle.m_NetworkIDHigh );
+				
+				return true;	
+			}	
 		}
 		
 		return false;
@@ -325,10 +355,86 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion OnHide
+	// Expansion TeleportToVehicle
 	// ------------------------------------------------------------
-	override void OnHide()
+	void TeleportToVehicle(int netLow, int netHigh)
 	{
-		super.OnHide();
+		m_Module.RequestTeleportToVehicle(netLow, netHigh);
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnMouseEnter
+	// ------------------------------------------------------------
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if (w == m_DeleteUnclaimedButton)
+		{
+			m_DeleteUnclaimedButtonLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;		
+		} else if (w == m_DeleteDestroyedButton)
+		{
+			m_DeleteDestroyedButtonLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;
+		} else if (w == m_DeleteAllButton)
+		{
+			m_DeleteAllButtonLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;
+		} else if (w == m_DeleteVehicleButton)
+		{
+			m_DeleteVehicleButtonLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;
+		} else if (w == m_CancleVehicleEdit)
+		{
+			m_CancleVehicleEditLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;
+		} else if (w == m_TeleportButton)
+		{
+			m_TeleportButtonLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;
+		} else if (w == m_VehicleListRefreshButton)
+		{
+			m_VehicleListRefreshButtonLable.SetColor( ARGB( 255,0,0,0 ) );
+			return true;
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnMouseLeave
+	// ------------------------------------------------------------
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if (w == m_DeleteUnclaimedButton)
+		{
+			m_DeleteUnclaimedButtonLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;		
+		} else if (w == m_DeleteDestroyedButton)
+		{
+			m_DeleteDestroyedButtonLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;
+		} else if (w == m_DeleteAllButton)
+		{
+			m_DeleteAllButtonLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;
+		} else if (w == m_DeleteVehicleButton)
+		{
+			m_DeleteVehicleButtonLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;
+		} else if (w == m_CancleVehicleEdit)
+		{
+			m_CancleVehicleEditLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;
+		} else if (w == m_TeleportButton)
+		{
+			m_TeleportButtonLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;
+		} else if (w == m_VehicleListRefreshButton)
+		{
+			m_VehicleListRefreshButtonLable.SetColor( ARGB( 255,255,255,255 ) );
+			return true;
+		}
+		
+		return false;
 	}
 }

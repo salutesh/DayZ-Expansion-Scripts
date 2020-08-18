@@ -151,6 +151,7 @@ class CfgVehicles
 		hiddenSelections[] = {"camo1","camo2","camo3"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\merlin\data\heavy_mer_1_co.paa","dayzexpansion\vehicles\air\merlin\data\heavy_mer_2_co.paa","dayzexpansion\vehicles\air\merlin\data\heavy_mer_3_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\merlin\data\heavy_mer_1_h.rvmat","dayzexpansion\vehicles\air\merlin\data\heavy_mer_2_h.rvmat","dayzexpansion\vehicles\air\merlin\data\heavy_mer_3_h.rvmat"};
+		defaultSkin = "Green";
 		class AnimationSources
 		{
 			class HideDestroyed_1_1
@@ -388,6 +389,7 @@ class CfgVehicles
 		{
 			drive = "DRIVE_RWD";
 			airDragCoefficient = 0.928;
+			braking[] = {2.5,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Steering
 			{
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};

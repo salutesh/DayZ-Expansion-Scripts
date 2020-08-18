@@ -103,16 +103,22 @@ class ExpansionWreck: Container_Base
 
 			PlaceOnSurface( );
 
-			m_Crater = GetGame().CreateObject( "CraterLong", GetPosition() );
+			m_Crater = GetGame().CreateObjectEx( "CraterLong", GetPosition(), ECE_PLACE_ON_SURFACE );
 			if ( m_Crater )
-			{	
-				DisablePhysics( this );
+			{
+				SetDynamicPhysicsLifeTime( 0.001 );
+
+				dBodyActive( this, ActiveState.INACTIVE );
+				dBodyDynamic( this, false );
+
+				SetVelocity( this, "0 0 0" );
+				dBodySetAngularVelocity( this, "0 0 0" );
 
 				m_Crater.SetPosition( GetPosition( ) + m_CraterOffset );
 
 				m_Crater.SetOrientation( vector.Zero );
 
-				m_Crater.PlaceOnSurface( );
+				//m_Crater.PlaceOnSurface( );
 			}
 
 			m_CraterParticle = true;

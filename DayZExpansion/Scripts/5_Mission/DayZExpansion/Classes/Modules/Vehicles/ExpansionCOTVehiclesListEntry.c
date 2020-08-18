@@ -59,7 +59,7 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 			GetGame().ConfigGetText( "cfgVehicles " + m_Vehicle.m_ClassName + " displayName", displayName );
 			m_VehicleName.SetText( displayName );
 
-			m_VehicleID.SetText( " - ID: " + m_Vehicle.m_ID.ToString() );
+			m_VehicleID.SetText( " - ID: " + m_Vehicle.m_NetworkIDLow.ToString() + "-" + m_Vehicle.m_NetworkIDHigh.ToString() );
 			
 			if ( m_Vehicle.m_DestructionType != EXDT_NONE )
 			{
@@ -95,8 +95,8 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 	{
 		if ( m_EditButton && w == m_EditButton )
 		{
-			m_VehicleName.SetColor( ARGB( 255, 96, 125, 139 ) );
-			m_VehicleID.SetColor( ARGB( 255, 96, 125, 139 ) );
+			m_VehicleName.SetColor( ARGB( 255, 0, 0, 0 ) );
+			m_VehicleID.SetColor( ARGB( 255, 0, 0, 0 ) );
 			return true;
 		}
 

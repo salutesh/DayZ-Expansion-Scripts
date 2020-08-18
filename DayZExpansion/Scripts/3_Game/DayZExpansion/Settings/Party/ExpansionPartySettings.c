@@ -20,9 +20,10 @@ class ExpansionPartySettings: ExpansionSettingBase
 	bool UseWholeMapForInviteList; 		// Use it if you want whole map available in invite list, instead only nearby players
 	bool ShowPartyMembers3DMarkers;		// If enabled, allow to see 3D marker above teammates location
 	float DistanceForPartyMarkers; 		// Can't go over network bubble distance for player
-	bool EnableQuickMarker;				// 
+	bool EnableQuickMarker;				// Enable/Diable quick marker option
 	bool ShowDistanceUnderQuickMarkers;	// 
-
+	bool ShowNameOnQuickMarkers;		//
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -33,17 +34,17 @@ class ExpansionPartySettings: ExpansionSettingBase
 	{
 	}
 	
-	override void HandleRPC( ref ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPartySettings::HandleRPC - Start");
+		EXPrint("ExpansionPartySettings::OnRecieve - Start");
 		#endif
 		
 		ExpansionPartySettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionPartySettings::HandleRPC setting");
-			return;
+			Error("ExpansionPartySettings::OnRecieve setting");
+			return false;
 		}
 
 		CopyInternal( setting );
@@ -53,8 +54,17 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ExpansionSettings.SI_Party.Invoke();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPartySettings::HandleRPC - End");
+		EXPrint("ExpansionPartySettings::OnRecieve - End");
 		#endif
+
+		return true;
+	}
+	
+	override void OnSend( ParamsWriteContext ctx )
+	{
+		ref ExpansionPartySettings thisSetting = this;
+
+		ctx.Write( thisSetting );
 	}
 
 	override int Send( PlayerIdentity identity )
@@ -68,10 +78,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ref ExpansionPartySettings thisSetting = this;
-		
 		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( thisSetting );
+		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Party, true, identity );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -101,6 +109,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
 		EnableQuickMarker = s.EnableQuickMarker;
 		ShowDistanceUnderQuickMarkers = s.ShowDistanceUnderQuickMarkers;
+		ShowNameOnQuickMarkers = s.ShowNameOnQuickMarkers;
 	}
 	
 	// ------------------------------------------------------------
@@ -125,11 +134,14 @@ class ExpansionPartySettings: ExpansionSettingBase
 
 		if ( FileExist( EXPANSION_PARTY_SETTINGS ) )
 		{
+			Print("[ExpansionPartySettings] Loading settings");
+
 			JsonFileLoader<ExpansionPartySettings>.JsonLoadFile( EXPANSION_PARTY_SETTINGS, this );
 
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPartySettings::Load - End");
-		#endif
+			EXPrint("ExpansionPartySettings::Load - End");
+			#endif
+
 			return true;
 		}
 
@@ -147,9 +159,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionPartySettings] Saving settings");
-		#endif
+		Print("[ExpansionPartySettings] Saving settings");
 
 		JsonFileLoader<ExpansionPartySettings>.JsonSaveFile( EXPANSION_PARTY_SETTINGS, this );
 
@@ -161,9 +171,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionPartySettings] Loading default settings");
-		#endif
+		Print("[ExpansionPartySettings] Loading default settings");
 		
 		EnableParties = true;
 		MaxInParty = 10;
@@ -172,5 +180,6 @@ class ExpansionPartySettings: ExpansionSettingBase
 		UseWholeMapForInviteList = false;
 		EnableQuickMarker = true;
 		ShowDistanceUnderQuickMarkers = true;
+		ShowNameOnQuickMarkers = true;
 	}
 }

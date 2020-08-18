@@ -23,8 +23,6 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::Constructor - Start");
 		#endif
-		
-		m_dmgContactCoef = 0.018;
 
 		//! Vanilla
 		m_dmgContactCoef			= 0.018;
@@ -357,16 +355,37 @@ class ExpansionVodnik extends ExpansionBoatScript
 	}
 
 	// ------------------------------------------------------------
+	override float GetCameraDistance()
+	{
+		return 8;
+	}
+
+
+	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
-/* 		if ( !obj.IsInherited( PlayerBase ) ) 
+ 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
+		
+		return true;
+	}
 
-		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
+	// ------------------------------------------------------------
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+		switch( posIdx )
+		{
+			case 0:
+				return false;
+			break;
 
-		return true; */
-		return false;
+			case 1:
+				return false;
+			break;
+		}
+
+		return true;
 	}
 
 	// --------------------------------------------------------- ---

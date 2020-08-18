@@ -39,6 +39,7 @@ class CfgVehicles
 		hiddenSelections[] = {"body"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
+		defaultSkin = "Orange";
 		doors[] = {};
 		class Cargo
 		{

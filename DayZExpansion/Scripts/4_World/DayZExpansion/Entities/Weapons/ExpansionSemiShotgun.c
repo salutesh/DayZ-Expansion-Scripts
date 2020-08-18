@@ -235,7 +235,7 @@ class ExpansionSemiShotGun extends Rifle_Base
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionReflexMRSOptic::CanChamberBullet - Return");
 		#endif
-		return CanChamberFromMag(muzzleIndex, mag) && !IsInternalMagazineFull(muzzleIndex) );
+		return CanChamberFromMag(muzzleIndex, mag) && !IsInternalMagazineFull(muzzleIndex);
 	}
 	
 	override void SetActions()

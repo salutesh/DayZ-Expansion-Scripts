@@ -1,5 +1,6 @@
 FrameWidgetClass ExpansionPlayerTag {
  clipchildren 0
+ ignorepointer 1
  size 1 1
  hexactpos 0
  vexactpos 0
@@ -28,6 +29,7 @@ FrameWidgetClass ExpansionPlayerTag {
    Rows 1
    {
     ImageWidgetClass TagIcon {
+     visible 0
      ignorepointer 1
      position 10 10
      size 32 32

@@ -19,19 +19,16 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	protected RichTextWidget m_DetailsText;
 
 	protected GameOptions m_Options;
-	protected OptionsMenu m_Menu;
+	protected ref OptionsMenu m_Menu;
 	
 	protected ref array<ref ExpansionOptionSettingWidget> m_OptionsWidgets;
 	
 	protected bool m_IsChanged;
 	
-	//! Expansion Hud
-	ref ExpansionIngameHud 						m_ExpansionHud;
-	
 	// -----------------------------------------------------------
 	// OptionsMenuExpansion Constructor
 	// -----------------------------------------------------------
-	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, OptionsMenu menu )
+	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, ref OptionsMenu menu )
 	{
 		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/options/expansion_tab.layout", parent );
 		m_Root.SetHandler( this );
@@ -95,25 +92,13 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	{
 		m_IsChanged = false;
 
-		for( int i = 0; i < m_OptionsWidgets.Count(); i++ )
+		for ( int i = 0; i < m_OptionsWidgets.Count(); i++ )
 		{
 			m_OptionsWidgets[i].Apply();
 		}
 
 		GetModuleManager().OnSettingsUpdated();
-
 		GetExpansionClientSettings().Save();
-
-		//GetGame().GetWorld().SetPreferredViewDistance(GetExpansionClientSettings().DrawDistance);
-		//GetGame().GetWorld().SetPreferredViewDistance(1600.0);
-
-		PPEffects.UpdateSaturation();
-		PPEffects.UpdateVignette();
-		
-		 
-		MissionGameplay missiongameplay = MissionGameplay.Cast( GetGame().GetMission() );
-		if (missiongameplay.GetExpansionHud().GetEarplugsState())
-			missiongameplay.GetExpansionHud().UpdateEarplugs();
 	}
 	
 	// -----------------------------------------------------------
@@ -131,8 +116,6 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 			return false;
 		}
 		
-		//m_Menu.ColorHighlight( w );
-		
 		return true;
 	}
 	
@@ -146,17 +129,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 			return false;
 		}
 		
-		//m_Menu.ColorNormal( w );
-
 		return true;
-	}
-	
-	// -----------------------------------------------------------
-	// OptionsMenuExpansion Revert
-	// -----------------------------------------------------------
-	void Revert()
-	{
-	
 	}
 	
 	// -----------------------------------------------------------
@@ -164,15 +137,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	override bool OnFocus( Widget w, int x, int y )
 	{		
-		/*if( IsFocusable( w ) )
-		{
-			ColorRed( w );
-			return true;
-		}*/
-		
-		//m_DetailsRoot.Show( false );
-		
-		return ( w != null );
+		return false;
 	}
 	
 	// -----------------------------------------------------------
@@ -180,12 +145,6 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	override bool OnFocusLost( Widget w, int x, int y )
 	{
-		/*if ( IsFocusable( w ) )
-		{
-			ColorWhite( w, null );
-			return true;
-		}*/
-
 		return false;
 	}
 	
@@ -198,6 +157,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 		{
 			return true;
 		}
+		
 		return false;
 	}
 	
@@ -226,14 +186,6 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 			button.SetTextColor( ARGB( 255, 255, 255, 255 ) );
 			button.SetAlpha( 0.75 );
 		}
-	}
-	
-	// -----------------------------------------------------------
-	// OptionsMenuExpansion Focus
-	// -----------------------------------------------------------
-	void Focus()
-	{
-	
 	}
 	
 	// -----------------------------------------------------------

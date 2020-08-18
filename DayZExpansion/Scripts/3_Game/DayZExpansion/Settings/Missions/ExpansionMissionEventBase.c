@@ -139,7 +139,7 @@ class ExpansionMissionEventBase
 		SI_OnMissionEnd.Invoke( this );
 
 		m_IsRunning = false;
-
+		
 		Event_OnEnd();
 	}
 

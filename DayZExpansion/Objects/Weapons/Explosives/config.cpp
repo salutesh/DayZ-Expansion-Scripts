@@ -54,7 +54,7 @@ class CfgVehicles
 	class ExpansionExplosivePlacing: ExpansionExplosive
 	{
 		scope = 1;
-		model = "\DayZExpansion\Objects\Weapons\Explosives\explosive_preview.p3d";
+		model = "\DayZExpansion\Objects\Weapons\Explosives\satchel_preview.p3d";
 		slopeTolerance = 0.95;
 		hiddenSelections[] = {"placing"};
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1.0,co)"};

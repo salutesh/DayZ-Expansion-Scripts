@@ -452,14 +452,14 @@ class CfgWorlds
 			};
 			dayTemperature = 18;
 			nightTemperature = 4;
-			minHeight = 100;
-			shoreTop = 10;
-			peakWaveTop = 1000;
-			peakWaveBottom = -1000;
+			minHeight = -10;
+			shoreTop = 0;
+			peakWaveTop = -1;
+			peakWaveBottom = -5;
 			class VolFog
 			{
 				CameraFog = 0;
-				Item1[] = {43,0.9,0.97,0.63,1};
+				Item1[] = {20,1.0,0.97,0.63,1.0};
 				Item2[] = {250,0.12,0.77,0.3,0.39};
 				Item3[] = {1000,0.21,0.16,0.63,0.6};
 				Item4[] = {2000,0.01,0.02,0.03,0.72};
@@ -467,9 +467,9 @@ class CfgWorlds
 		};
 		clouds[] = {"DZ\Data\data\mrak1.p3d","DZ\Data\data\mrak2.p3d","DZ\Data\data\mrak3.p3d","DZ\Data\data\mrak4.p3d"};
 		starsIntensity = 0.141;
-		hazeDistCoef = 0;
-		hazeFogCoef = 1;
-		volFogOffset = 1;
+		hazeDistCoef = -1.0;
+		hazeFogCoef = 2.0;
+		volFogOffset = 2.0;
 		rainMaterial = "{AD76A616D0EF1ABC}Graphics/Materials/postprocess/rain.emat";
 		oceanMaterial = "{5DCC3416E18F592C}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean.emat";
 		oceanNiceMaterial = "{71A6259AA29D1AFA}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Nice.emat";
