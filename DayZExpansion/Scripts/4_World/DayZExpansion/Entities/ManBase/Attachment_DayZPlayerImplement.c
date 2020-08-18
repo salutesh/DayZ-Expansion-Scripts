@@ -120,6 +120,8 @@ modded class DayZPlayerImplement
 		m_ExIsPreparingVehicle = true;
 		m_ExPerformVehicleGetIn = false;
 
+		m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
+
 		UnlinkFromLocalSpace();
 
 		if ( GetGame().IsServer() )

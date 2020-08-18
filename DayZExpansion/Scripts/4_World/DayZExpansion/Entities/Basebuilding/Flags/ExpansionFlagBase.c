@@ -61,6 +61,16 @@ class ExpansionFlagBase extends ItemBase
 	{
 		return m_FlagTexturePath;
 	}
+
+	int GetTerritoryMenuID()
+	{
+		return MENU_EXPANSION_FLAG_MENU;
+	}
+
+	string GetTerritoryFlagClass()
+	{
+		return "ExpansionTerritoryFlag";
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion GetOwnerID
@@ -90,7 +100,7 @@ class ExpansionFlagBase extends ItemBase
 		super.SetActions();
 
 		AddAction( ExpansionActionEnterFlagMenu );
-		AddAction( ActionDismantleFlag );
+		AddAction( ExpansionActionDismantleFlag );
 	}
 	
 	// ------------------------------------------------------------

@@ -89,14 +89,13 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 		if ( m_Target.IsLocked() || !m_Target.HasCode() )
 		{
 			string savedCode = ExpansionLockSaver.GetInstance().GetSavedCode(m_Target);
-			if (m_Target.HasCode() && savedCode != "")
+			if ( m_Target.HasCode() && savedCode != "" )
 			{
 				ScriptRPC rpc2 = new ScriptRPC;
 				rpc2.Write( savedCode );
 				rpc2.Write( selection );
 				rpc2.Send( m_Target, ExpansionLockRPC.UNLOCK, true );
-			}
-			else
+			} else
 			{
 				ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
 				if ( menu )
@@ -104,8 +103,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 					menu.SetTarget( m_Target, selection );
 				}
 			}
-		} 
-		else
+		} else
 		{
 			ScriptRPC rpc = new ScriptRPC;
 			rpc.Write(selection);

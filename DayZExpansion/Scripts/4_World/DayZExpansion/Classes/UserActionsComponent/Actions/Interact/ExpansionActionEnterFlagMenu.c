@@ -55,20 +55,22 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	// -----------------------------------------------------------
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		ExpansionFlagBase flag = ExpansionFlagBase.Cast( target.GetObject() );
+		if ( !target.GetObject() )
+			return false;
 
-		// Is this a flag ?
-		if ( flag )
+		//! Is this a flag ?
+		ExpansionFlagBase flag;
+		if ( Class.CastTo( flag, target.GetObject() ) )
 		{
-			// Is he in a territory ?
+			//! Is he in a territory ?
 			if ( player.IsInTerritory() )
-				return player.IsInsideOwnTerritory(); // show the prompt only if it's his territory
+				return player.IsInsideOwnTerritory(); //! show the prompt only if it's his territory
 
-			// Even if a user can place a flag, he can't create a territory if the limit is reached
-			return true; // Show the prompt
+			//! Even if a user can place a flag, he can't create a territory if the limit is reached
+			return true; //! Show the prompt
 		}
 		
-		return false; // Nope
+		return false; //! Nope
 	}
 	
 	// -----------------------------------------------------------
@@ -76,8 +78,11 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	// -----------------------------------------------------------
 	override void OnStartClient(ActionData action_data)
 	{
-		if (GetGame().GetUIManager() && GetGame().GetUIManager().IsMenuOpen(MENU_EXPANSION_FLAG_MENU))
-			GetGame().GetUIManager().FindMenu(MENU_EXPANSION_FLAG_MENU).Close();
+		ExpansionTerritoryModule module;
+		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionTerritoryModule ) ) )
+		{
+			module.CloseMenus();
+		}
 	}
 	
 	// -----------------------------------------------------------
@@ -87,20 +92,14 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	{
 		if (!(action_data.m_Player) || !(action_data.m_Player.GetIdentity()) || !(action_data.m_Target) || !(action_data.m_Target.GetObject())) return;
 		
-		Object targetObj = action_data.m_Target.GetObject();
-		
-		if ( targetObj.IsKindOf( "ExpansionFlagBase" ) )
+		ExpansionFlagBase flag;
+		if ( Class.CastTo( flag, action_data.m_Target.GetObject() ) )
 		{
-			ExpansionFlagBase flag = ExpansionFlagBase.Cast( targetObj );
-		
-			if ( flag )
+			if ( flag.GetOwnerID() == action_data.m_Player.GetIdentityUID() )
 			{
-				if ( flag.GetOwnerID() == action_data.m_Player.GetIdentityUID() )
-				{
-					ScriptRPC rpc = new ScriptRPC;
-					rpc.Send( null, ExpansionTerritoryModuleRPC.OpenFlagMenu, true, action_data.m_Player.GetIdentity() );
-					return;
-				}
+				ScriptRPC rpc = new ScriptRPC;
+				rpc.Send( flag, ExpansionTerritoryModuleRPC.OpenFlagMenu, true, action_data.m_Player.GetIdentity() );
+				return;
 			}
 		} 
 		

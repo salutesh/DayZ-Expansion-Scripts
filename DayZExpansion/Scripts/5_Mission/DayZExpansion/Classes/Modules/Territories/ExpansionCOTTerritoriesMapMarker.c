@@ -62,17 +62,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 		
 		m_Root.SetHandler(this);
 		
-		Init();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionCOTTerritoriesMapMarker Init
-	// ------------------------------------------------------------
-	void Init()
-	{			
-		//! Update Timer
-		m_MarkerUpdateTimer = new Timer();
-		m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
+		RunUpdateTimer();
 	}
 	
 	// ------------------------------------------------------------
@@ -80,18 +70,9 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ~ExpansionCOTTerritoriesMapMarker()
 	{
-		m_Root.Unlink();
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion DeleteMarker
-	// ------------------------------------------------------------
-	void DeleteMarker()
-	{
-		m_MarkerUpdateTimer.Stop();
+		StopUpdateTimer();
 		
-		m_Root.Unlink();
+		delete m_Root;
 	}
 	
 	// ------------------------------------------------------------
@@ -138,7 +119,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// Expansion Update
 	// ------------------------------------------------------------
 	void Update( float timeslice )
-	{		
+	{				
 		vector mapPos = m_MapWidget.MapToScreen( m_MarkerPos );
 
 		float x;
@@ -155,8 +136,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	{
 		if (m_MarkerButton && w == m_MarkerButton && !m_IsTempMarker)
 		{
-			if (m_MarkerUpdateTimer)
-				m_MarkerUpdateTimer.Stop();
+			StopUpdateTimer();
 
 			m_Icon.SetColor(ARGB(255,255,255,255));
 			m_Name.SetColor(ARGB(255,255,255,255));
@@ -173,10 +153,7 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 		int color = m_MarkerColor;
 		if (m_MarkerButton && w == m_MarkerButton)
 		{
-			if (m_MarkerUpdateTimer)
-			{
-				m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
-			}
+			RunUpdateTimer();
 
 			m_Icon.SetColor(color);
 			m_Name.SetColor(color);
@@ -221,5 +198,32 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	void ShowMarker()
 	{
 		m_Root.Show( true );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion StopUpdateTimer
+	// ------------------------------------------------------------
+	void StopUpdateTimer()
+	{
+		if (m_MarkerUpdateTimer && m_MarkerUpdateTimer.IsRunning())
+		{
+			m_MarkerUpdateTimer.Stop();
+			m_MarkerUpdateTimer = NULL;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RunUpdateTimer
+	// ------------------------------------------------------------
+	void RunUpdateTimer()
+	{
+		if (!m_MarkerUpdateTimer)
+		{
+			m_MarkerUpdateTimer = new Timer( CALL_CATEGORY_GUI );
+			if (!m_MarkerUpdateTimer.IsRunning())
+			{
+				m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
+			}
+		}
 	}
 }

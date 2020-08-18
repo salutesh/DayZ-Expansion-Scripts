@@ -31,6 +31,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	
 	private Widget m_TerritoryInfoButtonsPanel;
 	private WrapSpacerWidget m_TerritoryInfoButtonsContent;
+	private ButtonWidget m_TeleportTerritoryButton;
 	private ButtonWidget m_DeleteTerritoryButton;
 	private ButtonWidget m_CancelEditButton;
 	
@@ -119,28 +120,29 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	override void OnInit()
 	{
-		m_TerritoryMapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territory_map_panel" ) );	
-		m_TerritoryMap = MapWidget.Cast( layoutRoot.FindAnyWidget( "territory_map" ) );	
+		m_TerritoryMapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territories_map_panel" ) );	
+		m_TerritoryMap = MapWidget.Cast( layoutRoot.FindAnyWidget( "territories_map" ) );	
 		
-		m_TerritoryListPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territory_list_panel" ) );	
-		m_TerritoryListContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "territory_list_content" ) );	
+		m_TerritoryListPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territories_list_panel" ) );	
+		m_TerritoryListContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "territories_list_content" ) );	
 		
-		m_TerritoryListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_refresh_button" ) );
+		m_TerritoryListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territories_refresh_button" ) );
 		
 		m_TerritoryInfoPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territory_info_panel" ) );
-		m_InfoName = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_name_value" ) );
-		m_InfoTerritoryID = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_id_value" ) );
-		m_InfoOwnerID = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_ownerid_value" ) );
-		m_InfoPosition = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_position_value" ) );
-		m_InfoLevel = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_level_value" ) );
+		m_InfoName = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_name_value" ) );
+		m_InfoTerritoryID = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_id_value" ) );
+		m_InfoOwnerID = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_ownerid_value" ) );
+		m_InfoPosition = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_position_value" ) );
+		m_InfoLevel = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_level_value" ) );
 		
 		m_TerritoryInfoButtonsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territory_info_buttons_panel" ) );
 		m_TerritoryInfoButtonsContent = WrapSpacerWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_buttons_spacer" ) );
 		m_DeleteTerritoryButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_territory_button" ) );
+		m_TeleportTerritoryButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "teleport_to_button" ) );
 		m_CancelEditButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "cancel_edit_button" ) );
 		
-		m_TerritoryMembersPanel = Widget.Cast( layoutRoot.FindAnyWidget( "member_list_panel" ) );
-		m_TerritoryMembersContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "member_list_content" ) );
+		m_TerritoryMembersPanel = Widget.Cast( layoutRoot.FindAnyWidget( "members_list_panel" ) );
+		m_TerritoryMembersContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "members_list_content" ) );
 		
 		m_TerritoryMemberInfoPanel = Widget.Cast( layoutRoot.FindAnyWidget( "member_info_panel" ) ); 
 		m_MemberName = TextWidget.Cast( layoutRoot.FindAnyWidget( "member_info_name_value" ) );		
@@ -155,8 +157,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_ObjectContainerPanel = Widget.Cast( layoutRoot.FindAnyWidget( "object_container_list_panel" ) );
 		m_ObjectContainerContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "object_container_list_content" ) );
 		
-		m_TerritoryObjectsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "object_list_panel" ) );
-		m_TerritoryObjectsContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "object_list_content" ) );
+		m_TerritoryObjectsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "objects_list_panel" ) );
+		m_TerritoryObjectsContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "objects_list_content" ) );
 		
 		m_TerritoryObjectsListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "objects_refresh_button" ) );
 		
@@ -226,8 +228,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			
 			m_TerritoryListPanel.Show( true );
 			m_TerritoryMapPanel.Show( true );
-			m_TerritoryMemberInfoPanel.Show( true );
-			m_TerritoryMemberInfoButtonsPanel.Show( true );
+			m_TerritoryMemberInfoPanel.Show( false );
+			m_TerritoryMemberInfoButtonsPanel.Show( false );
 			m_TerritoryInfoPanel.Show( false );
 			m_TerritoryMembersPanel.Show( false );
 			m_TerritoryInfoButtonsPanel.Show( false );
@@ -252,6 +254,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_TerritoryListPanel.Show( true );
 		m_TerritoryMapPanel.Show( true );
 		m_TerritoryInfoPanel.Show( false );
+		m_TerritoryMemberInfoPanel.Show( false );
 		m_TerritoryMembersPanel.Show( false );
 		m_TerritoryInfoButtonsPanel.Show( false );
 		m_TerritoryObjectsPanel.Show( false );
@@ -424,6 +427,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	void CreateTerritorieMembersList(ExpansionTerritory territory)
 	{
+		m_MemberListEntries.Clear();
+		
 		if ( territory.GetTerritoryMembers().Count() > 0 )
 		{
 			for ( int j = 0; j < territory.GetTerritoryMembers().Count(); j++ )

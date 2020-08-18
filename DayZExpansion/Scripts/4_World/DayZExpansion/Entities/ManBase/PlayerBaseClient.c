@@ -16,31 +16,9 @@
 
 modded class PlayerBaseClient
 {
+#ifndef EXPANSION_PARTICLE_VOLUMETRIC_CLOUDS_DISABLED
 	Particle m_Clouds;
 
-	void PlayerBaseClient()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBaseClient::PlayerBaseClient Start");
-		#endif
-		m_PersonalLightEnabledOnCurrentServer = false;
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBaseClient::PlayerBaseClient End");
-		#endif
-	}
-
-	override static void UpdatePersonalLight()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBaseClient::UpdatePersonalLight Start");
-		#endif
-		m_PersonalLight.SetEnabled( false );
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBaseClient::UpdatePersonalLight End");
-		#endif
-	}
-
-	/*
 	void CreateClouds()
 	{
 		if (!m_Clouds && ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ))
@@ -70,5 +48,5 @@ modded class PlayerBaseClient
 			
 		}
 	}
-	*/
+#endif
 }

@@ -3,7 +3,7 @@ modded class ActionTogglePlaceObject
 	override void Start( ActionData action_data ) //Setup on start of action
 	{
 		super.Start( action_data );
-		PlayerIdentity playerID = action_data.m_Player.GetIdentity();
+
 		PlayerBase player = action_data.m_Player;
 		ItemBase item = action_data.m_MainItem;
 		bool territoryReqNotif = false;
@@ -27,8 +27,7 @@ modded class ActionTogglePlaceObject
 						}
 					}
 				}
-			}
-			else
+			} else
 			{
 				territoryReqNotif = true;
 				//Place stuff other than flag should be possible inside your territory
@@ -46,8 +45,7 @@ modded class ActionTogglePlaceObject
 						}
 					
 					}
-				}
-				else
+				} else
 				{
 					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory.Count(); ++i)
 					{
@@ -60,10 +58,10 @@ modded class ActionTogglePlaceObject
 			}
 		}
 		if (territoryReqNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, playerID );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
 		
 		if (enemyTerritoryNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, playerID );	
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );	
 	}
 
 }

@@ -181,8 +181,11 @@ class ExpansionTerritoryModule: JMModuleBase
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_OpenFlagMenu");
 			#endif
-
-			GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_FLAG_MENU, GetGame().GetUIManager().GetMenu());
+			ExpansionFlagBase flag;
+			if ( Class.CastTo( flag, target ) )
+			{
+				GetGame().GetUIManager().EnterScriptedMenu( flag.GetTerritoryMenuID(), GetGame().GetUIManager().GetMenu() );
+			}
 			break;
 		case ExpansionTerritoryModuleRPC.CreateTerritory:
 			RPC_CreateTerritory( ctx, sender, target );
@@ -283,10 +286,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 			break;
 		case ExpansionTerritoryModuleRPC.PlayerEnteredTerritory:
-			if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
-			{
-				RPC_PlayerEnteredTerritory( ctx, sender, target );
-			}
+			RPC_PlayerEnteredTerritory( ctx, sender, target );
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteObject");
 			#endif
@@ -490,7 +490,8 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - Start territoryName : " + territoryName + " flag : " + flag);
 		#endif
 		
-		if (!IsMissionHost() || !sender || !flag) return;
+		if ( !IsMissionHost() || !sender || !flag )
+			return;
 		
 		//! Get player object from network by sender identity
 		PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
@@ -499,7 +500,6 @@ class ExpansionTerritoryModule: JMModuleBase
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
 			return;
 		}
-		
 		
 		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
 		{
@@ -527,14 +527,14 @@ class ExpansionTerritoryModule: JMModuleBase
 		string texturePath = flag.GetFlagTexturePath();
 		string senderID = sender.GetId();
 		
-		//! Delete the normal flag
-		flag.Delete();
-		
 		//! Create new territory flag
-		ExpansionTerritoryFlag territoryFlag = ExpansionTerritoryFlag.Cast( GetGame().CreateObject( "ExpansionTerritoryFlag", position ) );
+		ExpansionTerritoryFlag territoryFlag = ExpansionTerritoryFlag.Cast( GetGame().CreateObject( flag.GetTerritoryFlagClass(), position ) );
 		if ( !territoryFlag )
 			return;
 		
+		//! Delete the normal flag
+		flag.Delete();
+
 		territoryFlag.SetTerritoryID( m_NextTerritoryID );
 		territoryFlag.SetPosition( position );
 		territoryFlag.SetDirection( direction );
@@ -1623,6 +1623,9 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !ctx.Read( territoryID ) )
 			return;
 
+		if ( !GetExpansionSettings().GetNotification() || !GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
+			return;
+
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 			return;
@@ -1635,8 +1638,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENTER_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );	
 			return;
-		}
-		else if ( type == 1 )
+		} else if ( type == 1 )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_LEFT_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );
 			return;
@@ -2031,5 +2033,11 @@ class ExpansionTerritoryModule: JMModuleBase
 			return NULL;
 		
 		return m_TerritoryInvites;
+	}
+
+	void CloseMenus()
+	{
+		if ( GetGame().GetUIManager() && GetGame().GetUIManager().IsMenuOpen( MENU_EXPANSION_FLAG_MENU ) )
+			GetGame().GetUIManager().FindMenu( MENU_EXPANSION_FLAG_MENU ).Close();
 	}
 }

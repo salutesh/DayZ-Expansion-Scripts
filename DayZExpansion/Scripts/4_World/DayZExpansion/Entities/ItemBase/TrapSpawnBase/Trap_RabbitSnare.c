@@ -10,7 +10,7 @@
  *
 */
 
-modded class Trap_RabbitSnare extends TrapSpawnBase
+modded class Trap_RabbitSnare
 {
 	void Trap_RabbitSnare()
 	{

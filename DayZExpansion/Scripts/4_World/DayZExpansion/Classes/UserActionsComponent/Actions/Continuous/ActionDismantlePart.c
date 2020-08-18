@@ -33,6 +33,9 @@ modded class ActionDismantlePart
 		if ( player.IsInTerritory() )
 			return player.IsInsideOwnTerritory();
 
+		if ( player.IsInSafeZone() )
+			return false;
+
 		if ( DismantleAnywhere )
 			return DismantleAnywhereCondition( player, target, item, camera_check );
 		

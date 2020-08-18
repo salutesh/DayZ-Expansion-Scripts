@@ -47,8 +47,7 @@ modded class ActionSwitchLights
 								return false;
 
 							return true;
-						}
-						else
+						} else
 						{
 							return true;
 						}

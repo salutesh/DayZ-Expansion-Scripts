@@ -567,11 +567,9 @@ modded class PlayerBase
 		{
 			for ( int i = 0; i < objects.Count(); ++i )
 			{
-				Object obj = Object.Cast( objects.Get( i ) );
-				if ( obj.IsKindOf( "ExpansionFlagBase" ) )
+				ExpansionFlagBase flag;
+				if ( Class.CastTo( flag, objects.Get( i ) ) )
 				{
-					ExpansionFlagBase flag = ExpansionFlagBase.Cast( obj );
-
 					return flag;
 				}
 			}

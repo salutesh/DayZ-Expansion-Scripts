@@ -97,7 +97,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionCycleOpticsMode );
 		actions.Insert( ExpansionActionWritePaper );
 		actions.Insert( ExpansionActionEnterFlagMenu );
-		actions.Insert( ActionDismantleFlag );
+		actions.Insert( ExpansionActionDismantleFlag );
 		
 		//! Removed because it wont be in first release
 		//actions.Insert( ExpansionActionTakeChicken );

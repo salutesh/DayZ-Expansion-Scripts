@@ -1368,6 +1368,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[ExpansionAirdropPlane] SpawnInfected start");
 		#endif
+		
 
 		for ( int z = 0; z < InfectedCount; z++ ) 
 		{

@@ -1,4 +1,4 @@
-class ActionDismantleFlagCB : ActionContinuousBaseCB
+class ExpansionActionDismantleFlagCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
@@ -6,11 +6,11 @@ class ActionDismantleFlagCB : ActionContinuousBaseCB
 	}
 }
 
-class ActionDismantleFlag: ActionContinuousBase
+class ExpansionActionDismantleFlag: ActionContinuousBase
 {
-	void ActionDismantleFlag()
+	void ExpansionActionDismantleFlag()
 	{
-		m_CallbackClass = ActionDismantleFlagCB;
+		m_CallbackClass = ExpansionActionDismantleFlagCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_CRAFTING;
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH;
@@ -37,10 +37,14 @@ class ActionDismantleFlag: ActionContinuousBase
 	{
 		Object targetObject = target.GetObject();
 		bool canDismantle = GetExpansionSettings().GetBaseBuilding().CanDismantleFlag;
-		
-		if ( targetObject.IsKindOf("ExpansionFlagBase") )
+
+		if ( targetObject )
 		{
-			return canDismantle;
+			ExpansionFlagBase flag;
+			if ( Class.CastTo( flag, targetObject ) )
+			{
+				return canDismantle;
+			}
 		}
 		
 		return false;
@@ -49,9 +53,8 @@ class ActionDismantleFlag: ActionContinuousBase
 	override void OnFinishProgressServer( ActionData action_data )
 	{
 		EntityAI flag = EntityAI.Cast(action_data.m_Target.GetObject() );
-		bool destroyFlag = GetExpansionSettings().GetBaseBuilding().DestroyFlagOnDismantle;
 
-		if ( !destroyFlag)
+		if ( GetExpansionSettings().GetBaseBuilding().DestroyFlagOnDismantle )
 			GetGame().CreateObject("ExpansionFlagKitExpansion", flag.GetPosition() );
 
 		flag.Delete();

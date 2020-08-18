@@ -56,9 +56,13 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 		if (m_MarkerIcon)
 			m_Icon.LoadImageFile(0, m_MarkerIcon);
 		
-		RunUpdateTimer();
+		m_Icon.SetColor(m_MarkerColor);
+		m_Name.SetText(m_MarkerName);
+		m_Name.SetColor(m_MarkerColor);
 		
 		m_Root.SetHandler(this);
+		
+		RunUpdateTimer();
 	}
 	
 	// ------------------------------------------------------------
@@ -66,15 +70,9 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ~ExpansionCOTVehiclesMapMarker()
 	{
+		StopUpdateTimer();
+		
 		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion DeleteMarker
-	// ------------------------------------------------------------
-	void DeleteMarker()
-	{
-		m_Root.Unlink();
 	}
 	
 	// ------------------------------------------------------------
@@ -121,12 +119,7 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// Expansion Update
 	// ------------------------------------------------------------
 	void Update(float timeslice)
-	{		
-		m_Icon.SetColor(m_MarkerColor);
-		m_Name.SetColor(m_MarkerColor);
-		
-		m_Name.SetText(m_MarkerName);
-		
+	{				
 		vector mapPos = m_MapWidget.MapToScreen( m_MarkerPos );
 
 		float x;
@@ -214,7 +207,7 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void StopUpdateTimer()
 	{
-		if (m_MarkerUpdateTimer && !m_MarkerUpdateTimer.IsRunning())
+		if (m_MarkerUpdateTimer && m_MarkerUpdateTimer.IsRunning())
 		{
 			m_MarkerUpdateTimer.Stop();
 			m_MarkerUpdateTimer = NULL;

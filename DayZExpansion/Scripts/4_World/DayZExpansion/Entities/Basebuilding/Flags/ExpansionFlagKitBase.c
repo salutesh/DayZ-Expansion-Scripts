@@ -44,7 +44,7 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 			vector position = player_base.GetLocalProjectionPosition();
 			vector orientation = player_base.GetLocalProjectionOrientation();
 			
-			ExpansionFlagBase flag = ExpansionFlagBase.Cast( GetGame().CreateObject( "ExpansionFlagBase", GetPosition() ) );
+			ExpansionFlagBase flag = ExpansionFlagBase.Cast( GetGame().CreateObject( GetFlagObject(), GetPosition() ) );
 			flag.SetPosition( position );
 			flag.SetOrientation( orientation );
 			flag.SetFlagTexture( GetTexturePath() );
@@ -57,6 +57,11 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 			SetIsDeploySound( true );
 			GetGame().ObjectDelete(this);
 		}
+	}
+
+	string GetFlagObject()
+	{
+		return "ExpansionFlagBase";
 	}
 		
 	// ------------------------------------------------------------

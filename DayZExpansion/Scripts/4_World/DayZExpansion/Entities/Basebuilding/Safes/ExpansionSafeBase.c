@@ -66,22 +66,6 @@ class ExpansionSafeBase extends Container_Base
 	}
 
 	// ------------------------------------------------------------
-	// CanReceiveItemIntoCargo
-	// ------------------------------------------------------------
-	override bool CanReceiveItemIntoCargo(EntityAI cargo)
-	{
-		return IsOpened();
-	}
-	
-	// ------------------------------------------------------------
-	// CanReleaseCargo
-	// ------------------------------------------------------------
-	override bool CanReleaseCargo(EntityAI attachment)
-	{
-		return IsOpened();
-	}
-
-	// ------------------------------------------------------------
 	// CanBeRepairedToPristine
 	// ------------------------------------------------------------
 	override bool CanBeRepairedToPristine()
@@ -423,17 +407,46 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override bool CanPutIntoHands(EntityAI parent)
 	{
-		if ( !super.CanPutIntoHands( parent ) || GetNumberOfItems() != 0 )
+		if ( !super.CanPutIntoHands( parent ) )
 		{
 			return false;
 		}
 		
-		if ( !IsOpened() )
+		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
 		{
 			return true;
 		}
 
 		return false;
+	}
+
+	// ------------------------------------------------------------
+	// CanReceiveItemIntoCargo
+	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if ( IsOpened() )
+			return super.CanReceiveItemIntoCargo( item );
+
+		return false;
+	}
+#else
+	override bool CanReceiveItemIntoCargo(EntityAI cargo)
+	{
+		if ( IsOpened() )
+			return super.CanReceiveItemIntoCargo( cargo );
+
+		return false;
+	}
+#endif
+	
+	// ------------------------------------------------------------
+	// CanReleaseCargo
+	// ------------------------------------------------------------
+	override bool CanReleaseCargo(EntityAI attachment)
+	{
+		return IsOpened();
 	}
 
 	// ------------------------------------------------------------

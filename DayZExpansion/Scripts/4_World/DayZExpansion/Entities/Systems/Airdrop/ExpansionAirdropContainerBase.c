@@ -166,7 +166,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			EnableDynamicCCD( true );
 			SetDynamicPhysicsLifeTime( -1 );
-			SetLifetimeMax( 1.0 );
+			SetLifetimeMax( 1.0 ); // shouldn't be required, why is this here? - jacob
 			
 			m_StartTime = GetGame().GetTime();
 		}
@@ -684,6 +684,15 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// CanReceiveItemIntoCargo
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	override bool CanReceiveItemIntoCargo( EntityAI item )
+	{
+		if ( GetHealthLevel() == GameConstants.STATE_RUINED )
+			return false;
+
+		return super.CanReceiveItemIntoCargo( item );
+	}
+#else
 	override bool CanReceiveItemIntoCargo( EntityAI cargo )
 	{
 		if ( GetHealthLevel() == GameConstants.STATE_RUINED )
@@ -691,6 +700,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		return super.CanReceiveItemIntoCargo( cargo );
 	}
+#endif
 	
 	// ------------------------------------------------------------
 	// AfterStoreLoad

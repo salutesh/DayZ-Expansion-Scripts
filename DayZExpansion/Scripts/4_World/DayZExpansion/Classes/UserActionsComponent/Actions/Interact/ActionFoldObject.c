@@ -14,6 +14,9 @@ modded class ActionFoldObject
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if ( player.IsInSafeZone() )
+			return false;
+			
 		Object targetObject = target.GetObject();
 		if ( targetObject.IsInherited(HescoBox) )
 		{
