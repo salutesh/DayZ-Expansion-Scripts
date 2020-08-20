@@ -36,6 +36,8 @@ class ExpansionMapMenu extends UIScriptedMenu
 
 	private ref ExpansionMapMarkerList m_MarkerList;
 	
+	private float m_CloseTime = 0;
+	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapMenu Constructor
 	// ------------------------------------------------------------	
@@ -1024,6 +1026,8 @@ class ExpansionMapMenu extends UIScriptedMenu
 	{
 		super.OnShow();
 
+		m_CloseTime = 0;
+		
 		ToggleGPS();
 
 		SetFocus(layoutRoot);
@@ -1061,7 +1065,17 @@ class ExpansionMapMenu extends UIScriptedMenu
 		EXLogPrint("ExpansionMapMenu::Update - Start");
 		#endif
 
+		m_CloseTime += timeslice;
+		
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
+		{
+			Hide();
+			Close();
+
+			return;
+		}
+		
+		if ( GetUApi().GetInputByName("UAExpansionMapToggle").LocalHoldBegin() && m_CloseTime > 0.75 )
 		{
 			Hide();
 			Close();
