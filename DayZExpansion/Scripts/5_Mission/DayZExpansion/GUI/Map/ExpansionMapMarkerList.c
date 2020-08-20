@@ -177,7 +177,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_DropdownPreftab.AddElement( "Managing Markers" );
 		m_DropdownPreftab.AddElement( "Create Markers" );*/
 		
-		m_InfoTooltip = new ExpansionUITooltip("<p>Create Marker - To create a marker just click on a position on the map.</p><p>Delete Marker - Point on a existing marker on your map or in the list and press the \"Delete Map Marker\" key (Default: Delete) to remove it.</p><p>Edit Marker - Click on a existing marker on the map or in the list to bring up the edit window and to change it to your likings.</p><p>Change Marker Position - Drag and drop a existiong marker on the map to change its position.</p>");
+		m_InfoTooltip = new ExpansionUITooltip("<p>#STR_EXPANSION_MARKERLIST_INFO_1</p><p>#STR_EXPANSION_MARKERLIST_INFO_2</p><p>#STR_EXPANSION_MARKERLIST_INFO_3</p><p>#STR_EXPANSION_MARKERLIST_INFO_4</p>");
 		m_InfoTooltip.SetFixPostion(true);
 		m_InfoTooltip.SetParent(m_DropdownSpacer);
 		

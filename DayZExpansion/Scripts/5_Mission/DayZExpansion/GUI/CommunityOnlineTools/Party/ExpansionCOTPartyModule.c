@@ -31,6 +31,11 @@ class ExpansionCOTPartyModule: ExpansionCOTModuleBase
 		return false;
 	}
 
+	override string GetWebhookTitle()
+	{
+		return "Expansion Party Settings";
+	}
+
 	override ref ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetParty();
@@ -84,9 +89,10 @@ class ExpansionCOTPartyModule: ExpansionCOTModuleBase
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 
-		if ( !GetPermissionsManager().HasPermission( "Expansion.Party.Update", senderRPC ) )
+		JMPlayerInstance inst;
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Party.Update", senderRPC, inst ) )
 			return;
 
-		UpdateServer( setting );
+		UpdateServer( setting, inst );
 	}
 };

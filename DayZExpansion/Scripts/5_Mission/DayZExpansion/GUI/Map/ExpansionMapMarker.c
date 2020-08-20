@@ -480,9 +480,15 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			if ( !m_Data.IsMapVisible() )
 			{
 				GetLayoutRoot().Show( false );
+
+				if ( IsEditting() )
+					CloseEditPanel();
 			} else if ( !m_MarkerModule.IsMapVisible( m_Data.GetType() ) )
 			{
 				GetLayoutRoot().Show( false );
+
+				if ( IsEditting() )
+					CloseEditPanel();
 			} else 
 			{
 				GetLayoutRoot().Show( true );

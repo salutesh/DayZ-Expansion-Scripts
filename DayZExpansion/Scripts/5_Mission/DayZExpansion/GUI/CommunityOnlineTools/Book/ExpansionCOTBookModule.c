@@ -31,6 +31,11 @@ class ExpansionCOTBookModule: ExpansionCOTModuleBase
 		return false;
 	}
 
+	override string GetWebhookTitle()
+	{
+		return "Expansion Book Settings";
+	}
+
 	override ref ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetBook();
@@ -84,9 +89,10 @@ class ExpansionCOTBookModule: ExpansionCOTModuleBase
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 
-		if ( !GetPermissionsManager().HasPermission( "Expansion.Book.Update", senderRPC ) )
+		JMPlayerInstance inst;
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Book.Update", senderRPC, inst ) )
 			return;
 
-		UpdateServer( setting );
+		UpdateServer( setting, inst );
 	}
 };

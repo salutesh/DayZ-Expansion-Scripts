@@ -15,6 +15,10 @@
  **/
 class ExpansionAirdropContainerBase extends Container_Base
 {
+	private static int s_ServerMarkerIndex = 0; 
+
+	private string m_ServerMarkerUID;
+
 	bool m_FromSettings;
 	bool m_LootHasSpawned;
 	bool m_IsLooted;
@@ -37,8 +41,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 	
 	protected AIGroup m_AIGroup;
 	
-	string m_ServerMarker;
-	
 	protected ExpansionMarkerModule m_MarkerModule;
 
 	// ------------------------------------------------------------
@@ -59,7 +61,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 		m_FromSettings = true;
 		m_LootHasSpawned = false;
 		
-		m_ServerMarker = "";
 		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		
 		CreateSmoke();
@@ -288,15 +289,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		if ( IsMissionHost() )
 		{
+			string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
 			if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
-			{
-				m_ServerMarker = "[" + this.GetDisplayName() + "] " + "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
-			} else
-			{
-				m_ServerMarker = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
-			}
+				markerName = "[" + this.GetDisplayName() + "] " + markerName;
+
+			m_ServerMarkerUID = "AIRDROP" + s_ServerMarkerIndex;
+			s_ServerMarkerIndex += 1;
 			
-			m_MarkerModule.CreateServerMarker( m_ServerMarker, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
+			m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation, m_ServerMarkerUID );
 
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker name is: " + m_ServerMarker );
@@ -317,18 +317,11 @@ class ExpansionAirdropContainerBase extends Container_Base
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Start");
 		#endif
 		
-		if ( IsMissionHost() )
+		if ( IsMissionHost() && m_ServerMarkerUID != "" )
 		{
-			if (m_ServerMarker && m_ServerMarker != "" )
-			{
-				m_MarkerModule.RemoveServerMarker( m_ServerMarker );
-				
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - m_ServerMarker name is: " + m_ServerMarker );
-				#endif
+			m_MarkerModule.RemoveServerMarker( m_ServerMarkerUID );
 
-				m_ServerMarker = "";
-			}
+			m_ServerMarkerUID = "";
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT

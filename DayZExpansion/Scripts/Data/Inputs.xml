@@ -34,11 +34,11 @@
             <input name="UAExpansionBoatRotateRight" loc="STR_EXPANSION_BOAT_ROTATE_RIGHT" />
             <input name="UAExpansionBoatTurbo" loc="STR_EXPANSION_BOAT_TURBO" />
 
-            <input name="UAExpansionBikeMoveForward" loc="STR_EXPANSION_BIKE_MOVEFORWARD" />
-            <input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" />
-            <input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" />
-            <input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" />
-            <input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" />
+            <input name="UAExpansionBikeMoveForward" loc="STR_EXPANSION_BIKE_MOVEFORWARD" visible="false" />
+            <input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" visible="false" />
+            <input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" visible="false" />
+            <input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" visible="false" />
+            <input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" visible="false" />
 
             <input name="UAExpansionCarHorn" loc="STR_EXPANSION_VEHICLE_HORN" />
             <input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
@@ -59,11 +59,10 @@
 
             <input name="UAExpansionAutoRunToggle" loc="STR_EXPANSION_TOGGLE_AUTORUN" />
 
-            <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" />
+            <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" visible="false" />
 
-			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
-			
-			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" />
+			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" visible="false" />
+			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" visible="false" />
 			
 			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
         </actions>

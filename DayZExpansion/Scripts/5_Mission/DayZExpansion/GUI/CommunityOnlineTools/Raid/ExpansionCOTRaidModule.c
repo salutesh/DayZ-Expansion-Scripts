@@ -31,6 +31,11 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		return false;
 	}
 
+	override string GetWebhookTitle()
+	{
+		return "Expansion Raid Settings";
+	}
+
 	override ref ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetRaid();
@@ -84,9 +89,10 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 
-		if ( !GetPermissionsManager().HasPermission( "Expansion.Raid.Update", senderRPC ) )
+		JMPlayerInstance inst;
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Raid.Update", senderRPC, inst ) )
 			return;
 
-		UpdateServer( setting );
+		UpdateServer( setting, inst );
 	}
 };

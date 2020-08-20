@@ -20,7 +20,7 @@ class ExpansionWorld: ExpansionGame
 		EXPrint("ExpansionWorld::FirearmEffects Start");
 		#endif
 
-		#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
+		//#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
 		if ( g_Game.IsClient() || !g_Game.IsMultiplayer() )
 		{
 			g_Game.CreateObject( "ExpansionDebugBox_Red", pos, true );
@@ -30,7 +30,7 @@ class ExpansionWorld: ExpansionGame
 			Print( exitPos );
 			Print( ammoType );
 		}
-		#endif
+		//#endif
 
 		string M203SmokeItem = "Expansion_M203Round_Smoke_White";
 		switch ( ammoType )

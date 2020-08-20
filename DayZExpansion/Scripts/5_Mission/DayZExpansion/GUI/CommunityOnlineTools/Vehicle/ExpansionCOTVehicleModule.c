@@ -31,6 +31,11 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		return false;
 	}
 
+	override string GetWebhookTitle()
+	{
+		return "Expansion Vehicle Settings";
+	}
+
 	override ref ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetVehicle();
@@ -43,10 +48,16 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		CreateToggle( "VehicleRequireAllDoors", "Key Requires All Doors", "", "" );
 		CreateToggle( "VehicleLockedAllowInventoryAccess", "Access Locked Inventory", "", "" );
 		CreateToggle( "VehicleLockedAllowInventoryAccessWithoutDoors", "Access Locked Inventory w/o Doors", "", "" );
+		#ifdef EXPANSION_HELI_WIND
 		CreateToggle( "EnableWindAerodynamics", "Wind Aerodynamics", "", "" );
+		#endif
 		CreateToggle( "EnableTailRotorDamage", "Tail Rotor Damage", "", "" );
-		CreateToggle( "PlayerAttachment", "Player Attaches To Vehicles", "", "" );	
+		#ifdef EXPANSION_PLAYER_ATTACHMENT
+		CreateToggle( "PlayerAttachment", "Player Attaches To Vehicles", "", "" );
+		#endif
+		#ifdef EXPANSION_VEHICLE_TOWING
 		CreateToggle( "Towing", "Towing Vehicles", "", "" );	
+		#endif
 	}
 
 	override int GetRPCMin()
@@ -86,9 +97,10 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 
-		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicle.Update", senderRPC ) )
+		JMPlayerInstance inst;
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicle.Update", senderRPC, inst ) )
 			return;
 
-		UpdateServer( setting );
+		UpdateServer( setting, inst );
 	}
 };

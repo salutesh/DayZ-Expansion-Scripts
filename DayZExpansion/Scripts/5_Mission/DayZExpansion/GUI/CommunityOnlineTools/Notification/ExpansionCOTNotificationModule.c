@@ -31,6 +31,11 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		return false;
 	}
 
+	override string GetWebhookTitle()
+	{
+		return "Expansion Notification Settings";
+	}
+
 	override ref ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetNotification();
@@ -89,9 +94,10 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 
-		if ( !GetPermissionsManager().HasPermission( "Expansion.Notification.Update", senderRPC ) )
+		JMPlayerInstance inst;
+		if ( !GetPermissionsManager().HasPermission( "Expansion.Notification.Update", senderRPC, inst ) )
 			return;
 
-		UpdateServer( setting );
+		UpdateServer( setting, inst );
 	}
 };

@@ -55,15 +55,16 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		m_3DToggle = ButtonWidget.Cast(m_Root.FindAnyWidget("visibility_marker_option_entry_3d"));
 		m_3DToggleIcon = ImageWidget.Cast(m_Root.FindAnyWidget("visibility_marker_option_entry_3d_icon"));
 		
-		m_Root.SetHandler(this);
-		
 		m_MapMenu = map_menu;
 		m_Marker = marker;
-		m_MarkerData = m_Marker.GetMarkerData();
+		m_MarkerData = marker.GetMarkerData();
 		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		
 		m_InfoTooltip = new ExpansionUITooltip("<p>" + "X:" + m_Marker.GetMarkerData().GetPosition()[0] + " Y:" + m_Marker.GetMarkerData().GetPosition()[1] + " Z:" + m_Marker.GetMarkerData().GetPosition()[2] + "</p>");
 		m_InfoTooltip.SetTextPos("center");
+		
+		m_Root.SetHandler(this);
+		
 		SetEntry();
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -149,34 +150,20 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerListEntry::OnClick");
 		#endif
 		
-		if ( w && w == m_3DToggle )
+		if ( m_3DToggle && w == m_3DToggle )
 		{
-			if ( m_MarkerData.IsWorldVisible() )
-			{
-				m_MarkerModule.RemoveVisibility( m_MarkerData, EXPANSION_MARKER_VIS_WORLD );
-
-				if ( m_Marker.IsEditting() )
-					m_Marker.CloseEditPanel();
-			} else
-			{
-				m_MarkerModule.SetVisibility( m_MarkerData, EXPANSION_MARKER_VIS_WORLD );
-			}
+			m_MarkerModule.FlipVisibility( m_MarkerData, EXPANSION_MARKER_VIS_WORLD );
 			
 			m_MarkerModule.Refresh();
 
 			UpdateToggleStates();
-		} else if ( w && w == m_2DToggle )
-		{
-			if ( m_MarkerData.IsMapVisible() )
-			{
-				m_MarkerModule.RemoveVisibility( m_MarkerData, EXPANSION_MARKER_VIS_MAP );
 
-				if ( m_Marker.IsEditting() )
-					m_Marker.CloseEditPanel();
-			} else
-			{
-				m_MarkerModule.SetVisibility( m_MarkerData, EXPANSION_MARKER_VIS_MAP );
-			}
+			return true;
+		}
+		
+		if ( m_2DToggle && w == m_2DToggle )
+		{
+			m_MarkerModule.FlipVisibility( m_MarkerData, EXPANSION_MARKER_VIS_MAP );
 			
 			m_MarkerModule.Refresh();
 

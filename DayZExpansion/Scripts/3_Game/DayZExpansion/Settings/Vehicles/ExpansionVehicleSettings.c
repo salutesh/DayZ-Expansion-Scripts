@@ -110,7 +110,7 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		EXPrint("ExpansionVehicleSettings::CopyInternal - Start");
 		#endif
 
-		VehicleSync = s.VehicleSync;
+		VehicleSync = s.VehicleSync; // Not ready
 
 		VehicleRequireKeyToStart = s.VehicleRequireKeyToStart;
 		VehicleRequireAllDoors = s.VehicleRequireAllDoors;
@@ -206,12 +206,12 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 
 		VehicleSync = ExpansionVehicleNetworkMode.PREDICTION;
 
-		VehicleRequireKeyToStart = true;
+		VehicleRequireKeyToStart = 1;
 		VehicleRequireAllDoors = true;
 		VehicleLockedAllowInventoryAccess = false;
 		VehicleLockedAllowInventoryAccessWithoutDoors = true;
 
-		EnableWindAerodynamics = true;
+		EnableWindAerodynamics = false; // Not ready, need tweaking
 		EnableTailRotorDamage = true;
 
 		PlayerAttachment = true;

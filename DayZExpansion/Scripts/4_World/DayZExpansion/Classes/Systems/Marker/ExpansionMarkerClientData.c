@@ -248,6 +248,21 @@ class ExpansionMarkerClientData : Managed
 		return m_PersonalMarkers[idx].GetUID();
 	}
 
+	int PersonalSetVisibility( ref ExpansionMarkerData data, int vis )
+	{
+		return data.SetVisibility( vis );
+	}
+
+	int PersonalRemoveVisibility( ref ExpansionMarkerData data, int vis )
+	{
+		return data.RemoveVisibility( vis );
+	}
+
+	int PersonalFlipVisibility( ref ExpansionMarkerData data, int vis )
+	{
+		return data.FlipVisibility( vis );
+	}
+
 	void PersonalInsert( ref ExpansionMarkerData data )
 	{
 		m_NextPersonalUID++;
@@ -334,6 +349,19 @@ class ExpansionMarkerClientData : Managed
 		return 0;
 	}
 
+	int PartyFlipVisibility( string uid, int vis )
+	{
+		for ( int i = 0; i < m_MarkerInfo_Party.Count(); ++i )
+		{
+			if ( m_MarkerInfo_Party[i].GetUID() == uid )
+			{
+				return m_MarkerInfo_Party[i].FlipVisibility( vis );
+			}
+		}
+
+		return 0;
+	}
+
 	void PartyInsert( ref ExpansionMarkerData data )
 	{
 		m_PartyModule.CreateMarker( data );
@@ -398,6 +426,19 @@ class ExpansionMarkerClientData : Managed
 
 		return 0;
 	}
+
+	int PartyPlayerFlipVisibility( string uid, int vis )
+	{
+		for ( int i = 0; i < m_MarkerInfo_PartyPlayers.Count(); ++i )
+		{
+			if ( m_MarkerInfo_PartyPlayers[i].GetUID() == uid )
+			{
+				return m_MarkerInfo_PartyPlayers[i].FlipVisibility( vis );
+			}
+		}
+
+		return 0;
+	}
 	
 	int ServerCount()
 	{
@@ -449,6 +490,19 @@ class ExpansionMarkerClientData : Managed
 		return 0;
 	}
 
+	int ServerFlipVisibility( string uid, int vis )
+	{
+		for ( int i = 0; i < m_MarkerInfo_Server.Count(); ++i )
+		{
+			if ( m_MarkerInfo_Server[i].GetUID() == uid )
+			{
+				return m_MarkerInfo_Server[i].FlipVisibility( vis );
+			}
+		}
+
+		return 0;
+	}
+
 	int PartyQuickCount()
 	{
 		if ( !m_PartyModule || !m_PartyModule.GetParty() )
@@ -489,7 +543,7 @@ class ExpansionMarkerClientData : Managed
 			ExpansionMarkerData data = ServerGet( m_MarkerInfo_Server[index].GetUID() );
 			if ( data )
 			{
-				data.SetVisibility( m_MarkerInfo_Server[index].GetVisibility() );
+				data.ApplyVisibility( m_MarkerInfo_Server[index].GetVisibility() );
 			}
 		}
 
@@ -528,7 +582,7 @@ class ExpansionMarkerClientData : Managed
 			data = PartyGet( m_MarkerInfo_Party[index].GetUID() );
 			if ( data )
 			{
-				data.SetVisibility( m_MarkerInfo_Party[index].GetVisibility() );
+				data.ApplyVisibility( m_MarkerInfo_Party[index].GetVisibility() );
 			}
 		}
 
@@ -539,7 +593,7 @@ class ExpansionMarkerClientData : Managed
 			data = PartyPlayerGet( m_MarkerInfo_PartyPlayers[index].GetUID() );
 			if ( data )
 			{
-				data.SetVisibility( m_MarkerInfo_PartyPlayers[index].GetVisibility() );
+				data.ApplyVisibility( m_MarkerInfo_PartyPlayers[index].GetVisibility() );
 			}
 		}
 		

@@ -1485,7 +1485,7 @@ modded class CarScript
 	// ------------------------------------------------------------	
 	void UpdateCarLock( float pDt )
 	{
-		if ( AllDoorsClosed() )
+		if ( AllDoorsClosed() || GetExpansionSettings() && !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors )
 		{
 			m_VehicleLockedState = ExpansionVehicleLockState.LOCKED;
 
@@ -2630,6 +2630,12 @@ modded class CarScript
 	{
 		if ( !super.IsInventoryVisible() )
 			return false;
+
+		if(GetExpansionSettings() && GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccess)
+			return true;
+
+		if(GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosed())
+			return true;
 
 		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
 	}

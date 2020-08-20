@@ -262,9 +262,12 @@ class ExpansionMarkerModule: JMModuleBase
 		}
 	}
 
-	ref ExpansionMarkerData CreateServerMarker( string name, string icon, vector position, int color, bool marker3D = false )
+	ref ExpansionMarkerData CreateServerMarker( string name, string icon, vector position, int color, bool marker3D, string uid = "" )
 	{
-		ExpansionMarkerData marker = ExpansionMarkerData.Create( ExpansionMapMarkerType.SERVER, name + Math.RandomInt( 0, int.MAX ) );
+		if ( uid == "" )
+			uid = name + Math.RandomInt( 0, int.MAX );
+
+		ExpansionMarkerData marker = ExpansionMarkerData.Create( ExpansionMapMarkerType.SERVER, uid );
 
 		marker.SetName( name );
 		marker.SetIconName( icon );
@@ -288,12 +291,12 @@ class ExpansionMarkerModule: JMModuleBase
 		return NULL;
 	}
 	
-	void RemoveServerMarker( string name )
+	void RemoveServerMarker( string uid )
 	{
 		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )
 			return;
 
-		GetExpansionSettings().GetMap().RemoveServerMarker( name );
+		GetExpansionSettings().GetMap().RemoveServerMarker( uid );
 		GetExpansionSettings().GetMap().Send( NULL );
 	}
 
@@ -439,6 +442,8 @@ class ExpansionMarkerModule: JMModuleBase
 
 		switch ( type )
 		{
+		case ExpansionMapMarkerType.PERSONAL:
+			return m_CurrentData.PersonalSetVisibility( data, vis );
 		case ExpansionMapMarkerType.PARTY:
 			return m_CurrentData.PartySetVisibility( data.GetUID(), vis );
 		case ExpansionMapMarkerType.PLAYER:
@@ -450,12 +455,33 @@ class ExpansionMarkerModule: JMModuleBase
 		return 0;
 	}
 
+	int FlipVisibility( ref ExpansionMarkerData data, int vis )
+	{
+		int type = data.GetType();
+		
+		switch ( type )
+		{
+		case ExpansionMapMarkerType.PERSONAL:
+			return m_CurrentData.PersonalFlipVisibility( data, vis );
+		case ExpansionMapMarkerType.PARTY:
+			return m_CurrentData.PartyFlipVisibility( data.GetUID(), vis );
+		case ExpansionMapMarkerType.PLAYER:
+			return m_CurrentData.PartyPlayerFlipVisibility( data.GetUID(), vis );
+		case ExpansionMapMarkerType.SERVER:
+			return m_CurrentData.ServerFlipVisibility( data.GetUID(), vis );
+		}
+
+		return 0;
+	}
+
 	int RemoveVisibility( ref ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
 		
 		switch ( type )
 		{
+		case ExpansionMapMarkerType.PERSONAL:
+			return m_CurrentData.PersonalRemoveVisibility( data, vis );
 		case ExpansionMapMarkerType.PARTY:
 			return m_CurrentData.PartyRemoveVisibility( data.GetUID(), vis );
 		case ExpansionMapMarkerType.PLAYER:

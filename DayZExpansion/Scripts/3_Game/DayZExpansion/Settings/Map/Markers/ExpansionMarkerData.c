@@ -198,9 +198,25 @@ class ExpansionMarkerData
 		return m_Is3D;
 	}
 
+	int ApplyVisibility( int vis )
+	{
+		m_Visibility = vis;
+		return m_Visibility;
+	}
+
 	int SetVisibility( int vis )
 	{
 		m_Visibility |= vis;
+		return m_Visibility;
+	}
+
+	int FlipVisibility( int vis )
+	{
+		if ( ( m_Visibility & vis ) != 0 )
+			m_Visibility &= ~vis;
+		else
+			m_Visibility |= vis;
+
 		return m_Visibility;
 	}
 

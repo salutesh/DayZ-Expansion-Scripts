@@ -17,6 +17,11 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 			delete m_Settings;
 	}
 
+	override void GetWebhookTypes( out array< string > types )
+	{
+		types.Insert( "SettingsUpdate" );
+	}
+
 	void OnRegisterSettings()
 	{
 	}
@@ -46,12 +51,14 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 		}
 	}
 
-	void UpdateServer( ref ExpansionSettingBase setting )
+	void UpdateServer( ref ExpansionSettingBase setting, ref JMPlayerInstance instance  )
 	{
 		GetSettingsInstance().Update( setting );
 		GetSettingsInstance().Save();
 		
 		GetSettingsInstance().Send( NULL );
+
+		SendWebhook( "SettingsUpdate", instance, "Updated the settings" );
 	}
 
 	void Update()
