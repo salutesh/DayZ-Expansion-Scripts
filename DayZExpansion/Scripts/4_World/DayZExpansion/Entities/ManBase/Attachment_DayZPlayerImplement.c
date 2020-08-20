@@ -340,15 +340,30 @@ modded class DayZPlayerImplement
 	}
 
 	// ------------------------------------------------------------
-	private ExpansionPlayerRaycastResult AttachRaycastCheck()
+	private ExpansionPlayerRaycastResult AttachRaycastCheck( int pCurrentCommandID )
 	{
+		//DayZPlayerConstants.COMMANDID_NONE
+		//DayZPlayerConstants.COMMANDID_MOVE
+		//DayZPlayerConstants.COMMANDID_ACTION
+		//DayZPlayerConstants.COMMANDID_MELEE
+		//DayZPlayerConstants.COMMANDID_MELEE2
+		//DayZPlayerConstants.COMMANDID_FALL
+		//DayZPlayerConstants.COMMANDID_DEATH
+		//DayZPlayerConstants.COMMANDID_DAMAGE
+		//DayZPlayerConstants.COMMANDID_LADDER
+		//DayZPlayerConstants.COMMANDID_SWIM
+		//DayZPlayerConstants.COMMANDID_UNCONSCIOUS
+		//DayZPlayerConstants.COMMANDID_VEHICLE
+		//DayZPlayerConstants.COMMANDID_CLIMB
+		//DayZPlayerConstants.COMMANDID_SCRIPT
+
 		IEntity parent = GetParent();
 		HumanCommandLadder ladderCommand = GetCommand_Ladder();
 		HumanCommandSwim swimCommand = GetCommand_Swim();
 		HumanCommandFall fallCommand = GetCommand_Fall();
 		ExpansionHumanCommandFall exFallCommand = ExpansionHumanCommandFall.Cast( GetCommand_Script() );
 
-		if ( m_ExPerformVehicleGetIn || m_ExIsPreparingVehicle )
+		if ( m_ExPerformVehicleGetIn || m_ExIsPreparingVehicle || GetCommand_Vehicle() || pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
 			return ExpansionPlayerRaycastResult.FALSE;
 
 		if ( swimCommand && parent )
@@ -504,7 +519,7 @@ modded class DayZPlayerImplement
 			AttachmentDebugPrint( "pCurrentCommandFinished: " + pCurrentCommandFinished );
 			AttachmentDebugPrint( "parent: " + parent );
 
-			ExpansionPlayerRaycastResult res = AttachRaycastCheck();
+			ExpansionPlayerRaycastResult res = AttachRaycastCheck( pCurrentCommandID );
 
 			AttachmentDebugPrint( "Res: " + res );
 

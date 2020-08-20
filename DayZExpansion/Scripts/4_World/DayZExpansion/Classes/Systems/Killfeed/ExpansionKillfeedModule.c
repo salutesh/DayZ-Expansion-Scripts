@@ -791,7 +791,10 @@ class ExpansionKillFeedModule: JMModuleBase
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::Message - Start" );
 		#endif
-				
+		
+		if( !KillFeedCheckServerSettings(type) )
+			return;
+
 		ref ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
 		
 		ScriptRPC message_rpc = new ScriptRPC();
@@ -800,6 +803,130 @@ class ExpansionKillFeedModule: JMModuleBase
 
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::Message - End" );
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionKillFeedModule KillFeedCheckServerSetting
+	// ------------------------------------------------------------	
+	private bool KillFeedCheckServerSettings( ExpansionKillFeedMessageType type )
+	{
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint( "ExpansionKillFeedModule::MessageServerSettingCheck - Start" );
+		#endif
+
+		switch ( type )
+		{
+			case ExpansionKillFeedMessageType.FALL:
+				if( GetExpansionSettings().GetNotification().KillFeedFall )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.CAR_HIT_DRIVER:
+				if( GetExpansionSettings().GetNotification().KillFeedCarHitDriver )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.CAR_HIT_NODRIVER:
+				if( GetExpansionSettings().GetNotification().KillFeedCarHitNoDriver )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.CAR_CRASH:
+				if( GetExpansionSettings().GetNotification().KillFeedCarCrash )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.CAR_CRASH_CREW:
+				if( GetExpansionSettings().GetNotification().KillFeedCarCrashCrew )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.HELI_HIT_DRIVER:
+				if( GetExpansionSettings().GetNotification().KillFeedHeliHitDriver )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.HELI_HIT_NODRIVER:
+				if( GetExpansionSettings().GetNotification().KillFeedHeliHitNoDriver )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.HELI_CRASH:
+				if( GetExpansionSettings().GetNotification().KillFeedHeliCrash )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.HELI_CRASH_CREW:
+				if( GetExpansionSettings().GetNotification().KillFeedHeliCrashCrew )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.BOAT_CRASH:
+				if( GetExpansionSettings().GetNotification().KillFeedBoatCrash )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.BOAT_CRASH_CREW:
+				if( GetExpansionSettings().GetNotification().KillFeedBoatCrashCrew )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.BARBEDWIRE:
+				if( GetExpansionSettings().GetNotification().KillFeedBarbedWire )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.FIRE:
+				if( GetExpansionSettings().GetNotification().KillFeedFire )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
+				if( GetExpansionSettings().GetNotification().KillFeedSpecialExplosion )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.WEAPON_EXPLOSION:
+				if( GetExpansionSettings().GetNotification().KillFeedWeaponExplosion )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.DEHYDRATION:
+				if( GetExpansionSettings().GetNotification().KillFeedDehydration )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.STARVATION:
+				if( GetExpansionSettings().GetNotification().KillFeedStarvation )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.BLEEDING:
+				if( GetExpansionSettings().GetNotification().KillFeedBleeding )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.SUICIDE:
+				if( GetExpansionSettings().GetNotification().KillFeedSuicide )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.WEAPON:
+				if( GetExpansionSettings().GetNotification().KillFeedWeapon )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.MELEWEAPON:
+				if( GetExpansionSettings().GetNotification().KillFeedMeleeWeapon )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.BAREHANDS:
+				if( GetExpansionSettings().GetNotification().KillFeedBarehands )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.INFECTED:
+				if( GetExpansionSettings().GetNotification().KillFeedInfected )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.ANIMAL:
+				if( GetExpansionSettings().GetNotification().KillFeedAnimal )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.KILLED_UNKNOWN:
+				if( GetExpansionSettings().GetNotification().KillFeedKilledUnknown )
+					return true;
+				break;
+			case ExpansionKillFeedMessageType.DIED_UNKNOWN:
+				if( GetExpansionSettings().GetNotification().KillFeedDiedUnknown )
+					return true;
+				break;
+		}
+
+		return false;
+
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint( "ExpansionKillFeedModule::MessageServerSettingCheck - End" );
 		#endif
 	}
 	

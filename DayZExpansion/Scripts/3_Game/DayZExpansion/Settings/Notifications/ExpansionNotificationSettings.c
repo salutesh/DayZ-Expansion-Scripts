@@ -34,6 +34,32 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 
 	bool EnableKillFeed;
 	ExpansionAnnouncementType KillFeedMessageType;
+	bool KillFeedFall;
+	bool KillFeedCarHitDriver;
+	bool KillFeedCarHitNoDriver;
+	bool KillFeedCarCrash;
+	bool KillFeedCarCrashCrew;
+	bool KillFeedHeliHitDriver;
+	bool KillFeedHeliHitNoDriver;
+	bool KillFeedHeliCrash;
+	bool KillFeedHeliCrashCrew;
+	bool KillFeedBoatCrash;
+	bool KillFeedBoatCrashCrew;
+	bool KillFeedBarbedWire;
+	bool KillFeedFire;
+	bool KillFeedSpecialExplosion;
+	bool KillFeedWeaponExplosion;
+	bool KillFeedDehydration;
+	bool KillFeedStarvation;
+	bool KillFeedBleeding;
+	bool KillFeedSuicide;
+	bool KillFeedWeapon;
+	bool KillFeedMeleeWeapon;
+	bool KillFeedBarehands;
+	bool KillFeedInfected;
+	bool KillFeedAnimal;
+	bool KillFeedKilledUnknown;
+	bool KillFeedDiedUnknown;
 	bool EnableKillFeedDiscordMsg;
 	
 	[NonSerialized()]
@@ -130,6 +156,32 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = s.EnableKillFeed;
 		KillFeedMessageType = s.KillFeedMessageType;
+		KillFeedFall = s.KillFeedFall;
+		KillFeedCarHitDriver = s.KillFeedCarHitDriver;
+		KillFeedCarHitNoDriver = s.KillFeedCarHitNoDriver;
+		KillFeedCarCrash = s.KillFeedCarCrash;
+		KillFeedCarCrashCrew = s.KillFeedCarCrashCrew;
+		KillFeedHeliHitDriver = s.KillFeedHeliHitDriver;
+		KillFeedHeliHitNoDriver = s.KillFeedHeliHitNoDriver;
+		KillFeedHeliCrash = s.KillFeedHeliCrash;
+		KillFeedHeliCrashCrew = s.KillFeedHeliCrashCrew;
+		KillFeedBoatCrash = s.KillFeedBoatCrash;
+		KillFeedBoatCrashCrew = s.KillFeedBoatCrashCrew;
+		KillFeedBarbedWire = s.KillFeedBarbedWire;
+		KillFeedFire = s.KillFeedFire;
+		KillFeedSpecialExplosion = s.KillFeedSpecialExplosion;
+		KillFeedWeaponExplosion = s.KillFeedWeaponExplosion;
+		KillFeedDehydration = s.KillFeedDehydration;
+		KillFeedStarvation = s.KillFeedStarvation;
+		KillFeedBleeding = s.KillFeedBleeding;
+		KillFeedSuicide = s.KillFeedSuicide;
+		KillFeedWeapon = s.KillFeedWeapon;
+		KillFeedMeleeWeapon = s.KillFeedMeleeWeapon;
+		KillFeedBarehands = s.KillFeedBarehands;
+		KillFeedInfected = s.KillFeedInfected;
+		KillFeedAnimal = s.KillFeedAnimal;
+		KillFeedKilledUnknown = s.KillFeedKilledUnknown;
+		KillFeedDiedUnknown = s.KillFeedDiedUnknown;
 		EnableKillFeedDiscordMsg = s.EnableKillFeedDiscordMsg;
 	}
 	
@@ -218,6 +270,34 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = true;
 		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
+
+		KillFeedFall = true;
+		KillFeedCarHitDriver = true;
+		KillFeedCarHitNoDriver = true;
+		KillFeedCarCrash = true;
+		KillFeedCarCrashCrew = true;
+		KillFeedHeliHitDriver = true;
+		KillFeedHeliHitNoDriver = true;
+		KillFeedHeliCrash = true;
+		KillFeedHeliCrashCrew = true;
+		KillFeedBoatCrash = true;
+		KillFeedBoatCrashCrew = true;
+		KillFeedBarbedWire = true;
+		KillFeedFire = true;
+		KillFeedSpecialExplosion = true;
+		KillFeedWeaponExplosion = true;
+		KillFeedDehydration = true;
+		KillFeedStarvation = true;
+		KillFeedBleeding = true;
+		KillFeedSuicide = true;
+		KillFeedWeapon = true;
+		KillFeedMeleeWeapon = true;
+		KillFeedBarehands = true;
+		KillFeedInfected = true;
+		KillFeedAnimal = true;
+		KillFeedKilledUnknown = true;
+		KillFeedDiedUnknown = true;
+
 		EnableKillFeedDiscordMsg = true;
 	}
 }
