@@ -22,6 +22,7 @@ class ExpansionDebugger
 	static ref ScriptInvoker OnPush = new ScriptInvoker();
 
 	static bool GlobalEnable = true;
+	static bool Printing = false;
 	
 	private static ref array< ref ExpansionDebuggerBlock > _blocks = new array< ref ExpansionDebuggerBlock >;
 
@@ -100,7 +101,8 @@ class ExpansionDebugger
 
 		if ( type == _lastBlockType )
 		{
-			Print( "Display[" + type + "]: " + text );
+			if ( Printing )
+				Print( "Display[" + type + "]: " + text );
 
 			_lastBlock._text.Insert( text );
 		}
@@ -116,7 +118,8 @@ class ExpansionDebugger
 			
 		if ( _enabledBlocks.Contains( type ) )
 		{
-			Print( "Push: " + type );
+			if ( Printing )
+				Print( "Push: " + type );
 
 			ExpansionDebuggerBlock block = _enabledBlocks.Get( type );
 			block._readyBuffer.Clear();

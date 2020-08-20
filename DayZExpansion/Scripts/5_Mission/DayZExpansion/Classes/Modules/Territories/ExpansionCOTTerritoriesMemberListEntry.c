@@ -26,10 +26,10 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTTerritoriesMemberListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, ExpansionTerritoryMember member)
 	{
-		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_MemberList_Entry.layout", parent ) );
+		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_MemberList_Entry_New.layout", parent ) );
 		m_MemberName			= TextWidget.Cast( m_Root.FindAnyWidget( "member_name" ) );
 		m_MemberID				= TextWidget.Cast( m_Root.FindAnyWidget( "owner_id" ) );
-		m_EditMemberButton		= ButtonWidget.Cast( m_Root.FindAnyWidget( "member_edit_button" ) );
+		m_EditMemberButton		= ButtonWidget.Cast( m_Root.FindAnyWidget( "member_entry" ) );
 		m_MemberStateIcon		= ImageWidget.Cast( m_Root.FindAnyWidget( "member_status_icon" ) );
 	
 		m_Member				= member;
@@ -98,6 +98,34 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 			}
 		}
 		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnMouseEnter
+	// ------------------------------------------------------------	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if ( m_EditMemberButton && w == m_EditMemberButton )
+		{
+			m_MemberName.SetColor( ARGB( 255, 0, 0, 0 ) );
+			m_MemberID.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	// Override OnMouseLeave
+	// ------------------------------------------------------------	
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if ( m_EditMemberButton && w == m_EditMemberButton )
+		{
+			m_MemberName.SetColor( ARGB( 255, 255, 255, 255 ) );
+			m_MemberID.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+
 		return false;
 	}
 }

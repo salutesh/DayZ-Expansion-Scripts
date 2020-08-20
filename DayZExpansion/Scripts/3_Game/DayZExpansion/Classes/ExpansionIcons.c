@@ -121,7 +121,8 @@ class ExpansionIcons
 
 	static ref ExpansionIcon Get( string name )
 	{
-		Print("ExpansionIcons::Get - Get name for: " + name);
+		//Print("ExpansionIcons::Get - Get name for: " + name);
+		
 		if ( g_exp_MarkerIcons == NULL )
 			g_exp_MarkerIcons = new ExpansionIcons();
 		

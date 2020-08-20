@@ -659,7 +659,7 @@ PanelWidgetClass ExpansionCOTVehiclesMenu {
      clipchildren 1
      keepsafezone 1
      position 0 0
-     size 0.63 1
+     size 0.65 1
      halign right_ref
      hexactpos 0
      vexactpos 0

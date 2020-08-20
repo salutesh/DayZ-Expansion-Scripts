@@ -14,5 +14,12 @@ enum ExpansionCOTTerritoriesModuleRPC
 {
 	INVALID = 20450,
 	DeleteObject,
+	RequestServerTerritories,
+	SendServerTerritories,
+	RequestTerritoryObjects,
+	SendTerritoryObjects,
+	TeleportToTerritory,
+	RequestUpdateObjectData,
+	SendObjectData,
 	COUNT
 }

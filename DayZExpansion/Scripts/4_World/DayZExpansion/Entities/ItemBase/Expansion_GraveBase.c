@@ -1,4 +1,16 @@
-class Expansion_GraveBase extends Container_Base
+/**
+ * Expansion_GraveBase.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
+class Expansion_GraveBase extends Inventory_Base
 {
 	protected bool m_ReceivedAttachments;
 	protected int m_FliesIndex = -1;
@@ -15,7 +27,10 @@ class Expansion_GraveBase extends Container_Base
 	{
 		super.OnVariablesSynchronized();
 
-		if (!m_FliesEffect)
+
+		// disabling flies effect for now, they might be a tad annoying...
+
+		/* if (!m_FliesEffect)
 			m_FliesEffect = new EffSwarmingFlies();
 				
 		if (m_FliesEffect && !SEffectManager.IsEffectExist(m_FliesIndex))
@@ -27,8 +42,8 @@ class Expansion_GraveBase extends Container_Base
 			AddChild(part, -1);
 
 			if (!m_SoundFliesEffect)
-				PlaySoundSetLoop(m_SoundFliesEffect,"Flies_SoundSet", 1.0, 1.0);
-		}
+				PlaySoundSetLoop(m_SoundFliesEffect, "Flies_SoundSet", 1.0, 1.0);
+		} */
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -84,9 +99,44 @@ class Expansion_GraveBase extends Container_Base
 			Delete();
 	}
 
-	void SetReceivedAttachments(bool value)
+	void MoveAttachmentsFromEntity(EntityAI entity)
 	{
-		m_ReceivedAttachments = value;
+		for (int i = 0; i < entity.GetInventory().GetAttachmentSlotsCount(); i++)
+		{
+			int slot = entity.GetInventory().GetAttachmentSlotId(i);
+			EntityAI item = entity.GetInventory().FindAttachment(slot);
+
+			if (item)
+			{
+				float health;
+
+				if (GetGame().IsServer())
+				{
+					health = item.GetHealth();
+					item.SetHealth(item.GetMaxHealth()); // set item to max health, so we can move ruined items
+				}
+
+				if (GetInventory().CanAddAttachment(item))
+				{
+					if (GetGame().IsMultiplayer())
+						entity.ServerTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
+					else
+						entity.LocalTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
+				}
+				else
+				{
+					if (GetGame().IsMultiplayer())
+						entity.GetInventory().DropEntity(InventoryMode.SERVER, entity, item);
+					else
+						entity.GetInventory().DropEntity(InventoryMode.LOCAL, entity, item);
+				}
+
+				if (GetGame().IsServer())
+					item.SetHealth(health);
+			}
+		}
+
+		m_ReceivedAttachments = true;
 		SetSynchDirty();
 	}
 }

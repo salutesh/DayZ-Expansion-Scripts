@@ -21,6 +21,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	private GridSpacerWidget m_TerritoryListContent;
 	
 	private ButtonWidget m_TerritoryListRefreshButton;
+	private TextWidget m_TerritoryListRefreshButtonLable;
 	
 	private Widget m_TerritoryInfoPanel;
 	private TextWidget m_InfoName;
@@ -32,8 +33,11 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	private Widget m_TerritoryInfoButtonsPanel;
 	private WrapSpacerWidget m_TerritoryInfoButtonsContent;
 	private ButtonWidget m_TeleportTerritoryButton;
+	private TextWidget m_TeleportTerritoryButtonLable;
 	private ButtonWidget m_DeleteTerritoryButton;
+	private TextWidget m_DeleteTerritoryButtonLable;
 	private ButtonWidget m_CancelEditButton;
+	private TextWidget m_CancelEditButtonLable;
 	
 	private Widget m_TerritoryMembersPanel;
 	private GridSpacerWidget m_TerritoryMembersContent;
@@ -47,14 +51,19 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	
 	private Widget m_TerritoryMemberInfoButtonsPanel;
 	private ButtonWidget m_CancelMemberEditButton;
+	private TextWidget m_CancelMemberEditButtonLable;
 		
 	private Widget m_ObjectContainerPanel;
 	private GridSpacerWidget m_ObjectContainerContent;
 	
+	private ButtonWidget m_ObjectContainerListRefreshButton;
+	private TextWidget m_ObjectContainerListRefreshButtonLable;
+	
 	private Widget m_TerritoryObjectsPanel;
 	private GridSpacerWidget m_TerritoryObjectsContent;
 	
-	private ButtonWidget m_TerritoryObjectsListRefreshButton;
+	private ButtonWidget m_ObjectsListRefreshButton;
+	private TextWidget m_ObjectsListRefreshButtonLable;
 	
 	private Widget m_ObjectInfoPanel;
 	private TextWidget m_ObjectName;
@@ -62,42 +71,58 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 	private Widget m_ObjectButtonsPanel; 
 	private ButtonWidget m_DeleteObjectButton;
+	private TextWidget m_DeleteObjectButtonLable;
 	private ButtonWidget m_CancelObjectEditButton;
+	private TextWidget m_CancelObjectEditButtonLable;
 	
-	private Widget m_ObjectPreviewPanel;
-	private ItemPreviewWidget m_ObjectPreview; 
-	
-	private ExpansionTerritoryModule m_TerritoryModule;
 	private ref array<ref ExpansionCOTTerritoriesMapMarker> m_MapMarkers;
+	
 	private ref array<ref ExpansionCOTTerritoriesListEntry> m_TerritoryEntries;
 	private ref array<ref ExpansionCOTTerritoriesMemberListEntry> m_MemberListEntries;
-	private ref ExpansionTerritory m_CurrentTerritory;
-	private ref ExpansionTerritoryMember m_CurrentMember;
-	private ref array<Object> m_TerritoryObjects;
+	
+	private ref array<ref ExpansionEntityMetaData> m_TerritoryObjects;
 	private ref array<ref ExpansionCOTTerritoriesObjectsListEntry> m_ObjectListEntries;
 	private ref array<ref ExpansionCOTTerritoriesContainerListEntry> m_ContainerListEntries;
-	private ref array<EntityAI> m_ContainerObjects;
-	private Object m_CurrentObject;
+	private ref array<ref ExpansionEntityMetaData> m_ContainerObjects;
+	
+	private ref ExpansionTerritory m_CurrentTerritory;
+	private ref ExpansionEntityMetaData m_CurrentTerritoryFlag;
+	private ref ExpansionTerritoryMember m_CurrentMember;
+	private ref ExpansionEntityMetaData m_CurrentObject;
+	
+	static ref ScriptInvoker m_COTTerritorySetTerritorysInvoker = new ScriptInvoker();
+	static ref ScriptInvoker m_COTTerritorySetObjectsInvoker = new ScriptInvoker();
+	static ref ScriptInvoker m_COTTerritorySetContainerObjectsInvoker = new ScriptInvoker();
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTTerritoriesMenu Constructor
 	// ------------------------------------------------------------
 	void ExpansionCOTTerritoriesMenu()
-	{
-		if ( !Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) ) )
-			return;
+	{		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::ExpansionCOTTerritoriesMenu - Start" );
+		#endif
 		
 		m_MapMarkers =  new array<ref ExpansionCOTTerritoriesMapMarker>;
 		m_TerritoryEntries = new array<ref ExpansionCOTTerritoriesListEntry>;
 		m_MemberListEntries = new array<ref ExpansionCOTTerritoriesMemberListEntry>;
-		m_TerritoryObjects = new array<Object>;
+		m_TerritoryObjects = new array<ref ExpansionEntityMetaData>;
 		m_ObjectListEntries = new array<ref ExpansionCOTTerritoriesObjectsListEntry>;
 		m_ContainerListEntries = new array<ref ExpansionCOTTerritoriesContainerListEntry>;
-		m_ContainerObjects = new array<EntityAI>;
+		m_ContainerObjects = new array<ref ExpansionEntityMetaData>;
 		
 		m_CurrentTerritory = null;
+		m_CurrentTerritoryFlag = null;
 		m_CurrentMember = null;
 		m_CurrentObject = null;
+		
+		m_COTTerritorySetTerritorysInvoker.Insert( SetTerritories );
+		m_COTTerritorySetObjectsInvoker.Insert( SetTerritoryObjects );
+		m_COTTerritorySetContainerObjectsInvoker.Insert( SetContainerObjects );
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::ExpansionCOTTerritoriesMenu - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -120,6 +145,10 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	override void OnInit()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::OnInit - Start" );
+		#endif
+		
 		m_TerritoryMapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territories_map_panel" ) );	
 		m_TerritoryMap = MapWidget.Cast( layoutRoot.FindAnyWidget( "territories_map" ) );	
 		
@@ -127,19 +156,26 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_TerritoryListContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "territories_list_content" ) );	
 		
 		m_TerritoryListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territories_refresh_button" ) );
+		m_TerritoryListRefreshButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "territories_refresh_button_lable" ) );
 		
 		m_TerritoryInfoPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territory_info_panel" ) );
 		m_InfoName = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_name_value" ) );
 		m_InfoTerritoryID = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_id_value" ) );
 		m_InfoOwnerID = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_ownerid_value" ) );
-		m_InfoPosition = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_position_value" ) );
+		m_InfoPosition = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_pos_value" ) );
 		m_InfoLevel = TextWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_level_value" ) );
 		
 		m_TerritoryInfoButtonsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territory_info_buttons_panel" ) );
 		m_TerritoryInfoButtonsContent = WrapSpacerWidget.Cast( layoutRoot.FindAnyWidget( "territory_info_buttons_spacer" ) );
+		
 		m_DeleteTerritoryButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_territory_button" ) );
+		m_DeleteTerritoryButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "delete_vehicle_button_label" ) );
+		
 		m_TeleportTerritoryButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "teleport_to_button" ) );
+		m_TeleportTerritoryButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "teleport_to_button_label" ) );
+		
 		m_CancelEditButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "cancel_edit_button" ) );
+		m_CancelEditButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "cancel_edit_button_label" ) );
 		
 		m_TerritoryMembersPanel = Widget.Cast( layoutRoot.FindAnyWidget( "members_list_panel" ) );
 		m_TerritoryMembersContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "members_list_content" ) );
@@ -152,66 +188,139 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_MemberStatus = TextWidget.Cast( layoutRoot.FindAnyWidget( "member_info_status_value" ) );
 		
 		m_TerritoryMemberInfoButtonsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "member_info_buttons_panel" ) ); 
+		
 		m_CancelMemberEditButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "cancel_member_edit_button" ) );
+		m_CancelMemberEditButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "cancel_member_edit_button_label" ) );
 		
 		m_ObjectContainerPanel = Widget.Cast( layoutRoot.FindAnyWidget( "object_container_list_panel" ) );
 		m_ObjectContainerContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "object_container_list_content" ) );
 		
+		m_ObjectContainerListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "object_container_refresh_button" ) );
+		m_ObjectContainerListRefreshButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "object_container_refresh_button_lable" ) );
+		m_ObjectContainerListRefreshButton.Show(false); //! DOES NOT WORK YET
+		
 		m_TerritoryObjectsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "objects_list_panel" ) );
 		m_TerritoryObjectsContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "objects_list_content" ) );
 		
-		m_TerritoryObjectsListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "objects_refresh_button" ) );
+		m_ObjectsListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "objects_refresh_button" ) );
+		m_ObjectsListRefreshButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "objects_refresh_button_lable" ) );
 		
 		m_ObjectInfoPanel = Widget.Cast( layoutRoot.FindAnyWidget( "object_info_panel" ) );
 		m_ObjectName = TextWidget.Cast( layoutRoot.FindAnyWidget( "object_info_name_value" ) );
 		m_ObjectID = TextWidget.Cast( layoutRoot.FindAnyWidget( "object_info_id_value" ) );
 		
 		m_ObjectButtonsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "object_info_buttons_panel" ) ); 
-		m_DeleteObjectButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_object_button" ) );
-		m_CancelObjectEditButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "cancel_object_edit_button" ) );
 		
-		m_ObjectPreviewPanel = Widget.Cast( layoutRoot.FindAnyWidget( "object_preview_panel" ) );
-		m_ObjectPreview = ItemPreviewWidget.Cast( layoutRoot.FindAnyWidget( "object_preview" ) );
+		m_DeleteObjectButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_object_button" ) );
+		m_DeleteObjectButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "delete_object_button_label" ) );
+		
+		m_CancelObjectEditButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "cancel_object_edit_button" ) );
+		m_CancelObjectEditButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "cancel_object_edit_button_label" ) );
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::OnInit - End" );
+		#endif
 	}
-
+	
 	// ------------------------------------------------------------
-	// Expansion LoadTerritories
+	// Expansion SetTerritories
 	// ------------------------------------------------------------
-	void LoadTerritories()
+	void SetTerritories( array<ref ExpansionTerritory> territories )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoriesCOTForm::LoadTerritories:: - Start");
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritories - Start" );
 		#endif
 		
 		m_MapMarkers.Clear();
 		m_TerritoryEntries.Clear();
 		
-		if ( m_TerritoryModule && m_TerritoryModule.GetServerTerritories().Count() != 0 )
-		{		
-			for ( int i = 0; i < m_TerritoryModule.GetServerTerritories().Count(); i++ )
+		for ( int i = 0; i < territories.Count(); i++ )
+		{
+			ref ExpansionTerritory currentTerritory = territories[i];
+			
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritories - currentTerritory is: " + currentTerritory.ToString() );
+			#endif
+				
+			vector pos = currentTerritory.GetPosition();
+			string ownerID = currentTerritory.GetOwnerID();
+			string name = currentTerritory.GetTerritoryName();
+			
+			//! Create map marker for territory
+			ExpansionCOTTerritoriesMapMarker territoryMapMarker = new ExpansionCOTTerritoriesMapMarker( layoutRoot, m_TerritoryMap, pos, name, ARGB( 255, 75, 123, 236 ), "DayZExpansion\\GUI\\icons\\marker\\marker_home.paa", currentTerritory, this );
+			m_MapMarkers.Insert( territoryMapMarker );
+			
+			//! Create list entry for territory
+			ExpansionCOTTerritoriesListEntry territoryListEntry = new ExpansionCOTTerritoriesListEntry(m_TerritoryListContent, this, currentTerritory);
+			m_TerritoryEntries.Insert( territoryListEntry );
+		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritories - End" );
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetTerritoryObjects
+	// ------------------------------------------------------------
+	void SetTerritoryObjects(array<ref ExpansionEntityMetaData> objects_datas)
+	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - Start" );
+		#endif
+		
+		m_ObjectListEntries.Clear();
+		m_TerritoryObjects.Clear();
+		
+		for ( int i = 0; i < objects_datas.Count(); i++ )
+		{
+			ref ExpansionEntityMetaData obj = objects_datas.Get( i );
+			ExpansionCOTTerritoriesObjectsListEntry objectListEntry = new ExpansionCOTTerritoriesObjectsListEntry( m_TerritoryObjectsContent, this, obj );
+			m_ObjectListEntries.Insert( objectListEntry );
+			m_TerritoryObjects.Insert( obj );
+			
+			if ( obj.m_ClassName == "ExpansionTerritoryFlag" )
 			{
-				ExpansionTerritory currentTerritory = m_TerritoryModule.GetServerTerritories().Get( i );
-
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint( "ExpansionTerritoriesCOTForm::LoadTerritories:: - currentTerritory is: " + currentTerritory.ToString() );
-				#endif
-				
-				vector pos = currentTerritory.GetPosition();
-				string ownerID = currentTerritory.GetOwnerID();
-				string name = currentTerritory.GetTerritoryName();
-				
-				//! Create map marker for territory
-				ExpansionCOTTerritoriesMapMarker territoryMapMarker = new ExpansionCOTTerritoriesMapMarker( layoutRoot, m_TerritoryMap, pos, name, ARGB( 255, 75, 123, 236 ), "DayZExpansion\\GUI\\icons\\marker\\marker_home.paa", currentTerritory, this );
-				m_MapMarkers.Insert( territoryMapMarker );
-				
-				//! Create list entry for territory
-				ExpansionCOTTerritoriesListEntry territoryListEntry = new ExpansionCOTTerritoriesListEntry(m_TerritoryListContent, this, currentTerritory);
-				m_TerritoryEntries.Insert( territoryListEntry );
+				m_CurrentTerritoryFlag = obj;
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoriesCOTForm::LoadTerritories:: - End");
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - End" );
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetContainerObjects
+	// ------------------------------------------------------------
+	void SetContainerObjects(ref ExpansionEntityMetaData object)
+	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjects - Start" );
+		#endif
+		
+		for ( int i = 0; i < m_TerritoryObjects.Count(); i++ )
+		{
+			ref ExpansionEntityMetaData obj = m_TerritoryObjects[i];
+			if (!obj)
+			{
+				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+				EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjects - [ERROR]: ExpansionEntityMetaData is NULL" );
+				#endif
+				continue;
+			}
+			
+			if ( obj.m_ID == object.m_ID )
+			{
+				delete obj;
+				m_TerritoryObjects.Insert( object );
+			}
+		}
+		
+		m_CurrentObject = object;
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjects - End" );
 		#endif
 	}
 	
@@ -220,11 +329,19 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------	
 	private void DeleteTerritory()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::DeleteTerritory - Start" );
+		#endif
+		
 		if ( m_CurrentTerritory )
 		{
-			m_TerritoryModule.DeleteTerritoryAdmin( m_CurrentTerritory.GetTerritoryID() );
+			ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule(ExpansionTerritoryModule) );
+			if (!territories_module)
+				return;
 			
-			SyncAndRefreshTerritorys();
+			territories_module.DeleteTerritoryAdmin( m_CurrentTerritory.GetTerritoryID() );
+			
+			m_Module.RequestServerTerritories();
 			
 			m_TerritoryListPanel.Show( true );
 			m_TerritoryMapPanel.Show( true );
@@ -239,6 +356,10 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			
 			m_CurrentTerritory = NULL;
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::DeleteTerritory - End" );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -246,6 +367,10 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------	
 	private void CancelTerritoryEdit()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::CancelTerritoryEdit - Start" );
+		#endif
+		
 		foreach( ExpansionCOTTerritoriesMapMarker marker : m_MapMarkers )
 		{
 			marker.ShowMarker();
@@ -254,8 +379,13 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_TerritoryListPanel.Show( true );
 		m_TerritoryMapPanel.Show( true );
 		m_TerritoryInfoPanel.Show( false );
-		m_TerritoryMemberInfoPanel.Show( false );
-		m_TerritoryMembersPanel.Show( false );
+		
+		if (m_TerritoryMemberInfoPanel.IsVisible())
+			m_TerritoryMemberInfoPanel.Show( false );
+		
+		if (m_TerritoryMembersPanel.IsVisible())
+			m_TerritoryMembersPanel.Show( false );
+		
 		m_TerritoryInfoButtonsPanel.Show( false );
 		m_TerritoryObjectsPanel.Show( false );
 		m_InfoName.SetText( "" );
@@ -266,7 +396,11 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		m_MemberListEntries.Clear();
 		
-		m_CurrentTerritory = null;
+		m_CurrentTerritory = NULL;
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::CancelTerritoryEdit - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -291,7 +425,6 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	{
 		m_ObjectInfoPanel.Show( false );
 		m_ObjectButtonsPanel.Show( false );
-		m_ObjectPreviewPanel.Show( false );
 		m_TerritoryInfoPanel.Show( true );
 		m_TerritoryInfoButtonsPanel.Show( true );
 		m_TerritoryObjectsPanel.Show( true );
@@ -312,7 +445,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	{
 		if ( m_CurrentObject )
 		{
-			m_Module.DeleteObject( m_CurrentObject );
+			m_Module.DeleteObject( m_CurrentObject.m_NetworkIDLow, m_CurrentObject.m_NetworkIDHigh );
 			
 			m_ObjectInfoPanel.Show( false );
 			m_ObjectButtonsPanel.Show( false );
@@ -320,7 +453,11 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			m_TerritoryInfoButtonsPanel.Show( true );
 			m_TerritoryObjectsPanel.Show( true );
 			m_TerritoryMembersPanel.Show( true );
+			
+			m_Module.RequestTerritoryObjects( m_CurrentTerritory.GetPosition() );
 		}
+		
+		m_CurrentObject = null;
 	}
 	
 	// ------------------------------------------------------------
@@ -345,7 +482,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		if ( w == m_TerritoryListRefreshButton )
 		{
-			SyncAndRefreshTerritorys();
+			m_Module.RequestServerTerritories();
 		}
 		
 		if ( w == m_CancelObjectEditButton )
@@ -358,10 +495,24 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			DeleteObject();
 		}
 		
-		if ( w == m_TerritoryObjectsListRefreshButton )
+		if ( w == m_ObjectsListRefreshButton )
 		{
 			if (m_CurrentTerritory) 
-				CreateTerritorieObjectsList(m_CurrentTerritory);
+				m_Module.RequestTerritoryObjects( m_CurrentTerritory.GetPosition() );
+		}
+		
+		//! TODO: Fix me!
+		/*if ( w == m_ObjectContainerListRefreshButton )
+		{
+			if (m_CurrentObject)
+				m_Module.RequestUpdateObjectData( m_CurrentObject.m_NetworkIDLow, m_CurrentObject.m_NetworkIDHigh );
+		}*/
+		
+		//! TODO: Tweak me!
+		if ( w == m_TeleportTerritoryButton )
+		{
+			if (m_CurrentTerritory)
+				m_Module.RequestTeleportToTerritory( m_CurrentTerritoryFlag.m_NetworkIDLow, m_CurrentTerritoryFlag.m_NetworkIDHigh );
 		}
 		
 		return false;
@@ -374,7 +525,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	{
 		super.OnShow();
 		
-		SyncAndRefreshTerritorys();
+		m_Module.RequestServerTerritories();
 	}
 	
 	// ------------------------------------------------------------
@@ -390,9 +541,18 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	void SetTerritoryInfo(ExpansionTerritory territory)
 	{
-		m_MemberListEntries.Clear();
-		m_ObjectListEntries.Clear();
-		m_TerritoryObjects.Clear();
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryInfo - Start" );
+		#endif
+		
+		if (m_MemberListEntries.Count() > 0 )
+			m_MemberListEntries.Clear();
+	
+		if (m_ObjectListEntries.Count() > 0 )
+			m_ObjectListEntries.Clear();
+		
+		if (m_TerritoryObjects.Count() > 0 )
+			m_TerritoryObjects.Clear();
 		
 		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
 		{
@@ -419,7 +579,11 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		CreateTerritorieMembersList( territory );
 		
-		CreateTerritorieObjectsList( territory );
+		m_Module.RequestTerritoryObjects( territory.GetPosition() );
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryInfo - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -427,6 +591,10 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	void CreateTerritorieMembersList(ExpansionTerritory territory)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::CreateTerritorieMembersList - Start" );
+		#endif
+		
 		m_MemberListEntries.Clear();
 		
 		if ( territory.GetTerritoryMembers().Count() > 0 )
@@ -441,91 +609,10 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 				}
 			}
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CreateTerritorieObjectsList
-	// ------------------------------------------------------------
-	void CreateTerritorieObjectsList(ExpansionTerritory territory)
-	{
-		m_ObjectListEntries.Clear();
-		m_TerritoryObjects.Clear();
 		
-		vector position = territory.GetPosition();
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( position, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
-		
-		if ( objects && objects.Count() > 0 )
-		{
-			for ( int k = 0; k < objects.Count(); k++ )
-			{
-				Object obj = objects.Get( k );
-				if ( IsBaseBuildingObject( obj ) )
-				{
-					ExpansionCOTTerritoriesObjectsListEntry objectListEntry = new ExpansionCOTTerritoriesObjectsListEntry( m_TerritoryObjectsContent, this, obj );
-					m_ObjectListEntries.Insert( objectListEntry );
-					m_TerritoryObjects.Insert( obj );
-				}
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsBaseBuildingObject
-	// ------------------------------------------------------------
-	bool IsBaseBuildingObject(Object obj)
-	{
-		if ( obj.IsInherited( BaseBuildingBase ) )
-			return true;
-		
-		if ( obj.IsInherited( ExpansionKitBase ) && !obj.IsInherited( ExpansionFlagKitBase ) )
-			return true;
-		
-		//! They all use a more general base like Container_Base or BaseBuildingBase
-		//if ( obj.IsInherited( ExpansionSafeBase ) )
-		//	return true;
-		
-		//if ( obj.IsInherited( ExpansionCamoBox ) )
-		//	return true;
-	
-		//if ( obj.IsInherited( ExpansionGunrack ) )
-		//	return true;
-		
-		//if ( obj.IsInherited( ExpansionStove ) )
-		//	return true;
-		
-		if ( obj.IsInherited( TentBase ) ) // Not really needed but better be safe
-			return true;
-		
-		if ( obj.IsInherited( UndergroundStash ) )
-			return true;
-		
-		if ( obj.IsInherited( Pot ) ) // cooking pot, often used to store items
-			return true;
-		
-		if ( obj.IsInherited( FireplaceBase ) ) // barrel holes (used a lot by smart players), Fire stuff in general
-			return true;
-		
-		if ( obj.IsInherited( Container_Base ) ) // seachest, tent, box, barrel, bags and so on
-			return true;
-		
-		if ( obj.IsInherited( WorldContainer_Base ) ) // improvised tent, bin, fridge, mostly scrapped items
-			return true;
-		
-		if ( obj.IsInherited( Fence ) ) // we don't want the kit, we want the basebuilding
-			return true;
-		
-		if ( obj.IsInherited( Watchtower ) ) // we don't want the kit, we want the basebuilding
-			return true;
-	
-		if ( obj.IsInherited( ExpansionTerritoryFlag ) )
-			return true;
-	
-		if ( obj.IsInherited( CarScript ) ) // Cars
-			return true;
-		
-		return false;
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::CreateTerritorieMembersList - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -533,10 +620,18 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	void SetTerritoryMemberInfo(ExpansionTerritoryMember member)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryMemberInfo - Start" );
+		#endif
+		
 		m_TerritoryListPanel.Show( false );
 		m_TerritoryInfoPanel.Show( false );
 		m_TerritoryInfoButtonsPanel.Show( false );
 		m_TerritoryMembersPanel.Show( false );
+		
+		if ( m_TerritoryObjectsPanel.IsVisible() )
+			m_TerritoryObjectsPanel.Show( false );
+		
 		m_TerritoryMemberInfoPanel.Show( true );
 		m_TerritoryMemberInfoButtonsPanel.Show( true );
 		
@@ -556,102 +651,88 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		}
 		
 		m_CurrentMember = member;
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryMemberInfo - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion SetTerritoryObjectInfo
 	// ------------------------------------------------------------
-	void SetTerritoryObjectInfo(Object obj)
+	void SetTerritoryObjectInfo(ref ExpansionEntityMetaData obj)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjectInfo - Start" );
+		#endif
+		
 		m_TerritoryListPanel.Show( false );
 		m_TerritoryInfoPanel.Show( false );
 		m_TerritoryInfoButtonsPanel.Show( false );
 		m_TerritoryMembersPanel.Show( false );
+		m_TerritoryMemberInfoPanel.Show( false );
+		m_TerritoryMemberInfoButtonsPanel.Show( false );
 		m_TerritoryObjectsPanel.Show( false );
 		m_ObjectInfoPanel.Show( true );
 		m_ObjectButtonsPanel.Show( true );
-		m_ObjectPreviewPanel.Show( true );
-		
-		if ( obj.IsInherited(Container_Base) )
-		{
-			m_ObjectContainerPanel.Show( true );
-			
-			CreateContainerObjectsList( obj );
-		} else if ( obj.IsInherited(ExpansionTerritoryFlag) )
-		{
-			//!TODO
-		}
 		
 		string name;
-		name = obj.GetDisplayName();
+		name = obj.m_DisplayName;
 		if (name == "")
-			name = obj.ClassName();
+			name = obj.m_ClassName;
 				
 		m_ObjectName.SetText( name );
-		m_ObjectID.SetText( obj.GetID().ToString() );	
-		m_ObjectPreview.SetItem( EntityAI.Cast( obj ) );
+		m_ObjectID.SetText( obj.m_ID.ToString() );
+		
+		if (obj.m_ContainerObj.Count() > 0)
+		{
+			m_ContainerListEntries.Clear();
+			m_ContainerObjects.Clear();
+			
+			for ( int k = 0; k < obj.m_ContainerObj.Count(); k++ )
+			{
+				ref ExpansionEntityMetaData container_obj = obj.m_ContainerObj.Get( k );
+				ExpansionCOTTerritoriesContainerListEntry itemListEntry = new ExpansionCOTTerritoriesContainerListEntry( m_ObjectContainerContent, this, container_obj );
+				m_ContainerListEntries.Insert( itemListEntry );
+				m_ContainerObjects.Insert( container_obj );
+			}
+			
+			m_ObjectContainerPanel.Show( true );
+		}
 		
 		m_CurrentObject = obj;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CreateContainerObjectsList
-	// ------------------------------------------------------------
-	void CreateContainerObjectsList(Object obj)
-	{
-		m_ContainerListEntries.Clear();
-		m_ContainerObjects.Clear();
 		
-		array<EntityAI> items = new array<EntityAI>;
-		
-		Container_Base container = Container_Base.Cast( obj );
-		container.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-				
-		if ( items && items.Count() > 0 )
-		{
-			for ( int k = 0; k < items.Count(); k++ )
-			{
-				EntityAI item = items.Get( k );
-				if ( item && item != container )
-				{
-					ExpansionCOTTerritoriesContainerListEntry itemListEntry = new ExpansionCOTTerritoriesContainerListEntry( m_ObjectContainerContent, this, item );
-					m_ContainerListEntries.Insert( itemListEntry );
-					m_ContainerObjects.Insert( item );
-				}
-			}
-		}
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjectInfo - End" );
+		#endif
 	}
-	
 		
 	// ------------------------------------------------------------
 	// Expansion SetContainerObjectInfo
 	// ------------------------------------------------------------
-	void SetContainerObjectInfo(EntityAI obj)
+	void SetContainerObjectInfo(ref ExpansionEntityMetaData obj)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjectInfo - Start" );
+		#endif
+		
 		m_ObjectContainerPanel.Show( false );
 				
 		string name;
-		name = obj.GetDisplayName();
+		name = obj.m_DisplayName;
 		if (name == "")
-			name = obj.ClassName();
+			name = obj.m_ClassName;
 				
 		m_ObjectName.SetText( name );
-		m_ObjectID.SetText( obj.GetID().ToString() );	
-		m_ObjectPreview.SetItem( obj );
+		m_ObjectID.SetText( obj.m_ID.ToString() );	
 		
 		m_CurrentObject = obj;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion SyncAndRefreshTerritorys
-	// ------------------------------------------------------------
-	void SyncAndRefreshTerritorys()
-	{		
-		m_TerritoryModule.RequestServerTerritories();
 		
-		GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( LoadTerritories, 500, false );
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjectInfo - End" );
+		#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	// IsOnline
 	// ------------------------------------------------------------
@@ -670,6 +751,112 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			}
 		}
 		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnMouseEnter
+	// ------------------------------------------------------------	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if ( w == m_TerritoryListRefreshButton )
+		{
+			m_TerritoryListRefreshButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_ObjectsListRefreshButton )
+		{
+			m_ObjectsListRefreshButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_ObjectContainerListRefreshButton )
+		{
+			m_ObjectContainerListRefreshButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_DeleteTerritoryButton )
+		{
+			m_DeleteTerritoryButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_CancelEditButton )
+		{
+			m_CancelEditButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_TeleportTerritoryButton )
+		{
+			m_TeleportTerritoryButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_CancelMemberEditButton )
+		{
+			m_CancelMemberEditButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_DeleteObjectButton )
+		{
+			m_DeleteObjectButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+		
+		if ( w == m_CancelObjectEditButton )
+		{
+			m_CancelObjectEditButtonLable.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	// Override OnMouseLeave
+	// ------------------------------------------------------------	
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if ( w == m_TerritoryListRefreshButton )
+		{
+			m_TerritoryListRefreshButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_ObjectsListRefreshButton )
+		{
+			m_ObjectsListRefreshButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_ObjectContainerListRefreshButton )
+		{
+			m_ObjectContainerListRefreshButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_DeleteTerritoryButton )
+		{
+			m_DeleteTerritoryButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_CancelEditButton )
+		{
+			m_CancelEditButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_TeleportTerritoryButton )
+		{
+			m_TeleportTerritoryButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_CancelMemberEditButton )
+		{
+			m_CancelMemberEditButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_DeleteObjectButton )
+		{
+			m_DeleteObjectButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+		
+		if ( w == m_CancelObjectEditButton )
+		{
+			m_CancelObjectEditButtonLable.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+
 		return false;
 	}
 }

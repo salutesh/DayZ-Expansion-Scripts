@@ -17,10 +17,8 @@ class ExpansionMapMenu extends UIScriptedMenu
 	protected MapWidget m_MapWidget;
 
 	protected int COLOR_EXPANSION_MARKER_PLAYER_POSITION = ARGB( 255, 255, 180, 24 );
-	
-	protected ref ExpansionMapMarkerPlayerArrow m_PlayerArrowMarker;
 
-	protected ref array< ref ExpansionMapMarker > m_Markers;
+	protected ref array< ref ExpansionMapWidgetBase > m_Markers;
 
 	protected ref map< string, ExpansionMapMarker > m_PersonalMarkers;
 	protected ref map< string, ExpansionMapMarker > m_PartyMarkers;
@@ -47,7 +45,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 		EXLogPrint("ExpansionMapMenu::ExpansionMapMenu - Start");
 		#endif
 		
-		m_Markers = new array<ref ExpansionMapMarker>();
+		m_Markers = new array<ref ExpansionMapWidgetBase>();
 
 		m_PersonalMarkers = new map< string, ExpansionMapMarker >();
 		m_PartyMarkers = new map< string, ExpansionMapMarker >();
@@ -101,13 +99,15 @@ class ExpansionMapMenu extends UIScriptedMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
 		Class.CastTo( m_MapWidget, layoutRoot.FindAnyWidget( "Map" ) );
 		
-		m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
+		ExpansionMapMarkerPlayerArrow player_Marker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
 		
 		PlayerBase player;
 		if ( Class.CastTo( player, GetGame().GetPlayer() ) )
 		{
-			m_PlayerArrowMarker.SetName( "(YOU) " + player.GetIdentityName() );
+			player_Marker.SetName( "(YOU) " + player.GetIdentityName() );
 		}
+
+		m_Markers.Insert( player_Marker );
 		
 		GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/map/expansion_map_markerlist.layout", layoutRoot ).GetScript( m_MarkerList );
 
@@ -618,9 +618,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		for ( int i = 0; i < m_Markers.Count(); ++i )
 		{
-			if ( m_Markers[i].GetMarkerData() == data )
+			ExpansionMapMarker marker;
+			if ( Class.CastTo( marker, m_Markers[i] ) && marker.GetMarkerData() == data )
 			{
-				m_SelectedMarker = m_Markers[i];
+				m_SelectedMarker = marker;
 
 				#ifdef EXPANSION_MAP_MENU_DEBUG
 				EXLogPrint("ExpansionMapMenu::SetSelectedMarker - return true for m_SelectedMarker: " + m_SelectedMarker.ToString());
@@ -876,9 +877,10 @@ class ExpansionMapMenu extends UIScriptedMenu
 		
 		for ( int i = 0; i < m_Markers.Count(); ++i )
 		{
-			if ( m_Markers[i].IsMouseHovering() && m_Markers[i].CanEdit() )
+			ExpansionMapMarker marker;
+			if ( Class.CastTo( marker, m_Markers[i] ) && marker.IsMouseHovering() && marker.CanEdit() )
 			{
-				DeleteMarker( m_Markers[i] );
+				DeleteMarker( marker );
 
 				return;
 			}
@@ -1077,11 +1079,12 @@ class ExpansionMapMenu extends UIScriptedMenu
 		if ( layoutRoot.IsVisible() )
 		{
 			for ( int i = 0; i < m_Markers.Count(); ++i )
+			{
 				if ( m_Markers[i] )
+				{
 					m_Markers[i].Update( timeslice );
-			
-			if ( m_PlayerArrowMarker )
-				m_PlayerArrowMarker.Update( timeslice );
+				}
+			}
 		}
 		
 		if ( m_MarkerList.IsListVisible() ) 

@@ -342,10 +342,8 @@ modded class CarScript
 		EXPrint("CarScript::LongDeferredInit - Start");
 		#endif
 
-		#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
 		if ( m_SkinModule )
 			m_SkinModule.PerformCESkinSwap( this );
-		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::LongDeferredInit - End");

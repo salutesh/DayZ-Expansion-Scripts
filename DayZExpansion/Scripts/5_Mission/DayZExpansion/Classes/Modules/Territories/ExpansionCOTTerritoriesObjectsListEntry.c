@@ -14,23 +14,27 @@ class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
 	private TextWidget m_ObjectName;
+	private TextWidget m_ObjectID;
+	private ImageWidget m_StatusIcon;
 	private ButtonWidget m_EditButton;
 	
 	private ref ExpansionCOTTerritoriesMenu m_TerritoryCOTMenu;
-	private Object m_Object;
+	private ref ExpansionEntityMetaData m_Object;
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesObjectsListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionCOTTerritoriesObjectsListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, Object object)
+	void ExpansionCOTTerritoriesObjectsListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, ref ExpansionEntityMetaData object)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesObjectsListEntry::ExpansionCOTTerritoriesObjectsListEntry - Start");
 		#endif
 		
-		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_ObjectList_Entry.layout", parent ) );
+		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_ObjectList_Entry_New.layout", parent ) );
 		m_ObjectName			= TextWidget.Cast( m_Root.FindAnyWidget( "object_name" ) );
-		m_EditButton			= ButtonWidget.Cast( m_Root.FindAnyWidget( "object_edit_button" ) );
+		m_ObjectID				= TextWidget.Cast( m_Root.FindAnyWidget( "object_id" ) );
+		m_StatusIcon			= ImageWidget.Cast( m_Root.FindAnyWidget( "object_status_icon" ) );
+		m_EditButton			= ButtonWidget.Cast( m_Root.FindAnyWidget( "object_entry" ) );
 	
 		m_TerritoryCOTMenu		= menu;
 		m_Object				= object;
@@ -39,7 +43,7 @@ class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 		
 		SetEntry();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesObjectsListEntry::ExpansionCOTTerritoriesObjectsListEntry - End");
 		#endif
 	}
@@ -57,20 +61,30 @@ class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void SetEntry()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesObjectsListEntry::SetEntry - Start");
 		#endif
 		
 		if ( m_Object )
 		{
-			m_ObjectName.SetText( m_Object.ClassName() );
+			m_ObjectName.SetText( m_Object.m_ClassName );
+			m_ObjectID.SetText( " - ID: " + m_Object.m_ID.ToString() );
 			
-			#ifdef EXPANSIONEXLOGPRINT
+			if ( m_Object.IsDamageDestroyed() )
+			{
+				m_StatusIcon.SetColor( ARGB( 255, 192, 57, 43 ) );
+			}
+			else
+			{
+				m_StatusIcon.SetColor( ARGB( 255, 39, 174, 96 ) );
+			}
+			
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionCOTTerritoriesObjectsListEntry::SetEntry - Set name: " + m_Object.ClassName() );
 			#endif
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesObjectsListEntry::SetEntry - End");
 		#endif
 	}
@@ -88,6 +102,34 @@ class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 			}
 		}
 		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnMouseEnter
+	// ------------------------------------------------------------	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if ( m_EditButton && w == m_EditButton )
+		{
+			m_ObjectName.SetColor( ARGB( 255, 0, 0, 0 ) );
+			m_ObjectID.SetColor( ARGB( 255, 0, 0, 0 ) );
+		}
+
+		return false;
+	}
+
+	// ------------------------------------------------------------
+	// Override OnMouseLeave
+	// ------------------------------------------------------------	
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if ( m_EditButton && w == m_EditButton )
+		{
+			m_ObjectName.SetColor( ARGB( 255, 255, 255, 255 ) );
+			m_ObjectID.SetColor( ARGB( 255, 255, 255, 255 ) );
+		}
+
 		return false;
 	}
 }

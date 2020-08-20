@@ -97,8 +97,8 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
        style Empty
        Padding 0
        Margin 0
+       "Size To Content H" 1
        Columns 1
-       Rows 2
        {
         ButtonWidgetClass territories_refresh_button {
          position 8 10
@@ -170,7 +170,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
        hexactsize 0
        vexactsize 0
        style Bold
-       text "#STR_EXPANSION_COT_VEHICLE_INFORMATION_TITLE"
+       text "#STR_EXPANSION_COT_TERRITORY_INFORMATIONE"
        "text halign" center
        "text valign" center
       }
@@ -283,6 +283,8 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            hexactsize 0
            vexactsize 0
            "text offset" 5 0
+           "exact text" 0
+           text_proportion 0.5
            "text valign" center
           }
          }
@@ -304,7 +306,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            hexactsize 0
            vexactsize 0
            style Bold
-           text "#STR_EXPANSION_COT_VEHICLE_NAME"
+           text "#STR_EXPANSION_COT_TERRITORY_POSITION"
            "text offset" 5 0
            "text valign" center
           }
@@ -419,7 +421,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
          }
         }
         ButtonWidgetClass teleport_to_button {
-         visible 0
+         visible 1
          position 0.03 0.029
          size 0.196 0.173
          hexactpos 0
@@ -434,7 +436,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "#STR_EXPANSION_COT_TERRITORIES_TELEPORTTO"
+           text "#STR_EXPANSION_COT_TERRITORY_TELEPORTTO"
            "text halign" center
            "text valign" center
           }
@@ -624,7 +626,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            hexactsize 0
            vexactsize 0
            style Bold
-           text "#STR_EXPANSION_COT_TERRITORY_ID"
+           text "#STR_EXPANSION_COT_TERRITORY_MEMBER_STEAMID"
            "text offset" 5 0
            "text valign" center
           }
@@ -637,6 +639,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            hexactsize 0
            vexactsize 0
            "text offset" 5 0
+           text_proportion 0.5
            "text valign" center
           }
          }
@@ -658,7 +661,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            hexactsize 0
            vexactsize 0
            style Bold
-           text "#STR_EXPANSION_COT_TERRITORY_NAME"
+           text "#STR_EXPANSION_COT_TERRITORY_MEMBER_NAME"
            "text offset" 5 0
            "text valign" center
           }
@@ -726,7 +729,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
          hexactsize 0
          vexactsize 0
          {
-          TextWidgetClass cancel_member_edit_label {
+          TextWidgetClass cancel_member_edit_button_label {
            ignorepointer 1
            size 1 1
            hexactpos 0
@@ -775,7 +778,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
          hexactsize 0
          vexactsize 0
          style Bold
-         text "#STR_EXPANSION_COT_VEHICLE_LIST_TITLE"
+         text "#STR_EXPANSION_COT_TERRITORY_OBJECTS"
          "text halign" center
          "text valign" center
         }
@@ -783,8 +786,8 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
       ScrollWidgetClass objects_list_scroller {
        ignorepointer 0
-       position 0 -0.02
-       size 1 0.88
+       position 0 -0.07
+       size 1 0.79
        halign right_ref
        valign center_ref
        hexactpos 0
@@ -809,7 +812,8 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
       GridSpacerWidgetClass objects_list_buttons {
        ignorepointer 1
-       size 1 50
+       position 0 0
+       size 1 100
        valign bottom_ref
        hexactpos 1
        vexactpos 1
@@ -819,7 +823,6 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
        Padding 0
        Margin 0
        Columns 1
-       Rows 1
        {
         ButtonWidgetClass objects_refresh_button {
          position 8 10
@@ -916,7 +919,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
          hexactsize 0
          vexactsize 0
          {
-          TextWidgetClass cancel_object_edit_label {
+          TextWidgetClass cancel_object_edit_button_label {
            ignorepointer 1
            size 1 1
            hexactpos 0
@@ -957,7 +960,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
        hexactsize 0
        vexactsize 0
        style Bold
-       text "#STR_EXPANSION_COT_TERRITORY_OBJECT_OPTIONS"
+       text "#STR_EXPANSION_COT_TERRITORY_OBJECT_PREVIEW"
        "text halign" center
        "text valign" center
       }
@@ -1112,7 +1115,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
          hexactsize 0
          vexactsize 0
          style Bold
-         text "#STR_EXPANSION_COT_VEHICLE_LIST_TITLE"
+         text "#STR_EXPANSION_COT_TERRITORY_OBJECT_CONTAINER_CONTENT"
          "text halign" center
          "text valign" center
         }
@@ -1120,8 +1123,8 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
       ScrollWidgetClass object_container_list_scroller {
        ignorepointer 0
-       position 0 -0.02
-       size 1 0.88
+       position 0 -0.07
+       size 1 0.79
        halign right_ref
        valign center_ref
        hexactpos 0
@@ -1146,7 +1149,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
       }
       GridSpacerWidgetClass object_container_list_buttons {
        ignorepointer 1
-       size 1 50
+       size 1 100
        valign bottom_ref
        hexactpos 1
        vexactpos 1
@@ -1156,7 +1159,6 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
        Padding 0
        Margin 0
        Columns 1
-       Rows 1
        {
         ButtonWidgetClass object_container_refresh_button {
          position 8 10
@@ -1187,7 +1189,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
    }
   }
   PanelWidgetClass map_window_panel {
-   ignorepointer 0
+   ignorepointer 1
    position 0 0
    size 1081 600
    hexactpos 0
@@ -1199,6 +1201,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
     PanelWidgetClass territories_map_panel {
      visible 1
      clipchildren 1
+     ignorepointer 1
      keepsafezone 1
      position 0 0
      size 0.65 1

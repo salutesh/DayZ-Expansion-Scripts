@@ -360,9 +360,7 @@ class ExpansionVehicleScript extends ItemBase
 		EXPrint("ExpansionVehicleScript::DeferredInit - Start");
 		#endif
 
-		#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
 		if ( !m_SkinModule || !m_SkinModule.PerformCESkinSwap( this ) )
-		#endif
 		{
 			m_BoundingRadius = ClippingInfo( m_BoundingBox );
 

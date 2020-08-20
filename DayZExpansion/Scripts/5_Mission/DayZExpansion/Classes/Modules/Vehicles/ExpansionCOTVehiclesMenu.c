@@ -289,16 +289,12 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		if ( w == m_VehicleListRefreshButton )
 		{
 			SyncAndRefreshVehicles();
-			
-			return true;
 		}
 		
 		if ( w == m_CancleVehicleEdit )
 		{
 			BackToList();
 			SyncAndRefreshVehicles();
-			
-			return true;
 		}
 
 		if ( w == m_DeleteAllButton )
@@ -327,17 +323,13 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 				BackToList();
 				SyncAndRefreshVehicles();
 			}
-			
-			return true;
 		}
 		
 		if ( w == m_TeleportButton )
 		{
 			if ( m_CurrentVehicle )
 			{
-				TeleportToVehicle( m_CurrentVehicle.m_NetworkIDLow, m_CurrentVehicle.m_NetworkIDHigh );
-				
-				return true;	
+				TeleportToVehicle( m_CurrentVehicle.m_NetworkIDLow, m_CurrentVehicle.m_NetworkIDHigh );	
 			}	
 		}
 		
@@ -369,32 +361,25 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	{
 		if (w == m_DeleteUnclaimedButton)
 		{
-			m_DeleteUnclaimedButtonLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;		
+			m_DeleteUnclaimedButtonLable.SetColor( ARGB( 255,0,0,0 ) );		
 		} else if (w == m_DeleteDestroyedButton)
 		{
 			m_DeleteDestroyedButtonLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;
 		} else if (w == m_DeleteAllButton)
 		{
 			m_DeleteAllButtonLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;
 		} else if (w == m_DeleteVehicleButton)
 		{
 			m_DeleteVehicleButtonLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;
 		} else if (w == m_CancleVehicleEdit)
 		{
 			m_CancleVehicleEditLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;
 		} else if (w == m_TeleportButton)
 		{
 			m_TeleportButtonLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;
 		} else if (w == m_VehicleListRefreshButton)
 		{
 			m_VehicleListRefreshButtonLable.SetColor( ARGB( 255,0,0,0 ) );
-			return true;
 		}
 		
 		return false;
@@ -407,32 +392,25 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	{
 		if (w == m_DeleteUnclaimedButton)
 		{
-			m_DeleteUnclaimedButtonLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;		
+			m_DeleteUnclaimedButtonLable.SetColor( ARGB( 255,255,255,255 ) );		
 		} else if (w == m_DeleteDestroyedButton)
 		{
 			m_DeleteDestroyedButtonLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;
 		} else if (w == m_DeleteAllButton)
 		{
 			m_DeleteAllButtonLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;
 		} else if (w == m_DeleteVehicleButton)
 		{
 			m_DeleteVehicleButtonLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;
 		} else if (w == m_CancleVehicleEdit)
 		{
 			m_CancleVehicleEditLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;
 		} else if (w == m_TeleportButton)
 		{
 			m_TeleportButtonLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;
 		} else if (w == m_VehicleListRefreshButton)
 		{
 			m_VehicleListRefreshButtonLable.SetColor( ARGB( 255,255,255,255 ) );
-			return true;
 		}
 		
 		return false;

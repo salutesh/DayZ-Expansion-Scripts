@@ -12,8 +12,8 @@ class CfgPatches
 };
 class CfgVehicles
 {
-	class Container_Base;
-	class Expansion_GraveBase: Container_Base
+	class Inventory_Base;
+	class Expansion_GraveBase: Inventory_Base
 	{
 		scope = 0;
 		displayName = "$STR_EXPANSION_GRAVECROSS";

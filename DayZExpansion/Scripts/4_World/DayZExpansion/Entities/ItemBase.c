@@ -164,10 +164,8 @@ modded class ItemBase
 		EXPrint("ItemBase::LongDeferredInit - Start");
 		#endif
 
-		#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
 		if ( m_SkinModule )
 			m_SkinModule.PerformCESkinSwap( this );
-		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::LongDeferredInit - End");

@@ -583,38 +583,19 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void CreateGraveCross()
 	{
-		vector crossOffset = GetPosition() - "0.3 -0.3 0.3";
-			
 		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
 		bool deleteBody = GetExpansionSettings().GetGeneral().GravecrossDeleteBody;
+		
 		float playtime = StatGet("playtime");
 
-		Expansion_GraveBase graveCross;
+		Expansion_GraveBase grave;
 		if (playtime <= lifetimeThreshhold) 
-		{
-			graveCross = Expansion_GraveBase.Cast(GetGame().CreateObjectEx("Expansion_Gravecross_LowLifetime", crossOffset, ECE_PLACE_ON_SURFACE));
-		}
+			grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx("Expansion_Gravecross_LowLifetime", GetPosition(), ECE_PLACE_ON_SURFACE));
 		else 
-		{
-			graveCross = Expansion_GraveBase.Cast(GetGame().CreateObjectEx("Expansion_Gravecross", crossOffset, ECE_PLACE_ON_SURFACE));
-		}
+			grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx("Expansion_Gravecross", GetPosition(), ECE_PLACE_ON_SURFACE));
 
-		for (int i = 0; i < GetInventory().GetAttachmentSlotsCount(); i++)
-		{
-			int slot = GetInventory().GetAttachmentSlotId(i);
-			EntityAI item = GetInventory().FindAttachment(slot);
-
-			if (item && graveCross.GetInventory().CanAddAttachment(item))
-			{
-				if (GetGame().IsMultiplayer())
-					ServerTakeEntityToTargetInventory(graveCross, FindInventoryLocationType.ATTACHMENT, item);
-				else
-					LocalTakeEntityToTargetInventory(graveCross, FindInventoryLocationType.ATTACHMENT, item);
-			}
-		}
-
-		graveCross.SetOrientation(GetOrientation());
-		graveCross.SetReceivedAttachments(true);
+		grave.MoveAttachmentsFromEntity(this);
+		grave.SetOrientation(GetOrientation());
 		
 		if (deleteBody)
 			Delete();

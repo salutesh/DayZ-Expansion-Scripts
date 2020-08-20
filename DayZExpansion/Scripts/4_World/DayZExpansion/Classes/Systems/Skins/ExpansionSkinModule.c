@@ -414,18 +414,26 @@ class ExpansionSkinModule: JMModuleBase
 		
 		if ( base != "" && skin != "" && base != currentType )
 		{
-			ExpansionSkinObjectLambda lambda = new ExpansionSkinObjectLambda( ent, base, NULL, this, skin );
-	
-			//InventoryLocation newDst = new InventoryLocation;
-			//ent.GetInventory().GetCurrentInventoryLocation( newDst );
-			//lambda.OverrideNewLocation( newDst );
+			#ifndef EXPANSION_SKIN_REPLACEMENT_DISABLE
+				ExpansionSkinObjectLambda lambda = new ExpansionSkinObjectLambda( ent, base, NULL, this, skin );
+		
+				//InventoryLocation newDst = new InventoryLocation;
+				//ent.GetInventory().GetCurrentInventoryLocation( newDst );
+				//lambda.OverrideNewLocation( newDst );
 
-			if ( !GetGame().IsClient() )
-			{
-				ent.GetInventory().ReplaceItemWithNew( InventoryMode.SERVER, lambda );
-			}
+				if ( !GetGame().IsClient() )
+				{
+					ent.GetInventory().ReplaceItemWithNew( InventoryMode.SERVER, lambda );
+				}
 
-			return true;
+				#ifdef EXPANSIONEXLOGPRINT
+				Print("ExpansionSkinModule::PerformCESkinSwap - End");
+				#endif
+
+				return true;
+			#else
+				Error( "ExpansionSkinModule] EXPANSION_SKIN_REPLACEMENT_DISABLE is defined but a skinned replacement object is set to spawn, please remove \"" + currentType + "\" from your types.xml to make this error go away." )
+			#endif
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT

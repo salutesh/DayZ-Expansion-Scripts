@@ -21,15 +21,15 @@ class ExpansionTerritoryModule: JMModuleBase
 	/////////////////////// NON STATIC VARS ///////////////////////////////
 	
 	//Server
-	protected autoptr map<int, ExpansionTerritoryFlag> 		m_TerritoryFlags;
-	protected int 											m_NextTerritoryID;
-	protected float											m_TimeSliceCheckPlayer;
+	protected ref map<int, ExpansionTerritoryFlag> 		m_TerritoryFlags;
+	protected int 										m_NextTerritoryID;
+	protected float										m_TimeSliceCheckPlayer;
 	
 	//Client
-	protected autoptr map<int, ref ExpansionTerritory>		m_Territories;
-	protected autoptr array<ref ExpansionTerritoryInvite> 	m_TerritoryInvites;
+	protected ref map<int, ref ExpansionTerritory>		m_Territories;
+	protected ref array<ref ExpansionTerritoryInvite> 	m_TerritoryInvites;
 	
-	protected autoptr array<ref ExpansionTerritory>			m_ServerTerritories;
+	protected ref array<ref ExpansionTerritory>			m_ServerTerritories;
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule Constructor
@@ -261,20 +261,6 @@ class ExpansionTerritoryModule: JMModuleBase
 			RPC_KickMember( ctx, sender, target );
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_KickMember");
-			#endif
-
-			break;
-		case ExpansionTerritoryModuleRPC.RequestServerTerritories:
-			RPC_RequestServerTerritories( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_RequestServerTerritories");
-			#endif
-
-			break;
-		case ExpansionTerritoryModuleRPC.SendServerTerritories:
-			RPC_SendServerTerritories( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SendServerTerritories");
 			#endif
 
 			break;
@@ -708,7 +694,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			int territoryID = currentTerritory.GetTerritoryID();
 			
-			autoptr array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+			ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 			for ( int i = 0; i < members.Count(); ++i )
 			{
 				if (!members[i])
@@ -721,7 +707,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
 			}
 			
-			autoptr array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+			ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
 			for ( int j = 0; j < invites.Count(); ++j )
 			{
 				if (!invites[j])
@@ -821,7 +807,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !currentTerritory )
 			return;
 		
-		autoptr array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+		ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 		for ( int i = 0; i < members.Count(); ++i )
 		{
 			if (!members[i])
@@ -834,7 +820,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
 		}
 		
-		autoptr array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+		ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
 		for ( int j = 0; j < invites.Count(); ++j )
 		{
 			if (!invites[j])
@@ -1700,83 +1686,6 @@ class ExpansionTerritoryModule: JMModuleBase
 		#endif
 	}
 	
-	///////////////////////// RequestServerTerritories /////////////////////////////////
-	
-	// ------------------------------------------------------------
-	// ExpansionTerritoryModule RequestServerTerritories
-	// Called on client
-	// ------------------------------------------------------------
-	void RequestServerTerritories()
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryModule::RequestServerTerritories - Start");
-		#endif
-		
-		if ( IsMissionClient() )
-		{
-			ScriptRPC rpc = new ScriptRPC();
- 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.RequestServerTerritories, true );
-		}
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryModule::RequestServerTerritories - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTerritoryModule RPC_RequestServerTerritories
-	// Called on Server
-	// ------------------------------------------------------------
-	void RPC_RequestServerTerritories( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryModule::RPC_RequestServerTerritories - Start");
-		#endif
-		
-		if (!senderRPC || !IsMissionHost()) return;
-		
-		array< ref ExpansionTerritory > territories = new array< ref ExpansionTerritory >;
-			
-		if ( m_TerritoryFlags )
-		{
-			for ( int i = 0; i < m_TerritoryFlags.Count(); ++i )
-			{
-				ExpansionTerritoryFlag currentFlag = m_TerritoryFlags.Get( i );
-				if (!currentFlag) continue;
-				
-				territories.Insert( currentFlag.GetTerritory() );
-			}
-		}
-		
-		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( territories );
-		rpc.Send( NULL, ExpansionTerritoryModuleRPC.SendServerTerritories, true, senderRPC );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryModule::RPC_RequestServerTerritories - End");
-		#endif
-	}
-	
-	
-	// ------------------------------------------------------------
-	// ExpansionTerritoryModule RPC_SendServerTerritories
-	// Called on Client
-	// ------------------------------------------------------------
-	private void RPC_SendServerTerritories( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryModule::RPC_SendServerTerritories - Start");
-		#endif
-		
-		if ( !IsMissionClient() ) return;
-		
-		ctx.Read( m_ServerTerritories );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryModule::RPC_SendServerTerritories - End");
-		#endif
-	}
-	
 	///////////////////////// RPCS END /////////////////////////////////
 	
 	// ------------------------------------------------------------
@@ -2034,10 +1943,23 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		return m_TerritoryInvites;
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion CloseMenus
+	// Called client side
+	// ------------------------------------------------------------
 	void CloseMenus()
 	{
 		if ( GetGame().GetUIManager() && GetGame().GetUIManager().IsMenuOpen( MENU_EXPANSION_FLAG_MENU ) )
 			GetGame().GetUIManager().FindMenu( MENU_EXPANSION_FLAG_MENU ).Close();
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetAllTerritoryFlags
+	// Called server side
+	// ------------------------------------------------------------
+	ref map<int, ExpansionTerritoryFlag> GetAllTerritoryFlags()
+	{
+		return m_TerritoryFlags;
 	}
 }

@@ -36,8 +36,12 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesMapMarker Constructor
 	// ------------------------------------------------------------
-	void ExpansionCOTTerritoriesMapMarker(Widget parent, MapWidget mapwidget, vector position, string name, int color, string icon, ExpansionTerritory territory, ExpansionCOTTerritoriesMenu menu)
+	void ExpansionCOTTerritoriesMapMarker(Widget parent, MapWidget mapwidget, vector position, string name, int color, string icon, ref ExpansionTerritory territory, ExpansionCOTTerritoriesMenu menu)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::ExpansionCOTTerritoriesMapMarker - Start");
+		#endif
+		
 		m_Root 			= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map_marker.layout", parent);
 
 		m_MarkerFrame	= Widget.Cast( m_Root.FindAnyWidget("marker_frame") );
@@ -63,6 +67,10 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 		m_Root.SetHandler(this);
 		
 		RunUpdateTimer();
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::ExpansionCOTTerritoriesMapMarker - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -70,9 +78,17 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ~ExpansionCOTTerritoriesMapMarker()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::~ExpansionCOTTerritoriesMapMarker - Start");
+		#endif
+		
 		StopUpdateTimer();
 		
 		delete m_Root;
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::~ExpansionCOTTerritoriesMapMarker - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -134,13 +150,27 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseEnter( Widget w, int x, int y )
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnMouseEnter - Start");
+		#endif
+		
 		if (m_MarkerButton && w == m_MarkerButton && !m_IsTempMarker)
 		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnMouseEnter - m_MarkerButton");
+			#endif
+			
 			StopUpdateTimer();
 
 			m_Icon.SetColor(ARGB(255,255,255,255));
 			m_Name.SetColor(ARGB(255,255,255,255));
+			
+			return true;
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnMouseEnter - End");
+		#endif
 
 		return false;
 	}
@@ -150,14 +180,28 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseLeave( Widget w, Widget enterW, int x, int y )
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnMouseLeave - Start");
+		#endif
+		
 		int color = m_MarkerColor;
 		if (m_MarkerButton && w == m_MarkerButton)
 		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnMouseLeave - m_MarkerButton");
+			#endif
+			
 			RunUpdateTimer();
 
 			m_Icon.SetColor(color);
 			m_Name.SetColor(color);
+			
+			return true;
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnMouseLeave - End");
+		#endif
 
 		return false;
 	}
@@ -167,10 +211,20 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnClick( Widget w, int x, int y, int button )
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnClick - Start");
+		#endif
+		
 		if ( m_MarkerButton && w == m_MarkerButton )
 		{
 			m_COTTerritoryMenu.SetTerritoryInfo( m_Territory );
+			
+			return true;
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::OnClick - End");
+		#endif
 
 		return false;
 	}
@@ -205,11 +259,22 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void StopUpdateTimer()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::StopUpdateTimer - Start");
+		#endif
+		
 		if (m_MarkerUpdateTimer && m_MarkerUpdateTimer.IsRunning())
 		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMapMarker::StopUpdateTimer - Stop Update Timer");
+			#endif
 			m_MarkerUpdateTimer.Stop();
 			m_MarkerUpdateTimer = NULL;
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::StopUpdateTimer - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -217,13 +282,24 @@ class ExpansionCOTTerritoriesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void RunUpdateTimer()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::RunUpdateTimer - Start");
+		#endif
+		
 		if (!m_MarkerUpdateTimer)
 		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMapMarker::StopUpdateTimer - Run Update Timer");
+			#endif
 			m_MarkerUpdateTimer = new Timer( CALL_CATEGORY_GUI );
 			if (!m_MarkerUpdateTimer.IsRunning())
 			{
 				m_MarkerUpdateTimer.Run( 0.01, this, "Update", NULL, true ); // Call Update all 0.01 seconds
 			}
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMapMarker::RunUpdateTimer - End");
+		#endif
 	}
 }
