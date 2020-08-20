@@ -337,6 +337,8 @@ modded class DayZPlayerImplement
 				AttachmentDebugPrint( "-DayZPlayerImplement::OnSyncJuncture - ExpansionReadGetInTransportUnlink" );
 				break;
 		}
+
+		AttachmentDebugPrint( "-DayZPlayerImplement::OnSyncJuncture - pJunctureID=" + pJunctureID );
 	}
 
 	// ------------------------------------------------------------

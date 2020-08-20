@@ -45,7 +45,9 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 	{
 		CreateToggle( "EnableNotification", "Enable Notification", "", "" );
 		CreateToggle( "ShowPlayerJoinServer", "Show Player Join Server", "", "" );
+		CreateEnum( "JoinMessageType", ExpansionAnnouncementType, "Join Server Type", "", "" );
 		CreateToggle( "ShowPlayerLeftServer", "Show Player Left Server", "", "" );
+		CreateEnum( "LeftMessageType", ExpansionAnnouncementType, "Leave Server Type", "", "" );
 		CreateToggle( "ShowAirdropStarted", "Show Airdrop Started", "", "" );
 		CreateToggle( "ShowAirdropClosingOn", "Show Airdrop Closing On", "", "" );
 		CreateToggle( "ShowAirdropDropped", "Show Airdrop Dropped", "", "" );
@@ -54,6 +56,33 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		CreateToggle( "ShowPlayerAirdropDropped", "Show Player Airdrop Dropped", "", "" );
 		CreateToggle( "ShowTerritoryNotifications", "Show Territory Notifications", "", "" );
 		CreateToggle( "EnableKillFeed", "Enable Kill-Feed", "", "" );
+		CreateEnum( "KillFeedMessageType", ExpansionAnnouncementType, "Kill-Feed Type", "", "" );
+		CreateToggle( "KillFeedFall", "Kill-Feed: Fall", "", "" );
+		CreateToggle( "KillFeedCarHitDriver", "Kill-Feed: Car Hit Driver", "", "" );
+		CreateToggle( "KillFeedCarHitNoDriver", "Kill-Feed: Car Hit No Driver", "", "" );
+		CreateToggle( "KillFeedCarCrash", "Kill-Feed: Car Crash", "", "" );
+		CreateToggle( "KillFeedCarCrashCrew", "Kill-Feed: Car Crash Crew", "", "" );
+		CreateToggle( "KillFeedHeliHitDriver", "Kill-Feed: Heli Hit Driver", "", "" );
+		CreateToggle( "KillFeedHeliHitNoDriver", "Kill-Feed: Heli Hit No Driver", "", "" );
+		CreateToggle( "KillFeedHeliCrash", "Kill-Feed: Heli Crash", "", "" );
+		CreateToggle( "KillFeedHeliCrashCrew", "Kill-Feed: Heli Crash Crew", "", "" );
+		CreateToggle( "KillFeedBoatCrash", "Kill-Feed: Boat Crash", "", "" );
+		CreateToggle( "KillFeedBoatCrashCrew", "Kill-Feed: Boat Crash Crew", "", "" );
+		CreateToggle( "KillFeedBarbedWire", "Kill-Feed: Barbed Wire", "", "" );
+		CreateToggle( "KillFeedFire", "Kill-Feed: Fire", "", "" );
+		CreateToggle( "KillFeedSpecialExplosion", "Kill-Feed: Special Explosion", "", "" );
+		CreateToggle( "KillFeedWeaponExplosion", "Kill-Feed: Weapon Explosion", "", "" );
+		CreateToggle( "KillFeedDehydration", "Kill-Feed: Dehydration", "", "" );
+		CreateToggle( "KillFeedStarvation", "Kill-Feed: Starvation", "", "" );
+		CreateToggle( "KillFeedBleeding", "Kill-Feed: Bleeding", "", "" );
+		CreateToggle( "KillFeedSuicide", "Kill-Feed: Suicide", "", "" );
+		CreateToggle( "KillFeedWeapon", "Kill-Feed: Weapon", "", "" );
+		CreateToggle( "KillFeedMeleeWeapon", "Kill-Feed: Melee Weapon", "", "" );
+		CreateToggle( "KillFeedBarehands", "Kill-Feed: Barehands", "", "" );
+		CreateToggle( "KillFeedInfected", "Kill-Feed: Infected", "", "" );
+		CreateToggle( "KillFeedAnimal", "Kill-Feed: Animal", "", "" );
+		CreateToggle( "KillFeedKilledUnknown", "Kill-Feed: Killed Unknown", "", "" );
+		CreateToggle( "KillFeedDiedUnknown", "Kill-Feed: Died Unknown", "", "" );
 		CreateToggle( "EnableKillFeedDiscordMsg", "Enable Kill-Feed Discord Messages", "", "" );
 	}
 

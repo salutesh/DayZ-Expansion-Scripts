@@ -432,7 +432,7 @@ class ExpansionSkinModule: JMModuleBase
 
 				return true;
 			#else
-				Error( "ExpansionSkinModule] EXPANSION_SKIN_REPLACEMENT_DISABLE is defined but a skinned replacement object is set to spawn, please remove \"" + currentType + "\" from your types.xml to make this error go away." );
+				Print( "ExpansionSkinModule] EXPANSION_SKIN_REPLACEMENT_DISABLE is defined but a skinned replacement object is set to spawn, please remove \"" + currentType + "\" from your types.xml to make this error go away." );
 			#endif
 		}
 		

@@ -270,16 +270,16 @@ class CfgVehicles
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Engine
 			{
-				inertia = 0.15;
+				inertia = 0.3;
 				torqueMax = 114;
-				torqueRpm = 3400;
+				torqueRpm = 2600;
 				powerMax = 53.7;
-				powerRpm = 4400;
+				powerRpm = 3500;
 				rpmIdle = 850;
 				rpmMin = 900;
 				rpmClutch = 1350;
-				rpmRedline = 5000;
-				rpmMax = 7000;
+				rpmRedline = 4500;
+				rpmMax = 5500;
 			};
 			class Gearbox
 			{
