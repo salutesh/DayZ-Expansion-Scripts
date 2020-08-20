@@ -179,9 +179,9 @@ class ExpansionStove extends Container_Base
 	}
 
 	// ------------------------------------------------------------
-	// Expansion IsOpenable
+	// Expansion ExpansionIsOpenable
 	// ------------------------------------------------------------
-	override bool IsOpenable()
+	override bool ExpansionIsOpenable()
 	{
 		return true;
 	}
@@ -189,12 +189,12 @@ class ExpansionStove extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion CanOpen
 	// ------------------------------------------------------------
-	override bool CanOpen( PlayerBase player, string selection )
+	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
 		if (IsLocked())
 			return false;
 			
-		if (selection == "doors1" && GetAnimationPhase("doors1") == 0 && IsOpenable())
+		if (selection == "doors1" && GetAnimationPhase("doors1") == 0 && ExpansionIsOpenable())
 			return true;
 		
 		return false;
@@ -205,7 +205,7 @@ class ExpansionStove extends Container_Base
 	// ------------------------------------------------------------
 	override bool CanClose( string selection )
 	{
-		if (selection == "doors1" && GetAnimationPhase("doors1") == 1 && IsOpenable())
+		if (selection == "doors1" && GetAnimationPhase("doors1") == 1 && ExpansionIsOpenable())
 			return true;
 		
 		return false;

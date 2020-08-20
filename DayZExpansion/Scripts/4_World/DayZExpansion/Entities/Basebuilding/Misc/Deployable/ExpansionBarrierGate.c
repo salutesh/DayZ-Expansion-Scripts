@@ -70,7 +70,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Expansion CanOpen
 	// ------------------------------------------------------------
-	override bool CanOpen( PlayerBase player, string selection )
+	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
 		if (selection == "gate" && GetAnimationPhase("gate") == 1)
 			return true;

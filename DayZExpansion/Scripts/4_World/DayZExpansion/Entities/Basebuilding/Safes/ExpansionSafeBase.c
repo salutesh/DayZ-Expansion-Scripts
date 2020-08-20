@@ -73,9 +73,9 @@ class ExpansionSafeBase extends Container_Base
 		return true;
 	}
 	// ------------------------------------------------------------
-	// Expansion IsOpenable
+	// Expansion ExpansionIsOpenable
 	// ------------------------------------------------------------
-	override bool IsOpenable()
+	override bool ExpansionIsOpenable()
 	{
 		return true;
 	}
@@ -83,7 +83,7 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion CanOpen
 	// ------------------------------------------------------------
-	override bool CanOpen( PlayerBase player, string selection )
+	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
 		if ( IsLocked() )
 			return false;
@@ -106,17 +106,17 @@ class ExpansionSafeBase extends Container_Base
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion HasCodeLock
+	// Expansion ExpansionHasCodeLock
 	// ------------------------------------------------------------
-	override bool HasCodeLock( string selection )
+	override bool ExpansionHasCodeLock( string selection )
 	{
 		return (selection == "codelock");
 	}
 
 	// ------------------------------------------------------------
-	// Expansion GetCodeLock
+	// Expansion ExpansionGetCodeLock
 	// ------------------------------------------------------------
-	override ExpansionCodeLock GetCodeLock()
+	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock"));
 	}

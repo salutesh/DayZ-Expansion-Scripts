@@ -287,7 +287,7 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	\brief Returning if the wall has a code
 		\param "selection" selection for codelock
 	*/
-	override bool HasCodeLock( string selection )
+	override bool ExpansionHasCodeLock( string selection )
 	{
 		if ( selection == "codelock" )
 		{
@@ -303,7 +303,7 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	\brief Returning codelock entity
 		\param
 	*/
-	override ExpansionCodeLock GetCodeLock()
+	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) );
 	}

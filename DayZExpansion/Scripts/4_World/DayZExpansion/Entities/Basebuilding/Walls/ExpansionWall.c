@@ -94,7 +94,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return super.CanReleaseAttachment( attachment );
 	}
 
-	override bool HasCodeLock( string selection )
+	override bool ExpansionHasCodeLock( string selection )
 	{
 		if ( selection == "codelock_door" )
 		{
@@ -115,7 +115,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 
-	override ExpansionCodeLock GetCodeLock()
+	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		if (m_HasDoor)
 			return ExpansionCodeLock.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock_1"));
@@ -131,17 +131,17 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 
-	override bool IsOpenable()
+	override bool ExpansionIsOpenable()
 	{
 		return m_HasWindow || m_HasDoor || m_HasGate;
 	}
 
-	bool HasGate()
+	bool ExpansionHasGate()
 	{
 		return m_HasGate;
 	}
 
-	bool HasDoor()
+	bool ExpansionHasDoor()
 	{
 		return m_HasDoor;
 	}
@@ -231,7 +231,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		super.UpdateVisuals();
 	}
 
-	private bool CanAcceptCodeLock( string slot_name )
+	private bool ExpansionCanAcceptCodeLock( string slot_name )
 	{
 		if ( slot_name == "Att_ExpansionCodeLock_1" )
 		{
@@ -288,7 +288,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			return false;
 		}
 
-		if ( !CanAcceptCodeLock( slot_name ) )
+		if ( !ExpansionCanAcceptCodeLock( slot_name ) )
 		{
 			return false;
 		}
@@ -305,7 +305,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		string slot_name = InventorySlots.GetSlotName( slotId );
 
-		if ( !CanAcceptCodeLock( slot_name ) )
+		if ( !ExpansionCanAcceptCodeLock( slot_name ) )
 		{
 			return false;
 		}
@@ -313,9 +313,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return true;
 	}
 	
-	override bool CanOpen( PlayerBase player, string selection )
+	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		if ( !IsOpenable() )
+		if ( !ExpansionIsOpenable() )
 			return false;
 
 		if ( m_HasWindow && !IsFacingPlayer( player, selection ) )
@@ -349,7 +349,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	
 	override bool CanClose( string selection )
 	{
-		if ( !IsOpenable() )
+		if ( !ExpansionIsOpenable() )
 			return false;
 
 		if ( m_HasWindow )

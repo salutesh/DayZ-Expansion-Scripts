@@ -42,7 +42,7 @@ class ExpansionActionOpen: ActionInteractBase
 
 		string selection = tgt.GetActionComponentName( target.GetComponentIndex() );
 		
-		return tgt.CanOpen( player, selection );
+		return tgt.ExpansionCanOpen( player, selection );
 	}
 	
 	override void OnStartServer( ActionData action_data )

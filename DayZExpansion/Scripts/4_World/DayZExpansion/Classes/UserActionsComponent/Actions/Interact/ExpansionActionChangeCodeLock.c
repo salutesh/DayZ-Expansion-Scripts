@@ -63,7 +63,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 		{
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
-			return m_Target.HasCodeLock( selection ) && !m_Target.IsOpened();
+			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
 		}
 		
 		return false;

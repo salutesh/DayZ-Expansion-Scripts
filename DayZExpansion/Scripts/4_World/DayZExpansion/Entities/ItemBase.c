@@ -199,13 +199,13 @@ modded class ItemBase
 	}
 	
 	//============================================
-	// IsOpenable
+	// ExpansionIsOpenable
 	//============================================	
 	/**
 	\brief Returning if can be opened
 		\param 	
 	*/
-	bool IsOpenable()
+	bool ExpansionIsOpenable()
 	{
 		return false;
 	}
@@ -223,7 +223,7 @@ modded class ItemBase
 	\brief Returning if player can open gate/safe from selection
 		\param 
 	*/
-	bool CanOpen( PlayerBase player, string selection )
+	bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
 		return false;
 	}
@@ -283,7 +283,7 @@ modded class ItemBase
 	\brief Returning if the wall/safe has a code
 		\param "selection" selection for codelock
 	*/
-	bool HasCodeLock( string selection )
+	bool ExpansionHasCodeLock( string selection )
 	{
 		return false;
 	}
@@ -292,7 +292,7 @@ modded class ItemBase
 	\brief Returning codelock entity
 		\param
 	*/
-	ExpansionCodeLock GetCodeLock()
+	ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return null;
 	}
