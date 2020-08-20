@@ -110,7 +110,7 @@ class ExpansionMonitorModule: JMModuleBase
 			}
 		}
 
-		ServerChatMessage( new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" ), new StringLocaliser( "Expansion Version is = " + LoadingScreen.GetClientExpansionVersion() ) );
+		//ServerChatMessage( new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" ), new StringLocaliser( "Expansion Version is = " + LoadingScreen.GetClientExpansionVersion() ) );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPartyModule::OnClientReady - End");

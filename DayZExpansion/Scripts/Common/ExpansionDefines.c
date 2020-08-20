@@ -1,5 +1,5 @@
 //! Enable it if you want to enable logging with EXPrint
-//#define EXPANSIONEXPRINT
+#define EXPANSIONEXPRINT
 
 //! Enable it if you want to enable logging with EXLogPrint
 //#define EXPANSIONEXLOGPRINT
