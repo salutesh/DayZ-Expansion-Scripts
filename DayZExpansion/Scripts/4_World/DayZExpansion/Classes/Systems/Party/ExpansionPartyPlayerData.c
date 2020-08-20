@@ -75,7 +75,7 @@ class ExpansionPartyPlayerData
 	{
 		if ( Marker )
 		{
-			m_TempMarkerData = ExpansionMarkerData.Copy( Marker );
+			m_TempMarkerData = ExpansionPlayerMarkerData.Cast( ExpansionMarkerData.Copy( Marker ) );
 
 			delete Marker;
 		}
@@ -94,7 +94,7 @@ class ExpansionPartyPlayerData
 
 		if ( !Marker ) // marker may already exist (respawn)
 		{
-			Marker = ExpansionMarkerData.Copy( m_TempMarkerData );
+			Marker = ExpansionPlayerMarkerData.Cast(ExpansionMarkerData.Copy( m_TempMarkerData ) );
 		}
 		
 		Marker.UpdateObject( player );
@@ -127,7 +127,7 @@ class ExpansionPartyPlayerData
 
 		if ( Marker )
 		{
-			m_TempMarkerData = ExpansionMarkerData.Copy( Marker );
+			m_TempMarkerData = ExpansionPlayerMarkerData.Cast( ExpansionMarkerData.Copy( Marker ) );
 
 			Marker.OnStoreSave( ctx );
 		} else
