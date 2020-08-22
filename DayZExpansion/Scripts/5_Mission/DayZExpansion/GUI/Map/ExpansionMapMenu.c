@@ -185,8 +185,6 @@ class ExpansionMapMenu extends UIScriptedMenu
 			i--;
 		}
 		
-		m_MarkerModule.Refresh();
-		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::UpdateMarkers - End");
 		#endif

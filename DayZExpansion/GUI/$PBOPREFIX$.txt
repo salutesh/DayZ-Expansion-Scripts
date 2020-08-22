@@ -1,6 +1,6 @@
 ﻿//<'GUI.pbo' properties via Mikero's dos tools, dll version 7.46>
 prefix=DayZExpansion\GUI;
 Mikero=DePbo.dll.7.46;
-version=Sat Aug 22 19:50:40 2020;
+version=Sat Aug 22 20:39:50 2020;
 PboType=Arma Addon;
 //</properties>
