@@ -504,7 +504,8 @@ modded class CarScript
 
 	bool CanConnectTow( CarScript other )
 	{
-		return other.IsCar() && !other.IsTowing();
+		//! is it a car ? Is it already towing something ? And is it locked ?
+		return other.IsCar() && !other.IsTowing() && !other.IsLocked();
 	}
 
 	ExpansionVehicleLockState GetLockedState()

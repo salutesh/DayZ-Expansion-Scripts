@@ -1037,8 +1037,10 @@ modded class ItemBase
 
 		super.EEOnAfterLoad();
 
+		#ifdef EXPANSION_SKIN_LOGGING
 		Print( m_CanBeSkinned );
 		Print( m_CurrentSkinName );
+		#endif
 
 		if ( m_CanBeSkinned )
 		{
@@ -1048,10 +1050,11 @@ modded class ItemBase
 
 			ExpansionOnSkinUpdate();
 		}
-
+		#ifdef EXPANSION_SKIN_LOGGING
 		Print( m_CurrentSkinIndex );
 		Print( m_CurrentSkin );
-
+		#endif
+		
 		if ( m_IsAttached )
 		{
 			m_WorldAttachment = GetGame().GetEntityByPersitentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );

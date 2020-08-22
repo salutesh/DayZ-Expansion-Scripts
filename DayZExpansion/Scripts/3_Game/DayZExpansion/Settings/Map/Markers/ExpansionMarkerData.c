@@ -26,11 +26,16 @@ class ExpansionMarkerData
 	protected int m_Color;
 
 	protected vector m_Position;
+
+	[NonSerialized()]
 	protected Object m_Object;
 
+	[NonSerialized()]
 	protected int m_ObjectNetworkLow;
+	[NonSerialized()]
 	protected int m_ObjectNetworkHigh;
 
+	[NonSerialized()]
 	protected ScriptedWidgetEventHandler m_Handler;
 
 	void ExpansionMarkerData( string uid = "" )

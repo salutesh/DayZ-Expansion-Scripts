@@ -323,7 +323,7 @@ class CfgVehicles
 		displayName = "$STR_CfgVehicles_BarbedWire0";
 		descriptionShort = "$STR_CfgVehicles_BarbedWire1";
 		model = "\DZ\gear\camping\Barbed_wire.p3d";
-		itemSize[] = {8,8};
+		itemSize[] = {3,3};
 	};
 	class ExpansionBarbedWireKitPlacing: ExpansionBarbedWireKit
 	{

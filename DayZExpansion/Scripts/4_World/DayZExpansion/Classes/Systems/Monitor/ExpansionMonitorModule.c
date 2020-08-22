@@ -145,15 +145,15 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnInvokeDisconnect( PlayerBase player )
 	{
-		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && player.GetIdentity() ) 
+		if ( GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity() ) 
 		{
 			ref StringLocaliser title = new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TITLE" );
 			ref StringLocaliser text = new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName() );
 			
-			if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION ) 
+			if ( GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.NOTIFICATION ) 
 			{
 				GetNotificationSystem().CreateNotification( title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 5 );
-			} else if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT )
+			} else if ( GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.CHAT )
 			{
 				ServerChatMessage(title, text);
 			}

@@ -1391,6 +1391,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 	override bool CanConnectTow( CarScript other )
 	{
-		return !other.IsTowing();
+		//! Is it already towing something ? And is it locked ?
+		return !other.IsTowing() && !other.IsLocked();
 	}
 }

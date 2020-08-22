@@ -58,7 +58,7 @@ modded class ActionTogglePlaceObject
 			}
 		}
 		if (territoryReqNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
 		
 		if (enemyTerritoryNotif)
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );	
