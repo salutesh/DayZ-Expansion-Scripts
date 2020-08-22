@@ -320,7 +320,7 @@ class CfgVehicles
 	class ExpansionBarbedWireKit: ExpansionKitLarge
 	{
 		scope = 2;
-		displayName = "$STR_CfgVehicles_BarbedWire0";
+		displayName = "$STR_EXPANSION_BARBEDWIRE_KIT";
 		descriptionShort = "$STR_CfgVehicles_BarbedWire1";
 		model = "\DZ\gear\camping\Barbed_wire.p3d";
 		itemSize[] = {3,3};

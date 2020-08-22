@@ -36,7 +36,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 
 	private ref ExpansionMapMarkerList m_MarkerList;
 	
-	private float m_CloseTime = 0;
+	private float m_OpenMapTime = 0;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapMenu Constructor
@@ -1026,7 +1026,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 	{
 		super.OnShow();
 
-		m_CloseTime = 0;
+		m_OpenMapTime = 0;
 		
 		ToggleGPS();
 
@@ -1065,7 +1065,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 		EXLogPrint("ExpansionMapMenu::Update - Start");
 		#endif
 
-		m_CloseTime += timeslice;
+		m_OpenMapTime += timeslice;
 		
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
@@ -1075,6 +1075,15 @@ class ExpansionMapMenu extends UIScriptedMenu
 			return;
 		}
 		
+		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.75 )
+		{
+			Hide();
+			Close();
+			return;
+		}
+
+		//! If you want to HOLD to close this was the script
+		/*
 		if ( GetUApi().GetInputByName("UAExpansionMapToggle").LocalHoldBegin() && m_CloseTime > 0.75 )
 		{
 			Hide();
@@ -1082,6 +1091,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 
 			return;
 		}
+		*/
 		
 		if ( GetGame().GetInput().LocalPress( "UAExpansionMapDeleteMarker", false ) )
 		{
