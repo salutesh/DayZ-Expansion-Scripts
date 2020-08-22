@@ -1081,17 +1081,6 @@ class ExpansionMapMenu extends UIScriptedMenu
 			Close();
 			return;
 		}
-
-		//! If you want to HOLD to close this was the script
-		/*
-		if ( GetUApi().GetInputByName("UAExpansionMapToggle").LocalHoldBegin() && m_CloseTime > 0.75 )
-		{
-			Hide();
-			Close();
-
-			return;
-		}
-		*/
 		
 		if ( GetGame().GetInput().LocalPress( "UAExpansionMapDeleteMarker", false ) )
 		{
