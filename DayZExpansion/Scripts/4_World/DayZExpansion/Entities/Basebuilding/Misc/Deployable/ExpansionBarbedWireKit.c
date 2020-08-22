@@ -40,13 +40,4 @@ class ExpansionBarbedWireKit extends ExpansionKitLarge
 		
 		SetIsDeploySound( true );
 	}
-	
-	void DisassembleKit(ItemBase item)
-	{
-		if (!IsHologram())
-		{
-			ItemBase.Cast(GetGame().CreateObject("BarbedWire",GetPosition()));
-			ItemBase.Cast(GetGame().CreateObject("BarbedWire",GetPosition()));
-		}
-	}
 }

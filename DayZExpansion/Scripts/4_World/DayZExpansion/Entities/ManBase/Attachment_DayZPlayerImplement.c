@@ -200,6 +200,36 @@ modded class DayZPlayerImplement
 		EXPrint("DayZPlayerImplement::StartCommand_ExpansionLeaveVehicle - End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	bool HandleDeath( int pCurrentCommandID )
+	{
+		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE && m_DeathAnimType != -2 )
+		{
+			HumanCommandVehicle hcv = GetCommand_Vehicle();
+			Transport transport = hcv.GetTransport();
+			if ( !transport ) //! We died in a wreck, it no longer exists
+			{
+				if ( m_DeathAnimType != -2 && g_Game.GetMissionState() == g_Game.MISSION_STATE_GAME )
+				{
+					int type = GetTypeOfDeath( pCurrentCommandID );
+
+					DayZPlayerCommandDeathCallback callback = DayZPlayerCommandDeathCallback.Cast( StartCommand_Death( type, m_DeathHitDir, DayZPlayerCommandDeathCallback ) );
+					callback.m_pPlayer = PlayerBase.Cast( this );
+
+					ResetDeathStartTime();
+					GetGame().GetWorld().SetVoiceOn( false );
+
+					return true;
+				}
+
+				return false;
+			}
+
+		}
+
+		return super.HandleDeath( pCurrentCommandID );
+	}
 
 	// ------------------------------------------------------------
 	void AttachmentDebugPrint( string message )

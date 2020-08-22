@@ -639,7 +639,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				} else
 				{
 					float distance = vector.Distance( player.GetPosition(), m_Source.GetPosition() );
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Skull 1"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString() );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Skull"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString() );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.WEAPON, player, m_Source, source);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON, m_PlayerSteamWebhook, m_PlayerSteamWebhook2, m_DisplayName, Math.Round(distance).ToString() );
 				}

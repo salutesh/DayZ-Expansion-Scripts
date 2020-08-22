@@ -480,6 +480,11 @@ class ExpansionPartyData
 					// todo: update marker, maybe player respawned?
 				}
 
+				if ( Players[index].Marker.GetObject() )
+				{
+					Players[index].Marker.Update();
+				}
+
 				ctx.Write( hasMarker );
 
 				if ( hasMarker )

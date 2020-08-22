@@ -132,6 +132,12 @@ class ExpansionMarkerData
 		return m_Position;
 	}
 
+	void Update()
+	{
+		if ( m_Object )
+			m_Position = m_Object.GetPosition();
+	}
+
 	void UpdateObject( Object object )
 	{
 		m_Object = object;

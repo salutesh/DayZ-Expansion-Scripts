@@ -1075,7 +1075,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 			return;
 		}
 		
-		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.75 )
+		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 )
 		{
 			Hide();
 			Close();
