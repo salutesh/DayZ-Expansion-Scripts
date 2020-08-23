@@ -39,7 +39,10 @@ class ExpansionGame
 		EXPrint("ExpansionGame::FirearmEffects - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion OnRPC
+	// ------------------------------------------------------------
 	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
 	{
 		return false;

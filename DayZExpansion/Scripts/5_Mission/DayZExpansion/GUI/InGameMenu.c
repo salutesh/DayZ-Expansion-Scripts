@@ -135,14 +135,20 @@ modded class InGameMenu
 		m_DeadScreenFadeInIncrement	= 1 / DEAD_SCREEN_FADEIN_TIME;
 		m_DeadScreenImageFadeInIncrement = 1 / DEAD_SCREEN_IMAGE_FADEIN_TIME;
 		
+		if ( !GetExpansionSettings().GetGeneral().UseDeadScreenStatistics )
+			m_DeadSceenStatsButtonPanel.Show(false);
+		
 		HudShow( false );
 		SetGameVersion();
 		SetServerInfoVisibility( SetServerInfo() && g_Game.GetProfileOption( EDayZProfilesOptions.SERVERINFO_DISPLAY ) && !GetExpansionClientSettings().StreamerMode );
 		m_ModdedWarning.Show( false );
 		
-		//! Newsfeed
-		m_NewsfeedPanel 					= Widget.Cast(layoutRoot.FindAnyWidget( "NewsFeedPanel" ));
-		m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
+		if (GetExpansionSettings().GetGeneral().UseNeewsFeedInGameMenu)
+		{
+			//! Newsfeed
+			m_NewsfeedPanel 					= Widget.Cast(layoutRoot.FindAnyWidget( "NewsFeedPanel" ));
+			m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
+		}
 		
 		Refresh();
 
@@ -186,7 +192,7 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	override void Update( float timeslice )
 	{		
-		if ( m_ExpansionShowDeadScreen )
+		if ( GetExpansionSettings().GetGeneral().UseDeadScreen && m_ExpansionShowDeadScreen )
 		{
 			m_TimerSlice += timeslice;
 			if (m_TimerSlice >= 0.01)
@@ -408,7 +414,9 @@ modded class InGameMenu
 			
 			m_Logo.SetAlpha(-m_DeadScreenFadeInLevel);
 			m_Licensing.SetAlpha(-m_DeadScreenFadeInLevel);
-			m_ExpansionNewsfeed.ShowNewsfeed(false);
+			
+			if(m_ExpansionNewsfeed)
+				m_ExpansionNewsfeed.ShowNewsfeed(false);
 			
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("InGameMenu::DeadScreenShow - 6");

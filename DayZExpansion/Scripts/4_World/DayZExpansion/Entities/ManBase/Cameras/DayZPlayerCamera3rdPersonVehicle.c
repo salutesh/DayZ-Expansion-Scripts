@@ -152,9 +152,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		m_ExLagOffsetOrientation[1] = Math.SmoothCD( m_ExLagOffsetOrientation[1], -newOrientation[1], m_ExLagOffsetVelocityPitch, 0.3, 1000, pDt );
 
-		bool freeLookSettings = GetExpansionClientSettings().UseCameraLock;
-			
-		if ( ( freeLookSettings && !freeLookKey ) )
+		if ( !freeLookKey )
 		{
 			m_fLeftRightAngle = 0;
 

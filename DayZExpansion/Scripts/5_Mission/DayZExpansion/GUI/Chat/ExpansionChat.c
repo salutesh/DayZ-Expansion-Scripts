@@ -48,6 +48,10 @@ modded class Chat
 	
 	private string m_LayoutPath;
 	
+	private float m_ChatToggleTime;
+	
+	private bool m_IsVisible;
+	
 	// ------------------------------------------------------------
 	// Chat Constructor
 	// ------------------------------------------------------------
@@ -63,6 +67,8 @@ modded class Chat
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingChanged );
 				
 		GetClientSettings();
+		
+		m_IsVisible = false;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Chat End");
@@ -352,13 +358,13 @@ modded class Chat
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Update Start");
 		#endif
-
+		
 		if ( m_IsMouseScrolling )
 		{
 			UpdateMouseScroll();
 			UpdateScroller();
 		}
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::Update End");
 		#endif
@@ -544,6 +550,8 @@ modded class Chat
 		m_FadeInTimerChat = new WidgetFadeTimer;
 		m_FadeInTimerChat.FadeIn(m_RootWidget, FADE_IN_DURATION);
 		
+		m_IsVisible = true;
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::ShowChat End");
 		#endif
@@ -563,6 +571,8 @@ modded class Chat
 		
 		m_TimeOutTimerChat = new Timer(CALL_CATEGORY_GUI);
 		m_TimeOutTimerChat.Run(CHAT_FADEOUT_TIME, m_FadeInTimerChat, "FadeOut", new Param2<Widget, float>(m_RootWidget, EXP_FADE_OUT_DURATION));
+		
+		m_IsVisible = false;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::HideChat End");
@@ -627,5 +637,10 @@ modded class Chat
 
 			CHAT_FADEOUT_TIME = Math.Round( GetExpansionClientSettings().HUDChatFadeOut );
 		}
+	}
+	
+	bool IsChatVisible()
+	{
+		return m_IsVisible;
 	}
 }

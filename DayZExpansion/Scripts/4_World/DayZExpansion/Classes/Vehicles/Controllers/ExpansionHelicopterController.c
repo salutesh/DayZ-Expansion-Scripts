@@ -21,11 +21,19 @@ class ExpansionHelicopterController: ExpansionController
 	private float m_AntiTorqueLeft;
 	private float m_AntiTorqueRight;
 
-	private float m_CyclicForward;
-	private float m_CyclicBackward;
+	// M for Mouse
+	private float m_CyclicForwardM;
+	private float m_CyclicBackwardM;
 
-	private float m_CyclicLeft;
-	private float m_CyclicRight;
+	private float m_CyclicLeftM;
+	private float m_CyclicRightM;
+
+	// K for Keyboard
+	private float m_CyclicForwardK;
+	private float m_CyclicBackwardK;
+
+	private float m_CyclicLeftK;
+	private float m_CyclicRightK;
 
 	private bool m_AutoHover;
 
@@ -70,34 +78,34 @@ class ExpansionHelicopterController: ExpansionController
 
 	void SetCyclicZ( float forward, float backward, float value )
 	{
-		m_CyclicForward = forward;
-		m_CyclicBackward = backward;
+		m_CyclicForwardM + m_CyclicForwardK = forward;
+		m_CyclicBackwardM + m_CyclicBackwardK = backward;
 	}
 
 	float GetCyclicForward()
 	{
-		return m_CyclicForward;
+		return m_CyclicForwardM + m_CyclicForwardK;
 	}
 
 	float GetCyclicBackward()
 	{
-		return m_CyclicBackward;
+		return m_CyclicBackwardM + m_CyclicBackwardK;
 	}
 
 	void SetCyclicX( float left, float right, float value )
 	{
-		m_CyclicLeft = left;
-		m_CyclicRight = right;
+		m_CyclicLeftM + m_CyclicLeftK = left;
+		m_CyclicRightM + m_CyclicRightK = right;
 	}
 
 	float GetCyclicLeft()
 	{
-		return m_CyclicLeft;
+		return m_CyclicLeftM + m_CyclicLeftK;
 	}
 
 	float GetCyclicRight()
 	{
-		return m_CyclicRight;
+		return m_CyclicRightM + m_CyclicRightK;
 	}
 
 	bool IsAutoHover()
@@ -138,7 +146,7 @@ class ExpansionHelicopterController: ExpansionController
 			}
 		}
 
-		GetInputValue( "UAExpansionHeliFlare", m_IsFlare );
+		GetInputValue( "UAExpansionHeliFlare", m_IsFlare ); // Not used
 
 		GetInputValue( "UAExpansionHeliCollectiveUp", m_CollectiveUp );
 		GetInputValue( "UAExpansionHeliCollectiveDown", m_CollectiveDown );
@@ -146,28 +154,31 @@ class ExpansionHelicopterController: ExpansionController
 		GetInputValue( "UAExpansionHeliAntiTorqueLeft", m_AntiTorqueLeft );
 		GetInputValue( "UAExpansionHeliAntiTorqueRight", m_AntiTorqueRight );
 
-		if ( GetExpansionClientSettings().UseHelicopterMouseControl && !m_FreeLook )
+		GetInputValue( "UAExpansionHeliCyclicForward", m_CyclicForwardM );
+		GetInputValue( "UAExpansionHeliCyclicBackward", m_CyclicBackwardM );
+		GetInputValue( "UAExpansionHeliCyclicLeft", m_CyclicLeftM );
+		GetInputValue( "UAExpansionHeliCyclicRight", m_CyclicRightM );
+
+		if ( !m_FreeLook )
 		{
 			if ( GetExpansionClientSettings().UseInvertedMouseControl )
 			{
-				GetInputValue( "UAAimUp", m_CyclicForward );
-				GetInputValue( "UAAimDown", m_CyclicBackward );
-				GetInputValue( "UAAimLeft", m_CyclicLeft );
-				GetInputValue( "UAAimRight", m_CyclicRight );
+				GetInputValue( "UAAimUp", m_CyclicForwardM );
+				GetInputValue( "UAAimDown", m_CyclicBackwardM );
+				GetInputValue( "UAAimLeft", m_CyclicLeftM );
+				GetInputValue( "UAAimRight", m_CyclicRightM );
 			} else 
 			{
-				GetInputValue( "UAAimDown", m_CyclicForward );
-				GetInputValue( "UAAimUp", m_CyclicBackward );
-				GetInputValue( "UAAimLeft", m_CyclicLeft );
-				GetInputValue( "UAAimRight", m_CyclicRight );
+				GetInputValue( "UAAimDown", m_CyclicForwardM );
+				GetInputValue( "UAAimUp", m_CyclicBackwardM );
+				GetInputValue( "UAAimLeft", m_CyclicLeftM );
+				GetInputValue( "UAAimRight", m_CyclicRightM );
 			}
-		} else
-		{
-			GetInputValue( "UAExpansionHeliCyclicForward", m_CyclicForward );
-			GetInputValue( "UAExpansionHeliCyclicBackward", m_CyclicBackward );
-			GetInputValue( "UAExpansionHeliCyclicLeft", m_CyclicLeft );
-			GetInputValue( "UAExpansionHeliCyclicRight", m_CyclicRight );
 		}
+		GetInputValue( "UAExpansionHeliCyclicForward", m_CyclicForwardK );
+		GetInputValue( "UAExpansionHeliCyclicBackward", m_CyclicBackwardK );
+		GetInputValue( "UAExpansionHeliCyclicLeft", m_CyclicLeftK );
+		GetInputValue( "UAExpansionHeliCyclicRight", m_CyclicRightK );
 
 		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionHelicopterController::OnUpdate" );
 	}
@@ -180,10 +191,14 @@ class ExpansionHelicopterController: ExpansionController
 		m_CollectiveDown = 0;
 		m_AntiTorqueLeft = 0;
 		m_AntiTorqueRight = 0;
-		m_CyclicForward = 0;
-		m_CyclicBackward = 0;
-		m_CyclicLeft = 0;
-		m_CyclicRight = 0;
+		m_CyclicForwardM = 0;
+		m_CyclicBackwardM = 0;
+		m_CyclicLeftM = 0;
+		m_CyclicRightM = 0;
+		m_CyclicForwardK = 0;
+		m_CyclicBackwardK = 0;
+		m_CyclicLeftK = 0;
+		m_CyclicRightK = 0;
 
 		// don't reset freelook
 
@@ -199,11 +214,11 @@ class ExpansionHelicopterController: ExpansionController
 			ctx.Write( m_CollectiveUp );
 			ctx.Write( m_CollectiveDown );
 
-			ctx.Write( m_CyclicForward );
-			ctx.Write( m_CyclicBackward );
+			ctx.Write( m_CyclicForwardM );
+			ctx.Write( m_CyclicBackwardM );
 
-			ctx.Write( m_CyclicLeft );
-			ctx.Write( m_CyclicRight );
+			ctx.Write( m_CyclicLeftM );
+			ctx.Write( m_CyclicRightM );
 		}
 
 		ctx.Write( m_AntiTorqueLeft );
@@ -219,11 +234,11 @@ class ExpansionHelicopterController: ExpansionController
 			ctx.Read( m_CollectiveUp );
 			ctx.Read( m_CollectiveDown );
 
-			ctx.Read( m_CyclicForward );
-			ctx.Read( m_CyclicBackward );
+			ctx.Read( m_CyclicForwardM );
+			ctx.Read( m_CyclicBackwardM );
 
-			ctx.Read( m_CyclicLeft );
-			ctx.Read( m_CyclicRight );
+			ctx.Read( m_CyclicLeftM );
+			ctx.Read( m_CyclicRightM );
 		}
 
 		ctx.Read( m_AntiTorqueLeft );

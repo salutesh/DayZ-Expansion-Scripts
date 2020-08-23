@@ -21,7 +21,7 @@ modded class DayZPlayerCamera1stPersonVehicle
 		}
 
 		ExpansionHelicopterScript heli;
-		if ( Class.CastTo( heli, m_pPlayer.GetParent() ) && GetExpansionClientSettings().UseHelicopterMouseControl )
+		if ( Class.CastTo( heli, m_pPlayer.GetParent() ) && !heli.IsFreeLook() )
 		{
 			m_fUpDownAngle = 0;
 			m_fLeftRightAngle = 0;
