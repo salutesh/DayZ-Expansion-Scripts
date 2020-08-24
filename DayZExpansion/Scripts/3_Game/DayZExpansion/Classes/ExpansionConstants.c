@@ -23,7 +23,8 @@ enum ExpansionChatChannels
 	CCTransmitter = 16,
 	CCPublicAddressSystem = 32,
 	CCTransport = 64,
-	CCGlobal = 128
+	CCGlobal = 128,
+	CCTeam = 256
 }
 
 class ExpansionChatInformation
@@ -59,6 +60,7 @@ static const int EXP_DIRECT_TEXT_COLOUR = ARGB(255, 255, 255, 255);
 static const int EXP_GLOBAL_TEXT_COLOUR = ARGB(255, 88, 195, 247);
 static const int EXP_PAS_TEXT_COLOUR = ARGB(255, 249, 255, 73);
 static const int EXP_TRANSPORT_COLOUR = ARGB(255, 255, 206, 9);
+static const int EXP_TEAM_TEXT_COLOUR = ARGB(255, 10, 250, 122);
 
 /**
  * Expansion liquids types

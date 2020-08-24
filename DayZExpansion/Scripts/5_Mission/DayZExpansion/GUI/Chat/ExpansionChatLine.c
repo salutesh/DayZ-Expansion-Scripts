@@ -188,6 +188,18 @@ class ExpansionChatLine
 				m_NameWidget.SetText(" ");
 			}
 			break;
+		case ExpansionChatChannels.CCTeam:
+			ExpSenderSetColour(EXP_TEAM_TEXT_COLOUR);	
+			ExpSetTextColor(EXP_TEAM_TEXT_COLOUR);
+			
+			if (message.From)
+			{
+				m_NameWidget.SetText(" " + message.From + ": ");
+			} else
+			{ 
+				m_NameWidget.SetText(" ");
+			}
+			break;
 		default:
 			ExpSenderSetColour( EXP_DIRECT_TEXT_COLOUR );	
 			ExpSetTextColor( EXP_DIRECT_TEXT_COLOUR );

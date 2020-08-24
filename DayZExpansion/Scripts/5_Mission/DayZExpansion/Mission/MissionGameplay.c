@@ -127,11 +127,66 @@ modded class MissionGameplay
 			m_ChatChannelName.SetColor( EXP_GLOBAL_TEXT_COLOUR );
 		} else
 		{
-			SwitchChatChannelToAdmin();
+			SwitchChatChannelToTeam();
 		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::SwitchChatChannelToGlobal - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion SwitchChatChannelToGlobal
+	// ------------------------------------------------------------
+	private void SwitchChatChannelToTeam()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::SwitchChatChannelToGlobal - Start");
+		#endif
+
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		
+		if (partyModule.HasParty())
+		{
+			m_ChatChannel = ExpansionChatChannels.CCTeam;
+
+			m_ChatChannelName.SetText("Team Communication");
+			m_ChatChannelName.SetColor(EXP_TEAM_TEXT_COLOUR);
+		} else
+		{
+			SwitchChatChannelToTransport();
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::SwitchChatChannelToGlobal - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion SwitchChatChannelToTransport
+	// ------------------------------------------------------------
+	private void SwitchChatChannelToTransport()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::SwitchChatChannelToTransport - Start");
+		#endif
+
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
+		Object parent = player.GetParent();
+
+		if (parent && parent.IsTransport())
+		{
+			m_ChatChannel = ExpansionChatChannels.CCTransport;
+
+			m_ChatChannelName.SetText("Transport Communication");
+			m_ChatChannelName.SetColor(EXP_TRANSPORT_COLOUR);
+		} else
+		{
+			SwitchChatChannelToAdmin();
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::SwitchChatChannelToTransport - End");
 		#endif
 	}
 	
@@ -194,6 +249,12 @@ modded class MissionGameplay
 				SwitchChatChannelToGlobal();
 				break;
 			case ExpansionChatChannels.CCGlobal:
+				SwitchChatChannelToTeam();
+				break;
+			case ExpansionChatChannels.CCTeam:
+				SwitchChatChannelToTransport();
+				break;
+			case ExpansionChatChannels.CCTransport:
 				SwitchChatChannelToAdmin();
 				break;
 			case ExpansionChatChannels.CCAdmin:

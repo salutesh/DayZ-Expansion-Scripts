@@ -22,6 +22,8 @@ enum ExpansionGlobalChatRPC
  **/
 class ExpansionGlobalChatModule: JMModuleBase
 {
+	protected ref ExpansionPartyModule m_PartyModule;
+
 	// ------------------------------------------------------------
 	void ExpansionGlobalChatModule()
 	{
@@ -45,6 +47,12 @@ class ExpansionGlobalChatModule: JMModuleBase
 		
 		ChatMessageEventParams data;
 
+		Object parent;
+		int partyID = -1;
+
+		if (!m_PartyModule) // i tried this in OnInit, and it still gave me errors
+			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+
 		if ( !ctx.Read( data ) )
 		{
 			#ifdef EXPANSIONEXPRINT
@@ -55,6 +63,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 		
 		if ( IsMissionHost() )
 		{
+			PlayerBase player = GetPlayerObjectByIdentity(sender);
 			bool canSendMessage = true;
 			string channelName = "";
 			
@@ -67,6 +76,18 @@ class ExpansionGlobalChatModule: JMModuleBase
 				case ExpansionChatChannels.CCGlobal:
 					canSendMessage = GetExpansionSettings().GetGeneral().EnableGlobalChat;
 					channelName = "Global";
+					break;
+				case ExpansionChatChannels.CCTeam:
+					if (!m_PartyModule) break;
+					if (player) partyID = m_PartyModule.GetPartyID(player);
+
+					canSendMessage = player && m_PartyModule.HasParty(player);
+					channelName = "Team";
+					break;
+				case ExpansionChatChannels.CCTransport:
+					if (player) parent = player.GetParent();
+					canSendMessage = parent && parent.IsTransport();
+					channelName = "Transport";
 					break;
 			}
 
@@ -82,13 +103,38 @@ class ExpansionGlobalChatModule: JMModuleBase
 				if ( GetGame().IsMultiplayer() )
 				{
 					ScriptRPC rpc = new ScriptRPC();
-					rpc.Write( data );
-					rpc.Send( null, ExpansionGlobalChatRPC.AddChatMessage, true );
+					rpc.Write(data);
+
+					if (parent)
+						rpc.Write(parent);
+					if (partyID >= 0)
+						rpc.Write(partyID);
+
+					rpc.Send(null, ExpansionGlobalChatRPC.AddChatMessage, true);
 				}
 			}
 		} else
 		{
-			GetGame().GetMission().OnEvent( ChatMessageEventTypeID, data );
+			switch (data.param1)
+			{
+				case ExpansionChatChannels.CCTransport:
+					if (ctx.Read(parent))
+					{
+						Object playerParent = g_Game.GetPlayer().GetParent();
+						if (!parent.IsTransport() && (playerParent && playerParent != parent))
+							return;
+					}
+					break;
+				case ExpansionChatChannels.CCTeam:
+					if (ctx.Read(partyID))
+					{
+						if (partyID != m_PartyModule.GetPartyID())
+							return;
+					}
+					break;
+			}
+
+			GetGame().GetMission().OnEvent(ChatMessageEventTypeID, data);
 		}
 
 		#ifdef EXPANSIONEXPRINT

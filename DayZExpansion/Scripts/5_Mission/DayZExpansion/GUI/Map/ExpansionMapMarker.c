@@ -613,6 +613,12 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_RightButton.SetText( "UPDATE" );
 		}
 		
+		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().GetMenu() );
+		if(mapmenu)
+		{
+			mapmenu.SetIsEditingMarker(true);			
+		}
+		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMapMarker::ShowEditPanel - End");
 		#endif
@@ -633,6 +639,12 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		m_EditName.Show( false );
 		m_Name.Show( true );
+		
+		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().GetMenu() );
+		if(mapmenu)
+		{
+			mapmenu.SetIsEditingMarker(false);			
+		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMapMarker::CloseEditPanel - End");

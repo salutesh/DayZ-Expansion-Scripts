@@ -38,6 +38,8 @@ class ExpansionMapMenu extends UIScriptedMenu
 	
 	private float m_OpenMapTime = 0;
 	
+	private bool m_IsEditingMarker = false;
+	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapMenu Constructor
 	// ------------------------------------------------------------	
@@ -1073,7 +1075,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 			return;
 		}
 		
-		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 )
+		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 && !IsEditingMarker() )
 		{
 			Hide();
 			Close();
@@ -1173,5 +1175,21 @@ class ExpansionMapMenu extends UIScriptedMenu
 		{
 			SEffectManager.PlaySound("Expansion_Draws_SoundSet", m_PlayerB.GetPosition());
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetIsEditingMarker
+	// ------------------------------------------------------------	
+	void SetIsEditingMarker( bool state )
+	{
+		m_IsEditingMarker = state;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion IsEditingMarker
+	// ------------------------------------------------------------	
+	bool IsEditingMarker()
+	{
+		return m_IsEditingMarker;
 	}
 }

@@ -118,13 +118,14 @@ modded class ChatInputMenu
 
 			bool useExpansionChat = false;
 
-			if ( gameplayMission.GetChatChannel() == ExpansionChatChannels.CCGlobal ) 
+			switch (gameplayMission.GetChatChannel())
 			{
-				useExpansionChat = true;
-			} 
-			else if ( gameplayMission.GetChatChannel() == ExpansionChatChannels.CCAdmin ) 
-			{
-				useExpansionChat = true;
+				case ExpansionChatChannels.CCGlobal:
+				case ExpansionChatChannels.CCTeam:
+				case ExpansionChatChannels.CCTransport:
+				case ExpansionChatChannels.CCAdmin:
+					useExpansionChat = true;
+					break;
 			}
 
 			if ( useExpansionChat )

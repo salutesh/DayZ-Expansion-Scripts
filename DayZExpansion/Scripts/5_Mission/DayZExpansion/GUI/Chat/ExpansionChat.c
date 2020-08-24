@@ -297,6 +297,16 @@ modded class Chat
 				return;
 			}
 		}
+		else if(channel & ExpansionChatChannels.CCTeam)
+		{
+			if (g_Game.GetProfileOption(EDayZProfilesOptions.PLAYER_MESSAGES))
+			{
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("Chat::Add End");
+				#endif
+				return;
+			}
+		}
 
 		AddInternal( params );
 		#ifdef EXPANSIONEXPRINT
