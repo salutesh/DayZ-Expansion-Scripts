@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Sounds_Spraycan
+	class DayZExpansion_Sounds_Items_Spraycan
 	{
 		units[] = {};
 		weapons[] = {};

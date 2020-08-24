@@ -35,9 +35,6 @@ modded class PlayerBase
 
 	protected ref ExpansionMarketReserve m_MarketReserve;
 	protected ref ExpansionMarketSell m_MarketSell;
-
-	protected ref ExpansionHumanCommandVehicle_ST m_ExpansionVehicleCommandST;
-	protected ref ExpansionHumanCommandFall_ST m_ExpansionFallCommandST;
 	
 	protected string m_PlayerUID;
 	protected string m_PlayerSteam;
@@ -352,6 +349,9 @@ modded class PlayerBase
 		
 		//AddAction( ExpansionActionStartPlane );
 		//AddAction( ExpansionActionStopPlane );
+		
+		AddAction( ExpansionActionStartPlayingGuitar );
+		AddAction( ExpansionActionStopPlayingGuitar );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::SetActions end");
@@ -705,6 +705,15 @@ modded class PlayerBase
 			item.UpdateLaser();
 		}
 
+		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
+		{
+			ExpansionHumanCommandGuitar guitar;
+			if ( Class.CastTo( guitar, GetCommand_Script() ) )
+			{
+				return true;
+			}
+		}
+
 		//if ( !s_ExpansionPlayerAttachment )
 		{
 			return super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished );
@@ -1013,16 +1022,40 @@ modded class PlayerBase
 	}
 
 	// ------------------------------------------------------------
+	// Expansion StartCommand_ExpansionGuitar
+	// ------------------------------------------------------------
+	override ExpansionHumanCommandGuitar StartCommand_ExpansionGuitar( Expansion_Guitar guitar )
+	{
+		if ( m_ExpansionST == NULL )
+			m_ExpansionST = new ExpansionHumanST( this );
+	
+		ExpansionHumanCommandGuitar cmd = new ExpansionHumanCommandGuitar( this, guitar, m_ExpansionST );
+		StartCommand_Script( cmd );
+		return cmd;
+	}
+
+	// ------------------------------------------------------------
 	// Expansion StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
 	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
 	{
-		if ( m_ExpansionVehicleCommandST == NULL )
-		{
-			m_ExpansionVehicleCommandST = new ExpansionHumanCommandVehicle_ST( this );
-		}
+		if ( m_ExpansionST == NULL )
+			m_ExpansionST = new ExpansionHumanST( this );
 	
-		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, vehicle, seatIdx, seat_anim, m_ExpansionVehicleCommandST );
+		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, vehicle, seatIdx, seat_anim, m_ExpansionST );
+		StartCommand_Script( cmd );
+		return cmd;
+	}
+
+	// ------------------------------------------------------------
+	// Expansion StartCommand_ExpansionLeaveVehicle
+	// ------------------------------------------------------------
+	override ExpansionHumanCommandLeavingVehicle StartCommand_ExpansionLeaveVehicle( Object vehicle )
+	{
+		if ( m_ExpansionST == NULL )
+			m_ExpansionST = new ExpansionHumanST( this );
+	
+		ExpansionHumanCommandLeavingVehicle cmd = new ExpansionHumanCommandLeavingVehicle( this, vehicle, m_ExpansionST );
 		StartCommand_Script( cmd );
 		return cmd;
 	}
@@ -1033,19 +1066,20 @@ modded class PlayerBase
 	override void StartCommand_ExpansionFall( float pYVelocity )
 	{
 		#ifndef EXPANSION_DISABLE_FALL
-		if ( s_ExpansionPlayerAttachment )
+		if ( !s_ExpansionPlayerAttachment )
 		{
-			if ( m_ExpansionFallCommandST == NULL )
-			{
-				m_ExpansionFallCommandST = new ExpansionHumanCommandFall_ST( this );
-			}
-		
-			StartCommand_Script( new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionFallCommandST ) );
+			StartCommand_Fall( pYVelocity );
 			return;
 		}
-		#endif
-		
+
+		if ( m_ExpansionST == NULL )
+			m_ExpansionST = new ExpansionHumanST( this );
+
+		ExpansionHumanCommandFall cmd = new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionST );
+		StartCommand_Script( cmd );
+		#else
 		StartCommand_Fall( pYVelocity );
+		#endif
 	}
 
 	// ------------------------------------------------------------

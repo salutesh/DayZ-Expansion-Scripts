@@ -618,7 +618,7 @@ class ExpansionMarketModule: JMModuleBase
 		array< EntityAI > items = new array< EntityAI >;
 	   	player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 
-		array< ref array< ExpansionMoneyBase > > foundMoney = new array< ref array< ExpansionMoneyBase > >;
+		ref array< ref array< ExpansionMoneyBase > > foundMoney = new array< ref array< ExpansionMoneyBase > >;
 		for ( int i = 0; i < m_MoneyDenominations.Count(); i++ )
 		{
 			foundMoney.Insert( new array< ExpansionMoneyBase > );

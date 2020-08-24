@@ -10,50 +10,10 @@
  *
 */
 
-class ExpansionHumanCommandVehicle_ST
-{
-	int m_VehicleType;
-
-	int m_CMD_Vehicle_GetIn;
-	int m_CMD_Vehicle_SwitchSeat;
-	int m_CMD_Vehicle_GetOut;
-	int m_CMD_Vehicle_ClimbOut;
-	int m_CMD_Vehicle_CrawlOut;
-	int m_CMD_Vehicle_JumpOut;
-
-	int m_Look;
-	int m_LookDirX;
-	int m_LookDirY;
-
-	void ExpansionHumanCommandVehicle_ST( Human human )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandVehicle_ST::ExpansionHumanCommandVehicle_ST Start");
-		#endif
-		HumanAnimInterface hai = human.GetAnimInterface();
-		
-		m_VehicleType = hai.BindVariableInt( "VehicleType" );
-
-		m_CMD_Vehicle_GetIn = hai.BindCommand( "CMD_Vehicle_GetIn" );
-		m_CMD_Vehicle_SwitchSeat = hai.BindCommand( "CMD_Vehicle_SwitchSeat" );
-		m_CMD_Vehicle_GetOut = hai.BindCommand( "CMD_Vehicle_GetOut" );
-		m_CMD_Vehicle_ClimbOut = hai.BindCommand( "CMD_Vehicle_ClimbOut" );
-		m_CMD_Vehicle_CrawlOut = hai.BindCommand( "CMD_Vehicle_CrawlOut" );
-		m_CMD_Vehicle_JumpOut = hai.BindCommand( "CMD_Vehicle_JumpOut" );
-
-		m_Look = hai.BindVariableBool( "Look" );
-		m_LookDirX = hai.BindVariableFloat( "LookDirX" );
-		m_LookDirY = hai.BindVariableFloat( "LookDirY" );
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandVehicle_ST::ExpansionHumanCommandVehicle_ST End");
-		#endif
-	}
-}
-
 class ExpansionHumanCommandVehicle extends HumanCommandScript
 {
 	DayZPlayerImplement m_Player;
-	ExpansionHumanCommandVehicle_ST m_Table;
+	ExpansionHumanST m_Table;
 	HumanInputController m_Input;
 
 	Object m_Vehicle;
@@ -82,7 +42,7 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 	private float m_TimeGetIn;
 	private float m_TimeGetOut;
 
-	void ExpansionHumanCommandVehicle( DayZPlayerImplement player, Object vehicle, int seatIdx, int seat_anim, ExpansionHumanCommandVehicle_ST table )
+	void ExpansionHumanCommandVehicle( DayZPlayerImplement player, Object vehicle, int seatIdx, int seat_anim, ExpansionHumanST table )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::ExpansionHumanCommandVehicle Start");
@@ -149,8 +109,8 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 			m_VehicleVn.CrewGetIn( m_Player, m_SeatIndex );
 		}
 
-		PreAnim_SetInt( m_Table.m_VehicleType, m_VehicleType );
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_GetIn, m_SeatAnim, 0 );
+		m_Table.SetVehicleType( this, m_VehicleType );
+		m_Table.CallVehicleGetIn( this, m_SeatAnim );
 
 		dBodyEnableGravity( m_Player, false );
 
@@ -169,7 +129,8 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::OnDeactivate Start");
 		#endif
-		PreAnim_SetInt( m_Table.m_VehicleType, -1 );
+
+		m_Table.SetVehicleType( this, -1 );
 		
 		if ( m_VehicleEx )
 		{
@@ -210,8 +171,9 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		float aimDiff = ( heading * Math.RAD2DEG ) - lrAngle;
 		//m_Input.OverrideAimChangeX( true, aimDiff * Math.DEG2RAD );
 
-		PreAnim_SetBool( m_Table.m_Look, true );
-		PreAnim_SetFloat( m_Table.m_LookDirX, heading * Math.RAD2DEG );
+		m_Table.SetLook( this, true );
+		m_Table.SetLookDirX( this, heading * Math.RAD2DEG );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::PreAnimUpdate End");
 		#endif
@@ -323,11 +285,13 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::GetOut Start");
 		#endif
+		
 		m_Time = 0;
 		m_IsGettingIn = false;
 		m_IsGettingOut = true;
 
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_GetOut, 0, 0 );
+		m_Table.CallVehicleGetOut( this );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::GetOut End");
 		#endif

@@ -14,6 +14,10 @@ modded class PPEffects
 {
 	override static void UpdateSaturation()
 	{
+		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
+		EXLogPrint( "PPEffects::UpdateSaturation - Start" );
+		#endif
+		
 		if ( GetExpansionClientSettings().ColorGrading )
 		{
 			m_MatColors.SetParam("Saturation", m_BloodSaturation + 0.25);
@@ -22,10 +26,18 @@ modded class PPEffects
 		{
 			m_MatColors.SetParam("Saturation", m_BloodSaturation);
 		}
+		
+		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
+		EXLogPrint( "PPEffects::UpdateSaturation - End" );
+		#endif
 	}
 
 	override static void UpdateVignette()
 	{
+		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
+		EXLogPrint( "PPEffects::UpdateVignette - Start" );
+		#endif
+		
 		float color[4];
 		float intesity;
 		
@@ -43,5 +55,9 @@ modded class PPEffects
 		}
 		
 		SetVignette( intesity, color[0], color[1], color[2] );
+		
+		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
+		EXLogPrint( "PPEffects::UpdateVignette - End" );
+		#endif
 	}
 }

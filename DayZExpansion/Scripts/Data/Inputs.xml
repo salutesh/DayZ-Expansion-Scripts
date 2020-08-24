@@ -56,7 +56,6 @@
             <input name="UAExpansionSnappingToggle" loc="STR_EXPANSION_TOGGLE_SNAPPING" />
             <input name="UAExpansionHologramNextPlacing" loc="STR_EXPANSION_TOGGLE_SNAPPING" />
             <input name="UAExpansionChatSwitchChannel" loc="STR_EXPANSION_SWITCH_CHAT_CHANNEL" />
-			<input name="UAExpansionChatToggle" loc="STR_EXPANSION_TOGGLE_CHAT" />
 
             <input name="UAExpansionAutoRunToggle" loc="STR_EXPANSION_TOGGLE_AUTORUN" />
 
@@ -258,9 +257,6 @@
         </input>
         <input name="UAExpansionChatSwitchChannel">
             <btn name="kComma" />
-        </input>
-		<input name="UAExpansionChatToggle">
-            <btn name="kL" />
         </input>
         <input name="UAExpansionAutoRunToggle">
             <btn name="kZ" />

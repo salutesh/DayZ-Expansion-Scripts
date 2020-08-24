@@ -24,7 +24,11 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	protected ref OptionSelectorMultistate m_Selector;
 	protected ref OptionSelectorSlider m_Slider;
 	protected ref ScriptInvoker m_ApplySetting = new ScriptInvoker;
+		
+	// -----------------------------------------------------------
+	// ExpansionOptionSettingWidget Constructor
 	
+	// -----------------------------------------------------------
 	void ExpansionOptionSettingWidget( Widget parent, notnull ref ExpansionSettingSerializationBase setting, ref OptionsMenuExpansion menu )
 	{
 		layoutRoot = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/options/expansion_options_setting_new.layout", parent ) );
@@ -229,5 +233,10 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 		}
 		
 		return super.OnMouseLeave( w, enterW, x, y );
+	}
+	
+	ExpansionSettingSerializationBase GetSetting()
+	{
+		return m_Setting;
 	}
 }

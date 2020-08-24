@@ -31,7 +31,7 @@
 #define EXPANSION_VEHICLE_TOWING
 
 //! Enable it if you want to disable mapping 
-//#define EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
+#define EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
 //#define EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
 
 //! Enable it if you want party module debug logs enabled
@@ -45,6 +45,9 @@
 
 //! Enable it if you want to enable map menu debug logs
 //#define EXPANSION_MAP_MENU_DEBUG
+
+//! Enable it if you want to enable client settings debug logs
+#define EXPANSION_CLIENT_SETTINGS_DEBUG
 
 //#define EXPANSION_SKIN_LOGGING
 #define EXPANSION_SKIN_REPLACEMENT_DISABLE

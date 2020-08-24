@@ -10,49 +10,10 @@
  *
 */
 
-class ExpansionHumanCommandFall_ST
-{
-	int m_FallCommand;
-	int m_ParachutePullCommand;
-	int m_ParachuteCutCommand;
-	int m_JumpCommand;
-	int m_LandCommand;
-
-	int m_MovementSpeed;
-	int m_MovementDirection;
-
-	int m_LandEarlyExit;
-
-	void ExpansionHumanCommandFall_ST( Human human )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandFall_ST::ExpansionHumanCommandFall_ST Start");
-		#endif
-		
-		HumanAnimInterface hai = human.GetAnimInterface();
-		
-		m_FallCommand = hai.BindCommand( "CMD_Fall" );
-		m_JumpCommand = hai.BindCommand( "CMD_Jump" );
-		m_LandCommand = hai.BindCommand( "CMD_Land" );
-
-		m_ParachutePullCommand = hai.BindCommand( "CMD_Expansion_Parachute_Pull" );
-		m_ParachuteCutCommand = hai.BindCommand( "CMD_Expansion_Parachute_Cut" );
-
-		m_MovementSpeed = hai.BindVariableFloat( "MovementSpeed" );
-		m_MovementDirection = hai.BindVariableFloat( "MovementDirection" );
-
-		m_LandEarlyExit = hai.BindEvent( "LandEarlyExit" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandFall_ST::ExpansionHumanCommandFall_ST End");
-		#endif
-	}
-}
-
 class ExpansionHumanCommandFall extends HumanCommandScript
 {
 	PlayerBase m_Player;
-	ExpansionHumanCommandFall_ST m_Table;
+	ExpansionHumanST m_Table;
 	HumanInputController m_Input;
 
 	float m_JumpTime;
@@ -78,7 +39,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 
 	private bool m_LandEarlyExit;
 
-	void ExpansionHumanCommandFall( Human pHuman, float pYVelocity, ExpansionHumanCommandFall_ST table )
+	void ExpansionHumanCommandFall( Human pHuman, float pYVelocity, ExpansionHumanST table )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::ExpansionHumanCommandFall Start");
@@ -158,7 +119,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 
 		if ( m_JumpVelocity > 0 )
 		{
-			PreAnim_CallCommand( m_Table.m_JumpCommand, 0, 0 );
+			m_Table.CallJump( this );
 
 			m_IsJumping = true;
 		}
@@ -198,14 +159,14 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 		{
 			m_IsParachuteDeployedPrevious = true;
 
-			PreAnim_CallCommand( m_Table.m_ParachutePullCommand, 5, 0 );
+			m_Table.CallParachutePull( this, 5 );
 		}
 
 		if ( m_Parachute && m_Parachute.IsCut() && m_IsParachuteDeployedPrevious )
 		{
 			m_IsParachuteDeployedPrevious = false;
 
-			PreAnim_CallCommand( m_Table.m_ParachuteCutCommand, 5, 0 );
+			m_Table.CallParachuteCut( this, 5 );
 		}
 
 		if ( m_Parachute && !m_Parachute.IsCut() )
@@ -219,13 +180,13 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 
 		if ( !m_IsJumping && m_IsFalling && m_Time == 0 )
 		{
-			PreAnim_CallCommand( m_Table.m_FallCommand, 0, 0 );
+			m_Table.CallFall( this );
 		}
 
 		if ( !m_IsFalling && m_LandType != -1 && m_Time == 0 )
 		{		
 			ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "Not Falling" );
-			PreAnim_CallCommand( m_Table.m_LandCommand, m_LandType, 0 );	
+			m_Table.CallLand( this, m_LandType );	
 
 			m_NeedFinish = true;
 			m_IsJumping = false;
@@ -248,7 +209,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 		//Print( m_Table.m_LandEarlyExit );
 
 		if ( !m_LandEarlyExit )
-			m_LandEarlyExit = PrePhys_IsEvent( m_Table.m_LandEarlyExit );
+			m_LandEarlyExit = m_Table.IsLandEarlyExit( this );
 
 		float speed;
 		vector direction;

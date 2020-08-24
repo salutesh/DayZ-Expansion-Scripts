@@ -10,40 +10,10 @@
  *
 */
 
-class ExpansionHumanCommandLeavingVehicle_ST
-{
-	int m_VehicleType;
-
-	int m_CMD_Vehicle_GetOut;
-	int m_CMD_Vehicle_ClimbOut;
-	int m_CMD_Vehicle_CrawlOut;
-	int m_CMD_Vehicle_JumpOut;
-
-	void ExpansionHumanCommandLeavingVehicle_ST( Human human )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandLeavingVehicle_ST::ExpansionHumanCommandLeavingVehicle_ST Start");
-		#endif
-
-		HumanAnimInterface hai = human.GetAnimInterface();
-		
-		m_VehicleType = hai.BindVariableInt( "VehicleType" );
-
-		m_CMD_Vehicle_GetOut = hai.BindCommand( "CMD_Vehicle_GetOut" );
-		m_CMD_Vehicle_ClimbOut = hai.BindCommand( "CMD_Vehicle_ClimbOut" );
-		m_CMD_Vehicle_CrawlOut = hai.BindCommand( "CMD_Vehicle_CrawlOut" );
-		m_CMD_Vehicle_JumpOut = hai.BindCommand( "CMD_Vehicle_JumpOut" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandLeavingVehicle_ST::ExpansionHumanCommandLeavingVehicle_ST End");
-		#endif
-	}
-}
-
 class ExpansionHumanCommandLeavingVehicle extends HumanCommandScript
 {
 	PlayerBase m_Player;
-	ExpansionHumanCommandLeavingVehicle_ST m_Table;
+	ExpansionHumanST m_Table;
 	HumanInputController m_Input;
 
 	ExpansionVehicleScript m_ExVehicle;
@@ -60,7 +30,7 @@ class ExpansionHumanCommandLeavingVehicle extends HumanCommandScript
 
 	private float m_Speedometer;
 
-	void ExpansionHumanCommandLeavingVehicle( PlayerBase player, Object veh, ExpansionHumanCommandLeavingVehicle_ST table )
+	void ExpansionHumanCommandLeavingVehicle( PlayerBase player, Object veh, ExpansionHumanST table )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandLeavingVehicle::ExpansionHumanCommandLeavingVehicle Start");
@@ -95,22 +65,22 @@ class ExpansionHumanCommandLeavingVehicle extends HumanCommandScript
 
 	void CrawlOutVehicle()
 	{
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_CrawlOut, 0, 0 );
+		m_Table.CallVehicleCrawlOut( this );
 	}
 
 	void ClimbOutVehicle()
 	{
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_ClimbOut, 0, 0 );
+		m_Table.CallVehicleClimbOut( this );
 	}
 
 	void JumpOutVehicle()
 	{
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_JumpOut, 0, 0 );
+		m_Table.CallVehicleJumpOut( this );
 	}
 
 	void GetOutVehicle()
 	{
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_GetOut, 0, 0 );
+		m_Table.CallVehicleGetOut( this );
 	}
 
 	float GetSpeedometer()
@@ -140,7 +110,7 @@ class ExpansionHumanCommandLeavingVehicle extends HumanCommandScript
 
 	override void OnActivate()
 	{
-		PreAnim_CallCommand( m_Table.m_CMD_Vehicle_GetOut, 0, 0 );
+		GetOutVehicle();
 
 		m_Time = 0;
 	}

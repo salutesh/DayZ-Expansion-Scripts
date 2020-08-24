@@ -45,6 +45,8 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 	{
 		CreateToggle( "PlayerLocationNotifier", "Player Location", "", "" );
 		CreateToggle( "EnableGlobalChat", "Globalchat", "", "" );
+		CreateToggle( "EnablePartyChat", "Partychat", "", "" );
+		CreateToggle( "EnableTransportChat", "TransportChat", "", "" );
 		CreateToggle( "EnableGravecross", "Gravecross", "", "" );
 		CreateToggle( "GravecrossDeleteBody", "Delete Body On Gravecross", "", "" );
 		CreateSlider( "GravecrossTimeThreshold", "Gravecross Threshold", "", "", 0.0, 2000.0, 60.0 );

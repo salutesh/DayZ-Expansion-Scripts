@@ -81,12 +81,12 @@ class ExpansionGlobalChatModule: JMModuleBase
 					if (!m_PartyModule) break;
 					if (player) partyID = m_PartyModule.GetPartyID(player);
 
-					canSendMessage = player && m_PartyModule.HasParty(player);
+					canSendMessage = player && m_PartyModule.HasParty(player) && GetExpansionSettings().GetGeneral().EnablePartyChat;
 					channelName = "Team";
 					break;
 				case ExpansionChatChannels.CCTransport:
 					if (player) parent = player.GetParent();
-					canSendMessage = parent && parent.IsTransport();
+					canSendMessage = parent && parent.IsTransport() && GetExpansionSettings().GetGeneral().EnableTransportChat;
 					channelName = "Transport";
 					break;
 			}
@@ -118,20 +118,27 @@ class ExpansionGlobalChatModule: JMModuleBase
 			switch (data.param1)
 			{
 				case ExpansionChatChannels.CCTransport:
-					if (ctx.Read(parent))
-					{
-						Object playerParent = g_Game.GetPlayer().GetParent();
-						if (!parent.IsTransport() && (playerParent && playerParent != parent))
-							return;
-					}
-					break;
+					if (!ctx.Read(parent))
+						return;
+
+					Object localParent = g_Game.GetPlayer().GetParent();
+					if (parent.IsTransport() && localParent == parent)
+						break;
+					else
+						return;
+					
+				break;
+
 				case ExpansionChatChannels.CCTeam:
-					if (ctx.Read(partyID))
-					{
-						if (partyID != m_PartyModule.GetPartyID())
+					if (!ctx.Read(partyID))
 							return;
-					}
-					break;
+
+					if (partyID == m_PartyModule.GetPartyID())
+						break;
+					else
+						return;
+
+				break;
 			}
 
 			GetGame().GetMission().OnEvent(ChatMessageEventTypeID, data);

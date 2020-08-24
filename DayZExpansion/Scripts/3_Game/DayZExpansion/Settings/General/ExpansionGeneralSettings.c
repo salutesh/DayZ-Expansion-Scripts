@@ -18,6 +18,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool PlayerLocationNotifier;
 
 	bool EnableGlobalChat;
+	bool EnablePartyChat;
+	bool EnableTransportChat;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
 	int GravecrossTimeThreshold;
@@ -145,6 +147,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		PlayerLocationNotifier = s.PlayerLocationNotifier;
 		EnableGlobalChat = s.EnableGlobalChat;
+		EnablePartyChat = s.EnablePartyChat;
+		EnableTransportChat = s.EnableTransportChat;
 		EnableGravecross = s.EnableGravecross;
 		GravecrossDeleteBody = s.GravecrossDeleteBody;
 		GravecrossTimeThreshold = s.GravecrossTimeThreshold;
@@ -240,6 +244,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		PlayerLocationNotifier = true;
 		
 		EnableGlobalChat = true;
+		EnablePartyChat = true;
+		EnableTransportChat = true;
 		EnableGravecross = false;
 		GravecrossDeleteBody = true;
 		GravecrossTimeThreshold = 1200;

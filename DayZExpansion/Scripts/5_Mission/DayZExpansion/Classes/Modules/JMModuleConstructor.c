@@ -50,6 +50,7 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionCOTVehicleModule );
 
 		modules.Insert( ExpansionGameMissionSelecterModule );
+		modules.Insert( ExpansionClientSettingsModule );
 		
 		super.RegisterModules( modules );
 	}

@@ -15,6 +15,8 @@ static bool m_ExpansionShowDeadScreen = false;
 modded class DayZPlayerImplement
 {
 	private ExpansionParachute m_ActiveParachute;
+
+	protected ref ExpansionHumanST m_ExpansionST;
 	
 	// ------------------------------------------------------------
 	// DayZPlayerImplement Constructor
@@ -77,6 +79,22 @@ modded class DayZPlayerImplement
 	}
 	
 	// ------------------------------------------------------------
+	// DayZPlayerImplement StartCommand_ExpansionGuitar
+	// ------------------------------------------------------------
+	ExpansionHumanCommandGuitar StartCommand_ExpansionGuitar( Expansion_Guitar guitar )
+	{
+		return NULL;
+	}
+	
+	// ------------------------------------------------------------
+	// DayZPlayerImplement GetCommand_ExpansionGuitar
+	// ------------------------------------------------------------
+	ExpansionHumanCommandGuitar GetCommand_ExpansionGuitar()
+	{
+		return ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
+	}
+	
+	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
 	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
@@ -90,6 +108,22 @@ modded class DayZPlayerImplement
 	ExpansionHumanCommandVehicle GetCommand_ExpansionVehicle()
 	{
 		return ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
+	}
+	
+	// ------------------------------------------------------------
+	// DayZPlayerImplement StartCommand_ExpansionLeaveVehicle
+	// ------------------------------------------------------------
+	ExpansionHumanCommandLeavingVehicle StartCommand_ExpansionLeaveVehicle( Object vehicle )
+	{
+		return NULL;
+	}
+	
+	// ------------------------------------------------------------
+	// DayZPlayerImplement GetCommand_ExpansionVehicle
+	// ------------------------------------------------------------
+	ExpansionHumanCommandLeavingVehicle GetCommand_ExpansionLeaveVehicle()
+	{
+		return ExpansionHumanCommandLeavingVehicle.Cast( GetCommand_Script() );
 	}
 	
 	// ------------------------------------------------------------
@@ -159,19 +193,12 @@ modded class DayZPlayerImplement
 		EXPrint("DayZPlayerImplement::CutParachute - End");
 		#endif
 	}
-			
+
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionFall
 	// ------------------------------------------------------------
-	override void StartCommand_ExpansionFall( float pYVelocity )
+	void StartCommand_ExpansionFall( float pYVelocity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::StartCommand_ExpansionFall - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::StartCommand_ExpansionFall - End");
-		#endif
 	}
 			
 	// ------------------------------------------------------------
@@ -190,9 +217,7 @@ modded class DayZPlayerImplement
 		if ( GetCommand_ExpansionVehicle() )
 		{
 			m_fLastHeadingDiff = 0;
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("DayZPlayerImplement::HeadingModel - Return false");
-			#endif
+
 			return false;
 		}
 		

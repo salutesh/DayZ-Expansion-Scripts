@@ -27,8 +27,6 @@ modded class DayZPlayerImplement
 	protected bool m_ExIsPreparingVehicle;
 	protected bool m_ExPerformVehicleGetIn;
 
-	protected ref ExpansionHumanCommandLeavingVehicle_ST m_ExpansionLeavingVehicleCommandST;
-
 	// ------------------------------------------------------------
 	void DayZPlayerImplement()
 	{
@@ -176,33 +174,7 @@ modded class DayZPlayerImplement
 	}
 	
 	// ------------------------------------------------------------
-	ExpansionHumanCommandLeavingVehicle GetCommand_ExpansionLeaveVehicle()
-	{
-		return ExpansionHumanCommandLeavingVehicle.Cast( GetCommand_Script() );
-	}
-	
-	// ------------------------------------------------------------
-	void StartCommand_ExpansionLeaveVehicle( Object obj )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::StartCommand_ExpansionLeaveVehicle - Start");
-		#endif
-		
-		if ( m_ExpansionLeavingVehicleCommandST == NULL )
-		{
-			m_ExpansionLeavingVehicleCommandST = new ExpansionHumanCommandLeavingVehicle_ST( this );
-		}
-	
-		PlayerBase player = PlayerBase.Cast( this );
-		StartCommand_Script( new ExpansionHumanCommandLeavingVehicle( player, obj, m_ExpansionLeavingVehicleCommandST ) );
-	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::StartCommand_ExpansionLeaveVehicle - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	bool HandleDeath( int pCurrentCommandID )
+	override bool HandleDeath( int pCurrentCommandID )
 	{
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE && m_DeathAnimType != -2 )
 		{

@@ -30,6 +30,8 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, ref OptionsMenu menu )
 	{
+		GetExpansionClientSettings().Load();
+		
 		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/options/expansion_tab.layout", parent );
 		m_Root.SetHandler( this );
 		
@@ -90,15 +92,18 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	void Apply()
 	{
-		m_IsChanged = false;
-
-		for ( int i = 0; i < m_OptionsWidgets.Count(); i++ )
+		if ( m_IsChanged )
 		{
-			m_OptionsWidgets[i].Apply();
+			m_IsChanged = false;
+	
+			for ( int i = 0; i < m_OptionsWidgets.Count(); i++ )
+			{
+				m_OptionsWidgets[i].Apply();
+			}
+	
+			GetModuleManager().OnSettingsUpdated();
+			GetExpansionClientSettings().Save();
 		}
-
-		GetModuleManager().OnSettingsUpdated();
-		GetExpansionClientSettings().Save();
 	}
 	
 	// -----------------------------------------------------------

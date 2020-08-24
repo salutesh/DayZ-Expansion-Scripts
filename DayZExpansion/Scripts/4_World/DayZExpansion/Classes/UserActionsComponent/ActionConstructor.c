@@ -98,6 +98,10 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionWritePaper );
 		actions.Insert( ExpansionActionEnterFlagMenu );
 		actions.Insert( ExpansionActionDismantleFlag );
+
+		//! Music
+		actions.Insert( ExpansionActionStartPlayingGuitar );
+		actions.Insert( ExpansionActionStopPlayingGuitar );
 		
 		//! Removed because it wont be in first release
 		//actions.Insert( ExpansionActionTakeChicken );

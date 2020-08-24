@@ -50,8 +50,6 @@ modded class MissionGameplay
 	ref ExpansionAutorunModule 					m_AutoRunModule;
 	ExpansionMarkerModule 						m_MarkerModule;
 	
-	protected float 							m_ChatToggleTime;
-	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -83,8 +81,6 @@ modded class MissionGameplay
 		m_DataSent = false;
 			
 		m_SeperatorFadeTimer = new WidgetFadeTimer;
-		
-		m_ChatToggleTime = 0;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::MissionGameplay - End");
@@ -146,7 +142,7 @@ modded class MissionGameplay
 
 		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
 		
-		if (partyModule.HasParty())
+		if (partyModule.HasParty() && GetExpansionSettings().GetGeneral().EnablePartyChat)
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 
@@ -174,7 +170,7 @@ modded class MissionGameplay
 		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		Object parent = player.GetParent();
 
-		if (parent && parent.IsTransport())
+		if (parent && parent.IsTransport() && GetExpansionSettings().GetGeneral().EnableTransportChat)
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 
@@ -290,9 +286,7 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::ShowChat - Start");
 		#endif
-		
-		m_ChatToggleTime = 0;
-		
+				
 		exp_m_ChannelNameTimeoutTimer.Stop();
 		exp_m_ChannelTimeoutTimer.Stop();
 		m_WidgetChatChannel.SetAlpha( 0.6 );
@@ -551,8 +545,6 @@ modded class MissionGameplay
 
 		super.OnUpdate( timeslice );
 
-		m_ChatToggleTime += timeslice;
-		
 		if ( !m_bLoaded )
 		{
 			#ifdef EXPANSIONEXPRINT
@@ -807,20 +799,6 @@ modded class MissionGameplay
 						if ( INPUT_FORWARD() || INPUT_BACK() || INPUT_LEFT() || INPUT_RIGHT() || INPUT_GETOVER() || INPUT_STANCE() )
 						{
 							m_AutoRunModule.AutoRun();
-						}
-					}
-				}
-				
-				if ( GetGame().GetInput().LocalPress( "UAExpansionChatToggle", false ) && m_ChatToggleTime > 0.10 )
-				{				
-					if ( !m_Chat.IsChatVisible() )
-					{
-						if ( IsChatPanelVisible() )
-						{
-							HideChatPanel();
-						} else
-						{
-							ShowChatPanel();
 						}
 					}
 				}
@@ -1328,29 +1306,5 @@ modded class MissionGameplay
 			m_MicFadeTimer.Stop();
 			m_SeperatorFadeTimer.Stop();
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// ShowChatPanel
-	// ------------------------------------------------------------
-	void ShowChatPanel()
-	{
-		m_ChatPanel.Show(true);
-	}
-	
-	// ------------------------------------------------------------
-	// HideChatPanel
-	// ------------------------------------------------------------	
-	void HideChatPanel()
-	{
-		m_ChatPanel.Show(false);
-	}
-	
-	// ------------------------------------------------------------
-	// IsChatPanelVisible
-	// ------------------------------------------------------------	
-	bool IsChatPanelVisible()
-	{
-		return m_ChatPanel.IsVisible();
 	}
 }
