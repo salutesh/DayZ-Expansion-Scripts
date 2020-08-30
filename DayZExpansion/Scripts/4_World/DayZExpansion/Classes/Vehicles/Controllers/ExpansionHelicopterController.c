@@ -37,7 +37,7 @@ class ExpansionHelicopterController: ExpansionController
 
 	private bool m_AutoHover;
 
-	private bool m_FreeLook;
+	private bool m_FreeLook = true;
 	private bool m_WasFreeLookPressed;
 
 	private bool m_IsFlare;
@@ -199,6 +199,8 @@ class ExpansionHelicopterController: ExpansionController
 		m_CyclicBackwardK = 0;
 		m_CyclicLeftK = 0;
 		m_CyclicRightK = 0;
+		
+		m_FreeLook = true;
 
 		// don't reset freelook
 

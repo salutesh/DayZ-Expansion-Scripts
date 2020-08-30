@@ -31,7 +31,7 @@ class CfgVehicles
 {
 	class FruitStageTransitions;
 	class WaterBottle;
-	class Apple;
+	class Edible_Base;
 	class Food;
 	class ExpansionMilkBottle: WaterBottle
 	{
@@ -50,32 +50,49 @@ class CfgVehicles
 		varQuantityMax = 500;
 		isMeleeWeapon = 1;
 	};
-	class ExpansionBread1: Apple
+	class Expansion_FoodBase: Edible_Base
+	{
+		scope = 0;
+		rotationFlags = 2;
+		weight = 0;
+		stackedUnit = "g";
+		absorbency = 0.2;
+		varQuantityInit = 125;
+		varQuantityMin = 0;
+		varQuantityMax = 125;
+		quantityBar = 1;
+		ammoType = "G_GrenadeHand";
+		inventorySlot[] = {"Ingredient","DirectCookingA","DirectCookingB","DirectCookingC"};
+		containsSeedsType = "";
+		containsSeedsQuantity = "0";
+		class MeleeModes
+		{
+			class Default
+			{
+				ammo = "MeleeFist";
+				range = 1;
+			};
+			class Heavy
+			{
+				ammo = "MeleeFist_Heavy";
+				range = 1;
+			};
+			class Sprint
+			{
+				ammo = "MeleeFist_Heavy";
+				range = 2.8;
+			};
+		};
+	};
+	class ExpansionBread1: Expansion_FoodBase
 	{
 		scope = 2;
 		rotationFlags = 2;
 		displayName = "$STR_EXPANSION_BAGUETTE";
 		descriptionShort = "$STR_EXPANSION_BAGUETTE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Bread1.p3d";
+		weight = 0;
 		itemSize[] = {2,5};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;
@@ -122,32 +139,15 @@ class CfgVehicles
 			class FoodStageTransitions: FruitStageTransitions{};
 		};
 	};
-	class ExpansionBread2: Apple
+	class ExpansionBread2: Expansion_FoodBase
 	{
 		scope = 2;
 		rotationFlags = 2;
 		displayName = "$STR_EXPANSION_BREAD";
 		descriptionShort = "$STR_EXPANSION_BREAD_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Bread2.p3d";
+		weight = 0;
 		itemSize[] = {2,4};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;
@@ -194,31 +194,13 @@ class CfgVehicles
 			class FoodStageTransitions: FruitStageTransitions{};
 		};
 	};
-	class ExpansionBread3: Apple
+	class ExpansionBread3: Expansion_FoodBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_BREAD";
 		descriptionShort = "$STR_EXPANSION_BREAD_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Bread3.p3d";
 		itemSize[] = {2,3};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;
@@ -265,31 +247,13 @@ class CfgVehicles
 			class FoodStageTransitions: FruitStageTransitions{};
 		};
 	};
-	class ExpansionCheese1: Apple
+	class ExpansionCheese1: Expansion_FoodBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_CHEESE";
 		descriptionShort = "$STR_EXPANSION_CHEESE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Cheese1.p3d";
 		itemSize[] = {2,2};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;
@@ -299,7 +263,7 @@ class CfgVehicles
 			toxicity = 0;
 		};
 	};
-	class ExpansionCheese2: Apple
+	class ExpansionCheese2: Expansion_FoodBase
 	{
 		scope = 2;
 		rotationFlags = 2;
@@ -307,24 +271,6 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_CHEESE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Cheese2.p3d";
 		itemSize[] = {2,3};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;
@@ -334,31 +280,13 @@ class CfgVehicles
 			toxicity = 0;
 		};
 	};
-	class ExpansionCheese3: Apple
+	class ExpansionCheese3: Expansion_FoodBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_CHEESE";
 		descriptionShort = "$STR_EXPANSION_CHEESE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Cheese3.p3d";
 		itemSize[] = {2,2};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;
@@ -368,31 +296,13 @@ class CfgVehicles
 			toxicity = 0;
 		};
 	};
-	class ExpansionCheese4: Apple
+	class ExpansionCheese4: Expansion_FoodBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_CHEESE";
 		descriptionShort = "$STR_EXPANSION_CHEESE_DESC";
 		model = "\DayZExpansion\Objects\Gear\Consumables\Cheese4.p3d";
 		itemSize[] = {2,2};
-		class MeleeModes
-		{
-			class Default
-			{
-				ammo = "MeleeFist";
-				range = 1;
-			};
-			class Heavy
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 1;
-			};
-			class Sprint
-			{
-				ammo = "MeleeFist_Heavy";
-				range = 2.8;
-			};
-		};
 		class Nutrition
 		{
 			fullnessIndex = 2;

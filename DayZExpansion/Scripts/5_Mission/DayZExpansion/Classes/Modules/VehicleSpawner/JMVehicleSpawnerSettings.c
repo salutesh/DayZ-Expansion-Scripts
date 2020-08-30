@@ -12,6 +12,13 @@
 
 modded class JMVehicleSpawnerSettings
 {
+	void JMVehicleSpawnerSettings()
+	{
+		#ifdef EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
+		Defaults();
+		#endif
+	}
+
 	override void Defaults()
 	{
 		super.Defaults();
@@ -43,12 +50,12 @@ modded class JMVehicleSpawnerSettings
 
 		//! Not Ready
 		//DefaultExpansionQuadATV();
-		//DefaultExpansionTT650();
-		//DefaultExpansion250N();
+		DefaultExpansionTT650();
+		DefaultExpansion250N();
 
 		//! Testing only
-		//DefaultExpansionCivilianSedanTest();
-		//DefaultExpansionUAZCargoRooflessTest();
+		DefaultExpansionCivilianSedanTest();
+		DefaultExpansionUAZCargoRooflessTest();
 	}
 
 	void DefaultExpansionMerlin()

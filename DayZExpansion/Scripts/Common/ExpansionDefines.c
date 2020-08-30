@@ -1,5 +1,5 @@
 //! Enable it if you want to enable logging with EXPrint
-//#define EXPANSIONEXPRINT
+#define EXPANSIONEXPRINT
 
 //! Enable it if you want to enable logging with EXLogPrint
 //#define EXPANSIONEXLOGPRINT
@@ -11,13 +11,15 @@
 //! Enable it if you want to enable market
 //#define EXPANSION_MARKET
 
-#define EXPANSION_HELI_TEMP
+//#define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG
 //#define EXPANSION_HELI_EXPLOSION_DISABLE
 //#define EXPANSION_HELI_USE_CONTACT_NORMAL
 //#define EXPANSION_HELI_USE_CONTACT_NORMAL_TEST
 //#define EXPANSION_USING_TRANSPORT_BASE
+
+#define EXPANSION_WHEEL_DEBUG_DISABLE
 
 #define EXPANSION_UNIVERSAL_WHEEL_DISABLE
 
@@ -62,6 +64,8 @@
 
 //! Enable to disable character szene main menu changes
 #define DISABLEMAINMENUCHANGE
+
+#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD

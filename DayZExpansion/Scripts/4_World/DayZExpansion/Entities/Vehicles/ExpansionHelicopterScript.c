@@ -124,8 +124,6 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		#endif
 		
 		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE );
-	
-		m_Controller = new ExpansionHelicopterController( this );
 		
 		Class.CastTo( m_HeliController, m_Controller );
 
@@ -181,12 +179,19 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		}
 	}
 
+	// ------------------------------------------------------------
 	override void OnSettingsUpdated()
 	{
 		super.OnSettingsUpdated();
 
 		m_EnableWind = GetExpansionSettings().GetVehicle().EnableWindAerodynamics;
 		m_EnableTailRotorDamage = GetExpansionSettings().GetVehicle().EnableTailRotorDamage;
+	}
+	
+	// ------------------------------------------------------------
+	override ExpansionController GetControllerInstance()
+	{
+		return new ExpansionHelicopterController( this );
 	}
 
 	// ------------------------------------------------------------
@@ -951,10 +956,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				}
 
 				// hoping gravity is this because dGetGravity is broken (g * 2)
-				const float gravCoef = 20.0;
 				const float massCoef = 1.0 / 3000.0;
 
-				float targetVelocity = ( m_LinearVelocityMS[1] + 3.0 ) - ( gravCoef * m_MainRotorSpeed * m_RotorSpeed * nearGround );
+				float targetVelocity = ( m_LinearVelocityMS[1] + 3.0 ) - ( 18.0 * m_MainRotorSpeed * m_RotorSpeed * nearGround );
 				if ( targetVelocity < -5 )
 					targetVelocity = -5;
 
@@ -962,7 +966,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				collectiveForce *= m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_BodyMass * massCoef;
 
 				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Collective Force: " + collectiveForce );
-
+				
 				force += Vector( 0, collectiveForce, 0 );
 			}
 
@@ -1345,7 +1349,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		return m_AutoHoverAltitude;
 	}
 
-	override vector GetTowCenterPosition( CarScript other )
+	override vector GetTowCenterPosition( Object other )
 	{
 		vector minMax[2];
 		GetCollisionBox( minMax );
@@ -1389,9 +1393,20 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		return 5.0;
 	}
 
-	override bool CanConnectTow( CarScript other )
+	//! Is it already towing something ? And is it locked ?
+	override bool CanConnectTow( notnull Object other )
 	{
-		//! Is it already towing something ? And is it locked ?
-		return !other.IsTowing() && !other.IsLocked();
+		ExpansionVehicleScript evs;
+		CarScript cs;
+		if ( Class.CastTo( evs, other ) )
+		{
+			return !evs.IsTowing() && !evs.IsLocked();
+		} else if ( Class.CastTo( cs, other ) )
+		{
+			return !cs.IsTowing() && !cs.IsLocked();
+		}
+
+		//! don't...
+		return false;
 	}
 }

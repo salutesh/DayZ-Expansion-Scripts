@@ -2737,3 +2737,26 @@ class CfgSurfaces
 		soundHit = "rubber";
 	};
 };
+class CfgNonAIVehicles
+{
+	class ProxyAttachment;
+	class ProxyVehiclePart: ProxyAttachment
+	{
+		scope = 2;
+		simulation = "ProxyInventory";
+		autocenter = 0;
+		animated = 0;
+		shadow = 1;
+		reversed = 0;
+	};
+	class ProxySedanWheel: ProxyVehiclePart
+	{
+		model = "DZ\vehicles\wheeled\civiliansedan\proxy\sedanWheel.p3d";
+		inventorySlot[] = {"CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2","Expansion_CivSedanWheel_1_1","Expansion_CivSedanWheel_1_2","Expansion_CivSedanWheel_2_1","Expansion_CivSedanWheel_2_2"};
+	};
+	class ProxySedanWheel_destroyed: ProxyVehiclePart
+	{
+		model = "DZ\vehicles\wheeled\civiliansedan\proxy\sedanWheel_destroyed.p3d";
+		inventorySlot[] = {"CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2","Expansion_CivSedanWheel_1_1","Expansion_CivSedanWheel_1_2","Expansion_CivSedanWheel_2_1","Expansion_CivSedanWheel_2_2"};
+	};
+};

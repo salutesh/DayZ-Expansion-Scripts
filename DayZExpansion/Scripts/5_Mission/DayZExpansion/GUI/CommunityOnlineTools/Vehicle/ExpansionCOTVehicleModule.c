@@ -43,6 +43,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{
+		CreateEnum( "VehicleSync", ExpansionVehicleNetworkMode, "Vehicle Sync", "", "" );
 		array< string > values_VehicleRequireKeyToStart = { "NO", "YES" };
 		CreateEnum( "VehicleRequireKeyToStart", values_VehicleRequireKeyToStart, "Requires Key To Start", "", "" );
 		CreateToggle( "VehicleRequireAllDoors", "Key Requires All Doors", "", "" );

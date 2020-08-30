@@ -12,6 +12,8 @@
 
 class ExpansionVehicleWheel
 {
+	private static float s_SUSP_DEBUG_LENGTH = 0.0;
+
 	private string m_InventorySlot;
 	private string m_Selection;
 	private string m_Name;
@@ -76,9 +78,17 @@ class ExpansionVehicleWheel
 	float m_EngineForce;
 	float m_BrakeForce;
 	float m_Steering;
+	
+	private ref array< Shape > m_DebugShapes;
+	private ref array< vector > m_WheelVertexPositions;
+	private float m_TimeSlice;
+	private float m_Mass;
 
 	void ExpansionVehicleWheel( ExpansionVehicleScript vehicle, ref ExpansionVehicleAxle axle, string name )
 	{
+		m_DebugShapes = new array< Shape >();
+		m_WheelVertexPositions = new array< vector >();
+		
 		m_Name = name;
 		m_Vehicle = vehicle;
 		m_Axle = axle;
@@ -114,27 +124,14 @@ class ExpansionVehicleWheel
 		delete m_TransformWS;
 		delete m_TransformMS;
 		delete m_RotationMatrix;
+		
+		for ( int i = 0; i < m_DebugShapes.Count(); i++ )
+			m_DebugShapes[i].Destroy();
+		
+		delete m_DebugShapes;
+		delete m_WheelVertexPositions;
+	}
 	
-		OnDebugEnd();
-	}
-
-	private EntityAI m_DbgWheelHub;
-
-	void OnDebugStart()
-	{
-		CreateDebugObject( "ExpansionDebugBox_Blue", m_DbgWheelHub );
-	}
-
-	void OnDebugEnd()
-	{
-		DestroyDebugObject( m_DbgWheelHub );
-	}
-
-	void OnDebugUpdate( float pDt )
-	{
-		m_DbgWheelHub.SetTransform( m_TransformWS.data );
-	}
-
 	private vector GetCenterPositionSelection( string lod_name, string selection_name )
 	{
 		LOD lod = m_Vehicle.GetLODByName( lod_name );
@@ -145,14 +142,20 @@ class ExpansionVehicleWheel
 		if ( !selection )
 			return "0 0 0";
 		
+		vector offset = m_WheelDirectionMS * m_Axle.GetWheelHubRadius() * -0.5;
+		
 		vector totalVertices = "0 0 0";
 		int count = selection.GetVertexCount();
 		for ( int i = 0; i < count; ++i )
 		{
-			totalVertices += lod.GetVertexPosition( selection.GetLODVertexIndex( i ) );
+			vector vp = lod.GetVertexPosition( selection.GetLODVertexIndex( i ) ) + offset;
+			totalVertices += vp;
+			m_WheelVertexPositions.Insert( vp );
 		}
-
-		return Vector( totalVertices[0] / count, totalVertices[1] / count, totalVertices[2] / count );
+		
+		vector center = Vector( totalVertices[0] / count, totalVertices[1] / count, totalVertices[2] / count );
+		m_WheelVertexPositions.Insert( center );
+		return center;
 	}
 
 	string GetInventorySlot()
@@ -198,26 +201,32 @@ class ExpansionVehicleWheel
 	void OnWheelAttach( notnull ExpansionWheel wheel, bool isFromPrevious = false )
 	{
 		m_WheelItem = wheel;
-
-		if ( IsMissionClient() )
-			DebugStart();
 	}
 
 	void OnWheelDetach()
 	{
 		m_WheelItem = NULL;
-
-		if ( IsMissionClient() )
-			DebugEnd();
 	}
 
 	void SetupSimulation( float pDt, out int numWheelsGrounded )
 	{
+		m_TimeSlice = pDt;
+		m_Mass = dBodyGetMass( m_Vehicle );
+		
+		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		for ( int i = 0; i < m_DebugShapes.Count(); ++i )
+			m_DebugShapes[i].Destroy();
+
+		m_DebugShapes.Clear();
+		#endif
+
 		ExpansionDebugUI();
 		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub );
 
 		if ( !m_WheelItem )
 			return;
+
+		m_Steering = m_Axle.GetSteering() * m_Axle.GetMaxSteeringAngle();
 
 		Matrix3 basisMat = new Matrix3;
 		basisMat.data[0] = -m_WheelAxleMS;
@@ -225,7 +234,7 @@ class ExpansionVehicleWheel
 		basisMat.data[2] = "0 0 1";
 		m_RotationMatrix.FromYawPitchRoll( Vector( m_Steering, 0, 0 ) );
 		m_TransformMS.SetBasis( basisMat.Multiply( m_RotationMatrix ) );
-		m_TransformMS.data[3] = m_InitialWheelPositionMS + ( m_WheelDirectionMS * m_SuspensionLength );
+		m_TransformMS.data[3] = m_WheelVertexPositions[m_WheelVertexPositions.Count() - 1] + ( m_SuspensionLength * m_WheelDirectionMS );
 
 		m_TransformWS = m_Vehicle.m_Transform.Multiply( m_TransformMS );
 
@@ -237,13 +246,33 @@ class ExpansionVehicleWheel
 		{
 			numWheelsGrounded++;
 		}
+
+		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		for ( int j = 0; j < m_WheelVertexPositions.Count() - 2; ++j )
+		{
+			vector wvps = m_WheelVertexPositions[j] + ( m_SuspensionLength * m_WheelDirectionMS ) - m_TransformMS[3];
+			vector wvpe = m_WheelVertexPositions[j + 1] + ( m_SuspensionLength * m_WheelDirectionMS ) - m_TransformMS[3];
+			
+			vector pts[2];
+			pts[0] = wvps.Multiply4( m_TransformWS.data );
+			pts[1] = wvpe.Multiply4( m_TransformWS.data );
+			
+			int color = 0xFF00FF00;
+			if ( !m_HasContact )
+				color = 0xFFFF0000;
+			
+			m_DebugShapes.Insert( Shape.CreateLines( color, ShapeFlags.NOZBUFFER, pts, 2 ) );
+		}
+			
+		m_DebugShapes.Insert( Shape.CreateSphere( 0xFF0000FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_TransformMS[3].Multiply4( m_Vehicle.m_Transform.data ), 0.05 ) );
+		#endif
 	}
 
 	void Simulate( float pDt, int numWheelsGrounded, out vector pImpulse, out vector pImpulseTorque )
 	{
 		ExpansionDebugUI();
 		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub );
-
+		
 		if ( !m_WheelItem )
 			return;
 
@@ -256,8 +285,7 @@ class ExpansionVehicleWheel
 		// convert wheel forces to world space
 		impulse = impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
 		impulseTorque = impulseTorque.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
-
-
+		
 		ExpansionDebugUI( "Linear: " + impulse );
 		ExpansionDebugUI( "Angular: " + impulseTorque );
 
@@ -282,10 +310,12 @@ class ExpansionVehicleWheel
 		PhxInteractionLayers collisionLayerMask = PhxInteractionLayers.BUILDING|PhxInteractionLayers.DOOR|PhxInteractionLayers.VEHICLE|PhxInteractionLayers.ROADWAY|PhxInteractionLayers.TERRAIN|PhxInteractionLayers.ITEM_SMALL|PhxInteractionLayers.ITEM_LARGE|PhxInteractionLayers.FENCE;
 		
 		m_RayStartMS = m_InitialWheelPositionMS;
-		m_RayEndMS = m_InitialWheelPositionMS + ( m_WheelDirectionMS * m_ContactLength );
+		m_RayEndMS = m_RayStartMS + ( m_WheelDirectionMS * m_ContactLength );
 
-		m_RayStartWS = m_Vehicle.ModelToWorld( m_RayStartMS );
-		m_RayEndWS = m_Vehicle.ModelToWorld( m_RayEndMS );
+		m_RayStartWS = m_RayStartMS.Multiply4(m_Vehicle.m_Transform.data);
+		m_RayEndWS = m_RayEndMS.Multiply4(m_Vehicle.m_Transform.data);
+		
+		//DrawLine( m_RayStartWS, m_RayEndWS, 0xFFFFFFFFF );
 
 		//ExpansionDebugUI( "Ray Start (MS): " + m_RayStartMS );
 		//ExpansionDebugUI( "Ray End (MS): " + m_RayEndMS );
@@ -295,10 +325,8 @@ class ExpansionVehicleWheel
 		m_HasContact = DayZPhysics.RayCastBullet( m_RayStartWS, m_RayEndWS, collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction );
 		if ( m_HasContact )
 		{
-			m_ContactPosition = m_Vehicle.WorldToModel( m_ContactPositionWS ) - dBodyGetCenterOfMass( m_Vehicle );
-			m_ContactNormal = m_ContactNormalWS.InvMultiply3( m_Vehicle.m_Transform.GetBasis().data );
-
-			// m_ContactPositionWS = m_Vehicle.ModelToWorld( m_ContactPosition );
+			m_ContactPosition = m_ContactPositionWS.InvMultiply4(m_Vehicle.m_Transform.data);
+			m_ContactNormal = m_ContactNormalWS.InvMultiply3( m_Vehicle.m_Transform.data );
 
 			float wheelDiff = vector.Dot( m_ContactNormal, m_WheelDirectionMS );
 			if ( wheelDiff >= -0.1 )
@@ -307,7 +335,7 @@ class ExpansionVehicleWheel
 			} else
 			{
 				m_ContactVelocity = m_Vehicle.GetModelVelocityAt( m_ContactPosition );
-				// m_ContactVelocity = m_Vehicle.GetWorldVelocityAt( m_ContactPosition ).InvMultiply3( m_TransformWS.GetBasis().data );
+				//m_ContactVelocity = m_Vehicle.GetWorldVelocityAt( m_ContactPosition ).InvMultiply3( m_TransformWS.GetBasis().data );
 
 				float invWheelDiff = -1.0 / wheelDiff;
 				m_SuspensionRelativeVelocity = vector.Dot( m_ContactNormal, m_ContactVelocity ) * invWheelDiff;
@@ -331,12 +359,22 @@ class ExpansionVehicleWheel
 			m_ContactPositionWS = m_RayEndWS;
 			m_ContactNormalWS = m_TransformWS.data[1];
 
-			m_ContactPosition = m_RayEndMS - dBodyGetCenterOfMass( m_Vehicle );
+			m_ContactPosition = m_RayEndMS;
 			m_ContactNormal = -m_WheelDirectionMS;
 
 			m_ContactFraction = 1.0;
 		}
-
+		
+		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		ShowImpulseMS( m_ContactPosition, m_ContactVelocity * m_Mass * pDt, 0x9900FF00 );
+		
+		if ( s_SUSP_DEBUG_LENGTH != 0.0 )
+		{
+			DrawLine( m_ContactPositionWS, m_ContactPositionWS - (m_ContactNormal * s_SUSP_DEBUG_LENGTH), 0x9900FF00 );
+			DrawLine( m_ContactPosition.Multiply4(m_Vehicle.m_Transform.data), m_ContactPosition.Multiply4(m_Vehicle.m_Transform.data) + (m_ContactNormal * s_SUSP_DEBUG_LENGTH), 0x99FF0000 );
+		}
+		#endif
+		
 		m_SuspensionFraction = ( m_Axle.GetTravelMax() - m_SuspensionLength ) / m_Axle.GetTravelMax();
 
 		ExpansionDebugUI( "Has Contact: " + m_HasContact );
@@ -349,7 +387,6 @@ class ExpansionVehicleWheel
 		if ( suspLength < 0 )
 			suspLength = 0;
 
-		float mass = dBodyGetMass( m_Vehicle );
 		float invWheels = 1.0 / m_Vehicle.GetNumWheels();
 
 		if ( m_HasContact )
@@ -370,10 +407,14 @@ class ExpansionVehicleWheel
 				m_SuspensionForce -= relVel * kd;
 			}
 
-			vector susp = -1.0 * m_WheelDirectionMS * m_SuspensionForce * pDt;
+			vector susp =  -1.0 * m_WheelDirectionMS * m_SuspensionForce * pDt;
 
 			impulse += susp;
 			impulseTorque += m_ContactPosition * susp;
+			
+			#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+			ShowImpulseMS( m_ContactPosition + Vector( 0, s_SUSP_DEBUG_LENGTH, 0 ), susp, 0xFFC0D000 );
+			#endif
 		}
 
 		m_SuspensionLength = suspLength;
@@ -384,41 +425,18 @@ class ExpansionVehicleWheel
 		if ( !m_HasContact )
 			return;
 
-		float mass = dBodyGetMass( m_Vehicle );
-
-		m_AxleWS = -m_TransformWS.data[0];
-
-		vector surfNormalWS = m_ContactNormalWS;
-
-		float proj = vector.Dot( m_AxleWS, surfNormalWS );
-		m_AxleWS -= surfNormalWS * proj;
-		m_AxleWS.Normalize();
-
-		m_ForwardWS = surfNormalWS * m_AxleWS;
-		m_ForwardWS.Normalize();
-
-		m_ForwardWS = m_ForwardWS.InvMultiply3( m_Vehicle.m_Transform.GetBasis().data );
-		m_AxleWS = m_AxleWS.InvMultiply3( m_Vehicle.m_Transform.GetBasis().data );
-
-		float sideImpulse = 0; // ExpansionPhysics.ResolveSingleBilateral( m_Vehicle, m_ContactPositionWS, m_ContactVelocity, m_Vehicle, m_ContactPositionWS, m_AxleWS );
+		float sideImpulse = 0;
 		float forwardImpulse = 0;
-
-		forwardImpulse = m_EngineForce - m_BrakeForce;
-
-		sideImpulse = -vector.Dot( m_ContactVelocity.Normalized(), m_AxleWS ) * m_ContactVelocity.Length() / numWheelsGrounded;
-/*
-		if ( m_EngineForce != 0 )
-		{
-			forwardImpulse = m_EngineForce - m_BrakeForce;
-		} else
-		{
-			float maxImpulse = 0;
-			if ( m_BrakeForce )
-				maxImpulse = m_BrakeForce;
-				
-			forwardImpulse = CalculateRollingFriction( numWheelsGrounded, maxImpulse );
-		}
-*/
+	
+		forwardImpulse = m_EngineForce;
+		if ( forwardImpulse != 0.0 )
+			forwardImpulse -= 1.5 * vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_ContactVelocity.Length() / numWheelsGrounded;
+		forwardImpulse -= vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_BrakeForce / m_Mass;
+		
+		float sideDot = vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[0] );
+		//sideDot *= Math.AbsFloat( sideDot );
+		float sideCoef = 4.0;
+		sideImpulse = sideCoef * -sideDot * m_ContactVelocity.Length() / numWheelsGrounded;
 
 		float maximp = m_SuspensionForce * pDt * 10.0;
 		float maximpSide = maximp;
@@ -430,187 +448,47 @@ class ExpansionVehicleWheel
 
 		float impulseSquared = (x * x + y * y);
 
-		if (impulseSquared > maximpSquared)
-		{
-		}
-
 		m_AngularVelocity = m_ContactVelocity[2] * m_WheelItem.m_Radius;
 
-		vector forwardImp = m_ForwardWS * forwardImpulse * mass * pDt;
-		vector sideImp = m_AxleWS * sideImpulse * mass * pDt;
+		vector forwardImp = m_TransformMS[2] * forwardImpulse * m_Mass * pDt;
+		vector sideImp = m_TransformMS[0] * sideImpulse * m_Mass * pDt;
 
 		impulse += forwardImp;
 		impulseTorque += m_ContactPosition * forwardImp;
 
+		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		ShowImpulseMS( m_ContactPosition, forwardImp, 0xFF00FFFF );
+		#endif
+
 		impulse += sideImp;
 		impulseTorque += m_ContactPosition * sideImp;
+
+		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		ShowImpulseMS( m_ContactPosition, sideImp, 0xFFFFFF00 );
+		#endif
+	}
+	
+	void ShowImpulseMS( vector position, vector impulse, int color = 0x44FFFFFF )
+	{
+		ShowImpulse( position.Multiply4( m_Vehicle.m_Transform.data ), impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data ), color );
 	}
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-// DEBUGGING HELPERS
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-	void DebugStart()
+	void ShowImpulse( vector position, vector impulse, int color = 0x44FFFFFF )
 	{
-		m_IsDebugging = true;
-
-		OnDebugStart();
-	}
-
-	void DebugEnd()
-	{
-		m_IsDebugging = false;
-
-		OnDebugEnd();
-
-		ClearForces();
-	}
-
-	void DebugUpdate( float pDt )
-	{
-		if ( !m_IsDebugging )
-			return;
-
-		OnDebugUpdate( pDt );
-
-		m_Forces.Resize( m_ForceCount );
-
-		for ( int i = 0; i < m_ForceCount; ++i )
-		{
-			m_Forces[i].UpdateObject( m_Vehicle );
-		}
-
-		m_ForceCount = 0;
-	}
-
-	private void AddForce( ExpansionForceColour colour_type, vector pos, vector force )
-	{
-		string colour = "";
-		switch ( colour_type )
-		{
-		case ExpansionForceColour.GREEN:
-			colour = "ExpansionDebugArrow";
-			break;
-		case ExpansionForceColour.RED:
-			colour = "ExpansionDebugArrow_Red";
-			break;
-		case ExpansionForceColour.ORANGE:
-			colour = "ExpansionDebugArrow_Orange";
-			break;
-		case ExpansionForceColour.BLUE:
-			colour = "ExpansionDebugArrow_Blue";
-			break;
-		case ExpansionForceColour.PURPLE:
-			colour = "ExpansionDebugArrow_Purple";
-			break;
-		}
-
-		if ( colour == "" )
-			return;
-
-		ExpansionForceDebug efd;
-		if ( m_ForceCount >= m_Forces.Count() )
-		{
-			efd = new ExpansionForceDebug;
-			efd.m_Colour = colour;
-
-			efd.Recreate();
-
-			m_Forces.Insert( efd );
-		} else
-		{
-			efd = m_Forces[m_ForceCount];
-			efd.m_Colour = colour;
-
-			if ( efd.m_Type != colour_type )
-			{
-				efd.Recreate();
-			}
-		}
-
-		efd.m_Type = colour_type;
-		efd.m_Position = pos;
-		efd.m_Force = force;
-
-		efd.UpdateObject( m_Vehicle );
+		vector acceleration = impulse;
+		acceleration[0] = acceleration[0] / m_TimeSlice / m_Mass;
+		acceleration[1] = acceleration[1] / m_TimeSlice / m_Mass;
+		acceleration[2] = acceleration[2] / m_TimeSlice / m_Mass;
 		
-		m_ForceCount++;
+		DrawLine( position, position + acceleration, color );
 	}
 
-	private void ClearForces()
+	void DrawLine( vector start, vector end, int color = 0x44FFFFFF )
 	{
-		for ( int i = 0; i < m_Forces.Count(); ++i )
-		{
-			DestroyDebugObject( m_Forces[i].m_Object );
-		}
-
-		m_Forces.Clear();
+		vector pts[2]
+		pts[0] = start;
+		pts[1] = end;
+		
+		m_DebugShapes.Insert( Shape.CreateLines( color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2 ) );
 	}
-
-	private autoptr array< ref ExpansionForceDebug > m_Forces = new array< ref ExpansionForceDebug >;
-	private int m_ForceCount;
-
-	private bool m_IsDebugging;
-
-	private void CreateDebugObject( string obj_name, out EntityAI obj )
-	{
-		DestroyDebugObject( obj );
-
-		obj = EntityAI.Cast( GetGame().CreateObject( obj_name, "0 0 0", true ) );
-		if ( obj )
-			dBodyDestroy( obj );
-	}
-
-	private void DestroyDebugObject( EntityAI obj )
-	{
-		if ( obj )
-			GetGame().ObjectDelete( obj );
-	}
-}
-
-enum ExpansionForceColour
-{
-	GREEN,
-	RED,
-	ORANGE,
-	BLUE,
-	PURPLE
-}
-
-class ExpansionForceDebug : Managed
-{
-	ExpansionForceColour m_Type;
-	string m_Colour;
-	vector m_Position;
-	vector m_Force;
-
-	EntityAI m_Object;
-
-	void ~ExpansionForceDebug()
-	{
-		if ( m_Object )
-			GetGame().ObjectDelete( m_Object );
-	}
-
-	void Recreate()
-	{
-		if ( m_Object )
-			GetGame().ObjectDelete( m_Object );
-
-		m_Object = EntityAI.Cast( GetGame().CreateObject( m_Colour, m_Position, true ) );
-		if ( m_Object )
-			dBodyDestroy( m_Object );
-	}
-
-	void UpdateObject( ExpansionVehicleScript veh )
-	{
-		vector position = veh.ModelToWorld( m_Position );
-		vector forceDir = m_Force;
-		float forceLen = forceDir.Normalize();
-
-		m_Object.SetPosition( position );
-		m_Object.SetDirection( forceDir );
-		m_Object.SetOrientation( forceDir.VectorToAngles() );
-		m_Object.SetAnimationPhase( "scale", forceLen );
-	}
-}
+};

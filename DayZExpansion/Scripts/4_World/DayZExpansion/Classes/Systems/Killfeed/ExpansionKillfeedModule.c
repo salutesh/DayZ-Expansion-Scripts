@@ -503,6 +503,7 @@ class ExpansionKillFeedModule: JMModuleBase
 							}
 						} else if( car.IsHelicopter() )
 						{
+							#ifdef EXPANSION_HELI_TEMP
 							Print("ExpansionKillFeedModule::OnKilledSelf - HumanCommandVehicle Heli BOOM: " + car.ClassName());
 							ExpansionHelicopterScript exheli = ExpansionHelicopterScript.Cast( car );
 							if( exheli && exheli.IsExploded() )
@@ -549,6 +550,7 @@ class ExpansionKillFeedModule: JMModuleBase
 									DiscordMessage( ExpansionKillFeedMessageType.HELI_CRASH, m_PlayerSteamWebhook, m_DisplayName );
 								}
 							}
+							#endif
 						} else if( car.IsBoat() )
 						{
 							Print("ExpansionKillFeedModule::OnKilledSelf - HumanCommandVehicle Boat BOOM: " + car.ClassName());

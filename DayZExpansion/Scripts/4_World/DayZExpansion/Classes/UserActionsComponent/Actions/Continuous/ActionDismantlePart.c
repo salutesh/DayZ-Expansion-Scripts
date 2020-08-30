@@ -27,14 +27,14 @@ modded class ActionDismantlePart
 		bool dismantleWithoutTerritory 	= GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;
 		bool DismantleAnywhere			= GetExpansionSettings().GetBaseBuilding().DismantleAnywhere;
 
-		if ( !super.DismantleCondition( player, target, item, camera_check ) )
+		if ( !DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
+			return false;
+
+		if ( player.IsInSafeZone() )
 			return false;
 			
 		if ( player.IsInTerritory() )
 			return player.IsInsideOwnTerritory();
-
-		if ( player.IsInSafeZone() )
-			return false;
 
 		if ( DismantleAnywhere )
 			return DismantleAnywhereCondition( player, target, item, camera_check );

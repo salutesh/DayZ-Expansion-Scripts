@@ -76,7 +76,7 @@ class ExpansionBoatScript extends OffroadHatchback
 
 		RegisterNetSyncVariableBool( "m_MotorOn" );
 		
-		m_Controller = new ExpansionBoatController( this );
+		Class.CastTo( m_BoatController, m_Controller );
 
 		if ( IsMissionClient() )
 		{
@@ -93,8 +93,6 @@ class ExpansionBoatScript extends OffroadHatchback
 			}
 			*/
 		}
-		
-		Class.CastTo( m_BoatController, m_Controller );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::Constructor end");
@@ -127,6 +125,11 @@ class ExpansionBoatScript extends OffroadHatchback
 		{
 			m_ParticleSideSecond.Stop();
 		}
+	}
+	
+	override ExpansionController GetControllerInstance()
+	{
+		return new ExpansionBoatController( this );
 	}
 
 	bool IsUsingBoatController()
@@ -651,7 +654,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		return 12;
 	}
 
-	override bool CanConnectTow( CarScript other )
+	override bool CanConnectTow( notnull Object other )
 	{
 		return false;
 	}

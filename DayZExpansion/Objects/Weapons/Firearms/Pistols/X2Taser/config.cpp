@@ -369,7 +369,7 @@ class cfgAmmo
 		airFriction = -0.000769;
 		typicalSpeed = 280;
 		initSpeed = 280;
-		timeToLive = 0.0225;
+		timeToLive = 0.045;
 		weight = 0.0025;
 		soundFly[] = {};
 		supersonicCrackNear[] = {};
@@ -389,7 +389,7 @@ class cfgAmmo
 			};
 			class Shock
 			{
-				damage = 1000;
+				damage = 9001;
 			};
 		};
 		class NoiseHit

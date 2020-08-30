@@ -34,11 +34,13 @@
             <input name="UAExpansionBoatRotateRight" loc="STR_EXPANSION_BOAT_ROTATE_RIGHT" />
             <input name="UAExpansionBoatTurbo" loc="STR_EXPANSION_BOAT_TURBO" />
 
-            <input name="UAExpansionBikeMoveForward" loc="STR_EXPANSION_BIKE_MOVEFORWARD" visible="false" />
-            <input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" visible="false" />
-            <input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" visible="false" />
-            <input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" visible="false" />
-            <input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" visible="false" />
+            <input name="UAExpansionBikeGearUp" loc="STR_EXPANSION_BIKE_GEAR_UP" />
+            <input name="UAExpansionBikeGearDown" loc="STR_EXPANSION_BIKE_GEAR_DOWN" />
+            <input name="UAExpansionBikeMoveForward" loc="STR_EXPANSION_BIKE_MOVEFORWARD" />
+            <input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" />
+            <input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" />
+            <input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" />
+            <input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" />
 
             <input name="UAExpansionCarHorn" loc="STR_EXPANSION_VEHICLE_HORN" />
             <input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
@@ -206,6 +208,12 @@
         </input>
         <input name="UAExpansionBoatTurbo">
             <btn name="kLShift" />
+        </input>
+        <input name="UAExpansionBikeGearUp">
+            <btn name="kE" />
+        </input>
+        <input name="UAExpansionBikeGearDown">
+            <btn name="kQ" />
         </input>
         <input name="UAExpansionBikeMoveForward">
             <btn name="kW" />

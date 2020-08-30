@@ -502,6 +502,7 @@ class CfgVehicles
 				};
 			};
 		};
+		class VehicleSimulation: SimulationModule{};
 	};
 	class ExpansionSpraycanBase;
 	class ExpansionSpraycanGreen: ExpansionSpraycanBase

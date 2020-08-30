@@ -124,8 +124,6 @@ class ExpansionPlaneScript extends CarScript
 		
 		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE | EntityEvent.INIT );
 
-		m_Controller = new ExpansionPlaneController( this );
-
 		Class.CastTo( m_PlaneController, m_Controller );
 
 		RegisterNetSyncVariableFloat( "m_RotorSpeed" );
@@ -140,6 +138,7 @@ class ExpansionPlaneScript extends CarScript
 		#endif
 	}
 
+	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
@@ -151,6 +150,12 @@ class ExpansionPlaneScript extends CarScript
 			m_Rudder = m_RudderSync;
 			m_Flaps = m_FlapsSync;
 		}
+	}
+	
+	// ------------------------------------------------------------
+	override ExpansionController GetControllerInstance()
+	{
+		return new ExpansionPlaneController( this );
 	}
 
 	// ------------------------------------------------------------

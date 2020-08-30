@@ -85,6 +85,42 @@ class CfgVehicles
 		};
 		class VehicleSimulation
 		{
+			class Steering
+			{
+				increaseSpeed[] = {0,45,60,23,100,12};
+				decreaseSpeed[] = {0,80,60,40,90,20};
+				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+			};
+			class Throttle
+			{
+				reactionTime = 1.0;
+				defaultThrust = 0.85;
+				gentleThrust = 0.7;
+				turboCoef = 4.0;
+				gentleCoef = 0.75;
+			};
+			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Engine
+			{
+				inertia = 0.15;
+				torqueMax = 114;
+				torqueRpm = 3400;
+				powerMax = 53.7;
+				powerRpm = 5400;
+				rpmIdle = 850;
+				rpmMin = 900;
+				rpmClutch = 1350;
+				rpmRedline = 6000;
+				rpmMax = 8000;
+			};
+			class Gearbox
+			{
+				reverse = 3.526;
+				ratios[] = {3.667,2.1,1.361,1.0};
+				timeToUncoupleClutch = 0.3;
+				timeToCoupleClutch = 0.45;
+				maxClutchTorque = 260;
+			};
 			class Axles
 			{
 				class Front

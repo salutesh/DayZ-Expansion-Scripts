@@ -186,6 +186,29 @@ class ExpansionVehicleAxle
 	{
 		return m_TravelMaxUp + m_TravelMaxDown;
 	}
+
+	void ApplyTorque( float torque )
+	{
+		if ( m_FinalRatio == 0 )
+			return;
+		
+		_ApplyTorque( torque / m_FinalRatio );
+	}
+
+	protected void _ApplyTorque( float torque )
+	{
+
+	}
+
+	void ApplyBrake( float amt )
+	{
+		_ApplyBrake(m_BrakeForce * m_BrakeBias * amt );
+	}
+
+	protected void _ApplyBrake( float force )
+	{
+
+	}
 }
 
 class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
@@ -202,6 +225,16 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 	override void Simulate( float pDt, int numWheelsGrounded, out vector pImpulse, out vector pImpulseTorque )
 	{
 		m_Wheels[0].Simulate( pDt, numWheelsGrounded, pImpulse, pImpulseTorque );
+	}
+
+	protected override void _ApplyTorque( float torque )
+	{
+		m_Wheels[0].m_EngineForce = torque;
+	}
+
+	protected override void _ApplyBrake( float force )
+	{
+		m_Wheels[0].m_BrakeForce = force;
 	}
 }
 
@@ -244,5 +277,17 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 
 		pImpulse += impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
 		pImpulseTorque += impulseTorque.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
+	}
+
+	protected override void _ApplyTorque( float torque )
+	{
+		m_Wheels[0].m_EngineForce = torque;
+		m_Wheels[1].m_EngineForce = torque;
+	}
+
+	protected override void _ApplyBrake( float force )
+	{
+		m_Wheels[0].m_BrakeForce = force;
+		m_Wheels[1].m_BrakeForce = force;
 	}
 }

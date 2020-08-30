@@ -16,8 +16,9 @@
 class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 {
 	autoptr TVectorArray Positions;
-	vector CenterPolygon;
-	float RadiusPolygon;
+
+	vector CenterPolygon; 	//! TODO:  need to not be public for 1.09
+	float RadiusPolygon; 	//! TODO: need to not be public for 1.09
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionSafeZonePolygon
@@ -35,10 +36,10 @@ class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 			
 			GetExpansionSettings().GetSafeZone().RemoveSafeZonePolygon( this );
 			return;
-		}
 
-		UpdateCenter();
-		UpdateRadius();
+			UpdateCenter();
+			UpdateRadius();
+		}
 	}
 
 	private void UpdateCenter()

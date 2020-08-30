@@ -127,7 +127,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 			Expansion_Assert_False( MinPlayersToStartMissions >= 0, "[ExpansionMissionSettings] MinPlayersToStartMissions can't be lower than 0!" );
 			Expansion_Assert_False( MinMissions >= 0, "[ExpansionMissionSettings] MinMissions can't be lower than 0!" );
 			Expansion_Assert_False( MaxMissions >= 0, "[ExpansionMissionSettings] MaxMissions can't be lower than 0!" );
-			Expansion_Assert_False( MinMissions >= MaxMissions, "[ExpansionMissionSettings] MaxMissions can't be lower than MinMissions!" );
+			Expansion_Assert_False( MaxMissions >= MinMissions, "[ExpansionMissionSettings] MaxMissions can't be lower than MinMissions!" );
 
 			array< int > toRemove = new array< int >();
 			for ( int i = 0; i < Missions.Count(); ++i )

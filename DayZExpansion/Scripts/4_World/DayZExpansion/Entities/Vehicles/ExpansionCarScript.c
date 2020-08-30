@@ -33,14 +33,15 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	void ExpansionCarScript()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "[" + this + "] ExpansionCarScript" );
-		#endif
-
-		m_Controller = new ExpansionCarController( this );
 		Class.CastTo( m_CarController, m_Controller );
 	}
-		
+	
+	// ------------------------------------------------------------
+	override ExpansionController GetControllerInstance()
+	{
+		return new ExpansionCarController( this );
+	}
+
 	// ------------------------------------------------------------
 	override int GetAnimInstance()
 	{
@@ -165,14 +166,12 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		float leftFrontWheelSteer = Math.Atan2( wheelBase / ( turnRadius + leftBackWheel ), 1 );
 		float rightFrontWheelSteer = Math.Atan2( wheelBase / ( turnRadius + rightBackWheel ), 1 );
 
-		SetWheelSteering( 0, Math.RAD2DEG * leftFrontWheelSteer * m_Turn );
-		SetWheelSteering( 1, Math.RAD2DEG * rightFrontWheelSteer * m_Turn );
-
-		SetWheelBrakeForce( 2, m_BrakeForce * 5 );
-		SetWheelBrakeForce( 3, m_BrakeForce * 5 );
-
-		SetWheelEngineForce( 2, m_EngineForce * 10 );
-		SetWheelEngineForce( 3, m_EngineForce * 10 );
+		//SetWheelSteering( 0, Math.RAD2DEG * leftFrontWheelSteer * m_Turn );
+		//SetWheelSteering( 1, Math.RAD2DEG * rightFrontWheelSteer * m_Turn );
+		//SetWheelBrakeForce( 2, m_BrakeForce * 5 );
+		//SetWheelBrakeForce( 3, m_BrakeForce * 5 );
+		//SetWheelEngineForce( 2, m_EngineForce * 10 );
+		//SetWheelEngineForce( 3, m_EngineForce * 10 );
 	}
 
 	// ------------------------------------------------------------

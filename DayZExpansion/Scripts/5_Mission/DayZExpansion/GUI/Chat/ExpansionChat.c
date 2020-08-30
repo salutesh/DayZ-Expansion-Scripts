@@ -42,7 +42,7 @@ modded class Chat
 	private bool m_ShowScroller;
 
 	ref WidgetFadeTimer m_FadeInTimerChat;
-	ref Timer m_TimeOutTimerChat;
+	ref WidgetFadeTimer m_FadeOutTimerChat;
 	
 	private GridSpacerWidget m_ContentRow;
 	
@@ -59,6 +59,9 @@ modded class Chat
 		
 		m_ChatParams = new array< ref ExpansionChatMessage >;
 		m_ChatLines = new array< ref ExpansionChatLine >;
+
+		m_FadeInTimerChat = new WidgetFadeTimer;
+		m_FadeOutTimerChat = new WidgetFadeTimer;
 
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingChanged );
 				
@@ -412,9 +415,8 @@ modded class Chat
 		HideScroller();
 		ScrollTo( 0 );
 		UpdateScroller();
-		
-		if (CHAT_FADEOUT_TIME != 0)
-			HideChat();
+
+		HideChat();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputHide End");
@@ -557,11 +559,10 @@ modded class Chat
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::ShowChat Start");
 		#endif
+
+		if (m_FadeOutTimerChat)
+			m_FadeOutTimerChat.Stop();
 		
-		if (m_FadeInTimerChat)
-			m_FadeInTimerChat.Stop();
-		
-		m_FadeInTimerChat = new WidgetFadeTimer;
 		m_FadeInTimerChat.FadeIn(m_RootWidget, FADE_IN_DURATION);
 		
 		#ifdef EXPANSIONEXPRINT
@@ -578,12 +579,12 @@ modded class Chat
 		EXPrint("Chat::HideChat Start");
 		#endif
 
-		if (m_TimeOutTimerChat)
-			m_TimeOutTimerChat.Stop();
-		
-		m_TimeOutTimerChat = new Timer(CALL_CATEGORY_GUI);
-		m_TimeOutTimerChat.Run(CHAT_FADEOUT_TIME, m_FadeInTimerChat, "FadeOut", new Param2<Widget, float>(m_RootWidget, EXP_FADE_OUT_DURATION));
-			
+		if (m_FadeInTimerChat)
+			m_FadeInTimerChat.Stop();
+
+		if (CHAT_FADEOUT_TIME > 0)
+			m_FadeOutTimerChat.FadeOut(m_RootWidget, CHAT_FADEOUT_TIME);
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::HideChat End");
 		#endif
@@ -641,6 +642,9 @@ modded class Chat
 					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_16.layout";
 					break;
 				case ExpansionClientUIChatSize.LARGE:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_22.layout";
+					break;
+				default:
 					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_22.layout";
 					break;
 			}

@@ -23,7 +23,7 @@ class ExpansionSafeZoneModule: JMModuleBase
 
 		m_Settings = GetExpansionSettings().GetSafeZone();
 
-		GetGame().GameScript.Call( this, "ThreadSafeZone", NULL );
+		thread ThreadSafeZone();
 	}
 
 	override bool IsClient()

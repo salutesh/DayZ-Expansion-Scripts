@@ -15,12 +15,31 @@
  **/
 class ExpansionCarController: ExpansionController
 {
+	private int m_Gear;
+
 	private float m_Forward;
 	private float m_Backward;
 	private float m_Turbo;
 
 	private float m_TurnLeft;
 	private float m_TurnRight;
+
+	private ExpansionCarScript m_Car;
+
+	void ExpansionCarController( EntityAI vehicle )
+	{
+		Class.CastTo( m_Car, vehicle );
+	}
+	
+	void SetGear( int gear )
+	{
+		m_Gear = gear;
+	}
+
+	int GetGear()
+	{
+		return m_Gear;
+	}
 
 	void SetForward( float forward, float backward, float turbo = 0 )
 	{
@@ -65,6 +84,26 @@ class ExpansionCarController: ExpansionController
 	// ------------------------------------------------------------
 	protected override void OnUpdate()
 	{
+		bool gear_up_press;
+		bool gear_down_press;
+		
+		GetInputPress( "UAExpansionBikeGearUp", gear_up_press );
+		GetInputPress( "UAExpansionBikeGearDown", gear_down_press );
+		
+		if ( gear_up_press )
+		{
+			m_Gear += 1;
+		}
+		if ( gear_down_press )
+		{
+			m_Gear -= 1;
+		}
+		
+		if ( m_Gear < 0 )
+			m_Gear = 0;
+		if ( m_Gear >= m_Car.GetGearsCount() )
+			m_Gear = m_Car.GetGearsCount();
+
 		GetInputValue( "UAExpansionBikeMoveForward", m_Forward );
 		GetInputValue( "UAExpansionBikeMoveBackward", m_Backward );
 		GetInputValue( "UAExpansionBikeRotateLeft", m_TurnLeft );
@@ -76,6 +115,7 @@ class ExpansionCarController: ExpansionController
 	{
 		super.OnReset();
 
+		m_Gear = 0;
 		m_Forward = 0;
 		m_Backward = 0;
 		m_TurnLeft = 0;
@@ -85,6 +125,8 @@ class ExpansionCarController: ExpansionController
 
 	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
 	{
+		ctx.Write( m_Gear );
+
 		ctx.Write( m_Forward );
 		ctx.Write( m_Backward );
 
@@ -96,6 +138,8 @@ class ExpansionCarController: ExpansionController
 
 	protected override bool OnNetworkRecieve( ref ParamsReadContext ctx )
 	{
+		ctx.Read( m_Gear );
+
 		ctx.Read( m_Forward );
 		ctx.Read( m_Backward );
 		

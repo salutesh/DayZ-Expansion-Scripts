@@ -491,7 +491,7 @@ class ExpansionMh6: ExpansionHelicopterScript
 					{
 						m_Headlight = CreateFrontLight();
 
-						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
+						m_Headlight.AttachOnMemoryPoint(this, CarScript.m_LeftHeadlightPoint, CarScript.m_LeftHeadlightTargetPoint);
 						m_Headlight.SegregateLight();
 						TailLightsShineOn();
 					}

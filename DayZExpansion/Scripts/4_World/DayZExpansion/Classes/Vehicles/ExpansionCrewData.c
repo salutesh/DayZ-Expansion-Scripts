@@ -28,6 +28,8 @@ class ExpansionCrewData
 
 	void ExpansionCrewData( ExpansionVehicleScript vehicle, string name )
 	{
+		Print( "ExpansionCrewData - Start" );
+		
 		m_Vehicle = vehicle;
 		m_Name = name;
 
@@ -40,18 +42,22 @@ class ExpansionCrewData
 		string action_selection_path = "CfgVehicles " + m_Vehicle.GetType() + " Crew " + name + " actionSel";
 		m_ActionSelection = GetGame().ConfigGetTextOut( action_selection_path );
 		m_ActionSelection.ToLower();
+		m_ActionSelection.Trim();
 
+		Print( m_ActionSelection );
+		
 		m_ComponentIndex = -1;
+		
 
-		TStringArray selections = new TStringArray;
-		m_Vehicle.GetSelectionList( selections );
-		for ( int i = 0; i < selections.Count(); ++i )
+		array<Selection> selections();
+		m_Vehicle.GetLODByName( "geometryView" ).GetSelections( selections );
+		
+		for ( int i = 0; i < 200; ++i )
 		{
-			string sel = selections.Get( i );
-			sel.ToLower();
-			if ( sel == m_ActionSelection )
+			if ( m_Vehicle.IsActionComponentPartOfSelection( i, m_ActionSelection, "view" ) )
 			{
 				m_ComponentIndex = i;
+				Print( m_ComponentIndex );
 				break;
 			}
 		}
@@ -75,6 +81,8 @@ class ExpansionCrewData
 		{
 			m_SeatTransform[3] = "0 0 0";
 		}
+		
+		Print( "ExpansionCrewData - End" );
 	}
 
 	string GetName()

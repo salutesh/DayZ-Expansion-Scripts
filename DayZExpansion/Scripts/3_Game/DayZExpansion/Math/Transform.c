@@ -53,7 +53,36 @@ class Transform // also known as Matrix4
 		#endif
 		return n;
 	}
+	
+	void Debug()
+	{
+		Print("Transform::Debug");
+		Print("[0] " + data[0]);
+		Print("[1] " + data[1]);
+		Print("[2] " + data[2]);
+		Print("[3] " + data[3]);
+	}
+	
+	Transform Add(Transform transform)
+	{
+		return NULL;
+	}
 
+    void Set(int _index, vector _value)
+    {
+		data[_index] = _value;
+    }
+
+    void Set(int _index, string _value)
+    {
+		data[_index] = _value.ToVector();
+    }
+	
+	vector Get(int _index)
+	{
+		return data[_index];
+	}
+	
 	Transform Set( notnull Object obj, bool update = false )
 	{
 		#ifdef EXPANSIONEXPRINT

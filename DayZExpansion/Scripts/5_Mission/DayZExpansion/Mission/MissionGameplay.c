@@ -286,6 +286,9 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::ShowChat - Start");
 		#endif
+
+		if (g_Game.GetProfileOption(EDayZProfilesOptions.PLAYER_MESSAGES))
+			return;
 				
 		exp_m_ChannelNameTimeoutTimer.Stop();
 		exp_m_ChannelTimeoutTimer.Stop();
@@ -553,7 +556,7 @@ modded class MissionGameplay
 
 			return;
 		}
-
+		
 		// GetDayZExpansion().OnUpdate( timeslice );
 
 		//! Checking for keyboard focus
@@ -812,9 +815,32 @@ modded class MissionGameplay
 			}
 		}
 		
-		if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay )
+		if ( playerPB )
 		{
-			PlayerCheckNV( playerPB );
+			HumanCommandVehicle hcv = playerPB.GetCommand_Vehicle();
+			if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+			{
+				CarScript carScript = CarScript.Cast( hcv.GetTransport() );
+				if ( carScript )
+				{
+					carScript.UpdateExpansionController();
+				}
+			}
+
+			ExpansionHumanCommandVehicle ehcv = playerPB.GetCommand_ExpansionVehicle();
+			if ( ehcv && ehcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+			{
+				ExpansionVehicleScript expansionVehicleScript = ExpansionVehicleScript.Cast( ehcv.GetTransport() );
+				if ( expansionVehicleScript )
+				{
+					expansionVehicleScript.UpdateExpansionController();
+				}
+			}
+		
+			if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay )
+			{
+				PlayerCheckNV( playerPB );
+			}
 		}
 		
 		//! Toggle HUD elements in different menus

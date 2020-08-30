@@ -10,12 +10,50 @@
  *
 */
 
+class ExpansionGearbox
+{
+	private float _reverse;
+	private ref array< float > _ratios;
+	
+	void ExpansionGearbox(ExpansionVehicleScript vehicle)
+	{
+		string path;
+		
+		_ratios = new array< float >();
+		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox ratios";
+		GetGame().ConfigGetFloatArray( path, _ratios);
+		
+		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox reverse";
+		_reverse = GetGame().ConfigGetFloat( path );
+	}
+	
+	void ~ExpansionGearbox()
+	{
+		delete _ratios;
+	}
+
+	int Count()
+	{
+		return _ratios.Count() + 2;
+	}
+	
+	float Get( int gear )
+	{
+		if ( gear == CarGear.REVERSE )
+			return -_reverse;
+		if ( gear == CarGear.NEUTRAL )
+			return 0;
+		
+		return _ratios[gear - 2];
+	}
+};
+
 /**@class		ExpansionBikeScript
  * @brief		This class handle bicycle simulation
  **/
 class ExpansionBikeScript extends ExpansionVehicleScript
 {
-	protected ExpansionBikeController m_BikeController;
+	private ExpansionBikeController m_BikeController;
 
 	private float m_Thrust;
 	private float m_Turn;
@@ -23,23 +61,74 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	private float m_TargetThrust;
 	private float m_TargetTurn;
 
-	private float m_EngineForce;
-	private float m_BrakeForce;
+	private float m_Brake;
+	
+	private ref ExpansionGearbox m_Gearbox;
+	
+	private float m_TorqueMax;
+	private float m_TorqueRPM;
+	
+	private float m_PowerMax;
+	private float m_PowerRPM;
+	
+	private float m_RPMIdle;
+	private float m_RPMMin;
+	private float m_RPMClutch;
+	private float m_RPMRedline;
+	private float m_RPMMax;
+	
+	private float m_RPM;
+	
+	private float m_Throttle;
 
-	// ------------------------------------------------------------
 	void ExpansionBikeScript()
 	{
-		m_Controller = new ExpansionBikeController( this );
 		Class.CastTo( m_BikeController, m_Controller );
-	}
 		
-	// ------------------------------------------------------------
+		m_Gearbox = new ExpansionGearbox( this );
+		
+		string path;
+		
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine torqueMax";
+		m_TorqueMax = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine torqueRpm";
+		m_TorqueRPM = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine powerMax";
+		m_PowerMax = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine powerRpm";
+		m_PowerRPM = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine rpmIdle";
+		m_RPMIdle = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine rpmMin";
+		m_RPMMin = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine rpmClutch";
+		m_RPMClutch = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine rpmRedline";
+		m_RPMRedline = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + GetType() + " VehicleSimulation Engine rpmMax";
+		m_RPMMax = GetGame().ConfigGetFloat( path );
+	}
+	
+	void ~ExpansionBikeScript()
+	{
+		delete m_Gearbox;
+	}
+
+	override ExpansionController GetControllerInstance()
+	{
+		return new ExpansionBikeController( this );
+	}
+
+	ExpansionBikeController GetController()
+	{
+		return m_BikeController;
+	}
+
 	override int GetAnimInstance()
 	{
 		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
 	}
 
-	// ------------------------------------------------------------
 	override int GetSeatAnimationType( int posIdx )
 	{
 		switch( posIdx )
@@ -51,66 +140,88 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		return 0;
 	}
 	
-	// ------------------------------------------------------------
 	override bool CrewCanGetThrough( int posIdx )
 	{
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
 	{
 		return true;		
 	}
 	
-	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
 	{
 		return false;
 	}
 	
-	// ------------------------------------------------------------
 	override bool IsVitalRadiator()
 	{
 		return false;
 	}
 	
-	// ------------------------------------------------------------
 	override bool IsVitalGlowPlug()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalEngineBelt()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
 		return 3;
 	}
+	
+	override float EngineGetRPMMax()
+	{
+		return m_RPMMax;
+	}
 
-	// ------------------------------------------------------------
+	override float EngineGetRPMRedline()
+	{
+		return m_RPMRedline;
+	}
+
+	override float EngineGetRPM()
+	{
+		return m_RPM;
+	}
+
+	int GetGearsCount()
+	{
+		return m_Gearbox.Count();
+	}
+	
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
 		m_TargetTurn = ( m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
-		m_EngineForce = ( m_BikeController.GetForward() );
-		m_BrakeForce = ( m_BikeController.GetBackward() );
+		
+		m_Throttle = m_BikeController.GetForward();
+		m_Brake = m_BikeController.GetBackward();
+		
+		if ( m_EngineIsOn )
+		{
+			m_RPM += m_Throttle * 1000.0 * pDt;
+			m_RPM -= 0.2 * m_RPM * pDt;
+			
+			m_RPM = Math.Clamp( m_RPM, m_RPMIdle, m_RPMMax );
+		} else
+		{
+			m_RPM = 0;
+		}
 
 		if ( Math.AbsFloat( m_TargetTurn ) > Math.AbsFloat( m_Turn ) )
 		{
@@ -121,23 +232,43 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		}
 	}
 
-	// ------------------------------------------------------------
 	protected override void OnPreSimulation( float pDt )
 	{
 		super.OnPreSimulation( pDt );
 
 		if ( !m_IsPhysicsHost )
 			return;
+		
+		float ratio = m_Gearbox[m_BikeController.GetGear()];
+		
+		float torque = 0.0;
+		float scale = 0.0;
+		
+		if ( m_RPM > m_TorqueRPM )
+		{
+			scale = ( m_RPMMax - m_RPM ) / ( m_RPMMax - m_TorqueRPM );
+			torque = m_TorqueMax * scale;
+		} else
+		{
+			scale = ( m_RPM - m_RPMMin ) / ( m_TorqueRPM - m_RPMMin );
+			torque = m_TorqueMax * scale;
+		}
+		
+		if ( torque < 0.0 )
+			torque = 0.0;
+		
+		float wheelTorque = 0.0;
+		if ( ratio != 0 )
+			wheelTorque = m_Throttle * torque / ratio;
 
-		SetWheelSteering( 0, m_Turn * 35.0 );
-
-		SetWheelBrakeForce( 0, m_BrakeForce * 5 );
-		SetWheelBrakeForce( 1, m_BrakeForce * 5 );
-
-		SetWheelEngineForce( 1, m_EngineForce * 10 );
+		for ( int i = 0; i < GetAxleCount(); ++i )
+		{
+			ApplyAxleSteering( i, m_Turn );
+			ApplyAxleTorque( i, wheelTorque );
+			ApplyAxleBrake( i, m_Brake );
+		}
 	}
 
-	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
 		super.OnSimulation( pDt, force, torque );

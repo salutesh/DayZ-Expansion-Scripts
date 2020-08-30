@@ -44,12 +44,8 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		Message( GetPlayer(), "condition " );
-
 		if ( !target )
 			return false;
-
-		Message( GetPlayer(), "target "  + target );
 
 		ExpansionVehicleScript transport;
 
@@ -73,14 +69,9 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 
 		int componentIndex = target.GetComponentIndex();
 
-		Message( GetPlayer(), "componentIndex "  + componentIndex );
-
 		int crewIdx = transport.CrewPositionIndex( componentIndex );
-		Message( GetPlayer(), "crewIdx "  + crewIdx );
 		if ( crewIdx < 0 )
 			return false;
-
-		
 
 		// Human crew = m_Transport.CrewMember( crewIdx );
 		// if ( crew )
