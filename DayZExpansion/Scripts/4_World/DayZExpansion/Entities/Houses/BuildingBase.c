@@ -19,7 +19,6 @@ modded class BuildingBase
 	
 	private bool m_Loading;
 
-	private bool m_IsIvyBuilding;
 	
 	void BuildingBase()
 	{
@@ -93,8 +92,6 @@ modded class BuildingBase
 
 	protected Object SpawnInteriorIvy( string type, vector position, vector orientation )
 	{
-		if ( !m_IsIvyBuilding )
-			return NULL;
 
 		ConvertTransformToWorld( position, orientation, position, orientation );
 
@@ -224,48 +221,40 @@ modded class BuildingBase
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
 		
-		if ( m_InteriorModule && !g_Game.IsLoading() && GetExpansionSettings() && GetExpansionSettings().GetGeneral().Mapping.InteriorBuilding )
-		{
-			if ( !m_InteriorModule.AlreadySpawned( GetType(), GetPosition() ) )
-			{
-				m_InteriorModule.AddBuildingSpawned( GetType(), GetPosition() );
+		if (m_InteriorModule && !g_Game.IsLoading() && GetExpansionSettings() && !m_InteriorModule.AlreadySpawned(GetType(), GetPosition())) {
+		
 			
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("BuildingBase::LoadInterior - reload it");
-				#endif
-				
-				if ( GetExpansionSettings().GetGeneral().Mapping.Ivies )
-				{
-					m_IsIvyBuilding = false;
-		
-					if ( IsMissionClient() )
-					{
-						for ( int i = 0; i < m_InteriorModule.m_WhereIviesObjectsSpawn.Count(); i++ )
-						{
-							if ( vector.Distance( m_InteriorModule.m_WhereIviesObjectsSpawn[i].position, this.GetPosition() ) <= m_InteriorModule.m_WhereIviesObjectsSpawn[i].radius )
-							{
-								m_IsIvyBuilding = true;
-								break;
-							}
-						}
-					}
-				} else
-				{
-					m_IsIvyBuilding = false;
-				}
-				
+			#ifdef EXPANSIONEXLOGPRINT
+			EXLogPrint("BuildingBase::LoadInterior - reload it");
+			#endif
+			
+			m_InteriorModule.AddBuildingSpawned(GetType(), GetPosition());
+			
+			if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors) {
 				SpawnInterior();
-		
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, this );
-				
-				m_InteriorModule.SaveCachedCollisions();
-			} else
-			{
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("BuildingBase::LoadInterior - Dont reload it");
-				#endif
 			}
+			
+			if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys && IsMissionClient()) {
+				for (int i = 0; i < m_InteriorModule.m_WhereIviesObjectsSpawn.Count(); i++) {
+					
+					// Did we define this building as an Ivy building? (Not every building should be overgrown)
+					if (vector.Distance(m_InteriorModule.m_WhereIviesObjectsSpawn[i].position, this.GetPosition()) <= m_InteriorModule.m_WhereIviesObjectsSpawn[i].radius) {
+						SpawnIvys();
+						break;
+					}
+				}
+			}
+			
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+			m_InteriorModule.SaveCachedCollisions();
+			
+		} else {
+			
+			#ifdef EXPANSIONEXLOGPRINT
+			EXLogPrint("BuildingBase::LoadInterior - Dont reload it");
+			#endif
 		}
+
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("BuildingBase::LoadInterior - End");
@@ -276,10 +265,16 @@ modded class BuildingBase
 	{
 		return false;
 	}
-
-	protected void SpawnInterior()
+	
+	bool HasIvys()
 	{
+		return false;
 	}
+
+	protected void SpawnInterior();
+	protected void SpawnIvys();
+	
+	
  	override void Explode(int damageType, string ammoType = "")
 	{
 		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;

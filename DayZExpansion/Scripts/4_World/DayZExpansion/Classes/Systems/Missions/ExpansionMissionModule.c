@@ -251,7 +251,7 @@ class ExpansionMissionModule: JMModuleBase
 			return;
 
 		#ifdef EXPANSION_MISSION_PLAYERCOUNT_CHECK
-		//Check if Min Players is disabled
+		//! Check if Min Players is disabled
 		if ( m_MissionSettings.MinPlayersToStartMissions != 0 )
 		{
 			int playerCount = PlayerBase.GetAll().Count();
@@ -260,9 +260,9 @@ class ExpansionMissionModule: JMModuleBase
 			Print( "ExpansionMissionModule::StartNewMissions - ["+ playerCount + "/" + m_MissionSettings.MinPlayersToStartMissions +"] players" );
 			#endif
 
-			//If player count is too low
+			//! If player count is too low
 			if ( playerCount < m_MissionSettings.MinPlayersToStartMissions )
-			{				
+			{
 				if( !m_lowPlayerCheckRunning )
 				{
 					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, 10000, true );
@@ -282,7 +282,7 @@ class ExpansionMissionModule: JMModuleBase
 		}
 		#endif
 		
-		//If we reach this we should have the correct setting/player count on the server/ find the missions like normal
+		//! If we reach this we should have the correct setting/player count on the server/ find the missions like normal
 		while ( m_RunningMissions.Count() < m_MissionSettings.MaxMissions )
 			FindNewMission();
 	}

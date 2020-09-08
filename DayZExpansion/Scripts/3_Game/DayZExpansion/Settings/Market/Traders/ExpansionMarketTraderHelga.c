@@ -37,6 +37,9 @@ class ExpansionMarketTraderHelga: ExpansionMarketTrader
 		
 		//Expansion Explosives
 		AddItem("ExpansionSatchel");
+
+		//Expansion Grenade Teargas
+		AddItem("Expansion_M18SmokeGrenade_Teargas");
 		
 		AddItem("NVGoggles");
 		AddItem("NVGHeadstrap");

@@ -37,7 +37,7 @@ class CfgVehicles
 		weight = 500;
 		inventorySlot[] = {"expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
 		mass = 80.0;
-		radius = 0.536;
+		radius = 0.333;
 		width = 0.316;
 	};
 	class ExpansionBikeScript;
@@ -134,11 +134,11 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 0;
-						stiffness = 30000;
-						compression = 1200;
-						damping = 2750;
-						travelMaxUp = 0.0482;
-						travelMaxDown = 0.0433;
+						stiffness = 15000;
+						compression = 3100;
+						damping = 4700;
+						travelMaxUp = 0.16;
+						travelMaxDown = 0.16;
 					};
 					class Wheels
 					{
@@ -163,11 +163,11 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 0;
-						stiffness = 17000;
-						compression = 1000;
-						damping = 2550;
-						travelMaxUp = 0.0482;
-						travelMaxDown = 0.0433;
+						stiffness = 15000;
+						compression = 3000;
+						damping = 4500;
+						travelMaxUp = 0.16;
+						travelMaxDown = 0.16;
 					};
 					class Wheels
 					{
@@ -189,9 +189,27 @@ class CfgVehicles
 			{
 				source = "user";
 				initPhase = 0;
-				animPeriod = 1;
+				animPeriod = 1e-05;
 			};
 			class Damper_2: Damper_1{};
 		};
+	};
+};
+class CfgNonAIVehicles
+{
+	class ProxyAttachment;
+	class ProxyVehiclePart: ProxyAttachment
+	{
+		scope = 2;
+		simulation = "ProxyInventory";
+		autocenter = 0;
+		animated = 0;
+		shadow = 1;
+		reversed = 0;
+	};
+	class Proxyexpansion_tt650_wheel: ProxyVehiclePart
+	{
+		model = "DayZExpansion\Vehicles\Ground\TT650\proxy\expansion_tt650_wheel.p3d";
+		inventorySlot[] = {"expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
 	};
 };

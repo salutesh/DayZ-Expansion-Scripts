@@ -25,7 +25,10 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 		
 		// Supplies
 		AddItem("Paper", 						1,			3,			1,		250,	0 );
+		AddItem("Pen_Black", 					1,			3,			1,		250,	0 );
 		AddItem("Pen_Blue", 					1,			3,			1,		250,	0 );
+		AddItem("Pen_Green", 					1,			3,			1,		250,	0 );
+		AddItem("Pen_Red",	 					1,			3,			1,		250,	0 );
 		AddItem("Rope", 						1,			3,			1,		250,	0 );
 		AddItem("TannedLeather", 				1,			3,			1,		250,	0 );
 		AddItem("MetalWire", 					25,			27,			1,		250,	0 );

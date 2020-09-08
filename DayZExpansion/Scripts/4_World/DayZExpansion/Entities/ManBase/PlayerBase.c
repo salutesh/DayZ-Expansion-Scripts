@@ -10,10 +10,6 @@
  *
 */
 
-/**@class		Modified Expansion PlayerBase
- * @brief		
- **/
-
 modded class PlayerBase
 {
 	private int m_ExpansionSaveVersion;
@@ -509,8 +505,17 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool IsInTerritory(float territorySize = -1)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXPrint("PlayerBase::IsInTerritory - Start");
+		#endif
+		
 		if ( !m_TerritoryModule )
+		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXPrint("PlayerBase::IsInTerritory - [ERROR] Territory module is NULL!");
+			#endif
 			return false;
+		}
 			
 		return m_TerritoryModule.IsInTerritory( GetPosition(), territorySize );
 	}
@@ -521,8 +526,17 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool IsInsideOwnTerritory(float territorySize = -1)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXPrint("PlayerBase::IsInsideOwnTerritory - Start");
+		#endif
+		
 		if ( !m_TerritoryModule )
+		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXPrint("PlayerBase::IsInsideOwnTerritory - [ERROR] Territory module is NULL!");
+			#endif
 			return false;
+		}
 
 		if ( IsMissionHost() )
 		{
@@ -553,6 +567,32 @@ modded class PlayerBase
 	// Returns nearest ExpansionFlagBase object at given position
 	// or NULL if no ExpansionFlagBase object is found.
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	TerritoryFlag FindNearestFlag()
+	{
+		if ( !IsMissionClient() )
+			return NULL;
+		
+		vector pos = GetPosition();
+		array<Object> objects = new array<Object>;
+		array<CargoBase> proxyCargos = new array<CargoBase> ;
+		GetGame().GetObjectsAtPosition3D( pos, 10, objects, proxyCargos );
+		
+		if ( objects && objects.Count() > 0 )
+		{
+			for ( int i = 0; i < objects.Count(); ++i )
+			{
+				TerritoryFlag flag;
+				if ( Class.CastTo( flag, objects.Get( i ) ) )
+				{
+					return flag;
+				}
+			}
+		}
+
+		return NULL;
+	}
+#else	
 	ExpansionFlagBase FindNearestFlag()
 	{
 		if ( !IsMissionClient() )
@@ -577,6 +617,7 @@ modded class PlayerBase
 
 		return NULL;
 	}
+#endif
 
 	// ------------------------------------------------------------
 	// Expansion SpawnGraveCross
@@ -705,175 +746,25 @@ modded class PlayerBase
 			item.UpdateLaser();
 		}
 
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
-		{
-			ExpansionHumanCommandGuitar guitar;
-			if ( Class.CastTo( guitar, GetCommand_Script() ) )
-			{
-				return true;
-			}
-		}
-
-		//if ( !s_ExpansionPlayerAttachment )
-		{
-			return super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished );
-		}
-
-		IEntity parent = GetParent();
-		HumanCommandMove hcm = GetCommand_Move();
-		HumanCommandVehicle hcv = GetCommand_Vehicle();
-		HumanCommandLadder hcl = GetCommand_Ladder();
-		HumanCommandSwim hcs = GetCommand_Swim();
-		HumanCommandClimb hcc = GetCommand_Climb();
-		HumanCommandScript hcScript = GetCommand_Script();
-
-		bool isPlayerAttached = false;
-		
 		if ( super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished ) )
 		{
 			return true;
 		}
 
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
-		{
-			if ( hcv.WasGearChange() )
-			{
-				GearChangeActionCallback cb = GearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, GearChangeActionCallback ) );
-				cb.SetVehicleCommand( hcv );
-			}
-
-			return true;
-		}
-		
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("PlayerBase::ModCommandHandlerInside - Cast ExpansionHumanCommandVehicle");
-			#endif
-
-			if ( ExpansionHumanCommandVehicle.Cast( hcScript ) != NULL )
+			ExpansionHumanCommandVehicle ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
+			if ( ehcv != NULL )
 			{
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("PlayerBase::ModCommandHandlerInside - End");
-				#endif
+				return true;
+			}
 
+			ExpansionHumanCommandGuitar ehcg = ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
+			if ( ehcg != NULL )
+			{
 				return true;
 			}
 		}
-
-		m_Swimming.ResetCall();
-		if ( m_Swimming.HandleSwimming( pCurrentCommandID, hcm, m_MovementState ) )
-		{
-			m_JumpClimb.CheckAndFinishJump();
-			return true;
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::ModCommandHandlerInside - Handled Inside");
-		#endif
-
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
-		{
-			ExpansionHumanCommandFall exFall;
-			if ( Class.CastTo( exFall, hcScript ) )
-			{
-				DayZPlayerType type = GetDayZPlayerType();
-				NoiseParams npar;
-				int landType;
-
-				if ( exFall.HasLanded() )
-				{
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - HasLanded");
-					#endif
-
-					if ( parent )
-					{
-						landType = 0; 
-						npar = type.GetNoiseParamsLandLight();
-						m_FallYDiff = 0;
-					} else
-					{
-						m_FallYDiff = m_FallYDiff - GetPosition()[1];
-						if ( m_FallYDiff < 0.5 )
-						{
-							landType = 0; 
-							npar = type.GetNoiseParamsLandLight();
-						} else if ( m_FallYDiff < 1.0 )
-						{
-							landType = 0;
-							npar = type.GetNoiseParamsLandLight();
-						} else if ( m_FallYDiff < 2.0 )
-						{
-							landType = 1;
-							npar = type.GetNoiseParamsLandHeavy();
-						} else
-						{
-							landType = 2;
-							npar = type.GetNoiseParamsLandHeavy();
-						}
-					}
-					
-					exFall.Land( landType );
-
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Land Called");
-					#endif
-
-					AddNoise( npar );
-
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Noise Added");
-					#endif
-
-					if ( m_FallYDiff >= DayZPlayerImplementFallDamage.FD_DMG_FROM_HEIGHT && GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_CLIENT )
-					{
-						SpawnDamageDealtEffect();
-					}
-					
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Effect");
-					#endif
-
-					m_FallDamage.HandleFallDamage( m_FallYDiff );
-					m_JumpClimb.CheckAndFinishJump( landType );
-
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("PlayerBase::ModCommandHandlerInside - Finished JumpClimb");
-					#endif
-				}
-
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("PlayerBase::ModCommandHandlerInside - End");
-				#endif
-
-				return true;
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::ModCommandHandlerInside - pCurrentCommandFinished End");
-		#endif
-
-		if ( PhysicsIsFalling( false ) )
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("PlayerBase::ModCommandHandlerInside - Called Fall");
-			#endif
-
-			StartCommand_ExpansionFall( 0 );
-			m_FallYDiff = GetPosition()[1];
-
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("PlayerBase::ModCommandHandlerInside - End");
-			#endif
-
-			return true;
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::ModCommandHandlerInside - End");
-		#endif
 
 		return false;
 	}
@@ -1167,7 +1058,7 @@ modded class PlayerBase
 			m_fLastHeadingDiff = 0;
 
 			pModel.m_fOrientationAngle = 0;
-			pModel.m_fHeadingAngle = 0;
+			//pModel.m_fHeadingAngle = 0;
 			return true;
 		}
 

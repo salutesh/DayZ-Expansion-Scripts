@@ -27,6 +27,5 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 		AddItem("SVD", 						200,	220,	1,		250,	0 );
 		
 		AddItem("Expansion_AWM", 			1000,	1200,	1,		250,	0 );
-		AddItem("Expansion_AWM_Black", 		1000,	1200,	1,		250,	0 );
 	}
 }

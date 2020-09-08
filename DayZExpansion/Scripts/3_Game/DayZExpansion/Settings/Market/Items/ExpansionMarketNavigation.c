@@ -42,5 +42,7 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 		AddItem("Binoculars", 					2,		4,		1,		250,	0 );	
 		AddItem("Compass", 						1,		3,		1,		250,	0 );
 		AddItem("OrienteeringCompass", 			1,		3,		1,		250,	0 );
+		
+		AddItem("ExpansionGPS", 			1,		3,		1,		250,	0 );
 	}
 }

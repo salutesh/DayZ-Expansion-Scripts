@@ -24,9 +24,9 @@ class ExpansionMarketTraderLina: ExpansionMarketTrader
 		m_FileName = "Fishing_Trader_Lina";
 
 		// Fishing Items
-		AddItem("Hock");
-		AddItem("BoneHock");
-		AddItem("FishingRood");
+		AddItem("Hook");
+		AddItem("BoneHook");
+		AddItem("FishingRod");
 		
 		// Fish
 		AddItem("Carp");

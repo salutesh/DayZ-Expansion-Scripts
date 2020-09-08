@@ -269,7 +269,7 @@ class CfgVehicles
 					transferToZonesNames[] = {"Front","Engine","Reflector_2_1","WindowFront","Battery"};
 					transferToZonesThreshold[] = {0.2,0.5,0.9,0.5,0.5};
 					transferToZonesCoefs[] = {0.3,0.6,0.6,0.4,0.7};
-					inventorySlots[] = {"NivaHood","NivaWheel_2_1","NivaDriverDoors"};
+					inventorySlots[] = {"NivaHood","NivaWheel_2_1","NivaCoDriverDoors"};
 					inventorySlotsCoefs[] = {0.3,0.2,3};
 				};
 				class Fender_2_2: Fender_1_1
@@ -279,7 +279,7 @@ class CfgVehicles
 					transferToZonesNames[] = {"Back","FuelTank","WindowRR"};
 					transferToZonesThreshold[] = {0.2,0.2,0.2};
 					transferToZonesCoefs[] = {0.3,0.2,0.7};
-					inventorySlots[] = {"NivaTrunk","NivaWheel_2_2"};
+					inventorySlots[] = {"NivaTrunk","NivaWheel_2_2","NivaCoDriverDoors"};
 					inventorySlotsCoefs[] = {0.3,0.1};
 				};
 				class WindowFront
@@ -373,7 +373,7 @@ class CfgVehicles
 					{
 						hitpoints = 70;
 						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\niva_glass.rvmat","dz\vehicles\wheeled\offroadhatchback\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\offroadhatchback\data\niva_glass.rvmat","dz\vehicles\wheeled\offroadhatchback\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\offroadhatchback\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\offroadhatchback\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
 					};
 					componentNames[] = {"dmgZone_window"};
 					fatalInjuryCoef = -1;
@@ -414,7 +414,7 @@ class CfgVehicles
 					{
 						hitpoints = 70;
 						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\niva_glass.rvmat","dz\vehicles\wheeled\offroadhatchback\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\offroadhatchback\data\niva_glass.rvmat","dz\vehicles\wheeled\offroadhatchback\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\offroadhatchback\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\offroadhatchback\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
 					};
 					componentNames[] = {"dmgZone_window"};
 					fatalInjuryCoef = -1;

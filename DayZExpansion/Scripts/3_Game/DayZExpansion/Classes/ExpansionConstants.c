@@ -54,7 +54,7 @@ const float EXP_FADE_OUT_DURATION = 0.25;
 const float EXP_FADE_IN_DURATION = 0.25;
 
 static const int EXP_DEFAULT_COLOUR = ARGB(255, 255, 255, 255);
-static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 122, 134, 156);
+static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 167, 67, 192);
 static const int EXP_ADMIN_TEXT_COLOUR = ARGB(255, 192, 57, 43);
 static const int EXP_DIRECT_TEXT_COLOUR = ARGB(255, 255, 255, 255);
 static const int EXP_GLOBAL_TEXT_COLOUR = ARGB(255, 88, 195, 247);
@@ -283,6 +283,34 @@ static const string EXPANSION_NOTIFICATION_ICON_3D_OFF = "DayZExpansion\\GUI\\ic
 static const string EXPANSION_NOTIFICATION_ICON_2D_ON = "DayZExpansion\\GUI\\icons\\hud\\2D_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_2D_OFF = "DayZExpansion\\GUI\\icons\\hud\\2D_off_64x64.edds";
 
+static const string EXPANSION_FLAG_DAYZ_CHERNARUS = "dz\\gear\\camping\\Data\\Flag_Chern_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CHEDAKI = "dz\\gear\\camping\\Data\\Flag_Ched_co.paa";
+static const string EXPANSION_FLAG_DAYZ_NAPA = "dz\\gear\\camping\\Data\\Flag_NAPA_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CDF = "dz\\gear\\camping\\Data\\Flag_CDF_co.paa";
+static const string EXPANSION_FLAG_DAYZ_LIVONIA = "dz\\gear\\camping\\Data\\Flag_Livo_co.paa";
+static const string EXPANSION_FLAG_DAYZ_ALTIS = "dz\\gear\\camping\\Data\\Flag_Alti_co.paa";
+static const string EXPANSION_FLAG_DAYZ_SSAHRANI = "dz\\gear\\camping\\Data\\Flag_KoS_co.paa";
+static const string EXPANSION_FLAG_DAYZ_NSAHRANI = "dz\\gear\\camping\\Data\\Flag_DRoS_co.paa";
+static const string EXPANSION_FLAG_DAYZ_DAYZ = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
+static const string EXPANSION_FLAG_DAYZ_LIVONIA_ARMY = "dz\\gear\\camping\\Data\\Flag_LDF_co.paa";
+static const string EXPANSION_FLAG_DAYZ_WHITE = "dz\\gear\\camping\\Data\\Flag_white_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BOHEMIA = "dz\\gear\\camping\\Data\\Flag_BI_co.paa";
+static const string EXPANSION_FLAG_DAYZ_APA = "dz\\gear\\camping\\Data\\Flag_APA_co.paa";
+static const string EXPANSION_FLAG_DAYZ_UEC = "dz\\gear\\camping\\Data\\Flag_UEC_co.paa";
+static const string EXPANSION_FLAG_DAYZ_PIRATES = "dz\\gear\\camping\\Data\\Flag_jolly_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CANNIBALS = "dz\\gear\\camping\\Data\\Flag_jolly_c_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BEAR = "dz\\gear\\camping\\Data\\Flag_bear_co.paa";
+static const string EXPANSION_FLAG_DAYZ_WOLF = "dz\\gear\\camping\\Data\\Flag_wolf_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BABY_DEER = "dz\\gear\\camping\\Data\\Flag_Fawn_co.paa";
+static const string EXPANSION_FLAG_DAYZ_ROOSTER = "dz\\gear\\camping\\Data\\Flag_cock_co.paa";
+static const string EXPANSION_FLAG_DAYZ_LIVONIA_POLICE = "dz\\gear\\camping\\Data\\Flag_police_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CMC = "dz\\gear\\camping\\Data\\Flag_CMC_co.paa";
+static const string EXPANSION_FLAG_DAYZ_TEC = "dz\\gear\\camping\\Data\\Flag_TEC_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CHEL = "dz\\gear\\camping\\Data\\Flag_CHEL_co.paa";
+static const string EXPANSION_FLAG_DAYZ_ZENIT = "dz\\gear\\camping\\Data\\Flag_Zenit_co.paa";
+static const string EXPANSION_FLAG_DAYZ_HUNTERZ = "dz\\gear\\camping\\Data\\Flag_zhunters_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BRAINZ = "dz\\gear\\camping\\Data\\Flag_brain_co.paa";
+
 /**
  * Expansion Flags texture paths
  * @{
@@ -354,8 +382,8 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 9;
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 7;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 10;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 8;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 
 /**

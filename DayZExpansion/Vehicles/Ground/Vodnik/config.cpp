@@ -238,45 +238,60 @@ class CfgVehicles
 		{
 			drive = "DRIVE_AWD";
 			airDragCoefficient = 0.1;
+			class Steering
+			{
+				increaseSpeed[] = {0,75,60,23,100,12};
+				decreaseSpeed[] = {0,80,60,40,90,20};
+				centeringSpeed[] = {0,30,15,25,60,40,100,60};
+			};
+			class Throttle
+			{
+				reactionTime = 1.25;
+				defaultThrust = 0.85;
+				gentleThrust = 0.7;
+				turboCoef = 5;
+				gentleCoef = 0.75;
+			};
+			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 1000;
-				torqueRpm = 6600;
+				torqueMax = 114;
+				torqueRpm = 3400;
 				powerMax = 53.7;
-				powerRpm = 10400;
+				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
-				rpmClutch = 13500;
-				rpmRedline = 14500;
-				rpmMax = 16000;
+				rpmClutch = 1850;
+				rpmRedline = 11000;
+				rpmMax = 14000;
 			};
 			class Gearbox
 			{
-				reverse = 4.526;
-				ratios[] = {6.967,4.8,2.561,1.311};
+				reverse = 3.426;
+				ratios[] = {3.0670002,1.9999999,1.2609999,0.9};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
-				maxClutchTorque = 260;
+				maxClutchTorque = 420;
 			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 15.0;
+					maxSteeringAngle = 40;
+					finalRatio = 8.099999;
 					brakeBias = 0.6;
-					brakeForce = 1500;
-					wheelHubMass = 10;
+					brakeForce = 4500;
+					wheelHubMass = 5;
 					wheelHubRadius = 0.14;
 					class Suspension
 					{
 						swayBar = 300;
-						stiffness = 60000;
+						stiffness = 40000;
 						compression = 2100;
 						damping = 5500;
-						travelMaxUp = 0.2617994;
-						travelMaxDown = 0.0;
+						travelMaxUp = 0.2917994;
+						travelMaxDown = 0.0833;
 					};
 					class Wheels: Wheels
 					{
@@ -295,19 +310,19 @@ class CfgVehicles
 				class Rear: Rear
 				{
 					maxSteeringAngle = 0;
-					finalRatio = 15.0;
+					finalRatio = 8.099999;
 					brakeBias = 0.4;
-					brakeForce = 1200;
-					wheelHubMass = 10;
+					brakeForce = 4200;
+					wheelHubMass = 5;
 					wheelHubRadius = 0.14;
 					class Suspension
 					{
 						swayBar = 300;
-						stiffness = 60000;
+						stiffness = 39000;
 						compression = 2100;
 						damping = 5500;
-						travelMaxUp = 0.2617994;
-						travelMaxDown = 0.0;
+						travelMaxUp = 0.2917994;
+						travelMaxDown = 0.0833;
 					};
 					class Wheels: Wheels
 					{

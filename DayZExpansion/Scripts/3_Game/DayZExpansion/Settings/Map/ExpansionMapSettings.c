@@ -26,6 +26,9 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool ShowServerMarkers;				// Show server markers
 	bool CanOpenMapWithKeyBinding;
 
+	bool ShowNameOnServerMarkers;
+	bool ShowDistanceOnServerMarkers;
+	
 	ref array< ref ExpansionMarkerData > ServerMarkers;
 	
 	[NonSerialized()]
@@ -117,6 +120,10 @@ class ExpansionMapSettings: ExpansionSettingBase
 			return false;
 		if ( !ctx.Read( CanOpenMapWithKeyBinding ) )
 			return false;
+		if ( !ctx.Read( ShowNameOnServerMarkers ) )
+			return false;
+		if ( !ctx.Read( ShowDistanceOnServerMarkers ) )
+			return false;
 
 		int count = 0;
 		int index = 0;
@@ -189,7 +196,9 @@ class ExpansionMapSettings: ExpansionSettingBase
 		ctx.Write( ShowPartyMembersMapMarkers );
 		ctx.Write( ShowServerMarkers );
 		ctx.Write( CanOpenMapWithKeyBinding );
-
+		ctx.Write( ShowNameOnServerMarkers );
+		ctx.Write( ShowDistanceOnServerMarkers );
+		
 		count = ServerMarkers.Count();
 		ctx.Write( count );
 		for ( index = 0; index < count; ++index )
@@ -255,6 +264,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 		ShowPartyMembersMapMarkers = s.ShowPartyMembersMapMarkers;
 		ShowServerMarkers = s.ShowServerMarkers;
 		CanOpenMapWithKeyBinding = s.CanOpenMapWithKeyBinding;
+		ShowNameOnServerMarkers = s.ShowNameOnServerMarkers;
+		ShowDistanceOnServerMarkers = s.ShowDistanceOnServerMarkers;
 	}
 	
 	// ------------------------------------------------------------
@@ -333,6 +344,9 @@ class ExpansionMapSettings: ExpansionSettingBase
 		ShowServerMarkers = true;
 
 		CanOpenMapWithKeyBinding = true;
+		
+		ShowNameOnServerMarkers = true;
+		ShowDistanceOnServerMarkers = true;
 		
 		//! Set default markers depending on map name
 		string world_name = "empty";

@@ -17,6 +17,11 @@ class Land_House_1W07 extends BuildingSuper
 		return true;
 	}
 	
+	override bool HasIvys()
+	{
+		return true;
+	}
+	
 	override void SpawnInterior()
 	{
 		SpawnInteriorObject( "ExpansionPropLawnMower2", "5.870012 -2.580002 -3.045567", "-88.000000 0.000000 0.000000" );
@@ -121,7 +126,10 @@ class Land_House_1W07 extends BuildingSuper
 			SpawnInteriorObject( "bldr_mil_radar_tall_planks", "2.699990 -2.000000 3.799999", "-90.000000 0.000000 90.000000", 0.80 );
 			SpawnInteriorObject( "bldr_mil_radar_tall_planks", "-0.349999 -2.000000 3.800000", "90.000000 0.000000 90.000000", 0.80 );
 		}
-
+	}
+	
+	override void SpawnIvys()
+	{
 		//Ivy
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "-2.399999 -0.300018 -8.600015", "-0.000009 -87.000038 -0.000009" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_K", "-1.150000 -0.350021 -8.500002", "179.999924 89.000046 0.000000" );

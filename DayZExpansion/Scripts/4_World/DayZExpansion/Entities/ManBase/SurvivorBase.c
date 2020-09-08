@@ -17,6 +17,7 @@ modded class SurvivorBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("SurvivorBase::IsTrader - Return");
 		#endif
+		
 		return false;
 	}
 }

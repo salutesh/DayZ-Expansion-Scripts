@@ -33,5 +33,6 @@ class ExpansionMarketSubmachineGuns: ExpansionMarketCategory
 		AddItem("Expansion_MP5", 		200,	220,	1,		250,	0 );
 		AddItem("Expansion_MP7", 		200,	220,	1,		250,	0 );
 		AddItem("Expansion_G36", 		200,	220,	1,		250,	0 );
+		AddItem("Expansion_VityazSN", 	200,	220,	1,		250,	0 );
 	}
 }

@@ -30,7 +30,7 @@ modded class Construction
 	{
 		if ( tool.GetType() == "ExpansionAdminHammer" )
 		{
-			if ( !IsPartConstructed( part_name ) && HasRequiredPart( part_name ) && !HasConflictPart( part_name ) && CanUseToolToBuildPart( part_name, tool ) )
+			if ( !IsPartConstructed( part_name ) && HasRequiredPart( part_name ) && !HasConflictPart( part_name ) )
 			{
 				return true;
 			}

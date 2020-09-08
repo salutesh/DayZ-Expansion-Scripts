@@ -26,6 +26,7 @@ class ExpansionPartyPlayerData
 	void ExpansionPartyPlayerData()
 	{
 		m_TempMarkerData = new ExpansionPlayerMarkerData();
+		GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingChanged );
 
 		CreateMarker();
 	}
@@ -40,6 +41,8 @@ class ExpansionPartyPlayerData
 
 		if ( QuickMarker )
 			delete QuickMarker;
+			
+		GetExpansionClientSettings().SI_UpdateSetting.Remove( OnSettingChanged );
 	}
 
 	void InitMarker()
@@ -47,7 +50,12 @@ class ExpansionPartyPlayerData
 		m_TempMarkerData.SetUID( UID );
 		m_TempMarkerData.SetIcon( ExpansionIcons.Get( "Person" ) );
 		m_TempMarkerData.Set3D( true );
-		m_TempMarkerData.SetName( Name );
+		if( !GetExpansionClientSettings().ShowMemberNameMarker )
+		{
+			m_TempMarkerData.SetName( "" );
+		} else {
+			m_TempMarkerData.SetName( Name );
+		}
 
 		int markerColorA;
 		int markerColorR;
@@ -61,12 +69,11 @@ class ExpansionPartyPlayerData
 	void CreateMarker()
 	{
 		int max = 255;
-
+		int a = 255;
 		int r = Math.RandomIntInclusive( 0, max );
 		int g = Math.RandomIntInclusive( 0, max );
 		int b = Math.RandomIntInclusive( 0, max );
-
-		m_TempMarkerData.SetColor( ARGB( 255, r, g, b ) );
+		m_TempMarkerData.SetColor( ARGB( a, r, g, b ) );
 
 		InitMarker();
 	}
@@ -158,5 +165,16 @@ class ExpansionPartyPlayerData
 		InitMarker();
 		
 		return true;
+	}
+
+	// ------------------------------------------------------------
+	// Marker OnSettingChanged
+	// ------------------------------------------------------------
+	void OnSettingChanged()
+	{
+		if ( m_TempMarkerData )
+			delete m_TempMarkerData;
+
+		InitMarker();
 	}
 };

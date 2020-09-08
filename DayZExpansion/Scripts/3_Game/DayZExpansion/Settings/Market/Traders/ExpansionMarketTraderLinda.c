@@ -78,15 +78,16 @@ class ExpansionMarketTraderLinda: ExpansionMarketTrader
 		AddItem("PleurotusMushroom"); 	
 		
 		// Vanilla Meat
-		AddItem("BearSteakMeat"); 
-		AddItem("GoatSteakMeat"); 
-		AddItem("BoarSteakMeat"); 	
-		AddItem("PigSteakMeat"); 	
-		AddItem("DeerSteakMeat"); 	
-		AddItem("WolfSteakMeat"); 	
-		AddItem("BearSteakMeat"); 	
-		AddItem("CowSteakMeat"); 	
-		AddItem("SheepSteakMeat"); 		
-		AddItem("ChickenBreastMeat");	 		
+		AddItem("BearSteakMeat");
+		AddItem("GoatSteakMeat");
+		AddItem("BoarSteakMeat");
+		AddItem("PigSteakMeat");
+		AddItem("DeerSteakMeat");
+		AddItem("WolfSteakMeat");
+		AddItem("BearSteakMeat");
+		AddItem("CowSteakMeat");
+		AddItem("SheepSteakMeat");
+		AddItem("ChickenBreastMeat");
+		AddItem("RabbitLegMeat");
 	}
 }

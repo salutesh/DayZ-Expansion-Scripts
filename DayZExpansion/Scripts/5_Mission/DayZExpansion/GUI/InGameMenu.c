@@ -135,7 +135,7 @@ modded class InGameMenu
 		m_DeadScreenFadeInIncrement	= 1 / DEAD_SCREEN_FADEIN_TIME;
 		m_DeadScreenImageFadeInIncrement = 1 / DEAD_SCREEN_IMAGE_FADEIN_TIME;
 		
-		if ( !GetExpansionSettings().GetGeneral().UseDeadScreenStatistics )
+		if ( !GetExpansionSettings().GetGeneral().UseDeathScreenStatistics )
 			m_DeadSceenStatsButtonPanel.Show(false);
 		
 		HudShow( false );
@@ -143,7 +143,7 @@ modded class InGameMenu
 		SetServerInfoVisibility( SetServerInfo() && g_Game.GetProfileOption( EDayZProfilesOptions.SERVERINFO_DISPLAY ) && !GetExpansionClientSettings().StreamerMode );
 		m_ModdedWarning.Show( false );
 		
-		if (GetExpansionSettings().GetGeneral().UseNeewsFeedInGameMenu)
+		if (GetExpansionSettings().GetGeneral().UseNewsFeedInGameMenu)
 		{
 			//! Newsfeed
 			m_NewsfeedPanel 					= Widget.Cast(layoutRoot.FindAnyWidget( "NewsFeedPanel" ));
@@ -192,7 +192,7 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	override void Update( float timeslice )
 	{		
-		if ( GetExpansionSettings().GetGeneral().UseDeadScreen && m_ExpansionShowDeadScreen )
+		if ( GetExpansionSettings().GetGeneral().UseDeathScreen && m_ExpansionShowDeadScreen )
 		{
 			m_TimerSlice += timeslice;
 			if (m_TimerSlice >= 0.01)

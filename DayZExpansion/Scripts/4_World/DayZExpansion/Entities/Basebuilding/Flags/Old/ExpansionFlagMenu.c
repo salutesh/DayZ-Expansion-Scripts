@@ -35,8 +35,12 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	protected ButtonWidget m_TerritoryDialogConfirmButton;
 	protected ButtonWidget m_TerritoryDialogCancelButton;
 	
+#ifdef DAYZ_1_09
+	protected TerritoryFlag m_CurrentFlag;
+#else	
 	protected ExpansionFlagBase m_CurrentFlag;
-
+#endif
+	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
 	protected ref array<ref ExpansionFlagMenuTextureEntry> m_TextureEntrys;
 	protected string m_CurrentSelectedTexture;
@@ -184,8 +188,10 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		
 		m_CurrentFlag = player.FindNearestFlag();
-
-		if ( m_CurrentFlag && !m_CurrentFlag.IsTerritoryFlag() )
+		if (!m_CurrentFlag)
+			return;
+		
+		if ( !m_CurrentFlag.IsTerritoryFlag() )
 		{
 			if ( player.IsInTerritory() )
 			{
@@ -198,7 +204,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 			
 			m_FlagWindowLable.SetText( "Flag" );
 		} 
-		else if ( m_CurrentFlag && m_CurrentFlag.IsTerritoryFlag() )
+		else
 		{
 			m_FlagCreateButton.Show( false );
 			m_FlagWindowLable.SetText( "Territory Flag" );

@@ -19,6 +19,7 @@ modded class Land_House_1W05
 	
 	override void SpawnInterior()
 	{
+		/*
 		//if ( Math.RandomFloatInclusive(0, 1) <= 0.8 )
 		//{
 		//	SpawnInteriorObject( "bldr_almara", "1.190000 -1.019997 2.944058", "-89.000015 0.000000 0.000000" );
@@ -41,8 +42,17 @@ modded class Land_House_1W05
 		
 		SpawnInteriorObject( "bldr_picture_f", "-2.360000 -0.369049 -0.106759", "90.000038 0.000000 0.001006" );
 		SpawnInteriorObject( "bldr_luxury_light", "2.985887 1.430000 0.156942", "0.000000 0.000000 0.000000" );
+		*/
 
-		//Ivy
+	}
+
+    override bool HasIvys()
+    {
+        return true;
+    }
+    
+    override void SpawnIvys()
+    {
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "6.050589 -1.169098 4.436679", "89.999992 -89.000046 179.999985" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "5.850003 -1.150070 1.000000", "-89.999954 81.000000 179.999985" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_S", "5.317667 -0.550034 -2.761996", "-175.991928 1.027026 90.458321" );
@@ -61,5 +71,6 @@ modded class Land_House_1W05
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_G", "2.869404 -1.550095 -3.904123", "0.000000 0.000000 0.000000" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_B", "3.960444 -1.250076 -3.925628", "0.000000 0.000000 0.000000" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_D", "2.158547 -2.550156 -5.022088", "-90.000038 1.000000 0.000000" );
-	}
+    }
+
 }

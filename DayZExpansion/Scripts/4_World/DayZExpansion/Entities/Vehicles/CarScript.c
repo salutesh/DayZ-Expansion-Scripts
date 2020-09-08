@@ -107,6 +107,7 @@ modded class CarScript
 
 	// Physics
 	protected float m_BodyMass;
+	protected float m_TimeSlice;
 	protected vector m_BodyCenterOfMass;
 
 	protected vector m_LinearVelocity; // World Space
@@ -170,6 +171,9 @@ modded class CarScript
 	protected bool m_CanHaveLock;
 
 	protected bool m_MonitorEnabled;
+
+	//! Debugging
+	private ref array< Shape > m_DebugShapes;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -183,6 +187,8 @@ modded class CarScript
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT );
 
 		m_allVehicles.Insert( this );
+
+		m_DebugShapes = new array< Shape >();
 
 		m_SafeZone = false;
 
@@ -248,10 +254,13 @@ modded class CarScript
 		EXPrint("CarScript::~CarScript - Start");
 		#endif
 
-		int idx = m_allVehicles.Find( this );
-		if ( idx >= 0 )
+
+		int i;
+
+		i = m_allVehicles.Find( this );
+		if ( i >= 0 )
 		{
-			m_allVehicles.Remove( idx );
+			m_allVehicles.Remove( i );
 		}
 
 		if ( IsMissionClient( ) )
@@ -260,8 +269,6 @@ modded class CarScript
 			{
 				m_SmokeParticle.Stop( );
 			}
-
-			int i;
 
 			for ( i = 0; i < m_Lights.Count(); i++ )
 			{
@@ -281,6 +288,13 @@ modded class CarScript
 		ExpansionSettings.SI_Vehicle.Remove( OnSettingsUpdated );
 
 		//RemoveServerMarker();
+
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		for ( i = 0; i < m_DebugShapes.Count(); i++ )
+			m_DebugShapes[i].Destroy();
+		#endif
+		
+		delete m_DebugShapes;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::~CarScript - End");
@@ -420,7 +434,7 @@ modded class CarScript
 		if ( ( evs && evs.IsBeingTowed() ) || ( cs && cs.IsBeingTowed() ) || !IsMissionHost() )
 			return;
 
-		m_ChildTow = tow;
+		m_ChildTow = EntityAI.Cast( tow );
 		m_IsTowing = true;
 
 		m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
@@ -445,7 +459,7 @@ modded class CarScript
 
 	void OnTowCreated( Object parent, vector towPos )
 	{
-		m_ParentTow = parent;
+		m_ParentTow = EntityAI.Cast( parent );
 		m_IsBeingTowed = true;
 		m_TowPointCenterSelf = towPos;
 		
@@ -1986,6 +2000,13 @@ modded class CarScript
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "[" + this + "] EOnSimulate" );
 		#endif
+		
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		for ( int dbg = 0; dbg < m_DebugShapes.Count(); ++dbg )
+			m_DebugShapes[dbg].Destroy();
+
+		m_DebugShapes.Clear();
+		#endif
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 
@@ -2024,12 +2045,14 @@ modded class CarScript
 
 		if ( !CanSimulate() )
 			return;
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EOnSimulate - Start");
 		#endif
 
 		ExpansionDebugUI( "[[ " + this + " ]]" );
+
+		m_TimeSlice = dt;
 
 		OnPreSimulation( dt );
 
@@ -2079,6 +2102,8 @@ modded class CarScript
 
 			OnSimulation( dt, force, torque );
 
+			DBGDrawLineDirectionMS( "0 0 0", force, 0xFF00FF00 );
+
 			//if ( force.Length() != 0 )
 				dBodyApplyImpulse( this, force * dt );
 
@@ -2105,7 +2130,57 @@ modded class CarScript
 		EXPrint("CarScript::EOnSimulate - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	void DBGDrawImpulseMS( vector position, vector impulse, int color = 0x44FFFFFF )
+	{
+		DBGDrawImpulse( position.Multiply4( m_Transform.data ), impulse.Multiply3( m_Transform.GetBasis().data ), color );
+	}
+
+	// ------------------------------------------------------------
+	void DBGDrawImpulse( vector position, vector impulse, int color = 0x44FFFFFF )
+	{
+		vector acceleration = impulse;
+		acceleration[0] = acceleration[0] / m_TimeSlice / m_BodyMass;
+		acceleration[1] = acceleration[1] / m_TimeSlice / m_BodyMass;
+		acceleration[2] = acceleration[2] / m_TimeSlice / m_BodyMass;
+		
+		DBGDrawLine( position, position + acceleration, color );
+	}
 	
+	// ------------------------------------------------------------
+	void DBGDrawLineMS( vector start, vector end, int color = 0x44FFFFFF )
+	{
+		DBGDrawLine( start.Multiply4( m_Transform.data ), end.Multiply4( m_Transform.GetBasis().data ), color );
+	}
+	
+	// ------------------------------------------------------------
+	void DBGDrawLineDirectionMS( vector start, vector direction, int color = 0x44FFFFFF )
+	{
+		start = start.Multiply4( m_Transform.data );
+		DBGDrawLine( start, start + direction.Multiply3( m_Transform.GetBasis().data ), color );
+	}
+
+	// ------------------------------------------------------------
+	void DBGDrawLine( vector start, vector end, int color = 0x44FFFFFF )
+	{
+		vector pts[2]
+		pts[0] = start;
+		pts[1] = end;
+		
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		DBGAddShape( Shape.CreateLines( color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2 ) );
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	void DBGAddShape( Shape shape )
+	{
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		m_DebugShapes.Insert( shape );
+		#endif
+	}
+
 	// ------------------------------------------------------------
 	// GetCurrentOrientation
 	// ------------------------------------------------------------	

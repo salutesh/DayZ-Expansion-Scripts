@@ -63,7 +63,11 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	protected ButtonWidget m_PlayerListFilterClearButton;
 	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
+#ifdef DAYZ_1_09
+	protected TerritoryFlag m_CurrentFlag;
+#else
 	protected ExpansionTerritoryFlag m_CurrentFlag;
+#endif
 	protected ref ExpansionTerritory m_CurrentTerritory;
 	protected ref array<ref ExpansionTerritoryTabPlayerListEntry> m_PlayerListEntrys;
 	protected ref array<ref ExpansionTerritoryTabMemberListEntry> m_MemberListEntrys;
@@ -149,12 +153,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		m_memberName.SetText( "" );
 		m_memberRank.SetText( "" );
-		m_memberState.SetText( "" );	
-		
-		m_CurrentFlag = null;
-		m_CurrentTerritory = null;
-		m_CurrentMember = null;	
-		m_MyMember = null;
+		m_memberState.SetText( "" );
 
 		OnRefresh();
 	}
@@ -164,13 +163,17 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void SetTerritory()
 	{
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-		ExpansionTerritoryFlag flag = m_TerritoryModule.FindNearestTerritoryFlag( player );
-		m_CurrentFlag = flag;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookTabTerritory::SetTerritory 1 : " + m_CurrentFlag );
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionBookTabTerritory::SetTerritory - Start" );
 		#endif
+		
+		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+	#ifdef DAYZ_1_09		
+		TerritoryFlag flag = m_TerritoryModule.FindNearestTerritoryFlag( player );
+	#else
+		ExpansionTerritoryFlag flag = m_TerritoryModule.FindNearestTerritoryFlag( player );
+	#endif
+		m_CurrentFlag = flag;
 		
 		if ( !m_CurrentFlag )
 		{
@@ -178,8 +181,8 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookTabTerritory::SetTerritory 2 : " + m_CurrentFlag );
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionBookTabTerritory::SetTerritory - m_CurrentFlag is: " + m_CurrentFlag );
 		#endif
 		
 		ref map<int, ref ExpansionTerritory> territories = m_TerritoryModule.GetTerritories();
@@ -190,6 +193,14 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			m_CurrentFlag = null;
 			m_CurrentTerritory = null;
 		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionBookTabTerritory::SetTerritory - m_CurrentTerritory is: " + m_CurrentTerritory );
+		#endif
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionBookTabTerritory::SetTerritory - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -198,7 +209,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void LoadPlayerListEntries(string filter)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadPlayerListEntries - Start");
 		#endif
 		
@@ -239,7 +250,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 				PlayerBase player = PlayerBase.Cast( objects.Get( i ) );
 				if ( player && player.GetIdentity() )
 				{
-					#ifdef EXPANSIONEXLOGPRINT
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint( "ExpansionBookTabTerritory::LoadPlayerListEntries - Player found: " + player.GetIdentityUID() + "." );
 					#endif	
 
@@ -248,7 +259,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 					{
 						nmbPlayer++;
 
-						#ifdef EXPANSIONEXLOGPRINT
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 						EXLogPrint( "ExpansionBookTabTerritory::LoadPlayerListEntries - Create entry for player:" + player.GetIdentityUID() + "." );
 						#endif
 
@@ -268,7 +279,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			m_playersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_INVITE_EMPTY");
 		}
 	
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadPlayerListEntries - End");
 		#endif
 	}
@@ -278,7 +289,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void RefreshMembersList()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::RefreshMembersList - Start");
 		#endif
 		
@@ -286,7 +297,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		LoadMemberListEntrys();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::RefreshMembersList - End");
 		#endif
 	}
@@ -296,11 +307,11 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void LoadMemberListEntrys()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadMemberListEntrys - Start");
 		#endif
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadMemberListEntrys - Got m_CurrentTerritory " + m_CurrentTerritory + ".");
 		#endif
 		
@@ -320,7 +331,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			m_membersListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_MEMBER_LIST_EMPTY");
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadMemberListEntrys - End");
 		#endif
 	}
@@ -330,7 +341,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void RefreshPlayersList(string filter = "")
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::RefreshPlayersList - Start");
 		#endif
 		
@@ -338,7 +349,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		LoadPlayerListEntries(filter);
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::RefreshPlayersList - End");
 		#endif
 	}
@@ -348,7 +359,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void LoadPlayerTerritoryInvitesEntrys()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadPlayerTerritoryInvitesEntrys - Start");
 		#endif
 		
@@ -372,7 +383,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			m_territoryInviteListInfo.SetText("No territory invites");
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::LoadPlayerTerritoryInvitesEntrys - End");
 		#endif
 	}
@@ -382,7 +393,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void RefreshInvitesList()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::RefreshInvitesList - Start");
 		#endif
 		
@@ -390,7 +401,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		LoadPlayerTerritoryInvitesEntrys();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionBookTabTerritory::RefreshInvitesList - End");
 		#endif
 	}
@@ -710,7 +721,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			PlayerBase player = PlayerBase.GetPlayerByUID(member.GetID());
 			if ( player )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
+				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 				EXLogPrint("ExpansionbookTabTerritory::SetMemberInfo:: - Got DayZ Player: [" + player.ToString() + "].");
 				#endif
 

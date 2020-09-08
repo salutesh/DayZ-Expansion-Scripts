@@ -23,7 +23,7 @@ class ExpansionEntityMetaData
 	vector m_Position;
 	vector m_Orientation;
 	int m_DestructionType;
-	
+	bool m_IsTerritoryFlag = false;
 	ref array<ref ExpansionEntityMetaData> m_ContainerObj;
 	
 	void ExpansionEntityMetaData( EntityAI entity )
@@ -61,6 +61,18 @@ class ExpansionEntityMetaData
 				}
 			}
 		}
+		
+		#ifdef DAYZ_1_09
+		TerritoryFlag flag = TerritoryFlag.Cast(entity);
+		if ( flag && flag.IsTerritoryFlag() )
+		{
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesModule::ExpansionEntityMetaData - Entity is territory flag!");
+			#endif
+			m_IsTerritoryFlag = true;
+		}
+		#endif
+		
 	}
 	
 	bool IsDamageDestroyed()
@@ -69,6 +81,11 @@ class ExpansionEntityMetaData
 			return true;
 		
 		return false;
+	}
+	
+	bool IsTerritoryFlag()
+	{
+		return m_IsTerritoryFlag;
 	}
 }
 
@@ -484,8 +501,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	
 		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
 		{
+		#ifdef DAYZ_1_09
+			ref TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
+		#else
 			ref ExpansionTerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
-			
+		#endif
 			if (!currentFlag) 
 			{
 				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG

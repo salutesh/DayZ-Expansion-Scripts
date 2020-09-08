@@ -124,8 +124,11 @@ class ExpansionIngameHud
 			m_MapFrame								= Widget.Cast( m_GPSPanel.FindAnyWidget("GPSMapFrame") );
 			m_MapWidget 							= MapWidget.Cast( m_GPSPanel.FindAnyWidget("Map") );
 			
-			m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
-			m_PlayerArrowMarker.SetName("");
+			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+			{
+				m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
+				m_PlayerArrowMarker.SetName("");
+			}
 		}
 		
 		//! NIGHTVISION OVERLAY
@@ -255,8 +258,11 @@ class ExpansionIngameHud
 		if (m_ExpansionEventHandler)
 			m_ExpansionEventHandler.Update(timeslice);
 		
-		if ( m_PlayerArrowMarker )
-			m_PlayerArrowMarker.Update( timeslice );
+		if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+		{
+			if ( m_PlayerArrowMarker )
+				m_PlayerArrowMarker.Update( timeslice );
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Update End");
@@ -290,8 +296,11 @@ class ExpansionIngameHud
 		if ( m_GPSMapPanel )
 			m_GPSMapPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
 		
-		if ( m_PlayerArrowMarker )
-			m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
+		if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+		{
+			if ( m_PlayerArrowMarker )
+				m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
+		}
 		
 		if ( m_MapStatsPanel )
 			m_MapStatsPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapStatsState && m_ExpansionGPSSetting );

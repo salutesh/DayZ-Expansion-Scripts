@@ -42,29 +42,35 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		AddItem("Mag_CZ75_15Rnd", 				6,		8,		1,		250,	0 );
 		AddItem("Mag_Glock_15Rnd", 				1,		5,		1,		250,	0 );
 		AddItem("Mag_IJ70_8Rnd", 				3,		5,		1,		250,	0 );
+		AddItem("Mag_Deagle_9Rnd", 				22,		24,		1,		250,	0 );
 		AddItem("Mag_MP5_30Rnd", 				20,		22,		1,		250,	0 );
 		AddItem("Mag_CZ61_20Rnd", 				10,		12,		1,		250,	0 );
 		AddItem("Mag_MKII_10Rnd", 				1,		12,		1,		250,	0 );
-		AddItem("Mag_CLIP762x54_5Rnd", 			1,		12,		1,		250,	0 );
-		AddItem("Mag_CLIP762x39_10Rnd", 		5,		7,		1,		250,	0 );
+		//AddItem("Mag_CLIP762x54_5Rnd", 		1,		12,		1,		250,	0 );
+		//AddItem("Mag_CLIP762x39_10Rnd", 		5,		7,		1,		250,	0 );
 		AddItem("Mag_AKM_30Rnd", 				22,		24,		1,		250,	0 );
 		AddItem("Mag_CZ527_5rnd", 				6,		8,		1,		250,	0 );
 		AddItem("Mag_STANAG_30Rnd", 			22,		24,		1,		250,	0 );
 		AddItem("Mag_AK101_30Rnd", 				22,		24,		1,		250,	0 );
-		AddItem("Mag_AK101_30Rnd_Black", 		22,		24,		1,		250,	0 );
-		AddItem("Mag_AK101_30Rnd_Green", 		22,		24,		1,		250,	0 );
 		AddItem("Mag_AK74_30Rnd", 				22,		24,		1,		250,	0 );
-		AddItem("Mag_AK74_30Rnd_Black", 		22,		24,		1,		250,	0 );
-		AddItem("Mag_AK74_30Rnd_Green", 		22,		24,		1,		250,	0 );
 		AddItem("Mag_SVD_10Rnd", 				25,		27,		1,		250,	0 );
 		AddItem("Mag_FAL_20Rnd", 				10,		12,		1,		250,	0 );
 		AddItem("Mag_UMP_25Rnd", 				15,		17,		1,		250,	0 );
 		AddItem("Mag_VSS_10Rnd", 				22,		24,		1,		250,	0 );
+		AddItem("Mag_Ruger1022_10Rnd", 			22,		24,		1,		250,	0 );
+		AddItem("Mag_Ruger1022_15Rnd", 			22,		24,		1,		250,	0 );
+		AddItem("Mag_Saiga_5Rnd", 				22,		24,		1,		250,	0 );
+		AddItem("Mag_Saiga_8Rnd", 				22,		24,		1,		250,	0 );
+		AddItem("Mag_Saiga_Drum20Rnd", 			22,		24,		1,		250,	0 );
 		
 		AddItem("Mag_Expansion_M9_15Rnd", 		5,		7,		1,		250,	0 );
-		AddItem("Mag_Expansion_MPX_40Rnd", 		20,		22,		1,		250,	0 );
+		AddItem("Mag_Expansion_MP7_40Rnd", 		20,		22,		1,		250,	0 );
 		AddItem("Mag_Expansion_MPX_50Rnd", 		22,		24,		1,		250,	0 );
 		AddItem("Mag_Expansion_Kedr_20Rnd", 	15,		17,		1,		250,	0 );
 		AddItem("Mag_Expansion_AWM_5Rnd", 		15,		17,		1,		250,	0 );
+		AddItem("Mag_Expansion_Taser", 			15,		17,		1,		250,	0 );
+		AddItem("Mag_Expansion_Vityaz_30Rnd", 	15,		17,		1,		250,	0 );
+		AddItem("Mag_Expansion_M14_10Rnd", 		15,		17,		1,		250,	0 );
+		AddItem("Mag_Expansion_M14_20Rnd", 		15,		17,		1,		250,	0 );
 	}
 }

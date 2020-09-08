@@ -29,7 +29,7 @@ class ExpansionMh6: ExpansionHelicopterScript
 		#endif
 
 		//! Vanilla
-		m_dmgContactCoef				 			= 0.005;
+		m_dmgContactCoef				 			= 0.05;
 
 		//! explosions
 		m_ExplosionSize					 			= 10;
@@ -45,7 +45,7 @@ class ExpansionMh6: ExpansionHelicopterScript
 		m_MaxAutoRotateSpeed						= 10.0;
 
 		m_BodyFrictionCoef							= 1.1;
-		m_LiftForceCoef								= 1.0;
+		m_LiftForceCoef								= 1.3;
 
 		m_CyclicForceCoef							= 1.5; // All rotations
 

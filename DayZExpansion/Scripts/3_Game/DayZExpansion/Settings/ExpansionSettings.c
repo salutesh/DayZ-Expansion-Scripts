@@ -139,7 +139,7 @@ class ExpansionSettings
 		LoadSetting( m_SettingsBaseBuilding );
 		LoadSetting( m_SettingsGeneral );
 		LoadSetting( m_SettingsMap );
-		#ifdef EXPANSION_MARKET
+		#ifndef EXPANSION_MARKET_DISABLE
 		LoadSetting( m_SettingsMarket );
 		#endif
 		LoadSetting( m_SettingsMission );
@@ -157,7 +157,7 @@ class ExpansionSettings
 		m_NetworkedSettings.Insert( "expansionbasebuildingsettings" );
 		m_NetworkedSettings.Insert( "expansiongeneralsettings" );
 		m_NetworkedSettings.Insert( "expansionmapsettings" );
-		#ifdef EXPANSION_MARKET
+		#ifndef EXPANSION_MARKET_DISABLE
 		m_NetworkedSettings.Insert( "expansionmarketsettings" );
 		#endif
 		// m_NetworkedSettings.Insert( "expansionmissionsettings" );
@@ -406,7 +406,7 @@ class ExpansionSettings
 		m_SettingsBaseBuilding.Send( identity );
 		m_SettingsGeneral.Send( identity );
 		m_SettingsMap.Send( identity );
-		#ifdef EXPANSION_MARKET
+		#ifndef EXPANSION_MARKET_DISABLE
 		m_SettingsMarket.Send( identity );
 		#endif
 		m_SettingsNotification.Send( identity );

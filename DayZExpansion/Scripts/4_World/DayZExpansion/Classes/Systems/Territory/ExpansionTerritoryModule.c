@@ -21,7 +21,11 @@ class ExpansionTerritoryModule: JMModuleBase
 	/////////////////////// NON STATIC VARS ///////////////////////////////
 	
 	//Server
+#ifdef DAYZ_1_09
+	protected ref map<int, TerritoryFlag> 				m_TerritoryFlags;
+#else
 	protected ref map<int, ExpansionTerritoryFlag> 		m_TerritoryFlags;
+#endif
 	protected int 										m_NextTerritoryID;
 	protected float										m_TimeSliceCheckPlayer;
 	
@@ -37,12 +41,16 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionTerritoryModule()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::ExpansionTerritoryModule - Start");
 		#endif
 			
-		//Server	
+		//Server
+	#ifdef DAYZ_1_09
+		m_TerritoryFlags = new map<int, TerritoryFlag>;
+	#else	
 		m_TerritoryFlags = new map<int, ExpansionTerritoryFlag>;
+	#endif
 		m_NextTerritoryID = 0;
 		m_TimeSliceCheckPlayer = 0;
 		
@@ -51,7 +59,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		m_TerritoryInvites = new array<ref ExpansionTerritoryInvite>;
 		m_ServerTerritories = new array<ref ExpansionTerritory>;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::ExpansionTerritoryModule - End");
 		#endif
 	}
@@ -84,7 +92,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		string uid = identity.GetId();
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - Start uid : " + uid + " m_TerritoryFlags.Count() : " + m_TerritoryFlags.Count());
 		#endif
 		
@@ -92,7 +100,11 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		for(int i = 0; i < m_TerritoryFlags.Count(); ++i)
 		{
+		#ifdef DAYZ_1_09
+			TerritoryFlag currFlag = m_TerritoryFlags.GetElement(i);
+		#else
 			ExpansionTerritoryFlag currFlag = m_TerritoryFlags.GetElement(i);
+		#endif
 			if (!currFlag)
 			{
 				toRemove.Insert(m_TerritoryFlags.GetKey(i));
@@ -103,13 +115,13 @@ class ExpansionTerritoryModule: JMModuleBase
 			if ( !territory )
 				continue;
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect Current territory : " + territory.GetTerritoryName());
 			#endif
 
 			if ( territory && territory.IsMember( uid ) )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
+				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 				EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect Found territory : " + territory.GetTerritoryName());
 				#endif
 
@@ -126,7 +138,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		//Sync invites
 		SyncPlayersInvites( player );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - End");
 		#endif
 	}
@@ -171,116 +183,125 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnRPC - Start");
 		#endif
 		
 		switch ( rpc_type )
 		{
 		case ExpansionTerritoryModuleRPC.OpenFlagMenu:
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_OpenFlagMenu");
 			#endif
+		#ifdef DAYZ_1_09
+			TerritoryFlag flag;
+			if ( Class.CastTo( flag, target ) )
+			{
+				GetGame().GetUIManager().EnterScriptedMenu( flag.GetTerritoryMenuID(), GetGame().GetUIManager().GetMenu() );
+			}
+			break;
+		#else
 			ExpansionFlagBase flag;
 			if ( Class.CastTo( flag, target ) )
 			{
 				GetGame().GetUIManager().EnterScriptedMenu( flag.GetTerritoryMenuID(), GetGame().GetUIManager().GetMenu() );
 			}
 			break;
+		#endif
 		case ExpansionTerritoryModuleRPC.CreateTerritory:
 			RPC_CreateTerritory( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_CreateTerritory");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.ChangeTexture:
 			RPC_ChangeFlagTexture( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_ChangeFlagTexture");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.DeleteTerritoryPlayer:
 			RPC_DeleteTerritoryPlayer( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteTerritoryPlayer");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.DeleteTerritoryAdmin:
 			RPC_DeleteTerritoryAdmin( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteTerritoryAdmin");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.UpdateClient:
 			RPC_UpdateClient( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_UpdateClient");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.AcceptInvite:
 			RPC_AcceptInvite( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_AddPlayer");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.SyncPlayersInvites:
 			RPC_SyncPlayersInvites( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SyncPlayersInvites");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.RequestInvitePlayer:
 			RPC_RequestInvitePlayer( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_RequestInvitePlayer");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.PromoteMember:
 			RPC_PromoteMember( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_PromoteMember");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.DemoteMember:
 			RPC_DemoteMember( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DemoteMember");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.KickMember:
 			RPC_KickMember( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_KickMember");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.Leave:
 			RPC_Leave( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_Leave");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.PlayerEnteredTerritory:
 			RPC_PlayerEnteredTerritory( ctx, sender, target );
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteObject");
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_PlayerEnteredTerritory");
 			#endif
 
 			break;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnRPC - End");
 		#endif
 	}
@@ -293,10 +314,15 @@ class ExpansionTerritoryModule: JMModuleBase
 	{
 		if ( !IsMissionHost() )
 			return;
-		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+		if ( !flag )
+			return;
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 			return;
+	#endif
 		
 		ExpansionTerritory territory = flag.GetTerritory();
 		if ( !territory )
@@ -322,9 +348,15 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !IsMissionHost() || !player || !player.GetIdentity() )
 			return;
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+		if ( !flag )
+			return;
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 			return;
+	#endif
 		
 		ExpansionTerritory territory = flag.GetTerritory();
 		if ( !territory )
@@ -339,7 +371,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Send_UpdateClient( int territoryID, ref ExpansionTerritory territory, notnull PlayerIdentity sendTo )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Send_UpdateClient 1 territory : " + territory);
 		#endif
 		
@@ -375,7 +407,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_UpdateClient( int territoryID, ref ExpansionTerritory territory )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_UpdateClient 1 : " + territoryID + " " + territory + " " + m_Territories.Count() );
 		#endif
 
@@ -391,7 +423,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			if ( territory )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
+				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 				EXLogPrint("ExpansionTerritoryModule::Exec_UpdateClient 2 : " + territory + " " + m_Territories.Count());
 				#endif
 				
@@ -400,7 +432,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				array<ref ExpansionTerritoryMember> members = territory.GetTerritoryMembers();
 				for ( int i = 0; i < members.Count(); ++i )
 				{
-					#ifdef EXPANSIONEXLOGPRINT
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionTerritoryModule::Exec_UpdateClient 3." + i + ": " + members[i] + " " + members[i].GetID() + " " + members[i].GetName() + " " + members[i].GetRank());
 					#endif
 				}
@@ -421,9 +453,10 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Called from Client
 	// Initiate remote procedure call for the creation off a new territory
 	// ------------------------------------------------------------
-	void CreateTerritory( string territoryName, ExpansionFlagBase flag )
+#ifdef DAYZ_1_09
+	void CreateTerritory( string territoryName, TerritoryFlag flag )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::CreateTerritory - Start");
 		#endif
 		
@@ -435,10 +468,30 @@ class ExpansionTerritoryModule: JMModuleBase
 		rpc.Write( flag );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.CreateTerritory, true, NULL );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::CreateTerritory - End");
 		#endif
 	}
+#else
+	void CreateTerritory( string territoryName, ExpansionFlagBase flag )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::CreateTerritory - Start");
+		#endif
+		
+		if ( !IsMissionClient() )
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( territoryName );
+		rpc.Write( flag );
+		rpc.Send( NULL, ExpansionTerritoryModuleRPC.CreateTerritory, true, NULL );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::CreateTerritory - End");
+		#endif
+	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule RPC_CreateTerritory
@@ -446,21 +499,26 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RPC_CreateTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_CreateTerritory - Start");
 		#endif
 		
 		string territoryName;
 		if ( !ctx.Read( territoryName ) )	//! Get Territory name
 			return;
-		
+	#ifdef DAYZ_1_09 
+		TerritoryFlag flag;
+		if ( !ctx.Read( flag ) )			//! Get Flag object
+			return;
+	#else
 		ExpansionFlagBase flag;
 		if ( !ctx.Read( flag ) )			//! Get Flag object
 			return;
+	#endif
 
 		Exec_CreateTerritory( territoryName, flag, senderRPC );	//! Called from server side
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_CreateTerritory - End");
 		#endif
 	}
@@ -470,9 +528,80 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Called on server
 	// Called on server/mission host
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09 
+	private void Exec_CreateTerritory( string territoryName, TerritoryFlag flag, PlayerIdentity sender )
+	{	
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - Start territoryName : " + territoryName + " flag : " + flag);
+		#endif
+		
+		if ( !IsMissionHost() || !sender || !flag )
+			return;
+		
+		//! Get player object from network by sender identity
+		PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
+		if ( !player )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+			
+		//! Check if the territory name is not already used
+		for ( int i = 0; i < m_TerritoryFlags.Count(); ++i )
+		{
+			ExpansionTerritory territory = m_TerritoryFlags.GetElement(i).GetTerritory();
+			if ( territory.GetTerritoryName() == territoryName )
+			{
+				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+				return;
+			}
+		}
+		
+		bool territoryCreated = false;
+		bool flagCreated = false;
+		
+		//! Get the needed data for territory creation
+		vector position = flag.GetPosition();
+		string texturePath = flag.GetFlagTexturePath();
+		string senderID = sender.GetId();
+		
+		//! Set needed flag data
+		flag.SetIsExpansionTerritoryFlag( true );
+		flag.SetTerritoryID( m_NextTerritoryID );
+		flag.SetFlagTexture( texturePath );
+		flag.SetOwnerID( senderID );
+		
+		//! Create new territory
+		ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
+		if ( !newTerritory )
+			return;
+		
+		newTerritory.AddMember( senderID, sender.GetName(), true );
+		
+		flag.SetTerritory( newTerritory );
+		
+		m_TerritoryFlags.Insert( m_NextTerritoryID, flag );
+		
+		UpdateClient( m_NextTerritoryID );
+		
+		m_NextTerritoryID++;
+		
+		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_CREATED", territoryName ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, sender );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - End");
+		#endif
+	}
+#else
 	private void Exec_CreateTerritory( string territoryName, ExpansionFlagBase flag, PlayerIdentity sender )
 	{	
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - Start territoryName : " + territoryName + " flag : " + flag);
 		#endif
 		
@@ -544,10 +673,11 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_CREATED", territoryName ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - End");
 		#endif
 	}
+#endif
 	
 	///////////////////////// ChangeFlagTexture /////////////////////////////////
 	
@@ -555,9 +685,10 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule ChangeFlagTexture
 	// Called on client
 	// ------------------------------------------------------------
-	void ChangeFlagTexture( string texturePath, ExpansionFlagBase flag )
+#ifdef DAYZ_1_09 
+	void ChangeFlagTexture( string texturePath, TerritoryFlag flag )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::ChangeFlagTexture - Start");
 		#endif
 		
@@ -569,10 +700,30 @@ class ExpansionTerritoryModule: JMModuleBase
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.ChangeTexture, true, NULL );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::ChangeFlagTexture - End");
 		#endif
 	}
+#else
+	void ChangeFlagTexture( string texturePath, ExpansionFlagBase flag )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::ChangeFlagTexture - Start");
+		#endif
+		
+		if ( IsMissionClient() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Write( texturePath );
+			rpc.Write( flag );
+			rpc.Send( NULL, ExpansionTerritoryModuleRPC.ChangeTexture, true, NULL );
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::ChangeFlagTexture - End");
+		#endif
+	}
+#endif
 
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule RPC_ChangeFlagTexture
@@ -580,7 +731,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RPC_ChangeFlagTexture( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - Start");
 		#endif
 		
@@ -588,24 +739,31 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !ctx.Read( texturePath ) )
 			return;
 		
+	#ifdef DAYZ_1_09 
+		TerritoryFlag flag;
+		if ( !ctx.Read( flag ) )
+			return;
+	#else
 		ExpansionFlagBase flag;
 		if ( !ctx.Read( flag ) )
 			return;
-
+	#endif
+		
 		Exec_ChangeFlagTexture( texturePath, flag, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - End");
 		#endif
 	}
 
+#ifdef DAYZ_1_09 
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule RPC_ChangeFlagTexture
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_ChangeFlagTexture( string texturePath, ExpansionFlagBase flag, PlayerIdentity ident )
+	private void Exec_ChangeFlagTexture( string texturePath, TerritoryFlag flag, PlayerIdentity ident )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - Start");
 		#endif
 
@@ -614,20 +772,38 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		flag.SetFlagTexture( texturePath );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - End");
 		#endif
 	}
-	
+#else
+	private void Exec_ChangeFlagTexture( string texturePath, ExpansionFlagBase flag, PlayerIdentity ident )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - Start");
+		#endif
+
+		if ( texturePath == "" || !flag )
+			return;
+		
+		flag.SetFlagTexture( texturePath );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_ChangeFlagTexture - End");
+		#endif
+	}
+#endif	
+
 	///////////////////////// DeleteTerritory /////////////////////////////////
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule DeleteTerritoryPlayer
 	// Called on client
 	// ------------------------------------------------------------
-	void DeleteTerritoryPlayer( ExpansionTerritoryFlag flag )
+#ifdef DAYZ_1_09 
+	void DeleteTerritoryPlayer( TerritoryFlag flag )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
 		#endif
 		
@@ -638,10 +814,29 @@ class ExpansionTerritoryModule: JMModuleBase
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.DeleteTerritoryPlayer, true, NULL );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - End");
 		#endif
 	}
+#else
+	void DeleteTerritoryPlayer( ExpansionTerritoryFlag flag )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
+		#endif
+		
+		if ( IsMissionClient() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Write( flag );
+			rpc.Send( NULL, ExpansionTerritoryModuleRPC.DeleteTerritoryPlayer, true, NULL );
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - End");
+		#endif
+	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule RPC_DeleteTerritory
@@ -649,17 +844,22 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected void RPC_DeleteTerritoryPlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
 		#endif
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag;
+	#else
 		ExpansionTerritoryFlag flag;
+	#endif
+	
 		if ( !ctx.Read( flag ) )
 			return;
 
 		Exec_DeleteTerritoryPlayer( flag, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - End");
 		#endif
 	}
@@ -668,15 +868,88 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule Exec_DeleteTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	protected void Exec_DeleteTerritoryPlayer( ExpansionTerritoryFlag flag, PlayerIdentity sender )
+#ifdef DAYZ_1_09
+	protected void Exec_DeleteTerritoryPlayer( TerritoryFlag flag, PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - Start");
 		#endif	
 		
 		if ( !flag || !sender )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - [ERROR] Recived territory flag object is empty or NULL!");
+			#endif
+
+			return;
+		}
+		
+		string playerSteamID = "";
+		if (sender) playerSteamID = sender.GetId();
+		string flagOwnerID = flag.GetOwnerID();
+		
+		if ( playerSteamID == flagOwnerID )
+		{
+			ExpansionTerritory currentTerritory = flag.GetTerritory();
+			if (!currentTerritory) return;
+			
+			int territoryID = currentTerritory.GetTerritoryID();
+			
+			ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+			for ( int i = 0; i < members.Count(); ++i )
+			{
+				if (!members[i])
+					continue;
+				
+				PlayerBase currPlayer = PlayerBase.GetPlayerByUID( members[i].GetID() );
+				if (!currPlayer || !currPlayer.GetIdentity())
+					continue;
+				
+				Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
+			}
+			
+			ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+			for ( int j = 0; j < invites.Count(); ++j )
+			{
+				if (!invites[j])
+					continue;
+				
+				PlayerBase currPlayerInvite = PlayerBase.GetPlayerByUID( invites[j].UID );
+				if (!currPlayerInvite)
+					continue;
+				
+				SyncPlayersInvites(currPlayerInvite);
+			}
+			
+			//Don't forget to set it as null before to delete, to not do a infinte loop
+			flag.SetTerritory(null);
+
+			GetGame().CreateObject( "ExpansionFlagKitExpansion", flag.GetPosition() );
+			flag.Delete();
+			
+			m_TerritoryFlags.Remove( territoryID );
+			
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		} 
+		else
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETE_NORIGHTS", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - End");
+		#endif
+	}
+#else
+	protected void Exec_DeleteTerritoryPlayer( ExpansionTerritoryFlag flag, PlayerIdentity sender )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - Start");
+		#endif	
+		
+		if ( !flag || !sender )
+		{
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - [ERROR] Recived territory flag object is empty or NULL!");
 			#endif
 
@@ -734,10 +1007,11 @@ class ExpansionTerritoryModule: JMModuleBase
 			//TODO: message
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - End");
 		#endif
 	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule DeleteTerritoryPlayer
@@ -745,7 +1019,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void DeleteTerritoryAdmin( int territoryID )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
 		#endif
 		
@@ -756,7 +1030,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			rpc.Send( null, ExpansionTerritoryModuleRPC.DeleteTerritoryAdmin, true );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - End");
 		#endif
 	}
@@ -767,7 +1041,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected void RPC_DeleteTerritoryAdmin( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
 		#endif
 		
@@ -777,7 +1051,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		Exec_DeleteTerritoryAdmin( territoryID, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - End");
 		#endif
 	}
@@ -788,15 +1062,19 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void Exec_DeleteTerritoryAdmin( int territoryID, PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryAdmin - Start");
 		#endif	
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#endif	
 		
 		if ( !flag )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryAdmin - [ERROR] Recived territory flag object is empty or NULL!");
 			#endif
 
@@ -843,7 +1121,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		if (sender)
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryAdmin - End");
 		#endif
 	}
@@ -862,9 +1140,15 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		for (int i = 0; i < m_TerritoryFlags.Count(); ++i)
 		{
+		#ifdef DAYZ_1_09
+			ref TerritoryFlag flag = m_TerritoryFlags.GetElement(i);
+			if ( !flag )
+				continue;
+		#else
 			ref ExpansionTerritoryFlag flag = m_TerritoryFlags.GetElement(i);
 			if ( !flag )
 				continue;
+		#endif
 			
 			ExpansionTerritory territory = flag.GetTerritory();
 			if ( !territory )
@@ -909,9 +1193,10 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RequestInvitePlayer
 	// Called on client
 	// ------------------------------------------------------------
-	void RequestInvitePlayer( string targetID, ExpansionTerritoryFlag flag )
+#ifdef DAYZ_1_09
+	void RequestInvitePlayer( string targetID, TerritoryFlag flag )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RequestInvitePlayer - Start");
 		#endif
 		
@@ -923,10 +1208,30 @@ class ExpansionTerritoryModule: JMModuleBase
 		rpc.Write( flag );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.RequestInvitePlayer, true, NULL );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RequestInvitePlayer - End");
 		#endif
 	}
+#else
+	void RequestInvitePlayer( string targetID, ExpansionTerritoryFlag flag )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::RequestInvitePlayer - Start");
+		#endif
+		
+		if ( !IsMissionClient() )
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( targetID );
+		rpc.Write( flag );
+		rpc.Send( NULL, ExpansionTerritoryModuleRPC.RequestInvitePlayer, true, NULL );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::RequestInvitePlayer - End");
+		#endif
+	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule RPC_RequestInvitePlayer
@@ -934,7 +1239,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_RequestInvitePlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_RequestInvitePlayer - Start");
 		#endif
 
@@ -944,14 +1249,17 @@ class ExpansionTerritoryModule: JMModuleBase
 		string targetID;
 		if ( !ctx.Read( targetID ) )
 			return;
-		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag;
+	#else
 		ExpansionTerritoryFlag flag;
+	#endif
 		if ( !ctx.Read( flag ) )
 			return;
 		
 		Exec_RequestInvitePlayer( targetID, flag, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_RequestInvitePlayer - End");
 		#endif
 	}
@@ -960,9 +1268,10 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule Exec_RequestInvitePlayer
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_RequestInvitePlayer( string targetID, ExpansionTerritoryFlag flag, notnull PlayerIdentity sender )
+#ifdef DAYZ_1_09
+	private void Exec_RequestInvitePlayer( string targetID, TerritoryFlag flag, notnull PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 1");
 		#endif
 		
@@ -970,7 +1279,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		
 		PlayerBase targetPlayer = PlayerBase.GetPlayerByUID( targetID );
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 2 targetID : " + targetID + " targetPlayer: " + targetPlayer);
 		#endif
 
@@ -987,7 +1296,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		ExpansionTerritory territory = flag.GetTerritory();
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 4 territory: " + territory);
 		#endif
 
@@ -997,7 +1306,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 5");
 		#endif
 
@@ -1013,7 +1322,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 6");
 		#endif
 
@@ -1032,10 +1341,88 @@ class ExpansionTerritoryModule: JMModuleBase
 		//! Message to request target
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_TARGET", sender.GetName(), territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, targetPlayer.GetIdentity() );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - End");
 		#endif
 	}
+#else
+	private void Exec_RequestInvitePlayer( string targetID, ExpansionTerritoryFlag flag, notnull PlayerIdentity sender )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 1");
+		#endif
+		
+		if ( !IsMissionHost() )
+			return;
+		
+		PlayerBase targetPlayer = PlayerBase.GetPlayerByUID( targetID );
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 2 targetID : " + targetID + " targetPlayer: " + targetPlayer);
+		#endif
+
+		if ( !targetPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		if ( !flag )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		ExpansionTerritory territory = flag.GetTerritory();
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 4 territory: " + territory);
+		#endif
+
+		if ( !territory )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 5");
+		#endif
+
+		if ( territory.IsMember( targetID ) || territory.HasInvite(targetID) )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		if ( GetExpansionSettings().GetTerritory() && GetExpansionSettings().GetTerritory().MaxMembersInTerritory > 1 && territory.NumberOfMembers() >= GetExpansionSettings().GetTerritory().MaxMembersInTerritory )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY", GetExpansionSettings().GetTerritory().MaxMembersInTerritory.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 6");
+		#endif
+
+		ExpansionTerritoryInvite invite = new ExpansionTerritoryInvite;
+		invite.TerritoryName = territory.GetTerritoryName();
+		invite.TerritoryID = territory.GetTerritoryID();
+		invite.UID = targetPlayer.GetIdentityUID();
+		
+		territory.AddTerritoryInvite(invite);
+		
+		SyncPlayersInvites( targetPlayer );
+		
+		//! Message to request sender
+		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_SENDER", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		
+		//! Message to request target
+		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_TARGET", sender.GetName(), territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, targetPlayer.GetIdentity() );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - End");
+		#endif
+	}
+#endif	
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule AcceptInvite
@@ -1043,7 +1430,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void AcceptInvite( int territoryID )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::AddPlayer - Start");
 		#endif
 		
@@ -1054,7 +1441,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.AcceptInvite, true, NULL );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::AddPlayer - End");
 		#endif
 	}
@@ -1065,7 +1452,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_AcceptInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_AddPlayer - Start");
 		#endif
 		
@@ -1075,7 +1462,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		Exec_AcceptInvite( territoryID, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_AddPlayer - End");
 		#endif
 	}
@@ -1086,12 +1473,16 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_AcceptInvite( int territoryID, notnull PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 1 territoryID: " + territoryID);
 		#endif
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
-		#ifdef EXPANSIONEXLOGPRINT
+	#endif
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 2 flag: " + flag);
 		#endif
 
@@ -1102,7 +1493,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		ExpansionTerritory territory = flag.GetTerritory();
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 3 territory: " + territory);
 		#endif
 
@@ -1113,7 +1504,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 4 senderPlayer: " + senderPlayer);
 		#endif
 
@@ -1137,7 +1528,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_ADDED", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 5");
 		#endif
 	}
@@ -1165,7 +1556,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_PromoteMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PromoteMember - Start");
 		#endif
 
@@ -1182,7 +1573,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		Exec_PromoteMember( territoryID, member, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PromoteMember - End");
 		#endif
 	}
@@ -1193,15 +1584,19 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_PromoteMember( int territoryID, ref ExpansionTerritoryMember member, PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 1 territoryID : " + territoryID + " member : " + member);
 		#endif
 		
 		if ( !member )
 			return;
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
-		#ifdef EXPANSIONEXLOGPRINT
+	#endif
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 2 flag : " + flag);
 		#endif
 
@@ -1212,7 +1607,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		ExpansionTerritory territory = flag.GetTerritory();
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 3 territory : " + territory);
 		#endif
 
@@ -1223,7 +1618,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		ExpansionTerritoryMember senderTerritory = territory.GetMember( sender.GetId() );
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 4 senderTerritory : " + senderTerritory);
 		#endif
 
@@ -1233,7 +1628,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 5");
 		#endif
 		
@@ -1243,12 +1638,12 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 6");
 		#endif
 		
 		ref ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 7 target : " + target);
 		#endif
 
@@ -1258,7 +1653,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 8");
 		#endif
 
@@ -1266,12 +1661,12 @@ class ExpansionTerritoryModule: JMModuleBase
 		{
 			target.SetRank( ExpansionTerritoryRank.MODERATOR );
 			
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 9");
 			#endif
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 10");
 		#endif
 		
@@ -1279,7 +1674,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_PROMOTE", target.GetName(), target.GetRankName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - End");
 		#endif
 	}
@@ -1307,7 +1702,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_DemoteMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DemoteMember - Start");
 		#endif
 		
@@ -1321,7 +1716,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		Exec_DemoteMember( territoryID, member, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DemoteMember - End");
 		#endif
 	}
@@ -1332,14 +1727,17 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_DemoteMember( int territoryID, ExpansionTerritoryMember member, notnull PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DemoteMember - Start");
 		#endif
 		
 		if ( !member )
 			return;
-		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#endif
 		if ( !flag )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
@@ -1382,7 +1780,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_DEMOTE", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DemoteMember - End");
 		#endif
 	}
@@ -1408,7 +1806,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_KickMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_KickMember - Start");
 		#endif
 		
@@ -1422,7 +1820,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		Exec_KickMember( territoryID, member, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_KickMember - End");
 		#endif
 	}
@@ -1433,14 +1831,18 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_KickMember( int territoryID, ExpansionTerritoryMember member, notnull PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_KickMember - Start");
 		#endif
 		
 		if ( !member )
 			return;
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#endif
 		if ( !flag )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
@@ -1500,7 +1902,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_KICKED_SENDER", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_KickMember - End");
 		#endif
 	}
@@ -1525,7 +1927,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_Leave( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_Leave - Start");
 		#endif
 		
@@ -1535,7 +1937,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		Exec_Leave( territoryID, senderRPC );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_Leave - End");
 		#endif
 	}
@@ -1546,11 +1948,15 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_Leave( int territoryID, notnull PlayerIdentity sender )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_Leave - Start");
 		#endif
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+	#endif
 		if ( !flag )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
@@ -1586,7 +1992,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		// TODO: message
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_LEAVE", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_Leave - End");
 		#endif
 	}
@@ -1597,7 +2003,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_PlayerEnteredTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PlayerEnteredTerritory - Start");
 		#endif
 		
@@ -1611,10 +2017,16 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !GetExpansionSettings().GetNotification() || !GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
 			return;
-
+		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+		if ( !flag )
+			return;
+	#else
 		ExpansionTerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 			return;
+	#endif
 		
 		ExpansionTerritory territory = flag.GetTerritory();
 		if ( !territory )
@@ -1630,7 +2042,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PlayerEnteredTerritory - End");
 		#endif
 	}
@@ -1646,11 +2058,15 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !Class.CastTo( player, GetGame().GetPlayer() ) )
 			return;
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_CheckPlayer - Start");
 		#endif
 		
+	#ifdef DAYZ_1_09
+		TerritoryFlag flag = FindNearestTerritoryFlag( player );
+	#else
 		ExpansionTerritoryFlag flag = FindNearestTerritoryFlag( player );
+	#endif
 
 		int type = -1;
 		int territoryId;
@@ -1681,7 +2097,7 @@ class ExpansionTerritoryModule: JMModuleBase
  			rpc.Send( null, ExpansionTerritoryModuleRPC.PlayerEnteredTerritory, true );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_CheckPlayer - End");
 		#endif
 	}
@@ -1709,11 +2125,20 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	bool IsPlayerInsideTerritory( notnull PlayerIdentity identity )
 	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - Start");
+		#endif
+		
 		for ( int i = 0; i < m_Territories.Count(); i++ )
 		{
 			ExpansionTerritory currentTerritory = ExpansionTerritory.Cast( m_Territories.Get(i) );
 			if (!currentTerritory)
+			{
+				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+				EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - [ERROR] ExpansionTerritory is NULL!");
+				#endif
 				continue;
+			}
 			
 			array<ref ExpansionTerritoryMember> territoryMembers = currentTerritory.GetTerritoryMembers();
 			
@@ -1723,11 +2148,18 @@ class ExpansionTerritoryModule: JMModuleBase
 				
 				if ( currentMember && currentMember.GetID() == identity.GetPlainId() )
 				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - End and return true");
+					#endif
 					return true;
 				}
 			}
 		}
-
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - End and return false");
+		#endif
+		
 		return false;
 	}
 	
@@ -1749,9 +2181,15 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			for (int idx = 0; idx < m_TerritoryFlags.Count(); ++idx)
 			{
+			#ifdef DAYZ_1_09
+				TerritoryFlag flag = m_TerritoryFlags.GetElement(idx);
+				if (!flag)
+					continue;
+			#else
 				ExpansionTerritoryFlag flag = m_TerritoryFlags.GetElement(idx);
 				if (!flag)
 					continue;
+			#endif
 				
 				ExpansionTerritory currTerritory = flag.GetTerritory();
 				if (!currTerritory)
@@ -1772,6 +2210,48 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion FindNearestTerritoryFlag
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	TerritoryFlag FindNearestTerritoryFlag( PlayerBase player )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - Start");
+		#endif
+		
+		if (!player)
+		{
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - [ERROR] Player is NULL!");
+			#endif
+			return null;
+		}
+		
+		vector position = player.GetPosition();
+		array<Object> objects = new array<Object>;
+		array<CargoBase> proxyCargos = new array<CargoBase> ;
+		GetGame().GetObjectsAtPosition3D( position, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
+		
+		if ( objects )
+		{
+			for ( int i = 0; i < objects.Count(); ++i )
+			{
+				TerritoryFlag flag = TerritoryFlag.Cast( objects.Get( i ) );
+				if ( flag && flag.IsTerritoryFlag() )
+				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and found flag: " + flag.ToString());
+					#endif
+					return flag;
+				}
+			}
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and return NULL");
+		#endif
+		
+		return null;
+	}
+#else
 	ExpansionTerritoryFlag FindNearestTerritoryFlag( PlayerBase player )
 	{
 		if (!player)
@@ -1794,6 +2274,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		return null;
 	}
+#endif	
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule AddTerritoryFlag
@@ -1801,6 +2282,28 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Called from ExpansionTerritoryFlag initialisation when flag object is created.
 	// In this way we fill the territory flag array (m_TerritoryFlags) automatically in this module.
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	void AddTerritoryFlag( TerritoryFlag flag, int territoryID )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::AddTerritoryFlag - Start");
+		#endif
+		
+		if ( !flag )
+			return;
+		
+		m_TerritoryFlags.Insert( territoryID, flag );
+		
+		if ( m_NextTerritoryID <= territoryID )
+		{
+			m_NextTerritoryID = territoryID + 1;
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::AddTerritoryFlag - End");
+		#endif
+	}
+#else
 	void AddTerritoryFlag( ExpansionTerritoryFlag flag, int territoryID )
 	{
 		if ( !flag )
@@ -1813,7 +2316,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			m_NextTerritoryID = territoryID + 1;
 		}
 	}
-	
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule AddTerritoryFlag
@@ -1823,10 +2326,18 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RemoveTerritoryFlag( int territoryID )
 	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::RemoveTerritoryFlag - Start");
+		#endif
+		
 		if ( territoryID <= -1 )
 			return;
 		
 		m_TerritoryFlags.Remove( territoryID );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::RemoveTerritoryFlag - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -1845,13 +2356,22 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	bool IsInsideOwnTerritory( vector position = "-1 -1 -1", float territorySize = -1, string playerUID = "" )
 	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - Start");
+		#endif
+		
 		if (playerUID != "" && IsMissionClient()) return false;
 		
 		if ( position == "-1 -1 -1" && IsMissionClient() )
 		{
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 			if ( !player )
+			{
+				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+				EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [ERROR] Player is NULL! Return false.");
+				#endif
 				return false;
+			}
 			
 			position = player.GetPosition();
 		}
@@ -1865,16 +2385,56 @@ class ExpansionTerritoryModule: JMModuleBase
 		{
 			for (int idx = 0; idx < m_TerritoryFlags.Count(); ++idx)
 			{
+			#ifdef DAYZ_1_09
+				TerritoryFlag flag = m_TerritoryFlags.GetElement(idx);
+			#else
 				ExpansionTerritoryFlag flag = m_TerritoryFlags.GetElement(idx);
-				if (!flag) continue;
-				
+			#endif
+				if (!flag)
+				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [ERROR] Flag is NULL!");
+					#endif
+					continue;
+				}
+			#ifdef DAYZ_1_09	
+				if ( flag.IsTerritoryFlag() )
+				{
+					ExpansionTerritory currTerritory = flag.GetTerritory();
+					if (!currTerritory)
+					{
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [ERROR] Territory is NULL!");
+						#endif
+						continue;
+					}
+					
+					if ( vector.Distance( currTerritory.GetPosition(), position ) <= territorySize && currTerritory.IsMember(playerUID) )
+					{
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [1] End and return true!");
+						#endif
+						return true;
+					}
+				}
+			#else	
 				ExpansionTerritory currTerritory = flag.GetTerritory();
-				if (!currTerritory) continue;
+				if (!currTerritory)
+				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [ERROR] Territory is NULL!");
+					#endif
+					continue;
+				}
 				
 				if ( vector.Distance( currTerritory.GetPosition(), position ) <= territorySize && currTerritory.IsMember(playerUID) )
 				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [1] End and return true!");
+					#endif
 					return true;
 				}
+			#endif
 			}
 		}
 		else
@@ -1884,10 +2444,17 @@ class ExpansionTerritoryModule: JMModuleBase
 				ref ExpansionTerritory territory = m_Territories.GetElement( i );
 				if ( territory && vector.Distance( territory.GetPosition(), position ) <= territorySize )
 				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - [2] End and return true!");
+					#endif
 					return true;
 				}
 			}
 		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - End and return false!");
+		#endif
 
 		return false;
 	}
@@ -1897,6 +2464,44 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Called server/client
 	// Check if a position is in territory
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	bool IsInTerritory( vector position, float territorySize = -1 )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::IsInTerritory - Start");
+		#endif
+		
+		if ( territorySize <= 0 )
+		{
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
+		}
+		
+		array<Object> objects = new array<Object>;
+		array<CargoBase> proxyCargos = new array<CargoBase> ;
+		GetGame().GetObjectsAtPosition3D( position, territorySize, objects, proxyCargos );
+		
+		for ( int i = 0; i < objects.Count(); ++i )
+		{
+			TerritoryFlag flag;
+			if ( Class.CastTo( flag, objects[i] ) )
+			{
+				if ( flag.IsTerritoryFlag() )
+				{
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
+					#endif
+					return true;
+				}
+			}
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return false!");
+		#endif
+		
+		return false;
+	}
+#else	
 	bool IsInTerritory( vector position, float territorySize = -1 )
 	{
 		if ( territorySize <= 0 )
@@ -1919,6 +2524,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		return false;
 	}
+#endif
 	
 	// ------------------------------------------------------------
 	// Expansion SetTerritoryInvites
@@ -1958,8 +2564,15 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion GetAllTerritoryFlags
 	// Called server side
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_09
+	ref map<int, TerritoryFlag> GetAllTerritoryFlags()
+	{
+		return m_TerritoryFlags;
+	}
+#else
 	ref map<int, ExpansionTerritoryFlag> GetAllTerritoryFlags()
 	{
 		return m_TerritoryFlags;
 	}
+#endif
 }

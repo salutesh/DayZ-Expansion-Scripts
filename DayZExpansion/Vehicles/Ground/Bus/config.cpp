@@ -262,8 +262,8 @@ class CfgVehicles
 			};
 			class Gearbox
 			{
-				reverse = 6.526;
-				ratios[] = {5.667,4.5,2.861,2.3};
+				reverse = 5.526;
+				ratios[] = {5.667,2.5,1.861,1.3};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 660;

@@ -19,6 +19,7 @@ modded class Land_House_1W10
 	
 	override void SpawnInterior()
 	{
+		/*
 		SpawnInteriorObject( "bldr_kitchen_unit_a_dz", "-0.703067 -1.455147 -0.120000", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_lekarnicka", "1.493512 -1.010002 -3.647858", "107.999962 -90.000000 -0.000009" );
 		SpawnInteriorObject( "ExpansionPropScrewdriver1", "1.700579 -0.455086 -3.528016", "153.000031 0.000000 88.000046" );
@@ -48,8 +49,18 @@ modded class Land_House_1W10
 		
 		SpawnInteriorObject( "bldr_bucket", "-2.411649 -1.455147 -3.744117", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_flowers_01", "-0.290902 -1.459999 -3.749198", "-44.999989 0.000000 0.000000" );
+		*/
 
-		//Ivy
+
+	}
+
+    override bool HasIvys()
+    {
+        return true;
+    }
+    
+    override void SpawnIvys()
+    {
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "-2.751482 3.744316 -2.088995", "179.999985 -48.000011 177.999954" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "3.614371 3.895180 -2.013372", "179.999985 -39.000015 179.999954" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_H", "-4.987113 2.295082 -4.038944", "-29.000006 35.000019 163.000397" );
@@ -72,5 +83,6 @@ modded class Land_House_1W10
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_G", "-5.603276 -1.450089 -3.745330", "-90.000000 1.000000 0.000000" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_C", "5.829864 -3.250198 -0.487457", "-91.000031 -1.000000 0.000000" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_O", "5.982159 -0.950058 -3.279355", "0.000000 0.000000 90.000000" );
-	}
+    }
+
 }

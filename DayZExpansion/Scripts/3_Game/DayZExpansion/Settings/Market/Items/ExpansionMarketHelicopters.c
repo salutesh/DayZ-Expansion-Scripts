@@ -37,8 +37,9 @@ class ExpansionMarketHelicopters: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HELICOPTER";
 		m_FileName = "Helicopters";
 
-		AddItem("ExpansionMerlin", 				1000000,		1050000,		1,		10,		1, 	{"ExpansionHelicopterBattery","GlowPlug"} );
-		AddItem("ExpansionUh1h", 				800000,			820000,			1,		10,		1, 	{"ExpansionHelicopterBattery","GlowPlug"} );
-		AddItem("ExpansionMh6", 				700000,			720000,			1,		10,		1,	{"ExpansionHelicopterBattery","GlowPlug"} );		
+		AddItem("ExpansionMerlin", 				1000000,		1050000,		1,		10,		1, 	{"ExpansionHelicopterBattery","GlowPlug","ExpansionHydraulicHoses"} );
+		AddItem("ExpansionUh1h", 				800000,			820000,			1,		10,		1, 	{"ExpansionHelicopterBattery","GlowPlug","ExpansionHydraulicHoses"} );
+		AddItem("ExpansionMh6", 				700000,			720000,			1,		10,		1,	{"ExpansionHelicopterBattery","GlowPlug","ExpansionHydraulicHoses"} );
+		AddItem("ExpansionGyrocopter", 			700000,			720000,			1,		10,		1,	{"ExpansionHelicopterBattery","SparkPlug"} );		
 	}	
 }

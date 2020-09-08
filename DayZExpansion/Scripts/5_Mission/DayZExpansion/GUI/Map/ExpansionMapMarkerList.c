@@ -383,55 +383,52 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		if (w == m_MarkerListToggle)
-		{
-			ShowPanel( !m_MarkerListPanel.IsVisible() );
-			
-			/*if ( m_DropdownPanel.IsVisible() && m_DropdownPreftab.IsExpanded() )
-				m_DropdownPreftab.Close();
 
-			m_DropdownPanel.Show( false );*/
-			
-		} else if (w == m_PersonalMarkersToggle)
+		switch (w)
 		{
-			ShowPersonal( !m_PersonalMarkersContent.IsVisible() );
-		} else if (w == m_PartyMarkersToggle)
-		{
-			ShowParty( !m_PartyMarkersContent.IsVisible() );
-		} else if (w == m_ServerMarkersToggle)
-		{
-			ShowServer( !m_ServerMarkersContent.IsVisible() );
-		} else if (w == m_MemberMarkersToggle)
-		{
-			ShowMembers( !m_MemberMarkersContent.IsVisible() );
-		} else if (w == m_PersonalMarkers2DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_MAP );
-		} else if (w == m_PersonalMarkers3DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
-		} else if (w == m_PartyMarkers2DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_MAP );
-		} else if (w == m_PartyMarkers3DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-		} else if (w == m_MemberMarkers2DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
-		} else if (w == m_MemberMarkers3DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
-		} else if (w == m_ServerMarkers2DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );		
-		} else if (w == m_ServerMarkers3DToggle)
-		{
-			m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
+			case m_MarkerListToggle:
+				ShowPanel( !m_MarkerListPanel.IsVisible() );
+				break;
+			case m_PersonalMarkersToggle:
+				ShowPersonal( !m_PersonalMarkersContent.IsVisible() );
+				break;
+			case m_PartyMarkersToggle:
+				ShowParty( !m_PartyMarkersContent.IsVisible() );
+				break;
+			case m_ServerMarkersToggle:
+				ShowServer( !m_ServerMarkersContent.IsVisible() );
+				break;
+			case m_MemberMarkersToggle:
+				ShowMembers( !m_MemberMarkersContent.IsVisible() );
+				break;
+			case m_PersonalMarkers2DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_MAP );
+				break;
+			case m_PersonalMarkers3DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
+				break;
+			case m_PartyMarkers2DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_MAP );
+				break;
+			case  m_PartyMarkers3DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
+				break;
+			case  m_MemberMarkers2DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
+				break;
+			case m_MemberMarkers3DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
+				break;
+			case m_ServerMarkers2DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );
+				break;
+			case m_ServerMarkers3DToggle:
+				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
+				break;
 		}
 
 		m_MarkerModule.Refresh();
-
+		
 		UpdateToggleStates();
 		
 		return false;
@@ -565,7 +562,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		} else if (w == m_MarkerListInfoPanel)
 		{
 			m_MarkerListInfoIcon.SetColor(ARGB(140,243,156,18));			
-			if (!m_InfoTooltip.IsVisible())
+			if (!m_InfoTooltip.IsVisible() && GetExpansionSettings().GetMap().ShowMapStats )
 			{
 				m_DropdownPanel.Show(true);
 				m_InfoTooltip.ShowTooltip();

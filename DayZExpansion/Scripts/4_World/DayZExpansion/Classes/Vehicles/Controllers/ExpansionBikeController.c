@@ -110,7 +110,7 @@ class ExpansionBikeController: ExpansionController
 	{
 		super.OnReset();
 		
-		m_Gear = 0;
+		m_Gear = 1;
 		m_Forward = 0;
 		m_Backward = 0;
 		m_TurnLeft = 0;

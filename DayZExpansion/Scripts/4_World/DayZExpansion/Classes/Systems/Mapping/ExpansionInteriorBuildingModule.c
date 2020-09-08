@@ -118,7 +118,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		EXLogPrint("ExpansionInteriorBuildingModule::OnSettingsUpdated - Start");
 		#endif
 		
-		bool currentLoad = GetExpansionSettings().GetGeneral().Mapping.InteriorBuilding;
+		bool currentLoad = GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors;
 		
 		if ( m_LastLoad != currentLoad )
 		{

@@ -29,34 +29,34 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		AddItem("CarRadiator", 								25,		27,		1,		250,	0 );
 	
 		AddItem("HeadlightH7_Box", 							3,		5,		1,		250,	0 );
-		//AddItem("Expansion_HatchbackHood", 				30,		32,		1,		250,	0 );
-		//AddItem("Expansion_HatchbackTrunk", 				35,		37,		1,		250,	0 );
-		//AddItem("Expansion_HatchbackDoors_Driver", 		40,		42,		1,		250,	0 );
-		//AddItem("Expansion_HatchbackDoors_CoDriver", 		40,		42,		1,		250,	0 );
+		AddItem("HatchbackHood",		 					30,		32,		1,		250,	0 );
+		AddItem("HatchbackTrunk",		 					35,		37,		1,		250,	0 );
+		AddItem("HatchbackDoors_Driver",		 			40,		42,		1,		250,	0 );
+		AddItem("HatchbackDoors_CoDriver",		 			40,		42,		1,		250,	0 );
 		AddItem("HatchbackWheel", 							50,		52,		1,		250,	0 );
 	
-		AddItem("Expansion_Hatchback_02_Door_1_1", 			40,		42,		1,		250,	0 );
-		AddItem("Expansion_Hatchback_02_Door_1_2", 			40,		42,		1,		250,	0 );
-		AddItem("Expansion_Hatchback_02_Door_2_1", 			40,		42,		1,		250,	0 );
-		AddItem("Expansion_Hatchback_02_Door_2_2", 			40,		42,		1,		250,	0 );
-		AddItem("Expansion_Hatchback_02_Hood", 				30,		32,		1,		250,	0 );
-		AddItem("Expansion_Hatchback_02_Trunk", 			35,		37,		1,		250,	0 );
+		AddItem("Hatchback_02_Door_1_1",		 			40,		42,		1,		250,	0 );
+		AddItem("Hatchback_02_Door_1_2",		 			40,		42,		1,		250,	0 );
+		AddItem("Hatchback_02_Door_2_1",		 			40,		42,		1,		250,	0 );
+		AddItem("Hatchback_02_Door_2_2",		 			40,		42,		1,		250,	0 );
+		AddItem("Hatchback_02_Hood",		 				30,		32,		1,		250,	0 );
+		AddItem("Hatchback_02_Trunk",		 				35,		37,		1,		250,	0 );
 		AddItem("Hatchback_02_Wheel", 						50,		52,		1,		250,	0 );
 	
-		AddItem("Expansion_CivSedanHood", 					35,		37,		1,		250,	0 );
-		AddItem("Expansion_CivSedanTrunk", 					40,		42,		1,		250,	0 );
-		AddItem("Expansion_CivSedanDoors_Driver", 			45,		47,		1,		250,	0 );
-		AddItem("Expansion_CivSedanDoors_CoDriver", 		45,		47,		1,		250,	0 );
-		AddItem("Expansion_CivSedanDoors_BackLeft",			45,		47,		1,		250,	0 );
-		AddItem("Expansion_CivSedanDoors_BackRight",		45,		47,		1,		250,	0 );
+		AddItem("CivSedanHood",		 						35,		37,		1,		250,	0 );
+		AddItem("CivSedanTrunk",		 					40,		42,		1,		250,	0 );
+		AddItem("CivSedanDoors_Driver",		 				45,		47,		1,		250,	0 );
+		AddItem("CivSedanDoors_CoDriver",		 			45,		47,		1,		250,	0 );
+		AddItem("CivSedanDoors_BackLeft",					45,		47,		1,		250,	0 );
+		AddItem("CivSedanDoors_BackRight",					45,		47,		1,		250,	0 );
 		AddItem("CivSedanWheel", 							50,		52,		1,		250,	0 );
 	
-		AddItem("Expansion_Sedan_02_Hood", 					35,		37,		1,		250,	0 );
-		AddItem("Expansion_Sedan_02_Trunk", 				40,		42,		1,		250,	0 );
-		AddItem("Expansion_Sedan_02_Door_1_1", 				45,		47,		1,		250,	0 );
-		AddItem("Expansion_Sedan_02_Door_1_2", 				45,		47,		1,		250,	0 );
-		AddItem("Expansion_Sedan_02_Door_2_1", 				45,		47,		1,		250,	0 );
-		AddItem("Expansion_Sedan_02_Door_2_2", 				45,		47,		1,		250,	0 );
+		AddItem("Sedan_02_Hood",		 					35,		37,		1,		250,	0 );
+		AddItem("Sedan_02_Trunk",		 					40,		42,		1,		250,	0 );
+		AddItem("Sedan_02_Door_1_1",		 				45,		47,		1,		250,	0 );
+		AddItem("Sedan_02_Door_1_2",		 				45,		47,		1,		250,	0 );
+		AddItem("Sedan_02_Door_2_1",		 				45,		47,		1,		250,	0 );
+		AddItem("Sedan_02_Door_2_2",		 				45,		47,		1,		250,	0 );
 		AddItem("Sedan_02_Wheel", 							50,		52,		1,		250,	0 );
 	
 		AddItem("ExpansionUAZWheel", 						55,		57,		1,		250,	0 );

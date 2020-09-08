@@ -10,14 +10,20 @@
  *
 */
 #ifdef DAYZ_1_09
-class Land_House_1W08_Brown extends Land_House_1W08
+class Land_House_1W08_Brown extends BuildingSuper
 {
 	override bool HasInterior()
 	{
 		return true;
 	}
+
+    override bool HasIvys()
+    {
+        return true;
+    }
+      
 	
-	override void SpawnInterior()
+	override void SpawnIvys()
 	{
 		//Ivy
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "-1.150000 3.900238 2.149999", "179.999985 -32.000008 178.999954" );

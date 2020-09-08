@@ -76,5 +76,6 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 		
 		AddItem("Ammo_Expansion_46x30", 					0.60,		1.10,	  1,	500,	0 );
 		AddItem("Ammo_Expansion_338", 						0.50,		1.00,	  1,	500,	0 );
+		AddItem("Expansion_Ammo_8mm", 						0.50,		1.00,	  1,	500,	0 );
 	}
 }

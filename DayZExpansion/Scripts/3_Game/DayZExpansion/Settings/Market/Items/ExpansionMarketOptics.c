@@ -51,6 +51,7 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		AddItem("PSO1Optic", 					110,		130,	1,		250,	0 );
 		AddItem("PSO11Optic", 					140,		160,	1,		250,	0 );
 		AddItem("KobraOptic", 					60,			80,		1,		250,	0 );
+		AddItem("PistolOptic", 					60,			80,		1,		250,	0 );
 
 		AddItem("ExpansionReflexMRSOptic", 		15,			35,		1,		250,	0 );
 		AddItem("ExpansionDeltapointOptic", 	15,			35,		1,		250,	0 );
@@ -58,5 +59,9 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		AddItem("ExpansionEXPS3HoloOptic", 		25,			45,		1,		250,	0 );
 		AddItem("ExpansionHAMROptic", 			45,			65,		1,		250,	0 );
 		AddItem("Expansion_PMII25Optic", 		55,			75,		1,		250,	0 );
+		AddItem("ExpansionKar98ScopeOptic", 	55,			75,		1,		250,	0 );
+		AddItem("Expansion_M1A_RailAtt", 		55,			75,		1,		250,	0 );
+		AddItem("Expansion_ANPEQ15_Red", 		55,			75,		1,		250,	0 );
+		AddItem("Expansion_ANPEQ15_Green", 		55,			75,		1,		250,	0 );
 	}	
 }

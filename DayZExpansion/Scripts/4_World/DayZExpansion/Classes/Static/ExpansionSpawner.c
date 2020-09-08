@@ -1,5 +1,5 @@
 /**
- * SpawnBerezinoWrecks.c
+ * ExpansionSpawner.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

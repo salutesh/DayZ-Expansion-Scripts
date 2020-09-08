@@ -26,5 +26,6 @@ class ExpansionMarketTraderIrena: ExpansionMarketTrader
 		AddItem( "ExpansionMerlin" );
 		AddItem( "ExpansionUh1h" );
 		AddItem( "ExpansionMh6" );
+		AddItem( "ExpansionGyrocopter" );
 	}
 }

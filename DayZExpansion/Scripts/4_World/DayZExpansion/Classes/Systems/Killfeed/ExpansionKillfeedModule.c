@@ -1090,18 +1090,11 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ExpansionKillFeedModule GetPlayerPrefix
 	// ------------------------------------------------------------	
 	private string GetPlayerPrefix( PlayerIdentity identity )  // player name
-	{	
-		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::GetPlayerPrefix - Start" );
-		#endif
-		
-		string name = identity.GetName();
-		
-		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::GetPlayerPrefix - End" );
-		#endif
-				
-		return name;
+	{
+		if ( identity == NULL )
+			return "UNKNOWN PLAYER";
+
+		return identity.GetName();
 	}
 		
 	// ------------------------------------------------------------

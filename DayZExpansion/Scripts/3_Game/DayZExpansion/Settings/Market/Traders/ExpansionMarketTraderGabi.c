@@ -32,6 +32,12 @@ class ExpansionMarketTraderGabi: ExpansionMarketTrader
 		AddItem("RDG2SmokeGrenade_White");
 		AddItem("FlashGrenade");
 		
+		//Expansion Explosives
+		AddItem("ExpansionSatchel");
+
+		//Expansion Grenade Teargas
+		AddItem("Expansion_M18SmokeGrenade_Teargas");
+		
 		AddItem("NVGoggles");
 		AddItem("NVGHeadstrap");
 		AddItem("Battery9V");

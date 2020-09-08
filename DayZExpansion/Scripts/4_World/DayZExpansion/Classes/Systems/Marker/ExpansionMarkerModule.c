@@ -37,11 +37,26 @@ class ExpansionMarkerModule: JMModuleBase
 
 		m_CurrentData = NULL;
 
-		SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-		SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-		SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-		SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-		SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+		//! Initialize all markers one by one
+		//! Personal marker
+		if ( GetExpansionSettings().GetMap().CanCreateMarker )
+			SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+
+		//! Party marker
+		if ( GetExpansionSettings().GetMap().CanCreatePartyMarkers )
+			SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+
+		//! Server marker
+		if ( GetExpansionSettings().GetMap().ShowServerMarkers )
+			SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+
+		//! Party Member marker
+		if ( GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
+			SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+
+		//! Party Quickmarker
+		if ( GetExpansionSettings().GetParty().EnableQuickMarker )
+			SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 	}
 	
 	override void OnMissionLoaded()
@@ -210,36 +225,47 @@ class ExpansionMarkerModule: JMModuleBase
 
 			for ( int u = 0; u < countArray; ++u )
 			{
-				ExpansionMarkerClientData newServer = new ExpansionMarkerClientData();
+				string ip;
+				int port;
+				
+				if ( Expansion_Assert_False( ctx.Read( ip ), "[" + this + "] Failed reading ip" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( port ), "[" + this + "] Failed reading port" ) )
+					return false;
+				
+				ExpansionMarkerClientData newServer = null;
+				for ( int i = 1; i < m_AllData.Count(); ++i )
+					if ( m_AllData[i].Equals( ip, port ) )
+						newServer = m_AllData[i];
+				
+				if ( !newServer )
+				{
+					newServer = new ExpansionMarkerClientData();
+					newServer.m_IP = ip;
+					newServer.m_Port = port;
+					m_AllData.Insert( newServer );
+				}
+				
 				if ( !newServer.OnStoreLoad( ctx, version ) )
 				{
 					ctx.Close();
 					return false;
 				}
-
-				bool found = false;
-
-				for ( int i = 1; i < m_AllData.Count(); ++i )
-				{
-					if ( newServer.Equals( m_AllData[i] ) )
-					{
-						found = true;
-					}
-				}
-
-				if ( found )
-				{
-					m_AllData.Insert( newServer );
-
-					// TODO: Merge the markers, checking for duplicates within
-				} else
-				{
-					m_AllData.Insert( newServer );
-				}
+			}
+			
+			if ( version < 10 )
+			{
+				for ( int l1 = 1; l1 < m_AllData.Count(); ++l1 )
+					for ( int l2 = l1; l2 < m_AllData.Count(); ++l2 )
+						if ( m_AllData[l1].Equals( m_AllData[l2] ) )
+						{
+							m_AllData.Remove(l2);
+							l2 -= 1;
+						}
 			}
 		}
 
-		//! Override quick markers, they are always visible no matter what
+		//! Override quick markers, so they are always visible no matter what
 		SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		return true;
@@ -363,6 +389,7 @@ class ExpansionMarkerModule: JMModuleBase
 		//Print( m_3DMarkers.Count() );
 		for ( int i = 0; i < m_3DMarkers.Count(); ++i )
 		{
+			//! TODO: NULL Pointer with this condition
 			if ( !m_3DMarkers[i].Update( timeslice ) )
 			{
 				//Print( "ExpansionMarkerModule::OnUpdate - Removing - " + m_3DMarkers[i] );
@@ -434,6 +461,9 @@ class ExpansionMarkerModule: JMModuleBase
 		{
 			menu.Refresh();
 		}
+
+		// CanCreateMarker != removal
+		// CanCreate3DMarker != removal
 	}
 
 	int SetVisibility( ref ExpansionMarkerData data, int vis )
@@ -551,6 +581,13 @@ class ExpansionMarkerModule: JMModuleBase
 	bool IsWorldVisible( int type )
 	{
 		type -= 1;
+
+		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().ShowServerMarkers )
+			return false;
+		if ( type == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().EnableQuickMarker )
+			return false;
+		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
+			return false;
 		
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_WORLD) != 0;
 	}
@@ -558,7 +595,10 @@ class ExpansionMarkerModule: JMModuleBase
 	bool IsMapVisible( int type )
 	{
 		type -= 1;
-		
+
+		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().ShowServerMarkers )
+			return false;
+
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_MAP) != 0;
 	}
 }

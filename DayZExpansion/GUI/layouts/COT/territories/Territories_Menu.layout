@@ -1201,7 +1201,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
     PanelWidgetClass territories_map_panel {
      visible 1
      clipchildren 1
-     ignorepointer 1
+     ignorepointer 0
      keepsafezone 1
      position 0 0
      size 0.65 1

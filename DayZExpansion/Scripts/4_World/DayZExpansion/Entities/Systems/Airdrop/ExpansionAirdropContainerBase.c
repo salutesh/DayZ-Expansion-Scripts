@@ -224,8 +224,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		{		
 			float mass = dBodyGetMass( this );
 			dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
-		}
-		else if ( !m_LootHasSpawned )
+		} else if ( !m_LootHasSpawned )
 		{
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 

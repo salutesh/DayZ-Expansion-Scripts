@@ -44,7 +44,10 @@ class ExpansionMarketTraderKaito: ExpansionMarketTrader
 		
 		// Suplies
 		AddItem("Paper");
+		AddItem("Pen_Black");
 		AddItem("Pen_Blue");
+		AddItem("Pen_Red");
+		AddItem("Pen_Green");
 		AddItem("Rope");
 		AddItem("TannedLeather");
 		AddItem("MetalWire");
@@ -86,9 +89,15 @@ class ExpansionMarketTraderKaito: ExpansionMarketTrader
 		AddItem("SeaChest");
 		
 		// Tents
-		AddItem("MediumTent");	
+		AddItem("MediumTent");
+		AddItem("MediumTent_Green");
+		AddItem("MediumTent_Orange");
 		AddItem("CarTent");
 		AddItem("LargeTent");
+		AddItem("PartyTent");
+		AddItem("PartyTent_Blue");
+		AddItem("PartyTent_Brown");
+		AddItem("PartyTent_Lunapark");
 		
 		// Kits
 		AddItem("SewingKit");
@@ -107,6 +116,7 @@ class ExpansionMarketTraderKaito: ExpansionMarketTrader
 		AddItem("Binoculars");	
 		AddItem("Compass");
 		AddItem("OrienteeringCompass");
+		AddItem("ExpansionGPS");
 		
 		// Electronic
 		AddItem("Battery9V");

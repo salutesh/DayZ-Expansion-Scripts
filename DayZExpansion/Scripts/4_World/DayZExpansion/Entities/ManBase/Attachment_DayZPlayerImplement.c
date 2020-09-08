@@ -281,6 +281,7 @@ modded class DayZPlayerImplement
 			{
 				if ( !ctx.Read( m_ExAttachmentObject ) )
 				{
+					m_ExAttachmentObject = NULL;
 					m_ExPlayerLinkType == ExpansionPlayerLink.NONE;
 
 					Error( "[ERROR] PlayerBase::OnInputUserDataProcess() -> Could not read parent object for EXPANSION_INPUT_UDT_PLAYER_LINK" );
@@ -366,8 +367,9 @@ modded class DayZPlayerImplement
 		HumanCommandSwim swimCommand = GetCommand_Swim();
 		HumanCommandFall fallCommand = GetCommand_Fall();
 		ExpansionHumanCommandFall exFallCommand = ExpansionHumanCommandFall.Cast( GetCommand_Script() );
+		ExpansionHumanCommandVehicle exVehicleCommand = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
 
-		if ( m_ExPerformVehicleGetIn || m_ExIsPreparingVehicle || GetCommand_Vehicle() || pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
+		if ( m_ExPerformVehicleGetIn || m_ExIsPreparingVehicle || GetCommand_Vehicle() || exVehicleCommand || pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
 			return ExpansionPlayerRaycastResult.FALSE;
 
 		if ( swimCommand && parent )
@@ -579,7 +581,7 @@ modded class DayZPlayerImplement
 
 						Detach();
 					}
-				} else if ( parent /*&& parent == m_ExAttachmentObject*/ ) // Currently have a parent when the raycast failed, forcefully detach the player
+				} else if ( parent && parent == m_ExAttachmentObject ) // Currently have a parent when the raycast failed, forcefully detach the player
 				{
 					AttachmentDebugPrint("drparent");
 					Detach();

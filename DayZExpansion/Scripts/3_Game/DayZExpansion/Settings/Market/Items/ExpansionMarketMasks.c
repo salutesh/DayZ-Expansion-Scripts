@@ -55,6 +55,7 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 		AddItem("BalaclavaMask_Pink", 				5,		7,		1,		250,	0 );
 		AddItem("BalaclavaMask_White", 				5,		7,		1,		250,	0 );
 		
+		AddItem("AirboneMask", 						15,		17,		1,		250,	0 );
 		AddItem("GP5GasMask", 						15,		17,		1,		250,	0 );
 		
 		AddItem("Balaclava3Holes_Beige", 			5,		7,		1,		250,	0 );

@@ -223,6 +223,27 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		Error( "Not implemented!" );
 	}
 
+	private float GetLiftFactor()
+	{
+		int iMaxFlightEnvelope = m_MaxFlightEnvelope - 1;
+		float fHoriSpeedRel = Vector( m_LinearVelocityMS[0], 0, m_LinearVelocityMS[2] ).Length() / ( m_MaxSpeedMS * ( iMaxFlightEnvelope / 10.0 ) );
+		float fCurrentEnvelope = iMaxFlightEnvelope * fHoriSpeedRel;
+		int iCurrentEnvelopeFloor = Math.Floor( fCurrentEnvelope );
+
+		if ( iCurrentEnvelopeFloor >= iMaxFlightEnvelope )
+			return m_FlightEnvelope[ iMaxFlightEnvelope ];
+		else if ( iCurrentEnvelopeFloor < 0 )
+			return 0;
+
+		float coef = 1.0;
+		//if ( iCurrentEnvelopeFloor == 0 )
+		//	coef = 0.01;
+
+		float fCurrentEnvelopeFloor = m_FlightEnvelope[ iCurrentEnvelopeFloor ];
+		float fCurrentEnvelopeFloorNext = m_FlightEnvelope[ iCurrentEnvelopeFloor + 1 ];
+		return Math.Lerp( fCurrentEnvelopeFloor, fCurrentEnvelopeFloorNext, fCurrentEnvelope - iCurrentEnvelopeFloor ) * coef;
+	}
+
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
 		m_BackRotorSpeedTarget	= m_HeliController.GetAntiTorqueLeft()	- m_HeliController.GetAntiTorqueRight();
@@ -575,6 +596,8 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	// ------------------------------------------------------------
 	override void ExpansionOnExplodeServer( int damageType, string ammoType )
 	{
+		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer" );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - Start");
 		#endif
@@ -582,7 +605,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		vector position = GetPosition();
 		vector orientation = GetOrientation();
 
-		SetInvisible( true );
+		//SetInvisible( true );
 
 		EntityAI attachment;
 		for ( int j = 0; j < GetInventory().AttachmentCount(); j++ )
@@ -592,11 +615,12 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, attachment );
 		}
 
+		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Attachment Delete" );
+
 		PlayerBase player;
 		for ( int i = 0; i < CrewSize(); i++ )
 		{
-			Human crew = CrewMember( i );
-			if ( Class.CastTo( player, crew ) )
+			if ( Class.CastTo( player, CrewMember( i ) ) )
 			{
 				if ( GetGame().IsMultiplayer() )
 				{
@@ -604,9 +628,15 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 					player.SetHealth( 0.0 );
 				}
 				
+				CrewGetOut( i );
 				player.UnlinkFromLocalSpace();
+				player.DisableSimulation( false );
+				player.StartCommand_Death( -1, 0, HumanCommandDeathCallback );
+				player.ResetDeathStartTime();
 			}
 		}
+
+		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Crew Unlink" );
 
 		IEntity child = GetChildren();
 		while ( child )
@@ -620,14 +650,21 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				}
 
 				player.UnlinkFromLocalSpace();
+				player.DisableSimulation( false );
+				player.StartCommand_Death( -1, 0, HumanCommandDeathCallback );
+				player.ResetDeathStartTime();
 			}
 			
 			child = child.GetSibling();
 		}
 
+		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Player Unlink" );
+
 		ExpansionWreck wreck;
 		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
+
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
 
@@ -641,17 +678,21 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			wreck.SetHealth( 0.0 );
 			dBodySetMass( wreck, m_BodyMass );
 
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Mass Apply" );
+
 			vector inertiaM[3];
 			dBodyGetInvInertiaTensorWorld( this, inertiaM );
 			dBodySetInertiaTensorM( wreck, inertiaM );
 			dBodySetInertiaTensorV( wreck, dBodyGetLocalInertia( this ) );
+
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Tensor Apply" );
 
 			SetVelocity( wreck, m_LinearVelocity );
 			dBodySetAngularVelocity( wreck, m_AngularVelocity );
 
 			dBodyApplyForce( wreck, (m_LastLinearVelocity - m_LinearVelocity) * m_BodyMass );
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Self Delete" );
 
 			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 		
@@ -694,13 +735,28 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, obj );
 				}
 			}
-		}
 
-		super.ExpansionOnExplodeServer( damageType, ammoType );
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Foliage Chop" );
+
+			super.ExpansionOnExplodeServer( damageType, ammoType );
+
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Super Call" );
+
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
+
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Self Delete" );
+		} else
+		{
+			super.ExpansionOnExplodeServer( damageType, ammoType );
+
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Super Call" );
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - End");
 		#endif	
+
+		Print( "-ExpansionHelicopterScript::ExpansionOnExplodeServer" );
 	}
 
 	// ------------------------------------------------------------
@@ -936,38 +992,18 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 					nearGround = ( nearGround * nearGround * 0.25 ) + 1.0;
 				}
 
-				int iMaxFlightEnvelope = m_MaxFlightEnvelope - 1;
-				float horiSpeedRel = Vector( m_LinearVelocityMS[0], 0, m_LinearVelocityMS[2] ).Length() / ( m_MaxSpeedMS * ( iMaxFlightEnvelope / 10.0 ) );
-				float fCurrentEnvelope = iMaxFlightEnvelope * horiSpeedRel;
-
-				float liftFactor = 0;
-				int iCurrentEnvelopeFloor = Math.Floor( fCurrentEnvelope );
-				if ( iCurrentEnvelopeFloor >= iMaxFlightEnvelope )
-				{
-					liftFactor = m_FlightEnvelope[ iMaxFlightEnvelope ];
-				} else if ( iCurrentEnvelopeFloor < 0 )
-				{
-					liftFactor = 0;
-				} else
-				{
-					float fCurrentEnvelopeFloor = m_FlightEnvelope[ iCurrentEnvelopeFloor ];
-					float fCurrentEnvelopeFloorNext = m_FlightEnvelope[ iCurrentEnvelopeFloor + 1 ];
-					liftFactor = Math.Lerp( fCurrentEnvelopeFloor, fCurrentEnvelopeFloorNext, fCurrentEnvelope - iCurrentEnvelopeFloor );
-				}
-
-				// hoping gravity is this because dGetGravity is broken (g * 2)
-				const float massCoef = 1.0 / 3000.0;
+				float liftFactor = GetLiftFactor();
 
 				float targetVelocity = ( m_LinearVelocityMS[1] + 3.0 ) - ( 18.0 * m_MainRotorSpeed * m_RotorSpeed * nearGround );
 				if ( targetVelocity < -5 )
 					targetVelocity = -5;
 
-				float collectiveForce = Math.Max( ( 4000.0 * liftFactor ) - ( ( MathHelper.SquareSign( targetVelocity ) * 400.0 ) + ( targetVelocity * 6000.0 ) ), 0 );
-				collectiveForce *= m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_BodyMass * massCoef;
+				targetVelocity *= pDt;
+				float collectiveCoef = Math.Max( ( 1.3 * liftFactor ) - ( ( MathHelper.SquareSign( targetVelocity ) * 5.0 ) + ( targetVelocity * 80.0 ) ), 0 );
 
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Collective Force: " + collectiveForce );
+				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Collective Force: " + collectiveCoef );
 				
-				force += Vector( 0, collectiveForce, 0 );
+				force += Vector( 0, 1, 0 ) * collectiveCoef * m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_BodyMass;
 			}
 
 			// cyclic
@@ -1050,9 +1086,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				// if the helicopter is turned on then more force is applied to create psuedo-friction
 				float stabilizeXY = 0.4 + ( m_RotorSpeed * m_RotorSpeed * 0.6 );
 
-				friction[0] = MathHelper.SquareSign( frictionSpeed[0] ) * 0.4 * m_BodyMass * stabilizeXY;
-				friction[1] = MathHelper.SquareSign( frictionSpeed[1] ) * 0.001 * m_BodyMass * stabilizeXY;
-				friction[2] = MathHelper.SquareSign( frictionSpeed[2] ) * 0.001 * m_BodyMass;
+				friction[0] = MathHelper.SquareSign( frictionSpeed[0] ) * pDt * 16 * m_BodyMass * stabilizeXY;
+				friction[1] = MathHelper.SquareSign( frictionSpeed[1] ) * pDt * 0.04 * m_BodyMass * stabilizeXY;
+				friction[2] = MathHelper.SquareSign( frictionSpeed[2] ) * pDt * 0.04 * m_BodyMass;
 
 				force -= friction * m_BodyFrictionCoef;
 			}

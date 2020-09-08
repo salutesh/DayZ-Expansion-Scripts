@@ -80,10 +80,14 @@ class ExpansionMarkerClientData : Managed
 	
 	bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		if ( Expansion_Assert_False( ctx.Read( m_IP ), "[" + this + "] Failed reading m_IP" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Port ), "[" + this + "] Failed reading m_Port" ) )
-			return false;
+		//if ( Expansion_Assert_False( ctx.Read( m_IP ), "[" + this + "] Failed reading m_IP" ) )
+		//	return false;
+		//if ( Expansion_Assert_False( ctx.Read( m_Port ), "[" + this + "] Failed reading m_Port" ) )
+		//	return false;
+
+		m_MarkerInfo_Server.Clear();
+		m_MarkerInfo_Party.Clear();
+		m_MarkerInfo_PartyPlayers.Clear();
 
 		if ( version >= 8 )
 		{
@@ -103,17 +107,26 @@ class ExpansionMarkerClientData : Managed
 				if ( Expansion_Assert_False( ctx.Read( uid ), "[" + this + "] Failed reading uid" ) )
 					return false;
 
-				ExpansionMarkerData newMarker = ExpansionMarkerData.Create( ExpansionMapMarkerType.PERSONAL, uid );
+				ExpansionMarkerData newMarker = NULL;
+				for ( int personal_marker = 0; personal_marker < m_PersonalMarkers.Count(); ++personal_marker )
+					if ( m_PersonalMarkers[personal_marker].GetUID() == uid )
+						newMarker = m_PersonalMarkers[personal_marker];
+
+				if ( !newMarker )
+				{
+					newMarker = ExpansionMarkerData.Create( ExpansionMapMarkerType.PERSONAL, uid );
+
+					m_PersonalMarkers.Insert( newMarker );
+				}
+
 				if ( !newMarker.OnStoreLoad( ctx, version ) )
 					return false;
-				
-				m_PersonalMarkers.Insert( newMarker );
 			}
 		} else
 		{
 			return false;
 		}
-
+		
 		ExpansionMarkerClientInfo newMarkerInfo;
 
 		if ( !Expansion_Assert_False( ctx.Read( count ), "[" + this + "] Failed reading server count" ) )
@@ -131,6 +144,7 @@ class ExpansionMarkerClientData : Managed
 			return false;
 		}
 
+		
 		if ( Expansion_Assert_False( ctx.Read( m_PartyUID ), "[" + this + "] Failed reading m_PartyUID" ) )
 			return false;
 
@@ -185,18 +199,24 @@ class ExpansionMarkerClientData : Managed
 		
 		int i = 0;
 
-		for ( i = 0; i < PersonalCount(); ++i )
+		if (GetExpansionSettings().GetMap().CanCreateMarker)
 		{
-			marker = PersonalGet( i );
-			if ( marker )
-				markers.Insert( marker );
+			for ( i = 0; i < PersonalCount(); ++i )
+			{
+				marker = PersonalGet( i );
+				if ( marker )
+					markers.Insert( marker );
+			}
 		}
-
-		for ( i = 0; i < PartyCount(); ++i )
+		
+		if (GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers)
 		{
-			marker = PartyGet( i );
-			if ( marker )
-				markers.Insert( marker );
+			for ( i = 0; i < PartyCount(); ++i )
+			{
+				marker = PartyGet( i );
+				if ( marker )
+					markers.Insert( marker );
+			}
 		}
 
 		PlayerBase localPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -204,25 +224,37 @@ class ExpansionMarkerClientData : Managed
 		if ( localPlayer )
 			localUid = localPlayer.GetIdentityUID();
 
-		for ( i = 0; i < PartyPlayerCount(); ++i )
+		if (GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers)
 		{
-			marker = PartyPlayerGet( i );
-			if ( marker && marker.GetUID() != localUid )
-				markers.Insert( marker );
+			for ( i = 0; i < PartyPlayerCount(); ++i )
+			{
+				marker = PartyPlayerGet( i );
+				if ( marker && marker.GetUID() != localUid && localUid != "")
+				{
+					markers.Insert( marker );
+				}
+			}
 		}
 
-		for ( i = 0; i < ServerCount(); ++i )
+		if (GetExpansionSettings().GetMap().ShowServerMarkers)
 		{
-			marker = ServerGet( i );
-			if ( marker )
-				markers.Insert( marker );
+			for ( i = 0; i < ServerCount(); ++i )
+			{
+				marker = ServerGet( i );
+				if ( marker )
+					markers.Insert( marker );
+			}
 		}
 
-		for ( i = 0; i < PartyQuickCount(); ++i )
+		//! If enabled, will show Quickmarkers (the input is also disabled but it's just in case)
+		if ( GetExpansionSettings().GetParty().EnableQuickMarker )
 		{
-			marker = PartyQuickGet( i );
-			if ( marker )
-				markers.Insert( marker );
+			for ( i = 0; i < PartyQuickCount(); ++i )
+			{
+				marker = PartyQuickGet( i );
+				if ( marker )
+					markers.Insert( marker );
+			}
 		}
 
 		return markers;

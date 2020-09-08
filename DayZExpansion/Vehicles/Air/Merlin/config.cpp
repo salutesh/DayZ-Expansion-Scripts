@@ -430,7 +430,7 @@ class CfgVehicles
 				class Front: Front
 				{
 					maxSteeringAngle = 0;
-					brakeBias = 0.7;
+					brakeBias = 0.9;
 					brakeForce = 15000;
 					wheelHubMass = 10;
 					wheelHubRadius = 0.15;
@@ -466,17 +466,17 @@ class CfgVehicles
 				class Rear: Rear
 				{
 					maxSteeringAngle = 0;
-					brakeBias = 0.3;
-					brakeForce = 15000;
+					brakeBias = 0.8;
+					brakeForce = 500000;
 					finalRatio = 4.1;
 					wheelHubMass = 10;
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
 						swayBar = 400;
-						stiffness = 76000;
-						compression = 5900;
-						damping = 6600;
+						stiffness = 146000;
+						compression = 10450;
+						damping = 13200;
 						travelMaxUp = 0.086;
 						travelMaxDown = 0.133;
 					};

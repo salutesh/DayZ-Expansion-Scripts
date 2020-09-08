@@ -38,23 +38,11 @@ class ExpansionMarketHandguards: ExpansionMarketCategory
 		m_FileName = "Handguards";
 		
 		AddItem("M4_PlasticHndgrd", 			15,			17,			1,		250,	0 );
-		AddItem("M4_PlasticHndgrd_Black", 		15,			17,			1,		250,	0 );
-		AddItem("M4_PlasticHndgrd_Green", 		15,			17,			1,		250,	0 );
 		AddItem("M4_RISHndgrd", 				20,			22,			1,		250,	0 );
-		AddItem("M4_RISHndgrd_Black", 			20,			22,			1,		250,	0 );
-		AddItem("M4_RISHndgrd_Green", 			20,			22,			1,		250,	0 );
 		AddItem("M4_MPHndgrd", 					10,			12,			1,		250,	0 );
-		AddItem("M4_MPHndgrd_Black", 			10,			12,			1,		250,	0 );
-		AddItem("M4_MPHndgrd_Green", 			10,			12,			1,		250,	0 );
 		AddItem("AK_WoodHndgrd", 				20,			22,			1,		250,	0 );
-		AddItem("AK_WoodHndgrd_Black", 			20,			22,			1,		250,	0 );
-		AddItem("AK_WoodHndgrd_Camo", 			20,			22,			1,		250,	0 );
 		AddItem("AK74_Hndgrd", 					20,			22,			1,		250,	0 );
-		AddItem("AK74_Hndgrd_Black", 			20,			22,			1,		250,	0 );
-		AddItem("AK74_Hndgrd_Camo", 			20,			22,			1,		250,	0 );
 		AddItem("AK_RailHndgrd", 				20,			22,			1,		250,	0 );
-		AddItem("AK_RailHndgrd_Black", 			20,			22,			1,		250,	0 );
-		AddItem("AK_RailHndgrd_Green", 			20,			22,			1,		250,	0 );
 		AddItem("AK_PlasticHndgrd", 			20,			22,			1,		250,	0 );
 		AddItem("MP5_PlasticHndgrd", 			10,			12,			1,		250,	0 );
 		AddItem("MP5_RailHndgrd", 				15,			17,			1,		250,	0 );

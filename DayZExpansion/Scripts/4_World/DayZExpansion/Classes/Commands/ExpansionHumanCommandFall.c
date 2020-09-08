@@ -39,7 +39,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 
 	private bool m_LandEarlyExit;
 
-	void ExpansionHumanCommandFall( Human pHuman, float pYVelocity, ExpansionHumanST table )
+	void ExpansionHumanCommandFall( Human pHuman, float pYVelocity, ExpansionHumanST pTable )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::ExpansionHumanCommandFall Start");
@@ -47,7 +47,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 
 		Class.CastTo( m_Player, pHuman );
 
-		m_Table = table;
+		m_Table = pTable;
 		m_JumpVelocity = pYVelocity;
 
 		if ( m_JumpVelocity > 0 )

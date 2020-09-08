@@ -42,7 +42,9 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 		AddItem("CZ75", 					14,		16,		1,		250,	0 );
 		AddItem("FNX45", 					18,		20,		1,		250,	0 );
 		AddItem("Glock19", 					20,		22,		1,		250,	0 );
-		AddItem("MKII", 					20,		22,		1,		250,	0 );
+		AddItem("Magnum", 					20,		22,		1,		250,	0 );
+		AddItem("Deagle", 					20,		22,		1,		250,	0 );
+		AddItem("Deagle_Gold", 				20,		22,		1,		250,	0 );
 		AddItem("Expansion_M9", 			20,		22,		1,		250,	0 );
 	}
 }

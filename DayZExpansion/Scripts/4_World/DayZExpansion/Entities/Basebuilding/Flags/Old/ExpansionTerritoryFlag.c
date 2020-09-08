@@ -191,16 +191,27 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		return true;
 	}
 	
+	// ------------------------------------------------------------
+	// Override AfterStoreLoad
+	// ------------------------------------------------------------	
 	override void AfterStoreLoad()
 	{
 		super.AfterStoreLoad();
 				
 		if ( m_Territory )
+		{
+	#ifdef DAYZ_1_09
+	#else
 			m_TerritoryModule.AddTerritoryFlag( this, m_Territory.GetTerritoryID() );
+	#endif
+		}
 		
 		SetSynchDirty();
 	}
 	
+	// ------------------------------------------------------------
+	// Override EEDelete
+	// ------------------------------------------------------------
 	override void EEDelete( EntityAI parent )
 	{
 		super.EEDelete( parent );

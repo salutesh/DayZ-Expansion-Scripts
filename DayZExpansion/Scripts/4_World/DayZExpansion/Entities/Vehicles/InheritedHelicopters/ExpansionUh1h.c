@@ -27,7 +27,7 @@ class ExpansionUh1h: ExpansionHelicopterScript
 		#endif
 
 		//! Vanilla
-		m_dmgContactCoef							= 0.06;
+		m_dmgContactCoef							= 0.6;
 
 		//! explosions
 		m_ExplosionSize								= 20;
@@ -43,23 +43,23 @@ class ExpansionUh1h: ExpansionHelicopterScript
 		m_MaxAutoRotateSpeed						= 10.0;
 
 		m_BodyFrictionCoef							= 0.8;
-		m_LiftForceCoef								= 0.9;
+		m_LiftForceCoef								= 1.1;
 
-		m_CyclicForceCoef							= 1.5;
+		m_CyclicForceCoef							= 1.5; // All rotations
 
 		m_CyclicSideSpeed							= 4.0;
-		m_CyclicSideMax								= 1.0;
-		m_CyclicSideCoef							= 0.7;
+		m_CyclicSideMax								= 0.6; // Roll, A/D, Speed
+		m_CyclicSideCoef							= 0.6; // Roll, A/D, Speed
 
 		m_CyclicForwardSpeed						= 10.0;
-		m_CyclicForwardMax							= 1.0;
-		m_CyclicForwardCoef							= 0.8;
+		m_CyclicForwardMax							= 0.7;  // Pitch, W/S, Speed
+		m_CyclicForwardCoef							= 1.0; // Pitch, W/S, Speed
 
 		m_AntiTorqueSpeed							= 1.5;
-		m_AntiTorqueMax								= 125.04;
+		m_AntiTorqueMax								= 5.04; // Yaw, Q/E, same as m_TailForceCoef
 
-		m_BankForceCoef								= 0.1;
-		m_TailForceCoef								= 0.5;
+		m_BankForceCoef								= 0.1; // Speed at which heli will rotate when rotor is banking left or right 
+		m_TailForceCoef								= 0.5; // Yaw, Q/E, same as m_AntiTorqueMax
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUh1h::Constructor - End");

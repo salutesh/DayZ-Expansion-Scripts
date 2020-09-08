@@ -48,7 +48,12 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		AddItem("CZ527");
 		AddItem("Winchester70");
 		AddItem("SKS");
+		AddItem("B95");
+		AddItem("Ruger1022");
 		AddItem("Expansion_DT11");
+		AddItem("Expansion_Kar98");
+		AddItem("Expansion_M14");
+		AddItem("Expansion_M1A");
 		
 		// Sidearms
 		AddItem("MakarovIJ70");
@@ -56,7 +61,12 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		AddItem("FNX45");
 		AddItem("Glock19");
 		AddItem("MKII");
+		AddItem("Magnum");
+		AddItem("Deagle");
+		AddItem("Deagle_Gold");
 		AddItem("Expansion_M9");
+		AddItem("Expansion_Taser_Yellow");
+		AddItem("Expansion_Taser_Black");
 
 		// Sniper Rifles
 		AddItem("VSS");
@@ -65,6 +75,8 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		
 		// Shotguns
 		AddItem("Mp133Shotgun");
+		AddItem("Izh43");
+		AddItem("Saiga");
 		AddItem("Expansion_BenelliM4");
 		
 		// Launchers
@@ -88,7 +100,7 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		AddItem("Ammo_308Win");
 		AddItem("Ammo_308WinTracer");
 		AddItem("Ammo_22");
-		//AddItem("Ammo_357");
+		AddItem("Ammo_357");
 		AddItem("Ammo_762x39");
 		AddItem("Ammo_762x54");
 		AddItem("Ammo_12gaPellets");
@@ -107,6 +119,7 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		
 		AddItem("Ammo_Expansion_46x30");
 		AddItem("Ammo_Expansion_338");
+		AddItem("Expansion_Ammo_8mm");
 		
 		AddItem("Ammo_Expansion_M203_Smoke_White");
 		AddItem("Ammo_Expansion_M203_Smoke_Red");
@@ -137,7 +150,7 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		AddItem("AmmoBox_762x39_20Rnd");
 		AddItem("AmmoBox_762x39Tracer_20Rnd");
 		AddItem("AmmoBox_22_50Rnd");
-		//AddItem("AmmoBox_357_20Rnd");
+		AddItem("AmmoBox_357_20Rnd");
 		AddItem("AmmoBox_45ACP_25rnd");
 		AddItem("AmmoBox_9x19_25rnd");
 		AddItem("AmmoBox_9x39_20rnd");
@@ -150,5 +163,6 @@ class ExpansionMarketTraderDenis: ExpansionMarketTrader
 		
 		AddItem("AmmoBox_Expansion_46x30_25rnd");	
 		AddItem("AmmoBox_Expansion_338_15rnd");
+		AddItem("Expansion_AmmoBox_8mm_15rnd");		
 	}
 }

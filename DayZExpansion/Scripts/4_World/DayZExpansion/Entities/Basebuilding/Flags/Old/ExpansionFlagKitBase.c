@@ -71,4 +71,37 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 	{
 		return EXPANSION_FLAG_LOGO_EXPANSION;
 	}
+
+	// ------------------------------------------------------------
+	// Override AfterStoreLoad
+	// ------------------------------------------------------------	
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+		
+		#ifdef DAYZ_1_09
+		PlayerBase player = PlayerBase.Cast( GetHierarchyRootPlayer() );
+		InventoryLocation il = new InventoryLocation;
+		if ( player && GetInventory().GetCurrentInventoryLocation( il ) )
+		{
+			if ( il.GetType() == InventoryLocationType.HANDS )
+			{
+				MiscGameplayFunctions.TurnItemIntoItem( this, "TerritoryFlagKit", player );
+			} else
+			{
+				MiscGameplayFunctions.TurnItemInHandsIntoItem( this, "TerritoryFlagKit", player );
+			}
+		} else
+		{
+			vector position = GetPosition();
+			vector orientation = GetOrientation();
+
+			GetGame().ObjectDelete( this );
+
+			Object obj = GetGame().CreateObjectEx( "TerritoryFlagKit", position, ECE_PLACE_ON_SURFACE );
+			obj.SetPosition( position );
+			obj.SetOrientation( orientation );
+		}
+		#endif
+	}
 }

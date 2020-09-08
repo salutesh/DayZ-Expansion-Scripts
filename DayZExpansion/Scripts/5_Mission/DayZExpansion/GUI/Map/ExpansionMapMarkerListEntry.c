@@ -152,7 +152,13 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		
 		if ( m_3DToggle && w == m_3DToggle )
 		{
-			m_MarkerModule.FlipVisibility( m_MarkerData, EXPANSION_MARKER_VIS_WORLD );
+			if ( m_MarkerData.IsWorldVisible() )
+			{
+				m_MarkerModule.RemoveVisibility( m_MarkerData, EXPANSION_MARKER_VIS_WORLD );
+			} else
+			{
+				m_MarkerModule.SetVisibility( m_MarkerData, EXPANSION_MARKER_VIS_WORLD );
+			}
 			
 			m_MarkerModule.Refresh();
 
@@ -163,7 +169,13 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		
 		if ( m_2DToggle && w == m_2DToggle )
 		{
-			m_MarkerModule.FlipVisibility( m_MarkerData, EXPANSION_MARKER_VIS_MAP );
+			if ( m_MarkerData.IsMapVisible() )
+			{
+				m_MarkerModule.RemoveVisibility( m_MarkerData, EXPANSION_MARKER_VIS_MAP );
+			} else
+			{
+				m_MarkerModule.SetVisibility( m_MarkerData, EXPANSION_MARKER_VIS_MAP );
+			}
 			
 			m_MarkerModule.Refresh();
 

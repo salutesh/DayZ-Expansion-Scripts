@@ -26,6 +26,10 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTTerritoriesMemberListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, ExpansionTerritoryMember member)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::ExpansionCOTTerritoriesMemberListEntry - Start");
+		#endif
+		
 		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_MemberList_Entry_New.layout", parent ) );
 		m_MemberName			= TextWidget.Cast( m_Root.FindAnyWidget( "member_name" ) );
 		m_MemberID				= TextWidget.Cast( m_Root.FindAnyWidget( "owner_id" ) );
@@ -38,6 +42,10 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 		m_Root.SetHandler( this );
 		
 		SetMemberEntry();
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::ExpansionCOTTerritoriesMemberListEntry - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -53,6 +61,10 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void SetMemberEntry()
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::SetMemberEntry - Start");
+		#endif
+		
 		if ( m_Member )
 		{
 			m_MemberName.SetText( m_Member.GetName() );
@@ -67,6 +79,10 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 				m_MemberStateIcon.SetColor( ARGB( 255, 192, 57, 43 ) );
 			}
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::SetMemberEntry - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -90,13 +106,25 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::SetMemberEntry - Start");
+		#endif
+		
 		if ( m_EditMemberButton && w == m_EditMemberButton )
 		{			
 			if ( m_TerritoryCOTMenu )
 			{
 				m_TerritoryCOTMenu.SetTerritoryMemberInfo( m_Member );
 			}
+			
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::SetMemberEntry - m_EditMemberButton");
+			#endif
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::SetMemberEntry - End");
+		#endif
 		
 		return false;
 	}
@@ -106,11 +134,23 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::OnMouseEnter - Start");
+		#endif
+		
 		if ( m_EditMemberButton && w == m_EditMemberButton )
 		{
 			m_MemberName.SetColor( ARGB( 255, 0, 0, 0 ) );
 			m_MemberID.SetColor( ARGB( 255, 0, 0, 0 ) );
+			
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::OnMouseEnter - m_EditMemberButton");
+			#endif
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::OnMouseEnter - End");
+		#endif
 
 		return false;
 	}
@@ -120,11 +160,23 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::OnMouseLeave - Start");
+		#endif
+		
 		if ( m_EditMemberButton && w == m_EditMemberButton )
 		{
 			m_MemberName.SetColor( ARGB( 255, 255, 255, 255 ) );
 			m_MemberID.SetColor( ARGB( 255, 255, 255, 255 ) );
+			
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::OnMouseLeave - m_EditMemberButton");
+			#endif
 		}
+		
+		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::OnMouseLeave - End");
+		#endif
 
 		return false;
 	}

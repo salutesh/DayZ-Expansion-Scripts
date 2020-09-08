@@ -16,8 +16,13 @@ modded class Land_Village_Pub
 	{
 		return true;
 	}
+
+	override bool HasIvys()
+    {
+        return true;
+    }
 	
-	override void SpawnInterior()
+	override void SpawnIvys()
 	{
 		//Ivy
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "-4.528921 4.744614 -6.155187", "-89.999954 -32.000008 -178.000000" );

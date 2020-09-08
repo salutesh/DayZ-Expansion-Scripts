@@ -103,20 +103,28 @@ class ExpansionMapMenu extends UIScriptedMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
 		Class.CastTo( m_MapWidget, layoutRoot.FindAnyWidget( "Map" ) );
 		
-		ExpansionMapMarkerPlayerArrow player_Marker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
-		
-		PlayerBase player;
-		if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+		if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
 		{
-			player_Marker.SetName( "(YOU) " + player.GetIdentityName() );
+			ExpansionMapMarkerPlayerArrow player_Marker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
+			
+			PlayerBase player;
+			if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+			{
+				if ( GetExpansionClientSettings().StreamerMode )
+				{
+					player_Marker.SetName( "(YOU)" );
+				} else 
+				{
+					player_Marker.SetName( "(YOU) " + player.GetIdentityName() );
+				}
+			}
+			
+			m_Markers.Insert( player_Marker );
 		}
-
-		m_Markers.Insert( player_Marker );
 		
 		GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/map/expansion_map_markerlist.layout", layoutRoot ).GetScript( m_MarkerList );
 
-		if ( GetExpansionSettings().GetMap().CanCreateMarker )
-			m_MarkerList.Init( this );
+		m_MarkerList.Init( this );
 		
 		SetMapPosition();
 
@@ -985,14 +993,14 @@ class ExpansionMapMenu extends UIScriptedMenu
 	{
 		if ( button == MouseState.LEFT )
 		{
-			if ( w == m_MapWidget && GetExpansionSettings().GetMap().CanCreateMarker )
+			if ( w == m_MapWidget )
 			{
 				if ( HasSelectedMarker() )
 				{
 					CancelCurrentSelectedMarker();
 
 					return true;
-				} else
+				} else if ( GetExpansionSettings().GetMap().CanCreateMarker )
 				{
 					int mouse_x;
 					int mouse_y;

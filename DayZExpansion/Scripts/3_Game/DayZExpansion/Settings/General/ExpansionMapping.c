@@ -17,8 +17,8 @@ class ExpansionMapping
 	autoptr TStringArray Mapping;
 	autoptr TStringArray ObjectsToDelete;
 	
-	bool InteriorBuilding;				// Interior inside building mapping switch. It's not linked to UseCustomMappingModule 
-	bool Ivies;							// Ivies mapping switch
+	bool BuildingInteriors;				// Interior inside building mapping switch. It's not linked to UseCustomMappingModule 
+	bool BuildingIvys;					// Exterior Ivies mapping switch
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapping
@@ -47,8 +47,8 @@ class ExpansionMapping
 		Mapping.Copy( s.Mapping );
 		ObjectsToDelete.Copy( s.ObjectsToDelete );
 
-		InteriorBuilding = s.InteriorBuilding;
-		Ivies = s.Ivies;
+		BuildingInteriors = s.BuildingInteriors;
+		BuildingIvys = s.BuildingIvys;
 	}
 
 	// ------------------------------------------------------------
@@ -119,14 +119,14 @@ class ExpansionMapping
 		#ifdef EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
 		
 		UseCustomMappingModule 			= false;
-		InteriorBuilding 				= false;
-		Ivies							= false;
+		BuildingInteriors 				= false;
+		BuildingIvys					= false;
 		
 		#else
 		
 		UseCustomMappingModule 			= true;
-		InteriorBuilding 				= true;
-		Ivies							= true;
+		BuildingInteriors 				= true;
+		BuildingIvys					= true;
 		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT

@@ -28,8 +28,12 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		AddItem("Mosin9130", 				40,	42,	1,		250,	0 );
 		AddItem("CZ527", 					50,	52,	1,		250,	0 );
 		AddItem("Winchester70", 			50,	52,	1,		250,	0 );
-		AddItem("SKS", 						60,	62,	1,		250,	0 );
+		AddItem("B95", 						60,	62,	1,		250,	0 );
+		AddItem("Ruger1022", 				60,	62,	1,		250,	0 );	
 		
 		AddItem("Expansion_DT11", 			50,	52,	1,		250,	0 );
+		AddItem("Expansion_Kar98", 			60,	62,	1,		250,	0 );
+		AddItem("Expansion_M14", 			60,	62,	1,		250,	0 );
+		AddItem("Expansion_M1A", 			60,	62,	1,		250,	0 );
 	}
 }

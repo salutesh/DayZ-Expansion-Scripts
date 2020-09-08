@@ -78,8 +78,8 @@ class ExpansionHelicopterController: ExpansionController
 
 	void SetCyclicZ( float forward, float backward, float value )
 	{
-		m_CyclicForwardM + m_CyclicForwardK = forward;
-		m_CyclicBackwardM + m_CyclicBackwardK = backward;
+		m_CyclicForwardM = forward;
+		m_CyclicForwardK = forward;
 	}
 
 	float GetCyclicForward()
@@ -94,8 +94,10 @@ class ExpansionHelicopterController: ExpansionController
 
 	void SetCyclicX( float left, float right, float value )
 	{
-		m_CyclicLeftM + m_CyclicLeftK = left;
-		m_CyclicRightM + m_CyclicRightK = right;
+		m_CyclicLeftM = left;
+		m_CyclicLeftK = left;
+		m_CyclicRightM = right;
+		m_CyclicRightK = right;
 	}
 
 	float GetCyclicLeft()

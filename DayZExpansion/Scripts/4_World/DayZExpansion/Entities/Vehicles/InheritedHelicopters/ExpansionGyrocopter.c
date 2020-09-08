@@ -41,7 +41,7 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 		m_MaxAutoRotateSpeed						= 10.0;
 
 		m_BodyFrictionCoef							= 4;
-		m_LiftForceCoef								= 1.2;
+		m_LiftForceCoef								= 1.6;
 
 		m_CyclicForceCoef							= 1.5;
 

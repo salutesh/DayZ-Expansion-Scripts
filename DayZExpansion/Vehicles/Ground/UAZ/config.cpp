@@ -270,24 +270,24 @@ class CfgVehicles
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Engine
 			{
-				inertia = 0.3;
+				inertia = 0.15;
 				torqueMax = 114;
-				torqueRpm = 2600;
+				torqueRpm = 3400;
 				powerMax = 53.7;
-				powerRpm = 3500;
+				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
 				rpmClutch = 1350;
-				rpmRedline = 4500;
-				rpmMax = 5500;
+				rpmRedline = 6000;
+				rpmMax = 8000;
 			};
 			class Gearbox
 			{
-				reverse = 3.026;
-				ratios[] = {3.5670002,1.9999999,1.2609999,0.9};
+				reverse = 3.426;
+				ratios[] = {4.067,1.9999999,1.2609999,0.9};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
-				maxClutchTorque = 260;
+				maxClutchTorque = 300;
 			};
 			class Axles: Axles
 			{
@@ -302,7 +302,7 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1700;
-						stiffness = 20000;
+						stiffness = 40000;
 						compression = 2100;
 						damping = 7500;
 						travelMaxUp = 0.0882;
@@ -453,9 +453,9 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZ.p3d";
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo"};
-		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa"};
-		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body_exterior","__interior"};
+		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa"};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat"};
 		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
 		dashboardMatOff = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboard.rvmat";
 		frontReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan_lights.rvmat";

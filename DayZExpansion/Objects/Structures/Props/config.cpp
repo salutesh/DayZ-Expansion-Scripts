@@ -1067,4 +1067,10 @@ class CfgVehicles
 		scope = 1;
 		model = "\DZ\gear\navigation\Map_chernarus_open.p3d";
 	};
+	class Expansion_BigJesusSign: HouseNoDestruct
+	{
+		vehicleClass = "Expansion_Static";
+		scope = 1;
+		model = "\DayZExpansion\Objects\Structures\Props\BigJesusSign.p3d";
+	};
 };

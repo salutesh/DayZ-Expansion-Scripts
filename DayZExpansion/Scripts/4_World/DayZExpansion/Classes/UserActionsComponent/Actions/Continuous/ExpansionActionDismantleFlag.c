@@ -40,11 +40,18 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 
 		if ( targetObject )
 		{
+			//! is this a flag ?
 			ExpansionFlagBase flag;
-			if ( Class.CastTo( flag, targetObject ) )
-			{
+			if ( !Class.CastTo( flag, targetObject ) )
+				return false;
+
+			//! is he inside a territory ?
+			if ( !player.IsInTerritory() )
+				return false;
+
+			//! is he inside his own territory ?
+			if ( player.IsInsideOwnTerritory() )
 				return canDismantle;
-			}
 		}
 		
 		return false;
@@ -54,8 +61,9 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 	{
 		EntityAI flag = EntityAI.Cast(action_data.m_Target.GetObject() );
 
+		//! Should the flag drop a flag kit after being dismantled ?
 		if ( GetExpansionSettings().GetBaseBuilding().DestroyFlagOnDismantle )
-			GetGame().CreateObject("ExpansionFlagKitExpansion", flag.GetPosition() );
+			GetGame().CreateObject("TerritoryFlagKit", flag.GetPosition() );
 
 		flag.Delete();
 	}

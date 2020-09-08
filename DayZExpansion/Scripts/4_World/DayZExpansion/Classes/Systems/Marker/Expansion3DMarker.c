@@ -28,13 +28,25 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 	private float m_OriginalHeight;
 
 	private ExpansionMarkerModule m_MarkerModule;
+	
+	private string m_LayoutPath;
+	
+	private bool m_ShowQuickName = true;
+	private bool m_ShowQuickDistance = true;
 
+	private bool m_ShowMemberName = true;
+	private bool m_ShowMemberDistance = true;
+	
+	private bool m_ShowServerName = true;
+	private bool m_ShowServerDistance = true;
+	
 	void Expansion3DMarker( ExpansionMarkerData data = NULL )
 	{
 		//Print( "Expansion3DMarker::Expansion3DMarker" );
 		//Print( this );
-
-	   	m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/expansion_dynamic_marker.layout" );
+		GetSettings();
+		
+		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets( m_LayoutPath );
 		OnWidgetScriptInit( m_LayoutRoot );
 
 		SetMarkerData( data );
@@ -42,6 +54,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshAlphaMinColor );
+		GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingChanged );
 	}
 
 	void ~Expansion3DMarker()
@@ -50,6 +63,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		//Print( this );
 
 		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshAlphaMinColor );
+		GetExpansionClientSettings().SI_UpdateSetting.Remove( OnSettingChanged );
 		
 		if ( m_LayoutRoot )
 		{
@@ -74,7 +88,8 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		Class.CastTo( m_Text_Distance, m_LayoutRoot.FindAnyWidget( "MarkerDistance" ) );
 		Class.CastTo( m_Frame, m_LayoutRoot.FindAnyWidget( "MarkerFrame" ) );
 						
-		m_Text_Distance.Show( true );
+		//m_Text_Name.Show( m_ShowName );
+		//m_Text_Distance.Show( m_ShowDistance );
 	
 		m_Frame.GetSize( m_OriginalWidth, m_OriginalHeight );
 	}
@@ -116,28 +131,28 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 
 		float dist = vector.Distance( screen_position, Vector( 0.5, 0.5, screen_position[2] ) );
 		m_Transparency = LinearConversion( 0, 0.15, dist, m_TransparencyMin, m_TransparencyMax );
-
-		if ( m_MarkerData.GetName() == "" || m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().ShowNameOnQuickMarkers )
+		
+		if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY_QUICK )
 		{
-			m_Text_Name.Show( false );
-		}
-		else if (m_MarkerData.GetName() != "")
+			m_Text_Name.Show( m_ShowQuickName );
+			m_Text_Distance.Show( m_ShowQuickDistance );
+		} else if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PLAYER )
 		{
-			m_Text_Name.Show( true );
-			m_Text_Name.SetText( m_MarkerData.GetName() );
-			m_Text_Name.SetColor( ARGB( m_Transparency, 255, 255, 255) );
-		}
-
-		if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers )
+			m_Text_Name.Show( m_ShowMemberName );
+			m_Text_Distance.Show( m_ShowMemberDistance );
+		} else if ( m_MarkerData.GetType() == ExpansionMapMarkerType.SERVER )
 		{
-			m_Text_Distance.Show( false );
+			m_Text_Name.Show( m_ShowServerName );
+			m_Text_Distance.Show( m_ShowServerDistance );
 		}
-		else
-		{
-			float distance = vector.Distance( GetGame().GetCurrentCameraPosition(), position );
-			m_Text_Distance.SetText( Math.Ceil( distance ).ToString() + "m" );
-			m_Text_Distance.SetColor( ARGB( m_Transparency, 255, 255, 255) );
-		}
+		
+		m_Text_Name.SetText( m_MarkerData.GetName() );
+		m_Text_Name.SetColor( ARGB( m_Transparency, 255, 255, 255) );
+		
+		//! Set distance
+		float distance = vector.Distance( GetGame().GetCurrentCameraPosition(), position );
+		m_Text_Distance.SetText( Math.Ceil( distance ).ToString() + "m" );
+		m_Text_Distance.SetColor( ARGB( m_Transparency, 255, 255, 255) );
 
 		float scale = LinearConversion( 2000, 100, distance, 0.6, 1 );
 		m_Frame.SetSize( m_OriginalWidth * scale, m_OriginalHeight * scale );
@@ -178,5 +193,69 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		m_TransparencyMin = GetExpansionClientSettings().AlphaColorLookAtMinimum;
 		
 		m_Transparency = Math.Clamp( m_Transparency, m_TransparencyMin, m_TransparencyMax );
+	}
+
+	// ------------------------------------------------------------
+	// Marker OnSettingChanged
+	// ------------------------------------------------------------
+	void OnSettingChanged()
+	{		
+		if ( m_LayoutRoot )
+		{			
+			m_LayoutRoot.Unlink();
+		}
+
+		GetSettings();
+		
+		m_LayoutRoot = GetGame().GetWorkspace().CreateWidgets( m_LayoutPath );
+		
+		OnWidgetScriptInit( m_LayoutRoot );
+	}
+
+	// ------------------------------------------------------------
+	// Marker GetClientSettings
+	// ------------------------------------------------------------
+	void GetSettings()
+	{
+		if ( GetExpansionClientSettings() )
+		{
+			ExpansionClientUIMarkerSize markersize = GetExpansionClientSettings().MarkerSize;
+			switch ( markersize )
+			{
+				case ExpansionClientUIMarkerSize.VERYSMALL:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/expansion_dynamic_marker_16.layout";
+					break;
+				case ExpansionClientUIMarkerSize.SMALL:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/expansion_dynamic_marker_24.layout";
+					break;
+				case ExpansionClientUIMarkerSize.MEDIUM:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/expansion_dynamic_marker_32.layout";
+					break;
+				case ExpansionClientUIMarkerSize.LARGE:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/expansion_dynamic_marker_40.layout";
+					break;
+			}
+			
+			m_ShowMemberName = GetExpansionClientSettings().ShowMemberNameMarker;
+			m_ShowMemberDistance = GetExpansionClientSettings().ShowMemberDistanceMarker;
+		}
+		
+		if ( GetExpansionSettings() )
+		{
+			m_ShowQuickName = GetExpansionSettings().GetParty().ShowNameOnQuickMarkers;
+			if (m_ShowQuickName)
+			{
+				m_ShowQuickName = GetExpansionClientSettings().ShowNameQuickMarkers;
+			}
+			
+			m_ShowQuickDistance = GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers;
+			if (m_ShowQuickDistance)
+			{
+				m_ShowQuickDistance = GetExpansionClientSettings().ShowDistanceQuickMarkers;
+			}
+			
+			m_ShowServerName = GetExpansionSettings().GetMap().ShowNameOnServerMarkers;
+			m_ShowServerDistance = GetExpansionSettings().GetMap().ShowDistanceOnServerMarkers;
+		}
 	}
 }

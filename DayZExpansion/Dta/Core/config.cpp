@@ -548,7 +548,7 @@ class CfgVehicles
 	{
 		scope = 2;
 	};
-	class ExpansionWheel: Inventory_Base
+	class ExpansionWheel: CarWheel
 	{
 		scope = 1;
 		mass = 80.0;
@@ -608,7 +608,7 @@ class CfgVehicles
 			itemsCargoSize[] = {10,50};
 		};
 	};
-	class ExpansionHelicopterScript: ExpansionVehicleScript
+	class ExpansionHelicopterScript: CarScript
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Helicopter";

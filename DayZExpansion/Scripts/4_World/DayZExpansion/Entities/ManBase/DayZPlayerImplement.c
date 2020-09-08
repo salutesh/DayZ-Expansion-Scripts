@@ -51,14 +51,14 @@ modded class DayZPlayerImplement
 		{
 			GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( StopDeathDarkeningEffect, duration*1000, false );
 			
-			if (GetExpansionSettings().GetGeneral().UseDeadScreen)
+			if (GetExpansionSettings().GetGeneral().UseDeathScreen)
 				m_ExpansionShowDeadScreen = true;
 		}
 		else
 		{
 			GetGame().GetCallQueue( CALL_CATEGORY_GUI ).Call( StopDeathDarkeningEffect );
 			
-			if (GetExpansionSettings().GetGeneral().UseDeadScreen)
+			if (GetExpansionSettings().GetGeneral().UseDeathScreen)
 				m_ExpansionShowDeadScreen = false;
 		}
 	#endif

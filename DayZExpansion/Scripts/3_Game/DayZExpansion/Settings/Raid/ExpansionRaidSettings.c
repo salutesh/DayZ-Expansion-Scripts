@@ -26,11 +26,6 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	float SafeExplosionDamageMultiplier;			//! Damage multiplier from explosion on safes.
 	float SafeProjectileDamageMultiplier;			//! Damage multiplier from explosion on safes.
 	
-	// bool AllowMeleeRaidingOnVanilla;				//! If enabled, make safes raidable
-	// bool AllowMeleeRaidingOnExpansion;			//! If enabled, make safes raidable
-	
-	//ref array < ref ExpansionRaidValues > RaidValues;
-	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -143,9 +138,6 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		CanRaidSafes = s.CanRaidSafes;
 		SafeExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
 		SafeProjectileDamageMultiplier = s.ProjectileDamageMultiplier;
-
-		// AllowMeleeRaidingOnVanilla = s.AllowMeleeRaidingOnVanilla;
-		// AllowMeleeRaidingOnExpansion = s.AllowMeleeRaidingOnExpansion;
 	}
 	
 	// ------------------------------------------------------------
@@ -233,23 +225,6 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		CanRaidSafes = true;
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
-		
-		// AllowMeleeRaidingOnVanilla = false;
-		// AllowMeleeRaidingOnExpansion = false;
-
-		/*
-		TStringArray BaseBuildingArr = new TStringArray;
-		BaseBuildingArr.Insert( "ExpansionWallBase" );
-		BaseBuildingArr.Insert( "ExpansionStairBase" );
-		BaseBuildingArr.Insert( "ExpansionSafeBase" );
-		BaseBuildingArr.Insert( "ExpansionRampBase" );
-		BaseBuildingArr.Insert( "ExpansionFloorBase" );
-		BaseBuildingArr.Insert( "FenceKit" );
-		BaseBuildingArr.Insert( "WatchtowerKit" );
-
-		RaidValues.Insert(new ExpansionRaidValues( "GrenadeM4", 1000, BaseBuildingArr ) );
-		RaidValues.Insert(new ExpansionRaidValues( "Bullet_762x39", 500, BaseBuildingArr ) );
-		*/
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRaidSettings::Defaults - End");

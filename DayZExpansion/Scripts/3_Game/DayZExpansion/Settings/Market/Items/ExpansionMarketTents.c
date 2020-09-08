@@ -24,8 +24,14 @@ class ExpansionMarketTents: ExpansionMarketCategory
 		m_FileName = "Tents";
 
 		AddItem("ExpansionCamoTent",				100,	120,	1,		250,	0 );
-		AddItem("MediumTent", 					300,	320,	1,		250,	0 );	
-		AddItem("CarTent", 						500,	520,	1,		250,	0 );
-		AddItem("LargeTent", 					700,	720,	1,		250,	0 );
+		AddItem("MediumTent", 						300,	320,	1,		250,	0 );
+		AddItem("MediumTent_Green", 				300,	320,	1,		250,	0 );
+		AddItem("MediumTent_Orange", 				300,	320,	1,		250,	0 );
+		AddItem("CarTent", 							500,	520,	1,		250,	0 );
+		AddItem("LargeTent", 						700,	720,	1,		250,	0 );
+		AddItem("PartyTent", 						400,	450,	1,		250,	0 );
+		AddItem("PartyTent_Blue", 					400,	450,	1,		250,	0 );
+		AddItem("PartyTent_Brown", 					400,	450,	1,		250,	0 );
+		AddItem("PartyTent_Lunapark", 				400,	450,	1,		250,	0 );
 	}
 }

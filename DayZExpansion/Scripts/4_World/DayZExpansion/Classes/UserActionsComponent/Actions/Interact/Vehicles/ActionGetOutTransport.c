@@ -10,6 +10,13 @@
  *
 */
 
+#ifdef DAYZ_1_09
+modded class GetOutTransportActionData
+{
+	bool keepInVehicleSpaceAfterLeave = false;
+};
+#endif
+
 modded class ActionGetOutTransport
 {
 	/**
@@ -56,12 +63,23 @@ modded class ActionGetOutTransport
 			CarScript car;
 			if ( Class.CastTo( car, vehCommand.GetTransport() ) )
 			{
-				if ( s_ExpansionPlayerAttachment && car.CanObjectAttach( action_data.m_Player ) && car.LeavingSeatDoesAttachment( vehCommand.GetVehicleSeat() ) )
-				{
-					vehCommand.KeepInVehicleSpaceAfterLeave( true );
+				float speed = car.GetSpeedometer();
+				bool keepInVehicleSpaceAfterLeave = s_ExpansionPlayerAttachment && car.CanObjectAttach( action_data.m_Player ) && car.LeavingSeatDoesAttachment( vehCommand.GetVehicleSeat() );
 
+				#ifdef DAYZ_1_09
+				GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast( action_data );
+				got_action_data.m_StartLocation = got_action_data.m_Player.GetPosition();
+				got_action_data.m_Car = car;
+				got_action_data.m_CarSpeed = speed;
+				got_action_data.keepInVehicleSpaceAfterLeave = keepInVehicleSpaceAfterLeave;
+				#endif
+
+				vehCommand.KeepInVehicleSpaceAfterLeave( keepInVehicleSpaceAfterLeave );
+
+				if ( keepInVehicleSpaceAfterLeave )
+				{
 					vehCommand.GetOutVehicle();
-				} else if ( car.GetSpeedometer() <= 8 )
+				} else if ( speed <= 8 )
 				{
 					vehCommand.GetOutVehicle();
 				} else
@@ -79,18 +97,14 @@ modded class ActionGetOutTransport
 		}
 	}
 
-	
-	override void OnUpdate( ActionData action_data )
+	#ifdef DAYZ_1_09
+	override void OnEndServer( ActionData action_data )
 	{
-		if ( action_data.m_State && action_data.m_State == UA_START)
-		{
-			if ( !action_data.m_Player.GetCommand_Vehicle() )
-			{
-				End( action_data );
-				return;
-			}
-		}
+		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast( action_data );
+		if ( got_action_data.keepInVehicleSpaceAfterLeave )
+			return;
 
-		super.OnUpdate( action_data );
+		super.OnEndServer( action_data );
 	}
+	#endif
 };

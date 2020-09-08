@@ -2,14 +2,7 @@
     "Departments": [
 	    {
             "DepartmentName": "DAYZ EXPANSION",
-            "Sections": [
-                {
-                    "SectionName": "#STR_EXPANSION_CREDITS_LEAD",
-                    "SectionLines": [
-                        "Stephan Moser (Steve aka Salutesh)"
-                    ]
-                }
-            ]
+            "Sections": []
         },
 		{
             "DepartmentName": "",
@@ -17,15 +10,16 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_SCRIPTERS",
                     "SectionLines": [
-                        "Rémi Simonin (NiiRoZz)",
-                        "Ruslans Aleksejevs (CAMINOonPC)",
-						"George Thurston (Thurston)",
-                        "Jacob Kumar (Jacob_Mango)",
-                        "Jesse Ficarra (Not A Banana)",
-                        "Guillaume Jouve (LieutenantMaster)",
-                        "(Cooltrain)",
-                        "(Wardog)",
-						"Stephan Moser (Steve aka Salutesh)"
+                        "Rémi Simonin - NiiRoZz",
+                        "Jacob Kumar - Jacob_Mango",
+                        "Jesse Ficarra - Not A Banana",
+                        "Guillaume Jouve - LieutenantMaster",
+                        "Cooltrain",
+                        "Wardog",
+                        "Tyler Paul - InclementDab",
+						"George Thurston - Thurston",
+                        "Ruslans Aleksejevs - CAMINOonPC",
+						"Stephan Moser - Steve aka Salutesh"
                     ]
                 }
             ]
@@ -47,7 +41,7 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_MAPPING",
                     "SectionLines": [
-                       "Florian Pelloux (DanceOfJesus)"
+                       "Florian Pelloux - DanceOfJesus"
                     ]
                 }
             ]
@@ -59,11 +53,11 @@
                     "SectionName": "#STR_EXPANSION_CREDITS_3DARTISTS",
                     "SectionLines": [
                         "ComatoseBadger",
-                        "Jesse Ficarra (Not A Banana)",
+                        "Jesse Ficarra - Not A Banana",
 						"m_kola",
 						"Helion4",
 						"ZeRoY",
-                        "Rhys Hendra (Fourth)"
+                        "Rhys Hendra - FourthDZ"
                     ]
                 }
             ]
@@ -74,7 +68,7 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_COMMUNITYMANAGE",
                     "SectionLines": [
-                        "George Thurston (Thurston)"
+                        "George Thurston - Thurston"
                     ]
                 }
             ]
@@ -85,7 +79,8 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_MOVIES",
                     "SectionLines": [
-                        "OPTiX"
+						"Ayano",
+						"SepticFalcon"
                     ]
                 }
             ]
@@ -122,12 +117,10 @@
                     "SectionName": "#STR_EXPANSION_CREDITS_SPECIAL_THANKS",
                     "SectionLines": [
                         "Miroslav Maněna",
-                        "Eugen Harton",
                         "Adam Franců",
                         "rVn",
-                        
+                        "Eugen Harton",
                         "           ",
-
                         "Jamesjwgallagher",
                         "LieutenantMaster",
                         "SuperTrottoir",
@@ -142,10 +135,8 @@
 						"MoonDC",
 						"Def (Mapping converter tool 'DayZPosConv')",
                         "liquidrock (fixing bugs for us)",
-                        
                         "           ",
-
-                        "Thank you all of you <3"
+                        "You"
                     ]
                 }
             ]

@@ -42,6 +42,7 @@ class ExpansionMarketMuzzles: ExpansionMarketCategory
 		AddItem("M9A1_Bayonet", 				15,		17,		1,		250,	0 );
 		AddItem("Mosin_Bayonet", 				10,		12,		1,		250,	0 );
 		AddItem("SKS_Bayonet", 					10,		12,		1,		250,	0 );
+		AddItem("Expansion_Kar98_Bayonet", 					10,		12,		1,		250,	0 );
 		AddItem("Mosin_Compensator", 			15,		17,		1,		250,	0 );
 		AddItem("MP5_Compensator", 				20,		22,		1,		250,	0 );
 		AddItem("M4_Suppressor", 				25,		27,		1,		250,	0 );

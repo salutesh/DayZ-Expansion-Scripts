@@ -111,11 +111,6 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_ContainerListEntries = new array<ref ExpansionCOTTerritoriesContainerListEntry>;
 		m_ContainerObjects = new array<ref ExpansionEntityMetaData>;
 		
-		m_CurrentTerritory = null;
-		m_CurrentTerritoryFlag = null;
-		m_CurrentMember = null;
-		m_CurrentObject = null;
-		
 		m_COTTerritorySetTerritorysInvoker.Insert( SetTerritories );
 		m_COTTerritorySetObjectsInvoker.Insert( SetTerritoryObjects );
 		m_COTTerritorySetContainerObjectsInvoker.Insert( SetContainerObjects );
@@ -247,8 +242,17 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			string name = currentTerritory.GetTerritoryName();
 			
 			//! Create map marker for territory
-			ExpansionCOTTerritoriesMapMarker territoryMapMarker = new ExpansionCOTTerritoriesMapMarker( layoutRoot, m_TerritoryMap, pos, name, ARGB( 255, 75, 123, 236 ), "DayZExpansion\\GUI\\icons\\marker\\marker_home.paa", currentTerritory, this );
-			m_MapMarkers.Insert( territoryMapMarker );
+			ExpansionCOTTerritoriesMapMarker marker = new ExpansionCOTTerritoriesMapMarker( m_TerritoryMapPanel, m_TerritoryMap, true);
+			//marker.Init();
+			marker.SetIcon( ExpansionIcons.Get( 28 ) );
+			marker.SetPosition( pos[0], pos[1] );
+			marker.SetCOTMenu( this );
+			marker.SetPrimaryColor( ARGB( 200, 142, 68, 173 ) );
+			marker.SetHoverColour( ARGB( 200, 255, 255, 255 ) );
+			marker.SetName( name );
+			marker.SetTerritory( currentTerritory );
+			
+			m_MapMarkers.Insert( marker );
 			
 			//! Create list entry for territory
 			ExpansionCOTTerritoriesListEntry territoryListEntry = new ExpansionCOTTerritoriesListEntry(m_TerritoryListContent, this, currentTerritory);
@@ -279,10 +283,25 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			m_ObjectListEntries.Insert( objectListEntry );
 			m_TerritoryObjects.Insert( obj );
 			
+		#ifdef DAYZ_1_09
+			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - Current obj: " + obj.ToString() );
+			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - Classname: " + obj.m_ClassName );
+			#endif
+			
+			if ( obj.m_ClassName == "TerritoryFlag" && obj.IsTerritoryFlag() )
+			{
+				m_CurrentTerritoryFlag = obj;
+				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
+				EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - m_CurrentTerritoryFlag: " + m_CurrentTerritoryFlag.ToString() );
+				#endif
+			}
+		#else
 			if ( obj.m_ClassName == "ExpansionTerritoryFlag" )
 			{
 				m_CurrentTerritoryFlag = obj;
 			}
+		#endif
 		}
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -373,7 +392,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		foreach( ExpansionCOTTerritoriesMapMarker marker : m_MapMarkers )
 		{
-			marker.ShowMarker();
+			//marker.ShowMarker();
 		}	
 		
 		m_TerritoryListPanel.Show( true );
@@ -511,7 +530,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		//! TODO: Tweak me!
 		if ( w == m_TeleportTerritoryButton )
 		{
-			if (m_CurrentTerritory)
+			if (m_CurrentTerritoryFlag)
 				m_Module.RequestTeleportToTerritory( m_CurrentTerritoryFlag.m_NetworkIDLow, m_CurrentTerritoryFlag.m_NetworkIDHigh );
 		}
 		
@@ -557,7 +576,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
 		{
 			ExpansionCOTTerritoriesMapMarker marker = m_MapMarkers.Get( i );
-			marker.HideMarker();
+			//marker.HideMarker();
 		}
 		
 		m_TerritoryListPanel.Show( false );
@@ -858,5 +877,13 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		}
 
 		return false;
+	}
+	
+	override void Update() 
+	{
+		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
+		{
+			m_MapMarkers[i].Update(0.5);
+		}
 	}
 }

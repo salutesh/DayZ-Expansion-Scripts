@@ -12,7 +12,7 @@
 
 modded class MainMenu
 {
-	#ifndef DISABLEMAINMENUCHANGE
+	#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 	protected DayZIntroSceneExpansion 			m_CustomScene;
 	#endif
 	
@@ -25,7 +25,7 @@ modded class MainMenu
 	// ------------------------------------------------------------
 	void MainMenu()
 	{
-		#ifndef DISABLEMAINMENUCHANGE
+		#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 		m_Mission					= MissionMainMenu.Cast( GetGame().GetMission() );
 		m_CustomScene				= m_Mission.GetIntroSceneExpansion();
 		#endif
@@ -214,7 +214,7 @@ modded class MainMenu
 		EXPrint("MainMenu::HideModWarning - End");
 		#endif
 	}
-	#ifndef DISABLEMAINMENUCHANGE
+	#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
 	{
 		if ( w == m_CharacterRotationFrame )

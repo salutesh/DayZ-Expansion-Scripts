@@ -10,13 +10,9 @@
  *
 */
 
-/**@class		PlayerBaseClient
- * @brief		Dynamic volumetric clouds	
- **/
-
 modded class PlayerBaseClient
 {
-#ifndef EXPANSION_PARTICLE_VOLUMETRIC_CLOUDS_DISABLED
+#ifndef EXPANSION_PARTICLE_VOLUMETRIC_CLOUDS_DISABLE
 	Particle m_Clouds;
 
 	void CreateClouds()

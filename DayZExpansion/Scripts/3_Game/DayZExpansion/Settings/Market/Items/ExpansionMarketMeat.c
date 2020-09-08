@@ -45,7 +45,8 @@ class ExpansionMarketMeat: ExpansionMarketCategory
 		AddItem("WolfSteakMeat", 				5,		7,		1,		250,	0 );
 		AddItem("CowSteakMeat", 				5,		7,		1,		250,	0 );
 		AddItem("SheepSteakMeat", 				5,		7,		1,		250,	0 );
-		AddItem("ChickenBreastMeat", 			5,		7,		1,		250,	0 );
+		AddItem("ChickenBreastMeat", 			5,		7,		1,		250,	0 );		
+		AddItem("RabbitLegMeat", 				5,		7,		1,		250,	0 );
 	}
 }
 

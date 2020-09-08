@@ -457,6 +457,17 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	{
 		return m_MouseHover;
 	}
+
+	private bool ShouldHide()
+	{
+		if ( !m_Data.IsMapVisible() )
+			return true;
+
+		if ( !m_MarkerModule.IsMapVisible( m_Data.GetType() ) )
+			return true;
+
+		return false;
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMapMarker Update
@@ -471,19 +482,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		if ( m_Data )
 		{
-			//Print( GetLayoutRoot() );
-			//Print( m_MarkerModule );
-			//Print( m_Data );
-			//Print( m_MarkerModule.IsMapVisible( m_Data.GetType() ) );
-			//Print( m_Data.IsMapVisible() );
-
-			if ( !m_Data.IsMapVisible() )
-			{
-				GetLayoutRoot().Show( false );
-
-				if ( IsEditting() )
-					CloseEditPanel();
-			} else if ( !m_MarkerModule.IsMapVisible( m_Data.GetType() ) )
+			if ( ShouldHide() )
 			{
 				GetLayoutRoot().Show( false );
 
@@ -599,15 +598,22 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 				canCreateParty = party.HasParty() && GetExpansionSettings().GetMap().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties;
 			
 			m_StatePartyContainer.Show( canCreateParty );
+			
+			m_State3DContainer.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
 			m_State3DCheckbox.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
-			m_State3DCheckbox.SetChecked( true );
+			m_State3DCheckbox.SetChecked( false );
 
 			m_LeftButton.SetText( "CANCEL" );
 			m_RightButton.SetText( "CREATE" );
 		} else
 		{
 			m_StatePartyContainer.Show( false );
-			m_State3DCheckbox.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
+
+			if ( !m_Data.Is3D() )
+			{
+				m_State3DContainer.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
+				m_State3DCheckbox.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
+			}
 
 			m_LeftButton.SetText( "DELETE" );
 			m_RightButton.SetText( "UPDATE" );

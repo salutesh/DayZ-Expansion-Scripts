@@ -195,6 +195,7 @@ class ExpansionMarketTraderGuo: ExpansionMarketTrader
 		AddItem("BalaclavaMask_Green");
 		AddItem("BalaclavaMask_Pink");
 		AddItem("BalaclavaMask_White");
+		AddItem("AirborneMask");
 		AddItem("GP5GasMask");
 		AddItem("Balaclava3Holes_Beige");
 		AddItem("Balaclava3Holes_Blue");

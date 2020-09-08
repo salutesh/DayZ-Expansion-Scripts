@@ -74,19 +74,17 @@ class ExpansionVehicleWheel
 	private vector m_AxleWS;
 
 	private float m_AngularVelocity;
+	
+	private float m_Mass;
 
 	float m_EngineForce;
 	float m_BrakeForce;
 	float m_Steering;
 	
-	private ref array< Shape > m_DebugShapes;
 	private ref array< vector > m_WheelVertexPositions;
-	private float m_TimeSlice;
-	private float m_Mass;
 
 	void ExpansionVehicleWheel( ExpansionVehicleScript vehicle, ref ExpansionVehicleAxle axle, string name )
 	{
-		m_DebugShapes = new array< Shape >();
 		m_WheelVertexPositions = new array< vector >();
 		
 		m_Name = name;
@@ -125,10 +123,6 @@ class ExpansionVehicleWheel
 		delete m_TransformMS;
 		delete m_RotationMatrix;
 		
-		for ( int i = 0; i < m_DebugShapes.Count(); i++ )
-			m_DebugShapes[i].Destroy();
-		
-		delete m_DebugShapes;
 		delete m_WheelVertexPositions;
 	}
 	
@@ -209,22 +203,14 @@ class ExpansionVehicleWheel
 	}
 
 	void SetupSimulation( float pDt, out int numWheelsGrounded )
-	{
-		m_TimeSlice = pDt;
-		m_Mass = dBodyGetMass( m_Vehicle );
-		
-		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		for ( int i = 0; i < m_DebugShapes.Count(); ++i )
-			m_DebugShapes[i].Destroy();
-
-		m_DebugShapes.Clear();
-		#endif
-
+	{		
 		ExpansionDebugUI();
 		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub );
 
 		if ( !m_WheelItem )
 			return;
+		
+		m_Mass = dBodyGetMass( m_Vehicle );
 
 		m_Steering = m_Axle.GetSteering() * m_Axle.GetMaxSteeringAngle();
 
@@ -261,10 +247,14 @@ class ExpansionVehicleWheel
 			if ( !m_HasContact )
 				color = 0xFFFF0000;
 			
-			m_DebugShapes.Insert( Shape.CreateLines( color, ShapeFlags.NOZBUFFER, pts, 2 ) );
+			#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+			m_Vehicle.DBGAddShape( Shape.CreateLines( color, ShapeFlags.NOZBUFFER, pts, 2 ) );
+			#endif
 		}
-			
-		m_DebugShapes.Insert( Shape.CreateSphere( 0xFF0000FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_TransformMS[3].Multiply4( m_Vehicle.m_Transform.data ), 0.05 ) );
+
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		m_Vehicle.DBGAddShape( Shape.CreateSphere( 0xFF0000FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_TransformMS[3].Multiply4( m_Vehicle.m_Transform.data ), 0.05 ) );
+		#endif
 		#endif
 	}
 
@@ -315,7 +305,7 @@ class ExpansionVehicleWheel
 		m_RayStartWS = m_RayStartMS.Multiply4(m_Vehicle.m_Transform.data);
 		m_RayEndWS = m_RayEndMS.Multiply4(m_Vehicle.m_Transform.data);
 		
-		//DrawLine( m_RayStartWS, m_RayEndWS, 0xFFFFFFFFF );
+		//m_Vehicle.DBGDrawLine( m_RayStartWS, m_RayEndWS, 0xFFFFFFFFF );
 
 		//ExpansionDebugUI( "Ray Start (MS): " + m_RayStartMS );
 		//ExpansionDebugUI( "Ray End (MS): " + m_RayEndMS );
@@ -366,12 +356,12 @@ class ExpansionVehicleWheel
 		}
 		
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		ShowImpulseMS( m_ContactPosition, m_ContactVelocity * m_Mass * pDt, 0x9900FF00 );
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition, m_ContactVelocity * m_Mass * pDt, 0x9900FF00 );
 		
 		if ( s_SUSP_DEBUG_LENGTH != 0.0 )
 		{
-			DrawLine( m_ContactPositionWS, m_ContactPositionWS - (m_ContactNormal * s_SUSP_DEBUG_LENGTH), 0x9900FF00 );
-			DrawLine( m_ContactPosition.Multiply4(m_Vehicle.m_Transform.data), m_ContactPosition.Multiply4(m_Vehicle.m_Transform.data) + (m_ContactNormal * s_SUSP_DEBUG_LENGTH), 0x99FF0000 );
+			m_Vehicle.DBGDrawLine( m_ContactPositionWS, m_ContactPositionWS - (m_ContactNormal * s_SUSP_DEBUG_LENGTH), 0x9900FF00 );
+			m_Vehicle.DBGDrawLine( m_ContactPosition.Multiply4(m_Vehicle.m_Transform.data), m_ContactPosition.Multiply4(m_Vehicle.m_Transform.data) + (m_ContactNormal * s_SUSP_DEBUG_LENGTH), 0x99FF0000 );
 		}
 		#endif
 		
@@ -413,7 +403,7 @@ class ExpansionVehicleWheel
 			impulseTorque += m_ContactPosition * susp;
 			
 			#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-			ShowImpulseMS( m_ContactPosition + Vector( 0, s_SUSP_DEBUG_LENGTH, 0 ), susp, 0xFFC0D000 );
+			m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + Vector( 0, s_SUSP_DEBUG_LENGTH, 0 ), susp, 0xFFC0D000 );
 			#endif
 		}
 
@@ -457,38 +447,14 @@ class ExpansionVehicleWheel
 		impulseTorque += m_ContactPosition * forwardImp;
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		ShowImpulseMS( m_ContactPosition, forwardImp, 0xFF00FFFF );
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition, forwardImp, 0xFF00FFFF );
 		#endif
 
 		impulse += sideImp;
 		impulseTorque += m_ContactPosition * sideImp;
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		ShowImpulseMS( m_ContactPosition, sideImp, 0xFFFFFF00 );
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition, sideImp, 0xFFFFFF00 );
 		#endif
-	}
-	
-	void ShowImpulseMS( vector position, vector impulse, int color = 0x44FFFFFF )
-	{
-		ShowImpulse( position.Multiply4( m_Vehicle.m_Transform.data ), impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data ), color );
-	}
-
-	void ShowImpulse( vector position, vector impulse, int color = 0x44FFFFFF )
-	{
-		vector acceleration = impulse;
-		acceleration[0] = acceleration[0] / m_TimeSlice / m_Mass;
-		acceleration[1] = acceleration[1] / m_TimeSlice / m_Mass;
-		acceleration[2] = acceleration[2] / m_TimeSlice / m_Mass;
-		
-		DrawLine( position, position + acceleration, color );
-	}
-
-	void DrawLine( vector start, vector end, int color = 0x44FFFFFF )
-	{
-		vector pts[2]
-		pts[0] = start;
-		pts[1] = end;
-		
-		m_DebugShapes.Insert( Shape.CreateLines( color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2 ) );
 	}
 };

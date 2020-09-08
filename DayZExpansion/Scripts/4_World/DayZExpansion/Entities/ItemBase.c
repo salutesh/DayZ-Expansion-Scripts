@@ -559,7 +559,7 @@ modded class ItemBase
 	//============================================
 	// EEItemLocationChanged
 	//============================================	
-	#ifdef EXPANSION_ITEM_ATTACHING
+	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
 	override void EEItemLocationChanged( notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1106,7 +1106,7 @@ modded class ItemBase
 	//============================================
 	// CheckForAttachmentRaycast
 	//============================================
-	#ifdef EXPANSION_ITEM_ATTACHING
+	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
 	void CheckForAttachmentRaycast()
 	{
 		#ifdef EXPANSIONEXPRINT

@@ -17,8 +17,9 @@ modded class JMModuleConstructor
 		// Gameplay modules
 		modules.Insert( ExpansionGlobalChatModule );
 		modules.Insert( ExpansionNotificationModule );
-		#ifdef EXPANSION_MARKET
-		modules.Insert( ExpansionMarketModule );				// WIP			
+		#ifndef EXPANSION_MARKET_DISABLE
+		modules.Insert( ExpansionMarketModule );
+		modules.Insert( ExpansionMarketCOTModule );	
 		#endif		
 		modules.Insert( ExpansionSafeZoneModule );
 		modules.Insert( ExpansionLocatorModule );
@@ -31,13 +32,14 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionSkinModule );
 		modules.Insert( ExpansionAutorunModule );
 		modules.Insert( ExpansionMonitorModule );		
-		modules.Insert( ExpansionKillFeedModule );				// WIP
+		modules.Insert( ExpansionKillFeedModule );
 		
 		modules.Insert( ExpansionESPModificationModule );
 
-		modules.Insert( ExpansionCOTTerritoriesModule );
-		modules.Insert( ExpansionCOTVehiclesModule ); 			// TODO: move to COT
+		//TODO: Move to COT
+		modules.Insert( ExpansionCOTVehiclesModule );
 
+		modules.Insert( ExpansionCOTTerritoriesModule );
 		modules.Insert( ExpansionCOTAirdropModule );
 		modules.Insert( ExpansionCOTBaseBuildingModule );
 		modules.Insert( ExpansionCOTBookModule );

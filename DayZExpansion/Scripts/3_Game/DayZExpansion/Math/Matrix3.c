@@ -44,6 +44,21 @@ class Matrix3
 		return mat;
 	}
 
+    void Set(int _index, vector _value)
+    {
+		data[_index] = _value;
+    }
+
+    void Set(int _index, string _value)
+    {
+		data[_index] = _value.ToVector();
+    }
+	
+	vector Get(int _index)
+	{
+		return data[_index];
+	}
+
 	void Update()
 	{
 		#ifdef EXPANSIONEXPRINT

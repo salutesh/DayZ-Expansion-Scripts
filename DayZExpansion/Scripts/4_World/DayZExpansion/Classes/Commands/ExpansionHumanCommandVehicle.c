@@ -163,16 +163,10 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		#endif
 
 		float heading = m_Input.GetHeadingAngle();
-		PreAnim_SetFilteredHeading( heading, 0.3, 180 );
-
-		HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
-		float lrAngle = hcw.GetBaseAimingAngleLR();
-
-		float aimDiff = ( heading * Math.RAD2DEG ) - lrAngle;
-		//m_Input.OverrideAimChangeX( true, aimDiff * Math.DEG2RAD );
+		PreAnim_SetFilteredHeading( 0, 0.3, 180 );
 
 		m_Table.SetLook( this, true );
-		m_Table.SetLookDirX( this, heading * Math.RAD2DEG );
+		m_Table.SetLookDirX( this, heading );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::PreAnimUpdate End");
@@ -190,20 +184,15 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 			if ( !m_IsIn )
 			{
 				m_IsIn = true;
-				vector seatPosWS = m_Vehicle.GetGlobalPos( m_SeatPosition );
-				vector playerPosWS = m_Player.GetPosition();
-
-				vector dir = vector.Direction( playerPosWS, seatPosWS ).Normalized();
-				float distance = vector.Distance( playerPosWS, seatPosWS );
-				//if ( distance > 1 * pDt )
-				//	distance = 1 * pDt;
-
-				PrePhys_SetTranslation( dir * distance * pDt );
-			}
+			}			
 		} else if ( !m_IsGettingOut )
 		{
-			PrePhys_SetTranslation( vector.Zero );
+		} else
+		{
 		}
+		
+		PrePhys_SetTranslation( vector.Zero );
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::PrePhysUpdate End");
 		#endif
@@ -214,68 +203,30 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::PostPhysUpdate Start");
 		#endif
-
-		float heading = m_Input.GetHeadingAngle();
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "PostPhys Heading: " + heading );
-		vector dir = vector.Zero;
-		dir[0] = Math.Cos(heading + Math.PI_HALF);
-		dir[2] = Math.Sin(heading + Math.PI_HALF);
-		vector playerNPosWS = m_Vehicle.GetGlobalPos( m_SeatPosition );
-
-		vector playerPosWS = vector.Zero;
-		PostPhys_GetPosition( playerPosWS );
-
-		Matrix3 basis;
-		Quaternion quat;
-		Matrix3.DirectionAndUp( dir, "0 1 0", basis );
-		basis.ToQuaternion( quat );
-
+		
 		m_Time += pDt;
 		if ( m_IsGettingIn )
 		{
 			m_IsGettingIn = false;
 
-			m_Player.SetPosition( m_SeatPosition );
-
 			if ( m_Time > m_TimeGetIn )
 			{
 				m_IsGettingIn = false;
 			}
-
-			//PostPhys_SetPosition( playerNPosWS );
 		} else if ( m_IsGettingOut )
 		{
 			if ( m_Time > m_TimeGetOut )
 			{
 				m_NeedFinish = true;
 			}
-
-			vector exitDir;
-			m_VehicleEx.CrewEntryWS( m_SeatIndex, playerNPosWS, exitDir );
-
-			//PostPhys_SetPosition( vector.Lerp( playerPosWS, playerNPosWS, 5 * pDt ) );
 		}
-
-		m_Player.SetOrigin( m_SeatPosition );
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( heading );
-		#endif
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "" + quat.data[0] + ", " + quat.data[1] + ", " + quat.data[2] + ", " + quat.data[3] );
-		#endif
+		float quat[4];
+		Math3D.QuatIdentity(quat);
 		
-		//PostPhys_SetRotation( quat.data );
-
-		// doesn't work
-		//PostPhys_LockRotation();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandVehicle::PostPhysUpdate End");
-		#endif
-
-		ExpansionDebugger.Push( EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND );
+		PostPhys_SetPosition( m_SeatPosition );
+		PostPhys_SetRotation( quat );
+		PostPhys_LockRotation();
 		
 		return m_NeedFinish == false;
 	}

@@ -23,12 +23,12 @@ class ExpansionMarketTraderFrida: ExpansionMarketTrader
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_VEHICLES";
 		m_FileName = "Vehicles_Trader_Frida";
 
-		AddItem("ExpansionTractor");
-		AddItem("CivilianSedan");
-		AddItem("Sedan_02");
-		AddItem("Hatchback_02");
 		AddItem("OffroadHatchback");
+		AddItem("CivilianSedan");
+		AddItem("Hatchback_02");
+		AddItem("Sedan_02");
 		AddItem("ExpansionBus");
+		AddItem("ExpansionTractor");
 		AddItem("ExpansionUAZ");
 		AddItem("ExpansionUAZRoofless");
 		AddItem("ExpansionUAZCargo");

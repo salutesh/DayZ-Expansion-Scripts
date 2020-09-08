@@ -16,8 +16,14 @@ modded class Land_House_1B01_Pub
 	{
 		return true;
 	}
+
+	override bool HasIvys()
+    {
+        return true;
+    }
+
 	
-	override void SpawnInterior()
+	override void SpawnIvys()
 	{
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "2.391124 3.143677 8.467712", "-90.000000 -36.999992 176.999939" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "2.297253 3.071129 3.121431", "-90.000000 -37.000000 178.999954" );

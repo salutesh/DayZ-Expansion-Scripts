@@ -1,4 +1,4 @@
-#ifndef DISABLEMAINMENUCHANGE
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 class DayZIntroSceneExpansion
 {
 	protected Camera 					m_Camera;

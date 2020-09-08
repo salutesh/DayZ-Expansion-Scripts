@@ -119,6 +119,7 @@ class ExpansionVehicleScript extends ItemBase
 	float m_InvMass;
 	vector m_BodyCenterOfMass;
 
+	private float m_TimeSlice;
 	protected bool m_IsPhysicsHost;
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
@@ -228,6 +229,9 @@ class ExpansionVehicleScript extends ItemBase
 	protected autoptr TStringArray m_Doors;
 	protected bool m_CanHaveLock;
 
+	// Debugging
+	private ref array< Shape > m_DebugShapes;
+
 	// ------------------------------------------------------------
 	void ExpansionVehicleScript()
 	{
@@ -240,6 +244,8 @@ class ExpansionVehicleScript extends ItemBase
 		m_Crew = new array< ref ExpansionCrewData >;
 
 		m_Wheels = new array< ExpansionVehicleWheel >;
+
+		m_DebugShapes = new array< Shape >();
 
 		string path = "";
 		int i = 0;
@@ -396,6 +402,13 @@ class ExpansionVehicleScript extends ItemBase
 		{
 			dBodyDestroy( this );
 		}
+
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		for ( int i = 0; i < m_DebugShapes.Count(); i++ )
+			m_DebugShapes[i].Destroy();
+		#endif
+		
+		delete m_DebugShapes;
 	}
 
 	// ------------------------------------------------------------
@@ -558,6 +571,56 @@ class ExpansionVehicleScript extends ItemBase
 		if ( m_Controller )
 			m_Controller.Update();
 	}
+	
+	// ------------------------------------------------------------
+	void DBGDrawImpulseMS( vector position, vector impulse, int color = 0x44FFFFFF )
+	{
+		DBGDrawImpulse( position.Multiply4( m_Transform.data ), impulse.Multiply3( m_Transform.GetBasis().data ), color );
+	}
+
+	// ------------------------------------------------------------
+	void DBGDrawImpulse( vector position, vector impulse, int color = 0x44FFFFFF )
+	{
+		vector acceleration = impulse;
+		acceleration[0] = acceleration[0] / m_TimeSlice / m_BodyMass;
+		acceleration[1] = acceleration[1] / m_TimeSlice / m_BodyMass;
+		acceleration[2] = acceleration[2] / m_TimeSlice / m_BodyMass;
+		
+		DBGDrawLine( position, position + acceleration, color );
+	}
+	
+	// ------------------------------------------------------------
+	void DBGDrawLineMS( vector start, vector end, int color = 0x44FFFFFF )
+	{
+		DBGDrawLine( start.Multiply4( m_Transform.data ), end.Multiply4( m_Transform.GetBasis().data ), color );
+	}
+	
+	// ------------------------------------------------------------
+	void DBGDrawLineDirectionMS( vector start, vector direction, int color = 0x44FFFFFF )
+	{
+		start = start.Multiply4( m_Transform.data );
+		DBGDrawLine( start, start + direction.Multiply3( m_Transform.GetBasis().data ), color );
+	}
+
+	// ------------------------------------------------------------
+	void DBGDrawLine( vector start, vector end, int color = 0x44FFFFFF )
+	{
+		vector pts[2]
+		pts[0] = start;
+		pts[1] = end;
+		
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		DBGAddShape( Shape.CreateLines( color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2 ) );
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	void DBGAddShape( Shape shape )
+	{
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		m_DebugShapes.Insert( shape );
+		#endif
+	}
 
 	// ------------------------------------------------------------
 	protected bool CanSimulate()
@@ -612,6 +675,15 @@ class ExpansionVehicleScript extends ItemBase
 	override void EOnSimulate( IEntity owner, float dt ) 
 	{
 		//Print( "[" + this + "] EOnSimulate" );
+
+		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		for ( int dbg = 0; dbg < m_DebugShapes.Count(); ++dbg )
+			m_DebugShapes[dbg].Destroy();
+
+		m_DebugShapes.Clear();
+		#endif
+
+		m_TimeSlice = dt;
 
 		if ( !CanSimulate() )
 			return;
@@ -1690,7 +1762,7 @@ class ExpansionVehicleScript extends ItemBase
 		if ( ( evs && evs.IsBeingTowed() ) || ( cs && cs.IsBeingTowed() ) || !IsMissionHost() )
 			return;
 
-		m_ChildTow = tow;
+		m_ChildTow = EntityAI.Cast( tow );
 		m_IsTowing = true;
 
 		m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
@@ -1715,7 +1787,7 @@ class ExpansionVehicleScript extends ItemBase
 
 	void OnTowCreated( Object parent, vector towPos )
 	{
-		m_ParentTow = parent;
+		m_ParentTow = EntityAI.Cast( parent );
 		m_IsBeingTowed = true;
 		m_TowPointCenterSelf = towPos;
 		
@@ -2555,7 +2627,7 @@ class ExpansionVehicleScript extends ItemBase
 					
 					if (reverse_light_state != CarRearLightType.NONE    &&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
 					{
-						m_RearLight = CreateRearLight();
+						m_RearLight = CarRearLightBase.Cast( CreateRearLight() );
 						vector local_pos = GetMemoryPointPos(CarScript.m_ReverseLightPoint);
 						m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
 					}

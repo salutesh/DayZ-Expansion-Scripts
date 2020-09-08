@@ -56,7 +56,8 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 	void ~ExpansionUITooltip()
 	{
 		HideTooltip();
-		delete m_Root;
+		if ( m_Root )
+			delete m_Root;
 	}
 	
 	// ------------------------------------------------------------
@@ -142,7 +143,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		if (m_Root.IsVisible())
 			m_Root.Show(false);
 		
-		if (!HasFixPosition())
+		if (!HasFixPosition() && m_Root)
 			m_Root.SetPos(0, 0);
 		
 		m_Title.SetText("");

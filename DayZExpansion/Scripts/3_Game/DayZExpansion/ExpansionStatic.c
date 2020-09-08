@@ -355,6 +355,35 @@ class ExpansionStatic
 	// ------------------------------------------------------------
 	void LoadFlagTextures()
 	{
+	#ifdef DAYZ_1_09
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_CHERNARUS, "Chernarus");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_CHEDAKI, "Chedaki");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_NAPA, "NAPA");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_CDF, "CDF");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_LIVONIA, "Livonia");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_ALTIS, "Altis");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_SSAHRANI, "SSahrani");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_NSAHRANI, "NSahrani");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_DAYZ, "DayZ");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_LIVONIA_ARMY, "Livonia Army");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_WHITE, "White");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_BOHEMIA, "Bohemia");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_APA, "APA");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_UEC, "UEC");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_PIRATES, "Pirates");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_CANNIBALS, "Cannibals");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_BEAR, "Bear");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_WOLF, "Wolf");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_BABY_DEER, "Baby Deer");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_ROOSTER, "Rooster");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_LIVONIA_POLICE, "Livonia Police");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_CMC, "CMC");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_TEC, "TEC");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_CHEL, "CHEL");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_ZENIT, "Zenit");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_HUNTERZ, "HunterZ");
+		AddFlagTexture(EXPANSION_FLAG_DAYZ_BRAINZ, "BrainZ");
+	#endif
 		AddFlagTexture(EXPANSION_FLAG_LOGO_EXPANSION, "Expansion");
 		AddFlagTexture(EXPANSION_FLAG_COLOR_WHITE, "White");
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_AUSTRALIA, "Australia");

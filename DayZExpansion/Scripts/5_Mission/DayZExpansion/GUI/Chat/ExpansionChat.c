@@ -359,6 +359,9 @@ modded class Chat
 		{
 			ScrollTo( 0 );
 		}
+		
+		//! This will allow chat messages to fade out
+		HideChat();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::AddInternal End");

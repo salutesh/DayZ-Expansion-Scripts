@@ -40,7 +40,7 @@ class ExpansionMarketBatteries: ExpansionMarketCategory
 		AddItem("Battery9V",					10,			50,			1,		250,	0 );
 		AddItem("CarBattery", 					500,		600,		1,		250,	0 );
 		AddItem("TruckBattery", 				600,		700,		1,		250,	0 );
-		AddItem("ExpansionHelicopterBattery", 			1000,		1500,		1,		250,	0 );
-		AddItem("ExpansionAircraftBattery", 				1000,		1500,		1,		250,	0 );
+		AddItem("ExpansionHelicopterBattery", 	1000,		1500,		1,		250,	0 );
+		AddItem("ExpansionAircraftBattery", 	1000,		1500,		1,		250,	0 );
 	}
 }

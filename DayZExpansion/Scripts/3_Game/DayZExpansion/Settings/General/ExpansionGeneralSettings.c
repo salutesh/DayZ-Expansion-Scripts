@@ -43,10 +43,10 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool EnableAutoRun;
 	bool UnlimitedStamina;
 	
-	bool UseDeadScreen;
-	bool UseDeadScreenStatistics;
+	bool UseDeathScreen;
+	bool UseDeathScreenStatistics;
 	
-	bool UseNeewsFeedInGameMenu;
+	bool UseNewsFeedInGameMenu;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -166,9 +166,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnablePlayerList = s.EnablePlayerList;
 		EnableAutoRun = s.EnableAutoRun;
 		UnlimitedStamina = s.UnlimitedStamina;
-		UseDeadScreen = s.UseDeadScreen;
-		UseDeadScreenStatistics = s.UseDeadScreenStatistics;
-		UseNeewsFeedInGameMenu = s.UseNeewsFeedInGameMenu;
+		UseDeathScreen = s.UseDeathScreen;
+		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
+		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
@@ -277,10 +277,10 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnableAutoRun = true;
 		UnlimitedStamina = false;
 		
-		UseDeadScreen = false;
-		UseDeadScreenStatistics = false;
+		UseDeathScreen = true;
+		UseDeathScreenStatistics = true;
 		
-		UseNeewsFeedInGameMenu = true;
+		UseNewsFeedInGameMenu = true;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");

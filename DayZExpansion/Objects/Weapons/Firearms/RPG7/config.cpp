@@ -36,13 +36,13 @@ class CfgAmmo
 		caliber = 0.01;
 		deflecting = 5;
 		impactBehaviour = 1;
-		initSpeed = 120;
-		typicalSpeed = 120;
-		timeToLive = 10;
-		airFriction = -0.00215;
+		initSpeed = 300;
+		typicalSpeed = 300;
+		timeToLive = 30;
+		airFriction = -0.00315;
+		weight = 2.6;
 		supersonicCrackNear[] = {};
 		supersonicCrackFar[] = {};
-		weight = 0.0149;
 		class DamageApplied
 		{
 			type = "Projectile";

@@ -1,3 +1,15 @@
+/**
+ * ExpansionCOTGeneralModule.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 {
 	void ExpansionCOTGeneralModule()
@@ -64,6 +76,9 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "EnablePlayerList", "Player List", "", "" );
 		CreateToggle( "EnableAutoRun", "Auto Run", "", "" );
 		CreateToggle( "UnlimitedStamina", "Unlimited Stamina", "", "" );
+		CreateToggle( "UseCustomMappingModule", "Use CustomMapping Module", "", "" );
+		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
+		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );
 	}
 
 	override int GetRPCMin()

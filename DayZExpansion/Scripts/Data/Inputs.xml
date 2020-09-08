@@ -63,8 +63,8 @@
 
             <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" visible="false" />
 
-			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" visible="false" />
-			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" visible="false" />
+			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
+			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" />
 			
 			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
         </actions>

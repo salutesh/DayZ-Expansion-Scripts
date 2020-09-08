@@ -51,7 +51,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 		int partyID = -1;
 
 		if (!m_PartyModule) // i tried this in OnInit, and it still gave me errors
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast( GetModuleManager().GetModule(ExpansionPartyModule) );
 
 		if ( !ctx.Read( data ) )
 		{
@@ -85,7 +85,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 					channelName = "Team";
 					break;
 				case ExpansionChatChannels.CCTransport:
-					if (player) parent = player.GetParent();
+					if (player) parent = Object.Cast( player.GetParent() );
 					canSendMessage = parent && parent.IsTransport() && GetExpansionSettings().GetGeneral().EnableTransportChat;
 					channelName = "Transport";
 					break;
@@ -121,7 +121,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 					if (!ctx.Read(parent))
 						return;
 
-					Object localParent = g_Game.GetPlayer().GetParent();
+					Object localParent = Object.Cast( g_Game.GetPlayer().GetParent() );
 					if (parent.IsTransport() && localParent == parent)
 						break;
 					else

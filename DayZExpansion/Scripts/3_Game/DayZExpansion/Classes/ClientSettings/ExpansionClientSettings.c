@@ -62,14 +62,25 @@ class ExpansionClientSettings
 
 	// HUD Settings
 	float EarplugLevel;
+
+	// Markers Settings
+	ExpansionClientUIMemberMarkerType MemberMarkerType;
+	ExpansionClientUIMarkerSize MarkerSize;
+	bool ShowMemberNameMarker;
+	bool ShowMemberDistanceMarker;
+	bool ForceColorMemberMarker;
 	float AlphaColorHUDOnTopOfHeadOfPlayers;
 	float RedColorHUDOnTopOfHeadOfPlayers;
 	float GreenColorHUDOnTopOfHeadOfPlayers;
 	float BlueColorHUDOnTopOfHeadOfPlayers;
 	float AlphaColorLookAtMinimum;
-
+	
+	// Chat Settings
 	ExpansionClientUIChatSize HUDChatSize;
 	float HUDChatFadeOut;
+	
+	bool ShowNameQuickMarkers;
+	bool ShowDistanceQuickMarkers;
 	
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
@@ -178,12 +189,36 @@ class ExpansionClientSettings
 			return false;
 		
 		if ( version < 7 )
-			return true;
+			return false;
 
 		// Chat settings
 		if ( !ctx.Read( HUDChatSize ) )
 			return false;
 		if ( !ctx.Read( HUDChatFadeOut ) )
+			return false;
+		
+		if ( version < 8 )
+			return false;
+
+		// more markers settings
+		if ( !ctx.Read( MemberMarkerType ) )
+			return false;
+		if ( !ctx.Read( MarkerSize ) )
+			return false;
+		if ( !ctx.Read( ShowMemberNameMarker ) )
+			return false;
+		if ( !ctx.Read( ShowMemberDistanceMarker ) )
+			return false;
+		if ( !ctx.Read( ForceColorMemberMarker ) )
+			return false;
+		
+		if ( version < 9 )
+			return false;
+		
+		if ( !ctx.Read( ShowNameQuickMarkers ) )
+			return false;
+		
+		if ( !ctx.Read( ShowDistanceQuickMarkers ) )
 			return false;
 
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
@@ -252,6 +287,22 @@ class ExpansionClientSettings
 		// Chat settings
 		ctx.Write( HUDChatSize );
 		ctx.Write( HUDChatFadeOut );
+
+		if ( version < 8 )
+			return;
+
+		// More markers settings
+		ctx.Write( MemberMarkerType );
+		ctx.Write( MarkerSize );
+		ctx.Write( ShowMemberNameMarker );
+		ctx.Write( ShowMemberDistanceMarker );
+		ctx.Write( ForceColorMemberMarker );
+		
+		if ( version < 9 )
+			return;
+		
+		ctx.Write( ShowNameQuickMarkers );
+		ctx.Write( ShowDistanceQuickMarkers );
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
@@ -369,8 +420,17 @@ class ExpansionClientSettings
 		HUDChatSize = ExpansionClientUIChatSize.SMALL;
 		HUDChatFadeOut = 10;
 
+		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;
+		MarkerSize = ExpansionClientUIMarkerSize.MEDIUM;
+		ShowMemberNameMarker = true;
+		ShowMemberDistanceMarker = true;
+		ForceColorMemberMarker = false;
+
 		// UsePlaneMouseControlInverted = true;
 		// UsePlaneMouseControl = false;
+		
+		ShowNameQuickMarkers = true;
+		ShowDistanceQuickMarkers = true;
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Defaults - End");
@@ -444,11 +504,27 @@ class ExpansionClientSettings
 		//! Option to change ear plug level 
 		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0 );
 	
+		//! Option to use the desired party member marker
+		//CreateEnum( "MemberMarkerType", ExpansionClientUIMemberMarkerType, "MemberMarkerType", "MemberMarkerType", "MemberMarkerType" );
+		//! Option to use the desired party member color instead of a randomized color
+		CreateEnum( "MarkerSize", ExpansionClientUIMarkerSize, "MarkerSize", "MarkerSize", "MarkerSize" );
+		//! Option to toggle party Member name under their marker
+		CreateToggle( "ShowMemberNameMarker", "ShowMemberNameMarker", "ShowMemberNameMarker", "ShowMemberNameMarker" );
+		//! Option to toggle party Member distance under their marker
+		CreateToggle( "ShowMemberDistanceMarker", "ShowMemberDistanceMarker", "ShowMemberDistanceMarker", "ShowMemberDistanceMarker" );
+		//! Option to use the desired party member color instead of a randomized color
+		//CreateToggle( "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker" );
+
+		//! Option to toggle name under quick markers
+		CreateToggle( "ShowNameQuickMarkers", "ShowNameQuickMarkers", "ShowNameQuickMarkers", "ShowNameQuickMarkers" );
+		//! Option to toggle distance under quick markers
+		CreateToggle( "ShowDistanceQuickMarkers", "ShowDistanceQuickMarkers", "ShowDistanceQuickMarkers", "ShowDistanceQuickMarkers" );
+
 		//Color slider for party member on top of player head
-		CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0 );
-		CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0 );
-		CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0 );
-		CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		//CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0 );
+		//CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0 );
 
 		CreateSlider( "AlphaColorLookAtMinimum", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0 );
 		
