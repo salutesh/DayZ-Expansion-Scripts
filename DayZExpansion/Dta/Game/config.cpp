@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionHelicopterBattery","ExpansionAircraftBattery"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Vehicles_Wheeled"};
+		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
 	};
 };
 class CfgVehicles

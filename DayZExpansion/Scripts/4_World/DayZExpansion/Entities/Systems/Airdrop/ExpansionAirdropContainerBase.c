@@ -82,7 +82,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
 		#endif	
 		
-		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
+		//GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
 		
 		DestroyLight();
 		
@@ -96,6 +96,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
 		#endif	
+	}
+	
+	// ------------------------------------------------------------
+	// StopUpdateQue
+	// ------------------------------------------------------------
+	void StopUpdateQue()
+	{
+		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
 	}
 	
 	// ------------------------------------------------------------
@@ -223,7 +231,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		if ( !IsGround( 0.5 ) ) 
 		{		
 			float mass = dBodyGetMass( this );
-			dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
+			this.dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
 		} else if ( !m_LootHasSpawned )
 		{
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
@@ -676,7 +684,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// CanReceiveItemIntoCargo
 	// ------------------------------------------------------------
-#ifdef DAYZ_1_09
 	override bool CanReceiveItemIntoCargo( EntityAI item )
 	{
 		if ( GetHealthLevel() == GameConstants.STATE_RUINED )
@@ -684,15 +691,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		return super.CanReceiveItemIntoCargo( item );
 	}
-#else
-	override bool CanReceiveItemIntoCargo( EntityAI cargo )
-	{
-		if ( GetHealthLevel() == GameConstants.STATE_RUINED )
-			return false;
-
-		return super.CanReceiveItemIntoCargo( cargo );
-	}
-#endif
 	
 	// ------------------------------------------------------------
 	// AfterStoreLoad

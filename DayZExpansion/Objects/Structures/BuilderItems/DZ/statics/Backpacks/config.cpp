@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_backpack_alice_base","bldr_backpack_alice_green","bldr_backpack_alice_black","bldr_backpack_leathersack_base","bldr_backpack_leathersack_natural","bldr_backpack_leathersack_black"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs"};
+		requiredAddons[] = {"DZ_Structures_Signs"};
 	};
 };
 class CfgVehicles

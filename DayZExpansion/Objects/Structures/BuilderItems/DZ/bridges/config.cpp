@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_bridge_metal_25","bldr_bridge_metal_25_1","bldr_bridge_stone_25","bldr_bridge_wood_25","bldr_bridge_wood_50"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Roads"};
+		requiredAddons[] = {"DZ_Structures_Roads"};
 	};
 };
 class CfgVehicles

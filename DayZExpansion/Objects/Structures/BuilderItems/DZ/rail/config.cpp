@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_rail_bridge_15","bldr_rail_bridge_15_3tracks","bldr_rail_bridge_15_curve","bldr_rail_bridge_15_end","bldr_rail_bridge_40","bldr_rail_concreteramp","bldr_rail_crossing_barrier","bldr_rail_crossing_block_10","bldr_rail_crossing_block_25","bldr_rail_linebreak_concrete","bldr_rail_linebreak_iron","bldr_rail_platform_cross","bldr_rail_platform_segment","bldr_rail_platform_start","bldr_rail_polef","bldr_rail_polet","bldr_rail_polett1","bldr_rail_polett2","bldr_rail_signals","bldr_rail_track_25","bldr_rail_track_down_25","bldr_rail_track_down_40","bldr_rail_track_l25_10","bldr_rail_track_lb_re","bldr_rail_track_lb1_re","bldr_rail_track_le_rb","bldr_rail_track_le1_rb","bldr_rail_track_passing_10","bldr_rail_track_passing_25","bldr_rail_track_r25_10","bldr_rail_track_sp","bldr_rail_track_turnoutl","bldr_rail_track_turnoutr","bldr_rail_track_up_25","bldr_rail_track_up_40","bldr_rail_tracke_2","bldr_rail_tracke_4","bldr_rail_tracke_8","bldr_rail_tracke_25","bldr_rail_tracke_40","bldr_rail_tracke_l25_5","bldr_rail_tracke_l25_10","bldr_rail_tracke_l30_20","bldr_rail_tracke_r25_5","bldr_rail_tracke_r25_10","bldr_rail_tracke_r30_20","bldr_rail_tracke_turnoutl","bldr_rail_tracke_turnoutr"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Rail"};
+		requiredAddons[] = {"DZ_Structures_Rail"};
 	};
 };
 class CfgVehicles

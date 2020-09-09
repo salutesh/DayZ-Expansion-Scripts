@@ -229,8 +229,6 @@ class ExpansionFlagBase extends ItemBase
 	{
 		super.AfterStoreLoad();
 		
-		#ifdef DAYZ_1_09
 		GetInventory().ReplaceItemWithNew( InventoryMode.SERVER, new ExpansionReplaceTerritoryWithNewLambda( this, "TerritoryFlag", NULL ) );
-		#endif
 	}
 }

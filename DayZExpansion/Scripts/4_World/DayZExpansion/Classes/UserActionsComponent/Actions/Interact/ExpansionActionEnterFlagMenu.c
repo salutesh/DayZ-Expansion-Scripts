@@ -74,7 +74,6 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		if ( !target.GetObject() )
 			return false;
 
-	#ifdef DAYZ_1_09
 		if ( !m_TerritoryModule )
 			return false;
 		
@@ -118,19 +117,6 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 				}
 			}
 		}
-	#else
-		//! Is this a flag ?
-		ExpansionFlagBase flag;
-		if ( Class.CastTo( flag, target.GetObject() ) )
-		{
-			//! Is he in a territory ?
-			if ( player.IsInTerritory() )
-				return player.IsInsideOwnTerritory(); //! show the prompt only if it's his territory
-
-			//! Even if a user can place a flag, he can't create a territory if the limit is reached
-			return true; //! Show the prompt
-		}
-	#endif
 	
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [3] TerritoryFlag false!");
@@ -165,7 +151,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	override void OnStartServer(ActionData action_data)
 	{
 		if (!(action_data.m_Player) || !(action_data.m_Player.GetIdentity()) || !(action_data.m_Target) || !(action_data.m_Target.GetObject())) return;
-	#ifdef DAYZ_1_09
+		
 		TerritoryFlag flag;
 		if ( Class.CastTo( flag, action_data.m_Target.GetObject() ) )
 		{
@@ -173,18 +159,6 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 			rpc.Send( flag, ExpansionTerritoryModuleRPC.OpenFlagMenu, true, action_data.m_Player.GetIdentity() );
 			return;
 		}
-	#else
-		ExpansionFlagBase flag;
-		if ( Class.CastTo( flag, action_data.m_Target.GetObject() ) )
-		{
-			if ( flag.GetOwnerID() == action_data.m_Player.GetIdentityUID() )
-			{
-				ScriptRPC rpc = new ScriptRPC;
-				rpc.Send( flag, ExpansionTerritoryModuleRPC.OpenFlagMenu, true, action_data.m_Player.GetIdentity() );
-				return;
-			}
-		} 
-	#endif
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ),  new StringLocaliser( "" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST, 5, action_data.m_Player.GetIdentity() );
 	}

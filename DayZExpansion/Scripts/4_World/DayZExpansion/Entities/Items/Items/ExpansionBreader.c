@@ -72,15 +72,8 @@ class ExpansionBreader extends Inventory_Base
 		AddAction(ActionPlaceObject);
 	}
 	
-#ifdef DAYZ_1_09
 	override bool CanReceiveItemIntoCargo (EntityAI item)
 	{
 		return super.CanReceiveItemIntoCargo( item ) && item.IsKindOf("ExpansionEgg");
 	}
-#else
-	override bool CanReceiveItemIntoCargo (EntityAI cargo)
-	{
-		return super.CanReceiveItemIntoCargo( cargo ) && cargo.IsKindOf("ExpansionEgg");
-	}
-#endif
 }

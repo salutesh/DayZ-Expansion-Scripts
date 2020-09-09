@@ -298,7 +298,7 @@ class ExpansionSkinModule: JMModuleBase
 					if ( !GetGame().ConfigIsExisting( path + " " + classname ) )
 					{
 						if(classname)
-							Error( "Invalid class name " + classname );
+							Print( "ExpansionSkinModule::LoadSkinsForObject - [ERROR]: Invalid class name " + classname );
 						
 						return;
 					}

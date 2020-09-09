@@ -62,7 +62,6 @@ class ExpansionEntityMetaData
 			}
 		}
 		
-		#ifdef DAYZ_1_09
 		TerritoryFlag flag = TerritoryFlag.Cast(entity);
 		if ( flag && flag.IsTerritoryFlag() )
 		{
@@ -71,7 +70,6 @@ class ExpansionEntityMetaData
 			#endif
 			m_IsTerritoryFlag = true;
 		}
-		#endif
 		
 	}
 	
@@ -345,24 +343,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	bool IsBaseBuildingObject(EntityAI obj)
 	{
-		if ( obj.IsInherited( BaseBuildingBase ) )
+		if ( obj.IsInherited( BaseBuildingBase ) ) // Basebuilding parts
 			return true;
 		
-		if ( obj.IsInherited( ExpansionKitBase ) && !obj.IsInherited( ExpansionFlagKitBase ) )
+		if ( obj.IsInherited( Construction ) ) // Constuctions
 			return true;
-		
-		//! They all use a more general base like Container_Base or BaseBuildingBase
-		//if ( obj.IsInherited( ExpansionSafeBase ) )
-		//	return true;
-		
-		//if ( obj.IsInherited( ExpansionCamoBox ) )
-		//	return true;
-	
-		//if ( obj.IsInherited( ExpansionGunrack ) )
-		//	return true;
-		
-		//if ( obj.IsInherited( ExpansionStove ) )
-		//	return true;
 		
 		if ( obj.IsInherited( TentBase ) ) // Not really needed but better be safe
 			return true;
@@ -376,22 +361,16 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( obj.IsInherited( FireplaceBase ) ) // barrel holes (used a lot by smart players), Fire stuff in general
 			return true;
 		
-		if ( obj.IsInherited( Container_Base ) ) // seachest, tent, box, barrel, bags and so on
+		if ( obj.IsInherited( Container_Base ) ) // seachest, tent, box, barrel, bags, safes and so on
 			return true;
 		
 		if ( obj.IsInherited( WorldContainer_Base ) ) // improvised tent, bin, fridge, mostly scrapped items
 			return true;
-		
-		if ( obj.IsInherited( Fence ) ) // we don't want the kit, we want the basebuilding
-			return true;
-		
-		if ( obj.IsInherited( Watchtower ) ) // we don't want the kit, we want the basebuilding
-			return true;
-	
-		if ( obj.IsInherited( ExpansionTerritoryFlag ) )
-			return true;
 	
 		if ( obj.IsInherited( CarScript ) ) // Cars
+			return true;
+		
+		if ( obj.IsInherited( ExpansionGunrack ) ) // Gunrack
 			return true;
 		
 		return false;
@@ -501,11 +480,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	
 		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
 		{
-		#ifdef DAYZ_1_09
 			ref TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
-		#else
-			ref ExpansionTerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
-		#endif
 			if (!currentFlag) 
 			{
 				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG

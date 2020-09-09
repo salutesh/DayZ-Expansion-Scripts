@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"Expansion_Guitar"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Melee"};
+		requiredAddons[] = {"DZ_Weapons_Melee"};
 	};
 };
 class CfgVehicles

@@ -1,4 +1,15 @@
-#ifdef DAYZ_1_09
+/**
+ * Flag_Base.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 modded class Flag_Base
 {
 	string m_FlagTexturePath = "";
@@ -198,5 +209,3 @@ class Expansion_Flag_Orange extends Flag_Base {};
 class Expansion_Flag_Pink extends Flag_Base {};
 class Expansion_Flag_Purple extends Flag_Base {};
 class Expansion_Flag_Rainbow extends Flag_Base {};
-
-#endif

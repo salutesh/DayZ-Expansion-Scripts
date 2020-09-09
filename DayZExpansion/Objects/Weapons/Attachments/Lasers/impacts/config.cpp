@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"Expansion_Laser_Beam","Expansion_Laser_Impact1","Expansion_Laser_Impact2","Expansion_Laser_Impact3","Expansion_Laser_Impact4","Expansion_Laser_Impact5","Expansion_Laser_Impact6"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Melee"};
+		requiredAddons[] = {"DZ_Weapons_Melee"};
 	};
 };
 class CfgSlots

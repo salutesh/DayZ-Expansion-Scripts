@@ -567,7 +567,6 @@ modded class PlayerBase
 	// Returns nearest ExpansionFlagBase object at given position
 	// or NULL if no ExpansionFlagBase object is found.
 	// ------------------------------------------------------------
-#ifdef DAYZ_1_09
 	TerritoryFlag FindNearestFlag()
 	{
 		if ( !IsMissionClient() )
@@ -592,32 +591,6 @@ modded class PlayerBase
 
 		return NULL;
 	}
-#else	
-	ExpansionFlagBase FindNearestFlag()
-	{
-		if ( !IsMissionClient() )
-			return NULL;
-		
-		vector pos = GetPosition();
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( pos, 10, objects, proxyCargos );
-		
-		if ( objects && objects.Count() > 0 )
-		{
-			for ( int i = 0; i < objects.Count(); ++i )
-			{
-				ExpansionFlagBase flag;
-				if ( Class.CastTo( flag, objects.Get( i ) ) )
-				{
-					return flag;
-				}
-			}
-		}
-
-		return NULL;
-	}
-#endif
 
 	// ------------------------------------------------------------
 	// Expansion SpawnGraveCross

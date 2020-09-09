@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_misc_antenna","bldr_misc_bagfence_3m","bldr_misc_bagfence_corner","bldr_misc_bagfence_round","bldr_misc_barbedwire","bldr_misc_concreteblock1","bldr_misc_concreteblock1_end","bldr_misc_concreteblock2","bldr_misc_concreteblock2_damaged","bldr_misc_concreteblock2_stripes","bldr_misc_cover_big","bldr_misc_cover_small","bldr_misc_dragonteeth","bldr_misc_dragonteeth_big","bldr_misc_flagpole","bldr_misc_gunrack","bldr_misc_hedgehog_concrete","bldr_misc_hedgehog_iron","bldr_misc_obstacle_bridge","bldr_misc_obstacle_crawl","bldr_misc_obstacle_cross","bldr_misc_obstacle_pass","bldr_misc_obstacle_ramp","bldr_misc_obstacle_runaround","bldr_misc_range_line","bldr_misc_range_line_dispersions","bldr_misc_range_pistol","bldr_misc_range_roof","bldr_misc_range_single","bldr_misc_razorwire"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Military"};
+		requiredAddons[] = {"DZ_Structures_Military"};
 	};
 };
 class CfgVehicles

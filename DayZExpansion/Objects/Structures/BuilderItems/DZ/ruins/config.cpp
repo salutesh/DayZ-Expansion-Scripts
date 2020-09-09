@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_Rubble_Bricks1","bldr_Rubble_Bricks2","bldr_Rubble_Bricks3","bldr_Rubble_Concrete1","bldr_Rubble_Concrete2","bldr_Rubble_Concrete3","bldr_Rubble_DirtPile_Large","bldr_Rubble_DirtPile_Medium1","bldr_Rubble_DirtPile_Medium2","bldr_Rubble_DirtPile_Small","bldr_Rubble_Glass","bldr_Rubble_Metal1","bldr_Rubble_Metal2","bldr_Rubble_Metal3","bldr_Rubble_Rocks1","bldr_Rubble_Rocks2","bldr_Rubble_Wood1","bldr_Rubble_Wood2","bldr_Rubble_Wood3","bldr_Ruin_Chimney","bldr_Ruin_Church","bldr_Ruin_Corner1","bldr_Ruin_Corner2","bldr_Ruin_DoorWall","bldr_Ruin_HouseBlock_Corner_Total","bldr_Ruin_HouseBlock_Half","bldr_Ruin_HouseBlock_Total","bldr_Ruin_House_Total","bldr_Ruin_Rubble","bldr_Ruin_Wall"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Ruins"};
+		requiredAddons[] = {"DZ_Structures_Ruins"};
 	};
 };
 class CfgVehicles

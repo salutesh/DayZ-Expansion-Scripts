@@ -20,16 +20,11 @@ class ExpansionTerritoryTabPlayerListEntry extends ScriptedWidgetEventHandler
 	protected string m_PlayerID;
 	protected string m_PlayerName;
 	protected ExpansionTerritoryModule m_TerritoryModule;
-#ifdef DAYZ_1_09
 	protected TerritoryFlag m_Flag;
-#else
-	protected ExpansionTerritoryFlag m_Flag;
-#endif
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionTerritoryTabPlayerListEntry Constructor
 	// ------------------------------------------------------------
-#ifdef DAYZ_1_09
 	void ExpansionTerritoryTabPlayerListEntry(Widget parent, string playerID, string playerName, TerritoryFlag flag)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -58,36 +53,6 @@ class ExpansionTerritoryTabPlayerListEntry extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionTerritoryTabPlayerListEntry::ExpansionTerritoryTabPlayerListEntry - End");
 		#endif
 	}
-#else
-	void ExpansionTerritoryTabPlayerListEntry(Widget parent, string playerID, string playerName, ExpansionTerritoryFlag flag)
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryTabPlayerListEntry::ExpansionTerritoryTabPlayerListEntry - Start");
-		#endif
-		
-		if (!flag) return;
-		
-		m_Root				= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/territory/expansion_territory_menu_player_list_entry.layout", parent ) );
-		m_PlayerNameText	= TextWidget.Cast( m_Root.FindAnyWidget( "player_name" ) );
-		m_InviteButton		= ButtonWidget.Cast( m_Root.FindAnyWidget( "player_invite_button" ) );
-		m_InviteButtonIcon	= ImageWidget.Cast( m_Root.FindAnyWidget( "player_invite_button_icon" ) );
-		
-		m_PlayerID			= playerID;
-		m_PlayerName		= playerName;
-		
-		m_Flag = flag;
-		
-		m_TerritoryModule	= ExpansionTerritoryModule.Cast( GetModuleManager().GetModule( ExpansionTerritoryModule ) );
-		
-		m_Root.SetHandler(this);
-		
-		SetPlayerEntry();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionTerritoryTabPlayerListEntry::ExpansionTerritoryTabPlayerListEntry - End");
-		#endif
-	}
-#endif
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionTerritoryTabPlayerListEntry Destructor

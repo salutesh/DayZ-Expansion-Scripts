@@ -106,6 +106,7 @@ class ExpansionMapping
 		Mapping.Insert( "KamyshovoNoCollision" );
 		Mapping.Insert( "Krutoy_CapNoCollision" );
 		Mapping.Insert( "MyshkinoNoCollision" );
+		Mapping.Insert( "NWAFenhanced" );
 		Mapping.Insert( "NadezhdinoNoCollision" );
 		Mapping.Insert( "Radom_StuffNoCollision" );
 		Mapping.Insert( "RoadsNoCollision" );

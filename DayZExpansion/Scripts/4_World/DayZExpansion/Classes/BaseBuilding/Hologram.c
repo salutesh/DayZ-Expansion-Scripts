@@ -1070,9 +1070,6 @@ modded class Hologram
 		if ( item_in_hands.IsInherited( ExpansionExplosive ) )
 			return item_in_hands.GetType() + "Placing";
 
-		if ( item_in_hands.IsInherited( ExpansionFlagKitBase ) )
-			return item_in_hands.GetType() + "Placing";
-
 		if ( item_in_hands.IsInherited( ExpansionKitBase ) )
 			return item_in_hands.GetType() + "Placing";
 

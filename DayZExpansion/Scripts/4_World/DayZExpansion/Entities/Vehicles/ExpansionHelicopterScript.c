@@ -663,7 +663,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		ExpansionWreck wreck;
 		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
-			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
+			Print( "ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
 
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );

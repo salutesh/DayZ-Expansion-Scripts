@@ -355,7 +355,6 @@ class ExpansionStatic
 	// ------------------------------------------------------------
 	void LoadFlagTextures()
 	{
-	#ifdef DAYZ_1_09
 		AddFlagTexture(EXPANSION_FLAG_DAYZ_CHERNARUS, "Chernarus");
 		AddFlagTexture(EXPANSION_FLAG_DAYZ_CHEDAKI, "Chedaki");
 		AddFlagTexture(EXPANSION_FLAG_DAYZ_NAPA, "NAPA");
@@ -383,7 +382,7 @@ class ExpansionStatic
 		AddFlagTexture(EXPANSION_FLAG_DAYZ_ZENIT, "Zenit");
 		AddFlagTexture(EXPANSION_FLAG_DAYZ_HUNTERZ, "HunterZ");
 		AddFlagTexture(EXPANSION_FLAG_DAYZ_BRAINZ, "BrainZ");
-	#endif
+		
 		AddFlagTexture(EXPANSION_FLAG_LOGO_EXPANSION, "Expansion");
 		AddFlagTexture(EXPANSION_FLAG_COLOR_WHITE, "White");
 		AddFlagTexture(EXPANSION_FLAG_COUNTRIES_AUSTRALIA, "Australia");
@@ -792,6 +791,146 @@ class ExpansionStatic
 			case 61:
 			{
 				path = EXPANSION_FLAG_COLOR_RAINBOW;
+				break;
+			}
+			case 62:
+			{
+				path = EXPANSION_FLAG_DAYZ_CHERNARUS;
+				break;
+			}
+			case 63:
+			{
+				path = EXPANSION_FLAG_DAYZ_CHEDAKI;
+				break;
+			}
+			case 64:
+			{
+				path = EXPANSION_FLAG_DAYZ_NAPA;
+				break;
+			}
+			case 65:
+			{
+				path = EXPANSION_FLAG_DAYZ_CDF;
+				break;
+			}
+			case 66:
+			{
+				path = EXPANSION_FLAG_DAYZ_LIVONIA;
+				break;
+			}
+			case 67:
+			{
+				path = EXPANSION_FLAG_DAYZ_ALTIS;
+				break;
+			}
+			case 68:
+			{
+				path = EXPANSION_FLAG_DAYZ_SSAHRANI;
+				break;
+			}
+			case 69:
+			{
+				path = EXPANSION_FLAG_DAYZ_NSAHRANI;
+				break;
+			}
+			case 70:
+			{
+				path = EXPANSION_FLAG_DAYZ_NSAHRANI;
+				break;
+			}
+			case 71:
+			{
+				path = EXPANSION_FLAG_DAYZ_DAYZ;
+				break;
+			}
+			case 72:
+			{
+				path = EXPANSION_FLAG_DAYZ_LIVONIA_ARMY;
+				break;
+			}
+			case 73:
+			{
+				path = EXPANSION_FLAG_DAYZ_WHITE;
+				break;
+			}
+			case 74:
+			{
+				path = EXPANSION_FLAG_DAYZ_BOHEMIA;
+				break;
+			}
+			case 75:
+			{
+				path = EXPANSION_FLAG_DAYZ_APA;
+				break;
+			}
+			case 76:
+			{
+				path = EXPANSION_FLAG_DAYZ_UEC;
+				break;
+			}
+			case 77:
+			{
+				path = EXPANSION_FLAG_DAYZ_PIRATES;
+				break;
+			}
+			case 78:
+			{
+				path = EXPANSION_FLAG_DAYZ_CANNIBALS;
+				break;
+			}
+			case 79:
+			{
+				path = EXPANSION_FLAG_DAYZ_BEAR;
+				break;
+			}
+			case 80:
+			{
+				path = EXPANSION_FLAG_DAYZ_WOLF;
+				break;
+			}
+			case 81:
+			{
+				path = EXPANSION_FLAG_DAYZ_BABY_DEER;
+				break;
+			}
+			case 82:
+			{
+				path = EXPANSION_FLAG_DAYZ_ROOSTER;
+				break;
+			}
+			case 83:
+			{
+				path = EXPANSION_FLAG_DAYZ_LIVONIA_POLICE;
+				break;
+			}
+			case 83:
+			{
+				path = EXPANSION_FLAG_DAYZ_CMC;
+				break;
+			}
+			case 84:
+			{
+				path = EXPANSION_FLAG_DAYZ_TEC;
+				break;
+			}
+			case 85:
+			{
+				path = EXPANSION_FLAG_DAYZ_CHEL;
+				break;
+			}
+			case 86:
+			{
+				path = EXPANSION_FLAG_DAYZ_ZENIT;
+				break;
+			}
+			case 87:
+			{
+				path = EXPANSION_FLAG_DAYZ_HUNTERZ;
+				break;
+			}
+			case 88:
+			{
+				path = EXPANSION_FLAG_DAYZ_BRAINZ;
 				break;
 			}
 		}

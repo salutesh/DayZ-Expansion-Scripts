@@ -1,3 +1,15 @@
+/**
+ * ActionDestroyFlag.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 modded class ActionDismantlePart
 {
 	/*
@@ -26,6 +38,7 @@ modded class ActionDismantlePart
 		ExpansionDebugger.Push( EXPANSION_DEBUG_BASEBUILDING );
 		bool dismantleWithoutTerritory 	= GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;
 		bool DismantleAnywhere			= GetExpansionSettings().GetBaseBuilding().DismantleAnywhere;
+		bool EnableSimpleFlagBuilding	= GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding;
 
 		if ( !DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
 			return false;
@@ -38,6 +51,9 @@ modded class ActionDismantlePart
 
 		if ( DismantleAnywhere )
 			return DismantleAnywhereCondition( player, target, item, camera_check );
+		
+		if ( !EnableSimpleFlagBuilding && target.IsInherited(ExpansionFlagKitBase) )
+			return false;
 		
 		return dismantleWithoutTerritory;
 	}

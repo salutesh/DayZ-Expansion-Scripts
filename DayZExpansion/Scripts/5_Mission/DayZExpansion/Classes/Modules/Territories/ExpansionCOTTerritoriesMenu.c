@@ -283,7 +283,6 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			m_ObjectListEntries.Insert( objectListEntry );
 			m_TerritoryObjects.Insert( obj );
 			
-		#ifdef DAYZ_1_09
 			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - Current obj: " + obj.ToString() );
 			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - Classname: " + obj.m_ClassName );
@@ -296,12 +295,6 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 				EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - m_CurrentTerritoryFlag: " + m_CurrentTerritoryFlag.ToString() );
 				#endif
 			}
-		#else
-			if ( obj.m_ClassName == "ExpansionTerritoryFlag" )
-			{
-				m_CurrentTerritoryFlag = obj;
-			}
-		#endif
 		}
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG

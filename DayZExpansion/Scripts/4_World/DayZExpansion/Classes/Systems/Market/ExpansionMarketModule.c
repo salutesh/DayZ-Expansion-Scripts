@@ -32,6 +32,10 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionMarketModule()
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::ExpansionMarketModule - Start");
+		#endif
+		
 		m_LocalStringInventory = new array< string >;
 		m_LocalEntityInventory = new array< EntityAI >;
 
@@ -41,6 +45,10 @@ class ExpansionMarketModule: JMModuleBase
 		m_NetworkItems = new array< ref ExpansionMarketNetworkItem >;
 
 		m_ClientMarketZone = new ExpansionMarketClientTraderZone;
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::ExpansionMarketModule - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -48,20 +56,36 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::OnMissionLoaded - Start");
+		#endif
+		
 		super.OnMissionLoaded();
 
 		LoadMoneyPrice();
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::OnMissionLoaded - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Override OnMissionFinish
 	// ------------------------------------------------------------
 	override void OnMissionFinish()
-	{
+	{	
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::OnMissionFinish - Start");
+		#endif
+		
 		super.OnMissionFinish();
 
 		m_MoneyTypes.Clear();
 		m_MoneyDenominations.Clear();
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::OnMissionFinish - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -93,6 +117,10 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void LoadMoneyPrice()
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::LoadMoneyPrice - Start");
+		#endif
+		
 		if ( !GetExpansionSettings() )
 			return;
 
@@ -133,6 +161,10 @@ class ExpansionMarketModule: JMModuleBase
 		}
 
 		m_MoneyDenominations.Invert();
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::LoadMoneyPrice - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -141,8 +173,16 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void SetTrader( ExpansionTraderBase trader )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SetTrader - Start");
+		#endif
+		
 		m_OpenedClientTrader = trader;
 		SI_SetTraderInvoker.Invoke( trader );
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SetTrader - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -150,12 +190,22 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	ExpansionTraderBase GetTrader()
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::GetTrader - Start");
+		#endif
+		
 		if ( IsMissionClient() )
 		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::GetTrader - End and return!");
+			#endif
 			return m_OpenedClientTrader;
 		}
 
 		Error( "ExpansionMarketModule::GetTrader - Invalid operation" );
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::GetTrader - [ERROR]: End and NULL!");
+		#endif
 		
 		return NULL;
 	}
@@ -165,18 +215,33 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	bool FindSellPrice( notnull PlayerBase player, ExpansionMarketItem item, int stock, int amountWanted, out ExpansionMarketSell sell )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::FindSellPrice - Start");
+		#endif
+		
 		if ( !player )
 		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::FindSellPrice - [ERROR]: Player is NULL!");
+			#endif
 			return false;
 		}
 		
 		if ( !item )
 		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::FindSellPrice - [ERROR]: ExpansionMarketItem is NULL!");
+			#endif
 			return false;
 		}
 		
 		if ( sell == NULL )
+		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::FindSellPrice - [ERROR]: ExpansionMarketSell is NULL! GetMarketSell!");
+			#endif
 			sell = player.GetMarketSell();
+		}
 
 		array< EntityAI > items = new array< EntityAI >;
 	   	player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
@@ -261,6 +326,9 @@ class ExpansionMarketModule: JMModuleBase
 
 				if ( canSell )
 				{
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("ExpansionMarketModule::FindSellPrice - Can sell!");
+					#endif
 					if ( amountWanted - quantityTaken <= 0 )
 					{
 						quantityRemaining = quantityTaken - amountWanted;
@@ -276,9 +344,18 @@ class ExpansionMarketModule: JMModuleBase
 				sell.AddItem( canSell, quantityRemaining, quantityTaken, items[i] );
 
 				if ( amountWanted <= 0 )
+				{
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("ExpansionMarketModule::FindSellPrice - End and return true!");
+					#endif
 					return true;
+				}
 			}
 		}
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::FindSellPrice - End and return false!");
+		#endif
 
 		return false;
 	}
@@ -288,9 +365,32 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	bool FindPurchasePriceAndReserve( ExpansionMarketItem item, ExpansionMarketTraderZone zone, int amountWanted, out ExpansionMarketReserve reserved )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::FindPurchasePriceAndReserve - Start");
+		#endif
+				
+		if ( !item )
+		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::FindSellPrice - [ERROR]: ExpansionMarketItem is NULL!");
+			#endif
+			return false;
+		}
+		
+		if ( !zone )
+		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::FindSellPrice - [ERROR]: ExpansionMarketTraderZone is NULL!");
+			#endif
+			return false;
+		}
+		
 		ExpansionMarketCurrency price;
 		if ( !GetPriceOfPurchase( item, zone, amountWanted, price ) )
 		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::FindPurchasePriceAndReserve - ExpansionMarketItem " + item.ClassName + " has no purchase price! End and return false!");
+			#endif
 			return false;
 		}
 
@@ -303,15 +403,23 @@ class ExpansionMarketModule: JMModuleBase
 			if ( GetExpansionSettings().GetMarket().GetItem( item.SpawnAttachments[i], attachment ) )
 			{
 				if ( !GetPriceOfPurchase( attachment, zone, 1, price ) )
-				{
+				{						
 					reserved.ClearReserved( zone );
-
+					
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("ExpansionMarketModule::FindPurchasePriceAndReserve - ExpansionMarketItem " + attachment.ClassName + " has no purchase price! End and return false!");
+					#endif
+					
 					return false;
 				}
 
 				reserved.AddReserved( zone, attachment.ClassName, 1, price );
 			}
 		}
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::FindPurchasePriceAndReserve - End and return true!");
+		#endif
 
 		return true;
 	}
@@ -321,22 +429,42 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	private bool GetPriceOfPurchase( ExpansionMarketItem item, ExpansionMarketTraderZone zone, int amountWanted, out ExpansionMarketCurrency price )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::GetPriceOfPurchase - Start");
+		#endif
+		
 		if ( item.StaticStock )
 		{
 			price = amountWanted * item.CalculatePrice( 0 );
+			
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::GetPriceOfPurchase - End and return true!");
+			#endif
+			
 			return true;
 		}
 
 		int stock = zone.GetStock( item.ClassName );
 		if ( amountWanted > stock )
+		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::GetPriceOfPurchase - End and return false!");
+			#endif
 			return false;
+		}
 
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("amountWanted " + amountWanted);
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("amountWanted " + amountWanted);
 		#endif
 
 		for ( int i = 0; i < amountWanted; i++ )
+		{
 			price += item.CalculatePrice( stock - i );
+		}
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::GetPriceOfPurchase - End and return true!");
+		#endif
 
 		return true;
 	}
@@ -346,11 +474,21 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	array< Object > Spawn( ExpansionTraderBase trader, EntityAI parent, ExpansionMarketReserveItem reserveItem )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::Spawn - Start");
+		#endif
+		
 		array< Object > objs = new array< Object >;
 
 		ExpansionMarketItem item;
 		if ( !GetExpansionSettings().GetMarket().GetItem( reserveItem.ClassName, item ) )
+		{
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::Spawn - End and return objects: " + objs.ToString() );
+			#endif
+			
 			return objs;
+		}
 
 		int quantity = reserveItem.Amount;
 		while ( quantity > 0 )
@@ -363,6 +501,10 @@ class ExpansionMarketModule: JMModuleBase
 
 			objs.Insert( Spawn( trader.GetTraderMarket(), item, parent, position, quantity ) );
 		}
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::Spawn - End and return objects: " + objs.ToString() );
+		#endif
 
 		return objs;
 	}
@@ -372,17 +514,31 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	Object Spawn( ExpansionMarketTrader trader, ExpansionMarketItem item, EntityAI parent, vector position, out int quantity )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::Spawn - Start");
+		#endif
+		
 		switch ( item.PurchaseType )
 		{
 			case 0:
 			{
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("ExpansionMarketModule::Spawn - End and case 0!");
+				#endif
 				return SpawnDefault( trader, item, parent, position, quantity );
 			}
 			case 1:
 			{
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("ExpansionMarketModule::Spawn - End and case 1!");
+				#endif
 				return SpawnVehicle( trader, item, parent, position, quantity );
 			}
 		}
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::Spawn - End and return NULL!");
+		#endif
 		
 		return NULL;
 	}
@@ -392,6 +548,10 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	private Object SpawnDefault( ExpansionMarketTrader trader, ExpansionMarketItem mItem, EntityAI parent, vector position, out int quantity )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnDefault - Start");
+		#endif
+		
 		Object obj = parent.GetInventory().CreateInInventory( mItem.ClassName );
 
 		ItemBase item;
@@ -400,6 +560,11 @@ class ExpansionMarketModule: JMModuleBase
 			if ( obj )
 			{
 				GetGame().ObjectDelete( obj );
+				
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return NULL!");
+				#endif
+				
 				return NULL;
 			}
 
@@ -409,6 +574,11 @@ class ExpansionMarketModule: JMModuleBase
 				if ( obj )
 				{
 					GetGame().ObjectDelete( obj );
+					
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return NULL!");
+					#endif
+					
 					return NULL;
 				}
 			}
@@ -417,6 +587,11 @@ class ExpansionMarketModule: JMModuleBase
 		if ( IsLiquidItem( item ) || item.IsFood() || item.HasEnergyManager() )
 		{
 			quantity--;
+			
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+			#endif
+			
 			return obj;
 		}
 
@@ -433,18 +608,30 @@ class ExpansionMarketModule: JMModuleBase
 					quantity -= quantity;
 					mag.ServerSetAmmoCount( quantity );
 
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+					#endif
+					
 					return obj;
 				}
 
 				quantity -= max;
 				mag.ServerSetAmmoCount( max );
 
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+				#endif
+				
 				return obj;
 			}
 
 			quantity--;
 			mag.ServerSetAmmoCount( 0 );
 
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+			#endif
+			
 			return obj;
 		}
 
@@ -461,18 +648,30 @@ class ExpansionMarketModule: JMModuleBase
 				quantity -= quantity;
 				item.SetQuantity( quantity );
 
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+				#endif
+				
 				return obj;
 			}
 			else
 			{
 				quantity -= max;
 				item.SetQuantity( max );
-
+				
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+				#endif
+				
 				return obj;
 			}
 		}
 
 		quantity--;
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnDefault - End and return obj: " + obj.ToString() );
+		#endif
 		
 		return obj;
 	}
@@ -481,7 +680,10 @@ class ExpansionMarketModule: JMModuleBase
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
 	private Object SpawnVehicle( ExpansionMarketTrader trader, ExpansionMarketItem item, EntityAI parent, vector position, out int quantity )
-	{
+	{	
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnVehicle - Start");
+		#endif
 		Object obj = GetGame().CreateObject( item.ClassName, position );
 
 		CarScript vehicle;
@@ -491,7 +693,11 @@ class ExpansionMarketModule: JMModuleBase
 			{
 				GetGame().ObjectDelete( obj );
 			}
-
+			
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("ExpansionMarketModule::SpawnVehicle - End return false!");
+			#endif
+			
 			return NULL;
 		}
 
@@ -524,7 +730,11 @@ class ExpansionMarketModule: JMModuleBase
 		}
 
 		quantity--;
-
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnVehicle - End return obj:" + obj.ToString());
+		#endif
+		
 		return obj;
 	}
 	
@@ -533,7 +743,15 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void MarketMessageGM( string message )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::MarketMessageGM - Start");
+		#endif
+		
 		GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( CCDirect, "", message, "" ) );
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::MarketMessageGM - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -541,6 +759,10 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	array< ExpansionMoneyBase > SpawnMoney( PlayerBase player, ExpansionMarketCurrency amount )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnMoney - Start");
+		#endif
+		
 		array< ExpansionMoneyBase > monies = new array< ExpansionMoneyBase >;
 
 		ExpansionMarketCurrency remainingAmount = amount;
@@ -600,6 +822,10 @@ class ExpansionMarketModule: JMModuleBase
 			if ( remainingAmount < minAmount )
 				break;
 		}
+		
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnMoney - ExpansionMoneyBase: " + monies.ToString());
+		#endif
 
 		return monies;
 	}
@@ -609,6 +835,10 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	bool FindMoneyAndCountTypes( PlayerBase player, ExpansionMarketCurrency amount, out array< int > monies )
 	{
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("ExpansionMarketModule::SpawnMoney - FindMoneyAndCountTypes: " + monies.ToString());
+		#endif
+		
 		if ( !monies )
 			monies = new array< int >;
 
@@ -761,8 +991,8 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketCurrency foundAmount = 0;
 		ExpansionMarketCurrency minAmount = GetMoneyPrice( m_MoneyDenominations[ m_MoneyDenominations.Count() - 1 ] );
 
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("FindMoneyAndReserve foundMoney " + foundMoney.Count());
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("FindMoneyAndReserve foundMoney " + foundMoney.Count());
 		#endif
 
 		for ( int currentDenomination = 0; currentDenomination < foundMoney.Count(); currentDenomination++ )
@@ -773,8 +1003,8 @@ class ExpansionMarketModule: JMModuleBase
 			int toReserve = Math.Floor( divAmount );
 			int didReserve = 0;
 
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print( "FindMoneyAndReserve 1 denomPrice: " + (int)denomPrice );
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			//! EXLogPrint( "FindMoneyAndReserve 1 denomPrice: " + (int)denomPrice );
 			#endif
 
 			int remainCurrentDenom = foundMoney[currentDenomination].Count();
@@ -786,18 +1016,18 @@ class ExpansionMarketModule: JMModuleBase
 
 				int quantity = moneyObj.GetQuantity();
 
-				#ifdef EXPANSIONEXLOGPRINT
-				Print("FindMoneyAndReserve quanity " + quantity);
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("FindMoneyAndReserve quanity " + quantity);
 				#endif
 
-				#ifdef EXPANSIONEXLOGPRINT
-				Print("FindMoneyAndReserve toReserve " + toReserve);
+				#ifdef EXPANSION_MARKET_MODULE_DEBUG
+				EXLogPrint("FindMoneyAndReserve toReserve " + toReserve);
 				#endif
 
 				if ( quantity >= toReserve )
 				{
-					#ifdef EXPANSIONEXLOGPRINT
-					Print("FindMoneyAndReserve 0 ");
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("FindMoneyAndReserve 0 ");
 					#endif
 					
 					moneyObj.ReservedAmount = quantity;
@@ -806,8 +1036,8 @@ class ExpansionMarketModule: JMModuleBase
 					didReserve += quantity;
 				} else
 				{
-					#ifdef EXPANSIONEXLOGPRINT
-					Print("FindMoneyAndReserve 1 ");
+					#ifdef EXPANSION_MARKET_MODULE_DEBUG
+					EXLogPrint("FindMoneyAndReserve 1 ");
 					#endif
 
 					moneyObj.ReservedAmount = toReserve;
@@ -823,31 +1053,31 @@ class ExpansionMarketModule: JMModuleBase
 				checkedCurrentDenom++;
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
-			Print( "Callback_FailedNotEnoughMoney didReserve: " + didReserve );
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint( "Callback_FailedNotEnoughMoney didReserve: " + didReserve );
 			#endif
 
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print( "Callback_FailedNotEnoughMoney denomPrice: " + (int)denomPrice );
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			//! EXLogPrint( "Callback_FailedNotEnoughMoney denomPrice: " + (int)denomPrice );
 			#endif
 
 			foundAmount += didReserve * denomPrice;
 
-			#ifdef EXPANSIONEXLOGPRINT
-			Print( "Callback_FailedNotEnoughMoney amountReserve: " + didReserve * denomPrice );
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint( "Callback_FailedNotEnoughMoney amountReserve: " + didReserve * denomPrice );
+			#endif
+						
+			/*#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint( "Callback_FailedNotEnoughMoney foundAmount: " + foundAmount );
 			#endif
 
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print( "Callback_FailedNotEnoughMoney foundAmount: " + foundAmount );
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint( "Callback_FailedNotEnoughMoney amount: " + amount );
 			#endif
 
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print( "Callback_FailedNotEnoughMoney amount: " + amount );
-			#endif
-
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print( "Callback_FailedNotEnoughMoney minAmount: " + minAmount );
-			#endif
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint( "Callback_FailedNotEnoughMoney minAmount: " + minAmount );
+			#endif*/
 
 			if ( foundAmount > amount - minAmount )
 			{
@@ -1031,8 +1261,8 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void Callback_FailedUnknown( string itemClassName, PlayerIdentity playerIdent )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("_Failed: FailedUnknown");
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("_Failed: FailedUnknown");
 		#endif
 
 		if ( IsMissionHost() )
@@ -1050,8 +1280,8 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void Callback_Success( string itemClassName, PlayerIdentity playerIdent )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("_Failed: Success");
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("_Failed: Success");
 		#endif
 
 		if ( IsMissionHost() )
@@ -1068,8 +1298,8 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void Callback_FailedStockChange( string itemClassName, PlayerIdentity playerIdent )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("_Failed: FailedStockChange");
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("_Failed: FailedStockChange");
 		#endif
 
 		if ( IsMissionHost() )
@@ -1087,8 +1317,8 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void Callback_FailedNotEnoughMoney( string itemClassName, PlayerIdentity playerIdent )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("_Failed: FailedNotEnoughMoney");
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("_Failed: FailedNotEnoughMoney");
 		#endif
 
 		if ( IsMissionHost() )
@@ -1106,8 +1336,8 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void Callback_FailedReserveTime( string itemClassName, PlayerIdentity playerIdent )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("_Failed: ReserveTime");
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("_Failed: ReserveTime");
 		#endif
 
 		if ( IsMissionHost() )
@@ -1243,8 +1473,8 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if ( !trader )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 1");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 1");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1255,8 +1485,8 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketSettings market = GetExpansionSettings().GetMarket();
 		if ( !market )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 2");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 2");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1266,8 +1496,8 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketTraderZone zone = trader.GetTraderZone();
 		if ( !zone )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 3");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 3");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1280,12 +1510,12 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if ( !market.GetItem( itemClassName, reservedList.RootItem ) /* || reservedList.Valid*/)
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 4 itemClassName " + itemClassName);
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 4 itemClassName " + itemClassName);
 			#endif
 
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 4");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 4");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1299,15 +1529,15 @@ class ExpansionMarketModule: JMModuleBase
 			/*
 			if (!FindPurchasePriceAndReserve( reservedList.RootItem, zone, count, reservedList ))
 			{
-				Print("Callback_FailedStockChange FindPurchasePriceAndReserve");
+				EXLogPrint("Callback_FailedStockChange FindPurchasePriceAndReserve");
 			}	
 			if ( reservedList.Price != currentPrice )
 			{
-				Print("Callback_FailedStockChange reservedList");
+				EXLogPrint("Callback_FailedStockChange reservedList");
 			}
 
-			Print( "Callback_FailedStockChange CurrentPrice: " + currentPrice );
-			Print( "Callback_FailedStockChange ReservedList: " + reservedList.Price );
+			EXLogPrint( "Callback_FailedStockChange CurrentPrice: " + currentPrice );
+			EXLogPrint( "Callback_FailedStockChange ReservedList: " + reservedList.Price );
 			*/
 
 			reservedList.Debug();
@@ -1319,16 +1549,16 @@ class ExpansionMarketModule: JMModuleBase
 			Callback_FailedStockChange( itemClassName, player.GetIdentity() );
 
 			/*
-			Print( "Callback_FailedStockChange Item: " + reservedList.RootItem );
-			Print( "Callback_FailedStockChange Zone: " + zone.ToString() );
-			Print( "Callback_FailedStockChange Count: " + count );
+			EXLogPrint( "Callback_FailedStockChange Item: " + reservedList.RootItem );
+			EXLogPrint( "Callback_FailedStockChange Zone: " + zone.ToString() );
+			EXLogPrint( "Callback_FailedStockChange Count: " + count );
 
-			Print("Callback_FailedStockChange: 1");
-			Print("Callback_FailedStockChange: itemClassName " + itemClassName);
+			EXLogPrint("Callback_FailedStockChange: 1");
+			EXLogPrint("Callback_FailedStockChange: itemClassName " + itemClassName);
 			*/
 
-			//! Print("Callback_FailedStockChange: player " + player);
-			//! Print("Callback_FailedStockChange: identity " + player.GetIdentity());
+			//! EXLogPrint("Callback_FailedStockChange: player " + player);
+			//! EXLogPrint("Callback_FailedStockChange: identity " + player.GetIdentity());
 
 			return;
 		}
@@ -1345,20 +1575,20 @@ class ExpansionMarketModule: JMModuleBase
 
 			Callback_FailedNotEnoughMoney( itemClassName, player.GetIdentity() );
 			
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedNotEnoughMoney: 1");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedNotEnoughMoney: 1");
 			#endif
 
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedNotEnoughMoney: player " + player);
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedNotEnoughMoney: player " + player);
 			#endif
 			
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print("Callback_FailedNotEnoughMoney: price" + reservedList.Price);
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			//! EXLogPrint("Callback_FailedNotEnoughMoney: price" + reservedList.Price);
 			#endif
 			
-			#ifdef EXPANSIONEXLOGPRINT
-			//! Print("Callback_FailedNotEnoughMoney: currentPrice" + currentPrice);
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			//! EXLogPrint("Callback_FailedNotEnoughMoney: currentPrice" + currentPrice);
 			#endif
 
 			return;
@@ -1433,8 +1663,8 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketReserve reserve = player.GetMarketReserve();
 		if ( !reserve || !reserve.Trader || !reserve.Trader.GetTraderZone() )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 5");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 5");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1459,12 +1689,12 @@ class ExpansionMarketModule: JMModuleBase
 		zone.ClearReservedStock( reserve.Reserved[0].ClassName, reserve.Reserved[0].Amount );
 
 		//! TODO: Fix stock bug here
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("objs : " + objs);
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("objs : " + objs);
 		#endif
 
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("_Exec_ConfirmPurchase " + reserve.Reserved[0].ClassName + " " + reserve.Reserved[0].Amount + " " + reserve.Reserved.Count());
+		#ifdef EXPANSION_MARKET_MODULE_DEBUG
+		EXLogPrint("_Exec_ConfirmPurchase " + reserve.Reserved[0].ClassName + " " + reserve.Reserved[0].Amount + " " + reserve.Reserved.Count());
 		#endif
 
 		zone.RemoveStock( reserve.Reserved[0].ClassName, reserve.Reserved[0].Amount, false );
@@ -1589,8 +1819,8 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if ( !market )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 6");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 6");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1599,8 +1829,8 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if ( !zone )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 7");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 7");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1613,8 +1843,8 @@ class ExpansionMarketModule: JMModuleBase
 
 		if ( !market.GetItem( itemClassName, sellList.Item ) /*|| sellList.Valid*/ )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 8");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 8");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );
@@ -1704,8 +1934,8 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketTraderZone zone = sell.Trader.GetTraderZone();
 		if ( !zone )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("Callback_FailedUnknown: 9");
+			#ifdef EXPANSION_MARKET_MODULE_DEBUG
+			EXLogPrint("Callback_FailedUnknown: 9");
 			#endif
 
 			Callback_FailedUnknown( itemClassName, player.GetIdentity() );

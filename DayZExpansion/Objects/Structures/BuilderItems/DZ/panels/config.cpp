@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_panel_concrete_1","bldr_panel_concrete_2","bldr_panel_concrete_dam","bldr_panels_concrete","bldr_path_panels","bldr_path_panels_damaged","bldr_concrete_panel_2_grass","bldr_concrete_panel_dam_grass","bldr_concrete_panel_grass","bldr_concrete_panels_main_grass"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Roads"};
+		requiredAddons[] = {"DZ_Structures_Roads"};
 	};
 };
 class CfgVehicles

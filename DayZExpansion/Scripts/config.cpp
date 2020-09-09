@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionRadio"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"JM_CF_Scripts","JM_COT_Scripts","DZ_Data"};
+		requiredAddons[] = {"JM_COT_Scripts"};
 	};
 };
 class CfgNoises

@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_hbarrier_1m","bldr_hbarrier_4m","bldr_hbarrier_6m","bldr_hbarrier_big","bldr_hbarrier_round","bldr_mil_artilery_rampart","bldr_mil_artillery_nest","bldr_mil_camonet_big_east","bldr_mil_camonet_big_nato","bldr_mil_camonet_roof_east","bldr_mil_camonet_roof_nato","bldr_mil_camonet_side_east","bldr_mil_camonet_side_nato","bldr_mil_camonet_tent2","bldr_mil_fortified_nest_big","bldr_mil_fortified_nest_small","bldr_mil_fortified_nest_watchtower","bldr_mil_guardshed","bldr_roadblock_bags_curve","bldr_roadblock_bags_endl","bldr_roadblock_bags_endr","bldr_roadblock_bags_long","bldr_roadblock_cncblock","bldr_roadblock_cncblocks_long","bldr_roadblock_cncblocks_short","bldr_roadblock_pillbox","bldr_hbarrier_1mproxy","bldr_tent_boxwooden","bldr_tent_chair","bldr_tent_gunrack","bldr_tent_ltable","bldr_tent_pallets","bldr_tent_stretcher","bldr_tent_table"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Military"};
+		requiredAddons[] = {"DZ_Structures_Military"};
 	};
 };
 class CfgVehicles

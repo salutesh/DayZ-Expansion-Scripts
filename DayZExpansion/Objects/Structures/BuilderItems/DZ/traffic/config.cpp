@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_sign_accomodation","bldr_sign_airport","bldr_sign_attention","bldr_sign_badroadside","bldr_sign_blindway","bldr_sign_blindway_left","bldr_sign_blindway_left_new","bldr_sign_blindway_right","bldr_sign_bus","bldr_sign_cow","bldr_sign_cow_new","bldr_sign_crossroadmain","bldr_sign_danger","bldr_sign_deer","bldr_sign_downhill","bldr_sign_flyawaygrit","bldr_sign_food","bldr_sign_heightlimit","bldr_sign_left","bldr_sign_left_new","bldr_sign_leftdirection","bldr_sign_main","bldr_sign_main_end","bldr_sign_main_new","bldr_sign_nodriving","bldr_sign_nodriving_new","bldr_sign_nodrivingwronway","bldr_sign_oneway","bldr_sign_parking","bldr_sign_pedcrossing","bldr_sign_priority","bldr_sign_priority_new","bldr_sign_railcross_80m","bldr_sign_railcross_160m","bldr_sign_railcross_240m","bldr_sign_right","bldr_sign_rightdirection","bldr_sign_serpentine_left","bldr_sign_serpentine_right","bldr_sign_service","bldr_sign_snow_new","bldr_sign_snowchains","bldr_sign_snowchains_end","bldr_sign_speed20","bldr_sign_speed50","bldr_sign_stop","bldr_sign_stop_new","bldr_sign_stopprohibited","bldr_sign_tractorprohibited","bldr_sign_train","bldr_sign_train2","bldr_sign_uphill","bldr_sign_wiatingprohibited"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs"};
+		requiredAddons[] = {"DZ_Structures_Signs"};
 	};
 };
 class CfgVehicles

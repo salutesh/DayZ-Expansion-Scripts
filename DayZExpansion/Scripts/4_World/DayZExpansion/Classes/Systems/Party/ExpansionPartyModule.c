@@ -1922,6 +1922,9 @@ class ExpansionPartyModule: JMModuleBase
 			//Update all others clients
 			UpdateClient( data );
 
+			//Update our current client
+			Send_UpdateClient( data, player );
+			
 			#ifdef EXPANSION_PARTY_MODULE_DEBUG
 			EXLogPrint("ExpansionPartyModule::OnClientDisconnect - End");
 			#endif
@@ -1933,7 +1936,10 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::OnClientDisconnect - End - No Party Found");
 		#endif
 	}
-
+	
+	// -----------------------------------------------------------
+	// Expansion Input_UpdateQuickMarker
+	// -----------------------------------------------------------
 	void Input_UpdateQuickMarker( UAInput input )
 	{
 		if ( !(input.LocalPress()) )
@@ -1964,7 +1970,10 @@ class ExpansionPartyModule: JMModuleBase
 
 		UpdateQuickMarker( pos );
 	}
-
+	
+	// -----------------------------------------------------------
+	// Expansion Input_RemoveQuickMarker
+	// -----------------------------------------------------------
 	void Input_RemoveQuickMarker( UAInput input )
 	{
 		if ( !(input.LocalPress()) )

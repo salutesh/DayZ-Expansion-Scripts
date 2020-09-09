@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_sidewalk1_1m","bldr_sidewalk1_5m","bldr_sidewalk1_10m","bldr_sidewalk1_corner","bldr_sidewalk1_end","bldr_sidewalk1_tcross","bldr_sidewalk1_turn_5deg","bldr_sidewalk1_turn_10deg","bldr_sidewalk1_turn_20deg","bldr_sidewalk1_turn_30deg","bldr_sidewalk2_1m","bldr_sidewalk2_5m","bldr_sidewalk3_border","bldr_sidewalk3_border_nolc","bldr_sidewalk3_narrow_4m","bldr_sidewalk3_narrow_12m","bldr_sidewalk3_narrow_corner","bldr_sidewalk3_wide_4m","bldr_sidewalk3_wide_12m","bldr_sidewalk3_wide_corner","bldr_sidewalk3_wideb_4m"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Roads"};
+		requiredAddons[] = {"DZ_Structures_Roads"};
 	};
 };
 class CfgVehicles

@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_Garbage_Bin","bldr_Garbage_Container","bldr_Garbage_Container_Glass","bldr_Garbage_Container_Paper","bldr_Garbage_Container_Plastic","bldr_Garbage_Ground_6m","bldr_Garbage_GroundSq_3m","bldr_Garbage_GroundSq_5m","bldr_Garbage_Pile1","bldr_Garbage_Pile2","bldr_Garbage_Pile3","bldr_Garbage_Pile4","bldr_Garbage_Pile5","bldr_Garbage_Pile6"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Residential"};
+		requiredAddons[] = {"DZ_Structures_Residential"};
 	};
 };
 class CfgVehicles

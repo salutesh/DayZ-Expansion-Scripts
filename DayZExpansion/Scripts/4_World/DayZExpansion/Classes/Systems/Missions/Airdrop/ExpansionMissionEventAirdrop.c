@@ -134,7 +134,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		
 		RemovePlane();
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, m_Container );
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearContainer, 0, false );
 		
 		while ( m_Infected.Count() > 0 )
 		{
@@ -151,6 +151,18 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ClearContainer
+	// ------------------------------------------------------------
+	private void ClearContainer()
+	{
+		if (!m_Container)
+			return;
+		
+		m_Container.StopUpdateQue();
+		GetGame().ObjectDelete( m_Container );
 	}
 	
 	// ------------------------------------------------------------

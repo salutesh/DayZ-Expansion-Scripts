@@ -19,18 +19,16 @@ modded class AttachmentCategoriesContainer
 
 		int attachments_categories_count = GetAttachmentCategoriesCount( config_path_attachment_categories );
 
-		if( attachments_categories_count )
+		if ( attachments_categories_count )
 		{
 			super.InitGhostSlots( entity );
-		}
-		else if( m_Body.Count() < attachments_categories_count + 3 + attachments_categories_count / ITEMS_IN_ROW )
+		} else if ( m_Body.Count() < attachments_categories_count + 3 + attachments_categories_count / ITEMS_IN_ROW )
 		{
 			super.InitGhostSlots( entity );
-		}
-		else
+		} else
 		{
 			ContainerWithCargo iwc2 = ContainerWithCargo.Cast( m_Body.Get(attachments_categories_count + 2 + attachments_categories_count / ITEMS_IN_ROW ) );
 			iwc2.UpdateInterval();
 		}
 	}
-}
+};

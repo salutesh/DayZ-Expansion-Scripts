@@ -59,7 +59,6 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		CreateToggle( "AllowBuildingWithoutATerritory", "Allow Building Without A Territory", "", "" );
 		CreateToggle( "CanCraftVanillaBasebuilding", "Can Craft Vanilla Basebuilding", "", "" );
 		CreateToggle( "CanCraftExpansionBasebuilding", "Can Craft Expansion Basebuilding", "", "" );
-		CreateToggle( "CanCraftTerritoryFlag", "Can Craft Territory Flag", "", "" );
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
 		CreateToggle( "CanDismantleFlag", "Can Dismantle Flag", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );

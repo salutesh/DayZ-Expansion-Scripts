@@ -98,4 +98,14 @@ class ExpansionGunrack extends DeployableContainer_Base
 		
 		return super.CanReceiveAttachment(attachment, slotId);
 	}
+	
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		return true;
+	}	
+	override bool CanDisplayAttachmentSlot( string slot_name )
+	{
+		return true;
+	}	
+	
 } 

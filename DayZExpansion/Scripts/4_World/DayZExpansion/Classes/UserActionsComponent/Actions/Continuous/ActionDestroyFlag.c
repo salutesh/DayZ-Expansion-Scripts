@@ -1,4 +1,15 @@
-#ifdef DAYZ_1_09
+/**
+ * ActionDestroyFlag.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 class ActionDestroyFlagCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
@@ -31,7 +42,7 @@ class ActionDestroyFlag: ActionContinuousBase
 		
 	override string GetText()
 	{
-		return "#unmount_barbed_wire";
+		return "#destroy" + " " + "#STR_CfgVehicles_Flag_Base0";
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
@@ -64,4 +75,3 @@ class ActionDestroyFlag: ActionContinuousBase
 		action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );
 	}
 }
-#endif

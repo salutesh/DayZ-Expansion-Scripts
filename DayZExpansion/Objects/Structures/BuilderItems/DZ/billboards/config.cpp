@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_bilboard_alkohol","bldr_bilboard_beach","bldr_bilboard_bienvenudo","bldr_bilboard_cibulka","bldr_bilboard_cigara_chernomorky","bldr_bilboard_escape","bldr_bilboard_everon","bldr_bilboard_hlinik","bldr_bilboard_likery_bardak","bldr_bilboard_nogova","bldr_bilboard_pizza_presto","bldr_bilboard_riviera","bldr_bilboard_seci_stroje","bldr_bilboard_smadny_maskrnik","bldr_bilboard_strana_noveho_radu","bldr_bilboard_toaletak_armasan","bldr_bilboard_vodka","bldr_bilboard_volte_cernaruske_hnuti","bldr_bilboard_vstup_do_cdf","bldr_bilboard_zlute_zgrynda"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs"};
+		requiredAddons[] = {"DZ_Structures_Signs"};
 	};
 };
 class CfgVehicles

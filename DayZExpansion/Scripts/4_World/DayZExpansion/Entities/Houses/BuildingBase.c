@@ -28,7 +28,7 @@ modded class BuildingBase
 
 		m_Loading = false;
 		
-		if ( GetGame() && HasInterior() )
+		if ( GetGame() && ( HasInterior() || HasIvys() ) )
 		{
 			m_AllBuldingsInteriors.Insert( this );
 			
@@ -56,7 +56,7 @@ modded class BuildingBase
 	
 	void RemoveFromInteriorsBuildings()
 	{
-		if ( GetGame() && HasInterior() )
+		if ( GetGame() && ( HasInterior() || HasIvys() ) )
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
 			
@@ -230,9 +230,8 @@ modded class BuildingBase
 			
 			m_InteriorModule.AddBuildingSpawned(GetType(), GetPosition());
 			
-			if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors) {
+			if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
 				SpawnInterior();
-			}
 			
 			if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys && IsMissionClient()) {
 				for (int i = 0; i < m_InteriorModule.m_WhereIviesObjectsSpawn.Count(); i++) {

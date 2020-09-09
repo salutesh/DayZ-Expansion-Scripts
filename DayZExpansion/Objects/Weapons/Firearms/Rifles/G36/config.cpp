@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {"Expansion_G36"};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Firearms"};
+		requiredAddons[] = {"DZ_Weapons_Firearms"};
 		magazines[] = {"Mag_Expansion_G36_30Rnd"};
 	};
 };

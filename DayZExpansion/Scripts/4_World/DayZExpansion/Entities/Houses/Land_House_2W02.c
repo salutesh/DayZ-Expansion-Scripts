@@ -17,6 +17,11 @@ modded class Land_House_2W02
 		return true;
 	}
 	
+	override bool HasIvys()
+    {
+        return true;
+    }
+	
 	override void SpawnInterior()
 	{
 		/*
@@ -108,10 +113,6 @@ modded class Land_House_2W02
 		*/
 	
 	}
-	    override bool HasIvys()
-    {
-        return true;
-    }
     
     override void SpawnIvys()
     {

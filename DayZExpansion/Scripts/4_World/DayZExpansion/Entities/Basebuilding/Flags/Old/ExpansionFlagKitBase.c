@@ -79,7 +79,6 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 	{
 		super.AfterStoreLoad();
 		
-		#ifdef DAYZ_1_09
 		PlayerBase player = PlayerBase.Cast( GetHierarchyRootPlayer() );
 		InventoryLocation il = new InventoryLocation;
 		if ( player && GetInventory().GetCurrentInventoryLocation( il ) )
@@ -102,6 +101,5 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 			obj.SetPosition( position );
 			obj.SetOrientation( orientation );
 		}
-		#endif
 	}
 }

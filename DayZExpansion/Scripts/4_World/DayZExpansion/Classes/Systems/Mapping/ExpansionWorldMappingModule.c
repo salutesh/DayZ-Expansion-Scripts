@@ -80,7 +80,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::OnMissionLoaded - Start");
 		#endif
 		
@@ -92,7 +92,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.Load, true );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::OnMissionLoaded - End");
 		#endif
 	}
@@ -118,7 +118,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnSettingsUpdated()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::OnSettingsUpdated - Start");
 		#endif
 		
@@ -137,7 +137,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			UnloadMapping( m_Objects.GetKeyArray() );
 		}
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::OnSettingsUpdated - End");
 		#endif
 	}
@@ -152,7 +152,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		
 		FindDifference( GetExpansionSettings().GetGeneral().Mapping.Mapping, load, unload );
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::LoadMappings - load.Count() : " + load.Count() + " unload.Count() : " + unload.Count());
 		#endif
 
@@ -204,7 +204,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void LoadMapping( TStringArray files )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - Start files.Count() : " + files.Count());
 		#endif
 		
@@ -222,7 +222,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			m_InteriorModule.SaveCachedCollisions();
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - End");
 		#endif
 	}
@@ -232,7 +232,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void UnloadMapping( TStringArray files )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::UnloadMapping - Start");
 		#endif
 		
@@ -242,7 +242,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			
 			if ( objects )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
+				#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 				EXLogPrint("ExpansionWorldMappingModule::UnloadMapping start file : " + files[i]);
 				#endif
 
@@ -255,13 +255,13 @@ class ExpansionWorldMappingModule: JMModuleBase
 				objects.Clear();
 				m_Objects.Remove( files[i] );
 
-				#ifdef EXPANSIONEXLOGPRINT
+				#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 				EXLogPrint("ExpansionWorldMappingModule::UnloadMapping end file : " + files[i]);
 				#endif
 			} 
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::UnloadMapping - End");
 		#endif
 	}
@@ -370,7 +370,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void LoadFile( string name )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::LoadFile - Start name : " + name);
 		#endif
 
@@ -495,7 +495,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 
 		CloseFile( file );
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("ExpansionWorldMappingModule::LoadFile - End name : " + name);
 		#endif
 	}
@@ -554,7 +554,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void ProcessObject( Object obj )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint( "Try to process mapping object: " + obj.ClassName() );
 		#endif
 
@@ -564,7 +564,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			if ( light )
 				light.SetDiffuseColor(1,0,0);
 			
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as ExpansionPointLight!" );
 			#endif
 
@@ -579,7 +579,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.StartFire, 60 * 1000, true);
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as Fireplace!" );
 			#endif
 
@@ -596,7 +596,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.StartFire, 60 * 1000, true);
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as BarrelHoles_ColorBase!" );
 			#endif
 
@@ -610,13 +610,13 @@ class ExpansionWorldMappingModule: JMModuleBase
 				flare.SwitchLight(false); //! Flickering
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as Roadflare!" );
 			#endif
 
 		} else
 		{
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as Default!" );
 			#endif
 		}
@@ -631,7 +631,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXPrint("ExpansionWorldMappingModule::LoadFile - Start");
 		#endif
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint( "Attempting to load mapping file: " + name );
 		#endif
 
@@ -673,7 +673,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 
 		CloseFile( file );
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint( "Created all objects from mapping file: " + filePath );
 		#endif
 
@@ -777,7 +777,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	void TurnOnGenerator( vector position )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("TurnOnGenerator - Start - " + position );
 		#endif
 
@@ -793,7 +793,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.TurnOn, true, NULL );
 		}
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("TurnOnGenerator - End - " + position );
 		#endif
 	}
@@ -803,7 +803,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	void TurnOffGenerator( vector position )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("TurnOffGenerator - Start - " + position );
 		#endif
 
@@ -820,7 +820,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.TurnOff, true, NULL );
 		}
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
 		EXLogPrint("TurnOffGenerator - End - " + position );
 		#endif
 	}

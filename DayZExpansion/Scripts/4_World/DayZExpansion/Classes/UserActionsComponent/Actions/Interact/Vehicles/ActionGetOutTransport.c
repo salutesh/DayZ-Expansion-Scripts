@@ -10,12 +10,10 @@
  *
 */
 
-#ifdef DAYZ_1_09
 modded class GetOutTransportActionData
 {
 	bool keepInVehicleSpaceAfterLeave = false;
 };
-#endif
 
 modded class ActionGetOutTransport
 {
@@ -66,13 +64,11 @@ modded class ActionGetOutTransport
 				float speed = car.GetSpeedometer();
 				bool keepInVehicleSpaceAfterLeave = s_ExpansionPlayerAttachment && car.CanObjectAttach( action_data.m_Player ) && car.LeavingSeatDoesAttachment( vehCommand.GetVehicleSeat() );
 
-				#ifdef DAYZ_1_09
 				GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast( action_data );
 				got_action_data.m_StartLocation = got_action_data.m_Player.GetPosition();
 				got_action_data.m_Car = car;
 				got_action_data.m_CarSpeed = speed;
 				got_action_data.keepInVehicleSpaceAfterLeave = keepInVehicleSpaceAfterLeave;
-				#endif
 
 				vehCommand.KeepInVehicleSpaceAfterLeave( keepInVehicleSpaceAfterLeave );
 
@@ -97,7 +93,6 @@ modded class ActionGetOutTransport
 		}
 	}
 
-	#ifdef DAYZ_1_09
 	override void OnEndServer( ActionData action_data )
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast( action_data );
@@ -106,5 +101,4 @@ modded class ActionGetOutTransport
 
 		super.OnEndServer( action_data );
 	}
-	#endif
 };

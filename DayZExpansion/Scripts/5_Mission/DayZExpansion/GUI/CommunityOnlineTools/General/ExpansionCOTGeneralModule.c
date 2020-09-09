@@ -67,8 +67,8 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "EnableGenerators", "Generators", "", "" );
 		CreateToggle( "EnableLighthouses", "Lighthouses", "", "" );
 		CreateToggle( "EnableHUDGPS", "GPS on HUD", "", "" );
-		CreateToggle( "NeedGPSItemForKeyBinding", "GPS Item Keybinding", "", "" );
-		CreateToggle( "NeedMapItemForKeyBinding", "Map Item Keybinding", "", "" );
+		CreateToggle( "NeedGPSItemForKeyBinding", "Need GPS Item Keybinding", "", "" );
+		CreateToggle( "NeedMapItemForKeyBinding", "Need Map Item Keybinding", "", "" );
 		CreateToggle( "EnableHUDNightvisionOverlay", "Nightvision HUD Overlay", "", "" );
 		CreateToggle( "DisableMagicCrosshair", "DayZ SA Alpha Aiming", "", "" );
 		CreateToggle( "EnablePlayerTags", "Player Tags", "", "" );

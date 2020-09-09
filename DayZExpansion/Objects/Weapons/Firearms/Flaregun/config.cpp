@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {"ExpansionFlaregun"};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Firearms","DZ_Pistols_FNX45"};
+		requiredAddons[] = {"DZ_Weapons_Firearms","DZ_Pistols_FNX45"};
 		magazines[] = {"ExpansionAmmoFlare","ExpansionAmmoFlareLight"};
 		ammo[] = {"ExpansionBulletFlare","ExpansionBulletFlareLight"};
 	};

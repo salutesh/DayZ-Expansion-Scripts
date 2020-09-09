@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_rock_apart1","bldr_rock_apart2","bldr_rock_bright_apart1","bldr_rock_bright_apart2","bldr_rock_bright_monolith1","bldr_rock_bright_monolith2","bldr_rock_bright_monolith3","bldr_rock_bright_monolith4","bldr_rock_bright_spike1","bldr_rock_bright_spike2","bldr_rock_bright_spike3","bldr_rock_bright_wallh1","bldr_rock_bright_wallh2","bldr_rock_bright_wallh3","bldr_rock_bright_wallv","bldr_rock_monolith1","bldr_rock_monolith2","bldr_rock_monolith3","bldr_rock_monolith4","bldr_rock_spike1","bldr_rock_spike2","bldr_rock_spike3","bldr_rock_wallh1","bldr_rock_wallh2","bldr_rock_wallh3","bldr_rock_wallv","bldr_stone1","bldr_stone2","bldr_stone3","bldr_stone4","bldr_stone5","bldr_stone5_Trail_B","bldr_stone5_Trail_G","bldr_stone5_Trail_R","bldr_stone5_Trail_Y","bldr_stones_erosion"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Rocks"};
+		requiredAddons[] = {"DZ_Rocks"};
 	};
 };
 class CfgVehicles

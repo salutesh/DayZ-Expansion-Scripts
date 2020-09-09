@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionSpraycanClean","ExpansionSpraycanBlack","ExpansionSpraycanGreen","ExpansionSpraycanCamo","ExpansionSpraycanPink","ExpansionSpraycanGrey","ExpansionSpraycanBlue","ExpansionSpraycanRed","ExpansionSpraycanYellow","ExpansionSpraycanBrown","ExpansionSpraycanOrange","ExpansionSpraycanWhite","ExpansionSpraycanEngraved"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Firearms"};
+		requiredAddons[] = {"DZ_Weapons_Firearms"};
 	};
 };
 class CfgWeapons

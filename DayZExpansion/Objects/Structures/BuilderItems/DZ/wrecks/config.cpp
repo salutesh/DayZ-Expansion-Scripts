@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_ship_big_lifeboat","bldr_ship_medium_back","bldr_ship_medium_front","bldr_wreck_baler","bldr_wreck_bmp1","bldr_wreck_bmp2","bldr_wreck_brdm","bldr_wreck_bulldozer","bldr_wreck_decal_big","bldr_wreck_decal_small1","bldr_wreck_decal_small2","bldr_wreck_digger","bldr_wreck_harverster","bldr_wreck_harvester_head_trailer","bldr_wreck_hmmwv","bldr_wreck_powgen","bldr_wreck_s120_red","bldr_wreck_t72_chassis","bldr_wreck_t72_turret","bldr_wreck_trailer_cistern","bldr_wreck_trailer_flat","bldr_wreck_ural"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Wrecks"};
+		requiredAddons[] = {"DZ_Structures_Wrecks"};
 	};
 };
 class CfgVehicles

@@ -63,11 +63,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 	protected ButtonWidget m_PlayerListFilterClearButton;
 	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
-#ifdef DAYZ_1_09
 	protected TerritoryFlag m_CurrentFlag;
-#else
-	protected ExpansionTerritoryFlag m_CurrentFlag;
-#endif
 	protected ref ExpansionTerritory m_CurrentTerritory;
 	protected ref array<ref ExpansionTerritoryTabPlayerListEntry> m_PlayerListEntrys;
 	protected ref array<ref ExpansionTerritoryTabMemberListEntry> m_MemberListEntrys;
@@ -168,11 +164,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		#endif
 		
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-	#ifdef DAYZ_1_09		
 		TerritoryFlag flag = m_TerritoryModule.FindNearestTerritoryFlag( player );
-	#else
-		ExpansionTerritoryFlag flag = m_TerritoryModule.FindNearestTerritoryFlag( player );
-	#endif
 		m_CurrentFlag = flag;
 		
 		if ( !m_CurrentFlag )

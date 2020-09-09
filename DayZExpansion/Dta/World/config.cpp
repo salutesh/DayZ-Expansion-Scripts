@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionAirCondBig","ExpansionAirCondSmall","ExpansionWoodDoorPlanks","ExpansionGasMeter","ExpansionBarricadingWindow","ExpansionLadderLong","ExpansionLadderMedium","ExpansionLadderShort","ExpansionLadderTop","ExpansionLightCondBottom","ExpansionLightCondConn","ExpansionLightCondCorn","ExpansionLightCondMid","ExpansionLightCondTop","ExpansionAirCondA","ExpansionAirCondB","ExpansionAntenaBigRoof","ExpansionAntenaSmallRoofA","ExpansionAntenaSmallRoofB"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Vehicles_Wheeled"};
+		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
 	};
 };
 class CfgVehicles

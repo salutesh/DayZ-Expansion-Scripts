@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {"Expansion_MP5"};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Firearms"};
+		requiredAddons[] = {"DZ_Weapons_Firearms"};
 	};
 };
 class Mode_Safe;

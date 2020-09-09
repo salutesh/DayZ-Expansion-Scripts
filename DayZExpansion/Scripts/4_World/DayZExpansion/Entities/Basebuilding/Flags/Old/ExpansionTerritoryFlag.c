@@ -197,14 +197,6 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 	override void AfterStoreLoad()
 	{
 		super.AfterStoreLoad();
-				
-		if ( m_Territory )
-		{
-	#ifdef DAYZ_1_09
-	#else
-			m_TerritoryModule.AddTerritoryFlag( this, m_Territory.GetTerritoryID() );
-	#endif
-		}
 		
 		SetSynchDirty();
 	}

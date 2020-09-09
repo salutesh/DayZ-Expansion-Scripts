@@ -103,10 +103,8 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionStartPlayingGuitar );
 		actions.Insert( ExpansionActionStopPlayingGuitar );
 
-		#ifdef DAYZ_1_09
 		actions.Insert( ActionDestroyFlag );
 		actions.Insert( ActionDestroyTerritory );
-		#endif
 		
 		//! Removed because it wont be in first release
 		//actions.Insert( ExpansionActionTakeChicken );

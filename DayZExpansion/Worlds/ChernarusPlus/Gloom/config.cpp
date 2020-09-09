@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Surfaces","DZ_Surfaces_Bliss","DZ_Worlds_Chernarusplus_World"};
+		requiredAddons[] = {"DZ_Surfaces_Bliss","DZ_Worlds_Chernarusplus_World"};
 		worlds[] = {};
 	};
 };

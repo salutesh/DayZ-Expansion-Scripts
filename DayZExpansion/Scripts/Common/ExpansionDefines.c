@@ -21,7 +21,7 @@
 //#define EXPANSION_ITEM_ATTACHING_LOGGING
 
 //! Enable it if you want to enable market
-#define EXPANSION_MARKET_DISABLE
+//#define EXPANSION_MARKET_DISABLE
 
 #define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
@@ -52,11 +52,17 @@
 //! Enable if if you want to be able to always use the map menu
 //#define EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
 
+// Enable it if you want market debug logs enabled
+//#define EXPANSION_MARKET_MODULE_DEBUG
+
 //! Enable it if you want party module debug logs enabled
 //#define EXPANSION_PARTY_MODULE_DEBUG
 
 //! Enable it if you want to enable kill-feed module debug logs
 //#define EXPANSION_KILLFEED_MODULE_DEBUG
+
+//! Enable it if you want to enable mapping module debug logs
+#define EXPANSION_MAPPING_MODULE_DEBUG
 
 //! Enable it if you want to enable territry module debug logs
 //#define EXPANSION_TERRITORY_MODULE_DEBUG

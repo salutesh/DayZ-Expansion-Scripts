@@ -423,7 +423,6 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	// CanReceiveItemIntoCargo
 	// ------------------------------------------------------------
-#ifdef DAYZ_1_09
 	override bool CanReceiveItemIntoCargo(EntityAI item)
 	{
 		if ( IsOpened() )
@@ -431,15 +430,6 @@ class ExpansionSafeBase extends Container_Base
 
 		return false;
 	}
-#else
-	override bool CanReceiveItemIntoCargo(EntityAI cargo)
-	{
-		if ( IsOpened() )
-			return super.CanReceiveItemIntoCargo( cargo );
-
-		return false;
-	}
-#endif
 	
 	// ------------------------------------------------------------
 	// CanReleaseCargo

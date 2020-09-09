@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"Expansion_250N_Wheel_Front","Expansion_250N_Wheel_Back","Expansion250N"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Vehicles_Parts","DZ_Sounds_Effects","DZ_Data"};
+		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Vehicles_Parts","DZ_Sounds_Effects"};
 	};
 };
 class CfgSlots

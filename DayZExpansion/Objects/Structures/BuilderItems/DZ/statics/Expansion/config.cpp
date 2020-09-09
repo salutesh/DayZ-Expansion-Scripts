@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"bldr_expansion_code_lock","bldr_expansion_sea_chest","bldr_expansion_safe1","bldr_expansion_safe2","bldr_expansion_safe3","bldr_expansion_goldbar","bldr_expansion_silverbar","bldr_expansion_goldnugget","bldr_expansion_silvernugget","bldr_expansion_LMG","bldr_expansion_M32","bldr_expansion_DesertEagle","bldr_expansion_M9","bldr_expansion_NFP","bldr_expansion_PR9","bldr_expansion_G36","bldr_expansion_SCAR","bldr_expansion_M890Shotgun","bldr_expansion_BenelliM4","bldr_expansion_SDASS","bldr_expansion_MPX","bldr_expansion_MP5","bldr_expansion_Kedr","bldr_expansion_Vector"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs"};
+		requiredAddons[] = {"DZ_Structures_Signs"};
 	};
 };
 class CfgVehicles

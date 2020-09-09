@@ -9,12 +9,12 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-#ifdef DAYZ_1_09
+
 class Land_House_1W12_Brown extends BuildingSuper
 {
 	override bool HasInterior()
 	{
-		return true;
+		return false;
 	}
 
     override bool HasIvys()
@@ -77,4 +77,3 @@ class Land_House_1W12_Brown extends BuildingSuper
 		SpawnInteriorIvy( "bldr_plnt_ivy_L", "9.644018 0.350021 -2.867815", "-89.999992 33.000011 179.999985" );
 	}
 }
-#endif

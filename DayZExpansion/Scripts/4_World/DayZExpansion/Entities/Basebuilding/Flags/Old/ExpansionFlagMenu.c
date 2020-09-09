@@ -35,11 +35,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	protected ButtonWidget m_TerritoryDialogConfirmButton;
 	protected ButtonWidget m_TerritoryDialogCancelButton;
 	
-#ifdef DAYZ_1_09
 	protected TerritoryFlag m_CurrentFlag;
-#else	
-	protected ExpansionFlagBase m_CurrentFlag;
-#endif
 	
 	protected ref ExpansionTerritoryModule m_TerritoryModule;
 	protected ref array<ref ExpansionFlagMenuTextureEntry> m_TextureEntrys;

@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"Expansion_RPG_Explosion","Expansion_C4_Explosion"};
 		weapons[] = {"ExpansionRPG7"};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Weapons_Firearms"};
+		requiredAddons[] = {"DZ_Weapons_Firearms"};
 		magazines[] = {"ExpansionAmmoRPG"};
 		ammo[] = {"ExpansionRocketRPG","ExpansionRocket_Ammo","ExpansionC4_Ammo"};
 	};

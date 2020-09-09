@@ -24,7 +24,6 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool CanCraftVanillaBasebuilding;		//! When enabled, allows players to craft Vanilla basebuilding.
 	bool CanCraftExpansionBasebuilding;		//! When enabled, allows players to craft Expansion basebuilding.
 
-	bool CanCraftTerritoryFlag;				//! When enabled, allows players to craft the territory flag
 	bool DestroyFlagOnDismantle;			//! When enabled, destroys both flag pole and the flag kit on dismantle.
 	bool CanDismantleFlag;					//! When enabled, allows players to dismantle flags.
 	bool DismantleOutsideTerritory;			//! When enabled, allows players to dismantle basebuilding without territory.
@@ -34,11 +33,9 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool DoDamageWhenEnterWrongCodeLock;	//! If enabled, deals the damage to the player when entering the wrong code lock.
 	float DamageWhenEnterWrongCodeLock;		//! Amount of damage player takes when entering the wrong code in the code lock.
 
-#ifdef DAYZ_1_09
 	bool EnableSimpleFlagBuilding;			//! When enabled this will construct the full flag pole when a flag kit is deployed.
 	bool AddFlagItem;						//! When enabled this will add the flag attachment to the flag pole when ever is has been builded up completly.
 	bool EnableFlagMenu;					//! When enabled this allow to use the flag menu on territory flags.
-#endif
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -146,7 +143,6 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 
 		CanCraftVanillaBasebuilding = s.CanCraftVanillaBasebuilding;
 		CanCraftExpansionBasebuilding = s.CanCraftExpansionBasebuilding;
-		CanCraftTerritoryFlag = s.CanCraftTerritoryFlag;
 		DestroyFlagOnDismantle = s.DestroyFlagOnDismantle;
 		CanDismantleFlag = s.CanDismantleFlag;
 		DismantleOutsideTerritory = s.DismantleOutsideTerritory;
@@ -156,11 +152,9 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DoDamageWhenEnterWrongCodeLock = s.DoDamageWhenEnterWrongCodeLock;
 		DamageWhenEnterWrongCodeLock = s.DamageWhenEnterWrongCodeLock;
 	
-	#ifdef DAYZ_1_09
 		EnableSimpleFlagBuilding = s.EnableSimpleFlagBuilding;
 		AddFlagItem = s.AddFlagItem;
 		EnableFlagMenu = s.EnableFlagMenu;
-	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -228,7 +222,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 
 		DeployableOutsideATerritory.Insert("ExpansionSatchel");
 		DeployableOutsideATerritory.Insert("Fireplace");
-		DeployableOutsideATerritory.Insert("ExpansionFlagKitBase");
+		DeployableOutsideATerritory.Insert("TerritoryFlagKit");
 		
 		DeployableInsideAEnemyTerritory.Insert("ExpansionSatchel");
 		DeployableInsideAEnemyTerritory.Insert("LandMineTrap");
@@ -236,7 +230,6 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 
 		CanCraftVanillaBasebuilding = false;
 		CanCraftExpansionBasebuilding = true;
-		CanCraftTerritoryFlag = true;
 		DestroyFlagOnDismantle = true;
 		CanDismantleFlag = true;
 		DismantleOutsideTerritory = false;
@@ -246,11 +239,9 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DoDamageWhenEnterWrongCodeLock = true;
 		DamageWhenEnterWrongCodeLock = 10.0;
 	
-	#ifdef DAYZ_1_09
 		EnableSimpleFlagBuilding = true;
 		AddFlagItem = true;
 		EnableFlagMenu = true;
-	#endif
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBaseBuildingSettings::Defaults - End");
