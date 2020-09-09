@@ -132,7 +132,7 @@ modded class MissionGameplay
 	}
 
 	// ------------------------------------------------------------
-	// Expansion SwitchChatChannelToGlobal
+	// Expansion SwitchChatChannelToTeam
 	// ------------------------------------------------------------
 	private void SwitchChatChannelToTeam()
 	{

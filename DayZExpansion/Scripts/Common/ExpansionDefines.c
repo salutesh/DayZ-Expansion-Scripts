@@ -94,3 +94,6 @@
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD
+
+//! Enable or disable bunnyhopping 
+//#define EXPANSION_BUNNY_HOPPING
