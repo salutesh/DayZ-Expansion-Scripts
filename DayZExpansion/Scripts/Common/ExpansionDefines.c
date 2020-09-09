@@ -21,7 +21,7 @@
 //#define EXPANSION_ITEM_ATTACHING_LOGGING
 
 //! Enable it if you want to enable market
-//#define EXPANSION_MARKET_DISABLE
+#define EXPANSION_MARKET_DISABLE
 
 #define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND

@@ -367,11 +367,7 @@ class ExpansionHumanCommandFall extends HumanCommandScript
 	}
 }
 
-
-
-
 #ifdef EXPANSION_BUNNY_HOPPING
-
 modded class ExpansionHumanCommandFall
 {
 	
@@ -430,7 +426,6 @@ modded class ExpansionHumanCommandFall
 		}
 	}	
 }
-
 #endif
 
 
