@@ -34,7 +34,7 @@ FrameWidgetClass ExpansionNumpadUI {
      scaled 1
      text "Enter PIN(x)"
      font "gui/fonts/etelkatextpro"
-     "exact text" 1
+     "exact text" 0
      "text halign" center
      "text valign" center
     }
