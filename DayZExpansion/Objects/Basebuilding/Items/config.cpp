@@ -121,7 +121,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_1.p3d";
 		inventorySlot[] = {"Att_ExpansionLumberThird"};
 		weight = 500;
-		itemSize[] = {8,2};
+		itemSize[] = {2,4};
 	};
 	class ExpansionLumber1_5: ExpansionLumberBase
 	{
@@ -131,7 +131,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_1_5.p3d";
 		weight = 500;
 		inventorySlot[] = {"Att_ExpansionLumberHalf"};
-		itemSize[] = {12,2};
+		itemSize[] = {2,8};
 	};
 	class ExpansionLumber3: ExpansionLumberBase
 	{
@@ -141,7 +141,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_3.p3d";
 		weight = 500;
 		inventorySlot[] = {"Att_ExpansionLumber"};
-		itemSize[] = {2,24};
+		itemSize[] = {2,16};
 	};
 };
 class CfgNonAIVehicles

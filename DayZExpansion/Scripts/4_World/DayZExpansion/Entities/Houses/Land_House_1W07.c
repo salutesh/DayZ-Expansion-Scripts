@@ -32,7 +32,7 @@ class Land_House_1W07 extends BuildingSuper
 		SpawnInteriorObject( "bldr_fluor_lamp", "3.386456 -0.279999 0.306172", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_fluor_lamp", "5.257717 -0.279999 0.305000", "0.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "ExpansionPropAirtank", "6.400435 -2.750107 -1.360611", "84.999977 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropBag1", "1.531449 -1.750046 0.326951", "93.000031 0.000000 0.000000" );
+		SpawnInteriorObject( "ExpansionPropBag1", "0.475634 -1.79742 2.08378", "93.000031 0.000000 0.000000" );
 		SpawnInteriorObject( "ExpansionPropBattery", "1.586007 -2.167999 0.983615", "-63.000011 0.000000 0.000000" );
 		SpawnInteriorObject( "ExpansionPropBleach", "1.586005 -2.144997 0.601953", "-53.999996 0.000000 0.000000" );
 		SpawnInteriorObject( "ExpansionPropBleach", "1.600974 -2.180000 0.397689", "-51.000008 -59.000000 90.000000" );

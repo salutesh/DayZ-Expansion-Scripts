@@ -33,7 +33,7 @@ modded class Land_House_1W06
 			SpawnInteriorObject( "bldr_almara_open", "0.934000 -0.949997 -3.290000", "-90.000000 0.000000 0.000000" );
 		}
 
-		SpawnInteriorObject( "bldr_sofacorner", "3.312014 -0.499725 -0.863802", "-89.991875 1.027026 0.458441", 0.35 );
+		//SpawnInteriorObject( "bldr_sofacorner", "3.312014 -0.499725 -0.863802", "-89.991875 1.027026 0.458441", 0.35 );
 		SpawnInteriorObject( "bldr_switch_lights", "0.372679 0.430786 2.050000", "90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_luxury_lamp", "4.955000 1.104851 -2.533125", "90.000000 0.000000 0.000000" );
 		SpawnInteriorObject( "bldr_flowers_01", "4.908828 -0.919304 1.100783", "0.000000 0.000000 0.000000" );

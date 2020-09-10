@@ -63,7 +63,7 @@ class ExpansionCraftLumber_3 extends RecipeBase
 		//! Result
 		AddResult( "ExpansionLumber3" ); //! Add results here
 
-		m_ResultSetFullQuantity[0] = true;
+		m_ResultSetFullQuantity[0] = false;
 		m_ResultSetQuantity[0] = 2;
 		m_ResultSetHealth[0] = -1;
 		m_ResultInheritsHealth[0] = -1;

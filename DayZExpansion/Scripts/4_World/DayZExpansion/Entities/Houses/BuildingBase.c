@@ -17,8 +17,11 @@ modded class BuildingBase
 	
 	protected ExpansionInteriorBuildingModule m_InteriorModule;
 	
-	private bool m_Loading;
-
+	autoptr array<Object> m_InteriorObjects = {};
+	autoptr array<Object> m_IvyObjects = {};
+	
+	private bool m_InteriorsLoaded;
+	private bool m_IvysLoaded;
 	
 	void BuildingBase()
 	{
@@ -26,7 +29,6 @@ modded class BuildingBase
 		EXPrint("BuildingBase::BuildingBase - Start");
 		#endif
 
-		m_Loading = false;
 		
 		if ( GetGame() && ( HasInterior() || HasIvys() ) )
 		{
@@ -101,19 +103,17 @@ modded class BuildingBase
 		
 		//Tell engine it will represent static object
 		obj.SetFlags( EntityFlags.STATIC, false );
-
 		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
 
 		FixObjectCollision( obj );
 		
 		Entity ent;
-		if ( Class.CastTo( ent, obj ) )
-		{
-			ent.DisableSimulation( true );
+		if (Class.CastTo(ent, obj)) {
+			ent.DisableSimulation(true);
 		}
 
-		m_InteriorModule.m_InteriorObjects.Insert( obj );
+		m_IvyObjects.Insert( obj );
 
 		return obj;
 	}
@@ -175,89 +175,118 @@ modded class BuildingBase
 			return NULL;
 		
 		//Tell engine it will represent static object
-		obj.SetFlags( EntityFlags.STATIC, false );
-
+		//obj.SetFlags( EntityFlags.STATIC, false );
 		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
 
 		FixObjectCollision( obj );
 		
-		if ( obj.CanAffectPathgraph() )
-		{
+		if ( obj.CanAffectPathgraph() ) {
 			obj.SetAffectPathgraph( true, false );
 		}
 
-		Entity ent = Entity.Cast( obj );
-		if ( ent )
+		Entity ent = Entity.Cast(obj);
+		if (ent)
 		{			
 			ItemBase item = ItemBase.Cast( ent );
-			if ( item )
+			if (item)
 			{
 				//Make it not takeable
-				item.SetTakeable( false );
+				item.SetTakeable(false);
 				
 				if ( IsMissionHost() ) 
 					item.SetLifetimeMax(1.0);
 			}
 		
-			ent.DisableSimulation( true );
+			ent.DisableSimulation(true);
 		}
 
-		m_InteriorModule.m_InteriorObjects.Insert( obj );
+		m_InteriorObjects.Insert(obj);
 
 		return obj;
 	}
 	
 	void LoadInterior()
 	{
+		if (m_InteriorsLoaded) {
+			return;
+		}
+		
+		//Print("Loading Interior");
+		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("BuildingBase::LoadInterior - Start");
 		#endif
 
-		if ( !m_InteriorModule )
-		{
+		if ( !m_InteriorModule ) {
 			Class.CastTo( m_InteriorModule, GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
 		}
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
 		
-		if (m_InteriorModule && !g_Game.IsLoading() && GetExpansionSettings() && !m_InteriorModule.AlreadySpawned(GetType(), GetPosition())) {
-		
-			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("BuildingBase::LoadInterior - reload it");
-			#endif
-			
-			m_InteriorModule.AddBuildingSpawned(GetType(), GetPosition());
-			
-			if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
-				SpawnInterior();
-			
-			if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys && IsMissionClient()) {
-				for (int i = 0; i < m_InteriorModule.m_WhereIviesObjectsSpawn.Count(); i++) {
+		thread SpawnInterior();
+		m_InteriorsLoaded = true;
 					
-					// Did we define this building as an Ivy building? (Not every building should be overgrown)
-					if (vector.Distance(m_InteriorModule.m_WhereIviesObjectsSpawn[i].position, this.GetPosition()) <= m_InteriorModule.m_WhereIviesObjectsSpawn[i].radius) {
-						SpawnIvys();
-						break;
-					}
-				}
-			}
-			
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
-			m_InteriorModule.SaveCachedCollisions();
-			
-		} else {
-			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("BuildingBase::LoadInterior - Dont reload it");
-			#endif
-		}
-
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+		m_InteriorModule.SaveCachedCollisions();
+		
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("BuildingBase::LoadInterior - End");
 		#endif
+	}
+	
+	
+	void LoadIvys()
+	{
+		if (m_IvysLoaded || !IsMissionClient()) {
+			return;
+		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("BuildingBase::LoadIvys - Start");
+		#endif
+		
+		if (!m_InteriorModule) {
+			Class.CastTo(m_InteriorModule, GetModuleManager().GetModule(ExpansionInteriorBuildingModule));
+		}
+		
+		if (m_InteriorModule.ShouldIvySpawn(GetPosition())) {
+			thread SpawnIvys();
+			m_IvysLoaded = true;
+		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("BuildingBase::LoadIvys - End");
+		#endif
+	}
+	
+	void UnloadInterior()
+	{
+		if (!m_InteriorsLoaded) {
+			return;
+		}		
+		
+		foreach (Object int_obj: m_InteriorObjects) {
+			GetGame().ObjectDelete(int_obj);
+		}
+		
+		m_InteriorObjects.Clear();
+		m_InteriorsLoaded = false;
+	}
+	
+	void UnloadIvys()
+	{
+		if (!m_IvysLoaded) {
+			return;
+		}
+		
+		foreach (Object ivy_obj: m_IvyObjects) {
+			GetGame().ObjectDelete(ivy_obj);
+		}
+		
+		m_IvyObjects.Clear();
+		m_IvysLoaded = false;
 	}
 	
 	bool HasInterior()

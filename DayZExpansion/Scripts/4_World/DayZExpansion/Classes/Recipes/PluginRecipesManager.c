@@ -24,8 +24,8 @@ modded class PluginRecipesManager
 		//RegisterRecipe(new ExpansionCraftPillarKit);				//! NOT USED YET
 
 		//RegisterRecipe(new ExpansionCraftLumber_0_5);				//! NOT USED YET
-		//RegisterRecipe(new ExpansionCraftLumber_1);				//! NOT USED YET
-		//RegisterRecipe(new ExpansionCraftLumber_1_5);				//! NOT USED YET
+		RegisterRecipe(new ExpansionCraftLumber_1);				
+		RegisterRecipe(new ExpansionCraftLumber_1_5);				
 		RegisterRecipe(new ExpansionCraftLumber_3);
 			
 		RegisterRecipe(new ExpansionCraftBarbedWireKit);

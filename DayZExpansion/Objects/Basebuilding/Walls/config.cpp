@@ -175,7 +175,7 @@ class CfgVehicles
 				};
 				class wood_base_third
 				{
-					name = "1M Wall Base";
+					name = "$STR_EXPANSION_BB_WOOD_WALL_BASE_THIRD";
 					is_base = 1;
 					id = 10;
 					required_parts[] = {};
@@ -254,7 +254,7 @@ class CfgVehicles
 				};
 				class wood_base_half
 				{
-					name = "1.5M Wall Base";
+					name = "$STR_EXPANSION_BB_WOOD_WALL_BASE_HALF";
 					is_base = 1;
 					id = 13;
 					required_parts[] = {};

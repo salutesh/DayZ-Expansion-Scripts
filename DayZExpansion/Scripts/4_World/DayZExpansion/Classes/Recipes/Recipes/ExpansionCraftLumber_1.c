@@ -39,7 +39,7 @@ class ExpansionCraftLumber_1 extends RecipeBase
 		//----------------------------------------------------------------------------------------------------------------------
 		
 		//! Ingredient 2
-		InsertIngredient( 0, "WoodenLog" ); //! You can insert multiple ingredients this way
+		InsertIngredient( 0, "ExpansionLumber3" ); //! You can insert multiple ingredients this way
 		
 		m_IngredientAddHealth[0] = 0;// 0 = do nothing
 		m_IngredientSetHealth[0] = -1; // -1 = do nothing
@@ -61,11 +61,9 @@ class ExpansionCraftLumber_1 extends RecipeBase
 		
 		//! Result
 		AddResult( "ExpansionLumber1" ); //! Add results here
-		AddResult( "ExpansionLumber1" ); //! Add results here
-		AddResult( "ExpansionLumber1" ); //! Add results here
 
-		m_ResultSetFullQuantity[0] = true;
-		m_ResultSetQuantity[0] = 2;
+		m_ResultSetFullQuantity[0] = false;
+		m_ResultSetQuantity[0] = 3;
 		m_ResultSetHealth[0] = -1;
 		m_ResultInheritsHealth[0] = -1;
 		m_ResultInheritsColor[0] = -1;

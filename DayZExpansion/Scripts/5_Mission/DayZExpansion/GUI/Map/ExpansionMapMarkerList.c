@@ -48,6 +48,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	private ButtonWidget m_ServerMarkers3DToggle;
 	private ImageWidget m_ServerMarkers3DToggleIcon;
 	
+	private static bool m_MarkerListState;
 	private ButtonWidget m_MarkerListToggle;
 	private ImageWidget m_MarkerListToggleIcon;
 	
@@ -182,6 +183,9 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_InfoTooltip.SetParent(m_DropdownSpacer);
 		
 		UpdateToggleStates();
+		
+		// Allows for persistent marker list state
+		ShowPanel( m_MarkerListState );
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::Init - End");
@@ -387,7 +391,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		switch (w)
 		{
 			case m_MarkerListToggle:
-				ShowPanel( !m_MarkerListPanel.IsVisible() );
+				m_MarkerListState = !m_MarkerListPanel.IsVisible();
+				ShowPanel( m_MarkerListState );
 				break;
 			case m_PersonalMarkersToggle:
 				ShowPersonal( !m_PersonalMarkersContent.IsVisible() );
