@@ -18,168 +18,168 @@ class CfgSlots
 		name = "Shoulder1";
 		displayName = "Weapon1";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder2
 	{
 		name = "Shoulder2";
 		displayName = "Weapon2";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder3
 	{
 		name = "Shoulder3";
 		displayName = "Weapon3";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder4
 	{
 		name = "Shoulder4";
 		displayName = "Weapon4";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder5
 	{
 		name = "Shoulder5";
 		displayName = "Weapon5";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder6
 	{
 		name = "Shoulder6";
 		displayName = "Weapon6";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder7
 	{
 		name = "Shoulder7";
 		displayName = "Weapon7";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder8
 	{
 		name = "Shoulder8";
 		displayName = "Weapon8";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder9
 	{
 		name = "Shoulder9";
 		displayName = "Weapon9";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder10
 	{
 		name = "Shoulder10";
 		displayName = "Weapon10";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder11
 	{
 		name = "Shoulder11";
 		displayName = "Weapon11";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder12
 	{
 		name = "Shoulder12";
 		displayName = "Weapon12";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder13
 	{
 		name = "Shoulder13";
 		displayName = "Weapon13";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder14
 	{
 		name = "Shoulder14";
 		displayName = "Weapon14";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder15
 	{
 		name = "Shoulder15";
 		displayName = "Weapon15";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder16
 	{
 		name = "Shoulder16";
 		displayName = "Weapon16";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder17
 	{
 		name = "Shoulder17";
 		displayName = "Weapon17";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder18
 	{
 		name = "Shoulder18";
 		displayName = "Weapon18";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder19
 	{
 		name = "Shoulder19";
 		displayName = "Weapon19";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder20
 	{
 		name = "Shoulder20";
 		displayName = "Weapon20";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder21
 	{
 		name = "Shoulder21";
 		displayName = "Weapon21";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder22
 	{
 		name = "Shoulder22";
 		displayName = "Weapon22";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder23
 	{
 		name = "Shoulder23";
 		displayName = "Weapon23";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 	class Slot_Shoulder24
 	{
 		name = "Shoulder24";
 		displayName = "Weapon24";
 		ghostIcon = "Shoulder";
-		show = "false";
+		show = "true";
 	};
 };
 class CfgWeapons
