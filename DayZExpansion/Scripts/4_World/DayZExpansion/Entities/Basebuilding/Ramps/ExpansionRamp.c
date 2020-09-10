@@ -31,11 +31,6 @@ class ExpansionRampBase extends ExpansionBaseBuilding
 		UpdateVisuals();	
 	}
 
-	override bool CanPutInCargo( EntityAI parent )
-	{
-		return false;
-	}
-
 	override void OnPartBuiltServer( string part_name, int action_id )
 	{
 		super.OnPartBuiltServer( part_name, action_id );
@@ -55,6 +50,11 @@ class ExpansionRampBase extends ExpansionBaseBuilding
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 
 		UpdateVisuals();
+	}
+
+	override bool CanPutInCargo( EntityAI parent )
+	{
+		return false;
 	}
 
 	override bool IsFacingPlayer( PlayerBase player, string selection )

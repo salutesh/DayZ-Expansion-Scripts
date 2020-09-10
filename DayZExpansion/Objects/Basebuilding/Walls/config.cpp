@@ -58,16 +58,16 @@ class CfgVehicles
 		createProxyPhysicsOnInit = "true";
 		createdProxiesOnInit[] = {"Deployed"};
 		rotationFlags = 2;
-		attachments[] = {"Material_Nails","Material_WoodenPlanks","Att_ExpansionLumber","Att_ExpansionCodeLock_1","Att_ExpansionCodeLock_2"};
+		attachments[] = {"Material_Nails","Material_WoodenPlanks","Att_ExpansionLumber","Att_ExpansionLumberThird","Att_ExpansionLumberHalf","Att_ExpansionCodeLock_1","Att_ExpansionCodeLock_2"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Material
 			{
 				name = "$STR_CfgVehicles_Fence_Att_Category_Materials";
 				description = "";
-				attachmentSlots[] = {"Att_ExpansionLumber","Material_Nails","Material_WoodenPlanks"};
+				attachmentSlots[] = {"Att_ExpansionLumber","Att_ExpansionLumberThird","Att_ExpansionLumberHalf","Material_Nails","Material_WoodenPlanks"};
 				icon = "cat_bb_material";
-				selection = "wall";
+				selection = "interact";
 			};
 			class Attachments
 			{
@@ -75,7 +75,7 @@ class CfgVehicles
 				description = "";
 				attachmentSlots[] = {"Att_ExpansionCodeLock_1","Att_ExpansionCodeLock_2"};
 				icon = "cat_bb_attachments";
-				selection = "wall";
+				selection = "interact";
 			};
 		};
 		class AnimationSources
@@ -120,6 +120,12 @@ class CfgVehicles
 			class wood_base: AnimSourceHidden{};
 			class wood_wallframe: AnimSourceHidden{};
 			class wood_wallfinished: AnimSourceHidden{};
+			class wood_base_third: AnimSourceHidden{};
+			class wood_wallframe_third: AnimSourceHidden{};
+			class wood_wallfinished_third: AnimSourceHidden{};
+			class wood_base_half: AnimSourceHidden{};
+			class wood_wallframe_half: AnimSourceHidden{};
+			class wood_wallfinished_half: AnimSourceHidden{};
 			class wood_gateframe: AnimSourceHidden{};
 			class wood_gatefinished: AnimSourceHidden{};
 			class wood_windowframe: AnimSourceHidden{};
@@ -151,7 +157,7 @@ class CfgVehicles
 					is_base = 1;
 					id = 1;
 					required_parts[] = {};
-					conflicted_parts[] = {};
+					conflicted_parts[] = {"wood_base_third","wood_base_half"};
 					collision_data[] = {};
 					build_action_type = 10;
 					dismantle_action_type = 10;
@@ -164,6 +170,164 @@ class CfgVehicles
 							type = "ExpansionLumber3";
 							slot_name = "Att_ExpansionLumber";
 							quantity = 2;
+						};
+					};
+				};
+				class wood_base_third
+				{
+					name = "1M Wall Base";
+					is_base = 1;
+					id = 10;
+					required_parts[] = {};
+					conflicted_parts[] = {"wood_base","wood_base_half"};
+					collision_data[] = {};
+					build_action_type = 10;
+					dismantle_action_type = 10;
+					material_type = 1;
+					snapping_show[] = {};
+					class Materials
+					{
+						class Material1
+						{
+							type = "ExpansionLumber1";
+							slot_name = "Att_ExpansionLumberThird";
+							quantity = 2;
+						};
+					};
+				};
+				class wood_wallframe_third
+				{
+					name = "$STR_EXPANSION_BB_WOOD_WALL_FRAME";
+					is_base = 0;
+					id = 11;
+					required_parts[] = {"wood_base_third"};
+					conflicted_parts[] = {};
+					collision_data[] = {};
+					build_action_type = 10;
+					dismantle_action_type = 10;
+					material_type = 2;
+					snapping_show[] = {3};
+					order = 4;
+					class Materials
+					{
+						class Material1
+						{
+							type = "WoodenPlank";
+							slot_name = "Material_WoodenPlanks";
+							quantity = 2;
+						};
+						class Material2
+						{
+							type = "Nail";
+							slot_name = "Material_Nails";
+							quantity = 5;
+						};
+					};
+				};
+				class wood_wallfinished_third
+				{
+					name = "$STR_EXPANSION_BB_WOOD_WALL_FINISHED";
+					is_base = 0;
+					id = 12;
+					required_parts[] = {"wood_wallframe_third"};
+					conflicted_parts[] = {};
+					collision_data[] = {};
+					build_action_type = 10;
+					dismantle_action_type = 10;
+					material_type = 2;
+					snapping_show[] = {};
+					class Materials
+					{
+						class Material1
+						{
+							type = "WoodenPlank";
+							slot_name = "Material_WoodenPlanks";
+							quantity = 3;
+						};
+						class Material2
+						{
+							type = "Nail";
+							slot_name = "Material_Nails";
+							quantity = 5;
+						};
+					};
+				};
+				class wood_base_half
+				{
+					name = "1.5M Wall Base";
+					is_base = 1;
+					id = 13;
+					required_parts[] = {};
+					conflicted_parts[] = {"wood_base","wood_base_third"};
+					collision_data[] = {};
+					build_action_type = 10;
+					dismantle_action_type = 10;
+					material_type = 1;
+					snapping_show[] = {};
+					class Materials
+					{
+						class Material1
+						{
+							type = "ExpansionLumber1_5";
+							slot_name = "Att_ExpansionLumberHalf";
+							quantity = 2;
+						};
+					};
+				};
+				class wood_wallframe_half
+				{
+					name = "$STR_EXPANSION_BB_WOOD_WALL_FRAME";
+					is_base = 0;
+					id = 14;
+					required_parts[] = {"wood_base_half"};
+					conflicted_parts[] = {};
+					collision_data[] = {};
+					build_action_type = 10;
+					dismantle_action_type = 10;
+					material_type = 2;
+					snapping_show[] = {3};
+					order = 4;
+					class Materials
+					{
+						class Material1
+						{
+							type = "WoodenPlank";
+							slot_name = "Material_WoodenPlanks";
+							quantity = 5;
+						};
+						class Material2
+						{
+							type = "Nail";
+							slot_name = "Material_Nails";
+							quantity = 10;
+						};
+					};
+				};
+				class wood_wallfinished_half
+				{
+					name = "$STR_EXPANSION_BB_WOOD_WALL_FINISHED";
+					is_base = 0;
+					id = 15;
+					required_parts[] = {"wood_wallframe_half"};
+					conflicted_parts[] = {};
+					collision_data[] = {};
+					build_action_type = 10;
+					dismantle_action_type = 10;
+					material_type = 2;
+					snapping_show[] = {};
+					class Materials
+					{
+						class Material1
+						{
+							type = "WoodenPlank";
+							slot_name = "Material_WoodenPlanks";
+							quantity = 5;
+						};
+						class Material2
+						{
+							type = "Nail";
+							slot_name = "Material_Nails";
+							quantity = 10;
 						};
 					};
 				};

@@ -14,9 +14,9 @@ modded class VicinityItemManager
 {
 	override bool IsObstructed (Object filtered_object)
 	{
-			if ( filtered_object.IsInherited(ExpansionBaseBuilding) )
+			if ( ExpansionBaseBuilding.Cast(filtered_object) )
 			{
-				return false;
+				return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0;
 			}
 			return super.IsObstructed(filtered_object);
 	}

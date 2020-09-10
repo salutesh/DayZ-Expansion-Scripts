@@ -17,6 +17,20 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 		return "ExpansionFloorKit";
 	}
 
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		UpdateVisuals();
+	}
+	
+	override void AfterStoreLoad()
+	{	
+		super.AfterStoreLoad();
+		
+		UpdateVisuals();	
+	}
+
 	override void OnPartBuiltServer( string part_name, int action_id )
 	{
 		super.OnPartBuiltServer( part_name, action_id );

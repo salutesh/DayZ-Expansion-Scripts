@@ -504,17 +504,29 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	// ------------------------------------------------------------
 	protected void SoundGateOpenStart()
 	{
-		PlaySoundSet( m_SoundGate_Start, SOUND_GATE_OPEN_START, 0.1, 0.1 );
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		{
+			m_Sound = SEffectManager.PlaySound(SOUND_GATE_OPEN_START, GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
 	}
 
 	protected void SoundGateCloseStart()
 	{
-		PlaySoundSet( m_SoundGate_Start, SOUND_GATE_CLOSE_START, 0.1, 0.1 );
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		{
+			m_Sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_START, GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
 	}
 
 	protected void SoundGateCloseEnd()
 	{
-		PlaySoundSet( m_SoundGate_End, SOUND_GATE_CLOSE_END, 0.1, 0.1 );
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		{
+			m_Sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_END, GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
 	}
 	protected void SoundCodeLockLocked()
 	{
@@ -530,14 +542,30 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	
 	protected void SoundCodeLockUnlocked()
 	{
-		//m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
-		//m_Sound.SetSoundAutodestroy( true );
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		{
+			// Expansion_Succes_SoundSet
+			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock_SoundSet", GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
 	}
 	
 	protected void SoundCodeLockFailedUnlock()
 	{
-		//m_Sound = SEffectManager.PlaySound("Expansion_Shocks_SoundSet", GetPosition());
-		//m_Sound.SetSoundAutodestroy( true );
+		string SOUND_CODE_DENIED = "";		
+
+		if ( GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock )
+		{
+			SOUND_CODE_DENIED = "Expansion_Shocks_SoundSet";
+		} else {
+			SOUND_CODE_DENIED = "Expansion_Denied_SoundSet";
+		}
+
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		{
+			m_Sound = SEffectManager.PlaySound(SOUND_CODE_DENIED, GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
 	}
 	
 	/**

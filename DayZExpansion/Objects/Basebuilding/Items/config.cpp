@@ -41,17 +41,17 @@ class CfgSlots
 		ghostIcon = "woodenlog";
 		stackMax = 10;
 	};
-	class Slot_Att_ExpansionLumber1
+	class Slot_Att_ExpansionLumberThird
 	{
-		name = "Att_ExpansionLumber1";
+		name = "Att_ExpansionLumberThird";
 		displayName = "Lumber";
 		selection = "att_lumber";
 		ghostIcon = "woodenlog";
 		stackMax = 10;
 	};
-	class Slot_Att_ExpansionLumber_2
+	class Slot_Att_ExpansionLumberHalf
 	{
-		name = "Att_ExpansionLumber_2";
+		name = "Att_ExpansionLumberHalf";
 		displayName = "Lumber";
 		selection = "att_lumber";
 		ghostIcon = "woodenlog";
@@ -119,6 +119,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_LUMBER_MEDIUM";
 		descriptionShort = "$STR_EXPANSION_LUMBER_MEDIUM_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_1.p3d";
+		inventorySlot[] = {"Att_ExpansionLumberThird"};
 		weight = 500;
 		itemSize[] = {8,2};
 	};
@@ -129,6 +130,7 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_LUMBER_BIG_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_1_5.p3d";
 		weight = 500;
+		inventorySlot[] = {"Att_ExpansionLumberHalf"};
 		itemSize[] = {12,2};
 	};
 	class ExpansionLumber3: ExpansionLumberBase
@@ -138,6 +140,7 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_LUMBER_LARGE_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_3.p3d";
 		weight = 500;
+		inventorySlot[] = {"Att_ExpansionLumber"};
 		itemSize[] = {2,24};
 	};
 };

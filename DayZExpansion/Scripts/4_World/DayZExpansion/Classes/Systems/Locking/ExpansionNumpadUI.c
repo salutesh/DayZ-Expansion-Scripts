@@ -219,7 +219,7 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 
 	protected void SoundOnclick()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
 		{
 			if ( m_Player )
 			{
@@ -231,35 +231,11 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 	
 	protected void SoundOnReset()
 	{
-		if ( GetGame().IsMultiplayer() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
 		{
 			if ( m_Player )
 			{
 				m_Sound = SEffectManager.PlaySound( "Expansion_ClickBeeps_SoundSet", m_Player.GetPosition() );
-				m_Sound.SetSoundAutodestroy( true );
-			}
-		}
-	}
-	
-	protected void SoundOnSuccess()
-	{
-		if ( GetGame().IsMultiplayer() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
-		{
-			if ( m_Player )
-			{
-				m_Sound = SEffectManager.PlaySound( "Expansion_Succes_SoundSet", m_Player.GetPosition() );
-				m_Sound.SetSoundAutodestroy( true );
-			}
-		}
-	}
-	
-	protected void SoundOnFail()
-	{
-		if ( GetGame().IsMultiplayer() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
-		{
-			if ( m_Player )
-			{
-				m_Sound = SEffectManager.PlaySound( "Expansion_Denied_SoundSet", m_Player.GetPosition() );
 				m_Sound.SetSoundAutodestroy( true );
 			}
 		}

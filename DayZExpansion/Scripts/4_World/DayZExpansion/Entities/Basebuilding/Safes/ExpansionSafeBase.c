@@ -224,9 +224,10 @@ class ExpansionSafeBase extends Container_Base
 			
 			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 			
-			if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+			if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
 			{
-				//m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Locks_SoundSet", GetPosition());
+				m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Locks_SoundSet", GetPosition());
+				m_Sound.SetSoundAutodestroy( true );
 			}
 		}
 
@@ -243,9 +244,10 @@ class ExpansionSafeBase extends Container_Base
 		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
 		Open("safe_door");
 
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
 		{
 			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock_SoundSet", GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
 		}
 		
 		SetSynchDirty();
@@ -257,9 +259,19 @@ class ExpansionSafeBase extends Container_Base
 	*/
 	override void FailedUnlock()
 	{
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		string SOUND_CODE_DENIED = "";		
+
+		if ( GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock )
 		{
-			m_Sound = SEffectManager.PlaySound("Expansion_Shocks_SoundSet", GetPosition());
+			SOUND_CODE_DENIED = "Expansion_Shocks_SoundSet";
+		} else {
+			SOUND_CODE_DENIED = "Expansion_Denied_SoundSet";
+		}
+
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		{
+			m_Sound = SEffectManager.PlaySound(SOUND_CODE_DENIED, GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
 		}
 	}
 	

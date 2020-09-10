@@ -86,7 +86,7 @@ class CfgVehicles
 				description = "";
 				attachmentSlots[] = {"Att_ExpansionLumber","Material_Nails","Material_WoodenPlanks"};
 				icon = "cat_bb_material";
-				selection = "wall";
+				selection = "interact";
 			};
 		};
 		class AnimationSources
