@@ -15,19 +15,6 @@
  **/
 class ExpansionCodeLock extends ItemBase
 {
-	
-	private ref set<string> m_AuthorizedPlayers;
-	
-	void ExpansionCodeLock()
-	{
-		m_AuthorizedPlayers = new set<string>();
-	}
-	
-	void ~ExpansionCodeLock() 
-	{
-		delete m_AuthorizedPlayers;
-	}
-	
 	override void SetActions()
 	{
 		super.SetActions();
@@ -52,24 +39,4 @@ class ExpansionCodeLock extends ItemBase
 		return true;
 	}
 	
-	void AddAuthorizedPlayer(string player)
-	{
-		m_AuthorizedPlayers.Insert(player);
-	}
-	
-	void RemoveAuthorizedPlayer(string player)
-	{
-		m_AuthorizedPlayers.Remove(m_AuthorizedPlayers.Find(player));
-	}
-	
-	void ClearAuthorizedPlayers()
-	{
-		m_AuthorizedPlayers.Clear();
-	}
-	
-	
-	bool IsAuthorizedPlayer(string player)
-	{
-		return (m_AuthorizedPlayers.Find(player) != -1);
-	}
 }

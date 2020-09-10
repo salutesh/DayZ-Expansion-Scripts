@@ -414,13 +414,6 @@ modded class ItemBase
 					return;
 				}
 
-				if (HasCode() && ExpansionGetCodeLock() && ExpansionGetCodeLock().IsAuthorizedPlayer(sender.GetId())) 
-				{
-					Unlock();
-					SendServerLockReply( true, false, true, GetCode(), sender );
-					return;
-				}
-				
 				if ( GetCode() != code )
 				{
 					#ifdef EXPANSIONEXLOGPRINT
@@ -444,11 +437,7 @@ modded class ItemBase
 
 					return;
 				}
-				
-				if (ExpansionGetCodeLock()) {
-					ExpansionGetCodeLock().AddAuthorizedPlayer(sender.GetId());
-				}
-			
+
 				Unlock();
 				SendServerLockReply( true, false, true, GetCode(), sender );
 				return;
