@@ -57,10 +57,6 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 			if ( !Class.CastTo( flag, targetObject ) )
 				return false;
 
-			//! is he inside a territory ?
-			if ( !player.IsInTerritory() )
-				return false;
-
 			//! is he inside his own territory ?
 			if ( player.IsInsideOwnTerritory() )
 				return canDismantle;

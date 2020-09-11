@@ -83,21 +83,27 @@ modded class ActionDeployObject
 		
 		if ( ExpansionSafeZone_IsInside( player.GetPosition() ) )
 			return false;
-		
-		int i;
-		float size = GetExpansionSettings().GetTerritory().TerritorySize;
-		float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize;
-		
-		if (item.IsInherited(TerritoryFlagKit))
-			size += Psize;
 			
 		if ( GetExpansionSettings().GetBaseBuilding() )
-		{
+		{		
+			int i;
+			float size;
+			float Tsize = GetExpansionSettings().GetTerritory().TerritorySize;
+			float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize;
+			
+			size = Tsize;
+
+			if (item.IsInherited(TerritoryFlagKit) )
+				size += Psize;
+
 			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true )
 			{
 				if ( player.IsInTerritory(size) )
 				{
-					if (player.IsInsideOwnTerritory(size))
+					if ( player.IsInTerritory(Tsize) )
+						return !item.IsInherited(TerritoryFlagKit);
+
+					if ( player.IsInsideOwnTerritory(size) )
 					{
 						return true;
 					}
@@ -105,7 +111,7 @@ modded class ActionDeployObject
 					{
 						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory.Count(); ++i)
 						{
-							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]))
+							if ( item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]) )
 							{
 								return true;
 							}
@@ -124,7 +130,7 @@ modded class ActionDeployObject
 				//Place stuff other than flag should be possible inside your territory
 				if ( player.IsInTerritory(size) )
 				{
-					if (player.IsInsideOwnTerritory(size))
+					if ( player.IsInsideOwnTerritory(size) )
 					{
 						return true;
 					}
@@ -132,7 +138,7 @@ modded class ActionDeployObject
 					{
 						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory.Count(); ++i)
 						{
-							if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]))
+							if ( item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]) )
 							{
 								return true;
 							}
@@ -145,7 +151,7 @@ modded class ActionDeployObject
 				{
 					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory.Count(); ++i)
 					{
-						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i]))
+						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i]) )
 						{
 							return true;
 						}

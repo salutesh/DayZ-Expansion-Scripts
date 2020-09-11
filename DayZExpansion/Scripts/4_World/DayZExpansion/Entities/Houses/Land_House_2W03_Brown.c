@@ -1,5 +1,5 @@
 /**
- * Land_House_2W03.c
+ * Land_House_2W02_Brown.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,63 +10,20 @@
  *
 */
 
-class Land_House_2W03 extends BuildingSuper
+class Land_House_2W03_Brown extends BuildingSuper
 {
 	override bool HasInterior()
 	{
-		return true;
-	}
-	
-	override void SpawnInterior()
-	{
-		//if ( Math.RandomFloatInclusive(0, 1) <= Math.RandomFloatInclusive(0, 1) )
-		//{
-			SpawnInteriorObject( "bldr_almara", "-2.350000 -5.550217 3.705331", "0.000000 0.000000 0.000000" );
-		//} else {
-		//	SpawnInteriorObject( "bldr_almara_open", "-2.300000 -5.550201 3.655330", "0.000000 0.000000 0.000000" );
-		//}
-		SpawnInteriorObject( "ExpansionPropPetCarrier", "-2.561551 -3.150002 3.687111", "11.000006 0.000000 0.000000", -1 );
-		SpawnInteriorObject( "bldr_couch_dz", "-1.365873 -5.531960 1.799571", "87.000000 0.000000 0.000000", -1 );
-		SpawnInteriorObject( "bldr_luxury_lamp", "0.247552 -2.749863 -0.720000", "179.990005 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_switch_lights", "-0.846532 -4.181877 -0.865000", "-90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_box_c_multi", "-5.029331 -0.751373 5.036469", "90.000038 0.000000 0.000000", -1 );
-		SpawnInteriorObject( "bldr_picture_a_03", "-1.602190 0.198685 6.860000", "179.990005 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropChair1", "-1.619051 -0.140999 3.680000", "90.000000 0.000000 18.000006" );
-		SpawnInteriorObject( "bldr_postel_manz_kov", "-9.091600 -0.901382 2.782772", "90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_kitchen_unit_a_dz", "-1.600000 -0.830002 0.939972", "90.000015 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_case_sink_a", "-1.667372 -0.701370 2.017788", "0.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_sofa_leather_old", "-4.686828 -0.355003 -0.062829", "-95.000023 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_table_drawer", "-7.113824 -0.773003 -0.048342", "93.000031 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_tv_a", "-7.156184 -0.086998 -0.040952", "-89.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_carpet_2_dz", "-5.945701 -0.673897 -0.092583", "166.999924 0.000000 0.000000", 0.75 );
-		SpawnInteriorObject( "bldr_radio_b", "-7.687294 0.014999 4.315191", "178.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_switch_lights", "-3.722701 0.598709 3.170000", "90.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "bldr_washing_machine", "-3.180309 -0.799927 -0.686822", "179.000000 0.000000 0.000000" );
-		SpawnInteriorObject( "ExpansionPropBin", "-3.877486 -0.559998 -0.675407", "85.000008 0.000000 0.000000" );
-
-		//if ( Math.RandomFloatInclusive(0, 1) <= Math.RandomFloatInclusive(0, 1) )
-		//{
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-1.565978 -5.525002 -0.178666", "0.000000 -0.000009 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-2.320718 -5.525002 -0.312360", "131.009598 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-3.040701 -5.525002 -0.133488", "91.791710 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-3.278727 -5.525002 0.685549", "62.000072 -0.000009 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "0.398501 -0.724991 6.328323", "0.000000 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-0.609372 -0.724998 6.083379", "153.000046 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-1.951498 -0.724991 6.477738", "-136.972046 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-3.224883 -0.724998 6.271838", "-45.963326 1.679372 1.252985" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-4.533145 -0.724403 6.260506", "0.036726 1.679372 1.252985" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-7.162193 -0.724991 -0.382077", "0.000000 0.000000 0.000000" );
-			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-8.149429 -0.724991 -0.311638", "51.054951 0.000000 0.000000" );
-		//}
+		return false;
 	}
 
-    override bool HasIvys()
+	override bool HasIvys()
     {
         return true;
     }
-    
-    override void SpawnIvys()
-    {
+	
+	override void SpawnIvys()
+	{
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "9.795703 2.300140 -1.724508", "0.000000 -87.000038 0.000000" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_T", "9.088506 1.550095 -1.624508", "-90.000015 0.000000 -90.000038" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_J", "8.145607 -0.900055 -1.524508", "-178.999924 0.000000 -23.000006" );
@@ -136,6 +93,5 @@ class Land_House_2W03 extends BuildingSuper
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_H", "1.483491 -3.199890 7.320000", "0.000000 0.000000 24.000019" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_D", "-1.482187 -1.700104 7.319181", "0.000000 0.000000 89.000038" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_B", "-8.966343 -5.600342 7.325182", "0.000000 0.000000 0.000000" );
-    }
-
+	}
 }

@@ -1,4 +1,4 @@
-/**
+ /**
  * ActionDestroyFlag.c
  *
  * DayZ Expansion Mod
@@ -47,7 +47,7 @@ class ActionDestroyFlag: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !GetExpansionSettings().GetBaseBuilding().CanDismantleFlag )
+		if ( !GetExpansionSettings().GetBaseBuilding().CanDismantleFlag || !GetExpansionSettings().GetBaseBuilding().AddFlagItem )
 			return false;
 
 		Object targetObject = target.GetObject();

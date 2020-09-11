@@ -24,7 +24,6 @@ modded class Land_House_2W02
 	
 	override void SpawnInterior()
 	{
-		/*
 		SpawnInteriorObject( "bldr_couch_beige84x213x75_dz", "4.248044 -4.097450 -3.877409", "179.000000 0.000000 0.000000" );
 
 		if ( false )
@@ -98,8 +97,8 @@ modded class Land_House_2W02
 		SpawnInteriorObject( "bldr_picture_f", "4.295431 -3.347423 -4.320000", "-0.000000 0.000000 -0.000009" );
 
 
-		if ( Math.RandomFloatInclusive(0, 1) <= Math.RandomFloatInclusive(0, 1) )
-		{
+		//if ( Math.RandomFloatInclusive(0, 1) <= Math.RandomFloatInclusive(0, 1) )
+		//{
 			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "2.108341 -1.270897 -2.917648", "-85.000053 0.000000 0.000000" );
 			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "3.141235 -1.269997 -2.692839", "156.000031 0.000000 0.000000" );
 			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "4.169188 -1.269997 -2.805341", "92.000015 0.000000 0.000000" );
@@ -109,8 +108,7 @@ modded class Land_House_2W02
 			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-1.850765 -4.010002 1.128104", "0.000000 0.000000 0.000000" );
 			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-1.110903 -4.019997 0.246711", "54.000000 0.000000 0.000000" );
 			SpawnInteriorObject( "bldr_plnt_c_leafs_spread", "-0.627217 -4.019997 1.626612", "-154.724213 0.000000 0.000000" );
-		}
-		*/
+		//}
 	
 	}
     

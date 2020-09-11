@@ -19,6 +19,7 @@ class ExpansionLumberBase extends ItemBase
 		AddAction(ActionAttachToConstruction);
 	}
 };
-class ExpansionLumber1 extends ItemBase{};
-class ExpansionLumber1_5 extends ItemBase{};
-class ExpansionLumber3 extends ItemBase{};
+class ExpansionLumber0_5 extends ExpansionLumberBase{};
+class ExpansionLumber1 extends ExpansionLumberBase{};
+class ExpansionLumber1_5 extends ExpansionLumberBase{};
+class ExpansionLumber3 extends ExpansionLumberBase{};

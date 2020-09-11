@@ -185,7 +185,7 @@ class ExpansionBookTabParty extends ExpansionBookTabBase
 		{
 			array<Object> objects = new array<Object>;
 			array<CargoBase> proxyCargos = new array<CargoBase> ;
-			GetGame().GetObjectsAtPosition( m_Player.GetPosition(), 25, objects, proxyCargos );
+			GetGame().GetObjectsAtPosition( m_Player.GetPosition(), 4, objects, proxyCargos );
 			
 			if ( !objects )
 			{

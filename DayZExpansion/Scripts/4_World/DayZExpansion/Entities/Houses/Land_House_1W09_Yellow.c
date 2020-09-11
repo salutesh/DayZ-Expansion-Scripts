@@ -10,7 +10,7 @@
  *
 */
 
-class Land_House_1W09_Yellow extends BuildingSuper
+class Land_House_1W09_Yellow extends BuildingWithFireplace
 {
 	override bool HasInterior()
 	{

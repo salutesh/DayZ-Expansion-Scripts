@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class Land_House_1W03_Brown extends BuildingSuper
+class Land_House_1W03_Brown extends BuildingWithFireplace
 {
 	override bool HasInterior()
 	{

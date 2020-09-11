@@ -7,11 +7,7 @@ class ExpansionActionStartPlayingGuitar: ActionSingleUseBase
 
 	override void CreateConditionComponents()  
 	{
-		#ifdef DAYZ_1_9
 		m_ConditionItem = new CCIPresent;
-		#else
-		m_ConditionItem = new CCINone;
-		#endif
 		m_ConditionTarget = new CCTNone;
 	}
 

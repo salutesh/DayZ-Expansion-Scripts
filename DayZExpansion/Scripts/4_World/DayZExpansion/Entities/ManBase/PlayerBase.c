@@ -306,6 +306,56 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SetActions
 	// ------------------------------------------------------------
+#ifdef DAYZ_1_9_153402 //! EXPERIMENTAL
+	override void SetActions(out TInputActionMap InputActionMap)
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions start");
+		#endif
+
+		super.SetActions( InputActionMap );
+
+		//RemoveAction( ActionGetOutTransport );	
+
+		//AddAction( ExpansionActionGetOutTransport, InputActionMap );
+		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
+		
+		AddAction( ExpansionActionCarHorn, InputActionMap );
+		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
+		
+		AddAction( ExpansionActionOpenParachute, InputActionMap );
+		AddAction( ExpansionActionCutParachute, InputActionMap );
+
+		AddAction( ExpansionActionStartEngine,InputActionMap );
+		AddAction( ExpansionActionStopEngine, InputActionMap );
+		
+		AddAction( ExpansionActionStartBoat, InputActionMap );
+		AddAction( ExpansionActionStopBoat, InputActionMap );
+
+		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
+		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
+
+		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
+
+		AddAction( ExpansionActionPaint, InputActionMap );
+
+		#ifdef EXPANSION_VEHICLE_TOWING
+		AddAction( ExpansionActionConnectTow, InputActionMap );
+		AddAction( ExpansionActionDisconnectTow, InputActionMap );
+		#endif
+		
+		//AddAction( ExpansionActionStartPlane );
+		//AddAction( ExpansionActionStopPlane );
+		
+		AddAction( ExpansionActionStartPlayingGuitar );
+		AddAction( ExpansionActionStopPlayingGuitar );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions end");
+		#endif
+	}
+#endif	
+#ifdef DAYZ_1_9_153395 //! STABLE
 	override void SetActions()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -353,6 +403,7 @@ modded class PlayerBase
 		EXPrint("PlayerBase::SetActions end");
 		#endif
 	}
+#endif
 	
 	// ------------------------------------------------------------
 	// Expansion OnVariablesSynchronized

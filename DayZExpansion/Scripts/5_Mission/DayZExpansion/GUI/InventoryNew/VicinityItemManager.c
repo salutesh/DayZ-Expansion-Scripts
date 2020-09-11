@@ -14,10 +14,25 @@ modded class VicinityItemManager
 {
 	override bool IsObstructed (Object filtered_object)
 	{
+				
+			if ( ExpansionFlagBase.Cast(filtered_object) )
+				return super.IsObstructed(filtered_object);					
+			
+			if ( ExpansionHesco.Cast(filtered_object) )
+				return super.IsObstructed(filtered_object);
+			
+			if ( ExpansionCamoBox.Cast(filtered_object) )
+				return super.IsObstructed(filtered_object);
+			
+			if ( ExpansionCamoTent.Cast(filtered_object) )
+				return super.IsObstructed(filtered_object);			
+			
 			if ( ExpansionBaseBuilding.Cast(filtered_object) )
 			{
-				return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0;
+				return true;
+				//return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0;
 			}
 			return super.IsObstructed(filtered_object);
 	}
 };
+

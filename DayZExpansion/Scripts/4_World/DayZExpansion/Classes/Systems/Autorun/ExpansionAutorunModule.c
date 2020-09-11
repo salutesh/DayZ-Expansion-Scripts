@@ -104,6 +104,9 @@ class ExpansionAutorunModule: JMModuleBase
 		   	if ( ( player.GetInputController().LimitsIsSprintDisabled() ) || ( autoWalkMode == 1 ) )
 			{
 		   		player.GetInputController().OverrideMovementSpeed( true, 2 );
+		   	} else if ( autoWalkMode == 3 )
+			{
+		   		player.GetInputController().OverrideMovementSpeed( true, 1 );
 		   	} else
 		   	{
 			   	player.GetInputController().OverrideMovementSpeed( true, 3 );
@@ -167,8 +170,11 @@ class ExpansionAutorunModule: JMModuleBase
 			{
 				m_AutoWalkMode = 2;
 				m_StartedWithSprint = true;
-			} else
+			} else if ( CTRL() )
 			{
+				m_AutoWalkMode = 3;
+				m_StartedWithSprint = false;
+			} else {
 				m_AutoWalkMode = 1;
 				m_StartedWithSprint = false;
 			}
@@ -198,6 +204,11 @@ class ExpansionAutorunModule: JMModuleBase
 	   	   		{
 	   				player.GetInputController().OverrideMovementSpeed( true, 2 );
 					m_AutoWalkMode = 1;
+	   			}
+	   			else if ( m_AutoWalkMode == 3 && !m_StartedWithSprint )
+	   	   		{
+	   				player.GetInputController().OverrideMovementSpeed( true, 1 );
+					m_AutoWalkMode = 3;
 	   			}
 	   			else
 	   			{

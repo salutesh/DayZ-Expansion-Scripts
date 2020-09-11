@@ -62,7 +62,7 @@
 //#define EXPANSION_KILLFEED_MODULE_DEBUG
 
 //! Enable it if you want to enable mapping module debug logs
-#define EXPANSION_MAPPING_MODULE_DEBUG
+//#define EXPANSION_MAPPING_MODULE_DEBUG
 
 //! Enable it if you want to enable territry module debug logs
 //#define EXPANSION_TERRITORY_MODULE_DEBUG
@@ -90,7 +90,7 @@
 //! Enable to disable character szene main menu changes
 #define EXPANSION_MAINMENU_NEW_DISABLE
 
-#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
+//#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD
