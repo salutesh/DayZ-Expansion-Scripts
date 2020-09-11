@@ -344,11 +344,11 @@ modded class PlayerBase
 		AddAction( ExpansionActionDisconnectTow, InputActionMap );
 		#endif
 		
-		//AddAction( ExpansionActionStartPlane );
-		//AddAction( ExpansionActionStopPlane );
+		//AddAction( ExpansionActionStartPlane, InputActionMap );
+		//AddAction( ExpansionActionStopPlane, InputActionMap );
 		
-		AddAction( ExpansionActionStartPlayingGuitar );
-		AddAction( ExpansionActionStopPlayingGuitar );
+		AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
+		AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::SetActions end");

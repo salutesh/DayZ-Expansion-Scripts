@@ -587,6 +587,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		if ( CanEditName() )
 		{
 			m_EditName.Show( true );
+			m_EditName.SetText("");
 			m_Name.Show( false );
 		}
 

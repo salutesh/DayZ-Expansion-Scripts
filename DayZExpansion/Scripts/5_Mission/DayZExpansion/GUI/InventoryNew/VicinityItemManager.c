@@ -29,8 +29,7 @@ modded class VicinityItemManager
 			
 			if ( ExpansionBaseBuilding.Cast(filtered_object) )
 			{
-				return true;
-				//return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0;
+				return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0 && !ExpansionBaseBuilding.Cast(filtered_object).CanDisplayAttachmentCategory("Attachments"); //false
 			}
 			return super.IsObstructed(filtered_object);
 	}
