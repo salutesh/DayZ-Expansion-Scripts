@@ -30,13 +30,6 @@ modded class BuildingBase
 		#endif
 
 		
-		if ( GetGame() && ( HasInterior() || HasIvys() ) )
-		{
-			m_AllBuldingsInteriors.Insert( this );
-			
-			//Load mapping here for runtime
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.LoadInterior, 8000);
-		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::BuildingBase - End");
@@ -49,26 +42,13 @@ modded class BuildingBase
 		EXPrint("BuildingBase::~BuildingBase - Start");
 		#endif
 
-		RemoveFromInteriorsBuildings();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::~BuildingBase - End");
 		#endif
 	}
 	
-	void RemoveFromInteriorsBuildings()
-	{
-		if ( GetGame() && ( HasInterior() || HasIvys() ) )
-		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
-			
-			int remove_index = m_AllBuldingsInteriors.Find( this );
-			if ( remove_index >= 0 )
-			{
-				m_AllBuldingsInteriors.Remove( remove_index );
-			}
-		}
-	}
+
 	
 	private void ConvertTransformToWorld( vector posms, vector orims, out vector posws, out vector oriws )
 	{
@@ -226,7 +206,7 @@ modded class BuildingBase
 		
 		thread SpawnInterior();
 		m_InteriorsLoaded = true;
-					
+
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
 		m_InteriorModule.SaveCachedCollisions();
 		
@@ -253,8 +233,9 @@ modded class BuildingBase
 		
 		if (m_InteriorModule.ShouldIvySpawn(GetPosition())) {
 			thread SpawnIvys();
-			m_IvysLoaded = true;
 		}
+		
+		m_IvysLoaded = true;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("BuildingBase::LoadIvys - End");

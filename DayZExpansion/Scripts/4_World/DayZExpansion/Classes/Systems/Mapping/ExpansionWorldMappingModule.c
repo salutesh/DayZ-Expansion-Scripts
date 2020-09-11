@@ -424,10 +424,10 @@ class ExpansionWorldMappingModule: JMModuleBase
 					m_InteriorModule.m_CachedCollision.Insert( className, false );
 					continue;
 				}
-				
+				/*
 				BuildingBase buildingBase = BuildingBase.Cast(obj);
 				if (buildingBase)
-					buildingBase.RemoveFromInteriorsBuildings();
+					buildingBase.RemoveFromInteriorsBuildings();*/
 				
 				vector minMax[2];
 				collisionBox = obj.GetCollisionBox(minMax);

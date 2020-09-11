@@ -47,6 +47,8 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		
 		LoadIviesPositions();
 		
+
+		
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -78,6 +80,27 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		super.OnInit();
 	}
 	
+	override void OnMissionStart()
+	{
+		super.OnMissionStart();	
+
+		foreach (BuildingBase building: BuildingBase.m_AllBuldingsInteriors) {
+			if (building && building.HasInterior()) {
+				if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors) {
+					building.LoadInterior();
+				} else {
+					building.UnloadInterior();
+				}
+				
+				if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys) {
+					building.LoadIvys();	
+				} else {
+					building.UnloadIvys();
+				}
+			}
+		}
+	}
+	
 	// ------------------------------------------------------------
 	// Expansion OnMissionFinish
 	// ------------------------------------------------------------
@@ -85,7 +108,6 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	{
 		super.OnMissionFinish();
 		
-		UnloadAllInteriors();
 	}
 
 	// ------------------------------------------------------------
@@ -105,101 +127,13 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		//Print(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
 		//Print(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
 
-		LoadInteriors(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
-		LoadIvys(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
+		//LoadInteriors(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
+		//LoadIvys(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionInteriorBuildingModule::OnSettingsUpdated - End");
 		#endif
 	}
-	
-	void LoadInteriors(bool load) 
-	{
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::LoadInteriors - Start " + BuildingBase.m_AllBuldingsInteriors.Count());
-		#endif
-
-		
-
-		foreach (BuildingBase building: BuildingBase.m_AllBuldingsInteriors) {
-			if (building && building.HasInterior())
-				if (load)
-					building.LoadInterior();
-				else
-					building.UnloadInterior();
-		}
-		
-		
-		
-	}
-	
-	void LoadIvys(bool load)
-	{
-		foreach (BuildingBase building: BuildingBase.m_AllBuldingsInteriors) {
-			
-			if (building.HasIvys()) {
-				if (load)
-					building.LoadIvys();
-				else 
-					building.UnloadIvys();
-			}
-		}
-	}
-	
-
-
-	void LoadAllInteriors()
-	{
-		if ( m_IsLoadingInteriors || m_IsUnloadingInteriors || !GetGame() )
-			return;
-		
-		m_IsLoadingInteriors = true;
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::LoadAllInteriors - Start");
-		#endif
-
-		LoadCachedCollisions();
-
-		foreach (BuildingBase building: BuildingBase.m_AllBuldingsInteriors) {
-			building.LoadInterior();
-			building.LoadIvys();
-		}
-
-		m_IsLoadingInteriors = false;
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::LoadAllInteriors - End "  + m_InteriorObjects.Count());
-		#endif
-	}
-	
-	void UnloadAllInteriors()
-	{
-		if ( m_IsUnloadingInteriors || !GetGame() )
-			return;
-
-		m_IsUnloadingInteriors = true;
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::UnloadAllInteriors - Start " + m_InteriorObjects.Count());
-		#endif
-
-		
-		foreach (BuildingBase building: BuildingBase.m_AllBuldingsInteriors) {
-			building.UnloadInterior();
-			building.UnloadIvys();
-		}
-		
-		m_AllSpawnedPositions.Clear();
-		
-		m_IsUnloadingInteriors = false;
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::UnloadAllInteriors - End");
-		#endif
-	}
-	
 	
 	
 	void AddBuildingSpawned( string type, vector pos )

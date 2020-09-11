@@ -176,7 +176,7 @@ class CfgVehicles
 				class wood_base_third
 				{
 					name = "$STR_EXPANSION_BB_WOOD_WALL_BASE_THIRD";
-					is_base = 1;
+					is_base = 0;
 					id = 10;
 					required_parts[] = {};
 					conflicted_parts[] = {"wood_base","wood_base_half"};
@@ -255,7 +255,7 @@ class CfgVehicles
 				class wood_base_half
 				{
 					name = "$STR_EXPANSION_BB_WOOD_WALL_BASE_HALF";
-					is_base = 1;
+					is_base = 0;
 					id = 13;
 					required_parts[] = {};
 					conflicted_parts[] = {"wood_base","wood_base_third"};
