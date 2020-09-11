@@ -29,8 +29,9 @@ modded class BuildingBase
 		EXPrint("BuildingBase::BuildingBase - Start");
 		#endif
 
-		
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000);
 
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::BuildingBase - End");
 		#endif
@@ -42,10 +43,29 @@ modded class BuildingBase
 		EXPrint("BuildingBase::~BuildingBase - Start");
 		#endif
 
+		UnloadInterior();
+		UnloadIvys();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::~BuildingBase - End");
 		#endif
+	}
+	
+	void ReloadCustomObjects()
+	{
+		if (HasInterior()) {
+			if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
+				LoadInterior();
+			else 
+				UnloadInterior();
+		}
+		
+		if (HasIvys()) {
+			if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().Mapping.BuildingIvys)
+				LoadIvys();	
+			else
+				UnloadIvys();
+		}
 	}
 	
 

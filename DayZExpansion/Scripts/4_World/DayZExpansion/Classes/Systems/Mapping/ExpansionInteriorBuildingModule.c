@@ -46,9 +46,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		
 		
 		LoadIviesPositions();
-		
 
-		
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -79,27 +77,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	{
 		super.OnInit();
 	}
-	
-	override void OnMissionStart()
-	{
-		super.OnMissionStart();	
 
-		foreach (BuildingBase building: BuildingBase.m_AllBuldingsInteriors) {
-			if (building && building.HasInterior()) {
-				if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors) {
-					building.LoadInterior();
-				} else {
-					building.UnloadInterior();
-				}
-				
-				if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys) {
-					building.LoadIvys();	
-				} else {
-					building.UnloadIvys();
-				}
-			}
-		}
-	}
 	
 	// ------------------------------------------------------------
 	// Expansion OnMissionFinish

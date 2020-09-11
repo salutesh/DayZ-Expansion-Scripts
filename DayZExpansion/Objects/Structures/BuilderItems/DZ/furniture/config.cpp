@@ -568,6 +568,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DZ\structures\furniture\lighting\light_kitchen_03\light_kitchen_03.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class bldr_luxury_lamp: HouseNoDestruct
 	{
@@ -672,6 +674,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DZ\structures\furniture\school_equipment\desk_globe.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class bldr_flag_chernarus_pole: HouseNoDestruct
 	{
@@ -947,6 +951,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DZ\structures\furniture\various\debris_small_house.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class bldr_dirtpile_small_house: HouseNoDestruct
 	{

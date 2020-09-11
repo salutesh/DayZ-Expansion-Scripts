@@ -583,6 +583,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DayZExpansion\Objects\Structures\Props\tool2.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class ExpansionPropToolBox1: HouseNoDestruct
 	{
@@ -633,6 +635,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DayZExpansion\Objects\Structures\Props\wateringcan.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class ExpansionPropWelder: HouseNoDestruct
 	{

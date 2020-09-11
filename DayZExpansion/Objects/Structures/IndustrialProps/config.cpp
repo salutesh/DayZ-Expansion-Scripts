@@ -87,6 +87,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "DayZExpansion\Objects\Structures\IndustrialProps\CartonGarbage08.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class ExpansionIndustrialProp_CartonGarbage9: HouseNoDestruct
 	{

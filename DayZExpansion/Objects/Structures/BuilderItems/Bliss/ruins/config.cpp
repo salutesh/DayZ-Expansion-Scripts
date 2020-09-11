@@ -37,6 +37,8 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DZ\structures_bliss\ruins\Proxy\carpet_big_dirty2.p3d";
+		physLayer = "item_small";
+		carveNavmesh = 0;
 	};
 	class bldr_case_bedroom_a: HouseNoDestruct
 	{
