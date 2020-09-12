@@ -16,7 +16,9 @@
 class ExpansionNotificationSystem
 {
 	static ref ScriptInvoker SI_CreateNotification = new ScriptInvoker();
-
+	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem CreateNotification
 	// ------------------------------------------------------------
 	void CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 3 )
 	{
@@ -39,6 +41,8 @@ class ExpansionNotificationSystem
 	}
 
 	// ------------------------------------------------------------
+	// ExpansionNotificationSystem CreateNotification
+	// ------------------------------------------------------------
 	void CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time, PlayerIdentity identity )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -59,6 +63,9 @@ class ExpansionNotificationSystem
 
 static ref ExpansionNotificationSystem g_exNotificationBase;
 
+// ------------------------------------------------------------
+// ExpansionNotificationSystem GetNotificationSystem
+// ------------------------------------------------------------
 static ref ExpansionNotificationSystem GetNotificationSystem()
 {
 	#ifdef EXPANSIONEXPRINT
@@ -77,6 +84,9 @@ static ref ExpansionNotificationSystem GetNotificationSystem()
 	return g_exNotificationBase;
 }
 
+// ------------------------------------------------------------
+// ExpansionNotificationSystem DestroyNotificationSystem
+// ------------------------------------------------------------
 static void DestroyNotificationSystem()
 {
 	#ifdef EXPANSIONEXPRINT

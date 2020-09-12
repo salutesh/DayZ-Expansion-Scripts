@@ -66,6 +66,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return true;
 	}
 
+	override bool HasBase()
+	{
+		return (GetConstruction().IsPartConstructed( "wood_base" ) || GetConstruction().IsPartConstructed( "wood_base_third" ) || GetConstruction().IsPartConstructed( "wood_base_half" ));
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();

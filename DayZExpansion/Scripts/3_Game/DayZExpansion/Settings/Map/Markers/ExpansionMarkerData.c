@@ -335,31 +335,14 @@ class ExpansionMarkerData
 	
 	bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		if ( version < 7 )
-		{
-			bool isParty;
-			if ( Expansion_Assert_False( ctx.Read( isParty ), "[" + this + "] Failed reading isParty" ) )
-				return false;
-		}
-		
 		if ( Expansion_Assert_False( ctx.Read( m_Is3D ), "[" + this + "] Failed reading m_Is3D" ) )
 			return false;
 		
 		if ( Expansion_Assert_False( ctx.Read( m_Text ), "[" + this + "] Failed reading m_Text" ) )
 			return false;
 		
-		if ( version < 7 )
-		{
-			int iconIndex;
-			if ( Expansion_Assert_False( ctx.Read( iconIndex ), "[" + this + "] Failed reading iconIndex" ) )
-				return false;
-
-			m_IconName = ExpansionIcons.GetNameByIndex_Old( iconIndex );
-		} else
-		{
-			if ( Expansion_Assert_False( ctx.Read( m_IconName ), "[" + this + "] Failed reading m_IconName" ) )
-				return false;
-		}
+		if ( Expansion_Assert_False( ctx.Read( m_IconName ), "[" + this + "] Failed reading m_IconName" ) )
+			return false;
 		
 		if ( Expansion_Assert_False( ctx.Read( m_Color ), "[" + this + "] Failed reading m_Color" ) )
 			return false;

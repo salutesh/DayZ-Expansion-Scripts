@@ -507,18 +507,18 @@ class ExpansionClientSettings
 		//! Option to use the desired party member marker
 		//CreateEnum( "MemberMarkerType", ExpansionClientUIMemberMarkerType, "MemberMarkerType", "MemberMarkerType", "MemberMarkerType" );
 		//! Option to use the desired party member color instead of a randomized color
-		CreateEnum( "MarkerSize", ExpansionClientUIMarkerSize, "MarkerSize", "MarkerSize", "MarkerSize" );
+		CreateEnum( "MarkerSize", ExpansionClientUIMarkerSize, "#STR_EXPANSION_SETTINGS_MARKER_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MARKER_SIZE_DESC" );
 		//! Option to toggle party Member name under their marker
-		CreateToggle( "ShowMemberNameMarker", "ShowMemberNameMarker", "ShowMemberNameMarker", "ShowMemberNameMarker" );
+		CreateToggle( "ShowMemberNameMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME_DESC" );
 		//! Option to toggle party Member distance under their marker
-		CreateToggle( "ShowMemberDistanceMarker", "ShowMemberDistanceMarker", "ShowMemberDistanceMarker", "ShowMemberDistanceMarker" );
+		CreateToggle( "ShowMemberDistanceMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_DISTANCE_DESC" );
 		//! Option to use the desired party member color instead of a randomized color
 		//CreateToggle( "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker", "ForceColorMemberMarker" );
 
 		//! Option to toggle name under quick markers
-		CreateToggle( "ShowNameQuickMarkers", "ShowNameQuickMarkers", "ShowNameQuickMarkers", "ShowNameQuickMarkers" );
+		CreateToggle( "ShowNameQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_NAME", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_NAME_DESC" );
 		//! Option to toggle distance under quick markers
-		CreateToggle( "ShowDistanceQuickMarkers", "ShowDistanceQuickMarkers", "ShowDistanceQuickMarkers", "ShowDistanceQuickMarkers" );
+		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
 
 		//Color slider for party member on top of player head
 		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0 );

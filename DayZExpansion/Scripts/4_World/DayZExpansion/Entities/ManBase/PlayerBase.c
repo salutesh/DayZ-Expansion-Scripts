@@ -1199,6 +1199,8 @@ modded class PlayerBase
 	}
 
 	// ------------------------------------------------------------
+	// PlayerBase GetIdentityUID
+	// ------------------------------------------------------------
 	string GetIdentityUID()
 	{
 		if ( IsMissionClient() )
@@ -1213,6 +1215,8 @@ modded class PlayerBase
 	}
 
 	// ------------------------------------------------------------
+	// PlayerBase GetIdentitySteam
+	// ------------------------------------------------------------
 	string GetIdentitySteam()
 	{
 		if ( IsMissionClient() )
@@ -1226,6 +1230,8 @@ modded class PlayerBase
 		return m_PlayerSteam;
 	}
 
+	// ------------------------------------------------------------
+	// PlayerBase GetIdentityName
 	// ------------------------------------------------------------
 	string GetIdentityName()
 	{

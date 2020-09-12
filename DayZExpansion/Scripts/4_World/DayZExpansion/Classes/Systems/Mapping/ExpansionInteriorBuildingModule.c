@@ -193,7 +193,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 			for (int i = 0; i < positions.Count(); ++i) {
 				IviesPosition iviesPosition = new IviesPosition;
 				iviesPosition.position = positions[i];
-				iviesPosition.radius = 50;
+				iviesPosition.radius = 5;
 				
 				m_WhereIviesObjectsSpawn.Insert( iviesPosition );
 			}

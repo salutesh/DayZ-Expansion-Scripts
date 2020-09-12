@@ -48,7 +48,7 @@ class ExpansionPartyPlayerData
 	void InitMarker()
 	{
 		m_TempMarkerData.SetUID( UID );
-		m_TempMarkerData.SetIcon( ExpansionIcons.Get( "Person" ) );
+		m_TempMarkerData.SetIcon( ExpansionIcons.Get( "Persona" ) );
 		m_TempMarkerData.Set3D( true );
 		if( !GetExpansionClientSettings().ShowMemberNameMarker )
 		{
@@ -112,7 +112,7 @@ class ExpansionPartyPlayerData
 		if ( position != vector.Zero && !QuickMarker )
 		{
 			QuickMarker = new ExpansionPartyQuickMarkerData( "QuickMarker" + UID );
-		} else if ( position == vector.Zero && QuickMarker )
+		} else if ( position == vector.Zero && QuickMarker || vector.Distance(position, QuickMarker.GetPosition()) < 10 )
 		{
 			delete QuickMarker;
 		}
@@ -125,6 +125,7 @@ class ExpansionPartyPlayerData
 			QuickMarker.SetName( Name );
 		}
 	}
+	
 	
 	void OnStoreSave( ParamsWriteContext ctx )
 	{

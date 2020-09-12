@@ -49,6 +49,8 @@ modded class MissionGameplay
 	//! Modules
 	ref ExpansionAutorunModule 					m_AutoRunModule;
 	ExpansionMarkerModule 						m_MarkerModule;
+	private bool								m_MarkerToggleState = true;
+	private bool								m_PartyMarkerToggleState = true;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -742,90 +744,50 @@ modded class MissionGameplay
 						m_ExpansionHud.ToggleEarplugs();
 					}
 
-					/*
-					if ( m_MarkerModule )
-					{
-						//! Toggle server 3d marker visiblity
-						if ( input.LocalPress( "UAExpansion3DMarkerToggle", false ) )
-						{
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.SERVER) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
+					if (m_MarkerModule)
+					{						
+						PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
+						
+						if (input.LocalPress("UAExpansion3DMarkerToggle", false)) {
+							
+							m_MarkerToggleState = !m_MarkerToggleState;
+							m_PartyMarkerToggleState = m_MarkerToggleState;
+							
+							if (m_MarkerToggleState) {
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+								
+							} else {
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 							}
 						}
 						
-						//! Toggle all 3d markers visiblity
-						if ( input.LocalHold( "UAExpansion3DMarkerToggle", false ) )
-						{
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.PERSONAL) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
-							}
+						if (input.LocalPress("UAExpansionOnlyPartyMembersMarkersToggle", false)) {
 							
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.PARTY) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-							}
+							m_PartyMarkerToggleState = !m_PartyMarkerToggleState;
 							
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.SERVER) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
-							}
-							
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.PLAYER) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
-							}
-							
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.PARTY_QUICK) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD );
-							}
-						}
-
-						//! Toggle all party 3d markers visiblity
-						if ( input.LocalPress( "UAExpansionOnlyPartyMembersMarkersToggle", false ) )
-						{
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.PARTY) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-							}
-						}
-						
-						//! Toggle 3d player members markers visiblity
-						if ( input.LocalHold( "UAExpansionOnlyPartyMembersMarkersToggle", false ) )
-						{
-							if ( m_MarkerModule.IsWorldVisible(ExpansionMapMarkerType.PLAYER) )
-							{
-								m_MarkerModule.RemoveVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
-							} else
-							{
-								m_MarkerModule.SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
+							if (m_PartyMarkerToggleState) {
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEPARTY_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+								
+							} else {
+								
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEPARTY_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 							}
 						}
 					}
-					*/
 				}
 
 				//! Basebuilding Snaping

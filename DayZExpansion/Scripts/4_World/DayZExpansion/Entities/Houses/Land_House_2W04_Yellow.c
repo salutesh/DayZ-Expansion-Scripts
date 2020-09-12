@@ -1,5 +1,5 @@
 /**
- * Land_House_2W02_Yellow.c
+ * Land_House_2W04_Yellow.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class Land_House_2W02_Yellow extends BuildingSuper
+class Land_House_2W04_Yellow extends BuildingSuper
 {
 	override bool HasInterior()
 	{

@@ -15,18 +15,18 @@
  **/
 class ExpansionVehicleSettings: ExpansionSettingBase
 {
-	ExpansionVehicleNetworkMode VehicleSync;
+	ExpansionVehicleNetworkMode VehicleSync;			//! 0 = Client sided | 1 = Mixed | 2 = Server sided
 
-	int VehicleRequireKeyToStart; // 1.02: 0 = no, 1 = yes. TODO: 2 = in hands only
-	bool VehicleRequireAllDoors;
-	bool VehicleLockedAllowInventoryAccess;
-	bool VehicleLockedAllowInventoryAccessWithoutDoors;
+	int VehicleRequireKeyToStart; 						//! 0 = Disabled | 1 = Require key to start the engine (will check hands, cargo, inventory) | TODO 2 = check only in the hand
+	bool VehicleRequireAllDoors;						//! if enabled, you will need all the doors to lock/unlock the car
+	bool VehicleLockedAllowInventoryAccess;				//! if enabled, will be able to see the vehicle inventory regardless of the car have all his doors
+	bool VehicleLockedAllowInventoryAccessWithoutDoors;	//! if enabled, will be able to see the vehicle inventory only if at least one car door is missing
 
-	bool EnableWindAerodynamics;
-	bool EnableTailRotorDamage;
+	bool EnableWindAerodynamics;						//! if enabled, wind simulation will be enabled
+	bool EnableTailRotorDamage;							//! If enabled, the rotor will be damageable
 
-	bool PlayerAttachment;
-	bool Towing;
+	bool PlayerAttachment;								//! If enabled, allow players to be attached to vehicles while in movement
+	bool Towing;										//! If enabled, allow vehicle to tow other vehicles
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;

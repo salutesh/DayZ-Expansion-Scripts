@@ -97,12 +97,15 @@ modded class ZombieBase
 		super.RegisterTransportHit( transport );
 	}
 	
-	override bool ModCommandHandlerBefore( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )
+	// ------------------------------------------------------------
+	// ZombieBase ModCommandHandlerBefore
+	// ------------------------------------------------------------
+	/*override bool ModCommandHandlerBefore( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )
 	{
 		if ( pCurrentCommandID == DayZInfectedConstants.COMMANDID_SCRIPT)
 		{
 		}
 		
 		return super.ModCommandHandlerBefore( pDt, pCurrentCommandID, pCurrentCommandFinished );
-	}
+	}*/
 }

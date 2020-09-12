@@ -27,9 +27,14 @@ modded class VicinityItemManager
 			if ( ExpansionCamoTent.Cast(filtered_object) )
 				return super.IsObstructed(filtered_object);			
 			
+			if ( ExpansionWallBase.Cast(filtered_object) )
+			{
+				return ExpansionWallBase.Cast(filtered_object).GetInventory().AttachmentCount() == 0 && !ExpansionWallBase.Cast(filtered_object).CanDisplayAttachmentCategory("Attachments"); //false
+			}		
+			
 			if ( ExpansionBaseBuilding.Cast(filtered_object) )
 			{
-				return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0 && !ExpansionBaseBuilding.Cast(filtered_object).CanDisplayAttachmentCategory("Attachments"); //false
+				return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0; //false
 			}
 			return super.IsObstructed(filtered_object);
 	}

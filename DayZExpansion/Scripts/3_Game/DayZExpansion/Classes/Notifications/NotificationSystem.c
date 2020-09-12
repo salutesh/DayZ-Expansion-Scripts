@@ -12,7 +12,10 @@
 
 modded class NotificationSystem
 {
-	//Create ur own system until CF have a better framework
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem Create_Expansion
+	// ------------------------------------------------------------
+	// Create ur own system until CF have a better framework
 	static void Create_Expansion( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 3 )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -41,7 +44,10 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::Create_Expansion - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem Create_Expansion
+	// ------------------------------------------------------------
 	static void Create_Expansion( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time, PlayerIdentity sendTo )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -72,7 +78,9 @@ modded class NotificationSystem
 	}
 
 	autoptr array< ref NotificationRuntimeData > m_ExNotifications;
-
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem NotificationSystem
+	// ------------------------------------------------------------
 	void NotificationSystem()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -90,6 +98,9 @@ modded class NotificationSystem
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem Exec_CreateNotification
+	// ------------------------------------------------------------
 	override private void Exec_CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -128,7 +139,10 @@ modded class NotificationSystem
 		EXLogPrint("NotificationSystem::Exec_CreateNotification - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem AddNotif
+	// ------------------------------------------------------------
 	override void AddNotif( ref NotificationRuntimeData data )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -144,7 +158,10 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::AddNotif - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem Update
+	// ------------------------------------------------------------
 	override static void Update(float timeslice)
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -173,7 +190,10 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::Update - End");
 		#endif
 	}
-	
+		
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem GetNotificationData
+	// ------------------------------------------------------------
 	override NotificationData GetNotificationData( NotificationType type )
 	{
 		#ifdef EXPANSIONEXPRINT

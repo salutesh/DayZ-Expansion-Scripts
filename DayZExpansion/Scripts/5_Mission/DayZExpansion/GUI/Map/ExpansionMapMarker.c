@@ -52,6 +52,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	protected ExpansionMapMenu m_MapMenu;
 	private ExpansionMarkerModule m_MarkerModule;
 	
+	protected ref ExpansionUITooltip m_PositionToolTip;
+	
 	// ------------------------------------------------------------
 	// ExpansionMapMarker Constructor
 	// ------------------------------------------------------------
@@ -80,6 +82,9 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		#endif
 		
 		delete m_IconTypesArray;
+		
+		delete m_PositionToolTip;
+		
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMapMarker::~ExpansionMapMarker - End");
@@ -479,7 +484,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		#endif
 		
 		super.Update( pDt );
-
+		
+		
 		if ( m_Data )
 		{
 			if ( ShouldHide() )
@@ -495,6 +501,22 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 				if ( !IsDragging() )
 					SetPosition( m_Data.GetPosition() );
 			}
+			
+
+			if (m_MouseHover && KeyState(KeyCode.KC_LSHIFT)) {
+				
+				vector pos = GetPosition();				
+				m_PositionToolTip = new ExpansionUITooltip(string.Format("<p>X: %1 Y: %2 Z: %3</p>", pos[0], pos[1], pos[2]), "<p>" + GetName() + "<p>");
+				m_PositionToolTip.SetTextPos("center");
+				int x, y;
+				GetMousePos(x, y);
+				m_PositionToolTip.SetPos(x, y);
+				m_PositionToolTip.ShowTooltip();
+
+			} else {
+				delete m_PositionToolTip;
+			}
+			
 		} else
 		{
 			GetLayoutRoot().Show( IsCreating() );
@@ -616,6 +638,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 				m_State3DCheckbox.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
 			}
 
+			m_EditName.SetText(m_Data.GetName());
 			m_LeftButton.SetText( "DELETE" );
 			m_RightButton.SetText( "UPDATE" );
 		}
@@ -821,11 +844,10 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ExpansionMapMarker OnMouseEnter
 	// ------------------------------------------------------------   
 	override bool OnMouseEnter( Widget w, int x, int y )
-	{
+	{		
 		if ( w != NULL && IsEditButton( w ) )
 		{
 			m_MouseHover = true;
-
 			m_Name.SetColor( m_HoverColor );
 			m_Icon.SetColor( m_HoverColor );
 			return true;
@@ -838,11 +860,10 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ExpansionMapMarker OnMouseLeave
 	// ------------------------------------------------------------
 	override bool OnMouseLeave( Widget w, Widget enterW, int x, int y )
-	{
+	{		
 		if ( w != NULL && IsEditButton( w ) )
 		{
 			m_MouseHover = false;
-
 			m_Name.SetColor( m_PrimaryColor );
 			m_Icon.SetColor( m_PrimaryColor );
 			return true;

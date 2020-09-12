@@ -39,11 +39,17 @@ class ExpansionMissionEventBase
 
 	[NonSerialized()]
 	private bool m_IsRunning;
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase Constructor
+	// ------------------------------------------------------------
 	void ExpansionMissionEventBase()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase Destructor
+	// ------------------------------------------------------------
 	void ~ExpansionMissionEventBase()
 	{
 		if ( m_IsRunning )
@@ -51,24 +57,39 @@ class ExpansionMissionEventBase
 			End();
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase OnLoadMission
+	// ------------------------------------------------------------
 	protected void OnLoadMission()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase OnSaveMission
+	// ------------------------------------------------------------
 	protected void OnSaveMission()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase OnDefaultMission
+	// ------------------------------------------------------------
 	protected string OnDefaultMission( int index )
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase MaxDefaultMissions
+	// ------------------------------------------------------------
 	int MaxDefaultMissions()
 	{
 		return 1;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase LoadDefault
+	// ------------------------------------------------------------
 	string LoadDefault( int index )
 	{
 		Enabled = true;
@@ -88,52 +109,78 @@ class ExpansionMissionEventBase
 
 		return name;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase GetPath
+	// ------------------------------------------------------------
 	string GetPath()
 	{
 		return m_FileName;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase LoadMission
+	// ------------------------------------------------------------
 	void LoadMission( string file )
 	{
 		m_FileName = file;
 
 		OnLoadMission();
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase SaveMission
+	// ------------------------------------------------------------
 	void SaveMission()
 	{
 		OnSaveMission();
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase CreateNotification
+	// ------------------------------------------------------------
 	void CreateNotification( ref StringLocaliser text, string icon, float time = 3 )
 	{
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName ), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase CreateNotification
+	// ------------------------------------------------------------
 	void CreateNotification( ref StringLocaliser text, string icon, float time, PlayerIdentity identity )
 	{
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName ), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time, identity );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase IsRunning
+	// ------------------------------------------------------------
 	bool IsRunning()
 	{
 		return m_IsRunning;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase GetElapsedTime
+	// ------------------------------------------------------------
 	float GetElapsedTime()
 	{
 		return m_CurrentMissionTime;
 	}
 
-	/*
-	 * Missions can end before the max time runs out so this may not be the right option for you
-	 */
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase GetElapsedTime
+	// ------------------------------------------------------------
+	// Missions can end before the max time runs out so this may not be the right option for you
 	float GetMaxRemainingTime()
 	{
 		return MissionMaxTime - m_CurrentMissionTime;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase Start
+	// ------------------------------------------------------------
 	void Start()
 	{
 		m_IsRunning = true;
@@ -143,7 +190,10 @@ class ExpansionMissionEventBase
 
 		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( OnUpdate );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase End
+	// ------------------------------------------------------------
 	void End()
 	{
 		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
@@ -154,7 +204,10 @@ class ExpansionMissionEventBase
 		
 		Event_OnEnd();
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase OnUpdate
+	// ------------------------------------------------------------
 	void OnUpdate( float delta )
 	{
 		m_CurrentMissionTime += delta;
@@ -166,17 +219,26 @@ class ExpansionMissionEventBase
 			End();
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase Event_OnStart
+	// ------------------------------------------------------------
 	// handle mission start
 	void Event_OnStart()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase Event_OnEnd
+	// ------------------------------------------------------------
 	// handle mission cleanup
 	void Event_OnEnd()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionEventBase Event_OnUpdate
+	// ------------------------------------------------------------
 	// update tick for the mission
 	void Event_OnUpdate( float delta )
 	{

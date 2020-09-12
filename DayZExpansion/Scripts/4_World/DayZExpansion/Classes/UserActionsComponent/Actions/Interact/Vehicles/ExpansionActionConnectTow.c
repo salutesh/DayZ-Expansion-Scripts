@@ -124,7 +124,7 @@ class ExpansionActionConnectTow: ActionInteractBase
 					CarScript other_car;
 					if ( Class.CastTo( other_car, o ) )
 					{
-						if ( !other_car.IsBeingTowed() && car.CanConnectTow( other_car ) )
+						if ( !other_car.IsBeingTowed() && !other_car.IsTowing() && car.CanConnectTow( other_car ) )
 						{
 							m_IsWinch = car.IsHelicopter();
 
@@ -140,6 +140,9 @@ class ExpansionActionConnectTow: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if ( player.IsInSafeZone() )
+			return false;
+			
 		if( GetExpansionSettings() && !GetExpansionSettings().GetVehicle().Towing )
 			return false;
 

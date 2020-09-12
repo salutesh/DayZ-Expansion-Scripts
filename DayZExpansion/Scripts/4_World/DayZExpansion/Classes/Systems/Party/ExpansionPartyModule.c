@@ -55,6 +55,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		RegisterBinding( new JMModuleBinding( "Input_UpdateQuickMarker",			"UAExpansionQuickMarker",		true 	) );
 		RegisterBinding( new JMModuleBinding( "Input_RemoveQuickMarker",			"UAExpansionMapDeleteMarker",	true 	) );
+		RegisterBinding( new JMModuleBinding( "Input_RemoveQuickMarkerHold",		"UAExpansionQuickMarker",		true 	) );
 	}
 	
 	override void OnMissionStart() 
@@ -118,26 +119,6 @@ class ExpansionPartyModule: JMModuleBase
 					file.Close();
 				}
 			}
-			//Make old version compatible
-			/*else if (FileExist(EXPANSION_GROUPS_FOLDER + name + ".json"))
-			{
-				JsonFileLoader< ExpansionPartyData >.JsonLoadFile( EXPANSION_GROUPS_FOLDER + name + ".json", party );
-				if ( party )
-				{
-					party.InitMaps();
-					
-					m_Parties.Insert( party.GetPartyID(), party );
-	
-					if ( m_NextPartyID <= party.GetPartyID() )
-					{
-						m_NextPartyID = party.GetPartyID() + 1;
-					}
-					
-					party.Save();
-					
-					DeleteFile( EXPANSION_GROUPS_FOLDER + name + ".json" );
-				}
-			}*/
 		}
 
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -1824,6 +1805,7 @@ class ExpansionPartyModule: JMModuleBase
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
 			return;
 		}
+		
 
 		senderPlayerParty.SetQuickMarker( position );
 		UpdateClient( party );
@@ -1977,6 +1959,30 @@ class ExpansionPartyModule: JMModuleBase
 	void Input_RemoveQuickMarker( UAInput input )
 	{
 		if ( !(input.LocalPress()) )
+			return;
+
+		if ( !GetExpansionSettings().GetParty().EnableQuickMarker )
+			return;
+		
+		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		if ( !player || !m_Party )
+			return;
+
+		if ( !GetExpansionSettings().GetParty() || !GetExpansionSettings().GetParty().EnableQuickMarker )
+			return;
+
+		if ( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) )
+			return;
+
+		UpdateQuickMarker( vector.Zero );
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion Input_RemoveQuickMarkerHold
+	// -----------------------------------------------------------
+	void Input_RemoveQuickMarkerHold( UAInput input )
+	{
+		if ( !(input.LocalHold()) )
 			return;
 
 		if ( !GetExpansionSettings().GetParty().EnableQuickMarker )

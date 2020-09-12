@@ -233,6 +233,7 @@ static const string EXPANSION_NOTIFICATION_ICON_HOME = "DayZExpansion\\GUI\\icon
 static const string EXPANSION_NOTIFICATION_ICON_BOAT = "DayZExpansion\\GUI\\icons\\marker\\marker_boat.paa";
 static const string EXPANSION_NOTIFICATION_ICON_FISHING = "DayZExpansion\\GUI\\icons\\marker\\marker_fishing.paa";
 static const string EXPANSION_NOTIFICATION_ICON_VEHICLE_CRASH = "DayZExpansion\\GUI\\icons\\marker\\crash.paa";
+static const string EXPANSION_NOTIFICATION_ICON_MAP_MARKER = "DayZExpansion\\GUI\\icons\\marker\\marker_mapmarker.paa";
 
 //! New icons
 static const string EXPANSION_NOTIFICATION_ICON_BEAR = "DayZExpansion\\GUI\\icons\\hud\\bear_64x64.edds";
@@ -382,8 +383,8 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 10;
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 9;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 11;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 11;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 
 /**
