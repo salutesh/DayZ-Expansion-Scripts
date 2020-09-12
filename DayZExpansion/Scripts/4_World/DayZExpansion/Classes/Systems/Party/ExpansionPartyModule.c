@@ -55,7 +55,6 @@ class ExpansionPartyModule: JMModuleBase
 		
 		RegisterBinding( new JMModuleBinding( "Input_UpdateQuickMarker",			"UAExpansionQuickMarker",		true 	) );
 		RegisterBinding( new JMModuleBinding( "Input_RemoveQuickMarker",			"UAExpansionMapDeleteMarker",	true 	) );
-		RegisterBinding( new JMModuleBinding( "Input_RemoveQuickMarkerHold",		"UAExpansionQuickMarker",		true 	) );
 	}
 	
 	override void OnMissionStart() 
@@ -1959,30 +1958,6 @@ class ExpansionPartyModule: JMModuleBase
 	void Input_RemoveQuickMarker( UAInput input )
 	{
 		if ( !(input.LocalPress()) )
-			return;
-
-		if ( !GetExpansionSettings().GetParty().EnableQuickMarker )
-			return;
-		
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-		if ( !player || !m_Party )
-			return;
-
-		if ( !GetExpansionSettings().GetParty() || !GetExpansionSettings().GetParty().EnableQuickMarker )
-			return;
-
-		if ( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) )
-			return;
-
-		UpdateQuickMarker( vector.Zero );
-	}
-	
-	// -----------------------------------------------------------
-	// Expansion Input_RemoveQuickMarkerHold
-	// -----------------------------------------------------------
-	void Input_RemoveQuickMarkerHold( UAInput input )
-	{
-		if ( !(input.LocalHold()) )
 			return;
 
 		if ( !GetExpansionSettings().GetParty().EnableQuickMarker )
