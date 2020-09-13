@@ -270,7 +270,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	
 	override bool CanDisplayAttachmentCategory( string category_name )
 	{
-		if ( !super.CanDisplayAttachmentSlot( category_name ) )
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
 		{
 			return false;
 		}
