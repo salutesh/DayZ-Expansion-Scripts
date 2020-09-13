@@ -26,8 +26,8 @@
 #define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG
-//#define EXPANSION_HELI_EXPLOSION_DISABLE
-//#define EXPANSION_HELI_USE_CONTACT_NORMAL
+//#define EXPANSION_HELI_EXPLOSION_HACK
+#define EXPANSION_HELI_USE_CONTACT_NORMAL
 //#define EXPANSION_HELI_USE_CONTACT_NORMAL_TEST
 //#define EXPANSION_USING_TRANSPORT_BASE
 
@@ -51,6 +51,9 @@
 
 //! Enable if if you want to be able to always use the map menu
 //#define EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
+
+// Enable it if you want mission event debug logs enabled
+//#define EXPANSION_MISSION_EVENT_DEBUG
 
 // Enable it if you want market debug logs enabled
 //#define EXPANSION_MARKET_MODULE_DEBUG
@@ -76,10 +79,14 @@
 //! Enable it if you want to enable client settings debug logs
 //#define EXPANSION_CLIENT_SETTINGS_DEBUG
 
+//! Enable it if you want to enable skinings system debug logs
 //#define EXPANSION_SKIN_LOGGING
+
+//! Enable it if you want to disable skinings system skin replacement on object creation
 #define EXPANSION_SKIN_REPLACEMENT_DISABLE
 
 //#define EXPANSION_WEAPON_DEBUG_OBJECTS
+//#define EXPANSION_WEAPON_BULLET_TRACE
 
 #define EXPANSION_DISABLE_FALL
 

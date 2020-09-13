@@ -5,88 +5,83 @@
  * www.dayzexpansion.com
  * © 2020 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class Expansion_M18SmokeGrenade_Teargas: M18SmokeGrenade_White
+class Expansion_M18SmokeGrenade_Teargas : M18SmokeGrenade_White
 {
-	int CoughTimer = 1000;	
-	bool ZoneActive = false;
+	protected const float MAX_SHOCK_INFLICTED = -25.0;
+	protected const float MIN_SHOCK_INFLICTED = -20.0;
+
+	protected int m_CoughTimer = 1000;
+	protected bool m_ZoneActive = false;
+
 	override void OnWorkStart()
 	{
 		super.OnWorkStart();
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M18SmokeGrenade_Teargas::OnWorkStart Start");
 		#endif
 
-		ZoneActive = true;
-
-		//! m_Delay = new Timer;
-		//! m_Delay.Run(2, this, "MakePlayerCough", null, false);	
-
+		m_ZoneActive = true;
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, 2000, false);
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M18SmokeGrenade_Teargas::OnWorkStart End");
 		#endif
 	}
-	void MakePlayerCough()
+
+	protected void MakePlayerCough()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M18SmokeGrenade_Teargas::MakePlayerCough Start");
 		#endif
-		
-		CoughTimer = Math.RandomInt(1000, 5000);
-		ref array<Object> nearest_objects = new array<Object>;
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D( this.GetPosition(), 5, nearest_objects, proxy_cargos );
-		
-		for ( int i = 0; i < nearest_objects.Count(); i++ )
+
+		m_CoughTimer = Math.RandomIntInclusive(500, 5000);
+		ref array<Object> nearest_objects = new array<Object>();
+		ref array<CargoBase> proxy_cargos = new array<CargoBase>();
+
+		GetGame().GetObjectsAtPosition3D(GetPosition(), 5, nearest_objects, proxy_cargos);
+
+		for (int i = 0; i < nearest_objects.Count(); i++)
 		{
 			Object nearest_object = nearest_objects.Get(i);
-			
-			if ( nearest_object.IsInherited( PlayerBase ) )
+			if (nearest_object.IsInherited(PlayerBase))
 			{
-
-				PlayerBase player = PlayerBase.Cast( nearest_object );
-				if ( player )
+				PlayerBase player = PlayerBase.Cast(nearest_object);
+				if (player && !IsProtected(player))
 				{
-					EntityAI foundMask = player.FindAttachmentBySlotName("Mask"); 
-					if ( foundMask != NULL) 
-					{
-						if ( !foundMask.IsKindOf("GasMask") && !foundMask.IsKindOf("GP5GasMask") && !foundMask.IsKindOf("Expansion_Gasmask")  )
-						{
-							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
-							player.AddHealth("","Shock", -20);
-						}
-					}
-					else 
-					{
-							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
-							player.AddHealth("","Shock", -20);
-					}
+					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
+					player.GiveShock(Math.RandomFloatInclusive(MAX_SHOCK_INFLICTED, MIN_SHOCK_INFLICTED));
 				}
-			}	
+			}
 		}
 
-		if ( ZoneActive )
-		{
+		if (m_ZoneActive)
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, m_CoughTimer, false);
 
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, CoughTimer, false);
-		}
-		
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M18SmokeGrenade_Teargas::MakePlayerCough End");
 		#endif
 
 	}
+
+	protected bool IsProtected(notnull Man player)
+	{
+		EntityAI mask = player.GetInventory().FindAttachment(InventorySlots.MASK);
+		if (!mask) return false;
+
+		string protectionPath = "CfgVehicles " + mask.GetType() + " Protection ";
+		return GetGame().ConfigGetInt(protectionPath + "biological");
+	}
+
 	override void OnWorkStop()
 	{
 		super.OnWorkStop();
-		ZoneActive = false;
-	}	
-};
+
+		m_ZoneActive = false;
+	}
+}

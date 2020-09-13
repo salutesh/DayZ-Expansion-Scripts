@@ -12,6 +12,27 @@
 
 class ExpansionWorld: ExpansionGame
 {
+	static ref array< ref ExpansionBulletTrace > m_bullets = new array< ref ExpansionBulletTrace >();
+
+	override void OnUpdate( bool doSim, float timeslice ) 
+	{
+		super.OnUpdate( doSim, timeslice );
+
+		if (m_bullets && m_bullets.Count() > 0)
+		{
+			for ( int i = m_bullets.Count() - 1; i >= 0; --i )
+			{
+				ExpansionBulletTrace bullet = m_bullets[i];
+				if ( !bullet.OnUpdate( timeslice ) )
+				{
+					m_bullets.Remove( i );
+	
+					delete bullet;
+				}
+			}
+		}
+	}
+
 	override void FirearmEffects( Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType ) 
 	{
 		super.FirearmEffects( source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType );

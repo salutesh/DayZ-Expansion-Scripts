@@ -365,6 +365,9 @@ class ExpansionMapSettings: ExpansionSettingBase
 		} else if ( world_name.Contains( "enoch" ) )
 		{
 			//! TODO: Livonia Server Markers
+		} else if ( world_name.Contains( "deerisle" ) )
+		{
+			//! TODO: DeerIsle Server Markers
 		}
 
 		int index = 0;

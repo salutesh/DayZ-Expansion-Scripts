@@ -19,25 +19,25 @@ class Expansion_M203_HE_Explosion: BuildingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203_HE_Explosion::Expansion_M203_HE_Explosion Start");
 		#endif
-		
+
 		m_Delay = new Timer;
 		m_Delay.Run(0.1, this, "ExplodeNow", null, false); //just simply running ExplodeNow() here doesnt work for some reason? copying explosiontest for now
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203_HE_Explosion::Expansion_M203_HE_Explosion End");
 		#endif
 	}
-	
+
 	void ExplodeNow()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203_HE_Explosion::ExplodeNow Start");
 		#endif
-		
+
 		Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 			m_ParticleExplosion = Particle.PlayInWorld(ParticleList.RGD5, this.GetPosition());
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203_HE_Explosion::ExplodeNow End");
 		#endif
@@ -55,18 +55,18 @@ class Expansion_M203Round_Smoke_Colorbase extends SmokeGrenadeBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Colorbase::Expansion_M203Round_Smoke_Colorbase Start");
 		#endif
-		
+
 		SetAmmoType("");
 		SetFuseDelay(2);
 		SetSoundSmokeStart(SOUND_SMOKE_START);
 		SetSoundSmokeLoop(SOUND_SMOKE_LOOP);
 		SetSoundSmokeEnd(SOUND_SMOKE_END);
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Colorbase::Expansion_M203Round_Smoke_Colorbase End");
 		#endif
 	}
-	
+
 	void ~Expansion_M203Round_Smoke_Colorbase() {}
 }
 
@@ -77,13 +77,13 @@ class Expansion_M203Round_Smoke_White extends Expansion_M203Round_Smoke_Colorbas
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_White::Expansion_M203Round_Smoke_White Start");
 		#endif
-		
+
 		SetParticleSmokeStart(ParticleList.GRENADE_M18_WHITE_START);
 		SetParticleSmokeLoop(ParticleList.GRENADE_M18_WHITE_LOOP);
 		SetParticleSmokeEnd(ParticleList.GRENADE_M18_WHITE_END);
-		
+
 		Activate();
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_White::Expansion_M203Round_Smoke_White End");
 		#endif
@@ -97,13 +97,13 @@ class Expansion_M203Round_Smoke_Red extends Expansion_M203Round_Smoke_Colorbase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Red::Expansion_M203Round_Smoke_Red Start");
 		#endif
-		
+
 		SetParticleSmokeStart(ParticleList.GRENADE_M18_RED_START);
 		SetParticleSmokeLoop(ParticleList.GRENADE_M18_RED_LOOP);
 		SetParticleSmokeEnd(ParticleList.GRENADE_M18_RED_END);
 
 		Activate();
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Red::Expansion_M203Round_Smoke_Red End");
 		#endif
@@ -117,13 +117,13 @@ class Expansion_M203Round_Smoke_Green extends Expansion_M203Round_Smoke_Colorbas
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Green::Expansion_M203Round_Smoke_Green Start");
 		#endif
-		
+
 		SetParticleSmokeStart(ParticleList.GRENADE_M18_GREEN_START);
 		SetParticleSmokeLoop(ParticleList.GRENADE_M18_GREEN_LOOP);
 		SetParticleSmokeEnd(ParticleList.GRENADE_M18_GREEN_END);
 
 		Activate();
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Green::Expansion_M203Round_Smoke_Green End");
 		#endif
@@ -161,7 +161,7 @@ class Expansion_M203Round_Smoke_Purple extends Expansion_M203Round_Smoke_Colorba
 		SetParticleSmokeStart(ParticleList.GRENADE_M18_PURPLE_START);
 		SetParticleSmokeLoop(ParticleList.GRENADE_M18_PURPLE_LOOP);
 		SetParticleSmokeEnd(ParticleList.GRENADE_M18_PURPLE_END);
-		
+
 		Activate();
 
 		#ifdef EXPANSIONEXPRINT
@@ -172,13 +172,11 @@ class Expansion_M203Round_Smoke_Purple extends Expansion_M203Round_Smoke_Colorba
 
 class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorbase
 {
-	protected ref AreaDamageBase m_AreaDamage;
+	protected const float MAX_SHOCK_INFLICTED = -25.0;
+	protected const float MIN_SHOCK_INFLICTED = -20.0;
 
-	bool ZoneActive = false;
-
-	ref Timer m_Delay;
-	ref Timer m_Delay2;
-	ref Timer m_Delay3;
+	protected int m_CoughTimer = 1000;
+	protected bool m_ZoneActive = false;
 
 	void Expansion_M203Round_Smoke_Teargas()
 	{
@@ -196,87 +194,70 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 		#endif
 	}
 
-	int CoughTimer = 1000;
-
 	override void OnWorkStart()
 	{
 		super.OnWorkStart();
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Teargas::OnWorkStart Start");
 		#endif
 
-		ZoneActive = true;
-
-		//! m_Delay = new Timer;
-		//! m_Delay.Run(2, this, "MakePlayerCough", null, false);	
-
+		m_ZoneActive = true;
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, 2000, false);
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Teargas::OnWorkStart End");
 		#endif
 	}
-	
-	void MakePlayerCough()
+
+	protected void MakePlayerCough()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("Expansion_M203Round_Smoke_Teargas::MakePlayerCough Start");
+		EXPrint("Expansion_M18SmokeGrenade_Teargas::MakePlayerCough Start");
 		#endif
-		
 
-		CoughTimer = Math.RandomInt(1000, 5000);
-		ref array<Object> nearest_objects = new array<Object>;
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D( this.GetPosition(), 5, nearest_objects, proxy_cargos );
-		
-		for ( int i = 0; i < nearest_objects.Count(); i++ )
+		m_CoughTimer = Math.RandomIntInclusive(250, 5000);
+		ref array<Object> nearest_objects = new array<Object>();
+		ref array<CargoBase> proxy_cargos = new array<CargoBase>();
+
+		GetGame().GetObjectsAtPosition3D(GetPosition(), 5, nearest_objects, proxy_cargos);
+
+		for (int i = 0; i < nearest_objects.Count(); i++)
 		{
 			Object nearest_object = nearest_objects.Get(i);
-			
-			if ( nearest_object.IsInherited( PlayerBase ) )
+			if (nearest_object.IsInherited(PlayerBase))
 			{
-				PlayerBase player = PlayerBase.Cast( nearest_object );
-				if ( player )
+				PlayerBase player = PlayerBase.Cast(nearest_object);
+				if (player && !IsProtected(player))
 				{
-					EntityAI foundMask = player.FindAttachmentBySlotName("Mask"); 
-					if ( foundMask != NULL) 
-					{
-						if ( !foundMask.IsKindOf("GasMask") && !foundMask.IsKindOf("GP5GasMask") && !foundMask.IsKindOf("Expansion_Gasmask")  )
-						{
-							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
-							player.AddHealth("","Shock", -20);
-
-						}
-					}
-					else 
-					{
-							player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
-							player.AddHealth("","Shock", -20);
-
-					}
+					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
+					player.GiveShock(Math.RandomFloatInclusive(MAX_SHOCK_INFLICTED, MIN_SHOCK_INFLICTED));
 				}
-			}	
+			}
 		}
 
-		if ( ZoneActive )
-		{
-			//! m_Delay3 = new Timer;
-			//! m_Delay3.Run(CoughTimer, this, "MakePlayerCough", null, false);	
+		if (m_ZoneActive)
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, m_CoughTimer, false);
 
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, CoughTimer, false);
-		}
-		
-		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("Expansion_M203Round_Smoke_Teargas::MakePlayerCough End");
+		EXPrint("Expansion_M18SmokeGrenade_Teargas::MakePlayerCough End");
 		#endif
+
+	}
+
+	protected bool IsProtected(notnull Man player)
+	{
+		EntityAI mask = player.GetInventory().FindAttachment(InventorySlots.MASK);
+		if (!mask) return false;
+
+		string protectionPath = "CfgVehicles " + mask.GetType() + " Protection ";
+		return GetGame().ConfigGetInt(protectionPath + "biological");
 	}
 
 	override void OnWorkStop()
 	{
 		super.OnWorkStop();
-		ZoneActive = false;
-	}	
+
+		m_ZoneActive = false;
+	}
 }
-
-

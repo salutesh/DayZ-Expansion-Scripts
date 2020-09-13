@@ -560,7 +560,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		if ( IsMissionHost() )
 		{
-			#ifdef EXPANSION_HELI_EXPLOSION_DISABLE
+			#ifdef EXPANSION_HELI_EXPLOSION_HACK
 			//hack fix until someone smarter than me fixes helis randomly blowing up while parked. Sorry but this is needed! - not a banana
 			if ( !(GetOrientation()[1] > 8 && GetOrientation()[1] < 352 && GetOrientation()[2] > 8 && GetOrientation()[2] < 352) ) 
 				return;
@@ -576,18 +576,13 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			upDir = vector.Lerp( upDir, vector.Up, ( 1 - vector.Dot( upDir, vector.Up ) ) * 0.4 );
 			#endif
 			#endif
-			float dot = 1 - vector.Dot( transform[1], upDir );
-			const float maxSpeedForContact = 11.0; // ~40km/h
-			float impulseRequired = (maxSpeedForContact * m_BodyMass) / ((dot * dot) + 0.1); 
+			float dot = 1.0 - vector.Dot( transform[1], upDir );
+			if ( dot < 0.001 )
+				dot = 0.001;
+			const float maxVelocityMagnitude = 11.0; // ~40km/h
+			float impulseRequired = (maxVelocityMagnitude * m_BodyMass) / dot; 
 			if ( extra.Impulse > impulseRequired )
 			{
-				//Print( "Explode called" )
-				//Print( upDir );
-				//Print( transform[1] );
-				//Print( extra.Impulse );
-				//Print( impulseRequired );
-				//Print( dot );
-				//Print( extra.Normal );
 				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );  //! Maybe find a better solution for this?!
 			}
 		}
@@ -1065,7 +1060,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				torque[2] = torque[2] + heliRotateDir[2];
 			}
 
-			// friction
+			//! Linear Friction
 			{
 				vector friction;
 
@@ -1093,10 +1088,21 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				force -= friction * m_BodyFrictionCoef;
 			}
 
-			// convert forces to worldspace
+			//! convert forces to worldspace
 			{
 				force = force.Multiply3( m_Transform.GetBasis().data );
 				torque = torque.Multiply3( m_Transform.GetBasis().data );
+			}
+
+			//! Angular Friction - more optimized to do in worldspace :)
+			{
+				vector t_friction;
+				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.5 + ( m_TailRotateFactor * 0.5 ) );
+				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef;
+				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef;
+				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef;
+
+				torque -= t_friction;
 			}
 		}
 
@@ -1129,8 +1135,6 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Applying Force: " + force );
 		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Applying Torque: " + torque );
-
-		dBodySetDamping( this, 0.0, 0.5 );
 	}
 
 	// ------------------------------------------------------------

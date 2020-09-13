@@ -38,7 +38,7 @@ class CfgSlots
 		name = "Att_ExpansionLumber";
 		displayName = "Lumber";
 		selection = "att_lumber";
-		ghostIcon = "woodenlog";
+		expansionGhostIcon = "set:expansion_inventory image:lumber_3";
 		stackMax = 10;
 	};
 	class Slot_Att_ExpansionLumberThird
@@ -46,7 +46,7 @@ class CfgSlots
 		name = "Att_ExpansionLumberThird";
 		displayName = "Lumber";
 		selection = "att_lumber";
-		ghostIcon = "woodenlog";
+		expansionGhostIcon = "set:expansion_inventory image:lumber_1";
 		stackMax = 10;
 	};
 	class Slot_Att_ExpansionLumberHalf
@@ -54,7 +54,7 @@ class CfgSlots
 		name = "Att_ExpansionLumberHalf";
 		displayName = "Lumber";
 		selection = "att_lumber";
-		ghostIcon = "woodenlog";
+		expansionGhostIcon = "set:expansion_inventory image:lumber_15";
 		stackMax = 10;
 	};
 };

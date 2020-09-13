@@ -119,7 +119,8 @@ modded class CarScript
 	protected vector m_LastLinearVelocity; // World Space
 	protected vector m_LastLinearVelocityMS; // Model Space
 
-	protected vector m_AngularVelocity;
+	protected vector m_AngularVelocity; // World Space
+	protected vector m_AngularVelocityMS; // Model Space
 
 	protected vector m_LastAngularVelocity;
 
@@ -140,6 +141,10 @@ modded class CarScript
 
 	// Effects
 	protected float m_AltitudeLimiter;
+	protected vector m_InertiaTensor;
+	protected vector m_InvInertiaTensor;
+	protected ref Matrix3 m_InvInertiaTensorWS;
+
 	protected bool m_CarBatteryVanillaState;
 	protected bool m_CarBatteryVanillaStateDefault;
 
@@ -198,6 +203,7 @@ modded class CarScript
 		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
 
 		m_Transform = new Transform;
+		m_InvInertiaTensorWS = new Matrix3;
 
 		m_Controller = GetControllerInstance();
 		
@@ -2079,18 +2085,22 @@ modded class CarScript
 				m_Controller.Update();
 
 			m_Transform.Get( this );
-			
-			m_LastLinearVelocity = m_LinearVelocity;
-			m_LinearAcceleration = m_LastLinearVelocity - m_LinearVelocity;
-			m_LinearVelocity = GetVelocity( this );
 
-			m_LastAngularVelocity = m_LastAngularVelocity;
+			m_LastLinearVelocity = m_LinearVelocity;
+			m_LinearVelocity = GetVelocity( this );
+			m_LinearAcceleration = m_LastLinearVelocity - m_LinearVelocity;
+
+			m_LastAngularVelocity = m_AngularVelocity;
 			m_AngularVelocity = dBodyGetAngularVelocity( this );
 			
+			m_LastLinearVelocityMS = m_LinearVelocityMS;
+			m_LinearVelocityMS = m_LinearVelocity.InvMultiply3( m_Transform.data );
 			m_LinearAccelerationMS = m_LastLinearVelocityMS - m_LinearVelocityMS;
 			
-			m_LastLinearVelocityMS = m_LinearVelocityMS;
-			m_LinearVelocityMS = m_LinearVelocity.InvMultiply3( m_Transform.GetBasis().data );
+			m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
+
+			m_InvInertiaTensor = dBodyGetLocalInertia( this );
+			dBodyGetInvInertiaTensorWorld( this, m_InvInertiaTensorWS.data );
 
 			m_BodyMass = dBodyGetMass( this );
 			m_BodyCenterOfMass = dBodyGetCenterOfMass( this );

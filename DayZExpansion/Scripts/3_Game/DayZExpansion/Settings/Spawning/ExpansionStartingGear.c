@@ -26,7 +26,7 @@ class ExpansionStartingGear
 	ref array<string> BackpackGear;		// Array of classnames used for the backpack gear
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionStartingGear
+	// ExpansionStartingGear Constructor
 	// ------------------------------------------------------------
 	void ExpansionStartingGear()
 	{
@@ -40,7 +40,7 @@ class ExpansionStartingGear
 	}
 
 	// ------------------------------------------------------------
-	// Expansion Defaults
+	// ExpansionStartingGear Defaults
 	// ------------------------------------------------------------
 	void Defaults()
 	{
@@ -73,6 +73,58 @@ class ExpansionStartingGear
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGear::Defaults - End");
+		#endif
+	}
+}
+
+
+class ExpansionStartingClothing
+{
+	ref array<string> Headgear;
+	ref array<string> Glasses;
+	ref array<string> Masks;
+	ref array<string> Tops;
+	ref array<string> Vests;
+	ref array<string> Gloves;
+	ref array<string> Pants;
+	ref array<string> Belts;
+	ref array<string> Shoes;
+	ref array<string> Armbands;
+	
+	// ------------------------------------------------------------
+	// ExpansionStartingClothing Defaults
+	// ------------------------------------------------------------
+	void Defaults()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionStartingClothing::Defaults - Start");
+		#endif
+		
+		Headgear = new array<string>;
+		Glasses = new array<string>;
+		Masks = new array<string>;
+		Tops = new array<string>;
+		Vests = new array<string>;
+		Gloves = new array<string>;
+		Pants = new array<string>;
+		Belts = new array<string>;
+		Shoes = new array<string>;
+		Armbands = new array<string>;
+		
+		Tops.Insert("ExpansionTee");
+		
+		Pants.Insert("TrackSuitPants_Black");
+		Pants.Insert("TrackSuitPants_Red");
+		Pants.Insert("TrackSuitPants_Green");
+		
+		Shoes.Insert("AthleticShoes_Blue");
+		Shoes.Insert("AthleticShoes_Grey");
+		Shoes.Insert("AthleticShoes_Brown");
+		Shoes.Insert("AthleticShoes_Green");
+		Shoes.Insert("AthleticShoes_Black");
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionStartingClothing::Defaults - End");
 		#endif
 	}
 }

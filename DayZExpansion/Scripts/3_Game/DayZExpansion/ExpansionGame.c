@@ -41,6 +41,13 @@ class ExpansionGame
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion OnUpdate
+	// ------------------------------------------------------------
+	void OnUpdate( bool doSim, float timeslice ) 
+	{
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion OnRPC
 	// ------------------------------------------------------------
 	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )

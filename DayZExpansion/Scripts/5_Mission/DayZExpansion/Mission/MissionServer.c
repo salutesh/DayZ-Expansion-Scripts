@@ -141,27 +141,161 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void EquipCharacter()
 	{
-		EntityAI item;
-		EntityAI item2;
-		EntityAI item3;
-		
-		//! Creates clothes from DayZIntroScene's m_demoUnit
-		if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 /*&& m_skin != -1*/ )
+		if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn().UseCustomClothing )
 		{
-			item = m_player.GetInventory().CreateInInventory( topsArray.Get( m_top ) );
-			item2 = m_player.GetInventory().CreateInInventory( pantsArray.Get( m_bottom ) );
-			item3 = m_player.GetInventory().CreateInInventory( shoesArray.Get( m_shoes ) );
-			
-			StartingEquipSetup(m_player, true);
-		}
-		//! Creates random starting clothes - fallback
-		else
-		{
-			item = m_player.GetInventory().CreateInInventory( topsArray.GetRandomElement() );
-			item2 = m_player.GetInventory().CreateInInventory( pantsArray.GetRandomElement() );
-			item3 = m_player.GetInventory().CreateInInventory( shoesArray.GetRandomElement() );
+			if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn().StartingClothing != NULL )
+			{
+				ref ExpansionStartingClothing clothing = GetExpansionSettings().GetSpawn().StartingClothing;
+				if (clothing)
+				{
+					if (clothing.Headgear.Count() > 0)
+					{
+						if (clothing.Headgear.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Headgear.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Headgear.Get( Math.RandomIntInclusive( 0, clothing.Headgear.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Glasses.Count() > 0)
+					{
+						if (clothing.Glasses.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Glasses.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Glasses.Get( Math.RandomIntInclusive( 0, clothing.Glasses.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Masks.Count() > 0)
+					{
+						if (clothing.Masks.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Masks.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Masks.Get( Math.RandomIntInclusive( 0, clothing.Masks.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Tops.Count() > 0)
+					{
+						if (clothing.Tops.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Tops.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Tops.Get( Math.RandomIntInclusive( 0, clothing.Tops.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Vests.Count() > 0)
+					{
+						if (clothing.Vests.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Vests.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Vests.Get( Math.RandomIntInclusive( 0, clothing.Vests.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Gloves.Count() > 0)
+					{
+						if (clothing.Gloves.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Gloves.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Gloves.Get( Math.RandomIntInclusive( 0, clothing.Gloves.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Pants.Count() > 0)
+					{
+						if (clothing.Pants.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Pants.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Pants.Get( Math.RandomIntInclusive( 0, clothing.Pants.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Belts.Count() > 0)
+					{
+						if (clothing.Belts.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Belts.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Belts.Get( Math.RandomIntInclusive( 0, clothing.Belts.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Shoes.Count() > 0)
+					{
+						if (clothing.Shoes.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Shoes.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Shoes.Get( Math.RandomIntInclusive( 0, clothing.Shoes.Count() ) ) );
+						}
+					}
+					
+					if (clothing.Armbands.Count() > 0)
+					{
+						if (clothing.Armbands.Count() == 1)
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Armbands.Get( 0 ) );
+						}
+						else
+						{
+							m_player.GetInventory().CreateInInventory( clothing.Armbands.Get( Math.RandomIntInclusive( 0, clothing.Armbands.Count() ) ) );
+						}
+					}
+				}
+			}
 			
 			StartingEquipSetup(m_player, false);
+		}
+		else
+		{
+			EntityAI item;
+			EntityAI item2;
+			EntityAI item3;
+			
+			//! Creates clothes from DayZIntroScene's m_demoUnit
+			if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 /*&& m_skin != -1*/ )
+			{
+				item = m_player.GetInventory().CreateInInventory( topsArray.Get( m_top ) );
+				item2 = m_player.GetInventory().CreateInInventory( pantsArray.Get( m_bottom ) );
+				item3 = m_player.GetInventory().CreateInInventory( shoesArray.Get( m_shoes ) );
+				
+				StartingEquipSetup(m_player, true);
+			}
+			//! Creates random starting clothes - fallback
+			else
+			{
+				item = m_player.GetInventory().CreateInInventory( topsArray.GetRandomElement() );
+				item2 = m_player.GetInventory().CreateInInventory( pantsArray.GetRandomElement() );
+				item3 = m_player.GetInventory().CreateInInventory( shoesArray.GetRandomElement() );
+				
+				StartingEquipSetup(m_player, false);
+			}
 		}
 	}
 

@@ -167,15 +167,30 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 		EnableVehicleinvincibleInsideSafeZone = true;
 		FrameRateCheckSafeZoneInMs = 5000;
 
-		//Example for adding a safezone with a polygon zone
-		TVectorArray points = new TVectorArray;
-		points.Insert( Vector(6345, 0, 2181) );
-		points.Insert( Vector(6198, 0, 2433) );
-		points.Insert( Vector(6565, 0, 2945) );
-		points.Insert( Vector(7000, 0, 2521) );
-		PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
 
-	   	CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+
+		//! Vanilla Maps
+		if ( world_name.Contains( "chernarusplus" ) )
+		{
+			//Example for adding a safezone with a polygon zone
+			TVectorArray points = new TVectorArray;
+			points.Insert( Vector(6345, 0, 2181) );
+			points.Insert( Vector(6198, 0, 2433) );
+			points.Insert( Vector(6565, 0, 2945) );
+			points.Insert( Vector(7000, 0, 2521) );
+			PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
+
+			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
+		} else if ( world_name.Contains( "enoch" ) )
+		{
+
+		} else if ( world_name.Contains( "deerisle" ) )
+		{
+
+		}
 	}
 
 	// ------------------------------------------------------------

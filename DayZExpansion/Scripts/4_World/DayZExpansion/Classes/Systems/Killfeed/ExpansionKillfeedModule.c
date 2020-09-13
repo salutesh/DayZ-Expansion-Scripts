@@ -641,7 +641,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				} else
 				{
 					float distance = vector.Distance( player.GetPosition(), m_Source.GetPosition() );
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Skull"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString() );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Gun"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString() );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.WEAPON, player, m_Source, source);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON, m_PlayerSteamWebhook, m_PlayerSteamWebhook2, m_DisplayName, Math.Round(distance).ToString() );
 				}
@@ -654,7 +654,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				if( item.IsInherited(Grenade_Base) )
 				{
 					Print("ExpansionKillFeedModule::OnKilledByWeapon - m_Source == NULL || Grenade_Base");
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Skull 1"), m_PlayerPrefix, m_DisplayName );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Grenade"), m_PlayerPrefix, m_DisplayName );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.EXPLOSION, player, null, item);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, m_PlayerSteamWebhook, m_DisplayName );
 				}

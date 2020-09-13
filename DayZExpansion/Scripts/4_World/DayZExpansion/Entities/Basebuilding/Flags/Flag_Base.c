@@ -72,7 +72,7 @@ modded class Flag_Base
 	// ------------------------------------------------------------
 	// Override GetDisplayName
 	// ------------------------------------------------------------
-	string GetDisplayName()
+	override string GetDisplayName()
 	{
 		string tmp;
 		if (NameOverride(tmp))

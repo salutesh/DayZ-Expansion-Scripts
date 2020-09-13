@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <modded_inputs>
     <inputs>
@@ -64,7 +65,7 @@
             <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" visible="false" />
 
 			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
-			<input name="UAExpansionOnlyPartyMembersMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_PARTY_MEMBERS_MARKERS" />
+			<input name="UAExpansionServerMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_SERVER_MARKERS" />
 			
 			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
         </actions>

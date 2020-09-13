@@ -40,8 +40,8 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	void ExpansionAirdropPlane()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] Constructor start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] Constructor start");
 		#endif
 
 		if ( IsMissionClient() )
@@ -51,8 +51,8 @@ class ExpansionAirdropPlane extends House
 
 		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE );
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] Constructor end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] Constructor end");
 		#endif
 	}
 	
@@ -61,12 +61,12 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	void ~ExpansionAirdropPlane()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] Deconstructor start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] Deconstructor start");
 		#endif
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] Deconstructor end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] Deconstructor end");
 		#endif
 	}
 	
@@ -75,8 +75,8 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	override void EEDelete(EntityAI parent)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAirdropPlane::EEDelete - Start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionAirdropPlane::EEDelete - Start");
 		#endif
 		
 		super.EEDelete(parent);
@@ -104,8 +104,8 @@ class ExpansionAirdropPlane extends House
 			}
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAirdropPlane::EEDelete - End");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionAirdropPlane::EEDelete - End");
 		#endif
 	}
 	
@@ -125,14 +125,14 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	void PlayLoop()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] PlayLoop start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] PlayLoop start");
 		#endif
 		
 		PlaySoundSetLoop( m_SoundLoop, "Expansion_C130J_Loop_SoundSet", 0.0, 0.0 );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] PlayLoop end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] PlayLoop end");
 		#endif
 	}
 	
@@ -141,8 +141,8 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	void SetupPlane( vector dropPosition, string name, float maxRadius, float speed )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] SetupPlane start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] SetupPlane start");
 		#endif
 
 		vector position = GetPosition();
@@ -164,8 +164,8 @@ class ExpansionAirdropPlane extends House
 		
 		m_PreviousDistance = vector.Distance( position, Vector( m_AirdropPosition[0], position[1], m_AirdropPosition[2] ) );
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] SetupPlane end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] SetupPlane end");
 		#endif
 	}
 	
@@ -174,8 +174,8 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] EOnSimulate start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] EOnSimulate start");
 		#endif
 
 		if ( IsMissionHost() )
@@ -211,8 +211,8 @@ class ExpansionAirdropPlane extends House
 
 		SetAnimationPhase( "rotor", m_RotorAnimationPosition );
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] EOnSimulate end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] EOnSimulate end");
 		#endif
 	}
 	
@@ -243,8 +243,8 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	bool CheckForDrop()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] CheckPosition start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] CheckPosition start");
 		#endif
 
 		if ( !IsMissionHost() )
@@ -278,8 +278,8 @@ class ExpansionAirdropPlane extends House
 
 		m_PreviousDistance = distance;
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] CheckPosition end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] CheckPosition end");
 		#endif
 
 		return false;
@@ -290,8 +290,8 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	ExpansionAirdropContainerBase CreateDrop( string container )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] CreateDrop start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] CreateDrop start");
 		#endif
 
 		m_AirdropCreated = true;
@@ -308,8 +308,8 @@ class ExpansionAirdropPlane extends House
 			drop.SetOrientation( "0 0 0" );
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] CreateDrop end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("[ExpansionAirdropPlane] CreateDrop end");
 		#endif
 
 		return drop;

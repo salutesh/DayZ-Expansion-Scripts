@@ -48,7 +48,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void ExpansionAirdropContainerBase()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ExpansionAirdropContainerBase - Start");
 		#endif	
 
@@ -68,7 +68,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CheckAirdrop, 5000, true );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ExpansionAirdropContainerBase - End");
 		#endif	
 	}
@@ -78,7 +78,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void ~ExpansionAirdropContainerBase()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
 		#endif	
 		
@@ -93,7 +93,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			RemoveServerMarker();
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
 		#endif	
 	}
@@ -111,7 +111,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	/*void ClearAirdrop()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ClearAirdrop - Start");
 		#endif	
 		
@@ -135,7 +135,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		GetGame().ObjectDelete( this );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ClearAirdrop - End");
 		#endif	
 	}*/
@@ -145,13 +145,13 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void LoadFromMission( ref Class mission )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::LoadFromMission - Start");
 		#endif	
 
 		m_FromSettings = false;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::LoadFromMission - End");
 		#endif	
 	}
@@ -161,7 +161,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void InitAirdrop()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - Start");
 		#endif
 		
@@ -180,7 +180,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			m_StartTime = GetGame().GetTime();
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - End");
 		#endif
 	}
@@ -190,7 +190,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void CheckAirdrop()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CheckAirdrop - Start");
 		#endif
 		
@@ -214,7 +214,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CheckAirdrop - End");
 		#endif
 	}
@@ -224,7 +224,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void OnUpdate( float deltaTime )
 	{		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint( "ExpansionAirdropContainerBase::OnUpdate - Start");
 		#endif
 		
@@ -248,7 +248,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			m_LootHasSpawned = true;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint( "ExpansionAirdropContainerBase::OnUpdate - End");
 		#endif
 	}
@@ -258,7 +258,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void AddItem( ref ExpansionAirdropLootAttachments className )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::AddItem - Start");
 		#endif
 		
@@ -280,7 +280,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		m_ItemCount = items.Count();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::AddItem - End");
 		#endif
 	}
@@ -290,7 +290,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void CreateServerMarker()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - Start");
 		#endif
 		
@@ -305,12 +305,12 @@ class ExpansionAirdropContainerBase extends Container_Base
 			
 			m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation, m_ServerMarkerUID );
 
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_MISSION_EVENT_DEBUG
 			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker name is: " + m_ServerMarker );
 			#endif
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
 		#endif
 	}
@@ -320,7 +320,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void RemoveServerMarker()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Start");
 		#endif
 		
@@ -331,7 +331,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			m_ServerMarkerUID = "";
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - End");
 		#endif
 	}
@@ -341,7 +341,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected void SpawnInfected( vector centerPosition, float innerRadius, float spawnRadius )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - Start");
 		#endif
 		
@@ -363,7 +363,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, m_Settings.Infected );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - End");
 		#endif
 	}
@@ -373,7 +373,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::SampleSpawnPosition - Start");
 		#endif
 		
@@ -397,7 +397,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::SampleSpawnPosition - End and return nPosition: " + nPosition.ToString());
 		#endif
 		
@@ -410,7 +410,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	private bool IsGround( float height )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::IsGround - Start");
 		#endif
 		
@@ -425,7 +425,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		//! Ray hitindex output
 		int hitindex;
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::IsGround - End and return height: " + DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this ).ToString());
 		#endif
 		
@@ -439,7 +439,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	bool IsPlayerNearby(float radius)
 	{		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::IsPlayerNearby - Start");
 		#endif
 		
@@ -457,14 +457,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 			
 			if ( distance <= radius )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
+				#ifdef EXPANSION_MISSION_EVENT_DEBUG
 				EXLogPrint("ExpansionAirdropContainerBase::IsPlayerNearby - End and return true");
 				#endif
 				return true;
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::IsPlayerNearby - End and return false");
 		#endif
 		
@@ -476,7 +476,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::OnVariablesSynchronized - Start");
 		#endif
 		
@@ -484,7 +484,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		UpdateLight();
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::OnVariablesSynchronized - End");
 		#endif
 	}
@@ -495,7 +495,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected void CreateLight()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint( "ExpansionAirdropContainerBase::CreateLight - Start" );
 		#endif
 				
@@ -515,7 +515,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint( "ExpansionAirdropContainerBase::CreateLight - End" );
 		#endif
 	}
@@ -534,7 +534,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void ToggleLight()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ToggleLight - Start");
 		#endif
 		
@@ -544,7 +544,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		UpdateLight();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ToggleLight - End");
 		#endif
 	}
@@ -554,7 +554,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void UpdateLight()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::UpdateLight - Start");
 		#endif
 		
@@ -583,7 +583,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::UpdateLight - End");
 		#endif
 	}
@@ -593,14 +593,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected void DestroyLight()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::DestroyLight - Start");
 		#endif
 		
 		if ( m_Light )
 			m_Light.Destroy();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::DestroyLight - Start");
 		#endif
 	}
@@ -611,7 +611,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected void CreateSmoke()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateSmoke - Start");
 		#endif
 		
@@ -620,7 +620,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_AIRDROP_SMOKE, this, GetMemoryPointPos("light") );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateSmoke - End");
 		#endif
 	}
@@ -630,7 +630,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	protected void StopSmokeEffect()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::StopSmokeEffect - Start");
 		#endif
 		
@@ -644,7 +644,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::StopSmokeEffect - End");
 		#endif
 	}

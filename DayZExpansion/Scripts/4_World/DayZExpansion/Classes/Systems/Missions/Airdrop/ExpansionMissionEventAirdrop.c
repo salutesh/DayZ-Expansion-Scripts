@@ -56,7 +56,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		#endif
 		
 		m_EventName = "Airdrop";
-
 		m_Infected = new array< Object >;
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -74,47 +73,45 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnStart - Start");
 		#endif
 		
-		vector spawnPoint = Vector( 0, Height, 0 );
-		
-		switch( Math.RandomInt(0, 4) ) {
-			case 0: {
-				spawnPoint[0] = 0.0;
-				spawnPoint[2] = Math.RandomFloat( 0.0, 15360.0 );
-				break;
-			}
-			case 1: {
-				spawnPoint[0] = 15360.0;
-				spawnPoint[2] = Math.RandomFloat( 0.0, 15360.0 );
-				break;
-			}
-			case 2: {
-				spawnPoint[0] = Math.RandomFloat( 0.0, 15360.0 );
-				spawnPoint[2] = 0.0;
-				break;
-			}
-			case 3: {
-				spawnPoint[0] = Math.RandomFloat( 0.0, 15360.0 );
-				spawnPoint[2] = 15360.0;
-				break;
-			}
-		}
-
-		m_Plane = ExpansionAirdropPlane.Cast( GetGame().CreateObjectEx("ExpansionAirdropPlane", spawnPoint, ECE_AIRBORNE|ECE_CREATEPHYSICS) );
-		
-		if ( m_Plane )
+		if ( GetGame().IsServer() )
 		{
-			if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropStarted)
-			{
-				CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
-			}
+			vector spawnPoint = Vector( 0, Height, 0 );
 			
-			m_Plane.SetupPlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Speed );
-			m_Plane.m_Height = Height;
-		} 
-		else
-		{
-			End();
-			Error( "ExpansionMissionEventAirdrop::Event_OnStart - ERROR: Could not create plane object! End of airdrop event." );
+			switch( Math.RandomInt(0, 4) ) {
+				case 0: {
+					spawnPoint[0] = 0.0;
+					spawnPoint[2] = Math.RandomFloat( 0.0, 15360.0 );
+					break;
+				}
+				case 1: {
+					spawnPoint[0] = 15360.0;
+					spawnPoint[2] = Math.RandomFloat( 0.0, 15360.0 );
+					break;
+				}
+				case 2: {
+					spawnPoint[0] = Math.RandomFloat( 0.0, 15360.0 );
+					spawnPoint[2] = 0.0;
+					break;
+				}
+				case 3: {
+					spawnPoint[0] = Math.RandomFloat( 0.0, 15360.0 );
+					spawnPoint[2] = 15360.0;
+					break;
+				}
+			}
+	
+			m_Plane = ExpansionAirdropPlane.Cast( GetGame().CreateObjectEx("ExpansionAirdropPlane", spawnPoint, ECE_AIRBORNE|ECE_CREATEPHYSICS) );
+			
+			if ( m_Plane )
+			{
+				if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropStarted)
+				{
+					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
+				}
+				
+				m_Plane.SetupPlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Speed );
+				m_Plane.m_Height = Height;
+			}
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -132,21 +129,24 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - Start");
 		#endif
 		
-		RemovePlane();
-
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearContainer, 0, false );
-		
-		while ( m_Infected.Count() > 0 )
+		if ( GetGame().IsServer() )
 		{
-			int index = m_Infected.Count() - 1;
-
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, index * 5, false, m_Infected[ index ] );
-
-			m_Infected.Remove( index );
+			RemovePlane();
+	
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearContainer, 0, false );
+			
+			while ( m_Infected.Count() > 0 )
+			{
+				int index = m_Infected.Count() - 1;
+	
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, index * 5, false, m_Infected[ index ] );
+	
+				m_Infected.Remove( index );
+			}
+			
+			//! After mission ends check all 20 seconds if a player is nearby the airdrop crate and if not clean it up
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupContainerCheck, 20, true );
 		}
-		
-		//! After mission ends check all 20 seconds if a player is nearby the airdrop crate and if not clean it up
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupContainerCheck, 20, true );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - End");
@@ -158,11 +158,22 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	private void ClearContainer()
 	{
-		if (!m_Container)
-			return;
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::ClearContainer - Start");
+		#endif
 		
-		m_Container.StopUpdateQue();
-		GetGame().ObjectDelete( m_Container );
+		if ( GetGame().IsServer() )
+		{
+			if (!m_Container)
+				return;
+			
+			m_Container.StopUpdateQue();
+			GetGame().ObjectDelete( m_Container );
+		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::ClearContainer - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -174,18 +185,21 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveContainer - Start");
 		#endif
 		
-		if ( !m_Container )
-			return;
-		
-		array< EntityAI > items = new array< EntityAI >;
-		m_Container.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
-		
-		for ( int i = 0; i < items.Count(); ++i )
+		if ( GetGame().IsServer() )
 		{
-			GetGame().ObjectDelete(items[i]);
+			if ( !m_Container )
+				return;
+			
+			array< EntityAI > items = new array< EntityAI >;
+			m_Container.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
+			
+			for ( int i = 0; i < items.Count(); ++i )
+			{
+				GetGame().ObjectDelete(items[i]);
+			}
+			
+			GetGame().ObjectDelete( m_Container );
 		}
-		
-		GetGame().ObjectDelete( m_Container );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveContainer - End");
@@ -201,14 +215,17 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::CleanupContainerCheck - Start");
 		#endif
 		
-		if ( !m_Container )
-			return;
-		
-		//! Check if a player is nearby the container in a 500 meter radius
-		if ( !IsPlayerNearby(500) )
+		if ( GetGame().IsServer() )
 		{
-			RemoveContainer();
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupContainerCheck );
+			if ( !m_Container )
+				return;
+			
+			//! Check if a player is nearby the container in a 500 meter radius
+			if ( !IsPlayerNearby(1500) )
+			{
+				RemoveContainer();
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupContainerCheck );
+			}
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -226,24 +243,27 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::IsPlayerNearby - Start");
 		#endif
 		
-		vector pos = m_Container.GetPosition();
-		array<Man> players = new array<Man>;
-		GetGame().GetWorld().GetPlayerList(players);
-		float distance;
-		
-		for ( int i = 0; i < players.Count(); i++ )
+		if ( GetGame().IsServer() )
 		{
-			Man player = players[i];
-			if (!player) continue;
+			vector pos = m_Container.GetPosition();
+			array<Man> players = new array<Man>;
+			GetGame().GetWorld().GetPlayerList(players);
+			float distance;
 			
-			distance = vector.Distance( pos, player.GetPosition() );
-			
-			if ( distance <= radius )
+			for ( int i = 0; i < players.Count(); i++ )
 			{
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("ExpansionMissionEventAirdrop::IsPlayerNearby - End and return true");
-				#endif
-				return true;
+				Man player = players[i];
+				if (!player) continue;
+				
+				distance = vector.Distance( pos, player.GetPosition() );
+				
+				if ( distance <= radius )
+				{
+					#ifdef EXPANSIONEXLOGPRINT
+					EXLogPrint("ExpansionMissionEventAirdrop::IsPlayerNearby - End and return true");
+					#endif
+					return true;
+				}
 			}
 		}
 		
@@ -314,53 +334,56 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnUpdate - Start");
 		#endif
 		
-		if ( m_Plane )
-		{			
-			if ( m_Plane.CheckForDrop() && !m_Container )
-			{
-				m_LootHasSpawned = false;
-
-				m_Container = m_Plane.CreateDrop( Container );
-				
-				if (!m_Container)
-				{
-					Error( "ExpansionMissionEventAirdrop::Event_OnUpdate - ERROR: Could not create container object!" );
-					return;
-				}
-				
-				if (m_Container)
-				{
-					m_Container.InitAirdrop( );
-					m_Container.SetLifetimeMax( 10800 );
-				
-					if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropDropped)
-						CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 10 );
-				}
-			}
-
-			if ( m_Plane.IsWarningProximity() )
-			{
-				if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropClosingOn)
-					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );	
-			}
-
-			if ( m_Plane.CheckForRemove() )
-			{
-				RemovePlane( );
-			}
-		}
-
-		if ( m_Container )
+		if ( GetGame().IsServer() )
 		{
-			if ( m_Container.m_ItemCount == 0 && !m_LootHasSpawned )
+			if ( m_Plane )
+			{			
+				if ( m_Plane.CheckForDrop() && !m_Container )
+				{
+					m_LootHasSpawned = false;
+	
+					m_Container = m_Plane.CreateDrop( Container );
+					
+					if (!m_Container)
+					{
+						Error( "ExpansionMissionEventAirdrop::Event_OnUpdate - ERROR: Could not create container object!" );
+						return;
+					}
+					
+					if (m_Container)
+					{
+						m_Container.InitAirdrop( );
+						m_Container.SetLifetimeMax( 10800 );
+					
+						if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropDropped)
+							CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 10 );
+					}
+				}
+	
+				if ( m_Plane.IsWarningProximity() )
+				{
+					if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropClosingOn)
+						CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );	
+				}
+	
+				if ( m_Plane.CheckForRemove() )
+				{
+					RemovePlane( );
+				}
+			}
+	
+			if ( m_Container )
 			{
-				SpawnLoot( m_Container.GetPosition(), 30 );
-
-				SpawnInfected( m_Container.GetPosition(), 50 );
-
-				m_CurrentMissionTime = 0;
-
-				m_LootHasSpawned = true;
+				if ( m_Container.m_ItemCount == 0 && !m_LootHasSpawned )
+				{
+					SpawnLoot( m_Container.GetPosition(), 30 );
+	
+					SpawnInfected( m_Container.GetPosition(), 50 );
+	
+					m_CurrentMissionTime = 0;
+	
+					m_LootHasSpawned = true;
+				}
 			}
 		}
 		
@@ -377,11 +400,14 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMissionEventAirdrop::RemovePlane - Start");
 		#endif
-		
-		if ( !m_Plane )
-			return;
-
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, m_Plane );
+	
+		if ( GetGame().IsServer() )
+		{	
+			if ( !m_Plane )
+				return;
+	
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, m_Plane );
+		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMissionEventAirdrop::RemovePlane - End");
@@ -397,7 +423,10 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::OnLoadMission - Start");
 		#endif
 
-		JsonFileLoader<ExpansionMissionEventAirdrop>.JsonLoadFile( m_FileName, this );
+		if ( GetGame().IsServer() )
+		{
+			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonLoadFile( m_FileName, this );
+		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMissionEventAirdrop::OnLoadMission - End");
@@ -413,7 +442,10 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventAirdrop::OnSaveMission - Start");
 		#endif
 
-		JsonFileLoader<ExpansionMissionEventAirdrop>.JsonSaveFile( m_FileName, this );
+		if ( GetGame().IsServer() )
+		{
+			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonSaveFile( m_FileName, this );
+		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMissionEventAirdrop::OnSaveMission - End");
@@ -425,7 +457,23 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	override int MaxDefaultMissions()
 	{
-		return 52;
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+
+		//! Vanilla Maps
+		if ( world_name.Contains( "chernarusplus" ) )
+		{
+			return 52;
+		} else if ( world_name.Contains( "enoch" ) )
+		{
+			return 0;
+		} else if ( world_name.Contains( "deerisle" ) )
+		{
+			return 0;
+		}
+
+		return 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -442,88 +490,25 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		Height = 750.0;
 		
 		ShowNotification = true;
+		
+		//! Set default markers depending on map name
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
 
-		int idx = (int) Math.Floor( index / 4.0 );
-		int lootIdx = index - ( idx * 4 );
-
-		float chanceLower = 0.1;
-
-		switch ( lootIdx )
+		//! Vanilla Maps
+		if ( world_name.Contains( "chernarusplus" ) )
 		{
-		default:
-		case 0:
-			MissionName = "General";
-			DefaultGeneralLoot();
-			break;
-		case 1:
-			MissionName = "Medical";
-			DefaultMedicalLoot();
-			break;
-		case 2:
-			MissionName = "Basebuilding";
-			DefaultBasebuildingLoot();
-			break;
-		case 3:
-			MissionName = "Military";
-			DefaultMilitaryLoot();
-			break;
-		}
-
-		switch ( idx )
+			return ExpansionMissionAirdropChernarus( index );
+		} else if ( world_name.Contains( "enoch" ) )
 		{
-		default:
-		case 0:
-			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
-			chanceLower = 0.25;
-			break;
-		case 1:
-			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
-			break;
-		case 2:
-			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
-			break;
-		case 3:
-			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
-			break;
-		case 4:
-			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
-			break;
-		case 5:
-			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
-			break;
-		case 6:
-			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
-			break;
-		case 7:
-			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
-			break;
-		case 8:
-			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
-			break;
-		case 9:
-			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
-			break;
-		case 10:
-			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
-			break;
-		case 11:
-			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
-			break;
-		case 12:
-			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
-			break;
-		}
-
-		for ( int i = 0; i < Loot.Count(); ++i )
+			return ExpansionMissionAirdropLivonia( index );
+		} else if ( world_name.Contains( "deerisle" ) )
 		{
-			Loot[i].Chance *= chanceLower;
+			return ExpansionMissionAirdropDeerIsle( index );
 		}
-
-		MissionName = MissionName + "_" + DropLocation.Name;
-
-		string fname = MissionName;
-		fname.Replace( " ", "-" );
-		return fname;
+		
+		return "Airdrop_Template";
 	}
 		
 	// ------------------------------------------------------------
@@ -1343,14 +1328,332 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		ItemCount = 50;
 		InfectedCount = 50;
 	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChernarus
+	// ------------------------------------------------------------
+	string ExpansionMissionAirdropChernarus(int index)
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionAirdropChernarus::Defaults - Start");
+		#endif
+
+		Enabled = true;
+
+		Weight = 1 + ( ( index + 1 ) * 5 );
+		MissionMaxTime = 1200; // 20 minutes
+
+		Speed = 25.0;
+		Height = 750.0;
+		
+		ShowNotification = true;
+
+		int idx = (int) Math.Floor( index / 4.0 );
+		int lootIdx = index - ( idx * 4 );
+
+		float chanceLower = 0.1;
+
+		switch ( lootIdx )
+		{
+		default:
+		case 0:
+			MissionName = "General";
+			DefaultGeneralLoot();
+			break;
+		case 1:
+			MissionName = "Medical";
+			DefaultMedicalLoot();
+			break;
+		case 2:
+			MissionName = "Basebuilding";
+			DefaultBasebuildingLoot();
+			break;
+		case 3:
+			MissionName = "Military";
+			DefaultMilitaryLoot();
+			break;
+		}
+
+		switch ( idx )
+		{
+		default:
+		case 0:
+			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
+			chanceLower = 0.25;
+			break;
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
+			break;
+		case 2:
+			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
+			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
+			break;
+		case 5:
+			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
+			break;
+		case 6:
+			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
+			break;
+		case 7:
+			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
+			break;
+		case 8:
+			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
+			break;
+		case 9:
+			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
+			break;
+		case 10:
+			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
+			break;
+		case 11:
+			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
+			break;
+		case 12:
+			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
+			break;
+		}
+
+		for ( int i = 0; i < Loot.Count(); ++i )
+		{
+			Loot[i].Chance *= chanceLower;
+		}
+
+		MissionName = MissionName + "_" + DropLocation.Name;
+
+		string fname = MissionName;
+		fname.Replace( " ", "-" );
+		return fname;
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionAirdropChernarus::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChernarus
+	// ------------------------------------------------------------
+	string ExpansionMissionAirdropLivonia(int index)
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionAirdropLivonia::Defaults - Start");
+		#endif
+
+		Enabled = true;
+
+		Weight = 1 + ( ( index + 1 ) * 5 );
+		MissionMaxTime = 1200; // 20 minutes
+
+		Speed = 25.0;
+		Height = 750.0;
+		
+		ShowNotification = true;
+
+		int idx = (int) Math.Floor( index / 4.0 );
+		int lootIdx = index - ( idx * 4 );
+
+		float chanceLower = 0.1;
+
+		switch ( lootIdx )
+		{
+		default:
+		case 0:
+			MissionName = "General";
+			DefaultGeneralLoot();
+			break;
+		case 1:
+			MissionName = "Medical";
+			DefaultMedicalLoot();
+			break;
+		case 2:
+			MissionName = "Basebuilding";
+			DefaultBasebuildingLoot();
+			break;
+		case 3:
+			MissionName = "Military";
+			DefaultMilitaryLoot();
+			break;
+		}
+
+		switch ( idx )
+		{
+		default:
+		case 0:
+			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
+			chanceLower = 0.25;
+			break;
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
+			break;
+		case 2:
+			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
+			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
+			break;
+		case 5:
+			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
+			break;
+		case 6:
+			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
+			break;
+		case 7:
+			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
+			break;
+		case 8:
+			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
+			break;
+		case 9:
+			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
+			break;
+		case 10:
+			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
+			break;
+		case 11:
+			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
+			break;
+		case 12:
+			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
+			break;
+		}
+
+		for ( int i = 0; i < Loot.Count(); ++i )
+		{
+			Loot[i].Chance *= chanceLower;
+		}
+
+		MissionName = MissionName + "_" + DropLocation.Name;
+
+		string fname = MissionName;
+		fname.Replace( " ", "-" );
+		return fname;
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionAirdropLivonia::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChernarus
+	// ------------------------------------------------------------
+	string ExpansionMissionAirdropDeerIsle(int index)
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - Start");
+		#endif
+
+		Enabled = true;
+
+		Weight = 1 + ( ( index + 1 ) * 5 );
+		MissionMaxTime = 1200; // 20 minutes
+
+		Speed = 25.0;
+		Height = 750.0;
+		
+		ShowNotification = true;
+
+		int idx = (int) Math.Floor( index / 4.0 );
+		int lootIdx = index - ( idx * 4 );
+
+		float chanceLower = 0.1;
+
+		switch ( lootIdx )
+		{
+		default:
+		case 0:
+			MissionName = "General";
+			DefaultGeneralLoot();
+			break;
+		case 1:
+			MissionName = "Medical";
+			DefaultMedicalLoot();
+			break;
+		case 2:
+			MissionName = "Basebuilding";
+			DefaultBasebuildingLoot();
+			break;
+		case 3:
+			MissionName = "Military";
+			DefaultMilitaryLoot();
+			break;
+		}
+
+		switch ( idx )
+		{
+		default:
+		case 0:
+			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
+			chanceLower = 0.25;
+			break;
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
+			break;
+		case 2:
+			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
+			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
+			break;
+		case 5:
+			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
+			break;
+		case 6:
+			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
+			break;
+		case 7:
+			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
+			break;
+		case 8:
+			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
+			break;
+		case 9:
+			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
+			break;
+		case 10:
+			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
+			break;
+		case 11:
+			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
+			break;
+		case 12:
+			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
+			break;
+		}
+
+		for ( int i = 0; i < Loot.Count(); ++i )
+		{
+			Loot[i].Chance *= chanceLower;
+		}
+
+		MissionName = MissionName + "_" + DropLocation.Name;
+
+		string fname = MissionName;
+		fname.Replace( " ", "-" );
+		return fname;
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - End");
+		#endif
+	}
 		
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------
 	protected void SpawnLoot( vector centerPosition, float radius )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] SpawnLoot start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnLoot - Start");
 		#endif
 
 		m_LootItemsSpawned = 0;
@@ -1367,8 +1670,8 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			}
 		}	
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] SpawnLoot end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnLoot - End");
 		#endif
 	}
 		
@@ -1377,41 +1680,43 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	protected void SpawnInfected( vector centerPosition, /*float innerRadius, */ float spawnRadius )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] SpawnInfected start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfected - Start");
 		#endif
 		
-
-		for ( int z = 0; z < InfectedCount; z++ ) 
+		if ( GetGame().IsServer() )
 		{
-			Object obj = GetGame().CreateObject( Infected.GetRandomElement(), Vector( m_Container.GetPosition()[0] + Math.RandomFloat( -spawnRadius, spawnRadius ), 0, m_Container.GetPosition()[2] + Math.RandomFloat( -spawnRadius, spawnRadius ) ), false, true );
-
-			m_Infected.Insert( obj );
+			for ( int z = 0; z < InfectedCount; z++ ) 
+			{
+				Object obj = GetGame().CreateObject( Infected.GetRandomElement(), Vector( m_Container.GetPosition()[0] + Math.RandomFloat( -spawnRadius, spawnRadius ), 0, m_Container.GetPosition()[2] + Math.RandomFloat( -spawnRadius, spawnRadius ) ), false, true );
+	
+				m_Infected.Insert( obj );
+			}
+	
+			/*
+			m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
+			array<ref BehaviourGroupInfectedPackWaypointParams> waypointParams = new array<ref BehaviourGroupInfectedPackWaypointParams>;
+	
+			waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( centerPosition, 20.0 ) );
+			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 20, 5 ), 20.0 ) );
+			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 45, 35 ), 50.0 ) );
+			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 30, 25 ), 20.0 ) );
+			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 5, 0 ), 2.0 ) );
+	
+			BehaviourGroupInfectedPack bgip;
+			Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
+			if ( bgip )
+			{
+				bgip.SetWaypoints( waypointParams, 0, true, false );
+			}
+			*/
+			// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, Infected );
+	
+			// SpawnInfectedRemaining_NOPATHING( centerPosition, innerRadius, spawnRadius, Infected );
 		}
 
-		/*
-		m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
-		array<ref BehaviourGroupInfectedPackWaypointParams> waypointParams = new array<ref BehaviourGroupInfectedPackWaypointParams>;
-
-		waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( centerPosition, 20.0 ) );
-		//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 20, 5 ), 20.0 ) );
-		//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 45, 35 ), 50.0 ) );
-		//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 30, 25 ), 20.0 ) );
-		//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 5, 0 ), 2.0 ) );
-
-		BehaviourGroupInfectedPack bgip;
-		Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
-		if ( bgip )
-		{
-			bgip.SetWaypoints( waypointParams, 0, true, false );
-		}
-		*/
-		// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, Infected );
-
-		// SpawnInfectedRemaining_NOPATHING( centerPosition, innerRadius, spawnRadius, Infected );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionAirdropPlane] SpawnInfected end");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfected - End");
 		#endif
 	}
 		
@@ -1420,24 +1725,35 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	protected void SpawnInfectedRemaining_NOPATHING( vector centerPosition, float innerRadius, float spawnRadius, int remaining )
 	{
-		vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
-
-		Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
-
-		DayZCreatureAI creature;
-		Class.CastTo( creature, obj );
-		if ( creature )
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining_NOPATHING - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
 		{
-			creature.InitAIAgent( m_AIGroup );
-
-			m_Infected.Insert( obj );
+			vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
+	
+			Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
+	
+			DayZCreatureAI creature;
+			Class.CastTo( creature, obj );
+			if ( creature )
+			{
+				creature.InitAIAgent( m_AIGroup );
+	
+				m_Infected.Insert( obj );
+			}
+			
+			if ( remaining > 0 )
+			{
+				// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
+				// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining_NOPATHING, centerPosition, innerRadius, spawnRadius, remaining - 1 );
+			}
 		}
 		
-		if ( remaining > 0 )
-		{
-			// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
-			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining_NOPATHING, centerPosition, innerRadius, spawnRadius, remaining - 1 );
-		}
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining_NOPATHING - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -1445,24 +1761,35 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	private void SpawnInfectedRemaining( vector centerPosition, float innerRadius, float spawnRadius, int remaining )
 	{
-		if ( remaining <= 0 )
-			return;
-
-		vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
-
-		Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
-
-		DayZCreatureAI creature;
-		Class.CastTo( creature, obj );
-		if ( creature )
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
 		{
-			creature.InitAIAgent( m_AIGroup );
-
-			m_Infected.Insert( obj );
+			if ( remaining <= 0 )
+				return;
+	
+			vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
+	
+			Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
+	
+			DayZCreatureAI creature;
+			Class.CastTo( creature, obj );
+			if ( creature )
+			{
+				creature.InitAIAgent( m_AIGroup );
+	
+				m_Infected.Insert( obj );
+			}
+	
+			// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
+			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining, centerPosition, innerRadius, spawnRadius, remaining - 1 );
 		}
-
-		// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
-		// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining, centerPosition, innerRadius, spawnRadius, remaining - 1 );
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -1470,6 +1797,10 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	private vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition - Start");
+		#endif
+		
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
 		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
 
@@ -1490,6 +1821,10 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition - End and return nPosition: " + nPosition,ToString());
+		#endif
+		
 		return nPosition;
 	}
 }

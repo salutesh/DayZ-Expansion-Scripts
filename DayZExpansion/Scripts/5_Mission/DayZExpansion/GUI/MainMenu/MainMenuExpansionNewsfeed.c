@@ -30,9 +30,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ExpansionNewsfeed Contructor
 	// ------------------------------------------------------------	
 	void ExpansionNewsfeed( Widget parent )
-	{		
-		Print("ExpansionNewsfeed::ExpansionNewsfeed - Start");
-		
+	{				
 		m_Root				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_newsfeed.layout", parent);
 		
 		m_Feedback			= Widget.Cast(m_Root.FindAnyWidget("feedback_tracker"));
@@ -51,17 +49,13 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		SetNewsfeed();
 		
 		m_Root.SetHandler( this );
-		
-		Print("ExpansionNewsfeed::ExpansionNewsfeed - End");
 	}
 	
 	// ------------------------------------------------------------
 	// ShowNewsfeed
 	// ------------------------------------------------------------	
 	void SetNewsfeed()
-	{
-		Print("ExpansionNewsfeed::SetNewsfeed - Start");
-		
+	{		
 		string client_version = "";
 		
 		if(GetDayZGame())
@@ -89,8 +83,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_SecText3.Show(false);
 		//m_SecText3.SetText("");
 		//m_SecText3.Update();
-		
-		Print("ExpansionNewsfeed::SetNewsfeed - End");
 	}
 	
 	// ------------------------------------------------------------

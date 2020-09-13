@@ -112,7 +112,7 @@ class ExpansionPartyPlayerData
 		if ( position != vector.Zero && !QuickMarker )
 		{
 			QuickMarker = new ExpansionPartyQuickMarkerData( "QuickMarker" + UID );
-		} else if ( position == vector.Zero && QuickMarker || vector.Distance(position, QuickMarker.GetPosition()) < 2.5 )
+		} else if ( position == vector.Zero && QuickMarker || QuickMarker && vector.Distance(position, QuickMarker.GetPosition()) < 2.5 )
 		{
 			delete QuickMarker;
 		}

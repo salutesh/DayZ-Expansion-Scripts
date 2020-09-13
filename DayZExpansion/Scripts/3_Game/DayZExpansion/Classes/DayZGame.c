@@ -242,11 +242,20 @@ modded class DayZGame
 		
 		super.FirearmEffects( source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType );
 
-		m_ExpansionGame.FirearmEffects( source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType );
+		if (m_ExpansionGame != NULL)
+			m_ExpansionGame.FirearmEffects( source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "DayZGame::FirearmEffects - End");
 		#endif
+	}
+
+	override void OnUpdate( bool doSim, float timeslice ) 
+	{
+		super.OnUpdate( doSim, timeslice );
+
+		if (m_ExpansionGame != NULL)
+			m_ExpansionGame.OnUpdate( doSim, timeslice );
 	}
 
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
@@ -255,7 +264,8 @@ modded class DayZGame
 				
 		//! Move below if there becomes some problems
 		//! Steve moved below on 30.06.2020 to fix a NULL pointer
-		if ( m_ExpansionGame.OnRPC( sender, target, rpc_type, ctx ) )
-			return;
+		if (m_ExpansionGame != NULL)
+			if ( m_ExpansionGame.OnRPC( sender, target, rpc_type, ctx ) )
+				return;
 	}
 }

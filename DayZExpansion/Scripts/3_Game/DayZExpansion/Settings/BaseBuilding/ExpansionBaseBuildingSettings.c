@@ -15,27 +15,27 @@
  **/
 class ExpansionBaseBuildingSettings: ExpansionSettingBase
 {
-	bool CanBuildAnywhere;					//! If enabled, allows players to build anywhere.
-	bool AllowBuildingWithoutATerritory; 	//! 0 - You can build without territory, but nobody else can build near your territory. | 1 - You can only build if you are in your own territory.
+	bool CanBuildAnywhere;									//! If enabled, allows players to build anywhere.
+	bool AllowBuildingWithoutATerritory; 					//! 0 - You can build without territory, but nobody else can build near your territory. | 1 - You can only build if you are in your own territory.
 	
-	autoptr TStringArray DeployableOutsideATerritory;	//! List of items that you can place everywhere but not in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1.
-	autoptr TStringArray DeployableInsideAEnemyTerritory;					//! List of items that are allowed to place in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1 or 0.
+	autoptr TStringArray DeployableOutsideATerritory;		//! List of items that you can place everywhere but not in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1.
+	autoptr TStringArray DeployableInsideAEnemyTerritory;	//! List of items that are allowed to place in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1 or 0.
 	
-	bool CanCraftVanillaBasebuilding;		//! When enabled, allows players to craft Vanilla basebuilding.
-	bool CanCraftExpansionBasebuilding;		//! When enabled, allows players to craft Expansion basebuilding.
+	bool CanCraftVanillaBasebuilding;						//! When enabled, allows players to craft Vanilla basebuilding.
+	bool CanCraftExpansionBasebuilding;						//! When enabled, allows players to craft Expansion basebuilding.
 
-	bool DestroyFlagOnDismantle;			//! When enabled, destroys both flag pole and the flag kit on dismantle.
-	bool CanDismantleFlag;					//! When enabled, allows players to dismantle flags.
-	bool DismantleOutsideTerritory;			//! When enabled, allows players to dismantle basebuilding without territory.
-	bool DismantleAnywhere;					//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
+	bool DestroyFlagOnDismantle;							//! When enabled, destroys both flag pole and the flag kit on dismantle.
+	bool CanDismantleFlag;									//! When enabled, allows players to dismantle flags.
+	bool DismantleOutsideTerritory;							//! When enabled, allows players to dismantle basebuilding without territory.
+	bool DismantleAnywhere;									//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
 	
-	int CodeLockLength;						//! Lenght of pin code required for the code lock.
-	bool DoDamageWhenEnterWrongCodeLock;	//! If enabled, deals the damage to the player when entering the wrong code lock.
-	float DamageWhenEnterWrongCodeLock;		//! Amount of damage player takes when entering the wrong code in the code lock.
+	int CodeLockLength;										//! Lenght of pin code required for the code lock.
+	bool DoDamageWhenEnterWrongCodeLock;					//! If enabled, deals the damage to the player when entering the wrong code lock.
+	float DamageWhenEnterWrongCodeLock;						//! Amount of damage player takes when entering the wrong code in the code lock.
 
-	bool EnableSimpleFlagBuilding;			//! When enabled this will construct the full flag pole when a flag kit is deployed.
-	bool AddFlagItem;						//! When enabled this will add the flag attachment to the flag pole when ever is has been builded up completly.
-	bool EnableFlagMenu;					//! When enabled this allow to use the flag menu on territory flags.
+	bool EnableSimpleFlagBuilding;							//! When enabled this will construct the full flag pole when a flag kit is deployed.
+	bool AddFlagItem;										//! When enabled this will add the flag attachment to the flag pole when ever is has been builded up completly.
+	bool EnableFlagMenu;									//! When enabled this allow to use the flag menu on territory flags.
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;

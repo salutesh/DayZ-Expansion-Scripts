@@ -200,7 +200,7 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		return m_RPM;
 	}
 
-	int GetGearsCount()
+	override int GetGearsCount()
 	{
 		return m_Gearbox.Count();
 	}

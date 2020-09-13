@@ -268,9 +268,10 @@ modded class BuildingBase
 			return;
 		}		
 		
-		foreach (Object int_obj: m_InteriorObjects) {
-			GetGame().ObjectDelete(int_obj);
-		}
+		foreach (Object int_obj: m_InteriorObjects)
+			if (int_obj)
+				GetGame().ObjectDelete(int_obj);
+		
 		
 		m_InteriorObjects.Clear();
 		m_InteriorsLoaded = false;

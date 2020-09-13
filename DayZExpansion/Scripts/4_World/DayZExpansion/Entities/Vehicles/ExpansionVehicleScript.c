@@ -186,8 +186,8 @@ class ExpansionVehicleScript extends ItemBase
 	protected vector m_LastLinearVelocity; // World Space
 	protected vector m_LastLinearVelocityMS; // Model Space
 
-	protected vector m_AngularVelocity;
-	protected vector m_AngularVelocityMS;
+	protected vector m_AngularVelocity; // World Space
+	protected vector m_AngularVelocityMS; // Model Space
 
 	protected vector m_LastAngularVelocity;
 
@@ -375,10 +375,9 @@ class ExpansionVehicleScript extends ItemBase
 		}
 
 		m_Transform = new Transform;
+		m_InvInertiaTensorWS = new Matrix3;
 
 		m_Controller = GetControllerInstance();
-
-		m_InvInertiaTensorWS = new Matrix3;
 
 		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		m_ServerMarker = "";

@@ -60,6 +60,51 @@ class ExpansionMapping
 		EXLogPrint("ExpansionMapping::Defaults - Start");
 		#endif
 		
+		//! Set default markers depending on map name
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+
+
+		//! Vanilla Maps
+		if ( world_name.Contains( "chernarusplus" ) )
+		{
+			ExpansionMappingChernarus();
+		} else if ( world_name.Contains( "enoch" ) )
+		{
+			ExpansionMappingLivonia();
+		} else if ( world_name.Contains( "deerisle" ) )
+		{
+			ExpansionMappingDeerIsle();
+		}
+
+		#ifdef EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
+		
+		UseCustomMappingModule 			= false;
+		BuildingInteriors 				= false;
+		BuildingIvys					= false;
+		
+		#else
+		
+		UseCustomMappingModule 			= true;
+		BuildingInteriors 				= true;
+		BuildingIvys					= true;
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMapping::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChernarus
+	// ------------------------------------------------------------
+	void ExpansionMappingChernarus()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingChernarus::Defaults - Start");
+		#endif
+		
 		Mapping.Insert( "BerezhkiCave" );
 		Mapping.Insert( "Berezino" );
 		Mapping.Insert( "Chernogorsk_Enhancement1" );
@@ -116,22 +161,38 @@ class ExpansionMapping
 		Mapping.Insert( "SvetloyarskNoCollision" );
 		Mapping.Insert( "SvetRoadForestNoCollision" );
 		Mapping.Insert( "TisyNoCollision" );
-	
-		#ifdef EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
 		
-		UseCustomMappingModule 			= false;
-		BuildingInteriors 				= false;
-		BuildingIvys					= false;
-		
-		#else
-		
-		UseCustomMappingModule 			= true;
-		BuildingInteriors 				= true;
-		BuildingIvys					= true;
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingChernarus::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChernarus
+	// ------------------------------------------------------------
+	void ExpansionMappingLivonia()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingLivonia::Defaults - Start");
 		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMapping::Defaults - End");
+		EXLogPrint("ExpansionMappingLivonia::Defaults - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChernarus
+	// ------------------------------------------------------------
+	void ExpansionMappingDeerIsle()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingDeerIsle::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingDeerIsle::Defaults - End");
+		#endif
+	}
+
 }

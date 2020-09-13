@@ -197,7 +197,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionFall
 	// ------------------------------------------------------------
-	void StartCommand_ExpansionFall( float pYVelocity )
+	override void StartCommand_ExpansionFall( float pYVelocity )
 	{
 	}
 			

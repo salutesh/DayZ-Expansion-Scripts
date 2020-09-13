@@ -139,6 +139,25 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	private void GetIviesPositions(out TVectorArray iviesPosition)
 	{
+		//! Set default markers depending on map name
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+
+		if ( world_name.Contains( "chernarusplus" ) )
+		{
+			GetChernarusPlusIviesPositions( iviesPosition );
+		} else if ( world_name.Contains( "enoch" ) )
+		{
+			GetEnochIviesPositions( iviesPosition );
+		} else if ( world_name.Contains( "deerisle" ) )
+		{
+			GetDeerIsleIviesPositions( iviesPosition );
+		}
+	}
+
+	private void GetChernarusPlusIviesPositions(out TVectorArray iviesPosition)
+	{
 		//Svetloyark
 		iviesPosition.Insert("13804 27 13232");
 		iviesPosition.Insert("13826 26 13348");
@@ -180,6 +199,16 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		iviesPosition.Insert("11949 9 3489");
 		iviesPosition.Insert("12357 9 3542");
 		iviesPosition.Insert("12180 8 3552");
+	}
+
+	private void GetEnochIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	private void GetDeerIsleIviesPositions(out TVectorArray iviesPosition)
+	{
+
 	}
 	
 	private void LoadIviesPositions()

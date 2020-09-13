@@ -32,6 +32,12 @@ ImageSetClass {
    Size 170 170
    Flags 0
   }
+  ImageSetDefClass codelock {
+   Name "codelock"
+   Pos 715 0
+   Size 170 170
+   Flags 0
+  }
  }
  Groups {
  }

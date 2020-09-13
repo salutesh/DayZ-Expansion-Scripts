@@ -45,6 +45,13 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void ExpansionMissionEventBase()
 	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::ExpansionMissionEventBase - Start");
+		#endif
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::ExpansionMissionEventBase - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -52,10 +59,21 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void ~ExpansionMissionEventBase()
 	{
-		if ( m_IsRunning )
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::~ExpansionMissionEventBase - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
 		{
-			End();
+			if ( m_IsRunning )
+			{
+				End();
+			}
 		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::~ExpansionMissionEventBase - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -123,17 +141,39 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void LoadMission( string file )
 	{
-		m_FileName = file;
-
-		OnLoadMission();
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::LoadMission - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
+		{
+			m_FileName = file;
+	
+			OnLoadMission();
+		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::LoadMission - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase SaveMission
 	// ------------------------------------------------------------
 	void SaveMission()
-	{
-		OnSaveMission();
+	{	
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::SaveMission - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
+		{
+			OnSaveMission();
+		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::SaveMission - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -183,12 +223,23 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void Start()
 	{
-		m_IsRunning = true;
-		m_CurrentMissionTime = 0;
-
-		Event_OnStart();
-
-		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( OnUpdate );
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::Start - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
+		{
+			m_IsRunning = true;
+			m_CurrentMissionTime = 0;
+	
+			Event_OnStart();
+	
+			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( OnUpdate );
+		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::Start - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -196,13 +247,24 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void End()
 	{
-		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
-
-		SI_OnMissionEnd.Invoke( this );
-
-		m_IsRunning = false;
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::End - Start");
+		#endif
 		
-		Event_OnEnd();
+		if ( GetGame().IsServer() )
+		{
+			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
+	
+			SI_OnMissionEnd.Invoke( this );
+	
+			m_IsRunning = false;
+			
+			Event_OnEnd();
+		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::End - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -210,14 +272,25 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void OnUpdate( float delta )
 	{
-		m_CurrentMissionTime += delta;
-
-		Event_OnUpdate( delta );
-
-		if ( m_CurrentMissionTime >= MissionMaxTime )
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::OnUpdate - Start");
+		#endif
+		
+		if ( GetGame().IsServer() )
 		{
-			End();
+			m_CurrentMissionTime += delta;
+	
+			Event_OnUpdate( delta );
+	
+			if ( m_CurrentMissionTime >= MissionMaxTime )
+			{
+				End();
+			}
 		}
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventBase::OnUpdate - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------

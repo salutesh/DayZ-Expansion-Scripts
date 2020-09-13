@@ -180,7 +180,23 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	{
 		Print("[ExpansionMissionSettings] Loading default settings");
 		
-		Enabled = true;
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+
+		Enabled = false;
+		
+		//! Vanilla Maps
+		if ( world_name.Contains( "chernarusplus" ) )
+		{
+			Enabled = true;
+		} else if ( world_name.Contains( "enoch" ) )
+		{
+			Enabled = false;
+		} else if ( world_name.Contains( "deerisle" ) )
+		{
+			Enabled = false;
+		}
 
 		TimeBetweenMissions = 3600000; // 3600000; // 1 hour
 
