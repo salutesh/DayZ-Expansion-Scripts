@@ -1,6 +1,6 @@
 ﻿//<'Scripts.pbo' properties via Mikero's dos tools, dll version 7.46>
 prefix=DayZExpansion\Scripts;
 Mikero=DePbo.dll.7.46;
-version=Sun Sep 13 23:49:37 2020;
+version=Mon Sep 14 13:02:19 2020;
 PboType=Arma Addon;
 //</properties>

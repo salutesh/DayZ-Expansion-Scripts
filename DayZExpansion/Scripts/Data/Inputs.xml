@@ -282,7 +282,7 @@
 		<input name="UAExpansion3DMarkerToggle">
             <btn name="kK" />
         </input>
-		<input name="UAExpansionOnlyPartyMembersMarkersToggle">
+		<input name="UAExpansionServerMarkersToggle">
             <btn name="kMultiply" />
         </input>
 		<input name="UAExpansionQuickMarker">

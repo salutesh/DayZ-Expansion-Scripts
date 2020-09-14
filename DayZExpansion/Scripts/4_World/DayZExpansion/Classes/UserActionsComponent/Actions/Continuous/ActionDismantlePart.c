@@ -36,11 +36,8 @@ modded class ActionDismantlePart
 	override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
 	{
 		ExpansionDebugger.Push( EXPANSION_DEBUG_BASEBUILDING );
-		bool dismantleWithoutTerritory 	= GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;
-		bool DismantleAnywhere			= GetExpansionSettings().GetBaseBuilding().DismantleAnywhere;
-		bool EnableSimpleFlagBuilding	= GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding;
 
-		if ( !DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
+		if ( !GetExpansionSettings().GetBaseBuilding().DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
 			return false;
 
 		if ( player.IsInSafeZone() )
@@ -49,13 +46,13 @@ modded class ActionDismantlePart
 		if ( player.IsInTerritory() )
 			return player.IsInsideOwnTerritory();
 
-		if ( DismantleAnywhere )
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
 			return DismantleAnywhereCondition( player, target, item, camera_check );
 		
-		if ( !EnableSimpleFlagBuilding && target.IsInherited(ExpansionFlagKitBase) )
+		if ( !GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding && target.IsInherited(ExpansionFlagKitBase) )
 			return false;
 		
-		return dismantleWithoutTerritory;
+		return GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;
 	}
 	
 	protected bool DismantleAnywhereCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )

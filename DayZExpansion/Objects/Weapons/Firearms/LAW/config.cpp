@@ -9,7 +9,7 @@ class CfgPatches
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms","DayZExpansion_Sounds_Weapons_RPG7"};
 		magazines[] = {"ExpansionAmmoLAW"};
-		ammo[] = {"DummyShockDamage","ExpansionRocketLAW"};
+		ammo[] = {"Bullet_Base","DummyShockDamage","ExpansionRocketLAW"};
 	};
 };
 class CfgAmmoTypes
@@ -21,7 +21,8 @@ class CfgAmmoTypes
 };
 class CfgAmmo
 {
-	class Bullet_Base;
+	class BulletCore;
+	class Bullet_Base: BulletCore{};
 	class MeleeDamage;
 	class DummyShockDamage: MeleeDamage
 	{

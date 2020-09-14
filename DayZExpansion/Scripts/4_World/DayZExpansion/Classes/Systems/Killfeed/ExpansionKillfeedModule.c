@@ -787,21 +787,25 @@ class ExpansionKillFeedModule: JMModuleBase
 	
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule KillFeedMessage
+	// Called on Server
 	// ------------------------------------------------------------	
 	private void KillFeedMessage( ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "")
-	{		
+	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::Message - Start" );
 		#endif
 		
-		if( !KillFeedCheckServerSettings(type) )
-			return;
-
-		ref ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
-		
-		ScriptRPC message_rpc = new ScriptRPC();
-		message_rpc.Write( kill_data );
-		message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true );
+		if ( GetGame().IsServer() )
+		{
+			if( !KillFeedCheckServerSettings(type) )
+				return;
+	
+			ref ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
+			
+			ScriptRPC message_rpc = new ScriptRPC();
+			message_rpc.Write( kill_data );
+			message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true, NULL );
+		}
 
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::Message - End" );
@@ -1143,6 +1147,15 @@ class ExpansionKillFeedModule: JMModuleBase
 		EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - Start" );
 		#endif
 		
+		if (!sender)
+		{
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - [ERROR]: Player identity is NULL!" );
+			#endif
+			
+			return;
+		}
+		
 		ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData( ExpansionKillFeedMessageType.UNKNOWN, "" );
 		ctx.Read(kill_data);
 		
@@ -1188,7 +1201,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				}
 				else
 				{
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( GetNotificationSystem().CreateNotification, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, title, message, kill_data.Icon, ARGB( 255, 211, 84, 0 ), 7, sender );
+					GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater( GetNotificationSystem().CreateNotification, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, title, message, kill_data.Icon, ARGB( 255, 211, 84, 0 ), 7, sender );
 				}
 			} else if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
@@ -1199,7 +1212,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				else
 				{
 					ChatMessageEventParams chat_params = new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + message.Format(), "" );
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( GetGame().GetMission().OnEvent, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, ChatMessageEventTypeID, chat_params );
+					GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater( GetGame().GetMission().OnEvent, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, ChatMessageEventTypeID, chat_params );
 				}
 			}
 		}

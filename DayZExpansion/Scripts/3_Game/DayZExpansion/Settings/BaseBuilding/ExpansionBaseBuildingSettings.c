@@ -33,9 +33,12 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool DoDamageWhenEnterWrongCodeLock;					//! If enabled, deals the damage to the player when entering the wrong code lock.
 	float DamageWhenEnterWrongCodeLock;						//! Amount of damage player takes when entering the wrong code in the code lock.
 
+	bool CanCraftTerritoryFlagKit;							//! When enabled this will allow the crafting of the territory flag kit.
 	bool EnableSimpleFlagBuilding;							//! When enabled this will construct the full flag pole when a flag kit is deployed.
 	bool AddFlagItem;										//! When enabled this will add the flag attachment to the flag pole when ever is has been builded up completly.
 	bool EnableFlagMenu;									//! When enabled this allow to use the flag menu on territory flags.
+	bool GetTerritoryFlagKitAfterBuild;						//! When enabled this will spawn a territory flag kit next to the full constructed flag pole.
+	bool GetTerritoryFlagKitAfterFold;						//! When enabled this will spawn a territory flag kit when a kit has been folded.
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -152,9 +155,11 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DoDamageWhenEnterWrongCodeLock = s.DoDamageWhenEnterWrongCodeLock;
 		DamageWhenEnterWrongCodeLock = s.DamageWhenEnterWrongCodeLock;
 	
+		CanCraftTerritoryFlagKit = s.CanCraftTerritoryFlagKit;
 		EnableSimpleFlagBuilding = s.EnableSimpleFlagBuilding;
 		AddFlagItem = s.AddFlagItem;
 		EnableFlagMenu = s.EnableFlagMenu;
+		GetTerritoryFlagKitAfterBuild = s.GetTerritoryFlagKitAfterBuild;
 	}
 	
 	// ------------------------------------------------------------
@@ -239,9 +244,11 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DoDamageWhenEnterWrongCodeLock = true;
 		DamageWhenEnterWrongCodeLock = 10.0;
 	
+		CanCraftTerritoryFlagKit = true;
 		EnableSimpleFlagBuilding = true;
 		AddFlagItem = true;
 		EnableFlagMenu = true;
+		GetTerritoryFlagKitAfterBuild = false;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBaseBuildingSettings::Defaults - End");
