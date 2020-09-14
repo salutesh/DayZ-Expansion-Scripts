@@ -34,7 +34,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 
 	bool EnableKillFeed;
 	ExpansionAnnouncementType KillFeedMessageType;
-	int KillFeedDelay;
 	bool KillFeedFall;
 	bool KillFeedCarHitDriver;
 	bool KillFeedCarHitNoDriver;
@@ -157,7 +156,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = s.EnableKillFeed;
 		KillFeedMessageType = s.KillFeedMessageType;
-		KillFeedDelay = s.KillFeedDelay;
 		KillFeedFall = s.KillFeedFall;
 		KillFeedCarHitDriver = s.KillFeedCarHitDriver;
 		KillFeedCarHitNoDriver = s.KillFeedCarHitNoDriver;
@@ -272,7 +270,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = true;
 		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
-		KillFeedDelay = 15;
 		
 		KillFeedFall = true;
 		KillFeedCarHitDriver = true;

@@ -804,7 +804,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			
 			ScriptRPC message_rpc = new ScriptRPC();
 			message_rpc.Write( kill_data );
-			message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true, NULL );
+			message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true );
 		}
 
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
@@ -983,14 +983,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			discord_embed.SetAuthor( "DayZ Expansion", "https://steamcommunity.com/sharedfiles/filedetails/?id=2116151222", "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/98/980723d8611aa9b8b71eca92e5f911167489a785_full.jpg" );
 			discord_embed.AddField( "Kill-Feed", localizer.Format() );
 			
-			if ( GetExpansionSettings().GetNotification().KillFeedDelay <= 0 )
-			{
-				m_Webhook.Post( "Killfeed", discord_message );
-			}
-			else
-			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( m_Webhook.Post, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, "Killfeed", discord_message );
-			}
+			m_Webhook.Post( "Killfeed", discord_message );
 		}
 		
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
@@ -1147,14 +1140,14 @@ class ExpansionKillFeedModule: JMModuleBase
 		EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - Start" );
 		#endif
 		
-		if (!sender)
+		/*if (!sender)
 		{
 			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 			EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - [ERROR]: Player identity is NULL!" );
 			#endif
 			
 			return;
-		}
+		}*/
 		
 		ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData( ExpansionKillFeedMessageType.UNKNOWN, "" );
 		ctx.Read(kill_data);
@@ -1195,25 +1188,10 @@ class ExpansionKillFeedModule: JMModuleBase
 			
 			if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
 			{
-				if ( GetExpansionSettings().GetNotification().KillFeedDelay <= 0 )
-				{
-					GetNotificationSystem().CreateNotification( title, message, kill_data.Icon, ARGB( 255, 211, 84, 0 ), 7, sender );
-				}
-				else
-				{
-					GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater( GetNotificationSystem().CreateNotification, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, title, message, kill_data.Icon, ARGB( 255, 211, 84, 0 ), 7, sender );
-				}
+				GetNotificationSystem().CreateNotification( title, message, kill_data.Icon, ARGB( 255, 211, 84, 0 ), 7, sender );
 			} else if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
-				if ( GetExpansionSettings().GetNotification().KillFeedDelay <= 0 )
-				{
-					GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + message.Format(), "" ) );
-				}
-				else
-				{
-					ChatMessageEventParams chat_params = new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + message.Format(), "" );
-					GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater( GetGame().GetMission().OnEvent, GetExpansionSettings().GetNotification().KillFeedDelay * 1000, false, ChatMessageEventTypeID, chat_params );
-				}
+				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + message.Format(), "" ) );
 			}
 		}
 		

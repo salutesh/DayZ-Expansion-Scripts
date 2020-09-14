@@ -474,7 +474,7 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 400;
-						stiffness = 146000;
+						stiffness = 46000;
 						compression = 10450;
 						damping = 13200;
 						travelMaxUp = 0.086;
