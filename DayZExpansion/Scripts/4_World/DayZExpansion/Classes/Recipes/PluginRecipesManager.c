@@ -15,7 +15,7 @@ modded class PluginRecipesManager
 	// ------------------------------------------------------------
 	// PluginRecipesManager RegisterRecipies
 	// ------------------------------------------------------------
-	override protected void RegisterRecipies()
+	override void RegisterRecipies()
 	{
 		super.RegisterRecipies();
 		
@@ -49,12 +49,12 @@ modded class PluginRecipesManager
 	// ------------------------------------------------------------
 	// PluginRecipesManager UnregisterRecipe
 	// ------------------------------------------------------------
-	override protected void UnregisterRecipe(string clasname)
+	override void UnregisterRecipe(string clasname)
 	{
 		super.UnregisterRecipe(clasname);
 		
 		//! Remove abillity to craft the territory flag kit if setting is disabled
 		if (!GetExpansionSettings().GetBaseBuilding().CanCraftTerritoryFlagKit)
-			UnregisterRecipe("TerritoryFlagKit");
+			UnregisterRecipe("CraftTerritoryFlagKit");
 	}
 }

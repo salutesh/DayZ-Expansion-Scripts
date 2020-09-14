@@ -25,12 +25,4 @@ modded class ActionFoldBaseBuildingObject
 			
 		return true;
 	}
-	
-	override void OnFinishProgressServer( ActionData action_data )
-	{
-		if (GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterFold)
-		{
-			super.OnFinishProgressServer(action_data);
-		}
-	}
 }

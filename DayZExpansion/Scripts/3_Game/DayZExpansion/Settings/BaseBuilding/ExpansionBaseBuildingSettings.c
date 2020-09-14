@@ -38,8 +38,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool AddFlagItem;										//! When enabled this will add the flag attachment to the flag pole when ever is has been builded up completly.
 	bool EnableFlagMenu;									//! When enabled this allow to use the flag menu on territory flags.
 	bool GetTerritoryFlagKitAfterBuild;						//! When enabled this will spawn a territory flag kit next to the full constructed flag pole.
-	bool GetTerritoryFlagKitAfterFold;						//! When enabled this will spawn a territory flag kit when a kit has been folded.
-	
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
