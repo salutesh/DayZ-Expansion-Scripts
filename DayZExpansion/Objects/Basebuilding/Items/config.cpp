@@ -17,21 +17,21 @@ class CfgSlots
 		name = "Att_ExpansionCodeLock";
 		displayName = "Codelock";
 		selection = "att_codelocklock";
-		ghostIcon = "combolock";
+		expansionghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionCodeLock_1
 	{
 		name = "Att_ExpansionCodeLock_1";
 		displayName = "Codelock";
 		selection = "att_codelocklock";
-		ghostIcon = "combolock";
+		expansionghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionCodeLock_2
 	{
 		name = "Att_ExpansionCodeLock_2";
 		displayName = "Codelock";
 		selection = "att_codelocklock";
-		ghostIcon = "combolock";
+		expansionghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionLumber
 	{
