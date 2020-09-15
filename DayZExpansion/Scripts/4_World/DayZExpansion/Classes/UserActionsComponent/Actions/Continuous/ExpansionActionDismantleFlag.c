@@ -48,7 +48,7 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		Object targetObject = target.GetObject();
-		bool canDismantle = GetExpansionSettings().GetBaseBuilding().CanDismantleFlag;
+		bool canDismantle = (GetExpansionSettings().GetBaseBuilding().CanDismantleFlag && GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding);
 
 		if ( targetObject )
 		{
@@ -58,7 +58,7 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 				return false;
 
 			//! is he inside his own territory ?
-			if ( player.IsInsideOwnTerritory() )
+			if ( player.IsInsideTerritory() )
 				return canDismantle;
 		}
 		
