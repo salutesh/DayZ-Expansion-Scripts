@@ -133,6 +133,7 @@ modded class TerritoryFlag
 		super.SetActions();
 		
 		AddAction(ExpansionActionEnterFlagMenu);
+		AddAction( ExpansionActionDismantleFlag );
 	}
 	
 	// ------------------------------------------------------------
