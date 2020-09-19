@@ -15,9 +15,9 @@ modded class CraftTerritoryFlagKit extends RecipeBase
 	// ------------------------------------------------------------
 	// CraftTerritoryFlagKit CanDo
 	// ------------------------------------------------------------	
-	override bool CanDo(ItemBase ingredients[], PlayerBase player)//final check for recipe's validity
+	override bool CanDo( ItemBase ingredients[], PlayerBase player )
 	{	
-		if (!GetExpansionSettings().GetBaseBuilding().CanCraftTerritoryFlagKit)
+		if ( !GetExpansionSettings().GetBaseBuilding().CanCraftTerritoryFlagKit )
 			return false;
 		
 		return super.CanDo(ingredients, player);

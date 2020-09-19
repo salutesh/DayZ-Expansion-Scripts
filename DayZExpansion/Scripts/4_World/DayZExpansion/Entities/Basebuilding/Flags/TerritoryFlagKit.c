@@ -45,13 +45,13 @@ modded class TerritoryFlagKit
 			SetIsDeploySound( true );
 			
 			//! If the server hoster doesn't want to build with the vanilla way the entire flag pole
-			if (GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding)
+			if (GetExpansionSettings().GetBaseBuilding().SimpleTerritory)
 			{				
 				totem.GetConstruction().COT_BuildPart( "base", false );
 				totem.GetConstruction().COT_BuildPart( "support", false );
 				totem.GetConstruction().COT_BuildPart( "pole", false );
 								
-				if ( GetExpansionSettings().GetBaseBuilding().AddFlagItem )
+				if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
 					totem.GetInventory().CreateAttachment("Flag_DayZ");
 			}
 		}

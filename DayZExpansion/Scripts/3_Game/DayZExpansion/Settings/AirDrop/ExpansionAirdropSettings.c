@@ -15,16 +15,16 @@
  **/
 class ExpansionAirdropSettings: ExpansionSettingBase
 {
+	bool ServerMarkerOnDropLocation;
+	bool Server3DMarkerOnDropLocation;
+	bool ShowAirdropTypeOnMarker;
+
 	float Height;
 	float Speed;
 
 	int ItemCount;
 
 	ref array < ref ExpansionAirdropLootContainers > Containers;
-
-	bool ServerMarkerOnDropLocation;
-	bool Server3DMarkerOnDropLocation;
-	bool ShowAirdropTypeOnMarker;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -105,6 +105,9 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionAirdropSettings s )
 	{
+		ServerMarkerOnDropLocation = s.ServerMarkerOnDropLocation;
+		Server3DMarkerOnDropLocation = s.Server3DMarkerOnDropLocation;
+		ShowAirdropTypeOnMarker = s.ShowAirdropTypeOnMarker;
 		Height = s.Height;
 		Speed = s.Speed;
 	}
@@ -174,6 +177,10 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionAirdropSettings] Loading default settings");
+		
+		ServerMarkerOnDropLocation = true;
+		Server3DMarkerOnDropLocation = true;
+		ShowAirdropTypeOnMarker = true;
 
 		Height = 750;
 		Speed = 1500;
@@ -184,10 +191,6 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		DefaultMedical();
 		DefaultBaseBuilding();
 		DefaultMilitary();
-		
-		ServerMarkerOnDropLocation = true;
-		Server3DMarkerOnDropLocation = true;
-		ShowAirdropTypeOnMarker = true;
 	}
 
 	void DefaultRegular()

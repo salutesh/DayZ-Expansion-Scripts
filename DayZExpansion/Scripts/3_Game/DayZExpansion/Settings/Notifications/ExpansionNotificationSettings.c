@@ -139,6 +139,7 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionNotificationSettings s )
 	{
+		EnableNotification = s.EnableNotification;
 		ShowPlayerJoinServer = s.ShowPlayerJoinServer;
 		JoinMessageType = s.JoinMessageType;
 		ShowPlayerLeftServer = s.ShowPlayerLeftServer;

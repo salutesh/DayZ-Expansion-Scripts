@@ -15,14 +15,20 @@
  **/
 class ExpansionPartySettings: ExpansionSettingBase
 {
-	bool EnableParties;
-	int MaxInParty; 					// If <= 0, unlimited party size
-	bool UseWholeMapForInviteList; 		// Use it if you want whole map available in invite list, instead only nearby players
-	bool ShowPartyMembers3DMarkers;		// If enabled, allow to see 3D marker above teammates location
-	float DistanceForPartyMarkers; 		// Can't go over network bubble distance for player
-	bool EnableQuickMarker;				// Enable/Diable quick marker option
-	bool ShowDistanceUnderQuickMarkers;	// 
-	bool ShowNameOnQuickMarkers;		//
+	bool EnableParties;							// enable party module, allow players to create parties
+	int MaxMembersInParty; 						// If <= 0, unlimited party size
+	bool UseWholeMapForInviteList; 				// Use it if you want whole map available in invite list, instead only nearby players
+	bool EnablePartyMembersMapMarkers;			// Allow player to see his teammates position on the map
+
+	bool EnablePartyMemberMarker;				// If enabled, allow to see 3D marker above teammates location
+	bool ShowDistanceUnderPartyMembersMarkers;	// Show the distance of the party member marker
+	bool ShowNameOnPartyMembersMarkers;			// Show the name of the party member marker
+
+	bool EnableQuickMarker;						// Enable/Diable quick marker option
+	bool ShowDistanceUnderQuickMarkers;			//  Show the distance of the quick marker
+	bool ShowNameOnQuickMarkers;				// Show the distance of the quick marker
+	
+	bool CanCreatePartyMarkers;					// Allow player to create party markers
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -104,12 +110,16 @@ class ExpansionPartySettings: ExpansionSettingBase
 	private void CopyInternal( ref ExpansionPartySettings s )
 	{
 		EnableParties = s.EnableParties;
-		MaxInParty = s.MaxInParty;
-		ShowPartyMembers3DMarkers = s.ShowPartyMembers3DMarkers;
+		MaxMembersInParty = s.MaxMembersInParty;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
+		EnablePartyMembersMapMarkers = s.EnablePartyMembersMapMarkers;
+		EnablePartyMemberMarker = s.EnablePartyMemberMarker;
+		ShowDistanceUnderPartyMembersMarkers = s.ShowDistanceUnderPartyMembersMarkers;
+		ShowNameOnPartyMembersMarkers = s.ShowNameOnPartyMembersMarkers;
 		EnableQuickMarker = s.EnableQuickMarker;
 		ShowDistanceUnderQuickMarkers = s.ShowDistanceUnderQuickMarkers;
 		ShowNameOnQuickMarkers = s.ShowNameOnQuickMarkers;
+		CanCreatePartyMarkers = s.CanCreatePartyMarkers;
 	}
 	
 	// ------------------------------------------------------------
@@ -172,14 +182,17 @@ class ExpansionPartySettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionPartySettings] Loading default settings");
-		
+	
 		EnableParties = true;
-		MaxInParty = 10;
-		ShowPartyMembers3DMarkers = true;
-		DistanceForPartyMarkers = 2048.0;
+		MaxMembersInParty = 10;
 		UseWholeMapForInviteList = false;
+		EnablePartyMembersMapMarkers = true;
+		EnablePartyMemberMarker = true;
+		ShowDistanceUnderPartyMembersMarkers = true;
+		ShowNameOnPartyMembersMarkers = true;
 		EnableQuickMarker = true;
 		ShowDistanceUnderQuickMarkers = true;
 		ShowNameOnQuickMarkers = true;
+		CanCreatePartyMarkers = true;
 	}
 }

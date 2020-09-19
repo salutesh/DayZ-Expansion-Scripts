@@ -93,7 +93,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 				#endif
 				
 				//! Is flag already a territory flag?
-				if ( flag.IsTerritoryFlag() )
+				if ( flag.HasExpansionTerritoryInformation() )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS TERRITORY FLAG!");

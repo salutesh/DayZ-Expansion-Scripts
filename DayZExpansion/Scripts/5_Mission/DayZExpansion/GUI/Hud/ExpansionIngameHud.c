@@ -278,7 +278,7 @@ class ExpansionIngameHud
 		EXPrint("ExpansionIngameHud::RefreshExpansionHudVisibility Start");
 		#endif
 		
-		m_ExpansionGPSSetting = GetExpansionSettings().GetGeneral().EnableHUDGPS;
+		m_ExpansionGPSSetting = GetExpansionSettings().GetMap().EnableHUDGPS;
 		m_ExpansionGPSPosSetting = GetExpansionSettings().GetMap().ShowPlayerPosition;
 		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay; 
 		

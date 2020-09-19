@@ -1,5 +1,5 @@
 /**
- * ActionDestroyTerritory.c
+ * ExpansionActionDestroyTerritory.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ActionDestroyTerritoryCB : ActionContinuousBaseCB
+class ExpansionActionDestroyTerritoryCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
@@ -33,11 +33,11 @@ class ActionDestroyTerritoryCB : ActionContinuousBaseCB
 	}
 };
 
-class ActionDestroyTerritory: ActionContinuousBase
+class ExpansionActionDestroyTerritory: ActionContinuousBase
 {
-	void ActionDestroyTerritory()
+	void ExpansionActionDestroyTerritory()
 	{
-		m_CallbackClass = ActionDestroyTerritoryCB;
+		m_CallbackClass = ExpansionActionDestroyTerritoryCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_DISASSEMBLE;
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT;	
@@ -70,7 +70,7 @@ class ActionDestroyTerritory: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !GetExpansionSettings().GetBaseBuilding().CanDismantleFlag )
+		if ( !GetExpansionSettings().GetBaseBuilding().SimpleTerritory )
 			return false;
 			
 		return DismantleCondition( player, target, item, true ) && player.m_MovementState.m_iStanceIdx != DayZPlayerConstants.STANCEIDX_PRONE;
@@ -114,7 +114,7 @@ class ActionDestroyTerritory: ActionContinuousBase
 	
 	protected void SetBuildingAnimation( ItemBase item )
 	{
-		switch( item.Type() )
+		switch ( item.Type() )
 		{
 			case Shovel:
 				m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_DIG;

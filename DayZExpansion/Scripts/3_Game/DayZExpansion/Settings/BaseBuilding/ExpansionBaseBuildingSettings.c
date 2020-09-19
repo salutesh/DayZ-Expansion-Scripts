@@ -25,7 +25,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool CanCraftExpansionBasebuilding;						//! When enabled, allows players to craft Expansion basebuilding.
 
 	bool DestroyFlagOnDismantle;							//! When enabled, destroys both flag pole and the flag kit on dismantle.
-	bool CanDismantleFlag;									//! When enabled, allows players to dismantle flags.
+	bool DismantleFlagRequireTools;							//! When enabled, allows players to dismantle flags.
 	bool DismantleOutsideTerritory;							//! When enabled, allows players to dismantle basebuilding without territory.
 	bool DismantleAnywhere;									//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
 	
@@ -34,8 +34,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	float DamageWhenEnterWrongCodeLock;						//! Amount of damage player takes when entering the wrong code in the code lock.
 
 	bool CanCraftTerritoryFlagKit;							//! When enabled this will allow the crafting of the territory flag kit.
-	bool EnableSimpleFlagBuilding;							//! When enabled this will construct the full flag pole when a flag kit is deployed.
-	bool AddFlagItem;										//! When enabled this will add the flag attachment to the flag pole when ever is has been builded up completly.
+	bool SimpleTerritory;									//! When enabled this will construct the full flag pole when a flag kit is deployed.
+	bool AutomaticFlagOnCreation;							//! When enabled this will add the flag attachment to the flag pole once the territory pole has been constructed
 	bool EnableFlagMenu;									//! When enabled this allow to use the flag menu on territory flags.
 	bool GetTerritoryFlagKitAfterBuild;						//! When enabled this will spawn a territory flag kit next to the full constructed flag pole.
 
@@ -146,7 +146,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CanCraftVanillaBasebuilding = s.CanCraftVanillaBasebuilding;
 		CanCraftExpansionBasebuilding = s.CanCraftExpansionBasebuilding;
 		DestroyFlagOnDismantle = s.DestroyFlagOnDismantle;
-		CanDismantleFlag = s.CanDismantleFlag;
+		DismantleFlagRequireTools = s.DismantleFlagRequireTools;
 		DismantleOutsideTerritory = s.DismantleOutsideTerritory;
 		DismantleAnywhere = s.DismantleAnywhere;
 		
@@ -155,8 +155,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DamageWhenEnterWrongCodeLock = s.DamageWhenEnterWrongCodeLock;
 	
 		CanCraftTerritoryFlagKit = s.CanCraftTerritoryFlagKit;
-		EnableSimpleFlagBuilding = s.EnableSimpleFlagBuilding;
-		AddFlagItem = s.AddFlagItem;
+		SimpleTerritory = s.SimpleTerritory;
+		AutomaticFlagOnCreation = s.AutomaticFlagOnCreation;
 		EnableFlagMenu = s.EnableFlagMenu;
 		GetTerritoryFlagKitAfterBuild = s.GetTerritoryFlagKitAfterBuild;
 	}
@@ -235,7 +235,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CanCraftVanillaBasebuilding = false;
 		CanCraftExpansionBasebuilding = true;
 		DestroyFlagOnDismantle = true;
-		CanDismantleFlag = true;
+		DismantleFlagRequireTools = true;
 		DismantleOutsideTerritory = false;
 		DismantleAnywhere = false;
 		
@@ -244,8 +244,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DamageWhenEnterWrongCodeLock = 10.0;
 	
 		CanCraftTerritoryFlagKit = true;
-		EnableSimpleFlagBuilding = true;
-		AddFlagItem = true;
+		SimpleTerritory = true;
+		AutomaticFlagOnCreation = true;
 		EnableFlagMenu = true;
 		GetTerritoryFlagKitAfterBuild = false;
 		

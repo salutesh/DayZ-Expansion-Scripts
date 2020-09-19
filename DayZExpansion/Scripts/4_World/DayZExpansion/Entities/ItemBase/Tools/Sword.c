@@ -15,6 +15,6 @@ modded class Sword
 	override void SetActions()
 	{
 		super.SetActions();
-		AddAction(ActionDestroyFlag);
+		//AddAction( ExpansionActionDestroyFlag );
 	}
 }

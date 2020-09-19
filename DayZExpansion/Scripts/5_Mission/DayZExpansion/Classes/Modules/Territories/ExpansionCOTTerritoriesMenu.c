@@ -288,7 +288,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjects - Classname: " + obj.m_ClassName );
 			#endif
 			
-			if ( obj.m_ClassName == "TerritoryFlag" && obj.IsTerritoryFlag() )
+			if ( obj.m_ClassName == "TerritoryFlag" && obj.HasExpansionTerritoryInformation() )
 			{
 				m_CurrentTerritoryFlag = obj;
 				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG

@@ -12,7 +12,7 @@
 
 modded class Flag_Base
 {
-	string m_FlagTexturePath = "";
+	private string m_FlagTexturePath = "";
 
 	// ------------------------------------------------------------
 	// Flag_Base Constructor
@@ -21,7 +21,7 @@ modded class Flag_Base
 	{
 		TStringArray textures = new TStringArray;
 		GetGame().ConfigGetTextArray( "CfgVehicles " + ClassName() + " hiddenSelectionsTextures", textures );
-		SetFlagTexture(textures[0]);
+		SetFlagTexture( textures[0] );
 	}
 	
 	// ------------------------------------------------------------
@@ -35,7 +35,7 @@ modded class Flag_Base
 	// ------------------------------------------------------------
 	// Flag_Base IsVanillaFlag
 	// ------------------------------------------------------------
-	bool IsVanillaFlag(string classname)
+	bool IsVanillaFlag( string classname )
 	{
 		if ( classname == "Flag_Chernarus" || classname == "Flag_Chedaki" || classname == "Flag_NAPA" || classname == "Flag_CDF" || classname == "Flag_Livonia" )
 			return true;
@@ -57,41 +57,14 @@ modded class Flag_Base
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Override GetTooltip
-	// ------------------------------------------------------------
-	override string GetTooltip()
-	{
-		string temp;
-		if (!DescriptionOverride(temp))
-			temp = ConfigGetString("descriptionShort");
-		return temp;
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetDisplayName
-	// ------------------------------------------------------------
-	override string GetDisplayName()
-	{
-		string tmp;
-		if (NameOverride(tmp))
-		{
-			tmp = Widget.TranslateString(tmp);
-		}
-		else
-		{
-			GetGame().ObjectGetDisplayName(this, tmp);
-		}
-		return tmp;
-	}
-	
+		
 	// ------------------------------------------------------------
 	// Expansion SetTexture
 	// ------------------------------------------------------------
 	void SetFlagTexture(string texturePath)
 	{
-		if ( !IsMissionHost() ) return;
+		if ( !IsMissionHost() )
+			return;
 		
 		m_FlagTexturePath = texturePath;
 		SetObjectTexture( 0, m_FlagTexturePath );
@@ -127,26 +100,19 @@ modded class Flag_Base
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
-		if ( GetExpansionSaveVersion() >= 9 )
-		{
-			if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
-				return false;
-			
-			SetFlagTexture(m_FlagTexturePath);
-		} else
-		{
-			int flagTextureID
-			if ( Expansion_Assert_False( ctx.Read( flagTextureID ), "[" + this + "] Failed reading flagTextureID" ) )
-				return false;
-			
-			string texturePath = GetExpansionStatic().GetFlagTexturePath( flagTextureID );
-		
-			SetFlagTexture(texturePath);
-		}
+		if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
+			return false;
 		
 		return true;
 	}
-}
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+			
+		SetFlagTexture( m_FlagTexturePath );
+	}
+};
 
 class Expansion_Flag_Expansion extends Flag_Base {};
 class Expansion_Flag_White extends Flag_Base {};

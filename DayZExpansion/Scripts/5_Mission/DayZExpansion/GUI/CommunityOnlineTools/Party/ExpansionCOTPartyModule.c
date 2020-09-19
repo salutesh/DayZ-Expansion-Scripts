@@ -55,13 +55,24 @@ class ExpansionCOTPartyModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{
+		//! Party misc
 		CreateToggle( "EnableParties", "Enable Parties", "", "" );
-		CreateToggle( "ShowPartyMembers3DMarkers", "Show Party Members 3D Markers", "", "" );
-		CreateSlider( "DistanceForPartyMarkers", "Distance PM", "", "Distance For Party Markers", 5.0, 5000.0, 1.0);
+		CreateSlider( "MaxMembersInParty", "Max Members In a Party", "", "", 0.0, 60.0, 1.0);
 		CreateToggle( "UseWholeMapForInviteList", "Use Whole Map For Invite List", "", "" );
+		CreateToggle( "EnablePartyMembersMapMarkers", "Show Party Members On The Map", "", "" );
+
+		//! MemberMarkers
+		CreateToggle( "EnablePartyMemberMarker", "Enable Party Members Markers", "", "" );
+		CreateToggle( "ShowDistanceUnderPartyMembersMarkers", "Show Name On Party Members Markers", "", "" );
+		CreateToggle( "ShowNameOnPartyMembersMarkers", "Show Distance On Party Members Markers", "", "" );
+
+		//! QuickMarkers
 		CreateToggle( "EnableQuickMarker", "Enable Quick Marker", "", "" );
 		CreateToggle( "ShowDistanceUnderQuickMarkers", "Show Distance Under Quick Markers", "", "" );
-		CreateToggle( "ShowNameOnQuickMarkers", "Show Name On Quick Markers", "", "" );
+		CreateToggle( "ShowNameOnQuickMarkers", "Show Name Under Quick Markers", "", "" );
+
+		//! PartyMarker
+		CreateToggle( "CanCreatePartyMarkers", "Can Create Party Markers", "", "" );
 	}
 
 	override int GetRPCMin()

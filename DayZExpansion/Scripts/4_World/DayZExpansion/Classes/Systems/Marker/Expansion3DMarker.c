@@ -235,9 +235,6 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 					m_LayoutPath = "DayZExpansion/GUI/layouts/expansion_dynamic_marker_40.layout";
 					break;
 			}
-			
-			m_ShowMemberName = GetExpansionClientSettings().ShowMemberNameMarker;
-			m_ShowMemberDistance = GetExpansionClientSettings().ShowMemberDistanceMarker;
 		}
 		
 		if ( GetExpansionSettings() )
@@ -246,12 +243,22 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 			if (m_ShowQuickName)
 			{
 				m_ShowQuickName = GetExpansionClientSettings().ShowNameQuickMarkers;
-			}
-			
+			}			
 			m_ShowQuickDistance = GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers;
 			if (m_ShowQuickDistance)
 			{
 				m_ShowQuickDistance = GetExpansionClientSettings().ShowDistanceQuickMarkers;
+			}
+			
+			m_ShowMemberName = GetExpansionSettings().GetParty().ShowNameOnPartyMembersMarkers;
+			if (m_ShowMemberName)
+			{
+				m_ShowMemberName = GetExpansionClientSettings().ShowMemberNameMarker;
+			}			
+			m_ShowMemberDistance = GetExpansionSettings().GetParty().ShowDistanceUnderPartyMembersMarkers;
+			if (m_ShowMemberDistance)
+			{
+				m_ShowMemberDistance = GetExpansionClientSettings().ShowMemberDistanceMarker;
 			}
 			
 			m_ShowServerName = GetExpansionSettings().GetMap().ShowNameOnServerMarkers;

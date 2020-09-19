@@ -55,16 +55,23 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{
-		CreateToggle( "EnableMap", "Enable Map", "", "" );
-		CreateToggle( "UseMapOnMapItem", "Use Map On Map Item", "", "" );
-		CreateToggle( "CanCreateMarker", "Can Create Marker", "", "" );
-		CreateToggle( "ShowPlayerPosition", "Show Player Position", "", "" );
-		CreateToggle( "CanCreatePartyMarkers", "Can Create Party Markers", "", "" );
-		CreateToggle( "ShowMapStats", "Show Map Stats", "", "" );
-		CreateToggle( "CanCreate3DMarker", "Can Create 3D Marker", "", "" );
-		CreateToggle( "ShowPartyMembersMapMarkers", "Show Party Members Map Markers", "", "" );
-		CreateToggle( "ShowServerMarkers", "Show Server Markers", "", "" );
+		CreateToggle( "EnableMap", "Enable Expansion Map", "", "" );
+		CreateToggle( "UseMapOnMapItem", "Use Expansion Map On Map Item", "", "" );
+		CreateToggle( "NeedMapItemForKeyBinding", "Require Map Item", "", "" );
 		CreateToggle( "CanOpenMapWithKeyBinding", "Can Open Map With Key Binding", "", "" );
+
+		CreateToggle( "EnableHUDGPS", "Enable HUD GPS", "", "" );
+		CreateToggle( "NeedGPSItemForKeyBinding", "Require GPS Item", "", "" );
+		
+		CreateToggle( "CanCreateMarker", "Can Create Marker", "", "" );
+		CreateToggle( "CanCreate3DMarker", "Can Create 3D Marker", "", "" );
+
+		CreateToggle( "ShowPlayerPosition", "Show Player Position", "", "" );
+		CreateToggle( "ShowMapStats", "Show Map Stats (XYZ)", "", "" );
+
+		CreateToggle( "EnableServerMarkers", "Enable Server Markers", "", "" );
+		CreateToggle( "ShowNameOnServerMarkers", "Show Name Of Server Markers", "", "" );
+		CreateToggle( "ShowDistanceOnServerMarkers", "Show Distance Of Server Markers", "", "" );
 	}
 
 	override int GetRPCMin()

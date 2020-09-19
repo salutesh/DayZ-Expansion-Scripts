@@ -1822,7 +1822,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition - End and return nPosition: " + nPosition,ToString());
+		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition - End and return nPosition: " + nPosition.ToString() );
 		#endif
 		
 		return nPosition;

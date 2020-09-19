@@ -12,6 +12,12 @@
 
 modded class ActionStartEngine
 {
+	override void CreateConditionComponents()  
+	{
+		m_ConditionItem = new CCINone;
+		m_ConditionTarget = new CCTNone;
+	}
+
 	private CarScript m_ExCar;
 	
 	override string GetText()

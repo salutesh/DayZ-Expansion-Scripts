@@ -209,7 +209,7 @@ class ExpansionMarkerClientData : Managed
 			}
 		}
 		
-		if (GetExpansionSettings().GetMap().ShowPartyMembersMapMarkers)
+		if (GetExpansionSettings().GetParty().EnablePartyMembersMapMarkers)
 		{
 			for ( i = 0; i < PartyCount(); ++i )
 			{
@@ -224,7 +224,7 @@ class ExpansionMarkerClientData : Managed
 		if ( localPlayer )
 			localUid = localPlayer.GetIdentityUID();
 
-		if (GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers)
+		if (GetExpansionSettings().GetParty().EnablePartyMemberMarker)
 		{
 			for ( i = 0; i < PartyPlayerCount(); ++i )
 			{
@@ -236,7 +236,7 @@ class ExpansionMarkerClientData : Managed
 			}
 		}
 
-		if (GetExpansionSettings().GetMap().ShowServerMarkers)
+		if (GetExpansionSettings().GetMap().EnableServerMarkers)
 		{
 			for ( i = 0; i < ServerCount(); ++i )
 			{

@@ -1,5 +1,5 @@
 /**
- * ActionDestroyTerritory.c
+ * Shovel.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -15,6 +15,6 @@ modded class Shovel
 	override void SetActions()
 	{
 		super.SetActions();
-		AddAction(ActionDestroyTerritory);
+		//AddAction( ExpansionActionDestroyTerritory );
 	}
 }

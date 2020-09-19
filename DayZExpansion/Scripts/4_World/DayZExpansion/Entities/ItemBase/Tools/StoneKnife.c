@@ -15,6 +15,6 @@ modded class StoneKnife
 	override void SetActions()
 	{
 		super.SetActions();
-		AddAction(ActionDestroyFlag);
+		//AddAction( ExpansionActionDestroyFlag );
 	}
 }

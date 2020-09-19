@@ -20,6 +20,9 @@ class ExpansionSettingSerializationBase
 
 	Class m_Instance;
 
+	Class m_ActualInstance;
+	string m_ActualVariable;
+
 	Managed m_WidgetHandle;
 
 	bool m_IsTempSet;
@@ -37,5 +40,25 @@ class ExpansionSettingSerializationBase
 	bool IsTempSet()
 	{
 		return m_IsTempSet;
+	}
+
+	protected bool FindClassInstanceAndVariable()
+	{
+		array<string> arr();
+		m_Variable.Split( ".", arr );
+
+		m_ActualInstance = m_Instance;
+
+		for ( int i = 0; i < arr.Count() - 1; ++i )
+		{
+			EnScript.GetClassVar( m_ActualInstance, arr[i], 0, m_ActualInstance );
+
+			if ( m_ActualInstance == NULL )
+				return false;
+		}
+
+		m_ActualVariable = arr[arr.Count() - 1];
+
+		return true;
 	}
 };

@@ -32,9 +32,9 @@ class ExpansionFlagBase extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion IsTerritoryFlag
+	// Expansion HasExpansionTerritoryInformation
 	// ------------------------------------------------------------
-	bool IsTerritoryFlag()
+	bool HasExpansionTerritoryInformation()
 	{
 		return false;
 	}

@@ -70,10 +70,13 @@ class ExpansionESPModificationModule : JMModuleBase
 		if ( IsMissionOffline() )
 		{
 			ItemBase item = ItemBase.Cast( target );
-			if ( !item )
+			Container_Base container = Container_Base.Cast( target );
+			if ( !item && !container )
 				return;
-
-			Exec_RequestCode( item, item.GetCode() );
+			if( !item )
+				Exec_RequestCode( container, container.GetCode() );
+			else
+				Exec_RequestCode( item, item.GetCode() );
 		} else if ( IsMissionClient() )
 		{
 			ScriptRPC rpc = new ScriptRPC();
@@ -90,6 +93,12 @@ class ExpansionESPModificationModule : JMModuleBase
 		if ( meta )
 		{
 			meta.SetCode( code );
+		} else {
+			JMESPMetaContainer metac = JMESPMetaContainer.Cast( m_BaseModule.EXP_GetMeta( target ) );
+			if ( metac )
+			{
+				metac.SetCode( code );
+			} 
 		}
 	}
 

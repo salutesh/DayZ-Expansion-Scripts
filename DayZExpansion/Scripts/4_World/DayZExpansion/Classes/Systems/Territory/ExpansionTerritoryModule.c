@@ -1802,7 +1802,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			for ( int i = 0; i < objects.Count(); ++i )
 			{
 				TerritoryFlag flag = TerritoryFlag.Cast( objects.Get( i ) );
-				if ( flag && flag.IsTerritoryFlag() )
+				if ( flag && flag.HasExpansionTerritoryInformation() )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and found flag: " + flag.ToString());
@@ -1921,7 +1921,7 @@ class ExpansionTerritoryModule: JMModuleBase
 					#endif
 					continue;
 				}
-				if ( flag.IsTerritoryFlag() )
+				if ( flag.HasExpansionTerritoryInformation() )
 				{
 					ExpansionTerritory currTerritory = flag.GetTerritory();
 					if (!currTerritory)
@@ -1989,7 +1989,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			TerritoryFlag flag;
 			if ( Class.CastTo( flag, objects[i] ) )
 			{
-				if ( flag.IsTerritoryFlag() )
+				if ( flag.HasExpansionTerritoryInformation() )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");

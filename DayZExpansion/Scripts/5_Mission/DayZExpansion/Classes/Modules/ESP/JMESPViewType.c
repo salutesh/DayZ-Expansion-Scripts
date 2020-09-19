@@ -1,5 +1,5 @@
 /**
- * SteakKnife.c
+ * JMESPViewType.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,11 +10,15 @@
  *
 */
 
-modded class SteakKnife
+modded class JMESPViewTypeContainer
 {
-	override void SetActions()
+	void JMESPViewTypeContainer()
 	{
-		super.SetActions();
-		//AddAction( ExpansionActionDestroyFlag );
+		Permission = "Item.Container";
+		Localisation = "#STR_COT_ESP_MODULE_VIEW_TYPE_Containers";
+
+		MetaType = JMESPMetaContainer;
+
+		Colour = ARGB( 255, 200, 112, 255 );
 	}
-}
+};

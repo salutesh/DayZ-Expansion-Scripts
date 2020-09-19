@@ -29,6 +29,9 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - Start");
 		#endif
 		
+		StartingGear = new ExpansionStartingGear;
+		StartingClothing = new ExpansionStartingClothing;
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
 		#endif
@@ -181,13 +184,12 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionSpawnSettings] Loading default settings");
+		#endif
 		
-		StartingGear = new ExpansionStartingGear;
 		StartingGear.Defaults();
-		
-		UseCustomClothing = false;
-		StartingClothing = new ExpansionStartingClothing;
+		UseCustomClothing = true;
 		StartingClothing.Defaults();
 	}
 }

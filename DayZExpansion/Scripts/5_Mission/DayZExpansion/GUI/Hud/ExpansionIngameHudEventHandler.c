@@ -100,7 +100,7 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 		m_CloseTime += timeslice;
 		
 		//! If GPS is visable and player has no GPS item then close the GPS overlay when setting is enabled
-		if ( GetExpansionSettings().GetGeneral().NeedGPSItemForKeyBinding && m_ExpansionHud.GetGPSState() )
+		if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding && m_ExpansionHud.GetGPSState() )
 		{
 			player = PlayerBase.Cast( GetGame().GetPlayer() );
 			
@@ -114,7 +114,7 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 				ToggleHUDGPS();
 		}
 
-		if ( GetUApi().GetInputByName("UAExpansionGPSToggle").LocalHoldBegin() && GetExpansionSettings() && GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableHUDGPS && m_CloseTime > 0.75 )
+		if ( GetUApi().GetInputByName("UAExpansionGPSToggle").LocalHoldBegin() && GetExpansionSettings() && GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetMap().EnableHUDGPS && m_CloseTime > 0.75 )
 		{
 			//! If it's already open, just close it
 			if ( m_ExpansionHud.GetGPSState() )
@@ -123,7 +123,7 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 			}
 			else if ( !m_ExpansionHud.GetGPSState() )
 			{
-				if ( GetExpansionSettings().GetGeneral().NeedGPSItemForKeyBinding )
+				if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
 				{
 					player = PlayerBase.Cast( GetGame().GetPlayer() );
 					if (!player)

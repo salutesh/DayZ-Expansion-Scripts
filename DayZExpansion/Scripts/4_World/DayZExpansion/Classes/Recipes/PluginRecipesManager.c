@@ -45,16 +45,4 @@ modded class PluginRecipesManager
 		//! Ammunitions
 		RegisterRecipe(new ExpansionCraftStickySmoke);
 	}
-	
-	// ------------------------------------------------------------
-	// PluginRecipesManager UnregisterRecipe
-	// ------------------------------------------------------------
-	override void UnregisterRecipe(string clasname)
-	{
-		super.UnregisterRecipe(clasname);
-		
-		//! Remove abillity to craft the territory flag kit if setting is disabled
-		if (!GetExpansionSettings().GetBaseBuilding().CanCraftTerritoryFlagKit)
-			UnregisterRecipe("CraftTerritoryFlagKit");
-	}
 }

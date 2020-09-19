@@ -29,6 +29,8 @@ class ExpansionClientSettings
 	bool UseInvertedMouseControl;
 
 	bool UseHelicopterMouseControl;
+	float HelicopterMouseVerticalSensitivity;
+	float HelicopterMouseHorizontalSensitivity;
 	bool UsePlaneMouseControl;
 
 	// Video
@@ -220,6 +222,15 @@ class ExpansionClientSettings
 		
 		if ( !ctx.Read( ShowDistanceQuickMarkers ) )
 			return false;
+		
+		if ( version < 13 )
+			return false;
+		
+		if ( !ctx.Read( HelicopterMouseVerticalSensitivity ) )
+			return false;
+		
+		if ( !ctx.Read( HelicopterMouseHorizontalSensitivity ) )
+			return false;
 
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnRead - End and return");
@@ -303,6 +314,13 @@ class ExpansionClientSettings
 		
 		ctx.Write( ShowNameQuickMarkers );
 		ctx.Write( ShowDistanceQuickMarkers );
+
+		
+		if ( version < 13 )
+			return;
+
+		ctx.Write( HelicopterMouseVerticalSensitivity );
+		ctx.Write( HelicopterMouseHorizontalSensitivity );
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
@@ -413,9 +431,11 @@ class ExpansionClientSettings
 		AlphaColorLookAtMinimum = 80;
 
 		UseCameraLock = false;
-		UseInvertedMouseControl = true;
+		UseInvertedMouseControl = false;
 		
-		UseHelicopterMouseControl = false;
+		UseHelicopterMouseControl = true;
+		HelicopterMouseVerticalSensitivity = 1.0;
+		HelicopterMouseHorizontalSensitivity = 1.0;
 
 		HUDChatSize = ExpansionClientUIChatSize.SMALL;
 		HUDChatFadeOut = 10;
@@ -536,7 +556,10 @@ class ExpansionClientSettings
 		//! Option to toggle the vehicle camera
 		//CreateToggle( "UseCameraLock", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK_DESC" );
 		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
-		//CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
+		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
+		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0 );
+		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0 );
+		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
 
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG

@@ -651,7 +651,7 @@ modded class MissionGameplay
 							map_menu.Close();
 						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
 						{
-							if ( GetExpansionSettings().GetGeneral().NeedMapItemForKeyBinding )
+							if ( GetExpansionSettings().GetMap().NeedMapItemForKeyBinding )
 							{
 								if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemMap() || PlayerBase.Cast( GetGame().GetPlayer() ).HasItemGPS() )
 									GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
@@ -666,12 +666,12 @@ modded class MissionGameplay
 					if ( input.LocalPress( "UAExpansionGPSToggle", false ) )
 					{
 						#ifdef EXPANSIONEXLOGPRINT
-						EXLogPrint("MissionGameplay::OnUpdate - UAExpansionGPSToggle pressed and setting for item is: " + GetExpansionSettings().GetGeneral().NeedGPSItemForKeyBinding.ToString() );
+						EXLogPrint("MissionGameplay::OnUpdate - UAExpansionGPSToggle pressed and setting for item is: " + GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding.ToString() );
 						#endif
 
-						if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDGPS/*&& m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSState()*/ )
+						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS/*&& m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSState()*/ )
 						{		
-							if ( GetExpansionSettings().GetGeneral().NeedGPSItemForKeyBinding )
+							if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
 							{
 								#ifdef EXPANSIONEXLOGPRINT
 								EXLogPrint("MissionGameplay::OnUpdate - UAExpansionGPSToggle pressed and player has gps: " + PlayerBase.Cast( GetGame().GetPlayer() ).HasItemGPS().ToString() );
@@ -689,7 +689,7 @@ modded class MissionGameplay
 					
 					if ( input.LocalPress( "UAExpansionGPSMapScaleDown", false ) )
 					{
-						if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDGPS && m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSMapState() )
+						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSMapState() )
 						{							
 							DecreaseGPSMapScale();
 						}
@@ -697,7 +697,7 @@ modded class MissionGameplay
 					
 					if ( input.LocalPress( "UAExpansionGPSMapScaleUp", false ) )
 					{
-						if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDGPS && m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSMapState() )
+						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSMapState() )
 						{
 							IncreaseGPSMapScale();
 						}
