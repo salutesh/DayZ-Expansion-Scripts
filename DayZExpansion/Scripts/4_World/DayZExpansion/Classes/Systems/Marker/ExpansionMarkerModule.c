@@ -51,7 +51,7 @@ class ExpansionMarkerModule: JMModuleBase
 			SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		//! Party Member marker
-		if ( GetExpansionSettings().GetParty().EnablePartyMemberMarker )
+		if ( GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
 			SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		//! Party Quickmarker
@@ -586,7 +586,7 @@ class ExpansionMarkerModule: JMModuleBase
 			return false;
 		if ( type == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().EnableQuickMarker )
 			return false;
-		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().EnablePartyMemberMarker )
+		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
 			return false;
 		
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_WORLD) != 0;

@@ -18,9 +18,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 	bool EnableParties;							// enable party module, allow players to create parties
 	int MaxMembersInParty; 						// If <= 0, unlimited party size
 	bool UseWholeMapForInviteList; 				// Use it if you want whole map available in invite list, instead only nearby players
-	bool EnablePartyMembersMapMarkers;			// Allow player to see his teammates position on the map
 
-	bool EnablePartyMemberMarker;				// If enabled, allow to see 3D marker above teammates location
+	bool ShowPartyMember3DMarkers;				// If enabled, allow to see 3D marker above teammates location
 	bool ShowDistanceUnderPartyMembersMarkers;	// Show the distance of the party member marker
 	bool ShowNameOnPartyMembersMarkers;			// Show the name of the party member marker
 
@@ -112,8 +111,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		EnableParties = s.EnableParties;
 		MaxMembersInParty = s.MaxMembersInParty;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
-		EnablePartyMembersMapMarkers = s.EnablePartyMembersMapMarkers;
-		EnablePartyMemberMarker = s.EnablePartyMemberMarker;
+		ShowPartyMember3DMarkers = s.ShowPartyMember3DMarkers;
 		ShowDistanceUnderPartyMembersMarkers = s.ShowDistanceUnderPartyMembersMarkers;
 		ShowNameOnPartyMembersMarkers = s.ShowNameOnPartyMembersMarkers;
 		EnableQuickMarker = s.EnableQuickMarker;
@@ -186,8 +184,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		EnableParties = true;
 		MaxMembersInParty = 10;
 		UseWholeMapForInviteList = false;
-		EnablePartyMembersMapMarkers = true;
-		EnablePartyMemberMarker = true;
+		ShowPartyMember3DMarkers = true;
 		ShowDistanceUnderPartyMembersMarkers = true;
 		ShowNameOnPartyMembersMarkers = true;
 		EnableQuickMarker = true;

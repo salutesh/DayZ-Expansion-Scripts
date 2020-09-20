@@ -209,14 +209,11 @@ class ExpansionMarkerClientData : Managed
 			}
 		}
 		
-		if (GetExpansionSettings().GetParty().EnablePartyMembersMapMarkers)
+		for ( i = 0; i < PartyCount(); ++i )
 		{
-			for ( i = 0; i < PartyCount(); ++i )
-			{
-				marker = PartyGet( i );
-				if ( marker )
-					markers.Insert( marker );
-			}
+			marker = PartyGet( i );
+			if ( marker )
+				markers.Insert( marker );
 		}
 
 		PlayerBase localPlayer = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -224,7 +221,7 @@ class ExpansionMarkerClientData : Managed
 		if ( localPlayer )
 			localUid = localPlayer.GetIdentityUID();
 
-		if (GetExpansionSettings().GetParty().EnablePartyMemberMarker)
+		if (GetExpansionSettings().GetParty().ShowPartyMember3DMarkers)
 		{
 			for ( i = 0; i < PartyPlayerCount(); ++i )
 			{
