@@ -683,6 +683,44 @@ class CfgVehicles
 		};
 		class VehicleSimulation
 		{
+			drive = "DRIVE_RWD";
+			airDragCoefficient = 0.928;
+			class Steering
+			{
+				increaseSpeed[] = {0,50,30,40,60,25,120,5};
+				decreaseSpeed[] = {0,50,60,30,120,10};
+				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+			};
+			class Throttle
+			{
+				reactionTime = 0.25;
+				defaultThrust = 0.8;
+				gentleThrust = 0.6;
+				turboCoef = 5.0;
+				gentleCoef = 0.7;
+			};
+			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
+			class Engine
+			{
+				inertia = 0.45;
+				torqueMax = 187;
+				torqueRpm = 2400;
+				powerMax = 73.5;
+				powerRpm = 4500;
+				rpmIdle = 1000;
+				rpmMin = 1050;
+				rpmClutch = 1250;
+				rpmRedline = 4700;
+				rpmMax = 6800;
+			};
+			class Gearbox
+			{
+				reverse = 3.51;
+				ratios[] = {3.5,2.26,1.45,1.0};
+				timeToUncoupleClutch = 0.3;
+				timeToCoupleClutch = 0.3;
+				maxClutchTorque = 180;
+			};
 			class Axles
 			{
 				class Front

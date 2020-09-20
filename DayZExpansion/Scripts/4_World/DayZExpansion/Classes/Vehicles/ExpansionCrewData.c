@@ -28,7 +28,7 @@ class ExpansionCrewData
 
 	void ExpansionCrewData( ExpansionVehicleScript vehicle, string name )
 	{
-		Print( "ExpansionCrewData - Start" );
+		//Print( "ExpansionCrewData - Start" );
 		
 		m_Vehicle = vehicle;
 		m_Name = name;
@@ -44,7 +44,7 @@ class ExpansionCrewData
 		m_ActionSelection.ToLower();
 		m_ActionSelection.Trim();
 
-		Print( m_ActionSelection );
+		//Print( m_ActionSelection );
 		
 		m_ComponentIndex = -1;
 		
@@ -57,7 +57,7 @@ class ExpansionCrewData
 			if ( m_Vehicle.IsActionComponentPartOfSelection( i, m_ActionSelection, "view" ) )
 			{
 				m_ComponentIndex = i;
-				Print( m_ComponentIndex );
+				//Print( m_ComponentIndex );
 				break;
 			}
 		}
@@ -81,8 +81,10 @@ class ExpansionCrewData
 		{
 			m_SeatTransform[3] = "0 0 0";
 		}
+
+		//Print("this is the test code");
 		
-		Print( "ExpansionCrewData - End" );
+		//Print( "ExpansionCrewData - End" );
 	}
 
 	string GetName()
@@ -132,5 +134,21 @@ class ExpansionCrewData
 	DayZPlayerImplement GetPlayer()
 	{
 		return m_Player;
+	}
+
+	/**
+	 * Due to Enfusion not properly updating the network bubble we
+	 * unfortunately have to do this. This can be performance intensive.
+	 * 
+	 * TODO: Ask Mirek or Adam for an export into Enforce Script
+	 * 
+	 * Issues: constant teleportation, can look bad, affects server performance
+	 */
+	void NetworkBubbleFix()
+	{
+		if ( m_Player )
+		{
+			m_Player.SetPosition( m_SeatTransform[3] );
+		}
 	}
 }

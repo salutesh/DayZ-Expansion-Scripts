@@ -26,13 +26,11 @@
 #define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG
-//#define EXPANSION_HELI_EXPLOSION_HACK
-#define EXPANSION_HELI_USE_CONTACT_NORMAL
-//#define EXPANSION_HELI_USE_CONTACT_NORMAL_TEST
+#define EXPANSION_HELI_CONTACT_NORMAL_DISABLE
 //#define EXPANSION_USING_TRANSPORT_BASE
 
-#define EXPANSION_DEBUG_SHAPES_DISABLE
-#define EXPANSION_WHEEL_DEBUG_DISABLE
+//#define EXPANSION_DEBUG_SHAPES_DISABLE
+//#define EXPANSION_WHEEL_DEBUG_DISABLE
 
 #define EXPANSION_UNIVERSAL_WHEEL_DISABLE
 
@@ -82,8 +80,14 @@
 //! Enable it if you want to enable skinings system debug logs
 //#define EXPANSION_SKIN_LOGGING
 
+//! Enable it if you want to enable car key debug logs
+//#define EXPANSION_CARKEY_LOGGING
+
 //! Enable it if you want to disable skinings system skin replacement on object creation
 #define EXPANSION_SKIN_REPLACEMENT_DISABLE
+
+//! Enable if if you want to enable car debug logs
+//#define EXPANSION_CARSCRIPT_LOGGING
 
 //#define EXPANSION_WEAPON_DEBUG_OBJECTS
 //#define EXPANSION_WEAPON_BULLET_TRACE
@@ -104,3 +108,8 @@
 
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING
+
+#ifdef SERVER //! Don't comment these, diag exe server crashes
+#define EXPANSION_DEBUG_SHAPES_DISABLE
+#define EXPANSION_WHEEL_DEBUG_DISABLE
+#endif

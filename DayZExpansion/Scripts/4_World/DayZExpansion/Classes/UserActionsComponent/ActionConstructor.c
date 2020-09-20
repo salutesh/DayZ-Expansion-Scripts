@@ -40,9 +40,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionCutParachute );
 
 		//! Vehicles
-		actions.Insert( ExpansionActionGetInTransport );
-		actions.Insert( ExpansionActionGetOutTransport );
-
 		actions.Insert( ExpansionActionGetInExpansionVehicle );
 		actions.Insert( ExpansionActionGetOutExpansionVehicle );
 		

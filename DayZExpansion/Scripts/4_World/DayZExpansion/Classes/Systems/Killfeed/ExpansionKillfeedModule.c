@@ -143,7 +143,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				
 				if(m_Source && m_Source.IsInherited(PlayerBase))
 				{
-					m_PlayerPrefix2 = this.GetPlayerPrefix( m_Source.GetIdentity() );
+					m_PlayerPrefix2 = GetPlayerPrefix( m_Source.GetIdentity() );
 					m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
 				}
 			
@@ -176,7 +176,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				
 				if(m_Source)
 				{
-					m_PlayerPrefix2 = this.GetPlayerPrefix( m_Source.GetIdentity() );
+					m_PlayerPrefix2 = GetPlayerPrefix( m_Source.GetIdentity() );
 					m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
 					
 					if( heli.IsHelicopter() )
@@ -325,7 +325,7 @@ class ExpansionKillFeedModule: JMModuleBase
 		
 		if ( player && source && !m_HitCheckDone)
 		{
-			m_PlayerPrefix = this.GetPlayerPrefix( player.GetIdentity() );
+			m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
 			m_PlayerSteamWebhook = player.FormatSteamWebhook();
 			
 			if( player == source )	// Deaths not caused by another object (starvation, dehydration, bloodloss or suicide)
@@ -859,14 +859,14 @@ class ExpansionKillFeedModule: JMModuleBase
 				if( GetExpansionSettings().GetNotification().KillFeedHeliCrashCrew )
 					return true;
 				break;
-			case ExpansionKillFeedMessageType.BOAT_CRASH:
+			/*case ExpansionKillFeedMessageType.BOAT_CRASH:
 				if( GetExpansionSettings().GetNotification().KillFeedBoatCrash )
 					return true;
 				break;
 			case ExpansionKillFeedMessageType.BOAT_CRASH_CREW:
 				if( GetExpansionSettings().GetNotification().KillFeedBoatCrashCrew )
 					return true;
-				break;
+				break;*/
 			case ExpansionKillFeedMessageType.BARBEDWIRE:
 				if( GetExpansionSettings().GetNotification().KillFeedBarbedWire )
 					return true;
@@ -875,10 +875,10 @@ class ExpansionKillFeedModule: JMModuleBase
 				if( GetExpansionSettings().GetNotification().KillFeedFire )
 					return true;
 				break;
-			case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
+			/*case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
 				if( GetExpansionSettings().GetNotification().KillFeedSpecialExplosion )
 					return true;
-				break;
+				break;*/
 			case ExpansionKillFeedMessageType.WEAPON_EXPLOSION:
 				if( GetExpansionSettings().GetNotification().KillFeedWeaponExplosion )
 					return true;
@@ -1042,9 +1042,9 @@ class ExpansionKillFeedModule: JMModuleBase
 			case ExpansionKillFeedMessageType.FIRE:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_FIRE";
 				break;
-			case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
+			/*case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_EXPLOSION_WEAPON";
-				break;
+				break;*/
 			case ExpansionKillFeedMessageType.WEAPON_EXPLOSION:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_EXPLOSION";
 				break;

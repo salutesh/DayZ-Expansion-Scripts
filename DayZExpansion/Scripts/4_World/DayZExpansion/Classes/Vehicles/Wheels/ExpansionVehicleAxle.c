@@ -112,16 +112,6 @@ class ExpansionVehicleAxle
 		}
 	}
 
-	float GetSteering()
-	{
-		return m_Steering;
-	}
-
-	void SetSteering( float steering )
-	{
-		m_Steering = steering;
-	}
-
 	float GetMaxSteeringAngle()
 	{
 		return m_MaxSteeringAngle;
@@ -187,12 +177,31 @@ class ExpansionVehicleAxle
 		return m_TravelMaxUp + m_TravelMaxDown;
 	}
 
+	float GetAngularVelocity()
+	{
+		if ( m_Wheels.Count() == 0 )
+			return 0;
+
+		float rotationRate = 0;
+		for ( int i = 0; i < m_Wheels.Count(); ++i )
+			rotationRate += m_Wheels[i].GetAngularVelocity();
+		return rotationRate / m_Wheels.Count();
+	}
+
+	void SetSteering( float steering )
+	{
+		_SetSteering( steering * GetMaxSteeringAngle() );
+	}
+
+	protected void _SetSteering( float steering )
+	{
+
+	}
+
 	void ApplyTorque( float torque )
 	{
-		if ( m_FinalRatio == 0 )
-			return;
-		
-		_ApplyTorque( torque / m_FinalRatio );
+		if (m_FinalRatio != 0)
+			_ApplyTorque( torque / m_FinalRatio );
 	}
 
 	protected void _ApplyTorque( float torque )
@@ -202,10 +211,10 @@ class ExpansionVehicleAxle
 
 	void ApplyBrake( float amt )
 	{
-		_ApplyBrake(m_BrakeForce * m_BrakeBias * amt );
+		_ApplyBrake( m_BrakeForce * m_BrakeBias * amt );
 	}
 
-	protected void _ApplyBrake( float force )
+	protected void _ApplyBrake( float torque )
 	{
 
 	}
@@ -215,6 +224,11 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 {
 	void ExpansionVehicleOneWheelAxle( ExpansionVehicleScript vehicle, string name )
 	{
+	}
+
+	override float GetAngularVelocity()
+	{
+		return m_Wheels[0].GetAngularVelocity();
 	}
 
 	override void SetupSimulation( float pDt, out int numWheelsGrounded )
@@ -227,14 +241,19 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 		m_Wheels[0].Simulate( pDt, numWheelsGrounded, pImpulse, pImpulseTorque );
 	}
 
-	protected override void _ApplyTorque( float torque )
+	protected override void _SetSteering( float steering )
 	{
-		m_Wheels[0].m_EngineForce = torque;
+		m_Wheels[0].SetSteering( steering );
 	}
 
-	protected override void _ApplyBrake( float force )
+	protected override void _ApplyTorque( float torque )
 	{
-		m_Wheels[0].m_BrakeForce = force;
+		m_Wheels[0].ApplyTorque( torque );
+	}
+
+	protected override void _ApplyBrake( float torque )
+	{
+		m_Wheels[0].ApplyBrake( torque );
 	}
 }
 
@@ -244,6 +263,11 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 
 	void ExpansionVehicleTwoWheelAxle( ExpansionVehicleScript vehicle, string name )
 	{
+	}
+
+	override float GetAngularVelocity()
+	{
+		return ( m_Wheels[0].GetAngularVelocity() + m_Wheels[1].GetAngularVelocity() ) * 0.5;
 	}
 
 	override void SetupSimulation( float pDt, out int numWheelsGrounded )
@@ -279,15 +303,21 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		pImpulseTorque += impulseTorque.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
 	}
 
-	protected override void _ApplyTorque( float torque )
+	protected override void _SetSteering( float steering )
 	{
-		m_Wheels[0].m_EngineForce = torque;
-		m_Wheels[1].m_EngineForce = torque;
+		m_Wheels[0].SetSteering( steering );
+		m_Wheels[1].SetSteering( steering );
 	}
 
-	protected override void _ApplyBrake( float force )
+	protected override void _ApplyTorque( float torque )
 	{
-		m_Wheels[0].m_BrakeForce = force;
-		m_Wheels[1].m_BrakeForce = force;
+		m_Wheels[0].ApplyTorque( torque );
+		m_Wheels[1].ApplyTorque( torque );
+	}
+
+	protected override void _ApplyBrake( float torque )
+	{
+		m_Wheels[0].ApplyBrake( torque );
+		m_Wheels[1].ApplyBrake( torque );
 	}
 }

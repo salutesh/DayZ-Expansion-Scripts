@@ -569,10 +569,11 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			//! helicoper simulation weirdness when on the ground?
 			vector upDir = vector.Direction( GetPosition(), ModelToWorld( "0 1 0" ) );
 
+			#ifdef EXPANSION_HELI_CONTACT_NORMAL_DISABLE //! Should be enabled, quick disable if issues persist
 			vector contactUp = vector.Up;
-			#ifdef EXPANSION_HELI_USE_CONTACT_NORMAL //! Should be enabled, quick disable if issues persist
+			#else
 			//! Find the contact normal from the position of the contact relative to the helicopter
-			contactUp = extra.Normal * -vector.Dot( vector.Up, vector.Direction( GetPosition(), extra.Position ).Normalized() );
+			vector contactUp = extra.Normal * -vector.Dot( vector.Up, vector.Direction( GetPosition(), extra.Position ).Normalized() );
 			contactUp.Normalize();
 			#endif
 
@@ -585,8 +586,23 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			//! If the heli is upside down for whatever reason and is stationary it should still explode
 			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( -1.0 + ( 0.8 / dot ) ); 
 
+			//Print( impulseRequired );
+
+			if ( other ) //! check done just incase
+				impulseRequired += Math.Max( dBodyGetMass( other ), 0.0 ) * maxVelocityMagnitude * 2.0;
+
+			//Print( impulseRequired );
+			//Print( other );
+			//if ( other )
+			//	Print( dBodyGetMass( other ) );
+
+			//Print( extra.Impulse );
+
 			if ( extra.Impulse > impulseRequired )
 			{
+				//Print( "Boom!" );
+				//! Maybe instead just tick damage down instead?
+				//! Should have a way to repair the helicopter then though
 				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
 			}
 		}

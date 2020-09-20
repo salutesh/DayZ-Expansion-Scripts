@@ -752,8 +752,6 @@ modded class IngameHud
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::RefreshCarHud - Start");
 		#endif
-		
-		return;
 
 		float rpm_value = ( car.EngineGetRPM() / car.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( car.EngineGetRPMRedline() / car.EngineGetRPMMax() ) ;

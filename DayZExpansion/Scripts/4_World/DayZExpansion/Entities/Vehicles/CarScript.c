@@ -409,10 +409,6 @@ modded class CarScript
 
 		super.SetActions();
 
-		//RemoveAction( ActionGetInTransport );
-
-		//AddAction( ExpansionActionGetInTransport );
-
 		AddAction( ExpansionActionPairKey );
 		AddAction( ExpansionActionAdminUnpairKey );
 
@@ -582,7 +578,7 @@ modded class CarScript
 		}	
 		else
 		{
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_CARSCRIPT_LOGGING
 			EXLogPrint( message );
 			#endif
 		}
@@ -640,7 +636,7 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void PairKeyTo( ExpansionCarKey key )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::PairKeyTo - Start");
 		#endif
 
@@ -655,11 +651,14 @@ modded class CarScript
 
 		//KeyMessage( "PairKeyTo (" + this + ", " + key + ")" );
 
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::PairKeyTo - End");
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion ResetKeyPairing
+	// ------------------------------------------------------------
 	// Only call this after all keys have been confirmed to be removed
 	void ResetKeyPairing()
 	{
@@ -667,12 +666,18 @@ modded class CarScript
 
 		SetSynchDirty();
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion CanBeLocked
+	// ------------------------------------------------------------
 	bool CanBeLocked()
 	{
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion OnCarDoorOpened
+	// ------------------------------------------------------------
 	void OnCarDoorOpened( string source )
 	{
 		if ( HasKey() ) 
@@ -686,12 +691,18 @@ modded class CarScript
 			}
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion OnCarDoorClosed
+	// ------------------------------------------------------------
 	void OnCarDoorClosed( string source )
 	{
 
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion IsCarKeys
+	// ------------------------------------------------------------
 	bool IsCarKeys( ExpansionCarKey key )
 	{
 		if ( !HasKey() )
@@ -708,7 +719,10 @@ modded class CarScript
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion LockCar
+	// ------------------------------------------------------------
 	void LockCar( ExpansionCarKey key )
 	{
 		if ( key && !IsCarKeys( key ) && !key.IsInherited(ExpansionCarAdminKey) )
@@ -719,7 +733,10 @@ modded class CarScript
 
 		SetSynchDirty();
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion UnlockCar
+	// ------------------------------------------------------------
 	void UnlockCar( ExpansionCarKey key )
 	{
 		if ( key && !IsCarKeys( key ) && !key.IsInherited(ExpansionCarAdminKey) )
@@ -2003,7 +2020,7 @@ modded class CarScript
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint( "[" + this + "] EOnSimulate" );
 		#endif
 		
@@ -2272,7 +2289,7 @@ modded class CarScript
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::OnStoreLoad - Start");
 		#endif
 
@@ -2358,7 +2375,7 @@ modded class CarScript
 		
 		SetSynchDirty();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::OnStoreLoad - End");
 		#endif
 

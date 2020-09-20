@@ -366,10 +366,7 @@ modded class PlayerBase
 		#endif
 
 		super.SetActions();
-
-		//RemoveAction( ActionGetOutTransport );	
-
-		//AddAction( ExpansionActionGetOutTransport );
+		
 		AddAction( ExpansionActionGetOutExpansionVehicle );
 		
 		AddAction( ExpansionActionCarHorn );

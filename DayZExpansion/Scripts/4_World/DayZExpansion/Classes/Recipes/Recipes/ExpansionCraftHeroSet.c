@@ -14,7 +14,9 @@
  * @brief		
  **/
 class ExpansionCraftHeroSet extends RecipeBase
-{	
+{
+	protected const string KIT_ITEMS[8] = {"UKAssVest_Black", "Jeans_Black", "Shirt_WhiteCheck", "BaseballCap_Beige", "DesignerGlasses", "CoyoteBag_Brown", "CombatBoots_Black", "ExpansionShemag"};
+
 	override void Init()
 	{
 		m_Name = "#STR_USRACT_UNPACK_HEROSET";
@@ -119,36 +121,10 @@ class ExpansionCraftHeroSet extends RecipeBase
 	{
 		Debug.Log("Recipe Do method called", "recipes");
 
-		ItemBase item1 = ItemBase.Cast( player.GetInventory().CreateInInventory( "UKAssVest_Black" ) );
-		if ( !item1 )
-			item1 = ExpansionCarKey.Cast( GetGame().CreateObject( "UKAssVest_Black", player.GetPosition() ) );
-
-		ItemBase item2 = ItemBase.Cast( player.GetInventory().CreateInInventory( "Jeans_Black" ) );
-		if ( !item2 )
-			item2 = ExpansionCarKey.Cast( GetGame().CreateObject( "Jeans_Black", player.GetPosition() ) );
-
-		ItemBase item3 = ItemBase.Cast( player.GetInventory().CreateInInventory( "Shirt_WhiteCheck" ) );
-		if ( !item3 )
-			item3 = ExpansionCarKey.Cast( GetGame().CreateObject( "Shirt_WhiteCheck", player.GetPosition() ) );
-
-		ItemBase item4 = ItemBase.Cast( player.GetInventory().CreateInInventory( "BaseballCap_Beige" ) );
-		if ( !item4 )
-			item4 = ExpansionCarKey.Cast( GetGame().CreateObject( "BaseballCap_Beige", player.GetPosition() ) );
-
-		ItemBase item5 = ItemBase.Cast( player.GetInventory().CreateInInventory( "DesignerGlasses" ) );
-		if ( !item5 )
-			item5 = ExpansionCarKey.Cast( GetGame().CreateObject( "DesignerGlasses", player.GetPosition() ) );
-
-		ItemBase item6 = ItemBase.Cast( player.GetInventory().CreateInInventory( "CoyoteBag_Brown" ) );
-		if ( !item6 )
-			item6 = ExpansionCarKey.Cast( GetGame().CreateObject( "CoyoteBag_Brown", player.GetPosition() ) );
-
-		ItemBase item7 = ItemBase.Cast( player.GetInventory().CreateInInventory( "CombatBoots_Black" ) );
-		if ( !item7 )
-			item7 = ExpansionCarKey.Cast( GetGame().CreateObject( "CombatBoots_Black", player.GetPosition() ) );
-
-		ItemBase item8 = ItemBase.Cast( player.GetInventory().CreateInInventory( "ExpansionShemag" ) );
-		if ( !item8 )
-			item8 = ExpansionCarKey.Cast( GetGame().CreateObject( "ExpansionShemag", player.GetPosition() ) );
+		foreach (string obj : KIT_ITEMS)
+		{
+			if (!player.GetInventory().CreateInInventory(obj))
+				GetGame().CreateObject(obj, player.GetPosition());
+		}
 	}
 }

@@ -89,11 +89,25 @@ modded class ActionStartEngine
 							if ( Class.CastTo( key, playerItems[i] ) )
 							{
 								if ( key.IsPairedTo( m_ExCar ) )
+								{
+									#ifdef EXPANSION_CARKEY_LOGGING
+									EXLogPrint("ActionStartEngine::ActionCondition - Player HAS paired key!");
+									#endif
 									return true;
+								}
+								else
+								{
+									#ifdef EXPANSION_CARKEY_LOGGING
+									EXLogPrint("ActionStartEngine::ActionCondition - Player has NOT paired key!");
+									#endif
+								}
 							}
 						}
 					} else
 					{
+						#ifdef EXPANSION_CARKEY_LOGGING
+						EXLogPrint("ActionStartEngine::ActionCondition - Vehicle has no key paired to it!");
+						#endif
 						return true;
 					}
 				}

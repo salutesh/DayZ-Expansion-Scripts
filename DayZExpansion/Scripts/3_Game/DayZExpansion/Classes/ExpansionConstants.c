@@ -503,6 +503,7 @@ static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_HELICOPTER = 10;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_PLANE = 15;
 
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_WHEELS = 20;
+static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_ENGINE = 25;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_WINGS = 30;
 
 static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER = 40;
@@ -546,6 +547,9 @@ static void Expansion_SetupDebugger()
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_BASEBUILDING );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_AI );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
+	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_ENGINE );
 
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_AI );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
 }

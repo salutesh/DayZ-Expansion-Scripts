@@ -103,20 +103,20 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
-				rpmIdle = 850;
-				rpmMin = 900;
-				rpmClutch = 1350;
-				rpmRedline = 6000;
-				rpmMax = 8000;
+				torqueMax = 130;
+				torqueRpm = 3700;
+				powerMax = 80;
+				powerRpm = 3500;
+				rpmIdle = 650;
+				rpmMin = 700;
+				rpmClutch = 1500;
+				rpmRedline = 4000;
+				rpmMax = 5000;
 			};
 			class Gearbox
 			{
-				reverse = 3.526;
-				ratios[] = {3.667,2.1,1.361,1.0};
+				reverse = 2.0;
+				ratios[] = {2.0,1.5,1.0};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
@@ -149,6 +149,8 @@ class CfgVehicles
 							animRotation = "wheelfront";
 							animDamper = "damper_1";
 							wheelHub = "wheel_1_damper_land";
+							axis_start = "suspension_1_start";
+							axis_end = "suspension_1_end";
 						};
 					};
 				};
@@ -192,6 +194,19 @@ class CfgVehicles
 				animPeriod = 1e-05;
 			};
 			class Damper_2: Damper_1{};
+			class wheelfront
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-05;
+			};
+			class wheelback: wheelfront{};
+			class DrivingWheel
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-05;
+			};
 		};
 	};
 };

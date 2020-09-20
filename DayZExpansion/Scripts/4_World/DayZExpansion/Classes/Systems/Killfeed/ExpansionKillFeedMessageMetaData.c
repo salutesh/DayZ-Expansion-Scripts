@@ -61,21 +61,21 @@ class ExpansionKillFeedMessageMetaData
 			case ExpansionKillFeedMessageType.HELI_CRASH_CREW:
 				message = "%1 cant fly a %2 and exploded. Killing %3";
 				break;
-			case ExpansionKillFeedMessageType.BOAT_CRASH:
+			/*case ExpansionKillFeedMessageType.BOAT_CRASH:
 				message = "%1 crashed with his %2 boat.";
 				break;
 			case ExpansionKillFeedMessageType.BOAT_CRASH_CREW:
 				message = "%1 cant drive a %2 and exploded. Killing %3";
-				break;
+				break;*/
 			case ExpansionKillFeedMessageType.BARBEDWIRE:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_BARBED_WIRE";
 				break;
 			case ExpansionKillFeedMessageType.FIRE:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_FIRE";
 				break;
-			case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
+			/*case ExpansionKillFeedMessageType.SPECIAL_EXPLOSION:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_EXPLOSION_WEAPON";
-				break;
+				break;*/
 			case ExpansionKillFeedMessageType.WEAPON_EXPLOSION:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_DIED_EXPLOSION";
 				break;

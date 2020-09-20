@@ -22,12 +22,19 @@ class ExpansionCarKey extends ItemBase
 {
 	protected static autoptr array<ExpansionCarKey> m_AllKeys = new array<ExpansionCarKey>;
 	
+	// ------------------------------------------------------------
+	// ExpansionCarKey GetFirstKeyForVehicle
+	// ------------------------------------------------------------
 	/**
 	 * @note 	Does not get keys which may be stored in a 
 	 * 			player inventory while they are not logged in
 	 */
 	static ExpansionCarKey GetFirstKeyForVehicle( Object obj )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::GetFirstKeyForVehicle - Start");
+		#endif
+		
 		if ( !obj )
 			return NULL;
 
@@ -41,7 +48,12 @@ class ExpansionCarKey extends ItemBase
 					continue;
 				
 				if ( m_AllKeys[i].IsPairedTo( car ) )
+				{
+					#ifdef EXPANSION_CARKEY_LOGGING
+					EXLogPrint("ExpansionCarKey::GetFirstKeyForVehicle - End and return Key: " + m_AllKeys[i]);
+					#endif
 					return m_AllKeys[i];
+				}
 			}
 		} else if ( Class.CastTo( veh, obj ) )
 		{
@@ -51,19 +63,35 @@ class ExpansionCarKey extends ItemBase
 					continue;
 				
 				if ( m_AllKeys[i].IsPairedTo( veh ) )
+				{
+					#ifdef EXPANSION_CARKEY_LOGGING
+					EXLogPrint("ExpansionCarKey::GetFirstKeyForVehicle - End and return Key: " + m_AllKeys[i]);
+					#endif
 					return m_AllKeys[i];
+				}
 			}
 		}
 		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::GetFirstKeyForVehicle - End and return NULL");
+		#endif
+		
 		return NULL;
 	}
-	
+		
+	// ------------------------------------------------------------
+	// ExpansionCarKey GetKeysForVehicle
+	// ------------------------------------------------------------
 	/**
 	 * @note 	Does not get keys which may be stored in a 
 	 * 			player inventory while they are not logged in
 	 */
 	static void GetKeysForVehicle( Object obj, inout array< ExpansionCarKey > keys )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::GetKeysForVehicle - Start");
+		#endif
+		
 		if ( !keys )
 			keys = new array< ExpansionCarKey >;
 
@@ -93,6 +121,10 @@ class ExpansionCarKey extends ItemBase
 					keys.Insert( m_AllKeys[i] );
 			}
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::GetKeysForVehicle - End");
+		#endif
 	}
 	
 	private int m_VehicleIDA = 0;
@@ -109,6 +141,10 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	void ExpansionCarKey()
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::ExpansionCarKey - Start");
+		#endif
+		
 		RegisterNetSyncVariableInt( "m_VehicleIDA" );
 		RegisterNetSyncVariableInt( "m_VehicleIDB" );
 		RegisterNetSyncVariableInt( "m_VehicleIDC" );
@@ -117,6 +153,10 @@ class ExpansionCarKey extends ItemBase
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
 		m_AllKeys.Insert(this);
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::ExpansionCarKey - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -124,7 +164,15 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	void ~ExpansionCarKey()
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::~ExpansionCarKey - Start");
+		#endif
+		
 		m_AllKeys.RemoveItem(this);
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::~ExpansionCarKey - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -132,19 +180,38 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	override void EEInit()
 	{		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::ExpansionCarKey - Start");
+		#endif
+		
 		super.EEInit();
 		
 		if ( IsMissionClient() )
 		{
 			RequestItemData();
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::ExpansionCarKey - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionCarKey EEOnAfterLoad
+	// ------------------------------------------------------------
 	override void EEOnAfterLoad()
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::EEOnAfterLoad - Start");
+		#endif
+		
 		super.EEOnAfterLoad();
 
 		m_Vehicle = GetGame().GetEntityByPersitentID( m_VehicleIDA, m_VehicleIDB, m_VehicleIDC, m_VehicleIDD );
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::EEOnAfterLoad - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -152,7 +219,11 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	override string GetDisplayName()
 	{
-		return m_VehicleDisplayName + " key";
+		if (IsPaired()) {
+			return m_VehicleDisplayName + " #STR_EXPANSION_KEYS";
+		} else { 
+			return m_VehicleDisplayName;
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -160,8 +231,8 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	void PairToVehicle( CarScript vehicle )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKey::PairToVehicle - Start vehicle : " + vehicle);
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - Start vehicle : " + vehicle);
 		#endif
 		
 		m_VehicleIDA = vehicle.GetPersistentIDA();
@@ -169,11 +240,11 @@ class ExpansionCarKey extends ItemBase
 		m_VehicleIDC = vehicle.GetPersistentIDC();
 		m_VehicleIDD = vehicle.GetPersistentIDD();
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDA : " + m_VehicleIDA);
-		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDB : " + m_VehicleIDB);
-		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDC : " + m_VehicleIDC);
-		EXLogPrint("ExpansionCarKey::PairToVehicle - m_VehicleIDD : " + m_VehicleIDD);
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDA : " + m_VehicleIDA);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDB : " + m_VehicleIDB);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDC : " + m_VehicleIDC);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDD : " + m_VehicleIDD);
 		#endif
 
 		m_VehicleDisplayName = vehicle.ConfigGetString( "displayName" );
@@ -184,10 +255,10 @@ class ExpansionCarKey extends ItemBase
 
 		m_Vehicle = vehicle;
 
-		SetSynchDirty();
+		//SetSynchDirty();
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionCarKey::PairToVehicle - End vehicle : " + vehicle);
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - End vehicle : " + vehicle);
 		#endif
 	}
 	
@@ -196,13 +267,28 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	void PairToVehicle( ExpansionVehicleScript vehicle )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::PairToVehicle 2 - Start");
+		#endif
+		
 		m_Vehicle = vehicle;
 		
 		// TODO
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::PairToVehicle 2 - End");
+		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionCarKey Unpair
+	// ------------------------------------------------------------
 	void Unpair( bool ignore_check = false )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::Unpair - Start");
+		#endif
+		
 		if ( !ignore_check )
 		{
 			array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
@@ -237,21 +323,36 @@ class ExpansionCarKey extends ItemBase
 		if ( ownerPlayer && ownerPlayer.GetIdentity() )
 			RPC_RequestItemData( ownerPlayer.GetIdentity() );
 		
-		SetSynchDirty();
+		//SetSynchDirty();
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::Unpair - End");
+		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionCarKey KeyMessage
+	// ------------------------------------------------------------
 	protected void KeyMessage( string message )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::KeyMessage - Start");
+		#endif
+		
 		if ( IsMissionClient() )
 		{
 			Message( GetPlayer(), message );
 		}
 		else
 		{
-			#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSION_CARKEY_LOGGING
 			EXLogPrint( message );
 			#endif
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::KeyMessage - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -259,14 +360,22 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPaired()
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::IsPaired - Start");
+		#endif
+		
 		if ( m_VehicleIDA != 0 && m_VehicleIDB != 0 && m_VehicleIDC != 0 && m_VehicleIDD != 0 )
 		{
-			//KeyMessage("ExpansionCarKey::IsPaired true");
+			#ifdef EXPANSION_CARKEY_LOGGING
+			KeyMessage("ExpansionCarKey::IsPaired - End and return TRUE");
+			#endif
 			return true;
 		}
 		
-		//KeyMessage("ExpansionCarKey::IsPaired false");
-
+		#ifdef EXPANSION_CARKEY_LOGGING
+		KeyMessage("ExpansionCarKey::IsPaired - End and return FALSE");
+		#endif
+		
 		return false;
 	}
 	
@@ -275,6 +384,10 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPairedTo( CarScript vehicle )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::IsPairedTo 1 - Start");
+		#endif
+		
 		if ( vehicle.GetPersistentIDA() != m_VehicleIDA )
 		{
 			return false;
@@ -294,6 +407,10 @@ class ExpansionCarKey extends ItemBase
 		{
 			return false;
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::IsPairedTo 1 - End and return TRUE");
+		#endif
 
 		return true;
 	}
@@ -303,7 +420,15 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPairedTo( ExpansionVehicleScript vehicle )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::IsPairedTo 2 - Start");
+		#endif
+		
 		// TODO
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::IsPairedTo 2 - End and return FALSE");
+		#endif
+		
 		return false;
 	}
 	
@@ -312,6 +437,10 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnStoreSave - Start");
+		#endif
+		
 		super.OnStoreSave(ctx);
 		
 		ctx.Write( m_VehicleIDA );
@@ -319,6 +448,10 @@ class ExpansionCarKey extends ItemBase
 		ctx.Write( m_VehicleIDC );
 		ctx.Write( m_VehicleIDD );
 		ctx.Write( m_VehicleDisplayName );
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnStoreSave - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -326,6 +459,10 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnStoreLoad - Start");
+		#endif
+		
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
@@ -340,6 +477,10 @@ class ExpansionCarKey extends ItemBase
 		if ( Expansion_Assert_False( ctx.Read( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
 			return false;
 
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnStoreLoad - End and return TRUE");
+		#endif
+		
 		return true;
 	}
 	
@@ -348,6 +489,10 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner ) 
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnItemLocationChanged - Start");
+		#endif
+		
 		super.OnItemLocationChanged( old_owner, new_owner );
 		
 		if ( new_owner && new_owner.IsInherited( PlayerBase ) )
@@ -357,6 +502,10 @@ class ExpansionCarKey extends ItemBase
 				RequestItemData();
 			}
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnItemLocationChanged - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -364,6 +513,10 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------		
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnRPC - Start");
+		#endif
+		
 		super.OnRPC(sender, rpc_type, ctx);
 		
 		switch (rpc_type)
@@ -379,6 +532,10 @@ class ExpansionCarKey extends ItemBase
 				break;
 			}
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::OnRPC - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -387,8 +544,16 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	private void RPC_SendItemData( ref ParamsReadContext ctx, PlayerIdentity senderRPC )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");
+		#endif
+		
 		if ( !ctx.Read( m_VehicleDisplayName ) )
 			return;
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::RPC_SendItemData - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -397,9 +562,17 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	private void RPC_RequestItemData( PlayerIdentity senderRPC )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");
+		#endif
+		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write( m_VehicleDisplayName );
 		rpc.Send( this, ExpansionCarKeyRPC.SendItemData, true, senderRPC );
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::RPC_SendItemData - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -408,10 +581,18 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	void RequestItemData()
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");
+		#endif
+		
 		if ( IsMissionClient() )
 		{
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Send( this, ExpansionCarKeyRPC.RequestItemData, true, NULL );
 		}
+		
+		#ifdef EXPANSION_CARKEY_LOGGING
+		EXLogPrint("ExpansionCarKey::RPC_SendItemData - End");
+		#endif
 	}
 }
