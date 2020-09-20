@@ -83,6 +83,8 @@ class ExpansionVehicleWheel
 	
 	private float m_Steering;
 	
+	private string m_Surface;
+	
 	private ref array< vector > m_WheelVertexPositions;
 
 	void ExpansionVehicleWheel( ExpansionVehicleScript vehicle, ref ExpansionVehicleAxle axle, string name )
@@ -314,7 +316,7 @@ class ExpansionVehicleWheel
 		vector impulse;
 		vector impulseTorque;
 
-		Suspension( pDt, impulse, impulseTorque );
+		Suspension( pDt, numWheelsGrounded, impulse, impulseTorque );
 		Friction( pDt, numWheelsGrounded, impulse, impulseTorque );
 
 		// convert wheel forces to world space
@@ -350,32 +352,35 @@ class ExpansionVehicleWheel
 		m_RayEndWS = m_RayEndMS.Multiply4(m_Vehicle.m_Transform.data);
 		
 		m_Vehicle.DBGDrawLine( m_RayStartWS, m_RayEndWS, 0xFFFFFFFFF );
+		
+		float hubRadius = m_Axle.GetWheelHubRadius();
 
 		//ExpansionDebugUI( "Ray Start (MS): " + m_RayStartMS );
 		//ExpansionDebugUI( "Ray End (MS): " + m_RayEndMS );
 		//ExpansionDebugUI( "Ray Start (WS): " + m_RayStartWS );
 		//ExpansionDebugUI( "Ray End (WS): " + m_RayEndWS );
 
-		m_HasContact = DayZPhysics.RayCastBullet( m_RayStartWS, m_RayEndWS, collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction );
+		m_HasContact = DayZPhysics.SphereCastBullet( m_RayStartWS, m_RayEndWS, hubRadius, collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction );
 		if ( m_HasContact )
 		{
 			m_ContactPosition = m_ContactPositionWS.InvMultiply4(m_Vehicle.m_Transform.data);
 			m_ContactNormal = m_ContactNormalWS.InvMultiply3( m_Vehicle.m_Transform.data );
 
 			float wheelDiff = vector.Dot( m_ContactNormal, m_WheelDirectionMS );
+			//wheelDiff *= -wheelDiff;
 			if ( wheelDiff >= -0.1 )
 			{
 				m_HasContact = false;
 			} else
 			{
 				m_ContactVelocity = m_Vehicle.GetModelVelocityAt( m_ContactPosition );
-				//m_ContactVelocity = m_Vehicle.GetWorldVelocityAt( m_ContactPosition ).InvMultiply3( m_TransformWS.GetBasis().data );
-
+				
 				float invWheelDiff = -1.0 / wheelDiff;
 				m_SuspensionRelativeVelocity = vector.Dot( m_ContactNormal, m_ContactVelocity ) * invWheelDiff;
 
 				m_SuspensionInvContact = invWheelDiff;
 			}
+			
 			// ExpansionDebugUI( "wheelDiff: " + wheelDiff );
 			// ExpansionDebugUI( "inv contact: " + m_SuspensionInvContact );
 			// ExpansionDebugUI( "rel vel: " + m_SuspensionRelativeVelocity );
@@ -395,6 +400,25 @@ class ExpansionVehicleWheel
 			m_ContactNormal = -m_WheelDirectionMS;
 
 			m_ContactFraction = 1.0;
+			
+			m_Surface = "";
+		} else
+		{
+			vector temp1;
+			vector temp2;
+			int temp3;
+			set< Object > temp4 = new set< Object >();
+			DayZPhysics.RaycastRV( m_RayStartWS, m_RayEndWS, temp1, temp2, temp3, temp4, m_Vehicle, m_Vehicle, false, false, ObjIntersectGeom, hubRadius );
+			
+			if ( temp4.Count() > 0 )
+				m_ContactObject = temp4[0];
+			else
+				m_ContactObject = null;
+			
+			if ( !m_Surface || !DayZPhysics.GetHitSurface( m_ContactObject, m_RayStartWS, m_RayEndWS, m_Surface ) )
+			{
+				m_Surface = "";
+			}
 		}
 		
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
@@ -413,33 +437,32 @@ class ExpansionVehicleWheel
 		ExpansionDebugUI( "Contact Velocity: " + m_ContactVelocity );
 	}
 
-	private void Suspension( float pDt, out vector impulse, out vector impulseTorque )
+	private void Suspension( float pDt, int numWheelsGrounded, out vector impulse, out vector impulseTorque )
 	{
-		float suspLength = ( m_ContactFraction * m_ContactLength ) - m_WheelItem.m_Radius;
+		float suspLength = ( m_ContactFraction * m_ContactLength ) - m_WheelItem.m_Radius + m_Axle.GetWheelHubRadius();
 		if ( suspLength < 0 )
 			suspLength = 0;
 
-		float invWheels = 1.0 / m_Vehicle.GetNumWheels();
-
 		if ( m_HasContact )
 		{
+			float invWheelsGrounded = 1.0 / ( numWheelsGrounded );
+			float invWheels = 1.0 / ( m_Vehicle.GetNumWheels() );
+			
 			float ks = m_Axle.GetStiffness();
 			float kc = m_Axle.GetCompression();
 			float kd = m_Axle.GetDamping();
 
-			float relDiff = ( m_Axle.GetTravelMax() - suspLength ) / m_Axle.GetTravelMax();
-			m_SuspensionForce = relDiff * ks * m_SuspensionInvContact * invWheels;
+			float suspDist = ( m_Axle.GetTravelMax() - suspLength ) - m_Axle.GetTravelMaxDown();
+			m_SuspensionForce = suspDist * ks * m_SuspensionInvContact;
 
-			float relVel = m_SuspensionRelativeVelocity;
-			if ( relVel < 0 )
-			{
-				m_SuspensionForce -= relVel * kc;
-			} else
-			{
-				m_SuspensionForce -= relVel * kd;
-			}
-
-			vector susp = 1.0 * m_ContactNormal * m_SuspensionForce * pDt;
+			float damping = m_SuspensionRelativeVelocity * kc;
+			if ( m_SuspensionRelativeVelocity > 0 )
+				damping = m_SuspensionRelativeVelocity * kd;
+			
+			vector susp = m_ContactNormal * m_SuspensionForce;
+			susp -= m_ContactNormal * damping;
+			susp += Vector(0, -9.8, 0).InvMultiply3( m_Vehicle.m_Transform.data ) * invWheelsGrounded * invWheels * m_Mass;
+			susp = susp * pDt;
 
 			impulse += susp;
 			impulseTorque += m_ContactPosition * susp;
@@ -462,7 +485,7 @@ class ExpansionVehicleWheel
 		forwardImpulse -= vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_BrakeTorque;
 		
 		float sideDot = vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[0] );
-		float sideCoef = 4.0;
+		float sideCoef = 10.0;
 		float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / numWheelsGrounded;
 
 		m_AngularVelocity = m_ContactVelocity[2];
@@ -472,9 +495,14 @@ class ExpansionVehicleWheel
 			m_AngularRotation -= Math.PI2;
 		else if ( m_AngularRotation < 0 )
 			m_AngularRotation += Math.PI2;
+		
+		float surfaceFriction = 1.0;
+		
+		if ( m_Surface != "" ) 
+			Surface.GetParamFloat( m_Surface, "friction" );
 
-		vector forwardImp = m_TransformMS[2] * forwardImpulse * pDt;
-		vector sideImp = m_TransformMS[0] * sideImpulse * pDt;
+		vector forwardImp = m_TransformMS[2] * forwardImpulse * pDt * surfaceFriction;
+		vector sideImp = m_TransformMS[0] * sideImpulse * pDt * surfaceFriction;
 
 		impulse += forwardImp;
 		impulseTorque += m_ContactPosition * forwardImp;

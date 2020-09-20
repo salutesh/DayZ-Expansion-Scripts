@@ -60,7 +60,7 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		CreateToggle( "CanCraftVanillaBasebuilding", "Can Craft Vanilla Basebuilding", "", "" );
 		CreateToggle( "CanCraftExpansionBasebuilding", "Can Craft Expansion Basebuilding", "", "" );
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
-		//CreateToggle( "DismantleFlagRequireTools", "Dismantle Flag Requires Tools", "", "" );
+		CreateToggle( "DismantleFlagRequireTools", "Dismantle Flag Requires Tools", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
 		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Codelock: Damage On Wrong Code", "", "" );

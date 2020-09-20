@@ -169,7 +169,6 @@ static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors
 //! On Client Only
 static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.bin";
 static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.bin";
-static const string EXPANSION_CLIENT_MARKERS_OLD = EXPANSION_FOLDER + "markers.json";
 
 /**
  * InGame Menu
@@ -549,7 +548,7 @@ static void Expansion_SetupDebugger()
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_ENGINE );
 
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
+	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
+	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
+	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
 }

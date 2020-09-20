@@ -115,8 +115,8 @@ class CfgVehicles
 			};
 			class Gearbox
 			{
-				reverse = 2.0;
-				ratios[] = {2.0,1.5,1.0};
+				reverse = 3.51;
+				ratios[] = {3.5,2.26,1.45,1.0};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
@@ -136,7 +136,7 @@ class CfgVehicles
 						swayBar = 0;
 						stiffness = 15000;
 						compression = 3100;
-						damping = 4700;
+						damping = 5700;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -167,7 +167,7 @@ class CfgVehicles
 						swayBar = 0;
 						stiffness = 15000;
 						compression = 3000;
-						damping = 4500;
+						damping = 5500;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};

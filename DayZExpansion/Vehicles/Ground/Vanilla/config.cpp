@@ -645,9 +645,26 @@ class CfgVehicles
 	class ExpansionCivilianSedanTest: ExpansionCarScript
 	{
 		scope = 2;
+		rotationFlags = 64;
+		storageCategory = 4;
 		displayName = "CIVILLIAN SEDAN TEST";
 		descriptionShort = "$STR_CivilianSedan1";
 		model = "\DZ\vehicles\wheeled\civiliansedan\CivilianSedan.p3d";
+		dashboardMatOn = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan_int2e_.rvmat";
+		dashboardMatOff = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan_int2e_off.rvmat";
+		frontReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan_lights.rvmat";
+		frontReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan.rvmat";
+		brakeReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
+		brakeReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
+		ReverseReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
+		ReverseReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
+		TailReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
+		TailReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
+		fuelCapacity = 55;
+		brakeFluidCapacity = 1;
+		oilCapacity = 4;
+		coolantCapacity = 6;
+		fuelConsumption = 13;
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanHood","CivSedanTrunk","Expansion_CivSedanWheel_1_1","Expansion_CivSedanWheel_1_2","Expansion_CivSedanWheel_2_1","Expansion_CivSedanWheel_2_2"};
 		class Crew
 		{

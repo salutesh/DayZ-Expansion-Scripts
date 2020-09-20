@@ -42,6 +42,11 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		return new ExpansionCarController( this );
 	}
 
+	ExpansionCarController GetController()
+	{
+		return m_CarController;
+	}
+
 	override int GetAnimInstance()
 	{
 		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
@@ -118,9 +123,29 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		return m_Engine.GetRPM();
 	}
 
-	int GetGearsCount()
+	override int GetGearsCount()
 	{
 		return m_Gearbox.Count();
+	}
+
+	override float GetClutch()
+	{
+		return m_Gearbox.GetClutch();
+	}
+
+	override float GetSteering()
+	{
+		return m_Turn;
+	}
+
+	override float GetThrottle()
+	{
+		return m_Throttle;
+	}
+
+	override float GetBraking()
+	{
+		return m_Brake;
 	}
 
 	float Sign( float number )
@@ -142,10 +167,10 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 		if ( Math.AbsFloat( m_TargetTurn ) > Math.AbsFloat( m_Turn ) )
 		{
-			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * 12.0 / absForwardSpeed;
+			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * 30.0 / absForwardSpeed;
 		} else if ( Math.AbsFloat( m_TargetTurn ) < Math.AbsFloat( m_Turn ) )
 		{
-			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * 50.0 / absForwardSpeed;
+			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * 100.0 / absForwardSpeed;
 		}
 		
 		ExpansionDebugUI( "Turn: " + m_Turn );
@@ -163,7 +188,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		if ( !m_IsPhysicsHost )
 			return;
 		
-		int gear = m_CarController.GetGear();
+		int gear = m_Gearbox.GetCurrentGear();
 		if ( m_Throttle == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
 		{
 			m_Brake = 1.0;
@@ -188,7 +213,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 		if ( EngineIsOn() )
 		{
-			m_Engine.OnUpdate( pDt, m_Throttle, m_Gearbox[gear] );
+			m_Engine.OnUpdate( pDt, m_Throttle, m_Gearbox.OnUpdate( m_ClutchState, m_CarController.GetGear(), pDt ) );
 			
 			ApplyAxleBrake( 0, m_Brake );
 			ApplyAxleBrake( 1, m_Brake );

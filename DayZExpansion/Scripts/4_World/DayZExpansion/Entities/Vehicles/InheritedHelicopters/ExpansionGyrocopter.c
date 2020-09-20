@@ -43,21 +43,21 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 		m_BodyFrictionCoef							= 4;
 		m_LiftForceCoef								= 1.6;
 
-		m_CyclicForceCoef							= 1.5;
+		m_CyclicForceCoef							= 1.5; // All rotations
 
 		m_CyclicSideSpeed							= 4.0;
-		m_CyclicSideMax								= 1.0;
-		m_CyclicSideCoef							= 0.4;
+		m_CyclicSideMax								= 1.0; // Roll, A/D, Speed
+		m_CyclicSideCoef							= 0.4; // Roll, A/D, Speed
 
 		m_CyclicForwardSpeed						= 10.0;
-		m_CyclicForwardMax							= 1.0;
-		m_CyclicForwardCoef							= 0.3;
+		m_CyclicForwardMax							= 1.0;  // Pitch, W/S, Speed
+		m_CyclicForwardCoef							= 0.3; // Pitch, W/S, Speed
 
 		m_AntiTorqueSpeed							= 1.5;
-		m_AntiTorqueMax								= 0.04;
+		m_AntiTorqueMax								= 0.04; // Yaw, Q/E, same as m_TailForceCoef
 
-		m_BankForceCoef								= 0.1;
-		m_TailForceCoef								= 8.0;
+		m_BankForceCoef								= 0.1; // Speed at which heli will rotate when rotor is banking left or right 
+		m_TailForceCoef								= 8.0; // Yaw, Q/E, same as m_AntiTorqueMax
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGyrocopter::Constructor - End");

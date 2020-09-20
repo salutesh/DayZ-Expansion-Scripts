@@ -143,7 +143,6 @@ modded class CarScript
 	protected float m_AltitudeLimiter;
 	protected vector m_InertiaTensor;
 	protected vector m_InvInertiaTensor;
-	protected ref Matrix3 m_InvInertiaTensorWS;
 
 	protected bool m_CarBatteryVanillaState;
 	protected bool m_CarBatteryVanillaStateDefault;
@@ -203,7 +202,6 @@ modded class CarScript
 		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
 
 		m_Transform = new Transform;
-		m_InvInertiaTensorWS = new Matrix3;
 
 		m_Controller = GetControllerInstance();
 		
@@ -2117,7 +2115,6 @@ modded class CarScript
 			m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
 
 			m_InvInertiaTensor = dBodyGetLocalInertia( this );
-			dBodyGetInvInertiaTensorWorld( this, m_InvInertiaTensorWS.data );
 
 			m_BodyMass = dBodyGetMass( this );
 			m_BodyCenterOfMass = dBodyGetCenterOfMass( this );

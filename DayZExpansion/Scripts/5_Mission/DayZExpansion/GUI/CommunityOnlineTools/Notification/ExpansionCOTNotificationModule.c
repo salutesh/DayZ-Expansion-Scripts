@@ -60,6 +60,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		CreateEnum( "JoinMessageType", ExpansionAnnouncementType, "Join Server Type", "", "" );
 		CreateToggle( "ShowPlayerLeftServer", "Show Player Left Server", "", "" );
 		CreateEnum( "LeftMessageType", ExpansionAnnouncementType, "Leave Server Type", "", "" );
+		
 		CreateToggle( "ShowAirdropStarted", "Show Airdrop Started", "", "" );
 		CreateToggle( "ShowAirdropClosingOn", "Show Airdrop Closing On", "", "" );
 		CreateToggle( "ShowAirdropDropped", "Show Airdrop Dropped", "", "" );
@@ -67,6 +68,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		CreateToggle( "ShowPlayerAirdropClosingOn", "Show Player Airdrop Closing On", "", "" );
 		CreateToggle( "ShowPlayerAirdropDropped", "Show Player Airdrop Dropped", "", "" );
 		CreateToggle( "ShowTerritoryNotifications", "Show Territory Notifications", "", "" );
+
 		CreateToggle( "EnableKillFeed", "Enable Kill-Feed", "", "" );
 		CreateEnum( "KillFeedMessageType", ExpansionAnnouncementType, "Kill-Feed Type", "", "" );
 		CreateToggle( "KillFeedFall", "Kill-Feed: Fall", "", "" );
@@ -78,11 +80,8 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		CreateToggle( "KillFeedHeliHitNoDriver", "Kill-Feed: Heli Hit No Driver", "", "" );
 		CreateToggle( "KillFeedHeliCrash", "Kill-Feed: Heli Crash", "", "" );
 		CreateToggle( "KillFeedHeliCrashCrew", "Kill-Feed: Heli Crash Crew", "", "" );
-		CreateToggle( "KillFeedBoatCrash", "Kill-Feed: Boat Crash", "", "" );
-		CreateToggle( "KillFeedBoatCrashCrew", "Kill-Feed: Boat Crash Crew", "", "" );
 		CreateToggle( "KillFeedBarbedWire", "Kill-Feed: Barbed Wire", "", "" );
 		CreateToggle( "KillFeedFire", "Kill-Feed: Fire", "", "" );
-		CreateToggle( "KillFeedSpecialExplosion", "Kill-Feed: Special Explosion", "", "" );
 		CreateToggle( "KillFeedWeaponExplosion", "Kill-Feed: Weapon Explosion", "", "" );
 		CreateToggle( "KillFeedDehydration", "Kill-Feed: Dehydration", "", "" );
 		CreateToggle( "KillFeedStarvation", "Kill-Feed: Starvation", "", "" );

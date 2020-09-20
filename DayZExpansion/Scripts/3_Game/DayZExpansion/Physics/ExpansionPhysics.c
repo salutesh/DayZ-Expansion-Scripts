@@ -111,11 +111,13 @@ class ExpansionPhysics
 		return invMass + vector.Dot( normal, vec );
 	}
 
-	static void IntegrateTransform( Transform curTrans, vector linVel, vector angVel, float timestep, out Transform predictedTrans )
+	static void IntegrateTransform( Transform curTrans, vector linVel, vector angVel, float timestep, inout Transform predictedTrans )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysics::IntegrateTransform - Start");
 		#endif
+
+		//! TODO: Optimize, we can use native methods. Although the code readability may lower
 		
 		predictedTrans.data[3] = curTrans.data[3] + ( linVel * timestep );
 

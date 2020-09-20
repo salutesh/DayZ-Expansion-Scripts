@@ -42,6 +42,11 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 	private float m_TimeGetIn;
 	private float m_TimeGetOut;
 
+	private bool m_GearChanged;
+	private bool m_ClutchState;
+
+	private bool m_KeepInVehicleSpaceAfterLeave;
+
 	void ExpansionHumanCommandVehicle( DayZPlayerImplement player, Object vehicle, int seatIdx, int seat_anim, ExpansionHumanST table )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -136,13 +141,13 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		{
 			m_VehicleEx.CrewGetOut( m_SeatIndex );
 
-			if ( !m_VehicleEx.CanObjectAttach( m_Player ) )
+			if ( !m_VehicleEx.CanObjectAttach( m_Player ) /* && !m_KeepInVehicleSpaceAfterLeave */ )
 				m_Player.UnlinkFromLocalSpace();
 		} else if ( m_VehicleVn )
 		{
 			m_VehicleVn.CrewGetOut( m_SeatIndex );
 
-			if ( !m_VehicleVn.CanObjectAttach( m_Player ) )
+			if ( !m_VehicleVn.CanObjectAttach( m_Player ) /* && !m_KeepInVehicleSpaceAfterLeave */ )
 				m_Player.UnlinkFromLocalSpace();
 		}
 
@@ -167,6 +172,12 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 
 		m_Table.SetLook( this, true );
 		m_Table.SetLookDirX( this, heading );
+
+		m_Table.SetVehicleType( this, m_VehicleType );
+		m_Table.SetVehicleSteering( this, m_VehicleEx.GetSteering() + 0 );
+		m_Table.SetVehicleThrottle( this, m_VehicleEx.GetThrottle() + 0 );
+		m_Table.SetVehicleClutch( this, m_VehicleEx.GetClutch() + 0 );
+		m_Table.SetVehicleBrake( this, m_VehicleEx.GetBraking() != 0.0 );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::PreAnimUpdate End");
@@ -231,10 +242,10 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		return m_NeedFinish == false;
 	}
 
-	void GetOut()
+	void GetOutVehicle()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandVehicle::GetOut Start");
+		EXPrint("ExpansionHumanCommandVehicle::GetOutVehicle Start");
 		#endif
 		
 		m_Time = 0;
@@ -244,7 +255,7 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		m_Table.CallVehicleGetOut( this );
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionHumanCommandVehicle::GetOut End");
+		EXPrint("ExpansionHumanCommandVehicle::GetOutVehicle End");
 		#endif
 	}
 
@@ -253,6 +264,9 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::SwitchSeat Start");
 		#endif
+
+
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::SwitchSeat End");
 		#endif
@@ -286,5 +300,29 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 	void SetVehicleType( int vehicleType )
 	{
 		m_VehicleType = vehicleType;
+	}
+
+	void KeepInVehicleSpaceAfterLeave( bool pState )
+	{
+		m_KeepInVehicleSpaceAfterLeave = pState;
+	}
+
+	void SignalGearChange()
+	{
+		m_GearChanged = true;
+	}
+
+	bool WasGearChange()
+	{
+		bool changed = m_GearChanged & !m_ClutchState;
+		m_GearChanged = false;
+		return changed;
+	}
+
+	void SetClutchState( bool pState )
+	{
+		m_ClutchState = pState;
+
+		m_VehicleEx.SetClutchState( m_ClutchState );
 	}
 }

@@ -1117,7 +1117,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			//! Angular Friction - more optimized to do in worldspace :)
 			{
 				vector t_friction;
-				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.5 + ( m_TailRotateFactor * 0.5 ) );
+				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.0 + ( m_TailRotateFactor * 0.5 ) );
 				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef;
 				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef;
 				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef;

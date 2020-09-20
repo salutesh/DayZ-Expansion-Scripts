@@ -128,9 +128,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			cameraHeight = helicopter.GetCameraHeight();
 			cameraDistance = helicopter.GetCameraDistance();
 		} else if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
-		{			
-			pOutResult.m_fDistance			= vehicle.GetCameraDistance();
-			pOutResult.m_CameraTM[3]		= pOutResult.m_CameraTM[3] + Vector( 0, vehicle.GetCameraHeight(), 0 );
+		{
 			pOutResult.m_fUseHeading		= 1.0;
 			return;
 		} else

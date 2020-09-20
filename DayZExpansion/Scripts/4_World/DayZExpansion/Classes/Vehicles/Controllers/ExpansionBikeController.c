@@ -88,6 +88,8 @@ class ExpansionBikeController: ExpansionController
 		
 		GetInputPress( "UAExpansionBikeGearUp", gear_up_press );
 		GetInputPress( "UAExpansionBikeGearDown", gear_down_press );
+
+		int gear = m_Gear;
 		
 		if ( gear_up_press )
 			m_Gear += 1;
@@ -98,6 +100,11 @@ class ExpansionBikeController: ExpansionController
 			m_Gear = 0;
 		else if ( m_Gear >= m_Bike.GetGearsCount() - 1 )
 			m_Gear = m_Bike.GetGearsCount() - 1;
+
+		if ( gear != m_Gear )
+		{
+			m_ECommand.SignalGearChange();
+		}
 		
 		GetInputValue( "UAExpansionBikeMoveForward", m_Forward );
 		GetInputValue( "UAExpansionBikeMoveBackward", m_Backward );

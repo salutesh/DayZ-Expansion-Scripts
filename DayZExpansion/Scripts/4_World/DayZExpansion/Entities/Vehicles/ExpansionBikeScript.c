@@ -8,7 +8,7 @@
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
 /**@class		ExpansionBikeScript
  * @brief		This class handle bicycle simulation
@@ -128,6 +128,26 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	override int GetGearsCount()
 	{
 		return m_Gearbox.Count();
+	}
+
+	override float GetClutch()
+	{
+		return m_Gearbox.GetClutch();
+	}
+
+	override float GetSteering()
+	{
+		return m_Turn;
+	}
+
+	override float GetThrottle()
+	{
+		return m_Throttle;
+	}
+
+	override float GetBraking()
+	{
+		return m_Brake;
 	}
 	
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )

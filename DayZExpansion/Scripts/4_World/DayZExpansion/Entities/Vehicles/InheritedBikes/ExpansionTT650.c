@@ -86,7 +86,7 @@ class ExpansionTT650 extends ExpansionBikeScript
 	// ------------------------------------------------------------
 	override float GetCameraHeight()
 	{
-		return 1.0;
+		return 1.5;
 	}
 	
 	// ------------------------------------------------------------

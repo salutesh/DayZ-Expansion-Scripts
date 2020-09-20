@@ -20,6 +20,9 @@ class ExpansionController
 	protected EntityAI m_Vehicle;
 	protected PlayerBase m_Player;
 
+	protected HumanCommandVehicle m_Command;
+	protected ExpansionHumanCommandVehicle m_ECommand;
+
 	void ExpansionController( EntityAI vehicle )
 	{
 		m_Vehicle = vehicle;
@@ -55,29 +58,41 @@ class ExpansionController
 			return;
 		}
 
-		HumanCommandVehicle hcv = m_Player.GetCommand_Vehicle();
-		ExpansionHumanCommandVehicle hcev = m_Player.GetCommand_ExpansionVehicle();
+		m_Command = m_Player.GetCommand_Vehicle();
+		m_ECommand = m_Player.GetCommand_ExpansionVehicle();
 
-		if ( hcv || hcev )
+		if ( m_Command || m_ECommand )
 		{
-			if ( hcv )
+			if ( m_Command )
 			{
-				if ( hcv.IsGettingIn() )
+				if ( m_Command.IsGettingIn() )
 				{
 					OnReset();
-				} else if ( hcv.IsGettingOut() )
+				} else if ( m_Command.IsGettingOut() )
 				{
 					OnReset();
-				} else if ( hcv.IsSwitchSeat() )
+				} else if ( m_Command.IsSwitchSeat() )
 				{
 					OnReset();
 				} else
 				{
 					OnUpdate();
 				}
-			} else if ( hcev )
+			} else if ( m_ECommand )
 			{
-				OnUpdate();
+				/*if ( m_ECommand.IsGettingIn() )
+				{
+					OnReset();
+				} else if ( m_ECommand.IsGettingOut() )
+				{
+					OnReset();
+				} else if ( m_ECommand.IsSwitchSeat() )
+				{
+					OnReset();
+				} else*/
+				{
+					OnUpdate();
+				}
 			}
 		} else
 		{

@@ -10,88 +10,6 @@
  *
 */
 
-class ExpansionVehicleSyncState
-{
-	ExpansionVehicleScript m_Vehicle;
-
-	int m_Time;
-	int m_LastRecievedTime;
-	int m_TimeDelta;
-
-	vector m_Position;
-	vector m_Orientation;
-	vector m_LinearVelocity;
-	vector m_AngularVelocity;
-
-	ref Transform m_InitialTransform;
-	ref Transform m_PredictedTransform;
-
-	private float m_LinVelX;
-	private float m_LinVelY;
-	private float m_LinVelZ;
-
-	private float m_AngVelX;
-	private float m_AngVelY;
-	private float m_AngVelZ;
-
-	void ExpansionVehicleSyncState( ExpansionVehicleScript vehicle )
-	{
-		m_Vehicle = vehicle;
-		
-		m_Position = m_Vehicle.GetPosition();
-		m_Orientation = m_Vehicle.GetOrientation();
-		m_LinearVelocity = vector.Zero;
-		m_AngularVelocity = vector.Zero;
-
-		m_InitialTransform = new Transform();
-		m_PredictedTransform = new Transform();
-	}
-	
-	void ~ExpansionVehicleSyncState()
-	{
-		delete m_InitialTransform;
-		delete m_PredictedTransform;
-	}
-
-	void OnVariablesSynchronized()
-	{
-		m_LinearVelocity[0] = m_LinVelX;
-		m_LinearVelocity[1] = m_LinVelY;
-		m_LinearVelocity[2] = m_LinVelZ;
-
-		m_AngularVelocity[0] = m_AngVelX;
-		m_AngularVelocity[1] = m_AngVelY;
-		m_AngularVelocity[2] = m_AngVelZ;
-	}
-
-	void SynchronizeVariables( ExpansionVehicleNetworkMode mode )
-	{
-		switch ( mode )
-		{
-		case ExpansionVehicleNetworkMode.SERVER_ONLY:
-			return;
-		case ExpansionVehicleNetworkMode.PREDICTION:
-			m_LinVelX = m_LinearVelocity[0];
-			m_LinVelY = m_LinearVelocity[1];
-			m_LinVelZ = m_LinearVelocity[2];
-
-			m_AngVelX = m_AngularVelocity[0];
-			m_AngVelY = m_AngularVelocity[1];
-			m_AngVelZ = m_AngularVelocity[2];
-			return;
-		case ExpansionVehicleNetworkMode.CLIENT:
-			ScriptRPC rpc = new ScriptRPC();			
-			rpc.Write( m_Vehicle.GetTimeForSync() );
-			rpc.Write( m_Position );
-			rpc.Write( m_Orientation );
-			rpc.Write( m_LinearVelocity );
-			rpc.Write( m_AngularVelocity );
-			rpc.Send( m_Vehicle, ExpansionVehicleRPC.ClientSync, false, NULL );
-			return;
-		}
-	}
-}
-
 #ifdef EXPANSION_USING_TRANSPORT_BASE
 class ExpansionVehicleScript extends Transport
 #else
@@ -208,7 +126,6 @@ class ExpansionVehicleScript extends ItemBase
 
 	vector m_InertiaTensor;
 	vector m_InvInertiaTensor;
-	ref Matrix3 m_InvInertiaTensorWS;
 
 	private ref ExpansionVehicleSyncState m_SyncState;
 	private ExpansionVehicleNetworkMode m_NetworkMode;
@@ -232,6 +149,15 @@ class ExpansionVehicleScript extends ItemBase
 
 	protected autoptr TStringArray m_Doors;
 	protected bool m_CanHaveLock;
+
+	protected bool m_ClutchState;
+
+	protected ref array< float > m_FluidCapacities;
+
+	protected float m_FluidFuelAmount;
+	protected float m_FluidCoolantAmount;
+	protected float m_FluidOilAmount;
+	protected float m_FluidBrakeAmount;
 
 	// Debugging
 	private ref array< Shape > m_DebugShapes;
@@ -364,6 +290,17 @@ class ExpansionVehicleScript extends ItemBase
 		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelY", min, max, prec );
 		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelZ", min, max, prec );
 
+		m_FluidCapacities = new array< float >();
+		m_FluidCapacities.Insert( ConfigGetFloat( "fuelCapacity" ) );
+		m_FluidCapacities.Insert( ConfigGetFloat( "oilCapacity" ) );
+		m_FluidCapacities.Insert( ConfigGetFloat( "brakeFluidCapacity" ) );
+		m_FluidCapacities.Insert( ConfigGetFloat( "coolantCapacity" ) );
+
+		RegisterNetSyncVariableFloat( "m_FluidFuelAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidCoolantAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidOilAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidBrakeAmount", 0, 0, 4 );
+
 		if ( IsMissionClient() )
 		{		
 			string sound_controller_path = "CfgVehicles " + GetType() + " soundController";
@@ -379,7 +316,6 @@ class ExpansionVehicleScript extends ItemBase
 		}
 
 		m_Transform = new Transform;
-		m_InvInertiaTensorWS = new Matrix3;
 
 		m_Controller = GetControllerInstance();
 
@@ -492,15 +428,13 @@ class ExpansionVehicleScript extends ItemBase
 	private void CreateDynamic()
 	{
 		CreateDynamicPhysics( 288 );
-		
-		dBodyDynamic( this, true );
-		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-
-		dBodySetInteractionLayer( this, 288 );
 
 		EnableDynamicCCD( true );
 		SetDynamicPhysicsLifeTime( -1 );
-
+		
+		dBodyDynamic( this, true );
+		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
+		dBodySetInteractionLayer( this, 288 );
 		dBodyEnableGravity( this, false );
 
 		m_BodyMass = dBodyGetMass( this );
@@ -512,25 +446,12 @@ class ExpansionVehicleScript extends ItemBase
 
 		EnableCollisionsWithCharacter( false );
 
-		SetAllowDamage( false );
+		SetAllowDamage( false ); //! Temporary
 	}
 
 	// ------------------------------------------------------------
 	override void OnCreatePhysics()
 	{
-		//Print( "[" + this + "] OnCreatePhysics" );
-
-		if ( m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
-		{
-			if ( !IsMissionClient() )
-			{
-				// this is for when we are only doing client side physics and we are the server
-
-				// TODO: add check to see if a driver is in the vehicle, driver might have left 
-				// the vehicle seat and in that case we need to run vehicle sim on the server until it's in rest
-				return;
-			}
-		}
 	}
 
 	// ------------------------------------------------------------
@@ -628,9 +549,7 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	int GetTimeForSync()
 	{
-		int time = GetSimulationTimeStamp();
-		// Print( time );
-		return time;
+		return GetSimulationTimeStamp();
 	}
 
 	// ------------------------------------------------------------
@@ -735,9 +654,17 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Position = GetPosition();
 				m_SyncState.m_Orientation = GetOrientation();
 
+				m_SyncState.m_TimeDelta = 0;
+				m_SyncState.m_Time = GetTimeForSync();
+				m_SyncState.m_LastRecievedTime = GetTimeForSync();
+
 				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform.data );
 				m_SyncState.m_InitialTransform.data[3] = m_SyncState.m_Position;
 				m_SyncState.m_InitialTransform.UpdateUnion();
+			} else
+			{
+				m_LinearVelocity = m_SyncState.m_LinearVelocity;
+				m_AngularVelocity = m_SyncState.m_AngularVelocity;
 			}
 
 			for ( int cI = 0; cI < m_Crew.Count(); cI++ )
@@ -775,13 +702,10 @@ class ExpansionVehicleScript extends ItemBase
 		{
 			if ( !dBodyIsDynamic( this ) )
 			{
-				int clientTimePredict = GetTimeForSync() - m_SyncState.m_TimeDelta;
-				int clientTimePredictDelta = ( clientTimePredict - m_SyncState.m_Time );
-				float nDelta = clientTimePredictDelta / 40.0;
+				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 1000.0;
 
-				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, nDelta, m_SyncState.m_PredictedTransform );
+				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
 
-				// smooth movement for non-driven clients
 				MoveInTime( m_SyncState.m_PredictedTransform.data, dt );
 
 				SetSynchDirty();
@@ -807,7 +731,6 @@ class ExpansionVehicleScript extends ItemBase
 			ExpansionDebugUI( "Linear Velocity (MS): " + m_LinearVelocityMS );
 
 			m_InvInertiaTensor = dBodyGetLocalInertia( this );
-			dBodyGetInvInertiaTensorWorld( this, m_InvInertiaTensorWS.data );
 			
 			CalculateAltitudeLimiter();
 			
@@ -826,8 +749,12 @@ class ExpansionVehicleScript extends ItemBase
 			for ( i = 0; i < m_Axles.Count(); i++ )
 				m_Axles[i].Simulate( dt, numWheelsGrounded, impulse, impulseTorque );
 
-			vector gravity = "0 -9.8 0" * m_BodyMass * dt;
-			impulse += gravity;
+			if ( GetNumWheels() != numWheelsGrounded )
+			{
+				vector gravity = "0 -9.8 0" * m_BodyMass;
+				float invWheelsGrounded = 1.0 / ( GetNumWheels() - numWheelsGrounded );
+				impulse += gravity * dt * invWheelsGrounded;
+			}
 
 			ApplyPhysics( dt, impulse, impulseTorque );
 
@@ -835,19 +762,19 @@ class ExpansionVehicleScript extends ItemBase
 
 			m_LastLinearVelocity = m_LinearVelocity;
 			m_LinearVelocity = GetVelocity( this );
-			m_LinearAcceleration = ( m_LastLinearVelocity - m_LinearVelocity ) * invDt;
+			m_LinearAcceleration = ( m_LastLinearVelocity - m_LinearVelocity ) * dt;
 
 			m_LastAngularVelocity = m_AngularVelocity;
 			m_AngularVelocity = dBodyGetAngularVelocity( this );
-			m_AngularAcceleration = ( m_LastAngularVelocity - m_AngularVelocity ) * invDt;
+			m_AngularAcceleration = ( m_LastAngularVelocity - m_AngularVelocity ) * dt;
 			
 			m_LastLinearVelocityMS = m_LinearVelocityMS;
 			m_LinearVelocityMS = m_LinearVelocity.InvMultiply3( m_Transform.data );
-			m_LinearAccelerationMS = ( m_LastLinearVelocityMS - m_LinearVelocityMS ) * invDt;
+			m_LinearAccelerationMS = ( m_LastLinearVelocityMS - m_LinearVelocityMS ) * dt;
 
 			m_LastAngularVelocityMS = m_AngularVelocityMS;
 			m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
-			m_AngularAccelerationMS = ( m_LastAngularVelocityMS - m_AngularVelocityMS ) * invDt;
+			m_AngularAccelerationMS = ( m_LastAngularVelocityMS - m_AngularVelocityMS ) * dt;
 			
 			if ( IsMissionClient() )
 				NetworkSend();
@@ -1095,7 +1022,9 @@ class ExpansionVehicleScript extends ItemBase
 
 	// ------------------------------------------------------------
 	vector GetEstimatedPosition( float pDt )
+	{
 		return GetPosition() + ( m_LinearVelocity * pDt );
+	}
 
 	// ------------------------------------------------------------
 	private void CalculateAltitudeLimiter()
@@ -1579,7 +1508,7 @@ class ExpansionVehicleScript extends ItemBase
 	*/
 	float GetFluidCapacity( CarFluid fluid )
 	{
-		return 0;
+		return m_FluidCapacities.Get( fluid );
 	}
 
 	/*!
@@ -1590,22 +1519,127 @@ class ExpansionVehicleScript extends ItemBase
 	*/
 	float GetFluidFraction( CarFluid fluid )
 	{
-		return 0;
+		float amount;
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				amount = m_FluidFuelAmount;
+				break;
+			case CarFluid.OIL:
+				amount = m_FluidCoolantAmount;
+				break;
+			case CarFluid.BRAKE:
+				amount = m_FluidOilAmount;
+				break;
+			case CarFluid.COOLANT:
+				amount = m_FluidBrakeAmount;
+				break;
+			default:
+				return 0;
+		}
+		
+		return amount / GetFluidCapacity( fluid );
 	}
 
 	//! Removes from the specified fluid the specified amount.
 	void Leak( CarFluid fluid, float amount )
 	{
+		float previousAmt;
+		float newAmt;
+
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				previousAmt = m_FluidFuelAmount;
+				m_FluidFuelAmount -= amount;
+				newAmt = m_FluidFuelAmount;
+				break;
+			case CarFluid.OIL:
+				previousAmt = m_FluidCoolantAmount;
+				m_FluidCoolantAmount -= amount;
+				newAmt = m_FluidCoolantAmount;
+				break;
+			case CarFluid.BRAKE:
+				previousAmt = m_FluidOilAmount;
+				m_FluidOilAmount -= amount;
+				newAmt = m_FluidOilAmount;
+				break;
+			case CarFluid.COOLANT:
+				previousAmt = m_FluidBrakeAmount;
+				m_FluidBrakeAmount -= amount;
+				newAmt = m_FluidBrakeAmount;
+				break;
+			default:
+				return;
+		}
+
+		OnFluidChanged( fluid, previousAmt, newAmt );
 	}
 
 	//! Removes all the specified fluid from vehicle.
 	void LeakAll( CarFluid fluid )
 	{
+		float previousAmt;
+		float newAmt;
+
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				previousAmt = m_FluidFuelAmount;
+				m_FluidFuelAmount = 0;
+				break;
+			case CarFluid.OIL:
+				previousAmt = m_FluidCoolantAmount;
+				m_FluidCoolantAmount = 0;
+				break;
+			case CarFluid.BRAKE:
+				previousAmt = m_FluidOilAmount;
+				m_FluidOilAmount = 0;
+				break;
+			case CarFluid.COOLANT:
+				previousAmt = m_FluidBrakeAmount;
+				m_FluidBrakeAmount = 0;
+				break;
+			default:
+				return;
+		}
+
+		OnFluidChanged( fluid, previousAmt, 0 );
 	}
 
 	//! Adds to the specified fluid the specified amount.
 	void Fill( CarFluid fluid, float amount )
 	{
+		float previousAmt;
+		float newAmt;
+
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				previousAmt = m_FluidFuelAmount;
+				m_FluidFuelAmount += amount;
+				newAmt = m_FluidFuelAmount;
+				break;
+			case CarFluid.OIL:
+				previousAmt = m_FluidCoolantAmount;
+				m_FluidCoolantAmount += amount;
+				newAmt = m_FluidCoolantAmount;
+				break;
+			case CarFluid.BRAKE:
+				previousAmt = m_FluidOilAmount;
+				m_FluidOilAmount += amount;
+				newAmt = m_FluidOilAmount;
+				break;
+			case CarFluid.COOLANT:
+				previousAmt = m_FluidBrakeAmount;
+				m_FluidBrakeAmount += amount;
+				newAmt = m_FluidBrakeAmount;
+				break;
+			default:
+				return;
+		}
+
+		OnFluidChanged( fluid, previousAmt, newAmt );
 	}
 
 	/*!
@@ -1688,6 +1722,31 @@ class ExpansionVehicleScript extends ItemBase
 	int GetGearsCount()
 	{
 		return 0;
+	}
+
+	void SetClutchState( bool pState )
+	{
+		m_ClutchState = pState;
+	}
+
+	float GetClutch()
+	{
+		return 0.0;
+	}
+
+	float GetSteering()
+	{
+		return 0.0;
+	}
+
+	float GetThrottle()
+	{
+		return 0.0;
+	}
+
+	float GetBraking()
+	{
+		return 0.0;
 	}
 
 	/*!

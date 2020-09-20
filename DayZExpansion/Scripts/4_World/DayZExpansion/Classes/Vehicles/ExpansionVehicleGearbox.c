@@ -12,38 +12,84 @@
 
 class ExpansionVehicleGearbox
 {
-	private float _reverse;
-	private ref array< float > _ratios;
+	private float m_TimeToUncoupleClutch;
+	private float m_TimeToCoupleClutch;
+	private float m_MaxClutchTorque;
+
+	private float m_Reverse;
+	private ref array< float > m_Ratios;
+
+	private float m_ClutchAmt;
+
+	private int m_Gear;
+	private bool m_Clutch;
 	
 	void ExpansionVehicleGearbox(ExpansionVehicleScript vehicle)
 	{
 		string path;
 		
-		_ratios = new array< float >();
+		m_Ratios = new array< float >();
 		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox ratios";
-		GetGame().ConfigGetFloatArray( path, _ratios );
+		GetGame().ConfigGetFloatArray( path, m_Ratios );
 		
 		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox reverse";
-		_reverse = GetGame().ConfigGetFloat( path );
+		m_Reverse = GetGame().ConfigGetFloat( path );
+
+		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox timeToUncoupleClutch";
+		m_TimeToUncoupleClutch = GetGame().ConfigGetFloat( path );
+
+		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox timeToCoupleClutch";
+		m_TimeToCoupleClutch = GetGame().ConfigGetFloat( path );
+
+		path = "CfgVehicles " + vehicle.GetType() + " VehicleSimulation Gearbox maxClutchTorque";
+		m_MaxClutchTorque = GetGame().ConfigGetFloat( path );
 	}
 	
 	void ~ExpansionVehicleGearbox()
 	{
-		delete _ratios;
+		delete m_Ratios;
 	}
 
 	int Count()
 	{
-		return _ratios.Count() + 2;
+		return m_Ratios.Count() + 2;
 	}
 	
 	float Get( int gear )
 	{
 		if ( gear == CarGear.REVERSE )
-			return -_reverse;
+			return -m_Reverse;
 		if ( gear == CarGear.NEUTRAL )
 			return 0;
 		
-		return _ratios[gear - 2];
+		return m_Ratios[gear - 2];
+	}
+
+	float OnUpdate( bool clutch, int newGear, float pDt )
+	{
+		m_ClutchAmt = Math.Clamp( Math.Clamp( clutch - m_ClutchAmt, -pDt / m_TimeToUncoupleClutch, pDt / m_TimeToCoupleClutch ), 0.0, 1.0 );
+
+		m_Gear = newGear;
+
+		//if ( m_ClutchAmt >= 0.75 )
+		//{
+		//	m_Gear = newGear;
+		//	return 1.0;
+		//}
+
+		if ( m_ClutchAmt > 0.0 )
+			return 0.0;
+
+		return Get( m_Gear );
+	}
+
+	float GetClutch()
+	{
+		return m_ClutchAmt;
+	}
+
+	int GetCurrentGear()
+	{
+		return m_Gear;
 	}
 };
