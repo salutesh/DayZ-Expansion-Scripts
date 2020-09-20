@@ -80,8 +80,8 @@ class ExpansionVehicleSyncState
 			m_AngVelZ = m_AngularVelocity[2];
 			return;
 		case ExpansionVehicleNetworkMode.CLIENT:
-			ScriptRPC rpc = new ScriptRPC();
-			rpc.Write( GetGame().GetTime() );
+			ScriptRPC rpc = new ScriptRPC();			
+			rpc.Write( m_Vehicle.GetTimeForSync() );
 			rpc.Write( m_Position );
 			rpc.Write( m_Orientation );
 			rpc.Write( m_LinearVelocity );
@@ -626,6 +626,14 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
+	int GetTimeForSync()
+	{
+		int time = GetSimulationTimeStamp();
+		// Print( time );
+		return time;
+	}
+
+	// ------------------------------------------------------------
 	protected bool CanSimulate()
 	{
 		return true;
@@ -767,9 +775,9 @@ class ExpansionVehicleScript extends ItemBase
 		{
 			if ( !dBodyIsDynamic( this ) )
 			{
-				int clientTimePredict = GetGame().GetTime() - m_SyncState.m_TimeDelta;
-				int clientTimePredictDelta = clientTimePredict - m_SyncState.m_Time;
-				float nDelta = clientTimePredictDelta / 1000.0;
+				int clientTimePredict = GetTimeForSync() - m_SyncState.m_TimeDelta;
+				int clientTimePredictDelta = ( clientTimePredict - m_SyncState.m_Time );
+				float nDelta = clientTimePredictDelta / 40.0;
 
 				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, nDelta, m_SyncState.m_PredictedTransform );
 
@@ -987,7 +995,7 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = time;
 
 				// time delta should always be positive, this is not the latency
-				m_SyncState.m_TimeDelta = GetGame().GetTime() - time;
+				m_SyncState.m_TimeDelta = GetTimeForSync() - time;
 
 				ctx.Read( m_SyncState.m_Position );
 				ctx.Read( m_SyncState.m_Orientation );
