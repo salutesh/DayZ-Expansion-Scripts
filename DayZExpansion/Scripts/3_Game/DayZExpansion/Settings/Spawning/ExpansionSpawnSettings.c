@@ -15,9 +15,8 @@
  **/
 class ExpansionSpawnSettings: ExpansionSettingBase
 {
-	ref ExpansionStartingGear StartingGear;
-	bool UseCustomClothing;
 	ref ExpansionStartingClothing StartingClothing;
+	ref ExpansionStartingGear StartingGear;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -29,8 +28,8 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - Start");
 		#endif
 		
-		StartingGear = new ExpansionStartingGear;
 		StartingClothing = new ExpansionStartingClothing;
+		StartingGear = new ExpansionStartingGear;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
@@ -107,9 +106,8 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionSpawnSettings s )
 	{
-		StartingGear = s.StartingGear;
-		UseCustomClothing = s.UseCustomClothing;
 		StartingClothing = s.StartingClothing;
+		StartingGear = s.StartingGear;
 	}
 	
 	// ------------------------------------------------------------
@@ -189,7 +187,6 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		#endif
 		
 		StartingGear.Defaults();
-		UseCustomClothing = true;
 		StartingClothing.Defaults();
 	}
 }

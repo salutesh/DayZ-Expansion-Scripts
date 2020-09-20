@@ -55,10 +55,11 @@ class ExpansionCOTSpawningModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{
-		CreateToggle( "StartingGear.UsingUpperGear", "Using Upper Gear", "", "" );
-		CreateToggle( "StartingGear.UsingPantsGear", "Using Pants Gear", "", "" );
-		CreateToggle( "StartingGear.UsingBackpackGear", "Using Backpack Gear", "", "" );
-		CreateToggle( "UseCustomClothing", "Use Custom Clothing", "", "" );
+		CreateToggle( "StartingClothing.UseCustomClothing", "Use custom starting clothing on respawn", "", "" );
+		CreateToggle( "StartingGear.UseStartingGear", "Use custom starting gear on respawn", "", "" );
+		CreateToggle( "StartingGear.UsingUpperGear", "Using upper gear", "", "" );
+		CreateToggle( "StartingGear.UsingPantsGear", "Using pants gear", "", "" );
+		CreateToggle( "StartingGear.UsingBackpackGear", "Using backpack gear", "", "" );
 	}
 
 	override int GetRPCMin()

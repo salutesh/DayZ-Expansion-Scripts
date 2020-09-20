@@ -51,10 +51,10 @@ class ExpansionStartingGear
 		EXPrint("ExpansionStartingGear::Defaults - Start");
 		#endif
 		
-		UseStartingGear = true;
-		UsingUpperGear = true;
+		UseStartingGear = false;
+		UsingUpperGear = false;
 		UsingPantsGear = false;
-		UsingBackpackGear = true;
+		UsingBackpackGear = false;
 		
 		UpperGear.Insert("Rag");
 		UpperGear.Insert("Chemlight_White");
@@ -73,6 +73,8 @@ class ExpansionStartingGear
 
 class ExpansionStartingClothing
 {
+	bool UseCustomClothing;
+	
 	ref TStringArray Headgear;
 	ref TStringArray Glasses;
 	ref TStringArray Masks;
@@ -111,6 +113,8 @@ class ExpansionStartingClothing
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingClothing::Defaults - Start");
 		#endif
+		
+		UseCustomClothing = false;
 		
 		Tops.Insert("TShirt_Green");
 		
