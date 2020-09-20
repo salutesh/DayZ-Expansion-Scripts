@@ -1,2 +1,0 @@
-#include "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\DebugMonitor\\CustomDebugMonitor.c"
-#include "$CurrentDir:missions\\ExpansionCOM.ChernarusPlus\\core\\modules\\DebugMonitor\\gui\\DebugMonitor.c"

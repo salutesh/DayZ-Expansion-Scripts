@@ -1,1 +1,0 @@
-#include "$CurrentDir:Missions\\ExpansionCOM.ChernarusPlus\\init.c"
