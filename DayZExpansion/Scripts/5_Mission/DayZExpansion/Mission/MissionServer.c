@@ -15,7 +15,7 @@
  **/
 
 modded class MissionServer
-{	
+{
 	// ------------------------------------------------------------
 	// MissionServer Constructor
 	// ------------------------------------------------------------
@@ -142,7 +142,7 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override PlayerBase OnClientNewEvent(PlayerIdentity identity, vector pos, ParamsReadContext ctx)
 	{
-		if (GetExpansionSettings().GetSpawn().StartingClothing.UseCustomClothing)
+		if (GetExpansionSettings() && GetExpansionSettings().GetSpawn().StartingClothing.UseCustomClothing )
 		{
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("MissionServer::OnClientNewEvent - UseCustomClothing == TRUE");
@@ -195,7 +195,7 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void StartingEquipSetup(PlayerBase player, bool clothesChosen)
 	{
-		if ( GetExpansionSettings().GetSpawn().StartingGear.UseStartingGear )
+		if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn().StartingGear.UseStartingGear )
 		{
 			SetStartingGear(player);
 		}
@@ -243,16 +243,42 @@ modded class MissionServer
 		}
 	}
 	
+	bool ExpansionEquipCharacter(PlayerBase player)
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("DayZExpansion::EquipCharacter - UseCustomClothing == TRUE");
+		#endif
+		
+		ExpansionStartingClothing startingClothing;
+		if (Class.CastTo(startingClothing, GetExpansionSettings().GetSpawn().StartingClothing))
+		{
+			player.GetInventory().CreateAttachmentEx(startingClothing.Headgear.GetRandomElement(), InventorySlots.HEADGEAR);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Glasses.GetRandomElement(), InventorySlots.EYEWEAR);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Masks.GetRandomElement(), InventorySlots.MASK);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Tops.GetRandomElement(), InventorySlots.BODY);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Vests.GetRandomElement(), InventorySlots.VEST);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Gloves.GetRandomElement(), InventorySlots.GLOVES);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Pants.GetRandomElement(), InventorySlots.LEGS);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Belts.GetRandomElement(), InventorySlots.HIPS);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Shoes.GetRandomElement(), InventorySlots.FEET);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Armbands.GetRandomElement(), InventorySlots.ARMBAND);
+			player.GetInventory().CreateAttachmentEx(startingClothing.Backpacks.GetRandomElement(), InventorySlots.BACK);
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
 	// ------------------------------------------------------------
 	// Override EquipCharacter
 	// ------------------------------------------------------------
 	override void EquipCharacter()
 	{
-		if ( GetExpansionSettings().GetSpawn().StartingClothing.UseCustomClothing )
+		if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn().StartingClothing.UseCustomClothing )
 		{
-			GetDayZExpansion().ExpansionEquipCharacter(m_player);
-			
-			StartingEquipSetup(m_player, false);
+			if (ExpansionEquipCharacter(m_player))	
+				StartingEquipSetup(m_player, true);
 		}
 		else
 		{
@@ -265,7 +291,7 @@ modded class MissionServer
 			EntityAI item3;
 			
 			//! Creates clothes from DayZIntroScene's m_demoUnit
-			if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 /*&& m_skin != -1*/ )
+			if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 && m_skin != -1 )
 			{
 				item = m_player.GetInventory().CreateInInventory( topsArray.Get( m_top ) );
 				item2 = m_player.GetInventory().CreateInInventory( pantsArray.Get( m_bottom ) );
@@ -298,56 +324,44 @@ modded class MissionServer
 		
 		if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn() )
 		{
-			ref ExpansionStartingGear gear = GetExpansionSettings().GetSpawn().StartingGear;
-			
-			if ( gear.UsingUpperGear && gear.UpperGear )
+			ExpansionStartingGear gear;
+			if ( Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear) )
 			{
-				EntityAI itemTop = player.FindAttachmentBySlotName("Body");
-				
-				string classNameTop = itemTop.ClassName();
-				if ( classNameTop != "" )
+				if ( gear.UsingUpperGear )
 				{
-					GetGame().ObjectDelete( itemTop );
-					itemTop = player.GetInventory().CreateInInventory( classNameTop );
-				}
-				
-				if ( itemTop )
-				{
-					for ( i = 0; i < gear.UpperGear.Count(); i++ )
+					EntityAI itemTop = player.FindAttachmentBySlotName("Body");
+					
+					if ( itemTop )
 					{
-						itemTop.GetInventory().CreateInInventory( gear.UpperGear[i] );
+						for ( i = 0; i < gear.UpperGear.Count(); i++ )
+						{
+							itemTop.GetInventory().CreateInInventory( gear.UpperGear[i] );
+						}
 					}
 				}
-			}
-			
-			if ( gear.UsingPantsGear && gear.PantsGear )
-			{
-				EntityAI itemPants = player.FindAttachmentBySlotName("Pants");
 				
-				string classNamePants = itemPants.ClassName();
-				if ( classNamePants != "" )
+				if ( gear.UsingPantsGear )
 				{
-					GetGame().ObjectDelete( itemTop );
-					itemPants = player.GetInventory().CreateInInventory( classNamePants );
-				}
-				
-				if ( itemPants )
-				{					
-					for ( i = 0; i < gear.PantsGear.Count(); i++ )
-					{
-						itemPants.GetInventory().CreateInInventory( gear.PantsGear[i] );
+					EntityAI itemPants = player.FindAttachmentBySlotName("Pants");
+					
+					if ( itemPants )
+					{					
+						for ( i = 0; i < gear.PantsGear.Count(); i++ )
+						{
+							itemPants.GetInventory().CreateInInventory( gear.PantsGear[i] );
+						}
 					}
 				}
-			}
-			
-			if ( gear.UsingBackpackGear && gear.BackpackGear )
-			{
-				EntityAI itemBag = player.FindAttachmentBySlotName("Backpack");
-				if ( itemBag )
-				{					
-					for ( i = 0; i < gear.BackpackGear.Count(); i++ )
-					{
-						itemBag.GetInventory().CreateInInventory( gear.BackpackGear[i] );
+				
+				if ( gear.UsingBackpackGear )
+				{
+					EntityAI itemBag = player.FindAttachmentBySlotName("Back");
+					if ( itemBag )
+					{					
+						for ( i = 0; i < gear.BackpackGear.Count(); i++ )
+						{
+							itemBag.GetInventory().CreateInInventory( gear.BackpackGear[i] );
+						}
 					}
 				}
 			}

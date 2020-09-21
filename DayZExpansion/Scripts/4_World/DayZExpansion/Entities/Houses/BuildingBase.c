@@ -89,9 +89,11 @@ modded class BuildingBase
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// BuildingBase ReloadCustomObjects
+	// ------------------------------------------------------------
 	void ReloadCustomObjects()
 	{
-		/*
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::ReloadCustomObjects - Start");
 		#endif
@@ -113,7 +115,6 @@ modded class BuildingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::ReloadCustomObjects - End");
 		#endif
-		*/
 	}
 	
 	// ------------------------------------------------------------

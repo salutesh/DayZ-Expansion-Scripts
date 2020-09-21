@@ -79,7 +79,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
 	bool RemoveServerMarker( string markerName )
 	{
 		ExpansionMarkerData marker = ServerMarkersMap.Get( markerName );
@@ -110,9 +111,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 			Error("ExpansionMapSettings::OnRecieve setting");
 			return false;
 		}
-
+		
 		CopyInternal( setting );
-
 
 		m_IsLoaded = true;
 
@@ -125,6 +125,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		return true;
 	}
 	
+	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
 		ref ExpansionMapSettings thisSetting = this;
@@ -273,13 +274,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 	
 		EnableHUDGPS = true;
 
-		#ifdef EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
-		NeedGPSItemForKeyBinding = false;
-		NeedMapItemForKeyBinding = false;
-		#else
 		NeedGPSItemForKeyBinding = true;
 		NeedMapItemForKeyBinding = true;
-		#endif
 		
 		//! Set default markers depending on map name
 		string world_name = "empty";
@@ -289,12 +285,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		//! Vanilla Maps
 		if ( world_name.Contains( "chernarusplus" ) )
 		{
-			//! All 3D server markers - Chernarus
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Hero Trader-Zone", 		"Trader",		Vector( 11844.678711, 0, 12466.84082 ), 	ARGB( 255, 46, 204, 113 ), 	false, /*3D marker*/true ) ); 	// Color Emerald green: #2ecc71 
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Bandit Trader-Zone", 		"Trader",		Vector( 1127.144531, 0, 2419.871582 ), 		ARGB( 255, 231, 76, 60 ), 	false, /*3D marker*/true ) ); 	// Color Alizarin red: #e74c3c	
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Boat Trader", 			"Boat",			Vector( 14355.744141, 0, 13231.0507813 ), 	ARGB( 255, 52, 152, 219 ), 	false, /*3D marker*/true ) );	// Color Peter River blue: #3498db
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Boat Trader", 			"Boat",			Vector( 1755.128906, 0, 2027.907837 ), 		ARGB( 255, 52, 152, 219 ), 	false, /*3D marker*/true ) );	// Color Peter River blue: #3498db
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Aircraft Trader", 		"Helicopter",	Vector( 4971.664063, 0, 2438.656494 ), 		ARGB( 255, 52, 73, 94 ), 	false, /*3D marker*/true ) );	// Color Wet Asphalt gray: #34495e
+			//! TODO: Chernarus Server Markers
 		} else if ( world_name.Contains( "enoch" ) )
 		{
 			//! TODO: Livonia Server Markers

@@ -28,8 +28,8 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - Start");
 		#endif
 		
-		StartingClothing = new ExpansionStartingClothing;
-		StartingGear = new ExpansionStartingGear;
+		StartingClothing = new ExpansionStartingClothing();
+		StartingGear = new ExpansionStartingGear();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
