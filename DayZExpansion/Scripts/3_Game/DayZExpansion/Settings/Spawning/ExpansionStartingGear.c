@@ -36,7 +36,7 @@ class ExpansionStartingGear
 	ref TStringArray SecondaryWeaponAttachments;
 	
 	bool ApplyEnergySources;			// If enabled this will apply batteries to all items that can fit/need one.
-	bool SetRandomHeath;				// If enabled this will add ramdom damage to all items that the player has.
+	bool SetRandomHealth;				// If enabled this will add ramdom damage to all items that the player has.
 	
 	// ------------------------------------------------------------
 	// ExpansionStartingGear Constructor
@@ -78,7 +78,7 @@ class ExpansionStartingGear
 		UseSecondaryWeapon = false;
 		
 		ApplyEnergySources = true;
-		SetRandomHeath = true;
+		SetRandomHealth = true;
 		
 		UpperGear.Insert("Rag");
 		UpperGear.Insert("StoneKnife");
@@ -113,7 +113,7 @@ class ExpansionStartingGear
 class ExpansionStartingClothing
 {
 	bool EnableCustomClothing;
-	bool SetRandomHeath;
+	bool SetRandomHealth;
 	
 	ref TStringArray Headgear;
 	ref TStringArray Glasses;
@@ -155,7 +155,7 @@ class ExpansionStartingClothing
 		#endif
 		
 		EnableCustomClothing = true;
-		SetRandomHeath = true;
+		SetRandomHealth = true;
 		
 		Tops.Insert("TShirt_Green");
 		Tops.Insert("TShirt_Blue");

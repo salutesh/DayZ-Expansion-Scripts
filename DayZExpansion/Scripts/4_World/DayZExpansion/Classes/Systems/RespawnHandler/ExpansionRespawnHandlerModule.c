@@ -11,7 +11,7 @@
 */
 
 class ExpansionRespawnHandlerModule: JMModuleBase
-{		
+{
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule IsServer
 	// ------------------------------------------------------------	
@@ -37,16 +37,20 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		int i;
 		EntityAI gear_item;
-				
+		EntityAI itemTop;
+		EntityAI itemPants;
+		EntityAI itemBag;
+		EntityAI itemVest;
+		
 		if ( GetExpansionSettings().GetSpawn() )
 		{
 			ExpansionStartingGear gear;
 			if ( Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear) )
 			{
+				//! Add items to top/shirt/jacked
 				if ( gear.UseUpperGear )
 				{
-					EntityAI itemTop = player.FindAttachmentBySlotName("Body");
-					
+					itemTop = player.FindAttachmentBySlotName("Body");					
 					if ( itemTop )
 					{
 						for ( i = 0; i < gear.UpperGear.Count(); i++ )
@@ -56,10 +60,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 					}
 				}
 				
+				//! Add items to pants
 				if ( gear.UsePantsGear )
 				{
-					EntityAI itemPants = player.FindAttachmentBySlotName("Legs");
-					
+					itemPants = player.FindAttachmentBySlotName("Legs");
 					if ( itemPants )
 					{					
 						for ( i = 0; i < gear.PantsGear.Count(); i++ )
@@ -69,52 +73,77 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 					}
 				}
 				
+				//! Add items to backpack
 				if ( gear.UseBackpackGear )
 				{
-					EntityAI itemBag = player.FindAttachmentBySlotName("Back");
+					itemBag = player.FindAttachmentBySlotName("Back");
 					if ( itemBag )
-					{					
+					{	
 						for ( i = 0; i < gear.BackpackGear.Count(); i++ )
 						{
 							gear_item = itemBag.GetInventory().CreateInInventory( gear.BackpackGear[i] );
-							if ( gear_item.CanPutAsAttachment( itemBag ) )
-							{
-								AddAttachment( itemBag, gear_item );
-							}
 						}
 					}
 				}
 				
+				//! Add items to vest
 				if ( gear.UseVestGear )
 				{
-					EntityAI itemVest = player.FindAttachmentBySlotName("Vest");
+					itemVest = player.FindAttachmentBySlotName("Vest");
 					if ( itemVest )
 					{					
 						for ( i = 0; i < gear.VestGear.Count(); i++ )
 						{
 							gear_item = itemVest.GetInventory().CreateInInventory( gear.VestGear[i] );
-							if ( gear_item.CanPutAsAttachment( itemVest ) )
+						}
+					}
+				}
+				
+				//! Add primary weapon and its attachments
+				if ( gear.UsePrimaryWeapon )
+				{
+					EntityAI item_primaryWeapon = player.GetInventory().CreateAttachmentEx( gear.PrimaryWeapon, InventorySlots.SHOULDER );			
+					if ( item_primaryWeapon && item_primaryWeapon.IsWeapon() )
+					{
+						for ( i = 0; i < gear.PrimaryWeaponAttachments.Count(); i++ )
+						{
+							gear_item = item_primaryWeapon.GetInventory().CreateAttachment( gear.PrimaryWeaponAttachments[i] );
+							if (!gear_item)
 							{
-								AddAttachment( itemVest, gear_item );
+								Error2( "ExpansionRespawnHandlerModule::SetExpansionStartingGear", "Could not create attachment item " + gear.PrimaryWeaponAttachments[i] + " for weapon " + gear.PrimaryWeapon + ". Please make sure you spawn the attachments in the correct order and the item is a valid attachment for the weapon " + gear.PrimaryWeapon + "! For further information please visit the wiki page for the spawn settings: \nhttps:\/\/github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-SpawnSettings\n");
+								continue;
 							}
 						}
 					}
 				}
 				
-				if ( gear.UsePrimaryWeapon )
+				//! Add secondary weapon and its attachments
+				if ( gear.UseSecondaryWeapon )
 				{
-					EntityAI item_primary = player.GetInventory().CreateAttachmentEx( gear.PrimaryWeapon, InventorySlots.SHOULDER );
-					if ( item_primary )
+					EntityAI item_secondaryWeapon = player.GetInventory().CreateAttachmentEx( gear.SecondaryWeapon, InventorySlots.MELEE );
+					if ( item_primaryWeapon && item_primaryWeapon.IsWeapon() )
 					{
 						for ( i = 0; i < gear.PrimaryWeaponAttachments.Count(); i++ )
 						{
-							gear_item = item_primary.GetInventory().CreateInInventory( gear.PrimaryWeaponAttachments[i] );
-							if ( gear_item.CanPutAsAttachment( item_primary ) )
+							gear_item = item_primaryWeapon.GetInventory().CreateAttachment( gear.PrimaryWeaponAttachments[i] );
+							if (!gear_item)
 							{
-								AddAttachment( item_primary, gear_item );
+								Error2( "ExpansionRespawnHandlerModule::SetExpansionStartingGear", "Could not create attachment item " + gear.PrimaryWeaponAttachments[i] + " for weapon " + gear.PrimaryWeapon + ". Please make sure you spawn the attachments in the correct order and the item is a valid attachment for the weapon " + gear.PrimaryWeapon + "! For further information please visit the wiki page for the spawn settings: \nhttps:\/\/github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-SpawnSettings\n");
+								continue;
 							}
 						}
 					}
+				}
+				
+				array< EntityAI > items = new array< EntityAI >;
+				player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
+				for ( i = 0; i < items.Count(); i++ )
+				{
+					if ( gear.ApplyEnergySources && items[i].HasEnergyManager() )
+						items[i].GetInventory().CreateAttachment( "Battery9V" );
+					
+					if ( gear.SetRandomHealth )
+						SetRandomHealth( items[i] );
 				}
 			}
 		}
@@ -167,7 +196,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			EntityAI item_back = player.GetInventory().CreateAttachmentEx(startingClothing.Backpacks.GetRandomElement(), InventorySlots.BACK);
 			clothingArray.Insert(item_back);
 			
-			if (GetExpansionSettings().GetSpawn().StartingClothing.SetRandomHeath)
+			if (GetExpansionSettings().GetSpawn().StartingClothing.SetRandomHealth)
 			{
 				for (int i = 0; i < clothingArray.Count(); i++ )
 				{
@@ -191,23 +220,5 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			int rndHlt = Math.RandomInt(55,100);
 			itemEnt.SetHealth("","",rndHlt);
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule SetRandomHealth
-	// ------------------------------------------------------------
-	void AddAttachment(EntityAI item, EntityAI attachment)
-	{
-		//! Check if attachment can fit to the item
-		string attachment_name = attachment.ClassName();
-		int slot = InventorySlots.GetSlotIdFromString( attachment_name );
-		string slot_name = InventorySlots.GetSlotName( slot );
-
-		Print("ExpansionRespawnHandlerModule::AddAttachment - attachment_name: " + attachment_name);
-		Print("ExpansionRespawnHandlerModule::AddAttachment - slot: " + slot);
-		Print("ExpansionRespawnHandlerModule::AddAttachment - slot_name: " + slot_name);
-		
-		if ( item.CanReceiveAttachment( attachment, slot ) )
-			item.GetInventory().CreateAttachmentEx( attachment_name, slot );
 	}
 }
