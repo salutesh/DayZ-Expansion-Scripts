@@ -121,14 +121,14 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 				if ( gear.UseSecondaryWeapon )
 				{
 					EntityAI item_secondaryWeapon = player.GetInventory().CreateAttachmentEx( gear.SecondaryWeapon, InventorySlots.MELEE );
-					if ( item_primaryWeapon && item_primaryWeapon.IsWeapon() )
+					if ( item_secondaryWeapon && item_secondaryWeapon.IsWeapon() )
 					{
-						for ( i = 0; i < gear.PrimaryWeaponAttachments.Count(); i++ )
+						for ( i = 0; i < gear.SecondaryWeaponAttachments.Count(); i++ )
 						{
-							gear_item = item_primaryWeapon.GetInventory().CreateAttachment( gear.PrimaryWeaponAttachments[i] );
+							gear_item = item_secondaryWeapon.GetInventory().CreateAttachment( gear.SecondaryWeaponAttachments[i] );
 							if (!gear_item)
 							{
-								Error2( "ExpansionRespawnHandlerModule::SetExpansionStartingGear", "Could not create attachment item " + gear.PrimaryWeaponAttachments[i] + " for weapon " + gear.PrimaryWeapon + ". Please make sure you spawn the attachments in the correct order and the item is a valid attachment for the weapon " + gear.PrimaryWeapon + "! For further information please visit the wiki page for the spawn settings: \nhttps:\/\/github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-SpawnSettings\n");
+								Error2( "ExpansionRespawnHandlerModule::SetExpansionStartingGear", "Could not create attachment item " + gear.SecondaryWeaponAttachments[i] + " for weapon " + gear.SecondaryWeapon + ". Please make sure you spawn the attachments in the correct order and the item is a valid attachment for the weapon " + gear.SecondaryWeapon + "! For further information please visit the wiki page for the spawn settings: \nhttps:\/\/github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-SpawnSettings\n");
 								continue;
 							}
 						}
