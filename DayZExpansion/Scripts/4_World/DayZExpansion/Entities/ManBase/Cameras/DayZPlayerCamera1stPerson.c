@@ -51,7 +51,7 @@ modded class DayZPlayerCamera1stPerson
 
 		vector rot;
 
-		if ( m_pPlayer.GetCommand_Vehicle() )
+		if ( m_pPlayer.GetCommand_Vehicle() || PlayerBase.Cast( m_pPlayer ).GetCommand_ExpansionVehicle() )
 		{
 			rot[0] = m_fLeftRightAngle;
 		} else

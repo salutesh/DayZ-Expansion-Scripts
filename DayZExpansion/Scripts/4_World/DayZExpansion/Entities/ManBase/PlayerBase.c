@@ -305,6 +305,56 @@ modded class PlayerBase
 
 // TODO: When update comes to stable, change to ifndef
 #ifdef BUILD_EXPERIMENTAL
+	// ------------------------------------------------------------
+	// Expansion SetActions
+	// ------------------------------------------------------------
+	override void SetActions(out TInputActionMap InputActionMap)
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions start");
+		#endif
+
+		super.SetActions( InputActionMap );
+
+		//RemoveAction( ActionGetOutTransport );	
+
+		//AddAction( ExpansionActionGetOutTransport );
+		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
+		
+		AddAction( ExpansionActionCarHorn, InputActionMap );
+		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
+		
+		AddAction( ExpansionActionOpenParachute, InputActionMap );
+		AddAction( ExpansionActionCutParachute, InputActionMap );
+
+		AddAction( ExpansionActionStartEngine, InputActionMap );
+		AddAction( ExpansionActionStopEngine, InputActionMap );
+		
+		AddAction( ExpansionActionStartBoat, InputActionMap );
+		AddAction( ExpansionActionStopBoat, InputActionMap );
+
+		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
+		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
+
+		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
+
+		AddAction( ExpansionActionPaint, InputActionMap );
+
+		#ifdef EXPANSION_VEHICLE_TOWING
+		AddAction( ExpansionActionConnectTow, InputActionMap );
+		AddAction( ExpansionActionDisconnectTow, InputActionMap );
+		#endif
+		
+		//AddAction( ExpansionActionStartPlane );
+		//AddAction( ExpansionActionStopPlane );
+		
+		AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
+		AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions end");
+		#endif
+	}
 #else
 	// ------------------------------------------------------------
 	// Expansion SetActions
@@ -316,10 +366,7 @@ modded class PlayerBase
 		#endif
 
 		super.SetActions();
-
-		//RemoveAction( ActionGetOutTransport );	
-
-		//AddAction( ExpansionActionGetOutTransport );
+		
 		AddAction( ExpansionActionGetOutExpansionVehicle );
 		
 		AddAction( ExpansionActionCarHorn );
@@ -733,6 +780,11 @@ modded class PlayerBase
 			ExpansionHumanCommandVehicle ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
 			if ( ehcv != NULL )
 			{
+				if ( ehcv.WasGearChange() )
+				{
+					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
+					cb.SetVehicleCommand( ehcv );
+				}
 				return true;
 			}
 

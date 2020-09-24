@@ -129,7 +129,12 @@ class ExpansionSettings
 		
 		m_Debug = false;
 		
-		if ( !FileExist( EXPANSION_SETTINGS_FOLDER ) && !GetGame().IsClient() )
+		if ( FileExist( EXPANSION_SETTINGS_FOLDER ) && IsMissionClient() )
+		{
+			DeleteFile( EXPANSION_SETTINGS_FOLDER );
+		}
+		
+		if ( !FileExist( EXPANSION_SETTINGS_FOLDER ) && !IsMissionClient() )
 		{
 			MakeDirectory( EXPANSION_SETTINGS_FOLDER );
 		}

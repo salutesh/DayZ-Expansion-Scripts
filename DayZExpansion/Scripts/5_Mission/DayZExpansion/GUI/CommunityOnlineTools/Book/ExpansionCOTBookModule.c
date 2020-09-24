@@ -56,12 +56,15 @@ class ExpansionCOTBookModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{		
 		CreateToggle( "EnableBook", "EnableBook", "", "" );
+
 		CreateToggle( "EnableStatusTab", "Enable Status Tab", "", "" );
-		CreateToggle( "EnablePartyTab", "Enable Party Tab", "", "" );
-		CreateToggle( "EnableServerInfoTab", "Enable Server Info Tab", "", "" );
-		CreateToggle( "EnableServerRulesTab", "Enable Server Rules Tab", "", "" );
+		CreateToggle( "EnablePartyTab", "Enable Party Tab", "", "" );		
 		CreateToggle( "EnableTerritoryTab", "Enable Territory Tab", "", "" );
+
+		CreateToggle( "EnableServerInfoTab", "Enable Server Info Tab", "", "" );
 		CreateToggle( "ShowServerSettings", "Show Server Settings", "", "" );
+
+		CreateToggle( "EnableServerRulesTab", "Enable Server Rules Tab", "", "" );
 	}
 
 	override int GetRPCMin()

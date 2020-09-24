@@ -126,6 +126,16 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 			return;
 		
 		int seat = transport.GetSeatAnimationType( crewIdx );
-		action_data.m_Player.StartCommand_ExpansionVehicle( transport, crewIdx, seat );
+		ExpansionHumanCommandVehicle vehCommand = action_data.m_Player.StartCommand_ExpansionVehicle( transport, crewIdx, seat );
+		if ( vehCommand )
+		{
+			vehCommand.SetVehicleType( transport.GetAnimInstance() );
+			action_data.m_Player.GetItemAccessor().HideItemInHands( true );
+			
+			GetDayZGame().GetBacklit().OnEnterCar();
+			if ( action_data.m_Player.GetInventory() ) 
+				action_data.m_Player.GetInventory().LockInventory( LOCK_FROM_SCRIPT );
+			
+		}
 	}
 }

@@ -13,7 +13,7 @@
 /**@class		ExpansionCarController
  * @brief		This class handle player controls to move boats
  **/
-class ExpansionCarController: ExpansionController
+class ExpansionCarController: ExpansionVehicleController
 {
 	private int m_Gear;
 
@@ -87,6 +87,8 @@ class ExpansionCarController: ExpansionController
 		bool gear_up_press;
 		bool gear_down_press;
 		
+		int gear = m_Gear;
+		
 		GetInputPress( "UAExpansionBikeGearUp", gear_up_press );
 		GetInputPress( "UAExpansionBikeGearDown", gear_down_press );
 		
@@ -103,7 +105,12 @@ class ExpansionCarController: ExpansionController
 			m_Gear = 0;
 		if ( m_Gear >= m_Car.GetGearsCount() )
 			m_Gear = m_Car.GetGearsCount();
-
+		
+		if ( gear != m_Gear )
+		{
+			m_ECommand.SignalGearChange();
+		}
+		
 		GetInputValue( "UAExpansionBikeMoveForward", m_Forward );
 		GetInputValue( "UAExpansionBikeMoveBackward", m_Backward );
 		GetInputValue( "UAExpansionBikeRotateLeft", m_TurnLeft );

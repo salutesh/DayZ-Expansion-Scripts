@@ -1,5 +1,5 @@
 /**
- * ExpansionController.c
+ * ExpansionVehicleController.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -13,21 +13,24 @@
 /**@class		ExpansionPlaneController
  * @brief		Abstract implementation for vehicle controllers
  */
-class ExpansionController
+class ExpansionVehicleController
 {
 	protected bool m_UseUAInterface = false;
 
 	protected EntityAI m_Vehicle;
 	protected PlayerBase m_Player;
 
-	void ExpansionController( EntityAI vehicle )
+	protected HumanCommandVehicle m_Command;
+	protected ExpansionHumanCommandVehicle m_ECommand;
+
+	void ExpansionVehicleController( EntityAI vehicle )
 	{
 		m_Vehicle = vehicle;
 	}
 
 	void Update()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionController::Update" );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::Update" );
 
 		Transport transport;
 		ExpansionVehicleScript vehicleScript;
@@ -55,29 +58,41 @@ class ExpansionController
 			return;
 		}
 
-		HumanCommandVehicle hcv = m_Player.GetCommand_Vehicle();
-		ExpansionHumanCommandVehicle hcev = m_Player.GetCommand_ExpansionVehicle();
+		m_Command = m_Player.GetCommand_Vehicle();
+		m_ECommand = m_Player.GetCommand_ExpansionVehicle();
 
-		if ( hcv || hcev )
+		if ( m_Command || m_ECommand )
 		{
-			if ( hcv )
+			if ( m_Command )
 			{
-				if ( hcv.IsGettingIn() )
+				if ( m_Command.IsGettingIn() )
 				{
 					OnReset();
-				} else if ( hcv.IsGettingOut() )
+				} else if ( m_Command.IsGettingOut() )
 				{
 					OnReset();
-				} else if ( hcv.IsSwitchSeat() )
+				} else if ( m_Command.IsSwitchSeat() )
 				{
 					OnReset();
 				} else
 				{
 					OnUpdate();
 				}
-			} else if ( hcev )
+			} else if ( m_ECommand )
 			{
-				OnUpdate();
+				/*if ( m_ECommand.IsGettingIn() )
+				{
+					OnReset();
+				} else if ( m_ECommand.IsGettingOut() )
+				{
+					OnReset();
+				} else if ( m_ECommand.IsSwitchSeat() )
+				{
+					OnReset();
+				} else*/
+				{
+					OnUpdate();
+				}
 			}
 		} else
 		{
@@ -90,7 +105,7 @@ class ExpansionController
 	 */
 	protected void OnUpdate()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionController::OnUpdate" );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::OnUpdate" );
 	}
 
 	/**
@@ -98,7 +113,7 @@ class ExpansionController
 	 */
 	protected void OnReset()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionController::OnReset" );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::OnReset" );
 	}
 
 	void NetworkSend( ref ParamsWriteContext ctx )

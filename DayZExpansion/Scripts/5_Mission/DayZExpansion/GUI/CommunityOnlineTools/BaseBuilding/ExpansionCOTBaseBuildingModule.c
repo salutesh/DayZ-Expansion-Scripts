@@ -57,16 +57,23 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 	{
 		CreateToggle( "CanBuildAnywhere", "Can Build Anywhere", "", "" );
 		CreateToggle( "AllowBuildingWithoutATerritory", "Allow Building Without A Territory", "", "" );
+
 		CreateToggle( "CanCraftVanillaBasebuilding", "Can Craft Vanilla Basebuilding", "", "" );
 		CreateToggle( "CanCraftExpansionBasebuilding", "Can Craft Expansion Basebuilding", "", "" );
+
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
-		CreateToggle( "CanDismantleFlag", "Can Dismantle Flag", "", "" );
+		CreateToggle( "DismantleFlagRequireTools", "Dismantle Flag Requires Tools", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
-		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Do Damage When Enter Wrong Code Lock", "", "" );
-		CreateSlider( "DamageWhenEnterWrongCodeLock", "Damage Enter Wrong Code", "", "", 1.0, 100.0, 1.0);
-		CreateToggle( "EnableSimpleFlagBuilding", "Simple Flag Building", "", "" );
-		CreateToggle( "AddFlagItem", "Add Flag Item", "", "" );
+
+		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Codelock: Damage On Wrong Code", "", "" );
+		CreateSlider( "DamageWhenEnterWrongCodeLock", "Codelock: Damage Dealt", "", "", 1.0, 100.0, 1.0);
+
+		CreateToggle( "CanCraftTerritoryFlagKit", "Can Craft Territory Flag Kit", "", "" );
+		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory Flag Kit After Build", "", "" );
+
+		CreateToggle( "SimpleTerritory", "Simple Territory Creation", "", "" );
+		CreateToggle( "AutomaticFlagOnCreation", "Add Flag Item", "", "" );
 		CreateToggle( "EnableFlagMenu", "Enable Flag Menu", "", "" );
 	}
 

@@ -203,15 +203,15 @@ class ExpansionBookTabServerInfo extends ExpansionBookTabBase
 		m_Settings.Insert( setting );
 		
 		//! NeedGPSItemForKeyBinding
-		setting = new ExpansionServerInfoSetting( "#STR_EXPANSION_SETTINGS_GEN_NEEDGPSITEMFORKEYBINDING", "#STR_EXPANSION_SETTINGS_GEN_NEEDGPSITEMFORKEYBINDING_DESC", true, GetExpansionSettings().GetGeneral().NeedGPSItemForKeyBinding );
+		setting = new ExpansionServerInfoSetting( "#STR_EXPANSION_SETTINGS_GEN_NEEDGPSITEMFORKEYBINDING", "#STR_EXPANSION_SETTINGS_GEN_NEEDGPSITEMFORKEYBINDING_DESC", true, GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding );
 		m_Settings.Insert( setting );
 		
 		//! NeedMapItemForKeyBinding
-		setting = new ExpansionServerInfoSetting( "#STR_EXPANSION_SETTINGS_GEN_NEEDMAPITEMFORKEYBINDING", "#STR_EXPANSION_SETTINGS_GEN_NEEDMAPITEMFORKEYBINDING_DESC", true, GetExpansionSettings().GetGeneral().NeedMapItemForKeyBinding );
+		setting = new ExpansionServerInfoSetting( "#STR_EXPANSION_SETTINGS_GEN_NEEDMAPITEMFORKEYBINDING", "#STR_EXPANSION_SETTINGS_GEN_NEEDMAPITEMFORKEYBINDING_DESC", true, GetExpansionSettings().GetMap().NeedMapItemForKeyBinding );
 		m_Settings.Insert( setting );
 
 		//! MaxInParty
-		setting = new ExpansionServerInfoSetting( "#STR_EXPANSION_SETTINGS_P_MAXINPARTY", "#STR_EXPANSION_SETTINGS_P_MAXINPARTY_DESC", false, false, GetExpansionSettings().GetParty().MaxInParty.ToString() );
+		setting = new ExpansionServerInfoSetting( "#STR_EXPANSION_SETTINGS_P_MAXINPARTY", "#STR_EXPANSION_SETTINGS_P_MAXINPARTY_DESC", false, false, GetExpansionSettings().GetParty().MaxMembersInParty.ToString() );
 		m_Settings.Insert( setting );
 		
 		//! UseWholeMapForInviteList

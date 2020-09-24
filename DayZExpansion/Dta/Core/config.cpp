@@ -559,6 +559,9 @@ class CfgVehicles
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Vehicle";
+		bounding = "BSphere";
+		overrideDrawArea = "3.0";
+		forceFarBubble = "true";
 		fuelCapacity = 50;
 		brakeFluidCapacity = 1;
 		oilCapacity = 4;

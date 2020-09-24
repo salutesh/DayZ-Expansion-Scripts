@@ -12,5 +12,4 @@
 
 class ExpansionHumanCommandScript: HumanCommandScript
 {
-
-}
+};

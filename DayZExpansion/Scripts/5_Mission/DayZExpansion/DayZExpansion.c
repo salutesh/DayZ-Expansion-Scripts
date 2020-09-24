@@ -20,8 +20,6 @@ class DayZExpansion: ExpansionWorld
 	protected int m_MajorVersion;
 	protected int m_MinorVersion;
 	protected int m_BuildVersion;
-
-	protected bool m_IsSpawnMenuOpen;
 	
 	// ------------------------------------------------------------
 	// DayZExpansion Constructor
@@ -134,7 +132,7 @@ class DayZExpansion: ExpansionWorld
 			ExpansionSettings.SI_Mission.Invoke();
 			ExpansionSettings.SI_Market.Invoke();
 			ExpansionSettings.SI_BaseBuilding.Invoke();
-
+			
 			GetModuleManager().OnSettingsUpdated();
 		}
 

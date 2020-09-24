@@ -306,7 +306,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation, m_ServerMarkerUID );
 
 			#ifdef EXPANSION_MISSION_EVENT_DEBUG
-			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker name is: " + m_ServerMarker );
+			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker name is: " + markerName );
 			#endif
 		}
 		

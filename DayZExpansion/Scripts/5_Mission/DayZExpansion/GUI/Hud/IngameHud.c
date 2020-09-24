@@ -752,8 +752,6 @@ modded class IngameHud
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::RefreshCarHud - Start");
 		#endif
-		
-		return;
 
 		float rpm_value = ( car.EngineGetRPM() / car.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( car.EngineGetRPMRedline() / car.EngineGetRPMMax() ) ;
@@ -763,7 +761,7 @@ modded class IngameHud
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
 		m_VehicleSpeedValue.SetText( Math.Floor( car.GetSpeedometer() ).ToString() );
 
-		int engaged_gear = 0; // car.GetController().GetGear();	
+		int engaged_gear = car.GetController().GetGear();
 		
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;
@@ -804,6 +802,16 @@ modded class IngameHud
 		} else
 		{
 			m_VehicleEngineLight.Show( false );
+		}
+
+		m_VehicleCurrentGearValue.SetText( m_VehicleGearTable.Get( engaged_gear ) );
+		
+		if ( next_gear > m_VehicleGearCount )
+		{
+			m_VehicleNextGearValue.Show( false );
+		} else
+		{
+			m_VehicleNextGearValue.Show( true );
 		}
 
 		m_VehicleNextGearValue.SetText( m_VehicleGearTable.Get( next_gear ) );

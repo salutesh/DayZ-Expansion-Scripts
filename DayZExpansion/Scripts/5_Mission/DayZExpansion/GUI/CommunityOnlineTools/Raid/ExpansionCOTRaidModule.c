@@ -56,9 +56,12 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{		
 		CreateSlider( "ExplosionTime", "Explosion Time", "", "", 30.0, 300.0, 1.0); 
+		
 		CreateToggle( "EnableExplosiveWhitelist", "Enable Explosive Whitelist", "", "" );
+
 		CreateSlider( "ExplosionDamageMultiplier", "Explosion Damage Multiplier", "", "", 1.0, 100.0, 1.0);
 		CreateSlider( "ProjectileDamageMultiplier", "Projectile Damage Multiplier", "", "", 1.0, 100.0, 1.0);
+
 		CreateToggle( "CanRaidSafes", "Can Raid Safes", "", "" );
 		CreateSlider( "SafeExplosionDamageMultiplier", "Safe Explosion Damage Multiplier", "", "", 1.0, 100.0, 1.0);
 		CreateSlider( "SafeProjectileDamageMultiplier", "Safe Projectile Damage Multiplier", "", "", 1.0, 100.0, 1.0);

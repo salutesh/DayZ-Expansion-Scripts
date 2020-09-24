@@ -63,7 +63,7 @@ class ExpansionEntityMetaData
 		}
 		
 		TerritoryFlag flag = TerritoryFlag.Cast(entity);
-		if ( flag && flag.IsTerritoryFlag() )
+		if ( flag && flag.HasExpansionTerritoryInformation() )
 		{
 			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionCOTTerritoriesModule::ExpansionEntityMetaData - Entity is territory flag!");
@@ -81,7 +81,7 @@ class ExpansionEntityMetaData
 		return false;
 	}
 	
-	bool IsTerritoryFlag()
+	bool HasExpansionTerritoryInformation()
 	{
 		return m_IsTerritoryFlag;
 	}

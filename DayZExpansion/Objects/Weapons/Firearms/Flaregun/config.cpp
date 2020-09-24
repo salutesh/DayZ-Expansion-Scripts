@@ -102,7 +102,7 @@ class CfgMagazines
 		model = "\dz\weapons\ammunition\Flare_SingleRound.p3d";
 		rotationFlags = 34;
 		weight = 80;
-		count = 1;
+		count = 20;
 		ammo = "ExpansionBulletFlareLight";
 		class DamageSystem
 		{

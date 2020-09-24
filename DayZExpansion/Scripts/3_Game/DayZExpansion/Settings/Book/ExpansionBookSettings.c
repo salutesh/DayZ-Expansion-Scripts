@@ -195,6 +195,7 @@ class ExpansionBookSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBookSettings::Send - End and return");
 		#endif
+		
 		return 0;
 	}
 	
@@ -317,7 +318,7 @@ class ExpansionBookSettings: ExpansionSettingBase
 		ExpansionServerInfoButtonData button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_group", "https://exp.thurston.pw", "Feedback", ARGB(255,255,255,255) );
 		ServerButtons.Insert( button );
 		
-		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_discord", "https://discord.io/expansion", "Discord", ARGB(255,255,255,255) );
+		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_discord", "https://www.google.com", "Discord", ARGB(255,255,255,255) );
 		ServerButtons.Insert( button );
 		
 		button = new ExpansionServerInfoButtonData( "set:expansion_iconset image:icon_home", "https://www.google.com", "Homepage", ARGB(255,255,255,255) );

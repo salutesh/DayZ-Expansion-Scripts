@@ -124,19 +124,17 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		if ( Class.CastTo( helicopter, m_pPlayer.GetParent() ) )
 		{
 			freeLookKey = helicopter.IsFreeLook();
+			
 			cameraHeight = helicopter.GetCameraHeight();
 			cameraDistance = helicopter.GetCameraDistance();
 		} else if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
 		{
-			freeLookKey = vehicle.IsFreeLook();
-			cameraHeight = vehicle.GetCameraHeight();
-			cameraDistance = vehicle.GetCameraDistance();
+			pOutResult.m_fUseHeading		= 1.0;
+			return;
 		} else
 		{
 			return;
 		}
-
-		// vehicle.FilterNextTrace();
 
 		vector playerTransformWS[4];
 		m_pPlayer.GetTransform( playerTransformWS );
@@ -174,13 +172,13 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			Math3D.YawPitchRollMatrix( rotation, pOutResult.m_CameraTM );
 		}
 			
-		pOutResult.m_CameraTM[3] = cameraPosition + Vector( 0, cameraHeight, 0 ) - m_ExLagOffsetPosition;
+		pOutResult.m_CameraTM[3] 			= cameraPosition + Vector( 0, cameraHeight, 0 ) - m_ExLagOffsetPosition;
 
 		pOutResult.m_fIgnoreParentRoll		= 1.0;
-		pOutResult.m_fInsideCamera		  = 0.0;
+		pOutResult.m_fInsideCamera		  	= 0.0;
 		pOutResult.m_iDirectBone			= -1.0;
 		pOutResult.m_fUseHeading			= 0.0;
-		pOutResult.m_fDistance			  = cameraDistance;
+		pOutResult.m_fDistance				= cameraDistance;
 		pOutResult.m_fPositionModelSpace	= 1.0;
 
 		m_PreviousOrientation = newOrientation;

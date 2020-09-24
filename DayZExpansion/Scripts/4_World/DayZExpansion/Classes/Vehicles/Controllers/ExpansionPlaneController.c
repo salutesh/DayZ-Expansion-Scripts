@@ -13,7 +13,7 @@
 /**@class		ExpansionPlaneController
  * @brief		This class handle player controls to move planes
  **/
-class ExpansionPlaneController: ExpansionController
+class ExpansionPlaneController: ExpansionVehicleController
 {
 	private float m_Engine;
 

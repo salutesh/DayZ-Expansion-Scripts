@@ -12,18 +12,18 @@ class CfgPatches
 };
 class CfgSlots
 {
-	class Slot_Expansion_250N_wheel_front_1_1
+	class Slot_Expansion_250N_wheel_1
 	{
-		name = "Expansion_250N_wheel_front_1_1";
+		name = "expansion_250N_wheel_1";
 		displayName = "Front Bike Wheel";
-		selection = "wheel_1_1";
+		selection = "wheel_1";
 		ghostIcon = "";
 	};
-	class Slot_Expansion_250N_wheel_back_1_2
+	class Slot_Expansion_250N_wheel_2
 	{
-		name = "Expansion_250N_wheel_back_1_2";
+		name = "expansion_250N_wheel_2";
 		displayName = "Rear Bike Wheel";
-		selection = "wheel_1_2";
+		selection = "wheel_2";
 		ghostIcon = "";
 	};
 };
@@ -55,7 +55,7 @@ class CfgVehicles
 		descriptionShort = "$Unit$ NOT READY, you shouldn't be reading this !";
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_front.p3d";
 		itemSize[] = {6,6};
-		inventorySlot[] = {"Expansion_250N_wheel_front_1_1"};
+		inventorySlot[] = {"Expansion_250N_wheel_1"};
 		rotationFlags = 4;
 		radiusByDamage[] = {0,0.28,0.31,0.28,0.9998,0.25,0.9999,0.2};
 		radius = 0.38;
@@ -68,7 +68,7 @@ class CfgVehicles
 		displayName = "$Unit$ 250N Bike Wheel Back";
 		descriptionShort = "$Unit$ NOT READY, you shouldn't be reading this !";
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_back.p3d";
-		inventorySlot[] = {"Expansion_250N_wheel_back_1_2"};
+		inventorySlot[] = {"Expansion_250N_wheel_2"};
 		radius = 0.4;
 		width = 0.16;
 		mass = 20.0;
@@ -78,8 +78,8 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$Unit$ Old Motorbike";
 		descriptionShort = "$Unit$ Old Motobike From Arma2 Imported by ZeRoY";
-		model = "\DayZExpansion\Vehicles\Ground\250N\Expansion250N.p3d";
-		attachments[] = {"Expansion_250N_wheel_front_1_1","Expansion_250N_wheel_back_1_2","Reflector_1_1","CarBattery","SparkPlug"};
+		model = "\DayZExpansion\Vehicles\Ground\250N\250N.p3d";
+		attachments[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2","Reflector_1_1","CarBattery","SparkPlug"};
 		fuelCapacity = 20;
 		fuelConsumption = 15;
 		batterySlot = "CarBattery";
@@ -102,8 +102,7 @@ class CfgVehicles
 		soundController = "Expansion_SoundController_250N";
 		class Crew
 		{
-			numCrew = 2;
-			class Crew_0
+			class Driver
 			{
 				isDriver = 1;
 				actionSel = "seat_driver";
@@ -111,7 +110,7 @@ class CfgVehicles
 				getInPos = "pos_driver";
 				getInDir = "pos_driver_dir";
 			};
-			class Crew_1
+			class CoDriver
 			{
 				actionSel = "seat_codriver";
 				proxyPos = "crewCoDriver";
@@ -121,58 +120,127 @@ class CfgVehicles
 		};
 		class VehicleSimulation
 		{
-			numWheels = 2;
-			numAxles = 2;
-			numTracks = 0;
-			class Wheels
+			class Steering
 			{
-				class Wheel_0
-				{
-					animDamper = "wheel_1_1_damper";
-					inventorySlot = "Expansion_250N_wheel_front_1_1";
-					axle = 0;
-					direction = "1 0 0";
-					animTurn = "wheel_1_1_turn";
-					animRotation = "wheel_1_1_rotation";
-					wheelHub = "wheel_1_1_damper";
-				};
-				class Wheel_1
-				{
-					animDamper = "wheel_1_2_damper";
-					inventorySlot = "Expansion_250N_wheel_back_1_2";
-					axle = 1;
-					direction = "-1 0 0";
-					animTurn = "wheel_1_1_turn";
-					animRotation = "wheel_1_2_rotation";
-					wheelHub = "wheel_1_2_damper";
-				};
+				increaseSpeed[] = {0,45,60,23,100,12};
+				decreaseSpeed[] = {0,80,60,40,90,20};
+				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+			};
+			class Throttle
+			{
+				reactionTime = 1.0;
+				defaultThrust = 0.85;
+				gentleThrust = 0.7;
+				turboCoef = 4.0;
+				gentleCoef = 0.75;
+			};
+			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Engine
+			{
+				inertia = 0.15;
+				torqueMax = 130;
+				torqueRpm = 3700;
+				powerMax = 80;
+				powerRpm = 3500;
+				rpmIdle = 650;
+				rpmMin = 700;
+				rpmClutch = 1500;
+				rpmRedline = 4000;
+				rpmMax = 5000;
+			};
+			class Gearbox
+			{
+				reverse = 3.51;
+				ratios[] = {3.5,2.26,1.45,1.0};
+				timeToUncoupleClutch = 0.3;
+				timeToCoupleClutch = 0.45;
+				maxClutchTorque = 260;
 			};
 			class Axles
 			{
-				class Axle_0
+				class Front
 				{
 					maxSteeringAngle = 45;
+					finalRatio = 0.0;
+					brakeBias = 0.7;
 					brakeForce = 4000;
+					wheelHubMass = 10;
+					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						stiffness = 500;
-						damping = 0.1;
-						travelMaxUp = 0.2;
-						travelMaxDown = 0.2;
+						swayBar = 0;
+						stiffness = 15000;
+						compression = 3100;
+						damping = 4700;
+						travelMaxUp = 0.16;
+						travelMaxDown = 0.16;
+					};
+					class Wheels
+					{
+						class Center
+						{
+							inventorySlot = "expansion_250n_wheel_1";
+							animTurn = "turnfront";
+							animRotation = "wheelfront";
+							animDamper = "damper_1";
+							wheelHub = "wheel_1_damper_land";
+							axis_start = "suspension_1_start";
+							axis_end = "suspension_1_end";
+						};
 					};
 				};
-				class Axle_1
+				class Rear
 				{
 					maxSteeringAngle = 0;
+					finalRatio = 3.0;
+					brakeBias = 0.7;
 					brakeForce = 4000;
+					wheelHubMass = 10;
+					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						stiffness = 500;
-						damping = 0.1;
-						travelMaxUp = 0.2;
-						travelMaxDown = 0.2;
+						swayBar = 0;
+						stiffness = 15000;
+						compression = 3000;
+						damping = 4500;
+						travelMaxUp = 0.16;
+						travelMaxDown = 0.16;
+					};
+					class Wheels
+					{
+						class Center
+						{
+							inventorySlot = "expansion_250n_wheel_2";
+							animTurn = "";
+							animRotation = "wheelback";
+							animDamper = "damper_2";
+							wheelHub = "wheel_2_damper_land";
+						};
 					};
 				};
+			};
+		};
+		class AnimationSources
+		{
+			class Damper_1
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-05;
+			};
+			class Damper_2: Damper_1{};
+			class wheelfront
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-05;
+			};
+			class wheelback: wheelfront{};
+			class DrivingWheel
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-05;
 			};
 		};
 		class Cargo
@@ -180,47 +248,6 @@ class CfgVehicles
 			itemsCargoSize[] = {4,4};
 			allowOwnedCargoManipulation = 1;
 			openable = 0;
-		};
-		class AnimationSources: AnimationSources
-		{
-			class Wheel_1_1_Damper
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.01;
-			};
-			class Wheel_1_2_Damper: Wheel_1_1_Damper{};
-			class Wheel_1_1_Rotation
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 1;
-			};
-			class Wheel_1_2_Rotation: Wheel_1_1_Rotation{};
-			class Wheel_1_1_Turn
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.01;
-			};
-			class SteeringWheel
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.01;
-			};
-			class EngineShake
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.01;
-			};
-			class BikeStand
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.01;
-			};
 		};
 		class DamageSystem
 		{
@@ -344,7 +371,7 @@ class CfgVehicles
 				name = "Motorbike Chassis";
 				description = "";
 				icon = "cat_vehicle_chassis";
-				attachmentSlots[] = {"Expansion_250N_wheel_front_1_1","Expansion_250N_wheel_back_1_2"};
+				attachmentSlots[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2"};
 			};
 		};
 	};
@@ -364,21 +391,21 @@ class CfgNonAIVehicles
 	class ProxyExpansion_250N_wheel_front: ProxyVehiclePart
 	{
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_front.p3d";
-		inventorySlot[] = {"Expansion_250N_wheel_front_1_1"};
+		inventorySlot[] = {"Expansion_250N_wheel__1"};
 	};
 	class ProxyExpansion_250N_wheel_front_destroyed: ProxyVehiclePart
 	{
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_front.p3d";
-		inventorySlot[] = {"Expansion_250N_wheel_front_1_1"};
+		inventorySlot[] = {"Expansion_250N_wheel_1"};
 	};
 	class ProxyExpansion_250N_wheel_back: ProxyVehiclePart
 	{
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_back.p3d";
-		inventorySlot[] = {"Expansion_250N_wheel_back_1_2"};
+		inventorySlot[] = {"Expansion_250N_wheel_2"};
 	};
 	class ProxyExpansion_250N_wheel_back_destroyed: ProxyVehiclePart
 	{
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_back.p3d";
-		inventorySlot[] = {"Expansion_250N_wheel_back_1_2"};
+		inventorySlot[] = {"Expansion_250N_wheel_2"};
 	};
 };

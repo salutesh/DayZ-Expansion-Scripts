@@ -34,7 +34,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 
 	bool EnableKillFeed;
 	ExpansionAnnouncementType KillFeedMessageType;
-	int KillFeedDelay;
 	bool KillFeedFall;
 	bool KillFeedCarHitDriver;
 	bool KillFeedCarHitNoDriver;
@@ -48,7 +47,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	bool KillFeedBoatCrashCrew;
 	bool KillFeedBarbedWire;
 	bool KillFeedFire;
-	bool KillFeedSpecialExplosion;
 	bool KillFeedWeaponExplosion;
 	bool KillFeedDehydration;
 	bool KillFeedStarvation;
@@ -140,6 +138,7 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionNotificationSettings s )
 	{
+		EnableNotification = s.EnableNotification;
 		ShowPlayerJoinServer = s.ShowPlayerJoinServer;
 		JoinMessageType = s.JoinMessageType;
 		ShowPlayerLeftServer = s.ShowPlayerLeftServer;
@@ -157,7 +156,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = s.EnableKillFeed;
 		KillFeedMessageType = s.KillFeedMessageType;
-		KillFeedDelay = s.KillFeedDelay;
 		KillFeedFall = s.KillFeedFall;
 		KillFeedCarHitDriver = s.KillFeedCarHitDriver;
 		KillFeedCarHitNoDriver = s.KillFeedCarHitNoDriver;
@@ -171,7 +169,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		KillFeedBoatCrashCrew = s.KillFeedBoatCrashCrew;
 		KillFeedBarbedWire = s.KillFeedBarbedWire;
 		KillFeedFire = s.KillFeedFire;
-		KillFeedSpecialExplosion = s.KillFeedSpecialExplosion;
 		KillFeedWeaponExplosion = s.KillFeedWeaponExplosion;
 		KillFeedDehydration = s.KillFeedDehydration;
 		KillFeedStarvation = s.KillFeedStarvation;
@@ -272,7 +269,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = true;
 		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
-		KillFeedDelay = 15;
 		
 		KillFeedFall = true;
 		KillFeedCarHitDriver = true;
@@ -283,11 +279,8 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		KillFeedHeliHitNoDriver = true;
 		KillFeedHeliCrash = true;
 		KillFeedHeliCrashCrew = true;
-		KillFeedBoatCrash = true;
-		KillFeedBoatCrashCrew = true;
 		KillFeedBarbedWire = true;
 		KillFeedFire = true;
-		KillFeedSpecialExplosion = true;
 		KillFeedWeaponExplosion = true;
 		KillFeedDehydration = true;
 		KillFeedStarvation = true;
@@ -301,6 +294,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		KillFeedKilledUnknown = true;
 		KillFeedDiedUnknown = true;
 
-		EnableKillFeedDiscordMsg = true;
+		EnableKillFeedDiscordMsg = false;
 	}
 }

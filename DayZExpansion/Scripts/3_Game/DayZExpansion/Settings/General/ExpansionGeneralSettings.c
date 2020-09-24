@@ -29,10 +29,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool EnableGenerators;
 	bool EnableLighthouses;
 
-	bool EnableHUDGPS;
-	bool NeedGPSItemForKeyBinding;
-	bool NeedMapItemForKeyBinding;
-
 	bool EnableHUDNightvisionOverlay;
 	bool DisableMagicCrosshair;
 	bool EnablePlayerTags;
@@ -73,7 +69,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ExpansionGeneralSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("Failed to read param");
+			Error("ExpansionGeneralSettings::OnRecieve setting");
 			return false;
 		}
 
@@ -156,9 +152,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnableLamps = s.EnableLamps;
 		EnableGenerators = s.EnableGenerators;
 		EnableLighthouses = s.EnableLighthouses;
-		EnableHUDGPS = s.EnableHUDGPS;
-		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
-		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
 		EnableHUDNightvisionOverlay = s.EnableHUDNightvisionOverlay;
 		DisableMagicCrosshair = s.DisableMagicCrosshair;
 		EnablePlayerTags = s.EnablePlayerTags;
@@ -255,16 +248,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnableLamps = 3;						//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on | 3 - Street-Lights always on everywhere
 		EnableGenerators = false;
 		EnableLighthouses = true;
-
-		EnableHUDGPS = true;
-
-		#ifdef EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
-		NeedGPSItemForKeyBinding = false;
-		NeedMapItemForKeyBinding = false;
-		#else
-		NeedGPSItemForKeyBinding = true;
-		NeedMapItemForKeyBinding = true;
-		#endif
 		
 		EnableHUDNightvisionOverlay = true;
 

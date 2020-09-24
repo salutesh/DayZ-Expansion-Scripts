@@ -13,8 +13,10 @@
 /**@class		MissionServer
  * @brief		
  **/
+
 modded class MissionServer
 {
+	ExpansionRespawnHandlerModule m_RespawnHandlerModule;
 	// ------------------------------------------------------------
 	// MissionServer Constructor
 	// ------------------------------------------------------------
@@ -24,6 +26,8 @@ modded class MissionServer
 		EXPrint("MissionServer::MissionServer - Start");
 		#endif
 
+		Class.CastTo(m_RespawnHandlerModule, GetModuleManager().GetModule(ExpansionRespawnHandlerModule));
+		
 		CreateDayZExpansion();
 
 		#ifdef EXPANSIONEXPRINT
@@ -135,262 +139,23 @@ modded class MissionServer
 		
 		super.PlayerDisconnected( player, identity, uid );
 	}
-
+	
 	// ------------------------------------------------------------
-	// Override EquipCharacter
+	// EquipCharacter
 	// ------------------------------------------------------------
 	override void EquipCharacter()
-	{
-		if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn().UseCustomClothing )
+	{	
+		Print("MissionServer::EquipCharacter - Start");
+		if (GetExpansionSettings().GetSpawn().StartingClothing.EnableCustomClothing)
 		{
-			if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn().StartingClothing != NULL )
-			{
-				ref ExpansionStartingClothing clothing = GetExpansionSettings().GetSpawn().StartingClothing;
-				if (clothing)
-				{
-					if (clothing.Headgear.Count() > 0)
-					{
-						if (clothing.Headgear.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Headgear.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Headgear.Get( Math.RandomIntInclusive( 0, clothing.Headgear.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Glasses.Count() > 0)
-					{
-						if (clothing.Glasses.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Glasses.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Glasses.Get( Math.RandomIntInclusive( 0, clothing.Glasses.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Masks.Count() > 0)
-					{
-						if (clothing.Masks.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Masks.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Masks.Get( Math.RandomIntInclusive( 0, clothing.Masks.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Tops.Count() > 0)
-					{
-						if (clothing.Tops.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Tops.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Tops.Get( Math.RandomIntInclusive( 0, clothing.Tops.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Vests.Count() > 0)
-					{
-						if (clothing.Vests.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Vests.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Vests.Get( Math.RandomIntInclusive( 0, clothing.Vests.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Gloves.Count() > 0)
-					{
-						if (clothing.Gloves.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Gloves.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Gloves.Get( Math.RandomIntInclusive( 0, clothing.Gloves.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Pants.Count() > 0)
-					{
-						if (clothing.Pants.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Pants.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Pants.Get( Math.RandomIntInclusive( 0, clothing.Pants.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Belts.Count() > 0)
-					{
-						if (clothing.Belts.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Belts.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Belts.Get( Math.RandomIntInclusive( 0, clothing.Belts.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Shoes.Count() > 0)
-					{
-						if (clothing.Shoes.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Shoes.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Shoes.Get( Math.RandomIntInclusive( 0, clothing.Shoes.Count() ) ) );
-						}
-					}
-					
-					if (clothing.Armbands.Count() > 0)
-					{
-						if (clothing.Armbands.Count() == 1)
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Armbands.Get( 0 ) );
-						}
-						else
-						{
-							m_player.GetInventory().CreateInInventory( clothing.Armbands.Get( Math.RandomIntInclusive( 0, clothing.Armbands.Count() ) ) );
-						}
-					}
-				}
-			}
-			
-			StartingEquipSetup(m_player, false);
+			Print("MissionServer::EquipCharacter - CUSTOM");
+			m_RespawnHandlerModule.ExpansionEquipCharacter(m_player);
 		}
 		else
 		{
-			EntityAI item;
-			EntityAI item2;
-			EntityAI item3;
-			
-			//! Creates clothes from DayZIntroScene's m_demoUnit
-			if ( m_top != -1 && m_bottom != -1 && m_shoes != -1 /*&& m_skin != -1*/ )
-			{
-				item = m_player.GetInventory().CreateInInventory( topsArray.Get( m_top ) );
-				item2 = m_player.GetInventory().CreateInInventory( pantsArray.Get( m_bottom ) );
-				item3 = m_player.GetInventory().CreateInInventory( shoesArray.Get( m_shoes ) );
-				
-				StartingEquipSetup(m_player, true);
-			}
-			//! Creates random starting clothes - fallback
-			else
-			{
-				item = m_player.GetInventory().CreateInInventory( topsArray.GetRandomElement() );
-				item2 = m_player.GetInventory().CreateInInventory( pantsArray.GetRandomElement() );
-				item3 = m_player.GetInventory().CreateInInventory( shoesArray.GetRandomElement() );
-				
-				StartingEquipSetup(m_player, false);
-			}
+			Print("MissionServer::EquipCharacter - VANILLA");
+			super.EquipCharacter();
 		}
-	}
-
-	// ------------------------------------------------------------
-	// SetStartingGear
-	// ------------------------------------------------------------
-	void SetStartingGear(PlayerBase player)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::SetStartingGear - Start");
-		#endif
-
-		int i;
-		
-		if ( GetExpansionSettings() && GetExpansionSettings().GetSpawn() )
-		{
-			ref ExpansionStartingGear gear = GetExpansionSettings().GetSpawn().StartingGear;
-			
-			if ( gear.UsingUpperGear && gear.UpperGear )
-			{
-				EntityAI itemTop = player.FindAttachmentBySlotName("Body");
-				
-				string classNameTop = itemTop.ClassName();
-				if ( classNameTop != "" )
-				{
-					GetGame().ObjectDelete( itemTop );
-					itemTop = player.GetInventory().CreateInInventory( classNameTop );
-				}
-				
-				if ( itemTop )
-				{
-					for ( i = 0; i < gear.UpperGear.Count(); i++ )
-					{
-						itemTop.GetInventory().CreateInInventory( gear.UpperGear[i] );
-					}
-				}
-			}
-			
-			if ( gear.UsingPantsGear && gear.PantsGear )
-			{
-				EntityAI itemPants = player.FindAttachmentBySlotName("Pants");
-				
-				string classNamePants = itemPants.ClassName();
-				if ( classNamePants != "" )
-				{
-					GetGame().ObjectDelete( itemTop );
-					itemPants = player.GetInventory().CreateInInventory( classNamePants );
-				}
-				
-				if ( itemPants )
-				{					
-					for ( i = 0; i < gear.PantsGear.Count(); i++ )
-					{
-						itemPants.GetInventory().CreateInInventory( gear.PantsGear[i] );
-					}
-				}
-			}
-			
-			if ( gear.UsingBackpackGear && gear.BackpackGear )
-			{
-				EntityAI itemBag = player.GetInventory().CreateInInventory( gear.SpawnBackpacks.GetRandomElement() );
-				if ( itemBag )
-				{					
-					for ( i = 0; i < gear.BackpackGear.Count(); i++ )
-					{
-						itemBag.GetInventory().CreateInInventory( gear.BackpackGear[i] );
-					}
-				}
-			}
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::SetStartingGear - End");
-		#endif
-	}
-	
-
-	// ------------------------------------------------------------
-	// Override HandleBody
-	// ------------------------------------------------------------
-	override void HandleBody(PlayerBase player)
-	{
-		player.SetAllowDamage(true);
-		
-		super.HandleBody(player);
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnClientRespawnEvent
-	// ------------------------------------------------------------
-	override void OnClientRespawnEvent(PlayerIdentity identity, PlayerBase player)
-	{
-		if (player)
-			player.SetAllowDamage(true);
-		
-		super.OnClientRespawnEvent(identity, player);
+		Print("MissionServer::EquipCharacter - End");
 	}
 }

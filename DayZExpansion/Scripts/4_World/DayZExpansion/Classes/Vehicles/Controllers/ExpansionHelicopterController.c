@@ -13,7 +13,7 @@
 /**@class		ExpansionHelicopterController
  * @brief		This class handle player controls to move helicopter
  **/
-class ExpansionHelicopterController: ExpansionController
+class ExpansionHelicopterController: ExpansionVehicleController
 {
 	private float m_CollectiveUp;
 	private float m_CollectiveDown;
@@ -80,16 +80,18 @@ class ExpansionHelicopterController: ExpansionController
 	{
 		m_CyclicForwardM = forward;
 		m_CyclicForwardK = forward;
+		m_CyclicBackwardM = backward;
+		m_CyclicBackwardK = backward;
 	}
 
 	float GetCyclicForward()
 	{
-		return m_CyclicForwardM + m_CyclicForwardK;
+		return (m_CyclicForwardM * GetExpansionClientSettings().HelicopterMouseVerticalSensitivity) + m_CyclicForwardK;
 	}
 
 	float GetCyclicBackward()
 	{
-		return m_CyclicBackwardM + m_CyclicBackwardK;
+		return (m_CyclicBackwardM * GetExpansionClientSettings().HelicopterMouseVerticalSensitivity) + m_CyclicBackwardK;
 	}
 
 	void SetCyclicX( float left, float right, float value )
@@ -102,12 +104,12 @@ class ExpansionHelicopterController: ExpansionController
 
 	float GetCyclicLeft()
 	{
-		return m_CyclicLeftM + m_CyclicLeftK;
+		return (m_CyclicLeftM * GetExpansionClientSettings().HelicopterMouseHorizontalSensitivity) + m_CyclicLeftK;
 	}
 
 	float GetCyclicRight()
 	{
-		return m_CyclicRightM + m_CyclicRightK;
+		return (m_CyclicRightM * GetExpansionClientSettings().HelicopterMouseHorizontalSensitivity) + m_CyclicRightK;
 	}
 
 	bool IsAutoHover()
@@ -136,15 +138,21 @@ class ExpansionHelicopterController: ExpansionController
 
 		if ( IsMissionClient() )
 		{
-			bool isFreelook = false;
-			GetInputValue( "UAExpansionHeliFreeLook", isFreelook );
-			if ( isFreelook && !m_WasFreeLookPressed )
+			if ( GetExpansionClientSettings().UseHelicopterMouseControl )
 			{
-				m_WasFreeLookPressed = true;
-				m_FreeLook = !m_FreeLook;
-			} else if ( !isFreelook )
-			{
-				m_WasFreeLookPressed = false;
+				bool isFreelook = false;
+				GetInputValue( "UAExpansionHeliFreeLook", isFreelook );
+
+				if ( isFreelook && !m_WasFreeLookPressed )
+				{
+					m_WasFreeLookPressed = true;
+					m_FreeLook = !m_FreeLook;
+				} else if ( !isFreelook )
+				{
+					m_WasFreeLookPressed = false;
+				}
+			} else {
+				m_FreeLook = true;
 			}
 		}
 
@@ -161,9 +169,9 @@ class ExpansionHelicopterController: ExpansionController
 		GetInputValue( "UAExpansionHeliCyclicLeft", m_CyclicLeftM );
 		GetInputValue( "UAExpansionHeliCyclicRight", m_CyclicRightM );
 
-		if ( !m_FreeLook )
+		if ( !m_FreeLook && GetExpansionClientSettings().UseHelicopterMouseControl )
 		{
-			if ( GetExpansionClientSettings().UseInvertedMouseControl )
+			if ( !GetExpansionClientSettings().UseInvertedMouseControl )
 			{
 				GetInputValue( "UAAimUp", m_CyclicForwardM );
 				GetInputValue( "UAAimDown", m_CyclicBackwardM );

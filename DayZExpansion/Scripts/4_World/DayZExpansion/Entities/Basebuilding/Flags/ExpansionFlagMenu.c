@@ -149,8 +149,10 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		string territoryName = m_TerritoryNameEditbox.GetText();
 		
 		//! Territory name cant be empty
-		if ( territoryName == "" )
+		if ( territoryName == "" || territoryName[0] == "!" )
 		{
+			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, player.GetIdentity() );
 			return;
 		}
 		
@@ -159,7 +161,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		#endif
 		
 		//! Call request of territory creation
-		if ( m_CurrentFlag && !m_CurrentFlag.IsTerritoryFlag() )
+		if ( m_CurrentFlag && !m_CurrentFlag.HasExpansionTerritoryInformation() )
 		{
 			ChangeFlag();
 			m_TerritoryModule.CreateTerritory( territoryName, m_CurrentFlag );
@@ -187,7 +189,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		if (!m_CurrentFlag)
 			return;
 		
-		if ( !m_CurrentFlag.IsTerritoryFlag() )
+		if ( !m_CurrentFlag.HasExpansionTerritoryInformation() )
 		{
 			if ( player.IsInTerritory() )
 			{

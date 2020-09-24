@@ -56,6 +56,7 @@ class ExpansionCOTAirdropModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateToggle( "ServerMarkerOnDropLocation", "Server Marker On Drop Location", "", "" );
+		CreateToggle( "Server3DMarkerOnDropLocation", "Server 3D Marker On Drop Location", "", "" );
 		CreateToggle( "ShowAirdropTypeOnMarker", "Show Airdrop Type On Marker", "", "" );
 	}
 

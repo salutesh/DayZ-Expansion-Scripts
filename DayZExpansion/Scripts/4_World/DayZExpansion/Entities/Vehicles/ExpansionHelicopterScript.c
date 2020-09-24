@@ -189,7 +189,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	}
 	
 	// ------------------------------------------------------------
-	override ExpansionController GetControllerInstance()
+	override ExpansionVehicleController GetControllerInstance()
 	{
 		return new ExpansionHelicopterController( this );
 	}
@@ -559,31 +559,51 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			return;
 
 		if ( IsMissionHost() )
-		{
-			#ifdef EXPANSION_HELI_EXPLOSION_HACK
-			//hack fix until someone smarter than me fixes helis randomly blowing up while parked. Sorry but this is needed! - not a banana
-			if ( !(GetOrientation()[1] > 8 && GetOrientation()[1] < 352 && GetOrientation()[2] > 8 && GetOrientation()[2] < 352) ) 
-				return;
-			#else // - well here is jacob now going to implement a proper fix.
-			#endif
-			
+		{			
 			vector transform[4];
 			GetTransform( transform );
-			vector upDir = vector.Up;
-			#ifdef EXPANSION_HELI_USE_CONTACT_NORMAL
-			upDir = extra.Normal;
-			#ifdef EXPANSION_HELI_USE_CONTACT_NORMAL_TEST
-			upDir = vector.Lerp( upDir, vector.Up, ( 1 - vector.Dot( upDir, vector.Up ) ) * 0.4 );
+
+			//! Unfortunately GetTransform[1] sometimes returns "0.7 -0.7 0" sometimes on flat terrain "0 1 0"
+			//! In game rendering does not show this behaviour and the helicopter appears to only translate, not rotate
+			//! This is possibly a DayZ SA/Enfusion bug but it will need more testing. May also be the cause for some
+			//! helicoper simulation weirdness when on the ground?
+			vector upDir = vector.Direction( GetPosition(), ModelToWorld( "0 1 0" ) );
+
+			#ifdef EXPANSION_HELI_CONTACT_NORMAL_DISABLE //! Should be enabled, quick disable if issues persist
+			vector contactUp = vector.Up;
+			#else
+			//! Find the contact normal from the position of the contact relative to the helicopter
+			vector contactUp = extra.Normal * -vector.Dot( vector.Up, vector.Direction( GetPosition(), extra.Position ).Normalized() );
+			contactUp.Normalize();
 			#endif
-			#endif
-			float dot = 1.0 - vector.Dot( transform[1], upDir );
-			if ( dot < 0.001 )
-				dot = 0.001;
+
+			float dot = Math.Clamp( 1.0 - vector.Dot( upDir, contactUp ), 0.0001, 1.0 );
 			const float maxVelocityMagnitude = 11.0; // ~40km/h
-			float impulseRequired = (maxVelocityMagnitude * m_BodyMass) / dot; 
+
+			//! Equation is f(x) = -1 + (0.8 / x))
+			//! After dot=0.8 the impulse required becomes negative
+			//! No need to clamp it unless we wanted a minimum impulse greater than 0, which we don't.
+			//! If the heli is upside down for whatever reason and is stationary it should still explode
+			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( -1.0 + ( 0.8 / dot ) ); 
+
+			//Print( impulseRequired );
+
+			if ( other ) //! check done just incase
+				impulseRequired += Math.Max( dBodyGetMass( other ), 0.0 ) * maxVelocityMagnitude * 2.0;
+
+			//Print( impulseRequired );
+			//Print( other );
+			//if ( other )
+			//	Print( dBodyGetMass( other ) );
+
+			//Print( extra.Impulse );
+
 			if ( extra.Impulse > impulseRequired )
 			{
-				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );  //! Maybe find a better solution for this?!
+				//Print( "Boom!" );
+				//! Maybe instead just tick damage down instead?
+				//! Should have a way to repair the helicopter then though
+				Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
 			}
 		}
 	}
@@ -1097,7 +1117,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			//! Angular Friction - more optimized to do in worldspace :)
 			{
 				vector t_friction;
-				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.5 + ( m_TailRotateFactor * 0.5 ) );
+				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.0 + ( m_TailRotateFactor * 0.5 ) );
 				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef;
 				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef;
 				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef;

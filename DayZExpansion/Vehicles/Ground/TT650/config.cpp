@@ -39,6 +39,8 @@ class CfgVehicles
 		mass = 80.0;
 		radius = 0.333;
 		width = 0.316;
+		tyreRollResistance = 0.015;
+		tyreTread = 1.0;
 	};
 	class ExpansionBikeScript;
 	class ExpansionTT650: ExpansionBikeScript
@@ -87,9 +89,9 @@ class CfgVehicles
 		{
 			class Steering
 			{
-				increaseSpeed[] = {0,45,60,23,100,12};
-				decreaseSpeed[] = {0,80,60,40,90,20};
-				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+				increaseSpeed[] = {3.0};
+				decreaseSpeed[] = {40.0};
+				centeringSpeed[] = {30.0};
 			};
 			class Throttle
 			{
@@ -103,20 +105,20 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
-				rpmIdle = 850;
-				rpmMin = 900;
-				rpmClutch = 1350;
-				rpmRedline = 6000;
-				rpmMax = 8000;
+				torqueMax = 130;
+				torqueRpm = 3700;
+				powerMax = 80;
+				powerRpm = 3500;
+				rpmIdle = 650;
+				rpmMin = 700;
+				rpmClutch = 1500;
+				rpmRedline = 4000;
+				rpmMax = 5000;
 			};
 			class Gearbox
 			{
-				reverse = 3.526;
-				ratios[] = {3.667,2.1,1.361,1.0};
+				reverse = 3.51;
+				ratios[] = {3.5,2.26,1.45,1.0};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
@@ -136,7 +138,7 @@ class CfgVehicles
 						swayBar = 0;
 						stiffness = 15000;
 						compression = 3100;
-						damping = 4700;
+						damping = 5700;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -149,6 +151,8 @@ class CfgVehicles
 							animRotation = "wheelfront";
 							animDamper = "damper_1";
 							wheelHub = "wheel_1_damper_land";
+							axis_start = "suspension_1_start";
+							axis_end = "suspension_1_end";
 						};
 					};
 				};
@@ -165,7 +169,7 @@ class CfgVehicles
 						swayBar = 0;
 						stiffness = 15000;
 						compression = 3000;
-						damping = 4500;
+						damping = 5500;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -189,9 +193,22 @@ class CfgVehicles
 			{
 				source = "user";
 				initPhase = 0;
-				animPeriod = 1e-05;
+				animPeriod = 1e-06;
 			};
 			class Damper_2: Damper_1{};
+			class wheelfront
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-06;
+			};
+			class wheelback: wheelfront{};
+			class steeringwheel
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1e-06;
+			};
 		};
 	};
 };

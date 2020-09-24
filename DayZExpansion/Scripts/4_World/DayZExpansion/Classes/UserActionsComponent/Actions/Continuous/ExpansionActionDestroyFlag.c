@@ -1,5 +1,5 @@
  /**
- * ActionDestroyFlag.c
+ * ExpansionActionDestroyFlag.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ActionDestroyFlagCB : ActionContinuousBaseCB
+class ExpansionActionDestroyFlagCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
@@ -18,14 +18,14 @@ class ActionDestroyFlagCB : ActionContinuousBaseCB
 	}
 };
 
-class ActionDestroyFlag: ActionContinuousBase
+class ExpansionActionDestroyFlag: ActionContinuousBase
 {
 	float m_DamageAmount;
 	string m_SlotName;
 	
-	void ActionDestroyFlag()
+	void ExpansionActionDestroyFlag()
 	{
-		m_CallbackClass = ActionDestroyFlagCB;
+		m_CallbackClass = ExpansionActionDestroyFlagCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_INTERACT;
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT;
@@ -47,7 +47,7 @@ class ActionDestroyFlag: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !GetExpansionSettings().GetBaseBuilding().CanDismantleFlag || !GetExpansionSettings().GetBaseBuilding().AddFlagItem )
+		if ( !GetExpansionSettings().GetBaseBuilding().SimpleTerritory || !GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
 			return false;
 
 		Object targetObject = target.GetObject();
@@ -57,11 +57,14 @@ class ActionDestroyFlag: ActionContinuousBase
 			BaseBuildingBase base_building = BaseBuildingBase.Cast( targetObject );
 
 			float state = base_building.GetAnimationPhase("flag_mast");
-			if ( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) && state >= 0.99 )
+
+			//! If the flag exists, allow the destruction of it
+			if ( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) && state >= 0.01 )
 			{
 				return true;
-			}				
+			}
 		}
+
 		return false;
 	}
 		
@@ -70,7 +73,8 @@ class ActionDestroyFlag: ActionContinuousBase
 		BaseBuildingBase base_building = BaseBuildingBase.Cast( action_data.m_Target.GetObject() );
 		Flag_Base flag = Flag_Base.Cast( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) );
 		
-		flag.Delete();
+		if ( flag )
+			flag.Delete();
 		
 		action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );
 	}

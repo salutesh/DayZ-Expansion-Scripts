@@ -1,5 +1,5 @@
 /**
- * ActionDestroyTerritory.c
+ * ExpansionActionDestroyTerritory.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ActionDestroyTerritoryCB : ActionContinuousBaseCB
+class ExpansionActionDestroyTerritoryCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
@@ -23,21 +23,23 @@ class ActionDestroyTerritoryCB : ActionContinuousBaseCB
 		switch( item.Type() )
 		{
 			case SledgeHammer:
-				return UATimeSpent.BASEBUILDING_DECONSTRUCT_SLOW;
+				return 10;
 			case Shovel:
-				return 30;
+				return 20;
 			case Hacksaw:
-				return UATimeSpent.BASEBUILDING_DECONSTRUCT_SLOW;
+				return 20;
+			case HandSaw:
+				return 20;
 		}
 		return UATimeSpent.BASEBUILDING_DECONSTRUCT_SLOW;
 	}
 };
 
-class ActionDestroyTerritory: ActionContinuousBase
+class ExpansionActionDestroyTerritory: ActionContinuousBase
 {
-	void ActionDestroyTerritory()
+	void ExpansionActionDestroyTerritory()
 	{
-		m_CallbackClass = ActionDestroyTerritoryCB;
+		m_CallbackClass = ExpansionActionDestroyTerritoryCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_DISASSEMBLE;
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT;	
@@ -70,7 +72,7 @@ class ActionDestroyTerritory: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !GetExpansionSettings().GetBaseBuilding().CanDismantleFlag )
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools != 1 )
 			return false;
 			
 		return DismantleCondition( player, target, item, true ) && player.m_MovementState.m_iStanceIdx != DayZPlayerConstants.STANCEIDX_PRONE;
@@ -79,7 +81,7 @@ class ActionDestroyTerritory: ActionContinuousBase
 	override bool ActionConditionContinue( ActionData action_data )
 	{	
 		return DismantleCondition( action_data.m_Player, action_data.m_Target, action_data.m_MainItem , false ) && action_data.m_Player.m_MovementState.m_iStanceIdx != DayZPlayerConstants.STANCEIDX_PRONE;
-	}	
+	}
 	
 	override void OnFinishProgressServer( ActionData action_data )
 	{	
@@ -87,9 +89,17 @@ class ActionDestroyTerritory: ActionContinuousBase
 		Construction construction = base_building.GetConstruction();
 		ConstructionActionData construction_action_data = action_data.m_Player.GetConstructionActionData();
 		ConstructionPart construction_part = construction_action_data.GetTargetPart();
-		
+
 		if ( construction.CanDismantlePart( construction_part.GetPartName(), action_data.m_MainItem ) )
 		{
+			if ( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) )
+			{
+				Flag_Base flag = Flag_Base.Cast( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) );
+				
+				if ( flag )
+					flag.Delete();
+			}
+
 			construction.DestroyPartServer( action_data.m_Player, construction_part.GetPartName(), AT_DESTROY_PART );
 			
 			//add damage to tool
@@ -105,7 +115,6 @@ class ActionDestroyTerritory: ActionContinuousBase
 		if( super.SetupAction( player, target, item, action_data, extra_data ) )
 		{
 			SetBuildingAnimation( item );
-			
 			return true;
 		}
 		
@@ -114,7 +123,7 @@ class ActionDestroyTerritory: ActionContinuousBase
 	
 	protected void SetBuildingAnimation( ItemBase item )
 	{
-		switch( item.Type() )
+		switch ( item.Type() )
 		{
 			case Shovel:
 				m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_DIG;
@@ -131,46 +140,21 @@ class ActionDestroyTerritory: ActionContinuousBase
 		{
 			Object target_object = target.GetObject();
 			EntityAI target_entity;
+
 			if ( target_object && target_object.CanUseConstruction() )
-			{
-				//! If the territory still have the flag, won't work. The player need to shred the flag first with a knife
-				if ( Class.CastTo(target_entity,target_object) && target_entity.FindAttachmentBySlotName("Material_FPole_Flag") )
-					return false;
-				
+			{				
 				string part_name = target_object.GetActionComponentName( target.GetComponentIndex() );
 				
 				BaseBuildingBase base_building = BaseBuildingBase.Cast( target_object );
 				Construction construction = base_building.GetConstruction();		
 				ConstructionPart construction_part = construction.GetConstructionPartToDismantle( part_name, item );
-				
+
 				if ( construction_part )
-				{					
-					//invalid on gate if the gate is opened
-					if ( construction_part.IsGate() && base_building.IsOpened() )
-						return false;
-					
+				{
 					//camera and position checks
 					bool checked = false;
 					
-					if ( construction_part.IsBase() )
-						checked = true;
-					
-					if ( !checked && base_building.IsPlayerInside( player, part_name ) && !player.GetInputController().CameraIsFreeLook() )
-					{
-						//Camera check (client-only)
-						if ( camera_check )
-						{
-							if ( GetGame() && ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) )
-							{
-								if ( base_building.IsFacingCamera( part_name ) )
-								{
-									//return false;
-								}
-							}
-						}
-						checked = true;
-					}
-					if ( checked )
+					if ( !checked && !player.GetInputController().CameraIsFreeLook() )
 					{
 						ConstructionActionData construction_action_data = player.GetConstructionActionData();
 						construction_action_data.SetTargetPart( construction_part );

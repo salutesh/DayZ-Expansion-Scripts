@@ -32,6 +32,7 @@ class ExpansionVehicleAnimInstances
 	// Bikes
 	static int EXPANSION_TT650 = 11;
 	static int EXPANSION_N250 = 12;
+	static int EXPANSION_OLDBIKE = 14;
 
 	// Helicopters
 	static int EXPANSION_MH6 = 10;

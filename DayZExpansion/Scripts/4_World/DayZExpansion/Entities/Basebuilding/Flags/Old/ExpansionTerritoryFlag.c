@@ -99,9 +99,9 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion IsTerritoryFlag
+	// Expansion HasExpansionTerritoryInformation
 	// ------------------------------------------------------------
-	override bool IsTerritoryFlag()
+	override bool HasExpansionTerritoryInformation()
 	{
 		return true;
 	}

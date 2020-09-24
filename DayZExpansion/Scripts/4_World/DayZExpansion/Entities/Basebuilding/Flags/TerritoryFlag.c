@@ -25,8 +25,7 @@ modded class TerritoryFlag
 	protected int m_TerritoryID;						//! Unique terriotry id. Used to get and identify the flags territory in the territory module.
 	protected autoptr ExpansionTerritory m_Territory;	//! Contains flags ExpansionTerritoryx data if flag is a expansion territory flag.
 	protected bool m_IsTerritory = false;				//! Used to check if flag is a expansion territory flag.
-	protected bool m_RecivedFlag = false;				//! Used to check if flag recived a flag item already when Expansion base building setting "AddFlagItem" is enabled.
-	
+
 	// ------------------------------------------------------------
 	// TerritoryFlag Constructor
 	// ------------------------------------------------------------
@@ -43,7 +42,6 @@ modded class TerritoryFlag
 		
 		RegisterNetSyncVariableInt( "m_TerritoryID" );
 		RegisterNetSyncVariableBool( "m_IsTerritory" );
-		RegisterNetSyncVariableBool( "m_RecivedFlag" );
 		
 		//SetEventMask( EntityEvent.INIT );
 		
@@ -66,11 +64,11 @@ modded class TerritoryFlag
 	override bool CanDisplayAttachmentCategory( string category_name )
 	{
 		if ( category_name == "Base" && !HasBase() )
-			return !GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding;
+			return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 		else if ( category_name == "Support" && HasBase() && !GetConstruction().IsPartConstructed("support") )
-			return !GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding;
+			return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 		else if ( category_name == "Pole" && GetConstruction().IsPartConstructed("support") && !GetConstruction().IsPartConstructed("pole") )
-			return !GetExpansionSettings().GetBaseBuilding().EnableSimpleFlagBuilding;
+			return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 		else if ( category_name == "Flag" && GetConstruction().IsPartConstructed("pole") )
 			return !GetExpansionSettings().GetBaseBuilding().EnableFlagMenu;
 		else
@@ -132,13 +130,14 @@ modded class TerritoryFlag
 	{
 		super.SetActions();
 		
-		AddAction(ExpansionActionEnterFlagMenu);
+		AddAction( ExpansionActionEnterFlagMenu );
+		AddAction( ExpansionActionDismantleFlag );
 	}
 	
 	// ------------------------------------------------------------
-	// TerritoryFlag IsTerritoryFlag
+	// TerritoryFlag HasExpansionTerritoryInformation
 	// ------------------------------------------------------------
-	bool IsTerritoryFlag()
+	bool HasExpansionTerritoryInformation()
 	{
 		return m_IsTerritory;
 	}
@@ -208,7 +207,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// TerritoryFlag SetOwnerID
 	// ------------------------------------------------------------
-	void SetOwnerID(string id)
+	void SetOwnerID( string id )
 	{
 		m_OwnerID = id;
 		
@@ -231,9 +230,7 @@ modded class TerritoryFlag
 			ctx.Write( m_OwnerID );
 			ctx.Write( m_TerritoryID );		
 			
-			m_Territory.OnStoreSave(ctx);
-			
-			ctx.Write( m_RecivedFlag );
+			m_Territory.OnStoreSave( ctx );
 		}
 	}
 	
@@ -250,8 +247,8 @@ modded class TerritoryFlag
 			if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 				return false;
 			
-			SetFlagTexture(m_FlagTexturePath);
-			//AnimateFlag(1 - GetRefresherTime01());
+			SetFlagTexture( m_FlagTexturePath );
+			//AnimateFlag( 1 - GetRefresherTime01() );
 			
 			if ( Expansion_Assert_False( ctx.Read( m_OwnerID ), "[" + this + "] Failed reading m_OwnerID" ) )
 				return false;
@@ -262,8 +259,12 @@ modded class TerritoryFlag
 			if ( !m_Territory.OnStoreLoad( ctx, GetExpansionSaveVersion() ) )
 				return false;
 			
-			if ( Expansion_Assert_False( ctx.Read( m_RecivedFlag ), "[" + this + "] Failed reading m_RecivedFlag" ) )
-				return false;
+			if ( version <= 11 )
+			{
+				bool tempRecieved;
+				if ( Expansion_Assert_False( ctx.Read( tempRecieved ), "[" + this + "] Failed reading tempRecieved (version <= 11)" ) )
+					return false;
+			}
 			
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("TerritoryFlag::OnStoreLoad:: - Loaded data for object <" + this.ToString() +  ">: [m_FlagTexturePath: " + m_FlagTexturePath + ", m_OwnerID: " + m_OwnerID + "]");
@@ -320,9 +321,7 @@ modded class TerritoryFlag
 		super.AfterStoreLoad();
 				
 		if ( m_Territory && m_IsTerritory )
-		{
 			m_TerritoryModule.AddTerritoryFlag( this, m_Territory.GetTerritoryID() );
-		}
 		
 		SetSynchDirty();
 	}
@@ -335,9 +334,7 @@ modded class TerritoryFlag
 		super.EEDelete( parent );
 		
 		if ( m_Territory && m_TerritoryID > -1 && GetGame() && m_TerritoryModule )
-		{
 			m_TerritoryModule.Exec_DeleteTerritoryAdmin( m_TerritoryID, null );
-		}
 	}
 	
 	// ------------------------------------------------------------
@@ -350,10 +347,8 @@ modded class TerritoryFlag
 		EXLogPrint( "TerritoryFlag::OnPartBuiltServer - part_name: " + part_name );
 		#endif
 		
-		if (GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild)
-		{
+		if ( GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild )
 			super.OnPartBuiltServer(part_name, action_id);
-		}
 		else
 		{
 			ConstructionPart constrution_part = GetConstruction().GetConstructionPart( part_name );
@@ -383,40 +378,16 @@ modded class TerritoryFlag
 			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( ResetActionSyncData, 100, false, this );
 		}
 				
-		if ( GetExpansionSettings().GetBaseBuilding().AddFlagItem ) 
-		{
-			if ( part_name == "pole" )
+		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && part_name == "pole" ) 
+		{		
+			if ( !FindAttachmentBySlotName("Material_FPole_Flag") )
 			{
-				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-				EXLogPrint( "TerritoryFlag::OnPartBuiltServer - Constructed part_name: " + part_name );
-				#endif
-				
-				if ( m_RecivedFlag )
-				{
-					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-					EXLogPrint( "TerritoryFlag::OnPartBuiltServer - Already recived flag item once! Dont continue." );
-					#endif
-					return;
-				}
-				
-				if ( !FindAttachmentBySlotName("Material_FPole_Flag") )
-				{
-					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-					EXLogPrint( "TerritoryFlag::OnPartBuiltServer - Constructed part_name " + part_name + " and no flag item attached!" );
-					#endif
+				Flag_DayZ flag = Flag_DayZ.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
+				if ( flag )
+				{						
+					m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
 					
-					Flag_DayZ flag = Flag_DayZ.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
-					if ( flag )
-					{
-						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-						EXLogPrint("TerritoryFlag::OnPartBuiltServer - Flag: " + flag.ToString());
-						#endif
-						
-						m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
-						
-						flag.SetFlagTexture( m_FlagTexturePath );
-						m_RecivedFlag = true;
-					}
+					flag.SetFlagTexture( m_FlagTexturePath );
 				}
 			}
 		}
@@ -443,7 +414,7 @@ modded class TerritoryFlag
 		EXLogPrint( "TerritoryFlag::CanReleaseAttachment - Attachment Type: " + attachment.GetType() );
 		#endif
 		
-		if ( GetExpansionSettings().GetBaseBuilding().AddFlagItem && GetExpansionSettings().GetBaseBuilding().EnableFlagMenu )
+		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && GetExpansionSettings().GetBaseBuilding().EnableFlagMenu )
 		{	
 			if ( attachment.IsInherited( Flag_Base ) )
 			{

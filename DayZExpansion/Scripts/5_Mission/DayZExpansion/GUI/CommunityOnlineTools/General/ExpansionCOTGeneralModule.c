@@ -56,26 +56,30 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateToggle( "PlayerLocationNotifier", "Player Location", "", "" );
+
 		CreateToggle( "EnableGlobalChat", "Globalchat", "", "" );
 		CreateToggle( "EnablePartyChat", "Partychat", "", "" );
 		CreateToggle( "EnableTransportChat", "TransportChat", "", "" );
+
 		CreateToggle( "EnableGravecross", "Gravecross", "", "" );
 		CreateToggle( "GravecrossDeleteBody", "Delete Body On Gravecross", "", "" );
 		CreateSlider( "GravecrossTimeThreshold", "Gravecross Threshold", "", "", 0.0, 2000.0, 60.0 );
+
 		array< string > lamp_types = { "Disable", "Generators", "Always On", "Always On Everywhere" };
 		CreateEnum( "EnableLamps", lamp_types, "Lamps", "", "" );
 		CreateToggle( "EnableGenerators", "Generators", "", "" );
 		CreateToggle( "EnableLighthouses", "Lighthouses", "", "" );
-		CreateToggle( "EnableHUDGPS", "GPS on HUD", "", "" );
-		CreateToggle( "NeedGPSItemForKeyBinding", "Need GPS Item Keybinding", "", "" );
-		CreateToggle( "NeedMapItemForKeyBinding", "Need Map Item Keybinding", "", "" );
+		
 		CreateToggle( "EnableHUDNightvisionOverlay", "Nightvision HUD Overlay", "", "" );
 		CreateToggle( "DisableMagicCrosshair", "DayZ SA Alpha Aiming", "", "" );
+
 		CreateToggle( "EnablePlayerTags", "Player Tags", "", "" );
 		CreateSlider( "PlayerTagViewRange", "Player Tag View Range", "", "", 0.0, 100.0, 1.0 );
+
 		CreateToggle( "EnablePlayerList", "Player List", "", "" );
 		CreateToggle( "EnableAutoRun", "Auto Run", "", "" );
 		CreateToggle( "UnlimitedStamina", "Unlimited Stamina", "", "" );
+
 		CreateToggle( "UseCustomMappingModule", "Use CustomMapping Module", "", "" );
 		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
 		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );

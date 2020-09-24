@@ -169,7 +169,6 @@ static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors
 //! On Client Only
 static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.bin";
 static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.bin";
-static const string EXPANSION_CLIENT_MARKERS_OLD = EXPANSION_FOLDER + "markers.json";
 
 /**
  * InGame Menu
@@ -284,34 +283,6 @@ static const string EXPANSION_NOTIFICATION_ICON_3D_OFF = "DayZExpansion\\GUI\\ic
 static const string EXPANSION_NOTIFICATION_ICON_2D_ON = "DayZExpansion\\GUI\\icons\\hud\\2D_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_2D_OFF = "DayZExpansion\\GUI\\icons\\hud\\2D_off_64x64.edds";
 
-static const string EXPANSION_FLAG_DAYZ_CHERNARUS = "dz\\gear\\camping\\Data\\Flag_Chern_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CHEDAKI = "dz\\gear\\camping\\Data\\Flag_Ched_co.paa";
-static const string EXPANSION_FLAG_DAYZ_NAPA = "dz\\gear\\camping\\Data\\Flag_NAPA_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CDF = "dz\\gear\\camping\\Data\\Flag_CDF_co.paa";
-static const string EXPANSION_FLAG_DAYZ_LIVONIA = "dz\\gear\\camping\\Data\\Flag_Livo_co.paa";
-static const string EXPANSION_FLAG_DAYZ_ALTIS = "dz\\gear\\camping\\Data\\Flag_Alti_co.paa";
-static const string EXPANSION_FLAG_DAYZ_SSAHRANI = "dz\\gear\\camping\\Data\\Flag_KoS_co.paa";
-static const string EXPANSION_FLAG_DAYZ_NSAHRANI = "dz\\gear\\camping\\Data\\Flag_DRoS_co.paa";
-static const string EXPANSION_FLAG_DAYZ_DAYZ = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
-static const string EXPANSION_FLAG_DAYZ_LIVONIA_ARMY = "dz\\gear\\camping\\Data\\Flag_LDF_co.paa";
-static const string EXPANSION_FLAG_DAYZ_WHITE = "dz\\gear\\camping\\Data\\Flag_white_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BOHEMIA = "dz\\gear\\camping\\Data\\Flag_BI_co.paa";
-static const string EXPANSION_FLAG_DAYZ_APA = "dz\\gear\\camping\\Data\\Flag_APA_co.paa";
-static const string EXPANSION_FLAG_DAYZ_UEC = "dz\\gear\\camping\\Data\\Flag_UEC_co.paa";
-static const string EXPANSION_FLAG_DAYZ_PIRATES = "dz\\gear\\camping\\Data\\Flag_jolly_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CANNIBALS = "dz\\gear\\camping\\Data\\Flag_jolly_c_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BEAR = "dz\\gear\\camping\\Data\\Flag_bear_co.paa";
-static const string EXPANSION_FLAG_DAYZ_WOLF = "dz\\gear\\camping\\Data\\Flag_wolf_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BABY_DEER = "dz\\gear\\camping\\Data\\Flag_Fawn_co.paa";
-static const string EXPANSION_FLAG_DAYZ_ROOSTER = "dz\\gear\\camping\\Data\\Flag_cock_co.paa";
-static const string EXPANSION_FLAG_DAYZ_LIVONIA_POLICE = "dz\\gear\\camping\\Data\\Flag_police_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CMC = "dz\\gear\\camping\\Data\\Flag_CMC_co.paa";
-static const string EXPANSION_FLAG_DAYZ_TEC = "dz\\gear\\camping\\Data\\Flag_TEC_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CHEL = "dz\\gear\\camping\\Data\\Flag_CHEL_co.paa";
-static const string EXPANSION_FLAG_DAYZ_ZENIT = "dz\\gear\\camping\\Data\\Flag_Zenit_co.paa";
-static const string EXPANSION_FLAG_DAYZ_HUNTERZ = "dz\\gear\\camping\\Data\\Flag_zhunters_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BRAINZ = "dz\\gear\\camping\\Data\\Flag_brain_co.paa";
-
 //! Newer icons
 static const string EXPANSION_NOTIFICATION_ICON_T_Animal_Skull = "DayZExpansion\\GUI\\icons\\misc\\T_Animal_Skull_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Apple = "DayZExpansion\\GUI\\icons\\misc\\T_Apple_256x256.edds";
@@ -415,10 +386,41 @@ static const string EXPANSION_NOTIFICATION_ICON_T_WaterJug = "DayZExpansion\\GUI
 static const string EXPANSION_NOTIFICATION_ICON_T_WildPork = "DayZExpansion\\GUI\\icons\\misc\\T_WildPork_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Worms = "DayZExpansion\\GUI\\icons\\misc\\T_Worms_256x256.edds";
 
+
 /**
  * Expansion Flags texture paths
  * @{
  */
+//! Vanilla flags
+static const string EXPANSION_FLAG_DAYZ_CHERNARUS = "dz\\gear\\camping\\Data\\Flag_Chern_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CHEDAKI = "dz\\gear\\camping\\Data\\Flag_Ched_co.paa";
+static const string EXPANSION_FLAG_DAYZ_NAPA = "dz\\gear\\camping\\Data\\Flag_NAPA_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CDF = "dz\\gear\\camping\\Data\\Flag_CDF_co.paa";
+static const string EXPANSION_FLAG_DAYZ_LIVONIA = "dz\\gear\\camping\\Data\\Flag_Livo_co.paa";
+static const string EXPANSION_FLAG_DAYZ_ALTIS = "dz\\gear\\camping\\Data\\Flag_Alti_co.paa";
+static const string EXPANSION_FLAG_DAYZ_SSAHRANI = "dz\\gear\\camping\\Data\\Flag_KoS_co.paa";
+static const string EXPANSION_FLAG_DAYZ_NSAHRANI = "dz\\gear\\camping\\Data\\Flag_DRoS_co.paa";
+static const string EXPANSION_FLAG_DAYZ_DAYZ = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
+static const string EXPANSION_FLAG_DAYZ_LIVONIA_ARMY = "dz\\gear\\camping\\Data\\Flag_LDF_co.paa";
+static const string EXPANSION_FLAG_DAYZ_WHITE = "dz\\gear\\camping\\Data\\Flag_white_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BOHEMIA = "dz\\gear\\camping\\Data\\Flag_BI_co.paa";
+static const string EXPANSION_FLAG_DAYZ_APA = "dz\\gear\\camping\\Data\\Flag_APA_co.paa";
+static const string EXPANSION_FLAG_DAYZ_UEC = "dz\\gear\\camping\\Data\\Flag_UEC_co.paa";
+static const string EXPANSION_FLAG_DAYZ_PIRATES = "dz\\gear\\camping\\Data\\Flag_jolly_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CANNIBALS = "dz\\gear\\camping\\Data\\Flag_jolly_c_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BEAR = "dz\\gear\\camping\\Data\\Flag_bear_co.paa";
+static const string EXPANSION_FLAG_DAYZ_WOLF = "dz\\gear\\camping\\Data\\Flag_wolf_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BABY_DEER = "dz\\gear\\camping\\Data\\Flag_Fawn_co.paa";
+static const string EXPANSION_FLAG_DAYZ_ROOSTER = "dz\\gear\\camping\\Data\\Flag_cock_co.paa";
+static const string EXPANSION_FLAG_DAYZ_LIVONIA_POLICE = "dz\\gear\\camping\\Data\\Flag_police_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CMC = "dz\\gear\\camping\\Data\\Flag_CMC_co.paa";
+static const string EXPANSION_FLAG_DAYZ_TEC = "dz\\gear\\camping\\Data\\Flag_TEC_co.paa";
+static const string EXPANSION_FLAG_DAYZ_CHEL = "dz\\gear\\camping\\Data\\Flag_CHEL_co.paa";
+static const string EXPANSION_FLAG_DAYZ_ZENIT = "dz\\gear\\camping\\Data\\Flag_Zenit_co.paa";
+static const string EXPANSION_FLAG_DAYZ_HUNTERZ = "dz\\gear\\camping\\Data\\Flag_zhunters_co.paa";
+static const string EXPANSION_FLAG_DAYZ_BRAINZ = "dz\\gear\\camping\\Data\\Flag_brain_co.paa";
+
+//! Expansion flags
 static const string EXPANSION_FLAG_LOGO_EXPANSION = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_expansion_co.paa";
 static const string EXPANSION_FLAG_COLOR_WHITE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_white_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_AUSTRALIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_australia_co.paa";
@@ -486,8 +488,8 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 11;
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 11;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 13;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 
 /**
@@ -500,6 +502,7 @@ static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_HELICOPTER = 10;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_PLANE = 15;
 
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_WHEELS = 20;
+static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_ENGINE = 25;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_WINGS = 30;
 
 static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER = 40;
@@ -543,6 +546,9 @@ static void Expansion_SetupDebugger()
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_BASEBUILDING );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_AI );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
+	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_ENGINE );
 
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_AI );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
 }

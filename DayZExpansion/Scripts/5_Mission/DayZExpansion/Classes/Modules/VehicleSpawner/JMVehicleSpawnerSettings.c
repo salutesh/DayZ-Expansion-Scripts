@@ -52,6 +52,7 @@ modded class JMVehicleSpawnerSettings
 		//DefaultExpansionQuadATV();
 		DefaultExpansionTT650();
 		DefaultExpansion250N();
+		DefaultExpansionOldBike();
 
 		//! Testing only
 		DefaultExpansionCivilianSedanTest();
@@ -582,6 +583,22 @@ modded class JMVehicleSpawnerSettings
 		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Expansion250N";
+		file.m_FileName = file.VehicleName;
+		file.Parts = attArr;
+
+		Vehicles.Insert( file.VehicleName, file );
+	}
+
+	void DefaultExpansionOldBike()
+	{
+		ref array< string> attArr = new array< string>;
+
+		attArr.Insert("ExpansionOldBikeWheel");
+		attArr.Insert("ExpansionOldBikeWheel");
+
+		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+
+		file.VehicleName = "ExpansionOldBike";
 		file.m_FileName = file.VehicleName;
 		file.Parts = attArr;
 

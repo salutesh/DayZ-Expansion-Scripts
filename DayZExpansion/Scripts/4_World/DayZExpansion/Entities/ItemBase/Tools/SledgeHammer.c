@@ -15,6 +15,6 @@ modded class SledgeHammer
 	override void SetActions()
 	{
 		super.SetActions();
-		AddAction(ActionDestroyTerritory);
+		AddAction( ExpansionActionDestroyTerritory );
 	}
 }

@@ -43,7 +43,7 @@ class ExpansionReplaceTerritoryWithNewLambda : TurnItemIntoItemLambda
 		TerritoryFlag new_flag;
 		if ( Class.CastTo( new_flag, new_item ) )
 		{
-			if ( old_flag_base.IsTerritoryFlag() )
+			if ( old_flag_base.HasExpansionTerritoryInformation() )
 			{
 				new_flag.SetTerritory( territory );
 				new_flag.SetTerritoryID( id );

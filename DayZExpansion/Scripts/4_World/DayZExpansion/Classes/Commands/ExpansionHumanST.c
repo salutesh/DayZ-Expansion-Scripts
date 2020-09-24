@@ -35,6 +35,12 @@ class ExpansionHumanST
 	private int m_EVT_LandEarlyExit;
 
 	private int m_VAR_VehicleType;
+	private int m_VAR_VehicleSteering;
+	private int m_VAR_VehicleThrottle;
+	private int m_VAR_VehicleClutch;
+	private int m_VAR_VehicleBrake;
+	private int m_VAR_VehicleAccelerationFB;
+	private int m_VAR_VehicleAccelerationLR;
 
 	private int m_VAR_Look;
 	private int m_VAR_LookDirX;
@@ -70,6 +76,12 @@ class ExpansionHumanST
 		m_EVT_LandEarlyExit = hai.BindEvent( "LandEarlyExit" );
 
 		m_VAR_VehicleType = hai.BindVariableInt( "VehicleType" );
+		m_VAR_VehicleSteering = hai.BindVariableFloat( "VehicleSteering" );
+		m_VAR_VehicleThrottle = hai.BindVariableFloat( "VehicleThrottle" );
+		m_VAR_VehicleClutch = hai.BindVariableFloat( "VehicleClutch" );
+		m_VAR_VehicleBrake = hai.BindVariableBool( "VehicleBrake" );
+		m_VAR_VehicleAccelerationFB = hai.BindVariableFloat( "VehicleAccelerationFB" );
+		m_VAR_VehicleAccelerationLR = hai.BindVariableFloat( "VehicleAccelerationLR" );
 
 		m_VAR_Look = hai.BindVariableBool( "Look" );
 		m_VAR_LookDirX = hai.BindVariableFloat( "LookDirX" );
@@ -162,6 +174,36 @@ class ExpansionHumanST
 	void SetVehicleType( HumanCommandScript script, int param )
 	{
 		script.PreAnim_SetInt( m_VAR_VehicleType, param );
+	}
+
+	void SetVehicleSteering( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_VehicleSteering, param );
+	}
+
+	void SetVehicleThrottle( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_VehicleThrottle, param );
+	}
+	
+	void SetVehicleClutch( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_VehicleClutch, param );
+	}
+	
+	void SetVehicleBrake( HumanCommandScript script, bool param )
+	{
+		script.PreAnim_SetBool( m_VAR_VehicleBrake, param );
+	}
+	
+	void SetVehicleAccelerationFB( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_VehicleAccelerationFB, param );
+	}
+	
+	void SetVehicleAccelerationLR( HumanCommandScript script, float param )
+	{
+		script.PreAnim_SetFloat( m_VAR_VehicleAccelerationLR, param );
 	}
 
 	void SetLook( HumanCommandScript script, bool param )

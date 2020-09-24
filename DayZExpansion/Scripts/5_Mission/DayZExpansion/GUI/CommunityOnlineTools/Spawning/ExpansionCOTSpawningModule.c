@@ -55,13 +55,11 @@ class ExpansionCOTSpawningModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{
-		/*array< string > values_SpawningRequireKeyToStart = { "NO", "YES" };
-		CreateEnum( "SpawningRequireKeyToStart", values_SpawningRequireKeyToStart, "Requires Key To Start", "", "" );
-		CreateToggle( "SpawningRequireAllDoors", "Key Requires All Doors", "", "" );
-		CreateToggle( "SpawningLockedAllowInventoryAccess", "Access Locked Inventory", "", "" );
-		CreateToggle( "SpawningLockedAllowInventoryAccessWithoutDoors", "Access Locked Inventory w/o Doors", "", "" );
-		CreateToggle( "EnableWindAerodynamics", "Wind Aerodynamics", "", "" );
-		CreateToggle( "EnableTailRotorDamage", "Tail Rotor Damage", "", "" );*/
+		CreateToggle( "StartingClothing.UseCustomClothing", "Use custom starting clothing on respawn", "", "" );
+		CreateToggle( "StartingGear.UseStartingGear", "Use custom starting gear on respawn", "", "" );
+		CreateToggle( "StartingGear.UsingUpperGear", "Using upper gear", "", "" );
+		CreateToggle( "StartingGear.UsingPantsGear", "Using pants gear", "", "" );
+		CreateToggle( "StartingGear.UsingBackpackGear", "Using backpack gear", "", "" );
 	}
 
 	override int GetRPCMin()

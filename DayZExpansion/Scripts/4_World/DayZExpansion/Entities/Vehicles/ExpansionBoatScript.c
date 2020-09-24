@@ -127,7 +127,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		}
 	}
 	
-	override ExpansionController GetControllerInstance()
+	override ExpansionVehicleController GetControllerInstance()
 	{
 		return new ExpansionBoatController( this );
 	}

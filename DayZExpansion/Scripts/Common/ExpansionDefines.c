@@ -26,13 +26,11 @@
 #define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG
-//#define EXPANSION_HELI_EXPLOSION_HACK
-#define EXPANSION_HELI_USE_CONTACT_NORMAL
-//#define EXPANSION_HELI_USE_CONTACT_NORMAL_TEST
+#define EXPANSION_HELI_CONTACT_NORMAL_DISABLE
 //#define EXPANSION_USING_TRANSPORT_BASE
 
-#define EXPANSION_DEBUG_SHAPES_DISABLE
-#define EXPANSION_WHEEL_DEBUG_DISABLE
+//#define EXPANSION_DEBUG_SHAPES_DISABLE
+//#define EXPANSION_WHEEL_DEBUG_DISABLE
 
 #define EXPANSION_UNIVERSAL_WHEEL_DISABLE
 
@@ -49,9 +47,6 @@
 //! Enable it if you want to disable mapping 
 //#define EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
 
-//! Enable if if you want to be able to always use the map menu
-//#define EXPANSION_SETTINGS_MAP_ITEM_DEFAULT_DISABLE
-
 // Enable it if you want mission event debug logs enabled
 //#define EXPANSION_MISSION_EVENT_DEBUG
 
@@ -65,10 +60,13 @@
 //#define EXPANSION_KILLFEED_MODULE_DEBUG
 
 //! Enable it if you want to enable mapping module debug logs
-//#define EXPANSION_MAPPING_MODULE_DEBUG
+#define EXPANSION_MAPPING_MODULE_DEBUG
 
 //! Enable it if you want to enable territry module debug logs
 //#define EXPANSION_TERRITORY_MODULE_DEBUG
+
+//! Enable it if you want to enable territry dev debug
+//#define EXPANSION_TERRITORY_DEV_DEBUG
 
 //! Enable it if you want to enable COT territory module debug logs
 //#define EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -82,8 +80,14 @@
 //! Enable it if you want to enable skinings system debug logs
 //#define EXPANSION_SKIN_LOGGING
 
+//! Enable it if you want to enable car key debug logs
+//#define EXPANSION_CARKEY_LOGGING
+
 //! Enable it if you want to disable skinings system skin replacement on object creation
 #define EXPANSION_SKIN_REPLACEMENT_DISABLE
+
+//! Enable if if you want to enable car debug logs
+//#define EXPANSION_CARSCRIPT_LOGGING
 
 //#define EXPANSION_WEAPON_DEBUG_OBJECTS
 //#define EXPANSION_WEAPON_BULLET_TRACE
@@ -97,10 +101,15 @@
 //! Enable to disable character szene main menu changes
 #define EXPANSION_MAINMENU_NEW_DISABLE
 
-//#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
+#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD
 
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING
+
+#ifdef SERVER //! Don't comment these, diag exe server crashes
+#define EXPANSION_DEBUG_SHAPES_DISABLE
+#define EXPANSION_WHEEL_DEBUG_DISABLE
+#endif

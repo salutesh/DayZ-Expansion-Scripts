@@ -15,20 +15,26 @@
  **/
 class ExpansionMapSettings: ExpansionSettingBase
 {
-	bool EnableMap;
-	bool UseMapOnMapItem;
-	bool CanCreateMarker;				// Allow player to create markers
-	bool ShowPlayerPosition;			// Allow player to see his position on the map
-	bool CanCreatePartyMarkers;			// Allow player to create party markers
-	bool ShowMapStats;
-	bool CanCreate3DMarker;				// Allow player to create 3D markers
-	bool ShowPartyMembersMapMarkers;	// Allow player to see his teammates position on the map
-	bool ShowServerMarkers;				// Show server markers
-	bool CanOpenMapWithKeyBinding;
-
-	bool ShowNameOnServerMarkers;
-	bool ShowDistanceOnServerMarkers;
+	bool EnableMap;						//! Enable Expansion Map
+	bool UseMapOnMapItem;				//! Use Expansion Map On Map Item
 	
+	bool ShowPlayerPosition;			//! Allow player to see his position on the map
+	bool ShowMapStats;					//! Show XYZ positions of markers
+
+	bool CanCreateMarker;				//! Allow player to create markers
+	bool CanCreate3DMarker;				//! Allow player to create 3D markers
+	bool CanOpenMapWithKeyBinding;		//! Allow player to use a keybind to open the map
+	
+	bool EnableHUDGPS;					//! Enable HUD GPS (bottom right corner after holding N)
+	bool NeedGPSItemForKeyBinding;		//! Require GPS Item to use the keybind
+	bool NeedMapItemForKeyBinding;		//! Require Map Item to use the keybind
+	
+	bool EnableServerMarkers;			//! Show server markers
+	bool ShowNameOnServerMarkers;		//! Show the name of server markers
+	bool ShowDistanceOnServerMarkers;	//! Show the distance of  server markers
+	
+	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
+	//! Failure will result in ServerMarkers incurring a memory leak.
 	ref array< ref ExpansionMarkerData > ServerMarkers;
 	
 	[NonSerialized()]
@@ -75,7 +81,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
 	bool RemoveServerMarker( string markerName )
 	{
 		ExpansionMarkerData marker = ServerMarkersMap.Get( markerName );
@@ -99,26 +106,28 @@ class ExpansionMapSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapSettings::OnRecieve - Start");
 		#endif
-		
+
 		if ( !ctx.Read( EnableMap ) )
 			return false;
 		if ( !ctx.Read( UseMapOnMapItem ) )
 			return false;
-		if ( !ctx.Read( CanCreateMarker ) )
-			return false;
 		if ( !ctx.Read( ShowPlayerPosition ) )
-			return false;
-		if ( !ctx.Read( CanCreatePartyMarkers ) )
 			return false;
 		if ( !ctx.Read( ShowMapStats ) )
 			return false;
+		if ( !ctx.Read( CanCreateMarker ) )
+			return false;
 		if ( !ctx.Read( CanCreate3DMarker ) )
 			return false;
-		if ( !ctx.Read( ShowPartyMembersMapMarkers ) )
-			return false;
-		if ( !ctx.Read( ShowServerMarkers ) )
-			return false;
 		if ( !ctx.Read( CanOpenMapWithKeyBinding ) )
+			return false;
+		if ( !ctx.Read( EnableHUDGPS ) )
+			return false;
+		if ( !ctx.Read( NeedGPSItemForKeyBinding ) )
+			return false;
+		if ( !ctx.Read( NeedMapItemForKeyBinding ) )
+			return false;
+		if ( !ctx.Read( EnableServerMarkers ) )
 			return false;
 		if ( !ctx.Read( ShowNameOnServerMarkers ) )
 			return false;
@@ -129,6 +138,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		int index = 0;
 		int removeIndex = 0;
 		string uid = "";
+		
 		if ( !ctx.Read( count ) )
 			return false;
 			
@@ -154,19 +164,6 @@ class ExpansionMapSettings: ExpansionSettingBase
 			if ( !marker.OnRecieve( ctx ) )
 				return false;
 		}
-		for ( index = 0; index < checkArr.Count(); ++index )
-		{
-			marker = ServerMarkersMap.Get( checkArr[index] );
-			if ( marker )
-			{
-				removeIndex = ServerMarkers.Find( marker );
-				if ( removeIndex != -1 )
-					ServerMarkers.Remove( removeIndex );
-
-				ServerMarkersMap.Remove( checkArr[index] );
-				delete marker;
-			}
-		}
 
 		m_IsLoaded = true;
 
@@ -179,25 +176,27 @@ class ExpansionMapSettings: ExpansionSettingBase
 		return true;
 	}
 	
+	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
+		ctx.Write( EnableMap );
+		ctx.Write( UseMapOnMapItem );
+		ctx.Write( ShowPlayerPosition );
+		ctx.Write( ShowMapStats );
+		ctx.Write( CanCreateMarker );
+		ctx.Write( CanCreate3DMarker );
+		ctx.Write( CanOpenMapWithKeyBinding );
+		ctx.Write( EnableHUDGPS );
+		ctx.Write( NeedGPSItemForKeyBinding );
+		ctx.Write( NeedMapItemForKeyBinding );
+		ctx.Write( EnableServerMarkers );
+		ctx.Write( ShowNameOnServerMarkers );
+		ctx.Write( ShowDistanceOnServerMarkers );
+
 		int count = 0;
 		int index = 0;
 		int removeIndex = 0;
 		string uid = "";
-
-		ctx.Write( EnableMap );
-		ctx.Write( UseMapOnMapItem );
-		ctx.Write( CanCreateMarker );
-		ctx.Write( ShowPlayerPosition );
-		ctx.Write( CanCreatePartyMarkers );
-		ctx.Write( ShowMapStats );
-		ctx.Write( CanCreate3DMarker );
-		ctx.Write( ShowPartyMembersMapMarkers );
-		ctx.Write( ShowServerMarkers );
-		ctx.Write( CanOpenMapWithKeyBinding );
-		ctx.Write( ShowNameOnServerMarkers );
-		ctx.Write( ShowDistanceOnServerMarkers );
 		
 		count = ServerMarkers.Count();
 		ctx.Write( count );
@@ -244,28 +243,32 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionMapSettings s, bool copyServerMarkers = true )
 	{
+		/*
 		if ( copyServerMarkers )
 		{
 			ServerMarkers.Clear();
+			Print("CopyInternal::s.ServerMarkers"+s.ServerMarkers.Count());
 
 			for (int i = 0; i < s.ServerMarkers.Count(); i++)
 			{
 				ServerMarkers.Insert( s.ServerMarkers[i] );
 			}
 		}
+		*/
 
 		EnableMap = s.EnableMap;
 		UseMapOnMapItem = s.UseMapOnMapItem;
 		CanCreateMarker = s.CanCreateMarker;
 		ShowPlayerPosition = s.ShowPlayerPosition;
-		CanCreatePartyMarkers = s.CanCreatePartyMarkers;
 		ShowMapStats = s.ShowMapStats;
 		CanCreate3DMarker = s.CanCreate3DMarker;
-		ShowPartyMembersMapMarkers = s.ShowPartyMembersMapMarkers;
-		ShowServerMarkers = s.ShowServerMarkers;
+		EnableServerMarkers = s.EnableServerMarkers;
 		CanOpenMapWithKeyBinding = s.CanOpenMapWithKeyBinding;
 		ShowNameOnServerMarkers = s.ShowNameOnServerMarkers;
 		ShowDistanceOnServerMarkers = s.ShowDistanceOnServerMarkers;
+		EnableHUDGPS = s.EnableHUDGPS;
+		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
+		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
 	}
 	
 	// ------------------------------------------------------------
@@ -336,17 +339,20 @@ class ExpansionMapSettings: ExpansionSettingBase
 		UseMapOnMapItem = true;
 		CanCreateMarker = true;
 		ShowPlayerPosition = true;
-		CanCreatePartyMarkers = true;
 		ShowMapStats = true;
 		CanCreate3DMarker = true;
 		
-		ShowPartyMembersMapMarkers = true;
-		ShowServerMarkers = true;
+		EnableServerMarkers = true;
 
 		CanOpenMapWithKeyBinding = true;
 		
 		ShowNameOnServerMarkers = true;
 		ShowDistanceOnServerMarkers = true;
+	
+		EnableHUDGPS = true;
+
+		NeedGPSItemForKeyBinding = true;
+		NeedMapItemForKeyBinding = true;
 		
 		//! Set default markers depending on map name
 		string world_name = "empty";
@@ -356,12 +362,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		//! Vanilla Maps
 		if ( world_name.Contains( "chernarusplus" ) )
 		{
-			//! All 3D server markers - Chernarus
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Hero Trader-Zone", 		"Trader",		Vector( 11844.678711, 0, 12466.84082 ), 	ARGB( 255, 46, 204, 113 ), 	false, /*3D marker*/true ) ); 	// Color Emerald green: #2ecc71 
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Bandit Trader-Zone", 		"Trader",		Vector( 1127.144531, 0, 2419.871582 ), 	ARGB( 255, 231, 76, 60 ), 	false, /*3D marker*/true ) ); 	// Color Alizarin red: #e74c3c	
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Boat Trader", 				"Boat",			Vector( 14355.744141, 0, 13231.0507813 ), ARGB( 255, 52, 152, 219 ), 	false, /*3D marker*/true ) );	// Color Peter River blue: #3498db
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Boat Trader", 				"Boat",			Vector( 1755.128906, 0, 2027.907837 ), 	ARGB( 255, 52, 152, 219 ), 	false, /*3D marker*/true ) );	// Color Peter River blue: #3498db
-			//ServerMarkers.Insert( new ExpansionMarkerData( "Aircraft Trader", 			"Helicopter",	Vector( 4971.664063, 0, 2438.656494 ), 	ARGB( 255, 52, 73, 94 ), 	false, /*3D marker*/true ) );	// Color Wet Asphalt gray: #34495e
+			//! TODO: Chernarus Server Markers
 		} else if ( world_name.Contains( "enoch" ) )
 		{
 			//! TODO: Livonia Server Markers

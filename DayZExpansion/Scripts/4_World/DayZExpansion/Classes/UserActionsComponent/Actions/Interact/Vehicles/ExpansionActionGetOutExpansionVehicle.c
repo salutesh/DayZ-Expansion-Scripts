@@ -83,6 +83,6 @@ class ExpansionActionGetOutExpansionVehicle: ActionInteractBase
 	{
 		super.Start( action_data );
 		
-		action_data.m_Player.GetCommand_ExpansionVehicle().GetOut();
+		action_data.m_Player.GetCommand_ExpansionVehicle().GetOutVehicle();
 	}
 }

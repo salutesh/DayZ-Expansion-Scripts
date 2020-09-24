@@ -13,7 +13,7 @@
 /**@class		ExpansionBoatController
  * @brief		This class handle player controls to move boats
  **/
-class ExpansionBoatController: ExpansionController
+class ExpansionBoatController: ExpansionVehicleController
 {
 	private float m_Forward;
 	private float m_Backward;

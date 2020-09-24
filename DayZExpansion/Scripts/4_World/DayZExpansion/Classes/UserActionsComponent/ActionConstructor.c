@@ -40,9 +40,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionCutParachute );
 
 		//! Vehicles
-		actions.Insert( ExpansionActionGetInTransport );
-		actions.Insert( ExpansionActionGetOutTransport );
-
 		actions.Insert( ExpansionActionGetInExpansionVehicle );
 		actions.Insert( ExpansionActionGetOutExpansionVehicle );
 		
@@ -103,8 +100,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionStartPlayingGuitar );
 		actions.Insert( ExpansionActionStopPlayingGuitar );
 
-		actions.Insert( ActionDestroyFlag );
-		actions.Insert( ActionDestroyTerritory );
+		actions.Insert( ExpansionActionDestroyTerritory );
 		
 		//! Removed because it wont be in first release
 		//actions.Insert( ExpansionActionTakeChicken );

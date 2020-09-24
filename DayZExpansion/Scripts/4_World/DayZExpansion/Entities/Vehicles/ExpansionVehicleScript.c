@@ -10,88 +10,6 @@
  *
 */
 
-class ExpansionVehicleSyncState
-{
-	ExpansionVehicleScript m_Vehicle;
-
-	int m_Time;
-	int m_LastRecievedTime;
-	int m_TimeDelta;
-
-	vector m_Position;
-	vector m_Orientation;
-	vector m_LinearVelocity;
-	vector m_AngularVelocity;
-
-	ref Transform m_InitialTransform;
-	ref Transform m_PredictedTransform;
-
-	private float m_LinVelX;
-	private float m_LinVelY;
-	private float m_LinVelZ;
-
-	private float m_AngVelX;
-	private float m_AngVelY;
-	private float m_AngVelZ;
-
-	void ExpansionVehicleSyncState( ExpansionVehicleScript vehicle )
-	{
-		m_Vehicle = vehicle;
-		
-		m_Position = m_Vehicle.GetPosition();
-		m_Orientation = m_Vehicle.GetOrientation();
-		m_LinearVelocity = vector.Zero;
-		m_AngularVelocity = vector.Zero;
-
-		m_InitialTransform = new Transform();
-		m_PredictedTransform = new Transform();
-	}
-	
-	void ~ExpansionVehicleSyncState()
-	{
-		delete m_InitialTransform;
-		delete m_PredictedTransform;
-	}
-
-	void OnVariablesSynchronized()
-	{
-		m_LinearVelocity[0] = m_LinVelX;
-		m_LinearVelocity[1] = m_LinVelY;
-		m_LinearVelocity[2] = m_LinVelZ;
-
-		m_AngularVelocity[0] = m_AngVelX;
-		m_AngularVelocity[1] = m_AngVelY;
-		m_AngularVelocity[2] = m_AngVelZ;
-	}
-
-	void SynchronizeVariables( ExpansionVehicleNetworkMode mode )
-	{
-		switch ( mode )
-		{
-		case ExpansionVehicleNetworkMode.SERVER_ONLY:
-			return;
-		case ExpansionVehicleNetworkMode.PREDICTION:
-			m_LinVelX = m_LinearVelocity[0];
-			m_LinVelY = m_LinearVelocity[1];
-			m_LinVelZ = m_LinearVelocity[2];
-
-			m_AngVelX = m_AngularVelocity[0];
-			m_AngVelY = m_AngularVelocity[1];
-			m_AngVelZ = m_AngularVelocity[2];
-			return;
-		case ExpansionVehicleNetworkMode.CLIENT:
-			ScriptRPC rpc = new ScriptRPC();
-			rpc.Write( GetGame().GetTime() );
-			rpc.Write( m_Position );
-			rpc.Write( m_Orientation );
-			rpc.Write( m_LinearVelocity );
-			rpc.Write( m_AngularVelocity );
-			rpc.Send( m_Vehicle, ExpansionVehicleRPC.ClientSync, false, NULL );
-			return;
-		}
-	}
-}
-
 #ifdef EXPANSION_USING_TRANSPORT_BASE
 class ExpansionVehicleScript extends Transport
 #else
@@ -99,11 +17,11 @@ class ExpansionVehicleScript extends ItemBase
 #endif
 {
 	protected ref array< ref ExpansionVehicleAxle > m_Axles;
-	protected ref array< ref ExpansionCrewData > m_Crew;
+	protected ref array< ref ExpansionVehicleCrew > m_Crew;
 
 	protected ref array< ExpansionVehicleWheel > m_Wheels;
 
-	protected ref ExpansionController m_Controller;
+	protected ref ExpansionVehicleController m_Controller;
 	protected bool m_HasDriver;
 	
 	// ------------------------------------------------------------
@@ -189,7 +107,11 @@ class ExpansionVehicleScript extends ItemBase
 	protected vector m_AngularVelocity; // World Space
 	protected vector m_AngularVelocityMS; // Model Space
 
-	protected vector m_LastAngularVelocity;
+	protected vector m_AngularAcceleration; // World Space
+	protected vector m_AngularAccelerationMS; // Model Space
+
+	protected vector m_LastAngularVelocity; // World Space
+	protected vector m_LastAngularVelocityMS; // Model Space
 
 	vector m_AdjustCenterOfMass;
 
@@ -204,7 +126,6 @@ class ExpansionVehicleScript extends ItemBase
 
 	vector m_InertiaTensor;
 	vector m_InvInertiaTensor;
-	ref Matrix3 m_InvInertiaTensorWS;
 
 	private ref ExpansionVehicleSyncState m_SyncState;
 	private ExpansionVehicleNetworkMode m_NetworkMode;
@@ -229,6 +150,15 @@ class ExpansionVehicleScript extends ItemBase
 	protected autoptr TStringArray m_Doors;
 	protected bool m_CanHaveLock;
 
+	protected bool m_ClutchState;
+
+	protected ref array< float > m_FluidCapacities;
+
+	protected float m_FluidFuelAmount;
+	protected float m_FluidCoolantAmount;
+	protected float m_FluidOilAmount;
+	protected float m_FluidBrakeAmount;
+
 	// Debugging
 	private ref array< Shape > m_DebugShapes;
 
@@ -241,7 +171,7 @@ class ExpansionVehicleScript extends ItemBase
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
 
 		m_Axles = new array< ref ExpansionVehicleAxle >;
-		m_Crew = new array< ref ExpansionCrewData >;
+		m_Crew = new array< ref ExpansionVehicleCrew >;
 
 		m_Wheels = new array< ExpansionVehicleWheel >;
 
@@ -297,7 +227,7 @@ class ExpansionVehicleScript extends ItemBase
 			string crewName;
 			GetGame().ConfigGetChildName( path, i, crewName );
 
-			m_Crew.Insert( new ExpansionCrewData( this, crewName ) );
+			m_Crew.Insert( new ExpansionVehicleCrew( this, crewName ) );
 		}
 
 		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
@@ -360,6 +290,17 @@ class ExpansionVehicleScript extends ItemBase
 		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelY", min, max, prec );
 		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelZ", min, max, prec );
 
+		m_FluidCapacities = new array< float >();
+		m_FluidCapacities.Insert( ConfigGetFloat( "fuelCapacity" ) );
+		m_FluidCapacities.Insert( ConfigGetFloat( "oilCapacity" ) );
+		m_FluidCapacities.Insert( ConfigGetFloat( "brakeFluidCapacity" ) );
+		m_FluidCapacities.Insert( ConfigGetFloat( "coolantCapacity" ) );
+
+		RegisterNetSyncVariableFloat( "m_FluidFuelAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidCoolantAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidOilAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidBrakeAmount", 0, 0, 4 );
+
 		if ( IsMissionClient() )
 		{		
 			string sound_controller_path = "CfgVehicles " + GetType() + " soundController";
@@ -375,7 +316,6 @@ class ExpansionVehicleScript extends ItemBase
 		}
 
 		m_Transform = new Transform;
-		m_InvInertiaTensorWS = new Matrix3;
 
 		m_Controller = GetControllerInstance();
 
@@ -485,39 +425,16 @@ class ExpansionVehicleScript extends ItemBase
 		SetSynchDirty();
 	}
 
-	// ------------------------------------------------------------
-	override void OnCreatePhysics()
+	private void CreateDynamic()
 	{
-		//Print( "[" + this + "] OnCreatePhysics" );
-
-		if ( m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
-		{
-			if ( !IsMissionClient() )
-			{
-				// this is for when we are only doing client side physics and we are the server
-
-				// TODO: add check to see if a driver is in the vehicle, driver might have left 
-				// the vehicle seat and in that case we need to run vehicle sim on the server until it's in rest
-				return;
-			}
-		}
-
 		CreateDynamicPhysics( 288 );
-
-		//autoptr PhysicsGeomDef geoms[] = {
-		//	ExpansionPhysicsGeometry.CreateBox( "1.5 1 5.0" ).SetPosition( "0 0.8 0" )
-		//}
-		//dBodyDestroy( this );
-		//dBodyCreateDynamicEx( this, "0 0.75 0", 10, geoms );
-		
-		dBodyDynamic( this, true );
-		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-
-		dBodySetInteractionLayer( this, 288 );
 
 		EnableDynamicCCD( true );
 		SetDynamicPhysicsLifeTime( -1 );
-
+		
+		dBodyDynamic( this, true );
+		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
+		dBodySetInteractionLayer( this, 288 );
 		dBodyEnableGravity( this, false );
 
 		m_BodyMass = dBodyGetMass( this );
@@ -529,9 +446,12 @@ class ExpansionVehicleScript extends ItemBase
 
 		EnableCollisionsWithCharacter( false );
 
-		SetAllowDamage( false );
+		SetAllowDamage( false ); //! Temporary
+	}
 
-		//PlaceOnSurface();
+	// ------------------------------------------------------------
+	override void OnCreatePhysics()
+	{
 	}
 
 	// ------------------------------------------------------------
@@ -574,7 +494,7 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	void DBGDrawImpulseMS( vector position, vector impulse, int color = 0x44FFFFFF )
 	{
-		DBGDrawImpulse( position.Multiply4( m_Transform.data ), impulse.Multiply3( m_Transform.GetBasis().data ), color );
+		DBGDrawImpulse( position.Multiply4( m_Transform.data ), impulse.Multiply3( m_Transform.data ), color );
 	}
 
 	// ------------------------------------------------------------
@@ -591,14 +511,7 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	void DBGDrawLineMS( vector start, vector end, int color = 0x44FFFFFF )
 	{
-		DBGDrawLine( start.Multiply4( m_Transform.data ), end.Multiply4( m_Transform.GetBasis().data ), color );
-	}
-	
-	// ------------------------------------------------------------
-	void DBGDrawLineDirectionMS( vector start, vector direction, int color = 0x44FFFFFF )
-	{
-		start = start.Multiply4( m_Transform.data );
-		DBGDrawLine( start, start + direction.Multiply3( m_Transform.GetBasis().data ), color );
+		DBGDrawLine( start.Multiply4( m_Transform.data ), end.Multiply4( m_Transform.data ), color );
 	}
 
 	// ------------------------------------------------------------
@@ -612,6 +525,18 @@ class ExpansionVehicleScript extends ItemBase
 		DBGAddShape( Shape.CreateLines( color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2 ) );
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	void DBGDrawLineDirectionMS( vector start, vector direction, int color = 0x44FFFFFF )
+	{
+		DBGDrawLineDirection( start.Multiply4( m_Transform.data ), direction.Multiply3( m_Transform.data ), color );
+	}
+	
+	// ------------------------------------------------------------
+	void DBGDrawLineDirection( vector start, vector direction, int color = 0x44FFFFFF )
+	{
+		DBGDrawLine( start, start + direction, color );
+	}
 
 	// ------------------------------------------------------------
 	void DBGAddShape( Shape shape )
@@ -619,6 +544,12 @@ class ExpansionVehicleScript extends ItemBase
 		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 		m_DebugShapes.Insert( shape );
 		#endif
+	}
+
+	// ------------------------------------------------------------
+	int GetTimeForSync()
+	{
+		return GetSimulationTimeStamp();
 	}
 
 	// ------------------------------------------------------------
@@ -695,7 +626,10 @@ class ExpansionVehicleScript extends ItemBase
 		//Print(driver);
 		//Print(GetGame().GetPlayer());
 		
-		if ( GetGame().IsClient() )
+		if ( !GetGame().IsMultiplayer() )
+		{
+			m_IsPhysicsHost = true;
+		} else if ( GetGame().IsClient() )
 		{
 			m_IsPhysicsHost = driver == GetGame().GetPlayer();
 
@@ -706,9 +640,35 @@ class ExpansionVehicleScript extends ItemBase
 		} else if ( GetGame().IsServer() )
 		{
 			m_IsPhysicsHost = m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT;
-		} else if ( !GetGame().IsMultiplayer() )
-		{
-			m_IsPhysicsHost = true;
+
+			if ( !m_IsPhysicsHost )
+			{
+				//! TODO: Fix, causes server crash
+				m_IsPhysicsHost = driver == null || !driver.HasNetworkID() || !driver.IsAlive();
+			}
+
+			if ( m_IsPhysicsHost )
+			{
+				m_SyncState.m_LinearVelocity = GetVelocity( this );
+				m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
+				m_SyncState.m_Position = GetPosition();
+				m_SyncState.m_Orientation = GetOrientation();
+
+				m_SyncState.m_TimeDelta = 0;
+				m_SyncState.m_Time = GetTimeForSync();
+				m_SyncState.m_LastRecievedTime = GetTimeForSync();
+
+				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform.data );
+				m_SyncState.m_InitialTransform.data[3] = m_SyncState.m_Position;
+				m_SyncState.m_InitialTransform.UpdateUnion();
+			} else
+			{
+				m_LinearVelocity = m_SyncState.m_LinearVelocity;
+				m_AngularVelocity = m_SyncState.m_AngularVelocity;
+			}
+
+			for ( int cI = 0; cI < m_Crew.Count(); cI++ )
+				m_Crew[cI].NetworkBubbleFix();
 		} else
 		{
 			m_IsPhysicsHost = false;
@@ -737,57 +697,33 @@ class ExpansionVehicleScript extends ItemBase
 		}
 
 		OnPreSimulation( dt );
-		
-		//Print(ftime);
-		//Print(dt);
 
-		if ( !GetGame().IsClient() && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
+		if ( !GetGame().IsClient() && !m_IsPhysicsHost && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
 		{
-			if ( driver != null )
+			if ( !dBodyIsDynamic( this ) )
 			{
-				dBodyDynamic( this, false );
-				dBodyActive( this, ActiveState.INACTIVE );
-					
-				int clientTimePredict = GetGame().GetTime() - m_SyncState.m_TimeDelta;
-				int clientTimePredictDelta = clientTimePredict - m_SyncState.m_Time;
-				float nDelta = clientTimePredictDelta / 1000.0;
-					
-				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, nDelta, m_SyncState.m_PredictedTransform );
-		
-				// smooth movement for non-driven clients
+				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 1000.0;
+
+				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
+
 				MoveInTime( m_SyncState.m_PredictedTransform.data, dt );
-		
+
 				SetSynchDirty();
-		
-				ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
-	
-				return;
 			} else
 			{
-				HandleSync_Client();
+				SetDynamicPhysicsLifeTime( 0.01 );
 			}
+
+			ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
+
+			return;
 		}
 
-		if ( m_IsPhysicsHost )
+		if ( m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
+			float invDt = 1.0 / dt;
+			
 			dBodyEnableGravity( this, false );
-			dBodyDynamic( this, true );
-			dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-
-			m_Transform.Get( this );
-
-			m_LastLinearVelocity = m_LinearVelocity;
-			m_LinearVelocity = GetVelocity( this );
-			m_LinearAcceleration = m_LastLinearVelocity - m_LinearVelocity;
-
-			m_LastAngularVelocity = m_AngularVelocity;
-			m_AngularVelocity = dBodyGetAngularVelocity( this );
-			
-			m_LastLinearVelocityMS = m_LinearVelocityMS;
-			m_LinearVelocityMS = m_LinearVelocity.InvMultiply3( m_Transform.data );
-			m_LinearAccelerationMS = m_LastLinearVelocityMS - m_LinearVelocityMS;
-			
-			m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
 
 			ExpansionDebugUI( "Mass: " + m_BodyMass + " (Center of Mass: " + m_BodyCenterOfMass + ")");
 
@@ -795,52 +731,68 @@ class ExpansionVehicleScript extends ItemBase
 			ExpansionDebugUI( "Linear Velocity (MS): " + m_LinearVelocityMS );
 
 			m_InvInertiaTensor = dBodyGetLocalInertia( this );
-			dBodyGetInvInertiaTensorWorld( this, m_InvInertiaTensorWS.data );
 			
 			CalculateAltitudeLimiter();
 			
 			int i = 0;
 			int numWheelsGrounded = 0;
 			for ( i = 0; i < m_Axles.Count(); i++ )
-			{
 				m_Axles[i].SetupSimulation( dt, numWheelsGrounded );
-			}
-
-			vector impulse = vector.Zero;
-			vector impulseTorque = vector.Zero;
 
 			vector force = vector.Zero;
 			vector torque = vector.Zero;
 			OnSimulation( dt, force, torque );
 
-			impulse += force * dt;
-			impulseTorque += torque * dt;
-
+			vector impulse = force * dt;
+			vector impulseTorque = torque * dt;
+			
 			for ( i = 0; i < m_Axles.Count(); i++ )
-			{
 				m_Axles[i].Simulate( dt, numWheelsGrounded, impulse, impulseTorque );
-			}
 
-			vector gravity = "0 -9.8 0" * m_BodyMass * dt;
-			impulse += gravity;
+			if ( GetNumWheels() != numWheelsGrounded )
+			{
+				vector gravity = "0 -9.8 0" * m_BodyMass;
+				//float invWheelsGrounded = 1.0 / ( GetNumWheels() - numWheelsGrounded );
+				impulse += gravity * dt;// * invWheelsGrounded;
+			}
 
 			ApplyPhysics( dt, impulse, impulseTorque );
 
-			if ( GetGame().IsMultiplayer() )
-			{
-				SetSynchDirty();
-			}
+			m_Transform.Get( this );
 
+			m_LastLinearVelocity = m_LinearVelocity;
+			m_LinearVelocity = GetVelocity( this );
+			m_LinearAcceleration = ( m_LastLinearVelocity - m_LinearVelocity ) * dt;
+
+			m_LastAngularVelocity = m_AngularVelocity;
+			m_AngularVelocity = dBodyGetAngularVelocity( this );
+			m_AngularAcceleration = ( m_LastAngularVelocity - m_AngularVelocity ) * dt;
+			
+			m_LastLinearVelocityMS = m_LinearVelocityMS;
+			m_LinearVelocityMS = m_LinearVelocity.InvMultiply3( m_Transform.data );
+			m_LinearAccelerationMS = ( m_LastLinearVelocityMS - m_LinearVelocityMS ) * dt;
+
+			m_LastAngularVelocityMS = m_AngularVelocityMS;
+			m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
+			m_AngularAccelerationMS = ( m_LastAngularVelocityMS - m_AngularVelocityMS ) * dt;
+			
 			if ( IsMissionClient() )
-			{
 				NetworkSend();
-			}
+			else if ( GetGame().IsMultiplayer() )
+				SetSynchDirty();
+		} else if ( m_IsPhysicsHost && !dBodyIsDynamic( this ) )
+		{
+			CreateDynamic();
+		} else if ( dBodyIsDynamic( this ) )
+		{
+			SetDynamicPhysicsLifeTime( 0.01 );
 		}
 
 		OnPostSimulation( dt );
 		
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_WHEELS );
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
+		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_ENGINE );
 	}
 
 	// ------------------------------------------------------------
@@ -849,8 +801,8 @@ class ExpansionVehicleScript extends ItemBase
 		switch ( m_NetworkMode )
 		{
 		case ExpansionVehicleNetworkMode.SERVER_ONLY:
-			m_SyncState.m_LinearVelocity = m_LinearVelocity;
-			m_SyncState.m_AngularVelocity = m_AngularVelocity;
+			m_SyncState.m_LinearVelocity = GetVelocity( this );
+			m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
 
 			m_SyncState.SynchronizeVariables( m_NetworkMode );
 			return;
@@ -871,8 +823,8 @@ class ExpansionVehicleScript extends ItemBase
 		case ExpansionVehicleNetworkMode.PREDICTION:
 			return;
 		case ExpansionVehicleNetworkMode.CLIENT:
-			m_SyncState.m_LinearVelocity = m_LinearVelocity;
-			m_SyncState.m_AngularVelocity = m_AngularVelocity;
+			m_SyncState.m_LinearVelocity = GetVelocity( this );
+			m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
 			m_SyncState.m_Position = GetPosition();
 			m_SyncState.m_Orientation = GetOrientation();
 
@@ -887,52 +839,12 @@ class ExpansionVehicleScript extends ItemBase
 		dBodyApplyImpulse( this, impulse );
 		dBodyApplyTorqueImpulse( this, impulseTorque );
 
-		m_LinearVelocity = GetVelocity( this );
-		m_AngularVelocity = dBodyGetAngularVelocity( this );
-
 		if ( !GetGame().IsClient() )
-		{ 
+		{
 			HandleSync_Server();
 		} else if ( !GetGame().IsServer() )
 		{
 			HandleSync_Client();
-		}
-
-		//m_LinearVelocity = vector.Zero;
-		//m_AngularVelocity = vector.Zero;
-		//dBodySetInteractionLayer( this, 0 );
-
-		SetVelocity( this, m_LinearVelocity );
-		dBodySetAngularVelocity( this, m_AngularVelocity );
-
-		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-
-		if ( GetGame().IsClient() )
-		{
-			/*
-			ExpansionDebugUI();
-
-			ExpansionDebugUI( "Server Position: " + m_SyncState.m_Position );
-			ExpansionDebugUI( "Server Orientation: " + m_SyncState.m_Orientation );
-
-			ExpansionDebugUI( "Server Linear Velocity: " + m_SyncState.m_LinearVelocity );
-			ExpansionDebugUI( "Server Angular Velocity: " + m_SyncState.m_AngularVelocity );
-			*/
-		}
-
-		if ( IsMissionClient() )
-		{
-			/*
-			ExpansionDebugUI();
-
-			ExpansionDebugUI( "Client Position: " + GetPosition() );
-			ExpansionDebugUI( "Client Orientation: " + GetOrientation() );
-
-			ExpansionDebugUI( "Client Linear Velocity: " + m_LinearVelocity );
-			ExpansionDebugUI( "Client Angular Velocity: " + m_AngularVelocity );
-
-			ExpansionDebugUI();
-			*/
 		}
 	}
 
@@ -1010,7 +922,7 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = time;
 
 				// time delta should always be positive, this is not the latency
-				m_SyncState.m_TimeDelta = GetGame().GetTime() - time;
+				m_SyncState.m_TimeDelta = GetTimeForSync() - time;
 
 				ctx.Read( m_SyncState.m_Position );
 				ctx.Read( m_SyncState.m_Orientation );
@@ -1110,7 +1022,9 @@ class ExpansionVehicleScript extends ItemBase
 
 	// ------------------------------------------------------------
 	vector GetEstimatedPosition( float pDt )
+	{
 		return GetPosition() + ( m_LinearVelocity * pDt );
+	}
 
 	// ------------------------------------------------------------
 	private void CalculateAltitudeLimiter()
@@ -1142,17 +1056,17 @@ class ExpansionVehicleScript extends ItemBase
 	Matrix3 GetEstimatedOrientation( float pDt )
 	{
 		Matrix3 estimatedOrientation;
-		Matrix3.Tilda( m_AngularVelocity, estimatedOrientation );
+		Matrix3.Tilda( ( m_AngularVelocity /*+ ( m_AngularAcceleration * pDt )*/ ) * pDt, estimatedOrientation );
 
-		Math3D.MatrixInvMultiply3( estimatedOrientation.data, m_Transform.GetBasis().data, estimatedOrientation.data );
+		Math3D.MatrixInvMultiply3( estimatedOrientation.data, m_Transform.data, estimatedOrientation.data );
 		
-		estimatedOrientation.data[0] = m_Transform.data[0] + ( estimatedOrientation.data[0] * pDt );
-		estimatedOrientation.data[1] = m_Transform.data[1] + ( estimatedOrientation.data[1] * pDt );
-		estimatedOrientation.data[2] = m_Transform.data[2] + ( estimatedOrientation.data[2] * pDt );
+		estimatedOrientation[0] = m_Transform[0] + estimatedOrientation[0];
+		estimatedOrientation[1] = m_Transform[1] + estimatedOrientation[1];
+		estimatedOrientation[2] = m_Transform[2] + estimatedOrientation[2];
 
-		estimatedOrientation.data[0] = estimatedOrientation.data[0].Normalized();
-		estimatedOrientation.data[1] = estimatedOrientation.data[1].Normalized();
-		estimatedOrientation.data[2] = estimatedOrientation.data[2].Normalized();
+		estimatedOrientation[0].Normalized();
+		estimatedOrientation[1].Normalized();
+		estimatedOrientation[2].Normalized();
 
 		return estimatedOrientation;
 	}
@@ -1208,7 +1122,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ref ExpansionController GetExpansionController()
+	ref ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -1594,7 +1508,7 @@ class ExpansionVehicleScript extends ItemBase
 	*/
 	float GetFluidCapacity( CarFluid fluid )
 	{
-		return 0;
+		return m_FluidCapacities.Get( fluid );
 	}
 
 	/*!
@@ -1605,22 +1519,127 @@ class ExpansionVehicleScript extends ItemBase
 	*/
 	float GetFluidFraction( CarFluid fluid )
 	{
-		return 0;
+		float amount;
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				amount = m_FluidFuelAmount;
+				break;
+			case CarFluid.OIL:
+				amount = m_FluidCoolantAmount;
+				break;
+			case CarFluid.BRAKE:
+				amount = m_FluidOilAmount;
+				break;
+			case CarFluid.COOLANT:
+				amount = m_FluidBrakeAmount;
+				break;
+			default:
+				return 0;
+		}
+		
+		return amount / GetFluidCapacity( fluid );
 	}
 
 	//! Removes from the specified fluid the specified amount.
 	void Leak( CarFluid fluid, float amount )
 	{
+		float previousAmt;
+		float newAmt;
+
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				previousAmt = m_FluidFuelAmount;
+				m_FluidFuelAmount -= amount;
+				newAmt = m_FluidFuelAmount;
+				break;
+			case CarFluid.OIL:
+				previousAmt = m_FluidCoolantAmount;
+				m_FluidCoolantAmount -= amount;
+				newAmt = m_FluidCoolantAmount;
+				break;
+			case CarFluid.BRAKE:
+				previousAmt = m_FluidOilAmount;
+				m_FluidOilAmount -= amount;
+				newAmt = m_FluidOilAmount;
+				break;
+			case CarFluid.COOLANT:
+				previousAmt = m_FluidBrakeAmount;
+				m_FluidBrakeAmount -= amount;
+				newAmt = m_FluidBrakeAmount;
+				break;
+			default:
+				return;
+		}
+
+		OnFluidChanged( fluid, previousAmt, newAmt );
 	}
 
 	//! Removes all the specified fluid from vehicle.
 	void LeakAll( CarFluid fluid )
 	{
+		float previousAmt;
+		float newAmt;
+
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				previousAmt = m_FluidFuelAmount;
+				m_FluidFuelAmount = 0;
+				break;
+			case CarFluid.OIL:
+				previousAmt = m_FluidCoolantAmount;
+				m_FluidCoolantAmount = 0;
+				break;
+			case CarFluid.BRAKE:
+				previousAmt = m_FluidOilAmount;
+				m_FluidOilAmount = 0;
+				break;
+			case CarFluid.COOLANT:
+				previousAmt = m_FluidBrakeAmount;
+				m_FluidBrakeAmount = 0;
+				break;
+			default:
+				return;
+		}
+
+		OnFluidChanged( fluid, previousAmt, 0 );
 	}
 
 	//! Adds to the specified fluid the specified amount.
 	void Fill( CarFluid fluid, float amount )
 	{
+		float previousAmt;
+		float newAmt;
+
+		switch ( fluid )
+		{
+			case CarFluid.FUEL:
+				previousAmt = m_FluidFuelAmount;
+				m_FluidFuelAmount += amount;
+				newAmt = m_FluidFuelAmount;
+				break;
+			case CarFluid.OIL:
+				previousAmt = m_FluidCoolantAmount;
+				m_FluidCoolantAmount += amount;
+				newAmt = m_FluidCoolantAmount;
+				break;
+			case CarFluid.BRAKE:
+				previousAmt = m_FluidOilAmount;
+				m_FluidOilAmount += amount;
+				newAmt = m_FluidOilAmount;
+				break;
+			case CarFluid.COOLANT:
+				previousAmt = m_FluidBrakeAmount;
+				m_FluidBrakeAmount += amount;
+				newAmt = m_FluidBrakeAmount;
+				break;
+			default:
+				return;
+		}
+
+		OnFluidChanged( fluid, previousAmt, newAmt );
 	}
 
 	/*!
@@ -1703,6 +1722,31 @@ class ExpansionVehicleScript extends ItemBase
 	int GetGearsCount()
 	{
 		return 0;
+	}
+
+	void SetClutchState( bool pState )
+	{
+		m_ClutchState = pState;
+	}
+
+	float GetClutch()
+	{
+		return 0.0;
+	}
+
+	float GetSteering()
+	{
+		return 0.0;
+	}
+
+	float GetThrottle()
+	{
+		return 0.0;
+	}
+
+	float GetBraking()
+	{
+		return 0.0;
 	}
 
 	/*!
@@ -2955,7 +2999,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ExpansionController GetControllerInstance()
+	ExpansionVehicleController GetControllerInstance()
 	{
 		return NULL;
 	} 

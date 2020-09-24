@@ -10,11 +10,6 @@
  *
 */
 
-enum ExpansionProfilesOptions
-{
-	LICENCE
-}
-
 modded class DayZGame
 {	
 	protected float m_WaterDensity;

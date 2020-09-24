@@ -43,15 +43,15 @@ class ExpansionMarkerModule: JMModuleBase
 			SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		//! Party marker
-		if ( GetExpansionSettings().GetMap().CanCreatePartyMarkers )
+		if ( GetExpansionSettings().GetParty().CanCreatePartyMarkers )
 			SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		//! Server marker
-		if ( GetExpansionSettings().GetMap().ShowServerMarkers )
+		if ( GetExpansionSettings().GetMap().EnableServerMarkers )
 			SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		//! Party Member marker
-		if ( GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
+		if ( GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
 			SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
 		//! Party Quickmarker
@@ -582,11 +582,11 @@ class ExpansionMarkerModule: JMModuleBase
 	{
 		type -= 1;
 
-		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().ShowServerMarkers )
+		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().EnableServerMarkers )
 			return false;
 		if ( type == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().EnableQuickMarker )
 			return false;
-		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMembers3DMarkers )
+		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
 			return false;
 		
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_WORLD) != 0;
@@ -596,7 +596,7 @@ class ExpansionMarkerModule: JMModuleBase
 	{
 		type -= 1;
 
-		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().ShowServerMarkers )
+		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().EnableServerMarkers )
 			return false;
 
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_MAP) != 0;

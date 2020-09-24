@@ -514,14 +514,18 @@ class ExpansionTerritoryModule: JMModuleBase
 		flag.SetIsExpansionTerritoryFlag( true );
 		flag.SetTerritoryID( m_NextTerritoryID );
 		flag.SetFlagTexture( texturePath );
+		#ifndef EXPANSION_TERRITORY_DEV_DEBUG
 		flag.SetOwnerID( senderID );
+		#endif
 		
 		//! Create new territory
 		ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
 		if ( !newTerritory )
 			return;
 		
+		#ifndef EXPANSION_TERRITORY_DEV_DEBUG
 		newTerritory.AddMember( senderID, sender.GetName(), true );
+		#endif
 		
 		flag.SetTerritory( newTerritory );
 		
@@ -1802,7 +1806,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			for ( int i = 0; i < objects.Count(); ++i )
 			{
 				TerritoryFlag flag = TerritoryFlag.Cast( objects.Get( i ) );
-				if ( flag && flag.IsTerritoryFlag() )
+				if ( flag && flag.HasExpansionTerritoryInformation() )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and found flag: " + flag.ToString());
@@ -1921,7 +1925,7 @@ class ExpansionTerritoryModule: JMModuleBase
 					#endif
 					continue;
 				}
-				if ( flag.IsTerritoryFlag() )
+				if ( flag.HasExpansionTerritoryInformation() )
 				{
 					ExpansionTerritory currTerritory = flag.GetTerritory();
 					if (!currTerritory)
@@ -1989,7 +1993,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			TerritoryFlag flag;
 			if ( Class.CastTo( flag, objects[i] ) )
 			{
-				if ( flag.IsTerritoryFlag() )
+				if ( flag.HasExpansionTerritoryInformation() )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");

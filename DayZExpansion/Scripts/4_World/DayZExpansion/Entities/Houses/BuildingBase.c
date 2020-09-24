@@ -23,36 +23,81 @@ modded class BuildingBase
 	private bool m_InteriorsLoaded;
 	private bool m_IvysLoaded;
 	
+	// ------------------------------------------------------------
+	// BuildingBase Constructor
+	// ------------------------------------------------------------
 	void BuildingBase()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::BuildingBase - Start");
 		#endif
-
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000);
-
+		
+		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000, false);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::BuildingBase - End");
 		#endif
 	}
-	
+		
+	// ------------------------------------------------------------
+	// BuildingBase Desturctor
+	// ------------------------------------------------------------
 	void ~BuildingBase()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::~BuildingBase - Start");
 		#endif
 
-		UnloadInterior();
-		UnloadIvys();
+		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
+		//UnloadInterior();
+		//UnloadIvys();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::~BuildingBase - End");
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// OnSettingsUpdated
+	// ------------------------------------------------------------
+	void OnSettingsUpdated()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("BuildingBase::OnSettingsUpdated - Start");
+		#endif
+		
+		if ( IsMissionHost() )
+		{
+			if (HasInterior()) {
+				if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
+					LoadInterior();
+				else 
+					UnloadInterior();
+			}
+		
+			if (HasIvys()) {
+				if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys)
+					LoadIvys();	
+				else
+					UnloadIvys();
+			}
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("BuildingBase::OnSettingsUpdated - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// BuildingBase ReloadCustomObjects
+	// ------------------------------------------------------------
 	void ReloadCustomObjects()
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("BuildingBase::ReloadCustomObjects - Start");
+		#endif
+		
 		if (HasInterior()) {
 			if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
 				LoadInterior();
@@ -66,10 +111,15 @@ modded class BuildingBase
 			else
 				UnloadIvys();
 		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("BuildingBase::ReloadCustomObjects - End");
+		#endif
 	}
 	
-
-	
+	// ------------------------------------------------------------
+	// BuildingBase ConvertTransformToWorld
+	// ------------------------------------------------------------
 	private void ConvertTransformToWorld( vector posms, vector orims, out vector posws, out vector oriws )
 	{
 		Transform snapTrans = Transform.GetObject( this );
@@ -82,7 +132,10 @@ modded class BuildingBase
 		posws = worldTrans.GetOrigin();
 		oriws = worldTrans.GetYawPitchRoll();
 	}
-
+	
+	// ------------------------------------------------------------
+	// BuildingBase FixObjectCollision
+	// ------------------------------------------------------------
 	private void FixObjectCollision( Object obj )
 	{
 		vector roll = obj.GetOrientation();
@@ -91,10 +144,12 @@ modded class BuildingBase
 		roll[2] = roll[2] + 1;
 		obj.SetOrientation( roll );
 	}
-
+	
+	// ------------------------------------------------------------
+	// BuildingBase SpawnInteriorIvy
+	// ------------------------------------------------------------
 	protected Object SpawnInteriorIvy( string type, vector position, vector orientation )
 	{
-
 		ConvertTransformToWorld( position, orientation, position, orientation );
 
 		Object obj = GetGame().CreateObjectEx( type, position, ECE_LOCAL );
@@ -117,7 +172,10 @@ modded class BuildingBase
 
 		return obj;
 	}
-	
+		
+	// ------------------------------------------------------------
+	// BuildingBase SpawnInteriorObject
+	// ------------------------------------------------------------
 	protected Object SpawnInteriorObject( string type, vector position, vector orientation, float random = 1.0 )
 	{
 		#ifdef EXPANSION_INTERIOR_RANDONMIZATION
@@ -205,7 +263,10 @@ modded class BuildingBase
 
 		return obj;
 	}
-	
+			
+	// ------------------------------------------------------------
+	// BuildingBase LoadInterior
+	// ------------------------------------------------------------
 	void LoadInterior()
 	{
 		if (m_InteriorsLoaded) {
@@ -236,7 +297,9 @@ modded class BuildingBase
 		#endif
 	}
 	
-	
+	// ------------------------------------------------------------
+	// BuildingBase LoadIvys
+	// ------------------------------------------------------------	
 	void LoadIvys()
 	{
 		if (m_IvysLoaded || !IsMissionClient()) {
@@ -262,25 +325,41 @@ modded class BuildingBase
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// BuildingBase UnloadInterior
+	// ------------------------------------------------------------		
 	void UnloadInterior()
-	{
+	{		
 		if (!m_InteriorsLoaded) {
 			return;
 		}		
 		
+		if (!m_InteriorObjects || m_InteriorObjects.Count() == 0) {
+			return;	
+		}
+		
 		foreach (Object int_obj: m_InteriorObjects)
+		{
 			if (int_obj)
 				GetGame().ObjectDelete(int_obj);
+		}
 		
 		
 		m_InteriorObjects.Clear();
 		m_InteriorsLoaded = false;
 	}
 	
+	// ------------------------------------------------------------
+	// BuildingBase UnloadIvys
+	// ------------------------------------------------------------		
 	void UnloadIvys()
 	{
 		if (!m_IvysLoaded) {
 			return;
+		}
+		
+		if (!m_IvyObjects || m_IvyObjects.Count() == 0) {
+			return;	
 		}
 		
 		foreach (Object ivy_obj: m_IvyObjects) {
@@ -291,11 +370,17 @@ modded class BuildingBase
 		m_IvysLoaded = false;
 	}
 	
+	// ------------------------------------------------------------
+	// BuildingBase HasInterior
+	// ------------------------------------------------------------	
 	bool HasInterior()
 	{
 		return false;
 	}
 	
+	// ------------------------------------------------------------
+	// BuildingBase HasIvys
+	// ------------------------------------------------------------	
 	bool HasIvys()
 	{
 		return false;
@@ -304,7 +389,9 @@ modded class BuildingBase
 	protected void SpawnInterior();
 	protected void SpawnIvys();
 	
-	
+	// ------------------------------------------------------------
+	// BuildingBase Explode
+	// ------------------------------------------------------------
  	override void Explode(int damageType, string ammoType = "")
 	{
 		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
@@ -350,7 +437,11 @@ modded class BuildingBase
 					nearest_object.AddHealth( "GlobalHealth", "Health", ( explosionDamage * blastDropoff * explosionDamageMultiplier * -1) ); 
 			}
 		}
-	} 
+	}
+	
+	// ------------------------------------------------------------
+	// BuildingBase RemoveInterior
+	// ------------------------------------------------------------
 	/*void RemoveInterior()
 	{
 		#ifdef EXPANSIONEXLOGPRINT

@@ -100,12 +100,10 @@ modded class ActionDeployObject
 			{
 				if ( player.IsInTerritory(size) )
 				{
-					if ( player.IsInTerritory(Tsize) )
-						return !item.IsInherited(TerritoryFlagKit);
 
 					if ( player.IsInsideOwnTerritory(size) )
 					{
-						return true;
+						return !item.IsInherited(TerritoryFlagKit);
 					}
 					else
 					{

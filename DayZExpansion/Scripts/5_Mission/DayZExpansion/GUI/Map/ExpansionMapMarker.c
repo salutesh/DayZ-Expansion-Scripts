@@ -618,7 +618,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			bool canCreateParty = false;
 			ExpansionPartyModule party;
 			if ( Class.CastTo( party, GetModuleManager().GetModule( ExpansionPartyModule ) ) )
-				canCreateParty = party.HasParty() && GetExpansionSettings().GetMap().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties;
+				canCreateParty = party.HasParty() && GetExpansionSettings().GetParty().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties;
 			
 			m_StatePartyContainer.Show( canCreateParty );
 			

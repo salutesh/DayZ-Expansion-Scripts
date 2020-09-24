@@ -32,10 +32,12 @@ class ExpansionSettingSerializationSlider: ExpansionSettingSerializationBase
 	}
 
 	float GetValue()
-	{		
+	{
 		float value;
 
-		EnScript.GetClassVar( m_Instance, m_Variable, 0, value );
+		FindClassInstanceAndVariable();
+
+		EnScript.GetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
 		
 		return value;
 	}
@@ -44,7 +46,9 @@ class ExpansionSettingSerializationSlider: ExpansionSettingSerializationBase
 	{
 		value = Math.Clamp( value, m_Min, m_Max );
 
-		EnScript.SetClassVar( m_Instance, m_Variable, 0, value );
+		FindClassInstanceAndVariable();
+
+		EnScript.SetClassVar( m_ActualInstance, m_ActualVariable, 0, value );
 		
 		GetGame().GameScript.Call( m_Instance, "OnSettingsUpdated", new Param2< typename, ExpansionSettingSerializationBase >( Type(), this ) );
 	}

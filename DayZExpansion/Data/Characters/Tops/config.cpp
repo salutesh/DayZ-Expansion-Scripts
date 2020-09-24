@@ -32,7 +32,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "Expansion Dark Tee";
 		descriptionShort = "Expansion Dark Tee";
-		visibilityModifier = 0.95;
+		visibilityModifier = 0.85;
 		hiddenSelectionsTextures[] = {"DayZExpansion\Data\characters\tops\data\expansion_shirt.paa","DayZExpansion\Data\characters\tops\data\expansion_shirt.paa","DayZExpansion\Data\characters\tops\data\expansion_shirt.paa"};
 	};
 	class ExpansionRidersJacketBrown: RidersJacket_ColorBase
