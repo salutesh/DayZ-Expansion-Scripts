@@ -17,11 +17,11 @@ class ExpansionVehicleScript extends ItemBase
 #endif
 {
 	protected ref array< ref ExpansionVehicleAxle > m_Axles;
-	protected ref array< ref ExpansionCrewData > m_Crew;
+	protected ref array< ref ExpansionVehicleCrew > m_Crew;
 
 	protected ref array< ExpansionVehicleWheel > m_Wheels;
 
-	protected ref ExpansionController m_Controller;
+	protected ref ExpansionVehicleController m_Controller;
 	protected bool m_HasDriver;
 	
 	// ------------------------------------------------------------
@@ -171,7 +171,7 @@ class ExpansionVehicleScript extends ItemBase
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
 
 		m_Axles = new array< ref ExpansionVehicleAxle >;
-		m_Crew = new array< ref ExpansionCrewData >;
+		m_Crew = new array< ref ExpansionVehicleCrew >;
 
 		m_Wheels = new array< ExpansionVehicleWheel >;
 
@@ -227,7 +227,7 @@ class ExpansionVehicleScript extends ItemBase
 			string crewName;
 			GetGame().ConfigGetChildName( path, i, crewName );
 
-			m_Crew.Insert( new ExpansionCrewData( this, crewName ) );
+			m_Crew.Insert( new ExpansionVehicleCrew( this, crewName ) );
 		}
 
 		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
@@ -752,8 +752,8 @@ class ExpansionVehicleScript extends ItemBase
 			if ( GetNumWheels() != numWheelsGrounded )
 			{
 				vector gravity = "0 -9.8 0" * m_BodyMass;
-				float invWheelsGrounded = 1.0 / ( GetNumWheels() - numWheelsGrounded );
-				impulse += gravity * dt * invWheelsGrounded;
+				//float invWheelsGrounded = 1.0 / ( GetNumWheels() - numWheelsGrounded );
+				impulse += gravity * dt;// * invWheelsGrounded;
 			}
 
 			ApplyPhysics( dt, impulse, impulseTorque );
@@ -1122,7 +1122,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ref ExpansionController GetExpansionController()
+	ref ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -2999,7 +2999,7 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ExpansionController GetControllerInstance()
+	ExpansionVehicleController GetControllerInstance()
 	{
 		return NULL;
 	} 

@@ -19,9 +19,12 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 
 	private ref ExpansionVehicleGearbox m_Gearbox;
 	private ref ExpansionVehicleEngine m_Engine;
+	private ref ExpansionVehicleSteering m_Steering;
 	
 	private float m_Turn;
 	private float m_TargetTurn;
+	
+	private float m_HandleSteer;
 
 	private float m_Brake;
 	private float m_Throttle;
@@ -32,14 +35,17 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		
 		m_Gearbox = new ExpansionVehicleGearbox( this );
 		m_Engine = new ExpansionVehicleEngineRWD( this );
+		m_Steering = new ExpansionVehicleSteering( this );
 	}
 	
 	void ~ExpansionBikeScript()
 	{
 		delete m_Gearbox;
+		delete m_Engine;
+		delete m_Steering;
 	}
 
-	override ExpansionController GetControllerInstance()
+	override ExpansionVehicleController GetControllerInstance()
 	{
 		return new ExpansionBikeController( this );
 	}
@@ -137,7 +143,7 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 
 	override float GetSteering()
 	{
-		return m_Turn;
+		return m_HandleSteer;
 	}
 
 	override float GetThrottle()
@@ -154,18 +160,23 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	{
 		m_TargetTurn = ( m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
 		
+		float turnChange = m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_TargetTurn );
+		
+		m_Turn += turnChange;
+		
+		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
+		
+		float maxSteer = 1.0 - Math.Clamp( ( absForwardSpeed ) / 30.0, 0.0, 0.95 );
+		
+		m_HandleSteer = Math.Clamp( m_Turn, -maxSteer, maxSteer );
+
 		m_Throttle = Math.Clamp( m_Throttle + Math.Clamp( m_BikeController.GetForward() - m_Throttle, -1.0 * pDt, 1.0 * pDt ), 0.0, 1.0 );
+		
 		m_Brake = m_BikeController.GetBackward();
-
-		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 1.0;
-
-		if ( Math.AbsFloat( m_TargetTurn ) > Math.AbsFloat( m_Turn ) )
-		{
-			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * ( 3.0 / absForwardSpeed );
-		} else if ( Math.AbsFloat( m_TargetTurn ) < Math.AbsFloat( m_Turn ) )
-		{
-			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * ( 50.0 / absForwardSpeed );
-		}
+		
+		ExpansionDebugUI( "Turn: " + m_Turn );
+		ExpansionDebugUI( "Handle Steer: " + m_HandleSteer );
+		ExpansionDebugUI( "Target Turn: " + m_TargetTurn );
 	}
 
 	protected override void OnPreSimulation( float pDt )
@@ -175,13 +186,13 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		if ( !m_IsPhysicsHost )
 			return;
 		
-		int gear = m_BikeController.GetGear();
+		int gear = m_Gearbox.GetCurrentGear();
 		if ( m_Throttle == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
 		{
 			m_Brake = 1.0;
 		}
 		
-		ApplyAxleSteering( 0, m_Turn );
+		ApplyAxleSteering( 0, m_HandleSteer );
 		ApplyAxleSteering( 1, 0.0 );
 			
 		ApplyAxleTorque( 0, 0.0 );
@@ -189,7 +200,7 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		
 		if ( EngineIsOn() )
 		{
-			m_Engine.OnUpdate( pDt, m_Throttle, m_Gearbox[gear] );
+			m_Engine.OnUpdate( pDt, m_Throttle, m_Gearbox.OnUpdate( m_ClutchState, m_BikeController.GetGear(), pDt ) );
 			
 			ApplyAxleBrake( 0, m_Brake );
 			ApplyAxleBrake( 1, m_Brake );
@@ -198,6 +209,13 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 			ApplyAxleBrake( 0, 1.0 );
 			ApplyAxleBrake( 1, 1.0 );
 		}
+	}
+
+	protected override void OnAnimationUpdate( float pDt )
+	{
+		super.OnAnimationUpdate( pDt );
+
+		SetAnimationPhase( "steeringwheel", GetSteering() );
 	}
 
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
@@ -220,16 +238,16 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 
 		vector upDir = m_Transform.data[1];
 
-		//if ( upDir[1] > 0.8 )
+		if ( upDir[1] > 0.5 )
 		{
 			vector terrainSurface = m_Wheels[0].GetSuspensionContactNormal() + m_Wheels[1].GetSuspensionContactNormal();
 			terrainSurface = terrainSurface.Normalized().Multiply3( m_Transform.data );
 
 			vector estDirUp = GetEstimatedOrientation( 0.1 )[1].Normalized();
 			
-			float leanAmount = Math.Clamp( m_Turn * 0.1, -0.16, 0.16 );
-			float leanOnX = leanAmount * absForwardSpeed;
-			leanOnX = Math.Clamp( leanOnX, -0.86, 0.86 );
+			float leanAmount = Math.Clamp( m_Turn, -0.26, 0.26 );
+			float leanOnX = leanAmount * absForwardSpeed * 0.001;
+			leanOnX = Math.Clamp( leanOnX, -0.76, 0.76 );
 
 			vector upDirWanted = Vector( -terrainSurface[0], 1.0, -terrainSurface[2] ).Normalized();
 			

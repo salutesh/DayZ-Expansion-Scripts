@@ -50,6 +50,8 @@ class ExpansionVehicleWheel
 	private vector m_ContactNormalWS;
 
 	private float m_SuspensionLength;
+	private float m_SuspensionLengthPrevious;
+	
 	private float m_SuspensionFraction;
 	private float m_RestLength;
 
@@ -78,7 +80,7 @@ class ExpansionVehicleWheel
 	
 	private float m_Mass;
 
-	private float m_EngineTorque;
+	private float m_WheelTorque;
 	private float m_BrakeTorque;
 	
 	private float m_Steering;
@@ -161,12 +163,12 @@ class ExpansionVehicleWheel
 
 	void ApplyTorque( float torque )
 	{
-		m_EngineTorque = torque / m_WheelItem.m_Radius;
+		m_WheelTorque = torque;
 	}
 
 	void ApplyBrake( float torque )
 	{
-		m_BrakeTorque = torque / m_WheelItem.m_Radius;
+		m_BrakeTorque = torque;
 	}
 	
 	private vector GetCenterPositionSelection( string lod_name, string selection_name )
@@ -238,11 +240,18 @@ class ExpansionVehicleWheel
 	void OnWheelAttach( notnull ExpansionWheel wheel, bool isFromPrevious = false )
 	{
 		m_WheelItem = wheel;
+		
+		m_Axle.UpdateWheelRadius();
 	}
 
 	void OnWheelDetach()
 	{
 		m_WheelItem = NULL;
+	}
+	
+	ExpansionWheel GetItem()
+	{
+		return m_WheelItem;
 	}
 
 	void SetupSimulation( float pDt, out int numWheelsGrounded )
@@ -367,7 +376,6 @@ class ExpansionVehicleWheel
 			m_ContactNormal = m_ContactNormalWS.InvMultiply3( m_Vehicle.m_Transform.data );
 
 			float wheelDiff = vector.Dot( m_ContactNormal, m_WheelDirectionMS );
-			//wheelDiff *= -wheelDiff;
 			if ( wheelDiff >= -0.1 )
 			{
 				m_HasContact = false;
@@ -381,9 +389,10 @@ class ExpansionVehicleWheel
 				m_SuspensionInvContact = invWheelDiff;
 			}
 			
-			// ExpansionDebugUI( "wheelDiff: " + wheelDiff );
-			// ExpansionDebugUI( "inv contact: " + m_SuspensionInvContact );
-			// ExpansionDebugUI( "rel vel: " + m_SuspensionRelativeVelocity );
+			
+			ExpansionDebugUI( "wheelDiff: " + wheelDiff );
+			ExpansionDebugUI( "inv contact: " + m_SuspensionInvContact );
+			ExpansionDebugUI( "rel vel: " + m_SuspensionRelativeVelocity );
 		}
 
 		if ( !m_HasContact )
@@ -404,6 +413,7 @@ class ExpansionVehicleWheel
 			m_Surface = "";
 		} else
 		{
+			/*
 			vector temp1;
 			vector temp2;
 			int temp3;
@@ -419,6 +429,9 @@ class ExpansionVehicleWheel
 			{
 				m_Surface = "";
 			}
+			*/
+			
+			m_Surface = "";
 		}
 		
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
@@ -440,11 +453,11 @@ class ExpansionVehicleWheel
 	private void Suspension( float pDt, int numWheelsGrounded, out vector impulse, out vector impulseTorque )
 	{
 		float suspLength = ( m_ContactFraction * m_ContactLength ) - m_WheelItem.m_Radius + m_Axle.GetWheelHubRadius();
-		if ( suspLength < 0 )
-			suspLength = 0;
 
 		if ( m_HasContact )
 		{
+			Expansion_Assert_False( numWheelsGrounded != 0, "If m_HasContact is true, atleast 1 wheel must be grounded." );
+			
 			float invWheelsGrounded = 1.0 / ( numWheelsGrounded );
 			float invWheels = 1.0 / ( m_Vehicle.GetNumWheels() );
 			
@@ -472,6 +485,7 @@ class ExpansionVehicleWheel
 			#endif
 		}
 
+		m_SuspensionLengthPrevious = m_SuspensionLength;
 		m_SuspensionLength = suspLength;
 	}
 
@@ -480,27 +494,34 @@ class ExpansionVehicleWheel
 		if ( !m_HasContact )
 			return;
 	
-		float forwardImpulse = m_EngineTorque * m_Mass;
-		forwardImpulse -= m_Mass * vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_ContactVelocity.Length() / numWheelsGrounded;
-		forwardImpulse -= vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_BrakeTorque;
+		float forwardImpulse = 0;
+		
+		if ( m_WheelTorque != 0 )
+		{
+			forwardImpulse = m_WheelTorque * m_Mass / m_WheelItem.m_Radius;
+		} else
+		{
+			forwardImpulse = -vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_BrakeTorque;
+		}
+
+		forwardImpulse += -m_WheelItem.m_TyreRollResistance * m_ContactVelocity[2];
 		
 		float sideDot = vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[0] );
 		float sideCoef = 10.0;
 		float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / numWheelsGrounded;
 
-		m_AngularVelocity = m_ContactVelocity[2];
-		m_AngularVelocity = m_AngularVelocity / m_WheelItem.m_Radius;
+		m_AngularVelocity = m_ContactVelocity[2] / m_WheelItem.m_Radius;
 		m_AngularRotation += m_AngularVelocity * pDt;
 		if ( m_AngularRotation > Math.PI2 )
 			m_AngularRotation -= Math.PI2;
 		else if ( m_AngularRotation < 0 )
 			m_AngularRotation += Math.PI2;
 		
-		float surfaceFriction = 1.0;
+		float surfaceFriction = 0.95;
 		
 		if ( m_Surface != "" ) 
-			Surface.GetParamFloat( m_Surface, "friction" );
-
+			surfaceFriction = Surface.GetParamFloat( m_Surface, "friction" );
+		
 		vector forwardImp = m_TransformMS[2] * forwardImpulse * pDt * surfaceFriction;
 		vector sideImp = m_TransformMS[0] * sideImpulse * pDt * surfaceFriction;
 

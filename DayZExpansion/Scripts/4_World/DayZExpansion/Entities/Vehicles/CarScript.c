@@ -136,7 +136,7 @@ modded class CarScript
 	protected float m_TotalVolume;
 
 	// Controllers
-	protected ref ExpansionController m_Controller;
+	protected ref ExpansionVehicleController m_Controller;
 	protected bool m_HasDriver;
 
 	// Effects
@@ -391,7 +391,7 @@ modded class CarScript
 		return m_allVehicles;
 	}
 
-	ref ExpansionController GetExpansionController()
+	ref ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -2880,7 +2880,7 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------
-	ExpansionController GetControllerInstance()
+	ExpansionVehicleController GetControllerInstance()
 	{
 		return NULL;
 	} 

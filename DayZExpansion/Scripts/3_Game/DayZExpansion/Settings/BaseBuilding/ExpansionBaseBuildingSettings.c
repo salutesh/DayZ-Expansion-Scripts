@@ -25,7 +25,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool CanCraftExpansionBasebuilding;						//! When enabled, allows players to craft Expansion basebuilding.
 
 	bool DestroyFlagOnDismantle;							//! When enabled, destroys both flag pole and the flag kit on dismantle.
-	bool DismantleFlagRequireTools;							//! When enabled, allows players to dismantle flags.
+	int DismantleFlagRequireTools;							//! -1 = can't dismantle | 0 = doesn't need tools to dismantle | 1 = dismantle with tools
 	bool DismantleOutsideTerritory;							//! When enabled, allows players to dismantle basebuilding without territory.
 	bool DismantleAnywhere;									//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
 	
@@ -235,7 +235,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CanCraftVanillaBasebuilding = false;
 		CanCraftExpansionBasebuilding = true;
 		DestroyFlagOnDismantle = true;
-		DismantleFlagRequireTools = true;
+		DismantleFlagRequireTools = 1;
 		DismantleOutsideTerritory = false;
 		DismantleAnywhere = false;
 		

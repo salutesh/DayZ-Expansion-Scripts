@@ -548,7 +548,7 @@ static void Expansion_SetupDebugger()
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_ENGINE );
 
-	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
-	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
-	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
+	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
 }

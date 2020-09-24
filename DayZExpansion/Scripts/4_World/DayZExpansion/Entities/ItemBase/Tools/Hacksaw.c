@@ -16,6 +16,6 @@ modded class Hacksaw
 	{
 		super.SetActions();
 		//AddAction( ExpansionActionDestroyFlag );
-		//AddAction( ExpansionActionDestroyTerritory );
+		AddAction( ExpansionActionDestroyTerritory );
 	}
 }

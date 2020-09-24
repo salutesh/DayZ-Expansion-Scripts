@@ -13,7 +13,7 @@
 /**@class		ExpansionHelicopterController
  * @brief		This class handle player controls to move helicopter
  **/
-class ExpansionHelicopterController: ExpansionController
+class ExpansionHelicopterController: ExpansionVehicleController
 {
 	private float m_CollectiveUp;
 	private float m_CollectiveDown;

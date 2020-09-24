@@ -153,7 +153,7 @@ class ExpansionPlaneScript extends CarScript
 	}
 	
 	// ------------------------------------------------------------
-	override ExpansionController GetControllerInstance()
+	override ExpansionVehicleController GetControllerInstance()
 	{
 		return new ExpansionPlaneController( this );
 	}

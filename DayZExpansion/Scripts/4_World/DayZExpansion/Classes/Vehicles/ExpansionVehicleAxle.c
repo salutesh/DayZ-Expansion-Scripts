@@ -16,6 +16,8 @@ class ExpansionVehicleAxle
 
 	protected ExpansionVehicleScript m_Vehicle;
 	protected ref array< ref ExpansionVehicleWheel > m_Wheels;
+	
+	private float m_WheelRadius;
 
 	private float m_MaxSteeringAngle;
 	private float m_BrakeBias;
@@ -187,6 +189,25 @@ class ExpansionVehicleAxle
 			rotationRate += m_Wheels[i].GetAngularVelocity();
 		return rotationRate / m_Wheels.Count();
 	}
+	
+	float GetWheelRadius()
+	{
+		return m_WheelRadius;
+	}
+	
+	void UpdateWheelRadius()
+	{
+		for ( int i = 0; i < m_Wheels.Count(); ++i )
+			if ( m_Wheels[i].GetItem() )
+				m_WheelRadius += m_Wheels[i].GetItem().m_Radius;
+		
+		m_WheelRadius = m_WheelRadius / m_Wheels.Count();
+	}
+	
+	float GetRPM()
+	{
+		return GetAngularVelocity() / ( m_WheelRadius * m_WheelRadius );
+	}
 
 	void SetSteering( float steering )
 	{
@@ -286,7 +307,7 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		m_Wheels[1].Simulate( pDt, numWheelsGrounded, pImpulse, pImpulseTorque );
 
 		vector w1 = m_Wheels[0].GetSuspensionContactNormal() * m_AntiRollForce * pDt;
-		vector w2 = m_Wheels[0].GetSuspensionContactNormal() * m_AntiRollForce * pDt;
+		vector w2 = m_Wheels[1].GetSuspensionContactNormal() * m_AntiRollForce * pDt;
 		vector p1 = m_Wheels[0].GetSuspensionContactPosition();
 		vector p2 = m_Wheels[1].GetSuspensionContactPosition();
 
@@ -299,8 +320,8 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		impulse += w2;
 		impulseTorque += p2 * w2;
 
-		pImpulse += impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
-		pImpulseTorque += impulseTorque.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
+		//pImpulse += impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
+		//pImpulseTorque += impulseTorque.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
 	}
 
 	protected override void _SetSteering( float steering )

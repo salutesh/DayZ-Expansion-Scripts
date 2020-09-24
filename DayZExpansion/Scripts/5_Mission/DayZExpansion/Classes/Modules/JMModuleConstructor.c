@@ -53,6 +53,7 @@ modded class JMModuleConstructor
 
 		modules.Insert( ExpansionGameMissionSelecterModule );
 		modules.Insert( ExpansionClientSettingsModule );
+		modules.Insert( ExpansionRespawnHandlerModule );
 		
 		super.RegisterModules( modules );
 	}

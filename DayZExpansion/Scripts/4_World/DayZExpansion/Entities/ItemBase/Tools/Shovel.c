@@ -15,6 +15,6 @@ modded class Shovel
 	override void SetActions()
 	{
 		super.SetActions();
-		//AddAction( ExpansionActionDestroyTerritory );
+		AddAction( ExpansionActionDestroyTerritory );
 	}
 }

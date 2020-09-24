@@ -24,7 +24,7 @@ class ExpansionVehicleGearbox
 	private int m_Gear;
 	private bool m_Clutch;
 	
-	void ExpansionVehicleGearbox(ExpansionVehicleScript vehicle)
+	void ExpansionVehicleGearbox( ExpansionVehicleScript vehicle )
 	{
 		string path;
 		

@@ -28,7 +28,7 @@ enum ExpansionSettingsRPC
 	Vehicle,
 	General,
 
-	// when an admin requests these, not sent under normal circumstances
+	// when an admin requests these, not send under normal circumstances
 	SafeZone,
 	Mission,
 	AirDrop,

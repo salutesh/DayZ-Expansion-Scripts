@@ -33,6 +33,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool ShowNameOnServerMarkers;		//! Show the name of server markers
 	bool ShowDistanceOnServerMarkers;	//! Show the distance of  server markers
 	
+	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
+	//! Failure will result in ServerMarkers incurring a memory leak.
 	ref array< ref ExpansionMarkerData > ServerMarkers;
 	
 	[NonSerialized()]
@@ -105,14 +107,63 @@ class ExpansionMapSettings: ExpansionSettingBase
 		EXPrint("ExpansionMapSettings::OnRecieve - Start");
 		#endif
 
-		ExpansionMapSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionMapSettings::OnRecieve setting");
+		if ( !ctx.Read( EnableMap ) )
 			return false;
-		}
+		if ( !ctx.Read( UseMapOnMapItem ) )
+			return false;
+		if ( !ctx.Read( ShowPlayerPosition ) )
+			return false;
+		if ( !ctx.Read( ShowMapStats ) )
+			return false;
+		if ( !ctx.Read( CanCreateMarker ) )
+			return false;
+		if ( !ctx.Read( CanCreate3DMarker ) )
+			return false;
+		if ( !ctx.Read( CanOpenMapWithKeyBinding ) )
+			return false;
+		if ( !ctx.Read( EnableHUDGPS ) )
+			return false;
+		if ( !ctx.Read( NeedGPSItemForKeyBinding ) )
+			return false;
+		if ( !ctx.Read( NeedMapItemForKeyBinding ) )
+			return false;
+		if ( !ctx.Read( EnableServerMarkers ) )
+			return false;
+		if ( !ctx.Read( ShowNameOnServerMarkers ) )
+			return false;
+		if ( !ctx.Read( ShowDistanceOnServerMarkers ) )
+			return false;
+
+		int count = 0;
+		int index = 0;
+		int removeIndex = 0;
+		string uid = "";
 		
-		CopyInternal( setting );
+		if ( !ctx.Read( count ) )
+			return false;
+			
+		ExpansionMarkerData marker;
+		array< string > checkArr = ServerMarkersMap.GetKeyArray();
+		for ( index = 0; index < count; ++index )
+		{
+			if ( !ctx.Read( uid ) )
+				return false;
+
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+				checkArr.Remove( removeIndex );
+
+			marker = ServerMarkersMap.Get( uid );
+			if ( !marker )
+			{
+				marker = ExpansionMarkerData.Create( ExpansionMapMarkerType.SERVER, uid );
+				ServerMarkersMap.Insert( uid, marker );
+				ServerMarkers.Insert( marker );
+			}
+
+			if ( !marker.OnRecieve( ctx ) )
+				return false;
+		}
 
 		m_IsLoaded = true;
 
@@ -128,9 +179,32 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionMapSettings thisSetting = this;
+		ctx.Write( EnableMap );
+		ctx.Write( UseMapOnMapItem );
+		ctx.Write( ShowPlayerPosition );
+		ctx.Write( ShowMapStats );
+		ctx.Write( CanCreateMarker );
+		ctx.Write( CanCreate3DMarker );
+		ctx.Write( CanOpenMapWithKeyBinding );
+		ctx.Write( EnableHUDGPS );
+		ctx.Write( NeedGPSItemForKeyBinding );
+		ctx.Write( NeedMapItemForKeyBinding );
+		ctx.Write( EnableServerMarkers );
+		ctx.Write( ShowNameOnServerMarkers );
+		ctx.Write( ShowDistanceOnServerMarkers );
 
-		ctx.Write( thisSetting );
+		int count = 0;
+		int index = 0;
+		int removeIndex = 0;
+		string uid = "";
+		
+		count = ServerMarkers.Count();
+		ctx.Write( count );
+		for ( index = 0; index < count; ++index )
+		{
+			ctx.Write( ServerMarkers[index].GetUID() );
+			ServerMarkers[index].OnSend( ctx );
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -169,15 +243,18 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionMapSettings s, bool copyServerMarkers = true )
 	{
+		/*
 		if ( copyServerMarkers )
 		{
 			ServerMarkers.Clear();
+			Print("CopyInternal::s.ServerMarkers"+s.ServerMarkers.Count());
 
 			for (int i = 0; i < s.ServerMarkers.Count(); i++)
 			{
 				ServerMarkers.Insert( s.ServerMarkers[i] );
 			}
 		}
+		*/
 
 		EnableMap = s.EnableMap;
 		UseMapOnMapItem = s.UseMapOnMapItem;

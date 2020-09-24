@@ -10,10 +10,6 @@
  *
 */
 
-/**
- * Not needed. Players should lower the flag before destroying the territory
- */
-
 class ExpansionActionDestroyFlagCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
@@ -63,7 +59,7 @@ class ExpansionActionDestroyFlag: ActionContinuousBase
 			float state = base_building.GetAnimationPhase("flag_mast");
 
 			//! If the flag exists, allow the destruction of it
-			if ( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) /*&& state >= 0.99*/ )
+			if ( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) && state >= 0.01 )
 			{
 				return true;
 			}

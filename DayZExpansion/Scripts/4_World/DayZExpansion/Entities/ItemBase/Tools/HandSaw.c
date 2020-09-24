@@ -16,6 +16,6 @@ modded class HandSaw
 	{
 		super.SetActions();
 		//AddAction( ExpansionActionDestroyFlag );
-		//AddAction( ExpansionActionDestroyTerritory );
+		AddAction( ExpansionActionDestroyTerritory );
 	}
 }

@@ -15,15 +15,29 @@
  **/
 class ExpansionStartingGear
 {
-	bool UseStartingGear				// If enabled, will use the starting gear configured in this file
-	bool UsingUpperGear;				// If enabled, use the upper gear configured
-	bool UsingPantsGear;				// If enabled, use the pants gear configured
-	bool UsingBackpackGear;				// If enabled, use the backpack gear configured
-
+	bool EnableStartingGear;			// If enabled, will use the starting gear configured in this file
+	bool UseUpperGear;					// If enabled, use the upper gear configured
+	bool UsePantsGear;					// If enabled, use the pants gear configured
+	bool UseBackpackGear;				// If enabled, use the backpack gear configured
+	bool UseVestGear;					// If enabled, use the vest gear configured
+	
+	bool UsePrimaryWeapon;				// If enabled, use the primary weapon configured
+	bool UseSecondaryWeapon;			// If enabled, use the secondary weapon configured
+	
 	ref TStringArray UpperGear;			// Array of classnames used for the upper gear
 	ref TStringArray PantsGear;			// Array of classnames used for the pants gear
 	ref TStringArray BackpackGear;		// Array of classnames used for the backpack gear
-
+	ref TStringArray VestGear;			// Array of classnames used for the vest gear
+	
+	string PrimaryWeapon;
+	ref TStringArray PrimaryWeaponAttachments;
+	
+	string SecondaryWeapon;
+	ref TStringArray SecondaryWeaponAttachments;
+	
+	bool ApplyEnergySources;			// If enabled this will apply batteries to all items that can fit/need one.
+	bool SetRandomHeath;				// If enabled this will add ramdom damage to all items that the player has.
+	
 	// ------------------------------------------------------------
 	// ExpansionStartingGear Constructor
 	// ------------------------------------------------------------
@@ -36,6 +50,10 @@ class ExpansionStartingGear
 		UpperGear = new TStringArray;
 		PantsGear = new TStringArray;
 		BackpackGear = new TStringArray;
+		VestGear = new TStringArray;
+		
+		PrimaryWeaponAttachments = new TStringArray;
+		SecondaryWeaponAttachments = new TStringArray;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGear::ExpansionStartingGear - End");
@@ -51,18 +69,39 @@ class ExpansionStartingGear
 		EXPrint("ExpansionStartingGear::Defaults - Start");
 		#endif
 		
-		UseStartingGear = false;
-		UsingUpperGear = false;
-		UsingPantsGear = false;
-		UsingBackpackGear = false;
+		EnableStartingGear = true;
+		UseUpperGear = true;
+		UsePantsGear = false;
+		UseBackpackGear = true;
+		UseVestGear = false;
+		UsePrimaryWeapon = false;
+		UseSecondaryWeapon = false;
+		
+		ApplyEnergySources = true;
+		SetRandomHeath = true;
 		
 		UpperGear.Insert("Rag");
-		UpperGear.Insert("Chemlight_White");
 		UpperGear.Insert("StoneKnife");
 		UpperGear.Insert("Apple");
 
 		BackpackGear.Insert("SpaghettiCan");
 		BackpackGear.Insert("BakedBeansCan");
+		BackpackGear.Insert("Chemlight_White");
+		
+		/*
+		VestGear.Insert("M67Grenade");
+		VestGear.Insert("M67Grenade");
+		VestGear.Insert("M67Grenade");
+		
+		PrimaryWeapon = "M4A1";
+		PrimaryWeaponAttachments.Insert("M4_OEBttstck");
+		PrimaryWeaponAttachments.Insert("M4_CarryHandleOptic");
+		PrimaryWeaponAttachments.Insert("M4_RISHndgrd");
+		PrimaryWeaponAttachments.Insert("UniversalLight");
+		PrimaryWeaponAttachments.Insert("Battery9V");
+		
+		SecondaryWeapon = "FirefighterAxe";
+		*/
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGear::Defaults - End");
@@ -73,7 +112,8 @@ class ExpansionStartingGear
 
 class ExpansionStartingClothing
 {
-	bool UseCustomClothing;
+	bool EnableCustomClothing;
+	bool SetRandomHeath;
 	
 	ref TStringArray Headgear;
 	ref TStringArray Glasses;
@@ -114,13 +154,30 @@ class ExpansionStartingClothing
 		EXPrint("ExpansionStartingClothing::Defaults - Start");
 		#endif
 		
-		UseCustomClothing = false;
+		EnableCustomClothing = true;
+		SetRandomHeath = true;
 		
 		Tops.Insert("TShirt_Green");
+		Tops.Insert("TShirt_Blue");
+		Tops.Insert("TShirt_Black");
+		Tops.Insert("TShirt_Beige");
+		Tops.Insert("TShirt_Red");
+		Tops.Insert("TShirt_OrangeWhiteStripes");
+		Tops.Insert("TShirt_White");
+		Tops.Insert("TShirt_Red");
+		Tops.Insert("TShirt_Grey");
+		Tops.Insert("TShirt_RedBlackStripes");
 		
-		Pants.Insert("TrackSuitPants_Black");
-		Pants.Insert("TrackSuitPants_Red");
-		Pants.Insert("TrackSuitPants_Green");
+		Pants.Insert("CanvasPants_Beige");
+		Pants.Insert("CanvasPants_Blue");
+		Pants.Insert("CanvasPants_Grey");
+		Pants.Insert("CanvasPants_Red");
+		Pants.Insert("CanvasPants_Violet");
+		Pants.Insert("CanvasPantsMidi_Beige");
+		Pants.Insert("CanvasPantsMidi_Blue");
+		Pants.Insert("CanvasPantsMidi_Grey");
+		Pants.Insert("CanvasPantsMidi_Red");
+		Pants.Insert("CanvasPantsMidi_Violet");
 		
 		Shoes.Insert("AthleticShoes_Blue");
 		Shoes.Insert("AthleticShoes_Grey");
@@ -132,6 +189,11 @@ class ExpansionStartingClothing
 		Backpacks.Insert("TaloonBag_Green");
 		Backpacks.Insert("TaloonBag_Orange");
 		Backpacks.Insert("TaloonBag_Violet");
+		
+		/*
+		Vests.Insert("HighCapacityVest_Black");
+		Vests.Insert("HighCapacityVest_Olive");
+		*/
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingClothing::Defaults - End");

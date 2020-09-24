@@ -514,14 +514,18 @@ class ExpansionTerritoryModule: JMModuleBase
 		flag.SetIsExpansionTerritoryFlag( true );
 		flag.SetTerritoryID( m_NextTerritoryID );
 		flag.SetFlagTexture( texturePath );
+		#ifndef EXPANSION_TERRITORY_DEV_DEBUG
 		flag.SetOwnerID( senderID );
+		#endif
 		
 		//! Create new territory
 		ExpansionTerritory newTerritory = new ExpansionTerritory( m_NextTerritoryID, territoryName, 1, senderID, position, texturePath );
 		if ( !newTerritory )
 			return;
 		
+		#ifndef EXPANSION_TERRITORY_DEV_DEBUG
 		newTerritory.AddMember( senderID, sender.GetName(), true );
+		#endif
 		
 		flag.SetTerritory( newTerritory );
 		

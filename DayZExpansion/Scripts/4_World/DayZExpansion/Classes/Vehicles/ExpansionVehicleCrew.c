@@ -1,5 +1,5 @@
 /**
- * ExpansionCrewData.c
+ * ExpansionVehicleCrew.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionCrewData
+class ExpansionVehicleCrew
 {
 	private ExpansionVehicleScript m_Vehicle;
 	private string m_Name;
@@ -26,9 +26,9 @@ class ExpansionCrewData
 
 	private vector m_SeatTransform[4];
 
-	void ExpansionCrewData( ExpansionVehicleScript vehicle, string name )
+	void ExpansionVehicleCrew( ExpansionVehicleScript vehicle, string name )
 	{
-		//Print( "ExpansionCrewData - Start" );
+		//Print( "ExpansionVehicleCrew - Start" );
 		
 		m_Vehicle = vehicle;
 		m_Name = name;
@@ -84,7 +84,7 @@ class ExpansionCrewData
 
 		//Print("this is the test code");
 		
-		//Print( "ExpansionCrewData - End" );
+		//Print( "ExpansionVehicleCrew - End" );
 	}
 
 	string GetName()

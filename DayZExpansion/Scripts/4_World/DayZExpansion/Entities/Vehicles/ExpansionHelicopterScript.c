@@ -189,7 +189,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	}
 	
 	// ------------------------------------------------------------
-	override ExpansionController GetControllerInstance()
+	override ExpansionVehicleController GetControllerInstance()
 	{
 		return new ExpansionHelicopterController( this );
 	}

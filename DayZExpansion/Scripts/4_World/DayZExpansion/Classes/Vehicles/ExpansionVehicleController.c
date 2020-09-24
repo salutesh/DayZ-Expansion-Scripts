@@ -1,5 +1,5 @@
 /**
- * ExpansionController.c
+ * ExpansionVehicleController.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -13,7 +13,7 @@
 /**@class		ExpansionPlaneController
  * @brief		Abstract implementation for vehicle controllers
  */
-class ExpansionController
+class ExpansionVehicleController
 {
 	protected bool m_UseUAInterface = false;
 
@@ -23,14 +23,14 @@ class ExpansionController
 	protected HumanCommandVehicle m_Command;
 	protected ExpansionHumanCommandVehicle m_ECommand;
 
-	void ExpansionController( EntityAI vehicle )
+	void ExpansionVehicleController( EntityAI vehicle )
 	{
 		m_Vehicle = vehicle;
 	}
 
 	void Update()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionController::Update" );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::Update" );
 
 		Transport transport;
 		ExpansionVehicleScript vehicleScript;
@@ -105,7 +105,7 @@ class ExpansionController
 	 */
 	protected void OnUpdate()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionController::OnUpdate" );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::OnUpdate" );
 	}
 
 	/**
@@ -113,7 +113,7 @@ class ExpansionController
 	 */
 	protected void OnReset()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionController::OnReset" );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::OnReset" );
 	}
 
 	void NetworkSend( ref ParamsWriteContext ctx )

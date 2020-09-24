@@ -21,6 +21,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 	private ref ExpansionVehicleGearbox m_Gearbox;
 	private ref ExpansionVehicleEngine m_Engine;
+	private ref ExpansionVehicleSteering m_Steering;
 	
 	private float m_Turn;
 	private float m_TargetTurn;
@@ -35,9 +36,17 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		
 		m_Gearbox = new ExpansionVehicleGearbox( this );
 		m_Engine = new ExpansionVehicleEngineRWD( this );
+		m_Steering = new ExpansionVehicleSteering( this );
 	}
 
-	override ExpansionController GetControllerInstance()
+	void ~ExpansionCarScript()
+	{
+		delete m_Gearbox;
+		delete m_Engine;
+		delete m_Steering;
+	}
+
+	override ExpansionVehicleController GetControllerInstance()
 	{
 		return new ExpansionCarController( this );
 	}
@@ -158,20 +167,14 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
 		m_TargetTurn = ( m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
+
+		float turnChange = m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_TargetTurn );
 		
+		m_Turn += turnChange;
+
 		m_Throttle = Math.Clamp( m_Throttle + Math.Clamp( m_CarController.GetForward() - m_Throttle, -1.0 * pDt, 1.0 * pDt ), 0.0, 1.0 );
 		
 		m_Brake = m_CarController.GetBackward();
-
-		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 1.0;
-
-		if ( Math.AbsFloat( m_TargetTurn ) > Math.AbsFloat( m_Turn ) )
-		{
-			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * 30.0 / absForwardSpeed;
-		} else if ( Math.AbsFloat( m_TargetTurn ) < Math.AbsFloat( m_Turn ) )
-		{
-			m_Turn += ( m_TargetTurn - m_Turn ) * pDt * 100.0 / absForwardSpeed;
-		}
 		
 		ExpansionDebugUI( "Turn: " + m_Turn );
 		ExpansionDebugUI( "Target Turn: " + m_TargetTurn );
@@ -222,5 +225,28 @@ class ExpansionCarScript extends ExpansionVehicleScript
 			ApplyAxleBrake( 0, 1.0 );
 			ApplyAxleBrake( 1, 1.0 );
 		}
+	}
+
+	protected override void OnAnimationUpdate( float pDt )
+	{
+		super.OnAnimationUpdate( pDt );
+
+		SetAnimationPhase( "steeringwheel", GetSteering() );
+	}
+
+	protected override void OnSimulation( float pDt, out vector force, out vector torque )
+	{
+		super.OnSimulation( pDt, force, torque );
+
+		float dir = Math.Clamp( m_LinearVelocityMS[2], -1, 1 );
+		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
+		
+		vector downForce = vector.Up * -absForwardSpeed * pDt * m_BodyMass;
+		
+		force += downForce.Multiply3( m_Transform.data );
+		torque += ( Vector( 0, 0, -dir * 10.0 ) * downForce ).Multiply3( m_Transform.data );
+
+
+		ExpansionDebugUI();
 	}
 }

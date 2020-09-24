@@ -13,7 +13,7 @@
 /**@class		ExpansionBikeController
  * @brief		Handles input controls for bikes
  */
-class ExpansionBikeController: ExpansionController
+class ExpansionBikeController: ExpansionVehicleController
 {
 	private int m_Gear;
 

@@ -83,22 +83,27 @@ class ExpansionVehicleEngine
 
 	void OnUpdate( float pDt, float pThrottle, float pGR )
 	{
+		ExpansionDebugUI( "Type: " + ClassName() );
+		
 		float axleDiff = GetDifferential();
+		float wheelVel = Math.AbsFloat( GetWheelAngularVelocity() );
 		
-		m_RPM = Math.AbsFloat( GetWheelAngularVelocity() * pGR ) * axleDiff * 60.0 / ( Math.PI2 );
-		m_RPM = Math.Clamp( m_RPM, m_RPMMin, m_RPMMax );
-		
-		m_Torque = LoopupTorque( m_RPM ) * pThrottle;
-		
-		if ( m_Torque < 0.0 )
-			m_Torque = 0.0;
-
+		ExpansionDebugUI( "Wheel Velocity: " + wheelVel );
 		ExpansionDebugUI( "Axle Differential: " + axleDiff );
 		ExpansionDebugUI( "Gear Ratio: " + pGR );
-		ExpansionDebugUI( "Torque: " + m_Torque );
+				
+		m_RPM = Math.AbsFloat( wheelVel * pGR * axleDiff * 30.0 / Math.PI );
+		ExpansionDebugUI( "RPM: " + m_RPM );
+		m_RPM = Math.Clamp( m_RPM, m_RPMMin, m_RPMMax );
 		ExpansionDebugUI( "RPM: " + m_RPM );
 
-		ApplyAxleTorque( m_Torque * pGR * m_Inertia );
+		//if ( m_RPM > m_RPMRedline )
+		//	pThrottle = MathHelper.Interpolate( m_RPM, m_RPMRedline, m_RPMMax, 1, 0 );
+
+		m_Torque = LoopupTorque( m_RPM ) * pThrottle; // MathHelper.Interpolate( m_RPM, 0, m_TorqueRPM, 0, m_TorqueMax ) * pThrottle;
+		ExpansionDebugUI( "Torque: " + m_Torque );
+
+		ApplyAxleTorque( m_Torque * m_Inertia * pGR );
 	}
 
 	protected void ApplyAxleTorque( float torque )
@@ -128,6 +133,14 @@ class ExpansionVehicleEngine
 		
 		return ( m_TorqueMax * rpm ) / ( m_TorqueRPM );
 	}
+	
+	private float LoopupPower( float rpm )
+	{
+		//if ( rpm > m_PowerRPM )
+		//	return m_PowerMax * ( m_RPMMax - rpm ) / ( m_RPMMax - m_PowerRPM );
+		
+		return ( m_PowerMax * rpm ) / ( m_PowerRPM );
+	}
 
 	float GetTorque()
 	{
@@ -145,6 +158,11 @@ class ExpansionVehicleEngine
 	}
 
 	protected float GetWheelAngularVelocity()
+	{
+		return 0;
+	}
+
+	protected float GetWheelRPM()
 	{
 		return 0;
 	}
@@ -172,6 +190,11 @@ class ExpansionVehicleEngineRWD : ExpansionVehicleEngine
 	protected override float GetWheelAngularVelocity()
 	{
 		return m_Axle.GetAngularVelocity();
+	}
+
+	protected override float GetWheelRPM()
+	{
+		return m_Axle.GetRPM();
 	}
 };
 
@@ -225,5 +248,10 @@ class ExpansionVehicleEngineAWD : ExpansionVehicleEngine
 	protected override float GetWheelAngularVelocity()
 	{
 		return ( m_AxleF.GetAngularVelocity() + m_AxleB.GetAngularVelocity() ) * 0.5;
+	}
+
+	protected override float GetWheelRPM()
+	{
+		return ( m_AxleF.GetRPM() + m_AxleB.GetRPM() ) * 0.5;
 	}
 };

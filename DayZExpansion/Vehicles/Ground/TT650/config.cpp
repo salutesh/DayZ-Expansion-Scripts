@@ -39,6 +39,8 @@ class CfgVehicles
 		mass = 80.0;
 		radius = 0.333;
 		width = 0.316;
+		tyreRollResistance = 0.015;
+		tyreTread = 1.0;
 	};
 	class ExpansionBikeScript;
 	class ExpansionTT650: ExpansionBikeScript
@@ -87,9 +89,9 @@ class CfgVehicles
 		{
 			class Steering
 			{
-				increaseSpeed[] = {0,45,60,23,100,12};
-				decreaseSpeed[] = {0,80,60,40,90,20};
-				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+				increaseSpeed[] = {3.0};
+				decreaseSpeed[] = {40.0};
+				centeringSpeed[] = {30.0};
 			};
 			class Throttle
 			{
@@ -191,21 +193,21 @@ class CfgVehicles
 			{
 				source = "user";
 				initPhase = 0;
-				animPeriod = 1e-05;
+				animPeriod = 1e-06;
 			};
 			class Damper_2: Damper_1{};
 			class wheelfront
 			{
 				source = "user";
 				initPhase = 0;
-				animPeriod = 1e-05;
+				animPeriod = 1e-06;
 			};
 			class wheelback: wheelfront{};
-			class DrivingWheel
+			class steeringwheel
 			{
 				source = "user";
 				initPhase = 0;
-				animPeriod = 1e-05;
+				animPeriod = 1e-06;
 			};
 		};
 	};

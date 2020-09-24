@@ -13,7 +13,7 @@
 /**@class		ExpansionCarController
  * @brief		This class handle player controls to move boats
  **/
-class ExpansionCarController: ExpansionController
+class ExpansionCarController: ExpansionVehicleController
 {
 	private int m_Gear;
 
