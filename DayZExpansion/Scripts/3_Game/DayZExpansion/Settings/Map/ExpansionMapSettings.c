@@ -34,7 +34,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool ShowDistanceOnServerMarkers;	//! Show the distance of  server markers
 	
 	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
-	//! Failure will result in ServerMarkers incurring a memory leak.
+	//! Failure will result in ServerMarkers incurring a memory leak on the client.
 	ref array< ref ExpansionMarkerData > ServerMarkers;
 	
 	[NonSerialized()]
@@ -381,4 +381,4 @@ class ExpansionMapSettings: ExpansionSettingBase
 		EXPrint("[ExpansionMapSettings] Default settings loaded!");
 		#endif
 	}
-}
+};

@@ -60,4 +60,4 @@ modded class PPEffects
 		EXLogPrint( "PPEffects::UpdateVignette - End" );
 		#endif
 	}
-}
+};

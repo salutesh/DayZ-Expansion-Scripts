@@ -109,23 +109,7 @@ modded class DayZPlayerImplement
 	{
 		return ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
 	}
-	
-	// ------------------------------------------------------------
-	// DayZPlayerImplement StartCommand_ExpansionLeaveVehicle
-	// ------------------------------------------------------------
-	ExpansionHumanCommandLeavingVehicle StartCommand_ExpansionLeaveVehicle( Object vehicle )
-	{
-		return NULL;
-	}
-	
-	// ------------------------------------------------------------
-	// DayZPlayerImplement GetCommand_ExpansionVehicle
-	// ------------------------------------------------------------
-	ExpansionHumanCommandLeavingVehicle GetCommand_ExpansionLeaveVehicle()
-	{
-		return ExpansionHumanCommandLeavingVehicle.Cast( GetCommand_Script() );
-	}
-	
+		
 	// ------------------------------------------------------------
 	// DayZPlayerImplement GetExpansionTransport
 	// ------------------------------------------------------------

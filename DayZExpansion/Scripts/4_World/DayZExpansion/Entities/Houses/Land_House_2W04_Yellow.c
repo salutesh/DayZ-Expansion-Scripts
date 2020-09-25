@@ -17,10 +17,10 @@ class Land_House_2W04_Yellow extends BuildingSuper
 		return false;
 	}
 
-	    override bool HasIvys()
-    {
-        return true;
-    }
+		override bool HasIvys()
+	{
+		return true;
+	}
 	
 	override void SpawnIvys()
 	{

@@ -98,9 +98,9 @@ class ExpansionVehicleEngine
 		ExpansionDebugUI( "RPM: " + m_RPM );
 
 		//if ( m_RPM > m_RPMRedline )
-		//	pThrottle = MathHelper.Interpolate( m_RPM, m_RPMRedline, m_RPMMax, 1, 0 );
+		//	pThrottle = Math.Interpolate( m_RPM, m_RPMRedline, m_RPMMax, 1, 0 );
 
-		m_Torque = LoopupTorque( m_RPM ) * pThrottle; // MathHelper.Interpolate( m_RPM, 0, m_TorqueRPM, 0, m_TorqueMax ) * pThrottle;
+		m_Torque = LoopupTorque( m_RPM ) * pThrottle; // Math.Interpolate( m_RPM, 0, m_TorqueRPM, 0, m_TorqueMax ) * pThrottle;
 		ExpansionDebugUI( "Torque: " + m_Torque );
 
 		ApplyAxleTorque( m_Torque * m_Inertia * pGR );

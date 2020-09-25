@@ -173,4 +173,4 @@ class ExpansionDebugSettings: ExpansionSettingBase
 
 		ShowVehicleDebugMarkers = false;
 	}
-}
+};

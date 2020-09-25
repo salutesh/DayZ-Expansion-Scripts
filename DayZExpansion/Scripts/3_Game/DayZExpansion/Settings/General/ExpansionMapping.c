@@ -194,5 +194,4 @@ class ExpansionMapping
 		EXLogPrint("ExpansionMappingDeerIsle::Defaults - End");
 		#endif
 	}
-
-}
+};

@@ -87,7 +87,7 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 		EXPrint("ExpansionGyrocopter::GetAnimInstance");
 		#endif
 
-		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
+		return ExpansionVehicleAnimInstances.EXPANSION_GYROCOPTER;
 	}
 
 	// ------------------------------------------------------------

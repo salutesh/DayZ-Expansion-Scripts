@@ -44,4 +44,4 @@ class ExpansionMarketKnifes: ExpansionMarketCategory
 		AddItem("HuntingKnife", 				11,		13,		1,		500,	0 );
 		AddItem("Machete", 						12,		14,		1,		500,	0 );
 	}
-}
+};

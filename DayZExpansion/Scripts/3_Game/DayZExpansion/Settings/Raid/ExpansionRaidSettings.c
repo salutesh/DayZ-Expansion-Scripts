@@ -230,4 +230,4 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		EXPrint("ExpansionRaidSettings::Defaults - End");
 		#endif
 	}
-}
+};

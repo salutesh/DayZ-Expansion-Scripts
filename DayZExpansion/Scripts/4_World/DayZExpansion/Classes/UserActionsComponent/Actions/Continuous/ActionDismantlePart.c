@@ -44,12 +44,14 @@ modded class ActionDismantlePart
 		else if ( player.IsInTerritory() )
 		{
 			//! It's his territory ?
-			if ( !player.IsInsideOwnTerritory() )
-				return false;
-
+			if ( player.IsInsideOwnTerritory() )
+			{
+				return true;
 			//! Can he dismantle anywhere ?
-			if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
+			} else if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
+			{
 				return DismantleAnywhereCondition( player, target, item, camera_check );
+			}
 		}
 
 		//! Can you dismantle outside territoies ?

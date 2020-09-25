@@ -66,4 +66,4 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 		AddItem("AliceBag_Black", 					400,		450,		1,		250,	0 );
 		AddItem("AliceBag_Camo", 					400,		450,		1,		250,	0 );
 	}
-}
+};

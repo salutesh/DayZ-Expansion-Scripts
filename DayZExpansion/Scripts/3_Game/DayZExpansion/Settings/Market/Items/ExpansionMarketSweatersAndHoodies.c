@@ -35,4 +35,4 @@ class ExpansionMarketSweatersAndHoodies: ExpansionMarketCategory
 		AddItem("Hoodie_Grey", 							3,		3,		1,		250,	0 );
 		AddItem("Hoodie_Red", 							3,		3,		1,		250,	0 );
 	}
-}
+};

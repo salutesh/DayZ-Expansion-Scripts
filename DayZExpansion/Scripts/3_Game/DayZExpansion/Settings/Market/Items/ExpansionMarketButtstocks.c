@@ -52,4 +52,4 @@ class ExpansionMarketButtstocks: ExpansionMarketCategory
 		AddItem("GhillieAtt_Woodland", 			25,	30,	1,		250,	0 );
 		AddItem("GhillieAtt_Mossy", 			25,	30,	1,		250,	0 );
 	}
-}
+};

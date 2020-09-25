@@ -54,4 +54,4 @@ class ExpansionGame
 	{
 		return false;
 	}
-}
+};

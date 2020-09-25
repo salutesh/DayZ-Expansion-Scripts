@@ -12,16 +12,8 @@
 
 class ExpansionActionRocket: ActionInteractBase
 {
-	private ref Timer m_RocketTimer;
-
-	private int m_Rockets;
-
-	private CarScript m_Vehicle;
-
 	void ExpansionActionRocket()
 	{
-		m_RocketTimer 		= new Timer();
-
 		m_CommandUID		= DayZPlayerConstants.CMD_ACTIONMOD_OPENLID;
 		m_StanceMask		= DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon	 	= CursorIcons.LootCorpse;
@@ -51,66 +43,70 @@ class ExpansionActionRocket: ActionInteractBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-
-		if ( vehCommand )
+		CarScript car;
+		if ( vehCommand && Class.CastTo( car, vehCommand.GetTransport() ) )
 		{
-			if ( Class.CastTo( m_Vehicle, vehCommand.GetTransport() ) )
+			if ( car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
-				if ( m_Vehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-				{
-					return true;
-				}
+				return true;
 			}
+
+			return false;
+		}
+
+		ExpansionHumanCommandVehicle exVehCommand = player.GetCommand_ExpansionVehicle();
+		ExpansionVehicleScript vehicle;
+		if ( vehCommand && Class.CastTo( vehicle, exVehCommand.GetTransport() ) )
+		{
+			if ( vehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		return false;
 	}
 
-	protected void SpawnRocket()
+	protected void SpawnRocket( EntityAI vehicle )
 	{
-		m_Rockets += 1;
-
 		ExpansionRocket rocket;
-		if ( Class.CastTo( rocket, GetGame().CreateObject( "ExpansionRocket", m_Vehicle.ModelToWorld(m_Vehicle.GetMemoryPointPos("rocket_pos")) ) ) )
+		if ( Class.CastTo( rocket, GetGame().CreateObject( "ExpansionRocket", vehicle.ModelToWorld( vehicle.GetMemoryPointPos("rocket_pos") ) ) ) )
 		{
-			//vector dir = m_Vehicle.GetMemoryPointPos("rocket_dir");
-			vector dir = m_Vehicle.GetDirection();
-			//vector dir = vector.Direction( m_Vehicle.GetMemoryPointPos("rocket_pos"), m_Vehicle.GetMemoryPointPos("rocket_dir") );
+			//vector dir = vehicle.GetMemoryPointPos("rocket_dir");
+			vector dir = vehicle.GetDirection();
+			//vector dir = vector.Direction( vehicle.GetMemoryPointPos("rocket_pos"), vehicle.GetMemoryPointPos("rocket_dir") );
 
 			rocket.SetDirection( dir );
-			rocket.SetPosition( m_Vehicle.ModelToWorld(m_Vehicle.GetMemoryPointPos("rocket_pos")) );
+			rocket.SetPosition( vehicle.ModelToWorld( vehicle.GetMemoryPointPos( "rocket_pos" ) ) );
 
 			rocket.CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			rocket.EnableDynamicCCD( true );
 
-			float speed = m_Vehicle.GetSpeedometer() / 2;
+			float speed = GetVelocity( vehicle ).Length() * 3.6 / 2.0;
 
 			SetVelocity( rocket, dir * speed /** ( 1.0 / 40.0 /*)*/ );
 			dBodyApplyForce( rocket, dir * speed * dBodyGetMass( rocket ) );
-		}
-
-		if ( m_Rockets >= 10 )
-		{
-			m_RocketTimer.Stop();
 		}
 	}
 
 	override void OnExecuteServer( ActionData action_data )
 	{
 		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
-		if ( vehCommand )
+		CarScript car;
+		if ( vehCommand && Class.CastTo( car, vehCommand.GetTransport() ) )
 		{
-			Transport trans = vehCommand.GetTransport();
-			if ( trans )
-			{
-				CarScript car;
-				if ( Class.CastTo(car, trans) )
-				{
-					m_Rockets = 0;
+			SpawnRocket( car );
+			return;
+		}
 
-					m_RocketTimer.Run( 0.25, this, "SpawnRocket", NULL, true ); 
-				}
-			}
+		ExpansionHumanCommandVehicle exVehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
+		ExpansionVehicleScript vehicle;
+		if ( vehCommand && Class.CastTo( vehicle, exVehCommand.GetTransport() ) )
+		{
+			SpawnRocket( vehicle );
+			return;
 		}
 	}
 	

@@ -25,9 +25,14 @@ class ExpansionVehicleAnimInstances
 	static int EX_MULTICAR = 6;
 	static int EX_GOLF = 7;
 	static int EXPANSION_BUS = 9;
+	static int EXPANSION_TRACTOR = 1;
+	static int EXPANSION_UAZ = 2;
 
 	// Boats
 	static int EXPANSION_UTILITY_BOAT = 8;
+	static int EXPANSION_VODNIK = 8;
+	static int EXPANSION_ZODIAC = 10;
+	static int EXPANSION_LHD = 10;
 
 	// Bikes
 	static int EXPANSION_TT650 = 11;
@@ -37,4 +42,6 @@ class ExpansionVehicleAnimInstances
 	// Helicopters
 	static int EXPANSION_MH6 = 10;
 	static int EXPANSION_MERLIN = 13;
+	static int EXPANSION_UH1H = 10;
+	static int EXPANSION_GYROCOPTER = 10;
 }

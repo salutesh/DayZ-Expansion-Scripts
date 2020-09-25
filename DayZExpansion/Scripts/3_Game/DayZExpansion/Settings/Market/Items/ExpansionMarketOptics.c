@@ -64,4 +64,4 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		AddItem("Expansion_ANPEQ15_Red", 		55,			75,		1,		250,	0 );
 		AddItem("Expansion_ANPEQ15_Green", 		55,			75,		1,		250,	0 );
 	}	
-}
+};

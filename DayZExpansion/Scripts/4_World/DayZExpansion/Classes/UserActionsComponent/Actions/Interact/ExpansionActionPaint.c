@@ -16,18 +16,12 @@ class ExpansionActionPaintCB : ActionContinuousBaseCB
 	{
 		m_ActionData.m_ActionComponent = new CAContinuousTime( 0.1 );
 	}
-}
+};
 
 class ExpansionActionPaint: ActionContinuousBase
 {
 	private string m_TargetName;
 	private string m_TargetDisplayName;
-
-	private CarScript m_Car;
-	private ItemBase m_Item;
-	private ExpansionSpraycanBase m_SprayCan;
-
-	private int m_SkinIndex;
 
 	private ExpansionSkinModule m_SkinModule;
 
@@ -60,33 +54,23 @@ class ExpansionActionPaint: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		//! Print( m_SkinModule );
 		if ( !m_SkinModule )
 			return false;
 
-		//! Print( target );
-		if ( !target )
-			return false;
+		ExpansionSpraycanBase spraycan;
 
 		//! Print( player.GetItemInHands() );
-		if ( !Class.CastTo( m_SprayCan, player.GetItemInHands() ) )
+		if ( !Class.CastTo( spraycan, player.GetItemInHands() ) )
 			return false;
-
-		//! Print( target.GetObject() );
-		if ( !Class.CastTo( m_Car, target.GetObject() ) )
-			if ( !Class.CastTo( m_Item, target.GetObject() ) )
-				return false;
 
 		m_TargetName = target.GetObject().GetType();
 
 		string spraySkin;
-		GetGame().ConfigGetText( "cfgVehicles " + m_SprayCan.GetType() + " skinName", spraySkin );
+		GetGame().ConfigGetText( "cfgVehicles " + spraycan.GetType() + " skinName", spraySkin );
 
-		m_SkinIndex = m_SkinModule.GetSkinIndex( m_TargetName, spraySkin );
+		int skinIndex = m_SkinModule.GetSkinIndex( m_TargetName, spraySkin );
 
-		//! Print( spraySkin );
-		//! Print( m_SkinIndex );
-		if ( m_SkinIndex == -1 )
+		if ( skinIndex == -1 )
 			return false;
 
 		m_TargetDisplayName = target.GetObject().GetDisplayName();
@@ -95,7 +79,6 @@ class ExpansionActionPaint: ActionContinuousBase
 		// Is he in a territory ?
 		if ( player.IsInTerritory() )
 			return player.IsInsideOwnTerritory(); // show the prompt if it's his territory
-
 
 		return true;
 	}
@@ -107,24 +90,41 @@ class ExpansionActionPaint: ActionContinuousBase
 		#endif
 
 		super.OnStartServer( action_data );
+
+		CarScript car;
+		ItemBase item;
+
+		string spraySkin;
+		GetGame().ConfigGetText( "cfgVehicles " + action_data.m_MainItem.GetType() + " skinName", spraySkin );
+
+		int skinIndex = m_SkinModule.GetSkinIndex( action_data.m_Target.GetObject().GetType(), spraySkin );
+		if ( skinIndex == -1 )
+			return;
 		
-		if ( m_Car) 
+		if ( Class.CastTo( car, action_data.m_Target.GetObject() ) )
 		{
-			m_Car.ExpansionSetSkin( m_SkinIndex );
-		} else if ( m_Item ) 
+			car.ExpansionSetSkin( skinIndex );
+		} else if ( Class.CastTo( item, action_data.m_Target.GetObject() ) ) 
 		{
-			m_Item.ExpansionSetSkin( m_SkinIndex );
-		}
-		
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
-		{
-			SEffectManager.PlaySound("Expansion_Spraying_SoundSet", m_Item.GetPosition());
+			item.ExpansionSetSkin( skinIndex );
 		}
 
-		m_SprayCan.AddQuantity( -10 );
+		action_data.m_MainItem.AddQuantity( -10 );
+		
+		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() )
+		{
+			SEffectManager.PlaySound( "Expansion_Spraying_SoundSet", action_data.m_Target.GetObject().GetPosition() );
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionActionPaint::OnStartServer - End m_Car : " + m_Car);
 		#endif
 	}
-}
+
+	override void OnStartClient( ActionData action_data )
+	{
+		super.OnStartClient( action_data );
+
+		SEffectManager.PlaySound("Expansion_Spraying_SoundSet", action_data.m_Target.GetObject().GetPosition() );
+	}
+};

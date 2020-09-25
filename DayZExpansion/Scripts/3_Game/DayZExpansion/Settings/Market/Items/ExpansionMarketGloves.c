@@ -59,4 +59,4 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		
 		AddItem("NBCGlovesGray", 					7,		9,		1,		250,	0 );
 	}
-}
+};

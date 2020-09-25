@@ -21,4 +21,4 @@ class ExpansionMarketNetworkCategory
 		Name = category.DisplayName;
 		CategoryID = category.CategoryID;
 	}
-}
+};

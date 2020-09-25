@@ -107,4 +107,4 @@ class ExpansionSnappingPosition
 			}
 		}
 	}
-}
+};

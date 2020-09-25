@@ -1,5 +1,5 @@
 /**
- * ExpansionServerListRest.c
+ * ExpansionServerRest.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -23,10 +23,4 @@ class ExpansionServerRest
 		Adress = adr;
 		Port = prt;
 	}
-}
-
-class ExpansionServerListRest
-{
-	string serverip;
-	int serverport;
-}
+};

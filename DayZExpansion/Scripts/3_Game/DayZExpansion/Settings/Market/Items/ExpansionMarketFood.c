@@ -56,5 +56,4 @@ class ExpansionMarketFood: ExpansionMarketCategory
 		AddItem("ExpansionCheese3", 			100,		102,		1,		500,	0 );
 		AddItem("ExpansionCheese4", 			100,		102,		1,		500,	0 );
 	}
-}
-
+};

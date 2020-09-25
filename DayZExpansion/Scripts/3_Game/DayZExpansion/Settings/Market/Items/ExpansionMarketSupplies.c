@@ -51,4 +51,4 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 		AddItem("HescoBox", 					200,		220,		1,		250,	0 );
 		AddItem("PowerGenerator", 				500,		520,		1,		250,	0 );
 	}
-}
+};

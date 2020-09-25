@@ -39,4 +39,4 @@ modded class CharacterCreationMenu
 		#endif
 		return layoutRoot;
 	}
-}
+};

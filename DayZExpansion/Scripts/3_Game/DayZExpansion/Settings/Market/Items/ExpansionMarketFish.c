@@ -29,5 +29,4 @@ class ExpansionMarketFish: ExpansionMarketCategory
 		AddItem("Sardines", 					50,			60,			1,		250,	0 );
 		AddItem("Mackerel", 					50,			60,			1,		250,	0 );
 	}
-}
-
+};

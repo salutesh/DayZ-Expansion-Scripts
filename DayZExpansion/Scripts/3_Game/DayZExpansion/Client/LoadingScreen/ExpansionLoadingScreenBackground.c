@@ -29,4 +29,4 @@ class ExpansionLoadingScreenBackground
 		EXPrint("ExpansionLoadingScreenBackground::ExpansionLoadingScreenBackground - End");
 		#endif
 	}
-}
+};

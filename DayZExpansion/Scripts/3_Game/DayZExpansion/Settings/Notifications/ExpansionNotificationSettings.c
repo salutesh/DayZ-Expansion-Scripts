@@ -296,4 +296,4 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 
 		EnableKillFeedDiscordMsg = false;
 	}
-}
+};

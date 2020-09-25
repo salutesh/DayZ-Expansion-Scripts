@@ -45,4 +45,4 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 		
 		AddItem("ExpansionGPS", 			1,		3,		1,		250,	0 );
 	}
-}
+};

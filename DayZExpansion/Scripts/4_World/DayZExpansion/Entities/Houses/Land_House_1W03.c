@@ -56,13 +56,13 @@ modded class Land_House_1W03
 
 	}
 
-	    override bool HasIvys()
-    {
-        return true;
-    }
-    
-    override void SpawnIvys()
-    {
+		override bool HasIvys()
+	{
+		return true;
+	}
+	
+	override void SpawnIvys()
+	{
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "-4.300001 0.350021 -8.500013", "90.000038 -89.000046 -0.000005" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "-4.249996 0.150009 -2.050002", "90.000000 -89.000046 -0.000009" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_L", "-4.300001 0.000000 2.209999", "89.000000 -89.000046 0.000000" );
@@ -92,6 +92,6 @@ modded class Land_House_1W03
 		SpawnInteriorIvy( "bldr_plnt_ivy_J", "0.349680 -1.127434 -8.700433", "-88.999977 0.000000 88.999954" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "-4.299999 -2.700226 -8.699991", "-0.000009 89.000046 179.999954" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_special_C", "2.501377 0.419395 -2.993032", "-124.999939 -89.000046 179.999985" );
-    }
+	}
 
 }

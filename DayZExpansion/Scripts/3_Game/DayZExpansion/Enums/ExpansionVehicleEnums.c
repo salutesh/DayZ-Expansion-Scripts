@@ -16,7 +16,7 @@ enum ExpansionVehicleNetworkMode
 	PREDICTION,
 	CLIENT,
 	COUNT
-}
+};
 
 enum ExpansionVehicleRPC
 {
@@ -24,4 +24,4 @@ enum ExpansionVehicleRPC
 	ClientSync,
 	ControllerSync,
 	COUNT
-}
+};

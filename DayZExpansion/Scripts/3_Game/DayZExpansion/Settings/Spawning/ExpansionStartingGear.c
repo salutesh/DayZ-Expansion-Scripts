@@ -107,7 +107,7 @@ class ExpansionStartingGear
 		EXPrint("ExpansionStartingGear::Defaults - End");
 		#endif
 	}
-}
+};
 
 
 class ExpansionStartingClothing
@@ -199,4 +199,4 @@ class ExpansionStartingClothing
 		EXPrint("ExpansionStartingClothing::Defaults - End");
 		#endif
 	}
-}
+};

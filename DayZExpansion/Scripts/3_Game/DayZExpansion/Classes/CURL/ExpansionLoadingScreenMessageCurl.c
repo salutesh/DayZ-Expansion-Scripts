@@ -14,4 +14,4 @@ class ExpansionLoadingScreenMessageCurl
 {
 	string message;
 	string submitter;
-}
+};

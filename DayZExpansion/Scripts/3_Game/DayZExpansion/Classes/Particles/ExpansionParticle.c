@@ -22,4 +22,4 @@ modded class EffectParticle
 			}
 		}
 	}
-}
+};

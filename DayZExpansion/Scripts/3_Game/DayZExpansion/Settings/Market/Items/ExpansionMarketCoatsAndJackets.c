@@ -132,4 +132,4 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		
 		AddItem("BDUJacket", 							10,		12,		1,		250,	0 );
 	}
-}
+};

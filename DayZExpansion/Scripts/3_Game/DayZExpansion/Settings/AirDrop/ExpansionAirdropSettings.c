@@ -669,4 +669,4 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		if(Containers)
 			Containers.Insert( new ExpansionAirdropLootContainers( "ExpansionAirdropContainer_Military", Loot ) );
 	}
-}
+};

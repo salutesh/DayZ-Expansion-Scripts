@@ -315,4 +315,4 @@ modded class LoadingScreen
 
 		return version;
 	}
-}
+};

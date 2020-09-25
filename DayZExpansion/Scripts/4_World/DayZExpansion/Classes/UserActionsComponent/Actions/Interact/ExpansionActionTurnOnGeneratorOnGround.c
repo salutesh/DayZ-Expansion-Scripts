@@ -12,8 +12,6 @@
 
 class ExpansionActionTurnOnGeneratorOnGround: ActionInteractBase
 {
-	private ExpansionGenerator m_Generator;
-
 	// ------------------------------------------------------------
 	void ExpansionActionTurnOnGeneratorOnGround()
 	{
@@ -29,6 +27,7 @@ class ExpansionActionTurnOnGeneratorOnGround: ActionInteractBase
 	// ------------------------------------------------------------
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		ExpansionGenerator m_Generator;
 		if ( !Class.CastTo( m_Generator, target.GetObject() ) )
 		{
 			return false;
@@ -60,6 +59,6 @@ class ExpansionActionTurnOnGeneratorOnGround: ActionInteractBase
 	// ------------------------------------------------------------
 	override void OnExecuteServer( ActionData action_data )
 	{
-		m_Generator.GetCompEM().SwitchOn();
+		ExpansionGenerator.Cast( action_data.m_Target.GetObject() ).GetCompEM().SwitchOn();
 	}
 }

@@ -24,4 +24,4 @@ class ExpansionSafeZoneElement
 	{
 		Type = ExpansionSafeZoneTypes.UNKNOWN;
 	}
-}
+};

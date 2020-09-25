@@ -480,8 +480,8 @@ class ExpansionIngameHud
 	// ------------------------------------------------------------
 	// Expansion Bool GetExpansionHudState
 	// ------------------------------------------------------------
-	bool GetHudState()
-	{		
+	bool GetExpansionHudState()
+	{
 		return m_ExpansionHudState;
 	}
 	

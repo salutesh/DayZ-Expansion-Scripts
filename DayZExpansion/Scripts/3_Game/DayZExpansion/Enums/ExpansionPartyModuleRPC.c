@@ -36,4 +36,4 @@ enum ExpansionPartyModuleRPC
 	UpdateQuickMarker,
 	
 	COUNT
-}
+};

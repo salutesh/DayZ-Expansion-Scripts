@@ -22,4 +22,4 @@ class ExpansionAirdropLootAttachments
 		Attachments = attachments;
 		Chance = chance;
 	}
-}
+};

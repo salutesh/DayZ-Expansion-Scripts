@@ -1,6 +1,6 @@
 class Expansion_FoodBase : Edible_Base
 {
-    override bool CanBeCooked()
+	override bool CanBeCooked()
 	{
 		return true;
 	}
@@ -22,4 +22,4 @@ class Expansion_FoodBase : Edible_Base
 		AddAction(ActionForceFeed);
 		AddAction(ActionEatFruit);
 	}
-}
+};

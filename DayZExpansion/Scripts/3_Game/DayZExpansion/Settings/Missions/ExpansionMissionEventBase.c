@@ -316,4 +316,4 @@ class ExpansionMissionEventBase
 	void Event_OnUpdate( float delta )
 	{
 	}
-}
+};

@@ -25,4 +25,4 @@ class ExpansionAirdropParticle extends House
 		if (m_ParticleEfx)
 			m_ParticleEfx.Stop();
 	}
-}
+};

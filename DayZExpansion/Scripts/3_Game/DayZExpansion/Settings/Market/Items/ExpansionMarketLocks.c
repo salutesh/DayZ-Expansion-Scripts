@@ -42,4 +42,4 @@ class ExpansionMarketLocks: ExpansionMarketCategory
 				
 		AddItem("ExpansionCodeLock", 			1000,		1200,		1,		100,	0 );
 	}
-}
+};

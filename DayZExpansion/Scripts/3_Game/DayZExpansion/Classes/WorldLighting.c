@@ -10,7 +10,8 @@
  *
 */
 
-/* modded class WorldLighting
+/*
+modded class WorldLighting
 {
 	protected string lighting_expansion = "DayZExpansion\\Dta\\World\\Lighting\\lighting_expansion.txt";
 	
@@ -25,4 +26,5 @@
 				break;
 		}
 	}
-} */
+};
+*/

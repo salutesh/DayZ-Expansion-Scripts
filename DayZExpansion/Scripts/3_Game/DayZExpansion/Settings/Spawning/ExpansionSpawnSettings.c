@@ -189,4 +189,4 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		StartingGear.Defaults();
 		StartingClothing.Defaults();
 	}
-}
+};

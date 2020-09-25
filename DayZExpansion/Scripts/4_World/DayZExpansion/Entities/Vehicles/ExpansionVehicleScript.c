@@ -2668,7 +2668,7 @@ class ExpansionVehicleScript extends ItemBase
 						}
 					}
 					
-					if (reverse_light_state != CarRearLightType.NONE    &&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
+					if (reverse_light_state != CarRearLightType.NONE	&&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
 					{
 						m_RearLight = CarRearLightBase.Cast( CreateRearLight() );
 						vector local_pos = GetMemoryPointPos(CarScript.m_ReverseLightPoint);

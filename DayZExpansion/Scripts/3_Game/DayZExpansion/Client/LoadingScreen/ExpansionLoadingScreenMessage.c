@@ -23,4 +23,4 @@ class ExpansionLoadingScreenMessage
 		this.MainText = text;
 		this.SubText = stext;
 	}
-}
+};

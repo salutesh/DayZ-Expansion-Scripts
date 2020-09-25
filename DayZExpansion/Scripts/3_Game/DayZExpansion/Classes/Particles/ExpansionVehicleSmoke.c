@@ -16,4 +16,4 @@ modded class EffVehicleSmoke
 	{
 		SetParticleState( -1 );
 	}
-}
+};

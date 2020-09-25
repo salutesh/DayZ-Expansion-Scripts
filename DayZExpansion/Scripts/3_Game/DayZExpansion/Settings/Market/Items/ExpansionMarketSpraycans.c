@@ -51,4 +51,4 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 		AddItem( "ExpansionSpraycanSunset",			100,	120,	1,		250,	0,	{} );
 		AddItem( "ExpansionSpraycanWasp",			100,	120,	1,		250,	0,	{} );
 	}
-}
+};

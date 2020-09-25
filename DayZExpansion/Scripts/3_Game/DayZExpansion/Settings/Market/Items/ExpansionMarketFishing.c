@@ -41,4 +41,4 @@ class ExpansionMarketFishing: ExpansionMarketCategory
 		AddItem("Hook", 			7,			12,			1,		250,		0 );
 		AddItem("FishingRod", 		100,		120,		1,		250,		0 );
 	}
-}
+};

@@ -42,4 +42,4 @@ class ExpansionMarketBoats: ExpansionMarketCategory
 		AddItem("ExpansionUtilityBoat", 	15000,		17000,		1,		10,		1,		{"ExpansionHelicopterBattery","GlowPlug"} );
 		AddItem("ExpansionZodiacBoat", 		15000,		17000,		1,		10,		1,		{"ExpansionHelicopterBattery","GlowPlug"} );
 	}
-}
+};

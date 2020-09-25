@@ -47,4 +47,4 @@ class ExpansionMarketHandguards: ExpansionMarketCategory
 		AddItem("MP5_PlasticHndgrd", 			10,			12,			1,		250,	0 );
 		AddItem("MP5_RailHndgrd", 				15,			17,			1,		250,	0 );
 	}
-}
+};

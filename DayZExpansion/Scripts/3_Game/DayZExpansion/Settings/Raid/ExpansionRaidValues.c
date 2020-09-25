@@ -38,4 +38,4 @@ class ExpansionRaidValues
 		return m_DamagableBaseBuilding;
 	}
 */
-}
+};

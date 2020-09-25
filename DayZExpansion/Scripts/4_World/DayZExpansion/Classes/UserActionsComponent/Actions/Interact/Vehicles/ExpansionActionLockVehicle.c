@@ -11,10 +11,7 @@
 */
 
 class ExpansionActionLockVehicle: ActionInteractBase
-{
-	protected CarScript m_Car;
-	protected ExpansionCarKey m_KeysInHand;
-	
+{	
 	// Sound
 	protected PlayerBase								m_Player;
 	protected EffectSound 								m_SoundLock;
@@ -37,38 +34,31 @@ class ExpansionActionLockVehicle: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Car = NULL;
-		m_KeysInHand = NULL;
-
-		if ( !player )
-			return false;
-
 		bool playerIsInVehicle = false;
+
+		CarScript car;
+		ExpansionCarKey key;
 
 		if ( player.GetCommand_Vehicle() )
 		{
-			if ( Class.CastTo( m_Car, player.GetCommand_Vehicle().GetTransport() ) )
-			{
+			if ( Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
 				playerIsInVehicle = true;
-			}
+			
 		}
 
 		if ( !playerIsInVehicle )
 		{
-			if ( !target || !Class.CastTo( m_Car, target.GetObject() ) )
-			{
+			if ( !target || !Class.CastTo( car, target.GetObject() ) )
 				return false;
-			}
-			if ( !Class.CastTo( m_KeysInHand, player.GetItemInHands() ) )
-			{
+
+			if ( !Class.CastTo( key, player.GetItemInHands() ) )
 				return false;
-			}
 		}
 
-		if ( !m_Car.HasKey() )
+		if ( !car.HasKey() )
 			return false;
 
-		if ( m_Car.GetLockedState() == ExpansionVehicleLockState.LOCKED || m_Car.GetLockedState() == ExpansionVehicleLockState.READY_TO_LOCK )
+		if ( car.GetLockedState() == ExpansionVehicleLockState.LOCKED || car.GetLockedState() == ExpansionVehicleLockState.READY_TO_LOCK )
 			return false;
 		
 		return true;
@@ -78,15 +68,16 @@ class ExpansionActionLockVehicle: ActionInteractBase
 	{
 		PlayLockSound();
 		
-		if (!GetGame().IsMultiplayer())
+		if ( !GetGame().IsMultiplayer() )
 		{
-			OnExecuteServer(action_data);
+			OnExecuteServer( action_data );
 		}
 	}
 	
 	override void OnExecuteServer( ActionData action_data )
 	{
-		m_Car.LockCar( m_KeysInHand );
+		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
+		car.LockCar( ExpansionCarKey.Cast( action_data.m_MainItem ) );
 	}
 
 	override bool CanBeUsedInVehicle()
@@ -101,7 +92,7 @@ class ExpansionActionLockVehicle: ActionInteractBase
 
 	void PlayLockSound()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
 		{
 			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
 			if ( m_Player )

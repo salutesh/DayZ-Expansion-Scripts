@@ -28,4 +28,4 @@ class ExpansionSpawnLocation
 		EXPrint("ExpansionSpawnLocation::ExpansionSpawnLocation - End");
 		#endif
 	}
-}
+};

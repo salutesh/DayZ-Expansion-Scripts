@@ -18,9 +18,9 @@ modded class Land_Village_Pub
 	}
 
 	override bool HasIvys()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 	
 	override void SpawnIvys()
 	{

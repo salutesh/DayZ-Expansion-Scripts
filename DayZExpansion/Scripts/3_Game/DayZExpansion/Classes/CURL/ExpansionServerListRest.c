@@ -1,5 +1,5 @@
 /**
- * BulletManager.c
+ * ExpansionServerListRest.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,8 @@
  *
 */
 
-class BulletManager
+class ExpansionServerListRest
 {
-	static native void CreateCylinderGeom(float height, vector size);
+	string serverip;
+	int serverport;
 };

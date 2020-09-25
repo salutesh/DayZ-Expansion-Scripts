@@ -44,5 +44,4 @@ class ExpansionMarketVegetables: ExpansionMarketCategory
 		AddItem("BoletusMushroom", 				2,		4,		1,		250,	0 );
 		AddItem("PleurotusMushroom", 			2,		4,		1,		250,	0 );
 	}
-}
-
+};

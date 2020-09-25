@@ -88,7 +88,7 @@ class ExpansionUh1h: ExpansionHelicopterScript
 		EXPrint("ExpansionUh1h::GetAnimInstance");
 		#endif
 
-		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
+		return ExpansionVehicleAnimInstances.EXPANSION_UH1H;
 	}
 
 	// ------------------------------------------------------------

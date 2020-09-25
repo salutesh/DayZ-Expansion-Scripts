@@ -263,4 +263,4 @@ modded class DayZGame
 			if ( m_ExpansionGame.OnRPC( sender, target, rpc_type, ctx ) )
 				return;
 	}
-}
+};

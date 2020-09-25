@@ -39,4 +39,4 @@ class ExpansionMarketCrossbows: ExpansionMarketCategory
 
 		AddItem("Expansion_Crossbow", 			100,		500,		1,		100,	0 );
 	}
-}
+};

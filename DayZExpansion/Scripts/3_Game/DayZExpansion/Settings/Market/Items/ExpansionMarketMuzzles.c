@@ -49,4 +49,4 @@ class ExpansionMarketMuzzles: ExpansionMarketCategory
 		AddItem("AK_Suppressor", 				25,		27,		1,		250,	0 );
 		AddItem("PistolSuppressor", 			15,		17,		1,		250,	0 );
 	}
-}
+};

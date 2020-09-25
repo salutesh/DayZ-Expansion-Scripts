@@ -23,6 +23,8 @@
 //! Enable it if you want to DISABLE market
 #define EXPANSION_MARKET_DISABLE
 
+#define EXPANSION_CHICKEN_DISABLE
+
 #define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG

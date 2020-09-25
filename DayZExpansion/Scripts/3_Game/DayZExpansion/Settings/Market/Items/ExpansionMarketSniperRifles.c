@@ -28,4 +28,4 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 		
 		AddItem("Expansion_AWM", 			1000,	1200,	1,		250,	0 );
 	}
-}
+};

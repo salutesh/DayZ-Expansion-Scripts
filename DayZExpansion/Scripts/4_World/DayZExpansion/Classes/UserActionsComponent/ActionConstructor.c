@@ -43,8 +43,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionGetInExpansionVehicle );
 		actions.Insert( ExpansionActionGetOutExpansionVehicle );
 		
-		//actions.Insert( ExpansionActionGetOutTransportTemp );
-		
 		#ifdef EXPANSION_VEHICLE_TOWING
 		actions.Insert( ExpansionActionConnectTow );
 		actions.Insert( ExpansionActionDisconnectTow );
@@ -68,14 +66,12 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionStopBoat );
 		
 		//! Helicopters
-		actions.Insert( ExpansionActionFlare );
 		actions.Insert( ExpansionActionRocket );
 		actions.Insert( ExpansionActionHelicopterHoverRefill );
 		actions.Insert( ExpansionActionSwitchAutoHover );
 		actions.Insert( ExpansionActionSwitchAutoHoverInput );
 
 		actions.Insert( ExpansionActionOpenTraderMenu );
-		actions.Insert( ExpansionActionSwitchLightsOn );
 		actions.Insert( ExpansionActionClose );
 		actions.Insert( ExpansionActionOpen );
 

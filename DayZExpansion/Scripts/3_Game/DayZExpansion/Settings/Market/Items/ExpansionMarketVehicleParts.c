@@ -74,4 +74,4 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		AddItem("ExpansionTractorDoorsDriver", 				37,		37,		1,		250,	0 );
 		AddItem("ExpansionTractorDoorsCodriver",			37,		37,		1,		250,	0 );
 	}
-}
+};

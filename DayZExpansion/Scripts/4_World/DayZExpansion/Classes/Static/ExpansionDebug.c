@@ -24,4 +24,4 @@ static string Expansion_Debug_Player( Man man )
 	}
 
 	return "[NULL Player] ";
-}
+};

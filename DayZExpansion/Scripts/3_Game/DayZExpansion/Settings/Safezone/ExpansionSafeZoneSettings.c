@@ -210,4 +210,4 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 		if ( index > -1 )
 			PolygonZones.Remove(index);
 	}
-}
+};

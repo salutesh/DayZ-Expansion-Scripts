@@ -28,4 +28,4 @@ class ExpansionMarketExchange: ExpansionMarketCategory
 		AddStaticItem("ExpansionSilverBar",			10		);
 		AddStaticItem("ExpansionSilverNugget",		1		);
 	}
-}
+};

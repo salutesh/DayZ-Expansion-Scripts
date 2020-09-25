@@ -12,9 +12,6 @@
 
 class ExpansionActionPairKey: ActionInteractBase
 {
-	protected CarScript m_Car;
-	protected ExpansionCarKey m_KeysInHand;
-
 	void ExpansionActionPairKey()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -33,33 +30,30 @@ class ExpansionActionPairKey: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Car = NULL;
-		m_KeysInHand = NULL;
+		CarScript car;
+		ExpansionCarKey key;
 
-		if ( !target || !player )
-			return false;
-
-		if ( !Class.CastTo( m_Car, target.GetObject() ) )
+		if ( !Class.CastTo( car, target.GetObject() ) )
 		{
 			return false;
 		}
 
-		if ( !Class.CastTo( m_KeysInHand, player.GetItemInHands() ) )
+		if ( !Class.CastTo( key, player.GetItemInHands() ) )
 		{
 			return false;
 		}
 
-		if ( m_Car.HasKey() )
+		if ( car.HasKey() )
 		{
 			return false;
 		}
 
-		if ( m_KeysInHand.IsPaired() )
+		if ( key.IsPaired() )
 		{
 			return false;
 		}
 		
-		if ( m_KeysInHand.IsInherited( ExpansionCarAdminKey ) )
+		if ( key.IsInherited( ExpansionCarAdminKey ) )
 		{
 			return false;
 		}
@@ -71,7 +65,8 @@ class ExpansionActionPairKey: ActionInteractBase
 	{
 		super.Start( action_data );
 
-		m_Car.PairKeyTo( m_KeysInHand );
+		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
+		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_MainItem ) );
 	}
 
 	override bool CanBeUsedInRestrain()

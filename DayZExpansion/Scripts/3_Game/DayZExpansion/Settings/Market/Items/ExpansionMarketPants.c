@@ -135,4 +135,4 @@ class ExpansionMarketPants: ExpansionMarketCategory
 		AddItem("JumpsuitPants_Grey", 				3,		5,		1,		250,	0 );
 		AddItem("JumpsuitPants_Red", 				3,		5,		1,		250,	0 );
 	}
-}
+};

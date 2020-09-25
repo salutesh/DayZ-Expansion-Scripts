@@ -12,5 +12,5 @@
 
 modded class Hud
 {
-	bool GetHudState();
-}
+	bool GetExpansionHudState();
+};

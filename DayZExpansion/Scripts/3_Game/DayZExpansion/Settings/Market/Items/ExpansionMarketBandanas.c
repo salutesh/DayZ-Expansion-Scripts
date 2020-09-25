@@ -43,4 +43,4 @@ class ExpansionMarketBandanas: ExpansionMarketCategory
 		AddItem("Bandana_Greenpattern", 			5,		1,		1,		250,	0 );
 		AddItem("Bandana_Camopattern", 				5,		1,		1,		250,	0 );
 	}
-}
+};

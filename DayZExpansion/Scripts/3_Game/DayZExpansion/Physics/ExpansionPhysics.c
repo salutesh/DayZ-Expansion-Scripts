@@ -130,4 +130,4 @@ class ExpansionPhysics
 		EXPrint( "ExpansionPhysics::IntegrateTransform - End");
 		#endif
 	}
-}
+};

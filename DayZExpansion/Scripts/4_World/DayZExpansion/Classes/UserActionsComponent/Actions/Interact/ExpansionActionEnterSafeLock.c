@@ -15,6 +15,7 @@
  **/
 class ExpansionActionEnterSafeLock: ActionInteractBase
 {
+	//! WARNING: If 'IsLocal' is false, refactor this
 	protected ItemBase m_Target;
 	
 	// -----------------------------------------------------------

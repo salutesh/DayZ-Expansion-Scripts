@@ -39,4 +39,4 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		AddItem("HuntingVest", 					60,			80,			1,		250,	0 );
 		AddItem("ReflexVest", 					10,			30,			1,		250,	0 );
 	}
-}
+};

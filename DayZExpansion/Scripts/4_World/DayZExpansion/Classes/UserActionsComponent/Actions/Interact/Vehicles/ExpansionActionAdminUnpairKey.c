@@ -12,8 +12,6 @@
 
 class ExpansionActionAdminUnpairKey: ActionInteractBase
 {
-	protected CarScript m_Car;
-
 	void ExpansionActionAdminUnpairKey()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -32,26 +30,19 @@ class ExpansionActionAdminUnpairKey: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Car = NULL;
-
 		if ( !target || !player )
 			return false;
 
-		if ( !Class.CastTo( m_Car, target.GetObject() ) )
-		{
+		CarScript car;
+		if ( !Class.CastTo( car, target.GetObject() ) )
 			return false;
-		}
 
 		ExpansionCarAdminKey key;
 		if ( !Class.CastTo( key, player.GetItemInHands() ) )
-		{
 			return false;
-		}
 
-		if ( !m_Car.HasKey() )
-		{
+		if ( !car.HasKey() )
 			return false;
-		}
 		
 		return true;
 	}
@@ -60,16 +51,16 @@ class ExpansionActionAdminUnpairKey: ActionInteractBase
 	{
 		super.Start( action_data );
 
+		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
+
 		array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
-		ExpansionCarKey.GetKeysForVehicle( m_Car, keys );
+		ExpansionCarKey.GetKeysForVehicle( car, keys );
 
 		for ( int i = 0; i < keys.Count(); ++i )
-		{
 			keys[i].Unpair( true );
-		}
 
 		if ( keys.Count() != 0 )
-			m_Car.ResetKeyPairing();
+			car.ResetKeyPairing();
 	}
 
 	override bool CanBeUsedInRestrain()

@@ -42,4 +42,4 @@ class ExpansionMarketTools: ExpansionMarketCategory
 		AddItem("WoodAxe", 						2,	 	3,		1,		250,	0 );
 		AddItem("FirefighterAxe", 				2,	 	3,		1,		250,	0 );
 	}
-}
+};

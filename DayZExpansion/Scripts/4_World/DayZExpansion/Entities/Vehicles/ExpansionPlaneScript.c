@@ -387,7 +387,7 @@ class ExpansionPlaneScript extends CarScript
 
 		// engine force
 		{
-			float speedCoef = MathHelper.Interpolate( m_LinearVelocityMS[2], m_MaxSpeedMS * 0.66, m_MaxSpeedMS * 1.15, 1, 0 ) * 0.25;
+			float speedCoef = Math.Interpolate( m_LinearVelocityMS[2], m_MaxSpeedMS * 0.66, m_MaxSpeedMS * 1.15, 1, 0 ) * 0.25;
 
 			tForce[0] = 0;
 			tForce[1] = 0;
@@ -428,7 +428,7 @@ class ExpansionPlaneScript extends CarScript
 			{
 				float horSpeed = Math.Sqrt( ( m_LinearVelocityMS[2] * m_LinearVelocityMS[2] ) + ( m_LinearVelocityMS[0] * m_LinearVelocityMS[0] ) );
 				rudderControl = m_LinearVelocityMS[2] / horSpeed;
-				rudderControl = MathHelper.Interpolate( Math.AbsFloat( rudderControl ), m_RudderInfluence, 1, 0, 1 );
+				rudderControl = Math.Interpolate( Math.AbsFloat( rudderControl ), m_RudderInfluence, 1, 0, 1 );
 			}
 
 			tForce[0] = m_Rudder * m_RudderForceCoef * rudderControl * m_BodyMass;
@@ -498,7 +498,7 @@ class ExpansionPlaneScript extends CarScript
 
 		float speedRel = Math.AbsFloat( m_LinearVelocityMS[2] ) * 0.8 / m_MaxSpeedMS;
 
-		aoa += m_Flaps * 4.0 * Math.DEG2RAD * MathHelper.Interpolate( speedRel, 0.22, 0.4, 1.0, 0.0 );
+		aoa += m_Flaps * 4.0 * Math.DEG2RAD * Math.Interpolate( speedRel, 0.22, 0.4, 1.0, 0.0 );
 
 		if ( aoa > maxAoa )
 		{
@@ -553,9 +553,9 @@ class ExpansionPlaneScript extends CarScript
 	{
 		vector friction = vector.Zero;
 
-		friction[0] = ( MathHelper.SquareSign( m_LinearVelocityMS[0] ) * 0.001 ) + ( m_LinearVelocityMS[0] * 0.1 );
-		friction[1] = ( MathHelper.SquareSign( m_LinearVelocityMS[1] ) * 0.0005 ) + ( m_LinearVelocityMS[1] * 0.05 );
-		friction[2] = ( MathHelper.SquareSign( m_LinearVelocityMS[2] ) * 0.00006 ) + ( m_LinearVelocityMS[2] * 0.006 );
+		friction[0] = ( Math.SquareSign( m_LinearVelocityMS[0] ) * 0.001 ) + ( m_LinearVelocityMS[0] * 0.1 );
+		friction[1] = ( Math.SquareSign( m_LinearVelocityMS[1] ) * 0.0005 ) + ( m_LinearVelocityMS[1] * 0.05 );
+		friction[2] = ( Math.SquareSign( m_LinearVelocityMS[2] ) * 0.00006 ) + ( m_LinearVelocityMS[2] * 0.006 );
 
 		return -friction * m_BodyMass;
 	}
@@ -613,8 +613,6 @@ class ExpansionPlaneScript extends CarScript
 		#endif
 
 		super.SetActions();
-
-		AddAction( ExpansionActionFlare );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPlaneScript::SetActions - End");

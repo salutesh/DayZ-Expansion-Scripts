@@ -1149,4 +1149,4 @@ modded class Hologram
 	{
 		return m_UsingSnap;
 	}
-}
+};

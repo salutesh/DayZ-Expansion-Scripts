@@ -43,4 +43,4 @@ class ExpansionMarketBatteries: ExpansionMarketCategory
 		AddItem("ExpansionHelicopterBattery", 	1000,		1500,		1,		250,	0 );
 		AddItem("ExpansionAircraftBattery", 	1000,		1500,		1,		250,	0 );
 	}
-}
+};

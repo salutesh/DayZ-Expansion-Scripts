@@ -102,7 +102,10 @@ modded class JMAnimRegister
 		pType.AddItemInHandsProfileIK("ExpansionSafeMedium", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/heavy/55galDrum.anm");
 		pType.AddItemInHandsProfileIK("ExpansionStove", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/heavy/55galDrum.anm");
 		pType.AddItemInHandsProfileIK("ExpansionGunrack", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/heavy/sea_chest.anm");
+		
+		#ifdef EXPANSION_CHICKEN_DISABLE
 		pType.AddItemInHandsProfileIK("ExpansionBreader", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/heavy/55galDrum.anm");
+		#endif
 		
 		//! Vehicle Parts
 		pType.AddItemInHandsProfileIK("ExpansionVodnikWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheel.anm");
@@ -174,12 +177,14 @@ modded class JMAnimRegister
 		array<string> RPG7BoneRemap = { "release", "Weapon_Bone_02", "barrel", "Weapon_Bone_01", "trigger", "Weapon_Trigger","ejector","Weapon_Bone_03","bullet", "Weapon_Bullet", };
 		pType.AddItemBoneRemap("ExpansionRPG7Base", RPG7BoneRemap);
 
+		#ifndef EXPANSION_CHICKEN_DISABLE
 		{
 			DayzPlayerItemBehaviorCfg chickenBehaviour = new DayzPlayerItemBehaviorCfg;
 			chickenBehaviour.SetChicken();
-
+		
 			pType.AddItemInHandsProfileIK("ExpansionChicken", "dz/anims/workspaces/player/player_main/props/player_main_2h_pot.asi", chickenBehaviour, "dz/anims/anm/player/ik/two_handed/CookingPot.anm");
 			pType.AddItemInHandsProfileIK("ExpansionChickenFemale", "dz/anims/workspaces/player/player_main/props/player_main_2h_pot.asi", chickenBehaviour, "dz/anims/anm/player/ik/two_handed/CookingPot.anm");
 		}
+		#endif
 	}
 }

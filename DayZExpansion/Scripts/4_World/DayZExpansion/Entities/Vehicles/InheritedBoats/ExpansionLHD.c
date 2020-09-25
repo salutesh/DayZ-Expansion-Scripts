@@ -67,6 +67,16 @@ class ExpansionLHD: ExpansionZodiacBoat
 			DeletePart( house2 );
 		}
 	}
+	
+	// ------------------------------------------------------------
+	override int GetAnimInstance()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionZodiacBoat::GetAnimInstance");
+		#endif
+		
+		return ExpansionVehicleAnimInstances.EXPANSION_LHD;
+	}
 
 	// ------------------------------------------------------------
 	private void DeletePart( out Object obj )

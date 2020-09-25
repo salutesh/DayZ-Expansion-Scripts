@@ -46,4 +46,4 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 		AddItem("Rangefinder", 						1000,		1200,		1,		250,	0 );
 		AddItem("NVGoggles", 						5000,		5500,		1,		250,	0 );
 	}
-}
+};

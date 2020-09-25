@@ -213,4 +213,4 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	{
 		return m_GenerateDefaults;
 	}
-}
+};

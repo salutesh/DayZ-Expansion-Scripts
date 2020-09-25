@@ -213,4 +213,4 @@ modded class NotificationSystem
 		#endif
 		return null;
 	}
-}
+};

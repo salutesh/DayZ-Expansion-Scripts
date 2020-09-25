@@ -16,7 +16,7 @@ enum ExpansionAutoRunRPC
 	AUTORUNSYNC,
 	AUTORUNDISABLE,
 	COUNT
-}
+};
 
 class ExpansionAutorunModule: JMModuleBase
 {
@@ -290,4 +290,4 @@ class ExpansionAutorunModule: JMModuleBase
 		EXPrint("ExpansionAutorunModule::OnRPC - End");
 		#endif
 	}
-}
+};

@@ -16,10 +16,10 @@ class Land_House_1W04_Yellow extends BuildingWithFireplace
 		return false;
 	}
 
-    override bool HasIvys()
-    {
-        return true;
-    }
+	override bool HasIvys()
+	{
+		return true;
+	}
 	
 	override void SpawnIvys()
 	{

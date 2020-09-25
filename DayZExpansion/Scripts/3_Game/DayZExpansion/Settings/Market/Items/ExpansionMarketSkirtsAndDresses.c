@@ -40,4 +40,4 @@ class ExpansionMarketSkirtsAndDresses: ExpansionMarketCategory
 		AddItem("NurseDress_Blue", 					4,		4,		1,		250,	0 );
 		AddItem("NurseDress_White", 				4,		4,		1,		250,	0 );
 	}
-}
+};

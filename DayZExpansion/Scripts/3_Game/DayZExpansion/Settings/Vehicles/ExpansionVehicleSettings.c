@@ -217,6 +217,6 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		PlayerAttachment = true;
 		Towing = true;
 	}
-}
+};
 
 static bool s_ExpansionPlayerAttachment;

@@ -25,4 +25,4 @@ modded class NotificationUI
 		EXPrint("NotificationSystem::NotificationUI - End");
 		#endif
 	}
-}
+};

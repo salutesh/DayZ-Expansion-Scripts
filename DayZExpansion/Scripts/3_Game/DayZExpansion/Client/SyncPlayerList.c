@@ -56,4 +56,4 @@ modded class SyncPlayerList
 		EXPrint("SyncPlayerList::CreatePlayerList - End");
 		#endif
 	}
-}
+};

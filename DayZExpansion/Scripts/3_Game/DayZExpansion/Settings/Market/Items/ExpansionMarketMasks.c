@@ -66,4 +66,4 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 		
 		AddItem("HockeyMask", 						4,		6,		1,		250,	0 );	
 	}
-}
+};

@@ -21,4 +21,4 @@ modded class BleedingSourcesManagerBase
 	{
 		return GetBleedingSourceMeta( id );
 	}
-}
+};

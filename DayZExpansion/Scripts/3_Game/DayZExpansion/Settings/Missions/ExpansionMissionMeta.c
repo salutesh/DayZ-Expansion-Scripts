@@ -20,4 +20,4 @@ class ExpansionMissionMeta
 
 	[NonSerialized()]
 	ExpansionMissionEventBase MissionEvent;
-}
+};

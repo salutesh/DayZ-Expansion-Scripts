@@ -968,19 +968,6 @@ modded class PlayerBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion StartCommand_ExpansionLeaveVehicle
-	// ------------------------------------------------------------
-	override ExpansionHumanCommandLeavingVehicle StartCommand_ExpansionLeaveVehicle( Object vehicle )
-	{
-		if ( m_ExpansionST == NULL )
-			m_ExpansionST = new ExpansionHumanST( this );
-	
-		ExpansionHumanCommandLeavingVehicle cmd = new ExpansionHumanCommandLeavingVehicle( this, vehicle, m_ExpansionST );
-		StartCommand_Script( cmd );
-		return cmd;
-	}
-
-	// ------------------------------------------------------------
 	// Expansion StartCommand_ExpansionFall
 	// ------------------------------------------------------------
 	override void StartCommand_ExpansionFall( float pYVelocity )

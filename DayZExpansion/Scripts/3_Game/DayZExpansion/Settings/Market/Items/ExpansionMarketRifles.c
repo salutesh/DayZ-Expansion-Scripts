@@ -36,4 +36,4 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		AddItem("Expansion_M14", 			60,	62,	1,		250,	0 );
 		AddItem("Expansion_M1A", 			60,	62,	1,		250,	0 );
 	}
-}
+};

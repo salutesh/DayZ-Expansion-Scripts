@@ -34,4 +34,4 @@ class ExpansionMarketTents: ExpansionMarketCategory
 		AddItem("PartyTent_Brown", 					400,	450,	1,		250,	0 );
 		AddItem("PartyTent_Lunapark", 				400,	450,	1,		250,	0 );
 	}
-}
+};

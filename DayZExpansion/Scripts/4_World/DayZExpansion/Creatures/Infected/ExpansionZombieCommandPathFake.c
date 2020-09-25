@@ -36,4 +36,4 @@ class ExpansionZombieCommandPathFake_ST
 class ExpansionZombieCommandPathFake extends DayZInfectedCommandScript
 {
 	
-}
+};

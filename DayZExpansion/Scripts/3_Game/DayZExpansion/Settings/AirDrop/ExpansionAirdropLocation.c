@@ -29,4 +29,4 @@ class ExpansionAirdropLocation
 		Radius = radius;
 		Name = name;
 	}
-}
+};
