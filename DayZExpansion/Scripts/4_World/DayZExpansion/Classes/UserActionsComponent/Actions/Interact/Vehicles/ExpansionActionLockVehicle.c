@@ -11,11 +11,7 @@
 */
 
 class ExpansionActionLockVehicle: ActionInteractBase
-{	
-	// Sound
-	protected PlayerBase								m_Player;
-	protected EffectSound 								m_SoundLock;
-
+{
 	void ExpansionActionLockVehicle()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -45,10 +41,10 @@ class ExpansionActionLockVehicle: ActionInteractBase
 				playerIsInVehicle = true;
 			
 		}
-
+		
 		if ( !playerIsInVehicle )
 		{
-			if ( !target || !Class.CastTo( car, target.GetObject() ) )
+			if ( !Class.CastTo( car, target.GetObject() ) )
 				return false;
 
 			if ( !Class.CastTo( key, player.GetItemInHands() ) )
@@ -64,20 +60,26 @@ class ExpansionActionLockVehicle: ActionInteractBase
 		return true;
 	}
 	
-	override void OnExecuteClient( ActionData action_data )
+	override void OnStartServer( ActionData action_data )
 	{
-		PlayLockSound();
-		
-		if ( !GetGame().IsMultiplayer() )
+		super.OnStartServer( action_data );
+				
+		CarScript car;
+		ExpansionCarKey key;
+
+		if ( action_data.m_Player.GetCommand_Vehicle() )
 		{
-			OnExecuteServer( action_data );
+			car = CarScript.Cast( action_data.m_Player.GetCommand_Vehicle().GetTransport() );
+		} else
+		{
+			car = CarScript.Cast( action_data.m_Target.GetObject() );
+			key = ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() );
 		}
-	}
-	
-	override void OnExecuteServer( ActionData action_data )
-	{
-		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
-		car.LockCar( ExpansionCarKey.Cast( action_data.m_MainItem ) );
+		
+		if ( car )
+		{
+			car.LockCar( key );
+		}
 	}
 
 	override bool CanBeUsedInVehicle()
@@ -88,18 +90,5 @@ class ExpansionActionLockVehicle: ActionInteractBase
 	override bool CanBeUsedInRestrain()
 	{
 		return false;
-	}
-
-	void PlayLockSound()
-	{
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
-		{
-			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
-			if ( m_Player )
-			{
-				m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", m_Player.GetPosition());
-				m_SoundLock.SetSoundAutodestroy( true );
-			}
-		}
 	}
 }

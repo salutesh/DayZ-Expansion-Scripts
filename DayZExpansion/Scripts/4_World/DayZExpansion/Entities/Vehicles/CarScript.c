@@ -174,6 +174,8 @@ modded class CarScript
 	protected autoptr TStringArray m_Doors;
 	protected bool m_CanHaveLock;
 
+	private EffectSound m_SoundLock;
+
 	protected bool m_MonitorEnabled;
 
 	//! Debugging
@@ -570,12 +572,9 @@ modded class CarScript
 		if ( IsMissionClient() )
 		{
 			Message( GetPlayer(), message );
-		}	
-		else
+		} else
 		{
-			#ifdef EXPANSION_CARSCRIPT_LOGGING
-			EXLogPrint( message );
-			#endif
+			Print( message ); 
 		}
 	}
 
@@ -586,11 +585,11 @@ modded class CarScript
 	{
 		if ( HasKey() )
 		{
-			//KeyMessage("CarScript::IsLocked HasKey() true and " + (m_VehicleLockedState == ExpansionVehicleLockState.LOCKED));
+			//KeyMessage( "CarScript::IsLocked HasKey() true and " + (m_VehicleLockedState == ExpansionVehicleLockState.LOCKED));
 			return m_VehicleLockedState == ExpansionVehicleLockState.LOCKED;
 		}
 
-		//KeyMessage("CarScript::IsLocked false");
+		//KeyMessage( "CarScript::IsLocked false");
 		return false;
 	}
 
@@ -711,6 +710,8 @@ modded class CarScript
 			//KeyMessage( "IsCarKeys not paired!" );
 			return false;
 		}
+		
+		//KeyMessage( "IsCarKeys is paired" );
 
 		return true;
 	}
@@ -720,6 +721,8 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void LockCar( ExpansionCarKey key )
 	{
+		//KeyMessage( "LockCar" );
+		//KeyMessage( "key=" + key );
 		if ( key && !IsCarKeys( key ) && !key.IsInherited(ExpansionCarAdminKey) )
 			return;
 
@@ -755,6 +758,12 @@ modded class CarScript
 
 		//KeyMessage( "OnCarLocked" );
 
+		if ( GetGame().IsServer() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Send( this, ExpansionVehicleRPC.PlayLockSound, true, NULL );
+		}
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::OnCarLocked - Stop");
 		#endif
@@ -770,6 +779,12 @@ modded class CarScript
 		#endif
 
 		//KeyMessage( "OnCarUnlocked" );
+
+		if ( GetGame().IsServer() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Send( this, ExpansionVehicleRPC.PlayLockSound, true, NULL );
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::OnCarUnlocked - End");
@@ -1117,6 +1132,17 @@ modded class CarScript
 				}
 					
 				return;
+			}
+			case ExpansionVehicleRPC.PlayLockSound:
+			{
+				if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+				{
+					if ( m_SoundLock )
+						delete m_SoundLock;
+
+					m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", GetPosition());
+					m_SoundLock.SetSoundAutodestroy( true );
+				}
 			}
 		}
 		

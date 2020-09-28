@@ -23,5 +23,6 @@ enum ExpansionVehicleRPC
 	INVALID = 20140,
 	ClientSync,
 	ControllerSync,
+	PlayLockSound,
 	COUNT
 };

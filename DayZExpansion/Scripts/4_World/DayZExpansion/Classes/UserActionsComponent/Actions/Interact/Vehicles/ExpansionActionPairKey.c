@@ -61,12 +61,12 @@ class ExpansionActionPairKey: ActionInteractBase
 		return true;
 	}
 
-	override void Start( ActionData action_data )
+	override void OnStartServer( ActionData action_data )
 	{
-		super.Start( action_data );
+		super.OnStartServer( action_data );
 
 		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
-		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_MainItem ) );
+		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
 	}
 
 	override bool CanBeUsedInRestrain()
