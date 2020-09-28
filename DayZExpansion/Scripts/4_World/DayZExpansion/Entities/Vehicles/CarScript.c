@@ -2850,8 +2850,9 @@ modded class CarScript
 		#endif
 
 		super.EEOnCECreate();
-
-		array< EntityAI > items = new array< EntityAI >;
+		
+		//! There is no need for this now as no wild car spawns with a key rn?!
+		/*array< EntityAI > items = new array< EntityAI >;
 		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 		for ( int i = 0; i < items.Count(); i++ )
 		{
@@ -2860,7 +2861,7 @@ modded class CarScript
 			{
 				PairKeyTo( key );
 			}
-		}
+		}*/
 		
 		if ( GetExpansionSettings().GetDebug().ShowVehicleDebugMarkers )
 		{

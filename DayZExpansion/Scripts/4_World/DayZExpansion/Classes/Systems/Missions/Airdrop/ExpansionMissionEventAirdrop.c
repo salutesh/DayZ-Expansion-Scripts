@@ -1453,44 +1453,44 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 		default:
 		case 0:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 0" );
+			DropLocation = new ExpansionAirdropLocation( 3478, 10130, 100, "NWAF" );
 			chanceLower = 0.25;
 			break;
 		case 1:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 1" );
+			DropLocation = new ExpansionAirdropLocation( 1367, 7057, 100, "Topolin" );
 			break;
 		case 2:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 2" );
+			DropLocation = new ExpansionAirdropLocation( 6692, 11442, 100, "Brena" );
 			break;
 		case 3:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 3" );
+			DropLocation = new ExpansionAirdropLocation( 9976, 11000, 100, "Tarnow" );
 			break;
 		case 4:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 4" );
+			DropLocation = new ExpansionAirdropLocation( 7209, 6073, 100, "Radunin" );
 			break;
 		case 5:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 5" );
+			DropLocation = new ExpansionAirdropLocation( 5996, 4513, 100, "Nadbór" );
 			break;
 		case 6:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 6" );
+			DropLocation = new ExpansionAirdropLocation( 11491, 763, 100, "Dolnik" );
 			break;
 		case 7:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 7" );
+			DropLocation = new ExpansionAirdropLocation( 10899, 4515, 100, "Gieraltów" );
 			break;
 		case 8:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 8" );
+			DropLocation = new ExpansionAirdropLocation( 9975, 7242, 100, "Karlin" );
 			break;
 		case 9:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 9" );
+			DropLocation = new ExpansionAirdropLocation( 8676, 12114, 100, "Kolembrody" );
 			break;
 		case 10:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 10" );
+			DropLocation = new ExpansionAirdropLocation( 8399, 8803, 100, "Zapadlisko" );
 			break;
 		case 11:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 11" );
+			DropLocation = new ExpansionAirdropLocation( 4559, 6852, 100, "Muratyn" );
 			break;
 		case 12:
-			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "TODO 12" );
+			DropLocation = new ExpansionAirdropLocation( 11005, 724, 100, "Dolnik" );
 			break;
 		}
 

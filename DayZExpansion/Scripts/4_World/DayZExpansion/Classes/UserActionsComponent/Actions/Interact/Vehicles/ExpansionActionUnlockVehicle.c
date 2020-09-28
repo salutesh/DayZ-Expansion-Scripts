@@ -12,7 +12,8 @@
 
 class ExpansionActionUnlockVehicle: ActionInteractBase
 {
-	private EffectSound m_SoundLock;
+	protected CarScript m_Car;
+	protected ExpansionCarKey m_KeysInHand;
 	
 	void ExpansionActionUnlockVehicle()
 	{
@@ -32,56 +33,54 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		bool playerIsInVehicle = false;
-		
-		CarScript car;
-		ExpansionCarKey key;
-		
-		if ( player.GetCommand_Vehicle() )
-		{
-			if ( Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
-				playerIsInVehicle = true;
-			
-		}
-		
-		if ( !playerIsInVehicle )
-		{
-			if ( !Class.CastTo( car, target.GetObject() ) )
-				return false;
+		m_Car = NULL;
+		m_KeysInHand = NULL;
 
-			if ( !Class.CastTo( key, player.GetItemInHands() ) )
-				return false;
-		}
-	
-		if ( !car.HasKey() )
+		if ( !target || !player )
 			return false;
 
-		if ( car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
+		bool playerIsInVehicle = false;
+
+		if ( player.GetCommand_Vehicle() )
+		{
+			if ( Class.CastTo( m_Car, player.GetCommand_Vehicle().GetTransport() ) )
+			{
+				playerIsInVehicle = true;
+			}
+		}
+
+		if ( !playerIsInVehicle )
+		{
+			if ( !target || !Class.CastTo( m_Car, target.GetObject() ) )
+			{
+				return false;
+			}
+			if ( !Class.CastTo( m_KeysInHand, player.GetItemInHands() ) )
+			{
+				return false;
+			}
+		}
+	
+		if ( !m_Car.HasKey() )
+			return false;
+
+		if ( m_Car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
 			return false;
 		
 		return true;
 	}
 	
-	override void OnStartServer( ActionData action_data )
+	override void OnExecuteClient( ActionData action_data )
+	{		
+		if (!GetGame().IsMultiplayer())
+		{
+			OnExecuteServer(action_data);
+		}
+	}
+	
+	override void OnExecuteServer( ActionData action_data )
 	{
-		super.OnStartServer( action_data );
-		
-		CarScript car;
-		ExpansionCarKey key;
-
-		if ( action_data.m_Player.GetCommand_Vehicle() )
-		{
-			car = CarScript.Cast( action_data.m_Player.GetCommand_Vehicle().GetTransport() );
-		} else
-		{
-			car = CarScript.Cast( action_data.m_Target.GetObject() );
-			key = ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() );
-		}
-		
-		if ( car )
-		{
-			car.UnlockCar( key );
-		}
+		m_Car.UnlockCar( m_KeysInHand );
 	}
 
 	override bool CanBeUsedInVehicle()
@@ -93,4 +92,4 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 	{
 		return false;
 	}
-}
+};

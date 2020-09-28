@@ -595,4 +595,4 @@ class ExpansionCarKey extends ItemBase
 		EXLogPrint("ExpansionCarKey::RPC_SendItemData - End");
 		#endif
 	}
-}
+};

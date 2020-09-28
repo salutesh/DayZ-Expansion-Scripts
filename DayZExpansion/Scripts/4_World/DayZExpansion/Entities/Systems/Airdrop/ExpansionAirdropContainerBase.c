@@ -198,8 +198,13 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
-
-			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost())
+			
+			//! Place the crate correctly again after it has hit the ground
+			vector pos = GetPosition();
+			pos[1] = GetGame().SurfaceY( pos[0], pos[2] );
+			SetPosition( pos );
+			
+			if (GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost())
 			{
 				//! Set server map marker on drop position
 				CreateServerMarker();

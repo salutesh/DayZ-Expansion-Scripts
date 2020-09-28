@@ -3064,4 +3064,4 @@ class ExpansionVehicleScript extends ItemBase
 	{
 		return NULL;
 	} 
-}
+};

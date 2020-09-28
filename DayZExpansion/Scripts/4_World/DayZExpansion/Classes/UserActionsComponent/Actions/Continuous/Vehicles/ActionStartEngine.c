@@ -18,14 +18,14 @@ modded class ActionStartEngine
 		m_ConditionTarget = new CCTNone;
 	}
 
-	private CarScript m_ExCar;
+	private CarScript car;
 	
 	override string GetText()
 	{
-		if ( m_ExCar.IsPlane() )
+		if ( car.IsPlane() )
 		{
 			return "#STR_EXPANSION_UA_START_PLANE";
-		} else if ( m_ExCar.IsHelicopter() )
+		} else if ( car.IsHelicopter() )
 		{
 			return "#STR_EXPANSION_UA_START_HELICOPTER";
 		}
@@ -72,14 +72,14 @@ modded class ActionStartEngine
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 		if ( vehCommand )
 		{
-			if ( Class.CastTo( m_ExCar, vehCommand.GetTransport() ) && !m_ExCar.EngineIsOn() )
+			if ( Class.CastTo( car, vehCommand.GetTransport() ) && !car.EngineIsOn() )
 			{
-				if ( m_ExCar.GetHealthLevel( "Engine" ) >= GameConstants.STATE_RUINED )
+				if ( car.GetHealthLevel( "Engine" ) >= GameConstants.STATE_RUINED )
 					return false;
 				
-				if ( m_ExCar.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+				if ( car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 				{
-					if ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1 && m_ExCar.HasKey() )
+					if ( ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1 || GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 2 ) && car.HasKey() )
 					{
 						array<EntityAI> playerItems = new array<EntityAI>;
 						player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, playerItems );
@@ -88,19 +88,19 @@ modded class ActionStartEngine
 							ExpansionCarKey key;
 							if ( Class.CastTo( key, playerItems[i] ) )
 							{
-								if ( key.IsPairedTo( m_ExCar ) )
+								if ( key.IsPairedTo( car ) && car.IsCarKeys( key ) )
 								{
 									#ifdef EXPANSION_CARKEY_LOGGING
 									EXLogPrint("ActionStartEngine::ActionCondition - Player HAS paired key!");
 									#endif
 									return true;
 								}
+								#ifdef EXPANSION_CARKEY_LOGGING
 								else
 								{
-									#ifdef EXPANSION_CARKEY_LOGGING
 									EXLogPrint("ActionStartEngine::ActionCondition - Player has NOT paired key!");
-									#endif
 								}
+								#endif
 							}
 						}
 					} else
