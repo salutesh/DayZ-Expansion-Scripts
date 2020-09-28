@@ -16,10 +16,8 @@ modded class LoadingScreen
 
 	protected RichTextWidget m_LoadingMessage;
 	protected RichTextWidget m_LoadingMessageAuthor;
-
-	protected autoptr ExpansionLoadingScreenMessage m_Message;
 	
-	protected autoptr ExpansionLoadingScreenMessageCurl m_MessageRest;
+	protected autoptr ExpansionLoadingScreenMessageData m_MessageRest;
 
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
 	
@@ -122,8 +120,7 @@ modded class LoadingScreen
 				m_LoadingMessageAuthor.Show(false);
 				Error( error );
 			}
-		}
-		else
+		} else
 		{
 			m_LoadingMessage.Show(false);
 			m_LoadingMessageAuthor.Show(false);
@@ -169,8 +166,7 @@ modded class LoadingScreen
 				m_ImageLogoCorner.Show(false);				
 				m_ImageWidgetBackground.Show( true );		
 				m_ModdedWarning.Show(false);
-			}
-			else
+			} else
 			{
 				m_ImageLogoMid.Show(true);
 				m_ImageLogoCorner.Show(false);

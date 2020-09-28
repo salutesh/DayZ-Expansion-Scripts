@@ -81,8 +81,12 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 		//! We don't need to check if we are in a territory.
 		m_IsDismantle = player.IsInsideOwnTerritory();
 
-		//! Allow the raider to dismantle with tools
-		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools != 0 && !player.IsInsideOwnTerritory() )
+		//! Force the player to dismantle with tools
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == 1 )
+				return false;
+
+		//! The Raider can't dismantle at all but the owner can
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == -1 && !m_IsDismantle )
 				return false;
 
 		return true;

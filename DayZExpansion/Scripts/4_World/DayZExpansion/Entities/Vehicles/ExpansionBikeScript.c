@@ -20,14 +20,11 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	private ref ExpansionVehicleGearbox m_Gearbox;
 	private ref ExpansionVehicleEngine m_Engine;
 	private ref ExpansionVehicleSteering m_Steering;
+	private ref ExpansionVehicleThrottle m_Throttle;
 	
 	private float m_Turn;
-	private float m_TargetTurn;
-	
-	private float m_HandleSteer;
 
 	private float m_Brake;
-	private float m_Throttle;
 
 	void ExpansionBikeScript()
 	{
@@ -36,6 +33,7 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		m_Gearbox = new ExpansionVehicleGearbox( this );
 		m_Engine = new ExpansionVehicleEngineRWD( this );
 		m_Steering = new ExpansionVehicleSteering( this );
+		m_Throttle = new ExpansionVehicleThrottle( this );
 	}
 	
 	void ~ExpansionBikeScript()
@@ -43,6 +41,7 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		delete m_Gearbox;
 		delete m_Engine;
 		delete m_Steering;
+		delete m_Throttle;
 	}
 
 	override ExpansionVehicleController GetControllerInstance()
@@ -143,12 +142,12 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 
 	override float GetSteering()
 	{
-		return m_HandleSteer;
+		return m_Turn;
 	}
 
 	override float GetThrottle()
 	{
-		return m_Throttle;
+		return m_Throttle.Get();
 	}
 
 	override float GetBraking()
@@ -158,25 +157,13 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
-		m_TargetTurn = ( m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
-		
-		float turnChange = m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_TargetTurn );
-		
-		m_Turn += turnChange;
-		
-		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
-		
-		float maxSteer = 1.0 - Math.Clamp( ( absForwardSpeed ) / 30.0, 0.0, 0.95 );
-		
-		m_HandleSteer = Math.Clamp( m_Turn, -maxSteer, maxSteer );
+		m_Turn += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
 
-		m_Throttle = Math.Clamp( m_Throttle + Math.Clamp( m_BikeController.GetForward() - m_Throttle, -1.0 * pDt, 1.0 * pDt ), 0.0, 1.0 );
-		
+		m_Throttle.Update( pDt, m_BikeController.GetForward(), m_BikeController.GetGentle(), m_BikeController.GetTurbo() );
+
 		m_Brake = m_BikeController.GetBackward();
 		
 		ExpansionDebugUI( "Turn: " + m_Turn );
-		ExpansionDebugUI( "Handle Steer: " + m_HandleSteer );
-		ExpansionDebugUI( "Target Turn: " + m_TargetTurn );
 	}
 
 	protected override void OnPreSimulation( float pDt )
@@ -187,12 +174,13 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 			return;
 		
 		int gear = m_Gearbox.GetCurrentGear();
-		if ( m_Throttle == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
+		float throttleVal = m_Throttle.Get();
+		if ( throttleVal == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
 		{
 			m_Brake = 1.0;
 		}
 		
-		ApplyAxleSteering( 0, m_HandleSteer );
+		ApplyAxleSteering( 0, m_Turn );
 		ApplyAxleSteering( 1, 0.0 );
 			
 		ApplyAxleTorque( 0, 0.0 );
@@ -200,7 +188,7 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		
 		if ( EngineIsOn() )
 		{
-			m_Engine.OnUpdate( pDt, m_Throttle, m_Gearbox.OnUpdate( m_ClutchState, m_BikeController.GetGear(), pDt ) );
+			m_Engine.OnUpdate( pDt, throttleVal, m_Gearbox.OnUpdate( m_ClutchState, m_BikeController.GetGear(), pDt ) );
 			
 			ApplyAxleBrake( 0, m_Brake );
 			ApplyAxleBrake( 1, m_Brake );
@@ -222,32 +210,44 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 	{
 		super.OnSimulation( pDt, force, torque );
 
-		float clampedForwardVel = Math.Clamp( m_LinearVelocityMS[2], -1, 1 );
-		if ( clampedForwardVel > 0.9 )
-		{
-			m_AdjustCenterOfMass[2] = clampedForwardVel * 1.5;
-		} else if ( clampedForwardVel < -0.9 )
-		{
-			m_AdjustCenterOfMass[2] = clampedForwardVel * 1.5;
-		} else
-		{
-			m_AdjustCenterOfMass[2] = 0;
-		}
+		float accelLean = Math.Clamp( m_LinearAccelerationMS[2], -5.0, 0.0 );
 
 		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
 
 		vector upDir = m_Transform.data[1];
 
-		if ( upDir[1] > 0.5 )
+		if ( upDir[1] > 0.8 )
 		{
-			vector terrainSurface = m_Wheels[0].GetSuspensionContactNormal() + m_Wheels[1].GetSuspensionContactNormal();
+			float fMax = m_Axles[0].GetTravelMax();
+			float bMax = m_Axles[1].GetTravelMax();
+			float fAmt = ( fMax - m_Wheels[0].GetSuspensionLength() ) - m_Axles[0].GetTravelMaxDown();
+			float bAmt = ( bMax - m_Wheels[1].GetSuspensionLength() ) - m_Axles[1].GetTravelMaxDown();
+			
+			ExpansionDebugUI( "fAmt: " + fAmt );
+			ExpansionDebugUI( "bAmt: " + bAmt );
+			
+			fAmt = ( fMax - fAmt ) * ( fMax + fAmt ) / ( fMax * fMax );
+			bAmt = ( bMax - bAmt ) * ( bMax + bAmt ) / ( bMax * bMax );
+			
+			ExpansionDebugUI( "fAmt: " + fAmt );
+			ExpansionDebugUI( "bAmt: " + bAmt );
+			
+			float amt = fAmt * bAmt;
+			
+			ExpansionDebugUI( "amt: " + amt );
+			
+			vector fWheelNormal = m_Wheels[0].GetSuspensionContactNormal() * fAmt;
+			vector bWheelNormal = m_Wheels[1].GetSuspensionContactNormal() * bAmt;
+			vector terrainSurface = fWheelNormal + bWheelNormal;
+			if (terrainSurface == vector.Zero)
+				terrainSurface = "0 1 0";
 			terrainSurface = terrainSurface.Normalized().Multiply3( m_Transform.data );
 
 			vector estDirUp = GetEstimatedOrientation( 0.1 )[1].Normalized();
 			
-			float leanAmount = Math.Clamp( m_Turn, -0.26, 0.26 );
+			float leanAmount = Math.Clamp( m_Turn, -0.16, 0.16 );
 			float leanOnX = leanAmount * absForwardSpeed * 0.001;
-			leanOnX = Math.Clamp( leanOnX, -0.76, 0.76 );
+			leanOnX = Math.Clamp( leanOnX, -0.8, 0.8 );
 
 			vector upDirWanted = Vector( -terrainSurface[0], 1.0, -terrainSurface[2] ).Normalized();
 			
@@ -266,11 +266,13 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 			if ( stabilize.LengthSq() > maxStabCoef * maxStabCoef )
 				stabilize = stabilize.Normalized() * maxStabCoef;
 			
-			stabilize = stabilize * 50.0 * m_BodyMass;
+			stabilize = stabilize * 50.0 * m_BodyMass * amt;
 
 			stabilize = stabilize.InvMultiply3( m_Transform.data );
 			stabilize[2] = 0;
 			torque += ( applyPosition * stabilize ).Multiply3( m_Transform.data );
+
+			// torque += Vector( accelLean * 5000.0 * m_BodyMass, 0, 0 ).Multiply3( m_Transform.data );
 		}
 
 		ExpansionDebugUI();

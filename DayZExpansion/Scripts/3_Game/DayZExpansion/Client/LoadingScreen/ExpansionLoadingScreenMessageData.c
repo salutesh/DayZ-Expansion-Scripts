@@ -1,5 +1,5 @@
 /**
- * ExpansionServerListRest.c
+ * ExpansionLoadingScreenMessageData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,8 +10,8 @@
  *
 */
 
-class ExpansionServerListRest
+class ExpansionLoadingScreenMessageData
 {
-	string serverip;
-	int serverport;
+	string message;
+	string submitter;
 };

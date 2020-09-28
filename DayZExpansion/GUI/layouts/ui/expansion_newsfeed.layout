@@ -377,10 +377,61 @@ PanelWidgetClass ExpansionNewsFeed {
           }
          }
         }
+        ButtonWidgetClass wiki {
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.26 36
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "play"
+         "next right" "dayz_forums"
+         "next up" "news_sec_1"
+         "next down" "news_sec_1"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass wiki_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 65 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 150
+           text "Wiki"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass wiki_image {
+           clipchildren 0
+           ignorepointer 1
+           position 4 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:expansion_notification_iconset image:icon_info"
+           imageTexture ""
+           mode blend
+           "src alpha" 1
+           stretch 0
+          }
+         }
+        }
         ButtonWidgetClass discord {
          ignorepointer 0
          color 1 1 1 0.549
-         size 0.22 36
+         size 0.28 36
          hexactpos 1
          vexactpos 1
          hexactsize 0
@@ -396,14 +447,14 @@ PanelWidgetClass ExpansionNewsFeed {
            clipchildren 0
            ignorepointer 1
            position 36 0
-           size 60 0.35
+           size 110 0.35
            valign center_ref
            hexactpos 1
            vexactpos 1
            hexactsize 1
            vexactsize 0
            userID 153
-           text "Discord"
+           text "Expansion Discord"
            font "gui/fonts/sdf_MetronLight24"
            "exact text" 0
            "text valign" center

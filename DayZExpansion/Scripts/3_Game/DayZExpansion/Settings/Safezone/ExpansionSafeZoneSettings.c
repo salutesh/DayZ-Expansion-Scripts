@@ -184,12 +184,6 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 			PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
 
 			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
-		} else if ( world_name.Contains( "enoch" ) )
-		{
-
-		} else if ( world_name.Contains( "deerisle" ) )
-		{
-
 		}
 	}
 

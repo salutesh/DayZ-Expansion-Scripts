@@ -102,7 +102,7 @@ class ExpansionPhysics
 		
 		vector c0 = pos * normal;
 
-		vector vec = VectorHelper.Multiply( c0, invInertiaWS ) * pos;
+		vector vec = c0.Multiply3( invInertiaWS.data ) * pos;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysics::ComputeImpulseDenominator - Return: " + (invMass + vector.Dot( normal, vec )).ToString() );

@@ -17,7 +17,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	protected Widget m_Twitter;
 	protected Widget m_Youtube;
 	protected Widget m_Discord;
-	protected Widget m_Patreon;
+	protected Widget m_Wiki;
 	
 	protected RichTextWidget m_MainText1;
 	protected RichTextWidget m_MainText2;
@@ -37,7 +37,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_Twitter			= Widget.Cast(m_Root.FindAnyWidget("twitter"));
 		m_Youtube			= Widget.Cast(m_Root.FindAnyWidget("youtube"));
 		m_Discord			= Widget.Cast(m_Root.FindAnyWidget("discord"));
-		m_Patreon			= Widget.Cast(m_Root.FindAnyWidget("patreon"));
+		m_Wiki				= Widget.Cast(m_Root.FindAnyWidget("wiki"));
 		
 		m_MainText1			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT1"));
 		m_MainText2			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT2"));
@@ -118,11 +118,11 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// OpenPatreon
+	// OpenWiki
 	// ------------------------------------------------------------	
-	void OpenPatreon()
+	void OpenWiki()
 	{
-		GetGame().OpenURL("https://www.patreon.com/dayzexpansion");
+		GetGame().OpenURL("https://github.com/salutesh/DayZ-Expansion-Scripts/wiki");
 	}
 	
 	// ------------------------------------------------------------
@@ -131,32 +131,26 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
 		if(button == MouseState.LEFT)
-		{
-			if (w == m_Feedback)
+		{	
+			switch(w)
 			{
-				OpenFeedback();
-				return true;
+				case m_Feedback:
+					OpenFeedback();
+				break;
+				case m_Twitter:
+					OpenTwitter();
+				break;
+				case m_Youtube:
+					OpenYoutube();
+				break;
+				case m_Discord:
+					OpenDiscord();
+				break;
+				case m_Wiki:
+					OpenWiki();
+				break;
 			}
-			else if (w == m_Twitter)
-			{
-				OpenTwitter();
-				return true;
-			}
-			else if (w == m_Youtube)
-			{
-				OpenYoutube();
-				return true;
-			}
-			else if (w == m_Discord)
-			{
-				OpenDiscord();
-				return true;
-			}
-			else if (w == m_Patreon)
-			{
-				OpenPatreon();
-				return true;
-			}
+			
 		}
 		return false;
 	}
@@ -220,7 +214,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	{
 		if(w)
 		{
-			return (w == m_Feedback || w == m_Twitter || w == m_Youtube || w == m_Discord);
+			return (w == m_Feedback || w == m_Twitter || w == m_Youtube || w == m_Discord || w == m_Wiki);
 		}
 		return false;
 	}

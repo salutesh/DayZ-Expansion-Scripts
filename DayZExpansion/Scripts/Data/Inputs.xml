@@ -41,6 +41,7 @@
             <input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" />
             <input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" />
             <input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" />
+            <input name="UAExpansionBikeGentle" loc="STR_EXPANSION_BIKE_GENTLE" />
             <input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" />
 
             <input name="UAExpansionCarHorn" loc="STR_EXPANSION_VEHICLE_HORN" />
@@ -227,6 +228,9 @@
         </input>
         <input name="UAExpansionBikeRotateRight">
             <btn name="kD" />
+        </input>
+        <input name="UAExpansionBikeGentle">
+            <btn name="kLControl" />
         </input>
         <input name="UAExpansionBikeTurbo">
             <btn name="kLShift" />

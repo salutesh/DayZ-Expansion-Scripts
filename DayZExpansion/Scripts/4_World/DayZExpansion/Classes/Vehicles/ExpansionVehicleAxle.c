@@ -49,9 +49,9 @@ class ExpansionVehicleAxle
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + name + " finalRatio";
 		m_FinalRatio = GetGame().ConfigGetFloat( path );
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + name + " brakeBias";
-		m_BrakeForce = GetGame().ConfigGetFloat( path );
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + name + " brakeForce";
 		m_BrakeBias = GetGame().ConfigGetFloat( path );
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + name + " brakeForce";
+		m_BrakeForce = GetGame().ConfigGetFloat( path );
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + name + " wheelHubMass";
 		m_WheelHubMass = GetGame().ConfigGetFloat( path );
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + name + " wheelHubRadius";

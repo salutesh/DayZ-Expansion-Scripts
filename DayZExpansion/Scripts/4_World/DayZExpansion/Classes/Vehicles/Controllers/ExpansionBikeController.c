@@ -19,6 +19,8 @@ class ExpansionBikeController: ExpansionVehicleController
 
 	private float m_Forward;
 	private float m_Backward;
+
+	private float m_Gentle;
 	private float m_Turbo;
 
 	private float m_TurnLeft;
@@ -41,10 +43,11 @@ class ExpansionBikeController: ExpansionVehicleController
 		return m_Gear;
 	}
 
-	void SetForward( float forward, float backward, float turbo = 0 )
+	void SetForward( float forward, float backward, float gentle = 0, float turbo = 0 )
 	{
 		m_Forward = forward;
 		m_Backward = backward;
+		m_Gentle = gentle;
 		m_Turbo = turbo;
 	}
 
@@ -56,6 +59,11 @@ class ExpansionBikeController: ExpansionVehicleController
 	float GetBackward()
 	{
 		return m_Backward;
+	}
+
+	float GetGentle()
+	{
+		return m_Gentle;
 	}
 
 	float GetTurbo()
@@ -110,18 +118,20 @@ class ExpansionBikeController: ExpansionVehicleController
 		GetInputValue( "UAExpansionBikeMoveBackward", m_Backward );
 		GetInputValue( "UAExpansionBikeRotateLeft", m_TurnLeft );
 		GetInputValue( "UAExpansionBikeRotateRight", m_TurnRight );
+		GetInputValue( "UAExpansionBikeGentle", m_Gentle );
 		GetInputValue( "UAExpansionBikeTurbo", m_Turbo );
 	}
 
 	protected override void OnReset()
 	{
 		super.OnReset();
-		
+
 		m_Gear = 1;
 		m_Forward = 0;
 		m_Backward = 0;
 		m_TurnLeft = 0;
 		m_TurnRight = 0;
+		m_Gentle = 0;
 		m_Turbo = 0;
 	}
 
@@ -132,6 +142,7 @@ class ExpansionBikeController: ExpansionVehicleController
 		ctx.Write( m_Forward );
 		ctx.Write( m_Backward );
 
+		ctx.Write( m_Gentle );
 		ctx.Write( m_Turbo );
 
 		ctx.Write( m_TurnLeft );
@@ -145,6 +156,7 @@ class ExpansionBikeController: ExpansionVehicleController
 		ctx.Read( m_Forward );
 		ctx.Read( m_Backward );
 		
+		ctx.Read( m_Gentle );
 		ctx.Read( m_Turbo );
 
 		ctx.Read( m_TurnLeft );

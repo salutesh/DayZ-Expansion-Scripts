@@ -210,7 +210,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemovePersonalEntry - Remove entry [" + i + "] from m_PersonalMarkers");
 				#endif
 				
-				m_PersonalMarkers.Remove(i);
+				m_PersonalMarkers.RemoveItem(m_PersonalMarkers[i]);
+				m_PersonalMarkers[i] = NULL;
 			}
 		}
 		
@@ -253,7 +254,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemovePartyEntry - Remove entry [" + i + "] from m_PartyMarkers");
 				#endif
 				
-				m_PartyMarkers.Remove(i);
+				m_PartyMarkers.RemoveItem(m_PartyMarkers[i]);
+				m_PartyMarkers[i] = NULL;
 			}
 		}
 		
@@ -296,7 +298,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemoveMemberEntry - Remove entry [" + i + "] from m_MemberMarkers");
 				#endif
 				
-				m_MemberMarkers.Remove(i);
+				m_MemberMarkers.RemoveItem(m_MemberMarkers[i]);
+				m_MemberMarkers[i] = NULL;
 			}
 		}
 		
@@ -339,13 +342,41 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - Remove entry [" + i + "] from m_ServerMarkers");
 				#endif
 				
-				m_ServerMarkers.Remove(i);
+				m_ServerMarkers.RemoveItem(m_ServerMarkers[i]);
+				m_ServerMarkers[i] = NULL;
 			}
 		}
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// RemoveMemberEntry
+	// ------------------------------------------------------------
+	void RemoveEntry( ExpansionMapMarker marker )
+	{
+		if (!marker)
+			return;
+		
+		switch (marker.GetMarkerData().GetType())
+		{	
+			case ExpansionMapMarkerType.PERSONAL:
+				RemovePersonalEntry(marker);
+			break;		
+			case ExpansionMapMarkerType.PARTY:
+				RemovePartyEntry(marker);
+			break;
+			case ExpansionMapMarkerType.SERVER:
+				RemoveServerEntry(marker);
+			break;
+			case ExpansionMapMarkerType.PLAYER:
+				RemoveMemberEntry(marker);
+			break;
+		}
+		
+		m_Root.Update();
 	}
 	
 	// ------------------------------------------------------------

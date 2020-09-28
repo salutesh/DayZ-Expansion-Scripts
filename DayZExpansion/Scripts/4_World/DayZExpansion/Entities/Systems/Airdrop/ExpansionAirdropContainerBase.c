@@ -15,10 +15,8 @@
  **/
 class ExpansionAirdropContainerBase extends Container_Base
 {
-	private static int s_ServerMarkerIndex = 0; 
-
-	private string m_ServerMarkerUID;
-
+	ExpansionMarkerData m_ServerMarker;
+	
 	bool m_FromSettings;
 	bool m_LootHasSpawned;
 	bool m_IsLooted;
@@ -61,7 +59,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 		m_FromSettings = true;
 		m_LootHasSpawned = false;
 		
-		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		if ( !Class.CastTo(m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
+			return;
 		
 		CreateSmoke();
 		ToggleLight();
@@ -82,19 +81,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
 		#endif	
 		
-		//GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
-		
 		DestroyLight();
 		
 		StopSmokeEffect();
 		
-		if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
-		{
-			RemoveServerMarker();
-		}
+		//RemoveServerMarker();
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - Start");
+		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - End");
 		#endif	
 	}
 	
@@ -105,40 +99,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 	{
 		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
 	}
-	
-	// ------------------------------------------------------------
-	// ClearAirdrop
-	// ------------------------------------------------------------
-	/*void ClearAirdrop()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::ClearAirdrop - Start");
-		#endif	
-		
-		array< EntityAI > items = new array< EntityAI >;
-
-		if ( GetGame().IsServer() ) 
-		{		
-			GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
-
-			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
-				
-			foreach ( EntityAI item : items )
-			{
-				GetGame().ObjectDelete( item );
-			}
-		}
-		else if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			StopSmokeEffect();
-		}
-		
-		GetGame().ObjectDelete( this );
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::ClearAirdrop - End");
-		#endif	
-	}*/
 	
 	// ------------------------------------------------------------
 	// LoadFromMission
@@ -193,7 +153,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CheckAirdrop - Start");
 		#endif
-		
+				
 		array< EntityAI > items = new array< EntityAI >;
 		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 
@@ -239,7 +199,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
 
-			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
+			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost())
 			{
 				//! Set server map marker on drop position
 				CreateServerMarker();
@@ -294,22 +254,12 @@ class ExpansionAirdropContainerBase extends Container_Base
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - Start");
 		#endif
 		
-		if ( IsMissionHost() )
-		{
-			string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
-			if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
-				markerName = "[" + this.GetDisplayName() + "] " + markerName;
-
-			m_ServerMarkerUID = "AIRDROP" + s_ServerMarkerIndex;
-			s_ServerMarkerIndex += 1;
-			
-			m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation, m_ServerMarkerUID );
-
-			#ifdef EXPANSION_MISSION_EVENT_DEBUG
-			EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - m_ServerMarker name is: " + markerName );
-			#endif
-		}
+		string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
+		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
+			markerName = "[" + this.GetDisplayName() + "] " + markerName;
 		
+		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
+	
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
 		#endif
@@ -324,13 +274,22 @@ class ExpansionAirdropContainerBase extends Container_Base
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Start");
 		#endif
 		
-		if ( IsMissionHost() && m_ServerMarkerUID != "" )
+		if (!m_ServerMarker)
 		{
-			m_MarkerModule.RemoveServerMarker( m_ServerMarkerUID );
-
-			m_ServerMarkerUID = "";
+			#ifdef EXPANSION_MISSION_EVENT_DEBUG
+			EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - m_ServerMarker is NULL");
+			#endif
+			return;
 		}
 		
+		if ( m_ServerMarker )
+		{
+			#ifdef EXPANSION_MISSION_EVENT_DEBUG
+			EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Remove server marker with UID: " + m_ServerMarker.GetUID());
+			#endif
+			m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
+		}
+			
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - End");
 		#endif
@@ -361,8 +320,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 			bgip.SetWaypoints( waypointParams, 0, true, false );
 		}
 
-		// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, m_Settings.Infected );
-		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - End");
 		#endif
@@ -708,5 +665,5 @@ class ExpansionAirdropContainerBase extends Container_Base
 		}
 		
 		GetGame().ObjectDelete( this );
-	}
-}
+	}	
+};

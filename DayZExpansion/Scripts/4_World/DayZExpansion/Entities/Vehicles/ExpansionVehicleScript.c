@@ -113,8 +113,6 @@ class ExpansionVehicleScript extends ItemBase
 	protected vector m_LastAngularVelocity; // World Space
 	protected vector m_LastAngularVelocityMS; // Model Space
 
-	vector m_AdjustCenterOfMass;
-
 	ref Transform m_Transform;
 	
 	// Floating
@@ -404,14 +402,11 @@ class ExpansionVehicleScript extends ItemBase
 		EXPrint("ExpansionVehicleScript::DeferredInit - Start");
 		#endif
 
-		if ( !m_SkinModule || !m_SkinModule.PerformCESkinSwap( this ) )
-		{
-			m_BoundingRadius = ClippingInfo( m_BoundingBox );
+		m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
-			m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
+		m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
-		}
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleScript::DeferredInit - End");
@@ -1056,7 +1051,7 @@ class ExpansionVehicleScript extends ItemBase
 	Matrix3 GetEstimatedOrientation( float pDt )
 	{
 		Matrix3 estimatedOrientation;
-		Matrix3.Tilda( ( m_AngularVelocity /*+ ( m_AngularAcceleration * pDt )*/ ) * pDt, estimatedOrientation );
+		Matrix3.Tilda( ( ( m_AngularVelocity * pDt ) + ( m_AngularAcceleration * pDt ) ), estimatedOrientation );
 
 		Math3D.MatrixInvMultiply3( estimatedOrientation.data, m_Transform.data, estimatedOrientation.data );
 		
@@ -1388,28 +1383,94 @@ class ExpansionVehicleScript extends ItemBase
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
 	}
 
-	// ------------------------------------------------------------
 	bool CrewCanGetThrough( int posIdx )
 	{
 		return true;
 	}
 
-	// ------------------------------------------------------------
+	int GetCrewIndex( string selection )
+	{
+		return -1;
+	}
+
 	bool CanReachSeatFromSeat( int currentSeat, int nextSeat )
 	{
 		return true;	
 	}
 
-	// ------------------------------------------------------------
 	bool CanReachSeatFromDoors( string pSeatSelection, vector pFromPos, float pDistance = 1.0 )
 	{
 		return true;		
 	}
 
-	// ------------------------------------------------------------
 	bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
 	{
 		return true;		
+	}
+
+	int GetSeatIndexFromDoor( string pDoorSelection )
+	{
+		//Potientially could be fixed some other way, currently follows the unfortunate pattern that CanReachDoorsFromSeat has created
+		switch (pDoorSelection)
+		{
+			case "DoorsDriver":
+				return 0;
+				break;
+			case "DoorsCoDriver":
+				return 1;
+				break;
+			case "DoorsCargo1":
+				return 2;
+				break;
+			case "DoorsCargo2":
+				return 3;
+				break;
+		}
+		return -1;
+	}
+	
+	bool IsAreaAtDoorFree( int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7 )
+	{
+		vector crewPos;
+		vector crewDir;
+		CrewEntryWS( currentSeat, crewPos, crewDir );
+		crewPos[1] = crewPos[1] + maxAllowedObjHeight + playerHeight * 0.5;
+		array<Object> excluded = new array<Object>;
+		array<Object> collided = new array<Object>;
+		excluded.Insert(this);
+		excluded.Insert(GetGame().GetPlayer());
+		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided); 
+		foreach (Object o : collided)
+		{
+			vector minmax[2];
+			if (o.GetCollisionBox(minmax))
+				return false;
+		}
+		return true;
+	}
+
+	Shape DebugFreeAreaAtDoor( int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7 )
+	{
+		vector crewPos;
+		vector crewDir;
+		CrewEntryWS( currentSeat, crewPos, crewDir );
+		crewPos[1] = crewPos[1] + maxAllowedObjHeight + playerHeight * 0.5;
+		array<Object> excluded = new array<Object>;
+		array<Object> collided = new array<Object>;
+		excluded.Insert(this);
+		excluded.Insert(GetGame().GetPlayer());
+		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided); 
+		int color = ARGB(100, 0, 255, 0);
+		foreach (Object o : collided)
+		{
+			vector minmax[2];
+			if (o.GetCollisionBox(minmax))
+			{
+				color = ARGB(100, 255, 0, 0);
+			}
+		}
+
+		return Debug.DrawCylinder(crewPos, horizontalExtents, playerHeight, color);
 	}
 #else
 	static ref map<typename, ref TInputActionMap> m_AdvComTypeActionsMap = new map<typename, ref TInputActionMap>;

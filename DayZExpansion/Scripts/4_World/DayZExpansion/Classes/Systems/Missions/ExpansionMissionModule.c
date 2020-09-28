@@ -26,7 +26,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		m_MissionConstructor = ExpansionMissionConstructor;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule Destructor
+	// ------------------------------------------------------------
 	void ~ExpansionMissionModule()
 	{
 		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
@@ -39,7 +42,10 @@ class ExpansionMissionModule: JMModuleBase
 		
 		SI_OnMissionEnd.Remove( RemoveMission );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule SetMissionConstructor
+	// ------------------------------------------------------------
 	void SetMissionConstructor( typename missionConstructor )
 	{
 		if ( missionConstructor.IsInherited( ExpansionMissionConstructor ) )
@@ -50,7 +56,10 @@ class ExpansionMissionModule: JMModuleBase
 			Error( "Parameter '" + missionConstructor + "' is not of type 'ExpansionMissionConstructor'" );
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule OnInit
+	// ------------------------------------------------------------
 	override void OnInit()
 	{
 		super.OnInit();
@@ -69,7 +78,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		ExpansionMissionSettings.SI_OnSave.Insert( SaveMissions );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule OnMissionLoaded
+	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -108,17 +120,26 @@ class ExpansionMissionModule: JMModuleBase
 		EXLogPrint( "ExpansionMissionModule::OnMissionLoaded - End" );
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule IsServer
+	// ------------------------------------------------------------
 	override bool IsServer()
 	{
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule IsClient
+	// ------------------------------------------------------------
 	override bool IsClient()
 	{
 		return false;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule SaveMissions
+	// ------------------------------------------------------------
 	protected void SaveMissions()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -134,7 +155,10 @@ class ExpansionMissionModule: JMModuleBase
 		EXLogPrint( "ExpansionMissionModule::SaveMissions - End" );
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule ProcessMissions
+	// ------------------------------------------------------------
 	protected void ProcessMissions()
 	{
 		for ( int i = 0; i < m_Missions.Count(); i++ )
@@ -142,7 +166,10 @@ class ExpansionMissionModule: JMModuleBase
 			ProcessMission( m_Missions[ i ] );
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule ProcessMission
+	// ------------------------------------------------------------
 	protected void ProcessMission( ExpansionMissionEventBase evt )
 	{
 		ref array< ExpansionMissionEventBase > missions;
@@ -158,6 +185,9 @@ class ExpansionMissionModule: JMModuleBase
 		}
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule GetMissionType
+	// ------------------------------------------------------------
 	typename GetMissionType( ExpansionMissionEventBase evt )
 	{
 		for ( int i = 0; i < m_MissionTypesArray.Count(); i++ )
@@ -170,7 +200,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		return typename;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule DefaultMissions
+	// ------------------------------------------------------------
 	protected void DefaultMissions()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -212,7 +245,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		m_MissionSettings.Save();
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule LoadMissions
+	// ------------------------------------------------------------
 	protected void LoadMissions()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -244,7 +280,10 @@ class ExpansionMissionModule: JMModuleBase
 		EXLogPrint( "ExpansionMissionModule::LoadMissions - End" );
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule StartNewMissions
+	// ------------------------------------------------------------
 	void StartNewMissions()
 	{
 		if ( !m_MissionSettings || !m_MissionSettings.Enabled )
@@ -286,12 +325,18 @@ class ExpansionMissionModule: JMModuleBase
 		while ( m_RunningMissions.Count() < m_MissionSettings.MaxMissions )
 			FindNewMission();
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule GetNumberRunningMissions
+	// ------------------------------------------------------------
 	int GetNumberRunningMissions()
 	{
 		return m_RunningMissions.Count();
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule RemoveMission
+	// ------------------------------------------------------------
 	void RemoveMission( ExpansionMissionEventBase mission )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
@@ -304,7 +349,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissions, m_MissionSettings.TimeBetweenMissions, false );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule FindNewMission
+	// ------------------------------------------------------------
 	protected void FindNewMission()
 	{
 		//! Print( "ExpansionMissionModule::FindNewMission" );
@@ -338,7 +386,10 @@ class ExpansionMissionModule: JMModuleBase
 			StartMissionInternal( mission );
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule AddMission
+	// ------------------------------------------------------------
 	void AddMission( ExpansionMissionEventBase evt )
 	{
 		m_Missions.Insert( evt );
@@ -353,7 +404,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		ProcessMission( evt );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule DeleteMission
+	// ------------------------------------------------------------
 	bool DeleteMission( ExpansionMissionEventBase evt )
 	{
 		int idx = m_Missions.Find( evt );
@@ -368,7 +422,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule StartMissionInternal
+	// ------------------------------------------------------------
 	private void StartMissionInternal( ExpansionMissionEventBase mission )
 	{
 		mission.Start();
@@ -377,7 +434,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		SI_Started.Invoke( mission );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule StartMission
+	// ------------------------------------------------------------
 	bool StartMission( ExpansionMissionEventBase mission )
 	{
 		if ( m_RunningMissions.Count() >= m_MissionSettings.MaxMissions )
@@ -390,7 +450,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule FindMission
+	// ------------------------------------------------------------
 	ExpansionMissionEventBase FindMission( string missionType, string missionName )
 	{
 		array< ExpansionMissionEventBase > missions = new array< ExpansionMissionEventBase >;
@@ -412,7 +475,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		return NULL;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule StartMission
+	// ------------------------------------------------------------
 	bool StartMission( string missionType, string missionName )
 	{
 		ExpansionMissionEventBase evt = FindMission( missionType, missionName );
@@ -421,7 +487,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		return StartMission( evt );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule EndMission
+	// ------------------------------------------------------------
 	bool EndMission( string missionType, string missionName )
 	{
 		ExpansionMissionEventBase evt = FindMission( missionType, missionName );
@@ -432,7 +501,10 @@ class ExpansionMissionModule: JMModuleBase
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule Serialize
+	// ------------------------------------------------------------
 	ref array< ref ExpansionMissionSerializedType > Serialize()
 	{
 		ref array< ref ExpansionMissionSerializedType > serialized = new ref array< ref ExpansionMissionSerializedType >;

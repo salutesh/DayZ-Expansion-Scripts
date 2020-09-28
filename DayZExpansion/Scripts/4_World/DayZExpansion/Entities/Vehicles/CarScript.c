@@ -356,9 +356,6 @@ modded class CarScript
 		EXPrint("CarScript::LongDeferredInit - Start");
 		#endif
 
-		if ( m_SkinModule )
-			m_SkinModule.PerformCESkinSwap( this );
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::LongDeferredInit - End");
 		#endif

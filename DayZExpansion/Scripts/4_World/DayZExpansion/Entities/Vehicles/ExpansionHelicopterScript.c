@@ -1051,7 +1051,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;
 				float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * ( m_RotorSpeed + 0.1 );
 
-				const float maxSpeedTailEffect = 1.0 / 55.0; // at ~200km/h, tail rotor has no effect
+				const float maxSpeedTailEffect = 1.0 / 80.0; // at ~200km/h, tail rotor has no effect
 				float scaledSpeedFactor = 1.0 - Math.Min( Math.AbsFloat( m_LinearVelocityMS[2] * maxSpeedTailEffect ), 1.0 );
 
 				float bankForce = Math.Asin( m_Bank ) * m_BankForceCoef * m_TailRotateFactor;
@@ -1117,7 +1117,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			//! Angular Friction - more optimized to do in worldspace :)
 			{
 				vector t_friction;
-				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.0 + ( m_TailRotateFactor * 0.5 ) );
+				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.5 + ( m_TailRotateFactor * 0.5 ) );
 				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef;
 				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef;
 				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef;

@@ -46,11 +46,12 @@ modded class ActionDismantlePart
 			//! It's his territory ?
 			if ( player.IsInsideOwnTerritory() )
 			{
+				//! Can he dismantle anywhere ?
+				if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
+					return DismantleAnywhereCondition( player, target, item, camera_check );
+
+				//! Apply normal logic
 				return true;
-			//! Can he dismantle anywhere ?
-			} else if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
-			{
-				return DismantleAnywhereCondition( player, target, item, camera_check );
 			}
 		}
 

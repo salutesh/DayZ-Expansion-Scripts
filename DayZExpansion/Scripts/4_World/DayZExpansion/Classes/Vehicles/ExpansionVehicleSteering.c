@@ -1,3 +1,15 @@
+/*
+ * ExpansionVehicleSteering.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 class ExpansionVehicleSteering
 {
 	private ref array< float > m_IncreasingSpeed;
@@ -60,7 +72,14 @@ class ExpansionVehicleSteering
 		pValues = new array< float >();
 		GetGame().ConfigGetFloatArray( "CfgVehicles " + pType + " VehicleSimulation Steering " + pName, pValues );
 		
-		if ( pValues.Count() == 1 )
+		if ( pValues.Count() == 0 )
+		{
+			pValues.Insert( 100 );
+			Error( "[VEHICLE STEERING] Invalid count for " + pName );
+			return false;
+		}
+
+		if ( pValues.Count() <= 2 )
 			return false;
 
 		for ( int i = 0; i < pValues.Count() / 2; ++i )
@@ -88,6 +107,6 @@ class ExpansionVehicleSteering
 	
 		float currentSpeed = pValues[ ( currentIndex * 2 ) + 1 ];
 		float nextSpeed = pValues[ ( currentIndex + 1 ) * 2 ];
-		return Math.Lerp( currentSpeed, nextSpeed, currentIndexDt - currentIndex ) * 40.0 / 180.0;
+		return Math.Lerp( currentSpeed, nextSpeed, currentIndexDt - currentIndex ) * Math.DEG2RAD;
 	}
 };

@@ -66,7 +66,7 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		m_Input = player.GetInputController();
 		
 		m_TimeGetIn = 1.0;
-		m_TimeGetOut = 0.5;
+		m_TimeGetOut = 1.5;
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::ExpansionHumanCommandVehicle End");
 		#endif
@@ -141,13 +141,13 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		{
 			m_VehicleEx.CrewGetOut( m_SeatIndex );
 
-			if ( !m_VehicleEx.CanObjectAttach( m_Player ) /* && !m_KeepInVehicleSpaceAfterLeave */ )
+			if ( !m_KeepInVehicleSpaceAfterLeave )
 				m_Player.UnlinkFromLocalSpace();
 		} else if ( m_VehicleVn )
 		{
 			m_VehicleVn.CrewGetOut( m_SeatIndex );
 
-			if ( !m_VehicleVn.CanObjectAttach( m_Player ) /* && !m_KeepInVehicleSpaceAfterLeave */ )
+			if ( !m_KeepInVehicleSpaceAfterLeave )
 				m_Player.UnlinkFromLocalSpace();
 		}
 
@@ -171,7 +171,10 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		PreAnim_SetFilteredHeading( 0, 0.3, 180 );
 
 		m_Table.SetLook( this, true );
-		m_Table.SetLookDirX( this, heading );
+		
+		HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
+		m_Table.SetLookDirX( this, hcw.GetBaseAimingAngleLR() );
+		m_Table.SetLookDirY( this, hcw.GetBaseAimingAngleUD() );
 
 		m_Table.SetVehicleType( this, m_VehicleType );
 		m_Table.SetVehicleSteering( this, m_VehicleEx.GetSteering() + 0 );
@@ -190,19 +193,21 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		EXPrint("ExpansionHumanCommandVehicle::PrePhysUpdate Start");
 		#endif
 
-		if ( m_IsGettingIn )
+		if ( m_IsGettingOut )
 		{
-			if ( !m_IsIn )
-			{
-				m_IsIn = true;
-			}			
-		} else if ( !m_IsGettingOut )
-		{
+
 		} else
 		{
+			if ( m_IsGettingIn )
+			{
+				if ( !m_IsIn )
+				{
+					m_IsIn = true;
+				}			
+			}
+
+			PrePhys_SetTranslation( vector.Zero );
 		}
-		
-		PrePhys_SetTranslation( vector.Zero );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::PrePhysUpdate End");
@@ -216,28 +221,31 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 		#endif
 		
 		m_Time += pDt;
-		if ( m_IsGettingIn )
-		{
-			m_IsGettingIn = false;
-
-			if ( m_Time > m_TimeGetIn )
-			{
-				m_IsGettingIn = false;
-			}
-		} else if ( m_IsGettingOut )
+		if ( m_IsGettingOut )
 		{
 			if ( m_Time > m_TimeGetOut )
 			{
 				m_NeedFinish = true;
 			}
+		} else
+		{
+			if ( m_IsGettingIn )
+			{
+				m_IsGettingIn = false;
+
+				if ( m_Time > m_TimeGetIn )
+				{
+					m_IsGettingIn = false;
+				}
+			}
+			
+			float quat[4];
+			Math3D.QuatIdentity(quat);
+			
+			//PostPhys_SetPosition( m_SeatPosition );
+			//PostPhys_SetRotation( quat );
+			//PostPhys_LockRotation();
 		}
-		
-		float quat[4];
-		Math3D.QuatIdentity(quat);
-		
-		PostPhys_SetPosition( m_SeatPosition );
-		PostPhys_SetRotation( quat );
-		PostPhys_LockRotation();
 		
 		return m_NeedFinish == false;
 	}
@@ -256,6 +264,23 @@ class ExpansionHumanCommandVehicle extends HumanCommandScript
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandVehicle::GetOutVehicle End");
+		#endif
+	}
+
+	void JumpOutVehicle()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHumanCommandVehicle::JumpOutVehicle Start");
+		#endif
+		
+		m_Time = 0;
+		m_IsGettingIn = false;
+		m_IsGettingOut = true;
+
+		m_Table.CallVehicleJumpOut( this );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHumanCommandVehicle::JumpOutVehicle End");
 		#endif
 	}
 

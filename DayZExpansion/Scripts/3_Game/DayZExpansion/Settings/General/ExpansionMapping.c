@@ -70,26 +70,21 @@ class ExpansionMapping
 		if ( world_name.Contains( "chernarusplus" ) )
 		{
 			ExpansionMappingChernarus();
-		} else if ( world_name.Contains( "enoch" ) )
+		}
+		//! Only Chernarus have custom mapping so we will check only "chernarusplus" until we have custom mapping for other maps
+		/*
+		else if ( world_name.Contains( "enoch" ) )
 		{
 			ExpansionMappingLivonia();
 		} else if ( world_name.Contains( "deerisle" ) )
 		{
 			ExpansionMappingDeerIsle();
 		}
+		*/
 
-		#ifdef EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
-		
-		UseCustomMappingModule 			= false;
-		BuildingInteriors 				= false;
-		BuildingIvys					= false;
-		
-		#else
-		
 		UseCustomMappingModule 			= true;
 		BuildingInteriors 				= true;
 		BuildingIvys					= true;
-		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMapping::Defaults - End");

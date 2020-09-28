@@ -23,6 +23,7 @@
 //! Enable it if you want to DISABLE market
 #define EXPANSION_MARKET_DISABLE
 
+//! Enable it if you want to DISABLE chicken stuff
 #define EXPANSION_CHICKEN_DISABLE
 
 #define EXPANSION_HELI_TEMP
@@ -46,11 +47,8 @@
 //! Enableif you want to enable vehicle towing
 #define EXPANSION_VEHICLE_TOWING
 
-//! Enable it if you want to disable mapping 
-//#define EXPANSION_SETTINGS_MAPPING_DEFAULT_DISABLE
-
 // Enable it if you want mission event debug logs enabled
-//#define EXPANSION_MISSION_EVENT_DEBUG
+#define EXPANSION_MISSION_EVENT_DEBUG
 
 // Enable it if you want market debug logs enabled
 //#define EXPANSION_MARKET_MODULE_DEBUG
@@ -61,8 +59,11 @@
 //! Enable it if you want to enable kill-feed module debug logs
 //#define EXPANSION_KILLFEED_MODULE_DEBUG
 
+//! Enable it if you want to marker module debug logs
+#define EXPANSION_MARKER_MODULE_DEBUG
+
 //! Enable it if you want to enable mapping module debug logs
-#define EXPANSION_MAPPING_MODULE_DEBUG
+//#define EXPANSION_MAPPING_MODULE_DEBUG
 
 //! Enable it if you want to enable territry module debug logs
 //#define EXPANSION_TERRITORY_MODULE_DEBUG

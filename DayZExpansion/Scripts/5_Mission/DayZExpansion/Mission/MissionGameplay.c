@@ -716,7 +716,7 @@ modded class MissionGameplay
 					//TODO: TEST THIS CHANGE
 					if ( input.LocalHold( "UAUIQuickbarToggle", false ) )
 					{
-						if ( !m_Hud.GetExpansionHudState() )
+						if ( !m_Hud.GetHudState() )
 						{
 							m_ExpansionHud.ShowHud( false );
 						} else

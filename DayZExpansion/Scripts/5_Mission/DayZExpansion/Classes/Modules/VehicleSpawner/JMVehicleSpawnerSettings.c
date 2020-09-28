@@ -50,13 +50,17 @@ modded class JMVehicleSpawnerSettings
 
 		//! Not Ready
 		//DefaultExpansionQuadATV();
+		
+		//! Bikes
 		DefaultExpansionTT650();
 		DefaultExpansion250N();
 		DefaultExpansionOldBike();
 
-		//! Testing only
-		DefaultExpansionCivilianSedanTest();
-		DefaultExpansionUAZCargoRooflessTest();
+		//! Testing
+		Default_Expansion_CivilianSedan();
+		Default_Expansion_OffroadHatchback();
+		Default_Expansion_Sedan_02();
+		Default_Expansion_Hatchback_02();
 	}
 
 	void DefaultExpansionMerlin()
@@ -769,6 +773,120 @@ modded class JMVehicleSpawnerSettings
 		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Sedan_02";
+		file.m_FileName = file.VehicleName;
+		file.Parts = attArr;
+
+		Vehicles.Insert( file.VehicleName, file );
+	}
+
+	void Default_Expansion_CivilianSedan()
+	{
+		ref array< string> attArr = new array< string>;
+
+		attArr.Insert("CivSedanHood");
+		attArr.Insert("CivSedanTrunk");
+		attArr.Insert("CivSedanDoors_Driver");
+		attArr.Insert("CivSedanDoors_BackRight");
+		attArr.Insert("CivSedanDoors_BackLeft");
+		attArr.Insert("CivSedanDoors_CoDriver");
+		attArr.Insert("Expansion_CivSedanWheel");
+		attArr.Insert("Expansion_CivSedanWheel");
+		attArr.Insert("Expansion_CivSedanWheel");
+		attArr.Insert("Expansion_CivSedanWheel");
+		attArr.Insert("CarBattery");
+		attArr.Insert("CarRadiator");
+		attArr.Insert("SparkPlug");
+		attArr.Insert("HeadlightH7");
+		attArr.Insert("HeadlightH7");
+
+		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+
+		file.VehicleName = "Expansion_CivilianSedan";
+		file.m_FileName = file.VehicleName;
+		file.Parts = attArr;
+
+		Vehicles.Insert( file.VehicleName, file );
+	}
+
+	void Default_Expansion_OffroadHatchback()
+	{
+		ref array< string> attArr = new array< string>;
+
+		attArr.Insert("HatchbackHood");
+		attArr.Insert("HatchbackTrunk");
+		attArr.Insert("HatchbackDoors_Driver");
+		attArr.Insert("HatchbackDoors_CoDriver");
+		attArr.Insert("Expansion_HatchbackWheel");
+		attArr.Insert("Expansion_HatchbackWheel");
+		attArr.Insert("Expansion_HatchbackWheel");
+		attArr.Insert("Expansion_HatchbackWheel");
+		attArr.Insert("CarBattery");
+		attArr.Insert("CarRadiator");
+		attArr.Insert("SparkPlug");
+		attArr.Insert("HeadlightH7");
+		attArr.Insert("HeadlightH7");
+
+		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+
+		file.VehicleName = "Expansion_OffroadHatchback";
+		file.m_FileName = file.VehicleName;
+		file.Parts = attArr;
+
+		Vehicles.Insert( file.VehicleName, file );
+	}
+
+	void Default_Expansion_Hatchback_02()
+	{
+		ref array< string> attArr = new array< string>;
+
+		attArr.Insert("Hatchback_02_Hood");
+		attArr.Insert("Hatchback_02_Trunk");
+		attArr.Insert("Hatchback_02_Door_1_1");
+		attArr.Insert("Hatchback_02_Door_1_2");
+		attArr.Insert("Hatchback_02_Door_2_1");
+		attArr.Insert("Hatchback_02_Door_2_2");
+		attArr.Insert("Expansion_Hatchback_02_Wheel");
+		attArr.Insert("Expansion_Hatchback_02_Wheel");
+		attArr.Insert("Expansion_Hatchback_02_Wheel");
+		attArr.Insert("Expansion_Hatchback_02_Wheel");
+		attArr.Insert("CarBattery");
+		attArr.Insert("CarRadiator");
+		attArr.Insert("SparkPlug");
+		attArr.Insert("HeadlightH7");
+		attArr.Insert("HeadlightH7");
+
+		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+
+		file.VehicleName = "Expansion_Hatchback_02";
+		file.m_FileName = file.VehicleName;
+		file.Parts = attArr;
+
+		Vehicles.Insert( file.VehicleName, file );
+	}
+
+	void Default_Expansion_Sedan_02()
+	{
+		ref array< string> attArr = new array< string>;
+
+		attArr.Insert("Sedan_02_Hood");
+		attArr.Insert("Sedan_02_Trunk");
+		attArr.Insert("Sedan_02_Door_1_1");
+		attArr.Insert("Sedan_02_Door_1_2");
+		attArr.Insert("Sedan_02_Door_2_1");
+		attArr.Insert("Sedan_02_Door_2_2");
+		attArr.Insert("Expansion_Sedan_02_Wheel");
+		attArr.Insert("Expansion_Sedan_02_Wheel");
+		attArr.Insert("Expansion_Sedan_02_Wheel");
+		attArr.Insert("Expansion_Sedan_02_Wheel");
+		attArr.Insert("CarBattery");
+		attArr.Insert("CarRadiator");
+		attArr.Insert("SparkPlug");
+		attArr.Insert("HeadlightH7");
+		attArr.Insert("HeadlightH7");
+
+		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+
+		file.VehicleName = "Expansion_Sedan_02";
 		file.m_FileName = file.VehicleName;
 		file.Parts = attArr;
 

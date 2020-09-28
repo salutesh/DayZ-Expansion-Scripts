@@ -114,6 +114,17 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			return;
 		}
 
+		if ( pOutResult.m_CollisionIgnoreEntity )
+		{
+			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) )
+			{
+				pOutResult.m_CollisionIgnoreEntity = NULL;
+			} else
+			{
+				
+			}
+		}
+
 		ExpansionHelicopterScript helicopter;
 		ExpansionVehicleScript vehicle;
 
@@ -127,12 +138,13 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			
 			cameraHeight = helicopter.GetCameraHeight();
 			cameraDistance = helicopter.GetCameraDistance();
-		} else if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
-		{
-			pOutResult.m_fUseHeading		= 1.0;
-			return;
 		} else
 		{
+			if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
+			{
+				pOutResult.m_fUseHeading		= 1.0;
+			}
+
 			return;
 		}
 

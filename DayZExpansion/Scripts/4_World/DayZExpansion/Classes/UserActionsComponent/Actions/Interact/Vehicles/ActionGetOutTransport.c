@@ -80,6 +80,7 @@ modded class ActionGetOutTransport
 					vehCommand.GetOutVehicle();
 				} else
 				{
+					got_action_data.m_WasJumpingOut = true;
 					vehCommand.JumpOutVehicle();
 				}
 

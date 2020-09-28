@@ -577,6 +577,176 @@ class CfgVehicles
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Car";
+		rotationFlags = 64;
+		storageCategory = 4;
+		insideSoundCoef = 0.9;
+		fuelCapacity = 50;
+		brakeFluidCapacity = 1;
+		oilCapacity = 4;
+		coolantCapacity = 6;
+		brakeFluidLeakDebit[] = {0.0,0.0};
+		oilLeakDebit[] = {0.0,0.0};
+		coolantLeakDebit[] = {0.0,0.0};
+		brakeFluidForceCoef[] = {0.0,1.0,1.0,1.0};
+		damageFromOil[] = {0.0,0.0,1.0,0.0};
+		damageFromCoolant[] = {0.0,0.0,1.0,0.0};
+		engineBeltSlot = "EngineBelt";
+		batterySlot = "CarBattery";
+		electricPowerResName = "power";
+		electricConsumptionIgnition = 3001;
+		electricConsumptionEngine = 0.0;
+		electricConsumptionLights = 0.0;
+		electricOutputEngine = 5.0;
+		selectionDashboard = "light_dashboard";
+		selectionLightFrontL = "light_left";
+		selectionLightFrontR = "light_right";
+		selectionBrakeLights = "light_break";
+		class Crew
+		{
+			class Driver
+			{
+				actionSel = "seat_driver";
+				proxyPos = "crewDriver";
+				getInPos = "pos_driver";
+				getInDir = "pos_driver_dir";
+				isDriver = 1;
+			};
+			class CoDriver
+			{
+				actionSel = "seat_coDriver";
+				proxyPos = "crewCoDriver";
+				getInPos = "pos_coDriver";
+				getInDir = "pos_coDriver_dir";
+			};
+		};
+		class VehicleSimulation
+		{
+			class Axles
+			{
+				class Front
+				{
+					class Wheels
+					{
+						class Left
+						{
+							inventorySlot = "";
+							animTurn = "turnfrontleft";
+							animRotation = "wheelfrontleft";
+							animDamper = "damperfrontleft";
+							wheelHub = "wheel_1_1_damper_land";
+						};
+						class Right
+						{
+							inventorySlot = "";
+							animTurn = "turnfrontright";
+							animRotation = "wheelfrontright";
+							animDamper = "damperfrontright";
+							wheelHub = "wheel_2_1_damper_land";
+						};
+					};
+				};
+				class Rear
+				{
+					class Wheels
+					{
+						class Left
+						{
+							inventorySlot = "";
+							animTurn = "turnbackleft";
+							animRotation = "wheelbackleft";
+							animDamper = "damperbackleft";
+							wheelHub = "wheel_1_2_damper_land";
+						};
+						class Right
+						{
+							inventorySlot = "";
+							animTurn = "turnbackright";
+							animRotation = "wheelbackright";
+							animDamper = "damperbackright";
+							wheelHub = "wheel_2_2_damper_land";
+						};
+					};
+				};
+			};
+		};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1"};
+		hiddenSelections[] = {""};
+		hiddenSelectionsTextures[] = {""};
+		hiddenSelectionsMaterials[] = {""};
+		class AnimationSources
+		{
+			class DoorsDriver
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.5;
+			};
+			class DoorsCoDriver: DoorsDriver{};
+			class DoorsHood: DoorsDriver{};
+			class DoorsTrunk: DoorsDriver{};
+			class HideDestroyed_1_1
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.001;
+			};
+			class HideDestroyed_1_2
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.001;
+			};
+			class HideDestroyed_2_1
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.001;
+			};
+			class HideDestroyed_2_2
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.001;
+			};
+			class AnimHitWheel_1_1
+			{
+				source = "Hit";
+				hitpoint = "HitWheel_1_1";
+				raw = 1;
+			};
+			class AnimHitWheel_1_2: AnimHitWheel_1_1
+			{
+				hitpoint = "HitWheel_1_2";
+			};
+			class AnimHitWheel_2_1: AnimHitWheel_1_1
+			{
+				hitpoint = "HitWheel_2_1";
+			};
+			class AnimHitWheel_2_2: AnimHitWheel_1_1
+			{
+				hitpoint = "HitWheel_2_2";
+			};
+			class HitDoorsHood: AnimHitWheel_1_1
+			{
+				hitpoint = "HitDoorsHood";
+			};
+			class HitDoorsTrunk: AnimHitWheel_1_1
+			{
+				hitpoint = "HitDoorsTrunk";
+			};
+			class HitDoorsDrivers: AnimHitWheel_1_1
+			{
+				hitpoint = "HitDoorsDriver";
+			};
+			class HitDoorsCoDrivers: AnimHitWheel_1_1
+			{
+				hitpoint = "HitDoorsCoDriver";
+			};
+			class HitDoorsCargo: AnimHitWheel_1_1
+			{
+				hitpoint = "HitDoorsCargo";
+			};
+		};
 	};
 	class ExpansionSoundProxyBase: CarScript
 	{
