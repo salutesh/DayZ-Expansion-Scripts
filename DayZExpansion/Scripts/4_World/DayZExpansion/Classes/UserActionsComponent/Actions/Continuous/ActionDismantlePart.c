@@ -53,6 +53,8 @@ modded class ActionDismantlePart
 				//! Apply normal logic
 				return true;
 			}
+			
+			return false;
 		}
 
 		//! Can you dismantle outside territoies ?
