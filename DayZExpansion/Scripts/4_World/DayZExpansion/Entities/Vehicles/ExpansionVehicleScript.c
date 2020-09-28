@@ -701,7 +701,7 @@ class ExpansionVehicleScript extends ItemBase
 
 				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
 
-				MoveInTime( m_SyncState.m_PredictedTransform.data, dt );
+				MoveInTime( m_SyncState.m_PredictedTransform.data, 0.0 );
 
 				SetSynchDirty();
 			} else
