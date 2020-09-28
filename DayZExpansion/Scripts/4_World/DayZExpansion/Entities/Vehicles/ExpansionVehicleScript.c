@@ -621,7 +621,7 @@ class ExpansionVehicleScript extends ItemBase
 		//Print(driver);
 		//Print(GetGame().GetPlayer());
 		
-		if ( !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsMultiplayer() && GetGame().IsServer() )
 		{
 			m_IsPhysicsHost = true;
 		} else if ( GetGame().IsClient() )
@@ -701,7 +701,7 @@ class ExpansionVehicleScript extends ItemBase
 
 				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
 
-				MoveInTime( m_SyncState.m_PredictedTransform.data, 0.0 );
+				MoveInTime( m_SyncState.m_PredictedTransform.data, dt );
 
 				SetSynchDirty();
 			} else
@@ -862,7 +862,7 @@ class ExpansionVehicleScript extends ItemBase
 			return true;
 		}
 		
-		return false;
+		return true;
 	}
 
 	// ------------------------------------------------------------
