@@ -648,9 +648,8 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = GetTimeForSync();
 				m_SyncState.m_LastRecievedTime = GetTimeForSync();
 
-				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform.data );
-				m_SyncState.m_InitialTransform.data[3] = m_SyncState.m_Position;
-				m_SyncState.m_InitialTransform.UpdateUnion();
+				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform );
+				m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
 			} else
 			{
 				m_LinearVelocity = m_SyncState.m_LinearVelocity;
@@ -781,7 +780,7 @@ class ExpansionVehicleScript extends ItemBase
 
 			SetSynchDirty();
 
-			SetTransform( m_SyncState.m_PredictedTransform.data );
+			SetTransform( m_SyncState.m_PredictedTransform );
 		}
 		
 		if ( stateF != stateB )
@@ -874,22 +873,21 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = GetTimeForSync();
 				m_SyncState.m_TimeDelta = 0;
 
-				m_SyncState.m_LinearVelocity = ( newPos - GetPosition() ) * dt;
+				m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * ( 1.0 / dt );
 
 				vector m1[];
 				vector m2[];
 				vector m3[];
 
 				Math3D.YawPitchRollMatrix( newOrientation, m1 );
-				Math3D.YawPitchRollMatrix( GetOrientation(), m2 );
+				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m2 );
 
 				Math3D.MatrixMultiply3( m1, m2, m3 );
 
-				m_SyncState.m_AngularVelocity = Math3D.MatrixToAngles( m3 ) * dt * Math.DEG2RAD;
+				m_SyncState.m_AngularVelocity = vector.Zero; // Math3D.MatrixToAngles( m3 ) * dt * Math.DEG2RAD;
 				
-				Math3D.YawPitchRollMatrix( newOrientation, m_SyncState.m_InitialTransform.data );
-				m_SyncState.m_InitialTransform.data[3] = newPos;
-				m_SyncState.m_InitialTransform.UpdateUnion();
+				Math3D.YawPitchRollMatrix( newOrientation, m_SyncState.m_InitialTransform );
+				m_SyncState.m_InitialTransform[3] = newPos;
 			}
 			
 			m_SyncState.m_Position = newPos;
@@ -963,9 +961,8 @@ class ExpansionVehicleScript extends ItemBase
 				ctx.Read( m_SyncState.m_LinearVelocity );
 				ctx.Read( m_SyncState.m_AngularVelocity );
 				
-				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform.data );
-				m_SyncState.m_InitialTransform.data[3] = m_SyncState.m_Position;
-				m_SyncState.m_InitialTransform.UpdateUnion();
+				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform );
+				m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
 
 				return;
 			}

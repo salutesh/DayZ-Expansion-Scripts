@@ -23,8 +23,8 @@ class ExpansionVehicleSyncState
 	vector m_LinearVelocity;
 	vector m_AngularVelocity;
 
-	ref Transform m_InitialTransform;
-	ref Transform m_PredictedTransform;
+	vector m_InitialTransform[4];
+	vector m_PredictedTransform[4];
 
 	void ExpansionVehicleSyncState( ExpansionVehicleScript vehicle )
 	{
@@ -34,15 +34,10 @@ class ExpansionVehicleSyncState
 		m_Orientation = m_Vehicle.GetOrientation();
 		m_LinearVelocity = vector.Zero;
 		m_AngularVelocity = vector.Zero;
-
-		m_InitialTransform = new Transform();
-		m_PredictedTransform = new Transform();
 	}
 	
 	void ~ExpansionVehicleSyncState()
 	{
-		delete m_InitialTransform;
-		delete m_PredictedTransform;
 	}
 
 	void OnVariablesSynchronized()

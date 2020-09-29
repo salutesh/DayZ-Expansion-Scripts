@@ -111,20 +111,17 @@ class ExpansionPhysics
 		return invMass + vector.Dot( normal, vec );
 	}
 
-	static void IntegrateTransform( Transform curTrans, vector linVel, vector angVel, float timestep, inout Transform predictedTrans )
+	static void IntegrateTransform( vector curTrans[4], vector linVel, vector angVel, float timestep, inout vector predictedTrans[4] )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysics::IntegrateTransform - Start");
 		#endif
 
-		vector initialPos = curTrans[3];
-		
 		vector m1[];
 		Math3D.YawPitchRollMatrix( angVel * timestep, m1 );
+		Math3D.MatrixInvMultiply3( curTrans, m1, predictedTrans );
 
-		Math3D.MatrixInvMultiply3( curTrans.data, m1, predictedTrans.data );
-
-		predictedTrans[3] = initialPos + ( linVel * timestep );
+		predictedTrans[3] = curTrans[3] + ( linVel * timestep );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysics::IntegrateTransform - End");
