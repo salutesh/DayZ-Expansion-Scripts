@@ -191,8 +191,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			
 			//! Check if a player is nearby the container in a 1500 meter radius
 			if ( !IsPlayerNearby(100) )
-			{	
-				m_Container.RemoveServerMarker();				
+			{			
 				RemoveContainer();
 				
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );

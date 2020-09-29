@@ -59,8 +59,7 @@ class ExpansionActionAdminUnpairKey: ActionInteractBase
 		for ( int i = 0; i < keys.Count(); ++i )
 			keys[i].Unpair( true );
 
-		if ( keys.Count() != 0 )
-			car.ResetKeyPairing();
+		car.ResetKeyPairing();
 	}
 
 	override bool CanBeUsedInRestrain()

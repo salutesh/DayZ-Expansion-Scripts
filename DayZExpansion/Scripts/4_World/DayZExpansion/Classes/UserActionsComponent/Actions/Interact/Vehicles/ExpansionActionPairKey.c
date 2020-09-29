@@ -14,6 +14,8 @@ class ExpansionActionPairKey: ActionInteractBase
 {
 	//! DO NOT STORE VARIABLES FOR SERVER SIDE OPERATION
 
+	private bool m_IsGlitched;
+
 	void ExpansionActionPairKey()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -27,6 +29,9 @@ class ExpansionActionPairKey: ActionInteractBase
 
 	override string GetText()
 	{
+		if ( m_IsGlitched )
+			return "#STR_EXPANSION_PAIR_KEY [Fix Glitch]";
+
 		return "#STR_EXPANSION_PAIR_KEY";
 	}
 
@@ -35,7 +40,7 @@ class ExpansionActionPairKey: ActionInteractBase
 		CarScript car;
 		ExpansionCarKey key;
 
-		if ( player.GetCommand_Vehicle() )
+		if ( player.GetCommand_Vehicle() ) //! don't pair if we are inside the car
 			return false;
 
 		if ( !Class.CastTo( car, target.GetObject() ) )
@@ -43,15 +48,25 @@ class ExpansionActionPairKey: ActionInteractBase
 
 		if ( !Class.CastTo( key, player.GetItemInHands() ) )
 			return false;
-
-		if ( car.HasKey() )
-			return false;
-
-		if ( key.IsPaired() )
-			return false;
 		
 		if ( key.IsInherited( ExpansionCarAdminKey ) )
 			return false;
+
+		if ( key.IsPaired() && !car.HasKey() ) //! key is paired to something, car doesn't have a key
+		{
+			if ( !key.IsPairedTo( car ) ) //! the key is not paired to the car
+				return false;
+
+			//! the key is paired to the car but the car has no key, we are glitched.
+			m_IsGlitched = true;
+		} else
+		{
+			if ( car.HasKey() ) //! car has a key
+				return false;
+
+			if ( key.IsPaired() ) //! key is paired
+				return false;
+		}
 		
 		return true;
 	}

@@ -438,25 +438,11 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------	
 	void RemoveServerMarker( string uid )
 	{
-		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::RemoveServerMarker - Start");
-		#endif
-		
-		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )
-		{
-			#ifdef EXPANSION_MARKER_MODULE_DEBUG
-			EXPrint("ExpansionMarkerModule::RemoveServerMarker - End and return");
-			#endif
-			
+		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )		
 			return;
-		}
 
-		GetExpansionSettings().GetMap().RemoveServerMarker( uid );
-		GetExpansionSettings().GetMap().Send( NULL );
-		
-		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::RemoveServerMarker - End");
-		#endif
+		if ( GetExpansionSettings().GetMap().RemoveServerMarker( uid ) )
+			GetExpansionSettings().GetMap().Send( NULL );
 	}
 	
 	// ------------------------------------------------------------

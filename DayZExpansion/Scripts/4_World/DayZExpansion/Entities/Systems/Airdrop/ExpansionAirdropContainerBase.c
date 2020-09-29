@@ -85,7 +85,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		StopSmokeEffect();
 		
-		//RemoveServerMarker();
+		RemoveServerMarker();
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - End");
@@ -199,12 +199,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
 			
-			//! Place the crate correctly again after it has hit the ground
-			vector pos = GetPosition();
-			pos[1] = GetGame().SurfaceY( pos[0], pos[2] );
-			SetPosition( pos );
-			
-			if (GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost())
+			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost() )
 			{
 				//! Set server map marker on drop position
 				CreateServerMarker();
@@ -212,6 +207,9 @@ class ExpansionAirdropContainerBase extends Container_Base
 			
 			m_LootHasSpawned = true;
 		}
+		
+		if (m_ServerMarker)
+			m_ServerMarker.UpdateObject( this );
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint( "ExpansionAirdropContainerBase::OnUpdate - End");
@@ -264,7 +262,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 			markerName = "[" + this.GetDisplayName() + "] " + markerName;
 		
 		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
-	
+		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
 		#endif
@@ -275,29 +273,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	void RemoveServerMarker()
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Start");
-		#endif
-		
 		if (!m_ServerMarker)
-		{
-			#ifdef EXPANSION_MISSION_EVENT_DEBUG
-			EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - m_ServerMarker is NULL");
-			#endif
 			return;
-		}
 		
-		if ( m_ServerMarker )
-		{
-			#ifdef EXPANSION_MISSION_EVENT_DEBUG
-			EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - Remove server marker with UID: " + m_ServerMarker.GetUID());
-			#endif
-			m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
-		}
-			
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::RemoveServerMarker - End");
-		#endif
+		m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
 	}
 	
 	// ------------------------------------------------------------

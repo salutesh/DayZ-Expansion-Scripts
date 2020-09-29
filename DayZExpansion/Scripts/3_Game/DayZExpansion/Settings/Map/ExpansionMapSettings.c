@@ -83,32 +83,30 @@ class ExpansionMapSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	bool RemoveServerMarker( string markerName )
+	bool RemoveServerMarker( string uid )
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::RemoveServerMarker - Start");
 		#endif
 		
-		ExpansionMarkerData marker = ServerMarkersMap.Get( markerName );
-		if ( marker )
+		ref ExpansionMarkerData server_markerMap = ServerMarkersMap.Get( uid );
+		if ( server_markerMap )
 		{
-			int removeIndex = ServerMarkers.Find( marker );
-			if ( removeIndex != -1 )
-				ServerMarkers.Remove( removeIndex );
-
-			ServerMarkersMap.Remove( markerName );
-			delete marker;
+			ServerMarkersMap.Remove( uid );
+		
+			for ( int index = 0; index < ServerMarkers.Count(); ++index )
+			{
+				ref ExpansionMarkerData server_marker = ServerMarkers[index];
+				if ( server_marker.GetUID() == uid )
+				{
+					ServerMarkers.Remove( index );
+				}
+			}
 			
-			#ifdef EXPANSION_MARKER_MODULE_DEBUG
-			EXPrint("ExpansionMapSettings::RemoveServerMarker - End and return true");
-			#endif
+			delete server_markerMap;
 			
 			return true;
 		}
-		
-		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMapSettings::RemoveServerMarker - End and return false");
-		#endif
 		
 		return false;
 	}

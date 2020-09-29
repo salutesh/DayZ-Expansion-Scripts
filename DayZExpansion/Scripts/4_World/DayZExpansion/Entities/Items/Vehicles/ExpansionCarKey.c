@@ -219,20 +219,23 @@ class ExpansionCarKey extends ItemBase
 	
 	override bool NameOverride( out string output )
 	{
-		output = m_VehicleDisplayName + " #STR_EXPANSION_KEYS";
+		if ( IsPaired() )
+			output = m_VehicleDisplayName + " #STR_EXPANSION_KEYS";
+		else
+			output = "#STR_EXPANSION_KEYS";
 		
-		return IsPaired();
-	}
-
-	override bool DescriptionOverride(out string output)
-	{
-		output = "ID:"
-		output = output + " A=" + m_VehicleIDA;
-		output = output + " B=" + m_VehicleIDB;
-		output = output + " C=" + m_VehicleIDC;
-		output = output + " D=" + m_VehicleIDD;
 		return true;
 	}
+
+	//override bool DescriptionOverride(out string output)
+	//{
+	//	output = "ID:"
+	//	output = output + " A=" + m_VehicleIDA;
+	//	output = output + " B=" + m_VehicleIDB;
+	//	output = output + " C=" + m_VehicleIDC;
+	//	output = output + " D=" + m_VehicleIDD;
+	//	return true;
+	//}
 	
 	// ------------------------------------------------------------
 	// ExpansionCarKey PairToVehicle
@@ -353,7 +356,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPaired()
 	{
-		if ( m_VehicleIDA != 0 && m_VehicleIDB != 0 && m_VehicleIDC != 0 && m_VehicleIDD != 0 )
+		if ( m_VehicleIDA != 0 || m_VehicleIDB != 0 || m_VehicleIDC != 0 || m_VehicleIDD != 0 )
 		{
 			KeyMessage("ExpansionCarKey::IsPaired - End and return TRUE");
 			return true;
@@ -368,13 +371,13 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPairedTo( CarScript vehicle )
 	{
-		string msg = "ExpansionCarKey::IsPairedTo:";
-		msg = msg + " " + vehicle.GetPersistentIDA() + "=" + m_VehicleIDA;
-		msg = msg + " " + vehicle.GetPersistentIDB() + "=" + m_VehicleIDB;
-		msg = msg + " " + vehicle.GetPersistentIDC() + "=" + m_VehicleIDC;
-		msg = msg + " " + vehicle.GetPersistentIDD() + "=" + m_VehicleIDD;
-		
-		KeyMessage(msg);
+		//string msg = "ExpansionCarKey::IsPairedTo:";
+		//msg = msg + " " + vehicle.GetPersistentIDA() + "=" + m_VehicleIDA;
+		//msg = msg + " " + vehicle.GetPersistentIDB() + "=" + m_VehicleIDB;
+		//msg = msg + " " + vehicle.GetPersistentIDC() + "=" + m_VehicleIDC;
+		//msg = msg + " " + vehicle.GetPersistentIDD() + "=" + m_VehicleIDD;
+		//
+		//KeyMessage(msg);
 
 		if ( vehicle.GetPersistentIDA() != m_VehicleIDA )
 			return false;
@@ -388,7 +391,7 @@ class ExpansionCarKey extends ItemBase
 		if ( vehicle.GetPersistentIDD() != m_VehicleIDD )
 			return false;
 
-		KeyMessage("PAIRED");
+		//KeyMessage("PAIRED");
 
 		return true;
 	}
@@ -455,27 +458,13 @@ class ExpansionCarKey extends ItemBase
 		if ( Expansion_Assert_False( ctx.Read( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
 			return false;
 
+		SetSynchDirty();
+
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::OnStoreLoad - End and return TRUE");
 		#endif
 		
 		return true;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCarKey OnItemLocationChanged
-	// ------------------------------------------------------------
-	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner ) 
-	{
-		#ifdef EXPANSION_CARKEY_LOGGING
-		EXLogPrint("ExpansionCarKey::OnItemLocationChanged - Start");
-		#endif
-		
-		super.OnItemLocationChanged( old_owner, new_owner );
-		
-		#ifdef EXPANSION_CARKEY_LOGGING
-		EXLogPrint("ExpansionCarKey::OnItemLocationChanged - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
