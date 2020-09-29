@@ -127,6 +127,8 @@ class ExpansionVehicleScript extends ItemBase
 
 	private ref ExpansionVehicleSyncState m_SyncState;
 	private ExpansionVehicleNetworkMode m_NetworkMode;
+	private bool m_NetworkClientSideServerProcessing;
+	private vector m_LastCheckedNetworkPosition;
 
 	ref array< ref ExpansionPointLight > m_Lights;
 	ref array< ref Particle > m_Particles;
@@ -167,6 +169,24 @@ class ExpansionVehicleScript extends ItemBase
 		
 		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
+
+		RegisterNetSyncVariableInt( "m_PersistentIDA" );
+		RegisterNetSyncVariableInt( "m_PersistentIDB" );
+		RegisterNetSyncVariableInt( "m_PersistentIDC" );
+		RegisterNetSyncVariableInt( "m_PersistentIDD" );
+
+		RegisterNetSyncVariableBool( "m_EngineIsOn" );
+		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
+		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
+		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" );
+		
+		RegisterNetSyncVariableFloat( "m_FluidFuelAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidCoolantAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidOilAmount", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_FluidBrakeAmount", 0, 0, 4 );
+		
+		RegisterNetSyncVariableInt( "m_NetworkMode" );
+		RegisterNetSyncVariableBool( "m_NetworkClientSideServerProcessing" );
 
 		m_Axles = new array< ref ExpansionVehicleAxle >;
 		m_Crew = new array< ref ExpansionVehicleCrew >;
@@ -257,47 +277,16 @@ class ExpansionVehicleScript extends ItemBase
 
 		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
-		RegisterNetSyncVariableInt( "m_PersistentIDA" );
-		RegisterNetSyncVariableInt( "m_PersistentIDB" );
-		RegisterNetSyncVariableInt( "m_PersistentIDC" );
-		RegisterNetSyncVariableInt( "m_PersistentIDD" );
-
-		RegisterNetSyncVariableBool( "m_EngineIsOn" );
-		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
-		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
-		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" ); 
-
-		// RegisterNetSyncVariableBool( "m_IsWinched" );
-
 		m_NetworkMode = ExpansionVehicleNetworkMode.SERVER_ONLY;
-		RegisterNetSyncVariableInt( "m_NetworkMode" );
+		m_NetworkClientSideServerProcessing = false;
 
 		m_SyncState = new ExpansionVehicleSyncState( this );
-		float min = 0;
-		float max = 0;
-		int prec = 8;
-		
-		//! For prediction sync state, unfortuantely have to always sync even when not used, 
-		//! should be forced synced every update on the server so this is the most optimized
-		//! way when it is required.
-		RegisterNetSyncVariableFloat( "m_SyncState.m_LinVelX", min, max, prec );
-		RegisterNetSyncVariableFloat( "m_SyncState.m_LinVelY", min, max, prec );
-		RegisterNetSyncVariableFloat( "m_SyncState.m_LinVelZ", min, max, prec );
-
-		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelX", min, max, prec );
-		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelY", min, max, prec );
-		RegisterNetSyncVariableFloat( "m_SyncState.m_AngVelZ", min, max, prec );
 
 		m_FluidCapacities = new array< float >();
 		m_FluidCapacities.Insert( ConfigGetFloat( "fuelCapacity" ) );
 		m_FluidCapacities.Insert( ConfigGetFloat( "oilCapacity" ) );
 		m_FluidCapacities.Insert( ConfigGetFloat( "brakeFluidCapacity" ) );
 		m_FluidCapacities.Insert( ConfigGetFloat( "coolantCapacity" ) );
-
-		RegisterNetSyncVariableFloat( "m_FluidFuelAmount", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_FluidCoolantAmount", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_FluidOilAmount", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_FluidBrakeAmount", 0, 0, 4 );
 
 		if ( IsMissionClient() )
 		{		
@@ -595,6 +584,9 @@ class ExpansionVehicleScript extends ItemBase
 	protected void OnAnimationUpdate( float pDt )
 	{
 	}
+	
+	int stateF = -1;
+	int stateB = -1;
 
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
@@ -662,8 +654,13 @@ class ExpansionVehicleScript extends ItemBase
 				m_AngularVelocity = m_SyncState.m_AngularVelocity;
 			}
 
-			for ( int cI = 0; cI < m_Crew.Count(); cI++ )
-				m_Crew[cI].NetworkBubbleFix();
+			if ( vector.Distance( m_LastCheckedNetworkPosition, GetPosition() ) > 30.0 )
+			{
+				m_LastCheckedNetworkPosition = GetPosition();
+
+				for ( int cI = 0; cI < m_Crew.Count(); cI++ )
+					m_Crew[cI].NetworkBubbleFix();
+			}
 		} else
 		{
 			m_IsPhysicsHost = false;
@@ -693,29 +690,12 @@ class ExpansionVehicleScript extends ItemBase
 
 		OnPreSimulation( dt );
 
-		if ( !GetGame().IsClient() && !m_IsPhysicsHost && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
-		{
-			if ( !dBodyIsDynamic( this ) )
-			{
-				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 1000.0;
-
-				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
-
-				MoveInTime( m_SyncState.m_PredictedTransform.data, dt );
-
-				SetSynchDirty();
-			} else
-			{
-				SetDynamicPhysicsLifeTime( 0.01 );
-			}
-
-			ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
-
-			return;
-		}
-
+		m_NetworkClientSideServerProcessing = true;
+		
 		if ( m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
+			stateF = 0;
+			
 			float invDt = 1.0 / dt;
 			
 			dBodyEnableGravity( this, false );
@@ -777,10 +757,33 @@ class ExpansionVehicleScript extends ItemBase
 				SetSynchDirty();
 		} else if ( m_IsPhysicsHost && !dBodyIsDynamic( this ) )
 		{
+			stateF = 1;
+			
 			CreateDynamic();
-		} else if ( dBodyIsDynamic( this ) )
+		} else if ( !m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
+			stateF = 2;
+			
 			SetDynamicPhysicsLifeTime( 0.01 );
+		} else if ( !m_IsPhysicsHost && !dBodyIsDynamic( this ) )
+		{
+			stateF = 3;
+			
+			m_NetworkClientSideServerProcessing = false;
+
+			float predictionDelta = 40.0 * ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 1000.0;
+
+			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
+
+			MoveInTime( m_SyncState.m_PredictedTransform.data, 0.0 );
+
+			SetSynchDirty();
+		}
+		
+		if ( stateF != stateB )
+		{
+			Print( "" + this + " state changed to " + stateF + " from " + stateB );
+			stateB = stateF;
 		}
 
 		OnPostSimulation( dt );
@@ -844,25 +847,51 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
+	// Mirek <3
+	// ------------------------------------------------------------
 	override bool OnNetworkTransformUpdate( out vector pos, out vector ypr )
 	{
-		m_SyncState.m_Position = pos;
-		m_SyncState.m_Orientation[0] = ypr[0] * Math.RAD2DEG;
-		m_SyncState.m_Orientation[1] = ypr[1] * Math.RAD2DEG;
-		m_SyncState.m_Orientation[2] = ypr[2] * Math.RAD2DEG;
-
-		if ( m_IsPhysicsHost )
+		if (m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT && m_NetworkClientSideServerProcessing)
 		{
+			vector newPos = pos;
+			vector newOrientation = ypr * Math.RAD2DEG;
+			
+			if (!m_IsPhysicsHost)
+			{
+				m_SyncState.m_LinearVelocity = m_SyncState.m_Position - newPos;
+				m_SyncState.m_AngularVelocity = m_SyncState.m_Orientation - newOrientation;
+			}
+			
+			m_SyncState.m_Position = newPos;
+			m_SyncState.m_Orientation = newOrientation;
+			
+			if (!m_IsPhysicsHost)
+			{
+				float dt = 40.0 * ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 1000.0;
+				if ( dt == 0 )
+					dt = 0.0;
+				else
+					dt = 1.0 / dt;
+				
+				m_SyncState.m_LinearVelocity = m_SyncState.m_LinearVelocity * dt;
+				m_SyncState.m_AngularVelocity = m_SyncState.m_AngularVelocity * dt * Math.DEG2RAD;
+				
+				m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
+				m_SyncState.m_Time = GetTimeForSync();
+				m_SyncState.m_TimeDelta = 0;
+				
+				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform.data );
+				m_SyncState.m_InitialTransform.data[3] = m_SyncState.m_Position;
+				m_SyncState.m_InitialTransform.UpdateUnion();
+			}
+
 			pos = GetPosition();
-			ypr = GetOrientation();
-			ypr[0] = ypr[0] * Math.DEG2RAD;
-			ypr[1] = ypr[1] * Math.DEG2RAD;
-			ypr[2] = ypr[2] * Math.DEG2RAD;
+			ypr = GetOrientation() * Math.DEG2RAD;
 
 			return true;
 		}
-		
-		return true;
+
+		return false;
 	}
 
 	// ------------------------------------------------------------

@@ -26,14 +26,6 @@ class ExpansionVehicleSyncState
 	ref Transform m_InitialTransform;
 	ref Transform m_PredictedTransform;
 
-	private float m_LinVelX;
-	private float m_LinVelY;
-	private float m_LinVelZ;
-
-	private float m_AngVelX;
-	private float m_AngVelY;
-	private float m_AngVelZ;
-
 	void ExpansionVehicleSyncState( ExpansionVehicleScript vehicle )
 	{
 		m_Vehicle = vehicle;
@@ -55,13 +47,6 @@ class ExpansionVehicleSyncState
 
 	void OnVariablesSynchronized()
 	{
-		m_LinearVelocity[0] = m_LinVelX;
-		m_LinearVelocity[1] = m_LinVelY;
-		m_LinearVelocity[2] = m_LinVelZ;
-
-		m_AngularVelocity[0] = m_AngVelX;
-		m_AngularVelocity[1] = m_AngVelY;
-		m_AngularVelocity[2] = m_AngVelZ;
 	}
 
 	void SynchronizeVariables( ExpansionVehicleNetworkMode mode )
@@ -71,13 +56,6 @@ class ExpansionVehicleSyncState
 		case ExpansionVehicleNetworkMode.SERVER_ONLY:
 			return;
 		case ExpansionVehicleNetworkMode.PREDICTION:
-			m_LinVelX = m_LinearVelocity[0];
-			m_LinVelY = m_LinearVelocity[1];
-			m_LinVelZ = m_LinearVelocity[2];
-
-			m_AngVelX = m_AngularVelocity[0];
-			m_AngVelY = m_AngularVelocity[1];
-			m_AngVelZ = m_AngularVelocity[2];
 			return;
 		case ExpansionVehicleNetworkMode.CLIENT:
 			ScriptRPC rpc = new ScriptRPC();			

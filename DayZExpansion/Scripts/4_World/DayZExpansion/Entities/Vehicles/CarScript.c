@@ -18,7 +18,7 @@ enum ExpansionVehicleLockState
 	LOCKED,
 	//Use count here, for network optimization to know max 
 	COUNT
-}
+};
 
 class ExpansionVehicleAttachmentSave
 {
@@ -30,7 +30,7 @@ class ExpansionVehicleAttachmentSave
 		m_Position = position;
 		m_Orientation = orientation;
 	}
-}
+};
 
 /**@class		CarScript
  * @brief		
@@ -66,10 +66,10 @@ modded class CarScript
 	// Vehicle locking
 	protected ExpansionVehicleLockState m_VehicleLockedState;
 
-	protected int m_PersistentIDA = 0;
-	protected int m_PersistentIDB = 0;
-	protected int m_PersistentIDC = 0;
-	protected int m_PersistentIDD = 0;
+	protected int m_PersistentIDA;
+	protected int m_PersistentIDB;
+	protected int m_PersistentIDC;
+	protected int m_PersistentIDD;
 
 	// Explosion
 	protected bool m_Exploded;
@@ -192,6 +192,24 @@ modded class CarScript
 
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT );
 
+		RegisterNetSyncVariableInt( "m_PersistentIDA" );
+		RegisterNetSyncVariableInt( "m_PersistentIDB" );
+		RegisterNetSyncVariableInt( "m_PersistentIDC" );
+		RegisterNetSyncVariableInt( "m_PersistentIDD" );
+		RegisterNetSyncVariableInt( "m_VehicleLockedState" );
+
+		RegisterNetSyncVariableBool( "m_IsBeingTowed" );
+		RegisterNetSyncVariableBool( "m_IsTowing" );
+		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDLow" );
+		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDHigh" );
+		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDLow" );
+		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDHigh" );
+
+		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
+		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
+		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" ); 
+		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote" );
+
 		m_allVehicles.Insert( this );
 
 		m_DebugShapes = new array< Shape >();
@@ -216,26 +234,8 @@ modded class CarScript
 
 		ExpansionSetupSkins();
 
-		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
-
-		RegisterNetSyncVariableInt( "m_PersistentIDA" );
-		RegisterNetSyncVariableInt( "m_PersistentIDB" );
-		RegisterNetSyncVariableInt( "m_PersistentIDC" );
-		RegisterNetSyncVariableInt( "m_PersistentIDD" );
-
-		RegisterNetSyncVariableBool( "m_IsBeingTowed" );
-		RegisterNetSyncVariableBool( "m_IsTowing" );
-		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDLow" );
-		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDHigh" );
-		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDLow" );
-		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDHigh" );
-
-		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
-		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
-		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" ); 
-		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote", 0, m_Skins.Count() );
-		
-		RegisterNetSyncVariableInt( "m_VehicleLockedState", ExpansionVehicleLockState.NOLOCK, ExpansionVehicleLockState.COUNT );
+		if ( IsMissionHost() )
+			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
@@ -259,7 +259,6 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::~CarScript - Start");
 		#endif
-
 
 		int i;
 
@@ -374,6 +373,11 @@ modded class CarScript
 		m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
+
+		if ( IsMissionHost() )
+		{
+			SetSynchDirty();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::DeferredInit - End");
@@ -569,13 +573,17 @@ modded class CarScript
 
 	protected void KeyMessage( string message )
 	{
+		#ifdef EXPANSION_CARKEY_LOGGING	
 		if ( IsMissionClient() )
 		{
 			Message( GetPlayer(), message );
+
+			Print( message );
 		} else
 		{
 			Print( message ); 
 		}
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -585,11 +593,11 @@ modded class CarScript
 	{
 		if ( HasKey() )
 		{
-			//KeyMessage( "CarScript::IsLocked HasKey() true and " + (m_VehicleLockedState == ExpansionVehicleLockState.LOCKED));
+			KeyMessage( "CarScript::IsLocked HasKey() true and " + (m_VehicleLockedState == ExpansionVehicleLockState.LOCKED));
 			return m_VehicleLockedState == ExpansionVehicleLockState.LOCKED;
 		}
 
-		//KeyMessage( "CarScript::IsLocked false");
+		KeyMessage( "CarScript::IsLocked false");
 		return false;
 	}
 
@@ -643,7 +651,7 @@ modded class CarScript
 			SetSynchDirty();
 		}
 
-		//KeyMessage( "PairKeyTo (" + this + ", " + key + ")" );
+		KeyMessage( "PairKeyTo (" + this + ", " + key + ")" );
 
 		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::PairKeyTo - End");
@@ -679,7 +687,7 @@ modded class CarScript
 			if ( m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK )
 			{
 				m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
-				//KeyMessage( "OnCarDoorOpened::UNLOCKED" );
+				KeyMessage( "OnCarDoorOpened::UNLOCKED" );
 
 				SetSynchDirty();
 			}
@@ -701,17 +709,17 @@ modded class CarScript
 	{
 		if ( !HasKey() )
 		{
-			//KeyMessage( "IsCarKeys::HasKey" );
+			KeyMessage( "IsCarKeys::HasKey" );
 			return false;
 		}
 
 		if ( !key.IsPairedTo( this ) )
 		{
-			//KeyMessage( "IsCarKeys not paired!" );
+			KeyMessage( "IsCarKeys not paired!" );
 			return false;
 		}
 		
-		//KeyMessage( "IsCarKeys is paired" );
+		KeyMessage( "IsCarKeys is paired" );
 
 		return true;
 	}
@@ -721,13 +729,13 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void LockCar( ExpansionCarKey key )
 	{
-		//KeyMessage( "LockCar" );
-		//KeyMessage( "key=" + key );
+		KeyMessage( "LockCar" );
+		KeyMessage( "key=" + key );
 		if ( key && !IsCarKeys( key ) && !key.IsInherited(ExpansionCarAdminKey) )
 			return;
 
 		m_VehicleLockedState = ExpansionVehicleLockState.READY_TO_LOCK;
-		//KeyMessage( "LockCar::READY_TO_LOCK" );
+		KeyMessage( "LockCar::READY_TO_LOCK" );
 
 		SetSynchDirty();
 	}
@@ -741,7 +749,7 @@ modded class CarScript
 			return;
 
 		m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
-		//KeyMessage( "UnlockCar::UNLOCKED" );
+		KeyMessage( "UnlockCar::UNLOCKED" );
 
 		OnCarUnlocked();
 		SetSynchDirty();
@@ -756,7 +764,7 @@ modded class CarScript
 		EXPrint("CarScript::OnCarLocked - Start");
 		#endif
 
-		//KeyMessage( "OnCarLocked" );
+		KeyMessage( "OnCarLocked" );
 
 		if ( GetGame().IsServer() )
 		{
@@ -778,7 +786,7 @@ modded class CarScript
 		EXPrint("CarScript::OnCarUnlocked - Start");
 		#endif
 
-		//KeyMessage( "OnCarUnlocked" );
+		KeyMessage( "OnCarUnlocked" );
 
 		if ( GetGame().IsServer() )
 		{
@@ -1589,7 +1597,7 @@ modded class CarScript
 		{
 			m_VehicleLockedState = ExpansionVehicleLockState.LOCKED;
 
-			//KeyMessage( "OnCarDoorClosed::LOCKED" );
+			KeyMessage( "OnCarDoorClosed::LOCKED" );
 
 			OnCarLocked();
 			SetSynchDirty();
@@ -2321,16 +2329,18 @@ modded class CarScript
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+		int t1, t2, t3, t4;
+
+		if ( Expansion_Assert_False( ctx.Read( t1 ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+		if ( Expansion_Assert_False( ctx.Read( t2 ), "[" + this + "] Failed reading m_PersistentIDB" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+		if ( Expansion_Assert_False( ctx.Read( t3 ), "[" + this + "] Failed reading m_PersistentIDC" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+		if ( Expansion_Assert_False( ctx.Read( t4 ), "[" + this + "] Failed reading m_PersistentIDD" ) )
 			return false;
 		
 		if ( GetExpansionSaveVersion() <= 5 )
@@ -2494,6 +2504,12 @@ modded class CarScript
 		#endif
 
 		super.OnVariablesSynchronized();
+
+		Print( "CarScript::OnVariablesSynchronized" );
+		Print( m_PersistentIDA );
+		Print( m_PersistentIDB );
+		Print( m_PersistentIDC );
+		Print( m_PersistentIDD );
 		
 		if ( m_SafeZoneSynchRemote && !m_SafeZone )
 		{
@@ -3038,4 +3054,4 @@ static TransferInventoryResult ExpansionTransferInventory( EntityAI sourceItem, 
 		}
 	}
 	return result;
-}
+};

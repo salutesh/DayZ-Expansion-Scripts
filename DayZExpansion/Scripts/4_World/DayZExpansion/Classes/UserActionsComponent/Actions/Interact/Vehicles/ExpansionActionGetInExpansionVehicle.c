@@ -73,23 +73,21 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 		if ( crewIdx < 0 )
 			return false;
 
-		// Human crew = m_Transport.CrewMember( crewIdx );
-		// if ( crew )
-		// 	return false;
-		// 
+		Human crew = transport.CrewMember( crewIdx );
+		if ( crew )
+		 	return false;
 
-		//if ( !m_Transport.CrewCanGetThrough( crewIdx ) )
-		// 	return false;
-// 
-		// array<string> selections = new array<string>();
-// 
-		// m_Transport.GetActionComponentNameList( componentIndex, selections );
-		// 
-		// for ( int i = 0; i < selections.Count(); i++ )
-		// {
-		// 	// if ( m_Transport.CanReachSeatFromDoors(selections[i], player.GetPosition(), 1.0) )
-		// 		return true;
-		// }
+		if ( !transport.CrewCanGetThrough( crewIdx ) )
+		 	return false;
+
+		array<string> selections = new array<string>();
+		transport.GetActionComponentNameList( componentIndex, selections );
+		 
+		for ( int i = 0; i < selections.Count(); i++ )
+		{
+			if ( transport.CanReachSeatFromDoors(selections[i], player.GetPosition(), 1.0) )
+				return true;
+		}
 
 		return true;
 	}
@@ -137,5 +135,17 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 				action_data.m_Player.GetInventory().LockInventory( LOCK_FROM_SCRIPT );
 			
 		}
+	}
+	
+	override void OnEndClient( ActionData action_data )
+	{
+		if ( action_data.m_Player.GetInventory() ) 
+			action_data.m_Player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
+	}
+	
+	override void OnEndServer( ActionData action_data )
+	{
+		if ( action_data.m_Player.GetInventory() ) 
+			action_data.m_Player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
 	}
 }

@@ -18,14 +18,14 @@ modded class ActionStartEngine
 		m_ConditionTarget = new CCTNone;
 	}
 
-	private CarScript car;
+	private CarScript m_Car;
 	
 	override string GetText()
 	{
-		if ( car.IsPlane() )
+		if ( m_Car.IsPlane() )
 		{
 			return "#STR_EXPANSION_UA_START_PLANE";
-		} else if ( car.IsHelicopter() )
+		} else if ( m_Car.IsHelicopter() )
 		{
 			return "#STR_EXPANSION_UA_START_HELICOPTER";
 		}
@@ -72,44 +72,48 @@ modded class ActionStartEngine
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 		if ( vehCommand )
 		{
-			if ( Class.CastTo( car, vehCommand.GetTransport() ) && !car.EngineIsOn() )
+			if ( Class.CastTo( m_Car, vehCommand.GetTransport() ) && !m_Car.EngineIsOn() )
 			{
-				if ( car.GetHealthLevel( "Engine" ) >= GameConstants.STATE_RUINED )
+				if ( m_Car.GetHealthLevel( "Engine" ) >= GameConstants.STATE_RUINED )
 					return false;
 				
-				if ( car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+				if ( m_Car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 				{
-					if ( ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1 || GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 2 ) && car.HasKey() )
+					if ( !m_Car.HasKey() )
+						return true;
+
+					ExpansionCarKey key;
+					if ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1 )
 					{
+						//!TODO:This is really inefficient, enumerate on the client, send the item to the server and the
+						//!		server can just perform the check to see if it is apart of the same hierarchy
 						array<EntityAI> playerItems = new array<EntityAI>;
 						player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, playerItems );
 						for ( int i = 0; i < playerItems.Count(); ++i )
 						{
-							ExpansionCarKey key;
-							if ( Class.CastTo( key, playerItems[i] ) )
-							{
-								if ( key.IsPairedTo( car ) && car.IsCarKeys( key ) )
-								{
-									#ifdef EXPANSION_CARKEY_LOGGING
-									EXLogPrint("ActionStartEngine::ActionCondition - Player HAS paired key!");
-									#endif
-									return true;
-								}
-								#ifdef EXPANSION_CARKEY_LOGGING
-								else
-								{
-									EXLogPrint("ActionStartEngine::ActionCondition - Player has NOT paired key!");
-								}
-								#endif
-							}
+							if ( !Class.CastTo( key, playerItems[i] ) )
+								continue;
+
+							if ( !m_Car.IsCarKeys( key ) )
+								continue;
+
+							return true;
 						}
-					} else
+
+						return false;
+					} else if ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 2 )
 					{
-						#ifdef EXPANSION_CARKEY_LOGGING
-						EXLogPrint("ActionStartEngine::ActionCondition - Vehicle has no key paired to it!");
-						#endif
+						if ( !Class.CastTo( key, player.GetItemInHands() ) )
+							return false;
+
+						if ( !m_Car.IsCarKeys( key ) )
+							return false;
+
 						return true;
 					}
+
+					//! GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 0, or invalid number but this still saves checking
+					return true;
 				}
 			}
 		}
@@ -121,7 +125,7 @@ modded class ActionStartEngine
 	{
 		super.OnStartServer( action_data );
 
-		CarScript car;
+		CarScript car; //! Don't use m_Car, use this local variable and assign on action start. This is performed on the server.
 		if ( !Class.CastTo( car, action_data.m_Player.GetParent() ) )
 			return;
 

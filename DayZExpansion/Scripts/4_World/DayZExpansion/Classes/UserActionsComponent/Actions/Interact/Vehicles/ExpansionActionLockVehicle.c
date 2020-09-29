@@ -12,6 +12,8 @@
 
 class ExpansionActionLockVehicle: ActionInteractBase
 {
+	//! DO NOT STORE VARIABLES FOR SERVER SIDE OPERATION
+
 	void ExpansionActionLockVehicle()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -30,24 +32,22 @@ class ExpansionActionLockVehicle: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		bool playerIsInVehicle = false;
-
 		CarScript car;
 		ExpansionCarKey key;
 
 		if ( player.GetCommand_Vehicle() )
 		{
-			if ( Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
-				playerIsInVehicle = true;
-			
-		}
-		
-		if ( !playerIsInVehicle )
+			if ( !Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
+				return false;
+		} else
 		{
 			if ( !Class.CastTo( car, target.GetObject() ) )
 				return false;
 
 			if ( !Class.CastTo( key, player.GetItemInHands() ) )
+				return false;
+
+			if ( !car.IsCarKeys( key ) )
 				return false;
 		}
 
@@ -91,4 +91,4 @@ class ExpansionActionLockVehicle: ActionInteractBase
 	{
 		return false;
 	}
-}
+};
