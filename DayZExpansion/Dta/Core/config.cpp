@@ -560,8 +560,10 @@ class CfgVehicles
 		scope = 1;
 		vehicleClass = "Expansion_Vehicle";
 		bounding = "BSphere";
-		overrideDrawArea = "3.0";
+		overrideDrawArea = "8.0";
 		forceFarBubble = "true";
+		physLayer = "item_large";
+		carveNavmesh = 0;
 		fuelCapacity = 50;
 		brakeFluidCapacity = 1;
 		oilCapacity = 4;

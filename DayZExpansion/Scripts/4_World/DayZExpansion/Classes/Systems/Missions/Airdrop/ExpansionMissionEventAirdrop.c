@@ -190,7 +190,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			}
 			
 			//! Check if a player is nearby the container in a 1500 meter radius
-			if ( !IsPlayerNearby(100) )
+			if ( !IsPlayerNearby(1500) )
 			{			
 				RemoveContainer();
 				

@@ -15,7 +15,7 @@
  **/
 class ExpansionAirdropContainerBase extends Container_Base
 {
-	ExpansionMarkerData m_ServerMarker;
+	//ExpansionMarkerData m_ServerMarker;
 	
 	bool m_FromSettings;
 	bool m_LootHasSpawned;
@@ -85,7 +85,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		StopSmokeEffect();
 		
-		RemoveServerMarker();
+		/*if ( IsMissionHost() )
+			RemoveServerMarker();*/
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - End");
@@ -199,17 +200,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
 			
-			if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost() )
+			/*if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost() )
 			{
 				//! Set server map marker on drop position
 				CreateServerMarker();
-			}
+			}*/
 			
 			m_LootHasSpawned = true;
 		}
-		
-		if (m_ServerMarker)
-			m_ServerMarker.UpdateObject( this );
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint( "ExpansionAirdropContainerBase::OnUpdate - End");
@@ -251,7 +249,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion CreateServerMarker
 	// ------------------------------------------------------------
-	void CreateServerMarker()
+	/*void CreateServerMarker()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - Start");
@@ -266,18 +264,18 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
 		#endif
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// Expansion RemoveServerMarker
 	// ------------------------------------------------------------
-	void RemoveServerMarker()
+	/*void RemoveServerMarker()
 	{
 		if (!m_ServerMarker)
 			return;
 		
 		m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// SpawnInfected
