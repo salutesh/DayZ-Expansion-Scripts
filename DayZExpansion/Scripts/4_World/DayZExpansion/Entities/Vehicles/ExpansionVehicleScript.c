@@ -774,7 +774,7 @@ class ExpansionVehicleScript extends ItemBase
 
 			float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
 
-			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
+			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta + dt, m_SyncState.m_PredictedTransform );
 
 			MoveInTime( m_SyncState.m_PredictedTransform.data, 0.0 );
 
@@ -847,6 +847,13 @@ class ExpansionVehicleScript extends ItemBase
 		}
 	}
 
+	void AnglesToQuat( vector angles, out float[] quat )
+	{
+		vector rotationMatrix[3];
+		Math3D.YawPitchRollMatrix( angles, rotationMatrix );
+		Math3D.MatrixToQuat( rotationMatrix, quat );
+	}
+
 	// ------------------------------------------------------------
 	// Mirek <3
 	// ------------------------------------------------------------
@@ -862,8 +869,18 @@ class ExpansionVehicleScript extends ItemBase
 			{
 				float dt = ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 40.0;
 
-				m_SyncState.m_LinearVelocity = ( m_SyncState.m_Position - newPos ) * dt;
-				m_SyncState.m_AngularVelocity = ( m_SyncState.m_Orientation - newOrientation ) * dt * Math.DEG2RAD;
+				m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * dt;
+
+				vector m1[];
+				vector m2[];
+				vector m3[];
+
+				Math3D.YawPitchRollMatrix( newOrientation, m1 );
+				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m2 );
+
+				Math3D.MatrixInvMultiply3( m1, m2, m3 );
+
+				m_SyncState.m_AngularVelocity = Math3D.MatrixToAngles( m3 ) * dt * Math.DEG2RAD;
 				
 				m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
 				m_SyncState.m_Time = GetTimeForSync();

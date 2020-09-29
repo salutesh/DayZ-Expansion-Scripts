@@ -32,7 +32,9 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	protected TextWidget m_DeleteAllButtonLable;
 	
 	protected Widget m_VehicleInfoPanel;
-	protected TextWidget m_VehicleInfoID;
+	protected TextWidget m_VehicleInfoNetworkID;
+	protected TextWidget m_VehicleInfoPersistentABID;
+	protected TextWidget m_VehicleInfoPersistentCDID;
 	protected TextWidget m_VehicleInfoName;
 	protected TextWidget m_VehicleInfoClassName;
 	protected TextWidget m_VehicleInfoPos;
@@ -109,7 +111,9 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		
 		//! Vehicle Info
 		m_VehicleInfoPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicle_info_panel" ) );
-		m_VehicleInfoID = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_id_value" ) );
+		m_VehicleInfoNetworkID = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_network_id_value" ) );
+		m_VehicleInfoPersistentABID = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_persistent_ab_id_value" ) );
+		m_VehicleInfoPersistentCDID = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_persistent_cd_id_value" ) );
 		m_VehicleInfoName = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_name_value" ) );
 		m_VehicleInfoClassName = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_classname_value" ) );
 		m_VehicleInfoPos = TextWidget.Cast( layoutRoot.FindAnyWidget( "info_pos_value" ) );
@@ -201,7 +205,9 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		m_VehicleInfoPanel.Show( true );
 		m_VehicleOptionsPanel.Show( true );
 		
-		m_VehicleInfoID.SetText( vehicle.m_NetworkIDLow.ToString() + "-" + vehicle.m_NetworkIDHigh.ToString() );
+		m_VehicleInfoNetworkID.SetText( vehicle.m_NetworkIDLow.ToString() + "    " + vehicle.m_NetworkIDHigh.ToString() );
+		m_VehicleInfoPersistentABID.SetText( vehicle.m_PersistentIDA.ToString() + "    " + vehicle.m_PersistentIDB.ToString() );
+		m_VehicleInfoPersistentCDID.SetText( vehicle.m_PersistentIDC.ToString() + "    " + vehicle.m_PersistentIDD.ToString() );
 
 		string displayName;
 		GetGame().ConfigGetText( "cfgVehicles " + vehicle.m_ClassName + " displayName", displayName );
@@ -268,7 +274,9 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		m_VehicleInfoPanel.Show( false );
 		m_VehicleOptionsPanel.Show( false );
 		
-		m_VehicleInfoID.SetText( "" );
+		m_VehicleInfoNetworkID.SetText( "" );
+		m_VehicleInfoPersistentABID.SetText( "" );
+		m_VehicleInfoPersistentCDID.SetText( "" );
 		m_VehicleInfoName.SetText( "" );
 		m_VehicleInfoClassName.SetText( "" );
 		m_VehicleInfoPos.SetText( "" );

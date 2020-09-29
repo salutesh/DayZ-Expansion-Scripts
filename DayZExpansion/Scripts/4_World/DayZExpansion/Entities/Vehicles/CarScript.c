@@ -2329,18 +2329,16 @@ modded class CarScript
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		int t1, t2, t3, t4;
-
-		if ( Expansion_Assert_False( ctx.Read( t1 ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( t2 ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( t3 ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( t4 ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
 			return false;
 		
 		if ( GetExpansionSaveVersion() <= 5 )

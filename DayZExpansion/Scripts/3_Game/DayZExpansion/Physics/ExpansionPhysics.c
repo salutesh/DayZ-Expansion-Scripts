@@ -117,15 +117,15 @@ class ExpansionPhysics
 		EXPrint( "ExpansionPhysics::IntegrateTransform - Start");
 		#endif
 
-		//! TODO: Optimize, we can use native methods. Although the code readability may lower
+		vector initialPos = curTrans[3];
 		
-		predictedTrans.data[3] = curTrans.data[3] + ( linVel * timestep );
+		vector m1[];
+		Math3D.YawPitchRollMatrix( angVel * timestep, m1 );
 
-		Quaternion predictedRot = curTrans.GetRotation();
-		predictedRot.AddSelf( VectorHelper.Multiply( angVel, predictedRot ).MultiplySelf( timestep * 0.5 ) );
+		Math3D.MatrixInvMultiply3( curTrans.data, m1, predictedTrans.data );
 
-		predictedTrans.SetRotation( predictedRot );
-		
+		predictedTrans[3] = initialPos + ( linVel * timestep );
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysics::IntegrateTransform - End");
 		#endif

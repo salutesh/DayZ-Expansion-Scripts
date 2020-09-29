@@ -217,16 +217,21 @@ class ExpansionCarKey extends ItemBase
 		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionCarKey GetDisplayName
-	// ------------------------------------------------------------
-	override string GetDisplayName()
+	override bool NameOverride( out string output )
 	{
-		if (IsPaired()) {
-			return m_VehicleDisplayName + " #STR_EXPANSION_KEYS";
-		} else { 
-			return m_VehicleDisplayName;
-		}
+		output = m_VehicleDisplayName + " #STR_EXPANSION_KEYS";
+		
+		return IsPaired();
+	}
+
+	override bool DescriptionOverride(out string output)
+	{
+		output = "ID:"
+		output = output + " A=" + m_VehicleIDA;
+		output = output + " B=" + m_VehicleIDB;
+		output = output + " C=" + m_VehicleIDC;
+		output = output + " D=" + m_VehicleIDD;
+		return true;
 	}
 	
 	// ------------------------------------------------------------
