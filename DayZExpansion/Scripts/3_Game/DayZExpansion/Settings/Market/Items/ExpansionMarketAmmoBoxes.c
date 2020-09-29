@@ -60,4 +60,4 @@ class ExpansionMarketAmmoBoxes: ExpansionMarketCategory
 		AddItem("AmmoBox_Expansion_338_15rnd", 				100,		200,		1,		500,	0 );
 		AddItem("Expansion_AmmoBox_8mm_15rnd", 				100,		200,		1,		500,	0 );
 	}
-}
+};

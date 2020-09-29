@@ -303,59 +303,7 @@ modded class PlayerBase
 		#endif
 	}
 
-// TODO: When update comes to stable, change to ifndef
-#ifdef BUILD_EXPERIMENTAL
-	// ------------------------------------------------------------
-	// Expansion SetActions
-	// ------------------------------------------------------------
-	override void SetActions(out TInputActionMap InputActionMap)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions start");
-		#endif
 
-		super.SetActions( InputActionMap );
-
-		//RemoveAction( ActionGetOutTransport );	
-
-		//AddAction( ExpansionActionGetOutTransport );
-		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
-		
-		AddAction( ExpansionActionCarHorn, InputActionMap );
-		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
-		
-		AddAction( ExpansionActionOpenParachute, InputActionMap );
-		AddAction( ExpansionActionCutParachute, InputActionMap );
-
-		AddAction( ExpansionActionStartEngine, InputActionMap );
-		AddAction( ExpansionActionStopEngine, InputActionMap );
-		
-		AddAction( ExpansionActionStartBoat, InputActionMap );
-		AddAction( ExpansionActionStopBoat, InputActionMap );
-
-		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
-		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
-
-		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
-
-		AddAction( ExpansionActionPaint, InputActionMap );
-
-		#ifdef EXPANSION_VEHICLE_TOWING
-		AddAction( ExpansionActionConnectTow, InputActionMap );
-		AddAction( ExpansionActionDisconnectTow, InputActionMap );
-		#endif
-		
-		//AddAction( ExpansionActionStartPlane );
-		//AddAction( ExpansionActionStopPlane );
-		
-		AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
-		AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions end");
-		#endif
-	}
-#else
 	// ------------------------------------------------------------
 	// Expansion SetActions
 	// ------------------------------------------------------------
@@ -403,7 +351,6 @@ modded class PlayerBase
 		EXPrint("PlayerBase::SetActions end");
 		#endif
 	}
-#endif
 
 	// ------------------------------------------------------------
 	// Expansion OnVariablesSynchronized
@@ -747,7 +694,7 @@ modded class PlayerBase
 		GetInputController().GetMovement( speed, direction );
 
 		Transform trans = Transform.GetObject( this );
-		direction = VectorHelper.Multiply( direction, trans.GetBasis() );
+		direction = direction.Multiply3( trans.GetBasis().data );
 
 		vector pos = GetPosition() + direction;
 
@@ -963,19 +910,6 @@ modded class PlayerBase
 			m_ExpansionST = new ExpansionHumanST( this );
 	
 		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, vehicle, seatIdx, seat_anim, m_ExpansionST );
-		StartCommand_Script( cmd );
-		return cmd;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion StartCommand_ExpansionLeaveVehicle
-	// ------------------------------------------------------------
-	override ExpansionHumanCommandLeavingVehicle StartCommand_ExpansionLeaveVehicle( Object vehicle )
-	{
-		if ( m_ExpansionST == NULL )
-			m_ExpansionST = new ExpansionHumanST( this );
-	
-		ExpansionHumanCommandLeavingVehicle cmd = new ExpansionHumanCommandLeavingVehicle( this, vehicle, m_ExpansionST );
 		StartCommand_Script( cmd );
 		return cmd;
 	}

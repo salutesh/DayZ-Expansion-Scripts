@@ -54,4 +54,4 @@ modded class BleedingSourcesManagerServer
 			#endif
 		}
 	}
-}
+};

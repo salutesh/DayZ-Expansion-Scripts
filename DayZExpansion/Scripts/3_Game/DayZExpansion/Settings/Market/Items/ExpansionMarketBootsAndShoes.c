@@ -107,4 +107,4 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 		
 		AddItem("TTSKOBoots", 						10,	12,	1,		250,	0 );
 	}
-}
+};

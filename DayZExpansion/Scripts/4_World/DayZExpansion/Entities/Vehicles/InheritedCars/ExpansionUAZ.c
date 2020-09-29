@@ -42,7 +42,7 @@ class ExpansionUAZ extends OffroadHatchback
 		EXPrint("ExpansionUAZ::GetAnimInstance");
 		#endif
 
-		return ExpansionVehicleAnimInstances.EX_SEDAN;
+		return ExpansionVehicleAnimInstances.EXPANSION_UAZ;
 	}
 
 	// ------------------------------------------------------------

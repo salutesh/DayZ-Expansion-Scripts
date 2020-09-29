@@ -28,4 +28,4 @@ class ExpansionServerInfoSection
 		this.HeadText = title;
 		this.BodyText = text;
 	}
-}
+};

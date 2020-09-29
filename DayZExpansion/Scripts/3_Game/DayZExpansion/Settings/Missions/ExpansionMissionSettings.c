@@ -35,18 +35,24 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	private bool m_IsLoaded;
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionMissionSettings
+	// ExpansionMissionSettings Constructor
 	// ------------------------------------------------------------
 	void ExpansionMissionSettings()
 	{		
 		Missions = new array< ref ExpansionMissionMeta >;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule Destructor
+	// ------------------------------------------------------------
 	void ~ExpansionMissionSettings()
 	{		
 		delete Missions;
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMissionModule OnRecieve
+	// ------------------------------------------------------------
 	//TODO: COT module sending optimization
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -55,13 +61,16 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return true;
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionMissionModule Send
+	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
 		//! Don't send to client
 	}
 
 	// ------------------------------------------------------------
-	// Expansion Send
+	// ExpansionMissionModule Copy
 	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
@@ -73,6 +82,9 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return true;
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionMissionModule CopyInternal
+	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionMissionSettings s )
 	{
 		int i = 0;
@@ -89,7 +101,9 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		MaxMissions = s.MaxMissions;
 		MinPlayersToStartMissions = s.MinPlayersToStartMissions;
 	}
-	
+
+	// ------------------------------------------------------------
+	// ExpansionMissionModule IsLoaded
 	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
@@ -97,11 +111,15 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
+	// ExpansionMissionModule Unload
+	// ------------------------------------------------------------
 	override void Unload()
 	{
 		m_IsLoaded = false;
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionMissionModule OnLoad
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
@@ -164,6 +182,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
+	// ExpansionMissionModule OnSave
+	// ------------------------------------------------------------
 	override bool OnSave()
 	{
 		Print("[ExpansionMissionSettings] Saving settings");
@@ -176,6 +196,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
+	// ExpansionMissionModule Defaults
+	// ------------------------------------------------------------
 	override void Defaults()
 	{
 		Print("[ExpansionMissionSettings] Loading default settings");
@@ -184,21 +206,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
 
-		Enabled = false;
-		
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) )
-		{
-			Enabled = true;
-		} else if ( world_name.Contains( "enoch" ) )
-		{
-			Enabled = false;
-		} else if ( world_name.Contains( "deerisle" ) )
-		{
-			Enabled = false;
-		}
-
-		TimeBetweenMissions = 3600000; // 3600000; // 1 hour
+		Enabled = true;
+		TimeBetweenMissions = 3600000; // 1 hour
 
 		MinMissions = 0;
 		MaxMissions = 1;
@@ -213,4 +222,4 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	{
 		return m_GenerateDefaults;
 	}
-}
+};

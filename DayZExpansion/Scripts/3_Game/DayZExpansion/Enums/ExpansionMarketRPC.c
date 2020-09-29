@@ -15,4 +15,4 @@ enum ExpansionMarketRPC
 	INVALID = 20200,
 	TraderObject,
 	COUNT
-}
+};

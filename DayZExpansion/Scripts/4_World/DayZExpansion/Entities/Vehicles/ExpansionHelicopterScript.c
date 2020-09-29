@@ -1014,7 +1014,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 					targetVelocity = -5;
 
 				targetVelocity *= pDt;
-				float collectiveCoef = Math.Max( ( 1.3 * liftFactor ) - ( ( MathHelper.SquareSign( targetVelocity ) * 5.0 ) + ( targetVelocity * 80.0 ) ), 0 );
+				float collectiveCoef = Math.Max( ( 1.3 * liftFactor ) - ( ( Math.SquareSign( targetVelocity ) * 5.0 ) + ( targetVelocity * 80.0 ) ), 0 );
 
 				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Collective Force: " + collectiveCoef );
 				
@@ -1038,7 +1038,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			float forwardZ = m_Transform.data[2][2];
 
 			if ( forwardX == 0.0 && forwardZ == 0.0 )
-				m_Bank = MathHelper.Sign( sideY );
+				m_Bank = Math.Sign( sideY );
 			else
 				m_Bank = sideY / ( ( forwardX * forwardX ) + ( forwardZ * forwardZ ) );
 
@@ -1051,7 +1051,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;
 				float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * ( m_RotorSpeed + 0.1 );
 
-				const float maxSpeedTailEffect = 1.0 / 55.0; // at ~200km/h, tail rotor has no effect
+				const float maxSpeedTailEffect = 1.0 / 80.0; // at ~200km/h, tail rotor has no effect
 				float scaledSpeedFactor = 1.0 - Math.Min( Math.AbsFloat( m_LinearVelocityMS[2] * maxSpeedTailEffect ), 1.0 );
 
 				float bankForce = Math.Asin( m_Bank ) * m_BankForceCoef * m_TailRotateFactor;
@@ -1070,8 +1070,8 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			{
 				float heliSpeedY = m_LinearVelocityMS[1] * ( m_LinearVelocityMS[0] * 0.1 );
 
-				float rotateX = m_TailRotateFactor * ( ( m_LinearVelocityMS[0] * -0.500 ) + ( MathHelper.SquareSign( m_LinearVelocityMS[0] ) * -0.010 ) ) * m_BodyMass;
-				float rotateY = m_TailRotateFactor * ( ( heliSpeedY * -0.005 ) + ( MathHelper.SquareSign( heliSpeedY ) * -0.0003 ) ) * m_BodyMass;
+				float rotateX = m_TailRotateFactor * ( ( m_LinearVelocityMS[0] * -0.500 ) + ( Math.SquareSign( m_LinearVelocityMS[0] ) * -0.010 ) ) * m_BodyMass;
+				float rotateY = m_TailRotateFactor * ( ( heliSpeedY * -0.005 ) + ( Math.SquareSign( heliSpeedY ) * -0.0003 ) ) * m_BodyMass;
 
 				vector heliRotateDir = Vector( 0, 0, -m_BoundingRadius ) * Vector( rotateX, rotateY, 0 );
 
@@ -1101,9 +1101,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				// if the helicopter is turned on then more force is applied to create psuedo-friction
 				float stabilizeXY = 0.4 + ( m_RotorSpeed * m_RotorSpeed * 0.6 );
 
-				friction[0] = MathHelper.SquareSign( frictionSpeed[0] ) * pDt * 16 * m_BodyMass * stabilizeXY;
-				friction[1] = MathHelper.SquareSign( frictionSpeed[1] ) * pDt * 0.04 * m_BodyMass * stabilizeXY;
-				friction[2] = MathHelper.SquareSign( frictionSpeed[2] ) * pDt * 0.04 * m_BodyMass;
+				friction[0] = Math.SquareSign( frictionSpeed[0] ) * pDt * 16 * m_BodyMass * stabilizeXY;
+				friction[1] = Math.SquareSign( frictionSpeed[1] ) * pDt * 0.04 * m_BodyMass * stabilizeXY;
+				friction[2] = Math.SquareSign( frictionSpeed[2] ) * pDt * 0.04 * m_BodyMass;
 
 				force -= friction * m_BodyFrictionCoef;
 			}
@@ -1117,7 +1117,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			//! Angular Friction - more optimized to do in worldspace :)
 			{
 				vector t_friction;
-				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.0 + ( m_TailRotateFactor * 0.5 ) );
+				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.5 + ( m_TailRotateFactor * 0.5 ) );
 				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef;
 				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef;
 				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef;

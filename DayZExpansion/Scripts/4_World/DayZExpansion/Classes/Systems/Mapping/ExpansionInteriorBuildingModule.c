@@ -147,13 +147,17 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		if ( world_name.Contains( "chernarusplus" ) )
 		{
 			GetChernarusPlusIviesPositions( iviesPosition );
-		} else if ( world_name.Contains( "enoch" ) )
+		}
+		/*
+		//! Only Chernarus have custom ivies so we will check only "chernarusplus" until we have custom ivies for other maps
+		else if ( world_name.Contains( "enoch" ) )
 		{
 			GetEnochIviesPositions( iviesPosition );
 		} else if ( world_name.Contains( "deerisle" ) )
 		{
 			GetDeerIsleIviesPositions( iviesPosition );
 		}
+		*/
 	}
 
 	private void GetChernarusPlusIviesPositions(out TVectorArray iviesPosition)

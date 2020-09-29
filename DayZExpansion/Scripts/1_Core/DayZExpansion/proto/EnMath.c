@@ -1,5 +1,5 @@
 /**
- * MathHelper.c
+ * EnMath.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class MathHelper
+modded class Math
 {
 	/**
 	 * @brief Returns the direction the number is facing, 0 if zero
@@ -58,11 +58,6 @@ class MathHelper
 		return number * ( 1 + number ) * Sign( number );
 	}
 
-	static vector WorldDirection( EntityAI ent, vector dirMS )
-	{
-		return vector.Direction( ent.GetPosition(), ent.ModelToWorld( dirMS ) ).Normalized();
-	}
-
 	static float Interpolate( float value, float cMin, float cMax, float vMin, float vMax )
 	{
 		if ( value <= cMin )
@@ -93,4 +88,4 @@ class MathHelper
 			return -angle;
 		return angle;
 	}
-}
+};

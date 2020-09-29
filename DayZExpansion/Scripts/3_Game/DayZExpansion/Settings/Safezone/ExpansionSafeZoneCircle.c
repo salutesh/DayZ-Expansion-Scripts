@@ -27,4 +27,4 @@ class ExpansionSafeZoneCircle: ExpansionSafeZoneElement
 		this.Center = center;
 		this.Radius = radius;
 	}
-}
+};

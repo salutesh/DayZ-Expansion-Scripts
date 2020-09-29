@@ -1,0 +1,1135 @@
+#define _ARMA_
+
+class CfgPatches
+{
+	class DayZExpansion_Vehicles_Ground_Hatchback_02
+	{
+		units[] = {"Expansion_Hatchback_02_Wheel","Hatchback_02_Wheel_Ruined","Expansion_Hatchback_02"};
+		weapons[] = {};
+		requiredVersion = 0.1;
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
+	};
+};
+class CfgSlots
+{
+	class Slot_Hatchback_02_Wheel_1_1
+	{
+		name = "Hatchback_02_Wheel_1_1";
+		displayName = "Front Left Wheel";
+		selection = "wheel_1_1";
+		ghostIcon = "wheel";
+	};
+	class Slot_Hatchback_02_Wheel_1_2
+	{
+		name = "Hatchback_02_Wheel_1_2";
+		displayName = "Front Right Wheel";
+		selection = "wheel_1_2";
+		ghostIcon = "wheel";
+	};
+	class Slot_Hatchback_02_Wheel_2_1
+	{
+		name = "Hatchback_02_Wheel_2_1";
+		displayName = "Front Left Wheel";
+		selection = "wheel_2_1";
+		ghostIcon = "wheel";
+	};
+	class Slot_Hatchback_02_Wheel_2_2
+	{
+		name = "Hatchback_02_Wheel_2_2";
+		displayName = "Front Right Wheel";
+		selection = "wheel_2_2";
+		ghostIcon = "wheel";
+	};
+};
+class CfgVehicles
+{
+	class ExpansionWheel;
+	class ExpansionCarScript;
+	class CarDoor;
+	class CarScript;
+	class ExpansionCarDoorFix;
+	class Crew;
+	class Driver;
+	class CoDriver;
+	class VehicleSimulation;
+	class Axles;
+	class Front;
+	class Rear;
+	class Wheels;
+	class Left;
+	class Right;
+	class AnimationSources;
+	class Expansion_Hatchback_02_Wheel: ExpansionWheel
+	{
+		scope = 2;
+		displayName = "$STR_Hatchback_02_Wheel0";
+		descriptionShort = "$STR_Hatchback_02_Wheel1";
+		model = "\DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel.p3d";
+		inventorySlot[] = {"Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
+		rotationFlags = 8;
+		radiusByDamage[] = {0,0.33,0.3,0.29,0.9998,0.25,0.9999,0.21};
+		radius = 0.33;
+		friction = 0.96;
+		width = 0.16;
+		tyreRollResistance = 0.01;
+		tyreTread = 0.95;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 200;
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\Hatchback_02\data\Hatchback_02_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\Hatchback_02\data\Hatchback_02_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\Hatchback_02\data\Hatchback_02_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\Hatchback_02\data\Hatchback_02_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\Hatchback_02\data\Hatchback_02_wheel_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Wheel_Ruined: Expansion_Hatchback_02_Wheel
+	{
+		model = "\DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel_ruined.p3d";
+		radius = 0.22;
+		friction = -1.0;
+		width = 0.2;
+		tyreRollResistance = 1;
+		tyreRollDrag = 80;
+		tyreRoughness = 1.2;
+		tyreTread = 0.4;
+	};
+	class Expansion_Hatchback_02: ExpansionCarScript
+	{
+		scope = 2;
+		displayName = "TEST $STR_CivHatchback0";
+		descriptionShort = "$STR_CivHatchback1";
+		model = "\dz\vehicles\wheeled\Hatchback_02\Hatchback_02.p3d";
+		frontReflectorMatDamaged = "";
+		frontReflectorMatRuined = "";
+		fuelCapacity = 55;
+		fuelConsumption = 6.5;
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood","Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo_chassi"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"};
+		dashboardMatOn = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_gauges_e.rvmat";
+		dashboardMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_gauges.rvmat";
+		frontReflectorMatOn = "dz\vehicles\wheeled\Hatchback_02\data\hatchback_02_lights.rvmat";
+		frontReflectorMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_Body.rvmat";
+		brakeReflectorMatOn = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights_e.rvmat";
+		brakeReflectorMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights.rvmat";
+		tailReflectorMatOn = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights_e.rvmat";
+		tailReflectorMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights.rvmat";
+		reverseReflectorMatOn = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights_e.rvmat";
+		reverseReflectorMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights.rvmat";
+		class Crew: Crew
+		{
+			class Driver: Driver{};
+			class CoDriver: CoDriver{};
+			class Cargo1
+			{
+				actionSel = "seat_cargo1";
+				proxyPos = "crewCargo1";
+				getInPos = "pos_driver";
+				getInDir = "pos_driver_dir";
+			};
+			class Cargo2
+			{
+				actionSel = "seat_cargo2";
+				proxyPos = "crewCargo2";
+				getInPos = "pos_coDriver";
+				getInDir = "pos_coDriver_dir";
+			};
+		};
+		class VehicleSimulation: VehicleSimulation
+		{
+			drive = "DRIVE_FWD";
+			airDragCoefficient = 0.79;
+			class Steering
+			{
+				increaseSpeed[] = {0,50,60,30,100,15};
+				decreaseSpeed[] = {0,90,60,45,100,20};
+				centeringSpeed[] = {0,0,15,27,60,45,100,63};
+			};
+			class Throttle
+			{
+				reactionTime = 0.7;
+				defaultThrust = 0.75;
+				gentleThrust = 0.5;
+				turboCoef = 2.2;
+				gentleCoef = 0.5;
+			};
+			braking[] = {0.0,0.1,0.5,0.3,2.5,0.4,3.0,1.0};
+			class Engine
+			{
+				inertia = 0.27;
+				torqueMax = 186;
+				torqueRpm = 4400;
+				powerMax = 100;
+				powerRpm = 5800;
+				rpmIdle = 1250;
+				rpmMin = 1350;
+				rpmClutch = 1500;
+				rpmRedline = 6250;
+				rpmMax = 7000;
+			};
+			class Gearbox
+			{
+				reverse = 3.167;
+				ratios[] = {3.455,2.118,1.444,1.129,0.912};
+				timeToUncoupleClutch = 0.25;
+				timeToCoupleClutch = 0.35;
+				maxClutchTorque = 225;
+			};
+			class Axles: Axles
+			{
+				class Front: Front
+				{
+					maxSteeringAngle = 35;
+					finalRatio = 3.667;
+					brakeBias = 0.75;
+					brakeForce = 4000;
+					wheelHubMass = 5;
+					wheelHubRadius = 0.125;
+					class Suspension
+					{
+						swayBar = 1850;
+						stiffness = 30000;
+						compression = 1650;
+						damping = 6000;
+						travelMaxUp = 0.16;
+						travelMaxDown = 0.16;
+					};
+					class Wheels: Wheels
+					{
+						class Left: Left
+						{
+							animDamper = "damper_1_1";
+							inventorySlot = "Hatchback_02_Wheel_1_1";
+						};
+						class Right: Right
+						{
+							animDamper = "damper_2_1";
+							inventorySlot = "Hatchback_02_Wheel_2_1";
+						};
+					};
+				};
+				class Rear: Rear
+				{
+					maxSteeringAngle = 0;
+					brakeBias = 0.45;
+					brakeForce = 3500;
+					wheelHubMass = 5;
+					wheelHubRadius = 0.125;
+					class Suspension
+					{
+						swayBar = 1850;
+						stiffness = 27000;
+						compression = 1700;
+						damping = 7000;
+						travelMaxUp = 0.16;
+						travelMaxDown = 0.16;
+					};
+					class Wheels: Wheels
+					{
+						class Left: Left
+						{
+							animDamper = "damper_1_2";
+							inventorySlot = "Hatchback_02_Wheel_1_2";
+						};
+						class Right: Right
+						{
+							animDamper = "damper_2_2";
+							inventorySlot = "Hatchback_02_Wheel_2_2";
+						};
+					};
+				};
+			};
+		};
+		class Cargo
+		{
+			itemsCargoSize[] = {10,30};
+			allowOwnedCargoManipulation = 1;
+			openable = 0;
+		};
+		class AnimationSources: AnimationSources
+		{
+			class DoorsCargo1
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.5;
+			};
+			class DoorsCargo2
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 0.5;
+			};
+			class damper_1_1
+			{
+				source = "user";
+				initPhase = 0.5;
+				animPeriod = 1e-05;
+			};
+			class damper_2_1: damper_1_1{};
+			class damper_1_2: damper_1_1{};
+			class damper_2_2: damper_1_2{};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_chassis"};
+					class Health
+					{
+						hitpoints = 3000;
+						transferToGlobalCoef = 0;
+					};
+					inventorySlots[] = {};
+				};
+				class Front
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_front"};
+					componentNames[] = {"dmgZone_front","dmgZone_bumper_1"};
+					class Health
+					{
+						hitpoints = 700;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_damage.rvmat"}},{0.0,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_destruct.rvmat"}}};
+					};
+					transferToZonesNames[] = {"Fender_1_1","Fender_2_1","Engine"};
+					transferToZonesCoefs[] = {0.7,0.7,0.8};
+					inventorySlots[] = {"Hatchback_02_Hood","CarRadiator","Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_2_1"};
+					inventorySlotsCoefs[] = {0.7,0.5,0.8,0.8};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_lights_1_1"};
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{}},{0.0,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}}};
+					};
+					transferToZonesNames[] = {"Front","Fender_1_1"};
+					transferToZonesCoefs[] = {1.0,1.0};
+					inventorySlots[] = {"Reflector_1_1","Hatchback_02_Wheel_1_1"};
+					inventorySlotsCoefs[] = {1.0,0.9};
+				};
+				class Reflector_2_1: Reflector_1_1
+				{
+					memoryPoints[] = {"dmgZone_lights_2_1"};
+					componentNames[] = {"dmgZone_lights_2_1"};
+					transferToZonesNames[] = {"Front","Fender_2_1"};
+					inventorySlots[] = {"Reflector_2_1","Hatchback_02_Wheel_2_1"};
+				};
+				class Back
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_back"};
+					componentNames[] = {"dmgZone_back","dmgZone_bumper_2"};
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_body.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_body.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_body_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_body_damage.rvmat"}},{0.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_body_destruct.rvmat"}}};
+					};
+					transferToZonesNames[] = {"Fender_1_2","Fender_2_2"};
+					transferToZonesCoefs[] = {0.7,0.7};
+					inventorySlots[] = {"Hatchback_02_Trunk","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_2"};
+					inventorySlotsCoefs[] = {0.9,0.9,0.9};
+				};
+				class Roof
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_roof"};
+					memoryPoints[] = {"dmgZone_roof"};
+					class Health
+					{
+						hitpoints = 400;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_damage.rvmat"}},{0.0,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_destruct.rvmat"}}};
+					};
+					inventorySlots[] = {};
+				};
+				class Fender_1_1
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fender_1_1"};
+					memoryPoints[] = {"dmgZone_fender_1_1"};
+					class Health
+					{
+						hitpoints = 700;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_damage.rvmat"}},{0.0,{"dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body_destruct.rvmat"}}};
+					};
+					transferToZonesNames[] = {"Front","Reflector_1_1","Engine"};
+					transferToZonesCoefs[] = {0.3,0.6,0.4};
+					inventorySlots[] = {"Hatchback_02_Hood","Hatchback_02_Wheel_1_1","Hatchback_02_Door_1_1"};
+					inventorySlotsCoefs[] = {0.6,0.9,0.3};
+				};
+				class Fender_2_1: Fender_1_1
+				{
+					memoryPoints[] = {"dmgZone_fender_2_1"};
+					componentNames[] = {"dmgZone_fender_2_1"};
+					transferToZonesNames[] = {"Front","Reflector_2_1","Engine"};
+					transferToZonesCoefs[] = {0.3,0.6,0.4};
+					inventorySlots[] = {"Hatchback_02_Hood","Hatchback_02_Wheel_2_1","Hatchback_02_Door_2_1"};
+					inventorySlotsCoefs[] = {0.6,0.9,0.3};
+				};
+				class Fender_1_2: Fender_1_1
+				{
+					memoryPoints[] = {"dmgZone_fender_1_2"};
+					componentNames[] = {"dmgZone_fender_1_2"};
+					transferToZonesNames[] = {"Back","FuelTank"};
+					transferToZonesCoefs[] = {0.7,0.7};
+					inventorySlots[] = {"Hatchback_02_Trunk","Hatchback_02_Wheel_1_2","Hatchback_02_Door_1_2"};
+					inventorySlotsCoefs[] = {0.7,0.9,0.3};
+				};
+				class Fender_2_2: Fender_1_1
+				{
+					memoryPoints[] = {"dmgZone_fender_2_2"};
+					componentNames[] = {"dmgZone_fender_2_2"};
+					transferToZonesNames[] = {"Back","FuelTank"};
+					transferToZonesCoefs[] = {0.7,0.7};
+					inventorySlots[] = {"Hatchback_02_Trunk","Hatchback_02_Wheel_2_2","Hatchback_02_Door_2_2"};
+					inventorySlotsCoefs[] = {0.7,0.9,0.3};
+				};
+				class WindowFront
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_windowFront"};
+					componentNames[] = {"dmgZone_windowFront"};
+					class Health
+					{
+						hitpoints = 100;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+					};
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+				class Engine
+				{
+					fatalInjuryCoef = 0.001;
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					class Health
+					{
+						hitpoints = 1000;
+						transferToGlobalCoef = 1;
+					};
+					inventorySlots[] = {"CarBattery","SparkPlug","CarRadiator"};
+					inventorySlotsCoefs[] = {0.2,0.2,0.4};
+				};
+				class FuelTank
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fuelTank"};
+					class Health
+					{
+						hitpoints = 600;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+			};
+		};
+		class ObstacleGenerator
+		{
+			carve = 1;
+			timeToStationary = 5.0;
+			moveThreshold = 0.5;
+			class Shapes
+			{
+				class Cylindric
+				{
+					class Cyl1
+					{
+						radius = 1.0;
+						height = 1.5;
+						center[] = {0,0,0.7};
+					};
+					class Cyl3
+					{
+						radius = 1.0;
+						height = 1.5;
+						center[] = {0,0,-0.7};
+					};
+				};
+			};
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Engine
+			{
+				name = "$STR_attachment_Engine0";
+				description = "";
+				icon = "cat_vehicle_engine";
+				attachmentSlots[] = {"CarBattery","CarRadiator","SparkPlug"};
+			};
+			class Body
+			{
+				name = "$STR_attachment_Body0";
+				description = "";
+				icon = "cat_vehicle_body";
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Hood","Hatchback_02_Trunk"};
+			};
+			class Chassis
+			{
+				name = "$STR_attachment_Chassis0";
+				description = "";
+				icon = "cat_vehicle_chassis";
+				attachmentSlots[] = {"Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
+			};
+		};
+	};
+	class Hatchback_02: CarScript
+	{
+		doors[] = {"Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood"};
+		defaultSkin = "Red";
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo_chassi","dmgZone_chassis","dmgZone_back","dmgZone_front","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000;
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					class Health
+					{
+						hitpoints = 3000;
+						transferToGlobalCoef = 0;
+					};
+					componentNames[] = {"dmgZone_chassis"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Front
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					componentNames[] = {"dmgZone_front"};
+					memoryPoints[] = {"dmgZone_front","dmgZone_bumper_1"};
+					fatalInjuryCoef = -1;
+					transferToZonesNames[] = {"Fender_1_1","Fender_2_1","Engine","WindowFront"};
+					transferToZonesThreshold[] = {0.5,0.5,0.5,0.1};
+					transferToZonesCoefs[] = {0.7,0.7,0.5,0.05};
+					inventorySlots[] = {"Hatchback_02_Hood","CarRadiator"};
+					inventorySlotsCoefs[] = {0.3,0.3};
+				};
+				class Back
+				{
+					class Health
+					{
+						hitpoints = 100;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					componentNames[] = {"dmgZone_back"};
+					memoryPoints[] = {"dmgZone_back","dmgZone_bumper_1"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+				class WindowFront
+				{
+					class Health
+					{
+						hitpoints = 100;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+					};
+					componentNames[] = {"dmgZone_windowFront"};
+					memoryPoints[] = {"dmgZone_windowFront"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+				class Reflector_1_1
+				{
+					class Health
+					{
+						hitpoints = 10;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{}},{0.0,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}}};
+					};
+					componentNames[] = {"dmgZone_lights_1_1"};
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					fatalInjuryCoef = -1;
+					transferToZonesNames[] = {"Front","Fender_1_1","Engine"};
+					transferToZonesCoefs[] = {0.1,0.15,0.05};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
+				class Reflector_2_1: Reflector_1_1
+				{
+					componentNames[] = {"dmgZone_lights_2_1"};
+					memoryPoints[] = {"dmgZone_lights_2_1"};
+					transferToZonesNames[] = {"Front","Fender_2_1","Engine"};
+					transferToZonesCoefs[] = {0.1,0.15,0.05};
+					inventorySlots[] = {"Reflector_2_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
+				class Roof
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					componentNames[] = {"dmgZone_roof"};
+					memoryPoints[] = {"dmgZone_roof"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Fender_1_1
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					componentNames[] = {"dmgZone_fender_1_1"};
+					memoryPoints[] = {"dmgZone_fender_1_1"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Fender_2_1: Fender_1_1
+				{
+					componentNames[] = {"dmgZone_fender_2_1"};
+					memoryPoints[] = {"dmgZone_fender_2_1"};
+				};
+				class Fender_1_2: Fender_1_1
+				{
+					componentNames[] = {"dmgZone_fender_1_2"};
+					memoryPoints[] = {"dmgZone_fender_1_2"};
+				};
+				class Fender_2_2: Fender_1_1
+				{
+					componentNames[] = {"dmgZone_fender_2_2"};
+					memoryPoints[] = {"dmgZone_fender_2_2"};
+				};
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 1000;
+						transferToGlobalCoef = 1;
+					};
+					componentNames[] = {"dmgZone_engine"};
+					memoryPoints[] = {"dmgZone_engine"};
+					fatalInjuryCoef = 0.001;
+					inventorySlots[] = {};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 1000;
+						transferToGlobalCoef = -1;
+					};
+					componentNames[] = {"dmgZone_fuelTank"};
+					memoryPoints[] = {"dmgZone_fuelTank"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Door_1_1: CarDoor
+	{
+		applySkinsTo[] = {"Hatchback_02_Door_2_1","Expansion_Hatchback_02_Door_2_1"};
+		defaultSkin = "Red";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 70;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+					};
+					componentNames[] = {"dmgZone_window"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{""}}};
+					};
+					componentNames[] = {"dmgZone_doors"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Door_2_1: CarDoor
+	{
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 70;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+					};
+					componentNames[] = {"dmgZone_window"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{""}}};
+					};
+					componentNames[] = {"dmgZone_doors"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Door_1_2: CarDoor
+	{
+		applySkinsTo[] = {"Hatchback_02_Door_2_2","Expansion_Hatchback_02_Door_2_2"};
+		defaultSkin = "Red";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 70;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+					};
+					componentNames[] = {"dmgZone_window"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{""}}};
+					};
+					componentNames[] = {"dmgZone_doors"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Door_2_2: CarDoor
+	{
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 70;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\Hatchback_02_Windows.rvmat","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.5,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"hidden","dz\vehicles\wheeled\hatchback_02\data\glass_i_destruct.rvmat"}},{0.0,"hidden","hidden"}};
+					};
+					componentNames[] = {"dmgZone_window"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{""}}};
+					};
+					componentNames[] = {"dmgZone_doors"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Hood: CarDoor
+	{
+		defaultSkin = "Red";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+		};
+	};
+	class Hatchback_02_Trunk: CarDoor
+	{
+		defaultSkin = "Red";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+		};
+	};
+	class Expansion_Hatchback_02_Door_1_1: ExpansionCarDoorFix
+	{
+		newBase = "Hatchback_02_Door_1_1";
+	};
+	class Expansion_Hatchback_02_Door_1_2: ExpansionCarDoorFix
+	{
+		newBase = "Hatchback_02_Door_1_2";
+	};
+	class Expansion_Hatchback_02_Door_2_1: ExpansionCarDoorFix
+	{
+		newBase = "Hatchback_02_Door_2_1";
+	};
+	class Expansion_Hatchback_02_Door_2_2: ExpansionCarDoorFix
+	{
+		newBase = "Hatchback_02_Door_2_2";
+	};
+	class Expansion_Hatchback_02_Hood: ExpansionCarDoorFix
+	{
+		newBase = "Hatchback_02_Hood";
+	};
+	class Expansion_Hatchback_02_Trunk: ExpansionCarDoorFix
+	{
+		newBase = "Hatchback_02_Trunk";
+	};
+	class Hatchback_02_Red: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "Red";
+	};
+	class Hatchback_02_Door_1_1_Red: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "Red";
+	};
+	class Hatchback_02_Door_1_2_Red: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "Red";
+	};
+	class Hatchback_02_Door_2_1_Red: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "Red";
+	};
+	class Hatchback_02_Door_2_2_Red: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "Red";
+	};
+	class Hatchback_02_Hood_Red: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "Red";
+	};
+	class Hatchback_02_Trunk_Red: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "Red";
+	};
+	class Hatchback_02_Black: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "Black";
+	};
+	class Hatchback_02_Door_1_1_Black: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "Black";
+	};
+	class Hatchback_02_Door_1_2_Black: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "Black";
+	};
+	class Hatchback_02_Door_2_1_Black: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "Black";
+	};
+	class Hatchback_02_Door_2_2_Black: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "Black";
+	};
+	class Hatchback_02_Hood_Black: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "Black";
+	};
+	class Hatchback_02_Trunk_Black: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "Black";
+	};
+	class Hatchback_02_Blue: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Door_1_1_Blue: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Door_1_2_Blue: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Door_2_1_Blue: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Door_2_2_Blue: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Hood_Blue: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Trunk_Blue: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "Blue";
+	};
+	class Hatchback_02_Door_1_1_RedRust: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "RedRust";
+	};
+	class Hatchback_02_Door_1_2_RedRust: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "RedRust";
+	};
+	class Hatchback_02_Door_2_1_RedRust: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "RedRust";
+	};
+	class Hatchback_02_Door_2_2_RedRust: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "RedRust";
+	};
+	class Hatchback_02_Hood_RedRust: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "RedRust";
+	};
+	class Hatchback_02_Trunk_RedRust: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "RedRust";
+	};
+	class Hatchback_02_Door_1_1_BlackRust: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "BlackRust";
+	};
+	class Hatchback_02_Door_1_2_BlackRust: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "BlackRust";
+	};
+	class Hatchback_02_Door_2_1_BlackRust: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "BlackRust";
+	};
+	class Hatchback_02_Door_2_2_BlackRust: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "BlackRust";
+	};
+	class Hatchback_02_Hood_BlackRust: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "BlackRust";
+	};
+	class Hatchback_02_Trunk_BlackRust: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "BlackRust";
+	};
+	class Hatchback_02_Door_1_1_BlueRust: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "BlueRust";
+	};
+	class Hatchback_02_Door_1_2_BlueRust: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "BlueRust";
+	};
+	class Hatchback_02_Door_2_1_BlueRust: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "BlueRust";
+	};
+	class Hatchback_02_Door_2_2_BlueRust: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "BlueRust";
+	};
+	class Hatchback_02_Hood_BlueRust: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "BlueRust";
+	};
+	class Hatchback_02_Trunk_BlueRust: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "BlueRust";
+	};
+	class Hatchback_02_BanditKitty: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "BanditKitty";
+	};
+	class Hatchback_02_Door_1_1_BanditKitty: Hatchback_02_Door_1_1
+	{
+		skinBase = "Hatchback_02_Door_1_1";
+		skinName = "BanditKitty";
+	};
+	class Hatchback_02_Door_1_2_BanditKitty: Hatchback_02_Door_1_2
+	{
+		skinBase = "Hatchback_02_Door_1_2";
+		skinName = "BanditKitty";
+	};
+	class Hatchback_02_Door_2_1_BanditKitty: Hatchback_02_Door_2_1
+	{
+		skinBase = "Hatchback_02_Door_2_1";
+		skinName = "BanditKitty";
+	};
+	class Hatchback_02_Door_2_2_BanditKitty: Hatchback_02_Door_2_2
+	{
+		skinBase = "Hatchback_02_Door_2_2";
+		skinName = "BanditKitty";
+	};
+	class Hatchback_02_Hood_BanditKitty: Hatchback_02_Hood
+	{
+		skinBase = "Hatchback_02_Hood";
+		skinName = "BanditKitty";
+	};
+	class Hatchback_02_Trunk_BanditKitty: Hatchback_02_Trunk
+	{
+		skinBase = "Hatchback_02_Trunk";
+		skinName = "BanditKitty";
+	};
+};
+class CfgNonAIVehicles
+{
+	class ProxyVehiclePart;
+	class ProxyHatchback_02_Wheel: ProxyVehiclePart
+	{
+		model = "DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel.p3d";
+		inventorySlot[] = {"Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
+	};
+	class ProxyHatchback_02_Wheel_ruined: ProxyVehiclePart
+	{
+		model = "DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel_ruined.p3d";
+		inventorySlot[] = {"Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
+	};
+};

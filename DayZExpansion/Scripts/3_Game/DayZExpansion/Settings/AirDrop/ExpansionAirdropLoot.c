@@ -26,4 +26,4 @@ class ExpansionAirdropLoot
 		ItemCount = itemCount;
 		InfectedCount = infectedCount;
 	}
-}
+};

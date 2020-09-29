@@ -25,29 +25,7 @@ enum ExpansionChatChannels
 	CCTransport = 64,
 	CCGlobal = 128,
 	CCTeam = 256
-}
-
-class ExpansionChatInformation
-{
-	ExpansionChatChannels m_Channel;
-	string m_Sender;
-	string m_Message;
-
-	void ExpansionChatInformation( ExpansionChatChannels c, string s, string m )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionChatInformation::ExpansionChatInformation - Start");
-		#endif
-		
-		m_Channel = c;
-		m_Sender = s;
-		m_Message = m;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionChatInformation::ExpansionChatInformation - End");
-		#endif
-	}
-}
+};
 
 const float EXP_FADE_TIMEOUT = 2.5;
 const float EXP_FADE_OUT_DURATION = 0.25;

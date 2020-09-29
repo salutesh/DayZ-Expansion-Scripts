@@ -13,6 +13,7 @@
 /**@class		ExpansionChicken
  * @brief		
  **/
+#ifndef EXPANSION_CHICKEN_DISABLE
 class ExpansionChicken extends Inventory_Base
 {
 	protected string m_TypeChicken;
@@ -178,4 +179,5 @@ class ExpansionChicken extends Inventory_Base
 			}
 		}
 	}
-}
+};
+#endif

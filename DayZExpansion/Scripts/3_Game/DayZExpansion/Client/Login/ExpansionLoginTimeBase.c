@@ -46,4 +46,4 @@ modded class LoginTimeBase
 		EXPrint("LoginTimeBase::Init - End");
 		#endif
 	}
-}
+};

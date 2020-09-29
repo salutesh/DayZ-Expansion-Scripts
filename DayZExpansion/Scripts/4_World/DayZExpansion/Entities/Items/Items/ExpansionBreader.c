@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef EXPANSION_CHICKEN_DISABLE
 class ExpansionBreader extends Inventory_Base
 {
 	const int SPAWNING_EGG_TIMER = 2;
@@ -76,4 +77,5 @@ class ExpansionBreader extends Inventory_Base
 	{
 		return super.CanReceiveItemIntoCargo( item ) && item.IsKindOf("ExpansionEgg");
 	}
-}
+};
+#endif

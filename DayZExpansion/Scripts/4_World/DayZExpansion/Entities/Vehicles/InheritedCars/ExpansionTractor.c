@@ -19,7 +19,7 @@ class ExpansionTractor extends CarScript
 	
 	override int GetAnimInstance()
 	{
-		return ExpansionVehicleAnimInstances.EX_V3S;
+		return ExpansionVehicleAnimInstances.EXPANSION_TRACTOR;
 	}
 
 	override int GetSeatAnimationType( int posIdx )

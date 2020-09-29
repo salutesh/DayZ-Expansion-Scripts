@@ -15,4 +15,4 @@ enum ExpansionSafeZoneTypes
 	UNKNOWN = 0,
 	CIRCLE,
 	POLYGON
-}
+};

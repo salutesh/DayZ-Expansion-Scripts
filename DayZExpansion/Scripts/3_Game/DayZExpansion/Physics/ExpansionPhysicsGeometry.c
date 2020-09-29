@@ -103,4 +103,4 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		
 		return this;
 	}
-}
+};

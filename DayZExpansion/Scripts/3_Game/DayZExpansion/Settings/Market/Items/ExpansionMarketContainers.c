@@ -49,4 +49,4 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		AddItem("Barrel_Yellow", 				1500,		1650,		1,		250,	0 );
 		AddItem("SeaChest", 					2000,		2200,		1,		250,	0 );
 	}
-}
+};

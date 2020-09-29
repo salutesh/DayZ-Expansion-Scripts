@@ -16,4 +16,4 @@ enum ExpansionMonitorRPC
 	SyncStats,
 	SendMessage
 	COUNT
-}
+};

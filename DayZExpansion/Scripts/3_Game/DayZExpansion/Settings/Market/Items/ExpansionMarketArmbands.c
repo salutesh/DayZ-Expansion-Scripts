@@ -46,4 +46,4 @@ class ExpansionMarketArmbands: ExpansionMarketCategory
 		AddItem("Armband_Blue", 					5,	10,		1,		250,	0 );
 		AddItem("Armband_Black", 					5,	10,		1,		250,	0 );
 	}
-}
+};

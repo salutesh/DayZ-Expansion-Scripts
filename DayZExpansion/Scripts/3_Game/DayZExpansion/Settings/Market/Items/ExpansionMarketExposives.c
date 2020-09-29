@@ -57,4 +57,4 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		// Expansion Explosives
 		AddItem("ExpansionSatchel", 	25000,	26000,	1,		100,	0 );
 	}
-}
+};

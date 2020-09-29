@@ -14,14 +14,14 @@ modded class ActionOpenCarDoors
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		bool superBool = super.ActionCondition( player, target, item );
+		if ( !super.ActionCondition( player, target, item ) )
+			return false;
 		
-		if (superBool && m_Car)
-		{
-			return !m_Car.IsLocked();
-		}
-		
-		return superBool;
+		//! If car has key and is locked, door can't open
+		if ( m_Car.IsLocked() )
+			return false;
+
+		return true;
 	}
 
 	override void OnStartClient( ActionData action_data )

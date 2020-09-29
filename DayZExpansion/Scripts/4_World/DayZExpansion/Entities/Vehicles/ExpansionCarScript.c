@@ -22,13 +22,11 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	private ref ExpansionVehicleGearbox m_Gearbox;
 	private ref ExpansionVehicleEngine m_Engine;
 	private ref ExpansionVehicleSteering m_Steering;
+	private ref ExpansionVehicleThrottle m_Throttle;
 	
 	private float m_Turn;
-	private float m_TargetTurn;
 
 	private float m_Brake;
-	
-	private float m_Throttle;
 
 	void ExpansionCarScript()
 	{
@@ -37,6 +35,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		m_Gearbox = new ExpansionVehicleGearbox( this );
 		m_Engine = new ExpansionVehicleEngineRWD( this );
 		m_Steering = new ExpansionVehicleSteering( this );
+		m_Throttle = new ExpansionVehicleThrottle( this );
 	}
 
 	void ~ExpansionCarScript()
@@ -44,6 +43,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		delete m_Gearbox;
 		delete m_Engine;
 		delete m_Steering;
+		delete m_Throttle;
 	}
 
 	override ExpansionVehicleController GetControllerInstance()
@@ -149,7 +149,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 	override float GetThrottle()
 	{
-		return m_Throttle;
+		return m_Throttle.Get();
 	}
 
 	override float GetBraking()
@@ -166,18 +166,13 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
-		m_TargetTurn = ( m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
-
-		float turnChange = m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_TargetTurn );
+		m_Turn += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
 		
-		m_Turn += turnChange;
+		m_Throttle.Update( pDt, m_CarController.GetForward(), m_CarController.GetGentle(), m_CarController.GetTurbo() );
 
-		m_Throttle = Math.Clamp( m_Throttle + Math.Clamp( m_CarController.GetForward() - m_Throttle, -1.0 * pDt, 1.0 * pDt ), 0.0, 1.0 );
-		
 		m_Brake = m_CarController.GetBackward();
 		
 		ExpansionDebugUI( "Turn: " + m_Turn );
-		ExpansionDebugUI( "Target Turn: " + m_TargetTurn );
 	}
 
 	protected override void OnAIPilot( ExpansionAIBase driver, float pDt )
@@ -192,7 +187,8 @@ class ExpansionCarScript extends ExpansionVehicleScript
 			return;
 		
 		int gear = m_Gearbox.GetCurrentGear();
-		if ( m_Throttle == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
+		float throttleVal = m_Throttle.Get();
+		if ( throttleVal == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
 		{
 			m_Brake = 1.0;
 		}
@@ -216,7 +212,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 		if ( EngineIsOn() )
 		{
-			m_Engine.OnUpdate( pDt, m_Throttle, m_Gearbox.OnUpdate( m_ClutchState, m_CarController.GetGear(), pDt ) );
+			m_Engine.OnUpdate( pDt, throttleVal, m_Gearbox.OnUpdate( m_ClutchState, m_CarController.GetGear(), pDt ) );
 			
 			ApplyAxleBrake( 0, m_Brake );
 			ApplyAxleBrake( 1, m_Brake );
@@ -237,15 +233,6 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
 		super.OnSimulation( pDt, force, torque );
-
-		float dir = Math.Clamp( m_LinearVelocityMS[2], -1, 1 );
-		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
-		
-		vector downForce = vector.Up * -absForwardSpeed * pDt * m_BodyMass;
-		
-		force += downForce.Multiply3( m_Transform.data );
-		torque += ( Vector( 0, 0, -dir * 10.0 ) * downForce ).Multiply3( m_Transform.data );
-
 
 		ExpansionDebugUI();
 	}

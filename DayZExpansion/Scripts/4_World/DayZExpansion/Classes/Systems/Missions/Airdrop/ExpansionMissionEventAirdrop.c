@@ -26,8 +26,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	int ItemCount;
 	int InfectedCount;
 
-	//int m_AirdropMarker;
-
 	[NonSerialized()]
 	ExpansionAirdropPlane m_Plane;
 
@@ -51,14 +49,14 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void ExpansionMissionEventAirdrop()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::ExpansionMissionEventAirdrop - Start");
 		#endif
 		
 		m_EventName = "Airdrop";
 		m_Infected = new array< Object >;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::ExpansionMissionEventAirdrop - End");
 		#endif
 	}
@@ -69,11 +67,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// handle mission start
 	override void Event_OnStart()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnStart - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			vector spawnPoint = Vector( 0, Height, 0 );
 			
@@ -104,7 +102,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			
 			if ( m_Plane )
 			{
-				if (ShowNotification || GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropStarted)
+				if (ShowNotification || GetExpansionSettings().GetNotification().ShowAirdropStarted)
 				{
 					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
 				}
@@ -114,7 +112,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnStart - End");
 		#endif
 	}
@@ -125,54 +123,21 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// handle mission cleanup
 	override void Event_OnEnd()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
+			//! Remove the plane
 			RemovePlane();
 	
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ClearContainer, 0, false );
-			
-			while ( m_Infected.Count() > 0 )
-			{
-				int index = m_Infected.Count() - 1;
-	
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, index * 5, false, m_Infected[ index ] );
-	
-				m_Infected.Remove( index );
-			}
-			
-			//! After mission ends check all 20 seconds if a player is nearby the airdrop crate and if not clean it up
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupContainerCheck, 20, true );
+			//! After mission ends check all 60 seconds if a player is nearby the airdrop crate and if not delete the container and the zeds
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupCheck, 60, true );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ClearContainer
-	// ------------------------------------------------------------
-	private void ClearContainer()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::ClearContainer - Start");
-		#endif
-		
-		if ( GetGame().IsServer() )
-		{
-			if (!m_Container)
-				return;
-			
-			m_Container.StopUpdateQue();
-			GetGame().ObjectDelete( m_Container );
-		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::ClearContainer - End");
 		#endif
 	}
 	
@@ -181,11 +146,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void RemoveContainer()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveContainer - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			if ( !m_Container )
 				return;
@@ -198,38 +163,57 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				GetGame().ObjectDelete(items[i]);
 			}
 			
+			//m_Container.RemoveServerMarker();
 			GetGame().ObjectDelete( m_Container );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::RemoveContainer - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CleanupContainerCheck
+	// Expansion CleanupCheck
 	// ------------------------------------------------------------
-	void CleanupContainerCheck()
+	void CleanupCheck()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMissionEventAirdrop::CleanupContainerCheck - Start");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::CleanupCheck - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			if ( !m_Container )
-				return;
-			
-			//! Check if a player is nearby the container in a 500 meter radius
-			if ( !IsPlayerNearby(1500) )
 			{
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );
+				return;
+			}
+			
+			//! Check if a player is nearby the container in a 1500 meter radius
+			if ( !IsPlayerNearby(1500) )
+			{			
 				RemoveContainer();
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupContainerCheck );
+				
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );
+				
+				while ( m_Infected.Count() > 0 )
+				{
+					int index = m_Infected.Count() - 1;
+		
+					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, index * 5, false, m_Infected[ index ] );
+		
+					m_Infected.Remove( index );
+				}
+				
+				if (ShowNotification /*|| GetExpansionSettings().GetNotification().ShowAirdropEnded*/)
+				{
+					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
+				}
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMissionEventAirdrop::CleanupContainerCheck - End");
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionEventAirdrop::CleanupCheck - End");
 		#endif
 	}
 	
@@ -239,11 +223,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	bool IsPlayerNearby(float radius)
 	{		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::IsPlayerNearby - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			vector pos = m_Container.GetPosition();
 			array<Man> players = new array<Man>;
@@ -259,7 +243,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				
 				if ( distance <= radius )
 				{
-					#ifdef EXPANSIONEXLOGPRINT
+					#ifdef EXPANSION_MISSION_EVENT_DEBUG
 					EXLogPrint("ExpansionMissionEventAirdrop::IsPlayerNearby - End and return true");
 					#endif
 					return true;
@@ -267,7 +251,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::IsPlayerNearby - End and return false");
 		#endif
 		
@@ -279,11 +263,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	protected string GetValueString( float total_value )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::GetValueString - Start");
 		#endif
 		
-		if( total_value < 0 )
+		if ( total_value < 0 )
 			return "0";
 	
 		int value = total_value;
@@ -317,7 +301,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			out_string = value.ToString();
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::GetValueString - End and return out_string: " + out_string);
 		#endif
 		
@@ -330,11 +314,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// update tick for the mission
 	override void Event_OnUpdate( float delta )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnUpdate - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			if ( m_Plane )
 			{			
@@ -387,7 +371,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnUpdate - End");
 		#endif
 	}
@@ -397,11 +381,11 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void RemovePlane()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::RemovePlane - Start");
 		#endif
 	
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{	
 			if ( !m_Plane )
 				return;
@@ -409,7 +393,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, m_Plane );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::RemovePlane - End");
 		#endif
 	}
@@ -419,16 +403,16 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	protected override void OnLoadMission()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::OnLoadMission - Start");
 		#endif
 
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonLoadFile( m_FileName, this );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::OnLoadMission - End");
 		#endif
 	}
@@ -438,16 +422,16 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	protected override void OnSaveMission()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::OnSaveMission - Start");
 		#endif
 
-		if ( GetGame().IsServer() )
+		if ( IsMissionHost() )
 		{
 			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonSaveFile( m_FileName, this );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::OnSaveMission - End");
 		#endif
 	}
@@ -457,23 +441,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	override int MaxDefaultMissions()
 	{
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) )
-		{
-			return 52;
-		} else if ( world_name.Contains( "enoch" ) )
-		{
-			return 0;
-		} else if ( world_name.Contains( "deerisle" ) )
-		{
-			return 0;
-		}
-
-		return 0;
+		return 52;
 	}
 	
 	// ------------------------------------------------------------
@@ -1334,7 +1302,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	string ExpansionMissionAirdropChernarus(int index)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionAirdropChernarus::Defaults - Start");
 		#endif
 
@@ -1430,7 +1398,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		fname.Replace( " ", "-" );
 		return fname;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionAirdropChernarus::Defaults - End");
 		#endif
 	}
@@ -1440,7 +1408,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	string ExpansionMissionAirdropLivonia(int index)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionAirdropLivonia::Defaults - Start");
 		#endif
 
@@ -1484,44 +1452,44 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 		default:
 		case 0:
-			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
+			DropLocation = new ExpansionAirdropLocation( 3478, 10130, 100, "NWAF" );
 			chanceLower = 0.25;
 			break;
 		case 1:
-			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
+			DropLocation = new ExpansionAirdropLocation( 1367, 7057, 100, "Topolin" );
 			break;
 		case 2:
-			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
+			DropLocation = new ExpansionAirdropLocation( 6692, 11442, 100, "Brena" );
 			break;
 		case 3:
-			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
+			DropLocation = new ExpansionAirdropLocation( 9976, 11000, 100, "Tarnow" );
 			break;
 		case 4:
-			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
+			DropLocation = new ExpansionAirdropLocation( 7209, 6073, 100, "Radunin" );
 			break;
 		case 5:
-			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
+			DropLocation = new ExpansionAirdropLocation( 5996, 4513, 100, "Nadbór" );
 			break;
 		case 6:
-			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
+			DropLocation = new ExpansionAirdropLocation( 11491, 763, 100, "Dolnik" );
 			break;
 		case 7:
-			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
+			DropLocation = new ExpansionAirdropLocation( 10899, 4515, 100, "Gieraltów" );
 			break;
 		case 8:
-			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
+			DropLocation = new ExpansionAirdropLocation( 9975, 7242, 100, "Karlin" );
 			break;
 		case 9:
-			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
+			DropLocation = new ExpansionAirdropLocation( 8676, 12114, 100, "Kolembrody" );
 			break;
 		case 10:
-			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
+			DropLocation = new ExpansionAirdropLocation( 8399, 8803, 100, "Zapadlisko" );
 			break;
 		case 11:
-			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
+			DropLocation = new ExpansionAirdropLocation( 4559, 6852, 100, "Muratyn" );
 			break;
 		case 12:
-			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
+			DropLocation = new ExpansionAirdropLocation( 11005, 724, 100, "Dolnik" );
 			break;
 		}
 
@@ -1536,7 +1504,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		fname.Replace( " ", "-" );
 		return fname;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionAirdropLivonia::Defaults - End");
 		#endif
 	}
@@ -1546,14 +1514,14 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	string ExpansionMissionAirdropDeerIsle(int index)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - Start");
 		#endif
 
 		Enabled = true;
 
 		Weight = 1 + ( ( index + 1 ) * 5 );
-		MissionMaxTime = 1200; // 20 minutes
+		MissionMaxTime = 300; // 5 minutes
 
 		Speed = 25.0;
 		Height = 750.0;
@@ -1590,44 +1558,44 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 		default:
 		case 0:
-			DropLocation = new ExpansionAirdropLocation( 4807, 9812, 100, "NWAF" );
+			DropLocation = new ExpansionAirdropLocation( 6055, 13429, 100, "Portland" );
 			chanceLower = 0.25;
 			break;
 		case 1:
-			DropLocation = new ExpansionAirdropLocation( 12159, 12583, 100, "NEAF" );
+			DropLocation = new ExpansionAirdropLocation( 7911, 8864, 100, "Mountainville" );
 			break;
 		case 2:
-			DropLocation = new ExpansionAirdropLocation( 11464, 8908, 100, "Berezino" );
+			DropLocation = new ExpansionAirdropLocation( 4627, 7507, 100, "Sandy Bay" );
 			break;
 		case 3:
-			DropLocation = new ExpansionAirdropLocation( 5043, 2505, 100, "Balota" );
+			DropLocation = new ExpansionAirdropLocation( 1849, 8830, 100, "Old Town" );
 			break;
 		case 4:
-			DropLocation = new ExpansionAirdropLocation( 2351, 5393, 100, "Zelenogorsk" );
+			DropLocation = new ExpansionAirdropLocation( 3614, 6360, 100, "Westbrook" );
 			break;
 		case 5:
-			DropLocation = new ExpansionAirdropLocation( 2036, 7491, 100, "Myshkinko" );
+			DropLocation = new ExpansionAirdropLocation( 6117, 7004, 100, "Oldfield" );
 			break;
 		case 6:
-			DropLocation = new ExpansionAirdropLocation( 11125, 14040, 100, "Novodmitrovsk" );
+			DropLocation = new ExpansionAirdropLocation( 6924, 5473, 100, "Warren Cove" );
 			break;
 		case 7:
-			DropLocation = new ExpansionAirdropLocation( 6128, 2497, 100, "Chernogorsk" );
+			DropLocation = new ExpansionAirdropLocation( 4522, 4370, 100, "Georgstown" );
 			break;
 		case 8:
-			DropLocation = new ExpansionAirdropLocation( 9371, 2229, 100, "Elektrozavodsk" );
+			DropLocation = new ExpansionAirdropLocation( 4539, 2317, 100, "Hazelands" );
 			break;
 		case 9:
-			DropLocation = new ExpansionAirdropLocation( 13452, 3112, 100, "Skalisty Island" );
+			DropLocation = new ExpansionAirdropLocation( 4658, 1414, 100, "Greenville" );
 			break;
 		case 10:
-			DropLocation = new ExpansionAirdropLocation( 2700, 6193, 100, "Sosnovka" );
+			DropLocation = new ExpansionAirdropLocation( 6973, 1701, 100, "Stonington" );
 			break;
 		case 11:
-			DropLocation = new ExpansionAirdropLocation( 7436, 7720, 100, "Novy Sobor" );
+			DropLocation = new ExpansionAirdropLocation( 7630, 3717, 100, "Kushville" );
 			break;
 		case 12:
-			DropLocation = new ExpansionAirdropLocation( 5823, 7764, 100, "Stary Sobor" );
+			DropLocation = new ExpansionAirdropLocation( 10179, 4722, 100, "Oceanville" );
 			break;
 		}
 
@@ -1642,7 +1610,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		fname.Replace( " ", "-" );
 		return fname;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - End");
 		#endif
 	}
@@ -1827,4 +1795,4 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		
 		return nPosition;
 	}
-}
+};

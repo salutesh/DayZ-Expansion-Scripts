@@ -12,13 +12,8 @@
 
 class ExpansionActionUnlockVehicle: ActionInteractBase
 {
-	protected CarScript m_Car;
-	protected ExpansionCarKey m_KeysInHand;
+	//! DO NOT STORE VARIABLES FOR SERVER SIDE OPERATION
 
-	// Sound
-	protected PlayerBase								m_Player;
-	protected EffectSound 								m_SoundLock;
-	
 	void ExpansionActionUnlockVehicle()
 	{
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
@@ -36,57 +31,55 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
-	{
-		m_Car = NULL;
-		m_KeysInHand = NULL;
-
-		if ( !target || !player )
-			return false;
-
-		bool playerIsInVehicle = false;
-
+	{		
+		CarScript car;
+		ExpansionCarKey key;
+		
 		if ( player.GetCommand_Vehicle() )
 		{
-			if ( Class.CastTo( m_Car, player.GetCommand_Vehicle().GetTransport() ) )
-			{
-				playerIsInVehicle = true;
-			}
-		}
-
-		if ( !playerIsInVehicle )
+			if ( !Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
+				return false;
+		} else
 		{
-			if ( !target || !Class.CastTo( m_Car, target.GetObject() ) )
-			{
+			if ( !Class.CastTo( car, target.GetObject() ) )
 				return false;
-			}
-			if ( !Class.CastTo( m_KeysInHand, player.GetItemInHands() ) )
-			{
+
+			if ( !Class.CastTo( key, player.GetItemInHands() ) )
 				return false;
-			}
+
+			if ( !car.IsCarKeys( key ) )
+				return false;
 		}
 	
-		if ( !m_Car.HasKey() )
+		if ( !car.HasKey() )
 			return false;
 
-		if ( m_Car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
+		if ( car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
 			return false;
 		
 		return true;
 	}
 	
-	override void OnExecuteClient( ActionData action_data )
+	override void OnStartServer( ActionData action_data )
 	{
-		PlayLockSound();
+		super.OnStartServer( action_data );
 		
-		if (!GetGame().IsMultiplayer())
+		CarScript car;
+		ExpansionCarKey key;
+
+		if ( action_data.m_Player.GetCommand_Vehicle() )
 		{
-			OnExecuteServer(action_data);
+			car = CarScript.Cast( action_data.m_Player.GetCommand_Vehicle().GetTransport() );
+		} else
+		{
+			car = CarScript.Cast( action_data.m_Target.GetObject() );
+			key = ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() );
 		}
-	}
-	
-	override void OnExecuteServer( ActionData action_data )
-	{
-		m_Car.UnlockCar( m_KeysInHand );
+		
+		if ( car )
+		{
+			car.UnlockCar( key );
+		}
 	}
 
 	override bool CanBeUsedInVehicle()
@@ -98,17 +91,4 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 	{
 		return false;
 	}
-
-	void PlayLockSound()
-	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
-		{
-			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
-			if ( m_Player )
-			{
-				m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", m_Player.GetPosition());
-				m_SoundLock.SetSoundAutodestroy( true );
-			}
-		}
-	}
-}
+};

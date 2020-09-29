@@ -47,4 +47,4 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 		AddItem("Deagle_Gold", 				20,		22,		1,		250,	0 );
 		AddItem("Expansion_M9", 			20,		22,		1,		250,	0 );
 	}
-}
+};

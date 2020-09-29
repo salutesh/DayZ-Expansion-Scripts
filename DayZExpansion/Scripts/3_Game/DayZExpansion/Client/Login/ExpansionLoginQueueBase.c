@@ -46,4 +46,4 @@ modded class LoginQueueBase
 		EXPrint("LoginQueueBase::Init - End");
 		#endif
 	}
-}
+};

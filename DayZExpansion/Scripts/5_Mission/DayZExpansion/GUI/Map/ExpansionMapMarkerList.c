@@ -55,9 +55,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	private Widget m_MarkerListInfoPanel;
 	private ImageWidget m_MarkerListInfoIcon;
 	
-	private Widget m_DropdownPanel;
-	private Widget m_DropdownSpacer;
-	
 	private ref array<ref ExpansionMapMarkerListEntry> m_PersonalMarkers;
 	private ref array<ref ExpansionMapMarkerListEntry> m_PartyMarkers;
 	private ref array<ref ExpansionMapMarkerListEntry> m_MemberMarkers;
@@ -69,7 +66,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	private static int COLOR_NOFOCUS = ARGB(140,35,35,35);
 	private static int COLOR_FOCUS = ARGB(140,255,255,255);
 	
-	//private ref ExpansionDropdownPrefab m_DropdownPreftab;
 	private ref ExpansionUITooltip m_InfoTooltip;
 	
 	void OnWidgetScriptInit( Widget w )
@@ -121,9 +117,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_MarkerListInfoPanel = Widget.Cast(m_Root.FindAnyWidget("MarkerListPanelFooterInfoPanel"));
 		m_MarkerListInfoIcon = ImageWidget.Cast(m_Root.FindAnyWidget("MarkerListPanelFooterInfoIcon"));
 		
-		m_DropdownPanel = Widget.Cast(m_Root.FindAnyWidget("MarkerListDropdown"));
-		m_DropdownSpacer = WrapSpacerWidget.Cast(m_Root.FindAnyWidget("MarkerListDropdownContent"));
-		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::OnWidgetScriptInit - End");
 		#endif
@@ -173,15 +166,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_ServerMarkers3DToggleIcon.LoadImageFile( 0, EXPANSION_NOTIFICATION_ICON_3D_OFF );
 		m_ServerMarkers3DToggleIcon.LoadImageFile( 1, EXPANSION_NOTIFICATION_ICON_3D_ON );
 		
-		/*m_DropdownPreftab = new ExpansionDropdownPrefab( m_DropdownSpacer, "Help" );
-		m_DropdownPreftab.m_OnSelectItem.Insert( OnSelectDropdownAction );
-		m_DropdownPreftab.AddElement( "Managing Markers" );
-		m_DropdownPreftab.AddElement( "Create Markers" );*/
-		
-		m_InfoTooltip = new ExpansionUITooltip("<p>#STR_EXPANSION_MARKERLIST_INFO_1</p><p>#STR_EXPANSION_MARKERLIST_INFO_2</p><p>#STR_EXPANSION_MARKERLIST_INFO_3</p><p>#STR_EXPANSION_MARKERLIST_INFO_4</p>");
-		m_InfoTooltip.SetFixPostion(true);
-		m_InfoTooltip.SetParent(m_DropdownSpacer);
-		
 		UpdateToggleStates();
 		
 		// Allows for persistent marker list state
@@ -226,7 +210,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemovePersonalEntry - Remove entry [" + i + "] from m_PersonalMarkers");
 				#endif
 				
-				m_PersonalMarkers.Remove(i);
+				m_PersonalMarkers.RemoveItem(m_PersonalMarkers[i]);
+				m_PersonalMarkers[i] = NULL;
 			}
 		}
 		
@@ -269,7 +254,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemovePartyEntry - Remove entry [" + i + "] from m_PartyMarkers");
 				#endif
 				
-				m_PartyMarkers.Remove(i);
+				m_PartyMarkers.RemoveItem(m_PartyMarkers[i]);
+				m_PartyMarkers[i] = NULL;
 			}
 		}
 		
@@ -312,7 +298,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemoveMemberEntry - Remove entry [" + i + "] from m_MemberMarkers");
 				#endif
 				
-				m_MemberMarkers.Remove(i);
+				m_MemberMarkers.RemoveItem(m_MemberMarkers[i]);
+				m_MemberMarkers[i] = NULL;
 			}
 		}
 		
@@ -355,13 +342,41 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - Remove entry [" + i + "] from m_ServerMarkers");
 				#endif
 				
-				m_ServerMarkers.Remove(i);
+				m_ServerMarkers.RemoveItem(m_ServerMarkers[i]);
+				m_ServerMarkers[i] = NULL;
 			}
 		}
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// RemoveMemberEntry
+	// ------------------------------------------------------------
+	void RemoveEntry( ExpansionMapMarker marker )
+	{
+		if (!marker)
+			return;
+		
+		switch (marker.GetMarkerData().GetType())
+		{	
+			case ExpansionMapMarkerType.PERSONAL:
+				RemovePersonalEntry(marker);
+			break;		
+			case ExpansionMapMarkerType.PARTY:
+				RemovePartyEntry(marker);
+			break;
+			case ExpansionMapMarkerType.SERVER:
+				RemoveServerEntry(marker);
+			break;
+			case ExpansionMapMarkerType.PLAYER:
+				RemoveMemberEntry(marker);
+			break;
+		}
+		
+		m_Root.Update();
 	}
 	
 	// ------------------------------------------------------------
@@ -435,27 +450,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_MarkerModule.Refresh();
 		
 		UpdateToggleStates();
-		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnMouseButtonDown
-	// ------------------------------------------------------------
-	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
-	{
-		if (button == 0 && w == m_MarkerListInfoPanel)
-		{
-			/*if (!m_DropdownPanel.IsVisible())
-			{ 
-				m_DropdownPanel.Show(true);
-			}
-			else 
-			{
-				if(m_DropdownPreftab.IsExpanded()) m_DropdownPreftab.Close();
-				m_DropdownPanel.Show(false);
-			}*/
-		}
 		
 		return false;
 	}
@@ -569,7 +563,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 			m_MarkerListInfoIcon.SetColor(ARGB(140,243,156,18));			
 			if (!m_InfoTooltip.IsVisible() && GetExpansionSettings().GetMap().ShowMapStats )
 			{
-				m_DropdownPanel.Show(true);
 				m_InfoTooltip.ShowTooltip();
 			}
 			
@@ -599,7 +592,6 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 			m_MarkerListInfoIcon.SetColor(ARGB(140,220,220,220));
 			if (m_InfoTooltip.IsVisible())
 			{
-				m_DropdownPanel.Show(false);
 				m_InfoTooltip.HideTooltip();
 			}
 		} else if (w == m_MarkerListToggle)

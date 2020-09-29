@@ -53,4 +53,4 @@ class ExpansionMarketGhillies: ExpansionMarketCategory
 		AddItem("GhillieSuit_Woodland", 			10000,		12000,		1,		250,	0 );
 		AddItem("GhillieSuit_Mossy", 				10000,		12000,		1,		250,	0 );
 	}
-}
+};

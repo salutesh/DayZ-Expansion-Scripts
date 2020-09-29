@@ -89,9 +89,9 @@ class CfgVehicles
 		{
 			class Steering
 			{
-				increaseSpeed[] = {3.0};
-				decreaseSpeed[] = {40.0};
-				centeringSpeed[] = {30.0};
+				increaseSpeed[] = {8.0};
+				decreaseSpeed[] = {70.0};
+				centeringSpeed[] = {50.0};
 			};
 			class Throttle
 			{
@@ -104,21 +104,21 @@ class CfgVehicles
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Engine
 			{
-				inertia = 0.15;
-				torqueMax = 130;
-				torqueRpm = 3700;
+				inertia = 0.6;
+				torqueMax = 210;
+				torqueRpm = 2700;
 				powerMax = 80;
 				powerRpm = 3500;
 				rpmIdle = 650;
 				rpmMin = 700;
-				rpmClutch = 1500;
-				rpmRedline = 4000;
+				rpmClutch = 900;
+				rpmRedline = 3700;
 				rpmMax = 5000;
 			};
 			class Gearbox
 			{
-				reverse = 3.51;
-				ratios[] = {3.5,2.26,1.45,1.0};
+				reverse = 2.7;
+				ratios[] = {3.4,2.3,1.2};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
@@ -159,7 +159,7 @@ class CfgVehicles
 				class Rear
 				{
 					maxSteeringAngle = 0;
-					finalRatio = 3.0;
+					finalRatio = 4.1;
 					brakeBias = 0.7;
 					brakeForce = 4000;
 					wheelHubMass = 10;

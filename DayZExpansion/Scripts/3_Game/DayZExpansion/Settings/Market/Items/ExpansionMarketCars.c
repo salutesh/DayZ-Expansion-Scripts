@@ -52,4 +52,4 @@ class ExpansionMarketCars: ExpansionMarketCategory
 		//AddItem("ExpansionVodnikMedical", 		13000,		15000,		1,		10,		1, 		{"ExpansionVodnikWheel", "ExpansionVodnikWheel", "ExpansionVodnikWheel", "ExpansionVodnikWheel", "CarBattery", "CarRadiator", "SparkPlug", "ExpansionVodnikDoorDriver", "ExpansionVodnikDoorCoDriver"} );
 		AddItem("ExpansionBus", 				15000,		20000,		1,		10,		1, 		{"TransitBusWheel", "TransitBusWheel", "TransitBusWheelDouble", "TransitBusWheelDouble", "HeadlightH7", "HeadlightH7", "TruckBattery", "CarRadiator", "GlowPlug"} );
 	}
-}
+};

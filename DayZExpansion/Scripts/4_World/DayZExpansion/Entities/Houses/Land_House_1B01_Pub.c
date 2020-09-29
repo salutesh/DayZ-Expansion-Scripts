@@ -18,9 +18,9 @@ modded class Land_House_1B01_Pub
 	}
 
 	override bool HasIvys()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 
 	
 	override void SpawnIvys()

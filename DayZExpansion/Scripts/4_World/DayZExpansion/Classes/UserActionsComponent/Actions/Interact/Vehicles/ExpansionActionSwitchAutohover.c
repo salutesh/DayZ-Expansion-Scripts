@@ -12,7 +12,7 @@
 
 class ExpansionActionSwitchAutoHover: ActionInteractBase
 {
-	private ExpansionHelicopterScript m_Vehicle;
+	private bool m_IsOn;
 
 	void ExpansionActionSwitchAutoHover()
 	{
@@ -29,7 +29,7 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 
 	override string GetText()
 	{
-		if ( m_Vehicle.IsAutoHover() )
+		if ( m_IsOn )
 			return "#STR_EXPANSION_VEHICLE_TOGGLE_AUTOHOVER_OFF";
 
 		return "#STR_EXPANSION_VEHICLE_TOGGLE_AUTOHOVER_ON";
@@ -37,9 +37,11 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( Class.CastTo( m_Vehicle, player.GetParent() ) )
+		ExpansionHelicopterScript helicopter;
+		if ( Class.CastTo( helicopter, player.GetParent() ) )
 		{
-			if ( m_Vehicle.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+			m_IsOn = helicopter.IsAutoHover();
+			if ( helicopter.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
 				return true;
 			}
@@ -51,7 +53,11 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 	override void OnAnimationEvent( ActionData action_data )
 	{
 		if ( IsMissionClient() && !action_data.m_WasExecuted )
-			m_Vehicle.SwitchAutoHover();
+		{
+			ExpansionHelicopterScript helicopter;
+			if ( Class.CastTo( helicopter, action_data.m_Player.GetParent() ) )
+				helicopter.SwitchAutoHover();
+		}
 		
 		super.OnAnimationEvent( action_data );
 	}

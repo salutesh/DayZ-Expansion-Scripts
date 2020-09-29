@@ -42,4 +42,4 @@ class ExpansionMarketHelicopters: ExpansionMarketCategory
 		AddItem("ExpansionMh6", 				700000,			720000,			1,		10,		1,	{"ExpansionHelicopterBattery","GlowPlug","ExpansionHydraulicHoses"} );
 		AddItem("ExpansionGyrocopter", 			700000,			720000,			1,		10,		1,	{"ExpansionHelicopterBattery","SparkPlug"} );		
 	}	
-}
+};

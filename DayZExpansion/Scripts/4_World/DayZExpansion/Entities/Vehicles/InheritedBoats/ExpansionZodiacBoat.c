@@ -41,7 +41,7 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 		EXPrint("ExpansionZodiacBoat::GetAnimInstance");
 		#endif
 		
-		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
+		return ExpansionVehicleAnimInstances.EXPANSION_ZODIAC;
 	}
 
 	// ------------------------------------------------------------

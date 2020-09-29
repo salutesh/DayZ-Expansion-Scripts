@@ -84,5 +84,4 @@ class ExpansionJacobianEntry
 		
 		return rel_vel;
 	}
-}
-
+};

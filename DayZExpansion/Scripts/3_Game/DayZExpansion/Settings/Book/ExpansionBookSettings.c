@@ -33,7 +33,7 @@ class ExpansionRulesCategory
 		EXPrint("ExpansionRulesCategory::ExpansionRulesCategory - End");
 		#endif
 	}
-}
+};
 
 // ------------------------------------------------------------
 class ExpansionRuleButton
@@ -56,7 +56,7 @@ class ExpansionRuleButton
 		EXPrint("ExpansionRulesButton::ExpansionRulesButton - End");
 		#endif
 	}
-}
+};
 
 // ------------------------------------------------------------
 class ExpansionRuleSection
@@ -77,7 +77,7 @@ class ExpansionRuleSection
 		EXPrint("ExpansionRule::ExpansionRuleSection - End");
 		#endif
 	}
-}
+};
 
 // ------------------------------------------------------------
 class ExpansionRule
@@ -95,7 +95,7 @@ class ExpansionRule
 		EXPrint("ExpansionRule::ExpansionRule - End");
 		#endif
 	}
-}
+};
 
 // ------------------------------------------------------------
 class ExpansionBookSettings: ExpansionSettingBase
@@ -478,4 +478,4 @@ class ExpansionBookSettings: ExpansionSettingBase
 		EXPrint("ExpansionBookTabServerRules::CreateRule - End");
 		#endif
 	}
-}
+};

@@ -1,5 +1,5 @@
 /**
- * BulletManager.c
+ * ExpansionLoadingScreenMessageData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,8 @@
  *
 */
 
-class BulletManager
+class ExpansionLoadingScreenMessageData
 {
-	static native void CreateCylinderGeom(float height, vector size);
+	string message;
+	string submitter;
 };

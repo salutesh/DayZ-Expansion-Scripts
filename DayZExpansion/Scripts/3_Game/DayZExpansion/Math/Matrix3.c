@@ -44,15 +44,15 @@ class Matrix3
 		return mat;
 	}
 
-    void Set(int _index, vector _value)
-    {
+	void Set(int _index, vector _value)
+	{
 		data[_index] = _value;
-    }
+	}
 
-    void Set(int _index, string _value)
-    {
+	void Set(int _index, string _value)
+	{
 		data[_index] = _value.ToVector();
-    }
+	}
 	
 	vector Get(int _index)
 	{
@@ -126,32 +126,6 @@ class Matrix3
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "Matrix3::Invert - Return: " + n.ToString() );
-		#endif
-		return n;
-	}
-
-	Matrix3 Scaled( Vector3 scale )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Matrix3::Scaled - Start");
-		#endif
-		
-		Matrix3 n = new ref Matrix3;
-		
-		n.data[0][0] = data[0][0] * scale.data[0];
-		n.data[1][0] = data[1][0] * scale.data[1];
-		n.data[2][0] = data[2][0] * scale.data[2];
-
-		n.data[0][1] = data[0][1] * scale.data[0];
-		n.data[1][1] = data[1][1] * scale.data[1];
-		n.data[2][1] = data[2][1] * scale.data[2];
-
-		n.data[0][2] = data[0][2] * scale.data[0];
-		n.data[1][2] = data[1][2] * scale.data[1];
-		n.data[2][2] = data[2][2] * scale.data[2];
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::Scaled - Return: " + n.ToString() );
 		#endif
 		return n;
 	}
@@ -234,30 +208,6 @@ class Matrix3
 		return n;
 	}
 
-	float TDotX( Vector3 v )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::TDotX - Return: " + (data[0][0] * v.data[0] + data[1][0] * v.data[1] + data[2][0] * v.data[2]).ToString() );
-		#endif
-		return data[0][0] * v.data[0] + data[1][0] * v.data[1] + data[2][0] * v.data[2];
-	}
-
-	float TDotY( Vector3 v )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::TDotY - Return: " + (data[0][1] * v.data[0] + data[1][1] * v.data[1] + data[2][1] * v.data[2]).ToString() );
-		#endif
-		return data[0][1] * v.data[0] + data[1][1] * v.data[1] + data[2][1] * v.data[2];
-	}
-
-	float TDotZ( Vector3 v )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::TDotZ - Return: " + (data[0][2] * v.data[0] + data[1][2] * v.data[1] + data[2][2] * v.data[2]).ToString() );
-		#endif
-		return data[0][2] * v.data[0] + data[1][2] * v.data[1] + data[2][2] * v.data[2];
-	}
-
 	float TDotX( vector v )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -298,23 +248,6 @@ class Matrix3
 		EXPrint( "Matrix3::Cofactor - Return: " + ret );
 		#endif
 		return ret;
-	}
-
-	Vector3 Multiply( Vector3 other )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::Multiply - Start" );
-		#endif
-		Vector3 n = new Vector3;
-
-		n.data[0] = vector.Dot( data[0], other.data );
-		n.data[1] = vector.Dot( data[1], other.data );
-		n.data[2] = vector.Dot( data[2], other.data );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::Multiply - Return: " + n.ToString() );
-		#endif
-		return n;
 	}
 
 	vector Multiply( vector other )
@@ -362,29 +295,6 @@ class Matrix3
 	vector ToYawPitchRoll()
 	{
 		return Math3D.MatrixToAngles( data );
-	}
-
-	static void Tilda( Vector3 v, out Matrix3 mat )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::Tilda - Start" );
-		#endif
-		
-		if ( mat == NULL )
-			mat = new ref Matrix3;
-
-		mat.data[1][0] = v.data[2];
-		mat.data[0][1] = v.data[2];
-		mat.data[0][2] = v.data[1];
-		mat.data[2][0] = v.data[1];
-		mat.data[2][1] = v.data[0];
-		mat.data[1][2] = v.data[0];
-
-		mat.Update();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Matrix3::Tilda - End" );
-		#endif
 	}
 
 	static void Tilda( vector vIn, out Matrix3 mat )
@@ -560,4 +470,4 @@ class Matrix3
 		#endif
 		return n;
 	}
-}
+};

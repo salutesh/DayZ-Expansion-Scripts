@@ -60,4 +60,4 @@ class ExpansionMarketBlousesAndSuits: ExpansionMarketCategory
 		AddItem("WomanSuit_LightGrey", 					8,		13,		1,		250,	0 );
 		AddItem("WomanSuit_White", 						8,		13,		1,		250,	0 );
 	}
-}
+};

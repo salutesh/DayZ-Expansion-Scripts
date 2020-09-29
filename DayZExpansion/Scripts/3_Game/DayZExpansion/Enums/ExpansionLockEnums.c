@@ -20,4 +20,4 @@ enum ExpansionLockRPC
 	SET,
 	SERVERREPLY,
 	CHANGE
-}
+};

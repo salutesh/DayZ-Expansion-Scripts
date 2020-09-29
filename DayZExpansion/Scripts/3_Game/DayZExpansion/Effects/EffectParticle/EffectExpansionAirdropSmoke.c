@@ -1,5 +1,5 @@
 /**
- * EffectExpansionSmoke.c
+ * EffectExpansionAirdropSmoke.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,32 +10,10 @@
  *
 */
 
-class EffectExpansionSmoke : EffectExpansionParticle
-{
-	void EffectExpansionSmoke()
-	{
-		SetParticleStateSmoke();
-		SetEnableEventFrame(true);
-		
-		Start();
-	}
-	
-	void SetParticleStateSmoke()
-	{
-		SetParticleState( ParticleList.EXPANSION_AIRDROP_SMOKE );
-	}
-	
-	void SetParticleState( int state )
-	{		
-		SetParticleID(state);
-		Start();
-	}
-}
-
 class EffectExpansionAirdropSmoke : EffectExpansionSmoke
 {
 	override void SetParticleStateSmoke()
 	{
 		SetParticleState( ParticleList.EXPANSION_AIRDROP_SMOKE );
 	}
-}
+};

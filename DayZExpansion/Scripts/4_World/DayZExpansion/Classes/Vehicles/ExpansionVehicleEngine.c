@@ -37,7 +37,6 @@ class ExpansionVehicleEngine
 	private float m_RPMMax;
 	
 	private float m_RPM;
-	private float m_RPMPrevious;
 	private float m_Torque;
 	private float m_Power;
 	
@@ -97,13 +96,10 @@ class ExpansionVehicleEngine
 		m_RPM = Math.Clamp( m_RPM, m_RPMMin, m_RPMMax );
 		ExpansionDebugUI( "RPM: " + m_RPM );
 
-		//if ( m_RPM > m_RPMRedline )
-		//	pThrottle = MathHelper.Interpolate( m_RPM, m_RPMRedline, m_RPMMax, 1, 0 );
-
-		m_Torque = LoopupTorque( m_RPM ) * pThrottle; // MathHelper.Interpolate( m_RPM, 0, m_TorqueRPM, 0, m_TorqueMax ) * pThrottle;
+		m_Torque = LoopupTorque( m_RPM ) * pThrottle;
 		ExpansionDebugUI( "Torque: " + m_Torque );
 
-		ApplyAxleTorque( m_Torque * m_Inertia * pGR );
+		ApplyAxleTorque( m_Torque * m_Inertia * pGR * pDt );
 	}
 
 	protected void ApplyAxleTorque( float torque )
@@ -128,10 +124,21 @@ class ExpansionVehicleEngine
 	
 	private float LoopupTorque( float rpm )
 	{
+		float ratio = 0;
 		if ( rpm > m_TorqueRPM )
-			return m_TorqueMax * ( m_RPMMax - rpm ) / ( m_RPMMax - m_TorqueRPM );
+		{
+			ratio = ( m_RPMMax - rpm ) / ( m_RPMMax - m_TorqueRPM );
+			
+			return m_TorqueMax * ratio;
+		} else
+		{
+			ratio = rpm / m_TorqueRPM;
+			
+			return m_TorqueMax * ratio;
+		}
 		
-		return ( m_TorqueMax * rpm ) / ( m_TorqueRPM );
+		float rtRatio = ratio * ( 2.0 - ratio );
+		return m_TorqueMax * rtRatio * rtRatio * ratio;
 	}
 	
 	private float LoopupPower( float rpm )

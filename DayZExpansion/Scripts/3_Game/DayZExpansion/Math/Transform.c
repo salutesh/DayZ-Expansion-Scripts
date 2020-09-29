@@ -68,15 +68,15 @@ class Transform // also known as Matrix4
 		return NULL;
 	}
 
-    void Set(int _index, vector _value)
-    {
+	void Set(int _index, vector _value)
+	{
 		data[_index] = _value;
-    }
+	}
 
-    void Set(int _index, string _value)
-    {
+	void Set(int _index, string _value)
+	{
 		data[_index] = _value.ToVector();
-    }
+	}
 	
 	vector Get(int _index)
 	{
@@ -320,15 +320,6 @@ class Transform // also known as Matrix4
 		#endif
 	}
 
-	// static void DirectionAndUp( Vector3 dir, Vector3 up, out Transform trans )
-	// {
-	//	 if ( trans == NULL )
-	//		 trans = new ref Transform;
-	// 
-	//	 Math3D.DirectionAndUpMatrix( dir.data, up.data, trans.data );
-	//	 trans.UpdateUnion();
-	// }
-
 	static void DirectionAndUp( vector dir, vector up, out Transform trans, vector pos = "0 0 0" )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -433,4 +424,4 @@ class Transform // also known as Matrix4
 		EXPrint("Transform::CopyTo - End");
 		#endif
 	}
-}
+};

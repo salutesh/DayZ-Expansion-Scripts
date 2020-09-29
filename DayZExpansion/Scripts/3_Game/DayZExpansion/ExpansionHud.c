@@ -13,4 +13,4 @@
 modded class Hud
 {
 	bool GetHudState();
-}
+};

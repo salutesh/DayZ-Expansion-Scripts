@@ -324,7 +324,7 @@ class ExpansionBoatScript extends OffroadHatchback
 
 		buoyancyForce = g_Game.CalculateBuoyancyAtPosition( GetPosition(), m_Offset, m_BodyMass, 0.5, m_LinearVelocity, isAboveWater );
 
-		float waterContactCoef = Math.Clamp( MathHelper.Sign( buoyancyForce ), 0, 1 );
+		float waterContactCoef = Math.Clamp( Math.Sign( buoyancyForce ), 0, 1 );
 
 		// thrust
 		if ( buoyancyForce > 0 )
@@ -409,10 +409,10 @@ class ExpansionBoatScript extends OffroadHatchback
 	{
 		vector friction = vector.Zero;
 
-		friction[0] = -MathHelper.SquareSign( m_LinearVelocityMS[0] ) * m_BodyMass * 0.8;
-		friction[1] = -MathHelper.SquareSign( m_LinearVelocityMS[1] ) * m_BodyMass * 0.8;
+		friction[0] = -Math.SquareSign( m_LinearVelocityMS[0] ) * m_BodyMass * 0.8;
+		friction[1] = -Math.SquareSign( m_LinearVelocityMS[1] ) * m_BodyMass * 0.8;
 
-		friction[2] = -MathHelper.SquareSign( m_LinearVelocityMS[2] ) * m_BodyMass * 0.0001;
+		friction[2] = -Math.SquareSign( m_LinearVelocityMS[2] ) * m_BodyMass * 0.0001;
 
 		return friction;
 	}

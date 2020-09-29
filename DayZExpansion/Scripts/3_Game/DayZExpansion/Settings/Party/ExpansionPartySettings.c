@@ -192,4 +192,4 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowNameOnQuickMarkers = true;
 		CanCreatePartyMarkers = true;
 	}
-}
+};

@@ -40,4 +40,4 @@ class ExpansionMarketLiquids: ExpansionMarketCategory
 		AddItem("EngineOil", 					7,		9,		1,		100,	0 );	
 		AddItem("CanisterGasoline", 			30,		32,		1,		100,	0 );
 	}
-}
+};

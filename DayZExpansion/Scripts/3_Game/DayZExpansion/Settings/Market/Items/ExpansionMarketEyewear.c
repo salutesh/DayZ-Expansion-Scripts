@@ -50,4 +50,4 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 		
 		AddItem("ExpansionMilGoggles", 				8,		10,		1,		250,	0 );
 	}
-}
+};

@@ -18,4 +18,4 @@ class ExpansionSnappingDirection
 
 	ref array< string > Allow = new array< string >;
 	ref array< int > Offset = new array< int >;
-}
+};

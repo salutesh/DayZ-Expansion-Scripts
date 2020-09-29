@@ -239,4 +239,4 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 
 		return true;
 	}
-}
+};

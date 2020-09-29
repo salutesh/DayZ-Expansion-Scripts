@@ -43,4 +43,4 @@ class ExpansionMarketLaunchers: ExpansionMarketCategory
 		AddItem("ExpansionRPG7", 		2500,		2700,		1,		250,	0 );
 		AddItem("Expansion_M79", 		2500,		2700,		1,		250,	0 );
 	}
-}
+};

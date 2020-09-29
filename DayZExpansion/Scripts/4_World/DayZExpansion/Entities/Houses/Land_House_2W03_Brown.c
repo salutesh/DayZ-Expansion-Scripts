@@ -18,9 +18,9 @@ class Land_House_2W03_Brown extends BuildingSuper
 	}
 
 	override bool HasIvys()
-    {
-        return true;
-    }
+	{
+		return true;
+	}
 	
 	override void SpawnIvys()
 	{

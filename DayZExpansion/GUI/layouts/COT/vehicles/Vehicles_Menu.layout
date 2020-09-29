@@ -224,9 +224,9 @@ PanelWidgetClass ExpansionCOTVehiclesMenu {
        hexactsize 0
        vexactsize 0
        Columns 1
-       Rows 10
+       Rows 12
        {
-        PanelWidgetClass vehicle_info_id {
+        PanelWidgetClass vehicle_info_network_id {
          ignorepointer 1
          position 0.016 0.024
          size 0.13 0.176
@@ -235,7 +235,7 @@ PanelWidgetClass ExpansionCOTVehiclesMenu {
          hexactsize 0
          vexactsize 0
          {
-          TextWidgetClass info_id_label {
+          TextWidgetClass info_network_id_label {
            ignorepointer 1
            size 0.4 1
            hexactpos 0
@@ -247,7 +247,75 @@ PanelWidgetClass ExpansionCOTVehiclesMenu {
            "text offset" 5 0
            "text valign" center
           }
-          TextWidgetClass info_id_value {
+          TextWidgetClass info_network_id_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_persistent_ab_id {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.176
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_persistent_ab_id_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Persistent ID (AB): "
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_persistent_ab_id_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_persistent_cd_id {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.176
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_persistent_cd_id_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Persistent ID (CD): "
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_persistent_cd_id_value {
            ignorepointer 1
            size 0.6 1
            halign right_ref

@@ -48,5 +48,4 @@ class ExpansionMarketMeat: ExpansionMarketCategory
 		AddItem("ChickenBreastMeat", 			5,		7,		1,		250,	0 );		
 		AddItem("RabbitLegMeat", 				5,		7,		1,		250,	0 );
 	}
-}
-
+};

@@ -59,7 +59,7 @@ class ExpansionNotificationSystem
 		EXPrint("ExpansionNotificationSystem::CreateNotification - End");
 		#endif
 	}
-}
+};
 
 static ref ExpansionNotificationSystem g_exNotificationBase;
 

@@ -73,4 +73,4 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		AddItem("Mag_Expansion_M14_10Rnd", 		15,		17,		1,		250,	0 );
 		AddItem("Mag_Expansion_M14_20Rnd", 		15,		17,		1,		250,	0 );
 	}
-}
+};

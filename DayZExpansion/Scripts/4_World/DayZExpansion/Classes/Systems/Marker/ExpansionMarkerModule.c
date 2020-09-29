@@ -22,14 +22,32 @@ class ExpansionMarkerModule: JMModuleBase
 	protected float m_TimeAccumulator = 0;
 
 	private ref array< ref Expansion3DMarker > m_3DMarkers;
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule Destructor
+	// ------------------------------------------------------------
 	void ~ExpansionMarkerModule()
 	{
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::~ExpansionMarkerModule - Start");
+		#endif
+		
 		delete m_3DMarkers;
+		
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::~ExpansionMarkerModule - End");
+		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnInit
+	// ------------------------------------------------------------
 	override void OnInit()
 	{
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::OnInit - Start");
+		#endif
+		
 		super.OnInit();
 
 		m_3DMarkers = new array< ref Expansion3DMarker>();
@@ -57,12 +75,19 @@ class ExpansionMarkerModule: JMModuleBase
 		//! Party Quickmarker
 		if ( GetExpansionSettings().GetParty().EnableQuickMarker )
 			SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+		
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::OnInit - End");
+		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnMissionLoaded
+	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - Start");
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::OnMissionLoaded - Start");
 		#endif
 
 		super.OnMissionLoaded();
@@ -119,14 +144,17 @@ class ExpansionMarkerModule: JMModuleBase
 
 		SaveLocalServerMarkers();
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - Start");
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::OnMissionLoaded - Start");
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnMissionFinish
+	// ------------------------------------------------------------
 	override void OnMissionFinish()
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::OnMissionFinish - Start");
 		#endif
 
@@ -134,26 +162,36 @@ class ExpansionMarkerModule: JMModuleBase
 
 		SaveLocalServerMarkers();
 
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::OnMissionFinish - Start");
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnSettingsUpdated
+	// ------------------------------------------------------------
 	override void OnSettingsUpdated()
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - Start");
 		#endif
 
 		Refresh();
 
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - End");
 		#endif
 	}
-		
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule SaveLocalServerMarkers
+	// ------------------------------------------------------------
 	void SaveLocalServerMarkers()
 	{
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::SaveLocalServerMarkers - Start");
+		#endif
+		
 		FileSerializer file = new FileSerializer;
 		
 		if ( file.Open( EXPANSION_CLIENT_MARKERS, FileMode.WRITE ) )
@@ -174,10 +212,21 @@ class ExpansionMarkerModule: JMModuleBase
 			
 			file.Close();
 		}
+		
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::SaveLocalServerMarkers - End");
+		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule ReadLocalServerMarkers
+	// ------------------------------------------------------------	
 	bool ReadLocalServerMarkers()
-	{		
+	{
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - Start");
+		#endif
+		
 		FileSerializer ctx = new FileSerializer;
 
 		if ( ctx.Open( EXPANSION_CLIENT_MARKERS, FileMode.READ ) )
@@ -195,6 +244,11 @@ class ExpansionMarkerModule: JMModuleBase
 				if ( Expansion_Assert_False( ctx.Read( countVis ), "[" + this + "] Failed reading m_Visibility array length" ) )
 				{
 					ctx.Close();
+					
+					#ifdef EXPANSION_MARKER_MODULE_DEBUG
+					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+					#endif
+					
 					return false;
 				}
 
@@ -204,6 +258,11 @@ class ExpansionMarkerModule: JMModuleBase
 					if ( Expansion_Assert_False( ctx.Read( vis ), "[" + this + "] Failed reading m_Visibility[" + j + "]" ) )
 					{
 						ctx.Close();
+						
+						#ifdef EXPANSION_MARKER_MODULE_DEBUG
+						EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+						#endif
+						
 						return false;
 					}
 
@@ -215,6 +274,11 @@ class ExpansionMarkerModule: JMModuleBase
 			if ( Expansion_Assert_False( ctx.Read( countArray ), "[" + this + "] Failed reading countArray" ) )
 			{
 				ctx.Close();
+				
+				#ifdef EXPANSION_MARKER_MODULE_DEBUG
+				EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+				#endif
+				
 				return false;
 			}
 
@@ -229,9 +293,22 @@ class ExpansionMarkerModule: JMModuleBase
 				int port;
 				
 				if ( Expansion_Assert_False( ctx.Read( ip ), "[" + this + "] Failed reading ip" ) )
+				{
+					#ifdef EXPANSION_MARKER_MODULE_DEBUG
+					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+					#endif
+					
 					return false;
+				}
+				
 				if ( Expansion_Assert_False( ctx.Read( port ), "[" + this + "] Failed reading port" ) )
+				{
+					#ifdef EXPANSION_MARKER_MODULE_DEBUG
+					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+					#endif
+					
 					return false;
+				}
 				
 				ExpansionMarkerClientData newServer = null;
 				for ( int i = 1; i < m_AllData.Count(); ++i )
@@ -249,6 +326,11 @@ class ExpansionMarkerModule: JMModuleBase
 				if ( !newServer.OnStoreLoad( ctx, version ) )
 				{
 					ctx.Close();
+					
+					#ifdef EXPANSION_MARKER_MODULE_DEBUG
+					EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return false");
+					#endif
+					
 					return false;
 				}
 			}
@@ -268,28 +350,48 @@ class ExpansionMarkerModule: JMModuleBase
 		//! Override quick markers, so they are always visible no matter what
 		SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::ReadLocalServerMarkers - End and return true");
+		#endif
+		
 		return true;
 	}
-   
+ 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule GetRPCMin
+	// ------------------------------------------------------------
 	override int GetRPCMin()
 	{
 		return ExpansionMarkerRPC.INVALID;
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule GetRPCMax
+	// ------------------------------------------------------------
 	override int GetRPCMax()
 	{
 		return ExpansionMarkerRPC.COUNT;
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnRPC
+	// ------------------------------------------------------------	
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
 	{
 		switch ( rpc_type )
 		{
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule CreateServerMarker
+	// ------------------------------------------------------------
 	ref ExpansionMarkerData CreateServerMarker( string name, string icon, vector position, int color, bool marker3D, string uid = "" )
 	{
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::CreateServerMarker - Start");
+		#endif
+		
 		if ( uid == "" )
 			uid = name + Math.RandomInt( 0, int.MAX );
 
@@ -304,30 +406,54 @@ class ExpansionMarkerModule: JMModuleBase
 		if ( IsMissionHost() )
 		{
 			if ( !GetExpansionSettings().GetMap() )
+			{
+				#ifdef EXPANSION_MARKER_MODULE_DEBUG
+				EXPrint("ExpansionMarkerModule::CreateServerMarker - End and return NULL");
+				#endif
+				
 				return NULL;
+			}
 
 			GetExpansionSettings().GetMap().AddServerMarker( marker );
 			GetExpansionSettings().GetMap().Send( NULL );
 
+			#ifdef EXPANSION_MARKER_MODULE_DEBUG
+			EXPrint("ExpansionMarkerModule::CreateServerMarker - End and return marker: " + marker.ToString());
+			#endif
+			
 			return marker;
 		}
 
 		// TODO: send rpc with permission system for creating on the client.
 		
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::CreateServerMarker - End and return NULL");
+		#endif
+		
 		return NULL;
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule RemoveServerMarker
+	// ------------------------------------------------------------	
 	void RemoveServerMarker( string uid )
 	{
-		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )
+		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )		
 			return;
 
-		GetExpansionSettings().GetMap().RemoveServerMarker( uid );
-		GetExpansionSettings().GetMap().Send( NULL );
+		if ( GetExpansionSettings().GetMap().RemoveServerMarker( uid ) )
+			GetExpansionSettings().GetMap().Send( NULL );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule CreateMarker
+	// ------------------------------------------------------------
 	bool CreateMarker( ref ExpansionMarkerData data )
 	{
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::CreateMarker - Start");
+		#endif
+		
 		int type = data.GetType();
 		switch ( type )
 		{
@@ -343,12 +469,19 @@ class ExpansionMarkerModule: JMModuleBase
 		}
 
 		Refresh();
+		
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::CreateMarker - End and return");
+		#endif
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule UpdateMarker
+	// ------------------------------------------------------------
 	bool UpdateMarker( ref ExpansionMarkerData data )
-	{
+	{		
 		int type = data.GetType();
 		switch ( type )
 		{
@@ -367,12 +500,18 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return true;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule GetData
+	// ------------------------------------------------------------
 	ref ExpansionMarkerClientData GetData()
 	{
 		return m_CurrentData;
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnUpdate
+	// ------------------------------------------------------------	
 	override void OnUpdate( float timeslice )
 	{
 		super.OnUpdate( timeslice );
@@ -410,17 +549,36 @@ class ExpansionMarkerModule: JMModuleBase
 			delete marker;
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule CanCreateMarker
+	// ------------------------------------------------------------
 	private bool CanCreateMarker( ExpansionMarkerData other, out Expansion3DMarker marker )
-	{
+	{		
 		if ( other.GetType() != ExpansionMapMarkerType.PARTY_QUICK )
 		{
 			if ( !other.Is3D() )
+			{
+				#ifdef EXPANSION_MARKER_MODULE_DEBUG
+				EXPrint("ExpansionMarkerModule::CanCreateMarker - End and return true");
+				#endif
 				return true;
+			}
+			
 			if ( !other.IsWorldVisible() )
+			{
+				#ifdef EXPANSION_MARKER_MODULE_DEBUG
+				EXPrint("ExpansionMarkerModule::CanCreateMarker - End and return true");
+				#endif
 				return true;
+			}
 			if ( !IsWorldVisible( other.GetType() ) )
+			{
+				#ifdef EXPANSION_MARKER_MODULE_DEBUG
+				EXPrint("ExpansionMarkerModule::CanCreateMarker - End and return true");
+				#endif
 				return true;
+			}
 		}
 
 		for ( int i = 0; i < m_3DMarkers.Count(); ++i )
@@ -429,15 +587,23 @@ class ExpansionMarkerModule: JMModuleBase
 			if ( data != NULL && data == other )
 			{
 				marker = m_3DMarkers[i];
+				
+				#ifdef EXPANSION_MARKER_MODULE_DEBUG
+				EXPrint("ExpansionMarkerModule::CanCreateMarker - End and return true");
+				#endif
+				
 				return true;
 			}
 		}
 
 		return false;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule Refresh
+	// ------------------------------------------------------------
 	void Refresh()
-	{
+	{		
 		if ( !m_CurrentData )
 			return;
 
@@ -465,7 +631,10 @@ class ExpansionMarkerModule: JMModuleBase
 		// CanCreateMarker != removal
 		// CanCreate3DMarker != removal
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule SetVisibility
+	// ------------------------------------------------------------
 	int SetVisibility( ref ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
@@ -484,7 +653,10 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return 0;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule FlipVisibility
+	// ------------------------------------------------------------
 	int FlipVisibility( ref ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
@@ -503,7 +675,10 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return 0;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule RemoveVisibility
+	// ------------------------------------------------------------
 	int RemoveVisibility( ref ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
@@ -522,7 +697,10 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return 0;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule SetVisibility
+	// ------------------------------------------------------------
 	int SetVisibility( int type, int vis )
 	{
 		type -= 1;
@@ -531,7 +709,10 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return m_Visibility[type];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule FlipVisibility
+	// ------------------------------------------------------------
 	int FlipVisibility( int type, int vis )
 	{
 		type -= 1;
@@ -546,7 +727,10 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return m_Visibility[type];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule RemoveVisibility
+	// ------------------------------------------------------------
 	int RemoveVisibility( int type, int vis )
 	{
 		type -= 1;
@@ -555,7 +739,10 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return m_Visibility[type];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule ClearVisibility
+	// ------------------------------------------------------------
 	int ClearVisibility( int type )
 	{
 		type -= 1;
@@ -563,21 +750,30 @@ class ExpansionMarkerModule: JMModuleBase
 		m_Visibility[type] = 0;
 		return m_Visibility[type];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule GetVisibility
+	// ------------------------------------------------------------
 	int GetVisibility( int type )
 	{
 		type -= 1;
 		
 		return m_Visibility[type];
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule IsVisible
+	// ------------------------------------------------------------
 	bool IsVisible( int type )
 	{
 		type -= 1;
 		
 		return m_Visibility[type] != 0;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule IsWorldVisible
+	// ------------------------------------------------------------
 	bool IsWorldVisible( int type )
 	{
 		type -= 1;
@@ -591,7 +787,10 @@ class ExpansionMarkerModule: JMModuleBase
 		
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_WORLD) != 0;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule IsMapVisible
+	// ------------------------------------------------------------
 	bool IsMapVisible( int type )
 	{
 		type -= 1;
@@ -601,4 +800,4 @@ class ExpansionMarkerModule: JMModuleBase
 
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_MAP) != 0;
 	}
-}
+};

@@ -30,4 +30,4 @@ class ExpansionServerInfoButtonData
 		this.Tooltip = tooltip;
 		this.Color = color;
 	}
-}
+};

@@ -61,20 +61,6 @@ class Quaternion
 		#endif
 	}
 
-	void ToAngles( out Vector3 vec )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Quaternion::ToAngles - Start" );
-		#endif
-		
-		if ( vec == NULL )
-			vec = new ref Vector3;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "Quaternion::ToAngles - End" );
-		#endif
-	}
-
 	void ToAngles( out vector vec )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -191,4 +177,4 @@ class Quaternion
 		#endif
 		return this;
 	}
-}
+};

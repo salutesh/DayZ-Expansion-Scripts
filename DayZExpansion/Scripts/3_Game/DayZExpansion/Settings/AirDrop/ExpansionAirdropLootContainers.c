@@ -20,4 +20,4 @@ class ExpansionAirdropLootContainers
 		Container = container;
 		Loot = loot;
 	}
-}
+};

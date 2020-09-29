@@ -755,7 +755,7 @@ class ExpansionSettings
 	{
 		return m_SettingsDebug;
 	}
-}
+};
 
 static ref ExpansionSettings g_exGlobalSettings;
 

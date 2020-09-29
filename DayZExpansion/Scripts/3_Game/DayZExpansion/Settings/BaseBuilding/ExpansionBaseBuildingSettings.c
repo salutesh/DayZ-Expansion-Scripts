@@ -253,4 +253,4 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		EXPrint("ExpansionBaseBuildingSettings::Defaults - End");
 		#endif
 	}
-}
+};

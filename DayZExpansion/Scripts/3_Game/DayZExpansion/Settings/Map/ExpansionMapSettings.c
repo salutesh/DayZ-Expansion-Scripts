@@ -34,7 +34,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool ShowDistanceOnServerMarkers;	//! Show the distance of  server markers
 	
 	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
-	//! Failure will result in ServerMarkers incurring a memory leak.
+	//! Failure will result in ServerMarkers incurring a memory leak on the client.
 	ref array< ref ExpansionMarkerData > ServerMarkers;
 	
 	[NonSerialized()]
@@ -46,14 +46,14 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	void ExpansionMapSettings()
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::ExpansionMapSettings - Start");
 		#endif
 		
 		ServerMarkers = new array< ref ExpansionMarkerData >;
 		ServerMarkersMap = new map< string, ExpansionMarkerData >;
 		
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::ExpansionMapSettings - End");
 		#endif
 	}
@@ -83,27 +83,38 @@ class ExpansionMapSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	bool RemoveServerMarker( string markerName )
+	bool RemoveServerMarker( string uid )
 	{
-		ExpansionMarkerData marker = ServerMarkersMap.Get( markerName );
-		if ( marker )
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMapSettings::RemoveServerMarker - Start");
+		#endif
+		
+		ref ExpansionMarkerData server_markerMap = ServerMarkersMap.Get( uid );
+		if ( server_markerMap )
 		{
-			int removeIndex = ServerMarkers.Find( marker );
-			if ( removeIndex != -1 )
-				ServerMarkers.Remove( removeIndex );
-
-			ServerMarkersMap.Remove( markerName );
-			delete marker;
+			ServerMarkersMap.Remove( uid );
+		
+			for ( int index = 0; index < ServerMarkers.Count(); ++index )
+			{
+				ref ExpansionMarkerData server_marker = ServerMarkers[index];
+				if ( server_marker.GetUID() == uid )
+				{
+					ServerMarkers.Remove( index );
+				}
+			}
+			
+			delete server_markerMap;
+			
 			return true;
 		}
-
+		
 		return false;
 	}
 
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::OnRecieve - Start");
 		#endif
 
@@ -169,7 +180,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 
 		ExpansionSettings.SI_Map.Invoke();
 		
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::OnRecieve - End");
 		#endif
 
@@ -210,7 +221,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::Send - Start");
 		#endif
 		
@@ -223,7 +234,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Map, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::Send - End and return");
 		#endif
 		return 0;
@@ -286,7 +297,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::Load - Start");
 		#endif
 
@@ -298,7 +309,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 
 			JsonFileLoader<ExpansionMapSettings>.JsonLoadFile( EXPANSION_MAP_SETTINGS, this );
 
-			#ifdef EXPANSIONEXPRINT
+			#ifdef EXPANSION_MARKER_MODULE_DEBUG
 			EXPrint("ExpansionMapSettings::Load - End");
 			#endif
 
@@ -314,7 +325,7 @@ class ExpansionMapSettings: ExpansionSettingBase
 		Defaults();
 		Save();
 
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::Load - End");
 		#endif
 		return false;
@@ -353,23 +364,6 @@ class ExpansionMapSettings: ExpansionSettingBase
 
 		NeedGPSItemForKeyBinding = true;
 		NeedMapItemForKeyBinding = true;
-		
-		//! Set default markers depending on map name
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) )
-		{
-			//! TODO: Chernarus Server Markers
-		} else if ( world_name.Contains( "enoch" ) )
-		{
-			//! TODO: Livonia Server Markers
-		} else if ( world_name.Contains( "deerisle" ) )
-		{
-			//! TODO: DeerIsle Server Markers
-		}
 
 		int index = 0;
 		
@@ -377,8 +371,8 @@ class ExpansionMapSettings: ExpansionSettingBase
 			if ( ServerMarkers[index] )
 				ServerMarkersMap.Insert( ServerMarkers[index].GetUID(), ServerMarkers[index] );
 
-		#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("[ExpansionMapSettings] Default settings loaded!");
 		#endif
 	}
-}
+};

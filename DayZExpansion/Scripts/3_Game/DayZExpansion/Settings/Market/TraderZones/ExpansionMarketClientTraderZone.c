@@ -73,4 +73,4 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 
 		return Stock.Get( className );
 	}
-}
+};

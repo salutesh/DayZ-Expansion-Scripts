@@ -1,5 +1,5 @@
 /**
- * EffectExpansionAirdropSmoke.c
+ * EffectExpansionParticle.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -237,4 +237,4 @@ class EffectExpansionParticle : Effect
 	{
 		m_Object = o;
 	}
-}
+};

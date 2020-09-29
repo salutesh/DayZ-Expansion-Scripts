@@ -106,4 +106,4 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 		AddItem("SkateHelmet_Green", 				5,		7,		1,		250,	0 );
 		AddItem("SkateHelmet_Red", 					5,		7,		1,		250,	0 );
 	}
-}
+};

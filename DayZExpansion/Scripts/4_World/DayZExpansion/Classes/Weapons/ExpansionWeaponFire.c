@@ -19,7 +19,7 @@ class ExpansionWeaponFireBase
 	void FireClient(Weapon_Base weapon, int muzzleIndex, DayZPlayerImplement player, vector pos, vector dir)
 	{
 	}
-}
+};
 
 bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int muzzleIndex )
 {
@@ -58,7 +58,7 @@ bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int
 	}
 
 	return true;
-}
+};
 
 class ExpansionWeaponFire extends WeaponStartAction
 {
@@ -105,7 +105,7 @@ class ExpansionWeaponFire extends WeaponStartAction
 		m_dtAccumulator = 0;
 		super.OnExit(e);
 	}
-}
+};
 
 class ExpansionWeaponFireToJam extends WeaponStartAction
 {
@@ -154,7 +154,7 @@ class ExpansionWeaponFireToJam extends WeaponStartAction
 		m_dtAccumulator = 0;
 		super.OnExit(e);
 	}
-}
+};
 
 class ExpansionWeaponFireAndChamber extends ExpansionWeaponFire
 {
@@ -173,7 +173,7 @@ class ExpansionWeaponFireAndChamber extends ExpansionWeaponFire
 			pushToChamberFromAttachedMagazine(m_weapon, mi);
 		}
 	}
-}
+};
 
 class ExpansionWeaponFireAndChamberFromInnerMagazine extends ExpansionWeaponFire
 {
@@ -192,7 +192,7 @@ class ExpansionWeaponFireAndChamberFromInnerMagazine extends ExpansionWeaponFire
 			pushToChamberFromInnerMagazine(m_weapon, mi);
 		}
 	}
-}
+};
 
 class ExpansionWeaponFireLast extends WeaponStateBase
 {
@@ -264,7 +264,7 @@ class ExpansionWeaponFireLast extends WeaponStateBase
 		m_dtAccumulator = 0;
 		super.OnExit(e);
 	}
-}
+};
 
 class ExpansionWeaponFireAndChamberNext extends WeaponStateBase
 {
@@ -325,4 +325,4 @@ class ExpansionWeaponFireAndChamberNext extends WeaponStateBase
 		m_dtAccumulator = 0;
 		super.OnExit(e);
 	}
-}
+};

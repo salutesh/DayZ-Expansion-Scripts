@@ -88,4 +88,4 @@ class ExpansionMarketHatsAndHoods: ExpansionMarketCategory
 		
 		AddItem("NBCHoodGray", 						10,		10,		1,		250,	0 );
 	}
-}
+};

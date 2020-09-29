@@ -47,4 +47,4 @@ class ExpansionMarketAssaultRifles: ExpansionMarketCategory
 		AddItem("Expansion_M16", 		160,		560,	1,		100,	0 );
 		AddItem("Expansion_G36", 		160,		560,	1,		100,	0 );
 	}
-}
+};

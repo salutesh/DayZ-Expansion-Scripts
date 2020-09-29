@@ -55,4 +55,4 @@ class ExpansionMarketShirtsAndTShirts: ExpansionMarketCategory
 		AddItem("MedicalScrubsShirt_Green", 			1,		2,		1,		250,	0 );
 		AddItem("MedicalScrubsShirt_White", 			1,		2,		1,		250,	0 );
 	}
-}
+};

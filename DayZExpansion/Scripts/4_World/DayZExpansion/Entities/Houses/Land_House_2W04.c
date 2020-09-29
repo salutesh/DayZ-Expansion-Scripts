@@ -54,13 +54,13 @@ class Land_House_2W04 extends BuildingSuper
 	
 	}
 
-    override bool HasIvys()
-    {
-        return true;
-    }
-    
-    override void SpawnIvys()
-    {
+	override bool HasIvys()
+	{
+		return true;
+	}
+	
+	override void SpawnIvys()
+	{
 		SpawnInteriorIvy( "bldr_plnt_ivy_H", "7.337287 1.300079 -1.277194", "89.999969 -60.000011 -89.999992" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_N", "4.011000 2.050125 -1.327194", "-0.000005 -87.000038 -0.000005" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_M", "-1.537092 2.200134 -1.427194", "-0.000009 -89.000046 179.999985" );
@@ -147,6 +147,6 @@ class Land_House_2W04 extends BuildingSuper
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_G", "-0.464675 -2.599854 7.637116", "-179.999985 0.000000 19.000006" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_H", "5.895384 0.100006 7.637116", "0.000000 0.000000 -112.999969" );
 		SpawnInteriorIvy( "bldr_plnt_ivy_dry_F", "0.230273 -2.700165 7.630000", "0.000000 0.000000 -179.999985" );
-    }
+	}
 
 }

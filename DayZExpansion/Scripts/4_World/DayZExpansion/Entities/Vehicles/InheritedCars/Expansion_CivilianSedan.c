@@ -1,12 +1,15 @@
-class ExpansionCivilianSedanTest extends ExpansionCarScript
+class Expansion_CivilianSedan extends ExpansionCarScript
 {
-	// ------------------------------------------------------------
+	void Expansion_CivilianSedan()
+	{
+		m_dmgContactCoef = 0.065;
+	}
+	
 	override int GetAnimInstance()
 	{
-		return ExpansionVehicleAnimInstances.EX_SEDAN;
+		return VehicleAnimInstances.SEDAN;
 	}
 
-	// ------------------------------------------------------------
 	override int GetSeatAnimationType( int posIdx )
 	{
 		switch( posIdx )
@@ -14,7 +17,7 @@ class ExpansionCivilianSedanTest extends ExpansionCarScript
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
 		case 1:
-			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
 		case 2:
 			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
 		case 3:
@@ -38,7 +41,7 @@ class ExpansionCivilianSedanTest extends ExpansionCarScript
 	
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
-		if ( !super.CanReleaseAttachment( attachment ) )
+		if( !super.CanReleaseAttachment( attachment ) )
 			return false;
 		
 		string attType = attachment.GetType();
@@ -49,6 +52,36 @@ class ExpansionCivilianSedanTest extends ExpansionCarScript
 				return false;
 		}
 
+		return true;
+	}
+	
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		//super
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+		return false;
+		//
+	
+		category_name.ToLower();
+		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		
+		if ( category_name.Contains( "engine" ) )
+		{
+			if ( GetCarDoorsState("CivSedanHood") == CarDoorState.DOORS_CLOSED )
+				return false;
+		}
+				
+		return true;
+	}
+	
+	override bool CanDisplayCargo()
+	{
+		if ( !super.CanDisplayCargo() )
+			return false;
+		
+		if ( GetCarDoorsState("CivSedanTrunk") == CarDoorState.DOORS_CLOSED )
+			return false;
+		
 		return true;
 	}
 	
@@ -327,13 +360,34 @@ class ExpansionCivilianSedanTest extends ExpansionCarScript
 		return false;		
 	}
 
-	override float EngineGetRPMMax()
+	override void OnDebugSpawn()
 	{
-		return 6800;
-	}
+		EntityAI entity;
+		
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "Expansion_CivSedanWheel" );
+			entity.GetInventory().CreateInInventory( "Expansion_CivSedanWheel" );
+			entity.GetInventory().CreateInInventory( "Expansion_CivSedanWheel" );
+			entity.GetInventory().CreateInInventory( "Expansion_CivSedanWheel" );
 
-	override float EngineGetRPMRedline()
-	{
-		return 4700;
+			entity.GetInventory().CreateInInventory( "CarBattery" );
+			entity.GetInventory().CreateInInventory( "SparkPlug" );
+			entity.GetInventory().CreateInInventory( "CarRadiator" );
+
+			entity.GetInventory().CreateInInventory( "CivSedanDoors_Driver" );
+			entity.GetInventory().CreateInInventory( "CivSedanDoors_CoDriver" );
+			entity.GetInventory().CreateInInventory( "CivSedanDoors_BackLeft" );
+			entity.GetInventory().CreateInInventory( "CivSedanDoors_BackRight" );
+			entity.GetInventory().CreateInInventory( "CivSedanHood" );
+			entity.GetInventory().CreateInInventory( "CivSedanTrunk" );
+
+			entity.GetInventory().CreateInInventory( "HeadlightH7" );
+			entity.GetInventory().CreateInInventory( "HeadlightH7" );
+		}
+
+		Fill( CarFluid.FUEL, 50 );
+		Fill( CarFluid.COOLANT, 6.0 );
+		Fill( CarFluid.OIL, 4.0 );
 	}
-}
+};

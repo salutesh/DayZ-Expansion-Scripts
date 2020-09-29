@@ -61,4 +61,4 @@ modded class EmoteManager
 		
 		super.CreateBleedingEffect( Callback_ID );
 	}
-}
+};

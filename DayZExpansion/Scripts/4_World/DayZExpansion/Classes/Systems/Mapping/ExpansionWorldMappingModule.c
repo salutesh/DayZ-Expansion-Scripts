@@ -36,35 +36,19 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionWorldMappingModule()
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::ExpansionWorldMappingModule - Start");
-		#endif
-
 		m_LightGenerators = new array< vector >;
 
 		m_Objects = new map< string, ref array< Object > >;
 		
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::ExpansionWorldMappingModule - End");
-		#endif
 	}
  	
 	// ------------------------------------------------------------
 	// ExpansionWorldMappingModule Destructor
 	// ------------------------------------------------------------
 	void ~ExpansionWorldMappingModule()
-	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::~ExpansionWorldMappingModule - Start");
-		#endif
-		
+	{		
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::~ExpansionWorldMappingModule - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -80,10 +64,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::OnMissionLoaded - Start");
-		#endif
-		
 		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
 
 		if ( !IsMissionOffline() && IsMissionClient() )
@@ -91,10 +71,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.Load, true );
 		}
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::OnMissionLoaded - End");
-		#endif
 	}
  	
 	// ------------------------------------------------------------
@@ -102,15 +78,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------   
 	override void OnMissionFinish()
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::OnMissionFinish - Start");
-		#endif
-		
 		UnloadMapping( m_Objects.GetKeyArray() );
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::OnMissionFinish - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -118,10 +86,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnSettingsUpdated()
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::OnSettingsUpdated - Start");
-		#endif
-		
 		if ( !GetExpansionSettings().GetGeneral() )
 			return;
 
@@ -131,15 +95,10 @@ class ExpansionWorldMappingModule: JMModuleBase
 		if ( GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule )
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLaterByName( this, "LoadMappings", 500 );
-		}
-		else
+		} else
 		{
 			UnloadMapping( m_Objects.GetKeyArray() );
 		}
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::OnSettingsUpdated - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -152,11 +111,8 @@ class ExpansionWorldMappingModule: JMModuleBase
 		
 		FindDifference( GetExpansionSettings().GetGeneral().Mapping.Mapping, load, unload );
 
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadMappings - load.Count() : " + load.Count() + " unload.Count() : " + unload.Count());
-		#endif
-
 		UnloadMapping( unload );
+		
 		LoadMapping( load );
 	}
 	
@@ -165,16 +121,8 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void FindDifference( TStringArray newFiles, out TStringArray load, out TStringArray unload )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::FindDifference - Start");
-		#endif
-		
 		for ( int i = 0; i < newFiles.Count(); ++i )
 		{
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint("ExpansionWorldMappingModule::FindDifference newFiles[" + i +  "] : " + newFiles[i]);
-			#endif
-
 			if ( !m_Objects.Contains( newFiles[i] ) )
 			{
 				load.Insert( newFiles[i] );
@@ -184,19 +132,11 @@ class ExpansionWorldMappingModule: JMModuleBase
 		for ( int j = 0; j < m_Objects.Count(); ++j )
 		{
 			string objName = m_Objects.GetKey( j );
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint("ExpansionWorldMappingModule::FindDifference m_Objects[" + j +  "] : " + objName );
-			#endif
-
 			if ( newFiles.Find( objName ) == -1 )
 			{
 				unload.Insert( objName );
 			}
 		}
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::FindDifference - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -204,10 +144,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void LoadMapping( TStringArray files )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - Start files.Count() : " + files.Count());
-		#endif
-		
 		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
 		
 		if ( m_InteriorModule )
@@ -221,10 +157,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 			
 			m_InteriorModule.SaveCachedCollisions();
 		}
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadMapping - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -232,20 +164,12 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void UnloadMapping( TStringArray files )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::UnloadMapping - Start");
-		#endif
-		
 		for ( int i = 0; i < files.Count(); i++ )
 		{
 			array< Object > objects = m_Objects.Get( files[i] );
 			
 			if ( objects )
 			{
-				#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-				EXLogPrint("ExpansionWorldMappingModule::UnloadMapping start file : " + files[i]);
-				#endif
-
 				for ( int j = 0; j < objects.Count(); j++ )
 				{
 					if ( objects[j] && !objects[j].ToDelete() )
@@ -254,16 +178,8 @@ class ExpansionWorldMappingModule: JMModuleBase
 				
 				objects.Clear();
 				m_Objects.Remove( files[i] );
-
-				#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-				EXLogPrint("ExpansionWorldMappingModule::UnloadMapping end file : " + files[i]);
-				#endif
 			} 
 		}
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::UnloadMapping - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -271,18 +187,10 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------		
 	private void DeleteMapObjects( TStringArray files )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::DeleteMapObjects - Start");
-		#endif
-		
 		for ( int i = 0; i < files.Count(); i++ )
 		{
 			LoadToDeleteFile( files[i] );
 		}
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::DeleteMapObjects - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -290,10 +198,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private string AdjustWorldName( string name )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::AdjustWorldName - Start");
-		#endif
-		
 		string nName = name;
 		nName.ToLower();
 		if ( nName.Contains( "chernarusplus" ) )
@@ -302,31 +206,15 @@ class ExpansionWorldMappingModule: JMModuleBase
 		}
 
 		return nName;
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::AdjustWorldName - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion GetObjectFromFile
 	// ------------------------------------------------------------
 	private bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out string special = "false" )
-	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - Start");
-		#endif
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		//EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - Handle file: " + file.ToString());
-		#endif
-		
+	{		
 		string line;
 		int lineSize = FGets( file, line );
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - Line: " + line);
-		#endif
 		
 		if ( lineSize < 1 )
 			return false;
@@ -338,17 +226,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 		position = tokens.Get( 1 ).ToVector();
 		rotation = tokens.Get( 2 ).ToVector();	
 		special = tokens.Get( 3 );
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - name: " + name);
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - position: " + position.ToString());
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - rotation: " + position.ToString());
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - special: " + special);
-		#endif
-		
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::GetObjectFromFile - End");
-		#endif
 
 		return true;
 	}
@@ -370,10 +247,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void LoadFile( string name )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadFile - Start name : " + name);
-		#endif
-
 		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
 		
 		if (!m_InteriorModule)
@@ -399,10 +272,10 @@ class ExpansionWorldMappingModule: JMModuleBase
 			Object obj;
 			if (!m_InteriorModule.m_CachedCollision.Find(className, collisionBox))
 			{
-				#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-				EXLogPrint("Spawning object with chached collition: " + className + " on pos: " + position.ToString());
-				#endif
 				obj = GetGame().CreateObjectEx( className, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_LOCAL );
+				
+				if (!obj)
+					continue;
 				
 				obj.SetFlags(EntityFlags.STATIC, false);
 				
@@ -411,57 +284,38 @@ class ExpansionWorldMappingModule: JMModuleBase
 				
 				if( rotation )
 					obj.SetOrientation( rotation );
-
-				//FixObjectCollision( obj );
-
-				/*if ( obj.CanAffectPathgraph() )
-				{
-					obj.SetAffectPathgraph( true, false );
-					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
-				}*/
 				
-				#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-				EXLogPrint("Succesfully spawned object with chached collition: " + className + " on pos: " + position.ToString());
-				#endif
 				if ( !obj )
 				{
 					m_InteriorModule.m_CachedCollision.Insert( className, false );
 					continue;
 				}
-				/*
-				BuildingBase buildingBase = BuildingBase.Cast(obj);
-				if (buildingBase)
-					buildingBase.RemoveFromInteriorsBuildings();*/
 				
 				vector minMax[2];
 				collisionBox = obj.GetCollisionBox(minMax);
 				
 				m_InteriorModule.m_CachedCollision.Insert(className, collisionBox);
 				
-				GetGame().ObjectDelete(obj);
+				int delay = Math.RandomInt(1, 100);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, delay, false, obj);
 			}
-			
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "ExpansionWorldMappingModule::LoadFile Attempt to create object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
-			#endif
 
 			//! Only spawn object with collision at server side, and object without collision at client side 
-			if (collisionBox && IsMissionClient() && GetGame().IsMultiplayer()) continue;
-			if (!collisionBox && IsMissionHost() && GetGame().IsMultiplayer()) continue;
+			if (collisionBox && IsMissionClient() && GetGame().IsMultiplayer()) 
+				continue;
+			if (!collisionBox && IsMissionHost() && GetGame().IsMultiplayer()) 
+				continue;
 			
 			int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 			if ( IsMissionClient() )
 				flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_LOCAL;
 			
 			obj = GetGame().CreateObjectEx( className, position, flags );
-			if ( !obj )
+			
+			if ( !obj ) 
 				continue;
 			
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "ExpansionWorldMappingModule::LoadFile Created object " + className + " collision : " + collisionBox + " at " + position + " from file:" + filePath + ".");
-			#endif
-			
-			obj.SetFlags(EntityFlags.STATIC, false);
+			//obj.SetFlags(EntityFlags.STATIC, false);
 						
 			obj.SetPosition( position );
 			obj.SetOrientation( rotation );
@@ -498,10 +352,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 		m_Objects.Insert( name, objects );
 
 		CloseFile( file );
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadFile - End name : " + name);
-		#endif
 	}
 		
 	// ------------------------------------------------------------
@@ -558,20 +408,11 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void ProcessObject( Object obj )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint( "Try to process mapping object: " + obj.ClassName() );
-		#endif
-
 		if ( obj.IsInherited( ExpansionPointLight ) )
 		{
 			ExpansionPointLight light = ExpansionPointLight.Cast( obj );
 			if ( light )
 				light.SetDiffuseColor(1,0,0);
-			
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as ExpansionPointLight!" );
-			#endif
-
 		} else if ( obj.IsKindOf( "Fireplace" ) )
 		{
 			Fireplace fireplace = Fireplace.Cast( obj );
@@ -582,11 +423,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.GetInventory().CreateAttachment, 60 * 1000, true, "WoodenStick");
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.StartFire, 60 * 1000, true);
 			}
-
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as Fireplace!" );
-			#endif
-
 		} else if ( obj.IsInherited( BarrelHoles_ColorBase ) )
 		{
 			BarrelHoles_Red barrel = BarrelHoles_Red.Cast( obj );
@@ -599,11 +435,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.GetInventory().CreateAttachment, 60 * 1000, true, "WoodenStick");
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.StartFire, 60 * 1000, true);
 			}
-
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as BarrelHoles_ColorBase!" );
-			#endif
-
 		} else if ( obj.IsKindOf( "Roadflare" ) )
 		{
 			Roadflare flare = Roadflare.Cast( obj );
@@ -613,16 +444,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 				flare.GetCompEM().SwitchOn();
 				flare.SwitchLight(false); //! Flickering
 			}
-
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as Roadflare!" );
-			#endif
-
-		} else
-		{
-			#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + " as Default!" );
-			#endif
 		}
 	}
 	
@@ -631,14 +452,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void LoadToDeleteFile( string name )
 	{
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadFile - Start");
-		#endif
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint( "Attempting to load mapping file: " + name );
-		#endif
-
 		Object obj;
 		string className;
 		vector position;
@@ -676,14 +489,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 		}
 
 		CloseFile( file );
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint( "Created all objects from mapping file: " + filePath );
-		#endif
-
-		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
-		EXLogPrint("ExpansionWorldMappingModule::LoadFile - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -828,4 +633,4 @@ class ExpansionWorldMappingModule: JMModuleBase
 		EXLogPrint("TurnOffGenerator - End - " + position );
 		#endif
 	}
-}
+};

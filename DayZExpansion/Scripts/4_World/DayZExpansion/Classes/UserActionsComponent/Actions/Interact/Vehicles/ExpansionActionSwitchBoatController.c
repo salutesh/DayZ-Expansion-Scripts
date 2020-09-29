@@ -12,7 +12,7 @@
 
 class ExpansionActionSwitchBoatController: ActionInteractBase
 {
-	private ExpansionBoatScript m_Boat;
+	private bool m_IsUsing;
 
 	void ExpansionActionSwitchBoatController()
 	{
@@ -29,7 +29,7 @@ class ExpansionActionSwitchBoatController: ActionInteractBase
 
 	override string GetText()
 	{
-		if ( m_Boat.IsUsingBoatController() )
+		if ( m_IsUsing )
 			return "#STR_EXPANSION_VEHICLE_BOAT_TOGGLE_MOTOR_OFF";
 
 		return "#STR_EXPANSION_VEHICLE_BOAT_TOGGLE_MOTOR_ON";
@@ -37,19 +37,16 @@ class ExpansionActionSwitchBoatController: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-
-		if ( vehCommand )
+		ExpansionBoatScript boat;
+		if ( Class.CastTo( boat, player.GetParent() ) )
 		{
-			if ( Class.CastTo( m_Boat, vehCommand.GetTransport() ) )
+			m_IsUsing = boat.IsUsingBoatController();
+			if ( boat.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
-				if ( m_Boat.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-				{
-					if ( m_Boat.EngineIsOn() || m_Boat.MotorIsOn() )
-						return false;
+				if ( boat.EngineIsOn() || boat.MotorIsOn() )
+					return false;
 
-					return m_Boat.IsCar();
-				}
+				return boat.IsCar();
 			}
 		}
 
@@ -60,7 +57,9 @@ class ExpansionActionSwitchBoatController: ActionInteractBase
 	{
 		if ( IsMissionClient() && !action_data.m_WasExecuted )
 		{
-			m_Boat.SetUsingBoatController( !m_Boat.IsUsingBoatController() );
+			ExpansionBoatScript boat;
+			if ( Class.CastTo( boat, action_data.m_Player.GetParent() ) )
+				boat.SetUsingBoatController( !boat.IsUsingBoatController() );
 		}
 		
 		super.OnAnimationEvent( action_data );

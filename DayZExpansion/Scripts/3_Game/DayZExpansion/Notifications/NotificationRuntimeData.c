@@ -13,4 +13,4 @@
 modded class NotificationRuntimeData
 {
 	bool m_LeaveJoinNotif = false;
-}
+};

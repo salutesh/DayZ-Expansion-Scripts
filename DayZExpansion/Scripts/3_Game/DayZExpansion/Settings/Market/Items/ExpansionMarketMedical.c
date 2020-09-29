@@ -59,4 +59,4 @@ class ExpansionMarketMedical: ExpansionMarketCategory
 		AddItem("Epinephrine", 					2,		4,		1,		250,	0 );
 		AddItem("Morphine", 					3,		5,		1,		250,	0 );
 	}
-}
+};

@@ -14,4 +14,4 @@ enum ExpansionMarkerRPC
 {
 	INVALID = 20160,
 	COUNT
-}
+};

@@ -14,9 +14,9 @@ class ExpansionUniversalWheel: CarWheel
 		string wheelType = car.ExpansionGetWheelType(slot_id);
 				
 		if (GetGame().IsMultiplayer())
-			parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, new CarWheelChangeLambda(this, wheelType));
+			parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, new ExpansionCarWheelChangeLambda(this, wheelType));
 	//	else
-		//	parent.GetInventory().ReplaceItemWithNew(InventoryMode.LOCAL, new CarWheelChangeLambda(this, wheelType));
+		//	parent.GetInventory().ReplaceItemWithNew(InventoryMode.LOCAL, new ExpansionCarWheelChangeLambda(this, wheelType));
 		
 
 	};
@@ -30,7 +30,7 @@ modded class HatchbackWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		if (GetGame().IsMultiplayer())
 			parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 		//else
@@ -46,7 +46,7 @@ modded class Sedan_02_Wheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -59,7 +59,7 @@ modded class CivSedanWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -72,7 +72,7 @@ modded class Hatchback_02_Wheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -85,7 +85,7 @@ class ExpansionUAZWheel extends CarWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -98,7 +98,7 @@ class ExpansionBusWheel extends CarWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -111,7 +111,7 @@ class ExpansionBusWheelDouble extends CarWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -124,7 +124,7 @@ class ExpansionTractorFrontWheel extends CarWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
@@ -137,7 +137,7 @@ class ExpansionTractorBackWheel extends CarWheel
 	}
 	void ConvertWheel(EntityAI parent, int slot_id)
 	{		
-		CarWheelChangeLambda lambda = new CarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };

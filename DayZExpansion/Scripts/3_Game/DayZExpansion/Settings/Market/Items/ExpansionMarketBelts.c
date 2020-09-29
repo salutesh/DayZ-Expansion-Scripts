@@ -41,4 +41,4 @@ class ExpansionMarketBelts: ExpansionMarketCategory
 		AddItem("CivilianBelt",		5,		10,		1,		250,	0 );
 		AddItem("MilitaryBelt", 	5,		10,		1,		250,	0 );
 	}
-}
+};

@@ -32,4 +32,4 @@ enum ExpansionMarketModuleRPC
 	DeleteMoney,
 	UnlockMoney,
 	COUNT
-}
+};

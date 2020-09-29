@@ -12,8 +12,9 @@
 
 class ExpansionActionPairKey: ActionInteractBase
 {
-	protected CarScript m_Car;
-	protected ExpansionCarKey m_KeysInHand;
+	//! DO NOT STORE VARIABLES FOR SERVER SIDE OPERATION
+
+	private bool m_IsGlitched;
 
 	void ExpansionActionPairKey()
 	{
@@ -28,54 +29,58 @@ class ExpansionActionPairKey: ActionInteractBase
 
 	override string GetText()
 	{
+		if ( m_IsGlitched )
+			return "#STR_EXPANSION_PAIR_KEY [Fix Glitch]";
+
 		return "#STR_EXPANSION_PAIR_KEY";
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Car = NULL;
-		m_KeysInHand = NULL;
+		CarScript car;
+		ExpansionCarKey key;
 
-		if ( !target || !player )
+		if ( player.GetCommand_Vehicle() ) //! don't pair if we are inside the car
 			return false;
 
-		if ( !Class.CastTo( m_Car, target.GetObject() ) )
-		{
+		if ( !Class.CastTo( car, target.GetObject() ) )
 			return false;
-		}
 
-		if ( !Class.CastTo( m_KeysInHand, player.GetItemInHands() ) )
-		{
+		if ( !Class.CastTo( key, player.GetItemInHands() ) )
 			return false;
-		}
-
-		if ( m_Car.HasKey() )
-		{
-			return false;
-		}
-
-		if ( m_KeysInHand.IsPaired() )
-		{
-			return false;
-		}
 		
-		if ( m_KeysInHand.IsInherited( ExpansionCarAdminKey ) )
-		{
+		if ( key.IsInherited( ExpansionCarAdminKey ) )
 			return false;
+
+		if ( key.IsPaired() && !car.HasKey() ) //! key is paired to something, car doesn't have a key
+		{
+			if ( !key.IsPairedTo( car ) ) //! the key is not paired to the car
+				return false;
+
+			//! the key is paired to the car but the car has no key, we are glitched.
+			m_IsGlitched = true;
+		} else
+		{
+			if ( car.HasKey() ) //! car has a key
+				return false;
+
+			if ( key.IsPaired() ) //! key is paired
+				return false;
 		}
 		
 		return true;
 	}
 
-	override void Start( ActionData action_data )
+	override void OnStartServer( ActionData action_data )
 	{
-		super.Start( action_data );
+		super.OnStartServer( action_data );
 
-		m_Car.PairKeyTo( m_KeysInHand );
+		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
+		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
 	}
 
 	override bool CanBeUsedInRestrain()
 	{
 		return false;
 	}
-}
+};

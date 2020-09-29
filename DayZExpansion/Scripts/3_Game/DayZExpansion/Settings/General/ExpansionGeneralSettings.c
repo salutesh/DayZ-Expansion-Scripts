@@ -269,4 +269,4 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");
 		#endif
 	}
-}
+};

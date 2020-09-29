@@ -53,4 +53,4 @@ class ExpansionMarketLights: ExpansionMarketCategory
 		AddItem("Headtorch_Grey", 				4,		8,		1,		250,	0 );
 		AddItem("Spotlight", 					50,		54,		1,		250,	0 );
 	}
-}
+};

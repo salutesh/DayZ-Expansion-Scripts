@@ -63,4 +63,4 @@ class ExpansionMarketWorldTraderZone: ExpansionMarketTraderZone
 			SetStock( vehicles[v], 5 );
 		}		
 	}
-}
+};

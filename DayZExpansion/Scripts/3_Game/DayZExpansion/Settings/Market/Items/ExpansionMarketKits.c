@@ -41,4 +41,4 @@ class ExpansionMarketKits: ExpansionMarketCategory
 		AddItem("LeatherSewingKit", 			5,		7,		1,		500,	0 );
 		AddItem("WeaponCleaningKit", 			7,		9,		1,		500,	0 );
 	}
-}
+};

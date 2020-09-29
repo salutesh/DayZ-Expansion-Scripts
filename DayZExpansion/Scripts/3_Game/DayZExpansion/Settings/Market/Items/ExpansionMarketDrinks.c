@@ -46,4 +46,4 @@ class ExpansionMarketDrinks: ExpansionMarketCategory
 		AddItem("SodaCan_Kvass", 			20,			22,			1,		250,	0 );
 		AddItem("ExpansionMilkBottle", 		5,			5,			1,		250,	0 );
 	}
-}
+};

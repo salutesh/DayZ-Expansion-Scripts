@@ -29,4 +29,4 @@ class ExpansionServerInfos
 		this.ServerSections = sections;
 		this.ServerName = name;
 	}
-}
+};

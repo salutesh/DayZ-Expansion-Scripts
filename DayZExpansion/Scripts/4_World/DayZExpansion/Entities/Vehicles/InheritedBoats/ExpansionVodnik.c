@@ -46,7 +46,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		EXPrint("ExpansionVodnik::GetAnimInstance");
 		#endif
 
-		return ExpansionVehicleAnimInstances.EX_SEDAN;
+		return ExpansionVehicleAnimInstances.EXPANSION_VODNIK;
 	}
 
 	// ------------------------------------------------------------

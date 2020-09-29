@@ -125,4 +125,4 @@ modded class Construction
 		EXLogPrint("Construction::GetConstructionPartsToBuild - End");
 		#endif
 	}
-}
+};

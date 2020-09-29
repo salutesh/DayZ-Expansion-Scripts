@@ -45,4 +45,4 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 		AddItem("BaseballBat", 				4,		6,		1,		250,	0 );
 		AddItem("NailedBaseballBat", 		5,		7,		1,		250,	0 );
 	}
-}
+};

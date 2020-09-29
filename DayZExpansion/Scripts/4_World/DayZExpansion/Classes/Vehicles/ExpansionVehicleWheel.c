@@ -53,6 +53,7 @@ class ExpansionVehicleWheel
 	private float m_SuspensionLengthPrevious;
 	
 	private float m_SuspensionFraction;
+	private float m_SuspensionDistance;
 	private float m_RestLength;
 
 	private float m_SuspensionForce;
@@ -381,6 +382,12 @@ class ExpansionVehicleWheel
 				m_HasContact = false;
 			} else
 			{
+				if ( wheelDiff >= -0.75 )
+				{
+					m_ContactNormalWS = "0 1 0";
+					m_ContactNormal = m_ContactNormalWS.InvMultiply3( m_Vehicle.m_Transform.data );
+				}
+				
 				m_ContactVelocity = m_Vehicle.GetModelVelocityAt( m_ContactPosition );
 				
 				float invWheelDiff = -1.0 / wheelDiff;
@@ -393,6 +400,9 @@ class ExpansionVehicleWheel
 			ExpansionDebugUI( "wheelDiff: " + wheelDiff );
 			ExpansionDebugUI( "inv contact: " + m_SuspensionInvContact );
 			ExpansionDebugUI( "rel vel: " + m_SuspensionRelativeVelocity );
+		} else
+		{
+			m_ContactFraction = 1.0;
 		}
 
 		if ( !m_HasContact )
@@ -407,8 +417,6 @@ class ExpansionVehicleWheel
 
 			m_ContactPosition = m_RayEndMS;
 			m_ContactNormal = -m_WheelDirectionMS;
-
-			m_ContactFraction = 1.0;
 			
 			m_Surface = "";
 		} else
@@ -466,6 +474,8 @@ class ExpansionVehicleWheel
 			float kd = m_Axle.GetDamping();
 
 			float suspDist = ( m_Axle.GetTravelMax() - suspLength ) - m_Axle.GetTravelMaxDown();
+			if ( suspDist < 0 )
+				suspDist = 0;
 			m_SuspensionForce = suspDist * ks * m_SuspensionInvContact;
 
 			float damping = m_SuspensionRelativeVelocity * kc;

@@ -68,4 +68,4 @@ class ExpansionMarketCaps: ExpansionMarketCategory
 		
 		AddItem("PrisonerCap", 						3,		3,		1,		100,	0 );
 	}
-}
+};

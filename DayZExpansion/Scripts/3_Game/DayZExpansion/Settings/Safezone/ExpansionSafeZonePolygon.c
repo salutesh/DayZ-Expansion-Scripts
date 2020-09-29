@@ -105,4 +105,4 @@ class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 
 		return false;
 	}
-}
+};

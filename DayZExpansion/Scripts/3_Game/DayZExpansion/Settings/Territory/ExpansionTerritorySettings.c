@@ -184,4 +184,4 @@ class ExpansionTerritorySettings: ExpansionSettingBase
 		EXPrint("ExpansionTerritorySettings::Defaults - End");
 		#endif
 	}
-}
+};

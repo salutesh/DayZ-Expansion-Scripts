@@ -29,4 +29,4 @@ class ExpansionMarketShotguns: ExpansionMarketCategory
 		AddItem("Saiga", 					50,		52,		1,		250,	0 );
 		AddItem("Expansion_BenelliM4", 		200,	22,		1,		250,	0 );
 	}
-}
+};

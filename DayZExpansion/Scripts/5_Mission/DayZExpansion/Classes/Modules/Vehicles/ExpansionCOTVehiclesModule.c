@@ -25,6 +25,12 @@ class ExpansionVehicleMetaData
 {
 	int m_NetworkIDLow;
 	int m_NetworkIDHigh;
+
+	int m_PersistentIDA;
+	int m_PersistentIDB;
+	int m_PersistentIDC;
+	int m_PersistentIDD;
+
 	string m_ClassName;
 	vector m_Position;
 	vector m_Orientation;
@@ -34,31 +40,40 @@ class ExpansionVehicleMetaData
 
 	bool m_HasKeys;
 	
-	void ExpansionVehicleMetaData( CarScript car )
+	static ref ExpansionVehicleMetaData CreateCarScript( CarScript car )
 	{
-		car.GetNetworkID( m_NetworkIDLow, m_NetworkIDHigh );
+		ref ExpansionVehicleMetaData meta = new ExpansionVehicleMetaData();
 
-		m_ClassName = car.ClassName();
-		m_Position = car.GetPosition();
-		m_Orientation = car.GetOrientation();
-
-		m_VehicleType = EXVT_NONE;
-		if ( car.IsCar() )
-			m_VehicleType |= EXVT_CAR;
-		if ( car.IsBoat() )
-			m_VehicleType |= EXVT_BOAT;
-		if ( car.IsHelicopter() )
-			m_VehicleType |= EXVT_HELICOPTER;
-		if ( car.IsPlane() )
-			m_VehicleType |= EXVT_PLANE;
+		car.GetNetworkID( meta.m_NetworkIDLow, meta.m_NetworkIDHigh );
 		
-		m_DestructionType = EXDT_NONE;
-		if ( car.IsExploded() )
-			m_DestructionType |= EXDT_EXPLODED;
-		if ( car.IsExploded() )
-			m_DestructionType |= EXDT_DESTROYED;
+		meta.m_PersistentIDA = car.GetPersistentIDA();
+		meta.m_PersistentIDB = car.GetPersistentIDB();
+		meta.m_PersistentIDC = car.GetPersistentIDC();
+		meta.m_PersistentIDD = car.GetPersistentIDD();
 
-		m_HasKeys = car.HasKey();
+		meta.m_ClassName = car.ClassName();
+		meta.m_Position = car.GetPosition();
+		meta.m_Orientation = car.GetOrientation();
+
+		meta.m_VehicleType = EXVT_NONE;
+		if ( car.IsCar() )
+			meta.m_VehicleType |= EXVT_CAR;
+		if ( car.IsBoat() )
+			meta.m_VehicleType |= EXVT_BOAT;
+		if ( car.IsHelicopter() )
+			meta.m_VehicleType |= EXVT_HELICOPTER;
+		if ( car.IsPlane() )
+			meta.m_VehicleType |= EXVT_PLANE;
+		
+		meta.m_DestructionType = EXDT_NONE;
+		if ( car.IsExploded() )
+			meta.m_DestructionType |= EXDT_EXPLODED;
+		if ( car.IsExploded() )
+			meta.m_DestructionType |= EXDT_DESTROYED;
+
+		meta.m_HasKeys = car.HasKey();
+
+		return meta;
 	}
 
 	string GetVehicleType()
@@ -110,7 +125,7 @@ class ExpansionVehicleMetaData
 	{
 		return m_DestructionType & EXDT_EXPLODED;
 	}
-}
+};
 
 class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 {
@@ -206,7 +221,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 			if ( !car ) // should not be possible
 				continue;
 
-			m_Vehicles.Insert( new ExpansionVehicleMetaData( car ) );
+			m_Vehicles.Insert( ExpansionVehicleMetaData.CreateCarScript( car ) );
 		}
 	}
 	
@@ -528,4 +543,4 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		return m_Vehicles;
 	}
-}
+};
