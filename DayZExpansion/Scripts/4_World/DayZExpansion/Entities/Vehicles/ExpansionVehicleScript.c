@@ -587,6 +587,7 @@ class ExpansionVehicleScript extends ItemBase
 	
 	int stateF = -1;
 	int stateB = -1;
+	float stateTime = 0;
 
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
@@ -771,7 +772,7 @@ class ExpansionVehicleScript extends ItemBase
 			
 			m_NetworkClientSideServerProcessing = false;
 
-			float predictionDelta = 40.0 * ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 1000.0;
+			float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
 
 			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, predictionDelta, m_SyncState.m_PredictedTransform );
 
@@ -851,6 +852,7 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	override bool OnNetworkTransformUpdate( out vector pos, out vector ypr )
 	{
+		//! Is 'm_NetworkClientSideServerProcessing' being flipped somehow in network transfer? Who knows, but this works.
 		if (m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT && m_NetworkClientSideServerProcessing)
 		{
 			vector newPos = pos;
@@ -858,32 +860,22 @@ class ExpansionVehicleScript extends ItemBase
 			
 			if (!m_IsPhysicsHost)
 			{
-				m_SyncState.m_LinearVelocity = m_SyncState.m_Position - newPos;
-				m_SyncState.m_AngularVelocity = m_SyncState.m_Orientation - newOrientation;
-			}
-			
-			m_SyncState.m_Position = newPos;
-			m_SyncState.m_Orientation = newOrientation;
-			
-			if (!m_IsPhysicsHost)
-			{
-				float dt = 40.0 * ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 1000.0;
-				if ( dt == 0 )
-					dt = 0.0;
-				else
-					dt = 1.0 / dt;
-				
-				m_SyncState.m_LinearVelocity = m_SyncState.m_LinearVelocity * dt;
-				m_SyncState.m_AngularVelocity = m_SyncState.m_AngularVelocity * dt * Math.DEG2RAD;
+				float dt = ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 40.0;
+
+				m_SyncState.m_LinearVelocity = ( m_SyncState.m_Position - newPos ) * dt;
+				m_SyncState.m_AngularVelocity = ( m_SyncState.m_Orientation - newOrientation ) * dt * Math.DEG2RAD;
 				
 				m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
 				m_SyncState.m_Time = GetTimeForSync();
 				m_SyncState.m_TimeDelta = 0;
 				
-				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform.data );
-				m_SyncState.m_InitialTransform.data[3] = m_SyncState.m_Position;
+				Math3D.YawPitchRollMatrix( newOrientation, m_SyncState.m_InitialTransform.data );
+				m_SyncState.m_InitialTransform.data[3] = newPos;
 				m_SyncState.m_InitialTransform.UpdateUnion();
 			}
+			
+			m_SyncState.m_Position = newPos;
+			m_SyncState.m_Orientation = newOrientation;
 
 			pos = GetPosition();
 			ypr = GetOrientation() * Math.DEG2RAD;
