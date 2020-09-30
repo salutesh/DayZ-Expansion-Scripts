@@ -125,6 +125,8 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		PlayerAttachment = s.PlayerAttachment;
 		Towing = s.Towing;
 
+		DebugVehicleSync = s.DebugVehicleSync;
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
 		#endif

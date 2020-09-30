@@ -119,7 +119,7 @@ class ExpansionPhysics
 
 		vector m1[];
 		Math3D.YawPitchRollMatrix( angVel * timestep, m1 );
-		Math3D.MatrixInvMultiply3( curTrans, m1, predictedTrans );
+		Math3D.MatrixMultiply3( curTrans, m1, predictedTrans );
 
 		predictedTrans[3] = curTrans[3] + ( linVel * timestep );
 
