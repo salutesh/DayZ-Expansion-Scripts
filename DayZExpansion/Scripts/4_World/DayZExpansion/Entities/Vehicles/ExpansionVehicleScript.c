@@ -780,7 +780,7 @@ class ExpansionVehicleScript extends ItemBase
 
 			SetSynchDirty();
 
-			SetTransform( m_SyncState.m_PredictedTransform );
+			SetTransform( m_SyncState.m_InitialTransform );
 		}
 		
 		if ( stateF != stateB )
@@ -873,7 +873,7 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = GetTimeForSync();
 				m_SyncState.m_TimeDelta = 0;
 
-				m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * ( 1.0 / dt );
+				m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * dt;
 
 				vector m1[];
 				vector m2[];
