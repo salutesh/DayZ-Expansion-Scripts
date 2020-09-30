@@ -774,13 +774,29 @@ class ExpansionVehicleScript extends ItemBase
 			if ( IsMissionHost() )
 				m_NetworkClientSideServerProcessing = false;
 
-			float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
+			bool doInterp = false;
 
-			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
+			if ( GetGame().IsServer() )
+				if ( GetExpansionSettings().GetVehicle().DebugVehicleSync == 1 || GetExpansionSettings().GetVehicle().DebugVehicleSync == 2 )
+					doInterp = true;
+
+			if ( GetGame().IsClient() )
+				if ( GetExpansionSettings().GetVehicle().DebugVehicleSync == 0 || GetExpansionSettings().GetVehicle().DebugVehicleSync == 2 )
+					doInterp = true;
+
+			if ( doInterp )
+			{
+				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
+
+				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
+
+				SetTransform( m_SyncState.m_PredictedTransform );
+			} else
+			{
+				SetTransform( m_SyncState.m_InitialTransform );
+			}
 
 			SetSynchDirty();
-
-			SetTransform( m_SyncState.m_InitialTransform );
 		}
 		
 		if ( stateF != stateB )

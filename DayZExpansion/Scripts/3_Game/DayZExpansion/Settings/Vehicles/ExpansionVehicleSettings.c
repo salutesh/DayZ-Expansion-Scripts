@@ -28,6 +28,8 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	bool PlayerAttachment;								//! If enabled, allow players to be attached to vehicles while in movement
 	bool Towing;										//! If enabled, allow vehicle to tow other vehicles
 	
+	int DebugVehicleSync;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
