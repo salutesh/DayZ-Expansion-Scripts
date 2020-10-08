@@ -24,6 +24,10 @@ class ExpansionVehicleCrew
 
 	private DayZPlayerImplement m_Player;
 
+	private bool m_Occupied;
+	private int m_NetworkIDLow;
+	private int m_NetworkIDHigh;
+
 	private vector m_SeatTransform[4];
 
 	void ExpansionVehicleCrew( ExpansionVehicleScript vehicle, string name )
@@ -129,11 +133,27 @@ class ExpansionVehicleCrew
 	void SetPlayer( DayZPlayerImplement player )
 	{
 		m_Player = player;
+
+		m_Occupied = m_Player != NULL;
+		
+		if ( m_Occupied )
+			m_Player.GetNetworkID( m_NetworkIDLow, m_NetworkIDHigh );
 	}
 
 	DayZPlayerImplement GetPlayer()
 	{
 		return m_Player;
+	}
+
+	void OnVariablesSynchronized()
+	{
+		if ( m_Occupied )
+		{
+			m_Player = GetGame().GetObjectByNetworkId( m_NetworkIDLow, m_NetworkIDHigh );
+		} else
+		{
+			m_Player = NULL;
+		}
 	}
 
 	/**

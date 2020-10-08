@@ -142,14 +142,28 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion FindChar
+	// ------------------------------------------------------------	
+	bool FindChar( string key, string word )
+	{
+		for ( int i = 0; i < word.Length(); ++i )
+		{
+			if ( word[i] == key )
+				return true;
+		}
+
+		return false;
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion ConfirmTerritoryCreation
 	// ------------------------------------------------------------	
 	void ConfirmTerritoryCreation()
 	{
 		string territoryName = m_TerritoryNameEditbox.GetText();
 		
-		//! Territory name cant be empty
-		if ( territoryName == "" || territoryName[0] == "!" )
+		//! Territory name can't be empty or have a "!"
+		if ( territoryName == "" || FindChar("!",territoryName) )
 		{
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, player.GetIdentity() );

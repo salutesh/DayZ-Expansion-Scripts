@@ -440,8 +440,37 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// Expansion MaxDefaultMissions
 	// ------------------------------------------------------------
 	override int MaxDefaultMissions()
-	{
-		return 52;
+	{		
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+
+		//! Vanilla Maps
+		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
+		{
+			return 52; //! 4 airdrops types multiplied by amount of locations
+		}
+		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
+		{
+			return 48;
+		//! Modded Maps
+		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
+		{
+			return 52;
+		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
+		{
+			return 20;
+		}
+		/*
+		//! Preparation
+		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
+		{
+			return 36;
+		}
+		*/
+
+		//! We don't want to load airdrops on a map if we don't have them configured
+		return 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -464,18 +493,35 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
 
+
+
 		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) )
+		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
 		{
 			return ExpansionMissionAirdropChernarus( index );
-		} else if ( world_name.Contains( "enoch" ) )
+		}
+		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
 		{
 			return ExpansionMissionAirdropLivonia( index );
-		} else if ( world_name.Contains( "deerisle" ) )
+		//! Modded Maps
+		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
 		{
 			return ExpansionMissionAirdropDeerIsle( index );
+		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
+		{
+			return ExpansionMissionAirdropSandbox( index );
 		}
+		/*
+		//! Preparation
+		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
+		{
+			return ExpansionMissionAirdropNamalsk( index );
+		}
+		*/
+
 		
+		
+		//! We will still give a name to prevent a server freeze for the edges cases
 		return "Airdrop_Template";
 	}
 		
@@ -1298,7 +1344,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionMappingChernarus
+	// Expansion ExpansionMissionAirdropChernarus
 	// ------------------------------------------------------------
 	string ExpansionMissionAirdropChernarus(int index)
 	{
@@ -1404,7 +1450,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionMappingChernarus
+	// Expansion ExpansionMissionAirdropLivonia
 	// ------------------------------------------------------------
 	string ExpansionMissionAirdropLivonia(int index)
 	{
@@ -1452,44 +1498,41 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 		default:
 		case 0:
+			DropLocation = new ExpansionAirdropLocation( 6692, 11442, 100, "Brena" );
+			break;
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 11005, 724, 100, "Dolnik" );
+			break;
+		case 2:
+			DropLocation = new ExpansionAirdropLocation( 10899, 4515, 100, "Gieraltow" );
+			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 9975, 7242, 100, "Karlin" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 8676, 12114, 100, "Kolembrody" );
+			break;
+		case 5:
+			DropLocation = new ExpansionAirdropLocation( 4559, 6852, 100, "Muratyn" );
+			break;
+		case 6:
+			DropLocation = new ExpansionAirdropLocation( 5996, 4513, 100, "Nadbor" );
+			break;
+		case 7:
 			DropLocation = new ExpansionAirdropLocation( 3478, 10130, 100, "NWAF" );
 			chanceLower = 0.25;
 			break;
-		case 1:
-			DropLocation = new ExpansionAirdropLocation( 1367, 7057, 100, "Topolin" );
-			break;
-		case 2:
-			DropLocation = new ExpansionAirdropLocation( 6692, 11442, 100, "Brena" );
-			break;
-		case 3:
-			DropLocation = new ExpansionAirdropLocation( 9976, 11000, 100, "Tarnow" );
-			break;
-		case 4:
+		case 8:
 			DropLocation = new ExpansionAirdropLocation( 7209, 6073, 100, "Radunin" );
 			break;
-		case 5:
-			DropLocation = new ExpansionAirdropLocation( 5996, 4513, 100, "Nadbór" );
-			break;
-		case 6:
-			DropLocation = new ExpansionAirdropLocation( 11491, 763, 100, "Dolnik" );
-			break;
-		case 7:
-			DropLocation = new ExpansionAirdropLocation( 10899, 4515, 100, "Gieraltów" );
-			break;
-		case 8:
-			DropLocation = new ExpansionAirdropLocation( 9975, 7242, 100, "Karlin" );
-			break;
 		case 9:
-			DropLocation = new ExpansionAirdropLocation( 8676, 12114, 100, "Kolembrody" );
+			DropLocation = new ExpansionAirdropLocation( 9976, 11000, 100, "Tarnow" );
 			break;
 		case 10:
-			DropLocation = new ExpansionAirdropLocation( 8399, 8803, 100, "Zapadlisko" );
+			DropLocation = new ExpansionAirdropLocation( 1367, 7057, 100, "Topolin" );
 			break;
 		case 11:
-			DropLocation = new ExpansionAirdropLocation( 4559, 6852, 100, "Muratyn" );
-			break;
-		case 12:
-			DropLocation = new ExpansionAirdropLocation( 11005, 724, 100, "Dolnik" );
+			DropLocation = new ExpansionAirdropLocation( 8399, 8803, 100, "Zapadlisko" );
 			break;
 		}
 
@@ -1510,7 +1553,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionMappingChernarus
+	// Expansion ExpansionMissionAirdropDeerIsle
 	// ------------------------------------------------------------
 	string ExpansionMissionAirdropDeerIsle(int index)
 	{
@@ -1558,44 +1601,43 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 		default:
 		case 0:
-			DropLocation = new ExpansionAirdropLocation( 6055, 13429, 100, "Portland" );
-			chanceLower = 0.25;
-			break;
-		case 1:
-			DropLocation = new ExpansionAirdropLocation( 7911, 8864, 100, "Mountainville" );
-			break;
-		case 2:
-			DropLocation = new ExpansionAirdropLocation( 4627, 7507, 100, "Sandy Bay" );
-			break;
-		case 3:
-			DropLocation = new ExpansionAirdropLocation( 1849, 8830, 100, "Old Town" );
-			break;
-		case 4:
-			DropLocation = new ExpansionAirdropLocation( 3614, 6360, 100, "Westbrook" );
-			break;
-		case 5:
-			DropLocation = new ExpansionAirdropLocation( 6117, 7004, 100, "Oldfield" );
-			break;
-		case 6:
-			DropLocation = new ExpansionAirdropLocation( 6924, 5473, 100, "Warren Cove" );
-			break;
-		case 7:
 			DropLocation = new ExpansionAirdropLocation( 4522, 4370, 100, "Georgstown" );
 			break;
-		case 8:
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 4658, 1414, 100, "Greenville" );
+			break;
+		case 2:
 			DropLocation = new ExpansionAirdropLocation( 4539, 2317, 100, "Hazelands" );
 			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 7630, 3717, 100, "Kushville" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 7911, 8864, 100, "Mountainville" );
+			break;
+		case 5:
+			DropLocation = new ExpansionAirdropLocation( 10179, 4722, 100, "Oceanville" );
+			break;
+		case 6:
+			DropLocation = new ExpansionAirdropLocation( 1849, 8830, 100, "Old-Town" );
+			break;
+		case 7:
+			DropLocation = new ExpansionAirdropLocation( 6117, 7004, 100, "Oldfield" );
+			break;
+		case 8:
+			DropLocation = new ExpansionAirdropLocation( 6055, 13429, 100, "Portland" );
+			break;
 		case 9:
-			DropLocation = new ExpansionAirdropLocation( 4658, 1414, 100, "Greenville" );
+			DropLocation = new ExpansionAirdropLocation( 4627, 7507, 100, "Sandy-Bay" );
 			break;
 		case 10:
 			DropLocation = new ExpansionAirdropLocation( 6973, 1701, 100, "Stonington" );
 			break;
 		case 11:
-			DropLocation = new ExpansionAirdropLocation( 7630, 3717, 100, "Kushville" );
+			DropLocation = new ExpansionAirdropLocation( 6924, 5473, 100, "Warren-Cove" );
 			break;
 		case 12:
-			DropLocation = new ExpansionAirdropLocation( 10179, 4722, 100, "Oceanville" );
+			DropLocation = new ExpansionAirdropLocation( 3614, 6360, 100, "Westbrook" );
 			break;
 		}
 
@@ -1614,7 +1656,157 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMissionAirdropNamalsk
+	// ------------------------------------------------------------
+	string ExpansionMissionAirdropNamalsk(int index)
+	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionAirdropNamalsk::Defaults - Start");
+		#endif
+
+		Enabled = true;
+
+		Weight = 1 + ( ( index + 1 ) * 5 );
+		MissionMaxTime = 300; // 5 minutes
+
+		Speed = 25.0;
+		Height = 750.0;
 		
+		ShowNotification = true;
+
+		int idx = (int) Math.Floor( index / 4.0 );
+		int lootIdx = index - ( idx * 4 );
+
+		float chanceLower = 0.1;
+
+		switch ( lootIdx )
+		{
+		default:
+		case 0:
+			MissionName = "General";
+			DefaultGeneralLoot();
+			break;
+		case 1:
+			MissionName = "Medical";
+			DefaultMedicalLoot();
+			break;
+		case 2:
+			MissionName = "Basebuilding";
+			DefaultBasebuildingLoot();
+			break;
+		case 3:
+			MissionName = "Military";
+			DefaultMilitaryLoot();
+			break;
+		}
+
+		switch ( idx )
+		{
+		default:
+		case 0:
+			DropLocation = new ExpansionAirdropLocation( 4522, 4370, 100, "Location" );
+			break;
+		}
+
+		for ( int i = 0; i < Loot.Count(); ++i )
+		{
+			Loot[i].Chance *= chanceLower;
+		}
+
+		MissionName = MissionName + "_" + DropLocation.Name;
+
+		string fname = MissionName;
+		fname.Replace( " ", "-" );
+		return fname;
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionAirdropNamalsk::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMissionAirdropSandbox
+	// ------------------------------------------------------------
+	string ExpansionMissionAirdropSandbox(int index)
+	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionAirdropSandbox::Defaults - Start");
+		#endif
+
+		Enabled = true;
+
+		Weight = 1 + ( ( index + 1 ) * 5 );
+		MissionMaxTime = 300; // 5 minutes
+
+		Speed = 25.0;
+		Height = 750.0;
+		
+		ShowNotification = true;
+
+		int idx = (int) Math.Floor( index / 4.0 );
+		int lootIdx = index - ( idx * 4 );
+
+		float chanceLower = 0.1;
+
+		switch ( lootIdx )
+		{
+		default:
+		case 0:
+			MissionName = "General";
+			DefaultGeneralLoot();
+			break;
+		case 1:
+			MissionName = "Medical";
+			DefaultMedicalLoot();
+			break;
+		case 2:
+			MissionName = "Basebuilding";
+			DefaultBasebuildingLoot();
+			break;
+		case 3:
+			MissionName = "Military";
+			DefaultMilitaryLoot();
+			break;
+		}
+
+		switch ( idx )
+		{
+		default:
+		case 0:
+			DropLocation = new ExpansionAirdropLocation( 500, 500, 100, "Middle" );
+			break;
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 0, 0, 100, "BottomLeft" );
+			break;
+		case 2:
+			DropLocation = new ExpansionAirdropLocation( 0, 1000, 100, "BottomRight" );
+			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 1000, 0, 100, "TopLeft" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 1000, 1000, 100, "TopRight" );
+			break;
+		}
+
+		for ( int i = 0; i < Loot.Count(); ++i )
+		{
+			Loot[i].Chance *= chanceLower;
+		}
+
+		MissionName = MissionName + "_" + DropLocation.Name;
+
+		string fname = MissionName;
+		fname.Replace( " ", "-" );
+		return fname;
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionMissionAirdropSandbox::Defaults - End");
+		#endif
+	}
+
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------

@@ -56,7 +56,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateEnum( "VehicleSync", ExpansionVehicleNetworkMode, "Vehicle Sync", "", "" );
-		array< string > values_DebugVehicleSync = { "CLIENT INTERP", "SERVER INTERP", "BOTH INTERP", "NO INTERP" };
+		array< string > values_DebugVehicleSync = { "DIV", "NONE", "MUL" };
 		CreateEnum( "DebugVehicleSync", values_DebugVehicleSync, "Debug Vehicle Sync", "", "" );
 		array< string > values_VehicleRequireKeyToStart = { "NO", "YES" };
 		CreateEnum( "VehicleRequireKeyToStart", values_VehicleRequireKeyToStart, "Requires Key To Start", "", "" );
@@ -67,6 +67,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		CreateToggle( "EnableWindAerodynamics", "Wind Aerodynamics", "", "" );
 		#endif
 		CreateToggle( "EnableTailRotorDamage", "Tail Rotor Damage", "", "" );
+		CreateToggle( "EnableHelicopterExplosions", "Enable Helicopter Explosions", "", "" );
 		#ifdef EXPANSION_PLAYER_ATTACHMENT
 		CreateToggle( "PlayerAttachment", "Player Attaches To Vehicles", "", "" );
 		#endif

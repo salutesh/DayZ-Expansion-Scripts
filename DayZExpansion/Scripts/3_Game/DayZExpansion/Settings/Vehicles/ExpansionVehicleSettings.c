@@ -27,7 +27,9 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 
 	bool PlayerAttachment;								//! If enabled, allow players to be attached to vehicles while in movement
 	bool Towing;										//! If enabled, allow vehicle to tow other vehicles
-	
+
+	bool EnableHelicopterExplosions;
+
 	int DebugVehicleSync;
 
 	[NonSerialized()]
@@ -125,6 +127,8 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		PlayerAttachment = s.PlayerAttachment;
 		Towing = s.Towing;
 
+		EnableHelicopterExplosions = s.EnableHelicopterExplosions;
+
 		DebugVehicleSync = s.DebugVehicleSync;
 
 		#ifdef EXPANSIONEXPRINT
@@ -218,8 +222,12 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		EnableWindAerodynamics = false; // Not ready, need tweaking
 		EnableTailRotorDamage = true;
 
+		EnableHelicopterExplosions = true;
+
 		PlayerAttachment = true;
 		Towing = true;
+
+		DebugVehicleSync = 0;
 	}
 };
 

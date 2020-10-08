@@ -205,46 +205,35 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion GetValuesFormMonitor
+	// Expansion GetValuesFromMonitor
 	// ------------------------------------------------------------
-	void GetValuesFormMonitor()
+	void GetValuesFromMonitor()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionBookTabStatus::GetValuesFormMonitor:: - Start");
+		EXLogPrint("ExpansionBookTabStatus::GetValuesFromMonitor:: - Start");
 		#endif		
+		
+		if ( !m_MonitorModule && !Class.CastTo( m_MonitorModule, GetModuleManager().GetModule( ExpansionMonitorModule ) ) )
+			return;
+		
+		ExpansionSyncedPlayerStats player_stats = m_MonitorModule.GetStats();
+		if ( !player_stats )
+			return;
 
-		ref ExpansionSyncedPlayerStats player_stats;
+		m_Health = player_stats.m_Health;
+		m_Blood = player_stats.m_Blood;
+		m_Water = player_stats.m_Water;
+		m_Energy = player_stats.m_Energy;
+		m_Stamina = player_stats.m_Stamina;
+		m_Karma = player_stats.m_Karma;
 		
-		if (!m_MonitorModule)
-			m_MonitorModule = ExpansionMonitorModule.Cast( GetModuleManager().GetModule( ExpansionMonitorModule ) );
-		
-		player_stats = ExpansionSyncedPlayerStats.Cast( m_MonitorModule.GetStats() );
-		
-		if (player_stats)
-		{
-			m_Health = player_stats.m_Health;
-			m_Blood = player_stats.m_Blood;
-			m_Water = player_stats.m_Water;
-			m_Energy = player_stats.m_Energy;
-			m_Stamina = player_stats.m_Stamina;
-			m_Karma = player_stats.m_Karma;
-			
-			m_Distance = player_stats.m_Distance;
-			m_Playtime = player_stats.m_Playtime;
-			m_PlayersKilled = player_stats.m_PlayersKilled;
-			m_InfectedKilled = player_stats.m_InfectedKilled;
-			m_AnimalsKilled = player_stats.m_AnimalsKilled;
-			m_LongestShot = player_stats.m_LongestShot;
-			m_Weight = player_stats.m_Weight;
-			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionBookTabStatus::GetValuesFormMonitor:: - Get stats for " + PlayerBase.Cast( GetGame().GetPlayer() ).GetIdentityName() + "[" + GetGame().GetPlayer().GetIdentity().GetPlayerId() + "] - Health: " + player_stats.m_Health + ", Blood: " + player_stats.m_Blood + ", Water: " + player_stats.m_Water + ", Energy: " + player_stats.m_Energy + ", Karma: " + player_stats.m_Karma);
-			#endif
-		}
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionBookTabStatus::GetValuesFormMonitor:: - End");
-		#endif
+		m_Distance = player_stats.m_Distance;
+		m_Playtime = player_stats.m_Playtime;
+		m_PlayersKilled = player_stats.m_PlayersKilled;
+		m_InfectedKilled = player_stats.m_InfectedKilled;
+		m_AnimalsKilled = player_stats.m_AnimalsKilled;
+		m_LongestShot = player_stats.m_LongestShot;
+		m_Weight = player_stats.m_Weight;
 	}
 	
 	// ------------------------------------------------------------
@@ -252,7 +241,7 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	void UpdateValues()
 	{
-		GetValuesFormMonitor();
+		GetValuesFromMonitor();
 		
 		// Health
 		m_stat_HealthValue.SetText( m_Health.ToString() + "%" );
@@ -293,7 +282,7 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 
 		if( total_time < 0 )
 		{
-			time_string =  "0 " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";
+			time_string =  "0" + " " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";
 			return time_string;
 		}
 	
@@ -302,13 +291,13 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		int hours = time_seconds / 3600;
 		if ( hours > 0 )
 		{
-			time_string += GetValueString( hours ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
+			time_string += GetValueString( hours ) + " " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
 		}
 		
 		time_string += " ";												//separator
 		
 		int minutes = ( time_seconds % 3600 ) / 60;
-		time_string += GetValueString( minutes ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
+		time_string += GetValueString( minutes ) + " " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
 		
 		return time_string;
 	}
@@ -322,7 +311,7 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		
 		if( weight < 0 )
 		{
-			weight_string =  "0 " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";
+			weight_string =  "0" + " " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";
 			return weight_string;
 		}
 		
@@ -331,12 +320,12 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		int kilograms = weight_grams / 1000;
 		if ( kilograms > 0 && !grams_only )
 		{
-			weight_string += GetValueString( kilograms ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KG";				//kilograms
+			weight_string += GetValueString( kilograms ) + " " + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KG";				//kilograms
 			weight_string += " ";												//separator
 		}
 		else
 		{
-			weight_string += GetValueString( weight_grams ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";	//grams
+			weight_string += GetValueString( weight_grams ) + " " + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";	//grams
 		}
 		
 		return weight_string;
@@ -351,7 +340,7 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		
 		if( total_distance < 0 )
 		{
-			distance_string =  "0" + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";
+			distance_string =  "0" + " "  + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";
 			return distance_string;
 		}
 	
@@ -360,12 +349,12 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		int kilometers = distance_meters / 1000;
 		if ( kilometers > 0 && !meters_only )
 		{
-			distance_string += GetValueString( kilometers ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KM";				//kilometers
+			distance_string += GetValueString( kilometers ) + " " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KM";				//kilometers
 			distance_string += " ";												//separator
 		}
 		else
 		{
-			distance_string += GetValueString( distance_meters ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
+			distance_string += GetValueString( distance_meters ) + " " + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
 		}
 		
 		return distance_string;

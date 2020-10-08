@@ -90,13 +90,13 @@ class ExpansionVehicleWheel
 	
 	private ref array< vector > m_WheelVertexPositions;
 
-	void ExpansionVehicleWheel( ExpansionVehicleScript vehicle, ref ExpansionVehicleAxle axle, string name )
+	void ExpansionVehicleWheel( ExpansionVehicleScript pVehicle, ref ExpansionVehicleAxle pAxle, string pName )
 	{
 		m_WheelVertexPositions = new array< vector >();
 		
-		m_Name = name;
-		m_Vehicle = vehicle;
-		m_Axle = axle;
+		m_Name = pName;
+		m_Vehicle = pVehicle;
+		m_Axle = pAxle;
 
 		m_TransformWS = new Transform;
 		m_TransformMS = new Transform;
@@ -107,19 +107,19 @@ class ExpansionVehicleWheel
 		
 		string path;
 
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " inventorySlot";
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " inventorySlot";
 		m_InventorySlot = GetGame().ConfigGetTextOut( path );
 
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " animTurn";
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " animTurn";
 		m_AnimTurn = GetGame().ConfigGetTextOut( path );
 		
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " animRotation";
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " animRotation";
 		m_AnimRotation = GetGame().ConfigGetTextOut( path );
 		
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " animDamper";
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " animDamper";
 		m_AnimDamper = GetGame().ConfigGetTextOut( path );
 		
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " wheelHub";
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " wheelHub";
 		m_WheelHub = GetGame().ConfigGetTextOut( path );
 
 		m_InitialWheelPositionMS = GetCenterPositionSelection( "geometry", m_WheelHub );
@@ -130,10 +130,10 @@ class ExpansionVehicleWheel
 
 		m_SuspensionOffset = "0 0 0";
 
-		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " axis_start";
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " axis_start";
 		if ( GetGame().ConfigGetText( path, n_axis_start ) )
 		{
-			path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + axle.GetName() + " Wheels " + name + " axis_end";
+			path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Axles " + m_Axle.GetName() + " Wheels " + m_Name + " axis_end";
 			if ( GetGame().ConfigGetText( path, n_axis_end ) )
 			{
 				m_SuspensionOffset = m_Vehicle.GetMemoryPointPos( n_axis_start );
@@ -157,28 +157,28 @@ class ExpansionVehicleWheel
 		return m_AngularVelocity;
 	}
 
-	void SetSteering( float steering )
+	void SetSteering( float pSteering )
 	{
-		m_Steering = steering;
+		m_Steering = pSteering;
 	}
 
-	void ApplyTorque( float torque )
+	void ApplyTorque( float pTorque )
 	{
-		m_WheelTorque = torque;
+		m_WheelTorque = pTorque;
 	}
 
-	void ApplyBrake( float torque )
+	void ApplyBrake( float pTorque )
 	{
-		m_BrakeTorque = torque;
+		m_BrakeTorque = pTorque;
 	}
 	
-	private vector GetCenterPositionSelection( string lod_name, string selection_name )
+	private vector GetCenterPositionSelection( string pLODName, string pSelectionName )
 	{
-		LOD lod = m_Vehicle.GetLODByName( lod_name );
+		LOD lod = m_Vehicle.GetLODByName( pLODName );
 		if ( !lod )
 			return "0 0 0";
 
-		Selection selection = lod.GetSelectionByName( selection_name );
+		Selection selection = lod.GetSelectionByName( pSelectionName );
 		if ( !selection )
 			return "0 0 0";
 		
@@ -233,14 +233,14 @@ class ExpansionVehicleWheel
 		return m_InitialWheelPositionMS;
 	}
 	
-	void ExpansionDebugUI( string message = "" )
+	void ExpansionDebugUI( string pMessage = "" )
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_WHEELS, message );
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_WHEELS, pMessage );
 	}
 
-	void OnWheelAttach( notnull ExpansionWheel wheel, bool isFromPrevious = false )
+	void OnWheelAttach( notnull ExpansionWheel pWheel )
 	{
-		m_WheelItem = wheel;
+		m_WheelItem = pWheel;
 		
 		m_Axle.UpdateWheelRadius();
 	}
@@ -255,7 +255,7 @@ class ExpansionVehicleWheel
 		return m_WheelItem;
 	}
 
-	void SetupSimulation( float pDt, out int numWheelsGrounded )
+	void SetupSimulation( float pDt, out int pNumWheelsGrounded )
 	{		
 		ExpansionDebugUI();
 		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub );
@@ -287,7 +287,7 @@ class ExpansionVehicleWheel
 
 		if ( m_HasContact )
 		{
-			numWheelsGrounded++;
+			pNumWheelsGrounded++;
 		}
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
@@ -315,7 +315,7 @@ class ExpansionVehicleWheel
 		#endif
 	}
 
-	void Simulate( float pDt, int numWheelsGrounded, out vector pImpulse, out vector pImpulseTorque )
+	void Simulate( float pDt, int pNumWheelsGrounded, out vector pImpulse, out vector pImpulseTorque )
 	{
 		ExpansionDebugUI();
 		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub );
@@ -326,8 +326,8 @@ class ExpansionVehicleWheel
 		vector impulse;
 		vector impulseTorque;
 
-		Suspension( pDt, numWheelsGrounded, impulse, impulseTorque );
-		Friction( pDt, numWheelsGrounded, impulse, impulseTorque );
+		Suspension( pDt, pNumWheelsGrounded, impulse, impulseTorque );
+		Friction( pDt, pNumWheelsGrounded, impulse, impulseTorque );
 
 		// convert wheel forces to world space
 		impulse = impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
@@ -338,6 +338,14 @@ class ExpansionVehicleWheel
 
 		pImpulse += impulse;
 		pImpulseTorque += impulseTorque;
+	}
+
+	void Animate( float pDt, bool pPhysics )
+	{
+		if ( !pPhysics )
+		{
+			vector previousPosition = m_TransformWS[3];
+		}
 
 		m_Vehicle.SetAnimationPhase( m_AnimDamper, m_SuspensionFraction );
 		m_Vehicle.SetAnimationPhase( m_AnimTurn, m_Steering * Math.DEG2RAD );
@@ -381,32 +389,28 @@ class ExpansionVehicleWheel
 			{
 				m_HasContact = false;
 			} else
-			{
-				if ( wheelDiff >= -0.75 )
-				{
-					m_ContactNormalWS = "0 1 0";
-					m_ContactNormal = m_ContactNormalWS.InvMultiply3( m_Vehicle.m_Transform.data );
-				}
-				
+			{				
 				m_ContactVelocity = m_Vehicle.GetModelVelocityAt( m_ContactPosition );
 				
 				float invWheelDiff = -1.0 / wheelDiff;
 				m_SuspensionRelativeVelocity = vector.Dot( m_ContactNormal, m_ContactVelocity ) * invWheelDiff;
 
 				m_SuspensionInvContact = invWheelDiff;
+				
+				m_ContactNormal = "0 1 0";
+				m_ContactNormalWS = m_ContactNormal.Multiply3( m_Vehicle.m_Transform.data );
 			}
 			
 			
 			ExpansionDebugUI( "wheelDiff: " + wheelDiff );
 			ExpansionDebugUI( "inv contact: " + m_SuspensionInvContact );
 			ExpansionDebugUI( "rel vel: " + m_SuspensionRelativeVelocity );
-		} else
-		{
-			m_ContactFraction = 1.0;
 		}
 
 		if ( !m_HasContact )
 		{
+			m_ContactFraction = 1.0;
+			
 			m_ContactVelocity = "0 0 0";
 
 			m_SuspensionRelativeVelocity = 0.0;
@@ -458,15 +462,15 @@ class ExpansionVehicleWheel
 		ExpansionDebugUI( "Contact Velocity: " + m_ContactVelocity );
 	}
 
-	private void Suspension( float pDt, int numWheelsGrounded, out vector impulse, out vector impulseTorque )
+	private void Suspension( float pDt, int pNumWheelsGrounded, out vector impulse, out vector impulseTorque )
 	{
 		float suspLength = ( m_ContactFraction * m_ContactLength ) - m_WheelItem.m_Radius + m_Axle.GetWheelHubRadius();
 
 		if ( m_HasContact )
 		{
-			Expansion_Assert_False( numWheelsGrounded != 0, "If m_HasContact is true, atleast 1 wheel must be grounded." );
+			Expansion_Assert_False( pNumWheelsGrounded != 0, "If m_HasContact is true, atleast 1 wheel must be grounded." );
 			
-			float invWheelsGrounded = 1.0 / ( numWheelsGrounded );
+			float invWheelsGrounded = 1.0 / ( pNumWheelsGrounded );
 			float invWheels = 1.0 / ( m_Vehicle.GetNumWheels() );
 			
 			float ks = m_Axle.GetStiffness();
@@ -499,7 +503,7 @@ class ExpansionVehicleWheel
 		m_SuspensionLength = suspLength;
 	}
 
-	private void Friction( float pDt, int numWheelsGrounded, out vector impulse, out vector impulseTorque )
+	private void Friction( float pDt, int pNumWheelsGrounded, out vector impulse, out vector impulseTorque )
 	{
 		if ( !m_HasContact )
 			return;
@@ -518,7 +522,7 @@ class ExpansionVehicleWheel
 		
 		float sideDot = vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[0] );
 		float sideCoef = 10.0;
-		float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / numWheelsGrounded;
+		float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / pNumWheelsGrounded;
 
 		m_AngularVelocity = m_ContactVelocity[2] / m_WheelItem.m_Radius;
 		m_AngularRotation += m_AngularVelocity * pDt;
@@ -535,8 +539,8 @@ class ExpansionVehicleWheel
 		vector forwardImp = m_TransformMS[2] * forwardImpulse * pDt * surfaceFriction;
 		vector sideImp = m_TransformMS[0] * sideImpulse * pDt * surfaceFriction;
 
-		impulse += forwardImp;
-		impulseTorque += m_ContactPosition * forwardImp;
+		impulse += forwardImp * ( 1.0 - m_ContactFraction );
+		impulseTorque += m_ContactPosition * forwardImp * ( 1.0 - m_ContactFraction );
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
 		//m_Vehicle.DBGDrawImpulseMS( m_ContactPosition, forwardImp, 0xFF00FFFF );

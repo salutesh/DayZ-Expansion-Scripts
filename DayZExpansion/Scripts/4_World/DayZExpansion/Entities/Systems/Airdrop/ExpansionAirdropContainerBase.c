@@ -190,9 +190,14 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#endif
 		
 		if ( !IsGround( 0.5 ) ) 
-		{		
+		{
 			float mass = dBodyGetMass( this );
-			this.dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
+			vector m_wind = GetGame().GetWeather().GetWind();
+			m_wind[0] = ( m_wind[0] + 0.1 ) / 100;
+			m_wind[1] = 1.0;
+			m_wind[2] = ( m_wind[2] + 0.1 ) / 100;
+
+			this.dBodyApplyImpulse( this, "0 1.0 0" * mass * m_wind * deltaTime );
 		} else if ( !m_LootHasSpawned )
 		{
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );

@@ -83,7 +83,7 @@ class ExpansionVehicleSteering
 			return false;
 
 		for ( int i = 0; i < pValues.Count() / 2; ++i )
-			pValues[i * 2] = pValues[i * 2] / 3.6;
+			pValues[i * 2] = pValues[i * 2] * 3.6;
 		
 		return true;
 	}

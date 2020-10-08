@@ -97,6 +97,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	private Object m_WindDebugObject;
 
 	private bool m_EnableTailRotorDamage;
+	private bool m_EnableHelicopterExplosions;
 
 	// ------------------------------------------------------------
 	//! Particles
@@ -186,6 +187,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		m_EnableWind = GetExpansionSettings().GetVehicle().EnableWindAerodynamics;
 		m_EnableTailRotorDamage = GetExpansionSettings().GetVehicle().EnableTailRotorDamage;
+		m_EnableHelicopterExplosions = GetExpansionSettings().GetVehicle().EnableHelicopterExplosions;
 	}
 	
 	// ------------------------------------------------------------
@@ -558,7 +560,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		if ( m_IsBeingTowed )
 			return;
 
-		if ( IsMissionHost() )
+		if ( IsMissionHost() && m_EnableHelicopterExplosions )
 		{			
 			vector transform[4];
 			GetTransform( transform );

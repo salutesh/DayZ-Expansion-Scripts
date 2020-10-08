@@ -91,7 +91,7 @@ class ExpansionVehicleEngine
 		ExpansionDebugUI( "Axle Differential: " + axleDiff );
 		ExpansionDebugUI( "Gear Ratio: " + pGR );
 				
-		m_RPM = Math.AbsFloat( wheelVel * pGR * axleDiff * 30.0 / Math.PI );
+		m_RPM = Math.AbsFloat( wheelVel * pGR * axleDiff * 30.0 / ( Math.PI ) );
 		ExpansionDebugUI( "RPM: " + m_RPM );
 		m_RPM = Math.Clamp( m_RPM, m_RPMMin, m_RPMMax );
 		ExpansionDebugUI( "RPM: " + m_RPM );
@@ -99,7 +99,7 @@ class ExpansionVehicleEngine
 		m_Torque = LoopupTorque( m_RPM ) * pThrottle;
 		ExpansionDebugUI( "Torque: " + m_Torque );
 
-		ApplyAxleTorque( m_Torque * m_Inertia * pGR * pDt );
+		ApplyAxleTorque( m_Torque * pGR * pDt * m_Inertia );
 	}
 
 	protected void ApplyAxleTorque( float torque )

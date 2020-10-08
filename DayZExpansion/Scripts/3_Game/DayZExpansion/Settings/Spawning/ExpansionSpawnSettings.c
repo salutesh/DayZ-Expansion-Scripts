@@ -17,6 +17,12 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 {
 	ref ExpansionStartingClothing StartingClothing;
 	ref ExpansionStartingGear StartingGear;
+
+	bool EnableSpawnSelection;
+	int SpawnSelectionScreenMenuID; //
+	bool SpawnOnTerritory;
+
+	ref array< ref ExpansionSpawnLocation > SpawnLocations;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -30,10 +36,20 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		
 		StartingClothing = new ExpansionStartingClothing();
 		StartingGear = new ExpansionStartingGear();
+
+		SpawnLocations = new array< ref ExpansionSpawnLocation >();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
 		#endif
+	}
+
+	void ~ExpansionSpawnSettings()
+	{
+		delete StartingClothing;
+		delete StartingGear;
+		
+		delete SpawnLocations;
 	}
 	
 	// ------------------------------------------------------------
@@ -108,6 +124,13 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	{
 		StartingClothing = s.StartingClothing;
 		StartingGear = s.StartingGear;
+
+		EnableSpawnSelection = s.EnableSpawnSelection;
+		SpawnSelectionScreenMenuID = s.SpawnSelectionScreenMenuID;
+		SpawnOnTerritory = s.SpawnOnTerritory;
+
+		for ( int i = 0; i < s.SpawnLocations.Count(); i++ )
+			SpawnLocations.Insert( ExpansionSpawnLocation.Copy( s.SpawnLocations[i] ) );
 	}
 	
 	// ------------------------------------------------------------
@@ -161,22 +184,6 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		JsonFileLoader<ExpansionSpawnSettings>.JsonSaveFile( EXPANSION_SPAWN_SETTINGS, this );
 
 		return true;
-	}
-
-	// ------------------------------------------------------------
-	ref ExpansionSpawnLocation CreateSingleSpawnLocation( string name, vector position )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::CreateSingleSpawnLocation - Start");
-		#endif
-		
-		array< vector > positions = new array< vector >;
-		positions.Insert( position );
-		return new ExpansionSpawnLocation( name, positions );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::CreateSingleSpawnLocation - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------

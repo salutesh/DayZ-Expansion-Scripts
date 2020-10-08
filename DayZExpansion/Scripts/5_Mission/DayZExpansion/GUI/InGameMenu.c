@@ -210,31 +210,20 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	void GetValuesFromMonitor()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("InGameMenu::GetValuesFromMonitor:: - Start");
-		#endif	
+		ExpansionMonitorModule monitor;
+		if ( !Class.CastTo( monitor, GetModuleManager().GetModule( ExpansionMonitorModule ) ) )
+			return;
 		
-		ExpansionMonitorModule monitor = ExpansionMonitorModule.Cast( GetModuleManager().GetModule( ExpansionMonitorModule ) );
-		if (!monitor) return;
-		
-		ref ExpansionSyncedPlayerStats player_stats = ExpansionSyncedPlayerStats.Cast( monitor.GetStats() );
-		if (player_stats)
-		{
-			m_Distance = player_stats.m_Distance;
-			m_Playtime = player_stats.m_Playtime;
-			m_PlayersKilled = player_stats.m_PlayersKilled;
-			m_InfectedKilled = player_stats.m_InfectedKilled;
-			m_AnimalsKilled = player_stats.m_AnimalsKilled;
-			m_LongestShot = player_stats.m_LongestShot;
-			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("InGameMenu::GetValuesFromMonitor:: - Get stats for " + PlayerBase.Cast( GetGame().GetPlayer() ).GetIdentityName() + "[" + GetGame().GetPlayer().GetIdentity().GetPlayerId() + "] - Health: " + player_stats.m_Health + ", Blood: " + player_stats.m_Blood + ", Water: " + player_stats.m_Water + ", Energy: " + player_stats.m_Energy + ", Karma: " + player_stats.m_Karma);
-			#endif
-		}
+		ExpansionSyncedPlayerStats player_stats = monitor.GetStats();
+		if ( !player_stats )
+			return;
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("InGameMenu::GetValuesFromMonitor:: - End");
-		#endif
+		m_Distance = player_stats.m_Distance;
+		m_Playtime = player_stats.m_Playtime;
+		m_PlayersKilled = player_stats.m_PlayersKilled;
+		m_InfectedKilled = player_stats.m_InfectedKilled;
+		m_AnimalsKilled = player_stats.m_AnimalsKilled;
+		m_LongestShot = player_stats.m_LongestShot;
 	}
 	
 	// ------------------------------------------------------------

@@ -2020,10 +2020,6 @@ modded class CarScript
 		{
 			OnParticleUpdate( pDt );
 		}
-
-		OnAnimationUpdate( pDt );
-
-		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -2034,6 +2030,7 @@ modded class CarScript
 	// ------------------------------------------------------------
 	protected void OnPostSimulation( float pDt )
 	{
+		OnAnimationUpdate( pDt );
 	}
 
 	// ------------------------------------------------------------
@@ -2157,18 +2154,10 @@ modded class CarScript
 
 			OnSimulation( dt, force, torque );
 
-			DBGDrawLineDirectionMS( "0 0 0", force, 0xFF00FF00 );
+			//DBGDrawLineDirectionMS( "0 0 0", force, 0xFF00FF00 );
 
-			//if ( force.Length() != 0 )
-				dBodyApplyImpulse( this, force * dt );
-
-			//if ( torque.Length() != 0 )
-				dBodyApplyTorqueImpulse( this, torque * dt );
-
-			if ( GetGame().IsMultiplayer() )
-			{
-				SetSynchDirty();
-			}
+			dBodyApplyImpulse( this, force * dt );
+			dBodyApplyTorqueImpulse( this, torque * dt );
 
 			if ( IsMissionClient() )
 			{
@@ -2177,6 +2166,11 @@ modded class CarScript
 		}
 
 		OnPostSimulation( dt );
+
+		if ( GetGame().IsServer() )
+		{
+			SetSynchDirty();
+		}
 
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CONTROLLER );

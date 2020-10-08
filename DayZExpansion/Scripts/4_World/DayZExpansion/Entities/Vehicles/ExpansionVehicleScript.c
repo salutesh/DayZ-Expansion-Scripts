@@ -19,6 +19,71 @@ class ExpansionVehicleScript extends ItemBase
 	protected ref array< ref ExpansionVehicleAxle > m_Axles;
 	protected ref array< ref ExpansionVehicleCrew > m_Crew;
 
+	private ExpansionVehicleCrew m_Crew0;
+	private ExpansionVehicleCrew m_Crew1;
+	private ExpansionVehicleCrew m_Crew2;
+	private ExpansionVehicleCrew m_Crew3;
+	private ExpansionVehicleCrew m_Crew4;
+	private ExpansionVehicleCrew m_Crew5;
+	private ExpansionVehicleCrew m_Crew6;
+	private ExpansionVehicleCrew m_Crew7;
+	private ExpansionVehicleCrew m_Crew8;
+	private ExpansionVehicleCrew m_Crew9;
+	private ExpansionVehicleCrew m_Crew10;
+	private ExpansionVehicleCrew m_Crew11;
+	private ExpansionVehicleCrew m_Crew12;
+	private ExpansionVehicleCrew m_Crew13;
+	private ExpansionVehicleCrew m_Crew14;
+	private ExpansionVehicleCrew m_Crew15;
+	private ExpansionVehicleCrew m_Crew16;
+	private ExpansionVehicleCrew m_Crew17;
+	private ExpansionVehicleCrew m_Crew18;
+	private ExpansionVehicleCrew m_Crew19;
+	private ExpansionVehicleCrew m_Crew20;
+	private ExpansionVehicleCrew m_Crew21;
+	private ExpansionVehicleCrew m_Crew22;
+	private ExpansionVehicleCrew m_Crew23;
+	private ExpansionVehicleCrew m_Crew24;
+	private ExpansionVehicleCrew m_Crew25;
+	private ExpansionVehicleCrew m_Crew26;
+	private ExpansionVehicleCrew m_Crew27;
+	private ExpansionVehicleCrew m_Crew28;
+	private ExpansionVehicleCrew m_Crew29;
+	private ExpansionVehicleCrew m_Crew30;
+	private ExpansionVehicleCrew m_Crew31;
+	private ExpansionVehicleCrew m_Crew32;
+	private ExpansionVehicleCrew m_Crew33;
+	private ExpansionVehicleCrew m_Crew34;
+	private ExpansionVehicleCrew m_Crew35;
+	private ExpansionVehicleCrew m_Crew36;
+	private ExpansionVehicleCrew m_Crew37;
+	private ExpansionVehicleCrew m_Crew38;
+	private ExpansionVehicleCrew m_Crew39;
+	private ExpansionVehicleCrew m_Crew40;
+	private ExpansionVehicleCrew m_Crew41;
+	private ExpansionVehicleCrew m_Crew42;
+	private ExpansionVehicleCrew m_Crew43;
+	private ExpansionVehicleCrew m_Crew44;
+	private ExpansionVehicleCrew m_Crew45;
+	private ExpansionVehicleCrew m_Crew46;
+	private ExpansionVehicleCrew m_Crew47;
+	private ExpansionVehicleCrew m_Crew48;
+	private ExpansionVehicleCrew m_Crew49;
+	private ExpansionVehicleCrew m_Crew50;
+	private ExpansionVehicleCrew m_Crew51;
+	private ExpansionVehicleCrew m_Crew52;
+	private ExpansionVehicleCrew m_Crew53;
+	private ExpansionVehicleCrew m_Crew54;
+	private ExpansionVehicleCrew m_Crew55;
+	private ExpansionVehicleCrew m_Crew56;
+	private ExpansionVehicleCrew m_Crew57;
+	private ExpansionVehicleCrew m_Crew58;
+	private ExpansionVehicleCrew m_Crew59;
+	private ExpansionVehicleCrew m_Crew60;
+	private ExpansionVehicleCrew m_Crew61;
+	private ExpansionVehicleCrew m_Crew62;
+	private ExpansionVehicleCrew m_Crew63;
+
 	protected ref array< ExpansionVehicleWheel > m_Wheels;
 
 	protected ref ExpansionVehicleController m_Controller;
@@ -94,6 +159,9 @@ class ExpansionVehicleScript extends ItemBase
 	protected float m_dmgContactCoef;
 
 	protected ExpansionSoundProxyBase m_SoundProxy; //! not needed anymore
+	protected ref array< float > m_SoundVariables;
+	protected ref array< string > m_SoundControls;
+	protected ref array< ref ExpansionVehicleSound > m_SoundControllers;
 
 	protected vector m_LinearVelocity; // World Space
 	protected vector m_LinearVelocityMS; // Model Space
@@ -246,6 +314,35 @@ class ExpansionVehicleScript extends ItemBase
 			GetGame().ConfigGetChildName( path, i, crewName );
 
 			m_Crew.Insert( new ExpansionVehicleCrew( this, crewName ) );
+
+			EnScript.SetClassVar( this, "m_Crew" + i, 0, m_Crew[i] );
+
+			RegisterNetSyncVariableInt( "m_Crew" + i + ".m_NetworkIDLow" );
+			RegisterNetSyncVariableInt( "m_Crew" + i + ".m_NetworkIDHigh" );
+
+			RegisterNetSyncVariableBool( "m_Crew" + i + ".m_Occupied" );
+		}
+
+		m_SoundVariables = new array< float >();
+		m_SoundControls = new array< string >();
+
+		m_SoundControllers = new array< ref ExpansionVehicleSound >();
+
+		if ( IsMissionClient() )
+		{
+			GetSoundControls( m_SoundControls );
+
+			for ( i = 0; i < m_SoundControls.Count(); i++ )
+				m_SoundVariables.Insert( 0 );
+
+			path = "CfgVehicles " + GetType() + " Sounds soundSetsFilter";
+			array< string > soundSetNames = new array< string >();
+			GetGame().ConfigGetTextArray( path, soundSetNames );
+			for ( i = 0; i < soundSetNames.Count(); i++ )
+			{
+				ref ExpansionVehicleSound soundController = new ExpansionVehicleSound( this, soundSetNames[i], m_SoundControls );
+				m_SoundControllers.Insert( soundController );
+			}
 		}
 
 		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
@@ -559,10 +656,6 @@ class ExpansionVehicleScript extends ItemBase
 		{
 			OnParticleUpdate( pDt );
 		}
-
-		OnAnimationUpdate( pDt );
-
-		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -573,6 +666,21 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	protected void OnPostSimulation( float pDt )
 	{
+		OnAnimationUpdate( pDt );
+		
+		m_SoundVariables[0] = OnSound( CarSoundCtrl.RPM, EngineGetRPM() + 1200 );
+		m_SoundVariables[1] = OnSound( CarSoundCtrl.ENGINE, EngineIsOn() );
+		m_SoundVariables[2] = OnSound( CarSoundCtrl.PLAYER, 0 );
+		m_SoundVariables[3] = OnSound( CarSoundCtrl.DOORS, 0 );
+		m_SoundVariables[4] = OnSound( CarSoundCtrl.SPEED, GetSpeedometer() );
+		m_SoundVariables[5] = 1.0;
+		
+		int start = TickCount(0);
+				
+		foreach ( ExpansionVehicleSound sound : m_SoundControllers )
+			sound.Update( pDt, m_SoundVariables );
+		
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_SOUND, "Ticks: " + TickCount( start ) );
 	}
 
 	// ------------------------------------------------------------
@@ -583,6 +691,8 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	protected void OnAnimationUpdate( float pDt )
 	{
+		for ( int i = 0; i < m_Axles.Count(); i++ )
+			m_Axles[i].Animate( pDt, m_IsPhysicsHost );
 	}
 	
 	int stateF = -1;
@@ -755,8 +865,6 @@ class ExpansionVehicleScript extends ItemBase
 			
 			if ( IsMissionClient() )
 				NetworkSend();
-			else if ( GetGame().IsMultiplayer() )
-				SetSynchDirty();
 		} else if ( m_IsPhysicsHost && !dBodyIsDynamic( this ) )
 		{
 			stateF = 1;
@@ -774,17 +882,7 @@ class ExpansionVehicleScript extends ItemBase
 			if ( IsMissionHost() )
 				m_NetworkClientSideServerProcessing = false;
 
-			bool doInterp = false;
-
-			if ( GetGame().IsServer() )
-				if ( GetExpansionSettings().GetVehicle().DebugVehicleSync == 1 || GetExpansionSettings().GetVehicle().DebugVehicleSync == 2 )
-					doInterp = true;
-
 			if ( GetGame().IsClient() )
-				if ( GetExpansionSettings().GetVehicle().DebugVehicleSync == 0 || GetExpansionSettings().GetVehicle().DebugVehicleSync == 2 )
-					doInterp = true;
-
-			if ( doInterp )
 			{
 				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
 
@@ -806,10 +904,14 @@ class ExpansionVehicleScript extends ItemBase
 		}
 
 		OnPostSimulation( dt );
+
+		if ( GetGame().IsMultiplayer() )
+			SetSynchDirty();
 		
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_WHEELS );
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
 		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_ENGINE );
+		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_SOUND );
 	}
 
 	// ------------------------------------------------------------
@@ -889,7 +991,18 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = GetTimeForSync();
 				m_SyncState.m_TimeDelta = 0;
 
-				m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * dt;
+				switch ( GetExpansionSettings().GetVehicle().DebugVehicleSync )
+				{
+					case 0:
+						m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * ( 1.0 / dt );
+						break;
+					case 1:
+						m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position );
+						break;
+					case 2:
+						m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * dt;
+						break;
+				}
 
 				vector m1[];
 				vector m2[];
@@ -1023,6 +1136,9 @@ class ExpansionVehicleScript extends ItemBase
 		super.OnVariablesSynchronized();
 
 		m_SyncState.OnVariablesSynchronized();
+
+		for ( int i = 0; i < m_Crew.Count(); i++ )
+			m_Crew[i].OnVariablesSynchronized();
 	}
 
 	// ------------------------------------------------------------
@@ -1896,6 +2012,16 @@ class ExpansionVehicleScript extends ItemBase
 	{
 		// just use the computed value by the game code
 		return oldValue;
+	}
+
+	void GetSoundControls( inout array< string > names )
+	{
+		names.Insert("rpm");
+		names.Insert("engineOn");
+		names.Insert("campos");
+		names.Insert("doors");
+		names.Insert("speed");
+		names.Insert("thrust");
 	}
 
 ////////////////////////////////////////////////////////////////////

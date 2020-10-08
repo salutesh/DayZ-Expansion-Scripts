@@ -32,8 +32,25 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	{
 		Class.CastTo( m_CarController, m_Controller );
 		
-		m_Gearbox = new ExpansionVehicleGearbox( this );
-		m_Engine = new ExpansionVehicleEngineRWD( this );
+		string path;
+		
+		path = "CfgVehicles " + GetType() + " VehicleSimulation drive";
+		
+		string drive;
+		GetGame().ConfigGetText( path, drive );
+		
+		if ( drive == "DRIVE_RWD" )
+		{	
+			m_Engine = new ExpansionVehicleEngineRWD( this );
+		} else if ( drive == "DRIVE_FWD" )
+		{	
+			m_Engine = new ExpansionVehicleEngineFWD( this );
+		} else if ( drive == "DRIVE_AWD" )
+		{	
+			m_Engine = new ExpansionVehicleEngineAWD( this );
+		}
+		
+		m_Gearbox = new ExpansionVehicleGearbox( this );	
 		m_Steering = new ExpansionVehicleSteering( this );
 		m_Throttle = new ExpansionVehicleThrottle( this );
 	}

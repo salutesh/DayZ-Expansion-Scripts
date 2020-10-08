@@ -481,4 +481,4 @@ class ExpansionTraderBase extends DayZPlayer
 		
 		StartCommand_Script( new ExpansionHumanCommandTrader( this, m_CommandTraderTable ) );
 	}
-}
+};

@@ -17,7 +17,8 @@ class ExpansionMapping
 	autoptr TStringArray Mapping;
 	autoptr TStringArray ObjectsToDelete;
 	
-	bool BuildingInteriors;				// Interior inside building mapping switch. It's not linked to UseCustomMappingModule 
+	bool BuildingInteriors;				// Interior inside building mapping switch. It's not linked to UseCustomMappingModule
+	autoptr TStringArray Interiors;
 	bool BuildingIvys;					// Exterior Ivies mapping switch
 
 	// ------------------------------------------------------------
@@ -30,6 +31,7 @@ class ExpansionMapping
 		#endif
 		
 		Mapping = new TStringArray;
+		Interiors = new TStringArray;
 		ObjectsToDelete = new TStringArray;
 		
 		#ifdef EXPANSIONEXPRINT
@@ -45,6 +47,7 @@ class ExpansionMapping
 		UseCustomMappingModule = s.UseCustomMappingModule;
 		
 		Mapping.Copy( s.Mapping );
+		Interiors.Copy( s.Interiors );
 		ObjectsToDelete.Copy( s.ObjectsToDelete );
 
 		BuildingInteriors = s.BuildingInteriors;
@@ -64,21 +67,25 @@ class ExpansionMapping
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
-
+		
+		ExpansionBuildingInterior();
 
 		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) )
+		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
 		{
 			ExpansionMappingChernarus();
 		}
 		//! Only Chernarus have custom mapping so we will check only "chernarusplus" until we have custom mapping for other maps
 		/*
-		else if ( world_name.Contains( "enoch" ) )
+		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
 		{
 			ExpansionMappingLivonia();
-		} else if ( world_name.Contains( "deerisle" ) )
+		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
 		{
 			ExpansionMappingDeerIsle();
+		} else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
+		{
+			ExpansionMappingNamalsk();
 		}
 		*/
 
@@ -163,7 +170,7 @@ class ExpansionMapping
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionMappingChernarus
+	// Expansion ExpansionMappingLivonia
 	// ------------------------------------------------------------
 	void ExpansionMappingLivonia()
 	{
@@ -177,7 +184,7 @@ class ExpansionMapping
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionMappingChernarus
+	// Expansion ExpansionMappingDeerIsle
 	// ------------------------------------------------------------
 	void ExpansionMappingDeerIsle()
 	{
@@ -187,6 +194,87 @@ class ExpansionMapping
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingDeerIsle::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingNamalsk
+	// ------------------------------------------------------------
+	void ExpansionMappingNamalsk()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingNamalsk::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingNamalsk::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionBuildingInterior
+	// ------------------------------------------------------------
+	void ExpansionBuildingInterior()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionBuildingInterior::Defaults - Start");
+		#endif
+
+		Interiors.Insert( "Land_Barn_Brick2" );
+		Interiors.Insert( "Land_Barn_Metal_Big" );
+		Interiors.Insert( "Land_Barn_Wood2" );
+		Interiors.Insert( "Land_BarnMetal_Big_Grey" );
+
+		Interiors.Insert( "Land_City_Hospital" );
+		Interiors.Insert( "Land_City_School" );
+
+		Interiors.Insert( "Land_Garage_Big" );
+		Interiors.Insert( "Land_Garage_Row_Big" );
+		Interiors.Insert( "Land_Shed_Closed" );
+
+		Interiors.Insert( "Land_Village_Pub" );
+		Interiors.Insert( "Land_House_1B01_Pub" );
+
+		Interiors.Insert( "Land_House_1W01" );
+		Interiors.Insert( "Land_House_1W02" );
+		Interiors.Insert( "Land_House_1W03" );
+		Interiors.Insert( "Land_House_1W04" );
+		Interiors.Insert( "Land_House_1W05" );
+		Interiors.Insert( "Land_House_1W06" );
+		Interiors.Insert( "Land_House_1W07" );
+		Interiors.Insert( "Land_House_1W08" );
+		Interiors.Insert( "Land_House_1W09" );
+		Interiors.Insert( "Land_House_1W10" );
+		Interiors.Insert( "Land_House_1W11" );
+		Interiors.Insert( "Land_House_1W12" );
+
+		Interiors.Insert( "Land_House_1W03_Brown" );
+		Interiors.Insert( "Land_House_1W04_Yellow" );
+		Interiors.Insert( "Land_House_1W05_Yellow" );
+		Interiors.Insert( "Land_House_1W08_Brown" );
+		Interiors.Insert( "Land_House_1W09_Yellow" );
+		Interiors.Insert( "Land_House_1W10_Brown" );
+		Interiors.Insert( "Land_House_1W12_Brown" );
+
+		Interiors.Insert( "Land_House_2B01" );
+		Interiors.Insert( "Land_House_2B02" );
+		Interiors.Insert( "Land_House_2B03" );
+		Interiors.Insert( "Land_House_2B04" );
+
+		Interiors.Insert( "Land_House_2W01" );
+		Interiors.Insert( "Land_House_2W02" );
+		Interiors.Insert( "Land_House_2W03" );
+		Interiors.Insert( "Land_House_2W04" );
+		
+		Interiors.Insert( "Land_House_2W03_Brown" );
+		Interiors.Insert( "Land_House_2W04_Yellow" );
+		
+		Interiors.Insert( "Land_Lighthouse" );
+		Interiors.Insert( "Land_Power_Station" );
+		Interiors.Insert( "Land_Rail_Station_Big" );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionBuildingInterior::Defaults - End");
 		#endif
 	}
 };

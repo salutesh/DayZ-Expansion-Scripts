@@ -210,6 +210,16 @@ class CfgVehicles
 				animPeriod = 1e-06;
 			};
 		};
+		class Sounds
+		{
+			thrust = 0.6;
+			thrustTurbo = 1;
+			thrustGentle = 0.3;
+			thrustSmoothCoef = 0.02;
+			camposSmoothCoef = 0.03;
+			soundSetsFilter[] = {"Expansion_TT650_Offload_Ext_Rpm1_SoundSet","Expansion_TT650_Offload_Ext_Rpm2_SoundSet","Expansion_TT650_Offload_Ext_Rpm3_SoundSet","Expansion_TT650_Offload_Ext_Rpm4_SoundSet","Expansion_TT650_Offload_Ext_Rpm5_SoundSet","Expansion_TT650_Ext_Rpm0_SoundSet","Expansion_TT650_Ext_Rpm1_SoundSet","Expansion_TT650_Ext_Rpm2_SoundSet","Expansion_TT650_Ext_Rpm3_SoundSet","Expansion_TT650_Ext_Rpm4_SoundSet","Expansion_TT650_Ext_Rpm5_SoundSet"};
+			soundSetsInt[] = {};
+		};
 	};
 };
 class CfgNonAIVehicles
