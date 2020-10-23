@@ -19,7 +19,7 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	ref ExpansionStartingGear StartingGear;
 
 	bool EnableSpawnSelection;
-	int SpawnSelectionScreenMenuID; //
+	int SpawnSelectionScreenMenuID;
 	bool SpawnOnTerritory;
 
 	ref array< ref ExpansionSpawnLocation > SpawnLocations;
@@ -37,7 +37,7 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		StartingClothing = new ExpansionStartingClothing();
 		StartingGear = new ExpansionStartingGear();
 
-		SpawnLocations = new array< ref ExpansionSpawnLocation >();
+		SpawnLocations = new array< ref ExpansionSpawnLocation >;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
@@ -49,6 +49,7 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		delete StartingClothing;
 		delete StartingGear;
 		
+		SpawnLocations.Clear();
 		delete SpawnLocations;
 	}
 	
@@ -128,9 +129,13 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EnableSpawnSelection = s.EnableSpawnSelection;
 		SpawnSelectionScreenMenuID = s.SpawnSelectionScreenMenuID;
 		SpawnOnTerritory = s.SpawnOnTerritory;
-
+		//SpawnLocations = s.SpawnLocations;
+		
+		SpawnLocations.Clear();
 		for ( int i = 0; i < s.SpawnLocations.Count(); i++ )
-			SpawnLocations.Insert( ExpansionSpawnLocation.Copy( s.SpawnLocations[i] ) );
+		{
+			SpawnLocations.Insert( s.SpawnLocations[i] );
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -195,5 +200,28 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		
 		StartingGear.Defaults();
 		StartingClothing.Defaults();
+		
+		EnableSpawnSelection = true;
+		SpawnSelectionScreenMenuID = 1004;
+		
+		ref array<vector> positions = new array<vector>;
+		ref ExpansionSpawnLocation location;
+		//! Svetloyarsk
+		positions.Insert( Vector( 14273.2, 2.4, 13053.3 ) );
+		positions.Insert( Vector( 14407.3, 2.0, 13253.0 ) );
+		positions.Insert( Vector( 14142.4, 3.3, 13290.2 ) );
+		positions.Insert( Vector( 13910.9, 4.3, 13624.9 ) );
+		location = new ExpansionSpawnLocation( "Svetloyarsk", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		//! Berezino
+		positions.Insert( Vector( 12915.7, 3.4, 9278.2 ) );
+		positions.Insert( Vector( 13057.2, 2.3, 9584.48 ) );
+		positions.Insert( Vector( 13052.9, 6.1, 9894.7 ) );
+		positions.Insert( Vector( 13207.2, 2.3, 10193.7 ) );
+		location = new ExpansionSpawnLocation( "Berezino", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
 	}
 };

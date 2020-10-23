@@ -24,14 +24,20 @@ modded class TerritoryFlagKit
 
 	}
 	
+	#ifdef DAYZ_1_10
+	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
+	#else
 	override void OnPlacementComplete( Man player )
+	#endif
 	{
 		if ( GetGame().IsServer() )
 		{
 			//Create TerritoryFlag
 			PlayerBase player_base = PlayerBase.Cast( player );
+			#ifndef DAYZ_1_10
 			vector position = player_base.GetLocalProjectionPosition();
 			vector orientation = player_base.GetLocalProjectionOrientation();
+			#endif
 			
 			TerritoryFlag totem = TerritoryFlag.Cast( GetGame().CreateObjectEx( "TerritoryFlag", GetPosition(), ECE_PLACE_ON_SURFACE ) );
 			totem.SetPosition( position );
@@ -46,10 +52,16 @@ modded class TerritoryFlagKit
 			
 			//! If the server hoster doesn't want to build with the vanilla way the entire flag pole
 			if (GetExpansionSettings().GetBaseBuilding().SimpleTerritory)
-			{				
+			{
+				#ifdef DAYZ_1_10
+				totem.GetConstruction().COT_BuildPart( player, "base", false );
+				totem.GetConstruction().COT_BuildPart( player, "support", false );
+				totem.GetConstruction().COT_BuildPart( player, "pole", false );
+				#else
 				totem.GetConstruction().COT_BuildPart( "base", false );
 				totem.GetConstruction().COT_BuildPart( "support", false );
 				totem.GetConstruction().COT_BuildPart( "pole", false );
+				#endif
 								
 				if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
 					totem.GetInventory().CreateAttachment("Flag_DayZ");

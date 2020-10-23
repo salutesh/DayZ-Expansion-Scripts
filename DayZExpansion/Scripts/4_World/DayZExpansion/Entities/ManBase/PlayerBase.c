@@ -307,6 +307,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SetActions
 	// ------------------------------------------------------------
+	#ifndef DAYZ_1_10
 	override void SetActions()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -351,6 +352,7 @@ modded class PlayerBase
 		EXPrint("PlayerBase::SetActions end");
 		#endif
 	}
+	#endif
 
 	// ------------------------------------------------------------
 	// Expansion OnVariablesSynchronized

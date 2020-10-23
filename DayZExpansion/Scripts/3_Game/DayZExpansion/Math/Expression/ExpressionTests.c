@@ -1,3 +1,4 @@
+#ifndef CF_COT_MOVE
 class ExpressionTests
 {
 	private string _current;
@@ -315,3 +316,4 @@ class ExpressionTests
 		_assert( expectedNum, actualNum, expectedRPN, actualRPN );
 	}
 };
+#endif

@@ -25,6 +25,7 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	bool ShowAirdropStarted;
 	bool ShowAirdropClosingOn;
 	bool ShowAirdropDropped;
+	bool ShowAirdropEnded;
 
 	bool ShowPlayerAirdropStarted;
 	bool ShowPlayerAirdropClosingOn;
@@ -147,7 +148,8 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		ShowAirdropStarted = s.ShowAirdropStarted;
 		ShowAirdropClosingOn = s.ShowAirdropClosingOn;
 		ShowAirdropDropped = s.ShowAirdropDropped;
-
+		ShowAirdropEnded = s.ShowAirdropEnded;
+		
 		ShowPlayerAirdropStarted = s.ShowPlayerAirdropStarted;
 		ShowPlayerAirdropClosingOn = s.ShowPlayerAirdropClosingOn;
 		ShowPlayerAirdropDropped = s.ShowPlayerAirdropDropped;
@@ -260,7 +262,8 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		ShowAirdropStarted = true;
 		ShowAirdropClosingOn = true;
 		ShowAirdropDropped = true;
-
+		ShowAirdropEnded = true;
+		
 		ShowPlayerAirdropStarted = true;
 		ShowPlayerAirdropClosingOn = true;
 		ShowPlayerAirdropDropped = true;

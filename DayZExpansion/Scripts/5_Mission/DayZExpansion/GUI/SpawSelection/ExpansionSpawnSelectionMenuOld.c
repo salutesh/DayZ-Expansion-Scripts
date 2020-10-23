@@ -1,5 +1,16 @@
 /**
- * ExpansionSpawnSelectionMenu.c
+ * ExpansionSpawnSelectionMenuOld.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2020 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+/**
+ * ExpansionCOTTerritoriesMapMarker.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +21,7 @@
  *
 */
 
-class ExpansionSpawnSelectionMenu extends UIScriptedMenu
+/*class ExpansionSpawnSelectionMenuOld extends UIScriptedMenu
 {
 	protected ButtonWidget m_Spawn0;
 	protected Widget m_Spawn0Panel;
@@ -37,6 +48,17 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 	protected TextWidget m_Spawn5Text;
 	
 	protected ButtonWidget m_Random;
+	
+	protected ref ExpansionRespawnHandlerModule m_RespawnModule;
+	
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu Constructor
+	// ------------------------------------------------------------
+	void ExpansionSpawnSelectionMenu()
+	{
+		if ( !Class.CastTo( m_RespawnModule, GetModuleManager().GetModule( ExpansionRespawnHandlerModule ) ) )
+			return;
+	}
 	
 	// ------------------------------------------------------------
 	// Override Widget Init
@@ -214,11 +236,6 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 		{
 			GetGame().GetUIManager().ShowUICursor( true );
 		}
-		
-		/*if ( GetUApi() && GetUApi().GetInputByName("UAUIBack").LocalPress() )
-		{
-			ResetCharacter();
-		}*/
 	}
 	
 	// ------------------------------------------------------------
@@ -226,15 +243,7 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	void Spawn( int position )
 	{
-		GetRPCManager().SendRPC( "DayZExpansion", "SelectSpawnPosition", new Param1< int >( position ), true );
+		m_RespawnModule.SelectSpawn( position );
+		//GetRPCManager().SendRPC( "DayZExpansion", "SelectSpawnPosition", new Param1< int >( position ), true );
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ResetCharacter
-	// !TODO: Add kill and reset player character and force him to respawn and select spawn location again
-	// ------------------------------------------------------------
-	void ResetCharacter()
-	{
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-	}
-}
+}*/

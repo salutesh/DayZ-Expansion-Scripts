@@ -1,5 +1,5 @@
 /* TODO: Move to Community Framework */
-
+#ifndef CF_COT_MOVE
 class ExpressionCompileToken
 {
 	string token;
@@ -17,3 +17,4 @@ class ExpressionCompileToken
 		return op;
 	}
 };
+#endif

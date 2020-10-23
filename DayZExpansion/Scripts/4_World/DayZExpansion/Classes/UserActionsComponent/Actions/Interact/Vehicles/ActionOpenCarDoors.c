@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef DAYZ_1_10
 modded class ActionOpenCarDoors
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
@@ -44,3 +45,4 @@ modded class ActionOpenCarDoors
 		}
 	}
 }
+#endif

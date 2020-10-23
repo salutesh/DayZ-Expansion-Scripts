@@ -395,14 +395,20 @@ class ExpansionStove extends Container_Base
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
+	#ifdef DAYZ_1_10
+	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
+	#else
 	override void OnPlacementComplete( Man player )
+	#endif
 	{
 		if ( IsMissionHost() )
 		{
 			//! Create stove
+			#ifndef DAYZ_1_10
 			PlayerBase player_base = PlayerBase.Cast( player );
 			vector position = player_base.GetLocalProjectionPosition();
 			vector orientation = player_base.GetLocalProjectionOrientation();
+			#endif
 			
 			SetPosition( position );
 			SetOrientation( orientation );

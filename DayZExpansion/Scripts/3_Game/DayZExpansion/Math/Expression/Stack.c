@@ -1,5 +1,5 @@
 /* TODO: Move to Community Framework */
-
+#ifndef CF_COT_MOVE
 class __Stack<Class T>
 {
 	private T _data[256];
@@ -67,3 +67,4 @@ class __Stack<Class T>
 		return _count;
 	}
 };
+#endif

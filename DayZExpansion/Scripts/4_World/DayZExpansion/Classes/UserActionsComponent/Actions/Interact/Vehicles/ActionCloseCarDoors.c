@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef DAYZ_1_10
 modded class ActionCloseCarDoors
 {
 	override void OnStartClient( ActionData action_data )
@@ -32,3 +33,4 @@ modded class ActionCloseCarDoors
 		}
 	}
 }
+#endif

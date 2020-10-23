@@ -10,6 +10,15 @@
  *
 */
 
+enum ExpansionRespawnHandlerModuleRPC
+{
+	INVALID = 20600,
+	ShowSpawnMenu,
+	SelectSpawn,
+	CloseSpawnMenu,
+	COUNT
+}
+
 class ExpansionRespawnHandlerModule: JMModuleBase
 {
 	// ------------------------------------------------------------
@@ -25,7 +34,218 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	override bool IsClient()
 	{
-		return false;
+		return true;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule GetRPCMin
+	// ------------------------------------------------------------	
+	override int GetRPCMin()
+	{
+		return ExpansionRespawnHandlerModuleRPC.INVALID;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule GetRPCMax
+	// ------------------------------------------------------------
+	override int GetRPCMax()
+	{
+		return ExpansionRespawnHandlerModuleRPC.COUNT;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule OnRPC
+	// ------------------------------------------------------------
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	{
+		switch ( rpc_type )
+		{
+		case ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu:
+			RPC_ShowSpawnMenu( sender, ctx );
+			break;
+		case ExpansionRespawnHandlerModuleRPC.SelectSpawn:
+			RPC_SelectSpawn( sender, ctx );
+			break;
+		case ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu:
+			RPC_CloseSpawnMenu( sender, ctx );
+			break;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule ShowSpawnSelection
+	// Called on server
+	// ------------------------------------------------------------
+	void ShowSpawnSelection(PlayerIdentity sender)
+	{
+		Print("ExpansionRespawnHandlerModule::ShowSpawnSelection - Start");
+		
+		if ( !IsMissionHost() )
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, sender );
+		
+		Print("ExpansionRespawnHandlerModule::ShowSpawnSelection - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule RPC_ShowSpawnMenu
+	// Called on client
+	// ------------------------------------------------------------
+	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ref ParamsReadContext ctx)
+	{	
+		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
+		
+		if ( !IsMissionClient() )
+			return;
+		
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1000, false);
+		
+		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule Exec_ShowSpawnMenu
+	// Called on client
+	// ------------------------------------------------------------
+	private void Exec_ShowSpawnMenu()
+	{
+		Print("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Start");
+		
+		if ( !IsMissionClient() )
+			return;
+		
+		GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL );
+		
+		/*ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+		if ( spawnSelectionMenu )
+		{
+			//spawnSelectionMenu.FillList();
+			//GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove( Exec_ShowSpawnMenu );
+		}*/
+		
+		Print("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule SelectSpawn
+	// Called from client
+	// ------------------------------------------------------------
+	void SelectSpawn(vector spawnPoint)
+	{
+		Print("ExpansionRespawnHandlerModule::SelectSpawn - Start");
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( spawnPoint );
+		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true );
+		
+		Print("ExpansionRespawnHandlerModule::SelectSpawn - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule RPC_SelectSpawn
+	// Called on server
+	// ------------------------------------------------------------
+	private void RPC_SelectSpawn(PlayerIdentity sender, ref ParamsReadContext ctx)
+	{	
+		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - Start");
+		
+		if ( !IsMissionHost() )
+			return;
+		
+		if ( !sender )
+			return;
+		
+		vector spawnPoint;
+		if ( !ctx.Read( spawnPoint ) )
+			return;
+		
+		Exec_SelectSpawn(sender, spawnPoint);
+		
+		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule Exec_SelectSpawn
+	// Called on server
+	// ------------------------------------------------------------
+	private void Exec_SelectSpawn(PlayerIdentity sender, vector spawnPoint)
+	{	
+		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - Start");
+		
+		PlayerBase player = GetPlayerObjectByIdentity( sender );
+		if ( player )
+		{
+			player.SetPosition( spawnPoint );
+			
+			CloseSpawnMenu( sender );
+		}
+		
+		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule CloseSpawnMenu
+	// Called on server
+	// ------------------------------------------------------------
+	void CloseSpawnMenu(PlayerIdentity sender)
+	{
+		Print("ExpansionRespawnHandlerModule::CloseSpawnMenu - Start");
+		
+		if ( !IsMissionHost() )
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, sender );
+		
+		Print("ExpansionRespawnHandlerModule::CloseSpawnMenu - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule RPC_CloseSpawnMenu
+	// Called on client
+	// ------------------------------------------------------------
+	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ref ParamsReadContext ctx)
+	{	
+		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - Start");
+		
+		if ( !IsMissionClient() )
+			return;
+		
+		Exec_CloseSpawnMenu();
+		
+		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule Exec_CloseSpawnMenu
+	// Called on client
+	// ------------------------------------------------------------
+	private void Exec_CloseSpawnMenu()
+	{
+		if ( !IsMissionClient() )
+			return;
+		
+		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+		if ( spawnSelectionMenu )
+		{
+			GetGame().GetUIManager().CloseMenu( MENU_EXPANSION_SPAWN_SELECTION_MENU );
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule SelectRandomSpawn
+	// Called on client
+	// ------------------------------------------------------------
+	void SelectRandomSpawn()
+	{
+		if ( !IsMissionClient() )
+			return;
+		
+		ref ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
+		
+		SelectSpawn( random_location.Positions.GetRandomElement() );
 	}
 	
 	// ------------------------------------------------------------
@@ -33,8 +253,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	void SetExpansionStartingGear(PlayerBase player)
 	{
-		Print("ExpansionRespawnHandlerModule::SetExpansionStartingGear - Start");
-
+		if ( !IsMissionHost() )
+			return;
+		
 		int i;
 		EntityAI gear_item;
 		EntityAI itemTop;
@@ -147,8 +368,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 				}
 			}
 		}
-		
-		Print("ExpansionRespawnHandlerModule::SetExpansionStartingGear - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -156,7 +375,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionEquipCharacter(PlayerBase player)
 	{
-		Print("DayZExpansion::ExpansionEquipCharacter - Start");
+		if ( !IsMissionHost() )
+			return;
 		
 		ref array<EntityAI> clothingArray = new array<EntityAI>;
 		
@@ -206,8 +426,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			
 			SetExpansionStartingGear(player);
 		}
-		
-		Print("DayZExpansion::ExpansionEquipCharacter - End");
 	}
 	
 	// ------------------------------------------------------------

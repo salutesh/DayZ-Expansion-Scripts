@@ -13,18 +13,17 @@
 class ExpansionSpawnLocation
 {
 	string Name;
-	string Image;
-	ref array< ref Param2< vector, float > > Positions;
-
-	void ExpansionSpawnLocation( string name, string image, array< ref Param2< vector, float > > positions )
+	ref array< vector > Positions;
+	
+	void ExpansionSpawnLocation( string name, array< vector > positions )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnLocation::ExpansionSpawnLocation - Start");
 		#endif
 		
 		Name = name;
-		Image = image;
-
+		
+		Positions = new array< vector >;
 		for ( int i = 0; i < positions.Count(); i++ )
 			Positions.Insert( positions[i] );
 		
@@ -40,7 +39,7 @@ class ExpansionSpawnLocation
 
 	static ref ExpansionSpawnLocation Copy( ref ExpansionSpawnLocation src )
 	{
-		ref ExpansionSpawnLocation dst = new ExpansionSpawnLocation( src.Name, src.Image, new array< ref Param2< vector, float > >() );
+		ref ExpansionSpawnLocation dst = new ExpansionSpawnLocation( src.Name, new array< vector >() );
 		return dst;
 	}
 };

@@ -149,9 +149,28 @@ class ExpansionVehicleCrew
 	{
 		if ( m_Occupied )
 		{
+			PlayerBase player = m_Player;
 			m_Player = GetGame().GetObjectByNetworkId( m_NetworkIDLow, m_NetworkIDHigh );
+
+			if ( player != m_Player && m_Player != GetGame().GetPlayer() )
+			{
+				vector tmPlayer[ 4 ];
+				vector tmTarget[ 4 ];
+				vector tmLocal[ 4 ];
+
+				m_Player.GetTransformWS( tmPlayer );
+				m_Vehicle.GetTransform( tmTarget );
+				Math3D.MatrixInvMultiply4( tmTarget, tmPlayer, tmLocal );
+
+				m_Player.LinkToLocalSpaceOf( m_Vehicle, tmLocal );
+			}
 		} else
 		{
+			if ( m_Player && m_Player != GetGame().GetPlayer() )
+			{
+				m_Player.UnlinkFromLocalSpace();
+			}
+
 			m_Player = NULL;
 		}
 	}

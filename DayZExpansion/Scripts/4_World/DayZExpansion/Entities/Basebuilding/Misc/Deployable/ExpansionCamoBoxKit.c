@@ -18,7 +18,11 @@ class ExpansionCamoBoxKit: ExpansionKitLarge
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
+	#ifdef DAYZ_1_10
+	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
+	#else
 	override void OnPlacementComplete( Man player )
+	#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionCamoBoxKit::OnPlacementComplete - Start");
@@ -27,9 +31,11 @@ class ExpansionCamoBoxKit: ExpansionKitLarge
 		if ( IsMissionHost() )
 		{
 			//! Create camo box
+			#ifndef DAYZ_1_10
 			PlayerBase player_base = PlayerBase.Cast( player );
 			vector position = player_base.GetLocalProjectionPosition();
 			vector orientation = player_base.GetLocalProjectionOrientation();
+			#endif
 			
 			ExpansionCamoBox camobox = ExpansionCamoBox.Cast( GetGame().CreateObject( "ExpansionCamoBox", GetPosition() ) );
 			camobox.SetPosition( position );

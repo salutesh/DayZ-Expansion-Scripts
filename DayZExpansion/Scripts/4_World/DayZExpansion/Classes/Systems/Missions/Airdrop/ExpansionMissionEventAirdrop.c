@@ -163,7 +163,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				GetGame().ObjectDelete(items[i]);
 			}
 			
-			//m_Container.RemoveServerMarker();
 			GetGame().ObjectDelete( m_Container );
 		}
 		
@@ -205,7 +204,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 					m_Infected.Remove( index );
 				}
 				
-				if (ShowNotification /*|| GetExpansionSettings().GetNotification().ShowAirdropEnded*/)
+				if ( ShowNotification || GetExpansionSettings().GetNotification().ShowAirdropEnded )
 				{
 					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
 				}

@@ -229,8 +229,14 @@ class ExpansionHelicopterController: ExpansionVehicleController
 			ctx.Write( m_CyclicForwardM );
 			ctx.Write( m_CyclicBackwardM );
 
+			ctx.Write( m_CyclicForwardK );
+			ctx.Write( m_CyclicBackwardK );
+
 			ctx.Write( m_CyclicLeftM );
 			ctx.Write( m_CyclicRightM );
+
+			ctx.Write( m_CyclicLeftK );
+			ctx.Write( m_CyclicRightK );
 		}
 
 		ctx.Write( m_AntiTorqueLeft );
@@ -249,8 +255,14 @@ class ExpansionHelicopterController: ExpansionVehicleController
 			ctx.Read( m_CyclicForwardM );
 			ctx.Read( m_CyclicBackwardM );
 
-			ctx.Read( m_CyclicLeftM );
-			ctx.Read( m_CyclicRightM );
+			ctx.Write( m_CyclicForwardK );
+			ctx.Write( m_CyclicBackwardK );
+
+			ctx.Write( m_CyclicLeftM );
+			ctx.Write( m_CyclicRightM );
+
+			ctx.Write( m_CyclicLeftK );
+			ctx.Write( m_CyclicRightK );
 		}
 
 		ctx.Read( m_AntiTorqueLeft );

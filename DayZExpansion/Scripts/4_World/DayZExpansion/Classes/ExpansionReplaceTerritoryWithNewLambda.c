@@ -63,9 +63,9 @@ class ExpansionReplaceTerritoryWithNewLambda : TurnItemIntoItemLambda
 		TerritoryFlag flag;
 		if ( Class.CastTo( flag, new_item ) )
 		{
-			flag.GetConstruction().COT_BuildPart( "base", false );				
-			flag.GetConstruction().COT_BuildPart( "support", false );				
-			flag.GetConstruction().COT_BuildPart( "pole", false );
+			//flag.GetConstruction().COT_BuildPart( "base", false );				
+			//flag.GetConstruction().COT_BuildPart( "support", false );				
+			//flag.GetConstruction().COT_BuildPart( "pole", false );
 			flag.GetInventory().CreateAttachment( "Flag_DayZ" );
 			
 			flag.SetIsExpansionTerritoryFlag( true );

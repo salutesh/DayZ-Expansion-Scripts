@@ -99,18 +99,17 @@ class ExpansionCOTTerritoriesMapMarker extends ExpansionMapMarker
 	// ------------------------------------------------------------
 	override bool OnClick( Widget w, int x, int y, int button )
 	{		
-		if ( w != NULL )
+		switch ( w )
 		{
-			if ( w == m_EditButton )
+		case m_EditButton:
+			ExpansionCOTTerritoriesMenu menu = ExpansionCOTTerritoriesMenu.Cast( m_Menu );
+			if ( menu )
 			{
-				ExpansionCOTTerritoriesMenu menu = ExpansionCOTTerritoriesMenu.Cast( m_Menu );
-				if ( menu )
-				{
-					menu.SetTerritoryInfo( m_Territory );
-				}
+				menu.SetTerritoryInfo( m_Territory );
 			}
+			break;
 		}
 
-		return super.OnClick( w, x, y, button );
+		return false;
 	}
 }

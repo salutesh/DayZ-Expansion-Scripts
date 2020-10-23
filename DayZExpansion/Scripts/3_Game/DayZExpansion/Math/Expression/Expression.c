@@ -1,5 +1,5 @@
 /* TODO: Move to Community Framework */
-
+#ifndef CF_COT_MOVE
 class Expression
 {
 	string value;
@@ -439,11 +439,8 @@ class Expression
 		return rpn;
 	}
 	
-	/**
-	 *  @brief	Converts the compiled expression into Reverse Polish Notation 
-	 *
-	 * 	@return string
-	 */
+	// @brief	Converts the compiled expression into Reverse Polish Notation 
+	// @return string
 	private string _ToRPN()
 	{
 		string rpn = string.Empty;
@@ -500,3 +497,4 @@ class Expression
 		return rpn;
 	}
 };
+#endif

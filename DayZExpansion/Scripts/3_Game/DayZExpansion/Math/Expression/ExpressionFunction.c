@@ -1,5 +1,5 @@
 /* TODO: Move to Community Framework */
-
+#ifndef CF_COT_MOVE
 class ExpressionFunction
 {
 	int index;
@@ -148,3 +148,4 @@ class ExpressionFunctionMax: ExpressionFunction
 		stack[stackPointer] = Math.Max( numA, numB );
 	}
 };
+#endif

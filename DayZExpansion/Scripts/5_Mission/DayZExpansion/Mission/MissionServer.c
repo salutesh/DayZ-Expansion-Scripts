@@ -143,19 +143,42 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	// EquipCharacter
 	// ------------------------------------------------------------
-	override void EquipCharacter()
-	{	
-		Print("MissionServer::EquipCharacter - Start");
+	#ifdef DAYZ_1_10
+	override void EquipCharacter(MenuDefaultCharacterData char_data)
+	{
 		if (GetExpansionSettings().GetSpawn().StartingClothing.EnableCustomClothing)
 		{
-			Print("MissionServer::EquipCharacter - CUSTOM");
 			m_RespawnHandlerModule.ExpansionEquipCharacter(m_player);
 		}
 		else
 		{
-			Print("MissionServer::EquipCharacter - VANILLA");
+			super.EquipCharacter(char_data);
+		}
+	}
+	#else
+	override void EquipCharacter()
+	{
+		if (GetExpansionSettings().GetSpawn().StartingClothing.EnableCustomClothing)
+		{
+			m_RespawnHandlerModule.ExpansionEquipCharacter(m_player);
+		}
+		else
+		{
 			super.EquipCharacter();
 		}
-		Print("MissionServer::EquipCharacter - End");
 	}
+	#endif
+	
+	// ------------------------------------------------------------
+	// OnClientNewEvent
+	// ------------------------------------------------------------
+	override PlayerBase OnClientNewEvent( PlayerIdentity identity, vector pos, ParamsReadContext ctx )
+	{
+		PlayerBase player = super.OnClientNewEvent( identity, pos, ctx );
+		
+		if ( GetExpansionSettings().GetSpawn().EnableSpawnSelection )
+			m_RespawnHandlerModule.ShowSpawnSelection( player.GetIdentity() );
+
+		return player;
+	} 
 }

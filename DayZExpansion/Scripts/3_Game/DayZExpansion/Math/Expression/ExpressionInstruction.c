@@ -1,5 +1,5 @@
 /* TODO: Move to Community Framework */
-
+#ifndef CF_COT_MOVE
 class ExpressionInstruction
 {
 	string token;
@@ -47,3 +47,4 @@ class ExpressionInstruction
 		}
 	}
 };
+#endif
