@@ -149,8 +149,8 @@ class ExpansionVehicleCrew
 	{
 		if ( m_Occupied )
 		{
-			PlayerBase player = m_Player;
-			m_Player = GetGame().GetObjectByNetworkId( m_NetworkIDLow, m_NetworkIDHigh );
+			PlayerBase player = PlayerBase.Cast( m_Player );
+			m_Player = DayZPlayerImplement.Cast( GetGame().GetObjectByNetworkId( m_NetworkIDLow, m_NetworkIDHigh ) );
 
 			if ( player != m_Player && m_Player != GetGame().GetPlayer() )
 			{

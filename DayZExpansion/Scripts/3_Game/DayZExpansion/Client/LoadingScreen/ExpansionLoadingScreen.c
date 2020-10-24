@@ -114,12 +114,12 @@ modded class LoadingScreen
 			
 			DestroyRestApi();
 
-			if ( !m_Serializer.ReadFromString( m_MessageRest, data, error ) )
+			/*if ( !m_Serializer.ReadFromString( m_MessageRest, data, error ) )
 			{
 				m_LoadingMessage.Show(false);
 				m_LoadingMessageAuthor.Show(false);
 				Error( error );
-			}
+			}*/
 		} else
 		{
 			m_LoadingMessage.Show(false);

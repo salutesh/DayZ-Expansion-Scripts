@@ -34,6 +34,7 @@ modded class TerritoryFlagKit
 		{
 			//Create TerritoryFlag
 			PlayerBase player_base = PlayerBase.Cast( player );
+			
 			#ifndef DAYZ_1_10
 			vector position = player_base.GetLocalProjectionPosition();
 			vector orientation = player_base.GetLocalProjectionOrientation();
@@ -54,9 +55,9 @@ modded class TerritoryFlagKit
 			if (GetExpansionSettings().GetBaseBuilding().SimpleTerritory)
 			{
 				#ifdef DAYZ_1_10
-				totem.GetConstruction().COT_BuildPart( player, "base", false );
-				totem.GetConstruction().COT_BuildPart( player, "support", false );
-				totem.GetConstruction().COT_BuildPart( player, "pole", false );
+				totem.GetConstruction().COT_BuildPart( "base", player_base, false );
+				totem.GetConstruction().COT_BuildPart( "support", player_base, false );
+				totem.GetConstruction().COT_BuildPart( "pole", player_base, false );
 				#else
 				totem.GetConstruction().COT_BuildPart( "base", false );
 				totem.GetConstruction().COT_BuildPart( "support", false );
