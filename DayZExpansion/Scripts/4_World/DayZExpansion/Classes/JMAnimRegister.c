@@ -124,7 +124,9 @@ modded class JMAnimRegister
 		super.OnRegisterPistol( pType, pBehavior );
 		
 		// pType.AddItemInHandsProfileIK("ExpansionFlaregunBase", "DayZExpansion/Animations/Player/Weapons/player_main_flaregun.asi", pBehavior, "dz/anims/anm/player/ik/weapons/fnp45.anm", "dz/anims/anm/player/reloads/FNP45/w_fnp45_states.anm" );		
-		pType.AddItemInHandsProfileIK("Expansion_M9_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz75.asi", pBehavior, "dz/anims/anm/player/ik/weapons/CZ75.anm", "dz/anims/anm/player/reloads/CZ75/w_CZ75_states.anm");		
+		pType.AddItemInHandsProfileIK("Expansion_M9_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz75.asi", pBehavior, "dz/anims/anm/player/ik/weapons/CZ75.anm", "dz/anims/anm/player/reloads/CZ75/w_CZ75_states.anm");	
+		pType.AddItemInHandsProfileIK("Expansion_Longhorn_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_flaregun.asi", pBehavior, "dz/anims/anm/player/ik/weapons/flaregun.anm", "dz/anims/anm/player/reloads/Flaregun/w_Flaregun_states.anm");
+		
 	}
 
 	override void OnRegisterFireArms( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
@@ -176,6 +178,9 @@ modded class JMAnimRegister
 		
 		array<string> RPG7BoneRemap = { "release", "Weapon_Bone_02", "barrel", "Weapon_Bone_01", "trigger", "Weapon_Trigger","ejector","Weapon_Bone_03","bullet", "Weapon_Bullet", };
 		pType.AddItemBoneRemap("ExpansionRPG7Base", RPG7BoneRemap);
+		
+		array<string> WorkingLongHornBoneRemap = { "hammer", "Weapon_Bone_02", "reload", "Weapon_Bone_01", "trigger", "Weapon_Trigger" ,"bullet", "Weapon_Bullet" };
+		pType.AddItemBoneRemap("Expansion_Longhorn_Base", WorkingLongHornBoneRemap);
 
 		#ifndef EXPANSION_CHICKEN_DISABLE
 		{
