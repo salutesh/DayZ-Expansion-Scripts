@@ -112,6 +112,9 @@
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING
 
+//! Enable if you want to use CF MVC Branch
+#define CF_MVC
+
 #ifdef SERVER //! Don't comment these, diag exe server crashes
 #define EXPANSION_DEBUG_SHAPES_DISABLE
 #define EXPANSION_WHEEL_DEBUG_DISABLE

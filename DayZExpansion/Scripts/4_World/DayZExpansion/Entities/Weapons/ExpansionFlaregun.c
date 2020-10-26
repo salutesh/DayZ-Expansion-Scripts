@@ -421,43 +421,5 @@ class ExpansionFlaregun: FNX45_Base
 		HideMagazine();
 		m_fsm.Start();
 	}
-<<<<<<< HEAD
-};*/
-
-//! Remove Flaregun and its ammo from storage
-#ifdef DAYZ_1_10 
-class ExpansionFlaregun: FNX45_Base
-{
-	override void EEOnCECreate()
-	{
-		GetGame().ObjectDelete( this );
-	}
-}
-
-class ExpansionAmmoFlare: Ammunition_Base
-{
-	override void EEOnCECreate()
-	{
-		GetGame().ObjectDelete( this );
-	}
-}
-
-class ExpansionAmmoFlareLight: Ammunition_Base
-{
-	override void EEOnCECreate()
-	{
-		GetGame().ObjectDelete( this );
-	}
-}
-
-class ExpansionRoadflare: Roadflare
-{
-	override void EEOnCECreate()
-	{
-		GetGame().ObjectDelete( this );
-	}
-}
-#endif
-=======
 };
->>>>>>> parent of 39400ee2b... Removed Expansion Flaregun and its ammo and also Expansion Roadflare
+
