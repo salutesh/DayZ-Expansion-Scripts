@@ -882,29 +882,40 @@ class ExpansionVehicleScript extends ItemBase
 			stateF = 2;
 			
 			SetDynamicPhysicsLifeTime( 0.01 );
-		} else if ( !m_IsPhysicsHost && !dBodyIsDynamic( this ) )
+		} else
 		{
 			stateF = 3;
 			
 			if ( IsMissionHost() )
 				m_NetworkClientSideServerProcessing = false;
 
+			bool useSetTargetMatrix = GetExpansionSettings().GetVehicle().DebugVehicleTransformSet == 1;
+
 			if ( GetGame().IsClient() )
 			{
-				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0, 0.0 ), m_SyncState.m_PredictedTransform );
+				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
 
-				SetTransform( m_SyncState.m_PredictedTransform );
+				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
+
+				if ( useSetTargetMatrix && dBodyIsDynamic( this ) )
+				{
+					dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, 0.0 );
+				} else
+				{
+					SetTransform( m_SyncState.m_PredictedTransform );
+				}
 			} else
 			{
-				SetTransform( m_SyncState.m_InitialTransform );
+				if ( useSetTargetMatrix && dBodyIsDynamic( this ) )
+				{
+					dBodySetTargetMatrix( this, m_SyncState.m_InitialTransform, 0.0 );
+				} else
+				{
+					SetTransform( m_SyncState.m_InitialTransform );
+				}
 			}
 
 			SetSynchDirty();
-		} else if ( !m_IsPhysicsHost && IsMissionClient() && dBodyIsDynamic( this ) )
-		{
-			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0, 0.0 ), m_SyncState.m_PredictedTransform )
-
-			dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, 0.0 );
 		}
 		
 		if ( stateF != stateB )

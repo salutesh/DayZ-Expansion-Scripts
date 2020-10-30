@@ -31,6 +31,7 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	bool EnableHelicopterExplosions;
 
 	int DebugVehicleSync;
+	int DebugVehicleTransformSet;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -130,6 +131,7 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		EnableHelicopterExplosions = s.EnableHelicopterExplosions;
 
 		DebugVehicleSync = s.DebugVehicleSync;
+		DebugVehicleTransformSet = s.DebugVehicleTransformSet;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
@@ -228,6 +230,7 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		Towing = true;
 
 		DebugVehicleSync = 0;
+		DebugVehicleTransformSet = 0;
 	}
 };
 

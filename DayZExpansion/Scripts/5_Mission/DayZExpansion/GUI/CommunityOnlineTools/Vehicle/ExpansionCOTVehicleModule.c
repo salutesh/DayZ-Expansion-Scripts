@@ -56,6 +56,8 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateEnum( "VehicleSync", ExpansionVehicleNetworkMode, "Vehicle Sync", "", "" );
+		array< string > values_DebugVehicleTransformSet = { "SET", "PHYSICS" };
+		CreateEnum( "DebugVehicleTransformSet", values_DebugVehicleTransformSet, "Debug Vehicle Transform", "", "" );
 		array< string > values_DebugVehicleSync = { "DIV", "NONE", "MUL" };
 		CreateEnum( "DebugVehicleSync", values_DebugVehicleSync, "Debug Vehicle Sync", "", "" );
 		array< string > values_VehicleRequireKeyToStart = { "NO", "YES" };
