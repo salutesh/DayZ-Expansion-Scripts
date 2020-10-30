@@ -15,6 +15,31 @@ class ExpansionTerritoryMember
 	protected string m_ID;
 	protected string m_Name;
 	protected ExpansionTerritoryRank m_Rank;
+
+	// ------------------------------------------------------------
+	// Expansion OnStoreSave
+	// ------------------------------------------------------------
+	void OnStoreSave( ModStorage storage )
+	{
+		storage.WriteString( m_ID );
+		storage.WriteString( m_Name );
+		storage.WriteInt( m_Rank );
+	}
+
+	// ------------------------------------------------------------
+	// Expansion OnStoreLoad
+	// ------------------------------------------------------------
+	bool OnStoreLoad( ModStorage storage )
+	{
+		if ( Expansion_Assert_False( storage.ReadString( m_ID ), "[" + this + "] Failed reading m_ID" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadString( m_Name ), "[" + this + "] Failed reading m_Name" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadInt( m_Rank ), "[" + this + "] Failed reading m_Rank" ) )
+			return false;
+
+		return true;
+	}
 	
 	string GetID()
 	{
@@ -62,7 +87,7 @@ class ExpansionTerritoryMember
 		m_Rank = rank;
 	}
 	
-	void ExpansionTerritoryMember(string ID, string name, bool owner = false)
+	void ExpansionTerritoryMember(string ID = "", string name = "", bool owner = false)
 	{
 		m_ID = ID;
 		m_Name = name;
@@ -76,4 +101,4 @@ class ExpansionTerritoryMember
 			m_Rank = ExpansionTerritoryRank.MEMBER;
 		}
 	}
-}
+};

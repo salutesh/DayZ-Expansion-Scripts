@@ -104,6 +104,7 @@ class ExpansionVehicleScript extends ItemBase
 
 	private float m_TimeSlice;
 	protected bool m_IsPhysicsHost;
+	private int m_PhysicsCreationTimer;
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
 	
@@ -634,6 +635,12 @@ class ExpansionVehicleScript extends ItemBase
 	}
 
 	// ------------------------------------------------------------
+	bool IsPhysicsHost()
+	{
+		return m_IsPhysicsHost;
+	}
+
+	// ------------------------------------------------------------
 	protected bool CanSimulate()
 	{
 		return true;
@@ -865,12 +872,12 @@ class ExpansionVehicleScript extends ItemBase
 			
 			if ( IsMissionClient() )
 				NetworkSend();
-		} else if ( m_IsPhysicsHost && !dBodyIsDynamic( this ) )
+		} else if ( ( m_IsPhysicsHost || IsMissionClient() ) && !dBodyIsDynamic( this ) )
 		{
 			stateF = 1;
-			
+
 			CreateDynamic();
-		} else if ( !m_IsPhysicsHost && dBodyIsDynamic( this ) )
+		} else if ( !m_IsPhysicsHost && !IsMissionClient() && dBodyIsDynamic( this ) )
 		{
 			stateF = 2;
 			

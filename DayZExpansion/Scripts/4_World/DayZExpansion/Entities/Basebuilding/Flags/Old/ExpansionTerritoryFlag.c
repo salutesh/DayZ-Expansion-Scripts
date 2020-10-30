@@ -130,7 +130,7 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		
 		if (GetExpansionSaveVersion() >= 3)
 		{
-			m_Territory.OnStoreSave(ctx);
+			m_Territory.OnStoreSave_OLD(ctx);
 		}
 		else
 		{
@@ -160,7 +160,7 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 		
 		if ( GetExpansionSaveVersion() >= 3 )
 		{
-			if ( !m_Territory.OnStoreLoad( ctx, GetExpansionSaveVersion() ) )
+			if ( !m_Territory.OnStoreLoad_OLD( ctx, GetExpansionSaveVersion() ) )
 				return false;
 		} else
 		{

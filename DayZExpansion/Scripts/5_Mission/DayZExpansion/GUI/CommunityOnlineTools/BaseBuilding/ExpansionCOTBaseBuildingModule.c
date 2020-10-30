@@ -64,6 +64,7 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
 		CreateToggle( "DismantleFlagRequireTools", "Dismantle Flag Requires Tools", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );
+		CreateToggle( "DismantleInsideTerritory", "Dismantle Inside Other Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
 
 		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Codelock: Damage On Wrong Code", "", "" );

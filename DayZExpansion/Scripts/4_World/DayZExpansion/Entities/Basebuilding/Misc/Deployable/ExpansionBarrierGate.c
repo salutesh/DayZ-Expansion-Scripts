@@ -123,6 +123,14 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		super.OnStoreSave( ctx );
 
 		ctx.Write( m_IsOpened );
@@ -130,22 +138,45 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
 		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
 			return false;
 
-		if ( m_IsOpened )
-		{
-			SetAnimationPhase( "gate", 0 );
-		} else 
-		{
-			SetAnimationPhase( "gate", 1 );
-		}
+		return true;
+	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+		
+		storage.WriteBool( m_IsOpened );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadBool( m_IsOpened ), "[" + this + "] Failed reading m_IsTerritory" ) )
+			return false;
 
 		return true;
 	}
+	#endif
 
 	// ------------------------------------------------------------
 	// CanBeDamaged
@@ -160,6 +191,14 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override void AfterStoreLoad()
 	{
-		
+		//super.AfterStoreLoad();
+
+		if ( m_IsOpened )
+		{
+			SetAnimationPhase( "gate", 0 );
+		} else 
+		{
+			SetAnimationPhase( "gate", 1 );
+		}
 	}
 }

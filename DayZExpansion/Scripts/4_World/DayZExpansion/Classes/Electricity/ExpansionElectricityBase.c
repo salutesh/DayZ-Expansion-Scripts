@@ -16,11 +16,19 @@ class ExpansionElectricityBase
 	{
 	}
 
-	void OnStoreSave( ParamsWriteContext ctx )
+	void OnStoreSave_OLD( ParamsWriteContext ctx )
 	{
 	}
 
-	bool OnStoreLoad( ParamsReadContext ctx, int vanillaVersion, int expansionVersion )
+	bool OnStoreLoad_OLD( ParamsReadContext ctx, int vanillaVersion, int expansionVersion )
+	{
+	}
+
+	void OnStoreSave( ModStorage storage )
+	{
+	}
+
+	bool OnStoreLoad( ModStorage storage )
 	{
 	}
 };

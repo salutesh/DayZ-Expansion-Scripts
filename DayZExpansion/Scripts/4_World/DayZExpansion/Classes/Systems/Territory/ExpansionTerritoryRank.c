@@ -15,4 +15,4 @@ enum ExpansionTerritoryRank
 	MEMBER = 0,
 	MODERATOR,
 	ADMIN
-} 
+};

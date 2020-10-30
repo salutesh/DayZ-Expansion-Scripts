@@ -307,7 +307,52 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SetActions
 	// ------------------------------------------------------------
-	#ifndef DAYZ_1_10
+	#ifdef DAYZ_1_10
+	override void SetActions( out TInputActionMap InputActionMap )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions start");
+		#endif
+
+		super.SetActions( InputActionMap );
+		
+		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
+		
+		AddAction( ExpansionActionCarHorn, InputActionMap );
+		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
+		
+		AddAction( ExpansionActionOpenParachute, InputActionMap );
+		AddAction( ExpansionActionCutParachute, InputActionMap );
+
+		AddAction( ExpansionActionStartEngine, InputActionMap );
+		AddAction( ExpansionActionStopEngine, InputActionMap );
+		
+		AddAction( ExpansionActionStartBoat, InputActionMap );
+		AddAction( ExpansionActionStopBoat, InputActionMap );
+
+		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
+		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
+
+		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
+
+		AddAction( ExpansionActionPaint, InputActionMap );
+
+		#ifdef EXPANSION_VEHICLE_TOWING
+		AddAction( ExpansionActionConnectTow, InputActionMap );
+		AddAction( ExpansionActionDisconnectTow, InputActionMap );
+		#endif
+		
+		//AddAction( ExpansionActionStartPlane, InputActionMap );
+		//AddAction( ExpansionActionStopPlane, InputActionMap );
+		
+		AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
+		AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions end");
+		#endif
+	}
+	#else
 	override void SetActions()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -1043,6 +1088,14 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
 		ctx.Write( m_ExpansionSaveVersion );
 
@@ -1059,6 +1112,11 @@ modded class PlayerBase
 		//! Use GetExpansionSaveVersion()
 		//! Making sure this is read before everything else.
 
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
@@ -1067,9 +1125,35 @@ modded class PlayerBase
 		
 		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
-	
+
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.WriteBool( m_WasInVehicle );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadBool( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// Expansion AfterStoreLoad

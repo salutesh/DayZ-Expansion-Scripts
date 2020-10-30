@@ -309,6 +309,14 @@ class ExpansionSafeBase extends Container_Base
 	*/
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_IsOpen );
@@ -323,20 +331,16 @@ class ExpansionSafeBase extends Container_Base
 	*/
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 		
 		if ( Expansion_Assert_False( ctx.Read( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
 			return false;
-			
-		if ( m_IsOpen )
-		{
-			SetAnimationPhase( "safe_door", 1 );
-		} else
-		{
-			SetAnimationPhase( "safe_door", 0 );
-		}
-
 		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
@@ -347,6 +351,57 @@ class ExpansionSafeBase extends Container_Base
 		SetSynchDirty();
 
 		return true;
+	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+		
+		storage.WriteBool( m_IsOpen );
+		storage.WriteBool( m_Locked );
+		storage.WriteString( m_Code );
+		storage.WriteBool( m_HasCode );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadBool( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadBool( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadString( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadBool( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
+			return false;
+
+		return true;
+	}
+	#endif
+
+	// ------------------------------------------------------------
+	// Override AfterStoreLoad
+	// ------------------------------------------------------------
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		if ( m_IsOpen )
+		{
+			SetAnimationPhase( "safe_door", 1 );
+		} else
+		{
+			SetAnimationPhase( "safe_door", 0 );
+		}
 	}
 	
 	// ------------------------------------------------------------

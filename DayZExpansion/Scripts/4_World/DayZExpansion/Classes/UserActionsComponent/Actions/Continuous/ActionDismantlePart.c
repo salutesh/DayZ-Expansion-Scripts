@@ -15,7 +15,7 @@ modded class ActionDismantlePart
 	override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
 	{
 		//! Check if nothing is wrong with the basic checks, will skip only if DismantleAnywhere is enabled
-		if ( !super.DismantleCondition( player, target, item, camera_check ) && !GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
+		if ( !GetExpansionSettings().GetBaseBuilding().DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
 			return false;
 
 		//! Now it will check if we are in a safezone
@@ -36,9 +36,6 @@ modded class ActionDismantlePart
 			////! Allow the raider to dismantle with tools
 			//if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == 1 )
 			//		return super.ActionCondition( player, target, item );
-
-			//! Raider is not allowed to dismantle with tools
-			return false;
 		}
 		//! It's not a territory flag, but his he in a territory
 		else if ( player.IsInTerritory() )
@@ -53,12 +50,18 @@ modded class ActionDismantlePart
 				//! Apply normal logic
 				return true;
 			}
-			
-			return false;
-		}
 
+			if ( GetExpansionSettings().GetBaseBuilding().DismantleInsideTerritory )
+			{
+				//! Can he dismantle anywhere ?
+				if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
+					return DismantleAnywhereCondition( player, target, item, camera_check );
+
+				return true;
+			}
+		}
 		//! Can you dismantle outside territoies ?
-		if ( GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory )
+		else if ( GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory )
 		{
 			//! Can he dismantle anywhere and outside territoies ?
 			if ( GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )

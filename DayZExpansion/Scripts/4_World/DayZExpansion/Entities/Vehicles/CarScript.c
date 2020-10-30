@@ -25,10 +25,24 @@ class ExpansionVehicleAttachmentSave
 	vector m_Position;
 	vector m_Orientation;
 
-	void ExpansionVehicleAttachmentSave( vector position, vector orientation )
+	void ExpansionVehicleAttachmentSave( vector position = vector.Zero, vector orientation = vector.Zero )
 	{
 		m_Position = position;
 		m_Orientation = orientation;
+	}
+
+	void OnWrite( ModStorage storage )
+	{
+		storage.WriteVector( m_Position );
+		storage.WriteVector( m_Orientation );
+	}
+
+	bool OnRead( ModStorage storage )
+	{
+		storage.ReadVector( m_Position );
+		storage.ReadVector( m_Orientation );
+
+		return true;
 	}
 };
 
@@ -2260,9 +2274,17 @@ modded class CarScript
 
 	// ------------------------------------------------------------
 	// OnStoreSave
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
 		ctx.Write( m_ExpansionSaveVersion );
 
@@ -2288,7 +2310,6 @@ modded class CarScript
 
 		ctx.Write( m_allAttachments );
 
-		
 		ctx.Write( m_IsBeingTowed );
 		ctx.Write( m_IsTowing );
 
@@ -2309,10 +2330,18 @@ modded class CarScript
 		}
 	}
 	
+	/**
+	 * The following code remains even though unused for backwards compatibility
+	 */
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::OnStoreLoad - Start");
+		#endif
+
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
 		#endif
 
 		// Use GetExpansionSaveVersion()
@@ -2404,6 +2433,143 @@ modded class CarScript
 		return true;
 	}
 	
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.WriteInt( m_PersistentIDA );
+		storage.WriteInt( m_PersistentIDB );
+		storage.WriteInt( m_PersistentIDC );
+		storage.WriteInt( m_PersistentIDD );
+
+		int lockState = m_VehicleLockedState;
+		storage.WriteInt( lockState );
+
+		storage.WriteBool( m_Exploded );
+
+		storage.WriteString( m_CurrentSkinName );
+		
+		GetCurrentOrientation();
+		storage.WriteVector( m_Orientation );	
+		
+		GetCurrentPosition();
+		storage.WriteVector( m_Position );
+
+		int count = m_allAttachments.Count();
+		storage.WriteInt( count );
+		for ( int i = 0; i < count; i++ )
+			m_allAttachments[i].OnWrite( storage );
+
+		storage.WriteBool( m_IsBeingTowed );
+		storage.WriteBool( m_IsTowing );
+
+		if ( m_IsBeingTowed )
+		{
+			storage.WriteInt( m_ParentTowPersistentIDA );
+			storage.WriteInt( m_ParentTowPersistentIDB );
+			storage.WriteInt( m_ParentTowPersistentIDC );
+			storage.WriteInt( m_ParentTowPersistentIDD );
+		}
+
+		if ( m_IsTowing )
+		{
+			storage.WriteInt( m_ChildTowPersistentIDA );
+			storage.WriteInt( m_ChildTowPersistentIDB );
+			storage.WriteInt( m_ChildTowPersistentIDC );
+			storage.WriteInt( m_ChildTowPersistentIDD );
+		}
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+			return false;
+		
+		int lockState;
+		if ( Expansion_Assert_False( storage.ReadInt( lockState ), "[" + this + "] Failed reading lockState" ) )
+			return false;
+
+		m_VehicleLockedState = lockState;
+
+		if ( Expansion_Assert_False( storage.ReadBool( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.ReadString( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
+			return false;
+		
+		if ( Expansion_Assert_False( storage.ReadVector( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
+			return false;
+			
+		if ( Expansion_Assert_False( storage.ReadVector( m_Position ), "[" + this + "] Failed reading m_Position" ) )
+			return false;
+
+		int count;
+		if ( Expansion_Assert_False( storage.ReadInt( count ), "[" + this + "] Failed reading m_allAttachments count" ) )
+			return false;
+
+		for ( int i = 0; i < count; i++ )
+		{
+			ExpansionVehicleAttachmentSave attachmentSave = ExpansionVehicleAttachmentSave();
+			if ( Expansion_Assert_False( attachmentSave.OnRead( storage ), "[" + this + "] Failed reading m_allAttachments" ) )
+				return false;
+			m_allAttachments.Insert( attachmentSave );
+		}
+
+		if ( GetExpansionSaveVersion() >= 7 )
+		{
+			if ( Expansion_Assert_False( storage.ReadBool( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadBool( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+				return false;
+
+			if ( m_IsBeingTowed )
+			{
+				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+					return false;
+			}
+
+			if ( m_IsTowing )
+			{
+				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+					return false;
+			}
+		}
+
+		return true;
+	}
+	#endif
+
 	// ------------------------------------------------------------
 	override void EEOnAfterLoad()
 	{
@@ -2892,6 +3058,20 @@ modded class CarScript
 	{
 		return 15;
 	}
+	
+	#ifdef DAYZ_1_10
+	// ------------------------------------------------------------
+	float GetTransportCameraDistance()
+	{
+		return GetCameraDistance();
+	}
+	
+	// ------------------------------------------------------------
+	override vector GetTransportCameraOffset()
+	{
+		return Vector( 0, GetCameraHeight(), 0 );
+	}
+	#endif
 
 	// ------------------------------------------------------------
 	float GetWreckAltitude()

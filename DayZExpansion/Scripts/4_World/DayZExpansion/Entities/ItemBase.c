@@ -910,6 +910,14 @@ modded class ItemBase
 	//============================================
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreSave - Start");
 		#endif
@@ -947,7 +955,7 @@ modded class ItemBase
 			ctx.Write( false );
 		}
 
-		m_ElectricitySource.OnStoreSave( ctx );
+		m_ElectricitySource.OnStoreSave_OLD( ctx );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreSave - End");
@@ -959,6 +967,11 @@ modded class ItemBase
 	//============================================
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreLoad - Start");
 		#endif
@@ -1012,7 +1025,7 @@ modded class ItemBase
 			m_ElectricitySource.Setup();
 		} else
 		{
-			m_ElectricitySource.OnStoreLoad( ctx, version, GetExpansionSaveVersion() );
+			m_ElectricitySource.OnStoreLoad_OLD( ctx, version, GetExpansionSaveVersion() );
 		}
 
 		//SetSynchDirty();
@@ -1022,6 +1035,96 @@ modded class ItemBase
 
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.WriteString( m_CurrentSkinName );
+		
+		if ( m_WorldAttachment && m_IsAttached )
+		{
+			storage.WriteBool( m_IsAttached );
+
+			m_WorldAttachment.GetPersistentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );
+
+			storage.WriteInt( m_AttachIDA );
+			storage.WriteInt( m_AttachIDB );
+			storage.WriteInt( m_AttachIDC );
+			storage.WriteInt( m_AttachIDD );
+
+			vector tmItem[4];
+			vector tmParent[4];
+			GetTransform( tmItem );
+			m_WorldAttachment.GetTransform( tmParent );
+			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_AttachmentTransform );
+
+			storage.WriteVector( m_AttachmentTransform[0] );
+			storage.WriteVector( m_AttachmentTransform[1] );
+			storage.WriteVector( m_AttachmentTransform[2] );
+			storage.WriteVector( m_AttachmentTransform[3] );
+		} else
+		{
+			storage.WriteBool( false );
+		}
+
+		m_ElectricitySource.OnStoreSave( storage );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadString( m_CurrentSkinName ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.ReadBool( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
+			return false;
+
+		if ( m_IsAttached )
+		{
+			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
+				return false;
+				
+			vector transSide;
+			vector transUp;
+			vector transForward;
+			vector transPos;
+
+			if ( Expansion_Assert_False( storage.ReadVector( transSide ), "[" + this + "] Failed reading transSide" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadVector( transUp ), "[" + this + "] Failed reading transUp" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadVector( transForward ), "[" + this + "] Failed reading transForward" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.ReadVector( transPos ), "[" + this + "] Failed reading transPos" ) )
+				return false;
+
+			m_AttachmentTransform[0] = transSide;
+			m_AttachmentTransform[1] = transUp;
+			m_AttachmentTransform[2] = transForward;
+			m_AttachmentTransform[3] = transPos;
+		}
+
+		m_ElectricitySource.OnStoreLoad( storage );
+
+		return true;
+	}
+	#endif
 	
 	//============================================
 	// EEOnAfterLoad

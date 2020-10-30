@@ -32,6 +32,14 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::DayZPlayerCamera3rdPersonVehicle - Start");
 		#endif
 		
+		#ifdef DAYZ_1_10
+		ExpansionVehicleScript expVehicle;
+		if ( Class.CastTo( expVehicle, m_pPlayer.GetParent() ) )
+		{
+			m_fDistance 		= expVehicle.GetCameraDistance();
+			m_CameraOffsetMS	= Vector( 0, expVehicle.GetCameraHeight(), 0 );
+		}
+		#else
 		if ( m_pPlayer )
 		{
 			CarScript vehicle;
@@ -74,7 +82,8 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			m_fDistance 		= 4.0;
 			m_CameraOffsetMS	= "0.0 1.3 0.0";
 		}
-		
+		#endif
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::DayZPlayerCamera3rdPersonVehicle - End");
 		#endif
@@ -99,7 +108,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 	}
 
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
-	{		
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - Start");
 		#endif
@@ -110,9 +119,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		EntityAI entParent;
 		if ( !Class.CastTo( entParent, m_pPlayer.GetParent() ) )
-		{
 			return;
-		}
 
 		if ( pOutResult.m_CollisionIgnoreEntity )
 		{
@@ -125,44 +132,46 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			}
 		}
 
-		ExpansionHelicopterScript helicopter;
-		ExpansionVehicleScript vehicle;
-
-		bool freeLookKey = false;
-		float cameraHeight;
-		float cameraDistance;
-
-		if ( Class.CastTo( helicopter, m_pPlayer.GetParent() ) )
+		ExpansionVehicleScript exVehicle;
+		if ( Class.CastTo( exVehicle, m_pPlayer.GetParent() ) )
 		{
-			freeLookKey = helicopter.IsFreeLook();
-			
-			cameraHeight = helicopter.GetCameraHeight();
-			cameraDistance = helicopter.GetCameraDistance();
-		} else
-		{
-			if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
+			pOutResult.m_fUseHeading	= 1.0;
+
+			/* Found a workaround for the crash, clients will always now have dynamic vehicles, TODO: test and see if the simulation is still smooth
+			if ( pOutResult.m_CollisionIgnoreEntity == NULL && !exVehicle.IsPhysicsHost() )
 			{
-				pOutResult.m_fUseHeading		= 1.0;
+				//! TODO: fix crash when this is uncommented
+				//pOutResult.m_CollisionIgnoreEntity = exVehicle;
 			}
-
-			return;
+			*/
 		}
 
+		ExpansionHelicopterScript helicopter;
+		if ( Class.CastTo( helicopter, m_pPlayer.GetParent() ) )
+			OnUpdateHelicopter( pDt, helicopter, pOutResult );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - End");
+		#endif
+	}
+
+	void OnUpdateHelicopter( float pDt, ExpansionHelicopterScript pHelicopter, out DayZPlayerCameraResult pOutResult )
+	{
 		vector playerTransformWS[4];
 		m_pPlayer.GetTransform( playerTransformWS );
 
-		vector vehiclePositionWS = entParent.GetOrigin();
+		vector vehiclePositionWS = pHelicopter.GetOrigin();
 		vector vehiclePositionMS = vehiclePositionWS.InvMultiply4( playerTransformWS );
 		vector cameraPosition = vehiclePositionMS + m_CameraOffsetMS;
 
-		vector newOrientation = entParent.GetOrientation();
+		vector newOrientation = pHelicopter.GetOrientation();
 		vector orientDiff = vector.Zero;
 
 		orientDiff[0] = Math.DiffAngle( m_PreviousOrientation[0], newOrientation[0] );
 		orientDiff[1] = Math.DiffAngle( m_PreviousOrientation[1], newOrientation[1] );
 		orientDiff[2] = Math.DiffAngle( m_PreviousOrientation[2], newOrientation[2] );
 
-		vector posDiffWS = GetVelocity( entParent ) * pDt;
+		vector posDiffWS = GetVelocity( pHelicopter ) * pDt;
 		vector posDiffLS = posDiffWS.InvMultiply3( playerTransformWS );
 
 		vector rotation = vector.Zero;
@@ -174,7 +183,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		m_ExLagOffsetOrientation[1] = Math.SmoothCD( m_ExLagOffsetOrientation[1], -newOrientation[1], m_ExLagOffsetVelocityPitch, 0.3, 1000, pDt );
 
-		if ( !freeLookKey )
+		if ( !pHelicopter.IsFreeLook() )
 		{
 			m_fLeftRightAngle = 0;
 
@@ -184,19 +193,15 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			Math3D.YawPitchRollMatrix( rotation, pOutResult.m_CameraTM );
 		}
 			
-		pOutResult.m_CameraTM[3] 			= cameraPosition + Vector( 0, cameraHeight, 0 ) - m_ExLagOffsetPosition;
+		pOutResult.m_CameraTM[3] 			= cameraPosition - m_ExLagOffsetPosition;
 
 		pOutResult.m_fIgnoreParentRoll		= 1.0;
 		pOutResult.m_fInsideCamera		  	= 0.0;
 		pOutResult.m_iDirectBone			= -1.0;
 		pOutResult.m_fUseHeading			= 0.0;
-		pOutResult.m_fDistance				= cameraDistance;
+		pOutResult.m_fDistance 				= m_fDistance;
 		pOutResult.m_fPositionModelSpace	= 1.0;
 
-		m_PreviousOrientation = newOrientation;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - End");
-		#endif
+		m_PreviousOrientation				= newOrientation;
 	}
 }

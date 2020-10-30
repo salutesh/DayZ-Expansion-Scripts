@@ -27,6 +27,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool DestroyFlagOnDismantle;							//! When enabled, destroys both flag pole and the flag kit on dismantle.
 	int DismantleFlagRequireTools;							//! -1 = can't dismantle | 0 = doesn't need tools to dismantle | 1 = dismantle with tools
 	bool DismantleOutsideTerritory;							//! When enabled, allows players to dismantle basebuilding without territory.
+	bool DismantleInsideTerritory;							//! When enabled, allows players to dismantle basebuilding inside another territory.
 	bool DismantleAnywhere;									//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
 	
 	int CodeLockLength;										//! Lenght of pin code required for the code lock.
@@ -148,6 +149,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DestroyFlagOnDismantle = s.DestroyFlagOnDismantle;
 		DismantleFlagRequireTools = s.DismantleFlagRequireTools;
 		DismantleOutsideTerritory = s.DismantleOutsideTerritory;
+		DismantleInsideTerritory = s.DismantleInsideTerritory;
 		DismantleAnywhere = s.DismantleAnywhere;
 		
 		CodeLockLength = s.CodeLockLength;
@@ -237,6 +239,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DestroyFlagOnDismantle = true;
 		DismantleFlagRequireTools = 1;
 		DismantleOutsideTerritory = false;
+		DismantleInsideTerritory = false;
 		DismantleAnywhere = false;
 		
 		CodeLockLength = 4;

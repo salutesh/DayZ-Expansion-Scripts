@@ -647,7 +647,7 @@ modded class MissionGameplay
 						ExpansionMapMenu map_menu;
 						if ( Class.CastTo( map_menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
 						{
-							map_menu.Hide();
+							//map_menu.Hide();
 							map_menu.Close();
 						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
 						{

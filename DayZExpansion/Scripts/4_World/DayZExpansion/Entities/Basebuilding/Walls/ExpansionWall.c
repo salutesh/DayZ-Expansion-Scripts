@@ -43,16 +43,29 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	}
 
 	override void OnStoreSave( ParamsWriteContext ctx )
-	{   
+	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_HasWindow );
 		ctx.Write( m_HasDoor );
 		ctx.Write( m_HasGate );
 	}
-	
+
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
@@ -65,6 +78,38 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.WriteBool( m_HasWindow );
+		storage.WriteBool( m_HasDoor );
+		storage.WriteBool( m_HasGate );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadBool( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadBool( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadBool( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 
 	override bool HasBase()
 	{

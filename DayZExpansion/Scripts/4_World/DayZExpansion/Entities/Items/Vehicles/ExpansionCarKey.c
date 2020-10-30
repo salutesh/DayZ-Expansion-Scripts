@@ -418,6 +418,14 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::OnStoreSave - Start");
 		#endif
@@ -440,6 +448,11 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::OnStoreLoad - Start");
 		#endif
@@ -466,6 +479,44 @@ class ExpansionCarKey extends ItemBase
 		
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.WriteInt( m_VehicleIDA );
+		storage.WriteInt( m_VehicleIDB );
+		storage.WriteInt( m_VehicleIDC );
+		storage.WriteInt( m_VehicleIDD );
+		storage.WriteString( m_VehicleDisplayName );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.ReadInt( m_VehicleIDA ), "[" + this + "] Failed reading m_VehicleIDA" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadInt( m_VehicleIDB ), "[" + this + "] Failed reading m_VehicleIDB" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadInt( m_VehicleIDC ), "[" + this + "] Failed reading m_VehicleIDC" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadInt( m_VehicleIDD ), "[" + this + "] Failed reading m_VehicleIDD" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.ReadString( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionCarKey OnRPC

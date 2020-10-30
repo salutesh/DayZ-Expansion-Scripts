@@ -466,7 +466,7 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
  * Expansion Object Serialization
  * @{
  */
-static const int EXPANSION_VERSION_CURRENT_SAVE = 13;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 14;
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 
