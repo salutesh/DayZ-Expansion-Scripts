@@ -55,6 +55,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 	protected float m_EngineStartDuration; // (s)
 	protected float m_RotorStartDuration; 
 
+	protected vector m_LinearFrictionCoef;
+	protected float m_AngularFrictionCoef;
+
 	// Lift factor (taken from Arma 2 config)
 	private int m_MaxFlightEnvelope = 15;
 	private float m_FlightEnvelope[15] = { 0.0, 0.2, 0.9, 2.1, 2.5, 3.3, 3.5, 3.6, 3.7, 3.8, 3.8, 3.0, 0.9, 0.7, 0.5 };
@@ -132,6 +135,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 		
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
+
+		m_LinearFrictionCoef = "16 0.04 0.04";
+		m_AngularFrictionCoef = 1.5;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::Constructor - End");
@@ -984,12 +990,10 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 		if ( m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0 )
 		{
-			m_CyclicForwardTarget = Math.Clamp( m_CyclicForwardTarget, -2, 2 );
-			change = Math.Clamp( m_CyclicForwardTarget - m_CyclicForward, -m_CyclicForwardSpeed * pDt, m_CyclicForwardSpeed * pDt );
+			change = Math.Clamp( Math.Clamp( m_CyclicForwardTarget, -2, 2 ) - m_CyclicForward, -m_CyclicForwardSpeed * pDt, m_CyclicForwardSpeed * pDt );
 			m_CyclicForward = Math.Clamp( m_CyclicForward + change, -m_CyclicForwardMax, m_CyclicForwardMax );
 
-			m_CyclicSideTarget = Math.Clamp( m_CyclicSideTarget, -2, 2 );
-			change = Math.Clamp( m_CyclicSideTarget - m_CyclicSide, -m_CyclicSideSpeed * pDt, m_CyclicSideSpeed * pDt );
+			change = Math.Clamp( Math.Clamp( m_CyclicSideTarget, -2, 2 ) - m_CyclicSide, -m_CyclicSideSpeed * pDt, m_CyclicSideSpeed * pDt );
 			m_CyclicSide = Math.Clamp( m_CyclicSide + change, -m_CyclicSideMax, m_CyclicSideMax );
 
 			// collective
@@ -1031,18 +1035,21 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				torque[2] = torque[2] + ( cyclicForce * m_CyclicSide * m_CyclicSideCoef * m_BoundingRadius );
 			}
 
-			const float tailRotateSqCoef = 0.00048;
-			const float tailRotateCoef = 0.012;
-			m_TailRotateFactor = ( m_LinearVelocityMS[2] * m_LinearVelocityMS[2] * tailRotateSqCoef ) + ( Math.AbsFloat( m_LinearVelocityMS[2] ) * tailRotateCoef );
+			// bank
+			{
+				const float tailRotateSqCoef = 0.00048;
+				const float tailRotateCoef = 0.012;
+				m_TailRotateFactor = ( m_LinearVelocityMS[2] * m_LinearVelocityMS[2] * tailRotateSqCoef ) + ( Math.AbsFloat( m_LinearVelocityMS[2] ) * tailRotateCoef );
 
-			float forwardX = m_Transform.data[2][0];
-			float sideY = m_Transform.data[0][1];
-			float forwardZ = m_Transform.data[2][2];
+				float forwardX = m_Transform.data[2][0];
+				float sideY = m_Transform.data[0][1];
+				float forwardZ = m_Transform.data[2][2];
 
-			if ( forwardX == 0.0 && forwardZ == 0.0 )
-				m_Bank = Math.Sign( sideY );
-			else
-				m_Bank = sideY / ( ( forwardX * forwardX ) + ( forwardZ * forwardZ ) );
+				if ( forwardX == 0.0 && forwardZ == 0.0 )
+					m_Bank = Math.Sign( sideY );
+				else
+					m_Bank = sideY / ( ( forwardX * forwardX ) + ( forwardZ * forwardZ ) );
+			}
 
 			// tail
 			{
@@ -1069,6 +1076,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 			}
 
 			// rotate to the direction of the speed
+			//TODO: back to the drawing board...
 			{
 				float heliSpeedY = m_LinearVelocityMS[1] * ( m_LinearVelocityMS[0] * 0.1 );
 
@@ -1077,9 +1085,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 
 				vector heliRotateDir = Vector( 0, 0, -m_BoundingRadius ) * Vector( rotateX, rotateY, 0 );
 
-				torque[0] = torque[0] + heliRotateDir[0];
-				torque[1] = torque[1] + heliRotateDir[1];
-				torque[2] = torque[2] + heliRotateDir[2];
+				//torque[0] = torque[0] + heliRotateDir[0];
+				//torque[1] = torque[1] + heliRotateDir[1];
+				//torque[2] = torque[2] + heliRotateDir[2];
 			}
 
 			//! Linear Friction
@@ -1103,9 +1111,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				// if the helicopter is turned on then more force is applied to create psuedo-friction
 				float stabilizeXY = 0.4 + ( m_RotorSpeed * m_RotorSpeed * 0.6 );
 
-				friction[0] = Math.SquareSign( frictionSpeed[0] ) * pDt * 16 * m_BodyMass * stabilizeXY;
-				friction[1] = Math.SquareSign( frictionSpeed[1] ) * pDt * 0.04 * m_BodyMass * stabilizeXY;
-				friction[2] = Math.SquareSign( frictionSpeed[2] ) * pDt * 0.04 * m_BodyMass;
+				friction[0] = Math.SquareSign( frictionSpeed[0] ) * pDt * m_LinearFrictionCoef[0] * m_BodyMass * stabilizeXY;
+				friction[1] = Math.SquareSign( frictionSpeed[1] ) * pDt * m_LinearFrictionCoef[1] * m_BodyMass * stabilizeXY;
+				friction[2] = Math.SquareSign( frictionSpeed[2] ) * pDt * m_LinearFrictionCoef[2] * m_BodyMass;
 
 				force -= friction * m_BodyFrictionCoef;
 			}
@@ -1116,13 +1124,23 @@ class ExpansionHelicopterScript extends ExpansionVehicleScript
 				torque = torque.Multiply3( m_Transform.GetBasis().data );
 			}
 
-			//! Angular Friction - more optimized to do in worldspace :)
+			//! Angular Friction
 			{
 				vector t_friction;
-				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( 1.5 + ( m_TailRotateFactor * 0.5 ) );
-				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef;
-				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef;
-				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef;
+				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( m_AngularFrictionCoef + ( m_TailRotateFactor * 0.5 ) );
+				
+				vector t_fric_coef_ws = Vector( t_fric_coef, t_fric_coef, t_fric_coef );
+				vector t_fric_coef_ms = t_fric_coef_ws.InvMultiply3( m_Transform.GetBasis().data );
+				t_fric_coef_ms[0] = t_fric_coef_ms[0] * 0.1;
+				t_fric_coef_ws = t_fric_coef_ms.Multiply3( m_Transform.GetBasis().data );
+				
+				//ExpansionDebugUI( "m_TailRotateFactor: " + m_TailRotateFactor );
+				//ExpansionDebugUI( "t_fric_coef_ms: " + t_fric_coef_ms );
+				//ExpansionDebugUI( "t_fric_coef_ws: " + t_fric_coef_ws );
+				
+				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef_ws[0];
+				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef_ws[1];
+				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef_ws[2];
 
 				torque -= t_friction;
 			}

@@ -2663,11 +2663,11 @@ modded class CarScript
 
 		super.OnVariablesSynchronized();
 
-		Print( "CarScript::OnVariablesSynchronized" );
-		Print( m_PersistentIDA );
-		Print( m_PersistentIDB );
-		Print( m_PersistentIDC );
-		Print( m_PersistentIDD );
+		//Print( "CarScript::OnVariablesSynchronized" );
+		//Print( m_PersistentIDA );
+		//Print( m_PersistentIDB );
+		//Print( m_PersistentIDC );
+		//Print( m_PersistentIDD );
 		
 		if ( m_SafeZoneSynchRemote && !m_SafeZone )
 		{
@@ -3061,7 +3061,7 @@ modded class CarScript
 	
 	#ifdef DAYZ_1_10
 	// ------------------------------------------------------------
-	float GetTransportCameraDistance()
+	override float GetTransportCameraDistance()
 	{
 		return GetCameraDistance();
 	}
