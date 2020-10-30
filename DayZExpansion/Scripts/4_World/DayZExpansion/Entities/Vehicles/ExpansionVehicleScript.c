@@ -891,9 +891,7 @@ class ExpansionVehicleScript extends ItemBase
 
 			if ( GetGame().IsClient() )
 			{
-				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
-
-				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
+				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0, 0.0 ), m_SyncState.m_PredictedTransform );
 
 				SetTransform( m_SyncState.m_PredictedTransform );
 			} else
@@ -902,6 +900,11 @@ class ExpansionVehicleScript extends ItemBase
 			}
 
 			SetSynchDirty();
+		} else if ( !m_IsPhysicsHost && IsMissionClient() && dBodyIsDynamic( this ) )
+		{
+			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0, 0.0 ), m_SyncState.m_PredictedTransform )
+
+			dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, 0.0 );
 		}
 		
 		if ( stateF != stateB )
