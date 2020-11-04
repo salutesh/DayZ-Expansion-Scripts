@@ -557,24 +557,20 @@ class ExpansionVehicleWheel
 			return;
 	
 		float forwardImpulse = 0;
-
-		float wheelMass = dBodyGetMass( m_WheelItem );
-
-		float inertia = wheelMass * m_WheelItem.m_Radius * m_WheelItem.m_Radius * 0.5;
 		
 		if ( m_WheelTorque != 0 )
 		{
-			forwardImpulse = m_WheelTorque * pDt / m_WheelItem.m_Radius;
+			forwardImpulse = m_WheelTorque * m_Mass / m_WheelItem.m_Radius;
 		} else
 		{
 			forwardImpulse = -vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[2] ) * m_BrakeTorque;
 		}
 
-		forwardImpulse += -m_WheelItem.m_TyreRollResistance * m_ContactVelocity[2] * pDt;
+		forwardImpulse += -m_WheelItem.m_TyreRollResistance * m_ContactVelocity[2];
 		
 		float sideDot = vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[0] );
 		float sideCoef = 10.0;
-		float sideImpulse = sideCoef * m_Mass * pDt * -sideDot * m_ContactVelocity.Length() / pNumWheelsGrounded;
+		float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / pNumWheelsGrounded;
 
 		m_AngularVelocity = m_ContactVelocity[2] / m_WheelItem.m_Radius;
 		m_AngularRotation += m_AngularVelocity * pDt;
@@ -588,8 +584,8 @@ class ExpansionVehicleWheel
 		if ( m_Surface != "" ) 
 			surfaceFriction = Surface.GetParamFloat( m_Surface, "friction" );
 		
-		vector forwardImp = m_TransformMS[2] * forwardImpulse * surfaceFriction;
-		vector sideImp = m_TransformMS[0] * sideImpulse * surfaceFriction;
+		vector forwardImp = m_TransformMS[2] * forwardImpulse * pDt * surfaceFriction;
+		vector sideImp = m_TransformMS[0] * sideImpulse * pDt * surfaceFriction;
 
 		impulse += forwardImp * ( 1.0 - m_ContactFraction );
 		impulseTorque += m_ContactPosition * forwardImp * ( 1.0 - m_ContactFraction );
