@@ -45,6 +45,11 @@ class ExpansionVehicleThrottle
 		m_GentleCoef = GetGame().ConfigGetFloat( path );
 	}
 
+	void ExpansionDebugUI( string message = "" )
+	{
+		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_ENGINE, message );
+	}
+
 	float Get()
 	{
 		return m_Throttle;
@@ -52,9 +57,10 @@ class ExpansionVehicleThrottle
 
 	void Update( float pDt, float pIn, float pGentle, float pTurbo )
 	{
-		m_ThrottleTarget = m_DefaultThrust * pIn;
-		m_ThrottleTarget -= m_GentleCoef * pGentle;
-		m_ThrottleTarget += m_TurboCoef * pTurbo;
-		m_Throttle += Math.Clamp( m_ThrottleTarget - m_Throttle, -pDt * m_ReactionTime, pDt * m_ReactionTime );
+		m_Throttle = m_DefaultThrust * pIn;
+		m_Throttle = Math.Lerp( m_Throttle, m_GentleThrust, pGentle * pIn );
+		m_Throttle = Math.Lerp( m_Throttle, 1.0, pTurbo * pIn );
+		
+		ExpansionDebugUI( "m_Throttle: " + m_Throttle );
 	}
 };

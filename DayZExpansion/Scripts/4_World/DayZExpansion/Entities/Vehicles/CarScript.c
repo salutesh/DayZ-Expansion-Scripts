@@ -31,6 +31,7 @@ class ExpansionVehicleAttachmentSave
 		m_Orientation = orientation;
 	}
 
+	#ifdef CF_MOD_STORAGE
 	void OnWrite( ModStorage storage )
 	{
 		storage.WriteVector( m_Position );
@@ -44,6 +45,7 @@ class ExpansionVehicleAttachmentSave
 
 		return true;
 	}
+	#endif
 };
 
 /**@class		CarScript
@@ -2057,13 +2059,28 @@ modded class CarScript
 	{
 	}
 
+	private vector m_PreviousVelocity;
+
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
 	{
 		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint( "[" + this + "] EOnSimulate" );
 		#endif
+
+		ExpansionDebugUI( "[[ " + this + " ]]" );
 		
+		/*
+		vector newVelocity = GetVelocity( this );
+		vector acceleration = newVelocity - m_PreviousVelocity;
+
+		ExpansionDebugUI( "Velocity: " + newVelocity.Length() );
+		ExpansionDebugUI( "Velocity-1: " + m_PreviousVelocity.Length() );
+		ExpansionDebugUI( "Acceleration: " + ( acceleration.Length() / dt ) );
+
+		m_PreviousVelocity = newVelocity;
+		*/
+	
 		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 		for ( int dbg = 0; dbg < m_DebugShapes.Count(); ++dbg )
 			m_DebugShapes[dbg].Destroy();
@@ -2107,13 +2124,14 @@ modded class CarScript
 		}
 
 		if ( !CanSimulate() )
+		{
+			ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
 			return;
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EOnSimulate - Start");
 		#endif
-
-		ExpansionDebugUI( "[[ " + this + " ]]" );
 
 		m_TimeSlice = dt;
 

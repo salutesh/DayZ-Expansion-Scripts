@@ -16,6 +16,7 @@ class ExpansionTerritoryMember
 	protected string m_Name;
 	protected ExpansionTerritoryRank m_Rank;
 
+	#ifdef CF_MOD_STORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------
@@ -40,6 +41,7 @@ class ExpansionTerritoryMember
 
 		return true;
 	}
+	#endif
 	
 	string GetID()
 	{

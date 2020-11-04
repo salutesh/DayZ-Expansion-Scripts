@@ -58,8 +58,8 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		CreateEnum( "VehicleSync", ExpansionVehicleNetworkMode, "Vehicle Sync", "", "" );
 		array< string > values_DebugVehicleTransformSet = { "SET", "PHYSICS" };
 		CreateEnum( "DebugVehicleTransformSet", values_DebugVehicleTransformSet, "Debug Vehicle Transform", "", "" );
-		array< string > values_DebugVehicleSync = { "DIV", "NONE", "MUL" };
-		CreateEnum( "DebugVehicleSync", values_DebugVehicleSync, "Debug Vehicle Sync", "", "" );
+		array< string > values_DebugVehicleSync = { "CLIENT ONLY", "ALWAYS" };
+		CreateEnum( "DebugVehicleSync", values_DebugVehicleSync, "Physics Sync", "", "" );
 		array< string > values_VehicleRequireKeyToStart = { "NO", "YES" };
 		CreateEnum( "VehicleRequireKeyToStart", values_VehicleRequireKeyToStart, "Requires Key To Start", "", "" );
 		CreateToggle( "VehicleRequireAllDoors", "Key Requires All Doors", "", "" );

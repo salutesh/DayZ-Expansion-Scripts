@@ -24,6 +24,7 @@ class ExpansionElectricityBase
 	{
 	}
 
+	#ifdef CF_MOD_STORAGE
 	void OnStoreSave( ModStorage storage )
 	{
 	}
@@ -31,4 +32,5 @@ class ExpansionElectricityBase
 	bool OnStoreLoad( ModStorage storage )
 	{
 	}
+	#endif
 };

@@ -88,6 +88,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		return true;
 	}
 
+	#ifdef CF_MOD_STORAGE
 	override void OnStoreSave( ModStorage storage )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -136,6 +137,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		
 		return true;
 	}
+	#endif
 
 	void OnAfterLoad()
 	{

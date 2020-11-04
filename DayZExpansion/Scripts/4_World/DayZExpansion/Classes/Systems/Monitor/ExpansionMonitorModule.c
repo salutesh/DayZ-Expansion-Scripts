@@ -183,6 +183,9 @@ class ExpansionMonitorModule: JMModuleBase
 	{
 		super.OnUpdate( timeslice );
 
+		if ( !IsMissionHost() )
+			return;
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::OnUpdate - Start");
 		#endif

@@ -83,7 +83,7 @@ class ExpansionVehicleSteering
 			return false;
 
 		for ( int i = 0; i < pValues.Count() / 2; ++i )
-			pValues[i * 2] = pValues[i * 2] * 3.6;
+			pValues[i * 2] = pValues[i * 2] / 3.6;
 		
 		return true;
 	}
@@ -105,8 +105,28 @@ class ExpansionVehicleSteering
 		else if ( currentIndex < 0 )
 			return pValues[1];
 	
-		float currentSpeed = pValues[ ( currentIndex * 2 ) + 1 ];
-		float nextSpeed = pValues[ ( currentIndex + 1 ) * 2 ];
-		return Math.Lerp( currentSpeed, nextSpeed, currentIndexDt - currentIndex ) * Math.DEG2RAD;
+		float currentSpeed = pValues[ ( currentIndex * 2 ) + 0 ];
+		float nextSpeed = pValues[ ( ( currentIndex + 1 ) * 2 ) + 0 ];
+	
+		float s1 = pValues[ ( currentIndex * 2 ) + 1 ];
+		float s2 = pValues[ ( ( currentIndex + 1 ) * 2 ) + 1 ];
+		
+		float speedLerp = ( pSpeed - nextSpeed ) / ( currentSpeed - nextSpeed );
+		
+		ExpansionDebugUI( "count: " + count );
+		ExpansionDebugUI( "maxSpeed: " + maxSpeed );
+		ExpansionDebugUI( "currentIndexDt: " + currentIndexDt );
+		ExpansionDebugUI( "currentIndex: " + currentIndex );
+		ExpansionDebugUI( "currentSpeed: " + (currentSpeed * 3.6) );
+		ExpansionDebugUI( "nextSpeed: " + (nextSpeed * 3.6) );
+		ExpansionDebugUI( "s1: " + s1 );
+		ExpansionDebugUI( "s2: " + s2 );
+		ExpansionDebugUI( "pSpeed: " + pSpeed );
+		ExpansionDebugUI( "speedLerp: " + speedLerp );
+		
+		float turnSpeed = Math.Lerp( s2, s1, speedLerp ) * Math.DEG2RAD;
+		ExpansionDebugUI( "turnSpeed: " + (turnSpeed * 40.0) );
+		
+		return turnSpeed;
 	}
 };

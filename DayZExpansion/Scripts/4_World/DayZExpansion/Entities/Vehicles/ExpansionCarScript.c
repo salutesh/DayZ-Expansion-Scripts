@@ -24,13 +24,19 @@ class ExpansionCarScript extends ExpansionVehicleScript
 	private ref ExpansionVehicleSteering m_Steering;
 	private ref ExpansionVehicleThrottle m_Throttle;
 	
-	private float m_Turn;
+	private float m_RPMVal;
+	private float m_SteeringVal;
+	private float m_BrakeVal;
 
-	private float m_Brake;
+	private float m_RPMSynch;
+	private float m_SteeringSynch;
 
 	void ExpansionCarScript()
 	{
 		Class.CastTo( m_CarController, m_Controller );
+
+		RegisterNetSyncVariableFloat( "m_RPMSynch", 0, 0, 4 );
+		RegisterNetSyncVariableFloat( "m_SteeringSynch", 0, 0, 4 );
 		
 		string path;
 		
@@ -161,7 +167,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 	override float GetSteering()
 	{
-		return m_Turn;
+		return m_SteeringVal;
 	}
 
 	override float GetThrottle()
@@ -171,7 +177,7 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 	override float GetBraking()
 	{
-		return m_Brake;
+		return m_BrakeVal;
 	}
 
 	float Sign( float number )
@@ -183,13 +189,13 @@ class ExpansionCarScript extends ExpansionVehicleScript
 
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
-		m_Turn += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_Turn, m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
+		m_SteeringVal += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_SteeringVal, m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
 		
 		m_Throttle.Update( pDt, m_CarController.GetForward(), m_CarController.GetGentle(), m_CarController.GetTurbo() );
 
-		m_Brake = m_CarController.GetBackward();
+		m_BrakeVal = m_CarController.GetBackward();
 		
-		ExpansionDebugUI( "Turn: " + m_Turn );
+		ExpansionDebugUI( "Turn: " + m_SteeringVal );
 	}
 
 	protected override void OnAIPilot( ExpansionAIBase driver, float pDt )
@@ -201,25 +207,37 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		super.OnPreSimulation( pDt );
 
 		if ( !m_IsPhysicsHost )
+		{
+			if ( GetGame().IsClient() )
+			{
+				m_RPMVal = m_RPMSynch;
+				m_SteeringVal = m_SteeringSynch;
+			} else
+			{
+				m_RPMSynch = m_RPMVal;
+				m_SteeringSynch = m_SteeringVal;
+			}
+
 			return;
+		}
 		
 		int gear = m_Gearbox.GetCurrentGear();
 		float throttleVal = m_Throttle.Get();
 		if ( throttleVal == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
 		{
-			m_Brake = 1.0;
+			m_BrakeVal = 1.0;
 		}
 
 		float wheelBase = Math.AbsFloat( m_Wheels[2].GetInitialWheelPosition()[2] - m_Wheels[0].GetInitialWheelPosition()[2] );
 		float turnRadius = ( Math.DEG2RAD * m_Axles[0].GetMaxSteeringAngle() ) / ( Math.PI2 );
 
-		float leftBackWheel = Math.AbsFloat( m_Wheels[2].GetInitialWheelPosition()[0] ) * -Sign( m_Turn );
-		float rightBackWheel = Math.AbsFloat( m_Wheels[3].GetInitialWheelPosition()[0] ) * Sign( m_Turn );
+		float leftBackWheel = Math.AbsFloat( m_Wheels[2].GetInitialWheelPosition()[0] ) * -Sign( m_SteeringVal );
+		float rightBackWheel = Math.AbsFloat( m_Wheels[3].GetInitialWheelPosition()[0] ) * Sign( m_SteeringVal );
 
 		float leftFrontWheelSteer = Math.Atan2( wheelBase / ( turnRadius + leftBackWheel ), 1 );
 		float rightFrontWheelSteer = Math.Atan2( wheelBase / ( turnRadius + rightBackWheel ), 1 );
-		leftFrontWheelSteer = Math.AbsFloat( Math.RAD2DEG * leftFrontWheelSteer * 2.0 / Math.PI ) * m_Turn;
-		rightFrontWheelSteer = Math.AbsFloat( Math.RAD2DEG * rightFrontWheelSteer * 2.0 / Math.PI ) * m_Turn;
+		leftFrontWheelSteer = Math.AbsFloat( Math.RAD2DEG * leftFrontWheelSteer * 2.0 / Math.PI ) * m_SteeringVal;
+		rightFrontWheelSteer = Math.AbsFloat( Math.RAD2DEG * rightFrontWheelSteer * 2.0 / Math.PI ) * m_SteeringVal;
 		
 		ExpansionDebugUI( "LF Steer: " + leftFrontWheelSteer );
 		ExpansionDebugUI( "RF Steer: " + rightFrontWheelSteer );
@@ -231,8 +249,8 @@ class ExpansionCarScript extends ExpansionVehicleScript
 		{
 			m_Engine.OnUpdate( pDt, throttleVal, m_Gearbox.OnUpdate( m_ClutchState, m_CarController.GetGear(), pDt ) );
 			
-			ApplyAxleBrake( 0, m_Brake );
-			ApplyAxleBrake( 1, m_Brake );
+			ApplyAxleBrake( 0, m_BrakeVal );
+			ApplyAxleBrake( 1, m_BrakeVal );
 		} else
 		{
 			ApplyAxleBrake( 0, 1.0 );

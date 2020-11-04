@@ -104,6 +104,8 @@ class ExpansionVehicleScript extends ItemBase
 
 	private float m_TimeSlice;
 	protected bool m_IsPhysicsHost;
+	protected bool m_PerformInterpolation;
+	private float m_RenderFrameTime;
 	private int m_PhysicsCreationTimer;
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
@@ -379,6 +381,7 @@ class ExpansionVehicleScript extends ItemBase
 		m_NetworkClientSideServerProcessing = false;
 
 		m_SyncState = new ExpansionVehicleSyncState( this );
+		m_SyncState.RegisterNetVariables();
 
 		m_FluidCapacities = new array< float >();
 		m_FluidCapacities.Insert( ConfigGetFloat( "fuelCapacity" ) );
@@ -509,7 +512,9 @@ class ExpansionVehicleScript extends ItemBase
 
 	private void CreateDynamic()
 	{
-		CreateDynamicPhysics( 288 );
+		int layer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.DYNAMICITEM | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.CHARACTER | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE;
+
+		CreateDynamicPhysics( PhxInteractionLayers.VEHICLE );
 
 		EnableDynamicCCD( true );
 		SetDynamicPhysicsLifeTime( -1 );
@@ -557,6 +562,29 @@ class ExpansionVehicleScript extends ItemBase
 		if ( !GetGame().IsClient() && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
 		{
 			return;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	override void EOnFrame( IEntity other, float timeSlice )
+	{
+		if ( m_PerformInterpolation && GetGame().IsClient() )
+		{
+			m_RenderFrameTime += timeSlice;
+
+			bool useSetTargetMatrix = GetExpansionSettings().GetVehicle().DebugVehicleTransformSet == 1;
+
+			float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
+
+			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ) + m_RenderFrameTime, m_SyncState.m_PredictedTransform );
+
+			if ( useSetTargetMatrix && dBodyIsDynamic( this ) )
+			{
+				dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, 0.0 );
+			} else
+			{
+				SetTransform( m_SyncState.m_PredictedTransform );
+			}
 		}
 	}
 
@@ -731,6 +759,9 @@ class ExpansionVehicleScript extends ItemBase
 		//Print(driver);
 		//Print(GetGame().GetPlayer());
 		
+		m_PerformInterpolation = false;
+		bool forceCreatePhysics = false;
+
 		if ( !GetGame().IsMultiplayer() && GetGame().IsServer() )
 		{
 			m_IsPhysicsHost = true;
@@ -742,6 +773,11 @@ class ExpansionVehicleScript extends ItemBase
 			{
 				m_IsPhysicsHost = m_NetworkMode != ExpansionVehicleNetworkMode.SERVER_ONLY;
 			}
+
+			forceCreatePhysics = GetGame().GetPlayer().GetParent() == this;
+
+			ExpansionDebugUI( "m_IsPhysicsHost: " + m_IsPhysicsHost );
+			ExpansionDebugUI( "forceCreatePhysics: " + forceCreatePhysics );
 		} else if ( GetGame().IsServer() )
 		{
 			m_NetworkClientSideServerProcessing = true;
@@ -769,6 +805,8 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
 			} else
 			{
+				forceCreatePhysics = GetExpansionSettings().GetVehicle().DebugVehicleSync == 1;
+
 				m_LinearVelocity = m_SyncState.m_LinearVelocity;
 				m_AngularVelocity = m_SyncState.m_AngularVelocity;
 			}
@@ -872,12 +910,12 @@ class ExpansionVehicleScript extends ItemBase
 			
 			if ( IsMissionClient() )
 				NetworkSend();
-		} else if ( ( m_IsPhysicsHost || IsMissionClient() ) && !dBodyIsDynamic( this ) )
+		} else if ( ( m_IsPhysicsHost || forceCreatePhysics ) && !dBodyIsDynamic( this ) )
 		{
 			stateF = 1;
 
 			CreateDynamic();
-		} else if ( !m_IsPhysicsHost && !IsMissionClient() && dBodyIsDynamic( this ) )
+		} else if ( !m_IsPhysicsHost && !forceCreatePhysics && dBodyIsDynamic( this ) )
 		{
 			stateF = 2;
 			
@@ -885,6 +923,8 @@ class ExpansionVehicleScript extends ItemBase
 		} else
 		{
 			stateF = 3;
+
+			m_PerformInterpolation = true;
 			
 			if ( IsMissionHost() )
 				m_NetworkClientSideServerProcessing = false;
@@ -899,7 +939,7 @@ class ExpansionVehicleScript extends ItemBase
 
 				if ( useSetTargetMatrix && dBodyIsDynamic( this ) )
 				{
-					dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, 0.0 );
+					dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, dt );
 				} else
 				{
 					SetTransform( m_SyncState.m_PredictedTransform );
@@ -908,7 +948,7 @@ class ExpansionVehicleScript extends ItemBase
 			{
 				if ( useSetTargetMatrix && dBodyIsDynamic( this ) )
 				{
-					dBodySetTargetMatrix( this, m_SyncState.m_InitialTransform, 0.0 );
+					dBodySetTargetMatrix( this, m_SyncState.m_InitialTransform, dt );
 				} else
 				{
 					SetTransform( m_SyncState.m_InitialTransform );
@@ -917,6 +957,8 @@ class ExpansionVehicleScript extends ItemBase
 
 			SetSynchDirty();
 		}
+
+		ExpansionDebugUI( "stateF: " + stateF );
 		
 		if ( stateF != stateB )
 		{
@@ -943,8 +985,6 @@ class ExpansionVehicleScript extends ItemBase
 		case ExpansionVehicleNetworkMode.SERVER_ONLY:
 			m_SyncState.m_LinearVelocity = GetVelocity( this );
 			m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
-
-			m_SyncState.SynchronizeVariables( m_NetworkMode );
 			return;
 		case ExpansionVehicleNetworkMode.PREDICTION:
 			return;
@@ -968,7 +1008,7 @@ class ExpansionVehicleScript extends ItemBase
 			m_SyncState.m_Position = GetPosition();
 			m_SyncState.m_Orientation = GetOrientation();
 
-			m_SyncState.SynchronizeVariables( m_NetworkMode );
+			m_SyncState.ClientSync();
 			return;
 		}
 	}
@@ -1000,6 +1040,8 @@ class ExpansionVehicleScript extends ItemBase
 	// ------------------------------------------------------------
 	override bool OnNetworkTransformUpdate( out vector pos, out vector ypr )
 	{
+		m_RenderFrameTime = 0;
+
 		if ( m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT && !m_NetworkClientSideServerProcessing )
 		{
 			vector newPos = pos;
@@ -1012,30 +1054,14 @@ class ExpansionVehicleScript extends ItemBase
 				m_SyncState.m_Time = GetTimeForSync();
 				m_SyncState.m_TimeDelta = 0;
 
-				switch ( GetExpansionSettings().GetVehicle().DebugVehicleSync )
-				{
-					case 0:
-						m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * ( 1.0 / dt );
-						break;
-					case 1:
-						m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position );
-						break;
-					case 2:
-						m_SyncState.m_LinearVelocity = ( newPos - m_SyncState.m_Position ) * dt;
-						break;
-				}
-
 				vector m1[];
 				vector m2[];
 				vector m3[];
 
 				Math3D.YawPitchRollMatrix( newOrientation, m1 );
 				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m2 );
-
 				Math3D.MatrixMultiply3( m1, m2, m3 );
 
-				m_SyncState.m_AngularVelocity = vector.Zero; // Math3D.MatrixToAngles( m3 ) * dt * Math.DEG2RAD;
-				
 				Math3D.YawPitchRollMatrix( newOrientation, m_SyncState.m_InitialTransform );
 				m_SyncState.m_InitialTransform[3] = newPos;
 			}
@@ -1102,6 +1128,8 @@ class ExpansionVehicleScript extends ItemBase
 
 				m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
 				m_SyncState.m_Time = time;
+
+				m_SyncState.m_ClientSimulationTime = time;
 
 				// time delta should always be positive, this is not the latency
 				m_SyncState.m_TimeDelta = GetTimeForSync() - time;

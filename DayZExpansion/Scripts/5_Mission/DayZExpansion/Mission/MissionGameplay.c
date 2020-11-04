@@ -122,7 +122,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 
 			m_ChatChannelName.SetText( "Global Communication" );
-			m_ChatChannelName.SetColor( EXP_GLOBAL_TEXT_COLOUR );
+			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );
 		} else
 		{
 			SwitchChatChannelToTeam();
@@ -149,7 +149,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 
 			m_ChatChannelName.SetText("Team Communication");
-			m_ChatChannelName.SetColor(EXP_TEAM_TEXT_COLOUR);
+			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);
 		} else
 		{
 			SwitchChatChannelToTransport();
@@ -177,7 +177,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 
 			m_ChatChannelName.SetText("Transport Communication");
-			m_ChatChannelName.SetColor(EXP_TRANSPORT_COLOUR);
+			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TRANSPORT_COLOUR);
 		} else
 		{
 			SwitchChatChannelToAdmin();
@@ -202,7 +202,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 
 			m_ChatChannelName.SetText( "Admin Communication" );
-			m_ChatChannelName.SetColor( EXP_ADMIN_TEXT_COLOUR );
+			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );
 		} else
 		{
 			SwitchChatChannelToDirect();
@@ -225,7 +225,7 @@ modded class MissionGameplay
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 
 		m_ChatChannelName.SetText( "Direct Communication" );
-		m_ChatChannelName.SetColor( EXP_DIRECT_TEXT_COLOUR );
+		m_ChatChannelName.SetColor( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::SwitchChatChannelToDirect - End");

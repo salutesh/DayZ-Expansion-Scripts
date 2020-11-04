@@ -26,6 +26,8 @@ class ExpansionVehicleEngine
 
 	private float m_TorqueMax;
 	private float m_TorqueRPM;
+
+	private float m_Steepness;
 	
 	private float m_PowerMax;
 	private float m_PowerRPM;
@@ -38,7 +40,6 @@ class ExpansionVehicleEngine
 	
 	private float m_RPM;
 	private float m_Torque;
-	private float m_Power;
 	
 	void ExpansionVehicleEngine( ExpansionVehicleScript vehicle )
 	{
@@ -47,28 +48,59 @@ class ExpansionVehicleEngine
 		string path;
 		
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine inertia";
-		m_Inertia = GetGame().ConfigGetFloat( path );
+		m_Inertia = 0.9;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_Inertia = GetGame().ConfigGetFloat( path );
 		
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine torqueMax";
-		m_TorqueMax = GetGame().ConfigGetFloat( path );
+		m_TorqueMax = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_TorqueMax = GetGame().ConfigGetFloat( path );
+
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine torqueRpm";
-		m_TorqueRPM = GetGame().ConfigGetFloat( path );
+		m_TorqueRPM = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_TorqueRPM = GetGame().ConfigGetFloat( path );
+
+		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine steepness";
+		m_Steepness = 1;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_Steepness = GetGame().ConfigGetFloat( path );
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine powerMax";
-		m_PowerMax = GetGame().ConfigGetFloat( path );
+		m_PowerMax = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_PowerMax = GetGame().ConfigGetFloat( path );
+
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine powerRpm";
-		m_PowerRPM = GetGame().ConfigGetFloat( path );
+		m_PowerRPM = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_PowerRPM = GetGame().ConfigGetFloat( path );
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine rpmIdle";
-		m_RPMIdle = GetGame().ConfigGetFloat( path );
+		m_RPMIdle = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_RPMIdle = GetGame().ConfigGetFloat( path );
+
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine rpmMin";
-		m_RPMMin = GetGame().ConfigGetFloat( path );
+		m_RPMMin = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_RPMMin = GetGame().ConfigGetFloat( path );
+
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine rpmClutch";
-		m_RPMClutch = GetGame().ConfigGetFloat( path );
+		m_RPMClutch = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_RPMClutch = GetGame().ConfigGetFloat( path );
+
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine rpmRedline";
-		m_RPMRedline = GetGame().ConfigGetFloat( path );
+		m_RPMRedline = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_RPMRedline = GetGame().ConfigGetFloat( path );
+
 		path = "CfgVehicles " + m_Vehicle.GetType() + " VehicleSimulation Engine rpmMax";
-		m_RPMMax = GetGame().ConfigGetFloat( path );
+		m_RPMMax = 0;
+		if ( GetGame().ConfigIsExisting( path ) )
+			m_RPMMax = GetGame().ConfigGetFloat( path );
 	}
 	
 	void ~ExpansionVehicleEngine()
@@ -90,21 +122,71 @@ class ExpansionVehicleEngine
 		ExpansionDebugUI( "Wheel Velocity: " + wheelVel );
 		ExpansionDebugUI( "Axle Differential: " + axleDiff );
 		ExpansionDebugUI( "Gear Ratio: " + pGR );
-				
-		m_RPM = Math.AbsFloat( wheelVel * pGR * axleDiff * 30.0 / ( Math.PI ) );
-		ExpansionDebugUI( "RPM: " + m_RPM );
-		m_RPM = Math.Clamp( m_RPM, m_RPMMin, m_RPMMax );
-		ExpansionDebugUI( "RPM: " + m_RPM );
 
-		m_Torque = LoopupTorque( m_RPM ) * pThrottle;
+		m_RPM = Math.AbsFloat( wheelVel * pGR * axleDiff * 30.0 / Math.PI );
+		m_RPM = Math.Clamp( m_RPM, m_RPMIdle, m_RPMMax );
+		
+		ExpansionDebugUI( "RPM: " + m_RPM );
+		
+		m_Torque = LookupTorque( m_RPM );
+		
+		ExpansionDebugUI( "Torque: " + m_Torque );
+		
+		m_Torque *= pDt * pThrottle * pGR * m_Inertia;
+		
 		ExpansionDebugUI( "Torque: " + m_Torque );
 
-		ApplyAxleTorque( m_Torque * pGR * pDt * m_Inertia );
+		ApplyAxleTorque( m_Torque );
 	}
 
 	protected void ApplyAxleTorque( float torque )
 	{
 		
+	}
+
+	float Lerp(float a, float b, float t)
+	{
+		return (a * (1.0 - t)) + (b * t);
+	}
+
+	float SmoothStep(float t)
+	{
+		return t * t * (3.0 - (2.0 * t));
+	}
+
+	float FromRPM(float rpm)
+	{
+		return rpm * 2.0 * Math.PI / 60.0;
+	}
+
+	float LookupTorque( float rpm )
+	{
+		ExpansionDebugUI( "Power  Max:  " + m_PowerMax );
+		ExpansionDebugUI( "Torque Max:  " + m_TorqueMax );
+
+		ExpansionDebugUI( "Max    RPM:  " + m_RPMMax );
+		ExpansionDebugUI( "Power  RPM:  " + m_PowerRPM );
+		ExpansionDebugUI( "Torque RPM:  " + m_TorqueRPM );
+		ExpansionDebugUI( "RPM    Idle: " + m_RPMIdle );
+
+		if (rpm >= m_PowerRPM && rpm <= m_RPMMax)
+		{
+			ExpansionDebugUI( "Performing:  STAGE 3" );
+			return SmoothStep(1.0 - ((rpm - m_PowerRPM) / (m_RPMMax - m_PowerRPM))) * (1000.0 * m_PowerMax) / FromRPM(m_PowerRPM);
+		} else if (rpm >= m_TorqueRPM && rpm < m_PowerRPM)
+		{
+			ExpansionDebugUI( "Performing:  STAGE 2" );
+			return Lerp(m_TorqueMax, 1000.0 * m_PowerMax / FromRPM(m_PowerRPM), (rpm - m_TorqueRPM) / (m_PowerRPM - m_TorqueRPM));
+		} else if (rpm >= m_RPMIdle && rpm < m_TorqueRPM)
+		{
+			ExpansionDebugUI( "Performing:  STAGE 1" );
+			float a = m_Steepness * FromRPM(rpm) / FromRPM(m_TorqueRPM);
+			return m_TorqueMax * a * ((1.0 + (1.0 / m_Steepness)) / (1.0 + a));
+		}
+
+		ExpansionDebugUI( "Performing:  STAGE 0" );
+
+		return 0;
 	}
 
 	float GetRPM()
@@ -122,41 +204,9 @@ class ExpansionVehicleEngine
 		return m_RPMMax;
 	}
 	
-	private float LoopupTorque( float rpm )
-	{
-		float ratio = 0;
-		if ( rpm > m_TorqueRPM )
-		{
-			ratio = ( m_RPMMax - rpm ) / ( m_RPMMax - m_TorqueRPM );
-			
-			return m_TorqueMax * ratio;
-		} else
-		{
-			ratio = rpm / m_TorqueRPM;
-			
-			return m_TorqueMax * ratio;
-		}
-		
-		float rtRatio = ratio * ( 2.0 - ratio );
-		return m_TorqueMax * rtRatio * rtRatio * ratio;
-	}
-	
-	private float LoopupPower( float rpm )
-	{
-		//if ( rpm > m_PowerRPM )
-		//	return m_PowerMax * ( m_RPMMax - rpm ) / ( m_RPMMax - m_PowerRPM );
-		
-		return ( m_PowerMax * rpm ) / ( m_PowerRPM );
-	}
-
 	float GetTorque()
 	{
 		return m_Torque;
-	}
-
-	float GetPower()
-	{
-		return m_Power;
 	}
 
 	protected float GetDifferential()

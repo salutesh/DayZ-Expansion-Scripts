@@ -190,66 +190,85 @@ class ExpansionBikeScript extends ExpansionVehicleScript
 		ExpansionDebugUI( "Steering: " + m_SteeringVal );
 	}
 
+	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	{
+		ctx.Write( m_RPMVal );
+		ctx.Write( m_SteeringVal );
+	}
+
+	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	{
+		ctx.Read( m_RPMVal );
+		ctx.Read( m_SteeringVal );
+	}
+
 	protected override void OnPreSimulation( float pDt )
 	{
 		super.OnPreSimulation( pDt );
 
 		if ( !m_IsPhysicsHost )
 		{
-			m_RPMVal = m_RPMSynch;
-			m_SteeringVal = m_SteeringSynch;
-			return;
-		} else
-		{
-			m_RPMVal = m_Engine.GetRPM();
-
-			int gear = m_Gearbox.GetCurrentGear();
-			float throttleVal = m_Throttle.Get();
-			if ( throttleVal == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
+			if ( GetGame().IsClient() )
 			{
-				m_BrakeVal = 1.0;
-			}
-			
-			float fMax = m_Axles[0].GetTravelMax();
-			float bMax = m_Axles[1].GetTravelMax();
-			m_FrontSuspFraction = ( fMax - m_Wheels[0].GetSuspensionLength() ) - m_Axles[0].GetTravelMaxDown();
-			m_BackSuspFraction = ( bMax - m_Wheels[1].GetSuspensionLength() ) - m_Axles[1].GetTravelMaxDown();
-			
-			ExpansionDebugUI( "fAmt: " + m_FrontSuspFraction );
-			ExpansionDebugUI( "bAmt: " + m_BackSuspFraction );
-			
-			m_FrontSuspFraction = ( fMax - m_FrontSuspFraction ) * ( fMax + m_FrontSuspFraction ) / ( fMax * fMax );
-			m_BackSuspFraction = ( bMax - m_BackSuspFraction ) * ( bMax + m_BackSuspFraction ) / ( bMax * bMax );
-			
-			float yUp = vector.Dot( m_Transform.data[1], "0 1 0" );
-			
-			m_GroundStabilizer = Math.Max( m_FrontSuspFraction, m_BackSuspFraction ); //! we can lean so long 1 wheel is on the ground
-
-			ExpansionDebugUI( "fAmt: " + m_FrontSuspFraction );
-			ExpansionDebugUI( "bAmt: " + m_BackSuspFraction );
-			ExpansionDebugUI( "yUp: " + yUp );
-			ExpansionDebugUI( "amt: " + m_GroundStabilizer );
-
-			m_AirControl = m_GroundStabilizer < 0.1;
-			m_GroundControl = yUp > 0.5 && m_GroundStabilizer > 0.1;
-			
-			ApplyAxleSteering( 0, m_SteeringVal );
-			ApplyAxleSteering( 1, 0.0 );
-				
-			ApplyAxleTorque( 0, 0.0 );
-			ApplyAxleTorque( 1, 0.0 );
-			
-			if ( EngineIsOn() )
-			{
-				m_Engine.OnUpdate( pDt, throttleVal, m_Gearbox.OnUpdate( m_ClutchState, m_BikeController.GetGear(), pDt ) );
-				
-				ApplyAxleBrake( 0, m_BrakeVal );
-				ApplyAxleBrake( 1, m_BrakeVal );
+				m_RPMVal = m_RPMSynch;
+				m_SteeringVal = m_SteeringSynch;
 			} else
 			{
-				ApplyAxleBrake( 0, 1.0 );
-				ApplyAxleBrake( 1, 1.0 );
+				m_RPMSynch = m_RPMVal;
+				m_SteeringSynch = m_SteeringVal;
 			}
+
+			return;
+		}
+
+		m_RPMVal = m_Engine.GetRPM();
+
+		int gear = m_Gearbox.GetCurrentGear();
+		float throttleVal = m_Throttle.Get();
+		if ( throttleVal == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
+		{
+			m_BrakeVal = 1.0;
+		}
+		
+		float fMax = m_Axles[0].GetTravelMax();
+		float bMax = m_Axles[1].GetTravelMax();
+		m_FrontSuspFraction = ( fMax - m_Wheels[0].GetSuspensionLength() ) - m_Axles[0].GetTravelMaxDown();
+		m_BackSuspFraction = ( bMax - m_Wheels[1].GetSuspensionLength() ) - m_Axles[1].GetTravelMaxDown();
+		
+		ExpansionDebugUI( "fAmt: " + m_FrontSuspFraction );
+		ExpansionDebugUI( "bAmt: " + m_BackSuspFraction );
+		
+		m_FrontSuspFraction = ( fMax - m_FrontSuspFraction ) * ( fMax + m_FrontSuspFraction ) / ( fMax * fMax );
+		m_BackSuspFraction = ( bMax - m_BackSuspFraction ) * ( bMax + m_BackSuspFraction ) / ( bMax * bMax );
+		
+		float yUp = vector.Dot( m_Transform.data[1], "0 1 0" );
+		
+		m_GroundStabilizer = Math.Max( m_FrontSuspFraction, m_BackSuspFraction ); //! we can lean so long 1 wheel is on the ground
+
+		ExpansionDebugUI( "fAmt: " + m_FrontSuspFraction );
+		ExpansionDebugUI( "bAmt: " + m_BackSuspFraction );
+		ExpansionDebugUI( "yUp: " + yUp );
+		ExpansionDebugUI( "amt: " + m_GroundStabilizer );
+
+		m_AirControl = m_GroundStabilizer < 0.1;
+		m_GroundControl = yUp > 0.5 && m_GroundStabilizer > 0.1;
+		
+		ApplyAxleSteering( 0, m_SteeringVal );
+		ApplyAxleSteering( 1, 0.0 );
+			
+		ApplyAxleTorque( 0, 0.0 );
+		ApplyAxleTorque( 1, 0.0 );
+		
+		if ( EngineIsOn() )
+		{
+			m_Engine.OnUpdate( pDt, throttleVal, m_Gearbox.OnUpdate( m_ClutchState, m_BikeController.GetGear(), pDt ) );
+			
+			ApplyAxleBrake( 0, m_BrakeVal );
+			ApplyAxleBrake( 1, m_BrakeVal );
+		} else
+		{
+			ApplyAxleBrake( 0, 1.0 );
+			ApplyAxleBrake( 1, 1.0 );
 		}
 	}
 

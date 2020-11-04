@@ -330,6 +330,7 @@ class ExpansionTerritory
 		return true;
 	}
 	
+	#ifdef CF_MOD_STORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------
@@ -414,4 +415,5 @@ class ExpansionTerritory
 		
 		return true;
 	}
+	#endif
 }

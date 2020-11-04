@@ -9,6 +9,8 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+class ExpansionTractorDoorsDriver extends CarDoor {}
+class ExpansionTractorDoorsCodriver extends CarDoor {}
 
 class ExpansionTractor extends CarScript
 {
@@ -158,6 +160,10 @@ class ExpansionTractor extends CarScript
 
 	override float OnSound( CarSoundCtrl ctrl, float oldValue )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionTractor::OnSound - Start");
+		#endif
+
 		switch ( ctrl )
 		{
 			case CarSoundCtrl.DOORS:
@@ -166,20 +172,29 @@ class ExpansionTractor extends CarScript
 				//-----
 				if ( GetCarDoorsState( "expansiontractordoorsdriver" ) == CarDoorState.DOORS_CLOSED )
 				{
-					newValue += 0.25;
+					newValue += 0.4;
 				}
 
 				if ( GetCarDoorsState( "expansiontractordoorscodriver" ) == CarDoorState.DOORS_CLOSED )
 				{
-					newValue += 0.25;
+					newValue += 0.4;
 				}
 
 				if ( newValue > 1 )
 					newValue = 1;
 
-			return newValue;
-			break;
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionTractor::OnSound - End");
+				#endif
+
+				return newValue;
+			default:
+				break;
 		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionUAZ::OnSound - End");
+		#endif
 
 		return oldValue;
 	}
@@ -188,10 +203,10 @@ class ExpansionTractor extends CarScript
 	{
 		switch( selection )
 		{
-		case "expansiontractordoorsdriver":
-			return "expansiontractordoorsdriver";
-		case "expansiontractordoorscodriver":
-			return "expansiontractordoorscodriver";
+			case "expansiontractordoorsdriver":
+				return "expansiontractordoorsdriver";
+			case "expansiontractordoorscodriver":
+				return "expansiontractordoorscodriver";
 		}
 		return "";
 	}
@@ -232,54 +247,22 @@ class ExpansionTractor extends CarScript
 		return false;
 	}
 
-	override bool CanReachSeatFromSeat( int currentSeat, int nextSeat )
-	{
-		switch( currentSeat )
-		{
-		case 0:
-			if ( nextSeat == 1 )
-				return true;
-		break;		
-		case 1:
-			if ( nextSeat == 0 )
-				return true;
-		break;
-		}
-
-		return false;
-	}
-
-	override string GetDoorConditionPointFromSelection( string selection )
-	{
-		switch( selection )
-		{
-		case "seat_driver":
-			return "seat_con_1_1";
-		break;
-		case "seatback_driver":
-			return "seat_con_2_1";
-		break;
-		}
-		
-		return "";
-	}
-
 	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
 	{
 		switch( pCurrentSeat )
 		{
-		case 0:
-			if (pDoorsSelection == "expansiontractordoorsdriver")
-			{
-				return true;
-			}
-		break;
-		case 1:
-			if (pDoorsSelection == "expansiontractordoorscodriver")
-			{
-				return true;
-			}
-		break;
+			case 0:
+				if (pDoorsSelection == "expansiontractordoorsdriver")
+				{
+					return true;
+				}
+			break;
+			case 1:
+				if (pDoorsSelection == "expansiontractordoorscodriver")
+				{
+					return true;
+				}
+			break;
 		}
 		
 		return false;		

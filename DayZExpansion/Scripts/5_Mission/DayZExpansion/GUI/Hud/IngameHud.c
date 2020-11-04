@@ -360,6 +360,11 @@ modded class IngameHud
 			{
 				m_VehicleOilLight.Show( false );
 			}
+			
+			gears.Clear();
+			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " VehicleSimulation Gearbox ratios" , gears );
+		
+			m_VehicleGearCount = gears.Count() + 1;
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -806,7 +811,7 @@ modded class IngameHud
 
 		m_VehicleCurrentGearValue.SetText( m_VehicleGearTable.Get( engaged_gear ) );
 		
-		if ( next_gear > m_VehicleGearCount )
+		if ( next_gear > m_VehicleGearCount + 1 )
 		{
 			m_VehicleNextGearValue.Show( false );
 		} else

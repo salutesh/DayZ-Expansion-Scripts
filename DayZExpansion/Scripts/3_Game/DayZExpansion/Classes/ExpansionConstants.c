@@ -30,16 +30,17 @@ enum ExpansionChatChannels
 const float EXP_FADE_TIMEOUT = 2.5;
 const float EXP_FADE_OUT_DURATION = 0.25;
 const float EXP_FADE_IN_DURATION = 0.25;
-
-static const int EXP_DEFAULT_COLOUR = ARGB(255, 255, 255, 255);
-static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 167, 67, 192);
-static const int EXP_ADMIN_TEXT_COLOUR = ARGB(255, 192, 57, 43);
-static const int EXP_DIRECT_TEXT_COLOUR = ARGB(255, 255, 255, 255);
-static const int EXP_GLOBAL_TEXT_COLOUR = ARGB(255, 88, 195, 247);
-static const int EXP_PAS_TEXT_COLOUR = ARGB(255, 249, 255, 73);
-static const int EXP_TRANSPORT_COLOUR = ARGB(255, 255, 206, 9);
-static const int EXP_TEAM_TEXT_COLOUR = ARGB(255, 10, 250, 122);
-
+class ExpansionChatColors
+{
+	static const int EXP_DEFAULT_COLOUR = ARGB(255, 255, 255, 255);
+	static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 167, 67, 192);
+	static const int EXP_ADMIN_TEXT_COLOUR = ARGB(255, 192, 57, 43);
+	static const int EXP_DIRECT_TEXT_COLOUR = ARGB(255, 255, 255, 255);
+	static const int EXP_GLOBAL_TEXT_COLOUR = ARGB(255, 88, 195, 247);
+	static const int EXP_PAS_TEXT_COLOUR = ARGB(255, 249, 255, 73);
+	static const int EXP_TRANSPORT_COLOUR = ARGB(255, 255, 206, 9);
+	static const int EXP_TEAM_TEXT_COLOUR = ARGB(255, 10, 250, 122);
+}
 /**
  * Expansion liquids types
  * @{

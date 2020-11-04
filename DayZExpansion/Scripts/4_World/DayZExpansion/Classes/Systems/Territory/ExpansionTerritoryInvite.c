@@ -16,6 +16,7 @@ class ExpansionTerritoryInvite
 	string TerritoryName;
 	string UID;
 
+	#ifdef CF_MOD_STORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------
@@ -40,4 +41,5 @@ class ExpansionTerritoryInvite
 
 		return true;
 	}
+	#endif
 };
