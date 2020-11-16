@@ -93,6 +93,8 @@ modded class ZombieBase
 	{
 		if ( transport.IsInherited( ExpansionHelicopterScript ) )
 			return;
+		if ( transport.IsInherited( ExpansionVehicleBase ) )
+			return;
 
 		super.RegisterTransportHit( transport );
 	}

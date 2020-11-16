@@ -156,7 +156,7 @@ class ExpansionAirdropPlane extends House
 
 		m_AirdropName = name;
 
-		m_AirdropPosition = Vector( dropPosition[0], position[1], dropPosition[2] );
+		m_AirdropPosition = Vector( dropPosition[0] - m_SpawnRadius, position[1] - m_SpawnRadius, dropPosition[2] - m_SpawnRadius );
 
 		SetDirection( position - m_AirdropPosition );
 

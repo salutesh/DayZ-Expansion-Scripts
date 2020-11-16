@@ -1,5 +1,5 @@
 /*
- * ExpansionCarScript.c
+ * CarScript.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,161 +10,15 @@
  *
 */
 
-enum ExpansionVehicleLockState
-{
-	NOLOCK = 0,
-	UNLOCKED, 
-	READY_TO_LOCK,
-	LOCKED,
-	//Use count here, for network optimization to know max 
-	COUNT
-};
-
-class ExpansionVehicleAttachmentSave
-{
-	vector m_Position;
-	vector m_Orientation;
-
-	void ExpansionVehicleAttachmentSave( vector position = vector.Zero, vector orientation = vector.Zero )
-	{
-		m_Position = position;
-		m_Orientation = orientation;
-	}
-
-	#ifdef CF_MOD_STORAGE
-	void OnWrite( ModStorage storage )
-	{
-		storage.WriteVector( m_Position );
-		storage.WriteVector( m_Orientation );
-	}
-
-	bool OnRead( ModStorage storage )
-	{
-		storage.ReadVector( m_Position );
-		storage.ReadVector( m_Orientation );
-
-		return true;
-	}
-	#endif
-};
+//TODO
+//TODO REMOVE WHAT IS DUPLICATED FROM Vehicles/Scripts/4_World
+//TODO
 
 /**@class		CarScript
  * @brief		
  **/
 modded class CarScript
 {
-	private static ref array< ExpansionVehicleAttachmentSave > m_allAttachments = new array< ExpansionVehicleAttachmentSave >;
-	private static ref set< CarScript > m_allVehicles = new set< CarScript >;
-
-	// ------------------------------------------------------------
-	//! Constant Values - Set in Constructor, Errors occur if not.
-	// ------------------------------------------------------------
-	protected float m_MaxSpeed; // (km/h)
-	protected float m_MaxSpeedMS; // (m/s)
-
-	protected float m_AltitudeFullForce; // (m)
-	protected float m_AltitudeNoForce; // (m)
-
-	// ------------------------------------------------------------
-	//! Member values
-	// ------------------------------------------------------------
-	private int m_ExpansionSaveVersion;
-
-	// Horn
-	protected EffectSound m_HornSound;
-
-	protected string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-	protected string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-
-	protected bool m_HornPlaying;
-	protected bool m_HornSynchRemote;
-
-	// Vehicle locking
-	protected ExpansionVehicleLockState m_VehicleLockedState;
-
-	protected int m_PersistentIDA;
-	protected int m_PersistentIDB;
-	protected int m_PersistentIDC;
-	protected int m_PersistentIDD;
-
-	// Explosion
-	protected bool m_Exploded;
-	protected bool m_ExplodedSynchRemote;
-	protected int m_ExplosionSize;
-
-	// Timeslice for Engine damage via rev or fluids
-	protected float m_FluidCheckTime;
-	
-	// Safezone
-	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
-
-	// Towing
-	protected vector m_TowPointCenter;
-	protected vector m_TowPointCenterSelf;
-	protected bool m_IsBeingTowed;
-	protected bool m_IsTowing;
-
-	protected EntityAI m_ParentTow;
-	protected int m_ParentTowNetworkIDLow;
-	protected int m_ParentTowNetworkIDHigh;
-	protected int m_ParentTowPersistentIDA;
-	protected int m_ParentTowPersistentIDB;
-	protected int m_ParentTowPersistentIDC;
-	protected int m_ParentTowPersistentIDD;
-
-	protected EntityAI m_ChildTow;
-	protected int m_ChildTowNetworkIDLow;
-	protected int m_ChildTowNetworkIDHigh;
-	protected int m_ChildTowPersistentIDA;
-	protected int m_ChildTowPersistentIDB;
-	protected int m_ChildTowPersistentIDC;
-	protected int m_ChildTowPersistentIDD;
-
-	// Physics
-	protected float m_BodyMass;
-	protected float m_TimeSlice;
-	protected vector m_BodyCenterOfMass;
-
-	protected vector m_LinearVelocity; // World Space
-	protected vector m_LinearVelocityMS; // Model Space
-
-	protected vector m_LinearAcceleration; // World Space
-	protected vector m_LinearAccelerationMS; // Model Space
-
-	protected vector m_LastLinearVelocity; // World Space
-	protected vector m_LastLinearVelocityMS; // Model Space
-
-	protected vector m_AngularVelocity; // World Space
-	protected vector m_AngularVelocityMS; // Model Space
-
-	protected vector m_LastAngularVelocity;
-
-	protected bool m_IsPhysicsHost;
-	
-	protected float m_BoundingRadius;
-	protected vector m_BoundingBox[2];
-
-	protected ref Transform m_Transform;
-	
-	// Floating
-	protected float m_WaterVolume;
-	protected float m_TotalVolume;
-
-	// Controllers
-	protected ref ExpansionVehicleController m_Controller;
-	protected bool m_HasDriver;
-
-	// Effects
-	protected float m_AltitudeLimiter;
-	protected vector m_InertiaTensor;
-	protected vector m_InvInertiaTensor;
-
-	protected bool m_CarBatteryVanillaState;
-	protected bool m_CarBatteryVanillaStateDefault;
-
-	protected Particle m_SmokeParticle;
-
 	// Skinning
 	protected ExpansionSkinModule m_SkinModule;
 	protected ExpansionSkin m_CurrentSkin;
@@ -176,26 +30,9 @@ modded class CarScript
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
 
-	// Lights
-	ref array< ref ExpansionPointLight > m_Lights;
-	ref array< ref Particle > m_Particles;
-
 	protected ExpansionMarkerModule m_MarkerModule;
 	protected string m_ServerMarker;
 	protected static int m_ServerMarkerIndex = 0;
-
-	protected vector m_Orientation;
-	protected vector m_Position;
-	
-	protected autoptr TStringArray m_Doors;
-	protected bool m_CanHaveLock;
-
-	private EffectSound m_SoundLock;
-
-	protected bool m_MonitorEnabled;
-
-	//! Debugging
-	private ref array< Shape > m_DebugShapes;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -206,55 +43,11 @@ modded class CarScript
 		EXPrint("CarScript::CarScript - Start");
 		#endif
 
-		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT );
-
-		RegisterNetSyncVariableInt( "m_PersistentIDA" );
-		RegisterNetSyncVariableInt( "m_PersistentIDB" );
-		RegisterNetSyncVariableInt( "m_PersistentIDC" );
-		RegisterNetSyncVariableInt( "m_PersistentIDD" );
-		RegisterNetSyncVariableInt( "m_VehicleLockedState" );
-
-		RegisterNetSyncVariableBool( "m_IsBeingTowed" );
-		RegisterNetSyncVariableBool( "m_IsTowing" );
-		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDLow" );
-		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDHigh" );
-		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDLow" );
-		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDHigh" );
-
-		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
-		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
-		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" ); 
 		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote" );
-
-		m_allVehicles.Insert( this );
-
-		m_DebugShapes = new array< Shape >();
-
-		m_SafeZone = false;
-
-		m_Lights = new array< ref ExpansionPointLight >;
-		m_Particles = new array< ref Particle >;
 		
 		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
 
-		m_Transform = new Transform;
-
-		m_Controller = GetControllerInstance();
-		
-		m_Doors = new TStringArray;
-		ConfigGetTextArray( "doors", m_Doors );
-
-		m_CanHaveLock = m_Doors.Count() > 0;
-
-		LoadConstantVariables();
-
 		ExpansionSetupSkins();
-
-		if ( IsMissionHost() )
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
-
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
 		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		m_ServerMarker = "";
@@ -445,7 +238,7 @@ modded class CarScript
 		#endif
 
 		CarScript cs;
-		ExpansionVehicleScript evs;
+		ExpansionVehicleBase evs;
 
 		if ( !Class.CastTo( cs, tow ) && !Class.CastTo( evs, tow ) )
 			return;
@@ -495,7 +288,7 @@ modded class CarScript
 		if ( m_IsTowing )
 		{
 			CarScript cs;
-			ExpansionVehicleScript evs;
+			ExpansionVehicleBase evs;
 
 			if ( Class.CastTo( cs, m_ChildTow ) )
 			{
@@ -568,7 +361,7 @@ modded class CarScript
 	//! is it a car ? Is it already towing something ? And is it locked ?
 	bool CanConnectTow( notnull Object other )
 	{
-		ExpansionVehicleScript evs;
+		ExpansionVehicleBase evs;
 		CarScript cs;
 		if ( Class.CastTo( evs, other ) )
 		{
@@ -680,6 +473,16 @@ modded class CarScript
 	// Only call this after all keys have been confirmed to be removed
 	void ResetKeyPairing()
 	{
+		m_PersistentIDA = 0;
+		m_PersistentIDB = 0;
+		m_PersistentIDC = 0;
+		m_PersistentIDD = 0;
+
+		if ( IsMissionHost() )
+		{
+			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
+		}
+
 		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
 
 		SetSynchDirty();
@@ -1457,35 +1260,14 @@ modded class CarScript
 
 		if ( IsMissionHost() )
 		{
-			if ( slot_name == "Reflector_1_1" )
-				SetHealth( "Reflector_1_1", "Health", item.GetHealth() );
-
-			if ( slot_name == "Reflector_2_1" )
-				SetHealth( "Reflector_2_1", "Health", item.GetHealth() );
-
-			if ( slot_name == "CarBattery" )
-				m_BatteryHealth = item.GetHealth01();
-					
-			if ( slot_name == "TruckBattery" )
-				m_BatteryHealth = item.GetHealth01();
-
 			if ( slot_name == "ExpansionHelicopterBattery" )
 				m_BatteryHealth = item.GetHealth01();
 
 			if ( slot_name == "ExpansionAircraftBattery" )
 				m_BatteryHealth = item.GetHealth01();
-			
-			if ( slot_name == "SparkPlug" )
-				m_PlugHealth = item.GetHealth01();
-			
-			if ( slot_name == "GlowPlug" )
-				m_PlugHealth = item.GetHealth01();
-
-			Synchronize();
 		}
 
-		UpdateHeadlightState();
-		UpdateLights();
+		super.EEItemAttached( item, slot_name );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EEItemAttached - End");
@@ -1519,7 +1301,7 @@ modded class CarScript
 		{
 			if ( IsScriptedLightsOn() )
 			{
-				if ( slot_name == "CarBattery" || slot_name == "TruckBattery" || slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery" )
+				if ( slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery" )
 					ToggleHeadlights();
 
 				if ( slot_name == "Reflector_1_1" )
@@ -1543,39 +1325,18 @@ modded class CarScript
 
 			if ( EngineIsOn() )
 			{
-				if ( slot_name == "GlowPlug" || slot_name == "SparkPlug" || slot_name == "CarBattery" || slot_name == "TruckBattery" || slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery" )
+				if ( slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery" )
 					EngineStop();
 			}
-			
-			if ( slot_name == "CarBattery" )
-				m_BatteryHealth = -1;
-					
-			if ( slot_name == "TruckBattery" )
-				m_BatteryHealth = -1;
 			
 			if ( slot_name == "ExpansionHelicopterBattery" )
 				m_BatteryHealth = -1;
 
 			if ( slot_name == "ExpansionAircraftBattery" )
 				m_BatteryHealth = -1;
-
-			if ( slot_name == "SparkPlug" )
-				m_PlugHealth = -1;
-			
-			if ( slot_name == "GlowPlug" )
-				m_PlugHealth = -1;
-
-			if ( slot_name == "CarRadiator" )
-			{
-				LeakAll( CarFluid.COOLANT );
-				SetHealth( "Radiator", "Health", 0);
-			}
-
-			Synchronize();
 		}
 
-		UpdateHeadlightState();
-		UpdateLights();
+		super.EEItemDetached( item, slot_name );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EEItemDetached - End");
@@ -1790,7 +1551,7 @@ modded class CarScript
 			{
 				if ( !SEffectManager.IsEffectExist( m_enginePtcFx ) )
 				{
-					if ( !IsInherited( ExpansionHelicopterScript ) || !IsInherited( ExpansionPlaneScript ) || !IsInherited( ExpansionBoatScript ) ) 
+					if ( !IsInherited( ExpansionHelicopterScript ) || !IsInherited( ExpansionVehiclePlaneBase ) || !IsInherited( ExpansionBoatScript ) ) 
 					{
 						m_engineFx = new EffEngineSmoke();
 						m_enginePtcFx = SEffectManager.PlayOnObject( m_engineFx, this, m_enginePtcPos );
@@ -1798,7 +1559,7 @@ modded class CarScript
 					}
 				}
 
-				if ( IsInherited( ExpansionHelicopterScript ) || IsInherited( ExpansionPlaneScript ) || IsInherited( ExpansionBoatScript ) ) 
+				if ( IsInherited( ExpansionHelicopterScript ) || IsInherited( ExpansionVehiclePlaneBase ) || IsInherited( ExpansionBoatScript ) ) 
 				{
 					if ( m_engineFx ) 
 					{
@@ -2459,46 +2220,46 @@ modded class CarScript
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteInt( m_PersistentIDA );
-		storage.WriteInt( m_PersistentIDB );
-		storage.WriteInt( m_PersistentIDC );
-		storage.WriteInt( m_PersistentIDD );
+		storage.Write( m_PersistentIDA );
+		storage.Write( m_PersistentIDB );
+		storage.Write( m_PersistentIDC );
+		storage.Write( m_PersistentIDD );
 
 		int lockState = m_VehicleLockedState;
-		storage.WriteInt( lockState );
+		storage.Write( lockState );
 
-		storage.WriteBool( m_Exploded );
+		storage.Write( m_Exploded );
 
-		storage.WriteString( m_CurrentSkinName );
+		storage.Write( m_CurrentSkinName );
 		
 		GetCurrentOrientation();
-		storage.WriteVector( m_Orientation );	
+		storage.Write( m_Orientation );	
 		
 		GetCurrentPosition();
-		storage.WriteVector( m_Position );
+		storage.Write( m_Position );
 
 		int count = m_allAttachments.Count();
-		storage.WriteInt( count );
+		storage.Write( count );
 		for ( int i = 0; i < count; i++ )
 			m_allAttachments[i].OnWrite( storage );
 
-		storage.WriteBool( m_IsBeingTowed );
-		storage.WriteBool( m_IsTowing );
+		storage.Write( m_IsBeingTowed );
+		storage.Write( m_IsTowing );
 
 		if ( m_IsBeingTowed )
 		{
-			storage.WriteInt( m_ParentTowPersistentIDA );
-			storage.WriteInt( m_ParentTowPersistentIDB );
-			storage.WriteInt( m_ParentTowPersistentIDC );
-			storage.WriteInt( m_ParentTowPersistentIDD );
+			storage.Write( m_ParentTowPersistentIDA );
+			storage.Write( m_ParentTowPersistentIDB );
+			storage.Write( m_ParentTowPersistentIDC );
+			storage.Write( m_ParentTowPersistentIDD );
 		}
 
 		if ( m_IsTowing )
 		{
-			storage.WriteInt( m_ChildTowPersistentIDA );
-			storage.WriteInt( m_ChildTowPersistentIDB );
-			storage.WriteInt( m_ChildTowPersistentIDC );
-			storage.WriteInt( m_ChildTowPersistentIDD );
+			storage.Write( m_ChildTowPersistentIDA );
+			storage.Write( m_ChildTowPersistentIDB );
+			storage.Write( m_ChildTowPersistentIDC );
+			storage.Write( m_ChildTowPersistentIDD );
 		}
 	}
 	
@@ -2510,38 +2271,38 @@ modded class CarScript
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadInt( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
 			return false;
 		
 		int lockState;
-		if ( Expansion_Assert_False( storage.ReadInt( lockState ), "[" + this + "] Failed reading lockState" ) )
+		if ( Expansion_Assert_False( storage.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
 			return false;
 
 		m_VehicleLockedState = lockState;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadString( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
+		if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
 			return false;
 		
-		if ( Expansion_Assert_False( storage.ReadVector( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
 			return false;
 			
-		if ( Expansion_Assert_False( storage.ReadVector( m_Position ), "[" + this + "] Failed reading m_Position" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Position ), "[" + this + "] Failed reading m_Position" ) )
 			return false;
 
 		int count;
-		if ( Expansion_Assert_False( storage.ReadInt( count ), "[" + this + "] Failed reading m_allAttachments count" ) )
+		if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading m_allAttachments count" ) )
 			return false;
 
 		for ( int i = 0; i < count; i++ )
@@ -2554,32 +2315,32 @@ modded class CarScript
 
 		if ( GetExpansionSaveVersion() >= 7 )
 		{
-			if ( Expansion_Assert_False( storage.ReadBool( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			if ( Expansion_Assert_False( storage.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadBool( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			if ( Expansion_Assert_False( storage.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
 				return false;
 
 			if ( m_IsBeingTowed )
 			{
-				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.ReadInt( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
 					return false;
 			}
 
 			if ( m_IsTowing )
 			{
-				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.ReadInt( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
 					return false;
 			}
 		}
@@ -2609,7 +2370,7 @@ modded class CarScript
 			if ( m_ParentTow )
 			{
 				CarScript cs_child;
-				ExpansionVehicleScript evs_child;
+				ExpansionVehicleBase evs_child;
 				
 				if ( Class.CastTo( cs_child, tow ) )
 					cs_child.OnTowCreated( this, m_TowPointCenter );
@@ -2633,7 +2394,7 @@ modded class CarScript
 				m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
 				
 				CarScript cs_child;
-				ExpansionVehicleScript evs_child;
+				ExpansionVehicleBase evs_child;
 				
 				if ( Class.CastTo( cs_child, m_ChildTow ) )
 					cs_child.OnTowCreated( this, m_TowPointCenter );
@@ -3108,16 +2869,17 @@ modded class CarScript
 	{
 		return GetType() + "Wreck";
 	}
+	
+	// ------------------------------------------------------------
+	string ExpansionGetWheelType(int slot_id)
+	{
+		return "ExpansionUniversalWheel"; //this should never happen
+	}
 
 	// ------------------------------------------------------------
 	ExpansionVehicleController GetControllerInstance()
 	{
 		return NULL;
-	} 
-	
-	string ExpansionGetWheelType(int slot_id)
-	{
-		return "ExpansionUniversalWheel"; //this should never happen
 	}
 
 	override void OnContact( string zoneName, vector localPos, IEntity other, Contact data )
@@ -3203,45 +2965,4 @@ modded class CarScript
 			}
 		}
 	}
-}
-
-static TransferInventoryResult ExpansionTransferInventory( EntityAI sourceItem, EntityAI targetItem )
-{
-	TransferInventoryResult result = TransferInventoryResult.Ok;
-
-	array<EntityAI> children = new array<EntityAI>;
-	sourceItem.GetInventory().EnumerateInventory(InventoryTraversalType.LEVELORDER, children);
-	int count = children.Count();
-	for (int i = 0; i < count; i++)
-	{
-		EntityAI child = children.Get(i);
-		if (child)
-		{
-			InventoryLocation child_src = new InventoryLocation;
-			child.GetInventory().GetCurrentInventoryLocation( child_src );
-				
-			InventoryLocation child_dst = new InventoryLocation;
-			child_dst.Copy( child_src );
-			child_dst.SetParent( targetItem );
-
-			bool drop = false;
-
-			if (GameInventory.LocationCanAddEntity(child_dst))
-			{
-				sourceItem.LocalTakeToDst(child_src, child_dst);
-			}
-			else
-			{
-				drop = true;
-			}
-
-			if (drop)
-			{
-				sourceItem.LocalDropEntity(child);
-				GetGame().RemoteObjectTreeCreate(child);
-				result = TransferInventoryResult.DroppedSome;
-			}
-		}
-	}
-	return result;
 };

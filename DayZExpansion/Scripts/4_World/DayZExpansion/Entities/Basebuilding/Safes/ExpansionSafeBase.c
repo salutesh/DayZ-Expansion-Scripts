@@ -56,7 +56,7 @@ class ExpansionSafeBase extends Container_Base
 		AddAction( ActionTogglePlaceObject );
 		AddAction( ActionPlaceObject );
 
-		AddAction( ExpansionActionOpen );
+		//AddAction( ExpansionActionOpen );
 
 		AddAction( ExpansionActionCloseSafeLock );
 		AddAction( ExpansionActionCloseSafeUnlock );
@@ -85,12 +85,6 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		if ( IsLocked() )
-			return false;
-			
-		if ( selection == "safe_door" && !IsOpened() )
-			return true;
-		
 		return false;
 	}
 	
@@ -99,9 +93,6 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override bool CanClose( string selection )
 	{
-		if ( selection == "safe_door" && IsOpened() && !IsRuined())
-			return true;
-		
 		return false;
 	}
 	
@@ -126,14 +117,16 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override void Open( string selection ) 
 	{	
-		m_IsOpen = true;
 
 		//! Door open animation
 		if ( selection == "safe_door" || selection == "codelock" )
+		{
+			m_IsOpen = true;
 			SetAnimationPhase( "safe_door", 1 );
 		
-		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
-		SetSynchDirty();
+			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+			SetSynchDirty();
+		}
 		super.Open( selection );
 	}
 	
@@ -141,19 +134,21 @@ class ExpansionSafeBase extends Container_Base
 	// Expansion Close (And Lock)
 	// ------------------------------------------------------------
 	override void Close( string selection ) 
-	{	
-		m_IsOpen = false;
-
+	{
 		//! Door open animation
 		if (selection == "safe_door" || selection == "codelock")
+		{
+			m_IsOpen = false;
 			SetAnimationPhase( "safe_door", 0 );
 		
-		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
-		SetSynchDirty();
+			if ( m_HasCode )
+				Lock();
+		
+			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+			SetSynchDirty();
+		}
 		
 		super.Close( selection );
-		if ( m_HasCode )
-			Lock();
 	}
 
 	// ------------------------------------------------------------
@@ -361,10 +356,10 @@ class ExpansionSafeBase extends Container_Base
 		if ( modName != "DZ_Expansion" )
 			return;
 		
-		storage.WriteBool( m_IsOpen );
-		storage.WriteBool( m_Locked );
-		storage.WriteString( m_Code );
-		storage.WriteBool( m_HasCode );
+		storage.Write( m_IsOpen );
+		storage.Write( m_Locked );
+		storage.Write( m_Code );
+		storage.Write( m_HasCode );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -375,13 +370,13 @@ class ExpansionSafeBase extends Container_Base
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
+		if ( Expansion_Assert_False( storage.Read( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadBool( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadString( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadBool( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
+		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
 			return false;
 
 		return true;

@@ -364,6 +364,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
 					SendServerLockReply( false, false, false, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
@@ -389,7 +390,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
 					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 
@@ -397,7 +398,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
 					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
@@ -427,6 +428,7 @@ modded class ItemBase
 						PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
 						if ( player )
 						{
+							Print("GetCode()::"+GetCode()+"::code::"+code);
 							FailedUnlock();
 							player.DecreaseHealth( "", "", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
 						}
@@ -449,7 +451,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 
@@ -457,7 +459,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
 					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
@@ -483,7 +485,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 
@@ -491,7 +493,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
 					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
@@ -731,7 +733,7 @@ modded class ItemBase
 			}
 
 			CarScript car;
-			ExpansionVehicleScript veh;
+			ExpansionVehicleBase veh;
 			if ( !Class.CastTo( car, parent ) && !Class.CastTo( veh, parent ) )
 			{
 				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
@@ -1044,18 +1046,18 @@ modded class ItemBase
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteString( m_CurrentSkinName );
+		storage.Write( m_CurrentSkinName );
 		
 		if ( m_WorldAttachment && m_IsAttached )
 		{
-			storage.WriteBool( m_IsAttached );
+			storage.Write( m_IsAttached );
 
 			m_WorldAttachment.GetPersistentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );
 
-			storage.WriteInt( m_AttachIDA );
-			storage.WriteInt( m_AttachIDB );
-			storage.WriteInt( m_AttachIDC );
-			storage.WriteInt( m_AttachIDD );
+			storage.Write( m_AttachIDA );
+			storage.Write( m_AttachIDB );
+			storage.Write( m_AttachIDC );
+			storage.Write( m_AttachIDD );
 
 			vector tmItem[4];
 			vector tmParent[4];
@@ -1063,13 +1065,13 @@ modded class ItemBase
 			m_WorldAttachment.GetTransform( tmParent );
 			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_AttachmentTransform );
 
-			storage.WriteVector( m_AttachmentTransform[0] );
-			storage.WriteVector( m_AttachmentTransform[1] );
-			storage.WriteVector( m_AttachmentTransform[2] );
-			storage.WriteVector( m_AttachmentTransform[3] );
+			storage.Write( m_AttachmentTransform[0] );
+			storage.Write( m_AttachmentTransform[1] );
+			storage.Write( m_AttachmentTransform[2] );
+			storage.Write( m_AttachmentTransform[3] );
 		} else
 		{
-			storage.WriteBool( false );
+			storage.Write( false );
 		}
 
 		m_ElectricitySource.OnStoreSave( storage );
@@ -1083,21 +1085,21 @@ modded class ItemBase
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadString( m_CurrentSkinName ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+		if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
+		if ( Expansion_Assert_False( storage.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
 			return false;
 
 		if ( m_IsAttached )
 		{
-			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadInt( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
 				return false;
 				
 			vector transSide;
@@ -1105,13 +1107,13 @@ modded class ItemBase
 			vector transForward;
 			vector transPos;
 
-			if ( Expansion_Assert_False( storage.ReadVector( transSide ), "[" + this + "] Failed reading transSide" ) )
+			if ( Expansion_Assert_False( storage.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadVector( transUp ), "[" + this + "] Failed reading transUp" ) )
+			if ( Expansion_Assert_False( storage.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadVector( transForward ), "[" + this + "] Failed reading transForward" ) )
+			if ( Expansion_Assert_False( storage.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadVector( transPos ), "[" + this + "] Failed reading transPos" ) )
+			if ( Expansion_Assert_False( storage.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
 				return false;
 
 			m_AttachmentTransform[0] = transSide;

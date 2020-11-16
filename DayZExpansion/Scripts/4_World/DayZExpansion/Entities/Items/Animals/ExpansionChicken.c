@@ -155,7 +155,7 @@ class ExpansionChicken extends Inventory_Base
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteString( m_TypeChicken );
+		storage.Write( m_TypeChicken );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -166,7 +166,7 @@ class ExpansionChicken extends Inventory_Base
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadString( m_TypeChicken ), "[" + this + "] Failed reading m_TypeChicken" ) )
+		if ( Expansion_Assert_False( storage.Read( m_TypeChicken ), "[" + this + "] Failed reading m_TypeChicken" ) )
 			return false;
 
 		return true;

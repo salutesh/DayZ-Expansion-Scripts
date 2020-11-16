@@ -82,9 +82,12 @@ modded class Hologram
 	protected vector m_PlacingPositionMS;
 	protected vector m_PlacingOrientationMS;
 
+	protected float m_projDirection;
+
 	void Hologram( PlayerBase player, vector pos, ItemBase item )
 	{
 		m_UsingSnap = true;
+		m_projDirection = 0;
 
 		m_DebugPositions = new array< Object >;
 		m_DebugDirections = new array< Object >;
@@ -156,7 +159,8 @@ modded class Hologram
 
 	private Object CreateDebugObject( string name, vector pos )
 	{
-		if ( false )
+		//! Change to false to see debug boxes
+		if ( true )
 			return NULL;
 
 		return GetGame().CreateObject( name, pos, true );
@@ -421,18 +425,18 @@ modded class Hologram
 
 				switch ( m_BBType )
 				{
-				case "WALL":
-					HandleWall( projPosition, projOrientation );
-					break;
-				case "STAIR":
-					HandleStairs( projPosition, projOrientation );
-					break;
-				case "FLOOR":
-					HandleFloor( projPosition, projOrientation );
-					break;
-				case "RAMP":
-					HandleRamp( projPosition, projOrientation );
-					break;
+					case "WALL":
+						HandleWall( projPosition, projOrientation );
+						break;
+					case "STAIR":
+						HandleStairs( projPosition, projOrientation );
+						break;
+					case "FLOOR":
+						HandleFloor( projPosition, projOrientation );
+						break;
+					case "RAMP":
+						HandleRamp( projPosition, projOrientation );
+						break;
 				}
 		
 				m_PlacingParent = m_SnapPosition.Target;
@@ -510,12 +514,34 @@ modded class Hologram
 		return false;
 	}
 
+	void SetProjDirection(float direction)
+	{
+		m_projDirection = direction;
+	}
+
+	float GetProjDirection()
+	{
+		return m_projDirection;
+	}
+
 	void NextDirection()
 	{
+		#ifdef EXPANSION_ROTATE_SNAPPING_ENABLED
+		if ( m_projDirection < 370 )
+			m_projDirection = m_projDirection + 10.0;
+		else
+			m_projDirection = 0 ;
+		#endif
 	}
 
 	void PreviousDirection()
 	{
+		#ifdef EXPANSION_ROTATE_SNAPPING_ENABLED
+		if ( m_projDirection >= 0 )
+			m_projDirection = m_projDirection - 10.0;
+		else
+			m_projDirection = 370;
+		#endif
 	}
 
 	bool CanWallBePlacedAtDirection()
@@ -535,49 +561,55 @@ modded class Hologram
 		#endif
 		vector orient = m_SnapMVectorC.VectorToAngles();
 
-		orientation[0] = orient[0] + 90;
+		#ifdef EXPANSION_ROTATE_SNAPPING_ENABLED
+		float tempv = 1;
+		if (m_projDirection != 0)
+			tempv = m_projDirection;
+		#endif
+
+		orientation[0] = orient[0] + 90.0;
 		orientation[1] = 0.0;
 		orientation[2] = 0.0;
 
 		switch ( m_OffsetType )
 		{
-		case 0:
-			position[0] = m_BBxOffset * m_SnapMVectorC[0];
-			position[1] = 0;
-			position[2] = m_BBxOffset * m_SnapMVectorC[2];
-			break;
-		case 1:
-			position[0] = 0;
-			position[1] = 0;
-			position[2] = 0;
-			break;
-		case 2:
-			orient = vector.Direction( Vector( 0, m_SnapMPC[1], 0 ), m_SnapMPC ).Normalized().VectorToAngles();
+			case 0:
+				position[0] = m_BBxOffset * m_SnapMVectorC[0];
+				position[1] = 0;
+				position[2] = m_BBxOffset * m_SnapMVectorC[2];
+				break;
+			case 1:
+				position[0] = 0;
+				position[1] = 0;
+				position[2] = 0;
+				break;
+			case 2:
+				orient = vector.Direction( Vector( 0, m_SnapMPC[1], 0 ), m_SnapMPC ).Normalized().VectorToAngles();
 
-			orientation[0] = orient[0];
+				orientation[0] = orient[0];
 
-			position[0] = 0;
-			position[1] = 0;
-			position[2] = 0;
-			break;
-		case 3:
-			orient = vector.Direction( Vector( 0, m_SnapMPC[1], 0 ), m_SnapMPC ).Normalized().VectorToAngles();
+				position[0] = 0;
+				position[1] = 0;
+				position[2] = 0;
+				break;
+			case 3:
+				orient = vector.Direction( Vector( 0, m_SnapMPC[1], 0 ), m_SnapMPC ).Normalized().VectorToAngles();
 
-			orientation[0] = orient[0];
+				orientation[0] = orient[0];
 
-			position[0] = m_BBxOffset * m_SnapMVectorC[0];
-			position[1] = m_BBySize * m_SnapMVectorC[1];
-			position[2] = m_BBzOffset * m_SnapMVectorC[2];
-			break;
-		case 4:
-			orient = vector.Direction( Vector( 0, m_SnapMPC[1], 0 ), m_SnapMPC ).Normalized().VectorToAngles();
+				position[0] = m_BBxOffset * m_SnapMVectorC[0];
+				position[1] = m_BBySize * m_SnapMVectorC[1];
+				position[2] = m_BBzOffset * m_SnapMVectorC[2];
+				break;
+			case 4:
+				orient = vector.Direction( Vector( 0, m_SnapMPC[1], 0 ), m_SnapMPC ).Normalized().VectorToAngles();
 
-			orientation[0] = orient[0] - 90;
+				orientation[0] = orient[0] - 90;
 
-			position[0] = m_BBxOffset * m_SnapMVectorC[0];
-			position[1] = m_BBySize * m_SnapMVectorC[1];
-			position[2] = m_BBzOffset * m_SnapMVectorC[2];
-			break;
+				position[0] = m_BBxOffset * m_SnapMVectorC[0];
+				position[1] = m_BBySize * m_SnapMVectorC[1];
+				position[2] = m_BBzOffset * m_SnapMVectorC[2];
+				break;
 		}
 
 		position = m_SnapPosition.Position + position;

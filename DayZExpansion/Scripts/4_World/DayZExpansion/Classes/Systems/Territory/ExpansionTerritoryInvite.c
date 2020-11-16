@@ -22,9 +22,9 @@ class ExpansionTerritoryInvite
 	// ------------------------------------------------------------
 	void OnStoreSave( ModStorage storage )
 	{
-		storage.WriteInt( TerritoryID );
-		storage.WriteString( TerritoryName );
-		storage.WriteString( UID );
+		storage.Write( TerritoryID );
+		storage.Write( TerritoryName );
+		storage.Write( UID );
 	}
 
 	// ------------------------------------------------------------
@@ -32,11 +32,11 @@ class ExpansionTerritoryInvite
 	// ------------------------------------------------------------
 	bool OnStoreLoad( ModStorage storage )
 	{
-		if ( Expansion_Assert_False( storage.ReadInt( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadString( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadString( UID ), "[" + this + "] Failed reading UID" ) )
+		if ( Expansion_Assert_False( storage.Read( UID ), "[" + this + "] Failed reading UID" ) )
 			return false;
 
 		return true;

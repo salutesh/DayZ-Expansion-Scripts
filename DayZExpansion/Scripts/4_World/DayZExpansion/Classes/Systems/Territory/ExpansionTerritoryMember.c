@@ -22,9 +22,9 @@ class ExpansionTerritoryMember
 	// ------------------------------------------------------------
 	void OnStoreSave( ModStorage storage )
 	{
-		storage.WriteString( m_ID );
-		storage.WriteString( m_Name );
-		storage.WriteInt( m_Rank );
+		storage.Write( m_ID );
+		storage.Write( m_Name );
+		storage.Write( m_Rank );
 	}
 
 	// ------------------------------------------------------------
@@ -32,11 +32,11 @@ class ExpansionTerritoryMember
 	// ------------------------------------------------------------
 	bool OnStoreLoad( ModStorage storage )
 	{
-		if ( Expansion_Assert_False( storage.ReadString( m_ID ), "[" + this + "] Failed reading m_ID" ) )
+		if ( Expansion_Assert_False( storage.Read( m_ID ), "[" + this + "] Failed reading m_ID" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadString( m_Name ), "[" + this + "] Failed reading m_Name" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Name ), "[" + this + "] Failed reading m_Name" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadInt( m_Rank ), "[" + this + "] Failed reading m_Rank" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Rank ), "[" + this + "] Failed reading m_Rank" ) )
 			return false;
 
 		return true;

@@ -127,7 +127,7 @@ modded class Flag_Base
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteString( m_FlagTexturePath );
+		storage.Write( m_FlagTexturePath );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -138,7 +138,7 @@ modded class Flag_Base
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadString( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
+		if ( Expansion_Assert_False( storage.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 			return false;
 
 		return true;

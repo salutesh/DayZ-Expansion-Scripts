@@ -1,5 +1,5 @@
 /**
- * ExpansionGame.c
+ * DayZExpansion_Defines.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,6 +10,4 @@
  *
 */
 
-modded class ExpansionGame
-{
-};
+//#define EXPANSION_ROTATE_SNAPPING_ENABLED

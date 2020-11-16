@@ -87,9 +87,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteBool( m_HasWindow );
-		storage.WriteBool( m_HasDoor );
-		storage.WriteBool( m_HasGate );
+		storage.Write( m_HasWindow );
+		storage.Write( m_HasDoor );
+		storage.Write( m_HasGate );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -100,11 +100,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
+		if ( Expansion_Assert_False( storage.Read( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadBool( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
+		if ( Expansion_Assert_False( storage.Read( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadBool( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
+		if ( Expansion_Assert_False( storage.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
 			return false;
 
 		return true;
@@ -376,7 +376,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( !ExpansionIsOpenable() )
 			return false;
 
-		if ( m_HasWindow && !IsFacingPlayer( player, selection ) )
+		if ( m_HasWindow && !IsFacingPlayer( player, selection ) && ( !IsMissionClient() || !IsFacingCamera( selection ) ) )
 		{
 			if ( selection == (m_CurrentBuild + "_window_ll") && GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5 )
 				return true;

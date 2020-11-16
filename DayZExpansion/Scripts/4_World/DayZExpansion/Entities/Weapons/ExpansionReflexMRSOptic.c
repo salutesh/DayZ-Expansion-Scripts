@@ -227,7 +227,7 @@ class ExpansionReflexMRSOptic: ItemOptics
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteInt( m_CurrentMode );
+		storage.Write( m_CurrentMode );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -238,7 +238,7 @@ class ExpansionReflexMRSOptic: ItemOptics
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadInt( m_CurrentMode ), "[" + this + "] Failed reading m_CurrentMode" ) )
+		if ( Expansion_Assert_False( storage.Read( m_CurrentMode ), "[" + this + "] Failed reading m_CurrentMode" ) )
 			return false;
 
 		return true;

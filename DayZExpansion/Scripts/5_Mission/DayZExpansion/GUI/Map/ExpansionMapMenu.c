@@ -936,27 +936,34 @@ class ExpansionMapMenu extends UIScriptedMenu
 		{
 			//! Lower number zooms in / Higher number zooms out
 			scale = 0.10; // Float between 0-1 ?!
-			
+
 			#ifdef EXPANSION_MAP_MENU_DEBUG
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current scale is: " + scale.ToString());
 			#endif
 
 			player_pos = m_PlayerB.GetPosition();
-			camera_pos = GetGame().GetCurrentCameraPosition();
 
 			#ifdef EXPANSION_MAP_MENU_DEBUG
 			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current player position is: " + player_pos.ToString());
 			#endif
 
-			#ifdef EXPANSION_MAP_MENU_DEBUG
-			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current camera position is: " + camera_pos.ToString());
-			#endif
-			
-			map_pos = camera_pos;
+			map_pos = Vector(0,0,0);
 
-			#ifdef EXPANSION_MAP_MENU_DEBUG
-			EXLogPrint("ExpansionMapMenu::SetMapPosition:: Map Position is: " + map_pos.ToString());
-			#endif
+			//! only do this if the server want to show player pos (if not, we don't want to open the map on player pos)
+			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+			{
+				camera_pos = GetGame().GetCurrentCameraPosition();
+
+				#ifdef EXPANSION_MAP_MENU_DEBUG
+				EXLogPrint("ExpansionMapMenu::SetMapPosition:: Current camera position is: " + camera_pos.ToString());
+				#endif
+				
+				map_pos = camera_pos;
+
+				#ifdef EXPANSION_MAP_MENU_DEBUG
+				EXLogPrint("ExpansionMapMenu::SetMapPosition:: Map Position is: " + map_pos.ToString());
+				#endif
+			}
 		}
 
 		m_MapWidget.SetScale(scale);
@@ -1019,8 +1026,23 @@ class ExpansionMapMenu extends UIScriptedMenu
 					int mouse_x;
 					int mouse_y;
 
-					GetGame().GetMousePos( mouse_x, mouse_y );
-					CreateNewMarker( mouse_x, mouse_y );
+					if ( GetExpansionSettings().GetMap().NeedPenItemForCreateMarker )
+					{
+						#ifdef EXPANSIONEXLOGPRINT
+						EXLogPrint("ExpansionMapMenu::OnDoubleClick - player has pen: " + PlayerBase.Cast( GetGame().GetPlayer() ).HasItemPen().ToString() );
+						#endif
+						
+						if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemPen() )
+						{
+							GetGame().GetMousePos( mouse_x, mouse_y );
+							CreateNewMarker( mouse_x, mouse_y );
+						}
+					}
+					else
+					{
+						GetGame().GetMousePos( mouse_x, mouse_y );
+						CreateNewMarker( mouse_x, mouse_y );
+					}
 
 					//! This works but not sure if we should do this, doesn't feel right.
 					//m_SelectedMarker.FocusOnMarker( false );

@@ -14,12 +14,18 @@ modded class ActionUnmountBarbedWire
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( player.IsInTerritory() )
-			return player.IsInsideOwnTerritory();
-
 		if ( player.IsInSafeZone() )
 			return false;
 
-		return super.ActionCondition(player, target, item);
+		bool isInTerritory = player.IsInTerritory();
+		bool isInsideOwnTerritory = isInTerritory && player.IsInsideOwnTerritory();
+		bool dismantleOutsideTerritory = !isInTerritory && GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;
+
+		if ( isInsideOwnTerritory || dismantleOutsideTerritory )
+		{
+			return super.ActionCondition(player, target, item);
+		}
+
+		return false;
 	}
 }

@@ -295,12 +295,12 @@ modded class TerritoryFlag
 		if ( modName != "DZ_Expansion" )
 			return;
 		
-		storage.WriteBool( m_IsTerritory );
+		storage.Write( m_IsTerritory );
 		if ( m_IsTerritory )
 		{
-			storage.WriteString( m_FlagTexturePath );
-			storage.WriteString( m_OwnerID );
-			storage.WriteInt( m_TerritoryID );		
+			storage.Write( m_FlagTexturePath );
+			storage.Write( m_OwnerID );
+			storage.Write( m_TerritoryID );		
 			
 			m_Territory.OnStoreSave( storage );
 		}
@@ -314,22 +314,22 @@ modded class TerritoryFlag
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_IsTerritory ), "[" + this + "] Failed reading m_IsTerritory" ) )
+		if ( Expansion_Assert_False( storage.Read( m_IsTerritory ), "[" + this + "] Failed reading m_IsTerritory" ) )
 			return false;
 
 		if ( !m_IsTerritory )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadString( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
+		if ( Expansion_Assert_False( storage.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 			return false;
 		
 		SetFlagTexture( m_FlagTexturePath );
 		//AnimateFlag( 1 - GetRefresherTime01() );
 		
-		if ( Expansion_Assert_False( storage.ReadString( m_OwnerID ), "[" + this + "] Failed reading m_OwnerID" ) )
+		if ( Expansion_Assert_False( storage.Read( m_OwnerID ), "[" + this + "] Failed reading m_OwnerID" ) )
 			return false;
 		
-		if ( Expansion_Assert_False( storage.ReadInt( m_TerritoryID ), "[" + this + "] Failed reading m_TerritoryID" ) )
+		if ( Expansion_Assert_False( storage.Read( m_TerritoryID ), "[" + this + "] Failed reading m_TerritoryID" ) )
 			return false;
 		
 		if ( !m_Territory.OnStoreLoad( storage ) )

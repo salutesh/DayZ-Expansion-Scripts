@@ -41,6 +41,7 @@ modded class PlayerBase
 
 	protected bool m_HasMap;
 	protected bool m_HasGPS;
+	protected bool m_HasPen;
 	
 	//Only server side
 	protected int m_QuickMarkerColor;
@@ -74,6 +75,7 @@ modded class PlayerBase
 
 		m_HasMap = false;
 		m_HasGPS = false;
+		m_HasPen = false;
 		
 		SetRandomQuickMarkerColor();
 		
@@ -315,35 +317,13 @@ modded class PlayerBase
 		#endif
 
 		super.SetActions( InputActionMap );
-		
-		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
-		
-		AddAction( ExpansionActionCarHorn, InputActionMap );
-		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
-		
+				
 		AddAction( ExpansionActionOpenParachute, InputActionMap );
 		AddAction( ExpansionActionCutParachute, InputActionMap );
-
-		AddAction( ExpansionActionStartEngine, InputActionMap );
-		AddAction( ExpansionActionStopEngine, InputActionMap );
-		
-		AddAction( ExpansionActionStartBoat, InputActionMap );
-		AddAction( ExpansionActionStopBoat, InputActionMap );
-
-		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
-		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
 
 		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
 
 		AddAction( ExpansionActionPaint, InputActionMap );
-
-		#ifdef EXPANSION_VEHICLE_TOWING
-		AddAction( ExpansionActionConnectTow, InputActionMap );
-		AddAction( ExpansionActionDisconnectTow, InputActionMap );
-		#endif
-		
-		//AddAction( ExpansionActionStartPlane, InputActionMap );
-		//AddAction( ExpansionActionStopPlane, InputActionMap );
 		
 		AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
 		AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
@@ -361,22 +341,8 @@ modded class PlayerBase
 
 		super.SetActions();
 		
-		AddAction( ExpansionActionGetOutExpansionVehicle );
-		
-		AddAction( ExpansionActionCarHorn );
-		AddAction( ExpansionActionHelicopterHoverRefill );
-		
 		AddAction( ExpansionActionOpenParachute );
 		AddAction( ExpansionActionCutParachute );
-
-		AddAction( ExpansionActionStartEngine );
-		AddAction( ExpansionActionStopEngine );
-		
-		AddAction( ExpansionActionStartBoat );
-		AddAction( ExpansionActionStopBoat );
-
-		AddAction( ExpansionActionSwitchBoatController );
-		AddAction( ExpansionActionSwitchBoatControllerInput );
 
 		AddAction( ExpansionActionSelectNextPlacement );
 
@@ -386,9 +352,6 @@ modded class PlayerBase
 		AddAction( ExpansionActionConnectTow );
 		AddAction( ExpansionActionDisconnectTow );
 		#endif
-		
-		//AddAction( ExpansionActionStartPlane );
-		//AddAction( ExpansionActionStopPlane );
 		
 		AddAction( ExpansionActionStartPlayingGuitar );
 		AddAction( ExpansionActionStopPlayingGuitar );
@@ -1137,7 +1100,7 @@ modded class PlayerBase
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteBool( m_WasInVehicle );
+		storage.Write( m_WasInVehicle );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -1148,7 +1111,7 @@ modded class PlayerBase
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+		if ( Expansion_Assert_False( storage.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 
 		return true;
@@ -1365,6 +1328,23 @@ modded class PlayerBase
 	{
 		return m_HasGPS;
 	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase SetHasItemPen
+	// ------------------------------------------------------------
+	void SetHasItemPen(bool state)
+	{
+		m_HasPen = state;
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase HasItemPen
+	// ------------------------------------------------------------
+	bool HasItemPen()
+	{
+		return m_HasPen;
+	}
+
 	void WakePlayer()
 	{
 		this.AddHealth("","Shock", 100);

@@ -113,7 +113,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement GetExpansionTransport
 	// ------------------------------------------------------------
-	ExpansionVehicleScript GetExpansionTransport()
+	ExpansionVehicleBase GetExpansionTransport()
 	{
 		ExpansionHumanCommandVehicle script;
 		if ( Class.CastTo( script, GetCommand_Script() ) )
@@ -213,7 +213,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	override int CameraHandler( int pCameraMode )
 	{
-		ExpansionVehicleScript exTrans;
+		ExpansionVehicleBase exTrans;
 		ExpansionHumanCommandVehicle vehicleCommand = GetCommand_ExpansionVehicle();
 		if ( vehicleCommand )
 			exTrans = vehicleCommand.GetTransport();

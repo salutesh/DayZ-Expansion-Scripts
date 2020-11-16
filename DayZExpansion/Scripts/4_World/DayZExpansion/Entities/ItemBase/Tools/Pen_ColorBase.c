@@ -1,5 +1,5 @@
 /**
- * ChernarusMap.c
+ * Pen_ColorBase.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,10 +10,10 @@
  *
 */
 
-modded class ChernarusMap
+modded class Pen_ColorBase
 {
 	// ------------------------------------------------------------
-	// ChernarusMap PlayerInventoryCheckLocal
+	// Pen_ColorBase PlayerInventoryCheckLocal
 	// ------------------------------------------------------------
 	private void PlayerInventoryCheckLocal()
 	{
@@ -25,19 +25,19 @@ modded class ChernarusMap
 				PlayerBase player = PlayerBase.Cast( GetHierarchyRootPlayer() );
 				if ( player )
 				{
-					player.SetHasItemMap( true );
+					player.SetHasItemPen( true );
 				}
 			}
 		}
 	}
 	
 	// ------------------------------------------------------------
-	// ChernarusMap EEInventoryIn
+	// Pen_ColorBase EEInventoryIn
 	// ------------------------------------------------------------	
 	override void EEInventoryIn(Man newParentMan, EntityAI diz, EntityAI newParent)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ChernarusMap::EEInventoryIn - Start");
+		EXLogPrint("Pen_ColorBase::EEInventoryIn - Start");
 		#endif
 		
 		super.EEInventoryIn( newParentMan, diz, newParent );
@@ -51,28 +51,28 @@ modded class ChernarusMap
 				if ( !player )
 				{
 					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("ChernarusMap::EEInventoryIn - player: " + player.ToString());
+					EXLogPrint("Pen_ColorBase::EEInventoryIn - player: " + player.ToString());
 					#endif
 
 					return;
 				}
 				
-				player.SetHasItemMap( true );
+				player.SetHasItemPen( true );
 			}
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ChernarusMap::EEInventoryIn - End");
+		EXLogPrint("Pen_ColorBase::EEInventoryIn - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// ChernarusMap EEInventoryOut
+	// Pen_ColorBase EEInventoryOut
 	// ------------------------------------------------------------	
 	override void EEInventoryOut(Man oldParentMan, EntityAI diz, EntityAI newParent)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ChernarusMap::EEInventoryOut - Start");
+		EXLogPrint("Pen_ColorBase::EEInventoryOut - Start");
 		#endif
 		
 		super.EEInventoryOut( oldParentMan, diz, newParent );
@@ -86,28 +86,28 @@ modded class ChernarusMap
 				if ( !player )
 				{
 					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("ChernarusMap::EEInventoryOut - player: " + player.ToString());
+					EXLogPrint("Pen_ColorBase::EEInventoryOut - player: " + player.ToString());
 					#endif
 					
 					return;
 				}
 				
-				player.SetHasItemMap( false );
+				player.SetHasItemPen( false );
 			}
 		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ChernarusMap::EEInventoryOut - End");
+		EXLogPrint("Pen_ColorBase::EEInventoryOut - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// ChernarusMap EEInit
+	// Pen_ColorBase EEInit
 	// ------------------------------------------------------------
 	override void EEInit()
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ChernarusMap::EEInit - Start");
+		EXLogPrint("Pen_ColorBase::EEInit - Start");
 		#endif
 		
 		super.EEInit();
@@ -115,7 +115,7 @@ modded class ChernarusMap
 		PlayerInventoryCheckLocal();
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ChernarusMap::EEInit - End");
+		EXLogPrint("Pen_ColorBase::EEInit - End");
 		#endif
 	}
 }

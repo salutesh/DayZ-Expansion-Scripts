@@ -94,7 +94,7 @@ class Expansion_GraveBase extends Inventory_Base
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteBool( m_ReceivedAttachments );
+		storage.Write( m_ReceivedAttachments );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -105,7 +105,7 @@ class Expansion_GraveBase extends Inventory_Base
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_ReceivedAttachments ), "[" + this + "] Failed reading m_ReceivedAttachments" ) )
+		if ( Expansion_Assert_False( storage.Read( m_ReceivedAttachments ), "[" + this + "] Failed reading m_ReceivedAttachments" ) )
 			return false;
 
 		return true;

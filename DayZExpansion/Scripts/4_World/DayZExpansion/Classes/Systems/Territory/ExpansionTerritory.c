@@ -336,19 +336,19 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	void OnStoreSave( ModStorage storage )
 	{
-		storage.WriteInt( TerritoryID );
-		storage.WriteString( TerritoryName );
-		storage.WriteVector( TerritoryPosition );
-		storage.WriteInt( TerritoryLevel );
-		storage.WriteString( TerritoryOwnerID );
-		storage.WriteString( TerritoryFlagTexturePath );
+		storage.Write( TerritoryID );
+		storage.Write( TerritoryName );
+		storage.Write( TerritoryPosition );
+		storage.Write( TerritoryLevel );
+		storage.Write( TerritoryOwnerID );
+		storage.Write( TerritoryFlagTexturePath );
 
 		int count;
 		int index;
 
 		index = 0;
 		count = TerritoryMembers.Count();
-		storage.WriteInt( count );
+		storage.Write( count );
 		while ( index < count )
 		{
 			TerritoryMembers[index].OnStoreLoad( storage );
@@ -357,7 +357,7 @@ class ExpansionTerritory
 
 		index = 0;
 		count = Invites.Count();
-		storage.WriteInt( count );
+		storage.Write( count );
 		while ( index < count )
 		{
 			Invites[index].OnStoreLoad( storage );
@@ -370,29 +370,29 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool OnStoreLoad( ModStorage storage )
 	{
-		if ( Expansion_Assert_False( storage.ReadInt( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
 			return false;
 			
-		if ( Expansion_Assert_False( storage.ReadString( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadVector( TerritoryPosition ), "[" + this + "] Failed reading TerritoryPosition" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryPosition ), "[" + this + "] Failed reading TerritoryPosition" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadInt( TerritoryLevel ), "[" + this + "] Failed reading TerritoryLevel" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryLevel ), "[" + this + "] Failed reading TerritoryLevel" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadString( TerritoryOwnerID ), "[" + this + "] Failed reading TerritoryOwnerID" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryOwnerID ), "[" + this + "] Failed reading TerritoryOwnerID" ) )
 			return false;
 
-		if ( Expansion_Assert_False( storage.ReadString( TerritoryFlagTexturePath ), "[" + this + "] Failed reading TerritoryFlagTexturePath" ) )
+		if ( Expansion_Assert_False( storage.Read( TerritoryFlagTexturePath ), "[" + this + "] Failed reading TerritoryFlagTexturePath" ) )
 			return false;
 
 		int count;
 		int index;
 
 		index = 0;
-		if ( Expansion_Assert_False( storage.ReadInt( count ), "[" + this + "] Failed reading count" ) )
+		if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading count" ) )
 			return false;
 		while ( index < count )
 		{
@@ -403,7 +403,7 @@ class ExpansionTerritory
 		}
 
 		index = 0;
-		if ( Expansion_Assert_False( storage.ReadInt( count ), "[" + this + "] Failed reading count" ) )
+		if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading count" ) )
 			return false;
 		while ( index < count )
 		{

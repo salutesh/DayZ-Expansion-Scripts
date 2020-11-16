@@ -520,9 +520,9 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		if ( modName != "DZ_Expansion" )
 			return;
 
-		storage.WriteBool( m_Locked );
-		storage.WriteString( m_Code );
-		storage.WriteBool( m_HasCode );
+		storage.Write( m_Locked );
+		storage.Write( m_Code );
+		storage.Write( m_HasCode );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -533,11 +533,11 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadString( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.ReadBool( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
+		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
 			return false;
 
 		return true;

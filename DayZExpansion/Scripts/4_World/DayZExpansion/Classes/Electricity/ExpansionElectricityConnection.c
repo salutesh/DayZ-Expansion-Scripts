@@ -95,14 +95,14 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		EXPrint("ExpansionElectricityConnection::OnStoreSave - Start");
 		#endif
 		
-		storage.WriteBool( m_IsPaired );
+		storage.Write( m_IsPaired );
 
 		if ( m_IsPaired )
 		{
-			storage.WriteInt( m_SourceA );
-			storage.WriteInt( m_SourceB );
-			storage.WriteInt( m_SourceD );
-			storage.WriteInt( m_SourceC );
+			storage.Write( m_SourceA );
+			storage.Write( m_SourceB );
+			storage.Write( m_SourceD );
+			storage.Write( m_SourceC );
 		}
 		
 		#ifdef EXPANSIONEXPRINT
@@ -116,18 +116,18 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		EXPrint("ExpansionElectricityConnection::OnStoreLoad - Start");
 		#endif
 		
-		if ( Expansion_Assert_False( storage.ReadBool( m_IsPaired ), "[" + this + "] Failed reading m_IsPaired" ) )
+		if ( Expansion_Assert_False( storage.Read( m_IsPaired ), "[" + this + "] Failed reading m_IsPaired" ) )
 			return false;
 
 		if ( m_IsPaired )
 		{
-			if ( Expansion_Assert_False( storage.ReadInt( m_SourceA ), "[" + this + "] Failed reading m_SourceA" ) )
+			if ( Expansion_Assert_False( storage.Read( m_SourceA ), "[" + this + "] Failed reading m_SourceA" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadInt( m_SourceB ), "[" + this + "] Failed reading m_SourceB" ) )
+			if ( Expansion_Assert_False( storage.Read( m_SourceB ), "[" + this + "] Failed reading m_SourceB" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadInt( m_SourceD ), "[" + this + "] Failed reading m_SourceD" ) )
+			if ( Expansion_Assert_False( storage.Read( m_SourceD ), "[" + this + "] Failed reading m_SourceD" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.ReadInt( m_SourceC ), "[" + this + "] Failed reading m_SourceC" ) )
+			if ( Expansion_Assert_False( storage.Read( m_SourceC ), "[" + this + "] Failed reading m_SourceC" ) )
 				return false;
 		}
 

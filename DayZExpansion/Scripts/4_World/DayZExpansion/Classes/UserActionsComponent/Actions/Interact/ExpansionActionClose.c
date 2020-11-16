@@ -51,10 +51,7 @@ class ExpansionActionClose: ActionInteractBase
 
 		string selection = tgt.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 		
-		ExpansionWallBase wallBase = ExpansionWallBase.Cast( tgt );
-		if ( wallBase )
-			wallBase.Lock();
-			
+		tgt.Lock();			
 		tgt.Close( selection );
 	}
 }

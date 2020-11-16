@@ -160,7 +160,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		if ( modName != "DZ_Expansion" )
 			return;
 		
-		storage.WriteBool( m_IsOpened );
+		storage.Write( m_IsOpened );
 	}
 	
 	override bool OnModStoreLoad( ModStorage storage, string modName )
@@ -171,7 +171,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.ReadBool( m_IsOpened ), "[" + this + "] Failed reading m_IsTerritory" ) )
+		if ( Expansion_Assert_False( storage.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsTerritory" ) )
 			return false;
 
 		return true;
