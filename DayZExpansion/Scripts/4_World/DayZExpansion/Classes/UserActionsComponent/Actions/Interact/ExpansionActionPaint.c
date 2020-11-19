@@ -86,7 +86,7 @@ class ExpansionActionPaint: ActionContinuousBase
 	override void OnStartServer( ActionData action_data )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionActionPaint::OnStartServer - Start m_Car : " + m_Car);
+		EXPrint("ExpansionActionPaint::OnStartServer - Start");
 		#endif
 
 		super.OnStartServer( action_data );
@@ -117,7 +117,7 @@ class ExpansionActionPaint: ActionContinuousBase
 		}
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionActionPaint::OnStartServer - End m_Car : " + m_Car);
+		EXPrint("ExpansionActionPaint::OnStartServer - End m_Car : " + car);
 		#endif
 	}
 

@@ -539,7 +539,7 @@ modded class MissionGameplay
 		if ( playerPB && playerPB.GetHumanInventory() ) 
 		{
 			//! Expansion reference to item in hands
-			ItemBase itemInHands = ItemBase.Cast(playerPB.GetHumanInventory().GetEntityInHands());
+			EntityAI itemInHands = playerPB.GetHumanInventory().GetEntityInHands();
 
 			//! Expansion reference to hologram
 			ref Hologram hologram;	
@@ -578,11 +578,32 @@ modded class MissionGameplay
 					}
 					
 					//! Book Menu
-					if ( input.LocalPress( "UAExpansionBookToggle", false ) )
+					if ( input.LocalPress( "UAExpansionBookToggle", false ) && !GetGame().GetUIManager().GetMenu() )
 					{
-						if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings() && GetExpansionSettings().GetBook().EnableBook )
+						if ( GetExpansionSettings() && GetExpansionSettings().GetBook().EnableBook )
 						{
-							GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_BOOK_MENU, NULL );
+							bool hasBookItem = true;
+							EntityAI bookItem;
+							
+							if ( GetExpansionSettings().GetBook().ItemRequired != "" )
+							{
+								switch ( GetExpansionSettings().GetBook().ItemRequiredLocation )
+								{
+									case 0:
+										hasBookItem = playerPB.HasItem( GetExpansionSettings().GetBook().ItemRequired, bookItem );
+										break;
+									case 1:
+										hasBookItem = GetExpansionSettings().GetBook().ItemRequired == itemInHands.GetType();
+										if ( hasBookItem )
+											bookItem = itemInHands;
+										break;
+								}
+							}
+
+							if ( hasBookItem )
+							{
+								GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_BOOK_MENU, NULL );
+							}
 						}
 					}
 					
@@ -598,7 +619,7 @@ modded class MissionGameplay
 						{
 							if ( GetExpansionSettings().GetMap().NeedMapItemForKeyBinding )
 							{
-								if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemMap() || PlayerBase.Cast( GetGame().GetPlayer() ).HasItemGPS() )
+								if ( playerPB.HasItemMap() || playerPB.HasItemGPS() )
 									GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
 							} else
 							{

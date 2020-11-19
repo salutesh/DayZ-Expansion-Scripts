@@ -146,7 +146,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override bool ExpansionHasCodeLock( string selection )
 	{
-		if ( selection == "codelock_door" )
+		if ( selection == "codelock_door" || GetExpansionSettings().GetBaseBuilding() && GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
 		{
 			if ( m_HasDoor && FindAttachmentBySlotName( "Att_ExpansionCodeLock_1" ) )
 			{
@@ -154,7 +154,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			}
 		}
 
-		if ( selection == "codelock_gate" )
+		if ( selection == "codelock_gate" || GetExpansionSettings().GetBaseBuilding() && GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
 		{
 			if ( m_HasGate && FindAttachmentBySlotName( "Att_ExpansionCodeLock_2" ) )
 			{

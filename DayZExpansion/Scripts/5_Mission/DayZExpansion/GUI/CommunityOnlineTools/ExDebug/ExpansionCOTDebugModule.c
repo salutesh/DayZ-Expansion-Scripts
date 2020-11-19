@@ -35,7 +35,7 @@ class ExpansionCOTDebugModule: ExpansionCOTModuleBase
 
 	override string GetIconName()
 	{
-		return "V";
+		return "D";
 	}
 
 	override bool ImageIsIcon()
@@ -56,10 +56,15 @@ class ExpansionCOTDebugModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateToggle( "ShowVehicleDebugMarkers", "Show Vehicle Debug Markers", "", "" );
+
 		array< string > values_DebugVehicleTransformSet = { "SET", "PHYSICS" };
 		CreateEnum( "DebugVehicleTransformSet", values_DebugVehicleTransformSet, "Debug Vehicle Transform", "", "" );
+
 		array< string > values_DebugVehicleSync = { "CLIENT ONLY", "ALWAYS" };
 		CreateEnum( "DebugVehicleSync", values_DebugVehicleSync, "Physics Sync", "", "" );
+
+		array< string > values_DebugVehiclePlayerNetworkBubbleMode = { "NONE", "CREATE", "CREATE/DESTROY" };
+		CreateEnum( "DebugVehiclePlayerNetworkBubbleMode", values_DebugVehiclePlayerNetworkBubbleMode, "Network Bubble", "", "" );
 	}
 
 	override int GetRPCMin()

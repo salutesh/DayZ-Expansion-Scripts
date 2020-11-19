@@ -62,9 +62,9 @@ class ExpansionBookTabServerRules extends ExpansionBookTabBase
 	// ------------------------------------------------------------
 	private void CreateRules()
 	{
-		for ( int i = 0; i < GetExpansionSettings().GetBook().RuleCategorys.Count(); i++ )
+		for ( int i = 0; i < GetExpansionSettings().GetBook().RuleCategories.Count(); i++ )
 		{
-			ref ExpansionRulesCategory category = GetExpansionSettings().GetBook().RuleCategorys[i];
+			ref ExpansionRulesCategory category = GetExpansionSettings().GetBook().RuleCategories[i];
 			Widget categoryWidget = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/book/rules/expansion_book_rule_section.layout", m_Book_Spacer_Left ) );
 			TextWidget categoryLable = TextWidget.Cast( categoryWidget.FindAnyWidget( "expansion_rule_section_text" ) );
 			categoryLable.SetText( category.DisplayName );

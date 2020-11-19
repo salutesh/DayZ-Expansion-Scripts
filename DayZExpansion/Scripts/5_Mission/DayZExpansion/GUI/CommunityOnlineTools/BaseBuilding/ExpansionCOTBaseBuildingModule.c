@@ -67,11 +67,12 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		CreateToggle( "DismantleInsideTerritory", "Dismantle Inside Other Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
 
+		CreateToggle( "CodelockActionsAnywhere", "Codelock: Actions Anywhere", "", "" );
 		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Codelock: Damage On Wrong Code", "", "" );
 		CreateSlider( "DamageWhenEnterWrongCodeLock", "Codelock: Damage Dealt", "", "", 1.0, 100.0, 1.0);
 
 		CreateToggle( "CanCraftTerritoryFlagKit", "Can Craft Territory Flag Kit", "", "" );
-		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory Flag Kit After Build", "", "" );
+		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory FlagKit After Build", "", "" );
 
 		CreateToggle( "SimpleTerritory", "Simple Territory Creation", "", "" );
 		CreateToggle( "AutomaticFlagOnCreation", "Add Flag Item", "", "" );

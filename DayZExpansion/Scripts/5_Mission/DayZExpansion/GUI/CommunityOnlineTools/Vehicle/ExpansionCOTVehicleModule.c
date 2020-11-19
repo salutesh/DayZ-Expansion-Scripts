@@ -72,6 +72,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		#ifdef EXPANSION_VEHICLE_TOWING
 		CreateToggle( "Towing", "Towing Vehicles", "", "" );	
 		#endif
+		CreateToggle( "EnableHelicopterExplosions", "Enable Helicopter Explosions", "", "" );	
 	}
 
 	override int GetRPCMin()

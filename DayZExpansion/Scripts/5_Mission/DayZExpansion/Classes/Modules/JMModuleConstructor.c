@@ -39,6 +39,7 @@ modded class JMModuleConstructor
 		//TODO: Move to COT
 		modules.Insert( ExpansionCOTVehiclesModule );
 
+		modules.Insert( ExpansionCOTDebugModule );
 		modules.Insert( ExpansionCOTTerritoriesModule );
 		modules.Insert( ExpansionCOTAirdropModule );
 		modules.Insert( ExpansionCOTBaseBuildingModule );

@@ -423,4 +423,4 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		
 		return false;
 	}
-}
+};

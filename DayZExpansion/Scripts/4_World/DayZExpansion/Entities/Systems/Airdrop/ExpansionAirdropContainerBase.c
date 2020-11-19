@@ -192,12 +192,16 @@ class ExpansionAirdropContainerBase extends Container_Base
 		if ( !IsGround( 0.5 ) ) 
 		{
 			float mass = dBodyGetMass( this );
-			if (GetGame() && GetGame().GetWeather()) {
+
+			if ( GetGame() && GetGame().GetWeather() )
+			{
 				vector m_wind = GetGame().GetWeather().GetWind();
 				m_wind[0] = ( ( m_wind[0] + 0.1 ) * 2 ) / 100;
 				m_wind[1] = 9.0;
 				m_wind[2] = ( ( m_wind[2] + 0.1 ) * 2 ) / 100;
-				this.dBodyApplyImpulse( this, mass * m_wind * deltaTime );
+				
+				if ( this )
+					this.dBodyApplyImpulse( this, mass * m_wind * deltaTime ); //! Null pointer here
 			}
 		} else if ( !m_LootHasSpawned )
 		{

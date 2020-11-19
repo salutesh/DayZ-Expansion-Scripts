@@ -75,6 +75,42 @@ class ExpansionVehicleMetaData
 
 		return meta;
 	}
+	
+	static ref ExpansionVehicleMetaData CreateVehicle( ExpansionVehicleBase vehicle )
+	{
+		ref ExpansionVehicleMetaData meta = new ExpansionVehicleMetaData();
+
+		vehicle.GetNetworkID( meta.m_NetworkIDLow, meta.m_NetworkIDHigh );
+		
+		meta.m_PersistentIDA = vehicle.GetPersistentIDA();
+		meta.m_PersistentIDB = vehicle.GetPersistentIDB();
+		meta.m_PersistentIDC = vehicle.GetPersistentIDC();
+		meta.m_PersistentIDD = vehicle.GetPersistentIDD();
+
+		meta.m_ClassName = vehicle.ClassName();
+		meta.m_Position = vehicle.GetPosition();
+		meta.m_Orientation = vehicle.GetOrientation();
+
+		meta.m_VehicleType = EXVT_NONE;
+		if ( vehicle.IsCar() )
+			meta.m_VehicleType |= EXVT_CAR;
+		if ( vehicle.IsBoat() )
+			meta.m_VehicleType |= EXVT_BOAT;
+		if ( vehicle.IsHelicopter() )
+			meta.m_VehicleType |= EXVT_HELICOPTER;
+		if ( vehicle.IsPlane() )
+			meta.m_VehicleType |= EXVT_PLANE;
+		
+		meta.m_DestructionType = EXDT_NONE;
+		if ( vehicle.IsExploded() )
+			meta.m_DestructionType |= EXDT_EXPLODED;
+		if ( vehicle.IsExploded() )
+			meta.m_DestructionType |= EXDT_DESTROYED;
+
+		meta.m_HasKeys = vehicle.HasKey();
+
+		return meta;
+	}
 
 	string GetVehicleType()
 	{
@@ -131,7 +167,6 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 {
 	private ref array<ref ExpansionVehicleMetaData> m_Vehicles;
 	private int m_TimeSinceLastChecked;
-
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTVehiclesModule ExpansionCOTTerritoriesModule
@@ -214,14 +249,25 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 
 		if ( m_Vehicles.Count() >= 0 )
 			m_Vehicles.Clear();
+
+		int i;
 		
-		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
+		for ( i = 0; i < CarScript.GetAll().Count(); i++ )
 		{
 			CarScript car = CarScript.GetAll()[i];
 			if ( !car ) // should not be possible
 				continue;
 
 			m_Vehicles.Insert( ExpansionVehicleMetaData.CreateCarScript( car ) );
+		}
+		
+		for ( i = 0; i < ExpansionVehicleBase.GetAll().Count(); i++ )
+		{
+			ExpansionVehicleBase vehicle = ExpansionVehicleBase.GetAll()[i];
+			if ( !vehicle ) // should not be possible
+				continue;
+
+			m_Vehicles.Insert( ExpansionVehicleMetaData.CreateVehicle( vehicle ) );
 		}
 	}
 	
@@ -299,22 +345,8 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		
 		UpdateVehiclesMetaData();
 		
-		array< ref ExpansionVehicleMetaData > vehicles = new array< ref ExpansionVehicleMetaData >;
-			
-		if ( m_Vehicles )
-		{
-			for ( int i = 0; i < m_Vehicles.Count(); ++i )
-			{
-				ExpansionVehicleMetaData currentData = m_Vehicles.Get( i );
-				if ( !currentData )
-					continue;
-				
-				vehicles.Insert( currentData );
-			}
-		}
-		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( vehicles );
+		rpc.Write( m_Vehicles );
 		rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.SendServerVehicles, true, senderRPC );
 	}
 	
@@ -403,12 +435,12 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		if ( !ctx.Read( netHigh ) )
 			return;
 		
-		CarScript car = CarScript.Cast( GetGame().GetObjectByNetworkId( netLow, netHigh ) );
+		Object obj = GetGame().GetObjectByNetworkId( netLow, netHigh );
 
-		if ( !car )
+		if ( !obj )
 			return;
 
-		GetGame().ObjectDelete( car );
+		GetGame().ObjectDelete( obj );
 	}
 
 	// ------------------------------------------------------------
@@ -422,17 +454,31 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete.Unclaimed", senderRPC ) )
 			return;
+
+		int i;
 		
-		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
+		for ( i = 0; i < CarScript.GetAll().Count(); i++ )
 		{
 			CarScript car = CarScript.GetAll()[i];
 			if ( !car )
-				return;
+				continue;
 
-			if ( !car.HasKey() )
-			{
-				GetGame().ObjectDelete( car );
-			}
+			if ( car.HasKey() )
+				continue;
+
+			GetGame().ObjectDelete( car );
+		}
+		
+		for ( i = 0; i < ExpansionVehicleBase.GetAll().Count(); i++ )
+		{
+			ExpansionVehicleBase vehicle = ExpansionVehicleBase.GetAll()[i];
+			if ( !vehicle )
+				continue;
+
+			if ( vehicle.HasKey() )
+				continue;
+			
+			GetGame().ObjectDelete( vehicle );
 		}
 	}
 
@@ -447,17 +493,31 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete.Destroyed", senderRPC ) )
 			return;
-		
-		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
-		{
-			CarScript car = CarScript.GetAll()[i];
-			if ( !car )
-				return;
 
-			if ( car.IsDamageDestroyed() )
-			{
-				GetGame().ObjectDelete( car );
-			}
+		int i;
+		
+		for ( i = 0; i < ExpansionVehicleBase.GetAll().Count(); i++ )
+		{
+			ExpansionVehicleBase car = ExpansionVehicleBase.GetAll()[i];
+			if ( !car )
+				continue;
+
+			if ( !car.IsDamageDestroyed() )
+				continue;
+
+			GetGame().ObjectDelete( car );
+		}
+		
+		for ( i = 0; i < ExpansionVehicleBase.GetAll().Count(); i++ )
+		{
+			ExpansionVehicleBase vehicle = ExpansionVehicleBase.GetAll()[i];
+			if ( !vehicle )
+				continue;
+
+			if ( !vehicle.IsDamageDestroyed() )
+				continue;
+
+			GetGame().ObjectDelete( vehicle );
 		}
 	}
 
@@ -472,14 +532,25 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 
 		if ( !GetPermissionsManager().HasPermission( "Expansion.Vehicles.Delete.All", senderRPC ) )
 			return;
+
+		int i;
 		
-		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
+		for ( i = 0; i < CarScript.GetAll().Count(); i++ )
 		{
 			CarScript car = CarScript.GetAll()[i];
 			if ( !car )
 				return;
 
 			GetGame().ObjectDelete( car );
+		}
+		
+		for ( i = 0; i < ExpansionVehicleBase.GetAll().Count(); i++ )
+		{
+			ExpansionVehicleBase vehicle = ExpansionVehicleBase.GetAll()[i];
+			if ( !vehicle )
+				return;
+
+			GetGame().ObjectDelete( vehicle );
 		}
 	}
 	
@@ -523,13 +594,13 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		if ( !player )
 			return;
 
-		CarScript car = CarScript.Cast( GetGame().GetObjectByNetworkId( netLow, netHigh ) );
-		if ( !car )
+		Object obj = GetGame().GetObjectByNetworkId( netLow, netHigh );
+		if ( !obj )
 			return;
 
-		vector pos = car.GetPosition();
+		vector pos = obj.GetPosition();
 		vector minMax[2];
-		car.ClippingInfo( minMax );
+		obj.ClippingInfo( minMax );
 
 		player.SetLastPosition();
 		player.SetWorldPosition( pos + minMax[1] );

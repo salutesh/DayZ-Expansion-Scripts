@@ -42,6 +42,7 @@ modded class PlayerBase
 	protected bool m_HasMap;
 	protected bool m_HasGPS;
 	protected bool m_HasPen;
+	protected bool m_HasCompass;
 	
 	//Only server side
 	protected int m_QuickMarkerColor;
@@ -76,6 +77,7 @@ modded class PlayerBase
 		m_HasMap = false;
 		m_HasGPS = false;
 		m_HasPen = false;
+		m_HasCompass = false;
 		
 		SetRandomQuickMarkerColor();
 		
@@ -790,35 +792,29 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItem( string name, out EntityAI item )
 	{
+		if ( !GetInventory() )
+			return false;
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::HasItem - Start");
 		#endif
-
-		if ( this.GetInventory() )
+		
+		for ( int att_i = 0; att_i < GetInventory().AttachmentCount(); ++att_i )
 		{
-			for ( int att_i = 0; att_i < this.GetInventory().AttachmentCount(); ++att_i )
-			{
-				EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
-				ref CargoBase cargo = attachment.GetInventory().GetCargo();
-				
-				if ( cargo )
-				{
-					for ( int cgo_i = 0; cgo_i < cargo.GetItemCount(); ++cgo_i )
-					{
-						EntityAI cargo_item = cargo.GetItem( cgo_i );
-						if ( cargo_item )
-						{
-							if ( cargo_item.GetType() == name )
-							{
-								#ifdef EXPANSIONEXPRINT
-								EXPrint("PlayerBase::HasItem - End");
-								#endif
+			EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
+			ref CargoBase cargo = attachment.GetInventory().GetCargo();
+			
+			if ( !cargo )
+				continue;
 
-								return Class.CastTo( item, cargo_item );
-							}
-						}
-					}
-				}
+			for ( int cgo_i = 0; cgo_i < cargo.GetItemCount(); ++cgo_i )
+			{
+				EntityAI cargo_item = cargo.GetItem( cgo_i );
+				if ( !cargo_item )
+					continue;
+
+				if ( cargo_item.GetType() == name )
+					return Class.CastTo( item, cargo_item );
 			}
 		}
 	
@@ -1344,9 +1340,25 @@ modded class PlayerBase
 	{
 		return m_HasPen;
 	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase SetHasItemCompass
+	// ------------------------------------------------------------
+	void SetHasItemCompass(bool state)
+	{
+		m_HasCompass = state;
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase HasItemCompass
+	// ------------------------------------------------------------
+	bool HasItemCompass()
+	{
+		return m_HasCompass;
+	}
 
 	void WakePlayer()
 	{
 		this.AddHealth("","Shock", 100);
 	}
-}
+};

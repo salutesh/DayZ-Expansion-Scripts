@@ -32,10 +32,6 @@ modded class ActionDismantlePart
 				//! If SimpleTerritory is enabled, the player can't dismantle parts to prevent ressources exploits.
 				return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 			}
-				
-			////! Allow the raider to dismantle with tools
-			//if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == 1 )
-			//		return super.ActionCondition( player, target, item );
 		}
 		//! It's not a territory flag, but his he in a territory
 		else if ( player.IsInTerritory() )

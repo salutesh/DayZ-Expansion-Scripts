@@ -79,8 +79,12 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "EnablePlayerList", "Player List", "", "" );
 		CreateToggle( "EnableAutoRun", "Auto Run", "", "" );
 		CreateToggle( "UnlimitedStamina", "Unlimited Stamina", "", "" );
+		
+		CreateToggle( "UseDeathScreen", "Use Death Screen", "", "" );
+		CreateToggle( "UseDeathScreenStatistics", "Use Death Screen Statistics", "", "" );
+		CreateToggle( "UseNewsFeedInGameMenu", "Use News Feed In GameMenu", "", "" );
 
-		CreateToggle( "UseCustomMappingModule", "Use CustomMapping Module", "", "" );
+		CreateToggle( "Mapping.UseCustomMappingModule", "Use CustomMapping Module", "", "" );
 		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
 		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );
 	}

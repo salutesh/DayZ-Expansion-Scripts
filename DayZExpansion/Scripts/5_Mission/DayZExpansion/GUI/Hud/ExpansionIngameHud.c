@@ -124,7 +124,7 @@ class ExpansionIngameHud
 			m_MapFrame								= Widget.Cast( m_GPSPanel.FindAnyWidget("GPSMapFrame") );
 			m_MapWidget 							= MapWidget.Cast( m_GPSPanel.FindAnyWidget("Map") );
 			
-			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+			if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
 			{
 				m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
 				m_PlayerArrowMarker.SetName("");
@@ -258,7 +258,7 @@ class ExpansionIngameHud
 		if (m_ExpansionEventHandler)
 			m_ExpansionEventHandler.Update(timeslice);
 		
-		if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
 		{
 			if ( m_PlayerArrowMarker )
 				m_PlayerArrowMarker.Update( timeslice );
@@ -296,7 +296,7 @@ class ExpansionIngameHud
 		if ( m_GPSMapPanel )
 			m_GPSMapPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
 		
-		if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
 		{
 			if ( m_PlayerArrowMarker )
 				m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );

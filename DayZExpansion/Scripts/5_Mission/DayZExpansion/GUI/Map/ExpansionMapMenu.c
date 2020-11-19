@@ -103,7 +103,7 @@ class ExpansionMapMenu extends UIScriptedMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
 		Class.CastTo( m_MapWidget, layoutRoot.FindAnyWidget( "Map" ) );
 		
-		if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
 		{
 			ExpansionMapMarkerPlayerArrow player_Marker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
 			
@@ -116,6 +116,15 @@ class ExpansionMapMenu extends UIScriptedMenu
 				} else 
 				{
 					player_Marker.SetName( "(YOU) " + player.GetIdentityName() );
+				}
+			}
+			if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
+			{
+				if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemCompass() )
+				{
+					player_Marker.Show();
+				} else {
+					player_Marker.Hide();
 				}
 			}
 			

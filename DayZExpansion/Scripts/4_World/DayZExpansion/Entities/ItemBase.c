@@ -330,12 +330,12 @@ modded class ItemBase
 	//============================================
 	// SendServerLockReply
 	//============================================	
-	private void SendServerLockReply(bool reply, bool injuring, bool unlock, string code, PlayerIdentity sender)
+	private void SendServerLockReply(bool reply, bool injuring, int action, string code, PlayerIdentity sender)
 	{
 		ScriptRPC rpc = new ScriptRPC;
 		rpc.Write( reply );
 		rpc.Write( injuring );
-		rpc.Write( unlock );
+		rpc.Write( action );
 		rpc.Write( code );
 		rpc.Send( this, ExpansionLockRPC.SERVERREPLY, true, sender );
 	}
@@ -363,20 +363,20 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
 				if ( !HasCode() || IsLocked() )
 				{
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					return;
 				}
 
 				Lock();
 				
-				SendServerLockReply( true, false, true, "", sender );
+				SendServerLockReply( true, false, 1, "", sender );
 				
 				return;
 			}
@@ -389,7 +389,7 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -397,7 +397,7 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -408,7 +408,7 @@ modded class ItemBase
 					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
 					#endif
 					
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					return;
 				}
 
@@ -421,7 +421,7 @@ modded class ItemBase
 					
 					bool InjuryPlayer = GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock;
 
-					SendServerLockReply( false, InjuryPlayer, true, "", sender );
+					SendServerLockReply( false, InjuryPlayer, 1, "", sender );
 					
 					if (InjuryPlayer)
 					{
@@ -438,7 +438,7 @@ modded class ItemBase
 				}
 
 				Unlock();
-				SendServerLockReply( true, false, true, GetCode(), sender );
+				SendServerLockReply( true, false, 1, GetCode(), sender );
 				return;
 			}
 			
@@ -450,7 +450,7 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -458,7 +458,7 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -466,13 +466,13 @@ modded class ItemBase
 				if ( HasCode() )
 				{
 					// Base already has code so don't try setting it to another.
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					return;
 				}
 
 				SetCode( code );
 
-				SendServerLockReply( true, false, false, "", sender );
+				SendServerLockReply( true, false, 0, "", sender );
 				return;
 			}
 
@@ -484,7 +484,7 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -492,14 +492,14 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
 				SetCode( code );
 
-				SendServerLockReply( true, false, false, "", sender );
+				SendServerLockReply( true, false, 2, "", sender );
 				return;
 			}
 			
@@ -522,10 +522,10 @@ modded class ItemBase
 					return;
 				}
 				
-				bool unlock;
-				if ( !ctx.Read( unlock ) )
+				int action;
+				if ( !ctx.Read( action ) )
 				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read unlock");
+					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read action");
 					return;
 				}
 				
@@ -536,12 +536,12 @@ modded class ItemBase
 				}
 				
 				//Save the code
-				if (reply && unlock && code != "")
+				if (reply && action == 1 && code != "")
 				{
 					ExpansionLockSaver.GetInstance().SaveCode( this, code );
 				}
 				//Code wrong, could be a saved code, so we remove it
-				else if (!reply && unlock && code == "")
+				else if (!reply && action == 1 && code == "" || action == 2)
 				{
 					ExpansionLockSaver.GetInstance().RemoveCode( this );
 				}
