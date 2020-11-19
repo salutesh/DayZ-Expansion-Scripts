@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_250N
 	{
-		units[] = {"Expansion_250N_Wheel_Front","Expansion_250N_Wheel_Back","Expansion250N"};
+		units[] = {"Vehicle_Expansion250NWheel","Vehicle_Expansion250N"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Vehicles_Parts","DZ_Sounds_Effects"};
@@ -29,8 +29,8 @@ class CfgSlots
 };
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionBikeScript;
+	class ExpansionWheelBase;
+	class ExpansionVehicleBikeBase;
 	class Inventory_Base;
 	class SimulationModule;
 	class Axles;
@@ -48,36 +48,24 @@ class CfgVehicles
 	class DamageZones;
 	class Doors;
 	class Health;
-	class Expansion_250N_Wheel_Front: ExpansionWheel
+	class Vehicle_Expansion250NWheel: ExpansionWheelBase
 	{
 		scope = 2;
-		displayName = "$Unit$ 250N Bike Wheel Front";
-		descriptionShort = "$Unit$ NOT READY, you shouldn't be reading this !";
+		displayName = "$STR_EXPANSION_VEHICLE_250N_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_250N_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_front.p3d";
 		itemSize[] = {6,6};
-		inventorySlot[] = {"Expansion_250N_wheel_1"};
+		inventorySlot[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2"};
 		rotationFlags = 4;
 		radiusByDamage[] = {0,0.28,0.31,0.28,0.9998,0.25,0.9999,0.2};
 		radius = 0.38;
 		width = 0.16;
 		mass = 20.0;
 	};
-	class Expansion_250N_Wheel_Back: Expansion_250N_Wheel_Front
+	class Vehicle_Expansion250N: ExpansionVehicleBikeBase
 	{
 		scope = 2;
-		displayName = "$Unit$ 250N Bike Wheel Back";
-		descriptionShort = "$Unit$ NOT READY, you shouldn't be reading this !";
-		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_back.p3d";
-		inventorySlot[] = {"Expansion_250N_wheel_2"};
-		radius = 0.4;
-		width = 0.16;
-		mass = 20.0;
-	};
-	class Expansion250N: ExpansionBikeScript
-	{
-		scope = 2;
-		displayName = "$Unit$ Old Motorbike";
-		descriptionShort = "$Unit$ Old Motobike From Arma2 Imported by ZeRoY";
+		displayName = "$STR_EXPANSION_VEHICLE_250N";
 		model = "\DayZExpansion\Vehicles\Ground\250N\250N.p3d";
 		attachments[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2","Reflector_1_1","CarBattery","SparkPlug"};
 		fuelCapacity = 20;
@@ -118,7 +106,7 @@ class CfgVehicles
 				getInDir = "pos_codriver_dir";
 			};
 		};
-		class VehicleSimulation
+		class SimulationModule
 		{
 			class Steering
 			{
@@ -354,21 +342,21 @@ class CfgVehicles
 		{
 			class Engine
 			{
-				name = "Motorbike Engine";
+				name = "$STR_attachment_Engine0";
 				description = "";
 				icon = "cat_vehicle_engine";
 				attachmentSlots[] = {"CarBattery","SparkPlug"};
 			};
 			class Body
 			{
-				name = "Motorbike Body";
+				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
 				attachmentSlots[] = {"Reflector_1_1"};
 			};
 			class Chassis
 			{
-				name = "Motorbike Chassis";
+				name = "$STR_attachment_Chassis0";
 				description = "";
 				icon = "cat_vehicle_chassis";
 				attachmentSlots[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2"};

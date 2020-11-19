@@ -100,7 +100,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 30000;
-					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01.rvmat"}},{0.7,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_damaged.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01_damage.rvmat"}},{0.5,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_damaged.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_destruct.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor_destruct.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_roof_01.rvmat"}},{0.0,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat","DayZExpansion\Objects\Basebuilding\Data\wood\wood_floor.rvmat"}}};
 				};
 			};
 			class GlobalArmor
@@ -289,8 +289,13 @@ class CfgVehicles
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","RAMP","STAIR"};
-					offset[] = {4,3,3};
+					allow[] = {"WALL","STAIR"};
+					offset[] = {4,3};
+				};
+				class Dir_3
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
 				};
 			};
 			class Pos_1
@@ -307,8 +312,13 @@ class CfgVehicles
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","RAMP","STAIR"};
-					offset[] = {4,3,3};
+					allow[] = {"WALL","STAIR"};
+					offset[] = {4,3};
+				};
+				class Dir_3
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
 				};
 			};
 			class Pos_2
@@ -325,8 +335,13 @@ class CfgVehicles
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","RAMP","STAIR"};
-					offset[] = {4,3,3};
+					allow[] = {"WALL","STAIR"};
+					offset[] = {4,3};
+				};
+				class Dir_3
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
 				};
 			};
 			class Pos_3
@@ -343,8 +358,45 @@ class CfgVehicles
 				};
 				class Dir_2
 				{
-					allow[] = {"WALL","RAMP","STAIR"};
-					offset[] = {4,3,3};
+					allow[] = {"WALL","STAIR"};
+					offset[] = {4,3};
+				};
+				class Dir_3
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
+				};
+			};
+			class Pos_10
+			{
+				class Dir_0
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
+				};
+			};
+			class Pos_11
+			{
+				class Dir_0
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
+				};
+			};
+			class Pos_12
+			{
+				class Dir_0
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
+				};
+			};
+			class Pos_13
+			{
+				class Dir_0
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
 				};
 			};
 		};

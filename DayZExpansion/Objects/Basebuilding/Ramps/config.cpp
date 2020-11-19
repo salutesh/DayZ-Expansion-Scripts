@@ -58,9 +58,9 @@ class CfgVehicles
 			xOffset = 3;
 			yOffset = 0;
 			zOffset = 3;
-			xSize = 6;
+			xSize = 3;
 			ySize = 1.5;
-			zSize = 6;
+			zSize = 3;
 		};
 	};
 	class ExpansionRampBase: ExpansionBaseBuilding
@@ -151,7 +151,7 @@ class CfgVehicles
 					build_action_type = 10;
 					dismantle_action_type = 10;
 					material_type = 2;
-					snapping_show[] = {3};
+					snapping_show[] = {1,2,3};
 					order = 1;
 					class Materials
 					{
@@ -233,65 +233,8 @@ class CfgVehicles
 			{
 				class Dir_0
 				{
-					allow[] = {"FLOOR","RAMP"};
-					offset[] = {1,1};
-				};
-				class Dir_1
-				{
-					allow[] = {"WALL"};
-					offset[] = {2};
-				};
-			};
-			class Pos_3
-			{
-				class Dir_0
-				{
-					allow[] = {"FLOOR","RAMP"};
-					offset[] = {1,1};
-				};
-				class Dir_1
-				{
-					allow[] = {"WALL"};
-					offset[] = {2};
-				};
-			};
-			class Pos_4
-			{
-				class Dir_0
-				{
-					allow[] = {"FLOOR","RAMP"};
-					offset[] = {1,1};
-				};
-				class Dir_1
-				{
-					allow[] = {"WALL"};
-					offset[] = {2};
-				};
-			};
-			class Pos_5
-			{
-				class Dir_0
-				{
-					allow[] = {"FLOOR","RAMP"};
-					offset[] = {1,1};
-				};
-				class Dir_1
-				{
-					allow[] = {"WALL"};
-					offset[] = {2};
-				};
-			};
-			class Pos_6
-			{
-				class Dir_0
-				{
-					allow[] = {"FLOOR","RAMP"};
-					offset[] = {1,1};
-				};
-				class Dir_1
-				{
-					allow[] = {"WALL"};
-					offset[] = {2};
+					allow[] = {"RAMP"};
+					offset[] = {1};
 				};
 			};
 		};

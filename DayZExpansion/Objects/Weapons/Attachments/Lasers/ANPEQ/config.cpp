@@ -43,4 +43,10 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_ANPEQ15";
 		descriptionShort = "$STR_EXPANSION_ANPEQ15_DESC";
 	};
+	class Expansion_ANPEQ15_IR: Expansion_ANPEQ15_Red
+	{
+		scope = 0;
+		displayName = "ANPEQ15 IR";
+		descriptionShort = "$STR_EXPANSION_ANPEQ15_DESC";
+	};
 };

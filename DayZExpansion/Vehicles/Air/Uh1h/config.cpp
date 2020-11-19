@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Uh1h
 	{
-		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hWreck","ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance"};
+		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hWreck","ExpansionUh1h","Vehicle_ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -43,6 +43,7 @@ class CfgVehicles
 	class Driver;
 	class CoDriver;
 	class ExpansionHelicopterScript;
+	class ExpansionVehicleHelicopterBase;
 	class GUIInventoryAttachmentsProps;
 	class Body;
 	class DamageSystem;
@@ -212,6 +213,253 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
+			maxSpeed = 220;
+			altitudeFullForce = 1000;
+			altitudeNoForce = 2000;
+			bodyFrictionCoef = 0.8;
+			liftForceCoef = 1.1;
+			bankForceCoef = 0.1;
+			tailForceCoef = 0.5;
+			linearFrictionCoef[] = {16.0,0.04,0.04};
+			angularFrictionCoef = 1.5;
+			class Rotor
+			{
+				minAutoRotateSpeed = 2.0;
+				maxAutoRotateSpeed = 10.0;
+				startUpTime = 15;
+			};
+			class AntiTorque
+			{
+				speed = 1.5;
+				max = 5.04;
+			};
+			class Cyclic
+			{
+				forceCoefficient = 1.5;
+				class Forward
+				{
+					speed = 10.0;
+					max = 0.7;
+					coefficient = 1.0;
+					animation = "cyclicForward";
+				};
+				class Side
+				{
+					speed = 10.0;
+					max = 0.7;
+					coefficient = 1.0;
+					animation = "cyclicAside";
+				};
+			};
+		};
+		class Sounds
+		{
+			thrust = 0.6;
+			thrustTurbo = 1;
+			thrustGentle = 0.3;
+			thrustSmoothCoef = 0.1;
+			camposSmoothCoef = 0.03;
+			soundSetsFilter[] = {"Expansion_Uh1h_Engine_Ext_SoundSet","Expansion_Uh1h_Rotor_Ext_SoundSet"};
+			soundSetsInt[] = {"Expansion_Uh1h_Engine_Int_SoundSet","Expansion_Uh1h_Rotor_Int_SoundSet"};
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Engine
+			{
+				name = "$STR_attachment_Engine0";
+				description = "";
+				icon = "cat_vehicle_engine";
+				attachmentSlots[] = {"ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses"};
+			};
+			class Body
+			{
+				name = "$STR_attachment_Body0";
+				description = "";
+				icon = "cat_vehicle_body";
+				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2"};
+			};
+		};
+		class DamageSystem: DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 7500;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+		};
+	};
+	class Vehicle_ExpansionUh1h: ExpansionVehicleHelicopterBase
+	{
+		scope = 2;
+		displayname = "$STR_EXPANSION_VEHICLE_UH1H";
+		model = "\DayZExpansion\Vehicles\Air\Uh1h\uh1h.p3d";
+		vehicleClass = "Expansion_Helicopter";
+		fuelCapacity = 119;
+		fuelConsumption = 99;
+		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2"};
+		doors[] = {"uh1hdoor_1_1","uh1hdoor_1_2"};
+		applySkinsTo[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2"};
+		hiddenSelections[] = {"camo1","camo2"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d_co.paa","dayzexpansion\vehicles\air\uh1h\data\uh1d_in_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d.rvmat","dayzexpansion\vehicles\air\uh1h\data\uh1d_in.rvmat"};
+		defaultSkin = "Green";
+		class Cargo
+		{
+			itemsCargoSize[] = {10,50};
+			allowOwnedCargoManipulation = 1;
+			openable = 0;
+		};
+		class AnimationSources
+		{
+			class rotor
+			{
+				source = "user";
+				animPeriod = 0.025;
+				initPhase = 0;
+			};
+			class rearrotor
+			{
+				source = "user";
+				animPeriod = 0.025;
+				initPhase = 0;
+			};
+			class hiderotor
+			{
+				source = "user";
+				animPeriod = 0.0009999999;
+				initPhase = 0;
+			};
+			class hiderotorblur
+			{
+				source = "user";
+				animPeriod = 0.0009999999;
+				initPhase = 0;
+			};
+			class cyclicForward
+			{
+				source = "user";
+				animPeriod = 0.25;
+				initPhase = 0;
+			};
+			class cyclicAside
+			{
+				source = "user";
+				animPeriod = 0.25;
+				initPhase = 0;
+			};
+			class door_pilot
+			{
+				source = "user";
+				animPeriod = 0.5;
+				initPhase = 0;
+			};
+			class door_copilot
+			{
+				source = "user";
+				animPeriod = 0.5;
+				initPhase = 0;
+			};
+			class uh1hdoor_1_1
+			{
+				source = "user";
+				animPeriod = 0.5;
+				initPhase = 0;
+			};
+			class uh1hdoor_1_2
+			{
+				source = "user";
+				animPeriod = 0.5;
+				initPhase = 0;
+			};
+		};
+		class Crew: Crew
+		{
+			class Driver: Driver
+			{
+				actionSel = "seat_driver";
+				proxyPos = "crewDriver";
+				getInPos = "pos Codriver";
+				getInDir = "pos Codriver dir";
+			};
+			class CoDriver: CoDriver
+			{
+				actionSel = "seat_codriver";
+				proxyPos = "crewCoDriver";
+				getInPos = "pos Driver";
+				getInDir = "pos Driver dir";
+			};
+			class Cargo1
+			{
+				actionSel = "seat_cargo1";
+				proxyPos = "crewCargo1";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo2
+			{
+				actionSel = "seat_cargo2";
+				proxyPos = "crewCargo2";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo3
+			{
+				actionSel = "seat_cargo3";
+				proxyPos = "crewCargo3";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo4
+			{
+				actionSel = "seat_cargo4";
+				proxyPos = "crewCargo4";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+		};
+		class SimulationModule: SimulationModule
+		{
+			maxSpeed = 220;
+			altitudeFullForce = 1000;
+			altitudeNoForce = 2000;
+			bodyFrictionCoef = 0.8;
+			liftForceCoef = 1.1;
+			bankForceCoef = 0.1;
+			tailForceCoef = 0.5;
+			linearFrictionCoef[] = {16.0,0.04,0.04};
+			angularFrictionCoef = 1.5;
+			class Rotor
+			{
+				minAutoRotateSpeed = 2.0;
+				maxAutoRotateSpeed = 10.0;
+				startUpTime = 15;
+			};
+			class AntiTorque
+			{
+				speed = 1.5;
+				max = 5.04;
+			};
+			class Cyclic
+			{
+				forceCoefficient = 1.5;
+				class Forward
+				{
+					speed = 10.0;
+					max = 0.7;
+					coefficient = 1.0;
+					animation = "cyclicForward";
+				};
+				class Side
+				{
+					speed = 10.0;
+					max = 0.7;
+					coefficient = 1.0;
+					animation = "cyclicAside";
+				};
+			};
 			class Axles: Axles
 			{
 				class Front: Front

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class Expansion_Backpacks
 	{
-		units[] = {"ExpansionCoyoteBlack","ExpansionDesertTortilla","ExpansionParachuteBag"};
+		units[] = {"ExpansionCoyoteBlack","ExpansionDesertTortilla"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Characters_Backpacks"};
@@ -57,11 +57,11 @@ class CfgVehicles
 	};
 	class ExpansionParachuteBag: Clothing
 	{
-		scope = 2;
+		scope = 0;
+		displayName = "DOESN'T WORK - DO NOT USE";
+		descriptionShort = "DOESN'T WORK - DO NOT USE";
 		visibilityModifier = 0.95;
 		hiddenSelectionsTextures[] = {"DZ\characters\backpacks\data\Taloon_Blue_co.paa","DZ\characters\backpacks\data\Taloon_Blue_co.paa","DZ\characters\backpacks\data\Taloon_Blue_co.paa"};
-		displayName = "$UNIT$ Parachute Bag";
-		descriptionShort = "$UNIT$ Parachute Bag";
 		model = "\dz\characters\backpacks\taloon_g.p3d";
 		inventorySlot[] = {"Back"};
 		attachments[] = {"expansionparachute","expansionparachutepacked"};

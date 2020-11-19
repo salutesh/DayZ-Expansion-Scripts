@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_An2
 	{
-		units[] = {"ExpansionAnWheel","ExpansionAnWheelSmall","ExpansionAn2","ExpansionSpraycanGreen","ExpansionAn2_Green","ExpansionSpraycanWhite","ExpansionAn2_White","ExpansionSpraycanOrange","ExpansionAn2_Orange"};
+		units[] = {"Vehicle_ExpansionAnWheel","Vehicle_ExpansionAnWheelSmall","Vehicle_ExpansionAn2"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -47,9 +47,6 @@ class CfgSlots
 };
 class CfgVehicles
 {
-	class CarScript;
-	class OffroadHatchback;
-	class Inventory_Base;
 	class SimulationModule;
 	class Axles;
 	class Wheels;
@@ -61,9 +58,9 @@ class CfgVehicles
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class ExpansionPlaneScript;
-	class HatchbackWheel;
-	class ExpansionAnWheel: HatchbackWheel
+	class ExpansionVehiclePlaneBase;
+	class ExpansionWheelBase;
+	class Vehicle_ExpansionAnWheel: ExpansionWheelBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT";
@@ -90,7 +87,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionAnWheelSmall: HatchbackWheel
+	class Vehicle_ExpansionAnWheelSmall: Vehicle_ExpansionAnWheel
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK";
@@ -117,7 +114,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionAn2: OffroadHatchback
+	class Vehicle_ExpansionAn2: ExpansionVehiclePlaneBase
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_AN2";
@@ -132,7 +129,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_RWD";
-			airDragCoefficient = 0.928;
+			airDragFrontTotal = 0.928;
 			class Steering
 			{
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};
@@ -380,46 +377,6 @@ class CfgVehicles
 				initPhase = 0;
 			};
 		};
-	};
-	class ExpansionSpraycanBase;
-	class ExpansionSpraycanGreen: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
-		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
-		skinName = "Green";
-	};
-	class ExpansionAn2_Green: ExpansionAn2
-	{
-		skinBase = "ExpansionAn2";
-		skinName = "Green";
-	};
-	class ExpansionSpraycanWhite: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_White_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_White_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_white_co.paa"};
-		skinName = "White";
-	};
-	class ExpansionAn2_White: ExpansionAn2
-	{
-		skinBase = "ExpansionAn2";
-		skinName = "White";
-	};
-	class ExpansionSpraycanOrange: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_Orange_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Orange_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_Orange_co.paa"};
-		skinName = "Orange";
-	};
-	class ExpansionAn2_Orange: ExpansionAn2
-	{
-		skinBase = "ExpansionAn2";
-		skinName = "Orange";
 	};
 };
 class CfgNonAIVehicles

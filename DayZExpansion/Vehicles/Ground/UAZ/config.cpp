@@ -820,40 +820,8 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ_CARGO";
 		vehicleClass = "Expansion_Car";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
-		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		class AnimationSources: AnimationSources
 		{
-			class damper_1_1
-			{
-				source = "user";
-				initPhase = 0.4857;
-				animPeriod = 1;
-			};
-			class damper_2_1: damper_1_1{};
-			class damper_1_2
-			{
-				source = "user";
-				initPhase = 0.4002;
-				animPeriod = 1;
-			};
-			class damper_2_2: damper_1_2{};
-			class uazdriverdoor
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.5;
-			};
-			class uazcodriverdoor: uazdriverdoor{};
-			class uazcargo1door: uazdriverdoor{};
-			class uazcargo2door: uazdriverdoor{};
-			class uaztrunkdoor: uazdriverdoor{};
-			class roof
-			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 0;
-			};
 			class backseats
 			{
 				source = "user";
@@ -896,110 +864,6 @@ class CfgVehicles
 				proxyPos = "";
 				getInPos = "";
 				getInDir = "";
-			};
-		};
-		class SimulationModule
-		{
-			class Axles
-			{
-				class Front
-				{
-					maxSteeringAngle = 35;
-					finalRatio = 0.0;
-					brakeBias = 0.7;
-					brakeForce = 4500;
-					wheelHubMass = 10;
-					wheelHubRadius = 0.15;
-					class Suspension
-					{
-						swayBar = 300;
-						stiffness = 60000;
-						compression = 2100;
-						damping = 5500;
-						travelMaxUp = 0.079;
-						travelMaxDown = 0.06;
-					};
-					class Wheels
-					{
-						class Left
-						{
-							inventorySlot = "uazwheel_1_1";
-							animTurn = "turnfrontleft";
-							animRotation = "wheelfrontleft";
-							animDamper = "damper_1_1";
-							wheelHub = "wheel_1_1_damper_land";
-						};
-						class Right
-						{
-							inventorySlot = "uazwheel_2_1";
-							animTurn = "turnfrontright";
-							animRotation = "wheelfrontright";
-							animDamper = "damper_2_1";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-					};
-				};
-				class Rear
-				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.3;
-					brakeForce = 3500;
-					wheelHubMass = 10;
-					wheelHubRadius = 0.15;
-					class Suspension
-					{
-						swayBar = 275;
-						stiffness = 34000;
-						compression = 2000;
-						damping = 5100;
-						travelMaxUp = 0.086;
-						travelMaxDown = 0.133;
-					};
-					class Wheels
-					{
-						class Left
-						{
-							inventorySlot = "uazwheel_1_2";
-							animTurn = "turnbackleft";
-							animRotation = "wheelbackleft";
-							animDamper = "damper_1_2";
-							wheelHub = "wheel_1_2_damper_land";
-						};
-						class Right
-						{
-							inventorySlot = "uazwheel_2_2";
-							animTurn = "turnbackright";
-							animRotation = "wheelbackright";
-							animDamper = "damper_2_2";
-							wheelHub = "wheel_2_2_damper_land";
-						};
-					};
-				};
-			};
-		};
-		class GUIInventoryAttachmentsProps
-		{
-			class Engine
-			{
-				name = "$STR_attachment_Engine0";
-				description = "";
-				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"CarBattery","CarRadiator","SparkPlug"};
-			};
-			class Body
-			{
-				name = "$STR_attachment_Body0";
-				description = "";
-				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
-			};
-			class Chassis
-			{
-				name = "$STR_attachment_Chassis0";
-				description = "";
-				icon = "cat_vehicle_chassis";
-				attachmentSlots[] = {"uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
 			};
 		};
 	};

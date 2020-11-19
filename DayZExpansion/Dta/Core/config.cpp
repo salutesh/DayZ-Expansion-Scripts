@@ -845,7 +845,8 @@ class CfgVehicles
 			itemsCargoSize[] = {10,50};
 		};
 	};
-	class ExpansionHelicopterScript: CarScript
+	class OffroadHatchback;
+	class ExpansionHelicopterScript: OffroadHatchback
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Helicopter";
