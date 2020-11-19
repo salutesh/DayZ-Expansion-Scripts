@@ -13,6 +13,7 @@
 /**@class		CraftShelterKit
  * @brief		Removing craft of vanilla Shelter Kit	
  **/
+#ifdef DAYZ_1_10
 modded class CraftShelterKit
 {	
 	override bool CanDo(ItemBase ingredients[], PlayerBase player)
@@ -31,3 +32,4 @@ modded class CraftShelterKit
 		return super.CanDo( ingredients, player );
 	}
 }
+#endif

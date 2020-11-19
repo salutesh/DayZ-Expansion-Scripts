@@ -1,5 +1,6 @@
 class Expansion_Longhorn: Weapon_Base
 {
+	#ifdef DAYZ_1_10
 	override void InitStateMachine()
 	{
 		// setup abilities
@@ -93,4 +94,5 @@ class Expansion_Longhorn: Weapon_Base
 
 		m_fsm.Start();
 	}
+	#endif
 };

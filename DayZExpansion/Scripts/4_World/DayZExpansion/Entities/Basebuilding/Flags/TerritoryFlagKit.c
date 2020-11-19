@@ -58,15 +58,11 @@ modded class TerritoryFlagKit
 				totem.GetConstruction().COT_BuildPart( "base", player_base, false );
 				totem.GetConstruction().COT_BuildPart( "support", player_base, false );
 				totem.GetConstruction().COT_BuildPart( "pole", player_base, false );
-				#else
-				totem.GetConstruction().COT_BuildPart( "base", false );
-				totem.GetConstruction().COT_BuildPart( "support", false );
-				totem.GetConstruction().COT_BuildPart( "pole", false );
-				#endif
 								
 				if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
 					totem.GetInventory().CreateAttachment("Flag_DayZ");
+				#endif
 			}
 		}
 	}
-}
+};

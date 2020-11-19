@@ -318,6 +318,7 @@ class ExpansionStove extends FireplaceBase
 				break;
 		}
 
+		#ifdef DAYZ_1_10
 		// smoking slots
 		switch ( slot_name )
 		{
@@ -333,6 +334,7 @@ class ExpansionStove extends FireplaceBase
 				m_SmokingSlots[2] = item_base;
 				break;
 		}
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -363,6 +365,7 @@ class ExpansionStove extends FireplaceBase
 				break;
 		}
 
+		#ifdef DAYZ_1_10
 		// smoking slots
 		switch ( slot_name )
 		{
@@ -378,6 +381,7 @@ class ExpansionStove extends FireplaceBase
 				m_SmokingSlots[2] = NULL;
 				break;
 		}
+		#endif
 
 		// food on direct cooking slots (removal of sound effects)
 		if ( item_base.IsKindOf( "Edible_Base" ) )
@@ -453,6 +457,7 @@ class ExpansionStove extends FireplaceBase
 			}
 		}
 
+		#ifdef DAYZ_1_10
 		// manage smoking slots
 		if ( SmokingSlotsInUse() )
 		{
@@ -464,6 +469,7 @@ class ExpansionStove extends FireplaceBase
 				}
 			}
 		}
+		#endif
 	}
 	
 	//================================================================
