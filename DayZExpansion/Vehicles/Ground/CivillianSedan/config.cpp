@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Sedan_02
 	{
-		units[] = {"Expansion_CivSedanWheel","CivSedanWheel_Ruined","Expansion_CivilianSedan"};
+		units[] = {"Vehicle_CivSedanWheel","Vehicle_CivSedanWheel_Ruined","Vehicle_CivilianSedan","Vehicle_CivilianSedan_White","Vehicle_CivilianSedan_Wine","Vehicle_CivilianSedan_Black","Vehicle_CivilianSedan_Police","Vehicle_CivilianSedan_Lime"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -12,15 +12,15 @@ class CfgPatches
 };
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionCarScript;
+	class ExpansionWheelBase;
+	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
 	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class VehicleSimulation;
+	class SimulationModule;
 	class Axles;
 	class Front;
 	class Rear;
@@ -28,7 +28,7 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
-	class Expansion_CivSedanWheel: ExpansionWheel
+	class Vehicle_CivSedanWheel: ExpansionWheelBase
 	{
 		scope = 2;
 		displayName = "$STR_CivSedanWheel0";
@@ -54,7 +54,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class CivSedanWheel_Ruined: Expansion_CivSedanWheel
+	class Vehicle_CivSedanWheel_Ruined: Vehicle_CivSedanWheel
 	{
 		scope = 2;
 		displayName = "$STR_CivSedanWheel0";
@@ -66,10 +66,10 @@ class CfgVehicles
 		tyreRoughness = 1.2;
 		tyreTread = 0.5;
 	};
-	class Expansion_CivilianSedan: ExpansionCarScript
+	class Vehicle_CivilianSedan: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "TEST $STR_CivilianSedan0";
+		displayName = "$STR_CivilianSedan0";
 		descriptionShort = "$STR_CivilianSedan1";
 		model = "\DZ\vehicles\wheeled\civiliansedan\CivilianSedan.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanHood","CivSedanTrunk","CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2"};
@@ -107,10 +107,10 @@ class CfgVehicles
 				getInDir = "pos_cargo2_dir";
 			};
 		};
-		class VehicleSimulation: VehicleSimulation
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_RWD";
-			airDragCoefficient = 0.928;
+			airDragFrontTotal = 0.928;
 			class Steering
 			{
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};
@@ -236,14 +236,14 @@ class CfgVehicles
 			{
 				source = "user";
 				initPhase = 0.4857;
-				animPeriod = 1;
+				animPeriod = 1e-06;
 			};
 			class damper_2_1: damper_1_1{};
 			class damper_1_2
 			{
 				source = "user";
 				initPhase = 0.5936;
-				animPeriod = 1;
+				animPeriod = 1e-06;
 			};
 			class damper_2_2: damper_1_2{};
 		};
@@ -481,12 +481,12 @@ class CfgVehicles
 	};
 	class CivilianSedan: CarScript
 	{
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","DZ\vehicles\wheeled\civiliansedan\data\civiliansedan_cr.rvmat","DZ\vehicles\wheeled\civiliansedan\data\civiliansedan_cr.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat"};
 		doors[] = {"CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanTrunk","CivSedanHood"};
 		applySkinsTo[] = {"CivSedanDoors_Driver","CivSedanDoors_CoDriver","CivSedanDoors_BackLeft","CivSedanDoors_BackRight","CivSedanHood","CivSedanTrunk","Expansion_CivSedanDoors_Driver","Expansion_CivSedanDoors_CoDriver","Expansion_CivSedanDoors_BackLeft","Expansion_CivSedanDoors_BackRight","Expansion_CivSedanHood","Expansion_CivSedanTrunk"};
 		defaultSkin = "White";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
-		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -896,6 +896,11 @@ class CfgVehicles
 		skinBase = "CivilianSedan";
 		skinName = "White";
 	};
+	class Vehicle_CivilianSedan_White: Vehicle_CivilianSedan
+	{
+		skinBase = "Vehicle_CivilianSedan";
+		skinName = "White";
+	};
 	class CivSedanDoors_Driver_White: CivSedanDoors_Driver
 	{
 		skinBase = "CivSedanDoors_Driver";
@@ -929,6 +934,11 @@ class CfgVehicles
 	class CivilianSedan_Wine: CivilianSedan
 	{
 		skinBase = "CivilianSedan";
+		skinName = "Wine";
+	};
+	class Vehicle_CivilianSedan_Wine: Vehicle_CivilianSedan
+	{
+		skinBase = "Vehicle_CivilianSedan";
 		skinName = "Wine";
 	};
 	class CivSedanDoors_Driver_Wine: CivSedanDoors_Driver
@@ -966,6 +976,11 @@ class CfgVehicles
 		skinBase = "CivilianSedan";
 		skinName = "Black";
 	};
+	class Vehicle_CivilianSedan_Black: Vehicle_CivilianSedan
+	{
+		skinBase = "Vehicle_CivilianSedan";
+		skinName = "Black";
+	};
 	class CivSedanDoors_Driver_Black: CivSedanDoors_Driver
 	{
 		skinBase = "CivSedanDoors_Driver";
@@ -995,6 +1010,86 @@ class CfgVehicles
 	{
 		skinBase = "CivSedanTrunk";
 		skinName = "Black";
+	};
+	class CivilianSedan_Police: CivilianSedan
+	{
+		skinBase = "CivilianSedan";
+		skinName = "Police";
+	};
+	class Vehicle_CivilianSedan_Police: Vehicle_CivilianSedan
+	{
+		skinBase = "Vehicle_CivilianSedan";
+		skinName = "Police";
+	};
+	class CivSedanDoors_Driver_Police: CivSedanDoors_Driver
+	{
+		skinBase = "CivSedanDoors_Driver";
+		skinName = "Police";
+	};
+	class CivSedanDoors_CoDriver_Police: CivSedanDoors_CoDriver
+	{
+		skinBase = "CivSedanDoors_CoDriver";
+		skinName = "Police";
+	};
+	class CivSedanDoors_BackLeft_Police: CivSedanDoors_BackLeft
+	{
+		skinBase = "CivSedanDoors_BackLeft";
+		skinName = "Police";
+	};
+	class CivSedanDoors_BackRight_Police: CivSedanDoors_BackRight
+	{
+		skinBase = "CivSedanDoors_BackRight";
+		skinName = "Police";
+	};
+	class CivSedanHood_Police: CivSedanHood
+	{
+		skinBase = "CivSedanHood";
+		skinName = "Police";
+	};
+	class CivSedanTrunk_Police: CivSedanTrunk
+	{
+		skinBase = "CivSedanTrunk";
+		skinName = "Police";
+	};
+	class CivilianSedan_Lime: CivilianSedan
+	{
+		skinBase = "CivilianSedan";
+		skinName = "Lime";
+	};
+	class Vehicle_CivilianSedan_Lime: Vehicle_CivilianSedan
+	{
+		skinBase = "Vehicle_CivilianSedan";
+		skinName = "Lime";
+	};
+	class CivSedanDoors_Driver_Lime: CivSedanDoors_Driver
+	{
+		skinBase = "CivSedanDoors_Driver";
+		skinName = "Lime";
+	};
+	class CivSedanDoors_CoDriver_Lime: CivSedanDoors_CoDriver
+	{
+		skinBase = "CivSedanDoors_CoDriver";
+		skinName = "Lime";
+	};
+	class CivSedanDoors_BackLeft_Lime: CivSedanDoors_BackLeft
+	{
+		skinBase = "CivSedanDoors_BackLeft";
+		skinName = "Lime";
+	};
+	class CivSedanDoors_BackRight_Lime: CivSedanDoors_BackRight
+	{
+		skinBase = "CivSedanDoors_BackRight";
+		skinName = "Lime";
+	};
+	class CivSedanHood_Lime: CivSedanHood
+	{
+		skinBase = "CivSedanHood";
+		skinName = "Lime";
+	};
+	class CivSedanTrunk_Lime: CivSedanTrunk
+	{
+		skinBase = "CivSedanTrunk";
+		skinName = "Lime";
 	};
 	class CivSedanDoors_Driver_WhiteRust: CivSedanDoors_Driver
 	{

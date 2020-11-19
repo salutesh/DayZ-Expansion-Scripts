@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Sedan_02
 	{
-		units[] = {"Expansion_Sedan_02_Wheel","Sedan_02_Wheel_Ruined","Expansion_Sedan_02","Expansion_Sedan_02_Red","Expansion_Sedan_02_Yellow","Expansion_Sedan_02_Grey"};
+		units[] = {"Vehicle_Sedan_02_Wheel","Vehicle_Sedan_02_Wheel_Ruined","Vehicle_Sedan_02","Vehicle_Sedan_02_Red","Vehicle_Sedan_02_Yellow","Vehicle_Sedan_02_Grey","Vehicle_Sedan_02_YellowBright","Vehicle_Sedan_02_Blue","Vehicle_Sedan_02_RedRust","Vehicle_Sedan_02_YellowRust","Vehicle_Sedan_02_GreyRust","Vehicle_Sedan_02_YellowBrightRust","Vehicle_Sedan_02_BlueRust"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -12,15 +12,15 @@ class CfgPatches
 };
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionCarScript;
+	class ExpansionWheelBase;
+	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
 	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class VehicleSimulation;
+	class SimulationModule;
 	class Axles;
 	class Front;
 	class Rear;
@@ -28,7 +28,7 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
-	class Expansion_Sedan_02_Wheel: ExpansionWheel
+	class Vehicle_Sedan_02_Wheel: ExpansionWheelBase
 	{
 		scope = 2;
 		displayName = "$STR_Sedan_02_Wheel0";
@@ -54,7 +54,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Sedan_02_Wheel_Ruined: Expansion_Sedan_02_Wheel
+	class Vehicle_Sedan_02_Wheel_Ruined: Vehicle_Sedan_02_Wheel
 	{
 		model = "\DZ\vehicles\wheeled\Sedan_02\proxy\Sedan_02_Wheel_ruined.p3d";
 		radius = 0.22;
@@ -65,10 +65,10 @@ class CfgVehicles
 		tyreRoughness = 1.2;
 		tyreTread = 0.4;
 	};
-	class Expansion_Sedan_02: ExpansionCarScript
+	class Vehicle_Sedan_02: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "TEST $STR_Sedan_020";
+		displayName = "$STR_Sedan_020";
 		model = "\DZ\vehicles\wheeled\Sedan_02\Sedan_02.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","EngineBelt","SparkPlug","Sedan_02_Hood","Sedan_02_Trunk","Sedan_02_Door_1_1","Sedan_02_Door_2_1","Sedan_02_Door_1_2","Sedan_02_Door_2_2","Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
@@ -105,10 +105,10 @@ class CfgVehicles
 				getInDir = "pos_cargo2_dir";
 			};
 		};
-		class VehicleSimulation: VehicleSimulation
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_RWD";
-			airDragCoefficient = 0.73;
+			airDragFrontTotal = 0.73;
 			class Steering
 			{
 				increaseSpeed[] = {0,45,60,25,100,10};
@@ -465,11 +465,11 @@ class CfgVehicles
 	};
 	class Sedan_02: CarScript
 	{
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo","camo_chassi","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat"};
 		doors[] = {"Sedan_02_Door_1_1","Sedan_02_Door_1_2","Sedan_02_Door_2_1","Sedan_02_Door_2_2","Sedan_02_Trunk","Sedan_02_Hood"};
 		defaultSkin = "Yellow";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo_chassi","dmgZone_chassis","dmgZone_back","dmgZone_front","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
-		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat"};
 	};
 	class Sedan_02_Door_1_1: CarDoor
 	{
@@ -698,9 +698,9 @@ class CfgVehicles
 		skinBase = "Sedan_02";
 		skinName = "Red";
 	};
-	class Expansion_Sedan_02_Red: Expansion_Sedan_02
+	class Vehicle_Sedan_02_Red: Vehicle_Sedan_02
 	{
-		skinBase = "Expansion_Sedan_02";
+		skinBase = "Vehicle_Sedan_02";
 		skinName = "Red";
 	};
 	class Sedan_02_Door_1_1_Red: Sedan_02_Door_1_1
@@ -738,9 +738,9 @@ class CfgVehicles
 		skinBase = "Sedan_02";
 		skinName = "Yellow";
 	};
-	class Expansion_Sedan_02_Yellow: Expansion_Sedan_02
+	class Vehicle_Sedan_02_Yellow: Vehicle_Sedan_02
 	{
-		skinBase = "Expansion_Sedan_02";
+		skinBase = "Vehicle_Sedan_02";
 		skinName = "Yellow";
 	};
 	class Sedan_02_Door_1_1_Yellow: Sedan_02_Door_1_1
@@ -778,9 +778,9 @@ class CfgVehicles
 		skinBase = "Sedan_02";
 		skinName = "Grey";
 	};
-	class Expansion_Sedan_02_Grey: Expansion_Sedan_02
+	class Vehicle_Sedan_02_Grey: Vehicle_Sedan_02
 	{
-		skinBase = "Expansion_Sedan_02";
+		skinBase = "Vehicle_Sedan_02";
 		skinName = "Grey";
 	};
 	class Sedan_02_Door_1_1_Grey: Sedan_02_Door_1_1
@@ -813,6 +813,96 @@ class CfgVehicles
 		skinBase = "Sedan_02_Trunk";
 		skinName = "Grey";
 	};
+	class Sedan_02_YellowBright: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "YellowBright";
+	};
+	class Vehicle_Sedan_02_YellowBright: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Door_1_1_YellowBright: Sedan_02_Door_1_1
+	{
+		skinBase = "Sedan_02_Door_1_1";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Door_1_2_YellowBright: Sedan_02_Door_1_2
+	{
+		skinBase = "Sedan_02_Door_1_2";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Door_2_1_YellowBright: Sedan_02_Door_2_1
+	{
+		skinBase = "Sedan_02_Door_2_1";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Door_2_2_YellowBright: Sedan_02_Door_2_2
+	{
+		skinBase = "Sedan_02_Door_2_2";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Hood_YellowBright: Sedan_02_Hood
+	{
+		skinBase = "Sedan_02_Hood";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Trunk_YellowBright: Sedan_02_Trunk
+	{
+		skinBase = "Sedan_02_Trunk";
+		skinName = "YellowBright";
+	};
+	class Sedan_02_Blue: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "Blue";
+	};
+	class Vehicle_Sedan_02_Blue: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "Blue";
+	};
+	class Sedan_02_Door_1_1_Blue: Sedan_02_Door_1_1
+	{
+		skinBase = "Sedan_02_Door_1_1";
+		skinName = "Blue";
+	};
+	class Sedan_02_Door_1_2_Blue: Sedan_02_Door_1_2
+	{
+		skinBase = "Sedan_02_Door_1_2";
+		skinName = "Blue";
+	};
+	class Sedan_02_Door_2_1_Blue: Sedan_02_Door_2_1
+	{
+		skinBase = "Sedan_02_Door_2_1";
+		skinName = "Blue";
+	};
+	class Sedan_02_Door_2_2_Blue: Sedan_02_Door_2_2
+	{
+		skinBase = "Sedan_02_Door_2_2";
+		skinName = "Blue";
+	};
+	class Sedan_02_Hood_Blue: Sedan_02_Hood
+	{
+		skinBase = "Sedan_02_Hood";
+		skinName = "Blue";
+	};
+	class Sedan_02_Trunk_Blue: Sedan_02_Trunk
+	{
+		skinBase = "Sedan_02_Trunk";
+		skinName = "Blue";
+	};
+	class Sedan_02_RedRust: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "RedRust";
+	};
+	class Vehicle_Sedan_02_RedRust: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "RedRust";
+	};
 	class Sedan_02_Door_1_1_RedRust: Sedan_02_Door_1_1
 	{
 		skinBase = "Sedan_02_Door_1_1";
@@ -842,6 +932,16 @@ class CfgVehicles
 	{
 		skinBase = "Sedan_02_Trunk";
 		skinName = "RedRust";
+	};
+	class Sedan_02_YellowRust: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "YellowRust";
+	};
+	class Vehicle_Sedan_02_YellowRust: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "YellowRust";
 	};
 	class Sedan_02_Door_1_1_YellowRust: Sedan_02_Door_1_1
 	{
@@ -873,6 +973,16 @@ class CfgVehicles
 		skinBase = "Sedan_02_Trunk";
 		skinName = "YellowRust";
 	};
+	class Sedan_02_GreyRust: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "GreyRust";
+	};
+	class Vehicle_Sedan_02_GreyRust: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "GreyRust";
+	};
 	class Sedan_02_Door_1_1_GreyRust: Sedan_02_Door_1_1
 	{
 		skinBase = "Sedan_02_Door_1_1";
@@ -902,6 +1012,86 @@ class CfgVehicles
 	{
 		skinBase = "Sedan_02_Trunk";
 		skinName = "GreyRust";
+	};
+	class Sedan_02_YellowBrightRust: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "YellowBrightRust";
+	};
+	class Vehicle_Sedan_02_YellowBrightRust: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_Door_1_1_YellowBrightRust: Sedan_02_Door_1_1
+	{
+		skinBase = "Sedan_02_Door_1_1";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_Door_1_2_YellowBrightRust: Sedan_02_Door_1_2
+	{
+		skinBase = "Sedan_02_Door_1_2";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_Door_2_1_YellowBrightRust: Sedan_02_Door_2_1
+	{
+		skinBase = "Sedan_02_Door_2_1";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_Door_2_2_YellowBrightRust: Sedan_02_Door_2_2
+	{
+		skinBase = "Sedan_02_Door_2_2";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_Hood_YellowBrightRust: Sedan_02_Hood
+	{
+		skinBase = "Sedan_02_Hood";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_Trunk_YellowBrightRust: Sedan_02_Trunk
+	{
+		skinBase = "Sedan_02_Trunk";
+		skinName = "YellowBrightRust";
+	};
+	class Sedan_02_BlueRust: Sedan_02
+	{
+		skinBase = "Sedan_02";
+		skinName = "BlueRust";
+	};
+	class Vehicle_Sedan_02_BlueRust: Vehicle_Sedan_02
+	{
+		skinBase = "Vehicle_Sedan_02";
+		skinName = "BlueRust";
+	};
+	class Sedan_02_Door_1_1_BlueRust: Sedan_02_Door_1_1
+	{
+		skinBase = "Sedan_02_Door_1_1";
+		skinName = "BlueRust";
+	};
+	class Sedan_02_Door_1_2_BlueRust: Sedan_02_Door_1_2
+	{
+		skinBase = "Sedan_02_Door_1_2";
+		skinName = "BlueRust";
+	};
+	class Sedan_02_Door_2_1_BlueRust: Sedan_02_Door_2_1
+	{
+		skinBase = "Sedan_02_Door_2_1";
+		skinName = "BlueRust";
+	};
+	class Sedan_02_Door_2_2_BlueRust: Sedan_02_Door_2_2
+	{
+		skinBase = "Sedan_02_Door_2_2";
+		skinName = "BlueRust";
+	};
+	class Sedan_02_Hood_BlueRust: Sedan_02_Hood
+	{
+		skinBase = "Sedan_02_Hood";
+		skinName = "BlueRust";
+	};
+	class Sedan_02_Trunk_BlueRust: Sedan_02_Trunk
+	{
+		skinBase = "Sedan_02_Trunk";
+		skinName = "BlueRust";
 	};
 };
 class CfgNonAIVehicles

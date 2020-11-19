@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"JM_COT_Scripts"};
+		requiredAddons[] = {"DayZExpansion_Core"};
 	};
 };
 class CfgMods
