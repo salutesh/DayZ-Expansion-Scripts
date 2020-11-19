@@ -2829,13 +2829,13 @@ modded class CarScript
 	// ------------------------------------------------------------
 	float GetCameraHeight()
 	{
-		return 4.0;
+		return 1.3;
 	}
 
 	// ------------------------------------------------------------
 	float GetCameraDistance()
 	{
-		return 1.3;
+		return 4.5;
 	}
 	
 	#ifdef DAYZ_1_10
