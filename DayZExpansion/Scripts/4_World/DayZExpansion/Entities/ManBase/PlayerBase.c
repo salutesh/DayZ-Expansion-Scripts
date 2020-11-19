@@ -41,6 +41,8 @@ modded class PlayerBase
 
 	protected bool m_HasMap;
 	protected bool m_HasGPS;
+	protected bool m_HasPen;
+	protected bool m_HasCompass;
 	
 	//Only server side
 	protected int m_QuickMarkerColor;
@@ -74,6 +76,8 @@ modded class PlayerBase
 
 		m_HasMap = false;
 		m_HasGPS = false;
+		m_HasPen = false;
+		m_HasCompass = false;
 		
 		SetRandomQuickMarkerColor();
 		
@@ -307,6 +311,30 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SetActions
 	// ------------------------------------------------------------
+	#ifdef DAYZ_1_10
+	override void SetActions( out TInputActionMap InputActionMap )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions start");
+		#endif
+
+		super.SetActions( InputActionMap );
+				
+		AddAction( ExpansionActionOpenParachute, InputActionMap );
+		AddAction( ExpansionActionCutParachute, InputActionMap );
+
+		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
+
+		AddAction( ExpansionActionPaint, InputActionMap );
+		
+		AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
+		AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions end");
+		#endif
+	}
+	#else
 	override void SetActions()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -315,22 +343,8 @@ modded class PlayerBase
 
 		super.SetActions();
 		
-		AddAction( ExpansionActionGetOutExpansionVehicle );
-		
-		AddAction( ExpansionActionCarHorn );
-		AddAction( ExpansionActionHelicopterHoverRefill );
-		
 		AddAction( ExpansionActionOpenParachute );
 		AddAction( ExpansionActionCutParachute );
-
-		AddAction( ExpansionActionStartEngine );
-		AddAction( ExpansionActionStopEngine );
-		
-		AddAction( ExpansionActionStartBoat );
-		AddAction( ExpansionActionStopBoat );
-
-		AddAction( ExpansionActionSwitchBoatController );
-		AddAction( ExpansionActionSwitchBoatControllerInput );
 
 		AddAction( ExpansionActionSelectNextPlacement );
 
@@ -341,9 +355,6 @@ modded class PlayerBase
 		AddAction( ExpansionActionDisconnectTow );
 		#endif
 		
-		//AddAction( ExpansionActionStartPlane );
-		//AddAction( ExpansionActionStopPlane );
-		
 		AddAction( ExpansionActionStartPlayingGuitar );
 		AddAction( ExpansionActionStopPlayingGuitar );
 
@@ -351,6 +362,7 @@ modded class PlayerBase
 		EXPrint("PlayerBase::SetActions end");
 		#endif
 	}
+	#endif
 
 	// ------------------------------------------------------------
 	// Expansion OnVariablesSynchronized
@@ -780,35 +792,29 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItem( string name, out EntityAI item )
 	{
+		if ( !GetInventory() )
+			return false;
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::HasItem - Start");
 		#endif
-
-		if ( this.GetInventory() )
+		
+		for ( int att_i = 0; att_i < GetInventory().AttachmentCount(); ++att_i )
 		{
-			for ( int att_i = 0; att_i < this.GetInventory().AttachmentCount(); ++att_i )
-			{
-				EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
-				ref CargoBase cargo = attachment.GetInventory().GetCargo();
-				
-				if ( cargo )
-				{
-					for ( int cgo_i = 0; cgo_i < cargo.GetItemCount(); ++cgo_i )
-					{
-						EntityAI cargo_item = cargo.GetItem( cgo_i );
-						if ( cargo_item )
-						{
-							if ( cargo_item.GetType() == name )
-							{
-								#ifdef EXPANSIONEXPRINT
-								EXPrint("PlayerBase::HasItem - End");
-								#endif
+			EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
+			ref CargoBase cargo = attachment.GetInventory().GetCargo();
+			
+			if ( !cargo )
+				continue;
 
-								return Class.CastTo( item, cargo_item );
-							}
-						}
-					}
-				}
+			for ( int cgo_i = 0; cgo_i < cargo.GetItemCount(); ++cgo_i )
+			{
+				EntityAI cargo_item = cargo.GetItem( cgo_i );
+				if ( !cargo_item )
+					continue;
+
+				if ( cargo_item.GetType() == name )
+					return Class.CastTo( item, cargo_item );
 			}
 		}
 	
@@ -1041,6 +1047,14 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
 		ctx.Write( m_ExpansionSaveVersion );
 
@@ -1057,6 +1071,11 @@ modded class PlayerBase
 		//! Use GetExpansionSaveVersion()
 		//! Making sure this is read before everything else.
 
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
@@ -1065,9 +1084,35 @@ modded class PlayerBase
 		
 		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
-	
+
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_WasInVehicle );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// Expansion AfterStoreLoad
@@ -1279,8 +1324,41 @@ modded class PlayerBase
 	{
 		return m_HasGPS;
 	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase SetHasItemPen
+	// ------------------------------------------------------------
+	void SetHasItemPen(bool state)
+	{
+		m_HasPen = state;
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase HasItemPen
+	// ------------------------------------------------------------
+	bool HasItemPen()
+	{
+		return m_HasPen;
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase SetHasItemCompass
+	// ------------------------------------------------------------
+	void SetHasItemCompass(bool state)
+	{
+		m_HasCompass = state;
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase HasItemCompass
+	// ------------------------------------------------------------
+	bool HasItemCompass()
+	{
+		return m_HasCompass;
+	}
+
 	void WakePlayer()
 	{
 		this.AddHealth("","Shock", 100);
 	}
-}
+};

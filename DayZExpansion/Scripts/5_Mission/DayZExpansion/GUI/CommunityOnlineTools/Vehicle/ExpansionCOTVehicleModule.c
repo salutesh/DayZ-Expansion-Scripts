@@ -65,12 +65,14 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		CreateToggle( "EnableWindAerodynamics", "Wind Aerodynamics", "", "" );
 		#endif
 		CreateToggle( "EnableTailRotorDamage", "Tail Rotor Damage", "", "" );
+		CreateToggle( "EnableHelicopterExplosions", "Enable Helicopter Explosions", "", "" );
 		#ifdef EXPANSION_PLAYER_ATTACHMENT
 		CreateToggle( "PlayerAttachment", "Player Attaches To Vehicles", "", "" );
 		#endif
 		#ifdef EXPANSION_VEHICLE_TOWING
 		CreateToggle( "Towing", "Towing Vehicles", "", "" );	
 		#endif
+		CreateToggle( "EnableHelicopterExplosions", "Enable Helicopter Explosions", "", "" );	
 	}
 
 	override int GetRPCMin()

@@ -96,15 +96,18 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 					
 					m_TextCodePanel.SetText( replaced_code );
 				}
-			} else if ( !m_Target.HasCode() )
-			{
-				m_TextCodePanel.SetText( "Set PIN(" + m_CodeLength + ")" );
-			} else
-			{
-				m_TextCodePanel.SetText( "Enter PIN(" + m_CodeLength + ")" );
 			}
-		} else 
-		{
+			else if ( m_CodeLength > 0 )
+			{
+				if ( !m_HasPin )
+					m_TextCodePanel.SetText( "Set PIN(" + m_CodeLength + ")" );
+				else
+					m_TextCodePanel.SetText( "Enter PIN(" + m_CodeLength + ")" );
+			} else {
+				m_TextCodePanel.SetText( "Error BaseBuildingSettings" );
+				Error("Expansion BaseBuildingSettings.json - CodeLockLength is inferior to 1 or can't be read !!! Validate the file or compare your file with this link https://github.com/ExpansionModTeam/DayZ-Expansion-Settings/blob/master/BaseBuildingSettings.json");
+			}
+		} else {
 			m_TextCodePanel.SetText( "Error #1" );
 		}
 	}

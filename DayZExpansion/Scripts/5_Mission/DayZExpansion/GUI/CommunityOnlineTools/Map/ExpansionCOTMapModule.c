@@ -57,12 +57,14 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 	{
 		CreateToggle( "EnableMap", "Enable Expansion Map", "", "" );
 		CreateToggle( "UseMapOnMapItem", "Use Expansion Map On Map Item", "", "" );
+
 		CreateToggle( "NeedMapItemForKeyBinding", "Require Map Item", "", "" );
 		CreateToggle( "CanOpenMapWithKeyBinding", "Can Open Map With Key Binding", "", "" );
 
 		CreateToggle( "EnableHUDGPS", "Enable HUD GPS", "", "" );
 		CreateToggle( "NeedGPSItemForKeyBinding", "Require GPS Item", "", "" );
 		
+		CreateToggle( "NeedPenItemForCreateMarker", "Need Pen Item For Create Marker", "", "" );
 		CreateToggle( "CanCreateMarker", "Can Create Marker", "", "" );
 		CreateToggle( "CanCreate3DMarker", "Can Create 3D Marker", "", "" );
 

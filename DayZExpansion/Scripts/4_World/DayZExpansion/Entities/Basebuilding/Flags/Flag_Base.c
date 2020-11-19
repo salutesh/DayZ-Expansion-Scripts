@@ -87,6 +87,14 @@ modded class Flag_Base
 	// ------------------------------------------------------------	
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+		
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_FlagTexturePath );
@@ -97,6 +105,11 @@ modded class Flag_Base
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
@@ -105,6 +118,32 @@ modded class Flag_Base
 		
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_FlagTexturePath );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 
 	override void AfterStoreLoad()
 	{

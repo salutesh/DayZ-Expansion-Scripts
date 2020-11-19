@@ -59,6 +59,30 @@ modded class BuildingBase
 	}
 	
 	// ------------------------------------------------------------
+	// IsBuildingListed
+	// ------------------------------------------------------------
+	bool IsBuildingListed()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("BuildingBase::IsBuildingListed - Start");
+		#endif
+		
+		for ( int x = 0; x < GetExpansionSettings().GetGeneral().Mapping.Interiors.Count(); ++x )
+		{
+			if ( this.IsKindOf( GetExpansionSettings().GetGeneral().Mapping.Interiors[x] ) )
+			{
+				return true;
+			}
+		}
+
+		return false;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("BuildingBase::IsBuildingListed - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
 	// OnSettingsUpdated
 	// ------------------------------------------------------------
 	void OnSettingsUpdated()
@@ -69,15 +93,15 @@ modded class BuildingBase
 		
 		if ( IsMissionHost() )
 		{
-			if (HasInterior()) {
-				if (GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
+			if ( HasInterior() ) {
+				if ( GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors && IsBuildingListed() )
 					LoadInterior();
 				else 
 					UnloadInterior();
 			}
 		
-			if (HasIvys()) {
-				if (GetExpansionSettings().GetGeneral().Mapping.BuildingIvys)
+			if ( HasIvys() ) {
+				if ( GetExpansionSettings().GetGeneral().Mapping.BuildingIvys )
 					LoadIvys();	
 				else
 					UnloadIvys();
@@ -98,15 +122,15 @@ modded class BuildingBase
 		EXPrint("BuildingBase::ReloadCustomObjects - Start");
 		#endif
 		
-		if (HasInterior()) {
-			if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors)
+		if ( HasInterior() ) {
+			if ( GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors && IsBuildingListed() )
 				LoadInterior();
 			else 
 				UnloadInterior();
 		}
-		
-		if (HasIvys()) {
-			if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().Mapping.BuildingIvys)
+	
+		if ( HasIvys() ) {
+			if ( GetExpansionSettings().GetGeneral().Mapping.BuildingIvys )
 				LoadIvys();	
 			else
 				UnloadIvys();

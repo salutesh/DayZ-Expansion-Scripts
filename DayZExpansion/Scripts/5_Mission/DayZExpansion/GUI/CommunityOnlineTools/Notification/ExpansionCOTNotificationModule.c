@@ -64,9 +64,12 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		CreateToggle( "ShowAirdropStarted", "Show Airdrop Started", "", "" );
 		CreateToggle( "ShowAirdropClosingOn", "Show Airdrop Closing On", "", "" );
 		CreateToggle( "ShowAirdropDropped", "Show Airdrop Dropped", "", "" );
+		CreateToggle( "ShowAirdropEnded", "Show Airdrop Ended", "", "" );
+		
 		CreateToggle( "ShowPlayerAirdropStarted", "Show Player Airdrop Started", "", "" );
 		CreateToggle( "ShowPlayerAirdropClosingOn", "Show Player Airdrop Closing On", "", "" );
 		CreateToggle( "ShowPlayerAirdropDropped", "Show Player Airdrop Dropped", "", "" );
+
 		CreateToggle( "ShowTerritoryNotifications", "Show Territory Notifications", "", "" );
 
 		CreateToggle( "EnableKillFeed", "Enable Kill-Feed", "", "" );
@@ -94,7 +97,8 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		CreateToggle( "KillFeedAnimal", "Kill-Feed: Animal", "", "" );
 		CreateToggle( "KillFeedKilledUnknown", "Kill-Feed: Killed Unknown", "", "" );
 		CreateToggle( "KillFeedDiedUnknown", "Kill-Feed: Died Unknown", "", "" );
-		CreateToggle( "EnableKillFeedDiscordMsg", "Enable Kill-Feed Discord Messages", "", "" );
+
+		//CreateToggle( "EnableKillFeedDiscordMsg", "Enable Kill-Feed Discord Messages", "", "" );
 	}
 
 	override int GetRPCMin()

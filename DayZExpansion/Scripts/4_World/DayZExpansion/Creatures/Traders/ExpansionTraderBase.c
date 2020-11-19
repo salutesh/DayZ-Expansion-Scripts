@@ -423,13 +423,13 @@ class ExpansionTraderBase extends DayZPlayer
 	{
 		array< vector > positions;
 
-		if ( GetGame().IsKindOf( className, "ExpansionBoatScript" ) )
+		if ( GetGame().IsKindOf( className, "ExpansionBoatScript" ) || GetGame().IsKindOf( className, "ExpansionVehicleBoatBase" ) )
 		{
 			positions = GetExpansionSettings().GetMarket().WaterSpawnPositions;
-		} else if ( GetGame().IsKindOf( className, "ExpansionHelicopterScript" ) )
+		} else if ( GetGame().IsKindOf( className, "ExpansionHelicopterScript" ) || GetGame().IsKindOf( className, "ExpansionVehicleHelicopterBase" ) )
 		{
 			positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
-		} else if ( GetGame().IsKindOf( className, "ExpansionPlaneScript" ) )
+		} else if ( GetGame().IsKindOf( className, "ExpansionVehiclePlaneBase" ) || GetGame().IsKindOf( className, "ExpansionVehiclePlaneBase" ) )
 		{
 			positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
 		} else
@@ -481,4 +481,4 @@ class ExpansionTraderBase extends DayZPlayer
 		
 		StartCommand_Script( new ExpansionHumanCommandTrader( this, m_CommandTraderTable ) );
 	}
-}
+};

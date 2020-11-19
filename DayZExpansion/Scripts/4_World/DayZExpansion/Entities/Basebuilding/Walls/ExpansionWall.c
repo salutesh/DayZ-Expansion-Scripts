@@ -43,16 +43,29 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	}
 
 	override void OnStoreSave( ParamsWriteContext ctx )
-	{   
+	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_HasWindow );
 		ctx.Write( m_HasDoor );
 		ctx.Write( m_HasGate );
 	}
-	
+
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 
@@ -65,6 +78,38 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_HasWindow );
+		storage.Write( m_HasDoor );
+		storage.Write( m_HasGate );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 
 	override bool HasBase()
 	{
@@ -101,7 +146,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override bool ExpansionHasCodeLock( string selection )
 	{
-		if ( selection == "codelock_door" )
+		if ( selection == "codelock_door" || GetExpansionSettings().GetBaseBuilding() && GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
 		{
 			if ( m_HasDoor && FindAttachmentBySlotName( "Att_ExpansionCodeLock_1" ) )
 			{
@@ -109,7 +154,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			}
 		}
 
-		if ( selection == "codelock_gate" )
+		if ( selection == "codelock_gate" || GetExpansionSettings().GetBaseBuilding() && GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
 		{
 			if ( m_HasGate && FindAttachmentBySlotName( "Att_ExpansionCodeLock_2" ) )
 			{
@@ -151,7 +196,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return m_HasDoor;
 	}
 	
+	#ifdef DAYZ_1_10
+	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
+	#else
 	override void OnPartBuiltServer( string part_name, int action_id )
+	#endif
 	{
 		m_HasWindow = false;
 		m_HasDoor = false;
@@ -172,7 +221,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			m_HasGate = true;
 		}
 
+		#ifdef DAYZ_1_10
+		super.OnPartBuiltServer(player, part_name, action_id );
+		#else
 		super.OnPartBuiltServer( part_name, action_id );
+		#endif
 
 		UpdateVisuals();
 	}
@@ -323,7 +376,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( !ExpansionIsOpenable() )
 			return false;
 
-		if ( m_HasWindow && !IsFacingPlayer( player, selection ) )
+		if ( m_HasWindow && !IsFacingPlayer( player, selection ) && ( !IsMissionClient() || !IsFacingCamera( selection ) ) )
 		{
 			if ( selection == (m_CurrentBuild + "_window_ll") && GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5 )
 				return true;

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_oldbike
 	{
-		units[] = {"ExpansionOldBikeWheel","ExpansionOldBike"};
+		units[] = {"Vehicle_ExpansionOldBikeWheel","Vehicle_ExpansionOldBike"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Vehicles_Parts","DZ_Sounds_Effects"};
@@ -29,8 +29,8 @@ class CfgSlots
 };
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionBikeScript;
+	class ExpansionWheelBase;
+	class ExpansionVehicleBikeBase;
 	class Inventory_Base;
 	class SimulationModule;
 	class Axles;
@@ -48,11 +48,11 @@ class CfgVehicles
 	class DamageZones;
 	class Doors;
 	class Health;
-	class ExpansionOldBikeWheel: ExpansionWheel
+	class Vehicle_ExpansionOldBikeWheel: ExpansionWheelBase
 	{
 		scope = 2;
-		displayName = "$Unit$ Bicycle Wheel Front";
-		descriptionShort = "$Unit$ NOT READY, you shouldn't be reading this !";
+		displayName = "$STR_EXPANSION_VEHICLE_OLDBIKE_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_OLDBIKE_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\oldbike\proxy\Expansion_old_bike_wheel.p3d";
 		itemSize[] = {6,6};
 		inventorySlot[] = {"expansion_old_bike_wheel_1","expansion_old_bike_wheel_2"};
@@ -62,11 +62,10 @@ class CfgVehicles
 		width = 0.1;
 		mass = 20.0;
 	};
-	class ExpansionOldBike: ExpansionBikeScript
+	class Vehicle_ExpansionOldBike: ExpansionVehicleBikeBase
 	{
 		scope = 2;
-		displayName = "$Unit$ Old Bicycle";
-		descriptionShort = "$Unit$ Old Bicycle Imported by ZeRoY";
+		displayName = "$STR_EXPANSION_VEHICLE_OLDBIKE";
 		model = "\DayZExpansion\Vehicles\Ground\OldBike\old_bike.p3d";
 		attachments[] = {"expansion_old_bike_wheel_1","expansion_old_bike_wheel_2"};
 		fuelCapacity = 0;
@@ -107,7 +106,7 @@ class CfgVehicles
 				getInDir = "pos_codriver_dir";
 			};
 		};
-		class VehicleSimulation
+		class SimulationModule
 		{
 			class Steering
 			{
@@ -301,7 +300,7 @@ class CfgVehicles
 		{
 			class Chassis
 			{
-				name = "Bicycle Chassis";
+				name = "$STR_attachment_Chassis0";
 				description = "";
 				icon = "cat_vehicle_chassis";
 				attachmentSlots[] = {"expansion_old_bike_wheel_1","expansion_old_bike_wheel_2"};

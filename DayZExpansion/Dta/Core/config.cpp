@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Core
+	class DayZExpansion_Dta_Core
 	{
 		units[] = {"ExpansionPickup","ExpansionPickupCone","ExpansionDebugCone","ExpansionDebugConeSmall","ExplosionPoint","ExplosionSmall","ExpansionWreck","ExpansionTraderBase","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderLina","ExpansionTraderNaomi","ExpansionTraderNewDenis","ExpansionNpcDenis","ExpansionNpcBoris","ExpansionNpcCyril","ExpansionNpcElias","ExpansionNpcFrancis","ExpansionNpcGuo","ExpansionNpcHassan","ExpansionNpcIndar","ExpansionNpcJose","ExpansionNpcKaito","ExpansionNpcLewis","ExpansionNpcManua","ExpansionNpcNiki","ExpansionNpcOliver","ExpansionNpcPeter","ExpansionNpcQuinn","ExpansionNpcRolf","ExpansionNpcSeth","ExpansionNpcTaiki","ExpansionNpcLinda","ExpansionNpcMaria","ExpansionNpcFrida","ExpansionNpcGabi","ExpansionNpcHelga","ExpansionNpcIrena","ExpansionNpcJudy","ExpansionNpcKeiko","ExpansionNpcLina","ExpansionNpcNaomi","ExpansionSoldierMirek","ExpansionSoldierDenis","ExpansionSoldierBoris","ExpansionSoldierCyril","ExpansionSoldierElias","ExpansionSoldierFrancis","ExpansionSoldierGuo","ExpansionSoldierHassan","ExpansionSoldierIndar","ExpansionSoldierJose","ExpansionSoldierKaito","ExpansionSoldierLewis","ExpansionSoldierManua","ExpansionSoldierNiki","ExpansionSoldierOliver","ExpansionSoldierPeter","ExpansionSoldierQuinn","ExpansionSoldierRolf","ExpansionSoldierSeth","ExpansionSoldierTaiki","ExpansionSoldierLinda","ExpansionSoldierMaria","ExpansionSoldierFrida","ExpansionSoldierGabi","ExpansionSoldierHelga","ExpansionSoldierIrena","ExpansionSoldierJudy","ExpansionSoldierKeiko","ExpansionSoldierLina","ExpansionSoldierNaomi","ExpansionSoldier2Mirek","ExpansionSoldier2Denis","ExpansionSoldier2Boris","ExpansionSoldier2Cyril","ExpansionSoldier2Elias","ExpansionSoldier2Francis","ExpansionSoldier2Guo","ExpansionSoldier2Hassan","ExpansionSoldier2Indar","ExpansionSoldier2Jose","ExpansionSoldier2Kaito","ExpansionSoldier2Lewis","ExpansionSoldier2Manua","ExpansionSoldier2Niki","ExpansionSoldier2Oliver","ExpansionSoldier2Peter","ExpansionSoldier2Quinn","ExpansionSoldier2Rolf","ExpansionSoldier2Seth","ExpansionSoldier2Taiki","ExpansionSoldier2Linda","ExpansionSoldier2Maria","ExpansionSoldier2Frida","ExpansionSoldier2Gabi","ExpansionSoldier2Helga","ExpansionSoldier2Irena","ExpansionSoldier2Judy","ExpansionSoldier2Keiko","ExpansionSoldier2Lina","ExpansionSoldier2Naomi"};
 		weapons[] = {};
@@ -548,14 +548,14 @@ class CfgVehicles
 	{
 		scope = 2;
 	};
-	class ExpansionWheel: CarWheel
+	class ExpansionWheelBase: Inventory_Base
 	{
 		scope = 1;
 		mass = 80.0;
 		radius = 0.536;
 		width = 0.316;
 	};
-	class ExpansionVehicleScript: Inventory_Base
+	class ExpansionVehicleBase: Inventory_Base
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Vehicle";
@@ -570,12 +570,74 @@ class CfgVehicles
 		coolantCapacity = 6;
 		hasDoors = 0;
 	};
-	class ExpansionBikeScript: ExpansionVehicleScript
+	class ExpansionVehicleBikeBase: ExpansionVehicleBase
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Bicycle";
+		rotationFlags = 64;
+		storageCategory = 4;
+		insideSoundCoef = 0.9;
+		fuelCapacity = 50;
+		brakeFluidCapacity = 1;
+		oilCapacity = 4;
+		coolantCapacity = 6;
+		brakeFluidLeakDebit[] = {0.0,0.0};
+		oilLeakDebit[] = {0.0,0.0};
+		coolantLeakDebit[] = {0.0,0.0};
+		brakeFluidForceCoef[] = {0.0,1.0,1.0,1.0};
+		damageFromOil[] = {0.0,0.0,1.0,0.0};
+		damageFromCoolant[] = {0.0,0.0,1.0,0.0};
+		engineBeltSlot = "EngineBelt";
+		batterySlot = "CarBattery";
+		electricPowerResName = "power";
+		electricConsumptionIgnition = 3001;
+		electricConsumptionEngine = 0.0;
+		electricConsumptionLights = 0.0;
+		electricOutputEngine = 5.0;
+		selectionDashboard = "light_dashboard";
+		selectionLightFrontL = "light_left";
+		selectionLightFrontR = "light_right";
+		selectionBrakeLights = "light_break";
+		attachments[] = {"CarBattery","Reflector_1_1"};
+		hiddenSelections[] = {""};
+		hiddenSelectionsTextures[] = {""};
+		hiddenSelectionsMaterials[] = {""};
+		class SimulationModule
+		{
+			class Axles
+			{
+				class Front
+				{
+					class Wheels
+					{
+						class Center
+						{
+							inventorySlot = "";
+							animTurn = "turnfront";
+							animRotation = "wheelfront";
+							animDamper = "damperfront";
+							wheelHub = "wheel_1_damper_land";
+						};
+					};
+				};
+				class Rear
+				{
+					class Wheels
+					{
+						class Right
+						{
+							inventorySlot = "";
+							animTurn = "turnback";
+							animRotation = "wheelback";
+							animDamper = "damperback";
+							wheelHub = "wheel_2_damper_land";
+						};
+					};
+				};
+			};
+		};
 	};
-	class ExpansionCarScript: ExpansionVehicleScript
+	class ExpansionVehicleCarBase: ExpansionVehicleBase
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Car";
@@ -603,6 +665,10 @@ class CfgVehicles
 		selectionLightFrontL = "light_left";
 		selectionLightFrontR = "light_right";
 		selectionBrakeLights = "light_break";
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1"};
+		hiddenSelections[] = {""};
+		hiddenSelectionsTextures[] = {""};
+		hiddenSelectionsMaterials[] = {""};
 		class Crew
 		{
 			class Driver
@@ -621,7 +687,7 @@ class CfgVehicles
 				getInDir = "pos_coDriver_dir";
 			};
 		};
-		class VehicleSimulation
+		class SimulationModule
 		{
 			class Axles
 			{
@@ -671,10 +737,6 @@ class CfgVehicles
 				};
 			};
 		};
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1"};
-		hiddenSelections[] = {""};
-		hiddenSelectionsTextures[] = {""};
-		hiddenSelectionsMaterials[] = {""};
 		class AnimationSources
 		{
 			class DoorsDriver
@@ -754,7 +816,7 @@ class CfgVehicles
 	{
 		scope = 1;
 	};
-	class ExpansionVehicleScriptSoundProxyBase: ExpansionSoundProxyBase
+	class ExpansionVehicleBaseSoundProxyBase: ExpansionSoundProxyBase
 	{
 		scope = 1;
 	};
@@ -783,7 +845,8 @@ class CfgVehicles
 			itemsCargoSize[] = {10,50};
 		};
 	};
-	class ExpansionHelicopterScript: CarScript
+	class OffroadHatchback;
+	class ExpansionHelicopterScript: OffroadHatchback
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Helicopter";
@@ -822,7 +885,44 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragCoefficient = 0.995;
+			airDragFrontTotal = 1.0;
+			maxSpeed = 220;
+			altitudeFullForce = 1000;
+			altitudeNoForce = 2000;
+			bodyFrictionCoef = 1.1;
+			bankForceCoef = 0.05;
+			tailForceCoef = 2.0;
+			linearFrictionCoef[] = {16.0,0.04,0.04};
+			angularFrictionCoef = 1.5;
+			class Rotor
+			{
+				minAutoRotateSpeed = 2.0;
+				maxAutoRotateSpeed = 10.0;
+				startUpTime = 15;
+			};
+			class AntiTorque
+			{
+				speed = 1.5;
+				max = 0.16;
+			};
+			class Cyclic
+			{
+				forceCoefficient = 1.3;
+				class Forward
+				{
+					speed = 10.0;
+					max = 0.7;
+					coefficient = 1.0;
+					animation = "cyclicForward";
+				};
+				class Side
+				{
+					speed = 4.0;
+					max = 0.6;
+					coefficient = 0.6;
+					animation = "cyclicAside";
+				};
+			};
 			class Steering
 			{
 				increaseSpeed[] = {0,45,60,23,100,12};
@@ -949,6 +1049,107 @@ class CfgVehicles
 			openable = 0;
 		};
 	};
+	class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
+	{
+		scope = 1;
+		vehicleClass = "Expansion_Helicopter";
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","GlowPlug"};
+		class Crew: Crew
+		{
+			class Driver: Driver
+			{
+				actionSel = "seat_driver";
+				proxyPos = "crewDriver";
+				getInPos = "pos_driver";
+				getInDir = "pos_driver_dir";
+			};
+			class CoDriver: CoDriver
+			{
+				actionSel = "seat_codriver";
+				proxyPos = "crewCoDriver";
+				getInPos = "pos_codriver";
+				getInDir = "pos_codriver_dir";
+			};
+			class Cargo1
+			{
+				actionSel = "seat_cargo1";
+				proxyPos = "crewCargo1";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo2
+			{
+				actionSel = "seat_cargo2";
+				proxyPos = "crewCargo2";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+		};
+		class SimulationModule
+		{
+			airDragFrontTotal = 1.0;
+			maxSpeed = 220;
+			altitudeFullForce = 1000;
+			altitudeNoForce = 2000;
+			bodyFrictionCoef = 1.1;
+			bankForceCoef = 0.05;
+			tailForceCoef = 2.0;
+			linearFrictionCoef[] = {16.0,0.04,0.04};
+			angularFrictionCoef = 1.5;
+			class Rotor
+			{
+				minAutoRotateSpeed = 2.0;
+				maxAutoRotateSpeed = 10.0;
+				startUpTime = 15;
+			};
+			class AntiTorque
+			{
+				speed = 1.5;
+				max = 0.16;
+			};
+			class Cyclic
+			{
+				forceCoefficient = 1.3;
+				class Forward
+				{
+					speed = 10.0;
+					max = 0.7;
+					coefficient = 1.0;
+					animation = "cyclicForward";
+				};
+				class Side
+				{
+					speed = 4.0;
+					max = 0.6;
+					coefficient = 0.6;
+					animation = "cyclicAside";
+				};
+			};
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Engine
+			{
+				name = "Engine";
+				description = "";
+				attachmentSlots[] = {"ExpansionHelicopterBattery","GlowPlug"};
+				icon = "missing";
+			};
+			class Body
+			{
+				name = "Body";
+				description = "";
+				attachmentSlots[] = {"Reflector_1_1"};
+				icon = "missing";
+			};
+		};
+		class Cargo
+		{
+			itemsCargoSize[] = {10,25};
+			allowOwnedCargoManipulation = 1;
+			openable = 0;
+		};
+	};
 	class ExpansionBoatScript: CarScript
 	{
 		scope = 0;
@@ -1015,7 +1216,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragCoefficient = 0.995;
+			airDragFrontTotal = 0.995;
 			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
 			class Gearbox
 			{
@@ -1086,7 +1287,144 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionPlaneScript: CarScript
+	class ExpansionVehicleBoatBase: ExpansionVehicleBase
+	{
+		scope = 0;
+		vehicleClass = "Expansion_Boat";
+		displayName = "";
+		model = "";
+		fuelCapacity = 192;
+		fuelConsumption = 12;
+		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug"};
+		class GUIInventoryAttachmentsProps
+		{
+			class Engine
+			{
+				name = "Engine";
+				description = "";
+				attachmentSlots[] = {"GlowPlug","TruckBattery"};
+				icon = "missing";
+			};
+			class Body
+			{
+				name = "Body";
+				description = "";
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1"};
+				icon = "missing";
+			};
+		};
+		class Cargo
+		{
+			itemsCargoSize[] = {10,50};
+			allowOwnedCargoManipulation = 1;
+			openable = 0;
+		};
+		class Crew: Crew
+		{
+			class Driver: Driver
+			{
+				actionSel = "seat_driver";
+				proxyPos = "crewDriver";
+				getInPos = "pos_driver";
+				getInDir = "pos_driver_dir";
+			};
+			class CoDriver: CoDriver
+			{
+				actionSel = "seat_codriver";
+				proxyPos = "crewCoDriver";
+				getInPos = "pos_codriver";
+				getInDir = "pos_codriver_dir";
+			};
+			class Cargo1
+			{
+				actionSel = "seat_cargo1";
+				proxyPos = "crewCargo1";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo2
+			{
+				actionSel = "seat_cargo2";
+				proxyPos = "crewCargo2";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+		};
+		class SimulationModule: SimulationModule
+		{
+			drive = "DRIVE_AWD";
+			airDragFrontTotal = 0.995;
+			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
+			class Gearbox
+			{
+				reverse = 2.526;
+				ratios[] = {1.3,1.2,1.1,1.0};
+				timeToUncoupleClutch = 0.3;
+				timeToCoupleClutch = 0.45;
+				maxClutchTorque = 260;
+			};
+			class Axles: Axles
+			{
+				class Front: Front
+				{
+					class Wheels: Wheels
+					{
+						class Left: Left
+						{
+							animDamper = "damper_1_1";
+							inventorySlot = "NivaWheel_1_1";
+						};
+						class Right: Right
+						{
+							animDamper = "damper_2_1";
+							inventorySlot = "NivaWheel_1_1";
+						};
+					};
+				};
+				class Rear: Rear
+				{
+					class Wheels: Wheels
+					{
+						class Left: Left
+						{
+							animDamper = "damper_1_2";
+							inventorySlot = "NivaWheel_1_1";
+						};
+						class Right: Right
+						{
+							animDamper = "damper_2_2";
+							inventorySlot = "NivaWheel_1_1";
+						};
+					};
+				};
+			};
+		};
+		class ObstacleGenerator
+		{
+			carve = 1;
+			timeToStationary = 5;
+			moveThreshold = 0.5;
+			class Shapes
+			{
+				class Cylindric
+				{
+					class Cyl1
+					{
+						radius = 1;
+						height = 1.5;
+						center[] = {0,0,0.7};
+					};
+					class Cyl3
+					{
+						radius = 1;
+						height = 1.5;
+						center[] = {0,0,-0.7};
+					};
+				};
+			};
+		};
+	};
+	class ExpansionVehiclePlaneBase: ExpansionVehicleBase
 	{
 		scope = 1;
 		vehicleClass = "Expansion_Plane";

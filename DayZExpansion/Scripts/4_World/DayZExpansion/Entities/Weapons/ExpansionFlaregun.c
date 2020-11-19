@@ -422,3 +422,4 @@ class ExpansionFlaregun: FNX45_Base
 		m_fsm.Start();
 	}
 };
+

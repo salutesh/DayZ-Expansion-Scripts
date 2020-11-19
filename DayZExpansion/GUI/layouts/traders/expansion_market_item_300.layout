@@ -1,8 +1,0 @@
-FrameWidgetClass rootFrame {
- position 0 0
- size 400 300
- hexactpos 1
- vexactpos 1
- hexactsize 1
- vexactsize 1
-}

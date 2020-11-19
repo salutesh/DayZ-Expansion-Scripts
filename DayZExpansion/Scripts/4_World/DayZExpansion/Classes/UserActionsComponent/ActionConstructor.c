@@ -39,38 +39,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionOpenParachute );
 		actions.Insert( ExpansionActionCutParachute );
 
-		//! Vehicles
-		actions.Insert( ExpansionActionGetInExpansionVehicle );
-		actions.Insert( ExpansionActionGetOutExpansionVehicle );
-		
-		#ifdef EXPANSION_VEHICLE_TOWING
-		actions.Insert( ExpansionActionConnectTow );
-		actions.Insert( ExpansionActionDisconnectTow );
-		#endif
-		
-		actions.Insert( ExpansionActionSwitchGear );
-		actions.Insert( ExpansionActionPairKey );
-		actions.Insert( ExpansionActionAdminUnpairKey );
-		actions.Insert( ExpansionActionLockVehicle );
-		actions.Insert( ExpansionActionUnlockVehicle );
-		actions.Insert( ExpansionActionCarHorn );
-		actions.Insert( ExpansionActionOpenVehicleDoor );
-		actions.Insert( ExpansionActionCloseVehicleDoor );
-		actions.Insert( ExpansionActionStartEngine );
-		actions.Insert( ExpansionActionStopEngine );
-
-		//! Boats
-		actions.Insert( ExpansionActionSwitchBoatController );
-		actions.Insert( ExpansionActionSwitchBoatControllerInput );
-		actions.Insert( ExpansionActionStartBoat );
-		actions.Insert( ExpansionActionStopBoat );
-		
-		//! Helicopters
-		actions.Insert( ExpansionActionRocket );
-		actions.Insert( ExpansionActionHelicopterHoverRefill );
-		actions.Insert( ExpansionActionSwitchAutoHover );
-		actions.Insert( ExpansionActionSwitchAutoHoverInput );
-
+		//! Traders
 		actions.Insert( ExpansionActionOpenTraderMenu );
 		actions.Insert( ExpansionActionClose );
 		actions.Insert( ExpansionActionOpen );

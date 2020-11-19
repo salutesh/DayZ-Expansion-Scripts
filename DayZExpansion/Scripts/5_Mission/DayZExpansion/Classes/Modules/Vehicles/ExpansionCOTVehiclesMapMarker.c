@@ -228,4 +228,4 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 			}
 		}
 	}
-}
+};

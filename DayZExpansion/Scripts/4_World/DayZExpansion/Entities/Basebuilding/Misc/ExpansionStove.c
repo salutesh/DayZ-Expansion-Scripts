@@ -13,49 +13,46 @@
 /**@class		ExpansionStove
  * @brief		
  **/
-class ExpansionStove extends Container_Base 
+class ExpansionStove extends FireplaceBase 
 {
-	//! Expansion attachment of cooking pot
-	typename ATTACHMENT_COOKING_POT = Pot;
+	//! Expansion burning, turn on and turn off sound
+	const string SOUND_BURNING 		= "portablegasstove_burn_SoundSet";
+	const string SOUND_TURN_ON		= "portablegasstove_turn_on_SoundSet";
+	const string SOUND_TURN_OFF		= "portablegasstove_turn_off_SoundSet";
 
-	//! Expansion reference to cooking process
-	ref Cooking m_CookingProcess;
-
-	//! Expansion cooking equipment
-	ItemBase m_CookingEquipment;
+	protected EffectSound m_SoundBurningLoop;
+	protected EffectSound m_SoundTurnOn;
+	protected EffectSound m_SoundTurnOff;
+	
+	//cooking
+	protected const float PARAM_COOKING_TIME_INC_COEF			= 0.5;		//cooking time increase coeficient, can be used when balancing how fast a food can be cooked
 
 	//! Expansion is open switch
 	protected bool m_IsOpen;
 
-	//! Temperature threshold for starting coooking process (degree Celsius)
-	protected const float PARAM_COOKING_TEMP_THRESHOLD			= 100;
+	// ------------------------------------------------------------
+	// Expansion GetCookingEquipment
+	// ------------------------------------------------------------
+	ItemBase GetCookingEquipment()
+	{
+		return m_CookingEquipment;
+	}
 
-	//! How much will temperature increase when attached on burning fireplace (degree Celsius)
-	protected const float PARAM_COOKING_EQUIP_TEMP_INCREASE		= 10;	
-
-	//! Maximum temperature of attached cooking equipment (degree Celsius)	
-	protected const float PARAM_COOKING_EQUIP_MAX_TEMP			= 250;	
-
-	//! Cooking time increase coeficient, can be used when balancing how fast a food can be cooked	
-	protected const float PARAM_COOKING_TIME_INC_COEF			= 0.5;		
-
-	//! Expansion burning sound
-	const string SOUND_BURNING 		= "portablegasstove_burn_SoundSet";
-
-	//! Expansion turn on sound
-	const string SOUND_TURN_ON		= "portablegasstove_turn_on_SoundSet";
-
-	//! Expansion turn off sound
-	const string SOUND_TURN_OFF		= "portablegasstove_turn_off_SoundSet";
-
-	//! Expansion burning sound instance
-	protected EffectSound m_SoundBurningLoop;
-
-	//! Expansion turn on sound instance
-	protected EffectSound m_SoundTurnOn;
-
-	//! Expansion turn off sound instance
-	protected EffectSound m_SoundTurnOff;
+	// ------------------------------------------------------------
+	// Expansion SetCookingEquipment
+	// ------------------------------------------------------------
+	void SetCookingEquipment( ItemBase equipment )
+	{
+		m_CookingEquipment = equipment;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ClearCookingEquipment
+	// ------------------------------------------------------------
+	void ClearCookingEquipment()
+	{
+		SetCookingEquipment( NULL );
+	}
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -88,29 +85,28 @@ class ExpansionStove extends Container_Base
 		AddAction(ActionTogglePlaceObject);
 		AddAction(ActionPlaceObject);
 	}
-
-	// ------------------------------------------------------------
-	// Expansion SetCookingEquipment
-	// ------------------------------------------------------------
-	void SetCookingEquipment( ItemBase equipment )
+	
+	//================================================================
+	// SOUNDS
+	//================================================================
+	protected void SoundBurningStart()
 	{
-		m_CookingEquipment = equipment;
+		PlaySoundSetLoop( m_SoundBurningLoop, SOUND_BURNING, 0.1, 0.3 );
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion ClearCookingEquipment
-	// ------------------------------------------------------------
-	void ClearCookingEquipment()
+	protected void SoundBurningStop()
 	{
-		SetCookingEquipment( NULL );
-	}
+		StopSoundSet( m_SoundBurningLoop );
+	}	
 
-	// ------------------------------------------------------------
-	// Expansion GetCookingEquipment
-	// ------------------------------------------------------------
-	ItemBase GetCookingEquipment()
+	protected void SoundTurnOn()
 	{
-		return m_CookingEquipment;
+		PlaySoundSet( m_SoundTurnOn, SOUND_TURN_ON, 0.1, 0.1 );
+	}
+	
+	protected void SoundTurnOff()
+	{
+		PlaySoundSet( m_SoundTurnOff, SOUND_TURN_OFF, 0.1, 0.1 );
 	}
 
 	// ------------------------------------------------------------
@@ -147,38 +143,6 @@ class ExpansionStove extends Container_Base
 	}
 
 	// ------------------------------------------------------------
-	// Expansion SoundBurningStart
-	// ------------------------------------------------------------
-	protected void SoundBurningStart()
-	{
-		PlaySoundSetLoop( m_SoundBurningLoop, SOUND_BURNING, 0.1, 0.3 );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion SoundBurningStop
-	// ------------------------------------------------------------
-	protected void SoundBurningStop()
-	{
-		StopSoundSet( m_SoundBurningLoop );
-	}	
-
-	// ------------------------------------------------------------
-	// Expansion SoundTurnOn
-	// ------------------------------------------------------------
-	protected void SoundTurnOn()
-	{
-		PlaySoundSet( m_SoundTurnOn, SOUND_TURN_ON, 0.1, 0.1 );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion SoundTurnOff
-	// ------------------------------------------------------------
-	protected void SoundTurnOff()
-	{
-		PlaySoundSet( m_SoundTurnOff, SOUND_TURN_OFF, 0.1, 0.1 );
-	}
-
-	// ------------------------------------------------------------
 	// Expansion ExpansionIsOpenable
 	// ------------------------------------------------------------
 	override bool ExpansionIsOpenable()
@@ -190,10 +154,7 @@ class ExpansionStove extends Container_Base
 	// Expansion CanOpen
 	// ------------------------------------------------------------
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
-	{
-		if (IsLocked())
-			return false;
-			
+	{			
 		if (selection == "doors1" && GetAnimationPhase("doors1") == 0 && ExpansionIsOpenable())
 			return true;
 		
@@ -251,6 +212,84 @@ class ExpansionStove extends Container_Base
 		return m_IsOpen;
 	}
 
+	//returns if item attached to fireplace is fuel
+	protected bool IsFuel( ItemBase item )
+	{
+		if ( item.IsKindOf( "SmallGasCanister" ) || item.IsKindOf( "MediumGasCanister" ) || item.IsKindOf( "LargeGasCanister" ) )
+		{
+			return true;
+		}
+		
+		return false;
+	}
+
+	//================================================================
+	// ATTACHMENTS
+	//================================================================	
+	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
+	{
+		if ( !super.CanReceiveAttachment(attachment, slotId) )
+			return false;	
+		
+		ItemBase item = ItemBase.Cast( attachment );
+		
+		//fuel items
+		if ( IsFuel ( item ) )
+			return true;
+		
+		//direct cooking slots
+		if ( ( item.Type() == ATTACHMENT_COOKING_POT ) || ( item.Type() == ATTACHMENT_FRYING_PAN ) || ( item.IsKindOf( "Edible_Base" ) ) )
+			return true;
+		
+		return false;
+	}
+	
+	override bool CanLoadAttachment( EntityAI attachment )
+	{
+		if ( !super.CanLoadAttachment(attachment) )
+			return false;	
+		
+		ItemBase item = ItemBase.Cast( attachment );
+		
+		//fuel items
+		if ( IsFuel ( item ) )
+			return true;
+		
+		//direct cooking slots
+		if ( ( item.Type() == ATTACHMENT_COOKING_POT ) || ( item.Type() == ATTACHMENT_FRYING_PAN ) || ( item.IsKindOf( "Edible_Base" ) ) )
+			return true;
+		
+		return false;
+	}
+
+	override bool CanReleaseAttachment( EntityAI attachment )
+	{
+		if( !super.CanReleaseAttachment( attachment ) )
+			return false;
+		
+		ItemBase item = ItemBase.Cast( attachment );
+		
+		//fuel items
+		if ( IsFuel( item ) && !IsIgnited() )
+		{
+			return true;
+		}
+		
+		//has last attachment and there are still items in cargo
+		if ( GetInventory().AttachmentCount() == 1 && GetInventory().GetCargo().GetItemCount() != 0 )
+		{
+			return false;
+		}
+		
+		//direct cooking slots
+		if ( ( item.Type() == ATTACHMENT_COOKING_POT ) || ( item.Type() == ATTACHMENT_FRYING_PAN ) || ( item.IsKindOf( "Edible_Base" ) ) )
+		{
+			return true;
+		}
+		
+		return false;
+	}
+
 	// ------------------------------------------------------------
 	// EEItemAttached
 	// ------------------------------------------------------------
@@ -258,11 +297,44 @@ class ExpansionStove extends Container_Base
 	{
 		super.EEItemAttached( item, slot_name );
 		
-		if ( item.Type() == ATTACHMENT_COOKING_POT )
+		ItemBase item_base = ItemBase.Cast( item );
+		
+		//kindling / fuel
+		if ( IsFuel( item_base ) )
 		{
-			ItemBase item_base = ItemBase.Cast( item );
-			SetCookingEquipment( item_base );
+			//remove from consumables
+			RemoveFromFireConsumables( GetFireConsumableByItem( item_base ) );
 		}
+		
+		// direct cooking slots
+		switch ( slot_name )
+		{
+			case "DirectCookingA":
+				m_DirectCookingSlots[0] = item_base;
+				break;
+
+			case "DirectCookingB":
+				m_DirectCookingSlots[1] = item_base;
+				break;
+		}
+
+		#ifdef DAYZ_1_10
+		// smoking slots
+		switch ( slot_name )
+		{
+			case "SmokingA":
+				m_SmokingSlots[0] = item_base;
+				break;
+
+			case "SmokingB":
+				m_SmokingSlots[1] = item_base;
+				break;
+
+			case "SmokingC":
+				m_SmokingSlots[2] = item_base;
+				break;
+		}
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -270,14 +342,155 @@ class ExpansionStove extends Container_Base
 	// ------------------------------------------------------------
 	override void EEItemDetached( EntityAI item, string slot_name ) 
 	{
-		super.EEItemDetached( item, slot_name );
+		super.EEItemDetached ( item, slot_name );
 		
-		if ( item.Type() == ATTACHMENT_COOKING_POT )
+		ItemBase item_base = ItemBase.Cast( item );
+		
+		//kindling / fuel
+		if ( IsFuel( item_base ) )
 		{
-			ClearCookingEquipment();
+			//remove from consumables
+			RemoveFromFireConsumables( GetFireConsumableByItem( item_base ) );
+		}
+
+		// direct cooking slots
+		switch ( slot_name )
+		{
+			case "DirectCookingA":
+				m_DirectCookingSlots[0] = NULL;
+				break;
+
+			case "DirectCookingB":
+				m_DirectCookingSlots[1] = NULL;
+				break;
+		}
+
+		#ifdef DAYZ_1_10
+		// smoking slots
+		switch ( slot_name )
+		{
+			case "SmokingA":
+				m_SmokingSlots[0] = NULL;
+				break;
+
+			case "SmokingB":
+				m_SmokingSlots[1] = NULL;
+				break;
+
+			case "SmokingC":
+				m_SmokingSlots[2] = NULL;
+				break;
+		}
+		#endif
+
+		// food on direct cooking slots (removal of sound effects)
+		if ( item_base.IsKindOf( "Edible_Base" ) )
+		{
+			Edible_Base food_on_dcs = Edible_Base.Cast( item_base );
+			food_on_dcs.MakeSoundsOnClient( false );
+		}
+		
+		// cookware-specifics (remove audio visuals)
+		if ( item_base.Type() == ATTACHMENT_COOKING_POT )
+		{	
+			Bottle_Base cooking_pot = Bottle_Base.Cast( item );
+			cooking_pot.RemoveAudioVisualsOnClient();	
+		}
+		if ( item_base.Type() == ATTACHMENT_FRYING_PAN )
+		{	
+			FryingPan frying_pan = FryingPan.Cast( item );
+			frying_pan.RemoveAudioVisualsOnClient();
+		}
+	}
+
+	//Do heating
+	override protected void Heating()
+	{
+		float temperature = GetTemperature();
+		float temperature_modifier = 0;
+		
+		//calculate and set temperature
+		AddTemperatureToFireplace( PARAM_TEMPERATURE_INCREASE - temperature_modifier );
+		
+		//damage cargo items
+		BurnItemsInFireplace();
+		
+		//manage cooking equipment (this applies only for case of cooking pot on a tripod)
+		if ( m_CookingEquipment )
+		{
+			float cook_equip_temp = m_CookingEquipment.GetTemperature();
 			
-			RemoveCookingAudioVisuals();			
-		}	
+			if ( cook_equip_temp >= PARAM_COOKING_TEMP_THRESHOLD )
+			{
+				//start cooking
+				CookWithEquipment();
+			}
+
+			//set temperature to cooking equipment
+			cook_equip_temp = cook_equip_temp + PARAM_COOKING_EQUIP_TEMP_INCREASE;
+			if ( temperature <= PARAM_SMALL_FIRE_TEMPERATURE )
+			{
+				cook_equip_temp = Math.Clamp ( cook_equip_temp, PARAM_ITEM_HEAT_MIN_TEMP, PARAM_SMALL_FIRE_TEMPERATURE );
+			}
+			else
+			{
+				cook_equip_temp = Math.Clamp ( cook_equip_temp, PARAM_ITEM_HEAT_MIN_TEMP, PARAM_COOKING_EQUIP_MAX_TEMP );
+			}
+			m_CookingEquipment.SetTemperature( cook_equip_temp );
+		}
+
+		float cook_item_temp;
+		int i;
+		// manage cooking on direct cooking slots
+		if ( DirectCookingSlotsInUse() )
+		{
+			for ( i = 0; i < DIRECT_COOKING_SLOT_COUNT; i++ )
+			{
+				if ( m_DirectCookingSlots[i] )
+				{
+					cook_item_temp = m_DirectCookingSlots[i].GetTemperature();
+					if ( cook_item_temp >= PARAM_COOKING_TEMP_THRESHOLD )
+					{
+						CookOnDirectSlot( m_DirectCookingSlots[i], cook_item_temp, temperature );
+					}
+				}
+			}
+		}
+
+		#ifdef DAYZ_1_10
+		// manage smoking slots
+		if ( SmokingSlotsInUse() )
+		{
+			for ( i = 0; i < SMOKING_SLOT_COUNT; i++ )
+			{
+				if ( m_SmokingSlots[i] )
+				{
+					SmokeOnSmokingSlot( m_SmokingSlots[i], cook_item_temp, temperature );
+				}
+			}
+		}
+		#endif
+	}
+	
+	//================================================================
+	// FIRE VICINITY
+	//================================================================
+	override protected void BurnItemsInFireplace()
+	{
+		for ( int j = 0; j < GetInventory().AttachmentCount(); ++j )
+		{
+			ItemBase attachment = ItemBase.Cast( GetInventory().GetAttachmentFromIndex( j ) );
+			
+			//set damage (fuel items only)
+			if ( !IsFuel( attachment ) )
+			{
+				//add temperature
+				AddTemperatureToItemByFire( attachment );
+			
+				//remove wetness
+				AddWetnessToItem( attachment, -PARAM_WET_HEATING_DECREASE_COEF );		
+			}
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -287,6 +500,7 @@ class ExpansionStove extends Container_Base
 	{
 		super.OnSwitchOn();
 		
+		StartHeating();
 		SoundTurnOn();
 	}
 
@@ -297,25 +511,8 @@ class ExpansionStove extends Container_Base
 	{
 		super.OnSwitchOff();
 		
+		StopHeating();
 		SoundTurnOff();
-	}
-
-	// ------------------------------------------------------------
-	// OnWorkStart
-	// ------------------------------------------------------------
-	override void OnWorkStart()
-	{
-		SoundBurningStart();
-	}
-
-	// ------------------------------------------------------------
-	// OnWorkStop
-	// ------------------------------------------------------------
-	override void OnWorkStop()
-	{
-		RemoveCookingAudioVisuals();
-		
-		SoundBurningStop();
 	}
 
 	// ------------------------------------------------------------
@@ -374,35 +571,61 @@ class ExpansionStove extends Container_Base
 	override bool CanIgniteItem(EntityAI ignite_target = NULL)
 	{
 		return GetCompEM().IsWorking();
-	}
+	}	
 	
 	// ------------------------------------------------------------
-	// CanReceiveItemIntoCargo
+	// CanPutInCargo
 	// ------------------------------------------------------------
-	override bool CanReceiveItemIntoCargo(EntityAI cargo)
+	override bool CanPutInCargo( EntityAI parent )
 	{
-		return IsOpened();
+		if( !super.CanPutInCargo( parent ) )
+		{
+			return false;
+		}
+		
+		if( GetInventory().AttachmentCount() == 0 )
+		{
+			return !IsOpened() && !IsIgnited();
+		}
+
+		return false;
 	}
-	
+
 	// ------------------------------------------------------------
-	// CanReleaseCargo
+	// CanPutIntoHands
 	// ------------------------------------------------------------
-	override bool CanReleaseCargo(EntityAI attachment)
-	{
-		return IsOpened();
+	override bool CanPutIntoHands( EntityAI parent )
+	{		
+		if( !super.CanPutIntoHands( parent ) )
+		{
+			return false;
+		}
+		
+		if( GetInventory().AttachmentCount() == 0 )
+		{
+			return !IsOpened() && !IsIgnited();
+		}
+
+		return false;
 	}
 
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
+	#ifdef DAYZ_1_10
+	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
+	#else
 	override void OnPlacementComplete( Man player )
+	#endif
 	{
 		if ( IsMissionHost() )
 		{
 			//! Create stove
+			#ifndef DAYZ_1_10
 			PlayerBase player_base = PlayerBase.Cast( player );
 			vector position = player_base.GetLocalProjectionPosition();
 			vector orientation = player_base.GetLocalProjectionOrientation();
+			#endif
 			
 			SetPosition( position );
 			SetOrientation( orientation );

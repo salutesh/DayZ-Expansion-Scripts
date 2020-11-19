@@ -68,14 +68,6 @@ modded class MissionGameplay
 		exp_m_ChannelTimeoutTimer = new Timer(CALL_CATEGORY_GUI);
 		exp_m_ChannelNameFadeTimer = new ExpansionWidgetFadeTimer();
 		exp_m_ChannelNameTimeoutTimer = new Timer(CALL_CATEGORY_GUI);
-		
-		CreateDayZExpansion();
-		
-		if ( IsMissionClient() )
-			GetExpansionClientSettings().Load();
-
-		if ( !IsMissionOffline() )
-			g_exGlobalSettings.Unload();
 
 		Class.CastTo( m_AutoRunModule, GetModuleManager().GetModule( ExpansionAutorunModule ) );
 		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
@@ -98,10 +90,7 @@ modded class MissionGameplay
 		EXPrint("MissionGameplay::~MissionGameplay - Start");
 		#endif
 
-		DestroyDayZExpansion();
 		DestroyNotificationSystem();
-
-		g_exGlobalSettings.Unload();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::~MissionGameplay - End");
@@ -122,7 +111,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 
 			m_ChatChannelName.SetText( "Global Communication" );
-			m_ChatChannelName.SetColor( EXP_GLOBAL_TEXT_COLOUR );
+			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );
 		} else
 		{
 			SwitchChatChannelToTeam();
@@ -149,7 +138,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 
 			m_ChatChannelName.SetText("Team Communication");
-			m_ChatChannelName.SetColor(EXP_TEAM_TEXT_COLOUR);
+			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);
 		} else
 		{
 			SwitchChatChannelToTransport();
@@ -177,7 +166,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 
 			m_ChatChannelName.SetText("Transport Communication");
-			m_ChatChannelName.SetColor(EXP_TRANSPORT_COLOUR);
+			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TRANSPORT_COLOUR);
 		} else
 		{
 			SwitchChatChannelToAdmin();
@@ -202,7 +191,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 
 			m_ChatChannelName.SetText( "Admin Communication" );
-			m_ChatChannelName.SetColor( EXP_ADMIN_TEXT_COLOUR );
+			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );
 		} else
 		{
 			SwitchChatChannelToDirect();
@@ -225,7 +214,7 @@ modded class MissionGameplay
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 
 		m_ChatChannelName.SetText( "Direct Communication" );
-		m_ChatChannelName.SetColor( EXP_DIRECT_TEXT_COLOUR );
+		m_ChatChannelName.SetColor( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::SwitchChatChannelToDirect - End");
@@ -482,48 +471,6 @@ modded class MissionGameplay
 	}
 
 	// ------------------------------------------------------------
-	// OnMissionStart
-	// ------------------------------------------------------------
-	override void OnMissionStart()
-	{
-		super.OnMissionStart();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionStart - Start");
-		#endif
-
-		if ( !GetGame().IsMultiplayer() )
-		{
-			// GetDayZExpansion().OnMissionStart();
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionStart - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// OnMissionLoaded
-	// ------------------------------------------------------------
-	override void OnMissionLoaded()
-	{
-		super.OnMissionLoaded();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionLoaded - Start");
-		#endif
-		
-		if ( !GetGame().IsMultiplayer() )
-		{
-			// GetDayZExpansion().OnMissionLoaded();
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionLoaded - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
 	// OnResizeScreen
 	// ------------------------------------------------------------
 	void OnResizeScreen()
@@ -558,8 +505,6 @@ modded class MissionGameplay
 
 			return;
 		}
-		
-		// GetDayZExpansion().OnUpdate( timeslice );
 
 		//! Checking for keyboard focus
 		bool inputIsFocused = false;
@@ -594,7 +539,7 @@ modded class MissionGameplay
 		if ( playerPB && playerPB.GetHumanInventory() ) 
 		{
 			//! Expansion reference to item in hands
-			ItemBase itemInHands = ItemBase.Cast(playerPB.GetHumanInventory().GetEntityInHands());
+			EntityAI itemInHands = playerPB.GetHumanInventory().GetEntityInHands();
 
 			//! Expansion reference to hologram
 			ref Hologram hologram;	
@@ -633,11 +578,32 @@ modded class MissionGameplay
 					}
 					
 					//! Book Menu
-					if ( input.LocalPress( "UAExpansionBookToggle", false ) )
+					if ( input.LocalPress( "UAExpansionBookToggle", false ) && !GetGame().GetUIManager().GetMenu() )
 					{
-						if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings() && GetExpansionSettings().GetBook().EnableBook )
+						if ( GetExpansionSettings() && GetExpansionSettings().GetBook().EnableBook )
 						{
-							GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_BOOK_MENU, NULL );
+							bool hasBookItem = true;
+							EntityAI bookItem;
+							
+							if ( GetExpansionSettings().GetBook().ItemRequired != "" )
+							{
+								switch ( GetExpansionSettings().GetBook().ItemRequiredLocation )
+								{
+									case 0:
+										hasBookItem = playerPB.HasItem( GetExpansionSettings().GetBook().ItemRequired, bookItem );
+										break;
+									case 1:
+										hasBookItem = GetExpansionSettings().GetBook().ItemRequired == itemInHands.GetType();
+										if ( hasBookItem )
+											bookItem = itemInHands;
+										break;
+								}
+							}
+
+							if ( hasBookItem )
+							{
+								GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_BOOK_MENU, NULL );
+							}
 						}
 					}
 					
@@ -647,13 +613,13 @@ modded class MissionGameplay
 						ExpansionMapMenu map_menu;
 						if ( Class.CastTo( map_menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
 						{
-							map_menu.Hide();
+							//map_menu.Hide();
 							map_menu.Close();
 						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
 						{
 							if ( GetExpansionSettings().GetMap().NeedMapItemForKeyBinding )
 							{
-								if ( PlayerBase.Cast( GetGame().GetPlayer() ).HasItemMap() || PlayerBase.Cast( GetGame().GetPlayer() ).HasItemGPS() )
+								if ( playerPB.HasItemMap() || playerPB.HasItemGPS() )
 									GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
 							} else
 							{
@@ -796,6 +762,13 @@ modded class MissionGameplay
 						if ( input.LocalPress( "UAExpansionSnappingToggle" ) )
 						{
 							hologram.SetUsingSnap( !hologram.IsUsingSnap() );
+							
+							if ( hologram.IsUsingSnap() )
+							{
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_ENABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+							} else {
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_DISABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+							}
 						}
 
 						if ( input.LocalValue( "UAExpansionSnappingDirectionNext" ) != 0 )
@@ -821,7 +794,7 @@ modded class MissionGameplay
 					//! Stop autorun when different inputs are pressed
 					if ( !m_AutoRunModule.IsDisabled() )
 					{
-						if ( INPUT_FORWARD() || INPUT_BACK() || INPUT_LEFT() || INPUT_RIGHT() || INPUT_GETOVER() || INPUT_STANCE() )
+						if ( INPUT_FORWARD() || INPUT_BACK() || INPUT_LEFT() || INPUT_RIGHT() || INPUT_STANCE() )
 						{
 							m_AutoRunModule.AutoRun();
 						}
@@ -839,26 +812,6 @@ modded class MissionGameplay
 		
 		if ( playerPB )
 		{
-			HumanCommandVehicle hcv = playerPB.GetCommand_Vehicle();
-			if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			{
-				CarScript carScript = CarScript.Cast( hcv.GetTransport() );
-				if ( carScript )
-				{
-					carScript.UpdateExpansionController();
-				}
-			}
-
-			ExpansionHumanCommandVehicle ehcv = playerPB.GetCommand_ExpansionVehicle();
-			if ( ehcv && ehcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			{
-				ExpansionVehicleScript expansionVehicleScript = ExpansionVehicleScript.Cast( ehcv.GetTransport() );
-				if ( expansionVehicleScript )
-				{
-					expansionVehicleScript.UpdateExpansionController();
-				}
-			}
-		
 			if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay )
 			{
 				PlayerCheckNV( playerPB );

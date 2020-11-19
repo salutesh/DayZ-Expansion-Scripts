@@ -30,14 +30,16 @@ class Expansion_Laser_Base extends UniversalLight
 	
 	override void OnWorkStart()
 	{
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsServer() || !GetGame().IsMultiplayer() )
 		{
 			Object laser = GetGame().CreateObject( "Expansion_Laser_Beam", GetMemoryPointPos( "beamStart" ), true, false, true );
 
 			m_Laser = Expansion_Laser_Beam.Cast( laser );
-			m_Laser.SetObjectTexture( 0, LaserColor() );
+			if ( !IsVisibleWithoutNVG() && !CheckNVGState() )
+				m_Laser.SetObjectTexture( 0, InvisibleColor() );
+			else
+				m_Laser.SetObjectTexture( 0, LaserColor() );
 			m_Laser.SetObjectMaterial( 0, LaserMaterial() );
-			Print( m_Laser );
 
 			AddChild( m_Laser, -1 );
 
@@ -59,21 +61,28 @@ class Expansion_Laser_Base extends UniversalLight
 
 	override void UpdateLaser()
 	{
-		if ( m_Laser )
+		if ( !m_Laser )
+			return;
+
+		if ( !IsVisibleWithoutNVG() )
 		{
-			float distance = GetDistance();
-
-			vector fd = -vector.Direction( GetMemoryPointPos( "beamStart" ), GetMemoryPointPos( "beamEnd" ) ).Normalized();
-
-			vector transform[4] = { 
-				Vector( fd[2], fd[1], fd[0] ),
-				Vector( 0, 1, 0 ),
-				Vector( fd[0], fd[1], fd[2] ) * distance,
-				GetMemoryPointPos( "beamStart" )
-			};
-
-			m_Laser.SetTransform( transform );
+			if ( !CheckNVGState() )
+				m_Laser.SetObjectTexture( 0, InvisibleColor() );
+			else
+				m_Laser.SetObjectTexture( 0, LaserColor() );
 		}
+
+		float distance = GetDistance();
+		vector fd = -vector.Direction( GetMemoryPointPos( "beamStart" ), GetMemoryPointPos( "beamEnd" ) ).Normalized();
+
+		vector transform[4] = { 
+			Vector( fd[2], fd[1], fd[0] ),
+			Vector( 0, 1, 0 ),
+			Vector( fd[0], fd[1], fd[2] ) * distance,
+			GetMemoryPointPos( "beamStart" )
+		};
+
+		m_Laser.SetTransform( transform );
 	}
 
 	float GetDistance()
@@ -113,6 +122,11 @@ class Expansion_Laser_Base extends UniversalLight
 		return "#(argb,8,8,3)color(1,0,0,1.0,co)";
 	}
 
+	string InvisibleColor()
+	{
+		return "#(argb,8,8,3)color(0,0,0,0,co)";
+	}
+
 	string LaserMaterial()
 	{
 		return "dz\\weapons\\projectiles\\data\\tracer_red.rvmat";
@@ -122,40 +136,34 @@ class Expansion_Laser_Base extends UniversalLight
 	{
 		return "1.0 0.0 0.0";
 	}
-}
 
-class Expansion_ANPEQ15_Red extends Expansion_Laser_Base
-{
-	override string LaserColor()
+	bool IsVisibleWithoutNVG()
 	{
-		return "#(argb,8,8,3)color(1,0,0,1.0,co)";
+		return false;
 	}
 
-	override string LaserMaterial()
+	bool IsLaserIR()
 	{
-		return "dz\\weapons\\projectiles\\data\\tracer_red.rvmat";
+		return false;
 	}
 
-	override vector LaserLightColor()
+	bool CheckNVGState()
 	{
-		return "1.0 0.0 0.0";
-	}
-};
+		Man man = GetGame().GetPlayer();
+		PlayerBase player = PlayerBase.Cast( man );
 
-class Expansion_ANPEQ15_Green extends Expansion_Laser_Base
-{
-	override string LaserColor()
-	{
-		return "#(argb,8,8,3)color(0,0.501961,0,1.0,co)";
-	}
+		if ( player && player.GetCurrentCamera() )
+		{
+			private DayZPlayerCameraBase camera = DayZPlayerCameraBase.Cast( GetGame().GetPlayer().GetCurrentCamera() );
+			if ( camera )
+			{
+				if ( camera && camera.IsCameraNV() ) 
+				{
+					return true;
+				}
+			}
+		}
 
-	override string LaserMaterial()
-	{
-		return "DZ\\weapons\\projectiles\\data\\tracer_green.rvmat";
-	}
-	
-	override vector LaserLightColor()
-	{
-		return "0.0 1.0 0.0";
+		return false;
 	}
 };

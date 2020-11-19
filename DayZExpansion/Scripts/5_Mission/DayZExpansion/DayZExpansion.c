@@ -13,7 +13,7 @@
 /**@class		DayZExpansion
  * @brief		
  **/
-class DayZExpansion: ExpansionWorld
+modded class DayZExpansion
 {
 	protected string m_Version;
 
@@ -97,26 +97,22 @@ class DayZExpansion: ExpansionWorld
 	}
 
 	// ------------------------------------------------------------
-	// Expansion OnMissionStart
+	// Expansion OnStart
 	// ------------------------------------------------------------
-	void OnMissionStart()
+	override void OnStart()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::OnMissionStart - Start");
-		#endif
+		super.OnStart();
 
 		GetExpansionSettings();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::OnMissionStart - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
-	// Expansion OnMissionLoaded
+	// Expansion OnLoaded
 	// ------------------------------------------------------------
-	void OnMissionLoaded()
+	override void OnLoaded()
 	{
+		super.OnLoaded();
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::OnMissionLoaded - Start");
 		#endif
@@ -142,10 +138,12 @@ class DayZExpansion: ExpansionWorld
 	}
 
 	// ------------------------------------------------------------
-	// Expansion OnMissionFinish
+	// Expansion OnFinish
 	// ------------------------------------------------------------
-	void OnMissionFinish()
+	void OnFinish()
 	{
+		super.OnFinish();
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::OnMissionFinish - Start");
 		#endif
@@ -206,44 +204,4 @@ class DayZExpansion: ExpansionWorld
 
 		return super.OnRPC( sender, target, rpc_type, ctx );
 	}
-}
-
-static ref DayZExpansion g_exDayZ;
-
-static ref DayZExpansion GetDayZExpansion()
-{
-	return g_exDayZ;
-}
-
-static void CreateDayZExpansion()
-{
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("CreateDayZExpansion - Start");
-	#endif
-	
-	if ( g_exDayZ )
-	{
-		DestroyDayZExpansion();
-	}
-
-	g_exDayZ = new DayZExpansion;
-
-	GetDayZGame().SetExpansionGame( g_exDayZ );
-	
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("CreateDayZExpansion - End");
-	#endif
-}
-
-static void DestroyDayZExpansion()
-{
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("DestroyDayZExpansion - Start");
-	#endif
-	
-	delete g_exDayZ;
-	
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("DestroyDayZExpansion - End");
-	#endif
-}
+};

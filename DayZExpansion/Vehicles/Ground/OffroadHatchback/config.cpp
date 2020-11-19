@@ -2,9 +2,9 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Vehicles_Ground_Hatchback_02
+	class DayZExpansion_Vehicles_Ground_Hatchback
 	{
-		units[] = {"Expansion_HatchbackWheel","Expansion_HatchbackWheel_Ruined","Expansion_OffroadHatchback"};
+		units[] = {"Vehicle_HatchbackWheel","Vehicle_HatchbackWheel_Ruined","Vehicle_OffroadHatchback","Vehicle_OffroadHatchback_Green","Vehicle_OffroadHatchback_Blue","Vehicle_OffroadHatchback_White","Vehicle_OffroadHatchback_Police","Vehicle_OffroadHatchback_GreenRust","Vehicle_OffroadHatchback_BlueRust","Vehicle_OffroadHatchback_WhiteRust"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -12,15 +12,15 @@ class CfgPatches
 };
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionCarScript;
+	class ExpansionWheelBase;
+	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
 	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class VehicleSimulation;
+	class SimulationModule;
 	class Axles;
 	class Front;
 	class Rear;
@@ -28,7 +28,7 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
-	class Expansion_HatchbackWheel: ExpansionWheel
+	class Vehicle_HatchbackWheel: ExpansionWheelBase
 	{
 		scope = 2;
 		displayName = "$STR_HatchbackWheel0";
@@ -56,7 +56,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Expansion_HatchbackWheel_Ruined: Expansion_HatchbackWheel
+	class Vehicle_HatchbackWheel_Ruined: Vehicle_HatchbackWheel
 	{
 		scope = 2;
 		displayName = "$STR_HatchbackWheel0";
@@ -72,10 +72,10 @@ class CfgVehicles
 		tyreRoughness = 1;
 		tyreTread = 0.5;
 	};
-	class Expansion_OffroadHatchback: ExpansionCarScript
+	class Vehicle_OffroadHatchback: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "TEST $STR_OffroadHatchback0";
+		displayName = "$STR_OffroadHatchback0";
 		descriptionShort = "$STR_OffroadHatchback1";
 		model = "\dz\vehicles\wheeled\OffroadHatchback\OffroadHatchback.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","NivaDriverDoors","NivaCoDriverDoors","NivaHood","NivaTrunk","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1"};
@@ -92,6 +92,8 @@ class CfgVehicles
 		ReverseReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
 		TailReflectorMatOn = "dz\vehicles\wheeled\offroadhatchback\data\OffroadHatchback_lights_e.rvmat";
 		TailReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\OffroadHatchback_lights.rvmat";
+		doors[] = {"NivaDriverDoors","NivaCoDriverDoors","NivaTrunk","NivaHood"};
+		defaultSkin = "Green";
 		fuelCapacity = 42;
 		fuelConsumption = 11;
 		class Crew: Crew
@@ -113,10 +115,10 @@ class CfgVehicles
 				getInDir = "pos_coDriver_dir";
 			};
 		};
-		class VehicleSimulation: VehicleSimulation
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragCoefficient = 0.995;
+			airDragFrontTotal = 0.995;
 			class Steering
 			{
 				increaseSpeed[] = {0,45,60,23,100,12};
@@ -502,8 +504,22 @@ class CfgVehicles
 	};
 	class OffroadHatchback: CarScript
 	{
+		hiddenSelections[] = {"light_left","light_right","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat","dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat"};
+		dashboardMatOn = "dz\vehicles\wheeled\offroadhatchback\data\niva_dashboard_light.rvmat";
+		dashboardMatOff = "dz\vehicles\wheeled\offroadhatchback\data\niva_dashboard.rvmat";
+		frontReflectorMatOn = "dz\vehicles\wheeled\offroadhatchback\data\niva_lights.rvmat";
+		frontReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat";
+		brakeReflectorMatOn = "dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights_e.rvmat";
+		brakeReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
+		ReverseReflectorMatOn = "dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights_e.rvmat";
+		ReverseReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
+		TailReflectorMatOn = "dz\vehicles\wheeled\offroadhatchback\data\OffroadHatchback_lights_e.rvmat";
+		TailReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\OffroadHatchback_lights.rvmat";
+		fuelCapacity = 42;
+		fuelConsumption = 11;
 		doors[] = {"NivaDriverDoors","NivaCoDriverDoors","NivaTrunk","NivaHood"};
-		applySkinsTo[] = {"HatchbackDoors_Driver","HatchbackDoors_CoDriver","HatchbackHood","HatchbackTrunk","Expansion_HatchbackDoors_Driver","Expansion_HatchbackDoors_CoDriver","Expansion_HatchbackHood","Expansion_HatchbackTrunk"};
 		defaultSkin = "Green";
 		class DamageSystem
 		{
@@ -709,7 +725,6 @@ class CfgVehicles
 	};
 	class HatchbackDoors_Driver: CarDoor
 	{
-		applySkinsTo[] = {"HatchbackDoors_CoDriver","Expansion_HatchbackDoors_CoDriver"};
 		defaultSkin = "Green";
 		class DamageSystem
 		{
@@ -752,6 +767,7 @@ class CfgVehicles
 	};
 	class HatchbackDoors_CoDriver: CarDoor
 	{
+		defaultSkin = "Green";
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -793,6 +809,7 @@ class CfgVehicles
 	};
 	class HatchbackHood: CarDoor
 	{
+		defaultSkin = "Green";
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -807,6 +824,7 @@ class CfgVehicles
 	};
 	class HatchbackTrunk: CarDoor
 	{
+		defaultSkin = "Green";
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -840,6 +858,11 @@ class CfgVehicles
 		skinBase = "OffroadHatchback";
 		skinName = "Green";
 	};
+	class Vehicle_OffroadHatchback_Green: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
+		skinName = "Green";
+	};
 	class HatchbackDoors_Driver_Green: HatchbackDoors_Driver
 	{
 		skinBase = "HatchbackDoors_Driver";
@@ -863,6 +886,11 @@ class CfgVehicles
 	class OffroadHatchback_Blue: OffroadHatchback
 	{
 		skinBase = "OffroadHatchback";
+		skinName = "Blue";
+	};
+	class Vehicle_OffroadHatchback_Blue: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
 		skinName = "Blue";
 	};
 	class HatchbackDoors_Driver_Blue: HatchbackDoors_Driver
@@ -890,6 +918,11 @@ class CfgVehicles
 		skinBase = "OffroadHatchback";
 		skinName = "White";
 	};
+	class Vehicle_OffroadHatchback_White: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
+		skinName = "White";
+	};
 	class HatchbackDoors_Driver_White: HatchbackDoors_Driver
 	{
 		skinBase = "HatchbackDoors_Driver";
@@ -909,6 +942,46 @@ class CfgVehicles
 	{
 		skinBase = "HatchbackTrunk";
 		skinName = "White";
+	};
+	class OffroadHatchback_Police: OffroadHatchback
+	{
+		skinBase = "OffroadHatchback";
+		skinName = "Police";
+	};
+	class Vehicle_OffroadHatchback_Police: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
+		skinName = "Police";
+	};
+	class HatchbackDoors_Driver_Police: HatchbackDoors_Driver
+	{
+		skinBase = "HatchbackDoors_Driver";
+		skinName = "Police";
+	};
+	class HatchbackDoors_CoDriver_Police: HatchbackDoors_CoDriver
+	{
+		skinBase = "HatchbackDoors_CoDriver";
+		skinName = "Police";
+	};
+	class HatchbackHood_Police: HatchbackHood
+	{
+		skinBase = "HatchbackHood";
+		skinName = "Police";
+	};
+	class HatchbackTrunk_Police: HatchbackTrunk
+	{
+		skinBase = "HatchbackTrunk";
+		skinName = "Police";
+	};
+	class OffroadHatchback_GreenRust: OffroadHatchback
+	{
+		skinBase = "OffroadHatchback";
+		skinName = "GreenRust";
+	};
+	class Vehicle_OffroadHatchback_GreenRust: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
+		skinName = "GreenRust";
 	};
 	class HatchbackDoors_Driver_GreenRust: HatchbackDoors_Driver
 	{
@@ -930,6 +1003,16 @@ class CfgVehicles
 		skinBase = "HatchbackTrunk";
 		skinName = "GreenRust";
 	};
+	class OffroadHatchback_BlueRust: OffroadHatchback
+	{
+		skinBase = "OffroadHatchback";
+		skinName = "BlueRust";
+	};
+	class Vehicle_OffroadHatchback_BlueRust: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
+		skinName = "BlueRust";
+	};
 	class HatchbackDoors_Driver_BlueRust: HatchbackDoors_Driver
 	{
 		skinBase = "HatchbackDoors_Driver";
@@ -949,6 +1032,16 @@ class CfgVehicles
 	{
 		skinBase = "HatchbackTrunk";
 		skinName = "BlueRust";
+	};
+	class OffroadHatchback_WhiteRust: OffroadHatchback
+	{
+		skinBase = "OffroadHatchback";
+		skinName = "WhiteRust";
+	};
+	class Vehicle_OffroadHatchback_WhiteRust: Vehicle_OffroadHatchback
+	{
+		skinBase = "Vehicle_OffroadHatchback";
+		skinName = "WhiteRust";
 	};
 	class HatchbackDoors_Driver_WhiteRust: HatchbackDoors_Driver
 	{

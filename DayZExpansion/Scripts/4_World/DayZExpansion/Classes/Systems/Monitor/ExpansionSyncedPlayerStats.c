@@ -33,4 +33,40 @@ class ExpansionSyncedPlayerStats
 	float m_LongestShot;
 	
 	int m_Weight;
-}
+
+	void OnSend( ParamsWriteContext ctx )
+	{
+		ctx.Write( m_Health );
+		ctx.Write( m_Blood );
+		ctx.Write( m_Water );
+		ctx.Write( m_Energy );
+		ctx.Write( m_Stamina );
+		ctx.Write( m_Karma );
+		ctx.Write( m_Distance );
+		ctx.Write( m_Playtime );
+		ctx.Write( m_PlayersKilled );
+		ctx.Write( m_InfectedKilled );
+		ctx.Write( m_AnimalsKilled );
+		ctx.Write( m_LongestShot );
+		ctx.Write( m_Weight );
+	}
+
+	bool OnRecieve( ParamsReadContext ctx )
+	{
+		ctx.Read( m_Health );
+		ctx.Read( m_Blood );
+		ctx.Read( m_Water );
+		ctx.Read( m_Energy );
+		ctx.Read( m_Stamina );
+		ctx.Read( m_Karma );
+		ctx.Read( m_Distance );
+		ctx.Read( m_Playtime );
+		ctx.Read( m_PlayersKilled );
+		ctx.Read( m_InfectedKilled );
+		ctx.Read( m_AnimalsKilled );
+		ctx.Read( m_LongestShot );
+		ctx.Read( m_Weight );
+
+		return true;
+	}
+};

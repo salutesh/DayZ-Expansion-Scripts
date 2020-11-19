@@ -141,14 +141,14 @@ class ExpansionChatLine
 		switch ( message.Channel )
 		{
 		case CCSystem:
-			ExpSenderSetColour( EXP_GAME_TEXT_COLOUR );
-			ExpSetTextColor( EXP_GAME_TEXT_COLOUR );
+			ExpSenderSetColour( ExpansionChatColors.EXP_GAME_TEXT_COLOUR );
+			ExpSetTextColor( ExpansionChatColors.EXP_GAME_TEXT_COLOUR );
 
 			m_NameWidget.SetText(" " + "Game" + ": ");
 			break;
 		case CCAdmin:
-			ExpSenderSetColour( EXP_ADMIN_TEXT_COLOUR );	
-			ExpSetTextColor( EXP_ADMIN_TEXT_COLOUR );
+			ExpSenderSetColour( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );	
+			ExpSetTextColor( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );
 			
 			if ( message.From )
 			{
@@ -159,14 +159,14 @@ class ExpansionChatLine
 			}
 			break;
 		case CCTransmitter:
-			ExpSenderSetColour( EXP_PAS_TEXT_COLOUR );	
-			ExpSetTextColor( EXP_PAS_TEXT_COLOUR );
+			ExpSenderSetColour( ExpansionChatColors.EXP_PAS_TEXT_COLOUR );	
+			ExpSetTextColor( ExpansionChatColors.EXP_PAS_TEXT_COLOUR );
 
 			m_NameWidget.SetText(" " + "PAS" + ": ");
 			break;
 		case ExpansionChatChannels.CCTransport:
-			ExpSenderSetColour( EXP_TRANSPORT_COLOUR );	
-			ExpSetTextColor( EXP_TRANSPORT_COLOUR );
+			ExpSenderSetColour( ExpansionChatColors.EXP_TRANSPORT_COLOUR );	
+			ExpSetTextColor( ExpansionChatColors.EXP_TRANSPORT_COLOUR );
 			
 			if ( message.From )
 			{
@@ -177,8 +177,8 @@ class ExpansionChatLine
 			}
 			break;
 		case ExpansionChatChannels.CCGlobal:
-			ExpSenderSetColour( EXP_GLOBAL_TEXT_COLOUR );	
-			ExpSetTextColor( EXP_GLOBAL_TEXT_COLOUR );
+			ExpSenderSetColour( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );	
+			ExpSetTextColor( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );
 			
 			if ( message.From )
 			{
@@ -189,8 +189,8 @@ class ExpansionChatLine
 			}
 			break;
 		case ExpansionChatChannels.CCTeam:
-			ExpSenderSetColour(EXP_TEAM_TEXT_COLOUR);	
-			ExpSetTextColor(EXP_TEAM_TEXT_COLOUR);
+			ExpSenderSetColour(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);	
+			ExpSetTextColor(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);
 			
 			if (message.From)
 			{
@@ -201,8 +201,8 @@ class ExpansionChatLine
 			}
 			break;
 		default:
-			ExpSenderSetColour( EXP_DIRECT_TEXT_COLOUR );	
-			ExpSetTextColor( EXP_DIRECT_TEXT_COLOUR );
+			ExpSenderSetColour( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );	
+			ExpSetTextColor( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );
 
 			if ( message.From )
 			{

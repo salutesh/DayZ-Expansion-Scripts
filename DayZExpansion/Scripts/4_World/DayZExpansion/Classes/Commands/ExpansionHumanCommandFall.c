@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionHumanCommandFall extends HumanCommandScript
+class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 {
 	PlayerBase m_Player;
 	ExpansionHumanST m_Table;

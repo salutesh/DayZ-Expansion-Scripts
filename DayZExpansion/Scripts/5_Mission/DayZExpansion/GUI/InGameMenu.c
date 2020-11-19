@@ -63,12 +63,20 @@ modded class InGameMenu
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("InGameMenu::Init - Start");
 		#endif
+		
+		#ifdef DAYZ_1_10
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_ingamemenu.layout");
+		m_RespawnButton 			= layoutRoot.FindAnyWidget( "respawn_button" );
+		m_RestartDeadRandomButton	= layoutRoot.FindAnyWidget( "respawn_button_random" );
+		m_RestartDeadCustomButton	= layoutRoot.FindAnyWidget( "respawn_button_custom" );
+		#else
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_ingamemenu_109.layout");
+		m_RestartDeadButton	= layoutRoot.FindAnyWidget( "restartdeadbtn" );
+		#endif
 				
 		m_ContinueButton	= layoutRoot.FindAnyWidget( "continuebtn" );
 		m_ExitButton		= layoutRoot.FindAnyWidget( "exitbtn" );
 		m_RestartButton		= layoutRoot.FindAnyWidget( "restartbtn" );
-		m_RestartDeadButton	= layoutRoot.FindAnyWidget( "restartdeadbtn" );
 		m_OptionsButton		= layoutRoot.FindAnyWidget( "optionsbtn" );
 		m_ModdedWarning		= TextWidget.Cast( layoutRoot.FindAnyWidget( "ModdedWarning" ) );
 		m_HintPanel			= new UiHintPanel(layoutRoot.FindAnyWidget( "hint_frame" ));
@@ -210,31 +218,20 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	void GetValuesFromMonitor()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("InGameMenu::GetValuesFromMonitor:: - Start");
-		#endif	
+		ExpansionMonitorModule monitor;
+		if ( !Class.CastTo( monitor, GetModuleManager().GetModule( ExpansionMonitorModule ) ) )
+			return;
 		
-		ExpansionMonitorModule monitor = ExpansionMonitorModule.Cast( GetModuleManager().GetModule( ExpansionMonitorModule ) );
-		if (!monitor) return;
-		
-		ref ExpansionSyncedPlayerStats player_stats = ExpansionSyncedPlayerStats.Cast( monitor.GetStats() );
-		if (player_stats)
-		{
-			m_Distance = player_stats.m_Distance;
-			m_Playtime = player_stats.m_Playtime;
-			m_PlayersKilled = player_stats.m_PlayersKilled;
-			m_InfectedKilled = player_stats.m_InfectedKilled;
-			m_AnimalsKilled = player_stats.m_AnimalsKilled;
-			m_LongestShot = player_stats.m_LongestShot;
-			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("InGameMenu::GetValuesFromMonitor:: - Get stats for " + PlayerBase.Cast( GetGame().GetPlayer() ).GetIdentityName() + "[" + GetGame().GetPlayer().GetIdentity().GetPlayerId() + "] - Health: " + player_stats.m_Health + ", Blood: " + player_stats.m_Blood + ", Water: " + player_stats.m_Water + ", Energy: " + player_stats.m_Energy + ", Karma: " + player_stats.m_Karma);
-			#endif
-		}
+		ExpansionSyncedPlayerStats player_stats = monitor.GetStats();
+		if ( !player_stats )
+			return;
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("InGameMenu::GetValuesFromMonitor:: - End");
-		#endif
+		m_Distance = player_stats.m_Distance;
+		m_Playtime = player_stats.m_Playtime;
+		m_PlayersKilled = player_stats.m_PlayersKilled;
+		m_InfectedKilled = player_stats.m_InfectedKilled;
+		m_AnimalsKilled = player_stats.m_AnimalsKilled;
+		m_LongestShot = player_stats.m_LongestShot;
 	}
 	
 	// ------------------------------------------------------------

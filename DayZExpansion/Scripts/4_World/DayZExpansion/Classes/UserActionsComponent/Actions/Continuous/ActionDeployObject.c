@@ -89,7 +89,8 @@ modded class ActionDeployObject
 			int i;
 			float size;
 			float Tsize = GetExpansionSettings().GetTerritory().TerritorySize;
-			float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize;
+			float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize + 5;
+			//! we are adding 5 meters to prevent a rare case where players could exploit dismantling with 2 territories nearby.
 			
 			size = Tsize;
 

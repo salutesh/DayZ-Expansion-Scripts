@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionHumanCommandGuitar extends HumanCommandScript
+class ExpansionHumanCommandGuitar extends ExpansionHumanCommandScript
 {
 	private DayZPlayerImplement m_Player;
 	private Expansion_Guitar m_Guitar;

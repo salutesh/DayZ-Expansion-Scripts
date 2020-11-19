@@ -22,10 +22,10 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	private ButtonWidget m_2DToggle;	
 	private ImageWidget m_2DToggleIcon;
 	
-	private ExpansionMapMenu m_MapMenu;
-	private ExpansionMapMarker m_Marker;
-	private ExpansionMarkerData m_MarkerData;
-	private ExpansionMarkerModule m_MarkerModule;
+	private ref ExpansionMapMenu m_MapMenu;
+	private ref ExpansionMapMarker m_Marker;
+	private ref ExpansionMarkerData m_MarkerData;
+	private ref ExpansionMarkerModule m_MarkerModule;
 	
 	private static int COLOR_NOFOCUS = ARGB(140,35,35,35);
 	private static int COLOR_FOCUS = ARGB(140,255,255,255);
@@ -39,7 +39,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void ExpansionMapMarkerListEntry( ref ExpansionMapMenu map_menu, Widget list_category_parent, ref ExpansionMapMarker marker )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::ExpansionMapMarkerListEntry - Start");
 		#endif
 		
@@ -67,9 +67,17 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		
 		SetEntry();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::ExpansionMapMarkerListEntry - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarkerListEntry Destructor
+	// ------------------------------------------------------------	
+	void ~ExpansionMapMarkerListEntry()
+	{
+		delete m_Root;
 	}
 	
 	// ------------------------------------------------------------
@@ -77,7 +85,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void SetEntry()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::Set - Start");
 		#endif
 		
@@ -112,7 +120,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 			m_InfoTooltip.SetText("<p>" + "X:" + m_Marker.GetMarkerData().GetPosition()[0] + " Y:" + m_Marker.GetMarkerData().GetPosition()[1] + " Z:" + m_Marker.GetMarkerData().GetPosition()[2] + "</p>");
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::Set - End");
 		#endif
 	}
@@ -122,23 +130,26 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	private void UpdateEntry()
 	{
-		m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
-		m_Icon.SetImage(0);
-		m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
-		m_Name.SetText(m_Marker.GetMarkerData().GetName());
-		m_Name.SetColor(m_Marker.GetMarkerData().GetColor());
-		
-		if ( !m_Marker.GetMarkerData().Is3D() )
+		if (m_Marker != NULL)
 		{
-			m_3DToggleIcon.Show( false );
-			m_3DToggle.SetFlags( WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS );
-		} else
-		{
-			m_3DToggleIcon.Show( true );
-			m_3DToggle.ClearFlags( WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS );
+			m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
+			m_Icon.SetImage(0);
+			m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
+			m_Name.SetText(m_Marker.GetMarkerData().GetName());
+			m_Name.SetColor(m_Marker.GetMarkerData().GetColor());
+			
+			if ( !m_Marker.GetMarkerData().Is3D() )
+			{
+				m_3DToggleIcon.Show( false );
+				m_3DToggle.SetFlags( WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS );
+			} else
+			{
+				m_3DToggleIcon.Show( true );
+				m_3DToggle.ClearFlags( WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS );
+			}
+			
+			m_InfoTooltip.SetText("<p>" + "X:" + m_Marker.GetMarkerData().GetPosition()[0] + " Y:" + m_Marker.GetMarkerData().GetPosition()[1] + " Z:" + m_Marker.GetMarkerData().GetPosition()[2] + "</p>");
 		}
-		
-		m_InfoTooltip.SetText("<p>" + "X:" + m_Marker.GetMarkerData().GetPosition()[0] + " Y:" + m_Marker.GetMarkerData().GetPosition()[1] + " Z:" + m_Marker.GetMarkerData().GetPosition()[2] + "</p>");
 	}
 		
 	// ------------------------------------------------------------
@@ -146,7 +157,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnClick( Widget w, int x, int y, int button )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::OnClick");
 		#endif
 		
@@ -216,19 +227,18 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void Update()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::Update - Start");
 		#endif
 		
 		if (GetGame().GetInput().LocalPress("UAExpansionMapDeleteMarker", false))
 		{
 			RemoveMarker();
-			return;
 		}
 		
 	   	UpdateEntry();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 	   	EXLogPrint("ExpansionMapMarkerListEntry::Update - End");
 		#endif
 	}
@@ -239,7 +249,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void RemoveMarker()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::RemoveMarker - Start");
 		#endif
 		
@@ -250,7 +260,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::RemoveMarker - End");
 		#endif
 	}
@@ -260,7 +270,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::OnMouseEnter");
 		#endif
 		
@@ -284,7 +294,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{	
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::OnMouseLeave");
 		#endif
 

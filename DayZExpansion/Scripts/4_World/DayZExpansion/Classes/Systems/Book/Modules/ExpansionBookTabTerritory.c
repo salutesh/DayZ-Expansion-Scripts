@@ -355,7 +355,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		EXLogPrint("ExpansionBookTabTerritory::LoadPlayerTerritoryInvitesEntrys - Start");
 		#endif
 		
-		// For each entry in players intives array player
+		// For each entry in players invites array player
 		ref array<ref ExpansionTerritoryInvite> invites = m_TerritoryModule.GetTerritoryInvites();
 		if ( invites.Count() > 0 )
 		{
@@ -622,11 +622,11 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		
 		if (m_MyMember.GetRank() != ExpansionTerritoryRank.ADMIN)
 		{
-			m_deleteTerritoryLabel.SetText("Leave");
+			m_deleteTerritoryLabel.SetText("#STR_EXPANSION_BOOK_TERRITORY_LEAVE");
 		}
 		else
 		{
-			m_deleteTerritoryLabel.SetText("Delete");
+			m_deleteTerritoryLabel.SetText("#STR_EXPANSION_BOOK_TERRITORY_DELETE");
 		}
 	}
 	

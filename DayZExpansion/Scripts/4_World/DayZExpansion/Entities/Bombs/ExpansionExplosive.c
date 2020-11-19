@@ -103,7 +103,11 @@ class ExpansionExplosive extends ItemBase
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
+	#ifdef DAYZ_1_10
+	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
+	#else
 	override void OnPlacementComplete( Man player )
+	#endif
 	{
 		m_ExplosionTime = GetExpansionSettings().GetRaid().ExplosionTime; 
 

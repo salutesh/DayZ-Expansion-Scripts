@@ -39,7 +39,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		#endif
 	}
 
-	override void OnStoreSave( ParamsWriteContext ctx )
+	override void OnStoreSave_OLD( ParamsWriteContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionElectricityConnection::OnStoreSave - Start");
@@ -60,7 +60,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		#endif
 	}
 
-	override bool OnStoreLoad( ParamsReadContext ctx, int vanillaVersion, int expansionVersion )
+	override bool OnStoreLoad_OLD( ParamsReadContext ctx, int vanillaVersion, int expansionVersion )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionElectricityConnection::OnStoreLoad - Start");
@@ -87,6 +87,57 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnStoreSave( ModStorage storage )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionElectricityConnection::OnStoreSave - Start");
+		#endif
+		
+		storage.Write( m_IsPaired );
+
+		if ( m_IsPaired )
+		{
+			storage.Write( m_SourceA );
+			storage.Write( m_SourceB );
+			storage.Write( m_SourceD );
+			storage.Write( m_SourceC );
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionElectricityConnection::OnStoreSave - End");
+		#endif
+	}
+
+	override bool OnStoreLoad( ModStorage storage )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionElectricityConnection::OnStoreLoad - Start");
+		#endif
+		
+		if ( Expansion_Assert_False( storage.Read( m_IsPaired ), "[" + this + "] Failed reading m_IsPaired" ) )
+			return false;
+
+		if ( m_IsPaired )
+		{
+			if ( Expansion_Assert_False( storage.Read( m_SourceA ), "[" + this + "] Failed reading m_SourceA" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_SourceB ), "[" + this + "] Failed reading m_SourceB" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_SourceD ), "[" + this + "] Failed reading m_SourceD" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_SourceC ), "[" + this + "] Failed reading m_SourceC" ) )
+				return false;
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionElectricityConnection::OnStoreLoad - End");
+		#endif
+		
+		return true;
+	}
+	#endif
 
 	void OnAfterLoad()
 	{

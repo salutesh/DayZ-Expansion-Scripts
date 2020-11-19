@@ -14,7 +14,7 @@ class CfgSoundShaders
 {
 	class Expansion_C130J_Engine_SoundShader
 	{
-		range = 1000;
+		range = 2100;
 	};
 	class Expansion_C130J_Loop_SoundShader: Expansion_C130J_Engine_SoundShader
 	{

@@ -206,7 +206,7 @@ class CfgVehicles
 					build_action_type = 10;
 					dismantle_action_type = 10;
 					material_type = 2;
-					snapping_show[] = {3};
+					snapping_show[] = {5};
 					order = 4;
 					class Materials
 					{
@@ -285,7 +285,7 @@ class CfgVehicles
 					build_action_type = 10;
 					dismantle_action_type = 10;
 					material_type = 2;
-					snapping_show[] = {3};
+					snapping_show[] = {4};
 					order = 4;
 					class Materials
 					{
@@ -564,7 +564,7 @@ class CfgVehicles
 		class ExpansionSnapping
 		{
 			type = "WALL";
-			default_hide[] = {3};
+			default_hide[] = {3,4,5};
 			class Pos_0
 			{
 				class Dir_0
@@ -637,6 +637,55 @@ class CfgVehicles
 					offset[] = {1,1,1};
 				};
 			};
+			class Pos_4
+			{
+				class Dir_0
+				{
+					allow[] = {"WALL"};
+					offset[] = {1};
+				};
+				class Dir_1
+				{
+					allow[] = {"FLOOR","RAMP","STAIR"};
+					offset[] = {1,1,1};
+				};
+				class Dir_2
+				{
+					allow[] = {"FLOOR","RAMP","STAIR"};
+					offset[] = {1,1,1};
+				};
+			};
+			class Pos_5
+			{
+				class Dir_0
+				{
+					allow[] = {"WALL"};
+					offset[] = {1};
+				};
+				class Dir_1
+				{
+					allow[] = {"FLOOR","RAMP","STAIR"};
+					offset[] = {1,1,1};
+				};
+				class Dir_2
+				{
+					allow[] = {"FLOOR","RAMP","STAIR"};
+					offset[] = {1,1,1};
+				};
+			};
+			class Pos_6
+			{
+				class Dir_0
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
+				};
+				class Dir_1
+				{
+					allow[] = {"RAMP"};
+					offset[] = {1};
+				};
+			};
 		};
 	};
 	class ExpansionWall6x3: ExpansionWallBase
@@ -650,7 +699,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 30000;
-					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat"}},{0.7,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage_light.rvmat"}},{0.5,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01_destruct.rvmat"}},{0.0,{"DayZExpansion\Objects\Basebuilding\Data\wood\wood_frame_01.rvmat"}}};
 				};
 			};
 			class GlobalArmor

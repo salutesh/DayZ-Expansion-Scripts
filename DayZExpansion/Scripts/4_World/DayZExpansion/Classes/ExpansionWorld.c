@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionWorld: ExpansionGame
+modded class ExpansionWorld
 {
 	static ref array< ref ExpansionBulletTrace > m_bullets = new array< ref ExpansionBulletTrace >();
 

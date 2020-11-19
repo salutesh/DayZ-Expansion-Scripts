@@ -90,7 +90,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		if ( m_Target.IsLocked() || !m_Target.HasCode() )
 		{
 			string savedCode = ExpansionLockSaver.GetInstance().GetSavedCode(m_Target);
-			if (m_Target.HasCode() && savedCode != "")
+			if ( m_Target.HasCode() && savedCode != "")
 			{
 				ScriptRPC rpc2 = new ScriptRPC;
 				rpc2.Write( savedCode );

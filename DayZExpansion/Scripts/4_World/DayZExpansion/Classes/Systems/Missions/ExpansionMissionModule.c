@@ -293,7 +293,10 @@ class ExpansionMissionModule: JMModuleBase
 		//! Check if Min Players is disabled
 		if ( m_MissionSettings.MinPlayersToStartMissions != 0 )
 		{
-			int playerCount = PlayerBase.GetAll().Count();
+			array< Man > players = new array< Man >;
+			GetGame().GetWorld().GetPlayerList( players );
+
+			int playerCount = players.Count();
 
 			#ifdef EXPANSIONEXLOGPRINT
 			Print( "ExpansionMissionModule::StartNewMissions - ["+ playerCount + "/" + m_MissionSettings.MinPlayersToStartMissions +"] players" );

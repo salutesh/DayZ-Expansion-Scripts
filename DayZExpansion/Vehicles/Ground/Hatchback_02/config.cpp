@@ -4,54 +4,23 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Hatchback_02
 	{
-		units[] = {"Expansion_Hatchback_02_Wheel","Hatchback_02_Wheel_Ruined","Expansion_Hatchback_02"};
+		units[] = {"Vehicle_Hatchback_02_Wheel","Vehicle_Hatchback_02_Wheel_Ruined","Vehicle_Hatchback_02","Vehicle_Hatchback_02_Red","Vehicle_Hatchback_02_Black","Vehicle_Hatchback_02_Blue","Vehicle_Hatchback_02_RedRust","Vehicle_Hatchback_02_BlackRust","Vehicle_Hatchback_02_BlueRust","Vehicle_Hatchback_02_BanditKitty"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
-class CfgSlots
-{
-	class Slot_Hatchback_02_Wheel_1_1
-	{
-		name = "Hatchback_02_Wheel_1_1";
-		displayName = "Front Left Wheel";
-		selection = "wheel_1_1";
-		ghostIcon = "wheel";
-	};
-	class Slot_Hatchback_02_Wheel_1_2
-	{
-		name = "Hatchback_02_Wheel_1_2";
-		displayName = "Front Right Wheel";
-		selection = "wheel_1_2";
-		ghostIcon = "wheel";
-	};
-	class Slot_Hatchback_02_Wheel_2_1
-	{
-		name = "Hatchback_02_Wheel_2_1";
-		displayName = "Front Left Wheel";
-		selection = "wheel_2_1";
-		ghostIcon = "wheel";
-	};
-	class Slot_Hatchback_02_Wheel_2_2
-	{
-		name = "Hatchback_02_Wheel_2_2";
-		displayName = "Front Right Wheel";
-		selection = "wheel_2_2";
-		ghostIcon = "wheel";
-	};
-};
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionCarScript;
+	class ExpansionWheelBase;
+	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
 	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class VehicleSimulation;
+	class SimulationModule;
 	class Axles;
 	class Front;
 	class Rear;
@@ -59,7 +28,7 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
-	class Expansion_Hatchback_02_Wheel: ExpansionWheel
+	class Vehicle_Hatchback_02_Wheel: ExpansionWheelBase
 	{
 		scope = 2;
 		displayName = "$STR_Hatchback_02_Wheel0";
@@ -85,7 +54,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Wheel_Ruined: Expansion_Hatchback_02_Wheel
+	class Vehicle_Hatchback_02_Wheel_Ruined: Vehicle_Hatchback_02_Wheel
 	{
 		model = "\DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel_ruined.p3d";
 		radius = 0.22;
@@ -96,10 +65,10 @@ class CfgVehicles
 		tyreRoughness = 1.2;
 		tyreTread = 0.4;
 	};
-	class Expansion_Hatchback_02: ExpansionCarScript
+	class Vehicle_Hatchback_02: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "TEST $STR_CivHatchback0";
+		displayName = "$STR_CivHatchback0";
 		descriptionShort = "$STR_CivHatchback1";
 		model = "\dz\vehicles\wheeled\Hatchback_02\Hatchback_02.p3d";
 		frontReflectorMatDamaged = "";
@@ -139,10 +108,10 @@ class CfgVehicles
 				getInDir = "pos_coDriver_dir";
 			};
 		};
-		class VehicleSimulation: VehicleSimulation
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_FWD";
-			airDragCoefficient = 0.79;
+			airDragFrontTotal = 0.79;
 			class Steering
 			{
 				increaseSpeed[] = {0,50,60,30,100,15};
@@ -893,6 +862,11 @@ class CfgVehicles
 		skinBase = "Hatchback_02";
 		skinName = "Red";
 	};
+	class Vehicle_Hatchback_02_Red: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
+		skinName = "Red";
+	};
 	class Hatchback_02_Door_1_1_Red: Hatchback_02_Door_1_1
 	{
 		skinBase = "Hatchback_02_Door_1_1";
@@ -926,6 +900,11 @@ class CfgVehicles
 	class Hatchback_02_Black: Hatchback_02
 	{
 		skinBase = "Hatchback_02";
+		skinName = "Black";
+	};
+	class Vehicle_Hatchback_02_Black: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
 		skinName = "Black";
 	};
 	class Hatchback_02_Door_1_1_Black: Hatchback_02_Door_1_1
@@ -963,6 +942,11 @@ class CfgVehicles
 		skinBase = "Hatchback_02";
 		skinName = "Blue";
 	};
+	class Vehicle_Hatchback_02_Blue: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
+		skinName = "Blue";
+	};
 	class Hatchback_02_Door_1_1_Blue: Hatchback_02_Door_1_1
 	{
 		skinBase = "Hatchback_02_Door_1_1";
@@ -992,6 +976,16 @@ class CfgVehicles
 	{
 		skinBase = "Hatchback_02_Trunk";
 		skinName = "Blue";
+	};
+	class Hatchback_02_RedRust: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "RedRust";
+	};
+	class Vehicle_Hatchback_02_RedRust: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
+		skinName = "RedRust";
 	};
 	class Hatchback_02_Door_1_1_RedRust: Hatchback_02_Door_1_1
 	{
@@ -1023,6 +1017,16 @@ class CfgVehicles
 		skinBase = "Hatchback_02_Trunk";
 		skinName = "RedRust";
 	};
+	class Hatchback_02_BlackRust: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "BlackRust";
+	};
+	class Vehicle_Hatchback_02_BlackRust: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
+		skinName = "BlackRust";
+	};
 	class Hatchback_02_Door_1_1_BlackRust: Hatchback_02_Door_1_1
 	{
 		skinBase = "Hatchback_02_Door_1_1";
@@ -1052,6 +1056,16 @@ class CfgVehicles
 	{
 		skinBase = "Hatchback_02_Trunk";
 		skinName = "BlackRust";
+	};
+	class Hatchback_02_BlueRust: Hatchback_02
+	{
+		skinBase = "Hatchback_02";
+		skinName = "BlueRust";
+	};
+	class Vehicle_Hatchback_02_BlueRust: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
+		skinName = "BlueRust";
 	};
 	class Hatchback_02_Door_1_1_BlueRust: Hatchback_02_Door_1_1
 	{
@@ -1086,6 +1100,11 @@ class CfgVehicles
 	class Hatchback_02_BanditKitty: Hatchback_02
 	{
 		skinBase = "Hatchback_02";
+		skinName = "BanditKitty";
+	};
+	class Vehicle_Hatchback_02_BanditKitty: Vehicle_Hatchback_02
+	{
+		skinBase = "Vehicle_Hatchback_02";
 		skinName = "BanditKitty";
 	};
 	class Hatchback_02_Door_1_1_BanditKitty: Hatchback_02_Door_1_1

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_C130J
 	{
-		units[] = {"ExpansionC130JWheel","ExpansionC130J","ExpansionSpraycanGrey","ExpansionC130J_Gray"};
+		units[] = {"Vehicle_ExpansionC130JWheel","Vehicle_ExpansionC130J"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -47,9 +47,6 @@ class CfgSlots
 };
 class CfgVehicles
 {
-	class CarScript;
-	class OffroadHatchback;
-	class Inventory_Base;
 	class SimulationModule;
 	class Axles;
 	class Wheels;
@@ -61,9 +58,9 @@ class CfgVehicles
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class ExpansionPlaneScript;
-	class HatchbackWheel;
-	class ExpansionC130JWheel: HatchbackWheel
+	class ExpansionVehiclePlaneBase;
+	class ExpansionWheelBase;
+	class Vehicle_ExpansionC130JWheel: ExpansionWheelBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_C130J_WHEEL";
@@ -90,7 +87,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionC130J: ExpansionPlaneScript
+	class Vehicle_ExpansionC130J: ExpansionVehiclePlaneBase
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_C130J";
@@ -105,7 +102,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_RWD";
-			airDragCoefficient = 0.928;
+			airDragFrontTotal = 0.928;
 			class Steering
 			{
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};
@@ -315,20 +312,6 @@ class CfgVehicles
 				initPhase = 0;
 			};
 		};
-	};
-	class ExpansionSpraycanBase;
-	class ExpansionSpraycanGrey: ExpansionSpraycanBase
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_SPRAYCAN_Grey_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
-		skinName = "Grey";
-	};
-	class ExpansionC130J_Gray: ExpansionC130J
-	{
-		skinBase = "ExpansionC130J";
-		skinName = "Gray";
 	};
 };
 class CfgNonAIVehicles

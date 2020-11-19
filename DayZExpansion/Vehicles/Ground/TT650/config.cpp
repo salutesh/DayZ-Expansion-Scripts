@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_TT650
 	{
-		units[] = {"ExpansionTT650Wheel","ExpansionTT650"};
+		units[] = {"Vehicle_ExpansionTT650Wheel","Vehicle_ExpansionTT650"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -29,10 +29,12 @@ class CfgSlots
 };
 class CfgVehicles
 {
-	class ExpansionWheel;
-	class ExpansionTT650Wheel: ExpansionWheel
+	class ExpansionWheelBase;
+	class Vehicle_ExpansionTT650Wheel: ExpansionWheelBase
 	{
 		scope = 2;
+		displayName = "$STR_EXPANSION_VEHICLE_TT650_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TT650_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\TT650\proxy\expansion_tt650_wheel.p3d";
 		weight = 500;
 		inventorySlot[] = {"expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
@@ -42,11 +44,11 @@ class CfgVehicles
 		tyreRollResistance = 0.015;
 		tyreTread = 1.0;
 	};
-	class ExpansionBikeScript;
-	class ExpansionTT650: ExpansionBikeScript
+	class ExpansionVehicleBikeBase;
+	class Vehicle_ExpansionTT650: ExpansionVehicleBikeBase
 	{
 		scope = 2;
-		displayname = "TT650";
+		displayName = "$STR_EXPANSION_VEHICLE_TT650";
 		model = "\DayZExpansion\Vehicles\Ground\TT650\tt650.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
 		soundController = "";
@@ -54,24 +56,24 @@ class CfgVehicles
 		{
 			class Engine
 			{
-				name = "Engine";
+				name = "$STR_attachment_Engine0";
 				description = "";
+				icon = "cat_vehicle_engine";
 				attachmentSlots[] = {"CarBattery","GlowPlug"};
-				icon = "missing";
 			};
 			class Body
 			{
-				name = "Body";
+				name = "$STR_attachment_Body0";
 				description = "";
+				icon = "cat_vehicle_body";
 				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1"};
-				icon = "missing";
 			};
 			class Chassis
 			{
-				name = "Chassis";
+				name = "$STR_attachment_Chassis0";
 				description = "";
+				icon = "cat_vehicle_chassis";
 				attachmentSlots[] = {"expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
-				icon = "missing";
 			};
 		};
 		class Crew
@@ -85,7 +87,7 @@ class CfgVehicles
 				getInDir = "pos_driver_dir";
 			};
 		};
-		class VehicleSimulation
+		class SimulationModule
 		{
 			class Steering
 			{
@@ -104,30 +106,30 @@ class CfgVehicles
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Engine
 			{
-				inertia = 0.6;
-				torqueMax = 210;
-				torqueRpm = 2700;
-				powerMax = 80;
-				powerRpm = 3500;
-				rpmIdle = 650;
-				rpmMin = 700;
-				rpmClutch = 900;
-				rpmRedline = 3700;
-				rpmMax = 5000;
+				inertia = 0.45;
+				torqueMax = 187;
+				torqueRpm = 2400;
+				powerMax = 73.5;
+				powerRpm = 4500;
+				rpmIdle = 1000;
+				rpmMin = 1050;
+				rpmClutch = 1250;
+				rpmRedline = 4700;
+				rpmMax = 6800;
 			};
 			class Gearbox
 			{
-				reverse = 2.7;
-				ratios[] = {3.4,2.3,1.2};
+				reverse = 3.51;
+				ratios[] = {3.5,2.26,1.45,1.0};
 				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 260;
+				timeToCoupleClutch = 0.3;
+				maxClutchTorque = 180;
 			};
 			class Axles
 			{
 				class Front
 				{
-					maxSteeringAngle = 45;
+					maxSteeringAngle = 25;
 					finalRatio = 0.0;
 					brakeBias = 0.7;
 					brakeForce = 4000;
@@ -136,9 +138,9 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 0;
-						stiffness = 15000;
-						compression = 3100;
-						damping = 5700;
+						stiffness = 8200;
+						compression = 2150;
+						damping = 3400;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -159,7 +161,7 @@ class CfgVehicles
 				class Rear
 				{
 					maxSteeringAngle = 0;
-					finalRatio = 4.1;
+					finalRatio = 3.318;
 					brakeBias = 0.7;
 					brakeForce = 4000;
 					wheelHubMass = 10;
@@ -167,9 +169,9 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 0;
-						stiffness = 15000;
-						compression = 3000;
-						damping = 5500;
+						stiffness = 8000;
+						compression = 2100;
+						damping = 3300;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -209,6 +211,16 @@ class CfgVehicles
 				initPhase = 0;
 				animPeriod = 1e-06;
 			};
+		};
+		class Sounds
+		{
+			thrust = 0.6;
+			thrustTurbo = 1;
+			thrustGentle = 0.3;
+			thrustSmoothCoef = 0.02;
+			camposSmoothCoef = 0.03;
+			soundSetsFilter[] = {"Expansion_TT650_Offload_Ext_Rpm1_SoundSet","Expansion_TT650_Offload_Ext_Rpm2_SoundSet","Expansion_TT650_Offload_Ext_Rpm3_SoundSet","Expansion_TT650_Offload_Ext_Rpm4_SoundSet","Expansion_TT650_Offload_Ext_Rpm5_SoundSet","Expansion_TT650_Ext_Rpm0_SoundSet","Expansion_TT650_Ext_Rpm1_SoundSet","Expansion_TT650_Ext_Rpm2_SoundSet","Expansion_TT650_Ext_Rpm3_SoundSet","Expansion_TT650_Ext_Rpm4_SoundSet","Expansion_TT650_Ext_Rpm5_SoundSet"};
+			soundSetsInt[] = {};
 		};
 	};
 };

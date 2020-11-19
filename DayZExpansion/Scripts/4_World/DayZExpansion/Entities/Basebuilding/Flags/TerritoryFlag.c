@@ -221,6 +221,14 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------	
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_IsTerritory );
@@ -230,7 +238,7 @@ modded class TerritoryFlag
 			ctx.Write( m_OwnerID );
 			ctx.Write( m_TerritoryID );		
 			
-			m_Territory.OnStoreSave( ctx );
+			m_Territory.OnStoreSave_OLD( ctx );
 		}
 	}
 	
@@ -239,6 +247,11 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		if ( !super.OnStoreLoad( ctx, version ) )
 			return false;
 		
@@ -256,7 +269,7 @@ modded class TerritoryFlag
 			if ( Expansion_Assert_False( ctx.Read( m_TerritoryID ), "[" + this + "] Failed reading m_TerritoryID" ) )
 				return false;
 			
-			if ( !m_Territory.OnStoreLoad( ctx, GetExpansionSaveVersion() ) )
+			if ( !m_Territory.OnStoreLoad_OLD( ctx, GetExpansionSaveVersion() ) )
 				return false;
 			
 			if ( version <= 11 )
@@ -273,6 +286,58 @@ modded class TerritoryFlag
 		
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+		
+		storage.Write( m_IsTerritory );
+		if ( m_IsTerritory )
+		{
+			storage.Write( m_FlagTexturePath );
+			storage.Write( m_OwnerID );
+			storage.Write( m_TerritoryID );		
+			
+			m_Territory.OnStoreSave( storage );
+		}
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_IsTerritory ), "[" + this + "] Failed reading m_IsTerritory" ) )
+			return false;
+
+		if ( !m_IsTerritory )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
+			return false;
+		
+		SetFlagTexture( m_FlagTexturePath );
+		//AnimateFlag( 1 - GetRefresherTime01() );
+		
+		if ( Expansion_Assert_False( storage.Read( m_OwnerID ), "[" + this + "] Failed reading m_OwnerID" ) )
+			return false;
+		
+		if ( Expansion_Assert_False( storage.Read( m_TerritoryID ), "[" + this + "] Failed reading m_TerritoryID" ) )
+			return false;
+		
+		if ( !m_Territory.OnStoreLoad( storage ) )
+			return false;
+
+		return true;
+	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// Expansion IsInTerritory
@@ -340,7 +405,11 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// Override OnPartBuiltServer
 	// ------------------------------------------------------------
+	#ifdef DAYZ_1_10
+	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
+	#else
 	override void OnPartBuiltServer( string part_name, int action_id )
+	#endif
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "TerritoryFlag::OnPartBuiltServer - Start" );
@@ -348,7 +417,14 @@ modded class TerritoryFlag
 		#endif
 		
 		if ( GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild )
+		{
+			#ifdef DAYZ_1_10
+			super.OnPartBuiltServer(player, part_name, action_id);
+			#else
 			super.OnPartBuiltServer(part_name, action_id);
+			#endif
+
+		}
 		else
 		{
 			ConstructionPart constrution_part = GetConstruction().GetConstructionPart( part_name );

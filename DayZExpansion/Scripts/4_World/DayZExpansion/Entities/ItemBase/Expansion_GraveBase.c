@@ -55,8 +55,28 @@ class Expansion_GraveBase extends Inventory_Base
 			StopSoundSet(m_SoundFliesEffect);
 	}
 
+	override void OnStoreSave(ParamsWriteContext ctx)
+	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
+		super.OnStoreSave(ctx);
+
+		ctx.Write(m_ReceivedAttachments);
+	}
+
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+		
 		if (!super.OnStoreLoad(ctx, version))
 			return false;
 
@@ -66,12 +86,31 @@ class Expansion_GraveBase extends Inventory_Base
 		return true;
 	}
 
-	override void OnStoreSave(ParamsWriteContext ctx)
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
 	{
-		super.OnStoreSave(ctx);
+		super.OnModStoreSave( storage, modName );
 
-		ctx.Write(m_ReceivedAttachments);
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_ReceivedAttachments );
 	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_ReceivedAttachments ), "[" + this + "] Failed reading m_ReceivedAttachments" ) )
+			return false;
+
+		return true;
+	}
+	#endif
 
 	override bool CanPutIntoHands(EntityAI parent)
 	{

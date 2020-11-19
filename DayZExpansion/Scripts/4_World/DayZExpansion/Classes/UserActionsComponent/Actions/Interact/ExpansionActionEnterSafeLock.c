@@ -101,6 +101,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 				ExpansionNumpadUI menu = ExpansionNumpadUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_NUMPAD_MENU, NULL ) );
 				if ( menu )
 				{
+					menu.SetChangeCodelock( false );
 					menu.SetTarget( m_Target, selection );
 				}
 			}

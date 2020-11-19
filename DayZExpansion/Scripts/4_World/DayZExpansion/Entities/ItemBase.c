@@ -330,12 +330,12 @@ modded class ItemBase
 	//============================================
 	// SendServerLockReply
 	//============================================	
-	private void SendServerLockReply(bool reply, bool injuring, bool unlock, string code, PlayerIdentity sender)
+	private void SendServerLockReply(bool reply, bool injuring, int action, string code, PlayerIdentity sender)
 	{
 		ScriptRPC rpc = new ScriptRPC;
 		rpc.Write( reply );
 		rpc.Write( injuring );
-		rpc.Write( unlock );
+		rpc.Write( action );
 		rpc.Write( code );
 		rpc.Send( this, ExpansionLockRPC.SERVERREPLY, true, sender );
 	}
@@ -363,19 +363,20 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
 				if ( !HasCode() || IsLocked() )
 				{
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					return;
 				}
 
 				Lock();
 				
-				SendServerLockReply( true, false, true, "", sender );
+				SendServerLockReply( true, false, 1, "", sender );
 				
 				return;
 			}
@@ -388,16 +389,16 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
-					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
@@ -407,7 +408,7 @@ modded class ItemBase
 					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
 					#endif
 					
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					return;
 				}
 
@@ -420,13 +421,14 @@ modded class ItemBase
 					
 					bool InjuryPlayer = GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock;
 
-					SendServerLockReply( false, InjuryPlayer, true, "", sender );
+					SendServerLockReply( false, InjuryPlayer, 1, "", sender );
 					
 					if (InjuryPlayer)
 					{
 						PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
 						if ( player )
 						{
+							Print("GetCode()::"+GetCode()+"::code::"+code);
 							FailedUnlock();
 							player.DecreaseHealth( "", "", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
 						}
@@ -436,7 +438,7 @@ modded class ItemBase
 				}
 
 				Unlock();
-				SendServerLockReply( true, false, true, GetCode(), sender );
+				SendServerLockReply( true, false, 1, GetCode(), sender );
 				return;
 			}
 			
@@ -448,29 +450,29 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
 				if ( HasCode() )
 				{
 					// Base already has code so don't try setting it to another.
-					SendServerLockReply( false, false, false, "", sender );
+					SendServerLockReply( false, false, 0, "", sender );
 					return;
 				}
 
 				SetCode( code );
 
-				SendServerLockReply( true, false, false, "", sender );
+				SendServerLockReply( true, false, 0, "", sender );
 				return;
 			}
 
@@ -482,22 +484,22 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, false, "", sender );
-					//TODO: notification here
+					SendServerLockReply( false, false, 0, "", sender );
+					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
 				SetCode( code );
 
-				SendServerLockReply( true, false, false, "", sender );
+				SendServerLockReply( true, false, 2, "", sender );
 				return;
 			}
 			
@@ -520,10 +522,10 @@ modded class ItemBase
 					return;
 				}
 				
-				bool unlock;
-				if ( !ctx.Read( unlock ) )
+				int action;
+				if ( !ctx.Read( action ) )
 				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read unlock");
+					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read action");
 					return;
 				}
 				
@@ -534,12 +536,12 @@ modded class ItemBase
 				}
 				
 				//Save the code
-				if (reply && unlock && code != "")
+				if (reply && action == 1 && code != "")
 				{
 					ExpansionLockSaver.GetInstance().SaveCode( this, code );
 				}
 				//Code wrong, could be a saved code, so we remove it
-				else if (!reply && unlock && code == "")
+				else if (!reply && action == 1 && code == "" || action == 2)
 				{
 					ExpansionLockSaver.GetInstance().RemoveCode( this );
 				}
@@ -731,7 +733,7 @@ modded class ItemBase
 			}
 
 			CarScript car;
-			ExpansionVehicleScript veh;
+			ExpansionVehicleBase veh;
 			if ( !Class.CastTo( car, parent ) && !Class.CastTo( veh, parent ) )
 			{
 				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
@@ -910,6 +912,14 @@ modded class ItemBase
 	//============================================
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( GetGame().SaveVersion() >= 116 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreSave - Start");
 		#endif
@@ -947,7 +957,7 @@ modded class ItemBase
 			ctx.Write( false );
 		}
 
-		m_ElectricitySource.OnStoreSave( ctx );
+		m_ElectricitySource.OnStoreSave_OLD( ctx );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreSave - End");
@@ -959,6 +969,11 @@ modded class ItemBase
 	//============================================
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
+		#ifdef CF_MOD_STORAGE
+		if ( version >= 116 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreLoad - Start");
 		#endif
@@ -1012,7 +1027,7 @@ modded class ItemBase
 			m_ElectricitySource.Setup();
 		} else
 		{
-			m_ElectricitySource.OnStoreLoad( ctx, version, GetExpansionSaveVersion() );
+			m_ElectricitySource.OnStoreLoad_OLD( ctx, version, GetExpansionSaveVersion() );
 		}
 
 		//SetSynchDirty();
@@ -1022,6 +1037,96 @@ modded class ItemBase
 
 		return true;
 	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_CurrentSkinName );
+		
+		if ( m_WorldAttachment && m_IsAttached )
+		{
+			storage.Write( m_IsAttached );
+
+			m_WorldAttachment.GetPersistentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );
+
+			storage.Write( m_AttachIDA );
+			storage.Write( m_AttachIDB );
+			storage.Write( m_AttachIDC );
+			storage.Write( m_AttachIDD );
+
+			vector tmItem[4];
+			vector tmParent[4];
+			GetTransform( tmItem );
+			m_WorldAttachment.GetTransform( tmParent );
+			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_AttachmentTransform );
+
+			storage.Write( m_AttachmentTransform[0] );
+			storage.Write( m_AttachmentTransform[1] );
+			storage.Write( m_AttachmentTransform[2] );
+			storage.Write( m_AttachmentTransform[3] );
+		} else
+		{
+			storage.Write( false );
+		}
+
+		m_ElectricitySource.OnStoreSave( storage );
+	}
+	
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
+			return false;
+
+		if ( m_IsAttached )
+		{
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
+				return false;
+				
+			vector transSide;
+			vector transUp;
+			vector transForward;
+			vector transPos;
+
+			if ( Expansion_Assert_False( storage.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
+				return false;
+
+			m_AttachmentTransform[0] = transSide;
+			m_AttachmentTransform[1] = transUp;
+			m_AttachmentTransform[2] = transForward;
+			m_AttachmentTransform[3] = transPos;
+		}
+
+		m_ElectricitySource.OnStoreLoad( storage );
+
+		return true;
+	}
+	#endif
 	
 	//============================================
 	// EEOnAfterLoad

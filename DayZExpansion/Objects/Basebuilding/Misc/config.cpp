@@ -268,7 +268,7 @@ class CfgVehicles
 	{
 		scope = 2;
 		rotationFlags = 4;
-		displayName = "$STR_EXPANSION_HESCO";
+		displayName = "$STR_EXPANSION_HESCO_KIT";
 		descriptionShort = "$STR_EXPANSION_HESCO_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\Hesco\HescoKit.p3d";
 		itemSize[] = {8,8};
@@ -665,14 +665,38 @@ class CfgVehicles
 		bounding = "BSphere";
 		allowOwnedCargoManipulation = 1;
 		itemSize[] = {10,15};
-		attachments[] = {"GasCanister","CookingEquipment"};
+		attachments[] = {"GasCanister","DirectCookingA","DirectCookingB","SmokingA","SmokingB","SmokingC","SmokingD"};
 		class AnimationSources
 		{
 			class Doors1
 			{
 				source = "user";
-				animPeriod = 0.8;
+				animPeriod = 1.0;
 				initPhase = 0;
+			};
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Smoking
+			{
+				name = "$STR_attachment_Smoking";
+				description = "";
+				attachmentSlots[] = {"SmokingA","SmokingB","SmokingC","SmokingD"};
+				icon = "cookingequipment";
+			};
+			class CookingEquipment
+			{
+				name = "$STR_attachment_CookingEquipment0";
+				description = "";
+				attachmentSlots[] = {"DirectCookingA","DirectCookingB"};
+				icon = "cookingequipment";
+			};
+			class Fuel
+			{
+				name = "#STR_attachment_Fuel0";
+				description = "";
+				attachmentSlots[] = {"GasCanister"};
+				icon = "cat_fp_fuel";
 			};
 		};
 		class EnergyManager
@@ -686,12 +710,6 @@ class CfgVehicles
 			powerSocketsCount = 0;
 			plugType = 7;
 			attachmentAction = 1;
-		};
-		class Cargo
-		{
-			itemsCargoSize[] = {10,10};
-			allowOwnedCargoManipulation = 1;
-			openable = 0;
 		};
 		class DamageSystem
 		{

@@ -4,7 +4,7 @@ class ExpansionHumanCommandTrader_ST
 	{
 		HumanAnimInterface hai = human.GetAnimInterface();
 	}
-}
+};
 
 class ExpansionHumanCommandTrader extends HumanCommandScript
 {
@@ -14,4 +14,4 @@ class ExpansionHumanCommandTrader extends HumanCommandScript
 	{
 		m_Table = table;
 	}
-}
+};

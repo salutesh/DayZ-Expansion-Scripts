@@ -212,7 +212,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// Expansion GetObjectFromFile
 	// ------------------------------------------------------------
 	private bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out string special = "false" )
-	{		
+	{
 		string line;
 		int lineSize = FGets( file, line );
 		
@@ -272,7 +272,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			Object obj;
 			if (!m_InteriorModule.m_CachedCollision.Find(className, collisionBox))
 			{
-				obj = GetGame().CreateObjectEx( className, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_LOCAL );
+				obj = GetGame().CreateObjectEx( className, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_NOLIFETIME|ECE_LOCAL );
 				
 				if (!obj)
 					continue;
@@ -306,9 +306,9 @@ class ExpansionWorldMappingModule: JMModuleBase
 			if (!collisionBox && IsMissionHost() && GetGame().IsMultiplayer()) 
 				continue;
 			
-			int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
+			int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_NOLIFETIME;
 			if ( IsMissionClient() )
-				flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_LOCAL;
+				flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_NOLIFETIME|ECE_LOCAL;
 			
 			obj = GetGame().CreateObjectEx( className, position, flags );
 			

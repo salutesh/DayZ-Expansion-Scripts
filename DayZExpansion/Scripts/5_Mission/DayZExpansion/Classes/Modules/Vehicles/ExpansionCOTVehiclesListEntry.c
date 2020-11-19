@@ -115,4 +115,4 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 
 		return false;
 	}
-}
+};
