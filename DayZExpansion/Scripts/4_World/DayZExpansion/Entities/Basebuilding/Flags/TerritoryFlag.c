@@ -405,11 +405,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// Override OnPartBuiltServer
 	// ------------------------------------------------------------
-	#ifdef DAYZ_1_10
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
-	#else
-	override void OnPartBuiltServer( string part_name, int action_id )
-	#endif
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "TerritoryFlag::OnPartBuiltServer - Start" );
@@ -418,11 +414,7 @@ modded class TerritoryFlag
 		
 		if ( GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild )
 		{
-			#ifdef DAYZ_1_10
 			super.OnPartBuiltServer(player, part_name, action_id);
-			#else
-			super.OnPartBuiltServer(part_name, action_id);
-			#endif
 
 		}
 		else

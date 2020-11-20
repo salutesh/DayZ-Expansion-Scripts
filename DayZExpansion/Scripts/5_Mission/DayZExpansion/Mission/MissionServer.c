@@ -53,7 +53,6 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	// EquipCharacter
 	// ------------------------------------------------------------
-	#ifdef DAYZ_1_10
 	override void EquipCharacter(MenuDefaultCharacterData char_data)
 	{
 		if (GetExpansionSettings().GetSpawn().StartingClothing.EnableCustomClothing)
@@ -64,18 +63,6 @@ modded class MissionServer
 			super.EquipCharacter(char_data);
 		}
 	}
-	#else
-	override void EquipCharacter()
-	{
-		if (GetExpansionSettings().GetSpawn().StartingClothing.EnableCustomClothing)
-		{
-			m_RespawnHandlerModule.ExpansionEquipCharacter(m_player);
-		} else
-		{
-			super.EquipCharacter();
-		}
-	}
-	#endif
 	
 	// ------------------------------------------------------------
 	// OnClientNewEvent

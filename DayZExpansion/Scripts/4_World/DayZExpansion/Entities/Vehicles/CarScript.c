@@ -2838,7 +2838,6 @@ modded class CarScript
 		return 4.5;
 	}
 	
-	#ifdef DAYZ_1_10
 	// ------------------------------------------------------------
 	override float GetTransportCameraDistance()
 	{
@@ -2850,19 +2849,6 @@ modded class CarScript
 	{
 		return Vector( 0, GetCameraHeight(), 0 );
 	}
-	#else
-	// ------------------------------------------------------------
-	float GetTransportCameraDistance()
-	{
-		return GetCameraDistance();
-	}
-	
-	// ------------------------------------------------------------
-	vector GetTransportCameraOffset()
-	{
-		return Vector( 0, GetCameraHeight(), 0 );
-	}
-	#endif
 
 	// ------------------------------------------------------------
 	float GetWreckAltitude()

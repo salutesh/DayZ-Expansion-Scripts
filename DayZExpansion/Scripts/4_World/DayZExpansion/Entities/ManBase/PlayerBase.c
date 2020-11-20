@@ -311,7 +311,6 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SetActions
 	// ------------------------------------------------------------
-	#ifdef DAYZ_1_10
 	override void SetActions( out TInputActionMap InputActionMap )
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -334,35 +333,6 @@ modded class PlayerBase
 		EXPrint("PlayerBase::SetActions end");
 		#endif
 	}
-	#else
-	override void SetActions()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions start");
-		#endif
-
-		super.SetActions();
-		
-		AddAction( ExpansionActionOpenParachute );
-		AddAction( ExpansionActionCutParachute );
-
-		AddAction( ExpansionActionSelectNextPlacement );
-
-		AddAction( ExpansionActionPaint );
-
-		#ifdef EXPANSION_VEHICLE_TOWING
-		AddAction( ExpansionActionConnectTow );
-		AddAction( ExpansionActionDisconnectTow );
-		#endif
-		
-		AddAction( ExpansionActionStartPlayingGuitar );
-		AddAction( ExpansionActionStopPlayingGuitar );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions end");
-		#endif
-	}
-	#endif
 
 	// ------------------------------------------------------------
 	// Expansion OnVariablesSynchronized

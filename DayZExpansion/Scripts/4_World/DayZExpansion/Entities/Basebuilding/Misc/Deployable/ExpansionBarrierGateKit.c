@@ -28,21 +28,10 @@ class ExpansionBarrierGateKit: ExpansionKitLarge
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
-	#ifdef DAYZ_1_10
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
-	#else
-	override void OnPlacementComplete( Man player )
-	#endif
 	{
 		if ( IsMissionHost() )
-		{
-			//! Create gate
-			#ifndef DAYZ_1_10
-			PlayerBase player_base = PlayerBase.Cast( player );
-			vector position = player_base.GetLocalProjectionPosition();
-			vector orientation = player_base.GetLocalProjectionOrientation();
-			#endif
-			
+		{			
 			ExpansionBarrierGate gate = ExpansionBarrierGate.Cast( GetGame().CreateObject( "ExpansionBarrierGate", GetPosition() ) );
 			gate.SetPosition( position );
 			gate.SetOrientation( orientation );

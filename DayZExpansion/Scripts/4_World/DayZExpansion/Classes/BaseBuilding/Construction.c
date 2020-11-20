@@ -26,11 +26,7 @@ modded class Construction
 			return super.IsColliding(part_name);
 		}
 	}
-	#ifdef DAYZ_1_10
 	override bool CanBuildPart( string part_name, ItemBase tool, bool use_tool )
-	#else
-	override bool CanBuildPart( string part_name, ItemBase tool )
-	#endif
 	{
 		if ( tool.GetType() == "ExpansionAdminHammer" )
 		{
@@ -40,11 +36,7 @@ modded class Construction
 			}
 		}
 
-		#ifdef DAYZ_1_10
 		return super.CanBuildPart( part_name, tool, use_tool );
-		#else
-		return super.CanBuildPart( part_name, tool );
-		#endif
 	}
 	
 	override protected void UpdateConstructionParts()
@@ -109,20 +101,13 @@ modded class Construction
 	}
 	
 	//Get all construction parts that can be build (at that current time)
-	#ifdef DAYZ_1_10
 	override void GetConstructionPartsToBuild( string main_part_name, out array<ConstructionPart> construction_parts, ItemBase tool, out string real_constructionTarget, bool use_tool )
-	#else
-	override void GetConstructionPartsToBuild( string main_part_name, out array<ConstructionPart> construction_parts, ItemBase tool, out string real_constructionTarget )
-	#endif
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Construction::GetConstructionPartsToBuild - Start");
 		#endif
-		#ifdef DAYZ_1_10
+		
 		super.GetConstructionPartsToBuild( main_part_name, construction_parts, tool, real_constructionTarget, use_tool );
-		#else
-		super.GetConstructionPartsToBuild( main_part_name, construction_parts, tool, real_constructionTarget );
-		#endif
 		
 		//Descending order
 		for ( int j = 0; j < construction_parts.Count(); ++j )

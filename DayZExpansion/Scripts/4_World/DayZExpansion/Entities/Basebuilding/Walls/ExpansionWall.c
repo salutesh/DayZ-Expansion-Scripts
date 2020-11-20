@@ -196,11 +196,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return m_HasDoor;
 	}
 	
-	#ifdef DAYZ_1_10
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
-	#else
-	override void OnPartBuiltServer( string part_name, int action_id )
-	#endif
 	{
 		m_HasWindow = false;
 		m_HasDoor = false;
@@ -221,11 +217,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			m_HasGate = true;
 		}
 
-		#ifdef DAYZ_1_10
 		super.OnPartBuiltServer(player, part_name, action_id );
-		#else
-		super.OnPartBuiltServer( part_name, action_id );
-		#endif
 
 		UpdateVisuals();
 	}

@@ -186,7 +186,8 @@ class ExpansionBook extends UIScriptedMenu
 	{
 		super.OnHide();
 
-		GetGame().GetMission().PlayerControlEnable(true);
+		if( GetGame().GetMission() )
+			GetGame().GetMission().PlayerControlEnable(true);
 		
 		PPEffects.SetBlurInventory( 0.0 );
 	}
