@@ -408,4 +408,81 @@ modded class CarScript
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	override void OnStoreSave(ParamsWriteContext ctx)
+	{
+		#ifdef CF_MOD_STORAGE
+		if ( CF.ModStorage.Version > 1 )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
+		super.OnStoreSave( ctx );
+
+		ctx.Write( m_CurrentSkinName );
+	}
+
+	// ------------------------------------------------------------
+	override bool OnStoreLoad( ParamsReadContext ctx, int version )
+	{
+		#ifdef EXPANSION_CARSCRIPT_LOGGING
+		EXLogPrint("CarScript::OnStoreLoad - Start");
+		#endif
+
+		#ifdef CF_MOD_STORAGE
+		if ( CF.ModStorage.Version > 1 )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+
+		if ( !super.OnStoreLoad( ctx, version ) )
+			return false;
+
+		if (GetExpansionSaveVersion() < 16)
+			return true;
+
+		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
+			return false;
+
+		return true;
+	}
+
+	#ifdef CF_MOD_STORAGE
+	override void OnModStoreSave( ModStorage storage, string modName )
+	{
+		super.OnModStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_CurrentSkinName );
+	}
+
+	override bool OnModStoreLoad( ModStorage storage, string modName )
+	{
+		if ( !super.OnModStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		storage.Read( m_CurrentSkinName );
+	}
+	#endif
+
+	// ------------------------------------------------------------
+	override void EEOnAfterLoad()
+	{
+		super.EEOnAfterLoad();
+
+		if ( m_CanBeSkinned )
+		{
+			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
+			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
+			m_CurrentSkin = ExpansionSkin.Cast( m_Skins[ m_CurrentSkinIndex ] );
+
+			ExpansionOnSkinUpdate();
+		}
+	}
 };

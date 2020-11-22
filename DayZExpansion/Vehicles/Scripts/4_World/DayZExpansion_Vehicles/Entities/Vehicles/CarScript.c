@@ -462,6 +462,8 @@ modded class CarScript
 
 	vector GetTowCenterPosition( Object other )
 	{
+		//!todo: calculate from wheel positions
+		
 		vector minMax[2];
 		GetCollisionBox( minMax );
 		vector pos = Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() );
@@ -1944,6 +1946,12 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------
+	protected void OnNoSimulation( float pDt )
+	{
+
+	}
+
+	// ------------------------------------------------------------
 	protected void OnSimulation( float pDt, out vector force, out vector torque )
 	{
 	}
@@ -2030,6 +2038,8 @@ modded class CarScript
 
 		if ( !CanSimulate() )
 		{
+			OnNoSimulation( dt );
+
 			ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
 			return;
 		}
@@ -2195,13 +2205,11 @@ modded class CarScript
 		return m_ExpansionSaveVersion;
 	}
 
-/*
 	void TempReadSkin(ParamsReadContext ctx)
 	{
 		string m_CurrentSkinNameTEMP;
 		Expansion_Assert_False( ctx.Read( m_CurrentSkinNameTEMP ), "[" + this + "] Failed reading m_CurrentSkinNameTEMP" );
 	}
-*/
 
 	// ------------------------------------------------------------
 	// OnStoreSave
@@ -2209,7 +2217,7 @@ modded class CarScript
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
 		#ifdef CF_MOD_STORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( CF.ModStorage.Version > 1 )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -2269,7 +2277,7 @@ modded class CarScript
 		#endif
 
 		#ifdef CF_MOD_STORAGE
-		if ( version >= 116 )
+		if ( CF.ModStorage.Version > 1 )
 			return super.OnStoreLoad( ctx, version );
 		#endif
 
@@ -2277,6 +2285,15 @@ modded class CarScript
 		// Making sure this is read before everything else.
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
+
+		#ifdef EXPANSION_CARSCRIPT_DATA_DOUBLE
+		if ( GetExpansionSaveVersion() == 15 )
+		{
+			//doubled data accidentally
+			if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
+				return false;
+		}
+		#endif
 
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
@@ -2309,8 +2326,8 @@ modded class CarScript
 		if ( Expansion_Assert_False( ctx.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
 			return false;
 
-		//if ( GetExpansionSaveVersion() < 15 )
-		//	TempReadSkin( ctx );
+		if ( GetExpansionSaveVersion() < 15 )
+			TempReadSkin( ctx );
 		
 		if ( Expansion_Assert_False( ctx.Read( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
 			return false;
@@ -2351,9 +2368,104 @@ modded class CarScript
 				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
 					return false;
 			}
+
+			m_IsBeingTowed = false;
+			m_IsTowing = false;
+
+			m_ParentTowPersistentIDA = 0;
+			m_ParentTowPersistentIDB = 0;
+			m_ParentTowPersistentIDC = 0;
+			m_ParentTowPersistentIDD = 0;
+			m_ChildTowPersistentIDA = 0;
+			m_ChildTowPersistentIDB = 0;
+			m_ChildTowPersistentIDC = 0;
+			m_ChildTowPersistentIDD = 0;
 		}
 		
 		SetSynchDirty();
+
+		if ( GetExpansionSaveVersion() != 15 )
+		{
+			#ifdef EXPANSION_CARSCRIPT_LOGGING
+			EXLogPrint("CarScript::OnStoreLoad - End");
+			#endif
+			return true;
+		}
+
+		#ifdef EXPANSION_CARSCRIPT_DATA_DOUBLE
+		//doubled data accidentally
+
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+			return false;
+
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+			return false;
+
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+			return false;
+
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+			return false;
+		
+		if ( Expansion_Assert_False( ctx.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
+			return false;
+
+		if ( Expansion_Assert_False( ctx.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
+			return false;
+
+		if ( GetExpansionSaveVersion() < 15 )
+			TempReadSkin( ctx );
+		
+		if ( Expansion_Assert_False( ctx.Read( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
+			return false;
+			
+		if ( Expansion_Assert_False( ctx.Read( m_Position ), "[" + this + "] Failed reading m_Position" ) )
+			return false;
+
+		if ( Expansion_Assert_False( ctx.Read( m_allAttachments ), "[" + this + "] Failed reading m_allAttachments" ) )
+			return false;
+
+		if ( Expansion_Assert_False( ctx.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			return false;
+		if ( Expansion_Assert_False( ctx.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			return false;
+
+		if ( m_IsBeingTowed )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+				return false;
+		}
+
+		if ( m_IsTowing )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+				return false;
+		}
+		#endif
+
+		m_IsBeingTowed = false;
+		m_IsTowing = false;
+
+		m_ParentTowPersistentIDA = 0;
+		m_ParentTowPersistentIDB = 0;
+		m_ParentTowPersistentIDC = 0;
+		m_ParentTowPersistentIDD = 0;
+		m_ChildTowPersistentIDA = 0;
+		m_ChildTowPersistentIDB = 0;
+		m_ChildTowPersistentIDC = 0;
+		m_ChildTowPersistentIDD = 0;
 		
 		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::OnStoreLoad - End");

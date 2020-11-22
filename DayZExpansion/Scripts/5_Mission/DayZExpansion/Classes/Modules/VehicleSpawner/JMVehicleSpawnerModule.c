@@ -1,5 +1,6 @@
 modded class JMVehicleSpawnerModule
 {
+	#ifdef JM_COT_VEHICLE_ONSPAWNVEHICLE
 	override void OnSpawnVehicle(EntityAI entity)
 	{
 		super.OnSpawnVehicle(entity);
@@ -7,7 +8,7 @@ modded class JMVehicleSpawnerModule
 		ExpansionVehicleBase car;
 		if (Class.CastTo(car, entity))
 		{
-			car.SetPosition( car.GetPosition() + "0 5 0" );
+			car.SetPosition( car.GetPosition() + "0 10 0" );
 			
 			FillEV(car, CarFluid.FUEL);
 			FillEV(car, CarFluid.OIL);
@@ -15,6 +16,7 @@ modded class JMVehicleSpawnerModule
 			FillEV(car, CarFluid.COOLANT);
 		}
 	}
+	#endif
 
 	private void FillEV( ExpansionVehicleBase car, CarFluid fluid )
 	{

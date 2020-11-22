@@ -247,7 +247,7 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	void ExpansionVehicleBase()
 	{
-		//! Print( "[" + this + "] ExpansionVehicleBase" );
+		Print( "[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION" );
 		
 		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
@@ -536,16 +536,6 @@ class ExpansionVehicleBase extends ItemBase
 		// #endif
 
 		LoadConstantVariables();
-
-		if ( GetGame().IsMultiplayer() && GetGame().IsServer() )
-		{
-			ExpansionNetSyncDebugObject netsync = ExpansionNetSyncDebugObject.Cast( GetGame().CreateObjectEx( "ExpansionNetSyncDebugObject", "0 0 0", ECE_PLACE_ON_SURFACE ) );
-			netsync.SetSyncObject(this);
-			m_DebugApple = netsync;
-		} else
-		{
-			m_DebugApple = EntityAI.Cast( GetGame().CreateObjectEx( "Orange", "0 0 0", ECE_TRACE|ECE_LOCAL ) );
-		}
 	}
 
 	// ------------------------------------------------------------
@@ -634,6 +624,16 @@ class ExpansionVehicleBase extends ItemBase
 			rpc.Send(this, ExpansionVehicleRPC.RequestCrewSync, true, NULL);
 		}
 
+		if ( GetGame().IsServer() )
+		{
+			ExpansionNetSyncDebugObject netsync = ExpansionNetSyncDebugObject.Cast( GetGame().CreateObjectEx( "ExpansionNetSyncDebugObject", "0 0 0", ECE_PLACE_ON_SURFACE ) );
+			netsync.SetSyncObject(this);
+			m_DebugApple = netsync;
+		} else
+		{
+			m_DebugApple = EntityAI.Cast( GetGame().CreateObjectEx( "Orange", "0 0 0", ECE_TRACE|ECE_LOCAL ) );
+		}
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleBase::DeferredInit - End");
 		#endif
@@ -657,13 +657,17 @@ class ExpansionVehicleBase extends ItemBase
 
 		CreateDynamicPhysics( PhxInteractionLayers.VEHICLE );
 
-		EnableDynamicCCD( true );
+		//!breaks vehicles at high speed
+		//EnableDynamicCCD( true );
 		SetDynamicPhysicsLifeTime( -1 );
-		
+
 		dBodyDynamic( this, true );
 		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
 		dBodySetInteractionLayer( this, layer );
 		dBodyEnableGravity( this, false );
+		dBodyEnableCCD( this, 0.0, m_BoundingRadius );
+		dBodySetSleepingTreshold( this, 0.0, 0.0 );
+		dBodySetDamping( this, 0, 0 );
 
 		m_BodyMass = dBodyGetMass( this );
 		m_InvMass = 1.0 / m_BodyMass;
@@ -1007,6 +1011,12 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
+	protected void OnNoSimulation( float pDt )
+	{
+
+	}
+
+	// ------------------------------------------------------------
 	protected void OnSimulation( float pDt, out vector force, out vector torque )
 	{
 	}
@@ -1050,10 +1060,6 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
 	{
-		m_DebugApple.SetPosition( GetPosition() );
-		m_DebugApple.SetOrientation( GetOrientation() );
-		m_DebugApple.SetSynchDirty();
-
 		//Print( "[" + this + "] EOnSimulate" );
 
 		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
@@ -1205,8 +1211,9 @@ class ExpansionVehicleBase extends ItemBase
 			for ( i = 0; i < m_Axles.Count(); i++ )
 				m_Axles[i].Simulate( dt, numWheelsGrounded, impulse, impulseTorque );
 
-			vector gravity = "0 -9.8 0" * m_BodyMass;
-			impulse += gravity * dt;
+			vector gravity = (Vector(0, -9.8, 0) * m_BodyMass * dt).InvMultiply3(m_Transform.data);
+			impulse += gravity.Multiply3(m_Transform.data);
+			//impulseTorque += (gravity).Multiply3(m_Transform.data);
 
 			ApplyPhysics( dt, impulse, impulseTorque );
 			
@@ -1320,13 +1327,15 @@ class ExpansionVehicleBase extends ItemBase
 		vector linearVelocity;
 		vector angularVelocity;
 
-		ExpansionPhysics.CalculateVelocity( transform, pTarget, 1.0, linearVelocity, angularVelocity );
+		ExpansionPhysics.CalculateVelocity( transform, pTarget, pDt, linearVelocity, angularVelocity );
 
 		if ( linearVelocity.Length() > ( 10.0 / pDt ) || angularVelocity.Length() > ( Math.PI / pDt ) )
 		{
-			//SetTransform( pTarget );
-			//return;
+			SetTransform( pTarget );
+			return;
 		}
+		
+		angularVelocity = angularVelocity * (1.0 / Math.PI);
 
 		if ( GetGame().IsServer() )
 			ApplyPhysics( pDt, linearVelocity, angularVelocity, false, false );

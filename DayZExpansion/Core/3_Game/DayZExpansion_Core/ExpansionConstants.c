@@ -466,7 +466,7 @@ static const string EXPANSION_FLAG_COLOR_PINK = "DayZExpansion\\Objects\\Structu
 static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_purple_co.paa";
 static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
 
-static const int EXPANSION_VERSION_CURRENT_SAVE = 15;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 16;
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 

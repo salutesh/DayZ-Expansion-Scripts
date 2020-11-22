@@ -109,6 +109,9 @@
 
 #define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 
+
+#define EXPANSION_CARSCRIPT_DATA_DOUBLE
+
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD
 

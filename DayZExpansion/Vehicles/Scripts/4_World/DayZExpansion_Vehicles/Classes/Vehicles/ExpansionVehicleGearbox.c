@@ -56,7 +56,7 @@ class ExpansionVehicleGearbox
 
 	int Count()
 	{
-		return m_Ratios.Count() + 2;
+		return m_Ratios.Count() + 1;
 	}
 	
 	float Get( int gear )

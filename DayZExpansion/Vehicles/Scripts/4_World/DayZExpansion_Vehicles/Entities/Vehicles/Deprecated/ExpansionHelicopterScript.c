@@ -945,6 +945,22 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 		if ( !m_EnableWind )
 			m_WindSpeedSync = "0 0 0";
 	}
+
+	// ------------------------------------------------------------
+	protected override void OnNoSimulation( float pDt )
+	{
+		super.OnNoSimulation( pDt );
+
+		if ( m_DustParticle && m_DustParticle.IsPlaying() )
+		{
+			m_DustParticle.Stop();
+		}
+
+		if ( m_WaterParticle && m_WaterParticle.IsPlaying() )
+		{
+			m_WaterParticle.Stop();
+		}
+	}
 	
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
@@ -1434,10 +1450,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
-		return true;
-
-		//! Hack fix for heli smoke when it shouldn't until we have a better fix https://exp.thurston.pw/T524
-		//return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) ) || ( m_DustParticle && m_DustParticle.IsPlaying() );
+		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) ) || EngineIsOn();
 	}
 
 	// ------------------------------------------------------------

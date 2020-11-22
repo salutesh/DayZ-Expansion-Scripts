@@ -322,7 +322,7 @@ modded class IngameHud
 			gears.Clear();
 			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
 		
-			m_VehicleGearCount = gears.Count() + 1;
+			m_VehicleGearCount = gears.Count();
 		} else if ( Class.CastTo( exCar, m_ExpansionVehicle ) )
 		{
 			float ex_rpm_value_red = ( exCar.EngineGetRPMRedline() / exCar.EngineGetRPMMax() ) ;
@@ -342,7 +342,7 @@ modded class IngameHud
 			gears.Clear();
 			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
 		
-			m_VehicleGearCount = gears.Count() + 1;
+			m_VehicleGearCount = gears.Count();
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -598,9 +598,6 @@ modded class IngameHud
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::RefreshPlaneHud - Start");
 		#endif
-
-		float p_rpm_value = ( plane.EngineGetRPM() / plane.EngineGetRPMMax() ) ;
-		float p_rpm_value_red = ( plane.EngineGetRPM() / plane.EngineGetRPMRedline() ) ;
 		
 		float p_speed_value = ( plane.GetSpeedometer() / 400 );	
 		float p_vert_speed_value = ( GetVelocity(plane)[1] / 400 );	
@@ -620,18 +617,8 @@ modded class IngameHud
 
 		int p_health = plane.GetHealthLevel( "Engine" );
 		int p_color;
-		if ( p_rpm_value_red > 1 )
-		{
-			if ( m_TimeSinceLastEngineLightChange > 0.35 )
-			{
-				m_PlaneEngineLight.Show( !m_PlaneEngineLight.IsVisible() );
-				m_PlaneEngineLight.SetColor( Colors.COLOR_RUINED );
-				m_PlaneEngineLight.SetAlpha( 1 );
-				m_TimeSinceLastEngineLightChange = 0;
-			}
-
-			m_TimeSinceLastEngineLightChange += timeslice;
-		} else if ( p_health > 1 && p_health < 5 )
+		
+		if ( p_health > 1 && p_health < 5 )
 		{
 			m_PlaneEngineLight.Show( true );
 			p_color = ItemManager.GetItemHealthColor( plane, "Engine" );

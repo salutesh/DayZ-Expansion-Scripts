@@ -1,4 +1,6 @@
 PanelWidgetClass ExpansionGameMissionSelecterForm {
+ visible 1
+ ignorepointer 1
  color 0 0 0 0
  position 0 0
  size 250 420
@@ -6,6 +8,7 @@ PanelWidgetClass ExpansionGameMissionSelecterForm {
  vexactpos 0
  hexactsize 1
  vexactsize 1
+ draggable 1
  scriptclass "ExpansionGameMissionSelecterForm"
  style EditorPanel
  {

@@ -392,6 +392,9 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 			tForce[0] = 0;
 			tForce[1] = 0;
 			tForce[2] = m_Thrust * m_RotorSpeed * m_BodyMass * ( 0.4 * 10.0 / 13.0 ) * m_MaxSpeedMS * speedCoef;
+			
+			if ( tForce[2] < 0 )
+				tForce[2] = 0;
 
 			force += tForce;
 		}
@@ -455,12 +458,18 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 			tForce[1] = -velNormal[1] * glideForceY;
 			tForce[2] = velNormal[2] * ( glideForceX * 0.15 + glideForceY * 0.25 );
 
-			force += tForce * m_BodyMass;
+			// force += tForce * m_BodyMass;
 		}
 
-		// friction
+		// linear friction
 		{
-			force += GetLinearFrictionForce() * m_BodyFrictionCoef;
+			vector l_friction = vector.Zero;
+	
+			l_friction[0] = ( Math.SquareSign( m_LinearVelocityMS[0] ) * 0.010 ) + ( m_LinearVelocityMS[0] * 0.10 );
+			l_friction[1] = ( Math.SquareSign( m_LinearVelocityMS[1] ) * 0.005 ) + ( m_LinearVelocityMS[1] * 0.05 );
+			l_friction[2] = ( Math.SquareSign( m_LinearVelocityMS[2] ) * 0.0006 ) + ( m_LinearVelocityMS[2] * 0.006 );
+				
+			force += l_friction * m_BodyMass * m_BodyFrictionCoef;
 		}
 		
 		// convert forces to worldspace
@@ -468,8 +477,15 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 			force = force.Multiply3( m_Transform.GetBasis().data );
 			torque = torque.Multiply3( m_Transform.GetBasis().data );
 		}
-
-		dBodySetDamping( this, 0.0, 0.5 );
+		
+		// angular friction
+		{
+			vector a_friction;
+				
+			a_friction = m_AngularVelocity * m_BoundingRadius * 0.5;
+				
+			torque -= a_friction;
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehiclePlaneBase::UpdatePhysics end");
@@ -546,18 +562,6 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		{
 			m_AngleOfAttack = 0;
 		}
-	}
-
-	// ------------------------------------------------------------
-	private vector GetLinearFrictionForce()
-	{
-		vector friction = vector.Zero;
-
-		friction[0] = ( Math.SquareSign( m_LinearVelocityMS[0] ) * 0.001 ) + ( m_LinearVelocityMS[0] * 0.1 );
-		friction[1] = ( Math.SquareSign( m_LinearVelocityMS[1] ) * 0.0005 ) + ( m_LinearVelocityMS[1] * 0.05 );
-		friction[2] = ( Math.SquareSign( m_LinearVelocityMS[2] ) * 0.0000006 ) + ( m_LinearVelocityMS[2] * 0.00006 );
-
-		return -friction * m_BodyMass;
 	}
 
 	// ------------------------------------------------------------

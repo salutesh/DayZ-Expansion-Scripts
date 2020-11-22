@@ -21,9 +21,9 @@ class Vehicle_ExpansionC130J extends ExpansionVehiclePlaneBase
 		//! Vanilla
 		m_dmgContactCoef							= 0.075;
 
-		m_MaxSpeed									= 1000.0;
+		m_MaxSpeed									= 300.0;
 
-		m_BodyFrictionCoef							= 15.0;
+		m_BodyFrictionCoef							= 1.0;
 
 		m_ElevatorForceCoef 						= 1.0;
 		m_AileronForceCoef 							= 0.8;

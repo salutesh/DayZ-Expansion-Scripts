@@ -422,7 +422,7 @@ class ExpansionVehicleWheel
 		rotationTransform[3] = m_InitialWheelPositionMS;
 		
 		m_TraceStart = m_SuspensionOffset.Multiply4(rotationTransform);
-		m_SuspensionDistance = Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 2.0; //! checking 2 frames ahead
+		m_SuspensionDistance = Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 0.0; //! checking 2 frames ahead
 		
 		m_TraceUp = m_Axle.GetTravelMaxUp() + m_WheelItem.m_Radius;
 		m_TraceDown = m_Axle.GetTravelMaxDown() + m_WheelItem.m_Radius + m_SuspensionDistance;
@@ -463,8 +463,8 @@ class ExpansionVehicleWheel
 
 				m_SuspensionInvContact = invWheelDiff;
 				
-				m_ContactNormal = "0 1 0";
-				m_ContactNormalWS = m_ContactNormal.Multiply3( m_Vehicle.m_Transform.data );
+				//m_ContactNormal = "0 1 0";
+				//m_ContactNormalWS = m_ContactNormal.Multiply3( m_Vehicle.m_Transform.data );
 			}
 		}
 
@@ -541,18 +541,19 @@ class ExpansionVehicleWheel
 			float ks = m_Axle.GetStiffness();
 			float kc = m_Axle.GetCompression();
 			float kd = m_Axle.GetDamping();
+			
+			//m_SuspensionRelativeVelocity = (m_SuspensionLengthPrevious - m_SuspensionLength) / pDt;
 
-			float compressionDelta = kd * (m_SuspensionLengthPrevious - m_SuspensionLength) / pDt;
+			float compressionDelta = kd * m_SuspensionRelativeVelocity;
+			if (m_SuspensionRelativeVelocity < 0)
+				compressionDelta = kc * m_SuspensionRelativeVelocity;
 			float suspension = ks * m_SuspensionLength;
-			//if (m_SuspensionLength > m_Axle.GetTravelMax())
-			//	suspension = kc * m_SuspensionLength;
 			
 			ExpansionDebugUI( "compressionDelta: " + compressionDelta );
 			ExpansionDebugUI( "suspension: " + suspension );
 			
 			m_SuspensionForce = suspension - compressionDelta;
-			if (m_SuspensionForce < -kc)
-				m_SuspensionForce = -kc;
+		
 
 			vector susp = m_ContactNormal * m_SuspensionForce * pDt;
 
@@ -616,14 +617,14 @@ class ExpansionVehicleWheel
 		impulseTorque += m_ContactPosition * forwardImp;
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		//m_Vehicle.DBGDrawImpulseMS( m_ContactPosition, forwardImp, 0xFF00FFFF );
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + "0 0.1 0", forwardImp, 0xFF00FFFF );
 		#endif
 
 		impulse += sideImp;
 		impulseTorque += m_ContactPosition * sideImp;
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		//m_Vehicle.DBGDrawImpulseMS( m_ContactPosition, sideImp, 0xFFFFFF00 );
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + "0 0.1 0", sideImp, 0xFFFFFF00 );
 		#endif
 	}
 };
