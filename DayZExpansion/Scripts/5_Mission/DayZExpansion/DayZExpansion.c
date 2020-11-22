@@ -140,7 +140,7 @@ modded class DayZExpansion
 	// ------------------------------------------------------------
 	// Expansion OnFinish
 	// ------------------------------------------------------------
-	void OnFinish()
+	override void OnFinish()
 	{
 		super.OnFinish();
 		

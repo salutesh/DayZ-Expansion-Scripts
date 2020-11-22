@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{A9D072A268E420A8}DayZExpansion/GUI/icons/hud/thermometer_1_64x64.edds"
+ Author "desktop-9st395p"
+ ChangeDate -977983258
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "thermometer_1_64x64.TGA"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

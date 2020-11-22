@@ -72,7 +72,9 @@ modded class MissionServer
 		PlayerBase player = super.OnClientNewEvent( identity, pos, ctx );
 		
 		if ( GetExpansionSettings().GetSpawn().EnableSpawnSelection )
+		{
 			m_RespawnHandlerModule.ShowSpawnSelection( player.GetIdentity() );
+		}
 
 		return player;
 	} 

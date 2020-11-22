@@ -1,0 +1,71 @@
+WrapSpacerWidgetClass department_section {
+ visible 1
+ inheritalpha 0
+ position 0 0
+ size 1 0
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ style Empty
+ Padding 20
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ content_halign center
+ {
+  TextWidgetClass section_title {
+   visible 1
+   clipchildren 0
+   inheritalpha 0
+   position 0 100
+   size 0.95 25
+   halign center
+			valign bottom
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   style Normal
+   text "#layout_dialog_title"
+   font "gui/fonts/metron"
+			"size to text h" 0
+			"size to text v" 0
+   "text color" 1 1 1 1
+   "exact text" 1
+   "text valign" center
+  }
+  PanelWidgetClass SeparatorPanel {
+   inheritalpha 0
+   color 0.7569 0.0941 0.0941 1
+   size 1.05 1.5
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   scaled 1
+   priority 1
+   style rover_sim_colorable
+  }
+  WrapSpacerWidgetClass section_elements {
+   clipchildren 1
+   inheritalpha 0
+   color 1 1 1 0
+   position 0 0
+   size 0.85 30
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   priority 3
+   style Empty
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+  }
+ }
+}

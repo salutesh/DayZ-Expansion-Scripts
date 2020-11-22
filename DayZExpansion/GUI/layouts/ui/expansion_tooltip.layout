@@ -1,0 +1,88 @@
+GridSpacerWidgetClass TooltipFrame {
+ visible 1
+ ignorepointer 1
+ color 0 0 0 0.549
+ position 0 0
+ size 400 40
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 901
+ style DayZDefaultPanel
+ Padding 0
+ Margin 8
+ "Size To Content H" 1
+ "Size To Content V" 1
+ Columns 1
+ Rows 1
+ {
+  WrapSpacerWidgetClass TooltipContent {
+   visible 1
+   ignorepointer 1
+   color 0 0 0 0.549
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style DayZDefaultPanel
+   Padding 0
+   Margin 8
+   "Size To Content H" 1
+   "Size To Content V" 1
+   {
+    HtmlWidgetClass TooltipTitle {
+     ignorepointer 1
+     size 370 32
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     style DayZNormal
+     text "awdawdawd"
+     font "gui/fonts/etelkatextpro16"
+     "exact text" 1
+     "exact text size" 16
+     "size to text h" 1
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+     wrap 1
+    }
+    PanelWidgetClass Separator {
+     ignorepointer 1
+     size 370 2
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    HtmlWidgetClass TooltipText {
+     ignorepointer 1
+     position 0 0
+     size 370 1
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 0
+     style DayZNormal
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 1
+     "exact text size" 16
+     "size to text h" 1
+     "size to text v" 1
+     "text valign" center
+     wrap 1
+    }
+   }
+  }
+ }
+}

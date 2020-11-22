@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{4CE8336A3A137A28}DayZExpansion/GUI/fonts/grundschrift-light48.edds"
+ Author "Steve alias Salutesh"
+ ChangeDate 854337354
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "grundschrift-light48.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

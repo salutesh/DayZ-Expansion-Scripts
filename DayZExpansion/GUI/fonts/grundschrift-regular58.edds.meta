@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{8D6290692892BAFE}GUI/fonts/grundschrift-regular58.edds"
+ Author "Steve alias Salutesh"
+ ChangeDate 1750771461
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "grundschrift-regular58.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

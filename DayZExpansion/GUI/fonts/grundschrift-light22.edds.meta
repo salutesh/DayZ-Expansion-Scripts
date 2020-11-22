@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{DD2285937EF58F97}DayZExpansion/GUI/fonts/grundschrift-light22.edds"
+ Author "Steve alias Salutesh"
+ ChangeDate 1793337162
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "grundschrift-light22.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

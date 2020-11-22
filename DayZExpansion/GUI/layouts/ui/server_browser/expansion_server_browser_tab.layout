@@ -1,0 +1,2459 @@
+PanelWidgetClass ExpansionServerTab {
+ ignorepointer 1
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ "no focus" 1
+ {
+  GridSpacerWidgetClass server_list_root {
+   ignorepointer 1
+   color 0 0 0 0.549
+   position 80 0
+   size 1050 1080
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   "no focus" 1
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 1
+   Rows 5
+   {
+    PanelWidgetClass server_list_header {
+     visible 0
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 1 40
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+     "no focus" 1
+     {
+      TextWidgetClass server_list_header_text {
+       ignorepointer 1
+       position 0 0
+       size 1 0.5
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       text "#STR_server_browser_tab_root_server_list_root_server_list_header_server_list_header_text0"
+       font "gui/fonts/sdf_MetronLight24"
+       "exact text" 0
+       "exact text size" 24
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    PanelWidgetClass list_separator {
+     visible 0
+     disabled 0
+     ignorepointer 1
+     color 0 0 0 0
+     position 0 0
+     size 1 5
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+     "no focus" 1
+    }
+    GridSpacerWidgetClass server_list_content_root {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 0.328
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     "no focus" 1
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     Columns 1
+     {
+      GridSpacerWidgetClass basic_infoserver_list_content_header {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 40
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       "no focus" 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       Columns 7
+       Rows 1
+       {
+        FrameWidgetClass server_list_content_header_spacer {
+         ignorepointer 1
+         position 0 0
+         size 90 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+        }
+        FrameWidgetClass server_list_content_header_host {
+         ignorepointer 0
+         position 0 0
+         size 585 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          FrameWidgetClass host_sort {
+           visible 1
+           ignorepointer 1
+           position 0 0
+           size 29 29
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           {
+            ImageWidgetClass host_sort_dsc {
+             visible 1
+             ignorepointer 1
+             size 29 29
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             image0 "set:dayz_gui image:icon_plus"
+             mode additive
+             "src alpha" 1
+            }
+            ImageWidgetClass host_sort_asc {
+             visible 0
+             ignorepointer 1
+             size 29 29
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             image0 "set:dayz_gui image:icon_minus"
+             mode additive
+             "src alpha" 1
+            }
+           }
+          }
+          FrameWidgetClass host_label_panel {
+           ignorepointer 1
+           position 40 0
+           size 180 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           {
+            TextWidgetClass server_list_content_header_host_label {
+             clipchildren 0
+             ignorepointer 1
+             size 180 22
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             text "#STR_server_browser_tab_root_server_list_root_server_list_content_root_basic_infoserver_list_content_header_server_list_content_header_host_host_label_panel_host_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+        FrameWidgetClass server_list_content_header_time {
+         visible 1
+         clipchildren 0
+         ignorepointer 0
+         position 0 0
+         size 100 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         {
+          FrameWidgetClass time_sort {
+           visible 1
+           ignorepointer 1
+           size 29 29
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           {
+            ImageWidgetClass time_sort_dsc {
+             visible 1
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_plus"
+             mode additive
+             "src alpha" 1
+            }
+            ImageWidgetClass time_sort_asc {
+             visible 0
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_minus"
+             mode additive
+             "src alpha" 1
+            }
+           }
+          }
+          TextWidgetClass server_list_content_header_time_label {
+           clipchildren 0
+           ignorepointer 1
+           position 0 0
+           size 70 18
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           text "#STR_server_browser_tab_root_server_list_root_server_list_content_root_basic_infoserver_list_content_header_server_list_content_header_time_time_label0"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "exact text size" 18
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass server_list_content_header_population {
+         visible 1
+         clipchildren 0
+         ignorepointer 0
+         position 0 0
+         size 105 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         {
+          FrameWidgetClass population_sort {
+           visible 1
+           ignorepointer 1
+           size 30 30
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           {
+            ImageWidgetClass population_sort_dsc {
+             visible 1
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_plus"
+             mode additive
+             "src alpha" 1
+            }
+            ImageWidgetClass population_sort_asc {
+             visible 0
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_minus"
+             mode additive
+             "src alpha" 1
+            }
+           }
+          }
+          TextWidgetClass server_list_content_header_population_label {
+           clipchildren 0
+           ignorepointer 1
+           size 75 20
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           text "#players_title"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "exact text size" 18
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass server_list_content_header_slots {
+         visible 1
+         clipchildren 0
+         ignorepointer 0
+         position 0 0
+         size 80 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         {
+          FrameWidgetClass slots_sort {
+           visible 1
+           ignorepointer 1
+           size 29 30
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           {
+            ImageWidgetClass slots_sort_dsc {
+             visible 1
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_plus"
+             mode additive
+             "src alpha" 1
+            }
+            ImageWidgetClass slots_sort_asc {
+             visible 0
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_minus"
+             mode additive
+             "src alpha" 1
+            }
+           }
+          }
+          TextWidgetClass server_list_content_header_slots_label {
+           clipchildren 0
+           ignorepointer 1
+           size 50 20
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           text "#STR_server_browser_tab_root_server_list_root_server_list_content_root_basic_infoserver_list_content_header_server_list_content_header_slots_slots_label0"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "exact text size" 18
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass server_list_content_header_ping {
+         visible 1
+         clipchildren 0
+         ignorepointer 0
+         position 0 0
+         size 70 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         {
+          FrameWidgetClass ping_sort {
+           visible 1
+           ignorepointer 1
+           size 30 30
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           {
+            ImageWidgetClass ping_sort_dsc {
+             visible 1
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_plus"
+             mode additive
+             "src alpha" 1
+            }
+            ImageWidgetClass ping_sort_asc {
+             visible 0
+             ignorepointer 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             image0 "set:dayz_gui image:icon_minus"
+             mode additive
+             "src alpha" 1
+            }
+           }
+          }
+          TextWidgetClass server_list_content_header_ping_label {
+           clipchildren 0
+           ignorepointer 1
+           size 40 20
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           text "#STR_server_browser_tab_root_server_list_root_server_list_content_root_basic_infoserver_list_content_header_server_list_content_header_ping_ping_label0"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "exact text size" 18
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass server_list_content_header_spacer_end {
+         ignorepointer 1
+         position 0 0
+         size 15 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+        }
+       }
+      }
+      ImageWidgetClass separator {
+       visible 0
+       color 0 0 0 0.3922
+       position 0 0
+       size 1 2
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       filter 0
+      }
+      ScrollWidgetClass server_list_scroller {
+       ignorepointer 0
+       color 0 0 0 0.1961
+       position 0 0
+       size 1 720
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       "no focus" 1
+       "Ignore invisible" 0
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass server_list_content {
+         ignorepointer 1
+         position 0 0
+         size 1 0.99
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass servers_navigation_panel {
+     ignorepointer 1
+     color 0 0 0 1
+     size 1 40
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+     {
+      WrapSpacerWidgetClass servers_navigation_spacer {
+       visible 1
+       clipchildren 1
+       ignorepointer 1
+       color 0 0 0 0
+       size 1 30
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       style Colorable
+       "no focus" 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
+       {
+        ButtonWidgetClass servers_navigation_page_first {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "<<"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronBook24"
+        }
+        ButtonWidgetClass servers_navigation_prev {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "<"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronBook24"
+        }
+        ButtonWidgetClass servers_navigation_page1 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page2 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page3 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page4 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page5 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page6 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page7 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page8 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page9 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "999"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_page10 {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text "100"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronLight24"
+        }
+        ButtonWidgetClass servers_navigation_next {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text ">"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronBook24"
+        }
+        ButtonWidgetClass servers_navigation_page_last {
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         style MainMenu
+         "no focus" 1
+         text ">>"
+         text_proportion 0.5
+         font "gui/fonts/sdf_MetronBook24"
+        }
+       }
+      }
+      TextWidgetClass loading_servers_info {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       size 1 20
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       text "#dayz_game_loading"
+       font "gui/fonts/sdf_MetronLight24"
+       "text offset" -10 0
+       "exact text" 0
+       text_proportion 0.8
+       "text halign" right
+       "text valign" center
+      }
+      PanelWidgetClass servers_info {
+       visible 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+      }
+      PanelWidgetClass loading_bar {
+       visible 0
+       ignorepointer 1
+       size 1 30
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        ImageWidgetClass loading_icon {
+         ignorepointer 1
+         position 10 0
+         size 30 30
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:icon_refresh"
+         mode blend
+         "src alpha" 1
+        }
+        PanelWidgetClass cancel_button {
+         ignorepointer 1
+         position 10 10
+         size 48 48
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass separator0 {
+     visible 0
+     color 0 0 0 0.3922
+     position 0 0
+     size 1 5
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+    }
+   }
+  }
+  GridSpacerWidgetClass filters_root {
+   ignorepointer 1
+   color 0 0 0 0.549
+   position 80 0
+   size 450 1
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 0
+   scaled 1
+   priority 1
+   "no focus" 1
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 1
+   Rows 2
+   {
+    PanelWidgetClass filters_header {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 1 36
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+     "no focus" 1
+     {
+      TextWidgetClass filters_header_text {
+       ignorepointer 1
+       size 1 22
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       text "#STR_server_browser_tab_root_filters_root_filters_header_filters_header_text0"
+       font "gui/fonts/sdf_MetronLight24"
+       "exact text" 0
+       "exact text size" 24
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    GridSpacerWidgetClass filters_content {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     size 1 0.6
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     "no focus" 1
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     Columns 1
+     Rows 18
+     {
+      FrameWidgetClass search_name_setting_container {
+       ignorepointer 1
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass search_name_setting {
+         ignorepointer 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass search_name_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass search_name_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_search_name_setting_container_search_name_setting_search_name_setting_panel_search_name_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass search_name_setting_panel2 {
+           ignorepointer 1
+           color 1 1 1 0.3725
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            PanelWidgetClass search_name_setting_option_wrapper {
+             clipchildren 1
+             ignorepointer 1
+             color 1 1 1 0.3922
+             position 0 0
+             size 217 20
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             style Outline
+             {
+              EditBoxWidgetClass search_name_setting_option {
+               clipchildren 0
+               ignorepointer 1
+               position 0 -1
+               size 0.96 0.8
+               halign center_ref
+               valign center_ref
+               hexactpos 1
+               vexactpos 1
+               hexactsize 0
+               vexactsize 0
+               style ServerBrowser
+               "no focus" 0
+               "next down" "search_ip_setting_option"
+               "limit visible" 0
+               "Use default text" 0
+               "exact text" 0
+               font "gui/fonts/sdf_MetronLight24"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass search_name_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass search_ip_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass search_ip_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass search_ip_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass search_ip_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_search_ip_setting_container_search_ip_setting_search_ip_setting_panel_search_ip_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass search_ip_setting_panel2 {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            PanelWidgetClass search_ip_setting_option_wrapper {
+             ignorepointer 1
+             color 1 1 1 0.3922
+             size 217 20
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             style Outline
+             {
+              EditBoxWidgetClass search_ip_setting_option {
+               ignorepointer 1
+               position 0 -1
+               size 0.96 0.8
+               halign center_ref
+               valign center_ref
+               hexactpos 1
+               vexactpos 1
+               hexactsize 0
+               vexactsize 0
+               style ServerBrowser
+               "next down" "restrict_char_setting_option"
+               "Use default text" 0
+               "exact text" 0
+               font "gui/fonts/sdf_MetronLight24"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass search_ip_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass restrict_char_setting_container {
+       visible 0
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass restrict_char_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass restrict_char_setting_panel {
+           ignorepointer 1
+           size 0.5 0.6
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass restrict_char_setting_label {
+             ignorepointer 1
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_restrict_char_setting_container_restrict_char_setting_restrict_char_setting_panel_restrict_char_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 8 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass restrict_char_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass restrict_char_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      ButtonWidgetClass region_setting_container {
+       visible 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Colorable
+       "next up" "ping_button"
+       "next down" "friends_button"
+       {
+        GridSpacerWidgetClass region_setting {
+         ignorepointer 1
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass region_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass region_button_label {
+             ignorepointer 1
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_region_setting_container_region_setting_region_setting_panel_region_button_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 8 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass region_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass region_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass ping_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass ping_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass ping_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 18
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 1
+           {
+            TextWidgetClass ping_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_ping_setting_container_ping_setting_ping_setting_panel_ping_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass ping_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass ping_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass favorites_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass favorites_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass favorites_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass favorites_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_favorites_setting_container_favorites_setting_favorites_setting_panel_favorites_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass favorites_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass favorites_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass friends_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass friends_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass friends_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass friends_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_friends_setting_container_friends_setting_friends_setting_panel_friends_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass friends_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass friends_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass battleye_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass battleye_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass battleye_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass battleye_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_battleye_setting_container_battleye_setting_battleye_setting_panel_battleye_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass battleye_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass battleye_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass password_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass password_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass password_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass password_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_password_setting_container_password_setting_password_setting_panel_password_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass password_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass password_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass prev_played_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass prev_played_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass prev_played_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass prev_played_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_prev_played_setting_container_prev_played_setting_prev_played_setting_panel_prev_played_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass prev_played_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass prev_played_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass ver_match_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass ver_match_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass ver_match_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass ver_match_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_ver_match_setting_container_ver_match_setting_ver_match_setting_panel_ver_match_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass ver_match_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass ver_match_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass full_server_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass full_server_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass full_server_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass full_server_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_full_server_setting_container_full_server_setting_full_server_setting_panel_full_server_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass full_server_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass full_server_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass tps_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass tps_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass tps_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass tps_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_tps_setting_container_tps_setting_tps_setting_panel_tps_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass tps_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass tps_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass public_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        GridSpacerWidgetClass public_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass public_setting_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 0.6
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass public_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_public_setting_container_public_setting_public_setting_panel_public_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass public_setting_option {
+           ignorepointer 1
+           position 0 0
+           size 0.5 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass public_setting_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+      FrameWidgetClass accelerated_time_setting_container {
+       ignorepointer 0
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       priority 100
+       {
+        GridSpacerWidgetClass accelerated_time_setting {
+         ignorepointer 0
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         priority 1000
+         "no focus" 0
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         Columns 2
+         Rows 1
+         {
+          FrameWidgetClass accelerated_time_setting_panel {
+           ignorepointer 1
+           size 0.5 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass accelerated_time_setting_label {
+             ignorepointer 1
+             position 0 0
+             size 1 0.55
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_server_browser_tab_root_filters_root_filters_content_accelerated_time_setting_container_accelerated_time_setting_accelerated_time_setting_panel_accelerated_time_setting_label0"
+             font "gui/fonts/sdf_MetronLight24"
+             "text offset" 15 0
+             "exact text" 0
+             "exact text size" 18
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass accelerated_time_setting_option {
+           visible 1
+           ignorepointer 1
+           size 0.5 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+          }
+         }
+        }
+        PanelWidgetClass accelerated_time_setting_panel_disable {
+         visible 0
+         ignorepointer 1
+         color 0.1569 0.1569 0.1569 0.902
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+     }
+    }
+    FrameWidgetClass spacer {
+     visible 1
+     position 0 0
+     size 1 10
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+    }
+    GridSpacerWidgetClass filters_button_wrapper {
+     ignorepointer 1
+     position 10 10
+     size 0.197 0.102
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     Columns 1
+     {
+      ButtonWidgetClass apply_filter_button {
+       ignorepointer 0
+       color 0 0 0 1
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultButtonBottom
+       text "#STR_server_browser_tab_root_filters_root_filters_content_apply_filter_button0"
+       text_proportion 0.55
+       font "gui/fonts/sdf_MetronLight24"
+      }
+      ButtonWidgetClass reset_filter_button {
+       ignorepointer 0
+       color 0 0 0 1
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultButtonBottom
+       text "#server_browser_filter_reset"
+       text_proportion 0.55
+       font "gui/fonts/sdf_MetronLight24"
+      }
+      ButtonWidgetClass refresh_list_button {
+       ignorepointer 0
+       color 0 0 0 1
+       position 0 0
+       size 1 30
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultButtonBottom
+       text "#STR_server_browser_tab_root_filters_root_filters_content_refresh_list_button0"
+       text_proportion 0.55
+       font "gui/fonts/sdf_MetronLight24"
+      }
+      FrameWidgetClass spacer2 {
+       ignorepointer 1
+       position 10 10
+       size 48 10
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+      }
+     }
+    }
+    TextWidgetClass unapplied_filters_notify {
+     visible 0
+     color 1 0 0 1
+     position 0 0
+     size 1 30
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     text "#server_browser_filters_changed"
+     font "gui/fonts/sdf_MetronLight24"
+     "exact text" 0
+     "exact text size" 20
+     text_proportion 0.55
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+  WrapSpacerWidgetClass play_panel_root {
+   visible 0
+   ignorepointer 1
+   position 100 130
+   size 400 400
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 1
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   content_halign center
+   content_valign bottom
+   {
+    WrapSpacerWidgetClass bottom {
+     color 0 0 0 0.549
+     position 0 0
+     size 1 90
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style DayZDefaultPanel
+     "no focus" 0
+     "next left" "news_main"
+     "next right" "news_main"
+     "next up" ""
+     "next down" "exit_button"
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     {
+      ButtonWidgetClass play {
+       color 0 0 0 0
+       position 0 0
+       size 1 90
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Empty
+       "no focus" 0
+       text_proportion 0.8
+       font "gui/fonts/sdf_MetronLight72"
+       switch normal
+       {
+        PanelWidgetClass play_panel {
+         ignorepointer 1
+         color 0 0 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style DayZDefaultPanel
+         {
+          TextWidgetClass play_label {
+           ignorepointer 1
+           size 1 0.65
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#main_menu_play"
+           font "gui/fonts/sdf_MetronLight42"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    WrapSpacerWidgetClass top {
+     ignorepointer 1
+     color 0 0 0 0.549
+     position 0 0
+     size 1 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+     "no focus" 1
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     content_valign bottom
+     {
+      PanelWidgetClass separator_red {
+       ignorepointer 1
+       color 0.7843 0 0 1
+       position 10 10
+       size 1 2
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style rover_sim_colorable
+      }
+      FrameWidgetClass separator_down {
+       visible 1
+       ignorepointer 1
+       position 10 10
+       size 1 7
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+      }
+      ButtonWidgetClass back_button {
+       color 0 0 0 0
+       position 0 88
+       size 1 38
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Empty
+       "no focus" 0
+       text_proportion 0.6
+       font "gui/fonts/sdf_MetronLight24"
+       switch normal
+       {
+        PanelWidgetClass back_button_panel {
+         ignorepointer 1
+         color 0 0 0 0
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style DayZDefaultPanel
+         {
+          TextWidgetClass back_button_label {
+           ignorepointer 1
+           size 1 22
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_ServerBrowserRoot_play_panel_root_top_back_button0"
+           font "gui/fonts/sdf_MetronLight24"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      ButtonWidgetClass customize_character {
+       visible 0
+       color 0.0392 0.0392 0 1
+       position 0 130
+       size 1 38
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultButtonSides
+       "no focus" 0
+       "next left" "news_main"
+       "next right" "news_main"
+       "next up" "exit_button"
+       "next down" "choose_server"
+       text "#STR_ServerBrowserRoot_play_panel_root_top_customize_character0"
+       text_proportion 0.55
+       font "gui/fonts/sdf_MetronLight24"
+       switch normal
+      }
+      PanelWidgetClass character {
+       visible 0
+       ignorepointer 0
+       position 0 172
+       size 1 38
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass character_name_text {
+         inheritalpha 1
+         ignorepointer 1
+         size 1 0.55
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         font "gui/fonts/sdf_MetronLight24"
+         "exact text" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      FrameWidgetClass separator_up {
+       ignorepointer 1
+       position 0 0
+       size 1 5
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -33,7 +33,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion GetCookingEquipment
 	// ------------------------------------------------------------
-	ItemBase GetCookingEquipment()
+	override ItemBase GetCookingEquipment()
 	{
 		return m_CookingEquipment;
 	}
@@ -41,7 +41,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion SetCookingEquipment
 	// ------------------------------------------------------------
-	void SetCookingEquipment( ItemBase equipment )
+	override void SetCookingEquipment( ItemBase equipment )
 	{
 		m_CookingEquipment = equipment;
 	}
@@ -49,7 +49,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion ClearCookingEquipment
 	// ------------------------------------------------------------
-	void ClearCookingEquipment()
+	override void ClearCookingEquipment()
 	{
 		SetCookingEquipment( NULL );
 	}
@@ -112,7 +112,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion CookWithEquipment
 	// ------------------------------------------------------------
-	void CookWithEquipment()
+	override void CookWithEquipment()
 	{
 		if ( m_CookingProcess == NULL )
 		{
@@ -125,7 +125,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion DestroyFireplace
 	// ------------------------------------------------------------
-	void DestroyFireplace()
+	override void DestroyFireplace()
 	{
 		GetGame().ObjectDelete( this );
 	}
@@ -213,7 +213,7 @@ class ExpansionStove extends FireplaceBase
 	}
 
 	//returns if item attached to fireplace is fuel
-	protected bool IsFuel( ItemBase item )
+	protected override bool IsFuel( ItemBase item )
 	{
 		if ( item.IsKindOf( "SmallGasCanister" ) || item.IsKindOf( "MediumGasCanister" ) || item.IsKindOf( "LargeGasCanister" ) )
 		{

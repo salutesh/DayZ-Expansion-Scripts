@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{6C11B4C75029E3D4}GUI/fonts/grundschrift-regular14.edds"
+ Author "Steve alias Salutesh"
+ ChangeDate 777692933
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "grundschrift-regular14.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

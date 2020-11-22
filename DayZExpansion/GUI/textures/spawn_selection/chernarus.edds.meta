@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{4AF63022401AEF77}DayZExpansion/GUI/textures/spawn_selection/chernarus.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1736255137
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "chernarus.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

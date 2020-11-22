@@ -1,0 +1,71 @@
+FrameWidgetClass Bookmark_Frame {
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 0.1 0.07
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ fixaspect fixwidth
+ {
+  PanelWidgetClass bookmark_spacer {
+   ignorepointer 1
+   color 0.3804 0.2902 0.1686 0.8627
+   size 1 1
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style DayZDefaultPanelLeft
+   {
+    ImageWidgetClass bookmark_background {
+     ignorepointer 1
+     size 0.9 0.95
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     image0 "set:book_assets image:bookmark_element_1"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     {
+      ImageWidgetClass bookmark_icon {
+       ignorepointer 1
+       color 0 0 0 1
+       position 0.05 0
+       size 0.658 0.891
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       image0 ""
+       imageTexture "{C46EFC659DD3BDAB}DayZExpansion/GUI/icons/hud/persona_64x64.edds"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+     }
+    }
+   }
+  }
+  ButtonWidgetClass bookmark_button {
+   position -0.00604 0.03643
+   size 0.90019 0.9164
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   style Empty
+  }
+ }
+}

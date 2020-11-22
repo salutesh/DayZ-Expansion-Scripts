@@ -1,0 +1,98 @@
+FrameWidgetClass ExpansionVehicleMapMarker {
+ clipchildren 0
+ ignorepointer 1
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ {
+  PanelWidgetClass marker_panel {
+   clipchildren 1
+   ignorepointer 1
+   position -23 0
+   size 500 50
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   priority 100
+   {
+    TextWidgetClass marker_name {
+     ignorepointer 1
+     keepsafezone 0
+     position 0.1 0
+     size 447.87997 25
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     style Normal
+     text "MARKER NAME"
+     font "gui/fonts/etelkatextpro22"
+     "shadow size" 20
+     "shadow color" 0 0 0 1
+     "shadow offset" 1 1
+     "exact text" 1
+     "size to text h" 0
+     "size to text v" 0
+     "text valign" center
+    }
+    PanelWidgetClass marker_icon_panel {
+     ignorepointer 1
+     keepsafezone 0
+     color 1 1 1 0
+     size 45 45
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     draggable 0
+     style blank
+     {
+      ImageWidgetClass marker_icon {
+       clipchildren 1
+       ignorepointer 1
+       keepsafezone 0
+       position 0 0
+       size 32 32
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:expansion_notification_iconset image:icon_marker"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+       nocache 0
+       pivot 0 0
+       "Transition width" 0
+       Progress 0
+      }
+      ButtonWidgetClass marker_button {
+       ignorepointer 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 900
+       draggable 1
+       style Empty
+       "no focus" 0
+      }
+     }
+    }
+   }
+  }
+ }
+}

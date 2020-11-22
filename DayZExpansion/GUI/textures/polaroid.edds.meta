@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{DFF0ECEDCACA17B7}DayZExpansion/GUI/textures/polaroid.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate -1801214327
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "polaroid.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

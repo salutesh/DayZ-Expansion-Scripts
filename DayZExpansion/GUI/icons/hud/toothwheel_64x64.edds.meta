@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{4156EB06E189AFDA}DayZExpansion/GUI/icons/hud/toothwheel_64x64.edds"
+ Author "desktop-9st395p"
+ ChangeDate -1364006681
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "toothwheel_64x64.TGA"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

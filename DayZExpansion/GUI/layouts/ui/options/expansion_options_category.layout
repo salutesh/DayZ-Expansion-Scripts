@@ -1,0 +1,66 @@
+WrapSpacerWidgetClass expansion_options_category_root {
+ visible 1
+ ignorepointer 1
+ position 0 0
+ size 1 473
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ "no focus" 1
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ {
+  PanelWidgetClass expansion_options_category_header {
+   visible 1
+   ignorepointer 1
+   color 0 0 0 1
+   position 0 0
+   size 1 36
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   style DayZDefaultPanel
+   "no focus" 1
+   {
+    TextWidgetClass expansion_options_category_header_text {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 0.5
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     style Normal
+     text ""
+     font "gui/fonts/sdf_MetronLight72"
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+  GridSpacerWidgetClass expansion_options_category_content {
+   ignorepointer 1
+   color 0 0 0 0.549
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   style DayZDefaultPanel
+   "no focus" 1
+   Padding 0
+   Margin 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 1
+  }
+ }
+}

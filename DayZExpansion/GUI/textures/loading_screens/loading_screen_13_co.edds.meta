@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{E3381091641E61DE}DayZExpansion/GUI/textures/loading_screens/loading_screen_13_co.edds"
+ Author "DanceOfJesus"
+ ChangeDate -2086836380
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "loading_screen_13_co.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

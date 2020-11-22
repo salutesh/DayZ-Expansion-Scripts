@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{274CA77753CBE9CB}DayZExpansion/GUI/imagesets/arrows.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1285924496
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "arrows.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{EC53C87B94713E02}DayZExpansion/GUI/textures/book/book_pages.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1046685272
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "book_pages.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

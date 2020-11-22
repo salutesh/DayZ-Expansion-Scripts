@@ -1,0 +1,389 @@
+PanelWidgetClass ExpansionEventPositionsToolForm {
+ visible 1
+ color 0 0 0 0
+ position 0 0
+ size 1607.68005 1067.8103
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ draggable 0
+ scriptclass "ExpansionEventPositionsToolForm"
+ style EditorPanel
+ {
+  PanelWidgetClass devtools_wrapper {
+   position 0 0
+   size 1 1
+   {
+    PanelWidgetClass devtools_actions_wrapper0 {
+     position 0 0
+     size 300 300
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+    }
+    PanelWidgetClass devtools_actions_wrapper1 {
+     position 0 310
+     size 300 150
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+    }
+    PanelWidgetClass devtools_actions_wrapper2 {
+     position 305 310
+     size 300 150
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+    }
+    TextListboxWidgetClass events_list {
+     position 305 0
+     size 300 300
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Editor
+     colums ""
+     lines 20
+     font "gui/fonts/sdf_MetronLight24"
+    }
+    TextListboxWidgetClass positions_list {
+     position 5 305
+     size 600 300
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Editor
+     lines 20
+     font "gui/fonts/sdf_MetronLight24"
+    }
+    PanelWidgetClass devtools_map_wrapper {
+     visible 1
+     color 0.4706 0.4706 0.4706 0.4706
+     size 1000 1000
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_black
+     {
+      MapWidgetClass map {
+       position -0.00005 0
+       size 1000 1000
+       halign right_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       scriptclass ""
+      }
+     }
+    }
+    GridSpacerWidgetClass map_stats_root {
+     visible 1
+     ignorepointer 1
+     size 350 450
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 900
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     Columns 1
+     Rows 2
+     {
+      PanelWidgetClass map_stats_header {
+       visible 1
+       ignorepointer 1
+       color 0 0 0 0.9608
+       position 0 0
+       size 480 36
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style DayZDefaultPanelTop
+       {
+        TextWidgetClass map_stats_text {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 0.47
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style Normal
+         text "MAP INFO"
+         font "gui/fonts/sdf_MetronBook72"
+         "exact text" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      GridSpacerWidgetClass map_stats_content {
+       ignorepointer 1
+       color 0 0 0 0.7059
+       position 0 36
+       size 1 0
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultPanelBottom
+       Padding 4
+       Margin 6
+       "Size To Content V" 1
+       Columns 1
+       Rows 5
+       {
+        FrameWidgetClass Position {
+         ignorepointer 1
+         position 0 0
+         size 48 24
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass PositionLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "Position:"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass PositionValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass position_stats_root {
+     visible 0
+     ignorepointer 1
+     position 0 30
+     size 606.85889 600
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 900
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     Columns 1
+     Rows 2
+     {
+      PanelWidgetClass position_stats_header {
+       visible 1
+       ignorepointer 1
+       color 0 0 0 0.9608
+       position 0 0
+       size 480 36
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style DayZDefaultPanelTop
+       {
+        TextWidgetClass position_stats_text {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 0.47
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style Normal
+         text "POSITION MODIFICATION"
+         font "gui/fonts/sdf_MetronBook72"
+         "exact text" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass position_stats_content {
+       visible 1
+       ignorepointer 1
+       color 0 0 0 0.7059
+       position 0 0
+       size 542.43024 240
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        GridSpacerWidgetClass GridSpacerWidget0 {
+         visible 0
+         ignorepointer 1
+         position 0 -0.0898
+         size 1 0.82041
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Columns 6
+         Rows 2
+        }
+        TextWidgetClass pos_x_text {
+         ignorepointer 1
+         position 5 0
+         size 35 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "X:"
+         "text halign" right
+        }
+        EditBoxWidgetClass pos_x_editbox {
+         position 45 0
+         size 550 25
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style Default
+         "limit visible" 0
+        }
+        TextWidgetClass pos_y_text {
+         ignorepointer 1
+         position 5 40
+         size 35 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "Y:"
+         "text halign" right
+        }
+        EditBoxWidgetClass pos_y_editbox {
+         position 45 40
+         size 550 25
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style Default
+         "limit visible" 0
+        }
+        TextWidgetClass pos_z_text {
+         ignorepointer 1
+         position 5 80
+         size 35 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "Z:"
+         "text halign" right
+        }
+        EditBoxWidgetClass pos_z_editbox {
+         position 45 80
+         size 550 25
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style Default
+         "limit visible" 0
+        }
+        TextWidgetClass pos_a_text {
+         ignorepointer 1
+         position 5 90
+         size 35 30
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "A:"
+         "text halign" right
+        }
+        EditBoxWidgetClass pos_a_editbox {
+         position 45 95
+         size 550 25
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style Default
+         "limit visible" 0
+        }
+        PanelWidgetClass position_stats_wrapper {
+         visible 1
+         size 600 45.2227
+         halign center_ref
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          ButtonWidgetClass ok_button {
+           position 0 0
+           size 0.5 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Default
+           text "OK"
+           text_proportion 0.9
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

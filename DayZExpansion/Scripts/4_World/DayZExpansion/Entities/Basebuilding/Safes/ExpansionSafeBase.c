@@ -56,7 +56,7 @@ class ExpansionSafeBase extends Container_Base
 		AddAction( ActionTogglePlaceObject );
 		AddAction( ActionPlaceObject );
 
-		//AddAction( ExpansionActionOpen );
+		AddAction( ExpansionActionOpen );
 
 		AddAction( ExpansionActionCloseSafeLock );
 		AddAction( ExpansionActionCloseSafeUnlock );
@@ -85,6 +85,12 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
+		if ( IsLocked() )
+			return false;
+
+		if ( !IsOpened() )
+			return true;
+
 		return false;
 	}
 	
@@ -93,6 +99,9 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override bool CanClose( string selection )
 	{
+		if ( IsOpened() && !IsRuined())
+			return true;
+			
 		return false;
 	}
 	
@@ -116,8 +125,7 @@ class ExpansionSafeBase extends Container_Base
 	// Expansion Open
 	// ------------------------------------------------------------
 	override void Open( string selection ) 
-	{	
-
+	{
 		//! Door open animation
 		if ( selection == "safe_door" || selection == "codelock" )
 		{
@@ -144,7 +152,7 @@ class ExpansionSafeBase extends Container_Base
 			if ( m_HasCode )
 				Lock();
 		
-			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 			SetSynchDirty();
 		}
 		
@@ -452,7 +460,7 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 
-		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
+		if ( GetNumberOfItems() == 0 && !IsLocked() )
 		{
 			return true;
 		}
@@ -470,7 +478,7 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 		
-		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
+		if ( GetNumberOfItems() == 0 && !IsLocked() )
 		{
 			return true;
 		}

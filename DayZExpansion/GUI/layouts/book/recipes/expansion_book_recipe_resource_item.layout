@@ -1,0 +1,41 @@
+FrameWidgetClass ExpansionRecipeResourceItem {
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ {
+  ImageWidgetClass resource_item_image {
+   ignorepointer 1
+   size 0.5 0.7
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+  }
+  TextWidgetClass resource_item_amount {
+   ignorepointer 1
+   color 0 0 0 1
+   position 0.1 0.15
+   size 0.1 0.07
+   halign right_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   text "10"
+   font "gui/fonts/etelkatextpro22"
+   "text valign" center
+  }
+  ButtonWidgetClass resource_item_button {
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+  }
+ }
+}

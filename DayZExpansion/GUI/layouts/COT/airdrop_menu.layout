@@ -1,0 +1,21 @@
+PanelWidgetClass ExpansionCOTAirdropMenu {
+ visible 0
+ color 0 0 0 0
+ position 0 0
+ size 500 200
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionCOTAirdropMenu"
+ {
+  PanelWidgetClass actions_wrapper {
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+  }
+ }
+}

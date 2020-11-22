@@ -63,20 +63,7 @@ modded class DayZPlayerImplement
 		}
 	#endif
 	}
-
-	// ------------------------------------------------------------
-	// DayZPlayerImplement SendChatMessage
-	// ------------------------------------------------------------
-	void SendChatMessage( string message )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::SendChatMessage - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerImplement::SendChatMessage - End");
-		#endif
-	}
+	
 	
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionGuitar
@@ -92,44 +79,6 @@ modded class DayZPlayerImplement
 	ExpansionHumanCommandGuitar GetCommand_ExpansionGuitar()
 	{
 		return ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
-	}
-	
-	// ------------------------------------------------------------
-	// DayZPlayerImplement StartCommand_ExpansionVehicle
-	// ------------------------------------------------------------
-	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
-	{
-		return NULL;
-	}
-	
-	// ------------------------------------------------------------
-	// DayZPlayerImplement GetCommand_ExpansionVehicle
-	// ------------------------------------------------------------
-	ExpansionHumanCommandVehicle GetCommand_ExpansionVehicle()
-	{
-		return ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
-	}
-		
-	// ------------------------------------------------------------
-	// DayZPlayerImplement GetExpansionTransport
-	// ------------------------------------------------------------
-	ExpansionVehicleBase GetExpansionTransport()
-	{
-		ExpansionHumanCommandVehicle script;
-		if ( Class.CastTo( script, GetCommand_Script() ) )
-		{
-			return script.GetTransport();
-		}
-
-		return NULL;
-	}
-	
-	void OnCommandExpansionVehicleStart()
-	{
-	}
-	
-	void OnCommandExpansionVehicleFinish()
-	{
 	}
 		
 	// ------------------------------------------------------------

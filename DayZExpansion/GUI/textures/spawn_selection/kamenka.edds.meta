@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{CEC1269EE7875586}DayZExpansion/GUI/textures/spawn_selection/kamenka.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 389342881
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "kamenka.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

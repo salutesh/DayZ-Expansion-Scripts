@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{B7F796F94135A99D}DayZExpansion/GUI/textures/bookmark.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1564796500
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "bookmark.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}
