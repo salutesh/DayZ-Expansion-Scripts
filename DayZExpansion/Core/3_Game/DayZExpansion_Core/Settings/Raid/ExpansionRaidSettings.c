@@ -229,7 +229,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
 
-		BaseBuildingRaidMode = 1;
+		BaseBuildingRaidMode = 0;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRaidSettings::Defaults - End");

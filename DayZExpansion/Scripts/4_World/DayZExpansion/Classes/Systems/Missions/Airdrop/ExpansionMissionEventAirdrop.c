@@ -42,6 +42,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	bool m_LootHasSpawned;
 
 	[NonSerialized()]
+	bool m_ZombiesHasSpawned;
+
+	[NonSerialized()]
 	int m_LootItemsSpawned;
 
 	// ------------------------------------------------------------
@@ -324,6 +327,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				if ( m_Plane.CheckForDrop() && !m_Container )
 				{
 					m_LootHasSpawned = false;
+					m_ZombiesHasSpawned = false
 	
 					m_Container = m_Plane.CreateDrop( Container );
 					
@@ -364,8 +368,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 					m_CurrentMissionTime = 0;
 	
 					m_LootHasSpawned = true;
-				} else if ( m_LootHasSpawned && m_Container.HasLanded() )
+				} else if ( m_LootHasSpawned && m_Container.HasLanded() && !m_ZombiesHasSpawned )
 				{	
+					m_ZombiesHasSpawned = true;
 					SpawnInfected( m_Container.GetPosition(), 50 );
 				}
 			}
