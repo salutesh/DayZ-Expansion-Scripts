@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Game
+	class DayZExpansion_Dta_Game
 	{
 		units[] = {};
 		weapons[] = {};
