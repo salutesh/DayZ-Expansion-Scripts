@@ -15,11 +15,12 @@
  **/
 class ExpansionAirdropContainerBase extends Container_Base
 {
-	//ExpansionMarkerData m_ServerMarker;
+	ExpansionMarkerData m_ServerMarker;
 	
 	bool m_FromSettings;
-	bool m_LootHasSpawned;
-	bool m_IsLooted;
+	protected bool m_HasLanded;
+	protected bool m_IsLooted;
+	protected bool m_HasWindImpact;
 	
 	int m_ItemsCount;
 	int m_Infected;
@@ -57,7 +58,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 		SetAnimationPhase( "parachute", 1 );	
 		
 		m_FromSettings = true;
-		m_LootHasSpawned = false;
+		m_HasLanded = false;
+		m_HasWindImpact = false;
 		
 		if ( !Class.CastTo(m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
 			return;
@@ -91,6 +93,16 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - End");
 		#endif	
+	}
+
+	void SetWindImpact(bool state)
+	{
+		m_HasWindImpact = state;
+	}
+
+	bool HasLanded()
+	{
+		return m_HasLanded;
 	}
 	
 	// ------------------------------------------------------------
@@ -193,30 +205,34 @@ class ExpansionAirdropContainerBase extends Container_Base
 		{
 			float mass = dBodyGetMass( this );
 
-			if ( GetGame() && GetGame().GetWeather() )
+			if ( m_HasWindImpact )
 			{
-				vector m_wind = GetGame().GetWeather().GetWind();
-				m_wind[0] = ( ( m_wind[0] + 0.1 ) * 2 ) / 100;
-				m_wind[1] = 9.0;
-				m_wind[2] = ( ( m_wind[2] + 0.1 ) * 2 ) / 100;
-				
-				if ( this )
-					this.dBodyApplyImpulse( this, mass * m_wind * deltaTime ); //! Null pointer here
+				if ( GetGame() && GetGame().GetWeather() )
+				{
+					vector m_wind = GetGame().GetWeather().GetWind();
+
+					m_wind[0] = ( ( m_wind[0] + 0.1 ) * 2 ) / 100;
+					m_wind[1] = 9.0;
+					m_wind[2] = ( ( m_wind[2] + 0.1 ) * 2 ) / 100;
+					
+					this.dBodyApplyImpulse( this, mass * m_wind * deltaTime ); //! Null pointer with deltaTime
+				}
+			} else {
+				this.dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
 			}
-		} else if ( !m_LootHasSpawned )
+		} else if ( !m_HasLanded )
 		{
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
+
+			//if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
+			//{
+			//	CreateServerMarker(); //! Set server map marker on drop position
+			//}
 			
-			/*if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation && IsMissionHost() )
-			{
-				//! Set server map marker on drop position
-				CreateServerMarker();
-			}*/
-			
-			m_LootHasSpawned = true;
+			m_HasLanded = true;
 		}
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -259,7 +275,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion CreateServerMarker
 	// ------------------------------------------------------------
-	/*void CreateServerMarker()
+	void CreateServerMarker()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - Start");
@@ -274,83 +290,17 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
 		#endif
-	}*/
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion RemoveServerMarker
 	// ------------------------------------------------------------
-	/*void RemoveServerMarker()
+	void RemoveServerMarker()
 	{
 		if (!m_ServerMarker)
 			return;
 		
 		m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
-	}*/
-	
-	// ------------------------------------------------------------
-	// SpawnInfected
-	// ------------------------------------------------------------
-	protected void SpawnInfected( vector centerPosition, float innerRadius, float spawnRadius )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - Start");
-		#endif
-		
-		m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
-		array<ref BehaviourGroupInfectedPackWaypointParams> waypointParams = new array<ref BehaviourGroupInfectedPackWaypointParams>;
-
-		waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 5, 0 ), 2.0 ) );
-		waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 20, 5 ), 20.0 ) );
-		waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 45, 35 ), 50.0 ) );
-		waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 30, 25 ), 20.0 ) );
-		waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 5, 0 ), 2.0 ) );
-
-		BehaviourGroupInfectedPack bgip;
-		Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
-		if ( bgip )
-		{
-			bgip.SetWaypoints( waypointParams, 0, true, false );
-		}
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::SpawnInfected - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// SampleSpawnPosition
-	// ------------------------------------------------------------
-	protected vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::SampleSpawnPosition - Start");
-		#endif
-		
-		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;
-		float r = maxRadius * Math.RandomFloatInclusive( innerRadius / maxRadius, 1 );
-
-		float spawnX = r * Math.Cos( a );
-		float spawnZ = r * Math.Sin( a );
-
-		vector nPosition = "0 0 0";
-
-		nPosition[0] = position[0] + spawnX;
-		nPosition[2] = position[2] + spawnZ;
-		nPosition[1] = GetGame().SurfaceY( nPosition[0], nPosition[2] );
-
-		AIWorld aiWorld = GetGame().GetWorld().GetAIWorld();
-
-		PGFilter filter = new PGFilter();
-		filter.SetFlags( PGPolyFlags.NONE, PGPolyFlags.NONE, PGPolyFlags.NONE );
-		filter.SetCost( PGAreaType.TERRAIN, 10 );
-
-		aiWorld.SampleNavmeshPosition( nPosition, maxRadius, filter, nPosition );
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::SampleSpawnPosition - End and return nPosition: " + nPosition.ToString());
-		#endif
-		
-		return nPosition;
 	}
 
 	// ------------------------------------------------------------

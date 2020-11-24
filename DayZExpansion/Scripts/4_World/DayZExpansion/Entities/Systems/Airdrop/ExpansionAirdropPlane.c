@@ -33,8 +33,6 @@ class ExpansionAirdropPlane extends House
 
 	protected EffectSound m_SoundLoop;
 
-	protected float m_PreviousDistance;
-
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane Constructor
 	// ------------------------------------------------------------
@@ -161,8 +159,6 @@ class ExpansionAirdropPlane extends House
 		SetDirection( position - m_AirdropPosition );
 
 		m_HeadingAngle = Math.Atan2( m_AirdropPosition[2] - position[2], m_AirdropPosition[0] - position[0] );
-		
-		m_PreviousDistance = vector.Distance( position, Vector( m_AirdropPosition[0], position[1], m_AirdropPosition[2] ) );
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("[ExpansionAirdropPlane] SetupPlane end");
@@ -189,18 +185,6 @@ class ExpansionAirdropPlane extends House
 			GetTransform( transform );
 			transform[3] = transform[3] + velocity;
 			transform[3][1] = m_Height;
-
-			//vector transform[4];
-			//GetTransform( transform );
-
-			//transform[0] = { Math.Sin( m_HeadingAngle ), 0, Math.Cos( m_HeadingAngle ) };
-			//transform[1] = { 0, 1, 0 };
-			//transform[2] = { Math.Cos( m_HeadingAngle ), 0, Math.Sin( m_HeadingAngle ) };
-
-			//vector velocity = transform[2] * m_Speed * dt;
-
-			//transform[3] = transform[3] + velocity;
-			////transform[3][1] = m_Height;
 
 			MoveInTime( transform, dt );
 		}
@@ -276,8 +260,6 @@ class ExpansionAirdropPlane extends House
 			}
 		}
 
-		m_PreviousDistance = distance;
-
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("[ExpansionAirdropPlane] CheckPosition end");
 		#endif
@@ -303,8 +285,11 @@ class ExpansionAirdropPlane extends House
 		
 		ExpansionAirdropContainerBase drop;
 		if ( Class.CastTo( drop, obj ) )
-		{
-			drop.SetPosition( dropPosition );	
+		{			
+			if ( m_SpawnRadius > 0 )
+				drop.SetWindImpact(true);
+
+			drop.SetPosition( dropPosition );
 			drop.SetOrientation( "0 0 0" );
 		}
 

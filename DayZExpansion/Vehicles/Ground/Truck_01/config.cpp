@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Truck_01
 	{
-		units[] = {"Truck_01_Covered","Vehicle_Truck_01_Covered","Vehicle_Truck_01_Wheel","Vehicle_Truck_01_Wheel_Ruined","Vehicle_Truck_01_WheelDouble","Vehicle_Truck_01_WheelDouble_Ruined"};
+		units[] = {"Truck_01_Covered","Vehicle_Truck_01_Covered","Vehicle_Truck_01_Wheel","Vehicle_Truck_01_Wheel_Ruined","Vehicle_Truck_01_WheelDouble","Vehicle_Truck_01_WheelDouble_Ruined","Truck_01_Covered_Green","Vehicle_Truck_01_Covered_Green","Truck_01_Covered_Orange","Vehicle_Truck_01_Covered_Orange","Truck_01_Covered_Blue","Vehicle_Truck_01_Covered_Blue","Truck_01_Covered_Red","Vehicle_Truck_01_Covered_Red","Truck_01_Covered_White","Vehicle_Truck_01_Covered_White","Truck_01_Covered_Black","Vehicle_Truck_01_Covered_Black","Truck_01_Covered_Wine","Vehicle_Truck_01_Covered_Wine","Truck_01_Covered_Lime","Vehicle_Truck_01_Covered_Lime","Truck_01_Covered_Yellow","Vehicle_Truck_01_Covered_Yellow","Truck_01_Covered_YellowBright","Vehicle_Truck_01_Covered_YellowBright"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -35,6 +35,8 @@ class CfgVehicles
 		displayName = "$STR_v3s_covered0";
 		model = "\dz\vehicles\wheeled\Truck_01\Truck_01_Covered.p3d";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood","Truck_01_Wheel_1_1","Truck_01_Wheel_1_2","Truck_01_Wheel_1_3","Truck_01_Wheel_2_1","Truck_01_Wheel_2_2","Truck_01_Wheel_2_3","Truck_01_Wheel_Spare_1","Truck_01_Wheel_Spare_2","Truck_01_WoodenLogs","Truck_01_WoodenPlanks","Truck_01_MetalSheets","Truck_01_Barrel1","Truck_01_Barrel2","Truck_01_Barrel3","Truck_01_Barrel4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4"};
+		doors[] = {"Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood"};
+		defaultSkin = "Green";
 		class Cargo
 		{
 			itemsCargoSize[] = {10,60};
@@ -78,6 +80,32 @@ class CfgVehicles
 				icon = "cat_common_cargo";
 				attachmentSlots[] = {"Truck_01_Barrel1","Truck_01_Barrel2","Truck_01_Barrel3","Truck_01_Barrel4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4"};
 			};
+		};
+		class AnimationSources: AnimationSources
+		{
+			class WheelSidePlate1
+			{
+				source = "user";
+				initPhase = 0;
+				animPeriod = 1.3;
+			};
+			class WheelSidePlate2: WheelSidePlate1{};
+			class Damper_1_1
+			{
+				source = "user";
+				initPhase = 0.4828;
+				animPeriod = 1;
+			};
+			class Damper_2_1: Damper_1_1{};
+			class Damper_1_2
+			{
+				source = "user";
+				initPhase = 0.4318;
+				animPeriod = 1;
+			};
+			class Damper_2_2: Damper_1_2{};
+			class Damper_1_3: Damper_1_2{};
+			class Damper_2_3: Damper_1_2{};
 		};
 	};
 	class Vehicle_Truck_01_Base: ExpansionVehicleCarBase
@@ -655,5 +683,279 @@ class CfgVehicles
 		tyreTread = 0.45;
 		radius = 0.3;
 		friction = -1;
+	};
+	class Truck_01_Door_1_1: CarDoor
+	{
+		defaultSkin = "Green";
+	};
+	class Truck_01_Door_2_1: CarDoor
+	{
+		defaultSkin = "Green";
+	};
+	class Truck_01_Hood: CarDoor
+	{
+		defaultSkin = "Green";
+	};
+	class Expansion_Truck_01_Door_1_1: ExpansionCarDoorFix
+	{
+		newBase = "Truck_01_Door_1_1";
+	};
+	class Expansion_Truck_01_Door_2_1: ExpansionCarDoorFix
+	{
+		newBase = "Truck_01_Door_2_1";
+	};
+	class Expansion_Truck_01_Hood: ExpansionCarDoorFix
+	{
+		newBase = "Truck_01_Hood";
+	};
+	class Truck_01_Covered_Green: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Green";
+	};
+	class Vehicle_Truck_01_Covered_Green: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Green";
+	};
+	class Truck_01_Door_1_1_Green: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Green";
+	};
+	class Truck_01_Door_2_1_Green: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Green";
+	};
+	class Truck_01_Hood_Green: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Green";
+	};
+	class Truck_01_Covered_Orange: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Orange";
+	};
+	class Vehicle_Truck_01_Covered_Orange: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Orange";
+	};
+	class Truck_01_Door_1_1_Orange: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Orange";
+	};
+	class Truck_01_Door_2_1_Orange: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Orange";
+	};
+	class Truck_01_Hood_Orange: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Orange";
+	};
+	class Truck_01_Covered_Blue: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Blue";
+	};
+	class Vehicle_Truck_01_Covered_Blue: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Blue";
+	};
+	class Truck_01_Door_1_1_Blue: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Blue";
+	};
+	class Truck_01_Door_2_1_Blue: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Blue";
+	};
+	class Truck_01_Hood_Blue: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Blue";
+	};
+	class Truck_01_Covered_Red: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Red";
+	};
+	class Vehicle_Truck_01_Covered_Red: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Red";
+	};
+	class Truck_01_Door_1_1_Red: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Red";
+	};
+	class Truck_01_Door_2_1_Red: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Red";
+	};
+	class Truck_01_Hood_Red: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Red";
+	};
+	class Truck_01_Covered_White: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "White";
+	};
+	class Vehicle_Truck_01_Covered_White: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "White";
+	};
+	class Truck_01_Door_1_1_White: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "White";
+	};
+	class Truck_01_Door_2_1_White: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "White";
+	};
+	class Truck_01_Hood_White: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "White";
+	};
+	class Truck_01_Covered_Black: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Black";
+	};
+	class Vehicle_Truck_01_Covered_Black: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Black";
+	};
+	class Truck_01_Door_1_1_Black: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Black";
+	};
+	class Truck_01_Door_2_1_Black: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Black";
+	};
+	class Truck_01_Hood_Black: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Black";
+	};
+	class Truck_01_Covered_Wine: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Wine";
+	};
+	class Vehicle_Truck_01_Covered_Wine: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Wine";
+	};
+	class Truck_01_Door_1_1_Wine: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Wine";
+	};
+	class Truck_01_Door_2_1_Wine: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Wine";
+	};
+	class Truck_01_Hood_Wine: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Wine";
+	};
+	class Truck_01_Covered_Lime: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Lime";
+	};
+	class Vehicle_Truck_01_Covered_Lime: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Lime";
+	};
+	class Truck_01_Door_1_1_Lime: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Lime";
+	};
+	class Truck_01_Door_2_1_Lime: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Lime";
+	};
+	class Truck_01_Hood_Lime: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Lime";
+	};
+	class Truck_01_Covered_Yellow: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "Yellow";
+	};
+	class Vehicle_Truck_01_Covered_Yellow: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "Yellow";
+	};
+	class Truck_01_Door_1_1_Yellow: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "Yellow";
+	};
+	class Truck_01_Door_2_1_Yellow: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "Yellow";
+	};
+	class Truck_01_Hood_Yellow: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "Yellow";
+	};
+	class Truck_01_Covered_YellowBright: Truck_01_Covered
+	{
+		skinBase = "Truck_01_Covered";
+		skinName = "YellowBright";
+	};
+	class Vehicle_Truck_01_Covered_YellowBright: Vehicle_Truck_01_Covered
+	{
+		skinBase = "Vehicle_Truck_01_Covered";
+		skinName = "YellowBright";
+	};
+	class Truck_01_Door_1_1_YellowBright: Truck_01_Door_1_1
+	{
+		skinBase = "Truck_01_Door_1_1";
+		skinName = "YellowBright";
+	};
+	class Truck_01_Door_2_1_YellowBright: Truck_01_Door_2_1
+	{
+		skinBase = "Truck_01_Door_2_1";
+		skinName = "YellowBright";
+	};
+	class Truck_01_Hood_YellowBright: Truck_01_Hood
+	{
+		skinBase = "Truck_01_Hood";
+		skinName = "YellowBright";
 	};
 };

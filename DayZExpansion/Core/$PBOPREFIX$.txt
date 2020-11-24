@@ -1,6 +1,6 @@
 ﻿//<'Core.pbo' properties via Mikero's dos tools, dll version 7.46>
 prefix=DayZExpansion\Core;
 Mikero=DePbo.dll.7.46;
-version=Sun Nov 22 16:17:47 2020;
+version=Tue Nov 24 08:21:18 2020;
 PboType=Arma Addon;
 //</properties>

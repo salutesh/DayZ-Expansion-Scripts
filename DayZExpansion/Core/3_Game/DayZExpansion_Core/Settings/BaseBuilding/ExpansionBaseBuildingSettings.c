@@ -38,7 +38,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	bool CanCraftTerritoryFlagKit;							//! When enabled this will allow the crafting of the territory flag kit.
 	bool SimpleTerritory;									//! When enabled this will construct the full flag pole when a flag kit is deployed.
 	bool AutomaticFlagOnCreation;							//! When enabled this will add the flag attachment to the flag pole once the territory pole has been constructed
-	bool EnableFlagMenu;									//! When enabled this allow to use the flag menu on territory flags.
+	int EnableFlagMenu;									//! When enabled this allow to use the flag menu on territory flags.
 	bool GetTerritoryFlagKitAfterBuild;						//! When enabled this will spawn a territory flag kit next to the full constructed flag pole.
 
 	[NonSerialized()]
@@ -252,7 +252,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CanCraftTerritoryFlagKit = true;
 		SimpleTerritory = true;
 		AutomaticFlagOnCreation = true;
-		EnableFlagMenu = true;
+		EnableFlagMenu = 1;
 		GetTerritoryFlagKitAfterBuild = false;
 		
 		#ifdef EXPANSIONEXPRINT

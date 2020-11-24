@@ -16,6 +16,7 @@
 class ExpansionActionEnterFlagMenu: ActionInteractBase
 {
 	protected ExpansionTerritoryModule m_TerritoryModule;
+	protected bool m_ActionCreate;
 	
 	// -----------------------------------------------------------
 	// ExpansionActionEnterFlagMenu Destructor
@@ -51,7 +52,14 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
-		return "#STR_EXPANSION_BB_FLAG_CHANGE";
+		if (m_ActionCreate)
+		{
+			return "#STR_EXPANSION_BB_FLAG_CREATE_TERRITORY";
+		}
+		else
+		{
+			return "#STR_EXPANSION_BB_FLAG_CHANGE";
+		}
 	}
 	
 	// -----------------------------------------------------------
@@ -77,7 +85,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		if ( !m_TerritoryModule )
 			return false;
 		
-		if ( !GetExpansionSettings().GetBaseBuilding().EnableFlagMenu )
+		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 0 )
 			return false;
 		
 		//! Is this a new flag ?
@@ -86,8 +94,8 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		{
 			//! Is the flag fully construced ?
 			float state = flag.GetAnimationPhase("flag_mast");
-			if ( flag.FindAttachmentBySlotName("Material_FPole_Flag") && state >= 0.99 && GetExpansionSettings().GetBaseBuilding().EnableFlagMenu )
-			{	
+			if ( flag.FindAttachmentBySlotName("Material_FPole_Flag") && state >= 0.99 )
+			{
 				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 				EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS CONSTRUCTED FLAG!");
 				#endif
@@ -95,16 +103,21 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 				//! Is flag already a territory flag?
 				if ( flag.HasExpansionTerritoryInformation() )
 				{
-					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS TERRITORY FLAG!");
-					#endif
-					
-					//! Is he in a territory ?
-					if ( player.IsInTerritory() )
-						return player.IsInsideOwnTerritory(); //! show the prompt only if it's his territory
-		
-					//! Even if a user can place a flag, he can't create a territory if the limit is reached
-					return true; //! Show the prompt
+					if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 )
+					{
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS TERRITORY FLAG!");
+						#endif
+
+						m_ActionCreate = false;
+						
+						//! Is he in a territory ?
+						if ( player.IsInTerritory() )
+							return player.IsInsideOwnTerritory(); //! show the prompt only if it's his territory
+			
+						//! Even if a user can place a flag, he can't create a territory if the limit is reached
+						return true; //! Show the prompt
+					}
 				} 
 				else
 				{
@@ -112,6 +125,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS NORMAL FLAG!");
 					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] End and return true!");
 					#endif
+					m_ActionCreate = true;
 					//! If flag is a normal flag anyone can access the menu?!
 					return true;
 				}

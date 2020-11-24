@@ -25,6 +25,8 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	bool CanRaidSafes;								//! If enabled, make safes raidable
 	float SafeExplosionDamageMultiplier;			//! Damage multiplier from explosion on safes.
 	float SafeProjectileDamageMultiplier;			//! Damage multiplier from explosion on safes.
+
+	int BaseBuildingRaidMode;						//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -138,6 +140,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		CanRaidSafes = s.CanRaidSafes;
 		SafeExplosionDamageMultiplier = s.ExplosionDamageMultiplier;
 		SafeProjectileDamageMultiplier = s.ProjectileDamageMultiplier;
+		BaseBuildingRaidMode = s.BaseBuildingRaidMode;
 	}
 	
 	// ------------------------------------------------------------
@@ -225,6 +228,8 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		CanRaidSafes = true;
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
+
+		BaseBuildingRaidMode = 1;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRaidSettings::Defaults - End");

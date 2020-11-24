@@ -89,6 +89,8 @@ class CfgVehicles
 		tailReflectorMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights.rvmat";
 		reverseReflectorMatOn = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights_e.rvmat";
 		reverseReflectorMatOff = "dz\vehicles\wheeled\Hatchback_02\data\Hatchback_02_TailLights.rvmat";
+		doors[] = {"Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood"};
+		defaultSkin = "Red";
 		class Crew: Crew
 		{
 			class Driver: Driver{};
@@ -470,11 +472,11 @@ class CfgVehicles
 	};
 	class Hatchback_02: CarScript
 	{
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo_chassi"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"};
 		doors[] = {"Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood"};
 		defaultSkin = "Red";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo_chassi","dmgZone_chassis","dmgZone_back","dmgZone_front","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
-		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth

@@ -1211,8 +1211,8 @@ class ExpansionVehicleBase extends ItemBase
 			for ( i = 0; i < m_Axles.Count(); i++ )
 				m_Axles[i].Simulate( dt, numWheelsGrounded, impulse, impulseTorque );
 
-			vector gravity = (Vector(0, -9.8, 0) * m_BodyMass * dt).InvMultiply3(m_Transform.data);
-			impulse += gravity.Multiply3(m_Transform.data);
+			vector gravity = Vector(0, -9.8 * m_BodyMass * dt, 0);//.InvMultiply3(m_Transform.data);
+			impulse += gravity;//.Multiply3(m_Transform.data);
 			//impulseTorque += (gravity).Multiply3(m_Transform.data);
 
 			ApplyPhysics( dt, impulse, impulseTorque );
@@ -1229,7 +1229,7 @@ class ExpansionVehicleBase extends ItemBase
 			stateF = 2;
 			
 			SetDynamicPhysicsLifeTime( 0.01 );
-		} else
+		} else if ( GetGame().IsServer() )
 		{
 			stateF = 3;
 
@@ -1327,13 +1327,9 @@ class ExpansionVehicleBase extends ItemBase
 		vector linearVelocity;
 		vector angularVelocity;
 
-		ExpansionPhysics.CalculateVelocity( transform, pTarget, pDt, linearVelocity, angularVelocity );
+		ExpansionPhysics.CalculateVelocity( transform, pTarget, 2.0, linearVelocity, angularVelocity );
 
-		if ( linearVelocity.Length() > ( 10.0 / pDt ) || angularVelocity.Length() > ( Math.PI / pDt ) )
-		{
-			SetTransform( pTarget );
-			return;
-		}
+		SetTransform( pTarget );
 		
 		angularVelocity = angularVelocity * (1.0 / Math.PI);
 

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Game
 	{
-		units[] = {"ExpansionHelicopterBattery","ExpansionAircraftBattery"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -23,105 +23,6 @@ class CfgVehicles
 		{
 			strength = 150;
 			type = "shot";
-		};
-	};
-	class ExpansionHelicopterBattery: Inventory_Base
-	{
-		scope = 2;
-		vehicleClass = "Expansion_Helicopter";
-		displayName = "$STR_EXPANSION_HELICOPTER_BATTERY";
-		descriptionShort = "$STR_EXPANSION_HELICOPTER_BATTERY_DESC";
-		model = "\dz\vehicles\parts\helicopter_battery.p3d";
-		attachments[] = {"MetalWire"};
-		weight = 10000;
-		absorbency = 0.1;
-		itemSize[] = {4,4};
-		stackedUnit = "w";
-		quantityBar = 1;
-		varQuantityInit = 50;
-		varQuantityMin = 0;
-		varQuantityMax = 50;
-		varQuantityDestroyOnMin = 0;
-		repairableWithKits[] = {5,7};
-		repairCosts[] = {30,25};
-		inventorySlot = "ExpansionHelicopterBattery";
-		rotationFlags = 2;
-		tooltipResources[] = {"power"};
-		class Resources
-		{
-			power = 77000.0;
-		};
-		class EnergyManager
-		{
-			hasIcon = 1;
-			switchOnAtSpawn = 1;
-			isPassiveDevice = 1;
-			energyStorageMax = 500;
-			energyAtSpawn = 500;
-			reduceMaxEnergyByDamageCoef = 0.5;
-			powerSocketsCount = 1;
-			plugType = 4;
-			compatiblePlugTypes[] = {5,8,6};
-			attachmentAction = 2;
-			convertEnergyToQuantity = 1;
-		};
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 100;
-					healthLevels[] = {{1.0,{"DZ\vehicles\parts\data\battery_smallcar.rvmat"}},{0.7,{"DZ\vehicles\parts\data\battery_smallcar.rvmat"}},{0.5,{"DZ\vehicles\parts\data\battery_smallcar_damage.rvmat"}},{0.3,{"DZ\vehicles\parts\data\battery_smallcar_damage.rvmat"}},{0.0,{"DZ\vehicles\parts\data\battery_smallcar_destruct.rvmat"}}};
-				};
-			};
-		};
-	};
-	class ExpansionAircraftBattery: Inventory_Base
-	{
-		scope = 2;
-		vehicleClass = "Expansion_Plane";
-		displayName = "$STR_EXPANSION_AIRCRAFT_BATTERY";
-		descriptionShort = "$STR_EXPANSION_HELICOPTER_BATTERY_DESC";
-		model = "\dz\vehicles\parts\aircraft_battery.p3d";
-		attachments[] = {"MetalWire"};
-		weight = 10000;
-		repairableWithKits[] = {5,7};
-		repairCosts[] = {30.0,25.0};
-		itemSize[] = {4,4};
-		itemBehaviour = 0;
-		heavyItem = 1;
-		absorbency = 0;
-		inventorySlot = "ExpansionAircraftBattery";
-		rotationFlags = 2;
-		tooltipResources[] = {"power"};
-		class Resources
-		{
-			power = 77000.0;
-		};
-		class EnergyManager
-		{
-			hasIcon = 1;
-			switchOnAtSpawn = 1;
-			isPassiveDevice = 1;
-			energyStorageMax = 500;
-			energyAtSpawn = 500;
-			reduceMaxEnergyByDamageCoef = 0.5;
-			powerSocketsCount = 1;
-			plugType = 4;
-			compatiblePlugTypes[] = {5,8,6};
-			attachmentAction = 2;
-		};
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 100;
-					healthLevels[] = {{1.0,{"DZ\vehicles\parts\data\battery_smallcar.rvmat"}},{0.7,{"DZ\vehicles\parts\data\battery_smallcar.rvmat"}},{0.5,{"DZ\vehicles\parts\data\battery_smallcar_damage.rvmat"}},{0.3,{"DZ\vehicles\parts\data\battery_smallcar_damage.rvmat"}},{0.0,{"DZ\vehicles\parts\data\battery_smallcar_destruct.rvmat"}}};
-				};
-			};
 		};
 	};
 };

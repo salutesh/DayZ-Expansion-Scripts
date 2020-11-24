@@ -361,11 +361,12 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				{
 					SpawnLoot( m_Container.GetPosition(), 30 );
 	
-					SpawnInfected( m_Container.GetPosition(), 50 );
-	
 					m_CurrentMissionTime = 0;
 	
 					m_LootHasSpawned = true;
+				} else if ( m_LootHasSpawned && m_Container.HasLanded() )
+				{	
+					SpawnInfected( m_Container.GetPosition(), 50 );
 				}
 			}
 		}
@@ -1837,7 +1838,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	// Expansion SpawnInfected
 	// ------------------------------------------------------------
-	protected void SpawnInfected( vector centerPosition, /*float innerRadius, */ float spawnRadius )
+	protected void SpawnInfected( vector centerPosition, float spawnRadius )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfected - Start");
@@ -1851,103 +1852,10 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	
 				m_Infected.Insert( obj );
 			}
-	
-			/*
-			m_AIGroup = GetGame().GetWorld().GetAIWorld().CreateGroup( "ExpansionInfectedPatrolGroupBeh" );
-			array<ref BehaviourGroupInfectedPackWaypointParams> waypointParams = new array<ref BehaviourGroupInfectedPackWaypointParams>;
-	
-			waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( centerPosition, 20.0 ) );
-			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 20, 5 ), 20.0 ) );
-			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 45, 35 ), 50.0 ) );
-			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 30, 25 ), 20.0 ) );
-			//waypointParams.Insert( new BehaviourGroupInfectedPackWaypointParams( SampleSpawnPosition( centerPosition, 5, 0 ), 2.0 ) );
-	
-			BehaviourGroupInfectedPack bgip;
-			Class.CastTo( bgip, m_AIGroup.GetBehaviour() );
-			if ( bgip )
-			{
-				bgip.SetWaypoints( waypointParams, 0, true, false );
-			}
-			*/
-			// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, Infected );
-	
-			// SpawnInfectedRemaining_NOPATHING( centerPosition, innerRadius, spawnRadius, Infected );
 		}
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfected - End");
-		#endif
-	}
-		
-	// ------------------------------------------------------------
-	// Expansion SpawnInfectedRemaining_NOPATHING
-	// ------------------------------------------------------------
-	protected void SpawnInfectedRemaining_NOPATHING( vector centerPosition, float innerRadius, float spawnRadius, int remaining )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining_NOPATHING - Start");
-		#endif
-		
-		if ( GetGame().IsServer() )
-		{
-			vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
-	
-			Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
-	
-			DayZCreatureAI creature;
-			Class.CastTo( creature, obj );
-			if ( creature )
-			{
-				creature.InitAIAgent( m_AIGroup );
-	
-				m_Infected.Insert( obj );
-			}
-			
-			if ( remaining > 0 )
-			{
-				// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
-				// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining_NOPATHING, centerPosition, innerRadius, spawnRadius, remaining - 1 );
-			}
-		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining_NOPATHING - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion SpawnInfectedRemaining
-	// ------------------------------------------------------------
-	private void SpawnInfectedRemaining( vector centerPosition, float innerRadius, float spawnRadius, int remaining )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining - Start");
-		#endif
-		
-		if ( GetGame().IsServer() )
-		{
-			if ( remaining <= 0 )
-				return;
-	
-			vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
-	
-			Object obj = GetGame().CreateObject( CustomExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
-	
-			DayZCreatureAI creature;
-			Class.CastTo( creature, obj );
-			if ( creature )
-			{
-				creature.InitAIAgent( m_AIGroup );
-	
-				m_Infected.Insert( obj );
-			}
-	
-			// SpawnInfectedRemaining( centerPosition, innerRadius, spawnRadius, remaining - 1 );
-			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( this.SpawnInfectedRemaining, centerPosition, innerRadius, spawnRadius, remaining - 1 );
-		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SpawnInfectedRemaining - End");
 		#endif
 	}
 	

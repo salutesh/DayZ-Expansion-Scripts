@@ -70,7 +70,10 @@ modded class TerritoryFlag
 		else if ( category_name == "Pole" && GetConstruction().IsPartConstructed("support") && !GetConstruction().IsPartConstructed("pole") )
 			return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 		else if ( category_name == "Flag" && GetConstruction().IsPartConstructed("pole") )
-			return !GetExpansionSettings().GetBaseBuilding().EnableFlagMenu;
+			if( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 )
+				return true;
+			else
+				return false;
 		else
 			return false;
 	}
@@ -482,7 +485,7 @@ modded class TerritoryFlag
 		EXLogPrint( "TerritoryFlag::CanReleaseAttachment - Attachment Type: " + attachment.GetType() );
 		#endif
 		
-		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && GetExpansionSettings().GetBaseBuilding().EnableFlagMenu )
+		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation &&  ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 || GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 ) )
 		{	
 			if ( attachment.IsInherited( Flag_Base ) )
 			{
