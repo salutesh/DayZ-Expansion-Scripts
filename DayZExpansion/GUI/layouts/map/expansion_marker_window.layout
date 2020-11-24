@@ -1,0 +1,168 @@
+FrameWidgetClass ExpansionMarkerWindow {
+ clipchildren 0
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ halign right_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass marker_window_info_content {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   size 100 100
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   priority 899
+   style blank
+   {
+    ButtonWidgetClass marker_info_button {
+     size 64 64
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Empty
+     {
+      ImageWidgetClass marker_info_icon {
+       ignorepointer 1
+       color 0.9529 0.6118 0.0706 1
+       size 64 64
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 ""
+       imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+      }
+     }
+    }
+   }
+  }
+  GridSpacerWidgetClass marker_window_stats_content {
+   visible 0
+   ignorepointer 1
+   size 350 450
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 900
+   Padding 0
+   Margin 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 2
+   {
+    PanelWidgetClass map_stats_header {
+     visible 1
+     ignorepointer 1
+     color 0.1294 0.1804 0.2353 1
+     position 0 0
+     size 480 36
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style DayZDefaultPanelTop
+     {
+      TextWidgetClass map_stats_text {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 1 0.47
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style Normal
+       text "CURSOR POSITION"
+       font "gui/fonts/etelkatextpro16"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    GridSpacerWidgetClass map_stats_content {
+     visible 1
+     ignorepointer 1
+     color 0.2039 0.2863 0.3686 1
+     position 0 36
+     size 1 0
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style DayZDefaultPanelBottom
+     Padding 4
+     Margin 6
+     "Size To Content V" 1
+     Columns 1
+     Rows 5
+     {
+      FrameWidgetClass Position {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 48 24
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       {
+        TextWidgetClass PositionLabel {
+         ignorepointer 1
+         size 1 1
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         text "POSITION:"
+         font "gui/fonts/etelkatextpro16"
+         "size to text h" 1
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+        TextWidgetClass PositionValue {
+         ignorepointer 1
+         size 0.67 1
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         font "gui/fonts/etelkatextpro16"
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

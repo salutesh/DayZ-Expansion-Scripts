@@ -154,34 +154,6 @@ modded class ItemBase
 			m_ElectricityConnections[i].OnWorkStop();
 		}
 	}
-		
-	//============================================
-	// LongDeferredInit
-	//============================================	
-	void LongDeferredInit()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::LongDeferredInit - Start");
-		#endif
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::LongDeferredInit - End");
-		#endif
-	}
-	
-	//============================================
-	// DeferredInit
-	//============================================	
-	void DeferredInit()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::DeferredInit - Start");
-		#endif
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::DeferredInit - End");
-		#endif
-	}
 	
 	//============================================
 	// IsBasebuilding
@@ -292,15 +264,6 @@ modded class ItemBase
 	ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return null;
-	}
-
-	/**
-	\brief Returning if wall/safe is locked
-		\param 	
-	*/
-	bool IsLocked()
-	{
-		return false;
 	}
 
 	/**

@@ -1102,7 +1102,8 @@ class ExpansionMapMenu extends UIScriptedMenu
 
 		m_MarkerModule.SaveLocalServerMarkers();
 
-		GetGame().GetMission().PlayerControlEnable(true);
+		if ( GetGame().GetMission() )
+			GetGame().GetMission().PlayerControlEnable(true);
 		
 		PPEffects.SetBlurMenu( 0.0 );
 	}

@@ -146,14 +146,17 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 	{
 		super.OnHide();
 
-		GetGame().GetMission().PlayerControlEnable( true );
-		PPEffects.SetBlurMenu( 0.0 );
-		
-		m_Mission.GetHud().ShowHud( true );
-		m_Mission.GetHud().ShowQuickBar( true );
-		m_Mission.GetExpansionHud().ShowHud( true );
-		
-		Clear();
+		if ( GetGame().GetMission() )
+		{
+			GetGame().GetMission().PlayerControlEnable( true );
+			PPEffects.SetBlurMenu( 0.0 );
+			
+			m_Mission.GetHud().ShowHud( true );
+			m_Mission.GetHud().ShowQuickBar( true );
+			m_Mission.GetExpansionHud().ShowHud( true );
+			
+			Clear();
+		}
 	}
 	
 	// ------------------------------------------------------------

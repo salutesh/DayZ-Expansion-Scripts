@@ -31,17 +31,9 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 		UpdateVisuals();	
 	}
 
-	#ifdef DAYZ_1_10
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
-	#else
-	override void OnPartBuiltServer( string part_name, int action_id )
-	#endif
 	{
-		#ifdef DAYZ_1_10
 		super.OnPartBuiltServer(player, part_name, action_id );
-		#else
-		super.OnPartBuiltServer( part_name, action_id );
-		#endif
 
 		UpdateVisuals();
 	}

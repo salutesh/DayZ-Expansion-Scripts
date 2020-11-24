@@ -1,0 +1,63 @@
+PanelWidgetClass marker_icon_container {
+ visible 1
+ clipchildren 1
+ ignorepointer 1
+ position 0 0
+ size 1 30
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ scriptclass ""
+ style rover_sim_colorable
+ {
+  ButtonWidgetClass marker_icon_button {
+   visible 1
+   clipchildren 1
+   ignorepointer 0
+   color 0 0 0 0.3922
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   style Default
+   "no focus" 1
+   {
+    ImageWidgetClass marker_icon_image {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     size 30 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 0
+     imageTexture "{83F4855ACB544999}DayZExpansion/GUI/textures/expansion_icon.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    TextWidgetClass marker_icon_name {
+     clipchildren 1
+     ignorepointer 1
+     position 30 0
+     size 1 1
+     valign center_ref
+     hexactpos 1
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     font "gui/fonts/etelkatextpro16"
+     "text offset" 10 0
+     "exact text" 0
+     "size to text h" 0
+     "text valign" center
+    }
+   }
+  }
+ }
+}

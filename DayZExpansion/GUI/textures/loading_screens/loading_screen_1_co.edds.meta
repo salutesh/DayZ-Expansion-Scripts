@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{1CCA9A6970FA6CA8}DayZExpansion/GUI/textures/loading_screens/loading_screen_1_co.edds"
+ Author "CAMINOonPC"
+ ChangeDate 1304815191
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "loading_screen_1_co.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

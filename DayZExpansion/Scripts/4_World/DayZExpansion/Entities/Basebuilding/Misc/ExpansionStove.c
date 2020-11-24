@@ -33,7 +33,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion GetCookingEquipment
 	// ------------------------------------------------------------
-	ItemBase GetCookingEquipment()
+	override ItemBase GetCookingEquipment()
 	{
 		return m_CookingEquipment;
 	}
@@ -41,7 +41,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion SetCookingEquipment
 	// ------------------------------------------------------------
-	void SetCookingEquipment( ItemBase equipment )
+	override void SetCookingEquipment( ItemBase equipment )
 	{
 		m_CookingEquipment = equipment;
 	}
@@ -49,7 +49,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion ClearCookingEquipment
 	// ------------------------------------------------------------
-	void ClearCookingEquipment()
+	override void ClearCookingEquipment()
 	{
 		SetCookingEquipment( NULL );
 	}
@@ -112,7 +112,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion CookWithEquipment
 	// ------------------------------------------------------------
-	void CookWithEquipment()
+	override void CookWithEquipment()
 	{
 		if ( m_CookingProcess == NULL )
 		{
@@ -125,7 +125,7 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion DestroyFireplace
 	// ------------------------------------------------------------
-	void DestroyFireplace()
+	override void DestroyFireplace()
 	{
 		GetGame().ObjectDelete( this );
 	}
@@ -213,7 +213,7 @@ class ExpansionStove extends FireplaceBase
 	}
 
 	//returns if item attached to fireplace is fuel
-	protected bool IsFuel( ItemBase item )
+	protected override bool IsFuel( ItemBase item )
 	{
 		if ( item.IsKindOf( "SmallGasCanister" ) || item.IsKindOf( "MediumGasCanister" ) || item.IsKindOf( "LargeGasCanister" ) )
 		{
@@ -318,7 +318,6 @@ class ExpansionStove extends FireplaceBase
 				break;
 		}
 
-		#ifdef DAYZ_1_10
 		// smoking slots
 		switch ( slot_name )
 		{
@@ -334,7 +333,6 @@ class ExpansionStove extends FireplaceBase
 				m_SmokingSlots[2] = item_base;
 				break;
 		}
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -365,7 +363,6 @@ class ExpansionStove extends FireplaceBase
 				break;
 		}
 
-		#ifdef DAYZ_1_10
 		// smoking slots
 		switch ( slot_name )
 		{
@@ -381,7 +378,6 @@ class ExpansionStove extends FireplaceBase
 				m_SmokingSlots[2] = NULL;
 				break;
 		}
-		#endif
 
 		// food on direct cooking slots (removal of sound effects)
 		if ( item_base.IsKindOf( "Edible_Base" ) )
@@ -457,7 +453,6 @@ class ExpansionStove extends FireplaceBase
 			}
 		}
 
-		#ifdef DAYZ_1_10
 		// manage smoking slots
 		if ( SmokingSlotsInUse() )
 		{
@@ -469,7 +464,6 @@ class ExpansionStove extends FireplaceBase
 				}
 			}
 		}
-		#endif
 	}
 	
 	//================================================================
@@ -612,21 +606,10 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
-	#ifdef DAYZ_1_10
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
-	#else
-	override void OnPlacementComplete( Man player )
-	#endif
 	{
 		if ( IsMissionHost() )
-		{
-			//! Create stove
-			#ifndef DAYZ_1_10
-			PlayerBase player_base = PlayerBase.Cast( player );
-			vector position = player_base.GetLocalProjectionPosition();
-			vector orientation = player_base.GetLocalProjectionOrientation();
-			#endif
-			
+		{			
 			SetPosition( position );
 			SetOrientation( orientation );
 			

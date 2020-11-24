@@ -82,6 +82,12 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		m_TerritoryDialogConfirmButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_ok_button" ) );
 		m_TerritoryDialogCancelButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_cancel_button" ) );
 		
+		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 )
+		{
+			m_FlagWindow.Show( false );
+			m_TerritoryWindow.Show( true );
+		}
+
 		SetTerritoryInfo();
 		
 		return layoutRoot;
@@ -195,7 +201,10 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		PPEffects.SetBlurMenu(0.5);
 		
 		//! Load and create flag texture list entrys
-		LoadTextureList();
+		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 )
+		{
+			LoadTextureList();
+		}
 		
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		
@@ -305,7 +314,13 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		if( w == m_TerritoryDialogCancelButton )
 		{
 			m_TerritoryDialogWindow.Show( false );
-			m_TerritoryWindow.Show( true );
+			
+			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 )
+			{
+				m_TerritoryWindow.Show( true );
+			} else {
+				m_TerritoryWindow.Show( true );
+			}
 						
 			return true;
 		}
@@ -321,8 +336,13 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		
 		if( w == m_TerritoryCancelButton )
 		{
-			m_TerritoryWindow.Show( false );
-			m_FlagWindow.Show( true );
+			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 )
+			{
+				Close();
+			} else {
+				m_TerritoryWindow.Show( false );
+				m_FlagWindow.Show( true );
+			}
 			
 			return true;
 		}

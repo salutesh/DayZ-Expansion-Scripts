@@ -12,20 +12,12 @@ class CfgPatches
 };
 class CfgSlots
 {
-	class Slot_expansion_c130jwheel_1_1
+	class Slot_expansion_c130jwheel_1
 	{
-		name = "expansion_c130jwheel_1_1";
+		name = "expansion_c130jwheel_1";
 		displayName = "C130J Wheel";
 		descriptionShort = "";
 		selection = "wheel_1_1";
-		ghostIcon = "wheel";
-	};
-	class Slot_expansion_c130jwheel_2_1
-	{
-		name = "expansion_c130jwheel_2_1";
-		displayName = "C130J Wheel";
-		descriptionShort = "";
-		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_c130jwheel_1_2
@@ -67,7 +59,7 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_VEHICLE_C130J_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Air\C130J\proxy\C130JWheelMain.p3d";
 		weight = 15000;
-		inventorySlot[] = {"expansion_c130jwheel_1_1","expansion_c130jwheel_2_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
+		inventorySlot[] = {"expansion_c130jwheel_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
@@ -95,14 +87,14 @@ class CfgVehicles
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
-		attachments[] = {"ExpansionAircraftBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_c130jwheel_1_1","expansion_c130jwheel_2_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
+		attachments[] = {"ExpansionAircraftBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_c130jwheel_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
 		hiddenSelections[] = {};
 		hiddenSelectionsTextures[] = {};
 		hiddenSelectionsMaterials[] = {};
 		class SimulationModule: SimulationModule
 		{
-			drive = "DRIVE_RWD";
-			airDragFrontTotal = 0.928;
+			drive = "";
+			airDragFrontTotal = 0.98;
 			class Steering
 			{
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};
@@ -151,29 +143,21 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 300;
-						stiffness = 60000;
+						stiffness = 40000;
 						compression = 2100;
-						damping = 5500;
-						travelMaxUp = 0.079;
-						travelMaxDown = 0.06;
+						damping = 6500;
+						travelMaxUp = 0.1;
+						travelMaxDown = 0.3;
 					};
 					class Wheels: Wheels
 					{
-						class Left: Left
+						class Center
 						{
-							inventorySlot = "expansion_c130jwheel_1_1";
-							animTurn = "turnfrontleft";
-							animRotation = "wheelfrontleft";
-							animDamper = "damper_1_1";
-							wheelHub = "wheel_1_1_damper_land";
-						};
-						class Right: Right
-						{
-							inventorySlot = "expansion_c130jwheel_2_1";
-							animTurn = "turnfrontright";
-							animRotation = "wheelfrontright";
-							animDamper = "damper_2_1";
-							wheelHub = "wheel_2_1_damper_land";
+							inventorySlot = "expansion_c130jwheel_1";
+							animTurn = "turnfront";
+							animRotation = "wheelfront";
+							animDamper = "damper_1";
+							wheelHub = "wheel_1_damper_land";
 						};
 					};
 				};
@@ -187,12 +171,12 @@ class CfgVehicles
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						swayBar = 275;
-						stiffness = 34000;
-						compression = 2000;
-						damping = 5100;
-						travelMaxUp = 0.086;
-						travelMaxDown = 0.133;
+						swayBar = 300;
+						stiffness = 40000;
+						compression = 2100;
+						damping = 6500;
+						travelMaxUp = 0.1;
+						travelMaxDown = 0.3;
 					};
 					class Wheels: Wheels
 					{
@@ -254,7 +238,7 @@ class CfgVehicles
 				name = "$STR_attachment_Chassis0";
 				description = "";
 				icon = "cat_vehicle_chassis";
-				attachmentSlots[] = {"expansion_c130jwheel_1_1","expansion_c130jwheel_2_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
+				attachmentSlots[] = {"expansion_c130jwheel_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
 			};
 		};
 		class Sounds
@@ -320,6 +304,6 @@ class CfgNonAIVehicles
 	class ProxyC130JWheelMain: ProxyVehiclePart
 	{
 		model = "\DayZExpansion\Vehicles\Air\C130J\proxy\C130JWheelMain.p3d";
-		inventorySlot[] = {"expansion_c130jwheel_1_1","expansion_c130jwheel_2_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
+		inventorySlot[] = {"expansion_c130jwheel_1","expansion_c130jwheel_1_2","expansion_c130jwheel_2_2"};
 	};
 };

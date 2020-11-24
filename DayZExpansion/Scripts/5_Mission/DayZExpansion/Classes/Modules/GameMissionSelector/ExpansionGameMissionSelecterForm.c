@@ -21,17 +21,18 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 	private TextListboxWidget m_MissionsList;
 
 	private string m_PathToMissions;
+	
+	private ExpansionGameMissionSelecterModule m_Module;
 
-	void ExpansionGameMissionSelecterForm()
+	protected override bool SetModule( ref JMRenderableModuleBase mdl )
 	{
+		return Class.CastTo( m_Module, mdl );
 	}
-
-	void ~ExpansionGameMissionSelecterForm()
-	{
-	}
-
+	
 	override void OnInit()
 	{
+		super.OnInit();
+		
 		m_ActionsFilterWrapper = layoutRoot.FindAnyWidget( "actions_filter_wrapper" );
 
 		m_Filter = UIActionManager.CreateEditableText( m_ActionsFilterWrapper, "Filter: ", this, "Type_UpdateList" );

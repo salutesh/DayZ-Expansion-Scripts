@@ -1,0 +1,580 @@
+FrameWidgetClass ExpansionHelicopterPanel {
+ position 8.61659 5.84978
+ size 457 218
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ {
+  PanelWidgetClass HelicopterPanel {
+   visible 1
+   clipchildren 0
+   size 457 218
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   fixaspect fixwidth
+   priority 1
+   style blank
+   {
+    PanelWidgetClass HeliSpeedPanel {
+     visible 1
+     clipchildren 0
+     size 214 201
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      ImageWidgetClass HeliSpeedDial {
+       clipchildren 0
+       color 0.6275 0.6275 0.6275 1
+       size 195 164
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 ""
+       imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+       nocache 0
+      }
+      ImageWidgetClass HeliSpeedPointer {
+       visible 1
+       clipchildren 0
+       position 0 -0.15
+       size 18 111
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:large_pointer"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+       nocache 0
+       pivot 0.5 0.77
+      }
+      TextWidgetClass HeliSpeedCurrent {
+       position 0 16
+       size 1 36
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style None
+       text "124"
+       font "gui/fonts/sdf_MetronBook72"
+       "shadow offset" 0.5 0.5
+       "exact text" 0
+       "exact text size" 30
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+      TextWidgetClass HeliSpeedLabel {
+       size 1 18
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style None
+       text "km/h"
+       font "gui/fonts/sdf_MetronBook72"
+       "shadow offset" 1 1
+       "exact text" 0
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass HeliBatteryLight {
+       position 0 -45
+       size 38 38
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:battery"
+       mode blend
+       "src alpha" 1
+      }
+     }
+    }
+    ImageWidgetClass HeliHudBg {
+     color 0 0 0 1
+     position 95 0
+     size 1.5 1.2
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     imageTexture "{203A18D5F4B1DBF9}gui/imagesets/vehicle_hud_shadow.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    PanelWidgetClass HeliALTPanel {
+     visible 1
+     clipchildren 0
+     position 0 0
+     size 214 201
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style blank
+     {
+      ImageWidgetClass HeliALTDial {
+       clipchildren 1
+       color 0.6275 0.6275 0.6275 1
+       size 195 164
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 ""
+       imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+       nocache 0
+       {
+        ImageWidgetClass HeliRPMDialRedline {
+         visible 1
+         clipchildren 0
+         color 1 0 0 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         image0 ""
+         imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 1
+         filter 1
+         nocache 0
+         pivot 0 0
+         Mask "{A794C8AEB6A0287B}gui/textures/cardial_big_mask.edds"
+         "Transition width" 0
+         Progress 0.2
+        }
+        ImageWidgetClass HeliRPMDialOptimal {
+         visible 0
+         clipchildren 0
+         color 1 1 1 0.7843
+         size 195 164
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:large_circle_half"
+         mode additive
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         filter 1
+         nocache 0
+         rotation 0 0 60
+         pivot 0.496 0.592
+        }
+        ImageWidgetClass HeliOilLight {
+         position 45 -15
+         size 50 38
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:oil"
+         mode blend
+         "src alpha" 1
+        }
+        ImageWidgetClass HeliEngineLight {
+         position -45 -15
+         size 38 38
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:icon_engine_alert"
+         mode blend
+         "src alpha" 1
+        }
+        PanelWidgetClass HeliHoverALTIndicator {
+         visible 0
+         position 0 -45
+         size 0.4 50
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass HeliHoverALTLabelCurrent {
+           visible 1
+           size 1 36
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           style None
+           text "3"
+           font "gui/fonts/sdf_MetronBook72"
+           "shadow offset" 2 2
+           "bold text" 1
+           "exact text" 0
+           "text halign" center
+          }
+          TextWidgetClass HeliHoverALTLabel {
+           visible 1
+           clipchildren 0
+           size 1 18
+           halign center_ref
+           valign bottom_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 1
+           style None
+           text "m"
+           font "gui/fonts/sdf_MetronBook72"
+           "shadow offset" 1 1
+           "italic text" 0
+           "exact text" 0
+           "size to text h" 0
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      ImageWidgetClass HeliALTPointer {
+       visible 1
+       clipchildren 0
+       position 0 -0.15
+       size 18 111
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:dayz_gui image:large_pointer"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+       nocache 0
+       rotation 0 0 -90
+       pivot 0.5 0.77
+      }
+      TextWidgetClass HeliALTLabel {
+       visible 1
+       clipchildren 0
+       size 1 18
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style None
+       text "m"
+       font "gui/fonts/sdf_MetronBook72"
+       "shadow offset" 1 1
+       "italic text" 0
+       "exact text" 0
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+      }
+      PanelWidgetClass HeliALTIndicator {
+       clipchildren 0
+       position 0 16
+       size 0.4 0.4
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        TextWidgetClass HeliALTCurrent {
+         size 1 36
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style None
+         text "3"
+         font "gui/fonts/sdf_MetronBook72"
+         "shadow offset" 2 2
+         "bold text" 1
+         "exact text" 0
+         "text halign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass HeliCenterIndicators {
+     visible 1
+     clipchildren 0
+     size 68 1
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 0
+     style blank
+     "no focus" 0
+     {
+      PanelWidgetClass HeliFuelIndicator {
+       visible 1
+       size 68 80
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        ImageWidgetClass HeliFuelDial {
+         color 0.6275 0.6275 0.6275 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 1
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.8
+         Progress 0.75
+        }
+        ImageWidgetClass HeliFuelDialLow {
+         visible 1
+         color 1 0 0 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.2
+         Progress 0.25
+        }
+        ImageWidgetClass HeliFuelPointer {
+         clipchildren 0
+         position 0 -0.15
+         size 13 40
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:small_pointer"
+         mode blend
+         "src alpha" 1
+         filter 1
+         rotation 0 0 -40
+         pivot 0.5 0.7
+        }
+        ImageWidgetClass HeliFuelLight {
+         size 30 30
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         fixaspect inside
+         image0 "set:dayz_gui image:fuel"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         filter 1
+         nocache 0
+        }
+       }
+      }
+      PanelWidgetClass HeliTemperatureIndicator {
+       visible 1
+       position 0 0
+       size 68 80
+       halign center_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        ImageWidgetClass HeliTemperatureDialLow {
+         visible 1
+         color 0 0 1 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.2
+         Progress 0.3
+        }
+        ImageWidgetClass HeliTemperatureDial {
+         visible 1
+         color 0.6275 0.6275 0.6275 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 1
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0
+         Progress 0.936
+        }
+        ImageWidgetClass HeliTemperatureDialHigh {
+         visible 1
+         color 1 0 0 1
+         position 0 0
+         size 68 56
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 ""
+         imageTexture "{22721E7344C22D6A}gui/textures/cardial_small.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 1
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0.2
+         Progress 0.3
+        }
+        ImageWidgetClass HeliTemperaturePointer {
+         clipchildren 0
+         position 0.092 -0.15
+         size 12.816 40
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:small_pointer"
+         mode blend
+         "src alpha" 1
+         rotation 0 0 20
+         pivot 0.5 0.7
+        }
+        ImageWidgetClass HeliTemperatureLight {
+         size 30 30
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         fixaspect inside
+         image0 "set:dayz_gui image:liquid"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         filter 1
+         nocache 0
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -315,7 +315,7 @@ class CfgVehicles
 				rpmIdle = 800;
 				rpmMin = 900;
 				rpmClutch = 1350;
-				rpmRedline = 2500;
+				rpmRedline = 3000;
 				rpmMax = 3500;
 			};
 			class Gearbox

@@ -34,21 +34,13 @@ class ExpansionFlagKitBase extends ExpansionKitSmall
 	// ------------------------------------------------------------
 	// OnPlacementComplete
 	// ------------------------------------------------------------
-	#ifdef DAYZ_1_10
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
-	#else
-	override void OnPlacementComplete( Man player )
-	#endif
 	{
 		//! ON SERVER ONLY
 		if ( IsMissionHost() )
 		{
 			//! Create ExpansionFlagBase flag
 			PlayerBase player_base = PlayerBase.Cast( player );
-			#ifndef DAYZ_1_10
-			vector position = player_base.GetLocalProjectionPosition();
-			vector orientation = player_base.GetLocalProjectionOrientation();
-			#endif
 			
 			ExpansionFlagBase flag = ExpansionFlagBase.Cast( GetGame().CreateObject( GetFlagObject(), GetPosition() ) );
 			flag.SetPosition( position );

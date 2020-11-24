@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{B38209B2DF35BEB1}DayZExpansion/GUI/textures/book_background.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate -1113250224
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "book_background.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

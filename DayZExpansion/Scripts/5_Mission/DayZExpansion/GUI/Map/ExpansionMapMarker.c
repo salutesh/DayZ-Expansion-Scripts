@@ -559,6 +559,10 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		if ( IsCreating() )
 			return;
 
+		if ( !m_Data )
+			return;
+
+
 		int type = m_Data.GetType();
 		switch ( type )
 		{

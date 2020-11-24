@@ -14,7 +14,7 @@ modded class ActionFoldBaseBuildingObject
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !super.ActionCondition( player, target, item ) && !GetExpansionSettings().GetBaseBuilding().DismantleAnywhere )
+		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
 		if ( player.IsInSafeZone() )

@@ -45,6 +45,7 @@ modded class ActionTogglePlaceObject
 				//Place stuff other than flag should be possible inside your territory
 				if ( player.IsInTerritory() )
 				{
+					territoryReqNotif = false;
 					if (!player.IsInsideOwnTerritory())
 					{
 						enemyTerritoryNotif = true;

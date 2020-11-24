@@ -54,61 +54,11 @@ class ExpansionNotificationModule: JMModuleBase
 		#endif
 	}
 
-	/*override void RegisterKeyMouseBindings() 
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RegisterKeyMouseBindings - Start");
-		#endif
-		
-		super.RegisterKeyMouseBindings();
-		
-		RegisterBinding( new JMModuleBinding( "Input_ShowNotification", "UAExpansionNotificationTestShow", true ) );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RegisterKeyMouseBindings - End");
-		#endif
-	}*/
-
-	/*void Input_ShowNotification( UAInput input )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::Input_ShowNotification - Start");
-		#endif
-		
-		if ( !(input.LocalPress()) )
-			return;
-		
-		NotificationSystem.Create( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "wow" ), new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "test 43" ), "set:expansion_iconset image:icon_info", ARGB( 255, 221, 38, 38 ) );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::Input_ShowNotification - End");
-		#endif
-	}*/
-
 	// ------------------------------------------------------------
 	int GetNotificationsCount()
 	{
 		return m_Notifications.Count();
 	}
-
-	// ------------------------------------------------------------
-	/*void CreateNotification_Old( string title, string text, int color, float time = 3, PlayerIdentity sendTo )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::CreateNotification_Old - Start");
-		#endif
-		
-		StringLocaliser oTitle = new StringLocaliser( title );
-		StringLocaliser oText = new StringLocaliser( text );
-		oTitle.SetTranslates( false );
-		oText.SetTranslates( false );
-
-		NotificationSystem.Create( oTitle, oText, "set:expansion_iconset image:icon_info", color, time, sendTo );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::CreateNotification_Old - End");
-		#endif
-	}*/
 
 	// ------------------------------------------------------------
 	void AddNotification( ref NotificationRuntimeData data )

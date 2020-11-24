@@ -694,9 +694,10 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
+				steepness = 6;
+				torqueMax = 134;
 				torqueRpm = 3400;
-				powerMax = 53.7;
+				powerMax = 63.7;
 				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
@@ -717,17 +718,17 @@ class CfgVehicles
 				class Front: Front
 				{
 					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
+					finalRatio = 2.1;
+					brakeBias = 0.4;
+					brakeForce = 10000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
 						swayBar = 1700;
-						stiffness = 40000;
+						stiffness = 45000;
 						compression = 2100;
-						damping = 7500;
+						damping = 8500;
 						travelMaxUp = 0.0882;
 						travelMaxDown = 0.0833;
 					};
@@ -755,16 +756,16 @@ class CfgVehicles
 				{
 					maxSteeringAngle = 0;
 					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 3800;
+					brakeBias = 0.6;
+					brakeForce = 12000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
 						swayBar = 1800;
-						stiffness = 40000;
+						stiffness = 45000;
 						compression = 2200;
-						damping = 7600;
+						damping = 8600;
 						travelMaxUp = 0.1587;
 						travelMaxDown = 0.1059;
 					};

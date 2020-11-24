@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{D6E1D0FF81F35A23}DayZExpansion/GUI/textures/overlays/nightvision.edds"
+ Author "Steve alias Mo"
+ ChangeDate 1197139793
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "nightvision.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

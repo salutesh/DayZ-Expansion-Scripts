@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{BE3E97854FF2D3DF}DayZExpansion/GUI/textures/spawn_selection/berezino.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate -332077407
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "berezino.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

@@ -1,0 +1,80 @@
+PanelWidgetClass ExpansionPageElement {
+ clipchildren 1
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass page_panel {
+   ignorepointer 1
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   {
+    TextWidgetClass page_description_label {
+     ignorepointer 1
+     color 0 0 0 1
+     size 1 0.08
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 0
+     "size to text h" 0
+     "text halign" center
+     "text valign" center
+    }
+    ImageWidgetClass page_description_background {
+     ignorepointer 1
+     position 0 0
+     size 1 0.07
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     image0 "set:book_assets image:menu_element_5"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+    PanelWidgetClass page_content {
+     ignorepointer 1
+     size 1 0.92397
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     "no focus" 1
+     {
+      HtmlWidgetClass page_text {
+       clipchildren 0
+       ignorepointer 1
+       color 0.2235 0.2235 0.2235 1
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 1
+       "exact text size" 22
+       wrap 1
+      }
+     }
+    }
+   }
+  }
+ }
+}

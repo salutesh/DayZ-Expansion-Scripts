@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_World
+	class DayZExpansion_Dta_World
 	{
 		units[] = {"ExpansionAirCondBig","ExpansionAirCondSmall","ExpansionWoodDoorPlanks","ExpansionGasMeter","ExpansionBarricadingWindow","ExpansionLadderLong","ExpansionLadderMedium","ExpansionLadderShort","ExpansionLadderTop","ExpansionLightCondBottom","ExpansionLightCondConn","ExpansionLightCondCorn","ExpansionLightCondMid","ExpansionLightCondTop","ExpansionAirCondA","ExpansionAirCondB","ExpansionAntenaBigRoof","ExpansionAntenaSmallRoofA","ExpansionAntenaSmallRoofB"};
 		weapons[] = {};

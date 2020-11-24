@@ -1,0 +1,124 @@
+GridSpacerWidgetClass ExpansionMarketUICategory {
+ position 0 0
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionMarketUICategory"
+ "Size To Content V" 1
+ Columns 1
+ Rows 1
+ {
+  PanelWidgetClass category_header_panel {
+   visible 1
+   ignorepointer 1
+   color 0.0902 0.0902 0.0902 1
+   position 0 0
+   size 480 50
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style DayZDefaultPanelTop
+   {
+    TextWidgetClass category_title {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 25
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style Normal
+     text "CATEGORY TITLE"
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+    }
+    ButtonWidgetClass category_collapse {
+     visible 1
+     clipchildren 0
+     ignorepointer 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style Empty
+     {
+      ImageWidgetClass category_collapse_background {
+       visible 0
+       ignorepointer 1
+       color 0.2627 0.2627 0.2627 0.549
+       position 0 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       mode blend
+       "src alpha" 1
+       "no wrap" 0
+       stretch 1
+      }
+      ImageWidgetClass category_expand_icon {
+       visible 0
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       image0 "set:arrows image:expand"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass category_collapse_text {
+       visible 0
+       ignorepointer 1
+       color 0 0 0 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "C"
+       font "gui/fonts/Metron-Italic"
+       "text color" 0.8471 0.6118 0.6118 1
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+   }
+  }
+  GridSpacerWidgetClass category_items {
+   ignorepointer 1
+   position 0 50
+   size 1 0.5
+   hexactpos 0
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   Padding 0
+   Margin 0
+   "Size To Content V" 1
+   Columns 5
+   Rows 100
+  }
+ }
+}

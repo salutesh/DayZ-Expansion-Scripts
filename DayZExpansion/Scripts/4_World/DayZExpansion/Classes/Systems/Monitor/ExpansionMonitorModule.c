@@ -204,7 +204,7 @@ class ExpansionMonitorModule: JMModuleBase
 	
 					ref ExpansionSyncedPlayerStats stat = m_Stats.GetElement( m_CurrentPlayerTick );
 	
-					PlayerBase active_player = PlayerBase.GetPlayerByUID( stat.m_PlayerUID );
+					PlayerBase active_player = PlayerBase.GetPlayerByUID( m_Stats.GetKey( m_CurrentPlayerTick ) );
 					
 					if ( active_player && active_player.GetIdentity() )
 					{

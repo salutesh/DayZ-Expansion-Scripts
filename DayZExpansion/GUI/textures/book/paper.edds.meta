@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{5BE5EF041C596B32}DayZExpansion/GUI/textures/paper.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 1221879378
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "paper.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

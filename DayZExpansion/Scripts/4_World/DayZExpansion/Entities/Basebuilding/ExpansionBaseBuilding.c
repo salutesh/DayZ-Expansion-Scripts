@@ -50,6 +50,8 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		m_HasCode = false;
 		m_Locked = false;
 		m_Code = "";
+		
+		SetAllowDamage(CanBeDamaged());
 	}
 
 	// ------------------------------------------------------------
@@ -76,7 +78,7 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	override void EEInit()
 	{
 		super.EEInit();
-
+		
 		UpdatePhysics();
 	}
 
@@ -100,8 +102,8 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		if ( dot >= 0 )
 		{
 			#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBaseBuilding " + this + " ExpansionIsFacing End True");
-		#endif
+			EXPrint("ExpansionBaseBuilding " + this + " ExpansionIsFacing End True");
+			#endif
 			return true;
 		}
 
@@ -192,8 +194,8 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 			if ( angle >= MAX_ACTION_DETECTION_ANGLE_RAD )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBaseBuilding " + this + " IsFacingCamera End True");
-		#endif
+				EXPrint("ExpansionBaseBuilding " + this + " IsFacingCamera End True");
+				#endif
 				return true;
 			}
 		}
@@ -219,8 +221,8 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 			if ( distance >= MAX_ACTION_DETECTION_DISTANCE )
 			{
 				#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBaseBuilding " + this + " HasProperDistance End True");
-		#endif
+				EXPrint("ExpansionBaseBuilding " + this + " HasProperDistance End True");
+				#endif
 				return false;
 			}
 		}
@@ -456,13 +458,14 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		SoundCodeLockFailedUnlock();
 	}
 
-	/**
-	\brief Can base building item be damaged
-		\param 	
-	*/
 	bool CanBeDamaged()
 	{
-		return true;
+		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 0)
+		{
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**

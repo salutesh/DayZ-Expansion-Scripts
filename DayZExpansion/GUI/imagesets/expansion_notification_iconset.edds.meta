@@ -1,0 +1,16 @@
+MetaFileClass {
+ Name "{750E47D66C23ECD8}DayZExpansion/GUI/imagesets/expansion_notification_iconset.edds"
+ Author "Steve aka Salutesh"
+ ChangeDate 652928858
+ Configurations {
+  TGAResourceClass PC {
+   SourceFile "expansion_notification_iconset.tga"
+  }
+  TGAResourceClass XBOX_ONE : PC {
+  }
+  TGAResourceClass PS4 : PC {
+  }
+  TGAResourceClass LINUX : PC {
+  }
+ }
+}

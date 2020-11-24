@@ -1,0 +1,107 @@
+FrameWidgetClass rootFrame {
+ position 0.17 200
+ size 0.7 0.7
+ halign center_ref
+ valign center_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ {
+  RichTextWidgetClass ExpansionEventName_Main {
+   position 0 -8
+   size 400 48
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style DayZBold
+   text "ENEMY FRAGGED"
+   font "gui/fonts/etelkatextpro"
+   "exact text" 1
+   "text valign" center
+  }
+  RichTextWidgetClass ExpansionEventBonus_Main {
+   position 0 24
+   size 400 48
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   text "BIG DISTANCE"
+   font "gui/fonts/etelkatextpro"
+   "exact text" 1
+   "text valign" center
+  }
+  RichTextWidgetClass ExpansionEventBonus2_Main {
+   position 0 56
+   size 400 48
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   text "FIRST BLOOD"
+   font "gui/fonts/etelkatextpro"
+   "exact text" 1
+   "text valign" center
+  }
+  RichTextWidgetClass ExpansionEventName_Score {
+   position 0.25 4
+   size 75 24
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scaled 1
+   text "1400"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "text halign" right
+   "text valign" center
+  }
+  RichTextWidgetClass ExpansionEventBonus_Score {
+   position 0.25 36
+   size 75 24
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scaled 1
+   text "600"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "text halign" right
+   "text valign" center
+  }
+  RichTextWidgetClass ExpansionEventBonus2_Score {
+   position 0.25 68
+   size 75 24
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scaled 1
+   text "300"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "text halign" right
+   "text valign" center
+  }
+  RichTextWidgetClass ExpansionEventTotal {
+   color 0.7059 1 0.3137 1
+   position 0.195 90
+   size 150 48
+   hexactpos 0
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style DayZBold
+   text "+2300"
+   font "gui/fonts/etelkatextpro"
+   "text color" 0.7059 1 0.3137 1
+   "exact text" 1
+   "text halign" right
+   "text valign" center
+  }
+ }
+}

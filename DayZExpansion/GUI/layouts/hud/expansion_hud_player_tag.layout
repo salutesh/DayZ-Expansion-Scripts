@@ -1,0 +1,74 @@
+FrameWidgetClass ExpansionPlayerTag {
+ clipchildren 0
+ ignorepointer 1
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ {
+  GridSpacerWidgetClass TagFrame {
+   ignorepointer 1
+   color 1 1 1 0.7843
+   position 0 0
+   size 300 34
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   style Empty
+   Padding 5
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+   content_valign center
+   Columns 2
+   Rows 1
+   {
+    ImageWidgetClass TagIcon {
+     visible 0
+     ignorepointer 1
+     position 10 10
+     size 32 32
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     imageTexture "{C46EFC659DD3BDAB}DayZExpansion/GUI/icons/hud/persona_64x64.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    TextWidgetClass TagText {
+     visible 1
+     ignorepointer 1
+     color 0.902 0.902 0.902 1
+     size 1 32
+     halign right_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     text "Playername"
+     font "gui/fonts/etelkatextpro22"
+     "outline size" 1
+     "outline color" 0 0 0 0.498
+     "shadow size" 5
+     "shadow color" 0 0 0 0.3922
+     "shadow offset" 1 1
+     "exact text" 0
+     "exact text size" 22
+     "size to text h" 1
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+ }
+}

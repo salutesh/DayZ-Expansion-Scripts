@@ -1,0 +1,142 @@
+<WidgetStyles>
+    <Widget Name="TextListboxWidget">
+        <Style Name="ExpansionNoScrollBar" Font="DayZExpansion/GUI/fonts/grundschrift-bold" ImageSet="dayz_gui" Color="4294967295">
+            <State Name="Disabled">
+                <Item Name="BottomCenter" Image="" />
+                <Item Name="BottomSeparator" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="HeaderBottomCenter" Image="" />
+                <Item Name="HeaderCenter" Image="" />
+                <Item Name="HeaderLeftBottom" Image="" />
+                <Item Name="HeaderLeftCenter" Image="" />
+                <Item Name="HeaderLeftTop" Image="" />
+                <Item Name="HeaderRightBottom" Image="" />
+                <Item Name="HeaderRightCenter" Image="" />
+                <Item Name="HeaderRightTop" Image="" />
+                <Item Name="HeaderTopCenter" Image="" />
+                <Item Name="Highlight" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftCenter" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="LeftTopWithTitle" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightCenter" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="RightTopWithTitle" Image="" />
+                <Item Name="ScrollBarBottom" Image="" />
+                <Item Name="ScrollBarCenter" Image="" />
+                <Item Name="ScrollBarTop" Image="" />
+                <Item Name="Separator" Image="" />
+                <Item Name="TitleCenter" Image="" />
+                <Item Name="TitleCenterSeparator" Image="" />
+                <Item Name="TitleLeftCenter" Image="" />
+                <Item Name="TitleRightCenter" Image="" />
+                <Item Name="TopCenter" Image="" />
+                <Item Name="TopSeparator" Image="" />
+            </State>
+            <State Name="Focus">
+                <Item Name="BottomCenter" Image="" />
+                <Item Name="BottomSeparator" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="HeaderBottomCenter" Image="" />
+                <Item Name="HeaderCenter" Image="" />
+                <Item Name="HeaderLeftBottom" Image="" />
+                <Item Name="HeaderLeftCenter" Image="" />
+                <Item Name="HeaderLeftTop" Image="" />
+                <Item Name="HeaderRightBottom" Image="" />
+                <Item Name="HeaderRightCenter" Image="" />
+                <Item Name="HeaderRightTop" Image="" />
+                <Item Name="HeaderTopCenter" Image="" />
+                <Item Name="Highlight" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftCenter" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="LeftTopWithTitle" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightCenter" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="RightTopWithTitle" Image="" />
+                <Item Name="ScrollBarBottom" Image="" />
+                <Item Name="ScrollBarCenter" Image="" />
+                <Item Name="ScrollBarTop" Image="" />
+                <Item Name="Separator" Image="" />
+                <Item Name="TitleCenter" Image="" />
+                <Item Name="TitleCenterSeparator" Image="" />
+                <Item Name="TitleLeftCenter" Image="" />
+                <Item Name="TitleRightCenter" Image="" />
+                <Item Name="TopCenter" Image="" />
+                <Item Name="TopSeparator" Image="" />
+            </State>
+            <State Name="Normal">
+                <Item Name="BottomCenter" Image="" />
+                <Item Name="BottomSeparator" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="HeaderBottomCenter" Image="" />
+                <Item Name="HeaderCenter" Image="" />
+                <Item Name="HeaderLeftBottom" Image="" />
+                <Item Name="HeaderLeftCenter" Image="" />
+                <Item Name="HeaderLeftTop" Image="" />
+                <Item Name="HeaderRightBottom" Image="" />
+                <Item Name="HeaderRightCenter" Image="" />
+                <Item Name="HeaderRightTop" Image="" />
+                <Item Name="HeaderTopCenter" Image="" />
+                <Item Name="Highlight" Image="editorQuadSelCenter" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftCenter" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="LeftTopWithTitle" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightCenter" Image="InventoryGridEmptyRight" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="RightTopWithTitle" Image="" />
+                <Item Name="ScrollBarBottom" Image="" />
+                <Item Name="ScrollBarCenter" Image="" />
+                <Item Name="ScrollBarTop" Image="" />
+                <Item Name="Separator" Image="" />
+                <Item Name="TitleCenter" Image="" />
+                <Item Name="TitleCenterSeparator" Image="" />
+                <Item Name="TitleLeftCenter" Image="" />
+                <Item Name="TitleRightCenter" Image="" />
+                <Item Name="TopCenter" Image="" />
+                <Item Name="TopSeparator" Image="" />
+            </State>
+        </Style>
+    </Widget>
+    <Widget Name="EditBoxWidget">
+        <Style Name="ExpansionBookEditBox" Font="DayZExpansion/GUI/fonts/grundschrift-bold" ImageSet="dayz_gui" Color="4289419570">
+            <State Name="Disabled">
+                <Item Name="Bottom" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="Left" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="" />
+            </State>
+            <State Name="Focus">
+                <Item Name="Bottom" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="Left" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="" />
+            </State>
+            <State Name="Normal">
+                <Item Name="Bottom" Image="editorQuadBottom" />
+                <Item Name="Center" Image="editorQuadCenter" />
+                <Item Name="Left" Image="editorQuadLeft" />
+                <Item Name="LeftBottom" Image="editorQuadBottomLeft" />
+                <Item Name="LeftTop" Image="editorQuadTopLeft" />
+                <Item Name="Right" Image="editorQuadRight" />
+                <Item Name="RightBottom" Image="editorQuadBottomRight" />
+                <Item Name="RightTop" Image="editorQuadTopRight" />
+                <Item Name="Top" Image="editorQuadTop" />
+            </State>
+        </Style>
+    </Widget>
+</WidgetStyles>

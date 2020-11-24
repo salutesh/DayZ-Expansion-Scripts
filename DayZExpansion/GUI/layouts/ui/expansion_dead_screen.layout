@@ -1,0 +1,524 @@
+PanelWidgetClass ExpansionDeadScreen {
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass dead_screen {
+   visible 1
+   ignorepointer 1
+   color 0.1216 0.1373 0.1373 1
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   style rover_sim_colorable
+   {
+    ImageWidgetClass dead_screen_image {
+     visible 1
+     ignorepointer 1
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     imageTexture "{0FB141339ACA8CF1}DayZExpansion/GUI/textures/dead_screens/dead_screen.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 0
+     stretch 1
+     filter 1
+     "Transition width" 0.919
+     Progress 0.811
+    }
+   }
+  }
+  PanelWidgetClass PlayerStatisticsPanel {
+   visible 0
+   clipchildren 1
+   inheritalpha 0
+   color 0.1176 0.1176 0.1176 0.9804
+   position 0 -2.52632
+   size 900 550
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 3
+   style DayZDefaultPanel
+   {
+    TextWidgetClass Caption {
+     clipchildren 0
+     position 0 30
+     size 700.21002 30
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Normal
+     text "#STR_EXPANSION_DEADSCREEN_STATS_TITLE"
+     font "gui/fonts/sdf_MetronBook24"
+     "text color" 1 1 1 1
+     "italic text" 0
+     "bold text" 1
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+    }
+    ButtonWidgetClass bHide {
+     visible 1
+     color 0 0 0 0.6667
+     position 0 30
+     size 350 50
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     userID 1
+     style Colorable
+     text_proportion 0.75
+     font "gui/fonts/sdf_MetronBook24"
+     {
+      TextWidgetClass bHideLable {
+       ignorepointer 1
+       size 1 0.5
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "#STR_EXPANSION_DEADSCREEN_STATS_HIDE_BUTTON_LABLE"
+       "size to text h" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    PanelWidgetClass SeparatorPanel {
+     color 0.7569 0.0941 0.0941 1
+     position 0 90
+     size 840 5
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 10
+     style rover_sim_colorable
+    }
+    GridSpacerWidgetClass StatsPanel {
+     visible 1
+     ignorepointer 1
+     position 0 -20
+     size 840 350
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 3
+     Padding 0
+     Margin 0
+     "Size To Content V" 1
+     Columns 1
+     Rows 2
+     {
+      ImageWidgetClass StatsPanelHeader {
+       ignorepointer 1
+       color 0 0 0 0.8627
+       position 0 0
+       size 1 36
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       image0 "set:dayz_gui image:inv_header_1"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       "flip u" 0
+       "flip v" 0
+       filter 1
+       nocache 0
+       {
+        TextWidgetClass StatsPanelHeaderText {
+         ignorepointer 1
+         size 1 26
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Normal
+         text "#main_menu_statistics"
+         font "gui/fonts/sdf_MetronLight42"
+         "exact text" 1
+         "exact text size" 22
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      GridSpacerWidgetClass StatsPanelContent {
+       ignorepointer 1
+       color 0 0 0 0.549
+       position 0 36
+       size 1 0
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultPanelSides
+       Padding 4
+       Margin 6
+       "Size To Content V" 1
+       Columns 1
+       Rows 5
+       {
+        FrameWidgetClass TimeSurvived {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass TimeSurvivedLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_DEADSCREEN_STATS_SURVIVED_TIME"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass TimeSurvivedValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass PlayersKilled {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass PlayersKilledLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#main_menu_players_killed"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass PlayersKilledValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass InfectedKilled {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass InfectedKilledLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#main_menu_infected_killed"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass InfectedKilledValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass AnimalsKilled {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass AnimalsKilledLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STAT_ANIMAL_KILLS"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass AnimalsKilledValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass DistanceTraveled {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass DistanceTraveledLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#main_menu_distance_foot"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass DistanceTraveledValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass LongRangeShot {
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass LongRangeShotLabel {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "#main_menu_long_range_hit_player"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass LongRangeShotValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        FrameWidgetClass DeadSource {
+         visible 0
+         ignorepointer 1
+         position 0 0
+         size 48 32
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         {
+          TextWidgetClass DeadSourceLable {
+           ignorepointer 1
+           size 1 1
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           text "Died on"
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+          TextWidgetClass DeadSourceValue {
+           ignorepointer 1
+           size 1 1
+           halign right_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           "size to text h" 1
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass SeparatorPanel0 {
+     color 0.7569 0.0941 0.0941 1
+     position 0 130
+     size 840 5
+     halign center_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 10
+     style rover_sim_colorable
+    }
+   }
+  }
+  PanelWidgetClass ButtonPanel {
+   visible 1
+   ignorepointer 0
+   position 0 298
+   size 350 50
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 3
+   style blank
+   {
+    ButtonWidgetClass bStats {
+     color 0 0 0 0.6667
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Colorable
+    }
+    TextWidgetClass bStatsLable {
+     ignorepointer 1
+     size 1 0.5
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "#STR_EXPANSION_DEADSCREEN_STATS_SHOW_BUTTON_LABLE"
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+ }
+}

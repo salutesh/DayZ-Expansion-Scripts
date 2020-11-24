@@ -69,17 +69,10 @@ modded class ActionBuildPart
 		{
 			if ( item_in_hands.GetType() == "ExpansionAdminHammer" )
 			{
-				#ifdef DAYZ_1_10
 				if ( !construction.IsColliding( part_name ) && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
 				{
 					construction.BuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
 				}
-				#else
-				if ( !construction.IsColliding( part_name ) && construction.CanBuildPart( part_name, action_data.m_MainItem ) )
-				{
-					construction.BuildPartServer( part_name, AT_BUILD_PART );
-				}
-				#endif
 
 				action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );
 			}

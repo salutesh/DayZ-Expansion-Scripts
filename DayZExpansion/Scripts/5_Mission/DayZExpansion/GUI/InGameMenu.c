@@ -64,15 +64,10 @@ modded class InGameMenu
 		EXPrint("InGameMenu::Init - Start");
 		#endif
 		
-		#ifdef DAYZ_1_10
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_ingamemenu.layout");
 		m_RespawnButton 			= layoutRoot.FindAnyWidget( "respawn_button" );
 		m_RestartDeadRandomButton	= layoutRoot.FindAnyWidget( "respawn_button_random" );
 		m_RestartDeadCustomButton	= layoutRoot.FindAnyWidget( "respawn_button_custom" );
-		#else
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_ingamemenu_109.layout");
-		m_RestartDeadButton	= layoutRoot.FindAnyWidget( "restartdeadbtn" );
-		#endif
 				
 		m_ContinueButton	= layoutRoot.FindAnyWidget( "continuebtn" );
 		m_ExitButton		= layoutRoot.FindAnyWidget( "exitbtn" );
