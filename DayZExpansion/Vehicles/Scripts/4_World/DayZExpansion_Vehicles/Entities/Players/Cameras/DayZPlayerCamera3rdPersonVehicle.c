@@ -81,20 +81,26 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( false );
 
+		//Print( "OnUpdate" );
+		//Print( pOutResult.m_CollisionIgnoreEntity );
+
+		ExpansionVehicleBase vehicle;
+		if ( Class.CastTo( vehicle, pOutResult.m_CollisionIgnoreEntity ) )
+		{
+			//Print( dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) );
+			//Print( vehicle.IsCreatingDynamic() );
+			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) || vehicle.IsCreatingDynamic() )
+			{
+				pOutResult.m_CollisionIgnoreEntity = NULL;
+			}
+		}
+
+		//Print( vehicle );
+		//Print( pOutResult.m_CollisionIgnoreEntity );
+
 		EntityAI entParent;
 		if ( !Class.CastTo( entParent, m_pPlayer.GetParent() ) )
 			return;
-
-		if ( pOutResult.m_CollisionIgnoreEntity )
-		{
-			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) )
-			{
-				pOutResult.m_CollisionIgnoreEntity = NULL;
-			} else
-			{
-				
-			}
-		}
 
 		ExpansionHelicopterScript d_helicopter;
 		if ( Class.CastTo( d_helicopter, m_pPlayer.GetParent() ) ) {

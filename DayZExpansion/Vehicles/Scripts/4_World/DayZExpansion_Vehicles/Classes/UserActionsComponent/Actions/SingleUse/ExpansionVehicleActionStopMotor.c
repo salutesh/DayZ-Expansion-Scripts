@@ -55,7 +55,8 @@ class ExpansionVehicleActionStopMotor : ActionSingleUseBase
 
 		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
 		{
-			car.EngineStop();
+			car.MotorStop();
+
 			if (!GetGame().IsMultiplayer())
 				SEffectManager.PlaySound(car.m_EngineStopFuel, car.GetPosition());
 		}
@@ -68,8 +69,9 @@ class ExpansionVehicleActionStopMotor : ActionSingleUseBase
 
 		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
 		{
-			car.EngineStop();
-				SEffectManager.PlaySound(car.m_EngineStopFuel, car.GetPosition());
+			car.MotorStop();
+			
+			SEffectManager.PlaySound(car.m_EngineStopFuel, car.GetPosition());
 		}
 	}
 

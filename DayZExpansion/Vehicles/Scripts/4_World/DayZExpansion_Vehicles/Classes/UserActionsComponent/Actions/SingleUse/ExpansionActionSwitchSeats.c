@@ -106,4 +106,4 @@ class ExpansionActionSwitchSeats: ActionBase
 	{
 		return true;
 	}
-}
+};

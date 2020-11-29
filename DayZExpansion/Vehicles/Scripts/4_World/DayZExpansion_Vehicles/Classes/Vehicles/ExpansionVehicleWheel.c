@@ -424,7 +424,7 @@ class ExpansionVehicleWheel
 		m_TraceStart = m_SuspensionOffset.Multiply4(rotationTransform);
 		m_SuspensionDistance = Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 0.0; //! checking 2 frames ahead
 		
-		m_TraceUp = m_Axle.GetTravelMaxUp() + m_WheelItem.m_Radius;
+		m_TraceUp = m_Axle.GetTravelMaxUp() + m_WheelItem.m_Radius + m_WheelItem.m_Radius;
 		m_TraceDown = m_Axle.GetTravelMaxDown() + m_WheelItem.m_Radius + m_SuspensionDistance;
 		
 		m_ContactLength = m_TraceUp + m_TraceDown;
@@ -525,10 +525,14 @@ class ExpansionVehicleWheel
 	{
 		m_SuspensionLength = (1.0 - m_ContactFraction) * m_ContactLength;
 		//m_SuspensionLength = Math.Max(m_SuspensionLength, 0);
+		float wheelDepth = Math.Clamp(m_SuspensionLength - m_Axle.GetTravelMax(), 0, m_WheelItem.m_Radius);
+		wheelDepth *= wheelDepth;
 		m_SuspensionLength = Math.Clamp(m_SuspensionLength, 0, m_Axle.GetTravelMax());
 		
 		m_SuspensionFraction = (m_SuspensionLength / m_Axle.GetTravelMax());
 
+		ExpansionDebugUI( "wheelDepth: " + wheelDepth );
+		ExpansionDebugUI( "SuspensionLength: " + m_SuspensionLength );
 		ExpansionDebugUI( "SuspensionFraction: " + m_SuspensionFraction );
 		ExpansionDebugUI( "TraceUp: " + m_TraceUp );
 		ExpansionDebugUI( "TraceDown: " + m_TraceDown );
@@ -541,20 +545,19 @@ class ExpansionVehicleWheel
 			float ks = m_Axle.GetStiffness();
 			float kc = m_Axle.GetCompression();
 			float kd = m_Axle.GetDamping();
-			
-			//m_SuspensionRelativeVelocity = (m_SuspensionLengthPrevious - m_SuspensionLength) / pDt;
 
 			float compressionDelta = kd * m_SuspensionRelativeVelocity;
 			if (m_SuspensionRelativeVelocity < 0)
 				compressionDelta = kc * m_SuspensionRelativeVelocity;
 			float suspension = ks * m_SuspensionLength;
+			float wheelUp = 0; //wheelDepth * ks * 4.0;
 			
+			ExpansionDebugUI( "wheelUp: " + wheelUp );
 			ExpansionDebugUI( "compressionDelta: " + compressionDelta );
 			ExpansionDebugUI( "suspension: " + suspension );
 			
-			m_SuspensionForce = suspension - compressionDelta;
+			m_SuspensionForce = (wheelUp + suspension) - compressionDelta;
 		
-
 			vector susp = m_ContactNormal * m_SuspensionForce * pDt;
 
 			impulse += susp;

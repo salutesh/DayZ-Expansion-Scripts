@@ -281,7 +281,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
-	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
+	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
 	{
 		if ( m_ExpansionST == NULL )
 			m_ExpansionST = new ExpansionHumanST( this );

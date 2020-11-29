@@ -45,7 +45,7 @@ class ExpansionVehicleBase extends ItemBase
 	protected bool m_IsPhysicsHost;
 	protected bool m_WasPhysicsHost;
 	protected bool m_IsForcingPhysics;
-	protected bool m_PerformInterpolation;
+	protected bool m_IsCreatingDynamic;
 	private float m_RenderFrameTime;
 	private int m_PhysicsCreationTimer;
 	bool m_PhysicsCreated;
@@ -637,6 +637,11 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 	}
 
+	bool IsCreatingDynamic()
+	{
+		return m_IsCreatingDynamic;
+	}
+
 	private void CreateDynamic()
 	{
 		int physLayer = PhxInteractionLayers.VEHICLE_NOTERRAIN;
@@ -880,7 +885,8 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	override void EOnFrame( IEntity other, float timeSlice )
 	{
-		if ( m_PerformInterpolation && GetGame().IsClient() )
+		/*
+		if ( GetGame().IsClient() )
 		{
 			m_RenderFrameTime += timeSlice;
 
@@ -898,6 +904,7 @@ class ExpansionVehicleBase extends ItemBase
 				SetTransform( m_SyncState.m_PredictedTransform );
 			}
 		}
+		*/
 	}
 
 	// ------------------------------------------------------------
@@ -1078,8 +1085,6 @@ class ExpansionVehicleBase extends ItemBase
 		//Print(typename.EnumToString(ExpansionVehicleNetworkMode, m_NetworkMode));
 		//Print(driver);
 		//Print(GetGame().GetPlayer());
-		
-		m_PerformInterpolation = false;
 
 		bool prevForcingPhysics = m_IsForcingPhysics;
 		m_IsForcingPhysics = false;
@@ -1178,6 +1183,11 @@ class ExpansionVehicleBase extends ItemBase
 		bool shouldCreateDynamic = (m_IsForcingPhysics || m_IsPhysicsHost);
 		bool shouldDestroyDynamic = (m_WasPhysicsHost != m_IsPhysicsHost) || (!m_IsPhysicsHost && !m_IsForcingPhysics);
 
+		if ( dBodyIsDynamic( this ) && !shouldDestroyDynamic )
+		{
+			m_IsCreatingDynamic = false;
+		}
+
 		if ( (m_WasPhysicsHost == m_IsPhysicsHost) && m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
 			stateF = 0; 
@@ -1227,12 +1237,10 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			stateF = 2;
 			
-			SetDynamicPhysicsLifeTime( 0.01 );
+			SetDynamicPhysicsLifeTime( 0.001 );
 		} else if ( dBodyIsDynamic( this ) )
 		{
 			stateF = 3;
-
-			m_PerformInterpolation = true;
 			
 			if ( GetGame().IsClient() )
 			{
@@ -1240,16 +1248,30 @@ class ExpansionVehicleBase extends ItemBase
 
 				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
 
-				MoveTo( dt, m_SyncState.m_PredictedTransform );
+				SetTransform( m_SyncState.m_PredictedTransform );
 			} else
 			{
-				MoveTo( dt, m_SyncState.m_InitialTransform );
+				SetTransform( m_SyncState.m_InitialTransform );
 			}
 
-			SetSynchDirty();
+			SetVelocity( this, m_SyncState.m_LinearVelocity );
+			dBodySetAngularVelocity( this, m_SyncState.m_AngularVelocity );
 		} else
 		{
 			stateF = 4;
+		}
+
+		UpdateMotionStates( dt );
+
+		if ( m_IsPhysicsHost )
+		{
+			if ( !GetGame().IsClient() )
+			{
+				HandleSync_Server();
+			} else if ( !GetGame().IsServer() )
+			{
+				HandleSync_Client();
+			}
 		}
 
 		ExpansionDebugUI( "stateF: " + stateF );
@@ -1322,24 +1344,14 @@ class ExpansionVehicleBase extends ItemBase
 		vector linearVelocity;
 		vector angularVelocity;
 
-		ExpansionPhysics.CalculateVelocity( transform, pTarget, pDt, linearVelocity, angularVelocity );
+		ExpansionPhysics.CalculateVelocity( pTarget, transform, pDt, linearVelocity, angularVelocity );
 
-		ApplyPhysics( pDt, linearVelocity * pDt, angularVelocity * pDt, false, false );
+		ApplyPhysics( pDt, linearVelocity * pDt, angularVelocity * pDt, false );
 	}
 
 	// ------------------------------------------------------------
-	void ApplyPhysics( float pDt, vector pImpulse, vector pImpulseTorque, bool pSync = true, bool pUseImpulse = true )
+	void UpdateMotionStates( float pDt )
 	{
-		if (pUseImpulse)
-		{
-			dBodyApplyImpulse( this, pImpulse );
-			dBodyApplyTorqueImpulse( this, pImpulseTorque );
-		} else
-		{
-			SetVelocity(this, pImpulse);
-			dBodySetAngularVelocity(this, pImpulseTorque);
-		}
-
 		m_Transform.Get( this );
 
 		m_LastLinearVelocity = m_LinearVelocity;
@@ -1357,16 +1369,19 @@ class ExpansionVehicleBase extends ItemBase
 		m_LastAngularVelocityMS = m_AngularVelocityMS;
 		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
 		m_AngularAccelerationMS = ( m_LastAngularVelocityMS - m_AngularVelocityMS ) * pDt;
+	}
 
-		if ( !pSync )
-			return;
-
-		if ( !GetGame().IsClient() )
+	// ------------------------------------------------------------
+	void ApplyPhysics( float pDt, vector pImpulse, vector pImpulseTorque, bool pUseImpulse = true )
+	{
+		if (pUseImpulse)
 		{
-			HandleSync_Server();
-		} else if ( !GetGame().IsServer() )
+			dBodyApplyImpulse( this, pImpulse );
+			dBodyApplyTorqueImpulse( this, pImpulseTorque );
+		} else
 		{
-			HandleSync_Client();
+			SetVelocity(this, pImpulse);
+			dBodySetAngularVelocity(this, pImpulseTorque);
 		}
 	}
 
@@ -1969,6 +1984,12 @@ class ExpansionVehicleBase extends ItemBase
 			ScriptRPC rpc = new ScriptRPC();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
+		} else
+		{
+			if (player == GetGame().GetPlayer())
+			{
+				m_IsCreatingDynamic = true;
+			}
 		}
 	}
 
@@ -1987,6 +2008,12 @@ class ExpansionVehicleBase extends ItemBase
 			ScriptRPC rpc = new ScriptRPC();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
+		} else
+		{
+			if (human == GetGame().GetPlayer())
+			{
+				m_IsCreatingDynamic = true;
+			}
 		}
 
 		return human;

@@ -42,6 +42,9 @@ class ExpansionHumanST
 	private int m_VAR_VehicleAccelerationFB;
 	private int m_VAR_VehicleAccelerationLR;
 
+	private int m_EVT_LeaveVehicle;
+	private int m_EVT_LandVehicle;
+
 	private int m_VAR_Look;
 	private int m_VAR_LookDirX;
 	private int m_VAR_LookDirY;
@@ -82,6 +85,9 @@ class ExpansionHumanST
 		m_VAR_VehicleBrake = hai.BindVariableBool( "VehicleBrake" );
 		m_VAR_VehicleAccelerationFB = hai.BindVariableFloat( "VehicleAccelerationFB" );
 		m_VAR_VehicleAccelerationLR = hai.BindVariableFloat( "VehicleAccelerationLR" );
+
+		m_EVT_LeaveVehicle = hai.BindEvent( "LeaveVehicle" );
+		m_EVT_LandVehicle = hai.BindEvent( "LandVehicle" );
 
 		m_VAR_Look = hai.BindVariableBool( "Look" );
 		m_VAR_LookDirX = hai.BindVariableFloat( "LookDirX" );
@@ -206,6 +212,16 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_VehicleAccelerationLR, param );
 	}
 
+	bool IsLeaveVehicle( HumanCommandScript script )
+	{
+		return script.PrePhys_IsEvent( m_EVT_LeaveVehicle );
+	}
+
+	bool IsLandVehicle( HumanCommandScript script )
+	{
+		return script.PrePhys_IsEvent( m_EVT_LandVehicle );
+	}
+
 	void SetLook( HumanCommandScript script, bool param )
 	{
 		script.PreAnim_SetBool( m_VAR_Look, param );
@@ -230,4 +246,4 @@ class ExpansionHumanST
 	{
 		script.PreAnim_SetFloat( m_VAR_GuitarFret, param );
 	}
-}
+};

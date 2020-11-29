@@ -25,17 +25,6 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 		{
 			return "#STR_EXPANSION_UA_STOP_HELICOPTER";
 		}
-		else if (m_Vehicle.IsBoat())
-		{
-			if (m_Vehicle.MotorIsOn())
-			{
-				return "#STR_EXPANSION_UA_STOP_BOAT";
-			}
-			else
-			{
-				return "#STR_EXPANSION_UA_STOP_CAR";
-			}
-		}
 
 		return "#STR_EXPANSION_UA_STOP_CAR";
 	}
@@ -44,12 +33,11 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 	{
 		ExpansionHumanCommandVehicle vehCmd = player.GetCommand_ExpansionVehicle();
 
-		if (vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+		if (vehCmd && Class.CastTo(m_Vehicle, vehCmd.GetTransport()))
 		{
-			m_Vehicle = vehCmd.GetTransport();
-			if (m_Vehicle && (m_Vehicle.EngineIsOn() || m_Vehicle.MotorIsOn()))
+			if (vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{
-				return true;
+				return m_Vehicle.EngineIsOn();
 			}
 		}
 
@@ -58,18 +46,38 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 
 	override void OnExecuteServer(ActionData action_data)
 	{
-		if (!Class.CastTo(m_Vehicle, action_data.m_Player.GetParent()))
-			return;
+		ExpansionHumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_ExpansionVehicle();
+		ExpansionVehicleBase car;
 
-		if (m_Vehicle.EngineIsOn())
-			m_Vehicle.EngineStop();
-		
-		if (m_Vehicle.MotorIsOn())
-			m_Vehicle.MotorStop();
+		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
+		{
+			car.EngineStop();
+
+			if (!GetGame().IsMultiplayer())
+				SEffectManager.PlaySound(car.m_EngineStopFuel, car.GetPosition());
+		}
+	}
+
+	override void OnExecuteClient(ActionData action_data)
+	{
+		ExpansionHumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_ExpansionVehicle();
+		ExpansionVehicleBase car;
+
+		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
+		{
+			car.EngineStop();
+			
+			SEffectManager.PlaySound(car.m_EngineStopFuel, car.GetPosition());
+		}
 	}
 
 	override bool CanBeUsedInVehicle()
 	{
 		return true;
 	}
-}
+	
+	override bool UseMainItem()
+	{
+		return false;
+	}
+};

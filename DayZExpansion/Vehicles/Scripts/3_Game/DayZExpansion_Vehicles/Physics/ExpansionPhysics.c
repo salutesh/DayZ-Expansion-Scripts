@@ -169,7 +169,7 @@ class ExpansionPhysics
 	static void CalculateAngularVelocity(vector pTransform0[4], vector pTransform1[4], out vector pAxis, out float pAngle)
 	{
 		vector m[3];
-		Math3D.MatrixInvMultiply3(pTransform0, pTransform1, m);
+		Math3D.MatrixInvMultiply3(pTransform1, pTransform0, m);
 		
 		float quatR[4];
 		Math3D.MatrixToQuat(m, quatR);

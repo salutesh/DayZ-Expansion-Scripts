@@ -35,7 +35,7 @@ class ExpansionInputSwitchAutoHover : DefaultActionInput
 		ActionBase action;
 		int i;
 
-		if ( player && player.IsInVehicle() )
+		if ( player && player.IsInVehicle() && player.GetParent() )
 		{
 			if ( player.GetParent().IsInherited( ExpansionHelicopterScript ) || player.GetParent().IsInherited( ExpansionVehicleHelicopterBase ) )
 			{
