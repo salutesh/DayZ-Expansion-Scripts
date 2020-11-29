@@ -600,7 +600,7 @@ class CfgVehicles
 	class Vehicle_ExpansionMerlin: ExpansionVehicleHelicopterBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_MERLIN";
+		displayname = "[NOT READY]  MERLIN";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 292;

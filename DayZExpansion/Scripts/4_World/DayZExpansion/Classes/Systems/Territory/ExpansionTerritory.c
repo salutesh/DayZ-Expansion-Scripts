@@ -330,11 +330,11 @@ class ExpansionTerritory
 		return true;
 	}
 	
-	#ifdef CF_MOD_STORAGE
+	#ifdef CF_MODULE_MODSTORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------
-	void OnStoreSave( ModStorage storage )
+	void OnStoreSave( CF_ModStorage storage )
 	{
 		storage.Write( TerritoryID );
 		storage.Write( TerritoryName );
@@ -368,7 +368,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion OnStoreLoad
 	// ------------------------------------------------------------
-	bool OnStoreLoad( ModStorage storage )
+	bool OnStoreLoad( CF_ModStorage storage )
 	{
 		if ( Expansion_Assert_False( storage.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
 			return false;

@@ -476,6 +476,7 @@ static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_S
  */
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_CAR = 0;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_CONTROLLER = 1;
+static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_CAMERA = 2;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_HELICOPTER = 10;
 static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_PLANE = 15;
 
@@ -510,6 +511,7 @@ static void Expansion_SetupDebugger()
 	
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CAR );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CONTROLLER );
+	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CAMERA );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_HELICOPTER );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_PLANE );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_SOUND );
@@ -527,9 +529,4 @@ static void Expansion_SetupDebugger()
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_BASEBUILDING );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_AI );
 	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
-
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_WHEELS );
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_CAR );
-	ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_ENGINE );
-	//ExpansionDebugger.Enable( EXPANSION_DEBUG_VEHICLE_SOUND );
 }

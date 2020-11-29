@@ -16,11 +16,11 @@ class ExpansionTerritoryMember
 	protected string m_Name;
 	protected ExpansionTerritoryRank m_Rank;
 
-	#ifdef CF_MOD_STORAGE
+	#ifdef CF_MODULE_MODSTORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------
-	void OnStoreSave( ModStorage storage )
+	void OnStoreSave( CF_ModStorage storage )
 	{
 		storage.Write( m_ID );
 		storage.Write( m_Name );
@@ -30,7 +30,7 @@ class ExpansionTerritoryMember
 	// ------------------------------------------------------------
 	// Expansion OnStoreLoad
 	// ------------------------------------------------------------
-	bool OnStoreLoad( ModStorage storage )
+	bool OnStoreLoad( CF_ModStorage storage )
 	{
 		if ( Expansion_Assert_False( storage.Read( m_ID ), "[" + this + "] Failed reading m_ID" ) )
 			return false;

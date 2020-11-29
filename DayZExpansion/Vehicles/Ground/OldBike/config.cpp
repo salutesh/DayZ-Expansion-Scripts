@@ -65,7 +65,7 @@ class CfgVehicles
 	class Vehicle_ExpansionOldBike: ExpansionVehicleBikeBase
 	{
 		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_OLDBIKE";
+		displayname = "[NOT READY]  OLD BIKE";
 		model = "\DayZExpansion\Vehicles\Ground\OldBike\old_bike.p3d";
 		attachments[] = {"expansion_old_bike_wheel_1","expansion_old_bike_wheel_2"};
 		fuelCapacity = 0;

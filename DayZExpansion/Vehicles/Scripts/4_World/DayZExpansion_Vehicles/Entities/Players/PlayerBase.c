@@ -88,6 +88,8 @@ modded class PlayerBase
 
 		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
 		AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
+
+		AddAction( ExpansionActionSwitchSeats, InputActionMap );
 		
 		AddAction( ExpansionActionStartMotor, InputActionMap );
 		AddAction( ExpansionActionStopMotor, InputActionMap );
@@ -405,7 +407,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
-		#ifdef CF_MOD_STORAGE
+		#ifdef CF_MODULE_MODSTORAGE
 		if ( GetGame().SaveVersion() >= 116 )
 		{
 			super.OnStoreSave( ctx );
@@ -429,7 +431,7 @@ modded class PlayerBase
 		//! Use GetExpansionSaveVersion()
 		//! Making sure this is read before everything else.
 
-		#ifdef CF_MOD_STORAGE
+		#ifdef CF_MODULE_MODSTORAGE
 		if ( version >= 116 )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -446,10 +448,10 @@ modded class PlayerBase
 		return true;
 	}
 
-	#ifdef CF_MOD_STORAGE
-	override void OnModStoreSave( ModStorage storage, string modName )
+	#ifdef CF_MODULE_MODSTORAGE
+	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
-		super.OnModStoreSave( storage, modName );
+		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return;
@@ -457,9 +459,9 @@ modded class PlayerBase
 		storage.Write( m_WasInVehicle );
 	}
 	
-	override bool OnModStoreLoad( ModStorage storage, string modName )
+	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
-		if ( !super.OnModStoreLoad( storage, modName ) )
+		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
 		if ( modName != "DZ_Expansion_Vehicles" )

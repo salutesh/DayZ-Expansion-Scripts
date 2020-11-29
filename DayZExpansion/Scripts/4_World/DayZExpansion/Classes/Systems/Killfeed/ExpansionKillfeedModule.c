@@ -389,7 +389,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			DiscordMessage( ExpansionKillFeedMessageType.STARVATION, m_PlayerSteamWebhook );
 		} else if (m_StatBlood && m_StatBlood < 0.9)
 		{
-			KillFeedMessage( ExpansionKillFeedMessageType.BLEEDING, ExpansionIcons.GetPath("Drop"), m_PlayerPrefix );
+			KillFeedMessage( ExpansionKillFeedMessageType.BLEEDING, ExpansionIcons.GetPath("Human Skull"), m_PlayerPrefix );
 			s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.BLEEDING, player);
 			DiscordMessage( ExpansionKillFeedMessageType.BLEEDING, m_PlayerSteamWebhook );
 		} else

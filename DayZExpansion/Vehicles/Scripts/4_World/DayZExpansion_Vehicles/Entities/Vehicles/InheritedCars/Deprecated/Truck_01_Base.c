@@ -11,24 +11,8 @@
 */
 modded class Truck_01_Base
 {
-	override bool IsVitalCarBattery()
-	{
-		return false;
-	}
-	
-	override bool IsVitalTruckBattery()
-	{
-		return true;
-	}
-
 	override bool CanObjectAttach( Object obj )
 	{
-		return false;
-	}
-
-	override bool LeavingSeatDoesAttachment( int posIdx )
-	{
-		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
 		return false;
 	}
 

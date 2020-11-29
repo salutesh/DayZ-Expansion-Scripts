@@ -21,19 +21,16 @@ modded class DayZPlayerCamera1stPerson
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera1stPerson::OnUpdate Start");
 		#endif
-
+		
 		pOutResult.m_fInsideCamera = 1.0;
-		pOutResult.m_bUpdateWhenBlendOut = false;
-		pOutResult.m_fIgnoreParentRoll = 0;
-		pOutResult.m_iDirectBone = -1;
-		pOutResult.m_iDirectBoneMode = 3;
-		pOutResult.m_fPositionModelSpace = 0.0;
-		pOutResult.m_fUseHeading = 1;
 
 		ExpansionVehicleBase vehicle;
+		CarScript car;
+		Class.CastTo( car, m_pPlayer.GetParent() );
+		
 		if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
 		{
-			pOutResult.m_fInsideCamera = 0;
+			pOutResult.m_fInsideCamera = 0.0;
 			
 			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( true );
 		} else
@@ -43,62 +40,69 @@ modded class DayZPlayerCamera1stPerson
 			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( PlayerBase.Cast( m_pPlayer ).SetHeadInvisible, false );
 		}
 		
+		if ( m_pPlayer.GetCommand_Vehicle() || PlayerBase.Cast( m_pPlayer ).GetCommand_ExpansionVehicle() )
+		{
+			return;
+		}
+
+		pOutResult.m_bUpdateWhenBlendOut = false;
+		pOutResult.m_fIgnoreParentRoll = 0;
+		pOutResult.m_iDirectBone = -1;
+		pOutResult.m_iDirectBoneMode = 3;
+		pOutResult.m_fPositionModelSpace = 0.0;
+		pOutResult.m_fUseHeading = 0;
+		
 		vector rot;
 		
 		HumanInputController input = m_pPlayer.GetInputController();
-		float heading = 0; //input.GetHeadingAngle();
-
-		if ( m_pPlayer.GetCommand_Vehicle() || PlayerBase.Cast( m_pPlayer ).GetCommand_ExpansionVehicle() )
-		{
-			heading = 0;
-		}
-
-		rot[0] = m_fLeftRightAngle;
-		rot[1] = m_CurrentCameraPitch;
-		rot[2] = 0;
+		float heading = input.GetHeadingAngle() * Math.RAD2DEG;
 		
-		/*
 		if (vehicle)
 		{
-			Debug.DestroyAllShapes();
-		
-			rot[1] = 0;
-			rot[0] = rot[0];
-			
-			vector tempA[4];
-			vector tempB[4];
-			vector tempC[4];
-			
-			vector parentTransform[4];
-			vehicle.GetTransform(parentTransform);
-						
-			vector playerTransform[4];
-			m_pPlayer.GetTransform(playerTransform);
-			Math3D.YawPitchRollMatrix(Vector(heading, 0, 0), playerTransform);
-			Math3D.MatrixMultiply3(playerTransform, parentTransform, tempA);
-			
-			Debug.DrawLine(tempA[3].Multiply4(parentTransform), tempA[3].Multiply4(parentTransform) + tempA[0].Multiply3(parentTransform), 0xFFFFFF00, ShapeFlags.NOZBUFFER);
-			Debug.DrawLine(tempA[3].Multiply4(parentTransform), tempA[3].Multiply4(parentTransform) + tempA[1].Multiply3(parentTransform), 0xFFFF00FF, ShapeFlags.NOZBUFFER);
-			Debug.DrawLine(tempA[3].Multiply4(parentTransform), tempA[3].Multiply4(parentTransform) + tempA[2].Multiply3(parentTransform), 0xFFFFFFFF, ShapeFlags.NOZBUFFER);
-			
-			vector cameraTransform[4];
-			Math3D.MatrixIdentity4(cameraTransform);
-			Math3D.YawPitchRollMatrix(rot, cameraTransform);
-			
-			Math3D.MatrixInvMultiply3(tempA, cameraTransform, tempB);
-			Math3D.MatrixInvMultiply3(tempB, parentTransform, pOutResult.m_CameraTM);
-		} else*/
-		{
-			rot[0] = rot[0] + heading;
-			Math3D.YawPitchRollMatrix( rot, pOutResult.m_CameraTM );
+			heading -= vehicle.GetOrientation()[0];
 		}
 		
-		pOutResult.m_CameraTM[3] = m_pPlayer.GetBonePositionMS( m_iBoneIndex ) + m_OffsetLS;
+		if (car)
+		{
+			heading -= car.GetOrientation()[0];
+		}
+
+		rot[0] = m_fLeftRightAngle - heading;
+		rot[1] = m_CurrentCameraPitch;
+		rot[2] = 0;
+			
+		vector cameraTransform[4];
+		Math3D.YawPitchRollMatrix(rot, cameraTransform);
+		cameraTransform[3] = m_pPlayer.GetBonePositionWS(m_iBoneIndex);
+			
+		vector playerTransform[4];
+		m_pPlayer.GetTransform(playerTransform);
+			
+		Math3D.MatrixInvMultiply4(playerTransform, cameraTransform, pOutResult.m_CameraTM);
 		
-		//ExpansionDebugger.Push(EXPANSION_DEBUG_PLAYER);
+		pOutResult.m_CameraTM[3] = pOutResult.m_CameraTM[3] + m_OffsetLS;	
+			
+		//DisplayMatrix4("CameraTM", pOutResult.m_CameraTM);
+		
+		ExpansionDebugger.Push(EXPANSION_DEBUG_VEHICLE_CAMERA);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera1stPerson::OnUpdate End");
 		#endif
 	}
-}
+	
+	void DisplayMatrix4(string name, vector matrix[4])
+	{
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[0]: " + matrix[0]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[1]: " + matrix[1]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[2]: " + matrix[2]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[3]: " + matrix[3]);
+	}
+	
+	void DisplayMatrix3(string name, vector matrix[3])
+	{
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[0]: " + matrix[0]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[1]: " + matrix[1]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[2]: " + matrix[2]);
+	}
+};

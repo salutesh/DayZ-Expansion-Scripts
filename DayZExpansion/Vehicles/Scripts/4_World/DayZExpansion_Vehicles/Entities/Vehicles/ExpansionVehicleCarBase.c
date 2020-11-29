@@ -213,6 +213,18 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 	{
 	}
 
+	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	{
+		ctx.Write( m_RPMVal );
+		ctx.Write( m_SteeringVal );
+	}
+
+	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	{
+		ctx.Read( m_RPMVal );
+		ctx.Read( m_SteeringVal );
+	}
+
 	protected override void OnPreSimulation( float pDt )
 	{
 		super.OnPreSimulation( pDt );

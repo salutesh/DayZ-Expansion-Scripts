@@ -13,11 +13,7 @@
 /**@class		ExpansionHelicopterScript
  * @brief		This class handle helicopter movement and physics
  **/
-#ifdef EXPANSION_HELI_TEMP
 class ExpansionHelicopterScript extends CarScript
-#else
-class ExpansionHelicopterScript extends ExpansionVehicleBase
-#endif
 {
 	// ------------------------------------------------------------
 	//! Constant Values - Set in Constructor, Errors occur if not.
@@ -657,7 +653,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 			return;
 
 		if ( IsMissionHost() && m_EnableHelicopterExplosions )
-		{			
+		{
 			vector transform[4];
 			GetTransform( transform );
 
@@ -665,39 +661,29 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 			//! In game rendering does not show this behaviour and the helicopter appears to only translate, not rotate
 			//! This is possibly a DayZ SA/Enfusion bug but it will need more testing. May also be the cause for some
 			//! helicoper simulation weirdness when on the ground?
-			vector upDir = vector.Direction( GetPosition(), ModelToWorld( "0 1 0" ) );
-
-			#ifdef EXPANSION_HELI_CONTACT_NORMAL_DISABLE //! Should be enabled, quick disable if issues persist
-			vector contactUp = vector.Up;
-			#else
-			//! Find the contact normal from the position of the contact relative to the helicopter
-			vector contactUp = extra.Normal * -vector.Dot( vector.Up, vector.Direction( GetPosition(), extra.Position ).Normalized() );
-			contactUp.Normalize();
-			#endif
-
-			float dot = Math.Clamp( 1.0 - vector.Dot( upDir, contactUp ), 0.0001, 1.0 );
+			
+			float dot = vector.Dot( transform[1], vector.Up );
+			float dotMO = dot - 1.0;
+			
 			const float maxVelocityMagnitude = 11.0; // ~40km/h
-
-			//! Equation is f(x) = -1 + (0.8 / x))
-			//! After dot=0.8 the impulse required becomes negative
-			//! No need to clamp it unless we wanted a minimum impulse greater than 0, which we don't.
-			//! If the heli is upside down for whatever reason and is stationary it should still explode
-			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( -1.0 + ( 0.8 / dot ) ); 
-
-			//Print( impulseRequired );
+			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( ( dotMO * dotMO * dotMO ) + 1.0 ) * 40.0; 
 
 			if ( other ) //! check done just incase
 				impulseRequired += Math.Max( dBodyGetMass( other ), 0.0 ) * maxVelocityMagnitude * 2.0;
 
-			//Print( impulseRequired );
-			//Print( other );
-			//if ( other )
-			//	Print( dBodyGetMass( other ) );
-
-			//Print( extra.Impulse );
 
 			if ( extra.Impulse > impulseRequired )
 			{
+				Print( dot );
+				
+				Print( impulseRequired );
+				
+				Print( other );
+	
+				Print( extra.Impulse );
+				
+				Print(GetVelocity(this));
+				Print(dBodyGetAngularVelocity(this));
 				//Print( "Boom!" );
 				//! Maybe instead just tick damage down instead?
 				//! Should have a way to repair the helicopter then though
@@ -731,21 +717,25 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Attachment Delete" );
 
 		PlayerBase player;
+		DayZPlayerCommandDeathCallback callback;
+		
 		for ( int i = 0; i < CrewSize(); i++ )
 		{
 			if ( Class.CastTo( player, CrewMember( i ) ) )
 			{
-				if ( GetGame().IsMultiplayer() )
-				{
-					player.SetAllowDamage( true );
-					player.SetHealth( 0.0 );
-				}
+				player.StartCommand_Fall(0);
 				
+				CrewDeath( i );
 				CrewGetOut( i );
+				
 				player.UnlinkFromLocalSpace();
-				player.DisableSimulation( false );
-				player.StartCommand_Death( -1, 0, HumanCommandDeathCallback );
-				player.ResetDeathStartTime();
+				
+				player.SetAllowDamage( true );
+				player.SetHealth( 0.0 );
+				
+				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
+				
+				RemoveChild(player);
 			}
 		}
 
@@ -755,20 +745,22 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 		while ( child )
 		{
 			if ( Class.CastTo( player, child ) )
-			{
-				if ( GetGame().IsMultiplayer() )
-				{
-					player.SetAllowDamage( true );
-					player.SetHealth( 0.0 );
-				}
-
+			{				
+				child = child.GetSibling();
+				
 				player.UnlinkFromLocalSpace();
-				player.DisableSimulation( false );
-				player.StartCommand_Death( -1, 0, HumanCommandDeathCallback );
-				player.ResetDeathStartTime();
+				RemoveChild(player);
+				
+				player.SetAllowDamage( true );
+				player.SetHealth( 0.0 );
+				
+				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
+				
+				player.StartCommand_Fall(0);
+			} else
+			{
+				child = child.GetSibling();
 			}
-			
-			child = child.GetSibling();
 		}
 
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Player Unlink" );
@@ -776,7 +768,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 		ExpansionWreck wreck;
 		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
-			Print( "ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
+			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
 
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
@@ -884,6 +876,7 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 		if ( !IsMissionOffline() && GetGame().GetPlayer().GetParent() == this )
 		{
 			GetGame().GetPlayer().UnlinkFromLocalSpace();
+			GetGame().GetPlayer().StartCommand_Fall(0);
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -1233,21 +1226,9 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 			//! Angular Friction
 			{
 				vector t_friction;
-				float t_fric_coef = ( m_RotorSpeed + 0.2 ) * ( m_AngularFrictionCoef + ( m_TailRotateFactor * 0.5 ) );
 				
-				vector t_fric_coef_ws = Vector( t_fric_coef, t_fric_coef, t_fric_coef );
-				vector t_fric_coef_ms = t_fric_coef_ws.InvMultiply3( m_Transform.GetBasis().data );
-				t_fric_coef_ms[0] = t_fric_coef_ms[0] * 0.1;
-				t_fric_coef_ws = t_fric_coef_ms.Multiply3( m_Transform.GetBasis().data );
+				t_friction = m_AngularVelocity * m_BodyMass * ( m_RotorSpeed + 0.2 ) * ( ( m_AngularFrictionCoef ) + ( m_TailRotateFactor * 0.5 ) );
 				
-				//ExpansionDebugUI( "m_TailRotateFactor: " + m_TailRotateFactor );
-				//ExpansionDebugUI( "t_fric_coef_ms: " + t_fric_coef_ms );
-				//ExpansionDebugUI( "t_fric_coef_ws: " + t_fric_coef_ws );
-				
-				t_friction[0] = m_AngularVelocity[0] * m_InvInertiaTensor[0] * t_fric_coef_ws[0];
-				t_friction[1] = m_AngularVelocity[1] * m_InvInertiaTensor[1] * t_fric_coef_ws[1];
-				t_friction[2] = m_AngularVelocity[2] * m_InvInertiaTensor[2] * t_fric_coef_ws[2];
-
 				torque -= t_friction;
 			}
 		}
@@ -1437,12 +1418,10 @@ class ExpansionHelicopterScript extends ExpansionVehicleBase
 	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
-		#ifdef EXPANSION_HELI_TEMP
 		if ( m_CarBatteryVanillaState )
 		{
 			return IsVitalHelicopterBattery() || IsVitalAircraftBattery();
 		}
-		#endif
 
 		return false;
 	}

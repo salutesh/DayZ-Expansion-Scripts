@@ -26,7 +26,6 @@
 //! Enable it if you want to DISABLE chicken stuff
 #define EXPANSION_CHICKEN_DISABLE
 
-#define EXPANSION_HELI_TEMP
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG
 #define EXPANSION_HELI_CONTACT_NORMAL_DISABLE
@@ -107,13 +106,14 @@
 //! Enable to disable character szene main menu changes
 #define EXPANSION_MAINMENU_NEW_DISABLE
 
-#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
+#define EXPANSION_VEHICLES_CONFIG_DISPLAYNAME_TEMP
 
-
-#define EXPANSION_CARSCRIPT_DATA_DOUBLE
+//#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD
+
+//#define EXPANSION_DEBUGGER_DISABLE
 
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING

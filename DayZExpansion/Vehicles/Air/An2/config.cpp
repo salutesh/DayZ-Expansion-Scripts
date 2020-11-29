@@ -117,7 +117,7 @@ class CfgVehicles
 	class Vehicle_ExpansionAn2: ExpansionVehiclePlaneBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_AN2";
+		displayname = "[NOT READY]  AN2";
 		model = "DayZExpansion\Vehicles\Air\An2\an2.p3d";
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;

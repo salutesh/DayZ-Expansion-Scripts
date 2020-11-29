@@ -61,6 +61,8 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "EnablePartyChat", "Partychat", "", "" );
 		CreateToggle( "EnableTransportChat", "TransportChat", "", "" );
 
+		CreateToggle( "DisableShootToUnlock", "Disable Shooting Doors to unlock them", "", "" );
+		
 		CreateToggle( "EnableGravecross", "Gravecross", "", "" );
 		CreateToggle( "GravecrossDeleteBody", "Delete Body On Gravecross", "", "" );
 		CreateSlider( "GravecrossTimeThreshold", "Gravecross Threshold", "", "", 0.0, 2000.0, 60.0 );

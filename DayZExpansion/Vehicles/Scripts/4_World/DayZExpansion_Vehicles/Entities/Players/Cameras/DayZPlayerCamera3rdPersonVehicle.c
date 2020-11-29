@@ -73,6 +73,9 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - Start");
 		#endif
+
+		ExpansionVehicleBase exVehicle;
+		m_bForceFreeLook = Class.CastTo( exVehicle, m_pPlayer.GetParent() );
 		
 		super.OnUpdate( pDt, pOutResult );
 
@@ -91,20 +94,6 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			{
 				
 			}
-		}
-
-		ExpansionVehicleBase exVehicle;
-		if ( Class.CastTo( exVehicle, m_pPlayer.GetParent() ) )
-		{
-			pOutResult.m_fUseHeading	= 1.0;
-
-			/* Found a workaround for the crash, clients will always now have dynamic vehicles, TODO: test and see if the simulation is still smooth
-			if ( pOutResult.m_CollisionIgnoreEntity == NULL && !exVehicle.IsPhysicsHost() )
-			{
-				//! TODO: fix crash when this is uncommented
-				//pOutResult.m_CollisionIgnoreEntity = exVehicle;
-			}
-			*/
 		}
 
 		ExpansionHelicopterScript d_helicopter;
@@ -127,37 +116,35 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		vector playerTransformWS[4];
 		m_pPlayer.GetTransform( playerTransformWS );
 
+		vector helicopterTransform[4];
+		pHelicopter.GetTransform( helicopterTransform );
+
 		vector vehiclePositionWS = pHelicopter.GetOrigin();
 		vector vehiclePositionMS = vehiclePositionWS.InvMultiply4( playerTransformWS );
 		vector cameraPosition = vehiclePositionMS + m_CameraOffsetMS;
 
-		vector newOrientation = pHelicopter.GetOrientation();
-		vector orientDiff = vector.Zero;
-
-		orientDiff[0] = Math.DiffAngle( m_PreviousOrientation[0], newOrientation[0] );
-		orientDiff[1] = Math.DiffAngle( m_PreviousOrientation[1], newOrientation[1] );
-		orientDiff[2] = Math.DiffAngle( m_PreviousOrientation[2], newOrientation[2] );
-
 		vector posDiffWS = GetVelocity( pHelicopter ) * pDt;
 		vector posDiffLS = posDiffWS.InvMultiply3( playerTransformWS );
+		
+		vector orientDiffWS = dBodyGetAngularVelocity(pHelicopter) * pDt * Math.RAD2DEG;
+		vector orientDiff = orientDiffWS.InvMultiply3( helicopterTransform );
 
 		vector rotation = vector.Zero;
-
-		//! It's a local value so obv it need to be here
-		float udAngle		= UpdateUDAngle(m_fUpDownAngle, m_fUpDownAngleAdd, CONST_UD_MIN, CONST_UD_MAX, pDt);
 
 		//! smooth it!
 		m_ExLagOffsetPosition[0] = Math.SmoothCD( m_ExLagOffsetPosition[0], posDiffLS[0], m_ExLagOffsetVelocityX, 0.4, 1000, pDt );
 		m_ExLagOffsetPosition[1] = Math.SmoothCD( m_ExLagOffsetPosition[1], posDiffLS[1], m_ExLagOffsetVelocityY, 0.4, 1000, pDt );
 		m_ExLagOffsetPosition[2] = Math.SmoothCD( m_ExLagOffsetPosition[2], posDiffLS[2], m_ExLagOffsetVelocityZ, 0.4, 1000, pDt );
 
-		m_ExLagOffsetOrientation[1] = Math.SmoothCD( m_ExLagOffsetOrientation[1], -newOrientation[1], m_ExLagOffsetVelocityPitch, 0.3, 1000, pDt );
+		m_LagOffsetOrientation[0] = Math.SmoothCD(m_LagOffsetOrientation[0], orientDiff[0], m_fLagOffsetVelocityYaw, 0.3, 1000, pDt);
+		m_LagOffsetOrientation[1] = Math.SmoothCD(m_LagOffsetOrientation[1], orientDiff[1], m_fLagOffsetVelocityPitch, 0.3, 1000, pDt);
 
 		if ( pIsFreeLook )
 		{
 			rotation[0] = m_fLeftRightAngle + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
-			rotation[1] = udAngle + CONST_ANGULAR_LAG_PITCH_STRENGTH * m_LagOffsetOrientation[1];
+			rotation[1] = Limit(m_fUpDownAngle + m_fUpDownAngleAdd, CONST_UD_MIN, CONST_UD_MAX) + CONST_ANGULAR_LAG_PITCH_STRENGTH * m_LagOffsetOrientation[1];
 			rotation[2] = m_fRoll;
+			
 			pOutResult.m_fUseHeading = 1;
 		} else
 		{
@@ -172,7 +159,5 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		pOutResult.m_iDirectBone			= -1.0;
 		pOutResult.m_fDistance 				= m_fDistance;
 		pOutResult.m_fPositionModelSpace	= 1.0;
-
-		m_PreviousOrientation				= newOrientation;
 	}
 }

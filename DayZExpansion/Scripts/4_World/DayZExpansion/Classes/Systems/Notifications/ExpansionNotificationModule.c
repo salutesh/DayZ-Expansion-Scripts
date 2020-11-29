@@ -179,15 +179,15 @@ class ExpansionNotificationModule: JMModuleBase
 		
 		super.OnUpdate( timeslice );
 
-		if ( IsMissionClient() )
+		if ( !IsMissionClient() )
+			return;
+
+		for ( int i = 0; i < m_Notifications.Count(); i++ )
 		{
-			for ( int i = 0; i < m_Notifications.Count(); i++ )
-			{
-				if ( m_Notifications[i] )
-				{
-					m_Notifications[i].Update( timeslice );
-				}
-			}
+			if ( !m_Notifications[i] )
+				continue;
+
+			m_Notifications[i].Update( timeslice );
 		}
 		
 		#ifdef EXPANSIONEXPRINT

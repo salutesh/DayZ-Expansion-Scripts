@@ -870,7 +870,7 @@ class CfgVehicles
 	class Vehicle_ExpansionUAZ: Vehicle_ExpansionUAZBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_UAZ";
+		displayname = "[NOT READY]  UAZ";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZ.p3d";
 		vehicleClass = "Expansion_Car";
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body_exterior","__interior"};
@@ -906,7 +906,7 @@ class CfgVehicles
 	class Vehicle_ExpansionUAZRoofless: Vehicle_ExpansionUAZ
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_UAZ_ROOFLESS";
+		displayname = "[NOT READY]  UAZ ROOFLESS";
 		vehicleClass = "Expansion_Car";
 		class AnimationSources: AnimationSources
 		{
@@ -927,7 +927,7 @@ class CfgVehicles
 	class Vehicle_ExpansionUAZCargoRoofless: Vehicle_ExpansionUAZ
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_UAZ_CARGO_ROOFLESS";
+		displayname = "[NOT READY]  UAZ CARGO ROOFLESS";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZCargoRoofless.p3d";
 		vehicleClass = "Expansion_Car";
 		class AnimationSources: AnimationSources
@@ -986,7 +986,7 @@ class CfgVehicles
 	class Vehicle_ExpansionUAZCargo: Vehicle_ExpansionUAZ
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_UAZ_CARGO";
+		displayname = "[NOT READY]  UAZ CARGO";
 		vehicleClass = "Expansion_Car";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};

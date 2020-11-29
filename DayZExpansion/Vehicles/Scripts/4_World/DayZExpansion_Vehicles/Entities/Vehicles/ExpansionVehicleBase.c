@@ -43,6 +43,8 @@ class ExpansionVehicleBase extends ItemBase
 
 	private float m_TimeSlice;
 	protected bool m_IsPhysicsHost;
+	protected bool m_WasPhysicsHost;
+	protected bool m_IsForcingPhysics;
 	protected bool m_PerformInterpolation;
 	private float m_RenderFrameTime;
 	private int m_PhysicsCreationTimer;
@@ -135,7 +137,6 @@ class ExpansionVehicleBase extends ItemBase
 
 	private ref ExpansionVehicleSyncState m_SyncState;
 	private ExpansionVehicleNetworkMode m_NetworkMode;
-	private bool m_NetworkClientSideServerProcessing;
 	private vector m_LastCheckedNetworkPosition;
 
 	ref array< ref ExpansionPointLight > m_Lights;
@@ -372,7 +373,6 @@ class ExpansionVehicleBase extends ItemBase
 		RegisterNetSyncVariableFloat( "m_BrakeAmmount", 0, 0, 4 );
 		
 		RegisterNetSyncVariableInt( "m_NetworkMode" );
-		RegisterNetSyncVariableBool( "m_NetworkClientSideServerProcessing" );
 
 		m_Axles = new array< ref ExpansionVehicleAxle >;
 		m_Crew = new array< ref ExpansionVehicleCrew >;
@@ -493,7 +493,6 @@ class ExpansionVehicleBase extends ItemBase
 		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
 		m_NetworkMode = ExpansionVehicleNetworkMode.SERVER_ONLY;
-		m_NetworkClientSideServerProcessing = false;
 
 		m_SyncState = new ExpansionVehicleSyncState( this );
 		m_SyncState.RegisterNetVariables();
@@ -525,9 +524,6 @@ class ExpansionVehicleBase extends ItemBase
 
 		m_Controller = GetControllerInstance();
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
-
 		ExpansionSettings.SI_Vehicle.Insert( OnSettingsUpdated );
 		OnSettingsUpdated();
 
@@ -545,11 +541,6 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (m_DebugApple)
 			GetGame().ObjectDelete(m_DebugApple);
-
-		if ( dBodyIsSet( this ) )
-		{
-			dBodyDestroy( this );
-		}
 
 		int i;
 
@@ -648,14 +639,20 @@ class ExpansionVehicleBase extends ItemBase
 
 	private void CreateDynamic()
 	{
-		int layer = 0;
+		int physLayer = PhxInteractionLayers.VEHICLE_NOTERRAIN;
 
+		int interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN | PhxInteractionLayers.CHARACTER;
 		if ( m_IsPhysicsHost )
-			layer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.DYNAMICITEM | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.CHARACTER | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE;
-		else
-			layer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.CHARACTER;
+		{
+			physLayer = PhxInteractionLayers.VEHICLE;
+			interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN | PhxInteractionLayers.DYNAMICITEM | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.CHARACTER | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE;
+		}
+		
+		interactLayer = physLayer;
 
-		CreateDynamicPhysics( PhxInteractionLayers.VEHICLE );
+		Print( "[" + this + "] CreateDynamic m_IsPhysicsHost=" + m_IsPhysicsHost + " physLayer=" + physLayer + " interactLayer=" + interactLayer );
+		
+		CreateDynamicPhysics( physLayer );
 
 		//!breaks vehicles at high speed
 		//EnableDynamicCCD( true );
@@ -663,7 +660,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		dBodyDynamic( this, true );
 		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-		dBodySetInteractionLayer( this, layer );
+		dBodySetInteractionLayer( this, interactLayer );
 		dBodyEnableGravity( this, false );
 		dBodyEnableCCD( this, 0.0, m_BoundingRadius );
 		dBodySetSleepingTreshold( this, 0.0, 0.0 );
@@ -678,7 +675,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		EnableCollisionsWithCharacter( false );
 
-		SetAllowDamage( false ); //! Temporary
+		//SetAllowDamage( false ); //! Temporary
 	}
 
 	// ------------------------------------------------------------
@@ -1083,9 +1080,11 @@ class ExpansionVehicleBase extends ItemBase
 		//Print(GetGame().GetPlayer());
 		
 		m_PerformInterpolation = false;
-		bool forceCreatePhysics = false;
 
-		bool prevForceCreate = m_IsPhysicsHost;
+		bool prevForcingPhysics = m_IsForcingPhysics;
+		m_IsForcingPhysics = false;
+
+		m_WasPhysicsHost = m_IsPhysicsHost;
 
 		if ( !GetGame().IsMultiplayer() && GetGame().IsServer() )
 		{
@@ -1099,16 +1098,12 @@ class ExpansionVehicleBase extends ItemBase
 				m_IsPhysicsHost = m_NetworkMode != ExpansionVehicleNetworkMode.SERVER_ONLY;
 			}
 
-			forceCreatePhysics = GetGame().GetPlayer().GetParent() == this;
-			if ( !forceCreatePhysics )
-				forceCreatePhysics = GetExpansionSettings().GetDebug().DebugVehicleSync == 1;
-
-			ExpansionDebugUI( "m_IsPhysicsHost: " + m_IsPhysicsHost );
-			ExpansionDebugUI( "forceCreatePhysics: " + forceCreatePhysics );
+			if ( !m_IsPhysicsHost )
+			{
+				m_IsForcingPhysics = true;
+			}
 		} else if ( GetGame().IsServer() )
 		{
-			m_NetworkClientSideServerProcessing = true;
-
 			m_IsPhysicsHost = m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT;
 
 			if ( !m_IsPhysicsHost )
@@ -1132,10 +1127,7 @@ class ExpansionVehicleBase extends ItemBase
 				m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
 			} else
 			{
-				if (!prevForceCreate)
-				{
-					forceCreatePhysics = GetExpansionSettings().GetDebug().DebugVehicleSync == 1;
-				}
+				m_IsForcingPhysics = true;
 
 				m_LinearVelocity = m_SyncState.m_LinearVelocity;
 				m_AngularVelocity = m_SyncState.m_AngularVelocity;
@@ -1154,6 +1146,10 @@ class ExpansionVehicleBase extends ItemBase
 
 			Error("Should not reach here...");
 		}
+			
+		ExpansionDebugUI( "m_WasPhysicsHost: " + m_WasPhysicsHost );
+		ExpansionDebugUI( "m_IsPhysicsHost: " + m_IsPhysicsHost );
+		ExpansionDebugUI( "m_IsForcingPhysics: " + m_IsForcingPhysics );
 
 		m_HasDriver = false;
 		if ( driver && m_IsPhysicsHost )
@@ -1178,10 +1174,13 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		OnPreSimulation( dt );
-		
-		if ( m_IsPhysicsHost && dBodyIsDynamic( this ) )
+
+		bool shouldCreateDynamic = (m_IsForcingPhysics || m_IsPhysicsHost);
+		bool shouldDestroyDynamic = (m_WasPhysicsHost != m_IsPhysicsHost) || (!m_IsPhysicsHost && !m_IsForcingPhysics);
+
+		if ( (m_WasPhysicsHost == m_IsPhysicsHost) && m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
-			stateF = 0;
+			stateF = 0; 
 			
 			float invDt = 1.0 / dt;
 			
@@ -1219,38 +1218,38 @@ class ExpansionVehicleBase extends ItemBase
 			
 			if ( IsMissionClient() )
 				NetworkSend();
-		} else if ( ( m_IsPhysicsHost || forceCreatePhysics ) && !dBodyIsDynamic( this ) )
+		} else if ( shouldCreateDynamic && !dBodyIsDynamic( this ) )
 		{
 			stateF = 1;
 
 			CreateDynamic();
-		} else if ( !m_IsPhysicsHost && !forceCreatePhysics && dBodyIsDynamic( this ) )
+		} else if ( shouldDestroyDynamic && dBodyIsDynamic( this ) )
 		{
 			stateF = 2;
 			
 			SetDynamicPhysicsLifeTime( 0.01 );
-		} else if ( GetGame().IsServer() )
+		} else if ( dBodyIsDynamic( this ) )
 		{
 			stateF = 3;
 
 			m_PerformInterpolation = true;
 			
-			if ( IsMissionHost() )
-				m_NetworkClientSideServerProcessing = false;
-
-			/*if ( GetGame().IsClient() )
+			if ( GetGame().IsClient() )
 			{
 				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
 
 				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
 
 				MoveTo( dt, m_SyncState.m_PredictedTransform );
-			} else*/
+			} else
 			{
 				MoveTo( dt, m_SyncState.m_InitialTransform );
 			}
 
 			SetSynchDirty();
+		} else
+		{
+			stateF = 4;
 		}
 
 		ExpansionDebugUI( "stateF: " + stateF );
@@ -1317,24 +1316,15 @@ class ExpansionVehicleBase extends ItemBase
 			return;
 		}
 
-		//! old way, causes mem leak and other issues
-		//dBodySetTargetMatrix( this, pTarget, pDt );
-		//return;
-
 		vector transform[4];
 		GetTransform( transform );
 
 		vector linearVelocity;
 		vector angularVelocity;
 
-		ExpansionPhysics.CalculateVelocity( transform, pTarget, 2.0, linearVelocity, angularVelocity );
+		ExpansionPhysics.CalculateVelocity( transform, pTarget, pDt, linearVelocity, angularVelocity );
 
-		SetTransform( pTarget );
-		
-		angularVelocity = angularVelocity * (1.0 / Math.PI);
-
-		if ( GetGame().IsServer() )
-			ApplyPhysics( pDt, linearVelocity, angularVelocity, false, false );
+		ApplyPhysics( pDt, linearVelocity * pDt, angularVelocity * pDt, false, false );
 	}
 
 	// ------------------------------------------------------------
@@ -1346,15 +1336,9 @@ class ExpansionVehicleBase extends ItemBase
 			dBodyApplyTorqueImpulse( this, pImpulseTorque );
 		} else
 		{
-			m_LinearVelocity = GetVelocity( this );
-			m_AngularVelocity = dBodyGetAngularVelocity( this );
-
 			SetVelocity(this, pImpulse);
 			dBodySetAngularVelocity(this, pImpulseTorque);
 		}
-
-		//SetVelocity(this, "0 0 0");
-		//dBodySetAngularVelocity(this, "0 0 0");
 
 		m_Transform.Get( this );
 
@@ -1400,40 +1384,21 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		m_RenderFrameTime = 0;
 
-		if ( m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT && !m_NetworkClientSideServerProcessing )
-		{
-			vector newPos = pos;
-			vector newOrientation = ypr * Math.RAD2DEG;
+		float dt = ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 40.0;
+		m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
+		m_SyncState.m_Time = GetTimeForSync();
+		m_SyncState.m_TimeDelta = 0;
 			
-			if ( !m_IsPhysicsHost )
-			{
-				float dt = ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 40.0;
-				m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
-				m_SyncState.m_Time = GetTimeForSync();
-				m_SyncState.m_TimeDelta = 0;
+		m_SyncState.m_Position = pos;
+		m_SyncState.m_Orientation = ypr * Math.RAD2DEG;
+		
+		Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform );
+		m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
 
-				vector m1[];
-				vector m2[];
-				vector m3[];
-
-				Math3D.YawPitchRollMatrix( newOrientation, m1 );
-				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m2 );
-				Math3D.MatrixMultiply3( m1, m2, m3 );
-
-				Math3D.YawPitchRollMatrix( newOrientation, m_SyncState.m_InitialTransform );
-				m_SyncState.m_InitialTransform[3] = newPos;
-			}
-			
-			m_SyncState.m_Position = newPos;
-			m_SyncState.m_Orientation = newOrientation;
-
-			pos = GetPosition();
-			ypr = GetOrientation() * Math.DEG2RAD;
-
-			return true;
-		}
-
-		return false;
+		pos = GetPosition();
+		ypr = GetOrientation() * Math.DEG2RAD;
+		
+		return true;
 	}
 
 	// ------------------------------------------------------------
@@ -1443,7 +1408,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		int crewIdx;
 
-		switch( rpc_type )
+		switch ( rpc_type )
 		{
 			case ExpansionVehicleRPC.ControllerSync:
 			{
@@ -2025,6 +1990,11 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		return human;
+	}
+
+	void CrewDeath( int posIdx )
+	{
+
 	}
 	
 	void CrewEntry( int posIdx, out vector pos, out vector dir )
@@ -3567,6 +3537,135 @@ class ExpansionVehicleBase extends ItemBase
 		} else 
 		{
 			SetAnimationPhase("gear", 0);
+		}
+	}
+	
+	#ifdef CF_MODULE_MODSTORAGE
+	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	{
+		super.CF_OnStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion_Vehicles" )
+			return;
+
+		storage.Write( m_PersistentIDA );
+		storage.Write( m_PersistentIDB );
+		storage.Write( m_PersistentIDC );
+		storage.Write( m_PersistentIDD );
+
+		int lockState = m_VehicleLockedState;
+		storage.Write( lockState );
+
+		storage.Write( m_Exploded );
+
+		storage.Write( m_IsBeingTowed );
+		storage.Write( m_IsTowing );
+
+		if ( m_IsBeingTowed )
+		{
+			storage.Write( m_ParentTowPersistentIDA );
+			storage.Write( m_ParentTowPersistentIDB );
+			storage.Write( m_ParentTowPersistentIDC );
+			storage.Write( m_ParentTowPersistentIDD );
+		}
+
+		if ( m_IsTowing )
+		{
+			storage.Write( m_ChildTowPersistentIDA );
+			storage.Write( m_ChildTowPersistentIDB );
+			storage.Write( m_ChildTowPersistentIDC );
+			storage.Write( m_ChildTowPersistentIDD );
+		}
+	}
+	
+	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	{
+		if ( !super.CF_OnStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion_Vehicles" )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+			return false;
+
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+			return false;
+		
+		int lockState;
+		if ( Expansion_Assert_False( storage.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
+			return false;
+
+		m_VehicleLockedState = lockState;
+
+		if ( Expansion_Assert_False( storage.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
+			return false;
+
+		if ( GetExpansionSaveVersion() >= 7 )
+		{
+			if ( Expansion_Assert_False( storage.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+				return false;
+
+			if ( m_IsBeingTowed )
+			{
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+					return false;
+			}
+
+			if ( m_IsTowing )
+			{
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+					return false;
+			}
+		}
+
+		return true;
+	}
+	#endif
+
+	// ------------------------------------------------------------
+	override void EEOnAfterLoad()
+	{
+		super.EEOnAfterLoad();
+		
+		if ( m_IsTowing && !m_ChildTow )
+		{
+			m_ChildTow = GetGame().GetEntityByPersitentID( m_ChildTowPersistentIDA, m_ChildTowPersistentIDB, m_ChildTowPersistentIDC, m_ChildTowPersistentIDD );
+			if ( m_ChildTow )
+			{
+				m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
+				
+				CarScript cs_child;
+				ExpansionVehicleBase evs_child;
+				
+				if ( Class.CastTo( cs_child, m_ChildTow ) )
+					cs_child.OnTowCreated( this, m_TowPointCenter );
+				else if ( Class.CastTo( evs_child, m_ChildTow ) )
+					evs_child.OnTowCreated( this, m_TowPointCenter );
+			} else
+			{
+				m_IsTowing = false;
+			}
 		}
 	}
 	

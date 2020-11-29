@@ -16,8 +16,8 @@
 
 class ExpansionMonitorModule: JMModuleBase
 {
-	private const float UPDATE_TICK_TIME = 0.1; // refreshes 100 players every two seconds
-	private const int UPDATE_PLAYERS_PER_TICK = 5;
+	private const float UPDATE_TICK_TIME = 1.0; // refreshes 100 players every ten seconds
+	private const int UPDATE_PLAYERS_PER_TICK = 10;
 
 	//Server only
 	private ref map< string, ref ExpansionSyncedPlayerStats > m_Stats;

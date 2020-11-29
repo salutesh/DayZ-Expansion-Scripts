@@ -693,7 +693,7 @@ class CfgVehicles
 	class Vehicle_ExpansionTractor: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR";
+		displayname = "[NOT READY]  TRACTOR";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\Tractor2.p3d";
 		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_2_2","karoserie"};

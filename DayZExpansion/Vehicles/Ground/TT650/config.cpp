@@ -48,7 +48,7 @@ class CfgVehicles
 	class Vehicle_ExpansionTT650: ExpansionVehicleBikeBase
 	{
 		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_TT650";
+		displayname = "[NOT READY]  TT650";
 		model = "\DayZExpansion\Vehicles\Ground\TT650\tt650.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
 		soundController = "";

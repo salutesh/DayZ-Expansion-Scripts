@@ -191,7 +191,7 @@ class CfgVehicles
 	class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_ZODIAC";
+		displayname = "[NOT READY]  ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;

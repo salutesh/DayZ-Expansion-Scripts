@@ -69,7 +69,7 @@ class CfgVehicles
 	class Vehicle_CivilianSedan: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "$STR_CivilianSedan0";
+		displayname = "[NOT READY]  OLGA";
 		descriptionShort = "$STR_CivilianSedan1";
 		model = "\DZ\vehicles\wheeled\civiliansedan\CivilianSedan.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanHood","CivSedanTrunk","CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2"};

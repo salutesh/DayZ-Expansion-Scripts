@@ -35,6 +35,8 @@ modded class BuildingBase
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000, false);
 		
+		if( GetExpansionSettings().GetGeneral().DisableShootToUnlock )
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetGodMode, 8000, false);
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("BuildingBase::BuildingBase - End");
 		#endif
@@ -462,7 +464,11 @@ modded class BuildingBase
 			}
 		}
 	}
-	
+
+	void SetGodMode()
+	{
+		this.SetAllowDamage(false);
+	}
 	// ------------------------------------------------------------
 	// BuildingBase RemoveInterior
 	// ------------------------------------------------------------

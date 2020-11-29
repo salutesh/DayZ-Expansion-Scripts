@@ -1,4 +1,4 @@
-#ifdef CF_MOD_STORAGE
+#ifdef CF_MODULE_MODSTORAGE
 modded class ModStructure
 {
 	override bool OnLoad( string modName )

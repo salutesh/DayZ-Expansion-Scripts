@@ -327,7 +327,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				if ( m_Plane.CheckForDrop() && !m_Container )
 				{
 					m_LootHasSpawned = false;
-					m_ZombiesHasSpawned = false
+					m_ZombiesHasSpawned = false;
 	
 					m_Container = m_Plane.CreateDrop( Container );
 					

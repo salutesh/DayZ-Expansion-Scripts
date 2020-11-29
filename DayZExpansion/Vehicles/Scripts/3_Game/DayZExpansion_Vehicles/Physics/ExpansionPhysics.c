@@ -159,14 +159,93 @@ class ExpansionPhysics
 			
 		pLinVel = ( pTransform1[3] - pTransform0[3] ) * invDt;
 
-		pAngVel = CalculateAngularVelocity( pTransform0, pTransform1 ) * invDt;
+		vector axis;
+		float angle;
+		CalculateAngularVelocity(pTransform0, pTransform1, axis, angle);
+
+		pAngVel = axis * angle * invDt;
 	}
 
-	static vector CalculateAngularVelocity( vector pTransform0[4], vector pTransform1[4] )
+	static void CalculateAngularVelocity(vector pTransform0[4], vector pTransform1[4], out vector pAxis, out float pAngle)
 	{
-		vector result[3];
-		Math3D.MatrixInvMultiply3( pTransform1, pTransform0, result );
+		vector m[3];
+		Math3D.MatrixInvMultiply3(pTransform0, pTransform1, m);
+		
+		float quatR[4];
+		Math3D.MatrixToQuat(m, quatR);
 
-		return Math3D.MatrixToAngles( result ) * Math.DEG2RAD;
+		pAngle = 2.0 * Math.Acos(quatR[3]);
+		pAxis = Vector(quatR[0], quatR[1], quatR[2]);
+		
+		float len = pAxis.Length();
+		if (len < 0.000001)
+		{
+			pAxis = "0 0 1";
+		} else
+		{
+			pAxis[0] = pAxis[0] / len;
+			pAxis[1] = pAxis[1] / len;
+			pAxis[2] = pAxis[2] / len;
+		}
+	}
+	
+	static void QuatInverse(float q1[4], out float qR[4])
+	{
+		qR[0] = -q1[0];
+		qR[1] = -q1[1];
+		qR[2] = -q1[2];
+		qR[3] = -q1[3];
+	}
+	
+	static void QuatAdd(float q1[4], float q2[4], out float qR[4])
+	{
+		qR[0] = q1[0] + q2[0];
+		qR[1] = q1[1] + q2[1];
+		qR[2] = q1[2] + q2[2];
+		qR[3] = q1[3] + q2[3];
+	}
+	
+	static void QuatSub(float q1[4], float q2[4], out float qR[4])
+	{
+		qR[0] = q1[0] - q2[0];
+		qR[1] = q1[1] - q2[1];
+		qR[2] = q1[2] - q2[2];
+		qR[3] = q1[3] - q2[3];
+	}
+	
+	static void QuatMultiply(float q1[4], float q2[4], out float qR[4])
+	{
+		qR[0] = (q1[3] * q2[0]) + (q1[0] * q2[3]) + (q1[1] * q2[2]) - (q1[2] * q2[1]);
+		qR[1] = (q1[3] * q2[1]) + (q1[1] * q2[3]) + (q1[2] * q2[0]) - (q1[0] * q2[2]);
+		qR[2] = (q1[3] * q2[2]) + (q1[2] * q2[3]) + (q1[0] * q2[1]) - (q1[1] * q2[0]);
+		qR[3] = (q1[3] * q2[3]) - (q1[0] * q2[0]) - (q1[1] * q2[1]) - (q1[2] * q2[2]);
+	}
+	
+	static float QuatDot(float q1[4], float q2[4])
+	{
+		return (q1[0] * q2[0]) + (q1[1] * q2[1]) + (q1[2] * q2[2]) + (q1[3] * q2[3]);
+	}
+	
+	static void QuatNearest(float q1[4], float q2[4], out float qR[4])
+	{
+		float diff[4];
+		float sum[4];
+		
+		QuatSub(q1, q2, diff);
+		QuatAdd(q1, q2, sum);
+		
+		if (QuatDot(diff, diff) < QuatDot(sum, sum))
+		{
+			qR[0] = q2[0];
+			qR[1] = q2[1];
+			qR[2] = q2[2];
+			qR[3] = q2[3];
+		} else
+		{
+			qR[0] = -q2[0];
+			qR[1] = -q2[1];
+			qR[2] = -q2[2];
+			qR[3] = -q2[3];
+		}
 	}
 };

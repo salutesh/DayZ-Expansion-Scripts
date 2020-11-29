@@ -231,7 +231,7 @@ class CfgVehicles
 		scope = 2;
 		hornSoundSetEXT = "Expansion_Utility_Horn_Ext_SoundSet";
 		hornSoundSetINT = "Expansion_Utility_Horn_Ext_SoundSet";
-		displayname = "$STR_EXPANSION_VEHICLE_UTILITY";
+		displayname = "[NOT READY]  UTILITY";
 		model = "\DayZExpansion\Vehicles\Water\Utility\RHIB.p3d";
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;

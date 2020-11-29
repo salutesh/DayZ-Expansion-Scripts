@@ -645,7 +645,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			return;
 
 		if ( IsMissionHost() && m_EnableHelicopterExplosions )
-		{			
+		{
 			vector transform[4];
 			GetTransform( transform );
 
@@ -653,39 +653,29 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			//! In game rendering does not show this behaviour and the helicopter appears to only translate, not rotate
 			//! This is possibly a DayZ SA/Enfusion bug but it will need more testing. May also be the cause for some
 			//! helicoper simulation weirdness when on the ground?
-			vector upDir = vector.Direction( GetPosition(), ModelToWorld( "0 1 0" ) );
-
-			#ifdef EXPANSION_HELI_CONTACT_NORMAL_DISABLE //! Should be enabled, quick disable if issues persist
-			vector contactUp = vector.Up;
-			#else
-			//! Find the contact normal from the position of the contact relative to the helicopter
-			vector contactUp = extra.Normal * -vector.Dot( vector.Up, vector.Direction( GetPosition(), extra.Position ).Normalized() );
-			contactUp.Normalize();
-			#endif
-
-			float dot = Math.Clamp( 1.0 - vector.Dot( upDir, contactUp ), 0.0001, 1.0 );
+			
+			float dot = vector.Dot( transform[1], vector.Up );
+			float dotMO = dot - 1.0;
+			
 			const float maxVelocityMagnitude = 11.0; // ~40km/h
-
-			//! Equation is f(x) = -1 + (0.8 / x))
-			//! After dot=0.8 the impulse required becomes negative
-			//! No need to clamp it unless we wanted a minimum impulse greater than 0, which we don't.
-			//! If the heli is upside down for whatever reason and is stationary it should still explode
-			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( -1.0 + ( 0.8 / dot ) ); 
-
-			//Print( impulseRequired );
+			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( ( dotMO * dotMO * dotMO ) + 1.0 ) * 40.0; 
 
 			if ( other ) //! check done just incase
 				impulseRequired += Math.Max( dBodyGetMass( other ), 0.0 ) * maxVelocityMagnitude * 2.0;
 
-			//Print( impulseRequired );
-			//Print( other );
-			//if ( other )
-			//	Print( dBodyGetMass( other ) );
-
-			//Print( extra.Impulse );
 
 			if ( extra.Impulse > impulseRequired )
 			{
+				Print( dot );
+				
+				Print( impulseRequired );
+				
+				Print( other );
+	
+				Print( extra.Impulse );
+				
+				Print(GetVelocity(this));
+				Print(dBodyGetAngularVelocity(this));
 				//Print( "Boom!" );
 				//! Maybe instead just tick damage down instead?
 				//! Should have a way to repair the helicopter then though
@@ -719,44 +709,50 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Attachment Delete" );
 
 		PlayerBase player;
+		DayZPlayerCommandDeathCallback callback;
+		
 		for ( int i = 0; i < CrewSize(); i++ )
 		{
 			if ( Class.CastTo( player, CrewMember( i ) ) )
 			{
-				if ( GetGame().IsMultiplayer() )
-				{
-					player.SetAllowDamage( true );
-					player.SetHealth( 0.0 );
-				}
+				player.StartCommand_Fall(0);
 				
+				CrewDeath( i );
 				CrewGetOut( i );
+				
 				player.UnlinkFromLocalSpace();
-				player.DisableSimulation( false );
-				player.StartCommand_Death( -1, 0, HumanCommandDeathCallback );
-				player.ResetDeathStartTime();
+				
+				player.SetAllowDamage( true );
+				player.SetHealth( 0.0 );
+				
+				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
+				
+				RemoveChild(player);
 			}
 		}
 
-		Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Crew Unlink" );
+		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Crew Unlink" );
 
 		IEntity child = GetChildren();
 		while ( child )
 		{
 			if ( Class.CastTo( player, child ) )
-			{
-				if ( GetGame().IsMultiplayer() )
-				{
-					player.SetAllowDamage( true );
-					player.SetHealth( 0.0 );
-				}
-
+			{				
+				child = child.GetSibling();
+				
 				player.UnlinkFromLocalSpace();
-				player.DisableSimulation( false );
-				player.StartCommand_Death( -1, 0, HumanCommandDeathCallback );
-				player.ResetDeathStartTime();
+				RemoveChild(player);
+				
+				player.SetAllowDamage( true );
+				player.SetHealth( 0.0 );
+				
+				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
+				
+				player.StartCommand_Fall(0);
+			} else
+			{
+				child = child.GetSibling();
 			}
-			
-			child = child.GetSibling();
 		}
 
 		Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Player Unlink" );
@@ -1206,7 +1202,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			{
 				vector t_friction;
 				
-				t_friction = m_AngularVelocity * m_BoundingRadius * ( m_RotorSpeed + 0.2 ) * ( ( m_AngularFrictionCoef ) + ( m_TailRotateFactor * 0.5 ) );
+				t_friction = m_AngularVelocity * m_BoundingRadius * ( m_RotorSpeed + 0.2 ) * ( m_AngularFrictionCoef + ( m_TailRotateFactor * 0.5 ) );
 				
 				torque -= t_friction;
 			}
