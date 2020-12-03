@@ -106,11 +106,10 @@
 //! Enable to disable character szene main menu changes
 #define EXPANSION_MAINMENU_NEW_DISABLE
 
-#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
-
 #define EXPANSION_VEHICLES_CONFIG_DISPLAYNAME_TEMP
 
 //#define EXPANSION_COT_VEHICLE_FORCE_DEFAULTS
+#define EXPANSION_CARSCRIPT_DATA_DOUBLE
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMOD
