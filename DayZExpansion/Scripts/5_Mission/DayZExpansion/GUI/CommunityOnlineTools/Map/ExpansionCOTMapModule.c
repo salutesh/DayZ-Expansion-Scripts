@@ -57,6 +57,10 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 	{
 		CreateToggle( "EnableMap", "Enable Expansion Map", "", "" );
 		CreateToggle( "UseMapOnMapItem", "Use Expansion Map On Map Item", "", "" );
+		
+		array< string > lamp_types = { "Disabled", "Enabled", "Require Compass" };
+		CreateEnum( "ShowPlayerPosition", lamp_types, "Show Player Position", "", "" );
+		CreateToggle( "ShowMapStats", "Show Map Stats (XYZ)", "", "" );
 
 		CreateToggle( "NeedMapItemForKeyBinding", "Require Map Item", "", "" );
 		CreateToggle( "CanOpenMapWithKeyBinding", "Can Open Map With Key Binding", "", "" );
@@ -67,9 +71,6 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		CreateToggle( "NeedPenItemForCreateMarker", "Need Pen Item For Create Marker", "", "" );
 		CreateToggle( "CanCreateMarker", "Can Create Marker", "", "" );
 		CreateToggle( "CanCreate3DMarker", "Can Create 3D Marker", "", "" );
-
-		CreateToggle( "ShowPlayerPosition", "Show Player Position", "", "" );
-		CreateToggle( "ShowMapStats", "Show Map Stats (XYZ)", "", "" );
 
 		CreateToggle( "EnableServerMarkers", "Enable Server Markers", "", "" );
 		CreateToggle( "ShowNameOnServerMarkers", "Show Name Of Server Markers", "", "" );

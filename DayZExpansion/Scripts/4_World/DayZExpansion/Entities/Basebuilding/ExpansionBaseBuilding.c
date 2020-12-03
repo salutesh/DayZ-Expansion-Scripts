@@ -645,10 +645,13 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		//if damage breaks, uncomment this line below, it will fix it.
 		//damageZone = "";
 
-		GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
-
 		if ( damageType == DT_EXPLOSION ) 
 		{
+			if ( explosionDamageMultiplier == 0 )
+				return;
+
+			GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+
 			float exposionBonusDamage;
 			if ( explosionDamageMultiplier > 1)
 			{
@@ -689,6 +692,11 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 			}
 		} else if ( damageType == DT_FIRE_ARM ) 
 		{
+			if ( projectileDamageMultiplier == 0 )
+				return;
+
+			GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+
 			float projectileBonusDamage;
 			if ( projectileDamageMultiplier > 1 )
 			{

@@ -67,6 +67,10 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "GravecrossDeleteBody", "Delete Body On Gravecross", "", "" );
 		CreateSlider( "GravecrossTimeThreshold", "Gravecross Threshold", "", "", 0.0, 2000.0, 60.0 );
 
+		CreateToggle( "Mapping.UseCustomMappingModule", "Use CustomMapping Module", "", "" );
+		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
+		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );
+
 		array< string > lamp_types = { "Disable", "Generators", "Always On", "Always On Everywhere" };
 		CreateEnum( "EnableLamps", lamp_types, "Lamps", "", "" );
 		CreateToggle( "EnableGenerators", "Generators", "", "" );
@@ -85,10 +89,6 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "UseDeathScreen", "Use Death Screen", "", "" );
 		CreateToggle( "UseDeathScreenStatistics", "Use Death Screen Statistics", "", "" );
 		CreateToggle( "UseNewsFeedInGameMenu", "Use News Feed In GameMenu", "", "" );
-
-		CreateToggle( "Mapping.UseCustomMappingModule", "Use CustomMapping Module", "", "" );
-		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
-		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );
 	}
 
 	override int GetRPCMin()

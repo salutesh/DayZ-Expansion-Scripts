@@ -177,6 +177,8 @@ class ExpansionMapping
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingLivonia::Defaults - Start");
 		#endif
+
+		UseCustomMappingModule 			= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingLivonia::Defaults - End");
@@ -191,6 +193,8 @@ class ExpansionMapping
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingDeerIsle::Defaults - Start");
 		#endif
+
+		UseCustomMappingModule 			= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingDeerIsle::Defaults - End");
@@ -205,6 +209,8 @@ class ExpansionMapping
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingNamalsk::Defaults - Start");
 		#endif
+
+		UseCustomMappingModule 			= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingNamalsk::Defaults - End");

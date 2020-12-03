@@ -80,8 +80,8 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 
 		m_AreaDamage = new AreaDamageRegularDeferred( this );
 		m_AreaDamage.SetExtents( "-2.96 0 -0.77", "2.97 1.36 0.74" );
-		m_AreaDamage.SetLoopInterval( 0.5 );
-		m_AreaDamage.SetDeferDuration( 0.5 );
+		m_AreaDamage.SetLoopInterval( 0.65 );
+		m_AreaDamage.SetDeferDuration( 0.65 );
 		m_AreaDamage.SetHitZones( { "Head","Torso","LeftHand","LeftLeg","LeftFoot","RightHand","RightLeg","RightFoot" } );
 		m_AreaDamage.SetAmmoName( "BarbedWireDamage" );
 		m_AreaDamage.Spawn();
@@ -104,7 +104,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		return false;
+		return true;
 	}
 
 	// ------------------------------------------------------------

@@ -183,7 +183,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		return false;
+		return true;
 	}
 
 	// ------------------------------------------------------------

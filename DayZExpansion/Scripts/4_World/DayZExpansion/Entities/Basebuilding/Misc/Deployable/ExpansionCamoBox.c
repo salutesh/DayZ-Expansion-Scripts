@@ -68,7 +68,7 @@ class ExpansionCamoBox: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		return false;
+		return true;
 	}
 
 	// ------------------------------------------------------------

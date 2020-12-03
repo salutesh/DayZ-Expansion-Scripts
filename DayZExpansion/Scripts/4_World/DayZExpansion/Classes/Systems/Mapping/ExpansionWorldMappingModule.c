@@ -95,8 +95,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		if ( GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule )
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLaterByName( this, "LoadMappings", 500 );
-		} else
-		{
+		} else {
 			UnloadMapping( m_Objects.GetKeyArray() );
 		}
 	}
@@ -315,7 +314,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 			if ( !obj ) 
 				continue;
 			
-			//obj.SetFlags(EntityFlags.STATIC, false);
+			obj.SetFlags(EntityFlags.STATIC, false);
 						
 			obj.SetPosition( position );
 			obj.SetOrientation( rotation );

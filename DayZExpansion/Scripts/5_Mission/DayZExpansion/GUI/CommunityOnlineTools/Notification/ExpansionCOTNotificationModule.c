@@ -56,6 +56,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateToggle( "EnableNotification", "Enable Notification", "", "" );
+		
 		CreateToggle( "ShowPlayerJoinServer", "Show Player Join Server", "", "" );
 		CreateEnum( "JoinMessageType", ExpansionAnnouncementType, "Join Server Type", "", "" );
 		CreateToggle( "ShowPlayerLeftServer", "Show Player Left Server", "", "" );

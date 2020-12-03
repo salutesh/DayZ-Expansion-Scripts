@@ -549,9 +549,107 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EXLogPrint("ExpansionSpawnsNamalsk::Defaults - Start");
 		#endif
 
-		EnableSpawnSelection = false;
+		ref array<vector> positions = new array<vector>;
+		ref ExpansionSpawnLocation location;
+
+		EnableSpawnSelection = true;
 		
+		//! Tara Harbor
+		positions.Insert( Vector( 8085.469238, 1.565431, 8224.343750 ) );
+		positions.Insert( Vector( 7972.799805, 3.732371, 8055.347656 ) );
+		positions.Insert( Vector( 7820.460449, 5.780485, 7983.991211 ) );
+		positions.Insert( Vector( 7823.861328, 5.436656, 7876.534180 ) );
+		positions.Insert( Vector( 7981.229004, 3.026991, 7395.474121 ) );
+		positions.Insert( Vector( 7991.038574, 5.828287, 7320.502930 ) );
+		positions.Insert( Vector( 7999.814941, 4.266075, 7226.579590 ) );
+		positions.Insert( Vector( 7999.422852, 3.917540, 7135.880859 ) );
+		location = new ExpansionSpawnLocation( "Tara Harbor", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
 		
+		//! Tara SawMill
+		positions.Insert( Vector( 7451.234863, 2.629746, 5767.628418 ) );
+		positions.Insert( Vector( 7437.044434, 1.961083, 5686.347656 ) );
+		positions.Insert( Vector( 7270.833496, 2.368652, 5548.581055 ) );
+		positions.Insert( Vector( 7173.758789, 2.490517, 5535.238770 ) );
+		positions.Insert( Vector( 7029.282227, 4.738458, 5508.801758 ) );
+		positions.Insert( Vector( 6907.666504, 2.793373, 5516.155273 ) );
+		location = new ExpansionSpawnLocation( "Tara SawMill", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		//! Brensk Marsh
+        positions.Insert( Vector( 6151.092285, 1.264987, 5573.928223 ) );
+        positions.Insert( Vector( 6283.334473, 1.935929, 5781.833008 ) );
+        positions.Insert( Vector( 6277.715820, 3.072493, 5881.100586 ) );
+        positions.Insert( Vector( 6242.260254, 2.079003, 5646.101563 ) );
+        positions.Insert( Vector( 6075.745605, 1.194679, 5531.776855 ) );
+        positions.Insert( Vector( 6077.612793, 3.505146, 5477.541016 ) );
+        positions.Insert( Vector( 5994.918457, 1.527500, 5409.187988 ) );
+		location = new ExpansionSpawnLocation( "Brensk Marsh", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		//! Brensk
+		positions.Insert( Vector( 4599.437500, 3.117430, 4800.037598 ) );
+		positions.Insert( Vector( 4531.106445, 3.245819, 4734.894531 ) );
+		positions.Insert( Vector( 4441.681641, 1.156230, 4705.120117 ) );
+		positions.Insert( Vector( 4171.402832, 2.025218, 4714.413574 ) );
+		positions.Insert( Vector( 4073.524658, 3.821608, 4738.167480 ) );
+		positions.Insert( Vector( 4016.597656, 3.288769, 4808.031250 ) );
+		location = new ExpansionSpawnLocation( "Brensk", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		//! Lubjansk
+		positions.Insert( Vector( 6001.995605, 2.685731, 11810.514648 )	);
+		positions.Insert( Vector( 6070.703125, 2.419812, 11857.980469 )	);
+		positions.Insert( Vector( 6120.427246, 2.542685, 11909.213867 )	);
+		positions.Insert( Vector( 6182.059082, 1.988964, 11946.935547 )	);
+		positions.Insert( Vector( 6240.597168, 1.854375, 11944.241211 )	);
+		positions.Insert( Vector( 6334.204590, 2.814608, 11950.695313 )	);
+		positions.Insert( Vector( 6397.264648, 2.427259, 11974.208008 )	);
+		positions.Insert( Vector( 6453.961426, 2.999459, 11997.404297 )	);
+		positions.Insert( Vector( 6532.939941, 1.888822, 12048.618164 )	);
+		positions.Insert( Vector( 6614.894043, 2.246978, 12016.815430 )	);
+		positions.Insert( Vector( 6711.061035, 1.821189, 11977.592773 )	);
+		positions.Insert( Vector( 6799.871582, 7.757498, 11967.160156 )	);
+		positions.Insert( Vector( 6993.547363, 2.643507, 11925.248047 )	);
+		positions.Insert( Vector( 7086.631836, 2.728105, 11897.601563 )	);
+		positions.Insert( Vector( 7220.497559, 1.426603, 11889.622070 )	);
+		positions.Insert( Vector( 7303.187500, 2.878823, 11881.951172 )	);
+		positions.Insert( Vector( 7418.365723, 2.204709, 11854.547852 )	);
+		positions.Insert( Vector( 7516.029297, 1.701337, 11800.656250 )	);
+		positions.Insert( Vector( 7665.194824, 2.558721, 11813.786133 )	);
+		positions.Insert( Vector( 7766.950195, 1.250474, 11752.501953 )	);
+		location = new ExpansionSpawnLocation( "Lubjansk", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		//! Jalovisko
+		positions.Insert( Vector( 8625.460938, 3.831624, 11224.921875 )	);
+		positions.Insert( Vector( 8694.847656, 3.723127, 11138.439453 )	);
+		positions.Insert( Vector( 8622.545898, 2.531196, 11054.539063 )	);
+		positions.Insert( Vector( 8673.834961, 1.655312, 10926.909180 )	);
+		positions.Insert( Vector( 8763.146484, 2.962097, 10880.047852 )	);
+		positions.Insert( Vector( 8831.335938, 3.817108, 10787.751953 )	);
+		location = new ExpansionSpawnLocation( "Jalovisko", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		//! Nemsk
+		positions.Insert( Vector( 9106.095703, 1.958728, 10311.020508 ) );
+		positions.Insert( Vector( 9140.910156, 2.197809, 10249.210938 ) );
+		positions.Insert( Vector( 9155.135742, 1.494921, 10173.037109 ) );
+		positions.Insert( Vector( 9141.457031, 0.993115, 10123.311523 ) );
+		positions.Insert( Vector( 9071.829102, 1.655611, 10005.583008 ) );
+		positions.Insert( Vector( 9029.701172, 2.618637, 9954.769531 ) );
+		positions.Insert( Vector( 8995.268555, 2.661735, 9906.744141 ) );
+		positions.Insert( Vector( 8928.280273, 3.379394, 9872.879883 ) );
+		location = new ExpansionSpawnLocation( "Nemsk", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionSpawnsNamalsk::Defaults - End");
 		#endif
