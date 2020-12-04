@@ -193,7 +193,7 @@ class CfgVehicles
 	class Vehicle_ExpansionGyrocopter: ExpansionVehicleHelicopterBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		displayname = "[NOT READY]  GYROCOPTER";
 		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 50;

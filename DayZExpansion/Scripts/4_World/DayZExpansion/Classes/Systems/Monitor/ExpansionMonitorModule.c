@@ -16,8 +16,8 @@
 
 class ExpansionMonitorModule: JMModuleBase
 {
-	private const float UPDATE_TICK_TIME = 0.1; // refreshes 100 players every two seconds
-	private const int UPDATE_PLAYERS_PER_TICK = 5;
+	private const float UPDATE_TICK_TIME = 1.0; // refreshes 100 players every ten seconds
+	private const int UPDATE_PLAYERS_PER_TICK = 10;
 
 	//Server only
 	private ref map< string, ref ExpansionSyncedPlayerStats > m_Stats;
@@ -340,13 +340,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected int CalcHealth( PlayerBase player )
 	{
-		int health;
-		int max_health = player.GetMaxHealth("GlobalHealth", "Health");
-		
-		health = Math.Round( player.GetHealth( "","Health" ) );
-		health = ( ( health * 100 ) / max_health );
-		
-		return health;
+		return Calc( player.GetHealth( "","Health" ), player.GetMaxHealth("GlobalHealth", "Health") );
 	}
 	
 	// ------------------------------------------------------------
@@ -355,43 +349,25 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected int CalcBlood( PlayerBase player )
 	{
-		int blood;
-		int max_blood = player.GetMaxHealth("GlobalHealth", "Blood");
-		
-		blood = Math.Round( player.GetHealth("", "Blood") );
-		blood = ( ( blood * 100 ) / max_blood );
-		
-		return blood;
+		return Calc( player.GetHealth("", "Blood"), player.GetMaxHealth("GlobalHealth", "Blood") );
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion CalcWater
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcWater( PlayerBase player )
 	{
-		int water;
-		int max_water = 5000;
-		
-		water = Math.Round( player.GetStatWater().Get() );
-		water = ( ( water * 100 ) / max_water );
-		
-		return water;
+		return CalcStat( player.GetStatWater() );
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion CalcEnergy
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcEnergy( PlayerBase player )
 	{
-		int energy;
-		int max_energy = 20000;
-		
-		energy = Math.Round( player.GetStatEnergy().Get() );
-		energy = ( ( energy * 100 ) / max_energy );
-		
-		return energy;
+		return CalcStat( player.GetStatEnergy() );
 	}
 	
 	// ------------------------------------------------------------
@@ -400,13 +376,17 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected int CalcStamina( PlayerBase player )
 	{
-		int stamina;
-		int max_stamina = GameConstants.STAMINA_MAX;
-		
-		stamina = Math.Round( player.GetStatStamina().Get() );
-		stamina = ( ( stamina * 100 ) / max_stamina );
-		
-		return stamina;
+		return CalcStat( player.GetStatStamina() );
+	}
+
+	protected int Calc( float value, float max )
+	{
+		return ( Math.Round( value ) * 100 ) / max;
+	}
+
+	protected int CalcStat( PlayerStat< float > stat )
+	{
+		return Calc( stat.Get(), stat.GetMax() );
 	}
 		
 	// ------------------------------------------------------------

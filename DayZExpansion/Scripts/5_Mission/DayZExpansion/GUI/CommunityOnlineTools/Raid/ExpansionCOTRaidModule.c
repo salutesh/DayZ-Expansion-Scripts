@@ -55,16 +55,19 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{		
-		CreateSlider( "ExplosionTime", "Explosion Time", "", "", 30.0, 300.0, 1.0); 
+		CreateSlider( "ExplosionTime", "Timer before Explosion", "", "", 1.0, 60.0, 1.0); 
 		
 		CreateToggle( "EnableExplosiveWhitelist", "Enable Explosive Whitelist", "", "" );
 
-		CreateSlider( "ExplosionDamageMultiplier", "Explosion Damage Multiplier", "", "", 1.0, 100.0, 1.0);
-		CreateSlider( "ProjectileDamageMultiplier", "Projectile Damage Multiplier", "", "", 1.0, 100.0, 1.0);
+		CreateSlider( "ExplosionDamageMultiplier", "Explosion Damage Multiplier", "", "", 0.0, 100.0, 1.0);
+		CreateSlider( "ProjectileDamageMultiplier", "Projectile Damage Multiplier", "", "", 0.0, 100.0, 1.0);
 
 		CreateToggle( "CanRaidSafes", "Can Raid Safes", "", "" );
-		CreateSlider( "SafeExplosionDamageMultiplier", "Safe Explosion Damage Multiplier", "", "", 1.0, 100.0, 1.0);
-		CreateSlider( "SafeProjectileDamageMultiplier", "Safe Projectile Damage Multiplier", "", "", 1.0, 100.0, 1.0);
+		CreateSlider( "SafeExplosionDamageMultiplier", "Safe Explosion Damage Multiplier", "", "", 0.0, 100.0, 1.0);
+		CreateSlider( "SafeProjectileDamageMultiplier", "Safe Projectile Damage Multiplier", "", "", 0.0, 100.0, 1.0);
+
+		array< string > values_BaseBuildingRaidMode = { "Default", "Doors/Gates only", "Doors/Gates/Windows only" };
+		CreateEnum( "BaseBuildingRaidMode", values_BaseBuildingRaidMode, "BaseBuilding Raid Mode", "", "" );
 	}
 
 	override int GetRPCMin()

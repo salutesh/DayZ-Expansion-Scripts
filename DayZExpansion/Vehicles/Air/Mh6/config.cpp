@@ -359,7 +359,7 @@ class CfgVehicles
 	class Vehicle_ExpansionMh6: ExpansionVehicleHelicopterBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_MH6";
+		displayname = "[NOT READY]  MH6";
 		model = "\DayZExpansion\Vehicles\Air\Mh6\Mh6.p3d";
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 192;

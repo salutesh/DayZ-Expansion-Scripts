@@ -474,7 +474,7 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	*/
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MOD_STORAGE
+		#ifdef CF_MODULE_MODSTORAGE
 		if ( GetGame().SaveVersion() >= 116 )
 		{
 			super.OnStoreSave( ctx );
@@ -495,7 +495,7 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 	*/
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MOD_STORAGE
+		#ifdef CF_MODULE_MODSTORAGE
 		if ( version >= 116 )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -515,10 +515,10 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		return true;
 	}
 
-	#ifdef CF_MOD_STORAGE
-	override void OnModStoreSave( ModStorage storage, string modName )
+	#ifdef CF_MODULE_MODSTORAGE
+	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
-		super.OnModStoreSave( storage, modName );
+		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion" )
 			return;
@@ -528,9 +528,9 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		storage.Write( m_HasCode );
 	}
 	
-	override bool OnModStoreLoad( ModStorage storage, string modName )
+	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
-		if ( !super.OnModStoreLoad( storage, modName ) )
+		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
 		if ( modName != "DZ_Expansion" )
@@ -645,10 +645,13 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 		//if damage breaks, uncomment this line below, it will fix it.
 		//damageZone = "";
 
-		GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
-
 		if ( damageType == DT_EXPLOSION ) 
 		{
+			if ( explosionDamageMultiplier == 0 )
+				return;
+
+			GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+
 			float exposionBonusDamage;
 			if ( explosionDamageMultiplier > 1)
 			{
@@ -689,6 +692,11 @@ class ExpansionBaseBuilding extends BaseBuildingBase
 			}
 		} else if ( damageType == DT_FIRE_ARM ) 
 		{
+			if ( projectileDamageMultiplier == 0 )
+				return;
+
+			GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+
 			float projectileBonusDamage;
 			if ( projectileDamageMultiplier > 1 )
 			{

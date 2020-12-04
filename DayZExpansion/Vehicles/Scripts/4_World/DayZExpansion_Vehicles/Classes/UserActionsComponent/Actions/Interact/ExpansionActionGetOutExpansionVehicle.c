@@ -221,7 +221,7 @@ class ExpansionActionGetOutExpansionVehicle: ActionInteractBase
 	//Manage all jumping out of vehicle damage logic
 	void ApplyJumpOutDmg(ActionData action_data)
 	{
-		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
+		ExpansionActionGetOutExpansionVehicleActionData got_action_data = ExpansionActionGetOutExpansionVehicleActionData.Cast(action_data);
 		PlayerBase player = got_action_data.m_Player;
 		
 		//Get all currently equipped clothing

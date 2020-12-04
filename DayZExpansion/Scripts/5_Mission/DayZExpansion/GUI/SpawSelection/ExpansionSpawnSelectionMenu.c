@@ -61,7 +61,10 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 		m_MapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "MapPanel" ) );
 		m_Map = MapWidget.Cast( layoutRoot.FindAnyWidget( "Map" ) );
 				
-		FillList();
+		FillList( GetExpansionSettings().GetSpawn().SpawnLocations );		
+
+		//if ( GetExpansionSettings().GetSpawn().SpawnOnTerritory && HaveATerritory() )
+		//	FillList( GetTerritoryList() );
 		
 		return layoutRoot;
 	}
@@ -69,11 +72,11 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMenu FillList
 	// ------------------------------------------------------------		
-	void FillList()
+	void FillList(array< ref ExpansionSpawnLocation> SpawnLocations)
 	{
 		Clear();
 		
-		foreach( ExpansionSpawnLocation currenLocation : GetExpansionSettings().GetSpawn().SpawnLocations )
+		foreach( ExpansionSpawnLocation currenLocation : SpawnLocations )
 		{
 			ExpansionSpawnSelectionEntry location_entry = new ExpansionSpawnSelectionEntry( m_ListGrid, currenLocation );
 			m_SpawnPointsEntrys.Insert( location_entry );
@@ -93,6 +96,22 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 			m_MapMarkers.Insert( marker );
 		}
 	}
+
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu HaveATerritory
+	// ------------------------------------------------------------	
+	//bool HaveATerritory()
+	//{
+	//	return false;
+	//}
+
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu GetTerritoryList
+	// ------------------------------------------------------------	
+	//ExpansionSpawnLocation GetTerritoryList()
+	//{
+	//	return NULL;
+	//} 
 	
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMenu ClearList

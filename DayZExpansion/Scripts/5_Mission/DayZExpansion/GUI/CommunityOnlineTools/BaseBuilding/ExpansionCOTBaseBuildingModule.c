@@ -62,21 +62,25 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		CreateToggle( "CanCraftExpansionBasebuilding", "Can Craft Expansion Basebuilding", "", "" );
 
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
-		CreateToggle( "DismantleFlagRequireTools", "Dismantle Flag Requires Tools", "", "" );
+		
+		array< string > values_DismantleFlagRequireTools = { "Owner only", "With Hands", "With Tools" };
+		CreateEnum( "DismantleFlagRequireTools", values_DismantleFlagRequireTools, "Dismantle Flag Requires Tools", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );
 		CreateToggle( "DismantleInsideTerritory", "Dismantle Inside Other Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
 
 		CreateToggle( "CodelockActionsAnywhere", "Codelock: Actions Anywhere", "", "" );
+		CreateSlider( "CodeLockLength", "Codelock Length", "", "", 1.0, 6.0, 1.0);
 		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Codelock: Damage On Wrong Code", "", "" );
 		CreateSlider( "DamageWhenEnterWrongCodeLock", "Codelock: Damage Dealt", "", "", 1.0, 100.0, 1.0);
 
 		CreateToggle( "CanCraftTerritoryFlagKit", "Can Craft Territory Flag Kit", "", "" );
-		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory FlagKit After Build", "", "" );
 
 		CreateToggle( "SimpleTerritory", "Simple Territory Creation", "", "" );
 		CreateToggle( "AutomaticFlagOnCreation", "Add Flag Item", "", "" );
-		CreateToggle( "EnableFlagMenu", "Enable Flag Menu", "", "" );
+		array< string > values_EnableFlagMenu = { "Disabled", "Enabled", "No flag choice" };
+		CreateEnum( "EnableFlagMenu", values_EnableFlagMenu, "Enable Flag Menu", "", "" );
+		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory FlagKit After Build", "", "" );
 	}
 
 

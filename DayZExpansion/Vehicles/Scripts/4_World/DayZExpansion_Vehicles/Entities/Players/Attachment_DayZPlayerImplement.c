@@ -19,6 +19,8 @@ modded class DayZPlayerImplement
 	protected bool m_ExPerformClimbAttach;
 	protected bool m_ExPerformClimb;
 
+	protected bool m_IsAttaching;
+
 	SHumanCommandClimbResult Ex_ClimbResult;
 	protected int m_ExClimbType;
 
@@ -212,6 +214,11 @@ modded class DayZPlayerImplement
 		#endif
 	}
 
+	bool IsAttaching()
+	{
+		return m_IsAttaching;
+	}
+
 	// ------------------------------------------------------------
 	void AttachTo( IEntity target, bool already_validated = false )
 	{
@@ -241,6 +248,9 @@ modded class DayZPlayerImplement
 			}
 		}
 
+		if (m_ExAttachmentObject)
+			m_IsAttaching = m_ExAttachmentObject.IsInherited(ExpansionVehicleBase);
+
 		AttachmentDebugPrint("PlayerBase::AttachTo end");
 	}
 
@@ -250,6 +260,7 @@ modded class DayZPlayerImplement
 		AttachmentDebugPrint("PlayerBase::Detach start");
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
+		m_IsAttaching = false;
 
 		if ( IsMissionClient() )
 		{

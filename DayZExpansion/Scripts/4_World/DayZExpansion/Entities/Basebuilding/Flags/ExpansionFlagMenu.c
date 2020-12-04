@@ -150,12 +150,17 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion FindChar
 	// ------------------------------------------------------------	
-	bool FindChar( string key, string word )
+	bool FindChar( TStringArray key, string word )
 	{
+		// Each letters of the word
 		for ( int i = 0; i < word.Length(); ++i )
 		{
-			if ( word[i] == key )
-				return true;
+			// Each forbbidden letters
+			for ( int u = 0; u < key.Count(); ++u )
+			{
+				if ( word[i] == key[u] )
+					return true;
+			}
 		}
 
 		return false;
@@ -167,12 +172,17 @@ class ExpansionFlagMenu extends UIScriptedMenu
 	void ConfirmTerritoryCreation()
 	{
 		string territoryName = m_TerritoryNameEditbox.GetText();
+		TStringArray forrbidenChars = new TStringArray;
+		forrbidenChars.Insert( "!" );
+		forrbidenChars.Insert( "<" );
+		forrbidenChars.Insert( ">" );
+		forrbidenChars.Insert( "/" );
 		
-		//! Territory name can't be empty or have a "!"
-		if ( territoryName == "" || FindChar("!",territoryName) )
+		//! Territory name can't be empty or have a illegal characters
+		if ( territoryName == "" || FindChar(forrbidenChars,territoryName) )
 		{
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, player.GetIdentity() );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEINVALID", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, player.GetIdentity() );
 			return;
 		}
 		

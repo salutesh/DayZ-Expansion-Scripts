@@ -34,6 +34,23 @@ modded class DayZPlayerCamera3rdPerson
 		#endif
 
 		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( false );
+
+		//Print( "OnUpdate" );
+		//Print( pOutResult.m_CollisionIgnoreEntity );
+
+		ExpansionVehicleBase vehicle;
+		if ( Class.CastTo( vehicle, pOutResult.m_CollisionIgnoreEntity ) )
+		{
+			//Print( dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) );
+			//Print( vehicle.IsCreatingDynamic() );
+			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) || vehicle.IsCreatingDynamic() )
+			{
+				pOutResult.m_CollisionIgnoreEntity = NULL;
+			}
+		}
+
+		//Print( vehicle );
+		//Print( pOutResult.m_CollisionIgnoreEntity );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate End");

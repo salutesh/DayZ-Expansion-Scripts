@@ -20,12 +20,16 @@ modded class DayZPlayerCamera1stPersonVehicle
 		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate Start");
 		#endif
 
-		ExpansionVehicleBase vehicle;
-		if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) )
+		ExpansionVehicleBase exVehicle;
+		m_bForceFreeLook = Class.CastTo( exVehicle, m_pPlayer.GetParent() );
+		m_bForceFreeLook = false;
+		
+		pOutResult.m_fUseHeading			= 0.0;
+		
+		if ( exVehicle )
 		{
-			pOutResult.m_fUseHeading 		= 1.0;
+			pOutResult.m_fUseHeading		= 1.0;
 			pOutResult.m_fInsideCamera 		= 0.0;
-
 			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( true );
 		} else
 		{

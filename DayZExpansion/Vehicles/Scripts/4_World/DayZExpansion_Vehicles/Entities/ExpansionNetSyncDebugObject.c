@@ -14,6 +14,8 @@ class ExpansionNetSyncDebugObject extends ItemBase
 
 	void ExpansionNetSyncDebugObject()
 	{
+		Print("ExpansionNetSyncDebugObject");
+
 		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE);
 
 		m_NetIDLow = 0;
@@ -35,12 +37,30 @@ class ExpansionNetSyncDebugObject extends ItemBase
 		RegisterNetSyncVariableFloat("m_OriX");
 		RegisterNetSyncVariableFloat("m_OriY");
 		RegisterNetSyncVariableFloat("m_OriZ");
+
+		m_NetIDLow = 0;
+		m_NetIDHigh = 0;
+		
+		m_PosX = 0;
+		m_PosY = 0;
+		m_PosZ = 0;
+		m_OriX = 0;
+		m_OriY = 0;
+		m_OriZ = 0;
 	}
 
+	void ~ExpansionNetSyncDebugObject()
+	{
+		Print("~ExpansionNetSyncDebugObject");
+	}
+	
 	void SetSyncObject(EntityAI object)
 	{
 		m_Object = object;
 		m_Object.GetNetworkID(m_NetIDLow, m_NetIDHigh);
+		
+		FixScale();
+
 	}
 
 	override bool OnNetworkTransformUpdate(out vector pos, out vector ypr)
@@ -67,8 +87,10 @@ class ExpansionNetSyncDebugObject extends ItemBase
 
 	void FixScale()
 	{
+		Print(m_Object);
+
 		if (!m_Object)
-			m_Object = GetGame().GetObjectByNetworkId(m_NetIDLow, m_NetIDHigh);
+			m_Object = EntityAI.Cast( GetGame().GetObjectByNetworkId(m_NetIDLow, m_NetIDHigh) );
 
 		if (!m_Object)
 			return;
@@ -81,8 +103,13 @@ class ExpansionNetSyncDebugObject extends ItemBase
 			m_OriX = m_Object.GetOrientation()[0];
 			m_OriY = m_Object.GetOrientation()[1];
 			m_OriZ = m_Object.GetOrientation()[2];
+			
+			SetPosition( m_Object.GetPosition() );
 
 			SetSynchDirty();
+
+			if (!GetGame().IsMultiplayer())
+				return;
 		}
 		
 		vector info[2];
@@ -97,6 +124,11 @@ class ExpansionNetSyncDebugObject extends ItemBase
 		//trans[2] = trans[2] * (Math.AbsFloat(info[0][2]) + Math.AbsFloat(info[1][2])) * 0.5;
 
 		trans[3] = Vector(m_PosX, m_PosY, m_PosZ);
+		
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [0]: " + trans[0]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [1]: " + trans[1]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [2]: " + trans[2]);
+		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [3]: " + trans[3]);
 
 		SetTransform(trans);
 	}

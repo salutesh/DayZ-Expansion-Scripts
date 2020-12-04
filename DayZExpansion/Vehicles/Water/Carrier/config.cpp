@@ -167,7 +167,7 @@ class CfgVehicles
 		scope = 2;
 		hornSoundSetEXT = "Expansion_LHD_Horn_Ext_SoundSet";
 		hornSoundSetINT = "Expansion_LHD_Horn_Int_SoundSet";
-		displayname = "$STR_EXPANSION_VEHICLE_LHD";
+		displayname = "[NOT READY]  LHD";
 		model = "\DayZExpansion\Vehicles\Water\Carrier\LHD.p3d";
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;

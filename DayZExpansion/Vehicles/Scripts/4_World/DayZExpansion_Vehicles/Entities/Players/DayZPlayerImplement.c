@@ -24,7 +24,7 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
-	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( Object vehicle, int seatIdx, int seat_anim )
+	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
 	{
 		return NULL;
 	}

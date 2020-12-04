@@ -327,7 +327,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				if ( m_Plane.CheckForDrop() && !m_Container )
 				{
 					m_LootHasSpawned = false;
-					m_ZombiesHasSpawned = false
+					m_ZombiesHasSpawned = false;
 	
 					m_Container = m_Plane.CreateDrop( Container );
 					
@@ -458,24 +458,23 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
 		{
 			return 48;
+		}
 		//! Modded Maps
-		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
+		else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
 		{
 			return 52;
-		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
+		}
+		else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
 		{
 			return 20;
 		}
-		/*
-		//! Preparation
 		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
 		{
 			return 36;
 		}
-		*/
 
-		//! We don't want to load airdrops on a map if we don't have them configured
-		return 0;
+		//! Unknown map, so let's load the default chernarus stuff
+		return 52;
 	}
 	
 	// ------------------------------------------------------------
@@ -498,8 +497,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
 
-
-
 		//! Vanilla Maps
 		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
 		{
@@ -516,18 +513,15 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 			return ExpansionMissionAirdropSandbox( index );
 		}
-		/*
-		//! Preparation
 		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
 		{
 			return ExpansionMissionAirdropNamalsk( index );
 		}
-		*/
 
 		
 		
-		//! We will still give a name to prevent a server freeze for the edges cases
-		return "Airdrop_Template";
+		//! Map unknown, loading chernarus default config
+		return ExpansionMissionAirdropChernarus( index );
 	}
 		
 	// ------------------------------------------------------------
@@ -1711,7 +1705,31 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		{
 		default:
 		case 0:
-			DropLocation = new ExpansionAirdropLocation( 4522, 4370, 100, "Location" );
+			DropLocation = new ExpansionAirdropLocation( 6751, 10900, 100, "Vorkuta" );
+			break;
+		case 1:
+			DropLocation = new ExpansionAirdropLocation( 8008, 10747, 100, "Jalovisko" );
+			break;
+		case 2:
+			DropLocation = new ExpansionAirdropLocation( 4680, 10872, 100, "Lubjansk" );
+			break;
+		case 3:
+			DropLocation = new ExpansionAirdropLocation( 5024, 8919, 100, "Sedbjan" );
+			break;
+		case 4:
+			DropLocation = new ExpansionAirdropLocation( 7493, 7577, 100, "Tara Harbor" );
+			break;
+		case 5:
+			DropLocation = new ExpansionAirdropLocation( 7114, 6000, 100, "Tara SawMill" );
+			break;
+		case 6:
+			DropLocation = new ExpansionAirdropLocation( 3974, 7350, 100, "Norisnk" );
+			break;
+		case 7:
+			DropLocation = new ExpansionAirdropLocation( 6140, 9189, 100, "Airstrip" );
+			break;
+		case 8:
+			DropLocation = new ExpansionAirdropLocation( 4327, 5230, 100, "Brensk" );
 			break;
 		}
 

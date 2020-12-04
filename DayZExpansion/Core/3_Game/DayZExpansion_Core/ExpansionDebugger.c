@@ -28,12 +28,44 @@ class ExpansionDebuggerBlock
 	}
 }
 
+#ifdef EXPANSION_DEBUGGER_DISABLE
+class ExpansionDebugger
+{
+	static void AddType( ExpansionDebuggerType type )
+	{
+	}
+
+	static void GetEnabledBlocks( out array< ExpansionDebuggerBlock > blocks )
+	{
+		blocks = new array< ExpansionDebuggerBlock >();
+	}
+
+	static void DisableAll()
+	{
+	}
+
+	static void Enable( ExpansionDebuggerType type )
+	{
+	}
+
+	static void Disable( ExpansionDebuggerType type )
+	{
+	}
+
+	static void Display( int type, string text )
+	{
+	}
+
+	static void Push( int type )
+	{
+	}
+};
+#else
 class ExpansionDebugger
 {
 	// () -> ( ExpansionDebuggerType type, array< string > text )
 	static ref ScriptInvoker OnPush = new ScriptInvoker();
 
-	static bool GlobalEnable = false;
 	static bool Printing = false;
 	
 	private static ref array< ref ExpansionDebuggerBlock > _blocks = new array< ref ExpansionDebuggerBlock >;
@@ -111,9 +143,6 @@ class ExpansionDebugger
 
 	static void Display( int type, string text )
 	{
-		if ( !GlobalEnable )
-			return;
-
 		if ( type < 0 )
 			return;
 
@@ -133,10 +162,7 @@ class ExpansionDebugger
 	}
 	
 	static void Push( int type )
-	{
-		if ( !GlobalEnable )
-			return;
-			
+	{			
 		if ( type < 0 )
 			return;
 			
@@ -152,3 +178,4 @@ class ExpansionDebugger
 		}
 	}
 };
+#endif

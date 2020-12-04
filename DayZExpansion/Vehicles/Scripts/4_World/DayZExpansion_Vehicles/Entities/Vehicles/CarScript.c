@@ -30,14 +30,14 @@ class ExpansionVehicleAttachmentSave
 		m_Position = position;
 		m_Orientation = orientation;
 	}
-	#ifdef CF_MOD_STORAGE
-	void OnWrite( ModStorage storage )
+	#ifdef CF_MODULE_MODSTORAGE
+	void OnWrite( CF_ModStorage storage )
 	{
 		storage.Write( m_Position );
 		storage.Write( m_Orientation );
 	}
 
-	bool OnRead( ModStorage storage )
+	bool OnRead( CF_ModStorage storage )
 	{
 		storage.Read( m_Position );
 		storage.Read( m_Orientation );
@@ -2216,8 +2216,8 @@ modded class CarScript
 	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MOD_STORAGE
-		if ( CF.ModStorage.Version > 1 )
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( CF_ModStorage.VERSION > 1 )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -2276,8 +2276,8 @@ modded class CarScript
 		EXLogPrint("CarScript::OnStoreLoad - Start");
 		#endif
 
-		#ifdef CF_MOD_STORAGE
-		if ( CF.ModStorage.Version > 1 )
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( CF_ModStorage.VERSION > 1 )
 			return super.OnStoreLoad( ctx, version );
 		#endif
 
@@ -2286,14 +2286,11 @@ modded class CarScript
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		#ifdef EXPANSION_CARSCRIPT_DATA_DOUBLE
-		if ( GetExpansionSaveVersion() == 15 )
+		//! doubled data accidentally for version 15
+		if ( GetExpansionSaveVersion() == 15 && Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 		{
-			//doubled data accidentally
-			if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
-				return false;
+			return false;
 		}
-		#endif
 
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
@@ -2384,76 +2381,73 @@ modded class CarScript
 		
 		SetSynchDirty();
 
-		if ( GetExpansionSaveVersion() != 15 )
+		//! doubled data accidentally for version 15
+		if ( GetExpansionSaveVersion() == 15 )
 		{
+			if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+				return false;
+
+			if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+				return false;
+
+			if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+				return false;
+
+			if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+				return false;
+			
+			if ( Expansion_Assert_False( ctx.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
+				return false;
+
+			if ( Expansion_Assert_False( ctx.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
+				return false;
+
+			if ( GetExpansionSaveVersion() < 15 )
+				TempReadSkin( ctx );
+			
+			if ( Expansion_Assert_False( ctx.Read( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
+				return false;
+				
+			if ( Expansion_Assert_False( ctx.Read( m_Position ), "[" + this + "] Failed reading m_Position" ) )
+				return false;
+
+			if ( Expansion_Assert_False( ctx.Read( m_allAttachments ), "[" + this + "] Failed reading m_allAttachments" ) )
+				return false;
+
+			if ( Expansion_Assert_False( ctx.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+				return false;
+
+			if ( m_IsBeingTowed )
+			{
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+					return false;
+			}
+
+			if ( m_IsTowing )
+			{
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+					return false;
+				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+					return false;
+			}
+
 			#ifdef EXPANSION_CARSCRIPT_LOGGING
 			EXLogPrint("CarScript::OnStoreLoad - End");
 			#endif
 			return true;
 		}
-
-		#ifdef EXPANSION_CARSCRIPT_DATA_DOUBLE
-		//doubled data accidentally
-
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
-			return false;
-		
-		if ( Expansion_Assert_False( ctx.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
-			return false;
-
-		if ( GetExpansionSaveVersion() < 15 )
-			TempReadSkin( ctx );
-		
-		if ( Expansion_Assert_False( ctx.Read( m_Orientation ), "[" + this + "] Failed reading m_Orientation" ) )
-			return false;
-			
-		if ( Expansion_Assert_False( ctx.Read( m_Position ), "[" + this + "] Failed reading m_Position" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( m_allAttachments ), "[" + this + "] Failed reading m_allAttachments" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
-			return false;
-
-		if ( m_IsBeingTowed )
-		{
-			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
-				return false;
-		}
-
-		if ( m_IsTowing )
-		{
-			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
-				return false;
-		}
-		#endif
 
 		m_IsBeingTowed = false;
 		m_IsTowing = false;
@@ -2474,10 +2468,10 @@ modded class CarScript
 		return true;
 	}
 	
-	#ifdef CF_MOD_STORAGE
-	override void OnModStoreSave( ModStorage storage, string modName )
+	#ifdef CF_MODULE_MODSTORAGE
+	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
-		super.OnModStoreSave( storage, modName );
+		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return;
@@ -2520,9 +2514,9 @@ modded class CarScript
 		}
 	}
 	
-	override bool OnModStoreLoad( ModStorage storage, string modName )
+	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
-		if ( !super.OnModStoreLoad( storage, modName ) )
+		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
 		if ( modName != "DZ_Expansion_Vehicles" )

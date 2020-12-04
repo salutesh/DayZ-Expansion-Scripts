@@ -65,7 +65,7 @@ class CfgVehicles
 	class Vehicle_Expansion250N: ExpansionVehicleBikeBase
 	{
 		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_250N";
+		displayname = "[NOT READY]  250N";
 		model = "\DayZExpansion\Vehicles\Ground\250N\250N.p3d";
 		attachments[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2","Reflector_1_1","CarBattery","SparkPlug"};
 		fuelCapacity = 20;

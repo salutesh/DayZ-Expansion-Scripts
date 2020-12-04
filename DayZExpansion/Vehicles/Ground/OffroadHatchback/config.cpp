@@ -75,7 +75,7 @@ class CfgVehicles
 	class Vehicle_OffroadHatchback: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "$STR_OffroadHatchback0";
+		displayname = "[NOT READY]  ADA";
 		descriptionShort = "$STR_OffroadHatchback1";
 		model = "\dz\vehicles\wheeled\OffroadHatchback\OffroadHatchback.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","NivaDriverDoors","NivaCoDriverDoors","NivaHood","NivaTrunk","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1"};

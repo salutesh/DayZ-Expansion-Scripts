@@ -68,7 +68,7 @@ class CfgVehicles
 	class Vehicle_Hatchback_02: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayName = "$STR_CivHatchback0";
+		displayname = "[NOT READY]  Gunter";
 		descriptionShort = "$STR_CivHatchback1";
 		model = "\dz\vehicles\wheeled\Hatchback_02\Hatchback_02.p3d";
 		frontReflectorMatDamaged = "";

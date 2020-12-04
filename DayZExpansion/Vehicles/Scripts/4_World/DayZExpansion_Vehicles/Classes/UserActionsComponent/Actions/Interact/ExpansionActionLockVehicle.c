@@ -35,28 +35,45 @@ class ExpansionActionLockVehicle: ActionInteractBase
 		CarScript car;
 		ExpansionCarKey key;
 
+		//! Is the player inside a vehicle ?
 		if ( player.GetCommand_Vehicle() )
 		{
 			if ( !Class.CastTo( car, player.GetCommand_Vehicle().GetTransport() ) )
+			{
 				return false;
-		} else
-		{
-			if ( !Class.CastTo( car, target.GetObject() ) )
-				return false;
-
-			if ( !Class.CastTo( key, player.GetItemInHands() ) )
-				return false;
-
-			if ( !car.IsCarKeys( key ) )
-				return false;
+			}
 		}
 
-		if ( !car.HasKey() )
+		//! Is this a "car" ?
+		if ( !Class.CastTo( car, target.GetObject() ) )
+		{
 			return false;
+		}
 
-		if ( car.GetLockedState() == ExpansionVehicleLockState.LOCKED || car.GetLockedState() == ExpansionVehicleLockState.READY_TO_LOCK )
+		// Key in the player hand ?
+		if ( !Class.CastTo( key, player.GetItemInHands() ) )
+		{
 			return false;
-		
+		}
+
+		// Key is paired to this "car" ?
+		if ( !car.IsCarKeys( key ) )
+		{
+			return false;
+		}
+
+		// Key in car ?
+		if ( !car.HasKey() )
+		{
+			return false;
+		}
+
+		// Is the car already locked ?
+		if ( car.GetLockedState() == ExpansionVehicleLockState.LOCKED || car.GetLockedState() == ExpansionVehicleLockState.READY_TO_LOCK )
+		{
+			return false;
+		}
+
 		return true;
 	}
 	

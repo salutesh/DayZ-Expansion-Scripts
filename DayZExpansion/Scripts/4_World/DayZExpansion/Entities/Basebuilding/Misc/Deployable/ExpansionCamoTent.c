@@ -69,14 +69,14 @@ class ExpansionCamoTent: ExpansionBaseBuilding
 		super.SetActions();
 		
 		AddAction(ActionFoldBaseBuildingObject);
-	}	
+	}
 
 	// ------------------------------------------------------------
 	// CanBeDamaged
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		return false;
+		return true;
 	}
 
 	// ------------------------------------------------------------

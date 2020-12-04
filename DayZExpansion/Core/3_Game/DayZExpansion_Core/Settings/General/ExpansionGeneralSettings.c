@@ -21,6 +21,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool EnablePartyChat;
 	bool EnableTransportChat;
 
+	bool DisableShootToUnlock;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
 	int GravecrossTimeThreshold;
@@ -147,6 +148,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnablePartyChat = s.EnablePartyChat;
 		EnableTransportChat = s.EnableTransportChat;
 		EnableGravecross = s.EnableGravecross;
+		DisableShootToUnlock = s.DisableShootToUnlock;
 		GravecrossDeleteBody = s.GravecrossDeleteBody;
 		GravecrossTimeThreshold = s.GravecrossTimeThreshold;
 		Mapping.Copy( s.Mapping );
@@ -240,6 +242,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnableGlobalChat = true;
 		EnablePartyChat = true;
 		EnableTransportChat = true;
+		DisableShootToUnlock = false;
 		EnableGravecross = false;
 		GravecrossDeleteBody = true;
 		GravecrossTimeThreshold = 1200;

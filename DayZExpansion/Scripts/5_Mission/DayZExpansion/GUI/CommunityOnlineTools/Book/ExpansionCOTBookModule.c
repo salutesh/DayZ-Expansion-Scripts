@@ -60,11 +60,13 @@ class ExpansionCOTBookModule: ExpansionCOTModuleBase
 		CreateToggle( "EnableStatusTab", "Enable Status Tab", "", "" );
 		CreateToggle( "EnablePartyTab", "Enable Party Tab", "", "" );		
 		CreateToggle( "EnableTerritoryTab", "Enable Territory Tab", "", "" );
-
 		CreateToggle( "EnableServerInfoTab", "Enable Server Info Tab", "", "" );
+		CreateToggle( "EnableServerRulesTab", "Enable Server Rules Tab", "", "" );
+
 		CreateToggle( "ShowServerSettings", "Show Server Settings", "", "" );
 
-		CreateToggle( "EnableServerRulesTab", "Enable Server Rules Tab", "", "" );
+		CreateToggle( "ShowTooltipOnRuleButton", "Show Tooltip On Rule Button", "", "" );
+		CreateToggle( "ItemRequiredLocation", "Item Required Location", "", "" );
 	}
 
 	override int GetRPCMin()

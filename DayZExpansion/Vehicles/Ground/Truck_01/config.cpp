@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Truck_01
 	{
-		units[] = {"Truck_01_Covered","Vehicle_Truck_01_Covered","Vehicle_Truck_01_Wheel","Vehicle_Truck_01_Wheel_Ruined","Vehicle_Truck_01_WheelDouble","Vehicle_Truck_01_WheelDouble_Ruined","Truck_01_Covered_Green","Vehicle_Truck_01_Covered_Green","Truck_01_Covered_Orange","Vehicle_Truck_01_Covered_Orange","Truck_01_Covered_Blue","Vehicle_Truck_01_Covered_Blue","Truck_01_Covered_Red","Vehicle_Truck_01_Covered_Red","Truck_01_Covered_White","Vehicle_Truck_01_Covered_White","Truck_01_Covered_Black","Vehicle_Truck_01_Covered_Black","Truck_01_Covered_Wine","Vehicle_Truck_01_Covered_Wine","Truck_01_Covered_Lime","Vehicle_Truck_01_Covered_Lime","Truck_01_Covered_Yellow","Vehicle_Truck_01_Covered_Yellow","Truck_01_Covered_YellowBright","Vehicle_Truck_01_Covered_YellowBright"};
+		units[] = {"Vehicle_Truck_01_Covered","Vehicle_Truck_01_Wheel","Vehicle_Truck_01_Wheel_Ruined","Vehicle_Truck_01_WheelDouble","Vehicle_Truck_01_WheelDouble_Ruined","Vehicle_Truck_01_Covered_Green","Vehicle_Truck_01_Covered_Orange","Vehicle_Truck_01_Covered_Blue","Vehicle_Truck_01_Covered_Red","Vehicle_Truck_01_Covered_White","Vehicle_Truck_01_Covered_Black","Vehicle_Truck_01_Covered_Wine","Vehicle_Truck_01_Covered_Lime","Vehicle_Truck_01_Covered_Yellow","Vehicle_Truck_01_Covered_YellowBright"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -31,82 +31,8 @@ class CfgVehicles
 	class Truck_01_Base;
 	class Truck_01_Covered: Truck_01_Base
 	{
-		scope = 2;
-		displayName = "$STR_v3s_covered0";
-		model = "\dz\vehicles\wheeled\Truck_01\Truck_01_Covered.p3d";
-		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood","Truck_01_Wheel_1_1","Truck_01_Wheel_1_2","Truck_01_Wheel_1_3","Truck_01_Wheel_2_1","Truck_01_Wheel_2_2","Truck_01_Wheel_2_3","Truck_01_Wheel_Spare_1","Truck_01_Wheel_Spare_2","Truck_01_WoodenLogs","Truck_01_WoodenPlanks","Truck_01_MetalSheets","Truck_01_Barrel1","Truck_01_Barrel2","Truck_01_Barrel3","Truck_01_Barrel4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4"};
 		doors[] = {"Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood"};
 		defaultSkin = "Green";
-		class Cargo
-		{
-			itemsCargoSize[] = {10,60};
-			allowOwnedCargoManipulation = 1;
-			openable = 0;
-		};
-		class GUIInventoryAttachmentsProps
-		{
-			class Engine
-			{
-				name = "$STR_attachment_Engine0";
-				description = "";
-				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"TruckBattery"};
-			};
-			class Body
-			{
-				name = "$STR_attachment_Body0";
-				description = "";
-				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood"};
-			};
-			class Chassis
-			{
-				name = "$STR_attachment_Chassis0";
-				description = "";
-				icon = "cat_vehicle_chassis";
-				attachmentSlots[] = {"Truck_01_Wheel_1_1","Truck_01_Wheel_1_2","Truck_01_Wheel_1_3","Truck_01_Wheel_2_1","Truck_01_Wheel_2_2","Truck_01_Wheel_2_3","Truck_01_Wheel_Spare_1","Truck_01_Wheel_Spare_2"};
-			};
-			class BaseBuildingAttachments
-			{
-				name = "$STR_cfgvehicles_fence_att_category_materials";
-				description = "";
-				icon = "cat_common_cargo";
-				attachmentSlots[] = {"Truck_01_WoodenLogs","Truck_01_WoodenPlanks","Truck_01_MetalSheets"};
-			};
-			class BaseBuildingContainers
-			{
-				name = "$STR_attachment_containers0";
-				description = "";
-				icon = "cat_common_cargo";
-				attachmentSlots[] = {"Truck_01_Barrel1","Truck_01_Barrel2","Truck_01_Barrel3","Truck_01_Barrel4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4"};
-			};
-		};
-		class AnimationSources: AnimationSources
-		{
-			class WheelSidePlate1
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 1.3;
-			};
-			class WheelSidePlate2: WheelSidePlate1{};
-			class Damper_1_1
-			{
-				source = "user";
-				initPhase = 0.4828;
-				animPeriod = 1;
-			};
-			class Damper_2_1: Damper_1_1{};
-			class Damper_1_2
-			{
-				source = "user";
-				initPhase = 0.4318;
-				animPeriod = 1;
-			};
-			class Damper_2_2: Damper_1_2{};
-			class Damper_1_3: Damper_1_2{};
-			class Damper_2_3: Damper_1_2{};
-		};
 	};
 	class Vehicle_Truck_01_Base: ExpansionVehicleCarBase
 	{
@@ -564,7 +490,7 @@ class CfgVehicles
 	class Vehicle_Truck_01_Covered: Vehicle_Truck_01_Base
 	{
 		scope = 2;
-		displayName = "$STR_v3s_covered0";
+		displayname = "[NOT READY]  M3S COVERED";
 		model = "\dz\vehicles\wheeled\Truck_01\Truck_01_Covered.p3d";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood","Truck_01_Wheel_1_1","Truck_01_Wheel_1_2","Truck_01_Wheel_1_3","Truck_01_Wheel_2_1","Truck_01_Wheel_2_2","Truck_01_Wheel_2_3","Truck_01_Wheel_Spare_1","Truck_01_Wheel_Spare_2","Truck_01_WoodenLogs","Truck_01_WoodenPlanks","Truck_01_MetalSheets","Truck_01_Barrel1","Truck_01_Barrel2","Truck_01_Barrel3","Truck_01_Barrel4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4"};
 		class Cargo

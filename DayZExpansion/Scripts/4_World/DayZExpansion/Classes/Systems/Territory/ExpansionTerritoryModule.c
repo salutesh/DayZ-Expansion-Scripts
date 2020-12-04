@@ -136,7 +136,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnUpdate( float timeslice )
 	{
-		if ( !IsMissionClient() || !GetExpansionSettings().GetNotification() && !GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
+		if (!IsMissionClient() || (!GetExpansionSettings().GetNotification() && !GetExpansionSettings().GetNotification().ShowTerritoryNotifications))
 			return;
 			
 		m_TimeSliceCheckPlayer += timeslice;

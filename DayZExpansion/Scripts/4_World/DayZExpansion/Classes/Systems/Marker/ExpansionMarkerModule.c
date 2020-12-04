@@ -516,6 +516,9 @@ class ExpansionMarkerModule: JMModuleBase
 	{
 		super.OnUpdate( timeslice );
 
+		if (!IsMissionClient())
+			return;
+
 		m_TimeAccumulator += timeslice;
 		if ( m_TimeAccumulator > 1.0 )
 		{

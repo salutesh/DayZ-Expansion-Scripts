@@ -55,11 +55,21 @@ class ExpansionCOTSpawningModule: ExpansionCOTModuleBase
 
 	override void OnRegisterSettings()
 	{
-		CreateToggle( "StartingClothing.UseCustomClothing", "Use custom starting clothing on respawn", "", "" );
-		CreateToggle( "StartingGear.UseStartingGear", "Use custom starting gear on respawn", "", "" );
-		CreateToggle( "StartingGear.UsingUpperGear", "Using upper gear", "", "" );
-		CreateToggle( "StartingGear.UsingPantsGear", "Using pants gear", "", "" );
-		CreateToggle( "StartingGear.UsingBackpackGear", "Using backpack gear", "", "" );
+		CreateToggle( "StartingClothing.EnableCustomClothing", "Use custom starting clothing on respawn", "", "" );
+		CreateToggle( "StartingClothing.SetRandomHealth", "Enable random damage on CLOTHING on respawn", "", "" );
+
+		CreateToggle( "StartingGear.EnableStartingGear", "Use custom starting gear on respawn", "", "" );
+		CreateToggle( "StartingGear.UseUpperGear", "Use upper gear", "", "" );
+		CreateToggle( "StartingGear.UsePantsGear", "Use pants gear", "", "" );
+		CreateToggle( "StartingGear.UseBackpackGear", "Use backpack gear", "", "" );		
+		CreateToggle( "StartingGear.UseVestGear", "Use vest gear", "", "" );
+		CreateToggle( "StartingGear.UsePrimaryWeapon", "Use primary weapon slot", "", "" );
+		CreateToggle( "StartingGear.UseSecondaryWeapon", "Use secondary weapon slot", "", "" );
+		CreateToggle( "StartingGear.ApplyEnergySources", "Apply energy source", "", "" );
+		CreateToggle( "StartingGear.SetRandomHealth", "Enable random damage on GEAR on respawn", "", "" );
+
+		CreateToggle( "EnableSpawnSelection", "Enable Spawn Selection", "", "" );
+		CreateToggle( "SpawnOnTerritory", "Spawn on own Territory", "", "" );
 	}
 
 	override int GetRPCMin()

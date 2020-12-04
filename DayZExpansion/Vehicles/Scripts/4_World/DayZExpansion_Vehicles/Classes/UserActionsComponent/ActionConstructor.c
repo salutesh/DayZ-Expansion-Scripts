@@ -25,6 +25,8 @@ modded class ActionConstructor
 		//! Vehicles
 		actions.Insert( ExpansionActionGetInExpansionVehicle );
 		actions.Insert( ExpansionActionGetOutExpansionVehicle );
+
+		actions.Insert( ExpansionActionSwitchSeats );
 		
 		#ifdef EXPANSION_VEHICLE_TOWING
 		actions.Insert( ExpansionActionConnectTow );

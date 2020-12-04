@@ -82,7 +82,7 @@ class CfgVehicles
 	class Vehicle_ExpansionC130J: ExpansionVehiclePlaneBase
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_C130J";
+		displayname = "[NOT READY]  C130J";
 		model = "DayZExpansion\Vehicles\Air\C130J\C130J.p3d";
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;

@@ -39,11 +39,9 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionInteriorBuildingModule::ExpansionInteriorBuildingModule - Start");
 		#endif
-		
 
 		m_CachedCollision = new map<string, bool>;
 		m_AllSpawnedPositions = new multiMap<string, vector>;
-		
 		
 		LoadIviesPositions();
 
@@ -84,8 +82,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnMissionFinish()
 	{
-		super.OnMissionFinish();
-		
+		super.OnMissionFinish();		
 	}
 
 	// ------------------------------------------------------------
@@ -95,7 +92,6 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	{
 		if ( !GetExpansionSettings().GetGeneral() || g_Game.IsLoading() )
 			return;
-
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionInteriorBuildingModule::OnSettingsUpdated - Start");
@@ -217,6 +213,12 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	private void LoadIviesPositions()
 	{
+		if ( !GetExpansionSettings().GetGeneral() )
+			return;
+
+		if ( !GetExpansionSettings().GetGeneral().Mapping.BuildingIvys )
+			return;
+
 		if ( !m_WhereIviesObjectsSpawn ) {
 			m_WhereIviesObjectsSpawn = new array< ref IviesPosition >;
 			
