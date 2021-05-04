@@ -83,28 +83,26 @@ modded class ActionDeployObject
 		
 		if ( ExpansionSafeZone_IsInside( player.GetPosition() ) )
 			return false;
-			
+
+		//! NOTE: When making changes below, don't forget that the logic in ActionTogglePlaceObject::Start should be compatible!
+		if ( GetExpansionSettings().GetTerritory() && !GetExpansionSettings().GetTerritory().EnableTerritories )
+			return super.ActionCondition( player, target, item );
+
 		if ( GetExpansionSettings().GetBaseBuilding() )
 		{		
 			int i;
-			float size;
-			float Tsize = GetExpansionSettings().GetTerritory().TerritorySize;
-			float Psize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize + 5;
-			//! we are adding 5 meters to prevent a rare case where players could exploit dismantling with 2 territories nearby.
-			
-			size = Tsize;
-
-			if (item.IsInherited(TerritoryFlagKit) )
-				size += Psize;
 
 			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true )
 			{
-				if ( player.IsInTerritory(size) )
+				//! Flag can be placed if outside any territory/perimeter or if inside own territory/perimeter
+				//! Other items can be placed if not in enemy territory or if item is whitelisted
+
+				if ( player.IsInTerritory() )
 				{
 
-					if ( player.IsInsideOwnTerritory(size) )
+					if ( player.IsInsideOwnTerritory() )
 					{
-						return !item.IsInherited(TerritoryFlagKit);
+						return true;
 					}
 					else
 					{
@@ -119,6 +117,10 @@ modded class ActionDeployObject
 						return false;
 					}
 				}
+				else if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
+				{
+					return false;
+				}
 				else
 				{
 					return true;
@@ -126,10 +128,12 @@ modded class ActionDeployObject
 			}
 			else
 			{
-				//Place stuff other than flag should be possible inside your territory
-				if ( player.IsInTerritory(size) )
+				//! Flag can be placed if outside any territory/perimeter and is whitelisted, if inside enemy territory and is whitelisted, or if inside own territory/perimeter
+				//! Other items can only be placed if item is whitelisted
+
+				if ( player.IsInTerritory() )
 				{
-					if ( player.IsInsideOwnTerritory(size) )
+					if ( player.IsInsideOwnTerritory() )
 					{
 						return true;
 					}
@@ -152,7 +156,14 @@ modded class ActionDeployObject
 					{
 						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i]) )
 						{
-							return true;
+							if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
+							{
+								return false;
+							}
+							else
+							{
+								return true;
+							}
 						}
 					}
 					

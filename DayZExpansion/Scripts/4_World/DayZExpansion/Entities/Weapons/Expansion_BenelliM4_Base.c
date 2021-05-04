@@ -16,4 +16,17 @@ class Expansion_BenelliM4_Base: ExpansionSemiShotGun
 	{
 		return new Mp133Recoil(this);
 	}
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "UniversalLight" );
+			entity.GetInventory().CreateInInventory( "ExpansionReflexMRSOptic" );
+			entity.GetInventory().CreateInInventory( "Battery9V" );
+			entity.GetInventory().CreateInInventory( "Battery9V" );
+		}
+	}
 };

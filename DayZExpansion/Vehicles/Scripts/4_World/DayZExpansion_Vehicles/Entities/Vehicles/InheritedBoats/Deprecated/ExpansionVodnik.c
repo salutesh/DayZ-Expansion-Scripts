@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
+/*
 class ExpansionVodnikDoorDriver extends CarDoor {}
 class ExpansionVodnikDoorCoDriver extends CarDoor {}
 class ExpansionVodnikDoorCargo1 extends CarDoor {}
@@ -455,3 +455,4 @@ class ExpansionVodnik extends ExpansionBoatScript
 		}
 	}
 }
+*/

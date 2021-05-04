@@ -35,23 +35,22 @@ class ExpansionVehicleActionLockVehicle: ActionInteractBase
 		ExpansionVehicleBase car;
 		ExpansionCarKey key;
 
+		//! The intention is for vehicles to only be lockable if player has its key (or admin key) in hand
+
 		if ( player.GetCommand_ExpansionVehicle() )
 		{
 			if ( !Class.CastTo( car, player.GetCommand_ExpansionVehicle().GetTransport() ) )
 				return false;
 		} else
 		{
-			if ( !Class.CastTo( car, target.GetObject() ) )
-				return false;
-
-			if ( !Class.CastTo( key, player.GetItemInHands() ) )
-				return false;
-
-			if ( !car.IsCarKeys( key ) )
+			if ( !Class.CastTo( car, target.GetParentOrObject() ) )
 				return false;
 		}
 
-		if ( !car.HasKey() )
+		if ( !Class.CastTo( key, player.GetItemInHands() ) )
+			return false;
+
+		if ( !car.IsCarKeys( key ) && !key.IsInherited( ExpansionCarAdminKey ) )
 			return false;
 
 		if ( car.GetLockedState() == ExpansionVehicleLockState.LOCKED || car.GetLockedState() == ExpansionVehicleLockState.READY_TO_LOCK )
@@ -72,7 +71,7 @@ class ExpansionVehicleActionLockVehicle: ActionInteractBase
 			car = ExpansionVehicleBase.Cast( action_data.m_Player.GetCommand_ExpansionVehicle().GetTransport() );
 		} else
 		{
-			car = ExpansionVehicleBase.Cast( action_data.m_Target.GetObject() );
+			car = ExpansionVehicleBase.Cast( action_data.m_Target.GetParentOrObject() );
 			key = ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() );
 		}
 		

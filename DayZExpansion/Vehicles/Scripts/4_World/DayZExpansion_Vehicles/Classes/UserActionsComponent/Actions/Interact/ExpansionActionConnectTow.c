@@ -147,8 +147,8 @@ class ExpansionActionConnectTow: ActionInteractBase
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
-	{			
-		if( GetExpansionSettings() && !GetExpansionSettings().GetVehicle().Towing )
+	{
+		if ( GetExpansionSettings() && !GetExpansionSettings().GetVehicle().Towing )
 			return false;
 
 		if ( !super.ActionCondition( player, target, item ) )

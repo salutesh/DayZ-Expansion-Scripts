@@ -26,7 +26,7 @@ modded class OptionsMenu
 		layoutRoot.FindAnyWidget( "Tabber" ).Unlink();
 		layoutRoot.FindAnyWidget( "play_panel_root" ).Unlink();
 		
-		m_OptionsPanel = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/options/expansion_options_menu_tabber.layout", layoutRoot );
+		m_OptionsPanel = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_options_menu_tabber.layout", layoutRoot );
 		m_TabberPanel = m_OptionsPanel.FindAnyWidget( "ExpansionTabber" );
 		m_TabberPanel.GetScript( m_Tabber );
 		

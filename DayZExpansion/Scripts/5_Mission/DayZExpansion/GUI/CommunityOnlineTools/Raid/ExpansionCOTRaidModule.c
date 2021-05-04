@@ -66,8 +66,30 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		CreateSlider( "SafeExplosionDamageMultiplier", "Safe Explosion Damage Multiplier", "", "", 0.0, 100.0, 1.0);
 		CreateSlider( "SafeProjectileDamageMultiplier", "Safe Projectile Damage Multiplier", "", "", 0.0, 100.0, 1.0);
 
-		array< string > values_BaseBuildingRaidMode = { "Default", "Doors/Gates only", "Doors/Gates/Windows only" };
-		CreateEnum( "BaseBuildingRaidMode", values_BaseBuildingRaidMode, "BaseBuilding Raid Mode", "", "" );
+		CreateToggle( "CanRaidSafes", "Can Raid Safes", "", "" );
+		CreateSlider( "SafeExplosionDamageMultiplier", "Safe Explosion Damage Multiplier", "", "", 0.0, 100.0, 1.0);
+		CreateSlider( "SafeProjectileDamageMultiplier", "Safe Projectile Damage Multiplier", "", "", 0.0, 100.0, 1.0);
+
+		CreateSlider( "SafeRaidToolTimeSeconds", "Safe Raid Tool Time Seconds", "", "", 0.0, 720.0, 1.0);
+		CreateSlider( "SafeRaidToolCycles", "Safe Raid Tool Cycles", "", "", 0.0, 20.0, 1.0);
+		CreateSlider( "SafeRaidToolDamagePercent", "Safe Raid Tool Damage Percent", "", "", 0.0, 100.0, 1.0);
+
+		CreateToggle( "CanRaidBarbedWire", "Can Raid BarbedWire", "", "" );
+		CreateSlider( "BarbedWireRaidToolTimeSeconds", "BarbedWire Raid Tool Time Seconds", "", "", 0.0, 720.0, 1.0);
+		CreateSlider( "BarbedWireRaidToolCycles", "BarbedWire Raid Tool Cycles", "", "", 0.0, 20.0, 1.0);
+		CreateSlider( "BarbedWireRaidToolDamagePercent", "BarbedWire Raid Tool Damage Percent", "", "", 0.0, 100.0, 1.0);
+		
+		CreateEnum( "CanRaidLocksOnWalls", RaidLocksOnWallsEnum, "Can Raid Locks On Walls", "", "" );
+		CreateToggle( "CanRaidLocksOnFences", "Can Raid Locks On Fences", "", "" );
+		CreateToggle( "CanRaidLocksOnTents", "Can Raid Locks On Tents", "", "" );
+		
+		CreateSlider( "LockOnWallRaidToolTimeSeconds", "Lock On Wall Raid Tool Time Seconds", "", "", 0.0, 720.0, 1.0);
+		CreateSlider( "LockOnFenceRaidToolTimeSeconds", "Lock On Fence Raid Tool Time Seconds", "", "", 0.0, 720.0, 1.0);
+		CreateSlider( "LockOnTentRaidToolTimeSeconds", "Lock On Tent Raid Tool Time Seconds", "", "", 0.0, 720.0, 1.0);
+		CreateSlider( "LockRaidToolCycles", "Lock Raid Tool Cycles", "", "", 0.0, 20.0, 1.0);
+		CreateSlider( "LockRaidToolDamagePercent", "Lock Raid Tool Damage Percent", "", "", 0.0, 100.0, 1.0);
+
+		CreateEnum( "BaseBuildingRaidMode", BaseBuildingRaidEnum, "BaseBuilding Raid Mode", "", "" );
 	}
 
 	override int GetRPCMin()

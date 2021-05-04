@@ -131,15 +131,4 @@ class ExpansionGPS extends ItemBase
 		EXLogPrint("ExpansionGPS::EEInit - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionGPS SetActions
-	// ------------------------------------------------------------
-	/*override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionTurnOnWhileInHands);
-		AddAction(ActionTurnOffWhileInHands);
-	}*/
 }

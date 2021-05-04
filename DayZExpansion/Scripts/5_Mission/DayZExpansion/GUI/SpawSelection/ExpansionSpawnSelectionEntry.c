@@ -13,6 +13,7 @@
 class ExpansionSpawnSelectionEntry extends ScriptedWidgetEventHandler
 {	
 	protected Widget m_Root;
+	protected ImageWidget m_Icon;
 	protected ButtonWidget m_Button;
 	protected TextWidget m_NameWidget;
 		
@@ -24,6 +25,7 @@ class ExpansionSpawnSelectionEntry extends ScriptedWidgetEventHandler
 	void ExpansionSpawnSelectionEntry(Widget parent, ref ExpansionSpawnLocation location)
 	{
 		m_Root	= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/expansion_spawn_selection_entry.layout", parent ) );
+		m_Icon = ImageWidget.Cast( m_Root.FindAnyWidget( "icon" ) );
 		m_Button = ButtonWidget.Cast( m_Root.FindAnyWidget( "spawn_entry" ) );
 		m_NameWidget = TextWidget.Cast( m_Root.FindAnyWidget( "name" ) );
 		
@@ -57,11 +59,54 @@ class ExpansionSpawnSelectionEntry extends ScriptedWidgetEventHandler
 	{
 		switch ( w )
 		{
-		case m_Button:
-			ref ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
-			if ( menu )
-				menu.SetSpawnPoint( m_Location );
-			break;
+			case m_Button:
+			{
+				ref ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+				if ( menu )
+					menu.SetSpawnPoint( m_Location );
+				
+				break;
+			}
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu OnMouseEnter
+	// ------------------------------------------------------------
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		switch ( w )
+		{
+			case m_Button:
+			{
+				w.SetColor( ARGB( 140,255,255,255 ) );
+				m_NameWidget.SetColor( ARGB( 255,0,0,0 ) );
+				m_Icon.SetColor( ARGB( 255,0,0,0 ) );
+				
+				break;
+			}
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu OnMouseLeave
+	// ------------------------------------------------------------
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		switch ( w )
+		{
+			case m_Button:
+			{
+				w.SetColor( ARGB( 0,255,255,255 ) );
+				m_NameWidget.SetColor( ARGB( 255,220,220,220 ) );
+				m_Icon.SetColor( ARGB( 255,220,220,220 ) );
+				
+				break;
+			}
 		}
 		
 		return false;

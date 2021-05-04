@@ -61,12 +61,15 @@ class ExpansionKillFeedModule: JMModuleBase
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
 		m_HitCheckDone = false;
 		
-		Print( "ExpansionKillFeedModule::PlayerHitBy - Player " + m_PlayerPrefix + " hit by " + source.GetDisplayName() + " [DmgType: " + damageType.ToString() + " | Ammo: " + ammo + "]" );
+		if( player && !player.IsAlive() )
+			GetGame().AdminLog( "Expansion KillFeed - Player " + m_PlayerPrefix + " hit by " + source.GetDisplayName() + " [DmgType: " + damageType.ToString() + " | Ammo: " + ammo + "]" );
 		
 		switch ( damageType )
 		{
 			case DT_CUSTOM:
-				Print( "ExpansionKillFeedModule::PlayerHitBy - DT_CUSTOM" );
+				#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+				EXLogPrint( "ExpansionKillFeedModule::PlayerHitBy - DT_CUSTOM" );
+				#endif
 				if( ammo == "FallDamage" )											//! Fall damage
 				{
 					OnFallDamage(player);
@@ -85,7 +88,9 @@ class ExpansionKillFeedModule: JMModuleBase
 				}
 			break;
 			case DT_EXPLOSION:
-				Print( "ExpansionKillFeedModule::PlayerHitBy - DT_EXPLOSION" );
+				#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+				EXLogPrint( "ExpansionKillFeedModule::PlayerHitBy - DT_EXPLOSION" );
+				#endif
 				if( ammo == "ExpansionC4_Ammo" )									//! Expansion Satchel
 				{
 					OnExplosionHit(player, source);
@@ -190,8 +195,86 @@ class ExpansionKillFeedModule: JMModuleBase
 					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, m_PlayerSteamWebhook, m_DisplayName );
 					
 					m_HitCheckDone = true;
+				}			
+			}/* else if( source.IsInherited( ExpansionPlaneScript ) || source.IsInherited( ExpansionVehiclePlaneBase ) )	//! Vehicle Hit - Helicopter
+			{
+				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
+				m_PlayerPrefix2 = "";
+				m_PlayerSteamWebhook2 = "";
+				m_DisplayName = "";
+				m_DisplayName = source.ClassName();
+				²
+				m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
+
+				if( m_Source )
+				{
+					m_PlayerPrefix2 = GetPlayerPrefix( m_Source.GetIdentity() );
+					KillFeedMessage( ExpansionKillFeedMessageType.HELI_HIT_DRIVER, ExpansionIcons.GetPath("Vehicle Crash"), m_PlayerPrefix, m_DisplayName, m_PlayerPrefix2 );
+					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.VEHICLE, player, m_Source, source);
+					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_DRIVER, m_PlayerSteamWebhook, m_DisplayName, m_PlayerSteamWebhook2 );
+				
+					m_HitCheckDone = true;
+				} else if ( !m_Source )
+				{
+					KillFeedMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, ExpansionIcons.GetPath("Vehicle Crash"), m_PlayerPrefix, m_DisplayName );
+					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.VEHICLE, player, null, source);
+					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, m_PlayerSteamWebhook, m_DisplayName );
+					
+					m_HitCheckDone = true;
 				}
-			}
+			} else if( source.IsInherited( ExpansionBoatScript ) || source.IsInherited( ExpansionVehicleBoatBase ) )	//! Vehicle Hit - Helicopter
+			{
+				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
+				m_PlayerPrefix2 = "";
+				m_PlayerSteamWebhook2 = "";
+				m_DisplayName = "";
+				m_DisplayName = source.ClassName();
+				²
+				m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
+
+				if( m_Source )
+				{
+					m_PlayerPrefix2 = GetPlayerPrefix( m_Source.GetIdentity() );
+					KillFeedMessage( ExpansionKillFeedMessageType.HELI_HIT_DRIVER, ExpansionIcons.GetPath("Vehicle Crash"), m_PlayerPrefix, m_DisplayName, m_PlayerPrefix2 );
+					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.VEHICLE, player, m_Source, source);
+					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_DRIVER, m_PlayerSteamWebhook, m_DisplayName, m_PlayerSteamWebhook2 );
+				
+					m_HitCheckDone = true;
+				} else if ( !m_Source )
+				{
+					KillFeedMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, ExpansionIcons.GetPath("Vehicle Crash"), m_PlayerPrefix, m_DisplayName );
+					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.VEHICLE, player, null, source);
+					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, m_PlayerSteamWebhook, m_DisplayName );
+					
+					m_HitCheckDone = true;
+				}
+			} else if( source.IsInherited( ExpansionBikeScript ) || source.IsInherited( ExpansionVehicleBikeBase ) )	//! Vehicle Hit - Helicopter
+			{
+				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
+				m_PlayerPrefix2 = "";
+				m_PlayerSteamWebhook2 = "";
+				m_DisplayName = "";
+				m_DisplayName = source.ClassName();
+				²
+				m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
+
+				if( m_Source )
+				{
+					m_PlayerPrefix2 = GetPlayerPrefix( m_Source.GetIdentity() );
+					KillFeedMessage( ExpansionKillFeedMessageType.HELI_HIT_DRIVER, ExpansionIcons.GetPath("Vehicle Crash"), m_PlayerPrefix, m_DisplayName, m_PlayerPrefix2 );
+					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.VEHICLE, player, m_Source, source);
+					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_DRIVER, m_PlayerSteamWebhook, m_DisplayName, m_PlayerSteamWebhook2 );
+				
+					m_HitCheckDone = true;
+				} else if ( !m_Source )
+				{
+					KillFeedMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, ExpansionIcons.GetPath("Vehicle Crash"), m_PlayerPrefix, m_DisplayName );
+					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.VEHICLE, player, null, source);
+					DiscordMessage( ExpansionKillFeedMessageType.HELI_HIT_NODRIVER, m_PlayerSteamWebhook, m_DisplayName );
+					
+					m_HitCheckDone = true;
+				}
+			}*/
 		}
 		
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG

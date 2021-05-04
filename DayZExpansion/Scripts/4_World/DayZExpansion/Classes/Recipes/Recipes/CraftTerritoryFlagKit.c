@@ -1,5 +1,5 @@
 /**
- * ExpansionNotificationModule.c
+ * CraftTerritoryFlagKit.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

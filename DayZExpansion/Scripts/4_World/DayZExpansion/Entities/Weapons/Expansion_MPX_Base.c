@@ -58,4 +58,18 @@ class Expansion_MPX_Base : RifleBoltLock_Base
 
 		return new M4a1Recoil(this);
 	}
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "UniversalLight" );
+			entity.GetInventory().CreateInInventory( "ExpansionEXPS3HoloOptic" );
+			entity.GetInventory().CreateInInventory( "Battery9V" );
+			entity.GetInventory().CreateInInventory( "Battery9V" );
+			entity.SpawnEntityOnGroundPos("Mag_Expansion_MPX_50Rnd", entity.GetPosition());
+		}
+	}
 };

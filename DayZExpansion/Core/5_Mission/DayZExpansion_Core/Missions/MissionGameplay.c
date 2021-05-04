@@ -15,6 +15,8 @@
  **/
 modded class MissionGameplay
 {
+	ref ExpansionUIMenuManager m_EXUIMenuManager;
+	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -29,8 +31,10 @@ modded class MissionGameplay
 		if ( IsMissionClient() )
 			GetExpansionClientSettings().Load();
 
-		if ( !IsMissionOffline() )
+		if ( !IsMissionOffline() && g_exGlobalSettings )
 			g_exGlobalSettings.Unload();
+		
+		CreateExpansionUIMenuManager();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::MissionGameplay - End");
@@ -49,6 +53,8 @@ modded class MissionGameplay
 		DestroyDayZExpansion();
 
 		g_exGlobalSettings.Unload();
+		
+		DestroyExpansionUIMenuManager();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::~MissionGameplay - End");
@@ -76,48 +82,6 @@ modded class MissionGameplay
 		}
 		
 		super.PlayerControlDisable(mode);
-	}
-	
-	// ------------------------------------------------------------
-	// OnMissionStart
-	// ------------------------------------------------------------
-	override void OnMissionStart()
-	{
-		super.OnMissionStart();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionStart - Start");
-		#endif
-
-		if ( !GetGame().IsMultiplayer() )
-		{
-			// GetDayZExpansion().OnMissionStart();
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionStart - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// OnMissionLoaded
-	// ------------------------------------------------------------
-	override void OnMissionLoaded()
-	{
-		super.OnMissionLoaded();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionLoaded - Start");
-		#endif
-		
-		if ( !GetGame().IsMultiplayer() )
-		{
-			// GetDayZExpansion().OnMissionLoaded();
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::OnMissionLoaded - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -160,17 +124,11 @@ modded class MissionGameplay
 			}
 		}
 
-		//! Refernce to man
-		Man man = GetGame().GetPlayer();
-
-		//! Reference to input
-		Input input = GetGame().GetInput();
-
-		//! Expansion reference to menu
-		UIScriptedMenu topMenu = m_UIManager.GetMenu();
-
-		//! Expansion reference to player
-		PlayerBase playerPB = PlayerBase.Cast( man );
+		
+		Man man 				= GetGame().GetPlayer(); 	//! Refernce to man
+		Input input 			= GetGame().GetInput(); 	//! Reference to input
+		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
+		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
 		
 		if ( playerPB )
 		{
@@ -198,5 +156,23 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
+	}
+	
+	void CreateExpansionUIMenuManager()
+	{
+		ref ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
+		if (exUIManager && !m_EXUIMenuManager)
+			m_EXUIMenuManager = new ExpansionUIMenuManager(exUIManager);
+	}
+	
+	void DestroyExpansionUIMenuManager()
+	{
+		if (m_EXUIMenuManager)
+			delete m_EXUIMenuManager;
+	}
+	
+	ExpansionUIMenuManager GetExpansionUIMenuManager()
+	{
+		return m_EXUIMenuManager;
 	}
 };

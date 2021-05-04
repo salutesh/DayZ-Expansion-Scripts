@@ -147,7 +147,10 @@ modded class Hologram
 		{
 			super.EvaluateCollision( action_item );
 		}
-		else if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere )
+		//! When CanBuildAnywhere is enabled, check for !IsCollidingZeroPos() needs to be done here,
+		//! else players can place at (0, 0, 0) when looking to the sky no matter where they are on the map
+		//! and thus loose the item they are placing
+		else if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && !IsCollidingZeroPos() )
 		{
 			SetIsColliding( false );
 		}
@@ -188,7 +191,13 @@ modded class Hologram
 		if ( !DayZPhysics.RayCastBullet( rayStart, rayEnd, 0xFFFFFFFF, m_Projection, hitObj, hitPosition, hitNormal, hitFraction ) )
 			hitPosition = rayEnd;
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "Ray ( " + rayStart + " -> " + hitPosition + " -> " + rayEnd + " )" );
+		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
+		CF_Debugger_Block dbg_Hologram = CF.Debugger.Get("Hologram");
+
+		dbg_Hologram.Set("Ray Start", rayStart );
+		dbg_Hologram.Set("Hit Position", hitPosition );
+		dbg_Hologram.Set("Ray End", rayEnd );
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Hologram::GetPointerPosition - End");
@@ -219,8 +228,6 @@ modded class Hologram
 		RefreshTrigger();
 		CheckPowerSource();	
 		RefreshVisual();
-		
-		vector projPosition = GetProjectionEntityPosition( m_Player );
 
 		if ( !GetUpdatePosition() )
 		{
@@ -230,32 +237,38 @@ modded class Hologram
 			
 			return;
 		}
-
-		vector projOrientation = AlignProjectionOnTerrain( timeslice );
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "Player ( " + m_Player.GetPosition() + " )" );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "Projection (V) ( " + projPosition + " | " + projOrientation + " )" );
+		
+		vector projPosition = GetProjectionEntityPosition( m_Player );
+		vector projOrientation;
 
 		GenerateSnappingPosition( m_Projection );
 
 		if ( m_BBCanSnap )
 		{
+			projOrientation = AlignProjectionOnTerrain( timeslice );
 			HandleSnapping( projPosition, projOrientation );
-
-			ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "Projection (F) ( " + projPosition + " | " + projOrientation + " )" );
 
 			m_Projection.SetPosition( projPosition );
 		} else
 		{
 			SetProjectionPosition( projPosition );
+			
+			//! NOTE: Calling AlignProjectionOnTerrain depends on SetProjectionPosition being called FIRST for correct result!
+			projOrientation = AlignProjectionOnTerrain( timeslice );
 		}
+
+		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
+		CF_Debugger_Block dbg_Hologram = CF.Debugger.Get("Hologram");
+
+		dbg_Hologram.Set("Player Position", m_Player.GetPosition() );
+		dbg_Hologram.Set("Projection Position", projPosition );
+		dbg_Hologram.Set("Projection Orientation", projOrientation );
+		#endif
 
 		SetProjectionOrientation( projOrientation );
 
 		m_Projection.OnHologramBeingPlaced( m_Player );
 
-		ExpansionDebugger.Push( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING );
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Hologram::UpdateHologram - End");
 		#endif
@@ -265,8 +278,13 @@ modded class Hologram
 	{	
 		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
 	
-		if ( item_in_hands && !item_in_hands.CanMakeGardenplot() )
+		if ( item_in_hands )
 		{
+			if ( item_in_hands.CanMakeGardenplot() )
+			{
+				Class.CastTo(entity_for_placing, GetGame().CreateObjectEx( m_Projection.GetType(), m_Projection.GetPosition(), ECE_OBJECT_SWAP ));
+			}
+
 			if( entity_for_placing.CanAffectPathgraph() )
 	   		{		
 	   			entity_for_placing.SetAffectPathgraph( true, false );
@@ -462,11 +480,15 @@ modded class Hologram
 				m_PlacingOrientationMS[0] = Math.NormalizeAngle( m_PlacingOrientationMS[0] );
 				projOrientation[0] = Math.NormalizeAngle( projOrientation[0] );
 
-				ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "MS ProjPosition: " + m_PlacingPositionMS );
-				ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "MS ProjOrientation: " + m_PlacingOrientationMS );
-				
-				ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "WS ProjPosition: " + projPosition );
-				ExpansionDebugger.Display( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING, "WS ProjOrientation: " + projOrientation );
+				#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
+				CF_Debugger_Block dbg_Hologram = CF.Debugger.Get("Hologram");
+
+				dbg_Hologram.Set("Projection Position (MS)", m_PlacingPositionMS );
+				dbg_Hologram.Set("Projection Orientation (MS)", m_PlacingOrientationMS );
+
+				dbg_Hologram.Set("Projection Position (WS)", projPosition );
+				dbg_Hologram.Set("Projection Orientation (WS)", projOrientation );
+				#endif
 			}
 		} else
 		{
@@ -823,7 +845,7 @@ modded class Hologram
 			m_DebugPositions.Insert( CreateDebugObject( type, position ) );
 		} else
 		{
-			if ( m_DebugPositions[index].GetType() != type )
+			if ( m_DebugPositions[index] && m_DebugPositions[index].GetType() != type )
 			{
 				GetGame().ObjectDelete( m_DebugPositions[index] );
 				m_DebugPositions.Set( index, CreateDebugObject( type, position ) );
@@ -854,7 +876,7 @@ modded class Hologram
 			m_DebugDirections.Insert( CreateDebugObject( type, position ) );
 		} else
 		{
-			if ( m_DebugDirections[index].GetType() != type )
+			if ( m_DebugDirections[index] && m_DebugDirections[index].GetType() != type )
 			{
 				GetGame().ObjectDelete( m_DebugDirections[index] );
 				m_DebugDirections.Set( index, CreateDebugObject( type, position ) );
@@ -1123,15 +1145,11 @@ modded class Hologram
 	// ------------------------------------------------------------
 	// IsCollidingAngle
 	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
 	override bool IsCollidingAngle()
 	{
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-
-		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && item_in_hands )
-		{
-			if ( item_in_hands.IsInherited( ExpansionExplosive ) || item_in_hands.IsInherited( ExpansionKitBase ) )
-				return false;
-		}
+		if ( ExpansionCollisionException() )
+			return false;
 		
 		return super.IsCollidingAngle();
 	}
@@ -1139,13 +1157,11 @@ modded class Hologram
 	// ------------------------------------------------------------
 	// IsCollidingBBox
 	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
 	override bool IsCollidingBBox( ItemBase action_item = NULL )
 	{
-		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && action_item )
-		{
-			if ( action_item.IsInherited( ExpansionExplosive ) || action_item.IsInherited( ExpansionKitBase ) )
-				return false;
-		}
+		if ( ExpansionCollisionException( action_item ) )
+			return false;
 		
 		return super.IsCollidingBBox( action_item );
 	}
@@ -1153,17 +1169,80 @@ modded class Hologram
 	// ------------------------------------------------------------
 	// IsBehindObstacle
 	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
  	override bool IsBehindObstacle()
 	{
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-
-		if ( GetExpansionSettings().GetBaseBuilding().CanBuildAnywhere && item_in_hands )
-		{
-			if ( item_in_hands.IsInherited( ExpansionExplosive ) || item_in_hands.IsInherited( ExpansionKitBase ) )
-				return false;
-		}	
+		if ( ExpansionCollisionException() )
+			return false;
 			
 		return super.IsBehindObstacle();
+	}
+
+	// ------------------------------------------------------------
+	// IsBaseViable
+	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
+	override bool IsBaseViable()
+	{
+		if ( ExpansionCollisionException() )
+			return true;
+
+		return super.IsBaseViable();
+	}
+
+	// ------------------------------------------------------------
+	// IsClippingRoof
+	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
+	override bool IsClippingRoof()
+	{
+		if ( ExpansionCollisionException() )
+			return false;
+
+		return super.IsClippingRoof();
+	}
+
+	// ------------------------------------------------------------
+	// IsCollidingPlayer
+	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
+	override bool IsCollidingPlayer()
+	{
+		if ( ExpansionCollisionException() )
+			return false;
+
+		return super.IsCollidingPlayer();
+	}
+
+	// ------------------------------------------------------------
+	// HeightPlacementCheck
+	// ------------------------------------------------------------
+	//! NOTE: Will only be evaluated if CanBuildAnywhere is false
+	override bool HeightPlacementCheck()
+	{
+		if ( ExpansionCollisionException() )
+			return true;
+
+		return super.HeightPlacementCheck();
+	}
+
+	bool ExpansionCollisionException( ItemBase action_item = NULL )
+	{
+		if ( !action_item )
+			action_item = m_Player.GetItemInHands();
+
+		if ( action_item )
+		{
+			//! Explosives always placeable
+			if ( action_item.IsInherited( ExpansionExplosive ) )
+				return true;
+
+			//! Kits always placeable
+			if ( action_item.IsInherited( ExpansionKitBase ) )
+				return true;
+		}
+
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -1180,5 +1259,134 @@ modded class Hologram
 	bool IsUsingSnap()
 	{
 		return m_UsingSnap;
+	}
+
+	//! Hack fix to prevent the issue of placeable items snapping to center of Expansion base building.
+	//! Almost same as vanilla GetProjectionEntityPosition, except we do an additional RayCastBullet if the hit object is inherited from ExpansionBaseBuilding.
+	override protected vector GetProjectionEntityPosition( PlayerBase player )
+	{
+		float min_projection_dist;
+		float max_projection_dist; 
+		m_ContactDir = vector.Zero;
+		vector min_max[2];
+		float projection_radius = GetProjectionRadius();
+		float camera_to_player_distance = vector.Distance( GetGame().GetCurrentCameraPosition(), player.GetPosition() );
+
+		if( projection_radius < SMALL_PROJECTION_RADIUS )	// objects with radius smaller than 1m
+		{
+			min_projection_dist = DISTANCE_SMALL_PROJECTION;
+			max_projection_dist = DISTANCE_SMALL_PROJECTION * 2;
+		}
+		else
+		{
+			min_projection_dist = projection_radius;
+			max_projection_dist = projection_radius * 2;
+			max_projection_dist = Math.Clamp( max_projection_dist, 0, LARGE_PROJECTION_DISTANCE_LIMIT );
+		}
+		
+		vector from = GetGame().GetCurrentCameraPosition();
+		vector to = from + ( GetGame().GetCurrentCameraDirection() * ( max_projection_dist + camera_to_player_distance ) );
+		vector contact_pos;
+		set<Object> hit_object = new set<Object>;
+
+		DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false );
+		
+		static const float raycastOriginOffsetOnFail = 0.25;
+		static const float minDistFromStart = 0.01;
+		// Camera isn't correctly positioned in some cases, leading to raycasts hitting the object directly behind the camera
+		if ((hit_object.Count() > 0) && (vector.DistanceSq(from, contact_pos) < minDistFromStart))
+		{
+			from = contact_pos + GetGame().GetCurrentCameraDirection() * raycastOriginOffsetOnFail;
+			DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false );
+		}
+		
+		if ((hit_object.Count() > 0) && hit_object[0].IsInherited(Watchtower))
+			contact_pos = CorrectForWatchtower( m_ContactComponent, contact_pos, player, hit_object[0] );
+
+		//! START part that is different from vanilla GetProjectionEntityPosition
+		if ( hit_object.Count() > 0 && hit_object[0].IsInherited( ExpansionBaseBuilding ) )
+		{
+			PhxInteractionLayers layerMask;
+			layerMask |= PhxInteractionLayers.BUILDING;
+			layerMask |= PhxInteractionLayers.DOOR;
+			layerMask |= PhxInteractionLayers.VEHICLE;
+			layerMask |= PhxInteractionLayers.ROADWAY;
+			layerMask |= PhxInteractionLayers.TERRAIN;
+			layerMask |= PhxInteractionLayers.ITEM_SMALL;
+			layerMask |= PhxInteractionLayers.ITEM_LARGE;
+			layerMask |= PhxInteractionLayers.FENCE;
+
+			vector hitNormal;
+			if ( !DayZPhysics.RayCastBullet( from, to, layerMask, m_Projection, null, contact_pos, hitNormal, null ) )
+				contact_pos = to;
+			else if ( hit_object[0].IsInherited( ExpansionFloorBase ) || hit_object[0].IsInherited( ExpansionRampBase ) )
+				m_ContactDir = hitNormal;
+		}
+		//! END part that is different from vanilla GetProjectionEntityPosition
+
+
+		float player_to_projection_distance = vector.Distance( player.GetPosition(), contact_pos );
+		vector player_to_projection_vector;
+
+		//hologram is at min distance from player
+		if( player_to_projection_distance <= min_projection_dist )
+		{
+			player_to_projection_vector = contact_pos - player.GetPosition();		  
+			player_to_projection_vector.Normalize();
+			//prevents the hologram to go underground/floor while hologram exceeds min_projection_dist
+			player_to_projection_vector[1] = player_to_projection_vector[1] + PROJECTION_TRANSITION_MIN;
+			
+			contact_pos = player.GetPosition() + (player_to_projection_vector * min_projection_dist);			
+			SetIsFloating( true );
+		}
+		//hologram is at max distance from player
+		else if( player_to_projection_distance >= max_projection_dist )
+		{
+			player_to_projection_vector = contact_pos - player.GetPosition();	
+			player_to_projection_vector.Normalize();
+			//prevents the hologram to go underground/floor while hologram exceeds max_projection_dist
+			player_to_projection_vector[1] = player_to_projection_vector[1] + PROJECTION_TRANSITION_MAX;		
+			
+			contact_pos = player.GetPosition() + (player_to_projection_vector * max_projection_dist);
+			SetIsFloating( true );
+		}
+		//hologram is between min and max distance from player
+		else
+		{
+			SetIsFloating( false );
+		}
+			
+		return contact_pos;
+	}
+
+	//! Hack fix to prevent the issue of placeable items snapping to center of Expansion base building.
+	//! Similar to vanilla SetOnGround, except using RayCastBullet instead of RaycastRV, and actually placing object on ground correctly.
+	override vector SetOnGround( vector position )
+	{
+		vector from = position;
+		vector ground;
+		float projection_diameter = GetProjectionDiameter();
+			
+		ground = Vector(0, - Math.Max( projection_diameter, SMALL_PROJECTION_GROUND ), 0);
+		
+		vector to = from + ground;
+		vector contact_pos;
+		
+		PhxInteractionLayers layerMask;
+		layerMask |= PhxInteractionLayers.BUILDING;
+		layerMask |= PhxInteractionLayers.DOOR;
+		layerMask |= PhxInteractionLayers.VEHICLE;
+		layerMask |= PhxInteractionLayers.ROADWAY;
+		layerMask |= PhxInteractionLayers.TERRAIN;
+		layerMask |= PhxInteractionLayers.ITEM_SMALL;
+		layerMask |= PhxInteractionLayers.ITEM_LARGE;
+		layerMask |= PhxInteractionLayers.FENCE;
+		
+		//DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, contact_component, NULL, NULL, m_Projection, false, false );
+		DayZPhysics.RayCastBullet( from, to, layerMask, m_Projection, null, contact_pos, m_ContactDir, null );
+		
+		contact_pos = HideWhenClose( contact_pos );  //! Fix for vanilla not assigning the result of calling HideWhenClose
+		
+		return contact_pos;
 	}
 };

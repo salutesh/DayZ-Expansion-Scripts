@@ -16,12 +16,12 @@
 //! Enable it if you want to enable logging with EXLogPrint
 //#define EXPANSIONEXLOGPRINT
 
+//! Enable storage/modstorage debug prints
+//#define EXPANSION_STORAGE_DEBUG
+
 //! Enable it if you want to enable item attaching logic 
 #define EXPANSION_ITEM_ATTACHING_DISABLE
 //#define EXPANSION_ITEM_ATTACHING_LOGGING
-
-//! Enable it if you want to DISABLE market
-#define EXPANSION_MARKET_DISABLE
 
 //! Enable it if you want to DISABLE chicken stuff
 #define EXPANSION_CHICKEN_DISABLE
@@ -50,7 +50,7 @@
 //#define EXPANSION_MISSION_EVENT_DEBUG
 
 // Enable it if you want market debug logs enabled
-//#define EXPANSION_MARKET_MODULE_DEBUG
+#define EXPANSION_MARKET_MODULE_DEBUG
 
 //! Enable it if you want party module debug logs enabled
 //#define EXPANSION_PARTY_MODULE_DEBUG
@@ -76,10 +76,13 @@
 //! Enable it if you want to enable map menu debug logs
 //#define EXPANSION_MAP_MENU_DEBUG
 
+//! Enable it if you want to enable map menu update debug logs
+//#define EXPANSION_MAP_MENU_UPDATE_DEBUG
+
 //! Enable it if you want to enable client settings debug logs
 //#define EXPANSION_CLIENT_SETTINGS_DEBUG
 
-//! Enable it if you want to enable skinings system debug logs
+//! Enable it if you want to enable skinning system debug logs
 //#define EXPANSION_SKIN_LOGGING
 
 //! Enable it if you want to enable car key debug logs
@@ -104,7 +107,7 @@
 //#define EXPANSION_INTERIOR_RANDONMIZATION
 
 //! Enable to disable character szene main menu changes
-#define EXPANSION_MAINMENU_NEW_DISABLE
+//#define EXPANSION_MAINMENU_NEW_DISABLE
 
 #define EXPANSION_VEHICLES_CONFIG_DISPLAYNAME_TEMP
 
@@ -112,12 +115,20 @@
 #define EXPANSION_CARSCRIPT_DATA_DOUBLE
 
 //! Used for third party mods, if they want to know if expansion is loaded
-#define EXPANSIONMOD
+#define EXPANSIONMODCORE
 
 //#define EXPANSION_DEBUGGER_DISABLE
 
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING
+
+#ifdef CF_DEBUGGER
+#define EXPANSION_DEBUG_UI_AI
+#define EXPANSION_DEBUG_UI_HOLOGRAM
+#define EXPANSION_DEBUG_UI_FALLCOMMAND
+#define EXPANSION_DEBUG_UI_VEHICLE
+#define EXPANSION_DEBUG_UI_CAMERA
+#endif
 
 #ifdef SERVER //! Don't comment these, diag exe server crashes
 #define EXPANSION_DEBUG_SHAPES_DISABLE

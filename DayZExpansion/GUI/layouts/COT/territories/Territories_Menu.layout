@@ -332,7 +332,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
          hexactsize 0
          vexactsize 0
          {
-          TextWidgetClass info_level_label {
+          TextWidgetClass territory_info_level_label {
            ignorepointer 1
            size 0.4 1
            hexactpos 0
@@ -344,7 +344,7 @@ PanelWidgetClass ExpansionCOTTerritoriesMenu {
            "text offset" 5 0
            "text valign" center
           }
-          TextWidgetClass info_level_value {
+          TextWidgetClass territory_info_level_value {
            ignorepointer 1
            size 0.6 1
            halign right_ref

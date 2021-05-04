@@ -70,7 +70,19 @@ class ExpansionMarkerModule: JMModuleBase
 
 		//! Party Member marker
 		if ( GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
-			SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
+		{
+			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+			{
+				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP ); // 2D and 3D
+			} else {
+				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD ); // 3D only
+			}
+		} else {
+			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+			{
+				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP ); // 2D only
+			}
+		}
 
 		//! Party Quickmarker
 		if ( GetExpansionSettings().GetParty().EnableQuickMarker )
@@ -94,17 +106,13 @@ class ExpansionMarkerModule: JMModuleBase
 
 		Class.CastTo( m_PartyModule, GetModuleManager().GetModule( ExpansionPartyModule ) );
 		
-		if ( !ReadLocalServerMarkers() )
-		{
-		}
-
-		if ( m_AllData.Count() <= 0 )
-		{
-			m_AllData.Insert( new ExpansionMarkerClientData() );
-		}
+		ReadLocalServerMarkers();
 
 		if ( IsMissionOffline() )
 		{
+			if ( m_AllData.Count() <= 0 )
+				m_AllData.Insert( new ExpansionMarkerClientData() );
+
 			m_CurrentData = m_AllData[0];
 		} else if ( IsMissionClient() )
 		{
@@ -138,14 +146,10 @@ class ExpansionMarkerModule: JMModuleBase
 			}
 		}
 
-		Print( m_AllData );
-		Print( m_AllData.Count() );
-		Print( m_AllData[0] );
-
 		SaveLocalServerMarkers();
 
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnMissionLoaded - Start");
+		EXPrint("ExpansionMarkerModule::OnMissionLoaded - End");
 		#endif
 	}
 	
@@ -163,7 +167,7 @@ class ExpansionMarkerModule: JMModuleBase
 		SaveLocalServerMarkers();
 
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnMissionFinish - Start");
+		EXPrint("ExpansionMarkerModule::OnMissionFinish - End");
 		#endif
 	}
 	
@@ -531,6 +535,9 @@ class ExpansionMarkerModule: JMModuleBase
 		//Print( m_3DMarkers.Count() );
 		for ( int i = 0; i < m_3DMarkers.Count(); ++i )
 		{
+			if ( !m_3DMarkers[i] )
+				continue;
+
 			//! TODO: NULL Pointer with this condition
 			if ( !m_3DMarkers[i].Update( timeslice ) )
 			{
@@ -586,6 +593,9 @@ class ExpansionMarkerModule: JMModuleBase
 
 		for ( int i = 0; i < m_3DMarkers.Count(); ++i )
 		{
+			if ( !m_3DMarkers[i] )
+				continue;
+
 			ExpansionMarkerData data = m_3DMarkers[i].GetMarkerData();
 			if ( data != NULL && data == other )
 			{
@@ -625,7 +635,7 @@ class ExpansionMarkerModule: JMModuleBase
 			}
 		}
 
-		UIScriptedMenu menu;
+		ExpansionUIScriptedMenu menu;
 		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
 		{
 			menu.Refresh();

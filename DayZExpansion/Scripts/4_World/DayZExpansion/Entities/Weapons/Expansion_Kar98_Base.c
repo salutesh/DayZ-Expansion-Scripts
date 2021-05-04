@@ -27,4 +27,15 @@ class Expansion_Kar98_Base extends BoltActionRifle_InnerMagazine_Base
 	{
 		return new MosinRecoil(this);
 	}	
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "ExpansionKar98ScopeOptic" );
+			entity.GetInventory().CreateInInventory( "Expansion_Kar98_Bayonet" );
+		}
+	}
 };

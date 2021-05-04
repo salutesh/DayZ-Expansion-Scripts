@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Firearms_LAW
 	{
-		units[] = {"ExpansionRocket"};
+		units[] = {"Expansion_LAW_Explosion"};
 		weapons[] = {"ExpansionLAW"};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms","DayZExpansion_Sounds_Weapons_RPG7"};
@@ -322,10 +322,21 @@ class CfgWeapons
 };
 class CfgVehicles
 {
-	class Roadflare;
-	class ExpansionRocket: Roadflare
+	class HouseNoDestruct;
+	class Expansion_LAW_Explosion: HouseNoDestruct
 	{
 		scope = 2;
-		model = "\dz\weapons\ammunition\rocket_rpg7_inflight.p3d";
+		model = "\DZ\data\lightpoint.p3d";
+		ammoType = "ExpansionRocket_Ammo";
+	};
+};
+class CfgNonAIVehicles
+{
+	class ProxyWeapon;
+	class ProxyRocket_law: ProxyWeapon
+	{
+		scope = 2;
+		simulation = "magazine";
+		model = "DZ\weapons\ammunition\rocket_rpg7.p3d";
 	};
 };

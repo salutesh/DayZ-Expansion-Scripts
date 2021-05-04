@@ -164,6 +164,11 @@ class ExpansionStove extends FireplaceBase
 	// ------------------------------------------------------------
 	// Expansion CanClose
 	// ------------------------------------------------------------
+	override bool ExpansionCanClose( PlayerBase player, string selection )
+	{
+		return CanClose( selection );
+	}
+
 	override bool CanClose( string selection )
 	{
 		if (selection == "doors1" && GetAnimationPhase("doors1") == 1 && ExpansionIsOpenable())

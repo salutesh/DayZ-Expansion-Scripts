@@ -31,7 +31,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	void ExpansionOptionSettingWidget( Widget parent, notnull ref ExpansionSettingSerializationBase setting, ref OptionsMenuExpansion menu )
 	{
-		layoutRoot = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/options/expansion_options_setting_new.layout", parent ) );
+		layoutRoot = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_options_setting_new.layout", parent ) );
 		
 		m_Setting = setting;
 		m_Menu = menu;

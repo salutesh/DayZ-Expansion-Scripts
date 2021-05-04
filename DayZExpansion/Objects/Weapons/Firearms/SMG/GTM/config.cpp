@@ -258,7 +258,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_MPX";
 		descriptionShort = "$STR_EXPANSION_MPX_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\SMG\GTM\MPX.p3d";
-		attachments[] = {"pistolMuzzle","weaponOptics"};
+		attachments[] = {"pistolMuzzle","weaponOptics","weaponFlashlight","weaponWrap"};
 		itemSize[] = {5,3};
 		hiddenSelections[] = {"retexture"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\SMG\GTM\data\dayz_co.paa"};
@@ -326,7 +326,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 175;
 					healthLevels[] = {{1.0,{"DZ\weapons\firearms\M4\Data\m4_body.rvmat"}},{0.7,{"DZ\weapons\firearms\M4\Data\m4_body.rvmat"}},{0.5,{"DZ\weapons\firearms\M4\Data\m4_body_damage.rvmat"}},{0.3,{"DZ\weapons\firearms\M4\Data\m4_body_damage.rvmat"}},{0.0,{"DZ\weapons\firearms\M4\Data\m4_body_destruct.rvmat"}}};
 				};
 			};

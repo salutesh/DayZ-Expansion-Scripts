@@ -45,11 +45,6 @@ class ExpansionVehicleThrottle
 		m_GentleCoef = GetGame().ConfigGetFloat( path );
 	}
 
-	void ExpansionDebugUI( string message = "" )
-	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_ENGINE, message );
-	}
-
 	float Get()
 	{
 		return m_Throttle;
@@ -61,6 +56,10 @@ class ExpansionVehicleThrottle
 		m_Throttle = Math.Lerp( m_Throttle, m_GentleThrust, pGentle * pIn );
 		m_Throttle = Math.Lerp( m_Throttle, 1.0, pTurbo * pIn );
 		
-		ExpansionDebugUI( "m_Throttle: " + m_Throttle );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		
+		dbg_Vehicle.Set("Throttle", m_Throttle );
+		#endif
 	}
 };

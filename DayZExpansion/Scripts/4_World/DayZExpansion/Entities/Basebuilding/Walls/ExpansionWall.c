@@ -12,29 +12,45 @@
 
 class ExpansionWallBase: ExpansionBaseBuilding
 {
-	private bool m_IsOpened;
+	protected bool m_IsOpened;
+	protected bool m_IsOpened1;
+	protected bool m_IsOpened2;
+	protected bool m_IsOpened3;
+	protected bool m_IsOpened4;
 
-	private string m_CurrentBuild;
+	protected bool m_WasOpen;
+	protected bool m_WasOpen1;
+	protected bool m_WasOpen2;
 
-	private bool m_HasWindow;
-	private bool m_HasDoor;
-	private bool m_HasGate;
+	protected bool m_HasWindow;
+	protected bool m_HasDoor;
+	protected bool m_HasGate;
+	protected bool m_HasWall;
+
 
 	void ExpansionWallBase()
 	{
+		RegisterNetSyncVariableBool( "m_IsOpened" );
+		RegisterNetSyncVariableBool( "m_IsOpened1" );
+		RegisterNetSyncVariableBool( "m_IsOpened2" );
+		RegisterNetSyncVariableBool( "m_IsOpened3" );
+		RegisterNetSyncVariableBool( "m_IsOpened4" );
 		RegisterNetSyncVariableBool( "m_HasWindow" );
 		RegisterNetSyncVariableBool( "m_HasDoor" );
 		RegisterNetSyncVariableBool( "m_HasGate" );
+		RegisterNetSyncVariableBool( "m_HasWall" );
 
 		m_CurrentBuild = "wood";
 	}
 
-	override void SetActions()
+	override bool IsLastStage()
 	{
-		super.SetActions();
+		return m_HasDoor || m_HasGate || m_HasWindow || m_HasWall;
+	}
 
-		AddAction( ExpansionActionEnterCodeLock );
-		AddAction( ExpansionActionChangeCodeLock );
+	override bool IsLastStageBuilt()
+	{
+		return IsPartBuilt( m_CurrentBuild + "_wallfinished" ) || IsPartBuilt( m_CurrentBuild + "_wallfinished_half" ) || IsPartBuilt( m_CurrentBuild + "_wallfinished_third" );
 	}
 
 	override string GetConstructionKitType()
@@ -58,7 +74,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -70,23 +86,49 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		ctx.Write( m_HasWindow );
 		ctx.Write( m_HasDoor );
 		ctx.Write( m_HasGate );
+		ctx.Write( m_HasWall );
+		ctx.Write( m_IsOpened );
+		ctx.Write( m_IsOpened1 );
+		ctx.Write( m_IsOpened2 );
+		ctx.Write( m_IsOpened3 );
+		ctx.Write( m_IsOpened4 );
 	}
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 
 		if ( Expansion_Assert_False( ctx.Read( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
+			return false;
+
+		if ( m_ExpansionSaveVersion < 18 )
+			return true;
+
+		if ( Expansion_Assert_False( ctx.Read( m_HasWall ), "[" + this + "] Failed reading m_HasWall" ) )
+			return false;
+
+		if ( GetExpansionSaveVersion() < 23 )
+			return true;
+
+		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
+			return false;
+		if ( Expansion_Assert_False( ctx.Read( m_IsOpened1 ), "[" + this + "] Failed reading m_IsOpened1" ) )
+			return false;
+		if ( Expansion_Assert_False( ctx.Read( m_IsOpened2 ), "[" + this + "] Failed reading m_IsOpened2" ) )
+			return false;
+		if ( Expansion_Assert_False( ctx.Read( m_IsOpened3 ), "[" + this + "] Failed reading m_IsOpened3" ) )
+			return false;
+		if ( Expansion_Assert_False( ctx.Read( m_IsOpened4 ), "[" + this + "] Failed reading m_IsOpened4" ) )
 			return false;
 		
 		return true;
@@ -103,6 +145,12 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		storage.Write( m_HasWindow );
 		storage.Write( m_HasDoor );
 		storage.Write( m_HasGate );
+		storage.Write( m_HasWall );
+		storage.Write( m_IsOpened );
+		storage.Write( m_IsOpened1 );
+		storage.Write( m_IsOpened2 );
+		storage.Write( m_IsOpened3 );
+		storage.Write( m_IsOpened4 );
 	}
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
@@ -120,6 +168,26 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( Expansion_Assert_False( storage.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
 			return false;
 
+		if ( storage.GetVersion() < 18 )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_HasWall ), "[" + this + "] Failed reading m_HasWall" ) )
+			return false;
+
+		if ( GetExpansionSaveVersion() < 23 )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_IsOpened1 ), "[" + this + "] Failed reading m_IsOpened1" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_IsOpened2 ), "[" + this + "] Failed reading m_IsOpened2" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_IsOpened3 ), "[" + this + "] Failed reading m_IsOpened3" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_IsOpened4 ), "[" + this + "] Failed reading m_IsOpened4" ) )
+			return false;
+
 		return true;
 	}
 	#endif
@@ -129,9 +197,47 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return (GetConstruction().IsPartConstructed( "wood_base" ) || GetConstruction().IsPartConstructed( "wood_base_third" ) || GetConstruction().IsPartConstructed( "wood_base_half" ));
 	}
 
+	bool HasDoor()
+	{
+		return m_HasDoor;
+	}
+
+	bool HasGate()
+	{
+		return m_HasGate;
+	}
+
+	bool HasWindow()
+	{
+		return m_HasWindow;
+	}
+
 	override void OnVariablesSynchronized()
 	{
+		bool wasSynched = m_WasSynced;
+
 		super.OnVariablesSynchronized();
+
+		bool door_changed = m_HasDoor && m_WasOpen != m_IsOpened;
+		bool door_opened = door_changed && m_IsOpened;
+
+		bool gate_l_changed = m_HasGate && m_WasOpen1 != m_IsOpened1;
+		bool gate_l_opened = gate_l_changed && m_IsOpened1;
+
+		bool gate_r_changed = m_HasGate && m_WasOpen2 != m_IsOpened2;
+		bool gate_r_opened = gate_r_changed && m_IsOpened2;
+
+		if ( wasSynched && ( door_changed || gate_l_changed || gate_r_changed ) )
+		{
+			if ( door_opened || gate_l_opened || gate_r_opened )
+				SoundGateOpenStart();
+			else
+				SoundGateCloseStart();
+		}
+
+		m_WasOpen = m_IsOpened;
+		m_WasOpen1 = m_IsOpened1;
+		m_WasOpen2 = m_IsOpened2;
 
 		UpdateVisuals();
 	}
@@ -139,8 +245,17 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	override void AfterStoreLoad()
 	{	
 		super.AfterStoreLoad();
+
+		if ( m_ExpansionSaveVersion < 18 )
+			m_HasWall = IsLastStageBuilt();
 		
-		UpdateVisuals();	
+		SetAllowDamage(CanBeDamaged());
+		
+		UpdateVisuals();
+
+		//! Restore state of opened windows/door/gate
+		if ( m_IsOpened || m_IsOpened1 || m_IsOpened2 || m_IsOpened3 || m_IsOpened4 )
+			Open( "" );
 	}
 
 	override bool CanReleaseAttachment( EntityAI attachment )
@@ -178,6 +293,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 
+	private bool ExpansionHasCodeLock()
+	{
+		return FindAttachmentBySlotName( "Att_ExpansionCodeLock_1" ) || FindAttachmentBySlotName( "Att_ExpansionCodeLock_2" );
+	}
+
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		if (m_HasDoor)
@@ -199,6 +319,34 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return m_HasWindow || m_HasDoor || m_HasGate;
 	}
 
+	override bool ExpansionIsOpenable( string selection )
+	{
+		if ( m_HasWindow )
+		{
+			if ( selection == m_CurrentBuild + "_window_ll" )
+				return true;
+			if ( selection == m_CurrentBuild + "_window_lr" )
+				return true;
+			if ( selection == m_CurrentBuild + "_window_rl" )
+				return true;
+			if ( selection == m_CurrentBuild + "_window_rr" )
+				return true;
+		}
+		else if ( m_HasDoor )
+		{
+			if ( selection == m_CurrentBuild + "_door" )
+				return true;
+		} else if ( m_HasGate )
+		{
+			if ( selection == m_CurrentBuild + "_gate_l" )
+				return true;
+			if ( selection == m_CurrentBuild + "_gate_r" )
+				return true;
+		}
+
+		return false;
+	}
+
 	bool ExpansionHasGate()
 	{
 		return m_HasGate;
@@ -214,6 +362,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		m_HasWindow = false;
 		m_HasDoor = false;
 		m_HasGate = false;
+		m_HasWall = false;
 
 		if ( part_name == m_CurrentBuild + "_windowfinished" )
 		{
@@ -230,6 +379,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			m_HasGate = true;
 		}
 
+		if ( part_name == m_CurrentBuild + "_wallfinished" || part_name == m_CurrentBuild + "_wallfinished_third" || part_name == m_CurrentBuild + "_wallfinished_half" )
+		{
+			m_HasWall = true;
+		}
+
 		SetAllowDamage(CanBeDamaged());
 		super.OnPartBuiltServer(player, part_name, action_id );
 
@@ -238,9 +392,14 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )
 	{
+		ExpansionCodeLock codelock = ExpansionGetCodeLock();
+		if ( codelock )
+			codelock.UnlockServer( player, this );
+
 		m_HasWindow = false;
 		m_HasDoor = false;
 		m_HasGate = false;
+		m_HasWall = false;
 
 		SetAllowDamage(CanBeDamaged());
 		super.OnPartDismantledServer( player, part_name, action_id );
@@ -253,6 +412,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		m_HasWindow = false;
 		m_HasDoor = false;
 		m_HasGate = false;
+		m_HasWall = false;
 
 		SetAllowDamage(CanBeDamaged());
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
@@ -336,6 +496,18 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			return false;
 		}
 
+		if ( category_name == "Material" )
+		{
+			if ( ExpansionHasCodeLock() && ( m_HasGate || m_HasDoor ) )
+			{
+				//! GetHealth cannot be called on client. Using GetHealthLevel instead
+				return GetHealthLevel() != GameConstants.STATE_PRISTINE || GetInventory().AttachmentCount() > 1;
+			} else {
+				//! GetHealth cannot be called on client. Using GetHealthLevel instead
+				return GetHealthLevel() != GameConstants.STATE_PRISTINE || !IsLastStage() || GetInventory().AttachmentCount() > 0;
+			}
+		}
+
 		if ( category_name == "Attachments" )
 		{
 			if ( !( m_HasGate || m_HasDoor ) )
@@ -396,13 +568,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				return true;
 		}
 
-		if ( m_HasDoor && !IsLocked() )
+		if ( m_HasDoor && ( !IsLocked() || IsKnownUser( player ) ) )
 		{
 			if ( selection == (m_CurrentBuild + "_door") && GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) < 0.5 )
 				return true;
 		}
 
-		if ( m_HasGate && !IsLocked() )
+		if ( m_HasGate && ( !IsLocked() || IsKnownUser( player ) ) )
 		{
 			if ( selection == (m_CurrentBuild + "_gate_l") && GetAnimationPhase( m_CurrentBuild +"_gate_l_rotate" ) < 0.5 )
 				return true;
@@ -413,6 +585,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 	
+	override bool ExpansionCanClose( PlayerBase player, string selection )
+	{
+		return CanClose( selection );
+	}
+
 	override bool CanClose( string selection )
 	{
 		if ( !ExpansionIsOpenable() )
@@ -456,21 +633,33 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	{	
 		if ( IsMissionHost() && m_HasWindow )
 		{
-			if (selection == (m_CurrentBuild + "_window_ll"))
+			if (selection == (m_CurrentBuild + "_window_ll") || m_IsOpened1)
+			{
+				m_IsOpened1 = true;
 				SetAnimationPhase( m_CurrentBuild + "_window_ll_rotate", 1 );
-			if (selection == (m_CurrentBuild + "_window_lr"))
-				SetAnimationPhase( m_CurrentBuild + "_window_lr_rotate", 1 );	
-			if (selection == (m_CurrentBuild + "_window_rl"))
-				SetAnimationPhase( m_CurrentBuild + "_window_rl_rotate", 1 );	
-			if (selection == (m_CurrentBuild + "_window_rr"))
+			}
+			if (selection == (m_CurrentBuild + "_window_lr") || m_IsOpened2)
+			{
+				m_IsOpened2 = true;
+				SetAnimationPhase( m_CurrentBuild + "_window_lr_rotate", 1 );
+			}
+			if (selection == (m_CurrentBuild + "_window_rl") || m_IsOpened3)
+			{
+				m_IsOpened3 = true;
+				SetAnimationPhase( m_CurrentBuild + "_window_rl_rotate", 1 );
+			}
+			if (selection == (m_CurrentBuild + "_window_rr") || m_IsOpened4)
+			{
+				m_IsOpened4 = true;
 				SetAnimationPhase( m_CurrentBuild + "_window_rr_rotate", 1 );
+			}
 
 			m_IsOpened = true;
 		}
 
 		if ( IsMissionHost() && m_HasDoor )
 		{
-			if (selection == (m_CurrentBuild + "_door"))
+			if (selection == (m_CurrentBuild + "_door") || m_IsOpened)
 				SetAnimationPhase( m_CurrentBuild + "_door_rotate", 1 );
 
 			m_IsOpened = true;
@@ -478,15 +667,23 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( IsMissionHost() && m_HasGate )
 		{
-			if (selection == (m_CurrentBuild + "_gate_l"))
+			if (selection == (m_CurrentBuild + "_gate_l") || m_IsOpened1)
+			{
+				m_IsOpened1 = true;
 				SetAnimationPhase( m_CurrentBuild + "_gate_l_rotate", 1 );
-			if (selection == (m_CurrentBuild + "_gate_r"))
+			}
+			if (selection == (m_CurrentBuild + "_gate_r") || m_IsOpened2)
+			{
+				m_IsOpened2 = true;
 				SetAnimationPhase( m_CurrentBuild + "_gate_r_rotate", 1 );
+			}
 
 			m_IsOpened = true;
 		}
 		
 		super.Open( selection );
+
+		SetSynchDirty();
 	}
 	
 	override void Close( string selection ) 
@@ -494,13 +691,25 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( GetGame().IsServer() && m_HasWindow )
 		{
 			if (selection == (m_CurrentBuild + "_window_ll"))
+			{
+				m_IsOpened1 = false;
 				SetAnimationPhase( m_CurrentBuild + "_window_ll_rotate", 0 );
+			}
 			if (selection == (m_CurrentBuild + "_window_lr"))
-				SetAnimationPhase( m_CurrentBuild + "_window_lr_rotate", 0 );	
+			{
+				m_IsOpened2 = false;
+				SetAnimationPhase( m_CurrentBuild + "_window_lr_rotate", 0 );
+			}
 			if (selection == (m_CurrentBuild + "_window_rl"))
-				SetAnimationPhase( m_CurrentBuild+ "_window_rl_rotate", 0 );	
+			{
+				m_IsOpened3 = false;
+				SetAnimationPhase( m_CurrentBuild+ "_window_rl_rotate", 0 );
+			}
 			if (selection == (m_CurrentBuild + "_window_rr"))
+			{
+				m_IsOpened4 = false;
 				SetAnimationPhase( m_CurrentBuild + "_window_rr_rotate", 0 );
+			}
 
 			m_IsOpened = false;
 			m_IsOpened = m_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5;
@@ -520,23 +729,52 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( IsMissionHost() && m_HasGate )
 		{
 			if (selection == (m_CurrentBuild + "_gate_l"))
+			{
+				m_IsOpened1 = false;
 				SetAnimationPhase( m_CurrentBuild + "_gate_l_rotate", 0 );
+			}
 			if (selection == (m_CurrentBuild + "_gate_r"))
+			{
+				m_IsOpened2 = false;
 				SetAnimationPhase( m_CurrentBuild + "_gate_r_rotate", 0 );
+			}
 
 			m_IsOpened = GetAnimationPhase( m_CurrentBuild + "_gate_l_rotate" ) < 0.5 && GetAnimationPhase( m_CurrentBuild + "_gate_r_rotate" ) < 0.5;
 		}
 		
 		super.Close( selection );
+
+		SetSynchDirty();
 	}
 
-	override void EEKilled( Object killer )
+	override void UnlockAndOpen( string selection ) 
 	{
-		if ( !killer.IsInherited( CarScript ) )
+		if ( m_HasCode )
+			super.Unlock();
+
+		if ( m_HasDoor )
 		{
-			super.EEKilled( killer );
-		
-			this.Delete();
+			Open( m_CurrentBuild + "_door" );
+		} else if ( m_HasGate )
+		{
+			Open( m_CurrentBuild + "_gate_l" );
+			Open( m_CurrentBuild + "_gate_r" );
 		}
+	}
+
+	override void CloseAndLock( string selection )
+	{
+		if ( m_HasDoor && IsOpened() )
+		{
+			Close( m_CurrentBuild + "_door" );
+		} else if ( m_HasGate )
+		{
+			if ( GetAnimationPhase( m_CurrentBuild + "_gate_l_rotate" ) > 0.5 )
+				Close( m_CurrentBuild + "_gate_l" );
+			if ( GetAnimationPhase( m_CurrentBuild + "_gate_r_rotate" ) > 0.5 )
+				Close( m_CurrentBuild + "_gate_r" );
+		}
+
+		super.Lock();
 	}
 }

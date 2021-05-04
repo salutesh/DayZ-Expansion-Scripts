@@ -232,7 +232,7 @@ PanelWidgetClass ExpansionNewsFeed {
         ButtonWidgetClass feedback_tracker {
          ignorepointer 0
          color 1 1 1 0.549
-         size 0.22 36
+         size 0.31 36
          valign bottom_ref
          hexactpos 1
          vexactpos 1
@@ -249,14 +249,14 @@ PanelWidgetClass ExpansionNewsFeed {
            clipchildren 0
            ignorepointer 1
            position 36 0
-           size 65 0.35
+           size 115 0.35
            valign center_ref
            hexactpos 1
            vexactpos 1
            hexactsize 1
            vexactsize 0
            userID 150
-           text "#layout_main_menu_feedback"
+           text "Expansion Feedback"
            font "gui/fonts/sdf_MetronLight24"
            "exact text" 0
            "text valign" center
@@ -283,7 +283,7 @@ PanelWidgetClass ExpansionNewsFeed {
          ignorepointer 0
          color 1 1 1 0.549
          position 214 0
-         size 0.27 36
+         size 0.28 36
          valign bottom_ref
          hexactpos 1
          vexactpos 1
@@ -397,14 +397,14 @@ PanelWidgetClass ExpansionNewsFeed {
            clipchildren 0
            ignorepointer 1
            position 36 0
-           size 65 0.35
+           size 95 0.35
            valign center_ref
            hexactpos 1
            vexactpos 1
            hexactsize 1
            vexactsize 0
            userID 150
-           text "Wiki"
+           text "Expansion Wiki"
            font "gui/fonts/sdf_MetronLight24"
            "exact text" 0
            "text valign" center

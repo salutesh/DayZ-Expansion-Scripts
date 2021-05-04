@@ -45,4 +45,7 @@ modded class ParticleList
 	static const int EXPANSION_LIGHT_RED = RegisterParticle( "DayZExpansion/Particles/Lights/" , "Expansion_World_Light_Red");
 	static const int EXPANSION_LIGHT_WHITE = RegisterParticle( "DayZExpansion/Particles/Lights/" , "Expansion_World_Light_White");
 	static const int EXPANSION_LIGHT_YELLOW = RegisterParticle( "DayZExpansion/Particles/Lights/" , "Expansion_World_Light_Yellow");
+
+	//! Misc
+	static const int EXPANSION_PROPANE_FLAME = RegisterParticle( "DayZExpansion/Particles/Misc/" , "Expansion_Propane_Flame");
 };

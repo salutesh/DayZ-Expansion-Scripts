@@ -11,7 +11,10 @@
 */
 
 modded class ItemBase
-{	
+{
+	protected bool m_IsAttached;
+	protected EntityAI m_WorldAttachment;
+	
 	//============================================
 	// ItemBase Constructor
 	//============================================
@@ -33,11 +36,18 @@ modded class ItemBase
 	//============================================	
 	void DeferredInit()
 	{
+		//CreateDynamicPhysics(PhxInteractionLayers.DYNAMICITEM);
+		//SetDynamicPhysicsLifeTime(-1);
+		//dBodyActive(this, ActiveState.INACTIVE);
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
 	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("[VEHICLES] ItemBase::CF_OnStoreSave " + this + " " + modName);
+		#endif
+
 		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion_Vehicles" )
@@ -48,6 +58,10 @@ modded class ItemBase
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("[VEHICLES] ItemBase::CF_OnStoreLoad " + this + " " + modName);
+		#endif
+
 		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
@@ -94,60 +108,348 @@ modded class ItemBase
 	{
 		super.OnVariablesSynchronized();
 	}
-	
+
 	//============================================
-	// Explode
-	//============================================
- 	override void Explode(int damageType, string ammoType = "")
+	// EEItemLocationChanged
+	//============================================	
+	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
+	override void EEItemLocationChanged( notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc )
 	{
-		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
-		float blastDropoff = 1;
-		float blastDistance;
-		float blastRange = 5;
-		float blastDropoffRange = 2.5;
-		super.Explode(damageType, ammoType);
-		//(point - min ) / (max - min ) 
-		if (ammoType == "")
-			ammoType = this.ConfigGetString("ammoType");
+		#ifdef EXPANSIONEXPRINT
+		Print("ItemBase::EEItemLocationChanged - Start");
+		#endif
 
-		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
-		int explosionDamage = GetGame().ConfigGetInt(dmgPath);
+		ExpansionAIBase new_player = null;
+		ExpansionAIBase old_player = null;
 		
-		ref array<Object> nearest_objects = new array<Object>;
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D( this.GetPosition(), blastRange, nearest_objects, proxy_cargos );
-		for ( int i = 0; i < nearest_objects.Count(); i++ )
-		{
-			bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
-			Object nearest_object = nearest_objects.Get(i);
-			//TODO Add support back for exploding buildings
-			/*
-			if ( nearest_object.IsInherited( ExpansionBaseBuilding ) )
-			{
-				blastDistance = vector.Distance(nearest_object.GetPosition(), this.GetPosition());
-				if (blastDistance > blastDropoffRange)
-					blastDropoff = (1 - (blastDistance - blastDropoffRange) / (blastRange - blastDropoffRange));
-				else 
-					blastDropoff = 1;
-				
-				
-				for (int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); ++x)
-				{
+		if ( oldLoc.GetItem() )
+			old_player = ExpansionAIBase.Cast( oldLoc.GetItem().GetHierarchyRootPlayer() );
 
-					if (this.IsKindOf(GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x]))
-					{
-						dealDamage = true;
-					}
-				}
-				if (dealDamage)
-					nearest_object.AddHealth( "GlobalHealth", "Health", ( explosionDamage * blastDropoff * explosionDamageMultiplier * -1) ); 
-			}
-			*/
+		if ( newLoc.GetParent() )
+			new_player = ExpansionAIBase.Cast( newLoc.GetParent().GetHierarchyRootPlayer() );
+		
+		if ( !new_player && !old_player )
+		{	
+			super.EEItemLocationChanged( oldLoc, newLoc );
+
+			#ifdef EXPANSIONEXPRINT
+			Print("ItemBase::EEItemLocationChanged - End - Not AI");
+			#endif
+
+			return;
 		}
+
+		EntityAI old_owner = oldLoc.GetItem();
+		EntityAI new_owner = newLoc.GetItem();
+		OnItemLocationChanged( old_owner, new_owner );
+
+		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT && newLoc.GetType() == InventoryLocationType.ATTACHMENT )
+		{
+			OnItemAttachmentSlotChanged( oldLoc, newLoc );
+		}
+		
+		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT )
+		{
+			if ( old_owner )
+				OnWasDetached( old_owner, oldLoc.GetSlot() );
+			else
+				Error("EntityAI::EEItemLocationChanged - detached, but old_owner is null");
+		}
+		
+		if ( newLoc.GetType() == InventoryLocationType.ATTACHMENT )
+		{
+			if ( new_owner )
+				OnWasAttached( newLoc.GetParent(), newLoc.GetSlot() );
+			else
+				Error("EntityAI::EEItemLocationChanged - attached, but new_owner is null");
+		}
+		
+		if ( newLoc.GetType() == InventoryLocationType.HANDS )
+		{
+			if ( new_player == old_player )
+			{
+			} else
+			{
+				if ( m_OldLocation )
+				{
+					m_OldLocation.Reset();
+				}
+			}
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		Print("ItemBase::EEItemLocationChanged - End");
+		#endif
 	}
 	
-	bool IsLocked()
+	//============================================
+	// OnItemLocationChanged
+	//============================================	
+	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner )
 	{
-		return false;
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print("ItemBase::OnItemLocationChanged - Start");
+		#endif
+
+		DayZPlayerImplement old_owner_dpi = NULL;
+		DayZPlayerImplement new_owner_dpi = NULL;
+
+		bool shouldSuper = true;
+		
+		if ( old_owner )
+		{
+			if ( old_owner.IsMan() )
+			{
+				old_owner_dpi = DayZPlayerImplement.Cast( old_owner );
+			} else
+			{
+				old_owner_dpi = DayZPlayerImplement.Cast( old_owner.GetHierarchyRootPlayer() );
+			}
+		}
+
+		if ( new_owner )
+		{
+			if ( new_owner.IsMan() )
+			{
+				new_owner_dpi = DayZPlayerImplement.Cast( new_owner );
+			} else
+			{
+				new_owner_dpi = DayZPlayerImplement.Cast( new_owner.GetHierarchyRootPlayer() );
+			}
+		}
+
+		//! super OnItemLocationChanged wants PlayerBase class, AI is Man so this is to prevent the super method from being called.
+		if ( old_owner && old_owner.IsMan() && !PlayerBase.Cast( old_owner ) )
+		{
+			shouldSuper = false;
+		} else if ( new_owner && new_owner.IsMan() && !PlayerBase.Cast( new_owner ) )
+		{
+			shouldSuper = false;
+		}
+
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( shouldSuper );
+		Print( old_owner );
+		Print( new_owner );
+		Print( old_owner_dpi );
+		Print( new_owner_dpi );
+		
+		if ( new_owner )
+			Print( "new_owner IsMan: " + new_owner.IsMan() );
+
+		if ( old_owner )
+			Print( "old_owner IsMan: " + old_owner.IsMan() );
+		#endif
+		
+		if ( shouldSuper )
+		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - Start - Calling Super" );
+			#endif
+
+			super.OnItemLocationChanged( old_owner, new_owner );
+
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - End - Calling Super" );
+			#endif
+		}
+
+		if ( !GetGame().IsServer() )
+		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
+			#endif
+
+			return;
+		}
+
+		EntityAI parent = NULL;
+
+		//Attaching or detaching the items to the vehicle
+		if ( old_owner_dpi && !new_owner ) // on drop
+		{
+			if ( dBodyIsDynamic( this ) && dBodyIsActive( this ) )
+			{
+				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+				Print( "ItemBase::OnItemLocationChanged - End - Is Dynamic" );
+				#endif
+
+				return;
+			}
+
+			if ( !Class.CastTo( parent, old_owner_dpi.GetParent() ) )
+			{
+				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+				Print( "ItemBase::OnItemLocationChanged - End - No Parent" );
+				#endif
+
+				return;
+			}
+
+			CarScript car;
+			ExpansionVehicleBase veh;
+			if ( !Class.CastTo( car, parent ) && !Class.CastTo( veh, parent ) )
+			{
+				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+				Print( "ItemBase::OnItemLocationChanged - End - No Valid Parent" );
+				#endif
+
+				return;
+			}
+
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( car );
+			Print( veh );
+			#endif
+
+			bool carAttach = car && car.CanObjectAttach( this );
+			bool vehAttach = veh && veh.CanObjectAttach( this );
+
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( carAttach );
+			Print( vehAttach );
+			#endif
+
+			if ( carAttach || vehAttach )
+			{
+				vector tmItem[4];
+				vector tmTarget[4];
+				vector tmLocal[4];
+
+				vector pPos = old_owner_dpi.GetPosition();
+				vector pOri = old_owner_dpi.GetOrientation();
+
+				old_owner_dpi.GetTransform( tmItem );
+				PlaceOnSurfaceRotated( tmItem, pPos, 0, 0, 0, false );
+
+				parent.GetTransform( tmTarget );
+				Math3D.MatrixInvMultiply4( tmTarget, tmItem, tmLocal );
+
+				LinkToLocalSpaceOf( parent, tmLocal );
+			}
+		} else if ( new_owner_dpi && !old_owner ) //! On pickup
+		{
+			UnlinkFromLocalSpace();
+		}
+		
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print("ItemBase::OnItemLocationChanged - End");
+		#endif
+	}
+	#endif
+	
+	//============================================
+	// IsInventoryVisible
+	//============================================	
+	override bool IsInventoryVisible()
+	{
+		return ( m_IsAttached || super.IsInventoryVisible() );
+	}
+	
+	//============================================
+	// LinkToLocalSpaceOf
+	//============================================
+	void LinkToLocalSpaceOf( notnull EntityAI pParent, vector pLocalSpaceMatrix[4] )
+	{
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( "ItemBase::LinkToLocalSpaceOf - Start - Target=" + pParent );
+		#endif
+
+		if ( !GetGame().IsServer() )
+		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::LinkToLocalSpaceOf - End - Not Server" );
+			#endif
+
+			return;
+		}
+		/*
+		InventoryLocation child_src = new InventoryLocation;
+		GetInventory().GetCurrentInventoryLocation( child_src );
+				
+		InventoryLocation child_dst = new InventoryLocation;
+		child_dst.SetGround( this, pLocalSpaceMatrix );
+		child_dst.SetParent( pParent );
+
+		if ( !GameInventory.LocationCanMoveEntity( child_src, child_dst ) )
+		{
+			Print( "ItemBase::LinkToLocalSpaceOf - End - LocationCanMoveEntity" );
+
+			return;
+		}
+
+		if ( !GameInventory.LocationSyncMoveEntity( child_src, child_dst ) )
+		{
+			Print( "ItemBase::LinkToLocalSpaceOf - End - LocationSyncMoveEntity" );
+
+			return;
+		}
+		*/
+
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( pLocalSpaceMatrix[0] );
+		Print( pLocalSpaceMatrix[1] );
+		Print( pLocalSpaceMatrix[2] );
+		Print( pLocalSpaceMatrix[3] );
+		#endif
+
+		m_IsAttached = true;
+		m_WorldAttachment = pParent;
+
+		SetTransform( pLocalSpaceMatrix );
+
+		m_WorldAttachment.AddChild( this, -1 );
+		m_WorldAttachment.Update();
+
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( "ItemBase::LinkToLocalSpaceOf - End - Target=" + m_WorldAttachment );
+		#endif
+	}
+	
+	//============================================
+	// UnlinkFromLocalSpace
+	//============================================
+	void UnlinkFromLocalSpace()
+	{
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( "ItemBase::UnlinkFromLocalSpace - Start" );
+		#endif
+
+		if ( !GetGame().IsServer() )
+		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::UnlinkFromLocalSpace - End - Not Server" );
+			#endif
+
+			return;
+		}
+
+		if ( !m_WorldAttachment )
+		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::UnlinkFromLocalSpace - End - No World Attachment" );
+			#endif
+
+			return;
+		}
+
+		m_IsAttached = false;
+
+		vector tmGlobal[4];
+
+		GetTransform( tmGlobal );
+
+		m_WorldAttachment.RemoveChild( this );
+
+		SetTransform( tmGlobal );
+
+		m_WorldAttachment.Update();
+		m_WorldAttachment = NULL;
+
+		Update();
+
+		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+		Print( "ItemBase::UnlinkFromLocalSpace - End" );
+		#endif
 	}
 };

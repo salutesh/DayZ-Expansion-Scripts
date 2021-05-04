@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Objects_Structures_Props
+	class DayZExpansion_Objects_Structures_HangedBody
 	{
 		units[] = {"Expansion_hanged_new","Expansion_hanged_green"};
 		weapons[] = {};
@@ -29,5 +29,11 @@ class CfgVehicles
 		vehicleClass = "Expansion_Static";
 		scope = 1;
 		model = "\DayZExpansion\Objects\Structures\hanged_body\Expansion_tireSwing.p3d";
+	};
+	class Expansion_HangedSkull: HouseNoDestruct
+	{
+		vehicleClass = "Expansion_Static";
+		scope = 1;
+		model = "\DayZExpansion\Objects\Structures\hanged_body\Expansion_HangedSkull.p3d";
 	};
 };

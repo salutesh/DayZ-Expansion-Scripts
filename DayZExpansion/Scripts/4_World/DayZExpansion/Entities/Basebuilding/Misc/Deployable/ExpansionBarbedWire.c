@@ -54,6 +54,14 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	}
 
 	// ------------------------------------------------------------
+	// CanPutIntoHands
+	// ------------------------------------------------------------
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
+	}
+
+	// ------------------------------------------------------------
 	// CanPutInCargo
 	// ------------------------------------------------------------
 	override bool CanPutInCargo (EntityAI parent)
@@ -80,10 +88,10 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 
 		m_AreaDamage = new AreaDamageRegularDeferred( this );
 		m_AreaDamage.SetExtents( "-2.96 0 -0.77", "2.97 1.36 0.74" );
-		m_AreaDamage.SetLoopInterval( 0.65 );
-		m_AreaDamage.SetDeferDuration( 0.65 );
-		m_AreaDamage.SetHitZones( { "Head","Torso","LeftHand","LeftLeg","LeftFoot","RightHand","RightLeg","RightFoot" } );
-		m_AreaDamage.SetAmmoName( "BarbedWireDamage" );
+		m_AreaDamage.SetLoopInterval( 1.0 );
+		m_AreaDamage.SetDeferDuration( 0.2 );
+		m_AreaDamage.SetHitZones( { "Torso","LeftHand","LeftLeg","LeftFoot","RightHand","RightLeg","RightFoot" } );
+		m_AreaDamage.SetAmmoName( "BarbedWireHit" );
 		m_AreaDamage.Spawn();
 
 		m_TriggerActive = true;
@@ -114,4 +122,33 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	{
 		
 	}
-} 
+
+	// ------------------------------------------------------------
+	// EEKilled
+	// ------------------------------------------------------------
+	override void EEKilled( Object killer )
+	{
+		bool canRaidBarbedWire = GetExpansionSettings().GetRaid().CanRaidBarbedWire;
+
+		if ( !canRaidBarbedWire )
+			return;
+
+		super.EEKilled( killer );
+	}
+
+	override void ExpansionOnDestroyed( Object killer )
+	{
+		if ( IsDamageDestroyed() )
+			return;
+
+		ItemBase item = ItemBase.Cast( GetGame().CreateObject( "BarbedWire", GetPosition() ) );
+		item.SetOrientation( GetOrientation() );
+		item.SetHealth( 0 );
+		SetHealth( 0 );
+	}
+	
+	override protected string GetDestroySound()
+	{		
+		return "putDown_BarbedWire_SoundSet";
+	}
+}

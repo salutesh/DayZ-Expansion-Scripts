@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Gear_Guitar
 	{
-		units[] = {"Expansion_Guitar"};
+		units[] = {"Expansion_Guitar","Expansion_Guitar_old"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Melee"};
@@ -60,6 +60,24 @@ class CfgVehicles
 				source = "user";
 				initPhase = 0;
 				animPeriod = 1;
+			};
+		};
+	};
+	class Expansion_Guitar_old: Expansion_Guitar
+	{
+		scope = 2;
+		displayName = "Classic Old Guitar";
+		descriptionShort = "A Classic Old Guitar ";
+		model = "DayZExpansion\Objects\Gear\Guitar\Classic_Guitar_old.p3d";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 200;
+					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Gear\Guitar\data\old_guitar_z.rvmat"}},{0.7,{"DayZExpansion\Objects\Gear\Guitar\data\old_guitar_z.rvmat"}},{0.5,{"DayZExpansion\Objects\Gear\Guitar\data\old_guitar_z_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Gear\Guitar\data\old_guitar_z_damage.rvmat"}},{0.0,{"DayZExpansion\Objects\Gear\Guitar\data\old_guitar_z_destruct.rvmat"}}};
+				};
 			};
 		};
 	};

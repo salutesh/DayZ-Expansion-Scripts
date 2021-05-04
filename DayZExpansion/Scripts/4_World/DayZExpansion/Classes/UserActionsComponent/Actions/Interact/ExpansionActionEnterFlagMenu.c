@@ -85,7 +85,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		if ( !m_TerritoryModule )
 			return false;
 		
-		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 0 )
+		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Disabled )
 			return false;
 		
 		//! Is this a new flag ?
@@ -103,7 +103,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 				//! Is flag already a territory flag?
 				if ( flag.HasExpansionTerritoryInformation() )
 				{
-					if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 )
+					if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Enabled )
 					{
 						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS TERRITORY FLAG!");
@@ -123,11 +123,47 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS NORMAL FLAG!");
-					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] End and return true!");
 					#endif
-					m_ActionCreate = true;
-					//! If flag is a normal flag anyone can access the menu?!
-					return true;
+
+					//! Is the player outside of any potential territories and their perimeters ?
+					if ( !player.IsInTerritoryOrPerimeter() )
+					{
+						m_ActionCreate = true; //! Add the create territory action
+
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] is not inside a territory or perimeter, end and return true!");
+						#endif
+
+						return true;
+					}
+
+					//! Is the player the owner of the nearest Territory and inside it ?
+					if ( player.IsInsideOwnTerritory() )
+					{
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] is inside own territory, end and return true!");
+						#endif
+
+						return true;
+					}
+
+					//! Is the player the owner of the nearest Territory but in his perimeter ?
+					if ( player.IsInsideOwnPerimeter() )
+					{
+						m_ActionCreate = true; //! Add the create territory action
+
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] is inside own territory perimeter, end and return true!");
+						#endif
+
+						return true;
+					}
+
+					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+					EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - [2] is inside other player territory, end and return false!");
+					#endif
+
+					return false;
 				}
 			}
 		}

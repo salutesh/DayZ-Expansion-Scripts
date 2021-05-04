@@ -47,11 +47,6 @@ class ExpansionVehicleSteering
 		delete m_CenteringSpeed;
 	}
 
-	void ExpansionDebugUI( string message = "" )
-	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_ENGINE, message );
-	}
-
 	float CalculateChange( float pDt, float pSpeed, float pCurrent, float pTarget )
 	{
 		float currentAbs = Math.AbsFloat( pCurrent );
@@ -112,24 +107,14 @@ class ExpansionVehicleSteering
 				float s2 = pValues[ c2 + 1 ];
 				
 				float speedLerp = 1.0 - ( cs2 - pSpeed ) / ( cs2 - cs1 );
-				
-				//ExpansionDebugUI("cs1: " + cs1);
-				//ExpansionDebugUI("cs2: " + cs2);
-				//ExpansionDebugUI(" s1: " + s1);
-				//ExpansionDebugUI(" s2: " + s2);
-				//ExpansionDebugUI("  l: " + speedLerp);
-				
+								
 				speed = Math.Lerp( s1, s2, speedLerp ) * Math.DEG2RAD;
-				
-				//ExpansionDebugUI("  s: " + (speed * Math.RAD2DEG * 40.0));
 				
 				return speed;
 			}
 		}
 		
 		speed = pValues[pValues.Count() - 1] * Math.DEG2RAD;
-		
-		//ExpansionDebugUI("  s: " + (speed * Math.RAD2DEG * 40.0));
 		
 		return speed;
 

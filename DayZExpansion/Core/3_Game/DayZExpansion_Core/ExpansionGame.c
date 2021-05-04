@@ -12,8 +12,10 @@
 
 class ExpansionGame
 {
+	ref ExpansionUIManager m_ExUIManager;
+
 	// ------------------------------------------------------------
-	// Expansion Constructor
+	// ExpansionGame Constructor
 	// ------------------------------------------------------------
 	void ExpansionGame()
 	{
@@ -21,13 +23,59 @@ class ExpansionGame
 		EXPrint("ExpansionGame::ExpansionGame - Start");
 		#endif
 
+		CreateExpansionUIManager();
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGame::ExpansionGame - End");
 		#endif
 	}
 
 	// ------------------------------------------------------------
-	// Expansion FirearmEffects
+	// ExpansionGame Destructor
+	// ------------------------------------------------------------	
+	void ~ExpansionGame()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionGame::~ExpansionGame - Start");
+		#endif
+		
+		DestroyExpansionUIManager();
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionGame::~ExpansionGame - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionGame CreateExpansionUIManager
+	// ------------------------------------------------------------		
+	void CreateExpansionUIManager()
+	{
+		if (!m_ExUIManager)
+		{
+			m_ExUIManager = new ExpansionUIManager();
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionGame DestroyExpansionUIManager
+	// ------------------------------------------------------------	
+	void DestroyExpansionUIManager()
+	{
+		if (m_ExUIManager)
+			delete m_ExUIManager;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionGame GetExpansionUIManager
+	// ------------------------------------------------------------
+	ExpansionUIManager GetExpansionUIManager()
+	{
+		return m_ExUIManager;
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionGame FirearmEffects
 	// ------------------------------------------------------------
 	void FirearmEffects( Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType ) 
 	{
@@ -40,27 +88,36 @@ class ExpansionGame
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionGame OnStart
+	// ------------------------------------------------------------	
 	void OnStart()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionGame OnLoaded
+	// ------------------------------------------------------------
 	void OnLoaded()
 	{
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionGame OnFinish
+	// ------------------------------------------------------------
 	void OnFinish()
 	{
 	}
 
 	// ------------------------------------------------------------
-	// Expansion OnUpdate
+	// ExpansionGame OnUpdate
 	// ------------------------------------------------------------
 	void OnUpdate( bool doSim, float timeslice ) 
 	{
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion OnRPC
+	// ExpansionGame OnRPC
 	// ------------------------------------------------------------
 	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
 	{

@@ -49,6 +49,7 @@ modded class JMVehicleSpawnerSettings
 		//DefaultExpansion250N();
 		//DefaultExpansionOldBike();
 
+		#ifdef EXPANSION_COT_VEHICLE_JACOB
 		DefaultVehicle_ExpansionMerlin();
 		DefaultVehicle_ExpansionMh6();
 		DefaultVehicle_ExpansionUh1h();
@@ -80,9 +81,10 @@ modded class JMVehicleSpawnerSettings
 		DefaultVehicle_Hatchback_02();
 		DefaultVehicle_Sedan_02();
 		DefaultVehicle_Truck_01_Covered();
-		DefaultVehicle_Truck_01_Chassis();
-		DefaultVehicle_Truck_01_Cargo();
-		DefaultVehicle_Truck_01_Command();
+		//DefaultVehicle_Truck_01_Chassis();
+		//DefaultVehicle_Truck_01_Cargo();
+		//DefaultVehicle_Truck_01_Command();
+		#endif
 	}
 
 	void DefaultVehicle_ExpansionMerlin()

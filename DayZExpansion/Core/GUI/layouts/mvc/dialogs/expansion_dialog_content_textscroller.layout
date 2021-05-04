@@ -1,0 +1,39 @@
+ScrollWidgetClass ExpansionDialogTextScroller {
+ position 0 0
+ size 0.95 150
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ scriptclass "ExpansionDialogContent_TextScrollerController"
+ {
+  RichTextWidgetClass dialog_scroller_text {
+   clipchildren 1
+   ignorepointer 1
+   color 1 1 1 1
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   text "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "size to text h" 0
+   "size to text v" 1
+   wrap 1
+   {
+    ScriptParamsClass {
+     Debug_Logging 0
+     Binding_Name "DialogText"
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+  }
+ }
+}

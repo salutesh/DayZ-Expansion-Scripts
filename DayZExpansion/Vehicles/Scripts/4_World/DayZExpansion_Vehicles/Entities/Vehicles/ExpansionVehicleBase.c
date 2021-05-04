@@ -65,9 +65,6 @@ class ExpansionVehicleBase extends ItemBase
 
 	protected bool m_HornPlaying;
 	protected bool m_HornSynchRemote;
-	
-	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
 
 	// Towing
 	protected vector m_TowPointCenter;
@@ -248,7 +245,7 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	void ExpansionVehicleBase()
 	{
-		Print( "[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION" );
+		Print( "[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION - ARMA 4" );
 		
 		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
 		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
@@ -365,7 +362,6 @@ class ExpansionVehicleBase extends ItemBase
 		RegisterNetSyncVariableBool( "m_EngineIsOn" );
 		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
 		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
-		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" );
 		
 		RegisterNetSyncVariableFloat( "m_FuelAmmount", 0, 0, 4 );
 		RegisterNetSyncVariableFloat( "m_CoolantAmmount", 0, 0, 4 );
@@ -394,6 +390,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Axles";
 		count = GetGame().ConfigGetChildrenCount( path );
+
 		for ( i = 0; i < count; i++ )
 		{
 			string axleName;
@@ -469,8 +466,6 @@ class ExpansionVehicleBase extends ItemBase
 		ConfigGetTextArray( "doors", m_Doors );
 
 		m_CanHaveLock = m_Doors.Count() > 0;
-		
-		m_SafeZone = false;
 
 		string cHSSE = "hornSoundSetEXT";
 		if ( ConfigIsExisting( cHSSE ) )
@@ -908,12 +903,6 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	void ExpansionDebugUI( string message = "" )
-	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CAR, message );
-	}
-
-	// ------------------------------------------------------------
 	void UpdateExpansionController()
 	{
 		if ( m_Controller )
@@ -1042,7 +1031,11 @@ class ExpansionVehicleBase extends ItemBase
 		foreach ( ExpansionVehicleSound sound : m_SoundControllers )
 			sound.Update( pDt, m_SoundVariables );
 		
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_SOUND, "Ticks: " + TickCount( start ) );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		
+		dbg_Vehicle.Set("Ticks", TickCount( start ) );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1078,7 +1071,10 @@ class ExpansionVehicleBase extends ItemBase
 		//if ( !CanSimulate() )
 		//	return;
 
-		ExpansionDebugUI( "[[ " + this + " ]]" );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		dbg_Vehicle.SetBuffered(true, true);
+		#endif
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 
@@ -1152,9 +1148,11 @@ class ExpansionVehicleBase extends ItemBase
 			Error("Should not reach here...");
 		}
 			
-		ExpansionDebugUI( "m_WasPhysicsHost: " + m_WasPhysicsHost );
-		ExpansionDebugUI( "m_IsPhysicsHost: " + m_IsPhysicsHost );
-		ExpansionDebugUI( "m_IsForcingPhysics: " + m_IsForcingPhysics );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE		
+		dbg_Vehicle.Set("Was Physics Host", m_WasPhysicsHost);
+		dbg_Vehicle.Set("Is Physics Host", m_IsPhysicsHost);
+		dbg_Vehicle.Set("Is Forcing Physics", m_IsForcingPhysics);
+		#endif
 
 		m_HasDriver = false;
 		if ( driver && m_IsPhysicsHost )
@@ -1196,10 +1194,11 @@ class ExpansionVehicleBase extends ItemBase
 			
 			dBodyEnableGravity( this, false );
 
-			ExpansionDebugUI( "Mass: " + m_BodyMass + " (Center of Mass: " + m_BodyCenterOfMass + ")");
-
-			ExpansionDebugUI( "Linear Velocity (WS): " + m_LinearVelocity );
-			ExpansionDebugUI( "Linear Velocity (MS): " + m_LinearVelocityMS );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE		
+			dbg_Vehicle.Set("Mass", "" + m_BodyMass + " | " + m_BodyCenterOfMass);
+			dbg_Vehicle.Set("Linear Velocity (WS)", m_LinearVelocity);
+			dbg_Vehicle.Set("Linear Velocity (MS)", m_LinearVelocityMS);
+			#endif
 
 			m_InvInertiaTensor = dBodyGetLocalInertia( this );
 			
@@ -1274,7 +1273,9 @@ class ExpansionVehicleBase extends ItemBase
 			}
 		}
 
-		ExpansionDebugUI( "stateF: " + stateF );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("StateF", stateF );
+		#endif
 		
 		if ( stateF != stateB )
 		{
@@ -1287,10 +1288,9 @@ class ExpansionVehicleBase extends ItemBase
 		if ( GetGame().IsMultiplayer() )
 			SetSynchDirty();
 		
-		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_WHEELS );
-		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_CAR );
-		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_ENGINE );
-		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_SOUND );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.SwapBuffer();
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -2147,6 +2147,16 @@ class ExpansionVehicleBase extends ItemBase
 		return -1;
 	}
 	
+	bool IsIgnoredObject( Object o )
+	{
+		if (!o)
+			return false;		
+		
+		EntityAI e = EntityAI.Cast(o);			
+		// CanBeSkinned means it is a dead entity which should not block the door
+		return ( ( e && e.IsZombie() ) || o.CanBeSkinned() || o.IsBush() || o.IsTree() );
+	}
+	
 	bool IsAreaAtDoorFree( int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7 )
 	{
 		vector crewPos;
@@ -2750,55 +2760,58 @@ class ExpansionVehicleBase extends ItemBase
 			default:
 				if ( GetGame().IsServer() && zoneName != "")
 				{
-					float dmgMin = 150.0;	
-					float dmgThreshold = 750.0;
-					float dmgKillCrew = 3000.0;
-					float dmg = data.Impulse * m_dmgContactCoef;
-
-					if ( dmg < dmgThreshold )
-					{					
-						if ( dmg > dmgMin )
-						{
-							//Print( GetType() + " >>> " + " smlHit >>> " + "zoneName: "  + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h");
-							AddHealth( zoneName, "Health", -dmg);
-							//m_PlayCrashSoundLight = true;
-							SynchCrashLightSound( true );
-						}
-					}
-					else
+					if ( CanBeDamaged() )
 					{
-						//Print( GetType() + " >>> " + " BIGHit >>> " + "zoneName: " + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h" );
-						for( int i =0; i < CrewSize(); i++ )
-						{
-							Human crew = CrewMember( i );
-							if ( !crew )
-								continue;
+						float dmgMin = 150.0;	
+						float dmgThreshold = 750.0;
+						float dmgKillCrew = 3000.0;
+						float dmg = data.Impulse * m_dmgContactCoef;
 
-							PlayerBase player;
-							if ( Class.CastTo(player, crew ) )
+						if ( dmg < dmgThreshold )
+						{					
+							if ( dmg > dmgMin )
 							{
-								if ( dmg > dmgKillCrew )
-								{		
-									player.SetHealth(0.0);
-								}
-								else
-								{
-									//deal shock to player
-									float shockTemp = Math.InverseLerp(dmgThreshold, dmgKillCrew, dmg);
-									float shock = Math.Lerp( 50, 100, shockTemp );
-									float hp = Math.Lerp( 2, 60, shockTemp );
-
-									player.AddHealth("", "Shock", -shock );
-									player.AddHealth("", "Health", -hp );
-									//Print( "SHOCK..........." + shock );
-									//Print( "HEALTH..........." + hp );
-								}
+								//Print( GetType() + " >>> " + " smlHit >>> " + "zoneName: "  + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h");
+								AddHealth( zoneName, "Health", -dmg);
+								//m_PlayCrashSoundLight = true;
+								SynchCrashLightSound( true );
 							}
 						}
+						else
+						{
+							//Print( GetType() + " >>> " + " BIGHit >>> " + "zoneName: " + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h" );
+							for( int i =0; i < CrewSize(); i++ )
+							{
+								Human crew = CrewMember( i );
+								if ( !crew )
+									continue;
 
-						//m_PlayCrashSoundHeavy = true;
-						SynchCrashHeavySound( true );
-						ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg );
+								PlayerBase player;
+								if ( Class.CastTo(player, crew ) )
+								{
+									if ( dmg > dmgKillCrew )
+									{		
+										player.SetHealth(0.0);
+									}
+									else
+									{
+										//deal shock to player
+										float shockTemp = Math.InverseLerp(dmgThreshold, dmgKillCrew, dmg);
+										float shock = Math.Lerp( 50, 100, shockTemp );
+										float hp = Math.Lerp( 2, 60, shockTemp );
+
+										player.AddHealth("", "Shock", -shock );
+										player.AddHealth("", "Health", -hp );
+										//Print( "SHOCK..........." + shock );
+										//Print( "HEALTH..........." + hp );
+									}
+								}
+							}
+
+							//m_PlayCrashSoundHeavy = true;
+							SynchCrashHeavySound( true );
+							ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg );
+						}
 					}
 				}
 			break;
@@ -3029,9 +3042,9 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	void KeyMessage( string message )
+	void KeyMessage(string message)
 	{
-		Message( GetPlayer(), message );
+		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
 	}
 
 	// ------------------------------------------------------------
@@ -3067,6 +3080,36 @@ class ExpansionVehicleBase extends ItemBase
 	int GetPersistentIDD()
 	{
 		return m_PersistentIDD;
+	}
+
+	// ------------------------------------------------------------
+	void SetPersistentIDA(int newIDA)
+	{
+		m_PersistentIDA = newIDA;
+	}
+
+	// ------------------------------------------------------------
+	void SetPersistentIDB(int newIDB)
+	{
+		m_PersistentIDB = newIDB;
+	}
+
+	// ------------------------------------------------------------
+	void SetPersistentIDC(int newIDC)
+	{
+		m_PersistentIDC = newIDC;
+	}
+
+	// ------------------------------------------------------------
+	void SetPersistentIDD(int newIDD)
+	{
+		m_PersistentIDD = newIDD;
+	}
+
+	// ------------------------------------------------------------
+	void SetLockedState(ExpansionVehicleLockState newLockState)
+	{
+		m_VehicleLockedState = newLockState;
 	}
 
 	// ------------------------------------------------------------
@@ -3188,6 +3231,14 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 	}
 
+	void UnlockCarWithoutKey()
+	{
+		m_VehicleLockedState = ExpansionVehicleLockState.FORCEDUNLOCKED;
+
+		OnCarUnlocked();
+		SetSynchDirty();
+	}
+
 	// ------------------------------------------------------------
 	void OnCarLocked()
 	{
@@ -3254,57 +3305,44 @@ class ExpansionVehicleBase extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	void OnHonkSoundPlay()
+	void OnHornSoundPlay()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHonkSoundPlay - Start");
+		EXPrint("CarScript::OnHornSoundPlay - Start");
 		#endif
 
-		m_HornPlaying = true;
-		
-		Object battery;
-		if (IsVitalCarBattery()) battery = this.FindAttachmentBySlotName("CarBattery");
-		if (IsVitalTruckBattery()) battery = this.FindAttachmentBySlotName("TruckBattery");
-		
-		if (battery)
-		{
-			if (GetGame().GetPlayer().IsCameraInsideVehicle())
-				m_HornSound = SEffectManager.PlaySoundOnObject( m_HornSoundSetINT, this );
-			else
-				m_HornSound = SEffectManager.PlaySoundOnObject( m_HornSoundSetEXT, this );
-		}
-		
-		m_HornSound.SetSoundAutodestroy( true );
+		string soundFile = m_HornSoundSetEXT;
+		if (GetGame().GetPlayer().IsCameraInsideVehicle()) soundFile = m_HornSoundSetINT;
 
+		m_HornSound = SEffectManager.PlaySoundOnObject( soundFile, this );
+		m_HornSound.SetSoundAutodestroy( true );
 		m_HornSound.SetSoundLoop( true );
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHonkSoundPlay - End");
+		EXPrint("CarScript::OnHornSoundPlay - End");
 		#endif
 	}
 
 	// ------------------------------------------------------------
-	void OnHonkSoundStop()
+	void OnHornSoundStop()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHonkSoundStop - Start");
+		EXPrint("CarScript::OnHornSoundStop - Start");
 		#endif
-
-		m_HornPlaying = false;
 
 		m_HornSound.SetSoundLoop( false );
 		m_HornSound.SoundStop();
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHonkSoundStop - End");
+		EXPrint("CarScript::OnHornSoundStop - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	void PlayHonk()
+	void PlayHorn()
 	{	
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PlayHonk - Start");
+		EXPrint("CarScript::PlayHorn - Start");
 		#endif
 
 		m_HornSynchRemote = true;
@@ -3313,15 +3351,15 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PlayHonk - End");
+		EXPrint("CarScript::PlayHorn - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	void StopHonk()
+	void StopHorn()
 	{	
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::StopHonk - Start");
+		EXPrint("CarScript::StopHorn - Start");
 		#endif
 
 		m_HornSynchRemote = false;
@@ -3330,7 +3368,7 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::StopHonk - End");
+		EXPrint("CarScript::StopHorn - End");
 		#endif
 	}
 	
@@ -3634,36 +3672,33 @@ class ExpansionVehicleBase extends ItemBase
 		if ( Expansion_Assert_False( storage.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
 			return false;
 
-		if ( GetExpansionSaveVersion() >= 7 )
+		if ( Expansion_Assert_False( storage.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			return false;
+		if ( Expansion_Assert_False( storage.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			return false;
+
+		if ( m_IsBeingTowed )
 		{
-			if ( Expansion_Assert_False( storage.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
 				return false;
+			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+				return false;
+		}
 
-			if ( m_IsBeingTowed )
-			{
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
-					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
-					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
-					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
-					return false;
-			}
-
-			if ( m_IsTowing )
-			{
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
-					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
-					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
-					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
-					return false;
-			}
+		if ( m_IsTowing )
+		{
+			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+				return false;
 		}
 
 		return true;
@@ -3839,6 +3874,47 @@ class ExpansionVehicleBase extends ItemBase
 	float GetActionDistanceBrakes()
 	{
 		return 2.0;
+	}
+
+	// ------------------------------------------------------------
+	bool HasBattery()
+	{
+		ItemBase battery;
+
+		if (IsVitalCarBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+		if (IsVitalTruckBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		if (IsVitalHelicopterBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+		if (IsVitalAircraftBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+
+		if (!battery) return false;
+
+		return true;
+	}
+
+	// ------------------------------------------------------------
+	ItemBase GetBattery()
+	{
+		if (IsVitalCarBattery()) return ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+		if (IsVitalTruckBattery()) return ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		if (IsVitalHelicopterBattery()) return ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+		if (IsVitalAircraftBattery()) return ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+
+		return null;
+	}
+
+	// ------------------------------------------------------------
+	bool IsBatteryWorking()
+	{
+		ItemBase battery;
+
+		if (IsVitalCarBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+		if (IsVitalTruckBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		if (IsVitalHelicopterBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+		if (IsVitalAircraftBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+
+		if (!battery || battery.IsRuined()) return false;
+
+		return true;
 	}
 
 	// ------------------------------------------------------------
@@ -4396,6 +4472,17 @@ class ExpansionVehicleBase extends ItemBase
 
 		return true;
 	}
+
+	// ------------------------------------------------------------
+	override bool CanBeDamaged()
+	{
+		if ( GetExpansionSettings().GetVehicle().DisableVehicleDamage )
+		{
+			return false;
+		}
+
+		return true;
+	}
 	
 	// ------------------------------------------------------------
 	float GetCameraHeight()
@@ -4460,4 +4547,19 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return NULL;
 	} 
+	
+	/**
+	 * @param damageResult 
+	 * @param source 
+	 * @param component 
+	 * @param dmgZone 
+	 * @param ammo 
+	 * @param modelPos 
+	 * @param speedCoef 
+	 */
+	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
+	{
+		if ( CanBeDamaged() )
+			super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
+	}
 };

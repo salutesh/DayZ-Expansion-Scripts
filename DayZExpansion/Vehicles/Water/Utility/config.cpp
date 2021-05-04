@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Boat_Utility
 	{
-		units[] = {"ExpansionUtilityBoat","Vehicle_ExpansionUtilityBoat","ExpansionSpraycanBlack","Vehicle_ExpansionUtilityBoat_Black","ExpansionUtilityBoat_Black"};
+		units[] = {"ExpansionUtilityBoat","Vehicle_ExpansionUtilityBoat","ExpansionSpraycanBlack","Vehicle_ExpansionUtilityBoat_Black","ExpansionUtilityBoat_Black","ExpansionSpraycanGreen","ExpansionUtilityBoat_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -440,5 +440,18 @@ class CfgVehicles
 	{
 		skinBase = "ExpansionUtilityBoat";
 		skinName = "Black";
+	};
+	class ExpansionSpraycanGreen: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
+		skinName = "Green";
+	};
+	class ExpansionUtilityBoat_Green: ExpansionUtilityBoat
+	{
+		skinBase = "ExpansionUtilityBoat";
+		skinName = "Green";
 	};
 };

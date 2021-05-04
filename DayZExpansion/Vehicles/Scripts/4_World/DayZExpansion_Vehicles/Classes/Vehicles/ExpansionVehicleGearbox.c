@@ -21,10 +21,12 @@ class ExpansionVehicleGearbox
 	private float m_Reverse;
 	private ref array< float > m_Ratios;
 
-	private float m_ClutchAmt;
-
 	private int m_Gear;
+	private int m_ReportingGear;
+	
 	private bool m_Clutch;
+	private float m_ClutchAmt;
+	private int m_ClutchState; // 0 - nothing, 1 - pressing, 2 - reached, 3 - releasing
 	
 	void ExpansionVehicleGearbox( ExpansionVehicleBase vehicle )
 	{
@@ -71,23 +73,53 @@ class ExpansionVehicleGearbox
 
 	float OnUpdate( bool clutch, int newGear, float pDt )
 	{
-		m_ClutchAmt = Math.Clamp( Math.Clamp( clutch - m_ClutchAmt, -pDt / m_TimeToUncoupleClutch, pDt / m_TimeToCoupleClutch ), 0.0, 1.0 );
+		if (clutch && m_ClutchState == 0)
+			m_ClutchState = 1;
 
-		if (m_Gear != newGear)
-			m_Vehicle.OnGearChanged(newGear, m_Gear);
+		float clutchDt;
+		
+		switch(m_ClutchState)
+		{
+		case 1:
+			clutchDt = pDt / m_TimeToCoupleClutch;
+			if (m_ClutchAmt + clutchDt >= 1.0)
+				m_ClutchState+=1;
 
-		m_Gear = newGear;
+			if (m_ClutchAmt < 0.5)
+				m_Gear = newGear;
+			break;
+		case 2:
+				m_ClutchState+=1;
+			break;
+		case 3:
+			clutchDt = -pDt / m_TimeToUncoupleClutch;
+			if (m_ClutchAmt + clutchDt <= 0)
+				m_ClutchState = 0;
+			break;
+		}
+		
+		m_ClutchAmt = Math.Clamp( m_ClutchAmt + clutchDt, 0.0, 1.0 );
 
-		//if ( m_ClutchAmt >= 0.75 )
-		//{
-		//	m_Gear = newGear;
-		//	return 1.0;
-		//}
-
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		
+		dbg_Vehicle.Set("Clutch", clutch);
+		dbg_Vehicle.Set("Time To Couple Clutch", m_TimeToCoupleClutch);
+		dbg_Vehicle.Set("Time To Uncouple Clutch", m_TimeToUncoupleClutch);
+		dbg_Vehicle.Set("Clutch Amt", m_ClutchAmt);
+		dbg_Vehicle.Set("Reporting Gear", m_ReportingGear);
+		dbg_Vehicle.Set("Gear", m_Gear);
+		#endif
+		
 		if ( m_ClutchAmt > 0.0 )
-			return 0.0;
+			return Get( m_ReportingGear );
+		
+		if (m_ReportingGear != m_Gear)
+			m_Vehicle.OnGearChanged(m_Gear, m_ReportingGear);
+		
+		m_ReportingGear = m_Gear;
 
-		return Get( m_Gear );
+		return Get(m_Gear);
 	}
 
 	float GetClutch()
@@ -97,6 +129,6 @@ class ExpansionVehicleGearbox
 
 	int GetCurrentGear()
 	{
-		return m_Gear;
+		return m_ReportingGear;
 	}
 };

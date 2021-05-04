@@ -22,6 +22,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ExpansionBarrierGate()
 	{
+		m_CurrentBuild = "metal";
 	}
 
 	// ------------------------------------------------------------
@@ -29,6 +30,14 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ~ExpansionBarrierGate()
 	{
+	}
+
+	// ------------------------------------------------------------
+	// CanPutIntoHands
+	// ------------------------------------------------------------
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -56,22 +65,14 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	}
 
 	// ------------------------------------------------------------
-	// SetActions
-	// ------------------------------------------------------------
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionFoldBaseBuildingObject);
-		//! AddAction(ExpansionActionOpen);
-		//! AddAction(ExpansionActionClose);
-	}
-
-	// ------------------------------------------------------------
 	// Expansion CanOpen
 	// ------------------------------------------------------------
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
+		if ( player.IsInTerritory() )
+			if ( !player.IsInsideOwnTerritory() )
+				return false;
+
 		if (selection == "gate" && GetAnimationPhase("gate") == 1)
 			return true;
 		
@@ -81,8 +82,17 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	// Expansion CanClose
 	// ------------------------------------------------------------
-	override bool CanClose( string selection )
+	override bool ExpansionCanClose( PlayerBase player, string selection )
 	{
+		if ( player.IsInTerritory() )
+			if ( !player.IsInsideOwnTerritory() )
+				return false;
+		
+		return CanClose( selection );
+	}
+
+	override bool CanClose( string selection )
+	{				
 		if (selection == "gate" && GetAnimationPhase("gate") == 0)
 			return true;
 		
@@ -124,7 +134,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -138,13 +148,13 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 
 		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
 			return false;

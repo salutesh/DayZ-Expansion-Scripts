@@ -47,6 +47,8 @@ modded class Weapon_Base
 
 		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
 		SetEventMask( EntityEvent.SIMULATE );
+
+		UpdateLaser();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Weapon_Base::Weapon_Base - End");
@@ -60,6 +62,13 @@ modded class Weapon_Base
 		UpdateLaser();
 	}
 
+	override void OnInventoryExit(Man player)
+	{
+		super.OnInventoryExit( player );
+
+		UpdateLaser();
+	}
+
 	override void UpdateLaser()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -67,6 +76,9 @@ modded class Weapon_Base
 		#endif
 		
 		if ( GetGame().IsServer() && GetGame().IsMultiplayer() )
+			return;
+
+		if ( !GetInventory() )
 			return;
 
 		ItemBase laser = ItemBase.Cast( FindAttachmentBySlotName( "weaponFlashlight" ) );

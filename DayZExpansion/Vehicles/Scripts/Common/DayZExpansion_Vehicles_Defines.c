@@ -9,3 +9,8 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+
+#define EXPANSIONMODVEHICLE
+
+//! Enable it if you want to enable skinning system debug logs
+//#define EXPANSION_VEHICLE_SKIN_LOGGING

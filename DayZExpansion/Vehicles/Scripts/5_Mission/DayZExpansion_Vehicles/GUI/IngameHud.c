@@ -97,7 +97,7 @@ modded class IngameHud
 		if ( m_LeftHudPanel )
 		{
 			//! Boat
-			m_BoatPanel								= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/hud/vehicles/boat.layout", m_LeftHudPanel );	
+			m_BoatPanel								= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/boat.layout", m_LeftHudPanel );	
 			if ( m_BoatPanel )
 			{
 				m_BoatPanel.Show( false );
@@ -119,7 +119,7 @@ modded class IngameHud
 			}
 			
 			//! Helicopter
-			m_HelicopterPanel						= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/hud/vehicles/helicopter.layout", m_LeftHudPanel );
+			m_HelicopterPanel						= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/helicopter.layout", m_LeftHudPanel );
 			if ( m_HelicopterPanel )
 			{
 				m_HelicopterPanel.Show( false );
@@ -144,7 +144,7 @@ modded class IngameHud
 			}
 			
 			//! Plane
-			m_PlanePanel							= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/hud/vehicles/plane.layout", m_LeftHudPanel );
+			m_PlanePanel							= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/plane.layout", m_LeftHudPanel );
 			if ( m_PlanePanel )
 			{
 				m_PlanePanel.Show( false );
@@ -746,21 +746,21 @@ modded class IngameHud
 	// ------------------------------------------------------------
 	// Expansion RefreshBikeHud
 	// ------------------------------------------------------------	
-	private void RefreshBikeHud( ExpansionVehicleBikeBase car, float timeslice )
+	private void RefreshBikeHud( ExpansionVehicleBikeBase bike, float timeslice )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::RefreshBikeHud - Start");
 		#endif
 
-		float rpm_value = ( car.EngineGetRPM() / car.EngineGetRPMMax() ) ;
-		float rpm_value_red = ( car.EngineGetRPMRedline() / car.EngineGetRPMMax() ) ;
-		float speed_value = ( car.GetSpeedometer() / 200 );
+		float rpm_value = ( bike.EngineGetRPM() / bike.EngineGetRPMMax() ) ;
+		float rpm_value_red = ( bike.EngineGetRPMRedline() / bike.EngineGetRPMMax() ) ;
+		float speed_value = ( bike.GetSpeedometer() / 200 );
 		
 		m_VehicleRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
-		m_VehicleSpeedValue.SetText( Math.Floor( car.GetSpeedometer() ).ToString() );
+		m_VehicleSpeedValue.SetText( Math.Floor( bike.GetSpeedometer() ).ToString() );
 
-		int engaged_gear = car.GetController().GetGear();
+		int engaged_gear = bike.GetGear();
 		
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;
@@ -776,10 +776,10 @@ modded class IngameHud
 		
 		bool newHealth = false;
 		
-		int health = car.GetHealthLevel( "Engine" );
-		float oilAmount = car.GetFluidFraction( CarFluid.OIL );
+		int health = bike.GetHealthLevel( "Engine" );
+		float oilAmount = bike.GetFluidFraction( CarFluid.OIL );
 		int color;
-		if ( car.EngineGetRPM() > car.EngineGetRPMRedline() /*|| (car.EngineIsOn() && oilAmount < 0.25)*/ )
+		if ( bike.EngineGetRPM() > bike.EngineGetRPMRedline() /*|| (bike.EngineIsOn() && oilAmount < 0.25)*/ )
 		{
 			if ( m_TimeSinceLastEngineLightChange > 0.35 )
 			{
@@ -793,7 +793,7 @@ modded class IngameHud
 			newHealth = true;
 		} else if ( health > 1 && health < 5 )
 		{
-			color = ItemManager.GetItemHealthColor( car, "Engine" );
+			color = ItemManager.GetItemHealthColor( bike, "Engine" );
 			
 			m_VehicleEngineLight.SetColor( color );
 			m_VehicleEngineLight.SetAlpha( 1 );
@@ -816,8 +816,8 @@ modded class IngameHud
 		m_VehicleNextGearValue.SetText( m_VehicleGearTable.Get( next_gear ) );
 		m_VehiclePrevGearValue.SetText( m_VehicleGearTable.Get( prev_gear ) );
 			
-		m_VehicleFuelPointer.SetRotation( 0, 0, car.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
-		m_VehicleTemperaturePointer.SetRotation( 0, 0, -1 * car.GetFluidFraction( CarFluid.COOLANT ) * 260 + 130, true );
+		m_VehicleFuelPointer.SetRotation( 0, 0, bike.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
+		m_VehicleTemperaturePointer.SetRotation( 0, 0, -1 * bike.GetFluidFraction( CarFluid.COOLANT ) * 260 + 130, true );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::RefreshBikeHud - End");
@@ -841,7 +841,7 @@ modded class IngameHud
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
 		m_VehicleSpeedValue.SetText( Math.Floor( car.GetSpeedometer() ).ToString() );
 
-		int engaged_gear = car.GetController().GetGear();
+		int engaged_gear = car.GetGear();
 		
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;

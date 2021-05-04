@@ -130,7 +130,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	private void UpdateEntry()
 	{
-		if (m_Marker != NULL)
+		if (m_Marker != NULL && m_Marker.GetMarkerData())
 		{
 			m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
 			m_Icon.SetImage(0);
@@ -227,7 +227,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void Update()
 	{
-		#ifdef EXPANSION_MAP_MENU_DEBUG
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::Update - Start");
 		#endif
 		
@@ -236,9 +236,9 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 			RemoveMarker();
 		}
 		
-	   	UpdateEntry();
+		UpdateEntry();
 		
-		#ifdef EXPANSION_MAP_MENU_DEBUG
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 	   	EXLogPrint("ExpansionMapMarkerListEntry::Update - End");
 		#endif
 	}

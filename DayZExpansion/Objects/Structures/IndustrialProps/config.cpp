@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Objects_Structures_Props
+	class DayZExpansion_Objects_Structures_IndustrialProps
 	{
 		units[] = {"ExpansionIndustrialProp_Barrel1","ExpansionIndustrialProp_Box1","ExpansionIndustrialProp_Box2","ExpansionIndustrialProp_Box3","ExpansionIndustrialProp_CartonBox1","ExpansionIndustrialProp_CartonBox2","ExpansionIndustrialProp_CartonBox3","ExpansionIndustrialProp_CartonGarbage1","ExpansionIndustrialProp_CartonGarbage2","ExpansionIndustrialProp_CartonGarbage3","ExpansionIndustrialProp_CartonGarbage4","ExpansionIndustrialProp_CartonGarbage5","ExpansionIndustrialProp_CartonGarbage6","ExpansionIndustrialProp_CartonGarbage7","ExpansionIndustrialProp_CartonGarbage8","ExpansionIndustrialProp_CartonGarbage9","ExpansionIndustrialProp_Hose","ExpansionIndustrialProp_Newspaper1","ExpansionIndustrialProp_Newspaper2","ExpansionIndustrialProp_Newspaper3","ExpansionIndustrialProp_Pallet1","ExpansionIndustrialProp_Rack1","ExpansionIndustrialProp_Rack2","ExpansionIndustrialProp_RackBroken","ExpansionIndustrialProp_RackComplete","ExpansionIndustrialProp_RackNoBottom","ExpansionIndustrialProp_RackNoTop","ExpansionIndustrialProp_Tarp1","ExpansionIndustrialProp_Tarp2","ExpansionIndustrialProp_TrafficBarrel1","ExpansionIndustrialProp_WaterTank"};
 		weapons[] = {};

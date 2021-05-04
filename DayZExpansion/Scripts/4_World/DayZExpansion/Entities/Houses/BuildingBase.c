@@ -273,13 +273,21 @@ modded class BuildingBase
 		if (ent)
 		{			
 			ItemBase item = ItemBase.Cast( ent );
+			EntityAI ent_ai;
 			if (item)
 			{
-				//Make it not takeable
+				// TODO: Do we actually need this, i.e. is there anything that we spawn that inherits from ItemBase?
+
 				item.SetTakeable(false);
 				
+				// Make it not CE saved (would this actually work as intended?)
 				if ( IsMissionHost() ) 
 					item.SetLifetimeMax(1.0);
+			} else if ( Class.CastTo( ent_ai, obj ) )
+			{
+				// Set lifetime to 45 days, otherwise it would default to roughly half an hour
+				if ( IsMissionHost() )
+					ent_ai.SetLifetimeMax(3888000);
 			}
 		
 			ent.DisableSimulation(true);
@@ -420,15 +428,38 @@ modded class BuildingBase
 	// ------------------------------------------------------------
  	override void Explode(int damageType, string ammoType = "")
 	{
+		super.Explode(damageType, ammoType);
+
+		ExpansionExplode( this, ammoType );
+	}
+
+	static void ExpansionExplode( EntityAI entity, string ammoType )
+	{
+		if ( !IsMissionHost() )
+			return;
+
 		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
 		float blastDropoff = 1;
 		float blastDistance;
 		float blastRange = 5;
 		float blastDropoffRange = 2.5;
-		super.Explode(damageType, ammoType);
+		bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
+
+		for ( int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); x++ )
+		{
+			if ( entity.IsKindOf( GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x] ) )
+			{
+				dealDamage = true;
+				break;
+			}
+		}
+
+		if ( !dealDamage )
+			return;
+
 		//(point - min ) / (max - min ) 
 		if (ammoType == "")
-			ammoType = this.ConfigGetString("ammoType");
+			ammoType = entity.ConfigGetString("ammoType");
 		
 
 		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
@@ -436,31 +467,23 @@ modded class BuildingBase
 		
 		ref array<Object> nearest_objects = new array<Object>;
 		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D( this.GetPosition(), blastRange, nearest_objects, proxy_cargos );
+		GetGame().GetObjectsAtPosition3D( entity.GetPosition(), blastRange, nearest_objects, proxy_cargos );
 		for ( int i = 0; i < nearest_objects.Count(); i++ )
 		{
-			bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
-			Object nearest_object = nearest_objects.Get(i);
+			ItemBase nearest_item = ItemBase.Cast( nearest_objects.Get(i) );
 
-			if ( nearest_object.IsInherited( ExpansionBaseBuilding ) )
+			if ( nearest_item && nearest_item.IsInherited( ExpansionBaseBuilding ) && nearest_item.CanBeDamaged() )
 			{
-				blastDistance = vector.Distance(nearest_object.GetPosition(), this.GetPosition());
+				blastDistance = vector.Distance(nearest_item.GetPosition(), entity.GetPosition());
 				if (blastDistance > blastDropoffRange)
 					blastDropoff = (1 - (blastDistance - blastDropoffRange) / (blastRange - blastDropoffRange));
 				else 
 					blastDropoff = 1;
 				
-				
-				for (int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); ++x)
-				{
-
-					if (this.IsKindOf(GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x]))
-					{
-						dealDamage = true;
-					}
-				}
-				if (dealDamage)
-					nearest_object.AddHealth( "GlobalHealth", "Health", ( explosionDamage * blastDropoff * explosionDamageMultiplier * -1) ); 
+				float health = nearest_item.m_CurrentHealth["GlobalHealth"];
+				nearest_item.AddHealth( "GlobalHealth", "Health", -( explosionDamage * blastDropoff * explosionDamageMultiplier ) ); 
+				nearest_item.m_CurrentHealth["GlobalHealth"] = nearest_item.GetHealth();
+				nearest_item.RaidLog( entity, "GlobalHealth", health, explosionDamage * blastDropoff, explosionDamageMultiplier );
 			}
 		}
 	}

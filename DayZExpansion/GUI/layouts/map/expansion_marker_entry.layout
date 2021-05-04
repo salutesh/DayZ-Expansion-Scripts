@@ -35,7 +35,7 @@ PanelWidgetClass marker_icon_container {
      vexactpos 0
      hexactsize 1
      vexactsize 0
-     imageTexture "{83F4855ACB544999}DayZExpansion/GUI/textures/expansion_icon.edds"
+     imageTexture "{83F4855ACB544999}DayZExpansion/Core/GUI/textures/expansion_icon.edds"
      mode blend
      "src alpha" 1
      "no wrap" 1
@@ -45,7 +45,7 @@ PanelWidgetClass marker_icon_container {
      clipchildren 1
      ignorepointer 1
      position 30 0
-     size 1 1
+     size 0.98 1
      valign center_ref
      hexactpos 1
      vexactpos 0

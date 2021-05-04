@@ -149,7 +149,7 @@ modded class InGameMenu
 		if (GetExpansionSettings().GetGeneral().UseNewsFeedInGameMenu)
 		{
 			//! Newsfeed
-			m_NewsfeedPanel 					= Widget.Cast(layoutRoot.FindAnyWidget( "NewsFeedPanel" ));
+			m_NewsfeedPanel 	= Widget.Cast(layoutRoot.FindAnyWidget( "NewsFeedPanel" ));
 			m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
 		}
 		
@@ -335,18 +335,21 @@ modded class InGameMenu
 	private void UpdatePlayerStatValues()
 	{
 		GetValuesFromMonitor();
-		
-		string name = GetGame().GetPlayer().GetIdentity().GetName();
-		ref StringLocaliser player_name = new StringLocaliser( "STR_EXPANSION_DEADSCREEN_STATS_TITLE", name );
-		
-		m_DeadSceenStatsPanelTitle.SetText( player_name.Format() );
-		//m_DeadSourceVal.SetText( "" );
-		m_LongestShotVal.SetText( GetDistanceString( m_LongestShot ) );
-		m_DistanceVal.SetText( GetDistanceString( m_Distance ) );
-		m_AnimalsKilledVal.SetText( GetValueString( m_AnimalsKilled ) );
-		m_InfectedKilledVal.SetText( GetValueString( m_InfectedKilled ) );
-		m_PlayersKilledVal.SetText( GetValueString( m_PlayersKilled ) );
-		m_TimeSurvivedVal.SetText( GetTimeString( m_Playtime ) );
+
+		if ( GetGame().GetPlayer() && GetGame().GetPlayer().GetIdentity() )
+		{
+			string name = GetGame().GetPlayer().GetIdentity().GetName();
+			ref StringLocaliser player_name = new StringLocaliser( "STR_EXPANSION_DEADSCREEN_STATS_TITLE", name );
+			
+			m_DeadSceenStatsPanelTitle.SetText( player_name.Format() );
+			//m_DeadSourceVal.SetText( "" );
+			m_LongestShotVal.SetText( GetDistanceString( m_LongestShot ) );
+			m_DistanceVal.SetText( GetDistanceString( m_Distance ) );
+			m_AnimalsKilledVal.SetText( GetValueString( m_AnimalsKilled ) );
+			m_InfectedKilledVal.SetText( GetValueString( m_InfectedKilled ) );
+			m_PlayersKilledVal.SetText( GetValueString( m_PlayersKilled ) );
+			m_TimeSurvivedVal.SetText( GetTimeString( m_Playtime ) );
+		}
 	}
 	
 	// ------------------------------------------------------------

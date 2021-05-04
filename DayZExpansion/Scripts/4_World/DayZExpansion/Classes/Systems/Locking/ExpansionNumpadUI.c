@@ -15,17 +15,6 @@
  */
 class ExpansionNumpadUI extends ExpansionLockUIBase
 {
-	ref protected EffectSound m_Sound;
-	PlayerBase m_Player;
-
-	protected ItemBase m_Target;
-	protected string m_Selection;
-
-	protected string m_Code;
-	protected int m_CodeLength;
-	protected bool m_HasPin;
-	protected bool m_RpcChange;
-	
 	protected ButtonWidget m_Button0;
 	protected TextWidget m_Button0_Text;
 	protected ButtonWidget m_Button1;
@@ -52,78 +41,12 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 	protected ButtonWidget m_ButtonClear;
 	protected TextWidget m_ButtonClear_Text;
 	
-	protected TextWidget m_TextCodePanel;
 	protected ImageWidget m_LockStateIcon;
 	
 	protected int m_HighlightColor = ARGB(255, 88, 88, 88);
 	protected int m_NormalColor = ARGB(255, 255, 255, 255);
 	protected int m_LockedColor = ARGB(255, 231, 76, 60);
 	protected int m_UnlockedColor = ARGB(255, 46, 204, 113);
-	
-	void ExpansionNumpadUI()
-	{
-		m_CodeLength = 4;
-
-		m_Target = NULL;
-		m_Selection = "";
-
-		m_Sound = new EffectSound;
-		
-		if (GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer())) 
-		{
-			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
-		}
-	}
-
-	override void RefreshCode()
-	{
-		if ( m_Target )
-		{
-			m_HasPin = m_Target.HasCode();
-
-			if ( m_Code != "" )
-			{
-				if ( !HidePinCode() )
-				{
-					m_TextCodePanel.SetText( m_Code );
-				} else
-				{
-					string replaced_code;
-					for ( int i = 0; i < m_Code.ToLower(); ++i )
-					{
-						replaced_code = replaced_code + "*";
-					}
-					
-					m_TextCodePanel.SetText( replaced_code );
-				}
-			}
-			else if ( m_CodeLength > 0 )
-			{
-				if ( !m_HasPin )
-					m_TextCodePanel.SetText( "Set PIN(" + m_CodeLength + ")" );
-				else
-					m_TextCodePanel.SetText( "Enter PIN(" + m_CodeLength + ")" );
-			} else {
-				m_TextCodePanel.SetText( "Error BaseBuildingSettings" );
-				Error("Expansion BaseBuildingSettings.json - CodeLockLength is inferior to 1 or can't be read !!! Validate the file or compare your file with this link https://github.com/ExpansionModTeam/DayZ-Expansion-Settings/blob/master/BaseBuildingSettings.json");
-			}
-		} else {
-			m_TextCodePanel.SetText( "Error #1" );
-		}
-	}
-
-	void SetChangeCodelock( bool state )
-	{
-		m_RpcChange = state;
-	}
-
-	override void SetTarget( ItemBase target, string selection )
-	{
-		m_Target = target;
-		m_Selection = selection;
-
-		super.SetTarget( m_Target, m_Selection );
-	}
 
 	override void ShowLockState()
 	{
@@ -139,36 +62,6 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 				m_LockStateIcon.SetColor( m_UnlockedColor );
 			}
 		}
-	}
-	
-	protected override void SendRPC()
-	{
-		if ( m_Code.Length() != m_CodeLength )
-			return;
-		
-		ScriptRPC rpc = new ScriptRPC;
-
-		int rpcType = ExpansionLockRPC.UNLOCK;
-		if ( !m_HasPin )
-			rpcType = ExpansionLockRPC.SET;
-		if ( m_RpcChange )
-			rpcType = ExpansionLockRPC.CHANGE;
-
-		rpc.Write( m_Code );
-		rpc.Write( m_Selection );
-		rpc.Send( m_Target, rpcType, true );
-	}
-
-	override void OnShow()
-	{
-		super.OnShow();
-
-		SetFocus( layoutRoot );
-		
-		m_CodeLength = 4;
-		
-		if (GetExpansionSettings().GetBaseBuilding())
-			m_CodeLength = GetExpansionSettings().GetBaseBuilding().CodeLockLength;
 	}
 
 	override Widget Init()
@@ -218,30 +111,6 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 		ShowLockState();
 		
 		return layoutRoot;
-	}
-
-	protected void SoundOnclick()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			if ( m_Player )
-			{
-				m_Sound = SEffectManager.PlaySound("Expansion_Click_SoundSet", m_Player.GetPosition());
-				m_Sound.SetSoundAutodestroy( true );
-			}
-		}
-	}
-	
-	protected void SoundOnReset()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			if ( m_Player )
-			{
-				m_Sound = SEffectManager.PlaySound( "Expansion_ClickBeeps_SoundSet", m_Player.GetPosition() );
-				m_Sound.SetSoundAutodestroy( true );
-			}
-		}
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -490,10 +359,7 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 			RefreshCode();
 			SoundOnclick();
 
-			if ( m_Code.Length() == m_CodeLength )
-			{
-				SendRPC();
-			}
+			Process();
 
 			return true;
 		}
@@ -577,11 +443,8 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 		
 		if ( key == KeyCode.KC_RETURN || key == KeyCode.KC_NUMPADENTER )
 		{
-			if ( m_Code.Length() == m_CodeLength )
-			{
-				SendRPC();
-			}
 			SoundOnclick();
+			Process();
 		}
 		
 		if ( key == KeyCode.KC_BACK )

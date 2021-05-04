@@ -29,8 +29,6 @@ class ExpansionTerritoryModule: JMModuleBase
 	protected ref map<int, ref ExpansionTerritory>		m_Territories;
 	protected ref array<ref ExpansionTerritoryInvite> 	m_TerritoryInvites;
 	
-	protected ref array<ref ExpansionTerritory>			m_ServerTerritories;
-	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule Constructor
 	// Gets called on server and client
@@ -49,7 +47,6 @@ class ExpansionTerritoryModule: JMModuleBase
 		//Client	
 		m_Territories = new map<int, ref ExpansionTerritory>;
 		m_TerritoryInvites = new array<ref ExpansionTerritoryInvite>;
-		m_ServerTerritories = new array<ref ExpansionTerritory>;
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::ExpansionTerritoryModule - End");
@@ -225,7 +222,13 @@ class ExpansionTerritoryModule: JMModuleBase
 		case ExpansionTerritoryModuleRPC.AcceptInvite:
 			RPC_AcceptInvite( ctx, sender, target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_AddPlayer");
+			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_AcceptInvite");
+			#endif
+			
+		case ExpansionTerritoryModuleRPC.DeclineInvite:
+			RPC_DeclineInvite( ctx, sender, target );
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeclineInvite");
 			#endif
 
 			break;
@@ -405,7 +408,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				}
 			}
 
-			UIScriptedMenu menu;
+			ExpansionUIScriptedMenu menu;
 			if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
 			{
 				menu.Refresh();
@@ -893,7 +896,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		SetTerritoryInvites( invites );
 		
-		UIScriptedMenu menu;
+		ExpansionUIScriptedMenu menu;
 		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
 		{
 			menu.Refresh();
@@ -1038,7 +1041,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	void AcceptInvite( int territoryID )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::AddPlayer - Start");
+		EXLogPrint("ExpansionTerritoryModule::AcceptInvite - Start");
 		#endif
 		
 		if ( IsMissionClient() )
@@ -1049,18 +1052,18 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::AddPlayer - End");
+		EXLogPrint("ExpansionTerritoryModule::AcceptInvite - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionTerritoryModule RPC_AddPlayer
+	// ExpansionTerritoryModule RPC_AcceptInvite
 	// Called on server
 	// ------------------------------------------------------------
 	private void RPC_AcceptInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::RPC_AddPlayer - Start");
+		EXLogPrint("ExpansionTerritoryModule::RPC_AcceptInvite - Start");
 		#endif
 		
 		int territoryID;
@@ -1070,7 +1073,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		Exec_AcceptInvite( territoryID, senderRPC );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::RPC_AddPlayer - End");
+		EXLogPrint("ExpansionTerritoryModule::RPC_AcceptInvite - End");
 		#endif
 	}
 	
@@ -1133,6 +1136,102 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 5");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionTerritoryModule DeclineInvite
+	// Called on client
+	// ------------------------------------------------------------
+	void DeclineInvite( int territoryID )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::DeclineInvite - Start");
+		#endif
+		
+		if ( IsMissionClient() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Write( territoryID );
+			rpc.Send( NULL, ExpansionTerritoryModuleRPC.DeclineInvite, true, NULL );
+		}
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::DeclineInvite - End");
+		#endif
+	}
+	
+		
+	// ------------------------------------------------------------
+	// ExpansionTerritoryModule RPC_DeclineInvite
+	// Called on server
+	// ------------------------------------------------------------
+	private void RPC_DeclineInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::RPC_DeclineInvite - Start");
+		#endif
+		
+		int territoryID;
+		if ( !ctx.Read( territoryID ) )
+			return;
+		
+		Exec_DeclineInvite( territoryID, senderRPC );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::RPC_DeclineInvite - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionTerritoryModule Exec_AcceptInvite
+	// Called on server
+	// ------------------------------------------------------------
+	private void Exec_DeclineInvite( int territoryID, notnull PlayerIdentity sender )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 1 territoryID: " + territoryID);
+		#endif
+		
+		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 2 flag: " + flag);
+		#endif
+
+		if ( !flag )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		ExpansionTerritory territory = flag.GetTerritory();
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 3 territory: " + territory);
+		#endif
+
+		if ( !territory )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 4 senderPlayer: " + senderPlayer);
+		#endif
+
+		if ( !senderPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
+		
+		territory.RemoveTerritoryInvite( sender.GetId() );		
+		SyncPlayersInvites( senderPlayer );
+		//UpdateClient( territoryID );
+		
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXLogPrint("ExpansionTerritoryModule::Exec_DeclineInvite - 5");
 		#endif
 	}
 	
@@ -1873,18 +1972,9 @@ class ExpansionTerritoryModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionTerritoryModule GetServerTerritories
-	// Only returns array on Client side
-	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritory> GetServerTerritories()
-	{
-		return m_ServerTerritories;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion IsInsideOwnTerritory
-	// Called only on client
-	// Check if a posiition is in own territory
+	// Can be called on client or server
+	// Check if a position is in player's own territory
 	// ------------------------------------------------------------
 	bool IsInsideOwnTerritory( vector position = "-1 -1 -1", float territorySize = -1, string playerUID = "" )
 	{
@@ -1967,14 +2057,45 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		return false;
 	}
+
+	// ------------------------------------------------------------
+	// Expansion IsInsideOwnTerritoryOrPerimeter
+	// Can be called on client or server
+	// Check if a position is in player's own territory or within its perimeter
+	// ------------------------------------------------------------
+	bool IsInsideOwnTerritoryOrPerimeter( vector position, float territorySize = -1, float perimeterSize = -1, string playerUID = "" )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXPrint("ExpansionTerritoryModule::IsInsideOwnTerritoryOrPerimeter - Start");
+		#endif
+
+		if ( territorySize <= 0 )
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
+
+		if ( perimeterSize <= 0 )
+			perimeterSize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize + 5;
+
+		return IsInsideOwnTerritory( position, territorySize + perimeterSize, playerUID );
+	}
+
+	// ------------------------------------------------------------
+	// Expansion IsInsideOwnPerimeter
+	// Can be called on client or server
+	// Check if a position is in player's own territory perimeter (but not within territory itself)
+	// ------------------------------------------------------------
+	bool IsInsideOwnPerimeter( vector position, float territorySize = -1, float perimeterSize = -1, string playerUID = "" )
+	{
+		return !IsInsideOwnTerritory( position, territorySize, playerUID ) && IsInsideOwnTerritoryOrPerimeter( position, territorySize, perimeterSize, playerUID );
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion IsInTerritory
-	// Called server/client
+	// Can be called on client or server
 	// Check if a position is in territory
 	// ------------------------------------------------------------
 	bool IsInTerritory( vector position, float territorySize = -1 )
 	{
+		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::IsInTerritory - Start");
 		#endif
@@ -1984,21 +2105,41 @@ class ExpansionTerritoryModule: JMModuleBase
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 		}
 		
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( position, territorySize, objects, proxyCargos );
+		int i;
+		TerritoryFlag flag;
 		
-		for ( int i = 0; i < objects.Count(); ++i )
+		if ( IsMissionHost() )
 		{
-			TerritoryFlag flag;
-			if ( Class.CastTo( flag, objects[i] ) )
+			for ( i = 0; i < m_TerritoryFlags.Count(); ++i )
 			{
-				if ( flag.HasExpansionTerritoryInformation() )
+				if ( Class.CastTo( flag, m_TerritoryFlags.GetElement(i) ) )
 				{
-					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-					EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
-					#endif
-					return true;
+					if ( flag.HasExpansionTerritoryInformation() && vector.Distance( flag.GetPosition(), position ) <= territorySize )
+					{
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
+						#endif
+						return true;
+					}
+				}
+			}
+		} else
+		{
+			array<Object> objects = new array<Object>;
+			array<CargoBase> proxyCargos = new array<CargoBase> ;
+			GetGame().GetObjectsAtPosition3D( position, territorySize, objects, proxyCargos );
+			
+			for ( i = 0; i < objects.Count(); ++i )
+			{
+				if ( Class.CastTo( flag, objects[i] ) )
+				{
+					if ( flag.HasExpansionTerritoryInformation() )
+					{
+						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+						EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
+						#endif
+						return true;
+					}
 				}
 			}
 		}
@@ -2008,6 +2149,36 @@ class ExpansionTerritoryModule: JMModuleBase
 		#endif
 		
 		return false;
+	}
+
+	// ------------------------------------------------------------
+	// Expansion IsInTerritoryOrPerimeter
+	// Can be called on client or server
+	// Check if a position is in territory or within its perimeter
+	// ------------------------------------------------------------
+	bool IsInTerritoryOrPerimeter( vector position, float territorySize = -1, float perimeterSize = -1 )
+	{
+		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+		EXPrint("ExpansionTerritoryModule::IsInTerritoryOrPerimeter - Start");
+		#endif
+
+		if ( territorySize <= 0 )
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
+
+		if ( perimeterSize <= 0 )
+			perimeterSize = GetExpansionSettings().GetTerritory().TerritoryPerimeterSize + 5;
+
+		return IsInTerritory( position, territorySize + perimeterSize );
+	}
+
+	// ------------------------------------------------------------
+	// Expansion IsInPerimeter
+	// Can be called on client or server
+	// Check if a position is in territory perimeter (but not within territory itself)
+	// ------------------------------------------------------------
+	bool IsInPerimeter( vector position, float territorySize = -1, float perimeterSize = -1 )
+	{
+		return !IsInTerritory( position, territorySize ) && IsInTerritoryOrPerimeter( position, territorySize, perimeterSize );
 	}
 	
 	// ------------------------------------------------------------

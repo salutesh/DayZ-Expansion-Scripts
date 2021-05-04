@@ -30,6 +30,14 @@ class ExpansionHesco: ExpansionBaseBuilding
 	}
 
 	// ------------------------------------------------------------
+	// CanPutIntoHands
+	// ------------------------------------------------------------
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
+	}
+
+	// ------------------------------------------------------------
 	// CanPutInCargo
 	// ------------------------------------------------------------
 	override bool CanPutInCargo (EntityAI parent)

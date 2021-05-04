@@ -116,7 +116,7 @@ class cfgWeapons
 		model = "\DayZExpansion\Objects\Weapons\Firearms\Sniper\AWM\AWM.p3d";
 		attachments[] = {"weaponWrap","weaponOptics","ExpansionSniperOptics"};
 		itemSize[] = {9,3};
-		hiddenSelections[] = {"body"};
+		hiddenSelections[] = {"camo"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\Sniper\AWM\data\dayz_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Weapons\Firearms\Sniper\AWM\data\AWM_Body.rvmat"};
 		class DamageSystem
@@ -180,6 +180,7 @@ class CfgAmmo
 			type = "Projectile";
 			dispersion = 0;
 			bleedThreshold = 1;
+			defaultDamageOverride[] = {{0.5,1}};
 			class Health
 			{
 				damage = 147;

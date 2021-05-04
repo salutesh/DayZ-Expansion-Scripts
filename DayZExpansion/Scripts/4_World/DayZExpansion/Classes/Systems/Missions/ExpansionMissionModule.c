@@ -17,6 +17,8 @@ class ExpansionMissionModule: JMModuleBase
 
 	private autoptr array< ExpansionMissionEventBase > m_RunningMissions;
 
+	protected bool m_InitialMission;
+
 	// ------------------------------------------------------------
 	// ExpansionMissionModule Constructor
 	// ------------------------------------------------------------
@@ -286,7 +288,7 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	void StartNewMissions()
 	{
-		if ( !m_MissionSettings || !m_MissionSettings.Enabled )
+		if ( !m_MissionSettings || !m_MissionSettings.Enabled || m_Missions.Count() == 0 )
 			return;
 
 		#ifdef EXPANSION_MISSION_PLAYERCOUNT_CHECK
@@ -325,8 +327,27 @@ class ExpansionMissionModule: JMModuleBase
 		#endif
 		
 		//! If we reach this we should have the correct setting/player count on the server/ find the missions like normal
+
+		float delay;
+		if ( !m_InitialMission )
+		{
+			//! This is the first mission in this session
+			m_InitialMission = true;
+			delay = m_MissionSettings.InitialMissionStartDelay;
+		}
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissionsInternal, delay, false );
+	}
+
+	void StartNewMissionsInternal()
+	{
+		if ( m_Missions.Count() == 0 )
+			return;
+
 		while ( m_RunningMissions.Count() < m_MissionSettings.MaxMissions )
-			FindNewMission();
+		{
+			if ( !FindNewMission() )
+				break;
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -356,38 +377,27 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMissionModule FindNewMission
 	// ------------------------------------------------------------
-	protected void FindNewMission()
+	protected bool FindNewMission()
 	{
 		//! Print( "ExpansionMissionModule::FindNewMission" );
 
 		array< float > weights = new array< float >;
 
-		float weightSum = 0;
 		for ( int i = 0; i < m_Missions.Count(); i++ )
 		{
-			float weight = m_Missions[i].Weight;
-			weightSum += weight;
-			weights.Insert( weight );
+			weights.Insert( m_Missions[i].Weight );
 		}
 		
-		int index = 0;
-		int lastIndex = weights.Count();
-		ExpansionMissionEventBase mission;
-		while ( index < lastIndex )
+		int index = GetWeightedRandom( weights );
+
+		if ( index > -1 )
 		{
-			if ( m_Missions[ index ].Enabled && !m_Missions[ index ].IsRunning() && Math.RandomFloat( 0, weightSum ) < weights[ index ] )
-			{
-				mission = m_Missions[ index ];
-				break;
-			}
-	
-			weightSum -= weights[index++];
+			EXPrint("ExpansionMissionModule::FindNewMission - selected " + m_Missions[ index ].MissionName + " - weight: " + weights[index] );
+			StartMissionInternal( m_Missions[ index ] );
+			return true;
 		}
 
-		if ( mission )
-		{
-			StartMissionInternal( mission );
-		}
+		return false;
 	}
 	
 	// ------------------------------------------------------------

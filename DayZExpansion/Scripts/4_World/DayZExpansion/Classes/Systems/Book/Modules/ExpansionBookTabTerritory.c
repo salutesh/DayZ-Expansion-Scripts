@@ -372,7 +372,7 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 		else
 		{
 			m_territoryInviteListInfo.Show( true );
-			m_territoryInviteListInfo.SetText("No territory invites");
+			m_territoryInviteListInfo.SetText("#STR_EXPANSION_BOOK_TERRITORY_NO_PENDING_INVITES");
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -437,11 +437,11 @@ class ExpansionBookTabTerritory extends ExpansionBookTabBase
 			
 			if (m_MyMember.GetRank() != ExpansionTerritoryRank.ADMIN)
 			{
-				m_popupPanelText.SetText( "Are you sure you want to leave the territory?" );
+				m_popupPanelText.SetText( "#STR_EXPANSION_BOOK_TERRITORY_LEAVE" );
 			}
 			else
 			{
-				m_popupPanelText.SetText( "Are you sure you want to delete the territory?" );
+				m_popupPanelText.SetText( "#STR_EXPANSION_BOOK_TERRITORY_DELETE" );
 			}
 			
 			return true;

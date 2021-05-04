@@ -114,7 +114,9 @@ class ExpansionHelicopterScript extends CarScript
 	private ExpansionHelicopterController m_HeliController;
 	
 	private autoptr NoiseParams m_NoiseParams;
-		
+
+	private bool m_IsInitalized = false;
+
 	// ------------------------------------------------------------
 	void ExpansionHelicopterScript()
 	{
@@ -230,6 +232,22 @@ class ExpansionHelicopterScript extends CarScript
 		#endif
 	}
 
+	override void AfterStoreLoad()
+	{
+		//! Fix for helis saved to storage before dmgZone for engine/fueltank/reflector were added
+		if ( GetExpansionSaveVersion() < 25 )
+		{
+			if ( GetHealth01( "Engine", "" ) <= 0 )
+				SetHealth01( "Engine", "", 1.0 );
+
+			if ( GetHealth01( "FuelTank", "" ) <= 0 )
+				SetHealth01( "FuelTank", "", 1.0 );
+
+			if ( GetHealth01( "Reflector_1_1", "" ) <= 0 )
+				SetHealth01( "Reflector_1_1", "", 1.0 );
+		}
+	}
+
 	// ------------------------------------------------------------
 	void ~ExpansionHelicopterScript()
 	{
@@ -252,6 +270,21 @@ class ExpansionHelicopterScript extends CarScript
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::Destructor - End");
+		#endif
+	}
+
+	
+
+	override void LongDeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHelicopterScript::LongDeferredInit - Start");
+		#endif
+		
+		m_IsInitalized = true;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHelicopterScript::LongDeferredInit - End");
 		#endif
 	}
 
@@ -464,8 +497,6 @@ class ExpansionHelicopterScript extends CarScript
 	protected override void OnPostSimulation( float pDt )
 	{
 		super.OnPostSimulation( pDt );
-		
-		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_HELICOPTER );
 	}
 
 	// ------------------------------------------------------------
@@ -488,13 +519,6 @@ class ExpansionHelicopterScript extends CarScript
 		
 		m_Hit = DayZPhysics.SphereCastBullet( start, end, 5.0, collisionLayerMask, this, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction );
 		m_HitDetermined = true;
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_Hit: " + m_Hit );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_HitDetermined: " + m_HitDetermined );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_HitObject: " + m_HitObject );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_HitPosition: " + m_HitPosition );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_HitNormal: " + m_HitNormal );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_HitFraction: " + m_HitFraction );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionHelicopterScript::PerformGroundRaycast - End" );
@@ -958,6 +982,10 @@ class ExpansionHelicopterScript extends CarScript
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+
 		bool isAboveWater;
 		float buoyancyForce;
 
@@ -1005,9 +1033,11 @@ class ExpansionHelicopterScript extends CarScript
 					m_BackRotorSpeedTarget	= 0;
 				}
 
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Auto-Hover Height: " + m_AutoHoverAltitude );
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Auto-Hover Target Speed: " + m_AutoHoverSpeedTarget );
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Auto-Hover Speed: " + m_AutoHoverSpeed );
+				#ifdef EXPANSION_DEBUG_UI_VEHICLE
+				dbg_Vehicle.Set("Auto-Hover Height", m_AutoHoverAltitude );
+				dbg_Vehicle.Set("Auto-Hover Target Speed", m_AutoHoverSpeedTarget );
+				dbg_Vehicle.Set("Auto-Hover Speed", m_AutoHoverSpeed );
+				#endif
 
 				float estT = 80.0 * pDt;
 				vector estimatedPosition = GetEstimatedPosition( estT );
@@ -1097,8 +1127,10 @@ class ExpansionHelicopterScript extends CarScript
 
 			// collective
 			{
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_RotorSpeed: " + m_RotorSpeed );
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_LiftForceCoef: " + m_LiftForceCoef );
+				#ifdef EXPANSION_DEBUG_UI_VEHICLE
+				dbg_Vehicle.Set("m_RotorSpeed", m_RotorSpeed );
+				dbg_Vehicle.Set("m_LiftForceCoef", m_LiftForceCoef );
+				#endif
 
 				// rotorSpeed^2
 				// so rotorSpeed=0.0, 0.0*0.0 = 0.0 | rotorSpeed=0.5, 0.5*0.5 = 0.25 | rotorSpeed=1.0, 1.0*1.0 = 1.0
@@ -1121,7 +1153,9 @@ class ExpansionHelicopterScript extends CarScript
 				targetVelocity *= pDt;
 				float collectiveCoef = Math.Max( ( 1.3 * liftFactor ) - ( ( Math.SquareSign( targetVelocity ) * 5.0 ) + ( targetVelocity * 80.0 ) ), 0 );
 
-				ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Collective Force: " + collectiveCoef );
+				#ifdef EXPANSION_DEBUG_UI_VEHICLE
+				dbg_Vehicle.Set("Collective Force", collectiveCoef );
+				#endif
 				
 				force += Vector( 0, 1, 0 ) * collectiveCoef * m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_BodyMass;
 			}
@@ -1254,14 +1288,15 @@ class ExpansionHelicopterScript extends CarScript
 			force += Vector( 0, buoyancyForce, 0 );
 		}
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "m_Transform: " + m_Transform.GetBasis() );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Side: " + m_Transform.data[0] );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Up : " + m_Transform.data[1] );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Forward : " + m_Transform.data[2] );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Position : " + m_Transform.data[3] );
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Applying Force: " + force );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_HELICOPTER, "Applying Torque: " + torque );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("m_Transform", m_Transform.GetBasis() );
+		dbg_Vehicle.Set("Side", m_Transform.data[0] );
+		dbg_Vehicle.Set("Up ", m_Transform.data[1] );
+		dbg_Vehicle.Set("Forward ", m_Transform.data[2] );
+		dbg_Vehicle.Set("Position ", m_Transform.data[3] );
+		dbg_Vehicle.Set("Applying Force", force );
+		dbg_Vehicle.Set("Applying Torque", torque );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1427,9 +1462,56 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
+	// Expansion IsGround
+	// Check distance to ground
+	// ------------------------------------------------------------
+	private bool IsGround()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXLogPrint("ExpansionHelicopterScript::IsGround - Start");
+		#endif
+		
+		//! Ray input
+		vector start = GetPosition();
+		vector end = GetPosition() - Vector( 0, 0.5, 0 );
+		
+		//! Ray output
+		vector hit;
+		vector hitpos;
+		
+		//! Ray hitindex output
+		int hitindex;
+
+		#ifdef EXPANSIONEXPRINT
+		EXLogPrint("ExpansionHelicopterScript::IsGround - End and return height: " + DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this ).ToString());
+		#endif
+		
+		//! Ray
+		return DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this, false, false );
+	}	
+
+	// ------------------------------------------------------------
+	protected bool IsLanded()
+	{
+		if ( !m_IsInitalized )
+			return false;
+
+		if ( IsGround() )
+			return true;
+
+		return false;
+	}
+
+	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
-		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) ) || EngineIsOn();
+		if ( EngineIsOn() )
+			return dBodyIsDynamic( this );
+
+		if ( IsLanded() )
+			return dBodyIsActive( this );
+		
+		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) );
 	}
 
 	// ------------------------------------------------------------

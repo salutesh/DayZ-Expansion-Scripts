@@ -19,6 +19,27 @@ class CfgVehicles
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Codelock\CodeLock.p3d";
 		physLayer = "item_small";
 		carveNavmesh = 0;
+		class AnimationSources
+		{
+			class camo
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Codelock
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class attach_fence
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+		};
 	};
 	class bldr_expansion_sea_chest: HouseNoDestruct
 	{

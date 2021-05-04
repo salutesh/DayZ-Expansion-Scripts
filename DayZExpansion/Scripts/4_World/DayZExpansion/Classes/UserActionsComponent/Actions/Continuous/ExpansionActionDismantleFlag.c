@@ -82,11 +82,11 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 		m_IsDismantle = player.IsInsideOwnTerritory();
 
 		//! Force the player to dismantle with tools
-		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == 1 )
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == DismantleFlagMode.WithTools )
 				return false;
 
 		//! The Raider can't dismantle at all but the owner can
-		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == -1 && !m_IsDismantle )
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == DismantleFlagMode.OwnerOnly && !m_IsDismantle )
 				return false;
 
 		return true;
@@ -122,7 +122,7 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 		EntityAI flag = EntityAI.Cast(action_data.m_Target.GetObject() );
 
 		//! Should the flag drop a flag kit after being dismantled ?
-		if ( GetExpansionSettings().GetBaseBuilding().DestroyFlagOnDismantle )
+		if ( !GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild && !GetExpansionSettings().GetBaseBuilding().DestroyFlagOnDismantle )
 			GetGame().CreateObject("TerritoryFlagKit", flag.GetPosition() );
 
 		flag.Delete();

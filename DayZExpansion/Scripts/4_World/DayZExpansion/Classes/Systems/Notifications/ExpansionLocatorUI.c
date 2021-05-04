@@ -33,8 +33,8 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 	protected bool m_BackSound;
 	protected bool m_BackSoundTime;
 
-	protected string m_CityName;
-	protected string m_CityTime;
+	protected float m_FadeIn;
+	protected float m_FadeOut;
 	
 	protected ScriptCallQueue Loacator_Queue;
 	
@@ -43,59 +43,48 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionLocatorUI()
 	{
+		SetupWidgets();
+
+		Loacator_Queue = GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ); 
+	}
+
+	void SetupWidgets()
+	{
 		m_LocatorRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/expansion_locator.layout" );
 		m_LocatorCityName = TextWidget.Cast( m_LocatorRoot.FindAnyWidget( "ExpansionCityName" ) );
 		m_LocatorTime = TextWidget.Cast( m_LocatorRoot.FindAnyWidget( "ExpansionTime" ) );
 		m_LocatorRoot.Show( false );
-
-		Loacator_Queue = GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY); 
 	}
 
 	// ------------------------------------------------------------
 	// ExpansionLocatorUI AnimateShowSimpleLoactionClient
 	// ------------------------------------------------------------
 	void AnimateShowSimpleLoactionClient()
-	{	
-		if ( m_LocatorRoot )
-		{
-			m_LocatorRoot.Show(true);
-		}
-		else 
-		{
-			m_LocatorRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/expansion_locator.layout" );
-			m_LocatorCityName = TextWidget.Cast( m_LocatorRoot.FindAnyWidget( "ExpansionCityName" ) );
-			m_LocatorTime = TextWidget.Cast( m_LocatorRoot.FindAnyWidget( "ExpansionTime" ) );
+	{
+		m_ShowCityAlpha += m_FadeIn;
+		m_LocatorCityName.SetAlpha( m_ShowCityAlpha );
 
-			m_LocatorRoot.Show(true);
-		}
-
-		m_LocatorTime.SetText(m_CityName);
-		m_LocatorTime.SetText(m_CityTime);
-		
-		m_ShowCityAlpha += 0.024;
-		m_LocatorCityName.SetAlpha(m_ShowCityAlpha);
-
-		if (!m_PlaySound)
+		if ( !m_PlaySound )
 		{
-			SEffectManager.PlaySoundOnObject("Expansion_Print1_SoundSet", GetGame().GetPlayer());
+			SEffectManager.PlaySoundOnObject( "Expansion_Print1_SoundSet", GetGame().GetPlayer() );
 			m_PlaySound = true;
 		}
 		
-		if (m_ShowCityAlpha > 1)
+		if ( m_ShowCityAlpha > 1 )
 		{	
-			if (!m_PlaySoundTime)
+			if ( !m_PlaySoundTime )
 			{
-				SEffectManager.PlaySoundOnObject("Expansion_Print2_SoundSet", GetGame().GetPlayer());
+				SEffectManager.PlaySoundOnObject( "Expansion_Print2_SoundSet", GetGame().GetPlayer() );
 				m_PlaySoundTime = true;
 			}
 			
-			m_LocatorCityName.SetAlpha(1);
-			m_ShowTimeAlpha += 0.024;
-			m_LocatorTime.SetAlpha(m_ShowTimeAlpha);		
-			if (m_ShowTimeAlpha > 1)
+			m_LocatorCityName.SetAlpha( 1 );
+			m_ShowTimeAlpha += m_FadeIn;
+			m_LocatorTime.SetAlpha( m_ShowTimeAlpha );
+			if ( m_ShowTimeAlpha > 1 )
 			{
-				m_LocatorTime.SetAlpha(1);
-				GetGame().GetUpdateQueue(CALL_CATEGORY_GAMEPLAY).Remove(AnimateShowSimpleLoactionClient);
+				m_LocatorTime.SetAlpha( 1 );
+				GetGame().GetUpdateQueue( CALL_CATEGORY_GAMEPLAY ).Remove( AnimateShowSimpleLoactionClient );
 			}
 		}
 	}
@@ -103,9 +92,9 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionLocatorUI HideCityClient
 	// ------------------------------------------------------------
-	void HideCityClient(int l_Delay = 100)
+	void HideCityClient( int delay = 5000 )
 	{
-		Loacator_Queue.CallLater(this.OnHideCityClient, l_Delay, false);
+		Loacator_Queue.CallLater( OnHideCityClient, delay, false );
 	}
 	
 	// ------------------------------------------------------------
@@ -113,30 +102,30 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void AnimateHideSimpleLocationClient()
 	{		
-		m_HideCityAlpha = m_HideCityAlpha - 0.024;
+		m_HideCityAlpha = m_HideCityAlpha - m_FadeOut;
 		m_LocatorTime.SetAlpha( m_HideCityAlpha );
 
-		if (!m_BackSoundTime) // Put sounds back if you want
+		if ( !m_BackSoundTime ) // Put sounds back if you want
 		{
-				//SEffectManager.PlaySoundOnObject("Expansion_Back2_SoundSet", GetGame().GetPlayer());
+				//SEffectManager.PlaySoundOnObject( "Expansion_Back2_SoundSet", GetGame().GetPlayer() );
 				m_BackSoundTime = true;
 		}
 		
-		if (m_HideCityAlpha < 0)
+		if ( m_HideCityAlpha < 0 )
 		{	
-			if (!m_BackSound)
+			if ( !m_BackSound )
 			{
-				//SEffectManager.PlaySoundOnObject("Expansion_Back1_SoundSet", GetGame().GetPlayer());
+				//SEffectManager.PlaySoundOnObject( "Expansion_Back1_SoundSet", GetGame().GetPlayer() );
 				m_BackSound = true;
 			}
 			
-			m_LocatorTime.SetAlpha(0);
-			m_HideTimeAlpha -= 0.024;
-			m_LocatorCityName.SetAlpha(m_HideTimeAlpha);		
-			if (m_HideTimeAlpha < 0)
+			m_LocatorTime.SetAlpha( 0 );
+			m_HideTimeAlpha -= m_FadeOut;
+			m_LocatorCityName.SetAlpha( m_HideTimeAlpha );		
+			if ( m_HideTimeAlpha < 0 )
 			{
-				m_LocatorCityName.SetAlpha(0);
-				GetGame().GetUpdateQueue(CALL_CATEGORY_GAMEPLAY).Remove(AnimateHideSimpleLocationClient);
+				m_LocatorCityName.SetAlpha( 0 );
+				GetGame().GetUpdateQueue( CALL_CATEGORY_GAMEPLAY ).Remove( AnimateHideSimpleLocationClient );
 			}
 		}
 	}
@@ -147,81 +136,78 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 	void OnHideCityClient()
 	{
 		//! Animation
-		m_IsCityHide = true;
-		if (m_IsCityHide)
-		{
-			m_BackSoundTime = false;
-			m_BackSound = false;
-			
-			m_PlaySound = false;
-			m_PlaySoundTime = false;
-			
-			m_HideCityAlpha = 1;
-			m_HideTimeAlpha = 1;
-			m_LocatorTime.SetAlpha(1);
-			m_LocatorCityName.SetAlpha(1);
-			
-			m_IsCityHide = false;
-		}
+		m_BackSoundTime = false;
+		m_BackSound = false;
 		
-		GetGame().GetUpdateQueue(CALL_CATEGORY_GAMEPLAY).Insert(AnimateHideSimpleLocationClient);
+		m_PlaySound = false;
+		m_PlaySoundTime = false;
+		
+		m_HideCityAlpha = 1;
+		m_HideTimeAlpha = 1;
+		m_LocatorTime.SetAlpha( 1 );
+		m_LocatorCityName.SetAlpha( 1 );
+		
+		GetGame().GetUpdateQueue( CALL_CATEGORY_GAMEPLAY ).Insert( AnimateHideSimpleLocationClient );
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionLocatorUI OnShowCityClient
 	// ------------------------------------------------------------
-	void OnShowCityClient( string city )
+	void OnShowCityClient( string title = "", string description = "", int duration = 5000, float fadein = 0.024, float fadeout = 0.024 )
 	{
-		int m_Case = city.ToUpper();
-		
-		m_LocatorCityName.SetText( city );
-
-		m_CityName = city;
-		
-		string m_HourText;
-		string m_MinuteText;
-		int m_Year, m_Month, m_Day, m_Hour, m_Minute;
-		GetGame().GetWorld().GetDate(m_Year, m_Month, m_Day, m_Hour, m_Minute);
-
-		if (m_Hour < 10)
+		if ( !m_LocatorRoot )
 		{
-			m_HourText = "0" + m_Hour;
-		}
-		else
-		{
-			m_HourText = m_Hour.ToString();
+			//! This is needed because on reconnect, even if our ExpansionLocatorUI instance still exists, the widgets will not anymore
+			SetupWidgets();
 		}
 
-		if (m_Minute < 10)
-		{
-			m_MinuteText = "0" + m_Minute;
-		}
-		else
-		{
-			m_MinuteText = m_Minute.ToString();
-		}
-		
-		m_LocatorTime.SetText(m_HourText + ":" + m_MinuteText + ":" + Math.RandomInt(10, 60));
+		int m_Case = title.ToUpper();
+		m_LocatorCityName.SetText( title );
 
-		m_CityTime = m_HourText + ":" + m_MinuteText + ":" + Math.RandomInt(10, 60);
+		if ( description == "" )
+		{
+			string m_HourText;
+			string m_MinuteText;
+			int m_Year, m_Month, m_Day, m_Hour, m_Minute;
+			GetGame().GetWorld().GetDate( m_Year, m_Month, m_Day, m_Hour, m_Minute );
+
+			if ( m_Hour < 10 )
+			{
+				m_HourText = "0" + m_Hour;
+			}
+			else
+			{
+				m_HourText = m_Hour.ToString();
+			}
+
+			if ( m_Minute < 10 )
+			{
+				m_MinuteText = "0" + m_Minute;
+			}
+			else
+			{
+				m_MinuteText = m_Minute.ToString();
+			}
+
+			description = m_HourText + ":" + m_MinuteText + ":" + Math.RandomInt(10, 60);
+		}
 		
-		//! Show widget
-		m_LocatorRoot.Show(true);
+		m_LocatorTime.SetText( description );
+
+		m_FadeIn = fadein;
+		m_FadeOut = fadeout;
 		
 		//! Animation
-		m_IsCityShow = true;
-		if (m_IsCityShow)
-		{
-			m_ShowCityAlpha = 0;
-			m_ShowTimeAlpha = 0;
-			m_LocatorTime.SetAlpha(0);
-			m_LocatorCityName.SetAlpha(0);
-			
-			m_IsCityShow = false;
-		}
+		m_ShowCityAlpha = 0;
+		m_ShowTimeAlpha = 0;
+		m_LocatorTime.SetAlpha( 0 );
+		m_LocatorCityName.SetAlpha( 0 );
 		
-		GetGame().GetUpdateQueue(CALL_CATEGORY_GAMEPLAY).Insert(AnimateShowSimpleLoactionClient);
+		//! Show widget
+		m_LocatorRoot.Show( true );
 		
-		HideCityClient(5000);
+		GetGame().GetUpdateQueue( CALL_CATEGORY_GAMEPLAY ).Insert( AnimateShowSimpleLoactionClient );
+		
+		HideCityClient( duration );
 	}
 }

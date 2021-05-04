@@ -59,7 +59,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void ExpansionMapMarker( Widget parent, MapWidget mapWidget, bool autoInit = true )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::ExpansionMapMarker - Start");
 		#endif
 		
@@ -67,7 +67,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::ExpansionMapMarker - End");
 		#endif
 	}
@@ -77,7 +77,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void ~ExpansionMapMarker()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::~ExpansionMapMarker - Start");
 		#endif
 		
@@ -86,7 +86,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		delete m_PositionToolTip;
 		
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::~ExpansionMapMarker - End");
 		#endif
 	}
@@ -96,7 +96,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	protected override void OnInit( Widget layoutRoot )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnInit - Start");
 		#endif
 		
@@ -120,7 +120,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		
 		m_Frame.SetColor( ARGB( 0, 0, 0, 0 ) );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnInit - End");
 		#endif
 	}
@@ -130,7 +130,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	protected void OnEditInit( Widget layoutRoot )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnEditInit - Start");
 		#endif
 		
@@ -153,7 +153,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_IconTypesArray.Insert( new ExpansionMapMarkerIconItem( m_IconEntries, ExpansionIcons.Get( i ), this ) );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnEditInit - End");
 		#endif
 	}
@@ -163,13 +163,13 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetMapMenu( ExpansionMapMenu menu )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetMapMenu - Start");
 		#endif
 		
 		m_MapMenu = menu;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetMapMenu - End");
 		#endif
 	}
@@ -211,13 +211,13 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetCreation( bool creating )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetCreation - Start");
 		#endif
 		
 		m_Creating = creating;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetCreation - End");
 		#endif
 	}
@@ -259,16 +259,20 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetMarkerData( ref ExpansionMarkerData data )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetMarkerData - Start");
 		#endif
 		
 		m_Data = data;
-		m_Data.SetHandler( this );
-		if ( HasBeenInitialized() )
-			SetFromMarkerData();
+
+		if ( m_Data )
+		{
+			m_Data.SetHandler( this );
+			if ( HasBeenInitialized() )
+				SetFromMarkerData();
+		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetMarkerData - End");
 		#endif
 	}
@@ -278,17 +282,20 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetFromMarkerData()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetFromMarkerData - Start");
 		#endif
 		
 		if ( m_Data && !IsEditting() )
 		{
-			SetPosition( m_Data.GetPosition() );
+			if ( !IsDragging() )
+				SetPosition( m_Data.GetPosition() );
+			else
+				m_Data.SetPosition( GetPosition() );
 			SetName( m_Data.GetName() );
 			SetIcon( m_Data.GetIcon() );
 			SetPrimaryColor( m_Data.GetColor() );
-			GetLayoutRoot().Show( m_Data.IsMapVisible() );
+			GetLayoutRoot().Show( !ShouldHide() );
 
 			if ( CanEdit() )
 			{
@@ -296,7 +303,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetFromMarkerData - End");
 		#endif
 	}
@@ -314,7 +321,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetName( string name )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetName - Start");
 		#endif
 		
@@ -322,7 +329,25 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		m_Name.SetText( name );
 		m_EditName.SetText( name );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMarker::SetName - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker SetName
+	// ------------------------------------------------------------
+	void SetName( StringLocaliser name )
+	{
+		#ifdef EXPANSION_MAP_MENU_DEBUG
+		EXLogPrint("ExpansionMapMarker::SetName - Start");
+		#endif
+		
+		m_MarkerName = name.GetText();
+		m_Name.SetText( name.GetText() );
+		m_EditName.SetText( name.GetText() );
+		
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetName - End");
 		#endif
 	}
@@ -340,7 +365,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetIcon( ref ExpansionIcon icon )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetIcon - Start");
 		#endif
 		
@@ -355,7 +380,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetIcon - End");
 		#endif
 	}
@@ -389,7 +414,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetPrimaryColor( int color )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetPrimaryColor - Start");
 		#endif
 		
@@ -418,7 +443,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_IconTypesArray[i].SetColor( m_PrimaryColor );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetPrimaryColor - End");
 		#endif
 	}
@@ -436,13 +461,13 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void SetHoverColour( int color )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetHoverColour - Start");
 		#endif
 		
 		m_HoverColor = color;
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetHoverColour - End");
 		#endif
 	}
@@ -479,7 +504,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	override void Update( float pDt )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarker::Update - Start");
 		#endif
 		
@@ -522,7 +547,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			GetLayoutRoot().Show( IsCreating() );
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarker::Update - End");
 		#endif
 	}
@@ -532,7 +557,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	override void SetPosition( vector position, bool performDropEvent = false )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetPosition - Start");
 		#endif
 		
@@ -540,7 +565,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		super.SetPosition( position, performDropEvent );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetPosition - End");
 		#endif
 	}
@@ -550,7 +575,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	override void OnDrop()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnDrop - Start");
 		#endif
 		
@@ -579,7 +604,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			return;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnDrop - End");
 		#endif
 	}
@@ -589,7 +614,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void ShowEditPanel()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::ShowEditPanel - Start");
 		#endif
 		
@@ -630,8 +655,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_State3DCheckbox.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
 			m_State3DCheckbox.SetChecked( false );
 
-			m_LeftButton.SetText( "CANCEL" );
-			m_RightButton.SetText( "CREATE" );
+			m_LeftButton.SetText( "#STR_EXPANSION_MAP_MARKER_CANCEL_BUTTON_LABLE" );
+			m_RightButton.SetText( "#STR_EXPANSION_MAP_MARKER_CREATE_BUTTON_LABLE" );
 		} else
 		{
 			m_StatePartyContainer.Show( false );
@@ -643,8 +668,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			}
 
 			m_EditName.SetText(m_Data.GetName());
-			m_LeftButton.SetText( "DELETE" );
-			m_RightButton.SetText( "UPDATE" );
+			m_LeftButton.SetText( "#STR_EXPANSION_MAP_MARKER_DELETE_SHORT_BUTTON_LABLE" );
+			m_RightButton.SetText( "#STR_EXPANSION_MAP_MARKER_UPDATE_TITLE" );
 		}
 		
 		ExpansionMapMenu mapmenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().GetMenu() );
@@ -653,7 +678,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			mapmenu.SetIsEditingMarker(true);			
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::ShowEditPanel - End");
 		#endif
 	}
@@ -663,7 +688,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void CloseEditPanel()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::CloseEditPanel - Start");
 		#endif
 		
@@ -680,7 +705,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			mapmenu.SetIsEditingMarker(false);			
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::CloseEditPanel - End");
 		#endif
 	}
@@ -690,7 +715,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void OnLeftButton()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnLeftButton - Start");
 		#endif
 
@@ -703,11 +728,16 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			ExpansionMapMenu menu;
 			if ( Class.CastTo( menu, GetGame().GetUIManager().GetMenu() ) )
 			{
-				menu.DeleteSelectedMarker();
+				if ( IsCreating() )
+				{
+					menu.DeletePreviewMarker();
+				} else {
+					menu.DeleteSelectedMarker();
+				}
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnLeftButton - End");
 		#endif
 	}
@@ -717,7 +747,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	void OnRightButton()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnRightButton - Start");
 		#endif
 		
@@ -766,7 +796,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_Creating = false;
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnRightButton - End");
 		#endif
 	}
@@ -776,13 +806,13 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	override void OnEdit()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnEdit - Start");
 		#endif
 		
 		ShowEditPanel();
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnEdit - End");
 		#endif
 	}

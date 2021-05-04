@@ -20,4 +20,14 @@ class Expansion_Kedr_Base : RifleBoltLock_Base
 
 		return new Cz61Recoil(this);
 	}
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.SpawnEntityOnGroundPos("Mag_Expansion_Kedr_20Rnd", entity.GetPosition());
+		}
+	}
 }

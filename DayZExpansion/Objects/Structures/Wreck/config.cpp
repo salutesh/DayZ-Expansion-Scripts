@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Objects_Structures_IvyAutomn
+	class DayZExpansion_Objects_Structures_Wreck
 	{
 		units[] = {"Expansion_Wreck_Volha_Police"};
 		weapons[] = {};

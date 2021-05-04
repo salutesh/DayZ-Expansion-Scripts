@@ -90,7 +90,7 @@ class ExpansionVehicleAxle
 
 	ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
-		ref ExpansionVehicleWheel wheel = new ExpansionVehicleWheel( m_Vehicle, this, pName );
+		ref ExpansionVehicleWheel wheel = new ExpansionVehicleWheel( m_Vehicle, this, pName, pWheels.Count() );
 
 		m_Wheels.Insert( wheel );
 		pWheels.Insert( wheel );
@@ -246,7 +246,7 @@ class ExpansionVehicleAxle
 	{
 
 	}
-}
+};
 
 class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 {
@@ -302,7 +302,7 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 	{
 		m_Center.ApplyBrake( pTorque );
 	}
-}
+};
 
 class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 {
@@ -345,9 +345,10 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		m_Left.SetupSimulation( pDt, pNumWheelsGrounded );
 		m_Right.SetupSimulation( pDt, pNumWheelsGrounded );
 
-		float t1 = m_Left.GetSuspensionFraction();
-		float t2 = m_Right.GetSuspensionFraction();
-		m_AntiRollForce = ( t1 - t2 ) * GetSwayBar();
+		float sp = m_Vehicle.GetModelVelocityAt("0 0 0")[2];
+		float st = m_Vehicle.GetSteering();
+		
+		m_AntiRollForce = Math.Clamp(sp * st * 0.01 * pDt, -1, 1) * GetSwayBar();
 	}
 
 	override void Simulate( float pDt, int pNumWheelsGrounded, out vector pImpulse, out vector pImpulseTorque )
@@ -355,10 +356,13 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		m_Left.Simulate( pDt, pNumWheelsGrounded, pImpulse, pImpulseTorque );
 		m_Right.Simulate( pDt, pNumWheelsGrounded, pImpulse, pImpulseTorque );
 		
-		float coef = 0; //m_AntiRollForce * dBodyGetMass( m_Vehicle ) * pDt;
-
-		vector w1 = m_Left.GetSuspensionContactNormal() * coef;
-		vector w2 = m_Right.GetSuspensionContactNormal() * coef;
+		float coef = pDt * dBodyGetMass( m_Vehicle );
+		
+		float l = Math.Max(0, -m_AntiRollForce);
+		float r = Math.Max(0, m_AntiRollForce);
+		
+		vector w1 = m_Left.GetSuspensionContactNormal() * coef * l;
+		vector w2 = m_Right.GetSuspensionContactNormal() * coef * r;
 		vector p1 = m_Left.GetSuspensionContactPosition();
 		vector p2 = m_Right.GetSuspensionContactPosition();
 
@@ -371,8 +375,8 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		impulse += w2;
 		impulseTorque += p2 * w2;
 
-		pImpulse += impulse.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
-		pImpulseTorque += impulseTorque.Multiply3( m_Vehicle.m_Transform.GetBasis().data );
+		//pImpulse += impulse.Multiply3( m_Vehicle.m_Transform.data );
+		//pImpulseTorque += impulseTorque.Multiply3( m_Vehicle.m_Transform.data );
 	}
 
 	override void Animate( float pDt, bool pPhysics )
@@ -398,4 +402,4 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		m_Left.ApplyBrake( pTorque * 0.5 );
 		m_Right.ApplyBrake( pTorque * 0.5 );
 	}
-}
+};

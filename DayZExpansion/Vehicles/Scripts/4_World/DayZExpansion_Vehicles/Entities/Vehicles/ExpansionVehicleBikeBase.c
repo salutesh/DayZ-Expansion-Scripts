@@ -178,6 +178,10 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 	
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+
 		m_SteeringVal += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_SteeringVal, m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
 
 		m_Throttle.Update( pDt, m_BikeController.GetForward(), m_BikeController.GetGentle(), m_BikeController.GetTurbo() );
@@ -187,7 +191,9 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		m_AirControlForward = m_BikeController.GetForward() - m_BikeController.GetBackward();
 		m_AirControlRight = m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft();
 
-		ExpansionDebugUI( "Steering: " + m_SteeringVal );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Steering", m_SteeringVal );
+		#endif
 	}
 
 	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
@@ -204,6 +210,10 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 
 	protected override void OnPreSimulation( float pDt )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+
 		super.OnPreSimulation( pDt );
 
 		if ( !m_IsPhysicsHost )
@@ -235,8 +245,10 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		m_FrontSuspFraction = ( fMax - m_Wheels[0].GetSuspensionLength() ) - m_Axles[0].GetTravelMaxDown();
 		m_BackSuspFraction = ( bMax - m_Wheels[1].GetSuspensionLength() ) - m_Axles[1].GetTravelMaxDown();
 		
-		ExpansionDebugUI( "fAmt: " + m_FrontSuspFraction );
-		ExpansionDebugUI( "bAmt: " + m_BackSuspFraction );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("fAmt", m_FrontSuspFraction );
+		dbg_Vehicle.Set("bAmt", m_BackSuspFraction );
+		#endif
 		
 		m_FrontSuspFraction = ( fMax - m_FrontSuspFraction ) * ( fMax + m_FrontSuspFraction ) / ( fMax * fMax );
 		m_BackSuspFraction = ( bMax - m_BackSuspFraction ) * ( bMax + m_BackSuspFraction ) / ( bMax * bMax );
@@ -245,10 +257,12 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		
 		m_GroundStabilizer = Math.Max( m_FrontSuspFraction, m_BackSuspFraction ); //! we can lean so long 1 wheel is on the ground
 
-		ExpansionDebugUI( "fAmt: " + m_FrontSuspFraction );
-		ExpansionDebugUI( "bAmt: " + m_BackSuspFraction );
-		ExpansionDebugUI( "yUp: " + yUp );
-		ExpansionDebugUI( "amt: " + m_GroundStabilizer );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("fAmt", m_FrontSuspFraction );
+		dbg_Vehicle.Set("bAmt", m_BackSuspFraction );
+		dbg_Vehicle.Set("yUp", yUp );
+		dbg_Vehicle.Set("amt", m_GroundStabilizer );
+		#endif
 
 		m_AirControl = m_GroundStabilizer < 0.1;
 		m_GroundControl = yUp > 0.5 && m_GroundStabilizer > 0.1;
@@ -281,6 +295,10 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+		
 		super.OnSimulation( pDt, force, torque );
 
 		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
@@ -329,7 +347,5 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 
 			torque += ( Vector( 0, 1, 0 ) * airControl ).Multiply3( m_Transform.data );
 		}
-
-		ExpansionDebugUI();
 	}
 }

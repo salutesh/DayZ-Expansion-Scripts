@@ -310,7 +310,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_MP5A2";
 		descriptionShort = "$STR_EXPANSION_MP5A2_DESC";
 		model = "\DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\mp5.p3d";
-		attachments[] = {"pistolMuzzle"};
+		attachments[] = {"pistolMuzzle","weaponWrap"};
 		itemSize[] = {6,3};
 		class DamageSystem
 		{
@@ -318,7 +318,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 125;
 					healthLevels[] = {{1.0,{"DZ\weapons\firearms\MP5\data\mp5k_body.rvmat"}},{0.7,{"DZ\weapons\firearms\MP5\data\mp5k_body.rvmat"}},{0.5,{"DZ\weapons\firearms\MP5\data\mp5k_body_damage.rvmat"}},{0.3,{"DZ\weapons\firearms\MP5\data\mp5k_body_damage.rvmat"}},{0.0,{"DZ\weapons\firearms\MP5\data\mp5k_body_destruct.rvmat"}}};
 				};
 			};

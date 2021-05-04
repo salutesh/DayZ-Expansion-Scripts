@@ -16,168 +16,168 @@ class CfgSlots
 	class Slot_Shoulder1
 	{
 		name = "Shoulder1";
-		displayName = "Weapon1";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder2
 	{
 		name = "Shoulder2";
-		displayName = "Weapon2";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder3
 	{
 		name = "Shoulder3";
-		displayName = "Weapon3";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder4
 	{
 		name = "Shoulder4";
-		displayName = "Weapon4";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder5
 	{
 		name = "Shoulder5";
-		displayName = "Weapon5";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder6
 	{
 		name = "Shoulder6";
-		displayName = "Weapon6";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder7
 	{
 		name = "Shoulder7";
-		displayName = "Weapon7";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder8
 	{
 		name = "Shoulder8";
-		displayName = "Weapon8";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder9
 	{
 		name = "Shoulder9";
-		displayName = "Weapon9";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder10
 	{
 		name = "Shoulder10";
-		displayName = "Weapon10";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder11
 	{
 		name = "Shoulder11";
-		displayName = "Weapon11";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder12
 	{
 		name = "Shoulder12";
-		displayName = "Weapon12";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder13
 	{
 		name = "Shoulder13";
-		displayName = "Weapon13";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder14
 	{
 		name = "Shoulder14";
-		displayName = "Weapon14";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder15
 	{
 		name = "Shoulder15";
-		displayName = "Weapon15";
+		displayName = "Weap$STR_EXPANSION_GUNRACKon15";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder16
 	{
 		name = "Shoulder16";
-		displayName = "Weapon16";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder17
 	{
 		name = "Shoulder17";
-		displayName = "Weapon17";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder18
 	{
 		name = "Shoulder18";
-		displayName = "Weapon18";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder19
 	{
 		name = "Shoulder19";
-		displayName = "Weapon19";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder20
 	{
 		name = "Shoulder20";
-		displayName = "Weapon20";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder21
 	{
 		name = "Shoulder21";
-		displayName = "Weapon21";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder22
 	{
 		name = "Shoulder22";
-		displayName = "Weapon22";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder23
 	{
 		name = "Shoulder23";
-		displayName = "Weapon23";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
 	class Slot_Shoulder24
 	{
 		name = "Shoulder24";
-		displayName = "Weapon24";
+		displayName = "$STR_EXPANSION_GUNRACK";
 		ghostIcon = "Shoulder";
 		show = "true";
 	};
@@ -225,7 +225,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_HELIPAD";
 		descriptionShort = "$STR_EXPANSION_HELIPAD_DESC";
 		model = "\DZ\gear\camping\fence_kit.p3d";
-		itemSize[] = {8,8};
+		itemSize[] = {4,4};
 	};
 	class ExpansionHelipadKitPlacing: ExpansionHelipadKit
 	{
@@ -298,6 +298,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 5000;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -349,7 +350,8 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 300;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -385,6 +387,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 600;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -469,6 +472,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -507,6 +511,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -545,6 +550,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -583,6 +589,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -624,6 +631,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor
@@ -718,6 +726,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 100;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
 				};
 			};
 			class GlobalArmor

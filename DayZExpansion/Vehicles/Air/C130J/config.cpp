@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_C130J
 	{
-		units[] = {"Vehicle_ExpansionC130JWheel","Vehicle_ExpansionC130J"};
+		units[] = {"Vehicle_ExpansionC130JWheel","Vehicle_ExpansionC130J","ExpansionSpraycanGrey","Vehicle_ExpansionC130J_Gray"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -15,24 +15,24 @@ class CfgSlots
 	class Slot_expansion_c130jwheel_1
 	{
 		name = "expansion_c130jwheel_1";
-		displayName = "C130J Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_C130J_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_C130J_WHEEL_DESC";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_c130jwheel_1_2
 	{
 		name = "expansion_c130jwheel_1_2";
-		displayName = "C130J Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_C130J_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_C130J_WHEEL_DESC";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_c130jwheel_2_2
 	{
 		name = "expansion_c130jwheel_2_2";
-		displayName = "C130J Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_C130J_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_C130J_WHEEL_DESC";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
 	};
@@ -296,6 +296,20 @@ class CfgVehicles
 				initPhase = 0;
 			};
 		};
+	};
+	class ExpansionSpraycanBase;
+	class ExpansionSpraycanGrey: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Grey_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_grey_co.paa"};
+		skinName = "Grey";
+	};
+	class Vehicle_ExpansionC130J_Gray: Vehicle_ExpansionC130J
+	{
+		skinBase = "Vehicle_ExpansionC130J";
+		skinName = "Gray";
 	};
 };
 class CfgNonAIVehicles

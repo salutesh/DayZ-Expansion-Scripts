@@ -14,7 +14,7 @@ GridSpacerWidgetClass marker_edit_panel {
    ignorepointer 1
    keepsafezone 1
    position 0 0
-   size 1 90
+   size 1 130
    hexactpos 0
    vexactpos 0
    hexactsize 0
@@ -35,7 +35,7 @@ GridSpacerWidgetClass marker_edit_panel {
       GridSpacerWidgetClass marker_color_picker_container_rgb {
        ignorepointer 1
        position 0 0
-       size 1 1
+       size 1 0.75
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -113,7 +113,8 @@ GridSpacerWidgetClass marker_edit_panel {
       GridSpacerWidgetClass marker_icons_content {
        ignorepointer 0
        color 0 0 0 0
-       size 1 1
+       size 0.99 1
+       halign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -167,7 +168,7 @@ GridSpacerWidgetClass marker_edit_panel {
        vexactpos 1
        hexactsize 0
        vexactsize 0
-       text "Show this marker on your HUD"
+       text "#STR_EXPANSION_MAP_MARKER_OPTION_3D_LABLE"
        "text offset" 10 0
        "text valign" center
       }
@@ -200,7 +201,7 @@ GridSpacerWidgetClass marker_edit_panel {
        vexactpos 1
        hexactsize 0
        vexactsize 0
-       text "Party Marker"
+       text "#STR_EXPANSION_MAP_MARKER_OPTION_PARTY_LABLE"
        "text offset" 10 0
        "text valign" center
       }
@@ -228,7 +229,7 @@ GridSpacerWidgetClass marker_edit_panel {
      vexactpos 1
      hexactsize 0
      vexactsize 1
-     text "CANCEL"
+     text "#STR_EXPANSION_MAP_MARKER_OPTION_CANCEL"
     }
     ButtonWidgetClass marker_button_right {
      position 0 0
@@ -237,7 +238,7 @@ GridSpacerWidgetClass marker_edit_panel {
      vexactpos 1
      hexactsize 0
      vexactsize 1
-     text "CREATE"
+     text "#STR_EXPANSION_MAP_MARKER_CREATE_BUTTON_LABLE"
     }
    }
   }

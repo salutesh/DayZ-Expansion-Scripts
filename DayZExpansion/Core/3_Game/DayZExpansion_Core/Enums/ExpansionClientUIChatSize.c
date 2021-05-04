@@ -15,5 +15,6 @@ enum ExpansionClientUIChatSize
 	VERYSMALL = 0,
 	SMALL,
 	MEDIUM,
-	LARGE
+	LARGE,
+	VERYLARGE
 };

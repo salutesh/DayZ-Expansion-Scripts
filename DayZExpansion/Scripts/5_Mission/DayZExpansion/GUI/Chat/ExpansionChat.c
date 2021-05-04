@@ -245,10 +245,6 @@ modded class Chat
 		EXPrint("Chat::Add Start");
 		#endif
 
-		int max_lenght = 100;
-		int name_lenght = params.param2.Length();
-		int text_lenght = params.param3.Length();
-		int total_lenght = text_lenght + name_lenght;
 		int channel =  params.param1;
 
 		if ( channel & CCSystem )
@@ -332,6 +328,20 @@ modded class Chat
 		message.Channel = params.param1;
 		message.From = params.param2;
 		message.Text = params.param3;
+		
+		if ( message.From == "BattlEye" )
+		{
+			if ( message.Text.IndexOf( "(Global) Admin:" ) == 0 )
+			{
+				message.From = "(Global)";
+				message.Text = message.Text.Substring( 15, message.Text.Length() - 15 ).Trim();
+			}
+			else if ( message.Text.IndexOf( "(Private) Admin:" ) == 0 )
+			{
+				message.From = "(Private)";
+				message.Text = message.Text.Substring( 16, message.Text.Length() - 16 ).Trim();
+			}
+		}
 
 		m_ChatParams.InsertAt( message, 0 );
 
@@ -636,19 +646,22 @@ modded class Chat
 			switch ( chatsize )
 			{
 				case ExpansionClientUIChatSize.VERYSMALL:
-					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_12.layout";
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_verysmall.layout";
 					break;
 				case ExpansionClientUIChatSize.SMALL:
-					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_14.layout";
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_small.layout";
 					break;
 				case ExpansionClientUIChatSize.MEDIUM:
-					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_16.layout";
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_medium.layout";
 					break;
 				case ExpansionClientUIChatSize.LARGE:
-					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_22.layout";
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_large.layout";
+					break;
+				case ExpansionClientUIChatSize.VERYLARGE:
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_verylarge.layout";
 					break;
 				default:
-					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_22.layout";
+					m_LayoutPath = "DayZExpansion/GUI/layouts/chat/expansion_chat_entry_large.layout";
 					break;
 			}
 

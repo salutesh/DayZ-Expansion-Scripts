@@ -22,7 +22,12 @@ modded class ActionFoldBaseBuildingObject
 
 		if ( player.IsInTerritory() )
 			return player.IsInsideOwnTerritory();
-			
+
+		//! Don't allow to fold (e.g.) camo box and camo tent if not empty
+		ItemBase item_base = ItemBase.Cast( target.GetObject() );
+		if ( item_base && item_base.GetNumberOfItems() > 0 )
+			return false;
+
 		return true;
 	}
 }

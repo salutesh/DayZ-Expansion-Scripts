@@ -24,7 +24,6 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionLocatorModule()
 	{
-		m_AreaArray = new array< ref ExpansionLocatorArray >;
 		m_CurrentAreaName = "";
 		m_UICallback = null;
 	}
@@ -44,9 +43,9 @@ class ExpansionLocatorModule: JMModuleBase
 		if ( IsMissionClient() && !m_UICallback )
 		{
 			m_UICallback = new ExpansionLocatorUI();
-			GetWorldLocations();
+			m_AreaArray = GetWorldLocations();
 			
-			GetGame().GameScript.Call( this, "ThreadLocator", null );
+			thread ThreadLocator();
 		}
 	}
 	
@@ -61,31 +60,25 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionLocatorModule GetRadius
 	// ------------------------------------------------------------
-	private int GetRadius( string type )
+	static int GetRadius( string type )
 	{
-		switch ( type )
-		{
-			case "Capital":
-			{
-				return 1000;
-			}
-			case "City":
-			{
-				return 500;
-			}
-			case "Village":
-			{
-				return 200;
-			}
-			case "Camp":
-			{
-				return 100;
-			}
-			case "Local":
-			{
-				return 100;
-			}
-		}
+		//! Most maps use these types.
+		//! One exception is Rostow which prepends "Name", e.g. "NameCapital", "NameCity" etc.
+
+		if ( type.Contains( "Capital" ) )
+			return 1000;
+
+		if ( type.Contains( "City" ) )
+			return 500;
+
+		if ( type.Contains( "Village" ) )
+			return 200;
+
+		if ( type.Contains( "Camp" ) )
+			return 100;
+
+		if ( type.Contains( "Local" ) )
+			return 100;
 		
 		return 100;
 	}
@@ -95,19 +88,18 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void ThreadLocator()
 	{
-		int nmbError = 0;
 		while ( true )
 		{
 			Sleep( 5000 );
 			
-			if ( !GetGame() || nmbError > 20 )
+			if ( !GetGame() )
 				return;
 
-			if ( GetExpansionSettings().GetGeneral() && !GetExpansionSettings().GetGeneral().PlayerLocationNotifier )
-			{
-				nmbError++;
+			if ( !GetExpansionSettings().GetGeneral() )
 				continue;
-			}
+
+			if ( !GetExpansionSettings().GetGeneral().PlayerLocationNotifier )
+				continue;
 
 			CheckPlayer();
 		}
@@ -155,8 +147,10 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionLocatorModule GetWorldLocations
 	// ------------------------------------------------------------
-	private void GetWorldLocations()
-	{	
+	static ref array<ref ExpansionLocatorArray> GetWorldLocations()
+	{
+		ref array<ref ExpansionLocatorArray> areaArray = new array< ref ExpansionLocatorArray >;
+
 		string location_config_path = "CfgWorlds " + GetGame().GetWorldName() + " Names";
 		int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );
 		
@@ -179,9 +173,9 @@ class ExpansionLocatorModule: JMModuleBase
 			TFloatArray location_position = new TFloatArray;
 			GetGame().ConfigGetFloatArray( location_position_path, location_position );
 			
-			if (location_position.Count() != 2)
+			if (location_position == null || location_position.Count() != 2)
 			{
-				Error("ExpansionLocatorModule::GetWorldLocations location_position.Count() != 2 count : " + location_position.Count());
+				//Error("ExpansionLocatorModule::GetWorldLocations location_position.Count() != 2 count : " + location_position.Count());
 				continue;
 			}
 
@@ -206,7 +200,9 @@ class ExpansionLocatorModule: JMModuleBase
 			if ( location_class_name.Contains( "Vysotovo" ) )
 				location_type = "Village";
 
-			m_AreaArray.Insert( new ExpansionLocatorArray( Vector( location_position[0], 0, location_position[1] ), location_name, location_type ) );
+			areaArray.Insert( new ExpansionLocatorArray( Vector( location_position[0], 0, location_position[1] ), location_name, location_type ) );
 		}
+
+		return areaArray;
 	}
 }

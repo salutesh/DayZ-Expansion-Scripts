@@ -123,7 +123,7 @@ GridSpacerWidgetClass ExpansionGroupMenuPlayerListUIEntry {
        hexactsize 1
        vexactsize 1
        image0 ""
-       imageTexture "{986F135C99A8DCDA}DayZExpansion/GUI/icons/hud/cross_64x64.edds"
+       imageTexture "{986F135C99A8DCDA}DayZExpansion/Core/GUI/icons/hud/cross_64x64.edds"
        mode blend
        "src alpha" 1
        "no wrap" 1

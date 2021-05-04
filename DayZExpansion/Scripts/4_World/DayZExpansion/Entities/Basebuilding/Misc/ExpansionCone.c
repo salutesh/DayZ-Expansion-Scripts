@@ -45,7 +45,7 @@ class ExpansionCone: Container_Base
 	// ------------------------------------------------------------
 	override bool CanPutInCargo (EntityAI parent)
 	{
-		return false;
+		return true;
 	}
 
 	// ------------------------------------------------------------

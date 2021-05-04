@@ -137,13 +137,13 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	// ------------------------------------------------------------
 	override float GetCameraHeight()
 	{
-		return 1;
+		return 0;
 	}
 
 	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
-		return 20;
+		return 15;
 	}
 
 	// ------------------------------------------------------------

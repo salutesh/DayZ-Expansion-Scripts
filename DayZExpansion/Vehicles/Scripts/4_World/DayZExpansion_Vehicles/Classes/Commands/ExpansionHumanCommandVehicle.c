@@ -21,7 +21,7 @@ class ExpansionHumanCommandVehicle extends ExpansionHumanCommandScript
 	const int STATE_SWITCHING_SEAT = 6;
 	const int STATE_FINISH = 7;
 
-	const float TIME_GET_IN = 1.0;
+	const float TIME_GET_IN = 1.5;
 	const float TIME_GET_OUT = 1.5;
 	const float TIME_JUMP_OUT = 2.0;
 	const float TIME_SWITCH_SEAT = 1.0;
@@ -41,6 +41,8 @@ class ExpansionHumanCommandVehicle extends ExpansionHumanCommandScript
 
 	private float m_Time;
 	private float m_TimeMax;
+	
+	private float m_TranslationSpeed;
 
 	private vector m_StartTransform[4];
 	private vector m_TargetTransform[4];
@@ -154,6 +156,7 @@ class ExpansionHumanCommandVehicle extends ExpansionHumanCommandScript
 		HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
 		m_Table.SetLookDirX(this, hcw.GetBaseAimingAngleLR());
 		m_Table.SetLookDirY(this, hcw.GetBaseAimingAngleUD());
+		
 
 		m_Table.SetVehicleType(this, m_VehicleType);
 		m_Table.SetVehicleSteering(this, m_Vehicle.GetSteering() + 0);
@@ -181,6 +184,8 @@ class ExpansionHumanCommandVehicle extends ExpansionHumanCommandScript
 
 		if (m_State != m_PreviousState)
 		{
+			m_TranslationSpeed = vector.Distance(m_StartTransform[3], m_TargetTransform[3]) / m_TimeMax;
+			
 			switch (m_State)
 			{
 				case STATE_GETTING_IN:
@@ -201,53 +206,39 @@ class ExpansionHumanCommandVehicle extends ExpansionHumanCommandScript
 
 	override void PrePhysUpdate(float pDt)
 	{
+		if (m_State == STATE_JUMPED_OUT)
+		{
+			return;
+		}
+		
+		vector translation;
+		float rotation[4]
+		
 		if (m_State == STATE_JUMPING_OUT && m_Table.IsLeaveVehicle(this))
 		{
 			m_State = STATE_JUMPED_OUT;
 			
 			LeaveVehicle();
+			
+			return;
 		}
+		
+		float speedT = m_TranslationSpeed;
 
 		vector tmPlayer[4];
-		vector rotationMat[3];
-		
-		Math3D.MatrixMultiply3(m_StartTransform, m_TargetTransform, rotationMat);
-		
-		float speedT = vector.Distance(m_StartTransform[3], m_TargetTransform[3]) / m_TimeMax;
-		float speedR = Math3D.MatrixToAngles(rotationMat).Length() / m_TimeMax;
-		
 		m_Player.GetTransformWS(tmPlayer);
-		Math3D.MatrixMultiply3(tmPlayer, m_TargetTransform, rotationMat);
-		
-		vector rotation = Math3D.MatrixToAngles(rotationMat);
-		vector translation = vector.Direction(tmPlayer[3], m_TargetTransform[3]);
-		
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "rotation: " + rotation);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "translation: " + translation);
+		translation = vector.Direction(tmPlayer[3], m_TargetTransform[3]);
+		translation = translation.InvMultiply3(m_TargetTransform);
 		
 		float lenT = translation.Normalize();
 		if (lenT < pDt)
 			speedT *= lenT;
 		
-		float lenR = rotation.Normalize();
-		if (lenR < pDt)
-			speedR *= lenR;
-		
 		translation = translation * speedT * pDt;
-		rotation = rotation * speedR * pDt;
 		
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "rotation: " + rotation);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "translation: " + translation);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "lenT: " + lenT);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "lenR: " + lenR);
-
-		float q[4];
-		rotation.RotationMatrixFromAngles(rotationMat);
-		Math3D.MatrixToQuat(rotationMat, q);
+		Math3D.MatrixToQuat(m_TargetTransform, rotation);
 		
-		ExpansionDebugger.Display(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND, "rotation: " + q[0] + ", " + q[1] + ", " + q[2] + ", " + q[3]);
-		
-		PrePhys_SetRotation(q);
+		PrePhys_SetRotation(rotation);
 		PrePhys_SetTranslation(translation);
 	}
 
@@ -275,8 +266,6 @@ class ExpansionHumanCommandVehicle extends ExpansionHumanCommandScript
 					m_State = STATE_AWAIT;
 				break;
 		}
-
-		ExpansionDebugger.Push(EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND);
 		
 		m_PreviousState = m_State;
 

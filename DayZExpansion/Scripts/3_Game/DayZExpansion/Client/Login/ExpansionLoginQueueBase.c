@@ -13,7 +13,7 @@
 modded class LoginQueueBase
 {
 	protected ImageWidget m_ImageBackground;
-	autoptr array<ref ExpansionLoadingScreenBackground> m_Backgrounds;
+	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
 	
 	void LoginQueueBase()
 	{
@@ -37,8 +37,33 @@ modded class LoginQueueBase
 		super.Init();
 		
 		m_ImageBackground = ImageWidget.Cast( layoutRoot.FindAnyWidget("Background") );
+
+		string world_name = "default";
+
+		if ( GetGame() )
+			GetGame().GetWorldName(world_name);
+
+		world_name.ToLower();
+			
+		if ( world_name == "chernarusplusgloom" ) 	world_name = "chernarusplus";
+		if ( world_name == "enochgloom" ) 			world_name = "enoch";
+		if ( world_name == "namalskgloom" ) 		world_name = "namalsk";
+		if ( world_name == "deerislegloom" ) 		world_name = "deerisle";
+		if ( world_name == "chiemseegloom" ) 		world_name = "chiemsee";
 		
-		m_ImageBackground.LoadImageFile( 0, m_Backgrounds.GetRandomElement().Path );
+		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
+
+		for ( int i = 0; i < m_Backgrounds.Count(); ++i )
+		{
+			if ( world_name == m_Backgrounds[i].MapName )
+			{
+				backgrounds = m_Backgrounds[i];
+				break;
+			}
+		}
+		
+		if (backgrounds)
+			m_ImageBackground.LoadImageFile( 0, backgrounds.Path.GetRandomElement() );
 
 		return layoutRoot;
 		

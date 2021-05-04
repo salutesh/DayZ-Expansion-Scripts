@@ -259,7 +259,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_G36C";
 		descriptionShort = "$STR_EXPANSION_G36C_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\Rifles\G36\G36.p3d";
-		attachments[] = {"weaponMuzzleM4","weaponBayonet","weaponFlashlight","weaponOptics","suppressorImpro"};
+		attachments[] = {"weaponMuzzleM4","weaponBayonet","weaponFlashlight","weaponOptics","weaponWrap"};
 		itemSize[] = {8,3};
 		class Particles
 		{
@@ -337,7 +337,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 200;
 					healthLevels[] = {{1.0,{"DZ\weapons\firearms\M4\Data\m4_body.rvmat"}},{0.7,{"DZ\weapons\firearms\M4\Data\m4_body.rvmat"}},{0.5,{"DZ\weapons\firearms\M4\Data\m4_body_damage.rvmat"}},{0.3,{"DZ\weapons\firearms\M4\Data\m4_body_damage.rvmat"}},{0.0,{"DZ\weapons\firearms\M4\Data\m4_body_destruct.rvmat"}}};
 				};
 			};

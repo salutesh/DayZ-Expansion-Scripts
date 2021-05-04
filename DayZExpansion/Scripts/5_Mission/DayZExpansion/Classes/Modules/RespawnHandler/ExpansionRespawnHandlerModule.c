@@ -10,15 +10,6 @@
  *
 */
 
-enum ExpansionRespawnHandlerModuleRPC
-{
-	INVALID = 20600,
-	ShowSpawnMenu,
-	SelectSpawn,
-	CloseSpawnMenu,
-	COUNT
-}
-
 class ExpansionRespawnHandlerModule: JMModuleBase
 {
 	// ------------------------------------------------------------
@@ -82,10 +73,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		
 		if ( !IsMissionHost() )
 			return;
+
+		array<ref ExpansionSpawnLocation> territoryspawnlist = GetTerritoryList(sender);
 		
 		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( territoryspawnlist );
 		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, sender );
-		
+
 		Print("ExpansionRespawnHandlerModule::ShowSpawnSelection - End");
 	}
 	
@@ -99,8 +93,16 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		
 		if ( !IsMissionClient() )
 			return;
+
+		array<ref ExpansionSpawnLocation> territoryspawnlist;
+
+		if ( !ctx.Read( territoryspawnlist ) )
+		{
+			Print( "ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Could not read territoryspawnlist" );
+			return;
+		}
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1000, false);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1000, false, territoryspawnlist);
 		
 		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - End");
 	}
@@ -109,7 +111,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule Exec_ShowSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void Exec_ShowSpawnMenu()
+	private void Exec_ShowSpawnMenu(array<ref ExpansionSpawnLocation> territoryspawnlist)
 	{
 		Print("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Start");
 		
@@ -118,14 +120,63 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		
 		GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL );
 		
-		/*ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
-		if ( spawnSelectionMenu )
+		if ( GetExpansionSettings().GetSpawn().SpawnOnTerritory )
 		{
-			//spawnSelectionMenu.FillList();
-			//GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove( Exec_ShowSpawnMenu );
-		}*/
+			ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+			if ( spawnSelectionMenu )
+			{
+				spawnSelectionMenu.FillList( territoryspawnlist, 1 );
+			}
+		}
 		
 		Print("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - End");
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu GetTerritoryList
+	// ------------------------------------------------------------	
+	array< ref ExpansionSpawnLocation> GetTerritoryList(PlayerIdentity sender)
+	{
+		if ( !IsMissionHost() )
+			return NULL;
+			
+		ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule(ExpansionTerritoryModule) );
+		
+		if ( !territories_module )
+			return NULL;
+
+		array< ref ExpansionSpawnLocation> SpawnLocations = new array< ref ExpansionSpawnLocation >;
+		ref array<vector> positions = new array<vector>;
+		ref ExpansionSpawnLocation location;
+		int TimesIsMember = 0;
+	
+		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
+		{
+			ref TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
+			
+			ExpansionTerritory territory = currentFlag.GetTerritory();
+			if ( !territory )
+				continue;
+
+			if ( !territory.IsMember( sender.GetId() ) )
+				continue;
+
+			TimesIsMember++;
+			
+			vector pos = territory.GetPosition();
+			// Offset player slighly horizontally and vertically so we don't spawn them on top of the flag pole
+			pos = Vector( pos[0] + 0.5, pos[1], pos[2] + 0.5 );
+
+			positions.Insert( pos );
+			location = new ExpansionSpawnLocation( territory.GetTerritoryName(), positions );
+			SpawnLocations.Insert( location );
+			positions.Clear();
+		}
+
+		if ( TimesIsMember > 0 )
+			return SpawnLocations;
+		else
+			return NULL;
 	}
 	
 	// ------------------------------------------------------------
@@ -244,6 +295,12 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			return;
 		
 		ref ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
+
+		if ( !random_location )
+		{
+			Exec_CloseSpawnMenu();
+			return;
+		}
 		
 		SelectSpawn( random_location.Positions.GetRandomElement() );
 	}

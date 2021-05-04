@@ -73,7 +73,13 @@ modded class MissionServer
 		
 		if ( GetExpansionSettings().GetSpawn().EnableSpawnSelection )
 		{
-			m_RespawnHandlerModule.ShowSpawnSelection( player.GetIdentity() );
+			int spawnLocationsCount = GetExpansionSettings().GetSpawn().SpawnLocations.Count();
+			bool territorySpawn = GetExpansionSettings().GetSpawn().SpawnOnTerritory && m_RespawnHandlerModule.GetTerritoryList( identity );
+
+			if ( spawnLocationsCount || territorySpawn )
+			{
+				m_RespawnHandlerModule.ShowSpawnSelection( player.GetIdentity() );
+			}
 		}
 
 		return player;

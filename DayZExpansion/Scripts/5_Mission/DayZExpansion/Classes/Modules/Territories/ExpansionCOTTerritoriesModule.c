@@ -343,6 +343,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	bool IsBaseBuildingObject(EntityAI obj)
 	{
+		if ( !obj )
+			return false;
+
 		if ( obj.IsInherited( BaseBuildingBase ) ) // Basebuilding parts
 			return true;
 		
@@ -512,7 +515,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendServerTerritories - Start");
 		#endif
 		
-		if ( !IsMissionClient() ) 
+		if ( !IsMissionClient() )
 			return;
 				
 		array<ref ExpansionTerritory> territories = new array<ref ExpansionTerritory>;
@@ -588,8 +591,8 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( !object )
 			return;
 
-		//! TODO: Tweak me! Player spawns on flag
 		vector pos = object.GetPosition();
+		pos = Vector( pos[0], pos[1] - 12, pos[2] );
 		vector minMax[2];
 		object.ClippingInfo( minMax );
 

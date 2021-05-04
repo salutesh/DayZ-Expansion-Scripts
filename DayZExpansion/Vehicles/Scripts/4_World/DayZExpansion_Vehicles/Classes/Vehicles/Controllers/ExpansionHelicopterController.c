@@ -181,8 +181,6 @@ class ExpansionHelicopterController: ExpansionVehicleController
 			m_CyclicLeft += cyclicLeft * GetExpansionClientSettings().HelicopterMouseHorizontalSensitivity;
 			m_CyclicRight += cyclicRight * GetExpansionClientSettings().HelicopterMouseHorizontalSensitivity;
 		}
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionHelicopterController::OnUpdate" );
 	}
 
 	protected override void OnReset()
@@ -201,8 +199,6 @@ class ExpansionHelicopterController: ExpansionVehicleController
 		m_FreeLook = true;
 
 		// don't reset freelook
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionHelicopterController::OnReset" );
 	}
 
 	protected override void OnNetworkSend( ref ParamsWriteContext ctx )

@@ -10,13 +10,6 @@
  *
 */
 
-enum ExpansionGlobalChatRPC
-{
-	INVALID = 20500,
-	AddChatMessage,
-	COUNT
-}
-
 /**@class		ExpansionGlobalChatModule
  * @brief		This class handle global chat
  **/
@@ -98,8 +91,6 @@ class ExpansionGlobalChatModule: JMModuleBase
 				string biuid = sender.GetId();
 				string idtable = sender.GetPlayerId().ToString();
 
-				string format = ( "[" + GetDateTime() + "] [" + channelName + "] " + data.param2 + ": " + data.param3 + " (SteamID = " + steamid + ", BIUid = " + biuid + ", PlayerID = " + idtable + ")");
-
 				if ( GetGame().IsMultiplayer() )
 				{
 					ScriptRPC rpc = new ScriptRPC();
@@ -112,6 +103,9 @@ class ExpansionGlobalChatModule: JMModuleBase
 
 					rpc.Send(null, ExpansionGlobalChatRPC.AddChatMessage, true);
 				}
+
+				// Uses similar format as vanilla direct chat log
+				GetGame().AdminLog( "Chat[" + channelName + "](\"" + data.param2 + "\"(id=" + biuid + ")): " + data.param3 );
 			}
 		} else
 		{

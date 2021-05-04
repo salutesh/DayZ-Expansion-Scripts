@@ -10,15 +10,6 @@
  *
 */
 
-enum ExpansionWorldMappingModuleRPC
-{
-	INVALID = 20040,
-	TurnOn,
-	TurnOff,
-	Load,
-	COUNT
-}
-
 class ExpansionWorldMappingModule: JMModuleBase
 {
 	static ref ScriptInvoker SI_LampEnable = new ScriptInvoker();
@@ -305,10 +296,10 @@ class ExpansionWorldMappingModule: JMModuleBase
 			if (!collisionBox && IsMissionHost() && GetGame().IsMultiplayer()) 
 				continue;
 			
-			int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_NOLIFETIME;
+			int flags = ECE_SETUP|ECE_UPDATEPATHGRAPH|ECE_CREATEPHYSICS;
 			if ( IsMissionClient() )
-				flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_NOLIFETIME|ECE_LOCAL;
-			
+				flags = ECE_SETUP|ECE_UPDATEPATHGRAPH|ECE_CREATEPHYSICS|ECE_LOCAL;
+
 			obj = GetGame().CreateObjectEx( className, position, flags );
 			
 			if ( !obj ) 
@@ -325,15 +316,6 @@ class ExpansionWorldMappingModule: JMModuleBase
 			{
 				obj.SetAffectPathgraph( true, false );
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
-			}
-			
-			ItemBase item = ItemBase.Cast( obj );
-			if ( item )
-			{
-				item.SetTakeable( false );
-				
-				if ( IsMissionHost() ) 
-					item.SetLifetimeMax(1.0);
 			}
 			
 			Building building = Building.Cast( obj );

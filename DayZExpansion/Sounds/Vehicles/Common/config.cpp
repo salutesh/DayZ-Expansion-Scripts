@@ -18,12 +18,12 @@ class CfgSoundShaders
 	};
 	class Expansion_Horn_Ext_SoundShader: Expansion_Horn_SoundShader
 	{
-		samples[] = {{"DayZExpansion\Sounds\Vehicles\Common\Expansion_Horn_Ext",1}};
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Common\Expansion_Truck_Horn_Ext",1}};
 		volume = 1;
 	};
 	class Expansion_Horn_Int_SoundShader: Expansion_Horn_SoundShader
 	{
-		samples[] = {{"DayZExpansion\Sounds\Vehicles\Common\Expansion_Horn_Int",1}};
+		samples[] = {{"DayZExpansion\Sounds\Vehicles\Common\Expansion_Truck_Horn_Int",1}};
 		volume = 1;
 	};
 	class Expansion_Truck_Horn_Ext_SoundShader: Expansion_Horn_SoundShader

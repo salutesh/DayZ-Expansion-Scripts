@@ -73,7 +73,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
          hexactsize 0
          vexactsize 1
          style Normal
-         text "MARKER LIST"
+         text "#STR_EXPANSION_MAP_MARKERLIST_TITLE"
          font "gui/fonts/etelkatextpro16"
          "exact text" 0
          "text halign" center
@@ -160,7 +160,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  hexactsize 1
                  vexactsize 1
                  style Normal
-                 text "PERSONAL MARKERS"
+                 text "#STR_EXPANSION_MAP_MARKERLIST_PERSONAL_TITLE"
                  font "gui/fonts/etelkatextpro16"
                  "exact text" 0
                  "text halign" center
@@ -345,7 +345,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  hexactsize 1
                  vexactsize 1
                  style Normal
-                 text "PARTY MARKERS"
+                 text "#STR_EXPANSION_MAP_MARKERLIST_PARTY_TITLE"
                  font "gui/fonts/etelkatextpro16"
                  "exact text" 0
                  "text halign" center
@@ -530,7 +530,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  hexactsize 1
                  vexactsize 1
                  style Normal
-                 text "MEMBER MARKERS"
+                 text "#STR_EXPANSION_MAP_MARKERLIST_MEMBER_TITLE"
                  font "gui/fonts/etelkatextpro16"
                  "exact text" 0
                  "text halign" center
@@ -715,7 +715,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  hexactsize 1
                  vexactsize 1
                  style Normal
-                 text "SERVER MARKERS"
+                 text "#STR_EXPANSION_MAP_MARKERLIST_SERVER_TITLE"
                  font "gui/fonts/etelkatextpro16"
                  "exact text" 0
                  "text halign" center

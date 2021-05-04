@@ -55,7 +55,7 @@ GridSpacerWidgetClass ExpansionFlagMenuTextureEntry {
        vexactpos 0
        hexactsize 1
        vexactsize 1
-       imageTexture "{83F4855ACB544999}DayZExpansion/GUI/textures/expansion_icon.edds"
+       imageTexture "{83F4855ACB544999}DayZExpansion/Core/GUI/textures/expansion_icon.edds"
        mode blend
        "src alpha" 1
        "no wrap" 1

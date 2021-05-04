@@ -47,11 +47,8 @@ class ExpansionVehicleCrew
 		m_ActionSelection = GetGame().ConfigGetTextOut( action_selection_path );
 		m_ActionSelection.ToLower();
 		m_ActionSelection.Trim();
-
-		//Print( m_ActionSelection );
 		
 		m_ComponentIndex = -1;
-		
 
 		array<Selection> selections();
 		m_Vehicle.GetLODByName( "geometryView" ).GetSelections( selections );
@@ -61,7 +58,6 @@ class ExpansionVehicleCrew
 			if ( m_Vehicle.IsActionComponentPartOfSelection( i, m_ActionSelection, "view" ) )
 			{
 				m_ComponentIndex = i;
-				//Print( m_ComponentIndex );
 				break;
 			}
 		}
@@ -75,20 +71,17 @@ class ExpansionVehicleCrew
 		m_SeatTransform[0] = Vector( 1, 0, 0 );
 		m_SeatTransform[1] = Vector( 0, 1, 0 );
 		m_SeatTransform[2] = Vector( 0, 0, 1 );
+		m_SeatTransform[3] = Vector( 0, 0, 0 );
 
 		LOD lod = m_Vehicle.GetLODByName( "geometryView" );
 		Selection selection = lod.GetSelectionByName( proxyPos );
 		if ( selection )
 		{
 			m_SeatTransform[3] = selection.GetVertexPosition( lod, 0 );
-		} else
-		{
-			m_SeatTransform[3] = "0 0 0";
+			m_SeatTransform[1] = vector.Direction(m_SeatTransform[3], selection.GetVertexPosition( lod, 1 )).Normalized();
+			m_SeatTransform[2] = -vector.Direction(m_SeatTransform[3], selection.GetVertexPosition( lod, 2 )).Normalized();
+			m_SeatTransform[0] = m_SeatTransform[1] * m_SeatTransform[2];
 		}
-
-		//Print("this is the test code");
-		
-		//Print( "ExpansionVehicleCrew - End" );
 	}
 
 	string GetName()

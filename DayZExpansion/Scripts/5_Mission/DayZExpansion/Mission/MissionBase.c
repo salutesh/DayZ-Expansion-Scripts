@@ -58,9 +58,6 @@ modded class MissionBase
 		case MENU_EXPANSION_CODELOCK_MENU:
 			menu = new ExpansionCodeLockUI;
 			break;
-		case MENU_EXPANSION_MARKET_MENU:
-			menu = new ExpansionMarketMenu;
-			break;
 		case MENU_EXPANSION_SPAWN_SELECTION_MENU:
 			menu = new ExpansionSpawnSelectionMenu;
 			break;
@@ -70,9 +67,6 @@ modded class MissionBase
 		case MENU_EXPANSION_FLAG_MENU:
 			menu = new ExpansionFlagMenu;
 			break;
-		case MENU_EXPANSION_PLAYER_LIST_MENU:
-			menu = new ExpansionPlayerList;
-			break;	
 		}	
 
 		if ( menu )

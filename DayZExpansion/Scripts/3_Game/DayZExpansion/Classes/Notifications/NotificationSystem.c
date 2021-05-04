@@ -99,16 +99,17 @@ modded class NotificationSystem
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionNotificationSystem Exec_CreateNotification
+	// ExpansionNotificationSystem Exec_CreateNotificationEx
 	// ------------------------------------------------------------
-	override private void Exec_CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time )
+	//! NOTE: Apparently we CAN'T override private static methods, i.e. it appears always the ORIGINAL method is called instead of the override
+	private static void Exec_CreateNotificationEx( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::CreateNotification - Start");
+		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx - Start");
 		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::CreateNotification title.GetText() : " + title.GetText());
+		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx title.GetText() : " + title.GetText());
 		#endif
 		
 		bool joinNotif = false;
@@ -133,13 +134,46 @@ modded class NotificationSystem
 		data.SetColor( color );
 		data.m_LeaveJoinNotif = leaveJoinNotif;
 
-		AddNotif( data );
+		m_Instance.AddNotif( data );
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_CreateNotification - End");
+		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx - End");
 		#endif
 	}
 	
+	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
+		#endif
+		
+		ref StringLocaliser title = new StringLocaliser( "" );
+		if ( !ctx.Read( title ) )
+			return;
+
+		ref StringLocaliser text = new StringLocaliser( "" );
+		if ( !ctx.Read( text ) )
+			return;
+
+		string icon;
+		if ( !ctx.Read( icon ) )
+			return;
+
+		int color;
+		if ( !ctx.Read( color ) )
+			return;
+
+		float time;
+		if ( !ctx.Read( time ) )
+			return;
+
+		Exec_CreateNotificationEx( title, text, icon, color, time );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
+		#endif
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem AddNotif
 	// ------------------------------------------------------------

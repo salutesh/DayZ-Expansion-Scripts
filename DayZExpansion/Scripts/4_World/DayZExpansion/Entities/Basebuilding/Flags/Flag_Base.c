@@ -51,10 +51,13 @@ modded class Flag_Base
 		
 		if ( classname == "Flag_LivoniaPolice" || classname == "Flag_CMC" || classname == "Flag_TEC" || classname == "Flag_CHEL" || classname == "Flag_Zenit" )	
 			return true;
-		
+
 		if ( classname == "Flag_HunterZ" || classname == "Flag_BrainZ" )
 			return true;
-		
+
+		if ( classname == "Flag_Refuge" || classname == "Flag_RSTA" || classname == "Flag_Snake" )
+			return true;
+
 		return false;
 	}
 		
@@ -88,7 +91,7 @@ modded class Flag_Base
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -105,13 +108,13 @@ modded class Flag_Base
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 
 		if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 			return false;

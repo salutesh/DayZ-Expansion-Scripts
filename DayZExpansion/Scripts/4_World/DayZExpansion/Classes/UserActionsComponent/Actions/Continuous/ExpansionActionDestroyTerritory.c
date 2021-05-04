@@ -72,7 +72,7 @@ class ExpansionActionDestroyTerritory: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools != 1 )
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools != DismantleFlagMode.WithTools )
 			return false;
 			
 		return DismantleCondition( player, target, item, true ) && player.m_MovementState.m_iStanceIdx != DayZPlayerConstants.STANCEIDX_PRONE;

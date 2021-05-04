@@ -11,8 +11,19 @@
 */
 modded class Truck_01_Base
 {
-	override bool CanObjectAttach( Object obj )
+	override string ExpansionGetWheelType(int slot_id)
 	{
+		return "Truck_01_Wheel";
+
+		//if ( mycondition )
+		//	return "Truck_01_Wheel";
+		//else 
+		//	return "Truck_01_WheelDouble";
+	}
+
+	override bool LeavingSeatDoesAttachment( int posIdx )
+	{
+		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
 		return false;
 	}
 

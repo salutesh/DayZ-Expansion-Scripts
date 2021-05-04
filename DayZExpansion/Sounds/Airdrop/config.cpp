@@ -12,6 +12,7 @@ class CfgPatches
 };
 class CfgSoundShaders
 {
+	class baseCharacter_SoundShader;
 	class Expansion_C130J_Engine_SoundShader
 	{
 		range = 2100;
@@ -21,9 +22,15 @@ class CfgSoundShaders
 		samples[] = {{"\DayZExpansion\Sounds\Airdrop\Expansion_Airdrop_Airplane",1}};
 		volume = 1;
 	};
+	class Expansion_Airdrop_ZSpawn_SoundShader: baseCharacter_SoundShader
+	{
+		samples[] = {{"\DZ\sounds\Characters\movement\roll\unarmed_dirt_1",1},{"\DZ\sounds\Characters\movement\roll\unarmed_dirt_2",1},{"\DZ\sounds\Characters\movement\roll\unarmed_dirt_3",1}};
+		volume = 1;
+	};
 };
 class CfgSoundSets
 {
+	class baseCharacter_SoundSet;
 	class Expansion_C130J_Engine_SoundSet
 	{
 		sound3DProcessingType = "Vehicle_Ext_3DProcessingType";
@@ -37,6 +44,10 @@ class CfgSoundSets
 	{
 		soundShaders[] = {"Expansion_C130J_Loop_SoundShader"};
 		volumeFactor = 1;
+	};
+	class Expansion_Airdrop_ZSpawn_SoundSet: baseCharacter_SoundSet
+	{
+		soundShaders[] = {"Expansion_Airdrop_ZSpawn_SoundShader"};
 	};
 };
 class CfgSounds

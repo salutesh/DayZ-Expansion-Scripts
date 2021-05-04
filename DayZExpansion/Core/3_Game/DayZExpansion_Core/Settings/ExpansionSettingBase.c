@@ -60,6 +60,11 @@ class ExpansionSettingBase
 		{
 			return false;
 		}
+		
+		if ( !FileExist( EXPANSION_SETTINGS_FOLDER ) )
+		{
+			MakeDirectory( EXPANSION_SETTINGS_FOLDER );
+		}
 
 		return OnSave();
 	}
@@ -95,10 +100,19 @@ class ExpansionSettingBase
 
 	void Update( ExpansionSettingBase setting )
 	{
-		Copy( setting );
+		if ( setting == this )
+			EXPrint("ExpansionSettingBase::Update - Warning: " + setting + " is trying to copy from itself. This may be unintended.");
+		else
+			Copy( setting );
+
 		Save();
 
 		if ( !IsMissionClient() )
 			Send( NULL );
+	}
+	
+	string SettingName()
+	{
+		return "Base Settings";
 	}
 }

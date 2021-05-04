@@ -83,6 +83,8 @@ class ExpansionClientSettings
 	
 	bool ShowNameQuickMarkers;
 	bool ShowDistanceQuickMarkers;
+
+	bool ShowMapMarkerList;
 	
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
@@ -191,7 +193,7 @@ class ExpansionClientSettings
 			return false;
 		
 		if ( version < 7 )
-			return false;
+			return true;
 
 		// Chat settings
 		if ( !ctx.Read( HUDChatSize ) )
@@ -200,7 +202,7 @@ class ExpansionClientSettings
 			return false;
 		
 		if ( version < 8 )
-			return false;
+			return true;
 
 		// more markers settings
 		if ( !ctx.Read( MemberMarkerType ) )
@@ -215,7 +217,7 @@ class ExpansionClientSettings
 			return false;
 		
 		if ( version < 9 )
-			return false;
+			return true;
 		
 		if ( !ctx.Read( ShowNameQuickMarkers ) )
 			return false;
@@ -224,12 +226,18 @@ class ExpansionClientSettings
 			return false;
 		
 		if ( version < 13 )
-			return false;
+			return true;
 		
 		if ( !ctx.Read( HelicopterMouseVerticalSensitivity ) )
 			return false;
 		
 		if ( !ctx.Read( HelicopterMouseHorizontalSensitivity ) )
+			return false;
+		
+		if ( version < 18 )
+			return true;
+		
+		if ( !ctx.Read( ShowMapMarkerList ) )
 			return false;
 
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
@@ -321,6 +329,11 @@ class ExpansionClientSettings
 
 		ctx.Write( HelicopterMouseVerticalSensitivity );
 		ctx.Write( HelicopterMouseHorizontalSensitivity );
+		
+		if ( version < 18 )
+			return;
+
+		ctx.Write( ShowMapMarkerList );
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
@@ -452,6 +465,8 @@ class ExpansionClientSettings
 		ShowNameQuickMarkers = true;
 		ShowDistanceQuickMarkers = true;
 		
+		ShowMapMarkerList = true;
+		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Defaults - End");
 		#endif
@@ -540,6 +555,8 @@ class ExpansionClientSettings
 		//! Option to toggle distance under quick markers
 		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
 
+		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
+
 		//Color slider for party member on top of player head
 		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0 );
 		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0 );
@@ -621,7 +638,7 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateSlider
 	// -----------------------------------------------------------
-	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min = 0.0, float max = 1.0 )
+	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min, float max )
 	{
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::CreateSlider - Start");
@@ -698,6 +715,30 @@ class ExpansionClientSettings
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::CreateEnum - End");
+		#endif
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionClientSettings CreateEnum
+	// ----------------------------------------------------------
+	private void CreateString( string variable, string name, string detailLabel, string detailContent )
+	{
+		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
+		EXLogPrint("ExpansionClientSettings::CreateString - Start");
+		#endif
+		
+		ExpansionSettingSerializationString setting = new ref ExpansionSettingSerializationString;
+
+		setting.m_Variable = variable;
+		setting.m_Name = name;
+		setting.m_Instance = this;
+		setting.m_DetailLabel = detailLabel;
+		setting.m_DetailContent = detailContent;
+
+		m_CurrentCategory.m_Settings.Insert( setting );
+		
+		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
+		EXLogPrint("ExpansionClientSettings::CreateString - End");
 		#endif
 	}
 }

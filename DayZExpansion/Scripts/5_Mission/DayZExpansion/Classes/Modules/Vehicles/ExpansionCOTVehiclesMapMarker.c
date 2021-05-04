@@ -119,7 +119,13 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// Expansion Update
 	// ------------------------------------------------------------
 	void Update(float timeslice)
-	{				
+	{
+		if ( !m_MapWidget )
+			return;
+
+		if ( !m_MarkerPos )
+			return;
+
 		vector mapPos = m_MapWidget.MapToScreen( m_MarkerPos );
 
 		float x;
@@ -211,6 +217,8 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 		{
 			m_MarkerUpdateTimer.Stop();
 			m_MarkerUpdateTimer = NULL;
+			
+			delete m_MarkerUpdateTimer;
 		}
 	}
 	

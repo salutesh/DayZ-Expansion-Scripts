@@ -22,14 +22,5 @@ class Static_Lamp_City3: ExpansionLampLightBase
 	{
 		return "0.9 0.8 0.6";
 	}
-}
-class bldr_Lamp_City3: ExpansionPropLampLightBase
-{
-	// ------------------------------------------------------------
-	// GetLampColor
-	// ------------------------------------------------------------
-	override vector GetLampColor()
-	{
-		return "0.9 0.8 0.6";
-	}
-}
+};
+class bldr_Lamp_City3: Static_Lamp_City3 {};

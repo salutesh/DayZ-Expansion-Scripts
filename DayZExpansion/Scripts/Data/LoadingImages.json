@@ -1,53 +1,95 @@
 [
     {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_1_co.edds"
+        "MapName": "default",
+        "Path":
+        [
+            "DayZExpansion/GUI/textures/loading_screens/loading_screen_default.edds"
+        ]
     },
     {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_2_co.edds"
+        "MapName": "chernarusplus",
+        "Path":
+        [
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_1_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_2_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_3_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_4_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_5_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_6_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_7_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_8_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_9_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_10_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_11_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_12_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_13_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_14_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_15_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chernarusplus/loading_screen_chernarusplus_16_co.edds"
+        ]
     },
     {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_3_co.edds"
+        "MapName": "enoch",
+        "Path":
+        [
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_1_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_2_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_3_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_4_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_5_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_6_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_7_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_8_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_9_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_10_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/enoch/loading_screen_enoch_11_co.edds"
+        ]
     },
     {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_4_co.edds"
+        "MapName": "chiemsee",
+        "Path":
+        [
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_1_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_2_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_3_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_4_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_5_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_6_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_7_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_8_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/chiemsee/loading_screen_chiemsee_9_co.edds"
+        ]
     },
     {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_5_co.edds"
+        "MapName": "namalsk",
+        "Path":
+        [
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_1_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_2_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_3_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_4_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_5_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_6_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_7_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_8_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_9_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_10_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_11_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_12_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/namalsk/loading_screen_namalsk_13_co.edds"
+        ]
     },
     {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_6_co.edds"
-    },
-    {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_7_co.edds"
-    },
-    {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_8_co.edds"
-    },
-    {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_9_co.edds"
-    },
-    {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_10_co.edds"
-    },
-    {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_11_co.edds"
-    },
-    {
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_12_co.edds"
-    },
-	{
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_13_co.edds"
-    },
-	{
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_14_co.edds"
-    },
-	{
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_15_co.edds"
-    },
-	{
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_16_co.edds"
-    },
-	{
-        "Path": "DayZExpansion/GUI/textures/loading_screens/loading_screen_17_co.edds"
+        "MapName": "deerisle",
+        "Path":
+        [
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_1_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_2_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_3_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_4_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_5_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_6_co.edds",
+            "DayZExpansion/GUI/textures/loading_screens/deerisle/loading_screen_deerisle_7_co.edds"
+        ]
     }
 ]

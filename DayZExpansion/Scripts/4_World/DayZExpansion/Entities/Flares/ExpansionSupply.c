@@ -12,146 +12,60 @@
 
 class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 {
-	ExpansionAirdropLootContainers m_Settings;
-
-	ExpansionAirdropContainerBase m_Container;
-
-	ExpansionAirdropPlane m_Plane;
-
-	int m_LootItemsSpawned;
-
-	bool m_LootHasSpawned;
-
-	void ExpansionSupplySignal()
-	{
-		SetEventMask( EntityEvent.SIMULATE );
-	}
-
-	void ~ExpansionSupplySignal()
-	{
-		if ( IsMissionHost() )
-		{
-			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
-		}
-	}
-	
 	override void OnWorkStart()
 	{
+		super.OnWorkStart();
+
 		if ( IsMissionHost() )
 		{
-			vector spawnPoint = Vector( 0, GetExpansionSettings().GetAirdrop().Height, 0 );
-		
-			switch( Math.RandomInt(0, 4) ) {
-				case 0: {
-					spawnPoint[0] = 0.0;
-					spawnPoint[2] = Math.RandomFloat( 0.0, 15360.0 );
-					break;
-				}
-				case 1: {
-					spawnPoint[0] = 15360.0;
-					spawnPoint[2] = Math.RandomFloat( 0.0, 15360.0 );
-					break;
-				}
-				case 2: {
-					spawnPoint[0] = Math.RandomFloat( 0.0, 15360.0 );
-					spawnPoint[2] = 0.0;
-					break;
-				}
-				case 3: {
-					spawnPoint[0] = Math.RandomFloat( 0.0, 15360.0 );
-					spawnPoint[2] = 15360.0;
-					break;
+			ref array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
+			ref ExpansionAirdropLootContainer container;
+
+			//! Get all containers enabled for player-called supply drop use
+			for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
+			{
+				container = GetExpansionSettings().GetAirdrop().Containers[i];
+				if ( container.Usage == 0 || container.Usage == 2 )
+				{
+					containers.Insert( container );
 				}
 			}
 
-			m_Settings = GetExpansionSettings().GetAirdrop().Containers.GetRandomElement();
+			if ( containers.Count() == 0 )
+			{
+				string errorMsg = "Airdrop settings do not contain compatible container (looked for container with Usage set to 0 or 2)";
+				Print( "[ExpansionSupplySignal] ERROR: " + errorMsg );
+				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR" ), new StringLocaliser( errorMsg ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 14 );
+				return;
+			}
 
-			m_Plane = ExpansionAirdropPlane.Cast( GetGame().CreateObject( "ExpansionAirdropPlane", spawnPoint, false, true, true ) );
+			//! Pick a container (weighted random)
+			container = ExpansionAirdropLootContainer.GetWeightedRandomContainer( containers );
+			EXPrint("[ExpansionSupplySignal] Selected container: " + container.Container);
+					
+			int itemCount = container.ItemCount;
+			if ( container.ItemCount <= 0 )
+				itemCount = GetExpansionSettings().GetAirdrop().ItemCount;  //! Only kept for backwards compatibility, should be set per container
 
-			if ( m_Plane )
+			ref TStringArray infected;
+			int infectedCount;
+			if ( container.SpawnInfectedForPlayerCalledDrops )
+			{
+				infected = container.Infected;
+				infectedCount = container.InfectedCount;
+			}
+
+			container = new ExpansionAirdropLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount );
+
+			ExpansionAirdropPlane plane = ExpansionAirdropPlane.CreatePlane( Vector( GetPosition()[0], 0, GetPosition()[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+
+			if ( plane )
 			{
 				if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowPlayerAirdropStarted )
 				{
 					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS_PLAYER" ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 7 );
 				}
-					
-				m_Plane.SetupPlane( Vector( GetPosition()[0], 0, GetPosition()[2] ), "", 100, GetExpansionSettings().GetAirdrop().Speed );
-				m_Plane.m_Height = 750;
-
-				GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( OnUpdate ); 
 			}
 		}
-
-		super.OnWorkStart();
-	}
-
-	void OnUpdate( float delta )
-	{
-		//Message( GetPlayer(), "m_Plane " + m_Plane.GetPosition() );
-		//Message( GetPlayer(), "m_Speed " + m_Plane.m_Speed );
-
-		if ( m_Plane )
-		{
-			if ( m_Plane.CheckForDrop() && !m_Container )
-			{
-				m_LootHasSpawned = false;
- 
-				m_Container = m_Plane.CreateDrop( GetExpansionSettings().GetAirdrop().Containers.GetRandomElement().Container );
-				m_Container.InitAirdrop( );
-
-				if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowPlayerAirdropDropped )
-				{
-					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 7 );
-				}
-			}
-
-			if ( m_Plane.IsWarningProximity() )
-			{
-				if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowPlayerAirdropClosingOn )
-				{
-					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 7 );
-				}
-			}
-
-			if ( m_Plane.CheckForRemove() )
-			{
-				RemovePlane();
-			}
-		}
-
-		if ( m_Container )
-		{
-			if ( m_Container.m_ItemCount == 0 && !m_LootHasSpawned )
-			{
-				SpawnLoot( m_Container.GetPosition(), 30 );
-
-				m_LootHasSpawned = true;
-			}
-		}
-	}
-
-	void SpawnLoot( vector centerPosition, float radius )
-	{
-		m_LootItemsSpawned = 0;
-		while ( m_LootItemsSpawned < GetExpansionSettings().GetAirdrop().ItemCount )
-		{
-			int index = m_Settings.Loot.GetRandomIndex( );
-
-			float chance = m_Settings.Loot.Get( index ).Chance;
-			if ( Math.RandomFloat01() < chance )
-			{
-				m_LootItemsSpawned++;
-
-				m_Container.AddItem( m_Settings.Loot.Get( index ) );
-			}
-		}	
-	}
-
-	void RemovePlane()
-	{
-		if ( !m_Plane )
-			return;
-
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, m_Plane );
 	}
 }

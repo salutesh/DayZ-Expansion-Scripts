@@ -508,8 +508,6 @@ modded class DayZPlayerImplement
 
 		if ( IsPreparingVehicle() )
 			return;
-		
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "Attached to: " + m_ExAttachmentObject );
 
 		IEntity parent = GetParent();
 		
@@ -558,9 +556,6 @@ modded class DayZPlayerImplement
 				vector start = GetPosition() + Vector( 0, 1.0, 0 );
 				vector end = GetPosition() - Vector( 0, castDistance, 0 );
 
-				ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "Start Trace: " + start );
-				ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "End Trace: " + end );
-
 				RaycastRVParams params = new RaycastRVParams( start, end, GetGame().GetPlayer(), castRadius );
 				params.sorted = true;
 				params.type = ObjIntersectGeom;
@@ -595,20 +590,6 @@ modded class DayZPlayerImplement
 				{
 					AttachmentDebugPrint("drparent");
 					Detach();
-				}
-				
-				ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "Size: " + results.Count() );
-				for ( int j = 0; j < results.Count(); j++ )
-				{
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "results[" + j + "]: " + results[j] );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  obj: " + results[j].obj );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  parent: " + results[j].parent );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  pos: " + results[j].pos );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  dir: " + results[j].dir );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  hierLevel: " + results[j].hierLevel );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  component: " + results[j].component );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  entry: " + results[j].entry );
-					ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_ATTACHMENT, "  exit: " + results[j].exit );
 				}
 			} else if ( parent && res == ExpansionPlayerRaycastResult.DETACH )
 			{
@@ -687,7 +668,5 @@ modded class DayZPlayerImplement
 
 			AttachmentDebugPrint( "ExPlayerLinkType Processed" );
 		}
-
-		ExpansionDebugger.Push( EXPANSION_DEBUG_PLAYER_ATTACHMENT );
 	}
 }

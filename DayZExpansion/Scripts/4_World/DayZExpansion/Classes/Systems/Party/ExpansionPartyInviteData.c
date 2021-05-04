@@ -36,4 +36,9 @@ class ExpansionPartyInviteData
 		
 		return true;
 	}
+	
+	string GetID()
+	{
+		return UID;
+	}
 };

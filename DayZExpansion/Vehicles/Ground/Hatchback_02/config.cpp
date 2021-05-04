@@ -680,7 +680,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Door_2_1: CarDoor
+	class Hatchback_02_Door_2_1: Hatchback_02_Door_1_1
 	{
 		class DamageSystem
 		{
@@ -721,7 +721,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Door_1_2: CarDoor
+	class Hatchback_02_Door_1_2: Hatchback_02_Door_1_1
 	{
 		applySkinsTo[] = {"Hatchback_02_Door_2_2","Expansion_Hatchback_02_Door_2_2"};
 		defaultSkin = "Red";
@@ -764,7 +764,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Door_2_2: CarDoor
+	class Hatchback_02_Door_2_2: Hatchback_02_Door_1_2
 	{
 		class DamageSystem
 		{

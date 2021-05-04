@@ -490,7 +490,7 @@ FrameWidgetClass ExpansionSpawnSelectionUI {
    vexactsize 1
    priority 1
    style Normal
-   text "SPAWN SELECTION"
+   text "#STR_EXPANSION_SPAWNSELECTION_TITLE"
    font "gui/fonts/sdf_MetronLight72"
    "text color" 0.8157 0.1255 0.7843 1
    "exact text" 0

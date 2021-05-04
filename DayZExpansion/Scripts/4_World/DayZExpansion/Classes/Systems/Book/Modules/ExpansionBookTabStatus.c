@@ -153,7 +153,7 @@ class ExpansionBookTabStatus extends ExpansionBookTabBase
 		super.OnUpdate( timeslice );
 
 		m_Time += timeslice;
-		if ( m_Time >= 2.0 )
+		if ( m_Time >= 1.0 )
 		{
 			UpdateValues();
 			m_Time = 0;

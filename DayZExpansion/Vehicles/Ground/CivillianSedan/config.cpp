@@ -716,7 +716,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class CivSedanDoors_CoDriver: CarDoor
+	class CivSedanDoors_CoDriver: CivSedanDoors_Driver
 	{
 		class DamageSystem
 		{
@@ -757,7 +757,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class CivSedanDoors_BackLeft: CarDoor
+	class CivSedanDoors_BackLeft: CivSedanDoors_Driver
 	{
 		class DamageSystem
 		{
@@ -798,7 +798,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class CivSedanDoors_BackRight: CarDoor
+	class CivSedanDoors_BackRight: CivSedanDoors_Driver
 	{
 		class DamageSystem
 		{

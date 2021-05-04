@@ -15,63 +15,56 @@ class CfgSlots
 	class Slot_vodnikwheel_1_1
 	{
 		name = "vodnikwheel_1_1";
-		displayName = "Vodnik Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_vodnikwheel_1_2
 	{
 		name = "vodnikwheel_1_2";
-		displayName = "Vodnik Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_vodnikwheel_2_1
 	{
 		name = "vodnikwheel_2_1";
-		displayName = "Vodnik Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_vodnikwheel_2_2
 	{
 		name = "vodnikwheel_2_2";
-		displayName = "Vodnik Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_vodnikdriverdoor
 	{
 		name = "vodnikdriverdoor";
-		displayName = "";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_LEFT";
 		selection = "vodnikdriverdoor";
 		ghostIcon = "doorfront";
 	};
 	class Slot_vodnikcodriverdoor
 	{
 		name = "vodnikcodriverdoor";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_LEFT";
 		selection = "vodnikcodriverdoor";
 		ghostIcon = "doorfront";
 	};
 	class Slot_vodnikcargo1door
 	{
 		name = "vodnikcargo1door";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "PLACEHOLDER Vodnik Cargo Door 01";
 		selection = "vodnikcargo1door";
 		ghostIcon = "doorrear";
 	};
 	class Slot_vodnikcargo2door
 	{
 		name = "vodnikcargo2door";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "PLACEHOLDER Vodnik Cargo Door 02";
 		selection = "vodnikcargo2door";
 		ghostIcon = "doorrear";
 	};
@@ -774,7 +767,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Camo_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Camo_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_camo_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_camo_co.paa"};
 		skinName = "Camo";
 	};
 	class ExpansionVodnik_Camo: ExpansionVodnik
@@ -802,7 +795,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_CamoMedical_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_CamoMedical_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_camo_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_camo_co.paa"};
 		skinName = "CamoMedical";
 	};
 	class ExpansionVodnik_CamoMedical: ExpansionVodnik

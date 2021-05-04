@@ -33,8 +33,11 @@ modded class ActionGetInTransport
 
 		if ( !s_ExpansionPlayerAttachment && player.GetParent() )
 			return false;
+
+		// Temp fix for being able to enter Uh1h despite being locked
+		ExpansionUh1h uh1h = ExpansionUh1h.Cast( target.GetObject() );
 		
-		if ( car.DoorCount() <= 0 )
+		if ( car.DoorCount() <= 0 || uh1h )
 			return !car.IsLocked();
 		else		
 			return true;

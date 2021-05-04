@@ -10,13 +10,6 @@
  *
 */
 
-enum ExpansionMissionCOTModuleRPC
-{
-	INVALID = 20120,
-	Load,
-	COUNT
-}
-
 class ExpansionMissionCOTModule: JMRenderableModuleBase
 {
 	private ExpansionMissionSettings settings;

@@ -24,37 +24,24 @@ modded class ActionBuildPartCB
 
 modded class ActionBuildPart
 {
-	/*
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
-	{	
-		ItemBase item_in_hands = ItemBase.Cast( player.GetHumanInventory().GetEntityInHands() );
+	{
+		//! Now it will check if we are in a safezone
+		if ( player.IsInSafeZone() )
+			return false;
 
-		if ( item_in_hands )
+		//! It's not a territory flag, but his he in a territory
+		if ( player.IsInTerritory() )
 		{
-			if ( item_in_hands.GetType() == "ExpansionAdminHammer" )
+			//! It's his territory ?
+			if ( !player.IsInsideOwnTerritory() )
 			{
-				return true;
+				return false;
 			}
 		}
 
 		return super.ActionCondition( player, target, item );
 	}
-
-	override bool ActionConditionContinue( ActionData action_data )
-	{
-		ItemBase item_in_hands = ItemBase.Cast( action_data.m_Player.GetHumanInventory().GetEntityInHands() );
-
-		if ( item_in_hands )
-		{
-			if ( item_in_hands.GetType() == "ExpansionAdminHammer" )
-			{
-				return true;
-			}
-		}
-
-		return super.ActionConditionContinue( action_data );
-	}
-	*/
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
@@ -71,7 +58,7 @@ modded class ActionBuildPart
 			{
 				if ( !construction.IsColliding( part_name ) && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
 				{
-					construction.BuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
+					construction.AdminBuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
 				}
 
 				action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );

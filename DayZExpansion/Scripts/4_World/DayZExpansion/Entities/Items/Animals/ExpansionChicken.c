@@ -119,7 +119,7 @@ class ExpansionChicken extends Inventory_Base
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -133,13 +133,13 @@ class ExpansionChicken extends Inventory_Base
 
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-		
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 
 		if ( Expansion_Assert_False( ctx.Read( m_TypeChicken ), "[" + this + "] Failed reading m_TypeChicken" ) )
 			return false;

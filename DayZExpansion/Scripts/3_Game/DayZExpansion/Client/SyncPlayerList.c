@@ -43,6 +43,7 @@ modded class SyncPlayerList
 					sync_player.m_UID = player.GetIdentity().GetPlainId();
 					sync_player.m_RUID = player.GetIdentity().GetId();
 					sync_player.m_SteamID = player.GetIdentity().GetPlainId();
+					sync_player.m_PlayerID = player.GetIdentity().GetPlayerId();
 					sync_player.m_PlayerName = player.GetIdentity().GetName();
 					m_PlayerList.Insert( sync_player );
 				} else

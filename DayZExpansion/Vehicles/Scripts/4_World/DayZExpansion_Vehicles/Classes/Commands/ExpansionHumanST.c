@@ -16,8 +16,8 @@ class ExpansionHumanST
 	private int m_CMD_Jump;
 	private int m_CMD_Land;
 
-	private int m_CMD_Expansion_Parachute_Pull;
-	private int m_CMD_Expansion_Parachute_Cut;
+	//private int m_CMD_Expansion_Parachute_Pull;
+	//private int m_CMD_Expansion_Parachute_Cut;
 
 	private int m_CMD_Vehicle_GetIn;
 	private int m_CMD_Vehicle_SwitchSeat;
@@ -26,8 +26,8 @@ class ExpansionHumanST
 	private int m_CMD_Vehicle_CrawlOut;
 	private int m_CMD_Vehicle_JumpOut;
 
-	private int m_CMD_Guitar;
-	private int m_CMD_Guitar_Stop;
+	//private int m_CMD_Guitar;
+	//private int m_CMD_Guitar_Stop;
 
 	private int m_VAR_MovementSpeed;
 	private int m_VAR_MovementDirection;
@@ -49,8 +49,8 @@ class ExpansionHumanST
 	private int m_VAR_LookDirX;
 	private int m_VAR_LookDirY;
 
-	private int m_VAR_GuitarChord;
-	private int m_VAR_GuitarFret;
+	//private int m_VAR_GuitarChord;
+	//private int m_VAR_GuitarFret;
 
 	void ExpansionHumanST( Human human )
 	{
@@ -60,8 +60,8 @@ class ExpansionHumanST
 		m_CMD_Jump = hai.BindCommand( "CMD_Jump" );
 		m_CMD_Land = hai.BindCommand( "CMD_Land" );
 		
-		m_CMD_Expansion_Parachute_Pull = hai.BindCommand( "CMD_Expansion_Parachute_Pull" );
-		m_CMD_Expansion_Parachute_Cut = hai.BindCommand( "CMD_Expansion_Parachute_Cut" );
+		//m_CMD_Expansion_Parachute_Pull = hai.BindCommand( "CMD_Expansion_Parachute_Pull" );
+		//m_CMD_Expansion_Parachute_Cut = hai.BindCommand( "CMD_Expansion_Parachute_Cut" );
 
 		m_CMD_Vehicle_GetIn = hai.BindCommand( "CMD_Vehicle_GetIn" );
 		m_CMD_Vehicle_SwitchSeat = hai.BindCommand( "CMD_Vehicle_SwitchSeat" );
@@ -70,8 +70,8 @@ class ExpansionHumanST
 		m_CMD_Vehicle_CrawlOut = hai.BindCommand( "CMD_Vehicle_CrawlOut" );
 		m_CMD_Vehicle_JumpOut = hai.BindCommand( "CMD_Vehicle_JumpOut" );
 
-		m_CMD_Guitar = hai.BindCommand( "CMD_Guitar" );
-		m_CMD_Guitar_Stop = hai.BindCommand( "CMD_Guitar_Stop" );
+		//m_CMD_Guitar = hai.BindCommand( "CMD_Guitar" );
+		//m_CMD_Guitar_Stop = hai.BindCommand( "CMD_Guitar_Stop" );
 
 		m_VAR_MovementSpeed = hai.BindVariableFloat( "MovementSpeed" );
 		m_VAR_MovementDirection = hai.BindVariableFloat( "MovementDirection" );
@@ -93,8 +93,8 @@ class ExpansionHumanST
 		m_VAR_LookDirX = hai.BindVariableFloat( "LookDirX" );
 		m_VAR_LookDirY = hai.BindVariableFloat( "LookDirY" );
 
-		m_VAR_GuitarChord = hai.BindVariableInt( "GuitarChord" );
-		m_VAR_GuitarFret = hai.BindVariableFloat( "GuitarFret" );
+		//m_VAR_GuitarChord = hai.BindVariableInt( "GuitarChord" );
+		//m_VAR_GuitarFret = hai.BindVariableFloat( "GuitarFret" );
 	}
 
 	void CallFall( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -112,15 +112,15 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Land, pParamInt, pParamFloat );
 	}
 
-	void CallParachutePull( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
-	{
-		script.PreAnim_CallCommand( m_CMD_Expansion_Parachute_Pull, pParamInt, pParamFloat );
-	}
+	//void CallParachutePull( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	//{
+	//	script.PreAnim_CallCommand( m_CMD_Expansion_Parachute_Pull, pParamInt, pParamFloat );
+	//}
 
-	void CallParachuteCut( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
-	{
-		script.PreAnim_CallCommand( m_CMD_Expansion_Parachute_Cut, pParamInt, pParamFloat );
-	}
+	//void CallParachuteCut( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	//{
+	//	script.PreAnim_CallCommand( m_CMD_Expansion_Parachute_Cut, pParamInt, pParamFloat );
+	//}
 
 	void CallVehicleGetIn( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
@@ -152,15 +152,15 @@ class ExpansionHumanST
 		script.PreAnim_CallCommand( m_CMD_Vehicle_JumpOut, pParamInt, pParamFloat );
 	}
 
-	void CallGuitar( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
-	{
-		script.PreAnim_CallCommand( m_CMD_Guitar, pParamInt, pParamFloat );
-	}
+	//void CallGuitar( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	//{
+	//	script.PreAnim_CallCommand( m_CMD_Guitar, pParamInt, pParamFloat );
+	//}
 
-	void CallGuitarStop( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
-	{
-		script.PreAnim_CallCommand( m_CMD_Guitar_Stop, pParamInt, pParamFloat );
-	}
+	//void CallGuitarStop( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	//{
+	//	script.PreAnim_CallCommand( m_CMD_Guitar_Stop, pParamInt, pParamFloat );
+	//}
 
 	void SetMovementSpeed( HumanCommandScript script, float param )
 	{
@@ -237,13 +237,13 @@ class ExpansionHumanST
 		script.PreAnim_SetFloat( m_VAR_LookDirY, param );
 	}
 
-	void SetGuitarChord( HumanCommandScript script, int param )
-	{
-		script.PreAnim_SetInt( m_VAR_GuitarChord, param );
-	}
+	//void SetGuitarChord( HumanCommandScript script, int param )
+	//{
+	//	script.PreAnim_SetInt( m_VAR_GuitarChord, param );
+	//}
 
-	void SetGuitarFret( HumanCommandScript script, float param )
-	{
-		script.PreAnim_SetFloat( m_VAR_GuitarFret, param );
-	}
+	//void SetGuitarFret( HumanCommandScript script, float param )
+	//{
+	//	script.PreAnim_SetFloat( m_VAR_GuitarFret, param );
+	//}
 };

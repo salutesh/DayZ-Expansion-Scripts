@@ -43,7 +43,7 @@ class ExpansionVehicleActionPairKey: ActionInteractBase
 		if ( player.GetCommand_ExpansionVehicle() ) //! don't pair if we are inside the car
 			return false;
 
-		if ( !Class.CastTo( car, target.GetObject() ) )
+		if ( !Class.CastTo( car, target.GetParentOrObject() ) )
 			return false;
 
 		if ( !Class.CastTo( key, player.GetItemInHands() ) )
@@ -75,7 +75,7 @@ class ExpansionVehicleActionPairKey: ActionInteractBase
 	{
 		super.OnStartServer( action_data );
 
-		ExpansionVehicleBase car = ExpansionVehicleBase.Cast( action_data.m_Target.GetObject() );
+		ExpansionVehicleBase car = ExpansionVehicleBase.Cast( action_data.m_Target.GetParentOrObject() );
 		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
 	}
 

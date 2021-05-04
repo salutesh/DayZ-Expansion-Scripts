@@ -26,9 +26,69 @@ modded class Construction
 			return super.IsColliding(part_name);
 		}
 	}
+	
+	void AdminBuildPartServer( notnull Man player, string part_name, int action_id )
+	{
+		//! Like vanilla BuildPartServer but calls AdminLockLockableSlots instead of TakeMaterialsServer
+
+		bsbDebugPrint("[bsb] Construction AdminBuildPartServer | " + part_name);
+		//reset DamageZone health
+		string damage_zone;
+		if (DamageSystem.GetDamageZoneFromComponentName(GetParent(),part_name,damage_zone))
+		{
+			GetParent().SetHealthMax(damage_zone);
+		}
+		
+		//on action
+		AdminLockLockableSlots( part_name );
+
+		//destroy build collision check trigger
+		DestroyCollisionTrigger();
+
+		//call event
+		GetParent().OnPartBuiltServer( player, part_name, action_id );
+	}
+
+	void AdminLockLockableSlots( string part_name, bool repairing = false )
+	{
+		//! Like vanilla TakeMaterialsServer but does not touch materials and only locks lockable slots
+
+		string main_part_name = GetConstructionPart( part_name ).GetMainPartName();
+		string cfg_path = "cfgVehicles" + " " + GetParent().GetType() + " "+ "Construction" + " " + main_part_name + " " + part_name + " " + "Materials";
+		
+		if ( GetGame().ConfigIsExisting( cfg_path ) )
+		{
+			int	child_count = GetGame().ConfigGetChildrenCount( cfg_path );
+			
+			for ( int i = 0; i < child_count; i++ )
+			{
+				string child_name;
+				GetGame().ConfigGetChildName( cfg_path, i, child_name );
+				
+				//get type, lockable from material
+				string config_path;
+				string slot_name;
+				config_path = cfg_path + " " + child_name + " " + "slot_name";
+				GetGame().ConfigGetText( config_path, slot_name );
+				config_path = cfg_path + " " + child_name + " " + "lockable";
+				bool lockable = GetGame().ConfigGetInt( config_path );
+				
+				ItemBase attachment = ItemBase.Cast( GetParent().FindAttachmentBySlotName( slot_name ) );
+				if ( attachment && lockable )
+				{
+					//lock attachment
+					InventoryLocation inventory_location = new InventoryLocation;
+					attachment.GetInventory().GetCurrentInventoryLocation( inventory_location );
+			
+					GetParent().GetInventory().SetSlotLock( inventory_location.GetSlot(), true );
+				}
+			}
+		}
+	}
+
 	override bool CanBuildPart( string part_name, ItemBase tool, bool use_tool )
 	{
-		if ( tool.GetType() == "ExpansionAdminHammer" )
+		if ( tool && tool.GetType() == "ExpansionAdminHammer" )
 		{
 			if ( !IsPartConstructed( part_name ) && HasRequiredPart( part_name ) && !HasConflictPart( part_name ) )
 			{
@@ -124,5 +184,32 @@ modded class Construction
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Construction::GetConstructionPartsToBuild - End");
 		#endif
+	}
+
+	override void DismantlePartServer( notnull Man player, string part_name, int action_id )
+	{
+		if ( GetParent().IsInherited( TerritoryFlag ) )
+		{
+			string damage_zone;
+			DamageSystem.GetDamageZoneFromComponentName( GetParent(), part_name, damage_zone );
+			
+			bsbDebugPrint("[bsb] Construction DismantlePartServer | " + part_name);
+
+			//! If we didn't spend any, we don't get any
+			if ( !GetExpansionSettings().GetBaseBuilding().SimpleTerritory )
+			{
+				//receive materials
+				ReceiveMaterialsServer( player, part_name, damage_zone );
+					
+				//drop non-usable materials
+				DropNonUsableMaterialsServer( player, part_name );
+			}
+			
+			//call event
+			GetParent().OnPartDismantledServer( player, part_name, action_id );
+		} else
+		{
+			super.DismantlePartServer( player, part_name, action_id );
+		}
 	}
 };

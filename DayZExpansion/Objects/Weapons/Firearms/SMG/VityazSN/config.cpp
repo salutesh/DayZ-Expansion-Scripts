@@ -49,6 +49,8 @@ class cfgWeapons
 		drySound[] = {"dz\sounds\weapons\firearms\m4a1\m4_dry",0.5,1,20};
 		reloadAction = "ReloadAKM";
 		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\VityazSN_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\PP1901.rvmat"};
 		modes[] = {"SemiAuto","FullAuto"};
 		class SemiAuto: Mode_SemiAuto
 		{
@@ -148,7 +150,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 200;
 					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\PP1901.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\PP1901.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\PP1901_damaged.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\PP1901_damaged.rvmat"}},{0.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\VityazSN\data\PP1901_ruined.rvmat"}}};
 				};
 			};

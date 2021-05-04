@@ -34,12 +34,12 @@ modded class DayZPlayerCamera1stPerson
 		{
 			pOutResult.m_fInsideCamera = 0.0;
 			
-			m_pbPlayer.SetHeadInvisible( true );
+			m_pbPlayer.SetHeadInvisible_Ex( true );
 		} else
 		{			
 			pOutResult.m_fInsideCamera = 1.0;
 			
-			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( m_pbPlayer.SetHeadInvisible, false );
+			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( m_pbPlayer.SetHeadInvisible_Ex, false );
 		}
 		
 		if ( m_pPlayer.GetCommand_Vehicle() || m_pbPlayer.GetCommand_ExpansionVehicle() )
@@ -86,8 +86,6 @@ modded class DayZPlayerCamera1stPerson
 			
 		//DisplayMatrix4("CameraTM", pOutResult.m_CameraTM);
 		
-		ExpansionDebugger.Push(EXPANSION_DEBUG_VEHICLE_CAMERA);
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera1stPerson::OnUpdate End");
 		#endif
@@ -95,16 +93,24 @@ modded class DayZPlayerCamera1stPerson
 	
 	void DisplayMatrix4(string name, vector matrix[4])
 	{
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[0]: " + matrix[0]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[1]: " + matrix[1]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[2]: " + matrix[2]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[3]: " + matrix[3]);
+		#ifdef EXPANSION_DEBUG_UI_CAMERA
+		CF_Debugger_Block dbg_Camera = CF.Debugger.Get("Camera");
+		
+		dbg_Camera.Set("M: " + name , "[0]: " + matrix[0]);
+		dbg_Camera.Set("M: " + name , "[1]: " + matrix[1]);
+		dbg_Camera.Set("M: " + name , "[2]: " + matrix[2]);
+		dbg_Camera.Set("M: " + name , "[3]: " + matrix[3]);
+		#endif
 	}
 	
 	void DisplayMatrix3(string name, vector matrix[3])
 	{
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[0]: " + matrix[0]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[1]: " + matrix[1]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: " + name + "[2]: " + matrix[2]);
+		#ifdef EXPANSION_DEBUG_UI_CAMERA
+		CF_Debugger_Block dbg_Camera = CF.Debugger.Get("Camera");
+		
+		dbg_Camera.Set("M: " + name , "[0]: " + matrix[0]);
+		dbg_Camera.Set("M: " + name , "[1]: " + matrix[1]);
+		dbg_Camera.Set("M: " + name , "[2]: " + matrix[2]);
+		#endif
 	}
 };

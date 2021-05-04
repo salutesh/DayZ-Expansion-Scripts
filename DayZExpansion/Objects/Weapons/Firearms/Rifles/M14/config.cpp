@@ -184,7 +184,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 175;
 					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Damaged.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Damaged.rvmat"}},{0.0,{"DayZExpansion\Objects\Weapons\Firearms\Rifles\M14\data\M14_Ruined.rvmat"}}};
 				};
 			};

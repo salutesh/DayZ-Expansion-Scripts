@@ -15,32 +15,21 @@
  **/
 class ExpansionAirdropContainerBase extends Container_Base
 {
-	ExpansionMarkerData m_ServerMarker;
+	const int EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE = 120009009;
 	
 	bool m_FromSettings;
 	protected bool m_HasLanded;
 	protected bool m_IsLooted;
 	protected bool m_HasWindImpact;
-	
-	int m_ItemsCount;
-	int m_Infected;
-
-	int m_ItemCount;
-
-	ExpansionAirdropLoot m_LootTier;
 
 	private int m_StartTime;
 	
 	//! Light
 	ExpansionPointLight m_Light;
-	protected bool m_LightOn;
+	protected bool m_LightOn = true;
 	
 	//! Particle
 	Particle m_ParticleEfx;
-	
-	protected AIGroup m_AIGroup;
-	
-	protected ExpansionMarkerModule m_MarkerModule;
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -52,6 +41,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#endif	
 
 		RegisterNetSyncVariableBool("m_LightOn");
+		RegisterNetSyncVariableBool("m_IsLooted");
 		
 		SetEventMask( EntityEvent.INIT ); 
 
@@ -61,13 +51,11 @@ class ExpansionAirdropContainerBase extends Container_Base
 		m_HasLanded = false;
 		m_HasWindImpact = false;
 		
-		if ( !Class.CastTo(m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
-			return;
-		
+		UpdateLight();
 		CreateSmoke();
-		ToggleLight();
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CheckAirdrop, 5000, true );
+		if ( IsMissionHost() )
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CheckAirdrop, 5000, true );
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ExpansionAirdropContainerBase - End");
@@ -86,9 +74,9 @@ class ExpansionAirdropContainerBase extends Container_Base
 		DestroyLight();
 		
 		StopSmokeEffect();
-		
-		/*if ( IsMissionHost() )
-			RemoveServerMarker();*/
+
+		if ( IsMissionHost() )
+			ExpansionAirdropContainerManagers.DeferredCleanup();
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::~ExpansionAirdropContainerBase - End");
@@ -103,14 +91,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 	bool HasLanded()
 	{
 		return m_HasLanded;
-	}
-	
-	// ------------------------------------------------------------
-	// StopUpdateQue
-	// ------------------------------------------------------------
-	void StopUpdateQue()
-	{
-		GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
 	}
 	
 	// ------------------------------------------------------------
@@ -132,7 +112,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// InitAirdrop
 	// ------------------------------------------------------------
-	void InitAirdrop()
+	void InitAirdrop( ref array < ref ExpansionAirdropLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - Start");
@@ -148,9 +128,12 @@ class ExpansionAirdropContainerBase extends Container_Base
 			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
 			EnableDynamicCCD( true );
 			SetDynamicPhysicsLifeTime( -1 );
-			SetLifetimeMax( 1.0 ); // shouldn't be required, why is this here? - jacob
 			
 			m_StartTime = GetGame().GetTime();
+
+			ExpansionAirdropContainerManagers.Add( this, infected, infectedCount );
+
+			SpawnLoot( Loot, ItemCount );
 		}
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -159,32 +142,21 @@ class ExpansionAirdropContainerBase extends Container_Base
 	}
 
 	// ------------------------------------------------------------
-	// InitAirdrop
+	// CheckAirdrop
 	// ------------------------------------------------------------
 	void CheckAirdrop()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::CheckAirdrop - Start");
 		#endif
-				
-		array< EntityAI > items = new array< EntityAI >;
-		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 
-		if ( items.Count() < m_ItemCount )
+		if ( IsMissionHost() && !m_IsLooted && GetNumberOfItems() == 0 )
 		{
-			if ( !m_IsLooted && IsMissionHost() )
-			{
-				ToggleLight();
+			m_IsLooted = true;
 
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CheckAirdrop );
-				
-				m_IsLooted = true;
-			} 
+			ToggleLight();
 
-			if ( m_IsLooted && IsMissionClient() )
-			{				
-				StopSmokeEffect();
-			}
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( CheckAirdrop );
 		}
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -222,17 +194,25 @@ class ExpansionAirdropContainerBase extends Container_Base
 			}
 		} else if ( !m_HasLanded )
 		{
+			m_HasLanded = true;
+
+			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
+	
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 
 			//! Set parachute animation phase so parachute is hiden 
 			SetAnimationPhase( "parachute", 1 );
-
-			//if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
-			//{
-			//	CreateServerMarker(); //! Set server map marker on drop position
-			//}
 			
-			m_HasLanded = true;
+			ExpansionAirdropContainerManager manager = ExpansionAirdropContainerManagers.Find( this );
+			if ( manager )
+			{
+				manager.m_ContainerPosition = GetPosition();
+
+				if ( GetExpansionSettings().GetAirdrop().ServerMarkerOnDropLocation )
+					manager.CreateServerMarker(); //! Set server map marker on drop position
+
+				manager.SpawnInfected();
+			}
 		}
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -243,64 +223,70 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	void AddItem( ref ExpansionAirdropLootAttachments className )
+	void AddItem( ref ExpansionAirdropLoot loot )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::AddItem - Start");
 		#endif
-		
-		ItemBase item = ItemBase.Cast( GetInventory().CreateInInventory( className.Name ) ); 
 
-		if ( className.Attachments != NULL )
+		string className = loot.Name;
+		
+		TStringArray attachments = loot.Attachments;
+
+		if ( loot.Variants && loot.Variants.Count() > 0 )
 		{
-			for ( int i; i < className.Attachments.Count(); i++ )
+			array< float > chances = new array< float >;
+
+			int count = loot.Variants.Count();
+			float chance;
+			float chancesSum;
+
+			for ( int j = 0; j < count; ++j )
 			{
-				if ( item )
-				{
-					item.GetInventory().CreateInInventory( className.Attachments.Get( i ) );
-				}
+				chance = loot.Variants[j].Chance;
+				chances.Insert( chance );
+				chancesSum += chance;
+			}
+
+			//! Determine chance for parent item
+			if ( chancesSum < 1.0 )
+			{
+				//! Chances are treated as actual chances here, i.e. total sum is 1.0
+				chance = 1.0 - chancesSum;
+			} else
+			{
+				//! Just give parent item a 1.0 chance
+				chance = 1.0;
+			}
+
+			chances.Insert( chance );
+
+			int index = GetWeightedRandom( chances );
+
+			if ( index > -1 && index < count )
+			{
+				className = loot.Variants[index].Name;
+				if ( loot.Variants[index].Attachments && loot.Variants[index].Attachments.Count() > 0 )
+					attachments = loot.Variants[index].Attachments;
 			}
 		}
 
-		array< EntityAI > items = new array< EntityAI >;
-		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
+		ItemBase item = ItemBase.Cast( GetInventory().CreateInInventory( className ) ); 
 
-		m_ItemCount = items.Count();
+		if ( attachments != NULL )
+		{
+			for ( int i; i < attachments.Count(); i++ )
+			{
+				if ( item )
+				{
+					item.GetInventory().CreateInInventory( attachments.Get( i ) );
+				}
+			}
+		}
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::AddItem - End");
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CreateServerMarker
-	// ------------------------------------------------------------
-	void CreateServerMarker()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - Start");
-		#endif
-		
-		string markerName = "#STR_EXPANSION_AIRDROP_SYSTEM_TITLE";
-		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
-			markerName = "[" + this.GetDisplayName() + "] " + markerName;
-		
-		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", this.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerBase::CreateServerMarker - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion RemoveServerMarker
-	// ------------------------------------------------------------
-	void RemoveServerMarker()
-	{
-		if (!m_ServerMarker)
-			return;
-		
-		m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
 	}
 
 	// ------------------------------------------------------------
@@ -383,6 +369,9 @@ class ExpansionAirdropContainerBase extends Container_Base
 		
 		UpdateLight();
 
+		if ( m_IsLooted )
+			StopSmokeEffect();
+
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::OnVariablesSynchronized - End");
 		#endif
@@ -440,8 +429,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 		m_LightOn = !m_LightOn;
 		
 		SetSynchDirty();
-		
-		UpdateLight();
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::ToggleLight - End");
@@ -557,14 +544,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 	}
 
 	// ------------------------------------------------------------
-	// CanUseConstruction
-	// ------------------------------------------------------------
-	override bool CanUseConstruction()
-	{
-		return true;
-	}
-
-	// ------------------------------------------------------------
 	// CanPutIntoHands
 	// ------------------------------------------------------------
 	override bool CanPutIntoHands( EntityAI parent )
@@ -581,23 +560,24 @@ class ExpansionAirdropContainerBase extends Container_Base
 	}
 	
 	// ------------------------------------------------------------
-	// CanReceiveItemIntoCargo
-	// ------------------------------------------------------------
-	override bool CanReceiveItemIntoCargo( EntityAI item )
-	{
-		if ( GetHealthLevel() == GameConstants.STATE_RUINED )
-			return false;
-
-		return super.CanReceiveItemIntoCargo( item );
-	}
-	
-	// ------------------------------------------------------------
 	// AfterStoreLoad
 	// ------------------------------------------------------------
 	//! Called when entity is being loaded from DB or Storage.
 	// This will remove the saved containers after they got loaded from CE.
 	override void AfterStoreLoad()
 	{
+		RemoveContainer();
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RemoveContainer
+	// ------------------------------------------------------------
+	void RemoveContainer()
+	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionAirdropContainerBase::RemoveContainer - Start");
+		#endif
+		
 		array< EntityAI > items = new array< EntityAI >;
 		this.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 		
@@ -607,5 +587,80 @@ class ExpansionAirdropContainerBase extends Container_Base
 		}
 		
 		GetGame().ObjectDelete( this );
-	}	
+		
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		EXLogPrint("ExpansionAirdropContainerBase::RemoveContainer - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion SpawnLoot
+	// ------------------------------------------------------------
+	void SpawnLoot( ref array < ref ExpansionAirdropLoot > Loot, int ItemCount )
+	{
+		array< float > chances = new array< float >;
+		array< int > max = new array< int >;
+
+		for ( int i = 0; i < Loot.Count(); ++i )
+		{
+			chances.Insert( Loot[i].Chance );
+
+			//! Backwards compatibility: Set 'Max' of 0 to -1 (no maximum)
+			if ( Loot[i].Max == 0 )
+				Loot[i].Max = -1;
+
+			max.Insert( Loot[i].Max );
+		}
+
+		int LootItemsSpawned = 0;
+		while ( LootItemsSpawned < ItemCount )
+		{
+			//! Chances are treated as weights here, otherwise it wouldn't make sense as we always want a fixed number of items
+			int index = GetWeightedRandom( chances );
+
+			if ( index > -1 )
+			{
+				LootItemsSpawned++;
+
+				AddItem( Loot.Get( index ) );
+
+				if ( max[index] > 0 )
+					max[index] = max[index] - 1;
+
+				if ( max[index] == 0 )
+					chances[index] = 0;
+			} else
+			{
+				Print("ExpansionAirdropContainerBase::SpawnLoot couldn't select a loot item to spawn (all chances zero?) - items spawned : " + LootItemsSpawned);
+				break;
+			}
+		}
+	}
+
+	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
+	{
+		vector spawnPos;
+		if ( rpc_type == EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE && ctx.Read( spawnPos ) )
+		{
+			SpawnParticle( spawnPos );
+		} else
+		{
+			super.OnRPC( sender, rpc_type, ctx );
+		}
+	}
+
+	protected void SpawnParticle( vector spawnPos )
+	{
+		//! Play spawn sound
+		SEffectManager.PlaySound( "Expansion_Airdrop_ZSpawn_SoundSet", spawnPos );
+
+		//! Create dirt particle
+		Particle particle = Particle.PlayInWorld( ParticleList.IMPACT_DIRT_RICOCHET, spawnPos );
+
+		particle.ScaleParticleParam( EmitorParam.SIZE, 10 );
+		particle.ScaleParticleParam( EmitorParam.BIRTH_RATE, 5 );
+		particle.ScaleParticleParam( EmitorParam.BIRTH_RATE_RND, 5 );
+		particle.ScaleParticleParam( EmitorParam.LIFETIME, 5 );
+		particle.ScaleParticleParam( EmitorParam.LIFETIME_RND, 5 );
+	}
 };

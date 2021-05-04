@@ -20,8 +20,8 @@ class ExpansionJacobianEntry
 
 	float m_Adiag;
 
-	void ExpansionJacobianEntry( Matrix3 world2A,
-								 Matrix3 world2B,
+	void ExpansionJacobianEntry( vector world2A[3],
+								 vector world2B[3],
 								 vector rel_pos1,
 								 vector rel_pos2,
 								 vector jointAxis,
@@ -35,9 +35,11 @@ class ExpansionJacobianEntry
 		#endif
 		
 		m_linearJointAxis = jointAxis;
-
-		m_aJ = world2A.Multiply( VectorHelper.Multiply( rel_pos1, m_linearJointAxis ) );
-		m_bJ = world2B.Multiply( VectorHelper.Multiply( rel_pos2, -m_linearJointAxis ) );
+				
+		m_aJ = rel_pos1 * m_linearJointAxis;
+		m_bJ = rel_pos2 * -m_linearJointAxis;
+		m_aJ = m_aJ.InvMultiply3( world2A );
+		m_bJ = m_bJ.InvMultiply3( world2B );
 
 		m_0MinvJt = VectorHelper.Multiply( inertiaInvA, m_aJ );
 		m_1MinvJt = VectorHelper.Multiply( inertiaInvB, m_bJ );
@@ -65,14 +67,12 @@ class ExpansionJacobianEntry
 		EXPrint("ExpansionJacobianEntry::GetRelativeVelocity - Start");
 		#endif
 		
-		vector linrel = linvelA - linvelB;
+		vector linrel = VectorHelper.Multiply( linvelA - linvelB, m_linearJointAxis );
 
 		vector angvela = VectorHelper.Multiply( angvelA, m_aJ );
 		vector angvelb = VectorHelper.Multiply( angvelB, m_bJ );
 
-		linrel = VectorHelper.Multiply( linrel, m_linearJointAxis );
-
-		angvela += angvelb + linrel;
+		angvela = angvela + angvelb + linrel;
 
 		float rel_vel = angvela[0] + angvela[1] + angvela[2];
 
