@@ -1,0 +1,256 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "dmgZone_chassis",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_front",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_back",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_roof",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_1_1",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_1_2",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_2_1",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_2_2",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+		}
+	],
+	"DamageZones": [
+		{
+			"Zone": "Chassis",
+			"HiddenSelection": "dmgZone_chassis",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Front",
+			"HiddenSelection": "dmgZone_front",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Back",
+			"HiddenSelection": "dmgZone_back",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Roof",
+			"HiddenSelection": "dmgZone_roof",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_1_1",
+			"HiddenSelection": "dmgZone_fender_1_1",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_1_2",
+			"HiddenSelection": "dmgZone_fender_1_2",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_2_1",
+			"HiddenSelection": "dmgZone_fender_2_1",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_2_2",
+			"HiddenSelection": "dmgZone_fender_2_2",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\blue\\sedan_02_body_destruct.rvmat"
+				}
+			]
+		}
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Objects\\Weapons\\Firearms\\Sniper\\AWM\\data\\dayz_co.paa",
+			"RVMaterial": "DayZExpansion\\Objects\\Weapons\\Firearms\\Sniper\\AWM\\data\\AWM_Body.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

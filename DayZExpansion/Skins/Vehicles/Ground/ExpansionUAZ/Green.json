@@ -1,0 +1,22 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_out_01_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_exterior_01.rvmat"
+		},
+		{
+			"HiddenSelection": "camo1",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_out_01_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_exterior_01.rvmat"
+		},
+		{
+			"HiddenSelection": "camo2",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_int_01_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_interior_01.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

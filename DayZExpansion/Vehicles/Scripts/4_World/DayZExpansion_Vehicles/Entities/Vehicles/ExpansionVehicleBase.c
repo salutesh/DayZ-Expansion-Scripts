@@ -10,6 +10,13 @@
  *
 */
 
+enum ExpansionVehicleDynamicState
+{
+	STATIC = 0,
+	CREATING,
+	DYNAMIC
+};
+
 #ifdef EXPANSION_USING_TRANSPORT_BASE
 class ExpansionVehicleBase extends Transport
 #else
@@ -45,7 +52,7 @@ class ExpansionVehicleBase extends ItemBase
 	protected bool m_IsPhysicsHost;
 	protected bool m_WasPhysicsHost;
 	protected bool m_IsForcingPhysics;
-	protected bool m_IsCreatingDynamic;
+	protected ExpansionVehicleDynamicState m_PhysicsState;
 	private float m_RenderFrameTime;
 	private int m_PhysicsCreationTimer;
 	bool m_PhysicsCreated;
@@ -527,6 +534,8 @@ class ExpansionVehicleBase extends ItemBase
 		// #endif
 
 		LoadConstantVariables();
+
+		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
 	}
 
 	// ------------------------------------------------------------
@@ -632,9 +641,9 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 	}
 
-	bool IsCreatingDynamic()
+	ExpansionVehicleDynamicState GetPhysicsState()
 	{
-		return m_IsCreatingDynamic;
+		return m_PhysicsState;
 	}
 
 	private void CreateDynamic()
@@ -1180,11 +1189,6 @@ class ExpansionVehicleBase extends ItemBase
 
 		bool shouldCreateDynamic = (m_IsForcingPhysics || m_IsPhysicsHost);
 		bool shouldDestroyDynamic = (m_WasPhysicsHost != m_IsPhysicsHost) || (!m_IsPhysicsHost && !m_IsForcingPhysics);
-
-		if ( dBodyIsDynamic( this ) && !shouldDestroyDynamic )
-		{
-			m_IsCreatingDynamic = false;
-		}
 
 		if ( (m_WasPhysicsHost == m_IsPhysicsHost) && m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
@@ -1984,11 +1988,12 @@ class ExpansionVehicleBase extends ItemBase
 			ScriptRPC rpc = new ScriptRPC();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
-		} else
+		}
+		else
 		{
 			if (player == GetGame().GetPlayer())
 			{
-				m_IsCreatingDynamic = true;
+				m_PhysicsState = ExpansionVehicleDynamicState.CREATING;
 			}
 		}
 	}
@@ -2012,7 +2017,6 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			if (human == GetGame().GetPlayer())
 			{
-				m_IsCreatingDynamic = true;
 			}
 		}
 

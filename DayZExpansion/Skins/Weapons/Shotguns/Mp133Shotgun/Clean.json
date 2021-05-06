@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\shotguns\\mp133\\data\\mp133_co.paa",
+			"RVMaterial": "dz\\weapons\\shotguns\\mp133\\data\\mp133.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

@@ -1,0 +1,39 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\skins\\heli_light01_ext_digital_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+		}
+	],
+	"DamageZones": [
+		{
+			"Zone": "Chassis",
+			"HiddenSelection": "camo",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+				}
+			]
+		}
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

@@ -431,7 +431,7 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	// CanReleaseCargo
 	// ------------------------------------------------------------
-	override bool CanReleaseCargo(EntityAI attachment)
+	override bool CanReleaseCargo(EntityAI cargo)
 	{
 		return IsOpened();
 	}

@@ -47,24 +47,6 @@ modded class DayZGame
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
 
-		string path = "cfgVehicles";
-		string child_name = "";
-		int count = ConfigGetChildrenCount(path);
-		m_CharClassNames.Clear();
-
-		for (int p = 0; p < count; p++)
-		{
-			ConfigGetChildName(path, p, child_name);
-
-			if (ConfigGetInt(path + " " + child_name + " scope") == 2 && IsKindOf(child_name, "SurvivorBase"))
-			{
-				if (child_name.Contains("Expansion") || child_name.Contains("Trader"))
-					continue;
-
-				m_CharClassNames.Insert(child_name);
-			}
-		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZGame::DayZGame - End");
 		#endif
@@ -80,6 +62,23 @@ modded class DayZGame
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
 	}
+
+    override void GlobalsInit()
+    {
+        super.GlobalsInit();
+
+		string path = "cfgVehicles";
+		string child_name = "";
+        for (int i = m_CharClassNames.Count() - 1; i >= 0; i--)
+		{
+            child_name = m_CharClassNames[i];
+
+			if (child_name.Contains("Expansion") || child_name.Contains("Trader"))
+			{
+				m_CharClassNames.RemoveOrdered(i);
+			}
+		}
+    }
 
 	// ------------------------------------------------------------
 	// Expansion SetExpansionGame

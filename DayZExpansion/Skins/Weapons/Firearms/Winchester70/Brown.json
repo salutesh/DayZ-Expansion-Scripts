@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "#(argb,8,8,3)color(0.251,0.204,0.157,1.0,CO)",
+			"RVMaterial": "dz\\weapons\\firearms\\winchester70\\data\\winchester70_color.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\firearms\\UMP45\\data\\ump45_co.paa",
+			"RVMaterial": "DZ\\weapons\\firearms\\UMP45\\data\\ump45.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

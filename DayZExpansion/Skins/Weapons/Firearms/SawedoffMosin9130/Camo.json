@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\firearms\\mosin9130\\data\\mosin_nagant_camo_co.paa",
+			"RVMaterial": "dz\\weapons\\firearms\\mosin9130\\data\\mosin_sawn.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

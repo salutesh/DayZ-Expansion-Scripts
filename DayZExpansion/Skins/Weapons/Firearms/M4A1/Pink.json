@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "#(argb,8,8,3)color(0.353,0.278,0.361,1.0,CO)",
+			"RVMaterial": "dz\\weapons\\firearms\\m4\\data\\m4_body_camo.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

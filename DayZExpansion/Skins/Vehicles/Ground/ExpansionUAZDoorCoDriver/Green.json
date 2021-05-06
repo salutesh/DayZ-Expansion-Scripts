@@ -1,0 +1,10 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_out_01_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\UAZ\\data\\uaz_exterior_01.rvmat"
+		}
+	],
+	"DamageZones": []
+}

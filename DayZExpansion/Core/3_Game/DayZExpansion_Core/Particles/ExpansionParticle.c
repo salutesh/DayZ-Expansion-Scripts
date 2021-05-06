@@ -18,7 +18,7 @@ modded class EffectParticle
 		{
 			if ( obj )
 			{
-				GetParticle().AddAsChild(obj, local_pos, local_ori, force_rotation_to_world);
+				super.AttachTo(obj, local_pos, local_ori, force_rotation_to_world);
 			}
 		}
 	}

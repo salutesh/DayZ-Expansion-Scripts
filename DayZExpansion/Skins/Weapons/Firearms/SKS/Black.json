@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camoGround",
+			"RVTexture": "dz\\weapons\\firearms\\SKS\\data\\sks_black_co.paa",
+			"RVMaterial": "dz\\weapons\\firearms\\SKS\\data\\sks_painted.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

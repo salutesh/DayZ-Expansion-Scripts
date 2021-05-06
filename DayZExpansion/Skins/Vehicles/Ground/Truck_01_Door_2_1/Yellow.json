@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "dmgZone_doors",
+			"RVTexture": "#(argb,8,8,3)color(0.439,0.447,0.239,1.0,CO)",
+			"RVMaterial": ""
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Truck_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Truck_Horn_Int_SoundSet"
+}

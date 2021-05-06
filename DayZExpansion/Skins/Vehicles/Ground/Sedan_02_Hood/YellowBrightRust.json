@@ -1,0 +1,39 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "dmgZone_doors",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\yellowbright_rust\\sedan_02_door_fore.rvmat"
+		}
+	],
+	"DamageZones": [
+		{
+			"Zone": "Doors",
+			"HiddenSelection": "dmgZone_doors",
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\yellowbright_rust\\sedan_02_door_fore.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\yellowbright_rust\\sedan_02_door_fore.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\yellowbright_rust\\sedan_02_door_fore_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\yellowbright_rust\\sedan_02_door_fore_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\yellowbright_rust\\sedan_02_door_fore_destruct.rvmat"
+				}
+			]
+		}
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

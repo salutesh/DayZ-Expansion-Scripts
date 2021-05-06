@@ -43,7 +43,7 @@ modded class DayZPlayerCamera3rdPerson
 		{
 			//Print( dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) );
 			//Print( vehicle.IsCreatingDynamic() );
-			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) || vehicle.IsCreatingDynamic() )
+			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) || vehicle.GetPhysicsState() < ExpansionVehicleDynamicState.DYNAMIC )
 			{
 				pOutResult.m_CollisionIgnoreEntity = NULL;
 			}

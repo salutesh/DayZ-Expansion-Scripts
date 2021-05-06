@@ -1,0 +1,247 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "dmgZone_chassis",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_front",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr.rvmat"
+		},
+		{
+			"HiddenSelection": "dmgZone_back",
+			"RVTexture": "",
+			"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr.rvmat"
+		}
+	],
+	"DamageZones": [
+		{
+			"Zone": "Front",
+			"HiddenSelections": [
+				"dmgZone_front"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Back",
+			"HiddenSelections": [
+				"dmgZone_back"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\civiliansedan_cr_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Roof",
+			"HiddenSelections": [
+				"dmgZone_roof"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_1_1",
+			"HiddenSelections": [
+				"dmgZone_fender_1_1"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_1_2",
+			"HiddenSelections": [
+				"dmgZone_fender_1_2"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_2_1",
+			"HiddenSelections": [
+				"dmgZone_fender_2_1"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_2_2",
+			"HiddenSelections": [
+				"dmgZone_fender_2_2"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Doors",
+			"HiddenSelections": [
+				"dmgZone_doors"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_damage.rvmat"
+				},
+				{
+					"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+					"RVMaterial": "dz\\vehicles\\wheeled\\civiliansedan\\data\\white\\civiliansedan_destruct.rvmat"
+				}
+			]
+		}
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

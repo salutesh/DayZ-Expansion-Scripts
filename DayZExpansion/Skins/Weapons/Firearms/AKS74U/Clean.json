@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\firearms\\AK74\\data\\aks74u_co.paa",
+			"RVMaterial": "dz\\weapons\\firearms\\AK74\\data\\aks74u.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}
