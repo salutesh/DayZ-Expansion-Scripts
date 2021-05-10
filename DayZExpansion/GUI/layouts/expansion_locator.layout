@@ -20,8 +20,6 @@ FrameWidgetClass rootFrame {
    style DayZNormal
    text ""
    font "gui/fonts/etelkatextpro22"
-   "exact text" 1
-   "exact text size" 22
    "text valign" center
   }
   RichTextWidgetClass ExpansionTime {
@@ -35,8 +33,6 @@ FrameWidgetClass rootFrame {
    style DayZNormal
    text ""
    font "gui/fonts/etelkatextpro22"
-   "exact text" 1
-   "exact text size" 22
    "text valign" center
   }
  }
