@@ -84,6 +84,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  C130J";
 		model = "DayZExpansion\Vehicles\Air\C130J\C130J.p3d";
+		modelAnchorPointY = 5.67;
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

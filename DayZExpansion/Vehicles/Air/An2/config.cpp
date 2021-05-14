@@ -119,6 +119,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  AN2";
 		model = "DayZExpansion\Vehicles\Air\An2\an2.p3d";
+		modelAnchorPointY = 0.0;
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;
 		fuelConsumption = 12;

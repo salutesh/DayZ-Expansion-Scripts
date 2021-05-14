@@ -73,7 +73,7 @@ class Vehicle_ExpansionTractor extends ExpansionVehicleCarBase
 		
 		string attType = attachment.GetType();
 		
-		if ( EngineIsOn() == CarDoorState.DOORS_CLOSED )
+		if ( EngineIsOn() )
 		{
 			if ( attType == "CarBattery")
 				return false;

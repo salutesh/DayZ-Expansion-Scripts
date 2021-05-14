@@ -485,6 +485,13 @@ modded class DayZPlayerImplement
 			vector c_tmTarget[ 4 ];
 			vector c_tmLocal[ 4 ];
 
+			if ( m_ExAttachmentObject.IsInherited( CarScript ) && !dBodyIsActive( m_ExAttachmentObject ) )
+			{
+				//! Potential fix for player getting teleported to the sea (desync)
+				EXPrint(GetType() + "::CommandHandler climb attach to " + m_ExAttachmentObject);
+				dBodyActive( m_ExAttachmentObject, ActiveState.ACTIVE );
+			}
+
 			GetTransform( c_tmPlayer );
 			m_ExAttachmentObject.GetTransform( c_tmTarget );
 			Math3D.MatrixInvMultiply4( c_tmTarget, c_tmPlayer, c_tmLocal );
@@ -627,6 +634,13 @@ modded class DayZPlayerImplement
 				case ExpansionPlayerLink.ATTACH:
 				{
 					AttachmentDebugPrint( "START ATTACH" );
+
+					if ( m_ExAttachmentObject.IsInherited( CarScript ) && !dBodyIsActive( m_ExAttachmentObject ) )
+					{
+						//! Potential fix for player getting teleported to the sea (desync)
+						EXPrint(GetType() + "::CommandHandler attach to " + m_ExAttachmentObject);
+						dBodyActive( m_ExAttachmentObject, ActiveState.ACTIVE );
+					}
 
 					GetTransform( tmPlayer );
 					m_ExAttachmentObject.GetTransform( tmTarget );

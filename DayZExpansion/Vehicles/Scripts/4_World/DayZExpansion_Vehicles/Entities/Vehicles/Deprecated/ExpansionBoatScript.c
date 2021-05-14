@@ -62,7 +62,9 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	private ExpansionBoatController m_BoatController;
 
-	private bool m_IsInitalized = false;
+	private bool m_IsInitialized;
+	private bool m_IsStoreLoaded;
+	private bool m_IsCECreated;
 
 	// ------------------------------------------------------------
 	//! Constructor
@@ -131,6 +133,17 @@ class ExpansionBoatScript extends OffroadHatchback
 			m_ParticleSideSecond.Stop();
 		}
 	}
+	
+	override void EEOnCECreate()
+	{
+
+		m_IsCECreated = true;
+	}
+
+	override void AfterStoreLoad()
+	{
+		m_IsStoreLoaded = true;
+	}
 
 	// ------------------------------------------------------------
 	override void LongDeferredInit()
@@ -139,7 +152,9 @@ class ExpansionBoatScript extends OffroadHatchback
 		EXPrint("ExpansionBoatScript::LongDeferredInit - Start");
 		#endif
 		
-		m_IsInitalized = true;
+		super.LongDeferredInit();
+
+		m_IsInitialized = true;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::LongDeferredInit - End");
@@ -531,10 +546,19 @@ class ExpansionBoatScript extends OffroadHatchback
 		vector orientation = GetOrientation();
 		if ( g_Game.SurfaceIsSea( position[0], position[2] ) || g_Game.SurfaceIsPond( position[0], position[2] ) )
 		{
-			float depth = g_Game.GetWaterDepth( position ) + m_Offset;
-			position[1] = position[1] + depth;
+			float depth = g_Game.GetWaterDepth( position );
+			//! Boaty McBoat should be submerged a little, not sit atop waterlevel
+			position[1] = position[1] + depth + GetModelAnchorPointY() - 0.5;
 			SetPosition( position );
 			SetOrientation( Vector( orientation[0], 0, 0 ) );
+		}
+
+		//! Activate boat so it doesn't sink to the sea floor if spawned by (e.g.) admin tool
+		//! and not loaded from storage/spawned by CE
+		if ( !m_IsStoreLoaded && !m_IsCECreated )
+		{
+			m_IsInitialized = true;
+			dBodyActive( this, ActiveState.ACTIVE );
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -557,13 +581,13 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
-		if ( !m_IsInitalized )
-			return true;
+		if ( !m_IsInitialized )
+			return false;
 
 		if ( MotorIsOn() )
 			return true;
 		
-		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) );
+		return dBodyIsActive( this ) && dBodyIsDynamic( this );
 	}
 
 	// ------------------------------------------------------------

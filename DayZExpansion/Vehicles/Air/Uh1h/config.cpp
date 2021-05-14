@@ -91,6 +91,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_UH1H";
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\uh1h.p3d";
+		modelAnchorPointY = 2.98;
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 119;
 		fuelConsumption = 99;
@@ -370,6 +371,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  UH1H";
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\uh1h.p3d";
+		modelAnchorPointY = 2.98;
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 119;
 		fuelConsumption = 99;

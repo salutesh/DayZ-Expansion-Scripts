@@ -292,6 +292,27 @@ static string GetTime()
 	return date;
 }
 
+
+// ------------------------------------------------------------
+// Expansion GetTimeDate
+// ------------------------------------------------------------
+static string GetTimeDate()
+{
+	int year;
+	int month;
+	int day;
+	int hour;
+	int minute;
+	int second;
+
+	GetYearMonthDay(year, month, day);
+	GetHourMinuteSecond(hour, minute, second);
+
+	string result = year.ToStringLen(2) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2) + "_" + hour.ToStringLen(2) + "-" + minute.ToStringLen(2) + "-" + second.ToStringLen(2) + "-";
+
+	return result;
+}
+
 // ------------------------------------------------------------
 // Expansion GetTimeUTC
 // ------------------------------------------------------------

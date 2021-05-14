@@ -208,6 +208,9 @@ class ExpansionUAZ extends OffroadHatchback
 	
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
+		if( !super.CanReleaseAttachment( attachment ) )
+			return false;
+
 		string attType = attachment.GetType();
 		
 		if ( EngineIsOn() )

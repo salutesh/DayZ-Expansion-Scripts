@@ -33,6 +33,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
+		modelAnchorPointY = 1.516;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
@@ -193,6 +194,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
+		modelAnchorPointY = 1.516;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

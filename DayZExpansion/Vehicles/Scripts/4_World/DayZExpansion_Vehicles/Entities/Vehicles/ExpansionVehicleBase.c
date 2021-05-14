@@ -249,6 +249,8 @@ class ExpansionVehicleBase extends ItemBase
 	static const int SELECTION_ID_TAIL_LIGHT_R 		= 7;
 	static const int SELECTION_ID_DASHBOARD_LIGHT 	= 8;
 
+	protected float m_ModelAnchorPointY = -1;
+
 	// ------------------------------------------------------------
 	void ExpansionVehicleBase()
 	{
@@ -4498,6 +4500,21 @@ class ExpansionVehicleBase extends ItemBase
 	float GetCameraDistance()
 	{
 		return 4.5;
+	}
+
+	float GetModelAnchorPointY()
+	{
+		if ( m_ModelAnchorPointY < 0 )
+		{
+			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
+			if ( GetGame().ConfigIsExisting( path ) )
+				m_ModelAnchorPointY = GetGame().ConfigGetFloat( path );
+			else
+				m_ModelAnchorPointY = 0.0;
+			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
+		}
+
+		return m_ModelAnchorPointY;
 	}
 	
 	// ------------------------------------------------------------

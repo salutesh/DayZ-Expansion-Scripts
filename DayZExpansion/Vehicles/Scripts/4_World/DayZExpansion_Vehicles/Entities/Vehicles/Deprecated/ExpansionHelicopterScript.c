@@ -115,7 +115,9 @@ class ExpansionHelicopterScript extends CarScript
 	
 	private autoptr NoiseParams m_NoiseParams;
 
-	private bool m_IsInitalized = false;
+	private bool m_IsInitialized;
+	private vector m_LastKnownPosition;
+	private bool m_IsLanded;
 
 	// ------------------------------------------------------------
 	void ExpansionHelicopterScript()
@@ -234,6 +236,8 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		//! Fix for helis saved to storage before dmgZone for engine/fueltank/reflector were added
 		if ( GetExpansionSaveVersion() < 25 )
 		{
@@ -273,7 +277,22 @@ class ExpansionHelicopterScript extends CarScript
 		#endif
 	}
 
-	
+	// ------------------------------------------------------------
+	override void DeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHelicopterScript::DeferredInit start");
+		#endif
+
+		super.DeferredInit();
+
+		HideSelection( "hiderotorblur" );
+		ShowSelection( "hiderotor" );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHelicopterScript::DeferredInit end");
+		#endif
+	}
 
 	override void LongDeferredInit()
 	{
@@ -281,7 +300,17 @@ class ExpansionHelicopterScript extends CarScript
 		EXPrint("ExpansionHelicopterScript::LongDeferredInit - Start");
 		#endif
 		
-		m_IsInitalized = true;
+		super.LongDeferredInit();
+
+		m_IsInitialized = true;
+
+		if ( !IsLanded() )
+		{
+			//! Makes it land safely after server restart if pilot died/disconnected
+			dBodyActive( this, ActiveState.ACTIVE );
+
+			m_RotorSpeed = 1;
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::LongDeferredInit - End");
@@ -1462,18 +1491,32 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	// Expansion IsGround
-	// Check distance to ground
+	// Expansion IsLanded
 	// ------------------------------------------------------------
-	private bool IsGround()
+	private bool IsLanded()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXLogPrint("ExpansionHelicopterScript::IsGround - Start");
+		EXLogPrint("ExpansionHelicopterScript::IsLanded - Start");
 		#endif
 		
+		vector pos = GetPosition();
+
+		if ( m_LastKnownPosition && vector.Distance( pos, m_LastKnownPosition ) < 0.01 )
+			return m_IsLanded;
+
+		m_LastKnownPosition = pos;
+
+		float offset = 0.5;
+
+		//! Add offset if pitch or roll are out of whack
+		vector ori = GetOrientation();
+
+		if ( ori[1] >= 45 || ori[1] <= -45 || ori[2] >= 45 || ori[2] <= -45 )
+			offset += 10;
+
 		//! Ray input
-		vector start = GetPosition();
-		vector end = GetPosition() - Vector( 0, 0.5, 0 );
+		vector start = pos;
+		vector end = pos - Vector( 0, GetModelAnchorPointY() + offset, 0 );
 		
 		//! Ray output
 		vector hit;
@@ -1482,36 +1525,37 @@ class ExpansionHelicopterScript extends CarScript
 		//! Ray hitindex output
 		int hitindex;
 
+		//! Ray
+		m_IsLanded = DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this );
+
 		#ifdef EXPANSIONEXPRINT
-		EXLogPrint("ExpansionHelicopterScript::IsGround - End and return height: " + DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this ).ToString());
+		EXLogPrint(GetType() + "::IsLanded - End and return " + m_IsLanded);
 		#endif
 		
-		//! Ray
-		return DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this, false, false );
-	}	
-
-	// ------------------------------------------------------------
-	protected bool IsLanded()
-	{
-		if ( !m_IsInitalized )
-			return false;
-
-		if ( IsGround() )
-			return true;
-
-		return false;
+		return m_IsLanded;
 	}
 
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
 		if ( EngineIsOn() )
-			return dBodyIsDynamic( this );
+			return true;
+
+		if ( !m_IsInitialized )
+			return false;
 
 		if ( IsLanded() )
-			return dBodyIsActive( this );
-		
-		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) );
+		{
+			//! Only simulate if rotor speed is above zero
+			//! Prevents premature stop of rotor animation and smoke particle on client
+			//! Prevents heli bouncing around when not in use
+
+			return m_RotorSpeed > 0;
+		}
+		else
+		{
+			return dBodyIsActive( this ) && dBodyIsDynamic( this );
+		}
 	}
 
 	// ------------------------------------------------------------

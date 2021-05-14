@@ -16,19 +16,13 @@ modded class ActionFoldObject
 	{
 		if ( player.IsInSafeZone() )
 			return false;
-			
-		Object targetObject = target.GetObject();
-		if ( targetObject.IsInherited(HescoBox) )
-		{
-			HescoBox hesco = HescoBox.Cast( targetObject );
-			
-			if ( hesco && hesco.GetState() == HescoBox.UNFOLDED )
-			{
-				// Is he in a territory ?
-				if ( player.IsInTerritory() )
-					return player.IsInsideOwnTerritory(); // show the prompt if it's his territory
-			}
-		}
+
+		if ( !super.ActionCondition( player, target, item ) )
+			return false;
+
+		// Is he in a territory ?
+		if ( player.IsInTerritory() )
+			return player.IsInsideOwnTerritory(); // show the prompt if it's his territory
 
 		return false;
 	}

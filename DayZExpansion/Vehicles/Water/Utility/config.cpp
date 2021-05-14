@@ -37,6 +37,7 @@ class CfgVehicles
 		hornSoundSetINT = "Expansion_Utility_Horn_Ext_SoundSet";
 		displayname = "$STR_EXPANSION_VEHICLE_UTILITY";
 		model = "\DayZExpansion\Vehicles\Water\Utility\RHIB.p3d";
+		modelAnchorPointY = 3.22;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
@@ -233,6 +234,7 @@ class CfgVehicles
 		hornSoundSetINT = "Expansion_Utility_Horn_Ext_SoundSet";
 		displayname = "[NOT READY]  UTILITY";
 		model = "\DayZExpansion\Vehicles\Water\Utility\RHIB.p3d";
+		modelAnchorPointY = 3.22;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

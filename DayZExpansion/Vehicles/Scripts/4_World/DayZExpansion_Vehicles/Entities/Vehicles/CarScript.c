@@ -190,6 +190,10 @@ modded class CarScript
 
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
+
+	protected bool m_CanSimulate;
+
+	protected float m_ModelAnchorPointY = -1;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -2062,8 +2066,20 @@ modded class CarScript
 
 		if ( !CanSimulate() )
 		{
+			if ( m_CanSimulate )
+			{
+				EXPrint(GetType() + " (pos=" + GetPosition() + ") CarScript::EEOnSimulate - CanSimulate false");
+				m_CanSimulate = false;
+			}
+
 			OnNoSimulation( dt );
 			return;
+		}
+
+		if ( !m_CanSimulate )
+		{
+			EXPrint(GetType() + " (pos=" + GetPosition() + ") CarScript::EEOnSimulate - CanSimulate true");
+			m_CanSimulate = true;
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -3146,6 +3162,23 @@ modded class CarScript
 	float GetCameraDistance()
 	{
 		return 4.5;
+	}
+
+	float GetModelAnchorPointY()
+	{
+		if ( m_ModelAnchorPointY < 0 )
+		{
+			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
+			if ( GetGame().ConfigIsExisting( path ) )
+				m_ModelAnchorPointY = GetGame().ConfigGetFloat( path );
+			else
+				m_ModelAnchorPointY = 0.0;
+			#ifdef EXPANSIONEXPRINT
+			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
+			#endif
+		}
+
+		return m_ModelAnchorPointY;
 	}
 	
 	// ------------------------------------------------------------

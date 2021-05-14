@@ -30,30 +30,15 @@ modded class ServerBrowserMenuNew
 	{
 		layoutRoot = super.Init();
 		
-		EXPANSION_DIRECT_TAB_INDEX = m_Tabber.GetTabCount();
-		m_Tabber.AddTab(EXPANSION_DIRECT_TAB_INDEX.ToString());	
-		TextWidget.Cast(layoutRoot.FindAnyWidget("Tab_Control_" + EXPANSION_DIRECT_TAB_INDEX + "_Title")).SetText("DIRECT");
+		EXPANSION_DIRECT_TAB_INDEX = m_Tabber.AddTab("DIRECT");
 		m_DirectTab = new ExpansionDirectConnectTab(layoutRoot.FindAnyWidget("Tab_" + EXPANSION_DIRECT_TAB_INDEX), this, ExpansionTabType.DIRECT);
 		
-
-#ifdef PLATFORM_CONSOLE
-		version = "#main_menu_version" + " " + version + " (" + g_Game.GetDatabaseID() + ")";
-		if( GetGame().GetInput().IsEnabledMouseAndKeyboard() )
-		{
-			layoutRoot.FindAnyWidget( "play_panel_root" ).Show( true );
-			layoutRoot.FindAnyWidget( "MouseAndKeyboardWarning" ).Show( true );
-			layoutRoot.FindAnyWidget( "toolbar_bg" ).Show( false );
-		}
-		m_Version.SetText( version );
-#else
 		string version;
 		GetGame().GetVersion( version );
 
 		string expansion_version;
-		version = "#main_menu_version" + " " + version;
 		expansion_version = GetDayZGame().GetExpansionClientVersion();
 		m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
-#endif
 
 		return layoutRoot;
 	}
@@ -73,7 +58,10 @@ modded class ServerBrowserMenuNew
 		}
 		
 		IsInDirect(false);
-		return super.GetSelectedTab();
+		//! Returning super.GetSelectedTab() directly returns NULL for some reason!?!
+		//! Assigning to local var first then returning that works.
+		ServerBrowserTab tab = super.GetSelectedTab();
+		return tab;
 	}
 		
 	// ------------------------------------------------------------
@@ -86,13 +74,6 @@ modded class ServerBrowserMenuNew
 		#endif
 
 		super.Refresh();
-
-		string name;
-		
-		g_Game.GetPlayerNameShort( 14, name );
-		
-		if ( m_PlayerName )
-			m_PlayerName.SetText( name );
 		
 		string version;
 		GetGame().GetVersion( version );
