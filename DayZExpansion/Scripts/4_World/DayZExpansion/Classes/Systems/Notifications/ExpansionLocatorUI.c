@@ -101,7 +101,10 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 	// ExpansionLocatorUI AnimateHideSimpleToastClient
 	// ------------------------------------------------------------
 	void AnimateHideSimpleLocationClient()
-	{		
+	{
+		if ( !m_LocatorRoot )
+			return;
+
 		m_HideCityAlpha = m_HideCityAlpha - m_FadeOut;
 		m_LocatorTime.SetAlpha( m_HideCityAlpha );
 
