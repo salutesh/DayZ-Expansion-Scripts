@@ -116,6 +116,13 @@ class ExpansionRampBase extends ExpansionBaseBuilding
 	}
 	#endif
 
+	override bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		minMax[0] = "-3 0 -3";
+		minMax[1] = "3 1.75 3";
+		return true;
+	}
+
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
 		m_HasRamp = false;

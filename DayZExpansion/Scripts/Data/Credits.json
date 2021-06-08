@@ -10,17 +10,17 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_SCRIPTERS",
                     "SectionLines": [
-                        "Rémi Simonin - NiiRoZz",
-                        "Jacob Kumar - Jacob_Mango",
-                        "Jesse Ficarra - Not A Banana",
+						"Stephan Moser - Steve aka Salutesh",
                         "Guillaume Jouve - LieutenantMaster",
-                        "Cooltrain",
-                        "Wardog",
-                        "liquidrock",
-                        "Tyler Paul - InclementDab",
-						"George Thurston - Thurston",
                         "Ruslans Aleksejevs - CAMINOonPC",
-						"Stephan Moser - Steve aka Salutesh"
+                        "Jesse Ficarra - Not A Banana",
+						"George Thurston - Thurston",
+                        "Jacob Kumar - Jacob_Mango",
+                        "Tyler Paul - InclementDab",
+                        "Rémi Simonin - NiiRoZz",
+                        "liquidrock",
+                        "Cooltrain",
+                        "Wardog"
                     ]
                 }
             ]
@@ -53,8 +53,8 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_3DARTISTS",
                     "SectionLines": [
-                        "ComatoseBadger",
                         "Jesse Ficarra - Not A Banana",
+                        "ComatoseBadger",
 						"m_kola",
 						"Helion4",
 						"ZeRoY"
@@ -91,11 +91,13 @@
                 {
                     "SectionName": "#STR_EXPANSION_CREDITS_TRANSLATORS",
                     "SectionLines": [
-                        "Guillaume Jouve - LieutenantMaster",
 						"Stephan Moser - Steve aka Salutesh",
-                        "liquidrock",
+                        "Guillaume Jouve - LieutenantMaster",
                         "Billy Herrington",
+                        "liquidrock",
                         "Adam Franců",
+                        "Wayward son",
+                        "GUGUGUBEAR",
                         "GrosTon1",
                         "Catzf19",
                         "MPH2210",
@@ -129,12 +131,12 @@
                         "DeanosBeano",
                         "DivineFury",
                         "Credidred",
-                        "Niphoria",
                         "DrDeSync",
                         "Arkensor",
                         "Shedmon",
 						"Cleetus",
 						"MoonDC",
+                        "Niphoria (Semi Automatic shotgun behavior)",
 						"Def (Mapping converter tool 'DayZPosConv')",
                         "DaemonForge (ExpansionCodeLockExpanded)",
                         "           ",

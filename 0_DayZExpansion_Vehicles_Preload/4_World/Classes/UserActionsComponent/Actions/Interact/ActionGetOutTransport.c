@@ -74,6 +74,14 @@ modded class ActionGetOutTransport
 
 				vehCommand.KeepInVehicleSpaceAfterLeave( keepInVehicleSpaceAfterLeave );
 
+				if ( car.IsInherited( ExpansionZodiacBoat ) )
+				{
+					//! Hack fix to prevent jolting/spinning
+					SetVelocity( car, Vector( 0, 0, 0 ) );
+					dBodySetAngularVelocity( car, Vector( 0, 0, 0 ) );
+					dBodyActive( car, ActiveState.INACTIVE );
+				}
+
 				if ( keepInVehicleSpaceAfterLeave )
 				{
 					vehCommand.GetOutVehicle();
@@ -99,6 +107,31 @@ modded class ActionGetOutTransport
 	override void OnEndServer( ActionData action_data )
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast( action_data );
+
+		CarScript car = CarScript.Cast( got_action_data.m_Car );
+
+		if ( car && car.IsInherited( ExpansionZodiacBoat ) )
+		{
+			//! Hack fix to prevent jolting/spinning
+			SetVelocity( car, Vector( 0, 0, 0 ) );
+			dBodySetAngularVelocity( car, Vector( 0, 0, 0 ) );
+			dBodyActive( car, ActiveState.ACTIVE );
+			car.SetSynchDirty();
+		}
+
+		vector playerPos = action_data.m_Player.GetPosition();
+
+		if ( car && car.IsBoat() )
+		{
+			//! Prevent player glitching below boat
+			float vehicleY = car.GetPosition()[1] - car.GetModelAnchorPointY();
+			if ( playerPos[1] < vehicleY + 0.5 )
+			{
+				playerPos[1] = vehicleY + 0.5;
+				action_data.m_Player.SetPosition( playerPos );
+			}
+		}
+
 		if ( got_action_data.keepInVehicleSpaceAfterLeave )
 			return;
 
@@ -106,7 +139,7 @@ modded class ActionGetOutTransport
 		//! except that we don't use RaycastRV(Proxy) because it can return results that aren't even in the rays path or radius.
 		//! This fixes an exploit that was introduced with DayZ 1.11 where players could glitch through floors when getting out of a vehicle.
 
-		vector endLocation = action_data.m_Player.GetPosition() + "0 0.5 0";
+		vector endLocation = playerPos + "0 0.5 0";
 		
 		PhxInteractionLayers layerMask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ROADWAY | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE;
 
@@ -126,23 +159,21 @@ modded class ActionGetOutTransport
 		if ( got_action_data.m_WasJumpingOut )
 		{
 			got_action_data.m_Player.OnJumpOutVehicleFinish( got_action_data.m_CarSpeed );
-			
-			PlayerBase player = got_action_data.m_Player;
-			
-			ApplyJumpOutDmg( action_data );
-			
-			vector posMS = player.WorldToModel( player.GetPosition() );
-			player.DamageAllLegs( got_action_data.m_DmgTaken ); //! Additional leg specific damage dealing
-			player.ProcessDirectDamage( DT_CUSTOM, player, "", "FallDamage", posMS, got_action_data.m_DmgTaken );
-		}
 
-		if ( got_action_data.m_Car )
-		{
-			CarScript car;
-			if ( Class.CastTo( car, got_action_data.m_Car ) )
+			//! Additional jump out damage should only apply for land vehicles (cars), not helis, planes or boats
+			if ( car && car.IsCar() )
 			{
-				car.ForceUpdateLightsEnd();
+				PlayerBase player = got_action_data.m_Player;
+
+				ApplyJumpOutDmg( action_data );
+
+				vector posMS = player.WorldToModel( player.GetPosition() );
+				player.DamageAllLegs( got_action_data.m_DmgTaken ); //! Additional leg specific damage dealing
+				player.ProcessDirectDamage( DT_CUSTOM, player, "", "FallDamage", posMS, got_action_data.m_DmgTaken );
 			}
 		}
+
+		if ( car )
+			car.ForceUpdateLightsEnd();
 	}
 };

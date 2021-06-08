@@ -13,6 +13,19 @@
 modded class DayZPlayerImplement
 {
 	protected ref ExpansionHumanST m_ExpansionST;
+
+	private int m_Expansion_Vehicle_SeatIndex;
+
+	void DayZPlayerImplement()
+	{
+		RegisterNetSyncVariableInt("m_Expansion_Vehicle_SeatIndex");
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+	}
+
 	
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionVehicle

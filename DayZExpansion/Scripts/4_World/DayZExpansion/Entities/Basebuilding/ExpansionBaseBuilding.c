@@ -301,6 +301,11 @@ modded class ExpansionBaseBuilding
 		return ExpansionCodeLock.Cast( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) );
 	}
 
+	bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		return GetCollisionBox( minMax );
+	}
+
 
 	//! For some reasons doing this fixed the null pointer. It's 3AM I need to sleep, good luck guys <3
 	//! -LieutenantMaster
@@ -435,6 +440,11 @@ modded class ExpansionBaseBuilding
 	bool IsLastStageBuilt()
 	{
 		return false;
+	}
+	
+	override bool CanObstruct()
+	{
+		return IsLastStage();
 	}
 
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )

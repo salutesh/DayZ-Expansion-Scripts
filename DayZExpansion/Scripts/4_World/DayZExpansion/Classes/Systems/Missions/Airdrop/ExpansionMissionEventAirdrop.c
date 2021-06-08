@@ -149,7 +149,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 					InfectedCount = container.InfectedCount;
 			}
 
+			#ifdef EXPANSION_MISSION_EVENT_DEBUG
 			EXPrint("[ExpansionMissionEventAirdrop] " + MissionName + " - selected container: " + Container);
+			#endif
 
 			if ( ItemCount <= 0 )
 				ItemCount = GetExpansionSettings().GetAirdrop().ItemCount;
@@ -173,6 +175,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				{
 					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
 				}
+
+				if ( GetExpansionSettings().GetLog().MissionAirdrop )
+					GetExpansionSettings().GetLog().PrintLog( "[MissionAirdrop] An airdrop is heading towards \"" + DropLocation.Name + "\" (pos=" + Vector( DropLocation.x, 0, DropLocation.z ) + " type="+ MissionName +") with a "+ Container );
 			}
 		}
 		
@@ -903,7 +908,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		ExpansionLocatorArray loc = m_AvailableLocations[locIdx];
 
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXPrint("ExpansionMissionEventAirdrop::ExpansionMissionAirdropRandom - " + loc.name);
+		#endif
 
 		m_SelectedLocations.Insert( loc );
 

@@ -117,7 +117,10 @@ class CfgVehicles
 	};
 	class ExpansionAirdropContainerBigBase: ExpansionAirdropContainerBase
 	{
-		itemsCargoSize[] = {20,100};
+		class Cargo
+		{
+			itemsCargoSize[] = {20,100};
+		};
 	};
 	class ExpansionAirdropContainer_Big: ExpansionAirdropContainerBase
 	{

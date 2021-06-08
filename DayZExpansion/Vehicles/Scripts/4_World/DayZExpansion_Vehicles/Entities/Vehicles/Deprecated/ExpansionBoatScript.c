@@ -136,12 +136,15 @@ class ExpansionBoatScript extends OffroadHatchback
 	
 	override void EEOnCECreate()
 	{
+		super.EEOnCECreate();
 
 		m_IsCECreated = true;
 	}
 
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		m_IsStoreLoaded = true;
 	}
 
@@ -546,10 +549,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		vector orientation = GetOrientation();
 		if ( g_Game.SurfaceIsSea( position[0], position[2] ) || g_Game.SurfaceIsPond( position[0], position[2] ) )
 		{
-			float depth = g_Game.GetWaterDepth( position );
-			//! Boaty McBoat should be submerged a little, not sit atop waterlevel
-			position[1] = position[1] + depth + GetModelAnchorPointY() - 0.5;
-			SetPosition( position );
+			FloatyMcFloatSimple( position );
 			SetOrientation( Vector( orientation[0], 0, 0 ) );
 		}
 
@@ -588,6 +588,28 @@ class ExpansionBoatScript extends OffroadHatchback
 			return true;
 		
 		return dBodyIsActive( this ) && dBodyIsDynamic( this );
+	}
+
+	protected override void OnNoSimulation( float pDt )
+	{
+		super.OnNoSimulation( pDt );
+
+		if ( m_CanSimulate || GetGame().IsServer() )  //! For client side
+			return;
+
+		//! Make Boaty McBoat rise and fall with tide, no full simulation
+		vector position = GetPosition();
+		if ( g_Game.SurfaceIsSea( position[0], position[2] ) )
+			FloatyMcFloatSimple( position );
+	}
+
+	void FloatyMcFloatSimple( vector position )
+	{
+		//! Boaty McBoat should be submerged a little, not sit atop waterlevel
+		float depth = g_Game.GetWaterDepth( position );
+		position[1] = position[1] + depth + m_Offset - 1;
+
+		SetPosition( position );
 	}
 
 	// ------------------------------------------------------------

@@ -399,7 +399,7 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 
 	protected override void _ApplyBrake( float pTorque )
 	{
-		m_Left.ApplyBrake( pTorque * 0.5 );
-		m_Right.ApplyBrake( pTorque * 0.5 );
+		m_Left.ApplyBrake( pTorque );
+		m_Right.ApplyBrake( pTorque );
 	}
 };

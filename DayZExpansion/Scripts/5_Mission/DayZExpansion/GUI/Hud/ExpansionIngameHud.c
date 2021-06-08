@@ -388,20 +388,12 @@ class ExpansionIngameHud extends Hud
 					shift_y = 485.5;
 				}
 			}
-			else if ( worldName.Contains("enoch") )	// LIVONIA
-			{
-				if( scale >= 0.1 )
-				{
-					shift_x = 545.0;
-					shift_y = 412.5;
-				}
-			}
-			else if ( worldName.Contains("namalsk") )	// NAMALSK
+			else if ( worldName.Contains("enoch") || worldName.Contains("namalsk") || worldName.Contains("esseker") )
 			{
 				// 12800 / 12800
 				if( scale >= 0.1 )
 				{
-					shift_x = 535.0;
+					shift_x = 545.0;
 					shift_y = 412.5;
 				}
 			}

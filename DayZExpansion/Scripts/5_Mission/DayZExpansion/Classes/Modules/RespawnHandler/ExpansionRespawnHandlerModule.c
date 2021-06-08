@@ -231,8 +231,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			player.SetPosition( spawnPoint );
 			
 			CloseSpawnMenu( sender );
+
+			if ( GetExpansionSettings().GetLog().SpawnSelection )
+				GetExpansionSettings().GetLog().PrintLog( "[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " spawned at " + spawnPoint );
 		}
-		
 		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - End");
 	}
 	

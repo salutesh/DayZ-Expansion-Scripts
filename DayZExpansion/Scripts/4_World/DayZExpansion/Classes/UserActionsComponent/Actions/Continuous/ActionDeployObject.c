@@ -85,6 +85,37 @@ modded class ActionDeployObject
 			return false;
 
 		//! NOTE: When making changes below, don't forget that the logic in ActionTogglePlaceObject::Start should be compatible!
+
+		bool doPlacementCheckForBuildZone;
+
+		if ( GetExpansionSettings().GetBaseBuilding().Zones.Count() )
+		{
+			ExpansionBuildNoBuildZone zone = player.GetBuildNoBuildZone();
+
+			if ( zone )
+			{
+				//! Player is inside zone
+
+				bool isItemAllowed = !zone.IsWhitelist;
+
+				foreach ( string item_name : zone.Items )
+				{
+					if ( ( item.CanMakeGardenplot() && item_name == "GardenPlot" ) || item.IsKindOf( item_name ) )
+					{
+						isItemAllowed = zone.IsWhitelist;
+						break;
+					}
+				}
+
+				if ( !isItemAllowed )
+					return false;
+			} else if ( !GetExpansionSettings().GetBaseBuilding().ZonesAreNoBuildZones )
+			{
+				//! Zones are "build" zones, so if player isn't inside one, disallow placing if not whitelisted
+				doPlacementCheckForBuildZone = true;
+			}
+		}
+
 		if ( GetExpansionSettings().GetTerritory() && !GetExpansionSettings().GetTerritory().EnableTerritories )
 			return super.ActionCondition( player, target, item );
 
@@ -92,30 +123,14 @@ modded class ActionDeployObject
 		{		
 			int i;
 
-			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true )
+			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true && !doPlacementCheckForBuildZone )
 			{
 				//! Flag can be placed if outside any territory/perimeter or if inside own territory/perimeter
 				//! Other items can be placed if not in enemy territory or if item is whitelisted
 
 				if ( player.IsInTerritory() )
 				{
-
-					if ( player.IsInsideOwnTerritory() )
-					{
-						return true;
-					}
-					else
-					{
-						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory.Count(); ++i)
-						{
-							if ( item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]) )
-							{
-								return true;
-							}
-						}
-						
-						return false;
-					}
+					return ActionTogglePlaceObject.CanDeployInTerritory( player, item );
 				}
 				else if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
 				{
@@ -133,28 +148,14 @@ modded class ActionDeployObject
 
 				if ( player.IsInTerritory() )
 				{
-					if ( player.IsInsideOwnTerritory() )
-					{
-						return true;
-					}
-					else
-					{
-						for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory.Count(); ++i)
-						{
-							if ( item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory[i]) )
-							{
-								return true;
-							}
-						}
-						
-						return false;
-					}
+					return ActionTogglePlaceObject.CanDeployInTerritory( player, item );
 				}
 				else
 				{
 					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory.Count(); ++i)
 					{
-						if (item.IsKindOf(GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i]) )
+						string deployable = GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i];
+						if ( ( item.CanMakeGardenplot() && deployable == "GardenPlot" ) || item.IsKindOf( deployable ) )
 						{
 							if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
 							{

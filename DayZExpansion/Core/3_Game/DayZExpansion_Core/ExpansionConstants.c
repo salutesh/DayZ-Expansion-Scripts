@@ -118,6 +118,7 @@ const string EXPANSION_MARKERS_SETTINGS_PROFILE_NAME = "EXPANSION_MARKERS_PROFIL
 static const string EXPANSION_FOLDER = "$profile:ExpansionMod\\";
 
 static const string EXPANSION_SETTINGS_FOLDER = EXPANSION_FOLDER + "Settings\\";
+static const string EXPANSION_LOG_FOLDER = EXPANSION_FOLDER + "Logs\\";
 static const string EXPANSION_MARKET_FOLDER = EXPANSION_FOLDER + "Market\\";
 static const string EXPANSION_TRADER_ZONES_RESERVED_FOLDER = EXPANSION_FOLDER + "TraderZonesReserved\\";
 static const string EXPANSION_TRADER_ZONES_FOLDER = EXPANSION_FOLDER + "TraderZones\\";
@@ -145,6 +146,7 @@ static const string EXPANSION_TERRITORY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "
 static const string EXPANSION_VEHICLE_SETTINGS = EXPANSION_SETTINGS_FOLDER + "VehicleSettings.json";
 static const string EXPANSION_DEBUG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "DebugSettings.json";
 static const string EXPANSION_PLAYERLIST_SETTINGS = EXPANSION_SETTINGS_FOLDER + "PlayerListSettings.json";
+static const string EXPANSION_LOG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "LogsSettings.json";
 
 static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors.bin";
 
@@ -368,6 +370,22 @@ static const string EXPANSION_NOTIFICATION_ICON_T_WaterJug = "DayZExpansion\\GUI
 static const string EXPANSION_NOTIFICATION_ICON_T_WildPork = "DayZExpansion\\GUI\\icons\\misc\\T_WildPork_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Worms = "DayZExpansion\\GUI\\icons\\misc\\T_Worms_256x256.edds";
 
+//! Social Media
+static const string EXPANSION_NOTIFICATION_ICON_Discord = "set:expansion_iconset image:icon_discord";
+static const string EXPANSION_NOTIFICATION_ICON_Reddit = "set:expansion_iconset image:icon_reddit";
+static const string EXPANSION_NOTIFICATION_ICON_Steam = "set:expansion_iconset image:icon_steam";
+static const string EXPANSION_NOTIFICATION_ICON_GitHub = "set:expansion_iconset image:icon_github";
+static const string EXPANSION_NOTIFICATION_ICON_Homepage = "set:expansion_iconset image:icon_home";
+static const string EXPANSION_NOTIFICATION_ICON_Forums = "set:expansion_iconset image:icon_forums";
+static const string EXPANSION_NOTIFICATION_ICON_Twitter = "set:expansion_iconset image:icon_twitter";
+static const string EXPANSION_NOTIFICATION_ICON_YouTube = "set:expansion_iconset image:icon_youtube";
+static const string EXPANSION_NOTIFICATION_ICON_Patreon = "set:expansion_iconset image:icon_patreon";
+static const string EXPANSION_NOTIFICATION_ICON_Guilded = "set:expansion_iconset image:icon_guilded";
+
+//! Expansion Icons
+static const string EXPANSION_NOTIFICATION_ICON_ExpansionColor = "set:expansion_iconset image:icon_expansion_col";
+static const string EXPANSION_NOTIFICATION_ICON_ExpansionBlackWhite = "set:expansion_iconset image:icon_expansion_bw";
+static const string EXPANSION_NOTIFICATION_ICON_ExpansionWhite = "set:expansion_iconset image:icon_expansion_white";
 
 /**
  * Expansion Flags texture paths

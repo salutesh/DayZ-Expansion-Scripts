@@ -48,6 +48,8 @@ modded class Chat
 	
 	private string m_LayoutPath;
 
+	private bool m_HideChatToggle = true;
+
 	// ------------------------------------------------------------
 	// Chat Constructor
 	// ------------------------------------------------------------
@@ -397,6 +399,30 @@ modded class Chat
 		EXPrint("Chat::Update End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	// HideChatToggle
+	// ------------------------------------------------------------
+	void HideChatToggle()
+	{
+		m_HideChatToggle = !m_HideChatToggle;
+
+		m_RootWidget.Show(m_HideChatToggle);
+
+		if (m_FadeOutTimerChat)
+			m_FadeOutTimerChat.Stop();
+
+		if (m_FadeInTimerChat)
+			m_FadeInTimerChat.Stop();
+	}
+
+	// ------------------------------------------------------------
+	// GetChatToggleState
+	// ------------------------------------------------------------
+	bool GetChatToggleState()
+	{
+		return m_HideChatToggle;
+	}
 		
 	// ------------------------------------------------------------
 	// Chat OnChatInputShow
@@ -407,9 +433,13 @@ modded class Chat
 		EXPrint("Chat::OnChatInputShow Start");
 		#endif
 		
-		ShowScroller();
+		if ( GetChatToggleState() )
+		{
+			ShowScroller();
+			ShowChat();
+		}
+
 		UpdateScroller();
-		ShowChat();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputShow End");

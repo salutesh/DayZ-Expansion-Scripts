@@ -151,6 +151,14 @@ modded class ActionGetInTransport
 		{
 			AttachmentDebugPrint( action_data.m_Player, "vehCommand parent=" + action_data.m_Player.GetParent() );
 
+			if ( car.IsInherited( ExpansionZodiacBoat ) )
+			{
+				//! Hack fix to prevent jolting/spinning
+				SetVelocity( car, Vector( 0, 0, 0 ) );
+				dBodySetAngularVelocity( car, Vector( 0, 0, 0 ) );
+				dBodyActive( car, ActiveState.INACTIVE );
+			}
+
 			vehCommand.SetVehicleType( car.GetAnimInstance() );
 			action_data.m_Player.GetItemAccessor().HideItemInHands( true );
 			
@@ -201,5 +209,21 @@ modded class ActionGetInTransport
 		}
 		
 		AttachmentDebugPrint( action_data.m_Player, "-ActionGetInTransport::PerformGetInTransport" );
+	}
+
+	override void OnEndServer( ActionData action_data )
+	{
+		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
+
+		if ( car && car.IsInherited( ExpansionZodiacBoat ) )
+		{
+			//! Hack fix to prevent jolting/spinning
+			SetVelocity( car, Vector( 0, 0, 0 ) );
+			dBodySetAngularVelocity( car, Vector( 0, 0, 0 ) );
+			dBodyActive( car, ActiveState.ACTIVE );
+			car.SetSynchDirty();
+		}
+
+		super.OnEndServer( action_data );
 	}
 };

@@ -221,6 +221,8 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
 
+		RegisterNetSyncVariableBool( "m_CanSimulate" );
+
 		m_allVehicles.Insert( this );
 
 		m_DebugShapes = new array< Shape >();
@@ -439,6 +441,22 @@ modded class CarScript
 		
 		if ( !IsMissionOffline() )
 			m_ParentTow.GetNetworkID( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh );
+	}
+
+	EntityAI GetTowedEntity()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - Start");
+		#endif
+
+		if ( m_IsTowing )
+			return m_ChildTow;
+		
+		return NULL;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - End");
+		#endif
 	}
 
 	void DestroyTow()
@@ -2066,17 +2084,18 @@ modded class CarScript
 
 		if ( !CanSimulate() )
 		{
-			if ( m_CanSimulate )
+			if ( m_CanSimulate && GetGame().IsServer() )
 			{
 				EXPrint(GetType() + " (pos=" + GetPosition() + ") CarScript::EEOnSimulate - CanSimulate false");
 				m_CanSimulate = false;
+				SetSynchDirty();
 			}
 
 			OnNoSimulation( dt );
 			return;
 		}
 
-		if ( !m_CanSimulate )
+		if ( !m_CanSimulate && GetGame().IsServer() )
 		{
 			EXPrint(GetType() + " (pos=" + GetPosition() + ") CarScript::EEOnSimulate - CanSimulate true");
 			m_CanSimulate = true;

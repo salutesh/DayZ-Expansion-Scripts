@@ -64,12 +64,18 @@ class ExpansionActionDisconnectTow: ActionInteractBase
 
 		CarScript car;
 		if ( vehCommand && Class.CastTo( car, vehCommand.GetTransport() ) )
-		{				
+		{			
 			if ( car.CrewMemberIndex( action_data.m_Player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
+#ifdef EXPANSIONMODVEHICLE
+				if ( GetExpansionSettings().GetLog().VehicleTowing )
+					GetExpansionSettings().GetLog().PrintLog("[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " Untowed " + car.GetTowedEntity().GetType() + " with " + car.GetType() );
+#endif
+
 				car.DestroyTow();
 			}
 		}
+	
 	}
 	
 	override bool CanBeUsedInVehicle()

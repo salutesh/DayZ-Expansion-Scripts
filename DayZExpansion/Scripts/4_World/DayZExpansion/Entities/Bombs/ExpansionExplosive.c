@@ -113,8 +113,11 @@ class ExpansionExplosive extends ItemBase
 		if ( IsMissionHost() )
 		{
 			m_ExplosionTimer.Run( m_ExplosionTime, this, "TriggerExplosion", NULL, false ); 
-		}
+		}		
 
+		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
+			GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Player \"" + player.GetIdentity().GetName() + "\" (id=" + player.GetIdentity().GetId() + " pos=" + player.GetPosition() + ")" + " deployed " + GetType() + " at " + GetPosition() );
+		
 		// That's the only fix I have found
 		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( OnFrame, 1, true );
 

@@ -138,7 +138,7 @@ class Expansion_GraveBase extends Inventory_Base
 			Delete();
 	}
 
-	void MoveAttachmentsFromEntity(EntityAI entity)
+	void MoveAttachmentsFromEntity(EntityAI entity, vector ground, vector orientation)
 	{
 		for (int i = 0; i < entity.GetInventory().GetAttachmentSlotsCount(); i++)
 		{
@@ -168,6 +168,9 @@ class Expansion_GraveBase extends Inventory_Base
 						entity.GetInventory().DropEntity(InventoryMode.SERVER, entity, item);
 					else
 						entity.GetInventory().DropEntity(InventoryMode.LOCAL, entity, item);
+
+					item.SetPosition(ground);
+					item.SetOrientation(orientation);
 				}
 
 				if (GetGame().IsServer())

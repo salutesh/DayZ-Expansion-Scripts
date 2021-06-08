@@ -450,7 +450,7 @@ class ExpansionClientSettings
 		HelicopterMouseVerticalSensitivity = 1.0;
 		HelicopterMouseHorizontalSensitivity = 1.0;
 
-		HUDChatSize = ExpansionClientUIChatSize.SMALL;
+		HUDChatSize = ExpansionClientUIChatSize.MEDIUM;
 		HUDChatFadeOut = 10;
 
 		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;

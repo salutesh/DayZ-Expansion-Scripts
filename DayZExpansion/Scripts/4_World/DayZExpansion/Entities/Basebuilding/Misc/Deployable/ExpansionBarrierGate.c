@@ -201,7 +201,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	override void AfterStoreLoad()
 	{
-		//super.AfterStoreLoad();
+		super.AfterStoreLoad();
 
 		if ( m_IsOpened )
 		{
@@ -210,5 +210,10 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		{
 			SetAnimationPhase( "gate", 1 );
 		}
+	}
+
+	override void SetPartsAfterStoreLoad()
+	{
+		
 	}
 }

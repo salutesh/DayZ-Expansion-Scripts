@@ -236,6 +236,12 @@ ImageSetClass {
    Size 19 27
    Flags 0
   }
+  ImageSetDefClass icon_guilded {
+   Name "icon_guilded"
+   Pos 375 163
+   Size 34 34
+   Flags 0
+  }
  }
  Groups {
   ImageSetGroupClass MainMenu {

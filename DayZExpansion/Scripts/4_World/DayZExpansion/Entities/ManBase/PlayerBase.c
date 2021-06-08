@@ -108,7 +108,7 @@ modded class PlayerBase
 
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false, IsSwimming());
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
 		}
 		
 		super.EEKilled(killer);
@@ -384,6 +384,9 @@ modded class PlayerBase
 
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_ENTER" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, GetIdentity() );
 		
+			if ( GetExpansionSettings().GetLog().Safezone )
+				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
+
 			SetSynchDirty();
 		}
 
@@ -401,7 +404,7 @@ modded class PlayerBase
 		EXPrint("PlayerBase::OnLeftSafeZone - Start");
 		#endif
 
-		if ( m_SafeZone && !m_LeavingSafeZone )
+		if ( IsMissionHost() && m_SafeZone && !m_LeavingSafeZone )
 		{
 			m_SafeZone = false;
 			m_LeavingSafeZone = true;
@@ -427,7 +430,7 @@ modded class PlayerBase
 		#endif
 
 		//! If the player is still outside of the safezone
-		if ( IsMissionHost() && !m_SafeZone )
+		if ( IsMissionHost() && !m_SafeZone && m_LeavingSafeZone )
 		{
 			m_SafeZoneSynchRemote = false;
 
@@ -438,10 +441,14 @@ modded class PlayerBase
 
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_LEFT" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, GetIdentity() );
 		
+			m_LeavingSafeZone = false;
+
+			if ( GetExpansionSettings().GetLog().Safezone )
+				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
+		
 			SetSynchDirty();
 		}
 		
-		m_LeavingSafeZone = false;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::HasLeftSafeZone - End");
@@ -477,6 +484,23 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::SafezoneUpdate end");
 		#endif
+	}
+
+	ExpansionBuildNoBuildZone GetBuildNoBuildZone()
+	{
+		foreach ( ExpansionBuildNoBuildZone zone : GetExpansionSettings().GetBaseBuilding().Zones )
+		{
+			vector pos = GetPosition();
+			vector center = zone.Center;
+
+			if ( center[1] == 0 )
+				pos[1] == 0;
+	
+			if ( vector.Distance( pos, zone.Center ) <= zone.Radius )
+				return zone;
+		}
+
+		return NULL;
 	}
 
 	private bool TerritoryModuleExists()
@@ -647,7 +671,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SpawnGraveCross
 	// ------------------------------------------------------------
-	void CreateGraveCross( bool wasSwimming )
+	void CreateGraveCross()
 	{
 		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
 		bool deleteBody = GetExpansionSettings().GetGeneral().GravecrossDeleteBody;
@@ -672,27 +696,33 @@ modded class PlayerBase
 		Expansion_GraveBase grave;
 
 		vector pos = GetPosition();
-		vector ground;
+		vector ground = Vector(pos[0], GetGame().SurfaceY(pos[0], pos[2]), pos[2]);
 
 		//! The idea here is that the gravecross should spawn on top of the thing the player died on if it's a building or large item,
 		//! and not below sea level if over water
 
-		if ( wasSwimming )
-		{
-			//! Add a bit of vertical offset if the player was swimming so cross sits above water level
-			ground = Vector(pos[0], pos[1] + 1.3, pos[2]);
-		} else
-		{
-			ground = Vector(pos[0], GetGame().SurfaceY(pos[0], pos[2]), pos[2]);
+		PhxInteractionLayers layerMask;
 
-			PhxInteractionLayers layerMask = PhxInteractionLayers.BUILDING|PhxInteractionLayers.ROADWAY|PhxInteractionLayers.TERRAIN|PhxInteractionLayers.WATERLAYER|PhxInteractionLayers.ITEM_LARGE;
-			Object hitObject;
-			vector hitPosition;
-			vector hitNormal;
-			float hitFraction;
+		layerMask |= PhxInteractionLayers.BUILDING;
+		layerMask |= PhxInteractionLayers.ROADWAY;
+		layerMask |= PhxInteractionLayers.TERRAIN;
+		layerMask |= PhxInteractionLayers.WATERLAYER;  //! Doesn't seem to work?
+		layerMask |= PhxInteractionLayers.ITEM_LARGE;
 
-			if ( DayZPhysics.RayCastBullet( pos, ground, layerMask, this, hitObject, hitPosition, hitNormal, hitFraction ) )
-				ground[1] = hitPosition[1];
+		Object hitObject;
+		vector hitPosition;
+		vector hitNormal;
+		float hitFraction;
+
+		if ( DayZPhysics.RayCastBullet( pos, ground, layerMask, this, hitObject, hitPosition, hitNormal, hitFraction ) )
+			ground[1] = hitPosition[1];
+
+		float water_depth = GetGame().GetWaterDepth(ground);
+
+		if ( water_depth > 0 )
+		{
+			//! Add water depth so cross sits above water level (with bottom bit submerged slightly)
+			ground[1] = ground[1] + water_depth - 0.5;
 		}
 		
 		ground[1] = ground[1] + offsetY;
@@ -700,7 +730,7 @@ modded class PlayerBase
 		grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
 		
-		grave.MoveAttachmentsFromEntity(this);
+		grave.MoveAttachmentsFromEntity(this, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());
 		
 		if (deleteBody)

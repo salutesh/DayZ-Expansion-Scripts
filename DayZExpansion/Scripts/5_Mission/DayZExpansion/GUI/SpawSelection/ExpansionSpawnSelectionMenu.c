@@ -86,11 +86,11 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 		//! You can use this switch case for modding purposes
 		switch( type )
 		{
-			case 0:
+			case 0: //! Normal
 				PrimaryColor = ARGB(255, 211, 84, 0);
 				HoverColor 	 = ARGB(200, 255, 255, 255);
 			break;
-			case 1:
+			case 1: //! Territory
 				PrimaryColor = ARGB(255, 0, 102, 204);
 				HoverColor 	 = ARGB(200, 255, 255, 255);
 			break;

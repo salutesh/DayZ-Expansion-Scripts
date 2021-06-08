@@ -727,16 +727,14 @@ class ExpansionHelicopterScript extends CarScript
 
 			if ( extra.Impulse > impulseRequired )
 			{
-				Print( dot );
-				
-				Print( impulseRequired );
-				
-				Print( other );
-	
-				Print( extra.Impulse );
-				
+				#ifdef EXPANSIONVEHICLELOG
+				Print( dot );				
+				Print( impulseRequired );				
+				Print( other );	
+				Print( extra.Impulse );				
 				Print(GetVelocity(this));
 				Print(dBodyGetAngularVelocity(this));
+				#endif
 				//Print( "Boom!" );
 				//! Maybe instead just tick damage down instead?
 				//! Should have a way to repair the helicopter then though
@@ -748,7 +746,9 @@ class ExpansionHelicopterScript extends CarScript
 	// ------------------------------------------------------------
 	override void ExpansionOnExplodeServer( int damageType, string ammoType )
 	{
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer" );
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - Start");
@@ -767,7 +767,9 @@ class ExpansionHelicopterScript extends CarScript
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, attachment );
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Attachment Delete" );
+		#endif
 
 		PlayerBase player;
 		DayZPlayerCommandDeathCallback callback;
@@ -792,7 +794,9 @@ class ExpansionHelicopterScript extends CarScript
 			}
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Crew Unlink" );
+		#endif
 
 		IEntity child = GetChildren();
 		while ( child )
@@ -816,12 +820,16 @@ class ExpansionHelicopterScript extends CarScript
 			}
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Player Unlink" );
+		#endif
 
 		ExpansionWreck wreck;
 		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
+			#endif
 
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
@@ -836,21 +844,27 @@ class ExpansionHelicopterScript extends CarScript
 			wreck.SetHealth( 0.0 );
 			dBodySetMass( wreck, m_BodyMass );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Mass Apply" );
+			#endif
 
 			vector inertiaM[3];
 			dBodyGetInvInertiaTensorWorld( this, inertiaM );
 			dBodySetInertiaTensorM( wreck, inertiaM );
 			dBodySetInertiaTensorV( wreck, dBodyGetLocalInertia( this ) );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Tensor Apply" );
+			#endif
 
 			SetVelocity( wreck, m_LinearVelocity );
 			dBodySetAngularVelocity( wreck, m_AngularVelocity );
 
 			dBodyApplyForce( wreck, (m_LastLinearVelocity - m_LinearVelocity) * m_BodyMass );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Self Delete" );
+			#endif
 
 			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 		
@@ -894,27 +908,37 @@ class ExpansionHelicopterScript extends CarScript
 				}
 			}
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Foliage Chop" );
+			#endif
 
 			super.ExpansionOnExplodeServer( damageType, ammoType );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Super Call" );
+			#endif
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Self Delete" );
+			#endif
 		} else
 		{
 			super.ExpansionOnExplodeServer( damageType, ammoType );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Super Call" );
+			#endif
 		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - End");
 		#endif	
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "-ExpansionHelicopterScript::ExpansionOnExplodeServer" );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1406,8 +1430,7 @@ class ExpansionHelicopterScript extends CarScript
 
 		super.OnEngineStart();
 
-		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-		dBodyDynamic( this, true );
+		dBodyActive( this, ActiveState.ACTIVE );
 
 		m_RotorSpeedTarget = 1;
 

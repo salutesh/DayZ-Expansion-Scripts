@@ -173,6 +173,11 @@ class ExpansionActionConnectTow: ActionInteractBase
 				#ifdef EXPANSION_VEHICLE_TOWING
 				car.CreateTow( action_data_b.m_Car );
 				#endif
+				
+#ifdef EXPANSIONMODVEHICLE
+				if ( GetExpansionSettings().GetLog().VehicleTowing )
+					GetExpansionSettings().GetLog().PrintLog("[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " Towed " + action_data_b.m_Car.GetType() + " with " + car.GetType() );
+#endif
 			}
 		}
 	}

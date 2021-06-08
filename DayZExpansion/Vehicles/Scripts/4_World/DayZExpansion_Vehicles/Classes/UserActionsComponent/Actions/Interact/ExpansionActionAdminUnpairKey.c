@@ -59,6 +59,10 @@ class ExpansionActionAdminUnpairKey: ActionInteractBase
 		for ( int i = 0; i < keys.Count(); ++i )
 			keys[i].Unpair( true );
 
+#ifdef EXPANSIONMOD
+		if ( GetExpansionSettings().GetLog().AdminTools )
+			GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the Admin CarKey to unpair a " + car.GetType() );
+#endif
 		car.ResetKeyPairing();
 	}
 

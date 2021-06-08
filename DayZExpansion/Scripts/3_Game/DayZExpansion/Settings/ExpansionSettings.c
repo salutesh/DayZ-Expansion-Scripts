@@ -539,4 +539,4 @@ modded class ExpansionSettings
 	{
 		return m_SettingsPlayerList;
 	}
-}
+};

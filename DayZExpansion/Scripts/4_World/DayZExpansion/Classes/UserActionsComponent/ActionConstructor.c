@@ -81,5 +81,8 @@ modded class ActionConstructor
 		//actions.Insert( ExpansionActionTakeChicken );
 		//actions.Insert( ExpansionActionGetQuest );
 		//actions.Insert( ExpansionActionTakeInQuest );
+
+		//! Misc
+		actions.Insert( ActionLickBattery );
 	}
 }

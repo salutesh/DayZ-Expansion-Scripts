@@ -116,6 +116,13 @@ class ExpansionStairBase extends ExpansionBaseBuilding
 	}
 	#endif
 
+	override bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		minMax[0] = "-0.75 0 -1.5";
+		minMax[1] = "0.75 3.25 1.5";
+		return true;
+	}
+
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
 		m_HasStair = false;

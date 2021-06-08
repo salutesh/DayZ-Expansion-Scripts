@@ -361,7 +361,7 @@ class ExpansionVehicleWheel
 		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
 		#endif
 
-		if ( !pPhysics )
+		if ( !pPhysics && m_WheelItem )
 		{
 			vector rotationTransform[4];
 			Math3D.YawPitchRollMatrix( Vector( -m_Steering, 0, 0 ), rotationTransform );
@@ -439,7 +439,7 @@ class ExpansionVehicleWheel
 		rotationTransform[3] = m_InitialWheelPositionMS;
 		
 		m_TraceStart = m_SuspensionOffset.Multiply4(rotationTransform);
-		m_SuspensionDistance = Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 0.0; //! checking 2 frames ahead
+		m_SuspensionDistance = Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 5.0; //! checking 2 frames ahead
 		
 		m_TraceUp = m_Axle.GetTravelMaxUp() + m_WheelItem.m_Radius + m_WheelItem.m_Radius;
 		m_TraceDown = m_Axle.GetTravelMaxDown() + m_WheelItem.m_Radius + m_SuspensionDistance;
@@ -577,7 +577,6 @@ class ExpansionVehicleWheel
 			if (m_SuspensionRelativeVelocity < 0)
 				compressionDelta = kc * m_SuspensionRelativeVelocity;
 			float suspension = ks * m_SuspensionLength;
-			float wheelUp = 0;//wheelDepth * ks * 10.0;
 			
 			#ifdef EXPANSION_DEBUG_UI_VEHICLE
 			dbg_Vehicle.Set("[" + m_Index + "] wheelUp", wheelUp );
@@ -585,7 +584,7 @@ class ExpansionVehicleWheel
 			dbg_Vehicle.Set("[" + m_Index + "] suspension", suspension );
 			#endif
 			
-			m_SuspensionForce = (wheelUp + suspension) - compressionDelta;
+			m_SuspensionForce = suspension - compressionDelta;
 		
 			vector susp = m_ContactNormal * m_SuspensionForce * pDt;
 
@@ -596,6 +595,27 @@ class ExpansionVehicleWheel
 			m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + Vector( 0, s_SUSP_DEBUG_LENGTH, 0 ), susp, 0xFFC0D000 );
 			#endif
 		}
+		
+			float surfaceY = GetGame().SurfaceY(m_TransformWS[3][0], m_TransformWS[3][2]);
+			if (surfaceY > m_TransformWS[3][1])
+			{
+				vector vehicleTransform[4];
+				m_Vehicle.GetTransform(vehicleTransform);
+				
+				vector transform[4];
+				transform[0] = vehicleTransform[0];
+				transform[1] = vehicleTransform[1];
+				transform[2] = vehicleTransform[2];
+				transform[3] = m_TransformWS[3];
+				transform[3][1] = surfaceY + m_WheelItem.m_Radius;
+				Math3D.MatrixInvMultiply4(vehicleTransform, transform, transform);
+				transform[3][0] = 0;
+				transform[3][2] = 0;
+				Math3D.MatrixMultiply4(vehicleTransform, transform, transform);
+			
+				
+				m_Vehicle.SetTransform(transform);
+			}
 		
 		m_SuspensionLengthPrevious = m_SuspensionLength;
 		

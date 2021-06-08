@@ -13,7 +13,11 @@
 class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Debug = new ScriptInvoker();
+	static ref ScriptInvoker SI_Log = new ScriptInvoker();
+
 	protected ref ExpansionDebugSettings m_SettingsDebug;
+	protected ref ExpansionLogSettings m_SettingsLog;
+
 	protected bool m_SettingsLoaded;
 	protected bool m_Debug;
 	protected ref TStringArray m_NetworkedSettings;
@@ -41,6 +45,9 @@ class ExpansionSettings
 	{
 		if ( m_SettingsDebug ) 
 			delete m_SettingsDebug;
+		
+		if ( m_SettingsLog)
+			delete m_SettingsLog;
 	}
 
 	// ------------------------------------------------------------
@@ -56,10 +63,17 @@ class ExpansionSettings
 		{
 			DeleteFile( EXPANSION_SETTINGS_FOLDER );
 		}
+		
+		if ( FileExist( EXPANSION_LOG_FOLDER ) && IsMissionClient() )
+		{
+			DeleteFile( EXPANSION_LOG_FOLDER );
+		}
 
 		LoadSetting( m_SettingsDebug );
+		LoadSetting( m_SettingsLog);
 
 		m_NetworkedSettings.Insert( "expansiondebugsettings" );
+		m_NetworkedSettings.Insert( "expansionlogsettings" );
 		
 		m_SettingsLoaded = true;
 
@@ -72,6 +86,7 @@ class ExpansionSettings
 	void Unload()
 	{
 		m_SettingsDebug.Unload();
+		m_SettingsLog.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -179,6 +194,9 @@ class ExpansionSettings
 		
 		if ( !IsSettingLoaded( m_SettingsDebug, m_SettingsLoaded ) )
 			return;
+		
+		if ( !IsSettingLoaded( m_SettingsLog, m_SettingsLoaded ) )
+			return;
 
 		m_SettingsLoaded = true;
 		
@@ -193,6 +211,7 @@ class ExpansionSettings
 	void Init()
 	{
 		m_SettingsDebug = new ExpansionDebugSettings;
+		m_SettingsLog = new ExpansionLogSettings;
 
 		m_NetworkedSettings = new TStringArray;
 
@@ -223,6 +242,7 @@ class ExpansionSettings
 		rpc.Send( NULL, ExpansionSettingsRPC.ListToLoad, true, identity );
 
 		m_SettingsDebug.Send( identity );
+		m_SettingsLog.Send( identity );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionSettings::SendSettings - End");
@@ -262,6 +282,16 @@ class ExpansionSettings
 
 				break;
 			}
+			
+			case ExpansionSettingsRPC.Log:
+			{
+				Expansion_Assert_False( m_SettingsLog.OnRecieve( ctx ), "Failed reading Log settings" );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC m_SettingsLog");
+				#endif
+
+				break;
+			}
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -297,6 +327,7 @@ class ExpansionSettings
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
 			m_SettingsDebug.Save();
+			m_SettingsLog.Save();
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -310,6 +341,14 @@ class ExpansionSettings
 	ref ExpansionDebugSettings GetDebug()
 	{
 		return m_SettingsDebug;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionLogSettings GetLog
+	// ------------------------------------------------------------
+	ref ExpansionLogSettings GetLog()
+	{
+		return m_SettingsLog;
 	}
 };
 

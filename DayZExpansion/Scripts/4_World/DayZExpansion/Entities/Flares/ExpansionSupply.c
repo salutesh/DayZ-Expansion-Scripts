@@ -41,7 +41,9 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 
 			//! Pick a container (weighted random)
 			container = ExpansionAirdropLootContainer.GetWeightedRandomContainer( containers );
+			#ifdef EXPANSIONEXPRINT
 			EXPrint("[ExpansionSupplySignal] Selected container: " + container.Container);
+			#endif
 					
 			int itemCount = container.ItemCount;
 			if ( container.ItemCount <= 0 )
@@ -64,7 +66,10 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 				if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowPlayerAirdropStarted )
 				{
 					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS_PLAYER" ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 7 );
-				}
+				}				
+
+				if ( GetExpansionSettings().GetLog().MissionAirdrop )
+					GetExpansionSettings().GetLog().PrintLog( "[Airdrop] A player called airdrop is heading toward " + Vector( GetPosition()[0], 0, GetPosition()[2] ) + " with a "+ container.Container );
 			}
 		}
 	}

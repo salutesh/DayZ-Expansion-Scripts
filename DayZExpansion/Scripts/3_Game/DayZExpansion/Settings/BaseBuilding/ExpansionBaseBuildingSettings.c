@@ -20,6 +20,10 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	
 	autoptr TStringArray DeployableOutsideATerritory;		//! List of items that you can place everywhere but not in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1.
 	autoptr TStringArray DeployableInsideAEnemyTerritory;	//! List of items that are allowed to place in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1 or 0.
+
+	ref array < ref ExpansionBuildNoBuildZone > Zones;		//! "No build" or "build" zones
+	bool ZonesAreNoBuildZones;								//! Whether the provided zones are "no build" zones (true = can not build in the zones) or "build" zones (false = can ONLY build in the zones)
+	string BuildZoneRequiredCustomMessage;					//! Custom message for build zone required (optional, uses default message if not set)
 	
 	bool CanCraftVanillaBasebuilding;						//! When enabled, allows players to craft Vanilla basebuilding.
 	bool CanCraftExpansionBasebuilding;						//! When enabled, allows players to craft Expansion basebuilding.
@@ -55,6 +59,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		
 		DeployableOutsideATerritory = new TStringArray;
 		DeployableInsideAEnemyTerritory = new TStringArray;
+
+		Zones =  new array< ref ExpansionBuildNoBuildZone >;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBaseBuildingSettings::ExpansionBaseBuildingSettings - End");
@@ -146,6 +152,15 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		{
 			DeployableInsideAEnemyTerritory.Insert( s.DeployableInsideAEnemyTerritory[i] );
 		}
+		
+		Zones.Clear();
+		for (i = 0; i < s.Zones.Count(); i++)
+		{
+			Zones.Insert( s.Zones[i] );
+		}
+
+		ZonesAreNoBuildZones = s.ZonesAreNoBuildZones;
+		BuildZoneRequiredCustomMessage = s.BuildZoneRequiredCustomMessage;
 
 		CanCraftVanillaBasebuilding = s.CanCraftVanillaBasebuilding;
 		CanCraftExpansionBasebuilding = s.CanCraftExpansionBasebuilding;
@@ -237,6 +252,8 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		DeployableInsideAEnemyTerritory.Insert("ExpansionSatchel");
 		DeployableInsideAEnemyTerritory.Insert("LandMineTrap");
 		DeployableInsideAEnemyTerritory.Insert("BearTrap");
+
+		ZonesAreNoBuildZones = true;
 
 		CanCraftVanillaBasebuilding = false;
 		CanCraftExpansionBasebuilding = true;

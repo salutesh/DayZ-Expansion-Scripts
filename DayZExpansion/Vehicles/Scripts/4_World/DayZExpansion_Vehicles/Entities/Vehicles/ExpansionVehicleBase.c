@@ -13,7 +13,7 @@
 enum ExpansionVehicleDynamicState
 {
 	STATIC = 0,
-	CREATING,
+	TRANSITIONING,
 	DYNAMIC
 };
 
@@ -54,6 +54,7 @@ class ExpansionVehicleBase extends ItemBase
 	protected bool m_IsForcingPhysics;
 	protected ExpansionVehicleDynamicState m_PhysicsState;
 	private float m_RenderFrameTime;
+	private float m_RenderFrameTimeSlice;
 	private int m_PhysicsCreationTimer;
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
@@ -257,7 +258,7 @@ class ExpansionVehicleBase extends ItemBase
 		Print( "[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION - ARMA 4" );
 		
 		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
-		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
+		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE );
 
 		m_Time = 0;
 		
@@ -408,7 +409,7 @@ class ExpansionVehicleBase extends ItemBase
 			string wheelPath = "CfgVehicles " + GetType() + " SimulationModule Axles " + axleName + " Wheels";
 			int wheelCount = GetGame().ConfigGetChildrenCount( wheelPath );
 
-			ref ExpansionVehicleAxle axle = NULL;
+			ExpansionVehicleAxle axle = NULL;
 			
 			if ( wheelCount == 1 )
 			{
@@ -496,7 +497,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
-		m_NetworkMode = ExpansionVehicleNetworkMode.SERVER_ONLY;
+		m_NetworkMode = ExpansionVehicleNetworkMode.CLIENT;
 
 		m_SyncState = new ExpansionVehicleSyncState( this );
 		m_SyncState.RegisterNetVariables();
@@ -626,7 +627,8 @@ class ExpansionVehicleBase extends ItemBase
 			ExpansionNetSyncDebugObject netsync = ExpansionNetSyncDebugObject.Cast( GetGame().CreateObjectEx( "ExpansionNetSyncDebugObject", "0 0 0", ECE_PLACE_ON_SURFACE ) );
 			netsync.SetSyncObject(this);
 			m_DebugApple = netsync;
-		} else
+		}
+		else
 		{
 			m_DebugApple = EntityAI.Cast( GetGame().CreateObjectEx( "Orange", "0 0 0", ECE_TRACE|ECE_LOCAL ) );
 		}
@@ -666,14 +668,16 @@ class ExpansionVehicleBase extends ItemBase
 		CreateDynamicPhysics( physLayer );
 
 		//!breaks vehicles at high speed
-		//EnableDynamicCCD( true );
 		SetDynamicPhysicsLifeTime( -1 );
 
 		dBodyDynamic( this, true );
 		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
 		dBodySetInteractionLayer( this, interactLayer );
 		dBodyEnableGravity( this, false );
-		dBodyEnableCCD( this, 0.0, m_BoundingRadius );
+
+		//EnableDynamicCCD( true );
+		dBodyEnableCCD( this, m_BoundingRadius, m_BoundingRadius * 0.45 );
+		
 		dBodySetSleepingTreshold( this, 0.0, 0.0 );
 		dBodySetDamping( this, 0, 0 );
 
@@ -889,8 +893,17 @@ class ExpansionVehicleBase extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	override void EOnFrame( IEntity other, float timeSlice )
+	override void EOnPostFrame(IEntity other, int extra)
 	{
+		OnAnimationUpdate(m_RenderFrameTimeSlice);
+	}
+	
+	// ------------------------------------------------------------
+	override void EOnFrame(IEntity other, float timeSlice)
+	{
+		m_RenderFrameTimeSlice = timeSlice;
+		OnAnimationUpdate(timeSlice);
+
 		/*
 		if ( GetGame().IsClient() )
 		{
@@ -1187,6 +1200,8 @@ class ExpansionVehicleBase extends ItemBase
 			}
 		}
 
+		dBodyEnableGravity( this, false );
+		
 		OnPreSimulation( dt );
 
 		bool shouldCreateDynamic = (m_IsForcingPhysics || m_IsPhysicsHost);
@@ -1194,11 +1209,11 @@ class ExpansionVehicleBase extends ItemBase
 
 		if ( (m_WasPhysicsHost == m_IsPhysicsHost) && m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.DYNAMIC;
+
 			stateF = 0; 
 			
 			float invDt = 1.0 / dt;
-			
-			dBodyEnableGravity( this, false );
 
 			#ifdef EXPANSION_DEBUG_UI_VEHICLE		
 			dbg_Vehicle.Set("Mass", "" + m_BodyMass + " | " + m_BodyCenterOfMass);
@@ -1233,18 +1248,30 @@ class ExpansionVehicleBase extends ItemBase
 			
 			if ( IsMissionClient() )
 				NetworkSend();
-		} else if ( shouldCreateDynamic && !dBodyIsDynamic( this ) )
+		}
+		//else if ( shouldCreateDynamic && !dBodyIsDynamic( this ) )
+		else if ((shouldCreateDynamic && !dBodyIsDynamic(this)) || (shouldDestroyDynamic && dBodyIsDynamic(this)))
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
+
 			stateF = 1;
 
 			CreateDynamic();
-		} else if ( shouldDestroyDynamic && dBodyIsDynamic( this ) )
+		}
+		/*
+		else if ( shouldDestroyDynamic && dBodyIsDynamic( this ) )
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
+
 			stateF = 2;
 			
 			SetDynamicPhysicsLifeTime( 0.001 );
-		} else if ( dBodyIsDynamic( this ) )
+		}
+		*/
+		else if ( dBodyIsDynamic( this ) )
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.DYNAMIC;
+
 			stateF = 3;
 			
 			if ( GetGame().IsClient() )
@@ -1261,15 +1288,18 @@ class ExpansionVehicleBase extends ItemBase
 
 			SetVelocity( this, m_SyncState.m_LinearVelocity );
 			dBodySetAngularVelocity( this, m_SyncState.m_AngularVelocity );
-		} else
+		}
+		else
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.STATIC;
+
 			stateF = 4;
 		}
 
 		UpdateMotionStates( dt );
 
 		if ( m_IsPhysicsHost )
-		{
+		{			
 			if ( !GetGame().IsClient() )
 			{
 				HandleSync_Server();
@@ -1282,6 +1312,7 @@ class ExpansionVehicleBase extends ItemBase
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
 		dbg_Vehicle.Set("StateF", stateF );
 		#endif
+
 		
 		if ( stateF != stateB )
 		{
@@ -1563,6 +1594,8 @@ class ExpansionVehicleBase extends ItemBase
 		UpdateLights();
 
 		m_SyncState.OnVariablesSynchronized();
+
+		//if (m_PhysicsState == ExpansionVehicleDynamicState.DYNAMIC) OnAnimationUpdate(m_RenderFrameTimeSlice);
 	}
 
 	// ------------------------------------------------------------
@@ -1995,7 +2028,7 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			if (player == GetGame().GetPlayer())
 			{
-				m_PhysicsState = ExpansionVehicleDynamicState.CREATING;
+				m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
 			}
 		}
 	}
@@ -2943,6 +2976,22 @@ class ExpansionVehicleBase extends ItemBase
 		
 		if ( !IsMissionOffline() )
 			m_ParentTow.GetNetworkID( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh );
+	}
+
+	EntityAI GetTowedEntity()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - Start");
+		#endif
+
+		if ( m_IsTowing )
+			return m_ChildTow;
+		
+		return NULL;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - End");
+		#endif
 	}
 
 	void DestroyTow()

@@ -101,7 +101,10 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 	{
 		if ( action_data.m_State == UA_START )
 		{
-			End( action_data );
+			if ( !action_data.m_Player.GetCommand_ExpansionVehicle() || !action_data.m_Player.GetCommand_ExpansionVehicle().IsGettingIn() )
+			{
+				End(action_data);
+			}
 		}
 	}
 

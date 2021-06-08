@@ -35,6 +35,10 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 
 	bool EnableKillFeed;
 	ExpansionAnnouncementType KillFeedMessageType;
+	bool ShowDistanceOnKillFeed;
+	bool ShowVictimOnKillFeed;
+	bool ShowKillerOnKillFeed;
+	bool ShowWeaponOnKillFeed;
 	bool KillFeedFall;
 	bool KillFeedCarHitDriver;
 	bool KillFeedCarHitNoDriver;
@@ -158,6 +162,10 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = s.EnableKillFeed;
 		KillFeedMessageType = s.KillFeedMessageType;
+		ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
+		ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
+		ShowKillerOnKillFeed = s.ShowKillerOnKillFeed;
+		ShowWeaponOnKillFeed = s.ShowWeaponOnKillFeed;
 		KillFeedFall = s.KillFeedFall;
 		KillFeedCarHitDriver = s.KillFeedCarHitDriver;
 		KillFeedCarHitNoDriver = s.KillFeedCarHitNoDriver;
@@ -272,6 +280,11 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = true;
 		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
+
+		ShowDistanceOnKillFeed = true;
+		ShowVictimOnKillFeed = true;
+		ShowKillerOnKillFeed = true;
+		ShowWeaponOnKillFeed = true;
 		
 		KillFeedFall = true;
 		KillFeedCarHitDriver = true;

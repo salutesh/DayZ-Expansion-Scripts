@@ -61,10 +61,7 @@ class ExpansionHelipad: ExpansionBaseBuilding
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// AfterStoreLoad
-	// ------------------------------------------------------------
-	override void AfterStoreLoad()
+	override void SetPartsAfterStoreLoad()
 	{
 		
 	}

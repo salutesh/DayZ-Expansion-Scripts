@@ -50,6 +50,10 @@ modded class LoginTimeBase
 		if ( world_name == "namalskgloom" ) 		world_name = "namalsk";
 		if ( world_name == "deerislegloom" ) 		world_name = "deerisle";
 		if ( world_name == "chiemseegloom" ) 		world_name = "chiemsee";
+		if ( world_name == "essekergloom" ) 		world_name = "esseker";
+		if ( world_name == "rostowgloom" ) 			world_name = "rostow";
+		if ( world_name == "sandboxgloom" ) 		world_name = "sandbox";
+		if ( world_name == "expansiontestgloom" ) 	world_name = "expansiontest";
 		
 		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
 

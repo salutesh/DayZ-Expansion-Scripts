@@ -55,7 +55,7 @@ modded class JMESPMetaBaseBuilding
 		{
 			if ( CanAttachCodelockFence() )
 			{
-				return expwall.ExpansionHasCodeLock( "codelock" );
+				return fence.ExpansionHasCodeLock( "codelock" );
 			}
 		}
 

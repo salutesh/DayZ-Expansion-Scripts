@@ -34,6 +34,8 @@ class ExpansionBreader extends Inventory_Base
 
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		if ( FindAttachmentBySlotName("Chicken") )
 		{
 			m_SpawnTimer.Run(SPAWNING_EGG_TIMER, this, "SpawnEgg", NULL, true);

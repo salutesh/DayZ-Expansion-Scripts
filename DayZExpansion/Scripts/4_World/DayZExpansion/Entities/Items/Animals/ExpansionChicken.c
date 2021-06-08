@@ -175,6 +175,8 @@ class ExpansionChicken extends Inventory_Base
 
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		CreateChicken();
 	}
 

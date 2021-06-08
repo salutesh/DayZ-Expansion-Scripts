@@ -67,30 +67,43 @@ class ExpansionMapping
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
-		
-		ExpansionBuildingInterior();
 
 		//! Vanilla Maps
 		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
-		{
+		{		
+			ExpansionBuildingInterior();
 			ExpansionMappingChernarus();
-		} else {
-			ExpansionMappingChernarus();
-			UseCustomMappingModule 			= false;
-		}
-		//! Only Chernarus have custom mapping so we will check only "chernarusplus" until we have custom mapping for other maps
-		/*
-		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
+		} else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
 		{
+			ExpansionBuildingInterior();
 			ExpansionMappingLivonia();
 		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
 		{
+			ExpansionBuildingInterior();
 			ExpansionMappingDeerIsle();
 		} else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
 		{
 			ExpansionMappingNamalsk();
+		} else if ( world_name.Contains( "rostow" ) || world_name.Contains( "rostowgloom" ) )
+		{
+			ExpansionBuildingInterior();
+			ExpansionMappingRostow();
+		} else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
+		{
+			ExpansionBuildingInterior();
+			ExpansionMappingChiemsee();
+		} else if ( world_name.Contains( "esseker" ) || world_name.Contains( "essekergloom" ) )
+		{
+			ExpansionBuildingInterior();
+			ExpansionMappingEsseker();
+		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
+		{
+			ExpansionMappingSandbox();
+		} else if ( world_name.Contains( "expansiontest" ) || world_name.Contains( "expansiontestgloom" ) )
+		{
+			ExpansionBuildingInterior();
+			ExpansionMappingExpansionTest();
 		}
-		*/
 
 		//! Keep at false so it will create less troubles for new server starting to setup everything
 		UseCustomMappingModule 			= false;
@@ -181,8 +194,6 @@ class ExpansionMapping
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingLivonia::Defaults - Start");
 		#endif
-
-		UseCustomMappingModule 			= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingLivonia::Defaults - End");
@@ -197,8 +208,6 @@ class ExpansionMapping
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingDeerIsle::Defaults - Start");
 		#endif
-
-		UseCustomMappingModule 			= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingDeerIsle::Defaults - End");
@@ -213,11 +222,79 @@ class ExpansionMapping
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingNamalsk::Defaults - Start");
 		#endif
-
-		UseCustomMappingModule 			= false;
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingNamalsk::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingRostow
+	// ------------------------------------------------------------
+	void ExpansionMappingRostow()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingRostow::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingRostow::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingChiemsee
+	// ------------------------------------------------------------
+	void ExpansionMappingChiemsee()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingChiemsee::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingChiemsee::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingEsseker
+	// ------------------------------------------------------------
+	void ExpansionMappingEsseker()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingEsseker::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingEsseker::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingSandbox
+	// ------------------------------------------------------------
+	void ExpansionMappingSandbox()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingSandbox::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingSandbox::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingExpansionTest
+	// ------------------------------------------------------------
+	void ExpansionMappingExpansionTest()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingExpansionTest::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingExpansionTest::Defaults - End");
 		#endif
 	}
 

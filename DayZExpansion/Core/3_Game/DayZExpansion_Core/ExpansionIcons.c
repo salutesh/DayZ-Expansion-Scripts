@@ -206,6 +206,18 @@ class ExpansionIcons
 		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_02 );
 		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_03 );
 		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_04 );
+		
+		//! Social Media Icons
+		AddIcon( "Discord",	"Discord",	EXPANSION_NOTIFICATION_ICON_Discord );
+		AddIcon( "Reddit",	"Reddit",	EXPANSION_NOTIFICATION_ICON_Reddit );
+		AddIcon( "Steam",	"Steam",	EXPANSION_NOTIFICATION_ICON_Steam );
+		AddIcon( "GitHub",	"GitHub",	EXPANSION_NOTIFICATION_ICON_GitHub );
+		AddIcon( "Homepage",	"Homepage",	EXPANSION_NOTIFICATION_ICON_Homepage );
+		AddIcon( "Forums",	"Forums",	EXPANSION_NOTIFICATION_ICON_Forums );
+		AddIcon( "Twitter",	"Twitter",	EXPANSION_NOTIFICATION_ICON_Twitter );
+		AddIcon( "YouTube",	"YouTube",	EXPANSION_NOTIFICATION_ICON_YouTube );
+		AddIcon( "Patreon",	"Patreon",	EXPANSION_NOTIFICATION_ICON_Patreon );
+		AddIcon( "Guilded",	"Guilded",	EXPANSION_NOTIFICATION_ICON_Guilded );
 	}
 	
 	// ------------------------------------------------------------

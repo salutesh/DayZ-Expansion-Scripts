@@ -53,7 +53,7 @@ class Expansion_Laser_Base extends UniversalLight
 	override bool CanDisplayAttachmentSlot( string slot_name )
 	{
 		if (!super.CanDisplayAttachmentSlot(slot_name))
-			return false;   
+			return false;
 		
 		if ( slot_name == "expansionLaserBeam" )
 		{

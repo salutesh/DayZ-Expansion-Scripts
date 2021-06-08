@@ -208,7 +208,6 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
 
-		//! Vanilla Maps
 		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
 		{
 			ExpansionSpawnsChernarus();
@@ -228,6 +227,12 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		} else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
 		{
 			ExpansionSpawnsChiemsee();
+		} else if ( world_name.Contains( "esseker" ) || world_name.Contains( "essekergloom" ) )
+		{
+			ExpansionSpawnsEsseker();
+		} else if ( world_name.Contains( "expansiontest" ) || world_name.Contains( "expansiontestgloom" ) )
+		{
+			ExpansionSpawnsExpansionTest();
 		} else {
 			ExpansionSpawnsChernarus();
 		}
@@ -702,6 +707,164 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EXLogPrint("ExpansionSpawnsChiemsee::Defaults - End");
 		#endif
 
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionSpawnsEsseker
+	// ------------------------------------------------------------
+	void ExpansionSpawnsEsseker()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionSpawnsEsseker::Defaults - Start");
+		#endif
+		
+		ref array<vector> positions = new array<vector>;
+		ref ExpansionSpawnLocation location;
+
+		EnableSpawnSelection = true;
+		
+		positions.Insert( Vector( 9565.315430, 73.700882, 5462.385254 ) );
+        positions.Insert( Vector( 11480.708008, 90.736420, 5315.443848 ) );
+        positions.Insert( Vector( 11148.616211, 82.239159, 5435.018066 ) );
+        positions.Insert( Vector( 10840.094727, 87.835564, 5695.586914 ) );
+        positions.Insert( Vector( 10449.486328, 79.059921, 5874.159668 ) );
+        positions.Insert( Vector( 10738.149414, 109.114601, 5864.669922 ) );
+        positions.Insert( Vector( 8517.313477, 98.113503, 6003.735352 ) );
+        positions.Insert( Vector( 7903.954590, 104.279541, 5846.573242 ) );
+        positions.Insert( Vector( 7811.805176, 86.072418, 5737.385254 ) );
+        positions.Insert( Vector( 9117.009766, 108.684692, 5944.108398 ) );
+		location = new ExpansionSpawnLocation( "Esseker", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+        positions.Insert( Vector( 6213.568359, 173.489670, 5262.031250 ) );
+        positions.Insert( Vector( 6631.679199, 168.740982, 5266.032715 ) );
+        positions.Insert( Vector( 6614.347656, 108.247978, 5546.375488 ) );
+        positions.Insert( Vector( 6251.624512, 163.699326, 5202.340820 ) );
+        positions.Insert( Vector( 6702.913574, 144.765900, 5345.629395 ) );
+        positions.Insert( Vector( 6637.131836, 122.660553, 5451.673340 ) );
+		location = new ExpansionSpawnLocation( "Neptune Resort", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+        positions.Insert( Vector( 5232.718750, 141.714386, 5293.656738 ) );
+        positions.Insert( Vector( 4807.120117, 177.191376, 5325.092773 ) );
+        positions.Insert( Vector( 4675.387207, 175.012375, 5285.001953 ) );
+        positions.Insert( Vector( 4686.989746, 175.012390, 5276.281738 ) );
+        positions.Insert( Vector( 4536.588379, 182.754379, 5104.264160 ) );
+        positions.Insert( Vector( 4660.011230, 174.727921, 4926.456055 ) );
+        positions.Insert( Vector( 4866.981445, 194.962906, 4884.998535 ) );
+        positions.Insert( Vector( 5011.791504, 179.612839, 4967.582520 ) );
+        positions.Insert( Vector( 5250.353516, 159.675873, 5055.750000 ) );
+		location = new ExpansionSpawnLocation( "Kula", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+        positions.Insert( Vector( 6486.550781, 103.465195, 5980.384766 ) );
+        positions.Insert( Vector( 6601.896973, 95.890488, 5908.692383 ) );
+        positions.Insert( Vector( 6801.812988, 83.851158, 5898.941895 ) );
+        positions.Insert( Vector( 6897.495117, 106.019684, 6030.813965 ) );
+        positions.Insert( Vector( 6792.085938, 110.905701, 6158.352539 ) );
+        positions.Insert( Vector( 6366.182129, 142.959198, 6382.857910 ) );
+        positions.Insert( Vector( 6232.808594, 139.982742, 5965.803711 ) );
+        positions.Insert( Vector( 6349.494629, 124.625175, 5962.504883 ) );
+        positions.Insert( Vector( 6164.781250, 143.901749, 6103.173340 ) );
+        positions.Insert( Vector( 6079.798340, 113.399956, 6272.316406 ) );
+        positions.Insert( Vector( 6236.822266, 143.239914, 6384.316895 ) );
+		location = new ExpansionSpawnLocation( "Gulash", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+        positions.Insert( Vector( 6214.985840, 196.867386, 6753.580566 ) );
+        positions.Insert( Vector( 6448.906250, 226.074799, 6706.618164 ) );
+        positions.Insert( Vector( 6469.884766, 208.480209, 6953.398438 ) );
+        positions.Insert( Vector( 6415.810059, 200.270554, 7123.985840 ) );
+        positions.Insert( Vector( 6324.077148, 209.368042, 7236.364746 ) );
+        positions.Insert( Vector( 6245.438965, 212.855011, 7221.653809 ) );
+        positions.Insert( Vector( 6098.721191, 220.719238, 7149.075684 ) );
+        positions.Insert( Vector( 5908.775879, 218.342422, 6970.965332 ) );
+        positions.Insert( Vector( 5969.068359, 220.182510, 6833.822754 ) );
+        positions.Insert( Vector( 6095.966309, 203.902664, 6624.937012 ) );
+		location = new ExpansionSpawnLocation( "Lug", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+        positions.Insert( Vector( 7569.151367, 153.567520, 7041.453125 ) );
+        positions.Insert( Vector( 7519.393066, 160.912994, 6673.455566 ) );
+        positions.Insert( Vector( 7882.391113, 144.499191, 6657.431152 ) );
+        positions.Insert( Vector( 8067.430176, 158.169617, 6990.247070 ) );
+        positions.Insert( Vector( 7961.088379, 149.771851, 7038.036133 ) );
+        positions.Insert( Vector( 7734.949707, 150.316696, 7076.026367 ) );
+        positions.Insert( Vector( 7566.331055, 155.758224, 7064.740234 ) );
+        positions.Insert( Vector( 7432.634277, 151.480347, 7056.217773 ) );
+		location = new ExpansionSpawnLocation( "Posetra", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+        positions.Insert( Vector( 7665.729980, 244.999557, 8097.007813 ) );
+        positions.Insert( Vector( 9571.978516, 263.761627, 7225.784180 ) );
+        positions.Insert( Vector( 9254.591797, 241.796234, 7378.860352 ) );
+        positions.Insert( Vector( 9555.787109, 247.374786, 7374.302734 ) );
+        positions.Insert( Vector( 7863.500977, 223.043015, 8513.747070 ) );
+        positions.Insert( Vector( 10406.526367, 185.784714, 8016.970703 ) );
+        positions.Insert( Vector( 10367.518555, 101.088333, 7714.915039 ) );
+        positions.Insert( Vector( 9956.348633, 158.499130, 7899.201660 ) );
+		location = new ExpansionSpawnLocation( "Woods", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionSpawnsEsseker::Defaults - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionSpawnsExpansionTest
+	// ------------------------------------------------------------
+	void ExpansionSpawnsExpansionTest()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionSpawnsExpansionTest::Defaults - Start");
+		#endif
+		
+		ref array<vector> positions = new array<vector>;
+		ref ExpansionSpawnLocation location;
+
+		EnableSpawnSelection = true;
+
+		//! Airstrip
+		positions.Insert( Vector( 1072.486816, 43.562496 ,1101.662109 ) );
+		location = new ExpansionSpawnLocation( "Airstrip", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+		//! Watchtower
+		positions.Insert( Vector( 932.087341, 80.662506, 1399.989014 ) );
+		location = new ExpansionSpawnLocation( "Watchtower", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+		//! Village
+		positions.Insert( Vector( 794.725647, 43.832951, 1165.473389 ) );
+		location = new ExpansionSpawnLocation( "Village", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+		//! Port
+		positions.Insert( Vector( 928.760437, 6.862098, 792.848206 ) );
+		location = new ExpansionSpawnLocation( "Port", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+
+		//! Lake
+		positions.Insert( Vector( 885.015503, 44.101490, 1263.654053 ) );
+		location = new ExpansionSpawnLocation( "Lake", positions );
+		SpawnLocations.Insert( location );
+		positions.Clear();
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionSpawnsExpansionTest::Defaults - End");
+		#endif
 	}
 	
 	override string SettingName()

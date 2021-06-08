@@ -610,14 +610,17 @@ modded class ItemBase
 						{
 							FailedUnlock();
 
-							GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
+							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+								GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
 
 							//! Vanilla EnviroDmg is 1 0 1 (health blood shock)
 							player.ProcessDirectDamage( DT_CUSTOM, player, "", "EnviroDmg", "0.5 0.5 0.5", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
 						} else {
-							GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
+							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+								GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
 						}
-						GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
+						if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+							GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
 					}
 
 					return;
@@ -694,7 +697,8 @@ modded class ItemBase
 				
 				SetCode( code, player );
 
-				GetGame().AdminLog( "ExpansionCodelock ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
+				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+					GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
 
 				SendServerLockReply( true, false, sender );
 				return;
@@ -1272,8 +1276,6 @@ modded class ItemBase
 		string playerName;
 		string playerDesc;
 
-		GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
-
 		if ( source && ( Class.CastTo( player, source ) || Class.CastTo( player, source.GetHierarchyRootPlayer() ) ) )
 		{
 			playerId = player.GetIdentityUID();
@@ -1285,11 +1287,17 @@ modded class ItemBase
 			playerDesc = "A player";
 		}
 
-		GetGame().AdminLog( "BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
-		GetGame().AdminLog( "BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with a " + source.GetType() + " at " + GetPosition() );
-
-		GetGame().AdminLog( "Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
-		GetGame().AdminLog( "---------------------------------------------------------------------------------------" );
+		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
+		{
+			if ( ( dmg * damageMultiplier ) != 0 )
+			{
+				GetExpansionSettings().GetLog().PrintLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+				GetExpansionSettings().GetLog().PrintLog( "BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
+				GetExpansionSettings().GetLog().PrintLog( "BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with a " + source.GetType() + " at " + GetPosition() );
+				GetExpansionSettings().GetLog().PrintLog( "Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
+				GetExpansionSettings().GetLog().PrintLog( "---------------------------------------------------------------------------------------" );
+			}
+		}
 	}
 
 	void UpdateLaser()

@@ -566,6 +566,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// This will remove the saved containers after they got loaded from CE.
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		RemoveContainer();
 	}
 	

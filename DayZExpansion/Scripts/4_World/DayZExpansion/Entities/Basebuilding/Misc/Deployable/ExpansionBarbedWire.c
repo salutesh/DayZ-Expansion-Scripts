@@ -68,6 +68,11 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	{
 		return false;
 	}
+	
+	override bool CanObstruct()
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// GetConstructionKitType
@@ -115,10 +120,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// AfterStoreLoad
-	// ------------------------------------------------------------
-	override void AfterStoreLoad()
+	override void SetPartsAfterStoreLoad()
 	{
 		
 	}

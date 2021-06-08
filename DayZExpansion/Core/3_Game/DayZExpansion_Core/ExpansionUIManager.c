@@ -70,15 +70,23 @@ class ExpansionUIManager
 	}
 	
 	void RegisterMenu(int id, string className)
-	{
-		string viewName;
-		if (!m_Menus.Find(id, viewName))
+	{		
+		string viewName = "";
+		if (m_Menus.Find(id, viewName))	
 		{
 			if (viewName != className)
 			{
-				m_Menus.Insert(id, className);
-				Print("[EXPANSION UI MANAGER]: Registered menu " + className + " with id " + id + " to UI manager.");
+				Error("[EXPANSION UI MANAGER]: Trying to register new menu " + className + " with id " + id + " to Expansion UI Manager, but there is already a other menu registered with this id [" + viewName + "]. Register failed!");
 			}
+			else
+			{
+				Error("[EXPANSION UI MANAGER]: Trying to register new menu " + className + " with id " + id + " to Expansion UI Manager, but the same menu is already registered. Skiped!");
+			}
+		}
+		else
+		{
+			m_Menus.Insert(id, className);
+			Print("[EXPANSION UI MANAGER]: Registered menu " + className + " with id " + id + " in Expansion UI manager.");
 		}
 	}
 	

@@ -392,6 +392,9 @@ class ExpansionPartyModule: JMModuleBase
 		m_Parties.Insert( m_NextPartyID, newParty );
 
 		UpdateClient( m_NextPartyID++ );
+
+		if ( GetExpansionSettings().GetLog().Party )
+			GetExpansionSettings().GetLog().PrintLog( "[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " created a party named " + partyName );
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_SYSTEM_PARTY_CREATED" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
 	
@@ -712,6 +715,9 @@ class ExpansionPartyModule: JMModuleBase
 		UpdateClient( partyId );
 		
 		SyncPlayersInvites( targetPlayer );
+
+		if ( GetExpansionSettings().GetLog().Party )
+			GetExpansionSettings().GetLog().PrintLog( "[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " invited the player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + ")" + "to the party named " + party.GetPartyName() );
 
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_ADDED" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayer.GetIdentity() );
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_ADDED_SENDER" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
@@ -2124,7 +2130,7 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::GetPartyID - Start");
 		#endif
 		
-		if (!IsMissionHost() || player.GetIdentityUID() == "") return -1;
+		if ( !IsMissionHost() || player.GetIdentityUID() == "" ) return -1;
 		
 		string id = player.GetIdentityUID();
 		

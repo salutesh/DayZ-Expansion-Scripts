@@ -294,9 +294,9 @@ static string GetTime()
 
 
 // ------------------------------------------------------------
-// Expansion GetTimeDate
+// Expansion GetDateTime
 // ------------------------------------------------------------
-static string GetTimeDate()
+static string GetDateTime()
 {
 	int year;
 	int month;
@@ -308,7 +308,7 @@ static string GetTimeDate()
 	GetYearMonthDay(year, month, day);
 	GetHourMinuteSecond(hour, minute, second);
 
-	string result = year.ToStringLen(2) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2) + "_" + hour.ToStringLen(2) + "-" + minute.ToStringLen(2) + "-" + second.ToStringLen(2) + "-";
+	string result = year.ToStringLen(4) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2) + "_" + hour.ToStringLen(2) + "-" + minute.ToStringLen(2) + "-" + second.ToStringLen(2);
 
 	return result;
 }

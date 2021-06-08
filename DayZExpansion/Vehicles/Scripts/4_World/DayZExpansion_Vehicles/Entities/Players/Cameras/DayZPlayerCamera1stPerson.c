@@ -42,7 +42,7 @@ modded class DayZPlayerCamera1stPerson
 			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY).Call( m_pbPlayer.SetHeadInvisible_Ex, false );
 		}
 		
-		if ( m_pPlayer.GetCommand_Vehicle() || m_pbPlayer.GetCommand_ExpansionVehicle() )
+		if ( m_pPlayer.GetCommand_Vehicle() || m_pbPlayer.GetCommand_ExpansionVehicle() || (!car && !vehicle) )
 		{
 			return;
 		}

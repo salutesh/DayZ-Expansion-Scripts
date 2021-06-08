@@ -309,6 +309,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return null;
 	}
 
+	override bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		minMax[0] = "-3 0 -0.125";
+		minMax[1] = "3 3 0.125";
+		return true;
+	}
+
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		return false;

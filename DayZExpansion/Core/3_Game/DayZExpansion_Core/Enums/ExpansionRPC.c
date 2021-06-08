@@ -230,6 +230,7 @@ enum ExpansionSettingsRPC
 	Vehicle,
 	General,
 	PlayerList,
+	Log,
 
 	// when an admin requests these, not send under normal circumstances
 	SafeZone,

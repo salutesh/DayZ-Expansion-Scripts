@@ -13,5 +13,6 @@
 enum ExpansionAnnouncementType
 {
 	CHAT = 0,
-	NOTIFICATION
+	NOTIFICATION,
+	MUTEDNOTIFICATION
 };

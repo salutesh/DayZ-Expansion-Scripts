@@ -82,6 +82,15 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 		if ( car )
 		{
 			car.UnlockCar( key );
+	
+#ifdef EXPANSIONMOD		
+			if ( GetExpansionSettings().GetLog().AdminTools && key.IsInherited( ExpansionCarAdminKey ) )
+				GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the  "+ key.GetType() +" to unlock a " + car.GetType() );
+#endif
+#ifdef EXPANSIONMODVEHICLE
+			if ( GetExpansionSettings().GetLog().VehicleCarKey )
+				GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the  "+ key.GetType() +" to unlock a " + car.GetType() );
+#endif
 		}
 	}
 

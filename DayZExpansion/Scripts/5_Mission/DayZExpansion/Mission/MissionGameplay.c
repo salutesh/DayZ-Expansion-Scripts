@@ -15,6 +15,7 @@
  **/
 modded class MissionGameplay
 {
+	Chat 										m_Chat;
 	//! Expansion chat channel counter
 	ExpansionChatChannels 						m_ChatChannel;
 	//! Expansion chat fade timer
@@ -51,6 +52,7 @@ modded class MissionGameplay
 	ExpansionMarkerModule 						m_MarkerModule;
 	private bool								m_MarkerToggleState = true;
 	private bool								m_ServerMarkerToggleState = true;
+	private bool 								m_HideChatToggle = true;
 
 	protected ref ExpansionMapMenu m_MapMenu;
 	
@@ -443,10 +445,28 @@ modded class MissionGameplay
 				SwitchChatChannelToDirect();
 			}
 			
-			m_ChatRootWidget.Show( true );
+			m_ChatRootWidget.Show( m_HideChatToggle );
 		}
 	}
-		
+	
+	// ------------------------------------------------------------
+	// HideChatToggle
+	// ------------------------------------------------------------
+	void HideChatToggle()
+	{
+		m_HideChatToggle = !m_HideChatToggle;
+
+		m_ChatRootWidget.Show( m_HideChatToggle );
+	}
+
+	// ------------------------------------------------------------
+	// GetChatToggleState
+	// ------------------------------------------------------------
+	bool GetChatToggleState()
+	{
+		return m_HideChatToggle;
+	}
+	
 	// ------------------------------------------------------------
 	// InitChat
 	// ------------------------------------------------------------
@@ -561,6 +581,20 @@ modded class MissionGameplay
 				if ( input.LocalPress( "UAChat", false ) && !inputIsFocused && !topMenu )
 				{
 					ShowChat();
+				}
+				
+				//! Chat
+				if ( input.LocalPress( "UAExpansionHideChatToggle", false ) && !inputIsFocused && !topMenu )
+				{
+					HideChatToggle();
+					m_Chat.HideChatToggle();				
+
+					if (m_HideChatToggle)
+					{			
+						GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_CHATTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_CHATTOGGLE_ON"), EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+					} else {
+						GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_CHATTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_CHATTOGGLE_OFF"), EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+					}
 				}
 				
 				//! Switch Chat Channel

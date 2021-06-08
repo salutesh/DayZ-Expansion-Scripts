@@ -44,6 +44,11 @@ class ExpansionHesco: ExpansionBaseBuilding
 	{
 		return false;
 	}
+	
+	override bool CanObstruct()
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// GetConstructionKitType
@@ -61,10 +66,7 @@ class ExpansionHesco: ExpansionBaseBuilding
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// AfterStoreLoad
-	// ------------------------------------------------------------
-	override void AfterStoreLoad()
+	override void SetPartsAfterStoreLoad()
 	{
 		
 	}

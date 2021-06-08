@@ -537,6 +537,9 @@ class ExpansionTerritoryModule: JMModuleBase
 		UpdateClient( m_NextTerritoryID );
 		
 		m_NextTerritoryID++;
+
+		if ( GetExpansionSettings().GetLog().Territory )
+			GetExpansionSettings().GetLog().PrintLog( "[Territory] Player \"" + sender.GetName() + "\" (id=" + senderID + ")" + " created territory " + territoryName + " at " + position );
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_CREATED", territoryName ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, sender );
 		
@@ -716,6 +719,9 @@ class ExpansionTerritoryModule: JMModuleBase
 				
 				SyncPlayersInvites(currPlayerInvite);
 			}
+		
+			if ( GetExpansionSettings().GetLog().Territory )
+				GetExpansionSettings().GetLog().PrintLog( "[Territory] Player \"" + sender.GetName() + "\" (id=" + playerSteamID + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
 			
 			//Don't forget to set it as null before to delete, to not do a infinte loop
 			flag.SetTerritory(null);
@@ -830,6 +836,9 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			SyncPlayersInvites(currPlayerInvite);
 		}
+		
+		if ( GetExpansionSettings().GetLog().Territory )
+			GetExpansionSettings().GetLog().PrintLog( "[Territory] Admin \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
 		
 		//Don't forget to set it as null before to delete, to not do a infinte loop
 		flag.SetTerritory( null );
@@ -1022,6 +1031,9 @@ class ExpansionTerritoryModule: JMModuleBase
 		territory.AddTerritoryInvite(invite);
 		
 		SyncPlayersInvites( targetPlayer );
+		
+		if ( GetExpansionSettings().GetLog().Territory )
+			GetExpansionSettings().GetLog().PrintLog("[Territory] Player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + " pos=" + targetPlayer.GetPosition() +") was invited to join the territory " + territory.GetTerritoryName() + " at " + territory.GetPosition() + " by the player \"" + sender.GetName() + "\" (id=" + sender.GetId() +")");
 		
 		//! Message to request sender
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_SENDER", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );

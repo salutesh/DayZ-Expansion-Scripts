@@ -47,6 +47,11 @@ class ExpansionCamoTent: ExpansionBaseBuilding
 	{
 		return false;
 	}
+	
+	override bool CanObstruct()
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// IsInventoryVisible
@@ -75,10 +80,7 @@ class ExpansionCamoTent: ExpansionBaseBuilding
 		return m_CanBeDamaged;
 	}
 
-	// ------------------------------------------------------------
-	// AfterStoreLoad
-	// ------------------------------------------------------------
-	override void AfterStoreLoad()
+	override void SetPartsAfterStoreLoad()
 	{
 		
 	}
