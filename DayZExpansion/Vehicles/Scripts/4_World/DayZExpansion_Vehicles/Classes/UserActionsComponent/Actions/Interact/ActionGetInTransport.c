@@ -151,7 +151,7 @@ modded class ActionGetInTransport
 		{
 			AttachmentDebugPrint( action_data.m_Player, "vehCommand parent=" + action_data.m_Player.GetParent() );
 
-			if ( car.IsInherited( ExpansionZodiacBoat ) )
+			if ( car.IsInherited( ExpansionZodiacBoat ) && !car.MotorIsOn() )
 			{
 				//! Hack fix to prevent jolting/spinning
 				SetVelocity( car, Vector( 0, 0, 0 ) );
@@ -215,7 +215,7 @@ modded class ActionGetInTransport
 	{
 		CarScript car = CarScript.Cast( action_data.m_Target.GetObject() );
 
-		if ( car && car.IsInherited( ExpansionZodiacBoat ) )
+		if ( car && car.IsInherited( ExpansionZodiacBoat ) && !car.MotorIsOn() )
 		{
 			//! Hack fix to prevent jolting/spinning
 			SetVelocity( car, Vector( 0, 0, 0 ) );

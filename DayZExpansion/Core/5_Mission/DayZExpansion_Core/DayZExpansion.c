@@ -15,6 +15,85 @@
  **/
 class DayZExpansion: ExpansionWorld
 {
+	protected string m_Version;
+
+	protected int m_MajorVersion;
+	protected int m_MinorVersion;
+	protected int m_BuildVersion;
+
+	// ------------------------------------------------------------
+	// DayZExpansion Constructor
+	// ------------------------------------------------------------
+	void DayZExpansion()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("[CORE] DayZExpansion::DayZExpansion - Start");
+		#endif
+
+		//! Version checking
+		Expansion_LoadVersion();
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("[CORE] DayZExpansion::DayZExpansion - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion Expansion_LoadVersion
+	// ------------------------------------------------------------
+	void Expansion_LoadVersion()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("DayZExpansion::Expansion_LoadVersion - Start");
+		#endif
+		
+		m_Version = GetDayZGame().GetExpansionClientVersion();
+
+		array<string> values = new array<string>();
+		m_Version.Split( ".", values );
+		if ( values.Count() == 3 )
+		{
+			m_MajorVersion = values[0].ToInt();
+			m_MinorVersion = values[1].ToInt();
+			m_BuildVersion = values[2].ToInt();
+
+			Print( "Expansion version: " + m_MajorVersion + "." + m_MinorVersion + "." + m_BuildVersion );
+		}
+		
+		//string versionTest;
+		//GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
+		//Print( versionTest );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("DayZExpansion::Expansion_LoadVersion - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion GetVersion
+	// ------------------------------------------------------------
+	string GetVersion()
+	{
+		return m_Version;
+	}
+
+	// ------------------------------------------------------------
+	// Expansion OnStart
+	// ------------------------------------------------------------
+	override void OnStart()
+	{
+		super.OnStart();
+
+		GetExpansionSettings();
+	}
+
+	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	{
+		if ( g_exGlobalSettings.OnRPC( sender, target, rpc_type, ctx ) )
+			return true;
+
+		return super.OnRPC( sender, target, rpc_type, ctx );
+	}
 }
 
 static ref DayZExpansion g_exDayZ;

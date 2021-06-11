@@ -154,21 +154,6 @@ modded class DayZPlayerImplement
 	}
 				
 	// ------------------------------------------------------------
-	// DayZPlayerImplement HeadingModel
-	// ------------------------------------------------------------
-	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
-	{		
-		if ( GetCommand_ExpansionVehicle() )
-		{
-			m_fLastHeadingDiff = 0;
-
-			return false;
-		}
-		
-		return super.HeadingModel( pDt, pModel );
-	}
-				
-	// ------------------------------------------------------------
 	// DayZPlayerImplement CameraHandler
 	// ------------------------------------------------------------
 	override int CameraHandler( int pCameraMode )

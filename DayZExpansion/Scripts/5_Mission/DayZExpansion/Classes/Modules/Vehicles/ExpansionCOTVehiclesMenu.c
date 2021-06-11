@@ -23,7 +23,6 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	protected Widget m_VehiclesMapPanel;
 	protected MapWidget m_VehiclesMap;
 	
-	protected Widget m_VehiclesOptionsPanel;
 	protected ButtonWidget m_DeleteUnclaimedButton;
 	protected TextWidget m_DeleteUnclaimedButtonLable;
 	protected ButtonWidget m_DeleteDestroyedButton;
@@ -102,7 +101,6 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		m_VehiclesMap = MapWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_map" ) );
 		
 		//! Vehicles Options
-		m_VehiclesOptionsPanel = Widget.Cast( layoutRoot.FindAnyWidget( "vehicles_buttons_panel" ) );
 		m_VehicleListRefreshButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_refresh_button" ) );
 		m_VehicleListRefreshButtonLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "vehicles_refresh_button_lable" ) );
 		m_DeleteUnclaimedButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "delete_unclaimed_vehicle_button" ) );
@@ -201,7 +199,6 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		m_IsInVehicleInfo = true;
 		
 		m_VehiclesMapPanel.Show( false );
-		m_VehiclesOptionsPanel.Show( false );
 		
 		HideMapMarkers();
 		
@@ -272,7 +269,6 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		
 		m_VehicleListPanel.Show( true );
 		m_VehiclesMapPanel.Show( true );
-		m_VehiclesOptionsPanel.Show( true );
 		
 		m_VehicleInfoPanel.Show( false );
 		m_VehicleOptionsPanel.Show( false );

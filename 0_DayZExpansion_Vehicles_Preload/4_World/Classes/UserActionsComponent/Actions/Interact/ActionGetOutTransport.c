@@ -74,7 +74,7 @@ modded class ActionGetOutTransport
 
 				vehCommand.KeepInVehicleSpaceAfterLeave( keepInVehicleSpaceAfterLeave );
 
-				if ( car.IsInherited( ExpansionZodiacBoat ) )
+				if ( car.IsInherited( ExpansionZodiacBoat ) && !car.MotorIsOn() )
 				{
 					//! Hack fix to prevent jolting/spinning
 					SetVelocity( car, Vector( 0, 0, 0 ) );
@@ -110,7 +110,7 @@ modded class ActionGetOutTransport
 
 		CarScript car = CarScript.Cast( got_action_data.m_Car );
 
-		if ( car && car.IsInherited( ExpansionZodiacBoat ) )
+		if ( car && car.IsInherited( ExpansionZodiacBoat ) && !car.MotorIsOn() )
 		{
 			//! Hack fix to prevent jolting/spinning
 			SetVelocity( car, Vector( 0, 0, 0 ) );

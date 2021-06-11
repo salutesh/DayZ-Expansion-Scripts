@@ -781,17 +781,6 @@ modded class PlayerBase
 
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
-			ExpansionHumanCommandVehicle ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
-			if ( ehcv != NULL )
-			{
-				if ( ehcv.WasGearChange() )
-				{
-					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
-					cb.SetVehicleCommand( ehcv );
-				}
-				return true;
-			}
-
 			//ExpansionHumanCommandGuitar ehcg = ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
 			//if ( ehcg != NULL )
 			//{

@@ -304,7 +304,7 @@ class ExpansionHelicopterScript extends CarScript
 
 		m_IsInitialized = true;
 
-		if ( !IsLanded() )
+		if ( IsMissionHost() && !IsLanded() )
 		{
 			//! Makes it land safely after server restart if pilot died/disconnected
 			dBodyActive( this, ActiveState.ACTIVE );
