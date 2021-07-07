@@ -77,6 +77,10 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		CreateToggle( "EnableServerMarkers", "Enable Server Markers", "", "" );
 		CreateToggle( "ShowNameOnServerMarkers", "Show Name Of Server Markers", "", "" );
 		CreateToggle( "ShowDistanceOnServerMarkers", "Show Distance Of Server Markers", "", "" );
+		
+		CreateToggle( "EnableHUDCompass", "Enable/Disable compass HUD.", "", "" );
+		CreateToggle( "NeedCompassItemForHUDCompass", "Requires compass item to display compass HUD", "", "" );
+		CreateToggle( "NeedGPSItemForHUDCompass", "Requires GPS item to display compass HUD", "", "" );
 	}
 
 	override int GetRPCMin()

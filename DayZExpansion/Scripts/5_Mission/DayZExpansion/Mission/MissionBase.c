@@ -34,26 +34,20 @@ modded class MissionBase
 		#endif
 		
 		UIScriptedMenu menu = NULL; 
-	
+		
 		switch ( id )
 		{
 		case MENU_MAP:
-			if ( GetExpansionSettings().GetMap().UseMapOnMapItem )
-			{
+			if (GetExpansionSettings().GetMap().UseMapOnMapItem)
 				menu = new ExpansionMapMenu;
-			} else
-			{
+			else
 				menu = new MapMenu;
-			}
 			break;
 		case MENU_EXPANSION_MAP:
 			menu = new ExpansionMapMenu;
 			break;
 		case MENU_CHAT_INPUT:
 			menu = new ChatInputMenu;
-			break;
-		case MENU_EXPANSION_BOOK_MENU:
-			menu = new ExpansionBook;
 			break;
 		case MENU_EXPANSION_CODELOCK_MENU:
 			menu = new ExpansionCodeLockUI;

@@ -34,8 +34,16 @@ modded class ItemBase
 	//============================================
 	// DeferredInit
 	//============================================	
+#ifdef DAYZ_1_12
 	void DeferredInit()
+#else
+	override void DeferredInit()
+#endif
 	{
+		#ifndef DAYZ_1_12
+		super.DeferredInit();
+		#endif
+
 		//CreateDynamicPhysics(PhxInteractionLayers.DYNAMICITEM);
 		//SetDynamicPhysicsLifeTime(-1);
 		//dBodyActive(this, ActiveState.INACTIVE);

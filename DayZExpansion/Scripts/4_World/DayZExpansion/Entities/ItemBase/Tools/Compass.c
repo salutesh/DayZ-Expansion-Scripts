@@ -11,26 +11,7 @@
 */
 
 modded class Compass
-{
-	// ------------------------------------------------------------
-	// Compass PlayerInventoryCheckLocal
-	// ------------------------------------------------------------
-	private void PlayerInventoryCheckLocal()
-	{
-		if ( IsMissionClient() )
-		{
-			//! Get player who has this item
-			if ( GetHierarchyRootPlayer() && GetHierarchyRootPlayer().IsKindOf("SurvivorBase") )
-			{
-				PlayerBase player = PlayerBase.Cast( GetHierarchyRootPlayer() );
-				if ( player )
-				{
-					player.SetHasItemCompass( true );
-				}
-			}
-		}
-	}
-	
+{	
 	// ------------------------------------------------------------
 	// Compass EEInventoryIn
 	// ------------------------------------------------------------	
@@ -42,9 +23,9 @@ modded class Compass
 		
 		super.EEInventoryIn( newParentMan, diz, newParent );
 		
-		if ( newParentMan && newParentMan.IsInherited( SurvivorBase ) )
+		if ( IsMissionClient() )
 		{
-			if ( IsMissionClient() )
+			if ( newParentMan && newParentMan.IsInherited( SurvivorBase ) )
 			{
 				PlayerBase player = PlayerBase.Cast( newParentMan);
 				
@@ -77,9 +58,9 @@ modded class Compass
 		
 		super.EEInventoryOut( oldParentMan, diz, newParent );
 		
-		if ( oldParentMan && oldParentMan.IsInherited( SurvivorBase ) )
+		if ( IsMissionClient() )
 		{
-			if ( IsMissionClient() )
+			if ( oldParentMan && oldParentMan.IsInherited( SurvivorBase ) )
 			{
 				PlayerBase player = PlayerBase.Cast( oldParentMan );
 				
@@ -98,24 +79,6 @@ modded class Compass
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("Compass::EEInventoryOut - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Compass EEInit
-	// ------------------------------------------------------------
-	override void EEInit()
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("Compass::EEInit - Start");
-		#endif
-		
-		super.EEInit();
-		
-		PlayerInventoryCheckLocal();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("Compass::EEInit - End");
 		#endif
 	}
 }

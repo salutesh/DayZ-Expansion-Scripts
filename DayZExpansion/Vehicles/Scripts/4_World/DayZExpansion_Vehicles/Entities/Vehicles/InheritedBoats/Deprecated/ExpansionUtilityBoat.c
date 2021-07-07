@@ -27,7 +27,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 
 		m_TurnCoef					= 0.075;
 	
-		m_Offset					= 3.25;
+		m_Offset					= 0.66;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUtilityBoat::Constructor - End");

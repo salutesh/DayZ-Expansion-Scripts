@@ -91,6 +91,7 @@ class ExpansionIcons
 		AddIcon( "Book 1",			"Book",				EXPANSION_NOTIFICATION_ICON_BOOK_1			);
 		AddIcon( "Book 2",			"Book",				EXPANSION_NOTIFICATION_ICON_BOOK_2			);
 		AddIcon( "Ellipse",			"Ellipse",			EXPANSION_NOTIFICATION_ICON_ELLIPSE			);
+		AddIcon( "Square",			"Square",			EXPANSION_NOTIFICATION_ICON_SQUARE			);
 		AddIcon( "Grab",			"Grab",				EXPANSION_NOTIFICATION_ICON_GRAB			);
 		AddIcon( "Open Hand",		"Open Hand",		EXPANSION_NOTIFICATION_ICON_HAND_OPEN		);
 		AddIcon( "Map",				"Map",				EXPANSION_NOTIFICATION_ICON_MAP				);

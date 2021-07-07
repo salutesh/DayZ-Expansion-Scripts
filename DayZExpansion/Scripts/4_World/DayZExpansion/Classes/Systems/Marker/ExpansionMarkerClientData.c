@@ -183,7 +183,7 @@ class ExpansionMarkerClientData : Managed
 
 	bool Equals( ExpansionMarkerClientData other )
 	{
-		return m_IP != other.m_IP && m_Port != other.m_Port;
+		return m_IP == other.m_IP && m_Port == other.m_Port;
 	}
 
 	bool Equals( string ip, int port )
@@ -557,7 +557,10 @@ class ExpansionMarkerClientData : Managed
 	{
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
 		{
-			m_MarkerInfo_Server.Clear();
+			if ( m_PartyModule && m_PartyModule.IsClientInitialized() )
+			{
+				m_MarkerInfo_Server.Clear();
+			}
 
 			return;
 		}
@@ -597,8 +600,11 @@ class ExpansionMarkerClientData : Managed
 	{
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
 		{
-			m_MarkerInfo_Party.Clear();
-			m_MarkerInfo_PartyPlayers.Clear();
+			if ( m_PartyModule && m_PartyModule.IsClientInitialized() )
+			{
+				m_MarkerInfo_Party.Clear();
+				m_MarkerInfo_PartyPlayers.Clear();
+			}
 			
 			return;
 		}

@@ -92,6 +92,14 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "UseDeathScreen", "Use Death Screen", "", "" );
 		CreateToggle( "UseDeathScreenStatistics", "Use Death Screen Statistics", "", "" );
 		CreateToggle( "UseNewsFeedInGameMenu", "Use News Feed In GameMenu", "", "" );
+		
+		//CreateInt( "SystemChatColor", "System chat color", "", "" );
+		//CreateInt( "AdminChatColor", "Admin chat color", "", "" );
+		//CreateInt( "GlobalChatColor", "Global chat color", "", "" );
+		//CreateInt( "DirectChatColor", "Global chat color", "", "" );
+		//CreateInt( "TransportChatColor", "Global chat color", "", "" );
+		//CreateInt( "PartyChatColor", "Global chat color", "", "" );
+		//CreateInt( "TransmitterChatColor", "Global chat color", "", "" );
 	}
 
 	override int GetRPCMin()

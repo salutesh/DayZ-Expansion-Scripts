@@ -202,8 +202,8 @@ ImageSetClass {
   }
   ImageSetDefClass icon_position {
    Name "icon_position"
-   Pos 299 271
-   Size 36 36
+   Pos 298 274
+   Size 31 32
    Flags 0
   }
   ImageSetDefClass water_border {

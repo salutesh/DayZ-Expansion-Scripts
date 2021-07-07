@@ -132,7 +132,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		m_TransparencyMax = ( m_MarkerData.GetColor() >> 24 ) & 0xFF;
 
 		float dist = vector.Distance( screen_position, Vector( 0.5, 0.5, screen_position[2] ) );
-		m_Transparency = LinearConversion( 0, 0.15, dist, m_TransparencyMin, m_TransparencyMax );
+		m_Transparency = ExpansionMath.LinearConversion( 0, 0.15, dist, m_TransparencyMin, m_TransparencyMax );
 		
 		if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY_QUICK )
 		{
@@ -160,7 +160,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		m_Text_Distance.SetText( Math.Ceil( distance ).ToString() + "m" );
 		m_Text_Distance.SetColor( ARGB( m_Transparency, 255, 255, 255) );
 
-		float scale = LinearConversion( 2000, 100, distance, 0.6, 1 );
+		float scale = ExpansionMath.LinearConversion( 2000, 100, distance, 0.6, 1 );
 		m_Frame.SetSize( m_OriginalWidth * scale, m_OriginalHeight * scale );
 		
 		m_LayoutRoot.Show( true );

@@ -112,7 +112,7 @@ class ExpansionMonitorModule: JMModuleBase
 	override void OnClientReady( PlayerBase player, PlayerIdentity identity )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionPartyModule::OnClientReady - Start" );
+		EXPrint( "ExpansionMonitorModule::OnClientReady - Start" );
 		#endif
 
 		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && identity )
@@ -129,10 +129,8 @@ class ExpansionMonitorModule: JMModuleBase
 			}
 		}
 
-		//ServerChatMessage( new StringLocaliser( "STR_EXPANSION_PLAYER_JOINED_TITLE" ), new StringLocaliser( "Expansion Version is = " + LoadingScreen.GetClientExpansionVersion() ) );
-		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPartyModule::OnClientReady - End");
+		EXPrint("ExpansionMonitorModule::OnClientReady - End");
 		#endif
 	}
 	
@@ -142,10 +140,9 @@ class ExpansionMonitorModule: JMModuleBase
 	override void OnInvokeConnect( PlayerBase player, PlayerIdentity identity )
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionPartyModule::OnInvokeConnect - Start" );
+		EXPrint( "ExpansionMonitorModule::OnInvokeConnect - Start" );
+		EXPrint( "ExpansionMonitorModule::OnInvokeConnect player : " + player );
 		#endif
-
-		Print("ExpansionMonitorModule::OnInvokeConnect player : " + player);
 
 		if ( player )
 		{
@@ -153,7 +150,7 @@ class ExpansionMonitorModule: JMModuleBase
 		}
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPartyModule::OnInvokeConnect - End");
+		EXPrint("ExpansionMonitorModule::OnInvokeConnect - End");
 		#endif
 	}
 	
@@ -163,6 +160,10 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnInvokeDisconnect( PlayerBase player )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionMonitorModule::OnInvokeDisconnect - Start" );
+		#endif
+
 		if ( GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity() ) 
 		{
 			ref StringLocaliser title = new StringLocaliser( "STR_EXPANSION_PLAYER_LEFT_TITLE" );
@@ -176,6 +177,10 @@ class ExpansionMonitorModule: JMModuleBase
 				ServerChatMessage( title, text );
 			}
 		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionMonitorModule::OnInvokeDisconnect - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -184,7 +189,15 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnClientLogout( PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionMonitorModule::OnClientLogout - Start" );
+		#endif
+
 		RemovePlayerStats( identity );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionMonitorModule::OnClientLogout - End" );
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -365,7 +378,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected int CalcBlood( PlayerBase player )
 	{
-		return Calc( player.GetHealth("", "Blood"), player.GetMaxHealth("GlobalHealth", "Blood") );
+		return Calc( player.GetHealth("", "Blood") - 2500,  2500);
 	}
 
 	// ------------------------------------------------------------
@@ -441,17 +454,17 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RequestPlayerStats(string player_id)
 	{
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStats - Start" );
-		//#endif
+		#endif
 
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write( player_id );
 		rpc.Send( null, ExpansionMonitorRPC.RequestPlayerStats, true );
 		
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStats - End" );
-		//#endif
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -460,9 +473,9 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_RequestPlayerStats( ref ParamsReadContext ctx, PlayerIdentity sender )
 	{
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStats - Start" );
-		//#endif
+		#endif
 		
 		if (IsMissionClient())
 			return;
@@ -477,9 +490,9 @@ class ExpansionMonitorModule: JMModuleBase
 			SendPlayerStats(playerStats, sender);
 		}
 		
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStats - End" );
-		//#endif
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -505,17 +518,17 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	void SendPlayerStats(ref ExpansionSyncedPlayerStats player_stats, PlayerIdentity ident)
 	{
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::SendPlayerStats - Start" );
-		//#endif
+		#endif
 		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write( player_stats );
 		rpc.Send( null, ExpansionMonitorRPC.SendPlayerStats, true, ident );
 		
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::SendPlayerStats - End" );
-		//#endif
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -524,9 +537,9 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_SendPlayerStats( ref ParamsReadContext ctx )
 	{
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStats - Start" );
-		//#endif
+		#endif
 		
 		if (!IsMissionClient())
 			return;
@@ -537,8 +550,8 @@ class ExpansionMonitorModule: JMModuleBase
 
 		m_StatsInvoker.Invoke(player_stats);
 		
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStats - End" );
-		//#endif
+		#endif
 	}
 }

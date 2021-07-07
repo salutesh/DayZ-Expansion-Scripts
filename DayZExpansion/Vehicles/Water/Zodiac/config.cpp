@@ -38,7 +38,7 @@ class CfgVehicles
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"camo"};
+		hiddenSelections[] = {"camo","antiwater"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
 		defaultSkin = "Orange";
@@ -199,7 +199,7 @@ class CfgVehicles
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"camo"};
+		hiddenSelections[] = {"camo","antiwater"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
 		defaultSkin = "Orange";

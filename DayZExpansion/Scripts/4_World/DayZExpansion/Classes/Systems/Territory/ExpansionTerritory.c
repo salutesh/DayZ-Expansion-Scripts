@@ -139,6 +139,9 @@ class ExpansionTerritory
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion GetMember
+	// ------------------------------------------------------------	
 	ref ExpansionTerritoryMember GetMember(string uid)
 	{
 		for(int i = 0; i < TerritoryMembers.Count(); ++i)
@@ -160,12 +163,35 @@ class ExpansionTerritory
 		Invites = invites;
 	}
 	
-	void AddTerritoryInvite(ExpansionTerritoryInvite invite)
+	// ------------------------------------------------------------
+	// Expansion AddTerritoryInvite
+	// ------------------------------------------------------------	
+	bool AddTerritoryInvite(ExpansionTerritoryInvite invite)
 	{
-		if (!invite) return;
+		if (!invite) return false;
+		
+		int idx = -1;
+		for (int i = 0; i < Invites.Count(); ++i)
+		{
+			if (Invites[i] && Invites[i].UID == invite.UID)
+			{
+				idx = i;
+				break;
+			}
+		}
+		
+		if (idx > -1)
+		{
+			return false;
+		}
+		
 		Invites.Insert( invite );
+		return true;
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion RemoveTerritoryInvite
+	// ------------------------------------------------------------		
 	bool RemoveTerritoryInvite(string uid)
 	{
 		int idx = -1;
@@ -192,7 +218,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool HasInvite(string uid)
 	{
-		for(int i = 0; i < Invites.Count(); ++i)
+		for (int i = 0; i < Invites.Count(); ++i)
 		{
 			if (Invites[i] && Invites[i].UID == uid)
 			{

@@ -14,8 +14,11 @@ class ExpansionClientSettingsModule: JMModuleBase
 {	
 	static ref ScriptInvoker m_SettingChanged = new ScriptInvoker;
 	
-	private bool EXP_CLIENT_SETTING_COLOR_GRADING;
-	private bool EXP_CLIENT_SETTING_COLOR_VIGNETTE;
+	private bool m_ColorGrading;
+	private bool m_ColorVignette;
+	
+	private float m_Distance;
+	private vector m_Offset;
 	
 	override bool IsServer()
 	{
@@ -25,6 +28,14 @@ class ExpansionClientSettingsModule: JMModuleBase
 	override bool IsClient()
 	{
 		return true;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionClientSettingsModule Constructor
+	// ------------------------------------------------------------	
+	void ExpansionClientSettingsModule()
+	{
+		
 	}
 	
 	// ------------------------------------------------------------
@@ -42,13 +53,16 @@ class ExpansionClientSettingsModule: JMModuleBase
 		{
 			GetExpansionClientSettings().Load();
 		}
+			
+			
+		m_ColorGrading = GetExpansionClientSettings().ColorGrading;
+		m_ColorVignette = GetExpansionClientSettings().ColorVignette;
+		m_Distance = GetTransportCameraDistance();
+		m_Offset = GetTransportCameraOffset();
 		
 		UpdateColorGradingFromSettings();
 		UpdateColorVignetteFromSettings();
-		UpdateMarkersFromSettings();
-		
-		//EXP_CLIENT_SETTING_COLOR_GRADING = GetExpansionClientSettings().ColorGrading;
-		//EXP_CLIENT_SETTING_COLOR_VIGNETTE = GetExpansionClientSettings().ColorVignette;		
+		UpdateMarkersFromSettings();	
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXPrint("ExpansionClientSettingsModule::OnInvokeConnect - End");
@@ -78,6 +92,7 @@ class ExpansionClientSettingsModule: JMModuleBase
 		UpdateColorGradingFromSettings();
 		UpdateColorVignetteFromSettings();
 		UpdateMarkersFromSettings();
+		UpdateCameraFromSettings();
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXPrint( "ExpansionClientSettingsModule::OnSettingsUpdated - End" );
@@ -89,10 +104,12 @@ class ExpansionClientSettingsModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void UpdateColorGradingFromSettings()
 	{
-		if ( GetGame().GetPlayer() && EXP_CLIENT_SETTING_COLOR_GRADING != GetExpansionClientSettings().ColorGrading )
+		if ( GetGame().GetPlayer() && m_ColorGrading != GetExpansionClientSettings().ColorGrading )
+		{
+			m_ColorGrading = GetExpansionClientSettings().ColorGrading;
+			
 			PPEffects.UpdateSaturation();
-		
-		EXP_CLIENT_SETTING_COLOR_GRADING = GetExpansionClientSettings().ColorGrading;
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -100,10 +117,12 @@ class ExpansionClientSettingsModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void UpdateColorVignetteFromSettings()
 	{
-		if ( GetGame().GetPlayer() && EXP_CLIENT_SETTING_COLOR_VIGNETTE != GetExpansionClientSettings().ColorVignette )
+		if ( GetGame().GetPlayer() && m_ColorVignette != GetExpansionClientSettings().ColorVignette )
+		{
 			PPEffects.UpdateVignette();
 		
-		EXP_CLIENT_SETTING_COLOR_VIGNETTE = GetExpansionClientSettings().ColorVignette;
+			m_ColorVignette = GetExpansionClientSettings().ColorVignette;
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -112,49 +131,96 @@ class ExpansionClientSettingsModule: JMModuleBase
 	private void UpdateMarkersFromSettings()
 	{
 		ExpansionMarkerModule module = ExpansionMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMarkerModule));
-		
-		// PERSONAL MARKERS
-		if ( GetExpansionClientSettings().Show2DClientMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_MAP );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_MAP );
-		
-		if ( GetExpansionClientSettings().Show3DClientMarkers  )
-			module.SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
-		
-		// PARTY MARKERS
-		if ( GetExpansionClientSettings().Show2DPartyMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_MAP );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_MAP );
-		
-		if ( GetExpansionClientSettings().Show3DPartyMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
-		
-		// SERVER MARKERS
-		if ( GetExpansionClientSettings().Show2DGlobalMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );
-		
-		if ( GetExpansionClientSettings().Show3DGlobalMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
-		
-		// MEMBER MARKERS
-		if ( GetExpansionClientSettings().Show2DPlayerMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
-		
-		if ( GetExpansionClientSettings().Show3DPlayerMarkers )
-			module.SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
-		else
-			module.RemoveVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
+		if (module)
+		{
+			// PERSONAL MARKERS
+			if ( GetExpansionClientSettings().Show2DClientMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_MAP );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_MAP );
+			
+			if ( GetExpansionClientSettings().Show3DClientMarkers  )
+				module.SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD );
+			
+			// PARTY MARKERS
+			if ( GetExpansionClientSettings().Show2DPartyMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_MAP );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_MAP );
+			
+			if ( GetExpansionClientSettings().Show3DPartyMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
+			
+			// SERVER MARKERS
+			if ( GetExpansionClientSettings().Show2DGlobalMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );
+			
+			if ( GetExpansionClientSettings().Show3DGlobalMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD );
+			
+			// MEMBER MARKERS
+			if ( GetExpansionClientSettings().Show2DPlayerMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
+			
+			if ( GetExpansionClientSettings().Show3DPlayerMarkers )
+				module.SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
+			else
+				module.RemoveVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
+		}
+	}
+	
+	private void UpdateCameraFromSettings()
+	{
+		if (GetGame() && GetGame().GetPlayer())
+		{
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			if (player && player.IsAlive() && player.IsInTransport())
+			{
+				DayZPlayerCamera3rdPersonVehicle camera = DayZPlayerCamera3rdPersonVehicle.Cast(player.GetCurrentCamera());
+				if (camera)
+				{
+					m_Distance = GetTransportCameraDistance();
+					m_Offset = GetTransportCameraOffset();
+					
+					camera.SetViewDistance(m_Distance);
+					camera.SetCameraOffset(m_Offset);
+				}
+			}
+		}
+	}
+
+	private float GetCameraHeight()
+	{
+		return GetExpansionClientSettings().VehicleCameraHeight;
+	}
+
+	private float GetCameraDistance()
+	{
+		return GetExpansionClientSettings().VehicleCameraDistance;
+	}
+	
+	private float GetCameraOffsetX()
+	{
+		return GetExpansionClientSettings().VehicleCameraOffsetY;
+	}
+	
+	private float GetTransportCameraDistance()
+	{
+		return GetCameraDistance();
+	}
+	
+	private vector GetTransportCameraOffset()
+	{
+		return Vector(0, GetCameraHeight(), GetCameraOffsetX());
 	}
 }

@@ -4,7 +4,7 @@ modded class JMAnimRegister
 	{
 		super.OnRegisterEmptyHanded( pType, pBehavior );
 	}
-
+	
 	override void OnRegisterTwoHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
 		super.OnRegisterTwoHanded( pType, pBehavior );
@@ -68,9 +68,11 @@ modded class JMAnimRegister
 		//! Misc Items
 		pType.AddItemInHandsProfileIK("ExpansionPowerSwitch", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/fence_kit_folded.anm");
 		pType.AddItemInHandsProfileIK("ExpansionPropaneTorch", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/ButanCanister.anm");
-	
+		pType.AddItemInHandsProfileIK("ExpansionGPS", "dz/anims/workspaces/player/player_main/weapons/player_main_1h_knife.asi", pBehavior, "dz/anims/anm/player/ik/gear/stone_knife.anm");
+		
 		//! Props
 		pType.AddItemInHandsProfileIK("Expansion_Guitar", "DayZExpansion/Animations/Player/Props/player_main_guitar.asi", pBehavior, "dz/anims/anm/player/ik/gear/LongWoodenStick.anm");
+	
 	}
 
 	override void OnRegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )

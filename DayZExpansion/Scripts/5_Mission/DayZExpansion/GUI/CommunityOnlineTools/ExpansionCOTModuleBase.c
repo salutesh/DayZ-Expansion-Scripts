@@ -189,6 +189,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 
 		m_Settings.Insert( setting );
 	}
+	
 	protected void CreateString( string variable, string name, string detailLabel, string detailContent )
 	{
 		ExpansionSettingSerializationString setting = new ref ExpansionSettingSerializationString;

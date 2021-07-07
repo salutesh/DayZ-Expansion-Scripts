@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Dta_Core
 	{
-		units[] = {"ExpansionPickup","ExpansionPickupCone","ExpansionDebugCone","ExpansionDebugConeSmall","ExplosionPoint","ExplosionSmall","ExpansionWreck","ExpansionTraderNPCBase","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderLina","ExpansionTraderNaomi","ExpansionTraderNewDenis","ExpansionNpcDenis","ExpansionNpcBoris","ExpansionNpcCyril","ExpansionNpcElias","ExpansionNpcFrancis","ExpansionNpcGuo","ExpansionNpcHassan","ExpansionNpcIndar","ExpansionNpcJose","ExpansionNpcKaito","ExpansionNpcLewis","ExpansionNpcManua","ExpansionNpcNiki","ExpansionNpcOliver","ExpansionNpcPeter","ExpansionNpcQuinn","ExpansionNpcRolf","ExpansionNpcSeth","ExpansionNpcTaiki","ExpansionNpcLinda","ExpansionNpcMaria","ExpansionNpcFrida","ExpansionNpcGabi","ExpansionNpcHelga","ExpansionNpcIrena","ExpansionNpcJudy","ExpansionNpcKeiko","ExpansionNpcLina","ExpansionNpcNaomi","ExpansionSoldierMirek","ExpansionSoldierDenis","ExpansionSoldierBoris","ExpansionSoldierCyril","ExpansionSoldierElias","ExpansionSoldierFrancis","ExpansionSoldierGuo","ExpansionSoldierHassan","ExpansionSoldierIndar","ExpansionSoldierJose","ExpansionSoldierKaito","ExpansionSoldierLewis","ExpansionSoldierManua","ExpansionSoldierNiki","ExpansionSoldierOliver","ExpansionSoldierPeter","ExpansionSoldierQuinn","ExpansionSoldierRolf","ExpansionSoldierSeth","ExpansionSoldierTaiki","ExpansionSoldierLinda","ExpansionSoldierMaria","ExpansionSoldierFrida","ExpansionSoldierGabi","ExpansionSoldierHelga","ExpansionSoldierIrena","ExpansionSoldierJudy","ExpansionSoldierKeiko","ExpansionSoldierLina","ExpansionSoldierNaomi","ExpansionSoldier2Mirek","ExpansionSoldier2Denis","ExpansionSoldier2Boris","ExpansionSoldier2Cyril","ExpansionSoldier2Elias","ExpansionSoldier2Francis","ExpansionSoldier2Guo","ExpansionSoldier2Hassan","ExpansionSoldier2Indar","ExpansionSoldier2Jose","ExpansionSoldier2Kaito","ExpansionSoldier2Lewis","ExpansionSoldier2Manua","ExpansionSoldier2Niki","ExpansionSoldier2Oliver","ExpansionSoldier2Peter","ExpansionSoldier2Quinn","ExpansionSoldier2Rolf","ExpansionSoldier2Seth","ExpansionSoldier2Taiki","ExpansionSoldier2Linda","ExpansionSoldier2Maria","ExpansionSoldier2Frida","ExpansionSoldier2Gabi","ExpansionSoldier2Helga","ExpansionSoldier2Irena","ExpansionSoldier2Judy","ExpansionSoldier2Keiko","ExpansionSoldier2Lina","ExpansionSoldier2Naomi","ExpansionMoneyBase"};
+		units[] = {"ExpansionPickup","ExpansionPickupCone","ExpansionDebugCone","ExpansionDebugConeSmall","ExplosionPoint","ExplosionSmall","ExpansionWreck","ExpansionTraderNPCBase","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionNpcDenis","ExpansionNpcBoris","ExpansionNpcCyril","ExpansionNpcElias","ExpansionNpcFrancis","ExpansionNpcGuo","ExpansionNpcHassan","ExpansionNpcIndar","ExpansionNpcJose","ExpansionNpcKaito","ExpansionNpcLewis","ExpansionNpcManua","ExpansionNpcNiki","ExpansionNpcOliver","ExpansionNpcPeter","ExpansionNpcQuinn","ExpansionNpcRolf","ExpansionNpcSeth","ExpansionNpcTaiki","ExpansionNpcLinda","ExpansionNpcMaria","ExpansionNpcFrida","ExpansionNpcGabi","ExpansionNpcHelga","ExpansionNpcIrena","ExpansionNpcJudy","ExpansionNpcKeiko","ExpansionNpcEva","ExpansionNpcNaomi","ExpansionSoldierMirek","ExpansionSoldierDenis","ExpansionSoldierBoris","ExpansionSoldierCyril","ExpansionSoldierElias","ExpansionSoldierFrancis","ExpansionSoldierGuo","ExpansionSoldierHassan","ExpansionSoldierIndar","ExpansionSoldierJose","ExpansionSoldierKaito","ExpansionSoldierLewis","ExpansionSoldierManua","ExpansionSoldierNiki","ExpansionSoldierOliver","ExpansionSoldierPeter","ExpansionSoldierQuinn","ExpansionSoldierRolf","ExpansionSoldierSeth","ExpansionSoldierTaiki","ExpansionSoldierLinda","ExpansionSoldierMaria","ExpansionSoldierFrida","ExpansionSoldierGabi","ExpansionSoldierHelga","ExpansionSoldierIrena","ExpansionSoldierJudy","ExpansionSoldierKeiko","ExpansionSoldierEva","ExpansionSoldierNaomi","ExpansionSoldier2Mirek","ExpansionSoldier2Denis","ExpansionSoldier2Boris","ExpansionSoldier2Cyril","ExpansionSoldier2Elias","ExpansionSoldier2Francis","ExpansionSoldier2Guo","ExpansionSoldier2Hassan","ExpansionSoldier2Indar","ExpansionSoldier2Jose","ExpansionSoldier2Kaito","ExpansionSoldier2Lewis","ExpansionSoldier2Manua","ExpansionSoldier2Niki","ExpansionSoldier2Oliver","ExpansionSoldier2Peter","ExpansionSoldier2Quinn","ExpansionSoldier2Rolf","ExpansionSoldier2Seth","ExpansionSoldier2Taiki","ExpansionSoldier2Linda","ExpansionSoldier2Maria","ExpansionSoldier2Frida","ExpansionSoldier2Gabi","ExpansionSoldier2Helga","ExpansionSoldier2Irena","ExpansionSoldier2Judy","ExpansionSoldier2Keiko","ExpansionSoldier2Eva","ExpansionSoldier2Naomi","ExpansionMoneyBase"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Characters","DZ_Scripts","DZ_AI","DayZExpansion_Animations_Player"};
@@ -404,7 +404,7 @@ class CfgVehicles
 	class SurvivorF_Irena;
 	class SurvivorF_Judy;
 	class SurvivorF_Keiko;
-	class SurvivorF_Lina;
+	class SurvivorF_Eva;
 	class SurvivorF_Naomi;
 	class SurvivorBase: Man
 	{
@@ -1481,156 +1481,181 @@ class CfgVehicles
 	class ExpansionTraderMirek: SurvivorM_Mirek
 	{
 		scope = 2;
+		displayName = "Mirek";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderDenis: SurvivorM_Denis
 	{
 		scope = 2;
+		displayName = "Denis";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderBoris: SurvivorM_Boris
 	{
 		scope = 2;
+		displayName = "Boris";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderCyril: SurvivorM_Cyril
 	{
 		scope = 2;
+		displayName = "Cyril";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderElias: SurvivorM_Elias
 	{
 		scope = 2;
+		displayName = "Elias";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderFrancis: SurvivorM_Francis
 	{
 		scope = 2;
+		displayName = "Francis";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderGuo: SurvivorM_Guo
 	{
 		scope = 2;
+		displayName = "Guo";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderHassan: SurvivorM_Hassan
 	{
 		scope = 2;
+		displayName = "Hassan";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderIndar: SurvivorM_Indar
 	{
 		scope = 2;
+		displayName = "Indar";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderJose: SurvivorM_Jose
 	{
 		scope = 2;
+		displayName = "Jose";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderKaito: SurvivorM_Kaito
 	{
 		scope = 2;
+		displayName = "Kaito";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderLewis: SurvivorM_Lewis
 	{
 		scope = 2;
+		displayName = "Lewis";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderManua: SurvivorM_Manua
 	{
 		scope = 2;
+		displayName = "Manua";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderNiki: SurvivorM_Niki
 	{
 		scope = 2;
+		displayName = "Niki";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderOliver: SurvivorM_Oliver
 	{
 		scope = 2;
+		displayName = "Oliver";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderPeter: SurvivorM_Peter
 	{
 		scope = 2;
+		displayName = "Peter";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderQuinn: SurvivorM_Quinn
 	{
 		scope = 2;
+		displayName = "Quinn";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderRolf: SurvivorM_Rolf
 	{
 		scope = 2;
+		displayName = "Rolf";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderSeth: SurvivorM_Seth
 	{
 		scope = 2;
+		displayName = "Seth";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderTaiki: SurvivorM_Taiki
 	{
 		scope = 2;
+		displayName = "Taiki";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderLinda: SurvivorF_Linda
 	{
 		scope = 2;
+		displayName = "Linda";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderMaria: SurvivorF_Maria
 	{
 		scope = 2;
+		displayName = "Maria";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderFrida: SurvivorF_Frida
 	{
 		scope = 2;
+		displayName = "Frida";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderGabi: SurvivorF_Gabi
 	{
 		scope = 2;
+		displayName = "Gabi";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderHelga: SurvivorF_Helga
 	{
 		scope = 2;
+		displayName = "Helga";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderIrena: SurvivorF_Irena
 	{
 		scope = 2;
+		displayName = "Irena";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderJudy: SurvivorF_Judy
 	{
 		scope = 2;
+		displayName = "Judy";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderKeiko: SurvivorF_Keiko
 	{
 		scope = 2;
+		displayName = "Keiko";
 		vehicleClass = "Expansion_Trader";
 	};
-	class ExpansionTraderLina: SurvivorF_Lina
+	class ExpansionTraderEva: SurvivorF_Eva
 	{
 		scope = 2;
+		displayName = "Eva";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionTraderNaomi: SurvivorF_Naomi
 	{
 		scope = 2;
-		vehicleClass = "Expansion_Trader";
-	};
-	class ExpansionTraderNewDenis: SurvivorM_Denis
-	{
-		scope = 2;
+		displayName = "Naomi";
 		vehicleClass = "Expansion_Trader";
 	};
 	class ExpansionNpcDenis: SurvivorM_Denis
@@ -1768,7 +1793,7 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcLina: SurvivorF_Lina
+	class ExpansionNpcEva: SurvivorF_Eva
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
@@ -1918,7 +1943,7 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Soldier";
 	};
-	class ExpansionSoldierLina: SurvivorF_Lina
+	class ExpansionSoldierEva: SurvivorF_Eva
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Soldier";
@@ -2068,7 +2093,7 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Soldier";
 	};
-	class ExpansionSoldier2Lina: SurvivorF_Lina
+	class ExpansionSoldier2Eva: SurvivorF_Eva
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Soldier";
@@ -2082,5 +2107,11 @@ class CfgVehicles
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Currency";
+	};
+	class ExpansionATMLocker: HouseNoDestruct
+	{
+		scope = 1;
+		vehicleClass = "Expansion_Static";
+		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v1.p3d";
 	};
 };

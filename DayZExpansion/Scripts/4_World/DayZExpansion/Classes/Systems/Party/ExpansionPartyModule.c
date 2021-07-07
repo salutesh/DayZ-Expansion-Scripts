@@ -18,6 +18,7 @@ class ExpansionPartyModule: JMModuleBase
 	//! Client side
 	private ref ExpansionPartyData m_Party;
 	private ref array<ref ExpansionPartyInviteData> m_PartyInvites;
+	private bool m_IsClientInitialized;
 	
 	int m_NextPartyID = 0;
 	
@@ -199,12 +200,12 @@ class ExpansionPartyModule: JMModuleBase
 		case ExpansionPartyModuleRPC.DeleteMarker:
 			RPC_DeleteMarker( ctx, sender, target );
 			break;
-		case ExpansionPartyModuleRPC.PromotePlayer:
+		/*case ExpansionPartyModuleRPC.PromotePlayer:
 			RPC_PromotePlayer( ctx, sender, target );
 			break;
 		case ExpansionPartyModuleRPC.DemotePlayer:
 			RPC_DemotePlayer( ctx, sender, target );
-			break;
+			break;*/
 		case ExpansionPartyModuleRPC.InvitePlayer:
 			RPC_InvitePlayer( ctx, sender, target );
 			break;
@@ -216,6 +217,9 @@ class ExpansionPartyModule: JMModuleBase
 			break;
 		case ExpansionPartyModuleRPC.UpdateQuickMarker:
 			RPC_UpdateQuickMarker( ctx, sender, target );
+			break;
+		case ExpansionPartyModuleRPC.UpdatePermissions:	
+			RPC_UpdatePermissions( ctx, sender, target );
 			break;
 		}
 		
@@ -604,6 +608,26 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::Exec_Dissolve beforeDelete party : " + party);
 		#endif
 		
+	#ifdef EXPANSIONMODMARKET
+		//! Add all the money in the party deposit to the party owners deposit
+		if (party.GetMoneyDeposited() > 0)
+		{
+			ExpansionMarketModule module = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			if (module)
+			{
+				ExpansionMarketATM_Data data = module.GetPlayerATMData(party.GetOwnerUID());
+				if (!data)
+				{
+					Error("ExpansionPartyModule::Exec_Dissolve - Could not get party owners ATM data!");			
+					return;
+				}
+				
+				data.AddMoney(party.GetMoneyDeposited());
+				data.Save();
+			}
+		}
+	#endif
+		
 		party.Delete();
 
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -689,7 +713,7 @@ class ExpansionPartyModule: JMModuleBase
 		}
 		
 		ref ExpansionPartyPlayerData senderPlayerParty = party.GetPlayer( sender.GetId() );
-		if ( !senderPlayerParty || !senderPlayerParty.Promoted )
+		if ( !senderPlayerParty || !senderPlayerParty.CanInvite() )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
 			return;
@@ -698,6 +722,7 @@ class ExpansionPartyModule: JMModuleBase
 		if ( GetExpansionSettings().GetParty().MaxMembersInParty >= 1 && party.GetPlayers().Count() >= GetExpansionSettings().GetParty().MaxMembersInParty )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_MAX_PARTY", GetExpansionSettings().GetParty().MaxMembersInParty.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			return;
 		}
 		
 		if ( party.HasPlayerInvite( targetID ) )
@@ -710,6 +735,13 @@ class ExpansionPartyModule: JMModuleBase
 		}
 	
 		ExpansionPartyInviteData invite = party.AddInvite( targetID );
+		
+		if (invite == NULL)
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_INVITED", GetExpansionSettings().GetParty().MaxMembersInParty.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			return;		
+		}
+		
 		party.Save();
 		
 		UpdateClient( partyId );
@@ -908,7 +940,7 @@ class ExpansionPartyModule: JMModuleBase
 	// Expansion PromotePlayer
 	// Called on client
 	// ------------------------------------------------------------
-	void PromotePlayer( string uid )
+	/*void PromotePlayer( string uid )
 	{
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::PromotePlayer - Start");
@@ -1107,7 +1139,7 @@ class ExpansionPartyModule: JMModuleBase
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_DemotePlayer - End");
 		#endif
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// Expansion RemovePlayer
@@ -1177,7 +1209,7 @@ class ExpansionPartyModule: JMModuleBase
 		}
 
 		ref ExpansionPartyPlayerData senderPlayerParty = party.GetPlayer( sender.GetId() );
-		if ( !senderPlayerParty.Promoted )
+		if ( !senderPlayerParty.CanKick() )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
 			return;
@@ -1439,6 +1471,8 @@ class ExpansionPartyModule: JMModuleBase
 				
 			m_Party = NULL;
 		}
+
+		m_IsClientInitialized = true;
 
 		ExpansionMarkerModule module;
 		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
@@ -1839,6 +1873,83 @@ class ExpansionPartyModule: JMModuleBase
 		#endif
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion UpdatePermissions
+	// Called on client
+	// ------------------------------------------------------------
+	void UpdatePermissions(ExpansionPartyPlayerData player, ExpansionPartyPlayerPermissions perm)
+	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::UpdatePermissions - Start");
+		#endif
+		
+		if ( !IsMissionClient() )
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write(player);
+		rpc.Write(perm);
+		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdatePermissions, true);
+		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::UpdatePermissions - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RPC_UpdatePermissions
+	// Called on server
+	// ------------------------------------------------------------
+	private void RPC_UpdatePermissions(ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::RPC_UpdatePermissions - Start");
+		#endif
+		
+		ref ExpansionPartyPlayerData player;
+		if (!ctx.Read(player))
+			return;
+		
+		ExpansionPartyPlayerPermissions perm;
+		if (!ctx.Read(perm))
+			return;
+		
+		Print("ExpansionPartyModule::RPC_UpdatePermissions - perm: " + perm);
+		
+		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( senderRPC.GetId() );
+		if ( !senderPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			return;
+		}
+
+		int partyId = GetPartyID( senderPlayer );
+		ref ExpansionPartyData senderParty = m_Parties.Get( partyId );
+		if ( !senderParty || partyId == -1 )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			return;
+		}
+
+		ref ExpansionPartyPlayerData memberPartyPlayer = senderParty.GetPlayer( player.GetID() );
+		if ( !memberPartyPlayer )
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			return;
+		}
+		
+		memberPartyPlayer.ApplyPermissions(perm);
+		senderParty.Save();
+		
+		UpdateClient( senderParty );
+		PlayerBase playerB = PlayerBase.Cast(GetPlayerObjectByIdentity(senderRPC));
+		Send_UpdateClient( senderParty, playerB );		
+		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::RPC_UpdateQuickMarker - End");
+		#endif
+	}
+	
 	// -----------------------------------------------------------
 	// Expansion OnClientRespawn
 	// -----------------------------------------------------------
@@ -1854,7 +1965,6 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::OnClientRespawn - End");
 		#endif
 	}
-
 		
 	// -----------------------------------------------------------
 	// Expansion OnInvokeConnect
@@ -2094,6 +2204,11 @@ class ExpansionPartyModule: JMModuleBase
 		return false;
 	}
 	
+	bool IsClientInitialized()
+	{
+		return m_IsClientInitialized;
+	}
+	
 	// ------------------------------------------------------------
 	// Expansion GetPartyID
 	// Called on client
@@ -2317,5 +2432,31 @@ class ExpansionPartyModule: JMModuleBase
 			
 			m_UpdateQueueTimer = 0.0;
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetPartyByID
+	// Called on client
+	// ------------------------------------------------------------
+	ref ExpansionPartyData GetPartyByID(int partyID)
+	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::GetPartyByID - Start");
+		#endif
+		
+		if ( !IsMissionHost() )
+		{
+			#ifdef EXPANSION_PARTY_MODULE_DEBUG
+			EXLogPrint("ExpansionPartyModule::GetPartyByID - return m_Party: NULL");
+			#endif
+			
+			return NULL;
+		}
+		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::GetPartyByID - return m_Party: " + m_Parties.Get(partyID).ToString());
+		#endif
+		
+		return m_Parties.Get(partyID);
 	}
 }

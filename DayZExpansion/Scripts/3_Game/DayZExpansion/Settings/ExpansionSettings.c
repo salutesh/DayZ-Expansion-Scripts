@@ -13,7 +13,6 @@
 modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Airdrop = new ScriptInvoker();
-	static ref ScriptInvoker SI_Book = new ScriptInvoker();
 	static ref ScriptInvoker SI_BaseBuilding = new ScriptInvoker();
 	static ref ScriptInvoker SI_General = new ScriptInvoker();
 	static ref ScriptInvoker SI_Map = new ScriptInvoker();
@@ -25,9 +24,9 @@ modded class ExpansionSettings
 	static ref ScriptInvoker SI_Spawn = new ScriptInvoker();
 	static ref ScriptInvoker SI_Territory = new ScriptInvoker();
 	static ref ScriptInvoker SI_PlayerList = new ScriptInvoker();
+	static ref ScriptInvoker SI_SocialMedia = new ScriptInvoker();
 	
 	protected ref ExpansionAirdropSettings m_SettingsAirdrop;
-	protected ref ExpansionBookSettings m_SettingsBook;
 	protected ref ExpansionBaseBuildingSettings m_SettingsBaseBuilding;
 	protected ref ExpansionGeneralSettings m_SettingsGeneral;
 	protected ref ExpansionMapSettings m_SettingsMap;
@@ -39,6 +38,7 @@ modded class ExpansionSettings
 	protected ref ExpansionRaidSettings m_SettingsRaid;
 	protected ref ExpansionTerritorySettings m_SettingsTerritory;
 	protected ref ExpansionPlayerListSettings m_SettingsPlayerList;
+	protected ref ExpansionSocialMediaSettings m_SettingsSocialMedia;
 	
 	// ------------------------------------------------------------
 	// ExpansionSettings Destructor
@@ -48,9 +48,6 @@ modded class ExpansionSettings
 	{
 		if ( m_SettingsAirdrop ) 
 			delete m_SettingsAirdrop;
-
-		if ( m_SettingsBook ) 
-			delete m_SettingsBook;
 
 		if ( m_SettingsBaseBuilding ) 
 			delete m_SettingsBaseBuilding;
@@ -84,6 +81,9 @@ modded class ExpansionSettings
 		
 		if ( m_SettingsPlayerList)
 			delete m_SettingsPlayerList;
+		
+		if ( m_SettingsSocialMedia)
+			delete m_SettingsSocialMedia;
 	}
 	
 	// ------------------------------------------------------------
@@ -96,7 +96,6 @@ modded class ExpansionSettings
 		#endif
 
 		LoadSetting( m_SettingsAirdrop );
-		LoadSetting( m_SettingsBook );
 		LoadSetting( m_SettingsBaseBuilding );
 		LoadSetting( m_SettingsGeneral );
 		LoadSetting( m_SettingsMap );
@@ -108,9 +107,9 @@ modded class ExpansionSettings
 		LoadSetting( m_SettingsSpawn );
 		LoadSetting( m_SettingsTerritory );
 		LoadSetting( m_SettingsPlayerList);
+		LoadSetting( m_SettingsSocialMedia);
 
 		//m_NetworkedSettings.Insert( "expansionairdropsettings" );
-		m_NetworkedSettings.Insert( "expansionbooksettings" );
 		m_NetworkedSettings.Insert( "expansionbasebuildingsettings" );
 		m_NetworkedSettings.Insert( "expansiongeneralsettings" );
 		m_NetworkedSettings.Insert( "expansionmapsettings" );
@@ -122,6 +121,7 @@ modded class ExpansionSettings
 		m_NetworkedSettings.Insert( "expansionspawnsettings" );
 		m_NetworkedSettings.Insert( "expansionterritorysettings" );
 		m_NetworkedSettings.Insert( "expansionplayerlistsettings" );
+		m_NetworkedSettings.Insert( "expansionsocialmediasettings" );
 		
 		super.OnServerInit();
 
@@ -136,7 +136,6 @@ modded class ExpansionSettings
 		super.Unload();
 
 		m_SettingsAirdrop.Unload();
-		m_SettingsBook.Unload();
 		m_SettingsBaseBuilding.Unload();
 		m_SettingsGeneral.Unload();
 		m_SettingsMap.Unload();
@@ -148,6 +147,7 @@ modded class ExpansionSettings
 		m_SettingsSpawn.Unload();
 		m_SettingsTerritory.Unload();
 		m_SettingsPlayerList.Unload();
+		m_SettingsSocialMedia.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -171,9 +171,6 @@ modded class ExpansionSettings
 			return;
 		
 		if ( !IsSettingLoaded( m_SettingsAirdrop, m_SettingsLoaded ) )
-			return;
-		
-		if ( !IsSettingLoaded( m_SettingsBook, m_SettingsLoaded ) )
 			return;
 
 		if ( !IsSettingLoaded( m_SettingsBaseBuilding, m_SettingsLoaded ) )
@@ -208,6 +205,9 @@ modded class ExpansionSettings
 		
 		if ( !IsSettingLoaded( m_SettingsPlayerList, m_SettingsLoaded ) )
 			return;
+		
+		if ( !IsSettingLoaded( m_SettingsSocialMedia, m_SettingsLoaded ) )
+			return;
 
 		super.CheckSettingsLoaded();
 		
@@ -222,7 +222,6 @@ modded class ExpansionSettings
 	override void Init()
 	{
 		m_SettingsAirdrop = new ExpansionAirdropSettings;
-		m_SettingsBook = new ExpansionBookSettings;
 		m_SettingsBaseBuilding = new ExpansionBaseBuildingSettings;
 		m_SettingsGeneral = new ExpansionGeneralSettings;
 		m_SettingsMap = new ExpansionMapSettings;
@@ -234,6 +233,7 @@ modded class ExpansionSettings
 		m_SettingsSpawn = new ExpansionSpawnSettings;
 		m_SettingsTerritory = new ExpansionTerritorySettings;
 		m_SettingsPlayerList = new ExpansionPlayerListSettings;
+		m_SettingsSocialMedia = new ExpansionSocialMediaSettings;
 
 		super.Init();
 	}
@@ -254,7 +254,6 @@ modded class ExpansionSettings
 		super.Send( identity );
 
 		m_SettingsAirdrop.Send( identity );
-		m_SettingsBook.Send( identity );
 		m_SettingsBaseBuilding.Send( identity );
 		m_SettingsGeneral.Send( identity );
 		m_SettingsMap.Send( identity );
@@ -264,6 +263,7 @@ modded class ExpansionSettings
 		m_SettingsSpawn.Send( identity );
 		m_SettingsTerritory.Send( identity );
 		m_SettingsPlayerList.Send( identity );
+		m_SettingsSocialMedia.Send( identity );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[MAIN] ExpansionSettings::SendSettings - End");
@@ -289,16 +289,6 @@ modded class ExpansionSettings
 				Expansion_Assert_False( m_SettingsAirdrop.OnRecieve( ctx ), "Failed reading AirDrop settings" );
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionSettings::OnRPC RPC_AirDrop");
-				#endif
-
-				break;
-			}
-			
-			case ExpansionSettingsRPC.Book:
-			{
-				Expansion_Assert_False( m_SettingsBook.OnRecieve( ctx ), "Failed reading Book settings" );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_Book");
 				#endif
 
 				break;
@@ -393,6 +383,16 @@ modded class ExpansionSettings
 
 				break;
 			}
+			
+			case ExpansionSettingsRPC.SocialMedia:
+			{
+				Expansion_Assert_False( m_SettingsSocialMedia.OnRecieve( ctx ), "Failed reading PlayerList settings" );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC m_SettingsSocialMedia");
+				#endif
+
+				break;
+			}
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -417,7 +417,6 @@ modded class ExpansionSettings
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
 			m_SettingsAirdrop.Save();
-			m_SettingsBook.Save();
 			m_SettingsBaseBuilding.Save();
 			m_SettingsGeneral.Save();
 			m_SettingsMap.Save();
@@ -429,6 +428,7 @@ modded class ExpansionSettings
 			m_SettingsSpawn.Save();
 			m_SettingsTerritory.Save();
 			m_SettingsPlayerList.Save();
+			m_SettingsSocialMedia.Save();
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -442,14 +442,6 @@ modded class ExpansionSettings
 	ref ExpansionAirdropSettings GetAirdrop()
 	{
 		return m_SettingsAirdrop;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion ExpansionBookSettings GetBook
-	// ------------------------------------------------------------
-	ref ExpansionBookSettings GetBook()
-	{
-		return m_SettingsBook;
 	}
 	
 	// ------------------------------------------------------------
@@ -538,5 +530,13 @@ modded class ExpansionSettings
 	ref ExpansionPlayerListSettings GetPlayerList()
 	{
 		return m_SettingsPlayerList;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionPlayerListSettings GetSocialMedia
+	// ------------------------------------------------------------
+	ref ExpansionSocialMediaSettings GetSocialMedia()
+	{
+		return m_SettingsSocialMedia;
 	}
 };

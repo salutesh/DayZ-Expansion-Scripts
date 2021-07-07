@@ -165,6 +165,20 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	Object GetKeyObject()
 	{
+		if ( !m_Vehicle )
+		{
+			EXPrint(GetType() + "::GetKeyObject - looking for vehicle");
+			foreach ( CarScript car : CarScript.GetAll() )
+			{
+				if ( IsPairedTo( car ) )
+				{
+					EXPrint(GetType() + "::GetKeyObject - found " + car);
+					m_Vehicle = car;
+					break;
+				}
+			}
+		}
+
 		return m_Vehicle;
 	}
 	

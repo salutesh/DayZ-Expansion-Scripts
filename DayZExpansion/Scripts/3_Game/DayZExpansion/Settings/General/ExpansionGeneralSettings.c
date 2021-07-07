@@ -45,6 +45,14 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool UseDeathScreenStatistics;
 	bool UseNewsFeedInGameMenu;
 	
+	int SystemChatColor;
+	int AdminChatColor;
+	int GlobalChatColor;
+	int DirectChatColor;
+	int TransportChatColor;
+	int PartyChatColor;
+	int TransmitterChatColor;
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -75,6 +83,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		}
 
 		CopyInternal( setting );
+
+		UpdateChatColors();
 
 		m_IsLoaded = true;
 
@@ -163,6 +173,13 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		UseDeathScreen = s.UseDeathScreen;
 		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
 		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
+		SystemChatColor = s.SystemChatColor;
+		AdminChatColor = s.AdminChatColor;
+		GlobalChatColor = s.GlobalChatColor;
+		DirectChatColor = s.DirectChatColor;
+		TransportChatColor = s.TransportChatColor;
+		PartyChatColor = s.PartyChatColor;
+		TransmitterChatColor = s.TransmitterChatColor;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
@@ -195,6 +212,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 			Print("[ExpansionGeneralSettings] Loading settings");
 
 			JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile( EXPANSION_GENERAL_SETTINGS, this );
+			
+			UpdateChatColors();
 	
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionGeneralSettings::Load - End - Loaded");
@@ -265,9 +284,31 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		UseNewsFeedInGameMenu = true;
 		
+		UpdateChatColors();
+		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");
 		#endif
+	}
+
+	void UpdateChatColors()
+	{
+		//! Make sure none of the colors are zero (all transparent)
+
+		if (!SystemChatColor)
+			SystemChatColor = ARGB(255, 186, 69, 186);
+		if (!AdminChatColor)
+			AdminChatColor = ARGB(255, 192, 57, 43);
+		if (!GlobalChatColor)
+			GlobalChatColor = ARGB(255, 88, 195, 247);
+		if (!DirectChatColor)
+			DirectChatColor = ARGB(255, 255, 255, 255);
+		if (!TransportChatColor)
+			TransportChatColor = ARGB(255, 255, 206, 9);
+		if (!PartyChatColor)
+			PartyChatColor = ARGB(255, 10, 250, 122);
+		if (!TransmitterChatColor)
+			TransmitterChatColor = ARGB(255, 249, 255, 73);
 	}
 	
 	override string SettingName()

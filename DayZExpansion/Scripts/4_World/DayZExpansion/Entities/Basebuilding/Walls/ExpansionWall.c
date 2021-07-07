@@ -66,6 +66,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		} else if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 2)
 		{
 			return m_HasDoor || m_HasGate || m_HasWindow;
+		} else if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 3)
+		{
+			return true;
 		}
 		
 		return super.CanBeDamaged();

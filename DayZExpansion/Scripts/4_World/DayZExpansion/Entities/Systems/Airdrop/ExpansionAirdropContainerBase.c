@@ -273,14 +273,11 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		ItemBase item = ItemBase.Cast( GetInventory().CreateInInventory( className ) ); 
 
-		if ( attachments != NULL )
+		if ( item && attachments != NULL )
 		{
 			for ( int i; i < attachments.Count(); i++ )
 			{
-				if ( item )
-				{
-					item.GetInventory().CreateInInventory( attachments.Get( i ) );
-				}
+				item.ExpansionCreateInInventory( attachments.Get( i ) );
 			}
 		}
 		

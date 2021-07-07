@@ -29,6 +29,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 	
 	bool CanCreatePartyMarkers;					// Allow player to create party markers
 	
+	bool ShowPartyMemberHUD;					// Show the party hud interface that displays eacht party members name and health
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -118,6 +120,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowDistanceUnderQuickMarkers = s.ShowDistanceUnderQuickMarkers;
 		ShowNameOnQuickMarkers = s.ShowNameOnQuickMarkers;
 		CanCreatePartyMarkers = s.CanCreatePartyMarkers;
+		ShowPartyMemberHUD = s.ShowPartyMemberHUD;
 	}
 	
 	// ------------------------------------------------------------
@@ -191,6 +194,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowDistanceUnderQuickMarkers = true;
 		ShowNameOnQuickMarkers = true;
 		CanCreatePartyMarkers = true;
+		ShowPartyMemberHUD = true;
 	}
 	
 	override string SettingName()

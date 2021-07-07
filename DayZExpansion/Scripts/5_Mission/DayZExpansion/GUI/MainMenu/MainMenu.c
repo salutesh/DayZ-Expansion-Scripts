@@ -18,8 +18,8 @@ modded class MainMenu
 	
 	protected Widget m_ModsInfoPanel;
 	protected Widget m_NewsfeedPanel;
-	ref ExpansionNewsfeed m_ExpansionNewsfeed;
-	
+	protected ref ExpansionNewsfeed m_ExpansionNewsfeed;
+	protected ref ExpansionModsMenuSimple m_ExpModsSimple;
 	// ------------------------------------------------------------
 	// MainMenu Constructor
 	// ------------------------------------------------------------
@@ -131,13 +131,37 @@ modded class MainMenu
 	// ------------------------------------------------------------
 	override void LoadMods()
 	{
-		super.LoadMods();
+		ref array<ref ModInfo> modArray = new array<ref ModInfo>;		
+		GetGame().GetModInfos( modArray );
+
+		if( modArray.Count() > 0 )
+		{
+			modArray.Remove( modArray.Count() - 1 );
+			modArray.Invert();
+		}
+		
+		if( m_ExpModsSimple )
+			delete m_ExpModsSimple;
+		if( m_ModsDetailed )
+			delete m_ModsDetailed;
+		
+		m_ModdedWarning.Show( GetGame().GetModToBeReported() );
+		
+		if( modArray.Count() > 0 )
+		{
+			layoutRoot.FindAnyWidget("ModsSimple").Show( true );
+			m_ModsTooltip = new ModsMenuTooltip(layoutRoot);
+
+			m_ModsDetailed = new ModsMenuDetailed(modArray, layoutRoot.FindAnyWidget("ModsDetailed"), m_ModsTooltip, this);
+			
+			m_ExpModsSimple = new ExpansionModsMenuSimple(modArray, layoutRoot.FindAnyWidget("ModsSimple"), m_ModsDetailed);
+		}
 				
 		if (m_ModsDetailed)
 			m_ModsDetailed.SetMainMenu(this);
 		
-		if (m_ModsSimple) 
-			m_ModsSimple.SetMainMenu(this);
+		if (m_ExpModsSimple) 
+			m_ExpModsSimple.SetMainMenu(this);
 	}
 	
 	// ------------------------------------------------------------
@@ -184,7 +208,7 @@ modded class MainMenu
 		LoadMods();
 		HideModWarning();
 
-		ExpansionBook book = ExpansionBook.Cast( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) );
+		/*ExpansionBook book = ExpansionBook.Cast( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) );
 		if ( book && book.IsVisible() )
 		{
 			#ifdef EXPANSIONEXPRINT
@@ -192,7 +216,7 @@ modded class MainMenu
 			#endif
 
 			book.Close();
-		}
+		}*/
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MainMenu::OnShow - End");
@@ -256,7 +280,7 @@ modded class MainMenu
 	override bool OnMouseEnter( Widget w, int x, int y )
 	{
 		int charID;
-		if( w == m_Play )
+		if( w == m_Play && !GetExpansionClientSettings().StreamerMode)
 		{
 			string ip = "";
 			string name = "";

@@ -35,6 +35,10 @@ class ExpansionMapSettings: ExpansionSettingBase
 	bool EnableServerMarkers;			//! Show server markers
 	bool ShowNameOnServerMarkers;		//! Show the name of server markers
 	bool ShowDistanceOnServerMarkers;	//! Show the distance of server markers
+	bool EnableHUDCompass;				//! Allow player to use HUD Compass.
+	bool NeedCompassItemForHUDCompass;	//! Requires Compass Item to show the hud compass.
+	bool NeedGPSItemForHUDCompass;		//! Requires GPS Item to show the hud compass.		
+	int CompassColor;					//! Color of the HUD Compass.
 	
 	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
 	//! Failure will result in ServerMarkers incurring a memory leak on the client.
@@ -155,6 +159,14 @@ class ExpansionMapSettings: ExpansionSettingBase
 			return false;
 		if ( !ctx.Read( ShowDistanceOnServerMarkers ) )
 			return false;
+		if ( !ctx.Read( EnableHUDCompass ) )
+			return false;
+		if ( !ctx.Read( NeedCompassItemForHUDCompass ) )
+			return false;
+		if ( !ctx.Read( NeedGPSItemForHUDCompass ) )
+			return false;
+		if ( !ctx.Read( CompassColor ) )
+			return false;
 
 		int count = 0;
 		int index = 0;
@@ -223,7 +235,11 @@ class ExpansionMapSettings: ExpansionSettingBase
 		ctx.Write( EnableServerMarkers );
 		ctx.Write( ShowNameOnServerMarkers );
 		ctx.Write( ShowDistanceOnServerMarkers );
-
+		ctx.Write( EnableHUDCompass );
+		ctx.Write( NeedCompassItemForHUDCompass );
+		ctx.Write( NeedGPSItemForHUDCompass );
+		ctx.Write( CompassColor );
+		
 		int count = 0;
 		int index = 0;
 		string uid = "";
@@ -273,7 +289,6 @@ class ExpansionMapSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionMapSettings s, bool copyServerMarkers = true )
 	{
-		/*
 		if ( copyServerMarkers )
 		{
 			ServerMarkers.Clear();
@@ -284,7 +299,6 @@ class ExpansionMapSettings: ExpansionSettingBase
 				ServerMarkers.Insert( s.ServerMarkers[i] );
 			}
 		}
-		*/
 
 		EnableMap = s.EnableMap;
 		UseMapOnMapItem = s.UseMapOnMapItem;
@@ -302,6 +316,10 @@ class ExpansionMapSettings: ExpansionSettingBase
 		EnableHUDGPS = s.EnableHUDGPS;
 		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
 		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
+		EnableHUDCompass = s.EnableHUDCompass;
+		NeedCompassItemForHUDCompass = s.NeedCompassItemForHUDCompass;
+		NeedGPSItemForHUDCompass = s.NeedGPSItemForHUDCompass;
+		CompassColor = s.CompassColor;
 	}
 	
 	// ------------------------------------------------------------
@@ -389,16 +407,103 @@ class ExpansionMapSettings: ExpansionSettingBase
 
 		NeedGPSItemForKeyBinding = true;
 		NeedMapItemForKeyBinding = false;
-
-		int index = 0;
 		
-		for ( index = 0; index < ServerMarkers.Count(); ++index )
-			if ( ServerMarkers[index] )
-				ServerMarkersMap.Insert( ServerMarkers[index].GetUID(), ServerMarkers[index] );
+		EnableHUDCompass = true;
+		NeedCompassItemForHUDCompass = true;
+		NeedGPSItemForHUDCompass = true;
+		CompassColor = ARGB(255,255,255,255);
+		
+	#ifdef EXPANSIONMODMARKET
+		string worldName;
+		GetGame().GetWorldName(worldName);
+		worldName.ToLower();
+		
+		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
+		{
+			DefaultChernarusMarkers();
+		}
+	#endif
+		
+		int index = 0;
+		for (index = 0; index < ServerMarkers.Count(); ++index)
+		{
+			if (ServerMarkers[index])
+				ServerMarkersMap.Insert(ServerMarkers[index].GetUID(), ServerMarkers[index]);
+		}
 
+		
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("[ExpansionMapSettings] Default settings loaded!");
 		#endif
+	}
+	
+	void DefaultChernarusMarkers()
+	{
+		//! Krasnostrav Airsrip Trader
+		ExpansionServerMarkerData marker = new ExpansionServerMarkerData("ServerMarker_Trader_Krasno");
+		marker.Set3D(true);
+		marker.SetName("Traders - Krasnostav Airstrip");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(11882, 143, 12466));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+		
+		ServerMarkers.Insert(marker);
+		
+		//! Kamenka Trader
+		marker = new ExpansionServerMarkerData("ServerMarker_Trader_Kamenka");
+		marker.Set3D(true);
+		marker.SetName("Traders - Kamenka");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(1101, 8, 2382));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+		
+		ServerMarkers.Insert(marker);
+		
+		//! Boats Kamenka Trader
+		marker = new ExpansionServerMarkerData("ServerMarker_Boats_Kamenka");
+		marker.Set3D(true);
+		marker.SetName("Boats - Kamenka");
+		marker.SetIconName("Boat");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(1756, 4, 2027));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+		
+		ServerMarkers.Insert(marker);
+		
+		//! Aircrafts Balota Trader
+		marker = new ExpansionServerMarkerData("ServerMarker_Aircrafts_Balota");
+		marker.Set3D(true);
+		marker.SetName("Aircrafts - Balota");
+		marker.SetIconName("Helicopter");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(4973, 12, 2436));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+
+		ServerMarkers.Insert(marker);
+		
+		//! Boats Svetloyarsk Trader
+		marker = new ExpansionServerMarkerData("ServerMarker_Boats_Svetloyarsk");
+		marker.Set3D(true);
+		marker.SetName("Boats & Fishing - Svetloyarsk");
+		marker.SetIconName("Boat");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(14379, 6, 13256));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+
+		ServerMarkers.Insert(marker);
+		
+		//! Green Montain Trader
+		marker = new ExpansionServerMarkerData("ServerMarker_Trader_Green_Montain");
+		marker.Set3D(true);
+		marker.SetName("Trader - Green Montain");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(3698, 405, 5988));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+
+		ServerMarkers.Insert(marker);
 	}
 	
 	override string SettingName()

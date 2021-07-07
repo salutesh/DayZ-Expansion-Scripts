@@ -11,26 +11,7 @@
 */
 
 modded class OrienteeringCompass
-{
-	// ------------------------------------------------------------
-	// OrienteeringCompass PlayerInventoryCheckLocal
-	// ------------------------------------------------------------
-	private void PlayerInventoryCheckLocal()
-	{
-		if ( IsMissionClient() )
-		{
-			//! Get player who has this item
-			if ( GetHierarchyRootPlayer() && GetHierarchyRootPlayer().IsKindOf("SurvivorBase") )
-			{
-				PlayerBase player = PlayerBase.Cast( GetHierarchyRootPlayer() );
-				if ( player )
-				{
-					player.SetHasItemCompass( true );
-				}
-			}
-		}
-	}
-	
+{	
 	// ------------------------------------------------------------
 	// OrienteeringCompass EEInventoryIn
 	// ------------------------------------------------------------	
@@ -42,18 +23,21 @@ modded class OrienteeringCompass
 		
 		super.EEInventoryIn( newParentMan, diz, newParent );
 		
-		if ( newParentMan && newParentMan.IsInherited( SurvivorBase ) )
+		if ( IsMissionClient() )
 		{
-			if ( IsMissionClient() )
+			if ( newParentMan && newParentMan.IsInherited( SurvivorBase ) )
 			{
-				PlayerBase player = PlayerBase.Cast( newParentMan);
+				PlayerBase player = PlayerBase.Cast( newParentMan );
+				
+				if (!player)
+					player = PlayerBase.Cast(GetHierarchyRootPlayer());
 				
 				if ( !player )
 				{
 					#ifdef EXPANSIONEXLOGPRINT
 					EXLogPrint("OrienteeringCompass::EEInventoryIn - player: " + player.ToString());
 					#endif
-
+	
 					return;
 				}
 				
@@ -77,11 +61,14 @@ modded class OrienteeringCompass
 		
 		super.EEInventoryOut( oldParentMan, diz, newParent );
 		
-		if ( oldParentMan && oldParentMan.IsInherited( SurvivorBase ) )
+		if ( IsMissionClient() )
 		{
-			if ( IsMissionClient() )
+			if ( oldParentMan && oldParentMan.IsInherited( SurvivorBase ) )
 			{
 				PlayerBase player = PlayerBase.Cast( oldParentMan );
+					
+				if (!player)
+					player = PlayerBase.Cast(GetHierarchyRootPlayer());
 				
 				if ( !player )
 				{
@@ -98,24 +85,6 @@ modded class OrienteeringCompass
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("OrienteeringCompass::EEInventoryOut - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// OrienteeringCompass EEInit
-	// ------------------------------------------------------------
-	override void EEInit()
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("OrienteeringCompass::EEInit - Start");
-		#endif
-		
-		super.EEInit();
-		
-		PlayerInventoryCheckLocal();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("OrienteeringCompass::EEInit - End");
 		#endif
 	}
 }

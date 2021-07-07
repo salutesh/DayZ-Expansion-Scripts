@@ -54,7 +54,8 @@ modded class MissionGameplay
 	private bool								m_ServerMarkerToggleState = true;
 	private bool 								m_HideChatToggle = true;
 
-	protected ref ExpansionMapMenu m_MapMenu;
+	protected ref MapMenu 						m_MapMenu;
+	protected ref ExpansionMapMenu 				m_ExpansionMapMenu;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -114,8 +115,8 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 
-			m_ChatChannelName.SetText( "Global Communication" );
-			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );
+			m_ChatChannelName.SetText("Global Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().GlobalChatColor);
 		} else
 		{
 			SwitchChatChannelToTeam();
@@ -141,8 +142,8 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 
-			m_ChatChannelName.SetText("Team Communication");
-			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);
+			m_ChatChannelName.SetText("Team Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().PartyChatColor);
 		} else
 		{
 			SwitchChatChannelToTransport();
@@ -169,8 +170,8 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 
-			m_ChatChannelName.SetText("Transport Communication");
-			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TRANSPORT_COLOUR);
+			m_ChatChannelName.SetText("Transport Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().TransportChatColor);
 		} else
 		{
 			SwitchChatChannelToAdmin();
@@ -190,13 +191,14 @@ modded class MissionGameplay
 		EXPrint("MissionGameplay::SwitchChatChannelToAdmin - Start");
 		#endif
 
-		if ( GetPermissionsManager().HasPermission( "Admin.Chat" ) )
+		if (GetPermissionsManager().HasPermission("Admin.Chat"))
 		{
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 
-			m_ChatChannelName.SetText( "Admin Communication" );
-			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );
-		} else
+			m_ChatChannelName.SetText("Admin Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().AdminChatColor);
+		} 
+		else
 		{
 			SwitchChatChannelToDirect();
 		}
@@ -217,8 +219,8 @@ modded class MissionGameplay
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 
-		m_ChatChannelName.SetText( "Direct Communication" );
-		m_ChatChannelName.SetColor( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );
+		m_ChatChannelName.SetText("Direct Chat");
+		m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::SwitchChatChannelToDirect - End");
@@ -391,7 +393,10 @@ modded class MissionGameplay
 		super.OnMissionFinish();
 
 		if ( m_MapMenu )
-			m_MapMenu.Close();  //! Safely destroys map menu
+			m_MapMenu.CloseMapMenu();  //! Safely destroys map menu
+		
+		if ( m_ExpansionMapMenu )
+			m_ExpansionMapMenu.CloseMapMenu(true);	//! Safely destroys expansion map menu
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnMissionFinish - End");
@@ -620,70 +625,10 @@ modded class MissionGameplay
 						}
 					}
 					
-					//! Book Menu
-					if ( input.LocalPress( "UAExpansionBookToggle", false ) && !GetGame().GetUIManager().GetMenu() )
-					{
-						if ( GetExpansionSettings() && GetExpansionSettings().GetBook().EnableBook )
-						{
-							bool hasBookItem = true;
-							EntityAI bookItem;
-							
-							if ( GetExpansionSettings().GetBook().ItemRequired != "" )
-							{
-								switch ( GetExpansionSettings().GetBook().ItemRequiredLocation )
-								{
-									case 0:
-										hasBookItem = playerPB.HasItem( GetExpansionSettings().GetBook().ItemRequired, bookItem );
-										break;
-									case 1:
-										hasBookItem = GetExpansionSettings().GetBook().ItemRequired == itemInHands.GetType();
-										if ( hasBookItem )
-											bookItem = itemInHands;
-										break;
-								}
-							}
-
-							if ( hasBookItem )
-							{
-								GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_BOOK_MENU, NULL );
-							}
-						}
-					}
 					//! Map Menu
 					if ( input.LocalPress( "UAExpansionMapToggle", false ) )
 					{
-						if ( m_MapMenu && m_MapMenu.IsVisible() )
-						{
-							m_MapMenu.Hide();
-						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
-						{
-							bool show_map;
-
-							if ( GetExpansionSettings().GetMap().NeedMapItemForKeyBinding )
-							{
-								if ( playerPB.HasItemMap() || playerPB.HasItemGPS() )
-									show_map = true;
-							} else
-							{
-								show_map = true;
-							}
-
-							if ( show_map )
-							{
-								if ( m_MapMenu )
-								{
-									m_MapMenu.Show();
-								} else
-								{
-									if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().EnableMap )
-									{
-										m_MapMenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL ) );
-									} else {
-										m_MapMenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_MAP, NULL ) );
-									}
-								}
-							}
-						}
+						ToggleMapMenu(playerPB);
 					}
 					
 					//! GPS	
@@ -891,6 +836,76 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ToggleMapMenu
+	// ------------------------------------------------------------
+	void ToggleMapMenu(PlayerBase playerPB)
+	{
+		if (!GetExpansionSettings().GetMap().EnableMap)
+		{
+			bool show_map;
+			if (m_MapMenu && m_MapMenu.IsVisible())
+			{
+				m_MapMenu.CloseMapMenu();
+			} 
+			else if (!GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding)
+			{
+				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
+				{
+					if (playerPB.HasItemMap() || playerPB.HasItemGPS())
+						show_map = true;
+				} 
+				else
+				{
+					show_map = true;
+				}
+	
+				if (show_map)
+				{
+					if (m_MapMenu)
+					{
+						GetGame().GetUIManager().ShowScriptedMenu(m_MapMenu, NULL);
+					} 
+					else
+					{
+						m_MapMenu = MapMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_MAP, NULL));
+					}
+				}
+			}
+		}
+		else
+		{
+			if (m_ExpansionMapMenu && m_ExpansionMapMenu.IsVisible())
+			{
+				m_ExpansionMapMenu.CloseMapMenu();
+			} 
+			else if (!GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding)
+			{
+				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
+				{
+					if (playerPB.HasItemMap() || playerPB.HasItemGPS())
+						show_map = true;
+				} 
+				else
+				{
+					show_map = true;
+				}
+	
+				if (show_map)
+				{
+					if (m_ExpansionMapMenu)
+					{
+						GetGame().GetUIManager().ShowScriptedMenu(m_ExpansionMapMenu, NULL);
+					} 
+					else
+					{
+						m_ExpansionMapMenu = ExpansionMapMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_MAP, NULL));
+					}
+				}
+			}
+		}
 	}
 	
 	// ------------------------------------------------------------

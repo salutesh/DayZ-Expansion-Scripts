@@ -24,9 +24,11 @@ class ExpansionIngameHud extends Hud
 	protected bool											m_ExpansionHudNVState;
 	protected bool											m_ExpansionEarplugState;
 	protected bool 											m_ExpansionGPSSetting;
-	protected bool											m_ExpansionGPSPosSetting;
+	protected int											m_ExpansionGPSPosSetting;
 	protected bool											m_ExpansionNVSetting;
-	protected bool											m_ClientClockShow;
+	protected bool											m_ExpansionPartyMemberSetting;
+	protected bool											m_ExpansionCompassSetting;
+	protected bool											m_ExpansionHudCompassState;
 	
 	//! GPS
 	protected Widget										m_GPSPanel;
@@ -54,7 +56,19 @@ class ExpansionIngameHud extends Hud
 	protected int											m_NVBatteryState;
 	//! EARPLUG
 	protected ImageWidget 									m_EarPlugIcon;
-
+	
+	//! LEFT HUD PANEL
+	protected WrapSpacerWidget								m_LeftHUDPanel;
+	protected WrapSpacerWidget 								m_PartyMembersHUDPanel;
+	
+	//! PARTY HUD MEMBERS
+	ref array<ref ExpansionIngameHudPartyMember> 			m_PartyMembers;
+	
+	//! COMPASS HUD
+	protected Widget										m_CompassPanel;
+	protected ImageWidget									m_CompassImage;
+	protected bool											m_AddedCompassSettings;
+	
 	// ------------------------------------------------------------
 	// ExpansionIngameHud Constructor
 	// ------------------------------------------------------------
@@ -65,7 +79,8 @@ class ExpansionIngameHud extends Hud
 		#endif
 		
 		m_ExpansionEarplugState = false;
-			
+		m_AddedCompassSettings = false;
+		
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshExpansionHudVisibility );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -85,7 +100,12 @@ class ExpansionIngameHud extends Hud
 		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshExpansionHudVisibility );
 
 		delete m_WgtRoot;
+		
+		if (!m_PartyMembers)
+			delete m_PartyMembers;
 
+		ClearPartyMembers();
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud End");
 		#endif
@@ -120,11 +140,10 @@ class ExpansionIngameHud extends Hud
 			m_MapFrame								= Widget.Cast( m_GPSPanel.FindAnyWidget("GPSMapFrame") );
 			m_MapWidget 							= MapWidget.Cast( m_GPSPanel.FindAnyWidget("Map") );
 			
-			if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
-			{
-				m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
-				m_PlayerArrowMarker.SetName("");
-			}
+			//! Player arrow needs to be always created, as we don't have access to server settings on client side
+			//! when the HUD is created for the first time to check if it's needed or not
+			m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
+			m_PlayerArrowMarker.SetName("");
 		}
 		
 		//! NIGHTVISION OVERLAY
@@ -144,6 +163,14 @@ class ExpansionIngameHud extends Hud
 		
 		//! EARPLUGS		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
+		
+		//! LEFT HUD PANEL
+		m_LeftHUDPanel							= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("LeftHUDPanel") ); 
+		m_PartyMembersHUDPanel					= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("PartyMembers") );
+		
+		//! COMPASS HUD
+		m_CompassPanel							= Widget.Cast( m_WgtRoot.FindAnyWidget("CompassHUD") );
+		m_CompassImage							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("CompassImage") );
 		
 		//! SET UI EVENT HANDLER
 		m_ExpansionEventHandler = new ExpansionIngameHudEventHandler( this );
@@ -215,7 +242,16 @@ class ExpansionIngameHud extends Hud
 			if ( m_PlayerArrowMarker )
 				m_PlayerArrowMarker.Update( timeslice );
 		}
-
+		
+		if ( !GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() )
+		{
+			if ( m_ExpansionEventHandler.WasGPSOpened() )
+				m_ExpansionEventHandler.SetWasGPSOpened(false);
+			
+			if ( m_ExpansionEventHandler.WasCompassOpened() )
+				m_ExpansionEventHandler.SetWasCompassOpened(false);
+		}
+	
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Update End");
 		#endif
@@ -232,7 +268,9 @@ class ExpansionIngameHud extends Hud
 		
 		m_ExpansionGPSSetting = GetExpansionSettings().GetMap().EnableHUDGPS;
 		m_ExpansionGPSPosSetting = GetExpansionSettings().GetMap().ShowPlayerPosition;
-		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay; 
+		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay;
+		m_ExpansionPartyMemberSetting = GetExpansionSettings().GetParty().ShowPartyMemberHUD;
+		m_ExpansionCompassSetting = GetExpansionSettings().GetMap().EnableHUDCompass;
 		
 		if ( m_GPSPanel )
 		{
@@ -244,11 +282,8 @@ class ExpansionIngameHud extends Hud
 		if ( m_GPSMapPanel )
 			m_GPSMapPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
 		
-		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
-		{
-			if ( m_PlayerArrowMarker )
-				m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
-		}
+		if ( m_PlayerArrowMarker )
+			m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting && ( m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2 ) );
 		
 		if ( m_MapStatsPanel )
 			m_MapStatsPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapStatsState && m_ExpansionGPSSetting );
@@ -261,7 +296,21 @@ class ExpansionIngameHud extends Hud
 		}
 		
 		if ( m_EarPlugIcon )
-			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );	
+			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
+		
+		if ( m_PartyMembersHUDPanel )
+		{
+			m_PartyMembersHUDPanel.Show( m_ExpansionHudState && m_ExpansionPartyMemberSetting );
+			if ( m_PartyMembersHUDPanel.IsVisible() )
+				UpdatePartyMembers();
+		}
+		
+		if ( m_CompassPanel )
+		{
+			m_CompassPanel.Show( m_ExpansionHudState && m_ExpansionCompassSetting && m_ExpansionHudCompassState );
+			if ( m_CompassPanel.IsVisible() )
+				UpdateCompass();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::RefreshExpansionHudVisibility End");
@@ -427,6 +476,56 @@ class ExpansionIngameHud extends Hud
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::UpdateGPSMap End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateCompass
+	// ------------------------------------------------------------
+	void UpdateCompass()
+	{	
+		if (!m_AddedCompassSettings)
+		{
+			int compass_color = GetExpansionSettings().GetMap().CompassColor;
+			m_CompassImage.SetColor(compass_color);
+			
+			m_AddedCompassSettings = true;
+		}
+		
+		vector player_dir = GetGame().GetCurrentCameraDirection();
+		float player_angle = player_dir.VectorToAngles().GetRelAngles()[0];
+		float image_pos;
+		
+		if ((player_angle <= 180) && (player_angle >= 0))
+		{
+			image_pos = (player_angle/-180) + 1;
+		}
+		else
+		{
+			image_pos = (player_angle/-180) - 1;
+		}
+
+		//! Fix slight inaccuracy in compass HUD and sudden "jump" when looking north past 360 degrees
+		image_pos *= 0.995;
+		
+		m_CompassImage.SetPos(image_pos, 0, true);
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ShowCompass
+	// ------------------------------------------------------------
+	void ShowCompass( bool show )
+	{
+		m_ExpansionHudCompassState = show;
+		
+		RefreshExpansionHudVisibility();
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetCompassState
+	// ------------------------------------------------------------
+	bool GetCompassState()
+	{
+		return m_ExpansionHudCompassState;
 	}
 	
 	// ------------------------------------------------------------
@@ -646,12 +745,142 @@ class ExpansionIngameHud extends Hud
 	// Expansion SetGPSMapScale
 	// ------------------------------------------------------------
 	void SetGPSMapScale(float scale)
-	{	
+	{
 		m_GPSMapScale = scale;
 		UpdateGPSMap();
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::SetGPSMapScale:: m_GPSMapScale set to: " + m_GPSMapScale.ToString());
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetLeftHUDPanel
+	// ------------------------------------------------------------
+	WrapSpacerWidget GetLeftHUDPanel()
+	{
+		return m_LeftHUDPanel;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetPartyMembersSpacer
+	// ------------------------------------------------------------
+	WrapSpacerWidget GetPartyMembersSpacer()
+	{
+		return m_PartyMembersHUDPanel;
+	}
+		
+	// ------------------------------------------------------------
+	// Expansion ClearPartyMembers
+	// ------------------------------------------------------------
+	void ClearPartyMembers()
+	{
+		if (m_PartyMembers && m_PartyMembers.Count() > 0)
+			m_PartyMembers.Clear();
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RemovePartyMember
+	// ------------------------------------------------------------
+	void AddPartyMember(string id)
+	{
+		ref SyncPlayer playerSync;
+		if (IsPlayerOnline(id, playerSync))
+		{
+			if (playerSync)
+			{
+				ExpansionIngameHudPartyMember memberEntry = new ExpansionIngameHudPartyMember(this, playerSync);
+				m_PartyMembers.Insert(memberEntry);
+			}
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RemovePartyMember
+	// ------------------------------------------------------------
+	void RemovePartyMember(string id)
+	{
+		for (int i = 0; i < m_PartyMembers.Count(); i++)
+		{
+			if (m_PartyMembers[i].m_SyncedPlayer.m_RUID == id)
+			{
+				m_PartyMembers.Remove(i);
+			}
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdatePartyMembers
+	// ------------------------------------------------------------
+	void UpdatePartyMembers()
+	{
+		if ( GetGame() && GetGame().GetPlayer() )
+		{
+			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			if (partyModule && partyModule.HasParty() && partyModule.GetParty())
+			{
+				if (!m_PartyMembers)
+					m_PartyMembers = new array<ref ExpansionIngameHudPartyMember>;
+							
+				ref ExpansionPartyData party = partyModule.GetParty();
+				if (party)
+				{
+					string playerID = GetGame().GetPlayer().GetIdentity().GetId();
+					ref TStringArray hudMemberIDs = new TStringArray;
+					for (int j = 0; j < m_PartyMembers.Count(); j++)
+					{
+						string partyHudMemberID = m_PartyMembers[j].m_SyncedPlayer.m_RUID;
+						hudMemberIDs.Insert(partyHudMemberID);
+					}
+					
+					for (int i = 0; i < party.GetPlayers().Count(); i++)
+					{
+						int foundIndex = -1;
+						string partyMemberID = party.GetPlayers()[i].UID;
+						foundIndex = hudMemberIDs.Find(partyMemberID);
+						ref SyncPlayer player;
+						if (foundIndex == -1 && playerID != partyMemberID && IsPlayerOnline(partyMemberID, player))
+						{
+							AddPartyMember(partyMemberID);
+						}				
+					}
+				}
+			}
+		}
+		else
+		{
+			ClearPartyMembers();
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion IsPlayerOnline
+	// ------------------------------------------------------------
+	bool IsPlayerOnline(string uid, out ref SyncPlayer syncPlayer)
+	{
+		if (ClientData.m_PlayerList)
+		{
+			foreach (SyncPlayer player : ClientData.m_PlayerList.m_PlayerList)
+			{
+				if (player)
+				{
+					if (player.m_RUID == uid)
+					{
+						syncPlayer = player;
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetExpansionHudEventHandler
+	// ------------------------------------------------------------
+	ExpansionIngameHudEventHandler GetExpansionHudEventHandler()
+	{
+		return m_ExpansionEventHandler;
 	}
 }

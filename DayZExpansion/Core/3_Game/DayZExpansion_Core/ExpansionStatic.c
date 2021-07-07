@@ -87,23 +87,6 @@ static string FloatToString(float nmb)
 }
 
 // -----------------------------------------------------------
-// Expansion Float LinearConversion
-// -----------------------------------------------------------
-static float LinearConversion( float minFrom, float maxFrom, float value, float minTo, float maxTo, bool clamp = true )
-{
-	float newValue = (((value - minFrom) * (maxTo - minTo)) / (maxFrom - minFrom)) + minTo;
-	
-	if ( clamp )
-	{
-		float min = Math.Min(minTo, maxTo);
-		float max = Math.Max(minTo, maxTo);
-		return Math.Clamp( newValue, min, max );
-	}
-
-	return newValue;
-}
-
-// -----------------------------------------------------------
 // Expansion Float FloatNewPrecision
 // -----------------------------------------------------------
 static float FloatNewPrecision(float n, float i) 
@@ -177,65 +160,94 @@ static TStringArray ExpansionWorkingZombieClasses()
 // -----------------------------------------------------------
 // Expansion String ExpansionGetItemDisplayNameWithType
 // -----------------------------------------------------------
-string ExpansionGetItemDisplayNameWithType( string type_name)
+string ExpansionGetItemDisplayNameWithType( string type_name, ref map<string, string> cache = NULL )
 {
 	string cfg_name;
 	string cfg_name_path;
 	
-	if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
+	if ( cache && cache.Find( type_name, cfg_name ) )
+	{
+		return cfg_name;
+	}
+	else if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
 	{
 		cfg_name_path = CFG_WEAPONSPATH + " " + type_name + " displayName";
 		GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		return cfg_name;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 	{
 		cfg_name_path = CFG_VEHICLESPATH + " " + type_name + " displayName";
 		GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		return cfg_name;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 	{
 		cfg_name_path = CFG_MAGAZINESPATH + " " + type_name + " displayName";
 		GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		return cfg_name;
+	}
+	if (!cfg_name)
+	{
+		cfg_name = type_name;
+	}
+
+	if ( cache )
+	{
+		cache.Insert( type_name, cfg_name );
 	}
 	
-	return type_name;
+	return cfg_name;
 }
 
 // -----------------------------------------------------------
 // Expansion String ExpansionGetItemDescriptionWithType
 // -----------------------------------------------------------
-string ExpansionGetItemDescriptionWithType( string type_name )
+string ExpansionGetItemDescriptionWithType( string type_name, ref map<string, string> cache = NULL )
 {
 	string cfg_des;
 	string cfg_des_path;
-	
-	if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
+
+	if ( cache && cache.Find( type_name, cfg_des ) )
+	{
+		return cfg_des;
+	}
+	else if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
 	{
 		cfg_des_path = CFG_WEAPONSPATH + " " + type_name + " descriptionShort";
 		GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		return cfg_des;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 	{
 		cfg_des_path = CFG_VEHICLESPATH + " " + type_name + " descriptionShort";
 		GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		return cfg_des;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 	{
 		cfg_des_path = CFG_MAGAZINESPATH + " " + type_name + " descriptionShort";
 		GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		return cfg_des;
+	}
+
+	if ( cache )
+	{
+		cache.Insert( type_name, cfg_des );
 	}
 	
-	return cfg_des_path;
+	return cfg_des;
+}
+
+bool ExpansionItemExists(string type_name)
+{
+	return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
+}
+
+string ExpansionJoinStringArray(TStringArray strings, string glue = ", ")
+{
+	string output = "";
+	for (int i = 0; i < strings.Count(); i++)
+	{
+		if (output)
+			output += glue;
+		output += strings[i];
+	}
+	return output;
 }
 
 // ------------------------------------------------------------

@@ -38,9 +38,8 @@ class ExpansionUIScriptedMenu extends UIScriptedMenu
 	void ShowHud(bool state)
 	{
 		Mission mission = GetGame().GetMission();
-		UIManager vanillaUIManager = GetGame().GetUIManager();
 		
-		mission.GetHud().ShowHud(state);
-		mission.GetHud().ShowQuickbarPlayer(state);
+		mission.GetHud().ShowHudUI(state);
+		mission.GetHud().ShowQuickbarUI(state);
 	}
 }

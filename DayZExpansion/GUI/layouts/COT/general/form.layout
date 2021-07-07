@@ -12,7 +12,7 @@ PanelWidgetClass ExpansionCOTGeneralForm {
   FrameWidgetClass panel_top {
    position 0 0
    size 1 266
-   halign top_ref
+   halign left
    hexactpos 0
    vexactpos 0
    hexactsize 0

@@ -30,6 +30,8 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionKillFeedModule );
 		
 		modules.Insert( ExpansionESPModificationModule );
+		
+		modules.Insert( ExpansionCraftingModule );
 
 		//TODO: Move to COT
 		modules.Insert( ExpansionCOTVehiclesModule );
@@ -38,7 +40,6 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionCOTTerritoriesModule );
 		modules.Insert( ExpansionCOTAirdropModule );
 		modules.Insert( ExpansionCOTBaseBuildingModule );
-		modules.Insert( ExpansionCOTBookModule );
 		modules.Insert( ExpansionCOTGeneralModule );
 		modules.Insert( ExpansionCOTMapModule );
 		modules.Insert( ExpansionCOTNotificationModule );

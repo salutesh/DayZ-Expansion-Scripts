@@ -163,7 +163,11 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 	{
 		Print("[ExpansionSafeZoneSettings] Loading default settings");
 		
+	#ifdef EXPANSIONMODMARKET
+		Enabled = true;
+	#else
 		Enabled = false;
+	#endif
 		EnableVehicleinvincibleInsideSafeZone = true;
 		FrameRateCheckSafeZoneInMs = 5000;
 
@@ -184,6 +188,7 @@ class ExpansionSafeZoneSettings: ExpansionSettingBase
 			PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
 
 			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(11849.6, 0, 12471.6), 500 ) );
+			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(3698, 402, 5988), 500 ) );
 		}
 	}
 

@@ -553,4 +553,57 @@ modded class ItemBase
 	void ExpansionOnDestroyed( Object killer )
 	{
 	}
+
+	//! This deals with spawning magazines on weapons correctly and should be used as a replacement for vanilla CreateInInventory
+	EntityAI ExpansionCreateInInventory(string className)
+	{
+		if (!GetInventory())
+			return NULL;
+
+		//! NOTE: Both actual magazines and ammon inherit from Magazine_Base, so we check destroyOnEmpty if it's actually a mag or not
+		if (IsInherited(Weapon_Base) && GetGame().ConfigIsExisting("CfgMagazines " + className) && !GetGame().ConfigGetInt("CfgMagazines " + className + " destroyOnEmpty"))
+		{
+			//! It's an actual magazine
+			Weapon_Base weapon = Weapon_Base.Cast(this);
+
+			InventoryLocation il = new InventoryLocation;
+			il.SetAttachment(weapon, NULL, InventorySlots.MAGAZINE);
+			
+			EntityAI magazine = SpawnEntity(className, il, ECE_IN_INVENTORY, RF_DEFAULT);
+
+			if (GetGame().IsServer())
+			{
+				GetGame().RemoteObjectDelete(magazine);
+				GetGame().RemoteObjectTreeDelete(weapon);
+			}
+
+			//! Important: Needs to be called BEFORE pushing bullet to chamber, otherwise save will occur in FSM transition
+			int stateId = weapon.ExpansionGetMagAttachedFSMStateID();
+
+			pushToChamberFromAttachedMagazine(weapon, weapon.GetCurrentMuzzle());
+
+			if (stateId > -1)
+			{
+				ScriptReadWriteContext ctx = new ScriptReadWriteContext;
+				ctx.GetWriteContext().Write(stateId);
+				weapon.LoadCurrentFSMState(ctx.GetReadContext(), GetGame().SaveVersion());
+			}
+
+			if (GetGame().IsServer())
+			{
+				GetGame().RemoteObjectTreeCreate(weapon);
+				GetGame().RemoteObjectCreate(magazine);
+			}
+			else
+			{
+				weapon.ShowMagazine();
+			}
+
+			//! We are done
+			return magazine;
+		}
+
+		//! Any other item
+		return GetInventory().CreateInInventory(className);
+	}
 }

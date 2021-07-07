@@ -87,21 +87,12 @@ class ExpansionStartingGear
 		BackpackGear.Insert("SpaghettiCan");
 		BackpackGear.Insert("BakedBeansCan");
 		BackpackGear.Insert("Chemlight_White");
-		
-		/*
-		VestGear.Insert("M67Grenade");
-		VestGear.Insert("M67Grenade");
-		VestGear.Insert("M67Grenade");
-		
-		PrimaryWeapon = "M4A1";
-		PrimaryWeaponAttachments.Insert("M4_OEBttstck");
-		PrimaryWeaponAttachments.Insert("M4_CarryHandleOptic");
-		PrimaryWeaponAttachments.Insert("M4_RISHndgrd");
-		PrimaryWeaponAttachments.Insert("UniversalLight");
-		PrimaryWeaponAttachments.Insert("Battery9V");
-		
-		SecondaryWeapon = "FirefighterAxe";
-		*/
+	
+	#ifdef EXPANSIONMODMARKET
+		BackpackGear.Insert("ExpansionGoldBar");
+		BackpackGear.Insert("ExpansionGoldBar");
+		BackpackGear.Insert("ExpansionGoldBar");
+	#endif
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGear::Defaults - End");

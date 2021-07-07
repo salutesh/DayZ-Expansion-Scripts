@@ -16,7 +16,18 @@
 class ExpansionSafeZoneModule: JMModuleBase
 {
 	private autoptr ExpansionSafeZoneSettings m_Settings;
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule IsEnabled
+	// ------------------------------------------------------------
+	override bool IsEnabled()
+	{
+		return GetExpansionSettings().GetSafeZone().Enabled;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule OnMissionLoaded
+	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
 		super.OnMissionLoaded();
@@ -26,11 +37,17 @@ class ExpansionSafeZoneModule: JMModuleBase
 		thread ThreadSafeZone();
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule IsClient
+	// ------------------------------------------------------------
 	override bool IsClient()
 	{
 		return false;
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule IsInside
+	// ------------------------------------------------------------
 	bool IsInside( vector position )
 	{
 		if ( m_Settings.Enabled )
@@ -49,10 +66,10 @@ class ExpansionSafeZoneModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion IsInsideSafeZone
+	// ExpansionSafeZoneModule IsInsideSafeZone
 	// ------------------------------------------------------------
 	private void IsInsideSafeZone( vector pos_obj, out bool isInsideCircleZone = false, out bool isInsidePolygonZone = false, out int j = 0, out int p = 0)
-	{	
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSafeZoneModule:: IsInsideSafeZone - Start");
 		#endif
@@ -116,7 +133,10 @@ class ExpansionSafeZoneModule: JMModuleBase
 		EXPrint("ExpansionSafeZoneModule:: IsInsideSafeZone - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule CheckPlayers
+	// ------------------------------------------------------------
 	private void CheckPlayers()
 	{
 		array< PlayerBase > players = PlayerBase.GetAll();
@@ -135,16 +155,20 @@ class ExpansionSafeZoneModule: JMModuleBase
 				{
 					player.OnEnterSafeZone();
 				}
-			} else 
+			} 
+			else 
 			{
 				if ( player.IsInSafeZone() )
 				{
-					player.OnLeftSafeZone();
+					player.OnLeavingSafeZone();
 				}
 			}
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule CheckZombies
+	// ------------------------------------------------------------
 	private void CheckZombies()
 	{
 		for ( int i = 0; i < ZombieBase.GetAll().Count(); i++ )
@@ -170,7 +194,10 @@ class ExpansionSafeZoneModule: JMModuleBase
 			}
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionSafeZoneModule CheckVehicles
+	// ------------------------------------------------------------
 	private void CheckVehicles()
 	{
 		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
@@ -196,9 +223,9 @@ class ExpansionSafeZoneModule: JMModuleBase
 			}
 		}
 	}
-
+	
 	// ------------------------------------------------------------
-	// Expansion ThreadSafeZone
+	// ExpansionSafeZoneModule ThreadSafeZone
 	// ------------------------------------------------------------
 	private void ThreadSafeZone()
 	{

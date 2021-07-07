@@ -12,18 +12,18 @@
 
 class ExpansionUIManager
 {
-	ref ExpansionScriptViewMenu m_CurrentMenu;
+	ref ExpansionScriptViewMenuBase m_CurrentMenu;
 	ref map<int, string> m_Menus;
-	ref map<int, ExpansionScriptViewMenu> m_ActiveMenus;
+	ref map<int, ExpansionScriptViewMenuBase> m_ActiveMenus;
 	
 	void ExpansionUIManager()
 	{	
 		m_CurrentMenu = NULL;
 		m_Menus = new map<int, string>;
-		m_ActiveMenus = new map<int, ExpansionScriptViewMenu>;
+		m_ActiveMenus = new map<int, ExpansionScriptViewMenuBase>;
 	}
 	
-	void SetMenu(ExpansionScriptViewMenu view)
+	void SetMenu(ExpansionScriptViewMenuBase view)
 	{
 		if (m_CurrentMenu)
 		{
@@ -34,33 +34,33 @@ class ExpansionUIManager
 		m_CurrentMenu = view;
 	}
 	
-	ref ExpansionScriptViewMenu GetMenu()
+	ref ExpansionScriptViewMenuBase GetMenu()
 	{
 		return m_CurrentMenu;
 	}
 	
 	void CloseMenu()
 	{
-		ref ExpansionScriptViewMenu menu;
-		if (m_ActiveMenus.Find(m_CurrentMenu.GetID(), menu))
-		{
-			Print("[EXPANSION UI MANAGER]: Removing menu " + menu + " with id " + m_CurrentMenu.GetID() + " from UI manager.");
-			m_ActiveMenus.Remove(m_CurrentMenu.GetID());
-		}
-			
+		ref ExpansionScriptViewMenuBase menu;
 		if (m_CurrentMenu)
 		{
 			if (m_CurrentMenu.IsVisible())
 				m_CurrentMenu.Hide();
 			
 			Print("[EXPANSION UI MANAGER]: Deleting menu instance " + m_CurrentMenu + " with id " + m_CurrentMenu.GetID() + " from UI manager.");
-			delete m_CurrentMenu;
+		}
+		
+		if (m_ActiveMenus.Find(m_CurrentMenu.GetID(), menu))
+		{
+			Print("[EXPANSION UI MANAGER]: Removing menu " + menu + " with id " + m_CurrentMenu.GetID() + " from UI manager.");
+			DestroySVMenu(m_CurrentMenu.GetID());
+			m_CurrentMenu = NULL;
 		}
 	}
 	
 	void CloseAll()
 	{
-		foreach (ref ExpansionScriptViewMenu menu: m_ActiveMenus)
+		foreach (ref ExpansionScriptViewMenuBase menu: m_ActiveMenus)
 		{
 			if (menu.IsVisible())
 				menu.Hide();
@@ -95,7 +95,7 @@ class ExpansionUIManager
 		string viewName;
 		if (m_Menus.Find(id, viewName))
 		{
-			ref ExpansionScriptViewMenu viewMenu;
+			ref ExpansionScriptViewMenuBase viewMenu;
 			
 			if (!m_ActiveMenus.Find(id, viewMenu))
 			{
@@ -118,18 +118,28 @@ class ExpansionUIManager
 		}
 	}
 	
+	void DestroySVMenu(int id)
+	{
+		ExpansionScriptViewMenuBase viewMenu;
+		if (m_ActiveMenus.Find(id, viewMenu))
+		{
+			m_ActiveMenus.Remove(id);
+			delete viewMenu;
+		}
+	}
+	
 	ref map<int, string> GetMenus()
 	{
 		return m_Menus;
 	}
 	
-	ref map<int, ExpansionScriptViewMenu> GetActiveMenus()
+	ref map<int, ExpansionScriptViewMenuBase> GetActiveMenus()
 	{
 		return m_ActiveMenus;
 	}
 	
-	ExpansionScriptViewMenu CreateMenuInstance(string className)
+	ExpansionScriptViewMenuBase CreateMenuInstance(string className)
 	{
-		return ExpansionScriptViewMenu.Cast(className.ToType().Spawn());
+		return ExpansionScriptViewMenuBase.Cast(className.ToType().Spawn());
 	}
 };

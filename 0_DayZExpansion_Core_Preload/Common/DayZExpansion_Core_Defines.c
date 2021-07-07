@@ -52,9 +52,6 @@
 // Enable it if you want mission event debug logs enabled
 //#define EXPANSION_MISSION_EVENT_DEBUG
 
-// Enable it if you want market debug logs enabled
-#define EXPANSION_MARKET_MODULE_DEBUG
-
 //! Enable it if you want party module debug logs enabled
 //#define EXPANSION_PARTY_MODULE_DEBUG
 

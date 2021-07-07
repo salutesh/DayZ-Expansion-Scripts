@@ -178,4 +178,14 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		pOutResult.m_fDistance 				= m_fDistance;
 		pOutResult.m_fPositionModelSpace	= 1.0;
 	}
+	
+	void SetViewDistance(float dist)
+	{
+		m_fDistance = dist; 
+	}
+	
+	void SetCameraOffset(vector offset)
+	{
+		m_CameraOffsetMS = offset; 
+	}
 }

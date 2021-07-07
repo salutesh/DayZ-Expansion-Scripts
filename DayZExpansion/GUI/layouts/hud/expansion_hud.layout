@@ -205,6 +205,38 @@ FrameWidgetClass ExpansionIngameHudFrame {
       }
      }
     }
+    WrapSpacerWidgetClass LeftHUDPanel {
+     visible 1
+     clipchildren 0
+     ignorepointer 1
+     position 0 0.2
+     size 0.2 0.7
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 99
+     Padding 4
+     Margin 0
+     "Size To Content V" 1
+     {
+      WrapSpacerWidgetClass PartyMembers {
+       visible 1
+       ignorepointer 1
+       position 0.08177 0.205
+       size -0.01361 0.984
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 99
+       Padding 5
+       Margin 0
+       "Size To Content V" 1
+      }
+     }
+    }
    }
   }
   PanelWidgetClass NVPanel {
@@ -329,6 +361,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
   }
   PanelWidgetClass GPSPanel {
    visible 0
+   disabled 0
    keepsafezone 1
    position 100 108
    size 0.156 0.29
@@ -755,6 +788,151 @@ FrameWidgetClass ExpansionIngameHudFrame {
          style rover_sim_colorable
         }
        }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass MiniMapHUD {
+   visible 0
+   position 0.01 0.015
+   size 0.16 0.27
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+  }
+  PanelWidgetClass CompassHUD {
+   visible 0
+   clipchildren 0
+   ignorepointer 1
+   keepsafezone 1
+   position 0 0.05
+   size 0.35 32
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   {
+    PanelWidgetClass CompassBackground {
+     clipchildren 1
+     ignorepointer 1
+     color 0 0 0 0.549
+     size 1.01 1
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style EditorPanel
+    }
+    PanelWidgetClass CompassSpacer {
+     ignorepointer 1
+     position 0 0
+     size 1 32
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     {
+      ImageWidgetClass CompassImage {
+       clipchildren 1
+       ignorepointer 1
+       keepsafezone 1
+       color 1 1 1 0.549
+       position 0 0
+       size 3.15 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       imageTexture "{3436B1815E2BCB0A}DayZExpansion/GUI/textures/compass.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       "flip u" 0
+       "flip v" 0
+       filter 1
+      }
+     }
+    }
+    FrameWidgetClass CompassBadgesSpacer {
+     visible 1
+     position 0 0.067
+     size 12 6
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     {
+      PanelWidgetClass CompassBadgeNotifierDivider {
+       color 0 0 0 0.549
+       position 0 0
+       size 3 6
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+      }
+     }
+    }
+    FrameWidgetClass CompassBadgesSpacer0 {
+     visible 1
+     position 0.243 0.065
+     size 12 6
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     {
+      PanelWidgetClass CompassBadgeNotifierDivider0 {
+       color 0 0 0 0.549
+       position 0 0
+       size 3 6
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+      }
+     }
+    }
+    FrameWidgetClass CompassBadgesSpacer1 {
+     visible 1
+     position 0.243 0.065
+     size 12 6
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     {
+      PanelWidgetClass CompassBadgeNotifierDivider1 {
+       color 0 0 0 0.549
+       position 0 0
+       size 3 6
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
       }
      }
     }

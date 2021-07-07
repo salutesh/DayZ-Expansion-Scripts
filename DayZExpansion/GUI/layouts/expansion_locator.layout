@@ -1,38 +1,41 @@
 FrameWidgetClass rootFrame {
  ignorepointer 1
  position 0 0
- size 0.7 0.7
+ size 0.8 0.8
  halign center_ref
  valign center_ref
- hexactpos 1
- vexactpos 1
+ hexactpos 0
+ vexactpos 0
  hexactsize 0
  vexactsize 0
  {
   RichTextWidgetClass ExpansionCityName {
    ignorepointer 1
    position 0 0
-   size 0.6 0.06
-   hexactpos 1
-   vexactpos 1
+   size 1 0.06
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    style DayZNormal
-   text ""
-   font "gui/fonts/etelkatextpro22"
+   font "gui/fonts/etelkatextpro48"
+   "exact text" 1
+   "size to text h" 1
+   "size to text v" 1
    "text valign" center
+   wrap 1
   }
   RichTextWidgetClass ExpansionTime {
    ignorepointer 1
-   position 0 30
-   size 0.6 0.05
-   hexactpos 1
-   vexactpos 1
+   position 0 0.042
+   size 1 0.05
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    style DayZNormal
-   text ""
-   font "gui/fonts/etelkatextpro22"
+   font "gui/fonts/etelkatextpro28"
+   "exact text" 1
    "text valign" center
   }
  }

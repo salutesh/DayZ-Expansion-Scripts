@@ -31,18 +31,6 @@ const float EXP_FADE_TIMEOUT = 2.5;
 const float EXP_FADE_OUT_DURATION = 0.25;
 const float EXP_FADE_IN_DURATION = 0.25;
 
-class ExpansionChatColors
-{
-	static const int EXP_DEFAULT_COLOUR = ARGB(255, 255, 255, 255);
-	static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 186, 69, 186);
-	static const int EXP_ADMIN_TEXT_COLOUR = ARGB(255, 192, 57, 43);
-	static const int EXP_DIRECT_TEXT_COLOUR = ARGB(255, 255, 255, 255);
-	static const int EXP_GLOBAL_TEXT_COLOUR = ARGB(255, 88, 195, 247);
-	static const int EXP_PAS_TEXT_COLOUR = ARGB(255, 249, 255, 73);
-	static const int EXP_TRANSPORT_COLOUR = ARGB(255, 255, 206, 9);
-	static const int EXP_TEAM_TEXT_COLOUR = ARGB(255, 10, 250, 122);
-};
-
 /**
  * Expansion liquids types
  * @{
@@ -119,10 +107,6 @@ static const string EXPANSION_FOLDER = "$profile:ExpansionMod\\";
 
 static const string EXPANSION_SETTINGS_FOLDER = EXPANSION_FOLDER + "Settings\\";
 static const string EXPANSION_LOG_FOLDER = EXPANSION_FOLDER + "Logs\\";
-static const string EXPANSION_MARKET_FOLDER = EXPANSION_FOLDER + "Market\\";
-static const string EXPANSION_TRADER_ZONES_RESERVED_FOLDER = EXPANSION_FOLDER + "TraderZonesReserved\\";
-static const string EXPANSION_TRADER_ZONES_FOLDER = EXPANSION_FOLDER + "TraderZones\\";
-static const string EXPANSION_TRADER_FOLDER = EXPANSION_FOLDER + "Traders\\";
 static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_FOLDER + "Missions\\";
 static const string EXPANSION_GROUPS_FOLDER = EXPANSION_FOLDER + "Groups\\";
 
@@ -130,7 +114,6 @@ static const string EXPANSION_MAPPING_FOLDER = "DayZExpansion/Scripts/Data/Mappi
 static const string EXPANSION_MAPPING_EXT = ".map";
 
 static const string EXPANSION_GENERAL_SETTINGS = EXPANSION_SETTINGS_FOLDER + "GeneralSettings.json";
-static const string EXPANSION_BOOK_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BookSettings.json";
 static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
 static const string EXPANSION_SPAWN_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SpawnSettings.json";
 static const string EXPANSION_AIRDROP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "AirdropSettings.json";
@@ -139,7 +122,6 @@ static const string EXPANSION_MAP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MapSet
 static const string EXPANSION_PARTY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "PartySettings.json";
 static const string EXPANSION_SAFE_ZONES_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SafeZoneSettings.json";
 static const string EXPANSION_MISSION_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MissionSettings.json";
-static const string EXPANSION_MARKET_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MarketSettings.json";
 static const string EXPANSION_NOTIFICATION_SETTINGS = EXPANSION_SETTINGS_FOLDER + "NotificationSettings.json";
 static const string EXPANSION_RAID_SETTINGS = EXPANSION_SETTINGS_FOLDER + "RaidSettings.json";
 static const string EXPANSION_TERRITORY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "TerritorySettings.json";
@@ -147,6 +129,7 @@ static const string EXPANSION_VEHICLE_SETTINGS = EXPANSION_SETTINGS_FOLDER + "Ve
 static const string EXPANSION_DEBUG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "DebugSettings.json";
 static const string EXPANSION_PLAYERLIST_SETTINGS = EXPANSION_SETTINGS_FOLDER + "PlayerListSettings.json";
 static const string EXPANSION_LOG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "LogsSettings.json";
+static const string EXPANSION_SOCIALMEDIA_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SocialMediaSettings.json";
 
 static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors.bin";
 
@@ -247,6 +230,7 @@ static const string EXPANSION_NOTIFICATION_ICON_WATER_2 = "DayZExpansion\\GUI\\i
 static const string EXPANSION_NOTIFICATION_ICON_BOOK_1 = "DayZExpansion\\GUI\\icons\\hud\\book_1_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_BOOK_2 = "DayZExpansion\\GUI\\icons\\hud\\book_2_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_ELLIPSE = "DayZExpansion\\GUI\\icons\\hud\\ellipse_64x64.edds";
+static const string EXPANSION_NOTIFICATION_ICON_SQUARE = "DayZExpansion\\GUI\\icons\\hud\\square_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_GRAB = "DayZExpansion\\GUI\\icons\\hud\\grab_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_HAND_OPEN = "DayZExpansion\\GUI\\icons\\hud\\hand_open_64x64.edds";
 static const string EXPANSION_NOTIFICATION_ICON_MAP = "DayZExpansion\\GUI\\icons\\hud\\map_64x64.edds";
@@ -488,12 +472,16 @@ static const string EXPANSION_FLAG_COLOR_PINK = "DayZExpansion\\Objects\\Structu
 static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_purple_co.paa";
 static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
 
-static const int EXPANSION_VERSION_SAVE = 25;
+//! IMPORTANT: When incrementing EXPANSION_VERSION_SAVE by any number n, always increment EXPANSION_VERSION_MODSTORAGE_SAVE by n+1!
+//! DO NOT under any circumstances use the constants EXPANSION_VERSION_SAVE and EXPANSION_VERSION_MODSTORAGE_SAVE in other files than this one!
+//! Use EXPANSION_VERSION_CURRENT_SAVE, EXPANSION_VERSION_CLIENT_SETTING_SAVE and EXPANSION_VERSION_MAP_MARKER_SAVE instead.
+static const int EXPANSION_VERSION_SAVE = 26;
+static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 27;
 
 #ifdef CF_MODULE_MODSTORAGE
-static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_SAVE + 1;
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_SAVE + 1;
-static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_SAVE + 1;
+static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
+static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
 #else
 static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_SAVE;
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_SAVE;

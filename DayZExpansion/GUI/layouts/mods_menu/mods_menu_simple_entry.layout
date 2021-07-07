@@ -1,0 +1,83 @@
+ButtonWidgetClass Mod {
+ position 0 0
+ size 56 56
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ style Empty
+ {
+  ImageWidgetClass Icon {
+   visible 1
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+  PanelWidgetClass Overlay {
+   visible 0
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   style Outline
+  }
+  FrameWidgetClass ModOwnership {
+   visible 0
+   ignorepointer 1
+   position 0 0
+   size 16 16
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 1
+   {
+    ImageWidgetClass Owned {
+     visible 0
+     ignorepointer 1
+     color 0 1 0 1
+     position 0 0
+     size 1 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     image0 "set:dayz_gui image:circle"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    ImageWidgetClass Unowned {
+     visible 0
+     ignorepointer 1
+     color 1 0 0 1
+     position 0 0
+     size 1 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     image0 "set:dayz_gui image:circle"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+   }
+  }
+ }
+}

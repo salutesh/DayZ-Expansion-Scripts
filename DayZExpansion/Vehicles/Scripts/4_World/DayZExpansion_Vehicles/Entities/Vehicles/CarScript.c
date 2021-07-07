@@ -335,10 +335,18 @@ modded class CarScript
 		#endif
 	}
 
+#ifdef DAYZ_1_12
 	void DeferredInit()
+#else
+	override void DeferredInit()
+#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::DeferredInit - Start");
+		#endif
+		
+		#ifndef DAYZ_1_12
+		super.DeferredInit();
 		#endif
 
 		m_BoundingRadius = ClippingInfo( m_BoundingBox );
@@ -1293,7 +1301,7 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------
-	ItemBase GetBattery()
+	override ItemBase GetBattery()
 	{
 		if (IsVitalCarBattery()) return ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
 		if (IsVitalTruckBattery()) return ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));

@@ -25,6 +25,10 @@ class ExpansionPartyData
 	protected ref map< string, ExpansionPartyPlayerData > PlayersMap;
 	protected ref map< string, ExpansionPartyInviteData > InvitesMap;
 	protected ref map< string, ExpansionMarkerData > MarkersMap;
+	
+#ifdef EXPANSIONMODMARKET
+	protected int MoneyDeposited;
+#endif
 		
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartyData Consturctor
@@ -40,6 +44,10 @@ class ExpansionPartyData
 		PlayersMap = new map< string, ExpansionPartyPlayerData >;
 		InvitesMap = new map< string, ExpansionPartyInviteData >;
 		MarkersMap = new map< string, ExpansionMarkerData >;
+	
+	#ifdef EXPANSIONMODMARKET
+		MoneyDeposited = 0;
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -129,7 +137,7 @@ class ExpansionPartyData
 
 		PartyName = partyName;
 		OwnerUID = player.UID;
-		OwnerName = player.Name;
+		OwnerName = player.Name;	
 	}
 
 	// ------------------------------------------------------------
@@ -143,13 +151,19 @@ class ExpansionPartyData
 		ExpansionPartyPlayerData player = new ExpansionPartyPlayerData;
 		player.UID = uid;
 		player.Name = name;
-		player.Promoted = owner;
+		//player.Promoted = owner;
 		player.OnJoin( pPb );
 		player.CreateMarker();
+		player.SetPermissions(ExpansionPartyPlayerPermissions.NONE);
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("SetupExpansionPartyData::AddPlayer player.Promoted : " + player.Promoted);
-		#endif
+		if (owner)
+		{
+			player.SetPermissions(ExpansionPartyPlayerPermissions.CAN_EDIT | ExpansionPartyPlayerPermissions.CAN_INVITE | ExpansionPartyPlayerPermissions.CAN_KICK | ExpansionPartyPlayerPermissions.CAN_DELETE | ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY);
+		}
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		//EXLogPrint("SetupExpansionPartyData::AddPlayer player.Promoted : " + player.Promoted);
+		//#endif
 
 		Players.Insert( player );
 		PlayersMap.Insert( player.UID, player );
@@ -469,7 +483,8 @@ class ExpansionPartyData
 		{
 			ctx.Write( Players[index].UID );
 			ctx.Write( Players[index].Name );
-			ctx.Write( Players[index].Promoted );
+			//ctx.Write( Players[index].Promoted );			
+			ctx.Write( Players[index].Permissions );
 
 			if ( Players[index].Marker )
 			{
@@ -519,6 +534,10 @@ class ExpansionPartyData
 			ctx.Write( Markers[index].GetUID() );
 			Markers[index].OnSend( ctx );
 		}
+		
+	#ifdef EXPANSIONMODMARKET
+		ctx.Write( MoneyDeposited );
+	#endif
 	}
 
 	bool OnRecieve( ParamsReadContext ctx )
@@ -564,7 +583,11 @@ class ExpansionPartyData
 
 			if ( !ctx.Read( player.Name ) )
 				return false;
-			if ( !ctx.Read( player.Promoted ) )
+			
+			/*if ( !ctx.Read( player.Promoted ) )
+				return false;*/
+			
+			if ( !ctx.Read( player.Permissions ) )
 				return false;
 
 			bool hasMarker;
@@ -689,6 +712,11 @@ class ExpansionPartyData
 				delete marker;
 			}
 		}
+	
+	#ifdef EXPANSIONMODMARKET
+		if ( !ctx.Read( MoneyDeposited ) )
+			return false;
+	#endif
 
 		return true;
 	}
@@ -719,6 +747,10 @@ class ExpansionPartyData
 			ctx.Write( Markers[i].GetUID() );
 			Markers[i].OnStoreSave( ctx );
 		}
+		
+	#ifdef EXPANSIONMODMARKET
+		ctx.Write( MoneyDeposited );
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -788,6 +820,11 @@ class ExpansionPartyData
 				return false;
 		}
 		
+	#ifdef EXPANSIONMODMARKET
+		if ( version >= 26 && Expansion_Assert_False( ctx.Read( MoneyDeposited ), "Failed reading party money deposit data" ) )
+			return false;
+	#endif
+		
 		return true;
 	}
 	
@@ -816,4 +853,21 @@ class ExpansionPartyData
 		
 		return false;
 	}
+	
+#ifdef EXPANSIONMODMARKET
+	int GetMoneyDeposited()
+	{
+		return MoneyDeposited;
+	}
+	
+	void RemoveMoney(int amount)
+	{
+		MoneyDeposited -= amount;
+	}
+	
+	void AddMoney(int amount)
+	{
+		MoneyDeposited += amount;
+	}
+#endif
 }

@@ -1162,8 +1162,8 @@ FrameWidgetClass main_menu_root {
    visible 0
    clipchildren 0
    ignorepointer 1
-   position 99.9999 0.05
-   size 730 56
+   position 99.9999 0.06
+   size 800 56
    halign right_ref
    valign bottom_ref
    hexactpos 1
@@ -1175,6 +1175,7 @@ FrameWidgetClass main_menu_root {
    Padding 0
    Margin 0
    "Size To Content H" 1
+   "Size To Content V" 1
    content_halign right
    content_valign bottom
   }

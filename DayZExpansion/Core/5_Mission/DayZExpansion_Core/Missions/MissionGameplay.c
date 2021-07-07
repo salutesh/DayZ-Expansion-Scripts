@@ -93,7 +93,7 @@ modded class MissionGameplay
 		EXPrint("MissionGameplay::OnUpdate - Start");
 		#endif
 
-		super.OnUpdate( timeslice );
+		super.OnUpdate(timeslice);
 
 		if ( !m_bLoaded )
 		{
@@ -124,7 +124,7 @@ modded class MissionGameplay
 			}
 		}
 
-		
+		#ifdef EXPANSIONMODVEHICLE
 		Man man 				= GetGame().GetPlayer(); 	//! Refernce to man
 		Input input 			= GetGame().GetInput(); 	//! Reference to input
 		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
@@ -152,6 +152,7 @@ modded class MissionGameplay
 				}
 			}
 		}
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
@@ -174,5 +175,13 @@ modded class MissionGameplay
 	ExpansionUIMenuManager GetExpansionUIMenuManager()
 	{
 		return m_EXUIMenuManager;
+	}
+	
+	bool IsMenuOpened()
+	{
+		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
+			return true;
+		
+		return false;
 	}
 };

@@ -1028,9 +1028,13 @@ class ExpansionTerritoryModule: JMModuleBase
 		invite.TerritoryID = territory.GetTerritoryID();
 		invite.UID = targetPlayer.GetIdentityUID();
 		
-		territory.AddTerritoryInvite(invite);
+		if (!territory.AddTerritoryInvite(invite))
+		{
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_INVITED", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			return;
+		}
 		
-		SyncPlayersInvites( targetPlayer );
+		SyncPlayersInvites(targetPlayer);
 		
 		if ( GetExpansionSettings().GetLog().Territory )
 			GetExpansionSettings().GetLog().PrintLog("[Territory] Player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + " pos=" + targetPlayer.GetPosition() +") was invited to join the territory " + territory.GetTerritoryName() + " at " + territory.GetPosition() + " by the player \"" + sender.GetName() + "\" (id=" + sender.GetId() +")");
@@ -2209,7 +2213,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion GetTerritoryInvites
 	// Called client side
 	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
+	array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
 	{
 		if ( !IsMissionClient() )
 			return NULL;

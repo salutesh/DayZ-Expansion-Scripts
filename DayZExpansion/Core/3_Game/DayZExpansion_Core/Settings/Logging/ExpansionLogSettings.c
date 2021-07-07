@@ -37,6 +37,11 @@ class ExpansionLogSettings: ExpansionSettingBase
 	//bool MissionHorde;		//! TODO
 	#endif
 
+	#ifdef EXPANSIONMODMARKET
+	bool Market;				//! If enabled, generate logs for market system actions by all players
+	bool ATM;					//! If enabled, generate logs for ATM system actions by all players
+	#endif
+	
 	[NonSerialized()]
 	private string m_FileTimestamp;
 
@@ -143,6 +148,11 @@ class ExpansionLogSettings: ExpansionSettingBase
 		MissionAirdrop = s.MissionAirdrop;
 		#endif
 
+		#ifdef EXPANSIONMODMARKET
+		Market = s.Market;
+		ATM = s.ATM;
+		#endif
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionLogSettings::CopyInternal - End");
 		#endif
@@ -233,6 +243,11 @@ class ExpansionLogSettings: ExpansionSettingBase
 		AdminTools = true;
 		SpawnSelection = true;
 		MissionAirdrop = true;
+		#endif
+		
+		#ifdef EXPANSIONMODMARKET
+		Market = true;
+		ATM = true;
 		#endif
 	}
 	

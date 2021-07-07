@@ -1564,10 +1564,8 @@ class ExpansionHelicopterScript extends CarScript
 		if ( EngineIsOn() )
 			return true;
 
-		if ( !m_IsInitialized )
-			return false;
-
-		if ( IsLanded() )
+		//! Need to simulate for at least one frame, otherwise funky DayZ physics make heli explode when getting in
+		if ( m_IsInitialized && IsLanded() )
 		{
 			//! Only simulate if rotor speed is above zero
 			//! Prevents premature stop of rotor animation and smoke particle on client

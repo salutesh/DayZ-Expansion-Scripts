@@ -14,7 +14,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 {
 	protected PlayerBase m_PlayerB;
 
-	protected MapWidget m_MapWidget;
+	protected ref MapWidget m_MapWidget;
 
 	protected int COLOR_EXPANSION_MARKER_PLAYER_POSITION = ARGB( 255, 255, 180, 24 );
 
@@ -61,6 +61,8 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	private ref array< string > m_ServerMarkersCheckArr;
 	private int m_ServerMarkersUpdateIndex;
 	private bool m_ServerMarkersUpdated;
+	
+	ItemMap m_Map;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapMenu Constructor
@@ -134,12 +136,28 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
 		Class.CastTo( m_MapWidget, layoutRoot.FindAnyWidget( "Map" ) );
 		
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
+		
+		if (m_MapWidget)
+		{
+			float scale;
+			vector map_pos;
+			if( player && !player.GetLastMapInfo(scale,map_pos) )
+			{
+				string path = "CfgWorlds " + GetGame().GetWorldName();
+				vector temp = GetGame().ConfigGetVector(path + " centerPosition");
+				scale = 0.33;
+				map_pos = Vector(temp[0],temp[2],temp[1]);
+			}
+			m_MapWidget.SetScale(scale);
+			m_MapWidget.SetMapPos(map_pos);
+		}
+		
 		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
 		{
 			ExpansionMapMarkerPlayerArrow player_Marker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
 			
-			PlayerBase player;
-			if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+			if ( Class.CastTo( player, g_Game.GetPlayer() ) )
 			{
 				if ( GetExpansionClientSettings().StreamerMode )
 				{
@@ -620,38 +638,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		
 		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMenu::UpdatePlayerMarkers - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Show
-	// ------------------------------------------------------------	
-	void Show()
-	{
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Show - Start");
-		#endif
-		
-		GetGame().GetUIManager().ShowScriptedMenu( this, NULL );
-		
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Show - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Hide
-	// ------------------------------------------------------------	
-	void Hide()
-	{	
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Hide - Start");
-		#endif
-		
-		GetGame().GetUIManager().HideScriptedMenu( this );
-		
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Hide - End");
 		#endif
 	}
 	
@@ -1254,14 +1240,13 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
-			Hide();
-
+			CloseMapMenu();
 			return;
 		}
 		
 		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 && !IsEditingMarker() )
 		{
-			Hide();
+			CloseMapMenu();
 			return;
 		}
 		
@@ -1374,5 +1359,44 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	bool IsEditingMarker()
 	{
 		return m_IsEditingMarker;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion IsEditingMarker
+	// ------------------------------------------------------------
+	override void InitMapItem(EntityAI item)
+	{
+		Print("ExpansionMapMenu::InitMapItem - Start");
+		
+		super.InitMapItem(item);
+		
+		m_Map = ItemMap.Cast(item);
+		
+		Print("ExpansionMapMenu::InitMapItem - End");
+	}
+	
+	void CloseMapMenu(bool destroy = false)
+	{
+		Print("ExpansionMapMenu::CloseMapMenu - Start");
+		
+	#ifndef DAYZ_1_12
+		if (m_Map)	
+		{
+			Print("ExpansionMapMenu::CloseMapMenu - Step 1");
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			if (player)
+			{
+				Print("ExpansionMapMenu::CloseMapMenu - Step 2");
+				player.SetMapClosingSyncSet(false); //map is closing, server needs to be notified - once
+			}
+		}
+	#endif
+		
+		if (destroy)
+			Close();
+		else
+			GetGame().GetUIManager().HideScriptedMenu( this );  //! Don't close, we do not want to have to redraw all the markers next time we open it
+		
+		Print("ExpansionMapMenu::CloseMapMenu - End");
 	}
 };

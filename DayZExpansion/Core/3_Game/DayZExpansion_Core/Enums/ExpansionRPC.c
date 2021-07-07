@@ -35,6 +35,8 @@ enum ExpansionPartyModuleRPC
 
 	UpdateQuickMarker,
 	
+	UpdatePermissions,
+	
 	COUNT
 };
 
@@ -50,6 +52,8 @@ enum ExpansionWorldMappingModuleRPC
 enum ExpansionMarketModuleRPC
 {
 	INVALID = 20060,
+	
+	//! Market
 	Callback,
 	MoneyDenominations,
 	RequestPurchase,
@@ -60,8 +64,20 @@ enum ExpansionMarketModuleRPC
 	CancelSell,
 	RequestTraderData,
 	LoadTraderData,
-	RequestMarketItemData,
-	LoadItemData,
+	
+	//! ATM
+	RequestPlayerATMData,
+	SendPlayerATMData,
+	RequestDepositMoney,
+	ConfirmDepositMoney,
+	RequestWithdrawMoney,
+	ConfirmWithdrawMoney,
+	RequestTransferMoneyToPlayer,
+	ConfirmTransferMoneyToPlayer,
+	RequestPartyDepositMoney,
+	ConfirmPartyDepositMoney,
+	RequestPartyWithdrawMoney,
+	ConfirmPartyWithdrawMoney,
 	
 	// Admin
 	GiveMoney,
@@ -230,6 +246,7 @@ enum ExpansionSettingsRPC
 	Vehicle,
 	General,
 	PlayerList,
+	SocialMedia,
 	Log,
 
 	// when an admin requests these, not send under normal circumstances
@@ -342,6 +359,21 @@ enum ExpansionCOTDebugModuleRPC
 {
 	INVALID = 30095,
 	Update,
+	COUNT
+};
+
+enum ExpansionCraftingModuleRPC
+{
+	INVALID = 40000,
+	RequestPrepareCrafting,
+	COUNT
+};
+
+//! Misc stuff lives here
+enum ExpansionRPC
+{
+	INVALID = 40010,
+	SyncOwnedContainerUID,
 	COUNT
 };
 
