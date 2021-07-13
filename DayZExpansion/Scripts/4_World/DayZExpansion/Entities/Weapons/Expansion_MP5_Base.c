@@ -19,5 +19,15 @@ class Expansion_MP5_Base : RifleBoltLock_Base
 	override RecoilBase SpawnRecoilObject()
 	{
 		return new Mp5kRecoil(this);
-	}	
+	}
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.SpawnEntityOnGroundPos("Mag_MP5_30Rnd", entity.GetPosition());
+		}
+	}
 };

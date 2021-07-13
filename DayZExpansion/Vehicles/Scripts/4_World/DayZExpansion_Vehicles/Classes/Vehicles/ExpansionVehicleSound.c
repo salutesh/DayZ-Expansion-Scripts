@@ -53,11 +53,6 @@ class ExpansionVehicleSound
 		}
 	}
 
-	void ExpansionDebugUI( string message = "" )
-	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_SOUND, message );
-	}
-
 	bool Update( float pDt, ref array< float > variables )
 	{
 		if ( !m_SoundWaveObject )
@@ -119,9 +114,13 @@ class ExpansionVehicleSound
 		m_SoundWaveObject.SetVolume( m_CurrentVolume );
 		m_SoundWaveObject.SetFrequency( m_CurrentFrequency );
 				
-		ExpansionDebugUI( "Sound Set: " + m_SoundSetName );
-		ExpansionDebugUI( "Target: (volume=" + m_TargetVolume + ", frequency=" + m_TargetFrequency + ")" );
-		ExpansionDebugUI( "Current: (volume=" + m_CurrentVolume + ", frequency=" + m_CurrentFrequency + ")" );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+
+		dbg_Vehicle.Set("Sound Set", m_SoundSetName );
+		dbg_Vehicle.Set("Target", "(volume=" + m_TargetVolume + ", frequency=" + m_TargetFrequency + ")" );
+		dbg_Vehicle.Set("Current", "(volume=" + m_CurrentVolume + ", frequency=" + m_CurrentFrequency + ")" );
+		#endif
 		
 		m_CurrentVolume += Math.Clamp( m_TargetVolume - m_CurrentVolume, -1.0 * pDt, 1.0 * pDt );
 		m_CurrentFrequency += Math.Clamp( m_TargetFrequency - m_CurrentFrequency, -1.0 * pDt, 1.0 * pDt );

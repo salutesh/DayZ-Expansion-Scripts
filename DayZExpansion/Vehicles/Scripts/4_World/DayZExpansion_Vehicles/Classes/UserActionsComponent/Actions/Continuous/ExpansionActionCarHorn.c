@@ -17,9 +17,9 @@ class ExpansionActionCarHornCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
-		m_ActionData.m_ActionComponent = new CAContinuousRepeat(0);
+		m_ActionData.m_ActionComponent = new CAContinuousRepeat(0.25);
 	}
-}
+};
 
 /**@class		ExpansionActionCarHorn
  * @brief		
@@ -59,9 +59,6 @@ class ExpansionActionCarHorn : ActionContinuousBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (!player)
-			return false;
-
 		ItemBase battery;
 
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
@@ -71,30 +68,7 @@ class ExpansionActionCarHorn : ActionContinuousBase
 			if (vehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				return false;
 
-			if (car.IsVitalCarBattery())
-			{
-				battery = ItemBase.Cast(car.FindAttachmentBySlotName("CarBattery"));
-
-				if (!battery || battery.IsRuined())
-				{
-					return false;
-				}
-			}
-			else if (car.IsVitalTruckBattery())
-			{
-				battery = ItemBase.Cast(car.FindAttachmentBySlotName("TruckBattery"));
-
-				if (!battery || battery.IsRuined())
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
-
-			return true;
+			return car.IsBatteryWorking();
 		}
 
 		ExpansionHumanCommandVehicle expVehCommand = player.GetCommand_ExpansionVehicle();
@@ -104,30 +78,7 @@ class ExpansionActionCarHorn : ActionContinuousBase
 			if (expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				return false;
 
-			if (vehicle.IsVitalCarBattery())
-			{
-				battery = ItemBase.Cast(vehicle.FindAttachmentBySlotName("CarBattery"));
-
-				if (!battery || battery.IsRuined())
-				{
-					return false;
-				}
-			}
-			else if (vehicle.IsVitalTruckBattery())
-			{
-				battery = ItemBase.Cast(vehicle.FindAttachmentBySlotName("TruckBattery"));
-
-				if (!battery || battery.IsRuined())
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
-
-			return true;
+			return vehicle.IsBatteryWorking();
 		}
 
 		return false;
@@ -140,14 +91,14 @@ class ExpansionActionCarHorn : ActionContinuousBase
 		CarScript car;
 		if (Class.CastTo(car, action_data.m_Player.GetParent()))
 		{
-			car.PlayHonk();
+			car.PlayHorn();
 			return;
 		}
 
 		ExpansionVehicleBase vehicle;
 		if (Class.CastTo(vehicle, action_data.m_Player.GetParent()))
 		{
-			vehicle.PlayHonk();
+			vehicle.PlayHorn();
 			return;
 		}
 	}
@@ -159,15 +110,15 @@ class ExpansionActionCarHorn : ActionContinuousBase
 		CarScript car;
 		if (Class.CastTo(car, action_data.m_Player.GetParent()))
 		{
-			car.StopHonk();
+			car.StopHorn();
 			return;
 		}
 
 		ExpansionVehicleBase vehicle;
 		if (Class.CastTo(vehicle, action_data.m_Player.GetParent()))
 		{
-			vehicle.StopHonk();
+			vehicle.StopHorn();
 			return;
 		}
 	}
-}
+};

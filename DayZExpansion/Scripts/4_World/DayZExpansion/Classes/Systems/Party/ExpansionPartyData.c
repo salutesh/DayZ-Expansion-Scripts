@@ -321,7 +321,7 @@ class ExpansionPartyData
 		{
 			int removeIndex = Markers.Find( marker );
 			if ( removeIndex != -1 )
-				Markers.Remove( removeIndex );
+				Markers.RemoveOrdered( removeIndex );
 
 			MarkersMap.Remove( markerName );
 			delete marker;
@@ -683,7 +683,7 @@ class ExpansionPartyData
 			{
 				removeIndex = Markers.Find( marker );
 				if ( removeIndex != -1 )
-					Markers.Remove( removeIndex );
+					Markers.RemoveOrdered( removeIndex );
 
 				MarkersMap.Remove( checkArr[index] );
 				delete marker;
@@ -789,5 +789,31 @@ class ExpansionPartyData
 		}
 		
 		return true;
+	}
+	
+	bool IsMember(string uid)
+	{
+		for (int i = 0; i < Players.Count(); ++i)
+		{
+			if (Players[i] && Players[i].GetID() == uid)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	bool HasInvite(string uid)
+	{
+		for(int i = 0; i < Invites.Count(); ++i)
+		{
+			if (Invites[i] && Invites[i].GetID() == uid)
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

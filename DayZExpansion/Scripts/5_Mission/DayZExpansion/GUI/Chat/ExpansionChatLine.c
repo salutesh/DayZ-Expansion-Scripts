@@ -28,9 +28,9 @@ class ExpansionChatLine
 	private const string EXP_ADMIN_PREFIX = "Admin: ";
 	private const string EXP_TRANSPORT_PREFIX = "Transport: ";
 
-	Widget	m_RootWidget;
-	TextWidget	m_NameWidget;
-	MultilineTextWidget	m_TextWidget;
+	Widget m_RootWidget;
+	TextWidget m_NameWidget;
+	MultilineTextWidget m_TextWidget;
 	
 	private ref WidgetFadeTimer m_FadeInTimer;
 	private ref Timer m_FadeOutTimer;

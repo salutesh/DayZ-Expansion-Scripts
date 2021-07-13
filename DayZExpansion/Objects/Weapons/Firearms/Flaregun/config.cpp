@@ -135,6 +135,7 @@ class CfgWeapons
 		optics = 1;
 		value = 0;
 		chamberSize = 1;
+		isSuicideWeapon = 0;
 		chamberedRound = "";
 		magazines[] = {};
 		chamberableFrom[] = {"ExpansionAmmoFlareLight","ExpansionAmmoFlare"};
@@ -144,9 +145,13 @@ class CfgWeapons
 		reloadAction = "reloadFlaregun";
 		modes[] = {"Single"};
 		drySound[] = {"dz\sounds\weapons\firearms\FNX45\FNX_dry",0.5,1,20};
-		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\FNX45\FNX45_reload",0.8,1,20};
+		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\magnum\magnum_reload2",0.8,1,20};
 		class Single: Mode_SemiAuto
 		{
+			soundSetShot[] = {"Flare_Gun_Shot_SoundSet","Flare_Gun_Tail_SoundSet","Flare_Gun_InteriorTail_SoundSet"};
+			begin1[] = {"dz\sounds\weapons\firearms\flare_gun\flare_shot_0",1.7782794,1,300};
+			begin2[] = {"dz\sounds\weapons\firearms\flare_gun\flare_shot_1",1.7782794,1,300};
+			soundBegin[] = {"begin1",0.33333,"begin2",0.33333,"begin1",0.33333,"begin2",0.33333};
 			reloadTime = 0.13;
 			recoil = "recoil_flaregun";
 			recoilProne = "recoil_flaregun_prone";

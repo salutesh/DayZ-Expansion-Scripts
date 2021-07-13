@@ -16,18 +16,21 @@ class CfgMods
 	{
 		dir = "DayZExpansion/Vehicles";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
+		inputs = "DayZExpansion/Vehicles/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
+		CF_ModStorage = 1;
 		name = "$STR_MOD_EXPANSION_NAME";
-		picture = "DayZExpansion/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/GUI/textures/expansion_icon.edds";
+		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		tooltip = "DayZ Expansion - Vehicles";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
+		expansionSkins[] = {"DayZExpansion/Skins/Vehicles/Air/","DayZExpansion/Skins/Vehicles/Water/","DayZExpansion/Skins/Vehicles/Ground/"};
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{

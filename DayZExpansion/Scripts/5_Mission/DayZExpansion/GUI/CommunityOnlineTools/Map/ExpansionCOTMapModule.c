@@ -69,8 +69,10 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		CreateToggle( "NeedGPSItemForKeyBinding", "Require GPS Item", "", "" );
 		
 		CreateToggle( "NeedPenItemForCreateMarker", "Need Pen Item For Create Marker", "", "" );
+		CreateToggle( "NeedGPSItemForCreateMarker", "Need GPS Item For Create Marker", "", "" );
 		CreateToggle( "CanCreateMarker", "Can Create Marker", "", "" );
 		CreateToggle( "CanCreate3DMarker", "Can Create 3D Marker", "", "" );
+		CreateToggle( "ShowDistanceOnPersonalMarkers", "Show Distance On Personal Markers", "", "" );		
 
 		CreateToggle( "EnableServerMarkers", "Enable Server Markers", "", "" );
 		CreateToggle( "ShowNameOnServerMarkers", "Show Name Of Server Markers", "", "" );

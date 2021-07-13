@@ -17,6 +17,8 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 {
 	//! WARNING: If 'IsLocal' is false, refactor this
 	protected ItemBase m_Target;
+
+	bool m_IsKnownUser;
 	
 	// -----------------------------------------------------------
 	// ExpansionActionEnterSafeLock Destructor
@@ -34,7 +36,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 	
 	// -----------------------------------------------------------
@@ -42,12 +44,18 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
-		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
+		if ( m_Target && m_Target.HasCode() )
 		{
-			return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+			if ( !m_Target.IsLocked() )
+				return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+
+			if ( m_IsKnownUser )
+				return "#STR_EXPANSION_BB_CODE_UNLOCK";
+
+			return "#STR_EXPANSION_BB_CODE_LOCK_ENTER_CODE";
 		}
 
-		return "#STR_EXPANSION_BB_CODE_LOCK_ENTER_CODE";
+		return "#STR_EXPANSION_BB_CODE_LOCK_SET_CODE";
 	}
 
 	// -----------------------------------------------------------
@@ -67,6 +75,8 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 
 		if ( m_Target )
 		{
+			m_IsKnownUser = m_Target.IsKnownUser( player );
+
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
 			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
@@ -89,11 +99,10 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 
 		if ( m_Target.IsLocked() || !m_Target.HasCode() )
 		{
-			string savedCode = ExpansionLockSaver.GetInstance().GetSavedCode(m_Target);
-			if ( m_Target.HasCode() && savedCode != "" )
+			if ( m_Target.HasCode() && m_IsKnownUser )
 			{
 				ScriptRPC rpc2 = new ScriptRPC;
-				rpc2.Write( savedCode );
+				rpc2.Write( "" );
 				rpc2.Write( selection );
 				rpc2.Send( m_Target, ExpansionLockRPC.UNLOCK, true );
 			} else
@@ -102,6 +111,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 				if ( menu )
 				{
 					menu.SetChangeCodelock( false );
+					menu.SetConfirm( !m_Target.HasCode() );
 					menu.SetTarget( m_Target, selection );
 				}
 			}

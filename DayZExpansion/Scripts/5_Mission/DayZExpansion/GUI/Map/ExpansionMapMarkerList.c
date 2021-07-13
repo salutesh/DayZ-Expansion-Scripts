@@ -49,6 +49,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	private ImageWidget m_ServerMarkers3DToggleIcon;
 	
 	private static bool m_MarkerListState;
+	private static bool m_MarkerListInitState;
 	private ButtonWidget m_MarkerListToggle;
 	private ImageWidget m_MarkerListToggleIcon;
 	
@@ -166,7 +167,14 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_ServerMarkers3DToggleIcon.LoadImageFile( 0, EXPANSION_NOTIFICATION_ICON_3D_OFF );
 		m_ServerMarkers3DToggleIcon.LoadImageFile( 1, EXPANSION_NOTIFICATION_ICON_3D_ON );
 		
+		m_InfoTooltip = new ExpansionUITooltip( "<p>#STR_EXPANSION_MARKERLIST_INFO_1</p><p>#STR_EXPANSION_MARKERLIST_INFO_2</p><p>#STR_EXPANSION_MARKERLIST_INFO_3</p><p>#STR_EXPANSION_MARKERLIST_INFO_4</p>" );
+		m_InfoTooltip.SetFixPosition( true );
+		m_InfoTooltip.SetOffset( 45, -2 );
+		
 		UpdateToggleStates();
+
+		if (m_MarkerListInitState == false)
+			m_MarkerListState = GetExpansionClientSettings().ShowMapMarkerList;
 		
 		// Allows for persistent marker list state
 		ShowPanel( m_MarkerListState );
@@ -202,19 +210,17 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemovePersonalEntry - Start");
 		#endif
 		
-		for ( int i = 0; i < m_PersonalMarkers.Count(); ++i )
+		for ( int i = m_PersonalMarkers.Count() - 1; i >= 0 ; --i )
 		{
-			if ( m_PersonalMarkers[i] != NULL )
-				if ( m_PersonalMarkers[i].GetMarker() != NULL )
-					if( m_PersonalMarkers[i].GetMarker() == marker )
-					{
-						#ifdef EXPANSION_MAP_MENU_DEBUG
-						EXLogPrint("ExpansionMapMarkerList::RemovePersonalEntry - Remove entry [" + i + "] from m_PersonalMarkers");
-						#endif
-						
-						m_PersonalMarkers.Remove( i );
-						delete m_PersonalMarkers[i];
-					}
+			if ( m_PersonalMarkers[i].GetMarker() == marker )
+			{
+				#ifdef EXPANSION_MAP_MENU_DEBUG
+				EXLogPrint("ExpansionMapMarkerList::RemovePersonalEntry - Remove entry [" + i + "] from m_PersonalMarkers");
+				#endif
+				
+				m_PersonalMarkers.RemoveOrdered( i );
+				break;
+			}
 		}
 		
 		m_MapMenu.Refresh();
@@ -263,16 +269,16 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemovePartyEntry - Start");
 		#endif
 		
-		for ( int i = 0; i < m_PartyMarkers.Count(); ++i )
+		for ( int i = m_PartyMarkers.Count() - 1; i >= 0; --i )
 		{
-			if(m_PartyMarkers[i].GetMarker() == marker)
+			if ( m_PartyMarkers[i].GetMarker() == marker )
 			{
 				#ifdef EXPANSION_MAP_MENU_DEBUG
 				EXLogPrint("ExpansionMapMarkerList::RemovePartyEntry - Remove entry [" + i + "] from m_PartyMarkers");
 				#endif
 				
-				m_PartyMarkers.RemoveItem(m_PartyMarkers[i]);
-				m_PartyMarkers[i] = NULL;
+				m_PartyMarkers.RemoveOrdered( i );
+				break;
 			}
 		}
 		
@@ -303,8 +309,11 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::AddMemberEntry - Start");
 		#endif
 		
-		ExpansionMapMarkerListEntry entry = new ExpansionMapMarkerListEntry(m_MapMenu, m_MemberMarkersContent, marker);
-		m_MemberMarkers.Insert(entry);
+		if ( marker.GetMarkerData() )
+		{
+			ExpansionMapMarkerListEntry entry = new ExpansionMapMarkerListEntry(m_MapMenu, m_MemberMarkersContent, marker);
+			m_MemberMarkers.Insert(entry);
+		}
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::AddMemberEntry - End");
@@ -320,16 +329,16 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemoveMemberEntry - Start");
 		#endif
 		
-		for ( int i = 0; i < m_MemberMarkers.Count(); ++i )
+		for ( int i = m_MemberMarkers.Count() - 1; i >= 0 ; --i )
 		{
-			if(m_MemberMarkers[i].GetMarker() == marker)
+			if ( m_MemberMarkers[i].GetMarker() == marker )
 			{
 				#ifdef EXPANSION_MAP_MENU_DEBUG
 				EXLogPrint("ExpansionMapMarkerList::RemoveMemberEntry - Remove entry [" + i + "] from m_MemberMarkers");
 				#endif
 				
-				m_MemberMarkers.RemoveItem(m_MemberMarkers[i]);
-				m_MemberMarkers[i] = NULL;
+				m_MemberMarkers.RemoveOrdered( i );
+				break;
 			}
 		}
 		
@@ -377,7 +386,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - Start");
 		#endif
 		
-		for ( int i = 0; i < m_ServerMarkers.Count(); ++i )
+		for ( int i = m_ServerMarkers.Count() - 1; i >= 0 ; --i )
 		{
 			if ( m_ServerMarkers[i].GetMarker() == marker )
 			{
@@ -385,8 +394,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - Remove entry [" + i + "] from m_ServerMarkers");
 				#endif
 				
-				m_ServerMarkers.RemoveItem(m_ServerMarkers[i]);
-				m_ServerMarkers[i] = NULL;
+				m_ServerMarkers.RemoveOrdered( i );
+				break;
 			}
 		}
 		
@@ -516,6 +525,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	void ShowPanel(bool state)
 	{
 		m_MarkerListPanel.Show(state);
+
+		m_MarkerListInitState = true;
 		
 		if (state) m_MarkerListToggleIcon.SetRotation(0,0,270);
 		else m_MarkerListToggleIcon.SetRotation(0,0,90);
@@ -671,9 +682,9 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// HideTooltips
 	// ------------------------------------------------------------	
-	/*void HideTooltips()
+	void HideTooltips()
 	{
-		if (m_InfoTooltip.IsVisible())
+		if ( m_InfoTooltip.IsVisible() )
 			m_InfoTooltip.HideTooltip();
 		
 		int i;
@@ -708,5 +719,5 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 				m_ServerMarkers[i].GetTooltip().HideTooltip();
 			}
 		}
-	}*/
+	}
 }

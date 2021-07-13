@@ -102,6 +102,47 @@ modded class ActionGetOutTransport
 		if ( got_action_data.keepInVehicleSpaceAfterLeave )
 			return;
 
-		super.OnEndServer( action_data );
+		//! The following code is similar to vanilla ActionGetOutTransport::OnEndServer,
+		//! except that we don't use RaycastRV(Proxy) because it can return results that aren't even in the rays path or radius.
+		//! This fixes an exploit that was introduced with DayZ 1.11 where players could glitch through floors when getting out of a vehicle.
+
+		vector endLocation = action_data.m_Player.GetPosition() + "0 0.5 0";
+		
+		PhxInteractionLayers layerMask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ROADWAY | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE;
+
+		Object hitObject;
+		vector hitPosition;
+		vector hitNormal;
+		float hitFraction;
+		
+		if ( DayZPhysics.SphereCastBullet( got_action_data.m_StartLocation, endLocation, 0.3, layerMask, got_action_data.m_Car, hitObject, hitPosition, hitNormal, hitFraction ) )
+		{
+			vector offset = got_action_data.m_StartLocation - hitPosition;
+			offset.Normalize();
+			offset = offset * 0.5;  //! Reduce offset so there's less chance that player gets stuck in vehicle
+			got_action_data.m_Player.SetPosition( hitPosition + offset );
+		}
+
+		if ( got_action_data.m_WasJumpingOut )
+		{
+			got_action_data.m_Player.OnJumpOutVehicleFinish( got_action_data.m_CarSpeed );
+			
+			PlayerBase player = got_action_data.m_Player;
+			
+			ApplyJumpOutDmg( action_data );
+			
+			vector posMS = player.WorldToModel( player.GetPosition() );
+			player.DamageAllLegs( got_action_data.m_DmgTaken ); //! Additional leg specific damage dealing
+			player.ProcessDirectDamage( DT_CUSTOM, player, "", "FallDamage", posMS, got_action_data.m_DmgTaken );
+		}
+
+		if ( got_action_data.m_Car )
+		{
+			CarScript car;
+			if ( Class.CastTo( car, got_action_data.m_Car ) )
+			{
+				car.ForceUpdateLightsEnd();
+			}
+		}
 	}
 };

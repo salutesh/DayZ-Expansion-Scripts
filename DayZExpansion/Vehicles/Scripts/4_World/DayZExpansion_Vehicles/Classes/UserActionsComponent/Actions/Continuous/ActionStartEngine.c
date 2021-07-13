@@ -79,6 +79,9 @@ modded class ActionStartEngine
 				
 				if ( m_Car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 				{
+					if ( m_Car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED )
+						return true;
+
 					if ( !m_Car.HasKey() )
 						return true;
 

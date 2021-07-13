@@ -29,6 +29,23 @@ modded class AttachmentCategoriesContainer
 		{
 			ContainerWithCargo iwc2 = ContainerWithCargo.Cast( m_Body.Get(attachments_categories_count + 2 + attachments_categories_count / ITEMS_IN_ROW ) );
 			iwc2.UpdateInterval();
+
+			SlotsContainer items_cont = GetSlotsContainer( 0 );
+			SlotsIcon icon = items_cont.GetSlotIcon( attachments_categories_count );
+			icon.GetMainWidget().Show( true );
+			icon.GetRadialIconPanel().Show( true );
+			if( iwc2.IsOpened() )
+			{
+				icon.GetRadialIcon().Show( false );
+				icon.GetRadialIconClosed().Show( true );
+			}
+			else
+			{
+				icon.GetRadialIcon().Show( true );
+				icon.GetRadialIconClosed().Show( false );
+			}
+		
+			RecomputeOpenedContainers();
 		}
 	}
 };

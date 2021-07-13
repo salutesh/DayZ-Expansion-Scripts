@@ -258,7 +258,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_M16A4";
 		descriptionShort = "$STR_EXPANSION_M16A4_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\Rifles\M16\M16.p3d";
-		attachments[] = {"weaponMuzzleM4","weaponFlashlight","weaponOptics","weaponWrap","suppressorImpro"};
+		attachments[] = {"weaponMuzzleM4","weaponFlashlight","weaponOptics","weaponWrap"};
 		itemSize[] = {8,3};
 		dexterity = 2.8;
 		class Particles
@@ -333,7 +333,7 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 250;
 					healthLevels[] = {{1.0,{"DZ\weapons\firearms\M4\Data\m4_body.rvmat"}},{0.7,{}},{0.5,{"DZ\weapons\firearms\M4\Data\m4_body_damage.rvmat"}},{0.3,{}},{0.0,{"DZ\weapons\firearms\M4\Data\m4_body_destruct.rvmat"}}};
 				};
 			};

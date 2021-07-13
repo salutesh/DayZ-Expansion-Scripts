@@ -37,6 +37,9 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if ( player.IsCameraInsideVehicle() && CarDoor.Cast( target.GetObject() ) )
+			return false;
+
 		ExpansionHelicopterScript d_helicopter;
 		if ( Class.CastTo( d_helicopter, player.GetParent() ) )
 		{

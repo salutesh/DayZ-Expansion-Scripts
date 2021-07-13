@@ -16,6 +16,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 	protected bool m_WasFreeLook;
 
 	protected float m_UpDownAngle;
+	protected float m_UpDownLockedAngle;
 
 	protected vector m_ExLagOffsetPosition;
 	protected vector m_ExLagOffsetOrientation;
@@ -31,6 +32,8 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::DayZPlayerCamera3rdPersonVehicle - Start");
 		#endif
+
+		m_UpDownLockedAngle = -10;
 		
 		ExpansionVehicleBase expVehicle;
 		if ( Class.CastTo( expVehicle, pPlayer.GetParent() ) )
@@ -62,6 +65,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		m_ExLagOffsetVelocityX[0] = 0;
 		m_ExLagOffsetVelocityY[0] = 0;
 		m_ExLagOffsetVelocityZ[0] = 0;
+
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnActivate - End");
@@ -79,7 +83,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		
 		super.OnUpdate( pDt, pOutResult );
 
-		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( false );
+		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( false );
 
 		//Print( "OnUpdate" );
 		//Print( pOutResult.m_CollisionIgnoreEntity );
@@ -150,11 +154,18 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			rotation[0] = m_fLeftRightAngle + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
 			rotation[1] = Limit(m_fUpDownAngle + m_fUpDownAngleAdd, CONST_UD_MIN, CONST_UD_MAX) + CONST_ANGULAR_LAG_PITCH_STRENGTH * m_LagOffsetOrientation[1];
 			rotation[2] = m_fRoll;
-			
-			pOutResult.m_fUseHeading = 1;
-		} else
-		{
-			pOutResult.m_fUseHeading = 0;
+		} else {		
+			Input input = GetGame().GetInput(); 	//! Reference to input
+			if ( input.LocalValue( "UANextAction" ) != 0 && input.LocalHold( "UAVehicleSlow", false ) )
+			{
+				m_UpDownLockedAngle += 1.0;
+			}
+			if ( input.LocalValue( "UAPrevAction" ) != 0 && input.LocalHold( "UAVehicleSlow", false ) )
+			{
+				m_UpDownLockedAngle -= 1.0;
+			}
+
+			rotation[1] = m_UpDownLockedAngle;
 		}
 		
 		Math3D.YawPitchRollMatrix( rotation, pOutResult.m_CameraTM );
@@ -162,6 +173,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		pOutResult.m_fIgnoreParentRoll		= 1.0;
 		pOutResult.m_fInsideCamera		  	= 0.0;
+		pOutResult.m_fUseHeading 			= 0.0;
 		pOutResult.m_iDirectBone			= -1.0;
 		pOutResult.m_fDistance 				= m_fDistance;
 		pOutResult.m_fPositionModelSpace	= 1.0;

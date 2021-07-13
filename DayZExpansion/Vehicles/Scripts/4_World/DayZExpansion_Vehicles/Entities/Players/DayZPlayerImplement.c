@@ -15,13 +15,6 @@ modded class DayZPlayerImplement
 	protected ref ExpansionHumanST m_ExpansionST;
 	
 	// ------------------------------------------------------------
-	// DayZPlayerImplement SendChatMessage
-	// ------------------------------------------------------------
-	void SendChatMessage( string message )
-	{
-	}
-	
-	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
 	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
@@ -114,5 +107,28 @@ modded class DayZPlayerImplement
 		}
 
 		return super.CameraHandler( pCameraMode );
+	}
+
+	void SetHeadInvisible_Ex(bool invisible)
+	{
+		Head_Default player_head;
+		int slot_id = InventorySlots.GetSlotIdFromString("Head");
+		player_head = Head_Default.Cast(GetInventory().FindPlaceholderForSlot(slot_id));
+		
+		player_head.SetInvisible(invisible);
+
+		SetAttachmentInvisible_Ex("Head", invisible);
+		SetAttachmentInvisible_Ex("Headgear", invisible);
+		SetAttachmentInvisible_Ex("Mask", invisible);
+		SetAttachmentInvisible_Ex("Eyewear", invisible);
+	}
+
+	void SetAttachmentInvisible_Ex(string slot, bool invisible)
+	{
+		int slot_id = InventorySlots.GetSlotIdFromString(slot);
+		EntityAI ent = GetInventory().FindAttachment(slot_id);
+
+		if (ent)
+			ent.SetInvisible(invisible);
 	}
 }

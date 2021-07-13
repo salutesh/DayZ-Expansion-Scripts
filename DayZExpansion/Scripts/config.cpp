@@ -107,17 +107,18 @@ class CfgMods
 		inputs = "DayZExpansion/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
+		CF_ModStorage = 1;
 		name = "$STR_MOD_EXPANSION_NAME";
-		picture = "DayZExpansion/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/GUI/textures/expansion_icon.edds";
+		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		tooltip = "DayZ Expansion";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
-		expansionSkins[] = {"DayZExpansion/Skins/Character/HeadGear/","DayZExpansion/Skins/Gear/Container/","DayZExpansion/Skins/Gear/Cooking/","DayZExpansion/Skins/Gear/Tools/","DayZExpansion/Skins/Gear/Traps/","DayZExpansion/Skins/Vehicles/Air/","DayZExpansion/Skins/Vehicles/Water/","DayZExpansion/Skins/Vehicles/Ground/","DayZExpansion/Skins/Weapons/Explosives/","DayZExpansion/Skins/Weapons/Firearms/","DayZExpansion/Skins/Weapons/Melee/","DayZExpansion/Skins/Weapons/Pistols/","DayZExpansion/Skins/Weapons/Shotguns/","DayZExpansion/Skins/Weapons/Archery/","DayZExpansion/Skins/Weapons/Attachements/"};
+		expansionSkins[] = {"DayZExpansion/Skins/Character/HeadGear/","DayZExpansion/Skins/Gear/Container/","DayZExpansion/Skins/Gear/Cooking/","DayZExpansion/Skins/Gear/Tools/","DayZExpansion/Skins/Gear/Traps/","DayZExpansion/Skins/Weapons/Explosives/","DayZExpansion/Skins/Weapons/Firearms/","DayZExpansion/Skins/Weapons/Melee/","DayZExpansion/Skins/Weapons/Pistols/","DayZExpansion/Skins/Weapons/Shotguns/","DayZExpansion/Skins/Weapons/Archery/","DayZExpansion/Skins/Weapons/Attachements/"};
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{

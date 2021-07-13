@@ -15,16 +15,16 @@ class CfgSlots
 	class Slot_uh1hdoor_1_1
 	{
 		name = "uh1hdoor_1_1";
-		displayName = "UH1H Door";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT_DESC";
 		selection = "uh1hdoor_1_1";
 		ghostIcon = "doorfront";
 	};
 	class Slot_uh1hdoor_1_2
 	{
 		name = "uh1hdoor_1_2";
-		displayName = "UH1H Door";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT_DESC";
 		selection = "uh1hdoor_1_2";
 		ghostIcon = "doorfront";
 	};
@@ -57,6 +57,10 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT_DESC";
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_1_1.p3d";
+		hiddenSelections[] = {"camo1","camo2"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d_co.paa","dayzexpansion\vehicles\air\uh1h\data\uh1d_in_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d.rvmat","dayzexpansion\vehicles\air\uh1h\data\uh1d_in.rvmat"};
+		defaultSkin = "Green";
 		weight = 15000;
 		itemSize[] = {10,10};
 		itemBehaviour = 0;
@@ -251,6 +255,33 @@ class CfgVehicles
 					animation = "cyclicAside";
 				};
 			};
+			class Axles: Axles
+			{
+				class Front: Front
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
+				};
+				class Rear: Rear
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
+				};
+			};
 		};
 		class Sounds
 		{
@@ -287,6 +318,49 @@ class CfgVehicles
 				{
 					hitpoints = 7500;
 					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 1250;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.7,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.5,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.3,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}}};
+					};
+					fatalInjuryCoef = 0.001;
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					inventorySlots[] = {"CarBattery","SparkPlug","EngineBelt","CarRadiator"};
+					inventorySlotsCoefs[] = {0.2,0.2,0.01,0.4};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 800;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fuelTank"};
+					inventorySlots[] = {};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					componentNames[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
 				};
 			};
 		};

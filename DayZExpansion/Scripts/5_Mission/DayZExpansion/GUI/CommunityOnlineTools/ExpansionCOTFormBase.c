@@ -53,7 +53,8 @@ class ExpansionCOTFormBase : JMFormBase
 			if ( !CreateToggle( actions, settings[i] ) )
 				if ( !CreateSlider( actions, settings[i] ) )
 					if ( !CreateDropdown( actions, settings[i] ) )
-						Print( "Unknown/unsupported action type -> [" + i + "] " + settings[i] );
+						if ( !CreateString( actions, settings[i] ) )
+							Print( "Unknown/unsupported action type -> [" + i + "] " + settings[i] );
 
 			UIActionManager.CreatePanel( actions, 0xAA000000, 1 );
 		}
@@ -108,6 +109,23 @@ class ExpansionCOTFormBase : JMFormBase
 		UIActionDropdownList action = UIActionManager.CreateDropdownBox( actions, GetLayoutRoot(), setting.m_Name, setting.m_Values, this, "OnActionUpdated" );
 		action.SetData( new ExpansionCOTSerializationData( setting ) );
 		action.SetText( setting.m_Values[ setting.GetValue() ] );
+
+		setting.m_WidgetHandle = action;
+
+		m_Actions.Insert( action );
+
+		return true;
+	}
+
+	private bool CreateString( Widget actions, ref ExpansionSettingSerializationBase setting_base )
+	{
+		ExpansionSettingSerializationString setting;
+		if ( !Class.CastTo( setting, setting_base ) )
+			return false;
+
+		UIActionEditableText action = UIActionManager.CreateEditableText( actions, setting.m_Name, this, "OnActionUpdated" );
+		action.SetData( new ExpansionCOTSerializationData( setting ) );
+		action.SetText( setting.GetValue() );
 
 		setting.m_WidgetHandle = action;
 

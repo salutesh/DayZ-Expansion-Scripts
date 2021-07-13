@@ -32,6 +32,8 @@ modded class PluginRecipesManager
 		RegisterRecipe(new ExpansionCraftLumber_3);
 			
 		RegisterRecipe(new ExpansionCraftBarbedWireKit);
+		RegisterRecipe(new ExpansionCraftExpansionHescoKit);
+		RegisterRecipe(new ExpansionCraftExpansionHelipadKit);
 		
 		//RegisterRecipe(new ExpansionCraftChickenBreaderKit);		//! NOT YET READY
 		
@@ -45,4 +47,4 @@ modded class PluginRecipesManager
 		//! Ammunitions
 		RegisterRecipe(new ExpansionCraftStickySmoke);
 	}
-}
+};

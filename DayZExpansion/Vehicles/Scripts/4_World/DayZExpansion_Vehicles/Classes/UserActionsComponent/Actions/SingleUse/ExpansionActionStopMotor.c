@@ -56,25 +56,30 @@ class ExpansionActionStopMotor : ActionSingleUseBase
 		if (vehCmd && Class.CastTo(m_Boat, vehCmd.GetTransport()))
 		{
 			m_Boat.MotorStop();
-			if (!GetGame().IsMultiplayer())
-				SEffectManager.PlaySound(m_Boat.m_EngineStopFuel, m_Boat.GetPosition());
 		}
 	}
 
 	override void OnExecuteClient(ActionData action_data)
 	{
+		if (GetGame().IsMultiplayer())
+			return;
+
 		HumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_Vehicle();
 		ExpansionBoatScript m_Boat;
 
 		if (vehCmd && Class.CastTo(m_Boat, vehCmd.GetTransport()))
 		{
 			m_Boat.MotorStop();
-				SEffectManager.PlaySound(m_Boat.m_EngineStopFuel, m_Boat.GetPosition());
 		}
 	}
 
 	override bool CanBeUsedInVehicle()
 	{
 		return true;
+	}
+	
+	override bool UseMainItem()
+	{
+		return false;
 	}
 };

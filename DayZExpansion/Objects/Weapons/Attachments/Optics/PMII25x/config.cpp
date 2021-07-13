@@ -72,7 +72,7 @@ class CfgSlots
 	class Slot_ExpansionSniperOptics
 	{
 		name = "ExpansionSniperOptics";
-		displayName = "ExpansionSniperOptics";
+		displayName = "$STR_EXPANSION_PMII25";
 		ghostIcon = "weaponoptics";
 	};
 };

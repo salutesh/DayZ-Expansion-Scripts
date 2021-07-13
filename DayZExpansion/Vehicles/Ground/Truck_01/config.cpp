@@ -44,7 +44,7 @@ class CfgVehicles
 		dashboardMatOn = "dz\vehicles\wheeled\Truck_01\data\Truck_01_dashboard_light.rvmat";
 		dashboardMatOff = "dz\vehicles\wheeled\Truck_01\data\Truck_01_dashboard.rvmat";
 		frontReflectorMatOn = "dz\vehicles\wheeled\Truck_01\data\Truck_01_cab_lights.rvmat";
-		frontReflectorMatOff = "dz\vehicles\wheeled\Truck_01\data\Truck_01_cab_chrome.rvmat";
+		frontReflectorMatOff = "dz\vehicles\wheeled\Truck_01\data\Truck_01_cab.rvmat";
 		brakeReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
 		brakeReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
 		ReverseReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
@@ -614,7 +614,7 @@ class CfgVehicles
 	{
 		defaultSkin = "Green";
 	};
-	class Truck_01_Door_2_1: CarDoor
+	class Truck_01_Door_2_1: Truck_01_Door_1_1
 	{
 		defaultSkin = "Green";
 	};

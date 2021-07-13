@@ -34,7 +34,7 @@ class ExpansionActionChangeSafeLock: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 	
 	// -----------------------------------------------------------
@@ -64,7 +64,7 @@ class ExpansionActionChangeSafeLock: ActionInteractBase
 		{
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
-			return m_Target.ExpansionHasCodeLock( selection ) && m_Target.IsOpened();
+			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
 		}
 		
 		return false;
@@ -88,6 +88,7 @@ class ExpansionActionChangeSafeLock: ActionInteractBase
 			if ( menu )
 			{
 				menu.SetChangeCodelock( true );
+				menu.SetConfirm( true );
 				menu.SetTarget( m_Target, selection );
 			}
 		} 

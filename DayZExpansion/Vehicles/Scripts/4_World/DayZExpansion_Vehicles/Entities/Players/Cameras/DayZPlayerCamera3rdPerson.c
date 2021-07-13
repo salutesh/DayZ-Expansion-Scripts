@@ -33,7 +33,7 @@ modded class DayZPlayerCamera3rdPerson
 		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate Start");
 		#endif
 
-		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( false );
+		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( false );
 
 		//Print( "OnUpdate" );
 		//Print( pOutResult.m_CollisionIgnoreEntity );

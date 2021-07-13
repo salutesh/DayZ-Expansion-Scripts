@@ -13,8 +13,11 @@
 /**@class		ExpansionCamoBox
  * @brief		
  **/
+//! TODO: Is there a good reason this inherits from ExpansionBaseBuilding and not DeployableContainer_Base or similar?
 class ExpansionCamoBox: ExpansionBaseBuilding
 {
+	int m_CanBeDamaged = -1;
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -27,6 +30,14 @@ class ExpansionCamoBox: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ~ExpansionCamoBox()
 	{
+	}
+
+	// ------------------------------------------------------------
+	// CanPutIntoHands
+	// ------------------------------------------------------------
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -54,21 +65,14 @@ class ExpansionCamoBox: ExpansionBaseBuilding
 	}
 
 	// ------------------------------------------------------------
-	// SetActions
-	// ------------------------------------------------------------
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionFoldBaseBuildingObject);
-	}
-
-	// ------------------------------------------------------------
 	// CanBeDamaged
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		return true;
+		if ( m_CanBeDamaged == -1 && GetGame() && GetGame().IsMultiplayer() && GetGame().IsServer() )
+			m_CanBeDamaged = GetGame().ServerConfigGetInt( "disableContainerDamage" ) == 0;
+
+		return m_CanBeDamaged;
 	}
 
 	// ------------------------------------------------------------

@@ -19,11 +19,11 @@ class ExpansionMarkerClientData : Managed
 
 	ref array< ref ExpansionMarkerData > m_PersonalMarkers;
 
-	ref array< ref ExpansionMarkerClientInfo > m_MarkerInfo_Server;
+	ref map< string, ref ExpansionMarkerClientInfo > m_MarkerInfo_Server;
 
 	protected int m_PartyUID;
-	ref array< ref ExpansionMarkerClientInfo > m_MarkerInfo_Party;
-	ref array< ref ExpansionMarkerClientInfo > m_MarkerInfo_PartyPlayers;
+	ref map< string, ref ExpansionMarkerClientInfo > m_MarkerInfo_Party;
+	ref map< string, ref ExpansionMarkerClientInfo > m_MarkerInfo_PartyPlayers;
 	
 	protected ExpansionMarkerModule m_MarkerModule;
 	protected ExpansionPartyModule m_PartyModule;
@@ -35,9 +35,9 @@ class ExpansionMarkerClientData : Managed
 
 		m_PersonalMarkers = new array< ref ExpansionMarkerData >();
 
-		m_MarkerInfo_Server = new array< ref ExpansionMarkerClientInfo >();
-		m_MarkerInfo_Party = new array< ref ExpansionMarkerClientInfo >();
-		m_MarkerInfo_PartyPlayers = new array< ref ExpansionMarkerClientInfo >();
+		m_MarkerInfo_Server = new map< string, ref ExpansionMarkerClientInfo >();
+		m_MarkerInfo_Party = new map< string, ref ExpansionMarkerClientInfo >();
+		m_MarkerInfo_PartyPlayers = new map< string, ref ExpansionMarkerClientInfo >();
 	}
 
 	void ~ExpansionMarkerClientData()
@@ -61,20 +61,20 @@ class ExpansionMarkerClientData : Managed
 		file.Write( m_MarkerInfo_Server.Count() );
 		for ( i = 0; i < m_MarkerInfo_Server.Count(); ++i )
 		{
-			m_MarkerInfo_Server[i].OnStoreSave( file );
+			m_MarkerInfo_Server.GetElement(i).OnStoreSave( file );
 		}
 
 		file.Write( m_PartyUID );
 		file.Write( m_MarkerInfo_Party.Count() );
 		for ( i = 0; i < m_MarkerInfo_Party.Count(); ++i )
 		{
-			m_MarkerInfo_Party[i].OnStoreSave( file );
+			m_MarkerInfo_Party.GetElement(i).OnStoreSave( file );
 		}
 
 		file.Write( m_MarkerInfo_PartyPlayers.Count() );
 		for ( i = 0; i < m_MarkerInfo_PartyPlayers.Count(); ++i )
 		{
-			m_MarkerInfo_PartyPlayers[i].OnStoreSave( file );
+			m_MarkerInfo_PartyPlayers.GetElement(i).OnStoreSave( file );
 		}
 	}
 	
@@ -137,7 +137,7 @@ class ExpansionMarkerClientData : Managed
 				if ( !newMarkerInfo.OnStoreLoad( ctx, version ) )
 					return false;
 				
-				m_MarkerInfo_Server.Insert( newMarkerInfo );
+				m_MarkerInfo_Server.Insert( newMarkerInfo.GetUID(), newMarkerInfo );
 			}
 		} else
 		{
@@ -156,7 +156,7 @@ class ExpansionMarkerClientData : Managed
 				if ( !newMarkerInfo.OnStoreLoad( ctx, version ) )
 					return false;
 				
-				m_MarkerInfo_Party.Insert( newMarkerInfo );
+				m_MarkerInfo_Party.Insert( newMarkerInfo.GetUID(), newMarkerInfo );
 			}
 		} else
 		{
@@ -171,7 +171,7 @@ class ExpansionMarkerClientData : Managed
 				if ( !newMarkerInfo.OnStoreLoad( ctx, version ) )
 					return false;
 				
-				m_MarkerInfo_PartyPlayers.Insert( newMarkerInfo );
+				m_MarkerInfo_PartyPlayers.Insert( newMarkerInfo.GetUID(), newMarkerInfo );
 			}
 		} else
 		{
@@ -302,7 +302,7 @@ class ExpansionMarkerClientData : Managed
 	bool PersonalRemove( int idx )
 	{
 		delete m_PersonalMarkers[idx];
-		m_PersonalMarkers.Remove( idx );
+		m_PersonalMarkers.RemoveOrdered( idx );
 		return true;
 	}
 
@@ -312,9 +312,7 @@ class ExpansionMarkerClientData : Managed
 		{
 			if ( m_PersonalMarkers[i].GetUID() == uid )
 			{
-				delete m_PersonalMarkers[i];
-				m_PersonalMarkers.Remove( i );
-				return true;
+				return PersonalRemove( i );
 			}
 		}
 		return false;
@@ -354,12 +352,11 @@ class ExpansionMarkerClientData : Managed
 
 	int PartySetVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_Party.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_Party.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_Party[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_Party[i].SetVisibility( vis );
-			}
+			return info.SetVisibility( vis );
 		}
 
 		return 0;
@@ -367,12 +364,11 @@ class ExpansionMarkerClientData : Managed
 
 	int PartyRemoveVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_Party.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_Party.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_Party[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_Party[i].RemoveVisibility( vis );
-			}
+			return info.RemoveVisibility( vis );
 		}
 
 		return 0;
@@ -380,12 +376,11 @@ class ExpansionMarkerClientData : Managed
 
 	int PartyFlipVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_Party.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_Party.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_Party[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_Party[i].FlipVisibility( vis );
-			}
+			return info.FlipVisibility( vis );
 		}
 
 		return 0;
@@ -432,12 +427,11 @@ class ExpansionMarkerClientData : Managed
 
 	int PartyPlayerSetVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_PartyPlayers.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_PartyPlayers.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_PartyPlayers[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_PartyPlayers[i].SetVisibility( vis );
-			}
+			return info.SetVisibility( vis );
 		}
 
 		return 0;
@@ -445,12 +439,11 @@ class ExpansionMarkerClientData : Managed
 
 	int PartyPlayerRemoveVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_PartyPlayers.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_PartyPlayers.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_PartyPlayers[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_PartyPlayers[i].RemoveVisibility( vis );
-			}
+			return info.RemoveVisibility( vis );
 		}
 
 		return 0;
@@ -458,12 +451,11 @@ class ExpansionMarkerClientData : Managed
 
 	int PartyPlayerFlipVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_PartyPlayers.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_PartyPlayers.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_PartyPlayers[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_PartyPlayers[i].FlipVisibility( vis );
-			}
+			return info.FlipVisibility( vis );
 		}
 
 		return 0;
@@ -495,12 +487,11 @@ class ExpansionMarkerClientData : Managed
 
 	int ServerSetVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_Server.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_Server.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_Server[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_Server[i].SetVisibility( vis );
-			}
+			return info.SetVisibility( vis );
 		}
 
 		return 0;
@@ -508,12 +499,11 @@ class ExpansionMarkerClientData : Managed
 
 	int ServerRemoveVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_Server.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_Server.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_Server[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_Server[i].RemoveVisibility( vis );
-			}
+			return info.RemoveVisibility( vis );
 		}
 
 		return 0;
@@ -521,12 +511,11 @@ class ExpansionMarkerClientData : Managed
 
 	int ServerFlipVisibility( string uid, int vis )
 	{
-		for ( int i = 0; i < m_MarkerInfo_Server.Count(); ++i )
+		ExpansionMarkerClientInfo info = m_MarkerInfo_Server.Get( uid );
+
+		if ( info )
 		{
-			if ( m_MarkerInfo_Server[i].GetUID() == uid )
-			{
-				return m_MarkerInfo_Server[i].FlipVisibility( vis );
-			}
+			return info.FlipVisibility( vis );
 		}
 
 		return 0;
@@ -552,6 +541,11 @@ class ExpansionMarkerClientData : Managed
 
 	void OnRefresh()
 	{
+		//! IMPORTANT! We do not want to clear any marker client info if player is not yet loaded
+		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		if ( !player || !player.IsPlayerLoaded() )
+			return;
+
 		RefreshServerMarkers();
 
 		RefreshPartyMarkers();
@@ -562,29 +556,40 @@ class ExpansionMarkerClientData : Managed
 	private void RefreshServerMarkers()
 	{
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
-			return;
-		
-		int count = m_MarkerInfo_Server.Count();
-		int index = 0;
-
-		for ( index = 0; index < count; ++index )
 		{
-			ExpansionMarkerData data = ServerGet( m_MarkerInfo_Server[index].GetUID() );
-			if ( data )
+			m_MarkerInfo_Server.Clear();
+
+			return;
+		}
+		
+		int index;
+		string uid;
+		int removeIndex;
+
+		array< string > checkArr = m_MarkerInfo_Server.GetKeyArray();
+		array< ref ExpansionMarkerData > markers = GetExpansionSettings().GetMap().ServerMarkers;
+
+		for ( index = 0; index < markers.Count(); ++index )
+		{
+			uid = markers[index].GetUID();
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
 			{
-				data.ApplyVisibility( m_MarkerInfo_Server[index].GetVisibility() );
+				//! Already have client info for this marker
+				checkArr.Remove( removeIndex );
+				markers[index].ApplyVisibility( m_MarkerInfo_Server[uid].GetVisibility() );
+			} else
+			{
+				//! It's a new marker
+				ref ExpansionMarkerClientInfo info = new ExpansionMarkerClientInfo( uid );
+				m_MarkerInfo_Server.Insert( uid, info );
 			}
 		}
 
-		m_MarkerInfo_Server.Clear();
-
-		array< ref ExpansionMarkerData > markers = GetExpansionSettings().GetMap().ServerMarkers;
-
-		count = markers.Count();
-		for ( index = 0; index < count; ++index )
+		for ( index = 0; index < checkArr.Count(); ++index )
 		{
-			ref ExpansionMarkerClientInfo info = new ExpansionMarkerClientInfo( markers[index].GetUID() );
-			m_MarkerInfo_Server.Insert( info );
+			//! Remove client info for markers that have been removed
+			m_MarkerInfo_Server.Remove( checkArr[index] );
 		}
 	}
 
@@ -603,50 +608,64 @@ class ExpansionMarkerClientData : Managed
 
 		ExpansionPartyData party = m_PartyModule.GetParty();
 
-		int count = m_MarkerInfo_Party.Count();
-		int index = 0;
+		int index;
+		string uid;
+		int removeIndex;
 
-		for ( index = 0; index < count; ++index )
-		{
-			data = PartyGet( m_MarkerInfo_Party[index].GetUID() );
-			if ( data )
-			{
-				data.ApplyVisibility( m_MarkerInfo_Party[index].GetVisibility() );
-			}
-		}
-
-		count = m_MarkerInfo_PartyPlayers.Count();
-
-		for ( index = 0; index < count; ++index )
-		{
-			data = PartyPlayerGet( m_MarkerInfo_PartyPlayers[index].GetUID() );
-			if ( data )
-			{
-				data.ApplyVisibility( m_MarkerInfo_PartyPlayers[index].GetVisibility() );
-			}
-		}
-		
-		m_MarkerInfo_Party.Clear();
-		m_MarkerInfo_PartyPlayers.Clear();
-
+		//! Refresh client info for party markers
+		array< string > checkArr = m_MarkerInfo_Party.GetKeyArray();
 		array< ref ExpansionMarkerData > markers = party.GetAllMarkers();
 
-		count = markers.Count();
-		for ( index = 0; index < count; ++index )
+		for ( index = 0; index < markers.Count(); ++index )
 		{
-			info = new ExpansionMarkerClientInfo( markers[index].GetUID() );
-			m_MarkerInfo_Party.Insert( info );
+			uid = markers[index].GetUID();
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+			{
+				//! Already have client info for this marker
+				checkArr.Remove( removeIndex );
+				markers[index].ApplyVisibility( m_MarkerInfo_Party[uid].GetVisibility() );
+			} else
+			{
+				//! It's a new marker
+				info = new ExpansionMarkerClientInfo( markers[index].GetUID() );
+				m_MarkerInfo_Party.Insert( uid, info );
+			}
 		}
 
+		for ( index = 0; index < checkArr.Count(); ++index )
+		{
+			//! Remove client info for markers that have been removed
+			m_MarkerInfo_Party.Remove( checkArr[index] );
+		}
+
+		//! Refresh client info for party member (player) markers
+		checkArr = m_MarkerInfo_PartyPlayers.GetKeyArray();
 		array< ref ExpansionPartyPlayerData > players = party.GetPlayers();
 
-		count = players.Count();
-		for ( index = 0; index < count; ++index )
+		for ( index = 0; index < players.Count(); ++index )
 		{
-			info = new ExpansionMarkerClientInfo( players[index].UID );
-			m_MarkerInfo_PartyPlayers.Insert( info );
+			uid = players[index].UID;
+			removeIndex = checkArr.Find( uid );
+			if ( removeIndex != -1 )
+			{
+				//! Already have client info for this marker
+				checkArr.Remove( removeIndex );
+				if ( players[index].Marker )
+					players[index].Marker.ApplyVisibility( m_MarkerInfo_PartyPlayers[uid].GetVisibility() );
+			} else
+			{
+				//! It's a new marker
+				info = new ExpansionMarkerClientInfo( uid );
+				m_MarkerInfo_PartyPlayers.Insert( uid, info );
+			}
 		}
-		
+
+		for ( index = 0; index < checkArr.Count(); ++index )
+		{
+			//! Remove client info for markers that have been removed
+			m_MarkerInfo_PartyPlayers.Remove( checkArr[index] );
+		}
 	}
 
 	private void RefreshPersonalMarkers()

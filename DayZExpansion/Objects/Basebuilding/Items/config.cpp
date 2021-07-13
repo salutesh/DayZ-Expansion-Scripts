@@ -15,46 +15,54 @@ class CfgSlots
 	class Slot_Att_ExpansionCodeLock
 	{
 		name = "Att_ExpansionCodeLock";
-		displayName = "Codelock";
+		displayName = "$STR_EXPANSION_BB_CODE_LOCK";
 		selection = "att_codelocklock";
 		expansionghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionCodeLock_1
 	{
 		name = "Att_ExpansionCodeLock_1";
-		displayName = "Codelock";
+		displayName = "$STR_EXPANSION_BB_CODE_LOCK";
 		selection = "att_codelocklock";
 		expansionghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionCodeLock_2
 	{
 		name = "Att_ExpansionCodeLock_2";
-		displayName = "Codelock";
+		displayName = "$STR_EXPANSION_BB_CODE_LOCK";
 		selection = "att_codelocklock";
 		expansionghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionLumber
 	{
 		name = "Att_ExpansionLumber";
-		displayName = "Lumber";
+		displayName = "$STR_EXPANSION_LUMBER_LARGE";
 		selection = "att_lumber";
 		expansionGhostIcon = "set:expansion_inventory image:lumber_3";
-		stackMax = 10;
-	};
-	class Slot_Att_ExpansionLumberThird
-	{
-		name = "Att_ExpansionLumberThird";
-		displayName = "Lumber";
-		selection = "att_lumber";
-		expansionGhostIcon = "set:expansion_inventory image:lumber_1";
 		stackMax = 10;
 	};
 	class Slot_Att_ExpansionLumberHalf
 	{
 		name = "Att_ExpansionLumberHalf";
-		displayName = "Lumber";
+		displayName = "$STR_EXPANSION_LUMBER_BIG";
 		selection = "att_lumber";
 		expansionGhostIcon = "set:expansion_inventory image:lumber_15";
+		stackMax = 10;
+	};
+	class Slot_Att_ExpansionLumberThird
+	{
+		name = "Att_ExpansionLumberThird";
+		displayName = "$STR_EXPANSION_LUMBER_MEDIUM";
+		selection = "att_lumber";
+		expansionGhostIcon = "set:expansion_inventory image:lumber_1";
+		stackMax = 10;
+	};
+	class Slot_Att_ExpansionLumberFourth
+	{
+		name = "Att_ExpansionLumberFourth";
+		displayName = "$STR_EXPANSION_LUMBER_SMALL";
+		selection = "att_lumber";
+		expansionGhostIcon = "set:expansion_inventory image:lumber_05";
 		stackMax = 10;
 	};
 };
@@ -69,10 +77,34 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_BB_CODE_LOCK_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Codelock\CodeLock.p3d";
 		weight = 500;
-		inventorySlot[] = {"Att_ExpansionCodeLock","Att_ExpansionCodeLock_1","Att_ExpansionCodeLock_2"};
+		inventorySlot[] = {"Att_ExpansionCodeLock","Att_ExpansionCodeLock_1","Att_ExpansionCodeLock_2","Att_CombinationLock"};
 		itemSize[] = {2,2};
+		hiddenSelections[] = {"light_red","light_green","light_screen"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Basebuilding\Items\Codelock\data\codelock_co.paa","\DayZExpansion\Objects\Basebuilding\Items\Codelock\data\codelock_co.paa","\DayZExpansion\Objects\Basebuilding\Items\Codelock\data\codelock_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\Objects\Basebuilding\Items\Codelock\data\codelock.rvmat","\DayZExpansion\Objects\Basebuilding\Items\Codelock\data\codelock.rvmat","\DayZExpansion\Objects\Basebuilding\Items\Codelock\data\codelock.rvmat"};
 		rotationFlags = 17;
 		fragility = 0.01;
+		class AnimationSources
+		{
+			class camo
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Codelock
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class attach_fence
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+		};
 	};
 	class ExpansionLumberBase: Inventory_Base
 	{
@@ -111,7 +143,8 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_LUMBER_SMALL_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_0_5.p3d";
 		weight = 500;
-		itemSize[] = {4,2};
+		inventorySlot[] = {"Att_ExpansionLumberFourth"};
+		itemSize[] = {2,2};
 	};
 	class ExpansionLumber1: ExpansionLumberBase
 	{

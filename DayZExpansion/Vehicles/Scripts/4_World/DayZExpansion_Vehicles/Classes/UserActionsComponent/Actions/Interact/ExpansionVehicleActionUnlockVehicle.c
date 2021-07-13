@@ -35,26 +35,29 @@ class ExpansionVehicleActionUnlockVehicle: ActionInteractBase
 		ExpansionVehicleBase car;
 		ExpansionCarKey key;
 		
+		//! The intention is for vehicles to only be unlockable from outside if player has its key (or admin key) in hand,
+		//! and to ALWAYS be unlockable from inside (so player can't accidentally lock themself in)
+
 		if ( player.GetCommand_ExpansionVehicle() )
 		{
 			if ( !Class.CastTo( car, player.GetCommand_ExpansionVehicle().GetTransport() ) )
 				return false;
+
+			if ( !car.HasKey() )
+				return false;
 		} else
 		{
-			if ( !Class.CastTo( car, target.GetObject() ) )
+			if ( !Class.CastTo( car, target.GetParentOrObject() ) )
 				return false;
 
 			if ( !Class.CastTo( key, player.GetItemInHands() ) )
 				return false;
 
-			if ( !car.IsCarKeys( key ) )
+			if ( !car.IsCarKeys( key ) && !key.IsInherited( ExpansionCarAdminKey ) )
 				return false;
 		}
-	
-		if ( !car.HasKey() )
-			return false;
 
-		if ( car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED )
+		if ( car.GetLockedState() == ExpansionVehicleLockState.UNLOCKED || car.GetLockedState() == ExpansionVehicleLockState.NOLOCK || car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED )
 			return false;
 		
 		return true;
@@ -72,7 +75,7 @@ class ExpansionVehicleActionUnlockVehicle: ActionInteractBase
 			car = ExpansionVehicleBase.Cast( action_data.m_Player.GetCommand_ExpansionVehicle().GetTransport() );
 		} else
 		{
-			car = ExpansionVehicleBase.Cast( action_data.m_Target.GetObject() );
+			car = ExpansionVehicleBase.Cast( action_data.m_Target.GetParentOrObject() );
 			key = ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() );
 		}
 		

@@ -28,10 +28,7 @@ modded class ActionDismantlePart
 		{
 			//! is it his territory ?
 			if ( player.IsInsideOwnTerritory() )
-			{
-				//! If SimpleTerritory is enabled, the player can't dismantle parts to prevent ressources exploits.
-				return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
-			}
+				return true;
 		}
 		//! It's not a territory flag, but his he in a territory
 		else if ( player.IsInTerritory() )

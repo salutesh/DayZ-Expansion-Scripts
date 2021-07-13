@@ -1775,7 +1775,7 @@ class CfgLocationTypes
 		size = 0;
 		font = "DayZExpansion/GUI/fonts/etelkatextpro24";
 		textSize = 0.03;
-		shadow = 0;
+		shadow = 1;
 		importance = 1;
 	};
 	class NameIcon
@@ -1803,13 +1803,14 @@ class CfgLocationTypes
 	class Village: Name
 	{
 		textSize = 0.037;
+		color[] = {0.761,0.761,0.761,1};
 		importance = 4;
 	};
 	class Local: Name
 	{
-		color[] = {0.44,0.38,0.3,1};
-		textSize = 0.03;
-		importance = 2;
+		textSize = 0.040000003;
+		color[] = {0.761,0.761,0.761,1};
+		importance = 4;
 	};
 	class Marine: Name
 	{

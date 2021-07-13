@@ -20,6 +20,17 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 	ref	WeaponStateBase CF1;
 	ref	WeaponStateBase JF0;
 	ref	WeaponStateBase JF1;
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "Expansion_PMII25Optic" );
+			entity.SpawnEntityOnGroundPos("Mag_Expansion_AWM_5Rnd", entity.GetPosition());
+		}
+	}
    
 	override bool CanDisplayAttachmentSlot( string slot_name )
 	{	

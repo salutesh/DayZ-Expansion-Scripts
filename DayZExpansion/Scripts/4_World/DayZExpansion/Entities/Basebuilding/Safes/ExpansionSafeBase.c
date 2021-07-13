@@ -14,31 +14,30 @@ class ExpansionSafeBase extends Container_Base
 {
 	protected EffectSound m_Sound;
 	
+	protected bool m_WasSynced;
 	protected bool m_IsOpen;
-	protected bool m_Locked;
-	protected string m_Code;
-	protected bool m_HasCode;
+	protected bool m_WasLocked;
 
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
 	void ExpansionSafeBase()
 	{
+		m_KnownUIDs = new TStringArray;
+
 		RegisterNetSyncVariableBool( "m_IsOpen" );
 		RegisterNetSyncVariableBool( "m_Locked" );
 		RegisterNetSyncVariableBool( "m_HasCode" );
-
-		m_IsOpen = false;
-		m_HasCode = false;
-		m_Locked = false;
-		m_Code = "";
-
+		RegisterNetSyncVariableInt( "m_CodeLength" );
 	}
+
 	override void EEInit()
 	{
 		super.EEInit();
+
 		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 	}
+
 	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
@@ -58,8 +57,8 @@ class ExpansionSafeBase extends Container_Base
 
 		AddAction( ExpansionActionOpen );
 
-		AddAction( ExpansionActionCloseSafeLock );
-		AddAction( ExpansionActionCloseSafeUnlock );
+		AddAction( ExpansionActionCloseAndLockSafe );
+		AddAction( ExpansionActionCloseSafe );
 		
 		AddAction( ExpansionActionEnterSafeLock );
 		AddAction( ExpansionActionChangeSafeLock );
@@ -85,7 +84,7 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		if ( IsLocked() )
+		if ( IsLocked() && !IsKnownUser( player ) )
 			return false;
 
 		if ( !IsOpened() )
@@ -97,6 +96,11 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion CanClose
 	// ------------------------------------------------------------
+	override bool ExpansionCanClose( PlayerBase player, string selection )
+	{
+		return CanClose( selection );
+	}
+
 	override bool CanClose( string selection )
 	{
 		if ( IsOpened() && !IsRuined())
@@ -114,63 +118,30 @@ class ExpansionSafeBase extends Container_Base
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionGetCodeLock
-	// ------------------------------------------------------------
-	override ExpansionCodeLock ExpansionGetCodeLock()
-	{
-		return ExpansionCodeLock.Cast(FindAttachmentBySlotName("Att_ExpansionCodeLock"));
-	}
-
-	// ------------------------------------------------------------
 	// Expansion Open
 	// ------------------------------------------------------------
 	override void Open( string selection ) 
 	{
+		m_IsOpen = true;
+
 		//! Door open animation
-		if ( selection == "safe_door" || selection == "codelock" )
-		{
-			m_IsOpen = true;
-			SetAnimationPhase( "safe_door", 1 );
-		
-			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
-			SetSynchDirty();
-		}
+		SetAnimationPhase( "safe_door", 1 );
+	
+		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+		SetSynchDirty();
+
 		super.Open( selection );
 	}
-	
+
 	// ------------------------------------------------------------
-	// Expansion Close (And Lock)
+	// Expansion Close
 	// ------------------------------------------------------------
 	override void Close( string selection ) 
 	{
-		//! Door open animation
-		if (selection == "safe_door" || selection == "codelock")
-		{
-			m_IsOpen = false;
-			SetAnimationPhase( "safe_door", 0 );
-		
-			if ( m_HasCode )
-				Lock();
-		
-			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
-			SetSynchDirty();
-		}
-		
-		super.Close( selection );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion CloseUnlock
-	// ------------------------------------------------------------
-	void CloseUnlock( string selection ) 
-	{	
-		Print("ExpansionSafeBase::CloseUnlock: Selection: " + selection);
-
 		m_IsOpen = false;
 
-		//! Door open animation
-		if (selection == "safe_door" || selection == "codelock")
-			SetAnimationPhase( "safe_door", 0 );
+		//! Door close animation
+		SetAnimationPhase( "safe_door", 0 );
 		
 		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 		SetSynchDirty();
@@ -195,105 +166,39 @@ class ExpansionSafeBase extends Container_Base
 		return m_HasCode && m_Locked;
 	}
 	
-	/**
-	\brief Set code of safe
-		\param 	
-	*/
-	override void SetCode( string code )
+	protected void SoundCodeLockLocked()
 	{
-		if ( code == "" )
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
 		{
-			m_HasCode = false;
-		} else
-		{
-			m_HasCode = true;
-		}
-
-		m_Code = code;
-		m_Locked = false;
-
-		SetSynchDirty();
-	}
-	
-	/**
-	\brief Locking base build
-		\param 	
-	*/
-	override void Lock()
-	{
-		if ( m_HasCode )
-		{
-			m_Locked = true;
-			
-			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
-			
-			if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-			{
-				m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Locks_SoundSet", GetPosition());
-				m_Sound.SetSoundAutodestroy( true );
-			}
-		}
-
-		SetSynchDirty();
-	}
-	
-	/**
-	\brief Unlocking base build
-		\param 	
-	*/
-	override void Unlock()
-	{
-		m_Locked = false;
-		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
-		Open("safe_door");
-
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
-		}
-		
-		SetSynchDirty();
-	}
-	
-	/**
-	\brief Failed attempt to unlock base build
-		\param 	
-	*/
-	override void FailedUnlock()
-	{
-		string SOUND_CODE_DENIED = "";		
-
-		if ( GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock )
-		{
-			SOUND_CODE_DENIED = "Expansion_Shocks_SoundSet";
-		} else {
-			SOUND_CODE_DENIED = "Expansion_Denied_SoundSet";
-		}
-
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
-		{
-			m_Sound = SEffectManager.PlaySound(SOUND_CODE_DENIED, GetPosition());
+			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock3_SoundSet", GetPosition());
 			m_Sound.SetSoundAutodestroy( true );
 		}
 	}
 	
-	/**
-	\brief Returning code of wall
-		\param 	
-	*/
-	override string GetCode()
+	protected void SoundCodeLockUnlocked()
 	{
-		return m_Code;
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		{
+			// Expansion_Succes_SoundSet
+			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
 	}
 
-	/**
-	\brief Returning if the safe has a code
-		\param 	
-	*/
-	override bool HasCode()
+	override void OnVariablesSynchronized()
 	{
-		return m_HasCode;
+		super.OnVariablesSynchronized();
+
+		if ( m_WasSynced && m_WasLocked != m_Locked )
+		{
+			if ( m_Locked )
+				SoundCodeLockLocked();
+			else
+				SoundCodeLockUnlocked();
+		}
+
+		m_WasLocked = m_Locked;
+		m_WasSynced = true;
 	}
 
 	override bool CanUseConstruction()
@@ -313,7 +218,7 @@ class ExpansionSafeBase extends Container_Base
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -326,6 +231,8 @@ class ExpansionSafeBase extends Container_Base
 		ctx.Write( m_Locked );
 		ctx.Write( m_Code );
 		ctx.Write( m_HasCode );
+
+		ctx.Write( m_KnownUIDs );
 	}
 
 	/**
@@ -334,13 +241,13 @@ class ExpansionSafeBase extends Container_Base
 	*/
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 		
 		if ( Expansion_Assert_False( ctx.Read( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
 			return false;
@@ -348,10 +255,17 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
 			return false;
+
+		m_CodeLength = m_Code.Length();
+
 		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
 			return false;
 
-		SetSynchDirty();
+		if ( m_ExpansionSaveVersion >= 20 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_KnownUIDs ), "[" + this + "] Failed reading m_KnownUIDs" ) )
+				return false;
+		}
 
 		return true;
 	}
@@ -368,6 +282,12 @@ class ExpansionSafeBase extends Container_Base
 		storage.Write( m_Locked );
 		storage.Write( m_Code );
 		storage.Write( m_HasCode );
+
+		storage.Write( m_KnownUIDs.Count() );
+		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
+		{
+			storage.Write( m_KnownUIDs[i] );
+		}
 	}
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
@@ -384,8 +304,26 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
 			return false;
+
+		m_CodeLength = m_Code.Length();
+
 		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
 			return false;
+
+		if ( storage.GetVersion() >= 20 )
+		{
+			int count;
+			if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading m_KnownUIDs count" ) )
+				return false;
+
+			for ( int i = 0; i < count; i++ )
+			{
+				string knownUID;
+				if ( Expansion_Assert_False( storage.Read( knownUID ), "[" + this + "] Failed reading m_KnownUIDs[" + i + "]" ) )
+					return false;
+				m_KnownUIDs.Insert( knownUID );
+			}
+		}
 
 		return true;
 	}
@@ -400,19 +338,12 @@ class ExpansionSafeBase extends Container_Base
 
 		if ( m_IsOpen )
 		{
+			GetInventory().UnlockInventory( HIDE_INV_FROM_SCRIPT );
 			SetAnimationPhase( "safe_door", 1 );
 		} else
 		{
 			SetAnimationPhase( "safe_door", 0 );
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// IsContainer
-	// ------------------------------------------------------------
-	override bool IsContainer()
-	{
-		return true;
 	}
 
 	// ------------------------------------------------------------
@@ -433,7 +364,7 @@ class ExpansionSafeBase extends Container_Base
 			SetPosition( position );
 			SetOrientation( orientation );
 
-			if( HasCode() && !IsLocked() )
+			if( HasCode() && !IsLocked() && !IsOpened() )
 				Lock();
 
 			SetSynchDirty();
@@ -460,7 +391,7 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 
-		if ( GetNumberOfItems() == 0 && !IsLocked() )
+		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
 		{
 			return true;
 		}
@@ -478,7 +409,7 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 		
-		if ( GetNumberOfItems() == 0 && !IsLocked() )
+		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
 		{
 			return true;
 		}
@@ -523,85 +454,12 @@ class ExpansionSafeBase extends Container_Base
 		if ( !canRaidSafes )
 			return;
 
-		Unlock();
-
 		super.EEKilled( killer );
 	}
 
-	// ------------------------------------------------------------
-	// EEHitBy
-	// ------------------------------------------------------------
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	override void ExpansionOnDestroyed( Object killer )
 	{
-		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().SafeExplosionDamageMultiplier; 
-		float projectileDamageMultiplier = GetExpansionSettings().GetRaid().SafeProjectileDamageMultiplier; 
-		
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);	
-		PlayerBase player;
-		GetGame().AdminLog("------------------------- Expansion BaseRaiding Damage Report -------------------------");
-		if (damageType == 2) 
-		{
-			float exposionBonusDamage;
-			if ( explosionDamageMultiplier > 1)
-			{
-				exposionBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * ( explosionDamageMultiplier + 1 ) );
-				if ( source != NULL)
-				{
-					player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
-					GetGame().AdminLog("Expansion BaseRaiding: Player \"" + player.GetIdentity().GetName() + "(ID = \"" + player.GetIdentity().GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) " );
-					GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source + " at " + this.GetPosition() );
-				}
-				AddHealth("", "Health", -exposionBonusDamage);
-
-			}
-
-			else if ( explosionDamageMultiplier < 1)
-			{
-				exposionBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * explosionDamageMultiplier );
-
-				player = PlayerBase.Cast(source.GetHierarchyRootPlayer() );
-				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + player.GetIdentity().GetName() + "\"" + "(ID = \"" + player.GetIdentity().GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" )) + " current health) "  );
-				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) - exposionBonusDamage ) + " damage with a " + source + " at " + this.GetPosition() );
-				AddHealth("", "Health", ( damageResult.GetDamage( dmgZone, "Health" ) -exposionBonusDamage ) ); 
-
-			}
-			else 
-			{
-				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
-				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + player.GetIdentity().GetName() + "\"" + "(ID = \"" + player.GetIdentity().GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) " );
-				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + explosionDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source + " at " + this.GetPosition());
-			}
-		}
-
-		if (damageType == 1) 
-		{
-			float projectileBonusDamage;
-			if ( projectileDamageMultiplier > 1)
-			{
-				projectileBonusDamage = ( damageResult.GetDamage( dmgZone, "Health" ) * ( projectileDamageMultiplier + 1 ) );
-				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
-				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + player.GetIdentity().GetName() + "(ID = \"" + player.GetIdentity().GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
-				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
-				AddHealth("", "Health", -projectileBonusDamage);
-				
-			}
-			else if ( projectileDamageMultiplier < 1)
-			{
-				projectileBonusDamage = ( damageResult.GetDamage( dmgZone,"Health" ) * projectileDamageMultiplier );
-				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
-				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + player.GetIdentity().GetName() + "(ID = \"" + player.GetIdentity().GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
-				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( exposionBonusDamage + damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
-				AddHealth("", "Health", ( damageResult.GetDamage( dmgZone,"Health" ) -projectileBonusDamage ) ); 
-			}
-			else
-			{
-				player = PlayerBase.Cast( source.GetHierarchyRootPlayer() );
-				GetGame().AdminLog("Expansion BaseRaiding: Player \"" + player.GetIdentity().GetName() + "(ID = \"" + player.GetIdentity().GetId() + ")" + " damaged a base part (" + this.GetType() + ")" + "( " + (this.GetHealth() + damageResult.GetDamage( dmgZone, "Health" ) ) + "current health) "  );
-				GetGame().AdminLog("Expansion BaseRaiding: They dealt "  + damageResult.GetDamage( dmgZone, "Health" ) + " * " + projectileDamageMultiplier + " = " + ( damageResult.GetDamage( dmgZone, "Health" ) ) + " damage with a " + source+ " at " + this.GetPosition() );
-			}
-			
-		}
-		GetGame().AdminLog("Expansion BaseRaiding: Health after damage applied: " + this.GetHealth());
-		GetGame().AdminLog("--------------------------------------------------------------------------------------");
-	}	
+		Unlock();
+		SetCode( "" );
+	}
 }

@@ -14,9 +14,12 @@ modded class DayZGame
 {
 	protected string m_ExpansionClientVersion;
 	protected string m_ExpansionLastestVersion;
-
 	protected ref ExpansionGame m_ExpansionGame;
 
+	protected float m_StartTime;
+
+	protected vector m_WorldCenterPosition;
+	
 	// ------------------------------------------------------------
 	// DayZGame Constructor
 	// ------------------------------------------------------------
@@ -26,7 +29,13 @@ modded class DayZGame
 		EXPrint("DayZGame::DayZGame - Start");
 		#endif
 
-		Expansion_SetupDebugger();
+		int hour;
+		int minute;
+		int second;
+
+		GetHourMinuteSecond( hour, minute, second );
+
+		m_StartTime = hour * 3600 + minute * 60 + second;
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
@@ -86,38 +95,107 @@ modded class DayZGame
 	ref ExpansionGame GetExpansionGame()
 	{
 		return m_ExpansionGame;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion SetExpansionClientVersion
-	// ------------------------------------------------------------
-	void SetExpansionClientVersion(string version)
-	{
-		m_ExpansionClientVersion = version;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion SetExpansionLatestVersion
-	// ------------------------------------------------------------
-	void SetExpansionLatestVersion(string version)
-	{
-		m_ExpansionLastestVersion = version;
-	}
+	}	
 
 	// ------------------------------------------------------------
 	// Expansion GetExpansionClientVersion
 	// ------------------------------------------------------------
-	string GetExpansionClientVersion()
+   	static string GetExpansionClientVersion()
 	{
-		return m_ExpansionClientVersion;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("LoadingScreen::GetExpansionClientVersion - Start");
+		#endif
+
+		ref array<ref ModInfo> mods = new array<ref ModInfo>;
+		string version;
+		
+		GetDayZGame().GetModInfos( mods );
+		for ( int i = 0; i < mods.Count(); ++i )
+		{
+			if ( mods[i].GetName().IndexOf( "DayZ" ) == 0 && mods[i].GetName().IndexOf( "Expansion" ) == 5 )
+			{
+				version = mods[i].GetVersion();
+				break;
+			}
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "LoadingScreen::GetExpansionClientVersion - Return: " + version );
+		#endif
+
+		return version;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion GetExpansionLatestVersion
-	// ------------------------------------------------------------
-	string GetExpansionLatestVersion()
+	float GetStartTime()
 	{
-		return m_ExpansionLastestVersion;
+		return m_StartTime;
+	}
+
+	protected void SetWorldCenterPosition()
+	{
+		string path = "CfgWorlds " + GetGame().GetWorldName();
+		m_WorldCenterPosition = GetGame().ConfigGetVector( path + " centerPosition" );
+	}
+
+	//! Note: Usually not actual center, depends on what's in a world's config.cpp
+	vector GetWorldCenterPosition()
+	{
+		if ( !m_WorldCenterPosition )
+			SetWorldCenterPosition();
+
+		return m_WorldCenterPosition;
+	}
+
+	float GetWorldSize()
+	{
+		string world_name = GetGame().GetWorldName();
+		world_name.ToLower();
+
+		float size;
+
+		switch ( world_name )
+		{
+			case "chernarusplus":
+			case "chernarusplusgloom":
+				size = 15360.0;
+				break;
+
+			case "enoch":
+			case "enochgloom":
+			case "namalsk":
+			case "namalskgloom":
+			case "esseker":
+			case "essekergloom":
+				size = 12800.0;
+				break;
+
+			case "chiemsee":
+			case "chiemseegloom":
+				size = 10240.0;
+				break;
+
+			case "deerisle":
+			case "deerislegloom":
+				size = 16384.0;
+				break;
+
+			case "rostow":
+			case "rostowgloom":
+				size = 14336.0;
+				break;
+
+			case "sandbox":
+			case "sandboxgloom":
+				size = 2048.0;
+				break;
+				
+			default:
+				//! Just fall back to Chernarus size
+				size = 15360.0;
+				break;
+		}
+
+		return size;
 	}
 
 	// ------------------------------------------------------------
@@ -149,11 +227,10 @@ modded class DayZGame
 
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	{
-		super.OnRPC(sender, target, rpc_type, ctx);
-
 		//! Move below if there becomes some problems
-		//! Steve moved below on 30.06.2020 to fix a NULL pointer
 		if (m_ExpansionGame != NULL && m_ExpansionGame.OnRPC(sender, target, rpc_type, ctx))
 			return;
+		
+		super.OnRPC(sender, target, rpc_type, ctx);
 	}
 };

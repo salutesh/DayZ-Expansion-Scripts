@@ -75,10 +75,12 @@ modded class MainMenu
 
 		m_ScenePC					= m_Mission.GetIntroScenePC();
 		
+		
 		if( m_ScenePC )
 		{
 			m_ScenePC.ResetIntroCamera();
 		}
+
 		
 		m_PlayVideo.Show( false );
 		
@@ -208,7 +210,8 @@ modded class MainMenu
 		#endif
 		
 		// Hide moded game warning in the main menu
-		m_ModdedWarning.Show(false);
+		if ( m_ModdedWarning )
+			m_ModdedWarning.Show(false);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MainMenu::HideModWarning - End");
@@ -220,7 +223,9 @@ modded class MainMenu
 		if ( w == m_CharacterRotationFrame )
 		{
 			if (m_CustomScene)
-				m_CustomScene.CharacterRotationStart();
+				m_CustomScene.CharacterRotationStart();		
+			if (m_ScenePC)
+				m_ScenePC.CharacterRotationStart();
 			return true;
 		}
 		else if ( w == m_Play )
@@ -243,8 +248,250 @@ modded class MainMenu
 	{
 		if (m_CustomScene)
 			m_CustomScene.CharacterRotationStop();
+		if (m_ScenePC)
+			m_ScenePC.CharacterRotationStop();
+		
 		return false;
 	}	
+	override bool OnMouseEnter( Widget w, int x, int y )
+	{
+		int charID;
+		if( w == m_Play )
+		{
+			string ip = "";
+			string name = "";
+			int port = 0;
+			 
+			if(m_CustomScene && !m_CustomScene.GetIntroCharacter().IsDefaultCharacter())
+			{
+				charID = m_CustomScene.GetIntroCharacter().GetCharacterID();
+				m_CustomScene.GetIntroCharacter().GetLastPlayedServer(charID, ip, name, port);
+				
+				m_LastPlayedTooltipName.SetText( "#server_details_name " + name );
+				m_LastPlayedTooltipIP.SetText( "#main_menu_IP " + ip );
+				m_LastPlayedTooltipPort.SetText( "#main_menu_port " + port );
+				
+				m_LastPlayedTooltipTimer.FadeIn( m_LastPlayedTooltip, 0.3, true );
+			}
+			if(m_ScenePC && !m_ScenePC.GetIntroCharacter().IsDefaultCharacter())
+			{
+				charID = m_ScenePC.GetIntroCharacter().GetCharacterID();
+				m_ScenePC.GetIntroCharacter().GetLastPlayedServer(charID, ip, name, port);
+				
+				m_LastPlayedTooltipName.SetText( "#server_details_name " + name );
+				m_LastPlayedTooltipIP.SetText( "#main_menu_IP " + ip );
+				m_LastPlayedTooltipPort.SetText( "#main_menu_port " + port );
+				
+				m_LastPlayedTooltipTimer.FadeIn( m_LastPlayedTooltip, 0.3, true );
+			}
+		}
+		
+		if( IsFocusable( w ) )
+		{
+			ColorHighlight( w );
+			return true;
+		}
+		return false;
+	}	
+
+	override bool CanSaveDefaultCharacter()
+	{
+		//TODO - check if default character exists
+		if (m_CustomScene && m_CustomScene.GetIntroCharacter() && m_CustomScene.GetIntroCharacter().GetCharacterID() == -1)
+		{
+			return true;
+		}		
+		if (m_ScenePC && m_ScenePC.GetIntroCharacter() && m_ScenePC.GetIntroCharacter().GetCharacterID() == -1)
+		{
+			return true;
+		}
+		return false;
+	}	
+	
+	override void OpenMenuServerBrowser()
+	{
+		EnterScriptedMenu(MENU_SERVER_BROWSER);
+		PlayerBase player;		
+		//saves demounit for further use
+		if (m_CustomScene && m_CustomScene.GetIntroCharacter() && m_CustomScene.GetIntroCharacter().GetCharacterID() == -1 )
+		{
+			player = m_CustomScene.GetIntroCharacter().GetCharacterObj();
+			if(player && player.GetInventory() && player.GetInventory().FindAttachment(InventorySlots.BODY))
+			{
+				//todo - save default char here if none exists
+				//m_CustomScene.GetIntroCharacter().SaveCharacterSetup();
+			}
+		}		
+		if (m_ScenePC && m_ScenePC.GetIntroCharacter() && m_ScenePC.GetIntroCharacter().GetCharacterID() == -1 )
+		{
+			player = m_ScenePC.GetIntroCharacter().GetCharacterObj();
+			if(player && player.GetInventory() && player.GetInventory().FindAttachment(InventorySlots.BODY))
+			{
+				//todo - save default char here if none exists
+				//m_ScenePC.GetIntroCharacter().SaveCharacterSetup();
+			}
+		}
+	}
+
+	override void NextCharacter()
+	{
+		int charID;
+		if ( m_CustomScene && m_CustomScene.GetIntroCharacter() )
+		{
+			charID = m_CustomScene.GetIntroCharacter().GetNextCharacterID();
+			//m_CustomScene.GetIntroCharacter().SaveCharName();
+			if( charID != m_CustomScene.GetIntroCharacter().GetCharacterID())
+			{
+				m_CustomScene.GetIntroCharacter().SetCharacterID(charID);
+				OnChangeCharacter();
+			}
+		}		
+		if ( m_ScenePC && m_ScenePC.GetIntroCharacter() )
+		{
+			charID = m_ScenePC.GetIntroCharacter().GetNextCharacterID();
+			//m_ScenePC.GetIntroCharacter().SaveCharName();
+			if( charID != m_ScenePC.GetIntroCharacter().GetCharacterID())
+			{
+				m_ScenePC.GetIntroCharacter().SetCharacterID(charID);
+				OnChangeCharacter();
+			}
+		}
+	}
+	
+	override void PreviousCharacter()
+	{
+		int charID;
+		if ( m_CustomScene && m_CustomScene.GetIntroCharacter() )
+		{
+			//m_CustomScene.GetIntroCharacter().SaveCharName();
+			charID = m_CustomScene.GetIntroCharacter().GetPrevCharacterID();
+			if( charID != m_CustomScene.GetIntroCharacter().GetCharacterID())
+			{
+				m_CustomScene.GetIntroCharacter().SetCharacterID(charID);
+				OnChangeCharacter();
+			}
+		}		
+		if ( m_ScenePC && m_ScenePC.GetIntroCharacter() )
+		{
+			//m_ScenePC.GetIntroCharacter().SaveCharName();
+			charID = m_ScenePC.GetIntroCharacter().GetPrevCharacterID();
+			if( charID != m_ScenePC.GetIntroCharacter().GetCharacterID())
+			{
+				m_ScenePC.GetIntroCharacter().SetCharacterID(charID);
+				OnChangeCharacter();
+			}
+		}
+	}
+	
+	override void OnChangeCharacter(bool create_character = true)
+	{
+		int charID;
+		Widget w;
+		TextWidget text;
+		if ( m_CustomScene && m_CustomScene.GetIntroCharacter() )
+		{
+			charID = m_CustomScene.GetIntroCharacter().GetCharacterID();
+			if (create_character)
+			{
+				m_CustomScene.GetIntroCharacter().CreateNewCharacterById( charID );
+			}
+			m_PlayerName.SetText( m_CustomScene.GetIntroCharacter().GetCharacterNameById( charID ) );
+			
+			w = m_CustomizeCharacter.FindAnyWidget(m_CustomizeCharacter.GetName() + "_label");
+			
+			if ( w )
+			{
+				text = TextWidget.Cast( w );
+				
+				if( m_CustomScene.GetIntroCharacter().IsDefaultCharacter() )
+				{
+					text.SetText("#layout_main_menu_customize_char");
+				}
+				else
+				{
+					text.SetText("#layout_main_menu_rename");
+				}
+			}
+			if (m_CustomScene.GetIntroCharacter().GetCharacterObj() )
+			{
+				if ( m_CustomScene.GetIntroCharacter().GetCharacterObj().IsMale() )
+					m_CustomScene.GetIntroCharacter().SetCharacterGender(ECharGender.Male);
+				else
+					m_CustomScene.GetIntroCharacter().SetCharacterGender(ECharGender.Female);
+			}
+			
+			//update character stats
+			m_Stats.UpdateStats();
+		}		
+		if ( m_ScenePC && m_ScenePC.GetIntroCharacter() )
+		{
+			charID = m_ScenePC.GetIntroCharacter().GetCharacterID();
+			if (create_character)
+			{
+				m_ScenePC.GetIntroCharacter().CreateNewCharacterById( charID );
+			}
+			m_PlayerName.SetText( m_ScenePC.GetIntroCharacter().GetCharacterNameById( charID ) );
+			
+			w = m_CustomizeCharacter.FindAnyWidget(m_CustomizeCharacter.GetName() + "_label");
+			
+			if ( w )
+			{
+				text = TextWidget.Cast( w );
+				
+				if( m_ScenePC.GetIntroCharacter().IsDefaultCharacter() )
+				{
+					text.SetText("#layout_main_menu_customize_char");
+				}
+				else
+				{
+					text.SetText("#layout_main_menu_rename");
+				}
+			}
+			if (m_ScenePC.GetIntroCharacter().GetCharacterObj() )
+			{
+				if ( m_ScenePC.GetIntroCharacter().GetCharacterObj().IsMale() )
+					m_ScenePC.GetIntroCharacter().SetCharacterGender(ECharGender.Male);
+				else
+					m_ScenePC.GetIntroCharacter().SetCharacterGender(ECharGender.Female);
+			}
+			
+			//update character stats
+			m_Stats.UpdateStats();
+		}
+		if (m_CustomScene)
+		{
+			m_CustomScene.SetAnim();
+			m_CustomScene.CustomHandItem();
+		};
+	}
+
+	override void ConnectLastSession()
+	{
+		string ip = "";
+		string name = "";
+		int port = 0;
+		int charID;
+			 
+		if(m_CustomScene && !m_CustomScene.GetIntroCharacter().IsDefaultCharacter())
+		{
+			charID = m_CustomScene.GetIntroCharacter().GetCharacterID();
+			m_CustomScene.GetIntroCharacter().GetLastPlayedServer(charID,ip,name,port);
+		}		
+		if(m_ScenePC && !m_ScenePC.GetIntroCharacter().IsDefaultCharacter())
+		{
+			charID = m_ScenePC.GetIntroCharacter().GetCharacterID();
+			m_ScenePC.GetIntroCharacter().GetLastPlayedServer(charID,ip,name,port);
+		}
+		
+		if( ip.Length() > 0 )
+		{
+			g_Game.ConnectFromServerBrowser( ip, port, "" );
+		}
+		else
+		{
+			OpenMenuServerBrowser();
+		}
+	}		
 	#endif
 	
 	// ------------------------------------------------------------
@@ -256,3 +503,37 @@ modded class MainMenu
 		m_ExpansionNewsfeed.ShowNewsfeed(state);
 	}
 }
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
+modded class MainMenuStats
+{
+	override void UpdateStats()
+	{
+		PlayerBase player;
+		MissionMainMenu mission_main_menu = MissionMainMenu.Cast( GetGame().GetMission() );
+		
+		#ifdef PLATFORM_WINDOWS
+		if (mission_main_menu.GetIntroSceneExpansion())
+			player = mission_main_menu.GetIntroSceneExpansion().GetIntroCharacter().GetCharacterObj();
+		if (mission_main_menu.GetIntroScenePC())
+			player = mission_main_menu.GetIntroScenePC().GetIntroCharacter().GetCharacterObj();
+		#endif
+		#ifdef PLATFORM_CONSOLE
+			player = mission_main_menu.GetIntroScenePC().GetIntroCharacter().GetCharacterObj();
+		#endif
+		
+		if ( player )
+		{
+			float stat_value;
+			string stat_text;
+			
+			m_TimeSurvivedValue.SetText( GetTimeString( player.StatGet( AnalyticsManagerServer.STAT_PLAYTIME ) ) );
+			m_PlayersKilledValue.SetText( GetValueString( player.StatGet( AnalyticsManagerServer.STAT_PLAYERS_KILLED ) ) );
+			m_InfectedKilledValue.SetText( GetValueString( player.StatGet( AnalyticsManagerServer.STAT_INFECTED_KILLED ) ) );
+			m_DistanceTraveledValue.SetText( GetDistanceString( player.StatGet( AnalyticsManagerServer.STAT_DISTANCE ) ) );
+			m_LongRangeShotValue.SetText( GetDistanceString( player.StatGet( AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT ), true ) );
+		}
+	}
+	
+	
+}
+#endif

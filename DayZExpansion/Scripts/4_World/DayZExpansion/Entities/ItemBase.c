@@ -11,19 +11,7 @@
 */
 
 modded class ItemBase
-{
-	protected int m_ExpansionSaveVersion;
-
-	protected ExpansionSkinModule m_SkinModule;
-	protected ExpansionSkin m_CurrentSkin;
-
-	protected string m_CurrentSkinName;
-	protected int m_CurrentSkinIndex;
-	protected int m_CurrentSkinSynchRemote;
-
-	protected bool m_CanBeSkinned;
-	protected autoptr array< ExpansionSkin > m_Skins;
-	
+{	
 	protected EntityAI m_WorldAttachment;
 	protected vector m_AttachmentTransform[4];
 	protected bool m_IsAttached;
@@ -34,7 +22,28 @@ modded class ItemBase
 
 	protected ref ExpansionElectricityConnection m_ElectricitySource;
 	protected ref array< ItemBase > m_ElectricityConnections;
-	
+
+	/*! We need to keep track of base parts health so we can reliably 'heal' them when damage multiplier is zero
+	    (for that, we need to know the health of the item before it was damaged, i.e. *before* EEHitBy runs).
+
+		Items considered 'base parts' are currently anything inheriting from ExpansionBaseBuildingBase and ExpansionSafeBase.
+
+		All actions that affect those base part's health (e.g. raiding, repairing) should update m_CurrentHealth afterwards
+		by either setting the respective damage zone health in m_CurrentHealth directly or calling UpdateCurrentHealthMap,
+		but there is a 'catch-all' in EEHealthLevelChanged to catch at least major changes in health we didn't think about.
+	*/
+	ref TStringArray m_DmgZones;
+	ref map< string, float > m_CurrentHealth;
+
+	protected bool m_Locked;
+	protected string m_Code;  //! NEVER set this directly. Use SetCode()
+	protected int m_CodeLength;  //! Unlike m_Code, this should be synched to clients for items that use codes
+	protected bool m_HasCode;
+
+	protected ref TStringArray m_KnownUIDs;
+	protected bool m_KnownUIDsRequested;
+	protected bool m_KnownUIDsSet;
+
 	//============================================
 	// ItemBase Constructor
 	//============================================
@@ -55,11 +64,26 @@ modded class ItemBase
 			//RegisterNetSyncVariableInt( "m_SourceNetLow" );
 			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
 		}
-
-		ExpansionSetupSkins();
 		
-		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote", 0, m_Skins.Count() );
 		RegisterNetSyncVariableBool( "m_IsAttached" );
+
+		if ( IsMissionHost() && ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) ) )
+		{
+			m_DmgZones = new TStringArray;
+			GetDamageZones( m_DmgZones );
+			if ( m_DmgZones.Count() == 0 )
+				m_DmgZones.Insert( "GlobalHealth" );
+			//string dmgZones;
+			//for ( int i = 0; i < m_DmgZones.Count(); i++ )
+			//{
+				//dmgZones += " " + m_DmgZones[i];
+			//}
+			//Print(GetType() + " ItemBase::ItemBase dmgZones :" + dmgZones);
+			m_CurrentHealth = new map< string, float >;
+			//! Init current health map to max health
+			//! EEOnAfterLoad will call this again to set actual health if loading from storage
+			UpdateCurrentHealthMap( "ItemBase::ItemBase" );
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::ItemBase - End");
@@ -71,6 +95,23 @@ modded class ItemBase
 	//============================================
 	void ~ItemBase()
 	{
+	}
+
+	void UpdateCurrentHealthMap( string caller = "" )
+	{
+		if ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) )
+		{
+			//Print(GetType() + " " + caller + " -> ItemBase::UpdateCurrentHealthMap");
+			for ( int i = 0; i < m_DmgZones.Count(); i++ )
+			{
+				float health = GetHealth( m_DmgZones[i], "Health" );
+				if ( m_CurrentHealth[m_DmgZones[i]] != health )
+				{
+					//Print(GetType() + " " + caller + " -> ItemBase::UpdateCurrentHealthMap " + m_DmgZones[i] + " health : " + health);
+					m_CurrentHealth[m_DmgZones[i]] = health;
+				}
+			}
+		}
 	}
 
 	/**
@@ -168,12 +209,21 @@ modded class ItemBase
 	// ExpansionIsOpenable
 	//============================================	
 	/**
-	\brief Returning if can be opened
+	\brief Returning if openable in principle (regardless if player can actually open in current state)
 		\param 	
 	*/
 	bool ExpansionIsOpenable()
 	{
 		return false;
+	}
+
+	/**
+	\brief Returning if selection is openable in principle (regardless if player can actually open in current state)
+		\param 	
+	*/
+	bool ExpansionIsOpenable( string selection )
+	{
+		return ExpansionIsOpenable();
 	}
 	
 	/**
@@ -193,6 +243,15 @@ modded class ItemBase
 	{
 		return false;
 	}
+
+	/**
+	\brief Returning if player can close gate/safe from selection
+		\param 
+	*/
+	bool ExpansionCanClose( PlayerBase player, string selection )
+	{
+		return CanClose( selection );
+	}
 	
 	/**
 	\brief Returning if player can close gate/safe from selection
@@ -210,6 +269,14 @@ modded class ItemBase
 	void Open( string selection ) 
 	{
 	}
+
+	void UnlockAndOpen( string selection ) 
+	{
+		if ( m_HasCode )
+			Unlock();
+
+		Open( selection );
+	}
 	
 	/**
 	\brief Closing gate/safe on defined selection
@@ -218,22 +285,55 @@ modded class ItemBase
 	void Close( string selection ) 
 	{
 	}
-	
-	/**
-	\brief Set code of wall/safe
-		\param 	
-	*/
-	void SetCode( string code )
+
+	void CloseAndLock( string selection )
 	{
+		if ( IsOpened() )
+			Close( selection );
+
+		if ( m_HasCode )
+			Lock();
 	}
 	
 	/**
-	\brief Returning code of wall/safe
+	\brief Set code of wall/safe/fence
+		\param 	
+	*/
+	void SetCode( string code, PlayerBase player = NULL )
+	{
+		m_Code = code;
+		m_CodeLength = code.Length();
+		m_HasCode = code != "";
+		m_Locked = false;
+
+		if ( GetExpansionSettings().GetBaseBuilding().RememberCode )
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if ( codelock )
+				codelock.SetUser( player );
+			else if ( IsInherited( ExpansionSafeBase ) )
+				SetUser( player );
+		}
+
+		SetSynchDirty();
+	}
+	
+	/**
+	\brief Returning code of wall/safe/fence
 		\param 	
 	*/
 	string GetCode()
 	{
-		return "";
+		return m_Code;
+	}
+
+	/**
+	\brief Returning code length of wall/safe/fence
+		\param 	
+	*/
+	int GetCodeLength()
+	{
+		return m_CodeLength;
 	}
 
 	/**
@@ -242,7 +342,7 @@ modded class ItemBase
 	*/
 	bool HasCode()
 	{
-		return false;
+		return m_HasCode;
 	}
 
 	/**
@@ -269,6 +369,19 @@ modded class ItemBase
 	*/
 	void Lock()
 	{
+		if ( m_HasCode )
+		{
+			m_Locked = true;
+
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if ( codelock )
+			{
+				codelock.SetSlotLock( this, true );
+				codelock.SetTakeable( false );
+			}
+		}
+
+		SetSynchDirty();
 	}
 	
 	/**
@@ -277,6 +390,16 @@ modded class ItemBase
 	*/
 	void Unlock()
 	{
+		m_Locked = false;
+
+		ExpansionCodeLock codelock = ExpansionGetCodeLock();
+		if ( codelock )
+		{
+			codelock.SetSlotLock( this, false );
+			codelock.SetTakeable( true );
+		}
+
+		SetSynchDirty();
 	}
 	
 	/**
@@ -285,18 +408,99 @@ modded class ItemBase
 	*/
 	void FailedUnlock()
 	{
+		SoundCodeLockFailedUnlock();
+	}
+	
+	protected void SoundCodeLockFailedUnlock()
+	{
+		if ( !IsMissionClient() )
+			return;
+
+		string SOUND_CODE_DENIED = "";		
+
+		if ( GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock )
+		{
+			SOUND_CODE_DENIED = "Expansion_Shocks_SoundSet";
+		} else {
+			SOUND_CODE_DENIED = "Expansion_Denied_SoundSet";
+		}
+
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		{
+			EffectSound sound = SEffectManager.PlaySound(SOUND_CODE_DENIED, GetPosition());
+			sound.SetSoundAutodestroy( true );
+		}
+	}
+
+	/**
+	\brief Return if player is a known user of (attached) code lock or safe.
+	
+	NOTE: If IsKnownUser is called on the client instead of the server, initial calls will return false
+	until the asynchronous request for known user data completes (unless the player had earlier set, changed,
+	or entered the correct code while in the entity's network bubble).
+	This is fine though, as IsKnownUser is primarily meant to be used by action conditions,
+	and will function as intended in that context.
+
+		\param 	player
+	*/
+	bool IsKnownUser( PlayerBase player )
+	{
+		if ( !player || !player.GetIdentity() || !GetExpansionSettings().GetBaseBuilding().RememberCode )
+			return false;
+
+		ExpansionCodeLock codelock = ExpansionGetCodeLock();
+		if ( codelock )
+			return codelock.IsKnownUser( player );
+
+		if ( GetGame().IsClient() && m_KnownUIDs && !m_KnownUIDsSet && !m_KnownUIDsRequested )
+			RequestKnownUIDs();
+
+		return m_KnownUIDs && m_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
+	}
+
+	void AddUser( PlayerBase player )
+	{
+		if ( player && player.GetIdentity() && !IsKnownUser( player ) )
+		{
+			EXPrint("ItemBase::AddUser " + this + " (parent=" + GetHierarchyParent() + ") " + player.GetIdentityUID());
+			m_KnownUIDs.Insert( player.GetIdentityUID() );
+			SendKnownUIDs();
+		}
+	}
+
+	void SetUser( PlayerBase player )
+	{
+		EXPrint("ItemBase::SetUser " + this + " (parent=" + GetHierarchyParent() + ")");
+		m_KnownUIDs.Clear();
+		AddUser( player );
+	}
+
+	//! Request known UIDs (players that know the code and have entered it correctly once) from server
+	void RequestKnownUIDs()
+	{
+		EXPrint("ItemBase::RequestKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
+		ScriptRPC rpc = new ScriptRPC;
+		rpc.Send( this, ExpansionLockRPC.KNOWNUSERS_REQUEST, true, NULL );
+		m_KnownUIDsRequested = true;
+	}
+
+	//! Send known UIDs (players that know the code and have entered it correctly once) to client
+	void SendKnownUIDs()
+	{
+		EXPrint("ItemBase::SendKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
+		ScriptRPC rpc = new ScriptRPC;
+		rpc.Write( m_KnownUIDs );
+		rpc.Send( this, ExpansionLockRPC.KNOWNUSERS_REPLY, true, NULL );
 	}
 	
 	//============================================
 	// SendServerLockReply
 	//============================================	
-	private void SendServerLockReply(bool reply, bool injuring, int action, string code, PlayerIdentity sender)
+	private void SendServerLockReply(bool reply, bool injuring, PlayerIdentity sender)
 	{
 		ScriptRPC rpc = new ScriptRPC;
 		rpc.Write( reply );
 		rpc.Write( injuring );
-		rpc.Write( action );
-		rpc.Write( code );
 		rpc.Send( this, ExpansionLockRPC.SERVERREPLY, true, sender );
 	}
 	
@@ -310,6 +514,23 @@ modded class ItemBase
 		//! Due to some weird dayz bug sender may sometimes not be null even when it could be so this check isn't really needed
 		if ( GetGame().IsServer() && GetGame().IsMultiplayer() && !sender )
 			return;
+
+		PlayerBase player;
+		string playerId;
+		string playerName;
+		string playerDesc;
+
+		if ( sender )
+		{
+			player = PlayerBase.GetPlayerByUID( sender.GetId() );
+
+			if ( player )
+			{
+				playerId = player.GetIdentityUID();
+				playerName = player.GetIdentityName();
+				playerDesc = "player \"" + playerName + "\" (ID = \"" + playerId + "\" at " + player.GetPosition() + ")";
+			}
+		}
 		
 		string code = "";
 		string selection = "";
@@ -323,20 +544,20 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
 				if ( !HasCode() || IsLocked() )
 				{
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					return;
 				}
 
-				Lock();
+				CloseAndLock( selection );
 				
-				SendServerLockReply( true, false, 1, "", sender );
+				SendServerLockReply( true, false, sender );
 				
 				return;
 			}
@@ -346,10 +567,10 @@ modded class ItemBase
 				if ( !IsMissionHost() || !GetExpansionSettings().GetBaseBuilding() )
 					return;
 				
-				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
+				if ( !ctx.Read( code ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -357,7 +578,7 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -368,11 +589,11 @@ modded class ItemBase
 					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
 					#endif
 					
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					return;
 				}
 
-				if ( GetCode() != code )
+				if ( !IsKnownUser( player ) && GetCode() != code )
 				{
 					#ifdef EXPANSIONEXLOGPRINT
 					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK GetCode() != code");
@@ -381,24 +602,38 @@ modded class ItemBase
 					
 					bool InjuryPlayer = GetExpansionSettings().GetBaseBuilding().DoDamageWhenEnterWrongCodeLock;
 
-					SendServerLockReply( false, InjuryPlayer, 1, "", sender );
-					
-					if (InjuryPlayer)
+					SendServerLockReply( false, InjuryPlayer, sender );
+
+					if ( player )
 					{
-						PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
-						if ( player )
+						if ( InjuryPlayer )
 						{
-							Print("GetCode()::"+GetCode()+"::code::"+code);
 							FailedUnlock();
-							player.DecreaseHealth( "", "", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
+
+							GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
+
+							//! Vanilla EnviroDmg is 1 0 1 (health blood shock)
+							player.ProcessDirectDamage( DT_CUSTOM, player, "", "EnviroDmg", "0.5 0.5 0.5", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
+						} else {
+							GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
 						}
+						GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
 					}
 
 					return;
 				}
 
+				if ( GetExpansionSettings().GetBaseBuilding().RememberCode )
+				{
+					ExpansionCodeLock codelock = ExpansionGetCodeLock();
+					if ( codelock )
+						codelock.AddUser( player );
+					else if ( IsInherited( ExpansionSafeBase ) )
+						AddUser( player );
+				}
+
 				Unlock();
-				SendServerLockReply( true, false, 1, GetCode(), sender );
+				SendServerLockReply( true, false, sender );
 				return;
 			}
 			
@@ -410,7 +645,7 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -418,7 +653,7 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -426,13 +661,13 @@ modded class ItemBase
 				if ( HasCode() )
 				{
 					// Base already has code so don't try setting it to another.
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					return;
 				}
 
-				SetCode( code );
+				SetCode( code, player );
 
-				SendServerLockReply( true, false, 0, "", sender );
+				SendServerLockReply( true, false, sender );
 				return;
 			}
 
@@ -444,7 +679,7 @@ modded class ItemBase
 				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
@@ -452,14 +687,16 @@ modded class ItemBase
 				if ( !ctx.Read( selection ) )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
-					SendServerLockReply( false, false, 0, "", sender );
+					SendServerLockReply( false, false, sender );
 					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
 					return;
 				}
 				
-				SetCode( code );
+				SetCode( code, player );
 
-				SendServerLockReply( true, false, 2, "", sender );
+				GetGame().AdminLog( "ExpansionCodelock ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
+
+				SendServerLockReply( true, false, sender );
 				return;
 			}
 			
@@ -481,390 +718,42 @@ modded class ItemBase
 					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read injuring");
 					return;
 				}
-				
-				int action;
-				if ( !ctx.Read( action ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read action");
-					return;
-				}
-				
-				if ( !ctx.Read( code ) )
-				{
-					Error("ItemBase::OnRPC ExpansionLockRPC.SERVERREPLY can't read code");
-					return;
-				}
-				
-				//Save the code
-				if (reply && action == 1 && code != "")
-				{
-					ExpansionLockSaver.GetInstance().SaveCode( this, code );
-				}
-				//Code wrong, could be a saved code, so we remove it
-				else if (!reply && action == 1 && code == "" || action == 2)
-				{
-					ExpansionLockSaver.GetInstance().RemoveCode( this );
-				}
+
+				if ( injuring )
+					FailedUnlock();
 
 				ExpansionLockUIBase menu;
 				if ( !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_CODELOCK_MENU ) ) && !Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_NUMPAD_MENU ) ) )
 					return;
 					
 				menu.OnServerResponse( reply, injuring );
+				return;
 			}
-		}
-	}
-	
-	//============================================
-	// EEItemLocationChanged
-	//============================================	
-	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
-	override void EEItemLocationChanged( notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc )
-	{
-		#ifdef EXPANSIONEXPRINT
-		Print("ItemBase::EEItemLocationChanged - Start");
-		#endif
-
-		ExpansionAIBase new_player = null;
-		ExpansionAIBase old_player = null;
-		
-		if ( oldLoc.GetItem() )
-			old_player = ExpansionAIBase.Cast( oldLoc.GetItem().GetHierarchyRootPlayer() );
-
-		if ( newLoc.GetParent() )
-			new_player = ExpansionAIBase.Cast( newLoc.GetParent().GetHierarchyRootPlayer() );
-		
-		if ( !new_player && !old_player )
-		{	
-			super.EEItemLocationChanged( oldLoc, newLoc );
-
-			#ifdef EXPANSIONEXPRINT
-			Print("ItemBase::EEItemLocationChanged - End - Not AI");
-			#endif
-
-			return;
-		}
-
-		EntityAI old_owner = oldLoc.GetItem();
-		EntityAI new_owner = newLoc.GetItem();
-		OnItemLocationChanged( old_owner, new_owner );
-
-		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT && newLoc.GetType() == InventoryLocationType.ATTACHMENT )
-		{
-			OnItemAttachmentSlotChanged( oldLoc, newLoc );
-		}
-		
-		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT )
-		{
-			if ( old_owner )
-				OnWasDetached( old_owner, oldLoc.GetSlot() );
-			else
-				Error("EntityAI::EEItemLocationChanged - detached, but old_owner is null");
-		}
-		
-		if ( newLoc.GetType() == InventoryLocationType.ATTACHMENT )
-		{
-			if ( new_owner )
-				OnWasAttached( newLoc.GetParent(), newLoc.GetSlot() );
-			else
-				Error("EntityAI::EEItemLocationChanged - attached, but new_owner is null");
-		}
-		
-		if ( newLoc.GetType() == InventoryLocationType.HANDS )
-		{
-			if ( new_player == old_player )
+			
+			case ExpansionLockRPC.KNOWNUSERS_REQUEST:
 			{
-			} else
+				SendKnownUIDs();
+				return;
+			}
+			
+			case ExpansionLockRPC.KNOWNUSERS_REPLY:
 			{
-				if ( m_OldLocation )
+				if ( !ctx.Read( m_KnownUIDs ) )
 				{
-					m_OldLocation.Reset();
+					Error("ItemBase::OnRPC " + this + " ExpansionLockRPC.KNOWNUSERS_REPLY can't read reply");
+					return;
 				}
-			}
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		Print("ItemBase::EEItemLocationChanged - End");
-		#endif
-	}
-	
-	//============================================
-	// OnItemLocationChanged
-	//============================================	
-	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner )
-	{
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print("ItemBase::OnItemLocationChanged - Start");
-		#endif
-
-		DayZPlayerImplement old_owner_dpi = NULL;
-		DayZPlayerImplement new_owner_dpi = NULL;
-
-		bool shouldSuper = true;
-		
-		if ( old_owner )
-		{
-			if ( old_owner.IsMan() )
-			{
-				old_owner_dpi = DayZPlayerImplement.Cast( old_owner );
-			} else
-			{
-				old_owner_dpi = DayZPlayerImplement.Cast( old_owner.GetHierarchyRootPlayer() );
-			}
-		}
-
-		if ( new_owner )
-		{
-			if ( new_owner.IsMan() )
-			{
-				new_owner_dpi = DayZPlayerImplement.Cast( new_owner );
-			} else
-			{
-				new_owner_dpi = DayZPlayerImplement.Cast( new_owner.GetHierarchyRootPlayer() );
-			}
-		}
-
-		//! super OnItemLocationChanged wants PlayerBase class, AI is Man so this is to prevent the super method from being called.
-		if ( old_owner && old_owner.IsMan() && !PlayerBase.Cast( old_owner ) )
-		{
-			shouldSuper = false;
-		} else if ( new_owner && new_owner.IsMan() && !PlayerBase.Cast( new_owner ) )
-		{
-			shouldSuper = false;
-		}
-
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( shouldSuper );
-		Print( old_owner );
-		Print( new_owner );
-		Print( old_owner_dpi );
-		Print( new_owner_dpi );
-		
-		if ( new_owner )
-			Print( "new_owner IsMan: " + new_owner.IsMan() );
-
-		if ( old_owner )
-			Print( "old_owner IsMan: " + old_owner.IsMan() );
-		#endif
-		
-		if ( shouldSuper )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::OnItemLocationChanged - Start - Calling Super" );
-			#endif
-
-			super.OnItemLocationChanged( old_owner, new_owner );
-
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::OnItemLocationChanged - End - Calling Super" );
-			#endif
-		}
-
-		if ( !GetGame().IsServer() )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
-			#endif
-
-			return;
-		}
-
-		EntityAI parent = NULL;
-
-		//Attaching or detaching the items to the vehicle
-		if ( old_owner_dpi && !new_owner ) // on drop
-		{
-			if ( dBodyIsDynamic( this ) && dBodyIsActive( this ) )
-			{
-				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-				Print( "ItemBase::OnItemLocationChanged - End - Is Dynamic" );
+				EXPrint("ItemBase::OnRPC " + this + " (parent=" + GetHierarchyParent() + ") - received m_KnownUIDs");
+				#ifdef EXPANSIONEXPRINT
+				for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
+				{
+					EXPrint(m_KnownUIDs[i]);
+				}
 				#endif
-
+				m_KnownUIDsSet = true;
 				return;
 			}
-
-			if ( !Class.CastTo( parent, old_owner_dpi.GetParent() ) )
-			{
-				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-				Print( "ItemBase::OnItemLocationChanged - End - No Parent" );
-				#endif
-
-				return;
-			}
-
-			CarScript car;
-			ExpansionVehicleBase veh;
-			if ( !Class.CastTo( car, parent ) && !Class.CastTo( veh, parent ) )
-			{
-				#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-				Print( "ItemBase::OnItemLocationChanged - End - No Valid Parent" );
-				#endif
-
-				return;
-			}
-
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( car );
-			Print( veh );
-			#endif
-
-			bool carAttach = car && car.CanObjectAttach( this );
-			bool vehAttach = veh && veh.CanObjectAttach( this );
-
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( carAttach );
-			Print( vehAttach );
-			#endif
-
-			if ( carAttach || vehAttach )
-			{
-				vector tmItem[4];
-				vector tmTarget[4];
-				vector tmLocal[4];
-
-				vector pPos = old_owner_dpi.GetPosition();
-				vector pOri = old_owner_dpi.GetOrientation();
-
-				old_owner_dpi.GetTransform( tmItem );
-				PlaceOnSurfaceRotated( tmItem, pPos, 0, 0, 0, false );
-
-				parent.GetTransform( tmTarget );
-				Math3D.MatrixInvMultiply4( tmTarget, tmItem, tmLocal );
-
-				LinkToLocalSpaceOf( parent, tmLocal );
-			}
-		} else if ( new_owner_dpi && !old_owner ) //! On pickup
-		{
-			UnlinkFromLocalSpace();
 		}
-		
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print("ItemBase::OnItemLocationChanged - End");
-		#endif
-	}
-	#endif
-	
-	//============================================
-	// IsInventoryVisible
-	//============================================	
-	override bool IsInventoryVisible()
-	{
-		return ( m_IsAttached || super.IsInventoryVisible() );
-	}
-	
-	//============================================
-	// LinkToLocalSpaceOf
-	//============================================
-	void LinkToLocalSpaceOf( notnull EntityAI pParent, vector pLocalSpaceMatrix[4] )
-	{
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( "ItemBase::LinkToLocalSpaceOf - Start - Target=" + pParent );
-		#endif
-
-		if ( !GetGame().IsServer() )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::LinkToLocalSpaceOf - End - Not Server" );
-			#endif
-
-			return;
-		}
-		/*
-		InventoryLocation child_src = new InventoryLocation;
-		GetInventory().GetCurrentInventoryLocation( child_src );
-				
-		InventoryLocation child_dst = new InventoryLocation;
-		child_dst.SetGround( this, pLocalSpaceMatrix );
-		child_dst.SetParent( pParent );
-
-		if ( !GameInventory.LocationCanMoveEntity( child_src, child_dst ) )
-		{
-			Print( "ItemBase::LinkToLocalSpaceOf - End - LocationCanMoveEntity" );
-
-			return;
-		}
-
-		if ( !GameInventory.LocationSyncMoveEntity( child_src, child_dst ) )
-		{
-			Print( "ItemBase::LinkToLocalSpaceOf - End - LocationSyncMoveEntity" );
-
-			return;
-		}
-		*/
-
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( pLocalSpaceMatrix[0] );
-		Print( pLocalSpaceMatrix[1] );
-		Print( pLocalSpaceMatrix[2] );
-		Print( pLocalSpaceMatrix[3] );
-		#endif
-
-		m_IsAttached = true;
-		m_WorldAttachment = pParent;
-
-		SetTransform( pLocalSpaceMatrix );
-
-		m_WorldAttachment.AddChild( this, -1 );
-		m_WorldAttachment.Update();
-
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( "ItemBase::LinkToLocalSpaceOf - End - Target=" + m_WorldAttachment );
-		#endif
-	}
-	
-	//============================================
-	// UnlinkFromLocalSpace
-	//============================================
-	void UnlinkFromLocalSpace()
-	{
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( "ItemBase::UnlinkFromLocalSpace - Start" );
-		#endif
-
-		if ( !GetGame().IsServer() )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::UnlinkFromLocalSpace - End - Not Server" );
-			#endif
-
-			return;
-		}
-
-		if ( !m_WorldAttachment )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::UnlinkFromLocalSpace - End - No World Attachment" );
-			#endif
-
-			return;
-		}
-
-		m_IsAttached = false;
-
-		vector tmGlobal[4];
-
-		GetTransform( tmGlobal );
-
-		m_WorldAttachment.RemoveChild( this );
-
-		SetTransform( tmGlobal );
-
-		m_WorldAttachment.Update();
-		m_WorldAttachment = NULL;
-
-		Update();
-
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( "ItemBase::UnlinkFromLocalSpace - End" );
-		#endif
-	}
-	
-	//============================================
-	// GetExpansionSaveVersion
-	//============================================
-	int GetExpansionSaveVersion()
-	{
-		return m_ExpansionSaveVersion;
 	}
 	
 	//============================================
@@ -872,24 +761,21 @@ modded class ItemBase
 	//============================================
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreSave - Start");
 		#endif
 
-		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
-		ctx.Write( m_ExpansionSaveVersion );
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("ItemBase::OnStoreSave " + this + " " + GetGame().SaveVersion());
+		#endif
 
 		super.OnStoreSave( ctx );
 
-		ctx.Write( m_CurrentSkinName );
+		//! If we are saving game version target for ModStorage support (1st stable) or later
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
+			return;
+		#endif
 
 		if ( m_WorldAttachment && m_IsAttached )
 		{
@@ -929,24 +815,34 @@ modded class ItemBase
 	//============================================
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
+		//! With CF_ModStorage enabled, the code below won't be ran unless an old CE is loaded. To prevent server wipes, the code below will stay.
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ItemBase::OnStoreLoad - Start");
 		#endif
 
-		//! Use GetExpansionSaveVersion(), making sure this is read before everything else
-		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
-			return false;
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("ItemBase::OnStoreLoad " + this + " " + version);
+		#endif
 
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
-			return false;
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
+
+		if ( GetExpansionSaveVersion() < 22 )
+		{
+			string currentSkinName = m_CurrentSkinName;
+
+			if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
+				return false;
+
+			if ( m_CurrentSkinName == "" )
+				m_CurrentSkinName = currentSkinName;
+		}
 
 		if ( Expansion_Assert_False( ctx.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
 			return false;
@@ -1001,12 +897,14 @@ modded class ItemBase
 	#ifdef CF_MODULE_MODSTORAGE
 	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("ItemBase::CF_OnStoreSave " + this + " " + modName);
+		#endif
+
 		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion" )
 			return;
-
-		storage.Write( m_CurrentSkinName );
 		
 		if ( m_WorldAttachment && m_IsAttached )
 		{
@@ -1039,14 +937,26 @@ modded class ItemBase
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("ItemBase::CF_OnStoreLoad " + this + " " + modName);
+		#endif
+
 		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
 		if ( modName != "DZ_Expansion" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_WasInVehicle" ) )
-			return false;
+		if ( GetExpansionSaveVersion() < 22 )
+		{
+			string currentSkinName = m_CurrentSkinName;
+
+			if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
+				return false;
+
+			if ( m_CurrentSkinName == "" )
+				m_CurrentSkinName = currentSkinName;
+		}
 
 		if ( Expansion_Assert_False( storage.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
 			return false;
@@ -1098,24 +1008,6 @@ modded class ItemBase
 		#endif
 
 		super.EEOnAfterLoad();
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CanBeSkinned );
-		Print( m_CurrentSkinName );
-		#endif
-
-		if ( m_CanBeSkinned )
-		{
-			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
-			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-
-			ExpansionOnSkinUpdate();
-		}
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CurrentSkinIndex );
-		Print( m_CurrentSkin );
-		#endif
 		
 		if ( m_IsAttached )
 		{
@@ -1132,6 +1024,8 @@ modded class ItemBase
 		}
 
 		m_ElectricitySource.OnAfterLoad();
+
+		UpdateCurrentHealthMap( "ItemBase::EEOnAfterLoad" );
 		
 		#ifdef EXPANSIONEXPRINT
 		Print("ItemBase::EEOnAfterLoad - End");
@@ -1273,66 +1167,19 @@ modded class ItemBase
 
 		m_ElectricitySource.OnVariablesSynchronized();
 
-		if ( m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex )
-		{
-			m_CurrentSkinIndex = m_CurrentSkinSynchRemote;
-			if ( m_CurrentSkinIndex >= 0 && m_CurrentSkinIndex < m_Skins.Count() )
-			{
-				m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
-				m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-			} else
-			{
-				m_CurrentSkinName = "";
-				m_CurrentSkin = NULL;	
-			}
-
-			ExpansionOnSkinUpdate();
-		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::OnVariablesSynchronized - End");
 		#endif
 	}
-
+	
 	//============================================
-	// ExpansionSetupSkins
+	// Explode
 	//============================================
-	protected void ExpansionSetupSkins()
+ 	override void Explode(int damageType, string ammoType = "")
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionSetupSkins Start");
-		#endif
+		super.Explode( damageType, ammoType );
 
-		m_Skins = new array< ExpansionSkin >;
-
-		if ( Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) ) )
-		{
-			m_SkinModule.RetrieveSkins( GetType(), m_Skins, m_CurrentSkinName );
-		}
-
-		m_CanBeSkinned = m_Skins.Count() != 0;
-
-		if ( m_CanBeSkinned )
-		{
-			if ( m_CurrentSkinName != "" )
-			{
-				m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
-			} else
-			{
-				m_CurrentSkinIndex = 0;
-				
-				m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
-			}
-			
-			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-
-			ExpansionOnSkinUpdate();
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionSetupSkins End");
-		#endif
+		BuildingBase.ExpansionExplode( this, ammoType );
 	}
 
 	//============================================
@@ -1346,246 +1193,139 @@ modded class ItemBase
 		EXPrint("ItemBase::EEHealthLevelChanged Start");
 		#endif
 
-		if ( m_CanBeSkinned && m_CurrentSkin )
-		{
-			string sZone = zone;
-			sZone.ToLower();
-
-			for ( int i = 0; i < m_CurrentSkin.DamageZones.Count(); i++ )
-			{
-				string cZone = m_CurrentSkin.DamageZones[i].Zone;
-				cZone.ToLower();
-
-				if ( cZone == sZone )
-				{
-					ExpansionOnSkinDamageZoneUpdate( m_CurrentSkin.DamageZones[i], newLevel );
-				}
-			}
-		}
+		if ( IsMissionHost() )
+			UpdateCurrentHealthMap( "ItemBase::EEHealthLevelChanged" );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::EEHealthLevelChanged End");
 		#endif
 	}
-
-	//============================================
-	// ExpansionSetSkin
-	//============================================
-	void ExpansionSetSkin( int skinIndex )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionSetSkin Start");
-		#endif
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CanBeSkinned );
-		Print( skinIndex );
-		#endif
-
-		if ( !m_CanBeSkinned )
-		{
-			m_CurrentSkinName = "";
-
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ItemBase::ExpansionSetSkin End");
-			#endif
-
-			return;
-		}
-
-		m_CurrentSkinIndex = skinIndex;
-
-		if ( m_CurrentSkinIndex < 0 )
-		{
-			m_CurrentSkinIndex = 0;
-		}
-
-		if ( m_CurrentSkinIndex >= m_Skins.Count() )
-		{
-			m_CurrentSkinIndex = 0;
-		}
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CurrentSkinIndex );
-		#endif
-
-		m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
-		m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-		m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CurrentSkinName );
-		Print( m_CurrentSkinSynchRemote );
-		Print( m_CurrentSkin );
-		#endif
-
-		ExpansionOnSkinUpdate();
-
-		SetSynchDirty();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionSetSkin End");
-		#endif
-	}
-
-	//============================================
-	// ExpansionOnSkinDamageZoneUpdate
-	//============================================
-	void ExpansionOnSkinDamageZoneUpdate( ExpansionSkinDamageZone zone, int level )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionOnSkinDamageZoneUpdate Start");
-		#endif
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( zone );
-		Print( level );
-		#endif
-
-		for ( int i = 0; i < zone.HiddenSelections.Count(); i++ )
-		{
-			int selectionIndex = GetHiddenSelectionIndex( zone.HiddenSelections[i] );
-
-			#ifdef EXPANSION_SKIN_LOGGING
-			Print( "HiddenSelection: " + zone.HiddenSelections[i] );
-			Print( "SelectionIndex: " + selectionIndex );
-			#endif
-
-			if ( level >= 0 && level < zone.HealthLevels.Count() )
-			{
-				ExpansionSkinHealthLevel healthLevel = zone.HealthLevels[level];
-
-				#ifdef EXPANSION_SKIN_LOGGING
-				Print( "RVTexture: " + healthLevel.RVTexture );
-				Print( "RVMaterial: " + healthLevel.RVMaterial );
-				#endif
-
-				SetObjectTexture( selectionIndex, healthLevel.RVTexture );
-				SetObjectMaterial( selectionIndex, healthLevel.RVMaterial );
-			}
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionOnSkinDamageZoneUpdate End");
-		#endif
-	}
-
-	//============================================
-	// ExpansionOnSkinUpdate
-	//============================================
-	void ExpansionOnSkinUpdate()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionOnSkinUpdate Start");
-		#endif
-
-		if ( !m_CurrentSkin )
-		{
-			// Removed the public log, was spamming everyone
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ItemBase::ExpansionOnSkinUpdate called but m_CurrentSkin is NULL!");
-			#endif
-
-			return;
-		}
-		
-		for ( int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++ )
-		{
-			ExpansionSkinHiddenSelection selection = m_CurrentSkin.HiddenSelections[ i ];
-
-			int selectionIndex = GetHiddenSelectionIndex( selection.HiddenSelection );
-
-			#ifdef EXPANSION_SKIN_LOGGING
-			Print( "HiddenSelection: " + selection.HiddenSelection );
-			Print( "SelectionIndex: " + selectionIndex );
-			Print( "RVTexture: " + selection.RVTexture );
-			Print( "RVMaterial: " + selection.RVMaterial );
-			#endif
-
-			SetObjectTexture( selectionIndex, selection.RVTexture );
-			SetObjectMaterial( selectionIndex, selection.RVMaterial );
-		}
-		
-		for ( i = 0; i < m_CurrentSkin.DamageZones.Count(); i++ )
-		{
-			ExpansionOnSkinDamageZoneUpdate( m_CurrentSkin.DamageZones[i], GetHealthLevel( m_CurrentSkin.DamageZones[i].Zone ) );
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ItemBase::ExpansionOnSkinUpdate End");
-		#endif
-	}
 	
-	//============================================
-	// Explode
-	//============================================
- 	override void Explode(int damageType, string ammoType = "")
+	/**
+	 * @param damageResult 
+	 * @param source 
+	 * @param component 
+	 * @param dmgZone 
+	 * @param ammo 
+	 * @param modelPos 
+	 * @param speedCoef 
+	 *  
+	 * This override only exists to either increase or negate (partly or fully) the base damage by applying any respective damage multipliers,
+	 * and logs the result to the admin log.
+	 * 
+	 * TODO: Better linking to the vanilla damage system but still keep damage multipliers
+	 */
+	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
 	{
-		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
-		float blastDropoff = 1;
-		float blastDistance;
-		float blastRange = 5;
-		float blastDropoffRange = 2.5;
-		super.Explode(damageType, ammoType);
-		//(point - min ) / (max - min ) 
-		if (ammoType == "")
-			ammoType = this.ConfigGetString("ammoType");
+		super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
 
-		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
-		int explosionDamage = GetGame().ConfigGetInt(dmgPath);
-		
-		ref array<Object> nearest_objects = new array<Object>;
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D( this.GetPosition(), blastRange, nearest_objects, proxy_cargos );
-		for ( int i = 0; i < nearest_objects.Count(); i++ )
+		if ( !IsInherited( ExpansionBaseBuilding ) && !IsInherited( ExpansionSafeBase ) )
+			return;
+		string damageZone = dmgZone;
+		if ( damageZone == "" )
+			damageZone = "GlobalHealth";
+
+		//Print(GetType() + " ItemBase::EEHitby m_CurentHealth " + m_CurrentHealth[damageZone] + " health " + GetHealth(damageZone, "Health"));
+
+		float health = m_CurrentHealth[damageZone];  // Health before damage
+		float dmg = damageResult.GetDamage( damageZone, "Health" );  // Base damage
+		float damageMultiplier;
+
+		if ( damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM )
 		{
-			bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
-			Object nearest_object = nearest_objects.Get(i);
-
-			if ( nearest_object.IsInherited( ExpansionBaseBuilding ) )
+			if ( IsInherited( ExpansionSafeBase ) )
 			{
-				blastDistance = vector.Distance(nearest_object.GetPosition(), this.GetPosition());
-				if (blastDistance > blastDropoffRange)
-					blastDropoff = (1 - (blastDistance - blastDropoffRange) / (blastRange - blastDropoffRange));
-				else 
-					blastDropoff = 1;
-				
-				
-				for (int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); ++x)
+				if ( damageType == DT_EXPLOSION )
 				{
-
-					if (this.IsKindOf(GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x]))
-					{
-						dealDamage = true;
-					}
+					damageMultiplier = GetExpansionSettings().GetRaid().SafeExplosionDamageMultiplier;
+				} else
+				{
+					damageMultiplier = GetExpansionSettings().GetRaid().SafeProjectileDamageMultiplier;
 				}
-				if (dealDamage)
-					nearest_object.AddHealth( "GlobalHealth", "Health", ( explosionDamage * blastDropoff * explosionDamageMultiplier * -1) ); 
-			}
-		}
-	}
-	
-	//============================================
-	// SetActions
-	//============================================	
-	override void SetActions()
-	{
-		/*
-		//! Legacy melee raiding
-		if ( GetExpansionSettings().GetRaid() )
-		{
-			if ( GetExpansionSettings().GetRaid().AllowMeleeRaidingOnExpansion )
+			} else
 			{
-				AddAction(ExpansionActionDamageBaseBuilding);
+				if ( damageType == DT_EXPLOSION )
+				{
+					damageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
+				} else
+				{
+					damageMultiplier = GetExpansionSettings().GetRaid().ProjectileDamageMultiplier;
+				}
 			}
-		}
-		*/
 
-		super.SetActions();
+			// damageMultiplier > 1 applies bonus damage
+			// damageMultiplier < 1 negates damage (partly if multiplier > 0 or fully if 0)
+			// damageMultiplier == 1 effectively does nothing
+			if ( health > 0 )
+				SetHealth( damageZone, "Health", Math.Max( health - ( dmg * damageMultiplier ), 0 ) );
+		}
+
+		m_CurrentHealth[damageZone] = GetHealth( damageZone, "Health" );
+
+		RaidLog( source, damageZone, health, dmg, damageMultiplier );
+	}
+
+	void RaidLog( EntityAI source, string damageZone, float health, float dmg, float damageMultiplier )
+	{
+		PlayerBase player;
+		string playerId;
+		string playerName;
+		string playerDesc;
+
+		GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+
+		if ( source && ( Class.CastTo( player, source ) || Class.CastTo( player, source.GetHierarchyRootPlayer() ) ) )
+		{
+			playerId = player.GetIdentityUID();
+			playerName = player.GetIdentityName();
+
+			playerDesc = "Player \"" + playerName + "\" (ID = \"" + playerId + "\" at " + player.GetPosition() + ")";
+		} else
+		{
+			playerDesc = "A player";
+		}
+
+		GetGame().AdminLog( "BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
+		GetGame().AdminLog( "BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with a " + source.GetType() + " at " + GetPosition() );
+
+		GetGame().AdminLog( "Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
+		GetGame().AdminLog( "---------------------------------------------------------------------------------------" );
 	}
 
 	void UpdateLaser()
 	{
 		
+	}
+
+	void ExpansionDropServer( PlayerBase player )
+	{
+		if ( !IsMissionHost() )
+			return;
+
+		EntityAI parent = GetHierarchyParent();
+
+		if ( !parent )
+			return;
+
+		InventoryLocation inventory_location = new InventoryLocation;
+		GetInventory().GetCurrentInventoryLocation( inventory_location );
+
+		if ( inventory_location.IsValid() )
+			parent.GetInventory().SetSlotLock( inventory_location.GetSlot(), false );
+
+		if ( player )
+			player.ServerDropEntity( this );
+		else
+			parent.GetInventory().DropEntity( InventoryMode.SERVER, parent, this );
+
+		BaseBuildingBase base_building = BaseBuildingBase.Cast( parent );
+		if ( base_building )
+			SetPosition( base_building.GetKitSpawnPosition() );
+		else
+			SetPosition( parent.GetPosition() );
+		PlaceOnSurface();
+
+		SetTakeable( true );
+		SetSynchDirty();
 	}
 }

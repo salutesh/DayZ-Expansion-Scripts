@@ -26,8 +26,9 @@ class cfgExpansionCharacterScenes
 			rain = 0.0;
 			fog = 0.67;
 			windspeed = 0.22;
-			MappingFiles[] = {"Svetloyarsk","SvetloyarskNoCollision","SvetRoadForestNoCollision"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Svetloyarsk","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/SvetloyarskNoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/SvetRoadForestNoCollision"};
 			CustomPose = 1054;
+			HandItem = "";
 			CanRotate = 0;
 		};
 		class Cherno
@@ -42,8 +43,9 @@ class cfgExpansionCharacterScenes
 			rain = 0.0;
 			fog = 0.15;
 			windspeed = 0.22;
-			MappingFiles[] = {"Chernogorsk_Enhancement1","Chernogorsk_Enhancement1NoCollision","Chernogorsk_Enhancement2","Chernogorsk_Enhancement2NoCollision","Chernogorsk_Forest1","Chernogorsk_Grass1NoCollision","Chernogorsk_Grass2NoCollision","Chernogorsk_Forest1NoCollision","Chernogorsk_Forest2","Chernogorsk_Forest2NoCollision"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement1NoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement2","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement2NoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Grass1NoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Grass2NoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest1NoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest2","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest2NoCollision"};
 			CustomPose = -1;
+			HandItem = "";
 			CanRotate = 1;
 		};
 		class Kamyshovo
@@ -58,8 +60,9 @@ class cfgExpansionCharacterScenes
 			rain = 0.0;
 			fog = 0.45;
 			windspeed = 0.0;
-			MappingFiles[] = {"Kamyshovo","Kamyshovo_GrassNoCollision","GrassNoCollision","KamyshovoNoCollision"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Kamyshovo","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Kamyshovo_GrassNoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/GrassNoCollision","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/KamyshovoNoCollision"};
 			CustomPose = -1;
+			HandItem = "";
 			CanRotate = 1;
 		};
 		class twospooky
@@ -74,8 +77,9 @@ class cfgExpansionCharacterScenes
 			rain = 0.2;
 			fog = 1.0;
 			windspeed = 0.0;
-			MappingFiles[] = {"Elektrozavodsk","MainMenu_Elektro","ElektrozavodskNoCollision"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Elektrozavodsk","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/MainMenu_Elektro","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/ElektrozavodskNoCollision"};
 			CustomPose = -1;
+			HandItem = "";
 			CanRotate = 1;
 		};
 		class campfire_guitar
@@ -90,9 +94,47 @@ class cfgExpansionCharacterScenes
 			rain = 0.0;
 			fog = 1.0;
 			windspeed = 0.0;
-			MappingFiles[] = {"MainMenu_Campfire","Chernogorsk_Enhancement1","Chernogorsk_Enhancement2","Chernogorsk_Forest1","Chernogorsk_Forest2"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/MainMenu_Campfire","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement2","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest2"};
 			CustomPose = 1051;
+			HandItem = "Expansion_Guitar";
 			CanRotate = 0;
+		};
+	};
+	class Namalsk
+	{
+		class namalsk_bed
+		{
+			CameraPosition[] = {4508.6514,18.056488,10944.384};
+			CameraOrientation[] = {-43.36185,-30.872278,0.0};
+			PlayerPosition[] = {4507.556,16.149231,10945.431};
+			PlayerOrientation[] = {-48.103317,0.0,0.0};
+			fov = 1.096;
+			date[] = {2011,9,20,20,51};
+			overcast = 0.0;
+			rain = 0.34;
+			fog = 0.0;
+			windspeed = 0.0;
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/MainMenu_Namalsk_Bed"};
+			CustomPose = 1052;
+			HandItem = "";
+			CanRotate = 0;
+		};
+		class namalsk_sub
+		{
+			CameraPosition[] = {11960.074,8.688129,12006.908};
+			CameraOrientation[] = {-67.05381,0.234928,0.0};
+			PlayerPosition[] = {11958.228,7.746279,12007.114};
+			PlayerOrientation[] = {108.54003,0.0,-0.0};
+			fov = 1.096;
+			date[] = {2011,9,20,18,33};
+			overcast = 0.24;
+			rain = 0.0890308;
+			fog = 0.19;
+			windspeed = 0.0;
+			MappingFiles[] = {};
+			CustomPose = -1;
+			HandItem = "";
+			CanRotate = 1;
 		};
 	};
 };

@@ -168,14 +168,21 @@ class ExpansionPartyPlayerData
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// Marker OnSettingChanged
-	// ------------------------------------------------------------
 	void OnSettingChanged()
 	{
 		if ( m_TempMarkerData )
 			delete m_TempMarkerData;
 
 		InitMarker();
+	}
+	
+	string GetID()
+	{
+		return UID;
+	}
+	
+	string GetName()
+	{
+		return Name;
 	}
 };

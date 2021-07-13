@@ -28,8 +28,10 @@ class ExpansionMonitorModule: JMModuleBase
 	//Client only
 	private ref ExpansionSyncedPlayerStats m_ClientStat;
 	
+	static ref ScriptInvoker m_StatsInvoker = new ScriptInvoker();
+	
 	// ------------------------------------------------------------
-	// Expansion ExpansionMonitorModule
+	// ExpansionMonitorModule Constructor
 	// ------------------------------------------------------------
 	void ExpansionMonitorModule()
 	{
@@ -42,7 +44,10 @@ class ExpansionMonitorModule: JMModuleBase
 		EXPrint("ExpansionMonitorModule::ExpansionMonitorModule - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule OnInit
+	// ------------------------------------------------------------
 	override void OnInit()
 	{
 		if ( IsMissionHost() )
@@ -55,7 +60,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override GetRPCMin
+	// ExpansionMonitorModule GetRPCMin
 	// ------------------------------------------------------------
 	override int GetRPCMin()
 	{
@@ -63,7 +68,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override GetRPCMax
+	// ExpansionMonitorModule GetRPCMax
 	// ------------------------------------------------------------
 	override int GetRPCMax()
 	{
@@ -71,7 +76,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnRPC
+	// ExpansionMonitorModule OnRPC
 	// Called on client
 	// ------------------------------------------------------------
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
@@ -88,6 +93,12 @@ class ExpansionMonitorModule: JMModuleBase
 		case ExpansionMonitorRPC.SendMessage:
 			RPC_SendMessage( ctx );
 			break;
+		case ExpansionMonitorRPC.RequestPlayerStats:
+			RPC_RequestPlayerStats( ctx, sender );
+			break;
+		case ExpansionMonitorRPC.SendPlayerStats:
+			RPC_SendPlayerStats( ctx );
+			break;
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -96,7 +107,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnClientReady
+	// ExpansionMonitorModule OnClientReady
 	// ------------------------------------------------------------
 	override void OnClientReady( PlayerBase player, PlayerIdentity identity )
 	{
@@ -126,7 +137,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnInvokeConnect
+	// ExpansionMonitorModule OnInvokeConnect
 	// ------------------------------------------------------------
 	override void OnInvokeConnect( PlayerBase player, PlayerIdentity identity )
 	{
@@ -147,7 +158,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnInvokeDisconnect
+	// ExpansionMonitorModule OnInvokeDisconnect
 	// Called on server
 	// ------------------------------------------------------------
 	override void OnInvokeDisconnect( PlayerBase player )
@@ -168,7 +179,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnClientLogout
+	// ExpansionMonitorModule OnClientLogout
 	// Called on server
 	// ------------------------------------------------------------
 	override void OnClientLogout( PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed )
@@ -177,7 +188,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override OnUpdate
+	// ExpansionMonitorModule OnUpdate
 	// ------------------------------------------------------------
 	override void OnUpdate( float timeslice )
 	{
@@ -229,6 +240,11 @@ class ExpansionMonitorModule: JMModuleBase
 					}
 	
 					m_CurrentPlayerTick++;
+
+					if ( m_CurrentPlayerTick == m_Stats.Count() )
+					{
+						break;
+					}
 				}
 			} else
 			{
@@ -244,7 +260,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Override AddPlayerStats
+	// ExpansionMonitorModule AddPlayerStats
 	// Called on server
 	// ------------------------------------------------------------
 	void AddPlayerStats( PlayerBase player, PlayerIdentity identity )
@@ -265,7 +281,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion RemovePlayerStats
+	// ExpansionMonitorModule RemovePlayerStats
 	// Called on server
 	// ------------------------------------------------------------
 	void RemovePlayerStats(PlayerIdentity identity)
@@ -287,13 +303,13 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ServerChatMessage
+	// ExpansionMonitorModule ServerChatMessage
 	// Called on server
 	// ------------------------------------------------------------
 	void ServerChatMessage( ref StringLocaliser tag, ref StringLocaliser message)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionKillFeedModule::Message - Start" );
+		EXLogPrint( "ExpansionMonitorModule::Message - Start" );
 		#endif
 
 		ScriptRPC message_rpc = new ScriptRPC();
@@ -302,12 +318,12 @@ class ExpansionMonitorModule: JMModuleBase
 		message_rpc.Send( null, ExpansionMonitorRPC.SendMessage, true );
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionKillFeedModule::Message - End" );
+		EXLogPrint( "ExpansionMonitorModule::Message - End" );
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion RPC_SendMessage
+	// ExpansionMonitorModule RPC_SendMessage
 	// Called on all Clients
 	// ------------------------------------------------------------
 	private void RPC_SendMessage( ref ParamsReadContext ctx )
@@ -335,7 +351,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CalcHealth
+	// ExpansionMonitorModule CalcHealth
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcHealth( PlayerBase player )
@@ -344,7 +360,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CalcBlood
+	// ExpansionMonitorModule CalcBlood
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcBlood( PlayerBase player )
@@ -353,7 +369,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion CalcWater
+	// ExpansionMonitorModule CalcWater
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcWater( PlayerBase player )
@@ -362,7 +378,7 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion CalcEnergy
+	// ExpansionMonitorModule CalcEnergy
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcEnergy( PlayerBase player )
@@ -371,26 +387,34 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion CalcStamina
+	// ExpansionMonitorModule CalcStamina
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcStamina( PlayerBase player )
 	{
 		return CalcStat( player.GetStatStamina() );
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule Calc
+	// Called on server
+	// ------------------------------------------------------------
 	protected int Calc( float value, float max )
 	{
 		return ( Math.Round( value ) * 100 ) / max;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule CalcStat
+	// Called on server
+	// ------------------------------------------------------------
 	protected int CalcStat( PlayerStat< float > stat )
 	{
 		return Calc( stat.Get(), stat.GetMax() );
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion CalcWeight
+	// ExpansionMonitorModule CalcWeight
 	// Called on server
 	// ------------------------------------------------------------
 	protected int CalcWeight( PlayerBase player )
@@ -403,11 +427,118 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion GetStats
+	// ExpansionMonitorModule GetStats
 	// Called on client
 	// ------------------------------------------------------------ 
 	ExpansionSyncedPlayerStats GetStats()
 	{
 		return m_ClientStat;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule RequestPlayerStats
+	// Called from client
+	// ------------------------------------------------------------
+	void RequestPlayerStats(string player_id)
+	{
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStats - Start" );
+		//#endif
+
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( player_id );
+		rpc.Send( null, ExpansionMonitorRPC.RequestPlayerStats, true );
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStats - End" );
+		//#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule RPC_RequestPlayerStats
+	// Called on server
+	// ------------------------------------------------------------
+	private void RPC_RequestPlayerStats( ref ParamsReadContext ctx, PlayerIdentity sender )
+	{
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStats - Start" );
+		//#endif
+		
+		if (IsMissionClient())
+			return;
+
+		string player_id;
+		if (!ctx.Read(player_id))
+			return;
+		
+		ref ExpansionSyncedPlayerStats playerStats = GetPlayerStatsByID(player_id);
+		if (playerStats)
+		{
+			SendPlayerStats(playerStats, sender);
+		}
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStats - End" );
+		//#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule GetPlayerStatsByID
+	// Called on server
+	// ------------------------------------------------------------
+	ref ExpansionSyncedPlayerStats GetPlayerStatsByID(string player_id)
+	{
+		ref ExpansionSyncedPlayerStats currentStats = NULL;
+		ref ExpansionSyncedPlayerStats playerStats = NULL;
+		
+		if (m_Stats.Find(player_id, currentStats))
+		{
+			playerStats = currentStats;
+		}
+		
+		return playerStats;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule SendPlayerStats
+	// Called on server
+	// ------------------------------------------------------------
+	void SendPlayerStats(ref ExpansionSyncedPlayerStats player_stats, PlayerIdentity ident)
+	{
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::SendPlayerStats - Start" );
+		//#endif
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write( player_stats );
+		rpc.Send( null, ExpansionMonitorRPC.SendPlayerStats, true, ident );
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::SendPlayerStats - End" );
+		//#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule SendPlayerStats
+	// Called on client
+	// ------------------------------------------------------------
+	private void RPC_SendPlayerStats( ref ParamsReadContext ctx )
+	{
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStats - Start" );
+		//#endif
+		
+		if (!IsMissionClient())
+			return;
+		
+		ref ExpansionSyncedPlayerStats player_stats;
+		if (!ctx.Read(player_stats))
+			return;
+
+		m_StatsInvoker.Invoke(player_stats);
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStats - End" );
+		//#endif
 	}
 }

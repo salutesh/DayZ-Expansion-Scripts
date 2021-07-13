@@ -17,6 +17,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	protected Widget m_Twitter;
 	protected Widget m_Youtube;
 	protected Widget m_Discord;
+	protected TextWidget m_DiscordText;
 	protected Widget m_Wiki;
 	
 	protected RichTextWidget m_MainText1;
@@ -25,6 +26,10 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	protected RichTextWidget m_SecText1;
 	protected RichTextWidget m_SecText2;
 	protected RichTextWidget m_SecText3;
+
+	protected static const string EXPANSION_DISCORD_URL = "https://discord.gg/WabhFUa";
+	protected static string m_DiscordURL = EXPANSION_DISCORD_URL;
+	protected static string m_FeedbackURL = EXPANSION_DISCORD_URL;
 	
 	// ------------------------------------------------------------
 	// ExpansionNewsfeed Contructor
@@ -37,6 +42,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_Twitter			= Widget.Cast(m_Root.FindAnyWidget("twitter"));
 		m_Youtube			= Widget.Cast(m_Root.FindAnyWidget("youtube"));
 		m_Discord			= Widget.Cast(m_Root.FindAnyWidget("discord"));
+		m_DiscordText		= TextWidget.Cast(m_Discord.FindWidget("discord_text" ));
 		m_Wiki				= Widget.Cast(m_Root.FindAnyWidget("wiki"));
 		
 		m_MainText1			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT1"));
@@ -62,17 +68,17 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 			client_version = GetDayZGame().GetExpansionClientVersion();
 		
 		//! Section 1
-		m_MainText1.SetText("Expansion Update " + client_version);
+		m_MainText1.SetText("DayZ Expansion Mod Version " + client_version);
 		m_MainText1.Update();
 	
-		m_SecText1.SetText("Join our Discord for a detailed list of the latest changes and additions.");
+		m_SecText1.SetText("Join the DayZ Expansion Mod Discord for a detailed list of the latest changes and additions.");
 		m_SecText1.Update();
 		
 		//! Section 2
-		m_MainText2.SetText("Help us improving!");
+		m_MainText2.SetText("Help improve DayZ Expansion!");
 		m_MainText2.Update();
 		
-		m_SecText2.SetText("Please consider using the Expansion feedback tracker by using the Feedback button to report bugs and issues with the mod.");
+		m_SecText2.SetText("Please consider using the DayZ Expansion Mod Discord to report bugs and issues with the mod.");
 		m_SecText2.Update();
 		
 		//! Section 3
@@ -83,6 +89,31 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_SecText3.Show(false);
 		//m_SecText3.SetText("");
 		//m_SecText3.Update();
+
+		m_Youtube.Show(false);
+
+		//! Hack to use Discord URL from book if available.
+		//! This will work if we are currently connected to the server or have been connected previously without closing the game.
+
+		ExpansionServerInfos serverInfo = GetExpansionSettings().GetBook().ServerInfo;
+
+		if ( serverInfo )
+		{
+			foreach ( ExpansionServerInfoButtonData button : serverInfo.ServerButtons )
+			{
+				if ( button.IconPath == "set:expansion_iconset image:icon_discord" || button.Tooltip == "Discord" )
+				{
+					m_DiscordURL = button.URL;
+					break;
+				}
+			}
+		}
+
+		if ( m_DiscordURL != EXPANSION_DISCORD_URL )
+		{
+			m_DiscordText.SetText("Server Discord");
+			m_DiscordText.Update();
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -90,7 +121,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenDiscord()
 	{
-		GetGame().OpenURL("https://discord.gg/jvqw5yS");
+		GetGame().OpenURL(m_DiscordURL);
 	}
 
 	// ------------------------------------------------------------
@@ -98,7 +129,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenFeedback()
 	{
-		GetGame().OpenURL("https://exp.thurston.pw/");
+		GetGame().OpenURL(m_FeedbackURL);
 	}
 	
 	// ------------------------------------------------------------

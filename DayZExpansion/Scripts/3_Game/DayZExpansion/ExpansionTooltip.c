@@ -23,6 +23,8 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 	protected ref Timer				m_ToolTipUpdateTimer;
 	
 	private bool					m_FixPos;
+	private int						m_OffsetX;
+	private int						m_OffsetY;
 	
 	// ------------------------------------------------------------
 	// ExpansionUITooltip Constructor
@@ -85,13 +87,38 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		EXPrint("ExpansionUITooltip::SetToolTip - End");
 		#endif
 	}
+
+	//! Can be used to offset tooltip. Two special values:
+	//! -1 = offset tooltip by its width/height
+	//! -2 = negative offset tooltip by its width/height
+	void SetOffset( int x, int y )
+	{
+		m_OffsetX = x;
+		m_OffsetY = y;
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion SetPos
 	// ------------------------------------------------------------	
 	void SetPos(int x, int y)
 	{
-		m_Root.SetPos(x, y);
+		int offset_x = m_OffsetX, offset_y = m_OffsetY;
+		float w, h;
+
+		if ( offset_x < 0 || offset_y < 0 )
+			m_Root.GetScreenSize( w, h );
+
+		if ( offset_x == -2 )
+			offset_x = -w;
+		else if ( offset_x == -1 )
+			offset_x = w;
+
+		if ( offset_y == -2 )
+			offset_y = -h;
+		else if ( offset_y == -1 )
+			offset_y = h;
+
+		m_Root.SetPos( x + offset_x, y + offset_y );
 	}
 	
 	// ------------------------------------------------------------
@@ -117,7 +144,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		{
 			int x, y;
 			GetMousePos(x,y);
-			m_Root.SetPos(x, y);
+			SetPos(x, y);
 		}
 		
 		m_Text.Update();
@@ -144,7 +171,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 			m_Root.Show(false);
 		
 		if (!HasFixPosition() && m_Root)
-			m_Root.SetPos(0, 0);
+			SetPos(0, 0);
 		
 		m_Title.SetText("");
 		m_Text.SetText("");
@@ -219,7 +246,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 			int mouse_y;
 				
 			GetGame().GetMousePos( mouse_x, mouse_y );
-			m_Root.SetPos( mouse_x, mouse_y );
+			SetPos( mouse_x, mouse_y );
 			m_Root.Update();
 		}
 		
@@ -241,7 +268,7 @@ class ExpansionUITooltip extends ScriptedWidgetEventHandler
 		parent.AddChild(m_Root);
 	}
 	
-	void SetFixPostion(bool state)
+	void SetFixPosition(bool state)
 	{
 		m_FixPos = state;
 	}

@@ -30,8 +30,8 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 	bool m_IsJumping;
 	bool m_IsFalling;
 
-	ExpansionParachute m_Parachute;
-	bool m_IsParachuteDeployedPrevious;
+	//ExpansionParachute m_Parachute;
+	//bool m_IsParachuteDeployedPrevious;
 
 	float m_Time;
 
@@ -65,6 +65,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		#endif
 	}
 
+	/*
 	bool IsParachuteDeployed()
 	{
 		return m_Parachute != NULL;
@@ -108,6 +109,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		EXPrint("ExpansionHumanCommandFall::CutParachute End");
 		#endif
 	}
+	*/
 
 	override void OnActivate()
 	{
@@ -115,7 +117,11 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		EXPrint("ExpansionHumanCommandFall::OnActivate - Start");
 		#endif
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "Activated" );
+		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
+		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
+
+		dbg_FallCommand.Set("Activated", "");
+		#endif
 
 		if ( m_JumpVelocity > 0 )
 		{
@@ -135,7 +141,13 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		EXPrint("ExpansionHumanCommandFall::OnDeactivate - Start");
 		#endif
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "Deactivated" );
+		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
+		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
+
+		dbg_FallCommand.Set("Deactivated", "");
+		#endif
+
+		/*
 
 		if ( m_Parachute && !m_Parachute.IsCut() )
 		{
@@ -143,6 +155,8 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		}
 
 		m_Parachute = NULL;
+
+		*/
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::OnDeactivate - End");
@@ -154,7 +168,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::PreAnimUpdate - Start");
 		#endif
-
+		/*
 		if ( m_Parachute && !m_IsParachuteDeployedPrevious )
 		{
 			m_IsParachuteDeployedPrevious = true;
@@ -177,6 +191,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 			float heading = m_Input.GetHeadingAngle();
 			PreAnim_SetFilteredHeading( heading, 0.1, 180 );
 		}
+		*/
 
 		if ( !m_IsJumping && m_IsFalling && m_Time == 0 )
 		{
@@ -184,8 +199,13 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		}
 
 		if ( !m_IsFalling && m_LandType != -1 && m_Time == 0 )
-		{		
-			ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "Not Falling" );
+		{
+			#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
+			CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
+
+			dbg_FallCommand.Set("Not Falling", "");
+			#endif
+
 			m_Table.CallLand( this, m_LandType );	
 
 			m_NeedFinish = true;
@@ -215,7 +235,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		vector direction;
 		m_Input.GetMovement( speed, direction );
 		float heading = m_Input.GetHeadingAngle() * Math.RAD2DEG;
-
+		/*
 		if ( m_Parachute && !m_Parachute.IsCut() )
 		{
 			PrePhys_SetTranslation( vector.Zero );
@@ -235,6 +255,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 				m_Parachute.Simulate( pDt );
 			}
 		}
+		*/
 
 		if ( m_IsJumping && m_JumpTime < m_JumpMaxTime )
 		{
@@ -283,6 +304,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 			float distFraction;
 			Object hitObj;
 
+			/*
 			if ( m_Parachute && !m_Parachute.IsCut() )
 			{
 				start = m_Parachute.GetPosition();
@@ -297,7 +319,7 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 					// Temp fix
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( m_Player.SetAllowDamage, 2500, false, true );
 				}
-			} else if ( m_IsFalling && GetVelocity( m_Player )[1] <= 0 )
+			} else */ if ( m_IsFalling && GetVelocity( m_Player )[1] <= 0 )
 			{
 				start = m_Player.GetPosition();
 				end = start - "0 0.001 0";
@@ -317,8 +339,6 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::PostPhysUpdate - End - " + m_NeedFinish );
 		#endif
-		
-		ExpansionDebugger.Push( EXPANSION_DEBUG_PLAYER_FALL_COMMAND );
 
 		if ( m_LandEarlyExit )
 		{
@@ -334,7 +354,11 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		EXPrint("ExpansionHumanCommandFall::SetLanded Start");
 		#endif
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "SetLanded" );
+		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
+		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
+
+		dbg_FallCommand.Set("Set Landed", "");
+		#endif
 		
 		m_Time = 0;
 		m_IsFalling = false;
@@ -355,8 +379,12 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		EXPrint("ExpansionHumanCommandFall::Land - Start");
 		#endif
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "Land: " + type );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_PLAYER_FALL_COMMAND, "m_IsFalling: " + m_IsFalling );
+		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
+		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
+
+		dbg_FallCommand.Set("Land", type);
+		dbg_FallCommand.Set("Is Falling", m_IsFalling);
+		#endif
 
 		m_LandType = type;
 		m_Time = 0;

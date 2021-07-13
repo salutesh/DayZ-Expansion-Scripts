@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Mh6
 	{
-		units[] = {"Expansion_Mh6_Door_1_1","Expansion_Mh6_Door_1_2","Expansion_Mh6_Door_2_1","Expansion_Mh6_Door_2_2","ExpansionMh6Wreck","ExpansionMh6","Vehicle_ExpansionMh6","ExpansionSpraycanGreen","ExpansionMh6_Green","Vehicle_ExpansionMh6_Green","Expansion_Mh6_Door_1_1_Green","Expansion_Mh6_Door_1_2_Green","Expansion_Mh6_Door_2_1_Green","Expansion_Mh6_Door_2_2_Green","ExpansionSpraycanBlueline","ExpansionMh6_Blueline","Vehicle_ExpansionMh6_Blueline","Expansion_Mh6_Door_1_1_Blueline","Expansion_Mh6_Door_1_2_Blueline","Expansion_Mh6_Door_2_1_Blueline","Expansion_Mh6_Door_2_2_Blueline","ExpansionSpraycanDigital","ExpansionMh6_Digital","Vehicle_ExpansionMh6_Digital","Expansion_Mh6_Door_1_1_Digital","Expansion_Mh6_Door_1_2_Digital","Expansion_Mh6_Door_2_1_Digital","Expansion_Mh6_Door_2_2_Digital","ExpansionSpraycanElliptical","ExpansionMh6_Elliptical","Vehicle_ExpansionMh6_Elliptical","Expansion_Mh6_Door_1_1_Elliptical","Expansion_Mh6_Door_1_2_Elliptical","Expansion_Mh6_Door_2_1_Elliptical","Expansion_Mh6_Door_2_2_Elliptical","ExpansionSpraycanFurious","ExpansionMh6_Furious","Vehicle_ExpansionMh6_Furious","Expansion_Mh6_Door_1_1_Furious","Expansion_Mh6_Door_1_2_Furious","Expansion_Mh6_Door_2_1_Furious","Expansion_Mh6_Door_2_2_Furious","ExpansionSpraycanGrayWatcher","ExpansionMh6_GrayWatcher","Vehicle_ExpansionMh6_GrayWatcher","Expansion_Mh6_Door_1_1_GrayWatcher","Expansion_Mh6_Door_1_2_GrayWatcher","Expansion_Mh6_Door_2_1_GrayWatcher","Expansion_Mh6_Door_2_2_GrayWatcher","ExpansionSpraycanJeans","ExpansionMh6_Jeans","Vehicle_ExpansionMh6_Jeans","Expansion_Mh6_Door_1_1_Jeans","Expansion_Mh6_Door_1_2_Jeans","Expansion_Mh6_Door_2_1_Jeans","Expansion_Mh6_Door_2_2_Jeans","ExpansionSpraycanResistance","ExpansionMh6_Resistance","Vehicle_ExpansionMh6_Resistance","Expansion_Mh6_Door_1_1_Resistance","Expansion_Mh6_Door_1_2_Resistance","Expansion_Mh6_Door_2_1_Resistance","Expansion_Mh6_Door_2_2_Resistance","ExpansionSpraycanShadow","ExpansionMh6_Shadow","Vehicle_ExpansionMh6_Shadow","Expansion_Mh6_Door_1_1_Shadow","Expansion_Mh6_Door_1_2_Shadow","Expansion_Mh6_Door_2_1_Shadow","Expansion_Mh6_Door_2_2_Shadow","ExpansionSpraycanSpeedy","ExpansionMh6_Speedy","Vehicle_ExpansionMh6_Speedy","Expansion_Mh6_Door_1_1_Speedy","Expansion_Mh6_Door_1_2_Speedy","Expansion_Mh6_Door_2_1_Speedy","Expansion_Mh6_Door_2_2_Speedy","ExpansionSpraycanSunset","ExpansionMh6_Sunset","Vehicle_ExpansionMh6_Sunset","Expansion_Mh6_Door_1_1_Sunset","Expansion_Mh6_Door_1_2_Sunset","Expansion_Mh6_Door_2_1_Sunset","Expansion_Mh6_Door_2_2_Sunset","ExpansionSpraycanVrana","ExpansionMh6_Vrana","Vehicle_ExpansionMh6_Vrana","Expansion_Mh6_Door_1_1_Vrana","Expansion_Mh6_Door_1_2_Vrana","Expansion_Mh6_Door_2_1_Vrana","Expansion_Mh6_Door_2_2_Vrana","ExpansionSpraycanWasp","ExpansionMh6_Wasp","Vehicle_ExpansionMh6_Wasp","Expansion_Mh6_Door_1_1_Wasp","Expansion_Mh6_Door_1_2_Wasp","Expansion_Mh6_Door_2_1_Wasp","Expansion_Mh6_Door_2_2_Wasp","ExpansionSpraycanWave","ExpansionMh6_Wave","Vehicle_ExpansionMh6_Wave","Expansion_Mh6_Door_1_1_Wave","Expansion_Mh6_Door_1_2_Wave","Expansion_Mh6_Door_2_1_Wave","Expansion_Mh6_Door_2_2_Wave"};
+		units[] = {"Expansion_Mh6_Door_1_1","Expansion_Mh6_Door_1_2","Expansion_Mh6_Door_2_1","Expansion_Mh6_Door_2_2","ExpansionMh6Wreck","ExpansionMh6","Vehicle_ExpansionMh6","ExpansionSpraycanGreen","ExpansionMh6_Green","Vehicle_ExpansionMh6_Green","Expansion_Mh6_Door_1_1_Green","Expansion_Mh6_Door_1_2_Green","Expansion_Mh6_Door_2_1_Green","Expansion_Mh6_Door_2_2_Green","ExpansionSpraycanBlueline","ExpansionMh6_Blueline","Vehicle_ExpansionMh6_Blueline","Expansion_Mh6_Door_1_1_Blueline","Expansion_Mh6_Door_1_2_Blueline","Expansion_Mh6_Door_2_1_Blueline","Expansion_Mh6_Door_2_2_Blueline","ExpansionSpraycanDigital","ExpansionMh6_Digital","Vehicle_ExpansionMh6_Digital","Expansion_Mh6_Door_1_1_Digital","Expansion_Mh6_Door_1_2_Digital","Expansion_Mh6_Door_2_1_Digital","Expansion_Mh6_Door_2_2_Digital","ExpansionSpraycanElliptical","ExpansionMh6_Elliptical","Vehicle_ExpansionMh6_Elliptical","Expansion_Mh6_Door_1_1_Elliptical","Expansion_Mh6_Door_1_2_Elliptical","Expansion_Mh6_Door_2_1_Elliptical","Expansion_Mh6_Door_2_2_Elliptical","ExpansionSpraycanFurious","ExpansionMh6_Furious","Vehicle_ExpansionMh6_Furious","Expansion_Mh6_Door_1_1_Furious","Expansion_Mh6_Door_1_2_Furious","Expansion_Mh6_Door_2_1_Furious","Expansion_Mh6_Door_2_2_Furious","ExpansionSpraycanGrayWatcher","ExpansionMh6_GrayWatcher","Vehicle_ExpansionMh6_GrayWatcher","Expansion_Mh6_Door_1_1_GrayWatcher","Expansion_Mh6_Door_1_2_GrayWatcher","Expansion_Mh6_Door_2_1_GrayWatcher","Expansion_Mh6_Door_2_2_GrayWatcher","ExpansionSpraycanJeans","ExpansionMh6_Jeans","Vehicle_ExpansionMh6_Jeans","Expansion_Mh6_Door_1_1_Jeans","Expansion_Mh6_Door_1_2_Jeans","Expansion_Mh6_Door_2_1_Jeans","Expansion_Mh6_Door_2_2_Jeans","ExpansionSpraycanResistance","ExpansionMh6_Resistance","Vehicle_ExpansionMh6_Resistance","Expansion_Mh6_Door_1_1_Resistance","Expansion_Mh6_Door_1_2_Resistance","Expansion_Mh6_Door_2_1_Resistance","Expansion_Mh6_Door_2_2_Resistance","ExpansionSpraycanShadow","ExpansionMh6_Shadow","Vehicle_ExpansionMh6_Shadow","Expansion_Mh6_Door_1_1_Shadow","Expansion_Mh6_Door_1_2_Shadow","Expansion_Mh6_Door_2_1_Shadow","Expansion_Mh6_Door_2_2_Shadow","ExpansionSpraycanSheriff","ExpansionMh6_Sheriff","Vehicle_ExpansionMh6_Sheriff","Expansion_Mh6_Door_1_1_Sheriff","Expansion_Mh6_Door_1_2_Sheriff","Expansion_Mh6_Door_2_1_Sheriff","Expansion_Mh6_Door_2_2_Sheriff","ExpansionSpraycanSpeedy","ExpansionMh6_Speedy","Vehicle_ExpansionMh6_Speedy","Expansion_Mh6_Door_1_1_Speedy","Expansion_Mh6_Door_1_2_Speedy","Expansion_Mh6_Door_2_1_Speedy","Expansion_Mh6_Door_2_2_Speedy","ExpansionSpraycanSunset","ExpansionMh6_Sunset","Vehicle_ExpansionMh6_Sunset","Expansion_Mh6_Door_1_1_Sunset","Expansion_Mh6_Door_1_2_Sunset","Expansion_Mh6_Door_2_1_Sunset","Expansion_Mh6_Door_2_2_Sunset","ExpansionSpraycanVrana","ExpansionMh6_Vrana","Vehicle_ExpansionMh6_Vrana","Expansion_Mh6_Door_1_1_Vrana","Expansion_Mh6_Door_1_2_Vrana","Expansion_Mh6_Door_2_1_Vrana","Expansion_Mh6_Door_2_2_Vrana","ExpansionSpraycanWasp","ExpansionMh6_Wasp","Vehicle_ExpansionMh6_Wasp","Expansion_Mh6_Door_1_1_Wasp","Expansion_Mh6_Door_1_2_Wasp","Expansion_Mh6_Door_2_1_Wasp","Expansion_Mh6_Door_2_2_Wasp","ExpansionSpraycanWave","ExpansionMh6_Wave","Vehicle_ExpansionMh6_Wave","Expansion_Mh6_Door_1_1_Wave","Expansion_Mh6_Door_1_2_Wave","Expansion_Mh6_Door_2_1_Wave","Expansion_Mh6_Door_2_2_Wave"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -15,32 +15,32 @@ class CfgSlots
 	class Slot_mh6door_1_1
 	{
 		name = "mh6door_1_1";
-		displayName = "MH6 Door";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MH6_DOOR_FRONT_LEFT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MH6_DOOR_FRONT_LEFT_DESC";
 		selection = "mh6door_1_1";
 		ghostIcon = "doorfront";
 	};
 	class Slot_mh6door_1_2
 	{
 		name = "mh6door_1_2";
-		displayName = "MH6 Door";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MH6_DOOR_FRONT_RIGHT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MH6_DOOR_FRONT_RIGHT_DESC";
 		selection = "mh6door_1_2";
 		ghostIcon = "doorfront";
 	};
 	class Slot_mh6door_2_1
 	{
 		name = "mh6door_2_1";
-		displayName = "MH6 Door";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MH6_DOOR_BACK_LEFT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MH6_DOOR_BACK_LEFT_DESC";
 		selection = "mh6door_2_1";
 		ghostIcon = "doorrear";
 	};
 	class Slot_mh6door_2_2
 	{
 		name = "mh6door_2_2";
-		displayName = "MH6 Door";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MH6_DOOR_BACK_RIGHT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MH6_DOOR_BACK_RIGHT_DESC";
 		selection = "mh6door_2_2";
 		ghostIcon = "doorrear";
 	};
@@ -79,7 +79,7 @@ class CfgVehicles
 		inventorySlot = "mh6door_1_1";
 		rotationFlags = 8;
 		physLayer = "item_large";
-		hiddenSelections[] = {"camo1"};
+		hiddenSelections[] = {"camo"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext.rvmat"};
 	};
@@ -130,7 +130,7 @@ class CfgVehicles
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
 		doors[] = {"mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
 		applySkinsTo[] = {"Expansion_Mh6_Door_1_1","Expansion_Mh6_Door_1_2","Expansion_Mh6_Door_2_1","Expansion_Mh6_Door_2_2"};
-		hiddenSelections[] = {"light_1_1","light_2_1","camo1"};
+		hiddenSelections[] = {"light_1_1","light_2_1","camo"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_off.rvmat","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_off.rvmat","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext.rvmat"};
 		defaultSkin = "Green";
@@ -281,6 +281,20 @@ class CfgVehicles
 					componentNames[] = {"dmgZone_fuelTank"};
 					inventorySlots[] = {};
 				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					componentNames[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
 			};
 		};
 		class Crew: Crew
@@ -352,6 +366,33 @@ class CfgVehicles
 					max = 0.7;
 					coefficient = 1.0;
 					animation = "cyclicAside";
+				};
+			};
+			class Axles: Axles
+			{
+				class Front: Front
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
+				};
+				class Rear: Rear
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
 				};
 			};
 		};
@@ -367,7 +408,7 @@ class CfgVehicles
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
 		doors[] = {"mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
 		applySkinsTo[] = {"Expansion_Mh6_Door_1_1","Expansion_Mh6_Door_1_2","Expansion_Mh6_Door_2_1","Expansion_Mh6_Door_2_2"};
-		hiddenSelections[] = {"light_1_1","light_2_1","camo1"};
+		hiddenSelections[] = {"light_1_1","light_2_1","camo"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_off.rvmat","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext_off.rvmat","dayzexpansion\vehicles\air\mh6\data\heli_light01_ext.rvmat"};
 		defaultSkin = "Green";
@@ -589,6 +630,33 @@ class CfgVehicles
 					max = 0.7;
 					coefficient = 1.0;
 					animation = "cyclicAside";
+				};
+			};
+			class Axles: Axles
+			{
+				class Front: Front
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
+				};
+				class Rear: Rear
+				{
+					class Suspension: Suspension
+					{
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
+					};
 				};
 			};
 		};
@@ -637,7 +705,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blueline_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blueline_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_blue_co.paa"};
 		skinName = "Blueline";
 	};
 	class ExpansionMh6_Blueline: ExpansionMh6
@@ -675,7 +743,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Digital_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Digital_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_grey_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_grey_co.paa"};
 		skinName = "Digital";
 	};
 	class ExpansionMh6_Digital: ExpansionMh6
@@ -935,6 +1003,44 @@ class CfgVehicles
 	{
 		skinBase = "Expansion_Mh6_Door_2_2";
 		skinName = "Shadow";
+	};
+	class ExpansionSpraycanSheriff: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Sheriff_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Sheriff_DESC";
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		skinName = "Sheriff";
+	};
+	class ExpansionMh6_Sheriff: ExpansionMh6
+	{
+		skinBase = "ExpansionMh6";
+		skinName = "Sheriff";
+	};
+	class Vehicle_ExpansionMh6_Sheriff: Vehicle_ExpansionMh6
+	{
+		skinBase = "Vehicle_ExpansionMh6";
+		skinName = "Sheriff";
+	};
+	class Expansion_Mh6_Door_1_1_Sheriff: Expansion_Mh6_Door_1_1
+	{
+		skinBase = "Expansion_Mh6_Door_1_1";
+		skinName = "Sheriff";
+	};
+	class Expansion_Mh6_Door_1_2_Sheriff: Expansion_Mh6_Door_1_2
+	{
+		skinBase = "Expansion_Mh6_Door_1_2";
+		skinName = "Sheriff";
+	};
+	class Expansion_Mh6_Door_2_1_Sheriff: Expansion_Mh6_Door_2_1
+	{
+		skinBase = "Expansion_Mh6_Door_2_1";
+		skinName = "Sheriff";
+	};
+	class Expansion_Mh6_Door_2_2_Sheriff: Expansion_Mh6_Door_2_2
+	{
+		skinBase = "Expansion_Mh6_Door_2_2";
+		skinName = "Sheriff";
 	};
 	class ExpansionSpraycanSpeedy: ExpansionSpraycanBase
 	{

@@ -19,6 +19,8 @@ modded class LoadingScreen
 	
 	protected autoptr ExpansionLoadingScreenMessageData m_MessageRest;
 
+	protected autoptr array< ref ExpansionLoadingScreenMessageData > m_MessageJson;
+
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
 	
 	protected Widget m_ModOutdatedPanel;
@@ -43,6 +45,7 @@ modded class LoadingScreen
 		#endif
 
 		JsonFileLoader< ref array< ref ExpansionLoadingScreenBackground > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingImages.json", m_Backgrounds );
+		JsonFileLoader< ref array< ref ExpansionLoadingScreenMessageData > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingMessages.json", m_MessageJson );
 
 		if (m_WidgetRoot)
 		{
@@ -101,31 +104,6 @@ modded class LoadingScreen
 		if ( m_ImageBackground )
 			ProgressAsync.SetUserData(m_ImageBackground);
 
-		// Expansion Mod version check
-		m_ExpansionVersionChecked = false;
-		
-		m_ExpansionRestApi = CreateRestApi();
-		if ( m_ExpansionRestApi )
-		{
-			RestContext ctx = m_ExpansionRestApi.GetRestContext( EXPANSION_Rest_URL );
-
-			string data = ctx.GET_now( "loadingtext" );
-			string error;
-			
-			DestroyRestApi();
-
-			/*if ( !m_Serializer.ReadFromString( m_MessageRest, data, error ) )
-			{
-				m_LoadingMessage.Show(false);
-				m_LoadingMessageAuthor.Show(false);
-				Error( error );
-			}*/
-		} else
-		{
-			m_LoadingMessage.Show(false);
-			m_LoadingMessageAuthor.Show(false);
-		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("LoadingScreen::LoadingScreen - End");
 		#endif
@@ -182,133 +160,48 @@ modded class LoadingScreen
 		if ( m_ImageBackground )
 			ProgressAsync.SetUserData( m_ImageBackground );
 		
-		if ( m_MessageRest )
+		if ( m_MessageJson )
 		{
+			m_MessageRest = m_MessageJson.GetRandomElement();
+
 			m_LoadingMessage.SetText( m_MessageRest.message );
-			m_LoadingMessageAuthor.SetText( "Submitted by " + m_MessageRest.submitter );
-		} 
+			m_LoadingMessageAuthor.SetText( "#STR_EXPANSION_LOADING_MSG_SUBMITTEDBY" + " " + m_MessageRest.submitter );
+		}
 		else
 		{
 			m_LoadingMessage.Show(false);
 			m_LoadingMessageAuthor.Show(false);
 		}
+
+		string world_name = "default";
+
+		if ( GetGame() )
+			GetGame().GetWorldName(world_name);
+
+		world_name.ToLower();
+			
+		if ( world_name == "chernarusplusgloom" ) 	world_name = "chernarusplus";
+		if ( world_name == "enochgloom" ) 			world_name = "enoch";
+		if ( world_name == "namalskgloom" ) 		world_name = "namalsk";
+		if ( world_name == "deerislegloom" ) 		world_name = "deerisle";
+		if ( world_name == "chiemseegloom" ) 		world_name = "chiemsee";
 		
-		// Set random loading screen image
-		m_ImageBackground.LoadImageFile( 0, m_Backgrounds.GetRandomElement().Path );
-		
-		//! Version check
-		if ( GetDayZGame() )
+		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
+
+		for ( int i = 0; i < m_Backgrounds.Count(); ++i )
 		{
-			m_ExpansionRestApi = CreateRestApi();
-			if ( m_ExpansionRestApi )
+			if ( world_name == m_Backgrounds[i].MapName )
 			{
-				RestContext ctx = m_ExpansionRestApi.GetRestContext( EXPANSION_Rest_URL );
-				string data_version = ctx.GET_now( "version" );
-			}
-			else
-			{
-				data_version = GetClientExpansionVersion();
-			}
-			
-			m_ExpansionClientVersion = GetClientExpansionVersion();
-			m_ExpansionCurrentVersion = data_version;
-			
-			GetDayZGame().SetExpansionClientVersion(m_ExpansionClientVersion);
-			GetDayZGame().SetExpansionLatestVersion(m_ExpansionCurrentVersion);
-			
-			if (m_ExpansionCurrentVersion)
-				m_ExpansionCurrentVersion.Replace("\"","");
-			
-			//! If Rest API times-out and client dont get the current mod version.
-			if ( m_ExpansionCurrentVersion == "App Error" )
-			{
-				m_ExpansionVersionChecked = true;
-			}
-			
-			string client_version_format = m_ExpansionClientVersion;
-			string current_version_format = m_ExpansionCurrentVersion;
-			int client_version = client_version_format.Replace(".", "");
-			int current_version = current_version_format.Replace(".", "");
-			
-			//! If Rest API current version is older then loaded client version for some reason
-			if ( client_version >= current_version )
-			{
-				m_ExpansionVersionChecked = true;
-			}
-			
-			if ( m_ExpansionCurrentVersion == "App Error" )
-			{
-				m_ExpansionVersionChecked = true;
-			}
-			
-			if ( !m_ExpansionVersionChecked )
-			{
-				m_ExpansionCurrentVersion.Replace("\"","");
-				
-				//! The version should always display in the scripts.log.
-				Print("[Expansion Mod] Client Mod Version from Mod Config: " + m_ExpansionClientVersion);
-
-				Print("[Expansion Mod] Current Mod Version from Rest API: " + m_ExpansionCurrentVersion);
-				
-				if ( m_ExpansionClientVersion != m_ExpansionCurrentVersion )
-				{
-					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("[Expansion Mod] Mod Version outdated!");
-					#endif
-
-					m_IsExpansionOutdated = true;
-				}
-				else 
-				{
-					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("[Expansion Mod] Latest Mod Version Loaded!");
-					#endif
-					
-					m_IsExpansionOutdated = false;
-				}
-			
-				if ( m_IsExpansionOutdated )
-				{
-					string text = "#STG_EXPANSION_MOD_OUTDATED " + "(" + "#STR_EXPANSION_LOADED_MOD" + ":" + m_ExpansionClientVersion + ") - (" + "#STR_EXPANSION_LATEST_MOD" + ":" + m_ExpansionCurrentVersion + ").";
-					m_ModOutdatedText.SetText( text );	
-					m_ModOutdatedPanel.Show( m_IsExpansionOutdated );	
-				}
-
-				m_ExpansionVersionChecked = true;
+				backgrounds = m_Backgrounds[i];
+				break;
 			}
 		}
+		
+		if (backgrounds)
+			m_ImageBackground.LoadImageFile( 0, backgrounds.Path.GetRandomElement() );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("LoadingScreen::Show - End");
 		#endif
-	}
-
-	// ------------------------------------------------------------
-	// Expansion GetClientExpansionVersion
-	// ------------------------------------------------------------
-   	static string GetClientExpansionVersion()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoadingScreen::GetClientExpansionVersion - Start");
-		#endif
-
-		ref array<ref ModInfo> mods = new array<ref ModInfo>;
-		string version;
-		
-		GetDayZGame().GetModInfos( mods );
-		for ( int i = 0; i < mods.Count(); ++i )
-		{
-			if ( mods[i].GetName().IndexOf( "DayZ" ) == 0 && mods[i].GetName().IndexOf( "Expansion" ) == 5 )
-			{
-				version = mods[i].GetVersion();
-				break;
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "LoadingScreen::GetClientExpansionVersion - Return: " + version );
-		#endif
-
-		return version;
 	}
 };

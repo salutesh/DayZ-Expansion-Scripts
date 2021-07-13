@@ -34,8 +34,6 @@ class ExpansionMarkerClientInfo
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_Visibility ), "~m_Visibility failed" ) )
 			return false;
-
-		SetVisibility( EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 		
 		return true;
 	}

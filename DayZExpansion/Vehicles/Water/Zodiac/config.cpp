@@ -37,7 +37,7 @@ class CfgVehicles
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"body"};
+		hiddenSelections[] = {"camo"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
 		defaultSkin = "Orange";
@@ -197,7 +197,7 @@ class CfgVehicles
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"body"};
+		hiddenSelections[] = {"camo"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
 		defaultSkin = "Orange";
@@ -354,7 +354,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Orange_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Orange_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_orange_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_orange_co.paa"};
 		skinName = "Orange";
 	};
 	class ExpansionZodiacBoat_Orange: ExpansionZodiacBoat

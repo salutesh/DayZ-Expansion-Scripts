@@ -63,23 +63,25 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
 		
-		array< string > values_DismantleFlagRequireTools = { "Owner only", "With Hands", "With Tools" };
-		CreateEnum( "DismantleFlagRequireTools", values_DismantleFlagRequireTools, "Dismantle Flag Requires Tools", "", "" );
+		CreateEnum( "DismantleFlagRequireTools", DismantleFlagMode, "Dismantle Flag Requires Tools", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );
 		CreateToggle( "DismantleInsideTerritory", "Dismantle Inside Other Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
 
+		CreateEnum( "CanAttachCodelock", CodelockAttachMode, "Can Attach Codelock", "", "" );
 		CreateToggle( "CodelockActionsAnywhere", "Codelock: Actions Anywhere", "", "" );
-		CreateSlider( "CodeLockLength", "Codelock Length", "", "", 1.0, 6.0, 1.0);
+
+		//! Doesn't work
+		//CreateSlider( "CodeLockLength", "Codelock Length", "", "", 3, 8, 1);
 		CreateToggle( "DoDamageWhenEnterWrongCodeLock", "Codelock: Damage On Wrong Code", "", "" );
-		CreateSlider( "DamageWhenEnterWrongCodeLock", "Codelock: Damage Dealt", "", "", 1.0, 100.0, 1.0);
+		CreateSlider( "DamageWhenEnterWrongCodeLock", "Codelock: Damage Dealt", "", "", 1, 100, 1);
+		CreateToggle( "RememberCode", "Remember Code", "", "" );
 
 		CreateToggle( "CanCraftTerritoryFlagKit", "Can Craft Territory Flag Kit", "", "" );
 
 		CreateToggle( "SimpleTerritory", "Simple Territory Creation", "", "" );
 		CreateToggle( "AutomaticFlagOnCreation", "Add Flag Item", "", "" );
-		array< string > values_EnableFlagMenu = { "Disabled", "Enabled", "No flag choice" };
-		CreateEnum( "EnableFlagMenu", values_EnableFlagMenu, "Enable Flag Menu", "", "" );
+		CreateEnum( "EnableFlagMenu", FlagMenuMode, "Enable Flag Menu", "", "" );
 		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory FlagKit After Build", "", "" );
 	}
 

@@ -65,7 +65,8 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		
 		CreateToggle( "EnableGravecross", "Gravecross", "", "" );
 		CreateToggle( "GravecrossDeleteBody", "Delete Body On Gravecross", "", "" );
-		CreateSlider( "GravecrossTimeThreshold", "Gravecross Threshold", "", "", 0.0, 2000.0, 60.0 );
+		//! Doesn't work
+		//CreateSlider( "GravecrossTimeThreshold", "Gravecross Threshold", "", "", 0, 2000, 60 );
 
 		CreateToggle( "Mapping.UseCustomMappingModule", "Use CustomMapping Module", "", "" );
 		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
@@ -80,9 +81,11 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "DisableMagicCrosshair", "DayZ SA Alpha Aiming", "", "" );
 
 		CreateToggle( "EnablePlayerTags", "Player Tags", "", "" );
-		CreateSlider( "PlayerTagViewRange", "Player Tag View Range", "", "", 0.0, 100.0, 1.0 );
 
-		CreateToggle( "EnablePlayerList", "Player List", "", "" );
+		//! Doesn't work
+		//CreateSlider( "PlayerTagViewRange", "Player Tag View Range", "", "", 1, 25, 1 );
+
+		//CreateToggle( "EnablePlayerList", "Player List", "", "" );
 		CreateToggle( "EnableAutoRun", "Auto Run", "", "" );
 		CreateToggle( "UnlimitedStamina", "Unlimited Stamina", "", "" );
 		

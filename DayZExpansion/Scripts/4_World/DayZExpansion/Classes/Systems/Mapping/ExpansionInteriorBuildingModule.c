@@ -262,11 +262,13 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	bool ShouldIvySpawn(vector position)
 	{
-
-		for (int i = 0; i < m_WhereIviesObjectsSpawn.Count(); i++)
-			if (vector.Distance(m_WhereIviesObjectsSpawn[i].position, position) <= m_WhereIviesObjectsSpawn[i].radius)
-				return true;
-		
+		// If Ivys are disabled in settings, this will be NULL
+		if ( m_WhereIviesObjectsSpawn )
+		{
+			for (int i = 0; i < m_WhereIviesObjectsSpawn.Count(); i++)
+				if (vector.Distance(m_WhereIviesObjectsSpawn[i].position, position) <= m_WhereIviesObjectsSpawn[i].radius)
+					return true;
+		}
 		
 		return false;
 	}

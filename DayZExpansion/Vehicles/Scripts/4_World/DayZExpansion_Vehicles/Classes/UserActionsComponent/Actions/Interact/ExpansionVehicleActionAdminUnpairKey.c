@@ -34,7 +34,7 @@ class ExpansionVehicleActionAdminUnpairKey: ActionInteractBase
 			return false;
 
 		ExpansionVehicleBase car;
-		if ( !Class.CastTo( car, target.GetObject() ) )
+		if ( !Class.CastTo( car, target.GetParentOrObject() ) )
 			return false;
 
 		ExpansionCarAdminKey key;
@@ -47,11 +47,11 @@ class ExpansionVehicleActionAdminUnpairKey: ActionInteractBase
 		return true;
 	}
 
-	override void Start( ActionData action_data )
+	override void OnStartServer( ActionData action_data )
 	{
-		super.Start( action_data );
+		super.OnStartServer( action_data );
 
-		ExpansionVehicleBase car = ExpansionVehicleBase.Cast( action_data.m_Target.GetObject() );
+		ExpansionVehicleBase car = ExpansionVehicleBase.Cast( action_data.m_Target.GetParentOrObject() );
 
 		array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
 		ExpansionCarKey.GetKeysForVehicle( car, keys );

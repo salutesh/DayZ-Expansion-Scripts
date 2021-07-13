@@ -14,9 +14,16 @@ static bool m_ExpansionShowDeadScreen = false;
 
 modded class DayZPlayerImplement
 {
-	private ExpansionParachute m_ActiveParachute;
+	//private ExpansionParachute m_ActiveParachute;
 
-	protected ref ExpansionHumanST m_ExpansionST;
+	protected bool m_WasRaisedIronsight;
+	
+	// ------------------------------------------------------------
+	// DayZPlayerImplement SendChatMessage
+	// ------------------------------------------------------------
+	void SendChatMessage( string message )
+	{
+	}
 	
 	// ------------------------------------------------------------
 	// DayZPlayerImplement Constructor
@@ -37,7 +44,9 @@ modded class DayZPlayerImplement
 	// ------------------------------------------------------------	
 	override void ShowDeadScreen(bool show, float duration)
 	{
-	#ifndef NO_GUI		
+		super.ShowDeadScreen( show, duration );
+		
+		#ifndef NO_GUI		
 		if ( show && IsPlayerSelected() )
 		{
 			GetGame().GetUIManager().ScreenFadeIn( duration, "#dayz_implement_dead", FadeColors.BLACK, FadeColors.WHITE );
@@ -61,10 +70,10 @@ modded class DayZPlayerImplement
 			if (GetExpansionSettings().GetGeneral().UseDeathScreen)
 				m_ExpansionShowDeadScreen = false;
 		}
-	#endif
+		#endif
 	}
 	
-	
+	/*
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionGuitar
 	// ------------------------------------------------------------
@@ -80,7 +89,8 @@ modded class DayZPlayerImplement
 	{
 		return ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
 	}
-		
+	*/
+	/*
 	// ------------------------------------------------------------
 	// DayZPlayerImplement DeployParachute
 	// ------------------------------------------------------------
@@ -126,6 +136,7 @@ modded class DayZPlayerImplement
 		EXPrint("DayZPlayerImplement::CutParachute - End");
 		#endif
 	}
+	*/
 
 	// ------------------------------------------------------------
 	// DayZPlayerImplement StartCommand_ExpansionFall
@@ -189,10 +200,10 @@ modded class DayZPlayerImplement
 				}
 			}*/
 
-			if ( HasParachute() )
-			{
-				return DayZPlayerCameras.DAYZCAMERA_3RD_ERC;
-			}
+			//if ( HasParachute() )
+			//{
+			//	return DayZPlayerCameras.DAYZCAMERA_3RD_ERC;
+			//}
 		} else
 		{
 			if ( vehicleCommand )
@@ -209,4 +220,40 @@ modded class DayZPlayerImplement
 		bool disableMagicCrosshair = GetExpansionSettings().GetGeneral().DisableMagicCrosshair; 
 		return !disableMagicCrosshair;
 	}	
+
+	override void HandleWeapons( float pDt, Entity pInHands, HumanInputController pInputs, out bool pExitIronSights )
+	{
+		super.HandleWeapons( pDt, pInHands, pInputs, pExitIronSights );
+
+		if ( m_WasRaisedIronsight == ( m_MovementState.IsRaised() && m_CameraIronsight && !m_CameraOptics ) )
+			return;
+
+		m_WasRaisedIronsight = m_MovementState.IsRaised() && m_CameraIronsight && !m_CameraOptics;
+
+		Weapon_Base weapon = Weapon_Base.Cast( pInHands );
+		if ( weapon )
+		{
+			ItemOptics optic = weapon.GetAttachedOptics();
+			if ( optic )
+			{
+				if ( optic.IsKindOf( "ExpansionHAMROptic" ) )
+				{
+					// Check for secondary optic and switch it on/off appropriately when going in/out of optics view
+					ItemOptics secondaryOptic = ItemOptics.Cast( optic.FindAttachmentBySlotName( "pistolOptics" ) );
+					if ( secondaryOptic && secondaryOptic.HasEnergyManager() )
+					{
+						if ( m_CameraIronsight && !m_CameraOptics )
+						{
+							secondaryOptic.GetCompEM().SwitchOn();
+							secondaryOptic.HideSelection("hide");
+						} else
+						{
+							secondaryOptic.GetCompEM().SwitchOff();
+							secondaryOptic.ShowSelection("hide");
+						}
+					}
+				}
+			}
+		}
+	}
 }

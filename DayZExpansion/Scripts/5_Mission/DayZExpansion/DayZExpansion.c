@@ -66,7 +66,7 @@ modded class DayZExpansion
 		EXPrint("DayZExpansion::Expansion_LoadVersion - Start");
 		#endif
 		
-		m_Version = LoadingScreen.GetClientExpansionVersion();
+		m_Version = GetDayZGame().GetExpansionClientVersion();
 
 		array<string> values = new array<string>();
 		m_Version.Split( ".", values );
@@ -79,9 +79,9 @@ modded class DayZExpansion
 			Print( "Expansion version: " + m_MajorVersion + "." + m_MinorVersion + "." + m_BuildVersion );
 		}
 		
-		string versionTest;
-		GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
-		Print( versionTest );
+		//string versionTest;
+		//GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
+		//Print( versionTest );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::Expansion_LoadVersion - End");
@@ -126,7 +126,6 @@ modded class DayZExpansion
 			ExpansionSettings.SI_SafeZone.Invoke();
 			ExpansionSettings.SI_Spawn.Invoke();
 			ExpansionSettings.SI_Mission.Invoke();
-			ExpansionSettings.SI_Market.Invoke();
 			ExpansionSettings.SI_BaseBuilding.Invoke();
 			
 			GetModuleManager().OnSettingsUpdated();

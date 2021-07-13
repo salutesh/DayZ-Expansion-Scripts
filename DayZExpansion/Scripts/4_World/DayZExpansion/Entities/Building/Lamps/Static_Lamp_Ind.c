@@ -13,9 +13,5 @@
 /**@class		Static_Lamp_Ind
  * @brief		
  **/
-class Static_Lamp_Ind: ExpansionLampLightBase
-{
-}
-class bldr_lamp_ind: ExpansionPropLampLightBase
-{
-}
+class Static_Lamp_Ind: ExpansionLampLightBase {};
+class bldr_lamp_ind: Static_Lamp_Ind {};

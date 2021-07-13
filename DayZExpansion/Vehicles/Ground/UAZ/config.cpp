@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_UAZ
 	{
-		units[] = {"ExpansionUAZWheel","Vehicle_ExpansionUAZWheel","ExpansionUAZDoorDriver","ExpansionUAZDoorCoDriver","ExpansionUAZDoorCargo1","ExpansionUAZDoorCargo2","ExpansionUAZDoorTrunk","ExpansionUAZ","ExpansionUAZRoofless","ExpansionUAZCargoRoofless","ExpansionUAZCargo","Vehicle_ExpansionUAZ","Vehicle_ExpansionUAZRoofless","Vehicle_ExpansionUAZCargoRoofless","Vehicle_ExpansionUAZCargo","ExpansionSpraycanGreen","ExpansionUAZ_Green","ExpansionUAZCargo_Green","ExpansionUAZRoofless_Green","ExpansionUAZCargoRoofless_Green","Vehicle_ExpansionUAZ_Green","Vehicle_ExpansionUAZCargo_Green","Vehicle_ExpansionUAZRoofless_Green","Vehicle_ExpansionUAZCargoRoofless_Green","ExpansionUAZDoorDriver_Green","ExpansionUAZDoorCoDriver_Green","ExpansionUAZDoorCargo1_Green","ExpansionUAZDoorCargo2_Green","ExpansionSpraycanBlack","ExpansionUAZ_Black","ExpansionUAZCargo_Black","ExpansionUAZRoofless_Black","ExpansionUAZCargoRoofless_Black","Vehicle_ExpansionUAZ_Black","Vehicle_ExpansionUAZCargo_Black","Vehicle_ExpansionUAZRoofless_Black","Vehicle_ExpansionUAZCargoRoofless_Black","ExpansionUAZDoorDriver_Black","ExpansionUAZDoorCoDriver_Black","ExpansionUAZDoorCargo1_Black","ExpansionUAZDoorCargo2_Black"};
+		units[] = {"ExpansionUAZWheel","Vehicle_ExpansionUAZWheel","ExpansionUAZDoorDriver","ExpansionUAZDoorCoDriver","ExpansionUAZDoorCargo1","ExpansionUAZDoorCargo2","ExpansionUAZDoorTrunk","ExpansionUAZ","ExpansionUAZRoofless","ExpansionUAZCargoRoofless","ExpansionUAZCargo","Vehicle_ExpansionUAZ","Vehicle_ExpansionUAZRoofless","Vehicle_ExpansionUAZCargoRoofless","Vehicle_ExpansionUAZCargo","ExpansionSpraycanGreen","ExpansionUAZ_Green","ExpansionUAZCargo_Green","ExpansionUAZRoofless_Green","ExpansionUAZCargoRoofless_Green","Vehicle_ExpansionUAZ_Green","Vehicle_ExpansionUAZCargo_Green","Vehicle_ExpansionUAZRoofless_Green","Vehicle_ExpansionUAZCargoRoofless_Green","ExpansionUAZDoorDriver_Green","ExpansionUAZDoorCoDriver_Green","ExpansionUAZDoorCargo1_Green","ExpansionUAZDoorCargo2_Green","ExpansionSpraycanBlack","ExpansionUAZ_Black","ExpansionUAZCargo_Black","ExpansionUAZRoofless_Black","ExpansionUAZCargoRoofless_Black","Vehicle_ExpansionUAZ_Black","Vehicle_ExpansionUAZCargo_Black","Vehicle_ExpansionUAZRoofless_Black","Vehicle_ExpansionUAZCargoRoofless_Black","ExpansionUAZDoorDriver_Black","ExpansionUAZDoorCoDriver_Black","ExpansionUAZDoorCargo1_Black","ExpansionUAZDoorCargo2_Black","ExpansionSpraycanLightGreen","ExpansionUAZ_LightGreen","ExpansionUAZCargo_LightGreen","ExpansionUAZRoofless_LightGreen","ExpansionUAZCargoRoofless_LightGreen","Vehicle_ExpansionUAZ_LightGreen","Vehicle_ExpansionUAZCargo_LightGreen","Vehicle_ExpansionUAZRoofless_LightGreen","Vehicle_ExpansionUAZCargoRoofless_LightGreen","ExpansionUAZDoorDriver_LightGreen","ExpansionUAZDoorCoDriver_LightGreen","ExpansionUAZDoorCargo1_LightGreen","ExpansionUAZDoorCargo2_LightGreen"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -15,71 +15,74 @@ class CfgSlots
 	class Slot_uazwheel_1_1
 	{
 		name = "uazwheel_1_1";
-		displayName = "UAZ Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL_DESC";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_uazwheel_1_2
 	{
 		name = "uazwheel_1_2";
-		displayName = "UAZ Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL_DESC";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_uazwheel_2_1
 	{
 		name = "uazwheel_2_1";
-		displayName = "UAZ Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL_DESC";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_uazwheel_2_2
 	{
 		name = "uazwheel_2_2";
-		displayName = "UAZ Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL_DESC";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_uazdriverdoor
 	{
 		name = "uazdriverdoor";
-		displayName = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_LEFT";
 		selection = "uazdriverdoor";
 		ghostIcon = "doorfront";
 	};
 	class Slot_uazcodriverdoor
 	{
 		name = "uazcodriverdoor";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_RIGHT";
 		selection = "uazcodriverdoor";
 		ghostIcon = "doorfront";
 	};
 	class Slot_uazcargo1door
 	{
 		name = "uazcargo1door";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_BACK_LEFT";
 		selection = "uazcargo1door";
 		ghostIcon = "doorrear";
 	};
 	class Slot_uazcargo2door
 	{
 		name = "uazcargo2door";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_BACK_RIGHT";
 		selection = "uazcargo2door";
 		ghostIcon = "doorrear";
+	};
+	class Slot_uazhooddoor
+	{
+		name = "uazhooddoor";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_HOOD";
+		selection = "uazhooddoor";
+		ghostIcon = "hood";
 	};
 	class Slot_uaztrunkdoor
 	{
 		name = "uaztrunkdoor";
-		displayName = "";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_TRUNK";
 		selection = "uaztrunkdoor";
 		ghostIcon = "trunk";
 	};
@@ -162,8 +165,11 @@ class CfgVehicles
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_LEFT";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_LEFT_DES";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_LEFT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazdriverdoor.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
 		weight = 15000;
 		itemSize[] = {10,10};
 		itemBehaviour = 0;
@@ -216,8 +222,8 @@ class CfgVehicles
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		defaultSkin = "Green";
-		fuelCapacity = 42;
-		fuelConsumption = 11;
+		fuelCapacity = 40;
+		fuelConsumption = 10;
 		class Crew: Crew
 		{
 			class Driver: Driver
@@ -252,6 +258,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
+			centralDiffRatio = 1.45;
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
@@ -271,9 +278,10 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
+				steepness = 1.5;
+				torqueMax = 136;
 				torqueRpm = 3400;
-				powerMax = 53.7;
+				powerMax = 58.7;
 				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
@@ -283,11 +291,11 @@ class CfgVehicles
 			};
 			class Gearbox
 			{
-				reverse = 3.426;
-				ratios[] = {4.067,1.9999999,1.2609999,0.9};
+				reverse = 3.726;
+				ratios[] = {3.967,2.3999999,1.5609999,1};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
-				maxClutchTorque = 300;
+				maxClutchTorque = 330;
 			};
 			class Axles: Axles
 			{
@@ -456,7 +464,7 @@ class CfgVehicles
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door"};
 		defaultSkin = "Green";
-		fuelCapacity = 42;
+		fuelCapacity = 40;
 		fuelConsumption = 11;
 		class Crew: Crew
 		{
@@ -492,6 +500,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
+			centralDiffRatio = 1.45;
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
@@ -511,9 +520,10 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
+				steepness = 1.5;
+				torqueMax = 200;
 				torqueRpm = 3400;
-				powerMax = 53.7;
+				powerMax = 65.700005;
 				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
@@ -524,7 +534,7 @@ class CfgVehicles
 			class Gearbox
 			{
 				reverse = 3.426;
-				ratios[] = {4.067,1.9999999,1.2609999,0.9};
+				ratios[] = {4.067,3.0,1.2609999,0.9};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
 				maxClutchTorque = 300;
@@ -705,7 +715,7 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZ.p3d";
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body_exterior","__interior"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2"};
 		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa"};
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat"};
 		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
@@ -873,7 +883,7 @@ class CfgVehicles
 		displayname = "[NOT READY]  UAZ";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZ.p3d";
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body_exterior","__interior"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2"};
 		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa"};
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat"};
 		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
@@ -1149,37 +1159,37 @@ class CfgVehicles
 	};
 	class ExpansionUAZCargo_Green: ExpansionUAZCargo
 	{
-		skinBase = "ExpansionUAZCargo";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class ExpansionUAZRoofless_Green: ExpansionUAZRoofless
 	{
-		skinBase = "ExpansionUAZRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class ExpansionUAZCargoRoofless_Green: ExpansionUAZCargoRoofless
 	{
-		skinBase = "ExpansionUAZCargoRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class Vehicle_ExpansionUAZ_Green: Vehicle_ExpansionUAZ
 	{
-		skinBase = "Vehicle_ExpansionUAZ";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class Vehicle_ExpansionUAZCargo_Green: Vehicle_ExpansionUAZCargo
 	{
-		skinBase = "Vehicle_ExpansionUAZCargo";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class Vehicle_ExpansionUAZRoofless_Green: Vehicle_ExpansionUAZRoofless
 	{
-		skinBase = "Vehicle_ExpansionUAZRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class Vehicle_ExpansionUAZCargoRoofless_Green: Vehicle_ExpansionUAZCargoRoofless
 	{
-		skinBase = "Vehicle_ExpansionUAZCargoRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Green";
 	};
 	class ExpansionUAZDoorDriver_Green: ExpansionUAZDoorDriver
@@ -1217,37 +1227,37 @@ class CfgVehicles
 	};
 	class ExpansionUAZCargo_Black: ExpansionUAZCargo
 	{
-		skinBase = "ExpansionUAZCargo";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class ExpansionUAZRoofless_Black: ExpansionUAZRoofless
 	{
-		skinBase = "ExpansionUAZRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class ExpansionUAZCargoRoofless_Black: ExpansionUAZCargoRoofless
 	{
-		skinBase = "ExpansionUAZCargoRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class Vehicle_ExpansionUAZ_Black: Vehicle_ExpansionUAZ
 	{
-		skinBase = "Vehicle_ExpansionUAZ";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class Vehicle_ExpansionUAZCargo_Black: Vehicle_ExpansionUAZCargo
 	{
-		skinBase = "Vehicle_ExpansionUAZCargo";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class Vehicle_ExpansionUAZRoofless_Black: Vehicle_ExpansionUAZRoofless
 	{
-		skinBase = "Vehicle_ExpansionUAZRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class Vehicle_ExpansionUAZCargoRoofless_Black: Vehicle_ExpansionUAZCargoRoofless
 	{
-		skinBase = "Vehicle_ExpansionUAZCargoRoofless";
+		skinBase = "ExpansionUAZ";
 		skinName = "Black";
 	};
 	class ExpansionUAZDoorDriver_Black: ExpansionUAZDoorDriver
@@ -1269,6 +1279,74 @@ class CfgVehicles
 	{
 		skinBase = "ExpansionUAZDoorCargo2";
 		skinName = "Black";
+	};
+	class ExpansionSpraycanLightGreen: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_LightGreen_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_LightGreen_DESC";
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZ_LightGreen: ExpansionUAZ
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZCargo_LightGreen: ExpansionUAZCargo
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZRoofless_LightGreen: ExpansionUAZRoofless
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZCargoRoofless_LightGreen: ExpansionUAZCargoRoofless
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class Vehicle_ExpansionUAZ_LightGreen: Vehicle_ExpansionUAZ
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class Vehicle_ExpansionUAZCargo_LightGreen: Vehicle_ExpansionUAZCargo
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class Vehicle_ExpansionUAZRoofless_LightGreen: Vehicle_ExpansionUAZRoofless
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class Vehicle_ExpansionUAZCargoRoofless_LightGreen: Vehicle_ExpansionUAZCargoRoofless
+	{
+		skinBase = "ExpansionUAZ";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZDoorDriver_LightGreen: ExpansionUAZDoorDriver
+	{
+		skinBase = "ExpansionUAZDoorDriver";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZDoorCoDriver_LightGreen: ExpansionUAZDoorCoDriver
+	{
+		skinBase = "ExpansionUAZDoorCoDriver";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZDoorCargo1_LightGreen: ExpansionUAZDoorCargo1
+	{
+		skinBase = "ExpansionUAZDoorCargo1";
+		skinName = "LightGreen";
+	};
+	class ExpansionUAZDoorCargo2_LightGreen: ExpansionUAZDoorCargo2
+	{
+		skinBase = "ExpansionUAZDoorCargo2";
+		skinName = "LightGreen";
 	};
 };
 class CfgNonAIVehicles

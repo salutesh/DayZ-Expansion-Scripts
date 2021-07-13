@@ -15,6 +15,8 @@
  **/
 class ExpansionBoatScript extends OffroadHatchback
 {
+	protected float m_BoatTime;
+
 	// ------------------------------------------------------------
 	//! Static Values
 	// ------------------------------------------------------------	
@@ -35,6 +37,7 @@ class ExpansionBoatScript extends OffroadHatchback
 	private bool m_UseBoatController;
 
 	private bool m_MotorOn;
+	private bool m_MotorWasOn;
 	
 	// ------------------------------------------------------------
 	//! Effects
@@ -58,6 +61,8 @@ class ExpansionBoatScript extends OffroadHatchback
 	//! Controller, casted
 	// ------------------------------------------------------------
 	private ExpansionBoatController m_BoatController;
+
+	private bool m_IsInitalized = false;
 
 	// ------------------------------------------------------------
 	//! Constructor
@@ -125,6 +130,20 @@ class ExpansionBoatScript extends OffroadHatchback
 		{
 			m_ParticleSideSecond.Stop();
 		}
+	}
+
+	// ------------------------------------------------------------
+	override void LongDeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionBoatScript::LongDeferredInit - Start");
+		#endif
+		
+		m_IsInitalized = true;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionBoatScript::LongDeferredInit - End");
+		#endif
 	}
 	
 	override ExpansionVehicleController GetControllerInstance()
@@ -281,6 +300,19 @@ class ExpansionBoatScript extends OffroadHatchback
 
 		super.OnAnimationUpdate( pDt );
 	}
+	
+	override protected void CheckVitalItem( bool isVital, string itemName )
+	{
+		if ( !isVital )
+			return;
+
+		EntityAI item = FindAttachmentBySlotName(itemName);
+
+		if ( !item )
+			MotorStop();
+		else if ( item.IsRuined() )
+			MotorStop();
+	}
 
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
@@ -405,6 +437,35 @@ class ExpansionBoatScript extends OffroadHatchback
 		#endif
 	}
 
+	override void EOnPostSimulate( IEntity other, float timeSlice )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionBoatScript::EOnPostSimulate - Start");
+		#endif
+
+		m_BoatTime += timeSlice;
+
+		if ( m_BoatTime >= GameConstants.CARS_FLUIDS_TICK )
+		{
+			m_BoatTime = 0;
+
+			if ( GetGame().IsServer() && MotorIsOn() )
+			{
+				if ( GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0 )
+					MotorStop();
+
+				CheckVitalItem( IsVitalTruckBattery(), "TruckBattery" );
+				CheckVitalItem( IsVitalGlowPlug(), "GlowPlug" );
+			}
+		}
+
+		super.EOnPostSimulate( other, timeSlice );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionBoatScript::EOnPostSimulate - End");
+		#endif
+	}
+
 	private vector GetLinearFrictionForce()
 	{
 		vector friction = vector.Zero;
@@ -496,7 +557,13 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
-		return true;
+		if ( !m_IsInitalized )
+			return true;
+
+		if ( MotorIsOn() )
+			return true;
+		
+		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) );
 	}
 
 	// ------------------------------------------------------------
@@ -519,6 +586,37 @@ class ExpansionBoatScript extends OffroadHatchback
 	override bool CrewCanGetThrough( int posIdx )
 	{
 		return true;
+	}
+	
+	// ------------------------------------------------------------
+	override bool IsVitalGlowPlug()
+	{
+		return true;
+	}
+
+	// ------------------------------------------------------------
+	override bool IsVitalTruckBattery()
+	{
+		return true;
+	}
+	
+	// ------------------------------------------------------------
+	override bool IsVitalCarBattery()
+	{
+		return false;
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if ( m_MotorOn != m_MotorWasOn )
+		{
+			m_MotorWasOn = m_MotorOn;
+
+			if ( !m_MotorOn )
+				SEffectManager.PlaySound( m_EngineStopFuel, GetPosition() );
+		}
 	}
 
 	/**
@@ -572,6 +670,7 @@ class ExpansionBoatScript extends OffroadHatchback
 	{
 		if ( EngineIsOn() )
 		{
+			//! TODO: Why is this here? EngineIsOn is never true for boats?
 			return super.OnSound( ctrl, oldValue );
 		} 
 		else if ( MotorIsOn() )
@@ -595,6 +694,7 @@ class ExpansionBoatScript extends OffroadHatchback
 			
 				case CarSoundCtrl.ENGINE:
 				{
+					//! TODO: This check is redundant
 					if ( MotorIsOn() || EngineIsOn() )
 					{
 						return 1;

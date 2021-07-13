@@ -23,12 +23,14 @@ class cfgWeapons
 	{
 		scope = 0;
 		weight = 3700;
+		model = "\DayZExpansion\Objects\Weapons\Firearms\Shotguns\DT11\dt11.p3d";
 		itemSize[] = {9,3};
 		absorbency = 0;
 		repairableWithKits[] = {5,1};
 		repairCosts[] = {30,25};
 		chamberSize = 1;
 		chamberedRound = "";
+		attachments[] = {"weaponWrap"};
 		chamberableFrom[] = {"Ammo_12gaPellets","Ammo_12gaSlug","Ammo_12gaRubberSlug","Ammo_12gaBeanbag"};
 		magazines[] = {};
 		DisplayMagazine = 0;
@@ -111,14 +113,6 @@ class cfgWeapons
 			discreteDistance[] = {50,100,200};
 			discreteDistanceInitIndex = 0;
 		};
-	};
-	class Expansion_DT11: Expansion_DT11_Base
-	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_DT11";
-		descriptionShort = "$STR_EXPANSION_DT11_DESC";
-		model = "\DayZExpansion\Objects\Weapons\Firearms\Shotguns\DT11\dt11.p3d";
-		attachments[] = {"weaponWrap"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -184,5 +178,14 @@ class cfgWeapons
 				};
 			};
 		};
+	};
+	class Expansion_DT11: Expansion_DT11_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_DT11";
+		descriptionShort = "$STR_EXPANSION_DT11_DESC";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\Shotguns\DT11\data\dayz_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Weapons\Firearms\Shotguns\DT11\data\DT11.rvmat"};
 	};
 };

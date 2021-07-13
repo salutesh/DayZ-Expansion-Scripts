@@ -10,14 +10,6 @@
  *
 */
 
-enum ExpansionAutoRunRPC
-{
-	INVALID = 9889130,
-	AUTORUNSYNC,
-	AUTORUNDISABLE,
-	COUNT
-};
-
 class ExpansionAutorunModule: JMModuleBase
 {
 	protected int m_AutoWalkMode = 0;

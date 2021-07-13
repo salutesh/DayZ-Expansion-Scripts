@@ -14,11 +14,6 @@
  * @brief		This class handles modifications on the night-vision googles item
  **/
 
-enum ExpansionNVGRPCs
-{
-	SyncBatteryState
-}
-
 modded class NVGoggles
 {
 	int	m_BatteryEnergy;

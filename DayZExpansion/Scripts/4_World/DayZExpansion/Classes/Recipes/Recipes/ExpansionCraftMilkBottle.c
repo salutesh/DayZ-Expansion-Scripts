@@ -38,7 +38,7 @@ class ExpansionCraftMilkBottle extends RecipeBase
 		
 		//----------------------------------------------------------------------------------------------------------------------
 		
-		//! Ingredient 2
+		//! Ingredient 1
 		InsertIngredient(0, "PowderedMilk"); //! You can insert multiple ingredients this way
 		
 		m_IngredientAddHealth[0] = 0;
@@ -62,13 +62,15 @@ class ExpansionCraftMilkBottle extends RecipeBase
 		AddResult("ExpansionMilkBottle"); //! Add results here
 
 		m_ResultSetFullQuantity[0] = false;
-		m_ResultSetQuantity[0] = 1;
+		m_ResultSetQuantity[0] = -1;
 		m_ResultSetHealth[0] = -1;
-		m_ResultInheritsHealth[0] = -2;
+		m_ResultInheritsHealth[0] = 0;
 		m_ResultInheritsColor[0] = -1;
 		m_ResultToInventory[0] = -2;
 		m_ResultUseSoftSkills[0] = false;
-		m_ResultReplacesIngredient[0] = -1;
+		m_ResultReplacesIngredient[0] = -1;  //! -1 means do nothing, >= 0 means transfer properties of ingredient with that index
+		//! NOTE: Using m_ResultReplacesIngredient[0] = 1 here would make the resulting milk bottle contain water
+		//! if the original bottle ingredient was also a milk bottle. Use Do() instead to set quantity of milk.
 	}
 
 	override bool CanDo(ItemBase ingredients[], PlayerBase player) //! Final check for recipe's validity
@@ -78,6 +80,6 @@ class ExpansionCraftMilkBottle extends RecipeBase
 
 	override void Do(ItemBase ingredients[], PlayerBase player,array<ItemBase> results, float specialty_weight) //! Gets called upon recipe's completion
 	{
-		Debug.Log("Recipe Do method called", "recipes");
+		results[0].SetQuantity( ingredients[1].GetQuantity() );
 	}
 }

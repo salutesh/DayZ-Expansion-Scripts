@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionIngameHud
+class ExpansionIngameHud extends Hud
 {
 	//! HUD UI META
 	protected Widget										m_WgtRoot;
@@ -18,7 +18,6 @@ class ExpansionIngameHud
 	
 	//! CONDITIONS
 	protected bool											m_ExpansionHudState;
-	protected bool											m_ExpansionHudDebuggerState;
 	protected bool 											m_ExpansionHudGPSState;
 	protected bool											m_ExpansionHudGPSMapState;
 	protected bool											m_ExpansionHudGPSMapStatsState;
@@ -55,9 +54,6 @@ class ExpansionIngameHud
 	protected int											m_NVBatteryState;
 	//! EARPLUG
 	protected ImageWidget 									m_EarPlugIcon;
-
-	//! DEBUGER
-	protected MultilineTextWidget							m_ExpansionDebug;
 
 	// ------------------------------------------------------------
 	// ExpansionIngameHud Constructor
@@ -98,7 +94,7 @@ class ExpansionIngameHud
 	// ------------------------------------------------------------
 	// Expansion Init
 	// ------------------------------------------------------------
-	void Init( Widget hud_panel_widget )
+	override void Init( Widget hud_panel_widget )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Init Start");
@@ -149,8 +145,6 @@ class ExpansionIngameHud
 		//! EARPLUGS		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
 		
-		Class.CastTo( m_ExpansionDebug, m_WgtRoot.FindAnyWidget( "ExpansionDebugger" ) );
-		
 		//! SET UI EVENT HANDLER
 		m_ExpansionEventHandler = new ExpansionIngameHudEventHandler( this );
 		m_WgtRoot.SetHandler( m_ExpansionEventHandler );
@@ -195,49 +189,9 @@ class ExpansionIngameHud
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion UpdateExpansionDebugText
-	// ------------------------------------------------------------
-	void UpdateExpansionDebugText()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionIngameHud::UpdateExpansionDebugText Start");
-		#endif
-		
-		array< ExpansionDebuggerBlock > blocks = new array< ExpansionDebuggerBlock >;
-		ExpansionDebugger.GetEnabledBlocks( blocks );
-
-		array< string > text = new array< string >();
-		for ( int i = 0; i < blocks.Count(); i++ )
-		{
-			for ( int j = 0; j < blocks[i]._readyBuffer.Count(); j++ )
-			{
-				text.Insert( blocks[i]._readyBuffer[j] );
-			}
-		}
-
-		string txt = "";
-		for ( i = 0; i < text.Count(); i++ )
-		{
-			txt = txt + " \n\r " + text[i];
-		}
-
-		for ( int k = i; k < 256; k++ )
-		{
-			txt = txt + " \n\r ";
-		}
-
-		if ( m_ExpansionDebug )
-			m_ExpansionDebug.SetText( txt );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionIngameHud::UpdateExpansionDebugText End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion Show
 	// ------------------------------------------------------------
-	void Show( bool show )
+	override void Show( bool show )
 	{
 		m_WgtRoot.Show( show );
 	}
@@ -245,15 +199,13 @@ class ExpansionIngameHud
 	// ------------------------------------------------------------
 	// Expansion Update
 	// ------------------------------------------------------------
-	void Update( float timeslice )
+	override void Update( float timeslice )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Update Start");
 		#endif
 
 		RefreshExpansionHudVisibility();
-		
-		UpdateExpansionDebugText();
 		
 		if (m_ExpansionEventHandler)
 			m_ExpansionEventHandler.Update(timeslice);
@@ -281,10 +233,6 @@ class ExpansionIngameHud
 		m_ExpansionGPSSetting = GetExpansionSettings().GetMap().EnableHUDGPS;
 		m_ExpansionGPSPosSetting = GetExpansionSettings().GetMap().ShowPlayerPosition;
 		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay; 
-		
-		
-		if ( m_ExpansionDebug )
-			m_ExpansionDebug.Show( m_ExpansionHudState && m_ExpansionHudDebuggerState );
 		
 		if ( m_GPSPanel )
 		{
@@ -435,18 +383,45 @@ class ExpansionIngameHud
 			if ( worldName.Contains("chernarus") )	// CHERNARUS
 			{
 				if( scale >= 0.1 )
-				{	
+				{
 					shift_x = 642.5;
 					shift_y = 485.5;
-				}			
-			} 
+				}
+			}
 			else if ( worldName.Contains("enoch") )	// LIVONIA
 			{
 				if( scale >= 0.1 )
-				{	
+				{
 					shift_x = 545.0;
 					shift_y = 412.5;
-				}		
+				}
+			}
+			else if ( worldName.Contains("namalsk") )	// NAMALSK
+			{
+				// 12800 / 12800
+				if( scale >= 0.1 )
+				{
+					shift_x = 535.0;
+					shift_y = 412.5;
+				}
+			}
+			else if ( worldName.Contains("deerisle") )	// DEERISLE
+			{
+				// 16374 / 16400
+				if( scale >= 0.1 )
+				{	
+					shift_x = 682.5;
+					shift_y = 525.5;
+				}
+			}
+			else if ( worldName.Contains("chiemsee") )	// CHIEMSEE
+			{
+				// 10240 / 10240
+				if( scale >= 0.1 )
+				{
+					shift_x = 430;
+					shift_y = 327.5;
+				}
 			}
 			
 			camera_x = camera_x + (shift_x * multiplier);
@@ -465,13 +440,16 @@ class ExpansionIngameHud
 	// ------------------------------------------------------------
 	// Expansion ShowHud
 	// ------------------------------------------------------------
-	void ShowHud( bool show )
+	override void ShowHud( bool show )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ShowHud Start");
 		#endif
+		
+		super.ShowHud(show);
 		m_ExpansionHudState = show;
 		RefreshExpansionHudVisibility();
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ShowHud End");
 		#endif
@@ -483,23 +461,6 @@ class ExpansionIngameHud
 	bool GetExpansionHudState()
 	{
 		return m_ExpansionHudState;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Bool ShowDebugger
-	// ------------------------------------------------------------
-	void ShowDebugger( bool show )
-	{
-		m_ExpansionHudDebuggerState = show;
-		RefreshExpansionHudVisibility();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetDebuggerState
-	// ------------------------------------------------------------
-	bool GetDebuggerState()
-	{
-		return m_ExpansionHudDebuggerState;
 	}
 	
 	// ------------------------------------------------------------
@@ -635,7 +596,7 @@ class ExpansionIngameHud
 	// ------------------------------------------------------------
 	// Expansion OnResizeScreen
 	// ------------------------------------------------------------
-	void OnResizeScreen()
+	override void OnResizeScreen()
 	{
 		float x, y;
 		m_WgtRoot.GetScreenSize( x, y );

@@ -15,34 +15,74 @@ class CfgSlots
 	class Slot_merlinwheel_1_1
 	{
 		name = "merlinwheel_1_1";
-		displayName = "Merlin Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT_DESC";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_merlinwheel_1_2
 	{
 		name = "merlinwheel_1_2";
-		displayName = "Merlin Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT_DESC";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_merlinwheel_2_1
 	{
 		name = "merlinwheel_2_1";
-		displayName = "Merlin Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_merlinwheel_2_2
 	{
 		name = "merlinwheel_2_2";
-		displayName = "Merlin Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
+	};
+	class Slot_merlindoor_1_1
+	{
+		name = "merlindoor_1_1";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
+		selection = "merlindoor_1_1";
+		ghostIcon = "doorfront";
+	};
+	class Slot_merlindoor_1_2
+	{
+		name = "merlindoor_1_2";
+		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
+		selection = "merlindoor_1_2";
+		ghostIcon = "doorback";
+	};
+	class Slot_merlinhood
+	{
+		name = "merlinhood";
+		displayName = "Merlin Hood";
+		descriptionShort = "";
+		selection = "merlinhood";
+		ghostIcon = "hood";
+	};
+	class Slot_merlinhatch_1_1
+	{
+		name = "merlinhatch_1_1";
+		displayName = "Merlin Hatch";
+		descriptionShort = "";
+		selection = "merlinhatch_1_1";
+		ghostIcon = "trunk";
+	};
+	class Slot_merlinhatch_1_2
+	{
+		name = "merlinhatch_1_2";
+		displayName = "Merlin Hatch";
+		descriptionShort = "";
+		selection = "merlinhatch_1_2";
+		ghostIcon = "trunk";
 	};
 };
 class CfgVehicles
@@ -421,6 +461,20 @@ class CfgVehicles
 					fatalInjuryCoef = -1;
 					componentNames[] = {"dmgZone_fuelTank"};
 					inventorySlots[] = {};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					componentNames[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
 				};
 			};
 		};

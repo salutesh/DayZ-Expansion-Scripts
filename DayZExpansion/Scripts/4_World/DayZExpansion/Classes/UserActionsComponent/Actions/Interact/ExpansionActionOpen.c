@@ -12,6 +12,8 @@
 
 class ExpansionActionOpen: ActionInteractBase
 {
+	ItemBase m_Target;
+
 	void ExpansionActionOpen()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
@@ -22,38 +24,44 @@ class ExpansionActionOpen: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 
 	override string GetText()
 	{
+		if ( m_Target && m_Target.IsLocked() )
+		{
+			if ( m_Target.IsInherited( ExpansionSafeBase ) )
+				return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
+			if ( m_Target.IsInherited( ExpansionWallBase ) && ExpansionWallBase.Cast( m_Target ).HasDoor() )
+				return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
+			return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+		}
+
 		return "#open";
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !player )
-			return false;
-
-		ItemBase tgt;
-		if ( !Class.CastTo( tgt, target.GetObject() ) )
-			if ( !Class.CastTo( tgt, target.GetParent() ) )
+		if ( !Class.CastTo( m_Target, target.GetObject() ) )
+			if ( !Class.CastTo( m_Target, target.GetParent() ) )
 				return false;
 
-		string selection = tgt.GetActionComponentName( target.GetComponentIndex() );
-		
-		return tgt.ExpansionCanOpen( player, selection );
+		string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
+
+		return m_Target.ExpansionCanOpen( player, selection );
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		ItemBase tgt;
-		if ( !Class.CastTo( tgt, action_data.m_Target.GetObject() ) )
-			if ( !Class.CastTo( tgt, action_data.m_Target.GetParent() ) )
-				return;
+		if ( !m_Target || ( m_Target.IsLocked() && !m_Target.IsKnownUser( action_data.m_Player ) ) )
+			return;
 
-		string selection = tgt.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
-		
-		tgt.Open( selection );
+		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+
+		if ( m_Target.IsLocked() )
+			m_Target.UnlockAndOpen( selection );
+		else
+			m_Target.Open( selection );
 	}
 }

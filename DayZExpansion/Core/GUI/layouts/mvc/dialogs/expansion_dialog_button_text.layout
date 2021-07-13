@@ -1,0 +1,51 @@
+WrapSpacerWidgetClass ExpansionDialogButtonText {
+ position 0 0
+ size 200 50
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionDialogButton_TextController"
+ {
+  ButtonWidgetClass dialog_button {
+   position 0.05 0.2
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   {
+    TextWidgetClass dialog_text {
+     ignorepointer 1
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     text "Test"
+     font "gui/fonts/etelkatextpro22"
+     "text halign" center
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "ButtonText"
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnButtonClick"
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+   Debug_Logging 0
+  }
+ }
+}

@@ -16,13 +16,6 @@ modded class PlayerBase
 
 	protected bool m_WasInVehicle;
 	
-	protected string m_PlayerUID;
-	protected string m_PlayerSteam;
-	protected string m_PlayerName;
-
-	private static autoptr map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
-	private static autoptr array< PlayerBase > m_AllPlayers = new array< PlayerBase >;
-	
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
 	// ------------------------------------------------------------
@@ -59,8 +52,10 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase DeferredClientInit
 	// ------------------------------------------------------------
-	void DeferredClientInit()
-	{
+	override void DeferredClientInit()
+	{		
+		super.DeferredClientInit();
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::DeferredClientInit - Start");
 		#endif
@@ -99,6 +94,9 @@ modded class PlayerBase
 
 		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
 		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
+
+		AddAction( ExpansionActionPickVehicleLock );
+		AddAction( ExpansionVehicleActionPickLock );
 
 		#ifdef EXPANSION_VEHICLE_TOWING
 		AddAction( ExpansionActionConnectTow, InputActionMap );
@@ -170,7 +168,8 @@ modded class PlayerBase
 			if ( m_TransportHitVelocity.Length() > 2.5 )
 			{
 				float damage = m_TransportHitVelocity.Length();
-				ProcessDirectDamage( DT_CUSTOM, transport, "", "TransportHit", "0 0 0", damage );
+				if ( transport && damage )
+					ProcessDirectDamage( DT_CUSTOM, transport, "", "TransportHit", "0 0 0", damage );
 			} else
 			{
 				m_TransportHitRegistered = false;
@@ -209,73 +208,27 @@ modded class PlayerBase
 
 		return false;
 	}
-	
+
 	// ------------------------------------------------------------
-	// Expansion SendChatMessage 
+	// Expansion StartCommand_ExpansionFall
 	// ------------------------------------------------------------
-	override void SendChatMessage( string message )
+	override void StartCommand_ExpansionFall( float pYVelocity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SendChatMessage - Start");
-		#endif
-
-		if ( IsMissionClient() )
+		#ifndef EXPANSION_DISABLE_FALL
+		if ( !s_ExpansionPlayerAttachment )
 		{
-			GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCDirect, "", message, "" ) );
-		}
-		else
-		{
-			array<Man> players = new array<Man>;
-			GetGame().GetPlayers( players );
-			
-			foreach( auto player : players  )
-			{
-				Param1<string> m_MessageParam = new Param1<string>(message);
-				GetGame().RPCSingleParam( player, ERPCs.RPC_USER_ACTION_MESSAGE, m_MessageParam, true, player.GetIdentity() );
-			}
+			StartCommand_Fall( pYVelocity );
+			return;
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SendChatMessage - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase HasItem
-	// ------------------------------------------------------------
-	bool HasItem( string name, out EntityAI item )
-	{
-		if ( !GetInventory() )
-			return false;
+		if ( m_ExpansionST == NULL )
+			m_ExpansionST = new ExpansionHumanST( this );
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::HasItem - Start");
+		ExpansionHumanCommandFall cmd = new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionST );
+		StartCommand_Script( cmd );
+		#else
+		StartCommand_Fall( pYVelocity );
 		#endif
-		
-		for ( int att_i = 0; att_i < GetInventory().AttachmentCount(); ++att_i )
-		{
-			EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
-			ref CargoBase cargo = attachment.GetInventory().GetCargo();
-			
-			if ( !cargo )
-				continue;
-
-			for ( int cgo_i = 0; cgo_i < cargo.GetItemCount(); ++cgo_i )
-			{
-				EntityAI cargo_item = cargo.GetItem( cgo_i );
-				if ( !cargo_item )
-					continue;
-
-				if ( cargo_item.GetType() == name )
-					return Class.CastTo( item, cargo_item );
-			}
-		}
-	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::HasItem - End");
-		#endif
-		
-		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -396,6 +349,7 @@ modded class PlayerBase
 
 	// ------------------------------------------------------------
 	// Expansion GetExpansionSaveVersion
+	// OBSOLETE
 	// ------------------------------------------------------------
 	int GetExpansionSaveVersion()
 	{
@@ -407,8 +361,13 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("[VEHICLES] PlayerBase::OnStoreSave " + this + " " + GetGame().SaveVersion());
+		#endif
+
+		//! If we are saving after game version target for ModStorage support (1st stable)
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -417,6 +376,15 @@ modded class PlayerBase
 
 		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
 		ctx.Write( m_ExpansionSaveVersion );
+
+		//! If we are saving game version target for ModStorage support (1st stable) or later
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
 
 		super.OnStoreSave( ctx );
 		
@@ -428,18 +396,26 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		//! Use GetExpansionSaveVersion()
-		//! Making sure this is read before everything else.
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("[VEHICLES] PlayerBase::OnStoreLoad " + this + " " + version);
+		#endif
 
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
 
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		if ( !super.OnStoreLoad( ctx, version ) )
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return super.OnStoreLoad( ctx, version );
+		#endif
+		
+		//! With CF_ModStorage enabled, the code below won't be ran unless an old CE is loaded. To prevent server wipes, the code below will stay.
+
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 		
 		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
@@ -451,6 +427,10 @@ modded class PlayerBase
 	#ifdef CF_MODULE_MODSTORAGE
 	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("[VEHICLES] PlayerBase::CF_OnStoreSave " + this + " " + modName);
+		#endif
+
 		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion_Vehicles" )
@@ -461,6 +441,10 @@ modded class PlayerBase
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("[VEHICLES] PlayerBase::CF_OnStoreLoad " + this + " " + modName);
+		#endif
+
 		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
@@ -538,116 +522,5 @@ modded class PlayerBase
 				m_WasInVehicle = false;
 			}
 		}
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase GetIdentityUID
-	// ------------------------------------------------------------
-	string GetIdentityUID()
-	{
-		if ( IsMissionClient() )
-		{
-			if ( GetIdentity() )
-				return GetIdentity().GetId();
-			else if ( IsMissionOffline() )
-				return "OFFLINE";
-		}
-
-		return m_PlayerUID;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase GetIdentitySteam
-	// ------------------------------------------------------------
-	string GetIdentitySteam()
-	{
-		if ( IsMissionClient() )
-		{
-			if ( GetIdentity() )
-				return GetIdentity().GetPlainId();
-			else if ( IsMissionOffline() )
-				return "OFFLINE";
-		}
-
-		return m_PlayerSteam;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase GetIdentityName
-	// ------------------------------------------------------------
-	string GetIdentityName()
-	{
-		if ( IsMissionClient() )
-		{
-			if ( GetIdentity() )
-				return GetIdentity().GetName();
-			else if ( IsMissionOffline() )
-				return "OFFLINE";
-		}
-
-		return m_PlayerName;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase GetAll
-	// ------------------------------------------------------------
-	static array< PlayerBase > GetAll()
-	{
-		return m_AllPlayers;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase GetPlayerByUID
-	// string id = PlayerIdentity::GetId()
-	// Can be used on server/client side
-	// ------------------------------------------------------------
-	static PlayerBase GetPlayerByUID( string id )
-	{
-		if ( IsMissionHost() )
-		{
-			return m_AllPlayersUID.Get( id );
-		} else
-		{
-			for ( int j = 0; j < ClientData.m_PlayerBaseList.Count(); ++j )
-			{
-				PlayerBase player;
-				if ( !Class.CastTo( player, ClientData.m_PlayerBaseList[j] ) || !player.GetIdentity() )
-					continue;
-				
-				if ( player.GetIdentity().GetId() == id )
-					return PlayerBase.Cast( player );
-			}
-		}
-		
-		return NULL;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase AddPlayer
-	// Only called server side, to get only alive players
-	// ------------------------------------------------------------
-	static void AddPlayer( PlayerBase player )
-	{
-		if ( !player )
-			return;
-
-		if ( player.GetIdentity() )
-		{
-			player.m_PlayerUID = player.GetIdentity().GetId();
-			player.m_PlayerSteam = player.GetIdentity().GetPlainId();
-			player.m_PlayerName = player.GetIdentity().GetName();
-		}
-
-		if ( player.m_PlayerUID != "" )
-			m_AllPlayersUID.Set( player.m_PlayerUID, player );
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase RemovePlayer
-	// Only called server side, to get only alive players
-	// ------------------------------------------------------------
-	static void RemovePlayer( string id )
-	{
-		m_AllPlayersUID.Remove( id );
 	}
 }

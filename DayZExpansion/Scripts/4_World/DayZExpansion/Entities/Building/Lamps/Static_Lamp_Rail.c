@@ -13,9 +13,5 @@
 /**@class		Static_Lamp_Rail
  * @brief		
  **/
-class Static_Lamp_Rail: ExpansionLampLightBase
-{
-}
-class bldr_Lamp_Rail: ExpansionPropLampLightBase
-{
-}
+class Static_Lamp_Rail: ExpansionLampLightBase {};
+class bldr_Lamp_Rail: Static_Lamp_Rail {};

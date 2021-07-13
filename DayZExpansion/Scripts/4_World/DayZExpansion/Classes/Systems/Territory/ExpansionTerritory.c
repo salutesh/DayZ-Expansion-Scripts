@@ -351,7 +351,7 @@ class ExpansionTerritory
 		storage.Write( count );
 		while ( index < count )
 		{
-			TerritoryMembers[index].OnStoreLoad( storage );
+			TerritoryMembers[index].OnStoreSave( storage );
 			index++;
 		}
 
@@ -360,7 +360,7 @@ class ExpansionTerritory
 		storage.Write( count );
 		while ( index < count )
 		{
-			Invites[index].OnStoreLoad( storage );
+			Invites[index].OnStoreSave( storage );
 			index++;
 		}
 	}

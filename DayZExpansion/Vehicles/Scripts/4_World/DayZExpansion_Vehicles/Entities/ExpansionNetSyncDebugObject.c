@@ -87,10 +87,10 @@ class ExpansionNetSyncDebugObject extends ItemBase
 
 	void FixScale()
 	{
-		Print(m_Object);
+		//Print(m_Object);
 
 		if (!m_Object)
-			m_Object = EntityAI.Cast( GetGame().GetObjectByNetworkId(m_NetIDLow, m_NetIDHigh) );
+			m_Object = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_NetIDLow, m_NetIDHigh));
 
 		if (!m_Object)
 			return;
@@ -104,7 +104,7 @@ class ExpansionNetSyncDebugObject extends ItemBase
 			m_OriY = m_Object.GetOrientation()[1];
 			m_OriZ = m_Object.GetOrientation()[2];
 			
-			SetPosition( m_Object.GetPosition() );
+			SetPosition(m_Object.GetPosition());
 
 			SetSynchDirty();
 
@@ -124,11 +124,6 @@ class ExpansionNetSyncDebugObject extends ItemBase
 		//trans[2] = trans[2] * (Math.AbsFloat(info[0][2]) + Math.AbsFloat(info[1][2])) * 0.5;
 
 		trans[3] = Vector(m_PosX, m_PosY, m_PosZ);
-		
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [0]: " + trans[0]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [1]: " + trans[1]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [2]: " + trans[2]);
-		ExpansionDebugger.Display(EXPANSION_DEBUG_VEHICLE_CAMERA, "M: [3]: " + trans[3]);
 
 		SetTransform(trans);
 	}

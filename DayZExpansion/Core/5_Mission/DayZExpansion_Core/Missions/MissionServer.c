@@ -118,7 +118,7 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void InvokeOnConnect( PlayerBase player, PlayerIdentity identity )
 	{
-		g_exGlobalSettings.Send( identity );
+		GetExpansionSettings().Send( identity );
 		
 		PlayerBase.AddPlayer( player );
 		

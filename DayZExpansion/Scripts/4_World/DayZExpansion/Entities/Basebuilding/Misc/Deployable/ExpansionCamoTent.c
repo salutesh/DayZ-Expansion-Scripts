@@ -13,8 +13,11 @@
 /**@class		ExpansionCamoTent
  * @brief		
  **/
+//! TODO: Is there a good reason this inherits from ExpansionBaseBuilding and not DeployableContainer_Base or similar?
 class ExpansionCamoTent: ExpansionBaseBuilding 
 {
+	int m_CanBeDamaged = -1;
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -62,21 +65,14 @@ class ExpansionCamoTent: ExpansionBaseBuilding
 	}
 
 	// ------------------------------------------------------------
-	// SetActions
-	// ------------------------------------------------------------
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionFoldBaseBuildingObject);
-	}
-
-	// ------------------------------------------------------------
 	// CanBeDamaged
 	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		return true;
+		if ( m_CanBeDamaged == -1 && GetGame() && GetGame().IsMultiplayer() && GetGame().IsServer() )
+			m_CanBeDamaged = GetGame().ServerConfigGetInt( "disableContainerDamage" ) == 0;
+
+		return m_CanBeDamaged;
 	}
 
 	// ------------------------------------------------------------

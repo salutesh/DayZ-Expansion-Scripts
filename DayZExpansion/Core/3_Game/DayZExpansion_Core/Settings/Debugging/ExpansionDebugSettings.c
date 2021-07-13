@@ -188,4 +188,9 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		
 		DebugVehiclePlayerNetworkBubbleMode = 0;
 	}
+	
+	override string SettingName()
+	{
+		return "Debug Settings";
+	}
 };

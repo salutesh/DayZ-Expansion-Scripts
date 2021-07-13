@@ -73,6 +73,9 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	void ~ExpansionCOTVehiclesMenu()
 	{
 		delete layoutRoot;
+		
+		m_MapMarkers.Clear();
+		m_VehicleEntries.Clear();
 	}
 	
 	// ------------------------------------------------------------

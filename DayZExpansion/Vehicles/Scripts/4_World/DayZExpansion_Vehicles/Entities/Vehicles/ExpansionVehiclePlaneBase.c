@@ -192,8 +192,6 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 	override void OnPostSimulation( float pDt )
 	{
 		super.OnPostSimulation( pDt );
-		
-		ExpansionDebugger.Push( EXPANSION_DEBUG_VEHICLE_PLANE );
 	}
 
 	// ------------------------------------------------------------
@@ -292,6 +290,10 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+
 		if ( !dBodyIsActive( this ) )
 			return;
 
@@ -344,27 +346,31 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		m_Flaps += Math.Clamp( m_FlapsTarget - m_Flaps, -1 * pDt, 1 * pDt );
 		m_Flaps = Math.Clamp( m_Flaps, 0, 1 );
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Thrust: " + m_Thrust );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Thrust Target: " + m_ThrustTarget );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Thrust", m_Thrust );
+		dbg_Vehicle.Set("Thrust Target", m_ThrustTarget );
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Elevator: " + m_Elevator );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Elevator Target: " + m_ElevatorTarget );
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Aileron: " + m_Aileron );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Aileron Target: " + m_AileronTarget );
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Rudder: " + m_Rudder );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Rudder Target: " + m_RudderTarget );
-
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Flaps: " + m_Flaps );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Flaps Target: " + m_FlapsTarget );
+		dbg_Vehicle.Set("Elevator", m_Elevator );
+		dbg_Vehicle.Set("Elevator Target", m_ElevatorTarget );
+		
+		dbg_Vehicle.Set("Aileron", m_Aileron );
+		dbg_Vehicle.Set("Aileron Target", m_AileronTarget );
+		
+		dbg_Vehicle.Set("Rudder", m_Rudder );
+		dbg_Vehicle.Set("Rudder Target", m_RudderTarget );
+		
+		dbg_Vehicle.Set("Flaps", m_Flaps );
+		dbg_Vehicle.Set("Flaps Target", m_FlapsTarget );
+		#endif
 
 		vector tForce			= vector.Zero;
 		vector tCenter			= vector.Zero;
 
 		CalculateAngleOfAttack();
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Angle Of Attack: " + m_AngleOfAttack );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Angle Of Attack", m_AngleOfAttack );
+		#endif
 
 		// lift force
 		{
@@ -379,7 +385,9 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 			tCenter[1] = 0;
 			tCenter[2] = bankCoef * ( 1.0 - Math.Cos( bank ) );
 
-			ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Lift Force: " + tForce[1] );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("Lift Force", tForce[1] );
+			#endif
 
 			force += tForce;
 			torque += tCenter * tForce;
@@ -417,11 +425,13 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 			torque += tForce;
 		}
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "m_Transform: " + m_Transform.GetBasis() );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Side: " + m_Transform.data[0] );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Up : " + m_Transform.data[1] );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Forward : " + m_Transform.data[2] );
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_PLANE, "Position : " + m_Transform.data[3] );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("m_Transform", m_Transform.GetBasis() );
+		dbg_Vehicle.Set("Side", m_Transform.data[0] );
+		dbg_Vehicle.Set("Up ", m_Transform.data[1] );
+		dbg_Vehicle.Set("Forward ", m_Transform.data[2] );
+		dbg_Vehicle.Set("Position ", m_Transform.data[3] );
+		#endif
 
 		// rudder
 		{

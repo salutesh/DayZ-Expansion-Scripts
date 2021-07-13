@@ -30,21 +30,31 @@ class ExpansionVehicleController
 
 	void Update()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::Update" );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
 
 		Transport transport;
 		ExpansionVehicleBase vehicleScript;
 		if ( Class.CastTo( transport, m_Vehicle ) )
 		{
-			ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "Vanilla Transport" );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("Controller", "Vanilla");
+			#endif
+
 			m_Player = PlayerBase.Cast( transport.CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 		} else if ( Class.CastTo( vehicleScript, m_Vehicle ) )
 		{
-			ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "Expansion Transport" );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("Controller", "Expansion");
+			#endif
+
 			m_Player = PlayerBase.Cast( vehicleScript.CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 		}
 
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "Player: " + m_Player );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Player", m_Player);
+		#endif
 
 		if ( m_Player == NULL )
 		{
@@ -105,7 +115,6 @@ class ExpansionVehicleController
 	 */
 	protected void OnUpdate()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::OnUpdate" );
 	}
 
 	/**
@@ -113,7 +122,6 @@ class ExpansionVehicleController
 	 */
 	protected void OnReset()
 	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_CONTROLLER, "ExpansionVehicleController::OnReset" );
 	}
 
 	void NetworkSend( ref ParamsWriteContext ctx )

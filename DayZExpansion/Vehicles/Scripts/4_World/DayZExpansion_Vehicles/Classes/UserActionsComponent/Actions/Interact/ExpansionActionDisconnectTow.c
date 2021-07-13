@@ -38,6 +38,9 @@ class ExpansionActionDisconnectTow: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetVehicle().Towing)
+			return false;
+
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 
 		CarScript car;

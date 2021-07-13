@@ -514,7 +514,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Sedan_02_Door_2_1: CarDoor
+	class Sedan_02_Door_2_1: Sedan_02_Door_1_1
 	{
 		class DamageSystem
 		{
@@ -555,7 +555,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Sedan_02_Door_1_2: CarDoor
+	class Sedan_02_Door_1_2: Sedan_02_Door_1_1
 	{
 		applySkinsTo[] = {"Sedan_02_Door_2_2","Expansion_Sedan_02_Door_2_2"};
 		defaultSkin = "Yellow";
@@ -598,7 +598,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Sedan_02_Door_2_2: CarDoor
+	class Sedan_02_Door_2_2: Sedan_02_Door_1_1
 	{
 		class DamageSystem
 		{

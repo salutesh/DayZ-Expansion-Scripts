@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionSpawnSelectionMenu extends UIScriptedMenu
+class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 {
 	ref array< ref ExpansionSpawnSelectionEntry > m_SpawnPointsEntrys;
 	ref array< ref ExpansionSpawnSelectionMarker > m_MapMarkers;
@@ -19,7 +19,9 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 	
 	protected GridSpacerWidget m_ListGrid;
 	protected ButtonWidget m_Confirm;
+	protected TextWidget m_ConfirmLable;
 	protected ButtonWidget m_Random;
+	protected TextWidget m_RandomLable;
 	protected Widget m_MapPanel;
 	protected MapWidget m_Map;
 	
@@ -57,14 +59,15 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 		
 		m_ListGrid = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "ListGrid" ) );
 		m_Confirm = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "Confirm" ) );
+		m_ConfirmLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "ConfirmText" ) );
 		m_Random = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "Random" ) );
+		m_RandomLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "RandomText" ) );
 		m_MapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "MapPanel" ) );
 		m_Map = MapWidget.Cast( layoutRoot.FindAnyWidget( "Map" ) );
-				
-		FillList( GetExpansionSettings().GetSpawn().SpawnLocations );		
 
-		//if ( GetExpansionSettings().GetSpawn().SpawnOnTerritory && HaveATerritory() )
-		//	FillList( GetTerritoryList() );
+		Clear();
+				
+		FillList( GetExpansionSettings().GetSpawn().SpawnLocations, 0 );
 		
 		return layoutRoot;
 	}
@@ -72,9 +75,26 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMenu FillList
 	// ------------------------------------------------------------		
-	void FillList(array< ref ExpansionSpawnLocation> SpawnLocations)
+	void FillList(array< ref ExpansionSpawnLocation> SpawnLocations, int type = 0)
 	{
-		Clear();
+		if ( !SpawnLocations )
+			return;
+
+		int PrimaryColor = ARGB(255, 255, 255, 255);
+		int HoverColor 	 = ARGB(255, 255, 255, 255);
+
+		//! You can use this switch case for modding purposes
+		switch( type )
+		{
+			case 0:
+				PrimaryColor = ARGB(255, 211, 84, 0);
+				HoverColor 	 = ARGB(200, 255, 255, 255);
+			break;
+			case 1:
+				PrimaryColor = ARGB(255, 0, 102, 204);
+				HoverColor 	 = ARGB(200, 255, 255, 255);
+			break;
+		}
 		
 		foreach( ExpansionSpawnLocation currenLocation : SpawnLocations )
 		{
@@ -88,30 +108,14 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 			ExpansionSpawnSelectionMarker marker = new ExpansionSpawnSelectionMarker( m_MapPanel, m_Map, true);
 			marker.SetIcon( ExpansionIcons.Get( 46 ) );
 			marker.SetPosition( pos );
-			marker.SetPrimaryColor( ARGB( 255, 211, 84, 0 ) );
-			marker.SetHoverColour( ARGB( 200, 255, 255, 255 ) );
+			marker.SetPrimaryColor( PrimaryColor );
+			marker.SetHoverColour( HoverColor );
 			marker.SetName( currenLocation.Name );
 			marker.SetLocation( currenLocation );
 			
 			m_MapMarkers.Insert( marker );
 		}
 	}
-
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu HaveATerritory
-	// ------------------------------------------------------------	
-	//bool HaveATerritory()
-	//{
-	//	return false;
-	//}
-
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu GetTerritoryList
-	// ------------------------------------------------------------	
-	//ExpansionSpawnLocation GetTerritoryList()
-	//{
-	//	return NULL;
-	//} 
 	
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMenu ClearList
@@ -228,5 +232,55 @@ class ExpansionSpawnSelectionMenu extends UIScriptedMenu
 		{
 			m_MapMarkers[i].Update(0.5);
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu OnMouseEnter
+	// ------------------------------------------------------------
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{		
+		switch ( w )
+		{
+			case m_Confirm:
+			{
+				w.SetColor( ARGB( 255,255,255,255 ) );
+				m_ConfirmLable.SetColor( ARGB( 255,0,0,0 ) );
+				break;
+			}
+			
+			case m_Random:
+			{
+				w.SetColor( ARGB( 255,255,255,255 ) );
+				m_RandomLable.SetColor( ARGB( 255,0,0,0 ) );
+				break;
+			}
+		}
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSpawnSelectionMenu OnMouseLeave
+	// ------------------------------------------------------------
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		switch ( w )
+		{
+			case m_Confirm:
+			{
+				w.SetColor( ARGB( 255,0,0,0 ) );
+				m_ConfirmLable.SetColor( ARGB( 255,255,255,255 ) );
+				break;
+			}
+			
+			case m_Random:
+			{
+				w.SetColor( ARGB( 255,0,0,0 ) );
+				m_RandomLable.SetColor( ARGB( 255,255,255,255 ) );
+				break;
+			}
+		}
+		
+		return false;
 	}
 }

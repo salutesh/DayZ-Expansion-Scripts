@@ -20,4 +20,14 @@ class Expansion_M9_Base : Pistol_Base
 
 		return new Cz75Recoil(this);
 	}
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.SpawnEntityOnGroundPos("Mag_Expansion_M9_15Rnd", entity.GetPosition());
+		}
+	}
 };

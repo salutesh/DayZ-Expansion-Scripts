@@ -39,6 +39,8 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 	
 	private bool m_ShowServerName = true;
 	private bool m_ShowServerDistance = true;
+
+	private bool m_ShowPersonalDistance = true;
 	
 	void Expansion3DMarker( ExpansionMarkerData data = NULL )
 	{
@@ -144,7 +146,11 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		{
 			m_Text_Name.Show( m_ShowServerName );
 			m_Text_Distance.Show( m_ShowServerDistance );
+		} else if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PERSONAL )
+		{
+			m_Text_Distance.Show( m_ShowPersonalDistance );
 		}
+		
 		
 		m_Text_Name.SetText( m_MarkerData.GetName() );
 		m_Text_Name.SetColor( ARGB( m_Transparency, 255, 255, 255) );
@@ -243,7 +249,8 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 			if (m_ShowQuickName)
 			{
 				m_ShowQuickName = GetExpansionClientSettings().ShowNameQuickMarkers;
-			}			
+			}
+
 			m_ShowQuickDistance = GetExpansionSettings().GetParty().ShowDistanceUnderQuickMarkers;
 			if (m_ShowQuickDistance)
 			{
@@ -251,10 +258,11 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 			}
 			
 			m_ShowMemberName = GetExpansionSettings().GetParty().ShowNameOnPartyMembersMarkers;
-			if (m_ShowMemberName)
+			if ( GetExpansionSettings().GetParty().ShowNameOnPartyMembersMarkers )
 			{
 				m_ShowMemberName = GetExpansionClientSettings().ShowMemberNameMarker;
-			}			
+			}
+
 			m_ShowMemberDistance = GetExpansionSettings().GetParty().ShowDistanceUnderPartyMembersMarkers;
 			if (m_ShowMemberDistance)
 			{
@@ -263,6 +271,8 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 			
 			m_ShowServerName = GetExpansionSettings().GetMap().ShowNameOnServerMarkers;
 			m_ShowServerDistance = GetExpansionSettings().GetMap().ShowDistanceOnServerMarkers;
+
+			m_ShowPersonalDistance = GetExpansionSettings().GetMap().ShowDistanceOnPersonalMarkers;
 		}
 	}
 }

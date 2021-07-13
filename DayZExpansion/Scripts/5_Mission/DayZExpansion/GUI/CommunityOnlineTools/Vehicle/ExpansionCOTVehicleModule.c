@@ -56,11 +56,20 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 	override void OnRegisterSettings()
 	{
 		CreateEnum( "VehicleSync", ExpansionVehicleNetworkMode, "Vehicle Sync", "", "" );
-		array< string > values_VehicleRequireKeyToStart = { "NO", "YES" };
-		CreateEnum( "VehicleRequireKeyToStart", values_VehicleRequireKeyToStart, "Requires Key To Start", "", "" );
+		CreateEnum( "VehicleRequireKeyToStart", ExpansionVehicleKeyStartMode, "Requires Key To Start", "", "" );
 		CreateToggle( "VehicleRequireAllDoors", "Key Requires All Doors", "", "" );
 		CreateToggle( "VehicleLockedAllowInventoryAccess", "Access Locked Inventory", "", "" );
 		CreateToggle( "VehicleLockedAllowInventoryAccessWithoutDoors", "Access Locked Inventory w/o Doors", "", "" );
+
+		array< string > MasterKeyPairingEnum = { "DISABLED", "LIMITED", "RENEWABLE", "GRINDER" };
+		CreateEnum( "MasterKeyPairingMode", MasterKeyPairingEnum, "Master Key Pairing Mode", "", "" );
+		CreateSlider( "MasterKeyUses", "Master Key Uses", "", "", 0, 20, 1);
+
+		CreateToggle( "CanPickLock", "Can Pick Lock", "", "" );
+		CreateSlider( "PickLockChancePercent", "Pick Lock Chance Percent", "", "", 0.0, 100.0, 1.0);
+		CreateSlider( "PickLockTimeSeconds", "Pick Lock Time Seconds", "", "", 0, 240, 10);
+		CreateSlider( "PickLockToolDamagePercent", "Pick Lock Tool Damage Percent", "", "", 0.0, 100.0, 1.0);
+
 		#ifdef EXPANSION_HELI_WIND
 		CreateToggle( "EnableWindAerodynamics", "Wind Aerodynamics", "", "" );
 		#endif
@@ -72,7 +81,10 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		#ifdef EXPANSION_VEHICLE_TOWING
 		CreateToggle( "Towing", "Towing Vehicles", "", "" );	
 		#endif
-		CreateToggle( "EnableHelicopterExplosions", "Enable Helicopter Explosions", "", "" );	
+
+		CreateToggle( "DisableVehicleDamage", "DisableVehicleDamage", "", "" );
+		CreateSlider( "VehicleCrewDamageMultiplier", "VehicleCrewDamageMultiplier", "", "", 0, 2, 0.1);
+		CreateSlider( "VehicleSpeedDamageMultiplier", "VehicleSpeedDamageMultiplier", "", "", -1, 1, 0.1);
 	}
 
 	override int GetRPCMin()

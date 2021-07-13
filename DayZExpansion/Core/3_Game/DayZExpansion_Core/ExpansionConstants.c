@@ -34,7 +34,7 @@ const float EXP_FADE_IN_DURATION = 0.25;
 class ExpansionChatColors
 {
 	static const int EXP_DEFAULT_COLOUR = ARGB(255, 255, 255, 255);
-	static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 167, 67, 192);
+	static const int EXP_GAME_TEXT_COLOUR = ARGB(255, 186, 69, 186);
 	static const int EXP_ADMIN_TEXT_COLOUR = ARGB(255, 192, 57, 43);
 	static const int EXP_DIRECT_TEXT_COLOUR = ARGB(255, 255, 255, 255);
 	static const int EXP_GLOBAL_TEXT_COLOUR = ARGB(255, 88, 195, 247);
@@ -76,7 +76,6 @@ const int MENU_EXPANSION_LOCKER_MENU = MENU_EXPANSION_MENU_START + 6;
 const int MENU_EXPANSION_NUMPAD_MENU = MENU_EXPANSION_MENU_START + 7;
 const int MENU_EXPANSION_MAP = MENU_EXPANSION_MENU_START + 8;
 const int MENU_EXPANSION_FLAG_MENU = MENU_EXPANSION_MENU_START + 9;
-const int MENU_EXPANSION_PLAYER_LIST_MENU = MENU_EXPANSION_MENU_START + 10;
 
 /**
  * Expansion UI Colors
@@ -120,6 +119,7 @@ static const string EXPANSION_FOLDER = "$profile:ExpansionMod\\";
 
 static const string EXPANSION_SETTINGS_FOLDER = EXPANSION_FOLDER + "Settings\\";
 static const string EXPANSION_MARKET_FOLDER = EXPANSION_FOLDER + "Market\\";
+static const string EXPANSION_TRADER_ZONES_RESERVED_FOLDER = EXPANSION_FOLDER + "TraderZonesReserved\\";
 static const string EXPANSION_TRADER_ZONES_FOLDER = EXPANSION_FOLDER + "TraderZones\\";
 static const string EXPANSION_TRADER_FOLDER = EXPANSION_FOLDER + "Traders\\";
 static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_FOLDER + "Missions\\";
@@ -144,6 +144,7 @@ static const string EXPANSION_RAID_SETTINGS = EXPANSION_SETTINGS_FOLDER + "RaidS
 static const string EXPANSION_TERRITORY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "TerritorySettings.json";
 static const string EXPANSION_VEHICLE_SETTINGS = EXPANSION_SETTINGS_FOLDER + "VehicleSettings.json";
 static const string EXPANSION_DEBUG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "DebugSettings.json";
+static const string EXPANSION_PLAYERLIST_SETTINGS = EXPANSION_SETTINGS_FOLDER + "PlayerListSettings.json";
 
 static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors.bin";
 
@@ -345,7 +346,7 @@ static const string EXPANSION_NOTIFICATION_ICON_T_Pipe_wrench = "DayZExpansion\\
 static const string EXPANSION_NOTIFICATION_ICON_T_Powder = "DayZExpansion\\GUI\\icons\\misc\\T_Powder_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Pumpkin = "DayZExpansion\\GUI\\icons\\misc\\T_Pumpkin_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Rabbit = "DayZExpansion\\GUI\\icons\\misc\\T_Rabbit_256x256.edds";
-static const string EXPANSION_NOTIFICATION_ICON_T_Raccon = "DayZExpansion\\GUI\\icons\\misc\\T_Raccon_256x256.edds";
+static const string EXPANSION_NOTIFICATION_ICON_T_Racoon = "DayZExpansion\\GUI\\icons\\misc\\T_Racoon_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Radio = "DayZExpansion\\GUI\\icons\\misc\\T_Radio_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Rat = "DayZExpansion\\GUI\\icons\\misc\\T_Rat_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Rock_01 = "DayZExpansion\\GUI\\icons\\misc\\T_Rock_01_256x256.edds";
@@ -362,7 +363,7 @@ static const string EXPANSION_NOTIFICATION_ICON_T_Slingshot = "DayZExpansion\\GU
 static const string EXPANSION_NOTIFICATION_ICON_T_Soda = "DayZExpansion\\GUI\\icons\\misc\\T_Soda_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Tent = "DayZExpansion\\GUI\\icons\\misc\\T_Tent_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Three_Stick = "DayZExpansion\\GUI\\icons\\misc\\T_Three_Stick_256x256.edds";
-static const string EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie = "DayZExpansion\\GUI\\icons\\misc\\T_Walkie_Talkie_256x256.edds";
+static const string EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie = "DayZExpansion\\GUI\\icons\\misc\\T_Wakie-Talkie_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_WaterJug = "DayZExpansion\\GUI\\icons\\misc\\T_WaterJug_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_WildPork = "DayZExpansion\\GUI\\icons\\misc\\T_WildPork_256x256.edds";
 static const string EXPANSION_NOTIFICATION_ICON_T_Worms = "DayZExpansion\\GUI\\icons\\misc\\T_Worms_256x256.edds";
@@ -400,6 +401,9 @@ static const string EXPANSION_FLAG_DAYZ_CHEL = "dz\\gear\\camping\\Data\\Flag_CH
 static const string EXPANSION_FLAG_DAYZ_ZENIT = "dz\\gear\\camping\\Data\\Flag_Zenit_co.paa";
 static const string EXPANSION_FLAG_DAYZ_HUNTERZ = "dz\\gear\\camping\\Data\\Flag_zhunters_co.paa";
 static const string EXPANSION_FLAG_DAYZ_BRAINZ = "dz\\gear\\camping\\Data\\Flag_brain_co.paa";
+static const string EXPANSION_FLAG_DAYZ_REFUGE = "dz\\gear\\camping\\Data\\Flag_refuge_co.paa";
+static const string EXPANSION_FLAG_DAYZ_RSTA = "dz\\gear\\camping\\Data\\Flag_rsta_co.paa";
+static const string EXPANSION_FLAG_DAYZ_SNAKE = "dz\\gear\\camping\\Data\\Flag_snake_co.paa";
 
 //! Expansion flags
 static const string EXPANSION_FLAG_LOGO_EXPANSION = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_expansion_co.paa";
@@ -466,67 +470,30 @@ static const string EXPANSION_FLAG_COLOR_PINK = "DayZExpansion\\Objects\\Structu
 static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_purple_co.paa";
 static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
 
-static const int EXPANSION_VERSION_CURRENT_SAVE = 16;
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
-static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_CURRENT_SAVE;
 
-/**
- * Expansion Debugging types
- * @{
- */
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_CAR = 0;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_CONTROLLER = 1;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_CAMERA = 2;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_HELICOPTER = 10;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_PLANE = 15;
+//! IMPORTANT: When incrementing EXPANSION_VERSION_SAVE by any number n, always increment EXPANSION_VERSION_MODSTORAGE_SAVE by n+1!
+//! DO NOT under any circumstances use the constants EXPANSION_VERSION_SAVE and EXPANSION_VERSION_MODSTORAGE_SAVE in other files than this one!
+//! Use EXPANSION_VERSION_CURRENT_SAVE, EXPANSION_VERSION_CLIENT_SETTING_SAVE and EXPANSION_VERSION_MAP_MARKER_SAVE instead.
+static const int EXPANSION_VERSION_SAVE = 25;
+static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 26;
 
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_SOUND = 16;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_WHEELS = 20;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_ENGINE = 25;
-static const ExpansionDebuggerType EXPANSION_DEBUG_VEHICLE_WINGS = 30;
+#ifdef CF_MODULE_MODSTORAGE
+static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
+static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
+#else
+static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_SAVE;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = EXPANSION_VERSION_SAVE;
+static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_SAVE;
+#endif
 
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER = 40;
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER_ATTACHMENT = 41;
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER_FALL_COMMAND = 42;
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND = 43;
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER_VEHICLE_HORN = 44;
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER_PARACHUTES = 45;
-static const ExpansionDebuggerType EXPANSION_DEBUG_PLAYER_DATA = 46;
+//! Game SaveVersion at which 1st step of converting over to ModStorage should happen 
+//! after release of CF with ModStorage support.
+//! Final conversion step will happen with release of next DayZ version AFTER that.
+//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 120, set this also to 120,
+//! and final conversion will happen at game SaveVersion 121 automatically.
+//! Currently postponed until CF ModStorage support has been finalized.
+static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 120;
 
-static const ExpansionDebuggerType EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING = 50;
-static const ExpansionDebuggerType EXPANSION_DEBUG_BASEBUILDING = 51;
-
-static const ExpansionDebuggerType EXPANSION_DEBUG_AI = 60; // reserve 20
-
-static const ExpansionDebuggerType EXPANSION_DEBUG_XOB_OBJ = 80; // reserve 20
-
-static bool EXPANSION_DEBUG_SETUP = false;
-
-static void Expansion_SetupDebugger()
-{
-	if ( EXPANSION_DEBUG_SETUP )
-		return;
-	
-	EXPANSION_DEBUG_SETUP = true;
-	
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CAR );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CONTROLLER );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_CAMERA );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_HELICOPTER );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_PLANE );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_SOUND );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_WHEELS );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_ENGINE );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_VEHICLE_WINGS );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER_ATTACHMENT );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER_FALL_COMMAND );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER_VEHICLE_COMMAND );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER_VEHICLE_HORN );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER_PARACHUTES );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_PLAYER_DATA );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_HOLOGRAM_BASEBUILDING );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_BASEBUILDING );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_AI );
-	ExpansionDebugger.AddType( EXPANSION_DEBUG_XOB_OBJ );
-}
+//! Expansion storage save version after 1st conversion step to ModStorage
+static const int EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET = EXPANSION_VERSION_SAVE;

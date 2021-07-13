@@ -107,34 +107,43 @@ class ExpansionVehicleEngine
 	{
 	}
 
-	void ExpansionDebugUI( string message = "" )
-	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_ENGINE, message );
-	}
-
 	void OnUpdate( float pDt, float pThrottle, float pGR )
 	{
-		ExpansionDebugUI( "Type: " + ClassName() );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
+		
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Type", ClassName() );
+		#endif
 		
 		float axleDiff = GetDifferential();
 		float wheelRPM = Math.AbsFloat( GetWheelRPM() );
 		
-		ExpansionDebugUI( "Wheel RPM: " + wheelRPM );
-		ExpansionDebugUI( "Axle Differential: " + axleDiff );
-		ExpansionDebugUI( "Gear Ratio: " + pGR );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Wheel RPM", wheelRPM );
+		dbg_Vehicle.Set("Axle Differential", axleDiff );
+		dbg_Vehicle.Set("Gear Ratio", pGR );
+		#endif
 
 		m_RPM = Math.AbsFloat( wheelRPM * pGR * axleDiff );
 		m_RPM = Math.Clamp( m_RPM, m_RPMIdle, m_RPMMax );
 		
-		ExpansionDebugUI( "RPM: " + m_RPM );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("RPM", m_RPM );
+		#endif
 		
 		m_Torque = LookupTorque( m_RPM );
 		
-		ExpansionDebugUI( "Torque: " + m_Torque );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Torque", m_Torque );
+		#endif
 		
 		m_Torque *= pDt * pThrottle * pGR; // / m_Inertia;
 		
-		ExpansionDebugUI( "Torque: " + m_Torque );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Torque", m_Torque );
+		#endif
 
 		ApplyAxleTorque( m_Torque );
 	}
@@ -161,30 +170,46 @@ class ExpansionVehicleEngine
 
 	float LookupTorque( float rpm )
 	{
-		//ExpansionDebugUI( "Power  Max:  " + m_PowerMax );
-		//ExpansionDebugUI( "Torque Max:  " + m_TorqueMax );
-
-		//ExpansionDebugUI( "Max    RPM:  " + m_RPMMax );
-		//ExpansionDebugUI( "Power  RPM:  " + m_PowerRPM );
-		//ExpansionDebugUI( "Torque RPM:  " + m_TorqueRPM );
-		//ExpansionDebugUI( "RPM    Idle: " + m_RPMIdle );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
+		
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Power  Max", m_PowerMax );
+		dbg_Vehicle.Set("Torque Max", m_TorqueMax );
+		dbg_Vehicle.Set("Max    RPM", m_RPMMax );
+		dbg_Vehicle.Set("Power  RPM", m_PowerRPM );
+		dbg_Vehicle.Set("Torque RPM", m_TorqueRPM );
+		dbg_Vehicle.Set("RPM    Idle", m_RPMIdle );
+		#endif
 
 		if (rpm >= m_PowerRPM && rpm <= m_RPMMax)
 		{
-			//ExpansionDebugUI( "Performing:  STAGE 3" );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("Performing", "STAGE 3" );
+			#endif
+
 			return SmoothStep(1.0 - ((rpm - m_PowerRPM) / (m_RPMMax - m_PowerRPM))) * (1000.0 * m_PowerMax) / FromRPM(m_PowerRPM);
 		} else if (rpm >= m_TorqueRPM && rpm < m_PowerRPM)
 		{
-			//ExpansionDebugUI( "Performing:  STAGE 2" );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("Performing", "STAGE 2" );
+			#endif
+
 			return Lerp(m_TorqueMax, 1000.0 * m_PowerMax / FromRPM(m_PowerRPM), (rpm - m_TorqueRPM) / (m_PowerRPM - m_TorqueRPM));
 		} else if (rpm >= m_RPMIdle && rpm < m_TorqueRPM)
 		{
-			//ExpansionDebugUI( "Performing:  STAGE 1" );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("Performing", "STAGE 1" );
+			#endif
+
 			float a = m_Steepness * FromRPM(rpm) / FromRPM(m_TorqueRPM);
 			return m_TorqueMax * a * ((1.0 + (1.0 / m_Steepness)) / (1.0 + a));
 		}
 
-		//ExpansionDebugUI( "Performing:  STAGE 0" );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Performing", "STAGE 0" );
+		#endif
 
 		return 0;
 	}

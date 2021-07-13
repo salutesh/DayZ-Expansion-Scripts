@@ -523,6 +523,7 @@ class cfgAmmo
 			type = "Projectile";
 			dispersion = 0;
 			bleedThreshold = 1;
+			defaultDamageOverride[] = {{0.5,1}};
 			class Health
 			{
 				damage = 115;
@@ -594,7 +595,7 @@ class cfgMagazines
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_KAR98_AMMO";
-		descriptionShort = "";
+		descriptionShort = "$STR_EXPANSION_KAR98_AMMO_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\Sniper\Kar98\8mm_looserounds.p3d";
 		weight = 20;
 		count = 15;

@@ -19,20 +19,14 @@
  **/
 modded class CarScript
 {
-	// Skinning
-	protected ExpansionSkinModule m_SkinModule;
-	protected ExpansionSkin m_CurrentSkin;
-
-	protected string m_CurrentSkinName;
-	protected int m_CurrentSkinIndex;
-	protected int m_CurrentSkinSynchRemote;
-
-	protected bool m_CanBeSkinned;
-	protected autoptr array< ExpansionSkin > m_Skins;
-
+	// Vehicle markers
 	protected ExpansionMarkerModule m_MarkerModule;
 	protected string m_ServerMarker;
 	protected static int m_ServerMarkerIndex = 0;
+	
+	// Safezone
+	protected bool m_SafeZone;
+	protected bool m_SafeZoneSynchRemote;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -42,12 +36,6 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - Start");
 		#endif
-
-		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote" );
-		
-		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
-
-		ExpansionSetupSkins();
 
 		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		m_ServerMarker = "";
@@ -111,6 +99,87 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------
+	bool IsInSafeZone()
+	{
+		return m_SafeZone;
+	}
+
+	// ------------------------------------------------------------
+	override bool CanBeDamaged()
+	{
+		if ( GetExpansionSettings().GetSafeZone().Enabled && !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		{
+			if ( IsInSafeZone() )
+			{
+				return false;
+			}
+		}
+
+		return super.CanBeDamaged();
+	}
+
+	// ------------------------------------------------------------
+	// Called only server side
+	// ------------------------------------------------------------
+	void OnEnterSafeZone()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::OnEnterSafeZone - Start");
+		#endif
+
+		m_SafeZone = true;
+
+		/*if ( IsMissionHost() )
+		{
+			m_SafeZoneSynchRemote = true;
+
+			SetAllowDamage( false );
+
+			SetSynchDirty();
+		}
+
+		if ( IsMissionClient() )
+		{
+			
+		}
+		*/
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::OnEnterSafeZone - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Called only server side
+	// ------------------------------------------------------------
+	void OnLeftSafeZone()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::OnLeftSafeZone - Start");
+		#endif
+		
+		m_SafeZone = false;
+
+		/*if ( IsMissionHost() )
+		{
+			m_SafeZoneSynchRemote = false;
+
+			SetAllowDamage( true );
+			
+			SetSynchDirty();
+		}
+
+		if ( IsMissionClient() )
+		{
+			
+		}*/
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::OnLeftSafeZone - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
 	// OnVariablesSynchronized
 	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
@@ -129,250 +198,8 @@ modded class CarScript
 			OnLeftSafeZone();
 		}
 
-		if ( m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex )
-		{
-			m_CurrentSkinIndex = m_CurrentSkinSynchRemote;
-			if ( m_CurrentSkinIndex >= 0 && m_CurrentSkinIndex < m_Skins.Count() )
-			{
-				m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
-				m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-			} else
-			{
-				m_CurrentSkinName = "";
-				m_CurrentSkin = NULL;	
-			}
-
-			ExpansionOnSkinUpdate();
-		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::OnVariablesSynchronized - End");
-		#endif
-	}
-
-	protected void ExpansionSetupSkins()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetupSkins - Start");
-		#endif
-
-		m_Skins = new array< ExpansionSkin >;
-
-		if ( Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) ) )
-		{
-			m_SkinModule.RetrieveSkins( GetType(), m_Skins, m_CurrentSkinName );
-		}
-
-		m_CanBeSkinned = m_Skins.Count() != 0;
-
-		if ( m_CanBeSkinned )
-		{
-			if ( m_CurrentSkinName != "" )
-			{
-				m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
-			} else
-			{
-				m_CurrentSkinIndex = 0;
-				
-				m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
-			}
-			
-			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-
-			ExpansionOnSkinUpdate();
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetupSkins - End");
-		#endif
-	}	
-
-	override void EEHealthLevelChanged( int oldLevel, int newLevel, string zone )
-	{
-		super.EEHealthLevelChanged( oldLevel, newLevel, zone );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEHealthLevelChanged - Start");
-		#endif
-
-		if ( m_CanBeSkinned )
-		{
-			string sZone = zone;
-			sZone.ToLower();
-
-			if ( m_CurrentSkin )
-			{
-				if ( m_CurrentSkin.DamageZones )
-				{
-					if ( m_CurrentSkin.DamageZones.Count() > 0 )
-					{
-						for ( int i = 0; i < m_CurrentSkin.DamageZones.Count(); i++ )
-						{
-							string cZone = m_CurrentSkin.DamageZones[i].Zone;
-							cZone.ToLower();
-
-							if ( cZone == sZone )
-							{
-								ExpansionOnSkinDamageZoneUpdate( m_CurrentSkin.DamageZones[i], newLevel );
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEHealthLevelChanged - End");
-		#endif
-	}
-
-	void ExpansionSetSkin( int skinIndex )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetSkin - Start");
-		#endif
-		
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CanBeSkinned );
-		Print( skinIndex );
-		#endif
-
-		if ( !m_CanBeSkinned )
-		{
-			m_CurrentSkinName = "";
-			return;
-		}
-
-		m_CurrentSkinIndex = skinIndex;
-
-		if ( m_CurrentSkinIndex < 0 )
-		{
-			m_CurrentSkinIndex = 0;
-		}
-
-		if ( m_CurrentSkinIndex >= m_Skins.Count() )
-		{
-			m_CurrentSkinIndex = 0;
-		}
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CurrentSkinIndex );
-		#endif
-
-		m_CurrentSkinName = m_SkinModule.GetSkinName( GetType(), m_CurrentSkinIndex );
-		m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-		m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( m_CurrentSkinName );
-		Print( m_CurrentSkinSynchRemote );
-		Print( m_CurrentSkin );
-		#endif
-
-		ExpansionOnSkinUpdate();
-
-		SetSynchDirty();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetSkin - End");
-		#endif
-	}
-
-	void ExpansionOnSkinDamageZoneUpdate( ExpansionSkinDamageZone zone, int level )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinDamageZoneUpdate - Start");
-		#endif
-		
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( zone );
-		Print( level );
-		#endif
-
-		for ( int i = 0; i < zone.HiddenSelections.Count(); i++ )
-		{
-			int selectionIndex = GetHiddenSelectionIndex( zone.HiddenSelections[i] );
-
-			#ifdef EXPANSION_SKIN_LOGGING
-			Print( "HiddenSelection: " + zone.HiddenSelections[i] );
-			Print( "SelectionIndex: " + selectionIndex );
-			#endif
-
-			if ( level >= 0 && level < zone.HealthLevels.Count() )
-			{
-				ExpansionSkinHealthLevel healthLevel = zone.HealthLevels[level];
-
-				#ifdef EXPANSION_SKIN_LOGGING
-				Print( "RVTexture: " + healthLevel.RVTexture );
-				Print( "RVMaterial: " + healthLevel.RVMaterial );
-				#endif
-
-				SetObjectTexture( selectionIndex, healthLevel.RVTexture );
-				SetObjectMaterial( selectionIndex, healthLevel.RVMaterial );
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinDamageZoneUpdate - End");
-		#endif
-	}
-
-	void ExpansionOnSkinUpdate()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinUpdate - Start");
-		#endif
-
-		if ( !m_CurrentSkin )
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint( "ItemBase::ExpansionOnSkinUpdate called but m_CurrentSkin is NULL!" );
-			#endif
-
-			return;
-		}
-
-		if ( m_CurrentSkin.HornEXT != "" )
-		{
-			m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
-		} else
-		{
-			m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-		}
-		
-		if ( m_CurrentSkin.HornINT != "" )
-		{
-			m_HornSoundSetINT = m_CurrentSkin.HornINT;
-		} else
-		{		
-			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-		}
-
-		for ( int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++ )
-		{
-			ExpansionSkinHiddenSelection selection = m_CurrentSkin.HiddenSelections[ i ];
-
-			int selectionIndex = GetHiddenSelectionIndex(  selection.HiddenSelection );
-
-			#ifdef EXPANSION_SKIN_LOGGING
-			Print( "HiddenSelection: " + selection.HiddenSelection );
-			Print( "SelectionIndex: " + selectionIndex );
-			Print( "RVTexture: " + selection.RVTexture );
-			Print( "RVMaterial: " + selection.RVMaterial );
-			#endif
-
-			SetObjectTexture( selectionIndex, selection.RVTexture );
-			SetObjectMaterial( selectionIndex, selection.RVMaterial );
-		}
-		
-		for ( i = 0; i < m_CurrentSkin.DamageZones.Count(); i++ )
-		{
-			ExpansionOnSkinDamageZoneUpdate( m_CurrentSkin.DamageZones[i], GetHealthLevel( m_CurrentSkin.DamageZones[i].Zone ) );
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinUpdate - End");
 		#endif
 	}
 	
@@ -411,8 +238,12 @@ modded class CarScript
 	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("CarScript::OnStoreSave " + this + " " + GetGame().SaveVersion());
+		#endif
+
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( CF_ModStorage.VERSION > 1 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -420,8 +251,6 @@ modded class CarScript
 		#endif
 
 		super.OnStoreSave( ctx );
-
-		ctx.Write( m_CurrentSkinName );
 	}
 
 	// ------------------------------------------------------------
@@ -431,19 +260,31 @@ modded class CarScript
 		EXLogPrint("CarScript::OnStoreLoad - Start");
 		#endif
 
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( CF_ModStorage.VERSION > 1 )
-			return super.OnStoreLoad( ctx, version );
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("CarScript::OnStoreLoad " + this + " " + version);
 		#endif
 
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 
 		if (GetExpansionSaveVersion() < 16)
 			return true;
 
+		if ( GetExpansionSaveVersion() >= 21 )
+			return true;
+
+		string currentSkinName = m_CurrentSkinName;
+
 		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
 			return false;
+
+		if ( m_CurrentSkinName == "" )
+			m_CurrentSkinName = currentSkinName;
 
 		return true;
 	}
@@ -451,40 +292,39 @@ modded class CarScript
 	#ifdef CF_MODULE_MODSTORAGE
 	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("CarScript::CF_OnStoreSave " + this + " " + modName);
+		#endif
+
 		super.CF_OnStoreSave( storage, modName );
 
 		if ( modName != "DZ_Expansion" )
 			return;
-
-		storage.Write( m_CurrentSkinName );
 	}
 
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
 	{
+		#ifdef EXPANSION_STORAGE_DEBUG
+		EXPrint("CarScript::CF_OnStoreLoad " + this + " " + modName);
+		#endif
+
 		if ( !super.CF_OnStoreLoad( storage, modName ) )
 			return false;
 
 		if ( modName != "DZ_Expansion" )
 			return true;
 
+		if ( GetExpansionSaveVersion() >= 21 )
+			return true;
+
+		string currentSkinName = m_CurrentSkinName;
+
 		storage.Read( m_CurrentSkinName );
+
+		if ( m_CurrentSkinName == "" )
+			m_CurrentSkinName = currentSkinName;
 		
 		return true;
 	}
 	#endif
-
-	// ------------------------------------------------------------
-	override void EEOnAfterLoad()
-	{
-		super.EEOnAfterLoad();
-
-		if ( m_CanBeSkinned )
-		{
-			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
-			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-			m_CurrentSkin = ExpansionSkin.Cast( m_Skins[ m_CurrentSkinIndex ] );
-
-			ExpansionOnSkinUpdate();
-		}
-	}
 };

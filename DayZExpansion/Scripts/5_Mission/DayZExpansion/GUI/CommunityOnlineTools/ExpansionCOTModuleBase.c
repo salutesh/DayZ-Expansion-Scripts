@@ -108,6 +108,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 	{
 		return m_Settings;
 	}
+
 	protected void CreateToggle( string variable, string name, string detailLabel, string detailContent )
 	{
 		ExpansionSettingSerializationToggle setting = new ref ExpansionSettingSerializationToggle;
@@ -185,6 +186,18 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 				setting.m_Values.Insert( enm.GetVariableName( j ) );
 			}
 		}
+
+		m_Settings.Insert( setting );
+	}
+	protected void CreateString( string variable, string name, string detailLabel, string detailContent )
+	{
+		ExpansionSettingSerializationString setting = new ref ExpansionSettingSerializationString;
+
+		setting.m_Variable = variable;
+		setting.m_Name = name;
+		setting.m_Instance = GetSettingsInstance();
+		setting.m_DetailLabel = detailLabel;
+		setting.m_DetailContent = detailContent;
 
 		m_Settings.Insert( setting );
 	}

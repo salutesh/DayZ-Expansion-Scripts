@@ -30,10 +30,10 @@ modded class DayZPlayerCamera1stPersonVehicle
 		{
 			pOutResult.m_fUseHeading		= 1.0;
 			pOutResult.m_fInsideCamera 		= 0.0;
-			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( true );
+			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( true );
 		} else
 		{
-			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible( false );
+			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( false );
 		}
 
 		bool isFreeLook = false;
@@ -62,8 +62,11 @@ modded class DayZPlayerCamera1stPersonVehicle
 			m_fLeftRightAngle = 0;
 			
 			Math3D.YawPitchRollMatrix( "0 0 0", pOutResult.m_CameraTM );
-			pOutResult.m_fUseHeading = 0;
-			pOutResult.m_CameraTM[3] = m_pPlayer.GetBonePositionMS( m_iBoneIndex ) + m_OffsetLS;
+
+			pOutResult.m_fUseHeading 			= 0.0;
+			pOutResult.m_fInsideCamera 			= 1.0;
+			pOutResult.m_fPositionModelSpace	= 1.0;
+			//pOutResult.m_CameraTM[3] 			= //m_pPlayer.GetBonePositionMS( m_iBoneIndex ) + m_OffsetLS;
 		}
 
 		#ifdef EXPANSIONEXPRINT

@@ -17,7 +17,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 	// ------------------------------------------------------------	
 	protected override void OnEditInit( Widget layoutRoot )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::OnEditInit - Start");
 		#endif
 		
@@ -33,7 +33,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 		Class.CastTo( m_State3DCheckbox, layoutRoot.FindAnyWidget( "marker_state_3d_checkbox" ) );
 		Class.CastTo( m_StatePartyCheckbox, layoutRoot.FindAnyWidget( "marker_state_party_checkbox" ) );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::OnEditInit - End");
 		#endif
 	}
@@ -43,7 +43,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 	// ------------------------------------------------------------
 	override void Update( float pDt )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::Update - Start");
 		#endif
 		//! Steve: Dont call super here as we dont need the stuff from the parent classes?!
@@ -53,7 +53,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 		GetIconWidget().LoadImageFile( 0, EXPANSION_NOTIFICATION_ICON_POSITION );
 		GetDragWidget().SetRotation( 0, 0, GetMapDirection(), true );
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::Update - End");
 		#endif
 	}
@@ -64,6 +64,38 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 	private int GetMapDirection()
 	{
 		return Math.Round( Math.NormalizeAngle( GetGame().GetCurrentCameraDirection().VectorToAngles()[0] ) );
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker IsEditButton
+	// ------------------------------------------------------------	
+	override bool IsEditButton( Widget w )
+	{
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker IsDragWidget
+	// ------------------------------------------------------------	
+	override bool IsDragWidget( Widget w )
+	{
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker CanEditName
+	// ------------------------------------------------------------	
+	override bool CanEditName()
+	{
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker CanEdit
+	// ------------------------------------------------------------	
+	override bool CanEdit()
+	{
+		return false;
 	}
 	
 	// ------------------------------------------------------------

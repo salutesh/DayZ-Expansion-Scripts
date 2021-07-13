@@ -26,6 +26,8 @@ modded class TerritoryFlag
 	protected autoptr ExpansionTerritory m_Territory;	//! Contains flags ExpansionTerritoryx data if flag is a expansion territory flag.
 	protected bool m_IsTerritory = false;				//! Used to check if flag is a expansion territory flag.
 
+	protected bool m_SkipSetRefresherActive;
+
 	// ------------------------------------------------------------
 	// TerritoryFlag Constructor
 	// ------------------------------------------------------------
@@ -61,6 +63,58 @@ modded class TerritoryFlag
 		}
 	}
 	
+	override void OnCEUpdate()
+	{
+		//! This is a bit ugly, but I see no other way...
+
+		//! Remember time remaining...
+		int refresherTimeRemaining = m_RefresherTimeRemaining;
+
+		//! ...then set it to zero so vanilla TerritoryFlag::OnCEUpdate doesn't update refresh time and lifetimes
+		m_RefresherTimeRemaining = 0;
+
+		m_SkipSetRefresherActive = true;
+
+		super.OnCEUpdate();
+
+		//! Restore time remaining
+		m_RefresherTimeRemaining = refresherTimeRemaining;
+
+		m_SkipSetRefresherActive = false;
+
+		//! Update refresher (duplicate of vanilla code except using TerritorySize instead of constant)
+		int time_elapsed_rounded = Math.Round(m_ElapsedSinceLastUpdate);
+		
+		if ( m_RefresherTimeRemaining > 0 )
+		{
+			m_RefreshTimeCounter += time_elapsed_rounded;
+			if ( m_RefreshTimeCounter >= m_FlagRefresherFrequency )
+			{
+				GetCEApi().RadiusLifetimeReset(GetPosition(),GetExpansionSettings().GetTerritory().TerritorySize);
+				m_RefresherTimeRemaining = Math.Clamp(m_RefresherTimeRemaining - m_RefreshTimeCounter,0,m_FlagRefresherMaxDuration);
+				m_RefreshTimeCounter = 0;
+				AnimateFlag( 1 - GetRefresherTime01() );
+			}
+		}
+		
+		SetRefresherActive(m_RefresherTimeRemaining > 0);
+	}
+	
+	override void SetRefresherActive(bool state)
+	{
+		if ( m_SkipSetRefresherActive )
+			return;
+
+		//! Set refresher active state (duplicate of vanilla code except using TerritorySize instead of constant)
+		if ( m_RefresherActive != state )
+		{
+			m_RefresherActive = state;
+			SetSynchDirty();
+			
+			GetCEApi().RadiusLifetimeReset(GetPosition(),GetExpansionSettings().GetTerritory().TerritorySize);
+		}
+	}
+	
 	override bool CanDisplayAttachmentCategory( string category_name )
 	{
 		if ( category_name == "Base" && !HasBase() )
@@ -70,7 +124,7 @@ modded class TerritoryFlag
 		else if ( category_name == "Pole" && GetConstruction().IsPartConstructed("support") && !GetConstruction().IsPartConstructed("pole") )
 			return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 		else if ( category_name == "Flag" && GetConstruction().IsPartConstructed("pole") )
-			if( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 )
+			if( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Enabled )
 				return true;
 			else
 				return false;
@@ -225,7 +279,7 @@ modded class TerritoryFlag
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
 		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= 116 )
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
 			return;
@@ -250,13 +304,13 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( version >= 116 )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( !super.OnStoreLoad( ctx, version ) )
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
 		
 		if ( ctx.Read( m_IsTerritory ) && m_IsTerritory )
 		{
@@ -398,11 +452,11 @@ modded class TerritoryFlag
 	// Override EEDelete
 	// ------------------------------------------------------------
 	override void EEDelete( EntityAI parent )
-	{
-		super.EEDelete( parent );
-		
+	{		
 		if ( m_Territory && m_TerritoryID > -1 && GetGame() && m_TerritoryModule )
 			m_TerritoryModule.Exec_DeleteTerritoryAdmin( m_TerritoryID, null );
+			
+		super.EEDelete( parent );
 	}
 	
 	// ------------------------------------------------------------
@@ -485,8 +539,8 @@ modded class TerritoryFlag
 		EXLogPrint( "TerritoryFlag::CanReleaseAttachment - Attachment Type: " + attachment.GetType() );
 		#endif
 		
-		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation &&  ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 || GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 ) )
-		{	
+		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation &&  ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Enabled || GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice ) )
+		{
 			if ( attachment.IsInherited( Flag_Base ) )
 			{
 				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -502,4 +556,4 @@ modded class TerritoryFlag
 
 		return true;
 	}
-}
+};

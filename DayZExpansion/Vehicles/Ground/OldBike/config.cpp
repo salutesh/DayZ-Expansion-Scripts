@@ -15,16 +15,16 @@ class CfgSlots
 	class Slot_Expansion_Old_Bike_Wheel_1
 	{
 		name = "expansion_old_bike_wheel_1";
-		displayName = "Front Bicycle Wheel";
+		displayName = "$STR_EXPANSION_VEHICLE_OLDBIKE_WHEEL";
 		selection = "wheel_1";
-		ghostIcon = "";
+		ghostIcon = "wheel";
 	};
 	class Slot_Expansion_Old_Bike_Wheel_2
 	{
 		name = "expansion_old_bike_wheel_2";
-		displayName = "Rear Bicycle Wheel";
+		displayName = "$STR_EXPANSION_VEHICLE_OLDBIKE_WHEEL";
 		selection = "wheel_2";
-		ghostIcon = "";
+		ghostIcon = "wheel";
 	};
 };
 class CfgVehicles

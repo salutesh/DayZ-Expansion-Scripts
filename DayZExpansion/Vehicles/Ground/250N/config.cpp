@@ -15,16 +15,16 @@ class CfgSlots
 	class Slot_Expansion_250N_wheel_1
 	{
 		name = "expansion_250N_wheel_1";
-		displayName = "Front Bike Wheel";
+		displayName = "$STR_EXPANSION_VEHICLE_250N_WHEEL";
 		selection = "wheel_1";
-		ghostIcon = "";
+		ghostIcon = "wheel";
 	};
 	class Slot_Expansion_250N_wheel_2
 	{
 		name = "expansion_250N_wheel_2";
-		displayName = "Rear Bike Wheel";
+		displayName = "$STR_EXPANSION_VEHICLE_250N_WHEEL";
 		selection = "wheel_2";
-		ghostIcon = "";
+		ghostIcon = "wheel";
 	};
 };
 class CfgVehicles

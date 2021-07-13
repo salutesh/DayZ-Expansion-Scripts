@@ -21,6 +21,12 @@ class ExpansionPartyModule: JMModuleBase
 	
 	int m_NextPartyID = 0;
 	
+	private const float UPDATE_TICK_TIME = 1.0; // refreshes up to 100 players every ten seconds
+	private const int UPDATE_PLAYERS_PER_TICK = 10;
+	private float m_UpdateQueueTimer;
+	private int m_CurrentPlayerTick;
+	private int m_CurrentPartyTick;
+	
 	void ExpansionPartyModule()
 	{
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -42,6 +48,14 @@ class ExpansionPartyModule: JMModuleBase
 	void ~ExpansionPartyModule()
 	{
 		delete m_Parties;
+	}
+	
+	override void OnInit()
+	{
+		if ( IsMissionHost() )
+		{
+			m_UpdateQueueTimer = 0;
+		}
 	}
 	
 	override bool IsEnabled()
@@ -113,6 +127,9 @@ class ExpansionPartyModule: JMModuleBase
 						{
 							m_NextPartyID = party.GetPartyID() + 1;
 						}
+					} else
+					{
+						Print("Failed loading group " + name);
 					}
 					
 					file.Close();
@@ -291,7 +308,7 @@ class ExpansionPartyModule: JMModuleBase
 
 		SetPartyInvites( invites );
 		
-		UIScriptedMenu menu;
+		ExpansionUIScriptedMenu menu;
 		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
 		{
 			menu.Refresh();
@@ -385,6 +402,7 @@ class ExpansionPartyModule: JMModuleBase
 
 	// ------------------------------------------------------------
 	// Expansion Leave
+	// Called on client
 	// ------------------------------------------------------------
 	void Leave()
 	{	
@@ -548,7 +566,9 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::Exec_Dissolve party : " + party);
 		#endif
 
-		if ( sender.GetId() != party.GetOwnerUID() )
+		ref array< ref ExpansionPartyPlayerData > players = party.GetPlayers();
+
+		if ( sender.GetId() != party.GetOwnerUID() && players.Count() > 1 )
 		{
 			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
 			return;
@@ -558,7 +578,6 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::Exec_Dissolve sender.GetId() : " + sender.GetId());
 		#endif
 
-		ref array< ref ExpansionPartyPlayerData > players = party.GetPlayers();	
 		for ( int i = 0; i < players.Count(); i++ )
 		{
 			ref ExpansionPartyPlayerData currPlayer = players[i];
@@ -972,7 +991,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase targetPlayerPB = PlayerBase.GetPlayerByUID( targetID );
 		if (targetPlayerPB)
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_PROMOTED", "#STR_EXPANSION_PARTY_RANK_MOD" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayerPB.GetIdentity() );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_PROMOTED", "STR_EXPANSION_PARTY_RANK_MOD" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayerPB.GetIdentity() );
 		}
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_PROMOTED_SENDER", targetPlayer.Name ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
@@ -1056,7 +1075,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		if ( targetID == party.GetOwnerUID() )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_CANT_PROMOTE_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
 			return;
 		}
 		
@@ -1074,7 +1093,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase targetPlayerPB = PlayerBase.GetPlayerByUID( targetID );
 		if (targetPlayerPB)
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_DEMOTED", "#STR_EXPANSION_PARTY_RANK_MEMBER" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayerPB.GetIdentity() );
+			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_DEMOTED", "STR_EXPANSION_PARTY_RANK_MEMBER" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayerPB.GetIdentity() );
 		}
 		
 		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_DEMOTED_SENDER", targetPlayer.Name ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
@@ -1421,7 +1440,7 @@ class ExpansionPartyModule: JMModuleBase
 			module.Refresh();
 		}
 
-		UIScriptedMenu menu;
+		ExpansionUIScriptedMenu menu;
 		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
 		{
 			menu.Refresh();
@@ -1944,7 +1963,7 @@ class ExpansionPartyModule: JMModuleBase
 		vector hitNormal;
 		int hitComponentIndex;
 		
-		if ( DayZPhysics.RaycastRV(rayStart, rayEnd, hitPos, hitNormal, hitComponentIndex, null, null, null, false, true) )
+		if ( DayZPhysics.RaycastRV(rayStart, rayEnd, hitPos, hitNormal, hitComponentIndex, null, null, player, false, false) )
 		{
 			pos = hitPos;
 		}
@@ -2206,5 +2225,91 @@ class ExpansionPartyModule: JMModuleBase
 		#endif
 
 		m_PartyInvites = invites;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnUpdate
+	// ------------------------------------------------------------
+	override void OnUpdate( float timeslice )
+	{
+		super.OnUpdate( timeslice );
+
+		if ( !IsMissionHost() )
+			return;
+		
+		m_UpdateQueueTimer += timeslice;
+		if ( m_UpdateQueueTimer >= UPDATE_TICK_TIME )
+		{
+			//! TODO: Ultimately we should really redo this whole thing in MVC,
+			//! and then only send the info that changed, not all of it.
+
+			if ( m_Parties.Count() > 0 )
+			{
+				int updatedParties;
+				int updatedPlayers;
+
+				while ( updatedParties < m_Parties.Count() )
+				{
+					if ( m_CurrentPartyTick >= m_Parties.Count() )
+					{
+						m_CurrentPartyTick = 0;
+					}
+					
+					ref ExpansionPartyData party = m_Parties.GetElement( m_CurrentPartyTick );
+					if ( party.GetPlayers().Count() > 0 )
+					{
+						if ( m_CurrentPlayerTick >= party.GetPlayers().Count() )
+						{
+							m_CurrentPlayerTick = 0;
+						}
+
+						if ( m_CurrentPlayerTick == 0 )
+						{
+							//! This is correct even if we do not update all party members this cycle
+							updatedParties++;
+						}
+
+						while ( updatedPlayers < UPDATE_PLAYERS_PER_TICK )
+						{
+
+							ref ExpansionPartyPlayerData playerData = party.GetPlayers()[m_CurrentPlayerTick];
+							PlayerBase active_player = PlayerBase.GetPlayerByUID( playerData.UID );
+							if ( active_player && active_player.GetIdentity() )
+							{
+								Send_UpdateClient( party, active_player );
+								updatedPlayers++;
+							}
+
+							m_CurrentPlayerTick++;
+
+							if ( m_CurrentPlayerTick == party.GetPlayers().Count() )
+							{
+								break;
+							}
+						}
+					} else
+					{
+						updatedParties++;
+					}
+					
+					if ( m_CurrentPlayerTick == party.GetPlayers().Count() )
+					{
+						m_CurrentPartyTick++;
+						m_CurrentPlayerTick = 0;
+					}
+
+					if ( updatedPlayers == UPDATE_PLAYERS_PER_TICK )
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				m_CurrentPartyTick = 0;
+			}
+			
+			m_UpdateQueueTimer = 0.0;
+		}
 	}
 }

@@ -130,7 +130,7 @@ class ExpansionBulldozerScript extends CarScript
 	//! EntityEvent.SIMULATE
 	override void EOnSimulate(IEntity owner, float dt)
 	{
-		SyncVariables( );
+		//SyncVariables( );
 	}
 	
 	// ------------------------------------------------------------

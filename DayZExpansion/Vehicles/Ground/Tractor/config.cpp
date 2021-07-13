@@ -15,46 +15,46 @@ class CfgSlots
 	class Slot_ExpansionTractorFrontWheel_1_1
 	{
 		name = "ExpansionTractorFrontWheel_1_1";
-		displayName = "Zetor Front Left Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT_DESC";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_ExpansionTractorFrontWheel_2_1
 	{
 		name = "ExpansionTractorFrontWheel_2_1";
-		displayName = "Zetor Front Right Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT_DESC";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_ExpansionTractorBackWheel_1_2
 	{
 		name = "ExpansionTractorBackWheel_1_2";
-		displayName = "Zetor Back Left Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK_DESC";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_ExpansionTractorBackWheel_2_2
 	{
 		name = "ExpansionTractorBackWheel_2_2";
-		displayName = "Zetor Back Right Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK_DESC";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_ExpansionTractorDoorsDriver
 	{
 		name = "ExpansionTractorDoorsDriver";
-		displayName = "Zetor Left door";
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_DOOR_LEFT";
 		selection = "ExpansionTractorDoorsDriver";
 		ghostIcon = "doorfront";
 	};
 	class Slot_ExpansionTractorDoorsCodriver
 	{
 		name = "ExpansionTractorDoorsCodriver";
-		displayName = "Zetor Right door";
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_DOOR_RIGHT";
 		selection = "ExpansionTractorDoorsCodriver";
 		ghostIcon = "doorfront";
 	};
@@ -269,7 +269,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\Tractor2.p3d";
 		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1"};
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_2_2","karoserie"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_2_2","camo"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\tractor_2_co.paa"};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat"};
 		doors[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver"};
@@ -289,7 +289,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.995;
+			airDragFrontTotal = 0.905;
 			class Steering
 			{
 				increaseSpeed[] = {0,25,30,11,50,6};
@@ -298,7 +298,7 @@ class CfgVehicles
 			};
 			class Throttle
 			{
-				reactionTime = 1;
+				reactionTime = 1.3;
 				defaultThrust = 0.85;
 				gentleThrust = 0.7;
 				turboCoef = 10;
@@ -310,7 +310,7 @@ class CfgVehicles
 				inertia = 0.15;
 				torqueMax = 150;
 				torqueRpm = 1500;
-				powerMax = 33.7;
+				powerMax = 39.7;
 				powerRpm = 2300;
 				rpmIdle = 800;
 				rpmMin = 900;
@@ -696,7 +696,7 @@ class CfgVehicles
 		displayname = "[NOT READY]  TRACTOR";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\Tractor2.p3d";
 		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1"};
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_2_2","karoserie"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_2_2","camo"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\tractor_2_co.paa"};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat"};
 		doors[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver"};
@@ -1124,7 +1124,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_red_co.paa"};
 		skinName = "Red";
 	};
 	class ExpansionTractor_Red: ExpansionTractor
@@ -1142,7 +1142,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blue_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blue_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_blue_co.paa"};
 		skinName = "Blue";
 	};
 	class ExpansionTractor_Blue: ExpansionTractor

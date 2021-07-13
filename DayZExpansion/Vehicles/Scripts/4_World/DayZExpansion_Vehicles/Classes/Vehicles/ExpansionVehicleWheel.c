@@ -17,6 +17,7 @@ class ExpansionVehicleWheel
 	private string m_InventorySlot;
 	private string m_Selection;
 	private string m_Name;
+	private int m_Index;
 	private ExpansionVehicleAxle m_Axle;
 	private ExpansionWheelBase m_WheelItem;
 	private ExpansionVehicleBase m_Vehicle;
@@ -94,11 +95,12 @@ class ExpansionVehicleWheel
 	
 	private ref array< vector > m_WheelVertexPositions;
 
-	void ExpansionVehicleWheel( ExpansionVehicleBase pVehicle, ref ExpansionVehicleAxle pAxle, string pName )
+	void ExpansionVehicleWheel( ExpansionVehicleBase pVehicle, ref ExpansionVehicleAxle pAxle, string pName, int pIdx )
 	{
 		m_WheelVertexPositions = new array< vector >();
 		
 		m_Name = pName;
+		m_Index = pIdx;
 		m_Vehicle = pVehicle;
 		m_Axle = pAxle;
 
@@ -244,11 +246,6 @@ class ExpansionVehicleWheel
 	{
 		return m_InitialWheelPositionMS;
 	}
-	
-	void ExpansionDebugUI( string pMessage = "" )
-	{
-		ExpansionDebugger.Display( EXPANSION_DEBUG_VEHICLE_WHEELS, pMessage );
-	}
 
 	void OnWheelAttach( notnull ExpansionWheelBase pWheel )
 	{		
@@ -268,9 +265,12 @@ class ExpansionVehicleWheel
 	}
 
 	void SetupSimulation( float pDt, out int pNumWheelsGrounded )
-	{		
-		ExpansionDebugUI();
-		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub + " - " + m_WheelItem );
+	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		
+		dbg_Vehicle.Set("[" + m_Index + "] Wheel", m_Axle.GetName() + "::" + m_Name + " | " + m_WheelHub + " | " + m_WheelItem);
+		#endif
 
 		if ( !m_WheelItem )
 			return;
@@ -327,8 +327,11 @@ class ExpansionVehicleWheel
 
 	void Simulate( float pDt, int pNumWheelsGrounded, out vector pImpulse, out vector pImpulseTorque )
 	{
-		ExpansionDebugUI();
-		ExpansionDebugUI( "Wheel " + m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		
+		dbg_Vehicle.Set("[" + m_Index + "] Wheel", m_Axle.GetName() + "::" + m_Name + " - " + m_WheelHub);
+		#endif
 		
 		if ( !m_WheelItem )
 			return;
@@ -343,8 +346,10 @@ class ExpansionVehicleWheel
 		impulse = impulse.Multiply3( m_Vehicle.m_Transform.data );
 		impulseTorque = impulseTorque.Multiply3( m_Vehicle.m_Transform.data );
 		
-		//ExpansionDebugUI( "Linear: " + impulse );
-		//ExpansionDebugUI( "Angular: " + impulseTorque );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] Linear", impulse);
+		dbg_Vehicle.Set("[" + m_Index + "] Angular", impulseTorque);
+		#endif
 
 		pImpulse += impulse;
 		pImpulseTorque += impulseTorque;
@@ -352,6 +357,10 @@ class ExpansionVehicleWheel
 
 	void Animate( float pDt, bool pPhysics )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
+
 		if ( !pPhysics )
 		{
 			vector rotationTransform[4];
@@ -376,10 +385,12 @@ class ExpansionVehicleWheel
 			
 			m_Vehicle.DBGDrawLineMS( m_TraceStart - ( m_WheelDirectionMS * m_TraceUp ), m_TraceStart + ( m_WheelDirectionMS * m_TraceDown ), 0xFFFFFFFFF );
 			
-			//ExpansionDebugUI( "Ray Start (MS): " + m_RayStartMS );
-			//ExpansionDebugUI( "Ray End (MS): " + m_RayEndMS );
-			//ExpansionDebugUI( "Ray Start (WS): " + m_RayStartWS );
-			//ExpansionDebugUI( "Ray End (WS): " + m_RayEndWS );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("[" + m_Index + "] Ray Start (MS)", m_RayStartMS );
+			dbg_Vehicle.Set("[" + m_Index + "] Ray End (MS)", m_RayEndMS );
+			dbg_Vehicle.Set("[" + m_Index + "] Ray Start (WS)", m_RayStartWS );
+			dbg_Vehicle.Set("[" + m_Index + "] Ray End (WS)", m_RayEndWS );
+			#endif
 
 			m_HasContact = DayZPhysics.SphereCastBullet( m_RayStartWS, m_RayEndWS, m_Axle.GetWheelHubRadius(), collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction );
 			if ( m_HasContact )
@@ -403,8 +414,10 @@ class ExpansionVehicleWheel
 
 			m_SuspensionLengthPrevious = m_SuspensionLength;
 			
-			//ExpansionDebugUI( "Previous: " + m_Vehicle.GetAnimationPhase( m_AnimDamper ) );
-			//ExpansionDebugUI( "New: " + m_SuspensionFraction );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("[" + m_Index + "] Previous", m_Vehicle.GetAnimationPhase( m_AnimDamper ) );
+			dbg_Vehicle.Set("[" + m_Index + "] New", m_SuspensionFraction );
+			#endif
 		}
 		
 		if ( GetGame().IsServer() || pPhysics )
@@ -417,6 +430,10 @@ class ExpansionVehicleWheel
 
 	private void Suspension( float pDt )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
+
 		vector rotationTransform[4];
 		Math3D.YawPitchRollMatrix( Vector( -m_Steering, 0, 0 ), rotationTransform );
 		rotationTransform[3] = m_InitialWheelPositionMS;
@@ -439,10 +456,12 @@ class ExpansionVehicleWheel
 		
 		m_Vehicle.DBGDrawLineMS( m_TraceStart - ( m_WheelDirectionMS * m_TraceUp ), m_TraceStart + ( m_WheelDirectionMS * m_TraceDown ), 0xFFFFFFFFF );
 		
-		//ExpansionDebugUI( "Ray Start (MS): " + m_RayStartMS );
-		//ExpansionDebugUI( "Ray End (MS): " + m_RayEndMS );
-		//ExpansionDebugUI( "Ray Start (WS): " + m_RayStartWS );
-		//ExpansionDebugUI( "Ray End (WS): " + m_RayEndWS );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] Ray Start (MS)", m_RayStartMS );
+		dbg_Vehicle.Set("[" + m_Index + "] Ray End (MS)", m_RayEndMS );
+		dbg_Vehicle.Set("[" + m_Index + "] Ray Start (WS)", m_RayStartWS );
+		dbg_Vehicle.Set("[" + m_Index + "] Ray End (WS)", m_RayEndWS );
+		#endif
 
 		m_HasContact = DayZPhysics.SphereCastBullet( m_RayStartWS, m_RayEndWS, m_Axle.GetWheelHubRadius(), collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction );
 		if ( m_HasContact )
@@ -517,13 +536,19 @@ class ExpansionVehicleWheel
 		}
 		#endif
 
-		ExpansionDebugUI( "Has Contact: " + m_HasContact );
-		ExpansionDebugUI( "Contact Velocity: " + m_ContactVelocity );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] Has Contact", m_HasContact );
+		dbg_Vehicle.Set("[" + m_Index + "] Contact Velocity", m_ContactVelocity );
+		#endif
 	}
 
 	private void Suspension( float pDt, int pNumWheelsGrounded, out vector impulse, out vector impulseTorque )
 	{
-		m_SuspensionLength = (1.0 - m_ContactFraction) * m_ContactLength;
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
+
+		m_SuspensionLength = m_ContactLength * (1.0 - m_ContactFraction);// * (1.5 - m_ContactFraction);
 		//m_SuspensionLength = Math.Max(m_SuspensionLength, 0);
 		float wheelDepth = Math.Clamp(m_SuspensionLength - m_Axle.GetTravelMax(), 0, m_WheelItem.m_Radius);
 		wheelDepth *= wheelDepth;
@@ -531,12 +556,14 @@ class ExpansionVehicleWheel
 		
 		m_SuspensionFraction = (m_SuspensionLength / m_Axle.GetTravelMax());
 
-		ExpansionDebugUI( "wheelDepth: " + wheelDepth );
-		ExpansionDebugUI( "SuspensionLength: " + m_SuspensionLength );
-		ExpansionDebugUI( "SuspensionFraction: " + m_SuspensionFraction );
-		ExpansionDebugUI( "TraceUp: " + m_TraceUp );
-		ExpansionDebugUI( "TraceDown: " + m_TraceDown );
-		ExpansionDebugUI( "TravelMaxDown: " + m_Axle.GetTravelMaxDown() );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] wheelDepth", wheelDepth );
+		dbg_Vehicle.Set("[" + m_Index + "] SuspensionLength", m_SuspensionLength );
+		dbg_Vehicle.Set("[" + m_Index + "] SuspensionFraction", m_SuspensionFraction );
+		dbg_Vehicle.Set("[" + m_Index + "] TraceUp", m_TraceUp );
+		dbg_Vehicle.Set("[" + m_Index + "] TraceDown", m_TraceDown );
+		dbg_Vehicle.Set("[" + m_Index + "] TravelMaxDown", m_Axle.GetTravelMaxDown() );
+		#endif
 		
 		if ( m_HasContact )
 		{
@@ -550,11 +577,13 @@ class ExpansionVehicleWheel
 			if (m_SuspensionRelativeVelocity < 0)
 				compressionDelta = kc * m_SuspensionRelativeVelocity;
 			float suspension = ks * m_SuspensionLength;
-			float wheelUp = 0; //wheelDepth * ks * 4.0;
+			float wheelUp = 0;//wheelDepth * ks * 10.0;
 			
-			ExpansionDebugUI( "wheelUp: " + wheelUp );
-			ExpansionDebugUI( "compressionDelta: " + compressionDelta );
-			ExpansionDebugUI( "suspension: " + suspension );
+			#ifdef EXPANSION_DEBUG_UI_VEHICLE
+			dbg_Vehicle.Set("[" + m_Index + "] wheelUp", wheelUp );
+			dbg_Vehicle.Set("[" + m_Index + "] compressionDelta", compressionDelta );
+			dbg_Vehicle.Set("[" + m_Index + "] suspension", suspension );
+			#endif
 			
 			m_SuspensionForce = (wheelUp + suspension) - compressionDelta;
 		
@@ -570,11 +599,17 @@ class ExpansionVehicleWheel
 		
 		m_SuspensionLengthPrevious = m_SuspensionLength;
 		
-		ExpansionDebugUI( "SuspensionForce: " + m_SuspensionForce );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] SuspensionForce", m_SuspensionForce );
+		#endif
 	}
 
 	private void Friction( float pDt, int pNumWheelsGrounded, out vector impulse, out vector impulseTorque )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
+		#endif
+
 		if ( !m_HasContact )
 			return;
 		
@@ -586,9 +621,11 @@ class ExpansionVehicleWheel
 		float wheelAcceleration;
 		float forwardImpulse;
 		
-		//ExpansionDebugUI( "Friction: " + surfaceFriction );
-		//ExpansionDebugUI( "Torque: " + (m_WheelTorque * m_Mass) );
-		//ExpansionDebugUI( "Brake: " + m_BrakeTorque );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] Friction", surfaceFriction );
+		dbg_Vehicle.Set("[" + m_Index + "] Torque", (m_WheelTorque * m_Mass) );
+		dbg_Vehicle.Set("[" + m_Index + "] Brake", m_BrakeTorque );
+		#endif
 		
 		wheelAcceleration += m_WheelItem.m_Radius * m_WheelTorque * m_Mass;
 		
@@ -598,8 +635,10 @@ class ExpansionVehicleWheel
 		
 		forwardImpulse = wheelAcceleration;
 		
-		//ExpansionDebugUI( "Acceleration: " + wheelAcceleration );
-		//ExpansionDebugUI( "Force: " + forwardImpulse );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] Acceleration", wheelAcceleration );
+		dbg_Vehicle.Set("[" + m_Index + "] Force", forwardImpulse );
+		#endif
 		
 		m_AngularVelocity = m_ContactVelocity[2] / m_WheelItem.m_Radius;
 		
@@ -611,23 +650,34 @@ class ExpansionVehicleWheel
 
 		float sideDot = vector.Dot( m_ContactVelocity.Normalized(), m_TransformMS[0] );
 		float sideCoef = 10.0;
-		float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / pNumWheelsGrounded;
+		
+		vector axle = m_TransformWS[0];
+		float proj = vector.Dot(axle, m_ContactNormalWS);
+		axle -= m_ContactNormalWS * proj;
+		axle.Normalize();
+		
+		//float sideImpulse = sideCoef * m_Mass * -sideDot * m_ContactVelocity.Length() / pNumWheelsGrounded;
+		float sideImpulse = ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3( m_Vehicle.m_Transform.data ), m_ContactObject, "0 0 0", axle);
 		
 		vector forwardImp = m_TransformMS[2] * forwardImpulse * pDt;
 		vector sideImp = m_TransformMS[0] * sideImpulse * pDt;
-
+	
+		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + "0 0.1 0", forwardImp, 0xFF00FFFF );
+		#endif
+		
 		impulse += forwardImp;
 		impulseTorque += m_ContactPosition * forwardImp;
 
 		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + "0 0.1 0", forwardImp, 0xFF00FFFF );
+		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + "0 0.1 0", sideImp, 0xFF4400AA );
 		#endif
 
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("[" + m_Index + "] sideImp", sideImp );
+		#endif
+		
 		impulse += sideImp;
 		impulseTorque += m_ContactPosition * sideImp;
-
-		#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		m_Vehicle.DBGDrawImpulseMS( m_ContactPosition + "0 0.1 0", sideImp, 0xFFFFFF00 );
-		#endif
 	}
 };

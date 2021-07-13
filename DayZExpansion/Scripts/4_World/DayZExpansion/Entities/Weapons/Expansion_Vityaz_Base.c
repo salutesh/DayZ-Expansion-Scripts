@@ -51,7 +51,7 @@ class Expansion_Vityaz_Base : RifleBoltFree_Base
 		return super.CanEnterIronsights();
 	}
 	override bool CanDisplayAttachmentSlot( string slot_name )
-	{	
+	{
 		if (!super.CanDisplayAttachmentSlot(slot_name))
 			return false;   
 		
@@ -65,4 +65,20 @@ class Expansion_Vityaz_Base : RifleBoltFree_Base
 		}		
 		return true;
 	}	
+		
+	//Debug menu Spawn Ground Special
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "AK_RailHndgrd" );
+			entity.GetInventory().CreateInInventory( "AK_PlasticBttstck" );
+			entity.GetInventory().CreateInInventory( "UniversalLight" );
+			entity.GetInventory().CreateInInventory( "ExpansionEXPS3HoloOptic" );
+			entity.GetInventory().CreateInInventory( "Battery9V" );
+			entity.GetInventory().CreateInInventory( "Battery9V" );
+			entity.SpawnEntityOnGroundPos("Mag_Expansion_Vityaz_30Rnd", entity.GetPosition());
+		}
+	}
 };

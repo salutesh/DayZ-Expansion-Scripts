@@ -15,7 +15,7 @@
  **/
 
 class ExpansionSyncedPlayerStats
-{	
+{
 	int m_Health;
 	int m_Blood;
 	int m_Water;

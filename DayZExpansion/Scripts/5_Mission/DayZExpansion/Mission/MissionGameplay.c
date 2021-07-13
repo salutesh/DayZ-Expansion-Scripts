@@ -51,6 +51,8 @@ modded class MissionGameplay
 	ExpansionMarkerModule 						m_MarkerModule;
 	private bool								m_MarkerToggleState = true;
 	private bool								m_ServerMarkerToggleState = true;
+
+	protected ref ExpansionMapMenu m_MapMenu;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -296,9 +298,7 @@ modded class MissionGameplay
 		PlayerControlDisable( INPUT_EXCLUDE_ALL );
 		
 		PlayerControlDisable( INPUT_EXCLUDE_CHAT_EXPANSION );
-		
-		//SetFocus( m_ChatRootWidget.FindAnyWidget("ScrollerContainer") );
-		
+				
 		GetUApi().GetInputByName("UAPersonView").Supress();	
 		GetUApi().GetInputByName( "UAPersonView" ).ForceDisable( true );
 		GetGame().GetUIManager().ShowUICursor( true );
@@ -377,6 +377,22 @@ modded class MissionGameplay
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnInit - End");
+		#endif
+	}
+	
+	override void OnMissionFinish()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::OnMissionFinish - Start");
+		#endif
+
+		super.OnMissionFinish();
+
+		if ( m_MapMenu )
+			m_MapMenu.Close();  //! Safely destroys map menu
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("MissionGameplay::OnMissionFinish - End");
 		#endif
 	}
 	
@@ -524,17 +540,10 @@ modded class MissionGameplay
 			}
 		}
 
-		//! Refernce to man
-		Man man = GetGame().GetPlayer();
-
-		//! Reference to input
-		Input input = GetGame().GetInput();
-
-		//! Expansion reference to menu
-		UIScriptedMenu topMenu = m_UIManager.GetMenu();
-
-		//! Expansion reference to player
-		PlayerBase playerPB = PlayerBase.Cast( man );
+		Man man 				= GetGame().GetPlayer(); 	//! Refernce to man
+		Input input 			= GetGame().GetInput(); 	//! Reference to input
+		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
+		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
 		
 		if ( playerPB && playerPB.GetHumanInventory() ) 
 		{
@@ -606,24 +615,39 @@ modded class MissionGameplay
 							}
 						}
 					}
-					
 					//! Map Menu
 					if ( input.LocalPress( "UAExpansionMapToggle", false ) )
 					{
-						ExpansionMapMenu map_menu;
-						if ( Class.CastTo( map_menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_MAP ) ) )
+						if ( m_MapMenu && m_MapMenu.IsVisible() )
 						{
-							//map_menu.Hide();
-							map_menu.Close();
+							m_MapMenu.Hide();
 						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
 						{
+							bool show_map;
+
 							if ( GetExpansionSettings().GetMap().NeedMapItemForKeyBinding )
 							{
 								if ( playerPB.HasItemMap() || playerPB.HasItemGPS() )
-									GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
+									show_map = true;
 							} else
 							{
-								GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL );
+								show_map = true;
+							}
+
+							if ( show_map )
+							{
+								if ( m_MapMenu )
+								{
+									m_MapMenu.Show();
+								} else
+								{
+									if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().EnableMap )
+									{
+										m_MapMenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL ) );
+									} else {
+										m_MapMenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_MAP, NULL ) );
+									}
+								}
 							}
 						}
 					}
@@ -635,7 +659,7 @@ modded class MissionGameplay
 						EXLogPrint("MissionGameplay::OnUpdate - UAExpansionGPSToggle pressed and setting for item is: " + GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding.ToString() );
 						#endif
 
-						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS/*&& m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSState()*/ )
+						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS )
 						{		
 							if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
 							{
@@ -669,17 +693,7 @@ modded class MissionGameplay
 						}
 					}
 					
-					//! Player List Menu
-					if ( input.LocalPress( "UAExpansionPlayerListToggle", false ) )
-					{
-						if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnablePlayerList )
-						{
-							GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_PLAYER_LIST_MENU, NULL );
-						}
-					}
-					
 					//! Expansion Hud
-					//TODO: TEST THIS CHANGE
 					if ( input.LocalHold( "UAUIQuickbarToggle", false ) )
 					{
 						if ( !m_Hud.GetHudState() )
@@ -709,25 +723,33 @@ modded class MissionGameplay
 					{
 						m_ExpansionHud.ToggleEarplugs();
 					}
+			
+				#ifdef DABS_FRAMEWORK	
+					if (input.LocalPress("UAExpansionPlayerListToggle", false))
+					{
+						if (!topMenu && !inputIsFocused)
+						{
+							OnPlayerListTogglePressed();
+						}
+					}
+				#endif
 
 					if (m_MarkerModule)
 					{						
-						PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
-						
 						if (input.LocalPress("UAExpansion3DMarkerToggle", false)) {
 							
 							m_MarkerToggleState = !m_MarkerToggleState;
 							m_ServerMarkerToggleState = m_MarkerToggleState;
 							
 							if (m_MarkerToggleState) {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 								
 							} else {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
@@ -740,12 +762,12 @@ modded class MissionGameplay
 							m_ServerMarkerToggleState = !m_ServerMarkerToggleState;
 							
 							if (m_ServerMarkerToggleState) {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								
 							} else {
 								
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 							}
 						}
@@ -765,9 +787,9 @@ modded class MissionGameplay
 							
 							if ( hologram.IsUsingSnap() )
 							{
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_ENABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_ENABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
 							} else {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_DISABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, player.GetIdentity());
+								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_DISABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
 							}
 						}
 
@@ -807,26 +829,33 @@ modded class MissionGameplay
 					ExpansionPlayerData();
 					m_DataSent = true;
 				}
+				
+			#ifdef DABS_FRAMEWORK
+				//! Close current opened expansion script view menu when ESC is pressed
+				if (input.LocalPress("UAUIBack", false))
+				{
+					if (GetDayZExpansion().GetExpansionUIManager().GetMenu() && GetDayZExpansion().GetExpansionUIManager().GetMenu().IsVisible())
+						GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+				}
+				
+				//! If we have a active vanilla menu and a active expansion script view menu then close the expansion script view menu
+				if (topMenu && GetDayZExpansion().GetExpansionUIManager().GetMenu())
+					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+			#endif
 			}
-		}
-		
-		if ( playerPB )
-		{
+			
+			//! Nightvision check
 			if ( GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay )
 			{
 				PlayerCheckNV( playerPB );
 			}
 		}
 		
-		//! Toggle HUD elements in different menus
-		if ( m_Hud && m_ExpansionHud.IsInitialized() && m_Chat && GetCommunityOnlineTools() )
-			RefreshHUDElements();
-		
-		//! Expansion hud update
+		//! Expansion hud updater
 		if ( m_Hud &&  m_ExpansionHud.IsInitialized() )
 			m_ExpansionHud.Update( timeslice );
 		
-		//! Chat update
+		//! Chat updater
 		m_Chat.Update( timeslice );
 
 		#ifdef EXPANSIONEXPRINT
@@ -1069,51 +1098,6 @@ modded class MissionGameplay
 	{
    		return GetGame().GetInput().LocalPress( "UAStance", false );
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion RefreshHUDElements
-	//! Hides/Shows HUD elements in different menus
-	// ------------------------------------------------------------
-	void RefreshHUDElements()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::RefreshHUDElements - Start");
-		#endif
-		
-		UIManager m_ExUIManager = GetGame().GetUIManager();
-		bool isOpenInGameMenu = m_ExUIManager.IsMenuOpen(MENU_INGAME);
-		bool isOpenInventoryMenu = m_ExUIManager.IsMenuOpen(MENU_INVENTORY);
-		bool isOpenInspectMenu = m_ExUIManager.IsMenuOpen(MENU_INSPECT);
-		bool isOpenMapMenu = m_ExUIManager.IsMenuOpen(MENU_EXPANSION_MAP);
-		bool isOpenMarketMenu = m_ExUIManager.IsMenuOpen(MENU_EXPANSION_MARKET_MENU);
-		bool isOpenBookMenu = m_ExUIManager.IsMenuOpen(MENU_EXPANSION_BOOK_MENU);
-		bool isOpenCOTMenu = GetCommunityOnlineTools().IsOpen();
-		bool isChatVisible = m_ChatRootWidget.IsVisible();
-		bool isOpenPlayerListMenu = m_ExUIManager.IsMenuOpen(MENU_EXPANSION_PLAYER_LIST_MENU);
-		
-		if (isOpenInGameMenu || isOpenInventoryMenu || isOpenInspectMenu || isOpenMapMenu || isOpenMarketMenu || isOpenCOTMenu || isOpenPlayerListMenu)
-		{
-			ShowExpansionHudElements(false);
-			if (isOpenMapMenu || isOpenMarketMenu || isOpenCOTMenu || isOpenPlayerListMenu)
-			{
-				ShowHudElements(false);
-			}
-		}
-		else if ( (!isOpenInGameMenu || !isOpenInventoryMenu || !isOpenInspectMenu || !isOpenMapMenu || !isOpenMarketMenu || !isOpenCOTMenu) && !m_UIManager.GetMenu() || !isOpenPlayerListMenu)
-		{
-			ShowExpansionHudElements(true);
-			if (!isOpenMapMenu || !isOpenMarketMenu || !isOpenCOTMenu || !isOpenPlayerListMenu)
-			{
-				ShowHudElements(true);
-			}
-		}
-		
-		//m_ChatRootWidget.Show( m_ExpansionChatState );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::RefreshHUDElements - End");
-		#endif
-	}
 		
 	// ------------------------------------------------------------
 	// Expansion DecreaseGPSMapScale
@@ -1198,63 +1182,6 @@ modded class MissionGameplay
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ShowHudElements
-	// ------------------------------------------------------------
-	void ShowHudElements(bool show)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ShowHudElements - Start");
-		#endif
-	
-		if ( m_Hud )
-		{
-			m_Hud.ShowHudUI( show );
-			m_Hud.ShowQuickbarUI( show );
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ShowHudElements - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ShowExpansionHudElements
-	// ------------------------------------------------------------
-	void ShowExpansionHudElements(bool show)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ShowHudElements - Start");
-		#endif
-		
-		if ( m_ExpansionHud )
-		{
-			if ( !show )
-			{
-				m_ExpansionHud.ShowDebugger( false );
-				
-				if ( m_ExpansionHud.GetGPSState() )
-				{
-					m_ExpansionHud.ShowGPS( false );
-					m_WasGPSToggled = true;
-				}
-			} 
-			else 
-			{
-				m_ExpansionHud.ShowDebugger( true );				
-				if ( m_WasGPSToggled && !m_ExpansionHud.GetEarplugsState() && !GetGame().GetUIManager().GetMenu() )
-				{
-					m_ExpansionHud.ShowGPS( true );
-					m_WasGPSToggled = false;
-				}
-			}
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::ShowHudElements - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion GetChat
 	// ------------------------------------------------------------
 	ref Chat GetChat()
@@ -1308,4 +1235,50 @@ modded class MissionGameplay
 			m_SeperatorFadeTimer.Stop();
 		}
 	}
+
+#ifdef DABS_FRAMEWORK
+	// ------------------------------------------------------------
+	// Override Pause
+	// ------------------------------------------------------------
+	override void Pause()
+	{
+		if ( GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() )
+			return;
+		
+		super.Pause();
+	}
+	
+	// ------------------------------------------------------------
+	// Override CloseAllMenus
+	// ------------------------------------------------------------
+	override void CloseAllMenus()
+	{
+		super.CloseAllMenus();
+		
+		if ( GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() )
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnPlayerListTogglePressed
+	// ------------------------------------------------------------	
+	void OnPlayerListTogglePressed()
+	{
+		if (GetExpansionSettings().GetPlayerList().EnablePlayerList)
+		{
+			ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();	//! Reference to expansion ui manager
+			ScriptView menu	= uiManager.GetMenu();											//! Reference to current opened script view menu
+			
+			ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(menu);
+			if (!playerListMenu)
+			{
+				uiManager.CreateSVMenu(EXPANSION_MENU_PLAYERLIST);
+			} 
+			else if (playerListMenu && playerListMenu.IsVisible())
+			{
+				uiManager.CloseMenu();
+			}
+		}
+	}
+#endif
 }

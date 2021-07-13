@@ -9304,9 +9304,214 @@ class CfgVehicles
 	class bldr_prop_Fireplace: HouseNoDestruct
 	{
 		scope = 1;
+		class AnimationSources
+		{
+			class Ashes
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Kindling
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Sticks
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Wood
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class BurntWood
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Stones
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Tripod
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class Oven
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class LidOn
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class LidOff
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+		};
 		hiddenSelections[] = {"ashes","inventory"};
 		hiddenSelectionsTextures[] = {"\dz\gear\cooking\data\stoneground_co.paa","\dz\gear\cooking\data\fireplacekit_co.paa"};
-		hiddenSelectionsMaterials[] = {"\dz\gear\cooking\data\stonegroundnoemit.rvmat","\dz\gear\cooking\data\fireplacekit.rvmat"};
+		hiddenSelectionsMaterials[] = {"\dz\gear\cooking\data\stoneground.rvmat","\dz\gear\cooking\data\fireplacekit.rvmat"};
+		model = "\dz\gear\cooking\Fireplace.p3d";
+	};
+	class bldr_prop_Fireplace_NoStones: bldr_prop_Fireplace
+	{
+		scope = 1;
+		class AnimationSources
+		{
+			class Ashes
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Kindling
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Sticks
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Wood
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class BurntWood
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Stones
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class Tripod
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class Oven
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class LidOn
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class LidOff
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+		};
+		hiddenSelections[] = {"ashes","inventory"};
+		hiddenSelectionsTextures[] = {"\dz\gear\cooking\data\stoneground_co.paa","\dz\gear\cooking\data\fireplacekit_co.paa"};
+		hiddenSelectionsMaterials[] = {"\dz\gear\cooking\data\stoneground.rvmat","\dz\gear\cooking\data\fireplacekit.rvmat"};
+		model = "\dz\gear\cooking\Fireplace.p3d";
+	};
+	class bldr_prop_Fireplace_Complete: bldr_prop_Fireplace
+	{
+		scope = 1;
+		class AnimationSources
+		{
+			class Ashes
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Kindling
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Sticks
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Wood
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class BurntWood
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Stones
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class Tripod
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class Oven
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class LidOn
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class LidOff
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+		};
+		hiddenSelections[] = {"ashes","inventory"};
+		hiddenSelectionsTextures[] = {"\dz\gear\cooking\data\stoneground_co.paa","\dz\gear\cooking\data\fireplacekit_co.paa"};
+		hiddenSelectionsMaterials[] = {"\dz\gear\cooking\data\stoneground.rvmat","\dz\gear\cooking\data\fireplacekit.rvmat"};
 		model = "\dz\gear\cooking\Fireplace.p3d";
 	};
 	class bldr_prop_FireplaceIndoor: HouseNoDestruct

@@ -14,7 +14,7 @@
  * @brief		
  **/
 
-class ExpansionFlagMenu extends UIScriptedMenu
+class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 {
 	protected Widget m_FlagWindow;
 	protected TextWidget m_FlagWindowLable;
@@ -82,7 +82,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		m_TerritoryDialogConfirmButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_ok_button" ) );
 		m_TerritoryDialogCancelButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_cancel_button" ) );
 		
-		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 )
+		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice )
 		{
 			m_FlagWindow.Show( false );
 			m_TerritoryWindow.Show( true );
@@ -211,7 +211,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		PPEffects.SetBlurMenu(0.5);
 		
 		//! Load and create flag texture list entrys
-		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 1 )
+		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Enabled )
 		{
 			LoadTextureList();
 		}
@@ -233,12 +233,12 @@ class ExpansionFlagMenu extends UIScriptedMenu
 				m_FlagCreateButton.Show( true );
 			}
 			
-			m_FlagWindowLable.SetText( "Flag" );
+			m_FlagWindowLable.SetText( "#STR_EXPANSION_FLAG_TITLE" );
 		} 
 		else
 		{
 			m_FlagCreateButton.Show( false );
-			m_FlagWindowLable.SetText( "Territory Flag" );
+			m_FlagWindowLable.SetText( "#STR_EXPANSION_FLAG_TERRITORY_FLAG" );
 		}
 	}
 	
@@ -325,7 +325,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		{
 			m_TerritoryDialogWindow.Show( false );
 			
-			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 )
+			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice )
 			{
 				m_TerritoryWindow.Show( true );
 			} else {
@@ -346,7 +346,7 @@ class ExpansionFlagMenu extends UIScriptedMenu
 		
 		if( w == m_TerritoryCancelButton )
 		{
-			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == 2 )
+			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice )
 			{
 				Close();
 			} else {

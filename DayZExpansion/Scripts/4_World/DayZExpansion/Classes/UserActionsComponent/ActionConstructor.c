@@ -36,11 +36,11 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionTurnOffGeneratorOnGround );
 
 		//! Paracute
-		actions.Insert( ExpansionActionOpenParachute );
-		actions.Insert( ExpansionActionCutParachute );
+		#ifdef EXPANSION_PARACHUTE_ENABLE
+		//actions.Insert( ExpansionActionOpenParachute );
+		//actions.Insert( ExpansionActionCutParachute );
+		#endif
 
-		//! Traders
-		actions.Insert( ExpansionActionOpenTraderMenu );
 		actions.Insert( ExpansionActionClose );
 		actions.Insert( ExpansionActionOpen );
 
@@ -49,21 +49,31 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionChangeCodeLock );
 		actions.Insert( ExpansionActionEnterSafeLock );
 		actions.Insert( ExpansionActionChangeSafeLock );
+		actions.Insert( ExpansionActionAttachCodeLock );
 
 		//! Safes
-		actions.Insert( ExpansionActionCloseSafeLock );
-		actions.Insert( ExpansionActionCloseSafeUnlock ); 
+		actions.Insert( ExpansionActionCloseAndLockSafe );
+		actions.Insert( ExpansionActionCloseSafe ); 
 
-		actions.Insert( ExpansionActionPaint );
 		actions.Insert( ExpansionActionCycleOpticsModeInHands );
 		actions.Insert( ExpansionActionCycleOpticsMode );
 		actions.Insert( ExpansionActionWritePaper );
 		actions.Insert( ExpansionActionEnterFlagMenu );
 		actions.Insert( ExpansionActionDismantleFlag );
 
+		actions.Insert( ExpansionActionCrackSafe );
+
+		//! Barbed wire
+		actions.Insert( ExpansionActionDestroyBarbedWire );
+
+		//! Locks
+		actions.Insert( ExpansionActionDestroyLock );
+
 		//! Music
-		actions.Insert( ExpansionActionStartPlayingGuitar );
-		actions.Insert( ExpansionActionStopPlayingGuitar );
+		#ifdef EXPANSION_GUITAR_ENABLE
+		//actions.Insert( ExpansionActionStartPlayingGuitar );
+		//actions.Insert( ExpansionActionStopPlayingGuitar );
+		#endif
 
 		actions.Insert( ExpansionActionDestroyTerritory );
 		

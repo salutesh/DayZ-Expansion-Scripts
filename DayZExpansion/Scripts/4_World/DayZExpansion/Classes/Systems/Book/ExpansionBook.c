@@ -13,7 +13,7 @@
 /**@class		ExpansionBook
  * @brief		
  **/
-class ExpansionBook extends UIScriptedMenu
+class ExpansionBook extends ExpansionUIScriptedMenu
 {
 	static const int							NumberOfBookmarksOnOnePage = 10;
 	static const int							NumberOfBookmarksOnTwoPages = 20;

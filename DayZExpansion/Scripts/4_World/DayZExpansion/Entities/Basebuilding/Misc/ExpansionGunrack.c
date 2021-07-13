@@ -87,7 +87,7 @@ class ExpansionGunrack extends DeployableContainer_Base
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
 		
-		if (this.GetHierarchyRootPlayer())
+		if ( GetHierarchyRootPlayer() || GetInventory().IsInCargo() )
 		{
 			return false;
 		}

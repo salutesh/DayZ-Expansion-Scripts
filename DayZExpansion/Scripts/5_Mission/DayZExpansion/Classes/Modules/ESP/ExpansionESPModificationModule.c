@@ -10,14 +10,6 @@
  *
 */
 
-enum ExpansionESPModificationModuleRPC
-{
-	INVALID = 20720,
-	RequestCode,
-	RemoveCode,
-	COUNT
-};
-
 modded class JMESPModule
 {
 	ref JMESPMeta EXP_GetMeta( Object target )
@@ -33,6 +25,7 @@ class ExpansionESPModificationModule : JMModuleBase
 	void ExpansionESPModificationModule()
 	{
 		GetPermissionsManager().RegisterPermission( "ESP.Object.BaseBuilding.Codelock" );
+		GetPermissionsManager().RegisterPermission( "ESP.Object.Car.Key" );
 	}
 
 	override void OnMissionStart()
@@ -62,8 +55,18 @@ class ExpansionESPModificationModule : JMModuleBase
 		case ExpansionESPModificationModuleRPC.RemoveCode:
 			RPC_RemoveCode( ctx, sender, target );
 			break;
+		case ExpansionESPModificationModuleRPC.CarUnPair:
+			RPC_CarUnPair( ctx, sender, target );
+			break;
+		case ExpansionESPModificationModuleRPC.CarUnLock:
+			RPC_CarUnLock( ctx, sender, target );
+			break;
 		}
 	}
+
+	//! ===============================================
+	//! CODELOCK ESP FUNCTIONS
+	//! ===============================================
 
 	void RequestCode( Object target )
 	{
@@ -158,5 +161,84 @@ class ExpansionESPModificationModule : JMModuleBase
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write( "" );
 		rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
+	}
+
+	//! ===============================================
+	//! CAR KEY ESP FUNCTIONS
+	//! ===============================================
+
+	//! Unpair a vehicle
+	void CarUnPair( Object target )
+	{
+		if ( IsMissionOffline() )
+		{
+			CarScript car = CarScript.Cast( target );
+			if ( !car )
+				return;
+
+			array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
+			ExpansionCarKey.GetKeysForVehicle( car, keys );
+
+			for ( int i = 0; i < keys.Count(); ++i )
+				keys[i].Unpair( true );
+
+			car.ResetKeyPairing();
+
+		} else if ( IsMissionClient() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnPair, false, NULL );
+		}
+	}
+
+	private void RPC_CarUnPair( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	{
+		CarScript car = CarScript.Cast( target );
+		if ( !car )
+			return;
+
+		JMPlayerInstance instance;
+		if ( !GetPermissionsManager().HasPermission( "ESP.Object.Car.Key", senderRPC, instance ) )
+			return;
+
+		array< ExpansionCarKey > keys = new array< ExpansionCarKey >;
+		ExpansionCarKey.GetKeysForVehicle( car, keys );
+
+		for ( int i = 0; i < keys.Count(); ++i )
+			keys[i].Unpair( true );
+
+		car.ResetKeyPairing();
+	}
+	
+	//! Unlock a vehicle
+	void CarUnLock( Object target )
+	{
+		if ( IsMissionOffline() )
+		{
+			CarScript car = CarScript.Cast( target );
+			if ( !car )
+				return;
+
+			ExpansionCarAdminKey adminkey;
+			car.UnlockCar(adminkey);
+		} else if ( IsMissionClient() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnLock, false, NULL );
+		}
+	}
+
+	private void RPC_CarUnLock( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	{
+		CarScript car = CarScript.Cast( target );
+		if ( !car )
+			return;
+
+		JMPlayerInstance instance;
+		if ( !GetPermissionsManager().HasPermission( "ESP.Object.Car.Key", senderRPC, instance ) )
+			return;
+
+		ExpansionCarAdminKey adminkey;
+		car.UnlockCar(adminkey);
 	}
 };

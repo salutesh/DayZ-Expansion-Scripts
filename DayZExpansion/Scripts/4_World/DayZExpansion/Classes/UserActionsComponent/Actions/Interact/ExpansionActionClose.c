@@ -12,6 +12,8 @@
 
 class ExpansionActionClose: ActionInteractBase
 {
+	ItemBase m_Target;
+
 	void ExpansionActionClose()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
@@ -22,36 +24,42 @@ class ExpansionActionClose: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 
 	override string GetText()
 	{
-		return "#close";
+		//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
+		//! If it is OFF, then it will be provided by this action
+		if ( m_Target && m_Target.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+			return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+		else
+			return "#close";
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		ItemBase tgt;
-		if ( !Class.CastTo( tgt, target.GetObject() ) )
-			if ( !Class.CastTo( tgt, target.GetParent() ) )
+		if ( !Class.CastTo( m_Target, target.GetObject() ) )
+			if ( !Class.CastTo( m_Target, target.GetParent() ) )
 				return false;
 
-		string selection = tgt.GetActionComponentName( target.GetComponentIndex() );
+		string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
-		return tgt.CanClose( selection );
+		return m_Target.ExpansionCanClose( player, selection );
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		ItemBase tgt;
-		if ( !Class.CastTo( tgt, action_data.m_Target.GetObject() ) )
-			if ( !Class.CastTo( tgt, action_data.m_Target.GetParent() ) )
-				return;
+		if ( !m_Target )
+			return;
 
-		string selection = tgt.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
-		
-		tgt.Lock();			
-		tgt.Close( selection );
+		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
+
+		//! If CodelockActionsAnywhere is ON, then "Close and lock" will be provided by ExpansionActionEnterCodeLock
+		//! If it is OFF, then it will be provided by this action
+		if ( m_Target && m_Target.HasCode() && !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+			m_Target.CloseAndLock( selection );
+		else
+			m_Target.Close( selection );
 	}
 }

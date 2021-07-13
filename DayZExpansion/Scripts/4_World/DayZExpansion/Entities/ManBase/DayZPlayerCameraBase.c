@@ -17,29 +17,50 @@ modded class DayZPlayerCameraBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZPlayerCameraBase::SetNVPostprocess Start");
 		#endif
-
+		
+		//! No calling super here as it would break NVG brightness on Namalsk,
+		//! ours is a complete replacement for vanilla/Namalsk setup.
+		//! Sorry other modders, but if you want to change NVG postprocess,
+		//! you have to require DayZExpansion_Scripts
+		
 		switch (NVtype)
 		{
 			case NVTypes.NONE:
+				#ifdef NAMALSK_TERRAIN
+				PPEffects.SetEyeAccNV(1);
+				#else
 				PPEffects.SetEVValuePP(0);
+				#endif
 				PPEffects.SetColorizationNV(1.0, 1.0, 1.0);
 				PPEffects.SetNVParams(1.0, 0.0, 2.35, 2.75); //default values
 			break;
 			
 			case NVTypes.NV_OPTICS_ON:
+				#ifdef NAMALSK_TERRAIN
+				PPEffects.SetEyeAccNV(20);
+				#else
 				PPEffects.SetEVValuePP(7);
+				#endif
 				PPEffects.SetColorizationNV(0.0, 1.0, 0.2); // Default: 0.0, 1.0, 0.0
 				PPEffects.SetNVParams(2.0, 1.0, 9.0, 1.0);  // Default: 3.0, 2.0, 9.0, 1.0
 			break;
 			
 			case NVTypes.NV_OPTICS_OFF:
+				#ifdef NAMALSK_TERRAIN
+				PPEffects.SetEyeAccNV(-1);
+				#else
 				PPEffects.SetEVValuePP(-10);
+				#endif
 				PPEffects.SetColorizationNV(0.0, 0.0, 0.0);
 				PPEffects.SetNVParams(1.0, 0.0, 2.35, 2.75); //default values
 			break;
 			
 			case NVTypes.NV_GOGGLES:
+				#ifdef NAMALSK_TERRAIN
+				PPEffects.SetEyeAccNV(20);
+				#else
 				PPEffects.SetEVValuePP(7);
+				#endif
 				PPEffects.SetColorizationNV(0.0, 1.0, 0.2); // Default: 0.0, 1.0, 0.0
 				PPEffects.SetNVParams(2.0, 1.0, 9.0, 1.0);  // Default: 3.0, 2.0, 9.0, 1.0
 			break;

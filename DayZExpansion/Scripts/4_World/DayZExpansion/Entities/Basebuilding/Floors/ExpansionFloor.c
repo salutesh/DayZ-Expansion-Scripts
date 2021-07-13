@@ -12,6 +12,25 @@
 
 class ExpansionFloorBase extends ExpansionBaseBuilding
 {
+	private bool m_HasFloor;
+
+	void ExpansionFloorBase()
+	{
+		RegisterNetSyncVariableBool( "m_HasFloor" );
+
+		m_CurrentBuild = "wood";
+	}
+
+	override bool IsLastStage()
+	{
+		return m_HasFloor;
+	}
+
+	override bool IsLastStageBuilt()
+	{
+		return IsPartBuilt( m_CurrentBuild + "_floorfinished" ) || IsPartBuilt( m_CurrentBuild + "_hatchfinished" ) );
+	}
+
 	override string GetConstructionKitType()
 	{
 		return "ExpansionFloorKit";
@@ -27,28 +46,102 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 	override void AfterStoreLoad()
 	{	
 		super.AfterStoreLoad();
+
+		if ( m_ExpansionSaveVersion < 18 )
+			m_HasFloor = IsLastStageBuilt();
 		
 		UpdateVisuals();	
 	}
 
+	override void OnStoreSave( ParamsWriteContext ctx )
+	{
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
+		{
+			super.OnStoreSave( ctx );
+			return;
+		}
+		#endif
+
+		super.OnStoreSave( ctx );
+		
+		ctx.Write( m_HasFloor );
+	}
+
+	override bool OnStoreLoad( ParamsReadContext ctx, int version )
+	{
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
+			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
+
+		if ( m_ExpansionSaveVersion < 18 )
+			return true;
+
+		if ( Expansion_Assert_False( ctx.Read( m_HasFloor ), "[" + this + "] Failed reading m_HasFloor" ) )
+			return false;
+		
+		return true;
+	}
+
+	#ifdef CF_MODULE_MODSTORAGE
+	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	{
+		super.CF_OnStoreSave( storage, modName );
+
+		if ( modName != "DZ_Expansion" )
+			return;
+
+		storage.Write( m_HasFloor );
+	}
+	
+	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	{
+		if ( !super.CF_OnStoreLoad( storage, modName ) )
+			return false;
+
+		if ( modName != "DZ_Expansion" )
+			return true;
+
+		if ( storage.GetVersion() < 18 )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_HasFloor ), "[" + this + "] Failed reading m_HasFloor" ) )
+			return false;
+
+		return true;
+	}
+	#endif
+	
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
-		super.OnPartBuiltServer(player, part_name, action_id );
+		m_HasFloor = false;
 
+		if ( part_name == m_CurrentBuild + "_floorfinished" || part_name == m_CurrentBuild + "_hatchfinished" )
+		{
+			m_HasFloor = true;
+		}
+
+		super.OnPartBuiltServer(player, part_name, action_id );
 		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )
 	{
-		super.OnPartDismantledServer( player, part_name, action_id );
+		m_HasFloor = false;
 
+		super.OnPartDismantledServer( player, part_name, action_id );
 		UpdateVisuals();
 	}
 
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
-		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
+		m_HasFloor = false;
 
+		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 		UpdateVisuals();
 	}
 
@@ -65,15 +158,5 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 	override bool IsFacingCamera( string selection )
 	{
 		return false;
-	}
-
-	override void EEKilled( Object killer )
-	{
-		if ( !killer.IsInherited( CarScript ) )
-		{
-			super.EEKilled( killer );
-		
-			this.Delete();
-		}
 	}
 } 

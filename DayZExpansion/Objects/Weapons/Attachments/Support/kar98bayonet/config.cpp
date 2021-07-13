@@ -88,7 +88,7 @@ class CfgSlots
 	class Slot_expansionWeaponBayonetKar
 	{
 		name = "expansionWeaponBayonetKar";
-		displayName = "expansionWeaponBayonetKar";
+		displayName = "$STR_EXPANSION_KAR98_BAYONET";
 		ghostIcon = "bayonetak";
 	};
 };

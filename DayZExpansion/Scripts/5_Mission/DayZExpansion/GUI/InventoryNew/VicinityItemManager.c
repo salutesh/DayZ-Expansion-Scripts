@@ -12,30 +12,56 @@
 
 modded class VicinityItemManager
 {
-	override bool IsObstructed (Object filtered_object)
+	override void AddVicinityItems(Object object)
+	{
+		if ( !ExpansionIsObstructed(object) )
+			super.AddVicinityItems(object);
+	}
+
+	bool ExpansionIsObstructed (Object filtered_object)
 	{
 		if ( ExpansionFlagBase.Cast(filtered_object) )
-			return super.IsObstructed(filtered_object);					
+			return false;					
 		
 		if ( ExpansionHesco.Cast(filtered_object) )
-			return super.IsObstructed(filtered_object);
+			return false;
 		
 		if ( ExpansionCamoBox.Cast(filtered_object) )
-			return super.IsObstructed(filtered_object);
+			return false;
 		
 		if ( ExpansionCamoTent.Cast(filtered_object) )
-			return super.IsObstructed(filtered_object);			
+			return false;
 		
-		if ( ExpansionWallBase.Cast(filtered_object) )
-		{
-			return ExpansionWallBase.Cast(filtered_object).GetInventory().AttachmentCount() == 0 && !ExpansionWallBase.Cast(filtered_object).CanDisplayAttachmentCategory("Attachments"); //false
-		}		
+		ExpansionBaseBuilding basebuilding = ExpansionBaseBuilding.Cast(filtered_object);
 		
-		if ( ExpansionBaseBuilding.Cast(filtered_object) )
+		if ( basebuilding )
 		{
-			return ExpansionBaseBuilding.Cast(filtered_object).GetInventory().AttachmentCount() == 0; //false
+			if ( basebuilding.IsInherited(ExpansionWallBase) )
+			{
+				if ( basebuilding.CanDisplayAttachmentCategory("Attachments") ) //! Always show Attachments if available
+					return false;
+			}
+			
+			/*
+			//! Preparation for the basebuilding update
+			if ( basebuilding.IsInherited(ExpansionFloorBase) )
+			{
+				if ( basebuilding.CanDisplayAttachmentCategory("Attachments") ) //! Always show Attachments if available
+					return false;
+			}
+			*/
+
+			if ( basebuilding.GetInventory().AttachmentCount() > 0 ) //! if there is more than one item, show it
+				return false;
+
+			//! GetHealth cannot be called on client. Using GetHealthLevel instead
+			if ( basebuilding.GetHealthLevel() != GameConstants.STATE_PRISTINE ) //! if it's damaged show it
+				return false;
+				
+			return basebuilding.IsLastStage(); //! if it's the last stage hide it
 		}
-		return super.IsObstructed(filtered_object);
+
+		return false;
 	}
 };
 

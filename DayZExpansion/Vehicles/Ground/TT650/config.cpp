@@ -15,14 +15,14 @@ class CfgSlots
 	class Slot_expansion_tt650_wheel_1
 	{
 		name = "expansion_tt650_wheel_1";
-		displayName = "Front Wheel";
+		displayName = "$STR_EXPANSION_VEHICLE_TT650_WHEEL";
 		selection = "wheel_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_tt650_wheel_2
 	{
 		name = "expansion_tt650_wheel_2";
-		displayName = "Back Wheel";
+		displayName = "$STR_EXPANSION_VEHICLE_TT650_WHEEL";
 		selection = "wheel_2";
 		ghostIcon = "wheel";
 	};

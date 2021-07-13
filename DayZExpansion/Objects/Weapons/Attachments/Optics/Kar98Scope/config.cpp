@@ -69,7 +69,7 @@ class CfgSlots
 	class Slot_ExpansionKar98Optics
 	{
 		name = "ExpansionKar98Optics";
-		displayName = "ExpansionKar98Optics";
+		displayName = "$STR_KAR98_SCOPE";
 		ghostIcon = "weaponoptics";
 	};
 };

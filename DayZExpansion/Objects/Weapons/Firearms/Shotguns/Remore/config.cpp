@@ -308,7 +308,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_BENELLI_M4";
 		descriptionShort = "$STR_EXPANSION_BENELLI_M4_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\Shotguns\Remore\BenelliM4.p3d";
-		attachments[] = {"weaponOptics","weaponFlashlight"};
+		attachments[] = {"weaponOptics","weaponFlashlight","weaponWrap"};
 		itemSize[] = {9,3};
 		class DamageSystem
 		{

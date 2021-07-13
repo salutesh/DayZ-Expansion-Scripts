@@ -173,7 +173,7 @@ class ExpansionIcons
 		AddIcon( "Powder",	"Powder",	EXPANSION_NOTIFICATION_ICON_T_Powder );
 		AddIcon( "Pumpkin",	"Pumpkin",	EXPANSION_NOTIFICATION_ICON_T_Pumpkin );
 		AddIcon( "Rabbit",	"Rabbit",	EXPANSION_NOTIFICATION_ICON_T_Rabbit );
-		AddIcon( "Raccon",	"Raccon",	EXPANSION_NOTIFICATION_ICON_T_Raccon );
+		AddIcon( "Racoon",	"Racoon",	EXPANSION_NOTIFICATION_ICON_T_Racoon );
 		AddIcon( "Radio",	"Radio",	EXPANSION_NOTIFICATION_ICON_T_Radio );
 		AddIcon( "Rat",	"Rat",	EXPANSION_NOTIFICATION_ICON_T_Rat );
 		AddIcon( "Rock 1",	"Rock 1",	EXPANSION_NOTIFICATION_ICON_T_Rock_01 );

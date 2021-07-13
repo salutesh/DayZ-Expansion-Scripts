@@ -36,7 +36,8 @@ class Expansion_C4_Explosion: BuildingBase
 		#endif
 		
 		Explode(DT_EXPLOSION, "ExpansionC4_Ammo");
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+
+		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
 			m_ParticleExplosion = Particle.PlayInWorld(ParticleList.EXPANSION_EXPLOSION_ROCKET, this.GetPosition());
 		
 		#ifdef EXPANSIONEXPRINT

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_An2
 	{
-		units[] = {"Vehicle_ExpansionAnWheel","Vehicle_ExpansionAnWheelSmall","Vehicle_ExpansionAn2"};
+		units[] = {"Vehicle_ExpansionAnWheel","Vehicle_ExpansionAnWheelSmall","Vehicle_ExpansionAn2","ExpansionSpraycanGreen","Vehicle_ExpansionAn2_Green","ExpansionSpraycanWhite","Vehicle_ExpansionAn2_White","ExpansionSpraycanOrange","Vehicle_ExpansionAn2_Orange"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core"};
@@ -15,32 +15,32 @@ class CfgSlots
 	class Slot_expansion_anwheel_1_1
 	{
 		name = "expansion_anwheel_1_1";
-		displayName = "An Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT_DESC";
 		selection = "wheel_1_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_anwheel_2_1
 	{
 		name = "expansion_anwheel_2_1";
-		displayName = "An Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT_DESC";
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_ansmallwheel_1_2
 	{
 		name = "expansion_ansmallwheel_1_2";
-		displayName = "An Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK_DESC";
 		selection = "wheel_1_2";
 		ghostIcon = "wheel";
 	};
 	class Slot_expansion_ansmallwheel_2_2
 	{
 		name = "expansion_ansmallwheel_2_2";
-		displayName = "An Wheel";
-		descriptionShort = "";
+		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK_DESC";
 		selection = "wheel_2_2";
 		ghostIcon = "wheel";
 	};
@@ -377,6 +377,46 @@ class CfgVehicles
 				initPhase = 0;
 			};
 		};
+	};
+	class ExpansionSpraycanBase;
+	class ExpansionSpraycanGreen: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
+		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
+		skinName = "Green";
+	};
+	class Vehicle_ExpansionAn2_Green: Vehicle_ExpansionAn2
+	{
+		skinBase = "Vehicle_ExpansionAn2";
+		skinName = "Green";
+	};
+	class ExpansionSpraycanWhite: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_White_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_White_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_white_co.paa"};
+		skinName = "White";
+	};
+	class Vehicle_ExpansionAn2_White: Vehicle_ExpansionAn2
+	{
+		skinBase = "Vehicle_ExpansionAn2";
+		skinName = "White";
+	};
+	class ExpansionSpraycanOrange: ExpansionSpraycanBase
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_SPRAYCAN_Orange_NAME";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Orange_DESC";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_Orange_co.paa"};
+		skinName = "Orange";
+	};
+	class Vehicle_ExpansionAn2_Orange: Vehicle_ExpansionAn2
+	{
+		skinBase = "Vehicle_ExpansionAn2";
+		skinName = "Orange";
 	};
 };
 class CfgNonAIVehicles

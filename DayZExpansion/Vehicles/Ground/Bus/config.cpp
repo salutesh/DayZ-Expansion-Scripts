@@ -15,7 +15,7 @@ class CfgSlots
 	class Slot_busmegaphone
 	{
 		name = "busmegaphone";
-		displayName = "";
+		displayName = "Bus Megaphone";
 		selection = "busmegaphone";
 		ghostIcon = "walkietalkie";
 	};
@@ -93,9 +93,9 @@ class CfgVehicles
 		vehicleClass = "Expansion_Car";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2"};
 		doors[] = {};
-		fuelCapacity = 42;
+		fuelCapacity = 62;
 		fuelConsumption = 11;
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior_co.paa"};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat"};
 		defaultSkin = "Blue";
@@ -269,7 +269,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.795;
+			airDragFrontTotal = 0.828;
 			class Steering
 			{
 				increaseSpeed[] = {0,45,60,23,100,12};
@@ -278,7 +278,7 @@ class CfgVehicles
 			};
 			class Throttle
 			{
-				reactionTime = 1.0;
+				reactionTime = 1.2;
 				defaultThrust = 0.85;
 				gentleThrust = 0.7;
 				turboCoef = 4.0;
@@ -290,7 +290,7 @@ class CfgVehicles
 				inertia = 0.15;
 				torqueMax = 114;
 				torqueRpm = 3400;
-				powerMax = 53.7;
+				powerMax = 56.7;
 				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
@@ -301,7 +301,7 @@ class CfgVehicles
 			class Gearbox
 			{
 				reverse = 5.526;
-				ratios[] = {5.667,2.5,1.861,1.3};
+				ratios[] = {5.667,3.5,2.861,1.3};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 660;
@@ -494,14 +494,14 @@ class CfgVehicles
 	class Vehicle_ExpansionBus: ExpansionVehicleCarBase
 	{
 		scope = 2;
-		displayname = "[NOT READY]  BUS";
+		displayname = "$STR_EXPANSION_VEHICLE_BUS";
 		model = "\DayZExpansion\Vehicles\Ground\Bus\Ikarus.p3d";
 		vehicleClass = "Expansion_Car";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2"};
 		doors[] = {};
 		fuelCapacity = 42;
 		fuelConsumption = 11;
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior_co.paa"};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat"};
 		defaultSkin = "Blue";
@@ -855,7 +855,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Blue_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Blue_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_blue_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_blue_co.paa"};
 		skinName = "Blue";
 	};
 	class ExpansionBus_Blue: ExpansionBus
@@ -891,7 +891,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Consumables\data\spraycan_red_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_red_co.paa"};
 		skinName = "Red";
 	};
 	class ExpansionBus_Red: ExpansionBus

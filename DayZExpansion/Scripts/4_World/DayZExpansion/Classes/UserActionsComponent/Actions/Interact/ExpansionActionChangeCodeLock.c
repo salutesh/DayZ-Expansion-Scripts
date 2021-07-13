@@ -17,6 +17,8 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 {
 	//! WARNING: If 'IsLocal' is false, refactor this
 	protected ItemBase m_Target;
+	protected TentBase m_Tent;
+	protected bool m_IsTentAllowed;
 	
 	// -----------------------------------------------------------
 	// ExpansionActionChangeCodeLock Destructor
@@ -34,7 +36,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 	
 	// -----------------------------------------------------------
@@ -58,10 +60,49 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Target = ItemBase.Cast( target.GetObject() );
+		m_Tent = TentBase.Cast( target.GetParent() );
+		if ( m_Tent ) {
+			m_Target = ItemBase.Cast( target.GetParent() );
+		} else {
+			m_Target = ItemBase.Cast( target.GetObject() );
+		}
 		
 		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
 		{
+			if ( m_Tent && !m_Target.IsOpened() )
+			{
+				//! If CodelockActionsAnywhere is OFF, then "Change code"
+				//! will only be possible from the tent entrance
+				if ( !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+				{
+					Object targetObject = target.GetObject();
+
+					if ( !targetObject )
+						return false;
+
+					array< string > selections = new array< string >;
+					targetObject.GetActionComponentNameList( target.GetComponentIndex(), selections );
+
+					bool isEntrance;
+					for ( int s = 0; s < selections.Count(); s++ )
+					{
+						if ( !selections[s].Contains( "entrance" ) && !selections[s].Contains( "door" ) )
+							continue;
+
+						if ( m_Tent.CanToggleAnimations( selections[s] ) )
+						{
+							isEntrance = true;
+							break;
+						}
+					}
+
+					if ( !isEntrance )
+						return false;
+				}
+
+				return true;
+			}
+
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
 			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
@@ -88,6 +129,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 			if ( menu )
 			{
 				menu.SetChangeCodelock( true );
+				menu.SetConfirm( true );
 				menu.SetTarget( m_Target, selection );
 			}
 		} 

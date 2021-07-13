@@ -1,0 +1,37 @@
+FrameWidgetClass ExpansionDialogEditbox {
+ size 0.95 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionDialogContent_EditboxController"
+ {
+  PanelWidgetClass dialog_editbox_background {
+   color 0.1176 0.1176 0.1176 0.549
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style rover_sim_colorable
+  }
+  EditBoxWidgetClass dialog_editbox {
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass ""
+   style EditorProperty
+   "Use default text" 0
+   "exact text" 1
+   font "gui/fonts/etelkatextpro22"
+  }
+ }
+ {
+  ScriptParamsClass {
+   Debug_Logging 0
+  }
+ }
+}

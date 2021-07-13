@@ -39,6 +39,7 @@ class Expansion_Laser_Base extends UniversalLight
 				m_Laser.SetObjectTexture( 0, InvisibleColor() );
 			else
 				m_Laser.SetObjectTexture( 0, LaserColor() );
+				
 			m_Laser.SetObjectMaterial( 0, LaserMaterial() );
 
 			AddChild( m_Laser, -1 );
@@ -47,6 +48,19 @@ class Expansion_Laser_Base extends UniversalLight
 
 			Update();
 		}
+	}
+
+	override bool CanDisplayAttachmentSlot( string slot_name )
+	{
+		if (!super.CanDisplayAttachmentSlot(slot_name))
+			return false;   
+		
+		if ( slot_name == "expansionLaserBeam" )
+		{
+			return false;
+		}
+			
+		return true;
 	}
 	
 	override void OnWorkStop()

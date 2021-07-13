@@ -65,8 +65,11 @@ class ExpansionCOTBookModule: ExpansionCOTModuleBase
 
 		CreateToggle( "ShowServerSettings", "Show Server Settings", "", "" );
 
+		CreateString( "ServerInfo.ServerName", "Server Name", "", "" );
+
 		CreateToggle( "ShowTooltipOnRuleButton", "Show Tooltip On Rule Button", "", "" );
 		CreateToggle( "ItemRequiredLocation", "Item Required Location", "", "" );
+		CreateString( "ItemRequired", "Item Required", "", "" );
 	}
 
 	override int GetRPCMin()

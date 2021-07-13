@@ -61,29 +61,30 @@ class ExpansionPhysics
 		}
 
 		vector vel;
-		vector invInertiaDiagLocal1;
+		vector invInertiaDiagLocal1 = dBodyGetInvInertiaDiagLocal( body1 );
 		vector linearVelocity1 = GetVelocity( body1 );
 		vector angularVelocity1 = dBodyGetAngularVelocity( body1 );
 		vector linearVelocity2;
 		vector angularVelocity2;
-		Matrix3 invOrientation2 = new Matrix3;
+		vector orientation2[3];
 		float invMass2 = 0;
 
-		vector rel_pos1 = pos1 - dBodyGetCenterOfMass( body1 );
+		vector rel_pos1 = pos1;
 		vector rel_pos2 = "0 0 0";
 
 		vector vel1 = rel_vel_at_pos;
-		Transform trans1 = Transform.GetObject( body1 );
-		Matrix3 invOrientation1 = trans1.GetBasis(); // .Transpose();
-		vector invInertiaDiagLocal2 = dBodyGetInvInertiaDiagLocal( body1 );
+		vector orientation1[3];
+		body1.GetTransform(orientation1);
+		vector invInertiaDiagLocal2;
 		float invMass1 = 1.0 / dBodyGetMass( body1 );
 		
 		if ( body2 ) // if is a dynamic body
 		{
-			rel_pos2 = pos2 - dBodyGetCenterOfMass( body2 );
+			rel_pos2 = pos2;
 			vector vel2 = dBodyGetVelocityAt( body2, body2.GetGlobalPos( rel_pos2 ) );
 
-			invOrientation2 = Transform.GetObject( body2 ).GetBasis().Transpose();
+			body2.GetTransform(orientation2);
+			
 			invInertiaDiagLocal2 = dBodyGetInvInertiaDiagLocal( body2 );
 			invMass2 = 1.0 / dBodyGetMass( body2 );
 			
@@ -93,28 +94,38 @@ class ExpansionPhysics
 			vel = vel1 - vel2;
 		} else
 		{
+			Math3D.MatrixIdentity3(orientation2);
 			vel = vel1;
 		}
-
-		ExpansionJacobianEntry jac = new ExpansionJacobianEntry( invOrientation1, invOrientation2, rel_pos1, rel_pos2, normal, invInertiaDiagLocal1, invMass1, invInertiaDiagLocal2, invMass2 );
+		
+		//Matrix3.Transpose(orientation1, orientation1);
+		//Matrix3.Transpose(orientation2, orientation2);
+		
+		ExpansionJacobianEntry jac = new ExpansionJacobianEntry( orientation1, orientation2, rel_pos1, rel_pos2, normal, invInertiaDiagLocal1, invMass1, invInertiaDiagLocal2, invMass2 );
 
 		float jacDiagAB = jac.GetDiagonal();
 		float jacDiagABInv = 1.0 / jacDiagAB;
 		
-		float rel_vel =	jac.GetRelativeVelocity( 
-						linearVelocity1, 
-						invOrientation1.Multiply( angularVelocity1 ), 
-						linearVelocity2, 
-						invOrientation2.Multiply( angularVelocity2 ) );
-		rel_vel *= vector.Dot( normal, vel );
+		float rel_vel =	jac.GetRelativeVelocity( linearVelocity1.Multiply3( orientation1 ), angularVelocity1.Multiply3( orientation1 ), linearVelocity2.Multiply3( orientation2 ), angularVelocity2.Multiply3( orientation2 ) );
+		
+		rel_vel = vector.Dot( normal, vel );
+		
+		float contactDamping = 10.0;
+		
+		float res = -contactDamping * rel_vel * jacDiagABInv;
+		
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", body1);
 
-		float contactDamping = 0.2;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionPhysics::ResolveSingleBilateral - Return: " + (contactDamping * rel_vel * jacDiagABInv).ToString() );
+		dbg_Vehicle.Set("vel", vel);
+		dbg_Vehicle.Set("res", res);
 		#endif
 
-		return contactDamping * rel_vel * jacDiagABInv;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionPhysics::ResolveSingleBilateral - Return: " + res.ToString() );
+		#endif
+
+		return res;
 	}
 
 	static float ComputeImpulseDenominator( vector pos, vector normal, Matrix3 invInertiaWS, float invMass )

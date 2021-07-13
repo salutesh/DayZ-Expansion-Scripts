@@ -16,11 +16,7 @@ modded class JMModuleConstructor
 	{
 		// Gameplay modules
 		modules.Insert( ExpansionGlobalChatModule );
-		modules.Insert( ExpansionNotificationModule );
-		#ifndef EXPANSION_MARKET_DISABLE
-		modules.Insert( ExpansionMarketModule );
-		modules.Insert( ExpansionMarketCOTModule );	
-		#endif		
+		modules.Insert( ExpansionNotificationModule );	
 		modules.Insert( ExpansionSafeZoneModule );
 		modules.Insert( ExpansionLocatorModule );
 		modules.Insert( ExpansionPartyModule );
@@ -29,7 +25,6 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionTerritoryModule );
 		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionWorldMappingModule );
-		modules.Insert( ExpansionSkinModule );
 		modules.Insert( ExpansionAutorunModule );
 		modules.Insert( ExpansionMonitorModule );		
 		modules.Insert( ExpansionKillFeedModule );

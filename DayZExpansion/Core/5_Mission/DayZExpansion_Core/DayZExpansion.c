@@ -15,8 +15,7 @@
  **/
 class DayZExpansion: ExpansionWorld
 {
-
-};
+}
 
 static ref DayZExpansion g_exDayZ;
 

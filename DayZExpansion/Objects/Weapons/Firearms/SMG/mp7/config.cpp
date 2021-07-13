@@ -293,13 +293,16 @@ class CfgWeapons
 		attachments[] = {"pistolMuzzle","weaponFlashlight","weaponOptics"};
 		itemSize[] = {4,3};
 		dexterity = 5.3;
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\objects\weapons\firearms\smg\mp7\data\mp7_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\objects\weapons\firearms\smg\mp7\data\mp7_body.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 175;
 					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_damaged.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_damaged.rvmat"}},{0.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_ruined.rvmat"}}};
 				};
 			};
@@ -459,6 +462,7 @@ class CfgAmmo
 			type = "Projectile";
 			dispersion = 0;
 			bleedThreshold = 0.6;
+			defaultDamageOverride[] = {{0.5,1}};
 			class Health
 			{
 				damage = 42;

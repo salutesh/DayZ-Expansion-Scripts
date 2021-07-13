@@ -200,13 +200,19 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 
 	protected override void OnHumanPilot( PlayerBase driver, float pDt )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+
 		m_SteeringVal += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_SteeringVal, m_CarController.GetTurnRight() - m_CarController.GetTurnLeft() );
 		
 		m_Throttle.Update( pDt, m_CarController.GetForward(), m_CarController.GetGentle(), m_CarController.GetTurbo() );
 
 		m_BrakeVal = m_CarController.GetBackward();
 		
-		ExpansionDebugUI( "Turn: " + m_SteeringVal );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Steering", m_SteeringVal );
+		#endif
 	}
 
 	protected override void OnAIPilot( ExpansionAIBase driver, float pDt )
@@ -227,6 +233,10 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 
 	protected override void OnPreSimulation( float pDt )
 	{
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
+
 		super.OnPreSimulation( pDt );
 
 		if ( !m_IsPhysicsHost )
@@ -262,8 +272,10 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 		leftFrontWheelSteer = Math.AbsFloat( Math.RAD2DEG * leftFrontWheelSteer * 2.0 / Math.PI ) * m_SteeringVal;
 		rightFrontWheelSteer = Math.AbsFloat( Math.RAD2DEG * rightFrontWheelSteer * 2.0 / Math.PI ) * m_SteeringVal;
 		
-		ExpansionDebugUI( "LF Steer: " + leftFrontWheelSteer );
-		ExpansionDebugUI( "RF Steer: " + rightFrontWheelSteer );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("LF Steer", leftFrontWheelSteer );
+		dbg_Vehicle.Set("RF Steer", rightFrontWheelSteer );
+		#endif
 
 		m_Wheels[0].SetSteering( leftFrontWheelSteer );
 		m_Wheels[1].SetSteering( rightFrontWheelSteer );
@@ -290,8 +302,43 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
-		super.OnSimulation( pDt, force, torque );
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
+		#endif
 
-		ExpansionDebugUI();
+		super.OnSimulation( pDt, force, torque );
+		
+		vector minmax[2];
+		ClippingInfo(minmax);
+		
+		vector fBL = Vector(minmax[0][0], minmax[0][1], 0);
+		vector fBR = Vector(minmax[1][0], minmax[0][1], 0);
+		vector fTL = Vector(minmax[0][0], minmax[1][1], 0);
+		vector fTR = Vector(minmax[1][0], minmax[1][1], 0);
+		
+		DBGDrawLineMS(fBL, fBR);
+		DBGDrawLineMS(fBR, fTR);
+		DBGDrawLineMS(fTR, fTL);
+		DBGDrawLineMS(fTL, fBL);
+		
+		float w = Math.AbsFloat(minmax[0][0]) + Math.AbsFloat(minmax[1][0]);
+		float h = Math.AbsFloat(minmax[0][1]) + Math.AbsFloat(minmax[1][1]);
+		
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("W", w );
+		dbg_Vehicle.Set("H", h );
+		#endif
+		
+		float drag_c = 0.5 * (1.0 - m_AirDragFrontTotal) * (w * h) * 1.29;
+
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Drag", drag_c );
+		#endif
+		
+		float speed = m_LinearVelocityMS.Length();
+		
+		vector drag = m_LinearVelocityMS * -drag_c * m_BodyMass * speed * pDt;
+		
+		force += drag.Multiply3(m_Transform.data);
 	}
 }

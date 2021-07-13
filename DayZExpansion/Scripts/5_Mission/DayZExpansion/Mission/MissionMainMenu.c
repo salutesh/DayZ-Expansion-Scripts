@@ -17,9 +17,19 @@ modded class MissionMainMenu
 	
 	override void OnInit()
 	{
+		bool customScene = true;
+		string root_path = "cfgExpansionCharacterScenes " + g_Game.GetWorldName();
+
+		int count = g_Game.ConfigGetChildrenCount(root_path);
+		if (count == 0)
+			customScene = false;
+			
 		if (!m_NoCutscene)
 		{
-			CreateExpansionIntroScene();
+			if (customScene)
+				CreateExpansionIntroScene();
+			else
+				CreateIntroScene();
 		}
 		
 		if (!m_mainmenu)
@@ -65,6 +75,7 @@ modded class MissionMainMenu
 {
 	override void PlayMusic()
 	{
+		#ifndef NAMALSK_SURVIVAL
 		if ( !m_MenuMusic )
 		{
 			ref SoundParams soundParams			= new SoundParams( "Expansion_Music_1_SoundSet" );
@@ -75,5 +86,8 @@ modded class MissionMainMenu
 			m_MenuMusic.Loop( true );
 			m_MenuMusic.Play();
 		}
+		#else
+		super.PlayMusic();
+		#endif
 	}
 }

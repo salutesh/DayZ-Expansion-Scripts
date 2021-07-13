@@ -17,6 +17,9 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 {
 	//! WARNING: If 'IsLocal' is false, refactor this
 	protected ItemBase m_Target;
+	protected TentBase m_Tent;
+
+	bool m_IsKnownUser;
 	
 	// -----------------------------------------------------------
 	// ExpansionActionEnterCodeLock Destructor
@@ -34,7 +37,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNone;
+		m_ConditionTarget = new CCTCursorNoObject( UAMaxDistances.DEFAULT );
 	}
 	
 	// -----------------------------------------------------------
@@ -42,12 +45,18 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override string GetText()
 	{
-		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
+		if ( m_Target && m_Target.HasCode() )
 		{
-			return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+			if ( !m_Target.IsLocked() )
+				return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
+
+			if ( m_IsKnownUser )
+				return "#STR_EXPANSION_BB_CODE_UNLOCK";
+
+			return "#STR_EXPANSION_BB_CODE_LOCK_ENTER_CODE";
 		}
 
-		return "#STR_EXPANSION_BB_CODE_LOCK_ENTER_CODE";
+		return "#STR_EXPANSION_BB_CODE_LOCK_SET_CODE";
 	}
 
 	// -----------------------------------------------------------
@@ -63,14 +72,56 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_Target = ItemBase.Cast( target.GetObject() );
+		m_Target = ItemBase.Cast( target.GetParentOrObject() );
+		m_Tent = TentBase.Cast( m_Target );
 
 		if ( m_Target )
 		{
-			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
+			m_IsKnownUser = m_Target.IsKnownUser( player );
 
-			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
-		}
+			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
+			if ( m_Tent )
+			{
+				//! If CodelockActionsAnywhere is OFF, then "Set/Enter code", "Unlock" and
+				//! "Close & lock" or will only be possible from the tent entrance
+				if ( !GetExpansionSettings().GetBaseBuilding().CodelockActionsAnywhere )
+				{
+					Object targetObject = target.GetObject();
+
+					if ( !targetObject )
+						return false;
+
+					array< string > selections = new array< string >;
+					targetObject.GetActionComponentNameList( target.GetComponentIndex(), selections );
+
+					bool isEntrance;
+					for ( int s = 0; s < selections.Count(); s++ )
+					{
+						if ( !selections[s].Contains( "entrance" ) && !selections[s].Contains( "door" ) )
+							continue;
+
+						if ( m_Tent.CanToggleAnimations( selections[s] ) )
+						{
+							isEntrance = true;
+							break;
+						}
+					}
+
+					if ( !isEntrance )
+						return false;
+				}
+
+				if ( m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened() )
+					return true;
+
+				if ( m_Target.IsLocked() || ( m_Target.HasCode() && !m_Target.IsOpened() ) )
+					return true;
+
+				return false;
+			}
+
+			return m_Target.ExpansionHasCodeLock( selection );
+		}		
 		
 		return false;
 	}
@@ -89,11 +140,10 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 
 		if ( m_Target.IsLocked() || !m_Target.HasCode() )
 		{
-			string savedCode = ExpansionLockSaver.GetInstance().GetSavedCode(m_Target);
-			if ( m_Target.HasCode() && savedCode != "")
+			if ( m_Target.HasCode() && m_IsKnownUser )
 			{
 				ScriptRPC rpc2 = new ScriptRPC;
-				rpc2.Write( savedCode );
+				rpc2.Write( "" );
 				rpc2.Write( selection );
 				rpc2.Send( m_Target, ExpansionLockRPC.UNLOCK, true );
 			}
@@ -103,6 +153,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 				if ( menu )
 				{
 					menu.SetChangeCodelock( false );
+					menu.SetConfirm( !m_Target.HasCode() );
 					menu.SetTarget( m_Target, selection );
 				}
 			}

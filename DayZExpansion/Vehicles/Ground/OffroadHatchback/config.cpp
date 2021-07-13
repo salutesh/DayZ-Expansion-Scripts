@@ -118,6 +118,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
+			centralDiffRatio = 1.45;
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
@@ -127,16 +128,17 @@ class CfgVehicles
 			};
 			class Throttle
 			{
-				reactionTime = 1.0;
+				reactionTime = 1;
 				defaultThrust = 0.85;
 				gentleThrust = 0.7;
-				turboCoef = 4.0;
+				turboCoef = 4;
 				gentleCoef = 0.75;
 			};
-			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			braking[] = {0,0.1,1,0.8,2.5,0.9,3,1};
 			class Engine
 			{
 				inertia = 0.15;
+				steepness = 1.5;
 				torqueMax = 114;
 				torqueRpm = 3400;
 				powerMax = 53.7;
@@ -150,7 +152,7 @@ class CfgVehicles
 			class Gearbox
 			{
 				reverse = 3.526;
-				ratios[] = {3.667,2.1,1.361,1.0};
+				ratios[] = {3.667,2.1,1.361,1};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
@@ -765,7 +767,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class HatchbackDoors_CoDriver: CarDoor
+	class HatchbackDoors_CoDriver: HatchbackDoors_Driver
 	{
 		defaultSkin = "Green";
 		class DamageSystem
