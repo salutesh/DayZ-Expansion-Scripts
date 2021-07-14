@@ -92,14 +92,6 @@ class ExpansionActionDestroyTerritory: ActionContinuousBase
 
 		if ( construction.CanDismantlePart( construction_part.GetPartName(), action_data.m_MainItem ) )
 		{
-			if ( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) )
-			{
-				Flag_Base flag = Flag_Base.Cast( base_building.FindAttachmentBySlotName( "Material_FPole_Flag" ) );
-				
-				if ( flag )
-					flag.Delete();
-			}
-
 			construction.DestroyPartServer( action_data.m_Player, construction_part.GetPartName(), AT_DESTROY_PART );
 			
 			//add damage to tool

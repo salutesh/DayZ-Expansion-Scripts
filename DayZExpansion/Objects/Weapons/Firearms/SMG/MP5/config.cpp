@@ -38,12 +38,23 @@ class cfgWeapons
 		simpleHiddenSelections[] = {};
 		drySound[] = {"dz\sounds\weapons\firearms\m4a1\m4_dry",0.5,1,20};
 		reloadAction = "ReloadMP5";
-		modes[] = {"FullAuto","SemiAuto"};
+		modes[] = {"FullAuto","SemiAuto","Burst"};
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"MP5K_Shot_SoundSet","MP5K_Tail_SoundSet","MP5K_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
 			reloadTime = 0.125;
+			recoil = "recoil_mp5";
+			recoilProne = "recoil_mp5_prone";
+			dispersion = 0.003;
+			magazineSlot = "magazine";
+		};
+		class Burst: Mode_Burst
+		{
+			soundSetShot[] = {"MP5K_Shot_SoundSet","MP5K_Tail_SoundSet","MP5K_InteriorTail_SoundSet"};
+			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
+			burst = 3;
+			reloadTime = 0.067;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;

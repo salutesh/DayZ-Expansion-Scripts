@@ -448,6 +448,33 @@ modded class TerritoryFlag
 		SetSynchDirty();
 	}
 	
+	override void EEOnAfterLoad()
+	{
+		super.EEOnAfterLoad();
+
+		//! Fix state if flag attachment is not present
+		int slot = InventorySlots.GetSlotIdFromString("Material_FPole_Flag");
+		if ( m_RefresherActive && !GetInventory().FindAttachment( slot ) )
+		{
+			if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
+			{
+				EXPrint(ToString() + "::EEOnAfterLoad " + GetPosition() + " - creating missing flag");
+				bool locked = GetInventory().GetSlotLock( slot );
+				GetInventory().SetSlotLock( slot, false );
+				Flag_Base flag = Flag_Base.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
+				if ( flag )
+				{
+					flag.SetFlagTexture( m_FlagTexturePath );
+					GetInventory().SetSlotLock( slot, locked );
+				}
+			}
+			else
+			{
+				ExpansionResetTerritoryFlag();
+			}
+		}
+	}
+	
 	// ------------------------------------------------------------
 	// Override EEDelete
 	// ------------------------------------------------------------
@@ -468,49 +495,18 @@ modded class TerritoryFlag
 		EXLogPrint( "TerritoryFlag::OnPartBuiltServer - Start" );
 		EXLogPrint( "TerritoryFlag::OnPartBuiltServer - part_name: " + part_name );
 		#endif
-		
-		if ( GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild )
-		{
-			super.OnPartBuiltServer(player, part_name, action_id);
 
-		}
-		else
-		{
-			ConstructionPart constrution_part = GetConstruction().GetConstructionPart( part_name );
-			
-			//check base state
-			if ( constrution_part.IsBase() )
-			{
-				SetBaseState( true );
-			}
-				
-			//register constructed parts for synchronization
-			RegisterPartForSync( constrution_part.GetId() );
-			
-			//register action that was performed on part
-			RegisterActionForSync( constrution_part.GetId(), action_id );
-			
-			//synchronize
-			SynchronizeBaseState();
-			
-			//if (GetGame().IsMultiplayer() && GetGame().IsServer())
-				SetPartFromSyncData(constrution_part); // server part of sync, client will be synced from SetPartsFromSyncData
-			
-			//update visuals
-			UpdateVisuals();
-			
-			//reset action sync data
-			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( ResetActionSyncData, 100, false, this );
-		}
-				
+		super.OnPartBuiltServer(player, part_name, action_id);
+
 		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && part_name == "pole" ) 
-		{		
+		{
 			if ( !FindAttachmentBySlotName("Material_FPole_Flag") )
 			{
 				Flag_DayZ flag = Flag_DayZ.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
 				if ( flag )
-				{						
-					m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
+				{
+					if ( !m_FlagTexturePath )
+						m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
 					
 					flag.SetFlagTexture( m_FlagTexturePath );
 				}
@@ -522,6 +518,43 @@ modded class TerritoryFlag
 		#endif
 	}
 	
+	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
+	{
+		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
+
+		if ( part_name == "pole" )
+		{
+			ExpansionResetTerritoryFlag();
+
+			Flag_Base flag = Flag_Base.Cast( FindAttachmentBySlotName( "Material_FPole_Flag" ) );
+			if ( flag )
+			{
+				if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
+					flag.Delete();
+				else
+					flag.ExpansionDropServer( player );
+			}
+		}
+	}
+	
+	void ExpansionResetTerritoryFlag()
+	{
+		//! Unlock flag slot and reset raised state
+		AnimateFlag( 1 );
+
+		//! Reset refresher
+		SetRefreshTimer01( 0 );
+		SetRefresherActive( false );
+	}
+
+	override ItemBase CreateConstructionKit()
+	{
+		if ( GetExpansionSettings().GetBaseBuilding().GetTerritoryFlagKitAfterBuild )
+			return super.CreateConstructionKit();
+
+		return NULL;
+	}
+
 	// ------------------------------------------------------------
 	// Override CanReleaseAttachment
 	// ------------------------------------------------------------

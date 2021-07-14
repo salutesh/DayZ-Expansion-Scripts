@@ -120,11 +120,10 @@ class ExpansionIngameHud extends Hud
 			m_MapFrame								= Widget.Cast( m_GPSPanel.FindAnyWidget("GPSMapFrame") );
 			m_MapWidget 							= MapWidget.Cast( m_GPSPanel.FindAnyWidget("Map") );
 			
-			if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
-			{
-				m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
-				m_PlayerArrowMarker.SetName("");
-			}
+			//! Player arrow needs to be always created, as we don't have access to server settings on client side
+			//! when the HUD is created for the first time to check if it's needed or not
+			m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow( m_WgtRoot, m_MapWidget );
+			m_PlayerArrowMarker.SetName("");
 		}
 		
 		//! NIGHTVISION OVERLAY
@@ -244,11 +243,8 @@ class ExpansionIngameHud extends Hud
 		if ( m_GPSMapPanel )
 			m_GPSMapPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
 		
-		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
-		{
-			if ( m_PlayerArrowMarker )
-				m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting );
-		}
+		if ( m_PlayerArrowMarker )
+			m_PlayerArrowMarker.ShowRoot( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapState && m_ExpansionGPSSetting && ( m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2 ) );
 		
 		if ( m_MapStatsPanel )
 			m_MapStatsPanel.Show( m_ExpansionHudState && m_ExpansionHudGPSState && m_ExpansionHudGPSMapStatsState && m_ExpansionGPSSetting );

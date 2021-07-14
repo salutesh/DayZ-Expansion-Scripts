@@ -43,8 +43,8 @@ class cfgWeapons
 		shotAction = "ReloadMosinShort";
 		hiddenSelections[] = {};
 		hiddenSelectionsMaterials[] = {};
-		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		modes[] = {"SemiAuto"};
+		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"Expansion_Kar98_Shot_SoundSet","Mosin_Tail_SoundSet","Mosin_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"Mosin_silencerHomeMade_SoundSet","Mosin_silencerHomeMadeTail_SoundSet","Mosin_silencerInteriorHomeMadeTail_SoundSet"}};

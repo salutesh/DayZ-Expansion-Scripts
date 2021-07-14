@@ -32,7 +32,7 @@ class cfgWeapons
 		chamberSize = 1;
 		chamberedRound = "";
 		chamberableFrom[] = {"Ammo_556x45","Ammo_556x45Tracer"};
-		magazines[] = {"Mag_STANAG_30Rnd","Mag_STANAGCoupled_30Rnd","Mag_CMAG_10Rnd","Mag_CMAG_20Rnd","Mag_CMAG_30Rnd","Mag_CMAG_40Rnd","Mag_CMAG_10Rnd_Green","Mag_CMAG_20Rnd_Green","Mag_CMAG_30Rnd_Green","Mag_CMAG_40Rnd_Green","Mag_CMAG_10Rnd_Black","Mag_CMAG_20Rnd_Black","Mag_CMAG_30Rnd_Black","Mag_CMAG_40Rnd_Black"};
+		magazines[] = {"Mag_STANAG_30Rnd","Mag_STANAG_60Rnd","Mag_STANAGCoupled_30Rnd","Mag_CMAG_10Rnd","Mag_CMAG_20Rnd","Mag_CMAG_30Rnd","Mag_CMAG_40Rnd","Mag_CMAG_10Rnd_Green","Mag_CMAG_20Rnd_Green","Mag_CMAG_30Rnd_Green","Mag_CMAG_40Rnd_Green","Mag_CMAG_10Rnd_Black","Mag_CMAG_20Rnd_Black","Mag_CMAG_30Rnd_Black","Mag_CMAG_40Rnd_Black"};
 		magazineSwitchTime = 0.5;
 		ejectType = 1;
 		recoilModifier[] = {1,1,1};
@@ -40,8 +40,8 @@ class cfgWeapons
 		drySound[] = {"dz\sounds\weapons\firearms\m4a1\m4_dry",0.5,1,20};
 		reloadAction = "ReloadM4";
 		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\m4a1\m4_reload_0",0.8,1,20};
-		modes[] = {"FullAuto","Single"};
-		class Single: Mode_SemiAuto
+		modes[] = {"FullAuto","SemiAuto","Burst"};
+		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"M4_Shot_SoundSet","M4_Tail_SoundSet","M4_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"M4_silencer_SoundSet","M4_silencerTail_SoundSet","M4_silencerInteriorTail_SoundSet"},{"M4_silencerHomeMade_SoundSet","M4_silencerHomeMadeTail_SoundSet","M4_silencerInteriorHomeMadeTail_SoundSet"}};
@@ -49,6 +49,15 @@ class cfgWeapons
 			recoil = "recoil_m4";
 			recoilProne = "recoil_m4_prone";
 			dispersion = 0.0015;
+			magazineSlot = "magazine";
+		};
+		class Burst: Mode_Burst
+		{
+			soundSetShot[] = {"M4_Shot_SoundSet","M4_Tail_SoundSet","M4_InteriorTail_SoundSet"};
+			soundSetShotExt[] = {{"M4_silencer_SoundSet","M4_silencerTail_SoundSet","M4_silencerInteriorTail_SoundSet"},{"M4_silencerHomeMade_SoundSet","M4_silencerHomeMadeTail_SoundSet","M4_silencerInteriorHomeMadeTail_SoundSet"}};
+			burst = 3;
+			reloadTime = 0.075;
+			dispersion = 0.002;
 			magazineSlot = "magazine";
 		};
 		class FullAuto: Mode_FullAuto

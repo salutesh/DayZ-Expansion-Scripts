@@ -26,7 +26,7 @@ class cfgVehicles
 		itemSize[] = {3,1};
 		inventorySlot[] = {"ExpansionKar98Optics"};
 		simulation = "itemoptics";
-		dispersionModifier = -0.0001;
+		dispersionModifier = -0.0015;
 		dispersionCondition = "true";
 		recoilModifier[] = {1,1,1};
 		swayModifier[] = {1,1,1};

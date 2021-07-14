@@ -28,7 +28,7 @@ class cfgVehicles
 		inventorySlot = "WeaponOptics";
 		selectionFireAnim = "zasleh";
 		simulation = "itemoptics";
-		dispersionModifier = -0.000125;
+		dispersionModifier = -0.00015;
 		dispersionCondition = "true";
 		recoilModifier[] = {1,1,1};
 		memoryPointCamera = "eyeScope";

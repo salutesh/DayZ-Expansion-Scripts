@@ -145,7 +145,7 @@ class CfgMagazines
 class CfgWeapons
 {
 	class SKS;
-	class Mode_SemiAuto;
+	class Mode_Single;
 	class ExpansionLAWBase: SKS
 	{
 		scope = 0;
@@ -167,7 +167,7 @@ class CfgWeapons
 		reloadAction = "ReloadIZH18";
 		shotAction = "";
 		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		class Single: Mode_Single
 		{
 			soundSetShot[] = {"Expansion_RPG_Shot_SoundSet","IZH18_Tail_SoundSet","IZH18_InteriorTail_SoundSet"};
 			reloadTime = 1;

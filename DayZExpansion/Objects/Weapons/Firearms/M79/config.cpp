@@ -14,6 +14,7 @@ class CfgPatches
 };
 class Mode_Safe;
 class Mode_SemiAuto;
+class Mode_Single;
 class Mode_Burst;
 class Mode_FullAuto;
 class OpticsInfoRifle;
@@ -41,7 +42,7 @@ class cfgWeapons
 		reloadAction = "ReloadIZH18";
 		shotAction = "";
 		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		class Single: Mode_Single
 		{
 			soundSetShot[] = {"Expansion_M79_Shot_SoundSet"};
 			reloadTime = 1;

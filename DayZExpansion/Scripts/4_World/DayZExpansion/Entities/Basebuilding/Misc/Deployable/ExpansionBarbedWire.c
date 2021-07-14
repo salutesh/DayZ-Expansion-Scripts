@@ -49,7 +49,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 
 		if ( GetGame().IsServer() )
 		{
-			DeferredInit();
+			m_AreaDamageTimer.Run( 1, this, "CreateDamageTrigger", NULL, false );
 		}
 	}
 
@@ -75,11 +75,6 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	override string GetConstructionKitType()
 	{
 		return "ExpansionBarbedWireKit";
-	}
-
-	override void DeferredInit()
-	{
-		m_AreaDamageTimer.Run( 1, this, "CreateDamageTrigger", NULL, false ); 
 	}
 
 	void CreateDamageTrigger()

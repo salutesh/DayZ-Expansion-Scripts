@@ -238,7 +238,6 @@ modded class CarScript
 		if ( IsMissionHost() )
 			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
 		ExpansionSettings.SI_Vehicle.Insert( OnSettingsUpdated );
@@ -329,15 +328,13 @@ modded class CarScript
 		#endif
 	}
 
-#ifdef DAYZ_1_13	
 	override void DeferredInit()
-#else
-	void DeferredInit()
-#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::DeferredInit - Start");
 		#endif
+		
+		super.DeferredInit();
 
 		m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
@@ -2591,6 +2588,8 @@ modded class CarScript
 
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return true;
+
+		m_ExpansionSaveVersion = storage.GetVersion();
 
 		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
