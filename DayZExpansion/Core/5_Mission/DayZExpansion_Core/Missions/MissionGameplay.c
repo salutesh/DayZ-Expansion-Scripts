@@ -92,9 +92,9 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - Start");
 		#endif
-
+		
 		super.OnUpdate(timeslice);
-
+		
 		if ( !m_bLoaded )
 		{
 			#ifdef EXPANSIONEXPRINT
@@ -124,12 +124,23 @@ modded class MissionGameplay
 			}
 		}
 
-		#ifdef EXPANSIONMODVEHICLE
-		Man man 				= GetGame().GetPlayer(); 	//! Refernce to man
-		Input input 			= GetGame().GetInput(); 	//! Reference to input
-		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
-		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
+		Man man 							= GetGame().GetPlayer(); 	//! Refernce to man
+		Input input 						= GetGame().GetInput(); 	//! Reference to input
+		UIScriptedMenu topMenu 				= m_UIManager.GetMenu(); 	//! Expansion reference to menu
+		PlayerBase playerPB 				= PlayerBase.Cast( man );	//! Expansion reference to player		
+		ExpansionScriptViewMenu viewMenu 	= ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		
+		if (viewMenu && viewMenu.IsVisible())
+		{
+			//! Close current opened expansion script view menu when ESC is pressed
+			if (input.LocalPress("UAUIBack", false))
+			{
+				if (viewMenu && viewMenu.IsVisible())
+					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+			}
+		}
+		
+		#ifdef EXPANSIONMODVEHICLE
 		if ( playerPB )
 		{
 			HumanCommandVehicle hcv = playerPB.GetCommand_Vehicle();
@@ -153,12 +164,26 @@ modded class MissionGameplay
 			}
 		}
 		#endif
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	// Pause
+	// ------------------------------------------------------------	
+	override void Pause()
+	{
+		if (GetDayZExpansion().GetExpansionUIManager().GetMenu())
+			return;
+
+		super.Pause();
+	}
 	
+	// ------------------------------------------------------------
+	// CreateExpansionUIMenuManager
+	// ------------------------------------------------------------	
 	void CreateExpansionUIMenuManager()
 	{
 		ref ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
@@ -166,6 +191,9 @@ modded class MissionGameplay
 			m_EXUIMenuManager = new ExpansionUIMenuManager(exUIManager);
 	}
 	
+	// ------------------------------------------------------------
+	// DestroyExpansionUIMenuManager
+	// ------------------------------------------------------------		
 	void DestroyExpansionUIMenuManager()
 	{
 		if (m_EXUIMenuManager)

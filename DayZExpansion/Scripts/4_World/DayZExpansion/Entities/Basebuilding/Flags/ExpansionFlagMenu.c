@@ -18,7 +18,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 {
 	protected Widget m_FlagWindow;
 	protected TextWidget m_FlagWindowLable;
-	protected GridSpacerWidget m_FlagEntrysGrid;
+	protected WrapSpacerWidget m_FlagEntrysGrid;
 	protected ImageWidget m_FlagPreview;
 	protected ButtonWidget m_FlagConfirmButton;
 	protected ButtonWidget m_FlagCreateButton;
@@ -62,7 +62,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		//! Flag Window
 		m_FlagWindow = Widget.Cast( layoutRoot.FindAnyWidget( "flag_window_content" ) );
 		m_FlagWindowLable = TextWidget.Cast( layoutRoot.FindAnyWidget("flag_window_header_text") );
-		m_FlagEntrysGrid = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget("flag_textures_content") );
+		m_FlagEntrysGrid = WrapSpacerWidget.Cast( layoutRoot.FindAnyWidget("flag_textures_content") );
 		m_FlagPreview = ImageWidget.Cast( layoutRoot.FindAnyWidget( "flag_icon_image" ) );
 		m_FlagPreview.Show( false );
 		m_FlagConfirmButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "confirm" ) );

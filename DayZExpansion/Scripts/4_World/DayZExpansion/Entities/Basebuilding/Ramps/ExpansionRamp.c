@@ -127,13 +127,18 @@ class ExpansionRampBase extends ExpansionBaseBuilding
 	{
 		m_HasRamp = false;
 
+		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
+
+		super.OnPartBuiltServer(player, part_name, action_id );
+		UpdateVisuals();
+	}
+
+	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
+	{
 		if ( part_name == m_CurrentBuild + "_finished" )
 		{
 			m_HasRamp = true;
 		}
-
-		super.OnPartBuiltServer(player, part_name, action_id );
-		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )

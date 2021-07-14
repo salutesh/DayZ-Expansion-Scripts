@@ -175,19 +175,19 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		if ( ( type & EXVT_CAR ) != 0 )
 		{
 			color = ARGB( 255, 243, 156, 18 );
-			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_car.paa";
+			marker = "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_car.paa";
 		} else if ( ( type & EXVT_BOAT ) != 0 )
 		{
 			color = ARGB( 255, 41, 128, 185 );
-			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_boat.paa";
+			marker = "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_boat.paa";
 		} else if ( ( type & EXVT_HELICOPTER ) != 0 )
 		{
 			color = ARGB( 255, 142, 68, 173 );
-			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa";
+			marker = "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_helicopter.paa";
 		} else if ( ( type & EXVT_PLANE ) != 0 )
 		{
 			color = ARGB( 255, 34, 166, 179 );
-			marker = "DayZExpansion\\GUI\\icons\\marker\\marker_helicopter.paa"; //! TODO: Change to a plane marker
+			marker = "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_helicopter.paa"; //! TODO: Change to a plane marker
 		}
 	}
 	

@@ -70,7 +70,7 @@ class ExpansionUIManager
 	}
 	
 	void RegisterMenu(int id, string className)
-	{		
+	{
 		string viewName = "";
 		if (m_Menus.Find(id, viewName))	
 		{

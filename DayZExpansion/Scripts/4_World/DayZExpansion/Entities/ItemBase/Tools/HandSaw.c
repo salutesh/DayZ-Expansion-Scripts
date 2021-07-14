@@ -15,7 +15,6 @@ modded class HandSaw
 	override void SetActions()
 	{
 		super.SetActions();
-		//AddAction( ExpansionActionDestroyFlag );
 		AddAction( ExpansionActionDestroyTerritory );
 	}
 }

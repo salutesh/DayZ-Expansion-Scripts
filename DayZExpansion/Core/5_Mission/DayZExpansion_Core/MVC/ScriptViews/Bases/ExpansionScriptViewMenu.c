@@ -17,7 +17,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	void ExpansionScriptViewMenu()
 	{		
 		if (GetLayoutRoot().IsVisible()) SetIsVisible(true);
-		
 		CreateUpdateTimer();
 	}
 	
@@ -228,7 +227,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	float GetUpdateTickRate()
 	{
-		return 0.1;
+		return -1;
 	}
 	
 	private void CreateUpdateTimer()
@@ -249,14 +248,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		}
 	}
 	
-	void Update()
-	{
-		if (GetGame().GetInput().LocalPress("UAUIBack", false))
-		{
-			Hide();
-			return;
-		}
-	}
+	void Update();
 	
 	override void Close()
 	{

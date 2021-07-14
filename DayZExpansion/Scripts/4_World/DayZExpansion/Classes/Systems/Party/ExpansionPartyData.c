@@ -281,6 +281,14 @@ class ExpansionPartyData
 	{
 		return InvitesMap.Get( uid );
 	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetTerritoryMembers
+	// ------------------------------------------------------------
+	ref array<ref ExpansionPartyInviteData> GetPartyInvites()
+	{
+		return Invites;
+	}
 		
 	// ------------------------------------------------------------
 	// Expansion AddMarker

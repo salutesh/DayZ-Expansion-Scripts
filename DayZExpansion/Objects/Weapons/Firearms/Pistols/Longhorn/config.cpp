@@ -13,7 +13,7 @@ class CfgPatches
 class cfgWeapons
 {
 	class Pistol_Base;
-	class Mode_SemiAuto;
+	class Mode_Single;
 	class OpticsInfoPistol;
 	class Expansion_Longhorn_Base: Pistol_Base
 	{
@@ -34,7 +34,7 @@ class cfgWeapons
 		recoilModifier[] = {1.5,1.5,1.5};
 		hiddenSelections[] = {"zasleh"};
 		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		class Single: Mode_Single
 		{
 			soundSetShot[] = {"LongHorn_Shot_SoundSet","LongHorn_Tail_SoundSet","LongHorn_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"LongHorn_silencerHomeMade_SoundSet","LongHorn_silencerHomeMadeTail_SoundSet","LongHorn_silencerInteriorHomeMadeTail_SoundSet"}};

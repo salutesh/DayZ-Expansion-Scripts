@@ -18,10 +18,6 @@ modded class ActionDismantlePart
 		if ( !GetExpansionSettings().GetBaseBuilding().DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
 			return false;
 
-		//! Now it will check if we are in a safezone
-		if ( player.IsInSafeZone() )
-			return false;
-
 		//! is this a territory flag
 		TerritoryFlag flag;
 		if ( Class.CastTo( flag, target.GetObject() ) && flag.HasExpansionTerritoryInformation() )

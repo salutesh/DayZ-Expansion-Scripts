@@ -1379,7 +1379,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	{
 		Print("ExpansionMapMenu::CloseMapMenu - Start");
 		
-	#ifndef DAYZ_1_12
 		if (m_Map)	
 		{
 			Print("ExpansionMapMenu::CloseMapMenu - Step 1");
@@ -1390,7 +1389,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 				player.SetMapClosingSyncSet(false); //map is closing, server needs to be notified - once
 			}
 		}
-	#endif
 		
 		if (destroy)
 			Close();

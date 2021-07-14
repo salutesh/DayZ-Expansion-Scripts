@@ -61,7 +61,7 @@ class ExpansionDialogContent_Text: ExpansionDialogContentBase
 	}
 };
 
-class ExpansionDialogContent_TextController: Controller
+class ExpansionDialogContent_TextController: ExpansionViewController
 {
 	string Text;
 }
@@ -120,7 +120,7 @@ class ExpansionMenuDialogContent_Text: ExpansionMenuDialogContentBase
 	}
 };
 
-class ExpansionMenuDialogContent_TextController: Controller
+class ExpansionMenuDialogContent_TextController: ExpansionViewController
 {
 	string Text;
 }

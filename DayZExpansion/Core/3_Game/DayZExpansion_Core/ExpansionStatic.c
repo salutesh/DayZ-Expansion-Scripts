@@ -538,3 +538,28 @@ static int GetWeightedRandom( array< float > weights )
 	//! Should never get here
 	return -1;
 }
+
+static array< string > ExpansionFindFilesInLocation( string folder, string ext = "" )
+{
+	array< string > files = new array< string >;
+	string fileName;
+	FileAttr fileAttr;
+	FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
+	if ( findFileHandle )
+	{
+		if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+		{
+			files.Insert( fileName );
+		}
+		
+		while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
+		{
+			if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+			{
+				files.Insert( fileName );
+			}
+		}
+	}
+	CloseFindFile( findFileHandle );
+	return files;
+}

@@ -17,7 +17,6 @@ modded class JMModuleConstructor
 		// Gameplay modules
 		modules.Insert( ExpansionGlobalChatModule );
 		modules.Insert( ExpansionNotificationModule );	
-		modules.Insert( ExpansionSafeZoneModule );
 		modules.Insert( ExpansionLocatorModule );
 		modules.Insert( ExpansionPartyModule );
 		modules.Insert( ExpansionMarkerModule );
@@ -31,7 +30,7 @@ modded class JMModuleConstructor
 		
 		modules.Insert( ExpansionESPModificationModule );
 		
-		modules.Insert( ExpansionCraftingModule );
+		//modules.Insert( ExpansionCraftingModule );
 
 		//TODO: Move to COT
 		modules.Insert( ExpansionCOTVehiclesModule );

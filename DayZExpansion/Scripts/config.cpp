@@ -128,7 +128,7 @@ class CfgMods
 			};
 			class imageSets
 			{
-				files[] = {"DayZExpansion/GUI/imagesets/arrows.imageset","DayZExpansion/GUI/imagesets/expansion_book_assets.imageset","DayZExpansion/GUI/imagesets/expansion_gui.imageset","DayZExpansion/GUI/imagesets/expansion_iconset.imageset","DayZExpansion/GUI/imagesets/expansion_notification_iconset.imageset","DayZExpansion/GUI/imagesets/expansion_inventory.imageset"};
+				files[] = {};
 			};
 			class engineScriptModule
 			{

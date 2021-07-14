@@ -15,7 +15,7 @@
  **/
 
 class ExpansionCraftingModule: JMModuleBase
-{
+{	
 	// ------------------------------------------------------------
 	// ExpansionCraftingModule Constructor
 	// ------------------------------------------------------------
@@ -37,6 +37,11 @@ class ExpansionCraftingModule: JMModuleBase
 	override void OnInit()
 	{
 		
+	}
+	
+	override bool IsEnabled()	
+	{
+		return false;
 	}
 	
 	// ------------------------------------------------------------
@@ -246,7 +251,7 @@ class ExpansionCraftingModule: JMModuleBase
 			return;
 		}
 		
-		EntityAI item = GetGame().GetObjectByNetworkId(networkLow, networkHigh);
+		EntityAI item = EntityAI.Cast(GetGame().GetObjectByNetworkId(networkLow, networkHigh));
 		if (!item)
 		{
 			Error("ExpansionCraftingModule::RPC_RequestPrepareCrafting - Could not get item_base!");

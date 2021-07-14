@@ -142,7 +142,6 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 			}
 			
 			//! COMPASS HUD	
-			//! If compass is visable and player has no GPS or compass item then hide the compass overlay when setting is enabled
 			if ( GetExpansionHud().GetCompassState() )
 			{
 				#ifdef EXPANSIONEXLOGPRINT
@@ -183,12 +182,6 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 						EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasCompassItem: " + m_HasCompassItem );
 						#endif
 					}
-				}
-				
-				if ( !GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass && !GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass )
-				{	
-					//! If no setting for the item requirements to show the compass HUD is enabled the just show the HUD.
-					CompassShow();
 				}
 			}
 			else
@@ -253,8 +246,7 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 				
 				if ( !GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass && !GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass  )
 				{
-					//! If no setting for the item requirements to show the compass HUD is enabled the just hide the HUD.
-					CompassHide();
+					CompassShow();
 				}
 			}
 		}

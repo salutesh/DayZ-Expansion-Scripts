@@ -175,7 +175,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  vexactpos 1
                  hexactsize 1
                  vexactsize 1
-                 imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+                 imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
                  mode blend
                  "src alpha" 1
                  "no wrap" 1
@@ -235,7 +235,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{EF2E34001F711718}DayZExpansion/GUI/icons/hud/2D_64x64.edds"
+                   imageTexture "{EF2E34001F711718}DayZExpansion/Core/GUI/icons/hud/2D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -263,7 +263,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/GUI/icons/hud/3D_64x64.edds"
+                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/Core/GUI/icons/hud/3D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -360,7 +360,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  vexactpos 1
                  hexactsize 1
                  vexactsize 1
-                 imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+                 imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
                  mode blend
                  "src alpha" 1
                  "no wrap" 1
@@ -420,7 +420,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{EF2E34001F711718}DayZExpansion/GUI/icons/hud/2D_64x64.edds"
+                   imageTexture "{EF2E34001F711718}DayZExpansion/Core/GUI/icons/hud/2D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -448,7 +448,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/GUI/icons/hud/3D_64x64.edds"
+                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/Core/GUI/icons/hud/3D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -545,7 +545,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  vexactpos 1
                  hexactsize 1
                  vexactsize 1
-                 imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+                 imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
                  mode blend
                  "src alpha" 1
                  "no wrap" 1
@@ -605,7 +605,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{EF2E34001F711718}DayZExpansion/GUI/icons/hud/2D_64x64.edds"
+                   imageTexture "{EF2E34001F711718}DayZExpansion/Core/GUI/icons/hud/2D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -633,7 +633,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/GUI/icons/hud/3D_64x64.edds"
+                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/Core/GUI/icons/hud/3D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -730,7 +730,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                  vexactpos 1
                  hexactsize 1
                  vexactsize 1
-                 imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+                 imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
                  mode blend
                  "src alpha" 1
                  "no wrap" 1
@@ -790,7 +790,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{EF2E34001F711718}DayZExpansion/GUI/icons/hud/2D_64x64.edds"
+                   imageTexture "{EF2E34001F711718}DayZExpansion/Core/GUI/icons/hud/2D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -818,7 +818,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
                    vexactpos 1
                    hexactsize 1
                    vexactsize 1
-                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/GUI/icons/hud/3D_64x64.edds"
+                   imageTexture "{D0B15A62097DB9E5}DayZExpansion/Core/GUI/icons/hud/3D_64x64.edds"
                    mode blend
                    "src alpha" 1
                    "no wrap" 1
@@ -887,7 +887,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
            hexactsize 1
            vexactsize 1
            image0 ""
-           imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
+           imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
            mode blend
            "src alpha" 1
            "no wrap" 1
@@ -937,7 +937,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
        vexactsize 1
        priority 1
        image0 ""
-       imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+       imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
        mode blend
        "src alpha" 1
        "no wrap" 1

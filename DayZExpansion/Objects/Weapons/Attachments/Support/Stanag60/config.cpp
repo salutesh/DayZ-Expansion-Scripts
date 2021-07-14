@@ -14,10 +14,4 @@ class CfgPatches
 class CfgMagazines
 {
 	class Magazine_Base;
-	class Mag_STANAGCoupled_30Rnd: Magazine_Base
-	{
-		displayName = "$STR_EXPANSION_STANAG60";
-		descriptionShort = "$STR_EXPANSION_STANAG60_DESC";
-		model = "\DayZExpansion\Objects\Weapons\Attachments\Support\Stanag60\betterstanag60.p3d";
-	};
 };

@@ -8,14 +8,14 @@ FrameWidgetClass rootFrame {
  vexactsize 1
  {
   GridSpacerWidgetClass MarkerFrame {
-   clipchildren 1
+   clipchildren 0
    ignorepointer 1
    position 0 0
    size 132 62
    halign center_ref
    valign center_ref
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    style Colorable
@@ -54,7 +54,7 @@ FrameWidgetClass rootFrame {
        hexactsize 1
        vexactsize 1
        scaled 1
-       imageTexture "{B40287E36A28B065}DayZExpansion/GUI/icons/hud/marker_64x64.edds"
+       imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
        mode blend
        "src alpha" 1
        "no wrap" 1
@@ -62,6 +62,16 @@ FrameWidgetClass rootFrame {
        "Transition width" 0
       }
      }
+    }
+    PanelWidgetClass TextSpacer0 {
+     ignorepointer 1
+     size 1 0.03
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
     }
     TextWidgetClass MarkerText {
      visible 1
@@ -78,8 +88,7 @@ FrameWidgetClass rootFrame {
      text "Marker Name"
      font "gui/fonts/etelkatextpro16"
      "text offset" 0 0
-     "exact text" 1
-     "exact text size" 16
+     "exact text" 0
      "size to text h" 0
      "size to text v" 0
      "text halign" center
@@ -87,13 +96,13 @@ FrameWidgetClass rootFrame {
     }
     PanelWidgetClass TextSpacer {
      ignorepointer 1
-     size 1 1
+     size 1 0.03
      halign center_ref
      valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
     }
     TextWidgetClass MarkerDistance {
      visible 1
@@ -110,8 +119,7 @@ FrameWidgetClass rootFrame {
      text "1000 m"
      font "gui/fonts/etelkatextpro16"
      "text offset" 0 0
-     "exact text" 1
-     "exact text size" 16
+     "exact text" 0
      "size to text h" 0
      "size to text v" 0
      "text halign" center

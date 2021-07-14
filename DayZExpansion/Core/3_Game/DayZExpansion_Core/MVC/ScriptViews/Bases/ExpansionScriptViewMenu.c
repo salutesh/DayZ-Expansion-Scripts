@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionScriptViewMenuBase: ScriptView 
+class ExpansionScriptViewMenuBase: ScriptView
 {
 	private int m_SVMenuID = -1;
 	private bool m_IsVisible = false;

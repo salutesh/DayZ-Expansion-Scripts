@@ -13,7 +13,7 @@ class CfgPatches
 	};
 };
 class Mode_Safe;
-class Mode_SemiAuto;
+class Mode_Single;
 class Mode_Burst;
 class Mode_FullAuto;
 class OpticsInfoRifle;
@@ -48,7 +48,7 @@ class cfgWeapons
 		shotAction = "";
 		hiddenSelections[] = {"camo"};
 		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		class Single: Mode_Single
 		{
 			soundSetShot[] = {};
 			reloadTime = 1;

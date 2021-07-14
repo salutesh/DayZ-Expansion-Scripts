@@ -69,7 +69,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
        vexactpos 1
        hexactsize 1
        vexactsize 1
-       imageTexture "{FC3F3834EDFFA2A2}DayZExpansion/GUI/icons/hud/ear_64x64.edds"
+       imageTexture "{FC3F3834EDFFA2A2}DayZExpansion/Core/GUI/icons/hud/ear_64x64.edds"
        mode blend
        "src alpha" 1
        stretch 1
@@ -283,7 +283,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
      vexactpos 0
      hexactsize 1
      vexactsize 1
-     imageTexture "{A0E9814C75266D63}DayZExpansion/GUI/icons/hud/battery_high_64x64.edds"
+     imageTexture "{A0E9814C75266D63}DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds"
      mode blend
      "src alpha" 1
      "no wrap" 1
@@ -448,7 +448,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
          hexactsize 1
          vexactsize 1
          image0 ""
-         imageTexture "{F8DFE59A7D484C6F}DayZExpansion/GUI/icons/hud/orientation_64x64.edds"
+         imageTexture "{F8DFE59A7D484C6F}DayZExpansion/Core/GUI/icons/hud/orientation_64x64.edds"
          mode blend
          "src alpha" 1
          "no wrap" 1
@@ -494,7 +494,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
          hexactsize 1
          vexactsize 1
          image0 ""
-         imageTexture "{9E98F03477BC76EC}DayZExpansion/GUI/icons/hud/map_64x64.edds"
+         imageTexture "{9E98F03477BC76EC}DayZExpansion/Core/GUI/icons/hud/map_64x64.edds"
          mode blend
          "src alpha" 1
          "no wrap" 1

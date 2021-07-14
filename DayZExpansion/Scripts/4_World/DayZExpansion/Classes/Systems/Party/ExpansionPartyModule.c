@@ -90,29 +90,21 @@ class ExpansionPartyModule: JMModuleBase
 			MakeDirectory( EXPANSION_GROUPS_FOLDER );
 		}
 				
-		array< string > group_files = FindFilesInLocation( EXPANSION_GROUPS_FOLDER );
+		array< string > group_files = ExpansionFindFilesInLocation( EXPANSION_GROUPS_FOLDER, ".bin" );
 
-		for ( int i = 0; i < group_files.Count(); i++ )
-		{		  
-			string name = group_files[i];
-			int pos = group_files[i].IndexOf( "." );
-				
-			if ( pos > -1 )
-			{
-				name = group_files[i].Substring( 0, pos );
-			}
-			
+		foreach ( string fileName : group_files )
+		{
 			ExpansionPartyData party;
-			if (FileExist(EXPANSION_GROUPS_FOLDER + name + ".bin"))
+			if (FileExist(EXPANSION_GROUPS_FOLDER + fileName))
 			{
 				party = new ExpansionPartyData;
 				
 				FileSerializer file = new FileSerializer;
 				
-				if (file.Open(EXPANSION_GROUPS_FOLDER + name + ".bin", FileMode.READ))
+				if (file.Open(EXPANSION_GROUPS_FOLDER + fileName, FileMode.READ))
 				{
 					int version;
-					if ( Expansion_Assert_False( file.Read( version ), "[" + this + ":" + name + "] Failed reading version" ) )
+					if ( Expansion_Assert_False( file.Read( version ), "[" + this + ":" + fileName + "] Failed reading version" ) )
 					{
 						file.Close();
 						continue;
@@ -130,7 +122,7 @@ class ExpansionPartyModule: JMModuleBase
 						}
 					} else
 					{
-						Print("Failed loading group " + name);
+						Print("Failed loading group " + fileName);
 					}
 					
 					file.Close();

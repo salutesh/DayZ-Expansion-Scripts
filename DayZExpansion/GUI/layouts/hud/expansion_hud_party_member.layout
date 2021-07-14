@@ -58,7 +58,7 @@ PanelWidgetClass PartyMemberEntry {
    hexactsize 1
    vexactsize 1
    scriptclass "ViewBinding"
-   imageTexture "{F454FE0CCFC0677C}DayZExpansion/GUI/icons/hud/square_64x64.edds"
+   imageTexture "{F454FE0CCFC0677C}DayZExpansion/Core/GUI/icons/hud/square_64x64.edds"
    mode blend
    "src alpha" 1
    "no wrap" 1

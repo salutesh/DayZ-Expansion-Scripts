@@ -43,7 +43,7 @@ GridSpacerWidgetClass ExpansionSpawnSelectionEntry {
      hexactsize 1
      vexactsize 1
      image0 ""
-     imageTexture "{B40287E36A28B065}DayZExpansion/GUI/icons/hud/marker_64x64.edds"
+     imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
      mode blend
      "src alpha" 1
      "no wrap" 1

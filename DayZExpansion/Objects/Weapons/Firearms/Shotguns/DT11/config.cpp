@@ -11,8 +11,8 @@ class CfgPatches
 	};
 };
 class Mode_Safe;
-class Mode_SemiAuto;
-class Mode_Burst;
+class Mode_Single;
+class Mode_Double;
 class Mode_FullAuto;
 class Muzzle_Base;
 class OpticsInfoRifle;
@@ -48,15 +48,15 @@ class cfgWeapons
 		tooltip = "_text = _this call fnc_generateTooltip;_text";
 		hiddenSelections[] = {"camoGround"};
 		simpleHiddenSelections[] = {"bullet","bullet2","hide_barrel"};
-		modes[] = {"Single","Burst"};
-		class Single: Mode_SemiAuto
+		modes[] = {"Single","Double"};
+		class Single: Mode_Single
 		{
 			soundSetShot[] = {"IZH43_Shot_SoundSet","IZH43_Tail_SoundSet","IZH43_InteriorTail_SoundSet"};
 			reloadTime = 0.1;
 			dispersion = 0.001;
 			magazineSlot = "magazine";
 		};
-		class Burst: Mode_Burst
+		class Double: Mode_Double
 		{
 			soundSetShot[] = {"IZH43_Shot_SoundSet","IZH43_Tail_SoundSet","IZH43_InteriorTail_SoundSet"};
 			reloadTime = 0.1;
@@ -70,7 +70,7 @@ class cfgWeapons
 			muzzleEnd = "konec hlavne_2";
 			cartridgePos = "nabojnicestart_2";
 			cartridgeVel = "nabojniceend_2";
-			modes[] = {"Single","Burst"};
+			modes[] = {"Single","Double"};
 			magazines[] = {};
 			chamberableFrom[] = {"Ammo_12gaPellets","Ammo_12gaSlug","Ammo_12gaRubberSlug","Ammo_12gaBeanbag"};
 			barrelArmor = 1000;
@@ -80,14 +80,14 @@ class cfgWeapons
 			irLaserEnd = "laser dir";
 			drySound[] = {"dz\sounds\weapons\shotguns\Izh43\izh43_dry",0.005623413,1};
 			soundBullet[] = {};
-			class Single: Mode_SemiAuto
+			class Single: Mode_Single
 			{
 				soundSetShot[] = {"IZH43_Shot_SoundSet","IZH43_Tail_SoundSet","IZH43_InteriorTail_SoundSet"};
 				reloadTime = 0.1;
 				dispersion = 0.001;
 				magazineSlot = "magazine";
 			};
-			class Burst: Mode_Burst
+			class Double: Mode_Double
 			{
 				soundSetShot[] = {"IZH43_Shot_SoundSet","IZH43_Tail_SoundSet","IZH43_InteriorTail_SoundSet"};
 				reloadTime = 0.1;

@@ -147,7 +147,6 @@ class ExpansionObjectSpawnTools
 			if ( light )
 			{
 				light.SetDiffuseColor(1,0,0);
-				light.SetLifetime(3600);
 			}
 			
 			#ifdef EXPANSIONEXLOGPRINT
@@ -157,13 +156,24 @@ class ExpansionObjectSpawnTools
 		else if ( obj.IsKindOf("Fireplace") )
 		{
 			Fireplace fireplace = Fireplace.Cast( obj );
+			ItemBase item;
+			
 			if ( fireplace )
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.GetInventory().CreateAttachment, 60 * 1000, false, "Bark_Oak");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.GetInventory().CreateAttachment, 60 * 1000, false, "Firewood");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.GetInventory().CreateAttachment, 60 * 1000, false, "WoodenStick");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(fireplace.StartFire, 60 * 1000, false);
-				fireplace.SetLifetime(3600);
+				//! Add bark
+				item = ItemBase.Cast(GetGame().CreateObjectEx("Bark_Oak", vector.Zero, ECE_SETUP));
+				item.SetQuantity(8);
+				fireplace.GetInventory().AddEntityToInventory(item);
+				//! Add firewood
+				item = ItemBase.Cast(GetGame().CreateObjectEx("Firewood", vector.Zero, ECE_SETUP));
+				item.SetQuantity(6);
+				fireplace.GetInventory().AddEntityToInventory(item);
+				//! Add sticks
+				item = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick", vector.Zero, ECE_SETUP));
+				item.SetQuantity(10);
+			
+				fireplace.GetInventory().AddEntityToInventory(item);
+				fireplace.StartFire();
 			}
 
 			#ifdef EXPANSIONEXLOGPRINT
@@ -174,13 +184,22 @@ class ExpansionObjectSpawnTools
 		{
 			BarrelHoles_Red barrel = BarrelHoles_Red.Cast( obj );
 			if ( barrel ) 
-			{
+			{				
+				//! Add bark
+				item = ItemBase.Cast(GetGame().CreateObjectEx("Bark_Oak", vector.Zero, ECE_SETUP));
+				item.SetQuantity(8);
+				barrel.GetInventory().AddEntityToInventory(item);
+				//! Add firewood
+				item = ItemBase.Cast(GetGame().CreateObjectEx("Firewood", vector.Zero, ECE_SETUP));
+				item.SetQuantity(6);
+				barrel.GetInventory().AddEntityToInventory(item);
+				//! Add sticks
+				item = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick", vector.Zero, ECE_SETUP));
+				item.SetQuantity(10);
+			
+				barrel.GetInventory().AddEntityToInventory(item);	
+				barrel.StartFire();
 				barrel.Open();
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.GetInventory().CreateAttachment, 60 * 1000, false, "Bark_Oak");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.GetInventory().CreateAttachment, 60 * 1000, false, "Firewood");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.GetInventory().CreateAttachment, 60 * 1000, false, "WoodenStick");
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(barrel.StartFire, 60 * 1000, false);
-				barrel.SetLifetime(3600);
 			}
 
 			#ifdef EXPANSIONEXLOGPRINT
@@ -195,7 +214,6 @@ class ExpansionObjectSpawnTools
 				flare.GetCompEM().SetEnergy(999999);
 				flare.GetCompEM().SwitchOn();
 				flare.SwitchLight(false); //! Flickering
-				flare.SetLifetime(0);
 			}
 
 			#ifdef EXPANSIONEXLOGPRINT
@@ -252,6 +270,7 @@ class ExpansionObjectSpawnTools
 		string traderName;
 		string className;
 		string fileName;
+		array<vector> positions;
 		vector position;
 		vector rotation;
 		TStringArray gear = new TStringArray;
@@ -262,18 +281,19 @@ class ExpansionObjectSpawnTools
 		if ( !file )
 			return;
 		
-		while ( GetTraderFromMissionFile( file, traderName, position, rotation, gear ) )
+		while ( GetTraderFromMissionFile( file, traderName, positions, rotation, gear ) )
 		{
 			array<string> parts = new array<string>;
 			traderName.Split(".", parts);
 			className = parts[0];
 			fileName = parts[1];
+			position = positions[0];
 
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 			#endif
 
-			obj = GetGame().CreateObject( className, position, false, false, true );
+			obj = GetGame().CreateObject( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
 			trader = EntityAI.Cast( obj );
 			
 			if ( trader )
@@ -300,13 +320,44 @@ class ExpansionObjectSpawnTools
 					}
 				}
 
-				ExpansionTraderStaticBase traderStatic;
 				ExpansionTraderNPCBase traderNPC;
-				if ( Class.CastTo( traderStatic, trader ) )
-					traderStatic.LoadTrader(fileName);
-				else if ( Class.CastTo( traderNPC, trader ) )
+				ExpansionTraderStaticBase traderStatic;
+				ExpansionTraderZombieBase traderZombie;
+				#ifdef ENFUSION_AI_PROJECT
+				ExpansionTraderAIBase traderAI;
+				#endif
+				if ( Class.CastTo( traderNPC, obj ) )
 					traderNPC.LoadTrader(fileName);
-				EXPrint("LoadMissionTradersFile traderNPC " + traderNPC + " traderStatic " + traderStatic + " fileName " + fileName);
+				else if ( Class.CastTo( traderStatic, obj ) )
+					traderStatic.LoadTrader(fileName);
+				else if ( Class.CastTo( traderZombie, obj ) )
+					traderZombie.LoadTrader(fileName);
+				#ifdef ENFUSION_AI_PROJECT
+				else if ( Class.CastTo( traderAI, obj ) )
+					traderAI.LoadTrader(fileName);
+				#endif
+				EXPrint("LoadMissionTradersFile trader " + trader + " fileName " + fileName);
+			
+				#ifdef ENFUSION_AI_PROJECT
+				//! See eAIGame::SpawnAI_Patrol
+				if ( traderAI )
+				{
+					if ( eAIGlobal_HeadlessClient )
+						GetRPCManager().SendRPC( "eAI", "HCLinkObject", new Param1< PlayerBase >( traderAI ), false, eAIGlobal_HeadlessClient );
+
+					eAIGame game = MissionServer.Cast( GetGame().GetMission() ).GetEAIGame();
+					eAIGroup ownerGrp = game.GetGroupByLeader( traderAI );
+					for ( int j = 0; j < positions.Count(); j++ )
+					{
+						EXPrint("Adding waypoint " + positions[j]);
+						ownerGrp.AddWaypoint( positions[j] );
+					}
+			
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( traderAI.RequestTransition, 10000, false, "Rejoin" );
+					
+					traderAI.SetAI( ownerGrp );
+				}
+				#endif
 
 				#ifdef EXPANSIONEXLOGPRINT
 				EXLogPrint( "  Created" );
@@ -324,7 +375,7 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	// Expansion GetTraderFromMissionFile
 	// ------------------------------------------------------------
-	static bool GetTraderFromMissionFile( FileHandle file, out string name, out vector position, out vector rotation, out TStringArray gear )
+	static bool GetTraderFromMissionFile( FileHandle file, out string name, out array<vector> positions, out vector rotation, out TStringArray gear )
 	{
 		string line;
 		int lineSize = FGets( file, line );
@@ -336,7 +387,27 @@ class ExpansionObjectSpawnTools
 		line.Split( "|", tokens );
 
 		name = tokens.Get( 0 );
-		position = tokens.Get( 1 ).ToVector();
+		TStringArray positionTokens = new TStringArray;
+		tokens.Get( 1 ).Split( ",", positionTokens );
+		positions = new array<vector>;
+		vector coordinate;
+		foreach (string positionToken : positionTokens)
+		{
+			TStringArray coordinateTokens = new TStringArray;
+			positionToken.Split( " ", coordinateTokens );
+			if ( coordinateTokens.Count() == 2 )
+			{
+				coordinate = Vector( 0, 0, 0 );
+				coordinate[0] = coordinateTokens[0].ToFloat();
+				coordinate[2] = coordinateTokens[1].ToFloat();
+				coordinate[1] = GetGame().SurfaceY( coordinate[0], coordinate[2] );
+			}
+			else
+			{
+				coordinate = positionToken.ToVector();
+			}
+			positions.Insert( coordinate );
+		}
 		rotation = tokens.Get( 2 ).ToVector();
 
 		string gears_array = tokens.Get( 3 );

@@ -40,8 +40,8 @@ class cfgWeapons
 		drySound[] = {"dz\sounds\weapons\firearms\SKS\SKS_dry",0.5,1,20};
 		reloadMagazineSound[] = {"DZ\sounds\weapons\firearms\mosin9130\mosin_reloading",0.8,1,20};
 		reloadAction = "ReloadSks";
-		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		modes[] = {"SemiAuto"};
+		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"Mp133_Shot_SoundSet","Mp133_Tail_SoundSet","Mp133_InteriorTail_SoundSet"};
 			reloadTime = 0.25;

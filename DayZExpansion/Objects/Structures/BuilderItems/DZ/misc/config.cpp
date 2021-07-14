@@ -579,4 +579,9 @@ class CfgVehicles
 		scope = 1;
 		model = "\DZ\structures\signs\misc\sign_roof_univermag.p3d";
 	};
+	class bldr_fire_barrel: BarrelHoles_Red
+	{
+		scope = 1;
+		model = "\DZ\gear\cooking\barrel_holes.p3d";
+	};
 };

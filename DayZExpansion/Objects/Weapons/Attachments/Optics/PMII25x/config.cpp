@@ -27,7 +27,7 @@ class cfgVehicles
 		itemSize[] = {4,1};
 		inventorySlot = "ExpansionSniperOptics";
 		simulation = "itemoptics";
-		dispersionModifier = -0.00025;
+		dispersionModifier = -0.001;
 		dispersionCondition = "true";
 		recoilModifier[] = {1,1,1};
 		memoryPointCamera = "eyeScope";

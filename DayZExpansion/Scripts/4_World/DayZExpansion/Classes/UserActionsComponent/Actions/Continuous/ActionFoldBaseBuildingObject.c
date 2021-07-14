@@ -17,9 +17,6 @@ modded class ActionFoldBaseBuildingObject
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
-		if ( player.IsInSafeZone() )
-			return false;
-
 		//! Don't allow to fold (e.g.) camo box and camo tent if not empty
 		ItemBase item_base = ItemBase.Cast( target.GetObject() );
 		if ( item_base && item_base.GetNumberOfItems() > 0 )

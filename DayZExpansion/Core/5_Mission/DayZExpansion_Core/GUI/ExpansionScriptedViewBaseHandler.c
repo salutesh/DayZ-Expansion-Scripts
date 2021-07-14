@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionScriptedViewBaseHandler: ScriptedViewBaseHandler
+/*class ExpansionScriptedViewBaseHandler: ScriptedViewBaseHandler
 {
 	reference bool Debug_Logging;
 	
@@ -86,4 +86,4 @@ class ExpansionScriptedViewBaseHandler: ScriptedViewBaseHandler
 		Workbench.Dialog(header, msg);
 #endif
 	}
-}
+}*/

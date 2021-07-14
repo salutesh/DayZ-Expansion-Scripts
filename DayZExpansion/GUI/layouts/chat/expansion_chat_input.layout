@@ -61,7 +61,7 @@ FrameWidgetClass FrameWidget {
    vexactpos 0
    hexactsize 1
    vexactsize 1
-   imageTexture "{C0B1B0599B00CBE8}DayZExpansion/GUI/icons/hud/info_64x64.edds"
+   imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
    mode blend
    "src alpha" 1
    "no wrap" 1

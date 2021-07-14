@@ -19,9 +19,6 @@ modded class ActionPackTent
 
 		if ( player.IsInTerritory() )
 			return player.IsInsideOwnTerritory();
-		
-		if ( player.IsInSafeZone() )
-			return false;
 
 		return true;
 	}

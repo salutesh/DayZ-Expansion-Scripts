@@ -37,7 +37,7 @@ FrameWidgetClass ExpansionPlayerTag {
      vexactpos 1
      hexactsize 1
      vexactsize 1
-     imageTexture "{C46EFC659DD3BDAB}DayZExpansion/GUI/icons/hud/persona_64x64.edds"
+     imageTexture "{C46EFC659DD3BDAB}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds"
      mode blend
      "src alpha" 1
      "no wrap" 1

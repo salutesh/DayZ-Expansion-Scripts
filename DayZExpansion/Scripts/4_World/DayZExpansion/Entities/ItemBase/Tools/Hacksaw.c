@@ -15,7 +15,6 @@ modded class Hacksaw
 	override void SetActions()
 	{
 		super.SetActions();
-		//AddAction( ExpansionActionDestroyFlag );
 		AddAction( ExpansionActionDestroyTerritory );
 	}
 }

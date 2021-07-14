@@ -119,7 +119,7 @@ class CfgMagazines
 };
 class CfgWeapons
 {
-	class Mode_SemiAuto;
+	class Mode_Single;
 	class FNX45;
 	class ExpansionFlaregunBase: FNX45
 	{
@@ -146,7 +146,7 @@ class CfgWeapons
 		modes[] = {"Single"};
 		drySound[] = {"dz\sounds\weapons\firearms\FNX45\FNX_dry",0.5,1,20};
 		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\magnum\magnum_reload2",0.8,1,20};
-		class Single: Mode_SemiAuto
+		class Single: Mode_Single
 		{
 			soundSetShot[] = {"Flare_Gun_Shot_SoundSet","Flare_Gun_Tail_SoundSet","Flare_Gun_InteriorTail_SoundSet"};
 			begin1[] = {"dz\sounds\weapons\firearms\flare_gun\flare_shot_0",1.7782794,1,300};

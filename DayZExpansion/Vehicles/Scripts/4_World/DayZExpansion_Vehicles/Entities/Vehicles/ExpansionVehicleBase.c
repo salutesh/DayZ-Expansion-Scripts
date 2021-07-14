@@ -100,6 +100,8 @@ class ExpansionVehicleBase extends ItemBase
 
 	protected ExpansionVehicleLockState m_VehicleLockedState;
 
+	//! After pairing a key, it's the ID of the master key.
+	//! This allows "changing locks" on vehicles so old paired keys no longer work
 	protected int m_PersistentIDA = 0;
 	protected int m_PersistentIDB = 0;
 	protected int m_PersistentIDC = 0;
@@ -251,6 +253,9 @@ class ExpansionVehicleBase extends ItemBase
 	static const int SELECTION_ID_DASHBOARD_LIGHT 	= 8;
 
 	protected float m_ModelAnchorPointY = -1;
+	
+	protected bool m_SafeZone;
+	protected bool m_SafeZoneSynchRemote;
 
 	// ------------------------------------------------------------
 	void ExpansionVehicleBase()
@@ -495,8 +500,6 @@ class ExpansionVehicleBase extends ItemBase
 			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
 		}
 
-		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
-
 		m_NetworkMode = ExpansionVehicleNetworkMode.CLIENT;
 
 		m_SyncState = new ExpansionVehicleSyncState( this );
@@ -539,6 +542,8 @@ class ExpansionVehicleBase extends ItemBase
 		LoadConstantVariables();
 
 		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
+		
+		RegisterNetSyncVariableBool("m_SafeZoneSynchRemote");
 	}
 
 	// ------------------------------------------------------------
@@ -609,6 +614,8 @@ class ExpansionVehicleBase extends ItemBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleBase::DeferredInit - Start");
 		#endif
+
+		super.DeferredInit();
 
 		m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
@@ -3202,19 +3209,17 @@ class ExpansionVehicleBase extends ItemBase
 	// Only call this after all keys have been confirmed to be removed
 	void ResetKeyPairing()
 	{
-		m_PersistentIDA = 0;
-		m_PersistentIDB = 0;
-		m_PersistentIDC = 0;
-		m_PersistentIDD = 0;
-
 		if ( IsMissionHost() )
 		{
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
+			m_PersistentIDA = 0;
+			m_PersistentIDB = 0;
+			m_PersistentIDC = 0;
+			m_PersistentIDD = 0;
+
+			m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
+
+			SetSynchDirty();
 		}
-
-		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
-
-		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -4535,6 +4540,14 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			return false;
 		}
+		
+		if ( GetExpansionSettings().GetSafeZone().Enabled && !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		{
+			if ( IsInSafeZone() )
+			{
+				return false;
+			}
+		}
 
 		return true;
 	}
@@ -4631,5 +4644,10 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if ( CanBeDamaged() )
 			super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
+	}
+	
+	bool IsInSafeZone()
+	{
+		return m_SafeZone;
 	}
 };

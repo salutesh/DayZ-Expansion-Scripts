@@ -1,0 +1,26 @@
+ImageSetClass {
+ Name "expansion_gui_logos"
+ RefSize 1024 1024
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{186F1F8CC478A925}DayZExpansion/Core/GUI/imagesets/expansion_gui.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass expansion_logo_white {
+   Name "expansion_logo_white"
+   Pos 4 12
+   Size 786 407
+   Flags 0
+  }
+  ImageSetDefClass expansion_logo_black {
+   Name "expansion_logo_black"
+   Pos 3 435
+   Size 782 403
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

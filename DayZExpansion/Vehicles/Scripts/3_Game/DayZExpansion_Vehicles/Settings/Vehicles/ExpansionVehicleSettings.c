@@ -31,6 +31,11 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	int PickLockTimeSeconds;
 	float PickLockToolDamagePercent;
 
+	bool CanChangeLock;
+	autoptr TStringArray ChangeLockTools;
+	int ChangeLockTimeSeconds;
+	float ChangeLockToolDamagePercent;
+
 	bool EnableWindAerodynamics;							//! If enabled, wind simulation will be enabled
 	bool EnableTailRotorDamage;								//! If enabled, the rotor will be damageable
 
@@ -53,6 +58,7 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		#endif
 
 		PickLockTools = new TStringArray;
+		ChangeLockTools = new TStringArray;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::ExpansionVehicleSettings - End");
@@ -152,11 +158,13 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		PickLockTimeSeconds = s.PickLockTimeSeconds;
 		PickLockToolDamagePercent = s.PickLockToolDamagePercent;
 
-		PickLockTools.Clear();
-		for (int i = 0; i < s.PickLockTools.Count(); i++)
-		{
-			PickLockTools.Insert( s.PickLockTools[i] );
-		}
+		PickLockTools.Copy(s.PickLockTools);
+
+		CanChangeLock = s.CanChangeLock;
+		ChangeLockTimeSeconds = s.ChangeLockTimeSeconds;
+		ChangeLockToolDamagePercent = s.ChangeLockToolDamagePercent;
+
+		ChangeLockTools.Copy(s.ChangeLockTools);
 		
 		EnableWindAerodynamics = s.EnableWindAerodynamics;
 		EnableTailRotorDamage = s.EnableTailRotorDamage;
@@ -266,6 +274,11 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		PickLockTimeSeconds = 120;
 		PickLockToolDamagePercent = 10;
 		PickLockTools.Insert( "Lockpick" );
+
+		CanChangeLock = false;
+		ChangeLockTimeSeconds = 120;
+		ChangeLockToolDamagePercent = 10;
+		ChangeLockTools.Insert( "Screwdriver" );
 
 		EnableWindAerodynamics = false; // Not ready, need tweaking
 		EnableTailRotorDamage = true;

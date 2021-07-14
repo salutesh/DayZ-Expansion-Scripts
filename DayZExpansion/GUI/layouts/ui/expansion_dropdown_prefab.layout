@@ -49,7 +49,7 @@ PanelWidgetClass dropdown_selector {
      hexactsize 0
      vexactsize 0
      image0 ""
-     imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+     imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
      mode additive
      "src alpha" 1
      "no wrap" 1
@@ -70,7 +70,7 @@ PanelWidgetClass dropdown_selector {
      hexactsize 0
      vexactsize 0
      image0 ""
-     imageTexture "{9F15DD575A256AEF}DayZExpansion/GUI/icons/hud/arrow_64x64.edds"
+     imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
      mode additive
      "src alpha" 1
      "no wrap" 1

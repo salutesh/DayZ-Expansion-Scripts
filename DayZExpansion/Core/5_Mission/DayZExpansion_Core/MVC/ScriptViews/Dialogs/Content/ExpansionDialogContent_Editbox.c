@@ -45,7 +45,7 @@ class ExpansionDialogContent_Editbox: ExpansionDialogContentBase
 	}
 };
 
-class ExpansionDialogContent_EditboxController: Controller
+class ExpansionDialogContent_EditboxController: ExpansionViewController
 {
 
 }
@@ -99,7 +99,7 @@ class ExpansionMenuDialogContent_Editbox: ExpansionMenuDialogContentBase
 	}
 };
 
-class ExpansionMenuDialogContent_EditboxController: Controller
+class ExpansionMenuDialogContent_EditboxController: ExpansionViewController
 {
 	string EditBox;
 }

@@ -153,10 +153,10 @@ class ExpansionIngameHud extends Hud
 			m_NVOverlayImage 						= ImageWidget.Cast( m_NVPanel.FindAnyWidget("NVOverlay") );
 			m_NVBatteryIcon							= ImageWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryIcon") );
 			
-			m_NVBatteryIcon.LoadImageFile( 0, "DayZExpansion/GUI/icons/hud/battery_empty_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile( 1, "DayZExpansion/GUI/icons/hud/battery_low_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile( 2, "DayZExpansion/GUI/icons/hud/battery_med_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile( 3, "DayZExpansion/GUI/icons/hud/battery_high_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 0, "DayZExpansion/Core/GUI/icons/hud/battery_empty_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 1, "DayZExpansion/Core/GUI/icons/hud/battery_low_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 2, "DayZExpansion/Core/GUI/icons/hud/battery_med_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 3, "DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds");
 			
 			m_NVBatteryVal							= TextWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryVal") );
 		}

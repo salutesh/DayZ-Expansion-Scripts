@@ -64,7 +64,7 @@ class ExpansionDialogContent_TextScroller: ExpansionDialogContentBase
 	}
 };
 
-class ExpansionDialogContent_TextScrollerController: Controller
+class ExpansionDialogContent_TextScrollerController: ExpansionViewController
 {
 	string DialogText;
 }
@@ -123,7 +123,7 @@ class ExpansionMenuDialogContent_TextScroller: ExpansionMenuDialogContentBase
 	}
 };
 
-class ExpansionMenuDialogContent_TextScrollerController: Controller
+class ExpansionMenuDialogContent_TextScrollerController: ExpansionViewController
 {
 	string DialogText;
 }

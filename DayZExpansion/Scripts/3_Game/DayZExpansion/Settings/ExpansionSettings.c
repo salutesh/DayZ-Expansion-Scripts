@@ -20,7 +20,6 @@ modded class ExpansionSettings
 	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
 	static ref ScriptInvoker SI_Party = new ScriptInvoker();
 	static ref ScriptInvoker SI_Raid = new ScriptInvoker();
-	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 	static ref ScriptInvoker SI_Spawn = new ScriptInvoker();
 	static ref ScriptInvoker SI_Territory = new ScriptInvoker();
 	static ref ScriptInvoker SI_PlayerList = new ScriptInvoker();
@@ -33,7 +32,6 @@ modded class ExpansionSettings
 	protected ref ExpansionMissionSettings m_SettingsMission;
 	protected ref ExpansionNotificationSettings m_SettingsNotification;
 	protected ref ExpansionPartySettings m_SettingsParty;
-	protected ref ExpansionSafeZoneSettings m_SettingsSafeZone;
 	protected ref ExpansionSpawnSettings m_SettingsSpawn;
 	protected ref ExpansionRaidSettings m_SettingsRaid;
 	protected ref ExpansionTerritorySettings m_SettingsTerritory;
@@ -70,9 +68,6 @@ modded class ExpansionSettings
 		if ( m_SettingsRaid ) 
 			delete m_SettingsRaid;
 
-		if ( m_SettingsSafeZone ) 
-			delete m_SettingsSafeZone;
-
 		if ( m_SettingsSpawn ) 
 			delete m_SettingsSpawn;
 
@@ -103,7 +98,6 @@ modded class ExpansionSettings
 		LoadSetting( m_SettingsNotification );
 		LoadSetting( m_SettingsParty );
 		LoadSetting( m_SettingsRaid );
-		LoadSetting( m_SettingsSafeZone );
 		LoadSetting( m_SettingsSpawn );
 		LoadSetting( m_SettingsTerritory );
 		LoadSetting( m_SettingsPlayerList);
@@ -117,7 +111,6 @@ modded class ExpansionSettings
 		m_NetworkedSettings.Insert( "expansionnotificationsettings" );
 		m_NetworkedSettings.Insert( "expansionpartysettings" );
 		m_NetworkedSettings.Insert( "expansionraidsettings" );
-		// m_NetworkedSettings.Insert( "expansionsafezonesettings" );
 		m_NetworkedSettings.Insert( "expansionspawnsettings" );
 		m_NetworkedSettings.Insert( "expansionterritorysettings" );
 		m_NetworkedSettings.Insert( "expansionplayerlistsettings" );
@@ -143,7 +136,6 @@ modded class ExpansionSettings
 		m_SettingsNotification.Unload();
 		m_SettingsRaid.Unload();
 		m_SettingsParty.Unload();
-		m_SettingsSafeZone.Unload();
 		m_SettingsSpawn.Unload();
 		m_SettingsTerritory.Unload();
 		m_SettingsPlayerList.Unload();
@@ -194,9 +186,6 @@ modded class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsParty, m_SettingsLoaded ) )
 			return;
 
-		if ( !IsSettingLoaded( m_SettingsSafeZone, m_SettingsLoaded ) )
-			return;
-
 		if ( !IsSettingLoaded( m_SettingsSpawn, m_SettingsLoaded ) )
 			return;
 
@@ -229,7 +218,6 @@ modded class ExpansionSettings
 		m_SettingsNotification = new ExpansionNotificationSettings;
 		m_SettingsRaid = new ExpansionRaidSettings;
 		m_SettingsParty = new ExpansionPartySettings;
-		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
 		m_SettingsSpawn = new ExpansionSpawnSettings;
 		m_SettingsTerritory = new ExpansionTerritorySettings;
 		m_SettingsPlayerList = new ExpansionPlayerListSettings;
@@ -424,7 +412,6 @@ modded class ExpansionSettings
 			m_SettingsNotification.Save();
 			m_SettingsRaid.Save();
 			m_SettingsParty.Save();
-			m_SettingsSafeZone.Save();
 			m_SettingsSpawn.Save();
 			m_SettingsTerritory.Save();
 			m_SettingsPlayerList.Save();
@@ -490,14 +477,6 @@ modded class ExpansionSettings
 	ref ExpansionGeneralSettings GetGeneral()
 	{
 		return m_SettingsGeneral;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion ExpansionSafeZoneSettings GetSafeZone
-	// ------------------------------------------------------------
-	ref ExpansionSafeZoneSettings GetSafeZone()
-	{
-		return m_SettingsSafeZone;
 	}
 	
 	// ------------------------------------------------------------

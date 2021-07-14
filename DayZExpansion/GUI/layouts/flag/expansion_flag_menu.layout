@@ -116,7 +116,7 @@ FrameWidgetClass ExpansionFlagMenu {
          style blank
          "Scrollbar V" 1
          {
-          GridSpacerWidgetClass flag_textures_content {
+          WrapSpacerWidgetClass flag_textures_content {
            ignorepointer 0
            color 0 0 0 0
            size 1 1
@@ -128,8 +128,6 @@ FrameWidgetClass ExpansionFlagMenu {
            Margin 0
            "Size To Content H" 1
            "Size To Content V" 1
-           Columns 1
-           Rows 20
           }
          }
         }

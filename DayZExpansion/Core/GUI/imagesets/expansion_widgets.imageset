@@ -1,0 +1,56 @@
+ImageSetClass {
+ Name "expansion_widgets"
+ RefSize 1024 1024
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{D3F379EEE4E42B33}DayZExpansion/Core/GUI/imagesets/expansion_widgets.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass CheckboxNormal {
+   Name "CheckboxNormal"
+   Pos 14 19
+   Size 32 32
+   Flags 0
+  }
+  ImageSetDefClass CheckboxHover {
+   Name "CheckboxHover"
+   Pos 14 61
+   Size 32 32
+   Flags 0
+  }
+  ImageSetDefClass CheckboxMark {
+   Name "CheckboxMark"
+   Pos 14 103
+   Size 32 32
+   Flags 0
+  }
+  ImageSetDefClass CheckboxScrapsHover {
+   Name "CheckboxScrapsHover"
+   Pos 52 61
+   Size 32 32
+   Flags 0
+  }
+  ImageSetDefClass CheckboxScrapsMark {
+   Name "CheckboxScrapsMark"
+   Pos 52 103
+   Size 32 32
+   Flags 0
+  }
+  ImageSetDefClass CheckboxScrapsSquareHover {
+   Name "CheckboxScrapsSquareHover"
+   Pos 90 19
+   Size 32 32
+   Flags 0
+  }
+  ImageSetDefClass CheckboxSquareHover {
+   Name "CheckboxSquareHover"
+   Pos 90 61
+   Size 32 32
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

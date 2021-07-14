@@ -824,7 +824,7 @@ FrameWidgetClass main_menu_root {
        hexactsize 0
        vexactsize 0
        image0 ""
-       imageTexture "{764DDD38FF7B105D}DayZExpansion/GUI/icons/hud/questionmark_64x64.edds"
+       imageTexture "{764DDD38FF7B105D}DayZExpansion/Core/GUI/icons/hud/questionmark_64x64.edds"
        mode blend
        "src alpha" 1
        "no wrap" 0
@@ -861,7 +861,7 @@ FrameWidgetClass main_menu_root {
        hexactsize 0
        vexactsize 0
        image0 ""
-       imageTexture "{9396E6943BA57CF7}DayZExpansion/GUI/icons/hud/menu_64x64.edds"
+       imageTexture "{9396E6943BA57CF7}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
        mode blend
        "src alpha" 1
        "no wrap" 0
@@ -899,7 +899,7 @@ FrameWidgetClass main_menu_root {
        hexactsize 0
        vexactsize 0
        image0 ""
-       imageTexture "{125524A6EBBD86B5}DayZExpansion/GUI/icons/hud/toothwheels_64x64.edds"
+       imageTexture "{125524A6EBBD86B5}DayZExpansion/Core/GUI/icons/hud/toothwheels_64x64.edds"
        mode blend
        "src alpha" 1
        stretch 1
@@ -936,7 +936,7 @@ FrameWidgetClass main_menu_root {
        hexactsize 0
        vexactsize 0
        image0 ""
-       imageTexture "{D500AF65E210CA4E}DayZExpansion/GUI/icons/hud/switch_64x64.edds"
+       imageTexture "{D500AF65E210CA4E}DayZExpansion/Core/GUI/icons/hud/switch_64x64.edds"
        mode blend
        "src alpha" 1
        stretch 1

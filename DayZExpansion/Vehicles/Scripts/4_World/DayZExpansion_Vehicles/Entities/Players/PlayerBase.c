@@ -95,8 +95,9 @@ modded class PlayerBase
 		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
 		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
 
-		AddAction( ExpansionActionPickVehicleLock );
-		AddAction( ExpansionVehicleActionPickLock );
+		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
+		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
+		AddAction( ExpansionActionChangeVehicleLock, InputActionMap );
 
 		#ifdef EXPANSION_VEHICLE_TOWING
 		AddAction( ExpansionActionConnectTow, InputActionMap );

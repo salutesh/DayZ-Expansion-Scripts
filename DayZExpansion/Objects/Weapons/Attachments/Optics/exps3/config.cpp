@@ -31,6 +31,7 @@ class cfgVehicles
 		weight = 300;
 		itemSize[] = {2,1};
 		recoilModifier[] = {1,1,1};
+		dispersionModifier = -0.0005;
 		hiddenSelections[] = {"reddot"};
 		hiddenSelectionsTextures[] = {""};
 		class DamageSystem

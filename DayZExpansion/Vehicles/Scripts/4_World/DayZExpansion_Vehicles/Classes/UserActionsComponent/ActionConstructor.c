@@ -56,6 +56,7 @@ modded class ActionConstructor
 
 		actions.Insert( ExpansionActionPickVehicleLock );
 		actions.Insert( ExpansionVehicleActionPickLock );
+		actions.Insert( ExpansionActionChangeVehicleLock );
 
 		//! Boats
 		actions.Insert( ExpansionActionSwitchBoatController );

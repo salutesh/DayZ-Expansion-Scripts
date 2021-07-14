@@ -294,7 +294,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	void UpdateChatColors()
 	{
 		//! Make sure none of the colors are zero (all transparent)
-
 		if (!SystemChatColor)
 			SystemChatColor = ARGB(255, 186, 69, 186);
 		if (!AdminChatColor)

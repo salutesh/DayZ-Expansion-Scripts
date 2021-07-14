@@ -127,13 +127,18 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 	{
 		m_HasFloor = false;
 
+		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
+
+		super.OnPartBuiltServer(player, part_name, action_id );
+		UpdateVisuals();
+	}
+
+	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
+	{
 		if ( part_name == m_CurrentBuild + "_floorfinished" || part_name == m_CurrentBuild + "_hatchfinished" )
 		{
 			m_HasFloor = true;
 		}
-
-		super.OnPartBuiltServer(player, part_name, action_id );
-		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )

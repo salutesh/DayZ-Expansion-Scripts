@@ -45,7 +45,7 @@ class ExpansionScriptView: ExpansionScriptViewBase
 		return -1;
 	}
 	
-	private void CreateUpdateTimer()
+	protected void CreateUpdateTimer()
 	{
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
@@ -54,7 +54,7 @@ class ExpansionScriptView: ExpansionScriptViewBase
 		}
 	}
 	
-	private void DestroyUpdateTimer()
+	protected void DestroyUpdateTimer()
 	{
 		if (m_UpdateTimer)
 		{

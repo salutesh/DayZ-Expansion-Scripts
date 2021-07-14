@@ -67,7 +67,7 @@ class ExpansionDialogButton_Text: ExpansionDialogButtonBase
 	}
 }
 
-class ExpansionDialogButton_TextController: Controller
+class ExpansionDialogButton_TextController: ExpansionViewController
 {
 	string ButtonText;
 }
@@ -122,7 +122,7 @@ class ExpansionMenuDialogButton_Text: ExpansionMenuDialogButtonBase
 	}
 }
 
-class ExpansionMenuDialogButton_TextController: Controller
+class ExpansionMenuDialogButton_TextController: ExpansionViewController
 {
 	string ButtonText;
 }

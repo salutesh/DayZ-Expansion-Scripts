@@ -374,6 +374,16 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		m_HasGate = false;
 		m_HasWall = false;
 
+		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
+
+		SetAllowDamage(CanBeDamaged());
+		super.OnPartBuiltServer(player, part_name, action_id );
+
+		UpdateVisuals();
+	}
+
+	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
+	{
 		if ( part_name == m_CurrentBuild + "_windowfinished" )
 		{
 			m_HasWindow = true;
@@ -393,11 +403,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		{
 			m_HasWall = true;
 		}
-
-		SetAllowDamage(CanBeDamaged());
-		super.OnPartBuiltServer(player, part_name, action_id );
-
-		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )

@@ -26,10 +26,6 @@ modded class ActionBuildPart
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		//! Now it will check if we are in a safezone
-		if ( player.IsInSafeZone() )
-			return false;
-
 		//! It's not a territory flag, but his he in a territory
 		if ( player.IsInTerritory() )
 		{

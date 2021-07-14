@@ -14,9 +14,6 @@ modded class ActionFoldObject
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( player.IsInSafeZone() )
-			return false;
-
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 

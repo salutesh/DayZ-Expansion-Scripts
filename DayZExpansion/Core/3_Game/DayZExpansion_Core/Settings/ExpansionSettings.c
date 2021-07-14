@@ -14,9 +14,11 @@ class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Debug = new ScriptInvoker();
 	static ref ScriptInvoker SI_Log = new ScriptInvoker();
+	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 
 	protected ref ExpansionDebugSettings m_SettingsDebug;
 	protected ref ExpansionLogSettings m_SettingsLog;
+	protected ref ExpansionSafeZoneSettings m_SettingsSafeZone;
 
 	protected bool m_SettingsLoaded;
 	protected bool m_Debug;
@@ -48,6 +50,9 @@ class ExpansionSettings
 		
 		if ( m_SettingsLog)
 			delete m_SettingsLog;
+
+		if ( m_SettingsSafeZone ) 
+			delete m_SettingsSafeZone;
 	}
 
 	// ------------------------------------------------------------
@@ -71,6 +76,7 @@ class ExpansionSettings
 
 		LoadSetting( m_SettingsDebug );
 		LoadSetting( m_SettingsLog);
+		LoadSetting( m_SettingsSafeZone );
 
 		m_NetworkedSettings.Insert( "expansiondebugsettings" );
 		m_NetworkedSettings.Insert( "expansionlogsettings" );
@@ -87,6 +93,7 @@ class ExpansionSettings
 	{
 		m_SettingsDebug.Unload();
 		m_SettingsLog.Unload();
+		m_SettingsSafeZone.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -198,6 +205,9 @@ class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsLog, m_SettingsLoaded ) )
 			return;
 
+		if ( !IsSettingLoaded( m_SettingsSafeZone, m_SettingsLoaded ) )
+			return;
+
 		m_SettingsLoaded = true;
 		
 		#ifdef EXPANSIONEXPRINT
@@ -212,6 +222,7 @@ class ExpansionSettings
 	{
 		m_SettingsDebug = new ExpansionDebugSettings;
 		m_SettingsLog = new ExpansionLogSettings;
+		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
 
 		m_NetworkedSettings = new TStringArray;
 
@@ -328,6 +339,7 @@ class ExpansionSettings
 		{
 			m_SettingsDebug.Save();
 			m_SettingsLog.Save();
+			m_SettingsSafeZone.Save();
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -349,6 +361,14 @@ class ExpansionSettings
 	ref ExpansionLogSettings GetLog()
 	{
 		return m_SettingsLog;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionSafeZoneSettings GetSafeZone
+	// ------------------------------------------------------------
+	ref ExpansionSafeZoneSettings GetSafeZone()
+	{
+		return m_SettingsSafeZone;
 	}
 };
 

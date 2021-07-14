@@ -61,34 +61,6 @@ class CfgVehicles
 		scope = 1;
 		model = "\DayZExpansion\Objects\Basebuilding\Safes\Safe_03\Safe_03.p3d";
 	};
-	class bldr_expansion_goldbar: HouseNoDestruct
-	{
-		scope = 1;
-		model = "\DayZExpansion\Objects\Gear\Traders\gold_bar.p3d";
-		physLayer = "item_small";
-		carveNavmesh = 0;
-	};
-	class bldr_expansion_silverbar: HouseNoDestruct
-	{
-		scope = 1;
-		model = "\DayZExpansion\Objects\Gear\Traders\silver_bar.p3d";
-		physLayer = "item_small";
-		carveNavmesh = 0;
-	};
-	class bldr_expansion_goldnugget: HouseNoDestruct
-	{
-		scope = 1;
-		model = "\DayZExpansion\Objects\Gear\Traders\nugget_gold.p3d";
-		physLayer = "item_small";
-		carveNavmesh = 0;
-	};
-	class bldr_expansion_silvernugget: HouseNoDestruct
-	{
-		scope = 1;
-		model = "\DayZExpansion\Objects\Gear\Traders\nugget_silver.p3d";
-		physLayer = "item_small";
-		carveNavmesh = 0;
-	};
 	class bldr_expansion_LMG: HouseNoDestruct
 	{
 		scope = 1;

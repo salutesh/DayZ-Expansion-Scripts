@@ -54,8 +54,7 @@ class ExpansionVehicleAttachmentSave
 modded class CarScript
 {
 	private static ref array< ExpansionVehicleAttachmentSave > m_allAttachments = new array< ExpansionVehicleAttachmentSave >;
-	private static ref set< CarScript > m_allVehicles = new set< CarScript >;
-
+	
 	// ------------------------------------------------------------
 	//! Constant Values - Set in Constructor, Errors occur if not.
 	// ------------------------------------------------------------
@@ -81,6 +80,8 @@ modded class CarScript
 	// Vehicle locking
 	protected ExpansionVehicleLockState m_VehicleLockedState;
 
+	//! After pairing a key, it's the ID of the master key.
+	//! This allows "changing locks" on vehicles so old paired keys no longer work
 	protected int m_PersistentIDA;
 	protected int m_PersistentIDB;
 	protected int m_PersistentIDC;
@@ -223,8 +224,6 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool( "m_CanSimulate" );
 
-		m_allVehicles.Insert( this );
-
 		m_DebugShapes = new array< Shape >();
 
 		m_Lights = new array< ref ExpansionPointLight >;
@@ -241,10 +240,6 @@ modded class CarScript
 
 		LoadConstantVariables();
 
-		if ( IsMissionHost() )
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
-
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
 		ExpansionSettings.SI_Vehicle.Insert( OnSettingsUpdated );
@@ -271,12 +266,6 @@ modded class CarScript
 		#endif
 
 		int i;
-
-		i = m_allVehicles.Find( this );
-		if ( i >= 0 )
-		{
-			m_allVehicles.Remove( i );
-		}
 
 		if ( IsMissionClient( ) )
 		{
@@ -335,19 +324,13 @@ modded class CarScript
 		#endif
 	}
 
-#ifdef DAYZ_1_12
-	void DeferredInit()
-#else
 	override void DeferredInit()
-#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::DeferredInit - Start");
 		#endif
 		
-		#ifndef DAYZ_1_12
 		super.DeferredInit();
-		#endif
 
 		m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
@@ -368,11 +351,6 @@ modded class CarScript
 	void OnSettingsUpdated()
 	{
 		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
-	}
-
-	static set< CarScript > GetAll()
-	{
-		return m_allVehicles;
 	}
 
 	ref ExpansionVehicleController GetExpansionController()
@@ -699,8 +677,6 @@ modded class CarScript
 			m_PersistentIDB = 0;
 			m_PersistentIDC = 0;
 			m_PersistentIDD = 0;
-
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
 			m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
 
@@ -1383,14 +1359,14 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------
-	bool CanBeDamaged()
+	override bool CanBeDamaged()
 	{
 		if ( GetExpansionSettings().GetVehicle().DisableVehicleDamage )
 		{
 			return false;
 		}
 
-		return true;
+		return super.CanBeDamaged();
 	}
 
 	// ------------------------------------------------------------	
@@ -2630,6 +2606,8 @@ modded class CarScript
 
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return true;
+
+		m_ExpansionSaveVersion = storage.GetVersion();
 
 		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;

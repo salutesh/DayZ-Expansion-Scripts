@@ -24,10 +24,6 @@ modded class CarScript
 	protected string m_ServerMarker;
 	protected static int m_ServerMarkerIndex = 0;
 	
-	// Safezone
-	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
-	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -98,111 +94,6 @@ modded class CarScript
 		}
 	}
 
-	// ------------------------------------------------------------
-	bool IsInSafeZone()
-	{
-		return m_SafeZone;
-	}
-
-	// ------------------------------------------------------------
-	override bool CanBeDamaged()
-	{
-		if ( GetExpansionSettings().GetSafeZone().Enabled && !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
-		{
-			if ( IsInSafeZone() )
-			{
-				return false;
-			}
-		}
-
-		return super.CanBeDamaged();
-	}
-
-	// ------------------------------------------------------------
-	// Called only server side
-	// ------------------------------------------------------------
-	void OnEnterSafeZone()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnEnterSafeZone - Start");
-		#endif
-
-		m_SafeZone = true;
-
-		/*if ( IsMissionHost() )
-		{
-			m_SafeZoneSynchRemote = true;
-
-			SetAllowDamage( false );
-
-			SetSynchDirty();
-		}
-
-		if ( IsMissionClient() )
-		{
-			
-		}
-		*/
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnEnterSafeZone - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// Called only server side
-	// ------------------------------------------------------------
-	void OnLeftSafeZone()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnLeftSafeZone - Start");
-		#endif
-		
-		m_SafeZone = false;
-
-		/*if ( IsMissionHost() )
-		{
-			m_SafeZoneSynchRemote = false;
-
-			SetAllowDamage( true );
-			
-			SetSynchDirty();
-		}
-
-		if ( IsMissionClient() )
-		{
-			
-		}*/
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnLeftSafeZone - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// OnVariablesSynchronized
-	// ------------------------------------------------------------
-	override void OnVariablesSynchronized()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnVariablesSynchronized - Start");
-		#endif
-
-		super.OnVariablesSynchronized();
-
-		if ( m_SafeZoneSynchRemote && !m_SafeZone )
-		{
-			OnEnterSafeZone();
-		} else if ( !m_SafeZoneSynchRemote && m_SafeZone )
-		{
-			OnLeftSafeZone();
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnVariablesSynchronized - End");
-		#endif
-	}
-	
 	// ------------------------------------------------------------
 	//! Called when entity is being created as new by CE/ Debug
 	override void EEOnCECreate()

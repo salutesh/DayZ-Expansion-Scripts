@@ -15,6 +15,8 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
+	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
+	
 	#ifdef EXPANSIONMODVEHICLE
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
 	bool VehicleTowing;			//! If enabled, generate logs about towing and untowing vehicles
@@ -27,7 +29,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool Territory;				//! If enabled, generate logs about creating, deleting territories and inviting players
 
 	bool Killfeed;				//! If enabled, generate logs based on the killfeed module
-	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool Party;					//! If enabled, generate logs when the player create a party or invite someone
 	bool Chat;					//! If enabled, generate logs of the chat
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
@@ -129,6 +130,8 @@ class ExpansionLogSettings: ExpansionSettingBase
 		EXPrint("ExpansionLogSettings::CopyInternal - Start");
 		#endif
 
+		Safezone = s.Safezone;
+
 		#ifdef EXPANSIONMODVEHICLE
 		VehicleCarKey = s.VehicleCarKey;
 		VehicleTowing = s.VehicleTowing;
@@ -139,7 +142,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 		BaseBuildingRaiding = s.BaseBuildingRaiding;
 		CodeLockRaiding = s.CodeLockRaiding;
 		Killfeed = s.Killfeed;
-		Safezone = s.Safezone;
 		Party = s.Party;
 		Territory = s.Territory;
 		Chat = s.Chat;
@@ -226,6 +228,8 @@ class ExpansionLogSettings: ExpansionSettingBase
 	{
 		Print("[ExpansionLogSettings] Loading default settings");
 
+		Safezone = true;
+
 		#ifdef EXPANSIONMODVEHICLE
 		VehicleCarKey = true;
 		VehicleTowing = true;
@@ -236,7 +240,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 		BaseBuildingRaiding = true;
 		CodeLockRaiding = true;
 		Killfeed = true;
-		Safezone = true;
 		Party = true;
 		Territory = true;
 		Chat = true;

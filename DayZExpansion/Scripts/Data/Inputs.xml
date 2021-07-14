@@ -3,7 +3,6 @@
 <modded_inputs>
     <inputs>
         <actions>
-            <input name="UAExpansionBookToggle" loc="STR_EXPANSION_TOGGLE_BOOK" />
             <input name="UAExpansionMapDeleteMarker" loc="STR_EXPANSION_DELETE_MARKER" />
 			<input name="UAExpansionMapToggle" loc="STR_EXPANSION_TOGGLE_MAP" />
 			<input name="UAExpansionPlayerListToggle" loc="STR_EXPANSION_TOGGLE_PLAYER_LIST" />
@@ -30,7 +29,6 @@
         </actions>
 		
 		<exclude name="chatexpansion">
-			<input name="UAExpansionBookToggle" />
 			<input name="UAExpansionMapDeleteMarker" />
 			<input name="UAExpansionMapToggle" />
 			<input name="UAExpansionPlayerListToggle" />
@@ -48,9 +46,6 @@
     </inputs>
 
     <preset>
-        <input name="UAExpansionBookToggle">
-            <btn name="kB" />
-        </input>
         <input name="UAExpansionMapDeleteMarker">
             <btn name="kDelete" />
         </input>

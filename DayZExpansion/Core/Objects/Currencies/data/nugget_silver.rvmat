@@ -1,0 +1,70 @@
+////////////////////////////////////////////////////////////////////
+//DeRap: Core\Objects\Currencies\data\nugget_silver.rvmat
+//Produced from mikero's Dos Tools Dll version 7.92
+//https://mikero.bytex.digital/Downloads
+//'now' is Wed Jul 14 21:52:05 2021 : 'file' last modified on Wed Jul 14 21:45:03 2021
+////////////////////////////////////////////////////////////////////
+
+#define _ARMA_
+
+ambient[] = {1,1,1,1};
+diffuse[] = {1,1,1,1};
+forcedDiffuse[] = {0,0,0,0};
+emmisive[] = {0,0,0,1};
+specular[] = {1,1,1,1};
+specularPower = 25;
+PixelShaderID = "Super";
+VertexShaderID = "Super";
+class Stage2
+{
+	texture = "#(argb,8,8,3)color(0.5,0.5,0.5,1,DT)";
+	uvSource = "tex";
+	class uvTransform
+	{
+		aside[] = {1,0,0};
+		up[] = {0,1,0};
+		dir[] = {0,0,0};
+		pos[] = {0,0,0};
+	};
+};
+class Stage3
+{
+	texture = "#(argb,8,8,3)color(0,0,0,0,MC)";
+	uvSource = "tex";
+	class uvTransform
+	{
+		aside[] = {1,0,0};
+		up[] = {0,1,0};
+		dir[] = {0,0,0};
+		pos[] = {0,0,0};
+	};
+};
+class Stage5
+{
+	texture = "DayZExpansion\Core\Objects\Currencies\data\nugget_gold_smdi.paa";
+	uvSource = "tex";
+	class uvTransform
+	{
+		aside[] = {1,0,0};
+		up[] = {0,1,0};
+		dir[] = {0,0,0};
+		pos[] = {0,0,0};
+	};
+};
+class Stage6
+{
+	texture = "#(ai,64,64,1)fresnel(1.82,0.71)";
+	uvSource = "none";
+};
+class Stage7
+{
+	texture = "dz\data\data\env_chrome_co.paa";
+	uvSource = "tex";
+	class uvTransform
+	{
+		aside[] = {1,0,0};
+		up[] = {0,1,0};
+		dir[] = {0,0,1};
+		pos[] = {0,0,0};
+	};
+};

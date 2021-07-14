@@ -20,7 +20,6 @@ modded class ItemBase
 	//============================================
 	void ItemBase()
 	{
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( DeferredInit );
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 	}
 
@@ -29,24 +28,6 @@ modded class ItemBase
 	//============================================	
 	void LongDeferredInit()
 	{
-	}
-	
-	//============================================
-	// DeferredInit
-	//============================================	
-#ifdef DAYZ_1_12
-	void DeferredInit()
-#else
-	override void DeferredInit()
-#endif
-	{
-		#ifndef DAYZ_1_12
-		super.DeferredInit();
-		#endif
-
-		//CreateDynamicPhysics(PhxInteractionLayers.DYNAMICITEM);
-		//SetDynamicPhysicsLifeTime(-1);
-		//dBodyActive(this, ActiveState.INACTIVE);
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE

@@ -52,8 +52,8 @@ class cfgWeapons
 		reloadAction = "Reloadcz527";
 		shotAction = "Reloadcz527Shot";
 		hiddenSelections[] = {};
-		modes[] = {"Single"};
-		class Single: Mode_SemiAuto
+		modes[] = {"SemiAuto"};
+		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"SVD_Shot_SoundSet","SVD_Tail_SoundSet","SVD_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"SVD_silencerHomeMade_SoundSet","SVD_silencerHomeMadeTail_SoundSet","SVD_silencerInteriorHomeMadeTail_SoundSet"}};

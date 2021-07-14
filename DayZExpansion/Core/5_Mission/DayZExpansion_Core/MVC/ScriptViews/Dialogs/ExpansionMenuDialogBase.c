@@ -98,7 +98,7 @@ class ExpansionMenuDialogBase: ExpansionScriptView
 	}
 }
 
-class ExpansionMenuDialogBaseController: Controller
+class ExpansionMenuDialogBaseController: ExpansionViewController
 {
 	ref ObservableCollection<ref ExpansionMenuDialogContentBase> DialogContents = new ObservableCollection<ref ExpansionMenuDialogContentBase>(this);
 	ref ObservableCollection<ref ExpansionMenuDialogButtonBase> DialogButtons = new ObservableCollection<ref ExpansionMenuDialogButtonBase>(this);

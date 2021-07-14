@@ -169,7 +169,7 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	}
 }
 
-class ExpansionIngameHudPartyMemberController: Controller
+class ExpansionIngameHudPartyMemberController: ExpansionViewController
 {
 	Object PlayerObject;
 	int PlayerHealth;

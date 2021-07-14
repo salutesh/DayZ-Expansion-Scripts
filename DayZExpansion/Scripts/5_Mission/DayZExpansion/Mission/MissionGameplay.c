@@ -286,6 +286,10 @@ modded class MissionGameplay
 
 		if (g_Game.GetProfileOption(EDayZProfilesOptions.PLAYER_MESSAGES))
 			return;
+
+		//! Initialize direct chat channel name to correct color
+		if ( m_ChatChannel == ExpansionChatChannels.CCDirect )
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
 				
 		exp_m_ChannelNameTimeoutTimer.Stop();
 		exp_m_ChannelTimeoutTimer.Stop();
@@ -806,17 +810,6 @@ modded class MissionGameplay
 					ExpansionPlayerData();
 					m_DataSent = true;
 				}
-				
-				//! Close current opened expansion script view menu when ESC is pressed
-				if (input.LocalPress("UAUIBack", false))
-				{
-					if (GetDayZExpansion().GetExpansionUIManager().GetMenu() && GetDayZExpansion().GetExpansionUIManager().GetMenu().IsVisible())
-						GetDayZExpansion().GetExpansionUIManager().CloseMenu();
-				}
-				
-				//! If we have a active vanilla menu and a active expansion script view menu then close the expansion script view menu
-				if (topMenu && GetDayZExpansion().GetExpansionUIManager().GetMenu())
-					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 			}
 			
 			//! Nightvision check

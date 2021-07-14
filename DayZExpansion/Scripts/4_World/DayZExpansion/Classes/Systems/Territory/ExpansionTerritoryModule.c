@@ -837,7 +837,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			SyncPlayersInvites(currPlayerInvite);
 		}
 		
-		if ( GetExpansionSettings().GetLog().Territory )
+		if ( sender && GetExpansionSettings().GetLog().Territory )
 			GetExpansionSettings().GetLog().PrintLog( "[Territory] Admin \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
 		
 		//Don't forget to set it as null before to delete, to not do a infinte loop
