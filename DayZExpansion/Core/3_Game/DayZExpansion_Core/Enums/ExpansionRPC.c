@@ -24,9 +24,6 @@ enum ExpansionPartyModuleRPC
 	UpdatePositionMarker,
 	DeleteMarker,
 	
-	PromotePlayer,
-	DemotePlayer,
-
 	InvitePlayer,
 	DeclineInvite,
 	AcceptInvite,
@@ -74,8 +71,8 @@ enum ExpansionMarketModuleRPC
 	ConfirmWithdrawMoney,
 	RequestTransferMoneyToPlayer,
 	ConfirmTransferMoneyToPlayer,
-	RequestPartyDepositMoney,
-	ConfirmPartyDepositMoney,
+	RequestPartyTransferMoney,
+	ConfirmPartyTransferMoney,
 	RequestPartyWithdrawMoney,
 	ConfirmPartyWithdrawMoney,
 	
@@ -133,6 +130,8 @@ enum ExpansionMonitorRPC
 	SendMessage,
 	RequestPlayerStats,
 	SendPlayerStats,
+	RequestPlayerStates,
+	SendPlayerStates
 	COUNT
 };
 

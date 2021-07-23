@@ -44,7 +44,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
     GridSpacerWidgetClass SidePanel {
      visible 1
      ignorepointer 1
-     position 0 78.56
+     position 0 79
      size 64 138
      halign right_ref
      valign center_ref
@@ -202,38 +202,6 @@ FrameWidgetClass ExpansionIngameHudFrame {
        hexactsize 1
        vexactsize 1
        style rover_sim_colorable
-      }
-     }
-    }
-    WrapSpacerWidgetClass LeftHUDPanel {
-     visible 1
-     clipchildren 0
-     ignorepointer 1
-     position 0 0.2
-     size 0.2 0.7
-     valign bottom_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     priority 99
-     Padding 4
-     Margin 0
-     "Size To Content V" 1
-     {
-      WrapSpacerWidgetClass PartyMembers {
-       visible 1
-       ignorepointer 1
-       position 0.08177 0.205
-       size -0.01361 0.984
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       priority 99
-       Padding 5
-       Margin 0
-       "Size To Content V" 1
       }
      }
     }
@@ -795,20 +763,29 @@ FrameWidgetClass ExpansionIngameHudFrame {
   }
   PanelWidgetClass MiniMapHUD {
    visible 0
-   position 0.01 0.015
    size 0.16 0.27
    halign right_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 0
+   {
+    MapWidgetClass MiniMap {
+     size 1 1
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+    }
+   }
   }
   PanelWidgetClass CompassHUD {
    visible 0
    clipchildren 0
    ignorepointer 1
    keepsafezone 1
-   position 0 0.05
+   position 0 -0.002
    size 0.35 32
    halign center_ref
    hexactpos 0
@@ -817,10 +794,11 @@ FrameWidgetClass ExpansionIngameHudFrame {
    vexactsize 1
    {
     PanelWidgetClass CompassBackground {
+     visible 0
      clipchildren 1
      ignorepointer 1
      color 0 0 0 0.549
-     size 1.01 1
+     size 1 1
      halign center_ref
      hexactpos 0
      vexactpos 0
@@ -842,7 +820,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
        clipchildren 1
        ignorepointer 1
        keepsafezone 1
-       color 1 1 1 0.549
+       color 0.8627 0.8627 0.8627 1
        position 0 0
        size 3.15 1
        halign center_ref
@@ -854,7 +832,7 @@ FrameWidgetClass ExpansionIngameHudFrame {
        imageTexture "{3436B1815E2BCB0A}DayZExpansion/GUI/textures/compass.edds"
        mode blend
        "src alpha" 1
-       "no wrap" 1
+       "no wrap" 0
        stretch 1
        "flip u" 0
        "flip v" 0
@@ -935,6 +913,37 @@ FrameWidgetClass ExpansionIngameHudFrame {
        style rover_sim_colorable
       }
      }
+    }
+   }
+  }
+  WrapSpacerWidgetClass LeftHUDPanel {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   position 0.025 0.2
+   size 0.1 0.7
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 99
+   Margin 0
+   "Size To Content V" 1
+   {
+    WrapSpacerWidgetClass PartyMembers {
+     visible 1
+     ignorepointer 1
+     position 0.08177 0.205
+     size 0.95 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 99
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
     }
    }
   }

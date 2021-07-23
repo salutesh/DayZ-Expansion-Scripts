@@ -15,8 +15,11 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	ref ExpansionIngameHud m_ExpansionHUD;
 	ref ExpansionIngameHudPartyMemberController m_PartyMemberController;
 	ref SyncPlayer m_SyncedPlayer;
-	PlayerPreviewWidget PlayerFace;
+	//PlayerPreviewWidget PlayerFace;
 	ProgressBarWidget PlayerHealth;
+	ImageWidget Bones;
+	ImageWidget Sick;
+	ImageWidget Poisoned;
 	
 	int m_CurrentHealth;
 	int m_CurrentBlood;
@@ -34,6 +37,9 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		{
 			monitorModule.m_StatsInvoker.Insert(this.OnDataRecived);
 			monitorModule.RequestPlayerStats(m_SyncedPlayer.m_RUID);
+			
+			monitorModule.m_StatesInvoker.Insert(this.OnStateDataRecived);
+			monitorModule.RequestPlayerStates(m_SyncedPlayer.m_RUID);
 		}
 		
 		SetView();
@@ -45,6 +51,7 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		if (monitorModule)
 		{
 			monitorModule.m_StatsInvoker.Remove(this.OnDataRecived);
+			monitorModule.m_StatsInvoker.Remove(this.OnStateDataRecived);
 		}
 	}
 	
@@ -72,6 +79,11 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	void OnDataRecived(ref ExpansionSyncedPlayerStats player_stats)
 	{
 		SetHealth(player_stats);
+	}
+	
+	void OnStateDataRecived(ref ExpansionSyncedPlayerStates player_states)
+	{
+		SetStates(player_states);
 	}
 	
 	void SetHealth(ref ExpansionSyncedPlayerStats player_stats)
@@ -126,6 +138,36 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		}
 	}
 	
+	void SetStates(ref ExpansionSyncedPlayerStates player_states)
+	{
+		if (player_states.m_Bones > 0)
+		{
+			Bones.Show(true);
+		}
+		else
+		{
+			Bones.Show(false);
+		}
+		
+		if (player_states.m_Sick > 0 || player_states.m_Cholera > 0 || player_states.m_Infection > 0 || player_states.m_Influenza > 0 || player_states.m_Salmonella > 0)
+		{
+			Sick.Show(true);
+		}
+		else
+		{
+			Sick.Show(false);
+		}
+	
+		if (player_states.m_Poison > 0)
+		{
+			Poisoned.Show(true);
+		}
+		else
+		{
+			Poisoned.Show(false);
+		}
+	}
+	
 	/*void SetRankIcon(ref ExpansionSyncedPlayerStats player_stats)
 	{
 		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
@@ -165,6 +207,7 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		if (monitorModule)
 		{
 			monitorModule.RequestPlayerStats(m_SyncedPlayer.m_RUID);
+			monitorModule.RequestPlayerStates(m_SyncedPlayer.m_RUID);
 		}
 	}
 }

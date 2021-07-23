@@ -2868,7 +2868,17 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::ExpansionSetupSkins - End");
 		#endif
-	}	
+	}
+
+	override array< ExpansionSkin > ExpansionGetSkins()
+	{
+		return m_Skins;
+	}
+
+	override bool ExpansionHasSkin( int skinIndex )
+	{
+		return skinIndex > -1 && skinIndex < m_Skins.Count();
+	}
 
 	override void EEHealthLevelChanged( int oldLevel, int newLevel, string zone )
 	{

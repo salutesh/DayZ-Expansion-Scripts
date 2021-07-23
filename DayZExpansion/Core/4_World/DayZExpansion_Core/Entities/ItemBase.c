@@ -215,6 +215,12 @@ modded class ItemBase
 	{
 		return false;
 	}
+	
+	//! Return true if the item contains liquid
+	bool ExpansionIsLiquidItem()
+	{
+		return IsLiquidContainer() || IsKindOf("SodaCan_ColorBase");
+	}
 
 	/*! ExpansionActionOn<...>
 
@@ -355,6 +361,16 @@ modded class ItemBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ItemBase::ExpansionSetupSkins End");
 		#endif
+	}
+
+	array< ExpansionSkin > ExpansionGetSkins()
+	{
+		return m_Skins;
+	}
+
+	bool ExpansionHasSkin( int skinIndex )
+	{
+		return skinIndex > -1 && skinIndex < m_Skins.Count();
 	}
 
 	//============================================

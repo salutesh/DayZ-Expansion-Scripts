@@ -19,14 +19,14 @@ class ExpansionKillFeedModule: JMModuleBase
 	private string							m_PlayerSteamWebhook2;
 	
 	private string							m_DisplayName;
-	private PlayerBase						m_Player;
-	private PlayerBase						m_Source;
-	private PlayerStat<float>				m_StatWater;
-	private PlayerStat<float>				m_StatEnergy;
+	private PlayerBase					m_Player;
+	private PlayerBase					m_Source;
+	private PlayerStat<float>		m_StatWater;
+	private PlayerStat<float>		m_StatEnergy;
 	private float							m_StatBlood;
 	private EntityAI 						m_ItemEntity;
 	
-	private bool							m_HitCheckDone;
+	private bool								m_HitCheckDone;
 	
 	// void EventOnPlayerKilled(ExpansionPlayerDeathType deathType, PlayerBase player, PlayerBase killer = null, EntityAI source = null)
 	static ref ScriptInvoker				s_EventOnPlayerDeath = new ScriptInvoker();
@@ -48,27 +48,27 @@ class ExpansionKillFeedModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionKillFeedModule PlayerHitBy
+	// ExpansionKillFeedModule OnPlayerHitBy
 	// Event executed from playerbase EEHitBy function
 	// ------------------------------------------------------------	
-	void PlayerHitBy(int damageType, PlayerBase player, EntityAI source, string ammo)
+	void OnPlayerHitBy(int damageType, PlayerBase player, EntityAI source, string ammo)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::PlayerHitBy - Start" );
+		EXLogPrint( "ExpansionKillFeedModule::OnPlayerHitBy - Start" );
 		#endif
 		
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
 		m_HitCheckDone = false;
 		
-		if( player && !player.IsAlive() )
-			GetGame().AdminLog( "Expansion KillFeed - Player " + m_PlayerPrefix + " hit by " + source.GetDisplayName() + " [DmgType: " + damageType.ToString() + " | Ammo: " + ammo + "]" );
+		if (GetExpansionSettings().GetLog().Killfeed)
+			GetExpansionSettings().GetLog().PrintLog("[Killfeed] - Player " + m_PlayerPrefix + " hit by " + source.GetDisplayName() + " [DmgType: " + damageType.ToString() + " | Ammo: " + ammo + "]" );
 		
 		switch ( damageType )
 		{
 			case DT_CUSTOM:
 				#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-				EXLogPrint( "ExpansionKillFeedModule::PlayerHitBy - DT_CUSTOM" );
+				EXLogPrint( "ExpansionKillFeedModule::OnPlayerHitBy - DT_CUSTOM" );
 				#endif
 				if( ammo == "FallDamage" )											//! Fall damage
 				{
@@ -89,7 +89,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			break;
 			case DT_EXPLOSION:
 				#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-				EXLogPrint( "ExpansionKillFeedModule::PlayerHitBy - DT_EXPLOSION" );
+				EXLogPrint( "ExpansionKillFeedModule::OnPlayerHitBy - DT_EXPLOSION" );
 				#endif
 				if( ammo == "ExpansionC4_Ammo" )									//! Expansion Satchel
 				{
@@ -99,7 +99,7 @@ class ExpansionKillFeedModule: JMModuleBase
 		}
 		
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::PlayerHitBy - End" );
+		EXLogPrint( "ExpansionKillFeedModule::OnPlayerHitBy - End" );
 		#endif
 	}
 	
@@ -339,13 +339,19 @@ class ExpansionKillFeedModule: JMModuleBase
 		
 		if( source.GetHierarchyParent().IsKindOf( "CarScript" ) )							//! Check if hit came from a car
 		{
-			Print("ExpansionKillFeedModule::OnAreaDamage - Car");
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint("ExpansionKillFeedModule::OnAreaDamage - Car");
+			#endif
 		} else if( source.GetHierarchyParent().IsKindOf( "ExpansionHelicopterScript" ) )	//! Check if hit came from a helicopter
 		{
-			Print("ExpansionKillFeedModule::OnAreaDamage - Heli");
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint("ExpansionKillFeedModule::OnAreaDamage - Heli");
+			#endif
 		} else if( source.GetHierarchyParent().IsKindOf( "ExpansionBoatScript" ) )			//! Check if hit came from a boat
 		{
-			Print("ExpansionKillFeedModule::OnAreaDamage - Boat");
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint("ExpansionKillFeedModule::OnAreaDamage - Boat");
+			#endif
 		}
 		
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
@@ -368,7 +374,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		if (source.ClassName() == "Expansion_C4_Explosion")
 		{
 			m_DisplayName = "ExpansionSatchel";
-			Print("ExpansionKillFeedModule::OnExplosionHit m_DisplayName: " + m_DisplayName);
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint("ExpansionKillFeedModule::OnExplosionHit m_DisplayName: " + m_DisplayName);
+			#endif
 		}	
 		
 		if ( player && !player.IsAlive() )
@@ -387,74 +395,34 @@ class ExpansionKillFeedModule: JMModuleBase
 		EXLogPrint( "ExpansionKillFeedModule::OnExplosionHit - End" );
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionKillFeedModule PlayerKilled
-	// ------------------------------------------------------------		
-	void PlayerKilled( PlayerBase player, Object source )  // PlayerBase.c   
-	{
-		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::PlayerKilled - Start" );
-		#endif
 		
-		Print("ExpansionKillFeedModule::PlayerKilled - m_HitCheckDone: " + m_HitCheckDone.ToString());
-		
-		if ( player && source && !m_HitCheckDone)
-		{
-			m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
-			m_PlayerSteamWebhook = player.FormatSteamWebhook();
-			
-			if( player == source )	// Deaths not caused by another object (starvation, dehydration, bloodloss or suicide)
-			{
-				OnKilledSelf(player, source);
-			} else if( source.IsWeapon() || source.IsMeleeWeapon() )  // Player Weapon
-			{				
-				OnKilledByWeapon(player, source);
-			} else if(source.IsInherited(PlayerBase)) 	// Player
-			{
-				OnKilledByPlayer(player, source);
-			} else if(source.IsInherited(ZombieBase))	// Zombie
-			{
-				OnKilledByZombie(player, source);
-			} else if(source.IsInherited(AnimalBase))	// Animal
-			{
-				OnKilledByAnimal(player, source);
-			} else 										// Unknown source
-			{
-				//OnKilledUnknown(player, source);
-			}
-		}
-
-		if (m_HitCheckDone)
-			m_HitCheckDone = false;
-				
-		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::PlayerKilled - End" );
-		#endif
-	}
-	
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule CalcBlood
-	// ------------------------------------------------------------	
-	private float CalcBlood( PlayerBase player )
+	// ------------------------------------------------------------
+	protected int CalcBlood(PlayerBase player)
 	{
-		float blood;
-		float max_blood = player.GetMaxHealth("GlobalHealth", "Blood");
-		
-		blood = Math.Round(player.GetHealth("GlobalHealth", "Blood"));
-		blood = blood / max_blood;
-		
-		return blood;
+		return CalcPercent(player.GetHealth("", "Blood") - 2500,  2500);
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionKillFeedModule OnKilledSelf
+	// ExpansionKillFeedModule CalcPercent
+	// ------------------------------------------------------------
+	protected int CalcPercent(float value, float max)
+	{
+		return (Math.Round(value) * 100)/max;
+	}
+		
+	// ------------------------------------------------------------
+	// ExpansionKillFeedModule OnKilledByCondition
 	// ------------------------------------------------------------	
-	private void OnKilledSelf(PlayerBase player, Object source)
-	{		
+	bool OnKilledByCondition(PlayerBase player, Object source)
+	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::OnKilledSelf - Start" );
+		EXLogPrint( "ExpansionKillFeedModule::OnKilledByCondition - Start" );
 		#endif
+			
+		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		m_PlayerSteamWebhook = player.FormatSteamWebhook();
 				
 		m_StatWater = player.GetStatWater();
 		m_StatEnergy = player.GetStatEnergy();
@@ -465,18 +433,42 @@ class ExpansionKillFeedModule: JMModuleBase
 			KillFeedMessage( ExpansionKillFeedMessageType.DEHYDRATION, ExpansionIcons.GetPath("Water"), m_PlayerPrefix );
 			s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.DEHYDRATION, player);
 			DiscordMessage( ExpansionKillFeedMessageType.DEHYDRATION, m_PlayerSteamWebhook );
+			return true;
 		} else if (m_StatEnergy && m_StatEnergy.Get() == 0)
 		{
 			KillFeedMessage( ExpansionKillFeedMessageType.STARVATION, ExpansionIcons.GetPath("Heart"), m_PlayerPrefix);
 			s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.STARVATION, player);
 			DiscordMessage( ExpansionKillFeedMessageType.STARVATION, m_PlayerSteamWebhook );
+			return true;
 		} else if (m_StatBlood && m_StatBlood < 0.9)
 		{
 			KillFeedMessage( ExpansionKillFeedMessageType.BLEEDING, ExpansionIcons.GetPath("Human Skull"), m_PlayerPrefix );
 			s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.BLEEDING, player);
 			DiscordMessage( ExpansionKillFeedMessageType.BLEEDING, m_PlayerSteamWebhook );
-		} else
+			return true;
+		}
+		
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint( "ExpansionKillFeedModule::OnKilledByCondition - End" );
+		#endif
+			
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionKillFeedModule OnPlayerSuicide
+	// ------------------------------------------------------------	
+	void OnPlayerSuicide(PlayerBase player)
+	{
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint( "ExpansionKillFeedModule::OnPlayerSuicide - Start" );
+		#endif
+		
+		if (player)
 		{
+			m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+			m_PlayerSteamWebhook = player.FormatSteamWebhook();
+					
 			// Check if player has something in hands
 			m_ItemEntity = EntityAI.Cast( player.GetHumanInventory().GetEntityInHands() );
 			if ( m_ItemEntity )
@@ -510,10 +502,12 @@ class ExpansionKillFeedModule: JMModuleBase
 				}
 			}
 			
-			Print("ExpansionKillFeedModule::OnKilledSelf - Hierarchy Parent: " + player.GetHierarchyParent().ToString());
-			Print("ExpansionKillFeedModule::OnKilledSelf - Hierarchy Root: " + player.GetHierarchyRoot().ToString());
-			
-			array<string> names;
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - Hierarchy Parent: " + player.GetHierarchyParent().ToString());
+			EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - Hierarchy Root: " + player.GetHierarchyRoot().ToString());
+			#endif
+				
+			/*array<string> names;
 			IEntity child;
 			PlayerBase childPB;
 			int i;
@@ -532,10 +526,14 @@ class ExpansionKillFeedModule: JMModuleBase
 					{
 						if( car.IsCar() )
 						{
-							Print("ExpansionKillFeedModule::OnKilledSelf - HumanCommandVehicle Car BOOM: " + car.ClassName());
+							#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+							EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - HumanCommandVehicle Car BOOM: " + car.ClassName());
+							#endif
 							if( car.IsExploded() )
 							{
-								Print("ExpansionKillFeedModule::OnKilledSelf - CarScript GetChildren: " + car.GetChildren());
+								#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+								EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - CarScript GetChildren: " + car.GetChildren());
+								#endif
 								m_DisplayName = "";
 								m_DisplayName = car.ClassName();
 								
@@ -579,11 +577,15 @@ class ExpansionKillFeedModule: JMModuleBase
 							}
 						} else if( car.IsHelicopter() )
 						{
-							Print("ExpansionKillFeedModule::OnKilledSelf - HumanCommandVehicle Heli BOOM: " + car.ClassName());
+							#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+							EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - HumanCommandVehicle Heli BOOM: " + car.ClassName());
+							#endif
 							ExpansionHelicopterScript exheli = ExpansionHelicopterScript.Cast( car );
 							if( exheli && exheli.IsExploded() )
 							{
-								Print("ExpansionKillFeedModule::OnKilledSelf - ExpansionHelicopterScript GetChildren: " + exheli.GetChildren());
+								#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+								EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - ExpansionHelicopterScript GetChildren: " + exheli.GetChildren());
+								#endif
 								m_DisplayName = "";
 								m_DisplayName = exheli.ClassName();
 								
@@ -627,11 +629,15 @@ class ExpansionKillFeedModule: JMModuleBase
 							}
 						} else if( car.IsBoat() )
 						{
-							Print("ExpansionKillFeedModule::OnKilledSelf - HumanCommandVehicle Boat BOOM: " + car.ClassName());
+							#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+							EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - HumanCommandVehicle Boat BOOM: " + car.ClassName());
+							#endif
 							ExpansionBoatScript exboat = ExpansionBoatScript.Cast( car );
 							if( exboat && exboat.IsExploded() )
 							{
-								Print("ExpansionKillFeedModule::OnKilledSelf - ExpansionHelicopterScript GetChildren: " + exboat.GetChildren());
+								#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+								EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - ExpansionHelicopterScript GetChildren: " + exboat.GetChildren());
+								#endif
 								m_DisplayName = "";
 								m_DisplayName = exboat.ClassName();
 								
@@ -676,22 +682,25 @@ class ExpansionKillFeedModule: JMModuleBase
 						}
 					}
 				}
-			}
+			}*/
 		}
-		
+			
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-		EXLogPrint( "ExpansionKillFeedModule::OnKilledSelf - End" );
+		EXLogPrint( "ExpansionKillFeedModule::OnPlayerSuicide - End" );
 		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnKilledByWeapon
 	// ------------------------------------------------------------	
-	private void OnKilledByWeapon(PlayerBase player, Object source)
+	void OnKilledByWeapon(PlayerBase player, Object source)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnKilledByWeapon - Start" );
 		#endif
+			
+		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		m_PlayerSteamWebhook = player.FormatSteamWebhook();
 		
 		m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
 		m_PlayerPrefix2 = "";
@@ -701,7 +710,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		
 		if (m_Source && m_Source.IsInherited(PlayerBase))
 		{
-			Print("ExpansionKillFeedModule::OnKilledByWeapon - m_Source : " + m_Source.ToString());
+			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			EXLogPrint("ExpansionKillFeedModule::OnKilledByWeapon - m_Source : " + m_Source.ToString());
+			#endif
 			m_PlayerPrefix2 = this.GetPlayerPrefix( m_Source.GetIdentity() );
 			m_PlayerSteamWebhook2 = m_Source.FormatSteamWebhook();
 			
@@ -727,7 +738,9 @@ class ExpansionKillFeedModule: JMModuleBase
 			{
 				if( item.IsInherited(Grenade_Base) )
 				{
-					Print("ExpansionKillFeedModule::OnKilledByWeapon - m_Source == NULL || Grenade_Base");
+					#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+					EXLogPrint("ExpansionKillFeedModule::OnKilledByWeapon - m_Source == NULL || Grenade_Base");
+					#endif
 					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Grenade"), m_PlayerPrefix, m_DisplayName );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.EXPLOSION, player, null, item);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, m_PlayerSteamWebhook, m_DisplayName );
@@ -743,11 +756,14 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnKilledByPlayer
 	// ------------------------------------------------------------	
-	private void OnKilledByPlayer(PlayerBase player, Object source)
+	void OnKilledByPlayer(PlayerBase player, Object source)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnKilledByPlayer - Start" );
 		#endif
+			
+		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		m_PlayerSteamWebhook = player.FormatSteamWebhook();
 		
 		m_Source = PlayerBase.Cast(EntityAI.Cast(source));
 		m_PlayerPrefix2 = "";
@@ -777,12 +793,15 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnKilledByZombie
 	// ------------------------------------------------------------	
-	private void OnKilledByZombie(PlayerBase player, Object source)
+	void OnKilledByZombie(PlayerBase player, Object source)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnKilledByZombie - Start" );
 		#endif
 		
+		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		m_PlayerSteamWebhook = player.FormatSteamWebhook();			
+			
 		ZombieBase zombie = ZombieBase.Cast(EntityAI.Cast(source));
 		if(zombie)
 		{
@@ -799,12 +818,15 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnKilledByAnimal
 	// ------------------------------------------------------------	
-	private void OnKilledByAnimal(PlayerBase player, Object source)
+	void OnKilledByAnimal(PlayerBase player, Object source)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnKilledByAnimal - Start" );
 		#endif
 		
+		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		m_PlayerSteamWebhook = player.FormatSteamWebhook();			
+			
 		m_DisplayName = "";
 		m_DisplayName = source.ClassName();
 		
@@ -833,12 +855,15 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnKilledUnknown
 	// ------------------------------------------------------------	
-	private void OnKilledUnknown(PlayerBase player, Object source)
+	void OnKilledUnknown(PlayerBase player, Object source)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnKilledUnknown - Start" );
 		#endif
 		
+		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		m_PlayerSteamWebhook = player.FormatSteamWebhook();	
+			
 		if (source)
 		{
 			m_DisplayName = "";
@@ -858,7 +883,7 @@ class ExpansionKillFeedModule: JMModuleBase
 		EXLogPrint( "ExpansionKillFeedModule::OnKilledUnknown - End" );
 		#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule KillFeedMessage
 	// Called on Server
@@ -879,6 +904,8 @@ class ExpansionKillFeedModule: JMModuleBase
 			ScriptRPC message_rpc = new ScriptRPC();
 			message_rpc.Write( kill_data );
 			message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true );
+				
+			ExpansionLogKillfeed(kill_data);
 		}
 
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
@@ -888,7 +915,7 @@ class ExpansionKillFeedModule: JMModuleBase
 	
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule KillFeedCheckServerSetting
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	private bool KillFeedCheckServerSettings( ExpansionKillFeedMessageType type )
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
@@ -1047,7 +1074,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				GetGame().ConfigGetText( path + " " + param4 + " displayName", param4 );
 			}
 
-			ref StringLocaliser localizer = new StringLocaliser( message, "\"" + param1 + "\"", "\"" + param2 + "\"", "\"" + param3 + "\"", "\"" + param4 + "\"" );		
+			StringLocaliser localizer = new StringLocaliser( message, "\"" + param1 + "\"", "\"" + param2 + "\"", "\"" + param3 + "\"", "\"" + param4 + "\"" );		
 			
 			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 			EXLogPrint( "ExpansionKillFeedModule::DiscordMessage - Localizer text: " + localizer.Format() );
@@ -1214,58 +1241,17 @@ class ExpansionKillFeedModule: JMModuleBase
 		EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - Start" );
 		#endif
 		
-		/*if (!sender)
-		{
-			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
-			EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - [ERROR]: Player identity is NULL!" );
-			#endif
-			
-			return;
-		}*/
-		
 		ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData( ExpansionKillFeedMessageType.UNKNOWN, "" );
 		ctx.Read(kill_data);
 		
 		if (kill_data)
-		{			
-			string path;
-			if ( IsClassName( kill_data.FeedParam1, path ) )
-			{
-				if (path != string.Empty)
-					GetGame().ConfigGetText( path + " " + kill_data.FeedParam1 + " displayName", kill_data.FeedParam2 );
-			}
-			Print("ExpansionKillFeedModule::RPC_SendMessage - kill_data.FeedParam1: " + kill_data.FeedParam1);
-			
-			if ( IsClassName( kill_data.FeedParam2, path ) )
-			{
-				if (path != string.Empty)
-					GetGame().ConfigGetText( path + " " + kill_data.FeedParam2 + " displayName", kill_data.FeedParam2 );
-			}
-			Print("ExpansionKillFeedModule::RPC_SendMessage - kill_data.FeedParam2: " + kill_data.FeedParam2);
-			
-			if ( IsClassName( kill_data.FeedParam3, path ) )
-			{
-				if (path != string.Empty)
-					GetGame().ConfigGetText( path + " " + kill_data.FeedParam3 + " displayName", kill_data.FeedParam3 );
-			}
-			Print("ExpansionKillFeedModule::RPC_SendMessage - kill_data.FeedParam3: " + kill_data.FeedParam3);
-			
-			if ( IsClassName( kill_data.FeedParam4, path ) )
-			{
-				if (path != string.Empty)
-					GetGame().ConfigGetText( path + " " + kill_data.FeedParam4 + " displayName", kill_data.FeedParam4 );
-			}
-			Print("ExpansionKillFeedModule::RPC_SendMessage - kill_data.FeedParam4: " + kill_data.FeedParam4);
-			
-			ref StringLocaliser title = new StringLocaliser( "STR_EXPANSION_KILLFEED_TITLE" );
-			ref StringLocaliser message = new StringLocaliser( kill_data.Message, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4 );
-			
+		{		
 			if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
 			{
-				GetNotificationSystem().CreateNotification( title, message, kill_data.Icon, ARGB( 255, 211, 84, 0 ), 7, sender );
+				ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION).Create();
 			} else if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
-				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + message.Format(), "" ) );
+				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + GetKillMessage(kill_data).Format(), "" ) );
 			}
 		}
 		
@@ -1308,5 +1294,121 @@ class ExpansionKillFeedModule: JMModuleBase
 		}
 		
 		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionKillFeedModule GetKillMessage
+	// ------------------------------------------------------------	
+	private StringLocaliser GetKillMessage(ExpansionKillFeedMessageMetaData kill_data)
+	{
+			if (!kill_data)
+				return NULL;
+			
+		string path;
+		if ( IsClassName( kill_data.FeedParam1, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam1 + " displayName", kill_data.FeedParam2 );
+		}
+		
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint("ExpansionKillFeedModule::GetKillMessage - kill_data.FeedParam1: " + kill_data.FeedParam1);
+		#endif
+		
+		if ( IsClassName( kill_data.FeedParam2, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam2 + " displayName", kill_data.FeedParam2 );
+		}
+			
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG	
+		EXLogPrint("ExpansionKillFeedModule::GetKillMessage - kill_data.FeedParam2: " + kill_data.FeedParam2);
+		#endif
+
+		if ( IsClassName( kill_data.FeedParam3, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam3 + " displayName", kill_data.FeedParam3 );
+		}
+			
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint("ExpansionKillFeedModule::GetKillMessage - kill_data.FeedParam3: " + kill_data.FeedParam3);
+		#endif
+		
+		if ( IsClassName( kill_data.FeedParam4, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam4 + " displayName", kill_data.FeedParam4 );
+		}
+		
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG		
+		EXLogPrint("ExpansionKillFeedModule::GetKillMessage - kill_data.FeedParam4: " + kill_data.FeedParam4);
+		#endif
+			
+		return new StringLocaliser(kill_data.Message, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4);
+	}
+		
+	// ------------------------------------------------------------
+	// ExpansionKillFeedModule GetKillLogMessage
+	// ------------------------------------------------------------	
+	private string GetKillLogMessage(ExpansionKillFeedMessageMetaData kill_data)
+	{
+			if (!kill_data)
+				return "";
+			
+		string path;
+		if ( IsClassName( kill_data.FeedParam1, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam1 + " displayName", kill_data.FeedParam2 );
+		}
+		
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint("ExpansionKillFeedModule::GetKillLogMessage - kill_data.FeedParam1: " + kill_data.FeedParam1);
+		#endif
+		
+		if ( IsClassName( kill_data.FeedParam2, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam2 + " displayName", kill_data.FeedParam2 );
+		}
+			
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG	
+		EXLogPrint("ExpansionKillFeedModule::GetKillLogMessage - kill_data.FeedParam2: " + kill_data.FeedParam2);
+		#endif
+
+		if ( IsClassName( kill_data.FeedParam3, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam3 + " displayName", kill_data.FeedParam3 );
+		}
+			
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		EXLogPrint("ExpansionKillFeedModule::GetKillLogMessage - kill_data.FeedParam3: " + kill_data.FeedParam3);
+		#endif
+		
+		if ( IsClassName( kill_data.FeedParam4, path ) )
+		{
+			if (path != string.Empty)
+				GetGame().ConfigGetText( path + " " + kill_data.FeedParam4 + " displayName", kill_data.FeedParam4 );
+		}
+		
+		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG		
+		EXLogPrint("ExpansionKillFeedModule::GetKillLogMessage - kill_data.FeedParam4: " + kill_data.FeedParam4);
+		#endif
+			
+		return Widget.TranslateString( string.Format(kill_data.Message, kill_data.FeedParam1, kill_data.FeedParam2, kill_data.FeedParam3, kill_data.FeedParam4) );
+	}
+		
+	// ------------------------------------------------------------
+	// ExpansionKillFeedModule ExpansionLogKillfeed
+	// ------------------------------------------------------------
+	private void ExpansionLogKillfeed(ExpansionKillFeedMessageMetaData kill_data)
+	{
+		if (!kill_data)
+			return;
+
+		if (GetExpansionSettings().GetLog().Killfeed)
+			GetExpansionSettings().GetLog().PrintLog("[Killfeed] " + GetKillLogMessage(kill_data));
 	}
 }

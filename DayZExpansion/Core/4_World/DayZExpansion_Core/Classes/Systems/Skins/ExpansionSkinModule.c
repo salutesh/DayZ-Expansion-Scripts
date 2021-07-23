@@ -240,7 +240,7 @@ class ExpansionSkinModule: JMModuleBase
 	// ------------------------------------------------------------
 	int GetSkinIndex( string classname, string skin )
 	{
-		string skinBase = m_SkinBase.Get( classname );
+		string skinBase = GetSkinBase( classname );
 		if ( skinBase )
 			classname = skinBase;
 
@@ -266,7 +266,7 @@ class ExpansionSkinModule: JMModuleBase
 		if ( index < 0 )
 			return "";
 
-		string skinBase = m_SkinBase.Get( classname );
+		string skinBase = GetSkinBase( classname );
 		if ( skinBase )
 			classname = skinBase;
 
@@ -277,6 +277,14 @@ class ExpansionSkinModule: JMModuleBase
 			return "";
 
 		return skins.GetName( index );
+	}
+	
+	string GetSkinName( string classname )
+	{
+		string path = GetConfigPath( classname );
+		if ( path && GetGame().ConfigIsExisting( path + " " + classname + " skinName" ) )
+			return GetGame().ConfigGetTextOut( path + " " + classname + " skinName" );
+		return "";
 	}
 	
 	// ------------------------------------------------------------
@@ -292,7 +300,7 @@ class ExpansionSkinModule: JMModuleBase
 
 		string path;
 
-		string skinBase = m_SkinBase.Get( classname );
+		string skinBase = GetSkinBase( classname );
 		if ( !skinBase )
 		{
 			path = GetConfigPath( classname );
@@ -344,5 +352,49 @@ class ExpansionSkinModule: JMModuleBase
 		#ifdef EXPANSIONEXLOGPRINT
 		Print("ExpansionSkinModule::RetrieveSkins - End");
 		#endif
+	}
+
+	string GetSkinBase( string classname )
+	{
+		return m_SkinBase.Get( classname );
+	}
+
+	ref ExpansionSkins GetSkins( string classname )
+	{
+		string skinBase = GetSkinBase( classname );
+		if ( skinBase )
+			classname = skinBase;
+
+		classname.ToLower();
+
+		return m_Skins.Get( classname );
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule HasSkins
+	// ------------------------------------------------------------
+	bool HasSkins(string classname)
+	{
+		return GetSkins( classname ) != NULL;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule HasSkin
+	// ------------------------------------------------------------
+	bool HasSkin(string classname, int skinIndex)
+	{
+		ExpansionSkins skins = GetSkins( classname );
+		if (!skins || !skins.Get(skinIndex))
+			return false;
+		
+		return true;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSkinModule RetrieveSkins
+	// ------------------------------------------------------------	
+	map< string, ref ExpansionSkins > GetAllSkins()
+	{
+		return m_Skins;
 	}
 };

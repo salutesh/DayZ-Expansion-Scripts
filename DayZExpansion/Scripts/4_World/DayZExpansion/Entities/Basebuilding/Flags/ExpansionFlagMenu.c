@@ -182,7 +182,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		if ( territoryName == "" || FindChar(forrbidenChars,territoryName) )
 		{
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEINVALID", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, player.GetIdentity() );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_NAMEINVALID", territoryName)).Error(player.GetIdentity());
 			return;
 		}
 		

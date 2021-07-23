@@ -192,12 +192,6 @@ class ExpansionPartyModule: JMModuleBase
 		case ExpansionPartyModuleRPC.DeleteMarker:
 			RPC_DeleteMarker( ctx, sender, target );
 			break;
-		/*case ExpansionPartyModuleRPC.PromotePlayer:
-			RPC_PromotePlayer( ctx, sender, target );
-			break;
-		case ExpansionPartyModuleRPC.DemotePlayer:
-			RPC_DemotePlayer( ctx, sender, target );
-			break;*/
 		case ExpansionPartyModuleRPC.InvitePlayer:
 			RPC_InvitePlayer( ctx, sender, target );
 			break;
@@ -371,13 +365,13 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
 		if ( !player )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
 		if ( HasParty(player) )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_IN_PARTY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
 			return;
 		}
 	
@@ -392,8 +386,8 @@ class ExpansionPartyModule: JMModuleBase
 		if ( GetExpansionSettings().GetLog().Party )
 			GetExpansionSettings().GetLog().PrintLog( "[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " created a party named " + partyName );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_SYSTEM_PARTY_CREATED" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
-	
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_SYSTEM_PARTY_CREATED").Success(sender);
+		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_Create - End");
 		#endif
@@ -451,7 +445,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
 		if ( !player )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);	
 			return;
 		}
 
@@ -460,19 +454,19 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);	
 			return;
 		}
 		
 		if ( party.GetOwnerUID() == sender.GetId() )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);	
 			return;
 		}
 
 		if ( !party.RemovePlayer( sender.GetId() ) )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_SELF_NOT_IN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_SELF_NOT_IN").Error(sender);	
 			return;
 		}
 		
@@ -481,7 +475,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		Send_UpdateClient( null, player );
 
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_LEFT" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_INFO, 7, sender );
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_LEFT").Success(sender);
 		
 		SendNotificationToMembers( new StringLocaliser( "STR_EXPANSION_PARTY_LEFT_MEMBERS", sender.GetName() ), party, sender );
 		
@@ -544,7 +538,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
 		if ( !player )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
@@ -557,7 +551,7 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 		
@@ -569,7 +563,7 @@ class ExpansionPartyModule: JMModuleBase
 
 		if ( sender.GetId() != party.GetOwnerUID() && players.Count() > 1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_OWNER").Error(sender);
 			return;
 		}
 		
@@ -592,7 +586,7 @@ class ExpansionPartyModule: JMModuleBase
 			{
 				Send_UpdateClient( NULL, partyPlayer );
 				
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_PARTY_DISSOLVED" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, partyPlayer.GetIdentity() );
+				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_PARTY_DISSOLVED").Success(partyPlayer.GetIdentity());
 			}
 		}
 		
@@ -692,7 +686,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		if ( !senderPlayer || !targetPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
@@ -700,37 +694,34 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 		
 		ref ExpansionPartyPlayerData senderPlayerParty = party.GetPlayer( sender.GetId() );
 		if ( !senderPlayerParty || !senderPlayerParty.CanInvite() )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_OWNER").Error(sender);
 			return;
 		}
 
 		if ( GetExpansionSettings().GetParty().MaxMembersInParty >= 1 && party.GetPlayers().Count() >= GetExpansionSettings().GetParty().MaxMembersInParty )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_MAX_PARTY", GetExpansionSettings().GetParty().MaxMembersInParty.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_MAX_PARTY", GetExpansionSettings().GetParty().MaxMembersInParty.ToString() )).Error(sender);
 			return;
 		}
 		
 		if ( party.HasPlayerInvite( targetID ) )
 		{
 			SyncPlayersInvites( targetPlayer );
-
-			//TODO: Change message
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_IN_PARTY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_INVITED").Error(sender);
 			return;
 		}
 	
 		ExpansionPartyInviteData invite = party.AddInvite( targetID );
-		
 		if (invite == NULL)
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_INVITED", GetExpansionSettings().GetParty().MaxMembersInParty.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_INVITE").Error(sender);
 			return;		
 		}
 		
@@ -743,8 +734,8 @@ class ExpansionPartyModule: JMModuleBase
 		if ( GetExpansionSettings().GetLog().Party )
 			GetExpansionSettings().GetLog().PrintLog( "[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " invited the player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + ")" + "to the party named " + party.GetPartyName() );
 
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_ADDED" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayer.GetIdentity() );
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_ADDED_SENDER" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_ADDED").Success(targetPlayer.GetIdentity());
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_ADDED_SENDER").Success(sender);
 	
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_InvitePlayer - End");
@@ -807,20 +798,20 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 	
 		ref ExpansionPartyData party = m_Parties.Get( partyID );
 		if ( !party )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 
 		if ( !party.DeclineInvite( sender.GetId() ) )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
 			return;
 		}
 		
@@ -829,7 +820,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		SyncPlayersInvites( senderPlayer );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_REMOVED" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 7, sender );
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", new StringLocaliser("STR_EXPANSION_PARTY_INVITE_DECLINED", party.GetPartyName())).Success(sender);
 	
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_DeclineInvite - End");
@@ -892,20 +883,20 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 
 		if ( GetExpansionSettings().GetParty().MaxMembersInParty >= 1 && party.GetPlayers().Count() >= GetExpansionSettings().GetParty().MaxMembersInParty )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_MAX_PARTY", GetExpansionSettings().GetParty().MaxMembersInParty.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", new StringLocaliser("STR_EXPANSION_PARTY_ERROR_MAX_PARTY", GetExpansionSettings().GetParty().MaxMembersInParty.ToString())).Error(sender);
 			return;
 		}
 	
@@ -921,218 +912,13 @@ class ExpansionPartyModule: JMModuleBase
 		
 		UpdateClient( partyId );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_ADDED" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_ADDED").Success(sender);
 	
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_AcceptInvite - End");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion PromotePlayer
-	// Called on client
-	// ------------------------------------------------------------
-	/*void PromotePlayer( string uid )
-	{
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::PromotePlayer - Start");
-		#endif
 		
-		if ( !IsMissionClient() )
-			return;
-		
-		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write(uid);
-		rpc.Send( NULL, ExpansionPartyModuleRPC.PromotePlayer, true, NULL );
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::PromotePlayer - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion RPC_PromotePlayer
-	// Called on server
-	// ------------------------------------------------------------
-	private void RPC_PromotePlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
-	{
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::RPC_PromotePlayer - Start");
-		#endif
-		
-		string targetID;
-		if ( !ctx.Read( targetID ) )
-			return;
-
-		Exec_PromotePlayer( targetID, senderRPC );
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::RPC_PromotePlayer - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Exec_PromotePlayer
-	// ------------------------------------------------------------
-	private void Exec_PromotePlayer( string targetID, notnull PlayerIdentity sender )
-	{	
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_PromotePlayer - Start");
-		#endif
-		
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
-		if ( !senderPlayer )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-
-		int partyId = GetPartyID(senderPlayer);
-		ref ExpansionPartyData party = m_Parties.Get( partyId );
-		if ( !party || partyId == -1 )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-
-		if ( sender.GetId() != party.GetOwnerUID() )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-		
-		if ( targetID == party.GetOwnerUID() )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-		
-		ref ExpansionPartyPlayerData targetPlayer = party.GetPlayer( targetID );
-		if (!targetPlayer)
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-		
-		targetPlayer.Promoted = true;
-
-		UpdateClient( partyId );
-		
-		PlayerBase targetPlayerPB = PlayerBase.GetPlayerByUID( targetID );
-		if (targetPlayerPB)
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_PROMOTED", "STR_EXPANSION_PARTY_RANK_MOD" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayerPB.GetIdentity() );
-		}
-		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_PROMOTED_SENDER", targetPlayer.Name ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
-	
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_PromotePlayer - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion DemotePlayer
-	// Called on client
-	// ------------------------------------------------------------
-	void DemotePlayer( string uid )
-	{
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::DemotePlayer - Start");
-		#endif
-		
-		if ( !IsMissionClient() ) return;
-		
-		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write(uid);
-		rpc.Send( NULL, ExpansionPartyModuleRPC.DemotePlayer, true, NULL );
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::DemotePlayer - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion RPC_PromotePlayer
-	// Called on server
-	// ------------------------------------------------------------
-	private void RPC_DemotePlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
-	{
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::RPC_DemotePlayer - Start");
-		#endif
-		
-		string targetID;
-		if ( !ctx.Read( targetID ) )
-			return;
-
-		Exec_DemotePlayer( targetID, senderRPC );
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::RPC_DemotePlayer - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion Exec_PromotePlayer
-	// ------------------------------------------------------------
-	private void Exec_DemotePlayer( string targetID, notnull PlayerIdentity sender )
-	{
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_DemotePlayer - Start");
-		#endif
-		
-		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
-		if ( !senderPlayer )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-
-		int partyId = GetPartyID(senderPlayer);
-		ref ExpansionPartyData party = m_Parties.Get( partyId );
-		if ( !party || partyId == -1 )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-
-		if ( sender.GetId() != party.GetOwnerUID() )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-		
-		if ( targetID == party.GetOwnerUID() )
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_CANT_PROMOTE_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-		
-		ref ExpansionPartyPlayerData targetPlayer = party.GetPlayer( targetID );
-		if (!targetPlayer)
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
-			return;
-		}
-		
-		targetPlayer.Promoted = false;
-
-		UpdateClient( partyId );
-		
-		PlayerBase targetPlayerPB = PlayerBase.GetPlayerByUID( targetID );
-		if (targetPlayerPB)
-		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_DEMOTED", "STR_EXPANSION_PARTY_RANK_MEMBER" ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, targetPlayerPB.GetIdentity() );
-		}
-		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_DEMOTED_SENDER", targetPlayer.Name ), EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
-	
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_DemotePlayer - End");
-		#endif
-	}*/
-	
 	// ------------------------------------------------------------
 	// Expansion RemovePlayer
 	// Called on client
@@ -1188,7 +974,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( sender.GetId() );
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
@@ -1196,26 +982,26 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 
 		ref ExpansionPartyPlayerData senderPlayerParty = party.GetPlayer( sender.GetId() );
 		if ( !senderPlayerParty.CanKick() )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_OWNER").Error(sender);
 			return;
 		}
 
 		if ( party.GetOwnerUID() == uid )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_REMOVE_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_REMOVE_OWNER").Error(sender);
 			return;
 		}
 		
 		if ( !party.RemovePlayer( uid ) )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
 			return;
 		}
 		
@@ -1228,11 +1014,11 @@ class ExpansionPartyModule: JMModuleBase
 		{
 			Send_UpdateClient( NULL, targetPlayer );
 			
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_REMOVED" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_INFO, 7, targetPlayer.GetIdentity() );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_REMOVED").Success(targetPlayer.GetIdentity());
 		}
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MEMBER_REMOVED_SENDER" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
-	
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_REMOVED_SENDER").Success(sender);
+		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_RemovePlayer - End");
 		#endif
@@ -1516,7 +1302,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
@@ -1524,14 +1310,14 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 
 		party.AddMarker( marker );
 		party.Save();
 
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MARKER_ADDED", marker.GetName() ), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_ADDED").Success(sender);
 
 		UpdateClient( partyId );
 		
@@ -1598,7 +1384,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( senderRPC.GetId() );
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(senderRPC);
 			return;
 		}
 
@@ -1606,7 +1392,7 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(senderRPC);
 			return;
 		}
 
@@ -1617,7 +1403,7 @@ class ExpansionPartyModule: JMModuleBase
 		party.UpdateMarker( marker );
 		party.Save();
 
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MARKER_ADDED", marker.GetName() ), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, senderRPC );
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_ADDED").Success(senderRPC);
 
 		UpdateClient( partyId );
 		
@@ -1679,7 +1465,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
@@ -1687,7 +1473,7 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 
@@ -1695,12 +1481,12 @@ class ExpansionPartyModule: JMModuleBase
 		{
 			party.Save();
 
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MARKER_REMOVED" ), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_REMOVED").Success(sender);
 			
 			UpdateClient( partyId );
 		} else
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 		}
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -1769,7 +1555,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID(sender.GetId());
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 			return;
 		}
 
@@ -1777,7 +1563,7 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 
@@ -1785,12 +1571,12 @@ class ExpansionPartyModule: JMModuleBase
 		{
 			party.Save();
 
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_MARKER_CHANGED" ), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_CHANGED").Success(sender);
 			UpdateClient( partyId );
-			SendNotificationToMembers( new StringLocaliser( "STR_EXPANSION_PARTY_MARKER_CHANGED" ), party, sender );
+			SendNotificationToMembers( new StringLocaliser("STR_EXPANSION_PARTY_MARKER_CHANGED"), party, sender );
 		} else
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, sender );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(sender);
 		}
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -1837,7 +1623,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( senderRPC.GetId() );
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(senderRPC);
 			return;
 		}
 
@@ -1845,14 +1631,14 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData party = m_Parties.Get( partyId );
 		if ( !party || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(senderRPC);
 			return;
 		}
 
 		ref ExpansionPartyPlayerData senderPlayerParty = party.GetPlayer( senderRPC.GetId() );
 		if ( !senderPlayerParty )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(senderRPC);
 			return;
 		}
 		
@@ -1911,7 +1697,7 @@ class ExpansionPartyModule: JMModuleBase
 		PlayerBase senderPlayer = PlayerBase.GetPlayerByUID( senderRPC.GetId() );
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_UNKNOWN" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_UNKNOWN").Error(senderRPC);
 			return;
 		}
 
@@ -1919,14 +1705,14 @@ class ExpansionPartyModule: JMModuleBase
 		ref ExpansionPartyData senderParty = m_Parties.Get( partyId );
 		if ( !senderParty || partyId == -1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(senderRPC);
 			return;
 		}
 
 		ref ExpansionPartyPlayerData memberPartyPlayer = senderParty.GetPlayer( player.GetID() );
 		if ( !memberPartyPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), new StringLocaliser( "STR_EXPANSION_PARTY_ERROR_NOT_EXIST" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, senderRPC );
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(senderRPC);
 			return;
 		}
 		
@@ -2127,7 +1913,7 @@ class ExpansionPartyModule: JMModuleBase
 			{					
 				if ( partyPlayer.GetIdentityUID() != sender.GetId() )
 				{
-					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_PARTY_NOTIF_TITLE" ), text, EXPANSION_NOTIFICATION_ICON_GROUP, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, partyPlayer.GetIdentity() );
+					ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", text).Success(partyPlayer.GetIdentity());
 				}
 			}
 		}

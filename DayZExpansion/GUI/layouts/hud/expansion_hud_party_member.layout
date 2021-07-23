@@ -1,20 +1,22 @@
-PanelWidgetClass PartyMemberEntry {
+WrapSpacerWidgetClass PartyMemberEntry {
  clipchildren 0
- color 0.3137 0.3137 0.3137 0.5882
  position 0 0
- size 230 45
+ size 150 68
  hexactpos 1
  vexactpos 1
  hexactsize 1
  vexactsize 1
  scriptclass "ExpansionIngameHudPartyMemberController"
- style DayZDefaultPanel
+ style Empty
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
  {
   TextWidgetClass PlayerName {
    ignorepointer 1
-   position 0.03 0
-   size 0.82 15
-   halign right_ref
+   color 1 1 1 0.9412
+   position 0 0
+   size 0.97 15
    hexactpos 0
    vexactpos 0
    hexactsize 0
@@ -22,57 +24,116 @@ PanelWidgetClass PartyMemberEntry {
    scriptclass "ViewBinding"
    text "Player Name"
    font "gui/fonts/etelkatextpro16"
-   "text offset" 2 0
+   "size to text h" 1
+   "size to text v" 0
    {
     ScriptParamsClass {
      Binding_Name "PlayerName"
     }
    }
   }
-  ProgressBarWidgetClass PlayerHealth {
+  PanelWidgetClass PlayerHealthPanel {
    ignorepointer 1
-   color 0.1529 0.6824 0.3765 1
-   position 0.03 15
-   size 0.82 15
-   halign right_ref
-   valign bottom_ref
-   hexactpos 0
-   vexactpos 1
-   hexactsize 0
-   vexactsize 1
-   scriptclass "ViewBinding"
-   style Stamina
-   {
-    ScriptParamsClass {
-     Debug_Logging 0
-     Binding_Name "PlayerHealth"
-    }
-   }
-  }
-  ImageWidgetClass PlayerIcon {
-   visible 1
-   ignorepointer 1
-   size 32 32
+   size 0.97 15
+   halign center_ref
+   valign center_ref
    hexactpos 1
    vexactpos 1
-   hexactsize 1
+   hexactsize 0
    vexactsize 1
-   scriptclass "ViewBinding"
-   imageTexture "{F454FE0CCFC0677C}DayZExpansion/Core/GUI/icons/hud/square_64x64.edds"
-   mode blend
-   "src alpha" 1
-   "no wrap" 1
-   stretch 1
    {
-    ScriptParamsClass {
-     Binding_Name "PlayerRankIcon"
+    ProgressBarWidgetClass PlayerHealth {
+     ignorepointer 1
+     color 0.1529 0.6824 0.3765 0.549
+     size 1 15
+     hexactpos 0
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     style Stamina
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "PlayerHealth"
+      }
+     }
+    }
+    TextWidgetClass PlayerHealthVal {
+     ignorepointer 1
+     color 1 1 1 0.9412
+     size 1 15
+     hexactpos 0
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     text "100%"
+     font "gui/fonts/etelkatextpro14"
+     "text offset" 0 1
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "PlayerHealthVal"
+      }
+     }
     }
    }
   }
-  TextWidgetClass PlayerHealthVal {
+  PanelWidgetClass PlayerBloodPanel {
    ignorepointer 1
-   position 0.03 15
-   size 0.82 15
+   size 0.97 15
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   {
+    ProgressBarWidgetClass PlayerBlood {
+     ignorepointer 1
+     color 1 0 0.0118 0.549
+     size 1 15
+     hexactpos 0
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     style Stamina
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "PlayerBlood"
+      }
+     }
+    }
+    TextWidgetClass PlayerBloodVal {
+     ignorepointer 1
+     color 1 1 1 0.9412
+     size 1 15
+     hexactpos 0
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     text "100%"
+     font "gui/fonts/etelkatextpro14"
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "PlayerBloodVal"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass PlayerStates {
+   ignorepointer 1
+   color 1 1 1 0.9412
+   position 0.03 0
+   size 0.97 22
    halign right_ref
    valign bottom_ref
    hexactpos 0
@@ -80,54 +141,59 @@ PanelWidgetClass PartyMemberEntry {
    hexactsize 0
    vexactsize 1
    scriptclass "ViewBinding"
-   text "100"
-   font "gui/fonts/etelkatextpro14"
-   "text offset" 0 1
-   "exact text" 0
-   "text halign" center
-   "text valign" center
    {
-    ScriptParamsClass {
-     Binding_Name "PlayerHealthVal"
+    ImageWidgetClass Bones {
+     visible 1
+     ignorepointer 1
+     size 22 22
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 "set:dayz_gui image:iconBone"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    ImageWidgetClass Sick {
+     visible 1
+     disabled 0
+     ignorepointer 1
+     position 24 0
+     size 22 22
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 "set:dayz_gui image:iconBacteria"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    ImageWidgetClass Poisoned {
+     visible 1
+     ignorepointer 1
+     position 48 0
+     size 22 22
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 "set:dayz_gui image:iconSkull"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
     }
    }
-  }
-  ProgressBarWidgetClass PlayerBlood {
-   ignorepointer 1
-   color 1 0 0.0118 1
-   position 0.03 0
-   size 0.82 15
-   halign right_ref
-   valign bottom_ref
-   hexactpos 0
-   vexactpos 0
-   hexactsize 0
-   vexactsize 1
-   scriptclass "ViewBinding"
-   style Stamina
-   {
-    ScriptParamsClass {
-     Debug_Logging 0
-     Binding_Name "PlayerBlood"
-    }
-   }
-  }
-  TextWidgetClass PlayerBloodVal {
-   ignorepointer 1
-   position 0.03 0
-   size 0.82 15
-   halign right_ref
-   valign bottom_ref
-   hexactpos 0
-   vexactpos 1
-   hexactsize 0
-   vexactsize 1
-   scriptclass "ViewBinding"
-   text "100"
-   font "gui/fonts/etelkatextpro14"
-   "exact text" 0
-   "text halign" center
-   "text valign" center
    {
     ScriptParamsClass {
      Binding_Name "PlayerBloodVal"

@@ -776,7 +776,10 @@ class ExpansionIngameHud extends Hud
 	void ClearPartyMembers()
 	{
 		if (m_PartyMembers && m_PartyMembers.Count() > 0)
+		{
 			m_PartyMembers.Clear();
+			delete m_PartyMembers;
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -846,10 +849,10 @@ class ExpansionIngameHud extends Hud
 					}
 				}
 			}
-		}
-		else
-		{
-			ClearPartyMembers();
+			else
+			{
+				ClearPartyMembers();
+			}
 		}
 	}
 	

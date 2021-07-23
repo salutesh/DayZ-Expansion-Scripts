@@ -59,6 +59,16 @@ modded class CarScript
 	{
 		return m_allVehicles;
 	}
+
+	array< ExpansionSkin > ExpansionGetSkins()
+	{
+		return NULL;
+	}
+
+	bool ExpansionHasSkin( int skinIndex )
+	{
+		return false;
+	}
 	
 	void ExpansionSetSkin( int skinIndex )
 	{

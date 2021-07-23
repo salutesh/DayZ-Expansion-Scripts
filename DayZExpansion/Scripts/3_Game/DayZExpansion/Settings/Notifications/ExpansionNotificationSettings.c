@@ -10,35 +10,26 @@
  *
 */
 
-/**@class		ExpansionNotificationSettings
- * @brief		Notification settings class
+/**@class		ExpansionNotificationSettingsBase
+ * @brief		Map settings base class
  **/
-class ExpansionNotificationSettings: ExpansionSettingBase
+class ExpansionNotificationSettingsBase: ExpansionSettingBase
 {
 	bool EnableNotification;
-
 	bool ShowPlayerJoinServer;
 	ExpansionAnnouncementType JoinMessageType;
 	bool ShowPlayerLeftServer;
 	ExpansionAnnouncementType LeftMessageType;
-	
 	bool ShowAirdropStarted;
 	bool ShowAirdropClosingOn;
 	bool ShowAirdropDropped;
 	bool ShowAirdropEnded;
-
 	bool ShowPlayerAirdropStarted;
 	bool ShowPlayerAirdropClosingOn;
 	bool ShowPlayerAirdropDropped;
-	
 	bool ShowTerritoryNotifications;				//! Show the notifications when entering or leaving territory.
-
 	bool EnableKillFeed;
 	ExpansionAnnouncementType KillFeedMessageType;
-	bool ShowDistanceOnKillFeed;
-	bool ShowVictimOnKillFeed;
-	bool ShowKillerOnKillFeed;
-	bool ShowWeaponOnKillFeed;
 	bool KillFeedFall;
 	bool KillFeedCarHitDriver;
 	bool KillFeedCarHitNoDriver;
@@ -65,6 +56,19 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	bool KillFeedKilledUnknown;
 	bool KillFeedDiedUnknown;
 	bool EnableKillFeedDiscordMsg;
+}
+
+/**@class		ExpansionNotificationSettings
+ * @brief		Notification settings class
+ **/
+class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
+{	
+	static const int VERSION = 2;
+	
+	bool ShowVictimOnKillFeed;
+	bool ShowDistanceOnKillFeed;
+	bool ShowKillerOnKillFeed;
+	bool ShowWeaponOnKillFeed;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -139,9 +143,21 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		CopyInternal( s );
 		return true;
 	}
-
+	
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionNotificationSettings s )
+	{
+		ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
+		ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
+		ShowKillerOnKillFeed = s.ShowKillerOnKillFeed;
+		ShowWeaponOnKillFeed = s.ShowWeaponOnKillFeed;
+		
+		ExpansionNotificationSettingsBase sb = s;
+		CopyInternal( sb );
+	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal( ref ExpansionNotificationSettingsBase s )
 	{
 		EnableNotification = s.EnableNotification;
 		ShowPlayerJoinServer = s.ShowPlayerJoinServer;
@@ -162,10 +178,6 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		
 		EnableKillFeed = s.EnableKillFeed;
 		KillFeedMessageType = s.KillFeedMessageType;
-		ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
-		ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
-		ShowKillerOnKillFeed = s.ShowKillerOnKillFeed;
-		ShowWeaponOnKillFeed = s.ShowWeaponOnKillFeed;
 		KillFeedFall = s.KillFeedFall;
 		KillFeedCarHitDriver = s.KillFeedCarHitDriver;
 		KillFeedCarHitNoDriver = s.KillFeedCarHitNoDriver;
@@ -208,35 +220,62 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 
 	// ------------------------------------------------------------
 	override bool OnLoad()
-	{	
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationSettings::Load - Start");
 		#endif
-		
+
 		m_IsLoaded = true;
-		
-		if ( FileExist( EXPANSION_NOTIFICATION_SETTINGS ) )
+
+		bool save;
+
+		bool notificationSettingsExist = FileExist(EXPANSION_NOTIFICATION_SETTINGS);
+
+		if (notificationSettingsExist)
 		{
-			Print("[ExpansionNotificationSettings] Loading settings");
+			ExpansionNotificationSettings settingsDefault = new ExpansionNotificationSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionNotificationSettings>.JsonLoadFile( EXPANSION_NOTIFICATION_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionNotificationSettings::Load - End - Loaded");
-			#endif
+			ExpansionNotificationSettingsBase settingsBase;
 
-			return true;
+			JsonFileLoader<ExpansionNotificationSettingsBase>.JsonLoadFile(EXPANSION_NOTIFICATION_SETTINGS, settingsBase);
+
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionNotificationSettings] Load - Converting v1 \"" + EXPANSION_NOTIFICATION_SETTINGS + "\" to v" + VERSION);
+					
+					//! New with v2
+					CopyInternal(settingsDefault);
+				}
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionNotificationSettings>.JsonLoadFile(EXPANSION_NOTIFICATION_SETTINGS, this);
+			}
 		}
-
-		Defaults();
-		Save();
-
+		else
+		{
+			Defaults();
+			save = true;
+		}
+		
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSettings::Load - End - Not Loaded");
+		EXPrint("ExpansionNotificationSettings::Load - End - Loaded: " + notificationSettingsExist);
 		#endif
-		return false;
+		
+		return notificationSettingsExist;
 	}
-
+	
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
@@ -259,6 +298,8 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionNotificationSettings] Loading default settings");
+		
+		m_Version = VERSION;
 		
 		EnableNotification = true;
 
@@ -313,6 +354,7 @@ class ExpansionNotificationSettings: ExpansionSettingBase
 		EnableKillFeedDiscordMsg = false;
 	}
 	
+	// ------------------------------------------------------------	
 	override string SettingName()
 	{
 		return "Notification Settings";

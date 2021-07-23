@@ -31,15 +31,30 @@ class DayZIntroSceneExpansion
 	{
 		World world = g_Game.GetWorld();
 		string root_path = "cfgExpansionCharacterScenes " + g_Game.GetWorldName();
-
-		int count = g_Game.ConfigGetChildrenCount(root_path);
-		int index = Math.RandomInt(0, count);
-		//index = 4;
-		
+		string scene_path;
 		string childName;
+		
+	#ifdef EXPANSIONMODMARKET
+		TStringArray marketUpdateScenes = new TStringArray;
+		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(root_path); i++ )
+		{
+			string currentChildName;
+			g_Game.ConfigGetChildName(root_path, i, currentChildName);
+			if (currentChildName.Contains("market_update"))
+			{
+				scene_path = root_path + " " + currentChildName;
+				marketUpdateScenes.Insert(scene_path);
+			}
+		}
+		if (marketUpdateScenes && marketUpdateScenes.Count() > 0)
+			SetScenePath(marketUpdateScenes.GetRandomElement());
+	#else
+		int count = g_Game.ConfigGetChildrenCount(root_path);
+		int index = Math.RandomInt(0, count);				
 		g_Game.ConfigGetChildName(root_path, index, childName);
-		string scene_path = root_path + " " + childName;	
+		scene_path = root_path + " " + childName;	
 		SetScenePath(scene_path);
+	#endif
 		
 		if (world)
 		{

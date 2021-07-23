@@ -64,7 +64,7 @@ modded class ActionTogglePlaceObject
 							notificationTextStringID = "STR_EXPANSION_BUILD_ZONE_ITEM_DISALLOWED";
 					}
 						
-					GetNotificationSystem().CreateNotification( new StringLocaliser( notificationTitleStringID, zone.Name ), new StringLocaliser( notificationTextStringID ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
+					ExpansionNotification(new StringLocaliser(notificationTitleStringID, zone.Name), new StringLocaliser(notificationTextStringID)).Error(action_data.m_Player.GetIdentity());
 					
 					return;
 				}
@@ -125,17 +125,17 @@ modded class ActionTogglePlaceObject
 		}
 
 		if (territoryReqNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED").Error(action_data.m_Player.GetIdentity());
 		else if (enemyTerritoryNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );	
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY").Error(action_data.m_Player.GetIdentity());
 		else if (enemyTerritoryNearNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY_NEAR" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );	
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY_NEAR").Error(action_data.m_Player.GetIdentity());
 		else if (buildZoneReqNotif)
 		{
 			string buildZoneRequiredMsg = GetExpansionSettings().GetBaseBuilding().BuildZoneRequiredCustomMessage;
 			if ( !buildZoneRequiredMsg )
 				buildZoneRequiredMsg = "STR_EXPANSION_BUILD_ZONE_REQUIRED";
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_BUILD_ZONE_REQUIRED_TITLE" ), new StringLocaliser( buildZoneRequiredMsg ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
+			ExpansionNotification("STR_EXPANSION_BUILD_ZONE_REQUIRED_TITLE", new StringLocaliser(buildZoneRequiredMsg)).Error(action_data.m_Player.GetIdentity());
 		}
 	}
 

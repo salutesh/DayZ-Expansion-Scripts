@@ -177,7 +177,7 @@ class ExpansionOwnedContainer: Container_Base
 	{
 		super.CF_OnStoreSave(storage, modName);
 
-		if (modName != "DZ_Expansion_Market")
+		if (modName != "DZ_Expansion_Core")
 			return;
 
 		storage.Write(m_ExpansionContainerUID);
@@ -188,7 +188,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CF_OnStoreLoad( storage, modName))
 			return false;
 
-		if (modName != "DZ_Expansion_Market")
+		if (modName != "DZ_Expansion_Core")
 			return true;
 
 		if (Expansion_Assert_False(storage.Read(m_ExpansionContainerUID), "[" + this + "] Failed reading m_ExpansionContainerUID"))
@@ -197,4 +197,76 @@ class ExpansionOwnedContainer: Container_Base
 		return true;
 	}
 	#endif
+}
+
+class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
+{
+	protected bool m_ExpansionCanReceiveItems;
+
+	void ExpansionTemporaryOwnedContainer()
+	{
+		if (IsMissionHost())  //! Server or COM
+		{
+			SetAllowDamage(false);
+
+			//! Check if empty every 5 seconds
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionCheckStorage, 5000, true );
+
+			//! Delete after 20 minutes
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
+		}
+
+		//! Warn about pending deletion after 15 minutes
+		if (IsMissionClient())  //! Client or COM
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_MARKET_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+	}
+
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		return m_ExpansionCanReceiveItems;
+	}
+	
+	override bool CanLoadAttachment(EntityAI attachment)
+	{
+		return true;
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		return m_ExpansionCanReceiveItems;
+	}
+	
+	override bool CanLoadItemIntoCargo(EntityAI item)
+	{
+		return true;
+	}
+
+	void ExpansionSetCanReceiveItems(bool state)
+	{
+		m_ExpansionCanReceiveItems = state;
+	}
+
+	void ExpansionStorageNotification(string msg)
+	{
+		if (IsEmpty())
+			return;
+
+		StringLocaliser title = new StringLocaliser("STR_EXPANSION_MARKET_TITLE");
+		StringLocaliser text = new StringLocaliser(msg);
+
+		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(m_ExpansionContainerOwnerIdentity);
+	}
+
+	void ExpansionCheckStorage()
+	{
+		if (IsEmpty())
+			ExpansionDeleteStorage();
+	}
+
+	void ExpansionDeleteStorage()
+	{
+		ExpansionStorageNotification("STR_EXPANSION_MARKET_TEMPORARY_STORAGE_EXPIRED");
+
+		GetGame().ObjectDelete(this);
+	}
 }

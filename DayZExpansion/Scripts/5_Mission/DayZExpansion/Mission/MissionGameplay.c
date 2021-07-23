@@ -599,10 +599,10 @@ modded class MissionGameplay
 					m_Chat.HideChatToggle();				
 
 					if (m_HideChatToggle)
-					{			
-						GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_CHATTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_CHATTOGGLE_ON"), EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+					{	
+						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_ON", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 					} else {
-						GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_CHATTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_CHATTOGGLE_OFF"), EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_OFF", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 					}
 				}
 				
@@ -723,14 +723,14 @@ modded class MissionGameplay
 							m_ServerMarkerToggleState = m_MarkerToggleState;
 							
 							if (m_MarkerToggleState) {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 								
 							} else {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
@@ -743,12 +743,11 @@ modded class MissionGameplay
 							m_ServerMarkerToggleState = !m_ServerMarkerToggleState;
 							
 							if (m_ServerMarkerToggleState) {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								
 							} else {
-								
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 							}
 						}
@@ -768,9 +767,9 @@ modded class MissionGameplay
 							
 							if ( hologram.IsUsingSnap() )
 							{
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_ENABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_ENABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 							} else {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_DISABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_DISABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 							}
 						}
 

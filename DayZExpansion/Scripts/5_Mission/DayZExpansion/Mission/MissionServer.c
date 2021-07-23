@@ -62,6 +62,15 @@ modded class MissionServer
 		{
 			super.EquipCharacter(char_data);
 		}
+		
+		if ( GetExpansionSettings().GetSpawn().SpawnHealthValue <= m_player.GetMaxHealth("GlobalHealth", "Health") )
+			m_player.SetHealth("", "", GetExpansionSettings().GetSpawn().SpawnHealthValue );
+		
+		if ( GetExpansionSettings().GetSpawn().SpawnEnergyValue <= m_player.GetStatEnergy().GetMax() )
+			m_player.GetStatEnergy().Set( GetExpansionSettings().GetSpawn().SpawnEnergyValue );
+		
+		if ( GetExpansionSettings().GetSpawn().SpawnWaterValue <= m_player.GetStatWater().GetMax()  )
+			m_player.GetStatWater().Set( GetExpansionSettings().GetSpawn().SpawnWaterValue );
 	}
 	
 	// ------------------------------------------------------------

@@ -92,8 +92,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				if ( containers.Count() == 0 )
 				{
 					string errorMsg = "No mission-specific loot and/or infected defined for mission " + MissionName + " and airdrop settings do not contain compatible container (looked for " + Container + " with Usage set to 0 or 1)";
-					Print( "[ExpansionMissionEventAirdrop] ERROR: " + errorMsg );
-					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR" ), new StringLocaliser( errorMsg ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 14 );
+					ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR"), new StringLocaliser(errorMsg)).Error();
 					return;
 				}
 
@@ -233,7 +232,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 				if ( GetExpansionSettings().GetNotification().ShowAirdropEnded && ShowNotification )
 				{
-					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
+					CreateNotification(new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name), EXPANSION_NOTIFICATION_ICON_AIRDROP, 7);
 				}
 			}
 		}

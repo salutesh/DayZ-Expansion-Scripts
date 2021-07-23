@@ -1092,6 +1092,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		}
 	}
 	
+	// ------------------------------------------------------------	
 	override string SettingName()
 	{
 		return "Airdrop Settings";

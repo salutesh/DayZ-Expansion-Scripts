@@ -314,8 +314,103 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{
 		if ( !IsMissionHost() )
 			return;
+				
+		if ( GetExpansionSettings().GetSpawn() )
+		{
+			int i;
+			EntityAI gear_item;
+			EntityAI itemTop;
+			EntityAI itemPants;
+			EntityAI itemBag;
+			EntityAI itemVest;
+			EntityAI parent = player;
+			ExpansionStartingGear gear;
+			
+			if ( Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear) )
+			{
+				//! Add items to top/shirt/jacked or player if there is no space
+				if ( gear.UseUpperGear )
+				{
+					itemTop = player.FindAttachmentBySlotName("Body");					
+					if ( itemTop )
+					{
+						for ( i = 0; i < gear.UpperGear.Count(); i++ )
+						{
+							AddItem(player, gear.UpperGear[i], itemTop);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.UpperGear[i], parent);
+					}
+				}
+				
+				//! Add items to pants
+				if ( gear.UsePantsGear )
+				{
+					itemPants = player.FindAttachmentBySlotName("Legs");					
+					if ( itemPants )
+					{
+						for ( i = 0; i < gear.PantsGear.Count(); i++ )
+						{
+							AddItem(player, gear.PantsGear[i], itemPants);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.PantsGear[i], parent);
+					}
+				}
+				
+				//! Add items to backpack
+				if ( gear.UseBackpackGear )
+				{
+					itemBag = player.FindAttachmentBySlotName("Back");					
+					if ( itemBag )
+					{
+						for ( i = 0; i < gear.BackpackGear.Count(); i++ )
+						{
+							AddItem(player, gear.BackpackGear[i], itemBag);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.BackpackGear[i], parent);
+					}
+				}
+				
+				//! Add items to vest
+				if ( gear.UseVestGear )
+				{
+					itemVest = player.FindAttachmentBySlotName("Vest");					
+					if ( itemVest )
+					{
+						for ( i = 0; i < gear.VestGear.Count(); i++ )
+						{
+							AddItem(player, gear.VestGear[i], itemVest);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.VestGear[i], parent);
+					}
+				}
+				
+				//! Add primary weapon and its attachments
+				if ( gear.UsePrimaryWeapon )
+				{
+					AddItem(player, gear.PrimaryWeapon, parent);
+				}
+				
+				//! Add primary weapon and its attachments
+				if ( gear.UseSecondaryWeapon )
+				{
+					AddItem(player, gear.SecondaryWeapon, parent);
+				}
+			}
+		}
 		
-		int i;
+		/*int i;
 		EntityAI gear_item;
 		EntityAI itemTop;
 		EntityAI itemPants;
@@ -426,7 +521,12 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 						SetRandomHealth( items[i] );
 				}
 			}
-		}
+		}*/
+	}
+	
+	private void AddItem(PlayerBase player, ExpansionStartingGearItem item, inout EntityAI parent)
+	{
+		ExpansionItemSpawnHelper.SpawnOnParent(item.ClassName, player, parent, item.Quantity, NULL, -1, true);
 	}
 	
 	// ------------------------------------------------------------

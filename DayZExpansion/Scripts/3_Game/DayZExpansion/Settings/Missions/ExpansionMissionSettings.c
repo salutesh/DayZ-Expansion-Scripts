@@ -15,6 +15,8 @@
  **/
 class ExpansionMissionSettings: ExpansionSettingBase
 {
+	static const int VERSION = 1;
+
 	bool Enabled;
 	
 	int InitialMissionStartDelay;
@@ -165,7 +167,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 				Missions.Remove( toRemove[j] );
 			}
 
-			Save();
+			if (toRemove.Count() > 0)
+				Save();
 
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionMissionSettings::Load - End");
@@ -204,6 +207,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionMissionSettings] Loading default settings");
+	
+		m_Version = VERSION;
 		
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
@@ -228,6 +233,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return m_GenerateDefaults;
 	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Mission Settings";

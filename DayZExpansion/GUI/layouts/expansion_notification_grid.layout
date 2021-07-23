@@ -5,7 +5,7 @@ PanelWidgetClass NotificationGridRoot {
  ignorepointer 1
  keepsafezone 1
  position 50 50
- size 0.15 0.9
+ size 0.25 0.9
  hexactpos 1
  vexactpos 1
  hexactsize 0

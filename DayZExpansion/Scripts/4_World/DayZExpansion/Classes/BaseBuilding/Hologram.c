@@ -276,26 +276,19 @@ modded class Hologram
 
 	override EntityAI PlaceEntity( EntityAI entity_for_placing )
 	{	
-		ItemBase item_in_hands = ItemBase.Cast( m_Player.GetHumanInventory().GetEntityInHands() );
-	
-		if ( item_in_hands )
+		if ( m_Projection.IsInherited( GardenPlotPlacing ) )
 		{
-			if ( item_in_hands.CanMakeGardenplot() )
-			{
-				Class.CastTo(entity_for_placing, GetGame().CreateObjectEx( m_Projection.GetType(), m_Projection.GetPosition(), ECE_OBJECT_SWAP ));
-			}
-
-			if( entity_for_placing.CanAffectPathgraph() )
-	   		{		
-	   			entity_for_placing.SetAffectPathgraph( true, false );
-	
-	   			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, entity_for_placing);
-	   		}
-
-			return entity_for_placing;
+			Class.CastTo(entity_for_placing, GetGame().CreateObjectEx( "GardenPlot", m_Projection.GetPosition(), ECE_OBJECT_SWAP ));
 		}
 
-		return super.PlaceEntity( entity_for_placing );
+		if( entity_for_placing.CanAffectPathgraph() )
+		{		
+			entity_for_placing.SetAffectPathgraph( true, false );
+
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, entity_for_placing);
+		}
+
+		return entity_for_placing;
 	} 
 
 	void HandleSnapping( out vector projPosition, out vector projOrientation )

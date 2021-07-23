@@ -14,6 +14,9 @@ class ExpansionObjectSpawnTools
 {
 	static string objectFilesFolder;
 	static string traderFilesFolder;
+	#ifdef ENFUSION_AI_PROJECT
+	static string aiTraderFilesFolder;
+	#endif
 
 	static void FindMissionFiles(string missionFolder, bool loadObjects, bool loadTraders)
 	{
@@ -22,6 +25,9 @@ class ExpansionObjectSpawnTools
 
 		objectFilesFolder = missionFolder + "\\expansion\\objects\\";
 		traderFilesFolder = missionFolder + "\\expansion\\traders\\";
+		#ifdef ENFUSION_AI_PROJECT
+		aiTraderFilesFolder = missionFolder + "\\expansion\\ai_traders\\";
+		#endif
 
 		if ( loadObjects && FileExist( objectFilesFolder ) )
 		{
@@ -36,7 +42,11 @@ class ExpansionObjectSpawnTools
 	#ifdef EXPANSIONMODMARKET
 		if ( loadTraders && FileExist( traderFilesFolder ) )
 		{
+			#ifdef ENFUSION_AI_PROJECT
+			traderFiles = FindFilesInLocation(aiTraderFilesFolder);
+			#else
 			traderFiles = FindFilesInLocation(traderFilesFolder);
+			#endif
 			if (traderFiles.Count() >= 0)
 			{
 
@@ -281,6 +291,8 @@ class ExpansionObjectSpawnTools
 		if ( !file )
 			return;
 		
+		int i, j;
+
 		while ( GetTraderFromMissionFile( file, traderName, positions, rotation, gear ) )
 		{
 			array<string> parts = new array<string>;
@@ -314,9 +326,28 @@ class ExpansionObjectSpawnTools
 				
 				if ( gear )
 				{
-					for( int i = 0; i < gear.Count(); i++ )
+					for( i = 0; i < gear.Count(); i++ )
 					{
-						trader.GetInventory().CreateAttachment( gear[i] );
+						array<string> items = new array<string>;
+						gear[i].Split("+", items);
+						EntityAI itemEnt = NULL;
+						//! Spawn weapon in hands
+						if ( trader.IsInherited( Man ) && GetGame().ConfigIsExisting( "CfgVehicles " + items[0] + " suicideAnim" ) || GetGame().IsKindOf( items[0], "Rifle_Base" ) || GetGame().IsKindOf( items[0], "Pistol_Base" ) || GetGame().IsKindOf( items[0], "Archery_Base" ) || GetGame().IsKindOf( items[0], "Launcher_Base" ) )
+							itemEnt = Man.Cast( trader ).GetHumanInventory().CreateInHands( items[0] );
+						//! Spawn everything else in inventory
+						if ( !itemEnt )
+							itemEnt = trader.GetInventory().CreateInInventory( items[0] );
+						ItemBase itemBase = ItemBase.Cast( itemEnt );
+						if ( itemEnt )
+						{
+							for ( j = 1; j < items.Count(); j++ )
+							{
+								if ( itemBase )
+									itemBase.ExpansionCreateInInventory( items[j] );
+								else
+									itemEnt.GetInventory().CreateInInventory( items[j] );
+							}
+						}
 					}
 				}
 
@@ -347,7 +378,8 @@ class ExpansionObjectSpawnTools
 
 					eAIGame game = MissionServer.Cast( GetGame().GetMission() ).GetEAIGame();
 					eAIGroup ownerGrp = game.GetGroupByLeader( traderAI );
-					for ( int j = 0; j < positions.Count(); j++ )
+					ownerGrp.SetFaction( new eAIFactionCivilian() );
+					for ( j = 0; j < positions.Count(); j++ )
 					{
 						EXPrint("Adding waypoint " + positions[j]);
 						ownerGrp.AddWaypoint( positions[j] );

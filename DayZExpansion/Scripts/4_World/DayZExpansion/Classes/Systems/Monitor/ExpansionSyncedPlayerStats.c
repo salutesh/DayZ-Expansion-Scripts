@@ -14,6 +14,49 @@
  * @brief		This class handles the sycronised player stats values
  **/
 
+class ExpansionSyncedPlayerStates
+{
+	int m_Bones;
+	int m_Sick;
+	int m_Cholera;
+	int m_Influenza;
+	int m_Salmonella;
+	int m_Poison;
+	int m_Infection;
+
+	ref array<int> m_States = new array<int>;
+
+	void OnSend( ParamsWriteContext ctx )
+	{
+		m_States = {m_Bones, m_Sick, m_Cholera, m_Influenza, m_Salmonella, m_Poison, m_Infection};
+
+		ctx.Write( m_States );
+	}
+
+	bool OnRecieve( ParamsReadContext ctx )
+	{
+		ctx.Read( m_States );
+		
+		SetStatest();
+
+		return true;
+	}
+	
+	private void SetStatest()
+	{
+		if (m_States && m_States.Count() > 0)
+		{
+			m_Bones = m_States.Get(0);
+			m_Sick = m_States.Get(1);
+			m_Cholera = m_States.Get(2);
+			m_Influenza = m_States.Get(3);
+			m_Salmonella = m_States.Get(4);
+			m_Poison = m_States.Get(5);
+			m_Infection = m_States.Get(6);
+		}
+	}
+};
+
 class ExpansionSyncedPlayerStats
 {
 	int m_Health;

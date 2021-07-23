@@ -10,31 +10,29 @@
  *
 */
 
-/**@class		ExpansionSocialMediaSettings
- * @brief		Social Media settings class
+/**@class		ExpansionSocialMediaSettingsBase
+ * @brief		Social Media settings base class
  **/
-class ExpansionSocialMediaSettings: ExpansionSettingBase
-{	
+class ExpansionSocialMediaSettingsBase: ExpansionSettingBase
+{
 	string Discord;
-	string Guilded;
 	string Homepage;
 	string Forums;
 	string YouTube;
 	string Steam;
 	string Twitter;
+	string Guilded;
+}
 
+/**@class		ExpansionSocialMediaSettings
+ * @brief		Social Media settings class
+ **/
+class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
+{
+	static const int VERSION = 0;
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-	// ------------------------------------------------------------
-	void ExpansionSocialMediaSettings()
-	{
-	}
-
-	// ------------------------------------------------------------
-	void ~ExpansionSocialMediaSettings()
-	{
-	}
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -118,13 +116,30 @@ class ExpansionSocialMediaSettings: ExpansionSettingBase
 		EXPrint("ExpansionSocialMediaSettings::CopyInternal - Start");
 		#endif
 		
+		//! Nothing to do here yet
+		
+		ExpansionSocialMediaSettingsBase sb = s;
+		CopyInternal( sb );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSocialMediaSettings::CopyInternal - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal( ref ExpansionSocialMediaSettingsBase s )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSocialMediaSettings::CopyInternal - Start");
+		#endif
+		
 		Discord = s.Discord;
-		Guilded = s.Guilded;
 		Homepage = s.Homepage;
 		Forums = s.Forums;
 		YouTube = s.YouTube;
 		Steam = s.Steam;
 		Twitter = s.Twitter;
+		Guilded = s.Guilded;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSocialMediaSettings::CopyInternal - End");
@@ -142,38 +157,63 @@ class ExpansionSocialMediaSettings: ExpansionSettingBase
 	{
 		m_IsLoaded = false;
 	}
-
+	
 	// ------------------------------------------------------------
 	override bool OnLoad()
-	{	
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSocialMediaSettings::Load - Start");
 		#endif
-		
+
 		m_IsLoaded = true;
-		
-		if ( FileExist( EXPANSION_SOCIALMEDIA_SETTINGS ) )
+
+		bool save;
+
+		bool socialMediaSettingsExist = FileExist(EXPANSION_SOCIALMEDIA_SETTINGS);
+
+		if (socialMediaSettingsExist)
 		{
-			Print("[ExpansionSocialMediaSettings] Loading settings");
+			ExpansionSocialMediaSettings settingsDefault = new ExpansionSocialMediaSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionSocialMediaSettings>.JsonLoadFile( EXPANSION_SOCIALMEDIA_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionSocialMediaSettings::Load - End - Loaded");
-			#endif
+			ExpansionSocialMediaSettingsBase settingsBase;
 
-			return true;
+			JsonFileLoader<ExpansionSocialMediaSettingsBase>.JsonLoadFile(EXPANSION_SOCIALMEDIA_SETTINGS, settingsBase);
+
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionSocialMediaSettings] Load - Converting v1 \"" + EXPANSION_SOCIALMEDIA_SETTINGS + "\" to v" + VERSION);
+					//! Nothing to do here yet
+				}
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionSocialMediaSettings>.JsonLoadFile(EXPANSION_SOCIALMEDIA_SETTINGS, this);
+			}
 		}
-
-		Defaults();
-		Save();
-
+		else
+		{
+			Defaults();
+			save = true;
+		}
+		
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Load - End - Not Loaded");
+		EXPrint("ExpansionSocialMediaSettings::Load - End - Loaded: " + socialMediaSettingsExist);
 		#endif
-		return false;
+		
+		return socialMediaSettingsExist;
 	}
-
+	
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
@@ -196,6 +236,8 @@ class ExpansionSocialMediaSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionSocialMediaSettings] Loading default settings");
+	
+		m_Version = VERSION;
 		
 		Discord = "";
 		Guilded = "";
@@ -204,10 +246,6 @@ class ExpansionSocialMediaSettings: ExpansionSettingBase
 		YouTube = "";
 		Steam = "";
 		Twitter = "";
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionSocialMediaSettings] Default settings loaded!");
-		#endif
 	}
 	
 	override string SettingName()

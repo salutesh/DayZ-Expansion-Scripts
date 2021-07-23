@@ -194,4 +194,10 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 		EnablePlayerList = true;
 		EnableTooltip = true;
 	}
+	
+	// ------------------------------------------------------------
+	override string SettingName()
+	{
+		return "Player List Settings";
+	}
 };

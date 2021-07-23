@@ -172,11 +172,7 @@ class Expansion_M203Round_Smoke_Purple extends Expansion_M203Round_Smoke_Colorba
 
 class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorbase
 {
-	protected const float MAX_SHOCK_INFLICTED = -25.0;
-	protected const float MIN_SHOCK_INFLICTED = -20.0;
-
-	protected int m_CoughTimer = 1000;
-	protected bool m_ZoneActive = false;
+	protected ref ExpansionTeargasHelper m_ExpansionTeargasHelper;
 
 	void Expansion_M203Round_Smoke_Teargas()
 	{
@@ -184,9 +180,12 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 		EXPrint("Expansion_M203Round_Smoke_Teargas::Expansion_M203Round_Smoke_Teargas Start");
 		#endif
 
+		m_ExpansionTeargasHelper = new ExpansionTeargasHelper( this );
+
 		SetParticleSmokeStart(ParticleList.GRENADE_M18_WHITE_START);
 		SetParticleSmokeLoop(ParticleList.GRENADE_M18_WHITE_LOOP);
 		SetParticleSmokeEnd(ParticleList.GRENADE_M18_WHITE_END);
+
 		Activate();
 
 		#ifdef EXPANSIONEXPRINT
@@ -202,62 +201,17 @@ class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorb
 		EXPrint("Expansion_M203Round_Smoke_Teargas::OnWorkStart Start");
 		#endif
 
-		m_ZoneActive = true;
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, 2000, false);
+		m_ExpansionTeargasHelper.OnWorkStart();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Expansion_M203Round_Smoke_Teargas::OnWorkStart End");
 		#endif
 	}
 
-	protected void MakePlayerCough()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Expansion_M18SmokeGrenade_Teargas::MakePlayerCough Start");
-		#endif
-
-		m_CoughTimer = Math.RandomIntInclusive(250, 5000);
-		ref array<Object> nearest_objects = new array<Object>();
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>();
-
-		GetGame().GetObjectsAtPosition3D(GetPosition(), 5, nearest_objects, proxy_cargos);
-
-		for (int i = 0; i < nearest_objects.Count(); i++)
-		{
-			Object nearest_object = nearest_objects.Get(i);
-			if (nearest_object.IsInherited(PlayerBase))
-			{
-				PlayerBase player = PlayerBase.Cast(nearest_object);
-				if (player && !IsProtected(player))
-				{
-					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_COUGH);
-					player.GiveShock(Math.RandomFloatInclusive(MAX_SHOCK_INFLICTED, MIN_SHOCK_INFLICTED));
-				}
-			}
-		}
-
-		if (m_ZoneActive)
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(MakePlayerCough, m_CoughTimer, false);
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Expansion_M18SmokeGrenade_Teargas::MakePlayerCough End");
-		#endif
-
-	}
-
-	protected bool IsProtected(notnull Man player)
-	{
-		EntityAI mask = player.GetInventory().FindAttachment(InventorySlots.MASK);
-		if (!mask) return false;
-
-		string protectionPath = "CfgVehicles " + mask.GetType() + " Protection ";
-		return GetGame().ConfigGetInt(protectionPath + "biological");
-	}
-
 	override void OnWorkStop()
 	{
 		super.OnWorkStop();
 
-		m_ZoneActive = false;
+		m_ExpansionTeargasHelper.OnWorkStop();
 	}
 }

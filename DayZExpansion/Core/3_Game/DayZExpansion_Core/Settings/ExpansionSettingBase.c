@@ -12,6 +12,8 @@
 
 class ExpansionSettingBase
 {
+	int m_Version;
+
 	void ExpansionSettingBase()
 	{
 	}
@@ -100,12 +102,15 @@ class ExpansionSettingBase
 
 	void Update( ExpansionSettingBase setting )
 	{
-		if ( setting == this )
-			EXPrint("ExpansionSettingBase::Update - Warning: " + setting + " is trying to copy from itself. This may be unintended.");
-		else
-			Copy( setting );
+		if ( setting )
+		{
+			if ( setting == this )
+				EXPrint("ExpansionSettingBase::Update - Warning: " + setting + " is trying to copy from itself. This may be unintended.");
+			else
+				Copy( setting );
 
-		Save();
+			Save();
+		}
 
 		if ( !IsMissionClient() )
 			Send( NULL );

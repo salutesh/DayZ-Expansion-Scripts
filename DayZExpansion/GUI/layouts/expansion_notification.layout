@@ -4,8 +4,7 @@ WrapSpacerWidgetClass NotificationRoot {
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
- position 100 50
- size 0.15 0
+ size 0.25 0
  hexactpos 1
  vexactpos 1
  hexactsize 0
@@ -32,7 +31,7 @@ WrapSpacerWidgetClass NotificationRoot {
    vexactsize 0
    scaled 1
    draggable 0
-   style DayZDefaultPanel
+   style DayZDefaultPanelRight
    "no focus" 1
    Padding 0
    Margin 0
@@ -47,7 +46,7 @@ WrapSpacerWidgetClass NotificationRoot {
      ignorepointer 1
      keepsafezone 0
      position 0 0
-     size 0.02 1
+     size 0.01 1
      hexactpos 1
      vexactpos 1
      hexactsize 0
@@ -157,7 +156,7 @@ WrapSpacerWidgetClass NotificationRoot {
          hexactsize 0
          vexactsize 0
          style DayZNormal
-         font "gui/fonts/etelkatextpro22"
+         font "gui/fonts/etelkatextpro28"
          "text offset" 2 0
          "exact text" 1
          "exact text size" 22
@@ -209,10 +208,9 @@ WrapSpacerWidgetClass NotificationRoot {
          vexactpos 1
          hexactsize 0
          vexactsize 0
-         font "gui/fonts/etelkatextpro16"
+         font "gui/fonts/etelkatextpro22"
          "text offset" 2 0
          "exact text" 1
-         "exact text size" 16
          "size to text h" 1
          "size to text v" 1
          "text valign" center
@@ -220,7 +218,7 @@ WrapSpacerWidgetClass NotificationRoot {
         }
        }
       }
-      GridSpacerWidgetClass FotterSpacer {
+      WrapSpacerWidgetClass FotterSpacer {
        visible 1
        ignorepointer 1
        color 1 1 1 0.9961
@@ -236,8 +234,6 @@ WrapSpacerWidgetClass NotificationRoot {
        Margin 0
        "Size To Content H" 1
        "Size To Content V" 1
-       Columns 2
-       Rows 1
        {
         PanelWidgetClass Spacer1 {
          ignorepointer 1
@@ -252,37 +248,6 @@ WrapSpacerWidgetClass NotificationRoot {
        }
       }
      }
-    }
-   }
-  }
-  GridSpacerWidgetClass HeaderSpcaer {
-   visible 1
-   ignorepointer 1
-   color 1 1 1 0.9961
-   position 0 0
-   size 1 0.116
-   hexactpos 1
-   vexactpos 1
-   hexactsize 0
-   vexactsize 0
-   style Empty
-   "no focus" 1
-   Padding 0
-   Margin 0
-   "Size To Content H" 1
-   "Size To Content V" 1
-   Columns 2
-   Rows 1
-   {
-    PanelWidgetClass Spacer0 {
-     ignorepointer 1
-     position 11 6
-     size 1 5
-     hexactpos 1
-     vexactpos 1
-     hexactsize 0
-     vexactsize 1
-     "no focus" 1
     }
    }
   }

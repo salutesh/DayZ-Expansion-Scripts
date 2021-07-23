@@ -56,7 +56,7 @@ modded class PlayerBase
 		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
 
 		m_HasCalledKillFeed = false;
-
+	
 		m_CountMap = 0;
 		m_CountGPS = 0;
 		m_CountPen = 0;
@@ -103,15 +103,6 @@ modded class PlayerBase
 		eAIBase eAI_Entity = eAIBase.Cast(this);
 	#endif
 		
-		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
-		{
-			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
-			if ( m_KillfeedModule )
-			{
-				m_KillfeedModule.PlayerKilled( this, killer );
-			}
-		}
-
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
@@ -137,7 +128,7 @@ modded class PlayerBase
 			if ( m_KillfeedModule && !IPADACK() )
 			{
 				UpdateIPADACK( !IsAlive() );
-				m_KillfeedModule.PlayerHitBy( damageType, this, source, ammo );
+				m_KillfeedModule.OnPlayerHitBy( damageType, this, source, ammo );
 			}
 		}
 

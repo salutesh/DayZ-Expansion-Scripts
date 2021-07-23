@@ -23,6 +23,15 @@ modded class PlayerBase
 	protected bool m_SafeZoneSynchRemote;
 	protected bool m_LeavingSafeZone;
 
+	#ifdef ENFUSION_AI_PROJECT
+	//! m_eAI_Group duplicated from eAI/Scripts/4_World/eAI/Entities/eAIBase.c, 
+	//! otherwise crash with "Can't find variable 'm_eAI_Group'"
+	//! unless you have eAI_Scripts in requiredAddons - I hate you EnforceScript :-(
+    private autoptr eAIGroup m_eAI_Group;
+
+	private autoptr eAIFaction m_eAI_Faction_NotInSafeZone;
+	#endif
+
 	void PlayerBase()
 	{
 		m_AllPlayers.Insert( this );
@@ -44,6 +53,17 @@ modded class PlayerBase
 			}
 		}
 	}
+
+	#ifdef ENFUSION_AI_PROJECT
+	//! GetGroup duplicated from eAI/Scripts/4_World/eAI/Entities/eAIBase.c, 
+	//! otherwise crash with "Undefined function 'PlayerBase@1807#13.GetGroup'"
+	//! unless you have eAI_Scripts in requiredAddons - I hate you EnforceScript :-(
+	//! NOTE: THIS IS NOT AN OVERRIDE
+	eAIGroup GetGroup()
+	{
+		return m_eAI_Group;
+	}
+	#endif
 
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentitySteam
@@ -104,7 +124,7 @@ modded class PlayerBase
 					continue;
 				
 				if ( player.GetIdentity().GetId() == id )
-					return PlayerBase.Cast( player );
+					return player;
 			}
 		}
 		
@@ -255,10 +275,24 @@ modded class PlayerBase
 	
 				SetAllowDamage(false);
 				
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_ENTER" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, GetIdentity() );
-			
-				if ( GetIdentity() && GetExpansionSettings().GetLog().Safezone )
-					GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
+				if ( GetIdentity() )
+				{
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_ENTER", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
+					
+					if ( GetExpansionSettings().GetLog().Safezone )
+						GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
+				}
+
+				#ifdef ENFUSION_AI_PROJECT
+				eAIFactionCivilian civilian = new eAIFactionCivilian();
+				if ( !GetGroup().GetFaction().isFriendly( civilian ) )
+				{
+					m_eAI_Faction_NotInSafeZone = GetGroup().GetFaction();
+					EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition() + " - faction " + m_eAI_Faction_NotInSafeZone + " -> " + civilian );
+					//! Assign a neutral faction so AI guards do not see us as a threat
+					GetGroup().SetFaction( civilian );
+				}
+				#endif
 	
 				SetSynchDirty();
 			}
@@ -285,7 +319,8 @@ modded class PlayerBase
 				m_SafeZone = false;
 				m_LeavingSafeZone = true;
 	
-				GetNotificationSystem().CreateNotification(new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_LEAVING" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, GetIdentity());
+				if ( GetIdentity() )
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEAVING", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
 				
 				//! Wait 10 seconds
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
@@ -310,17 +345,29 @@ modded class PlayerBase
 		{
 			if (IsMissionHost() && !m_SafeZone && m_LeavingSafeZone)
 			{
+				m_LeavingSafeZone = false;
 				m_SafeZoneSynchRemote = false;
 	
 				SetAllowDamage(true);
 				SetCanRaise(true);
 	
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_LEFT" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, GetIdentity() );
-			
-				m_LeavingSafeZone = false;
-	
-				if ( GetIdentity() && GetExpansionSettings().GetLog().Safezone )
-					GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
+				if ( GetIdentity() )
+				{
+					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEFT", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
+		
+					if ( GetExpansionSettings().GetLog().Safezone )
+						GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
+				}
+
+				#ifdef ENFUSION_AI_PROJECT
+				if ( m_eAI_Faction_NotInSafeZone )
+				{
+					//! Assign original faction
+					EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition() + " - assigning faction " + m_eAI_Faction_NotInSafeZone );
+					GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
+					m_eAI_Faction_NotInSafeZone = NULL;
+				}
+				#endif
 			
 				SetSynchDirty();
 			}

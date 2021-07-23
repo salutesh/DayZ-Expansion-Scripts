@@ -491,10 +491,10 @@ static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_SAVE;
 //! Game SaveVersion at which 1st step of converting over to ModStorage should happen 
 //! after release of CF with ModStorage support.
 //! Final conversion step will happen with release of next DayZ version AFTER that.
-//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 120, set this also to 120,
-//! and final conversion will happen at game SaveVersion 121 automatically.
+//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 121, set this also to 121,
+//! and final conversion will happen at game SaveVersion 122 automatically.
 //! Currently postponed until CF ModStorage support has been finalized.
-static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 999;
+static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 121;
 
 //! Expansion storage save version after 1st conversion step to ModStorage
 static const int EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET = EXPANSION_VERSION_SAVE;

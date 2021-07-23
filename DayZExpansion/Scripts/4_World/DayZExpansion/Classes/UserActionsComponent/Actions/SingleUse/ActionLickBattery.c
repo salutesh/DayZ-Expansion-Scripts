@@ -94,30 +94,30 @@ class ActionLickBattery: ActionSingleUseBase
 
 	void NotifyPlayer( PlayerIdentity identity )
 	{
-		ref StringLocaliser title;
-		ref StringLocaliser message;
+		string title;
+		string message;
 
 		if ( m_Battery.IsInherited( VehicleBattery ) && !GetWire() )
 		{
-			title = new StringLocaliser( "STR_EXPANSION_LICK_VEHICLEBATTERY_NEEDWIRE_TITLE" );
-			message = new StringLocaliser( "STR_EXPANSION_LICK_VEHICLEBATTERY_NEEDWIRE_TEXT" );
+			title = "STR_EXPANSION_LICK_VEHICLEBATTERY_NEEDWIRE_TITLE";
+			message = "STR_EXPANSION_LICK_VEHICLEBATTERY_NEEDWIRE_TEXT";
 		} else if ( m_Quantity > 0 )
 		{
 			if ( m_Battery.IsInherited( VehicleBattery ) )
 			{
-				title = new StringLocaliser( "STR_EXPANSION_LICKED_VEHICLEBATTERY_TITLE" );
-				message = new StringLocaliser( "STR_EXPANSION_LICKED_VEHICLEBATTERY_TEXT" );
+				title = "STR_EXPANSION_LICKED_VEHICLEBATTERY_TITLE";
+				message = "STR_EXPANSION_LICKED_VEHICLEBATTERY_TEXT";
 			} else
 			{
-				title = new StringLocaliser( "STR_EXPANSION_LICKED_BATTERY_TITLE" );
-				message = new StringLocaliser( "STR_EXPANSION_LICKED_BATTERY_TEXT" );
+				title = "STR_EXPANSION_LICKED_BATTERY_TITLE";
+				message = "STR_EXPANSION_LICKED_BATTERY_TEXT";
 			}
 		} else
 		{
-			title = new StringLocaliser( "STR_EXPANSION_LICKED_BATTERY_TITLE" );
-			message = new StringLocaliser( "STR_EXPANSION_LICKED_EMPTY_BATTERY_TEXT" );
+			title = "STR_EXPANSION_LICKED_BATTERY_TITLE";
+			message = "STR_EXPANSION_LICKED_EMPTY_BATTERY_TEXT";
 		}
 
-		GetNotificationSystem().CreateNotification( title, message, EXPANSION_NOTIFICATION_ICON_T_Batteries, ARGB( 255, 211, 84, 0 ), 10, identity );
+		ExpansionNotification(title, message, EXPANSION_NOTIFICATION_ICON_T_Batteries, ARGB( 255, 211, 84, 0 ), 10).Create(identity);
 	}
 }

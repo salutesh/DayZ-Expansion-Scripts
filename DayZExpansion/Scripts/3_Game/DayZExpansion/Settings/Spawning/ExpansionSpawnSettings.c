@@ -10,19 +10,67 @@
  *
 */
 
-/**@class		ExpansionSpawnSettings
- * @brief		Spawn settings class
+/**@class		ExpansionSpawnSettingsBase
+ * @brief		Spawn settings base class
  **/
-class ExpansionSpawnSettings: ExpansionSettingBase
+class ExpansionSpawnSettingsBase: ExpansionSettingBase
 {
 	ref ExpansionStartingClothing StartingClothing;
-	ref ExpansionStartingGear StartingGear;
-
 	bool EnableSpawnSelection;
 	int SpawnSelectionScreenMenuID;
 	bool SpawnOnTerritory;
-
 	ref array< ref ExpansionSpawnLocation > SpawnLocations;
+	
+	// ------------------------------------------------------------
+	void ExpansionSpawnSettingsBase()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettingsBase::ExpansionSpawnSettingsBase - Start");
+		#endif
+		
+		StartingClothing = new ExpansionStartingClothing;
+		SpawnLocations = new array< ref ExpansionSpawnLocation >;
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettingsBase::ExpansionSpawnSettingsBase - End");
+		#endif
+	}
+}
+
+/**@class		ExpansionSpawnSettingsV1
+ * @brief		Spawn settings base class
+ **/
+class ExpansionSpawnSettingsV1: ExpansionSpawnSettingsBase
+{
+	ref ExpansionStartingGearV1 StartingGear;
+	
+	// ------------------------------------------------------------
+	void ExpansionSpawnSettingsV1()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettingsV1::ExpansionSpawnSettingsV1 - Start");
+		#endif
+		
+		StartingGear = new ExpansionStartingGearV1;
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettingsV1::ExpansionSpawnSettingsV1 - End");
+		#endif
+	}
+}
+
+/**@class		ExpansionSpawnSettings
+ * @brief		Spawn settings class
+ **/
+class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
+{
+	static const int VERSION = 2;
+
+	ref ExpansionStartingGear StartingGear;
+	
+	int SpawnHealthValue;
+	int SpawnEnergyValue;
+	int SpawnWaterValue;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -34,23 +82,25 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - Start");
 		#endif
 		
-		StartingClothing = new ExpansionStartingClothing();
-		StartingGear = new ExpansionStartingGear();
-
-		SpawnLocations = new array< ref ExpansionSpawnLocation >;
+		StartingGear = new ExpansionStartingGear;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
 	void ~ExpansionSpawnSettings()
 	{
-		delete StartingClothing;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::~ExpansionSpawnSettings - Start");
+		#endif
+		
 		delete StartingGear;
 		
-		SpawnLocations.Clear();
-		delete SpawnLocations;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::~ExpansionSpawnSettings - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -80,11 +130,20 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		return true;
 	}
 	
+	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::OnSend - Start");
+		#endif
+		
 		ref ExpansionSpawnSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
+		
+		#ifdef OnSend
+		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -112,20 +171,52 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::Copy - Start");
+		#endif
+		
 		ExpansionSpawnSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
 
 		CopyInternal( s );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::Copy - End");
+		#endif
+		
 		return true;
 	}
-
+	
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionSpawnSettings s )
 	{
-		StartingClothing = s.StartingClothing;
-		StartingGear = s.StartingGear;
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::CopyInternal - Start");
+		#endif
+		
+		//! Added with v2
+		StartingGear = s.StartingGear;		
+		SpawnHealthValue = s.SpawnHealthValue;
+		SpawnEnergyValue = s.SpawnEnergyValue;
+		SpawnWaterValue = s.SpawnWaterValue;
 
+		ExpansionSpawnSettingsBase sb = s;
+		CopyInternal( sb );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::CopyInternal - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal(ref ExpansionSpawnSettingsBase s)
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::CopyInternal - Start");
+		#endif
+		
+		StartingClothing = s.StartingClothing;
 		EnableSpawnSelection = s.EnableSpawnSelection;
 		SpawnSelectionScreenMenuID = s.SpawnSelectionScreenMenuID;
 		SpawnOnTerritory = s.SpawnOnTerritory;
@@ -135,6 +226,10 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		{
 			SpawnLocations.Insert( s.SpawnLocations[i] );
 		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionSpawnSettings::CopyInternal - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -153,31 +248,119 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	override bool OnLoad()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Load - Start");
+		EXPrint("ExpansionSpawnSettings::OnLoad - Start");
 		#endif
 
 		m_IsLoaded = true;
 
-		if ( FileExist( EXPANSION_SPAWN_SETTINGS ) )
+		bool save;
+
+		bool spawnSettingsExist = FileExist(EXPANSION_SPAWN_SETTINGS);
+
+		if (spawnSettingsExist)
 		{
-			Print("[ExpansionSpawnSettings] Loading settings");
+			ExpansionSpawnSettings settingsDefault = new ExpansionSpawnSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionSpawnSettings>.JsonLoadFile( EXPANSION_SPAWN_SETTINGS, this );
+			ExpansionSpawnSettingsBase settingsBase;
 
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionSpawnSettings::Load - End");
-			#endif
+			JsonFileLoader<ExpansionSpawnSettingsBase>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, settingsBase);
 
-			return true;
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionSpawnSettings] Load - Converting v1 \"" + EXPANSION_SPAWN_SETTINGS + "\" to v" + VERSION);
+
+					ExpansionSpawnSettingsV1 settings_v1;
+					JsonFileLoader<ExpansionSpawnSettingsV1>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, settings_v1);
+					
+					//! Copy over old  StartingGear settings that haven't changed
+					StartingGear.EnableStartingGear = settings_v1.StartingGear.EnableStartingGear;
+					StartingGear.UseUpperGear = settings_v1.StartingGear.UseUpperGear;
+					StartingGear.UsePantsGear = settings_v1.StartingGear.UsePantsGear;
+					StartingGear.UseBackpackGear = settings_v1.StartingGear.UseBackpackGear;	
+					StartingGear.UseVestGear = settings_v1.StartingGear.UseVestGear;
+					StartingGear.UsePrimaryWeapon = settings_v1.StartingGear.UsePrimaryWeapon;	
+					StartingGear.UseSecondaryWeapon = settings_v1.StartingGear.UseSecondaryWeapon;			
+					StartingGear.ApplyEnergySources = settings_v1.StartingGear.ApplyEnergySources;		
+					StartingGear.SetRandomHealth = settings_v1.StartingGear.SetRandomHealth;
+					
+					//! Expansion starting gear string arrays have been removed and replaced with a class array with version 2.
+					foreach ( string upperName : settings_v1.StartingGear.UpperGear )
+					{
+						StartingGear.UpperGear.Insert( new ExpansionStartingGearItem( upperName, 1 ) );
+					}
+					
+					foreach ( string pantsName : settings_v1.StartingGear.PantsGear )
+					{
+						StartingGear.PantsGear.Insert( new ExpansionStartingGearItem( pantsName, 1 ) );
+					}
+					
+					foreach ( string backName : settings_v1.StartingGear.BackpackGear )
+					{
+						StartingGear.BackpackGear.Insert( new ExpansionStartingGearItem( backName, 1 ) );
+					}
+					
+					foreach ( string vestName : settings_v1.StartingGear.VestGear )
+					{
+						StartingGear.VestGear.Insert( new ExpansionStartingGearItem(vestName, 1) );
+					}
+
+					if (settings_v1.StartingGear.PrimaryWeapon != "")
+					{
+						if (settings_v1.StartingGear.PrimaryWeaponAttachments.Count() > 0)
+						{
+							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon, 1, settings_v1.StartingGear.PrimaryWeaponAttachments);
+						}
+						else
+						{
+							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon, 1);
+						}
+					}
+					
+					if (settings_v1.StartingGear.SecondaryWeapon != "")
+					{
+						if (settings_v1.StartingGear.SecondaryWeaponAttachments.Count() > 0)
+						{
+							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon, 1, settings_v1.StartingGear.SecondaryWeaponAttachments);
+						}
+						else
+						{
+							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon, 1);
+						}
+					}
+				
+					SpawnHealthValue = settingsDefault.SpawnHealthValue;	 //! SpawnHealthValue was added with version 2.
+					SpawnEnergyValue = settingsDefault.SpawnEnergyValue;	 //! SpawnEnergyValue was added with version 2.
+					SpawnWaterValue = settingsDefault.SpawnWaterValue;	 //! SpawnWaterValue was added with version 2.
+				}
+
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionSpawnSettings>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, this);
+			}
+		}
+		else
+		{
+			Defaults();
+			save = true;
 		}
 		
-		Defaults();
-		Save();
-
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Load - End");
+		EXPrint("ExpansionSpawnSettings::OnLoad - End");
 		#endif
-		return false;
+		
+		return spawnSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -193,9 +376,9 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionSpawnSettings] Loading default settings");
-		#endif
+		Print("[ExpansionSpawnSettings] Loading default settings");
+		
+		m_Version = VERSION;
 		
 		StartingGear.Defaults();
 		StartingClothing.Defaults();
@@ -236,6 +419,10 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		} else {
 			ExpansionSpawnsChernarus();
 		}
+		
+		SpawnHealthValue = 100.0;		// 100 is max
+		SpawnEnergyValue = 3750.0;	// 7500 is max
+		SpawnWaterValue = 2500.0; 	// 5000 is max
 	}
 
 	
@@ -867,6 +1054,7 @@ class ExpansionSpawnSettings: ExpansionSettingBase
 		#endif
 	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Spawn Settings";

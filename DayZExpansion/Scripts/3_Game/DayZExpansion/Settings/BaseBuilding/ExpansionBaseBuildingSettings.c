@@ -10,43 +10,46 @@
  *
 */
 
-/**@class		ExpansionBaseBuildingSettings
- * @brief		Spawn settings class
+/**@class		ExpansionBaseBuildingSettingsBase
+ * @brief		Base buidling settings base class
  **/
-class ExpansionBaseBuildingSettings: ExpansionSettingBase
+class ExpansionBaseBuildingSettingsBase: ExpansionSettingBase
 {
-	bool CanBuildAnywhere;									//! If enabled, allows players to build anywhere.
-	bool AllowBuildingWithoutATerritory; 					//! 0 - You can build without territory, but nobody else can build near your territory. | 1 - You can only build if you are in your own territory.
+	bool CanBuildAnywhere;														//! If enabled, allows players to build anywhere.
+	bool AllowBuildingWithoutATerritory; 									//! 0 - You can build without territory, but nobody else can build near your territory. | 1 - You can only build if you are in your own territory.
+	autoptr TStringArray DeployableOutsideATerritory;				//! List of items that you can place everywhere but not in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1.
+	autoptr TStringArray DeployableInsideAEnemyTerritory;		//! List of items that are allowed to place in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1 or 0.
+	bool CanCraftVanillaBasebuilding;										//! When enabled, allows players to craft Vanilla basebuilding.
+	bool CanCraftExpansionBasebuilding;									//! When enabled, allows players to craft Expansion basebuilding.
+	bool DestroyFlagOnDismantle;												//! When enabled, destroys both flag pole and the flag kit on dismantle.
+	DismantleFlagMode DismantleFlagRequireTools;					//! -1 = can't dismantle | 0 = doesn't need tools to dismantle | 1 = dismantle with tools
+	bool DismantleOutsideTerritory;											//! When enabled, allows players to dismantle basebuilding without territory.
+	bool DismantleInsideTerritory;											//! When enabled, allows players to dismantle basebuilding inside another territory.
+	bool DismantleAnywhere;													//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
+	CodelockAttachMode CanAttachCodelock;								//! 0 = only on expansion basebuilding | 1 = also on tents (and exp) | 2 = also on fence (and exp) | 3 = also on tents and fence (and exp)
+	bool CodelockActionsAnywhere;											//! If enabled, Allow the player to get code lock actions from anywhere on the target instead of the codelock selection.
+	int CodeLockLength;															//! Lenght of pin code required for the code lock.
+	bool DoDamageWhenEnterWrongCodeLock;							//! If enabled, deals the damage to the player when entering the wrong code lock.
+	float DamageWhenEnterWrongCodeLock;							//! Amount of damage player takes when entering the wrong code in the code lock.
+	bool RememberCode;														//! Remember code once entered correctly
+	bool CanCraftTerritoryFlagKit;												//! When enabled this will allow the crafting of the territory flag kit.
+	bool SimpleTerritory;															//! When enabled this will construct the full flag pole when a flag kit is deployed.
+	bool AutomaticFlagOnCreation;											//! When enabled this will add the flag attachment to the flag pole once the territory pole has been constructed
+	FlagMenuMode EnableFlagMenu;											//! When enabled this allow to use the flag menu on territory flags.
+	bool GetTerritoryFlagKitAfterBuild;										//! When enabled this will spawn a territory flag kit next to the full constructed flag pole.
+}
+
+/**@class		ExpansionBaseBuildingSettings
+ * @brief		Base buidling settings class
+ **/
+class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
+{
+	static const int VERSION = 2;
+
+	string BuildZoneRequiredCustomMessage;							//! Custom message for build zone required (optional, uses default message if not set)
+	ref array < ref ExpansionBuildNoBuildZone > Zones;			//! "No build" or "build" zones
+	bool ZonesAreNoBuildZones;											//! Whether the provided zones are "no build" zones (true = can not build in the zones) or "build" zones (false = can ONLY build in the zones)
 	
-	autoptr TStringArray DeployableOutsideATerritory;		//! List of items that you can place everywhere but not in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1.
-	autoptr TStringArray DeployableInsideAEnemyTerritory;	//! List of items that are allowed to place in enemy territory, only works when AllowBuildingWithoutATerritory is set to 1 or 0.
-
-	ref array < ref ExpansionBuildNoBuildZone > Zones;		//! "No build" or "build" zones
-	bool ZonesAreNoBuildZones;								//! Whether the provided zones are "no build" zones (true = can not build in the zones) or "build" zones (false = can ONLY build in the zones)
-	string BuildZoneRequiredCustomMessage;					//! Custom message for build zone required (optional, uses default message if not set)
-	
-	bool CanCraftVanillaBasebuilding;						//! When enabled, allows players to craft Vanilla basebuilding.
-	bool CanCraftExpansionBasebuilding;						//! When enabled, allows players to craft Expansion basebuilding.
-
-	bool DestroyFlagOnDismantle;							//! When enabled, destroys both flag pole and the flag kit on dismantle.
-	DismantleFlagMode DismantleFlagRequireTools;			//! -1 = can't dismantle | 0 = doesn't need tools to dismantle | 1 = dismantle with tools
-	bool DismantleOutsideTerritory;							//! When enabled, allows players to dismantle basebuilding without territory.
-	bool DismantleInsideTerritory;							//! When enabled, allows players to dismantle basebuilding inside another territory.
-	bool DismantleAnywhere;									//! When enabled, allows players to dismantle basebuilding anywhere and not only on the soft side.
-	
-	CodelockAttachMode CanAttachCodelock;					//! 0 = only on expansion basebuilding | 1 = also on tents (and exp) | 2 = also on fence (and exp) | 3 = also on tents and fence (and exp)
-	bool CodelockActionsAnywhere;							//! If enabled, Allow the player to get code lock actions from anywhere on the target instead of the codelock selection.
-	int CodeLockLength;										//! Lenght of pin code required for the code lock.
-	bool DoDamageWhenEnterWrongCodeLock;					//! If enabled, deals the damage to the player when entering the wrong code lock.
-	float DamageWhenEnterWrongCodeLock;						//! Amount of damage player takes when entering the wrong code in the code lock.
-	bool RememberCode;										//! Remember code once entered correctly
-
-	bool CanCraftTerritoryFlagKit;							//! When enabled this will allow the crafting of the territory flag kit.
-	bool SimpleTerritory;									//! When enabled this will construct the full flag pole when a flag kit is deployed.
-	bool AutomaticFlagOnCreation;							//! When enabled this will add the flag attachment to the flag pole once the territory pole has been constructed
-	FlagMenuMode EnableFlagMenu;							//! When enabled this allow to use the flag menu on territory flags.
-	bool GetTerritoryFlagKitAfterBuild;						//! When enabled this will spawn a territory flag kit next to the full constructed flag pole.
-
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -134,9 +137,26 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		CopyInternal( s );
 		return true;
 	}
-
+	
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionBaseBuildingSettings s )
+	{
+		BuildZoneRequiredCustomMessage = s.BuildZoneRequiredCustomMessage;
+		
+		Zones.Clear();
+		for (int i = 0; i < s.Zones.Count(); i++)
+		{
+			Zones.Insert( s.Zones[i] );
+		}
+		
+		ZonesAreNoBuildZones = s.ZonesAreNoBuildZones;
+		
+		ExpansionBaseBuildingSettingsBase sb = s;
+		CopyInternal( sb );
+	}
+
+	// ------------------------------------------------------------
+	private void CopyInternal( ref ExpansionBaseBuildingSettingsBase s )
 	{
 		CanBuildAnywhere = s.CanBuildAnywhere;
 		AllowBuildingWithoutATerritory = s.AllowBuildingWithoutATerritory;
@@ -152,15 +172,6 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		{
 			DeployableInsideAEnemyTerritory.Insert( s.DeployableInsideAEnemyTerritory[i] );
 		}
-		
-		Zones.Clear();
-		for (i = 0; i < s.Zones.Count(); i++)
-		{
-			Zones.Insert( s.Zones[i] );
-		}
-
-		ZonesAreNoBuildZones = s.ZonesAreNoBuildZones;
-		BuildZoneRequiredCustomMessage = s.BuildZoneRequiredCustomMessage;
 
 		CanCraftVanillaBasebuilding = s.CanCraftVanillaBasebuilding;
 		CanCraftExpansionBasebuilding = s.CanCraftExpansionBasebuilding;
@@ -195,7 +206,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	{
 		m_IsLoaded = false;
 	}
-
+	
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
@@ -205,27 +216,53 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 
 		m_IsLoaded = true;
 
-		if ( FileExist( EXPANSION_BASE_BUILDING_SETTINGS ) )
+		bool save;
+
+		bool baseBuildingSettingsExist = FileExist(EXPANSION_BASE_BUILDING_SETTINGS);
+
+		if (baseBuildingSettingsExist)
 		{
-			Print("[ExpansionBaseBuildingSettings] Loading settings");
+			ExpansionBaseBuildingSettings settingsDefault = new ExpansionBaseBuildingSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionBaseBuildingSettings>.JsonLoadFile( EXPANSION_BASE_BUILDING_SETTINGS, this );
+			ExpansionBaseBuildingSettingsBase settingsBase;
 
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionBaseBuildingSettings::Load - End");
-			#endif
+			JsonFileLoader<ExpansionBaseBuildingSettingsBase>.JsonLoadFile(EXPANSION_BASE_BUILDING_SETTINGS, settingsBase);
 
-			return true;
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionBaseBuildingSettings] Load - Converting v1 \"" + EXPANSION_BASE_BUILDING_SETTINGS + "\" to v" + VERSION);
+					
+					//! New with v2
+					CopyInternal(settingsDefault);
+				}
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionBaseBuildingSettings>.JsonLoadFile(EXPANSION_BASE_BUILDING_SETTINGS, this);
+			}
+		}
+		else
+		{
+			Defaults();
+			save = true;
 		}
 		
-		Defaults();
-		Save();
-
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBaseBuildingSettings::Load - End");
+		EXPrint("ExpansionBaseBuildingSettings::Load - End - Loaded: " + baseBuildingSettingsExist);
 		#endif
-
-		return false;
+		
+		return baseBuildingSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -242,12 +279,28 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 	{
 		Print("[ExpansionBaseBuildingSettings] Loading default settings");
 
+		m_Version = VERSION;
+		
 		CanBuildAnywhere = true;
 		AllowBuildingWithoutATerritory = true;
 
 		DeployableOutsideATerritory.Insert("ExpansionSatchel");
 		DeployableOutsideATerritory.Insert("Fireplace");
 		DeployableOutsideATerritory.Insert("TerritoryFlagKit");
+		DeployableOutsideATerritory.Insert("TerritoryFlag");
+		DeployableOutsideATerritory.Insert("MediumTent");
+		DeployableOutsideATerritory.Insert("LargeTent");
+		DeployableOutsideATerritory.Insert("CarTent");
+		DeployableOutsideATerritory.Insert("PartyTent");
+		DeployableOutsideATerritory.Insert("ExpansionCamoTentKit");
+		DeployableOutsideATerritory.Insert("ExpansionCamoBoxKit");
+		DeployableOutsideATerritory.Insert("ShelterKit");
+		DeployableOutsideATerritory.Insert("BearTrap");
+		DeployableOutsideATerritory.Insert("ExpansionSafeLarge");
+		DeployableOutsideATerritory.Insert("ExpansionSafeMedium");
+		DeployableOutsideATerritory.Insert("ExpansionSafeSmall");
+		DeployableOutsideATerritory.Insert("SeaChest");
+		DeployableOutsideATerritory.Insert("GardenPlot");
 		
 		DeployableInsideAEnemyTerritory.Insert("ExpansionSatchel");
 		DeployableInsideAEnemyTerritory.Insert("LandMineTrap");
@@ -277,6 +330,7 @@ class ExpansionBaseBuildingSettings: ExpansionSettingBase
 		GetTerritoryFlagKitAfterBuild = false;
 	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Base-Building Settings";

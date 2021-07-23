@@ -10,43 +10,47 @@
  *
 */
 
-/**@class		ExpansionVehicleSettings
- * @brief		Vehicle settings class
+
+/**@class		ExpansionVehicleSettingsBase
+ * @brief		Vehicle settings base class
  **/
-class ExpansionVehicleSettings: ExpansionSettingBase
+class ExpansionVehicleSettingsBase: ExpansionSettingBase
 {
-	ExpansionVehicleNetworkMode VehicleSync;				//! 0 = SERVER_ONLY | 1 = PREDICTION | 2 = CLIENT
+	ExpansionVehicleNetworkMode VehicleSync;							//! 0 = SERVER_ONLY | 1 = PREDICTION | 2 = CLIENT
 
 	ExpansionVehicleKeyStartMode VehicleRequireKeyToStart; 	//! 0 = Disabled | 1 = Require key to start the engine (will check hands, cargo, inventory) | 2 = check only in the hand
-	bool VehicleRequireAllDoors;							//! If enabled, you will need all the doors to lock/unlock the car
-	bool VehicleLockedAllowInventoryAccess;					//! If enabled, will be able to see the vehicle inventory regardless of the car have all his doors
-	bool VehicleLockedAllowInventoryAccessWithoutDoors;		//! If enabled, will be able to see the vehicle inventory only if at least one car door is missing
-
-	int MasterKeyPairingMode;								//! -1 = infinite | 0 = disabled | 1 = limited (will use MasterKeyUses) | 2 = renewable with a electronicrepairkit and KeyGrinder (use MasterKeyUses) | 3 = renewable only with a KeyGrinder (use MasterKeyUses)
-	int MasterKeyUses;										//! Amount of times the masterkey can pair unpaired keys
-
+	bool VehicleRequireAllDoors;												//! If enabled, you will need all the doors to lock/unlock the car
+	bool VehicleLockedAllowInventoryAccess;								//! If enabled, will be able to see the vehicle inventory regardless of the car have all his doors
+	bool VehicleLockedAllowInventoryAccessWithoutDoors;			//! If enabled, will be able to see the vehicle inventory only if at least one car door is missing
+	int MasterKeyPairingMode;													//! -1 = infinite | 0 = disabled | 1 = limited (will use MasterKeyUses) | 2 = renewable with a electronicrepairkit and KeyGrinder (use MasterKeyUses) | 3 = renewable only with a KeyGrinder (use MasterKeyUses)
+	int MasterKeyUses;															//! Amount of times the masterkey can pair unpaired keys
 	bool CanPickLock;
 	autoptr TStringArray PickLockTools;
 	float PickLockChancePercent;
 	int PickLockTimeSeconds;
 	float PickLockToolDamagePercent;
+	bool EnableWindAerodynamics;										//! If enabled, wind simulation will be enabled
+	bool EnableTailRotorDamage;											//! If enabled, the rotor will be damageable
+	bool PlayerAttachment;													//! If enabled, allow players to be attached to vehicles while in movement
+	bool Towing;																	//! If enabled, allow vehicle to tow other vehicles
+	bool EnableHelicopterExplosions;										//! If enabled, allow Helicopters to explode
+	bool DisableVehicleDamage;											//! If disabled, vehicles (cars, trucks) won't take any damages
+	float VehicleCrewDamageMultiplier;								//! Damage multiplier for the crew. How fast they will blackout or die.
+	float VehicleSpeedDamageMultiplier;								//! Damage multiplier for the speed of the car. Above 0 is weaker and below 0 is stronger.
+}
 
+/**@class		ExpansionVehicleSettings
+ * @brief		Vehicle settings class
+ **/
+class ExpansionVehicleSettings: ExpansionVehicleSettingsBase
+{
+	static const int VERSION = 2;
+	
 	bool CanChangeLock;
 	autoptr TStringArray ChangeLockTools;
 	int ChangeLockTimeSeconds;
 	float ChangeLockToolDamagePercent;
-
-	bool EnableWindAerodynamics;							//! If enabled, wind simulation will be enabled
-	bool EnableTailRotorDamage;								//! If enabled, the rotor will be damageable
-
-	bool PlayerAttachment;									//! If enabled, allow players to be attached to vehicles while in movement
-	bool Towing;											//! If enabled, allow vehicle to tow other vehicles
-
-	bool EnableHelicopterExplosions;						//! If enabled, allow Helicopters to explode
-	bool DisableVehicleDamage;								//! If disabled, vehicles (cars, trucks) won't take any damages
-	float VehicleCrewDamageMultiplier;						//! Damage multiplier for the crew. How fast they will blackout or die.
-	float VehicleSpeedDamageMultiplier;						//! Damage multiplier for the speed of the car. Above 0 is weaker and below 0 is stronger.
-
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -131,9 +135,29 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		CopyInternal( s );
 		return true;
 	}
-
+	
 	// ------------------------------------------------------------
 	private void CopyInternal( ref ExpansionVehicleSettings s )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionVehicleSettings::CopyInternal - Start");
+		#endif
+		
+		CanChangeLock  = s.CanChangeLock ;
+		ChangeLockTimeSeconds = s.ChangeLockTimeSeconds;
+		ChangeLockToolDamagePercent = s.ChangeLockToolDamagePercent;
+		ChangeLockTools.Copy(s.ChangeLockTools);
+		
+		ExpansionVehicleSettingsBase sb = s;
+		CopyInternal( sb );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal( ref ExpansionVehicleSettingsBase s )
 	{
 		//! TODO: Need to find where in the code it tries to copy from itself
 		if ( s == this )
@@ -144,36 +168,22 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 		#endif
 
 		VehicleSync = s.VehicleSync; // Not ready
-
 		VehicleRequireKeyToStart = s.VehicleRequireKeyToStart;
 		VehicleRequireAllDoors = s.VehicleRequireAllDoors;
 		VehicleLockedAllowInventoryAccess = s.VehicleLockedAllowInventoryAccess;
 		VehicleLockedAllowInventoryAccessWithoutDoors = s.VehicleLockedAllowInventoryAccessWithoutDoors;
-
 		MasterKeyPairingMode = s.MasterKeyPairingMode;
 		MasterKeyUses = s.MasterKeyUses;
-
-		CanPickLock = s.CanPickLock;
 		PickLockChancePercent = s.PickLockChancePercent;
 		PickLockTimeSeconds = s.PickLockTimeSeconds;
 		PickLockToolDamagePercent = s.PickLockToolDamagePercent;
-
 		PickLockTools.Copy(s.PickLockTools);
-
-		CanChangeLock = s.CanChangeLock;
-		ChangeLockTimeSeconds = s.ChangeLockTimeSeconds;
-		ChangeLockToolDamagePercent = s.ChangeLockToolDamagePercent;
-
-		ChangeLockTools.Copy(s.ChangeLockTools);
-		
+		CanPickLock = s.CanPickLock;
 		EnableWindAerodynamics = s.EnableWindAerodynamics;
 		EnableTailRotorDamage = s.EnableTailRotorDamage;
-
 		PlayerAttachment = s.PlayerAttachment;
 		Towing = s.Towing;
-
 		EnableHelicopterExplosions = s.EnableHelicopterExplosions;
-		
 		DisableVehicleDamage = s.DisableVehicleDamage;
 		VehicleCrewDamageMultiplier = s.VehicleCrewDamageMultiplier;
 		VehicleSpeedDamageMultiplier = s.VehicleSpeedDamageMultiplier;
@@ -194,40 +204,66 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	{
 		m_IsLoaded = false;
 	}
-
-	// ------------------------------------------------------------
+	
+		// ------------------------------------------------------------
 	override bool OnLoad()
-	{	
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Load - Start");
 		#endif
-		
+
 		m_IsLoaded = true;
-		
-		if ( FileExist( EXPANSION_VEHICLE_SETTINGS ) )
+
+		bool save;
+
+		bool socialMediaSettingsExist = FileExist(EXPANSION_VEHICLE_SETTINGS);
+
+		if (socialMediaSettingsExist)
 		{
-			Print("[ExpansionVehicleSettings] Loading settings");
+			ExpansionVehicleSettings settingsDefault = new ExpansionVehicleSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionVehicleSettings>.JsonLoadFile( EXPANSION_VEHICLE_SETTINGS, this );
-	
-			Update( this );
+			ExpansionVehicleSettingsBase settingsBase;
 
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionVehicleSettings::Load - End - Loaded");
-			#endif
+			JsonFileLoader<ExpansionVehicleSettingsBase>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, settingsBase);
 
-			return true;
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionVehicleSettings] Load - Converting v1 \"" + EXPANSION_VEHICLE_SETTINGS + "\" to v" + VERSION);
+					
+					//! Added with v2
+					CopyInternal(settingsDefault);
+				}
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionVehicleSettings>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, this);
+				
+			}
+		}
+		else
+		{
+			Defaults();
+			save = true;
 		}
 
-		Defaults();
-		Save();
-
-		Update( this );
-
+		Update( NULL );
+		
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Load - End - Not Loaded");
+		EXPrint("ExpansionVehicleSettings::Load - End - Loaded: " + socialMediaSettingsExist);
 		#endif
-		return false;
+		
+		return socialMediaSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -258,6 +294,8 @@ class ExpansionVehicleSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionVehicleSettings] Loading default settings");
+	
+		m_Version = VERSION;
 
 		VehicleSync = ExpansionVehicleNetworkMode.PREDICTION;
 
