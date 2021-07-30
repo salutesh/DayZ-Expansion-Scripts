@@ -48,7 +48,7 @@ class ExpansionCOTPartyModule: ExpansionCOTModuleBase
 		return "Expansion Party Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetParty();
 	}
@@ -89,7 +89,7 @@ class ExpansionCOTPartyModule: ExpansionCOTModuleBase
 		return ExpansionCOTPartyModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -102,12 +102,12 @@ class ExpansionCOTPartyModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionPartySettings setting = new ExpansionPartySettings();
+		ExpansionPartySettings setting = new ExpansionPartySettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

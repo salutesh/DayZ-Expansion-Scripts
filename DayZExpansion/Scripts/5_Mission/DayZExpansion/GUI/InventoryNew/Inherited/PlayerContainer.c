@@ -18,7 +18,7 @@ modded class PlayerContainer
 		SlotsIcon icon;
 
 		string config_path_ghosts_slots = "CfgVehicles SurvivorBase InventoryEquipment playerSlots";
-		ref array<string> player_ghosts_slots = new array<string>;
+		array<string> player_ghosts_slots = new array<string>;
 		GetGame().ConfigGetTextArray( config_path_ghosts_slots, player_ghosts_slots );
 		
 		for ( int i = 0; i < player_ghosts_slots.Count(); i++ )

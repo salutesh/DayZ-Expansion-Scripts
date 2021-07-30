@@ -77,7 +77,11 @@ class ExpansionMissionCOTModule: JMRenderableModuleBase
 		return ExpansionMissionCOTModuleRPC.COUNT;
 	}
 
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -99,7 +103,7 @@ class ExpansionMissionCOTModule: JMRenderableModuleBase
 		}
 	}
 
-	private void RPC_Load( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_Load( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( GetPermissionsManager().HasPermission( "Expansion.Mission.View", senderRPC ) )
 		{

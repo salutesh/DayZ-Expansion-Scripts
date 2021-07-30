@@ -75,7 +75,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion SetMembers
 	// ------------------------------------------------------------
-	void SetMembers(ref array<ref ExpansionTerritoryMember> members)
+	void SetMembers( array<ref ExpansionTerritoryMember> members)
 	{
 		TerritoryMembers = members;
 	}
@@ -142,7 +142,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion GetMember
 	// ------------------------------------------------------------	
-	ref ExpansionTerritoryMember GetMember(string uid)
+	ExpansionTerritoryMember GetMember(string uid)
 	{
 		for(int i = 0; i < TerritoryMembers.Count(); ++i)
 		{
@@ -158,7 +158,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion SetInvites
 	// ------------------------------------------------------------
-	void SetInvites(ref array<ref ExpansionTerritoryInvite> invites)
+	void SetInvites( array<ref ExpansionTerritoryInvite> invites)
 	{
 		Invites = invites;
 	}
@@ -232,7 +232,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion HasInvite
 	// ------------------------------------------------------------
-	ref ExpansionTerritoryInvite GetInvite(string uid)
+	ExpansionTerritoryInvite GetInvite(string uid)
 	{
 		for (int i = 0; i < Invites.Count(); ++i)
 		{
@@ -248,7 +248,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion GetTerritoryMembers
 	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
+	array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
 	{
 		return Invites;
 	}
@@ -256,7 +256,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion GetTerritoryMembers
 	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritoryMember> GetTerritoryMembers()
+	array<ref ExpansionTerritoryMember> GetTerritoryMembers()
 	{
 		return TerritoryMembers;
 	}

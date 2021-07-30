@@ -50,7 +50,7 @@ class Quaternion
 		#endif
 		
 		if ( matrix == NULL )
-			matrix = new ref Matrix3;
+			matrix = new Matrix3;
 
 		Math3D.QuatToMatrix( data, matrix.data );
 		
@@ -91,13 +91,13 @@ class Quaternion
 		#endif
 	}
 
-	static ref Quaternion Rotation( float angle, vector axis )
+	static Quaternion Rotation( float angle, vector axis )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "Quaternion::Rotation - Start" );
 		#endif
 		
-		Quaternion q = new ref Quaternion;
+		Quaternion q = new Quaternion;
 		q.SetRotation( angle, axis );
 		
 		#ifdef EXPANSIONEXPRINT

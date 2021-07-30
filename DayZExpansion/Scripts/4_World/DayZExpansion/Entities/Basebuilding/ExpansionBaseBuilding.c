@@ -320,7 +320,7 @@ modded class ExpansionBaseBuilding
 		EXPrint("[bsb] " + GetDebugName(this) + " BaseBuildingBase::UpdatePhysics");
 		#endif
 		
-		ref array<string> attachment_slots = new ref array<string>;
+		array<string> attachment_slots = new array<string>;
 		GetAttachmentSlots( this, attachment_slots );
 		bsbDebugPrint("[bsb] " + GetDebugName(this) + " att_cnt=" + attachment_slots.Count());
 		#ifdef EXPANSIONEXPRINT

@@ -12,48 +12,48 @@
 
 modded class InGameMenu
 {
-	protected static float 		DEAD_SCREEN_FADEIN_TIME = 3.0;					//fade starts as soon as deadscreen gets diplayed
-	protected static float 		DEAD_SCREEN_IMAGE_FADEIN_TIME = 1.5;			//fade starts halfway through deadscreen fade in
+	protected static float 					DEAD_SCREEN_FADEIN_TIME = 3.0;					//fade starts as soon as deadscreen gets diplayed
+	protected static float 					DEAD_SCREEN_IMAGE_FADEIN_TIME = 1.5;			//fade starts halfway through deadscreen fade in
 	
-	protected float				m_DeadScreenFadeInIncrement;
-	protected float				m_DeadScreenFadeInLevel;
-	protected float				m_DeadScreenImageFadeInIncrement;
-	protected float				m_DeadScreenImageFadeInLevel;
+	protected float								m_DeadScreenFadeInIncrement;
+	protected float								m_DeadScreenFadeInLevel;
+	protected float								m_DeadScreenImageFadeInIncrement;
+	protected float								m_DeadScreenImageFadeInLevel;
 
-	protected float 			m_Distance;
-	protected float 			m_Playtime;
-	protected float 			m_PlayersKilled;
-	protected float 			m_InfectedKilled;
-	protected float 			m_AnimalsKilled;
-	protected float				m_LongestShot;
+	protected float 								m_Distance;
+	protected float 								m_Playtime;
+	protected float 								m_PlayersKilled;
+	protected float 								m_InfectedKilled;
+	protected float 								m_AnimalsKilled;
+	protected float								m_LongestShot;
 	
-	protected TextWidget		m_DeadSourceVal;
-	protected TextWidget		m_LongestShotVal;
-	protected TextWidget		m_DistanceVal;
-	protected TextWidget		m_AnimalsKilledVal;
-	protected TextWidget		m_InfectedKilledVal;
-	protected TextWidget		m_PlayersKilledVal;
-	protected TextWidget		m_TimeSurvivedVal;
-	protected ButtonWidget		m_DeadScreenStatsHideButton;
-	protected TextWidget		m_DeadSceenStatsPanelTitle;
-	protected Widget			m_DeadSceenStatsPanel;
-	protected TextWidget		m_DeadSceenStatsButtonLable;
-	protected ButtonWidget		m_DeadSceenStatsButton;
-	protected Widget			m_DeadSceenStatsButtonPanel;
-	protected ImageWidget 		m_DeadScreenImage;
-	protected Widget 			m_DeadScreenRoot;
-	protected Widget 			m_DeadScreen;
+	protected TextWidget						m_DeadSourceVal;
+	protected TextWidget						m_LongestShotVal;
+	protected TextWidget						m_DistanceVal;
+	protected TextWidget						m_AnimalsKilledVal;
+	protected TextWidget						m_InfectedKilledVal;
+	protected TextWidget						m_PlayersKilledVal;
+	protected TextWidget						m_TimeSurvivedVal;
+	protected ButtonWidget					m_DeadScreenStatsHideButton;
+	protected TextWidget						m_DeadSceenStatsPanelTitle;
+	protected Widget							m_DeadSceenStatsPanel;
+	protected TextWidget						m_DeadSceenStatsButtonLable;
+	protected ButtonWidget					m_DeadSceenStatsButton;
+	protected Widget							m_DeadSceenStatsButtonPanel;
+	protected ImageWidget 					m_DeadScreenImage;
+	protected Widget 							m_DeadScreenRoot;
+	protected Widget 							m_DeadScreen;
 
-	protected float 			m_ShowAlpha;
-	protected float 			m_TimerSlice;	
-	protected bool 				m_WasGPSVisible;
-	protected bool 				m_WasClockVisible;
+	protected float 								m_ShowAlpha;
+	protected float 								m_TimerSlice;	
+	protected bool 								m_WasGPSVisible;
+	protected bool 								m_WasClockVisible;
 	
-	protected ImageWidget		m_Logo;
-	protected WrapSpacerWidget	m_Licensing;
+	protected ImageWidget					m_Logo;
+	protected WrapSpacerWidget			m_Licensing;
 	
-	protected Widget			m_NewsfeedPanel;
-	protected ref ExpansionNewsfeed m_ExpansionNewsfeed;
+	protected Widget							m_NewsfeedPanel;
+	protected ref ExpansionNewsfeed 	m_ExpansionNewsfeed;
 	
 	// ------------------------------------------------------------
 	// Override Init
@@ -214,10 +214,10 @@ modded class InGameMenu
 	void GetValuesFromMonitor()
 	{
 		ExpansionMonitorModule monitor;
-		if ( !Class.CastTo( monitor, GetModuleManager().GetModule( ExpansionMonitorModule ) ) )
+		if ( !Class.CastTo( monitor, GetModuleManager().GetModule(ExpansionMonitorModule)))
 			return;
 		
-		ExpansionSyncedPlayerStats player_stats = monitor.GetStats();
+		ExpansionSyncedPlayerStats player_stats = monitor.GetClientStats();
 		if ( !player_stats )
 			return;
 
@@ -339,7 +339,7 @@ modded class InGameMenu
 		if ( GetGame().GetPlayer() && GetGame().GetPlayer().GetIdentity() )
 		{
 			string name = GetGame().GetPlayer().GetIdentity().GetName();
-			ref StringLocaliser player_name = new StringLocaliser( "STR_EXPANSION_DEADSCREEN_STATS_TITLE", name );
+			StringLocaliser player_name = new StringLocaliser( "STR_EXPANSION_DEADSCREEN_STATS_TITLE", name );
 			
 			m_DeadSceenStatsPanelTitle.SetText( player_name.Format() );
 			//m_DeadSourceVal.SetText( "" );

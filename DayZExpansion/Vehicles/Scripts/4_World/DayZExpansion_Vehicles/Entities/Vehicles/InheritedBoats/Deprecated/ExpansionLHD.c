@@ -272,7 +272,7 @@ class bldr_expansion_lhd extends BuildingSuper
 
 	void CreateParticle( Object lod, string point, int type )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )

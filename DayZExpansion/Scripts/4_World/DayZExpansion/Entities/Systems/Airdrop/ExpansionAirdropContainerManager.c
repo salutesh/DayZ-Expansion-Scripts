@@ -28,7 +28,7 @@ class ExpansionAirdropContainerManager
 	float InfectedSpawnRadius;
 	int InfectedSpawnInterval;
 
-	void ExpansionAirdropContainerManager( ExpansionAirdropContainerBase container, ref TStringArray infected, int infectedCount )
+	void ExpansionAirdropContainerManager( ExpansionAirdropContainerBase container, TStringArray infected, int infectedCount )
 	{
 		m_Container = container;
 		m_ContainerPosition = container.GetPosition();

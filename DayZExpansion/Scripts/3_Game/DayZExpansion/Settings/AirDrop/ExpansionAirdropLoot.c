@@ -16,7 +16,7 @@ class ExpansionAirdropLootVariant
 	ref TStringArray Attachments;
 	float Chance;
 
-	void ExpansionAirdropLootVariant( string name, ref TStringArray attachments = NULL, float chance = 1 )
+	void ExpansionAirdropLootVariant( string name, TStringArray attachments = NULL, float chance = 1 )
 	{
 		Name = name;
 		Attachments = attachments;
@@ -29,7 +29,7 @@ class ExpansionAirdropLoot : ExpansionAirdropLootVariant
 	ref array< ref ExpansionAirdropLootVariant > Variants;
 	int Max;
 
-	void ExpansionAirdropLoot( string name, ref TStringArray attachments = NULL, float chance = 1, ref array< ref ExpansionAirdropLootVariant > variants = NULL, int max = -1 )
+	void ExpansionAirdropLoot( string name, TStringArray attachments = NULL, float chance = 1, array< ref ExpansionAirdropLootVariant > variants = NULL, int max = -1 )
 	{
 		Variants = variants;
 		Max = max;

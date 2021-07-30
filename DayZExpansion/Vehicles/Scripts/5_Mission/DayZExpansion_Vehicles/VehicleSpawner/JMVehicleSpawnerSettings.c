@@ -90,7 +90,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionMerlin()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("ExpansionHydraulicHoses");
@@ -102,7 +102,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("Vehicle_ExpansionMerlinBackWheel");
 		attArr.Insert("Vehicle_ExpansionMerlinBackWheel");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionMerlin";
 		file.m_FileName = file.VehicleName;
@@ -113,7 +113,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionMh6()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("ExpansionIgniterPlug");
@@ -125,7 +125,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("Expansion_Mh6_Door_2_1");
 		attArr.Insert("Expansion_Mh6_Door_2_2");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionMh6";
 		file.m_FileName = file.VehicleName;
@@ -136,7 +136,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionUh1h()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("ExpansionHydraulicHoses");
@@ -146,7 +146,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("ExpansionUh1hDoor_1_1");
 		attArr.Insert("ExpansionUh1hDoor_1_2");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionUh1h";
 		file.m_FileName = file.VehicleName;
@@ -157,13 +157,13 @@ modded class JMVehicleSpawnerSettings
 	
 	void DefaultVehicle_ExpansionGyro()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("SparkPlug");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionGyrocopter";
 		file.m_FileName = file.VehicleName;
@@ -174,7 +174,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionTractor()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionTractorFrontWheel");
 		attArr.Insert("Vehicle_ExpansionTractorFrontWheel");
@@ -190,7 +190,7 @@ modded class JMVehicleSpawnerSettings
 		//attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionTractor";
 		file.m_FileName = file.VehicleName;
@@ -201,7 +201,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionUAZ()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
@@ -219,7 +219,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionUAZ";
 		file.m_FileName = file.VehicleName;
@@ -230,7 +230,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionUAZRoofless()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
@@ -248,7 +248,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionUAZRoofless";
 		file.m_FileName = file.VehicleName;
@@ -259,7 +259,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionUAZCargo()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
@@ -277,7 +277,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionUAZCargo";
 		file.m_FileName = file.VehicleName;
@@ -288,7 +288,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionUAZCargoRoofless()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
 		attArr.Insert("Vehicle_ExpansionUAZWheel");
@@ -306,7 +306,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionUAZCargoRoofless";
 		file.m_FileName = file.VehicleName;
@@ -317,7 +317,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionVodnik()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionVodnikWheel");
 		attArr.Insert("Vehicle_ExpansionVodnikWheel");
@@ -333,7 +333,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionVodnik";
 		file.m_FileName = file.VehicleName;
@@ -344,7 +344,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionAmphibiaBoat()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionUtilityBoatWheel");
 		attArr.Insert("Vehicle_ExpansionUtilityBoatWheel");
@@ -357,7 +357,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionAmphibiaBoat";
 		file.m_FileName = file.VehicleName;
@@ -368,7 +368,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionBus()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionBusWheel");
 		attArr.Insert("Vehicle_ExpansionBusWheel");
@@ -381,7 +381,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionBus";
 		file.m_FileName = file.VehicleName;
@@ -392,7 +392,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionLHD()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
@@ -400,7 +400,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionLHD";
 		file.m_FileName = file.VehicleName;
@@ -411,13 +411,13 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionZodiacBoat()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
 		attArr.Insert("TruckBattery");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionZodiacBoat";
 		file.m_FileName = file.VehicleName;
@@ -428,7 +428,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionUtilityBoat()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
@@ -436,7 +436,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionUtilityBoat";
 		file.m_FileName = file.VehicleName;
@@ -447,7 +447,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionAN2()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionAnWheel");
 		attArr.Insert("Vehicle_ExpansionAnWheel");
@@ -460,7 +460,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionAn2";
 		file.m_FileName = file.VehicleName;
@@ -471,7 +471,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionC130J()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionC130JWheel");
 		attArr.Insert("Vehicle_ExpansionC130JWheel");
@@ -484,7 +484,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionC130J";
 		file.m_FileName = file.VehicleName;
@@ -495,7 +495,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionTT650()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionTT650Wheel");
 		attArr.Insert("Vehicle_ExpansionTT650Wheel");
@@ -504,7 +504,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("GlowPlug");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionTT650";
 		file.m_FileName = file.VehicleName;
@@ -515,12 +515,12 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_Expansion250N()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_Expansion250NWheel");
 		attArr.Insert("Vehicle_Expansion250NWheel");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_Expansion250N";
 		file.m_FileName = file.VehicleName;
@@ -531,12 +531,12 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_ExpansionOldBike()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Vehicle_ExpansionOldBikeWheel");
 		attArr.Insert("Vehicle_ExpansionOldBikeWheel");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_ExpansionOldBike";
 		file.m_FileName = file.VehicleName;
@@ -547,7 +547,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_CivilianSedan()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CivSedanHood");
 		attArr.Insert("CivSedanTrunk");
@@ -565,7 +565,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_CivilianSedan";
 		file.m_FileName = file.VehicleName;
@@ -576,7 +576,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_OffroadHatchback()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("HatchbackHood");
 		attArr.Insert("HatchbackTrunk");
@@ -592,7 +592,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_OffroadHatchback";
 		file.m_FileName = file.VehicleName;
@@ -603,7 +603,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_Hatchback_02()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Hatchback_02_Hood");
 		attArr.Insert("Hatchback_02_Trunk");
@@ -621,7 +621,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_Hatchback_02";
 		file.m_FileName = file.VehicleName;
@@ -632,7 +632,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultVehicle_Sedan_02()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Sedan_02_Hood");
 		attArr.Insert("Sedan_02_Trunk");
@@ -650,7 +650,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Vehicle_Sedan_02";
 		file.m_FileName = file.VehicleName;
@@ -770,7 +770,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionMerlin()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("ExpansionHydraulicHoses");
@@ -782,7 +782,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("ExpansionMerlinBackWheel");
 		attArr.Insert("ExpansionMerlinBackWheel");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionMerlin";
 		file.m_FileName = file.VehicleName;
@@ -793,7 +793,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionMh6()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("ExpansionIgniterPlug");
@@ -805,7 +805,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("Expansion_Mh6_Door_2_1");
 		attArr.Insert("Expansion_Mh6_Door_2_2");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionMh6";
 		file.m_FileName = file.VehicleName;
@@ -816,7 +816,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionUh1h()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("ExpansionHydraulicHoses");
@@ -826,7 +826,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("ExpansionUh1hDoor_1_1");
 		attArr.Insert("ExpansionUh1hDoor_1_2");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionUh1h";
 		file.m_FileName = file.VehicleName;
@@ -837,13 +837,13 @@ modded class JMVehicleSpawnerSettings
 	
 	void DefaultExpansionGyro()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionHelicopterBattery");
 		attArr.Insert("SparkPlug");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionGyrocopter";
 		file.m_FileName = file.VehicleName;
@@ -854,7 +854,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionTractor()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionTractorFrontWheel");
 		attArr.Insert("ExpansionTractorFrontWheel");
@@ -870,7 +870,7 @@ modded class JMVehicleSpawnerSettings
 		//attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionTractor";
 		file.m_FileName = file.VehicleName;
@@ -881,7 +881,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionUAZ()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionUAZWheel");
 		attArr.Insert("ExpansionUAZWheel");
@@ -899,7 +899,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionUAZ";
 		file.m_FileName = file.VehicleName;
@@ -910,7 +910,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionUAZRoofless()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionUAZWheel");
 		attArr.Insert("ExpansionUAZWheel");
@@ -928,7 +928,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionUAZRoofless";
 		file.m_FileName = file.VehicleName;
@@ -939,7 +939,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionUAZCargo()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionUAZWheel");
 		attArr.Insert("ExpansionUAZWheel");
@@ -957,7 +957,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionUAZCargo";
 		file.m_FileName = file.VehicleName;
@@ -968,7 +968,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionUAZCargoRoofless()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionUAZWheel");
 		attArr.Insert("ExpansionUAZWheel");
@@ -986,7 +986,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionUAZCargoRoofless";
 		file.m_FileName = file.VehicleName;
@@ -997,7 +997,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionVodnik()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionVodnikWheel");
 		attArr.Insert("ExpansionVodnikWheel");
@@ -1013,7 +1013,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionVodnik";
 		file.m_FileName = file.VehicleName;
@@ -1024,7 +1024,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionAmphibiaBoat()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionUtilityBoatWheel");
 		attArr.Insert("ExpansionUtilityBoatWheel");
@@ -1037,7 +1037,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("SparkPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionAmphibiaBoat";
 		file.m_FileName = file.VehicleName;
@@ -1048,7 +1048,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionBus()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionBusWheel");
 		attArr.Insert("ExpansionBusWheel");
@@ -1061,7 +1061,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionBus";
 		file.m_FileName = file.VehicleName;
@@ -1072,7 +1072,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionLHD()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
@@ -1080,7 +1080,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionLHD";
 		file.m_FileName = file.VehicleName;
@@ -1091,13 +1091,13 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionZodiacBoat()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
 		attArr.Insert("TruckBattery");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionZodiacBoat";
 		file.m_FileName = file.VehicleName;
@@ -1108,7 +1108,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionUtilityBoat()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("CarRadiator");
 		attArr.Insert("GlowPlug");
@@ -1116,7 +1116,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionUtilityBoat";
 		file.m_FileName = file.VehicleName;
@@ -1127,7 +1127,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionAN2()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionAnWheel");
 		attArr.Insert("ExpansionAnWheel");
@@ -1140,7 +1140,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionAn2";
 		file.m_FileName = file.VehicleName;
@@ -1151,7 +1151,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionC130J()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionC130JWheel");
 		attArr.Insert("ExpansionC130JWheel");
@@ -1164,7 +1164,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("HeadlightH7");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionC130J";
 		file.m_FileName = file.VehicleName;
@@ -1175,7 +1175,7 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionTT650()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionTT650Wheel");
 		attArr.Insert("ExpansionTT650Wheel");
@@ -1184,7 +1184,7 @@ modded class JMVehicleSpawnerSettings
 		attArr.Insert("GlowPlug");
 		attArr.Insert("HeadlightH7");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionTT650";
 		file.m_FileName = file.VehicleName;
@@ -1195,12 +1195,12 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansion250N()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("Expansion250NWheel");
 		attArr.Insert("Expansion250NWheel");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "Expansion250N";
 		file.m_FileName = file.VehicleName;
@@ -1211,12 +1211,12 @@ modded class JMVehicleSpawnerSettings
 
 	void DefaultExpansionOldBike()
 	{
-		ref array< string> attArr = new array< string>;
+		array< string> attArr = new array< string>;
 
 		attArr.Insert("ExpansionOldBikeWheel");
 		attArr.Insert("ExpansionOldBikeWheel");
 
-		ref JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
+		JMVehicleSpawnerSerialize file = new JMVehicleSpawnerSerialize;
 
 		file.VehicleName = "ExpansionOldBike";
 		file.m_FileName = file.VehicleName;

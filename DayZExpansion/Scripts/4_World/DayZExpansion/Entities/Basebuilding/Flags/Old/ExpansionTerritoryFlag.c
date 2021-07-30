@@ -78,7 +78,7 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 	// ------------------------------------------------------------
 	// Expansion SetTerritory
 	// ------------------------------------------------------------
-	void SetTerritory( ref ExpansionTerritory territory )
+	void SetTerritory(  ExpansionTerritory territory )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -93,7 +93,7 @@ class ExpansionTerritoryFlag extends ExpansionFlagBase
 	// ------------------------------------------------------------
 	// Expansion GetTerritory
 	// ------------------------------------------------------------
-	ref ExpansionTerritory GetTerritory()
+	ExpansionTerritory GetTerritory()
 	{
 		return m_Territory;
 	}

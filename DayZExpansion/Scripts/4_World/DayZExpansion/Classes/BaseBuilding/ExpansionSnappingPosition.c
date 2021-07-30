@@ -31,7 +31,7 @@ class ExpansionSnappingPosition
 
 		while ( Target.MemoryPointExists( "ex_snap_pos_" + Index + "_dir_" + idx ) )
 		{
-			ref ExpansionSnappingDirection direction = new ExpansionSnappingDirection;
+			ExpansionSnappingDirection direction = new ExpansionSnappingDirection;
 			direction.Position = Target.GetMemoryPointPos( "ex_snap_pos_" + Index + "_dir_" + idx );
 			direction.Index = idx;
 

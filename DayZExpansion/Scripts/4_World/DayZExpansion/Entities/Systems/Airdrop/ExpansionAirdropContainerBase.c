@@ -96,7 +96,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// LoadFromMission
 	// ------------------------------------------------------------
-	void LoadFromMission( ref Class mission )
+	void LoadFromMission(  Class mission )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::LoadFromMission - Start");
@@ -112,7 +112,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// InitAirdrop
 	// ------------------------------------------------------------
-	void InitAirdrop( ref array < ref ExpansionAirdropLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
+	void InitAirdrop(  array < ref ExpansionAirdropLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - Start");
@@ -223,7 +223,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	void AddItem( ref ExpansionAirdropLoot loot )
+	void AddItem(  ExpansionAirdropLoot loot )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::AddItem - Start");
@@ -595,7 +595,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------
-	void SpawnLoot( ref array < ref ExpansionAirdropLoot > Loot, int ItemCount )
+	void SpawnLoot(  array < ref ExpansionAirdropLoot > Loot, int ItemCount )
 	{
 		array< float > chances = new array< float >;
 		array< int > max = new array< int >;

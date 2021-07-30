@@ -18,8 +18,8 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 
 		if ( IsMissionHost() )
 		{
-			ref array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
-			ref ExpansionAirdropLootContainer container;
+			array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
+			ExpansionAirdropLootContainer container;
 
 			//! Get all containers enabled for player-called supply drop use
 			for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
@@ -49,7 +49,7 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 			if ( container.ItemCount <= 0 )
 				itemCount = GetExpansionSettings().GetAirdrop().ItemCount;  //! Only kept for backwards compatibility, should be set per container
 
-			ref TStringArray infected;
+			TStringArray infected;
 			int infectedCount;
 			if ( container.SpawnInfectedForPlayerCalledDrops )
 			{

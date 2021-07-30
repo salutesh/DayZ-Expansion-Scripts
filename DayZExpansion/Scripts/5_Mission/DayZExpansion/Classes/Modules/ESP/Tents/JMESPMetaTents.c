@@ -65,7 +65,7 @@ class JMESPMetaTents : JMESPMeta
 		m_Action_Code.SetText( code );
 	}
 
-	void Action_RequestCode( UIEvent eid, ref UIActionBase action )
+	void Action_RequestCode( UIEvent eid, UIActionBase action )
 	{
 		if ( eid != UIEvent.CLICK )
 			return;
@@ -73,7 +73,7 @@ class JMESPMetaTents : JMESPMeta
 		exp_Module.RequestCode( target );
 	}
 
-	void Action_RemoveCode( UIEvent eid, ref UIActionBase action )
+	void Action_RemoveCode( UIEvent eid, UIActionBase action )
 	{
 		if ( eid != UIEvent.CLICK )
 			return;

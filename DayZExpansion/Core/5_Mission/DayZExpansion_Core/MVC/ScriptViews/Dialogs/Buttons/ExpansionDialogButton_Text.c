@@ -17,6 +17,7 @@ class ExpansionDialogButton_Text: ExpansionDialogButtonBase
 	string m_Text;
 	
 	TextWidget dialog_text;
+	ButtonWidget dialog_button;
 	
 	void ExpansionDialogButton_Text(ExpansionDialogBase dialog)
 	{		
@@ -26,7 +27,7 @@ class ExpansionDialogButton_Text: ExpansionDialogButtonBase
 			m_TextButtonController = ExpansionDialogButton_TextController.Cast(GetController());
 	}
 	
-	override string GetLayoutFile() 
+	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_button_text.layout";
 	}

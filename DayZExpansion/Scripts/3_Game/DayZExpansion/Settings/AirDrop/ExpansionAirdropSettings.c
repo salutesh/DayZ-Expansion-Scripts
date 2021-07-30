@@ -71,7 +71,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionAirdropSettings thisSetting = this;
+		ExpansionAirdropSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -110,7 +110,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionAirdropSettings s )
+	private void CopyInternal(  ExpansionAirdropSettings s )
 	{
 		ServerMarkerOnDropLocation = s.ServerMarkerOnDropLocation;
 		Server3DMarkerOnDropLocation = s.Server3DMarkerOnDropLocation;
@@ -212,8 +212,8 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultRegular()
 	{
-		ref array < ref ExpansionAirdropLoot > Loot;
-		ref TStringArray Infected;
+		array < ref ExpansionAirdropLoot > Loot;
+		TStringArray Infected;
 		
 		TStringArray ak74u_1 = { "AKS74U_Bttstck" };
 
@@ -222,56 +222,56 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray sks_1 = { "PUScopeOptic" };
 		TStringArray sks_2 = { "SKS_Bayonet" };
 
-		ref array< ref ExpansionAirdropLootVariant > sksVariants = {
+		array< ref ExpansionAirdropLootVariant > sksVariants = {
 			new ExpansionAirdropLootVariant( "SKS", sks_2, 0.2 ),
 			new ExpansionAirdropLootVariant( "SKS", NULL, 0.6 ),
 		};
 
 		TStringArray ump_1 = { "UniversalLight" };
 
-		ref array< ref ExpansionAirdropLootVariant > umpVariants = {
+		array< ref ExpansionAirdropLootVariant > umpVariants = {
 			new ExpansionAirdropLootVariant( "UMP45", NULL, 0.6 ),
 		};
 
 		TStringArray mosin_1 = { "PUScopeOptic" };
 
-		ref array< ref ExpansionAirdropLootVariant > mosinVariants = {
+		array< ref ExpansionAirdropLootVariant > mosinVariants = {
 			new ExpansionAirdropLootVariant( "Mosin9130", NULL, 0.75 ),
 		};
 
 		TStringArray b95_1 = { "HuntingOptic" };
 
-		ref array< ref ExpansionAirdropLootVariant > b95Variants = {
+		array< ref ExpansionAirdropLootVariant > b95Variants = {
 			new ExpansionAirdropLootVariant( "B95", NULL, 0.666667 ),
 		};
 
 		TStringArray cz527_1 = { "HuntingOptic" };
 
-		ref array< ref ExpansionAirdropLootVariant > cz527Variants = {
+		array< ref ExpansionAirdropLootVariant > cz527Variants = {
 			new ExpansionAirdropLootVariant( "CZ527", NULL, 0.4 ),
 		};
 
 		TStringArray cz75_1 = { "TLRLight" };
 
-		ref array< ref ExpansionAirdropLootVariant > cz75Variants = {
+		array< ref ExpansionAirdropLootVariant > cz75Variants = {
 			new ExpansionAirdropLootVariant( "CZ75", NULL, 0.5 ),
 		};
 
 		TStringArray fnx1_1 = { "TLRLight" };
 
-		ref array< ref ExpansionAirdropLootVariant > fnxVariants = {
+		array< ref ExpansionAirdropLootVariant > fnxVariants = {
 			new ExpansionAirdropLootVariant( "FNX45", NULL, 0.75 ),
 		};
 		
 		TStringArray kedr_1 = { "PistolSuppressor" };  
 
-		ref array< ref ExpansionAirdropLootVariant > kedrVariants = {
+		array< ref ExpansionAirdropLootVariant > kedrVariants = {
 			new ExpansionAirdropLootVariant( "Expansion_Kedr", NULL, 0.6 ),
 		};
 
 		TStringArray winchester70_1 = { "HuntingOptic" };
 
-		ref array< ref ExpansionAirdropLootVariant > winchester70Variants = {
+		array< ref ExpansionAirdropLootVariant > winchester70Variants = {
 			new ExpansionAirdropLootVariant( "Winchester70", NULL, 0.8 ),
 		};
 
@@ -288,7 +288,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray firstaidkit_7 = { "TetracyclineAntiBiotics","Morphine" };
 		TStringArray firstaidkit_8 = { "BandageDressing","VitaminBottle" };
 
-		ref array< ref ExpansionAirdropLootVariant > firstaidkitVariants = {
+		array< ref ExpansionAirdropLootVariant > firstaidkitVariants = {
 			new ExpansionAirdropLootVariant( "FirstAidKit", firstaidkit_2, 0.131579 ),
 			new ExpansionAirdropLootVariant( "FirstAidKit", firstaidkit_3, 0.131579 ),
 			new ExpansionAirdropLootVariant( "FirstAidKit", firstaidkit_4, 0.131579 ),
@@ -489,8 +489,8 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultMedical()
 	{
-		ref array < ref ExpansionAirdropLoot > Loot;
-		ref TStringArray Infected;
+		array < ref ExpansionAirdropLoot > Loot;
+		TStringArray Infected;
 		
 		TStringArray firstaidkit_1 = { "BandageDressing","BandageDressing" };
 		TStringArray firstaidkit_2 = { "BandageDressing","BandageDressing","BandageDressing","BandageDressing","BandageDressing","BandageDressing" };
@@ -507,27 +507,27 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray firstaidkit_13 = { "BandageDressing","VitaminBottle" };
 		TStringArray firstaidkit_14 = { "CharcoalTablets","DisinfectantAlcohol" };
 
-		ref array< ref ExpansionAirdropLootVariant > medicalScrubsHatsVariants = {
+		array< ref ExpansionAirdropLootVariant > medicalScrubsHatsVariants = {
 			new ExpansionAirdropLootVariant( "MedicalScrubsHat_White" ),
 			new ExpansionAirdropLootVariant( "MedicalScrubsHat_Green" ),
 		};
 
-		ref array< ref ExpansionAirdropLootVariant > medicalScrubsPantsVariants = {
+		array< ref ExpansionAirdropLootVariant > medicalScrubsPantsVariants = {
 			new ExpansionAirdropLootVariant( "MedicalScrubsPants_White" ),
 			new ExpansionAirdropLootVariant( "MedicalScrubsPants_Green" ),
 		};
 
-		ref array< ref ExpansionAirdropLootVariant > medicalScrubsShirtsVariants = {
+		array< ref ExpansionAirdropLootVariant > medicalScrubsShirtsVariants = {
 			new ExpansionAirdropLootVariant( "MedicalScrubsShirt_White" ),
 			new ExpansionAirdropLootVariant( "MedicalScrubsShirt_Green" ),
 		};
 
-		ref array< ref ExpansionAirdropLootVariant > surgicalGlovesVariants = {
+		array< ref ExpansionAirdropLootVariant > surgicalGlovesVariants = {
 			new ExpansionAirdropLootVariant( "SurgicalGloves_LightBlue" ),
 			new ExpansionAirdropLootVariant( "SurgicalGloves_Green" ),
 		};
 
-		ref array< ref ExpansionAirdropLootVariant > firstaidkitVariants = {
+		array< ref ExpansionAirdropLootVariant > firstaidkitVariants = {
 			new ExpansionAirdropLootVariant( "FirstAidKit", firstaidkit_2, 0.040984 ),
 			new ExpansionAirdropLootVariant( "FirstAidKit", firstaidkit_3, 0.073770 ),
 			new ExpansionAirdropLootVariant( "FirstAidKit", firstaidkit_4, 0.073770 ),
@@ -688,8 +688,8 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultBaseBuilding()
 	{
-		ref array < ref ExpansionAirdropLoot > Loot;
-		ref TStringArray Infected;
+		array < ref ExpansionAirdropLoot > Loot;
+		TStringArray Infected;
 
 		Loot = {
 			new ExpansionAirdropLoot( "NailBox", NULL , 0.8),
@@ -851,8 +851,8 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultMilitary()
 	{
-		ref array < ref ExpansionAirdropLoot > Loot;
-		ref TStringArray Infected;
+		array < ref ExpansionAirdropLoot > Loot;
+		TStringArray Infected;
 
 		TStringArray ak101_1 = { "AK_PlasticBttstck", "AK_PlasticHndgrd" };
 
@@ -861,7 +861,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray ak74_3 = { "AK_FoldingBttstck", "AK74_Hndgrd", "AK_Bayonet" };
 		TStringArray ak74_4 = { "KobraOptic", "AK_WoodHndgrd", "AK74_WoodBttstck" };
 
-		ref array< ref ExpansionAirdropLootVariant > ak74Variants = {
+		array< ref ExpansionAirdropLootVariant > ak74Variants = {
 			new ExpansionAirdropLootVariant( "AK74", ak74_2, 0.232323 ),
 			new ExpansionAirdropLootVariant( "AK74", ak74_3, 0.252525 ),
 			new ExpansionAirdropLootVariant( "AK74", ak74_4, 0.242424 ),
@@ -870,7 +870,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray ak74u_1 = { "AK74_WoodBttstck"};
 		TStringArray ak74u_2 = { "AKS74U_Bttstck" };
 
-		ref array< ref ExpansionAirdropLootVariant > ak74uVariants = {
+		array< ref ExpansionAirdropLootVariant > ak74uVariants = {
 			new ExpansionAirdropLootVariant( "AKS74U", ak74u_2, 0.545454 ),
 		};
 
@@ -880,7 +880,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray akm_4 = { "AK74_WoodBttstck", "AK74_Hndgrd"};
 		TStringArray akm_5 = { "AK_PlasticBttstck", "AK_RailHndgrd", "UniversalLight"};
 
-		ref array< ref ExpansionAirdropLootVariant > akmVariants = {
+		array< ref ExpansionAirdropLootVariant > akmVariants = {
 			new ExpansionAirdropLootVariant( "AKM", akm_2, 0.2 ),
 			new ExpansionAirdropLootVariant( "AKM", akm_3, 0.2 ),
 			new ExpansionAirdropLootVariant( "AKM", akm_4, 0.207692 ),
@@ -890,7 +890,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray m16_1 = { "ACOGOptic" };
 		TStringArray m16_2 = { "UniversalLight" };
 
-		ref array< ref ExpansionAirdropLootVariant > m16Variants = {
+		array< ref ExpansionAirdropLootVariant > m16Variants = {
 			new ExpansionAirdropLootVariant( "Expansion_M16", m16_2, 0.288889 ),
 			new ExpansionAirdropLootVariant( "Expansion_M16", NULL, 0.4 ),
 		};
@@ -900,7 +900,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray m4a1_3 = { "ACOGOptic", "M4_MPBttstck", "M4_MPHndgrd" };
 		TStringArray m4a1_4 = { "BUISOptic", "M4_CQBBttstck", "M4_RisHndgrd", "UniversalLight"};
 
-		ref array< ref ExpansionAirdropLootVariant > m4a1Variants = {
+		array< ref ExpansionAirdropLootVariant > m4a1Variants = {
 			new ExpansionAirdropLootVariant( "M4A1", m4a1_2, 0.220339 ),
 			new ExpansionAirdropLootVariant( "M4A1", m4a1_3, 0.237288 ),
 			new ExpansionAirdropLootVariant( "M4A1", m4a1_4, 0.305085 ),
@@ -909,20 +909,20 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		TStringArray fal_1 = { "Fal_OeBttstck" };
 		TStringArray fal_2 = { "Fal_FoldingBttstck" };
 
-		ref array< ref ExpansionAirdropLootVariant > falVariants = {
+		array< ref ExpansionAirdropLootVariant > falVariants = {
 			new ExpansionAirdropLootVariant( "FAL", fal_2, 0.5 ),
 		};
 
 		TStringArray svd_1 = { "PSO1Optic"};
 
-		ref array< ref ExpansionAirdropLootVariant > svdVariants = {
+		array< ref ExpansionAirdropLootVariant > svdVariants = {
 			new ExpansionAirdropLootVariant( "SVD", NULL, 0.642857 ),
 		};
 
 		TStringArray saiga_1 = { "Saiga_Bttstck", "KobraOptic" };
 		TStringArray saiga_2 = { "Saiga_Bttstck" };
 
-		ref array< ref ExpansionAirdropLootVariant > saigaVariants = {
+		array< ref ExpansionAirdropLootVariant > saigaVariants = {
 			new ExpansionAirdropLootVariant( "Saiga", saiga_2, 0.545454 ),
 		};
 

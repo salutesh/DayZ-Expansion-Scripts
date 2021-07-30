@@ -20,7 +20,7 @@ class ExpansionNotificationSystem
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem CreateNotification
 	// ------------------------------------------------------------
-	void CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL )
+	void CreateNotification( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationSystem::CreateNotification - Start");
@@ -48,7 +48,7 @@ static ref ExpansionNotificationSystem g_exNotificationBase;
 // ------------------------------------------------------------
 // ExpansionNotificationSystem GetNotificationSystem
 // ------------------------------------------------------------
-static ref ExpansionNotificationSystem GetNotificationSystem()
+static ExpansionNotificationSystem GetNotificationSystem()
 {
 	#ifdef EXPANSIONEXPRINT
 	EXPrint("ExpansionNotificationSystem::GetNotificationSystem - Start");

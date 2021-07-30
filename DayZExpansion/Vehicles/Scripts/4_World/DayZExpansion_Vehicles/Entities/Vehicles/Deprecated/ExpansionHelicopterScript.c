@@ -986,7 +986,7 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		super.OnNetworkSend( ctx );
 
@@ -1000,7 +1000,7 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		super.OnNetworkRecieve( ctx );
 

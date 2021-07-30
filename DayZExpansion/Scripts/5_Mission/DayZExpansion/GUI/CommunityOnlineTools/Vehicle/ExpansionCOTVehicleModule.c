@@ -48,7 +48,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		return "Expansion Vehicle Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetVehicle();
 	}
@@ -102,7 +102,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		return ExpansionCOTVehicleModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -115,12 +115,12 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionVehicleSettings setting = new ExpansionVehicleSettings();
+		ExpansionVehicleSettings setting = new ExpansionVehicleSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

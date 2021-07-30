@@ -71,12 +71,7 @@ modded class MissionGameplay
 			case INPUT_EXCLUDE_ALL:
 			{
 				GetUApi().ActivateExclude("menuexpansion");
-				break;
-			}
-			
-			case INPUT_EXCLUDE_CHAT_EXPANSION:
-			{
-				GetUApi().ActivateExclude("chatexpansion");
+				GetUApi().UpdateControls();
 				break;
 			}
 		}
@@ -92,7 +87,7 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - Start");
 		#endif
-		
+				
 		super.OnUpdate(timeslice);
 		
 		if ( !m_bLoaded )
@@ -104,6 +99,7 @@ modded class MissionGameplay
 			return;
 		}
 		
+		//! Why is this here?
 		// GetDayZExpansion().OnUpdate( timeslice );
 
 		//! Checking for keyboard focus
@@ -164,7 +160,7 @@ modded class MissionGameplay
 			}
 		}
 		#endif
-		
+			
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
@@ -186,7 +182,7 @@ modded class MissionGameplay
 	// ------------------------------------------------------------	
 	void CreateExpansionUIMenuManager()
 	{
-		ref ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
+		ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
 		if (exUIManager && !m_EXUIMenuManager)
 			m_EXUIMenuManager = new ExpansionUIMenuManager(exUIManager);
 	}

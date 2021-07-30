@@ -53,7 +53,7 @@ class ExpansionMapMarkerIconItem extends ScriptedWidgetEventHandler
 		return m_IconData.Path;
 	}
 
-	ref ExpansionIcon GetIcon()
+	ExpansionIcon GetIcon()
 	{
 		return m_IconData;
 	}

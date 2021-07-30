@@ -15,7 +15,6 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnOnParent
 	// ------------------------------------------------------------
-	//! Oh boy... this needs some good cleaning at some point
 	static Object SpawnOnParent(string className, PlayerBase player, inout EntityAI parent, out int quantity, TStringArray attachments = NULL, int skinIndex = -1, bool magFullAmmo = true)
 	{
 		ISHDebugPrint("SpawnOnParent - Start");
@@ -26,8 +25,13 @@ class ExpansionItemSpawnHelper
 		ItemBase item;
 		if (!Class.CastTo(item, obj))
 		{
+			//! NULL or not an item
+
 			if (obj)
 			{
+				//! Not an item, but was spawned in inventory. Get rid of it.
+				//! TODO: This is just here for historical reasons, do we really need it?
+
 				GetGame().ObjectDelete(obj);
 
 				quantity--;
@@ -41,192 +45,83 @@ class ExpansionItemSpawnHelper
 			obj = GetGame().CreateObject(className, parent.GetPosition(), false, GetGame().IsKindOf(className, "DZ_LightAI"));
 			if (!Class.CastTo(item, obj))
 			{
+				quantity--;
+
 				if (obj)
 				{
-					quantity--;
-
 					ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
 
 					return obj;
 				}
 
+				ISHDebugPrint("SpawnOnParent - End and return NULL!");
+
 				return NULL;
 			}
 		}
-
-		if (item.ExpansionIsLiquidItem() || item.IsFood() || item.HasEnergyManager() || item.HasFoodStage())
+		else if (item.IsAmmoPile())
 		{
-			quantity--;
-
-			if (item.HasEnergyManager() && attachments)
-				SpawnAttachments( attachments, item );
-
-			ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());			
-
-			return obj;
-		}
-
-		//! Consumable items like pils
-		Edible_Base edible;
-		int maxQuantity;
-		Class.CastTo(edible, item);
-		if (edible)
-		{
-			maxQuantity = item.GetQuantityMax();
-			Print("SpawnOnParent - Edible - Max quantity: " + maxQuantity);
-			if (maxQuantity == 0)
-			{
-				quantity--;
-				ISHDebugPrint("SpawnOnParent - EDIBLE - 1 - End and return obj: " + obj.ToString());
-				return obj;			
-			}
-			else if (maxQuantity > 0)
-			{
-				quantity--;
-				edible.SetQuantity(maxQuantity);
-				ISHDebugPrint("SpawnOnParent - EDIBLE - 2 - End and return obj: " + obj.ToString());
-
-				return obj;
-			}
-		}
-
-		//! Expansion Spraycans
-		ExpansionSpraycanBase spray;
-		Class.CastTo(spray, item);
-		if (spray)
-		{
-			maxQuantity = item.GetQuantityMax();
-			Print("SpawnOnParent - Edible - Max quantity: " + maxQuantity);
-			if (maxQuantity == 0)
-			{
-				quantity--;
-				ISHDebugPrint("SpawnOnParent - SPRAYCAN - 1 - End and return obj: " + obj.ToString());
-				return obj;			
-			}
-			else if (maxQuantity > 0)
-			{
-				quantity--;
-				spray.SetQuantity(maxQuantity);
-				ISHDebugPrint("SpawnOnParent - SPRAYCAN - 2 - End and return obj: " + obj.ToString());
-
-				return obj;
-			}
-		}
-
-		//! Ammo/Bullets
-		Ammunition_Base ammo;
-		int maxAmmo;
-		if (item.IsAmmoPile())
-		{
-			Class.CastTo(ammo, item);
-			maxAmmo = ammo.GetAmmoMax();
+			//! Ammo/Bullets
+			Ammunition_Base ammo = Ammunition_Base.Cast(item);
+			int maxAmmo = ammo.GetAmmoMax();
 
 			if (quantity < maxAmmo)
 			{
 				ammo.ServerSetAmmoCount(quantity);
-				quantity -= quantity;
-
-				ISHDebugPrint("SpawnOnParent - AMMO - 1 - End and return obj: " + obj.ToString());
-
-				return obj;
+				quantity = 0;
 			}
-
-			ammo.ServerSetAmmoCount(maxAmmo);
-			quantity -= maxAmmo;
-
-			ISHDebugPrint("SpawnOnParent - AMMO - 2 - End and return obj: " + obj.ToString());
-
-			return obj;
-		}
-
-		//! Magazines
-		int max;
-		Magazine mag;
-		if (Class.CastTo( mag, item ))
-		{
-			if (item.IsMagazine())
+			else
 			{
-				quantity = quantity - 1;
-				if (!magFullAmmo)
-					mag.ServerSetAmmoCount(0);
-
-				ISHDebugPrint("SpawnOnParent - MAGAZINE - 1 - End and return obj: " + obj.ToString());			
-
-				return obj;
+				ammo.ServerSetAmmoCount(maxAmmo);
+				quantity -= maxAmmo;
 			}
+
+			ISHDebugPrint("SpawnOnParent - AMMO - End and return obj: " + obj.ToString());
 		}
-
-		//! Stackable with quantity - 1
-		int currentVarStackMax;
-		float varStackMax = item.ConfigGetFloat("varStackMax");
-		ISHDebugPrint("SpawnOnParent - VAR STACK - Start");
-		ISHDebugPrint("SpawnOnParent - VAR STACK - varStackMax: " + varStackMax);
-		if (varStackMax > 0)
+		else if (item.IsMagazine())
 		{
-			currentVarStackMax = item.GetQuantityMax();
-			if (varStackMax > 0 || currentVarStackMax > 0)
-			{
-				if (varStackMax > 0)
-					currentVarStackMax = varStackMax;
+			//! Magazines
+			Magazine mag = Magazine.Cast(item);
 
-				if (quantity < currentVarStackMax)
-				{
-					if (!item.ConfigGetBool("destroyOnEmpty"))
-						item.SetQuantity(0);
-					else
-						item.SetQuantity(quantity);
-					quantity = 0;
+			quantity--;
 
-					ISHDebugPrint("SpawnOnParent - VAR STACK - 1 - End and return obj: " + obj.ToString());
+			if (!magFullAmmo)
+				mag.ServerSetAmmoCount(0);
 
-					return obj;
-				}
-				else
-				{
-					quantity -= currentVarStackMax;
-					item.SetQuantity(currentVarStackMax);				
-
-					ISHDebugPrint("SpawnOnParent - VAR STACK - 2 - End and return obj: " + obj.ToString());
-
-					return obj;
-				}
-			}
+			ISHDebugPrint("SpawnOnParent - MAGAZINE - End and return obj: " + obj.ToString());
 		}
-		
-		//! Stackable with quantity - 2
-		int currentvarQuantityMax;
-		int varQuantityMax = item.ConfigGetInt("varQuantityMax");
-		ISHDebugPrint("SpawnOnParent - VAR QUANTITY - Start");
-		ISHDebugPrint("SpawnOnParent - VAR QUANTITY - varQuantityMax: " + varQuantityMax);
-		if (varQuantityMax > 0)
+		else if (item.IsInherited(Edible_Base))
 		{
-			currentvarQuantityMax = item.GetQuantityMax();
-			ISHDebugPrint("SpawnOnParent - VAR QUANTITY - currentvarQuantityMax: " + currentvarQuantityMax);
-			if (varQuantityMax > 0 || max > 0)
+			//! Consumables like food, sodacans, bottles, pills...
+
+			quantity--;
+
+			if (item.HasQuantity())
+				item.SetQuantity(item.GetQuantityMax());
+		}
+		else if (item.ConfigGetBool("canBeSplit"))
+		{
+			//! Stackable items
+			int max = item.GetQuantityMax();
+
+			if (quantity < max)
 			{
-				if (varQuantityMax > 0)
-					currentvarQuantityMax = varQuantityMax;
-	
-				if (quantity < currentvarQuantityMax)
-				{
-					ISHDebugPrint("SpawnOnParent - VAR QUANTITY - quantity: " + quantity);
-					item.SetQuantity(quantity);
-					quantity = 0;
-
-					ISHDebugPrint("SpawnOnParent - VAR QUANTITY - 1 - End and return obj: " + obj.ToString());
-
-					return obj;
-				}
-				else
-				{
-					item.SetQuantity(currentvarQuantityMax);
-					quantity -= currentvarQuantityMax;				
-
-					ISHDebugPrint("SpawnOnParent - VAR QUANTITY - 2 - End and return obj: " + obj.ToString());
-
-					return obj;
-				}
+				item.SetQuantity(quantity);
+				quantity = 0;
 			}
+			else
+			{
+				item.SetQuantity(max);
+				quantity -= max;
+			}
+
+			ISHDebugPrint("SpawnOnParent - STACKABLE");
+		}
+		else
+		{
+			//! Everything else
+
+			quantity--;
 		}
 
 		if (attachments)
@@ -234,8 +129,6 @@ class ExpansionItemSpawnHelper
 
 		if (skinIndex > -1)
 			item.ExpansionSetSkin(skinIndex);
-
-		quantity--;
 
 		ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
 
@@ -293,7 +186,7 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion SpawnAttachments
 	// ------------------------------------------------------------
-	static void SpawnAttachments(ref TStringArray attachments, EntityAI parent, int skinIndex = -1)
+	static void SpawnAttachments(TStringArray attachments, EntityAI parent, int skinIndex = -1)
 	{
 		if (parent.GetInventory())
 		{
@@ -303,9 +196,9 @@ class ExpansionItemSpawnHelper
 				ItemBase attachment;
 
 				if (parentItem)
-					attachment = parentItem.ExpansionCreateInInventory(attachmentName);
+					attachment = ItemBase.Cast(parentItem.ExpansionCreateInInventory(attachmentName));
 				else
-					attachment = parent.GetInventory().CreateAttachment(attachmentName);
+					attachment = ItemBase.Cast(parent.GetInventory().CreateAttachment(attachmentName));
 
 				if (attachment && skinIndex > -1 && attachment.ExpansionHasSkin(skinIndex))
 					attachment.ExpansionSetSkin(skinIndex);
@@ -316,7 +209,7 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
-	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector direction, out int quantity, ref TStringArray attachments = NULL, int skinIndex = -1 )
+	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector direction, out int quantity, TStringArray attachments = NULL, int skinIndex = -1 )
 	{		
 		ISHDebugPrint("SpawnVehicle - Start");
 
@@ -326,12 +219,14 @@ class ExpansionItemSpawnHelper
 		CarScript vehicle;
 		if (!Class.CastTo(vehicle, obj))
 		{
+			quantity--;
+
 			if (obj)
 			{
 				GetGame().ObjectDelete(obj);
 			}
 
-			ISHDebugPrint("SpawnVehicle - End return false!");		
+			ISHDebugPrint("SpawnVehicle - End return NULL!");		
 			
 			return NULL;
 		}

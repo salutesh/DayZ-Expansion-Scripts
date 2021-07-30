@@ -23,7 +23,7 @@ class ExpansionSafeZonePolygon: ExpansionSafeZoneElement
 	// ------------------------------------------------------------
 	// Expansion ExpansionSafeZonePolygon
 	// ------------------------------------------------------------
-	void ExpansionSafeZonePolygon( ref TVectorArray positions )
+	void ExpansionSafeZonePolygon( TVectorArray positions )
 	{
 		Type = ExpansionSafeZoneTypes.POLYGON;
 		Positions = positions;

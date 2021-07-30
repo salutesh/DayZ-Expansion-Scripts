@@ -21,7 +21,7 @@ class ExpansionReplaceTerritoryWithNewLambda : TurnItemIntoItemLambda
 	{
 		super.CopyOldPropertiesToNew( old_item, new_item );
 
-		ref ExpansionTerritory territory;
+		ExpansionTerritory territory;
 		int id;
 		string ownerid;
 		string flagtexture;

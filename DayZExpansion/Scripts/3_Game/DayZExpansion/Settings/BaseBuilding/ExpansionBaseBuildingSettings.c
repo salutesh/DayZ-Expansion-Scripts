@@ -99,7 +99,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionBaseBuildingSettings thisSetting = this;
+		ExpansionBaseBuildingSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -139,7 +139,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionBaseBuildingSettings s )
+	private void CopyInternal(  ExpansionBaseBuildingSettings s )
 	{
 		BuildZoneRequiredCustomMessage = s.BuildZoneRequiredCustomMessage;
 		
@@ -156,7 +156,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionBaseBuildingSettingsBase s )
+	private void CopyInternal(  ExpansionBaseBuildingSettingsBase s )
 	{
 		CanBuildAnywhere = s.CanBuildAnywhere;
 		AllowBuildingWithoutATerritory = s.AllowBuildingWithoutATerritory;

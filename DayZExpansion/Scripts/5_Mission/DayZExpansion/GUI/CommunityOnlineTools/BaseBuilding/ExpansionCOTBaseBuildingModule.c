@@ -48,7 +48,7 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		return "Expansion BaseBuilding Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetBaseBuilding();
 	}
@@ -101,7 +101,7 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		return ExpansionCOTBaseBuildingModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -114,12 +114,12 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionBaseBuildingSettings setting = new ExpansionBaseBuildingSettings();
+		ExpansionBaseBuildingSettings setting = new ExpansionBaseBuildingSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

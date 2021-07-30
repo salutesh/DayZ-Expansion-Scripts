@@ -485,7 +485,7 @@ modded class PlayerBase
 					vector hitPos = vector.Zero;
 					for (int i = 0; i < results.Count(); ++i)
 					{
-						ref RaycastRVResult currResult = results[i];
+						RaycastRVResult currResult = results[i];
 						if (!currResult)
 							continue;
 						

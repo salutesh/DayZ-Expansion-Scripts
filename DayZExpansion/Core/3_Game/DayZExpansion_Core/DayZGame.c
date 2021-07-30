@@ -83,7 +83,7 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	// Expansion SetExpansionGame
 	// ------------------------------------------------------------
-	void SetExpansionGame(ref ExpansionGame game)
+	void SetExpansionGame(ExpansionGame game)
 	{
 		m_ExpansionGame = game;
 	}
@@ -91,7 +91,7 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	// Expansion GetExpansionGame
 	// ------------------------------------------------------------
-	ref ExpansionGame GetExpansionGame()
+	ExpansionGame GetExpansionGame()
 	{
 		return m_ExpansionGame;
 	}	
@@ -105,7 +105,7 @@ modded class DayZGame
 		EXPrint("LoadingScreen::GetExpansionClientVersion - Start");
 		#endif
 
-		ref array<ref ModInfo> mods = new array<ref ModInfo>;
+		array<ref ModInfo> mods = new array<ref ModInfo>;
 		string version;
 		
 		GetDayZGame().GetModInfos( mods );

@@ -46,7 +46,7 @@ class JMESPMetaCar : JMESPMeta
 		}
 	}
 
-	void Action_UnPair( UIEvent eid, ref UIActionBase action )
+	void Action_UnPair( UIEvent eid, UIActionBase action )
 	{
 		if ( eid != UIEvent.CLICK )
 			return;
@@ -54,7 +54,7 @@ class JMESPMetaCar : JMESPMeta
 		exp_Module.CarUnPair( target );
 	}
 
-	void Action_UnLock( UIEvent eid, ref UIActionBase action )
+	void Action_UnLock( UIEvent eid, UIActionBase action )
 	{
 		if ( eid != UIEvent.CLICK )
 			return;

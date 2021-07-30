@@ -13,11 +13,11 @@
 enum ExpansionPartyPlayerPermissions
 {
 	NONE = 0,
-	CAN_EDIT = 1,
-	CAN_INVITE = 2,
-	CAN_KICK = 4,
-	CAN_DELETE = 8,
-	CAN_WITHDRAW_MONEY = 16
+	CAN_EDIT = 1, 										// 1
+	CAN_INVITE = 2,									// 2
+	CAN_KICK = 4,										// 4
+	CAN_DELETE = 8,									// 8
+	CAN_WITHDRAW_MONEY = 16			// 16
 }
 
 class ExpansionPartyPlayerData
@@ -39,8 +39,8 @@ class ExpansionPartyPlayerData
 	{
 		m_TempMarkerData = new ExpansionPlayerMarkerData();
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
-
 		CreateMarker();
+		Permissions = ExpansionPartyPlayerPermissions.NONE;
 	}
 
 	void ~ExpansionPartyPlayerData()
@@ -72,6 +72,7 @@ class ExpansionPartyPlayerData
 			{
 				m_TempMarkerData.SetName(Name);
 			}
+			
 			int markerColorA;
 			int markerColorR;
 			int markerColorG;
@@ -123,7 +124,7 @@ class ExpansionPartyPlayerData
 	void OnJoin(PlayerBase player)
 	{
 		Name = player.GetIdentityName();
-
+		
 		InitMarker();
 
 		if (!Marker) // marker may already exist (respawn)
@@ -188,9 +189,10 @@ class ExpansionPartyPlayerData
             if (promoted)
                 SetPermissions(ExpansionPartyPlayerPermissions.CAN_EDIT | ExpansionPartyPlayerPermissions.CAN_INVITE | ExpansionPartyPlayerPermissions.CAN_KICK | ExpansionPartyPlayerPermissions.CAN_DELETE | ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY);
         }
-        else if (Expansion_Assert_False(ctx.Read(Permissions), "[" + this + "] Failed reading Permissions"))
+        else
         {
-            return false;
+			 if (Expansion_Assert_False(ctx.Read(Permissions), "[" + this + "] Failed reading Permissions"))
+            	return false;
         }
  
         if (version < 9)
@@ -226,23 +228,37 @@ class ExpansionPartyPlayerData
 	
 	ExpansionPartyPlayerPermissions ApplyPermissions(ExpansionPartyPlayerPermissions perm)
 	{
-		Print("perm:" + perm);
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyPlayerData::ApplyPermissions - Apply Permissions: " + perm.ToString());
+		#endif
 		Permissions = perm;
-		Print("Permissions:" + Permissions);
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyPlayerData::ApplyPermissions - Permissions: " + Permissions.ToString());
+		#endif
 		return Permissions;
 	}
 	
 	ExpansionPartyPlayerPermissions SetPermissions(ExpansionPartyPlayerPermissions perm)
 	{
-		Print("perm:" + perm);
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyPlayerData::SetPermissions - Set Permissions: " + perm.ToString());
+		#endif
 		Permissions |= perm;
-		Print("Permissions:" + Permissions);
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyPlayerData::SetPermissions - Permissions: " + Permissions.ToString());
+		#endif
 		return Permissions;
 	}
 	
 	ExpansionPartyPlayerPermissions RemovePermission(ExpansionPartyPlayerPermissions perm)
 	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyPlayerData::RemovePermission - Remove Permissions: " + perm.ToString());
+		#endif
 		Permissions &= ~perm;
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyPlayerData::RemovePermission - Permissions: " + Permissions.ToString());
+		#endif
 		return Permissions;
 	}
 	

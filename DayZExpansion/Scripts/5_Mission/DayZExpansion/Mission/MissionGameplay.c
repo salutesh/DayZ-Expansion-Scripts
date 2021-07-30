@@ -341,15 +341,10 @@ modded class MissionGameplay
 	{
 		switch (mode)
 		{
-			case INPUT_EXCLUDE_ALL:
-			{
-				GetUApi().ActivateExclude("menuexpansion");
-				break;
-			}
-			
 			case INPUT_EXCLUDE_CHAT_EXPANSION:
 			{
 				GetUApi().ActivateExclude("chatexpansion");
+				GetUApi().UpdateControls();
 				break;
 			}
 		}
@@ -573,6 +568,8 @@ modded class MissionGameplay
 		Input input 			= GetGame().GetInput(); 	//! Reference to input
 		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
 		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
+		ExpansionScriptViewMenu viewMenu 	= ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		
 		if ( playerPB && playerPB.GetHumanInventory() ) 
 		{
@@ -580,7 +577,7 @@ modded class MissionGameplay
 			EntityAI itemInHands = playerPB.GetHumanInventory().GetEntityInHands();
 
 			//! Expansion reference to hologram
-			ref Hologram hologram;	
+			Hologram hologram;	
 
 			if ( playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious() )
 			{
@@ -630,7 +627,7 @@ modded class MissionGameplay
 					}
 					
 					//! Map Menu
-					if ( input.LocalPress( "UAExpansionMapToggle", false ) )
+					if ( input.LocalPress( "UAExpansionMapToggle", false ) && !viewMenu )
 					{
 						ToggleMapMenu(playerPB);
 					}
@@ -643,7 +640,7 @@ modded class MissionGameplay
 						#endif
 
 						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS )
-						{		
+						{
 							if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
 							{
 								#ifdef EXPANSIONEXLOGPRINT
@@ -702,22 +699,24 @@ modded class MissionGameplay
 					}
 					
 					//! Toggle Earplugs
-					if ( input.LocalPress( "UAExpansionEarplugsToggle", false ) )
+					if ( input.LocalPress( "UAExpansionEarplugsToggle", false )  && !viewMenu )
 					{
 						m_ExpansionHud.ToggleEarplugs();
 					}
 					
-					if (input.LocalPress("UAExpansionPlayerListToggle", false))
+					//! Toggle Player list menu
+					if ( input.LocalPress("UAExpansionPlayerListToggle", false) )
 					{
-						if (!topMenu && !inputIsFocused)
+						if ((playerListMenu || !topMenu) && !inputIsFocused)
 						{
 							OnPlayerListTogglePressed();
 						}
 					}
 
 					if (m_MarkerModule)
-					{						
-						if (input.LocalPress("UAExpansion3DMarkerToggle", false)) {
+					{
+						if (input.LocalPress("UAExpansion3DMarkerToggle", false)  && !viewMenu) 
+						{
 							
 							m_MarkerToggleState = !m_MarkerToggleState;
 							m_ServerMarkerToggleState = m_MarkerToggleState;
@@ -738,8 +737,8 @@ modded class MissionGameplay
 							}
 						}
 						
-						if (input.LocalPress("UAExpansionServerMarkersToggle", false)) {
-							
+						if (input.LocalPress("UAExpansionServerMarkersToggle", false)  && !viewMenu) 
+						{
 							m_ServerMarkerToggleState = !m_ServerMarkerToggleState;
 							
 							if (m_ServerMarkerToggleState) {
@@ -1221,7 +1220,7 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	// Expansion GetChat
 	// ------------------------------------------------------------
-	ref Chat GetChat()
+	Chat GetChat()
 	{
 		return m_Chat;
 	}
@@ -1237,7 +1236,7 @@ modded class MissionGameplay
 			ImageWidget voiceWidget = m_VoiceLevelsWidgets.Get(n);
 			
 			// stop fade timer since it will be refreshed
-			ref WidgetFadeTimer timer = m_VoiceLevelTimers.Get(n);		
+			WidgetFadeTimer timer = m_VoiceLevelTimers.Get(n);		
 			timer.Stop();
 		
 			// show widgets according to the level

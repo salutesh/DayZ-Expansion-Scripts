@@ -99,7 +99,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionGeneralSettings thisSetting = this;
+		ExpansionGeneralSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -133,7 +133,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EXPrint("ExpansionGeneralSettings::Copy - Start");
 		#endif
 		
-		ref ExpansionGeneralSettings settings = ExpansionGeneralSettings.Cast( setting );
+		ExpansionGeneralSettings settings = ExpansionGeneralSettings.Cast( setting );
 		if ( !settings )
 			return false;
 
@@ -146,7 +146,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionGeneralSettings s )
+	private void CopyInternal(  ExpansionGeneralSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");
@@ -170,7 +170,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionGeneralSettingsBase s )
+	private void CopyInternal(  ExpansionGeneralSettingsBase s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");

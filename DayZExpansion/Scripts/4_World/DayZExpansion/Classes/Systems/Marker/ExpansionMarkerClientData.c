@@ -191,9 +191,9 @@ class ExpansionMarkerClientData : Managed
 		return ip == m_IP && port == m_Port;
 	}
 
-	ref array< ExpansionMarkerData > GetAll()
+	array< ExpansionMarkerData > GetAll()
 	{
-		ref array< ExpansionMarkerData > markers = new array< ExpansionMarkerData >();
+		array< ExpansionMarkerData > markers = new array< ExpansionMarkerData >();
 		
 		ExpansionMarkerData marker;
 		
@@ -267,7 +267,7 @@ class ExpansionMarkerClientData : Managed
 		return m_PersonalMarkers.Count();
 	}
 
-	ref ExpansionMarkerData PersonalGet( int idx )
+	ExpansionMarkerData PersonalGet( int idx )
 	{
 		return m_PersonalMarkers[idx];
 	}
@@ -277,22 +277,22 @@ class ExpansionMarkerClientData : Managed
 		return m_PersonalMarkers[idx].GetUID();
 	}
 
-	int PersonalSetVisibility( ref ExpansionMarkerData data, int vis )
+	int PersonalSetVisibility(  ExpansionMarkerData data, int vis )
 	{
 		return data.SetVisibility( vis );
 	}
 
-	int PersonalRemoveVisibility( ref ExpansionMarkerData data, int vis )
+	int PersonalRemoveVisibility(  ExpansionMarkerData data, int vis )
 	{
 		return data.RemoveVisibility( vis );
 	}
 
-	int PersonalFlipVisibility( ref ExpansionMarkerData data, int vis )
+	int PersonalFlipVisibility(  ExpansionMarkerData data, int vis )
 	{
 		return data.FlipVisibility( vis );
 	}
 
-	void PersonalInsert( ref ExpansionMarkerData data )
+	void PersonalInsert(  ExpansionMarkerData data )
 	{
 		m_NextPersonalUID++;
 		data.SetUID( NextPersonalUID() );
@@ -331,12 +331,12 @@ class ExpansionMarkerClientData : Managed
 		return m_PartyModule.GetParty().GetAllMarkers().Count();
 	}
 	
-	ref ExpansionMarkerData PartyGet( int i )
+	ExpansionMarkerData PartyGet( int i )
 	{
 		return m_PartyModule.GetParty().GetAllMarkers()[i];
 	}
 
-	ref ExpansionMarkerData PartyGet( string uid )
+	ExpansionMarkerData PartyGet( string uid )
 	{
 		array< ref ExpansionMarkerData > markers = m_PartyModule.GetParty().GetAllMarkers();
 		for ( int i = 0; i < markers.Count(); ++i )
@@ -386,12 +386,12 @@ class ExpansionMarkerClientData : Managed
 		return 0;
 	}
 
-	void PartyInsert( ref ExpansionMarkerData data )
+	void PartyInsert(  ExpansionMarkerData data )
 	{
 		m_PartyModule.CreateMarker( data );
 	}
 
-	void PartyUpdate( ref ExpansionMarkerData data )
+	void PartyUpdate(  ExpansionMarkerData data )
 	{
 		m_PartyModule.UpdateMarker( data );
 	}
@@ -415,12 +415,12 @@ class ExpansionMarkerClientData : Managed
 		return m_PartyModule.GetParty().GetPlayers().Count();
 	}
 	
-	ref ExpansionPlayerMarkerData PartyPlayerGet( int i )
+	ExpansionPlayerMarkerData PartyPlayerGet( int i )
 	{
 		return m_PartyModule.GetParty().GetPlayers()[i].Marker;
 	}
 	
-	ref ExpansionPlayerMarkerData PartyPlayerGet( string uid )
+	ExpansionPlayerMarkerData PartyPlayerGet( string uid )
 	{
 		return m_PartyModule.GetParty().GetPlayer( uid ).Marker;
 	}
@@ -466,12 +466,12 @@ class ExpansionMarkerClientData : Managed
 		return GetExpansionSettings().GetMap().ServerMarkers.Count();
 	}
 	
-	ref ExpansionMarkerData ServerGet( int idx )
+	ExpansionMarkerData ServerGet( int idx )
 	{
 		return GetExpansionSettings().GetMap().ServerMarkers[ idx ];
 	}
 	
-	ref ExpansionMarkerData ServerGet( string uid )
+	ExpansionMarkerData ServerGet( string uid )
 	{
 		array< ref ExpansionMarkerData > markers = GetExpansionSettings().GetMap().ServerMarkers;
 		for ( int i = 0; i < markers.Count(); ++i )
@@ -529,12 +529,12 @@ class ExpansionMarkerClientData : Managed
 		return m_PartyModule.GetParty().GetPlayers().Count();
 	}
 	
-	ref ExpansionPartyQuickMarkerData PartyQuickGet( int i )
+	ExpansionPartyQuickMarkerData PartyQuickGet( int i )
 	{
 		return m_PartyModule.GetParty().GetPlayers()[i].QuickMarker;
 	}
-	
-	ref ExpansionPartyQuickMarkerData PartyQuickGet( string uid )
+
+	ExpansionPartyQuickMarkerData PartyQuickGet( string uid )
 	{
 		return m_PartyModule.GetParty().GetPlayer( uid ).QuickMarker;
 	}
@@ -584,7 +584,7 @@ class ExpansionMarkerClientData : Managed
 			} else
 			{
 				//! It's a new marker
-				ref ExpansionMarkerClientInfo info = new ExpansionMarkerClientInfo( uid );
+				ExpansionMarkerClientInfo info = new ExpansionMarkerClientInfo( uid );
 				m_MarkerInfo_Server.Insert( uid, info );
 			}
 		}
@@ -610,7 +610,7 @@ class ExpansionMarkerClientData : Managed
 		}
 
 		ExpansionMarkerData data;
-		ref ExpansionMarkerClientInfo info;
+		ExpansionMarkerClientInfo info;
 
 		ExpansionPartyData party = m_PartyModule.GetParty();
 

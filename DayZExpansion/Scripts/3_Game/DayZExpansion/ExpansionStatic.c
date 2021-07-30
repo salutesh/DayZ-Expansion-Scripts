@@ -27,7 +27,7 @@ class ExpansionStatic
 	// ------------------------------------------------------------
 	// ExpansionStatic GetFlagTextures
 	// ------------------------------------------------------------
-	ref array<ref ExpansionFlagTexture> GetFlagTextures()
+	array<ref ExpansionFlagTexture> GetFlagTextures()
 	{
 		return m_FlagTextures;
 	}
@@ -626,10 +626,10 @@ class ExpansionStatic
 	}
 };
 
-static ref ExpansionStatic GetExpansionStatic()
+static ref ExpansionStatic g_exGlobalStatic;
+
+static ExpansionStatic GetExpansionStatic()
 {
-	static ref ExpansionStatic g_exGlobalStatic;
-	
 	if ( !g_exGlobalStatic )
 	{
 		g_exGlobalStatic = new ExpansionStatic();

@@ -37,14 +37,16 @@ modded class SyncPlayerList
 			for ( int i = 0; i < players.Count(); ++i )
 			{
 				Man player = players[i];
-				if  ( player.GetIdentity() )
+				PlayerIdentity p_identity = player.GetIdentity();
+
+				if  ( p_identity )
 				{
-					ref SyncPlayer sync_player = new SyncPlayer;
-					sync_player.m_UID = player.GetIdentity().GetPlainId();
-					sync_player.m_RUID = player.GetIdentity().GetId();
-					sync_player.m_SteamID = player.GetIdentity().GetPlainId();
-					sync_player.m_PlayerID = player.GetIdentity().GetPlayerId();
-					sync_player.m_PlayerName = player.GetIdentity().GetName();
+					SyncPlayer sync_player = new SyncPlayer;
+					sync_player.m_UID = p_identity.GetPlainId();
+					sync_player.m_RUID = p_identity.GetId();
+					sync_player.m_SteamID = p_identity.GetPlainId();
+					sync_player.m_PlayerID = p_identity.GetPlayerId();
+					sync_player.m_PlayerName = p_identity.GetName();
 					m_PlayerList.Insert( sync_player );
 				} else
 				{

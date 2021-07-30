@@ -160,7 +160,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// Expansion SetTerritory
 	// ------------------------------------------------------------
-	void SetTerritory( ref ExpansionTerritory territory )
+	void SetTerritory(  ExpansionTerritory territory )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -175,7 +175,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// Expansion GetTerritory
 	// ------------------------------------------------------------
-	ref ExpansionTerritory GetTerritory()
+	ExpansionTerritory GetTerritory()
 	{
 		return m_Territory;
 	}

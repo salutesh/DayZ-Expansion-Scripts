@@ -174,13 +174,13 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	protected void ProcessMission( ExpansionMissionEventBase evt )
 	{
-		ref array< ExpansionMissionEventBase > missions;
+		array< ExpansionMissionEventBase > missions;
 		if ( m_MissionsTyped.Find( evt.Type(), missions ) )
 		{
 			missions.Insert( evt );
 		} else
 		{
-			missions = new ref array< ExpansionMissionEventBase >;
+			missions = new array< ExpansionMissionEventBase >;
 			missions.Insert( evt );
 
 			m_MissionsTyped.Insert( evt.Type(), missions );
@@ -518,9 +518,9 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMissionModule Serialize
 	// ------------------------------------------------------------
-	ref array< ref ExpansionMissionSerializedType > Serialize()
+	array< ref ExpansionMissionSerializedType > Serialize()
 	{
-		ref array< ref ExpansionMissionSerializedType > serialized = new ref array< ref ExpansionMissionSerializedType >;
+		array< ref ExpansionMissionSerializedType > serialized = new array< ref ExpansionMissionSerializedType >;
 
 		for ( int i = 0; i < m_MissionsTyped.Count(); i++ )
 		{

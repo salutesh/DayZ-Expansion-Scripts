@@ -48,7 +48,7 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		return "Expansion Raid Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetRaid();
 	}
@@ -107,7 +107,7 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		return ExpansionCOTRaidModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -120,12 +120,12 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionRaidSettings setting = new ExpansionRaidSettings();
+		ExpansionRaidSettings setting = new ExpansionRaidSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

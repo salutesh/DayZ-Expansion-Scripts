@@ -89,7 +89,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// ExpansionMissionModule CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionMissionSettings s )
+	private void CopyInternal(  ExpansionMissionSettings s )
 	{
 		int i = 0;
 

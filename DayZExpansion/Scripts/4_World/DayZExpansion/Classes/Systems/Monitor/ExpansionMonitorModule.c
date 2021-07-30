@@ -20,15 +20,15 @@ class ExpansionMonitorModule: JMModuleBase
 	private const int UPDATE_PLAYERS_PER_TICK = 10;
 
 	//Server only
-	private ref map< string, ref ExpansionSyncedPlayerStats > m_Stats;
-	private ref map< string, ref ExpansionSyncedPlayerStates > m_States;
+	private ref map<string, ref ExpansionSyncedPlayerStats> m_Stats;
+	private ref map<string, ref ExpansionSyncedPlayerStates> m_States;
 	
 	private float m_UpdateQueueTimer;
 	private int m_CurrentPlayerTick;
 	
 	//Client only
-	private ref ExpansionSyncedPlayerStats m_ClientStat;
-	private ref ExpansionSyncedPlayerStates m_ClientStates;
+	static ref ExpansionSyncedPlayerStats m_ClientStats;
+	static ref ExpansionSyncedPlayerStates m_ClientStates;
 	
 	static ref ScriptInvoker m_StatsInvoker = new ScriptInvoker();
 	static ref ScriptInvoker m_StatesInvoker = new ScriptInvoker();
@@ -53,16 +53,15 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	override void OnInit()
 	{
-		if ( IsMissionHost() )
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			m_Stats = new map< string, ref ExpansionSyncedPlayerStats >();
-			m_States = new map< string, ref ExpansionSyncedPlayerStates >();
-			
+			m_Stats = new map<string, ref ExpansionSyncedPlayerStats>;
+			m_States = new map<string, ref ExpansionSyncedPlayerStates>;
 			m_UpdateQueueTimer = 0;
 		}
 
-		m_ClientStat = new ExpansionSyncedPlayerStats();
-		m_ClientStates = new ExpansionSyncedPlayerStates();
+		m_ClientStats = new ExpansionSyncedPlayerStats;
+		m_ClientStates = new ExpansionSyncedPlayerStates;
 	}
 	
 	// ------------------------------------------------------------
@@ -85,7 +84,11 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule OnRPC
 	// Called on client
 	// ------------------------------------------------------------
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+	#else
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
+	#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::OnRPC - Start");
@@ -94,23 +97,25 @@ class ExpansionMonitorModule: JMModuleBase
 		switch ( rpc_type )
 		{
 		case ExpansionMonitorRPC.SyncStats:
-			m_ClientStat.OnRecieve( ctx );
-			m_ClientStates.OnRecieve( ctx );
+			m_ClientStats.OnRecieve(ctx);
+			break;
+		case ExpansionMonitorRPC.SyncStates:
+			m_ClientStates.OnRecieve(ctx);
 			break;
 		case ExpansionMonitorRPC.SendMessage:
-			RPC_SendMessage( ctx );
+			RPC_SendMessage(ctx);
 			break;
 		case ExpansionMonitorRPC.RequestPlayerStats:
-			RPC_RequestPlayerStats( ctx, sender );
+			RPC_RequestPlayerStats(ctx, sender);
 			break;
 		case ExpansionMonitorRPC.SendPlayerStats:
-			RPC_SendPlayerStats( ctx );
+			RPC_SendPlayerStats(ctx);
 			break;
 		case ExpansionMonitorRPC.RequestPlayerStates:
-			RPC_RequestPlayerStates( ctx, sender );
+			RPC_RequestPlayerStates(ctx, sender);
 			break;
 		case ExpansionMonitorRPC.SendPlayerStates:
-			RPC_SendPlayerStates( ctx );
+			RPC_SendPlayerStates(ctx);
 			break;
 		}
 
@@ -128,12 +133,13 @@ class ExpansionMonitorModule: JMModuleBase
 		EXPrint( "ExpansionMonitorModule::OnClientReady - Start" );
 		#endif
 
-		if ( GetExpansionSettings().GetNotification().ShowPlayerJoinServer && identity )
+		if (GetExpansionSettings().GetNotification().ShowPlayerJoinServer && identity)
 		{			
-			if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION ) 
+			if (GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION) 
 			{
 				ExpansionNotification("STR_EXPANSION_PLAYER_JOINED_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
-			} else if ( GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT )
+			} 
+			else if (GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT)
 			{
 				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName()));
 			}
@@ -147,17 +153,21 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnInvokeConnect
 	// ------------------------------------------------------------
-	override void OnInvokeConnect( PlayerBase player, PlayerIdentity identity )
+	override void OnInvokeConnect(PlayerBase player, PlayerIdentity identity)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionMonitorModule::OnInvokeConnect - Start" );
-		EXPrint( "ExpansionMonitorModule::OnInvokeConnect player : " + player );
+		EXPrint("ExpansionMonitorModule::OnInvokeConnect - Start");
 		#endif
 
-		if ( player )
-		{
-			AddPlayerStats( player, identity );
-		}
+		if (!player)
+			return;
+		
+		if (!identity)
+			return;
+		
+		string playerID = identity.GetId();
+		AddPlayerStats(player, playerID);
+		AddPlayerStates(player, playerID);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::OnInvokeConnect - End");
@@ -168,18 +178,19 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule OnInvokeDisconnect
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnInvokeDisconnect( PlayerBase player )
+	override void OnInvokeDisconnect(PlayerBase player)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionMonitorModule::OnInvokeDisconnect - Start" );
 		#endif
 
-		if ( GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity() ) 
+		if (GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity()) 
 		{			
-			if ( GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.NOTIFICATION ) 
+			if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.NOTIFICATION) 
 			{
 				ExpansionNotification("STR_EXPANSION_PLAYER_LEFT_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
-			} else if ( GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.CHAT )
+			} 
+			else if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.CHAT)
 			{
 				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName()));
 			}
@@ -194,13 +205,18 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule OnClientLogout
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnClientLogout( PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed )
+	override void OnClientLogout(PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionMonitorModule::OnClientLogout - Start" );
 		#endif
 
-		RemovePlayerStats( identity );
+		if (!identity)
+			return;
+		
+		string playerID = identity.GetId();
+		RemovePlayerStats(playerID);
+		RemovePlayerStates(playerID);
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionMonitorModule::OnClientLogout - End" );
@@ -210,103 +226,175 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnUpdate
 	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
+	override void OnUpdate(float timeslice)
 	{
 		super.OnUpdate( timeslice );
-
-		if ( !IsMissionHost() )
+		
+		if (IsMissionClient())
 			return;
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMonitorModule::OnUpdate - Start");
-		#endif
-
 		m_UpdateQueueTimer += timeslice;
 		if ( m_UpdateQueueTimer >= UPDATE_TICK_TIME )
 		{
-			if ( m_Stats.Count() > 0 )
+			if (m_Stats.Count() > 0)
 			{
-				for ( int i = 0; i < UPDATE_PLAYERS_PER_TICK; ++i ) 
+				for (int i = 0; i < UPDATE_PLAYERS_PER_TICK; ++i) 
 				{
-					if ( m_CurrentPlayerTick >= m_Stats.Count() )
+					if (m_CurrentPlayerTick >= m_Stats.Count())
 					{
 						m_CurrentPlayerTick = 0;
 					}
-	
-					ref ExpansionSyncedPlayerStats stat = m_Stats.GetElement( m_CurrentPlayerTick );
-					ref ExpansionSyncedPlayerStates states = m_States.GetElement( m_CurrentPlayerTick );
 					
-					PlayerBase active_player = PlayerBase.GetPlayerByUID( m_Stats.GetKey( m_CurrentPlayerTick ) );
-					
-					if ( active_player && active_player.GetIdentity() )
+					string currentPlayerID = m_Stats.GetKey(m_CurrentPlayerTick);
+					if (currentPlayerID == "")
 					{
-						stat.m_Health = CalcHealth( active_player );
-						stat.m_Blood = CalcBlood( active_player );
-						stat.m_Water = CalcWater( active_player );
-						stat.m_Energy = CalcEnergy( active_player );
-						stat.m_Stamina = CalcStamina( active_player );
-						
-						stat.m_Distance = active_player.StatGet( "dist" );
-						stat.m_Playtime = active_player.StatGet( "playtime" );
-						stat.m_PlayersKilled = active_player.StatGet( "players_killed" );
-						stat.m_InfectedKilled = active_player.StatGet( "infected_killed" );
-						stat.m_AnimalsKilled = active_player.StatGet( "animals_killed" );
-						stat.m_LongestShot = active_player.StatGet( "longest_survivor_hit" );
-						
-						stat.m_Weight = CalcWeight( active_player );
-						
-						states.m_Bones = BonesState( active_player );
-						states.m_Sick = IsBrianSick( active_player );
-						states.m_Cholera = HasCholera( active_player );
-						states.m_Influenza = HasInfluenza( active_player );
-						states.m_Salmonella = HasSalmonella( active_player );
-						states.m_Poison = HasFoodPoison( active_player );
-						states.m_Infection= HasWoundInfection( active_player );
-						
-						ScriptRPC rpc = new ScriptRPC();
-						stat.OnSend( rpc );
-						states.OnSend( rpc );
-						rpc.Send( NULL, ExpansionMonitorRPC.SyncStats, false, active_player.GetIdentity() );
+						Error("ExpansionMonitorModule::OnUpdate - Player ID is empty!");
+						continue;
 					}
-	
+					
+					UpdateStats(currentPlayerID);
+					UpdateStates(currentPlayerID);
+					
 					m_CurrentPlayerTick++;
 
-					if ( m_CurrentPlayerTick == m_Stats.Count() )
+					if (m_CurrentPlayerTick == m_Stats.Count())
 					{
 						break;
 					}
 				}
-			} else
+			}
+			else
 			{
 				m_CurrentPlayerTick = 0;
 			}
 			
 			m_UpdateQueueTimer = 0.0;
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule UpdateStats
+	// ------------------------------------------------------------	
+	private void UpdateStats(string playerID)
+	{
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+			return;
+		
+		ExpansionSyncedPlayerStats stats = m_Stats.Get(playerID);
+		if (!stats)
+		{
+			Error("ExpansionMonitorModule::UpdateStats - Could not get player stats!");
+			return;
+		}
+		
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);
+		if (!player)
+		{
+			Error("ExpansionMonitorModule::UpdateStats - Could not get player base!");
+			return;
+		}
+			
+		stats.m_Health = CalcHealth(player);
+		stats.m_Blood = CalcBlood(player);
+		stats.m_Water = CalcWater(player);
+		stats.m_Energy = CalcEnergy(player);
+		stats.m_Stamina = CalcStamina(player);
+		stats.m_Distance = player.StatGet("dist");
+		stats.m_Playtime = player.StatGet("playtime");
+		stats.m_PlayersKilled = player.StatGet("players_killed" );
+		stats.m_InfectedKilled = player.StatGet("infected_killed");
+		stats.m_AnimalsKilled = player.StatGet("animals_killed");
+		stats.m_LongestShot = player.StatGet("longest_survivor_hit");
+		stats.m_Weight = CalcWeight( player );
+				
+		ScriptRPC rpc = new ScriptRPC();
+		stats.OnSend(rpc);
+		rpc.Send(NULL, ExpansionMonitorRPC.SyncStats, false, player.GetIdentity());
+	}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMonitorModule::OnUpdate - End");
-		#endif
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule UpdateStates
+	// ------------------------------------------------------------		
+	private void UpdateStates(string playerID)
+	{
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+			return;
+		
+		ExpansionSyncedPlayerStates states = m_States.Get(playerID);
+		if (!states)
+		{
+			Error("ExpansionMonitorModule::UpdateStates - Could not get player stats!");
+			return;
+		}
+		
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);
+		if (!player)
+		{
+			Error("ExpansionMonitorModule::UpdateStates - Could not get player base!");
+			return;
+		}
+			
+		states.m_Bones = BonesState(player);
+		states.m_Sick = IsBrianSick(player);
+		states.m_Cholera = HasCholera(player);
+		states.m_Influenza = HasInfluenza(player);
+		states.m_Salmonella = HasSalmonella(player);
+		states.m_Poison = HasFoodPoison(player);
+		states.m_Infection= HasWoundInfection(player);
+		states.m_Cuts = HasCuts(player);
+		states.m_Stance = GetPlayerStance(player);
+		
+		ScriptRPC rpc = new ScriptRPC();
+		states.OnSend(rpc);
+		rpc.Send(NULL, ExpansionMonitorRPC.SyncStates, false, player.GetIdentity());
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule AddPlayerStats
 	// Called on server
 	// ------------------------------------------------------------
-	void AddPlayerStats( PlayerBase player, PlayerIdentity identity )
+	void AddPlayerStats(PlayerBase player, string playerID)
 	{
-		if ( !IsMissionHost() )
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::AddPlayerStats - Start");
 		#endif
 		
-		if ( !m_Stats.Contains( identity.GetId() ) ) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
-			m_Stats.Insert( identity.GetId(), new ExpansionSyncedPlayerStats );
+		EXPrint("ExpansionMonitorModule::AddPlayerStats - Add player stats for with ID: " + playerID);
 		
-		if ( !m_States.Contains( identity.GetId() ) ) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
-			m_States.Insert( identity.GetId(), new ExpansionSyncedPlayerStates );
+		if (!m_Stats.Contains(playerID)) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
+		{
+			m_Stats.Insert(playerID, new ExpansionSyncedPlayerStats);
+			UpdateStats(playerID);
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMonitorModule::AddPlayerStats - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule AddPlayerStates
+	// Called on server
+	// ------------------------------------------------------------
+	void AddPlayerStates(PlayerBase player, string playerID)
+	{
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+			return;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMonitorModule::AddPlayerStats - Start");
+		#endif
+		
+		EXPrint("ExpansionMonitorModule::AddPlayerStats - Add player states for player with ID: " + playerID);
+
+		if (!m_States.Contains(playerID)) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
+		{
+			m_States.Insert(playerID, new ExpansionSyncedPlayerStates);
+			UpdateStates(playerID);
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::AddPlayerStats - End");
@@ -317,9 +405,9 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule RemovePlayerStats
 	// Called on server
 	// ------------------------------------------------------------
-	void RemovePlayerStats(PlayerIdentity identity)
+	void RemovePlayerStats(string playerID)
 	{
-		if ( !IsMissionHost() )
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
 		#ifdef EXPANSIONEXPRINT
@@ -327,12 +415,8 @@ class ExpansionMonitorModule: JMModuleBase
 		#endif
 		
 		ExpansionSyncedPlayerStats stat;
-		if ( m_Stats.Find( identity.GetId(), stat ) )
-			m_Stats.Remove( identity.GetId() );
-		
-		ExpansionSyncedPlayerStates state;
-		if ( m_States.Find( identity.GetId(), state ) )
-			m_States.Remove( identity.GetId() );
+		if (m_Stats.Find(playerID, stat))
+			m_Stats.Remove(playerID);
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::RemovePlayerStats - End");
@@ -340,22 +424,44 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
+	// ExpansionMonitorModule RemovePlayerStates
+	// Called on server
+	// ------------------------------------------------------------
+	void RemovePlayerStates(string playerID)
+	{
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+			return;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMonitorModule::RemovePlayerStates - Start");
+		#endif
+		
+		ExpansionSyncedPlayerStates state;
+		if (m_States.Find(playerID, state))
+			m_States.Remove(playerID);
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMonitorModule::RemovePlayerStates - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
 	// ExpansionMonitorModule ServerChatMessage
 	// Called on server
 	// ------------------------------------------------------------
-	void ServerChatMessage( ref StringLocaliser tag, ref StringLocaliser message)
+	void ServerChatMessage(StringLocaliser tag, StringLocaliser message)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::Message - Start" );
+		EXLogPrint("ExpansionMonitorModule::Message - Start");
 		#endif
 
 		ScriptRPC message_rpc = new ScriptRPC();
-		message_rpc.Write( tag );
-		message_rpc.Write( message );
-		message_rpc.Send( null, ExpansionMonitorRPC.SendMessage, true );
+		message_rpc.Write(tag);
+		message_rpc.Write(message);
+		message_rpc.Send(null, ExpansionMonitorRPC.SendMessage, true);
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::Message - End" );
+		EXLogPrint("ExpansionMonitorModule::Message - End");
 		#endif
 	}
 	
@@ -363,27 +469,27 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule RPC_SendMessage
 	// Called on all Clients
 	// ------------------------------------------------------------
-	private void RPC_SendMessage( ref ParamsReadContext ctx )
+	private void RPC_SendMessage(ParamsReadContext ctx)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_SendMessage - Start" );
+		EXLogPrint("ExpansionMonitorModule::RPC_SendMessage - Start");
 		#endif
 		
-		if ( !IsMissionClient() )
+		if (!GetGame().IsClient())
 			return;
 
-		ref StringLocaliser tag;
-		if ( !ctx.Read( tag ) )
+		StringLocaliser tag;
+		if (!ctx.Read(tag))
 			return;
 		
-		ref StringLocaliser message;
-		if ( !ctx.Read( message ) )
+		StringLocaliser message;
+		if (!ctx.Read(message))
 			return;
 		
-		GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", tag.Format() + " - " + message.Format(), "" ) );
+		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(ExpansionChatChannels.CCSystem, "", tag.Format() + " - " + message.Format(), ""));
 
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_SendMessage - End" );
+		EXLogPrint("ExpansionMonitorModule::RPC_SendMessage - End");
 		#endif
 	}
 	
@@ -391,73 +497,72 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule CalcHealth
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcHealth( PlayerBase player )
+	private int CalcHealth(PlayerBase player)
 	{
-		return Calc( player.GetHealth( "","Health" ), player.GetMaxHealth("GlobalHealth", "Health") );
+		return Calc(player.GetHealth("","Health"), player.GetMaxHealth("GlobalHealth", "Health"));
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule CalcBlood
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcBlood( PlayerBase player )
+	private int CalcBlood(PlayerBase player)
 	{
-		return Calc( player.GetHealth("", "Blood") - 2500,  2500);
+		return Calc(player.GetHealth("", "Blood") - 2500,  2500);
 	}
 
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule CalcWater
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcWater( PlayerBase player )
+	private int CalcWater(PlayerBase player)
 	{
-		return CalcStat( player.GetStatWater() );
+		return CalcStat(player.GetStatWater());
 	}
 
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule CalcEnergy
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcEnergy( PlayerBase player )
+	private int CalcEnergy(PlayerBase player)
 	{
-		return CalcStat( player.GetStatEnergy() );
+		return CalcStat(player.GetStatEnergy());
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule CalcStamina
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcStamina( PlayerBase player )
+	private int CalcStamina(PlayerBase player)
 	{
-		return CalcStat( player.GetStatStamina() );
+		return CalcStat(player.GetStatStamina());
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule Calc
 	// Called on server
 	// ------------------------------------------------------------
-	protected int Calc( float value, float max )
+	private int Calc(float value, float max)
 	{
-		return ( Math.Round( value ) * 100 ) / max;
+		return (Math.Round(value) * 100) / max;
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule CalcStat
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcStat( PlayerStat< float > stat )
+	private int CalcStat(PlayerStat<float> stat)
 	{
-		return Calc( stat.Get(), stat.GetMax() );
+		return Calc(stat.Get(), stat.GetMax());
 	}
 		
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule CalcWeight
 	// Called on server
 	// ------------------------------------------------------------
-	protected int CalcWeight( PlayerBase player )
+	private int CalcWeight(PlayerBase player)
 	{
 		int weight;
-		
 		weight = player.GetWeight();
 		
 		return weight;
@@ -467,10 +572,9 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule BonesState
 	// Called on server
 	// ------------------------------------------------------------
-	protected int BonesState( PlayerBase player )
+	private int BonesState(PlayerBase player)
 	{
 		int bonesState;
-		
 		bonesState = player.m_BrokenLegState;
 		
 		return bonesState;
@@ -480,7 +584,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule IsBrianSick
 	// Called on server
 	// ------------------------------------------------------------
-	protected bool IsBrianSick( PlayerBase player )
+	private bool IsBrianSick(PlayerBase player)
 	{
 		bool brainSick = false;
 		
@@ -494,7 +598,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule HasCholera
 	// Called on server
 	// ------------------------------------------------------------
-	protected bool HasCholera( PlayerBase player )
+	private bool HasCholera(PlayerBase player)
 	{
 		if (player.GetSingleAgentCount(eAgents.CHOLERA) >= CholeraMdfr.AGENT_THRESHOLD_ACTIVATE)
 			return true;
@@ -506,7 +610,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule HasInfluenza
 	// Called on server
 	// ------------------------------------------------------------
-	protected bool HasInfluenza( PlayerBase player )
+	private bool HasInfluenza(PlayerBase player)
 	{
 		if (player.GetSingleAgentCount(eAgents.INFLUENZA) >= InfluenzaMdfr.AGENT_THRESHOLD_ACTIVATE)
 			return true;
@@ -518,7 +622,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule HasSalmonella
 	// Called on server
 	// ------------------------------------------------------------
-	protected bool HasSalmonella( PlayerBase player )
+	private bool HasSalmonella(PlayerBase player)
 	{
 		if (player.GetSingleAgentCount(eAgents.SALMONELLA) >= SalmonellaMdfr.AGENT_THRESHOLD_ACTIVATE)
 			return true;
@@ -530,7 +634,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule HasFoodPoison
 	// Called on server
 	// ------------------------------------------------------------
-	protected bool HasFoodPoison( PlayerBase player )
+	private bool HasFoodPoison(PlayerBase player)
 	{
 		if (player.GetSingleAgentCount(eAgents.FOOD_POISON) >= PoisoningMdfr.AGENT_THRESHOLD_ACTIVATE)
 			return true;
@@ -542,7 +646,7 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule HasWoundInfection
 	// Called on server
 	// ------------------------------------------------------------
-	protected bool HasWoundInfection( PlayerBase player )
+	private bool HasWoundInfection(PlayerBase player)
 	{
 		if (player.GetSingleAgentCount(eAgents.WOUND_AGENT) >= WoundInfectionMdfr.AGENT_THRESHOLD_ACTIVATE)
 			return true;
@@ -551,19 +655,78 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMonitorModule GetStats
-	// Called on client
-	// ------------------------------------------------------------ 
-	ExpansionSyncedPlayerStats GetStats()
+	// ExpansionMonitorModule HasCuts
+	// Called on server
+	// ------------------------------------------------------------
+	private int HasCuts(PlayerBase player)
 	{
-		return m_ClientStat;
+		int cuts;
+		cuts = player.GetBleedingSourceCount();
+		if (player.IsBleeding() && cuts > 0)
+			return cuts;
+		
+		return 0;
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMonitorModule GetStates
+	// ExpansionMonitorModule GetPlayerStance
+	// Called on server
+	// ------------------------------------------------------------	
+	private int GetPlayerStance(PlayerBase player)
+	{
+		int stance = 0;
+		CarScript car;
+		
+		if (!Class.CastTo(car, player.GetParent()))
+		{
+			if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_CROUCH) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDCROUCH))
+			{
+				stance = 2;
+			}
+			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
+			{
+				stance = 3;
+			}
+			else
+			{
+				stance = 1;
+			}
+		}
+		else
+		{
+			ExpansionHelicopterScript heli;
+			ExpansionBoatScript boat;
+			if (Class.CastTo(heli, car))
+			{
+				stance = 5;
+			}
+			else if (Class.CastTo(boat, car))
+			{
+				stance = 6;
+			}
+			else
+			{
+				stance = 4;
+			}
+		}
+		
+		return stance;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule GetClientStats
 	// Called on client
 	// ------------------------------------------------------------ 
-	ExpansionSyncedPlayerStates GetStates()
+	ExpansionSyncedPlayerStats GetClientStats()
+	{
+		return m_ClientStats;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMonitorModule GetClientStates
+	// Called on client
+	// ------------------------------------------------------------ 
+	ExpansionSyncedPlayerStates GetClientStates()
 	{
 		return m_ClientStates;
 	}
@@ -572,18 +735,18 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule RequestPlayerStats
 	// Called from client
 	// ------------------------------------------------------------
-	void RequestPlayerStats(string player_id)
+	void RequestPlayerStats(string playerID)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStats - Start" );
+		EXLogPrint("ExpansionMonitorModule::RequestPlayerStats - Start");
 		#endif
-
+	
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( player_id );
-		rpc.Send( null, ExpansionMonitorRPC.RequestPlayerStats, true );
+		rpc.Write(playerID);
+		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStats, true);
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStats - End" );
+		EXLogPrint("ExpansionMonitorModule::RequestPlayerStats - End");
 		#endif
 	}
 	
@@ -591,27 +754,30 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule RPC_RequestPlayerStats
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestPlayerStats( ref ParamsReadContext ctx, PlayerIdentity sender )
+	private void RPC_RequestPlayerStats(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStats - Start" );
+		EXLogPrint("ExpansionMonitorModule::RPC_RequestPlayerStats - Start");
 		#endif
 		
-		if (IsMissionClient())
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
-		string player_id;
-		if (!ctx.Read(player_id))
+		string playerID;
+		if (!ctx.Read(playerID))
 			return;
 		
-		ref ExpansionSyncedPlayerStats playerStats = GetPlayerStatsByID(player_id);
-		if (playerStats)
+		ExpansionSyncedPlayerStats playerStats = GetPlayerStatsByID(playerID);
+		if (!playerStats)
 		{
-			SendPlayerStats(playerStats, sender);
+			Error("ExpansionMonitorModule::RPC_RequestPlayerStats - Could not get player stats for player wirth id: " + playerID);
+			return;
 		}
 		
+		SendPlayerStats(playerStats, playerID, sender);
+
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStats - End" );
+		EXLogPrint("ExpansionMonitorModule::RPC_RequestPlayerStats - End");
 		#endif
 	}
 	
@@ -619,16 +785,10 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule GetPlayerStatsByID
 	// Called on server
 	// ------------------------------------------------------------
-	ref ExpansionSyncedPlayerStats GetPlayerStatsByID(string player_id)
+	ExpansionSyncedPlayerStats GetPlayerStatsByID(string playerID)
 	{
-		ref ExpansionSyncedPlayerStats currentStats = NULL;
-		ref ExpansionSyncedPlayerStats playerStats = NULL;
-		
-		if (m_Stats.Find(player_id, currentStats))
-		{
-			playerStats = currentStats;
-		}
-		
+		ExpansionSyncedPlayerStats playerStats;
+		m_Stats.Find(playerID, playerStats);
 		return playerStats;
 	}
 	
@@ -636,18 +796,19 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule SendPlayerStats
 	// Called on server
 	// ------------------------------------------------------------
-	void SendPlayerStats(ref ExpansionSyncedPlayerStats player_stats, PlayerIdentity ident)
+	void SendPlayerStats(ExpansionSyncedPlayerStats playerStats, string playerID, PlayerIdentity ident)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::SendPlayerStats - Start" );
+		EXLogPrint("ExpansionMonitorModule::SendPlayerStats - Start");
 		#endif
 		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( player_stats );
-		rpc.Send( null, ExpansionMonitorRPC.SendPlayerStats, true, ident );
+		rpc.Write(playerStats);
+		rpc.Write(playerID);
+		rpc.Send(null, ExpansionMonitorRPC.SendPlayerStats, true, ident);
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::SendPlayerStats - End" );
+		EXLogPrint("ExpansionMonitorModule::SendPlayerStats - End");
 		#endif
 	}
 	
@@ -655,43 +816,49 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule SendPlayerStats
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SendPlayerStats( ref ParamsReadContext ctx )
+	private void RPC_SendPlayerStats(ParamsReadContext ctx)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStats - Start" );
+		EXLogPrint("ExpansionMonitorModule::RPC_SendPlayerStats - Start");
 		#endif
 		
-		if (!IsMissionClient())
+		if (!GetGame().IsClient())
 			return;
 		
-		ref ExpansionSyncedPlayerStats player_stats;
-		if (!ctx.Read(player_stats))
+		ExpansionSyncedPlayerStats playerStats;
+		if (!ctx.Read(playerStats))
+			return;
+		
+		string playerID;
+		if (!ctx.Read(playerID))
 			return;
 
-		m_StatsInvoker.Invoke(player_stats);
-		
+		playerStats.m_ID = playerID;
+
+		m_StatsInvoker.Invoke(playerStats);
+		m_ClientStats = playerStats;
+			
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStats - End" );
+		EXLogPrint("ExpansionMonitorModule::RPC_SendPlayerStats - End");
 		#endif
 	}
 	
-	//-----------------------------------------------------------------------------------------------
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule RequestPlayerStates
 	// Called from client
 	// ------------------------------------------------------------
-	void RequestPlayerStates(string player_id)
+	void RequestPlayerStates(string playerID)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStates - Start" );
+		EXLogPrint("ExpansionMonitorModule::RequestPlayerStates - Start");
 		#endif
 
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( player_id );
-		rpc.Send( null, ExpansionMonitorRPC.RequestPlayerStates, true );
+		rpc.Write(playerID);
+		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStates, true);
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RequestPlayerStates - End" );
+		EXLogPrint("ExpansionMonitorModule::RequestPlayerStates - End");
 		#endif
 	}
 	
@@ -699,24 +866,27 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule RPC_RequestPlayerStates
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestPlayerStates( ref ParamsReadContext ctx, PlayerIdentity sender )
+	private void RPC_RequestPlayerStates(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStates - Start" );
+		EXLogPrint("ExpansionMonitorModule::RPC_RequestPlayerStates - Start");
 		#endif
 		
-		if (IsMissionClient())
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
-		string player_id;
-		if (!ctx.Read(player_id))
+		string playerID;
+		if (!ctx.Read(playerID))
 			return;
 		
-		ref ExpansionSyncedPlayerStates playerStates = GetPlayerStatesByID(player_id);
-		if (playerStates)
+		ExpansionSyncedPlayerStates playerStates = GetPlayerStatesByID(playerID);
+		if (!playerStates)
 		{
-			SendPlayerStates(playerStates, sender);
+			Error("ExpansionMonitorModule::RPC_RequestPlayerStates - Could not get player states for player with id: " + playerID);
+			return;
 		}
+		
+		SendPlayerStates(playerStates, playerID, sender);
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_RequestPlayerStates - End" );
@@ -727,16 +897,10 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule GetPlayerStatesByID
 	// Called on server
 	// ------------------------------------------------------------
-	ref ExpansionSyncedPlayerStates GetPlayerStatesByID(string player_id)
+	ExpansionSyncedPlayerStates GetPlayerStatesByID(string playerID)
 	{
-		ref ExpansionSyncedPlayerStates currentStates = NULL;
-		ref ExpansionSyncedPlayerStates playerStates = NULL;
-		
-		if (m_States.Find(player_id, currentStates))
-		{
-			playerStates = currentStates;
-		}
-		
+		ExpansionSyncedPlayerStates playerStates;
+		m_States.Find(playerID, playerStates);
 		return playerStates;
 	}
 	
@@ -744,15 +908,16 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule SendPlayerStates
 	// Called on server
 	// ------------------------------------------------------------
-	void SendPlayerStates(ref ExpansionSyncedPlayerStates player_states, PlayerIdentity ident)
+	void SendPlayerStates(ExpansionSyncedPlayerStates playerStates, string playerID, PlayerIdentity ident)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::SendPlayerStates - Start" );
 		#endif
 		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( player_states );
-		rpc.Send( null, ExpansionMonitorRPC.SendPlayerStates, true, ident );
+		rpc.Write(playerStates);
+		rpc.Write(playerID);
+		rpc.Send(null, ExpansionMonitorRPC.SendPlayerStates, true, ident);
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::SendPlayerStates - End" );
@@ -763,21 +928,28 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule RPC_SendPlayerStates
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SendPlayerStates( ref ParamsReadContext ctx )
+	private void RPC_SendPlayerStates(ParamsReadContext ctx)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStates - Start" );
 		#endif
 		
-		if (!IsMissionClient())
+		if (!GetGame().IsClient())
 			return;
 		
-		ref ExpansionSyncedPlayerStates player_states;
-		if (!ctx.Read(player_states))
+		ExpansionSyncedPlayerStates playerStates;
+		if (!ctx.Read(playerStates))
 			return;
 
-		m_StatesInvoker.Invoke(player_states);
+		string playerID;
+		if (!ctx.Read(playerID))
+			return;
 		
+		playerStates.m_ID = playerID;
+		
+		m_StatesInvoker.Invoke(playerStates);
+		m_ClientStates = playerStates;
+				
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "ExpansionMonitorModule::RPC_SendPlayerStates - End" );
 		#endif

@@ -25,61 +25,18 @@ modded class ExpansionSettings
 	static ref ScriptInvoker SI_PlayerList = new ScriptInvoker();
 	static ref ScriptInvoker SI_SocialMedia = new ScriptInvoker();
 	
-	protected ref ExpansionAirdropSettings m_SettingsAirdrop;
-	protected ref ExpansionBaseBuildingSettings m_SettingsBaseBuilding;
-	protected ref ExpansionGeneralSettings m_SettingsGeneral;
-	protected ref ExpansionMapSettings m_SettingsMap;
-	protected ref ExpansionMissionSettings m_SettingsMission;
-	protected ref ExpansionNotificationSettings m_SettingsNotification;
-	protected ref ExpansionPartySettings m_SettingsParty;
-	protected ref ExpansionSpawnSettings m_SettingsSpawn;
-	protected ref ExpansionRaidSettings m_SettingsRaid;
-	protected ref ExpansionTerritorySettings m_SettingsTerritory;
-	protected ref ExpansionPlayerListSettings m_SettingsPlayerList;
-	protected ref ExpansionSocialMediaSettings m_SettingsSocialMedia;
-	
-	// ------------------------------------------------------------
-	// ExpansionSettings Destructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ~ExpansionSettings()
-	{
-		if ( m_SettingsAirdrop ) 
-			delete m_SettingsAirdrop;
-
-		if ( m_SettingsBaseBuilding ) 
-			delete m_SettingsBaseBuilding;
-
-		if ( m_SettingsGeneral ) 
-			delete m_SettingsGeneral;
-
-		if ( m_SettingsMap ) 
-			delete m_SettingsMap;
-
-		if ( m_SettingsMission ) 
-			delete m_SettingsMission;
-
-		if ( m_SettingsNotification ) 
-			delete m_SettingsNotification;
-
-		if ( m_SettingsParty ) 
-			delete m_SettingsParty;
-
-		if ( m_SettingsRaid ) 
-			delete m_SettingsRaid;
-
-		if ( m_SettingsSpawn ) 
-			delete m_SettingsSpawn;
-
-		if ( m_SettingsTerritory ) 
-			delete m_SettingsTerritory;
-		
-		if ( m_SettingsPlayerList)
-			delete m_SettingsPlayerList;
-		
-		if ( m_SettingsSocialMedia)
-			delete m_SettingsSocialMedia;
-	}
+	protected autoptr ExpansionAirdropSettings m_SettingsAirdrop;
+	protected autoptr ExpansionBaseBuildingSettings m_SettingsBaseBuilding;
+	protected autoptr ExpansionGeneralSettings m_SettingsGeneral;
+	protected autoptr ExpansionMapSettings m_SettingsMap;
+	protected autoptr ExpansionMissionSettings m_SettingsMission;
+	protected autoptr ExpansionNotificationSettings m_SettingsNotification;
+	protected autoptr ExpansionPartySettings m_SettingsParty;
+	protected autoptr ExpansionSpawnSettings m_SettingsSpawn;
+	protected autoptr ExpansionRaidSettings m_SettingsRaid;
+	protected autoptr ExpansionTerritorySettings m_SettingsTerritory;
+	protected autoptr ExpansionPlayerListSettings m_SettingsPlayerList;
+	protected autoptr ExpansionSocialMediaSettings m_SettingsSocialMedia;
 	
 	// ------------------------------------------------------------
 	// Expansion OnServerInit
@@ -261,7 +218,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// OnRPC
 	// ------------------------------------------------------------
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[MAIN] ExpansionSettings::OnRPC - Start");
@@ -426,7 +383,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionAirdropSettings GetAirdrop
 	// ------------------------------------------------------------
-	ref ExpansionAirdropSettings GetAirdrop()
+	ExpansionAirdropSettings GetAirdrop()
 	{
 		return m_SettingsAirdrop;
 	}
@@ -434,7 +391,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartySettings GetBaseBuilding
 	// ------------------------------------------------------------
-	ref ExpansionBaseBuildingSettings GetBaseBuilding()
+	ExpansionBaseBuildingSettings GetBaseBuilding()
 	{
 		return m_SettingsBaseBuilding;
 	}
@@ -442,7 +399,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapSettings GetMap
 	// ------------------------------------------------------------
-	ref ExpansionMapSettings GetMap()
+	ExpansionMapSettings GetMap()
 	{
 		return m_SettingsMap;
 	}
@@ -450,7 +407,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionMissionSettings GetMission
 	// ------------------------------------------------------------
-	ref ExpansionMissionSettings GetMission()
+	ExpansionMissionSettings GetMission()
 	{
 		return m_SettingsMission;
 	}
@@ -458,7 +415,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionRaidSettings GetRaid
 	// ------------------------------------------------------------
-	ref ExpansionRaidSettings GetRaid()
+	ExpansionRaidSettings GetRaid()
 	{
 		return m_SettingsRaid;
 	}
@@ -466,7 +423,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartySettings GetParty
 	// ------------------------------------------------------------
-	ref ExpansionPartySettings GetParty()
+	ExpansionPartySettings GetParty()
 	{
 		return m_SettingsParty;
 	}
@@ -474,7 +431,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionGeneralSettings GetGeneral
 	// ------------------------------------------------------------
-	ref ExpansionGeneralSettings GetGeneral()
+	ExpansionGeneralSettings GetGeneral()
 	{
 		return m_SettingsGeneral;
 	}
@@ -482,7 +439,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionSpawnSettings GetParty
 	// ------------------------------------------------------------
-	ref ExpansionSpawnSettings GetSpawn()
+	ExpansionSpawnSettings GetSpawn()
 	{
 		return m_SettingsSpawn;
 	}
@@ -490,7 +447,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionTerritorySettings GetTerritory
 	// ------------------------------------------------------------
-	ref ExpansionTerritorySettings GetTerritory()
+	ExpansionTerritorySettings GetTerritory()
 	{
 		return m_SettingsTerritory;
 	}
@@ -498,7 +455,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionNotificationSettings GetNotification
 	// ------------------------------------------------------------
-	ref ExpansionNotificationSettings GetNotification()
+	ExpansionNotificationSettings GetNotification()
 	{
 		return m_SettingsNotification;
 	}
@@ -506,7 +463,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionPlayerListSettings GetPlayerList
 	// ------------------------------------------------------------
-	ref ExpansionPlayerListSettings GetPlayerList()
+	ExpansionPlayerListSettings GetPlayerList()
 	{
 		return m_SettingsPlayerList;
 	}
@@ -514,7 +471,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionPlayerListSettings GetSocialMedia
 	// ------------------------------------------------------------
-	ref ExpansionSocialMediaSettings GetSocialMedia()
+	ExpansionSocialMediaSettings GetSocialMedia()
 	{
 		return m_SettingsSocialMedia;
 	}

@@ -67,7 +67,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		EXPrint("ExpansionTerritorySettings::OnSend - Start");
 		#endif
 		
-		ref ExpansionTerritorySettings thisSetting = this;
+		ExpansionTerritorySettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 		
@@ -119,7 +119,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionTerritorySettings s )
+	private void CopyInternal(  ExpansionTerritorySettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionTerritorySettings::CopyInternal - Start");
@@ -136,7 +136,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionTerritorySettingsBase s )
+	private void CopyInternal(  ExpansionTerritorySettingsBase s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionTerritorySettings::CopyInternal - Start");

@@ -130,7 +130,11 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	// Expansion SetModule
 	// ------------------------------------------------------------
+	#ifdef COT_BUGFIX_REF
+	protected override bool SetModule(  JMRenderableModuleBase mdl )
+	#else
 	protected override bool SetModule( ref JMRenderableModuleBase mdl )
+	#endif
 	{
 		return Class.CastTo( m_Module, mdl );
 	}
@@ -231,7 +235,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		for ( int i = 0; i < territories.Count(); i++ )
 		{
-			ref ExpansionTerritory currentTerritory = territories[i];
+			ExpansionTerritory currentTerritory = territories[i];
 			
 			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 			EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritories - currentTerritory is: " + currentTerritory.ToString() );
@@ -278,7 +282,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		for ( int i = 0; i < objects_datas.Count(); i++ )
 		{
-			ref ExpansionEntityMetaData obj = objects_datas.Get( i );
+			ExpansionEntityMetaData obj = objects_datas.Get( i );
 			ExpansionCOTTerritoriesObjectsListEntry objectListEntry = new ExpansionCOTTerritoriesObjectsListEntry( m_TerritoryObjectsContent, this, obj );
 			m_ObjectListEntries.Insert( objectListEntry );
 			m_TerritoryObjects.Insert( obj );
@@ -305,7 +309,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	// Expansion SetContainerObjects
 	// ------------------------------------------------------------
-	void SetContainerObjects(ref ExpansionEntityMetaData object)
+	void SetContainerObjects( ExpansionEntityMetaData object)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjects - Start" );
@@ -313,7 +317,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		for ( int i = 0; i < m_TerritoryObjects.Count(); i++ )
 		{
-			ref ExpansionEntityMetaData obj = m_TerritoryObjects[i];
+			ExpansionEntityMetaData obj = m_TerritoryObjects[i];
 			if (!obj)
 			{
 				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -672,7 +676,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	// Expansion SetTerritoryObjectInfo
 	// ------------------------------------------------------------
-	void SetTerritoryObjectInfo(ref ExpansionEntityMetaData obj)
+	void SetTerritoryObjectInfo( ExpansionEntityMetaData obj)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryObjectInfo - Start" );
@@ -703,7 +707,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			
 			for ( int k = 0; k < obj.m_ContainerObj.Count(); k++ )
 			{
-				ref ExpansionEntityMetaData container_obj = obj.m_ContainerObj.Get( k );
+				ExpansionEntityMetaData container_obj = obj.m_ContainerObj.Get( k );
 				ExpansionCOTTerritoriesContainerListEntry itemListEntry = new ExpansionCOTTerritoriesContainerListEntry( m_ObjectContainerContent, this, container_obj );
 				m_ContainerListEntries.Insert( itemListEntry );
 				m_ContainerObjects.Insert( container_obj );
@@ -722,7 +726,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	// ------------------------------------------------------------
 	// Expansion SetContainerObjectInfo
 	// ------------------------------------------------------------
-	void SetContainerObjectInfo(ref ExpansionEntityMetaData obj)
+	void SetContainerObjectInfo( ExpansionEntityMetaData obj)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjectInfo - Start" );
@@ -752,7 +756,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	{
 		for ( int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); i++ )
 		{
-			ref SyncPlayer player = ClientData.m_PlayerList.m_PlayerList.Get( i );
+			SyncPlayer player = ClientData.m_PlayerList.m_PlayerList.Get( i );
 
 			if ( player )
 			{

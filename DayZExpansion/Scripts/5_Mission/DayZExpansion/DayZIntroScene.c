@@ -1,60 +1,117 @@
 #ifndef EXPANSION_MAINMENU_NEW_DISABLE
 class DayZIntroSceneExpansion
 {
-	protected Camera 					m_Camera;
-	protected vector 					m_CameraTrans[4];
-	protected vector 					m_CharacterPos;
-	protected vector 					m_CharacterRot;
-	protected Weather					m_Weather;	
-	protected vector 					m_Target;
+	protected Camera 							m_Camera;
+	protected vector 							m_CameraTrans[4];
+	protected vector 							m_CharacterPos;
+	protected vector 							m_CharacterRot;
+	protected Weather							m_Weather;	
+	protected vector 							m_Target;
 	protected ref IntroSceneCharacter	m_Character;
-	protected bool		m_EnableClick;
-	protected bool 		m_RotatingCharacter;
-	protected int 		m_RotatingCharacterMouseX;
-	protected int 		m_RotatingCharacterMouseY;
-	protected float 	m_RotatingCharacterRot;
-	protected float 	m_Radius;
-	protected float 	m_Radius_original;
-	protected float 	m_DiffX;
-	protected float 	m_DeltaX;
-	protected float 	m_DeltaZ;
-	protected float 	m_Angle;
-	protected float 	m_Angle_offset = 0;
-	protected float 	m_NewX = 0;
-	protected float 	m_NewZ = 0;
-	protected float 	m_BlurValue;
-	protected bool 		m_CanSpin = false;
-	string currScenePath;
+	protected bool								m_EnableClick;
+	protected bool 								m_RotatingCharacter;
+	protected int 									m_RotatingCharacterMouseX;
+	protected int 									m_RotatingCharacterMouseY;
+	protected float 								m_RotatingCharacterRot;
+	protected float 								m_Radius;
+	protected float 								m_Radius_original;
+	protected float 								m_DiffX;
+	protected float 								m_DeltaX;
+	protected float 								m_DeltaZ;
+	protected float 								m_Angle;
+	protected float 								m_Angle_offset = 0;
+	protected float 								m_NewX = 0;
+	protected float 								m_NewZ = 0;
+	protected float 								m_BlurValue;
+	protected bool 								m_CanSpin = false;
+	protected string 								m_CurrentScene;
+	protected string 								m_WorldName;
+	protected ref array<Object>			m_SceneObjects;
 	
 	// ------------------------------------------------------------
 	void DayZIntroSceneExpansion()
 	{
-		World world = g_Game.GetWorld();
-		string root_path = "cfgExpansionCharacterScenes " + g_Game.GetWorldName();
-		string scene_path;
-		string childName;
+		PrepareScenes();
+	}
+	
+	// ------------------------------------------------------------
+	void ~DayZIntroSceneExpansion()
+	{
+		ClearSceneObjects();
+	}
+	
+	// ------------------------------------------------------------	
+	private void PrepareScenes()
+	{
+		Print("DayZIntroSceneExpansion::PrepareScenes - Start");
+				
+		m_WorldName = g_Game.GetWorldName();
+		
+		string expansion_path = "cfgExpansionCharacterScenes " + m_WorldName;
+		string vanilla_path = "cfgCharacterScenes " + m_WorldName;
+		string expansion_scene_path;
+		string vanilla_scene_path;
+		array<string> vanilla_scenes = new array<string>;
+		array<string> expansion_scenes = new array<string>;
+		string currentChildName;
+		
+		//! Get cfgCharacterScenes scenes just in case we have no configuration for the current loaded world in cfgExpansionCharacterScenes
+		for ( int j = 0; j< g_Game.ConfigGetChildrenCount(vanilla_path); j++ )
+		{
+			g_Game.ConfigGetChildName(vanilla_path, j, currentChildName);
+			vanilla_scene_path = vanilla_path + " " + currentChildName;
+			vanilla_scenes.Insert(vanilla_scene_path);
+		}
 		
 	#ifdef EXPANSIONMODMARKET
-		TStringArray marketUpdateScenes = new TStringArray;
-		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(root_path); i++ )
+		//! Get cfgCharacterScenes market scenes when the market mod is loaded
+		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(expansion_path); i++ )
 		{
-			string currentChildName;
-			g_Game.ConfigGetChildName(root_path, i, currentChildName);
+			g_Game.ConfigGetChildName(expansion_path, i, currentChildName);
 			if (currentChildName.Contains("market_update"))
 			{
-				scene_path = root_path + " " + currentChildName;
-				marketUpdateScenes.Insert(scene_path);
+				expansion_scene_path = expansion_path + " " + currentChildName;
+				expansion_scenes.Insert(expansion_scene_path);
 			}
 		}
-		if (marketUpdateScenes && marketUpdateScenes.Count() > 0)
-			SetScenePath(marketUpdateScenes.GetRandomElement());
+		
+		if (expansion_scenes && expansion_scenes.Count() > 0)
+		{
+			SetScene(expansion_scenes);
+		}
+		else if (vanilla_scenes && vanilla_scenes.Count() > 0)
+		{
+			SetScene(vanilla_scenes);
+		}
 	#else
-		int count = g_Game.ConfigGetChildrenCount(root_path);
-		int index = Math.RandomInt(0, count);				
-		g_Game.ConfigGetChildName(root_path, index, childName);
-		scene_path = root_path + " " + childName;	
+		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(expansion_path); i++ )
+		{
+			g_Game.ConfigGetChildName(expansion_path, i, currentChildName);
+			expansion_scene_path = expansion_path + " " + currentChildName;
+			expansion_scenes.Insert(expansion_scene_path);
+		}
+		
+		if (expansion_scenes && expansion_scenes.Count() > 0)
+		{
+			SetScene(expansion_scenes);
+		}
+		else if (vanilla_scenes && vanilla_scenes.Count() > 0)
+		{
+			SetScene(vanilla_scenes);
+		}
+	#endif	
+		
+		Print("DayZIntroSceneExpansion::PrepareScenes - End");
+	}
+	
+	// ------------------------------------------------------------
+	private void SetScene(array<string> scenes)
+	{
+		World world = g_Game.GetWorld();
+		int count = scenes.Count();
+		int index = Math.RandomInt(0, count);
+		string scene_path = scenes[index];
 		SetScenePath(scene_path);
-	#endif
 		
 		if (world)
 		{
@@ -76,15 +133,12 @@ class DayZIntroSceneExpansion
 			m_Character = new IntroSceneCharacter();
 			m_Character.LoadCharacterData(g_Game.ConfigGetVector(scene_path + " PlayerPosition"), g_Game.ConfigGetVector(scene_path + " PlayerOrientation"));
 			
-			//------------------------------------------------------------
-			//Equip Player with scene specific shit here
-			//------------------------------------------------------------
+			//! Equip Player with scene specific stuff here
 			CustomHandItem();
 			SetAnim();
 			TStringArray mapping = new TStringArray;
 			g_Game.ConfigGetTextArray(scene_path + " MappingFiles", mapping);
-			DontWorryIGotThis(mapping);
-			//------------------------------------------------------------
+			SpawnSceneObjects(mapping);
 		}
 		
 		float overcast, rain, windspeed, fog;
@@ -127,13 +181,13 @@ class DayZIntroSceneExpansion
 	// ------------------------------------------------------------
 	void SetScenePath(string path)
 	{
-		currScenePath = path;
+		m_CurrentScene = path;
 	}
 	
 	// ------------------------------------------------------------
 	string GetScenePath()
 	{
-		return currScenePath;
+		return m_CurrentScene;
 	}
 	
 	// ------------------------------------------------------------
@@ -222,6 +276,12 @@ class DayZIntroSceneExpansion
 		{
 			CharacterRotate();
 		}
+		
+		string worldName = g_Game.GetWorldName();
+		if (m_WorldName != worldName)
+		{
+			PrepareScenes();
+		}
 	}	
 	
 	// ------------------------------------------------------------	
@@ -248,7 +308,7 @@ class DayZIntroSceneExpansion
 	}	
 
 	// ------------------------------------------------------------
-	private void DontWorryIGotThis(TStringArray filestoload)
+	private void SpawnSceneObjects(TStringArray filestoload)
 	{
 		EntityAI traderProp;
 		string className;
@@ -267,7 +327,11 @@ class DayZIntroSceneExpansion
 			if ( !file )
 				return;
 			
-			//array< Object > objects = new array< Object >;
+			if ( m_SceneObjects )
+				ClearSceneObjects();
+			
+			m_SceneObjects = new array<Object>;
+			
 			while ( GetObjectFromFile( file, className, position, rotation, special, gear ) )
 			{
 				Object obj;
@@ -318,11 +382,28 @@ class DayZIntroSceneExpansion
 				{
 					LongWoodenStick stick = LongWoodenStick.Cast( obj );
 					stick.GetInventory().CreateAttachment("CowSteakMeat");
-				}				
+				}
+				
+				m_SceneObjects.Insert(obj);	
 			}
 		}
 		
 	};
+	
+	// ------------------------------------------------------------	
+	private void ClearSceneObjects()
+	{
+		if (m_SceneObjects)
+		{
+			foreach (Object obj: m_SceneObjects)
+			{
+				g_Game.ObjectDelete(obj);
+			}
+			
+			m_SceneObjects.Clear();
+			delete m_SceneObjects;
+		}
+	}
 	
 	// ------------------------------------------------------------
 	private bool GetObjectFromFile(FileHandle file, out string name, out vector position, out vector rotation, out string special = "false", out TStringArray gear = null)
@@ -333,7 +414,7 @@ class DayZIntroSceneExpansion
 		if ( lineSize < 1 )
 			return false;
 		
-		ref TStringArray tokens = new TStringArray;
+		TStringArray tokens = new TStringArray;
 		line.Split( "|", tokens );
 
 		name = tokens.Get( 0 );		
@@ -386,6 +467,7 @@ class DayZIntroSceneExpansion
 		}
 	}
 };
+
 modded class CharacterCreationMenu
 {
 	DayZIntroSceneExpansion										m_CustomScene;
@@ -443,18 +525,10 @@ modded class CharacterCreationMenu
 		if( m_CustomScene && m_CustomScene.GetIntroCharacter() )
 		{
 			m_OriginalCharacterID = m_CustomScene.GetIntroCharacter().GetCharacterID();
-			/*#ifdef PLATFORM_CONSOLE
-				//m_CustomScene.GetIntroCharacter().SetToDefaultCharacter();
-				m_CustomScene.GetIntroCharacter().LoadCharacterData( m_CustomScene.GetIntroCharacter().GetCharacterObj().GetPosition(), m_CustomScene.GetIntroCharacter().GetCharacterObj().GetDirection(), true );
-			#endif;*/
 		}
 		if( m_Scene && m_Scene.GetIntroCharacter() )
 		{
 			m_OriginalCharacterID = m_Scene.GetIntroCharacter().GetCharacterID();
-			/*#ifdef PLATFORM_CONSOLE
-				//m_Scene.GetIntroCharacter().SetToDefaultCharacter();
-				m_Scene.GetIntroCharacter().LoadCharacterData( m_Scene.GetIntroCharacter().GetCharacterObj().GetPosition(), m_Scene.GetIntroCharacter().GetCharacterObj().GetDirection(), true );
-			#endif;*/
 		}
 		if (m_CustomScene)
 		{

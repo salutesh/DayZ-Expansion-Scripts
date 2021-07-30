@@ -90,7 +90,7 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	bool IsOnline( string uid )
 	{
-		foreach( ref SyncPlayer player : ClientData.m_PlayerList.m_PlayerList )
+		foreach(  SyncPlayer player : ClientData.m_PlayerList.m_PlayerList )
 		{
 			if ( player.m_RUID == uid )
 			{

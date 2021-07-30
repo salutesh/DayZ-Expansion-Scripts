@@ -3,7 +3,7 @@
 		{
 			"HiddenSelection": "dmgZone_chassis",
 			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+			"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 		}
 	],
 	"DamageZones": [
@@ -15,23 +15,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		},
@@ -43,23 +43,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		},
@@ -71,23 +71,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		},
@@ -99,23 +99,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		},
@@ -127,23 +127,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		},
@@ -155,23 +155,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		},
@@ -183,23 +183,23 @@
 			"HealthLevels": [
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_damage.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_damage.rvmat"
 				},
 				{
 					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue\\niva_body_destruct.rvmat"
+					"RVMaterial": "dz\\vehicles\\wheeled\\offroadhatchback\\data\\blue_rust\\niva_body_destruct.rvmat"
 				}
 			]
 		}

@@ -22,7 +22,7 @@ class ExpansionSpawnSelectionEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionEntry Constructor
 	// ------------------------------------------------------------	
-	void ExpansionSpawnSelectionEntry(Widget parent, ref ExpansionSpawnLocation location)
+	void ExpansionSpawnSelectionEntry(Widget parent, ExpansionSpawnLocation location)
 	{
 		m_Root	= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/expansion_spawn_selection_entry.layout", parent ) );
 		m_Icon = ImageWidget.Cast( m_Root.FindAnyWidget( "icon" ) );
@@ -61,7 +61,7 @@ class ExpansionSpawnSelectionEntry extends ScriptedWidgetEventHandler
 		{
 			case m_Button:
 			{
-				ref ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+				ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
 				if ( menu )
 					menu.SetSpawnPoint( m_Location );
 				

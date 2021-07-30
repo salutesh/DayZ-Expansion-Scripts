@@ -87,7 +87,7 @@ class DayZExpansion: ExpansionWorld
 		GetExpansionSettings();
 	}
 
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 		if ( g_exGlobalSettings.OnRPC( sender, target, rpc_type, ctx ) )
 			return true;
@@ -98,7 +98,7 @@ class DayZExpansion: ExpansionWorld
 
 static ref DayZExpansion g_exDayZ;
 
-static ref DayZExpansion GetDayZExpansion()
+static DayZExpansion GetDayZExpansion()
 {
 	return g_exDayZ;
 }

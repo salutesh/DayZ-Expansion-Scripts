@@ -14,10 +14,10 @@ private static ref ExpansionIcons g_exp_MarkerIcons = NULL;
 
 class ExpansionIcons
 {
-	private ref map< string, ref ExpansionIcon > m_IconMap;
-	private ref array< ExpansionIcon > m_Icons;
+	private autoptr map< string, ref ExpansionIcon > m_IconMap;
+	private autoptr array< ExpansionIcon > m_Icons;
 
-	private ref array< string > m_OldIconSystem;
+	private autoptr array< string > m_OldIconSystem;
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons Constructor
@@ -37,9 +37,6 @@ class ExpansionIcons
 	// ------------------------------------------------------------	
 	void ~ExpansionIcons()
 	{
-		delete m_IconMap;
-		delete m_Icons;
-		delete m_OldIconSystem;
 	}
 	
 	// ------------------------------------------------------------
@@ -257,7 +254,7 @@ class ExpansionIcons
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------	
-	static ref ExpansionIcon Get( int index )
+	static ExpansionIcon Get( int index )
 	{
 		if ( g_exp_MarkerIcons == NULL )
 			g_exp_MarkerIcons = new ExpansionIcons();
@@ -268,7 +265,7 @@ class ExpansionIcons
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------
-	static ref ExpansionIcon Get( string name )
+	static ExpansionIcon Get( string name )
 	{
 		if ( g_exp_MarkerIcons == NULL )
 			g_exp_MarkerIcons = new ExpansionIcons();

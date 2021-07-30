@@ -37,7 +37,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerListEntry Constructor
 	// ------------------------------------------------------------	
-	void ExpansionMapMarkerListEntry( ref ExpansionMapMenu map_menu, Widget list_category_parent, ref ExpansionMapMarker marker )
+	void ExpansionMapMarkerListEntry(  ExpansionMapMenu map_menu, Widget list_category_parent, ExpansionMapMarker marker )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::ExpansionMapMarkerListEntry - Start");
@@ -212,12 +212,12 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// GetMarker
 	// ------------------------------------------------------------
-	ref ExpansionMapMarker GetMarker()
+	ExpansionMapMarker GetMarker()
 	{
 		return m_Marker;
 	}
 
-	ref ExpansionMarkerData GetData()
+	ExpansionMarkerData GetData()
 	{
 		return m_MarkerData;
 	}
@@ -334,7 +334,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// GetTooltip
 	// ------------------------------------------------------------	
-	ref ExpansionUITooltip GetTooltip()
+	ExpansionUITooltip GetTooltip()
 	{
 		return m_InfoTooltip;
 	}

@@ -55,7 +55,7 @@ class CfgVehicles
 	class ExpansionSilverBar: ExpansionMoneyBase
 	{
 		scope = 2;
-		weight = 1000;
+		weight = 50;
 		model = "\DayZExpansion\Core\Objects\Currencies\silver_bar.p3d";
 		vehicleClass = "Expansion_Trader";
 		displayName = "$STR_EXPANSION_SILVER_BAR";
@@ -64,7 +64,7 @@ class CfgVehicles
 	class ExpansionGoldBar: ExpansionMoneyBase
 	{
 		scope = 2;
-		weight = 1000;
+		weight = 50;
 		model = "\DayZExpansion\Core\Objects\Currencies\gold_bar.p3d";
 		vehicleClass = "Expansion_Trader";
 		displayName = "$STR_EXPANSION_GOLD_BAR";

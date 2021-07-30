@@ -783,7 +783,7 @@ class ExpansionCarKey extends ItemBase
 	// ExpansionCarKey RPC_SendItemData
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SendItemData( ref ParamsReadContext ctx, PlayerIdentity senderRPC )
+	private void RPC_SendItemData( ParamsReadContext ctx, PlayerIdentity senderRPC )
 	{
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");

@@ -16,45 +16,14 @@ class ExpansionSettings
 	static ref ScriptInvoker SI_Log = new ScriptInvoker();
 	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 
-	protected ref ExpansionDebugSettings m_SettingsDebug;
-	protected ref ExpansionLogSettings m_SettingsLog;
-	protected ref ExpansionSafeZoneSettings m_SettingsSafeZone;
+	protected autoptr ExpansionDebugSettings m_SettingsDebug;
+	protected autoptr ExpansionLogSettings m_SettingsLog;
+	protected autoptr ExpansionSafeZoneSettings m_SettingsSafeZone;
 
 	protected bool m_SettingsLoaded;
 	protected bool m_Debug;
 	protected ref TStringArray m_NetworkedSettings;
 	
-	// ------------------------------------------------------------
-	// ExpansionSettings Constructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ExpansionSettings()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::ExpansionSettings - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::ExpansionSettings - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSettings Destructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ~ExpansionSettings()
-	{
-		if ( m_SettingsDebug ) 
-			delete m_SettingsDebug;
-		
-		if ( m_SettingsLog)
-			delete m_SettingsLog;
-
-		if ( m_SettingsSafeZone ) 
-			delete m_SettingsSafeZone;
-	}
-
 	// ------------------------------------------------------------
 	// Expansion OnServerInit
 	// ------------------------------------------------------------
@@ -99,7 +68,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion LoadSetting
 	// ------------------------------------------------------------
-	void LoadSetting( ref ExpansionSettingBase setting )
+	void LoadSetting( ExpansionSettingBase setting )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::LoadSetting - Start");
@@ -159,7 +128,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion IsSettingLoaded
 	// ------------------------------------------------------------
-	bool IsSettingLoaded( ref ExpansionSettingBase setting, out bool settingsLoaded )
+	bool IsSettingLoaded( ExpansionSettingBase setting, out bool settingsLoaded )
 	{
 		string name = setting.ClassName();
 		name.ToLower();
@@ -263,7 +232,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// OnRPC
 	// ------------------------------------------------------------
-	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::OnRPC - Start");
@@ -316,7 +285,7 @@ class ExpansionSettings
 	// Expansion RPC_ListToLoad
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_ListToLoad( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_ListToLoad( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		TStringArray listToLoads = new TStringArray;
 		if ( !ctx.Read( listToLoads ) )
@@ -350,7 +319,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionDebugSettings GetDebug
 	// ------------------------------------------------------------
-	ref ExpansionDebugSettings GetDebug()
+	ExpansionDebugSettings GetDebug()
 	{
 		return m_SettingsDebug;
 	}
@@ -358,7 +327,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionLogSettings GetLog
 	// ------------------------------------------------------------
-	ref ExpansionLogSettings GetLog()
+	ExpansionLogSettings GetLog()
 	{
 		return m_SettingsLog;
 	}
@@ -366,7 +335,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionSafeZoneSettings GetSafeZone
 	// ------------------------------------------------------------
-	ref ExpansionSafeZoneSettings GetSafeZone()
+	ExpansionSafeZoneSettings GetSafeZone()
 	{
 		return m_SettingsSafeZone;
 	}
@@ -374,7 +343,7 @@ class ExpansionSettings
 
 static ref ExpansionSettings g_exGlobalSettings;
 
-static ref ExpansionSettings GetExpansionSettings()
+static ExpansionSettings GetExpansionSettings()
 {
 	if ( g_exGlobalSettings == NULL )
 	{

@@ -151,6 +151,8 @@ class ExpansionObjectSpawnTools
 			EXLogPrint( "Try to process mapping object: " + obj.ClassName() );
 			#endif
 
+		ItemBase item;
+
 		if ( obj.IsInherited(ExpansionPointLight) )
 		{
 			ExpansionPointLight light = ExpansionPointLight.Cast( obj );
@@ -166,23 +168,20 @@ class ExpansionObjectSpawnTools
 		else if ( obj.IsKindOf("Fireplace") )
 		{
 			Fireplace fireplace = Fireplace.Cast( obj );
-			ItemBase item;
 			
 			if ( fireplace )
 			{
+
 				//! Add bark
-				item = ItemBase.Cast(GetGame().CreateObjectEx("Bark_Oak", vector.Zero, ECE_SETUP));
+				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Bark_Oak"));
 				item.SetQuantity(8);
-				fireplace.GetInventory().AddEntityToInventory(item);
 				//! Add firewood
-				item = ItemBase.Cast(GetGame().CreateObjectEx("Firewood", vector.Zero, ECE_SETUP));
-				item.SetQuantity(6);
-				fireplace.GetInventory().AddEntityToInventory(item);
+				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Firewood"));
+				item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
 				//! Add sticks
-				item = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick", vector.Zero, ECE_SETUP));
-				item.SetQuantity(10);
-			
-				fireplace.GetInventory().AddEntityToInventory(item);
+				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("WoodenStick"));
+				item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
+
 				fireplace.StartFire();
 			}
 
@@ -194,22 +193,21 @@ class ExpansionObjectSpawnTools
 		{
 			BarrelHoles_Red barrel = BarrelHoles_Red.Cast( obj );
 			if ( barrel ) 
-			{				
-				//! Add bark
-				item = ItemBase.Cast(GetGame().CreateObjectEx("Bark_Oak", vector.Zero, ECE_SETUP));
-				item.SetQuantity(8);
-				barrel.GetInventory().AddEntityToInventory(item);
-				//! Add firewood
-				item = ItemBase.Cast(GetGame().CreateObjectEx("Firewood", vector.Zero, ECE_SETUP));
-				item.SetQuantity(6);
-				barrel.GetInventory().AddEntityToInventory(item);
-				//! Add sticks
-				item = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick", vector.Zero, ECE_SETUP));
-				item.SetQuantity(10);
-			
-				barrel.GetInventory().AddEntityToInventory(item);	
-				barrel.StartFire();
+			{
+				//! Need to open barrel first, otherwise can't add items
 				barrel.Open();
+
+				//! Add bark
+				item = ItemBase.Cast(barrel.GetInventory().CreateAttachment("Bark_Oak"));
+				item.SetQuantity(8);
+				//! Add firewood
+				item = ItemBase.Cast(barrel.GetInventory().CreateAttachment("Firewood"));
+				item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
+				//! Add sticks
+				item = ItemBase.Cast(barrel.GetInventory().CreateAttachment("WoodenStick"));
+				item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
+
+				barrel.StartFire();
 			}
 
 			#ifdef EXPANSIONEXLOGPRINT

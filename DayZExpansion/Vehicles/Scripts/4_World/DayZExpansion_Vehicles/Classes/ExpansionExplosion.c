@@ -19,8 +19,8 @@ static void ExpansionCreateExplosion( Object ent, string ammoType, float radius 
 		EXPrint("ExpansionCreateExplosion - Start");
 		#endif
 
-	ref array<CargoBase> cargos = new array<CargoBase>;
-	ref array<Object> objects = new array<Object>;
+	array<CargoBase> cargos = new array<CargoBase>;
+	array<Object> objects = new array<Object>;
 
 	vector pos = ent.GetPosition();
 		

@@ -48,8 +48,8 @@ class ExpansionBulldozerScript extends CarScript
 
 		m_RayStart = ModelToWorld(GetMemoryPointPos("fence_start"));	
 
-		ref array<Object> objects = new array<Object>;
-		ref array<CargoBase> proxy = new array<CargoBase>;
+		array<Object> objects = new array<Object>;
+		array<CargoBase> proxy = new array<CargoBase>;
 
 		if ( IsMissionHost( ) ) 
 		{

@@ -169,7 +169,11 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	// ExpansionCOTTerritoriesModule OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::OnRPC - Start");
@@ -231,7 +235,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_RequestTerritoryObjects
 	// Called on Server
 	// ------------------------------------------------------------
-	void RPC_RequestTerritoryObjects( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_RequestTerritoryObjects( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestTerritoryObjects - Start");
@@ -295,7 +299,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_SendTerritoryObjects
 	// Called on client
 	// ------------------------------------------------------------
-	void RPC_SendTerritoryObjects( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_SendTerritoryObjects( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendTerritoryObjects - Start");
@@ -405,7 +409,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_DeleteObject
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_DeleteObject( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_DeleteObject( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_DeleteObject - Start");
@@ -462,7 +466,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_RequestServerTerritories
 	// Called on Server
 	// ------------------------------------------------------------
-	void RPC_RequestServerTerritories( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_RequestServerTerritories( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{	
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestServerTerritories - Start");
@@ -483,7 +487,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	
 		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
 		{
-			ref TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
+			TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
 			if (!currentFlag) 
 			{
 				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
@@ -509,7 +513,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_SendServerTerritories
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_SendServerTerritories( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_SendServerTerritories( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendServerTerritories - Start");
@@ -562,7 +566,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_TeleportToTerritory
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_TeleportToTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_TeleportToTerritory( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_TeleportToTerritory - Start");
@@ -631,7 +635,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_RequestUpdateObjectData
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_RequestUpdateObjectData( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_RequestUpdateObjectData( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestUpdateObjectData - Start");
@@ -687,13 +691,13 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ExpansionCOTTerritoriesModule RPC_SendObjectData
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_SendObjectData( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_SendObjectData( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendObjectData - Start");
 		#endif
 		
-		ref ExpansionEntityMetaData object_data;
+		ExpansionEntityMetaData object_data;
 		if ( !ctx.Read( object_data ) )
 		{
 			#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG

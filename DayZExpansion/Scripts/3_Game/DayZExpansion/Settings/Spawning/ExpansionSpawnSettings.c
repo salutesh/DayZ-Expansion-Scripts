@@ -137,7 +137,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXPrint("ExpansionSpawnSettings::OnSend - Start");
 		#endif
 		
-		ref ExpansionSpawnSettings thisSetting = this;
+		ExpansionSpawnSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 		
@@ -189,7 +189,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionSpawnSettings s )
+	private void CopyInternal(  ExpansionSpawnSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::CopyInternal - Start");
@@ -210,7 +210,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal(ref ExpansionSpawnSettingsBase s)
+	private void CopyInternal( ExpansionSpawnSettingsBase s)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSpawnSettings::CopyInternal - Start");
@@ -435,8 +435,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsChernarus::Defaults - Start");
 		#endif
 
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -548,8 +548,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsLivonia::Defaults - Start");
 		#endif
 		
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -618,8 +618,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsSandbox::Defaults - Start");
 		#endif
 		
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -683,8 +683,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsDeerIsle::Defaults - Start");
 		#endif
 		
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -746,8 +746,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsNamalsk::Defaults - Start");
 		#endif
 
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -862,8 +862,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsChiemsee::Defaults - Start");
 		#endif
 
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -905,8 +905,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsEsseker::Defaults - Start");
 		#endif
 		
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 		
@@ -1014,8 +1014,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXLogPrint("ExpansionSpawnsExpansionTest::Defaults - Start");
 		#endif
 		
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 
 		EnableSpawnSelection = true;
 

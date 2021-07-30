@@ -52,7 +52,7 @@ class ExpansionModsMenuSimple extends ScriptedWidgetEventHandler
 		bool has_mods = false;
 		for (int i = count - 1; i >= 0; i--)
 		{
-			ref ExpansionModsMenuSimpleEntry entry = new ExpansionModsMenuSimpleEntry(data.Get(i), i, m_Root, this);
+			ExpansionModsMenuSimpleEntry entry = new ExpansionModsMenuSimpleEntry(data.Get(i), i, m_Root, this);
 			m_Data.Insert(data.Get(i), entry);
 			has_mods = ( has_mods || !data.Get(i).GetIsDLC() );
 		}

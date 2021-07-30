@@ -359,7 +359,7 @@ class ExpansionSkinModule: JMModuleBase
 		return m_SkinBase.Get( classname );
 	}
 
-	ref ExpansionSkins GetSkins( string classname )
+	ExpansionSkins GetSkins( string classname )
 	{
 		string skinBase = GetSkinBase( classname );
 		if ( skinBase )

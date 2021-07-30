@@ -37,7 +37,7 @@ modded class NotificationSystem
 	// ExpansionNotificationSystem Exec_CreateNotificationEx
 	// ------------------------------------------------------------
 	//! NOTE: Apparently we CAN'T override private static methods, i.e. it appears always the ORIGINAL method is called instead of the override
-	private static void Exec_CreateNotificationEx( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time )
+	private static void Exec_CreateNotificationEx(  StringLocaliser title, StringLocaliser text, string icon, int color, float time )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx - Start");
@@ -65,7 +65,7 @@ modded class NotificationSystem
 		
 		bool leaveJoinNotif = joinNotif || leaveNotif;
 		
-		ref NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
+		NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
 		data.SetColor( color );
 		data.m_LeaveJoinNotif = leaveJoinNotif;
 
@@ -76,17 +76,19 @@ modded class NotificationSystem
 		#endif
 	}
 	
-	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
+	
+	#ifdef CF_BUGFIX_REF
+	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
 		#endif
 		
-		ref StringLocaliser title = new StringLocaliser( "" );
+		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
 			return;
 
-		ref StringLocaliser text = new StringLocaliser( "" );
+		StringLocaliser text = new StringLocaliser( "" );
 		if ( !ctx.Read( text ) )
 			return;
 
@@ -108,7 +110,60 @@ modded class NotificationSystem
 		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem AddNotif
+	// ------------------------------------------------------------
+	override void AddNotif(  NotificationRuntimeData data )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("NotificationSystem::AddNotif - Start");
+		#endif
+		
+		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
 
+		m_ExNotifications.Insert( data );
+		m_OnNotificationAdded.Invoke( data );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("NotificationSystem::AddNotif - End");
+		#endif
+	}
+	#else
+	
+	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
+		#endif
+		
+		StringLocaliser title = new StringLocaliser( "" );
+		if ( !ctx.Read( title ) )
+			return;
+
+		StringLocaliser text = new StringLocaliser( "" );
+		if ( !ctx.Read( text ) )
+			return;
+
+		string icon;
+		if ( !ctx.Read( icon ) )
+			return;
+
+		int color;
+		if ( !ctx.Read( color ) )
+			return;
+
+		float time;
+		if ( !ctx.Read( time ) )
+			return;
+
+		Exec_CreateNotificationEx( title, text, icon, color, time );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
+		#endif
+	}
+	
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem AddNotif
 	// ------------------------------------------------------------
@@ -127,6 +182,7 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::AddNotif - End");
 		#endif
 	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem Update

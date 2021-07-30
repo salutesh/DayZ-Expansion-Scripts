@@ -15,7 +15,7 @@ class ExpansionViewController: ViewController {};
 class ExpansionScriptViewBase: ScriptView
 {
 	private bool m_IsVisible = true;
-		
+	
 	void SetIsVisible(bool state)
 	{
 		m_IsVisible = state;

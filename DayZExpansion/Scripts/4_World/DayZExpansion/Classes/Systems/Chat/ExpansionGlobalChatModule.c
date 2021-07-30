@@ -32,7 +32,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	void AddChatMessage( ref ParamsReadContext ctx, PlayerIdentity sender, Object target )
+	void AddChatMessage( ParamsReadContext ctx, PlayerIdentity sender, Object target )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGlobalChatModule::AddChatMessage - Start");
@@ -182,7 +182,12 @@ class ExpansionGlobalChatModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
+	
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGlobalChatModule::OnRPC - Start");

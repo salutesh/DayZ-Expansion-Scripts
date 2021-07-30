@@ -131,7 +131,7 @@ modded class MainMenu
 	// ------------------------------------------------------------
 	override void LoadMods()
 	{
-		ref array<ref ModInfo> modArray = new array<ref ModInfo>;		
+		array<ref ModInfo> modArray = new array<ref ModInfo>;		
 		GetGame().GetModInfos( modArray );
 
 		if( modArray.Count() > 0 )

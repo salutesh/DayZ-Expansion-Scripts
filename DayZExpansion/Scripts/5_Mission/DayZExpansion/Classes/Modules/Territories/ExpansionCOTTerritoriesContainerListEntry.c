@@ -24,7 +24,7 @@ class ExpansionCOTTerritoriesContainerListEntry extends ScriptedWidgetEventHandl
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTTerritoriesContainerListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionCOTTerritoriesContainerListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, ref ExpansionEntityMetaData object)
+	void ExpansionCOTTerritoriesContainerListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, ExpansionEntityMetaData object)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesContainerListEntry::ExpansionCOTTerritoriesContainerListEntry - Start");

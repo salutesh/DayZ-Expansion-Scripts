@@ -201,7 +201,7 @@ class ExpansionHelicopterController: ExpansionVehicleController
 		// don't reset freelook
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_AutoHover );
 
@@ -221,7 +221,7 @@ class ExpansionHelicopterController: ExpansionVehicleController
 		ctx.Write( m_AntiTorqueRight );
 	}
 
-	protected override bool OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override bool OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_AutoHover );
 

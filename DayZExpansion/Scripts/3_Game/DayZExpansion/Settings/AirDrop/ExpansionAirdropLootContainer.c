@@ -21,7 +21,7 @@ class ExpansionAirdropLootContainer
 	int InfectedCount;
 	bool SpawnInfectedForPlayerCalledDrops;
 
-	void ExpansionAirdropLootContainer( string container, int usage, float weight, ref array < ref ExpansionAirdropLoot > loot, ref TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false )
+	void ExpansionAirdropLootContainer( string container, int usage, float weight, array < ref ExpansionAirdropLoot > loot, TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false )
 	{
 		Container = container;
 		Usage = usage;
@@ -33,20 +33,21 @@ class ExpansionAirdropLootContainer
 		SpawnInfectedForPlayerCalledDrops = spawnInfectedForPlayerCalledDrops;
 	}
 
-	static ExpansionAirdropLootContainer GetWeightedRandomContainer( ref array< ref ExpansionAirdropLootContainer > containers, ref array< float > weights = NULL )
+	static ExpansionAirdropLootContainer GetWeightedRandomContainer(  array< ref ExpansionAirdropLootContainer > containers, array< float > weights = NULL )
 	{
-		if ( weights == NULL)
+		array< float > weights_T = weights;
+		if ( weights_T == NULL)
 		{
-			weights = new array< float >;
+			weights_T = new array< float >;
 
 			for ( int i = 0; i < containers.Count(); i++ )
 			{
-				weights.Insert( containers[i].Weight );
+				weights_T.Insert( containers[i].Weight );
 			}
 		}
 		
 		ExpansionAirdropLootContainer container;
-		int index = GetWeightedRandom( weights );
+		int index = GetWeightedRandom( weights_T );
 
 		if ( index > -1 )
 			return containers[index];

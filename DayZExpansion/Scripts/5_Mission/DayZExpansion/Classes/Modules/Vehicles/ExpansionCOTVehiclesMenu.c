@@ -80,7 +80,11 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	// ------------------------------------------------------------
 	// Expansion SetModule
 	// ------------------------------------------------------------
+	#ifdef COT_BUGFIX_REF
+	protected override bool SetModule(  JMRenderableModuleBase mdl )
+	#else
 	protected override bool SetModule( ref JMRenderableModuleBase mdl )
+	#endif
 	{
 		return Class.CastTo( m_Module, mdl );
 	}

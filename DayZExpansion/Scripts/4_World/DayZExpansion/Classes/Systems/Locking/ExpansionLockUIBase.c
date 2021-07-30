@@ -12,7 +12,7 @@
 
 class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 {
-	ref protected EffectSound m_Sound;
+	protected ref EffectSound m_Sound;
 	PlayerBase m_Player;
 
 	protected ItemBase m_Target;

@@ -166,7 +166,11 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnRPC - Start");
@@ -339,7 +343,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion Send_UpdateClient
 	// Called on server
 	// ------------------------------------------------------------
-	private void Send_UpdateClient( int territoryID, ref ExpansionTerritory territory, notnull PlayerIdentity sendTo )
+	private void Send_UpdateClient( int territoryID, ExpansionTerritory territory, notnull PlayerIdentity sendTo )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Send_UpdateClient 1 territory : " + territory);
@@ -355,7 +359,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion RPC_UpdateClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_UpdateClient( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_UpdateClient( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionClient() )
 			return;
@@ -375,7 +379,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion Exec_UpdateClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void Exec_UpdateClient( int territoryID, ref ExpansionTerritory territory )
+	private void Exec_UpdateClient( int territoryID, ExpansionTerritory territory )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_UpdateClient 1 : " + territoryID + " " + territory + " " + m_Territories.Count() );
@@ -446,7 +450,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_CreateTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	void RPC_CreateTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_CreateTerritory( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_CreateTerritory - Start");
@@ -577,7 +581,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_ChangeFlagTexture
 	// Called on server
 	// ------------------------------------------------------------
-	void RPC_ChangeFlagTexture( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_ChangeFlagTexture( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - Start");
@@ -646,7 +650,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DeleteTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	protected void RPC_DeleteTerritoryPlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	protected void RPC_DeleteTerritoryPlayer( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
@@ -694,7 +698,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			int territoryID = currentTerritory.GetTerritoryID();
 			
-			ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+			array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 			for ( int i = 0; i < members.Count(); ++i )
 			{
 				if (!members[i])
@@ -707,7 +711,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
 			}
 			
-			ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+			array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
 			for ( int j = 0; j < invites.Count(); ++j )
 			{
 				if (!invites[j])
@@ -769,7 +773,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DeleteTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	protected void RPC_DeleteTerritoryAdmin( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	protected void RPC_DeleteTerritoryAdmin( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
@@ -811,7 +815,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !currentTerritory )
 			return;
 		
-		ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+		array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 		for ( int i = 0; i < members.Count(); ++i )
 		{
 			if (!members[i])
@@ -824,7 +828,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
 		}
 		
-		ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+		array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
 		for ( int j = 0; j < invites.Count(); ++j )
 		{
 			if (!invites[j])
@@ -869,7 +873,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		for (int i = 0; i < m_TerritoryFlags.Count(); ++i)
 		{
-			ref TerritoryFlag flag = m_TerritoryFlags.GetElement(i);
+			TerritoryFlag flag = m_TerritoryFlags.GetElement(i);
 			if ( !flag )
 				continue;
 			
@@ -893,7 +897,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionPartyModule RPC_SyncPlayersInvites
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SyncPlayersInvites( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_SyncPlayersInvites( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		if ( !player )
@@ -939,7 +943,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_RequestInvitePlayer
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestInvitePlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_RequestInvitePlayer( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_RequestInvitePlayer - Start");
@@ -1076,7 +1080,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_AcceptInvite
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_AcceptInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_AcceptInvite( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_AcceptInvite - Start");
@@ -1182,7 +1186,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DeclineInvite
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_DeclineInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_DeclineInvite( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DeclineInvite - Start");
@@ -1272,7 +1276,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_PromoteMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_PromoteMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_PromoteMember( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PromoteMember - Start");
@@ -1300,7 +1304,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule Exec_PromoteMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_PromoteMember( int territoryID, ref ExpansionTerritoryMember member, PlayerIdentity sender )
+	private void Exec_PromoteMember( int territoryID, ExpansionTerritoryMember member, PlayerIdentity sender )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 1 territoryID : " + territoryID + " member : " + member);
@@ -1356,7 +1360,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 6");
 		#endif
 		
-		ref ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
+		ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 7 target : " + target);
 		#endif
@@ -1414,7 +1418,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DemoteMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_DemoteMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_DemoteMember( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DemoteMember - Start");
@@ -1515,7 +1519,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_KickMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_KickMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_KickMember( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_KickMember - Start");
@@ -1632,7 +1636,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_Leave
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_Leave( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_Leave( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_Leave - Start");
@@ -1704,7 +1708,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_PlayerEnteredTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_PlayerEnteredTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_PlayerEnteredTerritory( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PlayerEnteredTerritory - Start");
@@ -1800,7 +1804,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule GetTerritories
 	// ------------------------------------------------------------
-	ref map<int, ref ExpansionTerritory> GetTerritories()
+	map<int, ref ExpansionTerritory> GetTerritories()
 	{
 		return m_Territories;
 	}
@@ -1808,7 +1812,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule GetTerritories
 	// ------------------------------------------------------------
-	ref ExpansionTerritory GetTerritory( int territoryID )
+	ExpansionTerritory GetTerritory( int territoryID )
 	{
 		return m_Territories.Get( territoryID );
 	}
@@ -2056,7 +2060,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		{
 			for ( int i = 0; i < m_Territories.Count(); ++i )
 			{
-				ref ExpansionTerritory territory = m_Territories.GetElement( i );
+				ExpansionTerritory territory = m_Territories.GetElement( i );
 				if ( territory && vector.Distance( territory.GetPosition(), position ) <= territorySize )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -2235,7 +2239,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion GetAllTerritoryFlags
 	// Called server side
 	// ------------------------------------------------------------
-	ref map<int, TerritoryFlag> GetAllTerritoryFlags()
+	map<int, TerritoryFlag> GetAllTerritoryFlags()
 	{
 		return m_TerritoryFlags;
 	}

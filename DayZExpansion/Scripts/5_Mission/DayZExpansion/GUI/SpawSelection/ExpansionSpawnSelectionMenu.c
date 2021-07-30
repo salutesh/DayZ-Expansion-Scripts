@@ -129,7 +129,7 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMenu OnShow
 	// ------------------------------------------------------------
-	void SetSpawnPoint(ref ExpansionSpawnLocation location, bool setmappos = true)
+	void SetSpawnPoint( ExpansionSpawnLocation location, bool setmappos = true)
 	{
 		Print("ExpansionSpawnSelectionMenu::SetSpawnPoint - Start");
 		

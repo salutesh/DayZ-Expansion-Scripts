@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Vehicles_Ground_Sedan_02
+	class DayZExpansion_Vehicles_Ground_CivilianSedan
 	{
 		units[] = {"Vehicle_CivSedanWheel","Vehicle_CivSedanWheel_Ruined","Vehicle_CivilianSedan","Vehicle_CivilianSedan_White","Vehicle_CivilianSedan_Wine","Vehicle_CivilianSedan_Black","Vehicle_CivilianSedan_Police","Vehicle_CivilianSedan_Lime"};
 		weapons[] = {};

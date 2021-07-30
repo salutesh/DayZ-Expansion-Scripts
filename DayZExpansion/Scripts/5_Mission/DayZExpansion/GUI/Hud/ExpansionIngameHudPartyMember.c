@@ -12,23 +12,33 @@
 
 class ExpansionIngameHudPartyMember: ExpansionScriptView
 {
-	ref ExpansionIngameHud m_ExpansionHUD;
 	ref ExpansionIngameHudPartyMemberController m_PartyMemberController;
-	ref SyncPlayer m_SyncedPlayer;
-	//PlayerPreviewWidget PlayerFace;
 	ProgressBarWidget PlayerHealth;
 	ImageWidget Bones;
 	ImageWidget Sick;
 	ImageWidget Poisoned;
+	ImageWidget Bleeding;
+	TextWidget BleedingCount;
+
+	ImageWidget StanceProne;
+	ImageWidget StanceCrouch;
+	ImageWidget StanceStand;
+	ImageWidget StanceStandWalk;
+	ImageWidget StanceCar;
+	ImageWidget StanceHeli;
+	ImageWidget StanceBoat;
 	
 	int m_CurrentHealth;
 	int m_CurrentBlood;
 	
-	void ExpansionIngameHudPartyMember(ExpansionIngameHud expansionHUD, ref SyncPlayer syncPlayer)
-	{
-		m_ExpansionHUD = expansionHUD;
-		m_SyncedPlayer = syncPlayer;
-		
+	string m_PlayerID;
+	string m_PlayerName;
+	
+	void ExpansionIngameHudPartyMember(string playerID, string playerName)
+	{	
+		m_PlayerID = playerID;
+		m_PlayerName = playerName;
+			
 		if (!m_PartyMemberController)
 			m_PartyMemberController = ExpansionIngameHudPartyMemberController.Cast(GetController());
 		
@@ -36,10 +46,10 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		if (monitorModule)
 		{
 			monitorModule.m_StatsInvoker.Insert(this.OnDataRecived);
-			monitorModule.RequestPlayerStats(m_SyncedPlayer.m_RUID);
+			monitorModule.RequestPlayerStats(m_PlayerID);
 			
 			monitorModule.m_StatesInvoker.Insert(this.OnStateDataRecived);
-			monitorModule.RequestPlayerStates(m_SyncedPlayer.m_RUID);
+			monitorModule.RequestPlayerStates(m_PlayerID);
 		}
 		
 		SetView();
@@ -51,7 +61,7 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		if (monitorModule)
 		{
 			monitorModule.m_StatsInvoker.Remove(this.OnDataRecived);
-			monitorModule.m_StatsInvoker.Remove(this.OnStateDataRecived);
+			monitorModule.m_StatesInvoker.Remove(this.OnStateDataRecived);
 		}
 	}
 	
@@ -69,24 +79,26 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	{
 		if (m_PartyMemberController)
 		{
-			m_PartyMemberController.PlayerName = m_SyncedPlayer.m_PlayerName;
+			m_PartyMemberController.PlayerName = m_PlayerName;
 			m_PartyMemberController.NotifyPropertyChanged("PlayerName");
-			
-			m_ExpansionHUD.GetPartyMembersSpacer().AddChild(GetLayoutRoot(), true);
 		}
 	}
 	
-	void OnDataRecived(ref ExpansionSyncedPlayerStats player_stats)
+	void OnDataRecived( ExpansionSyncedPlayerStats player_stats)
 	{
-		SetHealth(player_stats);
+		if (m_PlayerID != player_stats.m_ID) return;
+
+		SetStats(player_stats);
 	}
 	
-	void OnStateDataRecived(ref ExpansionSyncedPlayerStates player_states)
+	void OnStateDataRecived( ExpansionSyncedPlayerStates player_states)
 	{
+		if (m_PlayerID != player_states.m_ID) return;
+
 		SetStates(player_states);
 	}
 	
-	void SetHealth(ref ExpansionSyncedPlayerStats player_stats)
+	void SetStats( ExpansionSyncedPlayerStats player_stats)
 	{
 		if (m_PartyMemberController)
 		{
@@ -138,7 +150,7 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		}
 	}
 	
-	void SetStates(ref ExpansionSyncedPlayerStates player_states)
+	void SetStates(ExpansionSyncedPlayerStates player_states)
 	{
 		if (player_states.m_Bones > 0)
 		{
@@ -166,36 +178,95 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		{
 			Poisoned.Show(false);
 		}
+		
+		if (player_states.m_Cuts > 0)
+		{
+			Bleeding.Show(true);
+			BleedingCount.Show(true);
+			BleedingCount.SetText(player_states.m_Cuts.ToString());
+		}
+		else
+		{
+			Bleeding.Show(false);
+			BleedingCount.Show(false);
+			BleedingCount.SetText("");
+		}
+		
+		if (player_states.m_Stance > 0)
+		{
+			UpdateStance(player_states.m_Stance);
+		}
 	}
 	
-	/*void SetRankIcon(ref ExpansionSyncedPlayerStats player_stats)
+	void UpdateStance( int stance )
 	{
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-		if (partyModule)
-		{
-			ref ExpansionPartyPlayerData playerData = partyModule.GetParty().GetPlayer(m_SyncedPlayer.m_RUID);
-			if (playerData)
+			if ( stance == 1 )
 			{
-				string icon;
-				if (partyModule.GetParty().GetOwnerUID() == playerData.UID)
-				{
-					icon = ExpansionIcons.GetPath("Star");
-				}
-				else if (playerData.Promoted && partyModule.GetParty().GetOwnerUID() != playerData.UID)
-				{
-					icon = ExpansionIcons.GetPath("Ellipse");
-				}
-				else
-				{
-					icon = ExpansionIcons.GetPath("Square");
-				}
-				
-				m_PartyMemberController.PlayerRangIcon = icon;
-				m_PartyMemberController.NotifyPropertyChanged("PlayerRangIcon");
+				bool is_walking;
+				StanceStand.Show(!is_walking);
+				StanceStandWalk.Show(is_walking);
+				StanceCrouch.Show(false);
+				StanceProne.Show(false);
+				StanceCar.Show(false);
+				StanceHeli.Show(false);
+				StanceBoat.Show(false);
 			}
-		}
-	}*/
-	
+			if ( stance == 2 )
+			{
+				StanceStand.Show(false);
+				StanceStandWalk.Show(false);
+				StanceCrouch.Show(true);
+				StanceProne.Show(false);
+				StanceCar.Show(false);
+				StanceHeli.Show(false);
+				StanceBoat.Show(false);
+			}
+			if ( stance == 3 )
+			{
+				StanceStand.Show(false);
+				StanceStandWalk.Show(false);
+				StanceCrouch.Show(false);
+				StanceProne.Show(true);
+				StanceCar.Show(false);
+				StanceHeli.Show(false);
+				StanceBoat.Show(false);			
+			}
+			if ( stance == 4 )
+			{
+				StanceStand.Show(false);
+				StanceStandWalk.Show(false);
+				StanceCrouch.Show(false);
+				StanceProne.Show(false);
+				StanceCar.Show(true);
+				StanceHeli.Show(false);
+				StanceBoat.Show(false);
+			}
+			if ( stance == 5 )
+			{
+				StanceStand.Show(false);
+				StanceStandWalk.Show(false);
+				StanceCrouch.Show(false);
+				StanceProne.Show(false);
+				StanceCar.Show(false);
+				StanceHeli.Show(true);
+				StanceHeli.LoadImageFile(0, ExpansionIcons.GetPath("Helicopter"));
+				StanceHeli.SetImage(0);
+				StanceBoat.Show(false);
+			}
+			if ( stance == 6 )
+			{
+				StanceStand.Show(false);
+				StanceStandWalk.Show(false);
+				StanceCrouch.Show(false);
+				StanceProne.Show(false);
+				StanceCar.Show(false);
+				StanceHeli.Show(false);
+				StanceBoat.Show(true);
+				StanceBoat.LoadImageFile(0, ExpansionIcons.GetPath("Boat"));
+				StanceBoat.SetImage(0);
+			}
+	}
+		
 	override float GetUpdateTickRate()
 	{
 		return 1.0;
@@ -206,8 +277,8 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (monitorModule)
 		{
-			monitorModule.RequestPlayerStats(m_SyncedPlayer.m_RUID);
-			monitorModule.RequestPlayerStates(m_SyncedPlayer.m_RUID);
+			monitorModule.RequestPlayerStats(m_PlayerID);
+			monitorModule.RequestPlayerStates(m_PlayerID);
 		}
 	}
 }

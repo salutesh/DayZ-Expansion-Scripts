@@ -63,7 +63,7 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionSocialMediaSettings thisSetting = this;
+		ExpansionSocialMediaSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -97,7 +97,7 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		EXPrint("ExpansionSocialMediaSettings::Copy - Start");
 		#endif
 		
-		ref ExpansionSocialMediaSettings settings = ExpansionSocialMediaSettings.Cast( setting );
+		ExpansionSocialMediaSettings settings = ExpansionSocialMediaSettings.Cast( setting );
 		if ( !settings )
 			return false;
 
@@ -110,7 +110,7 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionSocialMediaSettings s )
+	private void CopyInternal(  ExpansionSocialMediaSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSocialMediaSettings::CopyInternal - Start");
@@ -127,7 +127,7 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionSocialMediaSettingsBase s )
+	private void CopyInternal(  ExpansionSocialMediaSettingsBase s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSocialMediaSettings::CopyInternal - Start");

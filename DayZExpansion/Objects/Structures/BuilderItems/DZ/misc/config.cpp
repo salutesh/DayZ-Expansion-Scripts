@@ -14,6 +14,7 @@ class CfgVehicles
 {
 	class HouseNoDestruct;
 	class BarrelHoles_Red;
+	class Fireplace;
 	class bldr_expansion_flare_blue: HouseNoDestruct
 	{
 		scope = 1;
@@ -582,6 +583,9 @@ class CfgVehicles
 	class bldr_fire_barrel: BarrelHoles_Red
 	{
 		scope = 1;
-		model = "\DZ\gear\cooking\barrel_holes.p3d";
+	};
+	class bldr_fireplace: Fireplace
+	{
+		scope = 1;
 	};
 };

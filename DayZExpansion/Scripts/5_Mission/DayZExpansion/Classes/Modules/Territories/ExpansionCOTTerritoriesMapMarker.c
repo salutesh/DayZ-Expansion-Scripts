@@ -51,7 +51,7 @@ class ExpansionCOTTerritoriesMapMarker extends ExpansionMapMarker
 	// ------------------------------------------------------------
 	// ExpansionCOTTerritoriesMapMarker SetTerritory
 	// ------------------------------------------------------------
-	void SetTerritory(ref ExpansionTerritory territory)
+	void SetTerritory( ExpansionTerritory territory)
 	{
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesMapMarker::SetCOTMenu - Start");

@@ -10,6 +10,19 @@
  *
 */
 
+class ExpansionDialogContentSpacer: ExpansionDialogContentBase
+{	
+	void ExpansionDialogContentSpacer(ExpansionDialogBase dialog)
+	{
+		m_Dialog = dialog;
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_content_spacer.layout";
+	}
+}
+
 class ExpansionDialogBase: ExpansionScriptView
 {
 	Widget dialog_base_header;
@@ -88,6 +101,7 @@ class ExpansionDialogBase: ExpansionScriptView
 	void AddContent(ExpansionDialogContentBase content)
 	{
 		m_DialogBaseController.DialogContents.Insert(content);
+		m_DialogBaseController.DialogContents.Insert(new ExpansionDialogContentSpacer(this));
 	}
 	
 	void AddButton(ExpansionDialogButtonBase button)

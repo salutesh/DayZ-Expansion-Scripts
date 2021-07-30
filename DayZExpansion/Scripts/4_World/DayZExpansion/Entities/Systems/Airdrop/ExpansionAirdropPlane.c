@@ -188,7 +188,7 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane SetupPlane
 	// ------------------------------------------------------------
-	void SetupPlane( vector dropPosition, string name, float maxRadius, float height, float speed, ref ExpansionAirdropLootContainer container, ref StringLocaliser warningProximityMsg = NULL, ref StringLocaliser airdropCreatedMsg = NULL )
+	void SetupPlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionAirdropLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("[ExpansionAirdropPlane] SetupPlane start");
@@ -479,7 +479,7 @@ class ExpansionAirdropPlane extends House
 		return false;
 	}
 
-	static ExpansionAirdropPlane CreatePlane( vector dropPosition, string name, float maxRadius, float height, float speed, ref ExpansionAirdropLootContainer container, ref StringLocaliser warningProximityMsg = NULL, ref StringLocaliser airdropCreatedMsg = NULL )
+	static ExpansionAirdropPlane CreatePlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionAirdropLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
 	{
 		vector spawnPoint = GetSpawnPoint( height );
 

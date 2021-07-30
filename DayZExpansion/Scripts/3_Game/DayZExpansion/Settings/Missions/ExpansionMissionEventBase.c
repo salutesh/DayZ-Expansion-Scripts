@@ -179,9 +179,9 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase CreateNotification
 	// ------------------------------------------------------------
-	void CreateNotification( ref StringLocaliser text, string icon, float time = 3, PlayerIdentity identity = NULL )
+	void CreateNotification(  StringLocaliser text, string icon, float time = 3, PlayerIdentity identity = NULL )
 	{
-		ExpansionNotification(new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName ), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time).Create(identity);
+		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time).Create(identity);
 	}
 	
 	// ------------------------------------------------------------

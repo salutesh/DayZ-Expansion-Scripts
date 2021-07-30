@@ -119,7 +119,7 @@ class ExpansionGame
 	// ------------------------------------------------------------
 	// ExpansionGame OnRPC
 	// ------------------------------------------------------------
-	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 		return false;
 	}

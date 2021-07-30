@@ -67,7 +67,7 @@ modded class Animal_GallusGallusDomesticus
 			return;
 		}
 
-		ref array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
+		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
 		
 		if ( !action_array ) 
 		{
@@ -83,7 +83,7 @@ modded class Animal_GallusGallusDomesticus
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		ActionBase action = player.GetActionManager().GetAction(actionName);
 		typename ai = action.GetInputType();
-		ref array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
+		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
 		
 		if ( action_array )
 		{

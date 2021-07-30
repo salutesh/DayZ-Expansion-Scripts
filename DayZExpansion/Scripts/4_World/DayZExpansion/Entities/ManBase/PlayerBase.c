@@ -624,7 +624,7 @@ modded class PlayerBase
 		for ( int att_i = 0; att_i < GetInventory().AttachmentCount(); ++att_i )
 		{
 			EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
-			ref CargoBase cargo = attachment.GetInventory().GetCargo();
+			CargoBase cargo = attachment.GetInventory().GetCargo();
 			
 			if ( !cargo )
 				continue;

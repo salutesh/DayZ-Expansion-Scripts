@@ -49,8 +49,8 @@ class ExpansionTeargasHelper
 		#endif
 
 		m_CoughTimer = Math.RandomIntInclusive(500, 5000);
-		ref array<Object> nearest_objects = new array<Object>();
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>();
+		array<Object> nearest_objects = new array<Object>();
+		array<CargoBase> proxy_cargos = new array<CargoBase>();
 
 		GetGame().GetObjectsAtPosition3D(m_Entity.GetPosition(), 5, nearest_objects, proxy_cargos);
 

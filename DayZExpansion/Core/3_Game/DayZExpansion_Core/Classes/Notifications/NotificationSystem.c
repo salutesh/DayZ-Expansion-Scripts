@@ -16,7 +16,7 @@ modded class NotificationSystem
 	// ExpansionNotificationSystem Create_Expansion
 	// ------------------------------------------------------------
 	// Create ur own system until CF have a better framework
-	static void Create_Expansion( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL )
+	static void Create_Expansion( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("NotificationSystem::Create_Expansion - Start");
@@ -48,10 +48,5 @@ modded class NotificationSystem
 	static void Create_Expansion( string title, string text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL )
 	{
 		Create_Expansion( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, sendTo );
-	}
-
-	override void AddNotif( ref NotificationRuntimeData data )
-	{
-		super.AddNotif( data );
 	}
 };

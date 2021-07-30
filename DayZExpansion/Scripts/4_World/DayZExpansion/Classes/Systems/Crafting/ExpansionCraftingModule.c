@@ -64,7 +64,7 @@ class ExpansionCraftingModule: JMModuleBase
 	// ExpansionCraftingModule OnRPC
 	// Called on client
 	// ------------------------------------------------------------
-	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionCraftingModule::OnRPC - Start");
@@ -128,12 +128,12 @@ class ExpansionCraftingModule: JMModuleBase
 	// ExpansionCraftingModule RPC_RequestPrepareCrafting
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestPrepareCrafting(ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	private void RPC_RequestPrepareCrafting(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		if (!IsMissionHost())
 			return;
 		
-		ref ExpansionBookCraftingRecipe recipe;
+		ExpansionBookCraftingRecipe recipe;
 		if (!ctx.Read(recipe))
 		{
 			Error("ExpansionCraftingModule::RPC_RequestPrepareCrafting - Could not get crafting recipe!");
@@ -225,7 +225,7 @@ class ExpansionCraftingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionCraftingModule RPC_RequestPrepareCrafting
 	// ------------------------------------------------------------	
-	private void RPC_RequestPrepareCrafting(ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	private void RPC_RequestPrepareCrafting(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		if (!IsMissionHost())
 			return;

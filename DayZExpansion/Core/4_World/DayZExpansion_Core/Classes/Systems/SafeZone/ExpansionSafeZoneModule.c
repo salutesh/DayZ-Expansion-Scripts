@@ -110,7 +110,7 @@ class ExpansionSafeZoneModule: JMModuleBase
 				if ( !polyZone )
 					continue;
 
-				ref TVectorArray polygonPosition = polyZone.Positions;
+				TVectorArray polygonPosition = polyZone.Positions;
 					
 				for ( int k = 0, l = polygonPosition.Count() - 1; k < polygonPosition.Count(); ++k)
 				{

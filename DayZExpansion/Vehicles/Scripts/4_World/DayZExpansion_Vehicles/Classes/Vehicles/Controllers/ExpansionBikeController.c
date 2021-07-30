@@ -135,7 +135,7 @@ class ExpansionBikeController: ExpansionVehicleController
 		m_Turbo = 0;
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_Gear );
 
@@ -149,7 +149,7 @@ class ExpansionBikeController: ExpansionVehicleController
 		ctx.Write( m_TurnRight );
 	}
 
-	protected override bool OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override bool OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_Gear );
 

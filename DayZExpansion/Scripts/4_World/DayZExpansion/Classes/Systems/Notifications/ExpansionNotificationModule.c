@@ -61,7 +61,7 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	void AddNotification( ref NotificationRuntimeData data )
+	void AddNotification(  NotificationRuntimeData data )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::AddNotification - Start");
@@ -88,7 +88,7 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	void RemoveNotification( ref NotificationRuntimeData data )
+	void RemoveNotification(  NotificationRuntimeData data )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::RemoveNotification - Start");

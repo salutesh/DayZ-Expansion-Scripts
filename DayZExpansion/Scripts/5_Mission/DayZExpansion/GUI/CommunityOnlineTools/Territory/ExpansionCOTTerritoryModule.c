@@ -48,7 +48,7 @@ class ExpansionCOTTerritoryModule: ExpansionCOTModuleBase
 		return "Expansion Territory Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetTerritory();
 	}
@@ -80,7 +80,7 @@ class ExpansionCOTTerritoryModule: ExpansionCOTModuleBase
 		return ExpansionCOTTerritoryModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -93,12 +93,12 @@ class ExpansionCOTTerritoryModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionTerritorySettings setting = new ExpansionTerritorySettings();
+		ExpansionTerritorySettings setting = new ExpansionTerritorySettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

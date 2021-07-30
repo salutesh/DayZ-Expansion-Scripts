@@ -344,7 +344,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		string uid = "";
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
 		{
-			foreach ( string uuid, ref ExpansionMapMarker mmarker : m_PartyMarkers )
+			foreach ( string uuid, ExpansionMapMarker mmarker : m_PartyMarkers )
 			{
 				if ( mmarker )
 				{
@@ -548,7 +548,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		string uid = "";
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
 		{
-			foreach ( string uuid, ref ExpansionMapMarker mmarker : m_PlayerMarkers )
+			foreach ( string uuid, ExpansionMapMarker mmarker : m_PlayerMarkers )
 			{
 				if ( mmarker )
 				{
@@ -685,7 +685,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion SetSelectedMarker
 	// ------------------------------------------------------------
-	bool SetSelectedMarker( ref ExpansionMarkerData data )
+	bool SetSelectedMarker(  ExpansionMarkerData data )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::SetSelectedMarker - Start");
@@ -809,7 +809,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion DeleteMarker
 	// ------------------------------------------------------------	
-	void DeleteMarker( ref ExpansionMapMarker marker )
+	void DeleteMarker(  ExpansionMapMarker marker )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::DeleteMarker - Start");
@@ -890,8 +890,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 			int index = m_Markers.Find( marker );
 			if ( index != -1 )
 				m_Markers.Remove( index );
-
-			delete marker;
 
 			m_DeletingMarkers.Remove( i );
 
@@ -1300,7 +1298,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		#endif
 		
 		int j;
-		ref ExpansionMapMarkerListEntry entry;
+		ExpansionMapMarkerListEntry entry;
 		for ( j = 0; j < m_MarkerList.GetPersonalEntrys().Count(); ++j )
 		{			
 			entry = m_MarkerList.GetPersonalEntrys()[j];

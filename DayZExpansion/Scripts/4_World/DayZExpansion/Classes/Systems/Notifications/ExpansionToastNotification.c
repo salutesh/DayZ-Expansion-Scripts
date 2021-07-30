@@ -38,7 +38,7 @@ class ExpansionNotificationUIGrid extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionNotificationUIGrid GetGrid
 	// ------------------------------------------------------------
-	ref GridSpacerWidget GetGrid()
+	GridSpacerWidget GetGrid()
 	{
 		return m_NotificationGrid;
 	}
@@ -83,7 +83,7 @@ class ExpansionNotificationUI extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionNotificationUI Constructor
 	// ------------------------------------------------------------
-	void ExpansionNotificationUI( ref NotificationRuntimeData data, ref ExpansionNotificationModule module, Widget grid )
+	void ExpansionNotificationUI(  NotificationRuntimeData data, ExpansionNotificationModule module, Widget grid )
 	{
 		m_Data = data;
 		m_Module = module;

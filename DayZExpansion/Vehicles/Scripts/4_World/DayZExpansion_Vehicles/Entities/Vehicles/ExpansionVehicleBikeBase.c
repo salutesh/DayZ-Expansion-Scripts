@@ -196,13 +196,13 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		#endif
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_RPMVal );
 		ctx.Write( m_SteeringVal );
 	}
 
-	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_RPMVal );
 		ctx.Read( m_SteeringVal );

@@ -48,7 +48,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		return "Expansion Notification Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetNotification();
 	}
@@ -117,7 +117,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		return ExpansionCOTNotificationModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -130,12 +130,12 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionNotificationSettings setting = new ExpansionNotificationSettings();
+		ExpansionNotificationSettings setting = new ExpansionNotificationSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

@@ -140,7 +140,7 @@ class ExpansionPlaneController: ExpansionVehicleController
 		// don't reset flaps
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_Engine );
 
@@ -156,7 +156,7 @@ class ExpansionPlaneController: ExpansionVehicleController
 		ctx.Write( m_RudderRight );
 	}
 
-	protected override bool OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override bool OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_Engine );
 

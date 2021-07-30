@@ -16,7 +16,7 @@ modded class AttachmentCategoriesRow
 	{
 		super.Init( attachments_categories_count, i, attachment_category, config_path_attachment_categories, entity, parent_m_Body_count );
 
-		ref array<string> player_ghosts_slots2 = new array<string>;
+		array<string> player_ghosts_slots2 = new array<string>;
 		GetGame().ConfigGetTextArray( m_RowConfigPath, player_ghosts_slots2 );
 		int count = player_ghosts_slots2.Count();
 

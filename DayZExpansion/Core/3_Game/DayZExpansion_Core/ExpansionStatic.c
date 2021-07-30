@@ -160,7 +160,7 @@ static TStringArray ExpansionWorkingZombieClasses()
 // -----------------------------------------------------------
 // Expansion String ExpansionGetItemDisplayNameWithType
 // -----------------------------------------------------------
-string ExpansionGetItemDisplayNameWithType( string type_name, ref map<string, string> cache = NULL )
+string ExpansionGetItemDisplayNameWithType( string type_name, map<string, string> cache = NULL )
 {
 	string cfg_name;
 	string cfg_name_path;
@@ -200,7 +200,7 @@ string ExpansionGetItemDisplayNameWithType( string type_name, ref map<string, st
 // -----------------------------------------------------------
 // Expansion String ExpansionGetItemDescriptionWithType
 // -----------------------------------------------------------
-string ExpansionGetItemDescriptionWithType( string type_name, ref map<string, string> cache = NULL )
+string ExpansionGetItemDescriptionWithType( string type_name, map<string, string> cache = NULL )
 {
 	string cfg_des;
 	string cfg_des_path;

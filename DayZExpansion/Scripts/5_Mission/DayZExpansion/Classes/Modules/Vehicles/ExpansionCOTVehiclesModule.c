@@ -40,9 +40,9 @@ class ExpansionVehicleMetaData
 
 	bool m_HasKeys;
 	
-	static ref ExpansionVehicleMetaData CreateCarScript( CarScript car )
+	static ExpansionVehicleMetaData CreateCarScript( CarScript car )
 	{
-		ref ExpansionVehicleMetaData meta = new ExpansionVehicleMetaData();
+		ExpansionVehicleMetaData meta = new ExpansionVehicleMetaData();
 
 		car.GetNetworkID( meta.m_NetworkIDLow, meta.m_NetworkIDHigh );
 		
@@ -76,9 +76,9 @@ class ExpansionVehicleMetaData
 		return meta;
 	}
 	
-	static ref ExpansionVehicleMetaData CreateVehicle( ExpansionVehicleBase vehicle )
+	static ExpansionVehicleMetaData CreateVehicle( ExpansionVehicleBase vehicle )
 	{
-		ref ExpansionVehicleMetaData meta = new ExpansionVehicleMetaData();
+		ExpansionVehicleMetaData meta = new ExpansionVehicleMetaData();
 
 		vehicle.GetNetworkID( meta.m_NetworkIDLow, meta.m_NetworkIDHigh );
 		
@@ -290,7 +290,11 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	// ExpansionCOTVehiclesModule OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -335,7 +339,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_RequestServerVehicles
 	// Called on Server
 	// ------------------------------------------------------------
-	void RPC_RequestServerVehicles( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_RequestServerVehicles( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -354,7 +358,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_SendServerVehicles
 	// Called on Client
 	// ------------------------------------------------------------
-	private void RPC_SendServerVehicles( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_SendServerVehicles( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionClient() )
 			return;
@@ -419,7 +423,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_DeleteVehicle
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_DeleteVehicle( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_DeleteVehicle( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -447,7 +451,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_DeleteVehicleUnclaimed
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_DeleteVehicleUnclaimed( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_DeleteVehicleUnclaimed( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -486,7 +490,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_DeleteVehicleDestroyed
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_DeleteVehicleDestroyed( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_DeleteVehicleDestroyed( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -525,7 +529,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_DeleteVehicleAll
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_DeleteVehicleAll( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_DeleteVehicleAll( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -573,7 +577,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule RPC_TeleportToVehicle
 	// Called on Server
 	// ------------------------------------------------------------
-	private void RPC_TeleportToVehicle( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	private void RPC_TeleportToVehicle( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -610,7 +614,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ExpansionCOTVehiclesModule GetServerVehicles
 	// Only returns array on Client side
 	// ------------------------------------------------------------
-	ref array< ref ExpansionVehicleMetaData > GetServerVehicles()
+	array< ref ExpansionVehicleMetaData > GetServerVehicles()
 	{
 		return m_Vehicles;
 	}

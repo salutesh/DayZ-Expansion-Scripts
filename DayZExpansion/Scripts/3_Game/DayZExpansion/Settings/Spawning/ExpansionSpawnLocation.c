@@ -37,9 +37,9 @@ class ExpansionSpawnLocation
 		delete Positions;
 	}
 
-	static ref ExpansionSpawnLocation Copy( ref ExpansionSpawnLocation src )
+	static ExpansionSpawnLocation Copy(  ExpansionSpawnLocation src )
 	{
-		ref ExpansionSpawnLocation dst = new ExpansionSpawnLocation( src.Name, new array< vector >() );
+		ExpansionSpawnLocation dst = new ExpansionSpawnLocation( src.Name, new array< vector >() );
 		return dst;
 	}
 };

@@ -83,12 +83,12 @@ class ExpansionVehicleSteering
 		return true;
 	}
 	
-	private float GetSpeedSingle( float pSpeed, ref array< float > pValues )
+	private float GetSpeedSingle( float pSpeed, array< float > pValues )
 	{
 		return pValues[0] / ( Math.AbsFloat( pSpeed ) + 1.0 );
 	}
 
-	private float GetSpeed( float pSpeed, ref array< float > pValues )
+	private float GetSpeed( float pSpeed, array< float > pValues )
 	{
 		int count = pValues.Count() * 0.5;
 		float speed;

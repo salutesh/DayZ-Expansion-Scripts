@@ -58,3 +58,17 @@ class bldr_prop_FireplaceIndoor extends House
 	}
 	
 }
+
+class bldr_fire_barrel extends BarrelHoles_Red
+{
+	override protected void SpendFireConsumable( float amount )
+	{
+	}
+}
+
+class bldr_fireplace extends Fireplace
+{
+	override protected void SpendFireConsumable( float amount )
+	{
+	}
+}

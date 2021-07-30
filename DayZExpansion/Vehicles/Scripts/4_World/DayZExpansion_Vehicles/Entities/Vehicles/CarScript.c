@@ -353,7 +353,7 @@ modded class CarScript
 		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
 	}
 
-	ref ExpansionVehicleController GetExpansionController()
+	ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -1195,12 +1195,12 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------	
-	protected void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 	}
 
 	// ------------------------------------------------------------	
-	protected void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 	}
 
@@ -1691,7 +1691,7 @@ modded class CarScript
 	// ------------------------------------------------------------	
 	void UpdateHorn( float pDt )
 	{
-		ref NoiseParams npar = new NoiseParams();
+		NoiseParams npar = new NoiseParams();
 		npar.LoadFromPath( "CfgVehicles " + GetType() + " NoiseCarHorn" );
 		//GetGame().GetNoiseSystem().AddNoise( this, npar );
 	}
@@ -1759,7 +1759,7 @@ modded class CarScript
 
 	void CreateLights( Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0 )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -1798,7 +1798,7 @@ modded class CarScript
 
 	void CreateParticle( Object lod, string point, int type )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )

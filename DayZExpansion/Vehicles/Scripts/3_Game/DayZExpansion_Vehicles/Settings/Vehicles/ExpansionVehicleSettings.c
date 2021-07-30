@@ -97,7 +97,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionVehicleSettings thisSetting = this;
+		ExpansionVehicleSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -137,7 +137,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionVehicleSettings s )
+	private void CopyInternal(  ExpansionVehicleSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - Start");
@@ -157,7 +157,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionVehicleSettingsBase s )
+	private void CopyInternal(  ExpansionVehicleSettingsBase s )
 	{
 		//! TODO: Need to find where in the code it tries to copy from itself
 		if ( s == this )

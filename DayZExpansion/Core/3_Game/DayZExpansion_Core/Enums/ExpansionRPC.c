@@ -127,6 +127,7 @@ enum ExpansionMonitorRPC
 {
 	INVALID = 20300,
 	SyncStats,
+	SyncStates,
 	SendMessage,
 	RequestPlayerStats,
 	SendPlayerStats,

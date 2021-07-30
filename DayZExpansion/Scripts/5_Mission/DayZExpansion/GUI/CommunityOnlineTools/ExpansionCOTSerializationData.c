@@ -14,12 +14,12 @@ class ExpansionCOTSerializationData: UIActionData
 {
 	private ExpansionSettingSerializationBase m_Data;
 
-	void ExpansionCOTSerializationData( ref ExpansionSettingSerializationBase data )
+	void ExpansionCOTSerializationData(  ExpansionSettingSerializationBase data )
 	{
 		m_Data = data;
 	}
 
-	ref ExpansionSettingSerializationBase Get()
+	ExpansionSettingSerializationBase Get()
 	{
 		return m_Data;
 	}

@@ -15,9 +15,7 @@ class ExpansionScriptView: ExpansionScriptViewBase
 	protected ref Timer m_UpdateTimer;
 	
 	void ExpansionScriptView()
-	{		
-		//Debug_Logging = true;
-		
+	{
 		CreateUpdateTimer();
 	}
 	
@@ -27,7 +25,7 @@ class ExpansionScriptView: ExpansionScriptViewBase
 	}
 	
 	override void Show()
-	{			
+	{	
 		SetIsVisible(true);
 		GetLayoutRoot().Show(true);
 		OnShow();

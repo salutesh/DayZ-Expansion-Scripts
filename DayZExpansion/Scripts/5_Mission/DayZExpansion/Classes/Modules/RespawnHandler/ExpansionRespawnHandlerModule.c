@@ -47,7 +47,11 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -87,7 +91,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule RPC_ShowSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ref ParamsReadContext ctx)
+	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
 		
@@ -146,13 +150,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			return NULL;
 
 		array< ref ExpansionSpawnLocation> SpawnLocations = new array< ref ExpansionSpawnLocation >;
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 		int TimesIsMember = 0;
 	
 		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
 		{
-			ref TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
+			TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
 			
 			ExpansionTerritory territory = currentFlag.GetTerritory();
 			if ( !territory )
@@ -198,7 +202,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule RPC_SelectSpawn
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_SelectSpawn(PlayerIdentity sender, ref ParamsReadContext ctx)
+	private void RPC_SelectSpawn(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - Start");
 		
@@ -259,7 +263,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule RPC_CloseSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ref ParamsReadContext ctx)
+	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - Start");
 		
@@ -296,7 +300,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionClient() )
 			return;
 		
-		ref ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
+		ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
 
 		if ( !random_location )
 		{
@@ -537,7 +541,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionHost() )
 			return;
 		
-		ref array<EntityAI> clothingArray = new array<EntityAI>;
+		array<EntityAI> clothingArray = new array<EntityAI>;
 		
 		ExpansionStartingClothing startingClothing;
 		if (Class.CastTo(startingClothing, GetExpansionSettings().GetSpawn().StartingClothing))

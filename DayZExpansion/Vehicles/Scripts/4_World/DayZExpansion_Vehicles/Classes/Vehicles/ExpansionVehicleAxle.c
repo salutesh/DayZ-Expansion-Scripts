@@ -88,9 +88,9 @@ class ExpansionVehicleAxle
 		return m_Vehicle;
 	}
 
-	ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
+	ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
-		ref ExpansionVehicleWheel wheel = new ExpansionVehicleWheel( m_Vehicle, this, pName, pWheels.Count() );
+		ExpansionVehicleWheel wheel = new ExpansionVehicleWheel( m_Vehicle, this, pName, pWheels.Count() );
 
 		m_Wheels.Insert( wheel );
 		pWheels.Insert( wheel );
@@ -256,7 +256,7 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 	{
 	}
 
-	override ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
+	override ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
 		m_Center = super.AddWheel( pName, pWheels );
 
@@ -315,7 +315,7 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 	{
 	}
 
-	override ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
+	override ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
 		if ( pName == "Left" )
 		{

@@ -28,7 +28,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	// OptionsMenuExpansion Constructor
 	// -----------------------------------------------------------
-	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, ref OptionsMenu menu )
+	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, OptionsMenu menu )
 	{
 		GetExpansionClientSettings().Load();
 		
@@ -51,7 +51,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 		
 		for ( int i = 0; i < GetExpansionClientSettings().m_Categories.Count(); i++ )
 		{
-			ref ExpansionClientSettingCategory category = GetExpansionClientSettings().m_Categories[i];
+			ExpansionClientSettingCategory category = GetExpansionClientSettings().m_Categories[i];
 			Widget categoryWidget = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_options_category.layout", rootContent ) );
 			TextWidget categoryLable = TextWidget.Cast( categoryWidget.FindAnyWidget( "expansion_options_category_header_text" ) );
 			categoryLable.SetText( category.m_DisplayName );

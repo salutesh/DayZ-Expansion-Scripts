@@ -37,32 +37,18 @@ class ExpansionScriptViewMenuBase: ScriptView
 	
 	void Show();
 	void OnShow();
+	
 	void Hide();
+	
 	void OnHide();
-	void LockControls();
+	void LockControls(bool lockMovement = true);
 	void UnlockControls();
-	void LockInputs(bool state);
+	void LockInputs(bool state, bool lockMovement = true);
 	void UnlockInputs();
 	void ShowHud(bool state);
 	void ShowUICursor(bool state);
 	
 	bool CanShow()
-	{
-		return true;
-	}
-	
-	void Close()
-	{
-		Hide();
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().DestroySVMenu(GetID());
-	}
-	
-	bool UseMouse()	
-	{
-		return true;
-	}
-
-	bool UseKeyboard()	
 	{
 		return true;
 	}

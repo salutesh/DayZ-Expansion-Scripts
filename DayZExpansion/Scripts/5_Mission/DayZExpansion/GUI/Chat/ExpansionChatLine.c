@@ -44,7 +44,7 @@ class ExpansionChatLine
 	// ------------------------------------------------------------
 	// ExpansionChatLine Constructor
 	// ------------------------------------------------------------
-	void ExpansionChatLine( Widget root_widget, string layout, ref Chat chat)
+	void ExpansionChatLine( Widget root_widget, string layout, Chat chat)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine Start");

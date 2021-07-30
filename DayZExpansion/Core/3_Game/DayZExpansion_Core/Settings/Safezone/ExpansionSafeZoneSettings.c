@@ -99,7 +99,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionSafeZoneSettings thisSetting = this;
+		ExpansionSafeZoneSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -122,7 +122,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionSafeZoneSettings s )
+	private void CopyInternal(  ExpansionSafeZoneSettings s )
 	{
 		//!Nothing to do here yet
 		
@@ -131,7 +131,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal(ref ExpansionSafeZoneSettingsBase s)
+	private void CopyInternal( ExpansionSafeZoneSettingsBase s)
 	{
 		int i = 0;
 
@@ -267,13 +267,15 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		#ifdef EXPANSIONMODMARKET
 			//! Krasnostav Trader Camp
 			TVectorArray points = new TVectorArray;
-			points.Insert( Vector(12738.4, 125.0, 12255.2) );
-			points.Insert( Vector(12408.4, 151.2, 12978.1) );
-			points.Insert( Vector(1148.5, 177.7, 12987.6) );
-			points.Insert( Vector(11803, 145.7, 12221.6) );
+			points.Insert( Vector(12288.9, 142.4, 12804.4) );
+			points.Insert( Vector(12068.4, 139.8, 12923.4) );
+			points.Insert( Vector(11680.6, 141.1, 12650.6) );
+			points.Insert( Vector(11805.3, 146.3, 12258.9) );
+			points.Insert( Vector(12327.7, 140.0, 12453.8) );
 			PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
+			//CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(12013.4, 140.0, 12556.7), 700 ) );
 			//! Green Mountain Trader Camp
-			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(3728.27, 403, 6003.6), 700 ) );
+			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(3728.27, 403, 6003.6), 500 ) );
 			//! Kamenka Trader Camp
 			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(1143.14, 6.9, 2423.27), 700 ) );
 		#endif
@@ -281,7 +283,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	void RemoveSafeZonePolygon(ref ExpansionSafeZonePolygon zone)
+	void RemoveSafeZonePolygon(ExpansionSafeZonePolygon zone)
 	{
 		int index = -1;
 

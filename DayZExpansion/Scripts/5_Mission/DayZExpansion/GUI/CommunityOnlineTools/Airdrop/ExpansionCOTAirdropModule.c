@@ -48,7 +48,7 @@ class ExpansionCOTAirdropModule: ExpansionCOTModuleBase
 		return "Expansion Airdrop Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetAirdrop();
 	}
@@ -84,7 +84,7 @@ class ExpansionCOTAirdropModule: ExpansionCOTModuleBase
 		return ExpansionCOTAirDropModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -97,12 +97,12 @@ class ExpansionCOTAirdropModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionAirdropSettings setting = new ExpansionAirdropSettings();
+		ExpansionAirdropSettings setting = new ExpansionAirdropSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

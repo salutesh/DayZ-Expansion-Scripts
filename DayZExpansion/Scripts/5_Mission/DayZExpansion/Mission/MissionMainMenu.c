@@ -15,6 +15,11 @@ modded class MissionMainMenu
 {
 	private ref DayZIntroSceneExpansion m_IntroSceneExpansion;
 	
+	void ~MissionMainMenu()
+	{
+		DestroyExpansionIntroScene();
+	}
+	
 	override void OnInit()
 	{
 		bool customScene = true;
@@ -37,10 +42,10 @@ modded class MissionMainMenu
 			m_mainmenu = UIScriptedMenu.Cast( g_Game.GetUIManager().EnterScriptedMenu( MENU_MAIN, null ) );
 		}
 	}
+	
 	override void Reset()
 	{
-		delete m_IntroSceneExpansion;
-		
+		DestroyExpansionIntroScene();
 		CreateExpansionIntroScene();
 	}
 	
@@ -53,15 +58,22 @@ modded class MissionMainMenu
 			return;
 		}
 				
-		if (m_IntroSceneExpansion)
+		if (m_IntroSceneExpansion )
 		{
 			m_IntroSceneExpansion.Update();
 		}
 	}
+	
 	void CreateExpansionIntroScene()
 	{		
 		//Print("misssionMainMenu CreateIntroScene");
 		m_IntroSceneExpansion = new DayZIntroSceneExpansion;
+	}
+	
+	void DestroyExpansionIntroScene()
+	{
+		if (m_IntroSceneExpansion)
+			delete m_IntroSceneExpansion;
 	}
 	
 	DayZIntroSceneExpansion GetIntroSceneExpansion()
@@ -78,9 +90,9 @@ modded class MissionMainMenu
 		#ifndef NAMALSK_SURVIVAL
 		if ( !m_MenuMusic )
 		{
-			ref SoundParams soundParams			= new SoundParams( "Expansion_Music_1_SoundSet" );
-			ref SoundObjectBuilder soundBuilder	= new SoundObjectBuilder( soundParams );
-			ref SoundObject soundObject			= soundBuilder.BuildSoundObject();
+			SoundParams soundParams			= new SoundParams( "Expansion_Music_2_SoundSet" );
+			SoundObjectBuilder soundBuilder	= new SoundObjectBuilder( soundParams );
+			SoundObject soundObject			= soundBuilder.BuildSoundObject();
 			soundObject.SetKind( WaveKind.WAVEMUSIC );
 			m_MenuMusic = GetGame().GetSoundScene().Play2D(soundObject, soundBuilder);
 			m_MenuMusic.Loop( true );

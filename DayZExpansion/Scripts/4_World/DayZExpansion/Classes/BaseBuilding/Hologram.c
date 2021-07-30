@@ -1009,7 +1009,7 @@ modded class Hologram
 
 				while ( objects[i].MemoryPointExists( "ex_snap_pos_" + snapIdx ) )
 				{
-					ref ExpansionSnappingPosition snapData = new ExpansionSnappingPosition;
+					ExpansionSnappingPosition snapData = new ExpansionSnappingPosition;
 					snapData.Target = objects[i];
 					snapData.Index = snapIdx;
 					snapData.Position = objects[i].GetMemoryPointPos( "ex_snap_pos_" + snapIdx );

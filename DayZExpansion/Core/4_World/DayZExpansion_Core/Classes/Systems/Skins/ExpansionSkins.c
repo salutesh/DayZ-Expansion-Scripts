@@ -61,7 +61,7 @@ class ExpansionSkins : Managed
 		Print("ExpansionSkins::AddSkin - Start");
 		#endif
 		
-		ref ExpansionSkin skin = new ExpansionSkin;
+		ExpansionSkin skin = new ExpansionSkin;
 		JsonFileLoader< ExpansionSkin >.JsonLoadFile( path, skin );
 		
 		m_Skins.Insert( name, skin );

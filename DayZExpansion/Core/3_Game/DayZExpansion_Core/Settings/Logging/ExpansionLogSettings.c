@@ -85,7 +85,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionLogSettings thisSetting = this;
+		ExpansionLogSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -124,7 +124,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionLogSettings s )
+	private void CopyInternal( ExpansionLogSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionLogSettings::CopyInternal - Start");

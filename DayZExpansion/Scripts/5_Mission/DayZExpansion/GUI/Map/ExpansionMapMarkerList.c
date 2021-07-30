@@ -579,7 +579,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion GetPersonalEntrys
 	// ------------------------------------------------------------	
-	ref array<ref ExpansionMapMarkerListEntry> GetPersonalEntrys()
+	array<ref ExpansionMapMarkerListEntry> GetPersonalEntrys()
 	{
 		return m_PersonalMarkers; 
 	}
@@ -587,7 +587,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion GetPartyEntrys
 	// ------------------------------------------------------------	
-	ref array<ref ExpansionMapMarkerListEntry> GetPartyEntrys()
+	array<ref ExpansionMapMarkerListEntry> GetPartyEntrys()
 	{
 		return m_PartyMarkers; 
 	}
@@ -595,7 +595,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion GetPartyEntrys
 	// ------------------------------------------------------------	
-	ref array<ref ExpansionMapMarkerListEntry> GetMemberEntrys()
+	array<ref ExpansionMapMarkerListEntry> GetMemberEntrys()
 	{
 		return m_MemberMarkers; 
 	}
@@ -603,7 +603,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion GetServerEntrys
 	// ------------------------------------------------------------	
-	ref array<ref ExpansionMapMarkerListEntry> GetServerEntrys()
+	array<ref ExpansionMapMarkerListEntry> GetServerEntrys()
 	{
 		return m_ServerMarkers; 
 	}

@@ -26,7 +26,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMarker SetLocation
 	// ------------------------------------------------------------
-	void SetLocation(ref ExpansionSpawnLocation location)
+	void SetLocation( ExpansionSpawnLocation location)
 	{		
 		m_Location = location;
 	}
@@ -69,7 +69,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 		switch ( w )
 		{
 		case m_EditButton:
-			ref ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+			ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
 			if ( menu )
 				menu.SetSpawnPoint( m_Location, false );
 			break;

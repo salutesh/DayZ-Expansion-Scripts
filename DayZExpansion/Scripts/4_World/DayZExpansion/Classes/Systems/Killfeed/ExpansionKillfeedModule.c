@@ -899,7 +899,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			if( !KillFeedCheckServerSettings(type) )
 				return;
 	
-			ref ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
+			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
 			
 			ScriptRPC message_rpc = new ScriptRPC();
 			message_rpc.Write( kill_data );
@@ -1048,8 +1048,8 @@ class ExpansionKillFeedModule: JMModuleBase
 		
 		if ( GetExpansionSettings().GetNotification().EnableKillFeedDiscordMsg )
 		{
-			ref JMWebhookDiscordMessage discord_message = m_Webhook.CreateDiscordMessage();
-	   		ref JMWebhookDiscordEmbed discord_embed = discord_message.GetEmbed();
+			JMWebhookDiscordMessage discord_message = m_Webhook.CreateDiscordMessage();
+	   		JMWebhookDiscordEmbed discord_embed = discord_message.GetEmbed();
 	
 			string message = SetMessage(type);
 						
@@ -1221,7 +1221,11 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -1235,7 +1239,7 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ExpansionKillFeedModule RPC_SendMessage
 	// Called on all Clients
 	// ------------------------------------------------------------
-	private void RPC_SendMessage(PlayerIdentity sender, ref ParamsReadContext ctx )
+	private void RPC_SendMessage(PlayerIdentity sender, ParamsReadContext ctx )
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::RPC_SendMessage - Start" );

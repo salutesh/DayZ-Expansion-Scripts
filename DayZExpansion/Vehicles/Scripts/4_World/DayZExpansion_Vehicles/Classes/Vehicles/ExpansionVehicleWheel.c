@@ -95,7 +95,7 @@ class ExpansionVehicleWheel
 	
 	private ref array< vector > m_WheelVertexPositions;
 
-	void ExpansionVehicleWheel( ExpansionVehicleBase pVehicle, ref ExpansionVehicleAxle pAxle, string pName, int pIdx )
+	void ExpansionVehicleWheel( ExpansionVehicleBase pVehicle, ExpansionVehicleAxle pAxle, string pName, int pIdx )
 	{
 		m_WheelVertexPositions = new array< vector >();
 		

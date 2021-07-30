@@ -14,7 +14,7 @@ class ExpansionCOTVehicleForm: ExpansionCOTFormBase
 {
 	private ExpansionCOTVehicleModule m_Module;
 
-	override bool SetExpansionModule( ref ExpansionCOTModuleBase mdl )
+	override bool SetExpansionModule(  ExpansionCOTModuleBase mdl )
 	{
 		return Class.CastTo( m_Module, mdl );
 	}

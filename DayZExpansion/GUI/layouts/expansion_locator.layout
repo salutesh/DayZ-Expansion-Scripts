@@ -1,7 +1,7 @@
 FrameWidgetClass rootFrame {
  ignorepointer 1
  position 0 0
- size 0.8 0.8
+ size 0.8 0.7
  halign center_ref
  valign center_ref
  hexactpos 0
@@ -18,7 +18,7 @@ FrameWidgetClass rootFrame {
    hexactsize 0
    vexactsize 0
    style DayZNormal
-   font "gui/fonts/etelkatextpro48"
+   font "gui/fonts/etelkatextpro28"
    "exact text" 1
    "size to text h" 1
    "size to text v" 1
@@ -27,15 +27,17 @@ FrameWidgetClass rootFrame {
   }
   RichTextWidgetClass ExpansionTime {
    ignorepointer 1
-   position 0 0.042
+   position 0 0.035
    size 1 0.05
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 0
    style DayZNormal
-   font "gui/fonts/etelkatextpro28"
+   font "gui/fonts/etelkatextpro22"
    "exact text" 1
+   "size to text h" 1
+   "size to text v" 1
    "text valign" center
   }
  }

@@ -26,7 +26,7 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion ExpansionFlagMenuTextureEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionFlagMenuTextureEntry(Widget parent, ref ExpansionFlagTexture texture)
+	void ExpansionFlagMenuTextureEntry(Widget parent, ExpansionFlagTexture texture)
 	{
 		m_Root			= GridSpacerWidget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/flag/expansion_flag_menu_texture_entry.layout", parent ) );
 		m_Button		= ButtonWidget.Cast( m_Root.FindAnyWidget("texture_entry_button") );
@@ -62,7 +62,7 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// Expansion GetTextureData
 	// ------------------------------------------------------------
-	ref ExpansionFlagTexture GetTextureData()
+	ExpansionFlagTexture GetTextureData()
 	{
 		return m_Texture;
 	}

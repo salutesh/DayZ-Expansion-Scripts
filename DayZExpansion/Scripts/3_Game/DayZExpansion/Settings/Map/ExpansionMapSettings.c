@@ -78,7 +78,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	bool AddServerMarker( ref ExpansionMarkerData marker )
+	bool AddServerMarker(  ExpansionMarkerData marker )
 	{
 		if ( marker.GetUID() == "" )
 		{
@@ -103,14 +103,14 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		EXPrint("ExpansionMapSettings::RemoveServerMarker - Start");
 		#endif
 		
-		ref ExpansionMarkerData server_markerMap = ServerMarkersMap.Get( uid );
+		ExpansionMarkerData server_markerMap = ServerMarkersMap.Get( uid );
 		if ( server_markerMap )
 		{
 			ServerMarkersMap.Remove( uid );
 		
 			for ( int index = 0; index < ServerMarkers.Count(); ++index )
 			{
-				ref ExpansionMarkerData server_marker = ServerMarkers[index];
+				ExpansionMarkerData server_marker = ServerMarkers[index];
 				if ( server_marker.GetUID() == uid )
 				{
 					ServerMarkers.Remove( index );
@@ -294,7 +294,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionMapSettings s, bool copyServerMarkers = true )
+	private void CopyInternal(  ExpansionMapSettings s, bool copyServerMarkers = true )
 	{
 		EnableHUDCompass = s.EnableHUDCompass;
 		NeedCompassItemForHUDCompass = s.NeedCompassItemForHUDCompass;
@@ -306,7 +306,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionMapSettingsBase s, bool copyServerMarkers = true )
+	private void CopyInternal(  ExpansionMapSettingsBase s, bool copyServerMarkers = true )
 	{
 		if ( copyServerMarkers )
 		{

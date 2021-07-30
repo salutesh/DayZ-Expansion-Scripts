@@ -98,7 +98,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	void LoadTextureList()
 	{
-		ref array<ref ExpansionFlagTexture> flagTextures = GetExpansionStatic().GetFlagTextures();
+		array<ref ExpansionFlagTexture> flagTextures = GetExpansionStatic().GetFlagTextures();
 		if (flagTextures.Count() == 0)
 			return;
 		
@@ -120,7 +120,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion SetCurrentTexture
 	// ------------------------------------------------------------
-	void SetCurrentTexture(ref ExpansionFlagTexture texture)
+	void SetCurrentTexture( ExpansionFlagTexture texture)
 	{
 		if (!texture)
 			return;

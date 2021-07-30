@@ -71,7 +71,7 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionPartySettings thisSetting = this;
+		ExpansionPartySettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -111,7 +111,7 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionPartySettings s )
+	private void CopyInternal(  ExpansionPartySettings s )
 	{
 		ShowPartyMemberHUD = s.ShowPartyMemberHUD;
 		
@@ -120,7 +120,7 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionPartySettingsBase s )
+	private void CopyInternal(  ExpansionPartySettingsBase s )
 	{
 		EnableParties = s.EnableParties;
 		MaxMembersInParty = s.MaxMembersInParty;

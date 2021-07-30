@@ -19,7 +19,7 @@ class ExpansionBuildNoBuildZone
 	bool IsWhitelist;
 	string CustomMessage;  //! Custom message for this zone if conditions are not met (optional, uses default message if not set)
 
-	void ExpansionBuildNoBuildZone( string name, vector center, float radius, ref TStringArray items, bool is_whitelist = true, string message = "" )
+	void ExpansionBuildNoBuildZone( string name, vector center, float radius, TStringArray items, bool is_whitelist = true, string message = "" )
 	{
 		Name = name;
 		Center = center;

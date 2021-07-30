@@ -106,7 +106,7 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionNotificationSettings thisSetting = this;
+		ExpansionNotificationSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -145,7 +145,7 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionNotificationSettings s )
+	private void CopyInternal(  ExpansionNotificationSettings s )
 	{
 		ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
 		ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
@@ -157,7 +157,7 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionNotificationSettingsBase s )
+	private void CopyInternal(  ExpansionNotificationSettingsBase s )
 	{
 		EnableNotification = s.EnableNotification;
 		ShowPlayerJoinServer = s.ShowPlayerJoinServer;

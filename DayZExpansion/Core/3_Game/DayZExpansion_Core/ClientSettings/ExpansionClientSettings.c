@@ -765,7 +765,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateCategory - Start");
 		#endif
 		
-		ExpansionClientSettingCategory category = new ref ExpansionClientSettingCategory;
+		ExpansionClientSettingCategory category = new ExpansionClientSettingCategory;
 
 		category.m_Name = name;
 		category.m_DisplayName = displayName;
@@ -787,7 +787,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateToggle - Start");
 		#endif
 		
-		ExpansionSettingSerializationToggle setting = new ref ExpansionSettingSerializationToggle;
+		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -811,7 +811,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateSlider - Start");
 		#endif
 		
-		ExpansionSettingSerializationSlider setting = new ref ExpansionSettingSerializationSlider;
+		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -838,7 +838,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateInt - Start");
 		#endif
 		
-		ExpansionSettingSerializationInt setting = new ref ExpansionSettingSerializationInt;
+		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -862,7 +862,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateEnum - Start");
 		#endif
 		
-		ExpansionSettingSerializationEnum setting = new ref ExpansionSettingSerializationEnum;
+		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -894,7 +894,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateString - Start");
 		#endif
 		
-		ExpansionSettingSerializationString setting = new ref ExpansionSettingSerializationString;
+		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -912,7 +912,7 @@ class ExpansionClientSettings
 
 static ref ExpansionClientSettings g_ExClientSettings;
 
-ref ExpansionClientSettings GetExpansionClientSettings()
+ExpansionClientSettings GetExpansionClientSettings()
 {
 	#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 	EXLogPrint("ExpansionClientSettings::GetExpansionClientSettings - Start");

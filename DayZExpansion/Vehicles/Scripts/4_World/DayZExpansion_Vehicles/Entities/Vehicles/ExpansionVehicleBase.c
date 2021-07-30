@@ -454,24 +454,19 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		m_SoundVariables = new array< float >();
-		m_SoundControls = new array< string >();
+		for (i = 0; i < ExpansionVehicleSoundManager.s_SoundShaderParameters.Count(); i++)
+			m_SoundVariables.Insert(0);
 
 		m_SoundControllers = new array< ref ExpansionVehicleSound >();
 
 		if ( IsMissionClient() )
 		{
-			GetSoundControls( m_SoundControls );
-
-			for ( i = 0; i < m_SoundControls.Count(); i++ )
-				m_SoundVariables.Insert( 0 );
-
 			path = "CfgVehicles " + GetType() + " Sounds soundSetsFilter";
 			array< string > soundSetNames = new array< string >();
 			GetGame().ConfigGetTextArray( path, soundSetNames );
 			for ( i = 0; i < soundSetNames.Count(); i++ )
 			{
-				ref ExpansionVehicleSound soundController = new ExpansionVehicleSound( this, soundSetNames[i], m_SoundControls );
-				m_SoundControllers.Insert( soundController );
+				m_SoundControllers.Insert(new ExpansionVehicleSound(this, soundSetNames[i]));
 			}
 		}
 
@@ -1579,12 +1574,12 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	protected void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 	}
 
 	// ------------------------------------------------------------
-	protected void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 	}
 
@@ -1699,7 +1694,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ref ExpansionVehicleAxle GetAxle( int axle )
+	ExpansionVehicleAxle GetAxle( int axle )
 	{
 		return m_Axles[axle];
 	}
@@ -1852,7 +1847,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ref ExpansionVehicleController GetExpansionController()
+ ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -1875,7 +1870,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	void CreateLights( Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0 )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -1914,7 +1909,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	void CreateParticle( Object lod, string point, int type )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -2295,7 +2290,7 @@ class ExpansionVehicleBase extends ItemBase
 			m_ActionsInitialize = false;
 			return;
 		}
-		ref array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
+		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
 		
 		if(!action_array)
 		{
@@ -2315,7 +2310,7 @@ class ExpansionVehicleBase extends ItemBase
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		ActionBase action = player.GetActionManager().GetAction(actionName);
 		typename ai = action.GetInputType();
-		ref array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
+		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
 		
 		if(action_array)
 		{
@@ -2920,16 +2915,6 @@ class ExpansionVehicleBase extends ItemBase
 				break;
 			}
 		}
-	}
-
-	void GetSoundControls( inout array< string > names )
-	{
-		names.Insert("rpm");
-		names.Insert("engineOn");
-		names.Insert("campos");
-		names.Insert("doors");
-		names.Insert("speed");
-		names.Insert("thrust");
 	}
 
 ////////////////////////////////////////////////////////////////////

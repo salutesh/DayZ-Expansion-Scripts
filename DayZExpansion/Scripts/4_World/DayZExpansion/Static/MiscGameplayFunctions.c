@@ -82,7 +82,7 @@ modded class MiscGameplayFunctions
 
 		array<ref array<Object>> tempGroups = new array<ref array<Object>>;
 		array<ref array<Object>> objectGroups = new array<ref array<Object>>;
-		ref array<Object> group;
+		array<Object> group;
 		
 		float cos = Math.Cos(90);
 		float sin = Math.Sin(90);

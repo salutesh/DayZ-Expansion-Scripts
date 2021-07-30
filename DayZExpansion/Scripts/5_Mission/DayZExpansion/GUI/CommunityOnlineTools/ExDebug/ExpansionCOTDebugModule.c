@@ -48,7 +48,7 @@ class ExpansionCOTDebugModule: ExpansionCOTModuleBase
 		return "Expansion Debug Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetDebug();
 	}
@@ -82,7 +82,7 @@ class ExpansionCOTDebugModule: ExpansionCOTModuleBase
 		return ExpansionCOTDebugModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -95,12 +95,12 @@ class ExpansionCOTDebugModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionDebugSettings setting = new ExpansionDebugSettings();
+		ExpansionDebugSettings setting = new ExpansionDebugSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

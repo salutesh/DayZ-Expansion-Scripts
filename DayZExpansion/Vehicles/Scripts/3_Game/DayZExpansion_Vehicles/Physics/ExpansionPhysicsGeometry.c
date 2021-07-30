@@ -25,7 +25,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		Frame[3] = "0 0 0";
 	}
 
-	static ref ExpansionPhysicsGeometry Create()
+	static ExpansionPhysicsGeometry Create()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::Create");
@@ -34,7 +34,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		return new ExpansionPhysicsGeometry( "", NULL, "material/default", 0xFFFFFFFF );
 	}
 
-	static ref ExpansionPhysicsGeometry CreateBox( vector size )
+	static ExpansionPhysicsGeometry CreateBox( vector size )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::Create");
@@ -46,7 +46,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		return geom;
 	}
 
-	ref ExpansionPhysicsGeometry SetGeom( dGeom geom )
+	ExpansionPhysicsGeometry SetGeom( dGeom geom )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::SetGeom");
@@ -57,7 +57,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		return this;
 	}
 
-	ref ExpansionPhysicsGeometry SetMaterial( string materialName )
+	ExpansionPhysicsGeometry SetMaterial( string materialName )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::SetMaterial");
@@ -68,7 +68,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		return this;
 	}
 
-	ref ExpansionPhysicsGeometry SetMask( int layerMask )
+	ExpansionPhysicsGeometry SetMask( int layerMask )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::SetMask");
@@ -79,7 +79,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		return this;
 	}
 
-	ref ExpansionPhysicsGeometry SetTransform( Transform transform )
+	ExpansionPhysicsGeometry SetTransform( Transform transform )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::SetTransform");
@@ -93,7 +93,7 @@ class ExpansionPhysicsGeometry: PhysicsGeomDef
 		return this;
 	}
 
-	ref ExpansionPhysicsGeometry SetPosition( vector position )
+	ExpansionPhysicsGeometry SetPosition( vector position )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysicsGeometry::SetPosition");

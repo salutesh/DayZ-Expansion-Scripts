@@ -380,7 +380,11 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule OnRPC
 	// ------------------------------------------------------------	
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -390,7 +394,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule CreateServerMarker
 	// ------------------------------------------------------------
-	ref ExpansionMarkerData CreateServerMarker( string name, string icon, vector position, int color, bool marker3D, string uid = "" )
+	ExpansionMarkerData CreateServerMarker( string name, string icon, vector position, int color, bool marker3D, string uid = "" )
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::CreateServerMarker - Start");
@@ -452,7 +456,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule CreateMarker
 	// ------------------------------------------------------------
-	bool CreateMarker( ref ExpansionMarkerData data )
+	bool CreateMarker(  ExpansionMarkerData data )
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::CreateMarker - Start");
@@ -484,7 +488,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule UpdateMarker
 	// ------------------------------------------------------------
-	bool UpdateMarker( ref ExpansionMarkerData data )
+	bool UpdateMarker(  ExpansionMarkerData data )
 	{		
 		int type = data.GetType();
 		switch ( type )
@@ -508,7 +512,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule GetData
 	// ------------------------------------------------------------
-	ref ExpansionMarkerClientData GetData()
+	ExpansionMarkerClientData GetData()
 	{
 		return m_CurrentData;
 	}
@@ -552,7 +556,7 @@ class ExpansionMarkerModule: JMModuleBase
 
 		for ( i = 0; i < removing.Count(); ++i )
 		{
-			ref Expansion3DMarker marker = m_3DMarkers[i];
+			Expansion3DMarker marker = m_3DMarkers[i];
 
 			m_3DMarkers.Remove( removing[i] );
 
@@ -648,7 +652,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule SetVisibility
 	// ------------------------------------------------------------
-	int SetVisibility( ref ExpansionMarkerData data, int vis )
+	int SetVisibility(  ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
 
@@ -670,7 +674,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule FlipVisibility
 	// ------------------------------------------------------------
-	int FlipVisibility( ref ExpansionMarkerData data, int vis )
+	int FlipVisibility(  ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
 		
@@ -692,7 +696,7 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule RemoveVisibility
 	// ------------------------------------------------------------
-	int RemoveVisibility( ref ExpansionMarkerData data, int vis )
+	int RemoveVisibility(  ExpansionMarkerData data, int vis )
 	{
 		int type = data.GetType();
 		

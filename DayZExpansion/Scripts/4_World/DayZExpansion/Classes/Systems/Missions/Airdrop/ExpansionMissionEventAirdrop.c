@@ -69,13 +69,13 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		
 		if ( IsMissionHost() )
 		{
-			ref ExpansionAirdropLootContainer container;
+			ExpansionAirdropLootContainer container;
 
 			if ( Loot.Count() == 0 || Infected.Count() == 0 )
 			{
 				//! No mission-specific loot and/or infected defined, fall back to airdrop settings
 
-				ref array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
+				array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
 
 				//! Get all containers enabled for mission use that match our container name (or any if random)
 				string containerName = Container;
@@ -114,7 +114,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				}
 				//! 2. Take mission weight into account
 				float weight = ( Weight + weightSum - maxWeight ) / containers.Count();
-				ref array< float > weights = new array< float >;
+				array< float > weights = new array< float >;
 				for ( i = 0; i < containers.Count(); i++ )
 				{
 					float cweight;
@@ -157,8 +157,8 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 			container = new ExpansionAirdropLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount );
 
-			ref StringLocaliser warningProximityMsg;
-			ref StringLocaliser airdropCreatedMsg;
+			StringLocaliser warningProximityMsg;
+			StringLocaliser airdropCreatedMsg;
 
 			if ( ShowNotification )
 			{

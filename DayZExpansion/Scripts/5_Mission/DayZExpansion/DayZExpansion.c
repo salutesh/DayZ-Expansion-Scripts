@@ -96,7 +96,7 @@ modded class DayZExpansion
 	// ------------------------------------------------------------
 	// Expansion ConfirmWeaponFire
 	// ------------------------------------------------------------
-	void ConfirmWeaponFire( CallType type, ref ParamsReadContext ctx, PlayerIdentity sender, ref Object target )
+	void ConfirmWeaponFire( CallType type, ParamsReadContext ctx, PlayerIdentity sender, Object target )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::ConfirmWeaponFire - Start");

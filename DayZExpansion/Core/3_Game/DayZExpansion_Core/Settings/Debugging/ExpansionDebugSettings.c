@@ -58,7 +58,7 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionDebugSettings thisSetting = this;
+		ExpansionDebugSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -97,7 +97,7 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionDebugSettings s )
+	private void CopyInternal( ExpansionDebugSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionDebugSettings::CopyInternal - Start");

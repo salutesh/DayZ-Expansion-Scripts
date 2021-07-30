@@ -13,61 +13,61 @@
 class ExpansionIngameHud extends Hud
 {
 	//! HUD UI META
-	protected Widget										m_WgtRoot;
+	protected Widget														m_WgtRoot;
 	protected ref ExpansionIngameHudEventHandler 			m_ExpansionEventHandler;
 	
 	//! CONDITIONS
-	protected bool											m_ExpansionHudState;
-	protected bool 											m_ExpansionHudGPSState;
-	protected bool											m_ExpansionHudGPSMapState;
-	protected bool											m_ExpansionHudGPSMapStatsState;
-	protected bool											m_ExpansionHudNVState;
-	protected bool											m_ExpansionEarplugState;
-	protected bool 											m_ExpansionGPSSetting;
-	protected int											m_ExpansionGPSPosSetting;
-	protected bool											m_ExpansionNVSetting;
-	protected bool											m_ExpansionPartyMemberSetting;
-	protected bool											m_ExpansionCompassSetting;
-	protected bool											m_ExpansionHudCompassState;
+	protected bool															m_ExpansionHudState;
+	protected bool 															m_ExpansionHudGPSState;
+	protected bool															m_ExpansionHudGPSMapState;
+	protected bool															m_ExpansionHudGPSMapStatsState;
+	protected bool															m_ExpansionHudNVState;
+	protected bool															m_ExpansionEarplugState;
+	protected bool 															m_ExpansionGPSSetting;
+	protected int																m_ExpansionGPSPosSetting;
+	protected bool															m_ExpansionNVSetting;
+	protected bool															m_ExpansionPartyMemberSetting;
+	protected bool															m_ExpansionCompassSetting;
+	protected bool															m_ExpansionHudCompassState;
 	
 	//! GPS
-	protected Widget										m_GPSPanel;
-	protected Widget										m_MapStatsPanel;
-	protected Widget 										m_MapPosPanel;
-	protected TextWidget 									m_PlayerPosVal;
-	protected Widget 										m_PlayerPosPanel;
-	protected TextWidget									m_PlayerALTVal;
-	protected Widget 										m_PlayerALTPanel;
-	protected TextWidget 									m_PlayerDirVal;
-	protected Widget 										m_PlayerDirPanel;
+	protected Widget														m_GPSPanel;
+	protected Widget														m_MapStatsPanel;
+	protected Widget 														m_MapPosPanel;
+	protected TextWidget 													m_PlayerPosVal;
+	protected Widget 														m_PlayerPosPanel;
+	protected TextWidget													m_PlayerALTVal;
+	protected Widget 														m_PlayerALTPanel;
+	protected TextWidget 													m_PlayerDirVal;
+	protected Widget 														m_PlayerDirPanel;
 	
-	protected Widget										m_GPSMapPanel;
-	protected Widget										m_MapFrame;
-	protected MapWidget										m_MapWidget;
-	protected ref ExpansionMapMarkerPlayerArrow 			m_PlayerArrowMarker;
+	protected Widget														m_GPSMapPanel;
+	protected Widget														m_MapFrame;
+	protected MapWidget													m_MapWidget;
+	protected ref ExpansionMapMarkerPlayerArrow 				m_PlayerArrowMarker;
 	
-	protected float											m_GPSMapScale = 0.1;
+	protected float															m_GPSMapScale = 0.1;
 	
 	//! NIGHTVISION
-	protected Widget 										m_NVPanel;
-	protected ImageWidget 									m_NVOverlayImage;
-	protected ImageWidget 									m_NVBatteryIcon;
-	protected TextWidget									m_NVBatteryVal;
-	protected int											m_NVBatteryState;
+	protected Widget 														m_NVPanel;
+	protected ImageWidget 												m_NVOverlayImage;
+	protected ImageWidget 												m_NVBatteryIcon;
+	protected TextWidget													m_NVBatteryVal;
+	protected int																m_NVBatteryState;
 	//! EARPLUG
-	protected ImageWidget 									m_EarPlugIcon;
+	protected ImageWidget 												m_EarPlugIcon;
 	
 	//! LEFT HUD PANEL
-	protected WrapSpacerWidget								m_LeftHUDPanel;
-	protected WrapSpacerWidget 								m_PartyMembersHUDPanel;
+	protected WrapSpacerWidget										m_LeftHUDPanel;
+	protected WrapSpacerWidget 										m_PartyMembersHUDPanel;
 	
 	//! PARTY HUD MEMBERS
-	ref array<ref ExpansionIngameHudPartyMember> 			m_PartyMembers;
+	ref array<ref ExpansionIngameHudPartyMember> 		m_PartyMembers;
 	
 	//! COMPASS HUD
-	protected Widget										m_CompassPanel;
-	protected ImageWidget									m_CompassImage;
-	protected bool											m_AddedCompassSettings;
+	protected Widget														m_CompassPanel;
+	protected ImageWidget												m_CompassImage;
+	protected bool															m_AddedCompassSettings;
 	
 	// ------------------------------------------------------------
 	// ExpansionIngameHud Constructor
@@ -81,7 +81,14 @@ class ExpansionIngameHud extends Hud
 		m_ExpansionEarplugState = false;
 		m_AddedCompassSettings = false;
 		
-		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshExpansionHudVisibility );
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
+		
+		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		{
+			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			if (partyModule)
+				partyModule.m_PartyHUDInvoker.Insert(UpdatePartyMembers);
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
@@ -105,6 +112,13 @@ class ExpansionIngameHud extends Hud
 			delete m_PartyMembers;
 
 		ClearPartyMembers();
+		
+		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		{
+			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			if (partyModule)
+				partyModule.m_PartyHUDInvoker.Remove(UpdatePartyMembers);
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud End");
@@ -299,11 +313,7 @@ class ExpansionIngameHud extends Hud
 			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
 		
 		if ( m_PartyMembersHUDPanel )
-		{
 			m_PartyMembersHUDPanel.Show( m_ExpansionHudState && m_ExpansionPartyMemberSetting );
-			if ( m_PartyMembersHUDPanel.IsVisible() )
-				UpdatePartyMembers();
-		}
 		
 		if ( m_CompassPanel )
 		{
@@ -787,13 +797,17 @@ class ExpansionIngameHud extends Hud
 	// ------------------------------------------------------------
 	void AddPartyMember(string id)
 	{
-		ref SyncPlayer playerSync;
+		SyncPlayer playerSync;
 		if (IsPlayerOnline(id, playerSync))
 		{
 			if (playerSync)
 			{
-				ExpansionIngameHudPartyMember memberEntry = new ExpansionIngameHudPartyMember(this, playerSync);
-				m_PartyMembers.Insert(memberEntry);
+				ExpansionIngameHudPartyMember memberEntry = new ExpansionIngameHudPartyMember(playerSync.m_RUID, playerSync.m_PlayerName);
+				if (memberEntry && m_PartyMembers && GetPartyMembersSpacer())
+				{
+					m_PartyMembers.Insert(memberEntry);
+					GetPartyMembersSpacer().AddChild(memberEntry.GetLayoutRoot(), true);
+				}
 			}
 		}
 	}
@@ -805,34 +819,34 @@ class ExpansionIngameHud extends Hud
 	{
 		for (int i = 0; i < m_PartyMembers.Count(); i++)
 		{
-			if (m_PartyMembers[i].m_SyncedPlayer.m_RUID == id)
+			if (m_PartyMembers[i].m_PlayerID== id)
 			{
 				m_PartyMembers.Remove(i);
 			}
 		}
 	}
-	
+		
 	// ------------------------------------------------------------
 	// Expansion UpdatePartyMembers
 	// ------------------------------------------------------------
-	void UpdatePartyMembers()
+	void UpdatePartyMembers(ExpansionPartyModule partyModule, ExpansionPartyData party)
 	{
-		if ( GetGame() && GetGame().GetPlayer() )
+		if (m_PartyMembersHUDPanel.IsVisible())
 		{
-			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-			if (partyModule && partyModule.HasParty() && partyModule.GetParty())
-			{
-				if (!m_PartyMembers)
-					m_PartyMembers = new array<ref ExpansionIngameHudPartyMember>;
-							
-				ref ExpansionPartyData party = partyModule.GetParty();
-				if (party)
+			if (GetGame() && GetGame().GetPlayer())
+			{				
+				if (partyModule && party)
 				{
+					if (!m_PartyMembers)
+						m_PartyMembers = new array<ref ExpansionIngameHudPartyMember>;
+					
 					string playerID = GetGame().GetPlayer().GetIdentity().GetId();
-					ref TStringArray hudMemberIDs = new TStringArray;
+					TStringArray hudMemberIDs = new TStringArray;
+					bool isMember = false;
+					
 					for (int j = 0; j < m_PartyMembers.Count(); j++)
 					{
-						string partyHudMemberID = m_PartyMembers[j].m_SyncedPlayer.m_RUID;
+						string partyHudMemberID = m_PartyMembers[j].m_PlayerID;
 						hudMemberIDs.Insert(partyHudMemberID);
 					}
 					
@@ -841,17 +855,23 @@ class ExpansionIngameHud extends Hud
 						int foundIndex = -1;
 						string partyMemberID = party.GetPlayers()[i].UID;
 						foundIndex = hudMemberIDs.Find(partyMemberID);
-						ref SyncPlayer player;
-						if (foundIndex == -1 && playerID != partyMemberID && IsPlayerOnline(partyMemberID, player))
+						SyncPlayer player;
+						
+						if (foundIndex == -1 && IsPlayerOnline(partyMemberID, player) && playerID != partyMemberID)
 						{
 							AddPartyMember(partyMemberID);
-						}				
+						}
+						
+						if (foundIndex > -1 && !IsPlayerOnline(partyMemberID, player))
+						{
+							RemovePartyMember(partyMemberID);
+						}
 					}
 				}
-			}
-			else
-			{
-				ClearPartyMembers();
+				else
+				{
+					ClearPartyMembers();
+				}
 			}
 		}
 	}
@@ -859,11 +879,11 @@ class ExpansionIngameHud extends Hud
 	// ------------------------------------------------------------
 	// Expansion IsPlayerOnline
 	// ------------------------------------------------------------
-	bool IsPlayerOnline(string uid, out ref SyncPlayer syncPlayer)
+	bool IsPlayerOnline(string uid, out SyncPlayer syncPlayer)
 	{
 		if (ClientData.m_PlayerList)
 		{
-			foreach (SyncPlayer player : ClientData.m_PlayerList.m_PlayerList)
+			foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
 			{
 				if (player)
 				{

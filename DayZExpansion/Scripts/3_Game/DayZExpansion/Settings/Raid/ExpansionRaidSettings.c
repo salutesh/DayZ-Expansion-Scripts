@@ -133,7 +133,7 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionRaidSettings thisSetting = this;
+		ExpansionRaidSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -173,7 +173,7 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionRaidSettings s )
+	private void CopyInternal(  ExpansionRaidSettings s )
 	{
 		//!Nothing to do here yet
 		
@@ -182,7 +182,7 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionRaidSettingsBase s )
+	private void CopyInternal(  ExpansionRaidSettingsBase s )
 	{
 		/*
 		RaidValues.Clear();

@@ -272,13 +272,20 @@
                     "SectionName": "Flaticon",
                     "SectionLines": [
 						"Some icons used are made by Pixel perfect from www.flaticon.com",
-                        "Copyright © 2013-2020 Freepik Company S.L. All rights reserved."
+                        "Copyright © 2013-2021 Freepik Company S.L. All rights reserved."
                     ]
                 },
                 {
                     "SectionName": "Allegorithmic",
                     "SectionLines": [
-                        "Copyright © 2020 Adobe. All rights reserved."
+                        "Copyright © 2021 Adobe. All rights reserved."
+                    ]
+                },
+                {
+                    "SectionName": "Main Menu Song",
+                    "SectionLines": [
+                        "Song: 'The Climb - by Scott Buckley' is under a creative commons license.",
+                        "Music promoted by BreakingCopyright: https://www.youtube.com/watch?v=cHo2qvFLOQo"
                     ]
                 }
             ]

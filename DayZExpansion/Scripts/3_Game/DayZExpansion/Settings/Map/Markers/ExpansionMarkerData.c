@@ -46,7 +46,7 @@ class ExpansionMarkerData
 		SetVisibility( EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 	}
 
-	static ref ExpansionMarkerData Create( ExpansionMapMarkerType type, string uid = "" )
+	static ExpansionMarkerData Create( ExpansionMapMarkerType type, string uid = "" )
 	{
 		switch ( type )
 		{
@@ -65,12 +65,12 @@ class ExpansionMarkerData
 		return NULL;
 	}
 
-	static ref ExpansionMarkerData Copy( ref ExpansionMarkerData src, ExpansionMapMarkerType type = ExpansionMapMarkerType.UNKNOWN, string uid = "" )
+	static ExpansionMarkerData Copy(  ExpansionMarkerData src, ExpansionMapMarkerType type = ExpansionMapMarkerType.UNKNOWN, string uid = "" )
 	{
 		if ( type == ExpansionMapMarkerType.UNKNOWN )
 			type = src.GetType();
 
-		ref ExpansionMarkerData dst = Create( type, uid );
+		ExpansionMarkerData dst = Create( type, uid );
 		if ( !dst )
 			return NULL;
 
@@ -184,7 +184,7 @@ class ExpansionMarkerData
 		}
 	}
 
-	ref ExpansionIcon GetIcon()
+	ExpansionIcon GetIcon()
 	{
 		return ExpansionIcons.Get( m_IconName );
 	}
@@ -263,12 +263,12 @@ class ExpansionMarkerData
 		return (m_Visibility & EXPANSION_MARKER_VIS_MAP) != 0;
 	}
 
-	void SetHandler( ref ScriptedWidgetEventHandler handler )
+	void SetHandler(  ScriptedWidgetEventHandler handler )
 	{
 		m_Handler = handler;
 	}
 
-	ref ScriptedWidgetEventHandler GetHandler()
+	ScriptedWidgetEventHandler GetHandler()
 	{
 		return m_Handler;
 	}

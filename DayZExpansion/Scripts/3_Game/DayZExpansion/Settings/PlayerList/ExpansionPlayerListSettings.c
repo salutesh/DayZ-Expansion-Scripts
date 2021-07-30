@@ -54,7 +54,7 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionPlayerListSettings thisSetting = this;
+		ExpansionPlayerListSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -99,7 +99,7 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// ExpansionPlayerListSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionPlayerListSettings s )
+	private void CopyInternal(  ExpansionPlayerListSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPlayerListSettings::CopyInternal - Start");
