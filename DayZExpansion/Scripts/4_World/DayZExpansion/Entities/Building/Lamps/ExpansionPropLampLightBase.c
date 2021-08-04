@@ -60,7 +60,7 @@ class ExpansionPropLampLightBase: Building
 		{
 			m_CastShadow = GetExpansionClientSettings().CastLightShadows;
 			
-			m_CanBeEnabled = (GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableLamps > 0);
+			m_CanBeEnabled = (GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.Disabled);
 	
 			if ( m_CanBeEnabled )
 			{
@@ -124,7 +124,7 @@ class ExpansionPropLampLightBase: Building
 		EXLogPrint("ExpansionLampLightBase::Enable - Start - " + position );
 		#endif
 
-		if ( !LampInGenerator( position ) && GetExpansionSettings().GetGeneral().EnableLamps != 3 )
+		if ( !LampInGenerator( position ) && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.AlwaysOnEverywhere )
 		{
 			return;
 		}
@@ -226,7 +226,7 @@ class ExpansionPropLampLightBase: Building
 		EXLogPrint("ExpansionLampLightBase::Disable - Start - " + position );
 		#endif
 
-		if ( !LampInGenerator( position ) && GetExpansionSettings().GetGeneral().EnableLamps != 3 )
+		if ( !LampInGenerator( position ) && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.AlwaysOnEverywhere )
 		{
 			return;
 		}

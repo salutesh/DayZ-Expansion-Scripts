@@ -32,12 +32,48 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::NotificationSystem - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem CreateNotification
+	// ------------------------------------------------------------	
+	static void CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 3, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	{	
+		if ( IsMissionHost() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Write( title );
+			rpc.Write( text );
+			rpc.Write( icon );
+			rpc.Write( color );
+			rpc.Write( time );
+			rpc.Write( type );
+			rpc.Write( obj );
+			rpc.Send( NULL, NotificationSystemRPC.Create, true, sendTo );
+		} 
+		else
+		{
+			Exec_CreateNotification( title, text, icon, color, time, type, obj );
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionNotificationSystem Exec_CreateNotification
+	// ------------------------------------------------------------	
+	private static void Exec_CreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	{
+		ref NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
+		data.SetColor( color );
+		data.SetType( type );
+		data.SetObject( obj );
+		
+		m_Instance.AddNotif( data );
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem Exec_CreateNotificationEx
 	// ------------------------------------------------------------
 	//! NOTE: Apparently we CAN'T override private static methods, i.e. it appears always the ORIGINAL method is called instead of the override
-	private static void Exec_CreateNotificationEx(  StringLocaliser title, StringLocaliser text, string icon, int color, float time )
+	private static void Exec_CreateNotificationEx(  StringLocaliser title, StringLocaliser text, string icon, int color, float time, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx - Start");
@@ -68,7 +104,9 @@ modded class NotificationSystem
 		NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
 		data.SetColor( color );
 		data.m_LeaveJoinNotif = leaveJoinNotif;
-
+		data.SetType( type );
+		data.SetObject( obj );
+		
 		m_Instance.AddNotif( data );
 		
 		#ifdef EXPANSIONEXLOGPRINT
@@ -103,8 +141,16 @@ modded class NotificationSystem
 		float time;
 		if ( !ctx.Read( time ) )
 			return;
+		
+		int type;
+		if ( !ctx.Read( type ) )
+			return;
+		
+		Object obj;
+		if ( !ctx.Read( obj ) )
+			return;
 
-		Exec_CreateNotificationEx( title, text, icon, color, time );
+		Exec_CreateNotificationEx( title, text, icon, color, time, type, obj );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
@@ -156,8 +202,16 @@ modded class NotificationSystem
 		float time;
 		if ( !ctx.Read( time ) )
 			return;
+		
+		int type;
+		if ( !ctx.Read( type ) )
+			return;
+		
+		Object obj;
+		if ( !ctx.Read( obj ) )
+			return;
 
-		Exec_CreateNotificationEx( title, text, icon, color, time );
+		Exec_CreateNotificationEx( title, text, icon, color, time, type, obj );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");

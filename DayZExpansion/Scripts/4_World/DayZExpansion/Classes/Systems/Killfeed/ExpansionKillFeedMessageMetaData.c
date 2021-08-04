@@ -18,8 +18,9 @@ class ExpansionKillFeedMessageMetaData
 	string FeedParam2;
 	string FeedParam3;
 	string FeedParam4;
+	Object PreviewObject;
 	
-	void ExpansionKillFeedMessageMetaData(ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "")
+	void ExpansionKillFeedMessageMetaData(ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "", Object obj = NULL)
 	{
 		this.Message = SetMessage(type);
 		this.Icon = icon;
@@ -27,6 +28,7 @@ class ExpansionKillFeedMessageMetaData
 		this.FeedParam2 = param2;
 		this.FeedParam3 = param3;
 		this.FeedParam4 = param4;
+		this. PreviewObject = obj;
 	}
 	
 	private string SetMessage(ExpansionKillFeedMessageType type)

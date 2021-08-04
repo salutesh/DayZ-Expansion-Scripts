@@ -420,8 +420,8 @@ modded class PlayerBase
 	
 	// ------------------------------------------------------------
 	// PlayerBase FindNearestFlag
-	// Returns nearest ExpansionFlagBase object at given position
-	// or NULL if no ExpansionFlagBase object is found.
+	// Returns nearest TerritoryFlag object at given position
+	// or NULL if no TerritoryFlag object is found.
 	// ------------------------------------------------------------
 	TerritoryFlag FindNearestFlag()
 	{

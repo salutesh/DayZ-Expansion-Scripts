@@ -466,6 +466,10 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		{
 			DefaultChernarusMarkers();
 		}
+		else if (worldName == "takistanplus")
+		{
+			DefaultTakistanMarkers();
+		}
 	#endif
 		
 		int index = 0;
@@ -540,6 +544,20 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetIconName("Trader");
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(3698, 405, 5988));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+
+		ServerMarkers.Insert(marker);
+	}
+	
+	void DefaultTakistanMarkers()
+	{
+		//! Marastar Oasis
+		ExpansionServerMarkerData marker = new ExpansionServerMarkerData("ServerMarker_Trader_Marastar_Oasis");
+		marker.Set3D(true);
+		marker.SetName("Marastar Oasis");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(4611, 8, 12334));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
 
 		ServerMarkers.Insert(marker);

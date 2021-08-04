@@ -15,9 +15,9 @@
  **/
 class ExpansionNotificationModule: JMModuleBase
 {
-	protected ref array< ref ExpansionNotificationUI > m_Notifications;
-	protected ref array< ref NotificationRuntimeData > m_NotificationData;
-	protected ref ExpansionNotificationUIGrid m_NotificationUIGrid;
+	ref array<ref ExpansionNotificationView> m_Notifications;
+	ref array<ref NotificationRuntimeData> m_NotificationData;
+	ref ExpansionNotificationHUD m_NotificationHUD;
 	
 	// ------------------------------------------------------------
 	void ExpansionNotificationModule()
@@ -26,15 +26,13 @@ class ExpansionNotificationModule: JMModuleBase
 		EXPrint("ExpansionNotificationModule::ExpansionNotificationModule - Start");
 		#endif
 		
-		m_Notifications = new array< ref ExpansionNotificationUI >;
-		m_NotificationData = new array< ref NotificationRuntimeData >;
-
-		m_NotificationUIGrid = NULL;
-		
-		if ( IsMissionClient() )
-		{
-			NotificationSystem.BindOnAdd( AddNotification );
-			NotificationSystem.BindOnRemove( RemoveNotification );
+		m_Notifications = new array<ref ExpansionNotificationView>;
+		m_NotificationData = new array<ref NotificationRuntimeData>;
+	
+		if (IsMissionClient())
+		{		
+			NotificationSystem.BindOnAdd(AddNotification);
+			NotificationSystem.BindOnRemove(RemoveNotification);
 		}
 		
 		#ifdef EXPANSIONEXPRINT
@@ -49,6 +47,11 @@ class ExpansionNotificationModule: JMModuleBase
 		EXPrint("ExpansionNotificationModule::~ExpansionNotificationModule - Start");
 		#endif
 		
+		if (IsMissionClient())
+		{
+			m_NotificationHUD = NULL;
+		}
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::~ExpansionNotificationModule - End");
 		#endif
@@ -61,45 +64,88 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	void AddNotification(  NotificationRuntimeData data )
+	void AddNotification(NotificationRuntimeData data)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::AddNotification - Start");
 		#endif
 	
-		if ( GetExpansionClientSettings() && GetExpansionClientSettings().ShowNotifications )
+		if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowNotifications)
 		{
-			if ( data == NULL )
+			if (!data)
 				return;
 			
-			if ( m_NotificationUIGrid == NULL )
+			if (!m_NotificationHUD)
 				return;
-	
-			m_Notifications.InsertAt( new ExpansionNotificationUI( data, this, m_NotificationUIGrid.GetGrid() ), 0 );
-			m_NotificationData.InsertAt( data, 0 );
-	
+				
+			ExpansionNotificationView notificationElement;
+			switch (data.GetType())
+			{
+				case ExpansionNotificationType.TOAST:
+					notificationElement = new ExpansionNotificationViewToast(data, this, m_NotificationHUD);
+					break;
+				case ExpansionNotificationType.BAGUETTE:
+					notificationElement = new ExpansionNotificationViewBaguette(data, this, m_NotificationHUD);
+					break;
+				case ExpansionNotificationType.ACTIVITY:
+					notificationElement = new ExpansionNotificationViewActivity(data, this, m_NotificationHUD);
+					break;
+				case ExpansionNotificationType.KILLFEED:
+					notificationElement = new ExpansionNotificationViewKillfeed(data, this, m_NotificationHUD);
+					break;
+				default:
+					notificationElement = new ExpansionNotificationViewToast(data, this, m_NotificationHUD);
+					break;
+			}
+			
+			AddNotificationElement(notificationElement, data.GetType());
+			m_Notifications.InsertAt(notificationElement, 0);
+			
+			m_NotificationData.InsertAt(data, 0);
 			m_Notifications[0].ShowNotification();
-		
 		}
 			
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::AddNotification - End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	void AddNotificationElement(ExpansionNotificationView notificationElement, ExpansionNotificationType type)
+	{
+		switch (type)
+		{
+			case ExpansionNotificationType.TOAST:
+				m_NotificationHUD.AddNotificationToatsElemement(ExpansionNotificationViewToast.Cast(notificationElement));
+				break;
+			case ExpansionNotificationType.BAGUETTE:
+				m_NotificationHUD.AddNotificationBaguetteElemement(ExpansionNotificationViewBaguette.Cast(notificationElement));
+				break;
+			case ExpansionNotificationType.ACTIVITY:
+				m_NotificationHUD.AddNotificationActivityElemement(ExpansionNotificationViewActivity.Cast(notificationElement));
+				break;
+			case ExpansionNotificationType.KILLFEED:
+				m_NotificationHUD.AddNotificationKillfeedElemement(ExpansionNotificationViewKillfeed.Cast(notificationElement));
+				break;
+			default:
+				m_NotificationHUD.AddNotificationToatsElemement(ExpansionNotificationViewToast.Cast(notificationElement));
+				break;
+		}
+	}
 
 	// ------------------------------------------------------------
-	void RemoveNotification(  NotificationRuntimeData data )
+	void RemoveNotification(NotificationRuntimeData data)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::RemoveNotification - Start");
 		#endif
 		
-		if ( data == NULL )
+		if (!data)
 			return;
 
-		int index = m_NotificationData.Find( data );
+		int index = m_NotificationData.Find(data);
 
-		if ( index >= 0 )
+		if (index >= 0)
 			HideNotification( index );
 		
 		#ifdef EXPANSIONEXPRINT
@@ -108,19 +154,19 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 
 	// ------------------------------------------------------------
-	void HideNotification( int index )
+	void HideNotification(int index)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::HideNotification - Start");
 		#endif
 		
-		if ( GetGame().IsMultiplayer() && GetGame().IsServer() )
+		if (GetGame().IsMultiplayer() && GetGame().IsServer())
 			return;
 
-		if ( index < 0 )
+		if (index < 0)
 			return;
 			
-		if ( index >= m_Notifications.Count() )
+		if (index >= m_Notifications.Count())
 			return;
 
 		m_Notifications[index].HideNotification();
@@ -133,13 +179,13 @@ class ExpansionNotificationModule: JMModuleBase
 	// ------------------------------------------------------------
 	// DEPRECATED
 	// ------------------------------------------------------------
-	void RemovingNotification( ExpansionNotificationUI notif )
+	void RemovingNotification(ExpansionNotificationView notif)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::RemovingNotification - Start");
 		#endif
 		
-		if ( !notif )
+		if (!notif)
 			return;
 		
 		#ifdef EXPANSIONEXPRINT
@@ -148,21 +194,21 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	void RemoveNotification( ExpansionNotificationUI notif )
+	void RemoveNotification(ExpansionNotificationView notif)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::RemoveNotification - Start");
 		#endif
 		
-		if ( !notif )
+		if (!notif)
 			return;
 
-		int index = m_Notifications.Find( notif );
+		int index = m_Notifications.Find(notif);
 		
-		if ( index > -1 )
+		if (index > -1)
 		{
-			m_Notifications.RemoveOrdered( index );
-			m_NotificationData.RemoveOrdered( index );
+			m_Notifications.RemoveOrdered(index);
+			m_NotificationData.RemoveOrdered(index);
 		}
 		
 		#ifdef EXPANSIONEXPRINT
@@ -171,23 +217,23 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
+	override void OnUpdate(float timeslice)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationModule::OnUpdate - Start");
 		#endif
 		
-		super.OnUpdate( timeslice );
+		super.OnUpdate(timeslice);
 
-		if ( !IsMissionClient() )
+		if (!IsMissionClient())
 			return;
 
-		for ( int i = 0; i < m_Notifications.Count(); i++ )
+		for (int i = 0; i < m_Notifications.Count(); i++)
 		{
-			if ( !m_Notifications[i] )
+			if (!m_Notifications[i])
 				continue;
 
-			m_Notifications[i].Update( timeslice );
+			m_Notifications[i].Update(timeslice);
 		}
 		
 		#ifdef EXPANSIONEXPRINT
@@ -196,11 +242,44 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
+	void SetExpansionNotificationHUD(ExpansionNotificationHUD notificationHUD)
+	{
+		m_NotificationHUD = notificationHUD;
+	}
+	
+	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
-		if ( IsMissionClient() && m_NotificationUIGrid == NULL )
+		if (IsMissionClient())
 		{
-			m_NotificationUIGrid = new ExpansionNotificationUIGrid();
+			if (m_NotificationHUD)
+				delete m_NotificationHUD;
+			
+			m_NotificationHUD = new ExpansionNotificationHUD;
+		}
+	}
+		
+	// ------------------------------------------------------------
+	override void OnClientReconnect(PlayerBase player, PlayerIdentity identity)
+	{
+		if (IsMissionClient())
+		{
+			if (m_NotificationHUD)
+				delete m_NotificationHUD;
+			
+			m_NotificationHUD = new ExpansionNotificationHUD;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	override void OnInvokeConnect( PlayerBase player, PlayerIdentity identity )
+	{
+		if (IsMissionClient())
+		{
+			if (m_NotificationHUD)
+				delete m_NotificationHUD;
+			
+			m_NotificationHUD = new ExpansionNotificationHUD;
 		}
 	}
 }

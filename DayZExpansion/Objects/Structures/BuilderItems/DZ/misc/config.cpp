@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Cooking","DZ_Structures_Signs"};
 	};
 };
 class CfgVehicles
@@ -15,6 +15,15 @@ class CfgVehicles
 	class HouseNoDestruct;
 	class BarrelHoles_Red;
 	class Fireplace;
+	class Chemlight_ColorBase;
+	class Chemlight_White;
+	class Chemlight_Red;
+	class Chemlight_Green;
+	class Chemlight_Blue;
+	class Chemlight_Yellow;
+	class PortableGasLamp;
+	class Candle;
+	class Spotlight;
 	class bldr_expansion_flare_blue: HouseNoDestruct
 	{
 		scope = 1;
@@ -585,6 +594,42 @@ class CfgVehicles
 		scope = 1;
 	};
 	class bldr_fireplace: Fireplace
+	{
+		scope = 1;
+	};
+	class bldr_Chemlight_ColorBase: Chemlight_ColorBase
+	{
+		scope = 1;
+	};
+	class bldr_Chemlight_White: Chemlight_White
+	{
+		scope = 1;
+	};
+	class bldr_Chemlight_Red: Chemlight_Red
+	{
+		scope = 1;
+	};
+	class bldr_Chemlight_Green: Chemlight_Green
+	{
+		scope = 1;
+	};
+	class bldr_Chemlight_Blue: Chemlight_Blue
+	{
+		scope = 1;
+	};
+	class bldr_Chemlight_Yellow: Chemlight_Yellow
+	{
+		scope = 1;
+	};
+	class bldr_PortableGasLamp_Prop: PortableGasLamp
+	{
+		scope = 1;
+	};
+	class bldr_Candle: Candle
+	{
+		scope = 1;
+	};
+	class bldr_Spotlight: Spotlight
 	{
 		scope = 1;
 	};

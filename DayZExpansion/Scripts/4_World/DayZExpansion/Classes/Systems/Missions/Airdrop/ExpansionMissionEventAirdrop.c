@@ -370,35 +370,54 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
 
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
 		{
-			return 13; //! amount of locations
+			world_name = world_name.Substring(0, world_name.Length() - 5);
 		}
-		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
+		
+		switch (world_name)
 		{
-			return 12;
-		}
-		//! Modded Maps
-		else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
-		{
-			return 13;
-		}
-		else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
-		{
-			return 5;
-		}
-		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
-		{
-			return 9;
-		}
-		else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
-		{
-			return 13;
+			case "chernarusplus":
+				return 13; //! amount of locations
+			break;
+			case "enoch":
+				return 12;
+			break;
+			case "deerisle":
+				return 13;
+			break;
+			case "namalsk":
+				return 9;
+			break;
+			case "chiemsee":
+				return 13;
+			break;
+			case "sandbox":
+				return 5;
+			break;
+			/*
+			case "rostow":
+				return 9; //! TODO
+			break;
+			case "esseker":
+				return 9; //! TODO
+			break;
+			case "valning":
+				return 9; //! TODO
+			break;
+			case "banov":
+				return 9; //! TODO
+			break;
+			case "takistanplus":
+				return 9; //! TODO
+			break;
+			case "expansiontest":
+				return 9; //! TODO
+			break;
+			*/
 		}
 
 		//! Unknown map
-
 		if ( m_LocationsCount == -1 )
 		{
 			//! Get possible locations from world config
@@ -458,33 +477,48 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
-
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
-		{
-			return ExpansionMissionAirdropChernarus( index );
-		}
-		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
-		{
-			return ExpansionMissionAirdropLivonia( index );
-		//! Modded Maps
-		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
-		{
-			return ExpansionMissionAirdropDeerIsle( index );
-		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
-		{
-			return ExpansionMissionAirdropSandbox( index );
-		}
-		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
-		{
-			return ExpansionMissionAirdropNamalsk( index );
-		}		
-		else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
-		{
-			return ExpansionMissionAirdropChiemsee( index );
-		}
-
 		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+		{
+			world_name = world_name.Substring(0, world_name.Length() - 5);
+		}
+				
+		switch (world_name)
+		{
+			case "chernarusplus":
+				return ExpansionMissionAirdropChernarus( index );
+			break;
+			case "enoch":
+				return ExpansionMissionAirdropLivonia( index );
+			break;
+			case "deerisle":
+				return ExpansionMissionAirdropDeerIsle( index );
+			break;
+			case "namalsk":
+				return ExpansionMissionAirdropNamalsk( index );
+			break;
+			case "chiemsee":
+				return ExpansionMissionAirdropChiemsee( index );
+			break;
+			case "rostow":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "esseker":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "valning":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "banov":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "sandbox":
+				return ExpansionMissionAirdropSandbox( index );
+			break;
+			case "expansiontest":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+		}
 		
 		//! Map unknown, loading default config with random locations from map
 		return ExpansionMissionAirdropRandom( index );

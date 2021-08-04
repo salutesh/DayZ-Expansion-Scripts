@@ -1,5 +1,5 @@
 /**
- * ExpansionFlagBase.c
+ * ExpansionFlagMenu.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

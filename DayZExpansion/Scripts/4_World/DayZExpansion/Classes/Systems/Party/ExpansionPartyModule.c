@@ -305,8 +305,8 @@ class ExpansionPartyModule: JMModuleBase
 
 		SetPartyInvites(invites);
 		
-		ExpansionUIScriptedMenu menu;
-		if (Class.CastTo(menu, GetGame().GetUIManager().FindMenu(MENU_EXPANSION_BOOK_MENU)))
+		ExpansionScriptViewMenuBase menu;
+		if (Class.CastTo(menu, GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu()))
 		{
 			menu.Refresh();
 		}
@@ -565,48 +565,22 @@ class ExpansionPartyModule: JMModuleBase
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_Dissolve party : " + party);
 		#endif
-
-		array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
-
-		if (sender.GetId() != party.GetOwnerUID() && players.Count() > 1)
+		
+		string senderID = sender.GetId();
+		ExpansionPartyPlayerData senderPlayer = party.GetPlayer(senderID);
+		if (!senderPlayer)
 		{
-			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_OWNER").Error(sender);
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
 			return;
 		}
 		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_Dissolve sender.GetId() : " + sender.GetId());
-		#endif
-
-		for (int i = 0; i < players.Count(); i++)
+		if (!senderPlayer.CanDelete())
 		{
-			ExpansionPartyPlayerData currPlayer = players[i];
-			if (!currPlayer) 
-			{
-				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "Could not get player's party data!").Error(sender);
-				continue;
-			}
-			
-			PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
-			if (!partyPlayer)
-			{
-				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
-				continue;
-			}
-			
-			#ifdef EXPANSION_PARTY_MODULE_DEBUG
-			EXLogPrint("ExpansionPartyModule::Exec_Dissolve removed player : " + currPlayer.UID);
-			#endif
-							
-			if (partyPlayer && partyPlayer.GetIdentity())
-			{
-				Send_UpdateClient(NULL, partyPlayer);
-				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_PARTY_DISSOLVED").Success(partyPlayer.GetIdentity());
-			}
+			return;
 		}
-		
+				
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_Dissolve beforeDelete party : " + party);
+		EXLogPrint("ExpansionPartyModule::Exec_Dissolve before delete party : " + party);
 		#endif
 		
 	#ifdef EXPANSIONMODMARKET
@@ -629,17 +603,73 @@ class ExpansionPartyModule: JMModuleBase
 		}
 	#endif
 		
-		party.Delete();
-
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::Exec_Dissolve afterDelete party : " + party);
-		#endif
-
-		m_Parties.Remove(partyId);
+		if (!RemoveParty(partyId))
+		{
+			Error("ExpansionPartyModule::Exec_Dissolve - Could not get delete party from party module parties array!");
+		}
 		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::Exec_Dissolve after delete party : " + party);
+		#endif
+				
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_Dissolve - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RemoveParty
+	// Called on server
+	// ------------------------------------------------------------	
+	bool RemoveParty(int partyID)
+	{
+		for (int i = 0; i < m_Parties.Count(); i++)
+		{
+			int currentID = m_Parties.GetKey(i);
+			ExpansionPartyData currentData = m_Parties.Get(currentID);
+			if (!currentData)
+				return false;
+			
+			if (currentID == partyID)
+			{
+				array<ref ExpansionPartyPlayerData> players = currentData.GetPlayers();
+				for (int j = 0; j < players.Count(); j++)
+				{
+					ExpansionPartyPlayerData currPlayer = players[j];
+					if (!currPlayer) 
+					{
+						Error("ExpansionPartyModule::RemoveParty - Could not get player's party data!");
+						continue;
+					}
+					
+					PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
+					if (!partyPlayer)
+					{
+						#ifdef EXPANSION_PARTY_MODULE_DEBUG
+						EXLogPrint("ExpansionPartyModule::RemoveParty - Player with id "+ currPlayer.UID + " is not online! Skiping party client update for this member.");
+						#endif
+						continue;
+					}
+					
+					#ifdef EXPANSION_PARTY_MODULE_DEBUG
+					EXLogPrint("ExpansionPartyModule::RemoveParty removed player : " + currPlayer.UID);
+					#endif
+									
+					if (partyPlayer && partyPlayer.GetIdentity())
+					{
+						Send_UpdateClient(NULL, partyPlayer);
+						ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_PARTY_DISSOLVED").Success(partyPlayer.GetIdentity());
+					}
+				}
+				
+				currentData.Delete();
+				delete currentData;
+				m_Parties.RemoveElement(i);				
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	// ------------------------------------------------------------
@@ -937,13 +967,13 @@ class ExpansionPartyModule: JMModuleBase
 		party.Save();
 		
 		//! Update the senders party data
-		UpdateClient(partyId);
+		Send_UpdateClient(party, senderPlayer);
 		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MEMBER_ADDED").Success(sender);
 		
 		//! Inform all party players that a new player joined
+		UpdateClient(partyId);
 		SyncPlayersInvites(senderPlayer);
-		Send_UpdateClient(party, senderPlayer);
-		
+				
 		SendNotificationToMembers(new StringLocaliser("STR_EXPANSION_PARTY_MEMBER_ADDED_SENDER", sender.GetName()), party, sender);
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -1168,23 +1198,19 @@ class ExpansionPartyModule: JMModuleBase
 	// Called on server, when someone connect, because PlayerBase.GetPlayerByUID can't be used in the same frame as the connection of the player
 	// ------------------------------------------------------------
 	void UpdateClient(int partyId, PlayerBase player)
-	{		
+	{	
 		if (!IsMissionHost() || !player)
 			return;
 
 		ExpansionPartyData party = m_Parties.Get(partyId);
 		if (!party)
-			return;
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::UpdateClient - Start for party.GetPartyName() : " + party.GetPartyName() + " player : " + player);
-		#endif
-
-		Send_UpdateClient( party, player );
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::UpdateClient - End party.GetPartyName() : " + party.GetPartyName() + " player : " + player);
-		#endif
+		{
+			Send_UpdateClient(NULL, player);
+		}
+		else
+		{
+			Send_UpdateClient(party, player);
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -1192,7 +1218,7 @@ class ExpansionPartyModule: JMModuleBase
 	// Called on server
 	// ------------------------------------------------------------
 	private void Send_UpdateClient(ExpansionPartyData party, notnull PlayerIdentity toSendToParty)
-	{		
+	{
 		if (!IsMissionHost())
 			return;
 		
@@ -1200,12 +1226,14 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::Send_UpdateClient - Start for party.GetPartyName() : " + party.GetPartyName() + " identity : " + toSendToParty);
 		#endif
 		
+		string senderID = toSendToParty.GetId();
 		ScriptRPC rpc = new ScriptRPC();
-		if (party)
+		if (party && party != NULL && party.IsMember(senderID))
 		{
 			rpc.Write(true);
 			party.OnSend(rpc);
-		} else
+		} 
+		else if (!party || !party.IsMember(senderID) || party == NULL)
 		{
 			rpc.Write(false);
 		}
@@ -1230,12 +1258,14 @@ class ExpansionPartyModule: JMModuleBase
 		if (!player || !player.GetIdentity())
 			return;
 		
+		string senderID = player.GetIdentity().GetId();
 		ScriptRPC rpc = new ScriptRPC();
-		if (party)
+		if (party && party.IsMember(senderID))
 		{
 			rpc.Write(true);
 			party.OnSend(rpc);
-		} else
+		} 
+		else if (!party || !party.IsMember(senderID))
 		{
 			rpc.Write(false);
 		}
@@ -1274,12 +1304,14 @@ class ExpansionPartyModule: JMModuleBase
 				Error("ExpansionPartyModule::RPC_UpdateClient can't read party");
 				return;
 			}
-		} else
+		} 
+		else
 		{
 			if (m_Party)
 				delete m_Party;
 				
 			m_Party = NULL;
+			m_IsClientInitialized = false;
 		}
 
 		m_IsClientInitialized = true;
@@ -1290,8 +1322,8 @@ class ExpansionPartyModule: JMModuleBase
 			module.Refresh();
 		}
 
-		ExpansionUIScriptedMenu menu;
-		if (Class.CastTo(menu, GetGame().GetUIManager().FindMenu(MENU_EXPANSION_BOOK_MENU)))
+		ExpansionScriptViewMenuBase menu;
+		if (Class.CastTo(menu, GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu()))
 		{
 			menu.Refresh();
 		}
@@ -1830,8 +1862,8 @@ class ExpansionPartyModule: JMModuleBase
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::OnClientRespawn - Start");
 		#endif
-		
-		OnInvokeConnect(player, identity);
+				
+		UpdatePlayerPartyData(player, identity);
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::OnClientRespawn - End");
@@ -1847,39 +1879,7 @@ class ExpansionPartyModule: JMModuleBase
 		EXLogPrint("ExpansionPartyModule::OnInvokeConnect - Start");
 		#endif
 		
-		if (!identity || !player)
-			return;
-		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::OnPlayerConnect - Start for " + identity.GetId() + " player : " + player);
-		#endif
-		
-		FindAndSyncPlayerInvites(player, identity);
-
-		foreach (int i, ExpansionPartyData data : m_Parties)
-		{
-			ExpansionPartyPlayerData party_player = data.GetPlayer(identity.GetId());
-			if (!party_player)
-				continue;
-
-			#ifdef EXPANSION_PARTY_MODULE_DEBUG
-			EXLogPrint("ExpansionPartyModule::OnPlayerConnect found a party : " + data.GetPartyName());
-			#endif
-
-			party_player.OnJoin(player);
-			
-			//Update all others clients
-			UpdateClient(data);
-			
-			//Update our current client
-			Send_UpdateClient(data, player);
-
-			#ifdef EXPANSION_PARTY_MODULE_DEBUG
-			EXLogPrint("ExpansionPartyModule::OnPlayerConnect - End");
-			#endif
-
-			return;
-		}
+		UpdatePlayerPartyData(player, identity);
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::OnPlayerConnect - End - No Party Found");
@@ -1887,14 +1887,78 @@ class ExpansionPartyModule: JMModuleBase
 	}
 	
 	// -----------------------------------------------------------
+	// Expansion OnInvokeConnect
+	// -----------------------------------------------------------	
+	override void OnClientReady( PlayerBase player, PlayerIdentity identity )
+	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::OnClientReady - Start");
+		#endif
+		
+		UpdatePlayerPartyData(player, identity);
+		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::OnClientReady - End - No Party Found");
+		#endif
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion OnClientReconnect
+	// -----------------------------------------------------------
+	override void OnClientReconnect(PlayerBase player, PlayerIdentity identity)
+	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::OnClientReconnect - Start");
+		#endif
+		
+		UpdatePlayerPartyData(player, identity);
+		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::OnClientReconnect - End - No Party Found");
+		#endif
+	}
+	
+	// -----------------------------------------------------------
+	// Expansion OnClientLogout
+	// -----------------------------------------------------------
+	override void OnClientLogout( PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed )
+	{
+		if (!IsMissionHost())
+			return;
+		
+		string uid = identity.GetId();
+		foreach (int i, ExpansionPartyData data : m_Parties)
+		{
+			ExpansionPartyPlayerData party_player = data.GetPlayer(uid);
+			if (!party_player)
+				continue;
+
+			#ifdef EXPANSION_PARTY_MODULE_DEBUG
+			EXLogPrint("ExpansionPartyModule::OnClientLogout found a party : " + data.GetPartyName());
+			#endif
+			
+			party_player.OnLeave();
+
+			//Update all others clients
+			UpdateClient(data);
+
+			//Update our current client
+			Send_UpdateClient(data, player);
+			
+			#ifdef EXPANSION_PARTY_MODULE_DEBUG
+			EXLogPrint("ExpansionPartyModule::OnClientLogout - End");
+			#endif
+		}
+	}
+	
+	// -----------------------------------------------------------
 	// Expansion OnClientDisconnect
 	// -----------------------------------------------------------
 	override void OnClientDisconnect(PlayerBase player, PlayerIdentity identity, string uid)
 	{
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::OnClientDisconnect - Start");
-		#endif
-		
+		if (!IsMissionHost())
+			return;
+
 		foreach (int i, ExpansionPartyData data : m_Parties)
 		{
 			ExpansionPartyPlayerData party_player = data.GetPlayer(uid);
@@ -1916,13 +1980,48 @@ class ExpansionPartyModule: JMModuleBase
 			#ifdef EXPANSION_PARTY_MODULE_DEBUG
 			EXLogPrint("ExpansionPartyModule::OnClientDisconnect - End");
 			#endif
-
-			return;
 		}
+	}
+
+	// -----------------------------------------------------------
+	// Expansion UpdatePlayerPartyData
+	// -----------------------------------------------------------
+	private void UpdatePlayerPartyData(PlayerBase player, PlayerIdentity identity)
+	{
+		if (!IsMissionHost())
+			return;
+
+		if (!identity || !player)
+			return;
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXLogPrint("ExpansionPartyModule::OnClientDisconnect - End - No Party Found");
+		EXLogPrint("ExpansionPartyModule::UpdatePlayerPartyData - Start for " + identity.GetId() + " player : " + player);
 		#endif
+		
+		FindAndSyncPlayerInvites(player, identity);
+
+		foreach (int i, ExpansionPartyData data : m_Parties)
+		{
+			ExpansionPartyPlayerData party_player = data.GetPlayer(identity.GetId());
+			if (!party_player)
+				continue;
+
+			#ifdef EXPANSION_PARTY_MODULE_DEBUG
+			EXLogPrint("ExpansionPartyModule::UpdatePlayerPartyData found a party : " + data.GetPartyName());
+			#endif
+
+			party_player.OnJoin(player);
+			
+			//Update all others clients
+			UpdateClient(data);
+			
+			//Update our current client
+			Send_UpdateClient(data, player);
+
+			#ifdef EXPANSION_PARTY_MODULE_DEBUG
+			EXLogPrint("ExpansionPartyModule::UpdatePlayerPartyData - End");
+			#endif
+		}
 	}
 	
 	// -----------------------------------------------------------

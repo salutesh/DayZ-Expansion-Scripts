@@ -95,65 +95,101 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 			}
 			
 			//! GPS HUD
-			//! If GPS is visable and player has no GPS item then close the GPS overlay when setting is enabled
-			if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding && GetExpansionHud().GetGPSState() )
+			UpdateGPS();
+			
+			//! COMPASS HUD	
+			if ( GetExpansionSettings() && GetExpansionSettings().GetMap() )
 			{
-				if (!m_Player)
+				if (GetExpansionSettings().GetMap().EnableHUDCompass)
 				{
-					Error("ExpansionIngameHudEventHandler::Update - null player");
-					return;
-				}
-				
-				if ( !m_Player.HasItemGPS() && m_HasGPSItem )
-				{
-					m_HasGPSItem = false;
-					ToggleHUDGPS();
+					if ( GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass || GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass )
+					{
+						UpdateCompass();
+					}
+					else if ( GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass && GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass )
+					{
+						CompassShow();
+					}
 				}
 			}
+		}
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionIngameHudEventHandler::Update - End");
+		#endif
+	}
 	
-			if ( GetUApi().GetInputByName("UAExpansionGPSToggle").LocalHoldBegin() && GetExpansionSettings() && GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetMap().EnableHUDGPS && m_CloseTime > 0.75 )
+	//============================================
+	// Expansion UpdateGPS
+	//============================================
+	void UpdateGPS()
+	{
+		//! If GPS is visable and player has no GPS item then close the GPS overlay when setting is enabled
+		if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding && GetExpansionHud().GetGPSState() )
+		{
+			if (!m_Player)
 			{
-				//! If it's already open, just close it
-				if ( GetExpansionHud().GetGPSState() )
+				Error("ExpansionIngameHudEventHandler::Update - null player");
+				return;
+			}
+			
+			if ( !m_Player.HasItemGPS() && m_HasGPSItem )
+			{
+				m_HasGPSItem = false;
+				ToggleHUDGPS();
+			}
+		}
+
+		if ( GetUApi().GetInputByName("UAExpansionGPSToggle").LocalHoldBegin() && GetExpansionSettings() && GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetMap().EnableHUDGPS && m_CloseTime > 0.75 )
+		{
+			//! If it's already open, just close it
+			if ( GetExpansionHud().GetGPSState() )
+			{
+				ToggleHUDGPS();
+			}
+			else if ( !GetExpansionHud().GetGPSState() )
+			{
+				if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
 				{
-					ToggleHUDGPS();
-				}
-				else if ( !GetExpansionHud().GetGPSState() )
-				{
-					if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
+					if (!m_Player)
 					{
-						if (!m_Player)
-						{
-							Error("ExpansionIngameHudEventHandler::Update - null player");
-							return;
-						}
-						
-						if ( m_Player.HasItemGPS() )
-						{
-							m_HasGPSItem = true;
-							ToggleHUDGPS();
-						}
+						Error("ExpansionIngameHudEventHandler::Update - null player");
+						return;
 					}
-					else
+					
+					if ( m_Player.HasItemGPS() )
 					{
+						m_HasGPSItem = true;
 						ToggleHUDGPS();
 					}
 				}
+				else
+				{
+					ToggleHUDGPS();
+				}
 			}
-			
-			//! COMPASS HUD	
+		}
+	}
+	
+	//============================================
+	// Expansion UpdateCompass
+	//============================================
+	void UpdateCompass()
+	{
+		if ( m_Player )
+		{			
 			if ( GetExpansionHud().GetCompassState() )
 			{
 				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("ExpansionIngameHudEventHandler::Update - Compass HUD IS visible!" );
+				EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Compass HUD IS visible!" );
 				#endif
-
+	
 				if ( GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass )
-				{
+				{					
 					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - Need to remove Item compass to hide compass HUD!" );
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemGPS(): " + m_Player.HasItemGPS() );
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Need to remove Item compass to hide compass HUD!" );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemGPS(): " + m_Player.HasItemGPS() );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
 					#endif
 					
 					if ( !m_Player.HasItemGPS() && m_HasGPSForCompassItem )
@@ -162,9 +198,9 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 						CompassHide();
 						
 						#ifdef EXPANSIONEXLOGPRINT
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - Player has no Item GPS but compass is visible. HIDE!");
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemGPS(): " + m_Player.HasItemGPS() );
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Player has no Item GPS but compass is visible. HIDE!");
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemGPS(): " + m_Player.HasItemGPS() );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
 						#endif
 					}
 				}
@@ -177,9 +213,9 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 						CompassHide();
 						
 						#ifdef EXPANSIONEXLOGPRINT
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - Player has no Item Compass but compass is visible. HIDE!");
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemCompass(): " + m_Player.HasItemCompass() );
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasCompassItem: " + m_HasCompassItem );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Player has no Item Compass but compass is visible. HIDE!");
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemCompass(): " + m_Player.HasItemCompass() );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasCompassItem: " + m_HasCompassItem );
 						#endif
 					}
 				}
@@ -187,21 +223,15 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 			else
 			{
 				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint("ExpansionIngameHudEventHandler::Update - Compass HUD is NOT visible!" );
+				EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Compass HUD is NOT visible!" );
 				#endif
 				
 				if ( GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass )
-				{
-					if ( !m_Player )
-					{
-						Error("ExpansionIngameHudEventHandler::Update - null player");
-						return;
-					}
-					
+				{					
 					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - Need GPS Item for Show Compass HUD" );
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemGPS(): " + m_Player.HasItemGPS() );
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Need GPS Item for Show Compass HUD" );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemGPS(): " + m_Player.HasItemGPS() );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
 					#endif
 					
 					if ( m_Player.HasItemGPS() )
@@ -210,25 +240,19 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 						CompassShow();
 						
 						#ifdef EXPANSIONEXLOGPRINT
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - Player has Item GPS but compass is not visible. SHOW!");
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemGPS(): " + m_Player.HasItemGPS() );
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Player has Item GPS but compass is not visible. SHOW!");
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemGPS(): " + m_Player.HasItemGPS() );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasGPSForCompassItem: " + m_HasGPSForCompassItem );
 						#endif
 					}
 				}
 				
 				if ( GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass )
 				{
-					if ( !m_Player )
-					{
-						Error("ExpansionIngameHudEventHandler::Update - null player");
-						return;
-					}
-					
 					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - Need Compass Item for Show Compass HUD" );
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemCompass(): " + m_Player.HasItemCompass() );
-					EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasCompassItem: " + m_HasCompassItem );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Need Compass Item for Show Compass HUD" );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemCompass(): " + m_Player.HasItemCompass() );
+					EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasCompassItem: " + m_HasCompassItem );
 					#endif
 					
 					if ( m_Player.HasItemCompass() )
@@ -237,23 +261,14 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 						CompassShow();
 						
 						#ifdef EXPANSIONEXLOGPRINT
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - Player has Item Compass but compass is not visible. SHOW!");
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - HasItemCompass(): " + m_Player.HasItemCompass() );
-						EXLogPrint("ExpansionIngameHudEventHandler::Update - m_HasCompassItem: " + m_HasCompassItem );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - Player has Item Compass but compass is not visible. SHOW!");
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - HasItemCompass(): " + m_Player.HasItemCompass() );
+						EXLogPrint("ExpansionIngameHudEventHandler::UpdateCompass - m_HasCompassItem: " + m_HasCompassItem );
 						#endif
 					}
 				}
-				
-				if ( !GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass && !GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass  )
-				{
-					CompassShow();
-				}
 			}
 		}
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionIngameHudEventHandler::Update - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

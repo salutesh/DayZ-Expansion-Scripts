@@ -24,7 +24,7 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool GravecrossDeleteBody;
 	int GravecrossTimeThreshold;
 	ref ExpansionMapping Mapping;
-	int EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
+	LampModeEnum EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
 	bool EnableGenerators;
 	bool EnableLighthouses;
 	bool EnableHUDNightvisionOverlay;
@@ -318,7 +318,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		
 		Mapping.Defaults();
 
-		EnableLamps = 3;						//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on | 3 - Street-Lights always on everywhere
+		EnableLamps = LampModeEnum.AlwaysOnEverywhere;
 		EnableGenerators = false;
 		EnableLighthouses = true;
 		

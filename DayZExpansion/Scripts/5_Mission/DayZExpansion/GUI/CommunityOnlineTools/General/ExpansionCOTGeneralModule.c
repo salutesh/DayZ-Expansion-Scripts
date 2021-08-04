@@ -72,8 +72,7 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
 		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );
 
-		array< string > lamp_types = { "Disable", "Generators", "Always On", "Always On Everywhere" };
-		CreateEnum( "EnableLamps", lamp_types, "Lamps", "", "" );
+		CreateEnum( "EnableLamps", LampModeEnum, "Lamps", "", "" );
 		CreateToggle( "EnableGenerators", "Generators", "", "" );
 		CreateToggle( "EnableLighthouses", "Lighthouses", "", "" );
 		

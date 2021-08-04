@@ -179,16 +179,11 @@ modded class LoadingScreen
 			GetGame().GetWorldName(world_name);
 
 		world_name.ToLower();
-			
-		if ( world_name == "chernarusplusgloom" ) 	world_name = "chernarusplus";
-		if ( world_name == "enochgloom" ) 			world_name = "enoch";
-		if ( world_name == "namalskgloom" ) 		world_name = "namalsk";
-		if ( world_name == "deerislegloom" ) 		world_name = "deerisle";
-		if ( world_name == "chiemseegloom" ) 		world_name = "chiemsee";
-		if ( world_name == "essekergloom" ) 		world_name = "esseker";
-		if ( world_name == "rostowgloom" ) 			world_name = "rostow";
-		if ( world_name == "sandboxgloom" ) 		world_name = "sandbox";
-		if ( world_name == "expansiontestgloom" ) 	world_name = "expansiontest";
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+		{
+			world_name = world_name.Substring(0, world_name.Length() - 5);
+		}
 		
 		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
 

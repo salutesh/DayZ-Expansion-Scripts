@@ -205,6 +205,22 @@ class ExpansionItemSpawnHelper
 			}
 		}
 	}
+	
+	// ------------------------------------------------------------
+	// Expansion SpawnAttachment
+	// ------------------------------------------------------------
+	static void SpawnAttachment(string name, EntityAI parent, out ItemBase attachment)
+	{
+		if (parent.GetInventory())
+		{
+			ItemBase parentItem = ItemBase.Cast(parent);
+			
+			if (parentItem)
+				attachment = ItemBase.Cast(parentItem.ExpansionCreateInInventory(name));
+			else
+				attachment = ItemBase.Cast(parent.GetInventory().CreateAttachment(name));			
+		}
+	}
 
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle

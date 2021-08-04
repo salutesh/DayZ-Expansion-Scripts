@@ -1,9 +1,10 @@
-WrapSpacerWidgetClass NotificationRoot {
+WrapSpacerWidgetClass ExpansionNotificationViewToast {
  visible 1
  disabled 0
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
+ color 0.1059 0.1059 0.1059 0.4706
  size 0.25 0
  hexactpos 1
  vexactpos 1
@@ -12,7 +13,8 @@ WrapSpacerWidgetClass NotificationRoot {
  scaled 1
  priority 1000
  draggable 0
- style Empty
+ scriptclass "ExpansionNotificationViewToastController"
+ style DayZDefaultPanelRight
  "no focus" 1
  Padding 0
  Margin 0
@@ -22,7 +24,6 @@ WrapSpacerWidgetClass NotificationRoot {
    inheritalpha 0
    ignorepointer 1
    keepsafezone 0
-   color 0.3137 0.3137 0.3137 0.4706
    position 0 0
    size 1 1
    hexactpos 1
@@ -31,7 +32,7 @@ WrapSpacerWidgetClass NotificationRoot {
    vexactsize 0
    scaled 1
    draggable 0
-   style DayZDefaultPanelRight
+   style Empty
    "no focus" 1
    Padding 0
    Margin 0
@@ -70,6 +71,7 @@ WrapSpacerWidgetClass NotificationRoot {
        hexactsize 0
        vexactsize 0
        scaled 1
+       fixaspect fixwidth
        mode opaque
        "src alpha" 1
        "no wrap" 1
@@ -137,11 +139,18 @@ WrapSpacerWidgetClass NotificationRoot {
            vexactpos 1
            hexactsize 1
            vexactsize 1
+           fixaspect fixwidth
+           scriptclass "ViewBinding"
            image0 ""
            mode blend
            "src alpha" 1
            "no wrap" 1
            stretch 1
+           {
+            ScriptParamsClass {
+             Binding_Name "NotificationIcon"
+            }
+           }
           }
          }
         }
@@ -155,6 +164,7 @@ WrapSpacerWidgetClass NotificationRoot {
          vexactpos 1
          hexactsize 0
          vexactsize 0
+         scriptclass "ViewBinding"
          style DayZNormal
          font "gui/fonts/etelkatextpro28"
          "text offset" 2 0
@@ -166,6 +176,11 @@ WrapSpacerWidgetClass NotificationRoot {
          wrap 1
          "condense whitespace" 1
          "strip newlines" 1
+         {
+          ScriptParamsClass {
+           Binding_Name "NotificationTitle"
+          }
+         }
         }
        }
       }
@@ -208,6 +223,7 @@ WrapSpacerWidgetClass NotificationRoot {
          vexactpos 1
          hexactsize 0
          vexactsize 0
+         scriptclass "ViewBinding"
          font "gui/fonts/etelkatextpro22"
          "text offset" 2 0
          "exact text" 1
@@ -215,6 +231,11 @@ WrapSpacerWidgetClass NotificationRoot {
          "size to text v" 1
          "text valign" center
          wrap 1
+         {
+          ScriptParamsClass {
+           Binding_Name "NotificationText"
+          }
+         }
         }
        }
       }

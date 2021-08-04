@@ -230,14 +230,15 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - Start");
 		
 		PlayerBase player = GetPlayerObjectByIdentity( sender );
-		if ( player )
+		if (player)
 		{
-			player.SetPosition( spawnPoint );
+			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			player.SetPosition(spawnPoint);
 			
-			CloseSpawnMenu( sender );
+			CloseSpawnMenu(sender);
 
-			if ( GetExpansionSettings().GetLog().SpawnSelection )
-				GetExpansionSettings().GetLog().PrintLog( "[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " spawned at " + spawnPoint );
+			if (GetExpansionSettings().GetLog().SpawnSelection)
+				GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " spawned at " + spawnPoint);
 		}
 		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - End");
 	}

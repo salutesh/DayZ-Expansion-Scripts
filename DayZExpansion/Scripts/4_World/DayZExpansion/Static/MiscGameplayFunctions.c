@@ -25,7 +25,7 @@ modded class MiscGameplayFunctions
 			Object obj = potentiallyObstructingObjects[i];
 			//! Prevent accessing vicinity through Expansion basebuilding and vanilla tents
 			TentBase tent = TentBase.Cast( obj );
-			if ( obj && ( obj.CanObstruct() || ( tent && tent.GetState() == TentBase.PITCHED ) ) )
+			if ( obj && ( obj.CanObstruct() || obj.CanProxyObstruct() || ( tent && tent.GetState() == TentBase.PITCHED ) ) )
 			{
 				if ( obj.IsInherited( ExpansionBaseBuilding ) || tent )
 					ObstructingObjectsContainExpansionBaseBuildingOrTent = true;

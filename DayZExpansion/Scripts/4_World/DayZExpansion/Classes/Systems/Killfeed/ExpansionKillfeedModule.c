@@ -719,14 +719,15 @@ class ExpansionKillFeedModule: JMModuleBase
 			if( player.GetIdentity() != m_Source.GetIdentity() )
 			{
 				if( source.IsMeleeWeapon() )
-				{
-					KillFeedMessage( ExpansionKillFeedMessageType.MELEWEAPON, ExpansionIcons.GetPath("Knife"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName );
+				{						
+					KillFeedMessage( ExpansionKillFeedMessageType.MELEWEAPON, ExpansionIcons.GetPath("Knife"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, "", source );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.WEAPON, player, m_Source, source);
 					DiscordMessage( ExpansionKillFeedMessageType.MELEWEAPON, m_PlayerSteamWebhook, m_PlayerSteamWebhook2, m_DisplayName );
-				} else
+				} 
+				else
 				{
 					float distance = vector.Distance( player.GetPosition(), m_Source.GetPosition() );
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Gun"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString() );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Gun"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString(), EntityAI.Cast(source) );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.WEAPON, player, m_Source, source);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON, m_PlayerSteamWebhook, m_PlayerSteamWebhook2, m_DisplayName, Math.Round(distance).ToString() );
 				}
@@ -741,7 +742,7 @@ class ExpansionKillFeedModule: JMModuleBase
 					#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 					EXLogPrint("ExpansionKillFeedModule::OnKilledByWeapon - m_Source == NULL || Grenade_Base");
 					#endif
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Grenade"), m_PlayerPrefix, m_DisplayName );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Grenade"), m_PlayerPrefix, m_DisplayName, "", "", source );
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.EXPLOSION, player, null, item);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, m_PlayerSteamWebhook, m_DisplayName );
 				}
@@ -770,7 +771,7 @@ class ExpansionKillFeedModule: JMModuleBase
 		m_PlayerSteamWebhook2 = "";
 		
 		if (m_Source && m_Source.IsInherited(PlayerBase))
-		{			
+		{
 			if( player.GetIdentity() != m_Source.GetIdentity() )
 			{
 				m_PlayerPrefix2 = this.GetPlayerPrefix( m_Source.GetIdentity() );
@@ -888,7 +889,7 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ExpansionKillFeedModule KillFeedMessage
 	// Called on Server
 	// ------------------------------------------------------------	
-	private void KillFeedMessage( ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "")
+	private void KillFeedMessage( ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "", Object obj = NULL)
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::Message - Start" );
@@ -899,7 +900,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			if( !KillFeedCheckServerSettings(type) )
 				return;
 	
-			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
+			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4, obj);
 			
 			ScriptRPC message_rpc = new ScriptRPC();
 			message_rpc.Write( kill_data );
@@ -1249,10 +1250,17 @@ class ExpansionKillFeedModule: JMModuleBase
 		ctx.Read(kill_data);
 		
 		if (kill_data)
-		{		
+		{
 			if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
 			{
-				ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION).Create();
+				if (!kill_data.PreviewObject)
+				{
+					ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 5, ExpansionNotificationType.KILLFEED).Create();
+				}
+				else
+				{
+					ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 5, ExpansionNotificationType.KILLFEED, kill_data.PreviewObject).Create();
+				}
 			} else if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
 				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + GetKillMessage(kill_data).Format(), "" ) );

@@ -55,7 +55,7 @@ class ExpansionParticleLightBase: ExpansionLampLightBase
 		{
 			m_CastShadow = GetExpansionClientSettings().CastLightShadows;
 			
-			m_CanBeEnabled = (GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableLamps > 0);
+			m_CanBeEnabled = (GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.Disabled);
 	
 			if ( m_CanBeEnabled )
 			{

@@ -20,9 +20,6 @@ modded class VicinityItemManager
 
 	bool ExpansionShouldShowInVicinity(Object filtered_object)
 	{
-		if ( ExpansionFlagBase.Cast(filtered_object) )
-			return true;
-		
 		if ( ExpansionHesco.Cast(filtered_object) )
 			return true;
 		

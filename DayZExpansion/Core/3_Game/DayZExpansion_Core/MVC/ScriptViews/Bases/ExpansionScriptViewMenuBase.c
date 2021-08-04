@@ -52,4 +52,6 @@ class ExpansionScriptViewMenuBase: ScriptView
 	{
 		return true;
 	}
+	
+	void Refresh();
 };

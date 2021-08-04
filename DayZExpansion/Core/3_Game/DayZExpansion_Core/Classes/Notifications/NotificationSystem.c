@@ -16,7 +16,7 @@ modded class NotificationSystem
 	// ExpansionNotificationSystem Create_Expansion
 	// ------------------------------------------------------------
 	// Create ur own system until CF have a better framework
-	static void Create_Expansion( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL )
+	static void Create_Expansion( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("NotificationSystem::Create_Expansion - Start");
@@ -30,6 +30,8 @@ modded class NotificationSystem
 			rpc.Write( icon );
 			rpc.Write( color );
 			rpc.Write( time );
+			rpc.Write( type );
+			rpc.Write( obj );
 			rpc.Send( NULL, NotificationSystemRPC.Create, true, sendTo );
 		}
 		else
@@ -37,7 +39,7 @@ modded class NotificationSystem
 			if ( !m_Instance )
 				return;
 
-			m_Instance.CreateNotification( title, text, icon, color, time, sendTo );
+			m_Instance.CreateNotification( title, text, icon, color, time, sendTo, type, obj );
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -45,8 +47,8 @@ modded class NotificationSystem
 		#endif
 	}
 
-	static void Create_Expansion( string title, string text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL )
+	static void Create_Expansion( string title, string text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
-		Create_Expansion( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, sendTo );
+		Create_Expansion( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, sendTo, type, obj );
 	}
 };

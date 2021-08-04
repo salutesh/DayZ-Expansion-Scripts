@@ -15,7 +15,6 @@ class ExpansionMapping
 	bool UseCustomMappingModule;  		//Use per default to false, so not loading in main menu, only loading on server	 Same for InteriorBuilding
 	
 	autoptr TStringArray Mapping;
-	autoptr TStringArray ObjectsToDelete;
 	
 	bool BuildingInteriors;				// Interior inside building mapping switch. It's not linked to UseCustomMappingModule
 	autoptr TStringArray Interiors;
@@ -32,7 +31,6 @@ class ExpansionMapping
 		
 		Mapping = new TStringArray;
 		Interiors = new TStringArray;
-		ObjectsToDelete = new TStringArray;
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMapping::ExpansionMapping - End");
@@ -48,7 +46,6 @@ class ExpansionMapping
 		
 		Mapping.Copy( s.Mapping );
 		Interiors.Copy( s.Interiors );
-		ObjectsToDelete.Copy( s.ObjectsToDelete );
 
 		BuildingInteriors = s.BuildingInteriors;
 		BuildingIvys = s.BuildingIvys;
@@ -67,42 +64,57 @@ class ExpansionMapping
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+		{
+			world_name = world_name.Substring(0, world_name.Length() - 5);
+		}
 
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
-		{		
-			ExpansionBuildingInterior();
-			ExpansionMappingChernarus();
-		} else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
+		//! Vanilla Maps		
+		switch (world_name)
 		{
-			ExpansionBuildingInterior();
-			ExpansionMappingLivonia();
-		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
-		{
-			ExpansionBuildingInterior();
-			ExpansionMappingDeerIsle();
-		} else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
-		{
-			ExpansionMappingNamalsk();
-		} else if ( world_name.Contains( "rostow" ) || world_name.Contains( "rostowgloom" ) )
-		{
-			ExpansionBuildingInterior();
-			ExpansionMappingRostow();
-		} else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
-		{
-			ExpansionBuildingInterior();
-			ExpansionMappingChiemsee();
-		} else if ( world_name.Contains( "esseker" ) || world_name.Contains( "essekergloom" ) )
-		{
-			ExpansionBuildingInterior();
-			ExpansionMappingEsseker();
-		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
-		{
-			ExpansionMappingSandbox();
-		} else if ( world_name.Contains( "expansiontest" ) || world_name.Contains( "expansiontestgloom" ) )
-		{
-			ExpansionBuildingInterior();
-			ExpansionMappingExpansionTest();
+			case "chernarusplus":
+				ExpansionBuildingInterior();
+				ExpansionMappingChernarus();
+			break;
+			case "enoch":
+				ExpansionBuildingInterior();
+				ExpansionMappingLivonia();
+			break;
+			case "deerisle":
+				ExpansionBuildingInterior();
+				ExpansionMappingDeerIsle();
+			break;
+			case "namalsk":
+				ExpansionMappingNamalsk();
+			break;
+			case "chiemsee":
+				ExpansionBuildingInterior();
+				ExpansionMappingChiemsee();
+			break;
+			case "rostow":
+				ExpansionBuildingInterior();
+				ExpansionMappingRostow();
+			break;
+			case "esseker":
+				ExpansionBuildingInterior();
+				ExpansionMappingEsseker();
+			break;
+			case "valning":
+				ExpansionBuildingInterior();
+				ExpansionMappingValning();
+			break;
+			case "banov":
+				ExpansionBuildingInterior();
+				ExpansionMappingBanov();
+			break;
+			case "sandbox":
+				ExpansionMappingSandbox();
+			break;
+			case "expansiontest":
+				ExpansionBuildingInterior();
+				ExpansionMappingExpansionTest();
+			break;
 		}
 
 		//! Keep at false so it will create less troubles for new server starting to setup everything
@@ -267,6 +279,34 @@ class ExpansionMapping
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMappingEsseker::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingValning
+	// ------------------------------------------------------------
+	void ExpansionMappingValning()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingValning::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingValning::Defaults - End");
+		#endif
+	}
+
+	// ------------------------------------------------------------
+	// Expansion ExpansionMappingBanov
+	// ------------------------------------------------------------
+	void ExpansionMappingBanov()
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingBanov::Defaults - Start");
+		#endif
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("ExpansionMappingBanov::Defaults - End");
 		#endif
 	}
 

@@ -80,6 +80,7 @@ class ExpansionIngameHud extends Hud
 		
 		m_ExpansionEarplugState = false;
 		m_AddedCompassSettings = false;
+		m_ExpansionHudCompassState = false;
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
 		
@@ -474,6 +475,15 @@ class ExpansionIngameHud extends Hud
 					shift_y = 327.5;
 				}
 			}
+			else if ( worldName.Contains("takistan") )	// TAKISTAN
+			{
+				// 12800 / 12800
+				if( scale >= 0.1 )
+				{
+					shift_x = 535.0;
+					shift_y = 412.0;
+				}
+			}
 			
 			camera_x = camera_x + (shift_x * multiplier);
 			camera_y = camera_y - (shift_y * multiplier);
@@ -492,7 +502,7 @@ class ExpansionIngameHud extends Hud
 	// Expansion UpdateCompass
 	// ------------------------------------------------------------
 	void UpdateCompass()
-	{	
+	{
 		if (!m_AddedCompassSettings)
 		{
 			int compass_color = GetExpansionSettings().GetMap().CompassColor;
@@ -868,7 +878,7 @@ class ExpansionIngameHud extends Hud
 						}
 					}
 				}
-				else
+				else if (!partyModule || !party)
 				{
 					ClearPartyMembers();
 				}

@@ -48,6 +48,8 @@ class ExpansionIcons
 		AddIcon( "Error",			"Error",			EXPANSION_NOTIFICATION_ICON_ERROR			);
 		AddIcon( "Airdrop",			"Airdrop",			EXPANSION_NOTIFICATION_ICON_AIRDROP			);
 		AddIcon( "Car",				"Car",				EXPANSION_NOTIFICATION_ICON_CAR				);
+		AddIcon( "Car 2",				"Car",				EXPANSION_NOTIFICATION_ICON_CAR_2				);
+		AddIcon( "Craft",				"Craft",				EXPANSION_NOTIFICATION_ICON_CRAFT				);
 		AddIcon( "Deliver",			"Deliver",			EXPANSION_NOTIFICATION_ICON_DELIVER			);
 		AddIcon( "Radiation",		"Radiation",		EXPANSION_NOTIFICATION_ICON_RADIATION		);
 		AddIcon( "Trader",			"Trader",			EXPANSION_NOTIFICATION_ICON_TRADER			);

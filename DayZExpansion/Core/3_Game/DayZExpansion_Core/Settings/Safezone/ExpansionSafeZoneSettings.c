@@ -262,9 +262,23 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		world_name.ToLower();
 
 		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) )
+		if ( world_name == "chernarusplus" || world_name == "chernarusplusgloom" )
 		{
 		#ifdef EXPANSIONMODMARKET
+			DefaultChernarusSafeZones();
+		#endif
+		}
+		else if ( world_name == "takistanplus" )
+		{
+		#ifdef EXPANSIONMODMARKET
+			DefaultTakistanSafeZones();
+		#endif
+		}
+	}
+
+#ifdef EXPANSIONMODMARKET
+	void DefaultChernarusSafeZones()
+	{
 			//! Krasnostav Trader Camp
 			TVectorArray points = new TVectorArray;
 			points.Insert( Vector(12288.9, 142.4, 12804.4) );
@@ -278,9 +292,14 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(3728.27, 403, 6003.6), 500 ) );
 			//! Kamenka Trader Camp
 			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(1143.14, 6.9, 2423.27), 700 ) );
-		#endif
-		}
 	}
+	
+	void DefaultTakistanSafeZones()
+	{
+		//! Marastar Oasis
+		CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(4611.26, 4.6, 12334.0), 500 ) );
+	}
+#endif
 
 	// ------------------------------------------------------------
 	void RemoveSafeZonePolygon(ExpansionSafeZonePolygon zone)
