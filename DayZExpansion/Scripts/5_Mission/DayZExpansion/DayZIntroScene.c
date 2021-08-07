@@ -63,50 +63,36 @@ class DayZIntroSceneExpansion
 			vanilla_scenes.Insert(vanilla_scene_path);
 		}
 		
-	#ifdef EXPANSIONMODMARKET
-		//! Get cfgCharacterScenes market scenes when the market mod is loaded
 		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(expansion_path); i++ )
 		{
 			g_Game.ConfigGetChildName(expansion_path, i, currentChildName);
-			if (currentChildName.Contains("market_update"))
+			
+			#ifdef EXPANSIONMODMARKET
+			if (currentChildName.Contains("market_update") || expansion_scenes.Count() == 0)
 			{
+			#endif
 				expansion_scene_path = expansion_path + " " + currentChildName;
 				expansion_scenes.Insert(expansion_scene_path);
+			#ifdef EXPANSIONMODMARKET
 			}
+			#endif
 		}
 		
-		if (expansion_scenes && expansion_scenes.Count() > 0)
+		if (expansion_scenes.Count() > 0)
 		{
 			SetScene(expansion_scenes);
 		}
-		else if (vanilla_scenes && vanilla_scenes.Count() > 0)
+		else if (vanilla_scenes.Count() > 0)
 		{
 			SetScene(vanilla_scenes);
 		}
-	#else
-		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(expansion_path); i++ )
-		{
-			g_Game.ConfigGetChildName(expansion_path, i, currentChildName);
-			expansion_scene_path = expansion_path + " " + currentChildName;
-			expansion_scenes.Insert(expansion_scene_path);
-		}
-		
-		if (expansion_scenes && expansion_scenes.Count() > 0)
-		{
-			SetScene(expansion_scenes);
-		}
-		else if (vanilla_scenes && vanilla_scenes.Count() > 0)
-		{
-			SetScene(vanilla_scenes);
-		}
-	#endif	
 		
 		Print("DayZIntroSceneExpansion::PrepareScenes - End");
 	}
 	
 	// ------------------------------------------------------------
 	private void SetScene(array<string> scenes)
-	{
+	{		
 		World world = g_Game.GetWorld();
 		int count = scenes.Count();
 		int index = Math.RandomInt(0, count);
@@ -212,7 +198,8 @@ class DayZIntroSceneExpansion
 		GetGame().ConfigGetText(GetScenePath() + " HandItem", item);
 		if ( item != "")
 		{
-				EntityAI handItem = m_Character.GetCharacterObj().GetInventory().CreateInInventory(item);
+			EntityAI handItem = m_Character.GetCharacterObj().GetInventory().CreateInInventory(item);
+			if (handItem)
 				m_Character.GetCharacterObj().LocalTakeEntityToHands(handItem);
 		};
 	}

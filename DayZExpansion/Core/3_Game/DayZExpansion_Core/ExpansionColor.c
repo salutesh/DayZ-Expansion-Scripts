@@ -44,20 +44,32 @@ class ExpansionColor
 		return hexcolor;
 	}
 
-	//! RRGGBB or RRGGBBAA hex color string to DayZ ARGB color int
+	//! RGB, RGBA, RRGGBB or RRGGBBAA hex color string to DayZ ARGB color int
 	static int HexToARGB(string hexcolor)
 	{
-		if (hexcolor.Length() != 6 && hexcolor.Length() != 8)
+		if (hexcolor.Length() < 3 || hexcolor.Length() > 8)
 			return 0;
 
-		int color[4];
+		string hex;
 
-		if (hexcolor.Length() == 6)
-			color[3] = 255;  //! Set alpha to fully opaque
-
-		for (int i = 0; i < hexcolor.Length() / 2; i++)
+		if (hexcolor.Length() <= 4)
 		{
-			color[i] = HexToInt(hexcolor.Substring(i * 2, 2));
+			//! RGBA or RGBA
+			hex = hexcolor[0] + hexcolor[0] + hexcolor[1] + hexcolor[1] + hexcolor[2] + hexcolor[2];
+			if (hexcolor.Length() == 4)
+				hex += hexcolor[3] + hexcolor[3];  //! Alpha
+		}
+		else
+		{
+			hex = hexcolor;
+		}
+
+		int color[4];
+		color[3] = 255;  //! Init alpha to fully opaque
+
+		for (int i = 0; i < hex.Length() / 2; i++)
+		{
+			color[i] = HexToInt(hex.Substring(i * 2, 2));
 		}
 
 		return ARGB(color[3], color[0], color[1], color[2]);
@@ -67,23 +79,19 @@ class ExpansionColor
 	{
 		hex.ToUpper();
 
-		if (hex.Length() % 2)
-			hex = "0" + hex;
-
 		int n;
 
-		for (int i = 0; i < hex.Length();)
+		for (int i = 0; i < hex.Length(); i++)
 		{
-			n += (HEX_BYTES.Find(hex[i]) * 16) + HEX_BYTES.Find(hex[i + 1]);
-			i += 2;
+			//! Snatched from Dabs Framework
+			n += HEX_BYTES.Find(hex[i]) * Math.Pow(16, Math.AbsInt(i - hex.Length() + 1));
 		}
 
 		return n;
 	}
 
-	static string IntToHex(int n)
+	static string IntToHex(int n, int mod = 2)
 	{
-		int orig = n;
 		string hex;
 
 		while (true)
@@ -94,8 +102,10 @@ class ExpansionColor
 				break;
 		}
 
-		if (hex.Length() % 2)
+		while (hex.Length() % mod)
+		{
 			hex = "0" + hex;
+		}
 
 		return hex;
 	}

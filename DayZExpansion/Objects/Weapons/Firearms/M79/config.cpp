@@ -116,7 +116,7 @@ class CfgMagazines
 	class Ammo_Expansion_M203_Smoke_Base: Ammunition_Base
 	{
 		scope = 0;
-		descriptionShort = "$STR_EXPANSION_AMMO_M203_DESC";
+		descriptionShort = "$STR_EXPANSION_AMMO_M203_SMOKE_DESC";
 		itemSize[] = {1,2};
 		model = "DayZExpansion\Objects\Weapons\Firearms\M79\m79\round\m203_round.p3d";
 		iconCartridge = 1;
@@ -181,6 +181,7 @@ class CfgMagazines
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_AMMO_M203_SMOKE_TEARGAS";
+		descriptionShort = "$STR_EXPANSION_AMMO_M203_SMOKE_TEARGAS_DESC";
 		ammo = "Bullet_Expansion_M203_Smoke_Teargas";
 	};
 	class Ammo_Expansion_M203_Sticky_Smoke_Base: Ammo_Expansion_M203_Smoke_Base

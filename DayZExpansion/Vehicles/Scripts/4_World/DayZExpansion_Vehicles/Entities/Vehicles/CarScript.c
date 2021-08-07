@@ -251,6 +251,9 @@ modded class CarScript
 
 		ExpansionSetupSkins();
 
+		if (IsMissionHost())
+			SetAllowDamage(CanBeDamaged());
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
 		#endif
@@ -3351,21 +3354,6 @@ modded class CarScript
 		data.Impulse = 0;
 
 		super.OnContact( zoneName, localPos, other, data );
-	}
-
-	/**
-	 * @param damageResult 
-	 * @param source 
-	 * @param component 
-	 * @param dmgZone 
-	 * @param ammo 
-	 * @param modelPos 
-	 * @param speedCoef 
-	 */
-	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
-	{
-		if ( CanBeDamaged() )
-			super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
 	}
 	
 	// ------------------------------------------------------------

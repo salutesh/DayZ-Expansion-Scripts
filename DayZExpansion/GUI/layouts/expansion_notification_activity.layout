@@ -162,7 +162,7 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
        Columns 1
        Rows 1
        {
-        ImageWidgetClass NotificationColor {
+        PanelWidgetClass NotificationColor {
          visible 1
          disabled 1
          ignorepointer 1
@@ -175,11 +175,7 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
          vexactsize 0
          scaled 1
          fixaspect fixwidth
-         mode opaque
-         "src alpha" 1
-         "no wrap" 1
-         stretch 1
-         "Transition width" 0.032
+         style rover_sim_colorable
         }
        }
       }

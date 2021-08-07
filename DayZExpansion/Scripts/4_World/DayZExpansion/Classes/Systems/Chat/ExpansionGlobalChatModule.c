@@ -106,7 +106,10 @@ class ExpansionGlobalChatModule: JMModuleBase
 
 				// Uses similar format as vanilla direct chat log
 				if ( GetExpansionSettings().GetLog().Chat )
+				{
 					GetExpansionSettings().GetLog().PrintLog( "[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + biuid + ")): " + data.param3 );
+					GetGame().AdminLog( "[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + biuid + ")): " + data.param3 );
+				}
 			}
 		} else
 		{

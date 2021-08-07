@@ -255,7 +255,6 @@ class ExpansionVehicleBase extends ItemBase
 	protected float m_ModelAnchorPointY = -1;
 	
 	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
 
 	// ------------------------------------------------------------
 	void ExpansionVehicleBase()
@@ -537,8 +536,9 @@ class ExpansionVehicleBase extends ItemBase
 		LoadConstantVariables();
 
 		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
-		
-		RegisterNetSyncVariableBool("m_SafeZoneSynchRemote");
+
+		if (IsMissionHost())
+			SetAllowDamage(CanBeDamaged());
 	}
 
 	// ------------------------------------------------------------
@@ -1581,6 +1581,32 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	protected void OnNetworkRecieve( ParamsReadContext ctx )
 	{
+	}
+
+	// ------------------------------------------------------------
+	// Called only server side
+	// ------------------------------------------------------------
+	void OnEnterSafeZone()
+	{
+		EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition());
+
+		m_SafeZone = true;
+
+		if ( GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+			SetAllowDamage(false);
+	}
+
+	// ------------------------------------------------------------
+	// Called only server side
+	// ------------------------------------------------------------
+	void OnLeftSafeZone()
+	{
+		EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition());
+
+		m_SafeZone = false;
+
+		if ( CanBeDamaged() )
+			SetAllowDamage(true);
 	}
 
 	// ------------------------------------------------------------
@@ -4526,12 +4552,9 @@ class ExpansionVehicleBase extends ItemBase
 			return false;
 		}
 		
-		if ( GetExpansionSettings().GetSafeZone().Enabled && !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
 		{
-			if ( IsInSafeZone() )
-			{
-				return false;
-			}
+			return !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone;
 		}
 
 		return true;
@@ -4614,21 +4637,6 @@ class ExpansionVehicleBase extends ItemBase
 	ExpansionVehicleController GetControllerInstance()
 	{
 		return NULL;
-	} 
-	
-	/**
-	 * @param damageResult 
-	 * @param source 
-	 * @param component 
-	 * @param dmgZone 
-	 * @param ammo 
-	 * @param modelPos 
-	 * @param speedCoef 
-	 */
-	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
-	{
-		if ( CanBeDamaged() )
-			super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
 	}
 	
 	bool IsInSafeZone()

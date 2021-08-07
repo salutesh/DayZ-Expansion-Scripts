@@ -19,7 +19,6 @@ modded class CarScript
 	
 	// Safezone
 	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -83,12 +82,9 @@ modded class CarScript
 	// ------------------------------------------------------------
 	bool CanBeDamaged()
 	{
-		if ( GetExpansionSettings().GetSafeZone().Enabled && !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
 		{
-			if ( IsInSafeZone() )
-			{
-				return false;
-			}
+			return !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone;
 		}
 
 		return true;
@@ -99,7 +95,12 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void OnEnterSafeZone()
 	{
+		EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition());
+
 		m_SafeZone = true;
+
+		if ( GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+			SetAllowDamage(false);
 	}
 
 	// ------------------------------------------------------------
@@ -107,23 +108,11 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void OnLeftSafeZone()
 	{
+		EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition());
+
 		m_SafeZone = false;
-	}
 
-	// ------------------------------------------------------------
-	// OnVariablesSynchronized
-	// ------------------------------------------------------------
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-
-		if ( m_SafeZoneSynchRemote && !m_SafeZone )
-		{
-			OnEnterSafeZone();
-		} else if ( !m_SafeZoneSynchRemote && m_SafeZone )
-		{
-			OnLeftSafeZone();
-		}
+		if ( CanBeDamaged() )
+			SetAllowDamage(true);
 	}
-	
 };
