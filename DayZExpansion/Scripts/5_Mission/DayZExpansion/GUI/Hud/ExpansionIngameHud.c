@@ -861,7 +861,7 @@ class ExpansionIngameHud extends Hud
 					SyncPlayer player;
 					bool isMember = false;
 					
-					for (int j = 0; j < m_PartyMembers.Count(); j++)
+					for (int j = m_PartyMembers.Count() - 1; j >= 0; j--)
 					{
 						string partyHudMemberID = m_PartyMembers[j].m_PlayerID;
 						hudMemberIDs.Insert(partyHudMemberID);
@@ -869,7 +869,7 @@ class ExpansionIngameHud extends Hud
 						if (!party.GetPlayer(partyHudMemberID) || !IsPlayerOnline(partyHudMemberID, player))
 						{
 							EXPrint("ExpansionPartyModule::UpdatePartyMembers - Calling RemovePartyMember " + partyHudMemberID);
-							RemovePartyMember(partyHudMemberID);
+							m_PartyMembers.Remove(j);
 						}
 					}
 					
