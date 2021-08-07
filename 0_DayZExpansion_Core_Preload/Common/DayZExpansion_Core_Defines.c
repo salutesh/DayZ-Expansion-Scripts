@@ -122,6 +122,9 @@
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING
 
+//! Enable or disable party hud implmentation 
+//#define EXPANSIONMOD_PARTYHUD_ENABLE
+
 #ifdef CF_DEBUGGER
 #define EXPANSION_DEBUG_UI_AI
 #define EXPANSION_DEBUG_UI_HOLOGRAM

@@ -57,12 +57,14 @@ class ExpansionIngameHud extends Hud
 	//! EARPLUG
 	protected ImageWidget 												m_EarPlugIcon;
 	
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
 	//! LEFT HUD PANEL
 	protected WrapSpacerWidget										m_LeftHUDPanel;
 	protected WrapSpacerWidget 										m_PartyMembersHUDPanel;
 	
 	//! PARTY HUD MEMBERS
 	ref array<ref ExpansionIngameHudPartyMember> 		m_PartyMembers;
+	#endif
 	
 	//! COMPASS HUD
 	protected Widget														m_CompassPanel;
@@ -84,9 +86,11 @@ class ExpansionIngameHud extends Hud
 				
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
 		
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
 		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
 		if (partyModule)
 			partyModule.m_PartyHUDInvoker.Insert(UpdatePartyMembers);
+		#endif
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
@@ -106,6 +110,7 @@ class ExpansionIngameHud extends Hud
 
 		delete m_WgtRoot;
 		
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
 		if (!m_PartyMembers)
 			delete m_PartyMembers;
 
@@ -117,6 +122,7 @@ class ExpansionIngameHud extends Hud
 			if (partyModule)
 				partyModule.m_PartyHUDInvoker.Remove(UpdatePartyMembers);
 		}
+		#endif
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud End");
@@ -175,10 +181,12 @@ class ExpansionIngameHud extends Hud
 		
 		//! EARPLUGS		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
-		
+	
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
 		//! LEFT HUD PANEL
 		m_LeftHUDPanel							= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("LeftHUDPanel") ); 
 		m_PartyMembersHUDPanel					= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("PartyMembers") );
+		#endif
 		
 		//! COMPASS HUD
 		m_CompassPanel							= Widget.Cast( m_WgtRoot.FindAnyWidget("CompassHUD") );
@@ -310,8 +318,10 @@ class ExpansionIngameHud extends Hud
 		if ( m_EarPlugIcon )
 			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
 		
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
 		if ( m_PartyMembersHUDPanel )
 			m_PartyMembersHUDPanel.Show( m_ExpansionHudState && m_ExpansionPartyMemberSetting );
+		#endif
 		
 		if ( m_CompassPanel )
 		{
@@ -771,6 +781,7 @@ class ExpansionIngameHud extends Hud
 		#endif
 	}
 	
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
 	// ------------------------------------------------------------
 	// Expansion GetLeftHUDPanel
 	// ------------------------------------------------------------
@@ -918,6 +929,7 @@ class ExpansionIngameHud extends Hud
 		
 		return false;
 	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// Expansion GetExpansionHudEventHandler
