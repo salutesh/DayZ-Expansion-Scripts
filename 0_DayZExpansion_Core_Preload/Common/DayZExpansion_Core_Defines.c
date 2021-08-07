@@ -53,7 +53,7 @@
 //#define EXPANSION_MISSION_EVENT_DEBUG
 
 //! Enable it if you want party module debug logs enabled
-#define EXPANSION_PARTY_MODULE_DEBUG
+//#define EXPANSION_PARTY_MODULE_DEBUG
 
 //! Enable it if you want to enable kill-feed module debug logs
 //#define EXPANSION_KILLFEED_MODULE_DEBUG

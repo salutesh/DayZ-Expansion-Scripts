@@ -82,6 +82,12 @@ class ExpansionIngameHud extends Hud
 		m_AddedCompassSettings = false;
 		m_ExpansionHudCompassState = false;
 				
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
+		
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		if (partyModule)
+			partyModule.m_PartyHUDInvoker.Insert(UpdatePartyMembers);
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
 		#endif
@@ -183,15 +189,6 @@ class ExpansionIngameHud extends Hud
 		m_WgtRoot.SetHandler( m_ExpansionEventHandler );
 		
 		m_ExpansionHudState = g_Game.GetProfileOption( EDayZProfilesOptions.HUD );
-		
-		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
-		
-		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
-		{
-			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-			if (partyModule)
-				partyModule.m_PartyHUDInvoker.Insert(UpdatePartyMembers);
-		}
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::Init End");
