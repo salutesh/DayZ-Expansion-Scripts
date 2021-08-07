@@ -134,8 +134,10 @@ class ExpansionPartyModule: JMModuleBase
 			}
 		}
 
+		Print("ExpansionPartyModule::OnMissionStart - Start");
+		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
-		EXPrint("ExpansionPartyModule::OnMissionStart - End");
+		EXPrint("ExpansionPartyModule::OnMissionStart - m_Parties.Count(): " + m_Parties.Count());
 		#endif
 	}
 	
@@ -662,9 +664,9 @@ class ExpansionPartyModule: JMModuleBase
 					}
 				}
 				
-				currentData.Delete();
-				delete currentData;
-				m_Parties.RemoveElement(i);				
+				//currentData.Delete();
+				//delete currentData;
+				m_Parties.Remove(currentData.GetPartyID());				
 				return true;
 			}
 		}
@@ -1151,9 +1153,8 @@ class ExpansionPartyModule: JMModuleBase
 		if (!party)
 		{
 			#ifdef EXPANSION_PARTY_MODULE_DEBUG
-			EXLogPrint("ExpansionPartyModule::UpdateClient - ERROR: ExpansionPartyData not found for party with id: " + partyId);
+			EXLogPrint("ExpansionPartyModule::UpdateClient - ExpansionPartyData not found for party with id: " + partyId);
 			#endif
-			return;
 		}
 
 		UpdateClient(party);
@@ -1282,7 +1283,7 @@ class ExpansionPartyModule: JMModuleBase
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_UpdateClient(ParamsReadContext ctx, PlayerIdentity senderRPC)
-	{		
+	{
 		if (!IsMissionClient())
 			return;
 		
@@ -1311,7 +1312,6 @@ class ExpansionPartyModule: JMModuleBase
 				delete m_Party;
 				
 			m_Party = NULL;
-			m_IsClientInitialized = false;
 		}
 
 		m_IsClientInitialized = true;
@@ -1851,6 +1851,19 @@ class ExpansionPartyModule: JMModuleBase
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_UpdatePermissions - End");
+		#endif
+	}
+	
+	override void OnMissionFinish()
+	{
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::OnMissionFinish - Start");
+		#endif
+		
+		m_Party = NULL;
+		
+		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		EXLogPrint("ExpansionPartyModule::OnMissionFinish - End");
 		#endif
 	}
 		

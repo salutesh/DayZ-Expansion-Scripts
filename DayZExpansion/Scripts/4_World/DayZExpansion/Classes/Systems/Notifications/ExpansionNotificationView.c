@@ -176,9 +176,12 @@ class ExpansionNotificationView: ScriptView
 		float currentAlpha;
 		float newAlpha;
 		
-		currentAlpha = GetLayoutRoot().GetAlpha();
-		newAlpha = Math.Clamp(GetLayoutRoot().GetAlpha() - timeslice / m_TotalHideUpdateTime, 0, 1);
-		GetLayoutRoot().SetAlpha(newAlpha);
+		if (GetLayoutRoot())
+		{
+			currentAlpha = GetLayoutRoot().GetAlpha();
+			newAlpha = Math.Clamp(GetLayoutRoot().GetAlpha() - timeslice / m_TotalHideUpdateTime, 0, 1);
+			GetLayoutRoot().SetAlpha(newAlpha);
+		}
 		
 		if (Notification)
 		{

@@ -38,4 +38,6 @@ class ExpansionScriptViewBase: ScriptView
 	{
 		return false;
 	}
+	
+	void Refresh();
 }
