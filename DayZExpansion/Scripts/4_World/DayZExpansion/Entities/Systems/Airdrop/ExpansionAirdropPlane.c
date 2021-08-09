@@ -72,21 +72,7 @@ class ExpansionAirdropPlane extends House
 		EXLogPrint("[ExpansionAirdropPlane] Constructor end");
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionAirdropPlane Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionAirdropPlane()
-	{
-		//#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] Deconstructor start");
-		//#endif
-
-		//#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] Deconstructor end");
-		//#endif
-	}
-	
+		
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane EEDelete
 	// ------------------------------------------------------------

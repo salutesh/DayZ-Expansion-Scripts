@@ -28,8 +28,6 @@ class ExpansionPartyModule: JMModuleBase
 	private int m_CurrentPlayerTick;
 	private int m_CurrentPartyTick;
 	
-	static ref ScriptInvoker m_PartyHUDInvoker = new ScriptInvoker();
-	
 	void ExpansionPartyModule()
 	{
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
@@ -664,9 +662,10 @@ class ExpansionPartyModule: JMModuleBase
 					}
 				}
 				
-				//currentData.Delete();
-				//delete currentData;
-				m_Parties.Remove(currentData.GetPartyID());				
+				m_Parties.Remove(currentData.GetPartyID());	
+				currentData.Delete();
+				delete currentData;
+				
 				return true;
 			}
 		}
@@ -780,8 +779,12 @@ class ExpansionPartyModule: JMModuleBase
 		if (GetExpansionSettings().GetLog().Party)
 			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " invited the player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + ")" + "to the party named " + party.GetPartyName());
 
-		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_INVITED", party.GetPartyName()).Success(targetPlayer.GetIdentity());
-		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_INVITED_SENDER", targetPlayer.GetIdentity().GetName()).Success(sender);
+		StringLocaliser title = new StringLocaliser("STR_EXPANSION_PARTY_NOTIF_TITLE");
+		StringLocaliser text_reciver = new StringLocaliser("STR_EXPANSION_PARTY_INVITED", party.GetPartyName());
+		StringLocaliser text_sender = new StringLocaliser("STR_EXPANSION_PARTY_INVITED_SENDER",  targetPlayer.GetIdentity().GetName());
+		
+		ExpansionNotification(title, text_reciver).Success(targetPlayer.GetIdentity());
+		ExpansionNotification(title, text_sender).Success(sender);
 	
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_InvitePlayer - End");
@@ -1234,7 +1237,7 @@ class ExpansionPartyModule: JMModuleBase
 			rpc.Write(true);
 			party.OnSend(rpc);
 		} 
-		else if (!party || !party.IsMember(senderID) || party == NULL)
+		else if (!party || !party.IsMember(senderID))
 		{
 			rpc.Write(false);
 		}
@@ -1261,7 +1264,7 @@ class ExpansionPartyModule: JMModuleBase
 		
 		string senderID = player.GetIdentity().GetId();
 		ScriptRPC rpc = new ScriptRPC();
-		if (party && party.IsMember(senderID))
+		if (party && party != NULL && party.IsMember(senderID))
 		{
 			rpc.Write(true);
 			party.OnSend(rpc);
@@ -1300,6 +1303,7 @@ class ExpansionPartyModule: JMModuleBase
 
 		if (hasParty)
 		{
+			Print("ExpansionPartyModule::RPC_UpdateClient- Player has party!");
 			if (!OnRecieveParty(ctx, m_Party))
 			{
 				Error("ExpansionPartyModule::RPC_UpdateClient can't read party");
@@ -1308,6 +1312,7 @@ class ExpansionPartyModule: JMModuleBase
 		} 
 		else
 		{
+			Print("ExpansionPartyModule::RPC_UpdateClient- Player has no party anymore!");
 			if (m_Party)
 				delete m_Party;
 				
@@ -1321,15 +1326,13 @@ class ExpansionPartyModule: JMModuleBase
 		{
 			module.Refresh();
 		}
-
+		
 		ExpansionScriptViewMenuBase menu;
 		if (Class.CastTo(menu, GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu()))
 		{
 			menu.Refresh();
 		}
 		
-		m_PartyHUDInvoker.Invoke(this, m_Party);
-
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::RPC_UpdateClient - End party : " + m_Party);
 		#endif
@@ -1846,14 +1849,21 @@ class ExpansionPartyModule: JMModuleBase
 		if (!memberPlayer)
 			return;
 	
-		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "Changed party permissions for player %1!", memberPlayer.GetIdentity().GetName()).Success(sender);
-		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "Your party permissions have been changed!").Success(memberPlayer.GetIdentity());
+		StringLocaliser title = new StringLocaliser("STR_EXPANSION_PARTY_NOTIF_TITLE");
+		StringLocaliser text_reciver = new StringLocaliser("STR_EXPANSION_PARTY_PERMISSIONS_CHANGED_RECIVER");
+		StringLocaliser text_sender = new StringLocaliser("STR_EXPANSION_PARTY_PERMISSIONS_CHANGED_SENDER", memberPlayer.GetIdentity().GetName());
+		
+		ExpansionNotification(title, text_sender).Success(sender);
+		ExpansionNotification(title, text_reciver).Success(memberPlayer.GetIdentity());
 		
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG
 		EXLogPrint("ExpansionPartyModule::Exec_UpdatePermissions - End");
 		#endif
 	}
 	
+	// -----------------------------------------------------------
+	// Expansion OnMissionFinish
+	// -----------------------------------------------------------
 	override void OnMissionFinish()
 	{
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG

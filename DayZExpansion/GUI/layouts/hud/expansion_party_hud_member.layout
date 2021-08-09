@@ -6,7 +6,7 @@ WrapSpacerWidgetClass PartyMemberEntry {
  vexactpos 1
  hexactsize 1
  vexactsize 1
- scriptclass "ExpansionIngameHudPartyMemberController"
+ scriptclass "ExpansionPartyHudMemberController"
  style Empty
  Padding 0
  Margin 0
@@ -392,6 +392,10 @@ WrapSpacerWidgetClass PartyMemberEntry {
      Binding_Name "PlayerBloodVal"
     }
    }
+  }
+ }
+ {
+  ScriptParamsClass {
   }
  }
 }

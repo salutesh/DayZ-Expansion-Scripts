@@ -1,5 +1,5 @@
 /**
- * ExpansionIngameHudPartyMember.c
+ * ExpansionPartyHudMember.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,9 +10,142 @@
  *
 */
 
-class ExpansionIngameHudPartyMember: ExpansionScriptView
+#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+class ExpansionPartyHud: ExpansionScriptViewBase
 {
-	ref ExpansionIngameHudPartyMemberController m_PartyMemberController;
+	ref ExpansionPartyHudController m_PartyHUDController;
+	private static autoptr map<string, ref ExpansionPartyHudMember> m_AllPartyHUDMembers = new map<string, ref ExpansionPartyHudMember>;
+	
+	void ExpansionPartyHud()
+	{
+		if (!m_PartyHUDController)
+			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());
+	}
+	
+	void ~ExpansionPartyHud()
+	{
+		m_AllPartyHUDMembers.Clear();
+		//m_PartyHUDController.PartyMembers.Clear();
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/GUI/layouts/hud/expansion_party_hud.layout";
+	}
+	
+	override typename GetControllerType() 
+	{
+		return ExpansionPartyHudController;
+	}
+	
+	void AddMember(string playerID, string playerName)
+	{	
+		Print("ExpansionPartyHud::AddMember - Start");
+		
+		if (!m_PartyHUDController)
+			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());
+		
+		Print("ExpansionPartyHud::AddMember - Step 1");
+		
+		ExpansionPartyHudMember newMember = new ExpansionPartyHudMember(playerID, playerName);
+		
+		Print("ExpansionPartyHud::AddMember - Step 2");
+		
+		m_PartyHUDController.PartyMembers.Insert(newMember);
+		
+		Print("ExpansionPartyHud::AddMember - Step 3");
+		
+		m_AllPartyHUDMembers.Insert(playerID, newMember);
+		
+		Print("ExpansionPartyHud::AddMember - End");
+	}
+	
+	void RemoveMember(string playerID)
+	{
+		Print("ExpansionPartyHud::RemoveMember - Start");
+		
+		ExpansionPartyHudMember member; 
+		m_AllPartyHUDMembers.Find(playerID, member);
+		
+		if (member)
+		{
+			int index = -1;
+			index = m_PartyHUDController.PartyMembers.Find(member);
+			if (index > -1)
+			{
+				m_PartyHUDController.PartyMembers.Remove(index);
+			}
+			
+			m_AllPartyHUDMembers.Remove(playerID);
+		}
+		
+		Print("ExpansionPartyHud::RemoveMember - End");
+	}
+	
+	void UpdateMembers(map<string, string> members)
+	{
+		Print("ExpansionPartyHud::UpdateMembers - Start");
+		Print("ExpansionPartyHud::UpdateMembers - Members count: " + members.Count());
+						
+		if (!m_AllPartyHUDMembers || m_AllPartyHUDMembers.Count() == 0)
+			return;
+		
+		array<string> currentMembers = new array<string>;
+		foreach (string currentMemberID, ExpansionPartyHudMember currentMember: m_AllPartyHUDMembers)
+		{
+			bool isStillMember = false;
+			bool isNewMember = false;
+			
+			if (members.Contains(currentMemberID))
+			{
+				isStillMember = true;
+				currentMembers.Insert(currentMemberID);
+			}
+					
+			if (!isStillMember)
+			{
+				int index = -1;
+				index = m_PartyHUDController.PartyMembers.Find(currentMember);
+				if (index > -1)
+				{
+					RemoveMember(currentMemberID);
+				}
+			}
+		}
+		
+		foreach (string playerID, string playerName: members)
+		{
+			int memberIndex = -1;
+			memberIndex = currentMembers.Find(playerID);
+			if (memberIndex == -1)
+			{
+				AddMember(playerID, playerName);
+			}
+		}
+		Print("ExpansionPartyHud::UpdateMembers - End");
+	}
+	
+	void ClearMembers()
+	{
+		Print("ExpansionPartyHud::ClearMembers - Start");
+		
+		if (!m_PartyHUDController.PartyMembers || m_PartyHUDController.PartyMembers.Count() == 0)
+			return;
+		
+		m_PartyHUDController.PartyMembers.Clear();
+		
+		Print("ExpansionPartyHud::ClearMembers - End");
+	}
+}
+
+class ExpansionPartyHudController: ExpansionViewController
+{
+	ref ObservableCollection<ref ExpansionPartyHudMember> PartyMembers = new ObservableCollection<ref ExpansionPartyHudMember>(this);
+}
+
+class ExpansionPartyHudMember: ExpansionScriptViewBase
+{
+	ref ExpansionPartyHudMemberController m_PartyMemberController;
 	ProgressBarWidget PlayerHealth;
 	ImageWidget Bones;
 	ImageWidget Sick;
@@ -34,15 +167,15 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	string m_PlayerID;
 	string m_PlayerName;
 	
-	void ExpansionIngameHudPartyMember(string playerID, string playerName)
+	void ExpansionPartyHudMember(string playerID, string playerName)
 	{	
 		m_PlayerID = playerID;
 		m_PlayerName = playerName;
 			
 		if (!m_PartyMemberController)
-			m_PartyMemberController = ExpansionIngameHudPartyMemberController.Cast(GetController());
+			m_PartyMemberController = ExpansionPartyHudMemberController.Cast(GetController());
 		
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		/*ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (monitorModule)
 		{
 			monitorModule.m_StatsInvoker.Insert(this.OnDataRecived);
@@ -50,12 +183,12 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 			
 			monitorModule.m_StatesInvoker.Insert(this.OnStateDataRecived);
 			monitorModule.RequestPlayerStates(m_PlayerID);
-		}
+		}*/
 		
 		SetView();
 	}
 	
-	void ~ExpansionIngameHudPartyMember()
+	void ~ExpansionPartyHudMember()
 	{
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (monitorModule)
@@ -67,12 +200,12 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/GUI/layouts/hud/expansion_hud_party_member.layout";
+		return "DayZExpansion/GUI/layouts/hud/expansion_party_hud_member.layout";
 	}
 	
 	override typename GetControllerType() 
 	{
-		return ExpansionIngameHudPartyMemberController;
+		return ExpansionPartyHudMemberController;
 	}
 	
 	void SetView()
@@ -283,7 +416,7 @@ class ExpansionIngameHudPartyMember: ExpansionScriptView
 	}
 }
 
-class ExpansionIngameHudPartyMemberController: ExpansionViewController
+class ExpansionPartyHudMemberController: ExpansionViewController
 {
 	Object PlayerObject;
 	int PlayerHealth;
@@ -293,3 +426,4 @@ class ExpansionIngameHudPartyMemberController: ExpansionViewController
 	string PlayerName;
 	string PlayerRangIcon;
 }
+#endif

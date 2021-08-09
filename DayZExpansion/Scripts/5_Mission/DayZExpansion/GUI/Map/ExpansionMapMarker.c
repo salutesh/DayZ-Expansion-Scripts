@@ -99,7 +99,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnInit - Start");
 		#endif
-		
+				
 		Class.CastTo( m_Frame, layoutRoot.FindAnyWidget( "marker_frame" ) );
 		Class.CastTo( m_Name, layoutRoot.FindAnyWidget( "marker_name" ) );
 		Class.CastTo( m_EditName, layoutRoot.FindAnyWidget( "marker_edit_name" ) );
@@ -904,5 +904,24 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		}
 
 		return super.OnMouseLeave( w, enterW, x, y );
+	}
+ 	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker SetIgnorePointer
+	// ------------------------------------------------------------	
+	void SetIgnorePointer(bool state)
+	{
+		if (state)
+		{
+			GetLayoutRoot().SetFlags(WidgetFlags.IGNOREPOINTER);
+			m_DragWidget.SetFlags(WidgetFlags.IGNOREPOINTER);
+			m_EditButton.SetFlags(WidgetFlags.IGNOREPOINTER);
+		}
+		else
+		{
+			GetLayoutRoot().ClearFlags(WidgetFlags.IGNOREPOINTER);
+			m_DragWidget.ClearFlags(WidgetFlags.IGNOREPOINTER);
+			m_EditButton.ClearFlags(WidgetFlags.IGNOREPOINTER);
+		}
 	}
 };

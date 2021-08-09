@@ -511,6 +511,7 @@ class ExpansionMarkerClientData : Managed
 
 	int ServerFlipVisibility( string uid, int vis )
 	{
+		Print("ExpansionMarkerModule - ServerFlipVisibility");
 		ExpansionMarkerClientInfo info = m_MarkerInfo_Server.Get( uid );
 
 		if ( info )
@@ -555,16 +556,6 @@ class ExpansionMarkerClientData : Managed
 
 	private void RefreshServerMarkers()
 	{
-		if ( !m_PartyModule || !m_PartyModule.HasParty() )
-		{
-			if ( m_PartyModule && m_PartyModule.IsClientInitialized() )
-			{
-				m_MarkerInfo_Server.Clear();
-			}
-
-			return;
-		}
-		
 		int index;
 		string uid;
 		int removeIndex;
@@ -594,6 +585,8 @@ class ExpansionMarkerClientData : Managed
 			//! Remove client info for markers that have been removed
 			m_MarkerInfo_Server.Remove( checkArr[index] );
 		}
+			
+		Print("ExpansionMarkerClientData - RefreshServerMarkers - End");
 	}
 
 	private void RefreshPartyMarkers()

@@ -12,10 +12,15 @@
 
 class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker 
 {	
+	void ExpansionMapMarkerPlayerArrow( Widget parent, MapWidget mapWidget, bool autoInit = true )
+	{
+		SetIgnorePointer(true);
+	}
+	
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerPlayerArrow OnEditInit
 	// ------------------------------------------------------------	
-	protected override void OnEditInit( Widget layoutRoot )
+	/*protected override void OnEditInit( Widget layoutRoot )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::OnEditInit - Start");
@@ -36,7 +41,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::OnEditInit - End");
 		#endif
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerPlayerArrow Update

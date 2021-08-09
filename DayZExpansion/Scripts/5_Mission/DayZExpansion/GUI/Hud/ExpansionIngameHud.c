@@ -57,15 +57,6 @@ class ExpansionIngameHud extends Hud
 	//! EARPLUG
 	protected ImageWidget 												m_EarPlugIcon;
 	
-	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-	//! LEFT HUD PANEL
-	protected WrapSpacerWidget										m_LeftHUDPanel;
-	protected WrapSpacerWidget 										m_PartyMembersHUDPanel;
-	
-	//! PARTY HUD MEMBERS
-	ref array<ref ExpansionIngameHudPartyMember> 		m_PartyMembers;
-	#endif
-	
 	//! COMPASS HUD
 	protected Widget														m_CompassPanel;
 	protected ImageWidget												m_CompassImage;
@@ -86,12 +77,6 @@ class ExpansionIngameHud extends Hud
 				
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
 		
-		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-		if (partyModule)
-			partyModule.m_PartyHUDInvoker.Insert(UpdatePartyMembers);
-		#endif
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
 		#endif
@@ -109,20 +94,6 @@ class ExpansionIngameHud extends Hud
 		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshExpansionHudVisibility );
 
 		delete m_WgtRoot;
-		
-		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-		if (!m_PartyMembers)
-			delete m_PartyMembers;
-
-		ClearPartyMembers();
-		
-		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
-		{
-			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
-			if (partyModule)
-				partyModule.m_PartyHUDInvoker.Remove(UpdatePartyMembers);
-		}
-		#endif
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud End");
@@ -181,12 +152,6 @@ class ExpansionIngameHud extends Hud
 		
 		//! EARPLUGS		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
-	
-		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-		//! LEFT HUD PANEL
-		m_LeftHUDPanel							= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("LeftHUDPanel") ); 
-		m_PartyMembersHUDPanel					= WrapSpacerWidget.Cast( m_WgtRoot.FindAnyWidget("PartyMembers") );
-		#endif
 		
 		//! COMPASS HUD
 		m_CompassPanel							= Widget.Cast( m_WgtRoot.FindAnyWidget("CompassHUD") );
@@ -317,11 +282,6 @@ class ExpansionIngameHud extends Hud
 		
 		if ( m_EarPlugIcon )
 			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
-		
-		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-		if ( m_PartyMembersHUDPanel )
-			m_PartyMembersHUDPanel.Show( m_ExpansionHudState && m_ExpansionPartyMemberSetting );
-		#endif
 		
 		if ( m_CompassPanel )
 		{
@@ -780,156 +740,6 @@ class ExpansionIngameHud extends Hud
 		EXLogPrint("ExpansionIngameHud::SetGPSMapScale:: m_GPSMapScale set to: " + m_GPSMapScale.ToString());
 		#endif
 	}
-	
-	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-	// ------------------------------------------------------------
-	// Expansion GetLeftHUDPanel
-	// ------------------------------------------------------------
-	WrapSpacerWidget GetLeftHUDPanel()
-	{
-		return m_LeftHUDPanel;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetPartyMembersSpacer
-	// ------------------------------------------------------------
-	WrapSpacerWidget GetPartyMembersSpacer()
-	{
-		return m_PartyMembersHUDPanel;
-	}
-		
-	// ------------------------------------------------------------
-	// Expansion ClearPartyMembers
-	// ------------------------------------------------------------
-	void ClearPartyMembers()
-	{
-		if (m_PartyMembers && m_PartyMembers.Count() > 0)
-		{
-			m_PartyMembers.Clear();
-			delete m_PartyMembers;
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion RemovePartyMember
-	// ------------------------------------------------------------
-	void AddPartyMember(string id)
-	{
-		SyncPlayer playerSync;
-		if (IsPlayerOnline(id, playerSync))
-		{
-			EXPrint("AddPartyMember " + id + " " + playerSync + " - is online");
-			if (playerSync)
-			{
-				ExpansionIngameHudPartyMember memberEntry = new ExpansionIngameHudPartyMember(playerSync.m_RUID, playerSync.m_PlayerName);
-				EXPrint("AddPartyMember " + id + " " + playerSync + " " + memberEntry + " m_PartyMembers " + m_PartyMembers + " spacer " + GetPartyMembersSpacer());
-				if (memberEntry && m_PartyMembers && GetPartyMembersSpacer())
-				{
-					m_PartyMembers.Insert(memberEntry);
-					GetPartyMembersSpacer().AddChild(memberEntry.GetLayoutRoot(), true);
-				}
-			}
-		}
-		else
-		{
-			EXPrint("AddPartyMember " + id + " " + playerSync + " - is NOT online");
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion RemovePartyMember
-	// ------------------------------------------------------------
-	void RemovePartyMember(string id)
-	{
-		for (int i = m_PartyMembers.Count() - 1; i >= 0; i--)
-		{
-			if (m_PartyMembers[i].m_PlayerID == id)
-			{
-				m_PartyMembers.Remove(i);
-			}
-		}
-	}
-		
-	// ------------------------------------------------------------
-	// Expansion UpdatePartyMembers
-	// ------------------------------------------------------------
-	void UpdatePartyMembers(ExpansionPartyModule partyModule, ExpansionPartyData party)
-	{
-		EXPrint("ExpansionPartyModule::UpdatePartyMembers - Start - " + partyModule + " " + party + " ShowPartyMemberHUD " + GetExpansionSettings().GetParty().ShowPartyMemberHUD);
-		
-		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
-		{
-			if (GetGame() && GetGame().GetPlayer())
-			{			
-				EXPrint("ExpansionPartyModule::UpdatePartyMembers - have player");
-				if (partyModule && party)
-				{
-					if (!m_PartyMembers)
-						m_PartyMembers = new array<ref ExpansionIngameHudPartyMember>;
-					
-					string playerID = GetGame().GetPlayer().GetIdentity().GetId();
-					TStringArray hudMemberIDs = new TStringArray;
-					SyncPlayer player;
-					bool isMember = false;
-					
-					for (int j = m_PartyMembers.Count() - 1; j >= 0; j--)
-					{
-						string partyHudMemberID = m_PartyMembers[j].m_PlayerID;
-						hudMemberIDs.Insert(partyHudMemberID);
-						
-						if (!party.GetPlayer(partyHudMemberID) || !IsPlayerOnline(partyHudMemberID, player))
-						{
-							EXPrint("ExpansionPartyModule::UpdatePartyMembers - Calling RemovePartyMember " + partyHudMemberID);
-							m_PartyMembers.Remove(j);
-						}
-					}
-					
-					for (int i = 0; i < party.GetPlayers().Count(); i++)
-					{
-						string partyMemberID = party.GetPlayers()[i].UID;
-						int foundIndex = hudMemberIDs.Find(partyMemberID);
-						
-						if (foundIndex == -1 && IsPlayerOnline(partyMemberID, player) && playerID != partyMemberID)
-						{
-							EXPrint("ExpansionPartyModule::UpdatePartyMembers - Calling AddPartyMember " + partyMemberID);
-							AddPartyMember(partyMemberID);
-						}
-					}
-				}
-				else
-				{
-					EXPrint("ExpansionPartyModule::UpdatePartyMembers - No party module/no party - Clear party members");
-					ClearPartyMembers();
-				}
-			}
-		}
-		
-		EXPrint("ExpansionPartyModule::UpdatePartyMembers - End");
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsPlayerOnline
-	// ------------------------------------------------------------
-	bool IsPlayerOnline(string uid, out SyncPlayer syncPlayer)
-	{
-		if (ClientData.m_PlayerList)
-		{
-			foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
-			{
-				if (player)
-				{
-					if (player.m_RUID == uid)
-					{
-						syncPlayer = player;
-						return true;
-					}
-				}
-			}
-		}
-		
-		return false;
-	}
-	#endif
 	
 	// ------------------------------------------------------------
 	// Expansion GetExpansionHudEventHandler
