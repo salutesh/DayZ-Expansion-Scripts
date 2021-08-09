@@ -13,11 +13,11 @@
 enum ExpansionPartyModuleRPC
 {
 	INVALID = 20020,
-	Create,
-	Dissolve,
-	Leave,
-	RemovePlayer,
-	UpdateClient,
+	CreateParty,
+	DissolveParty,
+	LeaveParty,
+	RemovePartyMember,
+	UpdatePlayer,
 
 	CreateMarker,
 	UpdateMarker,
@@ -28,7 +28,7 @@ enum ExpansionPartyModuleRPC
 	DeclineInvite,
 	AcceptInvite,
 	
-	SyncPlayersInvites,
+	SyncPlayerInvites,
 
 	UpdateQuickMarker,
 	
@@ -146,7 +146,7 @@ enum ExpansionTerritoryModuleRPC
 	DeleteTerritoryAdmin,
 	UpdateClient,
 	RequestInvitePlayer,
-	SyncPlayersInvites,
+	SyncPlayerInvites,
 	AcceptInvite,
 	DeclineInvite,
 	AddTerritoryFlagToPlayer,

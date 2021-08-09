@@ -564,6 +564,31 @@ static array< string > ExpansionFindFilesInLocation( string folder, string ext =
 	return files;
 }
 
+static array< string > ExFindFilesInLocation( string folder )
+{
+	array< string > files = new array< string >;
+	string fileName;
+	FileAttr fileAttr;
+	FindFileHandle findFileHandle = FindFile( folder + "*", fileName, fileAttr, 0 );
+	if ( findFileHandle )
+	{
+		if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+		{
+			files.Insert( fileName );
+		}
+		
+		while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
+		{
+			if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+			{
+				files.Insert( fileName );
+			}
+		}
+	}
+	CloseFindFile( findFileHandle );
+	return files;
+}
+
 #ifdef ENFUSION_AI_PROJECT
 static TStringArray ExpansionWorkingAIClasses()
 {

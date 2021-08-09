@@ -31,7 +31,7 @@ class ExpansionObjectSpawnTools
 
 		if ( loadObjects && FileExist( objectFilesFolder ) )
 		{
-			objectFiles = FindFilesInLocation(objectFilesFolder);
+			objectFiles = ExFindFilesInLocation(objectFilesFolder);
 			if (objectFiles.Count() >= 0)
 			{
 				
@@ -43,9 +43,9 @@ class ExpansionObjectSpawnTools
 		if ( loadTraders && FileExist( traderFilesFolder ) )
 		{
 			#ifdef ENFUSION_AI_PROJECT
-			traderFiles = FindFilesInLocation(aiTraderFilesFolder);
+			traderFiles = ExFindFilesInLocation(aiTraderFilesFolder);
 			#else
-			traderFiles = FindFilesInLocation(traderFilesFolder);
+			traderFiles = ExFindFilesInLocation(traderFilesFolder);
 			#endif
 			if (traderFiles.Count() >= 0)
 			{

@@ -585,8 +585,6 @@ class ExpansionMarkerClientData : Managed
 			//! Remove client info for markers that have been removed
 			m_MarkerInfo_Server.Remove( checkArr[index] );
 		}
-			
-		Print("ExpansionMarkerClientData - RefreshServerMarkers - End");
 	}
 
 	private void RefreshPartyMarkers()

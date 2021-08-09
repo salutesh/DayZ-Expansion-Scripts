@@ -86,7 +86,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsBase
 
 		m_IsLoaded = true;
 
-		Update( this );
+		Update( NULL );
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::OnRecieve - End");

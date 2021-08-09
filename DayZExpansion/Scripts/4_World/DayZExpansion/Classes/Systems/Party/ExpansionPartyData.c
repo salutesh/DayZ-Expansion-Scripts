@@ -243,9 +243,9 @@ class ExpansionPartyData
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion RemovePlayer
+	// Expansion RemoveMember
 	// ------------------------------------------------------------
-	bool RemovePlayer( string uid )
+	bool RemoveMember( string uid )
 	{
 		ExpansionPartyPlayerData player = PlayersMap.Get( uid );
 		if ( player )

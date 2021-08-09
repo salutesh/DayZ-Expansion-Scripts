@@ -121,7 +121,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		//Sync invites
-		SyncPlayersInvites( player );
+		SyncPlayerInvitesServer( player );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - End");
@@ -236,10 +236,10 @@ class ExpansionTerritoryModule: JMModuleBase
 			#endif
 
 			break;
-		case ExpansionTerritoryModuleRPC.SyncPlayersInvites:
-			RPC_SyncPlayersInvites( ctx, sender, target );
+		case ExpansionTerritoryModuleRPC.SyncPlayerInvites:
+			RPC_SyncPlayerInvitesClient( ctx, sender, target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SyncPlayersInvites");
+			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SyncPlayerInvitesClient");
 			#endif
 
 			break;
@@ -721,7 +721,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				if (!currPlayerInvite)
 					continue;
 				
-				SyncPlayersInvites(currPlayerInvite);
+				SyncPlayerInvitesServer(currPlayerInvite);
 			}
 		
 			if ( GetExpansionSettings().GetLog().Territory )
@@ -838,7 +838,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			if (!currPlayerInvite)
 				continue;
 			
-			SyncPlayersInvites(currPlayerInvite);
+			SyncPlayerInvitesServer(currPlayerInvite);
 		}
 		
 		if ( sender && GetExpansionSettings().GetLog().Territory )
@@ -860,10 +860,10 @@ class ExpansionTerritoryModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionPartyModule SyncPlayersInvites
+	// ExpansionPartyModule SyncPlayerInvitesServer
 	// Called on server
 	// ------------------------------------------------------------
-	void SyncPlayersInvites( PlayerBase sender )
+	void SyncPlayerInvitesServer( PlayerBase sender )
 	{
 		if ( !IsMissionHost() || !sender || !sender.GetIdentity() )
 			return;
@@ -890,14 +890,14 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		ScriptRPC rpcServer = new ScriptRPC();
 		rpcServer.Write( invites );
-		rpcServer.Send( NULL, ExpansionTerritoryModuleRPC.SyncPlayersInvites, true, sender.GetIdentity() );
+		rpcServer.Send( NULL, ExpansionTerritoryModuleRPC.SyncPlayerInvites, true, sender.GetIdentity() );
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionPartyModule RPC_SyncPlayersInvites
+	// ExpansionPartyModule RPC_SyncPlayerInvitesClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SyncPlayersInvites( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_SyncPlayerInvitesClient( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		if ( !player )
@@ -1038,7 +1038,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			return;
 		}
 		
-		SyncPlayersInvites(targetPlayer);
+		SyncPlayerInvitesServer(targetPlayer);
 		
 		if ( GetExpansionSettings().GetLog().Territory )
 			GetExpansionSettings().GetLog().PrintLog("[Territory] Player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + " pos=" + targetPlayer.GetPosition() +") was invited to join the territory " + territory.GetTerritoryName() + " at " + territory.GetPosition() + " by the player \"" + sender.GetName() + "\" (id=" + sender.GetId() +")");
@@ -1149,7 +1149,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		territory.RemoveTerritoryInvite( sender.GetId() );
 		territory.AddMember( sender.GetId(), sender.GetName() );
 		
-		SyncPlayersInvites( senderPlayer );
+		SyncPlayerInvitesServer( senderPlayer );
 		UpdateClient( territoryID );
 		
 		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ADDED", territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
@@ -1247,7 +1247,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		territory.RemoveTerritoryInvite( sender.GetId() );		
-		SyncPlayersInvites( senderPlayer );
+		SyncPlayerInvitesServer( senderPlayer );
 		//UpdateClient( territoryID );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
