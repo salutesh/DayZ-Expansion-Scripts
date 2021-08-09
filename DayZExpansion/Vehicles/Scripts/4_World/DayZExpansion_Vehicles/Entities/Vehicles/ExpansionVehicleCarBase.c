@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * Copyright (c) 2005 Erwin Coumans http://continuousphysics.com/Bullet/
  *

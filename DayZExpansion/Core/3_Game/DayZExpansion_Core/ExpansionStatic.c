@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -545,31 +545,6 @@ static array< string > ExpansionFindFilesInLocation( string folder, string ext =
 	string fileName;
 	FileAttr fileAttr;
 	FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
-	if ( findFileHandle )
-	{
-		if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
-		{
-			files.Insert( fileName );
-		}
-		
-		while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
-		{
-			if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
-			{
-				files.Insert( fileName );
-			}
-		}
-	}
-	CloseFindFile( findFileHandle );
-	return files;
-}
-
-static array< string > ExFindFilesInLocation( string folder )
-{
-	array< string > files = new array< string >;
-	string fileName;
-	FileAttr fileAttr;
-	FindFileHandle findFileHandle = FindFile( folder + "*", fileName, fileAttr, 0 );
 	if ( findFileHandle )
 	{
 		if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
