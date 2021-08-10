@@ -12,8 +12,6 @@
 
 modded class LoadingScreen
 {
-	protected static ref JsonSerializer m_Serializer = new JsonSerializer;
-
 	protected RichTextWidget m_LoadingMessage;
 	protected RichTextWidget m_LoadingMessageAuthor;
 	
@@ -22,17 +20,7 @@ modded class LoadingScreen
 	protected autoptr array< ref ExpansionLoadingScreenMessageData > m_MessageJson;
 
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
-	
-	protected Widget m_ModOutdatedPanel;
-	protected ImageWidget m_ModOutdatedImage;
-	protected TextWidget m_ModOutdatedText;
 
-	protected bool m_ExpansionVersionChecked;
-	protected bool m_IsExpansionOutdated;
-	
-	string m_ExpansionClientVersion;
-	string m_ExpansionCurrentVersion;
-	
 	protected RestApi m_ExpansionRestApi;
 
 	// ------------------------------------------------------------
@@ -71,10 +59,6 @@ modded class LoadingScreen
 
 		m_ImageLogoMid.LoadImageFile( 0, "set:expansion_iconset image:logo_expansion_white" );
 		m_ImageLogoCorner.LoadImageFile( 0, "set:expansion_iconset image:logo_expansion_white" );
-
-		m_ModOutdatedPanel = Widget.Cast( m_WidgetRoot.FindAnyWidget("ModVersionPanel") );
-		Class.CastTo(m_ModOutdatedImage, m_WidgetRoot.FindAnyWidget("ModOutdatedImage"));
-		Class.CastTo(m_ModOutdatedText, m_WidgetRoot.FindAnyWidget("ModOutdatedText"));
 
 		string tmp;
 		m_ProgressText = TextWidget.Cast(m_WidgetRoot.FindAnyWidget("ProgressText"));

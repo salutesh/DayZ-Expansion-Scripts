@@ -46,5 +46,8 @@ modded class PluginRecipesManager
 
 		//! Ammunitions
 		RegisterRecipe(new ExpansionCraftStickySmoke);
+
+		//! Traps
+		RegisterRecipe(new ExpansionCraftTripWire);
 	}
 };

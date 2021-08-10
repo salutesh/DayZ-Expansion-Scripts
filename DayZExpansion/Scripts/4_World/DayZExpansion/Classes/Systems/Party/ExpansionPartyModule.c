@@ -729,16 +729,13 @@ class ExpansionPartyModule: JMModuleBase
 
 		string playerID = identity.GetId();
 		ScriptRPC rpc = new ScriptRPC();
-		bool partyIsNull = party == NULL;
 		if (party && party.IsMember(playerID))
 		{
-			EXPrint(ToString() + "::UpdatePlayerServer " + playerID + " - party " + party + " - party == NULL " + partyIsNull);
 			rpc.Write(true);
 			party.OnSend(rpc);
 		}
 		else
 		{
-			EXPrint(ToString() + "::UpdatePlayerServer " + playerID + " - has no party");
 			rpc.Write(false);
 		}
 

@@ -12,42 +12,33 @@
 
 modded class OrienteeringCompass
 {	
+	private bool m_Added = false;
+	
 	// ------------------------------------------------------------
 	// OrienteeringCompass EEInventoryIn
 	// ------------------------------------------------------------	
 	override void EEInventoryIn(Man newParentMan, EntityAI diz, EntityAI newParent)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		//#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("OrienteeringCompass::EEInventoryIn - Start");
-		#endif
+		//#endif
 		
 		super.EEInventoryIn( newParentMan, diz, newParent );
 		
-		if ( IsMissionClient() )
+		if ( IsMissionClient() && newParentMan && newParentMan.IsInherited( SurvivorBase ) )
 		{
-			if ( newParentMan && newParentMan.IsInherited( SurvivorBase ) )
+			PlayerBase newParentBase;
+			if (Class.CastTo(newParentBase,newParentMan) && !m_Added)
 			{
-				PlayerBase player = PlayerBase.Cast( newParentMan );
+				m_Added = true;
 				
-				if (!player)
-					player = PlayerBase.Cast(GetHierarchyRootPlayer());
-				
-				if ( !player )
-				{
-					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("OrienteeringCompass::EEInventoryIn - player: " + player.ToString());
-					#endif
-	
-					return;
-				}
-				
-				player.SetHasItemCompass( true );
+				newParentBase.SetHasItemCompass( true );
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		//#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("OrienteeringCompass::EEInventoryIn - End");
-		#endif
+		//#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -55,36 +46,107 @@ modded class OrienteeringCompass
 	// ------------------------------------------------------------	
 	override void EEInventoryOut(Man oldParentMan, EntityAI diz, EntityAI newParent)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
+		//#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("OrienteeringCompass::EEInventoryOut - Start");
-		#endif
+		//#endif
 		
 		super.EEInventoryOut( oldParentMan, diz, newParent );
 		
-		if ( IsMissionClient() )
+		if ( IsMissionClient() && oldParentMan && oldParentMan.IsInherited( SurvivorBase ) )
 		{
-			if ( oldParentMan && oldParentMan.IsInherited( SurvivorBase ) )
+			PlayerBase oldParentBase;
+			if (Class.CastTo(oldParentBase, oldParentMan) && m_Added)
 			{
-				PlayerBase player = PlayerBase.Cast( oldParentMan );
-					
-				if (!player)
-					player = PlayerBase.Cast(GetHierarchyRootPlayer());
+				m_Added = false;
 				
-				if ( !player )
-				{
-					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("OrienteeringCompass::EEInventoryOut - player: " + player.ToString());
-					#endif
-					
-					return;
-				}
-				
-				player.SetHasItemCompass( false );
+				oldParentBase.SetHasItemCompass( false );
 			}
 		}
 		
-		#ifdef EXPANSIONEXLOGPRINT
+		//#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("OrienteeringCompass::EEInventoryOut - End");
-		#endif
+		//#endif
+	}
+
+	// ------------------------------------------------------------
+	// Compass OnInventoryExit
+	// ------------------------------------------------------------
+	//! Inventory manipulation
+	override void OnInventoryExit(Man player)
+	{
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("OrienteeringCompass::OnInventoryExit - Start");
+		//#endif
+			
+		super.OnInventoryExit(player);
+				
+		if ( GetGame() && (!GetGame().IsServer() || !GetGame().IsMultiplayer()) )
+		{
+			if (GetHierarchyParent())
+			{
+				ItemBase item;
+				PlayerBase playerBase;
+				if (Class.CastTo(item, GetHierarchyParent()))
+				{
+					PlayerBase parentPlayer;
+					if (!Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()) && m_Added)
+					{
+						PlayerBase.Cast(player).SetHasItemCompass( false );
+						m_Added = false;
+					}
+					else if (Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()) && m_Added)
+					{
+						if (parentPlayer != player)
+						{
+							PlayerBase parentPlayerBase;
+							if (!Class.CastTo(parentPlayerBase, player))
+							{
+								m_Added = false;
+								
+								parentPlayerBase.SetHasItemCompass( false );
+							}
+						}
+					}
+				}
+			}
+		}
+	
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("OrienteeringCompass::OnInventoryExit - End");
+		//#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Compass OnInventoryExit
+	// ------------------------------------------------------------
+	override void OnInventoryEnter(Man player)
+	{
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("OrienteeringCompass::OnInventoryEnter - Start");
+		//#endif
+			
+		super.OnInventoryEnter(player);
+		
+		if ( GetGame() && (!GetGame().IsServer() || !GetGame().IsMultiplayer()) )
+		{
+			if (GetHierarchyParent())
+			{
+				ItemBase item;
+				if (Class.CastTo(item, GetHierarchyParent()))
+				{
+					PlayerBase parentPlayer;
+					if (Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()) && !m_Added)
+					{
+						m_Added = true;
+						
+						parentPlayer.SetHasItemCompass( true );
+					}
+				}
+			}
+		}
+		
+		//#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("OrienteeringCompass::OnInventoryEnter - End");
+		//#endif
 	}
 }

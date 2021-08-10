@@ -768,6 +768,8 @@ modded class PlayerBase
 		{
 			m_CountMap -= 1;
 		}
+		
+		Print("m_CountMap: " + m_CountMap);
 	}
 	
 	// ------------------------------------------------------------
@@ -791,6 +793,8 @@ modded class PlayerBase
 		{
 			m_CountGPS -= 1;
 		}
+		
+		Print("m_CountGPS: " + m_CountGPS);
 	}
 	
 	// ------------------------------------------------------------
@@ -837,6 +841,8 @@ modded class PlayerBase
 		{
 			m_CountCompass -= 1;
 		}
+		
+		Print("m_CountCompass: " + m_CountCompass);
 	}
 	
 	// ------------------------------------------------------------
