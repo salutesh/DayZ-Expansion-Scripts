@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -64,12 +64,18 @@ class ExpansionActionDisconnectTow: ActionInteractBase
 
 		CarScript car;
 		if ( vehCommand && Class.CastTo( car, vehCommand.GetTransport() ) )
-		{				
+		{			
 			if ( car.CrewMemberIndex( action_data.m_Player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
+#ifdef EXPANSIONMODVEHICLE
+				if ( GetExpansionSettings().GetLog().VehicleTowing )
+					GetExpansionSettings().GetLog().PrintLog("[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " Untowed " + car.GetTowedEntity().GetType() + " with " + car.GetType() );
+#endif
+
 				car.DestroyTow();
 			}
 		}
+	
 	}
 	
 	override bool CanBeUsedInVehicle()

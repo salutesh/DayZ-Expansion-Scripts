@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Water\\Utility\\data\\rhib_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Water\\Utility\\data\\rhib.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

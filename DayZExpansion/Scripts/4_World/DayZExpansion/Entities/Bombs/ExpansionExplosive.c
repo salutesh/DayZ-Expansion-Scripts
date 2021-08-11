@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,7 +14,7 @@
  * @brief		
  **/
 class ExpansionExplosive extends ItemBase
-{	
+{
 	protected int m_Time;
 	protected int m_Timer;
 	protected float m_ExplosionTime;
@@ -30,6 +30,8 @@ class ExpansionExplosive extends ItemBase
 	protected Particle m_ParticleEfx;	
 
 	protected ref Timer	m_ExplosionTimer;
+	
+	protected bool m_PlayedSound;
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -44,9 +46,9 @@ class ExpansionExplosive extends ItemBase
 		m_ExplosionTimer = new Timer();
 
 		RegisterNetSyncVariableInt( "m_Time" );
-
 		RegisterNetSyncVariableBool( "m_ExecutedSynchRemote" );
 		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" );
+		RegisterNetSyncVariableBool( "m_PlayedSound" );
 	}
 
 	// ------------------------------------------------------------
@@ -94,9 +96,9 @@ class ExpansionExplosive extends ItemBase
 			SetSynchDirty();
 		}
 
-		if ( IsMissionClient() && m_ExecutedSynchRemote )
+		if ( IsMissionClient() && m_ExecutedSynchRemote && !m_PlayedSound)
 		{
-			TriggerSound( m_Time );
+			TriggerSound(m_Time);
 		}
 	}
 
@@ -109,14 +111,18 @@ class ExpansionExplosive extends ItemBase
 
 		m_Executed = true;
 		m_ExecutedSynchRemote = true;
-
+		m_PlayedSound = false;
+		
 		if ( IsMissionHost() )
 		{
 			m_ExplosionTimer.Run( m_ExplosionTime, this, "TriggerExplosion", NULL, false ); 
-		}
+		}		
 
+		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
+			GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Player \"" + player.GetIdentity().GetName() + "\" (id=" + player.GetIdentity().GetId() + " pos=" + player.GetPosition() + ")" + " deployed " + GetType() + " at " + GetPosition() );
+		
 		// That's the only fix I have found
-		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( OnFrame, 1, true );
+		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
 
 		SetSynchDirty();
 	}
@@ -163,11 +169,11 @@ class ExpansionExplosive extends ItemBase
 		{
 			m_Exploded = true;
 			m_ExplodedSynchRemote = true;
+			m_PlayedSound = true;
 
 			//! Explode( DT_EXPLOSION, "ExpansionRocket_Ammo" );
 			//ExpansionCreateExplosion( this, "ExpansionRocket_Ammo", 5, 500 );
 			GetGame().CreateObject( "Expansion_C4_Explosion", this.GetPosition() );
-			
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveLater, 150, false ); 
 
 			if ( !GetGame().IsMultiplayer() )
@@ -180,7 +186,7 @@ class ExpansionExplosive extends ItemBase
 		}
 	}
 
-	void TriggerSound( int time )
+	void TriggerSound(int time)
 	{
 		if (time <= m_ExplosionTime )
 		{
@@ -191,10 +197,18 @@ class ExpansionExplosive extends ItemBase
 			else 
 			{
 				m_Timer = 0;
-				
-				m_Sound = SEffectManager.PlaySound("Expansion_Explosive_C4_SoundSet", GetPosition());
+				SoundC4Beep();
 			}
 		}	
+	}
+	
+	protected void SoundC4Beep()
+	{
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		{
+			EffectSound sound = SEffectManager.PlaySound("Expansion_Explosive_C4_SoundSet", GetPosition());
+			sound.SetSoundAutodestroy( true );
+		}
 	}
 
 	private void HandleClientExplosion()
@@ -234,7 +248,7 @@ class ExpansionExplosive extends ItemBase
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
-
+		
 		if ( m_ExplodedSynchRemote && !m_Exploded ) 
 		{
 			m_Exploded = true;

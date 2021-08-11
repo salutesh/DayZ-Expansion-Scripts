@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,7 +14,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 {
 	protected PlayerBase m_PlayerB;
 
-	protected MapWidget m_MapWidget;
+	protected ref MapWidget m_MapWidget;
 
 	protected int COLOR_EXPANSION_MARKER_PLAYER_POSITION = ARGB( 255, 255, 180, 24 );
 
@@ -62,6 +62,10 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	private int m_ServerMarkersUpdateIndex;
 	private bool m_ServerMarkersUpdated;
 	
+	ItemMap m_Map;
+	
+	protected ref ExpansionCircleRender m_CircleRender;
+	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapMenu Constructor
 	// ------------------------------------------------------------	
@@ -84,7 +88,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 
 		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
 		Class.CastTo( m_PartyModule, GetModuleManager().GetModule( ExpansionPartyModule ) );
-		
+				
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::ExpansionMapMenu - End");
 		#endif
@@ -134,12 +138,28 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map.layout");
 		Class.CastTo( m_MapWidget, layoutRoot.FindAnyWidget( "Map" ) );
 		
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
+		
+		if (m_MapWidget)
+		{
+			float scale;
+			vector map_pos;
+			if( player && !player.GetLastMapInfo(scale,map_pos) )
+			{
+				string path = "CfgWorlds " + GetGame().GetWorldName();
+				vector temp = GetGame().ConfigGetVector(path + " centerPosition");
+				scale = 0.33;
+				map_pos = Vector(temp[0],temp[2],temp[1]);
+			}
+			m_MapWidget.SetScale(scale);
+			m_MapWidget.SetMapPos(map_pos);
+		}
+		
 		if ( GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2 )
 		{
 			ExpansionMapMarkerPlayerArrow player_Marker = new ExpansionMapMarkerPlayerArrow( layoutRoot, m_MapWidget );
 			
-			PlayerBase player;
-			if ( Class.CastTo( player, GetGame().GetPlayer() ) )
+			if ( Class.CastTo( player, g_Game.GetPlayer() ) )
 			{
 				if ( GetExpansionClientSettings().StreamerMode )
 				{
@@ -213,7 +233,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 			UpdateServerMarkers();
 		if ( !m_PlayerMarkersUpdated )
 			UpdatePlayerMarkers();
-		
+				
 		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMenu::UpdateMarkers - End");
 		#endif
@@ -326,7 +346,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		string uid = "";
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
 		{
-			foreach ( string uuid, ref ExpansionMapMarker mmarker : m_PartyMarkers )
+			foreach ( string uuid, ExpansionMapMarker mmarker : m_PartyMarkers )
 			{
 				if ( mmarker )
 				{
@@ -530,7 +550,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		string uid = "";
 		if ( !m_PartyModule || !m_PartyModule.HasParty() )
 		{
-			foreach ( string uuid, ref ExpansionMapMarker mmarker : m_PlayerMarkers )
+			foreach ( string uuid, ExpansionMapMarker mmarker : m_PlayerMarkers )
 			{
 				if ( mmarker )
 				{
@@ -624,35 +644,34 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion Show
-	// ------------------------------------------------------------	
-	void Show()
-	{
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Show - Start");
-		#endif
-		
-		GetGame().GetUIManager().ShowScriptedMenu( this, NULL );
-		
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Show - End");
-		#endif
-	}
-	
+	// Expansion UpdatePlayerMarkers
 	// ------------------------------------------------------------
-	// Expansion Hide
-	// ------------------------------------------------------------	
-	void Hide()
-	{	
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Hide - Start");
-		#endif
+	void UpdateSafezoneRenders()
+	{
+		if (!m_CircleRender)
+			return;
 		
-		GetGame().GetUIManager().HideScriptedMenu( this );
-		
-		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMenu::Hide - End");
-		#endif
+		foreach (ExpansionSafeZoneCircle circleZone: GetExpansionSettings().GetSafeZone().CircleZones)
+		{
+			float x = circleZone.Center[0];
+			float y = circleZone.Center[2];
+			
+			Print("ExpansionMapMenu::UpdateSafezoneRenders - X:" + x.ToString());
+			Print("ExpansionMapMenu::UpdateSafezoneRenders - Y:" + y.ToString());
+			Print("ExpansionMapMenu::UpdateSafezoneRenders - Radius:" + circleZone.Radius.ToString());
+			
+			vector map_pos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
+			float map_x = map_pos[0];
+			float map_y = map_pos[2];
+			
+			Print("ExpansionMapMenu::UpdateSafezoneRenders - Map X:" + map_x.ToString());
+			Print("ExpansionMapMenu::UpdateSafezoneRenders - Map Y:" + map_y.ToString());
+			Print("ExpansionMapMenu::UpdateSafezoneRenders - Map Pos:" + map_pos.ToString());
+			
+			m_CircleRender.AddCircle(new ExpansionCircle(circleZone.Radius, x, y, 1.0, ARGB(255, 255, 255, 255)));
+		}
+			
+		m_CircleRender.Render(m_MapWidget);
 	}
 	
 	// ------------------------------------------------------------
@@ -666,7 +685,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		
 		ExpansionMapMarker marker = new ExpansionMapMarker( layoutRoot, m_MapWidget, false );
 		marker.Init();
-
+		
 		marker.SetIcon( ExpansionIcons.Get( 0 ) );
 		marker.SetCreation( true );
 		marker.SetPosition( x, y );
@@ -699,7 +718,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion SetSelectedMarker
 	// ------------------------------------------------------------
-	bool SetSelectedMarker( ref ExpansionMarkerData data )
+	bool SetSelectedMarker(  ExpansionMarkerData data )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::SetSelectedMarker - Start");
@@ -823,7 +842,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion DeleteMarker
 	// ------------------------------------------------------------	
-	void DeleteMarker( ref ExpansionMapMarker marker )
+	void DeleteMarker(  ExpansionMapMarker marker )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::DeleteMarker - Start");
@@ -877,7 +896,10 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		EXLogPrint("ExpansionMapMenu::DeleteSelectedMarker - End");
 		#endif
 	}
-
+	
+	// ------------------------------------------------------------
+	// Expansion DeletePreviewMarker
+	// ------------------------------------------------------------	
 	void DeletePreviewMarker()
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
@@ -904,8 +926,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 			int index = m_Markers.Find( marker );
 			if ( index != -1 )
 				m_Markers.Remove( index );
-
-			delete marker;
 
 			m_DeletingMarkers.Remove( i );
 
@@ -1038,10 +1058,10 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		vector player_pos;
 		vector camera_pos;
 		
-		if(!m_PlayerB)
+		if (!m_PlayerB)
 			m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );
 		
-		if(m_PlayerB && !m_PlayerB.GetLastMapInfo(scale,map_pos))
+		if (m_PlayerB && !m_PlayerB.GetLastMapInfo(scale, map_pos))
 		{
 			//! Lower number zooms in / Higher number zooms out
 			scale = 0.10; // Float between 0-1 ?!
@@ -1201,7 +1221,10 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		
 		PPEffects.SetBlurMenu(0.5);
 		
-		//Show();
+		/*if (!m_CircleRender)
+			m_CircleRender = new ExpansionCircleRender(layoutRoot);
+		
+		UpdateSafezoneRenders();*/
 
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::OnShow - End");
@@ -1235,6 +1258,9 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		
 		PPEffects.SetBlurMenu( 0.0 );
 
+		if (m_CircleRender)
+			delete m_CircleRender;
+		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMenu::OnHide - End");
 		#endif
@@ -1254,14 +1280,13 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		
 		if ( GetGame().GetInput().LocalPress( "UAUIBack", false ) )
 		{
-			Hide();
-
+			CloseMapMenu();
 			return;
 		}
 		
 		if ( GetGame().GetInput().LocalPress( "UAExpansionMapToggle", false ) && m_OpenMapTime > 0.10 && !IsEditingMarker() )
 		{
-			Hide();
+			CloseMapMenu();
 			return;
 		}
 		
@@ -1315,7 +1340,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		#endif
 		
 		int j;
-		ref ExpansionMapMarkerListEntry entry;
+		ExpansionMapMarkerListEntry entry;
 		for ( j = 0; j < m_MarkerList.GetPersonalEntrys().Count(); ++j )
 		{			
 			entry = m_MarkerList.GetPersonalEntrys()[j];
@@ -1374,5 +1399,42 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	bool IsEditingMarker()
 	{
 		return m_IsEditingMarker;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion IsEditingMarker
+	// ------------------------------------------------------------
+	override void InitMapItem(EntityAI item)
+	{
+		Print("ExpansionMapMenu::InitMapItem - Start");
+		
+		super.InitMapItem(item);
+		
+		m_Map = ItemMap.Cast(item);
+		
+		Print("ExpansionMapMenu::InitMapItem - End");
+	}
+	
+	void CloseMapMenu(bool destroy = false)
+	{
+		Print("ExpansionMapMenu::CloseMapMenu - Start");
+		
+		if (m_Map)	
+		{
+			Print("ExpansionMapMenu::CloseMapMenu - Step 1");
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			if (player)
+			{
+				Print("ExpansionMapMenu::CloseMapMenu - Step 2");
+				player.SetMapClosingSyncSet(false); //map is closing, server needs to be notified - once
+			}
+		}
+		
+		if (destroy)
+			Close();
+		else
+			GetGame().GetUIManager().HideScriptedMenu( this );  //! Don't close, we do not want to have to redraw all the markers next time we open it
+		
+		Print("ExpansionMapMenu::CloseMapMenu - End");
 	}
 };

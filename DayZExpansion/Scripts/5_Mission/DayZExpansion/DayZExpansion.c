@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,12 +15,6 @@
  **/
 modded class DayZExpansion
 {
-	protected string m_Version;
-
-	protected int m_MajorVersion;
-	protected int m_MinorVersion;
-	protected int m_BuildVersion;
-	
 	// ------------------------------------------------------------
 	// DayZExpansion Constructor
 	// ------------------------------------------------------------
@@ -32,9 +26,6 @@ modded class DayZExpansion
 
 		//! Confirm firing
 		GetRPCManager().AddRPC( "DayZExpansion", "ConfirmWeaponFire", this, SingeplayerExecutionType.Server );
-
-		//! Version checking
-		Expansion_LoadVersion();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::DayZExpansion - End");
@@ -58,55 +49,6 @@ modded class DayZExpansion
 	}
 
 	// ------------------------------------------------------------
-	// Expansion Expansion_LoadVersion
-	// ------------------------------------------------------------
-	void Expansion_LoadVersion()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::Expansion_LoadVersion - Start");
-		#endif
-		
-		m_Version = GetDayZGame().GetExpansionClientVersion();
-
-		array<string> values = new array<string>();
-		m_Version.Split( ".", values );
-		if ( values.Count() == 3 )
-		{
-			m_MajorVersion = values[0].ToInt();
-			m_MinorVersion = values[1].ToInt();
-			m_BuildVersion = values[2].ToInt();
-
-			Print( "Expansion version: " + m_MajorVersion + "." + m_MinorVersion + "." + m_BuildVersion );
-		}
-		
-		//string versionTest;
-		//GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
-		//Print( versionTest );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::Expansion_LoadVersion - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// Expansion GetVersion
-	// ------------------------------------------------------------
-	string GetVersion()
-	{
-		return m_Version;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion OnStart
-	// ------------------------------------------------------------
-	override void OnStart()
-	{
-		super.OnStart();
-
-		GetExpansionSettings();
-	}
-
-	// ------------------------------------------------------------
 	// Expansion OnLoaded
 	// ------------------------------------------------------------
 	override void OnLoaded()
@@ -120,7 +62,6 @@ modded class DayZExpansion
 		if ( IsMissionHost() )
 		{
 			ExpansionSettings.SI_General.Invoke();
-			ExpansionSettings.SI_Book.Invoke();
 			ExpansionSettings.SI_Party.Invoke();
 			ExpansionSettings.SI_Map.Invoke();
 			ExpansionSettings.SI_SafeZone.Invoke();
@@ -155,7 +96,7 @@ modded class DayZExpansion
 	// ------------------------------------------------------------
 	// Expansion ConfirmWeaponFire
 	// ------------------------------------------------------------
-	void ConfirmWeaponFire( CallType type, ref ParamsReadContext ctx, PlayerIdentity sender, ref Object target )
+	void ConfirmWeaponFire( CallType type, ParamsReadContext ctx, PlayerIdentity sender, Object target )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::ConfirmWeaponFire - Start");
@@ -194,13 +135,5 @@ modded class DayZExpansion
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZExpansion::ConfirmWeaponFire - End");
 		#endif
-	}
-
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	{
-		if ( g_exGlobalSettings.OnRPC( sender, target, rpc_type, ctx ) )
-			return true;
-
-		return super.OnRPC( sender, target, rpc_type, ctx );
 	}
 };

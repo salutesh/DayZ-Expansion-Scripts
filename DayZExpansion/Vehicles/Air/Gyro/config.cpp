@@ -51,6 +51,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
 		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
+		modelAnchorPointY = 0.0;
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
@@ -265,6 +266,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  GYROCOPTER";
 		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
+		modelAnchorPointY = 0.0;
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 50;
 		fuelConsumption = 31;

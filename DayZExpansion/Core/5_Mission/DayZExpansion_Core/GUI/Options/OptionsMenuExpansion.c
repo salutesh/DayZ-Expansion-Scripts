@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -28,7 +28,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	// OptionsMenuExpansion Constructor
 	// -----------------------------------------------------------
-	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, ref OptionsMenu menu )
+	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, OptionsMenu menu )
 	{
 		GetExpansionClientSettings().Load();
 		
@@ -51,7 +51,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 		
 		for ( int i = 0; i < GetExpansionClientSettings().m_Categories.Count(); i++ )
 		{
-			ref ExpansionClientSettingCategory category = GetExpansionClientSettings().m_Categories[i];
+			ExpansionClientSettingCategory category = GetExpansionClientSettings().m_Categories[i];
 			Widget categoryWidget = Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_options_category.layout", rootContent ) );
 			TextWidget categoryLable = TextWidget.Cast( categoryWidget.FindAnyWidget( "expansion_options_category_header_text" ) );
 			categoryLable.SetText( category.m_DisplayName );

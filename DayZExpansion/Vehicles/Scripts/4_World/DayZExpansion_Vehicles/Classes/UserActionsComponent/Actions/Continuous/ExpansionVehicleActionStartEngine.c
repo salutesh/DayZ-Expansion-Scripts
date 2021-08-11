@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -174,6 +174,11 @@ class ExpansionVehicleActionStartEngine : ActionContinuousBase
 	override void OnFinishProgressServer(ActionData action_data)
 	{
 		ExpansionVehicleBase vehicle = ExpansionVehicleBase.Cast(action_data.m_Player.GetParent());
+		//Print(vehicle);
+		//Print(m_FuelCon);
+		//Print(m_BeltCon);
+		//Print(m_SparkCon);
+		//Print(m_BatteryCon);
 		if (vehicle && m_FuelCon && m_BeltCon && m_SparkCon && m_BatteryCon)
 			vehicle.EngineStart();
 	}

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -38,12 +38,12 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 	{
 	}
 
-	void OnSend( ref ExpansionSettingBase setting )
+	void OnSend(  ExpansionSettingBase setting )
 	{
 		Error( "Not implemented" );
 	}
 
-	void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		Error( "Not implemented" );
 	}
@@ -53,7 +53,11 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 		return -1;
 	}
 
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -63,7 +67,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 		}
 	}
 
-	void UpdateServer( ref ExpansionSettingBase setting, ref JMPlayerInstance instance  )
+	void UpdateServer(  ExpansionSettingBase setting, JMPlayerInstance instance  )
 	{
 		GetSettingsInstance().Update( setting );
 		GetSettingsInstance().Save();
@@ -99,19 +103,19 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 		}
 	}
 
-	ref ExpansionSettingBase GetSettingsInstance()
+	ExpansionSettingBase GetSettingsInstance()
 	{
 		return NULL;
 	}
 
-	ref array< ref ExpansionSettingSerializationBase > GetSettings()
+	array< ref ExpansionSettingSerializationBase > GetSettings()
 	{
 		return m_Settings;
 	}
 
 	protected void CreateToggle( string variable, string name, string detailLabel, string detailContent )
 	{
-		ExpansionSettingSerializationToggle setting = new ref ExpansionSettingSerializationToggle;
+		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -124,7 +128,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 
 	protected void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min = 0.0, float max = 1.0, float step = 0.0 )
 	{
-		ExpansionSettingSerializationSlider setting = new ref ExpansionSettingSerializationSlider;
+		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -140,7 +144,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 
 	protected void CreateInt( string variable, string name, string detailLabel, string detailContent )
 	{
-		ExpansionSettingSerializationInt setting = new ref ExpansionSettingSerializationInt;
+		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -153,7 +157,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 
 	protected void CreateEnum( string variable, array< string > values, string name, string detailLabel, string detailContent )
 	{
-		ExpansionSettingSerializationEnum setting = new ref ExpansionSettingSerializationEnum;
+		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -171,7 +175,7 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 
 	protected void CreateEnum( string variable, typename enm, string name, string detailLabel, string detailContent )
 	{
-		ExpansionSettingSerializationEnum setting = new ref ExpansionSettingSerializationEnum;
+		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -189,9 +193,10 @@ class ExpansionCOTModuleBase : JMRenderableModuleBase
 
 		m_Settings.Insert( setting );
 	}
+	
 	protected void CreateString( string variable, string name, string detailLabel, string detailContent )
 	{
-		ExpansionSettingSerializationString setting = new ref ExpansionSettingSerializationString;
+		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;

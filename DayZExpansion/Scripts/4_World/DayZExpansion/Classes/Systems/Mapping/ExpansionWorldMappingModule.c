@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -209,7 +209,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 		if ( lineSize < 1 )
 			return false;
 		
-		ref TStringArray tokens = new TStringArray;
+		TStringArray tokens = new TStringArray;
 		line.Split( "|", tokens );
 
 		name = tokens.Get( 0 );		
@@ -491,7 +491,11 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion OnRPC
 	// ------------------------------------------------------------	
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -510,7 +514,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion RPC_TurnOn
 	// ------------------------------------------------------------	
-	private void RPC_TurnOn( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_TurnOn( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( IsMissionHost() )
 			return;
@@ -526,7 +530,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion RPC_TurnOff
 	// ------------------------------------------------------------	
-	private void RPC_TurnOff( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_TurnOff( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( IsMissionHost() )
 			return;
@@ -542,7 +546,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion RPC_Load
 	// ------------------------------------------------------------	
-	private void RPC_Load( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_Load( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( IsMissionHost() )
 		{

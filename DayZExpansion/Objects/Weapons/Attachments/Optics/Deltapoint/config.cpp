@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DZ_Weapons_Optics
+	class DayZExpansion_Weapons_Optics_DeltaPoint
 	{
 		units[] = {"ExpansionDeltapointOptic"};
 		weapons[] = {};

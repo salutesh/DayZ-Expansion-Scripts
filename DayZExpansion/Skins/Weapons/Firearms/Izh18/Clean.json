@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\firearms\\Izh18\\data\\Izh18_co.paa",
+			"RVMaterial": "dz\\weapons\\firearms\\Izh18\\data\\Izh18.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

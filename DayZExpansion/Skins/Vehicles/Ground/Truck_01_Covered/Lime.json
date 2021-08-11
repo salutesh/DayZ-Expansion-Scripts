@@ -1,0 +1,57 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "dmgZone_chassis",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_front",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_back",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_roof",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_fueltank",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_1_1",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_1_2",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_2_1",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_fender_2_2",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		},
+		{
+			"HiddenSelection": "dmgZone_wood",
+			"RVTexture": "#(argb,8,8,3)color(0.345752,0.6176466667,0.3562093333,1.0,co)",
+			"RVMaterial": ""
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Truck_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Truck_Horn_Int_SoundSet"
+}

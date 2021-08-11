@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -20,19 +20,68 @@ modded class ActionTogglePlaceObject
 
 		PlayerBase player = action_data.m_Player;
 		ItemBase item = action_data.m_MainItem;
-		bool territoryReqNotif = false;
-		bool enemyTerritoryNotif = false;
-		bool enemyTerritoryNearNotif = false;
+		bool buildZoneReqNotif;
+		bool territoryReqNotif;
+		bool enemyTerritoryNotif;
+		bool enemyTerritoryNearNotif;
 
 		if ( !player.IsPlacingLocal() )
 			return;
+
+		if ( GetExpansionSettings().GetBaseBuilding().Zones.Count() )
+		{
+			ExpansionBuildNoBuildZone zone = player.GetBuildNoBuildZone();
+
+			if ( zone )
+			{
+				//! Player is inside zone
+
+				bool isItemAllowed = !zone.IsWhitelist;
+
+				foreach ( string item_name : zone.Items )
+				{
+					if ( ( item.CanMakeGardenplot() && item_name == "GardenPlot" ) || item.IsKindOf( item_name ) )
+					{
+						isItemAllowed = zone.IsWhitelist;
+						break;
+					}
+				}
+
+				if ( !isItemAllowed )
+				{
+					string notificationTitleStringID;
+					string notificationTextStringID = zone.CustomMessage;
+
+					if ( GetExpansionSettings().GetBaseBuilding().ZonesAreNoBuildZones )
+					{
+						notificationTitleStringID = "STR_EXPANSION_NOBUILD_ZONE_TITLE";
+						if ( !notificationTextStringID )
+							notificationTextStringID = "STR_EXPANSION_NOBUILD_ZONE_ITEM_DISALLOWED";
+					} else
+					{
+						notificationTitleStringID = "STR_EXPANSION_BUILD_ZONE_TITLE";
+						if ( !notificationTextStringID )
+							notificationTextStringID = "STR_EXPANSION_BUILD_ZONE_ITEM_DISALLOWED";
+					}
+						
+					ExpansionNotification(new StringLocaliser(notificationTitleStringID, zone.Name), new StringLocaliser(notificationTextStringID)).Error(action_data.m_Player.GetIdentity());
+					
+					return;
+				}
+			} else if ( !GetExpansionSettings().GetBaseBuilding().ZonesAreNoBuildZones )
+			{
+				//! Zones are "build" zones, so if player isn't inside one, disallow placing if not whitelisted
+
+				buildZoneReqNotif = true;
+			}
+		}
 		
 		if ( GetExpansionSettings().GetTerritory() && !GetExpansionSettings().GetTerritory().EnableTerritories )
 			return;
 
  		if ( GetExpansionSettings().GetBaseBuilding() )
 		{
-			if (GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory)
+			if (GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory && !buildZoneReqNotif)
 			{
 				//! Flag can be placed if outside any territory/perimeter or if inside own territory/perimeter
 				//! Other items can be placed if not in enemy territory or if item is whitelisted
@@ -56,12 +105,13 @@ modded class ActionTogglePlaceObject
 					enemyTerritoryNotif = !CanDeployInTerritory( player, item );
 				} else
 				{
-					territoryReqNotif = true;
+					territoryReqNotif = !GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory;
 					for ( int i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory.Count(); ++i )
 					{
 						string deployable = GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i];
 						if ( ( item.CanMakeGardenplot() && deployable == "GardenPlot" ) || item.IsKindOf( deployable ) )
 						{
+							buildZoneReqNotif = false;
 							territoryReqNotif = false;
 							if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
 							{
@@ -75,16 +125,21 @@ modded class ActionTogglePlaceObject
 		}
 
 		if (territoryReqNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );
-		
-		if (enemyTerritoryNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );	
-		
-		if (enemyTerritoryNearNotif)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY_NEAR" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, action_data.m_Player.GetIdentity() );	
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED").Error(action_data.m_Player.GetIdentity());
+		else if (enemyTerritoryNotif)
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY").Error(action_data.m_Player.GetIdentity());
+		else if (enemyTerritoryNearNotif)
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY_NEAR").Error(action_data.m_Player.GetIdentity());
+		else if (buildZoneReqNotif)
+		{
+			string buildZoneRequiredMsg = GetExpansionSettings().GetBaseBuilding().BuildZoneRequiredCustomMessage;
+			if ( !buildZoneRequiredMsg )
+				buildZoneRequiredMsg = "STR_EXPANSION_BUILD_ZONE_REQUIRED";
+			ExpansionNotification("STR_EXPANSION_BUILD_ZONE_REQUIRED_TITLE", new StringLocaliser(buildZoneRequiredMsg)).Error(action_data.m_Player.GetIdentity());
+		}
 	}
 
-	protected static bool CanDeployInTerritory( PlayerBase player, ItemBase item )
+	static bool CanDeployInTerritory( PlayerBase player, ItemBase item )
 	{
 		if ( player.IsInsideOwnTerritory() )
 			return true;

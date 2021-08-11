@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,7 +12,7 @@
 
 modded class JMESPModule
 {
-	ref JMESPMeta EXP_GetMeta( Object target )
+	JMESPMeta EXP_GetMeta( Object target )
 	{
 		return m_MappedESPObjects.Get( target );
 	}
@@ -45,7 +45,11 @@ class ExpansionESPModificationModule : JMModuleBase
 		return ExpansionESPModificationModuleRPC.COUNT;
 	}
 
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -105,7 +109,7 @@ class ExpansionESPModificationModule : JMModuleBase
 		}
 	}
 
-	private void RPC_RequestCode( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_RequestCode( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		ItemBase item = ItemBase.Cast( target );
 		if ( !item )
@@ -146,7 +150,7 @@ class ExpansionESPModificationModule : JMModuleBase
 		}
 	}
 
-	private void RPC_RemoveCode( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_RemoveCode( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		ItemBase item = ItemBase.Cast( target );
 		if ( !item )
@@ -191,7 +195,7 @@ class ExpansionESPModificationModule : JMModuleBase
 		}
 	}
 
-	private void RPC_CarUnPair( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_CarUnPair( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		CarScript car = CarScript.Cast( target );
 		if ( !car )
@@ -228,7 +232,7 @@ class ExpansionESPModificationModule : JMModuleBase
 		}
 	}
 
-	private void RPC_CarUnLock( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_CarUnLock( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		CarScript car = CarScript.Cast( target );
 		if ( !car )

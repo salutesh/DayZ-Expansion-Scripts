@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -86,11 +86,11 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 		//! You can use this switch case for modding purposes
 		switch( type )
 		{
-			case 0:
+			case 0: //! Normal
 				PrimaryColor = ARGB(255, 211, 84, 0);
 				HoverColor 	 = ARGB(200, 255, 255, 255);
 			break;
-			case 1:
+			case 1: //! Territory
 				PrimaryColor = ARGB(255, 0, 102, 204);
 				HoverColor 	 = ARGB(200, 255, 255, 255);
 			break;
@@ -129,7 +129,7 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMenu OnShow
 	// ------------------------------------------------------------
-	void SetSpawnPoint(ref ExpansionSpawnLocation location, bool setmappos = true)
+	void SetSpawnPoint( ExpansionSpawnLocation location, bool setmappos = true)
 	{
 		Print("ExpansionSpawnSelectionMenu::SetSpawnPoint - Start");
 		

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -34,26 +34,20 @@ modded class MissionBase
 		#endif
 		
 		UIScriptedMenu menu = NULL; 
-	
+		
 		switch ( id )
 		{
 		case MENU_MAP:
-			if ( GetExpansionSettings().GetMap().UseMapOnMapItem )
-			{
+			if (GetExpansionSettings().GetMap().UseMapOnMapItem)
 				menu = new ExpansionMapMenu;
-			} else
-			{
+			else
 				menu = new MapMenu;
-			}
 			break;
 		case MENU_EXPANSION_MAP:
 			menu = new ExpansionMapMenu;
 			break;
 		case MENU_CHAT_INPUT:
 			menu = new ChatInputMenu;
-			break;
-		case MENU_EXPANSION_BOOK_MENU:
-			menu = new ExpansionBook;
 			break;
 		case MENU_EXPANSION_CODELOCK_MENU:
 			menu = new ExpansionCodeLockUI;

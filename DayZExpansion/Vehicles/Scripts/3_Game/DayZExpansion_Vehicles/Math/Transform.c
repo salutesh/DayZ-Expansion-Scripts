@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -37,13 +37,13 @@ class Transform // also known as Matrix4
 		#endif
 	}
 
-	ref Transform Clone()
+	Transform Clone()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Transform::Clone - Start");
 		#endif
 		
-		Transform n = new ref Transform();
+		Transform n = new Transform();
 
 		n.data = data;
 		n.UpdateUnion();
@@ -118,13 +118,13 @@ class Transform // also known as Matrix4
 		return this;
 	}
 
-	static ref Transform GetArray( vector trans[4] )
+	static Transform GetArray( vector trans[4] )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Transform::GetArray - Start");
 		#endif
 		
-		Transform n = new ref Transform();
+		Transform n = new Transform();
 
 		n.data[0] = trans[0];
 		n.data[1] = trans[1];
@@ -139,13 +139,13 @@ class Transform // also known as Matrix4
 		return n;
 	}
 
-	static ref Transform GetObject( notnull Object obj )
+	static Transform GetObject( notnull Object obj )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Transform::GetObject - Start");
 		#endif
 		
-		Transform n = new ref Transform();
+		Transform n = new Transform();
 
 		n.Get( obj );
 		
@@ -155,13 +155,13 @@ class Transform // also known as Matrix4
 		return n;
 	}
 
-	static ref Transform GetPlayerBoneWS( notnull Human human, int boneIdx, int mode = 0 )
+	static Transform GetPlayerBoneWS( notnull Human human, int boneIdx, int mode = 0 )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Transform::GetPlayerBoneWS - Start");
 		#endif
 		
-		Transform n = new ref Transform();
+		Transform n = new Transform();
 
 		human.GetBoneTransformWS( boneIdx, n.data );
 		if ( mode == 1 )
@@ -254,7 +254,7 @@ class Transform // also known as Matrix4
 		return m_basis;
 	}
 
-	void SetBasis( ref Matrix3 basis )
+	void SetBasis(  Matrix3 basis )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Transform::SetBasis - Start");
@@ -278,7 +278,7 @@ class Transform // also known as Matrix4
 		return m_rotation;
 	}
 
-	void SetRotation( ref Quaternion rotation )
+	void SetRotation(  Quaternion rotation )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Transform::SetRotation - Start");
@@ -327,7 +327,7 @@ class Transform // also known as Matrix4
 		#endif
 		
 		if ( trans == NULL )
-			trans = new ref Transform;
+			trans = new Transform;
 
 		Math3D.DirectionAndUpMatrix( dir, up, trans.data );
 		trans.UpdateUnion();
@@ -363,7 +363,7 @@ class Transform // also known as Matrix4
 		EXPrint("Transform::YawPitchRoll - Start");
 		#endif
 		
-		Transform trans = new ref Transform;
+		Transform trans = new Transform;
 
 		Math3D.YawPitchRollMatrix( ypr, trans.m_basis.data );
 
@@ -383,7 +383,7 @@ class Transform // also known as Matrix4
 		EXPrint("Transform::Multiply - Start");
 		#endif
 		
-		Transform n = new ref Transform;
+		Transform n = new Transform;
 
 		Math3D.MatrixMultiply4( data, m.data, n.data );
 
@@ -399,7 +399,7 @@ class Transform // also known as Matrix4
 		EXPrint("Transform::InvMultiply - Start");
 		#endif
 		
-		Transform n = new ref Transform;
+		Transform n = new Transform;
 
 		Math3D.MatrixInvMultiply4( data, m.data, n.data );
 

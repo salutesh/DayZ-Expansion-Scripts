@@ -33,11 +33,12 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
+		modelAnchorPointY = 1.516;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"camo"};
+		hiddenSelections[] = {"camo","antiwater"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
 		defaultSkin = "Orange";
@@ -193,11 +194,12 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
+		modelAnchorPointY = 1.516;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"camo"};
+		hiddenSelections[] = {"camo","antiwater"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
 		defaultSkin = "Orange";

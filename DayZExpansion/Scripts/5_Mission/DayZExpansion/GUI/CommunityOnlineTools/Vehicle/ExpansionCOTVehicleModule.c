@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -48,7 +48,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		return "Expansion Vehicle Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetVehicle();
 	}
@@ -102,7 +102,7 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		return ExpansionCOTVehicleModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -115,12 +115,12 @@ class ExpansionCOTVehicleModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionVehicleSettings setting = new ExpansionVehicleSettings();
+		ExpansionVehicleSettings setting = new ExpansionVehicleSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

@@ -1,0 +1,17 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo1",
+			"RVTexture": "DayZExpansion\\Vehicles\\Air\\Uh1h\\data\\uber\\uh1d_uber_main_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Uh1h\\data\\uh1d.rvmat"
+		},
+		{
+			"HiddenSelection": "camo2",
+			"RVTexture": "DayZExpansion\\Vehicles\\Air\\Uh1h\\data\\uber\\uh1d_uber_in_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Uh1h\\data\\uh1d_in.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

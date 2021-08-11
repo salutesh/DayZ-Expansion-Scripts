@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -86,6 +86,10 @@ class ExpansionClientSettings
 
 	bool ShowMapMarkerList;
 	
+	float VehicleCameraHeight;
+	float VehicleCameraDistance;
+	float VehicleCameraOffsetY;
+	
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
 	// -----------------------------------------------------------
@@ -122,123 +126,267 @@ class ExpansionClientSettings
 		
 		// Vehicles
 		if ( !ctx.Read( UseCameraLock ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UseCameraLock!");
 			return false;
+		}
 		if ( !ctx.Read( UseInvertedMouseControl ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UseInvertedMouseControl!");
 			return false;
+		}
 		if ( !ctx.Read( UseHelicopterMouseControl ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UseHelicopterMouseControl!");
 			return false;
+		}
 		if ( !ctx.Read( UsePlaneMouseControl ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UsePlaneMouseControl!");
 			return false;
+		}
 		
 		// Video
 		if ( !ctx.Read( DrawDistance ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read DrawDistance!");
 			return false;
+		}
 		if ( !ctx.Read( ColorGrading ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ColorGrading!");
 			return false;
+		}
 		if ( !ctx.Read( ColorVignette ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ColorVignette!");
 			return false;
+		}
 		if ( !ctx.Read( CastLightShadows ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read CastLightShadows!");
 			return false;
+		}
 		
 		// 3D Markers
 		if ( !ctx.Read( Show3DClientMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DClientMarkers!");
 			return false;
+		}
 		if ( !ctx.Read( Show3DPlayerMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DPlayerMarkers!");
 			return false;
+		}
 		if ( !ctx.Read( Show3DPartyMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DPartyMarkers!");
 			return false;
+		}
 		if ( !ctx.Read( Show3DGlobalMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DGlobalMarkers!");
 			return false;
+		}
 		
 		// 2D Markers
 		if ( !ctx.Read( Show2DClientMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DClientMarkers!");
 			return false;
+		}
 		if ( !ctx.Read( Show2DPlayerMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DPlayerMarkers!");
 			return false;
+		}
 		if ( !ctx.Read( Show2DPartyMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DPartyMarkers!");
 			return false;
+		}
 		if ( !ctx.Read( Show2DGlobalMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DGlobalMarkers!");
 			return false;
+		}
 		
 		// Notifications
 		if ( !ctx.Read( ShowNotifications ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowNotifications!");
 			return false;
+		}
 		if ( !ctx.Read( NotificationSound ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationSound!");
 			return false;
+		}
 		if ( !ctx.Read( NotificationSoundLeaveJoin ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationSoundLeaveJoin!");
 			return false;
+		}
 		if ( !ctx.Read( NotificationJoin ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationJoin!");
 			return false;
+		}
 		if ( !ctx.Read( NotificationLeave ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationLeave!");
 			return false;
+		}
 		
 		// Streamer mode
 		if ( !ctx.Read( StreamerMode ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read StreamerMode!");
 			return false;
+		}
 		if ( !ctx.Read( ShowPINCode ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowPINCode!");
 			return false;
+		}
 		
 		// HUD Settings
 		if ( !ctx.Read( EarplugLevel ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read EarplugLevel!");
 			return false;
+		}
 		if ( !ctx.Read( AlphaColorHUDOnTopOfHeadOfPlayers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read AlphaColorHUDOnTopOfHeadOfPlayers!");
 			return false;
+		}
 		if ( !ctx.Read( RedColorHUDOnTopOfHeadOfPlayers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read RedColorHUDOnTopOfHeadOfPlayers!");
 			return false;
+		}
 		if ( !ctx.Read( GreenColorHUDOnTopOfHeadOfPlayers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read GreenColorHUDOnTopOfHeadOfPlayers!");
 			return false;
+		}
 		if ( !ctx.Read( BlueColorHUDOnTopOfHeadOfPlayers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read BlueColorHUDOnTopOfHeadOfPlayers!");
 			return false;
+		}
 		if ( !ctx.Read( AlphaColorLookAtMinimum ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read AlphaColorLookAtMinimum!");
 			return false;
+		}
 		
 		if ( version < 7 )
 			return true;
 
 		// Chat settings
 		if ( !ctx.Read( HUDChatSize ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HUDChatSize!");
 			return false;
+		}
 		if ( !ctx.Read( HUDChatFadeOut ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HUDChatFadeOut!");
 			return false;
+		}
 		
 		if ( version < 8 )
 			return true;
 
 		// more markers settings
 		if ( !ctx.Read( MemberMarkerType ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MemberMarkerType!");
 			return false;
+		}
 		if ( !ctx.Read( MarkerSize ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarkerSize!");
 			return false;
+		}
 		if ( !ctx.Read( ShowMemberNameMarker ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowMemberNameMarker!");
 			return false;
+		}
 		if ( !ctx.Read( ShowMemberDistanceMarker ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowMemberDistanceMarker!");
 			return false;
+		}
 		if ( !ctx.Read( ForceColorMemberMarker ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ForceColorMemberMarker!");
 			return false;
+		}
 		
 		if ( version < 9 )
 			return true;
 		
 		if ( !ctx.Read( ShowNameQuickMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowNameQuickMarkers!");
 			return false;
+		}
 		
 		if ( !ctx.Read( ShowDistanceQuickMarkers ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowDistanceQuickMarkers!");
 			return false;
+		}
 		
 		if ( version < 13 )
 			return true;
 		
 		if ( !ctx.Read( HelicopterMouseVerticalSensitivity ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HelicopterMouseVerticalSensitivity!");
 			return false;
+		}
 		
 		if ( !ctx.Read( HelicopterMouseHorizontalSensitivity ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HelicopterMouseHorizontalSensitivity!");
 			return false;
+		}
 		
 		if ( version < 18 )
 			return true;
 		
 		if ( !ctx.Read( ShowMapMarkerList ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowMapMarkerList!");
 			return false;
+		}
+		
+		if ( version < 26 )
+			return true;
+		
+		if ( !ctx.Read( VehicleCameraHeight ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read VehicleCameraHeight!");
+			return false;
+		}
+		
+		if ( !ctx.Read( VehicleCameraDistance ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read VehicleCameraDistance!");
+			return false;
+		}
+		
+		if ( !ctx.Read( VehicleCameraOffsetY ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read VehicleCameraOffsetY!");
+			return false;
+		}
 
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnRead - End and return");
@@ -335,6 +483,10 @@ class ExpansionClientSettings
 
 		ctx.Write( ShowMapMarkerList );
 		
+		ctx.Write( VehicleCameraHeight );
+		ctx.Write( VehicleCameraDistance );
+		ctx.Write( VehicleCameraOffsetY );
+		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
 		#endif
@@ -356,12 +508,16 @@ class ExpansionClientSettings
 			int version;
 			if ( !file.Read( version ) )
 			{
+				EXPrint(ToString() + "::Load - ERROR: Could not read version!");
 				file.Close();
 				return false;
 			}
 
+			EXPrint("Loading Expansion client settings version " + version);
+
 			if ( !OnRead( file, version ) )
 			{
+				EXPrint(ToString() + "::Load - ERROR: Loading client settings failed!");
 				file.Close();
 				return false;
 			}
@@ -369,6 +525,7 @@ class ExpansionClientSettings
 			file.Close();
 		} else
 		{
+			EXPrint(ToString() + "::Load - ERROR: Could not open client settings file \"" + EXPANSION_CLIENT_SETTINGS + "\"!");
 			return false;
 		}
 		
@@ -392,6 +549,7 @@ class ExpansionClientSettings
 		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ) )
 		{
 			int version = EXPANSION_VERSION_CLIENT_SETTING_SAVE;
+			EXPrint("Saving Expansion client settings version " + version);
 			file.Write( version );
 			
 			OnSave( file, version );
@@ -450,7 +608,7 @@ class ExpansionClientSettings
 		HelicopterMouseVerticalSensitivity = 1.0;
 		HelicopterMouseHorizontalSensitivity = 1.0;
 
-		HUDChatSize = ExpansionClientUIChatSize.SMALL;
+		HUDChatSize = ExpansionClientUIChatSize.MEDIUM;
 		HUDChatFadeOut = 10;
 
 		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;
@@ -466,6 +624,10 @@ class ExpansionClientSettings
 		ShowDistanceQuickMarkers = true;
 		
 		ShowMapMarkerList = true;
+		
+		VehicleCameraHeight = 1.3;
+		VehicleCameraDistance = 4.5;
+		VehicleCameraOffsetY = -5.0;
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Defaults - End");
@@ -577,6 +739,11 @@ class ExpansionClientSettings
 		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0 );
 		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0 );
 		
+		//! Option to change vehicle camera height
+		CreateSlider( "VehicleCameraHeight", "VEHICLE CAMERA HEIGHT", "VEHICLE CAMERA HEIGHT", "", 2.0, 10.0 );
+		CreateSlider( "VehicleCameraDistance", "VEHICLE CAMERA DISTANCE", "VEHICLE CAMERA DISTANCE", "", -3.0, 5.0 );
+		CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0 );
+		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
 
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
@@ -587,7 +754,7 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings OnSettingsUpdated
 	// -----------------------------------------------------------
-	void OnSettingsUpdated( typename type, ExpansionSettingSerializationBase setting )
+	void OnSettingsUpdated(typename type, ExpansionSettingSerializationBase setting)
 	{
 		GetExpansionClientSettings().SI_UpdateSetting.Invoke();
 	}
@@ -598,7 +765,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateCategory - Start");
 		#endif
 		
-		ExpansionClientSettingCategory category = new ref ExpansionClientSettingCategory;
+		ExpansionClientSettingCategory category = new ExpansionClientSettingCategory;
 
 		category.m_Name = name;
 		category.m_DisplayName = displayName;
@@ -620,7 +787,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateToggle - Start");
 		#endif
 		
-		ExpansionSettingSerializationToggle setting = new ref ExpansionSettingSerializationToggle;
+		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -644,7 +811,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateSlider - Start");
 		#endif
 		
-		ExpansionSettingSerializationSlider setting = new ref ExpansionSettingSerializationSlider;
+		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -671,7 +838,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateInt - Start");
 		#endif
 		
-		ExpansionSettingSerializationInt setting = new ref ExpansionSettingSerializationInt;
+		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -695,7 +862,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateEnum - Start");
 		#endif
 		
-		ExpansionSettingSerializationEnum setting = new ref ExpansionSettingSerializationEnum;
+		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -727,7 +894,7 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::CreateString - Start");
 		#endif
 		
-		ExpansionSettingSerializationString setting = new ref ExpansionSettingSerializationString;
+		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
 
 		setting.m_Variable = variable;
 		setting.m_Name = name;
@@ -745,7 +912,7 @@ class ExpansionClientSettings
 
 static ref ExpansionClientSettings g_ExClientSettings;
 
-ref ExpansionClientSettings GetExpansionClientSettings()
+ExpansionClientSettings GetExpansionClientSettings()
 {
 	#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 	EXLogPrint("ExpansionClientSettings::GetExpansionClientSettings - Start");

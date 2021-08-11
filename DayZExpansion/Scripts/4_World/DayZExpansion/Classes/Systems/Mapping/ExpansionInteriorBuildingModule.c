@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -139,24 +139,51 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
-
-		if ( world_name.Contains( "chernarusplus" ) )
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
 		{
-			GetChernarusPlusIviesPositions( iviesPosition );
+			world_name = world_name.Substring(0, world_name.Length() - 5);
 		}
-		/*
-		//! Only Chernarus have custom ivies so we will check only "chernarusplus" until we have custom ivies for other maps
-		else if ( world_name.Contains( "enoch" ) )
+		
+		switch (world_name)
 		{
-			GetEnochIviesPositions( iviesPosition );
-		} else if ( world_name.Contains( "deerisle" ) )
-		{
-			GetDeerIsleIviesPositions( iviesPosition );
+			case "chernarusplus":
+				GetChernarusPlusIviesPositions( iviesPosition );
+			break;
+			case "enoch":
+				GetEnochIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "deerisle":
+				GetDeerIsleIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "namalsk":
+				GetNamalskIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "chiemsee":
+				GetChiemseeIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "rostow":
+				GetRostowIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "esseker":
+				GetEssekerIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "valning":
+				GetValningIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "banov":
+				GetBanovIviesPositions( iviesPosition ); //! TODO
+			break;
+			case "sandbox":
+				GetSandboxIviesPositions( iviesPosition );
+			break;
+			case "expansiontest":
+				GetExpansionTestIviesPositions( iviesPosition ); //! TODO
+			break;
 		}
-		*/
 	}
 
-	private void GetChernarusPlusIviesPositions(out TVectorArray iviesPosition)
+	void GetChernarusPlusIviesPositions(out TVectorArray iviesPosition)
 	{
 		//Svetloyark
 		iviesPosition.Insert("13804 27 13232");
@@ -201,16 +228,56 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		iviesPosition.Insert("12180 8 3552");
 	}
 
-	private void GetEnochIviesPositions(out TVectorArray iviesPosition)
+	void GetEnochIviesPositions(out TVectorArray iviesPosition)
 	{
 
 	}
 
-	private void GetDeerIsleIviesPositions(out TVectorArray iviesPosition)
+	void GetDeerIsleIviesPositions(out TVectorArray iviesPosition)
 	{
 
 	}
-	
+
+	void GetNamalskIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetChiemseeIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetRostowIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetEssekerIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetValningIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetBanovIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetSandboxIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
+	void GetExpansionTestIviesPositions(out TVectorArray iviesPosition)
+	{
+
+	}
+
 	private void LoadIviesPositions()
 	{
 		if ( !GetExpansionSettings().GetGeneral() )

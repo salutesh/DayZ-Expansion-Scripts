@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -54,8 +54,7 @@ class ExpansionVehicleAttachmentSave
 modded class CarScript
 {
 	private static ref array< ExpansionVehicleAttachmentSave > m_allAttachments = new array< ExpansionVehicleAttachmentSave >;
-	private static ref set< CarScript > m_allVehicles = new set< CarScript >;
-
+	
 	// ------------------------------------------------------------
 	//! Constant Values - Set in Constructor, Errors occur if not.
 	// ------------------------------------------------------------
@@ -81,6 +80,8 @@ modded class CarScript
 	// Vehicle locking
 	protected ExpansionVehicleLockState m_VehicleLockedState;
 
+	//! After pairing a key, it's the ID of the master key.
+	//! This allows "changing locks" on vehicles so old paired keys no longer work
 	protected int m_PersistentIDA;
 	protected int m_PersistentIDB;
 	protected int m_PersistentIDC;
@@ -190,6 +191,10 @@ modded class CarScript
 
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
+
+	protected bool m_CanSimulate;
+
+	protected float m_ModelAnchorPointY = -1;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -217,7 +222,7 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
 
-		m_allVehicles.Insert( this );
+		RegisterNetSyncVariableBool( "m_CanSimulate" );
 
 		m_DebugShapes = new array< Shape >();
 
@@ -235,9 +240,6 @@ modded class CarScript
 
 		LoadConstantVariables();
 
-		if ( IsMissionHost() )
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
-
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 
 		ExpansionSettings.SI_Vehicle.Insert( OnSettingsUpdated );
@@ -248,6 +250,9 @@ modded class CarScript
 		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
 
 		ExpansionSetupSkins();
+
+		if (IsMissionHost())
+			SetAllowDamage(CanBeDamaged());
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
@@ -264,12 +269,6 @@ modded class CarScript
 		#endif
 
 		int i;
-
-		i = m_allVehicles.Find( this );
-		if ( i >= 0 )
-		{
-			m_allVehicles.Remove( i );
-		}
 
 		if ( IsMissionClient( ) )
 		{
@@ -357,12 +356,7 @@ modded class CarScript
 		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
 	}
 
-	static set< CarScript > GetAll()
-	{
-		return m_allVehicles;
-	}
-
-	ref ExpansionVehicleController GetExpansionController()
+	ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -436,6 +430,22 @@ modded class CarScript
 		
 		if ( !IsMissionOffline() )
 			m_ParentTow.GetNetworkID( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh );
+	}
+
+	EntityAI GetTowedEntity()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - Start");
+		#endif
+
+		if ( m_IsTowing )
+			return m_ChildTow;
+		
+		return NULL;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - End");
+		#endif
 	}
 
 	void DestroyTow()
@@ -670,8 +680,6 @@ modded class CarScript
 			m_PersistentIDB = 0;
 			m_PersistentIDC = 0;
 			m_PersistentIDD = 0;
-
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
 
 			m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
 
@@ -1190,12 +1198,12 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------	
-	protected void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 	}
 
 	// ------------------------------------------------------------	
-	protected void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 	}
 
@@ -1354,14 +1362,14 @@ modded class CarScript
 	}
 
 	// ------------------------------------------------------------
-	bool CanBeDamaged()
+	override bool CanBeDamaged()
 	{
 		if ( GetExpansionSettings().GetVehicle().DisableVehicleDamage )
 		{
 			return false;
 		}
 
-		return true;
+		return super.CanBeDamaged();
 	}
 
 	// ------------------------------------------------------------	
@@ -1686,7 +1694,7 @@ modded class CarScript
 	// ------------------------------------------------------------	
 	void UpdateHorn( float pDt )
 	{
-		ref NoiseParams npar = new NoiseParams();
+		NoiseParams npar = new NoiseParams();
 		npar.LoadFromPath( "CfgVehicles " + GetType() + " NoiseCarHorn" );
 		//GetGame().GetNoiseSystem().AddNoise( this, npar );
 	}
@@ -1754,7 +1762,7 @@ modded class CarScript
 
 	void CreateLights( Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0 )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -1793,7 +1801,7 @@ modded class CarScript
 
 	void CreateParticle( Object lod, string point, int type )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -2063,8 +2071,21 @@ modded class CarScript
 
 		if ( !CanSimulate() )
 		{
+			if ( m_CanSimulate && GetGame().IsServer() )
+			{
+				EXPrint(GetType() + " (pos=" + GetPosition() + ") CarScript::EEOnSimulate - CanSimulate false");
+				m_CanSimulate = false;
+				SetSynchDirty();
+			}
+
 			OnNoSimulation( dt );
 			return;
+		}
+
+		if ( !m_CanSimulate && GetGame().IsServer() )
+		{
+			EXPrint(GetType() + " (pos=" + GetPosition() + ") CarScript::EEOnSimulate - CanSimulate true");
+			m_CanSimulate = true;
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -2850,7 +2871,17 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::ExpansionSetupSkins - End");
 		#endif
-	}	
+	}
+
+	override array< ExpansionSkin > ExpansionGetSkins()
+	{
+		return m_Skins;
+	}
+
+	override bool ExpansionHasSkin( int skinIndex )
+	{
+		return skinIndex > -1 && skinIndex < m_Skins.Count();
+	}
 
 	override void EEHealthLevelChanged( int oldLevel, int newLevel, string zone )
 	{
@@ -3150,6 +3181,23 @@ modded class CarScript
 	{
 		return 4.5;
 	}
+
+	float GetModelAnchorPointY()
+	{
+		if ( m_ModelAnchorPointY < 0 )
+		{
+			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
+			if ( GetGame().ConfigIsExisting( path ) )
+				m_ModelAnchorPointY = GetGame().ConfigGetFloat( path );
+			else
+				m_ModelAnchorPointY = 0.0;
+			#ifdef EXPANSIONEXPRINT
+			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
+			#endif
+		}
+
+		return m_ModelAnchorPointY;
+	}
 	
 	// ------------------------------------------------------------
 	override float GetTransportCameraDistance()
@@ -3306,21 +3354,6 @@ modded class CarScript
 		data.Impulse = 0;
 
 		super.OnContact( zoneName, localPos, other, data );
-	}
-
-	/**
-	 * @param damageResult 
-	 * @param source 
-	 * @param component 
-	 * @param dmgZone 
-	 * @param ammo 
-	 * @param modelPos 
-	 * @param speedCoef 
-	 */
-	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
-	{
-		if ( CanBeDamaged() )
-			super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
 	}
 	
 	// ------------------------------------------------------------

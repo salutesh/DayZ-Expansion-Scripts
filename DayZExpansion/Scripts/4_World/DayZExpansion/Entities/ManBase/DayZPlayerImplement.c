@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -151,21 +151,6 @@ modded class DayZPlayerImplement
 	ExpansionHumanCommandFall GetCommand_ExpansionFall()
 	{		
 		return ExpansionHumanCommandFall.Cast( GetCommand_Script() );
-	}
-				
-	// ------------------------------------------------------------
-	// DayZPlayerImplement HeadingModel
-	// ------------------------------------------------------------
-	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
-	{		
-		if ( GetCommand_ExpansionVehicle() )
-		{
-			m_fLastHeadingDiff = 0;
-
-			return false;
-		}
-		
-		return super.HeadingModel( pDt, pModel );
 	}
 				
 	// ------------------------------------------------------------

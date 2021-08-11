@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\Bus\\Data\\bus_exterior_eciv_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\Bus\\Data\\bus_exterior.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Truck_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Truck_Horn_Int_SoundSet"
+}

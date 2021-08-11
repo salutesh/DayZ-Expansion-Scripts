@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -44,7 +44,7 @@ class ExpansionChatLine
 	// ------------------------------------------------------------
 	// ExpansionChatLine Constructor
 	// ------------------------------------------------------------
-	void ExpansionChatLine( Widget root_widget, string layout, ref Chat chat)
+	void ExpansionChatLine( Widget root_widget, string layout, Chat chat)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::ExpansionChatLine Start");
@@ -108,14 +108,14 @@ class ExpansionChatLine
 	// ------------------------------------------------------------
 	// ExpansionChatLine Set
 	// ------------------------------------------------------------
-	void Set( ExpansionChatMessage message )	// Param 1 --> Channel, Param 2 --> sender name, Param 3 --> message, Param 4 ?? 
+	void Set(ExpansionChatMessage message)	// Param 1 --> Channel, Param 2 --> sender name, Param 3 --> message, Param 4 ?? 
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionChatLine::Set Start");
 		#endif
 		
 		MissionGameplay mission;
-		if ( !Class.CastTo( mission, GetGame().GetMission() ) )
+		if (!Class.CastTo(mission, GetGame().GetMission()))
 		{
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionChatLine::Set End");
@@ -123,12 +123,12 @@ class ExpansionChatLine
 			return;
 		}
 		
-		m_RootWidget.Show( false );
+		m_RootWidget.Show(false);
 
 		m_NameWidget.SetText("");
 		m_TextWidget.SetText("");
 
-		if ( message == NULL )
+		if (message == NULL)
 		{
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionChatLine::Set End");
@@ -136,19 +136,19 @@ class ExpansionChatLine
 			return;
 		}
 		
-		m_RootWidget.Show( true );
+		m_RootWidget.Show(true);
 		
-		switch ( message.Channel )
+		switch (message.Channel)
 		{
 		case CCSystem:
-			ExpSenderSetColour( ExpansionChatColors.EXP_GAME_TEXT_COLOUR );
-			ExpSetTextColor( ExpansionChatColors.EXP_GAME_TEXT_COLOUR );
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().SystemChatColor);
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().SystemChatColor);
 
 			m_NameWidget.SetText(" " + "Game" + ": ");
 			break;
 		case CCAdmin:
-			ExpSenderSetColour( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );	
-			ExpSetTextColor( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().AdminChatColor);	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().AdminChatColor);
 			
 			if ( message.From )
 			{
@@ -159,14 +159,14 @@ class ExpansionChatLine
 			}
 			break;
 		case CCTransmitter:
-			ExpSenderSetColour( ExpansionChatColors.EXP_PAS_TEXT_COLOUR );	
-			ExpSetTextColor( ExpansionChatColors.EXP_PAS_TEXT_COLOUR );
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().TransmitterChatColor);	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().TransmitterChatColor);
 
 			m_NameWidget.SetText(" " + "PAS" + ": ");
 			break;
 		case ExpansionChatChannels.CCTransport:
-			ExpSenderSetColour( ExpansionChatColors.EXP_TRANSPORT_COLOUR );	
-			ExpSetTextColor( ExpansionChatColors.EXP_TRANSPORT_COLOUR );
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().TransportChatColor);	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().TransportChatColor);
 			
 			if ( message.From )
 			{
@@ -177,8 +177,8 @@ class ExpansionChatLine
 			}
 			break;
 		case ExpansionChatChannels.CCGlobal:
-			ExpSenderSetColour( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );	
-			ExpSetTextColor( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().GlobalChatColor);	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().GlobalChatColor);
 			
 			if ( message.From )
 			{
@@ -189,8 +189,8 @@ class ExpansionChatLine
 			}
 			break;
 		case ExpansionChatChannels.CCTeam:
-			ExpSenderSetColour(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);	
-			ExpSetTextColor(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().PartyChatColor);	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().PartyChatColor);
 			
 			if (message.From)
 			{
@@ -201,10 +201,10 @@ class ExpansionChatLine
 			}
 			break;
 		default:
-			ExpSenderSetColour( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );	
-			ExpSetTextColor( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().DirectChatColor);	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().DirectChatColor);
 
-			if ( message.From )
+			if (message.From)
 			{
 				m_NameWidget.SetText(" " + message.From + ": ");
 			} else
@@ -214,9 +214,9 @@ class ExpansionChatLine
 			break;
 		}
 
-		m_TextWidget.SetText( message.Text );	
+		m_TextWidget.SetText(message.Text);	
 
-		if ( !m_IsShown )
+		if (!m_IsShown)
 		{
 			m_IsShown = true;
 

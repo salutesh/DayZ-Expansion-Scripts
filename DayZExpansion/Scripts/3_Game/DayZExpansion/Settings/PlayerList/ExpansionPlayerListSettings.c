@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -54,7 +54,7 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionPlayerListSettings thisSetting = this;
+		ExpansionPlayerListSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -99,7 +99,7 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// ExpansionPlayerListSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionPlayerListSettings s )
+	private void CopyInternal(  ExpansionPlayerListSettings s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPlayerListSettings::CopyInternal - Start");
@@ -193,5 +193,11 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 
 		EnablePlayerList = true;
 		EnableTooltip = true;
+	}
+	
+	// ------------------------------------------------------------
+	override string SettingName()
+	{
+		return "Player List Settings";
 	}
 };

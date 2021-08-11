@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -48,7 +48,7 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		return "Expansion General Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetGeneral();
 	}
@@ -72,8 +72,7 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "Mapping.BuildingInteriors", "Building Interiors", "", "" );
 		CreateToggle( "Mapping.BuildingIvys", "Building Ivys", "", "" );
 
-		array< string > lamp_types = { "Disable", "Generators", "Always On", "Always On Everywhere" };
-		CreateEnum( "EnableLamps", lamp_types, "Lamps", "", "" );
+		CreateEnum( "EnableLamps", LampModeEnum, "Lamps", "", "" );
 		CreateToggle( "EnableGenerators", "Generators", "", "" );
 		CreateToggle( "EnableLighthouses", "Lighthouses", "", "" );
 		
@@ -92,6 +91,14 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		CreateToggle( "UseDeathScreen", "Use Death Screen", "", "" );
 		CreateToggle( "UseDeathScreenStatistics", "Use Death Screen Statistics", "", "" );
 		CreateToggle( "UseNewsFeedInGameMenu", "Use News Feed In GameMenu", "", "" );
+		
+		//CreateInt( "SystemChatColor", "System chat color", "", "" );
+		//CreateInt( "AdminChatColor", "Admin chat color", "", "" );
+		//CreateInt( "GlobalChatColor", "Global chat color", "", "" );
+		//CreateInt( "DirectChatColor", "Global chat color", "", "" );
+		//CreateInt( "TransportChatColor", "Global chat color", "", "" );
+		//CreateInt( "PartyChatColor", "Global chat color", "", "" );
+		//CreateInt( "TransmitterChatColor", "Global chat color", "", "" );
 	}
 
 	override int GetRPCMin()
@@ -109,7 +116,7 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		return ExpansionCOTGeneralModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -122,12 +129,12 @@ class ExpansionCOTGeneralModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionGeneralSettings setting = new ExpansionGeneralSettings();
+		ExpansionGeneralSettings setting = new ExpansionGeneralSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

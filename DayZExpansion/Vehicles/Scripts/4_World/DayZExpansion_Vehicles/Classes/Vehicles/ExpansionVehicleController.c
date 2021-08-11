@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -124,7 +124,7 @@ class ExpansionVehicleController
 	{
 	}
 
-	void NetworkSend( ref ParamsWriteContext ctx )
+	void NetworkSend(  ParamsWriteContext ctx )
 	{
 		if ( !m_UseUAInterface )
 		{
@@ -132,12 +132,12 @@ class ExpansionVehicleController
 		}
 	}
 
-	protected void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		
 	}
 
-	bool NetworkRecieve( ref ParamsWriteContext ctx )
+	bool NetworkRecieve(  ParamsWriteContext ctx )
 	{
 		if ( !m_UseUAInterface )
 		{
@@ -147,7 +147,7 @@ class ExpansionVehicleController
 		return true;
 	}
 
-	protected bool OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected bool OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		return true;
 	}

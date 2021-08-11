@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -17,7 +17,7 @@ class ExpansionAirdropContainerManagers
 {
 	private static ref array< ref ExpansionAirdropContainerManager > m_ContainerManagers = new array< ref ExpansionAirdropContainerManager >;
 
-	static void Add( ExpansionAirdropContainerBase container, ref TStringArray infected, int infectedCount )
+	static void Add( ExpansionAirdropContainerBase container, TStringArray infected, int infectedCount )
 	{
 		m_ContainerManagers.Insert( ExpansionAirdropContainerManager( container, infected, infectedCount ) );
 	}

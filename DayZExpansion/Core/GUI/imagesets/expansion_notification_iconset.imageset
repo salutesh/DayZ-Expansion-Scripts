@@ -1,0 +1,140 @@
+ImageSetClass {
+ Name "expansion_notification_iconset"
+ RefSize 1024 1024
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{750E47D66C23ECD8}DayZExpansion/Core/GUI/imagesets/expansion_notification_iconset.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass icon_info {
+   Name "icon_info"
+   Pos 12 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_error {
+   Name "icon_error"
+   Pos 57 33
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_marker {
+   Name "icon_marker"
+   Pos 98 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_car {
+   Name "icon_car"
+   Pos 139 31
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_group {
+   Name "icon_group"
+   Pos 184 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_check {
+   Name "icon_check"
+   Pos 229 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_airdrop {
+   Name "icon_airdrop"
+   Pos 268 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_lock_locked {
+   Name "icon_lock_locked"
+   Pos 305 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_lock_unlocked {
+   Name "icon_lock_unlocked"
+   Pos 347 34
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_hero_5 {
+   Name "icon_hero_5"
+   Pos 9 451
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_hero_4 {
+   Name "icon_hero_4"
+   Pos 9 531
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_hero_3 {
+   Name "icon_hero_3"
+   Pos 9 611
+   Size 64 65
+   Flags 0
+  }
+  ImageSetDefClass icon_hero_2 {
+   Name "icon_hero_2"
+   Pos 9 691
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_hero_1 {
+   Name "icon_hero_1"
+   Pos 9 782
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_bandit_5 {
+   Name "icon_bandit_5"
+   Pos 95 450
+   Size 64 65
+   Flags 0
+  }
+  ImageSetDefClass icon_bandit_4 {
+   Name "icon_bandit_4"
+   Pos 95 530
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_bandit_3 {
+   Name "icon_bandit_3"
+   Pos 95 610
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_bandit_2 {
+   Name "icon_bandit_2"
+   Pos 95 690
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_bandit_1 {
+   Name "icon_bandit_1"
+   Pos 95 780
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass icon_bandit {
+   Name "icon_bandit"
+   Pos 385 32
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_hero {
+   Name "icon_hero"
+   Pos 420 32
+   Size 34 34
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

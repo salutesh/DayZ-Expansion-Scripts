@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -465,8 +465,8 @@ modded class BuildingBase
 		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
 		int explosionDamage = GetGame().ConfigGetInt(dmgPath);
 		
-		ref array<Object> nearest_objects = new array<Object>;
-		ref array<CargoBase> proxy_cargos = new array<CargoBase>;
+		array<Object> nearest_objects = new array<Object>;
+		array<CargoBase> proxy_cargos = new array<CargoBase>;
 		GetGame().GetObjectsAtPosition3D( entity.GetPosition(), blastRange, nearest_objects, proxy_cargos );
 		for ( int i = 0; i < nearest_objects.Count(); i++ )
 		{

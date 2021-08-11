@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,10 +14,10 @@ private static ref ExpansionIcons g_exp_MarkerIcons = NULL;
 
 class ExpansionIcons
 {
-	private ref map< string, ref ExpansionIcon > m_IconMap;
-	private ref array< ExpansionIcon > m_Icons;
+	private autoptr map< string, ref ExpansionIcon > m_IconMap;
+	private autoptr array< ExpansionIcon > m_Icons;
 
-	private ref array< string > m_OldIconSystem;
+	private autoptr array< string > m_OldIconSystem;
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons Constructor
@@ -37,9 +37,6 @@ class ExpansionIcons
 	// ------------------------------------------------------------	
 	void ~ExpansionIcons()
 	{
-		delete m_IconMap;
-		delete m_Icons;
-		delete m_OldIconSystem;
 	}
 	
 	// ------------------------------------------------------------
@@ -51,6 +48,8 @@ class ExpansionIcons
 		AddIcon( "Error",			"Error",			EXPANSION_NOTIFICATION_ICON_ERROR			);
 		AddIcon( "Airdrop",			"Airdrop",			EXPANSION_NOTIFICATION_ICON_AIRDROP			);
 		AddIcon( "Car",				"Car",				EXPANSION_NOTIFICATION_ICON_CAR				);
+		AddIcon( "Car 2",				"Car",				EXPANSION_NOTIFICATION_ICON_CAR_2				);
+		AddIcon( "Craft",				"Craft",				EXPANSION_NOTIFICATION_ICON_CRAFT				);
 		AddIcon( "Deliver",			"Deliver",			EXPANSION_NOTIFICATION_ICON_DELIVER			);
 		AddIcon( "Radiation",		"Radiation",		EXPANSION_NOTIFICATION_ICON_RADIATION		);
 		AddIcon( "Trader",			"Trader",			EXPANSION_NOTIFICATION_ICON_TRADER			);
@@ -91,6 +90,7 @@ class ExpansionIcons
 		AddIcon( "Book 1",			"Book",				EXPANSION_NOTIFICATION_ICON_BOOK_1			);
 		AddIcon( "Book 2",			"Book",				EXPANSION_NOTIFICATION_ICON_BOOK_2			);
 		AddIcon( "Ellipse",			"Ellipse",			EXPANSION_NOTIFICATION_ICON_ELLIPSE			);
+		AddIcon( "Square",			"Square",			EXPANSION_NOTIFICATION_ICON_SQUARE			);
 		AddIcon( "Grab",			"Grab",				EXPANSION_NOTIFICATION_ICON_GRAB			);
 		AddIcon( "Open Hand",		"Open Hand",		EXPANSION_NOTIFICATION_ICON_HAND_OPEN		);
 		AddIcon( "Map",				"Map",				EXPANSION_NOTIFICATION_ICON_MAP				);
@@ -206,6 +206,18 @@ class ExpansionIcons
 		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_02 );
 		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_03 );
 		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_04 );
+		
+		//! Social Media Icons
+		AddIcon( "Discord",	"Discord",	EXPANSION_NOTIFICATION_ICON_Discord );
+		AddIcon( "Reddit",	"Reddit",	EXPANSION_NOTIFICATION_ICON_Reddit );
+		AddIcon( "Steam",	"Steam",	EXPANSION_NOTIFICATION_ICON_Steam );
+		AddIcon( "GitHub",	"GitHub",	EXPANSION_NOTIFICATION_ICON_GitHub );
+		AddIcon( "Homepage",	"Homepage",	EXPANSION_NOTIFICATION_ICON_Homepage );
+		AddIcon( "Forums",	"Forums",	EXPANSION_NOTIFICATION_ICON_Forums );
+		AddIcon( "Twitter",	"Twitter",	EXPANSION_NOTIFICATION_ICON_Twitter );
+		AddIcon( "YouTube",	"YouTube",	EXPANSION_NOTIFICATION_ICON_YouTube );
+		AddIcon( "Patreon",	"Patreon",	EXPANSION_NOTIFICATION_ICON_Patreon );
+		AddIcon( "Guilded",	"Guilded",	EXPANSION_NOTIFICATION_ICON_Guilded );
 	}
 	
 	// ------------------------------------------------------------
@@ -244,7 +256,7 @@ class ExpansionIcons
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------	
-	static ref ExpansionIcon Get( int index )
+	static ExpansionIcon Get( int index )
 	{
 		if ( g_exp_MarkerIcons == NULL )
 			g_exp_MarkerIcons = new ExpansionIcons();
@@ -255,7 +267,7 @@ class ExpansionIcons
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------
-	static ref ExpansionIcon Get( string name )
+	static ExpansionIcon Get( string name )
 	{
 		if ( g_exp_MarkerIcons == NULL )
 			g_exp_MarkerIcons = new ExpansionIcons();

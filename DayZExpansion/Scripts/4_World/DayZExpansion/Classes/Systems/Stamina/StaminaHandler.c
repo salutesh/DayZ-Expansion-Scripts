@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -54,12 +54,10 @@ modded class StaminaHandler
 				{
 					m_Player.GetStatStamina().Set(m_Stamina);
 					m_Time += deltaT;
-					if ( m_StaminaParams && m_Time >= GameConstants.STAMINA_SYNC_RATE )
+					if ( m_Time >= GameConstants.STAMINA_SYNC_RATE )
 					{
 						m_Time = 0;
-						m_StaminaParams.param1 = m_Stamina;
-						m_StaminaParams.param2 = m_StaminaCap;
-						GetGame().RPCSingleParam(m_Player, ERPCs.RPC_STAMINA, m_StaminaParams, true, m_Player.GetIdentity());
+						SyncStamina(m_Stamina, m_StaminaCap, m_IsInCooldown);
 					}
 				}
 				else

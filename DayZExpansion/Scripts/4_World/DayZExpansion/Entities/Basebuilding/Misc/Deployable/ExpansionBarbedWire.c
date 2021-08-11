@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,21 +15,13 @@
  **/
 class ExpansionBarbedWire: ExpansionBaseBuilding 
 {
-	protected ref AreaDamageBase m_AreaDamage;
-
-	protected ref Timer m_AreaDamageTimer;
-
-	protected bool m_TriggerActive;
+	protected ref AreaDamageLoopedDeferred_NoVehicle m_AreaDamage;
 
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
 	void ExpansionBarbedWire()
 	{
-		m_TriggerActive = false;
-
-		m_AreaDamageTimer = new Timer();
-
 		SetEventMask( EntityEvent.INIT );
 	}
 
@@ -38,6 +30,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ~ExpansionBarbedWire()
 	{
+		DestroyDamageTrigger();
 	}
 
 	// ------------------------------------------------------------
@@ -49,7 +42,7 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 
 		if ( GetGame().IsServer() )
 		{
-			m_AreaDamageTimer.Run( 1, this, "CreateDamageTrigger", NULL, false );
+			GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).CallLater( CreateDamageTrigger, 100, false );
 		}
 	}
 
@@ -68,6 +61,11 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	{
 		return false;
 	}
+	
+	override bool CanObstruct()
+	{
+		return true;
+	}
 
 	// ------------------------------------------------------------
 	// GetConstructionKitType
@@ -81,15 +79,14 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	{
 		DestroyDamageTrigger();
 
-		m_AreaDamage = new AreaDamageRegularDeferred( this );
+		m_AreaDamage = new AreaDamageLoopedDeferred_NoVehicle( this );
+		m_AreaDamage.SetDamageComponentType( AreaDamageComponentTypes.HITZONE );
 		m_AreaDamage.SetExtents( "-2.96 0 -0.77", "2.97 1.36 0.74" );
 		m_AreaDamage.SetLoopInterval( 1.0 );
 		m_AreaDamage.SetDeferDuration( 0.2 );
 		m_AreaDamage.SetHitZones( { "Torso","LeftHand","LeftLeg","LeftFoot","RightHand","RightLeg","RightFoot" } );
 		m_AreaDamage.SetAmmoName( "BarbedWireHit" );
 		m_AreaDamage.Spawn();
-
-		m_TriggerActive = true;
 	}
 
 	void DestroyDamageTrigger()
@@ -98,8 +95,6 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 		{
 			m_AreaDamage.Destroy();
 		}
-
-		m_TriggerActive = false;
 	}
 
 	// ------------------------------------------------------------
@@ -110,12 +105,9 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// AfterStoreLoad
-	// ------------------------------------------------------------
-	override void AfterStoreLoad()
+	override void SetPartsAfterStoreLoad()
 	{
-		
+		//! No-op - needs to be here to avoid NULL pointers
 	}
 
 	// ------------------------------------------------------------

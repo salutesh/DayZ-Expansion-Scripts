@@ -1,0 +1,57 @@
+GridSpacerWidgetClass ChatItemWidget {
+ visible 1
+ clipchildren 1
+ inheritalpha 1
+ ignorepointer 1
+ color 0.5 0.5 0.5 0.5
+ position 0 0
+ size 1104 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 0
+ style Colorable
+ "Size To Content H" 1
+ "Size To Content V" 1
+ Columns 2
+ Rows 1
+ {
+  TextWidgetClass ChatItemSenderWidget {
+   position 0 0
+   size 0.2 1
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style None
+   text "Steve:"
+   font "gui/fonts/etelkatextpro12"
+   "exact text" 1
+   "exact text size" 12
+   "size to text h" 1
+   "size to text v" 1
+  }
+  MultilineTextWidgetClass ChatItemTextWidget {
+   clipchildren 0
+   position -0.02 0
+   size 0.8 1
+   halign right_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   text "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+   font "gui/fonts/etelkatextpro12"
+   "exact text" 1
+   "exact text size" 12
+   "size to text h" 1
+   "size to text v" 1
+   "text valign" center
+   wrap 1
+   "condense whitespace" 1
+   "strip newlines" 1
+  }
+ }
+}

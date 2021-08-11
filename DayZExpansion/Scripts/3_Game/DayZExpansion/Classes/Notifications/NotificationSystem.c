@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,74 +12,9 @@
 
 modded class NotificationSystem
 {
-	// ------------------------------------------------------------
-	// ExpansionNotificationSystem Create_Expansion
-	// ------------------------------------------------------------
-	// Create ur own system until CF have a better framework
-	static void Create_Expansion( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 3 )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Create_Expansion - Start");
-		#endif
-
-		if ( IsMissionHost() )
-		{
-			ScriptRPC rpc = new ScriptRPC();
-			rpc.Write( title );
-			rpc.Write( text );
-			rpc.Write( icon );
-			rpc.Write( color );
-			rpc.Write( time );
-			rpc.Send( NULL, NotificationSystemRPC.Create, true, NULL );
-		}
-		else
-		{
-			if ( !m_Instance )
-				return;
-
-			m_Instance.CreateNotification( title, text, icon, color, time, NULL );
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Create_Expansion - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionNotificationSystem Create_Expansion
-	// ------------------------------------------------------------
-	static void Create_Expansion( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time, PlayerIdentity sendTo )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Create_Expansion - Start");
-		#endif
-
-		if ( IsMissionHost() )
-		{
-			ScriptRPC rpc = new ScriptRPC();
-			rpc.Write( title );
-			rpc.Write( text );
-			rpc.Write( icon );
-			rpc.Write( color );
-			rpc.Write( time );
-			rpc.Send( NULL, NotificationSystemRPC.Create, true, sendTo );
-		}
-		else
-		{
-			if ( !m_Instance )
-				return;
-
-			m_Instance.CreateNotification( title, text, icon, color, time, sendTo );
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Create_Expansion - End");
-		#endif
-	}
-
 	autoptr array< ref NotificationRuntimeData > m_ExNotifications;
 	// ------------------------------------------------------------
-	// ExpansionNotificationSystem NotificationSystem
+	// NotificationSystem NotificationSystem
 	// ------------------------------------------------------------
 	void NotificationSystem()
 	{
@@ -97,19 +32,41 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::NotificationSystem - End");
 		#endif
 	}
+
+	// ------------------------------------------------------------
+	// NotificationSystem ExpansionCreateNotification
+	// ------------------------------------------------------------	
+	static void ExpansionCreateNotification( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time = 3, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	{	
+		if ( IsMissionHost() )
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			rpc.Write( title );
+			rpc.Write( text );
+			rpc.Write( icon );
+			rpc.Write( color );
+			rpc.Write( time );
+			rpc.Write( type );
+			rpc.Write( obj );
+			rpc.Send( NULL, ExpansionRPC.CreateNotification, true, sendTo );
+		} 
+		else
+		{
+			Exec_ExpansionCreateNotification( title, text, icon, color, time, type, obj );
+		}
+	}
 	
 	// ------------------------------------------------------------
-	// ExpansionNotificationSystem Exec_CreateNotificationEx
+	// NotificationSystem Exec_ExpansionCreateNotification
 	// ------------------------------------------------------------
-	//! NOTE: Apparently we CAN'T override private static methods, i.e. it appears always the ORIGINAL method is called instead of the override
-	private static void Exec_CreateNotificationEx( ref StringLocaliser title, ref StringLocaliser text, string icon, int color, float time )
+	private static void Exec_ExpansionCreateNotification(  StringLocaliser title, StringLocaliser text, string icon, int color, float time, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx - Start");
+		EXLogPrint("NotificationSystem::Exec_ExpansionCreateNotification - Start");
 		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx title.GetText() : " + title.GetText());
+		EXLogPrint("NotificationSystem::Exec_ExpansionCreateNotification title.GetText() : " + title.GetText());
 		#endif
 		
 		bool joinNotif = false;
@@ -130,28 +87,33 @@ modded class NotificationSystem
 		
 		bool leaveJoinNotif = joinNotif || leaveNotif;
 		
-		ref NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
+		NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
 		data.SetColor( color );
 		data.m_LeaveJoinNotif = leaveJoinNotif;
-
+		data.SetType( type );
+		data.SetObject( obj );
+		
 		m_Instance.AddNotif( data );
 		
 		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_CreateNotificationEx - End");
+		EXLogPrint("NotificationSystem::Exec_ExpansionCreateNotification - End");
 		#endif
 	}
 	
-	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
+	#ifdef CF_BUGFIX_REF
+	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
 	{
+		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
+
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
 		#endif
 		
-		ref StringLocaliser title = new StringLocaliser( "" );
+		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
 			return;
 
-		ref StringLocaliser text = new StringLocaliser( "" );
+		StringLocaliser text = new StringLocaliser( "" );
 		if ( !ctx.Read( text ) )
 			return;
 
@@ -167,15 +129,70 @@ modded class NotificationSystem
 		if ( !ctx.Read( time ) )
 			return;
 
-		Exec_CreateNotificationEx( title, text, icon, color, time );
+		Exec_ExpansionCreateNotification( title, text, icon, color, time );
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
 		#endif
 	}
-
+	
 	// ------------------------------------------------------------
-	// ExpansionNotificationSystem AddNotif
+	// NotificationSystem AddNotif
+	// ------------------------------------------------------------
+	override void AddNotif(  NotificationRuntimeData data )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("NotificationSystem::AddNotif - Start");
+		#endif
+		
+		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
+
+		m_ExNotifications.Insert( data );
+		m_OnNotificationAdded.Invoke( data );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("NotificationSystem::AddNotif - End");
+		#endif
+	}
+	#else
+	
+	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
+	{
+		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
+
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
+		#endif
+		
+		StringLocaliser title = new StringLocaliser( "" );
+		if ( !ctx.Read( title ) )
+			return;
+
+		StringLocaliser text = new StringLocaliser( "" );
+		if ( !ctx.Read( text ) )
+			return;
+
+		string icon;
+		if ( !ctx.Read( icon ) )
+			return;
+
+		int color;
+		if ( !ctx.Read( color ) )
+			return;
+
+		float time;
+		if ( !ctx.Read( time ) )
+			return;
+
+		Exec_ExpansionCreateNotification( title, text, icon, color, time );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// NotificationSystem AddNotif
 	// ------------------------------------------------------------
 	override void AddNotif( ref NotificationRuntimeData data )
 	{
@@ -192,9 +209,51 @@ modded class NotificationSystem
 		EXPrint("NotificationSystem::AddNotif - End");
 		#endif
 	}
+	#endif
+	
+	static void RPC_ExpansionCreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
+	{
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_ExpansionCreateNotification - Start");
+		#endif
+		
+		StringLocaliser title = new StringLocaliser( "" );
+		if ( !ctx.Read( title ) )
+			return;
+
+		StringLocaliser text = new StringLocaliser( "" );
+		if ( !ctx.Read( text ) )
+			return;
+
+		string icon;
+		if ( !ctx.Read( icon ) )
+			return;
+
+		int color;
+		if ( !ctx.Read( color ) )
+			return;
+
+		float time;
+		if ( !ctx.Read( time ) )
+			return;
+		
+		int type;
+		if ( !ctx.Read( type ) )
+			return;
+		
+		Object obj;
+		if ( !ctx.Read( obj ) )
+			return;
+
+		Exec_ExpansionCreateNotification( title, text, icon, color, time, type, obj );
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		EXLogPrint("NotificationSystem::RPC_ExpansionCreateNotification - End");
+		#endif
+	}
 	
 	// ------------------------------------------------------------
-	// ExpansionNotificationSystem Update
+	// NotificationSystem Update
 	// ------------------------------------------------------------
 	override static void Update(float timeslice)
 	{
@@ -226,7 +285,7 @@ modded class NotificationSystem
 	}
 		
 	// ------------------------------------------------------------
-	// ExpansionNotificationSystem GetNotificationData
+	// NotificationSystem GetNotificationData
 	// ------------------------------------------------------------
 	override NotificationData GetNotificationData( NotificationType type )
 	{

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -18,8 +18,8 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 
 		if ( IsMissionHost() )
 		{
-			ref array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
-			ref ExpansionAirdropLootContainer container;
+			array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
+			ExpansionAirdropLootContainer container;
 
 			//! Get all containers enabled for player-called supply drop use
 			for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
@@ -35,19 +35,21 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 			{
 				string errorMsg = "Airdrop settings do not contain compatible container (looked for container with Usage set to 0 or 2)";
 				Print( "[ExpansionSupplySignal] ERROR: " + errorMsg );
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR" ), new StringLocaliser( errorMsg ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 14 );
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR"), new StringLocaliser(errorMsg), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_MISSION).Create();
 				return;
 			}
 
 			//! Pick a container (weighted random)
 			container = ExpansionAirdropLootContainer.GetWeightedRandomContainer( containers );
+			#ifdef EXPANSIONEXPRINT
 			EXPrint("[ExpansionSupplySignal] Selected container: " + container.Container);
+			#endif
 					
 			int itemCount = container.ItemCount;
 			if ( container.ItemCount <= 0 )
 				itemCount = GetExpansionSettings().GetAirdrop().ItemCount;  //! Only kept for backwards compatibility, should be set per container
 
-			ref TStringArray infected;
+			TStringArray infected;
 			int infectedCount;
 			if ( container.SpawnInfectedForPlayerCalledDrops )
 			{
@@ -63,8 +65,11 @@ class ExpansionSupplySignal extends M18SmokeGrenade_Purple
 			{
 				if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowPlayerAirdropStarted )
 				{
-					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS_PLAYER" ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 7 );
-				}
+					ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop"), new StringLocaliser("STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS_PLAYER"), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_MISSION).Create();
+				}				
+
+				if ( GetExpansionSettings().GetLog().MissionAirdrop )
+					GetExpansionSettings().GetLog().PrintLog( "[Airdrop] A player called airdrop is heading toward " + Vector( GetPosition()[0], 0, GetPosition()[2] ) + " with a "+ container.Container );
 			}
 		}
 	}

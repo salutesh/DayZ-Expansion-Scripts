@@ -3,47 +3,55 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-/**@class		ExpansionGeneralSettings
- * @brief		General settings class
+/**@class		ExpansionGeneralSettingsBase
+ * @brief		General settings base class
  **/
-class ExpansionGeneralSettings: ExpansionSettingBase
+class ExpansionGeneralSettingsBase: ExpansionSettingBase
 {
 	bool PlayerLocationNotifier;
-
 	bool EnableGlobalChat;
 	bool EnablePartyChat;
 	bool EnableTransportChat;
-
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
 	int GravecrossTimeThreshold;
-
 	ref ExpansionMapping Mapping;
-
-	int EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
+	LampModeEnum EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
 	bool EnableGenerators;
 	bool EnableLighthouses;
-
 	bool EnableHUDNightvisionOverlay;
 	bool DisableMagicCrosshair;
-
 	bool EnablePlayerTags;
 	int PlayerTagViewRange;
-	
 	bool EnableAutoRun;
 	bool UnlimitedStamina;
-	
 	bool UseDeathScreen;
 	bool UseDeathScreenStatistics;
 	bool UseNewsFeedInGameMenu;
+}
+
+/**@class		ExpansionGeneralSettings
+ * @brief		General settings class
+ **/
+class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
+{
+	static const int VERSION = 2;
+	
+	int SystemChatColor;			//! Added with v2
+	int AdminChatColor;			//! Added with v2
+	int GlobalChatColor;			//! Added with v2
+	int DirectChatColor;			//! Added with v2
+	int TransportChatColor;		//! Added with v2
+	int PartyChatColor;				//! Added with v2
+	int TransmitterChatColor;	//! Added with v2
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -76,6 +84,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 
 		CopyInternal( setting );
 
+		UpdateChatColors();
+
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_General.Invoke();
@@ -89,7 +99,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionGeneralSettings thisSetting = this;
+		ExpansionGeneralSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -123,7 +133,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EXPrint("ExpansionGeneralSettings::Copy - Start");
 		#endif
 		
-		ref ExpansionGeneralSettings settings = ExpansionGeneralSettings.Cast( setting );
+		ExpansionGeneralSettings settings = ExpansionGeneralSettings.Cast( setting );
 		if ( !settings )
 			return false;
 
@@ -134,9 +144,33 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		#endif
 		return true;
 	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal(  ExpansionGeneralSettings s )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");
+		#endif
+		
+		//! Added with v2
+		SystemChatColor = s.SystemChatColor;
+		AdminChatColor = s.AdminChatColor;
+		GlobalChatColor = s.GlobalChatColor;
+		DirectChatColor = s.DirectChatColor;
+		TransportChatColor = s.TransportChatColor;
+		PartyChatColor = s.PartyChatColor;
+		TransmitterChatColor = s.TransmitterChatColor;
+		
+		ExpansionGeneralSettingsBase sb = s;
+		CopyInternal( sb );
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
+		#endif
+	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionGeneralSettings s )
+	private void CopyInternal(  ExpansionGeneralSettingsBase s )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");
@@ -183,35 +217,72 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 
 	// ------------------------------------------------------------
 	override bool OnLoad()
-	{	
+	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGeneralSettings::Load - Start");
 		#endif
-		
+
 		m_IsLoaded = true;
-		
-		if ( FileExist( EXPANSION_GENERAL_SETTINGS ) )
+
+		bool save;
+
+		bool generalSettingsExist = FileExist(EXPANSION_GENERAL_SETTINGS);
+
+		if (generalSettingsExist)
 		{
-			Print("[ExpansionGeneralSettings] Loading settings");
+			ExpansionGeneralSettings settingsDefault = new ExpansionGeneralSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile( EXPANSION_GENERAL_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionGeneralSettings::Load - End - Loaded");
-			#endif
+			ExpansionGeneralSettingsBase settingsBase;
 
-			return true;
+			JsonFileLoader<ExpansionGeneralSettingsBase>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, settingsBase);
+
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionGeneralSettings] Load - Converting v1 \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
+					
+					//! Added with v2
+					SystemChatColor = settingsDefault.SystemChatColor;
+					AdminChatColor = settingsDefault.AdminChatColor;
+					GlobalChatColor = settingsDefault.GlobalChatColor;
+					DirectChatColor = settingsDefault.DirectChatColor;
+					TransportChatColor = settingsDefault.TransportChatColor;
+					PartyChatColor = settingsDefault.PartyChatColor;
+					TransmitterChatColor = settingsDefault.TransmitterChatColor;
+					
+					UpdateChatColors();
+				}
+				
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
+			}
 		}
-
-		Defaults();
-		Save();
-
+		else
+		{
+			Defaults();
+			UpdateChatColors();
+			save = true;
+		}
+		
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Load - End - Not Loaded");
+		EXPrint("ExpansionGeneralSettings::Load - End - Loaded: " + bookSettingsExist);
 		#endif
-		return false;
+		
+		return generalSettingsExist;
 	}
-
+	
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
@@ -247,7 +318,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		Mapping.Defaults();
 
-		EnableLamps = 3;						//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on | 3 - Street-Lights always on everywhere
+		EnableLamps = LampModeEnum.AlwaysOnEverywhere;
 		EnableGenerators = false;
 		EnableLighthouses = true;
 		
@@ -265,11 +336,33 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		
 		UseNewsFeedInGameMenu = true;
 		
+		UpdateChatColors();
+		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");
 		#endif
 	}
+
+	void UpdateChatColors()
+	{
+		//! Make sure none of the colors are zero (all transparent)
+		if (!SystemChatColor)
+			SystemChatColor = ARGB(255, 186, 69, 186);
+		if (!AdminChatColor)
+			AdminChatColor = ARGB(255, 192, 57, 43);
+		if (!GlobalChatColor)
+			GlobalChatColor = ARGB(255, 88, 195, 247);
+		if (!DirectChatColor)
+			DirectChatColor = ARGB(255, 255, 255, 255);
+		if (!TransportChatColor)
+			TransportChatColor = ARGB(255, 255, 206, 9);
+		if (!PartyChatColor)
+			PartyChatColor = ARGB(255, 10, 250, 122);
+		if (!TransmitterChatColor)
+			TransmitterChatColor = ARGB(255, 249, 255, 73);
+	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "General Settings";

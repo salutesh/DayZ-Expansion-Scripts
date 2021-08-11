@@ -1,3 +1,74 @@
+class ExpansionVehicleSoundShader
+{
+	private ref Expression m_Volume;
+	private ref Expression m_Frequency;
+
+	void ExpansionVehicleSoundShader(string name)
+	{
+		string path;
+		string expression;
+
+		expression = "1";
+		path = "CfgSoundShaders " + name + " ex_volume";
+		if (GetGame().ConfigIsExisting(path))
+		{
+			expression = GetGame().ConfigGetTextOut(path);
+		}
+		
+		#ifdef CF_EXPRESSION
+		m_Volume = CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, CF_SQFExpression);
+		#endif
+
+		expression = "1";
+		path = "CfgSoundShaders " + name + " ex_frequency";
+		if (GetGame().ConfigIsExisting(path))
+		{
+			expression = GetGame().ConfigGetTextOut(path);
+		}
+		
+		#ifdef CF_EXPRESSION
+		m_Frequency = CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, CF_SQFExpression);
+		#endif
+	}
+
+	void Calculate(array<float> variables, inout float volume, inout float frequency)
+	{
+		#ifdef CF_EXPRESSION
+		frequency = m_Frequency.Evaluate(variables);
+		
+		if (frequency < 0.5 || frequency > 1.75)
+		{
+			volume = 0.0;
+		} else
+		{
+			volume = m_Volume.Evaluate( variables );
+		}
+		#endif
+	}
+};
+
+class ExpansionVehicleSoundManager
+{
+	static ref array<string> s_SoundShaderParameters = {
+		"rpm",
+		"engineOn",
+		"campos",
+		"doors",
+		"speed",
+		"thrust",
+	};
+
+	static ref map<string, ref ExpansionVehicleSoundShader> s_SoundShaders = new map<string, ref ExpansionVehicleSoundShader>();
+	
+	static void Get(string name, out ExpansionVehicleSoundShader shader)
+	{
+		if (s_SoundShaders.Find(name, shader)) return;
+		
+		shader = new ExpansionVehicleSoundShader(name);
+		s_SoundShaders[name] = shader;
+	}
+};
+
 class ExpansionVehicleSound
 {
 	private ExpansionVehicleBase m_Vehicle;
@@ -5,8 +76,7 @@ class ExpansionVehicleSound
 	private bool m_HasVolume = true;
 	private bool m_HasFrequency = true;
 
-	private ref Expression m_Volume;
-	private ref Expression m_Frequency;
+	private ref ExpansionVehicleSoundShader m_Shader;
 	
 	private float m_TargetVolume;
 	private float m_TargetFrequency;
@@ -21,39 +91,18 @@ class ExpansionVehicleSound
 	private ref SoundObject m_SoundObject;
 	private ref AbstractWave m_SoundWaveObject;
 
-	void ExpansionVehicleSound( ExpansionVehicleBase vehicle, string soundSetName, ref array< string > variables )
+	void ExpansionVehicleSound(ExpansionVehicleBase vehicle, string soundSetName)
 	{
 		m_Vehicle = vehicle;
 		m_SoundSetName = soundSetName;
 
-		array< string > soundShaders = new array<string>;
-		GetGame().ConfigGetTextArray( "CfgSoundSets " + soundSetName + " soundShaders", soundShaders );
+		array<string> soundShaders = new array<string>;
+		GetGame().ConfigGetTextArray("CfgSoundSets " + soundSetName + " soundShaders", soundShaders);
 
-		m_Volume = new Expression();
-		m_Frequency = new Expression();
-
-		string path;
-
-		path = "CfgSoundShaders " + soundShaders[0] + " ex_volume";
-		m_HasVolume = GetGame().ConfigIsExisting( path );
-		if ( m_HasVolume )
-		{
-			GetGame().ConfigGetText( path, m_Volume.value );
-
-			m_Volume.Compile( variables );
-		}
-			
-		path = "CfgSoundShaders " + soundShaders[0] + " ex_frequency";
-		m_HasFrequency = GetGame().ConfigIsExisting( path );
-		if ( m_HasFrequency )
-		{
-			GetGame().ConfigGetText( path, m_Frequency.value );
-
-			m_Frequency.Compile( variables );
-		}
+		ExpansionVehicleSoundManager.Get(soundShaders[0], m_Shader);
 	}
 
-	bool Update( float pDt, ref array< float > variables )
+	bool Update(float pDt, array<float> variables)
 	{
 		if ( !m_SoundWaveObject )
 		{
@@ -87,30 +136,9 @@ class ExpansionVehicleSound
 		}
 
 		m_SoundWaveObject.SetPosition( m_Vehicle.GetPosition() );
+		
+		m_Shader.Calculate(variables, m_TargetVolume, m_TargetFrequency);
 
-		if ( m_HasFrequency )
-		{
-			m_TargetFrequency = m_Frequency.Evaluate( variables );
-		} else
-		{
-			m_TargetFrequency = 1.0;
-			m_CurrentFrequency = 1.0;
-		}
-		
-		if ( m_HasVolume )
-		{
-			if ( m_TargetFrequency < 0.5 || m_TargetFrequency > 1.75 )
-			{
-				m_TargetVolume = 0.0;
-			} else
-			{
-				m_TargetVolume = m_Volume.Evaluate( variables );
-			}
-		} else
-		{
-			m_TargetVolume = 1.0;
-		}
-		
 		m_SoundWaveObject.SetVolume( m_CurrentVolume );
 		m_SoundWaveObject.SetFrequency( m_CurrentFrequency );
 				

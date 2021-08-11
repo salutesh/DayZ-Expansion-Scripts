@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -58,6 +58,15 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return "ExpansionWallKit";
 	}
 
+	override bool NameOverride(out string output)
+	{
+		if (IsLastStage())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_WALL_FINISHED";
+		else
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_WALL_BASE";
+		return true;
+	}
+
 	override bool CanBeDamaged()
 	{
 		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 1)
@@ -66,6 +75,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		} else if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 2)
 		{
 			return m_HasDoor || m_HasGate || m_HasWindow;
+		} else if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 3)
+		{
+			return true;
 		}
 		
 		return super.CanBeDamaged();
@@ -309,6 +321,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return null;
 	}
 
+	override bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		minMax[0] = "-3 0 -0.125";
+		minMax[1] = "3 3 0.125";
+		return true;
+	}
+
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		return false;
@@ -364,6 +383,16 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		m_HasGate = false;
 		m_HasWall = false;
 
+		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
+
+		SetAllowDamage(CanBeDamaged());
+		super.OnPartBuiltServer(player, part_name, action_id );
+
+		UpdateVisuals();
+	}
+
+	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
+	{
 		if ( part_name == m_CurrentBuild + "_windowfinished" )
 		{
 			m_HasWindow = true;
@@ -383,11 +412,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		{
 			m_HasWall = true;
 		}
-
-		SetAllowDamage(CanBeDamaged());
-		super.OnPartBuiltServer(player, part_name, action_id );
-
-		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )

@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\skins\\heli_light01_ext_wave_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Air\\Mh6\\data\\heli_light01_ext.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

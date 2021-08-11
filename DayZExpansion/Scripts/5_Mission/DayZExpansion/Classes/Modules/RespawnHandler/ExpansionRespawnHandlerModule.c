@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -47,7 +47,11 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		switch ( rpc_type )
 		{
@@ -87,7 +91,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule RPC_ShowSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ref ParamsReadContext ctx)
+	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
 		
@@ -146,13 +150,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			return NULL;
 
 		array< ref ExpansionSpawnLocation> SpawnLocations = new array< ref ExpansionSpawnLocation >;
-		ref array<vector> positions = new array<vector>;
-		ref ExpansionSpawnLocation location;
+		array<vector> positions = new array<vector>;
+		ExpansionSpawnLocation location;
 		int TimesIsMember = 0;
 	
 		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
 		{
-			ref TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
+			TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
 			
 			ExpansionTerritory territory = currentFlag.GetTerritory();
 			if ( !territory )
@@ -198,7 +202,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule RPC_SelectSpawn
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_SelectSpawn(PlayerIdentity sender, ref ParamsReadContext ctx)
+	private void RPC_SelectSpawn(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - Start");
 		
@@ -226,13 +230,16 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - Start");
 		
 		PlayerBase player = GetPlayerObjectByIdentity( sender );
-		if ( player )
+		if (player)
 		{
-			player.SetPosition( spawnPoint );
+			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			player.SetPosition(spawnPoint);
 			
-			CloseSpawnMenu( sender );
+			CloseSpawnMenu(sender);
+
+			if (GetExpansionSettings().GetLog().SpawnSelection)
+				GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " spawned at " + spawnPoint);
 		}
-		
 		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - End");
 	}
 	
@@ -257,7 +264,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule RPC_CloseSpawnMenu
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ref ParamsReadContext ctx)
+	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - Start");
 		
@@ -294,7 +301,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionClient() )
 			return;
 		
-		ref ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
+		ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
 
 		if ( !random_location )
 		{
@@ -312,8 +319,103 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{
 		if ( !IsMissionHost() )
 			return;
+				
+		if ( GetExpansionSettings().GetSpawn() )
+		{
+			int i;
+			EntityAI gear_item;
+			EntityAI itemTop;
+			EntityAI itemPants;
+			EntityAI itemBag;
+			EntityAI itemVest;
+			EntityAI parent = player;
+			ExpansionStartingGear gear;
+			
+			if ( Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear) )
+			{
+				//! Add items to top/shirt/jacked or player if there is no space
+				if ( gear.UseUpperGear )
+				{
+					itemTop = player.FindAttachmentBySlotName("Body");					
+					if ( itemTop )
+					{
+						for ( i = 0; i < gear.UpperGear.Count(); i++ )
+						{
+							AddItem(player, gear.UpperGear[i], itemTop);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.UpperGear[i], parent);
+					}
+				}
+				
+				//! Add items to pants
+				if ( gear.UsePantsGear )
+				{
+					itemPants = player.FindAttachmentBySlotName("Legs");					
+					if ( itemPants )
+					{
+						for ( i = 0; i < gear.PantsGear.Count(); i++ )
+						{
+							AddItem(player, gear.PantsGear[i], itemPants);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.PantsGear[i], parent);
+					}
+				}
+				
+				//! Add items to backpack
+				if ( gear.UseBackpackGear )
+				{
+					itemBag = player.FindAttachmentBySlotName("Back");					
+					if ( itemBag )
+					{
+						for ( i = 0; i < gear.BackpackGear.Count(); i++ )
+						{
+							AddItem(player, gear.BackpackGear[i], itemBag);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.BackpackGear[i], parent);
+					}
+				}
+				
+				//! Add items to vest
+				if ( gear.UseVestGear )
+				{
+					itemVest = player.FindAttachmentBySlotName("Vest");					
+					if ( itemVest )
+					{
+						for ( i = 0; i < gear.VestGear.Count(); i++ )
+						{
+							AddItem(player, gear.VestGear[i], itemVest);
+						}
+					}
+					else
+					{
+						AddItem(player, gear.VestGear[i], parent);
+					}
+				}
+				
+				//! Add primary weapon and its attachments
+				if ( gear.UsePrimaryWeapon )
+				{
+					AddItem(player, gear.PrimaryWeapon, parent);
+				}
+				
+				//! Add primary weapon and its attachments
+				if ( gear.UseSecondaryWeapon )
+				{
+					AddItem(player, gear.SecondaryWeapon, parent);
+				}
+			}
+		}
 		
-		int i;
+		/*int i;
 		EntityAI gear_item;
 		EntityAI itemTop;
 		EntityAI itemPants;
@@ -424,7 +526,12 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 						SetRandomHealth( items[i] );
 				}
 			}
-		}
+		}*/
+	}
+	
+	private void AddItem(PlayerBase player, ExpansionStartingGearItem item, inout EntityAI parent)
+	{
+		ExpansionItemSpawnHelper.SpawnOnParent(item.ClassName, player, parent, item.Quantity, NULL, -1, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -435,7 +542,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionHost() )
 			return;
 		
-		ref array<EntityAI> clothingArray = new array<EntityAI>;
+		array<EntityAI> clothingArray = new array<EntityAI>;
 		
 		ExpansionStartingClothing startingClothing;
 		if (Class.CastTo(startingClothing, GetExpansionSettings().GetSpawn().StartingClothing))

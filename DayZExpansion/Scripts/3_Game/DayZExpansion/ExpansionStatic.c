@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -27,7 +27,7 @@ class ExpansionStatic
 	// ------------------------------------------------------------
 	// ExpansionStatic GetFlagTextures
 	// ------------------------------------------------------------
-	ref array<ref ExpansionFlagTexture> GetFlagTextures()
+	array<ref ExpansionFlagTexture> GetFlagTextures()
 	{
 		return m_FlagTextures;
 	}
@@ -626,10 +626,10 @@ class ExpansionStatic
 	}
 };
 
-static ref ExpansionStatic GetExpansionStatic()
+static ref ExpansionStatic g_exGlobalStatic;
+
+static ExpansionStatic GetExpansionStatic()
 {
-	static ref ExpansionStatic g_exGlobalStatic;
-	
 	if ( !g_exGlobalStatic )
 	{
 		g_exGlobalStatic = new ExpansionStatic();

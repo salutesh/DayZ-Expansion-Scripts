@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -88,9 +88,9 @@ class ExpansionVehicleAxle
 		return m_Vehicle;
 	}
 
-	ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
+	ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
-		ref ExpansionVehicleWheel wheel = new ExpansionVehicleWheel( m_Vehicle, this, pName, pWheels.Count() );
+		ExpansionVehicleWheel wheel = new ExpansionVehicleWheel( m_Vehicle, this, pName, pWheels.Count() );
 
 		m_Wheels.Insert( wheel );
 		pWheels.Insert( wheel );
@@ -256,7 +256,7 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 	{
 	}
 
-	override ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
+	override ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
 		m_Center = super.AddWheel( pName, pWheels );
 
@@ -315,7 +315,7 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 	{
 	}
 
-	override ref ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
+	override ExpansionVehicleWheel AddWheel( string pName, out array< ExpansionVehicleWheel > pWheels )
 	{
 		if ( pName == "Left" )
 		{
@@ -399,7 +399,7 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 
 	protected override void _ApplyBrake( float pTorque )
 	{
-		m_Left.ApplyBrake( pTorque * 0.5 );
-		m_Right.ApplyBrake( pTorque * 0.5 );
+		m_Left.ApplyBrake( pTorque );
+		m_Right.ApplyBrake( pTorque );
 	}
 };

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -95,8 +95,9 @@ modded class PlayerBase
 		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
 		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
 
-		AddAction( ExpansionActionPickVehicleLock );
-		AddAction( ExpansionVehicleActionPickLock );
+		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
+		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
+		AddAction( ExpansionActionChangeVehicleLock, InputActionMap );
 
 		#ifdef EXPANSION_VEHICLE_TOWING
 		AddAction( ExpansionActionConnectTow, InputActionMap );
@@ -484,7 +485,7 @@ modded class PlayerBase
 					vector hitPos = vector.Zero;
 					for (int i = 0; i < results.Count(); ++i)
 					{
-						ref RaycastRVResult currResult = results[i];
+						RaycastRVResult currResult = results[i];
 						if (!currResult)
 							continue;
 						

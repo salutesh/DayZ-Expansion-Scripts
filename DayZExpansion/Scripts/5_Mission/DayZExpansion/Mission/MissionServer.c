@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -62,6 +62,15 @@ modded class MissionServer
 		{
 			super.EquipCharacter(char_data);
 		}
+		
+		if ( GetExpansionSettings().GetSpawn().SpawnHealthValue <= m_player.GetMaxHealth("GlobalHealth", "Health") )
+			m_player.SetHealth("", "", GetExpansionSettings().GetSpawn().SpawnHealthValue );
+		
+		if ( GetExpansionSettings().GetSpawn().SpawnEnergyValue <= m_player.GetStatEnergy().GetMax() )
+			m_player.GetStatEnergy().Set( GetExpansionSettings().GetSpawn().SpawnEnergyValue );
+		
+		if ( GetExpansionSettings().GetSpawn().SpawnWaterValue <= m_player.GetStatWater().GetMax()  )
+			m_player.GetStatWater().Set( GetExpansionSettings().GetSpawn().SpawnWaterValue );
 	}
 	
 	// ------------------------------------------------------------

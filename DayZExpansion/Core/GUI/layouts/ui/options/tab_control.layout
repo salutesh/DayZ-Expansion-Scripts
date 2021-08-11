@@ -1,0 +1,56 @@
+PanelWidgetClass Tab_Control_x {
+ visible 1
+ clipchildren 1
+ color 0 0 0 0
+ size 160 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 0
+ priority 200
+ userID 0
+ style DayZDefaultPanel
+ "no focus" 1
+ "next down" "XComboBoxWidget1"
+ {
+  TextWidgetClass Tab_Control_x_Title {
+   ignorepointer 1
+   position 0 0
+   size 1 0.42
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 250
+   text ""
+   font "gui/fonts/sdf_MetronLight72"
+   "text halign" center
+   "text valign" center
+  }
+  ImageWidgetClass Tab_Control_x_Background {
+   visible 0
+   disabled 0
+   inheritalpha 0
+   ignorepointer 1
+   color 1 1 1 0.7843
+   position 0 0
+   size 710 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 0
+   draggable 0
+   imageTexture "{5A89D58DD2276E85}Gui/textures/SerratedBlack2.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   "flip u" 0
+   "flip v" 0
+   filter 1
+   nocache 0
+  }
+ }
+}

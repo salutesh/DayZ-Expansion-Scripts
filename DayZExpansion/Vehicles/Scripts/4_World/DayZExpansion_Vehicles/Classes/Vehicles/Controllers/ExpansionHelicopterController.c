@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -201,7 +201,7 @@ class ExpansionHelicopterController: ExpansionVehicleController
 		// don't reset freelook
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_AutoHover );
 
@@ -221,7 +221,7 @@ class ExpansionHelicopterController: ExpansionVehicleController
 		ctx.Write( m_AntiTorqueRight );
 	}
 
-	protected override bool OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override bool OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_AutoHover );
 

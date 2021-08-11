@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -90,5 +90,17 @@ class ExpansionCraftFloorKit extends RecipeBase
 	override void Do(ItemBase ingredients[], PlayerBase player,array<ItemBase> results, float specialty_weight) //! Gets called upon recipe's completion
 	{
 		Debug.Log("Recipe Do method called", "recipes");
+	}
+}
+
+class ExpansionCraftRoofKit : ExpansionCraftFloorKit
+{
+	override void Init()
+	{
+		super.Init();
+
+		m_Name = "#STR_USRACT_CRAFT_ROOF_KIT";
+
+		m_ItemsToCreate[m_NumberOfResults - 1] = "ExpansionRoofKit";  //! Overwrite floor kit result
 	}
 }

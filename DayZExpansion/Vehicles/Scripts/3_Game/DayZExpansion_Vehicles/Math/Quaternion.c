@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -50,7 +50,7 @@ class Quaternion
 		#endif
 		
 		if ( matrix == NULL )
-			matrix = new ref Matrix3;
+			matrix = new Matrix3;
 
 		Math3D.QuatToMatrix( data, matrix.data );
 		
@@ -91,13 +91,13 @@ class Quaternion
 		#endif
 	}
 
-	static ref Quaternion Rotation( float angle, vector axis )
+	static Quaternion Rotation( float angle, vector axis )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "Quaternion::Rotation - Start" );
 		#endif
 		
-		Quaternion q = new ref Quaternion;
+		Quaternion q = new Quaternion;
 		q.SetRotation( angle, axis );
 		
 		#ifdef EXPANSIONEXPRINT

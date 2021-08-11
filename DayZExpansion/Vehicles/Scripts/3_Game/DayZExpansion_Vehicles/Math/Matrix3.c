@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -44,7 +44,7 @@ class Matrix3
 
 	static Matrix3 SetRotationX( float angle )
 	{
-		Matrix3 mat = new ref Matrix3();
+		Matrix3 mat = new Matrix3();
 
 		float s = Math.Sin( angle );
 		float c = Math.Cos( angle );
@@ -110,7 +110,7 @@ class Matrix3
 		EXPrint("Matrix3::Invert - Start");
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 
 		vector co = Vector( Cofactor( 1, 1, 2, 2 ), Cofactor( 1, 2, 2, 0 ), Cofactor( 1, 0, 2, 1 ) );
 
@@ -149,7 +149,7 @@ class Matrix3
 		EXPrint("Matrix3::Scaled - Start");
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 		
 		n.data[0][0] = data[0][0] * scale[0];
 		n.data[1][0] = data[1][0] * scale[1];
@@ -175,7 +175,7 @@ class Matrix3
 		EXPrint("Matrix3::Transpose - Start");
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 		
 		n.data[0][0] = data[0][0];
 		n.data[0][1] = data[1][0];
@@ -201,7 +201,7 @@ class Matrix3
 		EXPrint("Matrix3::Adjoint - Start");
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 
 		n.data[0][0] = Cofactor( 1, 1, 2, 2 ); 
 		n.data[0][1] = Cofactor( 0, 2, 2, 1 ); 
@@ -293,7 +293,7 @@ class Matrix3
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "Matrix3::YawPitchRoll - Start" );
 		#endif
-		Matrix3 mat = new ref Matrix3;
+		Matrix3 mat = new Matrix3;
 
 		Math3D.YawPitchRollMatrix( ypr, mat.data );
 
@@ -317,7 +317,7 @@ class Matrix3
 		#endif
 		
 		if ( mat == NULL )
-			mat = new ref Matrix3;
+			mat = new Matrix3;
 
 		mat.data[0][0] = 0.0;
 		mat.data[1][1] = 0.0;
@@ -343,7 +343,7 @@ class Matrix3
 		EXPrint( "Matrix3::Multiply - Start" );
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 
 		Math3D.MatrixMultiply3( data, m.data, n.data );
 
@@ -360,7 +360,7 @@ class Matrix3
 		#endif
 		
 		if ( n == NULL )
-			n = new ref Matrix3;
+			n = new Matrix3;
 
 		Math3D.MatrixMultiply3( data, m.data, n.data );
 
@@ -376,7 +376,7 @@ class Matrix3
 		#endif
 		
 		if ( n == NULL )
-			n = new ref Matrix3;
+			n = new Matrix3;
 
 		Math3D.MatrixMultiply3( a.data, b.data, n.data );
 
@@ -391,7 +391,7 @@ class Matrix3
 		EXPrint( "Matrix3::InvMultiply - Start" );
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 
 		Math3D.MatrixInvMultiply3( data, m.data, n.data );
 
@@ -408,7 +408,7 @@ class Matrix3
 		#endif
 		
 		if ( mat == NULL )
-			mat = new ref Matrix3;
+			mat = new Matrix3;
 
 		vector temp[4];
 		Math3D.DirectionAndUpMatrix( dir, up, temp );
@@ -428,7 +428,7 @@ class Matrix3
 		EXPrint( "Matrix3::BISAdd - Start" );
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 		
 		n.data[0] = data[0] + m.data[0];
 		n.data[1] = data[1] + m.data[1];
@@ -446,7 +446,7 @@ class Matrix3
 		EXPrint( "Matrix3::BISSubtract - Start" );
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 		
 		n.data[0] = data[0] - m.data[0];
 		n.data[1] = data[1] - m.data[1];
@@ -464,7 +464,7 @@ class Matrix3
 		EXPrint( "Matrix3::BISMultiply - Start" );
 		#endif
 		
-		Matrix3 n = new ref Matrix3;
+		Matrix3 n = new Matrix3;
 		
 		n.data[0][0] = data[0][0] * m;
 		n.data[1][0] = data[1][0] * m;

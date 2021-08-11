@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -24,6 +24,15 @@ class ExpansionStairBase extends ExpansionBaseBuilding
 	override string GetConstructionKitType()
 	{
 		return "ExpansionStairKit";
+	}
+
+	override bool NameOverride(out string output)
+	{
+		if (IsLastStage())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_STAIR_FINISHED";
+		else
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_STAIR_BASE";
+		return true;
 	}
 
 	override bool IsLastStage()
@@ -116,17 +125,29 @@ class ExpansionStairBase extends ExpansionBaseBuilding
 	}
 	#endif
 
+	override bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		minMax[0] = "-0.75 0 -1.5";
+		minMax[1] = "0.75 3.25 1.5";
+		return true;
+	}
+
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
 		m_HasStair = false;
 
+		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
+
+		super.OnPartBuiltServer(player, part_name, action_id );
+		UpdateVisuals();
+	}
+
+	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
+	{
 		if ( part_name == m_CurrentBuild + "_tread" )
 		{
 			m_HasStair = true;
 		}
-
-		super.OnPartBuiltServer(player, part_name, action_id );
-		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )

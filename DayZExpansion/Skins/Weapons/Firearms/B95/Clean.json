@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "zbytek",
+			"RVTexture": "dz\\weapons\\firearms\\B95\\data\\b95_co.paa",
+			"RVMaterial": "dz\\weapons\\firearms\\B95\\data\\b95.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

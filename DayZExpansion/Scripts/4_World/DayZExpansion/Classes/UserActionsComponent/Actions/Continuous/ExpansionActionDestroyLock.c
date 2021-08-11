@@ -105,10 +105,10 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		ExpansionWallBase wall;
 		if (Class.CastTo(wall, targetObject))
 		{
-			if ( wall.HasDoor() )
-				return GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == ( RaidLocksOnWallsEnum.OnlyDoor || RaidLocksOnWallsEnum.Enabled );
-			else if ( wall.HasGate() )
-				return GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == ( RaidLocksOnWallsEnum.OnlyGate || RaidLocksOnWallsEnum.Enabled );
+			if ( wall.HasDoor() && GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyDoor )
+				return true;
+			else if ( wall.HasGate() && GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyGate )
+				return true;
 		}
 
 		return GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.Enabled;

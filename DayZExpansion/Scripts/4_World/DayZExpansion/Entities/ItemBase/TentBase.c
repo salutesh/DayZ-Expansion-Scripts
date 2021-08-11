@@ -129,7 +129,7 @@ modded class TentBase
 			}
 		}
 
-        return super.CanReleaseCargo(item );
+        return super.CanReceiveItemIntoCargo(item );
     }
 
 

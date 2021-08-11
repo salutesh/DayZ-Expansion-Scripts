@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -138,7 +138,7 @@ class Expansion_GraveBase extends Inventory_Base
 			Delete();
 	}
 
-	void MoveAttachmentsFromEntity(EntityAI entity)
+	void MoveAttachmentsFromEntity(EntityAI entity, vector ground, vector orientation)
 	{
 		for (int i = 0; i < entity.GetInventory().GetAttachmentSlotsCount(); i++)
 		{
@@ -168,6 +168,9 @@ class Expansion_GraveBase extends Inventory_Base
 						entity.GetInventory().DropEntity(InventoryMode.SERVER, entity, item);
 					else
 						entity.GetInventory().DropEntity(InventoryMode.LOCAL, entity, item);
+
+					item.SetPosition(ground);
+					item.SetOrientation(orientation);
 				}
 
 				if (GetGame().IsServer())

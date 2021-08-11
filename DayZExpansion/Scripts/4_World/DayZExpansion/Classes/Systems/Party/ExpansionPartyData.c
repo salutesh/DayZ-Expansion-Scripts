@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -25,6 +25,10 @@ class ExpansionPartyData
 	protected ref map< string, ExpansionPartyPlayerData > PlayersMap;
 	protected ref map< string, ExpansionPartyInviteData > InvitesMap;
 	protected ref map< string, ExpansionMarkerData > MarkersMap;
+	
+#ifdef EXPANSIONMODMARKET
+	protected int MoneyDeposited;
+#endif
 		
 	// ------------------------------------------------------------
 	// Expansion ExpansionPartyData Consturctor
@@ -40,6 +44,10 @@ class ExpansionPartyData
 		PlayersMap = new map< string, ExpansionPartyPlayerData >;
 		InvitesMap = new map< string, ExpansionPartyInviteData >;
 		MarkersMap = new map< string, ExpansionMarkerData >;
+	
+	#ifdef EXPANSIONMODMARKET
+		MoneyDeposited = 0;
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -107,7 +115,7 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion GetPlayers
 	// ------------------------------------------------------------
-	ref array< ref ExpansionPartyPlayerData > GetPlayers()
+	array< ref ExpansionPartyPlayerData > GetPlayers()
 	{
 		return Players;
 	}
@@ -115,7 +123,7 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion GetAllMarkers
 	// ------------------------------------------------------------
-	ref array<ref ExpansionMarkerData> GetAllMarkers()
+	array<ref ExpansionMarkerData> GetAllMarkers()
 	{
 		return Markers;
 	}
@@ -125,17 +133,17 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	void SetupExpansionPartyData( PlayerBase pPb, string partyName )
 	{
-	   	ref ExpansionPartyPlayerData player = AddPlayer( pPb, true );
+	   	ExpansionPartyPlayerData player = AddPlayer( pPb, true );
 
 		PartyName = partyName;
 		OwnerUID = player.UID;
-		OwnerName = player.Name;
+		OwnerName = player.Name;	
 	}
 
 	// ------------------------------------------------------------
 	// Expansion AddPlayer
 	// ------------------------------------------------------------
-	private ref ExpansionPartyPlayerData AddPlayer( PlayerBase pPb, bool owner = false )
+	private ExpansionPartyPlayerData AddPlayer( PlayerBase pPb, bool owner = false )
 	{
 		string uid = pPb.GetIdentityUID();
 		string name = pPb.GetIdentityName();
@@ -143,13 +151,14 @@ class ExpansionPartyData
 		ExpansionPartyPlayerData player = new ExpansionPartyPlayerData;
 		player.UID = uid;
 		player.Name = name;
-		player.Promoted = owner;
 		player.OnJoin( pPb );
 		player.CreateMarker();
+		player.ApplyPermissions(ExpansionPartyPlayerPermissions.NONE);
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("SetupExpansionPartyData::AddPlayer player.Promoted : " + player.Promoted);
-		#endif
+		if (owner)
+		{
+			player.ApplyPermissions(ExpansionPartyPlayerPermissions.CAN_EDIT | ExpansionPartyPlayerPermissions.CAN_INVITE | ExpansionPartyPlayerPermissions.CAN_KICK | ExpansionPartyPlayerPermissions.CAN_DELETE | ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY);
+		}
 
 		Players.Insert( player );
 		PlayersMap.Insert( player.UID, player );
@@ -160,24 +169,29 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion AcceptInvite
 	// ------------------------------------------------------------
-	bool AcceptInvite( PlayerBase player ) 
+	bool AcceptInvite(PlayerBase player) 
 	{
-		if ( RemoveInvite( player.GetIdentityUID() ) )
+		if (RemoveInvite(player.GetIdentityUID()))
 		{
-			AddPlayer( player );
-
-			return true;
+			ExpansionPartyPlayerData newPlayerData = AddPlayer(player);
+			if (!newPlayerData)
+			{
+				return false;
+			}
+			else
+			{	
+				return true;
+			}
 		}
-
 		return false;
 	}
 
 	// ------------------------------------------------------------
 	// Expansion DeclineInvite
 	// ------------------------------------------------------------
-	bool DeclineInvite( string uid )
+	bool DeclineInvite(string uid)
 	{
-		return RemoveInvite( uid );
+		return RemoveInvite(uid);
 	}
 
 	// ------------------------------------------------------------
@@ -191,9 +205,9 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion RemoveInvite
 	// ------------------------------------------------------------
-	private bool RemoveInvite( string uid )
+	bool RemoveInvite( string uid )
 	{
-		ref ExpansionPartyInviteData invite = InvitesMap.Get( uid );
+		ExpansionPartyInviteData invite = InvitesMap.Get( uid );
 		if ( invite != NULL )
 		{
 			Invites.RemoveItem( invite );
@@ -207,9 +221,9 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion AddInvite
 	// ------------------------------------------------------------
-	ref ExpansionPartyInviteData AddInvite( string playerID ) 
+	ExpansionPartyInviteData AddInvite( string playerID ) 
 	{
-		ref ExpansionPartyInviteData invite = InvitesMap.Get( playerID );
+		ExpansionPartyInviteData invite = InvitesMap.Get( playerID );
 		if ( invite != NULL )
 		{
 			Error("ExpansionPartyData::AddInvite Add a player already exist");
@@ -229,11 +243,11 @@ class ExpansionPartyData
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion RemovePlayer
+	// Expansion RemoveMember
 	// ------------------------------------------------------------
-	bool RemovePlayer( string uid )
+	bool RemoveMember( string uid )
 	{
-		ref ExpansionPartyPlayerData player = PlayersMap.Get( uid );
+		ExpansionPartyPlayerData player = PlayersMap.Get( uid );
 		if ( player )
 		{
 			Players.RemoveItem( player );
@@ -247,7 +261,7 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion GetPlayer
 	// ------------------------------------------------------------
-	ref ExpansionPartyPlayerData GetPlayer( string uid )
+	ExpansionPartyPlayerData GetPlayer( string uid )
 	{
 		return PlayersMap.Get( uid );
 	}
@@ -263,15 +277,23 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion GetPlayerInvite
 	// ------------------------------------------------------------
-	ref ExpansionPartyInviteData GetPlayerInvite( string uid )
+	ExpansionPartyInviteData GetPlayerInvite( string uid )
 	{
 		return InvitesMap.Get( uid );
 	}
-		
+	
+	// ------------------------------------------------------------
+	// Expansion GetTerritoryMembers
+	// ------------------------------------------------------------
+	array<ref ExpansionPartyInviteData> GetPartyInvites()
+	{
+		return Invites;
+	}
+	
 	// ------------------------------------------------------------
 	// Expansion AddMarker
 	// ------------------------------------------------------------
-	bool AddMarker( ref ExpansionMarkerData marker )
+	bool AddMarker(  ExpansionMarkerData marker )
 	{
 		if ( marker.GetUID() == "" )
 		{
@@ -289,7 +311,7 @@ class ExpansionPartyData
 		return true;
 	}
 
-	ref ExpansionMarkerData GetMarker( string uid )
+	ExpansionMarkerData GetMarker( string uid )
 	{
 		return MarkersMap.Get( uid );
 	}
@@ -297,7 +319,7 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion UpdateMarker
 	// ------------------------------------------------------------
-	bool UpdateMarker( ref ExpansionMarkerData marker )
+	bool UpdateMarker(  ExpansionMarkerData marker )
 	{
 		ExpansionMarkerData orgi = MarkersMap.Get( marker.GetUID() );
 		if ( !orgi )
@@ -469,7 +491,8 @@ class ExpansionPartyData
 		{
 			ctx.Write( Players[index].UID );
 			ctx.Write( Players[index].Name );
-			ctx.Write( Players[index].Promoted );
+			//ctx.Write( Players[index].Promoted );			
+			ctx.Write( Players[index].Permissions );
 
 			if ( Players[index].Marker )
 			{
@@ -519,6 +542,10 @@ class ExpansionPartyData
 			ctx.Write( Markers[index].GetUID() );
 			Markers[index].OnSend( ctx );
 		}
+		
+	#ifdef EXPANSIONMODMARKET
+		ctx.Write( MoneyDeposited );
+	#endif
 	}
 
 	bool OnRecieve( ParamsReadContext ctx )
@@ -564,7 +591,11 @@ class ExpansionPartyData
 
 			if ( !ctx.Read( player.Name ) )
 				return false;
-			if ( !ctx.Read( player.Promoted ) )
+			
+			/*if ( !ctx.Read( player.Promoted ) )
+				return false;*/
+			
+			if ( !ctx.Read( player.Permissions ) )
 				return false;
 
 			bool hasMarker;
@@ -689,6 +720,11 @@ class ExpansionPartyData
 				delete marker;
 			}
 		}
+	
+	#ifdef EXPANSIONMODMARKET
+		if ( !ctx.Read( MoneyDeposited ) )
+			return false;
+	#endif
 
 		return true;
 	}
@@ -719,6 +755,10 @@ class ExpansionPartyData
 			ctx.Write( Markers[i].GetUID() );
 			Markers[i].OnStoreSave( ctx );
 		}
+		
+	#ifdef EXPANSIONMODMARKET
+		ctx.Write( MoneyDeposited );
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -788,25 +828,25 @@ class ExpansionPartyData
 				return false;
 		}
 		
+	#ifdef EXPANSIONMODMARKET
+		if ( version >= 26 && Expansion_Assert_False( ctx.Read( MoneyDeposited ), "Failed reading party money deposit data" ) )
+			return false;
+	#endif
+		
 		return true;
 	}
 	
 	bool IsMember(string uid)
-	{
-		for (int i = 0; i < Players.Count(); ++i)
-		{
-			if (Players[i] && Players[i].GetID() == uid)
-			{
-				return true;
-			}
-		}
+	{		
+		if (GetPlayer(uid))	
+			return true;
 		
 		return false;
 	}
 	
 	bool HasInvite(string uid)
 	{
-		for(int i = 0; i < Invites.Count(); ++i)
+		for (int i = 0; i < Invites.Count(); ++i)
 		{
 			if (Invites[i] && Invites[i].GetID() == uid)
 			{
@@ -816,4 +856,21 @@ class ExpansionPartyData
 		
 		return false;
 	}
+	
+#ifdef EXPANSIONMODMARKET
+	int GetMoneyDeposited()
+	{
+		return MoneyDeposited;
+	}
+	
+	void RemoveMoney(int amount)
+	{
+		MoneyDeposited -= amount;
+	}
+	
+	void AddMoney(int amount)
+	{
+		MoneyDeposited += amount;
+	}
+#endif
 }

@@ -56,6 +56,10 @@
         "submitter": "ExpansionModTeam"
     },
     {
+        "message": "Did you know? You can hide the chat with the divide '/' key.",
+        "submitter": "ExpansionModTeam"
+    },
+    {
         "message": "Beans are a lie!",
         "submitter": "BlueSky"
     },
@@ -220,7 +224,7 @@
         "submitter": "LieutenantMaster"
     },
     {
-        "message": "We are 20 degrees crash o'meter",
+        "message": "This loading screen take forever, please don't crash again.",
         "submitter": "LieutenantMaster"
     },
     {
@@ -320,10 +324,6 @@
         "submitter": "Joito"
     },
     {
-        "message": "Message",
-        "submitter": "ExpansionModTeam"
-    },
-    {
         "message": "Raising Heartrates",
         "submitter": "FMCS-BOSS-ICEMAN"
     },
@@ -410,5 +410,53 @@
     {
         "message": "This is not the Discord you're looking for™",
         "submitter": "L/\\\\//\\"
+    },
+    {
+        "message": "Now that’s Ford tough.",
+        "submitter": "Alyx"
+    },
+    {
+        "message": "Making enemies is easy, just shoot.",
+        "submitter": "[AAF]mother"
+    },
+    {
+        "message": "'And I took that personally...' - Bear",
+        "submitter": "So Juiceee"
+    },
+    {
+        "message": "Day-Z 2: Electric Beangaloo",
+        "submitter": "So Juiceee"
+    },
+    {
+        "message": "You can raise the bear - you have to bite his ear.",
+        "submitter": "Jaxx Diablo"
+    },
+    {
+        "message": "Closing Doors...",
+        "submitter": "James01"
+    },
+    {
+        "message": "Bears. Bears don't bother with trivial things like physics.",
+        "submitter": "Beelo The Destroyer"
+    },
+    {
+        "message": "Error 70 - 70cm from display",
+        "submitter": "HunterzCZ"
+    },
+    {
+        "message": "I bear-lieve i can fly",
+        "submitter": "Gomes"
+    },
+    {
+        "message": "Usually, the issue is the interface between the chair and the computer",
+        "submitter": "H3nd3rs0n"
+    },
+    {
+        "message": "Are ya winning son?",
+        "submitter": "G0ky5"
+    },
+    {
+        "message": "I don't play for kills I play for crashing helis.",
+        "submitter": "Rick James"
     }
 ]

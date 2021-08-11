@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -40,6 +40,9 @@ class ExpansionVehicleEngine
 	
 	private float m_RPM;
 	private float m_Torque;
+
+	private float m_NewTorque;
+	private float m_PreviousTorque;
 	
 	void ExpansionVehicleEngine( ExpansionVehicleBase vehicle )
 	{
@@ -126,26 +129,32 @@ class ExpansionVehicleEngine
 		dbg_Vehicle.Set("Gear Ratio", pGR );
 		#endif
 
-		m_RPM = Math.AbsFloat( wheelRPM * pGR * axleDiff );
+		m_RPM = ToRPM(Math.AbsFloat(wheelRPM * pGR / axleDiff));
 		m_RPM = Math.Clamp( m_RPM, m_RPMIdle, m_RPMMax );
 		
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
 		dbg_Vehicle.Set("RPM", m_RPM );
 		#endif
 		
-		m_Torque = LookupTorque( m_RPM );
+		m_PreviousTorque = m_NewTorque;
+		m_NewTorque = LookupTorque(m_RPM) * pThrottle;
+		
+		#ifdef EXPANSION_DEBUG_UI_VEHICLE
+		dbg_Vehicle.Set("Torque", torque );
+		#endif
+		
+		m_Torque += (m_NewTorque - m_PreviousTorque) * pDt / m_Inertia;
+		m_Torque = Math.Clamp(m_Torque, 0, m_TorqueMax);
 		
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
 		dbg_Vehicle.Set("Torque", m_Torque );
 		#endif
 		
-		m_Torque *= pDt * pThrottle * pGR; // / m_Inertia;
+		float torque = 0.0;
 		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("Torque", m_Torque );
-		#endif
+		if (pGR != 0) torque = m_Torque / pGR;
 
-		ApplyAxleTorque( m_Torque );
+		ApplyAxleTorque(torque);
 	}
 
 	protected void ApplyAxleTorque( float torque )
@@ -165,7 +174,12 @@ class ExpansionVehicleEngine
 
 	float FromRPM(float rpm)
 	{
-		return rpm * 2.0 * Math.PI / 60.0;
+		return rpm * Math.PI / 30.0;
+	}
+
+	float ToRPM(float rot)
+	{
+		return rot * 30.0 / Math.PI;
 	}
 
 	float LookupTorque( float rpm )

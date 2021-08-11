@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\firearms\\Ruger1022\\data\\ruger1022_green_co.paa",
+			"RVMaterial": "dz\\weapons\\firearms\\Ruger1022\\data\\ruger1022.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

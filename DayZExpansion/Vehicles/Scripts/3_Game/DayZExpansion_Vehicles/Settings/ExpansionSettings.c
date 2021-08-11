@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,17 +14,7 @@ modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Vehicle = new ScriptInvoker();
 	
-	protected ref ExpansionVehicleSettings m_SettingsVehicle;
-	
-	// ------------------------------------------------------------
-	// ExpansionSettings Destructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ~ExpansionSettings()
-	{		
-		if ( m_SettingsVehicle)
-			delete m_SettingsVehicle;
-	}
+	protected autoptr ExpansionVehicleSettings m_SettingsVehicle;
 	
 	// ------------------------------------------------------------
 	// Expansion OnServerInit
@@ -119,7 +109,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// OnRPC
 	// ------------------------------------------------------------
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[VEHICLES] ExpansionSettings::OnRPC - Start");
@@ -173,7 +163,7 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionVehicleSettings GetVehicle
 	// ------------------------------------------------------------
-	ref ExpansionVehicleSettings GetVehicle()
+	ExpansionVehicleSettings GetVehicle()
 	{
 		return m_SettingsVehicle;
 	}

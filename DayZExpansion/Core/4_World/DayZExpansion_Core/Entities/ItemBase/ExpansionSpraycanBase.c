@@ -16,6 +16,24 @@
 class ExpansionSpraycanBase: ItemBase
 {
 	// ------------------------------------------------------------
+	// ExpansionSpraycanBase NameOverride
+	// ------------------------------------------------------------	
+	override bool NameOverride( out string output )
+	{
+		output = ExpansionGetItemDisplayNameWithType(GetType());
+		return true;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSpraycanBase DescriptionOverride
+	// ------------------------------------------------------------	
+	override bool DescriptionOverride(out string output)
+	{
+		output = ExpansionGetItemDescriptionWithType(GetType());
+		return true;
+	}
+	
+	// ------------------------------------------------------------
 	// ExpansionSpraycanBase SetActions
 	// ------------------------------------------------------------
 	override void SetActions()
@@ -29,5 +47,13 @@ class ExpansionSpraycanBase: ItemBase
 	override bool CanExplodeInFire()
 	{
 		return true;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionSpraycanBase CanExplodeInFire
+	// ------------------------------------------------------------
+	ExpansionSkinModule GetSkinModule()
+	{
+		return ExpansionSkinModule.Cast(GetModuleManager().GetModule(ExpansionSkinModule));
 	}
 };

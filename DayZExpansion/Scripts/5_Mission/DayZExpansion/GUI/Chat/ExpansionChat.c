@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -47,6 +47,8 @@ modded class Chat
 	private GridSpacerWidget m_ContentRow;
 	
 	private string m_LayoutPath;
+
+	private bool m_HideChatToggle = true;
 
 	// ------------------------------------------------------------
 	// Chat Constructor
@@ -397,6 +399,30 @@ modded class Chat
 		EXPrint("Chat::Update End");
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	// HideChatToggle
+	// ------------------------------------------------------------
+	void HideChatToggle()
+	{
+		m_HideChatToggle = !m_HideChatToggle;
+
+		m_RootWidget.Show(m_HideChatToggle);
+
+		if (m_FadeOutTimerChat)
+			m_FadeOutTimerChat.Stop();
+
+		if (m_FadeInTimerChat)
+			m_FadeInTimerChat.Stop();
+	}
+
+	// ------------------------------------------------------------
+	// GetChatToggleState
+	// ------------------------------------------------------------
+	bool GetChatToggleState()
+	{
+		return m_HideChatToggle;
+	}
 		
 	// ------------------------------------------------------------
 	// Chat OnChatInputShow
@@ -407,9 +433,13 @@ modded class Chat
 		EXPrint("Chat::OnChatInputShow Start");
 		#endif
 		
-		ShowScroller();
+		if ( GetChatToggleState() )
+		{
+			ShowScroller();
+			ShowChat();
+		}
+
 		UpdateScroller();
-		ShowChat();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Chat::OnChatInputShow End");

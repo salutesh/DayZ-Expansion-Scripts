@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,9 +15,7 @@
  **/
 modded class MissionGameplay
 {
-#ifdef DABS_FRAMEWORK
 	ref ExpansionUIMenuManager m_EXUIMenuManager;
-#endif
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -35,10 +33,8 @@ modded class MissionGameplay
 
 		if ( !IsMissionOffline() && g_exGlobalSettings )
 			g_exGlobalSettings.Unload();
-	
-	#ifdef DABS_FRAMEWORK
+		
 		CreateExpansionUIMenuManager();
-	#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::MissionGameplay - End");
@@ -57,10 +53,8 @@ modded class MissionGameplay
 		DestroyDayZExpansion();
 
 		g_exGlobalSettings.Unload();
-	
-	#ifdef DABS_FRAMEWORK
+		
 		DestroyExpansionUIMenuManager();
-	#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::~MissionGameplay - End");
@@ -77,12 +71,7 @@ modded class MissionGameplay
 			case INPUT_EXCLUDE_ALL:
 			{
 				GetUApi().ActivateExclude("menuexpansion");
-				break;
-			}
-			
-			case INPUT_EXCLUDE_CHAT_EXPANSION:
-			{
-				GetUApi().ActivateExclude("chatexpansion");
+				GetUApi().UpdateControls();
 				break;
 			}
 		}
@@ -98,9 +87,9 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - Start");
 		#endif
-
-		super.OnUpdate( timeslice );
-
+				
+		super.OnUpdate(timeslice);
+		
 		if ( !m_bLoaded )
 		{
 			#ifdef EXPANSIONEXPRINT
@@ -110,6 +99,7 @@ modded class MissionGameplay
 			return;
 		}
 		
+		//! Why is this here?
 		// GetDayZExpansion().OnUpdate( timeslice );
 
 		//! Checking for keyboard focus
@@ -130,12 +120,23 @@ modded class MissionGameplay
 			}
 		}
 
+		Man man 							= GetGame().GetPlayer(); 	//! Refernce to man
+		Input input 						= GetGame().GetInput(); 	//! Reference to input
+		UIScriptedMenu topMenu 				= m_UIManager.GetMenu(); 	//! Expansion reference to menu
+		PlayerBase playerPB 				= PlayerBase.Cast( man );	//! Expansion reference to player		
+		ExpansionScriptViewMenu viewMenu 	= ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		
-		Man man 				= GetGame().GetPlayer(); 	//! Refernce to man
-		Input input 			= GetGame().GetInput(); 	//! Reference to input
-		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
-		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
+		if (viewMenu && viewMenu.IsVisible())
+		{
+			//! Close current opened expansion script view menu when ESC is pressed
+			if (input.LocalPress("UAUIBack", false))
+			{
+				if (viewMenu && viewMenu.IsVisible())
+					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+			}
+		}
 		
+		#ifdef EXPANSIONMODVEHICLE
 		if ( playerPB )
 		{
 			HumanCommandVehicle hcv = playerPB.GetCommand_Vehicle();
@@ -158,20 +159,37 @@ modded class MissionGameplay
 				}
 			}
 		}
-
+		#endif
+			
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
 	}
 
-#ifdef DABS_FRAMEWORK	
+	// ------------------------------------------------------------
+	// Pause
+	// ------------------------------------------------------------	
+	override void Pause()
+	{
+		if (GetDayZExpansion().GetExpansionUIManager().GetMenu())
+			return;
+
+		super.Pause();
+	}
+	
+	// ------------------------------------------------------------
+	// CreateExpansionUIMenuManager
+	// ------------------------------------------------------------	
 	void CreateExpansionUIMenuManager()
 	{
-		ref ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
+		ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
 		if (exUIManager && !m_EXUIMenuManager)
 			m_EXUIMenuManager = new ExpansionUIMenuManager(exUIManager);
 	}
 	
+	// ------------------------------------------------------------
+	// DestroyExpansionUIMenuManager
+	// ------------------------------------------------------------		
 	void DestroyExpansionUIMenuManager()
 	{
 		if (m_EXUIMenuManager)
@@ -182,5 +200,12 @@ modded class MissionGameplay
 	{
 		return m_EXUIMenuManager;
 	}
-#endif
+	
+	bool IsMenuOpened()
+	{
+		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
+			return true;
+		
+		return false;
+	}
 };

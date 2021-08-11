@@ -1,0 +1,11 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\archery\\crossbow\\data\\crossbow_black_co.paa"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

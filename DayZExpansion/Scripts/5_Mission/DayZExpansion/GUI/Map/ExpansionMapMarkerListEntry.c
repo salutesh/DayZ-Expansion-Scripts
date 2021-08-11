@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -37,7 +37,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerListEntry Constructor
 	// ------------------------------------------------------------	
-	void ExpansionMapMarkerListEntry( ref ExpansionMapMenu map_menu, Widget list_category_parent, ref ExpansionMapMarker marker )
+	void ExpansionMapMarkerListEntry(  ExpansionMapMenu map_menu, Widget list_category_parent, ExpansionMapMarker marker )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerListEntry::ExpansionMapMarkerListEntry - Start");
@@ -212,12 +212,12 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// GetMarker
 	// ------------------------------------------------------------
-	ref ExpansionMapMarker GetMarker()
+	ExpansionMapMarker GetMarker()
 	{
 		return m_Marker;
 	}
 
-	ref ExpansionMarkerData GetData()
+	ExpansionMarkerData GetData()
 	{
 		return m_MarkerData;
 	}
@@ -334,7 +334,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// GetTooltip
 	// ------------------------------------------------------------	
-	ref ExpansionUITooltip GetTooltip()
+	ExpansionUITooltip GetTooltip()
 	{
 		return m_InfoTooltip;
 	}

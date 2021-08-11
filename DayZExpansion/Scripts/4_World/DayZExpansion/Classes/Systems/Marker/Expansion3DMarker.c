@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -132,7 +132,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		m_TransparencyMax = ( m_MarkerData.GetColor() >> 24 ) & 0xFF;
 
 		float dist = vector.Distance( screen_position, Vector( 0.5, 0.5, screen_position[2] ) );
-		m_Transparency = LinearConversion( 0, 0.15, dist, m_TransparencyMin, m_TransparencyMax );
+		m_Transparency = ExpansionMath.LinearConversion( 0, 0.15, dist, m_TransparencyMin, m_TransparencyMax );
 		
 		if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY_QUICK )
 		{
@@ -160,7 +160,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		m_Text_Distance.SetText( Math.Ceil( distance ).ToString() + "m" );
 		m_Text_Distance.SetColor( ARGB( m_Transparency, 255, 255, 255) );
 
-		float scale = LinearConversion( 2000, 100, distance, 0.6, 1 );
+		float scale = ExpansionMath.LinearConversion( 2000, 100, distance, 0.6, 1 );
 		m_Frame.SetSize( m_OriginalWidth * scale, m_OriginalHeight * scale );
 		
 		m_LayoutRoot.Show( true );

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,10 +12,15 @@
 
 class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker 
 {	
+	void ExpansionMapMarkerPlayerArrow( Widget parent, MapWidget mapWidget, bool autoInit = true )
+	{
+		SetIgnorePointer(true);
+	}
+	
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerPlayerArrow OnEditInit
 	// ------------------------------------------------------------	
-	protected override void OnEditInit( Widget layoutRoot )
+	/*protected override void OnEditInit( Widget layoutRoot )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::OnEditInit - Start");
@@ -36,7 +41,7 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapMarker
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerPlayerArrow::OnEditInit - End");
 		#endif
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// ExpansionMapMarkerPlayerArrow Update

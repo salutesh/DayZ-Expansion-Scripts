@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -46,7 +46,11 @@ class ExpansionMissionCOTForm extends JMFormBase
 	{
 	}
 
+	#ifdef COT_BUGFIX_REF
+	protected override bool SetModule(  JMRenderableModuleBase mdl )
+	#else
 	protected override bool SetModule( ref JMRenderableModuleBase mdl )
+	#endif
 	{
 		return Class.CastTo( m_BaseModule, GetModuleManager().GetModule( ExpansionMissionModule ) ) && Class.CastTo( m_Module, mdl );
 	}
@@ -129,7 +133,7 @@ class ExpansionMissionCOTForm extends JMFormBase
 		m_EndMission = UIActionManager.CreateButton( m_ActionsWrapper, "Stop", this, "Event_EndMission" );
 	}
 
-	void Event_StartMission( UIEvent eid, ref UIActionBase action )
+	void Event_StartMission( UIEvent eid, UIActionBase action )
 	{
 		if ( eid != UIEvent.CLICK )
 			return;
@@ -140,7 +144,7 @@ class ExpansionMissionCOTForm extends JMFormBase
 		m_BaseModule.StartMission( m_SelectedMission.GetMissionType(), m_SelectedMission.GetMissionName() );
 	}
 
-	void Event_EndMission( UIEvent eid, ref UIActionBase action )
+	void Event_EndMission( UIEvent eid, UIActionBase action )
 	{
 		if ( eid != UIEvent.CLICK )
 			return;
@@ -151,7 +155,7 @@ class ExpansionMissionCOTForm extends JMFormBase
 		m_BaseModule.EndMission( m_SelectedMission.GetMissionType(), m_SelectedMission.GetMissionName() );
 	}
 
-	void SetSelectedMission( ref ExpansionMissionCOTRowItem mission )
+	void SetSelectedMission(  ExpansionMissionCOTRowItem mission )
 	{
 		m_SelectedMission = NULL;
 		m_RightPanelDisable.Show( true );
@@ -178,7 +182,7 @@ class ExpansionMissionCOTForm extends JMFormBase
 		RefreshData();
 	}
 
-	void Event_RefreshData( UIEvent eid, ref UIActionBase action )
+	void Event_RefreshData( UIEvent eid, UIActionBase action )
 	{
 		RefreshData();
 	}
@@ -206,7 +210,7 @@ class ExpansionMissionCOTForm extends JMFormBase
 		if ( !Class.CastTo( mod, GetModuleManager().GetModule( ExpansionMissionModule ) ) )
 			return;
 
-		ref array< ref ExpansionMissionSerializedType > serialized = mod.Serialize();
+		array< ref ExpansionMissionSerializedType > serialized = mod.Serialize();
 
 		string filter = m_MissionListFilter.GetText();
 		bool isFiltering = filter.Length() > 0;

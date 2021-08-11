@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\Tractor\\Data\\tractor_2_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\Tractor\\Data\\traktor_2.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "Expansion_Truck_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Truck_Horn_Int_SoundSet"
+}

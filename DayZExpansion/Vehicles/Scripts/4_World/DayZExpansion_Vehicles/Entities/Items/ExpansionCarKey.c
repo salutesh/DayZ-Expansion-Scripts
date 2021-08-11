@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -17,10 +17,12 @@ class ExpansionCarKey extends ItemBase
 	private bool m_IsMasterKey;
 	private int MasterKeyUses;
 	
-	private int m_VehicleIDA;
-	private int m_VehicleIDB;
-	private int m_VehicleIDC;
-	private int m_VehicleIDD;
+	//! After pairing to a vehicle, it's the ID of the master key.
+	//! This allows "changing locks" on vehicles so old paired keys no longer work
+	private int m_PersistentIDA;
+	private int m_PersistentIDB;
+	private int m_PersistentIDC;
+	private int m_PersistentIDD;
 
 	private string m_VehicleDisplayName;
 
@@ -39,10 +41,10 @@ class ExpansionCarKey extends ItemBase
 		RegisterNetSyncVariableBool( "m_IsMasterKey" );
 		RegisterNetSyncVariableInt( "MasterKeyUses" );
 
-		RegisterNetSyncVariableInt( "m_VehicleIDA" );
-		RegisterNetSyncVariableInt( "m_VehicleIDB" );
-		RegisterNetSyncVariableInt( "m_VehicleIDC" );
-		RegisterNetSyncVariableInt( "m_VehicleIDD" );
+		RegisterNetSyncVariableInt( "m_PersistentIDA" );
+		RegisterNetSyncVariableInt( "m_PersistentIDB" );
+		RegisterNetSyncVariableInt( "m_PersistentIDC" );
+		RegisterNetSyncVariableInt( "m_PersistentIDD" );
 
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
@@ -104,7 +106,13 @@ class ExpansionCarKey extends ItemBase
 		
 		super.EEOnAfterLoad();
 
-		m_Vehicle = GetGame().GetEntityByPersitentID( m_VehicleIDA, m_VehicleIDB, m_VehicleIDC, m_VehicleIDD );
+		GetKeyObject();
+
+		if ( !m_Vehicle && IsPaired() )
+		{
+			EXPrint(ToString() + "::EEOnAfterLoad - Unpairing \"" + GetDisplayName() + "\" " + GetPosition() + " because its vehicle no longer exists");
+			Unpair( true );
+		}
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::EEOnAfterLoad - End");
@@ -165,6 +173,20 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	Object GetKeyObject()
 	{
+		if ( !m_Vehicle )
+		{
+			EXPrint(ToString() + "::GetKeyObject - looking for vehicle");
+			foreach ( CarScript car : CarScript.GetAll() )
+			{
+				if ( IsPairedTo( car ) )
+				{
+					EXPrint(ToString() + "::GetKeyObject - found " + car);
+					m_Vehicle = car;
+					break;
+				}
+			}
+		}
+
 		return m_Vehicle;
 	}
 	
@@ -173,7 +195,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	int GetPersistentIDA()
 	{		
-		return m_VehicleIDA;
+		return m_PersistentIDA;
 	}
 	
 	// ------------------------------------------------------------
@@ -181,7 +203,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	int GetPersistentIDB()
 	{		
-		return m_VehicleIDB;
+		return m_PersistentIDB;
 	}
 	
 	// ------------------------------------------------------------
@@ -189,7 +211,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	int GetPersistentIDC()
 	{		
-		return m_VehicleIDC;
+		return m_PersistentIDC;
 	}
 	
 	// ------------------------------------------------------------
@@ -197,7 +219,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	int GetPersistentIDD()
 	{		
-		return m_VehicleIDD;
+		return m_PersistentIDD;
 	}
 	
 	// ------------------------------------------------------------
@@ -335,10 +357,10 @@ class ExpansionCarKey extends ItemBase
 	//override bool DescriptionOverride(out string output)
 	//{
 	//	output = "ID:"
-	//	output = output + " A=" + m_VehicleIDA;
-	//	output = output + " B=" + m_VehicleIDB;
-	//	output = output + " C=" + m_VehicleIDC;
-	//	output = output + " D=" + m_VehicleIDD;
+	//	output = output + " A=" + m_PersistentIDA;
+	//	output = output + " B=" + m_PersistentIDB;
+	//	output = output + " C=" + m_PersistentIDC;
+	//	output = output + " D=" + m_PersistentIDD;
 	//	return true;
 	//}
 	
@@ -351,10 +373,12 @@ class ExpansionCarKey extends ItemBase
 		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - Start vehicle : " + vehicle);
 		#endif
 		
-		m_VehicleIDA = vehicle.GetPersistentIDA();
-		m_VehicleIDB = vehicle.GetPersistentIDB();
-		m_VehicleIDC = vehicle.GetPersistentIDC();
-		m_VehicleIDD = vehicle.GetPersistentIDD();
+		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
+
+		vehicle.SetPersistentIDA(m_PersistentIDA);
+		vehicle.SetPersistentIDB(m_PersistentIDB);
+		vehicle.SetPersistentIDC(m_PersistentIDC);
+		vehicle.SetPersistentIDD(m_PersistentIDD);
 
 		if ( GetExpansionSettings().GetVehicle().MasterKeyPairingMode != 0 )
 		{
@@ -363,10 +387,10 @@ class ExpansionCarKey extends ItemBase
 		}
 
 		#ifdef EXPANSION_CARKEY_LOGGING
-		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDA : " + m_VehicleIDA);
-		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDB : " + m_VehicleIDB);
-		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDC : " + m_VehicleIDC);
-		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_VehicleIDD : " + m_VehicleIDD);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_PersistentIDA : " + m_PersistentIDA);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_PersistentIDB : " + m_PersistentIDB);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_PersistentIDC : " + m_PersistentIDC);
+		EXLogPrint("ExpansionCarKey::PairToVehicle 1 - m_PersistentIDD : " + m_PersistentIDD);
 		#endif
 
 		m_VehicleDisplayName = vehicle.ConfigGetString( "displayName" );
@@ -400,16 +424,16 @@ class ExpansionCarKey extends ItemBase
 
 		key.SetMasterUses( key.GetMasterUses() - 1 );
 
-		m_VehicleIDA = key.GetPersistentIDA();
-		m_VehicleIDB = key.GetPersistentIDB();
-		m_VehicleIDC = key.GetPersistentIDC();
-		m_VehicleIDD = key.GetPersistentIDD();
+		m_PersistentIDA = key.GetPersistentIDA();
+		m_PersistentIDB = key.GetPersistentIDB();
+		m_PersistentIDC = key.GetPersistentIDC();
+		m_PersistentIDD = key.GetPersistentIDD();
 
 		#ifdef EXPANSION_CARKEY_LOGGING
-		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_VehicleIDA : " + m_VehicleIDA);
-		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_VehicleIDB : " + m_VehicleIDB);
-		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_VehicleIDC : " + m_VehicleIDC);
-		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_VehicleIDD : " + m_VehicleIDD);
+		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_PersistentIDA : " + m_PersistentIDA);
+		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_PersistentIDB : " + m_PersistentIDB);
+		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_PersistentIDC : " + m_PersistentIDC);
+		EXLogPrint("ExpansionCarKey::PairWithMasterKey 1 - m_PersistentIDD : " + m_PersistentIDD);
 		#endif
 
 		m_VehicleDisplayName = key.GetKeyDisplayName();
@@ -471,10 +495,10 @@ class ExpansionCarKey extends ItemBase
 			}
 		}
 
-		m_VehicleIDA = 0;
-		m_VehicleIDB = 0;
-		m_VehicleIDC = 0;
-		m_VehicleIDD = 0;
+		m_PersistentIDA = 0;
+		m_PersistentIDB = 0;
+		m_PersistentIDC = 0;
+		m_PersistentIDD = 0;
 		m_IsMasterKey = false;
 
 		m_Vehicle = NULL;
@@ -511,7 +535,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPaired()
 	{
-		if ( m_VehicleIDA != 0 || m_VehicleIDB != 0 || m_VehicleIDC != 0 || m_VehicleIDD != 0 )
+		if ( m_PersistentIDA != 0 || m_PersistentIDB != 0 || m_PersistentIDC != 0 || m_PersistentIDD != 0 )
 		{
 			KeyMessage("ExpansionCarKey::IsPaired - End and return TRUE");
 			return true;
@@ -527,23 +551,23 @@ class ExpansionCarKey extends ItemBase
 	bool IsPairedTo( CarScript vehicle )
 	{
 		//string msg = "ExpansionCarKey::IsPairedTo:";
-		//msg = msg + " " + vehicle.GetPersistentIDA() + "=" + m_VehicleIDA;
-		//msg = msg + " " + vehicle.GetPersistentIDB() + "=" + m_VehicleIDB;
-		//msg = msg + " " + vehicle.GetPersistentIDC() + "=" + m_VehicleIDC;
-		//msg = msg + " " + vehicle.GetPersistentIDD() + "=" + m_VehicleIDD;
+		//msg = msg + " " + vehicle.GetPersistentIDA() + "=" + m_PersistentIDA;
+		//msg = msg + " " + vehicle.GetPersistentIDB() + "=" + m_PersistentIDB;
+		//msg = msg + " " + vehicle.GetPersistentIDC() + "=" + m_PersistentIDC;
+		//msg = msg + " " + vehicle.GetPersistentIDD() + "=" + m_PersistentIDD;
 		//
 		//KeyMessage(msg);
 
-		if ( vehicle.GetPersistentIDA() != m_VehicleIDA )
+		if ( m_PersistentIDA == 0 || vehicle.GetPersistentIDA() != m_PersistentIDA )
 			return false;
 
-		if ( vehicle.GetPersistentIDB() != m_VehicleIDB )
+		if ( m_PersistentIDB == 0 || vehicle.GetPersistentIDB() != m_PersistentIDB )
 			return false;
 
-		if ( vehicle.GetPersistentIDC() != m_VehicleIDC )
+		if ( m_PersistentIDC == 0 || vehicle.GetPersistentIDC() != m_PersistentIDC )
 			return false;
 
-		if ( vehicle.GetPersistentIDD() != m_VehicleIDD )
+		if ( m_PersistentIDD == 0 || vehicle.GetPersistentIDD() != m_PersistentIDD )
 			return false;
 
 		//KeyMessage("PAIRED");
@@ -556,16 +580,16 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	bool IsPairedToMaster( ExpansionCarKey masterkey )
 	{
-		if ( masterkey.GetPersistentIDA() != m_VehicleIDA )
+		if ( m_PersistentIDA == 0 || masterkey.GetPersistentIDA() != m_PersistentIDA )
 			return false;
 
-		if ( masterkey.GetPersistentIDB() != m_VehicleIDB )
+		if ( m_PersistentIDB == 0 || masterkey.GetPersistentIDB() != m_PersistentIDB )
 			return false;
 
-		if ( masterkey.GetPersistentIDC() != m_VehicleIDC )
+		if ( m_PersistentIDC == 0 || masterkey.GetPersistentIDC() != m_PersistentIDC )
 			return false;
 
-		if ( masterkey.GetPersistentIDD() != m_VehicleIDD )
+		if ( m_PersistentIDD == 0 || masterkey.GetPersistentIDD() != m_PersistentIDD )
 			return false;
 
 		return true;
@@ -607,10 +631,10 @@ class ExpansionCarKey extends ItemBase
 		
 		super.OnStoreSave(ctx);
 		
-		ctx.Write( m_VehicleIDA );
-		ctx.Write( m_VehicleIDB );
-		ctx.Write( m_VehicleIDC );
-		ctx.Write( m_VehicleIDD );
+		ctx.Write( m_PersistentIDA );
+		ctx.Write( m_PersistentIDB );
+		ctx.Write( m_PersistentIDC );
+		ctx.Write( m_PersistentIDD );
 		ctx.Write( m_VehicleDisplayName );
 
 		ctx.Write( MasterKeyUses );
@@ -634,13 +658,13 @@ class ExpansionCarKey extends ItemBase
 			return true;
 		#endif
 
-		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDA ), "[" + this + "] Failed reading m_VehicleIDA" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDB ), "[" + this + "] Failed reading m_VehicleIDB" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDC ), "[" + this + "] Failed reading m_VehicleIDC" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_VehicleIDD ), "[" + this + "] Failed reading m_VehicleIDD" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
 			return false;
@@ -677,10 +701,10 @@ class ExpansionCarKey extends ItemBase
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return;
 
-		storage.Write( m_VehicleIDA );
-		storage.Write( m_VehicleIDB );
-		storage.Write( m_VehicleIDC );
-		storage.Write( m_VehicleIDD );
+		storage.Write( m_PersistentIDA );
+		storage.Write( m_PersistentIDB );
+		storage.Write( m_PersistentIDC );
+		storage.Write( m_PersistentIDD );
 		storage.Write( m_VehicleDisplayName );
 		
 		storage.Write( MasterKeyUses );
@@ -695,13 +719,13 @@ class ExpansionCarKey extends ItemBase
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_VehicleIDA ), "[" + this + "] Failed reading m_VehicleIDA" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_VehicleIDB ), "[" + this + "] Failed reading m_VehicleIDB" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_VehicleIDC ), "[" + this + "] Failed reading m_VehicleIDC" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_VehicleIDD ), "[" + this + "] Failed reading m_VehicleIDD" ) )
+		if ( Expansion_Assert_False( storage.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
 			return false;
 		if ( Expansion_Assert_False( storage.Read( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
 			return false;
@@ -759,7 +783,7 @@ class ExpansionCarKey extends ItemBase
 	// ExpansionCarKey RPC_SendItemData
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SendItemData( ref ParamsReadContext ctx, PlayerIdentity senderRPC )
+	private void RPC_SendItemData( ParamsReadContext ctx, PlayerIdentity senderRPC )
 	{
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");

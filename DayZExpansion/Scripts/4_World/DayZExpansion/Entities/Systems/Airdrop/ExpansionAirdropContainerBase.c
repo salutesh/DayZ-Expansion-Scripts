@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -96,7 +96,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// LoadFromMission
 	// ------------------------------------------------------------
-	void LoadFromMission( ref Class mission )
+	void LoadFromMission(  Class mission )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::LoadFromMission - Start");
@@ -112,7 +112,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// InitAirdrop
 	// ------------------------------------------------------------
-	void InitAirdrop( ref array < ref ExpansionAirdropLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
+	void InitAirdrop(  array < ref ExpansionAirdropLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - Start");
@@ -223,7 +223,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	void AddItem( ref ExpansionAirdropLoot loot )
+	void AddItem(  ExpansionAirdropLoot loot )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::AddItem - Start");
@@ -273,14 +273,11 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 		ItemBase item = ItemBase.Cast( GetInventory().CreateInInventory( className ) ); 
 
-		if ( attachments != NULL )
+		if ( item && attachments != NULL )
 		{
 			for ( int i; i < attachments.Count(); i++ )
 			{
-				if ( item )
-				{
-					item.GetInventory().CreateInInventory( attachments.Get( i ) );
-				}
+				item.ExpansionCreateInInventory( attachments.Get( i ) );
 			}
 		}
 		
@@ -566,6 +563,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// This will remove the saved containers after they got loaded from CE.
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		RemoveContainer();
 	}
 	
@@ -596,7 +595,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------
-	void SpawnLoot( ref array < ref ExpansionAirdropLoot > Loot, int ItemCount )
+	void SpawnLoot(  array < ref ExpansionAirdropLoot > Loot, int ItemCount )
 	{
 		array< float > chances = new array< float >;
 		array< int > max = new array< int >;

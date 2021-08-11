@@ -24,8 +24,5 @@ class ExpansionMissionConstructor
 		#ifdef EXPANSION_MISSION_HORDE
 		missions.Insert( ExpansionMissionEventHorde );
 		#endif
-		//missions.Insert( ExpansionMissionEventSoldier );
-		//missions.Insert( ExpansionMissionEventAI );
-		//missions.Insert( ExpansionMissionEventQuest );
 	}
 }

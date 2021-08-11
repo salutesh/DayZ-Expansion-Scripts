@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -87,23 +87,6 @@ static string FloatToString(float nmb)
 }
 
 // -----------------------------------------------------------
-// Expansion Float LinearConversion
-// -----------------------------------------------------------
-static float LinearConversion( float minFrom, float maxFrom, float value, float minTo, float maxTo, bool clamp = true )
-{
-	float newValue = (((value - minFrom) * (maxTo - minTo)) / (maxFrom - minFrom)) + minTo;
-	
-	if ( clamp )
-	{
-		float min = Math.Min(minTo, maxTo);
-		float max = Math.Max(minTo, maxTo);
-		return Math.Clamp( newValue, min, max );
-	}
-
-	return newValue;
-}
-
-// -----------------------------------------------------------
 // Expansion Float FloatNewPrecision
 // -----------------------------------------------------------
 static float FloatNewPrecision(float n, float i) 
@@ -177,65 +160,94 @@ static TStringArray ExpansionWorkingZombieClasses()
 // -----------------------------------------------------------
 // Expansion String ExpansionGetItemDisplayNameWithType
 // -----------------------------------------------------------
-string ExpansionGetItemDisplayNameWithType( string type_name)
+string ExpansionGetItemDisplayNameWithType( string type_name, map<string, string> cache = NULL )
 {
 	string cfg_name;
 	string cfg_name_path;
 	
-	if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
+	if ( cache && cache.Find( type_name, cfg_name ) )
+	{
+		return cfg_name;
+	}
+	else if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
 	{
 		cfg_name_path = CFG_WEAPONSPATH + " " + type_name + " displayName";
 		GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		return cfg_name;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 	{
 		cfg_name_path = CFG_VEHICLESPATH + " " + type_name + " displayName";
 		GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		return cfg_name;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 	{
 		cfg_name_path = CFG_MAGAZINESPATH + " " + type_name + " displayName";
 		GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		return cfg_name;
+	}
+	if (!cfg_name)
+	{
+		cfg_name = type_name;
+	}
+
+	if ( cache )
+	{
+		cache.Insert( type_name, cfg_name );
 	}
 	
-	return type_name;
+	return cfg_name;
 }
 
 // -----------------------------------------------------------
 // Expansion String ExpansionGetItemDescriptionWithType
 // -----------------------------------------------------------
-string ExpansionGetItemDescriptionWithType( string type_name )
+string ExpansionGetItemDescriptionWithType( string type_name, map<string, string> cache = NULL )
 {
 	string cfg_des;
 	string cfg_des_path;
-	
-	if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
+
+	if ( cache && cache.Find( type_name, cfg_des ) )
+	{
+		return cfg_des;
+	}
+	else if ( GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) )
 	{
 		cfg_des_path = CFG_WEAPONSPATH + " " + type_name + " descriptionShort";
 		GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		return cfg_des;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 	{
 		cfg_des_path = CFG_VEHICLESPATH + " " + type_name + " descriptionShort";
 		GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		return cfg_des;
 	} 
-	
-	if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
+	else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 	{
 		cfg_des_path = CFG_MAGAZINESPATH + " " + type_name + " descriptionShort";
 		GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		return cfg_des;
+	}
+
+	if ( cache )
+	{
+		cache.Insert( type_name, cfg_des );
 	}
 	
-	return cfg_des_path;
+	return cfg_des;
+}
+
+bool ExpansionItemExists(string type_name)
+{
+	return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
+}
+
+string ExpansionJoinStringArray(TStringArray strings, string glue = ", ")
+{
+	string output = "";
+	for (int i = 0; i < strings.Count(); i++)
+	{
+		if (output)
+			output += glue;
+		output += strings[i];
+	}
+	return output;
 }
 
 // ------------------------------------------------------------
@@ -290,6 +302,27 @@ static string GetTime()
 	string date = hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
 	
 	return date;
+}
+
+
+// ------------------------------------------------------------
+// Expansion GetDateTime
+// ------------------------------------------------------------
+static string GetDateTime()
+{
+	int year;
+	int month;
+	int day;
+	int hour;
+	int minute;
+	int second;
+
+	GetYearMonthDay(year, month, day);
+	GetHourMinuteSecond(hour, minute, second);
+
+	string result = year.ToStringLen(4) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2) + "_" + hour.ToStringLen(2) + "-" + minute.ToStringLen(2) + "-" + second.ToStringLen(2);
+
+	return result;
 }
 
 // ------------------------------------------------------------
@@ -504,4 +537,71 @@ static int GetWeightedRandom( array< float > weights )
 
 	//! Should never get here
 	return -1;
+}
+
+static array< string > ExpansionFindFilesInLocation( string folder, string ext = "" )
+{
+	array< string > files = new array< string >;
+	string fileName;
+	FileAttr fileAttr;
+	FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
+	if ( findFileHandle )
+	{
+		if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+		{
+			files.Insert( fileName );
+		}
+		
+		while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
+		{
+			if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+			{
+				files.Insert( fileName );
+			}
+		}
+	}
+	CloseFindFile( findFileHandle );
+	return files;
+}
+
+#ifdef ENFUSION_AI_PROJECT
+static TStringArray ExpansionWorkingAIClasses()
+{
+	return { "eAI_SurvivorM_Mirek", "eAI_SurvivorM_Denis", "eAI_SurvivorM_Boris",
+	"eAI_SurvivorM_Cyril", "eAI_SurvivorM_Elias", "eAI_SurvivorM_Francis", "eAI_SurvivorM_Guo",
+	"eAI_SurvivorM_Hassan", "eAI_SurvivorM_Indar", "eAI_SurvivorM_Jose",
+	"eAI_SurvivorM_Kaito", "eAI_SurvivorM_Lewis", "eAI_SurvivorM_Manua",
+	"eAI_SurvivorM_Niki", "eAI_SurvivorM_Oliver", "eAI_SurvivorM_Peter",
+	"eAI_SurvivorM_Quinn", "eAI_SurvivorM_Rolf", "eAI_SurvivorM_Seth",
+	"eAI_SurvivorM_Taiki", "eAI_SurvivorF_Linda", "eAI_SurvivorF_Maria",
+	"eAI_SurvivorF_Frida", "eAI_SurvivorF_Gabi", "eAI_SurvivorF_Helga",
+	"eAI_SurvivorF_Irena", "eAI_SurvivorF_Judy", "eAI_SurvivorF_Keiko",
+	"eAI_SurvivorF_Lina", "eAI_SurvivorF_Naomi"};
+}
+#endif
+
+static string IntToCurrencyString(int number, string separator)
+{
+    string moneyReversed = "";
+    string strNumber = number.ToString();
+    int processedCount = 0;
+    string money = "";
+    int i;
+	
+    for (i = (strNumber.Length() - 1); i >= 0; i--)
+    {
+        moneyReversed += strNumber[i];
+        processedCount += 1;
+        if ((processedCount % 3) == 0 && processedCount < strNumber.Length())
+        {
+            moneyReversed += separator;
+        }
+    }
+
+    for (i = (moneyReversed.Length() - 1); i >= 0; i--)
+    {
+        money += moneyReversed[i];
+    }
+
+    return money;
 }

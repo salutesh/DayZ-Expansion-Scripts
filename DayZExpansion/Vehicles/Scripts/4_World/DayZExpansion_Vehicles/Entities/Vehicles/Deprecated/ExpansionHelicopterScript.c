@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -115,7 +115,9 @@ class ExpansionHelicopterScript extends CarScript
 	
 	private autoptr NoiseParams m_NoiseParams;
 
-	private bool m_IsInitalized = false;
+	private bool m_IsInitialized;
+	private vector m_LastKnownPosition;
+	private bool m_IsLanded;
 
 	// ------------------------------------------------------------
 	void ExpansionHelicopterScript()
@@ -234,6 +236,8 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void AfterStoreLoad()
 	{
+		super.AfterStoreLoad();
+
 		//! Fix for helis saved to storage before dmgZone for engine/fueltank/reflector were added
 		if ( GetExpansionSaveVersion() < 25 )
 		{
@@ -273,7 +277,22 @@ class ExpansionHelicopterScript extends CarScript
 		#endif
 	}
 
-	
+	// ------------------------------------------------------------
+	override void DeferredInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHelicopterScript::DeferredInit start");
+		#endif
+
+		super.DeferredInit();
+
+		HideSelection( "hiderotorblur" );
+		ShowSelection( "hiderotor" );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionHelicopterScript::DeferredInit end");
+		#endif
+	}
 
 	override void LongDeferredInit()
 	{
@@ -281,7 +300,17 @@ class ExpansionHelicopterScript extends CarScript
 		EXPrint("ExpansionHelicopterScript::LongDeferredInit - Start");
 		#endif
 		
-		m_IsInitalized = true;
+		super.LongDeferredInit();
+
+		m_IsInitialized = true;
+
+		if ( IsMissionHost() && !IsLanded() )
+		{
+			//! Makes it land safely after server restart if pilot died/disconnected
+			dBodyActive( this, ActiveState.ACTIVE );
+
+			m_RotorSpeed = 1;
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::LongDeferredInit - End");
@@ -698,16 +727,14 @@ class ExpansionHelicopterScript extends CarScript
 
 			if ( extra.Impulse > impulseRequired )
 			{
-				Print( dot );
-				
-				Print( impulseRequired );
-				
-				Print( other );
-	
-				Print( extra.Impulse );
-				
+				#ifdef EXPANSIONVEHICLELOG
+				Print( dot );				
+				Print( impulseRequired );				
+				Print( other );	
+				Print( extra.Impulse );				
 				Print(GetVelocity(this));
 				Print(dBodyGetAngularVelocity(this));
+				#endif
 				//Print( "Boom!" );
 				//! Maybe instead just tick damage down instead?
 				//! Should have a way to repair the helicopter then though
@@ -719,7 +746,9 @@ class ExpansionHelicopterScript extends CarScript
 	// ------------------------------------------------------------
 	override void ExpansionOnExplodeServer( int damageType, string ammoType )
 	{
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer" );
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - Start");
@@ -738,7 +767,9 @@ class ExpansionHelicopterScript extends CarScript
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, attachment );
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Attachment Delete" );
+		#endif
 
 		PlayerBase player;
 		DayZPlayerCommandDeathCallback callback;
@@ -763,7 +794,9 @@ class ExpansionHelicopterScript extends CarScript
 			}
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Crew Unlink" );
+		#endif
 
 		IEntity child = GetChildren();
 		while ( child )
@@ -787,12 +820,16 @@ class ExpansionHelicopterScript extends CarScript
 			}
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Player Unlink" );
+		#endif
 
 		ExpansionWreck wreck;
 		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Wreck Create" );
+			#endif
 
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
@@ -807,21 +844,27 @@ class ExpansionHelicopterScript extends CarScript
 			wreck.SetHealth( 0.0 );
 			dBodySetMass( wreck, m_BodyMass );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Mass Apply" );
+			#endif
 
 			vector inertiaM[3];
 			dBodyGetInvInertiaTensorWorld( this, inertiaM );
 			dBodySetInertiaTensorM( wreck, inertiaM );
 			dBodySetInertiaTensorV( wreck, dBodyGetLocalInertia( this ) );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Tensor Apply" );
+			#endif
 
 			SetVelocity( wreck, m_LinearVelocity );
 			dBodySetAngularVelocity( wreck, m_AngularVelocity );
 
 			dBodyApplyForce( wreck, (m_LastLinearVelocity - m_LinearVelocity) * m_BodyMass );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Self Delete" );
+			#endif
 
 			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 		
@@ -865,27 +908,37 @@ class ExpansionHelicopterScript extends CarScript
 				}
 			}
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Foliage Chop" );
+			#endif
 
 			super.ExpansionOnExplodeServer( damageType, ammoType );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Super Call" );
+			#endif
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Self Delete" );
+			#endif
 		} else
 		{
 			super.ExpansionOnExplodeServer( damageType, ammoType );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Super Call" );
+			#endif
 		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHelicopterScript::ExpansionOnExplodeServer - End");
 		#endif	
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "-ExpansionHelicopterScript::ExpansionOnExplodeServer" );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -933,7 +986,7 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		super.OnNetworkSend( ctx );
 
@@ -947,7 +1000,7 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		super.OnNetworkRecieve( ctx );
 
@@ -1377,8 +1430,7 @@ class ExpansionHelicopterScript extends CarScript
 
 		super.OnEngineStart();
 
-		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-		dBodyDynamic( this, true );
+		dBodyActive( this, ActiveState.ACTIVE );
 
 		m_RotorSpeedTarget = 1;
 
@@ -1462,18 +1514,32 @@ class ExpansionHelicopterScript extends CarScript
 	}
 
 	// ------------------------------------------------------------
-	// Expansion IsGround
-	// Check distance to ground
+	// Expansion IsLanded
 	// ------------------------------------------------------------
-	private bool IsGround()
+	private bool IsLanded()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXLogPrint("ExpansionHelicopterScript::IsGround - Start");
+		EXLogPrint("ExpansionHelicopterScript::IsLanded - Start");
 		#endif
 		
+		vector pos = GetPosition();
+
+		if ( m_LastKnownPosition && vector.Distance( pos, m_LastKnownPosition ) < 0.01 )
+			return m_IsLanded;
+
+		m_LastKnownPosition = pos;
+
+		float offset = 0.5;
+
+		//! Add offset if pitch or roll are out of whack
+		vector ori = GetOrientation();
+
+		if ( ori[1] >= 45 || ori[1] <= -45 || ori[2] >= 45 || ori[2] <= -45 )
+			offset += 10;
+
 		//! Ray input
-		vector start = GetPosition();
-		vector end = GetPosition() - Vector( 0, 0.5, 0 );
+		vector start = pos;
+		vector end = pos - Vector( 0, GetModelAnchorPointY() + offset, 0 );
 		
 		//! Ray output
 		vector hit;
@@ -1482,36 +1548,35 @@ class ExpansionHelicopterScript extends CarScript
 		//! Ray hitindex output
 		int hitindex;
 
+		//! Ray
+		m_IsLanded = DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this );
+
 		#ifdef EXPANSIONEXPRINT
-		EXLogPrint("ExpansionHelicopterScript::IsGround - End and return height: " + DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this ).ToString());
+		EXLogPrint(GetType() + "::IsLanded - End and return " + m_IsLanded);
 		#endif
 		
-		//! Ray
-		return DayZPhysics.RaycastRV( start, end, hitpos, hit, hitindex, NULL, NULL, this, false, false );
-	}	
-
-	// ------------------------------------------------------------
-	protected bool IsLanded()
-	{
-		if ( !m_IsInitalized )
-			return false;
-
-		if ( IsGround() )
-			return true;
-
-		return false;
+		return m_IsLanded;
 	}
 
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
 		if ( EngineIsOn() )
-			return dBodyIsDynamic( this );
+			return true;
 
-		if ( IsLanded() )
-			return dBodyIsActive( this );
-		
-		return ( dBodyIsActive( this ) && dBodyIsDynamic( this ) );
+		//! Need to simulate for at least one frame, otherwise funky DayZ physics make heli explode when getting in
+		if ( m_IsInitialized && IsLanded() )
+		{
+			//! Only simulate if rotor speed is above zero
+			//! Prevents premature stop of rotor animation and smoke particle on client
+			//! Prevents heli bouncing around when not in use
+
+			return m_RotorSpeed > 0;
+		}
+		else
+		{
+			return dBodyIsActive( this ) && dBodyIsDynamic( this );
+		}
 	}
 
 	// ------------------------------------------------------------

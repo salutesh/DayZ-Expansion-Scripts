@@ -105,9 +105,4 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 			}
 		}
 	}
-
-	ItemBase GetTargetItem( Object targetObject )
-	{
-		return ItemBase.Cast( targetObject );
-	}
 }

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -20,7 +20,7 @@ modded class ZombieContainer
 		SlotsIcon icon;
 
 		string config_path_ghosts_slots = "CfgVehicles ZombieBase InventoryEquipment playerSlots";
-		ref array<string> player_ghosts_slots = new array<string>;
+		array<string> player_ghosts_slots = new array<string>;
 		GetGame().ConfigGetTextArray( config_path_ghosts_slots, player_ghosts_slots );
 		
 		for ( int i = 0; i < player_ghosts_slots.Count(); i++ )

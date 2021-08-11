@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,9 +13,10 @@
 /**@class		MissionServer
  * @brief		
  **/
-
 modded class MissionServer
 {
+	bool EXPANSION_CLASSNAME_DUMP = false;
+	
 	// ------------------------------------------------------------
 	// MissionServer Constructor
 	// ------------------------------------------------------------
@@ -61,6 +62,12 @@ modded class MissionServer
 		
 		GetDayZExpansion().OnStart();	
 
+		if (EXPANSION_CLASSNAME_DUMP)
+		{
+			DumpClassNameJSON();
+			DumpClassNameJSON("Expansion");
+		}
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::OnMissionStart - End");
 		#endif
@@ -135,4 +142,41 @@ modded class MissionServer
 		
 		super.PlayerDisconnected( player, identity, uid );
 	}
+	
+	// ------------------------------------------------------------
+	// DumpClassNameJSON
+	// ------------------------------------------------------------
+	void DumpClassNameJSON(string mustContain = "")
+	{
+		ExpansionClassNameDump newDump = new ExpansionClassNameDump;
+		
+		for (int i = 0; i < GetGame().ConfigGetChildrenCount("CfgVehicles"); i++)
+	    {
+	        string name;
+	        GetGame().ConfigGetChildName("CfgVehicles", i, name);
+	 
+	        if (name == string.Empty)
+	            continue;
+	        
+			Print(name);
+			if (ExpansionString(name).EndsWith("_Base"))
+			{
+				Print("We hit a _Base");
+				continue;
+			}
+			
+			if (mustContain && !name.Contains(mustContain))
+				continue;
+		        
+		    newDump.ClassNames.Insert(name);	
+	    }
+		
+		JsonFileLoader<ExpansionClassNameDump>.JsonSaveFile("$profile:\\" + mustContain + "ClassNames.json", newDump);
+		delete newDump;
+	}
+}
+
+class ExpansionClassNameDump
+{
+	ref array<string> ClassNames = new array<string>;
 }

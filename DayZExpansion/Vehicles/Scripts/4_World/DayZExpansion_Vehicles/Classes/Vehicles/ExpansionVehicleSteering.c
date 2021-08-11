@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -83,12 +83,12 @@ class ExpansionVehicleSteering
 		return true;
 	}
 	
-	private float GetSpeedSingle( float pSpeed, ref array< float > pValues )
+	private float GetSpeedSingle( float pSpeed, array< float > pValues )
 	{
 		return pValues[0] / ( Math.AbsFloat( pSpeed ) + 1.0 );
 	}
 
-	private float GetSpeed( float pSpeed, ref array< float > pValues )
+	private float GetSpeed( float pSpeed, array< float > pValues )
 	{
 		int count = pValues.Count() * 0.5;
 		float speed;

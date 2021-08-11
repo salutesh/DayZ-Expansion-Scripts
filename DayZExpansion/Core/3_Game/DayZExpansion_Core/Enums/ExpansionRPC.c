@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,27 +13,26 @@
 enum ExpansionPartyModuleRPC
 {
 	INVALID = 20020,
-	Create,
-	Dissolve,
-	Leave,
-	RemovePlayer,
-	UpdateClient,
+	CreateParty,
+	DissolveParty,
+	LeaveParty,
+	RemovePartyMember,
+	UpdatePlayer,
 
 	CreateMarker,
 	UpdateMarker,
 	UpdatePositionMarker,
 	DeleteMarker,
 	
-	PromotePlayer,
-	DemotePlayer,
-
 	InvitePlayer,
 	DeclineInvite,
 	AcceptInvite,
 	
-	SyncPlayersInvites,
+	SyncPlayerInvites,
 
 	UpdateQuickMarker,
+	
+	UpdatePermissions,
 	
 	COUNT
 };
@@ -50,6 +49,8 @@ enum ExpansionWorldMappingModuleRPC
 enum ExpansionMarketModuleRPC
 {
 	INVALID = 20060,
+	
+	//! Market
 	Callback,
 	MoneyDenominations,
 	RequestPurchase,
@@ -60,8 +61,20 @@ enum ExpansionMarketModuleRPC
 	CancelSell,
 	RequestTraderData,
 	LoadTraderData,
-	RequestMarketItemData,
-	LoadItemData,
+	
+	//! ATM
+	RequestPlayerATMData,
+	SendPlayerATMData,
+	RequestDepositMoney,
+	ConfirmDepositMoney,
+	RequestWithdrawMoney,
+	ConfirmWithdrawMoney,
+	RequestTransferMoneyToPlayer,
+	ConfirmTransferMoneyToPlayer,
+	RequestPartyTransferMoney,
+	ConfirmPartyTransferMoney,
+	RequestPartyWithdrawMoney,
+	ConfirmPartyWithdrawMoney,
 	
 	// Admin
 	GiveMoney,
@@ -114,9 +127,12 @@ enum ExpansionMonitorRPC
 {
 	INVALID = 20300,
 	SyncStats,
+	SyncStates,
 	SendMessage,
 	RequestPlayerStats,
 	SendPlayerStats,
+	RequestPlayerStates,
+	SendPlayerStates
 	COUNT
 };
 
@@ -130,7 +146,7 @@ enum ExpansionTerritoryModuleRPC
 	DeleteTerritoryAdmin,
 	UpdateClient,
 	RequestInvitePlayer,
-	SyncPlayersInvites,
+	SyncPlayerInvites,
 	AcceptInvite,
 	DeclineInvite,
 	AddTerritoryFlagToPlayer,
@@ -230,6 +246,8 @@ enum ExpansionSettingsRPC
 	Vehicle,
 	General,
 	PlayerList,
+	SocialMedia,
+	Log,
 
 	// when an admin requests these, not send under normal circumstances
 	SafeZone,
@@ -341,6 +359,22 @@ enum ExpansionCOTDebugModuleRPC
 {
 	INVALID = 30095,
 	Update,
+	COUNT
+};
+
+enum ExpansionCraftingModuleRPC
+{
+	INVALID = 40000,
+	RequestPrepareCrafting,
+	COUNT
+};
+
+//! Misc stuff lives here
+enum ExpansionRPC
+{
+	INVALID = 40010,
+	SyncOwnedContainerUID,
+	CreateNotification,
 	COUNT
 };
 

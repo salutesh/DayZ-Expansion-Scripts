@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,6 +15,8 @@
  **/
 class ExpansionMissionSettings: ExpansionSettingBase
 {
+	static const int VERSION = 1;
+
 	bool Enabled;
 	
 	int InitialMissionStartDelay;
@@ -87,7 +89,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// ExpansionMissionModule CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionMissionSettings s )
+	private void CopyInternal(  ExpansionMissionSettings s )
 	{
 		int i = 0;
 
@@ -165,7 +167,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 				Missions.Remove( toRemove[j] );
 			}
 
-			Save();
+			if (toRemove.Count() > 0)
+				Save();
 
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionMissionSettings::Load - End");
@@ -204,6 +207,8 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		Print("[ExpansionMissionSettings] Loading default settings");
+	
+		m_Version = VERSION;
 		
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
@@ -228,6 +233,7 @@ class ExpansionMissionSettings: ExpansionSettingBase
 		return m_GenerateDefaults;
 	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Mission Settings";

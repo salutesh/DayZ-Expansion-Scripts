@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -48,7 +48,7 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		return "Expansion Map Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetMap();
 	}
@@ -77,6 +77,10 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		CreateToggle( "EnableServerMarkers", "Enable Server Markers", "", "" );
 		CreateToggle( "ShowNameOnServerMarkers", "Show Name Of Server Markers", "", "" );
 		CreateToggle( "ShowDistanceOnServerMarkers", "Show Distance Of Server Markers", "", "" );
+		
+		CreateToggle( "EnableHUDCompass", "Enable/Disable compass HUD.", "", "" );
+		CreateToggle( "NeedCompassItemForHUDCompass", "Requires compass item to display compass HUD", "", "" );
+		CreateToggle( "NeedGPSItemForHUDCompass", "Requires GPS item to display compass HUD", "", "" );
 	}
 
 	override int GetRPCMin()
@@ -94,7 +98,7 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		return ExpansionCOTMapModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -107,12 +111,12 @@ class ExpansionCOTMapModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionMapSettings setting = new ExpansionMapSettings();
+		ExpansionMapSettings setting = new ExpansionMapSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

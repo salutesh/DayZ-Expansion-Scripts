@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -32,7 +32,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	void AddChatMessage( ref ParamsReadContext ctx, PlayerIdentity sender, Object target )
+	void AddChatMessage( ParamsReadContext ctx, PlayerIdentity sender, Object target )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGlobalChatModule::AddChatMessage - Start");
@@ -105,7 +105,11 @@ class ExpansionGlobalChatModule: JMModuleBase
 				}
 
 				// Uses similar format as vanilla direct chat log
-				GetGame().AdminLog( "Chat[" + channelName + "](\"" + data.param2 + "\"(id=" + biuid + ")): " + data.param3 );
+				if ( GetExpansionSettings().GetLog().Chat )
+				{
+					GetExpansionSettings().GetLog().PrintLog( "[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + biuid + ")): " + data.param3 );
+					GetGame().AdminLog( "[Chat - " + channelName + "](\"" + data.param2 + "\"(id=" + biuid + ")): " + data.param3 );
+				}
 			}
 		} else
 		{
@@ -181,7 +185,12 @@ class ExpansionGlobalChatModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
+	
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionGlobalChatModule::OnRPC - Start");

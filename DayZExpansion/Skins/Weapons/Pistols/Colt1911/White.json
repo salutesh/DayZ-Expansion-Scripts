@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camoGround",
+			"RVTexture": "#(argb,8,8,3)color(1.0,1.0,1.0,1.0,CO)",
+			"RVMaterial": "dz\\weapons\\pistols\\1911\\data\\1911.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

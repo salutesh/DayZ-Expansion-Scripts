@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -75,7 +75,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion SetMembers
 	// ------------------------------------------------------------
-	void SetMembers(ref array<ref ExpansionTerritoryMember> members)
+	void SetMembers( array<ref ExpansionTerritoryMember> members)
 	{
 		TerritoryMembers = members;
 	}
@@ -139,7 +139,10 @@ class ExpansionTerritory
 		#endif
 	}
 	
-	ref ExpansionTerritoryMember GetMember(string uid)
+	// ------------------------------------------------------------
+	// Expansion GetMember
+	// ------------------------------------------------------------	
+	ExpansionTerritoryMember GetMember(string uid)
 	{
 		for(int i = 0; i < TerritoryMembers.Count(); ++i)
 		{
@@ -155,17 +158,40 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion SetInvites
 	// ------------------------------------------------------------
-	void SetInvites(ref array<ref ExpansionTerritoryInvite> invites)
+	void SetInvites( array<ref ExpansionTerritoryInvite> invites)
 	{
 		Invites = invites;
 	}
 	
-	void AddTerritoryInvite(ExpansionTerritoryInvite invite)
+	// ------------------------------------------------------------
+	// Expansion AddTerritoryInvite
+	// ------------------------------------------------------------	
+	bool AddTerritoryInvite(ExpansionTerritoryInvite invite)
 	{
-		if (!invite) return;
+		if (!invite) return false;
+		
+		int idx = -1;
+		for (int i = 0; i < Invites.Count(); ++i)
+		{
+			if (Invites[i] && Invites[i].UID == invite.UID)
+			{
+				idx = i;
+				break;
+			}
+		}
+		
+		if (idx > -1)
+		{
+			return false;
+		}
+		
 		Invites.Insert( invite );
+		return true;
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion RemoveTerritoryInvite
+	// ------------------------------------------------------------		
 	bool RemoveTerritoryInvite(string uid)
 	{
 		int idx = -1;
@@ -192,7 +218,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool HasInvite(string uid)
 	{
-		for(int i = 0; i < Invites.Count(); ++i)
+		for (int i = 0; i < Invites.Count(); ++i)
 		{
 			if (Invites[i] && Invites[i].UID == uid)
 			{
@@ -206,7 +232,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion HasInvite
 	// ------------------------------------------------------------
-	ref ExpansionTerritoryInvite GetInvite(string uid)
+	ExpansionTerritoryInvite GetInvite(string uid)
 	{
 		for (int i = 0; i < Invites.Count(); ++i)
 		{
@@ -222,7 +248,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion GetTerritoryMembers
 	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
+	array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
 	{
 		return Invites;
 	}
@@ -230,7 +256,7 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion GetTerritoryMembers
 	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritoryMember> GetTerritoryMembers()
+	array<ref ExpansionTerritoryMember> GetTerritoryMembers()
 	{
 		return TerritoryMembers;
 	}

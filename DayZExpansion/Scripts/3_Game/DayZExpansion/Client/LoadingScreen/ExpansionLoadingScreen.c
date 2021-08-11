@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,8 +12,6 @@
 
 modded class LoadingScreen
 {
-	protected static ref JsonSerializer m_Serializer = new JsonSerializer;
-
 	protected RichTextWidget m_LoadingMessage;
 	protected RichTextWidget m_LoadingMessageAuthor;
 	
@@ -22,17 +20,7 @@ modded class LoadingScreen
 	protected autoptr array< ref ExpansionLoadingScreenMessageData > m_MessageJson;
 
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
-	
-	protected Widget m_ModOutdatedPanel;
-	protected ImageWidget m_ModOutdatedImage;
-	protected TextWidget m_ModOutdatedText;
 
-	protected bool m_ExpansionVersionChecked;
-	protected bool m_IsExpansionOutdated;
-	
-	string m_ExpansionClientVersion;
-	string m_ExpansionCurrentVersion;
-	
 	protected RestApi m_ExpansionRestApi;
 
 	// ------------------------------------------------------------
@@ -71,10 +59,6 @@ modded class LoadingScreen
 
 		m_ImageLogoMid.LoadImageFile( 0, "set:expansion_iconset image:logo_expansion_white" );
 		m_ImageLogoCorner.LoadImageFile( 0, "set:expansion_iconset image:logo_expansion_white" );
-
-		m_ModOutdatedPanel = Widget.Cast( m_WidgetRoot.FindAnyWidget("ModVersionPanel") );
-		Class.CastTo(m_ModOutdatedImage, m_WidgetRoot.FindAnyWidget("ModOutdatedImage"));
-		Class.CastTo(m_ModOutdatedText, m_WidgetRoot.FindAnyWidget("ModOutdatedText"));
 
 		string tmp;
 		m_ProgressText = TextWidget.Cast(m_WidgetRoot.FindAnyWidget("ProgressText"));
@@ -179,12 +163,11 @@ modded class LoadingScreen
 			GetGame().GetWorldName(world_name);
 
 		world_name.ToLower();
-			
-		if ( world_name == "chernarusplusgloom" ) 	world_name = "chernarusplus";
-		if ( world_name == "enochgloom" ) 			world_name = "enoch";
-		if ( world_name == "namalskgloom" ) 		world_name = "namalsk";
-		if ( world_name == "deerislegloom" ) 		world_name = "deerisle";
-		if ( world_name == "chiemseegloom" ) 		world_name = "chiemsee";
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+		{
+			world_name = world_name.Substring(0, world_name.Length() - 5);
+		}
 		
 		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
 

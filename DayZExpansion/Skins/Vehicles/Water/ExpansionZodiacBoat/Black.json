@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "DayZExpansion\\Vehicles\\Water\\Zodiac\\Data\\inflatable_boat_black_ca.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Water\\Zodiac\\Data\\zodiac.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

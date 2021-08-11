@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -301,6 +301,11 @@ modded class ExpansionBaseBuilding
 		return ExpansionCodeLock.Cast( FindAttachmentBySlotName( "Att_ExpansionCodeLock" ) );
 	}
 
+	bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		return GetCollisionBox( minMax );
+	}
+
 
 	//! For some reasons doing this fixed the null pointer. It's 3AM I need to sleep, good luck guys <3
 	//! -LieutenantMaster
@@ -315,7 +320,7 @@ modded class ExpansionBaseBuilding
 		EXPrint("[bsb] " + GetDebugName(this) + " BaseBuildingBase::UpdatePhysics");
 		#endif
 		
-		ref array<string> attachment_slots = new ref array<string>;
+		array<string> attachment_slots = new array<string>;
 		GetAttachmentSlots( this, attachment_slots );
 		bsbDebugPrint("[bsb] " + GetDebugName(this) + " att_cnt=" + attachment_slots.Count());
 		#ifdef EXPANSIONEXPRINT
@@ -435,6 +440,11 @@ modded class ExpansionBaseBuilding
 	bool IsLastStageBuilt()
 	{
 		return false;
+	}
+	
+	override bool CanObstruct()
+	{
+		return IsLastStage();
 	}
 
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )

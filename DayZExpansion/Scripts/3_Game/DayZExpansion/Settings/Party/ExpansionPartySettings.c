@@ -3,31 +3,35 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+class ExpansionPartySettingsBase: ExpansionSettingBase
+{
+	bool EnableParties;												// enable party module, allow players to create parties
+	int MaxMembersInParty; 										// If <= 0, unlimited party size
+	bool UseWholeMapForInviteList; 								// Use it if you want whole map available in invite list, instead only nearby players
+	bool ShowPartyMember3DMarkers;							// If enabled, allow to see 3D marker above teammates location
+	bool ShowDistanceUnderPartyMembersMarkers;		// Show the distance of the party member marker
+	bool ShowNameOnPartyMembersMarkers;				// Show the name of the party member marker
+	bool EnableQuickMarker;										// Enable/Diable quick marker option
+	bool ShowDistanceUnderQuickMarkers;					//  Show the distance of the quick marker
+	bool ShowNameOnQuickMarkers;							// Show the distance of the quick marker
+	bool CanCreatePartyMarkers;									// Allow player to create party markers
+}
+
 
 /**@class		ExpansionPartySettings
  * @brief		Party settings class
  **/
-class ExpansionPartySettings: ExpansionSettingBase
+class ExpansionPartySettings: ExpansionPartySettingsBase
 {
-	bool EnableParties;							// enable party module, allow players to create parties
-	int MaxMembersInParty; 						// If <= 0, unlimited party size
-	bool UseWholeMapForInviteList; 				// Use it if you want whole map available in invite list, instead only nearby players
-
-	bool ShowPartyMember3DMarkers;				// If enabled, allow to see 3D marker above teammates location
-	bool ShowDistanceUnderPartyMembersMarkers;	// Show the distance of the party member marker
-	bool ShowNameOnPartyMembersMarkers;			// Show the name of the party member marker
-
-	bool EnableQuickMarker;						// Enable/Diable quick marker option
-	bool ShowDistanceUnderQuickMarkers;			//  Show the distance of the quick marker
-	bool ShowNameOnQuickMarkers;				// Show the distance of the quick marker
+	static const int VERSION = 2;
 	
-	bool CanCreatePartyMarkers;					// Allow player to create party markers
+	bool ShowPartyMemberHUD;									// Show the party hud interface that displays eacht party members name and health
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -67,7 +71,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionPartySettings thisSetting = this;
+		ExpansionPartySettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -105,8 +109,18 @@ class ExpansionPartySettings: ExpansionSettingBase
 		CopyInternal( s );
 		return true;
 	}
-
-	private void CopyInternal( ref ExpansionPartySettings s )
+	
+	// ------------------------------------------------------------
+	private void CopyInternal(  ExpansionPartySettings s )
+	{
+		ShowPartyMemberHUD = s.ShowPartyMemberHUD;
+		
+		ExpansionPartySettingsBase sb = s;
+		CopyInternal( sb );
+	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal(  ExpansionPartySettingsBase s )
 	{
 		EnableParties = s.EnableParties;
 		MaxMembersInParty = s.MaxMembersInParty;
@@ -132,6 +146,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		m_IsLoaded = false;
 	}
 
+	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
 		#ifdef EXPANSIONEXPRINT
@@ -140,26 +155,53 @@ class ExpansionPartySettings: ExpansionSettingBase
 
 		m_IsLoaded = true;
 
-		if ( FileExist( EXPANSION_PARTY_SETTINGS ) )
+		bool save;
+
+		bool partySettingsExist = FileExist(EXPANSION_PARTY_SETTINGS);
+
+		if (partySettingsExist)
 		{
-			Print("[ExpansionPartySettings] Loading settings");
+			ExpansionPartySettings settingsDefault = new ExpansionPartySettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionPartySettings>.JsonLoadFile( EXPANSION_PARTY_SETTINGS, this );
+			ExpansionPartySettingsBase settingsBase;
 
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionPartySettings::Load - End");
-			#endif
+			JsonFileLoader<ExpansionPartySettingsBase>.JsonLoadFile(EXPANSION_PARTY_SETTINGS, settingsBase);
 
-			return true;
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionPartySettings] Load - Converting v1 \"" + EXPANSION_PARTY_SETTINGS + "\" to v" + VERSION);
+					
+					//! New with v2
+					CopyInternal(settingsDefault);
+				}
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionPartySettings>.JsonLoadFile(EXPANSION_PARTY_SETTINGS, this);
+			}
 		}
-
-		Defaults();
-		Save();
-
+		else
+		{
+			Defaults();
+			save = true;
+		}
+		
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPartySettings::Load - End");
+		EXPrint("ExpansionPartySettings::Load - End - Loaded: " + partySettingsExist);
 		#endif
-		return false;
+		
+		return partySettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -181,6 +223,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 	{
 		Print("[ExpansionPartySettings] Loading default settings");
 	
+		m_Version = VERSION;
+		
 		EnableParties = true;
 		MaxMembersInParty = 10;
 		UseWholeMapForInviteList = false;
@@ -191,8 +235,10 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowDistanceUnderQuickMarkers = true;
 		ShowNameOnQuickMarkers = true;
 		CanCreatePartyMarkers = true;
+		ShowPartyMemberHUD = true;
 	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Party Settings";

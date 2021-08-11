@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -160,7 +160,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// Expansion SetTerritory
 	// ------------------------------------------------------------
-	void SetTerritory( ref ExpansionTerritory territory )
+	void SetTerritory(  ExpansionTerritory territory )
 	{
 		if ( !IsMissionHost() )
 			return;
@@ -175,7 +175,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	// Expansion GetTerritory
 	// ------------------------------------------------------------
-	ref ExpansionTerritory GetTerritory()
+	ExpansionTerritory GetTerritory()
 	{
 		return m_Territory;
 	}
@@ -532,7 +532,7 @@ modded class TerritoryFlag
 				if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation )
 					flag.Delete();
 				else
-					flag.ExpansionDropServer( player );
+					flag.ExpansionDropServer( PlayerBase.Cast( player ) );
 			}
 		}
 	}

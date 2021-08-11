@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camo",
+			"RVTexture": "dz\\weapons\\firearms\\MP5\\data\\mp5k_body_CO.paa",
+			"RVMaterial": "DZ\\weapons\\firearms\\MP5\\data\\mp5k_body.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

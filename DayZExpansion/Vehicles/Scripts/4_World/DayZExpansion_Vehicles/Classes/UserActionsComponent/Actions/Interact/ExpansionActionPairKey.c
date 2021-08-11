@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -77,6 +77,11 @@ class ExpansionActionPairKey: ActionInteractBase
 
 		CarScript car = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
 		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
+
+#ifdef EXPANSIONMODVEHICLE
+		if ( GetExpansionSettings().GetLog().VehicleCarKey )
+			GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " paired a  "+ action_data.m_Player.GetItemInHands().GetType() +" to " + car.GetType() );
+#endif
 	}
 
 	override bool CanBeUsedInRestrain()

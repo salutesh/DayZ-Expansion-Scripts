@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -114,7 +114,7 @@ class ExpansionLocatorModule: JMModuleBase
 		if ( !player )
 			return;
 		
-		ref ExpansionLocatorArray shortestLocation = null;
+		ExpansionLocatorArray shortestLocation = null;
 		float shortestDistance = int.MAX;
 		vector myPos = player.GetPosition();
 		vector myPos2D = Vector( myPos[0], 0, myPos[2] );
@@ -147,9 +147,9 @@ class ExpansionLocatorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionLocatorModule GetWorldLocations
 	// ------------------------------------------------------------
-	static ref array<ref ExpansionLocatorArray> GetWorldLocations()
+	static array<ref ExpansionLocatorArray> GetWorldLocations()
 	{
-		ref array<ref ExpansionLocatorArray> areaArray = new array< ref ExpansionLocatorArray >;
+		array<ref ExpansionLocatorArray> areaArray = new array< ref ExpansionLocatorArray >;
 
 		string location_config_path = "CfgWorlds " + GetGame().GetWorldName() + " Names";
 		int classNamesCount = GetGame().ConfigGetChildrenCount( location_config_path );

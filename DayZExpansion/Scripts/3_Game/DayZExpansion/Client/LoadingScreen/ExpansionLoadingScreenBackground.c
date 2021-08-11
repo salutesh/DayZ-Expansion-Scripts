@@ -18,7 +18,7 @@ class ExpansionLoadingScreenBackground
 	// ------------------------------------------------------------
 	// ExpansionLoadingScreenBackground Constructor
 	// ------------------------------------------------------------
-	void ExpansionLoadingScreenBackground( string map_name, ref array<string> texture_path ) 
+	void ExpansionLoadingScreenBackground( string map_name, array<string> texture_path ) 
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionLoadingScreenBackground::Constructor - Start");

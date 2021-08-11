@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -545,7 +545,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.LOCK can't read selection");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_CLOSE_LOCK")).Error(sender);
 					return;
 				}
 				
@@ -571,7 +571,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read code");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_UNLOCK")).Error(sender);
 					return;
 				}
 
@@ -579,7 +579,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.UNLOCK can't read selection");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_UNLOCK")).Error(sender);
 					return;
 				}
 				
@@ -610,14 +610,17 @@ modded class ItemBase
 						{
 							FailedUnlock();
 
-							GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
+							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+								GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
 
 							//! Vanilla EnviroDmg is 1 0 1 (health blood shock)
 							player.ProcessDirectDamage( DT_CUSTOM, player, "", "EnviroDmg", "0.5 0.5 0.5", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
 						} else {
-							GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
+							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+								GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
 						}
-						GetGame().AdminLog( "ExpansionCodelock (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
+						if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+							GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
 					}
 
 					return;
@@ -646,7 +649,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_SET")).Error(sender);
 					return;
 				}
 
@@ -654,7 +657,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification("STR_EXPANSION_ERROR_TITLE", new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_SET")).Error(sender);
 					return;
 				}
 				
@@ -680,7 +683,7 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_BADREAD", "STR_EXPANSION_BB_CODE_LOCK_CHANGE")).Error(sender);
 					return;
 				}
 
@@ -688,13 +691,14 @@ modded class ItemBase
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read selection");
 					SendServerLockReply( false, false, sender );
-					GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender);
+					ExpansionNotification(new StringLocaliser("STR_EXPANSION_ERROR_TITLE"), new StringLocaliser("STR_EXPANSION_ERROR_DESC_CODE_SELECTION", "STR_EXPANSION_BB_CODE_LOCK_CHANGE")).Error(sender);
 					return;
 				}
 				
 				SetCode( code, player );
 
-				GetGame().AdminLog( "ExpansionCodelock ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
+				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+					GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
 
 				SendServerLockReply( true, false, sender );
 				return;
@@ -1272,8 +1276,6 @@ modded class ItemBase
 		string playerName;
 		string playerDesc;
 
-		GetGame().AdminLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
-
 		if ( source && ( Class.CastTo( player, source ) || Class.CastTo( player, source.GetHierarchyRootPlayer() ) ) )
 		{
 			playerId = player.GetIdentityUID();
@@ -1285,11 +1287,17 @@ modded class ItemBase
 			playerDesc = "A player";
 		}
 
-		GetGame().AdminLog( "BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
-		GetGame().AdminLog( "BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with a " + source.GetType() + " at " + GetPosition() );
-
-		GetGame().AdminLog( "Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
-		GetGame().AdminLog( "---------------------------------------------------------------------------------------" );
+		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
+		{
+			if ( ( dmg * damageMultiplier ) != 0 )
+			{
+				GetExpansionSettings().GetLog().PrintLog( "------------------------- Expansion BaseRaiding Damage Report -------------------------" );
+				GetExpansionSettings().GetLog().PrintLog( "BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
+				GetExpansionSettings().GetLog().PrintLog( "BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with a " + source.GetType() + " at " + GetPosition() );
+				GetExpansionSettings().GetLog().PrintLog( "Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
+				GetExpansionSettings().GetLog().PrintLog( "---------------------------------------------------------------------------------------" );
+			}
+		}
 	}
 
 	void UpdateLaser()

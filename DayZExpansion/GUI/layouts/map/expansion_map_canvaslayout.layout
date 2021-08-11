@@ -1,0 +1,22 @@
+FrameWidgetClass rootFrame {
+ ignorepointer 1
+ position 10 10
+ size 1680.52002 1032.78992
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 1000
+ {
+  CanvasWidgetClass CanvasWidget {
+   ignorepointer 1
+   position 4.71739 4.42375
+   size 1667.33008 1012.91003
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 1000
+  }
+ }
+}

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -48,7 +48,7 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		return "Expansion Raid Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetRaid();
 	}
@@ -107,7 +107,7 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		return ExpansionCOTRaidModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -120,12 +120,12 @@ class ExpansionCOTRaidModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionRaidSettings setting = new ExpansionRaidSettings();
+		ExpansionRaidSettings setting = new ExpansionRaidSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

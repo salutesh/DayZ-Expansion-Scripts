@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -48,7 +48,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		return "Expansion Notification Settings";
 	}
 
-	override ref ExpansionSettingBase GetSettingsInstance()
+	override ExpansionSettingBase GetSettingsInstance()
 	{
 		return GetExpansionSettings().GetNotification();
 	}
@@ -117,7 +117,7 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		return ExpansionCOTNotificationModuleRPC.Update;
 	}
 
-	override void OnSend( ref ExpansionSettingBase setting )
+	override void OnSend(  ExpansionSettingBase setting )
 	{
 		if ( GetGame().IsClient() )
 		{
@@ -130,12 +130,12 @@ class ExpansionCOTNotificationModule: ExpansionCOTModuleBase
 		}
 	}
 
-	override void OnSend_RPC( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	override void OnSend_RPC( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionHost() )
 			return;
 
-		ref ExpansionNotificationSettings setting = new ExpansionNotificationSettings();
+		ExpansionNotificationSettings setting = new ExpansionNotificationSettings();
 		if ( !setting.OnRecieve( ctx ) )
 			return;
 

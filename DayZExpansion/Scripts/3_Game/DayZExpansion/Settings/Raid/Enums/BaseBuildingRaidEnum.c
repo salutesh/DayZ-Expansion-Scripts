@@ -14,5 +14,6 @@ enum BaseBuildingRaidEnum
 {
 	Default = 0,
 	DoorsGates,
-	DoorsGatesWindows
+	DoorsGatesWindows,
+	DoorsGatesWindowsWalls,
 };

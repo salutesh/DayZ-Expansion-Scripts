@@ -1,0 +1,26 @@
+ImageSetClass {
+ Name "arrows"
+ RefSize 225 225
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{558A894C6A93A666}DayZExpansion/Core/GUI/imagesets/arrows.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass collaps {
+   Name "collaps"
+   Pos 38 18
+   Size 150 84
+   Flags 0
+  }
+  ImageSetDefClass expand {
+   Name "expand"
+   Pos 38 124
+   Size 150 83
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

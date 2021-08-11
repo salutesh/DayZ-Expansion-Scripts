@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -179,17 +179,9 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase CreateNotification
 	// ------------------------------------------------------------
-	void CreateNotification( ref StringLocaliser text, string icon, float time = 3 )
+	void CreateNotification(  StringLocaliser text, string icon, float time = 3, PlayerIdentity identity = NULL )
 	{
-		NotificationSystem.CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName ), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time );
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionEventBase CreateNotification
-	// ------------------------------------------------------------
-	void CreateNotification( ref StringLocaliser text, string icon, float time, PlayerIdentity identity )
-	{
-		NotificationSystem.CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName ), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time, identity );
+		ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", m_EventName), text, icon, COLOR_EXPANSION_NOTIFICATION_MISSION, time).Create(identity);
 	}
 	
 	// ------------------------------------------------------------

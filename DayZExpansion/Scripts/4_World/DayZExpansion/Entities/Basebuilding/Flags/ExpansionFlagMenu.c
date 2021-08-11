@@ -1,9 +1,9 @@
 /**
- * ExpansionFlagBase.c
+ * ExpansionFlagMenu.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -18,7 +18,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 {
 	protected Widget m_FlagWindow;
 	protected TextWidget m_FlagWindowLable;
-	protected GridSpacerWidget m_FlagEntrysGrid;
+	protected WrapSpacerWidget m_FlagEntrysGrid;
 	protected ImageWidget m_FlagPreview;
 	protected ButtonWidget m_FlagConfirmButton;
 	protected ButtonWidget m_FlagCreateButton;
@@ -62,7 +62,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		//! Flag Window
 		m_FlagWindow = Widget.Cast( layoutRoot.FindAnyWidget( "flag_window_content" ) );
 		m_FlagWindowLable = TextWidget.Cast( layoutRoot.FindAnyWidget("flag_window_header_text") );
-		m_FlagEntrysGrid = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget("flag_textures_content") );
+		m_FlagEntrysGrid = WrapSpacerWidget.Cast( layoutRoot.FindAnyWidget("flag_textures_content") );
 		m_FlagPreview = ImageWidget.Cast( layoutRoot.FindAnyWidget( "flag_icon_image" ) );
 		m_FlagPreview.Show( false );
 		m_FlagConfirmButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "confirm" ) );
@@ -98,7 +98,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	void LoadTextureList()
 	{
-		ref array<ref ExpansionFlagTexture> flagTextures = GetExpansionStatic().GetFlagTextures();
+		array<ref ExpansionFlagTexture> flagTextures = GetExpansionStatic().GetFlagTextures();
 		if (flagTextures.Count() == 0)
 			return;
 		
@@ -120,7 +120,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion SetCurrentTexture
 	// ------------------------------------------------------------
-	void SetCurrentTexture(ref ExpansionFlagTexture texture)
+	void SetCurrentTexture( ExpansionFlagTexture texture)
 	{
 		if (!texture)
 			return;
@@ -182,7 +182,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		if ( territoryName == "" || FindChar(forrbidenChars,territoryName) )
 		{
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEINVALID", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, player.GetIdentity() );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_NAMEINVALID", territoryName)).Error(player.GetIdentity());
 			return;
 		}
 		

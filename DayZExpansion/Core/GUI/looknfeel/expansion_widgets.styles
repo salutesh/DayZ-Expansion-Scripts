@@ -1,0 +1,171 @@
+<WidgetStyles>
+    <Widget Name="CheckBoxWidget">
+        <Style Name="Expansnion_01" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+            <State Name="Normal">
+                <Item Name="CheckBox" Image="CheckboxHover" />
+            </State>
+            <State Name="Disabled">
+                <Item Name="CheckBox" Image="" />
+            </State>
+            <State Name="Mark">
+                <Item Name="CheckBox" Image="CheckboxMark" />
+            </State>
+            <State Name="Highlight">
+                <Item Name="CheckBox" Image="CheckboxHover" />
+            </State>
+        </Style>
+        <Style Name="Expansnion_02" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+            <State Name="Normal">
+                <Item Name="CheckBox" Image="CheckboxScrapsHover" />
+            </State>
+            <State Name="Disabled">
+                <Item Name="CheckBox" Image="" />
+            </State>
+            <State Name="Mark">
+                <Item Name="CheckBox" Image="CheckboxScrapsMark" />
+            </State>
+            <State Name="Highlight">
+                <Item Name="CheckBox" Image="CheckboxScrapsHover" />
+            </State>
+        </Style>
+        <Style Name="Expansnion_03" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+            <State Name="Normal">
+                <Item Name="CheckBox" Image="CheckboxSquareHover" />
+            </State>
+            <State Name="Disabled">
+                <Item Name="CheckBox" Image="" />
+            </State>
+            <State Name="Mark">
+                <Item Name="CheckBox" Image="CheckboxMark" />
+            </State>
+            <State Name="Highlight">
+                <Item Name="CheckBox" Image="CheckboxSquareHover" />
+            </State>
+        </Style>
+        <Style Name="Expansnion_04" Font="gui/fonts/metron" ImageSet="expansion_widgets" Color="4294967295">
+            <State Name="Normal">
+                <Item Name="CheckBox" Image="CheckboxScrapsSquareHover" />
+            </State>
+            <State Name="Disabled">
+                <Item Name="CheckBox" Image="" />
+            </State>
+            <State Name="Mark">
+                <Item Name="CheckBox" Image="CheckboxScrapsMark" />
+            </State>
+            <State Name="Highlight">
+                <Item Name="CheckBox" Image="CheckboxScrapsSquareHover" />
+            </State>
+        </Style>
+    </Widget>
+    <Widget Name="ButtonWidget">
+        <Style Name="Expansion_01" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="4043309055">
+            <State Name="Disabled">
+                <Item Name="Bottom" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="Left" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="" />
+            </State>
+            <State Name="Focus">
+                <Item Name="Bottom" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="Left" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="" />
+            </State>
+            <State Name="Highlight">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+            <State Name="Normal">
+                <Item Name="Bottom" Image="" />
+                <Item Name="Center" Image="" />
+                <Item Name="Left" Image="" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="" />
+            </State>
+            <State Name="Pushed">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+        </Style>
+    </Widget>
+    <Widget Name="GridSpacerWidget">
+        <Style Name="UIDefaultPanel" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
+            <State Name="Disabled">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+            <State Name="Normal">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+        </Style>
+    </Widget>
+	<Widget Name="WrapSpacerWidget">
+        <Style Name="UIDefaultPanel" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
+            <State Name="Disabled">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+            <State Name="Normal">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+        </Style>
+    </Widget>
+</WidgetStyles>

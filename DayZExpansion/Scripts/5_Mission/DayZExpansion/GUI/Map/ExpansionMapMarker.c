@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -99,7 +99,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::OnInit - Start");
 		#endif
-		
+				
 		Class.CastTo( m_Frame, layoutRoot.FindAnyWidget( "marker_frame" ) );
 		Class.CastTo( m_Name, layoutRoot.FindAnyWidget( "marker_name" ) );
 		Class.CastTo( m_EditName, layoutRoot.FindAnyWidget( "marker_edit_name" ) );
@@ -257,7 +257,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	// ExpansionMapMarker SetMarkerData
 	// ------------------------------------------------------------
-	void SetMarkerData( ref ExpansionMarkerData data )
+	void SetMarkerData(  ExpansionMarkerData data )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetMarkerData - Start");
@@ -311,7 +311,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	// ExpansionMapMarker GetMarkerData
 	// ------------------------------------------------------------
-	ref ExpansionMarkerData GetMarkerData()
+	ExpansionMarkerData GetMarkerData()
 	{
 		return m_Data;
 	}
@@ -363,7 +363,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	// ExpansionMapMarker SetIcon
 	// ------------------------------------------------------------
-	void SetIcon( ref ExpansionIcon icon )
+	void SetIcon(  ExpansionIcon icon )
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarker::SetIcon - Start");
@@ -711,12 +711,12 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMapMarker OnLeftButton
+	// ExpansionMapMarker OnCancleButtonClick
 	// ------------------------------------------------------------
-	void OnLeftButton()
+	void OnCancleButtonClick()
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMarker::OnLeftButton - Start");
+		EXLogPrint("ExpansionMapMarker::OnCancleButtonClick - Start");
 		#endif
 
 		if (CanEdit())
@@ -738,17 +738,17 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		}
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMarker::OnLeftButton - End");
+		EXLogPrint("ExpansionMapMarker::OnCancleButtonClick - End");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMapMarker OnRightButton
+	// ExpansionMapMarker OnCreateButtonClick
 	// ------------------------------------------------------------
-	void OnRightButton()
+	void OnCreateButtonClick()
 	{
 		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMarker::OnRightButton - Start");
+		EXLogPrint("ExpansionMapMarker::OnCreateButtonClick - Start");
 		#endif
 		
 		if (CanEdit())
@@ -797,7 +797,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		}
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
-		EXLogPrint("ExpansionMapMarker::OnRightButton - End");
+		EXLogPrint("ExpansionMapMarker::OnCreateButtonClick - End");
 		#endif
 	}
 		
@@ -843,14 +843,14 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		{
 			if ( w == m_LeftButton )
 			{
-				OnLeftButton();
+				OnCancleButtonClick();
 
 				return true;
 			}
 
 			if ( w == m_RightButton )
 			{
-				OnRightButton();
+				OnCreateButtonClick();
 
 				return true;
 			}
@@ -904,5 +904,24 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		}
 
 		return super.OnMouseLeave( w, enterW, x, y );
+	}
+ 	
+	// ------------------------------------------------------------
+	// ExpansionMapMarker SetIgnorePointer
+	// ------------------------------------------------------------	
+	void SetIgnorePointer(bool state)
+	{
+		if (state)
+		{
+			GetLayoutRoot().SetFlags(WidgetFlags.IGNOREPOINTER);
+			m_DragWidget.SetFlags(WidgetFlags.IGNOREPOINTER);
+			m_EditButton.SetFlags(WidgetFlags.IGNOREPOINTER);
+		}
+		else
+		{
+			GetLayoutRoot().ClearFlags(WidgetFlags.IGNOREPOINTER);
+			m_DragWidget.ClearFlags(WidgetFlags.IGNOREPOINTER);
+			m_EditButton.ClearFlags(WidgetFlags.IGNOREPOINTER);
+		}
 	}
 };

@@ -3,7 +3,6 @@
 <modded_inputs>
     <inputs>
         <actions>
-            <input name="UAExpansionBookToggle" loc="STR_EXPANSION_TOGGLE_BOOK" />
             <input name="UAExpansionMapDeleteMarker" loc="STR_EXPANSION_DELETE_MARKER" />
 			<input name="UAExpansionMapToggle" loc="STR_EXPANSION_TOGGLE_MAP" />
 			<input name="UAExpansionPlayerListToggle" loc="STR_EXPANSION_TOGGLE_PLAYER_LIST" />
@@ -19,6 +18,8 @@
 
             <input name="UAExpansionAutoRunToggle" loc="STR_EXPANSION_TOGGLE_AUTORUN" />
 
+            <input name="UAExpansionHideChatToggle" loc="STR_EXPANSION_HIDE_CHAT"/>
+
             <input name="UAExpansionOpenParachute" loc="STR_EXPANSION_OPEN_PARACHUTE" visible="false" />
 
 			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
@@ -28,7 +29,6 @@
         </actions>
 		
 		<exclude name="chatexpansion">
-			<input name="UAExpansionBookToggle" />
 			<input name="UAExpansionMapDeleteMarker" />
 			<input name="UAExpansionMapToggle" />
 			<input name="UAExpansionPlayerListToggle" />
@@ -40,14 +40,12 @@
 			<input name="UAExpansionSnappingDirectionPrevious" />
 			<input name="UAExpansionSnappingToggle" />
 			<input name="UAExpansionAutoRunToggle" />
+			<input name="UAExpansionHideChatToggle" />
 			<input name="UAExpansionOpenParachute" />
 		</exclude>
     </inputs>
 
     <preset>
-        <input name="UAExpansionBookToggle">
-            <btn name="kB" />
-        </input>
         <input name="UAExpansionMapDeleteMarker">
             <btn name="kDelete" />
         </input>
@@ -83,6 +81,9 @@
         </input>
         <input name="UAExpansionAutoRunToggle">
             <btn name="kZ" />
+        </input>
+        <input name="UAExpansionHideChatToggle">
+            <btn name="kDivide" />
         </input>
         <input name="UAExpansionOpenParachute">
             <btn name="kO" />

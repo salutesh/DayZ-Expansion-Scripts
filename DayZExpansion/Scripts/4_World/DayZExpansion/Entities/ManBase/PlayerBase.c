@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,13 +15,7 @@ modded class PlayerBase
 	private int m_ExpansionSaveVersion;
 
 	Object m_PlayerHeadingDir;
-
-	protected ref Timer m_SafezoneUpdateTimer;
-
-	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
-	protected bool m_LeavingSafeZone;
-
+	
 	protected int m_TerritoryIdInside;
 
 	protected ExpansionTerritoryModule m_TerritoryModule;
@@ -29,14 +23,6 @@ modded class PlayerBase
 	protected string m_PlayerUID;
 	protected string m_PlayerSteam;
 	protected string m_PlayerName;
-
-	private static autoptr map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
-	private static autoptr array< PlayerBase > m_AllPlayers = new array< PlayerBase >;
-
-	protected bool m_HasMap;
-	protected bool m_HasGPS;
-	protected bool m_HasPen;
-	protected bool m_HasCompass;
 
 	protected int m_CountMap;
 	protected int m_CountGPS;
@@ -64,20 +50,13 @@ modded class PlayerBase
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.DeferredClientInit, 100, false );
 		#endif
-
-		m_SafeZone = false;
-		m_LeavingSafeZone = false;
 		
 		m_TerritoryIdInside = -1;
 
 		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
 
-		m_HasMap = false;
-		m_HasGPS = false;
-		m_HasPen = false;
-		m_HasCompass = false;
 		m_HasCalledKillFeed = false;
-
+	
 		m_CountMap = 0;
 		m_CountGPS = 0;
 		m_CountPen = 0;
@@ -85,33 +64,144 @@ modded class PlayerBase
 		
 		SetRandomQuickMarkerColor();
 		
-		m_AllPlayers.Insert( this );
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
 		#endif
 	}
 
 	// ------------------------------------------------------------
+	// PlayerBase Destructor
+	// ------------------------------------------------------------
+	void ~PlayerBase()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::~PlayerBase - Start");
+		#endif
+
+		if ( IsMissionClient() && GetGame() && GetGame().GetPlayer() ) 
+		{
+			// need this for expansion (test 3) debugging
+			// need to confirm if an issue is fixed and if 
+			// not, need logs sent to me
+			// 	- jacob
+			#ifdef EXPANSIONEXLOGPRINT
+			EXLogPrint( "Player Has Left Network Bubble from " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
+			#endif
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::~PlayerBase - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
 	// Override EEKilled
 	// ------------------------------------------------------------
 	override void EEKilled( Object killer )
 	{
-		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
-		{
-			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
-			if ( m_KillfeedModule )
-			{
-				m_KillfeedModule.PlayerKilled( this, killer );
-			}
-		}
-
+	#ifdef ENFUSION_AI_PROJECT
+		eAIBase eAI_Entity = eAIBase.Cast(this);
+	#endif
+		
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false, IsSwimming());
+		#ifdef ENFUSION_AI_PROJECT
+			eAI_Entity = eAIBase.Cast(this);
+			if (!eAI_Entity)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
+		#else
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
+		#endif
 		}
 		
 		super.EEKilled(killer);
+	}
+	
+	// ------------------------------------------------------------
+	// Override EEHitBy
+	// ------------------------------------------------------------
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
+		{
+			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
+			if ( m_KillfeedModule && !IPADACK() )
+			{
+				UpdateIPADACK( !IsAlive() );
+				m_KillfeedModule.OnPlayerHitBy( damageType, this, source, ammo );
+			}
+		}
+
+		if (ammo == "Bullet_Expansion_Taser")
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
+
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase DeferredClientInit
+	// ------------------------------------------------------------
+	override void DeferredClientInit()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::DeferredClientInit - Start");
+		#endif
+		
+		super.DeferredClientInit();
+		
+		#ifdef EXPANSIONEXLOGPRINT
+		if ( GetGame() && GetGame().GetPlayer() )
+		{
+			EXLogPrint( "Player Has Entered Network Bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
+		}
+		#endif
+
+		if ( GetGame() && IsMissionClient() && GetModuleManager() )
+		{
+			ExpansionMarkerModule module;
+			if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
+				module.Refresh();
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::DeferredClientInit - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion SetActions
+	// ------------------------------------------------------------
+	override void SetActions( out TInputActionMap InputActionMap )
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions start");
+		#endif
+
+		super.SetActions( InputActionMap );
+				
+		//AddAction( ExpansionActionOpenParachute, InputActionMap );
+		//AddAction( ExpansionActionCutParachute, InputActionMap );
+		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
+		AddAction( ExpansionActionCrackSafe );
+		AddAction( ExpansionActionDestroyBarbedWire );
+		AddAction( ExpansionActionDestroyLock );
+		//AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
+		//AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::SetActions end");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnUnconsciousStart
+	// ------------------------------------------------------------
+	override void OnUnconsciousStart()
+	{
+		if ( IsMissionClient() && GetGame().GetUIManager().GetMenu() && GetGame().GetUIManager().GetMenu().IsVisible() )
+			GetGame().GetUIManager().CloseAll();
+
+		super.OnUnconsciousStart();
 	}
 
 	// ------------------------------------------------------------
@@ -128,27 +218,6 @@ modded class PlayerBase
 	void UpdateIPADACK(bool state = true)
 	{
 		m_HasCalledKillFeed = state;
-	}
-	
-	// ------------------------------------------------------------
-	// Override EEHitBy
-	// ------------------------------------------------------------
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
-	{
-		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
-		{
-			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
-			if ( m_KillfeedModule && !IPADACK() )
-			{
-				UpdateIPADACK( !IsAlive() );
-				m_KillfeedModule.PlayerHitBy( damageType, this, source, ammo );
-			}
-		}
-
-		if (ammo == "Bullet_Expansion_Taser")
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
-
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
 	// ------------------------------------------------------------
@@ -198,287 +267,30 @@ modded class PlayerBase
 	{
 		return m_QuickMarkerColor;
 	}
-
+	
 	// ------------------------------------------------------------
-	// PlayerBase Destructor
+	// PlayerBase GetBuildNoBuildZone
 	// ------------------------------------------------------------
-	void ~PlayerBase()
+	ExpansionBuildNoBuildZone GetBuildNoBuildZone()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::~PlayerBase - Start");
-		#endif
-
-		if ( IsMissionClient() && GetGame() && GetGame().GetPlayer() ) 
+		foreach ( ExpansionBuildNoBuildZone zone : GetExpansionSettings().GetBaseBuilding().Zones )
 		{
-			// need this for expansion (test 3) debugging
-			// need to confirm if an issue is fixed and if 
-			// not, need logs sent to me
-			// 	- jacob
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Player Has Left Network Bubble from " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
-			#endif
+			vector pos = GetPosition();
+			vector center = zone.Center;
+
+			if ( center[1] == 0 )
+				pos[1] == 0;
+	
+			if ( vector.Distance( pos, zone.Center ) <= zone.Radius )
+				return zone;
 		}
 
-		if ( m_AllPlayersUID && m_AllPlayersUID.Get( m_PlayerUID ) == this )
-		{
-			m_AllPlayersUID.Remove( m_PlayerUID );
-		}
-
-		if ( m_AllPlayers )
-		{
-			int remove_index = m_AllPlayers.Find( this );
-			if ( remove_index >= 0 )
-			{
-				m_AllPlayers.Remove( remove_index );
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::~PlayerBase - End");
-		#endif
-	}
-		
-	// ------------------------------------------------------------
-	// PlayerBase DeferredClientInit
-	// ------------------------------------------------------------
-	override void DeferredClientInit()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - Start");
-		#endif
-		
-		super.DeferredClientInit();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		if ( GetGame() && GetGame().GetPlayer() )
-		{
-			EXLogPrint( "Player Has Entered Network Bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
-		}
-		#endif
-
-		if ( GetGame() && IsMissionClient() && GetModuleManager() )
-		{
-			ExpansionMarkerModule module;
-			if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
-				module.Refresh();
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - End");
-		#endif
-	}
-
-
-	// ------------------------------------------------------------
-	// Expansion SetActions
-	// ------------------------------------------------------------
-	override void SetActions( out TInputActionMap InputActionMap )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions start");
-		#endif
-
-		super.SetActions( InputActionMap );
-				
-		//AddAction( ExpansionActionOpenParachute, InputActionMap );
-		//AddAction( ExpansionActionCutParachute, InputActionMap );
-
-		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
-
-		AddAction( ExpansionActionCrackSafe );
-
-		AddAction( ExpansionActionDestroyBarbedWire );
-
-		AddAction( ExpansionActionDestroyLock );
-		
-		//AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
-		//AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions end");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// Expansion OnVariablesSynchronized
-	// ------------------------------------------------------------
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnVariablesSynchronized - Start");
-		#endif
-
-		if ( m_SafeZoneSynchRemote && !m_SafeZone )
-		{
-			OnEnterSafeZone();
-		} 
-		else if ( !m_SafeZoneSynchRemote && m_SafeZone )
-		{
-			OnLeftSafeZone();
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnVariablesSynchronized - End");
-		#endif
-	}
-
-	override void OnUnconsciousStart()
-	{
-		if ( IsMissionClient() && GetGame().GetUIManager().GetMenu() && GetGame().GetUIManager().GetMenu().IsVisible() )
-			GetGame().GetUIManager().CloseAll();
-
-		super.OnUnconsciousStart();
-	}
-
-	// ------------------------------------------------------------
-	// Expansion Init
-	// ------------------------------------------------------------
-	override void Init()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::Init start");
-		#endif
-		
-		super.Init();
-
-		m_SafezoneUpdateTimer = new Timer();
-		m_SafezoneUpdateTimer.Run(1, this, "SafezoneUpdate", null, true);
-
-		RegisterNetSyncVariableBool( "m_SafeZoneSynchRemote" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::Init end");
-		#endif
+		return NULL;
 	}
 	
 	// ------------------------------------------------------------
-	// PlayerBase IsInSafeZone
+	// PlayerBase TerritoryModuleExists
 	// ------------------------------------------------------------
-	bool IsInSafeZone()
-	{
-		return m_SafeZone;
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase OnEnterSafeZone, only server side
-	// ------------------------------------------------------------
-	void OnEnterSafeZone()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnEnterSafeZone start");
-		#endif
-
-		m_SafeZone = true;		
-		m_LeavingSafeZone = false;
-
-		if ( IsMissionHost() )
-		{
-			m_SafeZoneSynchRemote = true;
-
-			SetAllowDamage( false );
-
-			GetInputController().OverrideRaise( true, false );
-			GetInputController().OverrideMeleeEvade( true, false );
-
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_ENTER" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, GetIdentity() );
-		
-			SetSynchDirty();
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnEnterSafeZone end");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase OnLeftSafeZone, only server side
-	// ------------------------------------------------------------
-	void OnLeftSafeZone()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnLeftSafeZone - Start");
-		#endif
-
-		if ( m_SafeZone && !m_LeavingSafeZone )
-		{
-			m_SafeZone = false;
-			m_LeavingSafeZone = true;
-
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_LEAVING" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, GetIdentity() );
-			
-			//! Wait 10 seconds
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HasLeftSafeZone, 10000, false);
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnLeftSafeZone - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase HasLeftSafeZone, only server side
-	// ------------------------------------------------------------
-	void HasLeftSafeZone()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::HasLeftSafeZone - Start");
-		#endif
-
-		//! If the player is still outside of the safezone
-		if ( IsMissionHost() && !m_SafeZone )
-		{
-			m_SafeZoneSynchRemote = false;
-
-			SetAllowDamage( true );
-
-			GetInputController().OverrideRaise( false, false );
-			GetInputController().OverrideMeleeEvade( false, false );
-
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_SAFEZONE_TITLE" ), new StringLocaliser( "STR_EXPANSION_SAFEZONE_LEFT" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, GetIdentity() );
-		
-			SetSynchDirty();
-		}
-		
-		m_LeavingSafeZone = false;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::HasLeftSafeZone - End");
-		#endif
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase SafezoneUpdate
-	// ------------------------------------------------------------
-	void SafezoneUpdate()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SafezoneUpdate start");
-		#endif
-		
-		static bool switched = false;
-		if ( IsInSafeZone() ) 
-		{
-			switched = true;
-			GetInputController().OverrideRaise( true, false );
-			GetInputController().OverrideMeleeEvade( true, false );
-		}
-		else
-		{
-			if (switched)
-			{
-				GetInputController().OverrideRaise( false, false );
-				GetInputController().OverrideMeleeEvade( false, false );
-				switched = false;
-			}	
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SafezoneUpdate end");
-		#endif
-	}
-
 	private bool TerritoryModuleExists()
 	{
 		if ( !m_TerritoryModule )
@@ -608,8 +420,8 @@ modded class PlayerBase
 	
 	// ------------------------------------------------------------
 	// PlayerBase FindNearestFlag
-	// Returns nearest ExpansionFlagBase object at given position
-	// or NULL if no ExpansionFlagBase object is found.
+	// Returns nearest TerritoryFlag object at given position
+	// or NULL if no TerritoryFlag object is found.
 	// ------------------------------------------------------------
 	TerritoryFlag FindNearestFlag()
 	{
@@ -647,7 +459,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SpawnGraveCross
 	// ------------------------------------------------------------
-	void CreateGraveCross( bool wasSwimming )
+	void CreateGraveCross()
 	{
 		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
 		bool deleteBody = GetExpansionSettings().GetGeneral().GravecrossDeleteBody;
@@ -672,27 +484,33 @@ modded class PlayerBase
 		Expansion_GraveBase grave;
 
 		vector pos = GetPosition();
-		vector ground;
+		vector ground = Vector(pos[0], GetGame().SurfaceY(pos[0], pos[2]), pos[2]);
 
 		//! The idea here is that the gravecross should spawn on top of the thing the player died on if it's a building or large item,
 		//! and not below sea level if over water
 
-		if ( wasSwimming )
-		{
-			//! Add a bit of vertical offset if the player was swimming so cross sits above water level
-			ground = Vector(pos[0], pos[1] + 1.3, pos[2]);
-		} else
-		{
-			ground = Vector(pos[0], GetGame().SurfaceY(pos[0], pos[2]), pos[2]);
+		PhxInteractionLayers layerMask;
 
-			PhxInteractionLayers layerMask = PhxInteractionLayers.BUILDING|PhxInteractionLayers.ROADWAY|PhxInteractionLayers.TERRAIN|PhxInteractionLayers.WATERLAYER|PhxInteractionLayers.ITEM_LARGE;
-			Object hitObject;
-			vector hitPosition;
-			vector hitNormal;
-			float hitFraction;
+		layerMask |= PhxInteractionLayers.BUILDING;
+		layerMask |= PhxInteractionLayers.ROADWAY;
+		layerMask |= PhxInteractionLayers.TERRAIN;
+		layerMask |= PhxInteractionLayers.WATERLAYER;  //! Doesn't seem to work?
+		layerMask |= PhxInteractionLayers.ITEM_LARGE;
 
-			if ( DayZPhysics.RayCastBullet( pos, ground, layerMask, this, hitObject, hitPosition, hitNormal, hitFraction ) )
-				ground[1] = hitPosition[1];
+		Object hitObject;
+		vector hitPosition;
+		vector hitNormal;
+		float hitFraction;
+
+		if ( DayZPhysics.RayCastBullet( pos, ground, layerMask, this, hitObject, hitPosition, hitNormal, hitFraction ) )
+			ground[1] = hitPosition[1];
+
+		float water_depth = GetGame().GetWaterDepth(ground);
+
+		if ( water_depth > 0 )
+		{
+			//! Add water depth so cross sits above water level (with bottom bit submerged slightly)
+			ground[1] = ground[1] + water_depth - 0.5;
 		}
 		
 		ground[1] = ground[1] + offsetY;
@@ -700,7 +518,7 @@ modded class PlayerBase
 		grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
 		
-		grave.MoveAttachmentsFromEntity(this);
+		grave.MoveAttachmentsFromEntity(this, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());
 		
 		if (deleteBody)
@@ -751,17 +569,6 @@ modded class PlayerBase
 
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
-			ExpansionHumanCommandVehicle ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
-			if ( ehcv != NULL )
-			{
-				if ( ehcv.WasGearChange() )
-				{
-					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
-					cb.SetVehicleCommand( ehcv );
-				}
-				return true;
-			}
-
 			//ExpansionHumanCommandGuitar ehcg = ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
 			//if ( ehcg != NULL )
 			//{
@@ -817,7 +624,7 @@ modded class PlayerBase
 		for ( int att_i = 0; att_i < GetInventory().AttachmentCount(); ++att_i )
 		{
 			EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
-			ref CargoBase cargo = attachment.GetInventory().GetCargo();
+			CargoBase cargo = attachment.GetInventory().GetCargo();
 			
 			if ( !cargo )
 				continue;
@@ -851,6 +658,9 @@ modded class PlayerBase
 		return super.CanJump();
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion IsTargetInActiveRefresherRange
+	// ------------------------------------------------------------	
 	override bool IsTargetInActiveRefresherRange(EntityAI target)
 	{
 		//! Duplicate of vanilla code except using TerritorySize instead of constant
@@ -952,15 +762,14 @@ modded class PlayerBase
 	{
 		if ( state )
 		{
-			m_CountMap = m_CountMap + 1;
-		} else {
-			m_CountMap = m_CountMap - 1;
+			m_CountMap += 1;
 		}
-
-		if ( m_CountMap < 0 )
-			m_CountMap = 0;
-
-		m_HasMap = state;
+		else if (m_CountMap > 0)
+		{
+			m_CountMap -= 1;
+		}
+		
+		Print("m_CountMap: " + m_CountMap);
 	}
 	
 	// ------------------------------------------------------------
@@ -968,10 +777,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemMap()
 	{
-		if ( m_CountMap > 0 )
-			return true;
-
-		return m_HasMap;
+		return m_CountMap > 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -981,15 +787,14 @@ modded class PlayerBase
 	{
 		if ( state )
 		{
-			m_CountGPS = m_CountGPS + 1;
-		} else {
-			m_CountGPS = m_CountGPS - 1;
+			m_CountGPS += 1;
+		} 
+		else if (m_CountGPS > 0)
+		{
+			m_CountGPS -= 1;
 		}
-
-		if ( m_CountGPS < 0 )
-			m_CountGPS = 0;
-
-		m_HasGPS = state;
+		
+		Print("m_CountGPS: " + m_CountGPS);
 	}
 	
 	// ------------------------------------------------------------
@@ -997,10 +802,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemGPS()
 	{
-		if ( m_CountGPS > 0 )
-			return true;
-
-		return m_HasGPS;
+		return m_CountGPS > 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -1010,15 +812,12 @@ modded class PlayerBase
 	{
 		if ( state )
 		{
-			m_CountPen = m_CountPen + 1;
-		} else {
-			m_CountPen = m_CountPen - 1;
+			m_CountPen += 1;
+		} 
+		else if (m_CountPen > 0)
+		{
+			m_CountPen -= 1;
 		}
-
-		if ( m_CountPen < 0 )
-			m_CountPen = 0;
-
-		m_HasPen = state;
 	}
 	
 	// ------------------------------------------------------------
@@ -1026,10 +825,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemPen()
 	{
-		if ( m_CountPen > 0 )
-			return true;
-
-		return m_HasPen;
+		return m_CountPen > 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -1037,17 +833,16 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetHasItemCompass(bool state)
 	{
-		if ( state )
+		if (state)
 		{
-			m_CountCompass = m_CountCompass + 1;
-		} else {
-			m_CountCompass = m_CountCompass - 1;
+			m_CountCompass += 1;
+		} 
+		else if (m_CountCompass > 0)
+		{
+			m_CountCompass -= 1;
 		}
-
-		if ( m_CountCompass < 0 )
-			m_CountCompass = 0;
-
-		m_HasCompass = state;
+		
+		Print("m_CountCompass: " + m_CountCompass);
 	}
 	
 	// ------------------------------------------------------------
@@ -1055,12 +850,12 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemCompass()
 	{
-		if ( m_CountCompass > 0 )
-			return true;
-
-		return m_HasCompass;
+		return m_CountCompass > 0;
 	}
-
+	
+	// ------------------------------------------------------------
+	// PlayerBase WakePlayer
+	// ------------------------------------------------------------
 	void WakePlayer()
 	{
 		this.AddHealth("","Shock", 100);

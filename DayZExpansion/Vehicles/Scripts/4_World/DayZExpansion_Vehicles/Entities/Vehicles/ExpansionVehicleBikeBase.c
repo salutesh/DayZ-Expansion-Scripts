@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -196,13 +196,13 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		#endif
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_RPMVal );
 		ctx.Write( m_SteeringVal );
 	}
 
-	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_RPMVal );
 		ctx.Read( m_SteeringVal );

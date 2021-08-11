@@ -238,6 +238,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_MERLIN";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
+		modelAnchorPointY = 3.81;
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 292;
 		fuelConsumption = 95;
@@ -656,6 +657,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  MERLIN";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
+		modelAnchorPointY = 3.81;
 		vehicleClass = "Expansion_Helicopter";
 		fuelCapacity = 292;
 		fuelConsumption = 95;

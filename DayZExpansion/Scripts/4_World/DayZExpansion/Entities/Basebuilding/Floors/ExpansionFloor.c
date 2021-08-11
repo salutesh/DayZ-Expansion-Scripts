@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,10 +13,12 @@
 class ExpansionFloorBase extends ExpansionBaseBuilding
 {
 	private bool m_HasFloor;
+	private bool m_IsRoof;
 
 	void ExpansionFloorBase()
 	{
 		RegisterNetSyncVariableBool( "m_HasFloor" );
+		RegisterNetSyncVariableBool( "m_IsRoof" );
 
 		m_CurrentBuild = "wood";
 	}
@@ -31,9 +33,34 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 		return IsPartBuilt( m_CurrentBuild + "_floorfinished" ) || IsPartBuilt( m_CurrentBuild + "_hatchfinished" ) );
 	}
 
+	bool IsRoof()
+	{
+		return m_IsRoof;
+	}
+
+	void SetRoof(bool state)
+	{
+		m_IsRoof = state;
+
+		SetSynchDirty();
+	}
+
 	override string GetConstructionKitType()
 	{
+		if (IsRoof())
+			return "ExpansionRoofKit";
 		return "ExpansionFloorKit";
+	}
+
+	override bool NameOverride(out string output)
+	{
+		if (IsRoof())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_ROOF_FINISHED";
+		else if (IsLastStage())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_FLOOR_FINISHED";
+		else
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_FLOOR_BASE";
+		return true;
 	}
 
 	override void OnVariablesSynchronized()
@@ -66,6 +93,7 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_HasFloor );
+		ctx.Write( m_IsRoof );
 	}
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -83,6 +111,12 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 
 		if ( Expansion_Assert_False( ctx.Read( m_HasFloor ), "[" + this + "] Failed reading m_HasFloor" ) )
 			return false;
+
+		if ( m_ExpansionSaveVersion < 28 )
+			return true;
+
+		if ( Expansion_Assert_False( ctx.Read( m_IsRoof ), "[" + this + "] Failed reading m_IsRoof" ) )
+			return false;
 		
 		return true;
 	}
@@ -96,6 +130,7 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 			return;
 
 		storage.Write( m_HasFloor );
+		storage.Write( m_IsRoof );
 	}
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
@@ -112,21 +147,39 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 		if ( Expansion_Assert_False( storage.Read( m_HasFloor ), "[" + this + "] Failed reading m_HasFloor" ) )
 			return false;
 
+		if ( storage.GetVersion() < 28 )
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_IsRoof ), "[" + this + "] Failed reading m_IsRoof" ) )
+			return false;
+
 		return true;
 	}
 	#endif
+
+	override bool ExpansionGetCollisionBox( out vector minMax[2] )
+	{
+		minMax[0] = "-3 0 -3";
+		minMax[1] = "3 0.25 3";
+		return true;
+	}
 	
 	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
 	{
 		m_HasFloor = false;
 
+		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
+
+		super.OnPartBuiltServer(player, part_name, action_id );
+		UpdateVisuals();
+	}
+
+	override void ExpansionUpdateBaseBuildingStateFromPartBuilt( string part_name )
+	{
 		if ( part_name == m_CurrentBuild + "_floorfinished" || part_name == m_CurrentBuild + "_hatchfinished" )
 		{
 			m_HasFloor = true;
 		}
-
-		super.OnPartBuiltServer(player, part_name, action_id );
-		UpdateVisuals();
 	}
 
 	override void OnPartDismantledServer( notnull Man player, string part_name, int action_id )
@@ -148,6 +201,35 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 	override bool CanPutInCargo (EntityAI parent)
 	{
 		return false;
+	}
+
+	override bool IsPlayerInside( PlayerBase player, string selection )
+	{
+		if ( !IsLastStage() )
+			return true;
+
+		vector player_pos = player.GetPosition();
+
+		vector start = WorldToModel(player_pos);
+
+		vector end;
+		if (IsRoof())
+		{
+			//! Player is considered inside if below and within edges of roof
+			end = start + Vector(0, 5, 0);
+		}
+		else
+		{
+			//! Player is considered inside if above and within edges of floor
+			end = start - Vector(0, 5, 0);
+		}
+
+		vector minMax[2];
+		ExpansionGetCollisionBox(minMax);
+
+		float intersect = Math3D.IntersectRayBox( start, end, minMax[0], minMax[1] );
+
+		return intersect > 0;
 	}
 
 	override bool IsFacingPlayer( PlayerBase player, string selection )

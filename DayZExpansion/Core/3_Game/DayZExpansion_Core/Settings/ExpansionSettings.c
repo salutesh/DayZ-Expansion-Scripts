@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,36 +13,17 @@
 class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Debug = new ScriptInvoker();
-	protected ref ExpansionDebugSettings m_SettingsDebug;
+	static ref ScriptInvoker SI_Log = new ScriptInvoker();
+	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
+
+	protected autoptr ExpansionDebugSettings m_SettingsDebug;
+	protected autoptr ExpansionLogSettings m_SettingsLog;
+	protected autoptr ExpansionSafeZoneSettings m_SettingsSafeZone;
+
 	protected bool m_SettingsLoaded;
 	protected bool m_Debug;
 	protected ref TStringArray m_NetworkedSettings;
 	
-	// ------------------------------------------------------------
-	// ExpansionSettings Constructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ExpansionSettings()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::ExpansionSettings - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::ExpansionSettings - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSettings Destructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ~ExpansionSettings()
-	{
-		if ( m_SettingsDebug ) 
-			delete m_SettingsDebug;
-	}
-
 	// ------------------------------------------------------------
 	// Expansion OnServerInit
 	// ------------------------------------------------------------
@@ -56,10 +37,18 @@ class ExpansionSettings
 		{
 			DeleteFile( EXPANSION_SETTINGS_FOLDER );
 		}
+		
+		if ( FileExist( EXPANSION_LOG_FOLDER ) && IsMissionClient() )
+		{
+			DeleteFile( EXPANSION_LOG_FOLDER );
+		}
 
 		LoadSetting( m_SettingsDebug );
+		LoadSetting( m_SettingsLog);
+		LoadSetting( m_SettingsSafeZone );
 
 		m_NetworkedSettings.Insert( "expansiondebugsettings" );
+		m_NetworkedSettings.Insert( "expansionlogsettings" );
 		
 		m_SettingsLoaded = true;
 
@@ -72,12 +61,14 @@ class ExpansionSettings
 	void Unload()
 	{
 		m_SettingsDebug.Unload();
+		m_SettingsLog.Unload();
+		m_SettingsSafeZone.Unload();
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion LoadSetting
 	// ------------------------------------------------------------
-	void LoadSetting( ref ExpansionSettingBase setting )
+	void LoadSetting( ExpansionSettingBase setting )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::LoadSetting - Start");
@@ -137,7 +128,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion IsSettingLoaded
 	// ------------------------------------------------------------
-	bool IsSettingLoaded( ref ExpansionSettingBase setting, out bool settingsLoaded )
+	bool IsSettingLoaded( ExpansionSettingBase setting, out bool settingsLoaded )
 	{
 		string name = setting.ClassName();
 		name.ToLower();
@@ -179,6 +170,12 @@ class ExpansionSettings
 		
 		if ( !IsSettingLoaded( m_SettingsDebug, m_SettingsLoaded ) )
 			return;
+		
+		if ( !IsSettingLoaded( m_SettingsLog, m_SettingsLoaded ) )
+			return;
+
+		if ( !IsSettingLoaded( m_SettingsSafeZone, m_SettingsLoaded ) )
+			return;
 
 		m_SettingsLoaded = true;
 		
@@ -193,6 +190,8 @@ class ExpansionSettings
 	void Init()
 	{
 		m_SettingsDebug = new ExpansionDebugSettings;
+		m_SettingsLog = new ExpansionLogSettings;
+		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
 
 		m_NetworkedSettings = new TStringArray;
 
@@ -223,6 +222,7 @@ class ExpansionSettings
 		rpc.Send( NULL, ExpansionSettingsRPC.ListToLoad, true, identity );
 
 		m_SettingsDebug.Send( identity );
+		m_SettingsLog.Send( identity );
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionSettings::SendSettings - End");
@@ -232,7 +232,7 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// OnRPC
 	// ------------------------------------------------------------
-	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::OnRPC - Start");
@@ -262,6 +262,16 @@ class ExpansionSettings
 
 				break;
 			}
+			
+			case ExpansionSettingsRPC.Log:
+			{
+				Expansion_Assert_False( m_SettingsLog.OnRecieve( ctx ), "Failed reading Log settings" );
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("ExpansionSettings::OnRPC m_SettingsLog");
+				#endif
+
+				break;
+			}
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -275,7 +285,7 @@ class ExpansionSettings
 	// Expansion RPC_ListToLoad
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_ListToLoad( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_ListToLoad( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		TStringArray listToLoads = new TStringArray;
 		if ( !ctx.Read( listToLoads ) )
@@ -297,6 +307,8 @@ class ExpansionSettings
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
 			m_SettingsDebug.Save();
+			m_SettingsLog.Save();
+			m_SettingsSafeZone.Save();
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -307,15 +319,31 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	// Expansion ExpansionDebugSettings GetDebug
 	// ------------------------------------------------------------
-	ref ExpansionDebugSettings GetDebug()
+	ExpansionDebugSettings GetDebug()
 	{
 		return m_SettingsDebug;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionLogSettings GetLog
+	// ------------------------------------------------------------
+	ExpansionLogSettings GetLog()
+	{
+		return m_SettingsLog;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionSafeZoneSettings GetSafeZone
+	// ------------------------------------------------------------
+	ExpansionSafeZoneSettings GetSafeZone()
+	{
+		return m_SettingsSafeZone;
 	}
 };
 
 static ref ExpansionSettings g_exGlobalSettings;
 
-static ref ExpansionSettings GetExpansionSettings()
+static ExpansionSettings GetExpansionSettings()
 {
 	if ( g_exGlobalSettings == NULL )
 	{

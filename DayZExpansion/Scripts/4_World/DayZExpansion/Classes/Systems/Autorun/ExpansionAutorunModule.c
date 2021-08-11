@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -68,7 +68,7 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion AutorunSync
 	// ------------------------------------------------------------
-	void AutorunSync(ref ParamsReadContext ctx, PlayerIdentity sender, Object target)
+	void AutorunSync(ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorunModule::AutorunSync - Start");
@@ -115,7 +115,7 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion AutorunDisable
 	// ------------------------------------------------------------
-	void AutorunDisable(ref ParamsReadContext ctx, PlayerIdentity sender, Object target)
+	void AutorunDisable(ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorunModule::AutorunDisable - Start");
@@ -263,7 +263,11 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAutorunModule::OnRPC - Start");

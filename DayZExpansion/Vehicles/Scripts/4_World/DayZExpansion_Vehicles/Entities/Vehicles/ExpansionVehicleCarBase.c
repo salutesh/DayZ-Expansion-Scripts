@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * Copyright (c) 2005 Erwin Coumans http://continuousphysics.com/Bullet/
  *
@@ -219,13 +219,13 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 	{
 	}
 
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		ctx.Write( m_RPMVal );
 		ctx.Write( m_SteeringVal );
 	}
 
-	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		ctx.Read( m_RPMVal );
 		ctx.Read( m_SteeringVal );

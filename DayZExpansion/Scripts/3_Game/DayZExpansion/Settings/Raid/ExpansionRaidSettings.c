@@ -3,53 +3,70 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
+/**@class		ExpansionRaidSettingsBase
+ * @brief		Spawn settings class
+ **/
+class ExpansionRaidSettingsBase: ExpansionSettingBase
+{
+	float ExplosionTime;												//! Ammount of time it takes for explosive to explode.
+	autoptr TStringArray ExplosiveDamageWhitelist;		//! List of damage sources allowed to damage bases when whitelist is enabled. 
+	bool EnableExplosiveWhitelist;   								//! If enabled, only damage sources listed in ExplosiveDamageWhitelist will be able to damage walls. 
+	float ExplosionDamageMultiplier;								//! Damage multiplier from explosion.
+	float ProjectileDamageMultiplier;								//! Damage multiplier from projectiles.
+	bool CanRaidSafes;												//! If enabled, make safes raidable
+	float SafeExplosionDamageMultiplier;						//! Damage multiplier from explosion on safes.
+	float SafeProjectileDamageMultiplier;						//! Damage multiplier from explosion on safes.
+	autoptr TStringArray SafeRaidTools;						//! List of tools allowed for raiding safes
+	int SafeRaidToolTimeSeconds;								//! Time needed to raid safe with tool
+	int SafeRaidToolCycles;											//! Number of cycles needed to raid safe
+	float SafeRaidToolDamagePercent;							//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+	bool CanRaidBarbedWire;										//! If enabled, make barbed wire raidable
+	autoptr TStringArray BarbedWireRaidTools;			//! List of tools allowed for raiding barbed wire
+	int BarbedWireRaidToolTimeSeconds;						//! Time needed to raid barbed wire with tool
+	int BarbedWireRaidToolCycles;								//! Number of cycles needed to raid barbed wire
+	float BarbedWireRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+	RaidLocksOnWallsEnum CanRaidLocksOnWalls;			//! If set to 1 make locks (both vanilla and Expansion) raidable on walls | 2 = only doors | 3 = only gates
+	bool CanRaidLocksOnFences;									//! If enabled, make locks (both vanilla and Expansion) raidable on fences
+	bool CanRaidLocksOnTents;									//! If enabled, make locks (both vanilla and Expansion) raidable on tents
+	autoptr TStringArray LockRaidTools;						//! List of tools allowed for raiding locks
+	int LockOnWallRaidToolTimeSeconds;						//! Time needed to raid lock on wall with tool. Disabled <= 0
+	int LockOnFenceRaidToolTimeSeconds;					//! Time needed to raid lock on fence with tool. Disabled <= 0
+	int LockOnTentRaidToolTimeSeconds;						//! Time needed to raid lock on tent with tool. Disabled <= 0
+	int LockRaidToolCycles;											//! Number of cycles needed to raid lock
+	float LockRaidToolDamagePercent;							//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+	BaseBuildingRaidEnum BaseBuildingRaidMode;			//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows
+	
+	// ------------------------------------------------------------
+	void ExpansionRaidSettingsBase()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionRaidSettingsBase::ExpansionRaidSettingsBase - Start");
+		#endif
+
+		ExplosiveDamageWhitelist = new TStringArray;
+		SafeRaidTools = new TStringArray;
+		BarbedWireRaidTools = new TStringArray;
+		LockRaidTools = new TStringArray;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionRaidSettingsBase::ExpansionRaidSettingsBase - End");
+		#endif
+	}
+}
+
 /**@class		ExpansionRaidSettings
  * @brief		Spawn settings class
  **/
-class ExpansionRaidSettings: ExpansionSettingBase
+class ExpansionRaidSettings: ExpansionRaidSettingsBase
 {
-	float ExplosionTime;							//! Ammount of time it takes for explosive to explode.
-
-	autoptr TStringArray ExplosiveDamageWhitelist;	//! List of damage sources allowed to damage bases when whitelist is enabled. 
-	bool EnableExplosiveWhitelist;   				//! If enabled, only damage sources listed in ExplosiveDamageWhitelist will be able to damage walls. 
-	float ExplosionDamageMultiplier;				//! Damage multiplier from explosion.
-	float ProjectileDamageMultiplier;				//! Damage multiplier from projectiles.
-
-	bool CanRaidSafes;								//! If enabled, make safes raidable
-	float SafeExplosionDamageMultiplier;			//! Damage multiplier from explosion on safes.
-	float SafeProjectileDamageMultiplier;			//! Damage multiplier from explosion on safes.
-
-	autoptr TStringArray SafeRaidTools;				//! List of tools allowed for raiding safes
-	int SafeRaidToolTimeSeconds;					//! Time needed to raid safe with tool
-	int SafeRaidToolCycles;							//! Number of cycles needed to raid safe
-	float SafeRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
-
-	bool CanRaidBarbedWire;							//! If enabled, make barbed wire raidable
-
-	autoptr TStringArray BarbedWireRaidTools;		//! List of tools allowed for raiding barbed wire
-	int BarbedWireRaidToolTimeSeconds;				//! Time needed to raid barbed wire with tool
-	int BarbedWireRaidToolCycles;					//! Number of cycles needed to raid barbed wire
-	float BarbedWireRaidToolDamagePercent;			//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
-
-	RaidLocksOnWallsEnum CanRaidLocksOnWalls;		//! If set to 1 make locks (both vanilla and Expansion) raidable on walls | 2 = only doors | 3 = only gates
-	bool CanRaidLocksOnFences;						//! If enabled, make locks (both vanilla and Expansion) raidable on fences
-	bool CanRaidLocksOnTents;						//! If enabled, make locks (both vanilla and Expansion) raidable on tents
-
-	autoptr TStringArray LockRaidTools;				//! List of tools allowed for raiding locks
-	int LockOnWallRaidToolTimeSeconds;				//! Time needed to raid lock on wall with tool. Disabled <= 0
-	int LockOnFenceRaidToolTimeSeconds;				//! Time needed to raid lock on fence with tool. Disabled <= 0
-	int LockOnTentRaidToolTimeSeconds;				//! Time needed to raid lock on tent with tool. Disabled <= 0
-	int LockRaidToolCycles;							//! Number of cycles needed to raid lock
-	float LockRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
-
-	BaseBuildingRaidEnum BaseBuildingRaidMode;						//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows
+	static const int VERSION = 0;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -61,13 +78,29 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		EXPrint("ExpansionRaidSettings::ExpansionRaidSettings - Start");
 		#endif
 
-		ExplosiveDamageWhitelist = new TStringArray;
-		SafeRaidTools = new TStringArray;
-		BarbedWireRaidTools = new TStringArray;
-		LockRaidTools = new TStringArray;
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRaidSettings::ExpansionRaidSettings - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	void ~ExpansionRaidSettings()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionRaidSettings::~ExpansionRaidSettings - Start");
+		#endif
+		
+		ExplosiveDamageWhitelist.Clear();
+		delete ExplosiveDamageWhitelist;
+		SafeRaidTools.Clear();
+		delete SafeRaidTools;
+		BarbedWireRaidTools.Clear();
+		delete BarbedWireRaidTools;
+		LockRaidTools.Clear();
+		delete LockRaidTools;
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionRaidSettings::~ExpansionRaidSettings - End");
 		#endif
 	}
 	
@@ -100,7 +133,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ref ExpansionRaidSettings thisSetting = this;
+		ExpansionRaidSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
@@ -138,9 +171,18 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		CopyInternal( s );
 		return true;
 	}
+	
+	// ------------------------------------------------------------
+	private void CopyInternal(  ExpansionRaidSettings s )
+	{
+		//!Nothing to do here yet
+		
+		ExpansionRaidSettingsBase sb = s;
+		CopyInternal( sb );
+	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal( ref ExpansionRaidSettings s )
+	private void CopyInternal(  ExpansionRaidSettingsBase s )
 	{
 		/*
 		RaidValues.Clear();
@@ -149,7 +191,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		{
 			RaidValues.Insert( s.RaidValues[i] );
 		}
-		*/		
+		*/	
 
 		ExplosiveDamageWhitelist.Clear();
 		for (int i = 0; i < s.ExplosiveDamageWhitelist.Count(); i++)
@@ -214,27 +256,66 @@ class ExpansionRaidSettings: ExpansionSettingBase
 
 		m_IsLoaded = true;
 
-		if ( FileExist( EXPANSION_RAID_SETTINGS ) )
-		{
-			JsonFileLoader<ExpansionRaidSettings>.JsonLoadFile( EXPANSION_RAID_SETTINGS, this );
+		bool raidSettingsExist = FileExist(EXPANSION_RAID_SETTINGS);
 
+		if (raidSettingsExist)
+		{
+			ExpansionRaidSettings settingsDefault = new ExpansionRaidSettings;
+			settingsDefault.Defaults();
+
+			ExpansionRaidSettingsBase settingsBase;
+
+			JsonFileLoader<ExpansionRaidSettingsBase>.JsonLoadFile(EXPANSION_RAID_SETTINGS, settingsBase);
+
+			bool save;
+
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 2)
+				{
+					EXPrint("[ExpansionRaidSettings] Load - Converting v1 \"" + EXPANSION_RAID_SETTINGS + "\" to v" + VERSION);
+					//!Nothing to do here yet
+				}
+				
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionRaidSettings>.JsonLoadFile(EXPANSION_RAID_SETTINGS, this);
+			}
+
+			if (save)
+			{
+				JsonFileLoader<ExpansionRaidSettings>.JsonSaveFile(EXPANSION_RAID_SETTINGS, this);
+			}
+		}
+
+		if (raidSettingsExist)
+		{
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionRaidSettings::Load - End");
 			#endif
-
+			
 			return true;
 		}
+		else
+		{
+			Defaults();
+		}
 		
-		Defaults();
 		Save();
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRaidSettings::Load - End");
 		#endif
-
-		return false;
+		
+		return true;
 	}
-
+	
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
@@ -306,6 +387,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		BaseBuildingRaidMode = BaseBuildingRaidEnum.Default;
 	}
 	
+	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Raid Settings";

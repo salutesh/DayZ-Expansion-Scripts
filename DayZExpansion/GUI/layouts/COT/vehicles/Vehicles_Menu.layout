@@ -1,0 +1,755 @@
+PanelWidgetClass ExpansionCOTVehiclesMenu {
+ visible 1
+ ignorepointer 1
+ color 0 0 0 0
+ position 0 0
+ size 1081 600
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ draggable 1
+ scriptclass "ExpansionCOTVehiclesMenu"
+ style EditorPanel
+ {
+  PanelWidgetClass vehicles_window_panel {
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 101
+   {
+    PanelWidgetClass vehicles_list_panel {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 0.35 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 101
+     style DayZDefaultPanel
+     {
+      PanelWidgetClass vehicles_list_lable_panel {
+       ignorepointer 1
+       position 0 0
+       size 1 20
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass vehicles_list_lable {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "#STR_EXPANSION_COT_VEHICLE_LIST_TITLE"
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      ScrollWidgetClass vehicles_list_scroller {
+       ignorepointer 0
+       position 0 20
+       size 1 400
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style blank
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass vehicles_list_content {
+         position 0 0
+         size 1 30
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 2
+        }
+       }
+      }
+      GridSpacerWidgetClass vehicles_list_buttons {
+       ignorepointer 1
+       size 1 150
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style Empty
+       Padding 0
+       Margin 0
+       Columns 1
+       Rows 4
+       {
+        ButtonWidgetClass vehicles_refresh_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass vehicles_refresh_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_TERRITORY_REFRESH"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass delete_all_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_all_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_LIST_DELETE_ALL"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass delete_destroyed_vehicle_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_destroyed_vehicle_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_LIST_DELETE_DESTROYED"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass delete_unclaimed_vehicle_button {
+         position 8 10
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_unclaimed_vehicle_button_lable {
+           ignorepointer 1
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_LIST_DELETE_UNCLAIMED"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass vehicle_info_panel {
+     visible 0
+     ignorepointer 1
+     position 0.088 0
+     size 0.45 0.5
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      TextWidgetClass vehicle_info_lable {
+       ignorepointer 1
+       position 0 0
+       size 1 0.07
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Bold
+       text "#STR_EXPANSION_COT_VEHICLE_INFORMATION_TITLE"
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass vehicle_info_spacer {
+       ignorepointer 1
+       position 0 0.09
+       size 1 0.7
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Columns 1
+       Rows 12
+       {
+        PanelWidgetClass vehicle_info_network_id {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.176
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_network_id_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_ID"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_network_id_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_persistent_ab_id {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.176
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_persistent_ab_id_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Persistent ID (AB): "
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_persistent_ab_id_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_persistent_cd_id {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.176
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_persistent_cd_id_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "Persistent ID (CD): "
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_persistent_cd_id_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_name {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_name_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_NAME"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_name_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_classname {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_classname_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_CLASSNAME"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_classname_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_pos {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_pos_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_POSITION"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_pos_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_ori {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_ori_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_ORIENTATION"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_ori_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_type {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_type_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_TYPE"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_type_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_exploded {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_exploded_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_EXPLODED"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_exploded_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_destroyed {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_destroyed_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_DESTROYED"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_destroyed_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass vehicle_info_keys {
+         ignorepointer 1
+         position 0.016 0.024
+         size 0.13 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass info_keys_label {
+           ignorepointer 1
+           size 0.4 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Bold
+           text "#STR_EXPANSION_COT_VEHICLE_KEYS"
+           "text offset" 5 0
+           "text valign" center
+          }
+          TextWidgetClass info_keys_value {
+           ignorepointer 1
+           size 0.6 1
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "text offset" 5 0
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass vehicle_info_buttons_panel {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 0.185 0.333
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     {
+      TextWidgetClass vehicle_info_buttons_lable {
+       ignorepointer 1
+       position 0 0
+       size 1 0.1007
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Bold
+       text "#STR_EXPANSION_COT_VEHICLE_OPTIONS"
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass vehicle_info_buttons_spacer {
+       ignorepointer 1
+       position 0 0
+       size 1 0.85
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Columns 1
+       Rows 6
+       {
+        ButtonWidgetClass delete_vehicle_button {
+         position 0.03 0.029
+         size 0.196 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass delete_vehicle_button_label {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_COT_VEHICLE_DELETE"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass teleport_to_button {
+         position 0.03 0.029
+         size 0.196 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass teleport_to_button_label {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_COT_VEHICLE_TELEPORTTO"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        ButtonWidgetClass cancel_edit_button {
+         visible 1
+         position 0.03 0.029
+         size 0.196 0.173
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          TextWidgetClass cancel_edit_button_label {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_COT_TERRITORY_CANCEL_EDIT"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass map_window_panel {
+   ignorepointer 0
+   position 0 0
+   size 1081 600
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   priority 1
+   {
+    PanelWidgetClass vehicles_map_panel {
+     visible 1
+     clipchildren 1
+     keepsafezone 1
+     position 0 0
+     size 0.65 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      MapWidgetClass vehicles_map {
+       visible 1
+       clipchildren 1
+       keepsafezone 1
+       position 0 0
+       size 1 1
+       halign right_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass ""
+      }
+     }
+    }
+   }
+  }
+ }
+}

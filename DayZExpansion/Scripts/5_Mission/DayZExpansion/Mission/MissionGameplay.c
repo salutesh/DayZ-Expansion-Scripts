@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,6 +15,7 @@
  **/
 modded class MissionGameplay
 {
+	Chat 										m_Chat;
 	//! Expansion chat channel counter
 	ExpansionChatChannels 						m_ChatChannel;
 	//! Expansion chat fade timer
@@ -51,8 +52,10 @@ modded class MissionGameplay
 	ExpansionMarkerModule 						m_MarkerModule;
 	private bool								m_MarkerToggleState = true;
 	private bool								m_ServerMarkerToggleState = true;
+	private bool 								m_HideChatToggle = true;
 
-	protected ref ExpansionMapMenu m_MapMenu;
+	protected ref MapMenu 						m_MapMenu;
+	protected ref ExpansionMapMenu 				m_ExpansionMapMenu;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -112,8 +115,8 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 
-			m_ChatChannelName.SetText( "Global Communication" );
-			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_GLOBAL_TEXT_COLOUR );
+			m_ChatChannelName.SetText("Global Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().GlobalChatColor);
 		} else
 		{
 			SwitchChatChannelToTeam();
@@ -139,8 +142,8 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 
-			m_ChatChannelName.SetText("Team Communication");
-			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TEAM_TEXT_COLOUR);
+			m_ChatChannelName.SetText("Team Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().PartyChatColor);
 		} else
 		{
 			SwitchChatChannelToTransport();
@@ -167,8 +170,8 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 
-			m_ChatChannelName.SetText("Transport Communication");
-			m_ChatChannelName.SetColor(ExpansionChatColors.EXP_TRANSPORT_COLOUR);
+			m_ChatChannelName.SetText("Transport Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().TransportChatColor);
 		} else
 		{
 			SwitchChatChannelToAdmin();
@@ -188,13 +191,14 @@ modded class MissionGameplay
 		EXPrint("MissionGameplay::SwitchChatChannelToAdmin - Start");
 		#endif
 
-		if ( GetPermissionsManager().HasPermission( "Admin.Chat" ) )
+		if (GetPermissionsManager().HasPermission("Admin.Chat"))
 		{
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 
-			m_ChatChannelName.SetText( "Admin Communication" );
-			m_ChatChannelName.SetColor( ExpansionChatColors.EXP_ADMIN_TEXT_COLOUR );
-		} else
+			m_ChatChannelName.SetText("Admin Chat");
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().AdminChatColor);
+		} 
+		else
 		{
 			SwitchChatChannelToDirect();
 		}
@@ -215,8 +219,8 @@ modded class MissionGameplay
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 
-		m_ChatChannelName.SetText( "Direct Communication" );
-		m_ChatChannelName.SetColor( ExpansionChatColors.EXP_DIRECT_TEXT_COLOUR );
+		m_ChatChannelName.SetText("Direct Chat");
+		m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::SwitchChatChannelToDirect - End");
@@ -282,6 +286,10 @@ modded class MissionGameplay
 
 		if (g_Game.GetProfileOption(EDayZProfilesOptions.PLAYER_MESSAGES))
 			return;
+
+		//! Initialize direct chat channel name to correct color
+		if ( m_ChatChannel == ExpansionChatChannels.CCDirect )
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
 				
 		exp_m_ChannelNameTimeoutTimer.Stop();
 		exp_m_ChannelTimeoutTimer.Stop();
@@ -333,15 +341,10 @@ modded class MissionGameplay
 	{
 		switch (mode)
 		{
-			case INPUT_EXCLUDE_ALL:
-			{
-				GetUApi().ActivateExclude("menuexpansion");
-				break;
-			}
-			
 			case INPUT_EXCLUDE_CHAT_EXPANSION:
 			{
 				GetUApi().ActivateExclude("chatexpansion");
+				GetUApi().UpdateControls();
 				break;
 			}
 		}
@@ -389,7 +392,10 @@ modded class MissionGameplay
 		super.OnMissionFinish();
 
 		if ( m_MapMenu )
-			m_MapMenu.Close();  //! Safely destroys map menu
+			m_MapMenu.CloseMapMenu();  //! Safely destroys map menu
+		
+		if ( m_ExpansionMapMenu )
+			m_ExpansionMapMenu.CloseMapMenu(true);	//! Safely destroys expansion map menu
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnMissionFinish - End");
@@ -443,10 +449,28 @@ modded class MissionGameplay
 				SwitchChatChannelToDirect();
 			}
 			
-			m_ChatRootWidget.Show( true );
+			m_ChatRootWidget.Show( m_HideChatToggle );
 		}
 	}
-		
+	
+	// ------------------------------------------------------------
+	// HideChatToggle
+	// ------------------------------------------------------------
+	void HideChatToggle()
+	{
+		m_HideChatToggle = !m_HideChatToggle;
+
+		m_ChatRootWidget.Show( m_HideChatToggle );
+	}
+
+	// ------------------------------------------------------------
+	// GetChatToggleState
+	// ------------------------------------------------------------
+	bool GetChatToggleState()
+	{
+		return m_HideChatToggle;
+	}
+	
 	// ------------------------------------------------------------
 	// InitChat
 	// ------------------------------------------------------------
@@ -544,6 +568,8 @@ modded class MissionGameplay
 		Input input 			= GetGame().GetInput(); 	//! Reference to input
 		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
 		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
+		ExpansionScriptViewMenu viewMenu 	= ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		
 		if ( playerPB && playerPB.GetHumanInventory() ) 
 		{
@@ -551,7 +577,7 @@ modded class MissionGameplay
 			EntityAI itemInHands = playerPB.GetHumanInventory().GetEntityInHands();
 
 			//! Expansion reference to hologram
-			ref Hologram hologram;	
+			Hologram hologram;	
 
 			if ( playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious() )
 			{
@@ -561,6 +587,20 @@ modded class MissionGameplay
 				if ( input.LocalPress( "UAChat", false ) && !inputIsFocused && !topMenu )
 				{
 					ShowChat();
+				}
+				
+				//! Chat
+				if ( input.LocalPress( "UAExpansionHideChatToggle", false ) && !inputIsFocused && !topMenu )
+				{
+					HideChatToggle();
+					m_Chat.HideChatToggle();				
+
+					if (m_HideChatToggle)
+					{	
+						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_ON", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
+					} else {
+						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_OFF", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
+					}
 				}
 				
 				//! Switch Chat Channel
@@ -586,70 +626,10 @@ modded class MissionGameplay
 						}
 					}
 					
-					//! Book Menu
-					if ( input.LocalPress( "UAExpansionBookToggle", false ) && !GetGame().GetUIManager().GetMenu() )
-					{
-						if ( GetExpansionSettings() && GetExpansionSettings().GetBook().EnableBook )
-						{
-							bool hasBookItem = true;
-							EntityAI bookItem;
-							
-							if ( GetExpansionSettings().GetBook().ItemRequired != "" )
-							{
-								switch ( GetExpansionSettings().GetBook().ItemRequiredLocation )
-								{
-									case 0:
-										hasBookItem = playerPB.HasItem( GetExpansionSettings().GetBook().ItemRequired, bookItem );
-										break;
-									case 1:
-										hasBookItem = GetExpansionSettings().GetBook().ItemRequired == itemInHands.GetType();
-										if ( hasBookItem )
-											bookItem = itemInHands;
-										break;
-								}
-							}
-
-							if ( hasBookItem )
-							{
-								GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_BOOK_MENU, NULL );
-							}
-						}
-					}
 					//! Map Menu
-					if ( input.LocalPress( "UAExpansionMapToggle", false ) )
+					if ( input.LocalPress( "UAExpansionMapToggle", false ) && !viewMenu )
 					{
-						if ( m_MapMenu && m_MapMenu.IsVisible() )
-						{
-							m_MapMenu.Hide();
-						} else if ( !GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding )
-						{
-							bool show_map;
-
-							if ( GetExpansionSettings().GetMap().NeedMapItemForKeyBinding )
-							{
-								if ( playerPB.HasItemMap() || playerPB.HasItemGPS() )
-									show_map = true;
-							} else
-							{
-								show_map = true;
-							}
-
-							if ( show_map )
-							{
-								if ( m_MapMenu )
-								{
-									m_MapMenu.Show();
-								} else
-								{
-									if ( GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().EnableMap )
-									{
-										m_MapMenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_MAP, NULL ) );
-									} else {
-										m_MapMenu = ExpansionMapMenu.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_MAP, NULL ) );
-									}
-								}
-							}
-						}
+						ToggleMapMenu(playerPB);
 					}
 					
 					//! GPS	
@@ -660,7 +640,7 @@ modded class MissionGameplay
 						#endif
 
 						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS )
-						{		
+						{
 							if ( GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding )
 							{
 								#ifdef EXPANSIONEXLOGPRINT
@@ -719,37 +699,37 @@ modded class MissionGameplay
 					}
 					
 					//! Toggle Earplugs
-					if ( input.LocalPress( "UAExpansionEarplugsToggle", false ) )
+					if ( input.LocalPress( "UAExpansionEarplugsToggle", false )  && !viewMenu )
 					{
 						m_ExpansionHud.ToggleEarplugs();
 					}
-			
-				#ifdef DABS_FRAMEWORK	
-					if (input.LocalPress("UAExpansionPlayerListToggle", false))
+					
+					//! Toggle Player list menu
+					if ( input.LocalPress("UAExpansionPlayerListToggle", false) )
 					{
-						if (!topMenu && !inputIsFocused)
+						if ((playerListMenu || !topMenu) && !inputIsFocused)
 						{
 							OnPlayerListTogglePressed();
 						}
 					}
-				#endif
 
 					if (m_MarkerModule)
-					{						
-						if (input.LocalPress("UAExpansion3DMarkerToggle", false)) {
+					{
+						if (input.LocalPress("UAExpansion3DMarkerToggle", false)  && !viewMenu) 
+						{
 							
 							m_MarkerToggleState = !m_MarkerToggleState;
 							m_ServerMarkerToggleState = m_MarkerToggleState;
 							
 							if (m_MarkerToggleState) {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 								
 							} else {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLEALL_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
@@ -757,17 +737,16 @@ modded class MissionGameplay
 							}
 						}
 						
-						if (input.LocalPress("UAExpansionServerMarkersToggle", false)) {
-							
+						if (input.LocalPress("UAExpansionServerMarkersToggle", false)  && !viewMenu) 
+						{
 							m_ServerMarkerToggleState = !m_ServerMarkerToggleState;
 							
 							if (m_ServerMarkerToggleState) {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_OFF"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								
 							} else {
-								
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_MARKERTOGGLE_TITLE"), new StringLocaliser("STR_EXPANSION_MARKERTOGGLESERVER_ON"), EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 							}
 						}
@@ -787,9 +766,9 @@ modded class MissionGameplay
 							
 							if ( hologram.IsUsingSnap() )
 							{
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_ENABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_ENABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 							} else {
-								GetNotificationSystem().CreateNotification(new StringLocaliser("STR_EXPANSION_SNAPPING_TITLE"), new StringLocaliser("STR_EXPANSION_SNAPPING_DISABLED"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, playerPB.GetIdentity());
+								ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_DISABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 							}
 						}
 
@@ -829,19 +808,6 @@ modded class MissionGameplay
 					ExpansionPlayerData();
 					m_DataSent = true;
 				}
-				
-			#ifdef DABS_FRAMEWORK
-				//! Close current opened expansion script view menu when ESC is pressed
-				if (input.LocalPress("UAUIBack", false))
-				{
-					if (GetDayZExpansion().GetExpansionUIManager().GetMenu() && GetDayZExpansion().GetExpansionUIManager().GetMenu().IsVisible())
-						GetDayZExpansion().GetExpansionUIManager().CloseMenu();
-				}
-				
-				//! If we have a active vanilla menu and a active expansion script view menu then close the expansion script view menu
-				if (topMenu && GetDayZExpansion().GetExpansionUIManager().GetMenu())
-					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
-			#endif
 			}
 			
 			//! Nightvision check
@@ -861,6 +827,76 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ToggleMapMenu
+	// ------------------------------------------------------------
+	void ToggleMapMenu(PlayerBase playerPB)
+	{
+		if (!GetExpansionSettings().GetMap().EnableMap)
+		{
+			bool show_map;
+			if (m_MapMenu && m_MapMenu.IsVisible())
+			{
+				m_MapMenu.CloseMapMenu();
+			} 
+			else if (!GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding)
+			{
+				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
+				{
+					if (playerPB.HasItemMap() || playerPB.HasItemGPS())
+						show_map = true;
+				} 
+				else
+				{
+					show_map = true;
+				}
+	
+				if (show_map)
+				{
+					if (m_MapMenu)
+					{
+						GetGame().GetUIManager().ShowScriptedMenu(m_MapMenu, NULL);
+					} 
+					else
+					{
+						m_MapMenu = MapMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_MAP, NULL));
+					}
+				}
+			}
+		}
+		else
+		{
+			if (m_ExpansionMapMenu && m_ExpansionMapMenu.IsVisible())
+			{
+				m_ExpansionMapMenu.CloseMapMenu();
+			} 
+			else if (!GetGame().GetUIManager().GetMenu() && GetExpansionSettings().GetMap() && GetExpansionSettings().GetMap().CanOpenMapWithKeyBinding)
+			{
+				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
+				{
+					if (playerPB.HasItemMap() || playerPB.HasItemGPS())
+						show_map = true;
+				} 
+				else
+				{
+					show_map = true;
+				}
+	
+				if (show_map)
+				{
+					if (m_ExpansionMapMenu)
+					{
+						GetGame().GetUIManager().ShowScriptedMenu(m_ExpansionMapMenu, NULL);
+					} 
+					else
+					{
+						m_ExpansionMapMenu = ExpansionMapMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_MAP, NULL));
+					}
+				}
+			}
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -1184,7 +1220,7 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	// Expansion GetChat
 	// ------------------------------------------------------------
-	ref Chat GetChat()
+	Chat GetChat()
 	{
 		return m_Chat;
 	}
@@ -1200,7 +1236,7 @@ modded class MissionGameplay
 			ImageWidget voiceWidget = m_VoiceLevelsWidgets.Get(n);
 			
 			// stop fade timer since it will be refreshed
-			ref WidgetFadeTimer timer = m_VoiceLevelTimers.Get(n);		
+			WidgetFadeTimer timer = m_VoiceLevelTimers.Get(n);		
 			timer.Stop();
 		
 			// show widgets according to the level
@@ -1235,8 +1271,7 @@ modded class MissionGameplay
 			m_SeperatorFadeTimer.Stop();
 		}
 	}
-
-#ifdef DABS_FRAMEWORK
+	
 	// ------------------------------------------------------------
 	// Override Pause
 	// ------------------------------------------------------------
@@ -1280,5 +1315,4 @@ modded class MissionGameplay
 			}
 		}
 	}
-#endif
 }

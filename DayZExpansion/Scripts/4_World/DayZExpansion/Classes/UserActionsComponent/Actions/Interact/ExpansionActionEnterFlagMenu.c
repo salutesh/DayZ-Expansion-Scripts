@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -210,6 +210,6 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 			return;
 		}
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ),  new StringLocaliser( "" ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST, 5, action_data.m_Player.GetIdentity() );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "", EXPANSION_NOTIFICATION_ICON_T_Batteries, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(action_data.m_Player.GetIdentity());
 	}
 }

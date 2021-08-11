@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -47,24 +47,6 @@ modded class DayZGame
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
 
-		string path = "cfgVehicles";
-		string child_name = "";
-		int count = ConfigGetChildrenCount(path);
-		m_CharClassNames.Clear();
-
-		for (int p = 0; p < count; p++)
-		{
-			ConfigGetChildName(path, p, child_name);
-
-			if (ConfigGetInt(path + " " + child_name + " scope") == 2 && IsKindOf(child_name, "SurvivorBase"))
-			{
-				if (child_name.Contains("Expansion") || child_name.Contains("Trader"))
-					continue;
-
-				m_CharClassNames.Insert(child_name);
-			}
-		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("DayZGame::DayZGame - End");
 		#endif
@@ -81,10 +63,27 @@ modded class DayZGame
 		}
 	}
 
+    override void GlobalsInit()
+    {
+        super.GlobalsInit();
+
+		string path = "cfgVehicles";
+		string child_name = "";
+        for (int i = m_CharClassNames.Count() - 1; i >= 0; i--)
+		{
+            child_name = m_CharClassNames[i];
+
+			if (child_name.Contains("Expansion") || child_name.Contains("Trader"))
+			{
+				m_CharClassNames.RemoveOrdered(i);
+			}
+		}
+    }
+
 	// ------------------------------------------------------------
 	// Expansion SetExpansionGame
 	// ------------------------------------------------------------
-	void SetExpansionGame(ref ExpansionGame game)
+	void SetExpansionGame(ExpansionGame game)
 	{
 		m_ExpansionGame = game;
 	}
@@ -92,7 +91,7 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	// Expansion GetExpansionGame
 	// ------------------------------------------------------------
-	ref ExpansionGame GetExpansionGame()
+	ExpansionGame GetExpansionGame()
 	{
 		return m_ExpansionGame;
 	}	
@@ -106,7 +105,7 @@ modded class DayZGame
 		EXPrint("LoadingScreen::GetExpansionClientVersion - Start");
 		#endif
 
-		ref array<ref ModInfo> mods = new array<ref ModInfo>;
+		array<ref ModInfo> mods = new array<ref ModInfo>;
 		string version;
 		
 		GetDayZGame().GetModInfos( mods );

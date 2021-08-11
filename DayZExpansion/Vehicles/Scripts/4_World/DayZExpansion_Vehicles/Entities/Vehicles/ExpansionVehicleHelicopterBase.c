@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -658,16 +658,14 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 			if ( extra.Impulse > impulseRequired )
 			{
-				Print( dot );
-				
-				Print( impulseRequired );
-				
-				Print( other );
-	
-				Print( extra.Impulse );
-				
+				#ifdef EXPANSIONVEHICLELOG
+				Print( dot );				
+				Print( impulseRequired );				
+				Print( other );	
+				Print( extra.Impulse );				
 				Print(GetVelocity(this));
 				Print(dBodyGetAngularVelocity(this));
+				#endif
 				//Print( "Boom!" );
 				//! Maybe instead just tick damage down instead?
 				//! Should have a way to repair the helicopter then though
@@ -679,7 +677,9 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	// ------------------------------------------------------------
 	override void ExpansionOnExplodeServer( int damageType, string ammoType )
 	{
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer" );
+		#endif
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Start");
@@ -698,7 +698,9 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 0, false, attachment );
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Attachment Delete" );
+		#endif
 
 		PlayerBase player;
 		DayZPlayerCommandDeathCallback callback;
@@ -723,7 +725,9 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			}
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionHelicopterScript::ExpansionOnExplodeServer - Crew Unlink" );
+		#endif
 
 		IEntity child = GetChildren();
 		while ( child )
@@ -747,12 +751,16 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			}
 		}
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Player Unlink" );
+		#endif
 
 		ExpansionWreck wreck;
 		if ( Class.CastTo( wreck, GetGame().CreateObjectEx( GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH ) ) )
 		{
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Wreck Create" );
+			#endif
 
 			wreck.SetPosition( position + "0 2.5 0" );
 			wreck.SetOrientation( orientation );
@@ -767,21 +775,27 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			wreck.SetHealth( 0.0 );
 			dBodySetMass( wreck, m_BodyMass );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Mass Apply" );
+			#endif
 
 			vector inertiaM[3];
 			dBodyGetInvInertiaTensorWorld( this, inertiaM );
 			dBodySetInertiaTensorM( wreck, inertiaM );
 			dBodySetInertiaTensorV( wreck, dBodyGetLocalInertia( this ) );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Tensor Apply" );
+			#endif
 
 			SetVelocity( wreck, m_LinearVelocity );
 			dBodySetAngularVelocity( wreck, m_AngularVelocity );
 
 			dBodyApplyForce( wreck, (m_LastLinearVelocity - m_LinearVelocity) * m_BodyMass );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Self Delete" );
+			#endif
 
 			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 		
@@ -825,27 +839,37 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				}
 			}
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Foliage Chop" );
+			#endif
 
 			super.ExpansionOnExplodeServer( damageType, ammoType );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Super Call" );
+			#endif
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Self Delete" );
+			#endif
 		} else
 		{
 			super.ExpansionOnExplodeServer( damageType, ammoType );
 
+			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Super Call" );
+			#endif
 		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - End");
 		#endif	
 
+		#ifdef EXPANSIONVEHICLELOG
 		Print( "-ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer" );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -892,7 +916,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	}
 
 	// ------------------------------------------------------------
-	protected override void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected override void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 		super.OnNetworkSend( ctx );
 
@@ -906,7 +930,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	}
 
 	// ------------------------------------------------------------
-	protected override void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected override void OnNetworkRecieve( ParamsReadContext ctx )
 	{
 		super.OnNetworkRecieve( ctx );
 

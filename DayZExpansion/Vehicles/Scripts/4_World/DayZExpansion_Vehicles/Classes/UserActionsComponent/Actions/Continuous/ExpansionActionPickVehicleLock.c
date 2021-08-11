@@ -51,12 +51,20 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 		if ( carScript )
 		{
 			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent;
-			GetGame().AdminLog( "[Expansion] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " is attempting to pick lock on " + carScript.GetType() + " (" + pickLockChancePercent + "% chance) with " + action_data.m_MainItem.GetType() );
+
+			#ifdef EXPANSIONMODVEHICLE
+			if ( GetExpansionSettings().GetLog().VehicleLockPicking )
+				GetExpansionSettings().GetLog().PrintLog("[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " is attempting to pick lock on " + carScript.GetType() + " (" + pickLockChancePercent + "% chance) with " + action_data.m_MainItem.GetType() );
+			#endif
+
 			if ( Math.RandomFloat( 0, 100 ) < pickLockChancePercent )
 			{
 				carScript.UnlockCarWithoutKey();
 
-				GetGame().AdminLog( "[Expansion] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " picked lock on " + carScript.GetType() + " with " + action_data.m_MainItem.GetType() );
+				#ifdef EXPANSIONMODVEHICLE
+				if ( GetExpansionSettings().GetLog().VehicleLockPicking )
+					GetExpansionSettings().GetLog().PrintLog( "[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " picked lock on " + carScript.GetType() + " with " + action_data.m_MainItem.GetType() );
+				#endif
 			}
 			super.OnFinishProgressServer( action_data );
 		}

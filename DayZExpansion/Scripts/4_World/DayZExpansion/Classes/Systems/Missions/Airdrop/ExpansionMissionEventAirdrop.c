@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -69,13 +69,13 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		
 		if ( IsMissionHost() )
 		{
-			ref ExpansionAirdropLootContainer container;
+			ExpansionAirdropLootContainer container;
 
 			if ( Loot.Count() == 0 || Infected.Count() == 0 )
 			{
 				//! No mission-specific loot and/or infected defined, fall back to airdrop settings
 
-				ref array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
+				array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
 
 				//! Get all containers enabled for mission use that match our container name (or any if random)
 				string containerName = Container;
@@ -92,8 +92,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				if ( containers.Count() == 0 )
 				{
 					string errorMsg = "No mission-specific loot and/or infected defined for mission " + MissionName + " and airdrop settings do not contain compatible container (looked for " + Container + " with Usage set to 0 or 1)";
-					Print( "[ExpansionMissionEventAirdrop] ERROR: " + errorMsg );
-					GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR" ), new StringLocaliser( errorMsg ), "set:expansion_notification_iconset image:icon_airdrop", COLOR_EXPANSION_NOTIFICATION_MISSION, 14 );
+					ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "ERROR"), new StringLocaliser(errorMsg)).Error();
 					return;
 				}
 
@@ -115,7 +114,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				}
 				//! 2. Take mission weight into account
 				float weight = ( Weight + weightSum - maxWeight ) / containers.Count();
-				ref array< float > weights = new array< float >;
+				array< float > weights = new array< float >;
 				for ( i = 0; i < containers.Count(); i++ )
 				{
 					float cweight;
@@ -149,15 +148,17 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 					InfectedCount = container.InfectedCount;
 			}
 
+			#ifdef EXPANSION_MISSION_EVENT_DEBUG
 			EXPrint("[ExpansionMissionEventAirdrop] " + MissionName + " - selected container: " + Container);
+			#endif
 
 			if ( ItemCount <= 0 )
 				ItemCount = GetExpansionSettings().GetAirdrop().ItemCount;
 
 			container = new ExpansionAirdropLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount );
 
-			ref StringLocaliser warningProximityMsg;
-			ref StringLocaliser airdropCreatedMsg;
+			StringLocaliser warningProximityMsg;
+			StringLocaliser airdropCreatedMsg;
 
 			if ( ShowNotification )
 			{
@@ -173,6 +174,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				{
 					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
 				}
+
+				if ( GetExpansionSettings().GetLog().MissionAirdrop )
+					GetExpansionSettings().GetLog().PrintLog( "[MissionAirdrop] An airdrop is heading towards \"" + DropLocation.Name + "\" (pos=" + Vector( DropLocation.x, 0, DropLocation.z ) + " type="+ MissionName +") with a "+ Container );
 			}
 		}
 		
@@ -228,7 +232,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 				if ( GetExpansionSettings().GetNotification().ShowAirdropEnded && ShowNotification )
 				{
-					CreateNotification( new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name ), "set:expansion_notification_iconset image:icon_airdrop", 7 );
+					CreateNotification(new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name), EXPANSION_NOTIFICATION_ICON_AIRDROP, 7);
 				}
 			}
 		}
@@ -366,35 +370,54 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
 
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
 		{
-			return 13; //! amount of locations
+			world_name = world_name.Substring(0, world_name.Length() - 5);
 		}
-		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
+		
+		switch (world_name)
 		{
-			return 12;
-		}
-		//! Modded Maps
-		else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
-		{
-			return 13;
-		}
-		else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
-		{
-			return 5;
-		}
-		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
-		{
-			return 9;
-		}
-		else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
-		{
-			return 13;
+			case "chernarusplus":
+				return 13; //! amount of locations
+			break;
+			case "enoch":
+				return 12;
+			break;
+			case "deerisle":
+				return 13;
+			break;
+			case "namalsk":
+				return 9;
+			break;
+			case "chiemsee":
+				return 13;
+			break;
+			case "sandbox":
+				return 5;
+			break;
+			/*
+			case "rostow":
+				return 9; //! TODO
+			break;
+			case "esseker":
+				return 9; //! TODO
+			break;
+			case "valning":
+				return 9; //! TODO
+			break;
+			case "banov":
+				return 9; //! TODO
+			break;
+			case "takistanplus":
+				return 9; //! TODO
+			break;
+			case "expansiontest":
+				return 9; //! TODO
+			break;
+			*/
 		}
 
 		//! Unknown map
-
 		if ( m_LocationsCount == -1 )
 		{
 			//! Get possible locations from world config
@@ -454,33 +477,48 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
-
-		//! Vanilla Maps
-		if ( world_name.Contains( "chernarusplus" ) || world_name.Contains( "chernarusplusgloom" ) )
-		{
-			return ExpansionMissionAirdropChernarus( index );
-		}
-		else if ( world_name.Contains( "enoch" ) || world_name.Contains( "enochgloom" ) )
-		{
-			return ExpansionMissionAirdropLivonia( index );
-		//! Modded Maps
-		} else if ( world_name.Contains( "deerisle" ) || world_name.Contains( "deerislegloom" ) )
-		{
-			return ExpansionMissionAirdropDeerIsle( index );
-		} else if ( world_name.Contains( "sandbox" ) || world_name.Contains( "sandboxgloom" ) )
-		{
-			return ExpansionMissionAirdropSandbox( index );
-		}
-		else if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
-		{
-			return ExpansionMissionAirdropNamalsk( index );
-		}		
-		else if ( world_name.Contains( "chiemsee" ) || world_name.Contains( "chiemseegloom" ) )
-		{
-			return ExpansionMissionAirdropChiemsee( index );
-		}
-
 		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+		{
+			world_name = world_name.Substring(0, world_name.Length() - 5);
+		}
+				
+		switch (world_name)
+		{
+			case "chernarusplus":
+				return ExpansionMissionAirdropChernarus( index );
+			break;
+			case "enoch":
+				return ExpansionMissionAirdropLivonia( index );
+			break;
+			case "deerisle":
+				return ExpansionMissionAirdropDeerIsle( index );
+			break;
+			case "namalsk":
+				return ExpansionMissionAirdropNamalsk( index );
+			break;
+			case "chiemsee":
+				return ExpansionMissionAirdropChiemsee( index );
+			break;
+			case "rostow":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "esseker":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "valning":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "banov":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "sandbox":
+				return ExpansionMissionAirdropSandbox( index );
+			break;
+			case "expansiontest":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+		}
 		
 		//! Map unknown, loading default config with random locations from map
 		return ExpansionMissionAirdropRandom( index );
@@ -903,7 +941,9 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 
 		ExpansionLocatorArray loc = m_AvailableLocations[locIdx];
 
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXPrint("ExpansionMissionEventAirdrop::ExpansionMissionAirdropRandom - " + loc.name);
+		#endif
 
 		m_SelectedLocations.Insert( loc );
 

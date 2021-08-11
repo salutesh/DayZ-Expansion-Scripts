@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -26,7 +26,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 	// ------------------------------------------------------------
 	// ExpansionSpawnSelectionMarker SetLocation
 	// ------------------------------------------------------------
-	void SetLocation(ref ExpansionSpawnLocation location)
+	void SetLocation( ExpansionSpawnLocation location)
 	{		
 		m_Location = location;
 	}
@@ -69,7 +69,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 		switch ( w )
 		{
 		case m_EditButton:
-			ref ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
+			ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
 			if ( menu )
 				menu.SetSpawnPoint( m_Location, false );
 			break;

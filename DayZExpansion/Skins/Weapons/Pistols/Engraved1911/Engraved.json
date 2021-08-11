@@ -1,0 +1,12 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "camoGround",
+			"RVTexture": "dz\\weapons\\pistols\\1911\\data\\1911_engraved_co.paa",
+			"RVMaterial": "DayZExpansion\\Objects\\Weapons\\Firearms\\Vanilla\\Skins\\1911_engraved.rvmat"
+		}
+	],
+	"DamageZones": [],
+	"HornEXT": "",
+	"HornINT": ""
+}

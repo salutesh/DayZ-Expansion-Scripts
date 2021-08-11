@@ -3,12 +3,19 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+
+enum ExpansionVehicleDynamicState
+{
+	STATIC = 0,
+	TRANSITIONING,
+	DYNAMIC
+};
 
 #ifdef EXPANSION_USING_TRANSPORT_BASE
 class ExpansionVehicleBase extends Transport
@@ -45,8 +52,9 @@ class ExpansionVehicleBase extends ItemBase
 	protected bool m_IsPhysicsHost;
 	protected bool m_WasPhysicsHost;
 	protected bool m_IsForcingPhysics;
-	protected bool m_IsCreatingDynamic;
+	protected ExpansionVehicleDynamicState m_PhysicsState;
 	private float m_RenderFrameTime;
+	private float m_RenderFrameTimeSlice;
 	private int m_PhysicsCreationTimer;
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
@@ -92,6 +100,8 @@ class ExpansionVehicleBase extends ItemBase
 
 	protected ExpansionVehicleLockState m_VehicleLockedState;
 
+	//! After pairing a key, it's the ID of the master key.
+	//! This allows "changing locks" on vehicles so old paired keys no longer work
 	protected int m_PersistentIDA = 0;
 	protected int m_PersistentIDB = 0;
 	protected int m_PersistentIDC = 0;
@@ -242,13 +252,17 @@ class ExpansionVehicleBase extends ItemBase
 	static const int SELECTION_ID_TAIL_LIGHT_R 		= 7;
 	static const int SELECTION_ID_DASHBOARD_LIGHT 	= 8;
 
+	protected float m_ModelAnchorPointY = -1;
+	
+	protected bool m_SafeZone;
+
 	// ------------------------------------------------------------
 	void ExpansionVehicleBase()
 	{
 		Print( "[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION - ARMA 4" );
 		
 		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
-		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.PHYSICSMOVE );
+		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE );
 
 		m_Time = 0;
 		
@@ -399,7 +413,7 @@ class ExpansionVehicleBase extends ItemBase
 			string wheelPath = "CfgVehicles " + GetType() + " SimulationModule Axles " + axleName + " Wheels";
 			int wheelCount = GetGame().ConfigGetChildrenCount( wheelPath );
 
-			ref ExpansionVehicleAxle axle = NULL;
+			ExpansionVehicleAxle axle = NULL;
 			
 			if ( wheelCount == 1 )
 			{
@@ -439,24 +453,19 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		m_SoundVariables = new array< float >();
-		m_SoundControls = new array< string >();
+		for (i = 0; i < ExpansionVehicleSoundManager.s_SoundShaderParameters.Count(); i++)
+			m_SoundVariables.Insert(0);
 
 		m_SoundControllers = new array< ref ExpansionVehicleSound >();
 
 		if ( IsMissionClient() )
 		{
-			GetSoundControls( m_SoundControls );
-
-			for ( i = 0; i < m_SoundControls.Count(); i++ )
-				m_SoundVariables.Insert( 0 );
-
 			path = "CfgVehicles " + GetType() + " Sounds soundSetsFilter";
 			array< string > soundSetNames = new array< string >();
 			GetGame().ConfigGetTextArray( path, soundSetNames );
 			for ( i = 0; i < soundSetNames.Count(); i++ )
 			{
-				ref ExpansionVehicleSound soundController = new ExpansionVehicleSound( this, soundSetNames[i], m_SoundControls );
-				m_SoundControllers.Insert( soundController );
+				m_SoundControllers.Insert(new ExpansionVehicleSound(this, soundSetNames[i]));
 			}
 		}
 
@@ -485,9 +494,7 @@ class ExpansionVehicleBase extends ItemBase
 			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
 		}
 
-		GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
-
-		m_NetworkMode = ExpansionVehicleNetworkMode.SERVER_ONLY;
+		m_NetworkMode = ExpansionVehicleNetworkMode.CLIENT;
 
 		m_SyncState = new ExpansionVehicleSyncState( this );
 		m_SyncState.RegisterNetVariables();
@@ -527,6 +534,11 @@ class ExpansionVehicleBase extends ItemBase
 		// #endif
 
 		LoadConstantVariables();
+
+		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
+
+		if (IsMissionHost())
+			SetAllowDamage(CanBeDamaged());
 	}
 
 	// ------------------------------------------------------------
@@ -598,6 +610,8 @@ class ExpansionVehicleBase extends ItemBase
 		EXPrint("ExpansionVehicleBase::DeferredInit - Start");
 		#endif
 
+		super.DeferredInit();
+
 		m_BoundingRadius = ClippingInfo( m_BoundingBox );
 
 		m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
@@ -615,7 +629,8 @@ class ExpansionVehicleBase extends ItemBase
 			ExpansionNetSyncDebugObject netsync = ExpansionNetSyncDebugObject.Cast( GetGame().CreateObjectEx( "ExpansionNetSyncDebugObject", "0 0 0", ECE_PLACE_ON_SURFACE ) );
 			netsync.SetSyncObject(this);
 			m_DebugApple = netsync;
-		} else
+		}
+		else
 		{
 			m_DebugApple = EntityAI.Cast( GetGame().CreateObjectEx( "Orange", "0 0 0", ECE_TRACE|ECE_LOCAL ) );
 		}
@@ -632,9 +647,9 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 	}
 
-	bool IsCreatingDynamic()
+	ExpansionVehicleDynamicState GetPhysicsState()
 	{
-		return m_IsCreatingDynamic;
+		return m_PhysicsState;
 	}
 
 	private void CreateDynamic()
@@ -655,14 +670,16 @@ class ExpansionVehicleBase extends ItemBase
 		CreateDynamicPhysics( physLayer );
 
 		//!breaks vehicles at high speed
-		//EnableDynamicCCD( true );
 		SetDynamicPhysicsLifeTime( -1 );
 
 		dBodyDynamic( this, true );
 		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
 		dBodySetInteractionLayer( this, interactLayer );
 		dBodyEnableGravity( this, false );
-		dBodyEnableCCD( this, 0.0, m_BoundingRadius );
+
+		//EnableDynamicCCD( true );
+		dBodyEnableCCD( this, m_BoundingRadius, m_BoundingRadius * 0.45 );
+		
 		dBodySetSleepingTreshold( this, 0.0, 0.0 );
 		dBodySetDamping( this, 0, 0 );
 
@@ -878,8 +895,17 @@ class ExpansionVehicleBase extends ItemBase
 	}
 	
 	// ------------------------------------------------------------
-	override void EOnFrame( IEntity other, float timeSlice )
+	override void EOnPostFrame(IEntity other, int extra)
 	{
+		OnAnimationUpdate(m_RenderFrameTimeSlice);
+	}
+	
+	// ------------------------------------------------------------
+	override void EOnFrame(IEntity other, float timeSlice)
+	{
+		m_RenderFrameTimeSlice = timeSlice;
+		OnAnimationUpdate(timeSlice);
+
 		/*
 		if ( GetGame().IsClient() )
 		{
@@ -1176,23 +1202,20 @@ class ExpansionVehicleBase extends ItemBase
 			}
 		}
 
+		dBodyEnableGravity( this, false );
+		
 		OnPreSimulation( dt );
 
 		bool shouldCreateDynamic = (m_IsForcingPhysics || m_IsPhysicsHost);
 		bool shouldDestroyDynamic = (m_WasPhysicsHost != m_IsPhysicsHost) || (!m_IsPhysicsHost && !m_IsForcingPhysics);
 
-		if ( dBodyIsDynamic( this ) && !shouldDestroyDynamic )
-		{
-			m_IsCreatingDynamic = false;
-		}
-
 		if ( (m_WasPhysicsHost == m_IsPhysicsHost) && m_IsPhysicsHost && dBodyIsDynamic( this ) )
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.DYNAMIC;
+
 			stateF = 0; 
 			
 			float invDt = 1.0 / dt;
-			
-			dBodyEnableGravity( this, false );
 
 			#ifdef EXPANSION_DEBUG_UI_VEHICLE		
 			dbg_Vehicle.Set("Mass", "" + m_BodyMass + " | " + m_BodyCenterOfMass);
@@ -1227,18 +1250,30 @@ class ExpansionVehicleBase extends ItemBase
 			
 			if ( IsMissionClient() )
 				NetworkSend();
-		} else if ( shouldCreateDynamic && !dBodyIsDynamic( this ) )
+		}
+		//else if ( shouldCreateDynamic && !dBodyIsDynamic( this ) )
+		else if ((shouldCreateDynamic && !dBodyIsDynamic(this)) || (shouldDestroyDynamic && dBodyIsDynamic(this)))
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
+
 			stateF = 1;
 
 			CreateDynamic();
-		} else if ( shouldDestroyDynamic && dBodyIsDynamic( this ) )
+		}
+		/*
+		else if ( shouldDestroyDynamic && dBodyIsDynamic( this ) )
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
+
 			stateF = 2;
 			
 			SetDynamicPhysicsLifeTime( 0.001 );
-		} else if ( dBodyIsDynamic( this ) )
+		}
+		*/
+		else if ( dBodyIsDynamic( this ) )
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.DYNAMIC;
+
 			stateF = 3;
 			
 			if ( GetGame().IsClient() )
@@ -1255,15 +1290,18 @@ class ExpansionVehicleBase extends ItemBase
 
 			SetVelocity( this, m_SyncState.m_LinearVelocity );
 			dBodySetAngularVelocity( this, m_SyncState.m_AngularVelocity );
-		} else
+		}
+		else
 		{
+			m_PhysicsState = ExpansionVehicleDynamicState.STATIC;
+
 			stateF = 4;
 		}
 
 		UpdateMotionStates( dt );
 
 		if ( m_IsPhysicsHost )
-		{
+		{			
 			if ( !GetGame().IsClient() )
 			{
 				HandleSync_Server();
@@ -1276,6 +1314,7 @@ class ExpansionVehicleBase extends ItemBase
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
 		dbg_Vehicle.Set("StateF", stateF );
 		#endif
+
 		
 		if ( stateF != stateB )
 		{
@@ -1535,13 +1574,39 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	protected void OnNetworkSend( ref ParamsWriteContext ctx )
+	protected void OnNetworkSend(  ParamsWriteContext ctx )
 	{
 	}
 
 	// ------------------------------------------------------------
-	protected void OnNetworkRecieve( ref ParamsReadContext ctx )
+	protected void OnNetworkRecieve( ParamsReadContext ctx )
 	{
+	}
+
+	// ------------------------------------------------------------
+	// Called only server side
+	// ------------------------------------------------------------
+	void OnEnterSafeZone()
+	{
+		EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition());
+
+		m_SafeZone = true;
+
+		if ( GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+			SetAllowDamage(false);
+	}
+
+	// ------------------------------------------------------------
+	// Called only server side
+	// ------------------------------------------------------------
+	void OnLeftSafeZone()
+	{
+		EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition());
+
+		m_SafeZone = false;
+
+		if ( CanBeDamaged() )
+			SetAllowDamage(true);
 	}
 
 	// ------------------------------------------------------------
@@ -1557,6 +1622,8 @@ class ExpansionVehicleBase extends ItemBase
 		UpdateLights();
 
 		m_SyncState.OnVariablesSynchronized();
+
+		//if (m_PhysicsState == ExpansionVehicleDynamicState.DYNAMIC) OnAnimationUpdate(m_RenderFrameTimeSlice);
 	}
 
 	// ------------------------------------------------------------
@@ -1653,7 +1720,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ref ExpansionVehicleAxle GetAxle( int axle )
+	ExpansionVehicleAxle GetAxle( int axle )
 	{
 		return m_Axles[axle];
 	}
@@ -1806,7 +1873,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	// ------------------------------------------------------------
-	ref ExpansionVehicleController GetExpansionController()
+ ExpansionVehicleController GetExpansionController()
 	{
 		return m_Controller;
 	}
@@ -1829,7 +1896,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	void CreateLights( Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0 )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -1868,7 +1935,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	void CreateParticle( Object lod, string point, int type )
 	{
-		ref array<Selection> lodSelections = new array<Selection>();
+		array<Selection> lodSelections = new array<Selection>();
 
 		LOD lodLod = lod.GetLODByName( "memory" );
 		if ( lodLod )
@@ -1984,11 +2051,12 @@ class ExpansionVehicleBase extends ItemBase
 			ScriptRPC rpc = new ScriptRPC();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
-		} else
+		}
+		else
 		{
 			if (player == GetGame().GetPlayer())
 			{
-				m_IsCreatingDynamic = true;
+				m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
 			}
 		}
 	}
@@ -2012,7 +2080,6 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			if (human == GetGame().GetPlayer())
 			{
-				m_IsCreatingDynamic = true;
 			}
 		}
 
@@ -2249,7 +2316,7 @@ class ExpansionVehicleBase extends ItemBase
 			m_ActionsInitialize = false;
 			return;
 		}
-		ref array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
+		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
 		
 		if(!action_array)
 		{
@@ -2269,7 +2336,7 @@ class ExpansionVehicleBase extends ItemBase
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		ActionBase action = player.GetActionManager().GetAction(actionName);
 		typename ai = action.GetInputType();
-		ref array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
+		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
 		
 		if(action_array)
 		{
@@ -2876,16 +2943,6 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	void GetSoundControls( inout array< string > names )
-	{
-		names.Insert("rpm");
-		names.Insert("engineOn");
-		names.Insert("campos");
-		names.Insert("doors");
-		names.Insert("speed");
-		names.Insert("thrust");
-	}
-
 ////////////////////////////////////////////////////////////////////
 // EXPANSION CODE
 ////////////////////////////////////////////////////////////////////
@@ -2937,6 +2994,22 @@ class ExpansionVehicleBase extends ItemBase
 		
 		if ( !IsMissionOffline() )
 			m_ParentTow.GetNetworkID( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh );
+	}
+
+	EntityAI GetTowedEntity()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - Start");
+		#endif
+
+		if ( m_IsTowing )
+			return m_ChildTow;
+		
+		return NULL;
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("CarScript::GetTowedEntity - End");
+		#endif
 	}
 
 	void DestroyTow()
@@ -3147,19 +3220,17 @@ class ExpansionVehicleBase extends ItemBase
 	// Only call this after all keys have been confirmed to be removed
 	void ResetKeyPairing()
 	{
-		m_PersistentIDA = 0;
-		m_PersistentIDB = 0;
-		m_PersistentIDC = 0;
-		m_PersistentIDD = 0;
-
 		if ( IsMissionHost() )
 		{
-			GetPersistentID( m_PersistentIDA, m_PersistentIDB, m_PersistentIDC, m_PersistentIDD );
+			m_PersistentIDA = 0;
+			m_PersistentIDB = 0;
+			m_PersistentIDC = 0;
+			m_PersistentIDD = 0;
+
+			m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
+
+			SetSynchDirty();
 		}
-
-		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
-
-		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -4480,6 +4551,11 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			return false;
 		}
+		
+		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
+		{
+			return !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone;
+		}
 
 		return true;
 	}
@@ -4494,6 +4570,21 @@ class ExpansionVehicleBase extends ItemBase
 	float GetCameraDistance()
 	{
 		return 4.5;
+	}
+
+	float GetModelAnchorPointY()
+	{
+		if ( m_ModelAnchorPointY < 0 )
+		{
+			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
+			if ( GetGame().ConfigIsExisting( path ) )
+				m_ModelAnchorPointY = GetGame().ConfigGetFloat( path );
+			else
+				m_ModelAnchorPointY = 0.0;
+			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
+		}
+
+		return m_ModelAnchorPointY;
 	}
 	
 	// ------------------------------------------------------------
@@ -4546,20 +4637,10 @@ class ExpansionVehicleBase extends ItemBase
 	ExpansionVehicleController GetControllerInstance()
 	{
 		return NULL;
-	} 
+	}
 	
-	/**
-	 * @param damageResult 
-	 * @param source 
-	 * @param component 
-	 * @param dmgZone 
-	 * @param ammo 
-	 * @param modelPos 
-	 * @param speedCoef 
-	 */
-	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
+	bool IsInSafeZone()
 	{
-		if ( CanBeDamaged() )
-			super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
+		return m_SafeZone;
 	}
 };

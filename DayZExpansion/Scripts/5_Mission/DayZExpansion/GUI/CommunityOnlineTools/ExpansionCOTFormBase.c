@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -29,7 +29,11 @@ class ExpansionCOTFormBase : JMFormBase
 		delete m_Actions;
 	}
 
+	#ifdef COT_BUGFIX_REF
+	protected override bool SetModule(  JMRenderableModuleBase mdl )
+	#else
 	protected override bool SetModule( ref JMRenderableModuleBase mdl )
+	#endif
 	{
 		if ( Class.CastTo( m_ExpModule, mdl ) )
 		{
@@ -66,7 +70,7 @@ class ExpansionCOTFormBase : JMFormBase
 		UIActionManager.CreateButton( admin_actions, "Apply", this, "Click_Apply" );
 	}
 
-	private bool CreateToggle( Widget actions, ref ExpansionSettingSerializationBase setting_base )
+	private bool CreateToggle( Widget actions, ExpansionSettingSerializationBase setting_base )
 	{
 		ExpansionSettingSerializationToggle setting;
 		if ( !Class.CastTo( setting, setting_base ) )
@@ -82,7 +86,7 @@ class ExpansionCOTFormBase : JMFormBase
 		return true;
 	}
 
-	private bool CreateSlider( Widget actions, ref ExpansionSettingSerializationBase setting_base )
+	private bool CreateSlider( Widget actions, ExpansionSettingSerializationBase setting_base )
 	{
 		ExpansionSettingSerializationSlider setting;
 		if ( !Class.CastTo( setting, setting_base ) )
@@ -100,7 +104,7 @@ class ExpansionCOTFormBase : JMFormBase
 		return true;
 	}
 
-	private bool CreateDropdown( Widget actions, ref ExpansionSettingSerializationBase setting_base )
+	private bool CreateDropdown( Widget actions, ExpansionSettingSerializationBase setting_base )
 	{
 		ExpansionSettingSerializationEnum setting;
 		if ( !Class.CastTo( setting, setting_base ) )
@@ -117,7 +121,7 @@ class ExpansionCOTFormBase : JMFormBase
 		return true;
 	}
 
-	private bool CreateString( Widget actions, ref ExpansionSettingSerializationBase setting_base )
+	private bool CreateString( Widget actions, ExpansionSettingSerializationBase setting_base )
 	{
 		ExpansionSettingSerializationString setting;
 		if ( !Class.CastTo( setting, setting_base ) )
@@ -134,7 +138,7 @@ class ExpansionCOTFormBase : JMFormBase
 		return true;
 	}
 
-	void OnActionUpdated( UIEvent id, ref UIActionBase action )
+	void OnActionUpdated( UIEvent id, UIActionBase action )
 	{
 		ExpansionSettingSerializationBase setting_base = ExpansionCOTSerializationData.Cast( action.GetData() ).Get();
 
@@ -160,12 +164,12 @@ class ExpansionCOTFormBase : JMFormBase
 		}
 	}
 	
-	void Click_Refresh( UIEvent id, ref UIActionBase action )
+	void Click_Refresh( UIEvent id, UIActionBase action )
 	{
 		OnSettingsUpdated();
 	}
 	
-	void Click_Apply( UIEvent id, ref UIActionBase action )
+	void Click_Apply( UIEvent id, UIActionBase action )
 	{
 		m_ExpModule.Update();
 	}
@@ -201,7 +205,7 @@ class ExpansionCOTFormBase : JMFormBase
 		}
 	}
 
-	bool SetExpansionModule( ref ExpansionCOTModuleBase mdl )
+	bool SetExpansionModule(  ExpansionCOTModuleBase mdl )
 	{
 		return false;
 	}

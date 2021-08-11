@@ -1,0 +1,284 @@
+WrapSpacerWidgetClass ExpansionNotificationViewKillfeed {
+ visible 1
+ disabled 0
+ clipchildren 1
+ inheritalpha 0
+ ignorepointer 1
+ keepsafezone 1
+ position 0 0
+ size 0.25 0
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scaled 1
+ priority 1000
+ draggable 0
+ scriptclass "ExpansionNotificationViewKillfeedController"
+ style Empty
+ "no focus" 1
+ Padding 0
+ Margin 0
+ "Size To Content V" 1
+ {
+  GridSpacerWidgetClass Notification {
+   inheritalpha 0
+   ignorepointer 1
+   keepsafezone 0
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   draggable 0
+   style Empty
+   "no focus" 1
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 2
+   Rows 1
+   {
+    GridSpacerWidgetClass NotificationColorSpacer {
+     visible 1
+     disabled 1
+     inheritalpha 0
+     ignorepointer 1
+     keepsafezone 0
+     position 0 0
+     size 0.01 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     "no focus" 1
+     Padding 0
+     Margin 0
+     Columns 1
+     Rows 1
+     {
+      PanelWidgetClass NotificationColor {
+       visible 1
+       disabled 1
+       ignorepointer 1
+       color 1 1 1 0.4706
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scaled 1
+       fixaspect fixwidth
+       style rover_sim_colorable
+      }
+     }
+    }
+    GridSpacerWidgetClass NotificationElement {
+     inheritalpha 0
+     ignorepointer 1
+     keepsafezone 0
+     position 0 0
+     size 0.98 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     draggable 0
+     style Empty
+     "no focus" 0
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_valign center
+     Columns 1
+     Rows 4
+     {
+      GridSpacerWidgetClass TopSpacer {
+       inheritalpha 0
+       ignorepointer 1
+       position 0 0
+       size 1 0.08
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Empty
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       Columns 2
+       Rows 1
+       {
+        PanelWidgetClass NotificationIconPanel {
+         ignorepointer 1
+         size 34 34
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         "no focus" 0
+         {
+          ImageWidgetClass NotificationIcon {
+           visible 1
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           fixaspect fixwidth
+           scriptclass "ViewBinding"
+           image0 ""
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           {
+            ScriptParamsClass {
+             Binding_Name "NotificationIcon"
+            }
+           }
+          }
+         }
+        }
+        RichTextWidgetClass NotificationTitle {
+         visible 1
+         inheritalpha 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style DayZNormal
+         font "gui/fonts/etelkatextpro28"
+         "text offset" 2 0
+         "exact text" 1
+         "exact text size" 22
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+         wrap 1
+         "condense whitespace" 1
+         "strip newlines" 1
+         {
+          ScriptParamsClass {
+           Binding_Name "NotificationTitle"
+          }
+         }
+        }
+       }
+      }
+      GridSpacerWidgetClass BottomSpacer {
+       visible 1
+       ignorepointer 1
+       color 1 1 1 0.9961
+       position 0 0
+       size 1 0.08
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Empty
+       "no focus" 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       Columns 2
+       Rows 1
+       {
+        PanelWidgetClass NotificationTextSpacer {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 34 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 0
+        }
+        RichTextWidgetClass NotificationText {
+         visible 1
+         inheritalpha 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         text "Testme"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 2 0
+         "exact text" 1
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+         wrap 1
+         {
+          ScriptParamsClass {
+           Binding_Name "NotificationText"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass PreviewSpacer {
+   visible 0
+   clipchildren 1
+   ignorepointer 1
+   keepsafezone 0
+   color 1 1 1 0.9961
+   position 0 0
+   size 1 250
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   priority 1
+   style blank
+   "no focus" 1
+   {
+    ItemPreviewWidgetClass NotificationPreview {
+     visible 1
+     clipchildren 1
+     ignorepointer 0
+     keepsafezone 0
+     size 1 250
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 10
+     scriptclass "ViewBinding"
+     "force flip" 0
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "ObjectPreview"
+      }
+     }
+    }
+   }
+  }
+ }
+}

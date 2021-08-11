@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,11 +14,15 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 {
 	protected Widget m_Root;
 	protected Widget m_Feedback;
+	protected TextWidget m_FeedbackText;
 	protected Widget m_Twitter;
+	protected TextWidget m_TwitterText;
 	protected Widget m_Youtube;
+	protected TextWidget m_YoutubeText;
 	protected Widget m_Discord;
 	protected TextWidget m_DiscordText;
 	protected Widget m_Wiki;
+	protected TextWidget m_WikiText;
 	
 	protected RichTextWidget m_MainText1;
 	protected RichTextWidget m_MainText2;
@@ -28,8 +32,15 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	protected RichTextWidget m_SecText3;
 
 	protected static const string EXPANSION_DISCORD_URL = "https://discord.gg/WabhFUa";
+	protected static const string EXPANSION_FEEDBACK_URL = "https://exp.thurston.pw/";
+	protected static const string EXPANSION_TWITTER_HANDLE = "DayZExpansion";
+	protected static const string EXPANSION_YOUTUBE_URL = "https://www.youtube.com/channel/UCZNgSvIEWfru963tQZOAVJg";
+	protected static const string EXPANSION_WIKI_URL = "https://github.com/salutesh/DayZ-Expansion-Scripts/wiki";
 	protected static string m_DiscordURL = EXPANSION_DISCORD_URL;
-	protected static string m_FeedbackURL = EXPANSION_DISCORD_URL;
+	protected static string m_FeedbackURL = EXPANSION_FEEDBACK_URL;
+	protected static string m_TwitterHandle = EXPANSION_TWITTER_HANDLE;
+	protected static string m_YoutubeURL = EXPANSION_YOUTUBE_URL;
+	protected static string m_WikiURL = EXPANSION_WIKI_URL;
 	
 	// ------------------------------------------------------------
 	// ExpansionNewsfeed Contructor
@@ -39,11 +50,15 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_Root				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_newsfeed.layout", parent);
 		
 		m_Feedback			= Widget.Cast(m_Root.FindAnyWidget("feedback_tracker"));
+		m_FeedbackText		= TextWidget.Cast(m_Feedback.FindWidget("feedback_tracker_text" ));
 		m_Twitter			= Widget.Cast(m_Root.FindAnyWidget("twitter"));
+		m_TwitterText		= TextWidget.Cast(m_Twitter.FindWidget("twitter_text" ));
 		m_Youtube			= Widget.Cast(m_Root.FindAnyWidget("youtube"));
+		m_YoutubeText		= TextWidget.Cast(m_Youtube.FindWidget("youtube_text" ));
 		m_Discord			= Widget.Cast(m_Root.FindAnyWidget("discord"));
 		m_DiscordText		= TextWidget.Cast(m_Discord.FindWidget("discord_text" ));
 		m_Wiki				= Widget.Cast(m_Root.FindAnyWidget("wiki"));
+		m_WikiText			= TextWidget.Cast(m_Wiki.FindAnyWidget("wiki_text"));
 		
 		m_MainText1			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT1"));
 		m_MainText2			= RichTextWidget.Cast(m_Root.FindAnyWidget("InfoT2"));
@@ -75,10 +90,10 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_SecText1.Update();
 		
 		//! Section 2
-		m_MainText2.SetText("Help improve DayZ Expansion!");
+		m_MainText2.SetText("Help to improve the DayZ Expansion Mod!");
 		m_MainText2.Update();
 		
-		m_SecText2.SetText("Please consider using the DayZ Expansion Mod Discord to report bugs and issues with the mod.");
+		m_SecText2.SetText("Please consider using the DayZ Expansion Mod Discord to report bugs and issues with the mod or to provide feedback and suggestions to our team.");
 		m_SecText2.Update();
 		
 		//! Section 3
@@ -92,27 +107,49 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 
 		m_Youtube.Show(false);
 
-		//! Hack to use Discord URL from book if available.
+		//! Use social media settings.
 		//! This will work if we are currently connected to the server or have been connected previously without closing the game.
-
-		ExpansionServerInfos serverInfo = GetExpansionSettings().GetBook().ServerInfo;
-
-		if ( serverInfo )
+		if ( GetExpansionSettings().GetSocialMedia() )
 		{
-			foreach ( ExpansionServerInfoButtonData button : serverInfo.ServerButtons )
+			m_DiscordURL = GetExpansionSettings().GetSocialMedia().Discord;
+			if ( m_DiscordURL != EXPANSION_DISCORD_URL )
 			{
-				if ( button.IconPath == "set:expansion_iconset image:icon_discord" || button.Tooltip == "Discord" )
-				{
-					m_DiscordURL = button.URL;
-					break;
-				}
+				m_DiscordText.SetText("Server Discord");
+				m_DiscordText.Update();
+				m_Discord.Show(m_DiscordURL != "");
 			}
-		}
 
-		if ( m_DiscordURL != EXPANSION_DISCORD_URL )
-		{
-			m_DiscordText.SetText("Server Discord");
-			m_DiscordText.Update();
+			m_FeedbackURL = GetExpansionSettings().GetSocialMedia().Forums;
+			if ( m_FeedbackURL != EXPANSION_FEEDBACK_URL )
+			{
+				m_FeedbackText.SetText("Server Forums");
+				m_FeedbackText.Update();
+				m_Feedback.Show(m_FeedbackURL != "");
+			}
+
+			m_TwitterHandle = GetExpansionSettings().GetSocialMedia().Twitter;
+			if ( m_TwitterHandle != EXPANSION_TWITTER_HANDLE )
+			{
+				m_TwitterText.SetText("@" + m_TwitterHandle);
+				m_TwitterText.Update();
+				m_Twitter.Show(m_TwitterHandle != "");
+			}
+
+			m_YoutubeURL = GetExpansionSettings().GetSocialMedia().YouTube;
+			if ( m_YoutubeURL != EXPANSION_YOUTUBE_URL )
+			{
+				m_YoutubeText.SetText("YouTube");
+				m_YoutubeText.Update();
+				m_Youtube.Show(m_YoutubeURL != "");
+			}
+
+			m_WikiURL = GetExpansionSettings().GetSocialMedia().Homepage;
+			if ( m_WikiURL != EXPANSION_WIKI_URL )
+			{
+				m_WikiText.SetText("Homepage");
+				m_WikiText.Update();
+				m_Wiki.Show(m_WikiURL != "");
+			}
 		}
 	}
 	
@@ -137,7 +174,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------		
 	void OpenTwitter()
 	{
-		GetGame().OpenURL("https://twitter.com/dayzexpansion");
+		GetGame().OpenURL("https://twitter.com/" + m_TwitterHandle);
 	}
 	
 	// ------------------------------------------------------------
@@ -145,7 +182,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenYoutube()
 	{
-		GetGame().OpenURL("https://www.youtube.com/channel/UCZNgSvIEWfru963tQZOAVJg");
+		GetGame().OpenURL(m_YoutubeURL);
 	}
 	
 	// ------------------------------------------------------------
@@ -153,7 +190,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------	
 	void OpenWiki()
 	{
-		GetGame().OpenURL("https://github.com/salutesh/DayZ-Expansion-Scripts/wiki");
+		GetGame().OpenURL(m_WikiURL);
 	}
 	
 	// ------------------------------------------------------------

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,48 +13,59 @@
 class ExpansionIngameHud extends Hud
 {
 	//! HUD UI META
-	protected Widget										m_WgtRoot;
+	protected Widget														m_WgtRoot;
 	protected ref ExpansionIngameHudEventHandler 			m_ExpansionEventHandler;
 	
 	//! CONDITIONS
-	protected bool											m_ExpansionHudState;
-	protected bool 											m_ExpansionHudGPSState;
-	protected bool											m_ExpansionHudGPSMapState;
-	protected bool											m_ExpansionHudGPSMapStatsState;
-	protected bool											m_ExpansionHudNVState;
-	protected bool											m_ExpansionEarplugState;
-	protected bool 											m_ExpansionGPSSetting;
-	protected bool											m_ExpansionGPSPosSetting;
-	protected bool											m_ExpansionNVSetting;
-	protected bool											m_ClientClockShow;
+	protected bool															m_ExpansionHudState;
+	protected bool 															m_ExpansionHudGPSState;
+	protected bool															m_ExpansionHudGPSMapState;
+	protected bool															m_ExpansionHudGPSMapStatsState;
+	protected bool															m_ExpansionHudNVState;
+	protected bool															m_ExpansionEarplugState;
+	protected bool 															m_ExpansionGPSSetting;
+	protected int																m_ExpansionGPSPosSetting;
+	protected bool															m_ExpansionNVSetting;
+	protected bool															m_ExpansionPartyMemberSetting;
+	protected bool															m_ExpansionCompassSetting;
+	protected bool															m_ExpansionHudCompassState;
 	
 	//! GPS
-	protected Widget										m_GPSPanel;
-	protected Widget										m_MapStatsPanel;
-	protected Widget 										m_MapPosPanel;
-	protected TextWidget 									m_PlayerPosVal;
-	protected Widget 										m_PlayerPosPanel;
-	protected TextWidget									m_PlayerALTVal;
-	protected Widget 										m_PlayerALTPanel;
-	protected TextWidget 									m_PlayerDirVal;
-	protected Widget 										m_PlayerDirPanel;
+	protected Widget														m_GPSPanel;
+	protected Widget														m_MapStatsPanel;
+	protected Widget 														m_MapPosPanel;
+	protected TextWidget 													m_PlayerPosVal;
+	protected Widget 														m_PlayerPosPanel;
+	protected TextWidget													m_PlayerALTVal;
+	protected Widget 														m_PlayerALTPanel;
+	protected TextWidget 													m_PlayerDirVal;
+	protected Widget 														m_PlayerDirPanel;
 	
-	protected Widget										m_GPSMapPanel;
-	protected Widget										m_MapFrame;
-	protected MapWidget										m_MapWidget;
-	protected ref ExpansionMapMarkerPlayerArrow 			m_PlayerArrowMarker;
+	protected Widget														m_GPSMapPanel;
+	protected Widget														m_MapFrame;
+	protected MapWidget													m_MapWidget;
+	protected ref ExpansionMapMarkerPlayerArrow 				m_PlayerArrowMarker;
 	
-	protected float											m_GPSMapScale = 0.1;
+	protected float															m_GPSMapScale = 0.1;
 	
 	//! NIGHTVISION
-	protected Widget 										m_NVPanel;
-	protected ImageWidget 									m_NVOverlayImage;
-	protected ImageWidget 									m_NVBatteryIcon;
-	protected TextWidget									m_NVBatteryVal;
-	protected int											m_NVBatteryState;
+	protected Widget 														m_NVPanel;
+	protected ImageWidget 												m_NVOverlayImage;
+	protected ImageWidget 												m_NVBatteryIcon;
+	protected TextWidget													m_NVBatteryVal;
+	protected int																m_NVBatteryState;
 	//! EARPLUG
-	protected ImageWidget 									m_EarPlugIcon;
-
+	protected ImageWidget 												m_EarPlugIcon;
+	
+	//! COMPASS HUD
+	protected Widget														m_CompassPanel;
+	protected ImageWidget												m_CompassImage;
+	protected bool															m_AddedCompassSettings;
+	
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+	ref ExpansionPartyHud													m_PartyHUD;
+	#endif
+	
 	// ------------------------------------------------------------
 	// ExpansionIngameHud Constructor
 	// ------------------------------------------------------------
@@ -65,8 +76,10 @@ class ExpansionIngameHud extends Hud
 		#endif
 		
 		m_ExpansionEarplugState = false;
-			
-		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshExpansionHudVisibility );
+		m_AddedCompassSettings = false;
+		m_ExpansionHudCompassState = false;
+				
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::ExpansionIngameHud End");
@@ -84,8 +97,16 @@ class ExpansionIngameHud extends Hud
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshExpansionHudVisibility );
 
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+		ExpansionPartyModule partyModule;
+		if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+		{
+			partyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
+		}
+		#endif
+		
 		delete m_WgtRoot;
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::~ExpansionIngameHud End");
 		#endif
@@ -133,10 +154,10 @@ class ExpansionIngameHud extends Hud
 			m_NVOverlayImage 						= ImageWidget.Cast( m_NVPanel.FindAnyWidget("NVOverlay") );
 			m_NVBatteryIcon							= ImageWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryIcon") );
 			
-			m_NVBatteryIcon.LoadImageFile( 0, "DayZExpansion/GUI/icons/hud/battery_empty_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile( 1, "DayZExpansion/GUI/icons/hud/battery_low_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile( 2, "DayZExpansion/GUI/icons/hud/battery_med_64x64.edds");
-			m_NVBatteryIcon.LoadImageFile( 3, "DayZExpansion/GUI/icons/hud/battery_high_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 0, "DayZExpansion/Core/GUI/icons/hud/battery_empty_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 1, "DayZExpansion/Core/GUI/icons/hud/battery_low_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 2, "DayZExpansion/Core/GUI/icons/hud/battery_med_64x64.edds");
+			m_NVBatteryIcon.LoadImageFile( 3, "DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds");
 			
 			m_NVBatteryVal							= TextWidget.Cast( m_NVPanel.FindAnyWidget("NVBatteryVal") );
 		}
@@ -144,11 +165,28 @@ class ExpansionIngameHud extends Hud
 		//! EARPLUGS		
 		m_EarPlugIcon 							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("EarPlug_Icon") );
 		
+		//! COMPASS HUD
+		m_CompassPanel							= Widget.Cast( m_WgtRoot.FindAnyWidget("CompassHUD") );
+		m_CompassImage							= ImageWidget.Cast( m_WgtRoot.FindAnyWidget("CompassImage") );
+		
 		//! SET UI EVENT HANDLER
 		m_ExpansionEventHandler = new ExpansionIngameHudEventHandler( this );
 		m_WgtRoot.SetHandler( m_ExpansionEventHandler );
 		
 		m_ExpansionHudState = g_Game.GetProfileOption( EDayZProfilesOptions.HUD );
+		
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		{
+			m_PartyHUD = new ExpansionPartyHud();
+			
+			ExpansionPartyModule partyModule;
+			if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+			{
+				partyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
+			}
+		}
+		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::Init End");
@@ -214,7 +252,16 @@ class ExpansionIngameHud extends Hud
 			if ( m_PlayerArrowMarker )
 				m_PlayerArrowMarker.Update( timeslice );
 		}
-
+		
+		if ( !GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu() )
+		{
+			if ( m_ExpansionEventHandler.WasGPSOpened() )
+				m_ExpansionEventHandler.SetWasGPSOpened(false);
+			
+			if ( m_ExpansionEventHandler.WasCompassOpened() )
+				m_ExpansionEventHandler.SetWasCompassOpened(false);
+		}
+	
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::Update End");
 		#endif
@@ -231,7 +278,9 @@ class ExpansionIngameHud extends Hud
 		
 		m_ExpansionGPSSetting = GetExpansionSettings().GetMap().EnableHUDGPS;
 		m_ExpansionGPSPosSetting = GetExpansionSettings().GetMap().ShowPlayerPosition;
-		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay; 
+		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay;
+		m_ExpansionPartyMemberSetting = GetExpansionSettings().GetParty().ShowPartyMemberHUD;
+		m_ExpansionCompassSetting = GetExpansionSettings().GetMap().EnableHUDCompass;
 		
 		if ( m_GPSPanel )
 		{
@@ -257,7 +306,14 @@ class ExpansionIngameHud extends Hud
 		}
 		
 		if ( m_EarPlugIcon )
-			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );	
+			m_EarPlugIcon.Show( m_ExpansionHudState && m_ExpansionEarplugState );
+		
+		if ( m_CompassPanel )
+		{
+			m_CompassPanel.Show( m_ExpansionHudState && m_ExpansionCompassSetting && m_ExpansionHudCompassState );
+			if ( m_CompassPanel.IsVisible() )
+				UpdateCompass();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionIngameHud::RefreshExpansionHudVisibility End");
@@ -384,20 +440,12 @@ class ExpansionIngameHud extends Hud
 					shift_y = 485.5;
 				}
 			}
-			else if ( worldName.Contains("enoch") )	// LIVONIA
-			{
-				if( scale >= 0.1 )
-				{
-					shift_x = 545.0;
-					shift_y = 412.5;
-				}
-			}
-			else if ( worldName.Contains("namalsk") )	// NAMALSK
+			else if ( worldName.Contains("enoch") || worldName.Contains("namalsk") || worldName.Contains("esseker") )
 			{
 				// 12800 / 12800
 				if( scale >= 0.1 )
 				{
-					shift_x = 535.0;
+					shift_x = 545.0;
 					shift_y = 412.5;
 				}
 			}
@@ -419,6 +467,15 @@ class ExpansionIngameHud extends Hud
 					shift_y = 327.5;
 				}
 			}
+			else if ( worldName.Contains("takistan") )	// TAKISTAN
+			{
+				// 12800 / 12800
+				if( scale >= 0.1 )
+				{
+					shift_x = 535.0;
+					shift_y = 412.0;
+				}
+			}
 			
 			camera_x = camera_x + (shift_x * multiplier);
 			camera_y = camera_y - (shift_y * multiplier);
@@ -431,6 +488,56 @@ class ExpansionIngameHud extends Hud
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::UpdateGPSMap End");
 		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateCompass
+	// ------------------------------------------------------------
+	void UpdateCompass()
+	{
+		if (!m_AddedCompassSettings)
+		{
+			int compass_color = GetExpansionSettings().GetMap().CompassColor;
+			m_CompassImage.SetColor(compass_color);
+			
+			m_AddedCompassSettings = true;
+		}
+		
+		vector player_dir = GetGame().GetCurrentCameraDirection();
+		float player_angle = player_dir.VectorToAngles().GetRelAngles()[0];
+		float image_pos;
+		
+		if ((player_angle <= 180) && (player_angle >= 0))
+		{
+			image_pos = (player_angle/-180) + 1;
+		}
+		else
+		{
+			image_pos = (player_angle/-180) - 1;
+		}
+
+		//! Fix slight inaccuracy in compass HUD and sudden "jump" when looking north past 360 degrees
+		image_pos *= 0.995;
+		
+		m_CompassImage.SetPos(image_pos, 0, true);
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ShowCompass
+	// ------------------------------------------------------------
+	void ShowCompass( bool show )
+	{
+		m_ExpansionHudCompassState = show;
+		
+		RefreshExpansionHudVisibility();
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetCompassState
+	// ------------------------------------------------------------
+	bool GetCompassState()
+	{
+		return m_ExpansionHudCompassState;
 	}
 	
 	// ------------------------------------------------------------
@@ -650,7 +757,7 @@ class ExpansionIngameHud extends Hud
 	// Expansion SetGPSMapScale
 	// ------------------------------------------------------------
 	void SetGPSMapScale(float scale)
-	{	
+	{
 		m_GPSMapScale = scale;
 		UpdateGPSMap();
 		
@@ -658,4 +765,60 @@ class ExpansionIngameHud extends Hud
 		EXLogPrint("ExpansionIngameHud::SetGPSMapScale:: m_GPSMapScale set to: " + m_GPSMapScale.ToString());
 		#endif
 	}
+	
+	// ------------------------------------------------------------
+	// Expansion GetExpansionHudEventHandler
+	// ------------------------------------------------------------
+	ExpansionIngameHudEventHandler GetExpansionHudEventHandler()
+	{
+		return m_ExpansionEventHandler;
+	}
+	
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE	
+	void UpdatePartyHUD()
+	{		
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		if (partyModule)
+		{
+			ref ExpansionPartyData partyData = partyModule.GetParty();
+			
+			if (partyData && partyData.GetPlayers().Count() > 0)
+			{
+				array<ref ExpansionPartyPlayerData> members = partyData.GetPlayers();
+				for (int i = 0; i < members.Count(); ++i)
+				{
+					ExpansionPartyPlayerData memberData = members[i];
+					ExpansionPartyPlayerData playerData = partyData.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+					
+					//! Dont add a entry for the player itself, only his party members
+					if (memberData.GetID() == playerData.GetID())
+						continue;
+					
+					ExpansionPartyHudMember entry;
+					bool hasEntry = false;
+					if (m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Count() > 0)
+					{
+						for (int e = 0; e < m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Count(); ++e)
+						{
+							ExpansionPartyHudMember existingEntry = m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements[e];
+							
+							if (existingEntry.m_PlayerID == memberData.GetID())
+								hasEntry = true;
+							
+							//! If the entry is related to a old member that is no longer the party then remove the entry
+							if (members.Find(existingEntry.m_Member) == -1)
+								m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Remove(e);
+						}
+					}
+					//! If the party member has a entry already then skip the entry creation
+					if (!hasEntry)
+					{
+						entry = new ExpansionPartyHudMember(memberData.GetID(), memberData.GetName(), memberData);
+						m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Insert(entry);
+					}
+				}
+			}
+		}
+	}
+	#endif
 }

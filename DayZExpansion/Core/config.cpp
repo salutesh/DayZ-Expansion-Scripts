@@ -32,13 +32,13 @@ class CfgMods
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{
-			class widgetStyles
-			{
-				files[] = {};
-			};
 			class imageSets
 			{
-				files[] = {};
+				files[] = {"DayZExpansion/Core/GUI/imagesets/expansion_widgets.imageset","DayZExpansion/Core/GUI/imagesets/arrows.imageset","DayZExpansion/Core/GUI/imagesets/expansion_gui.imageset","DayZExpansion/Core/GUI/imagesets/expansion_iconset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_notification_iconset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_inventory.imageset"};
+			};
+			class widgetStyles
+			{
+				files[] = {"DayZExpansion/Core/GUI/looknfeel/expansion_widgets.styles"};
 			};
 			class engineScriptModule
 			{

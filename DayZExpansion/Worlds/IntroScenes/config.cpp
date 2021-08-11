@@ -77,7 +77,7 @@ class cfgExpansionCharacterScenes
 			rain = 0.2;
 			fog = 1.0;
 			windspeed = 0.0;
-			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Elektrozavodsk","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/MainMenu_Elektro","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/ElektrozavodskNoCollision"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/main_menu_scenes/MainMenu_Elektro","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Elektrozavodsk","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/ElektrozavodskNoCollision"};
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
@@ -94,10 +94,27 @@ class cfgExpansionCharacterScenes
 			rain = 0.0;
 			fog = 1.0;
 			windspeed = 0.0;
-			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/MainMenu_Campfire","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement2","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest2"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/main_menu_scenes/MainMenu_Campfire","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Enhancement2","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest1","DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/Chernogorsk_Forest2"};
 			CustomPose = 1051;
 			HandItem = "Expansion_Guitar";
 			CanRotate = 0;
+		};
+		class expansion_market_update
+		{
+			CameraPosition[] = {3709.27,403.95,5969.98};
+			CameraOrientation[] = {8.0,0.0,0.0};
+			PlayerPosition[] = {3709.31,402.012,5972.07};
+			PlayerOrientation[] = {33.0,0,0};
+			fov = 0.8;
+			date[] = {2021,7,4,12,0};
+			overcast = 0.0;
+			rain = 0.0;
+			fog = 0.0;
+			windspeed = 0.1;
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/main_menu_scenes/TraderUpdateSzene"};
+			CustomPose = -1;
+			HandItem = "ExpansionGoldnugget";
+			CanRotate = 1;
 		};
 	};
 	class Namalsk
@@ -114,7 +131,7 @@ class cfgExpansionCharacterScenes
 			rain = 0.34;
 			fog = 0.0;
 			windspeed = 0.0;
-			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/MainMenu_Namalsk_Bed"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/main_menu_scenes/MainMenu_Namalsk_Bed"};
 			CustomPose = 1052;
 			HandItem = "";
 			CanRotate = 0;
@@ -132,6 +149,51 @@ class cfgExpansionCharacterScenes
 			fog = 0.19;
 			windspeed = 0.0;
 			MappingFiles[] = {};
+			CustomPose = -1;
+			HandItem = "";
+			CanRotate = 1;
+		};
+		class namalsk_thething
+		{
+			CameraOrientation[] = {89.7476,4.26434,0};
+			PlayerPosition[] = {3759.74,153.141,8243.85};
+			PlayerOrientation[] = {-75.0911,0,0};
+			fov = 1;
+			DOFDistance = 0;
+			DOFBlur = 0;
+			Blur = 0;
+			Vignette = 0;
+			Sharpness = 0;
+			NearPlane = 0.07;
+			date[] = {2011,12,5,15,44};
+			overcast = 0.941;
+			rain = 1;
+			fog = 0.755;
+			windspeed = 0.0339959;
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/main_menu_scenes/MainMenu_Namalsk_TheThing"};
+			CustomPose = -1;
+			HandItem = "";
+			CanRotate = 1;
+		};
+		class namalsk_mountainview
+		{
+			CameraPosition[] = {3422.25,151.985,7731.81};
+			CameraOrientation[] = {143.552,12.2601,0};
+			PlayerPosition[] = {3425.31,151.438,7728.94};
+			PlayerOrientation[] = {-39.4918,0,0};
+			fov = 1;
+			DOFDistance = 0;
+			DOFBlur = 0;
+			Blur = 0;
+			Vignette = 0;
+			Sharpness = 0;
+			NearPlane = 0.07;
+			date[] = {2011,11,12,10,22};
+			overcast = 0.48;
+			rain = 0.141;
+			fog = 0;
+			windspeed = 0.00828907;
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/main_menu_scenes/MainMenu_Namalsk_MountainView"};
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;

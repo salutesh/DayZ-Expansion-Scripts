@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2021 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -121,7 +121,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		//Sync invites
-		SyncPlayersInvites( player );
+		SyncPlayerInvitesServer( player );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - End");
@@ -166,7 +166,11 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
+	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	#else
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	#endif
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnRPC - Start");
@@ -232,10 +236,10 @@ class ExpansionTerritoryModule: JMModuleBase
 			#endif
 
 			break;
-		case ExpansionTerritoryModuleRPC.SyncPlayersInvites:
-			RPC_SyncPlayersInvites( ctx, sender, target );
+		case ExpansionTerritoryModuleRPC.SyncPlayerInvites:
+			RPC_SyncPlayerInvitesClient( ctx, sender, target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SyncPlayersInvites");
+			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SyncPlayerInvitesClient");
 			#endif
 
 			break;
@@ -339,7 +343,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion Send_UpdateClient
 	// Called on server
 	// ------------------------------------------------------------
-	private void Send_UpdateClient( int territoryID, ref ExpansionTerritory territory, notnull PlayerIdentity sendTo )
+	private void Send_UpdateClient( int territoryID, ExpansionTerritory territory, notnull PlayerIdentity sendTo )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Send_UpdateClient 1 territory : " + territory);
@@ -355,7 +359,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion RPC_UpdateClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_UpdateClient( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_UpdateClient( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		if ( !IsMissionClient() )
 			return;
@@ -375,7 +379,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion Exec_UpdateClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void Exec_UpdateClient( int territoryID, ref ExpansionTerritory territory )
+	private void Exec_UpdateClient( int territoryID, ExpansionTerritory territory )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_UpdateClient 1 : " + territoryID + " " + territory + " " + m_Territories.Count() );
@@ -446,7 +450,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_CreateTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	void RPC_CreateTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_CreateTerritory( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_CreateTerritory - Start");
@@ -484,13 +488,13 @@ class ExpansionTerritoryModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID( sender.GetId() );
 		if ( !player )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);
 			return;
 		}
 		
 		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString())).Error(sender);
 			return;
 		}
 			
@@ -500,7 +504,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			ExpansionTerritory territory = m_TerritoryFlags.GetElement(i).GetTerritory();
 			if ( territory.GetTerritoryName() == territoryName )
 			{
-				GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_NAMEEXISTS", territoryName)).Error(sender);
 				return;
 			}
 		}
@@ -537,8 +541,11 @@ class ExpansionTerritoryModule: JMModuleBase
 		UpdateClient( m_NextTerritoryID );
 		
 		m_NextTerritoryID++;
+
+		if ( GetExpansionSettings().GetLog().Territory )
+			GetExpansionSettings().GetLog().PrintLog( "[Territory] Player \"" + sender.GetName() + "\" (id=" + senderID + ")" + " created territory " + territoryName + " at " + position );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_CREATED", territoryName ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_CREATED", territoryName), EXPANSION_NOTIFICATION_ICON_TERRITORY).Success(sender);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_CreateTerritory - End");
@@ -574,7 +581,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_ChangeFlagTexture
 	// Called on server
 	// ------------------------------------------------------------
-	void RPC_ChangeFlagTexture( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	void RPC_ChangeFlagTexture( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - Start");
@@ -643,7 +650,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DeleteTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	protected void RPC_DeleteTerritoryPlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	protected void RPC_DeleteTerritoryPlayer( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
@@ -691,7 +698,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			int territoryID = currentTerritory.GetTerritoryID();
 			
-			ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+			array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 			for ( int i = 0; i < members.Count(); ++i )
 			{
 				if (!members[i])
@@ -704,7 +711,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
 			}
 			
-			ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+			array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
 			for ( int j = 0; j < invites.Count(); ++j )
 			{
 				if (!invites[j])
@@ -714,8 +721,11 @@ class ExpansionTerritoryModule: JMModuleBase
 				if (!currPlayerInvite)
 					continue;
 				
-				SyncPlayersInvites(currPlayerInvite);
+				SyncPlayerInvitesServer(currPlayerInvite);
 			}
+		
+			if ( GetExpansionSettings().GetLog().Territory )
+				GetExpansionSettings().GetLog().PrintLog( "[Territory] Player \"" + sender.GetName() + "\" (id=" + playerSteamID + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
 			
 			//Don't forget to set it as null before to delete, to not do a infinte loop
 			flag.SetTerritory(null);
@@ -725,11 +735,11 @@ class ExpansionTerritoryModule: JMModuleBase
 			
 			m_TerritoryFlags.Remove( territoryID );
 			
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		} 
 		else
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETE_NORIGHTS", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_DELETE_NORIGHTS", currentTerritory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -763,7 +773,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DeleteTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	protected void RPC_DeleteTerritoryAdmin( ref ParamsReadContext ctx, PlayerIdentity senderRPC, ref Object target )
+	protected void RPC_DeleteTerritoryAdmin( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
@@ -805,7 +815,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		if ( !currentTerritory )
 			return;
 		
-		ref array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
+		array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
 		for ( int i = 0; i < members.Count(); ++i )
 		{
 			if (!members[i])
@@ -818,7 +828,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			Send_UpdateClient( territoryID, null, currPlayer.GetIdentity() );
 		}
 		
-		ref array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
+		array< ref ExpansionTerritoryInvite > invites = currentTerritory.GetTerritoryInvites();
 		for ( int j = 0; j < invites.Count(); ++j )
 		{
 			if (!invites[j])
@@ -828,8 +838,11 @@ class ExpansionTerritoryModule: JMModuleBase
 			if (!currPlayerInvite)
 				continue;
 			
-			SyncPlayersInvites(currPlayerInvite);
+			SyncPlayerInvitesServer(currPlayerInvite);
 		}
+		
+		if ( sender && GetExpansionSettings().GetLog().Territory )
+			GetExpansionSettings().GetLog().PrintLog( "[Territory] Admin \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
 		
 		//Don't forget to set it as null before to delete, to not do a infinte loop
 		flag.SetTerritory( null );
@@ -839,7 +852,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		m_TerritoryFlags.Remove( territoryID );
 		
 		if (sender)
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryAdmin - End");
@@ -847,10 +860,10 @@ class ExpansionTerritoryModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionPartyModule SyncPlayersInvites
+	// ExpansionPartyModule SyncPlayerInvitesServer
 	// Called on server
 	// ------------------------------------------------------------
-	void SyncPlayersInvites( PlayerBase sender )
+	void SyncPlayerInvitesServer( PlayerBase sender )
 	{
 		if ( !IsMissionHost() || !sender || !sender.GetIdentity() )
 			return;
@@ -860,7 +873,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		for (int i = 0; i < m_TerritoryFlags.Count(); ++i)
 		{
-			ref TerritoryFlag flag = m_TerritoryFlags.GetElement(i);
+			TerritoryFlag flag = m_TerritoryFlags.GetElement(i);
 			if ( !flag )
 				continue;
 			
@@ -877,14 +890,14 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		ScriptRPC rpcServer = new ScriptRPC();
 		rpcServer.Write( invites );
-		rpcServer.Send( NULL, ExpansionTerritoryModuleRPC.SyncPlayersInvites, true, sender.GetIdentity() );
+		rpcServer.Send( NULL, ExpansionTerritoryModuleRPC.SyncPlayerInvites, true, sender.GetIdentity() );
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionPartyModule RPC_SyncPlayersInvites
+	// ExpansionPartyModule RPC_SyncPlayerInvitesClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void RPC_SyncPlayersInvites( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_SyncPlayerInvitesClient( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		if ( !player )
@@ -930,7 +943,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_RequestInvitePlayer
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestInvitePlayer( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_RequestInvitePlayer( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_RequestInvitePlayer - Start");
@@ -973,13 +986,13 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !targetPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);
 			return;
 		}
 		
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);
 			return;
 		}
 		
@@ -990,7 +1003,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
@@ -1000,13 +1013,13 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( territory.IsMember( targetID ) || territory.HasInvite(targetID) )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetName())).Error(sender);
 			return;
 		}
 		
 		if ( GetExpansionSettings().GetTerritory() && GetExpansionSettings().GetTerritory().MaxMembersInTerritory > 1 && territory.NumberOfMembers() >= GetExpansionSettings().GetTerritory().MaxMembersInTerritory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY", GetExpansionSettings().GetTerritory().MaxMembersInTerritory.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY", GetExpansionSettings().GetTerritory().MaxMembersInTerritory.ToString())).Error(sender);
 			return;
 		}
 		
@@ -1019,15 +1032,22 @@ class ExpansionTerritoryModule: JMModuleBase
 		invite.TerritoryID = territory.GetTerritoryID();
 		invite.UID = targetPlayer.GetIdentityUID();
 		
-		territory.AddTerritoryInvite(invite);
+		if (!territory.AddTerritoryInvite(invite))
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_INVITED", targetPlayer.GetName())).Error(sender);
+			return;
+		}
 		
-		SyncPlayersInvites( targetPlayer );
+		SyncPlayerInvitesServer(targetPlayer);
+		
+		if ( GetExpansionSettings().GetLog().Territory )
+			GetExpansionSettings().GetLog().PrintLog("[Territory] Player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + " pos=" + targetPlayer.GetPosition() +") was invited to join the territory " + territory.GetTerritoryName() + " at " + territory.GetPosition() + " by the player \"" + sender.GetName() + "\" (id=" + sender.GetId() +")");
 		
 		//! Message to request sender
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_SENDER", targetPlayer.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_SENDER", targetPlayer.GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		//! Message to request target
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_TARGET", sender.GetName(), territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, targetPlayer.GetIdentity() );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_TARGET",  sender.GetName(), territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(targetPlayer.GetIdentity());
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - End");
@@ -1060,7 +1080,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_AcceptInvite
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_AcceptInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_AcceptInvite( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_AcceptInvite - Start");
@@ -1094,7 +1114,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);
 			return;
 		}
 		
@@ -1105,7 +1125,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
@@ -1116,23 +1136,23 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);
 			return;
 		}
 		
 		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString() ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString())).Error(sender);
 			return;
 		}
 		
 		territory.RemoveTerritoryInvite( sender.GetId() );
 		territory.AddMember( sender.GetId(), sender.GetName() );
 		
-		SyncPlayersInvites( senderPlayer );
+		SyncPlayerInvitesServer( senderPlayer );
 		UpdateClient( territoryID );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_ADDED", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ADDED", territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_AcceptInvite - 5");
@@ -1166,7 +1186,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DeclineInvite
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_DeclineInvite( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_DeclineInvite( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DeclineInvite - Start");
@@ -1200,7 +1220,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);	
 			return;
 		}
 		
@@ -1211,7 +1231,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
@@ -1222,12 +1242,12 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !senderPlayer )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOPLAYER").Error(sender);	
 			return;
 		}
 		
 		territory.RemoveTerritoryInvite( sender.GetId() );		
-		SyncPlayersInvites( senderPlayer );
+		SyncPlayerInvitesServer( senderPlayer );
 		//UpdateClient( territoryID );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -1256,7 +1276,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_PromoteMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_PromoteMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_PromoteMember( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PromoteMember - Start");
@@ -1284,7 +1304,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule Exec_PromoteMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_PromoteMember( int territoryID, ref ExpansionTerritoryMember member, PlayerIdentity sender )
+	private void Exec_PromoteMember( int territoryID, ExpansionTerritoryMember member, PlayerIdentity sender )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 1 territoryID : " + territoryID + " member : " + member);
@@ -1300,7 +1320,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);
 			return;
 		}
 		
@@ -1311,7 +1331,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
@@ -1322,7 +1342,7 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( !senderTerritory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY").Error(sender);
 			return;
 		}
 		
@@ -1332,7 +1352,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		if ( senderTerritory.GetRank() != ExpansionTerritoryRank.ADMIN )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PROMOTE_NORIGHTS" ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_PROMOTE_NORIGHTS").Error(sender);
 			return;
 		}
 		
@@ -1340,14 +1360,14 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 6");
 		#endif
 		
-		ref ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
+		ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - 7 target : " + target);
 		#endif
 
 		if ( !target )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NORECIVEMEMBER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NORECIVEMEMBER").Error(sender);
 			return;
 		}
 		
@@ -1370,7 +1390,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		UpdateClient( territoryID );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_PROMOTE", target.GetName(), target.GetRankName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_PROMOTE", target.GetName(), target.GetRankName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_PromoteMember - End");
@@ -1398,7 +1418,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_DemoteMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_DemoteMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_DemoteMember( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DemoteMember - Start");
@@ -1435,34 +1455,34 @@ class ExpansionTerritoryModule: JMModuleBase
 		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritory territory = flag.GetTerritory();
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritoryMember senderTerritory = territory.GetMember( sender.GetId() );
 		if ( !senderTerritory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
 		if ( !target )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NORECIVEMEMBER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NORECIVEMEMBER").Error(sender);
 			return;
 		}
 		
 		if ( senderTerritory.GetRank() == ExpansionTerritoryRank.MEMBER )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_DEMOTE_ALREADYMEMBER", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_DEMOTE_ALREADYMEMBER", target.GetName())).Error(sender);
 			return;
 		}
 		
@@ -1473,7 +1493,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		
 		UpdateClient( territoryID );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_DEMOTE", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_DEMOTE", target.GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_DemoteMember - End");
@@ -1499,7 +1519,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_KickMember
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_KickMember( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_KickMember( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_KickMember - Start");
@@ -1536,46 +1556,46 @@ class ExpansionTerritoryModule: JMModuleBase
 		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritory territory = flag.GetTerritory();
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritoryMember senderTerritory = territory.GetMember( sender.GetId() );
 		if ( !senderTerritory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritoryMember target = territory.GetMember( member.GetID() );
 		if ( !target )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NORECIVEMEMBER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NORECIVEMEMBER").Error(sender);
 			return;
 		}
 		
 		if ( senderTerritory.GetRank() != ExpansionTerritoryRank.ADMIN && senderTerritory.GetRank() != ExpansionTerritoryRank.MODERATOR )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_KICK_NORIGHTS", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_KICK_NORIGHTS", target.GetName())).Error(sender);
 			return;
 		}
 		
 		if ( target.GetRank() == ExpansionTerritoryRank.ADMIN )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_CANT_KICK_SELF", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_CANT_KICK_SELF", target.GetName())).Error(sender);
 			return;
 		}
 		
 		if ( target.GetRank() == ExpansionTerritoryRank.MODERATOR && senderTerritory.GetRank() == ExpansionTerritoryRank.MODERATOR )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_CANT_KICK_MODERATOR", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_CANT_KICK_MODERATOR", target.GetName())).Error(sender);
 			return;
 		}
 		
@@ -1586,12 +1606,12 @@ class ExpansionTerritoryModule: JMModuleBase
 		{
 			Send_UpdateClient( territoryID, NULL, playerTarget.GetIdentity() );
 			
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_KICKED_TARGET", territory.GetTerritoryName(), sender.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, playerTarget.GetIdentity());
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_KICKED_TARGET", territory.GetTerritoryName(), sender.GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(playerTarget.GetIdentity());
 		}
 		
 		UpdateClient( territoryID );
 		
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_KICKED_SENDER", target.GetName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_KICKED_SENDER", target.GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_KickMember - End");
@@ -1616,7 +1636,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_Leave
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_Leave( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_Leave( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_Leave - Start");
@@ -1646,27 +1666,27 @@ class ExpansionTerritoryModule: JMModuleBase
 		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
 		if ( !flag )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOFLAG" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOFLAG").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritory territory = flag.GetTerritory();
 		if ( !territory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOTERRITORY").Error(sender);
 			return;
 		}
 		
 		ExpansionTerritoryMember senderTerritory = territory.GetMember( sender.GetId() );
 		if ( !senderTerritory )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY").Error(sender);
 			return;
 		}
 		
 		if ( senderTerritory.GetRank() == ExpansionTerritoryRank.ADMIN )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_LEAVE_OWNER" ), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 5, sender );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_PLAYER_LEAVE_OWNER").Error(sender);
 			return;
 		}
 		
@@ -1677,7 +1697,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		UpdateClient( territoryID );
 		
 		// TODO: message
-		GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_LEAVE", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, sender );
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_LEAVE", territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::Exec_Leave - End");
@@ -1688,7 +1708,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ExpansionTerritoryModule RPC_PlayerEnteredTerritory
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_PlayerEnteredTerritory( ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+	private void RPC_PlayerEnteredTerritory( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PlayerEnteredTerritory - Start");
@@ -1715,11 +1735,11 @@ class ExpansionTerritoryModule: JMModuleBase
 
 		if ( type == 0 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_ENTER_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );	
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ENTER_TERRITORY", territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(senderRPC );	
 			return;
 		} else if ( type == 1 )
 		{
-			GetNotificationSystem().CreateNotification( new StringLocaliser( "STR_EXPANSION_TERRITORY_TITLE" ), new StringLocaliser( "STR_EXPANSION_TERRITORY_LEFT_TERRITORY", territory.GetTerritoryName() ), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE, 5, senderRPC );
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_LEFT_TERRITORY", territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(senderRPC);
 			return;
 		}
 		
@@ -1784,7 +1804,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule GetTerritories
 	// ------------------------------------------------------------
-	ref map<int, ref ExpansionTerritory> GetTerritories()
+	map<int, ref ExpansionTerritory> GetTerritories()
 	{
 		return m_Territories;
 	}
@@ -1792,7 +1812,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule GetTerritories
 	// ------------------------------------------------------------
-	ref ExpansionTerritory GetTerritory( int territoryID )
+	ExpansionTerritory GetTerritory( int territoryID )
 	{
 		return m_Territories.Get( territoryID );
 	}
@@ -2040,7 +2060,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		{
 			for ( int i = 0; i < m_Territories.Count(); ++i )
 			{
-				ref ExpansionTerritory territory = m_Territories.GetElement( i );
+				ExpansionTerritory territory = m_Territories.GetElement( i );
 				if ( territory && vector.Distance( territory.GetPosition(), position ) <= territorySize )
 				{
 					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -2197,7 +2217,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion GetTerritoryInvites
 	// Called client side
 	// ------------------------------------------------------------
-	ref array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
+	array<ref ExpansionTerritoryInvite> GetTerritoryInvites()
 	{
 		if ( !IsMissionClient() )
 			return NULL;
@@ -2219,7 +2239,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	// Expansion GetAllTerritoryFlags
 	// Called server side
 	// ------------------------------------------------------------
-	ref map<int, TerritoryFlag> GetAllTerritoryFlags()
+	map<int, TerritoryFlag> GetAllTerritoryFlags()
 	{
 		return m_TerritoryFlags;
 	}
