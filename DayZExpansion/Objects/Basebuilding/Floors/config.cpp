@@ -6,7 +6,7 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionFloorKit","ExpansionFloor6x6","ExpansionFloor3x3","ExpansionFloor3x6"};
+		units[] = {"ExpansionFloorKit","ExpansionRoofKit","ExpansionFloor6x6","ExpansionFloor3x3","ExpansionFloor3x6"};
 		weapons[] = {};
 	};
 };
@@ -20,6 +20,11 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_BB_FLOOR_KIT";
 		descriptionShort = "$STR_EXPANSION_BB_FLOOR_KIT_DESC";
 		placingTypes[] = {"ExpansionFloor6x6KitPlacing"};
+	};
+	class ExpansionRoofKit: ExpansionFloorKit
+	{
+		displayName = "$STR_EXPANSION_BB_ROOF_KIT";
+		descriptionShort = "$STR_EXPANSION_BB_ROOF_KIT_DESC";
 	};
 	class ExpansionFloorBaseKitPlacing: ExpansionFloorKit
 	{

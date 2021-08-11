@@ -62,6 +62,10 @@ class ExpansionIngameHud extends Hud
 	protected ImageWidget												m_CompassImage;
 	protected bool															m_AddedCompassSettings;
 	
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+	ref ExpansionPartyHud													m_PartyHUD;
+	#endif
+	
 	// ------------------------------------------------------------
 	// ExpansionIngameHud Constructor
 	// ------------------------------------------------------------
@@ -93,6 +97,14 @@ class ExpansionIngameHud extends Hud
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Remove( RefreshExpansionHudVisibility );
 
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+		ExpansionPartyModule partyModule;
+		if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+		{
+			partyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
+		}
+		#endif
+		
 		delete m_WgtRoot;
 		
 		#ifdef EXPANSIONEXPRINT
@@ -162,6 +174,16 @@ class ExpansionIngameHud extends Hud
 		m_WgtRoot.SetHandler( m_ExpansionEventHandler );
 		
 		m_ExpansionHudState = g_Game.GetProfileOption( EDayZProfilesOptions.HUD );
+		
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+		m_PartyHUD = new ExpansionPartyHud();
+		
+		ExpansionPartyModule partyModule;
+		if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+		{
+			partyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
+		}
+		#endif
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionIngameHud::Init End");
@@ -748,4 +770,38 @@ class ExpansionIngameHud extends Hud
 	{
 		return m_ExpansionEventHandler;
 	}
+	
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+	void UpdatePartyHUD()
+	{
+		if (m_PartyHUD)
+		{
+			ExpansionPartyModule partyModule;
+			map<string, string> memberIDs = new map<string, string>;
+			if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+			{
+				if (partyModule)
+				{
+					ExpansionPartyData party = partyModule.GetParty();
+					if (party && partyModule.HasParty())
+					{
+						if (party.GetPlayers() && party.GetPlayers().Count() > 0)
+						{
+							foreach (ExpansionPartyPlayerData memberData: party.GetPlayers())
+							{
+								memberIDs.Insert(memberData.GetID(), memberData.GetName());
+							}
+							
+							m_PartyHUD.UpdateMembers(memberIDs);
+						}
+					}
+					else if (!partyModule.HasParty() && m_PartyHUD.HasHUDMembers())
+					{
+						m_PartyHUD.ClearMembers();
+					}
+				}
+			}
+		}
+	}
+	#endif
 }

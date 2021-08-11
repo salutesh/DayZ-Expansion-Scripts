@@ -815,7 +815,9 @@ class ExpansionPartyModule: JMModuleBase
 
 		UpdateMenu();
 
-		m_PartyHUDInvoker.Invoke(this, m_Party);
+		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+		m_PartyHUDInvoker.Invoke();
+		#endif
 	}
 
 	void CreateMarker(ExpansionMarkerData marker)

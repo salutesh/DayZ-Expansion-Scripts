@@ -17,14 +17,14 @@ WrapSpacerWidgetClass PartyMemberEntry {
    ignorepointer 1
    color 1 1 1 0.9412
    position 0 0
-   size 1 10
+   size 1 14
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 1
    scriptclass "ViewBinding"
    text "Player Name"
-   font "gui/fonts/etelkatextpro12"
+   font "gui/fonts/etelkatextpro14"
    "size to text h" 0
    "size to text v" 0
    {
@@ -35,7 +35,7 @@ WrapSpacerWidgetClass PartyMemberEntry {
   }
   PanelWidgetClass PlayerHealthPanel {
    ignorepointer 1
-   size 1 10
+   size 1 14
    halign center_ref
    valign center_ref
    hexactpos 1
@@ -46,11 +46,11 @@ WrapSpacerWidgetClass PartyMemberEntry {
     ProgressBarWidgetClass PlayerHealth {
      ignorepointer 1
      color 0.1529 0.6824 0.3765 0.549
-     size 1 10
+     size 1 1
      hexactpos 0
      vexactpos 1
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      style Stamina
      {
@@ -63,14 +63,14 @@ WrapSpacerWidgetClass PartyMemberEntry {
     TextWidgetClass PlayerHealthVal {
      ignorepointer 1
      color 1 1 1 0.9412
-     size 1 10
+     size 1 1
      hexactpos 0
      vexactpos 1
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      text "100%"
-     font "gui/fonts/etelkatextpro12"
+     font "gui/fonts/etelkatextpro14"
      "text offset" 0 1
      "exact text" 0
      "text halign" center
@@ -85,7 +85,7 @@ WrapSpacerWidgetClass PartyMemberEntry {
   }
   PanelWidgetClass PlayerBloodPanel {
    ignorepointer 1
-   size 1 10
+   size 1 14
    hexactpos 1
    vexactpos 1
    hexactsize 0
@@ -94,11 +94,11 @@ WrapSpacerWidgetClass PartyMemberEntry {
     ProgressBarWidgetClass PlayerBlood {
      ignorepointer 1
      color 1 0 0.0118 0.549
-     size 1 10
+     size 1 1
      hexactpos 0
      vexactpos 1
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      style Stamina
      {
@@ -111,14 +111,14 @@ WrapSpacerWidgetClass PartyMemberEntry {
     TextWidgetClass PlayerBloodVal {
      ignorepointer 1
      color 1 1 1 0.9412
-     size 1 10
+     size 1 1
      hexactpos 0
      vexactpos 1
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      text "100%"
-     font "gui/fonts/etelkatextpro12"
+     font "gui/fonts/etelkatextpro14"
      "text offset" 0 1
      "exact text" 0
      "text halign" center
@@ -381,7 +381,7 @@ WrapSpacerWidgetClass PartyMemberEntry {
        hexactsize 1
        vexactsize 1
        text "10"
-       font "gui/fonts/etelkatextpro12"
+       font "gui/fonts/etelkatextpro14"
        "text halign" center
       }
      }
@@ -396,6 +396,7 @@ WrapSpacerWidgetClass PartyMemberEntry {
  }
  {
   ScriptParamsClass {
+   Debug_Logging 1
   }
  }
 }

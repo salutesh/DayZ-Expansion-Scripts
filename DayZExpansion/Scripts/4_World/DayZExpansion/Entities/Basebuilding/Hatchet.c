@@ -1,5 +1,5 @@
 /**
- * Hammer.c
+ * Hatchet.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,10 +10,10 @@
  *
 */
 
-/**@class		Hammer
+/**@class		Hatchet
  * @brief		
  **/
-modded class Hammer
+modded class Hatchet
 {
 	override void SetActions()
 	{

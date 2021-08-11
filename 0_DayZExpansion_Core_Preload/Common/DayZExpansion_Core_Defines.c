@@ -123,7 +123,7 @@
 //#define EXPANSION_BUNNY_HOPPING
 
 //! Enable or disable party hud implementation 
-//#define EXPANSIONMOD_PARTYHUD_ENABLE
+#define EXPANSIONMOD_PARTYHUD_ENABLE
 
 #ifdef CF_DEBUGGER
 #define EXPANSION_DEBUG_UI_AI

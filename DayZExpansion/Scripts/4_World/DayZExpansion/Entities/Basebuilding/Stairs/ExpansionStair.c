@@ -26,6 +26,15 @@ class ExpansionStairBase extends ExpansionBaseBuilding
 		return "ExpansionStairKit";
 	}
 
+	override bool NameOverride(out string output)
+	{
+		if (IsLastStage())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_STAIR_FINISHED";
+		else
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_STAIR_BASE";
+		return true;
+	}
+
 	override bool IsLastStage()
 	{
 		return m_HasStair;

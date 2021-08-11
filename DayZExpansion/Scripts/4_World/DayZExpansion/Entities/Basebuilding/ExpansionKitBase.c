@@ -64,6 +64,23 @@ class ExpansionKitBase extends WatchtowerKit
 	override void DisassembleKit(ItemBase item)
 	{
 	}
+
+	Object ExpansionDeploy( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
+	{
+		if ( !IsMissionHost() )
+			return NULL;
+
+		Object obj = GetGame().CreateObject( GetDeployType(), GetPosition() );
+		obj.SetPosition( position );
+		obj.SetOrientation( orientation );
+		
+		//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
+		HideAllSelections();
+		
+		SetIsDeploySound( true );
+
+		return obj;
+	}
 }
 
 /**@class		ExpansionKitSmall

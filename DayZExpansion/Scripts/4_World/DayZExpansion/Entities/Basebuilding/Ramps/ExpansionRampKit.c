@@ -18,15 +18,6 @@ class ExpansionRampKit extends ExpansionKitLarge
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{
 		if ( IsMissionHost() )
-		{			
-			Object obj = GetGame().CreateObject( GetDeployType(), GetPosition() );
-			obj.SetPosition( position );
-			obj.SetOrientation( orientation );
-			
-			//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
-			HideAllSelections();
-			
-			SetIsDeploySound( true );
-		}
+			ExpansionDeploy( player, position, orientation );
 	}
 }

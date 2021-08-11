@@ -36,6 +36,15 @@ class ExpansionRampBase extends ExpansionBaseBuilding
 		return "ExpansionRampKit";
 	}
 
+	override bool NameOverride(out string output)
+	{
+		if (IsLastStage())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_RAMP_FINISHED";
+		else
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_RAMP_BASE";
+		return true;
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();

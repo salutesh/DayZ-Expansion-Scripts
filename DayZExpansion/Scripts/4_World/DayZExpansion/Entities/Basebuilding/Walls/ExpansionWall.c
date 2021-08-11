@@ -58,6 +58,15 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return "ExpansionWallKit";
 	}
 
+	override bool NameOverride(out string output)
+	{
+		if (IsLastStage())
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_WALL_FINISHED";
+		else
+			output = "#STR_EXPANSION_BB_" + m_CurrentBuild + "_WALL_BASE";
+		return true;
+	}
+
 	override bool CanBeDamaged()
 	{
 		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 1)

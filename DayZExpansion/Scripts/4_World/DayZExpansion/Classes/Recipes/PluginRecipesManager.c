@@ -21,6 +21,7 @@ modded class PluginRecipesManager
 		
 		//! Basebuilding
 		RegisterRecipe(new ExpansionCraftFloorKit);
+		RegisterRecipe(new ExpansionCraftRoofKit);
 		RegisterRecipe(new ExpansionCraftStairKit);
 		RegisterRecipe(new ExpansionCraftRampKit);
 		RegisterRecipe(new ExpansionCraftWallKit);

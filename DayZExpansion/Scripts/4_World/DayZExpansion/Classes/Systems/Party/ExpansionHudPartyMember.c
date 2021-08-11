@@ -11,26 +11,26 @@
 */
 
 #ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-class ExpansionPartyHud: ExpansionScriptViewBase
+class ExpansionPartyHud extends ExpansionScriptViewBase
 {
 	ref ExpansionPartyHudController m_PartyHUDController;
 	private static autoptr map<string, ref ExpansionPartyHudMember> m_AllPartyHUDMembers = new map<string, ref ExpansionPartyHudMember>;
 	
 	void ExpansionPartyHud()
-	{
+	{	
 		if (!m_PartyHUDController)
-			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());
+			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());		
 	}
 	
 	void ~ExpansionPartyHud()
 	{
 		m_AllPartyHUDMembers.Clear();
-		//m_PartyHUDController.PartyMembers.Clear();
+		//m_PartyHUDController.PartyHUDMemberElements.Clear();
 	}
 	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/GUI/layouts/hud/expansion_party_hud.layout";
+		return "DayZExpansion/GUI/layouts/hud/expansion_party_hud_new.layout";
 	}
 	
 	override typename GetControllerType() 
@@ -41,17 +41,14 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 	void AddMember(string playerID, string playerName)
 	{	
 		Print("ExpansionPartyHud::AddMember - Start");
-		
-		if (!m_PartyHUDController)
-			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());
-		
+				
 		Print("ExpansionPartyHud::AddMember - Step 1");
 		
-		ExpansionPartyHudMember newMember = new ExpansionPartyHudMember(playerID, playerName);
+		ref ExpansionPartyHudMember newMember = new ExpansionPartyHudMember(playerID, playerName);
 		
 		Print("ExpansionPartyHud::AddMember - Step 2");
 		
-		m_PartyHUDController.PartyMembers.Insert(newMember);
+		m_PartyHUDController.PartyHUDMemberElements.Insert(newMember); // <-- Here it crashes?!
 		
 		Print("ExpansionPartyHud::AddMember - Step 3");
 		
@@ -59,7 +56,7 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 		
 		Print("ExpansionPartyHud::AddMember - End");
 	}
-	
+		
 	void RemoveMember(string playerID)
 	{
 		Print("ExpansionPartyHud::RemoveMember - Start");
@@ -70,10 +67,13 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 		if (member)
 		{
 			int index = -1;
-			index = m_PartyHUDController.PartyMembers.Find(member);
+			index = m_PartyHUDController.PartyHUDMemberElements.Find(member);
 			if (index > -1)
 			{
-				m_PartyHUDController.PartyMembers.Remove(index);
+				m_PartyHUDController.PartyHUDMemberElements[index] = NULL;
+				m_PartyHUDController.PartyHUDMemberElements.Remove(index);
+				
+				delete m_PartyHUDController.PartyHUDMemberElements[index];
 			}
 			
 			m_AllPartyHUDMembers.Remove(playerID);
@@ -86,26 +86,26 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 	{
 		Print("ExpansionPartyHud::UpdateMembers - Start");
 		Print("ExpansionPartyHud::UpdateMembers - Members count: " + members.Count());
-						
-		if (!m_AllPartyHUDMembers || m_AllPartyHUDMembers.Count() == 0)
-			return;
 		
 		array<string> currentMembers = new array<string>;
 		foreach (string currentMemberID, ExpansionPartyHudMember currentMember: m_AllPartyHUDMembers)
 		{
+			Print("ExpansionPartyHud::UpdateMembers - Step 1");
 			bool isStillMember = false;
 			bool isNewMember = false;
 			
 			if (members.Contains(currentMemberID))
 			{
+				Print("ExpansionPartyHud::UpdateMembers - Step 1 - Is still member!");
 				isStillMember = true;
 				currentMembers.Insert(currentMemberID);
 			}
 					
 			if (!isStillMember)
 			{
+				Print("ExpansionPartyHud::UpdateMembers - Step 1 - Is no longer member!");
 				int index = -1;
-				index = m_PartyHUDController.PartyMembers.Find(currentMember);
+				index = m_PartyHUDController.PartyHUDMemberElements.Find(currentMember);
 				if (index > -1)
 				{
 					RemoveMember(currentMemberID);
@@ -115,6 +115,7 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 		
 		foreach (string playerID, string playerName: members)
 		{
+			Print("ExpansionPartyHud::UpdateMembers - Step 2");
 			int memberIndex = -1;
 			memberIndex = currentMembers.Find(playerID);
 			if (memberIndex == -1)
@@ -129,18 +130,30 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 	{
 		Print("ExpansionPartyHud::ClearMembers - Start");
 		
-		if (!m_PartyHUDController.PartyMembers || m_PartyHUDController.PartyMembers.Count() == 0)
+		if (!m_PartyHUDController.PartyHUDMemberElements || m_PartyHUDController.PartyHUDMemberElements.Count() == 0)
 			return;
 		
-		m_PartyHUDController.PartyMembers.Clear();
+		/*foreach (ExpansionPartyHudMember member: m_PartyHUDController.PartyHUDMemberElements)
+		{
+			member = NULL;
+			delete member;
+		}*/
+		
+		m_PartyHUDController.PartyHUDMemberElements.Clear();
+		m_AllPartyHUDMembers.Clear();
 		
 		Print("ExpansionPartyHud::ClearMembers - End");
+	}
+	
+	bool HasHUDMembers()
+	{
+		return (m_PartyHUDController.PartyHUDMemberElements.Count() > 0);
 	}
 }
 
 class ExpansionPartyHudController: ExpansionViewController
 {
-	ref ObservableCollection<ref ExpansionPartyHudMember> PartyMembers = new ObservableCollection<ref ExpansionPartyHudMember>(this);
+	ref ObservableCollection<ref ExpansionPartyHudMember> PartyHUDMemberElements = new ObservableCollection<ref ExpansionPartyHudMember>(this);
 }
 
 class ExpansionPartyHudMember: ExpansionScriptViewBase
@@ -167,35 +180,45 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	string m_PlayerID;
 	string m_PlayerName;
 	
+	protected ref Timer m_UpdateTimer;
+	
 	void ExpansionPartyHudMember(string playerID, string playerName)
 	{	
+		EXLogPrint("ExpansionPartyHudMember::ExpansionPartyHudMember - Start");
 		m_PlayerID = playerID;
 		m_PlayerName = playerName;
 			
 		if (!m_PartyMemberController)
 			m_PartyMemberController = ExpansionPartyHudMemberController.Cast(GetController());
 		
-		/*ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (monitorModule)
 		{
-			monitorModule.m_StatsInvoker.Insert(this.OnDataRecived);
-			monitorModule.RequestPlayerStats(m_PlayerID);
-			
-			monitorModule.m_StatesInvoker.Insert(this.OnStateDataRecived);
-			monitorModule.RequestPlayerStates(m_PlayerID);
-		}*/
+			monitorModule.m_StatsInvoker.Insert(OnDataRecived);
+			monitorModule.m_StatesInvoker.Insert(OnStateDataRecived);
+		}
+		
+		CreateUpdateTimer();
 		
 		SetView();
+		
+		EXLogPrint("ExpansionPartyHudMember::ExpansionPartyHudMember - End");
 	}
 	
 	void ~ExpansionPartyHudMember()
 	{
+		EXLogPrint("ExpansionPartyHudMember::~ExpansionPartyHudMember - Start");
+		
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (monitorModule)
 		{
-			monitorModule.m_StatsInvoker.Remove(this.OnDataRecived);
-			monitorModule.m_StatesInvoker.Remove(this.OnStateDataRecived);
+			monitorModule.m_StatsInvoker.Remove(OnDataRecived);
+			monitorModule.m_StatesInvoker.Remove(OnStateDataRecived);
 		}
+		
+		DestroyUpdateTimer();
+		
+		EXLogPrint("ExpansionPartyHudMember::~ExpansionPartyHudMember - End");
 	}
 	
 	override string GetLayoutFile() 
@@ -210,29 +233,43 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void SetView()
 	{
+		EXLogPrint("ExpansionPartyHudMember::SetView - Start");
+		
 		if (m_PartyMemberController)
 		{
 			m_PartyMemberController.PlayerName = m_PlayerName;
 			m_PartyMemberController.NotifyPropertyChanged("PlayerName");
 		}
+		
+		EXLogPrint("ExpansionPartyHudMember::SetView - End");
 	}
 	
 	void OnDataRecived( ExpansionSyncedPlayerStats player_stats)
 	{
+		EXLogPrint("ExpansionPartyHudMember::OnDataRecived - Start");
+		
 		if (m_PlayerID != player_stats.m_ID) return;
 
 		SetStats(player_stats);
+		
+		EXLogPrint("ExpansionPartyHudMember::OnDataRecived - End");
 	}
 	
 	void OnStateDataRecived( ExpansionSyncedPlayerStates player_states)
 	{
+		EXLogPrint("ExpansionPartyHudMember::OnStateDataRecived - Start");
+		
 		if (m_PlayerID != player_states.m_ID) return;
 
 		SetStates(player_states);
+		
+		EXLogPrint("ExpansionPartyHudMember::OnStateDataRecived - End");
 	}
 	
 	void SetStats( ExpansionSyncedPlayerStats player_stats)
 	{
+		EXLogPrint("ExpansionPartyHudMember::SetStats - Start");
+		
 		if (m_PartyMemberController)
 		{
 			if (m_CurrentHealth != player_stats.m_Health)
@@ -281,10 +318,14 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 				m_PartyMemberController.NotifyPropertyChanged("PlayerBloodVal");
 			}
 		}
+		
+		EXLogPrint("ExpansionPartyHudMember::SetStats - End");
 	}
 	
 	void SetStates(ExpansionSyncedPlayerStates player_states)
 	{
+		EXLogPrint("ExpansionPartyHudMember::SetStates - Start");
+		
 		if (player_states.m_Bones > 0)
 		{
 			Bones.Show(true);
@@ -329,90 +370,126 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		{
 			UpdateStance(player_states.m_Stance);
 		}
+		
+		EXLogPrint("ExpansionPartyHudMember::SetStates - End");
 	}
 	
 	void UpdateStance( int stance )
 	{
-			if ( stance == 1 )
-			{
-				bool is_walking;
-				StanceStand.Show(!is_walking);
-				StanceStandWalk.Show(is_walking);
-				StanceCrouch.Show(false);
-				StanceProne.Show(false);
-				StanceCar.Show(false);
-				StanceHeli.Show(false);
-				StanceBoat.Show(false);
-			}
-			if ( stance == 2 )
-			{
-				StanceStand.Show(false);
-				StanceStandWalk.Show(false);
-				StanceCrouch.Show(true);
-				StanceProne.Show(false);
-				StanceCar.Show(false);
-				StanceHeli.Show(false);
-				StanceBoat.Show(false);
-			}
-			if ( stance == 3 )
-			{
-				StanceStand.Show(false);
-				StanceStandWalk.Show(false);
-				StanceCrouch.Show(false);
-				StanceProne.Show(true);
-				StanceCar.Show(false);
-				StanceHeli.Show(false);
-				StanceBoat.Show(false);			
-			}
-			if ( stance == 4 )
-			{
-				StanceStand.Show(false);
-				StanceStandWalk.Show(false);
-				StanceCrouch.Show(false);
-				StanceProne.Show(false);
-				StanceCar.Show(true);
-				StanceHeli.Show(false);
-				StanceBoat.Show(false);
-			}
-			if ( stance == 5 )
-			{
-				StanceStand.Show(false);
-				StanceStandWalk.Show(false);
-				StanceCrouch.Show(false);
-				StanceProne.Show(false);
-				StanceCar.Show(false);
-				StanceHeli.Show(true);
-				StanceHeli.LoadImageFile(0, ExpansionIcons.GetPath("Helicopter"));
-				StanceHeli.SetImage(0);
-				StanceBoat.Show(false);
-			}
-			if ( stance == 6 )
-			{
-				StanceStand.Show(false);
-				StanceStandWalk.Show(false);
-				StanceCrouch.Show(false);
-				StanceProne.Show(false);
-				StanceCar.Show(false);
-				StanceHeli.Show(false);
-				StanceBoat.Show(true);
-				StanceBoat.LoadImageFile(0, ExpansionIcons.GetPath("Boat"));
-				StanceBoat.SetImage(0);
-			}
+		EXLogPrint("ExpansionPartyHudMember::UpdateStance - Start");
+		
+		if ( stance == 1 )
+		{
+			bool is_walking;
+			StanceStand.Show(!is_walking);
+			StanceStandWalk.Show(is_walking);
+			StanceCrouch.Show(false);
+			StanceProne.Show(false);
+			StanceCar.Show(false);
+			StanceHeli.Show(false);
+			StanceBoat.Show(false);
+		}
+		if ( stance == 2 )
+		{
+			StanceStand.Show(false);
+			StanceStandWalk.Show(false);
+			StanceCrouch.Show(true);
+			StanceProne.Show(false);
+			StanceCar.Show(false);
+			StanceHeli.Show(false);
+			StanceBoat.Show(false);
+		}
+		if ( stance == 3 )
+		{
+			StanceStand.Show(false);
+			StanceStandWalk.Show(false);
+			StanceCrouch.Show(false);
+			StanceProne.Show(true);
+			StanceCar.Show(false);
+			StanceHeli.Show(false);
+			StanceBoat.Show(false);			
+		}
+		if ( stance == 4 )
+		{
+			StanceStand.Show(false);
+			StanceStandWalk.Show(false);
+			StanceCrouch.Show(false);
+			StanceProne.Show(false);
+			StanceCar.Show(true);
+			StanceHeli.Show(false);
+			StanceBoat.Show(false);
+		}
+		if ( stance == 5 )
+		{
+			StanceStand.Show(false);
+			StanceStandWalk.Show(false);
+			StanceCrouch.Show(false);
+			StanceProne.Show(false);
+			StanceCar.Show(false);
+			StanceHeli.Show(true);
+			StanceHeli.LoadImageFile(0, ExpansionIcons.GetPath("Helicopter"));
+			StanceHeli.SetImage(0);
+			StanceBoat.Show(false);
+		}
+		if ( stance == 6 )
+		{
+			StanceStand.Show(false);
+			StanceStandWalk.Show(false);
+			StanceCrouch.Show(false);
+			StanceProne.Show(false);
+			StanceCar.Show(false);
+			StanceHeli.Show(false);
+			StanceBoat.Show(true);
+			StanceBoat.LoadImageFile(0, ExpansionIcons.GetPath("Boat"));
+			StanceBoat.SetImage(0);
+		}
+		
+		EXLogPrint("ExpansionPartyHudMember::UpdateStance - End");
 	}
 		
-	override float GetUpdateTickRate()
+	float GetUpdateTickRate()
 	{
 		return 1.0;
 	}
 	
-	override void Update()
+	void Update()
 	{
+		EXLogPrint("ExpansionPartyHudMember::Update - Start");
+		
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (monitorModule)
 		{
 			monitorModule.RequestPlayerStats(m_PlayerID);
 			monitorModule.RequestPlayerStates(m_PlayerID);
 		}
+		
+		EXLogPrint("ExpansionPartyHudMember::Update - End");
+	}
+	
+	void CreateUpdateTimer()
+	{
+		EXLogPrint("ExpansionPartyHudMember::CreateUpdateTimer - Start");
+		
+		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
+		{
+			m_UpdateTimer = new Timer(CALL_CATEGORY_GUI);
+			m_UpdateTimer.Run(GetUpdateTickRate(), this, "Update", NULL, true);
+		}
+		
+		EXLogPrint("ExpansionPartyHudMember::CreateUpdateTimer - End");
+	}
+	
+	void DestroyUpdateTimer()
+	{
+		EXLogPrint("ExpansionPartyHudMember::DestroyUpdateTimer - Start");
+		
+		if (m_UpdateTimer)
+		{
+			m_UpdateTimer.Stop();
+			delete m_UpdateTimer;
+		}
+		
+		EXLogPrint("ExpansionPartyHudMember::DestroyUpdateTimer - End");
 	}
 }
 

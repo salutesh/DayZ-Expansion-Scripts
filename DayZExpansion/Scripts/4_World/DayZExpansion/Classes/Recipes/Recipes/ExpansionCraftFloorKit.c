@@ -92,3 +92,15 @@ class ExpansionCraftFloorKit extends RecipeBase
 		Debug.Log("Recipe Do method called", "recipes");
 	}
 }
+
+class ExpansionCraftRoofKit : ExpansionCraftFloorKit
+{
+	override void Init()
+	{
+		super.Init();
+
+		m_Name = "#STR_USRACT_CRAFT_ROOF_KIT";
+
+		m_ItemsToCreate[m_NumberOfResults - 1] = "ExpansionRoofKit";  //! Overwrite floor kit result
+	}
+}

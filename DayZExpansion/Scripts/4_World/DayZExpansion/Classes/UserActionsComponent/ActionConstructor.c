@@ -25,6 +25,7 @@ modded class ActionConstructor
 		//! Basebuilding
 		actions.Insert( ExpansionActionSelectNextPlacement );
 		actions.Insert( ExpansionActionDamageBaseBuilding );
+		actions.Insert( ExpansionActionConvertFloor );
 
 		actions.Insert( ExpansionActionConnectElectricityToSource );
 		actions.Insert( ExpansionActionDisconnectElectricityToSource );
