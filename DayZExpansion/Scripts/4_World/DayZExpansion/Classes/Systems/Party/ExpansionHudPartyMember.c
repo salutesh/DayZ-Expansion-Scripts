@@ -38,7 +38,7 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 		return ExpansionPartyHudController;
 	}
 	
-	void AddMember(string playerID, string playerName)
+	/*void AddMember(string playerID, string playerName)
 	{	
 		Print("ExpansionPartyHud::AddMember - Start");
 				
@@ -55,9 +55,9 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 		m_AllPartyHUDMembers.Insert(playerID, newMember);
 		
 		Print("ExpansionPartyHud::AddMember - End");
-	}
+	}*/
 		
-	void RemoveMember(string playerID)
+	/*void RemoveMember(string playerID)
 	{
 		Print("ExpansionPartyHud::RemoveMember - Start");
 		
@@ -80,9 +80,9 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 		}
 		
 		Print("ExpansionPartyHud::RemoveMember - End");
-	}
+	}*/
 	
-	void UpdateMembers(map<string, string> members)
+	/*void UpdateMembers(map<string, string> members)
 	{
 		Print("ExpansionPartyHud::UpdateMembers - Start");
 		Print("ExpansionPartyHud::UpdateMembers - Members count: " + members.Count());
@@ -124,30 +124,35 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 			}
 		}
 		Print("ExpansionPartyHud::UpdateMembers - End");
-	}
+	}*/
 	
-	void ClearMembers()
+	/*void ClearMembers()
 	{
 		Print("ExpansionPartyHud::ClearMembers - Start");
 		
 		if (!m_PartyHUDController.PartyHUDMemberElements || m_PartyHUDController.PartyHUDMemberElements.Count() == 0)
 			return;
 		
-		/*foreach (ExpansionPartyHudMember member: m_PartyHUDController.PartyHUDMemberElements)
+		/oreach (ExpansionPartyHudMember member: m_PartyHUDController.PartyHUDMemberElements)
 		{
 			member = NULL;
 			delete member;
-		}*/
+		}
 		
 		m_PartyHUDController.PartyHUDMemberElements.Clear();
 		m_AllPartyHUDMembers.Clear();
 		
 		Print("ExpansionPartyHud::ClearMembers - End");
-	}
+	}*/
 	
 	bool HasHUDMembers()
 	{
 		return (m_PartyHUDController.PartyHUDMemberElements.Count() > 0);
+	}
+	
+	ExpansionPartyHudController GetPartyHUDController()
+	{
+		return m_PartyHUDController;
 	}
 }
 
@@ -182,12 +187,15 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	protected ref Timer m_UpdateTimer;
 	
-	void ExpansionPartyHudMember(string playerID, string playerName)
+	ExpansionPartyPlayerData m_Member;
+	
+	void ExpansionPartyHudMember(string playerID, string playerName, ExpansionPartyPlayerData member)
 	{	
 		EXLogPrint("ExpansionPartyHudMember::ExpansionPartyHudMember - Start");
 		m_PlayerID = playerID;
 		m_PlayerName = playerName;
-			
+		m_Member = member;
+		
 		if (!m_PartyMemberController)
 			m_PartyMemberController = ExpansionPartyHudMemberController.Cast(GetController());
 		

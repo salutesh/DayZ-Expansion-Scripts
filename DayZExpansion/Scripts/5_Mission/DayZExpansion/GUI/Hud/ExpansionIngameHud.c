@@ -176,12 +176,15 @@ class ExpansionIngameHud extends Hud
 		m_ExpansionHudState = g_Game.GetProfileOption( EDayZProfilesOptions.HUD );
 		
 		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-		m_PartyHUD = new ExpansionPartyHud();
-		
-		ExpansionPartyModule partyModule;
-		if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
 		{
-			partyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
+			m_PartyHUD = new ExpansionPartyHud();
+			
+			ExpansionPartyModule partyModule;
+			if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+			{
+				partyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
+			}
 		}
 		#endif
 		
@@ -771,33 +774,47 @@ class ExpansionIngameHud extends Hud
 		return m_ExpansionEventHandler;
 	}
 	
-	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
+	#ifdef EXPANSIONMOD_PARTYHUD_ENABLE	
 	void UpdatePartyHUD()
-	{
-		if (m_PartyHUD)
+	{		
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		if (partyModule)
 		{
-			ExpansionPartyModule partyModule;
-			map<string, string> memberIDs = new map<string, string>;
-			if (Class.CastTo(partyModule, GetModuleManager().GetModule(ExpansionPartyModule)))
+			ref ExpansionPartyData partyData = partyModule.GetParty();
+			
+			if (partyData && partyData.GetPlayers().Count() > 0)
 			{
-				if (partyModule)
+				array<ref ExpansionPartyPlayerData> members = partyData.GetPlayers();
+				for (int i = 0; i < members.Count(); ++i)
 				{
-					ExpansionPartyData party = partyModule.GetParty();
-					if (party && partyModule.HasParty())
+					ExpansionPartyPlayerData memberData = members[i];
+					ExpansionPartyPlayerData playerData = partyData.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+					
+					//! Dont add a entry for the player itself, only his party members
+					if (memberData.GetID() == playerData.GetID())
+						continue;
+					
+					ExpansionPartyHudMember entry;
+					bool hasEntry = false;
+					if (m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Count() > 0)
 					{
-						if (party.GetPlayers() && party.GetPlayers().Count() > 0)
+						for (int e = 0; e < m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Count(); ++e)
 						{
-							foreach (ExpansionPartyPlayerData memberData: party.GetPlayers())
-							{
-								memberIDs.Insert(memberData.GetID(), memberData.GetName());
-							}
+							ExpansionPartyHudMember existingEntry = m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements[e];
 							
-							m_PartyHUD.UpdateMembers(memberIDs);
+							if (existingEntry.m_PlayerID == memberData.GetID())
+								hasEntry = true;
+							
+							//! If the entry is related to a old member that is no longer the party then remove the entry
+							if (members.Find(existingEntry.m_Member) == -1)
+								m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Remove(e);
 						}
 					}
-					else if (!partyModule.HasParty() && m_PartyHUD.HasHUDMembers())
+					//! If the party member has a entry already then skip the entry creation
+					if (!hasEntry)
 					{
-						m_PartyHUD.ClearMembers();
+						entry = new ExpansionPartyHudMember(memberData.GetID(), memberData.GetName(), memberData);
+						m_PartyHUD.GetPartyHUDController().PartyHUDMemberElements.Insert(entry);
 					}
 				}
 			}

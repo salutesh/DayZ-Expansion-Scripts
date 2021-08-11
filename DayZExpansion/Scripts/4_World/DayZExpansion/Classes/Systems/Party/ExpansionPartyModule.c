@@ -816,7 +816,10 @@ class ExpansionPartyModule: JMModuleBase
 		UpdateMenu();
 
 		#ifdef EXPANSIONMOD_PARTYHUD_ENABLE
-		m_PartyHUDInvoker.Invoke();
+		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		{
+			m_PartyHUDInvoker.Invoke();
+		}
 		#endif
 	}
 
