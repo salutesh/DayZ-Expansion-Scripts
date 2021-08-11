@@ -75,6 +75,8 @@ class ExpansionPartyModule: JMModuleBase
 		if (!FileExist(EXPANSION_GROUPS_FOLDER))
 			MakeDirectory(EXPANSION_GROUPS_FOLDER);
 
+		map<string, ref ExpansionPartyData> partiesByPlayerUID = new map<string, ref ExpansionPartyData>;
+
 		array<string> group_files = ExpansionFindFilesInLocation(EXPANSION_GROUPS_FOLDER, ".bin");
 		foreach (string fileName : group_files)
 		{
@@ -99,12 +101,41 @@ class ExpansionPartyModule: JMModuleBase
 					{
 						m_NextPartyID = party.GetPartyID() + 1;
 					}
+
+					file.Close();
+
+					//! Make sure each player can only have at most one party
+					array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
+					foreach (ExpansionPartyPlayerData player : players)
+					{
+						if (!player)
+							continue;
+
+						ExpansionPartyData playerParty;
+						if (partiesByPlayerUID.Find(player.GetID(), playerParty))
+						{
+							EXPrint(ToString() + "::OnMissionStart - WARNING: Removing player '" + player.GetName() + "' (id=" + player.GetID() + ") from group '" + party.GetPartyName() + "' (id=" + party.GetPartyID() + ") since they are already a member of group '" + playerParty.GetPartyName() + "' (id=" + playerParty.GetPartyID() + ")");
+							if (player.GetID() == party.GetOwnerUID())
+							{
+								m_Parties.Remove(party.GetPartyID());
+								party.Delete();
+							}
+							else
+							{
+								party.RemoveMember(player.GetID());
+								party.Save();
+							}
+						}
+						else
+						{
+							partiesByPlayerUID.Insert(player.GetID(), party);
+						}
+					}
 				} else
 				{
 					Print("Failed loading group " + fileName);
+					file.Close();
 				}
-
-				file.Close();
 			}
 		}
 	}
@@ -361,20 +392,20 @@ class ExpansionPartyModule: JMModuleBase
 		}
 		#endif
 
-		if (!RemovePartyServer(party))
+		if (!DeletePartyServer(party))
 		{
 			Error("ExpansionPartyModule::Exec_DissolvePartyServer - Could not get delete party from party module parties array!");
 		}
 	}
 
-	bool RemovePartyServer(notnull ExpansionPartyData party)
+	bool DeletePartyServer(notnull ExpansionPartyData party)
 	{
 		array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
 		foreach (ExpansionPartyPlayerData currPlayer : players)
 		{
 			if (!currPlayer)
 			{
-				Error("ExpansionPartyModule::RemovePartyServer - party member player data is NULL!");
+				Error("ExpansionPartyModule::DeletePartyServer - party member player data is NULL!");
 				continue;
 			}
 
@@ -387,10 +418,12 @@ class ExpansionPartyModule: JMModuleBase
 		}
 
 		m_Parties.Remove(party.GetPartyID());
+		party.Delete();
+
 		return true;
 	}
 
-	bool RemovePartyServer(int partyID)
+	bool DeletePartyServer(int partyID)
 	{
 		ExpansionPartyData party = m_Parties.Get(partyID);
 
@@ -400,7 +433,7 @@ class ExpansionPartyModule: JMModuleBase
 			return false;
 		}
 
-		return RemovePartyServer(party);
+		return DeletePartyServer(party);
 	}
 
 	void InvitePlayer(string sendID)
@@ -1090,7 +1123,7 @@ class ExpansionPartyModule: JMModuleBase
 	//! OnClientDisconnect is called on each disconnect
 	override void OnClientDisconnect(PlayerBase player, PlayerIdentity identity, string uid)
 	{
-		EXPrint(ToString() + "::OnClientDisconnect " + identity.GetId());
+		//EXPrint(ToString() + "::OnClientDisconnect " + identity.GetId());
 
 		if (!IsMissionHost())
 			return;

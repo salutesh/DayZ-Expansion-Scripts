@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionTripwireTrap"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
+		requiredAddons[] = {"DZ_Gear_Traps"};
 	};
 };
 class CfgSlots
