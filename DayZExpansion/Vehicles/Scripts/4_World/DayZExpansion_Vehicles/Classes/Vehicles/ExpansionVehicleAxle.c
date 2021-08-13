@@ -98,6 +98,16 @@ class ExpansionVehicleAxle
 		return wheel;
 	}
 
+	#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		for ( int i = 0; i < m_Wheels.Count(); i++ )
+			m_Wheels[i].CF_OnDebugUpdate(instance, type);
+
+		return true;
+	}
+	#endif
+
 	void SetupSimulation( float pDt, out int pNumWheelsGrounded )
 	{
 		for ( int i = 0; i < m_Wheels.Count(); i++ )

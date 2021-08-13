@@ -93,24 +93,9 @@ modded class DayZPlayerCamera1stPerson
 	
 	void DisplayMatrix4(string name, vector matrix[4])
 	{
-		#ifdef EXPANSION_DEBUG_UI_CAMERA
-		CF_Debugger_Block dbg_Camera = CF.Debugger.Get("Camera");
-		
-		dbg_Camera.Set("M: " + name , "[0]: " + matrix[0]);
-		dbg_Camera.Set("M: " + name , "[1]: " + matrix[1]);
-		dbg_Camera.Set("M: " + name , "[2]: " + matrix[2]);
-		dbg_Camera.Set("M: " + name , "[3]: " + matrix[3]);
-		#endif
 	}
 	
 	void DisplayMatrix3(string name, vector matrix[3])
 	{
-		#ifdef EXPANSION_DEBUG_UI_CAMERA
-		CF_Debugger_Block dbg_Camera = CF.Debugger.Get("Camera");
-		
-		dbg_Camera.Set("M: " + name , "[0]: " + matrix[0]);
-		dbg_Camera.Set("M: " + name , "[1]: " + matrix[1]);
-		dbg_Camera.Set("M: " + name , "[2]: " + matrix[2]);
-		#endif
 	}
 };

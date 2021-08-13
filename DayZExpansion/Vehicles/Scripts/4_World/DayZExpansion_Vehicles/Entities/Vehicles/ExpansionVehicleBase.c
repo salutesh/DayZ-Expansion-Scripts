@@ -1040,6 +1040,8 @@ class ExpansionVehicleBase extends ItemBase
 	{
 	}
 
+	int m_ExSoundSimulationTime;
+
 	// ------------------------------------------------------------
 	protected void OnPostSimulation( float pDt )
 	{
@@ -1056,12 +1058,8 @@ class ExpansionVehicleBase extends ItemBase
 				
 		foreach ( ExpansionVehicleSound sound : m_SoundControllers )
 			sound.Update( pDt, m_SoundVariables );
-		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		
-		dbg_Vehicle.Set("Ticks", TickCount( start ) );
-		#endif
+
+		m_ExSoundSimulationTime = TickCount(start);
 	}
 
 	// ------------------------------------------------------------
@@ -1075,6 +1073,36 @@ class ExpansionVehicleBase extends ItemBase
 		for ( int i = 0; i < m_Axles.Count(); i++ )
 			m_Axles[i].Animate( pDt, m_IsPhysicsHost );
 	}
+
+	#ifdef CF_DebugUI
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		super.CF_OnDebugUpdate(instance, type);
+
+		instance.Add("StateF", stateF );
+
+		instance.Add("Was Physics Host", m_WasPhysicsHost);
+		instance.Add("Is Physics Host", m_IsPhysicsHost);
+		instance.Add("Is Forcing Physics", m_IsForcingPhysics);
+
+		if (m_IsPhysicsHost)
+		{
+			instance.Add("Mass", "" + m_BodyMass + " | " + m_BodyCenterOfMass);
+			instance.Add("Linear Velocity (WS)", m_LinearVelocity);
+			instance.Add("Linear Velocity (MS)", m_LinearVelocityMS);
+		}
+
+		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		{
+			instance.Add("Sound Simulation Time", m_ExSoundSimulationTime);
+		}
+		
+		for (int i = 0; i < m_Axles.Count(); i++)
+			m_Axles[i].CF_OnDebugUpdate(instance, type);
+
+		return true;
+	}
+	#endif
 	
 	int stateF = -1;
 	int stateB = -1;
@@ -1096,11 +1124,6 @@ class ExpansionVehicleBase extends ItemBase
 
 		//if ( !CanSimulate() )
 		//	return;
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		dbg_Vehicle.SetBuffered(true, true);
-		#endif
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 
@@ -1173,12 +1196,6 @@ class ExpansionVehicleBase extends ItemBase
 
 			Error("Should not reach here...");
 		}
-			
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE		
-		dbg_Vehicle.Set("Was Physics Host", m_WasPhysicsHost);
-		dbg_Vehicle.Set("Is Physics Host", m_IsPhysicsHost);
-		dbg_Vehicle.Set("Is Forcing Physics", m_IsForcingPhysics);
-		#endif
 
 		m_HasDriver = false;
 		if ( driver && m_IsPhysicsHost )
@@ -1216,12 +1233,6 @@ class ExpansionVehicleBase extends ItemBase
 			stateF = 0; 
 			
 			float invDt = 1.0 / dt;
-
-			#ifdef EXPANSION_DEBUG_UI_VEHICLE		
-			dbg_Vehicle.Set("Mass", "" + m_BodyMass + " | " + m_BodyCenterOfMass);
-			dbg_Vehicle.Set("Linear Velocity (WS)", m_LinearVelocity);
-			dbg_Vehicle.Set("Linear Velocity (MS)", m_LinearVelocityMS);
-			#endif
 
 			m_InvInertiaTensor = dBodyGetLocalInertia( this );
 			
@@ -1310,11 +1321,6 @@ class ExpansionVehicleBase extends ItemBase
 				HandleSync_Client();
 			}
 		}
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("StateF", stateF );
-		#endif
-
 		
 		if ( stateF != stateB )
 		{
@@ -1326,10 +1332,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		if ( GetGame().IsMultiplayer() )
 			SetSynchDirty();
-		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.SwapBuffer();
-		#endif
+
 	}
 
 	// ------------------------------------------------------------

@@ -1031,14 +1031,37 @@ class ExpansionHelicopterScript extends CarScript
 			m_WaterParticle.Stop();
 		}
 	}
+
+	private vector m_ExHeliForce;
+	private vector m_ExHeliTorque;
+
+	#ifdef CF_DebugUI
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		super.CF_OnDebugUpdate(instance, type);
+
+		instance.Add("Auto-Hover Height", m_AutoHoverAltitude );
+		instance.Add("Auto-Hover Target Speed", m_AutoHoverSpeedTarget );
+		instance.Add("Auto-Hover Speed", m_AutoHoverSpeed );
+
+		instance.Add("Rotor Speed", m_RotorSpeed );
+		instance.Add("Lift Force Coef", m_LiftForceCoef );
+		
+		instance.Add("m_Transform", m_Transform.GetBasis() );
+		instance.Add("Side", m_Transform.data[0] );
+		instance.Add("Up ", m_Transform.data[1] );
+		instance.Add("Forward ", m_Transform.data[2] );
+		instance.Add("Position ", m_Transform.data[3] );
+		instance.Add("Applying Force", m_ExHeliForce );
+		instance.Add("Applying Torque", m_ExHeliTorque );
+
+		return true;
+	}
+	#endif
 	
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		#endif
-
 		bool isAboveWater;
 		float buoyancyForce;
 
@@ -1085,12 +1108,6 @@ class ExpansionHelicopterScript extends CarScript
 					m_CyclicSideTarget		= 0;
 					m_BackRotorSpeedTarget	= 0;
 				}
-
-				#ifdef EXPANSION_DEBUG_UI_VEHICLE
-				dbg_Vehicle.Set("Auto-Hover Height", m_AutoHoverAltitude );
-				dbg_Vehicle.Set("Auto-Hover Target Speed", m_AutoHoverSpeedTarget );
-				dbg_Vehicle.Set("Auto-Hover Speed", m_AutoHoverSpeed );
-				#endif
 
 				float estT = 80.0 * pDt;
 				vector estimatedPosition = GetEstimatedPosition( estT );
@@ -1180,11 +1197,6 @@ class ExpansionHelicopterScript extends CarScript
 
 			// collective
 			{
-				#ifdef EXPANSION_DEBUG_UI_VEHICLE
-				dbg_Vehicle.Set("m_RotorSpeed", m_RotorSpeed );
-				dbg_Vehicle.Set("m_LiftForceCoef", m_LiftForceCoef );
-				#endif
-
 				// rotorSpeed^2
 				// so rotorSpeed=0.0, 0.0*0.0 = 0.0 | rotorSpeed=0.5, 0.5*0.5 = 0.25 | rotorSpeed=1.0, 1.0*1.0 = 1.0
 				// rotorSpeed is always clamped between 0.0-1.0
@@ -1205,10 +1217,6 @@ class ExpansionHelicopterScript extends CarScript
 
 				targetVelocity *= pDt;
 				float collectiveCoef = Math.Max( ( 1.3 * liftFactor ) - ( ( Math.SquareSign( targetVelocity ) * 5.0 ) + ( targetVelocity * 80.0 ) ), 0 );
-
-				#ifdef EXPANSION_DEBUG_UI_VEHICLE
-				dbg_Vehicle.Set("Collective Force", collectiveCoef );
-				#endif
 				
 				force += Vector( 0, 1, 0 ) * collectiveCoef * m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_BodyMass;
 			}
@@ -1340,16 +1348,9 @@ class ExpansionHelicopterScript extends CarScript
 
 			force += Vector( 0, buoyancyForce, 0 );
 		}
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("m_Transform", m_Transform.GetBasis() );
-		dbg_Vehicle.Set("Side", m_Transform.data[0] );
-		dbg_Vehicle.Set("Up ", m_Transform.data[1] );
-		dbg_Vehicle.Set("Forward ", m_Transform.data[2] );
-		dbg_Vehicle.Set("Position ", m_Transform.data[3] );
-		dbg_Vehicle.Set("Applying Force", force );
-		dbg_Vehicle.Set("Applying Torque", torque );
-		#endif
+		
+		m_ExHeliForce = force;
+		m_ExHeliTorque = torque;
 	}
 
 	// ------------------------------------------------------------

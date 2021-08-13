@@ -155,7 +155,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	// ExpansionCarKey SetMaster
 	// ------------------------------------------------------------
-	private void SetMaster(bool state)
+	void SetMaster(bool state)
 	{
 		m_IsMasterKey = state;
 	}

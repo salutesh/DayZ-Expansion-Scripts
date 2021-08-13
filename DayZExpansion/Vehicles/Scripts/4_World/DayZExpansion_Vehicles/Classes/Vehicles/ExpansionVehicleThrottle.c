@@ -55,11 +55,14 @@ class ExpansionVehicleThrottle
 		m_Throttle = m_DefaultThrust * pIn;
 		m_Throttle = Math.Lerp( m_Throttle, m_GentleThrust, pGentle * pIn );
 		m_Throttle = Math.Lerp( m_Throttle, 1.0, pTurbo * pIn );
-		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
-		
-		dbg_Vehicle.Set("Throttle", m_Throttle );
-		#endif
 	}
+
+	#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		instance.Add("Throttle", m_Throttle );
+
+		return true;
+	}
+	#endif
 };

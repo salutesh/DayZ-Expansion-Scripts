@@ -287,13 +287,45 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		#endif	
 	}
 
+	private float m_ExPlaneLiftForce;
+
+	#ifdef CF_DebugUI
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		super.CF_OnDebugUpdate(instance, type);
+
+		instance.Add("Plane Lift Force", m_ExPlaneLiftForce );
+
+		instance.Add("Thrust", m_Thrust );
+		instance.Add("Thrust Target", m_ThrustTarget );
+
+		instance.Add("Elevator", m_Elevator );
+		instance.Add("Elevator Target", m_ElevatorTarget );
+		
+		instance.Add("Aileron", m_Aileron );
+		instance.Add("Aileron Target", m_AileronTarget );
+		
+		instance.Add("Rudder", m_Rudder );
+		instance.Add("Rudder Target", m_RudderTarget );
+		
+		instance.Add("Flaps", m_Flaps );
+		instance.Add("Flaps Target", m_FlapsTarget );
+
+		instance.Add("Angle Of Attack", m_AngleOfAttack );
+		
+		instance.Add("m_Transform", m_Transform.GetBasis() );
+		instance.Add("Side", m_Transform.data[0] );
+		instance.Add("Up ", m_Transform.data[1] );
+		instance.Add("Forward ", m_Transform.data[2] );
+		instance.Add("Position ", m_Transform.data[3] );
+
+		return true;
+	}
+	#endif
+
 	// ------------------------------------------------------------
 	protected override void OnSimulation( float pDt, out vector force, out vector torque )
 	{
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		#endif
-
 		if ( !dBodyIsActive( this ) )
 			return;
 
@@ -347,20 +379,6 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		m_Flaps = Math.Clamp( m_Flaps, 0, 1 );
 
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("Thrust", m_Thrust );
-		dbg_Vehicle.Set("Thrust Target", m_ThrustTarget );
-
-		dbg_Vehicle.Set("Elevator", m_Elevator );
-		dbg_Vehicle.Set("Elevator Target", m_ElevatorTarget );
-		
-		dbg_Vehicle.Set("Aileron", m_Aileron );
-		dbg_Vehicle.Set("Aileron Target", m_AileronTarget );
-		
-		dbg_Vehicle.Set("Rudder", m_Rudder );
-		dbg_Vehicle.Set("Rudder Target", m_RudderTarget );
-		
-		dbg_Vehicle.Set("Flaps", m_Flaps );
-		dbg_Vehicle.Set("Flaps Target", m_FlapsTarget );
 		#endif
 
 		vector tForce			= vector.Zero;
@@ -369,13 +387,14 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		CalculateAngleOfAttack();
 
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("Angle Of Attack", m_AngleOfAttack );
 		#endif
 
 		// lift force
 		{
+			m_ExPlaneLiftForce = GetUpForce() * m_BodyMass * 10.0;;
+
 			tForce[0] = 0;
-			tForce[1] = GetUpForce() * m_BodyMass * 10.0;
+			tForce[1] = m_ExPlaneLiftForce;
 			tForce[2] = 0;
 
 			float bank = GetOrientation()[2] * Math.DEG2RAD;
@@ -384,10 +403,6 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 			tCenter[0] = bankCoef * -Math.Sin( bank );
 			tCenter[1] = 0;
 			tCenter[2] = bankCoef * ( 1.0 - Math.Cos( bank ) );
-
-			#ifdef EXPANSION_DEBUG_UI_VEHICLE
-			dbg_Vehicle.Set("Lift Force", tForce[1] );
-			#endif
 
 			force += tForce;
 			torque += tCenter * tForce;
@@ -426,11 +441,6 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		}
 
 		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("m_Transform", m_Transform.GetBasis() );
-		dbg_Vehicle.Set("Side", m_Transform.data[0] );
-		dbg_Vehicle.Set("Up ", m_Transform.data[1] );
-		dbg_Vehicle.Set("Forward ", m_Transform.data[2] );
-		dbg_Vehicle.Set("Position ", m_Transform.data[3] );
 		#endif
 
 		// rudder

@@ -73,6 +73,8 @@ class ExpansionVehicleGearbox
 
 	float OnUpdate( bool clutch, int newGear, float pDt )
 	{
+		m_Clutch = clutch;
+
 		if (clutch && m_ClutchState == 0)
 			m_ClutchState = 1;
 
@@ -99,17 +101,6 @@ class ExpansionVehicleGearbox
 		}
 		
 		m_ClutchAmt = Math.Clamp( m_ClutchAmt + clutchDt, 0.0, 1.0 );
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
-		
-		dbg_Vehicle.Set("Clutch", clutch);
-		dbg_Vehicle.Set("Time To Couple Clutch", m_TimeToCoupleClutch);
-		dbg_Vehicle.Set("Time To Uncouple Clutch", m_TimeToUncoupleClutch);
-		dbg_Vehicle.Set("Clutch Amt", m_ClutchAmt);
-		dbg_Vehicle.Set("Reporting Gear", m_ReportingGear);
-		dbg_Vehicle.Set("Gear", m_Gear);
-		#endif
 		
 		if ( m_ClutchAmt > 0.0 )
 			return Get( m_ReportingGear );
@@ -121,6 +112,20 @@ class ExpansionVehicleGearbox
 
 		return Get(m_Gear);
 	}
+
+	#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		instance.Add("Clutch", m_Clutch);
+		instance.Add("Time To Couple Clutch", m_TimeToCoupleClutch);
+		instance.Add("Time To Uncouple Clutch", m_TimeToUncoupleClutch);
+		instance.Add("Clutch Amt", m_ClutchAmt);
+		instance.Add("Reporting Gear", m_ReportingGear);
+		instance.Add("Gear", m_Gear);
+
+		return true;
+	}
+	#endif
 
 	float GetClutch()
 	{

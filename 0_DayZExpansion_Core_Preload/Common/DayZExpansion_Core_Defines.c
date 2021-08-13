@@ -125,7 +125,7 @@
 //! Enable or disable party hud implementation 
 //#define EXPANSIONMOD_PARTYHUD_ENABLE
 
-#ifdef CF_DEBUGGER
+#ifdef CF_DebugUI
 #define EXPANSION_DEBUG_UI_AI
 #define EXPANSION_DEBUG_UI_HOLOGRAM
 #define EXPANSION_DEBUG_UI_FALLCOMMAND

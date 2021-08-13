@@ -20,6 +20,8 @@ class ExpansionVehicleController
 	protected EntityAI m_Vehicle;
 	protected PlayerBase m_Player;
 
+	protected string m_ControllingType;
+
 	protected HumanCommandVehicle m_Command;
 	protected ExpansionHumanCommandVehicle m_ECommand;
 
@@ -28,33 +30,30 @@ class ExpansionVehicleController
 		m_Vehicle = vehicle;
 	}
 
+	#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		instance.Add("Player", m_Player);
+		instance.Add("Controlling", m_ControllingType);
+		return true;
+	}
+	#endif
+
 	void Update()
 	{
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
-		#endif
-
 		Transport transport;
 		ExpansionVehicleBase vehicleScript;
 		if ( Class.CastTo( transport, m_Vehicle ) )
 		{
-			#ifdef EXPANSION_DEBUG_UI_VEHICLE
-			dbg_Vehicle.Set("Controller", "Vanilla");
-			#endif
+			m_ControllingType = "Vanilla";
 
 			m_Player = PlayerBase.Cast( transport.CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 		} else if ( Class.CastTo( vehicleScript, m_Vehicle ) )
 		{
-			#ifdef EXPANSION_DEBUG_UI_VEHICLE
-			dbg_Vehicle.Set("Controller", "Expansion");
-			#endif
+			m_ControllingType = "Expansion";
 
 			m_Player = PlayerBase.Cast( vehicleScript.CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
 		}
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("Player", m_Player);
-		#endif
 
 		if ( m_Player == NULL )
 		{

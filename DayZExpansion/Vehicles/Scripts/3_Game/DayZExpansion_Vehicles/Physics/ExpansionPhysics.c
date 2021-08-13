@@ -114,13 +114,6 @@ class ExpansionPhysics
 		
 		float res = -contactDamping * rel_vel * jacDiagABInv;
 		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", body1);
-
-		dbg_Vehicle.Set("vel", vel);
-		dbg_Vehicle.Set("res", res);
-		#endif
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionPhysics::ResolveSingleBilateral - Return: " + res.ToString() );
 		#endif

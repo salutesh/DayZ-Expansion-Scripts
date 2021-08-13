@@ -141,18 +141,25 @@ class ExpansionVehicleSound
 
 		m_SoundWaveObject.SetVolume( m_CurrentVolume );
 		m_SoundWaveObject.SetFrequency( m_CurrentFrequency );
-				
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", m_Vehicle);
-
-		dbg_Vehicle.Set("Sound Set", m_SoundSetName );
-		dbg_Vehicle.Set("Target", "(volume=" + m_TargetVolume + ", frequency=" + m_TargetFrequency + ")" );
-		dbg_Vehicle.Set("Current", "(volume=" + m_CurrentVolume + ", frequency=" + m_CurrentFrequency + ")" );
-		#endif
 		
 		m_CurrentVolume += Math.Clamp( m_TargetVolume - m_CurrentVolume, -1.0 * pDt, 1.0 * pDt );
 		m_CurrentFrequency += Math.Clamp( m_TargetFrequency - m_CurrentFrequency, -1.0 * pDt, 1.0 * pDt );
 		
 		return true;
 	}
+
+	#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		instance.Add("Sound Set", m_SoundSetName );
+
+		instance.Add("Target Volume", m_TargetVolume );
+		instance.Add("Target Frequency", m_TargetFrequency );
+		
+		instance.Add("Current Volume", m_CurrentVolume );
+		instance.Add("Current Frequency", m_CurrentFrequency );
+
+		return true;
+	}
+	#endif
 };

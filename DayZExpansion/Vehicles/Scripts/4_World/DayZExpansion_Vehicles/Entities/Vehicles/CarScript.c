@@ -2009,23 +2009,6 @@ modded class CarScript
 		#ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint( "[" + this + "] EOnSimulate" );
 		#endif
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		#endif
-		
-		/*
-		vector newVelocity = GetVelocity( this );
-		vector acceleration = newVelocity - m_PreviousVelocity;
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("Velocity", newVelocity.Length() );
-		dbg_Vehicle.Set("Velocity-1", m_PreviousVelocity.Length() );
-		dbg_Vehicle.Set("Acceleration", ( acceleration.Length() / dt ) );
-		#endif
-
-		m_PreviousVelocity = newVelocity;
-		*/
 	
 		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 		for ( int dbg = 0; dbg < m_DebugShapes.Count(); ++dbg )

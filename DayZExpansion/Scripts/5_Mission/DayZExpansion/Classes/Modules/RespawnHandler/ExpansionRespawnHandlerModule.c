@@ -232,7 +232,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		PlayerBase player = GetPlayerObjectByIdentity( sender );
 		if (player)
 		{
-			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
+				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
 			player.SetPosition(spawnPoint);
 			
 			CloseSpawnMenu(sender);
