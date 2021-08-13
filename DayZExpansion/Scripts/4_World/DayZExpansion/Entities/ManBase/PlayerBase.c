@@ -89,6 +89,12 @@ modded class PlayerBase
 			#endif
 		}
 
+		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
+		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
+		}
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::~PlayerBase - End");
 		#endif
