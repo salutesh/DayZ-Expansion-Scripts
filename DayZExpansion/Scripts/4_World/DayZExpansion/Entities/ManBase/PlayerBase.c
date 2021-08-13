@@ -105,19 +105,12 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void EEKilled( Object killer )
 	{
-	#ifdef ENFUSION_AI_PROJECT
-		eAIBase eAI_Entity = eAIBase.Cast(this);
-	#endif
-		
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
-			eAI_Entity = eAIBase.Cast(this);
-			if (!eAI_Entity)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
-		#else
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
+			if (!IsInherited(eAIBase))
 		#endif
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
 		}
 		
 		super.EEKilled(killer);
