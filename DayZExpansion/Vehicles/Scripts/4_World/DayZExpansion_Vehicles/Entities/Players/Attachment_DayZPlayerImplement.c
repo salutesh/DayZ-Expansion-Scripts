@@ -500,6 +500,8 @@ modded class DayZPlayerImplement
 
 			m_ExAttachmentObject.Update();
 
+			OnExpansionAttachTo( m_ExAttachmentObject, c_tmLocal );
+
 			m_ExPerformClimbAttach = false;
 
 			if ( GetGame().IsServer() )
@@ -624,6 +626,8 @@ modded class DayZPlayerImplement
 					UnlinkFromLocalSpace();
 
 					//m_ExAttachmentObject.Update();
+
+					OnExpansionDetachFrom( m_ExAttachmentObject );
 					
 					m_ExAttachmentObject = NULL;
 
@@ -649,6 +653,8 @@ modded class DayZPlayerImplement
 					LinkToLocalSpaceOf( m_ExAttachmentObject, tmLocal );
 
 					m_ExAttachmentObject.Update();
+
+					OnExpansionAttachTo( m_ExAttachmentObject, tmLocal );
 
 					AttachmentDebugPrint( "END ATTACH" );
 
@@ -683,4 +689,8 @@ modded class DayZPlayerImplement
 			AttachmentDebugPrint( "ExPlayerLinkType Processed" );
 		}
 	}
+
+	void OnExpansionAttachTo( Object attachedToObj, vector tmLocal[4] );
+
+	void OnExpansionDetachFrom( Object detachedFromObj );
 }

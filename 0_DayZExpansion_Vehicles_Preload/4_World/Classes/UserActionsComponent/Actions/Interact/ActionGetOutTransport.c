@@ -135,6 +135,8 @@ modded class ActionGetOutTransport
 		if ( got_action_data.keepInVehicleSpaceAfterLeave )
 			return;
 
+		action_data.m_Player.SetInVehicle( false );
+
 		//! The following code is similar to vanilla ActionGetOutTransport::OnEndServer,
 		//! except that we don't use RaycastRV(Proxy) because it can return results that aren't even in the rays path or radius.
 		//! This fixes an exploit that was introduced with DayZ 1.11 where players could glitch through floors when getting out of a vehicle.

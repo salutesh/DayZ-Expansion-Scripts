@@ -92,6 +92,9 @@ modded class PlayerBase
 		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
+		#ifdef ENFUSION_AI_PROJECT
+			if (!IsInherited(eAIBase))
+		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}
 		
@@ -699,60 +702,6 @@ modded class PlayerBase
 		return cmd;
 	}
 	*/
-
-	// ------------------------------------------------------------
-	// PlayerBase OnCommandExpansionVehicleStart
-	// ------------------------------------------------------------
-	override void OnCommandExpansionVehicleStart()
-	{
-		super.OnCommandExpansionVehicleStart();
-
-		if ( GetInventory() )
-			GetInventory().LockInventory( LOCK_FROM_SCRIPT );
-
-		ItemBase itemInHand = GetItemInHands();
-		EntityAI itemOnHead = FindAttachmentBySlotName( "Headgear" );
-
-		if ( itemInHand )
-		{
-			if ( itemInHand.GetCompEM() )
-			{
-				itemInHand.GetCompEM().SwitchOff();
-			}
-
-			GetItemAccessor().HideItemInHands(true);
-		}
-
-		if ( itemOnHead )
-		{
-			if ( itemOnHead.GetCompEM() )
-			{
-				itemOnHead.GetCompEM().SwitchOff();
-			}
-		}
-		
-		ExpansionHumanCommandVehicle hcv = GetCommand_ExpansionVehicle();
-		if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-		{
-			OnVehicleSeatDriverEnter();
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion HeadingModel
-	// ------------------------------------------------------------
-	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
-	{
-		if ( GetCommand_ExpansionVehicle() )
-		{
-			m_fLastHeadingDiff = 0;
-
-			pModel.m_fOrientationAngle = 0;
-			return true;
-		}
-
-		return super.HeadingModel( pDt, pModel );
-	}
 	
 	// ------------------------------------------------------------
 	// PlayerBase SetHasItemMap

@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionRadio"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Vehicles_Scripts"};
+		requiredAddons[] = {"DayZExpansion_Book_Scripts","DayZExpansion_Vehicles_Scripts"};
 	};
 };
 class CfgNoises

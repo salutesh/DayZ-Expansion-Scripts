@@ -48,22 +48,6 @@ modded class PlayerBase
 		EXPrint("PlayerBase::~PlayerBase - End");
 		#endif
 	}
-		
-	// ------------------------------------------------------------
-	// PlayerBase DeferredClientInit
-	// ------------------------------------------------------------
-	override void DeferredClientInit()
-	{		
-		super.DeferredClientInit();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - End");
-		#endif
-	}
 
 	// ------------------------------------------------------------
 	// Expansion SetActions
@@ -258,6 +242,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetInVehicle( bool state )
 	{
+		EXPrint(ToString() + "::SetInVehicle " + state);
 		m_WasInVehicle = state;
 	}
 
@@ -329,6 +314,20 @@ modded class PlayerBase
 		{
 			OnVehicleSeatDriverLeft();
 		}
+	}
+
+	//! Called on both server + client when attaching to vehicle
+	override void OnExpansionAttachTo( Object attachedToObj, vector tmLocal[4] )
+	{
+		EXPrint(ToString() + "::OnExpansionAttachTo " + attachedToObj);
+		SetInVehicle( true );
+	}
+
+	//! Called on both server + client when detaching from vehicle
+	override void OnExpansionDetachFrom( Object detachedFromObj )
+	{
+		EXPrint(ToString() + "::OnExpansionDetachFrom " + detachedFromObj);
+		SetInVehicle( false );
 	}
 
 	// ------------------------------------------------------------

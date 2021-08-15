@@ -225,5 +225,7 @@ modded class ActionGetInTransport
 		}
 
 		super.OnEndServer( action_data );
+
+		action_data.m_Player.SetInVehicle( true );
 	}
 };
