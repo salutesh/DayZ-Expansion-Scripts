@@ -225,11 +225,11 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
-	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector direction, out int quantity, TStringArray attachments = NULL, int skinIndex = -1 )
+	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int quantity, TStringArray attachments = NULL, int skinIndex = -1 )
 	{		
 		ISHDebugPrint("SpawnVehicle - Start");
 
-		Object obj = GetGame().CreateObjectEx(className, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObject(className, position);
 
 		//! TODO: Add support for ExpansionVehicleBase
 		CarScript vehicle;
@@ -247,8 +247,7 @@ class ExpansionItemSpawnHelper
 			return NULL;
 		}
 
-		vehicle.SetDirection(direction);
-		vehicle.SetPosition(position);
+		vehicle.SetOrientation(orientation);
 
 		if (attachments)
 			SpawnAttachments(attachments, vehicle, skinIndex);

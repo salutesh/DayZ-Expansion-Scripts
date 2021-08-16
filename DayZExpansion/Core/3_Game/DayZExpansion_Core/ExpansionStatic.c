@@ -64,6 +64,14 @@ static void EXLogPrint( int s )
 	Print( GetTimestamp() + " [EXPANSION LOG]: " + s );
 }
 
+//! Prints a hitch warning if elapsed time since startTime is above threshold
+static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0.025 )
+{
+	float elapsedTime = GetGame().GetTickTime() - startTime;
+	if (elapsedTime > threshold)
+		EXPrint(msgPrefix + "HITCH: " + (elapsedTime * 1000) + "ms");
+}
+
 // -----------------------------------------------------------
 // Expansion String FloatToString
 // -----------------------------------------------------------
