@@ -16,10 +16,12 @@ class ExpansionMenuDialogBase: ExpansionScriptView
 	TextWidget dialog_base_title;
 	Widget dialog_base_footer;
 	ButtonWidget dialog_close_button;
+	Widget dialog_info_content;
+	ButtonWidget dialog_info_button;
 	
 	ref ExpansionScriptViewMenu m_ParentMenu;
 	ref ExpansionMenuDialogBaseController m_DialogBaseController;
-	
+		
 	void ExpansionMenuDialogBase(ExpansionScriptViewMenu parentMenu)
 	{
 		m_ParentMenu = parentMenu;
@@ -60,12 +62,20 @@ class ExpansionMenuDialogBase: ExpansionScriptView
 		return false;
 	}
 	
+	bool HasInfoButton()
+	{
+		return false;
+	}
+	
 	void SetBaseDialogView()
 	{
 		if (!HasHeader())
 			dialog_base_header.Show(false);
 		
-		if (!HasCloseButton() && HasHeader())
+		if (!HasCloseButton())
+			dialog_close_button.Show(false);
+		
+		if (!HasInfoButton())
 			dialog_close_button.Show(false);
 		
 		if (GetDialogTitle() == "")

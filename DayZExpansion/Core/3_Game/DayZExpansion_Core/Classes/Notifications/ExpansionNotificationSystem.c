@@ -20,7 +20,7 @@ class ExpansionNotificationSystem
 	// ------------------------------------------------------------
 	// ExpansionNotificationSystem CreateNotification
 	// ------------------------------------------------------------
-	void CreateNotification( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	void CreateNotification( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationSystem::CreateNotification - Start");
@@ -30,16 +30,16 @@ class ExpansionNotificationSystem
 		EXLogPrint( "NOTIFICATION: " + title.Format() + ": " + text.Format() );
 		#endif
 
-		ExpansionNotification( title, text, icon, color, time, type, obj ).Create( identity );
+		ExpansionNotification( title, text, icon, color, time, type ).Create( identity );
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionNotificationSystem::CreateNotification - End");
 		#endif
 	}
 
-	void CreateNotification( string title, string text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	void CreateNotification( string title, string text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
 	{
-		CreateNotification( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, identity, type, obj );
+		CreateNotification( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, identity, type );
 	}
 };
 
@@ -92,9 +92,8 @@ class ExpansionNotificationTemplate<Class T>
 	protected int m_Color;
 	protected float m_Time;
 	protected ExpansionNotificationType m_Type;
-	protected Object m_Object;
 	
-	void ExpansionNotificationTemplate( T title, T text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	void ExpansionNotificationTemplate( T title, T text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
 	{
 		m_Title = title;
 		m_Text = text;
@@ -102,21 +101,20 @@ class ExpansionNotificationTemplate<Class T>
 		m_Color = color;
 		m_Time = time;
 		m_Type = type;
-		m_Object = obj;
 	}
 
 	void Create( PlayerIdentity identity = NULL )
 	{
-		Create( m_Icon, m_Color, identity, m_Type, m_Object );
+		Create( m_Icon, m_Color, identity, m_Type );
 	}
 
-	void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+	void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 	{
 		#ifdef EXPANSIONMOD
 		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
 		{
 		#endif
-			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type, obj );
+			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
 		#ifdef EXPANSIONMOD
 		}
 		#endif
@@ -147,22 +145,22 @@ class ExpansionNotificationTemplate<Class T>
 	}
 }
 
-static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( StringLocaliser title, StringLocaliser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( StringLocaliser title, StringLocaliser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return new ExpansionNotificationTemplate<StringLocaliser>( title, text, icon, color, time, type, obj );
+	return new ExpansionNotificationTemplate<StringLocaliser>( title, text, icon, color, time, type );
 }
 
-static ExpansionNotificationTemplate<string> ExpansionNotification( string title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+static ExpansionNotificationTemplate<string> ExpansionNotification( string title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return new ExpansionNotificationTemplate<string>( title, text, icon, color, time, type, obj );
+	return new ExpansionNotificationTemplate<string>( title, text, icon, color, time, type );
 }
 
-static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( string title, StringLocaliser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( string title, StringLocaliser text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return ExpansionNotification( new StringLocaliser( title ), text, icon, color, time, type, obj );
+	return ExpansionNotification( new StringLocaliser( title ), text, icon, color, time, type );
 }
 
-static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( StringLocaliser title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
+static ExpansionNotificationTemplate<StringLocaliser> ExpansionNotification( StringLocaliser title, string text, string icon = "", int color = 0, float time = 7, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 {
-	return ExpansionNotification( title, new StringLocaliser( text ), icon, color, time, type, obj );
+	return ExpansionNotification( title, new StringLocaliser( text ), icon, color, time, type );
 }

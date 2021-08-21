@@ -135,6 +135,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	{
 		int i = 0;
 
+		Enabled = s.Enabled;
+		
 		CircleZones.Clear();
 		PolygonZones.Clear();
 
@@ -147,7 +149,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			CircleZones.Insert( s.CircleZones[i] );
 		}
 
-		Enabled = s.Enabled;
 		EnableVehicleinvincibleInsideSafeZone = s.EnableVehicleinvincibleInsideSafeZone;
 		FrameRateCheckSafeZoneInMs = s.FrameRateCheckSafeZoneInMs;
 	}
@@ -173,6 +174,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 
 		m_IsLoaded = true;
 
+		bool save;
+
 		bool safezoneSettingsExist = FileExist(EXPANSION_SAFE_ZONES_SETTINGS);
 
 		if (safezoneSettingsExist)
@@ -183,8 +186,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			ExpansionSafeZoneSettingsBase settingsBase;
 
 			JsonFileLoader<ExpansionSafeZoneSettingsBase>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, settingsBase);
-
-			bool save;
 
 			if (settingsBase.m_Version < VERSION)
 			{
@@ -204,33 +205,21 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			{
 				JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, this);
 			}
-
-			if (save)
-			{
-				JsonFileLoader<ExpansionSafeZoneSettings>.JsonSaveFile(EXPANSION_SAFE_ZONES_SETTINGS, this);
-			}
-		}
-
-		if (safezoneSettingsExist)
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionSafeZoneSettings::Load - End");
-			#endif
-			
-			return true;
 		}
 		else
 		{
 			Defaults();
+			save = true;
 		}
 		
-		Save();
+		if (save)
+			Save();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::Load - End");
+		EXPrint("ExpansionSafeZoneSettings::Load - End - Loaded: " + safezoneSettingsExist);
 		#endif
 		
-		return true;
+		return safezoneSettingsExist;
 	}
 
 	// ------------------------------------------------------------

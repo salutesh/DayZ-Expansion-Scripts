@@ -10,65 +10,6 @@
  *
 */
 
-class ExpansionDialogContent_TextScroller: ExpansionDialogContentBase
-{
-	ref ExpansionDialogContent_TextScrollerController m_TextScrollerController;	
-	private string m_Text = "";
-	
-	RichTextWidget dialog_scroller_text;
-	
-	void ExpansionDialogContent_TextScroller(ExpansionDialogBase dialog)
-	{
-		m_Dialog = dialog;
-
-		if (!m_TextScrollerController)
-			m_TextScrollerController = ExpansionDialogContent_TextScrollerController.Cast(GetController());
-	}
-	
-	override string GetLayoutFile() 
-	{
-		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_content_textscroller.layout";
-	}
-	
-	override typename GetControllerType() 
-	{
-		return ExpansionDialogContent_TextScrollerController;
-	}
-	
-	string GetDialogText()
-	{
-		return m_Text;
-	}
-	
-	void SetDialogText(string text)
-	{
-		m_Text = text;
-	}
-	
-	void SetContent()
-	{		
-		m_TextScrollerController.DialogText = GetDialogText();
-		m_TextScrollerController.NotifyPropertyChanged("DialogText");
-	}
-	
-	override void OnShow()
-	{
-		super.OnShow();
-		
-		SetContent();
-	}
-	
-	void SetTextColor(int color)
-	{
-		dialog_scroller_text.SetColor(color);
-	}
-};
-
-class ExpansionDialogContent_TextScrollerController: ExpansionViewController
-{
-	string DialogText;
-}
-
 class ExpansionMenuDialogContent_TextScroller: ExpansionMenuDialogContentBase
 {
 	ref ExpansionMenuDialogContent_TextScrollerController m_TextScrollerController;	

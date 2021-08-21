@@ -61,6 +61,8 @@ enum ExpansionMarketModuleRPC
 	CancelSell,
 	RequestTraderData,
 	LoadTraderData,
+	RequestTraderItems,
+	LoadTraderItems,
 	
 	//! ATM
 	RequestPlayerATMData,

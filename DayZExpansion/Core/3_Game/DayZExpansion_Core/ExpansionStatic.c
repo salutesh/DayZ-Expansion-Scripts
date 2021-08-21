@@ -613,3 +613,48 @@ static string IntToCurrencyString(int number, string separator)
 
     return money;
 }
+
+static bool Key_Y()
+{
+  	return KeyState(KeyCode.KC_Y) > 0;
+}
+
+static bool Key_Z()
+{
+  	return KeyState(KeyCode.KC_Z) > 0;
+}
+		
+static bool Key_C()
+{
+  	return KeyState(KeyCode.KC_C) > 0;
+}
+
+static bool Key_B()
+{
+  	return KeyState(KeyCode.KC_B) > 0;
+}
+
+static bool Key_S()
+{
+  	return KeyState(KeyCode.KC_S) > 0;
+}
+
+static bool Key_UP()
+{
+  	return KeyState(KeyCode.KC_UP) > 0;
+}
+
+static bool Key_DOWN()
+{
+  	return KeyState(KeyCode.KC_DOWN) > 0;
+}
+
+static bool Key_LEFT()
+{
+  	return KeyState(KeyCode.KC_LEFT) > 0;
+}
+
+static bool Key_RIGHT()
+{
+  	return KeyState(KeyCode.KC_RIGHT) > 0;
+}

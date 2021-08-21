@@ -39,7 +39,7 @@ modded class PlayerBase
 	
 	void ~PlayerBase()
 	{
-		if ( m_AllPlayersUID && m_AllPlayersUID.Get( m_PlayerUID ) == this )
+		if ( m_AllPlayersUID && m_PlayerUID && m_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{
 			m_AllPlayersUID.Remove( m_PlayerUID );
 		}

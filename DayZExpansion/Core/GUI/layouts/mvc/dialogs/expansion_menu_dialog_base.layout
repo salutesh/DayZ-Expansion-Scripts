@@ -8,7 +8,7 @@ PanelWidgetClass ExpansionMenuDialogBase {
  vexactpos 0
  hexactsize 0
  vexactsize 0
- priority 1000
+ priority 900
  scriptclass "ExpansionMenuDialogBaseController"
  style rover_sim_colorable
  {
@@ -53,20 +53,20 @@ PanelWidgetClass ExpansionMenuDialogBase {
        visible 1
        ignorepointer 1
        position 0 0
-       size 1 30
+       size 1 36
        hexactpos 0
        vexactpos 0
        hexactsize 0
        vexactsize 1
        {
         ButtonWidgetClass dialog_close_button {
-         visible 1
-         position 10 0
+         visible 0
+         position 0.021 0
          size 25 25
          halign right_ref
          valign center_ref
-         hexactpos 1
-         vexactpos 1
+         hexactpos 0
+         vexactpos 0
          hexactsize 1
          vexactsize 1
          {
@@ -81,6 +81,60 @@ PanelWidgetClass ExpansionMenuDialogBase {
            mode blend
            "src alpha" 1
            stretch 1
+          }
+         }
+        }
+        PanelWidgetClass dialog_info_content {
+         visible 1
+         disabled 0
+         clipchildren 0
+         ignorepointer 1
+         position 0.02 0
+         size 36 36
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         priority 899
+         style blank
+         {
+          ButtonWidgetClass dialog_info_button {
+           clipchildren 0
+           position 0 0
+           size 36 36
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Empty
+           {
+            ImageWidgetClass dialog_info_icon {
+             clipchildren 0
+             ignorepointer 1
+             keepsafezone 0
+             color 0.8627 0.8627 0.8627 1
+             size 36 36
+             halign right_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             image0 ""
+             imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+           }
+           {
+            ScriptParamsClass {
+            }
+           }
           }
          }
         }
@@ -149,8 +203,9 @@ PanelWidgetClass ExpansionMenuDialogBase {
          hexactsize 0
          vexactsize 1
          scriptclass "ViewBinding"
-         Padding 5
+         Padding 0
          Margin 0
+         "Size To Content H" 1
          "Size To Content V" 1
          content_halign center
          content_valign center

@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2021 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -16,217 +16,167 @@
 class ExpansionSafeZoneModule: JMModuleBase
 {
 	private autoptr ExpansionSafeZoneSettings m_Settings;
-	
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule IsEnabled
-	// ------------------------------------------------------------
+
+	ExpansionSafeZoneSettings GetSettings()
+	{
+		if ( !m_Settings )
+			m_Settings = GetExpansionSettings().GetSafeZone();
+
+		return m_Settings;
+	}
+
 	override bool IsEnabled()
 	{
-		return GetExpansionSettings().GetSafeZone().Enabled;
+		return (super.IsEnabled() && GetSettings().Enabled);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule OnMissionLoaded
-	// ------------------------------------------------------------
+
+	//! Note: Only called if safezone module is enabled (IsEnabled needs to return true)
 	override void OnMissionLoaded()
 	{
 		super.OnMissionLoaded();
 
-		m_Settings = GetExpansionSettings().GetSafeZone();
-
-		thread ThreadSafeZone();
+		if ( IsMissionHost() )
+			thread ThreadSafeZone();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule IsClient
-	// ------------------------------------------------------------
 	override bool IsClient()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule IsInside
-	// ------------------------------------------------------------
-	bool IsInside( vector position )
+	static bool IsInside( vector position )
 	{
-		if ( m_Settings.Enabled )
-		{
-			bool isInsideCircleZone;
-			bool isInsidePolygonZone;
-			int j;
-			int p;
+		ExpansionSafeZoneModule module = ExpansionSafeZoneModule.Cast( GetModuleManager().GetModule( ExpansionSafeZoneModule ) );
 
-			IsInsideSafeZone( position, isInsideCircleZone, isInsidePolygonZone, j, p );
-
-			return isInsideCircleZone || isInsidePolygonZone;
-		}
-
-		return false;
+		return module && module.IsEnabled() && module.IsInsideSafeZone( position );
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule IsInsideSafeZone
-	// ------------------------------------------------------------
-	private void IsInsideSafeZone( vector pos_obj, out bool isInsideCircleZone = false, out bool isInsidePolygonZone = false, out int j = 0, out int p = 0)
+	private bool IsInsideSafeZone( vector position )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSafeZoneModule:: IsInsideSafeZone - Start");
 		#endif
 		
-		array<ref ExpansionSafeZoneCircle> circleZones = m_Settings.CircleZones;
-		array<ref ExpansionSafeZonePolygon> polygonZones = m_Settings.PolygonZones;
+		array<ref ExpansionSafeZoneCircle> circleZones = GetSettings().CircleZones;
+		array<ref ExpansionSafeZonePolygon> polygonZones = GetSettings().PolygonZones;
 
 		if ( !circleZones || !polygonZones )
-			return;
+			return false;
 
-		//Check all circle zone first, because it's not heavy on perf than polygon check
-		for ( j = 0; j < circleZones.Count(); j++)
+		//! Check all circle zones first, because it's lighter on perf than polygon check
+		foreach ( ExpansionSafeZoneCircle circleZone : circleZones )
 		{
-			ExpansionSafeZoneCircle circleZone = circleZones[j];
+			vector center = Vector( circleZone.Center[0], position[1], circleZone.Center[2] );
 
-			if ( !circleZone )
-				continue;
-									
-			float xPower = circleZone.Center[0] - pos_obj[0];
-			float zPower = circleZone.Center[2] - pos_obj[2];
-
-			float distance_squared = ( xPower * xPower ) + ( zPower * zPower ); 
-				
-			if ( distance_squared < (circleZone.Radius * circleZone.Radius) ) 
+			if ( vector.Distance( position, center ) < circleZone.Radius )
 			{
-				isInsideCircleZone = true;
-				return;
+				return true;
 			}
 		}
 
-		// If he are not inside circle zone we check polygon zone, more heavy on performance
-		if ( !isInsideCircleZone )
+		//! If the position is not inside a circle zone we check polygon zones,
+		//! heavier on performance depending on polygon complexity
+		bool isInsidePolygonZone;
+		foreach ( ExpansionSafeZonePolygon polyZone : polygonZones )
 		{
-			for ( p = 0; p < polygonZones.Count(); p++ )
+			TVectorArray polygonPosition = polyZone.Positions;
+
+			for ( int k = 0, l = polygonPosition.Count() - 1; k < polygonPosition.Count(); ++k)
 			{
-				ExpansionSafeZonePolygon polyZone = polygonZones[p];
-
-				if ( !polyZone )
-					continue;
-
-				TVectorArray polygonPosition = polyZone.Positions;
-					
-				for ( int k = 0, l = polygonPosition.Count() - 1; k < polygonPosition.Count(); ++k)
+				if ( ( polygonPosition[k][2] > position[2] ) != ( polygonPosition[l][2] > position[2] ) && position[0] < ( polygonPosition[l][0] - polygonPosition[k][0] ) * ( position[2] - polygonPosition[k][2] ) / ( polygonPosition[l][2] - polygonPosition[k][2] ) + polygonPosition[k][0] )
 				{
-					if ( ( polygonPosition[k][2] > pos_obj[2] ) != ( polygonPosition[l][2] > pos_obj[2] ) && pos_obj[0] < ( polygonPosition[l][0] - polygonPosition[k][0] ) * ( pos_obj[2] - polygonPosition[k][2] ) / ( polygonPosition[l][2] - polygonPosition[k][2] ) + polygonPosition[k][0] )
-					{
-						isInsidePolygonZone = !isInsidePolygonZone;
-					}
-
-					l = k;
+					isInsidePolygonZone = !isInsidePolygonZone;
 				}
 
-				if ( isInsidePolygonZone )
-				{
-					return;
-				}
+				l = k;
+			}
+
+			if ( isInsidePolygonZone )
+			{
+				return true;
 			}
 		}
-		
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSafeZoneModule:: IsInsideSafeZone - End");
 		#endif
+
+		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule CheckPlayers
-	// ------------------------------------------------------------
+
 	private void CheckPlayers()
 	{
 		array< PlayerBase > players = PlayerBase.GetAll();
-		
-		for ( int i = 0; i < players.Count(); i++ )
+
+		foreach ( PlayerBase player : players )
 		{
-			PlayerBase player = players[i];
 			if ( !player )
 				continue;
 
-			bool isInside = IsInside( player.GetPosition() );
-				
-			if ( isInside )
-			{
-				if ( !player.IsInSafeZone() )
-				{
-					player.OnEnterSafeZone();
-				}
-			} 
-			else 
-			{
-				if ( player.IsInSafeZone() )
-				{
-					player.OnLeavingSafeZone();
-				}
-			}
+			bool isInside = IsInsideSafeZone( player.GetPosition() );
+
+			if ( isInside && !player.IsInSafeZone() )
+				player.OnEnterSafeZone();
+			else if ( !isInside && player.IsInSafeZone() )
+				player.OnLeavingSafeZone();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule CheckZombies
-	// ------------------------------------------------------------
+
 	private void CheckZombies()
 	{
-		for ( int i = 0; i < ZombieBase.GetAll().Count(); i++ )
+		set< ZombieBase > zombies = ZombieBase.GetAll();
+
+		foreach ( ZombieBase zombie : zombies )
 		{
-			ZombieBase zombie = ZombieBase.GetAll().Get( i );
 			if ( !zombie )
 				continue;
 
-			bool isInside = IsInside( zombie.GetPosition() );
-				
-			if ( isInside )
-			{
-				if ( !zombie.IsInSafeZone() )
-				{
-					zombie.OnEnterSafeZone();
-				}
-			} else 
-			{
-				if ( zombie.IsInSafeZone() )
-				{
-					zombie.OnLeftSafeZone();
-				}
-			}
+			bool isInside = IsInsideSafeZone( zombie.GetPosition() );
+
+			if ( isInside && !zombie.IsInSafeZone() )
+				zombie.OnEnterSafeZone();
+			else if ( !isInside && zombie.IsInSafeZone() )
+				zombie.OnLeftSafeZone();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule CheckVehicles
-	// ------------------------------------------------------------
+
 	private void CheckVehicles()
 	{
-		for ( int i = 0; i < CarScript.GetAll().Count(); i++ )
+		bool isInside;
+
+		set< CarScript > cars = CarScript.GetAll();
+
+		foreach ( CarScript car : cars )
 		{
-			CarScript vehicle = CarScript.GetAll().Get( i );
+			if ( !car )
+				continue;
+
+			isInside = IsInsideSafeZone( car.GetPosition() );
+
+			if ( isInside && !car.IsInSafeZone() )
+				car.OnEnterSafeZone();
+			else if ( !isInside && car.IsInSafeZone() )
+				car.OnLeftSafeZone();
+		}
+
+		#ifdef EXPANSIONMODVEHICLE
+		set< ExpansionVehicleBase > vehicles = ExpansionVehicleBase.GetAll();
+
+		foreach ( ExpansionVehicleBase vehicle : vehicles )
+		{
 			if ( !vehicle )
 				continue;
 
-			bool isInside = IsInside( vehicle.GetPosition() );
-				
-			if ( isInside )
-			{
-				if ( !vehicle.IsInSafeZone() )
-				{
-					vehicle.OnEnterSafeZone();
-				}
-			} else 
-			{
-				if ( vehicle.IsInSafeZone() )
-				{
-					vehicle.OnLeftSafeZone();
-				}
-			}
+			isInside = IsInsideSafeZone( vehicle.GetPosition() );
+
+			if ( isInside && !vehicle.IsInSafeZone() )
+				vehicle.OnEnterSafeZone();
+			else if ( !isInside && vehicle.IsInSafeZone() )
+				vehicle.OnLeftSafeZone();
 		}
+		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSafeZoneModule ThreadSafeZone
-	// ------------------------------------------------------------
+
 	private void ThreadSafeZone()
 	{
 		while ( true )
@@ -243,11 +193,8 @@ class ExpansionSafeZoneModule: JMModuleBase
 				return;
 			}
 
-			array<ref ExpansionSafeZoneCircle> circleZones = m_Settings.CircleZones;
-			array<ref ExpansionSafeZonePolygon> polygonZones = m_Settings.PolygonZones;
-			
-			//Check if we have the two types of zone setup
-			if ( !circleZones || !polygonZones )
+			//! Check if we have the two types of zone setup
+			if ( !GetSettings().CircleZones || !GetSettings().PolygonZones )
 			{
 				Error( "[ExpansionSafeZoneModule] Verify the safezone settings and restart the server." );
 				#ifdef EXPANSIONEXPRINT
@@ -264,19 +211,8 @@ class ExpansionSafeZoneModule: JMModuleBase
 			EXPrint("ExpansionSafeZoneModule:: ThreadSafeZone - End");
 			#endif
 
-			Sleep( m_Settings.FrameRateCheckSafeZoneInMs );
+			//! Make sure the time the thread sleeps is never zero and force a minimum value
+			Sleep( Math.Max( GetSettings().FrameRateCheckSafeZoneInMs, 25 ) );
 		}
 	}
-}
-
-static bool ExpansionSafeZone_IsInside( vector position )
-{
-	ExpansionSafeZoneModule module = ExpansionSafeZoneModule.Cast( GetModuleManager().GetModule( ExpansionSafeZoneModule ) );
-	
-	if ( module )
-	{
-		return module.IsInside( position );
-	}
-
-	return false;
 }

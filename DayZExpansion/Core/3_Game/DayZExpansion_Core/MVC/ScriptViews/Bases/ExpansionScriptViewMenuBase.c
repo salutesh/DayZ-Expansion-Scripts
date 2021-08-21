@@ -15,6 +15,11 @@ class ExpansionScriptViewMenuBase: ScriptView
 	private int m_SVMenuID = -1;
 	private bool m_IsVisible = false;
 	
+	void ExpansionScriptViewMenuBase()
+	{
+		Debug_Logging = false;
+	}
+	
 	void SetIsVisible(bool state)
 	{
 		m_IsVisible = state;
