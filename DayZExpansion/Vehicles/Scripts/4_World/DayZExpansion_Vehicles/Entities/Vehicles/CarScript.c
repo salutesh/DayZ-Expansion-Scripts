@@ -361,6 +361,15 @@ modded class CarScript
 		return m_Controller;
 	}
 
+	void UpdateVisuals()
+	{
+	}
+
+	bool HasRoof()
+	{
+		return true;
+	}
+
 	// ------------------------------------------------------------
 	// SetActions
 	// ------------------------------------------------------------

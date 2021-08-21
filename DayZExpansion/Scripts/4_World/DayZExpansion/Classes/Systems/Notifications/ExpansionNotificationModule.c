@@ -93,6 +93,9 @@ class ExpansionNotificationModule: JMModuleBase
 				case ExpansionNotificationType.KILLFEED:
 					notificationElement = new ExpansionNotificationViewKillfeed(data, this, m_NotificationHUD);
 					break;
+				case ExpansionNotificationType.MARKET:
+					notificationElement = new ExpansionNotificationViewMarket(data, this, m_NotificationHUD);
+					break;
 				default:
 					notificationElement = new ExpansionNotificationViewToast(data, this, m_NotificationHUD);
 					break;
@@ -126,6 +129,9 @@ class ExpansionNotificationModule: JMModuleBase
 				break;
 			case ExpansionNotificationType.KILLFEED:
 				m_NotificationHUD.AddNotificationKillfeedElemement(ExpansionNotificationViewKillfeed.Cast(notificationElement));
+				break;
+			case ExpansionNotificationType.MARKET:
+				m_NotificationHUD.AddNotificationMarketElemement(ExpansionNotificationViewMarket.Cast(notificationElement));
 				break;
 			default:
 				m_NotificationHUD.AddNotificationToatsElemement(ExpansionNotificationViewToast.Cast(notificationElement));

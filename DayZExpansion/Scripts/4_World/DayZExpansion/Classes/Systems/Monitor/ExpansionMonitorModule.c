@@ -290,7 +290,7 @@ class ExpansionMonitorModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);
 		if (!player)
 		{
-			Error("ExpansionMonitorModule::UpdateStats - Could not get player base!");
+			//! Don't error here, player will be NULL if dead
 			return;
 		}
 			
@@ -330,7 +330,7 @@ class ExpansionMonitorModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);
 		if (!player)
 		{
-			Error("ExpansionMonitorModule::UpdateStates - Could not get player base!");
+			//! Don't error here, player will be NULL if dead
 			return;
 		}
 			

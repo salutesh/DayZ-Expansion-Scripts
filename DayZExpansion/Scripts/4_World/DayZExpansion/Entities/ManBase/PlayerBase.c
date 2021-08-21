@@ -45,11 +45,8 @@ modded class PlayerBase
 		EXPrint("PlayerBase::PlayerBase - Start");
 		#endif
 
-		#ifndef EXPANSIONMODVEHICLE
-		//! PlayerBase in Vehicles_Scripts calls this on its own
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.DeferredClientInit, 100, false );
-		#endif
 		
 		m_TerritoryIdInside = -1;
 
@@ -90,7 +87,7 @@ modded class PlayerBase
 		}
 
 		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
-		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
+		if ( GetGame() && GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
 			if (!IsInherited(eAIBase))
@@ -146,7 +143,7 @@ modded class PlayerBase
 	override void DeferredClientInit()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - Start");
+		EXPrint(ToString() + "::DeferredClientInit - Start");
 		#endif
 		
 		super.DeferredClientInit();
@@ -154,11 +151,12 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXLOGPRINT
 		if ( GetGame() && GetGame().GetPlayer() )
 		{
-			EXLogPrint( "Player Has Entered Network Bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
+			EXLogPrint( ToString() + " '" + GetIdentityName() + "' (id=" + GetIdentityUID() + ") has entered network bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
 		}
 		#endif
 
-		if ( GetGame() && IsMissionClient() && GetModuleManager() )
+		//! Only run this on this client's player, not other playerbase entities (it will be handled in their client if they are players)
+		if ( GetGame() && IsMissionClient() && GetGame().GetPlayer() == this && GetModuleManager() )
 		{
 			ExpansionMarkerModule module;
 			if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )

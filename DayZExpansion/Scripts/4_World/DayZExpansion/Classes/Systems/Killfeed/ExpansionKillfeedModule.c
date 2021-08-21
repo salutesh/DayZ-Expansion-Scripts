@@ -460,9 +460,9 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------	
 	void OnPlayerSuicide(PlayerBase player)
 	{
-		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		//#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnPlayerSuicide - Start" );
-		#endif
+		//#endif
 		
 		if (player)
 		{
@@ -502,10 +502,10 @@ class ExpansionKillFeedModule: JMModuleBase
 				}
 			}
 			
-			#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+			//#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 			EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - Hierarchy Parent: " + player.GetHierarchyParent().ToString());
 			EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - Hierarchy Root: " + player.GetHierarchyRoot().ToString());
-			#endif
+			//#endif
 				
 			/*array<string> names;
 			IEntity child;
@@ -685,9 +685,9 @@ class ExpansionKillFeedModule: JMModuleBase
 			}*/
 		}
 			
-		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
+		//#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::OnPlayerSuicide - End" );
-		#endif
+		//#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -720,14 +720,14 @@ class ExpansionKillFeedModule: JMModuleBase
 			{
 				if( source.IsMeleeWeapon() )
 				{						
-					KillFeedMessage( ExpansionKillFeedMessageType.MELEWEAPON, ExpansionIcons.GetPath("Knife"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, "", source );
+					KillFeedMessage( ExpansionKillFeedMessageType.MELEWEAPON, ExpansionIcons.GetPath("Knife"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName);
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.WEAPON, player, m_Source, source);
 					DiscordMessage( ExpansionKillFeedMessageType.MELEWEAPON, m_PlayerSteamWebhook, m_PlayerSteamWebhook2, m_DisplayName );
 				} 
 				else
 				{
 					float distance = vector.Distance( player.GetPosition(), m_Source.GetPosition() );
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Gun"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString(), EntityAI.Cast(source) );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON, ExpansionIcons.GetPath("Gun"), m_PlayerPrefix, m_PlayerPrefix2, m_DisplayName, Math.Round(distance).ToString());
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.WEAPON, player, m_Source, source);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON, m_PlayerSteamWebhook, m_PlayerSteamWebhook2, m_DisplayName, Math.Round(distance).ToString() );
 				}
@@ -742,7 +742,7 @@ class ExpansionKillFeedModule: JMModuleBase
 					#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 					EXLogPrint("ExpansionKillFeedModule::OnKilledByWeapon - m_Source == NULL || Grenade_Base");
 					#endif
-					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Grenade"), m_PlayerPrefix, m_DisplayName, "", "", source );
+					KillFeedMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, ExpansionIcons.GetPath("Grenade"), m_PlayerPrefix, m_DisplayName);
 					s_EventOnPlayerDeath.Invoke(ExpansionPlayerDeathType.EXPLOSION, player, null, item);
 					DiscordMessage( ExpansionKillFeedMessageType.WEAPON_EXPLOSION, m_PlayerSteamWebhook, m_DisplayName );
 				}
@@ -889,7 +889,7 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ExpansionKillFeedModule KillFeedMessage
 	// Called on Server
 	// ------------------------------------------------------------	
-	private void KillFeedMessage( ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "", Object obj = NULL)
+	private void KillFeedMessage( ExpansionKillFeedMessageType type, string icon, string param1 = "", string param2 = "", string param3 = "", string param4 = "")
 	{
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 		EXLogPrint( "ExpansionKillFeedModule::Message - Start" );
@@ -900,7 +900,7 @@ class ExpansionKillFeedModule: JMModuleBase
 			if( !KillFeedCheckServerSettings(type) )
 				return;
 	
-			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4, obj);
+			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
 			
 			ScriptRPC message_rpc = new ScriptRPC();
 			message_rpc.Write( kill_data );
@@ -1253,14 +1253,7 @@ class ExpansionKillFeedModule: JMModuleBase
 		{
 			if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.NOTIFICATION )
 			{
-				if (!kill_data.PreviewObject)
-				{
-					ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 5, ExpansionNotificationType.KILLFEED).Create();
-				}
-				else
-				{
-					ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 5, ExpansionNotificationType.KILLFEED, kill_data.PreviewObject).Create();
-				}
+				ExpansionNotification("STR_EXPANSION_KILLFEED_TITLE", GetKillMessage(kill_data), kill_data.Icon, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 5, ExpansionNotificationType.KILLFEED).Create();
 			} else if ( GetExpansionSettings().GetNotification().KillFeedMessageType == ExpansionAnnouncementType.CHAT )
 			{
 				GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCSystem, "", "#STR_EXPANSION_KILLFEED_TITLE" + " - " + GetKillMessage(kill_data).Format(), "" ) );

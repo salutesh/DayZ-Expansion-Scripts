@@ -105,6 +105,19 @@ class ExpansionNotificationHUD: ScriptView
 		if (index > -1)
 			m_NotificationHUDController.NotificationKillfeedElements.Remove(index);
 	}
+	
+	void AddNotificationMarketElemement(ExpansionNotificationViewMarket element)
+	{				
+		m_NotificationHUDController.NotificationMarketElements.Insert(element);
+	}
+	
+	void RemoveNotificationMarketElemement(ExpansionNotificationViewMarket element)
+	{
+		int index = -1;
+		index = m_NotificationHUDController.NotificationMarketElements.Find(element);
+		if (index > -1)
+			m_NotificationHUDController.NotificationMarketElements.Remove(index);
+	}
 }
 
 class ExpansionNotificationHUDController: ViewController
@@ -113,4 +126,5 @@ class ExpansionNotificationHUDController: ViewController
 	ref ObservableCollection<ref ExpansionNotificationViewBaguette> NotificationBaguetteElements = new ObservableCollection<ref ExpansionNotificationViewBaguette>(this);
 	ref ObservableCollection<ref ExpansionNotificationViewActivity> NotificationActivityElements = new ObservableCollection<ref ExpansionNotificationViewActivity>(this);
 	ref ObservableCollection<ref ExpansionNotificationViewKillfeed> NotificationKillfeedElements = new ObservableCollection<ref ExpansionNotificationViewKillfeed>(this);
+	ref ObservableCollection<ref ExpansionNotificationViewMarket> NotificationMarketElements = new ObservableCollection<ref ExpansionNotificationViewMarket>(this);
 }

@@ -1,11 +1,11 @@
-WrapSpacerWidgetClass ExpansionNotificationViewKillfeed {
+WrapSpacerWidgetClass ExpansionNotificationViewMarket {
  visible 1
  disabled 0
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
  color 0.1059 0.1059 0.1059 0.4706
- size 0.25 0
+ size 0.2 0
  hexactpos 1
  vexactpos 1
  hexactsize 0
@@ -13,7 +13,7 @@ WrapSpacerWidgetClass ExpansionNotificationViewKillfeed {
  scaled 1
  priority 1000
  draggable 0
- scriptclass "ExpansionNotificationViewKillfeedController"
+ scriptclass "ExpansionNotificationViewMarketController"
  style DayZDefaultPanelRight
  "no focus" 1
  Padding 0

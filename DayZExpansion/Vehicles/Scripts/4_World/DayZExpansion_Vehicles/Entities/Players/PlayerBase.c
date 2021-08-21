@@ -24,11 +24,6 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - Start");
 		#endif
-
-		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
-		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.DeferredClientInit, 100, false );
-		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
