@@ -614,6 +614,21 @@ static string IntToCurrencyString(int number, string separator)
     return money;
 }
 
+static bool Key_SHIFT()
+{
+	return( ( KeyState( KeyCode.KC_LSHIFT ) > 0 ) || ( KeyState( KeyCode.KC_RSHIFT ) > 0 ) );
+}
+
+static bool Key_CTRL()
+{
+	return( ( KeyState( KeyCode.KC_LCONTROL ) > 0 ) || ( KeyState( KeyCode.KC_RCONTROL ) > 0 ) );
+}
+
+static bool Key_ALT()
+{
+	return( ( KeyState( KeyCode.KC_LMENU ) > 0 ) || ( KeyState( KeyCode.KC_RMENU ) > 0 ) );
+}
+
 static bool Key_Y()
 {
   	return KeyState(KeyCode.KC_Y) > 0;
