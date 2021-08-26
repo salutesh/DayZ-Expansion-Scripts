@@ -219,7 +219,7 @@ class ExpansionMissionEventHorde extends ExpansionMissionEventBase
 
 		vector spawnPosition = SampleSpawnPosition( centerPosition, spawnRadius, innerRadius );
 
-		Object obj = GetGame().CreateObject( ExpansionWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
+		Object obj = GetGame().CreateObject( ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), spawnPosition, false, false, true );
 
 		DayZCreatureAI creature;
 		Class.CastTo( creature, obj );

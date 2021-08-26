@@ -230,6 +230,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 
 		if (generalSettingsExist)
 		{
+			EXPrint("[ExpansionGeneralSettings] Load existing setting file:" + EXPANSION_GENERAL_SETTINGS);
+			
 			ExpansionGeneralSettings settingsDefault = new ExpansionGeneralSettings;
 			settingsDefault.Defaults();
 
@@ -268,6 +270,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionGeneralSettings] No existing setting file:" + EXPANSION_GENERAL_SETTINGS + ". Creating defaults!");
 			Defaults();
 			UpdateChatColors();
 			save = true;
@@ -277,7 +280,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			Save();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Load - End - Loaded: " + bookSettingsExist);
+		EXPrint("ExpansionGeneralSettings::Load - End - Loaded: " + generalSettingsExist);
 		#endif
 		
 		return generalSettingsExist;
@@ -304,7 +307,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionGeneralSettings] Loading default settings");
+		m_Version = VERSION;
 		
 		PlayerLocationNotifier = true;
 		

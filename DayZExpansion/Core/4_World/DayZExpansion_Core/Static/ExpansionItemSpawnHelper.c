@@ -123,6 +123,9 @@ class ExpansionItemSpawnHelper
 
 			quantity--;
 		}
+		
+		if (item.CanBeDisinfected())
+			item.SetCleanness(1);
 
 		if (attachments)
 			SpawnAttachments( attachments, item );
@@ -148,7 +151,7 @@ class ExpansionItemSpawnHelper
 
 		while (true)
 		{
-			Print("ExpansionItemSpawnHelper::SpawnInInventorySecure - parent: " + parent.ClassName());
+			ISHDebugPrint("ExpansionItemSpawnHelper::SpawnInInventorySecure - parent: " + parent.ClassName());
 
 			ExpansionTemporaryOwnedContainer storage = ExpansionTemporaryOwnedContainer.Cast(parent);
 			if (storage)
@@ -162,7 +165,7 @@ class ExpansionItemSpawnHelper
 			if (obj || newStorage)
 				break;
 
-			Print("ExpansionItemSpawnHelper::SpawnInInventorySecure - creating temporary storage container at " + parent.GetPosition());
+			ISHDebugPrint("ExpansionItemSpawnHelper::SpawnInInventorySecure - creating temporary storage container at " + parent.GetPosition());
 
 			//! If it's an inventory item and couldn't be spawned in parent inventory (likely because it's full),
 			//! create new temporary storage container and set as parent
@@ -229,14 +232,68 @@ class ExpansionItemSpawnHelper
 	{		
 		ISHDebugPrint("SpawnVehicle - Start");
 
-		Object obj = GetGame().CreateObject(className, position);
+		int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 
-		//! TODO: Add support for ExpansionVehicleBase
+		if (!GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+			flags |= ECE_TRACE;
+
+		Object obj = GetGame().CreateObjectEx(className, position, flags);
+
+		quantity--;
+
 		CarScript vehicle;
-		if (!Class.CastTo(vehicle, obj))
+		#ifdef EXPANSIONMODVEHICLE
+		ExpansionVehicleBase exVeh;
+		ExpansionCarKey key;
+		#endif
+		if (Class.CastTo(vehicle, obj))
 		{
-			quantity--;
+			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
+			vehicle.Fill(CarFluid.OIL, vehicle.GetFluidCapacity(CarFluid.OIL));
+			vehicle.Fill(CarFluid.BRAKE, vehicle.GetFluidCapacity(CarFluid.BRAKE));
+			vehicle.Fill(CarFluid.COOLANT, vehicle.GetFluidCapacity(CarFluid.COOLANT));
 
+			if (skinIndex > -1)
+				vehicle.ExpansionSetSkin(skinIndex);
+
+			#ifdef EXPANSIONMODVEHICLE
+			if (vehicle.CanBeLocked())
+			{
+				Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
+
+				if (key)
+				{
+					vehicle.PairKeyTo(key);
+					vehicle.LockCar(key);
+				}
+			}
+			#endif
+		}
+		#ifdef EXPANSIONMODVEHICLE
+		else if (Class.CastTo(exVeh, obj))
+		{
+			exVeh.Fill(CarFluid.FUEL, exVeh.GetFluidCapacity(CarFluid.FUEL));
+			exVeh.Fill(CarFluid.OIL, exVeh.GetFluidCapacity(CarFluid.OIL));
+			exVeh.Fill(CarFluid.BRAKE, exVeh.GetFluidCapacity(CarFluid.BRAKE));
+			exVeh.Fill(CarFluid.COOLANT, exVeh.GetFluidCapacity(CarFluid.COOLANT));
+
+			if (skinIndex > -1)
+				exVeh.ExpansionSetSkin(skinIndex);
+
+			if (exVeh.CanBeLocked())
+			{
+				Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
+
+				if (key)
+				{
+					exVeh.PairKeyTo(key);
+					exVeh.LockCar(key);
+				}
+			}
+		}
+		#endif
+		else
+		{
 			if (obj)
 			{
 				GetGame().ObjectDelete(obj);
@@ -247,34 +304,20 @@ class ExpansionItemSpawnHelper
 			return NULL;
 		}
 
-		vehicle.SetOrientation(orientation);
-
-		if (attachments)
-			SpawnAttachments(attachments, vehicle, skinIndex);
-
-		vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
-		vehicle.Fill(CarFluid.OIL, vehicle.GetFluidCapacity(CarFluid.OIL));
-		vehicle.Fill(CarFluid.BRAKE, vehicle.GetFluidCapacity(CarFluid.BRAKE));
-		vehicle.Fill(CarFluid.COOLANT, vehicle.GetFluidCapacity(CarFluid.COOLANT));
-
-		if (skinIndex > -1)
-			vehicle.ExpansionSetSkin(skinIndex);
-
 		#ifdef EXPANSIONMODVEHICLE
-		if (vehicle.CanBeLocked())
+		//! Prevent boat getting flung in the air or stuck on ground due to random physics interaction
+		if (obj.IsInherited(ExpansionBoatScript))
 		{
-			ExpansionCarKey key;
-			Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
-
-			if (key)
-			{
-				vehicle.PairKeyTo(key);
-				vehicle.LockCar(key);
-			}
+			SetVelocity( obj, Vector( 0, 0, 0 ) );
+			dBodySetAngularVelocity( obj, Vector( 0, 0, 0 ) );
+			dBodyActive( obj, ActiveState.INACTIVE );  //! Boat physics will get reactivated by its DeferredInit
 		}
 		#endif
 
-		quantity--;
+		obj.SetOrientation(orientation);
+
+		if (attachments)
+			SpawnAttachments(attachments, EntityAI.Cast(obj), skinIndex);
 
 		ISHDebugPrint("SpawnVehicle - End return obj:" + obj.ToString());	
 

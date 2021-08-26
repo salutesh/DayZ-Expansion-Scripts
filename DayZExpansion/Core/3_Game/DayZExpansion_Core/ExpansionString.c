@@ -47,4 +47,28 @@ class ExpansionString
 		}
 		return lastIdx;
 	}
+
+	/**
+	 * @brief Removes the last character from the string
+	 * 
+	 * @param str input string
+	 * 
+	 * @return a copy of str with the last character removed
+	 */
+	static string RemoveLastChar( string str ) 
+	{
+		return str.Substring( 0, str.Length() - 1 );
+	}
+
+	static string JoinStrings(TStringArray strings, string glue = ", ")
+	{
+		string output = "";
+		for (int i = 0; i < strings.Count(); i++)
+		{
+			if (output)
+				output += glue;
+			output += strings[i];
+		}
+		return output;
+	}
 }

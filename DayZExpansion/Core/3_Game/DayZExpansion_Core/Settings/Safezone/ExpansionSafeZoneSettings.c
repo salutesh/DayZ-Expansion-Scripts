@@ -15,11 +15,10 @@
  **/
 class ExpansionSafeZoneSettingsBase: ExpansionSettingBase
 {
-	bool Enabled;																				// Enable Safezone when set to 1
-	bool EnableVehicleinvincibleInsideSafeZone;										// When enabled, Vehicle damage is disabled
+	bool Enabled;																	// Enable Safezone when set to 1
 	int  FrameRateCheckSafeZoneInMs;												// How often in ms the server need to check if the player is inside a Safezone
-	autoptr array<ref ExpansionSafeZoneCircle> CircleZones;			// 
-	autoptr array<ref ExpansionSafeZonePolygon> PolygonZones;		//
+	autoptr array<ref ExpansionSafeZoneCircle> CircleZones = new array< ref ExpansionSafeZoneCircle >;
+	autoptr array<ref ExpansionSafeZonePolygon> PolygonZones = new array< ref ExpansionSafeZonePolygon >;
 	
 	// ------------------------------------------------------------
 	void ExpansionSafeZoneSettingsBase()
@@ -28,13 +27,18 @@ class ExpansionSafeZoneSettingsBase: ExpansionSettingBase
 		EXPrint("ExpansionSafeZoneSettingsBase::ExpansionSafeZoneSettingsBase - Start");
 		#endif
 		
-		CircleZones = new array< ref ExpansionSafeZoneCircle >;
-		PolygonZones = new array< ref ExpansionSafeZonePolygon >;
-		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSafeZoneSettingsBase::ExpansionSafeZoneSettingsBase - Start");
 		#endif
 	}
+}
+
+/**@class		ExpansionSafeZoneSettingsBase
+ * @brief		Safezone settings v0 class
+ **/
+class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
+{
+	bool EnableVehicleinvincibleInsideSafeZone;
 }
 
 /**@class		ExpansionSafeZoneSettings
@@ -42,32 +46,12 @@ class ExpansionSafeZoneSettingsBase: ExpansionSettingBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 0;
-	
+	static const int VERSION = 2;
+
+	bool DisableVehicleDamageInSafeZone;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-	// ------------------------------------------------------------
-	void ExpansionSafeZoneSettings()
-	{
-	}
-	
-	// ------------------------------------------------------------
-	void ~ExpansionSafeZoneSettings()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::~ExpansionSafeZoneSettings - Start");
-		#endif
-		
-		CircleZones.Clear();
-		delete CircleZones;
-		PolygonZones.Clear();
-		delete PolygonZones;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::~ExpansionSafeZoneSettings - Start");
-		#endif
-	}
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -124,7 +108,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionSafeZoneSettings s )
 	{
-		//!Nothing to do here yet
+		DisableVehicleDamageInSafeZone = s.DisableVehicleDamageInSafeZone;
 		
 		ExpansionSafeZoneSettingsBase sb = s;
 		CopyInternal( sb );
@@ -144,12 +128,12 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		{
 			PolygonZones.Insert( s.PolygonZones[i] );
 		}
+
 		for (i = 0; i < s.CircleZones.Count(); i++)
 		{
 			CircleZones.Insert( s.CircleZones[i] );
 		}
 
-		EnableVehicleinvincibleInsideSafeZone = s.EnableVehicleinvincibleInsideSafeZone;
 		FrameRateCheckSafeZoneInMs = s.FrameRateCheckSafeZoneInMs;
 	}
 	
@@ -189,10 +173,14 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
+				EXPrint("[ExpansionSafeZoneSettingsBase] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_SAFE_ZONES_SETTINGS + "\" to v" + VERSION);
+
 				if (settingsBase.m_Version < 2)
 				{
-					EXPrint("[ExpansionSafeZoneSettingsBase] Load - Converting v1 \"" + EXPANSION_SAFE_ZONES_SETTINGS + "\" to v" + VERSION);
-					//!Nothing to do here yet
+					ExpansionSafeZoneSettingsV0 settings_v0;
+					JsonFileLoader<ExpansionSafeZoneSettingsV0>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, settings_v0);
+
+					DisableVehicleDamageInSafeZone = settings_v0.EnableVehicleinvincibleInsideSafeZone;
 				}
 				
 				//! Copy over old settings that haven't changed
@@ -208,6 +196,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionSafeZoneSettings] No existing setting file:" + EXPANSION_SAFE_ZONES_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -235,14 +224,14 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionSafeZoneSettings] Loading default settings");
+		m_Version = VERSION;
 		
 	#ifdef EXPANSIONMODMARKET
 		Enabled = true;
 	#else
 		Enabled = false;
 	#endif
-		EnableVehicleinvincibleInsideSafeZone = true;
+		DisableVehicleDamageInSafeZone = true;
 		FrameRateCheckSafeZoneInMs = 5000;
 
 
@@ -257,6 +246,12 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			DefaultChernarusSafeZones();
 		#endif
 		}
+		else if ( world_name == "namalsk" )
+		{
+		#ifdef EXPANSIONMODMARKET
+			DefaultNamalskSafeZones();
+		#endif
+		}
 		else if ( world_name == "takistanplus" )
 		{
 		#ifdef EXPANSIONMODMARKET
@@ -268,19 +263,25 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 #ifdef EXPANSIONMODMARKET
 	void DefaultChernarusSafeZones()
 	{
-			//! Krasnostav Trader Camp
-			TVectorArray points = new TVectorArray;
-			points.Insert( Vector(12288.9, 142.4, 12804.4) );
-			points.Insert( Vector(12068.4, 139.8, 12923.4) );
-			points.Insert( Vector(11680.6, 141.1, 12650.6) );
-			points.Insert( Vector(11805.3, 146.3, 12258.9) );
-			points.Insert( Vector(12327.7, 140.0, 12453.8) );
-			PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
-			//CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(12013.4, 140.0, 12556.7), 700 ) );
-			//! Green Mountain Trader Camp
-			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(3728.27, 403, 6003.6), 500 ) );
-			//! Kamenka Trader Camp
-			CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(1143.14, 6.9, 2423.27), 700 ) );
+		//! Krasnostav Trader Camp
+		TVectorArray points = new TVectorArray;
+		points.Insert( Vector(12288.9, 142.4, 12804.4) );
+		points.Insert( Vector(12068.4, 139.8, 12923.4) );
+		points.Insert( Vector(11680.6, 141.1, 12650.6) );
+		points.Insert( Vector(11805.3, 146.3, 12258.9) );
+		points.Insert( Vector(12327.7, 140.0, 12453.8) );
+		PolygonZones.Insert( new ExpansionSafeZonePolygon( points ) );
+		//CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(12013.4, 140.0, 12556.7), 700 ) );
+		//! Green Mountain Trader Camp
+		CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(3728.27, 403, 6003.6), 500 ) );
+		//! Kamenka Trader Camp
+		CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(1143.14, 6.9, 2423.27), 700 ) );
+	}
+	
+	void DefaultNamalskSafeZones()
+	{		
+		//! Jalovisko Trader Camp
+		CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(8583.67, 29, 10515), 400 ) );
 	}
 	
 	void DefaultTakistanSafeZones()
@@ -289,24 +290,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		CircleZones.Insert( new ExpansionSafeZoneCircle( Vector(4611.26, 4.6, 12334.0), 500 ) );
 	}
 #endif
-
-	// ------------------------------------------------------------
-	void RemoveSafeZonePolygon(ExpansionSafeZonePolygon zone)
-	{
-		int index = -1;
-
-		for (int i = 0; i < PolygonZones.Count(); ++i)
-		{
-			if ( PolygonZones[i] == zone )
-			{
-				index = i;
-				break;
-			}
-		}
-
-		if ( index > -1 )
-			PolygonZones.Remove(index);
-	}
 
 	// ------------------------------------------------------------	
 	override string SettingName()

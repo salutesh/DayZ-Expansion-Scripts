@@ -13,7 +13,7 @@
 /**@class		ExpansionSafeZoneElement
  * @brief
  **/
-class ExpansionSafeZoneElement
+class ExpansionSafeZoneElement : Managed
 {
 	ExpansionSafeZoneTypes Type;
 
@@ -23,5 +23,10 @@ class ExpansionSafeZoneElement
 	void ExpansionSafeZoneElement()
 	{
 		Type = ExpansionSafeZoneTypes.UNKNOWN;
+	}
+
+	ExpansionZone Create()
+	{
+		return null;
 	}
 };

@@ -195,6 +195,9 @@ modded class CarScript
 	protected bool m_CanSimulate;
 
 	protected float m_ModelAnchorPointY = -1;
+	protected float m_Expansion_VehicleWeight = -1;
+	protected bool m_Expansion_CanPlayerAttach;
+	protected bool m_Expansion_CanPlayerAttachSet;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -536,6 +539,44 @@ modded class CarScript
 	float GetTowLength()
 	{
 		return 0.1;
+	}
+
+	float ExpansionGetVehicleWeight()
+	{
+		if (m_Expansion_VehicleWeight < 0)
+		{
+			foreach ( ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig )
+			{
+				if ( IsKindOf( vehcfg.ClassName ) )
+				{
+					m_Expansion_VehicleWeight = vehcfg.Weight;
+					break;
+				}
+			}
+
+			if (m_Expansion_VehicleWeight < 0)
+				m_Expansion_VehicleWeight = GetWeight();
+		}
+
+		return m_Expansion_VehicleWeight;
+	}
+
+	bool ExpansionCanPlayerAttach()
+	{
+		if (!m_Expansion_CanPlayerAttachSet)
+		{
+			m_Expansion_CanPlayerAttachSet = true;
+			foreach ( ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig )
+			{
+				if ( IsKindOf( vehcfg.ClassName ) )
+				{
+					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
+					break;
+				}
+			}
+		}
+
+		return m_Expansion_CanPlayerAttach;
 	}
 
 	//! is it a car ? Is it already towing something ? And is it locked ?
@@ -1063,7 +1104,7 @@ modded class CarScript
 				}
 			}
 
-			if ( IsSurfaceWater( GetPosition() ) )
+			if ( ExpansionStatic.SurfaceIsWater( GetPosition() ) )
 			{
 				p = Particle.PlayInWorld( ParticleList.EXPANSION_EXPLOSION_WATER, ModelToWorld( localPos ) );
 				p.SetOrientation( n );
@@ -1359,7 +1400,7 @@ modded class CarScript
 	// ------------------------------------------------------------
 	bool CanObjectAttach( Object obj )
 	{
-		return false;
+		return ExpansionCanPlayerAttach();
 	}
 
 	// ------------------------------------------------------------
@@ -1367,7 +1408,7 @@ modded class CarScript
 	{
 		// only called if CanObjectAttach returns true.
 
-		return true;
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -3065,15 +3106,8 @@ modded class CarScript
 
 	bool IsSurfaceWater( vector position )
 	{
-		if ( GetGame().SurfaceIsSea( position[0], position[2] ) )
-		{
-			return true;
-		} else if( GetGame().SurfaceIsPond( position[0], position[2] ) )
-		{
-			return true;
-		}
-		
-		return false;
+		EXPrint(ToString() + "::IsSurfaceWater is deprecated, use ExpansionStatic::SurfaceIsWater");
+		return ExpansionStatic.SurfaceIsWater(position);
 	}
 
 	void MotorStart()

@@ -140,10 +140,14 @@ class ExpansionMissionSettings: ExpansionSettingBase
 			
 			m_GenerateDefaults = true;
 		}
-
-		if ( FileExist( EXPANSION_MISSION_SETTINGS ) )
+		
+		bool save;
+		
+		bool missionSettingsExist = FileExist( EXPANSION_MISSION_SETTINGS );
+		
+		if ( missionSettingsExist )
 		{
-			Print("[ExpansionMissionSettings] Loading settings");
+			EXPrint("[ExpansionMissionSettings] Load existing setting file:" + EXPANSION_MISSION_SETTINGS);
 
 			JsonFileLoader<ExpansionMissionSettings>.JsonLoadFile( EXPANSION_MISSION_SETTINGS, this );
 
@@ -168,23 +172,23 @@ class ExpansionMissionSettings: ExpansionSettingBase
 			}
 
 			if (toRemove.Count() > 0)
-				Save();
-
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionMissionSettings::Load - End");
-			#endif
-
-			return true;
+				save = true;
 		}
-
-		Defaults();
-		Save();
+		else
+		{
+			EXPrint("[ExpansionMissionSettings] No existing setting file:" + EXPANSION_MISSION_SETTINGS + ". Creating defaults!");
+			Defaults();
+			save = true;
+		}
+		
+		if (save)
+			Save();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMissionSettings::Load - End");
 		#endif
 
-		return false;
+		return missionSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -206,8 +210,6 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionMissionSettings] Loading default settings");
-	
 		m_Version = VERSION;
 		
 		string world_name = "empty";

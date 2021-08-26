@@ -38,7 +38,7 @@ class cfgWeapons
 		value = 0;
 		chamberSize = 1;
 		chamberedRound = "";
-		chamberableFrom[] = {"Ammo_Expansion_338","Ammo_AE338","Ammo_338"};
+		chamberableFrom[] = {"Ammo_Expansion_338","SNAFU_Ammo_338","TTC_Ammo_338","Ammo_AE338","Ammo_338"};
 		magazines[] = {"Mag_Expansion_AWM_5rnd"};
 		magazineSwitchTime = 0.38;
 		barrelArmor = 900;
@@ -258,7 +258,7 @@ class cfgMagazines
 		itemSize[] = {1,1};
 		count = 5;
 		ammo = "Bullet_Expansion_338";
-		ammoItems[] = {"Ammo_Expansion_338","Ammo_AE338","Ammo_338"};
+		ammoItems[] = {"Ammo_Expansion_338","SNAFU_Ammo_338","TTC_Ammo_338","Ammo_AE338","Ammo_338"};
 		tracersEvery = 0;
 		class DamageSystem
 		{

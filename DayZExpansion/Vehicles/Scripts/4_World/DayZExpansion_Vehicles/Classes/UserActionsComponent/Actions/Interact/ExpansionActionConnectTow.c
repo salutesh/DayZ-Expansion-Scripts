@@ -109,6 +109,7 @@ class ExpansionActionConnectTow: ActionInteractBase
 		{
 			if ( car.IsTowing() )
 				return NULL;
+				
 			if ( car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
 			{
 				array<Object> excluded = new array<Object>;
@@ -130,13 +131,17 @@ class ExpansionActionConnectTow: ActionInteractBase
 							//! Check if someone is inside the Vehicle the Helicopter is trying to winch
 							//! Goal is to prevent a exploit allowing to get inside people bases
 							if ( m_IsWinch )
-							{
-								if ( other_car.CrewSize() > 0 )
+							{								
+								for( int i = 0; i < other_car.CrewSize(); i++ )
 								{
-									return NULL;
+									Human crew = other_car.CrewMember( i );
+									if ( crew )
+										return NULL;
 								}
 							}
-							return other_car;
+
+							if ( other_car.ExpansionGetVehicleWeight() < car.ExpansionGetVehicleWeight()  )
+								return other_car;
 						}
 					}
 				}

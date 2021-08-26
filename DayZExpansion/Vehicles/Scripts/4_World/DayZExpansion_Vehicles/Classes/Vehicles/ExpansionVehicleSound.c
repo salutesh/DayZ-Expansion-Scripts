@@ -16,7 +16,7 @@ class ExpansionVehicleSoundShader
 		}
 		
 		#ifdef CF_EXPRESSION
-		m_Volume = CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, CF_SQFExpression);
+		Class.CastTo(m_Volume, CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, Expression));
 		#endif
 
 		expression = "1";
@@ -27,7 +27,7 @@ class ExpansionVehicleSoundShader
 		}
 		
 		#ifdef CF_EXPRESSION
-		m_Frequency = CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, CF_SQFExpression);
+		Class.CastTo(m_Frequency, CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, Expression));
 		#endif
 	}
 

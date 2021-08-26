@@ -468,7 +468,7 @@ class ExpansionVehicleBoatBase extends ExpansionVehicleCarBase
 		
 		vector position = GetPosition();
 		vector orientation = GetOrientation();
-		if ( g_Game.SurfaceIsSea( position[0], position[2] ) || g_Game.SurfaceIsPond( position[0], position[2] ) )
+		if ( ExpansionStatic.SurfaceIsWater(position) )
 		{
 			float depth = g_Game.GetWaterDepth( position ) + m_Offset;
 			position[1] = position[1] + depth;

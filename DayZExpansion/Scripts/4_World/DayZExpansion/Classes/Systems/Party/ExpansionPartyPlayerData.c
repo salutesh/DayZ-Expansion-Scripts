@@ -77,7 +77,7 @@ class ExpansionPartyPlayerData
 			int markerColorR;
 			int markerColorG;
 			int markerColorB;
-			IntToARGB(m_TempMarkerData.GetColor(), markerColorA, markerColorR, markerColorG, markerColorB);
+			ExpansionStatic.IntToARGB(m_TempMarkerData.GetColor(), markerColorA, markerColorR, markerColorG, markerColorB);
 			
 			m_TempMarkerData.SetColor(ARGB(255, markerColorR, markerColorG, markerColorB));
 		}

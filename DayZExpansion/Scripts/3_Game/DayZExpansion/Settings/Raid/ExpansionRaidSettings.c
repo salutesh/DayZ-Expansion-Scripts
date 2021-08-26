@@ -255,19 +255,21 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		#endif
 
 		m_IsLoaded = true;
-
+		
+		bool save;
+		
 		bool raidSettingsExist = FileExist(EXPANSION_RAID_SETTINGS);
 
 		if (raidSettingsExist)
 		{
+			EXPrint("[ExpansionRaidSettings] Load existing setting file:" + EXPANSION_RAID_SETTINGS);
+			
 			ExpansionRaidSettings settingsDefault = new ExpansionRaidSettings;
 			settingsDefault.Defaults();
 
 			ExpansionRaidSettingsBase settingsBase;
 
 			JsonFileLoader<ExpansionRaidSettingsBase>.JsonLoadFile(EXPANSION_RAID_SETTINGS, settingsBase);
-
-			bool save;
 
 			if (settingsBase.m_Version < VERSION)
 			{
@@ -287,33 +289,22 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 			{
 				JsonFileLoader<ExpansionRaidSettings>.JsonLoadFile(EXPANSION_RAID_SETTINGS, this);
 			}
-
-			if (save)
-			{
-				JsonFileLoader<ExpansionRaidSettings>.JsonSaveFile(EXPANSION_RAID_SETTINGS, this);
-			}
-		}
-
-		if (raidSettingsExist)
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionRaidSettings::Load - End");
-			#endif
-			
-			return true;
 		}
 		else
 		{
+			EXPrint("[ExpansionRaidSettings] No existing setting file:" + EXPANSION_RAID_SETTINGS + ". Creating defaults!");
 			Defaults();
+			save = true;
 		}
 		
-		Save();
+		if (save)
+			Save();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRaidSettings::Load - End");
 		#endif
 		
-		return true;
+		return raidSettingsExist;
 	}
 	
 	// ------------------------------------------------------------
@@ -341,8 +332,8 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionRaidSettings] Loading default settings");
-
+		m_Version = VERSION;
+		
 		ExplosionTime = 30;
 
 		ExplosiveDamageWhitelist.Insert("Expansion_C4_Explosion");

@@ -120,7 +120,7 @@ class ExpansionNotificationHUD: ScriptView
 	}
 }
 
-class ExpansionNotificationHUDController: ViewController
+class ExpansionNotificationHUDController: ExpansionViewController
 {
 	ref ObservableCollection<ref ExpansionNotificationViewToast> NotificationToastElements = new ObservableCollection<ref ExpansionNotificationViewToast>(this);
 	ref ObservableCollection<ref ExpansionNotificationViewBaguette> NotificationBaguetteElements = new ObservableCollection<ref ExpansionNotificationViewBaguette>(this);

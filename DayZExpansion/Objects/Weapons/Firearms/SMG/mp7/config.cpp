@@ -38,7 +38,7 @@ class CfgWeapons
 		ironsightsExcludingOptics[] = {"M4_CarryHandleOptic","BUISOptic","M68Optic","M4_T3NRDSOptic","ReflexOptic","ACOGOptic"};
 		chamberSize = 1;
 		chamberedRound = "";
-		chamberableFrom[] = {"Ammo_Expansion_46x30"};
+		chamberableFrom[] = {"Ammo_Expansion_46x30","TTC_Ammo_4630","SNAFU_Ammo_46x30"};
 		magazines[] = {"Mag_Expansion_MP7_40Rnd"};
 		magazineSwitchTime = 0.3;
 		barrelArmor = 800;
@@ -322,7 +322,7 @@ class cfgMagazines
 		itemSize[] = {1,3};
 		count = 40;
 		ammo = "Bullet_Expansion_46x30";
-		ammoItems[] = {"Ammo_Expansion_46x30"};
+		ammoItems[] = {"Ammo_Expansion_46x30","TTC_Ammo_4630","SNAFU_Ammo_46x30"};
 		tracersEvery = 0;
 		mass = 10;
 		class DamageSystem

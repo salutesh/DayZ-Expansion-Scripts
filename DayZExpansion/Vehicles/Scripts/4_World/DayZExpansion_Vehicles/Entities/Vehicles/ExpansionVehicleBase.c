@@ -254,6 +254,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	protected float m_ModelAnchorPointY = -1;
 	
+	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
 	protected bool m_SafeZone;
 
 	// ------------------------------------------------------------
@@ -1589,27 +1590,39 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	// Called only server side
 	// ------------------------------------------------------------
-	void OnEnterSafeZone()
+	override void OnEnterZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition());
+		if (type != ExpansionZoneType.SAFE) return;
+
+		EXPrint(ToString() + "::OnEnterZone " + GetPosition());
 
 		m_SafeZone = true;
 
-		if ( GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		if ( GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone )
 			SetAllowDamage(false);
 	}
 
 	// ------------------------------------------------------------
 	// Called only server side
 	// ------------------------------------------------------------
-	void OnLeftSafeZone()
+	override void OnExitZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition());
+		if (type != ExpansionZoneType.SAFE) return;
+
+		EXPrint(ToString() + "::OnExitZone " + GetPosition());
 
 		m_SafeZone = false;
 
 		if ( CanBeDamaged() )
 			SetAllowDamage(true);
+	}
+
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (IsMissionHost())
+			m_Expansion_SafeZoneInstance.Update();
 	}
 
 	// ------------------------------------------------------------
@@ -3598,15 +3611,8 @@ class ExpansionVehicleBase extends ItemBase
 	// ------------------------------------------------------------
 	bool IsSurfaceWater( vector position )
 	{
-		if ( GetGame().SurfaceIsSea( position[0], position[2] ) )
-		{
-			return true;
-		} else if( GetGame().SurfaceIsPond( position[0], position[2] ) )
-		{
-			return true;
-		}
-		
-		return false;
+		EXPrint(ToString() + "::IsSurfaceWater is deprecated, use ExpansionStatic::SurfaceIsWater");
+		return ExpansionStatic.SurfaceIsWater(position);
 	}
 
 	void MotorStart()
@@ -4557,7 +4563,7 @@ class ExpansionVehicleBase extends ItemBase
 		
 		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
 		{
-			return !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone;
+			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
 
 		return true;

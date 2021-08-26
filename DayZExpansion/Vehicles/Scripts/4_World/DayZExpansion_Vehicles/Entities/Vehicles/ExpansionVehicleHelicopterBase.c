@@ -416,7 +416,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 					float distance = 0;
 
-					if ( IsSurfaceWater( m_HitPosition ) )
+					if ( ExpansionStatic.SurfaceIsWater( m_HitPosition ) )
 					{
 						distance = GetPosition()[1] - GetGame().SurfaceGetSeaLevel();
 					} else
@@ -507,7 +507,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		{
 			float size = ( 1 - m_HitFraction ) * m_RotorSpeed * 4.0 * m_BoundingRadius;
 
-			if ( IsSurfaceWater( m_HitPosition ) )
+			if ( ExpansionStatic.SurfaceIsWater( m_HitPosition ) )
 			{
 				m_HitPosition[1] = GetGame().SurfaceGetSeaLevel();
 
@@ -636,7 +636,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		if ( m_IsBeingTowed )
 			return;
 
-		if ( IsMissionHost() && m_EnableHelicopterExplosions )
+		if ( IsMissionHost() && m_EnableHelicopterExplosions && CanBeDamaged() )
 		{
 			vector transform[4];
 			GetTransform( transform );
@@ -1246,7 +1246,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		{
 			buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_BodyMass, 2.0, m_LinearVelocity, isAboveWater );
 				
-			if ( !isAboveWater && IsMissionHost() )
+			if ( !isAboveWater && IsMissionHost() && CanBeDamaged() )
 			{
 				float buoyancyAcceleration = buoyancyForce / m_BodyMass;
 				if ( buoyancyAcceleration > 1.0 )

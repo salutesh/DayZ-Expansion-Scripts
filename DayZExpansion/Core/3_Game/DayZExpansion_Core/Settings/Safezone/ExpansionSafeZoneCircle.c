@@ -27,4 +27,9 @@ class ExpansionSafeZoneCircle: ExpansionSafeZoneElement
 		this.Center = center;
 		this.Radius = radius;
 	}
+
+	override ExpansionZone Create()
+	{
+		return new ExpansionZoneCircle(ExpansionZoneType.SAFE, Center, Radius);
+	}
 };

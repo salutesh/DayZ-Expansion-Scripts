@@ -261,7 +261,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 
 			chances.Insert( chance );
 
-			int index = GetWeightedRandom( chances );
+			int index = ExpansionStatic.GetWeightedRandom( chances );
 
 			if ( index > -1 && index < count )
 			{
@@ -615,7 +615,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		while ( LootItemsSpawned < ItemCount )
 		{
 			//! Chances are treated as weights here, otherwise it wouldn't make sense as we always want a fixed number of items
-			int index = GetWeightedRandom( chances );
+			int index = ExpansionStatic.GetWeightedRandom( chances );
 
 			if ( index > -1 )
 			{

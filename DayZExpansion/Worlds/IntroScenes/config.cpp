@@ -153,28 +153,6 @@ class cfgExpansionCharacterScenes
 			HandItem = "";
 			CanRotate = 1;
 		};
-		class namalsk_thething
-		{
-			CameraOrientation[] = {89.7476,4.26434,0};
-			PlayerPosition[] = {3759.74,153.141,8243.85};
-			PlayerOrientation[] = {-75.0911,0,0};
-			fov = 1;
-			DOFDistance = 0;
-			DOFBlur = 0;
-			Blur = 0;
-			Vignette = 0;
-			Sharpness = 0;
-			NearPlane = 0.07;
-			date[] = {2011,12,5,15,44};
-			overcast = 0.941;
-			rain = 1;
-			fog = 0.755;
-			windspeed = 0.0339959;
-			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/main_menu_scenes/MainMenu_Namalsk_TheThing"};
-			CustomPose = -1;
-			HandItem = "";
-			CanRotate = 1;
-		};
 		class namalsk_mountainview
 		{
 			CameraPosition[] = {3422.25,151.985,7731.81};

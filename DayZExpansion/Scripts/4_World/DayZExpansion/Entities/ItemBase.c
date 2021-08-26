@@ -315,7 +315,10 @@ modded class ItemBase
 				SetUser( player );
 		}
 
-		SetSynchDirty();
+		if (IsOpened())
+			SetSynchDirty();
+		else
+			Lock();  //! Will call SetSynchDirty
 	}
 	
 	/**

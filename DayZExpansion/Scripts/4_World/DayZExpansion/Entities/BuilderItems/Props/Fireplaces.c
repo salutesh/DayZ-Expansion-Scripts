@@ -607,3 +607,8 @@ class bldr_Spotlight extends Spotlight
 		}
 	}
 }
+
+class bldr_land_misc_barel_fire_1 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_2 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_3 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_4 extends BuildingWithFireplace {};

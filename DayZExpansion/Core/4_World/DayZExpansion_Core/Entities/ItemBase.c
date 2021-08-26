@@ -12,9 +12,6 @@
 
 modded class ItemBase
 {
-	protected bool m_HasBeenKilled;
-	protected bool m_DestroySoundPlayed;
-
 	//! TODO: After we finally switch over to CF_ModStorage, we may still need a way to access Expansion storage save version outside of CF_OnStoreLoad/Save (e.g. AfterStoreLoad).
 	//! For now, CF_OnStoreLoad will set it as well when used.
 	protected int m_ExpansionSaveVersion;
@@ -294,13 +291,6 @@ modded class ItemBase
 
 		super.OnVariablesSynchronized();
 
-		if ( m_HasBeenKilled && GetDestroySound() && !m_DestroySoundPlayed )
-		{
-			EXPrint("ItemBase::OnVariablesSynchronized - " + this + " - PlayDestroySound " + GetDestroySound());
-			SEffectManager.PlaySound( GetDestroySound(), GetPosition() );
-			m_DestroySoundPlayed = true;
-		}
-
 		if ( m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex )
 		{
 			m_CurrentSkinIndex = m_CurrentSkinSynchRemote;
@@ -561,7 +551,12 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		m_HasBeenKilled = true;
+		//TODO: store as global variable until new CF module system is added?
+		ExpansionItemBaseModule module;
+		if (Class.CastTo(module, GetModuleManager().GetModule(ExpansionItemBaseModule)))
+		{
+			module.PlayDestroySound(GetPosition(), GetDestroySound());
+		}
 
 		ExpansionOnDestroyed( killer );
 	}
@@ -621,5 +616,13 @@ modded class ItemBase
 
 		//! Any other item
 		return GetInventory().CreateInInventory(className);
+	}
+
+	void OnEnterZone(ExpansionZoneType type)
+	{
+	}
+
+	void OnExitZone(ExpansionZoneType type)
+	{
 	}
 }

@@ -227,6 +227,16 @@ modded class MissionGameplay
 		//! Unlock inputs again if not working ?!
 		LockInputs(false, false);
 		GetUApi().UpdateControls();
+		
+		#ifdef EDITOR
+		GetUApi().GetInputByName("UAExpansionMapToggle").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionMapDeleteMarker").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionQuickMarker").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionQuickMarker").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionGPSToggle").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionPlayerListToggle").ForceDisable(true);
+		GetUApi().UpdateControls();
+		#endif
 	}
 	
 	// ------------------------------------------------------------

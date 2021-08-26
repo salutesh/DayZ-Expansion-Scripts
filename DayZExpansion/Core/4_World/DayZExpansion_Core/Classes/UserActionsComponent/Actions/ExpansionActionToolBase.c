@@ -138,9 +138,9 @@ class ExpansionActionToolBase : ActionContinuousBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		ItemBase targetItem = GetTargetItem( action_data.m_Target.GetParentOrObject() );
+		Object target = action_data.m_Target.GetParentOrObject();
 
-		if ( !targetItem )
+		if ( !target )
 			return;
 
 		if ( !action_data.m_MainItem.GetCompEM() )
@@ -149,12 +149,12 @@ class ExpansionActionToolBase : ActionContinuousBase
 			{
 				//! Damage tool if it does not have an energy manager or quantity
 
-				float maxHealth = targetItem.GetMaxHealth( "", "Health" );
+				float maxHealth = target.GetMaxHealth( "", "Health" );
 				float minHealth = Math.Floor( maxHealth * m_MinHealth01 );
 		
 				float toolDamage = action_data.m_MainItem.GetMaxHealth() * m_ToolDamagePercent / 100.0;
 				//! If it's the last cycle and tool damage is set to 100%, the tool will be ruined no matter what
-				if ( targetItem.GetHealth() > minHealth || m_ToolDamagePercent < 100.0 )
+				if ( target.GetHealth() > minHealth || m_ToolDamagePercent < 100.0 )
 					toolDamage /= m_Cycles;
 				action_data.m_MainItem.DecreaseHealth( toolDamage, false );
 			} else

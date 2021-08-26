@@ -651,6 +651,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		if (!m_CircleRender)
 			return;
 		
+		/*
 		foreach (ExpansionSafeZoneCircle circleZone: GetExpansionSettings().GetSafeZone().CircleZones)
 		{
 			float x = circleZone.Center[0];
@@ -672,6 +673,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		}
 			
 		m_CircleRender.Render(m_MapWidget);
+		*/
 	}
 	
 	// ------------------------------------------------------------

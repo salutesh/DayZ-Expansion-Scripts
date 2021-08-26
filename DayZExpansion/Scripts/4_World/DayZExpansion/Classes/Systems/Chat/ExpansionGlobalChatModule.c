@@ -146,25 +146,6 @@ class ExpansionGlobalChatModule: JMModuleBase
 		EXPrint("ExpansionGlobalChatModule::AddChatMessage - End");
 		#endif
 	}
-
-	private string GetDateTime()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGlobalChatModule::GetDateTime - Start");
-		#endif
-		int year, month, day;
-		int hour, minute, second;
-		GetYearMonthDay( year, month, day );
-
-		GetHourMinuteSecond( hour, minute, second );
-		string date = day.ToStringLen( 2 ) + "." + month.ToStringLen( 2 ) + "." + year.ToStringLen( 2 );
-		string time = hour.ToStringLen( 2 ) + ":" + minute.ToStringLen( 2 ) + ":" + second.ToStringLen( 2 );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGlobalChatModule::GetDateTime - End");
-		#endif
-		return (date + " / " + time);
-	}
 	
 	// ------------------------------------------------------------
 	// Override GetRPCMin

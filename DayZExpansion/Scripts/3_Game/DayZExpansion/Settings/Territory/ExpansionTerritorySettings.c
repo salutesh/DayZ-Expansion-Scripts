@@ -181,6 +181,8 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 
 		if (territorySettingsExist)
 		{
+			EXPrint("[ExpansionTerritorySettings] Load existing setting file:" + EXPANSION_TERRITORY_SETTINGS);
+			
 			ExpansionTerritorySettings settingsDefault = new ExpansionTerritorySettings;
 			settingsDefault.Defaults();
 
@@ -209,6 +211,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionTerritorySettings] No existing setting file:" + EXPANSION_TERRITORY_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -235,7 +238,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionTerritorySettings] Loading default settings");
+		m_Version = VERSION;
 		
 		EnableTerritories = true;
 		UseWholeMapForInviteList = false;

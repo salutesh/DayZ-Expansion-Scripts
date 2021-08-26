@@ -125,13 +125,9 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 
 	override void ExpansionOnDestroyed( Object killer )
 	{
-		if ( IsDamageDestroyed() )
-			return;
-
-		ItemBase item = ItemBase.Cast( GetGame().CreateObject( "BarbedWire", GetPosition() ) );
-		item.SetOrientation( GetOrientation() );
-		item.SetHealth( 0 );
-		SetHealth( 0 );
+		//TODO: Maybe spawn wire as replacement?
+		if ( GetHealth() == 0 && !ToDelete() )
+			Delete();
 	}
 	
 	override protected string GetDestroySound()

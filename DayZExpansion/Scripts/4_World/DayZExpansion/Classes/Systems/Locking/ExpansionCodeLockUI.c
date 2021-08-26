@@ -464,7 +464,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 		{
 			if ( m_Code.Length() > 0 && !m_Code.Length() == 0 )
 			{
-				m_Code = ExpansionRemoveLastChar( m_Code );
+				m_Code = ExpansionString.RemoveLastChar( m_Code );
 				RefreshCode();
 				SoundOnReset();
 			}

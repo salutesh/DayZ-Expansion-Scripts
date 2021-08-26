@@ -161,17 +161,46 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 		ApplyEnergySources = true;
 		SetRandomHealth = true;
 		
-		UpperGear.Insert( new ExpansionStartingGearItem("Rag", 1) );
-		UpperGear.Insert( new ExpansionStartingGearItem("StoneKnife",1) );
-		UpperGear.Insert( new ExpansionStartingGearItem("Apple", 1) );
+		string worldName = "empty";
+		GetGame().GetWorldName(worldName);
+		worldName.ToLower();
 
-		BackpackGear.Insert( new ExpansionStartingGearItem("SpaghettiCan", 1) );
-		BackpackGear.Insert( new ExpansionStartingGearItem("BakedBeansCan", 1) );
-		BackpackGear.Insert( new ExpansionStartingGearItem("Chemlight_White", 1) );
-	
-	#ifdef EXPANSIONMODMARKET
-		BackpackGear.Insert( new ExpansionStartingGearItem("ExpansionGoldBar", 3) );
-	#endif
+		UpperGear.Insert(new ExpansionStartingGearItem("Rag", 4));
+		UpperGear.Insert(new ExpansionStartingGearItem("Apple", 1));
+
+		if (worldName == "barnov")
+		{
+			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+		}
+		else if (worldName == "chiemsee")
+		{
+			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+		}
+		else if (worldName == "esseker")
+		{
+			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+		}
+		else if (worldName == "enoch" || worldName == "enochgloom")
+		{
+			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+		}
+		else if (worldName == "deerisle")
+		{
+			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+		}
+		else if (worldName == "namalsk")
+		{
+			UsePantsGear = true;
+			UpperGear.Insert(new ExpansionStartingGearItem("RoadFlare", 2));
+			PantsGear.Insert(new ExpansionStartingGearItem("Heatpack", 1));
+			PantsGear.Insert(new ExpansionStartingGearItem("dzn_tool_watch", 1));
+		}
+		else if (worldName == "takistanplus")
+		{
+			UsePantsGear = true;
+			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+			PantsGear.Insert(new ExpansionStartingGearItem("Compass", 1));
+		}
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGear::Defaults - End");

@@ -42,7 +42,6 @@ modded class ExpansionBaseBuilding
 		RegisterNetSyncVariableBool( "m_Locked" );
 		RegisterNetSyncVariableBool( "m_HasCode" );
 		RegisterNetSyncVariableInt( "m_CodeLength" );
-		RegisterNetSyncVariableBool( "m_HasBeenKilled" );
 		
 		SetAllowDamage(CanBeDamaged());
 	}
@@ -447,23 +446,10 @@ modded class ExpansionBaseBuilding
 		return IsLastStage();
 	}
 
-	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
+	override void ExpansionOnDestroyed( Object killer )
 	{
-		super.OnRPC( sender, rpc_type, ctx );
-		
-		switch ( rpc_type )
-		{
-			case ExpansionEntityRPC.HasBeenKilled:
-			{
-				EXPrint("ExpansionBaseBuilding::OnRPC - ExpansionEntityRPC.HasBeenKilled - " + this);
-
-				//! TODO: Is checking if health is zero enough security? Could also additionally check distance to sending player
-				if ( GetHealth() == 0 && !ToDelete() )
-					Delete();
-
-				break;
-			}
-		}
+		if ( GetHealth() == 0 && !ToDelete() )
+			Delete();
 	}
 
 	override void OnVariablesSynchronized()
@@ -484,11 +470,6 @@ modded class ExpansionBaseBuilding
 		ExpansionCodeLock codelock = ExpansionGetCodeLock();
 		if ( codelock )
 			codelock.UpdateVisuals();
-
-		if ( m_HasBeenKilled )
-		{
-			RPCSingleParam( ExpansionEntityRPC.HasBeenKilled, NULL, true );
-		}
 	}
 
 	/**

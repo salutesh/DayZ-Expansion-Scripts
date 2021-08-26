@@ -222,6 +222,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 
 		if (baseBuildingSettingsExist)
 		{
+			EXPrint("[ExpansionBaseBuildingSettings] Load existing setting file:" + EXPANSION_BASE_BUILDING_SETTINGS);
+			
 			ExpansionBaseBuildingSettings settingsDefault = new ExpansionBaseBuildingSettings;
 			settingsDefault.Defaults();
 
@@ -251,6 +253,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionBaseBuildingSettings] No existing setting file:" + EXPANSION_BASE_BUILDING_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -277,8 +280,6 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionBaseBuildingSettings] Loading default settings");
-
 		m_Version = VERSION;
 		
 		CanBuildAnywhere = true;
@@ -328,6 +329,65 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBase
 		AutomaticFlagOnCreation = true;
 		EnableFlagMenu = FlagMenuMode.Enabled;
 		GetTerritoryFlagKitAfterBuild = false;
+		
+	#ifdef EXPANSIONMODMARKET
+		string worldName;
+		GetGame().GetWorldName(worldName);
+		worldName.ToLower();
+		
+		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
+		{
+			DefaultChernarusNonBuildingZones();
+		}
+		else if (worldName == "namalsk")
+		{
+			DefaultNamalskNonBuildingZones();
+		}
+		else if (worldName == "takistanplus")
+		{
+			DefaultTakistanNonBuildingZones();
+		}
+	#endif 
+	}
+	
+	// ------------------------------------------------------------	
+	void DefaultChernarusNonBuildingZones()
+	{
+		//! Krasnostav Trader Camp
+		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Krasnostav Trader Camp", "11882 143 12466", 2000.0, {}, true, "");
+		Zones.Insert(zone);
+		
+		//! Green Mountain Trader Camp
+		zone = new ExpansionBuildNoBuildZone("Green Mountain Trader Camp", "3728.27 403 6003.6", 2000.0, {}, true, "");
+		Zones.Insert(zone);
+		
+		//! Kamenka Trader Camp
+		zone = new ExpansionBuildNoBuildZone("Kamenka Trader Camp", "1143.14 6.9 2423.27", 2000.0, {}, true, "");
+		Zones.Insert(zone);
+	}
+	
+	// ------------------------------------------------------------	
+	void DefaultNamalskNonBuildingZones()
+	{
+		//! Airsrip
+		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Airstrip Trader", "6305 26 9521", 4000.0, {}, true, "");
+		Zones.Insert(zone);
+		
+		//! Jalovisko Trader Camp
+		zone = new ExpansionBuildNoBuildZone("Jalovisko Trader Camp", "8583.67 29 10515", 2000.0, {}, true, "");
+		Zones.Insert(zone);
+		
+		//!  Tara Harbor
+		zone = new ExpansionBuildNoBuildZone("Tara Harbor Boat Trader", "8043.45 10 7593.45", 2000.0, {}, true, "");
+		Zones.Insert(zone);
+	}
+	
+	// ------------------------------------------------------------	
+	void DefaultTakistanNonBuildingZones()
+	{
+		//! Marastar Oasis Trader Camp
+		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Marastar Trader Camp", "4611.26 4.6 12334.0", 2000.0, {}, true, "");
+		Zones.Insert(zone);
 	}
 	
 	// ------------------------------------------------------------

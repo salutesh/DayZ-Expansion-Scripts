@@ -12,12 +12,22 @@
 
 class ExpansionObjectSpawnTools
 {
+	static ref array<EntityAI> firePlacesToDelete = new array<EntityAI>;
 	static string objectFilesFolder;
 	static string traderFilesFolder;
 	#ifdef ENFUSION_AI_PROJECT
 	static string aiTraderFilesFolder;
 	#endif
-
+		
+	void ~ExpansionObjectSpawnTools()
+	{
+		Print("Clear up static fireplaces: " + firePlacesToDelete.Count());
+		foreach (Entity fireplace: firePlacesToDelete)
+		{
+			GetGame().ObjectDelete(fireplace);
+		}
+	}
+	
 	static void FindMissionFiles(string missionFolder, bool loadObjects, bool loadTraders)
 	{
 		array<string> objectFiles;
@@ -31,10 +41,9 @@ class ExpansionObjectSpawnTools
 
 		if ( loadObjects && FileExist( objectFilesFolder ) )
 		{
-			objectFiles = ExpansionFindFilesInLocation(objectFilesFolder);
+			objectFiles = ExpansionStatic.FindFilesInLocation(objectFilesFolder);
 			if (objectFiles.Count() >= 0)
 			{
-				
 				LoadMissionObjects(objectFiles);
 			}
 		}
@@ -43,9 +52,9 @@ class ExpansionObjectSpawnTools
 		if ( loadTraders && FileExist( traderFilesFolder ) )
 		{
 			#ifdef ENFUSION_AI_PROJECT
-			traderFiles = ExpansionFindFilesInLocation(aiTraderFilesFolder);
+			traderFiles = ExpansionStatic.FindFilesInLocation(aiTraderFilesFolder);
 			#else
-			traderFiles = ExpansionFindFilesInLocation(traderFilesFolder);
+			traderFiles = ExpansionStatic.FindFilesInLocation(traderFilesFolder);
 			#endif
 			if (traderFiles.Count() >= 0)
 			{
@@ -148,30 +157,28 @@ class ExpansionObjectSpawnTools
 	static void ProcessMissionObject(Object obj)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Try to process mapping object: " + obj.ClassName() );
+			EXLogPrint("Try to process mapping object: " + obj.ClassName());
 			#endif
 
 		ItemBase item;
 
-		if ( obj.IsInherited(ExpansionPointLight) )
+		if (obj.IsInherited(ExpansionPointLight))
 		{
-			ExpansionPointLight light = ExpansionPointLight.Cast( obj );
-			if ( light )
+			ExpansionPointLight light = ExpansionPointLight.Cast(obj);
+			if (light)
 			{
 				light.SetDiffuseColor(1,0,0);
 			}
 			
 			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + "!" );
+			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
 			#endif
 		}
-		else if ( obj.IsKindOf("Fireplace") )
+		else if (obj.IsKindOf("Fireplace"))
 		{
-			Fireplace fireplace = Fireplace.Cast( obj );
-			
-			if ( fireplace )
+			Fireplace fireplace = Fireplace.Cast(obj);
+			if (fireplace)
 			{
-
 				//! Add bark
 				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Bark_Oak"));
 				item.SetQuantity(8);
@@ -186,13 +193,13 @@ class ExpansionObjectSpawnTools
 			}
 
 			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + "!" );
+			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
 			#endif
 		}
-		else if ( obj.IsInherited(BarrelHoles_ColorBase) )
+		else if (obj.IsInherited(BarrelHoles_ColorBase))
 		{
-			BarrelHoles_Red barrel = BarrelHoles_Red.Cast( obj );
-			if ( barrel ) 
+			BarrelHoles_Red barrel = BarrelHoles_Red.Cast(obj);
+			if (barrel) 
 			{
 				//! Need to open barrel first, otherwise can't add items
 				barrel.Open();
@@ -211,13 +218,13 @@ class ExpansionObjectSpawnTools
 			}
 
 			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + "!" );
+			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
 			#endif
 		}
-		else if ( obj.IsKindOf("Roadflare") )
+		else if (obj.IsKindOf("Roadflare"))
 		{
 			Roadflare flare = Roadflare.Cast( obj );
-			if ( flare ) 
+			if (flare) 
 			{
 				flare.GetCompEM().SetEnergy(999999);
 				flare.GetCompEM().SwitchOn();
@@ -228,6 +235,63 @@ class ExpansionObjectSpawnTools
 			EXLogPrint( "Processed mapping object: " + obj.ClassName() + "!" );
 			#endif
 		}
+		#ifdef EXPANSIONMOD
+		else if (obj.IsInherited(BuildingWithFireplace))
+		{
+			Print("Process mapping object: " + obj.ClassName());
+			BuildingWithFireplace buildingWithFireplace;
+			bldr_land_misc_barel_fire_1 barel_1;
+			bldr_land_misc_barel_fire_2 barel_2;
+			bldr_land_misc_barel_fire_3 barel_3;
+			bldr_land_misc_barel_fire_4 barel_4;
+
+			if (Class.CastTo(barel_1, obj))
+				buildingWithFireplace = BuildingWithFireplace.Cast(barel_1);
+			else if (Class.CastTo(barel_2, obj))
+				buildingWithFireplace = BuildingWithFireplace.Cast(barel_2);
+			else if (Class.CastTo(barel_3, obj))
+				buildingWithFireplace = BuildingWithFireplace.Cast(barel_3);
+			else if (Class.CastTo(barel_4, obj))
+				buildingWithFireplace = BuildingWithFireplace.Cast(barel_4);
+
+			if (buildingWithFireplace) 
+			{
+				int fire_point_index = 1;
+				vector fire_place_pos = buildingWithFireplace.GetSelectionPositionMS(FireplaceIndoor.FIREPOINT_FIRE_POSITION + fire_point_index.ToString());
+				vector fire_place_pos_world = buildingWithFireplace.ModelToWorld(fire_place_pos);	
+				vector smoke_point_pos = buildingWithFireplace.GetSelectionPositionMS(FireplaceIndoor.FIREPOINT_SMOKE_POSITION + fire_point_index.ToString());
+				vector smoke_point_pos_world = buildingWithFireplace.ModelToWorld(smoke_point_pos);		
+				vector smokePos = smoke_point_pos_world;
+				
+				Object obj_fireplace = GetGame().CreateObjectEx("FireplaceIndoor", fire_place_pos_world, ECE_PLACE_ON_SURFACE|ECE_NOLIFETIME);
+				firePlacesToDelete.Insert(EntityAI.Cast(obj_fireplace));
+				
+				FireplaceIndoor fp_indoor = FireplaceIndoor.Cast(obj_fireplace);
+				if (fp_indoor)
+				{
+					fp_indoor.SetFirePointIndex(fire_point_index);
+					fp_indoor.SetSmokePointPosition(smokePos);
+					fp_indoor.SetOrientation("0 0 0");
+
+					//! Add bark
+					item = ItemBase.Cast(fp_indoor.GetInventory().CreateAttachment("Bark_Oak"));
+					item.SetQuantity(8);
+					//! Add firewood
+					item = ItemBase.Cast(fp_indoor.GetInventory().CreateAttachment("Firewood"));
+					item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
+					//! Add sticks
+					item = ItemBase.Cast(fp_indoor.GetInventory().CreateAttachment("WoodenStick"));
+					item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
+					
+					fp_indoor.StartFire();
+				}
+			}
+
+			#ifdef EXPANSIONEXLOGPRINT
+			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
+			#endif
+		}
+		#endif
 	}
 
 	// ------------------------------------------------------------

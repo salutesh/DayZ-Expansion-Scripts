@@ -17,53 +17,52 @@ modded class PlayerBase
 	protected string m_PlayerName;
 
 	private static autoptr map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
-	private static autoptr array< PlayerBase > m_AllPlayers = new array< PlayerBase >;
+
+	static PlayerBase s_AllPlayers;
 	
+	PlayerBase m_Expansion_NextPlayer;
+	PlayerBase m_Expansion_PrevPlayer;
+
 	protected bool m_SafeZone;
 	protected bool m_SafeZoneSynchRemote;
 	protected bool m_LeavingSafeZone;
 
 	#ifdef ENFUSION_AI_PROJECT
-	//! m_eAI_Group duplicated from eAI/Scripts/4_World/eAI/Entities/eAIBase.c, 
-	//! otherwise crash with "Can't find variable 'm_eAI_Group'"
-	//! unless you have eAI_Scripts in requiredAddons - I hate you EnforceScript :-(
-    private autoptr eAIGroup m_eAI_Group;
-
 	private autoptr eAIFaction m_eAI_Faction_NotInSafeZone;
 	#endif
 
+	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<PlayerBase>(this);
+
 	void PlayerBase()
 	{
-		m_AllPlayers.Insert( this );
+		m_Expansion_NextPlayer = s_AllPlayers;
+		m_Expansion_PrevPlayer = null;
+
+		if (m_Expansion_NextPlayer)
+		{
+			m_Expansion_NextPlayer.m_Expansion_PrevPlayer = this;
+		}
+
+		s_AllPlayers = this;
 	}
 	
 	void ~PlayerBase()
 	{
+		if (m_Expansion_PrevPlayer)
+		{
+			m_Expansion_PrevPlayer.m_Expansion_NextPlayer = m_Expansion_NextPlayer;
+		}
+
+		if (m_Expansion_NextPlayer)
+		{
+			m_Expansion_NextPlayer.m_Expansion_PrevPlayer = m_Expansion_PrevPlayer;
+		}
+	
 		if ( m_AllPlayersUID && m_PlayerUID && m_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{
 			m_AllPlayersUID.Remove( m_PlayerUID );
 		}
-
-		if ( m_AllPlayers )
-		{
-			int remove_index = m_AllPlayers.Find( this );
-			if ( remove_index >= 0 )
-			{
-				m_AllPlayers.Remove( remove_index );
-			}
-		}
 	}
-
-	#ifdef ENFUSION_AI_PROJECT
-	//! GetGroup duplicated from eAI/Scripts/4_World/eAI/Entities/eAIBase.c, 
-	//! otherwise crash with "Undefined function 'PlayerBase@1807#13.GetGroup'"
-	//! unless you have eAI_Scripts in requiredAddons - I hate you EnforceScript :-(
-	//! NOTE: THIS IS NOT AN OVERRIDE
-	eAIGroup GetGroup()
-	{
-		return m_eAI_Group;
-	}
-	#endif
 
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentitySteam
@@ -102,7 +101,8 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	static array< PlayerBase > GetAll()
 	{
-		return m_AllPlayers;
+		Error("DEPRECATED");
+		return new array< PlayerBase >();
 	}
 	
 	// ------------------------------------------------------------
@@ -207,7 +207,7 @@ modded class PlayerBase
 		super.OnVariablesSynchronized();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnVariablesSynchronized - Start");
+		EXPrint(ToString() + "::OnVariablesSynchronized - Start");
 		#endif
 		
 		if (!GetGame().IsClient())
@@ -215,15 +215,15 @@ modded class PlayerBase
 
 		if ( m_SafeZoneSynchRemote && !m_SafeZone )
 		{
-			OnEnterSafeZone();
+			OnEnterZone(ExpansionZoneType.SAFE);
 		} 
 		else if ( !m_SafeZoneSynchRemote && m_SafeZone )
 		{
-			OnLeftSafeZone();
+			OnExitZone(ExpansionZoneType.SAFE);
 		}
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnVariablesSynchronized - End");
+		EXPrint(ToString() + "::OnVariablesSynchronized - End");
 		#endif
 	}
 	
@@ -253,83 +253,163 @@ modded class PlayerBase
 		return m_SafeZone;
 	}
 
+	override void OnConnect()
+	{
+		super.OnConnect();
+
+		//! Make sure we check straight away if player connects in a safezone
+		if (!IsInSafeZone())
+			m_Expansion_SafeZoneInstance.Update();
+	}
+
+	override void OnReconnect()
+	{
+		super.OnReconnect();
+
+		//! Make sure we check straight away if player reconnects in a safezone
+		if (!IsInSafeZone())
+			m_Expansion_SafeZoneInstance.Update();
+	}
+
+	// ------------------------------------------------------------
+	// PlayerBase OnEnterZone, server + client
+	// ------------------------------------------------------------
+	void OnEnterZone(ExpansionZoneType type)
+	{
+		EXPrint(ToString() + "::OnEnterZone");
+		Print(type);
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::OnEnterZone start");
+		#endif
+		
+		if (type == ExpansionZoneType.SAFE)
+		{
+			OnEnterSafeZone();
+		}
+		
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::OnEnterZone end");
+		#endif
+	}
+
+	#ifdef ENFUSION_AI_PROJECT
+	protected eAIGroup ExpansionGetEAIGroup(bool createIfNoneExists = true)
+	{
+		for (int i = 0; i < eAIGroup.GROUPS.Count(); i++) {
+			if (!eAIGroup.GROUPS[i]) continue;
+			eAIBase GrpLeader = eAIGroup.GROUPS[i].GetLeader();
+			if (GrpLeader && GrpLeader == this)
+				return eAIGroup.GROUPS[i];
+		}
+		
+		if (!createIfNoneExists) return null;
+		
+		eAIGroup newGroup = new eAIGroup();
+		newGroup.SetLeader(this);
+		eAIBase eAI_PB = eAIBase.Cast(this);
+		eAI_PB.SetGroup(newGroup);
+		return newGroup;
+	}
+	#endif
+
+	// ------------------------------------------------------------
+	// PlayerBase OnExitZone, only server side
+	// ------------------------------------------------------------
+	void OnExitZone(ExpansionZoneType type)
+	{
+		EXPrint(ToString() + "::OnExitZone");
+		Print(type);
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::OnExitZone - Start");
+		#endif
+		
+		if (type == ExpansionZoneType.SAFE)
+		{
+			if (GetGame().IsClient())
+			{
+				// OnLeftSafeZone needs to be called on client
+				OnLeftSafeZone();
+				return;
+			}
+
+			m_LeavingSafeZone = true;
+
+			if ( GetIdentity() )
+				ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEAVING", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
+				
+			//TODO: expose to settings
+
+			//! Delay actually leaving the safezone by 10 seconds
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("PlayerBase::OnExitZone - End");
+		#endif
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase OnEnterSafeZone, server + client
 	// ------------------------------------------------------------
 	void OnEnterSafeZone()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnEnterSafeZone start");
-		#endif
-		
-		if ( IsAlive() )
-		{
-			m_SafeZone = true;
-			m_LeavingSafeZone = false;
-	
-			SetCanRaise(false);
-	
-			if (IsMissionHost())
-			{
-				m_SafeZoneSynchRemote = true;
-	
-				SetAllowDamage(false);
-				
-				if ( GetIdentity() )
-				{
-					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_ENTER", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
-					
-					if ( GetExpansionSettings().GetLog().Safezone )
-						GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
-				}
+		EXPrint(ToString() + "::OnEnterSafeZone");
+		Print(m_LeavingSafeZone);
+		Print(m_SafeZone);
+		Print(m_SafeZoneSynchRemote);
 
-				#ifdef ENFUSION_AI_PROJECT
-				eAIFactionCivilian civilian = new eAIFactionCivilian();
-				if ( !GetGroup().GetFaction().isFriendly( civilian ) )
-				{
-					m_eAI_Faction_NotInSafeZone = GetGroup().GetFaction();
-					EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition() + " - faction " + m_eAI_Faction_NotInSafeZone + " -> " + civilian );
-					//! Assign a neutral faction so AI guards do not see us as a threat
-					GetGroup().SetFaction( civilian );
-				}
-				#endif
-	
-				SetSynchDirty();
-			}
+		m_SafeZone = true;
+		m_LeavingSafeZone = false;
+
+		#ifdef ENFUSION_AI_PROJECT
+		if (IsInherited(eAIBase))
+		{
+			#ifdef EXPANSIONMODMARKET
+			//! If this is a trader AI, we still want it to be able to raise hands in safezones
+			if (IsInherited(ExpansionTraderAIBase))
+				return;
+			#endif
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnEnterSafeZone end");
 		#endif
-	}
 
-	// ------------------------------------------------------------
-	// PlayerBase OnLeavingSafeZone, only server side
-	// ------------------------------------------------------------
-	void OnLeavingSafeZone()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnLeavingSafeZone - Start");
-		#endif
+		SetCanRaise(false);
+
+		if (GetGame().IsClient())
+			return;
+
+		m_SafeZoneSynchRemote = true;
+
+		SetAllowDamage(false);
 		
-		if ( IsAlive() )
+		if ( GetIdentity() )
 		{
-			if (IsMissionHost() && m_SafeZone && !m_LeavingSafeZone)
-			{
-				m_SafeZone = false;
-				m_LeavingSafeZone = true;
-	
-				if ( GetIdentity() )
-					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEAVING", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
-				
-				//! Wait 10 seconds
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
-			}
+			ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_ENTER", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
+			
+			if ( GetExpansionSettings().GetLog().Safezone )
+				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnLeavingSafeZone - End");
+		#ifdef ENFUSION_AI_PROJECT
+		eAIFactionCivilian civilian = new eAIFactionCivilian();
+		eAIBase eAI_PB = eAIBase.Cast(this);
+		eAIGroup group = eAI_PB.GetGroup();
+		if ( !group )
+		{
+			//! If (re)connecting in a safezone, there will be no group initially
+			group = ExpansionGetEAIGroup();
+		}
+		if ( !group.GetFaction().isFriendly( civilian ) )
+		{
+			m_eAI_Faction_NotInSafeZone = group.GetFaction();
+			EXPrint(ToString() + "::OnEnterZone " + GetPosition() + " - faction " + m_eAI_Faction_NotInSafeZone + " -> " + civilian );
+			//! Assign a neutral faction so AI guards do not see us as a threat
+			group.SetFaction( civilian );
+		}
 		#endif
+	
+		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -337,46 +417,65 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void OnLeftSafeZone()
 	{
+		EXPrint(ToString() + "::OnLeftSafeZone");
+		Print(m_LeavingSafeZone);
+		Print(m_SafeZone);
+		Print(m_SafeZoneSynchRemote);
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::OnLeftSafeZone - Start");
 		#endif
-		
-		if ( IsAlive() )
-		{
-			if (IsMissionHost() && !m_SafeZone && m_LeavingSafeZone)
-			{
-				m_LeavingSafeZone = false;
-				m_SafeZoneSynchRemote = false;
-	
-				SetAllowDamage(true);
-				SetCanRaise(true);
-	
-				if ( GetIdentity() )
-				{
-					ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEFT", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
-		
-					if ( GetExpansionSettings().GetLog().Safezone )
-						GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
-				}
 
-				#ifdef ENFUSION_AI_PROJECT
-				if ( m_eAI_Faction_NotInSafeZone )
-				{
-					//! Assign original faction
-					EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition() + " - assigning faction " + m_eAI_Faction_NotInSafeZone );
-					GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
-					m_eAI_Faction_NotInSafeZone = NULL;
-				}
-				#endif
-			
-				SetSynchDirty();
-			}
-			else if (IsMissionClient())
-			{
-				m_SafeZone = false;
-				SetCanRaise(true);
-			}
+		if (GetGame().IsClient())
+		{
+			m_SafeZone = false;
+			SetCanRaise(true);
+			return;
 		}
+
+		if (!m_LeavingSafeZone)
+			return;
+		
+		m_LeavingSafeZone = false;
+
+		m_SafeZone = false;
+
+		#ifdef ENFUSION_AI_PROJECT
+		if (IsInherited(eAIBase))
+		{
+			#ifdef EXPANSIONMODMARKET
+			//! If this is a trader AI, we don't want it to be able to take damage outside a safezone
+			if (IsInherited(ExpansionTraderAIBase))
+				return;
+			#endif
+		}
+		#endif
+
+		m_SafeZoneSynchRemote = false;
+
+		SetAllowDamage(true);
+		SetCanRaise(true);
+	
+		if ( GetIdentity() )
+		{
+			ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEFT", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
+	
+			if ( GetExpansionSettings().GetLog().Safezone )
+				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
+		}
+
+		#ifdef ENFUSION_AI_PROJECT
+		if ( m_eAI_Faction_NotInSafeZone )
+		{
+			//! Assign original faction
+			eAIBase eAI_PB = eAIBase.Cast(this);
+			EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition() + " - assigning faction " + m_eAI_Faction_NotInSafeZone );
+			eAI_PB.GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
+			m_eAI_Faction_NotInSafeZone = NULL;
+		}
+		#endif
+	
+		SetSynchDirty();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::OnLeftSafeZone - End");

@@ -114,7 +114,6 @@ enum ExpansionMarkerRPC
 enum ExpansionEntityRPC
 {
 	INVALID = 20180,
-	HasBeenKilled,
 	COUNT
 };
 
@@ -368,6 +367,13 @@ enum ExpansionCraftingModuleRPC
 {
 	INVALID = 40000,
 	RequestPrepareCrafting,
+	COUNT
+};
+
+enum ExpansionItemBaseModuleRPC
+{
+	INVALID = 40005,
+	PlayDestroySound,
 	COUNT
 };
 

@@ -547,7 +547,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		
 		vector position = GetPosition();
 		vector orientation = GetOrientation();
-		if ( g_Game.SurfaceIsSea( position[0], position[2] ) || g_Game.SurfaceIsPond( position[0], position[2] ) )
+		if ( ExpansionStatic.SurfaceIsWater(position) )
 		{
 			FloatyMcFloatSimple( position );
 			SetOrientation( Vector( orientation[0], 0, 0 ) );

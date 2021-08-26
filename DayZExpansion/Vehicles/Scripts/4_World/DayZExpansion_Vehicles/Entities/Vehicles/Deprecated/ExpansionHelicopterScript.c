@@ -488,7 +488,7 @@ class ExpansionHelicopterScript extends CarScript
 
 					float distance = 0;
 
-					if ( IsSurfaceWater( m_HitPosition ) )
+					if ( ExpansionStatic.SurfaceIsWater( m_HitPosition ) )
 					{
 						distance = GetPosition()[1] - GetGame().SurfaceGetSeaLevel();
 					} else
@@ -576,7 +576,7 @@ class ExpansionHelicopterScript extends CarScript
 		{
 			float size = ( 1 - m_HitFraction ) * m_RotorSpeed * 4.0 * m_BoundingRadius;
 
-			if ( IsSurfaceWater( m_HitPosition ) )
+			if ( ExpansionStatic.SurfaceIsWater( m_HitPosition ) )
 			{
 				m_HitPosition[1] = GetGame().SurfaceGetSeaLevel();
 
@@ -705,7 +705,7 @@ class ExpansionHelicopterScript extends CarScript
 		if ( m_IsBeingTowed )
 			return;
 
-		if ( IsMissionHost() && m_EnableHelicopterExplosions )
+		if ( IsMissionHost() && m_EnableHelicopterExplosions && CanBeDamaged() )
 		{
 			vector transform[4];
 			GetTransform( transform );
@@ -1332,7 +1332,7 @@ class ExpansionHelicopterScript extends CarScript
 		{
 			buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_BodyMass, 2.0, m_LinearVelocity, isAboveWater );
 				
-			if ( !isAboveWater && IsMissionHost() )
+			if ( !isAboveWater && IsMissionHost() && CanBeDamaged() )
 			{
 				float buoyancyAcceleration = buoyancyForce / m_BodyMass;
 				if ( buoyancyAcceleration > 1.0 )

@@ -227,12 +227,6 @@ class ExpansionTractor extends CarScript
 		return false;
 	}
 
-	override bool LeavingSeatDoesAttachment( int posIdx )
-	{
-		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
-		return false;
-	}
-
 	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
 	{
 		if (pDoorsSelection == "ExpansionTractorDoorsDriver")

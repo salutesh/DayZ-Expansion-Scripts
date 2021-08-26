@@ -77,7 +77,7 @@ class ExpansionPartyModule: JMModuleBase
 
 		map<string, ref ExpansionPartyData> partiesByPlayerUID = new map<string, ref ExpansionPartyData>;
 
-		array<string> group_files = ExpansionFindFilesInLocation(EXPANSION_GROUPS_FOLDER, ".bin");
+		array<string> group_files = ExpansionStatic.FindFilesInLocation(EXPANSION_GROUPS_FOLDER, ".bin");
 		foreach (string fileName : group_files)
 		{
 			ExpansionPartyData party = new ExpansionPartyData;

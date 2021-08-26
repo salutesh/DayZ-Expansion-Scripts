@@ -233,6 +233,8 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 
 		if (notificationSettingsExist)
 		{
+			EXPrint("[ExpansionNotificationSettings] Load existing setting file:" + EXPANSION_NOTIFICATION_SETTINGS);
+			
 			ExpansionNotificationSettings settingsDefault = new ExpansionNotificationSettings;
 			settingsDefault.Defaults();
 
@@ -262,6 +264,7 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionNotificationSettings] No existing setting file:" + EXPANSION_NOTIFICATION_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -297,8 +300,6 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionNotificationSettings] Loading default settings");
-		
 		m_Version = VERSION;
 		
 		EnableNotification = true;

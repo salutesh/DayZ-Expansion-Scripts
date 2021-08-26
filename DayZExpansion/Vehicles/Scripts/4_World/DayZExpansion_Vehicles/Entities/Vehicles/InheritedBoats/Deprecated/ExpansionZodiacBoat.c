@@ -146,6 +146,9 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
+		if ( !super.CanObjectAttach( obj ) )
+			return false;
+		
  		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 		

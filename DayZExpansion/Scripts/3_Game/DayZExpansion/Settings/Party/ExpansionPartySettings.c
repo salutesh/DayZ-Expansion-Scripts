@@ -35,13 +35,6 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-	// ------------------------------------------------------------
-	// Expansion ExpansionPartySettings
-	// ------------------------------------------------------------
-	void ExpansionPartySettings()
-	{
-	}
 	
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -161,6 +154,8 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 
 		if (partySettingsExist)
 		{
+			EXPrint("[ExpansionPartySettings] Load existing setting file:" + EXPANSION_PARTY_SETTINGS);
+			
 			ExpansionPartySettings settingsDefault = new ExpansionPartySettings;
 			settingsDefault.Defaults();
 
@@ -190,6 +185,7 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionPartySettings] No existing setting file:" + EXPANSION_PARTY_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -221,8 +217,6 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionPartySettings] Loading default settings");
-	
 		m_Version = VERSION;
 		
 		EnableParties = true;

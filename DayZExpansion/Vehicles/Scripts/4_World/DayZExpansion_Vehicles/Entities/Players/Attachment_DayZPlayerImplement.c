@@ -565,6 +565,11 @@ modded class DayZPlayerImplement
 				vector start = GetPosition() + Vector( 0, 1.0, 0 );
 				vector end = GetPosition() - Vector( 0, castDistance, 0 );
 
+				if ( parent && parent.IsInherited(ExpansionZodiacBoat) )
+				{
+					castRadius = 1;
+				}
+
 				RaycastRVParams params = new RaycastRVParams( start, end, GetGame().GetPlayer(), castRadius );
 				params.sorted = true;
 				params.type = ObjIntersectGeom;

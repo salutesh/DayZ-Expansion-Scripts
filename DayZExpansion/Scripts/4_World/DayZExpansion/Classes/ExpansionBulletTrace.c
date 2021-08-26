@@ -76,7 +76,7 @@ class ExpansionBulletTrace
 
 		m_PreviousPosition = m_Object.GetPosition();
 		
-		m_Shapes.Insert( Shape.CreateLines( ARGBtoInt( 200, r, g, b ), ShapeFlags.TRANSP, pts, 2 ) );
+		m_Shapes.Insert( Shape.CreateLines( ExpansionStatic.ARGBtoInt( 200, r, g, b ), ShapeFlags.TRANSP, pts, 2 ) );
 
 		return true;
 	}

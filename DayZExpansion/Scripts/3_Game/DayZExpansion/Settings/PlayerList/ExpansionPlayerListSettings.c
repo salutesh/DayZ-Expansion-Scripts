@@ -15,6 +15,8 @@
  **/
 class ExpansionPlayerListSettings: ExpansionSettingBase
 {
+	static const int VERSION = 0;
+	
 	bool EnablePlayerList;
 	bool EnableTooltip;
 
@@ -140,26 +142,30 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 		
 		m_IsLoaded = true;
 		
-		if ( FileExist( EXPANSION_PLAYERLIST_SETTINGS ) )
+		bool save;
+		
+		bool playerListSettingsExist = FileExist(EXPANSION_PLAYERLIST_SETTINGS);
+		
+		if ( playerListSettingsExist )
 		{
-			Print("[ExpansionPlayerListSettings] Loading settings");
+			EXPrint("[ExpansionPlayerListSettings] Load existing setting file:" + EXPANSION_PLAYERLIST_SETTINGS);
 
 			JsonFileLoader<ExpansionPlayerListSettings>.JsonLoadFile( EXPANSION_PLAYERLIST_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionPlayerListSettings::Load - End - Loaded");
-			#endif
-
-			return true;
+		}
+		else
+		{
+			EXPrint("[ExpansionPlayerListSettings] No existing setting file:" + EXPANSION_PLAYERLIST_SETTINGS + ". Creating defaults!");
+			Defaults();
+			save = true;
 		}
 
-		Defaults();
-		Save();
+		if (save)
+			Save();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionPlayerListSettings::Load - End - Not Loaded");
 		#endif
-		return false;
+		return playerListSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -189,8 +195,8 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionPlayerListSettings] Loading default settings");
-
+		m_Version = VERSION;
+		
 		EnablePlayerList = true;
 		EnableTooltip = true;
 	}

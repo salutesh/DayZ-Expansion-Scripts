@@ -172,9 +172,9 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\vodnik.p3d";
 		modelAnchorPointY = 2.19;
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med","antiwater"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_mod_out_co.paa",""};
-		hiddenSelectionsMaterials[] = {"","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_module.rvmat",""};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_mod_out_co.paa"};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_module.rvmat"};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass.rvmat";
 		TailReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01_on.rvmat";
@@ -199,62 +199,6 @@ class CfgVehicles
 				proxyPos = "crewCoDriver";
 				getInPos = "pos_codriver";
 				getInDir = "pos_codriver_dir";
-			};
-			class Cargo1
-			{
-				actionSel = "seat_cargo1";
-				proxyPos = "crewCargo1";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo2
-			{
-				actionSel = "seat_cargo2";
-				proxyPos = "crewCargo2";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
-			};
-			class Cargo3
-			{
-				actionSel = "seat_cargo3";
-				proxyPos = "crewCargo3";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo4
-			{
-				actionSel = "seat_cargo4";
-				proxyPos = "crewCargo4";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
-			};
-			class Cargo5
-			{
-				actionSel = "seat_cargo5";
-				proxyPos = "crewCargo5";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo6
-			{
-				actionSel = "seat_cargo6";
-				proxyPos = "crewCargo6";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
-			};
-			class Cargo7
-			{
-				actionSel = "seat_cargo7";
-				proxyPos = "crewCargo7";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo8
-			{
-				actionSel = "seat_cargo8";
-				proxyPos = "crewCargo8";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
 			};
 		};
 		class SimulationModule: SimulationModule
@@ -465,9 +409,9 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\vodnik.p3d";
 		modelAnchorPointY = 2.19;
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med","antiwater"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_mod_out_co.paa",""};
-		hiddenSelectionsMaterials[] = {"","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_module.rvmat",""};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_mod_out_co.paa"};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_module.rvmat"};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass.rvmat";
 		TailReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01_on.rvmat";
@@ -492,62 +436,6 @@ class CfgVehicles
 				proxyPos = "crewCoDriver";
 				getInPos = "pos_codriver";
 				getInDir = "pos_codriver_dir";
-			};
-			class Cargo1
-			{
-				actionSel = "seat_cargo1";
-				proxyPos = "crewCargo1";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo2
-			{
-				actionSel = "seat_cargo2";
-				proxyPos = "crewCargo2";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
-			};
-			class Cargo3
-			{
-				actionSel = "seat_cargo3";
-				proxyPos = "crewCargo3";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo4
-			{
-				actionSel = "seat_cargo4";
-				proxyPos = "crewCargo4";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
-			};
-			class Cargo5
-			{
-				actionSel = "seat_cargo5";
-				proxyPos = "crewCargo5";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo6
-			{
-				actionSel = "seat_cargo6";
-				proxyPos = "crewCargo6";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
-			};
-			class Cargo7
-			{
-				actionSel = "seat_cargo7";
-				proxyPos = "crewCargo7";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
-			};
-			class Cargo8
-			{
-				actionSel = "seat_cargo8";
-				proxyPos = "crewCargo8";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
 			};
 		};
 		class SimulationModule: SimulationModule

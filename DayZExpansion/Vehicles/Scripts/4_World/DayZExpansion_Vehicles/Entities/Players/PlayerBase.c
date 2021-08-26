@@ -464,19 +464,31 @@ modded class PlayerBase
 		{
 			if ( m_WasInVehicle )
 			{
+				//EXPrint(ToString() + "::AfterStoreLoad - player pos " + GetPosition());
+
 				vector rayStart = GetPosition();
-				vector rayEnd = rayStart + "0 -6000 0";
-				vector ground;
+
+				//! Ground or water surface position
+				vector ground = ExpansionStatic.GetSurfaceWaterPosition(GetPosition());
+				//EXPrint(ToString() + "::AfterStoreLoad - ground " + ground);
+
+				//! Move ray end up a bit from ground, so that if (e.g.) we are standing on the LHD,
+				//! our 1st raycast doesn't hit the (water) surface below (RaycastRV will ignore the LHD),
+				//! which would place the player in the water, inside the LHD's model
+				vector rayEnd = ground + "0 1.5 0";
+
+				Object ignoreObj = this;
 				
-				RaycastRVParams params = new RaycastRVParams( rayStart, rayEnd, this, 0.2 );
+				RaycastRVParams params = new RaycastRVParams( rayStart, rayEnd, ignoreObj, 0.2 );
 				params.sorted = true;
 				//params.type = ObjIntersectFire;
 				params.flags = CollisionFlags.ALLOBJECTS;
 				
 				array< ref RaycastRVResult > results = new array< ref RaycastRVResult >();
+				bool haveValidResult;
 				if ( DayZPhysics.RaycastRVProxy( params, results ) )
 				{
-					vector hitPos = vector.Zero;
+					//EXPrint(ToString() + "::AfterStoreLoad - ray 1 hit results: " + results.Count());
 					for (int i = 0; i < results.Count(); ++i)
 					{
 						RaycastRVResult currResult = results[i];
@@ -493,24 +505,57 @@ modded class PlayerBase
 							obj = currResult.obj;
 						}
 						
-						if ( !obj || obj.IsTree() || obj.IsBush() || obj.IsScriptedLight() || obj.IsTransport() || obj.GetType() == string.Empty)
+						//EXPrint(ToString() + "::AfterStoreLoad - ray 1 hit result hierlvl " + currResult.hierLevel + " parent " + currResult.parent + " obj " + currResult.obj + " hit pos " + currResult.pos);
+						
+						if ( !obj || obj.IsTree() || obj.IsBush() || obj.IsScriptedLight() || obj.GetType() == string.Empty)
 							continue;
 						
-						hitPos = currResult.pos;
+						//EXPrint(ToString() + "::AfterStoreLoad - ray 1 hit obj " + obj + " pos " + obj.GetPosition());
+						if (obj.IsTransport())
+						{
+							//! If hit obj is more than 6m above ground, ignore it for next raycast
+							if (ground[1] + 6 < obj.GetPosition()[1])
+								ignoreObj = obj;
+							//! Move up from hit pos for next raycast so that if we are standing on a vehicle,
+							//! we don't get placed inside the vehicle's model
+							rayStart[1] = currResult.pos[1] + 3;
+						}
+						else
+						{
+							ground[1] = currResult.pos[1];
+							haveValidResult = true;
+						}
+
 						break;
 					}
-					
-					if (hitPos != vector.Zero)
-					{
-						SetPosition( hitPos );
-					} else
-					{
-						ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
-						SetPosition( ground );
-					}
-				} else
+				}
+
+				if (!haveValidResult)
 				{
-					ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
+					//! Do another raycast
+
+					PhxInteractionLayers layerMask;
+
+					layerMask |= PhxInteractionLayers.BUILDING;
+					layerMask |= PhxInteractionLayers.VEHICLE;
+					layerMask |= PhxInteractionLayers.ROADWAY;
+					layerMask |= PhxInteractionLayers.TERRAIN;
+					layerMask |= PhxInteractionLayers.ITEM_LARGE;
+
+					vector hitPos;
+
+					if (DayZPhysics.SphereCastBullet(rayStart, ground, 0.2, layerMask, ignoreObj, NULL, hitPos, NULL, NULL))
+					{
+						//EXPrint(ToString() + "::AfterStoreLoad - ray 2 hit pos " + hitPos);
+						ground[1] = hitPos[1];
+					}
+				}
+
+				//! If player is more than 1.5m above ground, place them safely,
+				//! else just let them fall (no damage at that height)
+				if (ground[1] + 1.5 < GetPosition()[1])
+				{
+					EXPrint(ToString() + "::AfterStoreLoad - placing player " + GetPosition() + " -> " + ground);
 					SetPosition( ground );
 				}
 

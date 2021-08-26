@@ -173,6 +173,8 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 
 		if (socialMediaSettingsExist)
 		{
+			EXPrint("[ExpansionSocialMediaSettings] Load existing setting file:" + EXPANSION_SOCIALMEDIA_SETTINGS);
+			
 			ExpansionSocialMediaSettings settingsDefault = new ExpansionSocialMediaSettings;
 			settingsDefault.Defaults();
 
@@ -200,6 +202,7 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionSocialMediaSettings] No existing setting file:" + EXPANSION_SOCIALMEDIA_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -235,8 +238,6 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionSocialMediaSettings] Loading default settings");
-	
 		m_Version = VERSION;
 		
 		Discord = "";

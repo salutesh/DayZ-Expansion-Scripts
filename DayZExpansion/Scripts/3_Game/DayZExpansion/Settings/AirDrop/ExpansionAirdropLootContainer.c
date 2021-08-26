@@ -47,7 +47,7 @@ class ExpansionAirdropLootContainer
 		}
 		
 		ExpansionAirdropLootContainer container;
-		int index = GetWeightedRandom( weights_T );
+		int index = ExpansionStatic.GetWeightedRandom( weights_T );
 
 		if ( index > -1 )
 			return containers[index];
