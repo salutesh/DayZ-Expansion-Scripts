@@ -215,15 +215,16 @@ WrapSpacerWidgetClass ExpansionItemTooltip {
      Columns 1
      Rows 2
      {
-      GridSpacerWidgetClass GridSpacerWidget0 {
+      GridSpacerWidgetClass ItemStatsContent {
        visible 1
        ignorepointer 1
        position 0 0
-       size 324 0
+       size 0.98 0
        hexactpos 1
        vexactpos 1
-       hexactsize 1
+       hexactsize 0
        vexactsize 1
+       scriptclass "ViewBinding"
        style Colorable
        Padding 4
        Margin 0
@@ -232,247 +233,8 @@ WrapSpacerWidgetClass ExpansionItemTooltip {
        Columns 2
        Rows 2
        {
-        ImageWidgetClass ItemWetnessWidgetBackground {
-         visible 1
-         clipchildren 0
-         inheritalpha 0
-         ignorepointer 1
-         color 1 1 1 0
-         position 0 0
-         size 160 20
-         halign center_ref
-         hexactpos 1
-         vexactpos 1
-         hexactsize 1
-         vexactsize 1
-         image0 "set:dayz_gui image:ColorableBar"
-         mode blend
-         "src alpha" 0
-         filter 1
-         {
-          TextWidgetClass ItemWetnessWidget {
-           clipchildren 0
-           ignorepointer 1
-           position 0 0
-           size 1 1
-           halign center_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           scriptclass "ViewBinding"
-           style Normal
-           text "#layout_tooltip_wetness"
-           font "gui/fonts/sdf_MetronLight24"
-           "text color" 1 1 1 1
-           "text spacing" 2 0
-           "exact text" 0
-           text_proportion 0.75
-           "size to text h" 0
-           "size to text v" 1
-           "text halign" center
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Binding_Name "ItemWetness"
-            }
-           }
-          }
-         }
-        }
-        ImageWidgetClass ItemTemperatureWidgetBackground {
-         visible 1
-         clipchildren 0
-         inheritalpha 0
-         ignorepointer 1
-         color 1 1 1 0
-         position 0 0
-         size 160 20
-         halign center_ref
-         hexactpos 1
-         vexactpos 1
-         hexactsize 1
-         vexactsize 1
-         image0 "set:dayz_gui image:ColorableBar"
-         mode blend
-         "src alpha" 0
-         filter 1
-         {
-          TextWidgetClass ItemTemperatureWidget {
-           clipchildren 0
-           ignorepointer 1
-           position 0 0
-           size 1 1
-           halign center_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           priority 1
-           scriptclass "ViewBinding"
-           style Normal
-           text "#layout_tooltip_temperature"
-           font "gui/fonts/sdf_MetronLight24"
-           "text color" 1 1 1 1
-           "exact text" 0
-           text_proportion 0.75
-           "size to text h" 0
-           "size to text v" 1
-           "text halign" center
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Binding_Name "ItemTemperature"
-            }
-           }
-          }
-         }
-        }
-        ImageWidgetClass ItemLiquidTypeWidgetBackground {
-         visible 1
-         clipchildren 0
-         inheritalpha 0
-         ignorepointer 1
-         color 1 1 1 0
-         position 0 0
-         size 160 20
-         hexactpos 1
-         vexactpos 1
-         hexactsize 1
-         vexactsize 1
-         image0 "set:dayz_gui image:ColorableBar"
-         mode blend
-         "src alpha" 0
-         filter 1
-         {
-          TextWidgetClass ItemLiquidTypeWidget {
-           clipchildren 0
-           ignorepointer 1
-           position 0 0
-           size 1 1
-           halign center_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           priority 1
-           scriptclass "ViewBinding"
-           style Normal
-           text "#layout_tooltip_liquid_type"
-           font "gui/fonts/sdf_MetronLight24"
-           "text color" 1 1 1 1
-           "exact text" 0
-           text_proportion 0.75
-           "size to text h" 0
-           "size to text v" 1
-           "text halign" center
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Binding_Name "ItemLiquidType"
-            }
-           }
-          }
-         }
-        }
-        ImageWidgetClass ItemFoodStageWidgetBackground {
-         visible 1
-         clipchildren 0
-         inheritalpha 0
-         ignorepointer 1
-         color 1 1 1 0
-         position 0 0
-         size 160 20
-         hexactpos 1
-         vexactpos 1
-         hexactsize 1
-         vexactsize 1
-         image0 "set:dayz_gui image:ColorableBar"
-         mode blend
-         "src alpha" 0
-         filter 1
-         {
-          TextWidgetClass ItemFoodStageWidget {
-           clipchildren 0
-           ignorepointer 1
-           position 0 0
-           size 1 1
-           halign center_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           scriptclass "ViewBinding"
-           style Normal
-           text "#layout_tooltip_food_stage"
-           font "gui/fonts/sdf_MetronLight24"
-           "text color" 1 1 1 1
-           "text spacing" 2 0
-           "exact text" 0
-           text_proportion 0.75
-           "size to text h" 0
-           "size to text v" 1
-           "text halign" center
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Binding_Name "ItemFoodStage"
-            }
-           }
-          }
-         }
-        }
-        ImageWidgetClass ItemCleannessWidgetBackground {
-         visible 1
-         clipchildren 0
-         inheritalpha 0
-         ignorepointer 1
-         color 1 1 1 0
-         position 0 0
-         size 160 20
-         hexactpos 1
-         vexactpos 1
-         hexactsize 1
-         vexactsize 1
-         image0 "set:dayz_gui image:ColorableBar"
-         mode blend
-         "src alpha" 0
-         filter 1
-         {
-          TextWidgetClass ItemCleannessWidget {
-           clipchildren 0
-           ignorepointer 1
-           position 0 0
-           size 1 1
-           halign center_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           scriptclass "ViewBinding"
-           style Normal
-           text "#inv_inspect_cleaned"
-           font "gui/fonts/sdf_MetronLight24"
-           "text color" 1 1 1 1
-           "text spacing" 2 0
-           "exact text" 0
-           text_proportion 0.75
-           "size to text h" 0
-           "size to text v" 1
-           "text halign" center
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Binding_Name "ItemCleanness"
-            }
-           }
-          }
-         }
+        ScriptParamsClass {
+         Binding_Name "ItemStatsElements"
         }
        }
       }
@@ -518,10 +280,6 @@ WrapSpacerWidgetClass ExpansionItemTooltip {
      }
     }
    }
-  }
- }
- {
-  ScriptParamsClass {
   }
  }
 }

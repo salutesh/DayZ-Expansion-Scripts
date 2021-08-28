@@ -55,7 +55,9 @@ class ExpansionVehicleSettingsV2: ExpansionVehicleSettingsBase
  **/
 class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
+
+	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 
 	ref array < ref ExpansionVehiclesConfig > VehiclesConfig;
 	
@@ -153,6 +155,8 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - " + s);
 		//#endif
 		
+		PlacePlayerOnGroundOnReconnectInVehicle = s.PlacePlayerOnGroundOnReconnectInVehicle;
+
 		VehiclesConfig.Clear();
 		for (int i = 0; i < s.VehiclesConfig.Count(); i++)
 		{
@@ -275,6 +279,13 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 					//! VehiclesConfig added with v4
 					VehiclesConfig = settingsDefault.VehiclesConfig;
 				}
+				else
+				{
+					JsonFileLoader<ExpansionVehicleSettings>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, this);
+				}
+
+				if (settingsBase.m_Version < 5)
+					PlacePlayerOnGroundOnReconnectInVehicle = settingsDefault.PlacePlayerOnGroundOnReconnectInVehicle;
 
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -375,6 +386,8 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		VehicleCrewDamageMultiplier = 1.0;
 		VehicleSpeedDamageMultiplier = 1.0;
 		
+		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
+
 		VehiclesConfig.Insert( new ExpansionVehiclesConfig("OffroadHatchback", false, 1000.0) );
 		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Hatchback_02", false, 2000.0) );
 		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Sedan_02", false, 3000.0) );
@@ -404,3 +417,10 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 };
 
 static bool s_ExpansionPlayerAttachment;
+
+enum ExpansionPPOGORIVMode
+{
+	Disabled,
+	Always,
+	OnlyOnServerRestart
+}

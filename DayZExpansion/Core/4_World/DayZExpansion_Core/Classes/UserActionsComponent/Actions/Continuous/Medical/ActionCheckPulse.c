@@ -1,7 +1,7 @@
 #ifdef EXPANSIONMODMARKET
+#ifdef ENFUSION_AI_PROJECT
 modded class ActionCheckPulse
 {
-	#ifdef ENFUSION_AI_PROJECT
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{	
 		#ifdef EXPANSIONEXPRINT
@@ -17,6 +17,6 @@ modded class ActionCheckPulse
 
 		return super.ActionCondition(player, target, item);
 	}
-	#endif
 };
+#endif
 #endif

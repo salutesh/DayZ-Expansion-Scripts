@@ -246,13 +246,13 @@ class ExpansionObjectSpawnTools
 			bldr_land_misc_barel_fire_4 barel_4;
 
 			if (Class.CastTo(barel_1, obj))
-				buildingWithFireplace = BuildingWithFireplace.Cast(barel_1);
+				buildingWithFireplace = barel_1;
 			else if (Class.CastTo(barel_2, obj))
-				buildingWithFireplace = BuildingWithFireplace.Cast(barel_2);
+				buildingWithFireplace = barel_2;
 			else if (Class.CastTo(barel_3, obj))
-				buildingWithFireplace = BuildingWithFireplace.Cast(barel_3);
+				buildingWithFireplace = barel_3;
 			else if (Class.CastTo(barel_4, obj))
-				buildingWithFireplace = BuildingWithFireplace.Cast(barel_4);
+				buildingWithFireplace = barel_4;
 
 			if (buildingWithFireplace) 
 			{

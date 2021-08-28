@@ -15,6 +15,7 @@ modded class PlayerBase
 	private int m_ExpansionSaveVersion;
 
 	protected bool m_WasInVehicle;
+	protected int m_Expansion_SessionTimeStamp;
 	
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
@@ -24,6 +25,9 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - Start");
 		#endif
+		
+		if (IsMissionHost())
+			m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTime();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
@@ -384,6 +388,7 @@ modded class PlayerBase
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_WasInVehicle );
+		ctx.Write( m_Expansion_SessionTimeStamp );
 	}
 	
 	// ------------------------------------------------------------
@@ -416,6 +421,12 @@ modded class PlayerBase
 		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 
+		if ( m_ExpansionSaveVersion < 30 )
+			return true;
+		
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_SessionTimeStamp ), "[" + this + "] Failed reading m_Expansion_SessionTimeStamp" ) )
+			return false;
+
 		return true;
 	}
 
@@ -432,6 +443,7 @@ modded class PlayerBase
 			return;
 
 		storage.Write( m_WasInVehicle );
+		storage.Write( m_Expansion_SessionTimeStamp );
 	}
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
@@ -449,6 +461,12 @@ modded class PlayerBase
 		if ( Expansion_Assert_False( storage.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 
+		if ( storage.GetVersion() < 30 )
+			return true;
+		
+		if ( Expansion_Assert_False( storage.Read( m_Expansion_SessionTimeStamp ), "[" + this + "] Failed reading m_Expansion_SessionTimeStamp" ) )
+			return false;
+
 		return true;
 	}
 	#endif
@@ -464,6 +482,14 @@ modded class PlayerBase
 		{
 			if ( m_WasInVehicle )
 			{
+				ExpansionPPOGORIVMode mode = GetExpansionSettings().GetVehicle().PlacePlayerOnGroundOnReconnectInVehicle;
+
+				if (mode == ExpansionPPOGORIVMode.Disabled)
+					return;
+
+				if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && m_Expansion_SessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
+					return;
+
 				//EXPrint(ToString() + "::AfterStoreLoad - player pos " + GetPosition());
 
 				vector rayStart = GetPosition();
@@ -519,14 +545,13 @@ modded class PlayerBase
 							//! Move up from hit pos for next raycast so that if we are standing on a vehicle,
 							//! we don't get placed inside the vehicle's model
 							rayStart[1] = currResult.pos[1] + 3;
+							haveValidResult = false;
 						}
 						else
 						{
 							ground[1] = currResult.pos[1];
 							haveValidResult = true;
 						}
-
-						break;
 					}
 				}
 

@@ -15,11 +15,6 @@ class ExpansionItemTooltip: ExpansionScriptView
 	ref ExpansionItemTooltipController m_ItemTooltipController;
 	private ItemPreviewWidget ItemFrameWidget;
 	private ImageWidget ItemDamageWidgetBackground;
-	private ImageWidget ItemWetnessWidgetBackground;
-	private ImageWidget ItemTemperatureWidgetBackground;
-	private ImageWidget ItemLiquidTypeWidgetBackground;
-	private ImageWidget ItemFoodStageWidgetBackground;
-	private ImageWidget ItemCleannessWidgetBackground;
 	private TextWidget ItemWeightWidget;
 	private TextWidget ItemQuantityWidget;
 	private RichTextWidget ItemDescWidget;
@@ -62,22 +57,32 @@ class ExpansionItemTooltip: ExpansionScriptView
 			m_ItemTooltipController.ItemDescription = iItem.GetTooltip();
 			ItemDescWidget.Update();
 			
+			UpdateItemStats();
+			
 			UpdateItemInfoDamage();
-			UpdateItemInfoLiquidType();
-			UpdateItemInfoTemperature();
 			UpdateItemInfoQuantity();
-			UpdateItemInfoWetness();
 			UpdateItemInfoWeight();
-			UpdateItemInfoFoodStage();
-			UpdateItemInfoCleanness();
-					
-			m_ItemTooltipController.NotifyPropertiesChanged({"ItemDescription", "ItemDamage", "ItemLiquidType", "ItemTemperature", "ItemWetness", "ItemQuantity", "ItemFoodStage", "ItemCleanness"});
+			
+			m_ItemTooltipController.NotifyPropertiesChanged({"ItemDescription", "ItemDamage", "ItemQuantity"});
 		}
 		else
 		{
 			if (ShowContent())
 				Content.Show(false);
 		}
+	}
+	
+	void	UpdateItemStats()
+	{
+		UpdateItemInfoWetness();
+		UpdateItemInfoTemperature();
+		UpdateItemInfoLiquidType();
+		UpdateItemInfoFoodStage();
+		UpdateItemInfoCleanness();
+		
+		#ifdef EXPANSIONMODHARDLINE
+		UpdateItemInfoRarity();
+		#endif
 	}
 	
 	bool ShowContent()
@@ -89,7 +94,63 @@ class ExpansionItemTooltip: ExpansionScriptView
 	{
 		return false;
 	}
-
+	
+	#ifdef EXPANSIONMODHARDLINE
+	void UpdateItemInfoRarity()
+	{
+		string text;
+		int color;
+		ItemBase itemBase = ItemBase.Cast(m_Item);
+		if (itemBase && itemBase.GetRarity() > -1)
+		{
+			ExpansionHardlineItemRarity rarity = itemBase.GetRarity();
+			if (rarity == ExpansionHardlineItemRarity.MYTHIC)
+			{
+				text = "Mythic";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_MYTHIC;
+			}
+			if (rarity == ExpansionHardlineItemRarity.EXOTIC)
+			{
+				text = "Exotic";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_EXOTIC;
+			}
+			if (rarity == ExpansionHardlineItemRarity.LEGENDARY)
+			{
+				text = "Legendary";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_LEGENDARY;
+			}
+			else if (rarity == ExpansionHardlineItemRarity.EPIC)
+			{
+				text = "Epic";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_EPIC;
+			}
+			else if (rarity == ExpansionHardlineItemRarity.RARE)
+			{
+				text = "Rare";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_RARE;
+			}
+			else if (rarity == ExpansionHardlineItemRarity.UNCOMMON)
+			{
+				text = "Uncommon";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_UNCOMMON;
+			}
+			else if (rarity == ExpansionHardlineItemRarity.COMMON)
+			{
+				text = "Common";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_COMMON;
+			}
+			else if (rarity == ExpansionHardlineItemRarity.POOR)
+			{
+				text = "Poor";
+				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_POOR;
+			}
+					
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
+		}
+	}
+	#endif
+	
 	void UpdateItemInfoDamage()
 	{
 		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(CarScript)) return;
@@ -144,194 +205,6 @@ class ExpansionItemTooltip: ExpansionScriptView
 		
 		m_ItemTooltipController.ItemDamage = text;
 		ItemDamageWidgetBackground.SetColor(color | 0x7F000000);
-	}
-	
-	void UpdateItemInfoLiquidType()
-	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-		
-		string text;
-		int color;
-		ItemBase item_base = ItemBase.Cast(m_Item);
-		if(item_base && item_base.GetQuantity() > 0 && item_base.IsBloodContainer())
-		{
-			BloodContainerBase blood_container = BloodContainerBase.Cast(item_base);
-			if(blood_container.GetBloodTypeVisible())
-			{
-				string type;
-				bool positive;
-				string blood_type_name = BloodTypes.GetBloodTypeName(blood_container.GetLiquidType(), type, positive);
-				text = "#inv_inspect_blood: " + blood_type_name;
-				color = Colors.COLOR_LIQUID;
-			}
-			else
-			{
-				text = "#inv_inspect_blood";
-				color = Colors.COLOR_LIQUID;
-			}
-		}
-		else if(item_base && item_base.GetQuantity() > 0 && item_base.IsLiquidContainer())
-		{
-			int liquid_type = item_base.GetLiquidType();
-			switch(liquid_type)
-			{
-				case LIQUID_WATER:
-				{
-					text = "#inv_inspect_water";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-					
-				case LIQUID_RIVERWATER:
-				{
-					text = "#inv_inspect_river_water";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-					
-				case LIQUID_VODKA:
-				{
-					text = "#inv_inspect_vodka";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-				
-				case LIQUID_BEER:
-				{
-					text = "#inv_inspect_beer";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-
-				case LIQUID_MILK:
-				{
-					text = "MILK";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-				
-				case LIQUID_GASOLINE:
-				{
-					text = "#inv_inspect_gasoline";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-				
-				case LIQUID_DIESEL:
-				{
-					text = "#inv_inspect_diesel";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-				
-				case LIQUID_DISINFECTANT:
-				{
-					text = "#inv_inspect_disinfectant";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-	
-				case LIQUID_SALINE:
-				{
-					text = "#inv_inspect_saline";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-				
-				default:
-				{
-					text = "ERROR";
-					color = Colors.COLOR_LIQUID;
-					break;
-				}
-			}
-		}
-		else
-		{
-			ItemLiquidTypeWidgetBackground.Show(false);
-		}
-		
-		m_ItemTooltipController.ItemLiquidType = text;
-		ItemLiquidTypeWidgetBackground.SetColor(color | 0x7F000000);
-	}
-	
-	void UpdateItemInfoTemperature()
-	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-		
-		string text;
-		int color;
-		float temperature;
-		ItemBase item_base = ItemBase.Cast(m_Item);
-		if(item_base)
-		{
-			temperature = item_base.GetTemperature();
-		}
-		
-		if(temperature > 30)
-		{
-			if (temperature > 100)
-			{
-				temperature = 100 * Math.Floor(temperature / 100.0);
-			}
-			else
-			{
-				temperature = 10 * Math.Floor(temperature / 10.0);
-			}
-			text = "#inv_inspect_about " + temperature.ToString() +  " " + "#inv_inspect_celsius";
-			color = GetTemperatureColor(temperature);
-		}	
-		else
-		{
-			ItemTemperatureWidgetBackground.Show(false);
-		}
-		
-		m_ItemTooltipController.ItemTemperature = text;
-		ItemTemperatureWidgetBackground.SetColor(color | 0x7F000000);
-	}
-
-	void UpdateItemInfoWetness()
-	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-		
-		string text;
-		int color;
-		float wetness = 0;	
-		if (m_Item.IsInherited(ItemBase))
-		{
-			ItemBase item_IB = ItemBase.Cast(m_Item);
-			wetness = item_IB.GetWet();
-		}
-
-		if(wetness < GameConstants.STATE_DAMP)
-		{
-			text = "";
-			color = 0;
-			ItemWetnessWidgetBackground.Show(false);
-		}
-		else if(wetness >= GameConstants.STATE_DAMP && wetness < GameConstants.STATE_WET)
-		{
-			text = "#inv_inspcet_damp";
-			color = Colors.COLOR_DAMP;
-		}
-		else if(wetness >= GameConstants.STATE_WET && wetness < GameConstants.STATE_SOAKING_WET)
-		{
-			text = "#inv_inspect_wet";
-			color = Colors.COLOR_WET;
-		}
-		else if(wetness >= GameConstants.STATE_SOAKING_WET && wetness < GameConstants.STATE_DRENCHED)
-		{
-			text = "#inv_inspect_soaking_wet";
-			color = Colors.COLOR_SOAKING_WET;
-		}
-		else
-		{
-			text = "#inv_inspect_drenched";
-			color = Colors.COLOR_DRENCHED;
-		}
-		
-		m_ItemTooltipController.ItemWetness = text;
-		ItemWetnessWidgetBackground.SetColor(color | 0x7F000000);
 	}
 	
 	void UpdateItemInfoQuantity()
@@ -451,7 +324,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		m_ItemTooltipController.ItemQuantity = text;
 		ItemQuantityWidget.SetColor(color | 0x7F000000);
 	}
-
+	
 	void UpdateItemInfoWeight()
 	{
 		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
@@ -493,6 +366,189 @@ class ExpansionItemTooltip: ExpansionScriptView
 		
 		m_ItemTooltipController.ItemWeight = text;
 		ItemWeightWidget.SetColor(color | 0x7F000000);
+	}
+	
+	void UpdateItemInfoWetness()
+	{
+		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
+		
+		string text;
+		int color;
+		float wetness = 0;	
+		if (m_Item.IsInherited(ItemBase))
+		{
+			ItemBase item_IB = ItemBase.Cast(m_Item);
+			wetness = item_IB.GetWet();
+		}
+
+		if(wetness < GameConstants.STATE_DAMP)
+		{
+			return;
+		}
+		else if(wetness >= GameConstants.STATE_DAMP && wetness < GameConstants.STATE_WET)
+		{
+			text = "#inv_inspcet_damp";
+			color = Colors.COLOR_DAMP;
+		}
+		else if(wetness >= GameConstants.STATE_WET && wetness < GameConstants.STATE_SOAKING_WET)
+		{
+			text = "#inv_inspect_wet";
+			color = Colors.COLOR_WET;
+		}
+		else if(wetness >= GameConstants.STATE_SOAKING_WET && wetness < GameConstants.STATE_DRENCHED)
+		{
+			text = "#inv_inspect_soaking_wet";
+			color = Colors.COLOR_SOAKING_WET;
+		}
+		else
+		{
+			text = "#inv_inspect_drenched";
+			color = Colors.COLOR_DRENCHED;
+		}
+		
+		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+		m_ItemTooltipController.ItemStatsElements.Insert(element);
+	}
+	
+	void UpdateItemInfoTemperature()
+	{
+		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
+		
+		string text;
+		int color;
+		float temperature;
+		ItemBase item_base = ItemBase.Cast(m_Item);
+		if(item_base)
+		{
+			temperature = item_base.GetTemperature();
+		}
+		
+		if(temperature > 30)
+		{
+			if (temperature > 100)
+			{
+				temperature = 100 * Math.Floor(temperature / 100.0);
+			}
+			else
+			{
+				temperature = 10 * Math.Floor(temperature / 10.0);
+			}
+			
+			text = "#inv_inspect_about " + temperature.ToString() +  " " + "#inv_inspect_celsius";
+			color = GetTemperatureColor(temperature);
+			
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
+		}
+	}
+	
+	void UpdateItemInfoLiquidType()
+	{
+		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
+		
+		string text;
+		int color;
+		ExpansionItemTooltipStatElement element;
+		ItemBase item_base = ItemBase.Cast(m_Item);
+		if(item_base && item_base.GetQuantity() > 0 && item_base.IsBloodContainer())
+		{
+			BloodContainerBase blood_container = BloodContainerBase.Cast(item_base);
+			if(blood_container.GetBloodTypeVisible())
+			{
+				string type;
+				bool positive;
+				string blood_type_name = BloodTypes.GetBloodTypeName(blood_container.GetLiquidType(), type, positive);
+				text = "#inv_inspect_blood: " + blood_type_name;
+				color = Colors.COLOR_LIQUID;
+			}
+			else
+			{
+				text = "#inv_inspect_blood";
+				color = Colors.COLOR_LIQUID;
+			}
+			
+			element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
+		}
+		else if(item_base && item_base.GetQuantity() > 0 && item_base.IsLiquidContainer())
+		{
+			int liquid_type = item_base.GetLiquidType();
+			switch(liquid_type)
+			{
+				case LIQUID_WATER:
+				{
+					text = "#inv_inspect_water";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+					
+				case LIQUID_RIVERWATER:
+				{
+					text = "#inv_inspect_river_water";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+					
+				case LIQUID_VODKA:
+				{
+					text = "#inv_inspect_vodka";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+				
+				case LIQUID_BEER:
+				{
+					text = "#inv_inspect_beer";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+
+				case LIQUID_MILK:
+				{
+					text = "MILK";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+				
+				case LIQUID_GASOLINE:
+				{
+					text = "#inv_inspect_gasoline";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+				
+				case LIQUID_DIESEL:
+				{
+					text = "#inv_inspect_diesel";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+				
+				case LIQUID_DISINFECTANT:
+				{
+					text = "#inv_inspect_disinfectant";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+	
+				case LIQUID_SALINE:
+				{
+					text = "#inv_inspect_saline";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+				
+				default:
+				{
+					text = "ERROR";
+					color = Colors.COLOR_LIQUID;
+					break;
+				}
+			}
+			
+			element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
+		}
 	}
 	
 	void UpdateItemInfoFoodStage()
@@ -544,14 +600,10 @@ class ExpansionItemTooltip: ExpansionScriptView
 					break;
 				}
 			}
+					
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
 		}
-		else
-		{
-			ItemFoodStageWidgetBackground.Show(false);
-		}
-		
-		m_ItemTooltipController.ItemFoodStage = text;
-		ItemFoodStageWidgetBackground.SetColor(color | 0x7F000000);
 	}
 	
 	void UpdateItemInfoCleanness()
@@ -559,18 +611,14 @@ class ExpansionItemTooltip: ExpansionScriptView
 		string text;
 		int color;
 		ItemBase ib = ItemBase.Cast(m_Item);
-		if(ib && ib.m_Cleanness==1)
+		if(ib && ib.m_Cleanness == 1)
 		{
 			text = "#inv_inspect_cleaned";
 			color = Colors.WHITEGRAY;
+			
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
 		}
-		else
-		{
-			ItemCleannessWidgetBackground.Show(false);
-		}
-		
-		m_ItemTooltipController.ItemCleanness = text;
-		ItemCleannessWidgetBackground.SetColor(color | 0x7F000000);
 	}
 	
 	override void Show()
@@ -591,6 +639,8 @@ class ExpansionItemTooltip: ExpansionScriptView
 
 class ExpansionItemTooltipController: ExpansionViewController
 {
+	ref ObservableCollection<ref ExpansionItemTooltipStatElement> ItemStatsElements = new ObservableCollection<ref ExpansionItemTooltipStatElement>(this);
+	
 	string ItemName;
 	string ItemDamage;
 	string ItemQuantity;	
@@ -602,4 +652,46 @@ class ExpansionItemTooltipController: ExpansionViewController
 	string ItemCleanness;
 	string ItemDescription;
 	Object ItemPreview;
+}
+
+class ExpansionItemTooltipStatElement: ExpansionScriptView
+{
+	ref ExpansionItemTooltipStatElementController m_TooltipStatElementController;
+	string m_Text;
+	int m_Color;
+	
+	protected ImageWidget Background;
+	
+	void ExpansionItemTooltipStatElement(string text, int color)
+	{
+		m_Text = text;
+		m_Color = color;
+		
+		if (!m_TooltipStatElementController)
+			m_TooltipStatElementController = ExpansionItemTooltipStatElementController.Cast(GetController());
+		
+		SetView();
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/Core/GUI/layouts/mvc/expansion_item_tooltip_stat_element.layout";
+	}
+	
+	override typename GetControllerType() 
+	{
+		return ExpansionItemTooltipStatElementController;
+	}
+	
+	void SetView()
+	{
+		m_TooltipStatElementController.StatText = m_Text;
+		m_TooltipStatElementController.NotifyPropertyChanged("StatText");
+		Background.SetColor(m_Color | 0x7F000000);
+	}
+}
+
+class ExpansionItemTooltipStatElementController: ExpansionViewController
+{
+	string StatText;
 }

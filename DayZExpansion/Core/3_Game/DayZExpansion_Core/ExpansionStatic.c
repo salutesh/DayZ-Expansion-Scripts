@@ -356,7 +356,7 @@ class ExpansionStatic
 		if ( GetDayZGame() )
 		{
 			//! Accurate, including milliseconds
-			return FormatTimestamp( GetDayZGame().GetStartTime() + GetDayZGame().GetTickTime() );
+			return FormatTimestamp( GetDayZGame().ExpansionGetStartTime() + GetDayZGame().GetTickTime() );
 		} else
 		{
 			//! Next best thing

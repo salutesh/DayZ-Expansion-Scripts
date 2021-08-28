@@ -26,6 +26,7 @@ modded class ItemBase
 
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
+	private static ref set< ItemBase > m_SafeZoneItems = new set< ItemBase >;
 
 	void ItemBase()
 	{
@@ -34,6 +35,14 @@ modded class ItemBase
 		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote", 0, m_Skins.Count() );
 	}
 	
+	void ~ItemBase()
+	{
+		int i = m_SafeZoneItems.Find( this );
+		if ( i >= 0 )
+		{
+			m_SafeZoneItems.Remove( i );
+		}
+	}		
 	//============================================
 	// GetExpansionSaveVersion
 	// OBSOLETE
@@ -625,4 +634,33 @@ modded class ItemBase
 	void OnExitZone(ExpansionZoneType type)
 	{
 	}
+	static set< ItemBase > ExpansionGetSafeZoneItems()
+	{
+		return m_SafeZoneItems;
+	}
+
+	override void OnInventoryEnter(Man player)
+	{
+		super.OnInventoryEnter(player);
+		int i = m_SafeZoneItems.Find( this );
+		if ( i >= 0 )
+		{
+			m_SafeZoneItems.Remove( i );
+		}
+	};	
+	
+	override void OnInventoryExit(Man player)
+	{
+		super.OnInventoryExit(player);
+		PlayerBase pb = PlayerBase.Cast(player);
+		if ( pb && pb.IsInSafeZone())
+			m_SafeZoneItems.Insert(this);
+	}
+	
+    override void DeferredInit()
+    {
+		super.DeferredInit();
+		if ( GetGame().IsServer() && !GetHierarchyRootPlayer() && ExpansionZoneModule.IsInside(GetPosition(), ExpansionZoneType.SAFE) && GetLifetime() != 0)
+			m_SafeZoneItems.Insert(this);			
+    }	
 }

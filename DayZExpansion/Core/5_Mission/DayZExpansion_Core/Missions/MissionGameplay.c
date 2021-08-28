@@ -52,7 +52,8 @@ modded class MissionGameplay
 
 		DestroyDayZExpansion();
 
-		g_exGlobalSettings.Unload();
+		if (g_exGlobalSettings)
+			g_exGlobalSettings.Unload();
 		
 		DestroyExpansionUIMenuManager();
 

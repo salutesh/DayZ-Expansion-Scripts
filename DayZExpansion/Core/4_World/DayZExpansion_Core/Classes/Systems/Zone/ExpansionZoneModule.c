@@ -104,6 +104,8 @@ class ExpansionZoneModule : JMModuleBase
 		for (int i = 0; i < COUNT; i++)
 			ExpansionZone.s_InsideBuffer[i] = false;
 
+		position[1] = 0;
+
 		ExpansionZone element = g_ExpansionZoneHead;
 		while (element)
 		{

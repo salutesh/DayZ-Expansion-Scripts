@@ -106,7 +106,7 @@ class ExpansionZonePolygon : ExpansionZone
 			s_PosX1 = m_Positions_X[s_ItrJ];
 			s_PosZ1 = m_Positions_Z[s_ItrJ];
 
-			if ((s_PosZ0 > s_PosX) != (s_PosZ1 > s_PosZ) && s_PosX < (s_PosX1 - s_PosX0) * (s_PosZ - s_PosZ0) / (s_PosZ1 - s_PosZ0) + s_PosX0)
+			if ((s_PosZ0 > s_PosZ) != (s_PosZ1 > s_PosZ) && s_PosX < (s_PosX1 - s_PosX0) * (s_PosZ - s_PosZ0) / (s_PosZ1 - s_PosZ0) + s_PosX0)
 				ins = !ins;
 
 			s_ItrJ = s_ItrK;

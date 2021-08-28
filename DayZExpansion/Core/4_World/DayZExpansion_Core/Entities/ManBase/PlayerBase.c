@@ -364,14 +364,14 @@ modded class PlayerBase
 		m_LeavingSafeZone = false;
 
 		#ifdef ENFUSION_AI_PROJECT
+		#ifdef EXPANSIONMODMARKET
 		if (IsInherited(eAIBase))
 		{
-			#ifdef EXPANSIONMODMARKET
 			//! If this is a trader AI, we still want it to be able to raise hands in safezones
 			if (IsInherited(ExpansionTraderAIBase))
 				return;
-			#endif
 		}
+		#endif
 		#endif
 
 		SetCanRaise(false);
@@ -441,14 +441,14 @@ modded class PlayerBase
 		m_SafeZone = false;
 
 		#ifdef ENFUSION_AI_PROJECT
+		#ifdef EXPANSIONMODMARKET
 		if (IsInherited(eAIBase))
 		{
-			#ifdef EXPANSIONMODMARKET
 			//! If this is a trader AI, we don't want it to be able to take damage outside a safezone
 			if (IsInherited(ExpansionTraderAIBase))
 				return;
-			#endif
 		}
+		#endif
 		#endif
 
 		m_SafeZoneSynchRemote = false;

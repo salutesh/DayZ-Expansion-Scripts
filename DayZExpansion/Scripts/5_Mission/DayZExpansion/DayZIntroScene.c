@@ -130,8 +130,9 @@ class DayZIntroSceneExpansion
 		GetGame().ConfigGetText(GetScenePath() + " HandItem", item);
 		if ( item != "")
 		{
-				EntityAI handItem = m_Character.GetCharacterObj().GetInventory().CreateInInventory(item);
-				m_Character.GetCharacterObj().LocalTakeEntityToHands(handItem);
+			if (m_Character.GetCharacterObj().GetItemInHands())
+				GetGame().ObjectDelete(m_Character.GetCharacterObj().GetItemInHands());
+			m_Character.GetCharacterObj().GetHumanInventory().CreateInHands(item);
 		};
 	}
 	// ------------------------------------------------------------

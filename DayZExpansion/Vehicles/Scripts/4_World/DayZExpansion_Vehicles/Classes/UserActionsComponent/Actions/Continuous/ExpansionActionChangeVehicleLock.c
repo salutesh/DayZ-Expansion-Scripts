@@ -41,6 +41,9 @@ class ExpansionActionChangeVehicleLock: ExpansionActionToolBase
 	{
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
+		
+		if ( player.IsInSafeZone() )
+			return false;
 
 		CarScript carScript = CarScript.Cast( target.GetParentOrObject() );
 		ExpansionVehicleBase vehicleBase = ExpansionVehicleBase.Cast( target.GetParentOrObject() );
