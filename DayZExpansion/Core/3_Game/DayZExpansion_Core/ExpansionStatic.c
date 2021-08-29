@@ -63,6 +63,8 @@ static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0
 
 class ExpansionStatic
 {
+	private static ref map<string, float> s_BoundingRadii = new map<string, float>;
+
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
@@ -218,6 +220,27 @@ class ExpansionStatic
 		}
 		
 		return cfg_des;
+	}
+	
+	static float GetBoundingRadius(string className)
+	{
+		float radius;
+
+		if (!s_BoundingRadii.Find(className, radius))
+		{
+			Object obj = GetGame().CreateObjectEx(className, "0 0 0", ECE_LOCAL);
+
+			if (obj)
+			{
+				vector minMax[2];
+				radius = obj.ClippingInfo( minMax );
+				GetGame().ObjectDelete(obj);
+			}
+
+			s_BoundingRadii.Insert(className, radius);
+		}
+
+		return radius;
 	}
 
 	static bool ItemExists(string type_name)
@@ -685,5 +708,24 @@ class ExpansionStatic
 	static bool SurfaceIsWater(float x, float z)
 	{
 		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
+	}
+
+	//! Only kept for compatibility with old mods, remove after next update
+	void LoadFlagTextures()
+	{
+		Error("DEPRECATED - please use ExpansionFlagTextures::Load instead!");
+	}
+
+	//! Only kept for compatibility with old mods, remove after next update
+	void AddFlagTexture( string path, string name )
+	{
+		Error("DEPRECATED - please use ExpansionFlagTextures::Add instead!");
+	}
+
+	//! Only kept for compatibility with old mods, remove after next update
+	bool RemoveFlagTexture( string path )
+	{
+		Error("DEPRECATED - please use ExpansionFlagTextures::Remove instead!");
+		return false;
 	}
 }

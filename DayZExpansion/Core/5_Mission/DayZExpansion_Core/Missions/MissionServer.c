@@ -27,7 +27,8 @@ modded class MissionServer
 		#endif
 
 		CreateDayZExpansion();
-		//GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionForceSZCleanup, 20000, true); //Needs Setting for frequency and if to be enabled. 
+		if ( GetExpansionSettings().GetSafeZone().EnableForceSZCleanup) 
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionForceSZCleanup, GetExpansionSettings().GetSafeZone().ForceSZCleanupInterval, true);  
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::MissionServer - End");
 		#endif

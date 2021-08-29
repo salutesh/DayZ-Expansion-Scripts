@@ -46,10 +46,11 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	bool DisableVehicleDamageInSafeZone;
-
+	bool EnableForceSZCleanup;
+	int ForceSZCleanupInterval;
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
@@ -109,6 +110,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	private void CopyInternal(  ExpansionSafeZoneSettings s )
 	{
 		DisableVehicleDamageInSafeZone = s.DisableVehicleDamageInSafeZone;
+		EnableForceSZCleanup = s.EnableForceSZCleanup;
+		ForceSZCleanupInterval = s.ForceSZCleanupInterval;
 		
 		ExpansionSafeZoneSettingsBase sb = s;
 		CopyInternal( sb );
@@ -182,6 +185,16 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 
 					DisableVehicleDamageInSafeZone = settings_v0.EnableVehicleinvincibleInsideSafeZone;
 				}
+				else
+				{
+					JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, this);
+				}
+
+				if (settingsBase.m_Version < 3)
+				{
+					EnableForceSZCleanup = settingsDefault.EnableForceSZCleanup;
+					ForceSZCleanupInterval = settingsDefault.ForceSZCleanupInterval;
+				}
 				
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -233,8 +246,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	#endif
 		DisableVehicleDamageInSafeZone = true;
 		FrameRateCheckSafeZoneInMs = 5000;
-
-
+		ForceSZCleanupInterval = 60000;
+		EnableForceSZCleanup = true;
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();

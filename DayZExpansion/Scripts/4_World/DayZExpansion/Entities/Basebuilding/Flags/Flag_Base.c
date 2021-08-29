@@ -118,6 +118,9 @@ modded class Flag_Base
 
 		if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 			return false;
+
+		//! TODO: Remove this again after next update...
+		ExpansionFixFlagTexturePath();
 		
 		return true;
 	}
@@ -144,9 +147,32 @@ modded class Flag_Base
 		if ( Expansion_Assert_False( storage.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
 			return false;
 
+		//! TODO: Remove this again after next update...
+		ExpansionFixFlagTexturePath();
+
 		return true;
 	}
 	#endif
+
+	//! TODO: Remove this again after next update...
+	private void ExpansionFixFlagTexturePath()
+	{
+		string texturePath = m_FlagTexturePath;
+		texturePath.ToLower();
+		ExpansionString exFlagTexturePath = new ExpansionString(texturePath);
+		if (exFlagTexturePath.EndsWith("/flag_borduriens_co.paa"))
+			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_BORDURIA;
+		else if (exFlagTexturePath.EndsWith("/flag_czech_co.paa"))
+			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_CZECHIA;
+		else if (exFlagTexturePath.EndsWith("/flag_finnish_co.paa"))
+			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_BORDURIA;
+		else if (exFlagTexturePath.EndsWith("/flag_irish_co.paa"))
+			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_IRELAND;
+		else if (exFlagTexturePath.EndsWith("/flag_scottish_co.paa"))
+			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_SCOTLAND;
+		else if (exFlagTexturePath.EndsWith("/flag_swedish_co.paa"))
+			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_SWEDEN;
+	}
 
 	override void AfterStoreLoad()
 	{
@@ -173,9 +199,10 @@ class Expansion_Flag_Poland extends Flag_Base {};
 class Expansion_Flag_Russia extends Flag_Base {};
 class Expansion_Flag_UK extends Flag_Base {};
 class Expansion_Flag_USA extends Flag_Base {};
-class Expansion_Flag_Scottish extends Flag_Base {};
-class Expansion_Flag_Finnish extends Flag_Base {};
-class Expansion_Flag_Swedish extends Flag_Base {};
+class Expansion_Flag_Scotland extends Flag_Base {};
+class Expansion_Flag_Scottish : Expansion_Flag_Scotland {};  //! Just for backwards compatibility
+class Expansion_Flag_Sweden extends Flag_Base {};
+class Expansion_Flag_Swedish : Expansion_Flag_Sweden {};  //! Just for backwards compatibility
 class Expansion_Flag_Spain extends Flag_Base {};
 class Expansion_Flag_Brazil extends Flag_Base {};
 class Expansion_Flag_Portugal extends Flag_Base {};
@@ -191,10 +218,12 @@ class Expansion_Flag_Chedaki extends Flag_Base {};
 class Expansion_Flag_Napa extends Flag_Base {};
 class Expansion_Flag_Cdf extends Flag_Base {};
 class Expansion_Flag_NuevoRico extends Flag_Base {};
-class Expansion_Flag_Borduriens extends Flag_Base {};
+class Expansion_Flag_Borduria extends Flag_Base {};
+class Expansion_Flag_Borduriens : Expansion_Flag_Borduria {};  //! Just for backwards compatibility
 class Expansion_Flag_Biohazard extends Flag_Base {};
 class Expansion_Flag_AnyoneInCherno extends Flag_Base {};
-class Expansion_Flag_Irish extends Flag_Base {};
+class Expansion_Flag_Ireland extends Flag_Base {};
+class Expansion_Flag_Irish : Expansion_Flag_Ireland {};  //! Just for backwards compatibility
 class Expansion_Flag_Wales extends Flag_Base {};
 class Expansion_Flag_Switzerland extends Flag_Base {};
 class Expansion_Flag_Skilanka extends Flag_Base {};
@@ -202,9 +231,11 @@ class Expansion_Flag_SouthAfrica extends Flag_Base {};
 class Expansion_Flag_Sicily extends Flag_Base {};
 class Expansion_Flag_OffWithHead extends Flag_Base {};
 class Expansion_Flag_Gubraltar extends Flag_Base {};
-class Expansion_Flag_Czech extends Flag_Base {};
+class Expansion_Flag_Czechia extends Flag_Base {};
+class Expansion_Flag_Czech : Expansion_Flag_Czechia {};  //! Just for backwards compatibility
 class Expansion_Flag_Fari extends Flag_Base {};
 class Expansion_Flag_Finland extends Flag_Base {};
+class Expansion_Flag_Finnish : Expansion_Flag_Finland {};  //! Just for backwards compatibility
 class Expansion_Flag_DayZWhite extends Flag_Base {};
 class Expansion_Flag_DayZBlack extends Flag_Base {};
 class Expansion_Flag_DoubleAxe extends Flag_Base {};

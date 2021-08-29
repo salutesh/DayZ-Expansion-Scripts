@@ -275,6 +275,14 @@ class DayZIntroSceneExpansion
 								
 				obj.SetPosition( position );
 				obj.SetOrientation( rotation );			
+				#ifdef NAMALSK_SURVIVAL
+				vfx_the_thing theThing = vfx_the_thing.Cast(obj);
+				if ( theThing )
+				{	
+					if ( Math.RandomInt(0, 2))
+						theThing.SetStable(true);
+				}
+				#endif				
 			}
 			
 		}

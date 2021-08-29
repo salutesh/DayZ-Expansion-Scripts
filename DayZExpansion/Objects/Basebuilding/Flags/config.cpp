@@ -6,7 +6,7 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"Expansion_Flag_Expansion","Expansion_Flag_White","Expansion_Flag_Australia","Expansion_Flag_Canada","Expansion_Flag_Chernarus","Expansion_Flag_France","Expansion_Flag_Germany","Expansion_Flag_Latvia","Expansion_Flag_Luxembourg","Expansion_Flag_Mexico","Expansion_Flag_Netherlands","Expansion_Flag_Newzealand","Expansion_Flag_Norway","Expansion_Flag_Poland","Expansion_Flag_Russia","Expansion_Flag_UK","Expansion_Flag_USA","Expansion_Flag_Scottish","Expansion_Flag_Finnish","Expansion_Flag_Swedish","Expansion_Flag_Spain","Expansion_Flag_Brazil","Expansion_Flag_Portugal","Expansion_Flag_Belgium","Expansion_Flag_Livonia","Expansion_Flag_Japan","Expansion_Flag_China","Expansion_Flag_SouthKorea","Expansion_Flag_UN","Expansion_Flag_NATO","Expansion_Flag_Pirate","Expansion_Flag_Chedaki","Expansion_Flag_Napa","Expansion_Flag_Cdf","Expansion_Flag_NuevoRico","Expansion_Flag_Borduriens","Expansion_Flag_Biohazard","Expansion_Flag_AnyoneInCherno","Expansion_Flag_Irish","Expansion_Flag_Wales","Expansion_Flag_Switzerland","Expansion_Flag_Skilanka","Expansion_Flag_SouthAfrica","Expansion_Flag_Sicily","Expansion_Flag_OffWithHead","Expansion_Flag_Gubraltar","Expansion_Flag_Czech","Expansion_Flag_Fari","Expansion_Flag_Finland","Expansion_Flag_DayZWhite","Expansion_Flag_DayZBlack","Expansion_Flag_DoubleAxe","Expansion_Flag_Grenade","Expansion_Flag_Red","Expansion_Flag_Blue","Expansion_Flag_Green","Expansion_Flag_Yellow","Expansion_Flag_Orange","Expansion_Flag_Pink","Expansion_Flag_Purple","Expansion_Flag_Rainbow"};
+		units[] = {"Expansion_Flag_Expansion","Expansion_Flag_White","Expansion_Flag_Australia","Expansion_Flag_Canada","Expansion_Flag_Chernarus","Expansion_Flag_France","Expansion_Flag_Germany","Expansion_Flag_Latvia","Expansion_Flag_Luxembourg","Expansion_Flag_Mexico","Expansion_Flag_Netherlands","Expansion_Flag_Newzealand","Expansion_Flag_Norway","Expansion_Flag_Poland","Expansion_Flag_Russia","Expansion_Flag_UK","Expansion_Flag_USA","Expansion_Flag_Scotland","Expansion_Flag_Scottish","Expansion_Flag_Sweden","Expansion_Flag_Swedish","Expansion_Flag_Spain","Expansion_Flag_Brazil","Expansion_Flag_Portugal","Expansion_Flag_Belgium","Expansion_Flag_Livonia","Expansion_Flag_Japan","Expansion_Flag_China","Expansion_Flag_SouthKorea","Expansion_Flag_UN","Expansion_Flag_NATO","Expansion_Flag_Pirate","Expansion_Flag_Chedaki","Expansion_Flag_Napa","Expansion_Flag_Cdf","Expansion_Flag_NuevoRico","Expansion_Flag_Borduria","Expansion_Flag_Borduriens","Expansion_Flag_Biohazard","Expansion_Flag_AnyoneInCherno","Expansion_Flag_Ireland","Expansion_Flag_Irish","Expansion_Flag_Wales","Expansion_Flag_Switzerland","Expansion_Flag_Skilanka","Expansion_Flag_SouthAfrica","Expansion_Flag_Sicily","Expansion_Flag_OffWithHead","Expansion_Flag_Gubraltar","Expansion_Flag_Czechia","Expansion_Flag_Czech","Expansion_Flag_Fari","Expansion_Flag_Finland","Expansion_Flag_Finnish","Expansion_Flag_DayZWhite","Expansion_Flag_DayZBlack","Expansion_Flag_DoubleAxe","Expansion_Flag_Grenade","Expansion_Flag_Red","Expansion_Flag_Blue","Expansion_Flag_Green","Expansion_Flag_Yellow","Expansion_Flag_Orange","Expansion_Flag_Pink","Expansion_Flag_Purple","Expansion_Flag_Rainbow"};
 		weapons[] = {};
 	};
 };
@@ -98,21 +98,18 @@ class CfgVehicles
 		scope = 2;
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_usa_co.paa"};
 	};
-	class Expansion_Flag_Scottish: Flag_Base
+	class Expansion_Flag_Scotland: Flag_Base
 	{
 		scope = 2;
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_scottish_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_scotland_co.paa"};
 	};
-	class Expansion_Flag_Finnish: Flag_Base
+	class Expansion_Flag_Scottish: Expansion_Flag_Scotland{};
+	class Expansion_Flag_Sweden: Flag_Base
 	{
 		scope = 2;
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_finnish_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_sweden_co.paa"};
 	};
-	class Expansion_Flag_Swedish: Flag_Base
-	{
-		scope = 2;
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_swedish_co.paa"};
-	};
+	class Expansion_Flag_Swedish: Expansion_Flag_Sweden{};
 	class Expansion_Flag_Spain: Flag_Base
 	{
 		scope = 2;
@@ -188,11 +185,12 @@ class CfgVehicles
 		scope = 2;
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_nuevorico_co.paa"};
 	};
-	class Expansion_Flag_Borduriens: Flag_Base
+	class Expansion_Flag_Borduria: Flag_Base
 	{
 		scope = 2;
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_borduriens_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_borduria_co.paa"};
 	};
+	class Expansion_Flag_Borduriens: Expansion_Flag_Borduria{};
 	class Expansion_Flag_Biohazard: Flag_Base
 	{
 		scope = 2;
@@ -203,11 +201,12 @@ class CfgVehicles
 		scope = 2;
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\logos\flag_anyoneincherno_co.paa"};
 	};
-	class Expansion_Flag_Irish: Flag_Base
+	class Expansion_Flag_Ireland: Flag_Base
 	{
 		scope = 2;
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_irish_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_ireland_co.paa"};
 	};
+	class Expansion_Flag_Irish: Expansion_Flag_Ireland{};
 	class Expansion_Flag_Wales: Flag_Base
 	{
 		scope = 2;
@@ -243,11 +242,12 @@ class CfgVehicles
 		scope = 2;
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_gibraltar_co.paa"};
 	};
-	class Expansion_Flag_Czech: Flag_Base
+	class Expansion_Flag_Czechia: Flag_Base
 	{
 		scope = 2;
-		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_czech_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_czechia_co.paa"};
 	};
+	class Expansion_Flag_Czech: Expansion_Flag_Czechia{};
 	class Expansion_Flag_Fari: Flag_Base
 	{
 		scope = 2;
@@ -258,6 +258,7 @@ class CfgVehicles
 		scope = 2;
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_finland_co.paa"};
 	};
+	class Expansion_Flag_Finnish: Expansion_Flag_Finland{};
 	class Expansion_Flag_DayZWhite: Flag_Base
 	{
 		scope = 2;

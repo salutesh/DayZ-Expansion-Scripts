@@ -98,7 +98,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	void LoadTextureList()
 	{
-		array<ref ExpansionFlagTexture> flagTextures = ExpansionStatic.GetFlagTextures();
+		array<ref ExpansionFlagTexture> flagTextures = GetExpansionFlagTextures().GetAll();
 		if (flagTextures.Count() == 0)
 			return;
 		
