@@ -21,14 +21,14 @@ modded class DayZPlayerImplementJumpClimb
 		else
 			hcls.m_fFwMaxDistance = 1.2;
 		
-		HumanCommandClimb.DoClimbTest( m_Player, m_Player.Ex_ClimbResult, 0 );
-		if ( m_Player.Ex_ClimbResult.m_bIsClimb || m_Player.Ex_ClimbResult.m_bIsClimbOver )
+		HumanCommandClimb.DoClimbTest( m_Player, m_Player.m_ExClimbResult, 0 );
+		if ( m_Player.m_ExClimbResult.m_bIsClimb || m_Player.m_ExClimbResult.m_bIsClimbOver )
 		{
 			if ( m_Player.CallExpansionClimbCode() )
 			{
-				int climbType = GetClimbType( m_Player.Ex_ClimbResult.m_fClimbHeight );	
+				int climbType = GetClimbType( m_Player.m_ExClimbResult.m_fClimbHeight );	
 
-				if ( climbType != -1 && m_Player.CanClimb( climbType, m_Player.Ex_ClimbResult ) )
+				if ( climbType != -1 && m_Player.CanClimb( climbType, m_Player.m_ExClimbResult ) )
 				{
 					m_Player.OnClimbStart( climbType );
 					m_Player.StopHandEvent();

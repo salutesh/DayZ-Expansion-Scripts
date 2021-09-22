@@ -21,6 +21,8 @@ class ExpansionItemTooltip: ExpansionScriptView
 	private GridSpacerWidget Content;
 	
 	EntityAI m_Item;
+	private bool m_ShowPreview = false;
+	private bool m_ShowContent = true;
 
 	void ExpansionItemTooltip(EntityAI item)
 	{
@@ -43,7 +45,14 @@ class ExpansionItemTooltip: ExpansionScriptView
 	void SetView()
 	{
 		if (!ShowItemPreview())
+		{
 			ItemFrameWidget.Show(false);
+		}
+		else
+		{		
+			m_ItemTooltipController.ItemPreview = m_Item;
+			m_ItemTooltipController.NotifyPropertyChanged("ItemPreview");
+		}
 		
 		if (!ShowContent())
 			Content.Show(false);
@@ -79,77 +88,27 @@ class ExpansionItemTooltip: ExpansionScriptView
 		UpdateItemInfoLiquidType();
 		UpdateItemInfoFoodStage();
 		UpdateItemInfoCleanness();
-		
-		#ifdef EXPANSIONMODHARDLINE
-		UpdateItemInfoRarity();
-		#endif
 	}
 	
 	bool ShowContent()
 	{
-		return true;
+		return m_ShowContent;
+	}
+	
+	void SetShowContent(bool state)
+	{
+		m_ShowContent = state;
 	}
 	
 	bool ShowItemPreview()
 	{
-		return false;
+		return m_ShowPreview;
 	}
 	
-	#ifdef EXPANSIONMODHARDLINE
-	void UpdateItemInfoRarity()
+	void SetShowItemPreview(bool state)
 	{
-		string text;
-		int color;
-		ItemBase itemBase = ItemBase.Cast(m_Item);
-		if (itemBase && itemBase.GetRarity() > -1)
-		{
-			ExpansionHardlineItemRarity rarity = itemBase.GetRarity();
-			if (rarity == ExpansionHardlineItemRarity.MYTHIC)
-			{
-				text = "Mythic";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_MYTHIC;
-			}
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC)
-			{
-				text = "Exotic";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_EXOTIC;
-			}
-			if (rarity == ExpansionHardlineItemRarity.LEGENDARY)
-			{
-				text = "Legendary";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_LEGENDARY;
-			}
-			else if (rarity == ExpansionHardlineItemRarity.EPIC)
-			{
-				text = "Epic";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_EPIC;
-			}
-			else if (rarity == ExpansionHardlineItemRarity.RARE)
-			{
-				text = "Rare";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_RARE;
-			}
-			else if (rarity == ExpansionHardlineItemRarity.UNCOMMON)
-			{
-				text = "Uncommon";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_UNCOMMON;
-			}
-			else if (rarity == ExpansionHardlineItemRarity.COMMON)
-			{
-				text = "Common";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_COMMON;
-			}
-			else if (rarity == ExpansionHardlineItemRarity.POOR)
-			{
-				text = "Poor";
-				color = ExpansionItemColors.EXPASNION_HARDLINE_ITEM_POOR;
-			}
-					
-			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-			m_ItemTooltipController.ItemStatsElements.Insert(element);
-		}
+		m_ShowPreview = state;
 	}
-	#endif
 	
 	void UpdateItemInfoDamage()
 	{
@@ -694,4 +653,66 @@ class ExpansionItemTooltipStatElement: ExpansionScriptView
 class ExpansionItemTooltipStatElementController: ExpansionViewController
 {
 	string StatText;
+}
+
+class ExpansionItemPreviewTooltip: ExpansionScriptView
+{
+	ref ExpansionItemPreviewTooltipController m_ItemTooltipController;	
+	EntityAI m_Item;
+
+	protected float m_ContentOffsetX;
+	protected float m_ContentOffsetY;
+	
+	void ExpansionItemPreviewTooltip(EntityAI item)
+	{
+		m_Item = item;
+		
+		if (!m_ItemTooltipController)
+			m_ItemTooltipController = ExpansionItemPreviewTooltipController.Cast(GetController());
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/Core/GUI/layouts/mvc/expansion_item_preview_tooltip.layout";
+	}
+	
+	override typename GetControllerType() 
+	{
+		return ExpansionItemPreviewTooltipController;
+	}
+	
+	void SetView()
+	{
+		m_ItemTooltipController.ItemPreview = m_Item;
+		m_ItemTooltipController.NotifyPropertyChanged("ItemPreview");
+		m_ItemTooltipController.ItemName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetType());
+		m_ItemTooltipController.NotifyPropertyChanged("ItemName");
+	}
+	
+	void SetContentOffset(float x, float y)
+	{
+		m_ContentOffsetX = x;
+		m_ContentOffsetY = y;
+	}
+	
+	override void Show()
+	{
+		super.Show();
+		SetView();
+	}
+	
+	override void OnShow()
+	{
+		super.OnShow();
+		
+		int x, y;
+		GetGame().GetMousePos(x, y);
+		GetLayoutRoot().SetPos(x + m_ContentOffsetX, y + m_ContentOffsetY, true);
+	}
+}
+
+class ExpansionItemPreviewTooltipController: ExpansionViewController
+{
+	string ItemName;
+	Object ItemPreview;
 }

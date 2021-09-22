@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hWreck","ExpansionUh1h","Vehicle_ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core"};
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
 class CfgSlots

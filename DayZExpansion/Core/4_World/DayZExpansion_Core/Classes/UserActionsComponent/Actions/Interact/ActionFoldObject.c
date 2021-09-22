@@ -17,9 +17,6 @@ modded class ActionFoldObject
 		if ( player.IsInSafeZone() )
 			return false;
 
-		if ( !super.ActionCondition( player, target, item ) )
-			return false;
-
-		return true;
+		return super.ActionCondition( player, target, item );
 	}
 }

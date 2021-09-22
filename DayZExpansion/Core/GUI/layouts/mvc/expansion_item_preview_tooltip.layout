@@ -1,0 +1,128 @@
+WrapSpacerWidgetClass ExpansionItemPreviewTooltip {
+ visible 1
+ clipchildren 1
+ ignorepointer 1
+ position 0 0
+ size 250 250
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 952
+ scriptclass "ExpansionItemPreviewTooltipController"
+ style Colorable
+ Padding 0
+ Margin 0
+ "Size To Content V" 1
+ {
+  ImageWidgetClass HeaderWidget {
+   clipchildren 1
+   ignorepointer 1
+   color 0 0 0 0.9412
+   size 1 40
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   image0 "set:dayz_gui image:inv_header_3"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   {
+    ImageWidgetClass ItemDamageWidgetBackground {
+     visible 1
+     clipchildren 0
+     inheritalpha 0
+     ignorepointer 1
+     color 0 1 0 1
+     position 6 0
+     size 24 24
+     valign center_ref
+     hexactpos 1
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     image0 ""
+     imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+     mode additive
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     filter 1
+    }
+    TextWidgetClass ItemNameWidget {
+     clipchildren 0
+     ignorepointer 1
+     position 35 0
+     size 210.84 16
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     style Normal
+     text " "
+     font "gui/fonts/sdf_MetronBook24"
+     "exact text" 1
+     "exact text size" 16
+     "size to text h" 0
+     "size to text v" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "ItemName"
+      }
+     }
+    }
+   }
+  }
+  GridSpacerWidgetClass Content {
+   visible 1
+   clipchildren 1
+   ignorepointer 1
+   color 0 0 0 0.8627
+   position 0 40
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   style Colorable
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 2
+   Rows 1
+   {
+    ItemPreviewWidgetClass ItemFrameWidget {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     position 0 0
+     size 250 200
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     priority 201
+     scriptclass "ViewBinding"
+     "force flip enable" 1
+     {
+      ScriptParamsClass {
+       Binding_Name "ItemPreview"
+      }
+     }
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+  }
+ }
+}

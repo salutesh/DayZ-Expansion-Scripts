@@ -82,15 +82,15 @@ class Vehicle_ExpansionTT650 extends ExpansionVehicleBikeBase
 	{
 		return false;
 	}
-	
+
 	// ------------------------------------------------------------
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
-		return 1.5;
+		return "0 1.5 0";
 	}
-	
+
 	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
 		return 2.5;
 	}

@@ -30,7 +30,7 @@ modded class ActionWorldFlagActionSwitch
 			float state = totem.GetAnimationPhase( "flag_mast" );
 
 			//! Allow player to interact with the flag since he need to lower the flag to dismantle with tools
-			if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagRequireTools == DismantleFlagMode.WithTools && state < 0.1 )
+			if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagMode == ExpansionDismantleFlagMode.AnyoneWithTools && state < 0.1 )
 				return super.ActionCondition( player, target, item );
 				
 			//! The player is not in his territory, so he can't interact

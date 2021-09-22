@@ -68,15 +68,9 @@ modded class PlayerBase
 		AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
 
 		AddAction( ExpansionActionSwitchSeats, InputActionMap );
-		
-		AddAction( ExpansionActionStartMotor, InputActionMap );
-		AddAction( ExpansionActionStopMotor, InputActionMap );
 
-		AddAction( ExpansionVehicleActionStartMotor, InputActionMap );
-		AddAction( ExpansionVehicleActionStopMotor, InputActionMap );
-
-		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
-		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
+		AddAction( ExpansionActionNextEngine, InputActionMap );
+		AddAction( ExpansionActionNextEngineInput, InputActionMap );
 
 		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
 		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
@@ -100,6 +94,9 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::EOnContact - Start");
 		#endif
+
+		if( !IsAlive() || GetParent() == other || !IsMissionHost() )
+			return;
 
 		Transport transport;
 		if ( Class.CastTo( transport, other ) )
@@ -159,9 +156,11 @@ modded class PlayerBase
 				m_TransportHitRegistered = false;
 			}
 
-			if ( m_TransportHitVelocity.Length() > 2.5 )
+			if ( IsDamageDestroyed() && m_TransportHitVelocity.Length() > 3 )
 			{
-				// dBodyApplyImpulse( this, dBodyGetMass( this ) * m_TransportHitVelocity * 40.0 );
+				vector impulse = 40 * m_TransportHitVelocity;
+				impulse[1] = 40 * 1.5;
+				dBodyApplyImpulse(this, impulse);
 			}
 		}
 	}
@@ -178,16 +177,39 @@ modded class PlayerBase
 
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
-			ExpansionHumanCommandVehicle ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
-			if ( ehcv != NULL )
+			auto ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
+			if (ehcv)
 			{
+				if (!ehcv.IsGettingIn() && !ehcv.IsGettingOut() && !ehcv.IsSwitchSeat())
+				{
+					ehcv.GetTransport().HandleController(this, pDt);
+				}
+
 				if ( ehcv.WasGearChange() )
 				{
 					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
 					cb.SetVehicleCommand( ehcv );
+					return true;
 				}
-				return true;
+
+				return false;
 			}
+		}
+
+		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
+		{
+			auto hcv = GetCommand_Vehicle();
+
+			CarScript car;
+			if (Class.CastTo(car, hcv.GetTransport()))
+			{
+				if (!hcv.IsGettingIn() && !hcv.IsGettingOut() && !hcv.IsSwitchSeat())
+				{
+					car.Expansion_HandleController(this, pDt);
+				}
+			}
+
+			return false;
 		}
 
 		return false;
@@ -223,7 +245,7 @@ modded class PlayerBase
 		if ( m_ExpansionST == NULL )
 			m_ExpansionST = new ExpansionHumanST( this );
 	
-		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, vehicle, seatIdx, seat_anim, m_ExpansionST );
+		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, m_ExpansionST, vehicle, seatIdx, seat_anim );
 		StartCommand_Script( cmd );
 		return cmd;
 	}
@@ -241,7 +263,6 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetInVehicle( bool state )
 	{
-		EXPrint(ToString() + "::SetInVehicle " + state);
 		m_WasInVehicle = state;
 	}
 
@@ -316,16 +337,17 @@ modded class PlayerBase
 	}
 
 	//! Called on both server + client when attaching to vehicle
-	override void OnExpansionAttachTo( Object attachedToObj, vector tmLocal[4] )
+	override void OnExpansionAttachTo( Object obj, vector transform[4] )
 	{
-		EXPrint(ToString() + "::OnExpansionAttachTo " + attachedToObj);
+		super.OnExpansionAttachTo(obj, transform);
+		
 		SetInVehicle( true );
 	}
 
 	//! Called on both server + client when detaching from vehicle
-	override void OnExpansionDetachFrom( Object detachedFromObj )
+	override void OnExpansionDetachFrom( Object obj )
 	{
-		EXPrint(ToString() + "::OnExpansionDetachFrom " + detachedFromObj);
+		super.OnExpansionDetachFrom(obj);
 		SetInVehicle( false );
 	}
 
@@ -492,7 +514,7 @@ modded class PlayerBase
 
 				//EXPrint(ToString() + "::AfterStoreLoad - player pos " + GetPosition());
 
-				vector rayStart = GetPosition();
+				vector rayStart = GetPosition() + "0 0.6 0";
 
 				//! Ground or water surface position
 				vector ground = ExpansionStatic.GetSurfaceWaterPosition(GetPosition());

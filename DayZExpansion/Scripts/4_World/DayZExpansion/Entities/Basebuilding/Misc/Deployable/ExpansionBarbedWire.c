@@ -22,7 +22,6 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ExpansionBarbedWire()
 	{
-		SetEventMask( EntityEvent.INIT );
 	}
 
 	// ------------------------------------------------------------

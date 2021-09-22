@@ -149,7 +149,7 @@ class ExpansionMh6: ExpansionHelicopterScript
 	{
 		string attType = attachment.GetType();
 		
-		if ( EngineIsOn() )
+		if ( Expansion_EngineIsOn(1) )
 		{
 			if ( attType == "ExpansionHelicopterBattery" || attType == "CarRadiator" || attType == "ExpansionIgniterPlug" || attType == "ExpansionHydraulicHoses")
 				return false;

@@ -21,13 +21,6 @@ class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
 
 		//! Vanilla
 		m_dmgContactCoef			= 0.018;
-
-		//! Custom
-		m_MaxSpeed					= 20.0;
-
-		m_TurnCoef					= 0.15;
-	
-		m_Offset					= 1.8;
 		
 		m_EngineStartOK = "Truck_01_engine_start_SoundSet";
 		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
@@ -41,16 +34,6 @@ class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Vehicle_ExpansionVodnik::Constructor - End");
 		#endif
-	}
-
-	override float GetTransportCameraDistance()
-	{
-		return 6.0;
-	}
-
-	override vector GetTransportCameraOffset()
-	{
-		return "0 0.8 0";
 	}
 	
 	// ------------------------------------------------------------
@@ -369,12 +352,15 @@ class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
-		return 8;
+		return 6.0;
 	}
 
+	override vector GetTransportCameraOffset()
+	{
+		return "0 0.8 0";
+	}
 
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )

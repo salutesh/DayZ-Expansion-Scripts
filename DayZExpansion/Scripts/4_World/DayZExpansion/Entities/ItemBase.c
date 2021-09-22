@@ -317,8 +317,10 @@ modded class ItemBase
 
 		if (IsOpened())
 			SetSynchDirty();
-		else
+		else if (m_HasCode)
 			Lock();  //! Will call SetSynchDirty
+		else
+			Unlock();  //! Will call SetSynchDirty
 	}
 	
 	/**

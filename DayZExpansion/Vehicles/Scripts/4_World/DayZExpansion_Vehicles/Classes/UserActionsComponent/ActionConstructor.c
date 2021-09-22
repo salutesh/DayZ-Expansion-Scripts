@@ -41,12 +41,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionCarHorn );
 		actions.Insert( ExpansionActionOpenVehicleDoor );
 		actions.Insert( ExpansionActionCloseVehicleDoor );
-
-		actions.Insert( ExpansionActionStartMotor );
-		actions.Insert( ExpansionActionStopMotor );
-		
-		actions.Insert( ExpansionVehicleActionStartMotor );
-		actions.Insert( ExpansionVehicleActionStopMotor );
 		
 		actions.Insert( ExpansionVehicleActionStartEngine );
 		actions.Insert( ExpansionVehicleActionStopEngine );
@@ -59,8 +53,8 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionChangeVehicleLock );
 
 		//! Boats
-		actions.Insert( ExpansionActionSwitchBoatController );
-		actions.Insert( ExpansionActionSwitchBoatControllerInput );		
+		actions.Insert( ExpansionActionNextEngine );
+		actions.Insert( ExpansionActionNextEngineInput );		
 		
 		//! Helicopters
 		actions.Insert( ExpansionActionRocket );

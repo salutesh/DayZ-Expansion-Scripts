@@ -29,8 +29,6 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool EnableLighthouses;
 	bool EnableHUDNightvisionOverlay;
 	bool DisableMagicCrosshair;
-	bool EnablePlayerTags;
-	int PlayerTagViewRange;
 	bool EnableAutoRun;
 	bool UnlimitedStamina;
 	bool UseDeathScreen;
@@ -43,7 +41,7 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
  **/
 class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
 	int SystemChatColor;			//! Added with v2
 	int AdminChatColor;			//! Added with v2
@@ -160,7 +158,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		TransportChatColor = s.TransportChatColor;
 		PartyChatColor = s.PartyChatColor;
 		TransmitterChatColor = s.TransmitterChatColor;
-		
+			
 		ExpansionGeneralSettingsBase sb = s;
 		CopyInternal( sb );
 		
@@ -190,8 +188,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EnableLighthouses = s.EnableLighthouses;
 		EnableHUDNightvisionOverlay = s.EnableHUDNightvisionOverlay;
 		DisableMagicCrosshair = s.DisableMagicCrosshair;
-		EnablePlayerTags = s.EnablePlayerTags;
-		PlayerTagViewRange = s.PlayerTagViewRange;
 		EnableAutoRun = s.EnableAutoRun;
 		UnlimitedStamina = s.UnlimitedStamina;
 		UseDeathScreen = s.UseDeathScreen;
@@ -256,7 +252,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 					
 					UpdateChatColors();
 				}
-				
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -272,7 +268,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		{
 			EXPrint("[ExpansionGeneralSettings] No existing setting file:" + EXPANSION_GENERAL_SETTINGS + ". Creating defaults!");
 			Defaults();
-			UpdateChatColors();
 			save = true;
 		}
 		
@@ -328,9 +323,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EnableHUDNightvisionOverlay = true;
 
 		DisableMagicCrosshair = true;
-		EnablePlayerTags = true;
-		PlayerTagViewRange = 5;
-
+		
 		EnableAutoRun = true;
 		UnlimitedStamina = false;
 		
@@ -349,19 +342,19 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	void UpdateChatColors()
 	{
 		//! Make sure none of the colors are zero (all transparent)
-		if (!SystemChatColor)
+		if (!SystemChatColor || SystemChatColor == 0)
 			SystemChatColor = ARGB(255, 186, 69, 186);
-		if (!AdminChatColor)
+		if (!AdminChatColor || AdminChatColor == 0)
 			AdminChatColor = ARGB(255, 192, 57, 43);
-		if (!GlobalChatColor)
+		if (!GlobalChatColor || GlobalChatColor == 0)
 			GlobalChatColor = ARGB(255, 88, 195, 247);
-		if (!DirectChatColor)
+		if (!DirectChatColor || DirectChatColor == 0)
 			DirectChatColor = ARGB(255, 255, 255, 255);
-		if (!TransportChatColor)
+		if (!TransportChatColor || TransportChatColor == 0)
 			TransportChatColor = ARGB(255, 255, 206, 9);
-		if (!PartyChatColor)
+		if (!PartyChatColor || PartyChatColor == 0)
 			PartyChatColor = ARGB(255, 10, 250, 122);
-		if (!TransmitterChatColor)
+		if (!TransmitterChatColor || TransmitterChatColor == 0)
 			TransmitterChatColor = ARGB(255, 249, 255, 73);
 	}
 	

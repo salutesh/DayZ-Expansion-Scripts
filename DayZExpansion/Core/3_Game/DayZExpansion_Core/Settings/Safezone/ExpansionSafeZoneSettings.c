@@ -46,11 +46,13 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 
 	bool DisableVehicleDamageInSafeZone;
 	bool EnableForceSZCleanup;
 	int ForceSZCleanupInterval;
+	float ItemLifetimeInSafeZone;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
@@ -112,6 +114,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		DisableVehicleDamageInSafeZone = s.DisableVehicleDamageInSafeZone;
 		EnableForceSZCleanup = s.EnableForceSZCleanup;
 		ForceSZCleanupInterval = s.ForceSZCleanupInterval;
+		ItemLifetimeInSafeZone = s.ItemLifetimeInSafeZone;
 		
 		ExpansionSafeZoneSettingsBase sb = s;
 		CopyInternal( sb );
@@ -187,7 +190,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 				}
 				else
 				{
-					JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, this);
+					JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, this);
 				}
 
 				if (settingsBase.m_Version < 3)
@@ -195,6 +198,9 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 					EnableForceSZCleanup = settingsDefault.EnableForceSZCleanup;
 					ForceSZCleanupInterval = settingsDefault.ForceSZCleanupInterval;
 				}
+
+				if (settingsBase.m_Version < 4)
+					ItemLifetimeInSafeZone = settingsDefault.ItemLifetimeInSafeZone;
 				
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -248,6 +254,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		FrameRateCheckSafeZoneInMs = 5000;
 		ForceSZCleanupInterval = 60000;
 		EnableForceSZCleanup = true;
+		ItemLifetimeInSafeZone = 15 * 60;  //! 15 Minutes
+
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();

@@ -6,7 +6,6 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		//m_HUDCursorIcon	 = CursorIcons.LootCorpse;
 	}
 
 	override void CreateConditionComponents()
@@ -17,16 +16,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 
 	override string GetText()
 	{
-		if (m_Vehicle.IsPlane())
-		{
-			return "#STR_EXPANSION_UA_STOP_PLANE";
-		}
-		else if (m_Vehicle.IsHelicopter())
-		{
-			return "#STR_EXPANSION_UA_STOP_HELICOPTER";
-		}
-
-		return "#STR_EXPANSION_UA_STOP_CAR";
+		return "Stop " + m_Vehicle.EngineGetName() + " Engine";
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
@@ -37,7 +27,10 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 		{
 			if (vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{
-				return m_Vehicle.EngineIsOn();
+				m_CommandUID = m_Vehicle.EngineStopAnimation();
+
+				if (m_Vehicle.GetSpeedometer() <= 8 && m_Vehicle.EngineIsOn())
+					return true;
 			}
 		}
 
@@ -66,7 +59,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
 		{
 			car.EngineStop();
-			
+
 			SEffectManager.PlaySound(car.m_EngineStopFuel, car.GetPosition());
 		}
 	}
@@ -75,7 +68,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 	{
 		return true;
 	}
-	
+
 	override bool UseMainItem()
 	{
 		return false;

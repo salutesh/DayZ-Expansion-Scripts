@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionUtilityBoat","Vehicle_ExpansionUtilityBoat","ExpansionSpraycanBlack","Vehicle_ExpansionUtilityBoat_Black","ExpansionUtilityBoat_Black","ExpansionSpraycanGreen","ExpansionUtilityBoat_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
 class CfgVehicles
@@ -101,7 +101,7 @@ class CfgVehicles
 				initPhase = 0;
 			};
 		};
-		class SimulationModule
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
 			airDragFrontTotal = 0.995;
@@ -318,19 +318,6 @@ class CfgVehicles
 				gentleThrust = 0.7;
 				turboCoef = 4.0;
 				gentleCoef = 0.75;
-			};
-			class Engine
-			{
-				inertia = 0.15;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
-				rpmIdle = 850;
-				rpmMin = 900;
-				rpmClutch = 1350;
-				rpmRedline = 6000;
-				rpmMax = 8000;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
 			class Gearbox

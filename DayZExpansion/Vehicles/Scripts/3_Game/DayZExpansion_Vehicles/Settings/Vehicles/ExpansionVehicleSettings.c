@@ -16,7 +16,7 @@
  **/
 class ExpansionVehicleSettingsBase: ExpansionSettingBase
 {
-	ExpansionVehicleNetworkMode VehicleSync;				//! 0 = SERVER_ONLY | 1 = PREDICTION | 2 = CLIENT
+	ExpansionVehicleNetworkMode VehicleSync;				//! 0 = SERVER | 1 = CLIENT
 
 	ExpansionVehicleKeyStartMode VehicleRequireKeyToStart; 	//! 0 = Disabled | 1 = Require key to start the engine (will check hands, cargo, inventory) | 2 = check only in the hand
 	bool VehicleRequireAllDoors;							//! If enabled, you will need all the doors to lock/unlock the car
@@ -55,9 +55,10 @@ class ExpansionVehicleSettingsV2: ExpansionVehicleSettingsBase
  **/
 class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
+	bool RevvingOverMaxRPMRuinsEngineInstantly;
 
 	ref array < ref ExpansionVehiclesConfig > VehiclesConfig;
 	
@@ -156,6 +157,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		//#endif
 		
 		PlacePlayerOnGroundOnReconnectInVehicle = s.PlacePlayerOnGroundOnReconnectInVehicle;
+		RevvingOverMaxRPMRuinsEngineInstantly = s.RevvingOverMaxRPMRuinsEngineInstantly;
 
 		VehiclesConfig.Clear();
 		for (int i = 0; i < s.VehiclesConfig.Count(); i++)
@@ -287,6 +289,9 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 5)
 					PlacePlayerOnGroundOnReconnectInVehicle = settingsDefault.PlacePlayerOnGroundOnReconnectInVehicle;
 
+				if (settingsBase.m_Version < 6)
+					RevvingOverMaxRPMRuinsEngineInstantly = settingsDefault.RevvingOverMaxRPMRuinsEngineInstantly;
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -346,7 +351,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 	{
 		m_Version = VERSION;
 
-		VehicleSync = ExpansionVehicleNetworkMode.PREDICTION;
+		VehicleSync = ExpansionVehicleNetworkMode.SERVER;
 
 		VehicleRequireKeyToStart = ExpansionVehicleKeyStartMode.REQUIREDINVENTORY;
 		VehicleRequireAllDoors = true;
@@ -387,27 +392,28 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		VehicleSpeedDamageMultiplier = 1.0;
 		
 		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
+		RevvingOverMaxRPMRuinsEngineInstantly = false;
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("OffroadHatchback", false, 1000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Hatchback_02", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Sedan_02", false, 3000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("CivilianSedan", false, 4000.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("OffroadHatchback", false, 1150.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Hatchback_02", false, 1245.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Sedan_02", false, 915.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("CivilianSedan", false, 1420.0) );
 		
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Truck_01_Covered", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionTractor", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZ", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionBus", true, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionVodnik", true, 2000.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Truck_01_Covered", false, 8650.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionTractor", false, 3420.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZ", false, 1250.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1200.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionBus", true, 9650.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionVodnik", true, 4650.0) );
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUtilityBoat", true, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionZodiacBoat", true, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionLHD", true, 2000.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUtilityBoat", true, 850.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionZodiacBoat", true, 370.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionLHD", true, 100460000.0) );
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionGyrocopter", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMh6", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUh1h", false, 2000.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMerlin", true, 2000.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionGyrocopter", false, 850.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMh6", false, 1361.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUh1h", false, 7650.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMerlin", true, 12650.0) );
 	}
 	
 	override string SettingName()
@@ -416,7 +422,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 	}
 };
 
-static bool s_ExpansionPlayerAttachment;
+static bool s_ExpansionPlayerAttachment = true;
 
 enum ExpansionPPOGORIVMode
 {

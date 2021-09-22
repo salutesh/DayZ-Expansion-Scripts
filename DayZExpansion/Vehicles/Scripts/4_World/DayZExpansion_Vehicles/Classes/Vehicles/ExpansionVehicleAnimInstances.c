@@ -44,4 +44,4 @@ class ExpansionVehicleAnimInstances
 	static int EXPANSION_MERLIN = 13;
 	static int EXPANSION_UH1H = 10;
 	static int EXPANSION_GYROCOPTER = 10;
-}
+};

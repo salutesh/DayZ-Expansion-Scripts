@@ -138,32 +138,7 @@ modded class MissionGameplay
 					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 			}
 		}
-		
-		#ifdef EXPANSIONMODVEHICLE
-		if ( playerPB )
-		{
-			HumanCommandVehicle hcv = playerPB.GetCommand_Vehicle();
-			if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			{
-				CarScript carScript = CarScript.Cast( hcv.GetTransport() );
-				if ( carScript )
-				{
-					carScript.UpdateExpansionController();
-				}
-			}
-
-			ExpansionHumanCommandVehicle ehcv = playerPB.GetCommand_ExpansionVehicle();
-			if ( ehcv && ehcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			{
-				ExpansionVehicleBase expansionVehicleScript = ExpansionVehicleBase.Cast( ehcv.GetTransport() );
-				if ( expansionVehicleScript )
-				{
-					expansionVehicleScript.UpdateExpansionController();
-				}
-			}
-		}
-		#endif
-			
+					
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif

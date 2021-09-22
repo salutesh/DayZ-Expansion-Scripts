@@ -22,14 +22,6 @@ class Vehicle_ExpansionC130J extends ExpansionVehiclePlaneBase
 		m_dmgContactCoef							= 0.075;
 
 		m_MaxSpeed									= 300.0;
-
-		m_BodyFrictionCoef							= 1.0;
-
-		m_ElevatorForceCoef 						= 1.0;
-		m_AileronForceCoef 							= 0.8;
-
-		m_RudderForceCoef 							= 1.0;
-		m_RudderInfluence 							= 0.98;
 	}
 
 	// ------------------------------------------------------------
@@ -120,7 +112,13 @@ class Vehicle_ExpansionC130J extends ExpansionVehiclePlaneBase
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override vector GetTransportCameraOffset()
+	{
+		return "0 0 0";
+	}
+
+	// ------------------------------------------------------------
+	override float GetTransportCameraDistance()
 	{
 		return 25;
 	}

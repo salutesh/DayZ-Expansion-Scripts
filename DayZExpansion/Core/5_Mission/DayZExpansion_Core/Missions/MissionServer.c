@@ -177,13 +177,14 @@ modded class MissionServer
 	}
 	void ExpansionForceSZCleanup()
 	{
-		for (int i = 0; i < ItemBase.ExpansionGetSafeZoneItems().Count(); i++)
+		set< ItemBase > szItems = ItemBase.ExpansionGetSafeZoneItems();
+		for (int i = szItems.Count() - 1; i >= 0; i--)
 		{
-			ItemBase currItem = ItemBase.ExpansionGetSafeZoneItems()[i];
+			ItemBase currItem = szItems[i];
 			if (currItem.GetLifetime() == -1)
 				currItem.Delete();
 		}
-	}	
+	}
 }
 
 class ExpansionClassNameDump

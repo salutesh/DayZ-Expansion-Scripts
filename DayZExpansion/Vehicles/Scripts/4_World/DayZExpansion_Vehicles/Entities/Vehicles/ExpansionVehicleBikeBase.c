@@ -15,19 +15,8 @@
  **/
 class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 {
-	private ExpansionBikeController m_BikeController;
-
-	private ref ExpansionVehicleGearbox m_Gearbox;
-	private ref ExpansionVehicleEngine m_Engine;
-	private ref ExpansionVehicleSteering m_Steering;
-	private ref ExpansionVehicleThrottle m_Throttle;
-	
 	private float m_AirControlForwardCoef;
 	private float m_AirControlRightCoef;
-
-	private float m_RPMVal;
-	private float m_SteeringVal;
-	private float m_BrakeVal;
 
 	private bool m_AirControl;
 	private float m_AirControlForward;
@@ -38,41 +27,37 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 	private float m_FrontSuspFraction;
 	private float m_BackSuspFraction;
 
-	private float m_RPMSynch;
-	private float m_SteeringSynch;
-
 	void ExpansionVehicleBikeBase()
 	{
-		Class.CastTo( m_BikeController, m_Controller );
-
-		RegisterNetSyncVariableFloat( "m_RPMSynch", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_SteeringSynch", 0, 0, 4 );
-
 		m_AirControlForwardCoef = 1.0;
 		m_AirControlRightCoef = 1.0;
 		
-		m_Gearbox = new ExpansionVehicleGearbox( this );
-		m_Engine = new ExpansionVehicleEngineRWD( this );
-		m_Steering = new ExpansionVehicleSteering( this );
-		m_Throttle = new ExpansionVehicleThrottle( this );
-	}
-	
-	void ~ExpansionVehicleBikeBase()
-	{
-		delete m_Gearbox;
-		delete m_Engine;
-		delete m_Steering;
-		delete m_Throttle;
+		string path;
+
+		if (m_Engines.Count() == 0)
+		{
+			path = "CfgVehicles " + GetType() + " SimulationModule Engine";
+			AddModule(new ExpansionVehicleEngine(this, path));
+		}
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Gearbox";
+		AddModule(new ExpansionVehicleGearbox(this, path));
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Throttle";
+		AddModule(new ExpansionVehicleCarThrottle(this, path));
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Steering";
+		AddModule(new ExpansionVehicleBikeSteering(this, path));
 	}
 
-	override ExpansionVehicleController GetControllerInstance()
+	ExpansionController GetExpansionController()
 	{
-		return new ExpansionBikeController( this );
+		return m_Controller;
 	}
 
-	ExpansionBikeController GetController()
+	ExpansionController GetController()
 	{
-		return m_BikeController;
+		return m_Controller;
 	}
 
 	override int GetAnimInstance()
@@ -80,9 +65,9 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
 	}
 
-	override int GetSeatAnimationType( int posIdx )
+	override int GetSeatAnimationType(int posIdx)
 	{
-		switch( posIdx )
+		switch (posIdx)
 		{
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
@@ -90,17 +75,17 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 
 		return 0;
 	}
-	
-	override bool CrewCanGetThrough( int posIdx )
+
+	override bool CrewCanGetThrough(int posIdx)
 	{
 		return true;
 	}
 
-	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
-		return true;		
+		return true;
 	}
-	
+
 	override bool IsVitalCarBattery()
 	{
 		return false;
@@ -110,12 +95,12 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 	{
 		return false;
 	}
-	
+
 	override bool IsVitalRadiator()
 	{
 		return false;
 	}
-	
+
 	override bool IsVitalGlowPlug()
 	{
 		return false;
@@ -131,212 +116,110 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		return false;
 	}
 
-	override float GetCameraDistance()
+	override vector GetTransportCameraOffset()
+	{
+		return "0 0 0";
+	}
+
+	override float GetTransportCameraDistance()
 	{
 		return 3;
 	}
-	
-	override float EngineGetRPMMax()
-	{
-		return m_Engine.GetRPMMax();
-	}
 
-	override float EngineGetRPMRedline()
-	{
-		return m_Engine.GetRPMRedline();
-	}
-
-	override float EngineGetRPM()
-	{
-		return m_RPMVal;
-	}
-
-	override int GetGearsCount()
-	{
-		return m_Gearbox.Count();
-	}
-
-	override float GetClutch()
-	{
-		return m_Gearbox.GetClutch();
-	}
-
-	override float GetSteering()
-	{
-		return m_SteeringVal;
-	}
-
-	override float GetThrottle()
-	{
-		return m_Throttle.Get();
-	}
-
-	override float GetBrake()
-	{
-		return m_BrakeVal;
-	}
-
-	#ifdef CF_DebugUI
+#ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
 		super.CF_OnDebugUpdate(instance, type);
 
-		instance.Add("Steering", m_SteeringVal);
+		instance.Add("Front Susp Fraction", m_FrontSuspFraction);
+		instance.Add("Back Susp Fraction", m_BackSuspFraction);
 
-		instance.Add("Front Susp Fraction", m_FrontSuspFraction );
-		instance.Add("Back Susp Fraction", m_BackSuspFraction );
+		instance.Add("Air Control", m_AirControl);
+		instance.Add("Ground Control", m_GroundControl);
 
-		instance.Add("Air Control", m_AirControl );
-		instance.Add("Ground Control", m_GroundControl );
-
-		instance.Add("Ground Stabilizer", m_GroundStabilizer );
+		instance.Add("Ground Stabilizer", m_GroundStabilizer);
 
 		return true;
 	}
-	#endif
-	
-	protected override void OnHumanPilot( PlayerBase driver, float pDt )
+#endif
+
+	override void OnPreSimulation(float pDt)
 	{
-		m_SteeringVal += m_Steering.CalculateChange( pDt, Math.AbsFloat( m_LinearVelocityMS[2] ), m_SteeringVal, m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft() );
+		super.OnPreSimulation(pDt);
 
-		m_Throttle.Update( pDt, m_BikeController.GetForward(), m_BikeController.GetGentle(), m_BikeController.GetTurbo() );
+		float fMax = m_Axles[0].m_TravelMax;
+		float bMax = m_Axles[1].m_TravelMax;
+		m_FrontSuspFraction = (fMax - m_Wheels[0].m_SuspensionLength) - m_Axles[0].m_TravelMaxDown;
+		m_BackSuspFraction = (bMax - m_Wheels[1].m_SuspensionLength) - m_Axles[1].m_TravelMaxDown;
 
-		m_BrakeVal = m_BikeController.GetBackward();
+		m_FrontSuspFraction = (fMax - m_FrontSuspFraction) * (fMax + m_FrontSuspFraction) / (fMax * fMax);
+		m_BackSuspFraction = (bMax - m_BackSuspFraction) * (bMax + m_BackSuspFraction) / (bMax * bMax);
 
-		m_AirControlForward = m_BikeController.GetForward() - m_BikeController.GetBackward();
-		m_AirControlRight = m_BikeController.GetTurnRight() - m_BikeController.GetTurnLeft();
-	}
+		float yUp = vector.Dot(m_State.m_Transform[1], "0 1 0");
 
-	protected override void OnNetworkSend(  ParamsWriteContext ctx )
-	{
-		ctx.Write( m_RPMVal );
-		ctx.Write( m_SteeringVal );
-	}
-
-	protected override void OnNetworkRecieve( ParamsReadContext ctx )
-	{
-		ctx.Read( m_RPMVal );
-		ctx.Read( m_SteeringVal );
-	}
-
-	protected override void OnPreSimulation( float pDt )
-	{
-		super.OnPreSimulation( pDt );
-
-		if ( !m_IsPhysicsHost )
-		{
-			if ( GetGame().IsClient() )
-			{
-				m_RPMVal = m_RPMSynch;
-				m_SteeringVal = m_SteeringSynch;
-			} else
-			{
-				m_RPMSynch = m_RPMVal;
-				m_SteeringSynch = m_SteeringVal;
-			}
-
-			return;
-		}
-
-		m_RPMVal = m_Engine.GetRPM();
-
-		int gear = m_Gearbox.GetCurrentGear();
-		float throttleVal = m_Throttle.Get();
-		if ( throttleVal == 0.0 && gear != CarGear.NEUTRAL && !m_HasDriver )
-		{
-			m_BrakeVal = 1.0;
-		}
-		
-		float fMax = m_Axles[0].GetTravelMax();
-		float bMax = m_Axles[1].GetTravelMax();
-		m_FrontSuspFraction = ( fMax - m_Wheels[0].GetSuspensionLength() ) - m_Axles[0].GetTravelMaxDown();
-		m_BackSuspFraction = ( bMax - m_Wheels[1].GetSuspensionLength() ) - m_Axles[1].GetTravelMaxDown();
-		
-		m_FrontSuspFraction = ( fMax - m_FrontSuspFraction ) * ( fMax + m_FrontSuspFraction ) / ( fMax * fMax );
-		m_BackSuspFraction = ( bMax - m_BackSuspFraction ) * ( bMax + m_BackSuspFraction ) / ( bMax * bMax );
-		
-		float yUp = vector.Dot( m_Transform.data[1], "0 1 0" );
-		
-		m_GroundStabilizer = Math.Max( m_FrontSuspFraction, m_BackSuspFraction ); //! we can lean so long 1 wheel is on the ground
+		m_GroundStabilizer = Math.Max(m_FrontSuspFraction, m_BackSuspFraction); //! we can lean so long 1 wheel is on the ground
 
 		m_AirControl = m_GroundStabilizer < 0.1;
 		m_GroundControl = yUp > 0.5 && m_GroundStabilizer > 0.1;
-		
-		ApplyAxleSteering( 0, m_SteeringVal );
-		ApplyAxleSteering( 1, 0.0 );
-			
-		ApplyAxleTorque( 0, 0.0 );
-		ApplyAxleTorque( 1, 0.0 );
-		
-		if ( EngineIsOn() )
-		{
-			m_Engine.OnUpdate( pDt, throttleVal, m_Gearbox.OnUpdate( m_ClutchState, m_BikeController.GetGear(), pDt ) );
-			
-			ApplyAxleBrake( 0, m_BrakeVal );
-			ApplyAxleBrake( 1, m_BrakeVal );
-		} else
-		{
-			ApplyAxleBrake( 0, 1.0 );
-			ApplyAxleBrake( 1, 1.0 );
-		}
 	}
 
-	protected override void OnAnimationUpdate( float pDt )
+	override void OnAnimationUpdate(float pDt)
 	{
-		super.OnAnimationUpdate( pDt );
+		super.OnAnimationUpdate(pDt);
 
-		SetAnimationPhase( "steeringwheel", GetSteering() );
+		SetAnimationPhase("steeringwheel", GetController().GetSteering());
 	}
 
-	protected override void OnSimulation( float pDt, out vector force, out vector torque )
+	override void OnSimulation(float pDt, out vector force, out vector torque)
 	{
-		super.OnSimulation( pDt, force, torque );
+		super.OnSimulation(pDt, force, torque);
 
-		float absForwardSpeed = Math.AbsFloat( m_LinearVelocityMS[2] ) + 0.1;
+		float absForwardSpeed = Math.AbsFloat(m_State.m_LinearVelocityMS[2]) + 0.1;
 
-		if ( m_GroundControl ) //! we are on the ground
+		if (m_GroundControl) //! we are on the ground
 		{
-			vector fWheelNormal = m_Wheels[0].GetSuspensionContactNormal() * m_FrontSuspFraction;
-			vector bWheelNormal = m_Wheels[1].GetSuspensionContactNormal() * m_BackSuspFraction;
+			vector fWheelNormal = m_Wheels[0].m_ContactNormal * m_FrontSuspFraction;
+			vector bWheelNormal = m_Wheels[1].m_ContactNormal * m_BackSuspFraction;
 			vector terrainSurface = fWheelNormal + bWheelNormal;
-			terrainSurface = terrainSurface.Normalized().Multiply3( m_Transform.data );
+			terrainSurface = terrainSurface.Normalized().Multiply3(m_State.m_Transform);
 
-			vector estDirUp = GetEstimatedOrientation( 0.1 )[1].Normalized();
-			
-			float leanAmount = Math.Clamp( m_SteeringVal, -0.16, 0.16 );
+			vector estDirUp = m_State.EstimateDirection(0.1, 1);
+
+			float leanAmount = Math.Clamp(GetController().GetSteering(), -0.16, 0.16);
 			float leanOnX = leanAmount * absForwardSpeed * 0.001;
-			leanOnX = Math.Clamp( leanOnX, -0.8, 0.8 );
+			leanOnX = Math.Clamp(leanOnX, -0.8, 0.8);
 
-			vector upDirWanted = Vector( -terrainSurface[0], 1.0, -terrainSurface[2] ).Normalized();
-			
+			vector upDirWanted = Vector(-terrainSurface[0], 1.0, -terrainSurface[2]).Normalized();
+
 			vector upFromForward[4];
-			Math3D.DirectionAndUpMatrix( GetDirection(), "0 1 0", upFromForward );
-			upDirWanted = upDirWanted.InvMultiply3( upFromForward );
+			Math3D.DirectionAndUpMatrix(GetDirection(), "0 1 0", upFromForward);
+			upDirWanted = upDirWanted.InvMultiply3(upFromForward);
 			upDirWanted[0] = leanOnX;
 			upDirWanted.Normalize();
-			upDirWanted = upDirWanted.Multiply3( upFromForward );
-		
-			vector applyPosition = Vector( 0.0, 1.0, 0.0 );
+			upDirWanted = upDirWanted.Multiply3(upFromForward);
+
+			vector applyPosition = Vector(0.0, 1.0, 0.0);
 
 			vector stabilize = (upDirWanted - estDirUp);
 			stabilize = stabilize.Normalized() * stabilize.LengthSq();
 			const float maxStabCoef = 0.8;
-			if ( stabilize.LengthSq() > maxStabCoef * maxStabCoef )
+			if (stabilize.LengthSq() > maxStabCoef * maxStabCoef)
 				stabilize = stabilize.Normalized() * maxStabCoef;
-			
-			stabilize = stabilize * 50.0 * m_BodyMass * m_GroundStabilizer;
 
-			stabilize = stabilize.InvMultiply3( m_Transform.data );
+			stabilize = stabilize * 50.0 * m_State.m_Mass * m_GroundStabilizer;
+
+			stabilize = stabilize.InvMultiply3(m_State.m_Transform);
 			stabilize[2] = 0;
-			torque += ( applyPosition * stabilize ).Multiply3( m_Transform.data );
-		} else if ( m_AirControl ) //! we are in the air
+			torque += (applyPosition * stabilize).Multiply3(m_State.m_Transform);
+		}
+		else if (m_AirControl) //! we are in the air
 		{
-			float airControlForward = m_AirControlForward * m_AirControlForwardCoef;
-			float airControlRight = m_AirControlRight * m_AirControlRightCoef;
-
-			vector airControl = Vector( airControlRight, 0, -airControlForward ) * m_BodyMass * 0.25;
-
-			torque += ( Vector( 0, 1, 0 ) * airControl ).Multiply3( m_Transform.data );
+			//float airControlForward = m_AirControlForward * m_AirControlForwardCoef;
+			//float airControlRight = m_AirControlRight * m_AirControlRightCoef;
+			//
+			//vector airControl = Vector( airControlRight, 0, -airControlForward ) * m_State.m_Mass * 0.25;
+			//
+			//torque += ( Vector( 0, 1, 0 ) * airControl ).Multiply3( m_State.m_Transform );
 		}
 	}
-}
+};

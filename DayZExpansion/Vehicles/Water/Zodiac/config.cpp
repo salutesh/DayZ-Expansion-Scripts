@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionZodiacBoat","Vehicle_ExpansionZodiacBoat","ExpansionSpraycanOrange","ExpansionZodiacBoat_Orange","Vehicle_ExpansionZodiacBoat_Orange","ExpansionSpraycanBlack","ExpansionZodiacBoat_Black","Vehicle_ExpansionZodiacBoat_Black","ExpansionSpraycanGreen","ExpansionZodiacBoat_Green","Vehicle_ExpansionZodiacBoat_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
 class CfgVehicles
@@ -33,7 +33,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
-		modelAnchorPointY = 1.516;
+		modelAnchorPointY = 0.43;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
@@ -60,17 +60,7 @@ class CfgVehicles
 				doors[] = {};
 			};
 		};
-		class Sounds
-		{
-			thrust = 0.6;
-			thrustTurbo = 1;
-			thrustGentle = 0.3;
-			thrustSmoothCoef = 0.02;
-			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"Expansion_boat_utility_loop_Ext_SoundSet"};
-			soundSetsInt[] = {"offroad_Wind_SoundSet"};
-		};
-		class SimulationModule
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
 			airDragFrontTotal = 0.995;
@@ -194,7 +184,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "[NOT READY]  ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
-		modelAnchorPointY = 1.516;
+		modelAnchorPointY = 0.43;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
@@ -220,16 +210,6 @@ class CfgVehicles
 				attachmentSlots[] = {"GlowPlug","TruckBattery"};
 				doors[] = {};
 			};
-		};
-		class Sounds
-		{
-			thrust = 0.6;
-			thrustTurbo = 1;
-			thrustGentle = 0.3;
-			thrustSmoothCoef = 0.02;
-			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"Expansion_boat_utility_loop_Ext_SoundSet"};
-			soundSetsInt[] = {"offroad_Wind_SoundSet"};
 		};
 		class SimulationModule
 		{

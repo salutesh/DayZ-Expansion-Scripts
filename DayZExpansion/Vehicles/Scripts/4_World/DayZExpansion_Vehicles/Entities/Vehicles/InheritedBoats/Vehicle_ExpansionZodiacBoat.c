@@ -22,13 +22,6 @@ class Vehicle_ExpansionZodiacBoat extends ExpansionVehicleBoatBase
 		//! Vanilla
 		m_dmgContactCoef			= 0.018;
 
-		//! Custom
-		m_MaxSpeed					= 30.0;
-
-		m_TurnCoef					= 0.05;
-
-		m_Offset					= 1.9;
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Vehicle_ExpansionZodiacBoat::Constructor - End");
 		#endif

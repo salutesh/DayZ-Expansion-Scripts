@@ -63,12 +63,12 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 
 		CreateToggle( "DestroyFlagOnDismantle", "Destroy Flag On Dismantle", "", "" );
 		
-		CreateEnum( "DismantleFlagRequireTools", DismantleFlagMode, "Dismantle Flag Requires Tools", "", "" );
+		CreateEnum( "DismantleFlagMode", ExpansionDismantleFlagMode, "Dismantle Flag Mode", "", "" );
 		CreateToggle( "DismantleOutsideTerritory", "Dismantle Outside Territory", "", "" );
 		CreateToggle( "DismantleInsideTerritory", "Dismantle Inside Other Territory", "", "" );
 		CreateToggle( "DismantleAnywhere", "Dismantle Anywhere", "", "" );
 
-		CreateEnum( "CanAttachCodelock", CodelockAttachMode, "Can Attach Codelock", "", "" );
+		CreateEnum( "CodelockAttachMode", ExpansionCodelockAttachMode, "Codelock Attach Mode", "", "" );
 		CreateToggle( "CodelockActionsAnywhere", "Codelock: Actions Anywhere", "", "" );
 
 		//! Doesn't work
@@ -81,7 +81,7 @@ class ExpansionCOTBaseBuildingModule: ExpansionCOTModuleBase
 
 		CreateToggle( "SimpleTerritory", "Simple Territory Creation", "", "" );
 		CreateToggle( "AutomaticFlagOnCreation", "Add Flag Item", "", "" );
-		CreateEnum( "EnableFlagMenu", FlagMenuMode, "Enable Flag Menu", "", "" );
+		CreateEnum( "FlagMenuMode", ExpansionFlagMenuMode, "Flag Menu Mode", "", "" );
 		CreateToggle( "GetTerritoryFlagKitAfterBuild", "Get Territory FlagKit After Build", "", "" );
 	}
 

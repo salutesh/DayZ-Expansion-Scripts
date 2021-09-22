@@ -19,7 +19,7 @@ class ExpansionZoneModule : JMModuleBase
 
 	private int m_Interval = 100;
 	private int m_ActorsPerTick = 10;
-	private bool m_ExEnabled = false;
+	private static bool s_ExEnabled = false;
 
 	private int m_TimeCounter = 0;
 
@@ -33,7 +33,7 @@ class ExpansionZoneModule : JMModuleBase
 
 		m_Interval = settings.FrameRateCheckSafeZoneInMs;
 		m_ActorsPerTick = 100; // settings.ActorsPerTicks;
-		m_ExEnabled = settings.Enabled;
+		s_ExEnabled = settings.Enabled;
 
 		bool failure = false;
 
@@ -101,6 +101,9 @@ class ExpansionZoneModule : JMModuleBase
 		EXPrint("ExpansionZoneModule::IsInside start");
 #endif
 
+		if (type == ExpansionZoneType.SAFE && !s_ExEnabled)
+			return false;
+
 		for (int i = 0; i < COUNT; i++)
 			ExpansionZone.s_InsideBuffer[i] = false;
 
@@ -126,7 +129,7 @@ class ExpansionZoneModule : JMModuleBase
 		EXPrint("ExpansionZoneModule::OnUpdate");
 #endif
 
-		if (!m_ExEnabled)
+		if (!s_ExEnabled)
 			return;
 
 		m_TimeCounter += timeslice * 1000;

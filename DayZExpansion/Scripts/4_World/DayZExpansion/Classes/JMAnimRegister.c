@@ -72,9 +72,6 @@ modded class JMAnimRegister
 		
 		//! Props
 		pType.AddItemInHandsProfileIK("Expansion_Guitar", "DayZExpansion/Animations/Player/Props/player_main_guitar.asi", pBehavior, "dz/anims/anm/player/ik/gear/LongWoodenStick.anm");
-		
-		//! Traps
-		//pType.AddItemInHandsProfileIK("ExpansionTripwireTrap", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/rabbit_snare_folded.anm");
 	}
 
 	override void OnRegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )

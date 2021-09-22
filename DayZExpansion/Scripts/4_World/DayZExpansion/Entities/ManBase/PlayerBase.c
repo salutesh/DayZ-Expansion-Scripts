@@ -580,36 +580,6 @@ modded class PlayerBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion SendChatMessage 
-	// ------------------------------------------------------------
-	override void SendChatMessage( string message )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SendChatMessage - Start");
-		#endif
-
-		if ( IsMissionClient() )
-		{
-			GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCDirect, "", message, "" ) );
-		}
-		else
-		{
-			array<Man> players = new array<Man>;
-			GetGame().GetPlayers( players );
-			
-			foreach( auto player : players  )
-			{
-				Param1<string> m_MessageParam = new Param1<string>(message);
-				GetGame().RPCSingleParam( player, ERPCs.RPC_USER_ACTION_MESSAGE, m_MessageParam, true, player.GetIdentity() );
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SendChatMessage - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// PlayerBase HasItem
 	// ------------------------------------------------------------
 	bool HasItem( string name, out EntityAI item )

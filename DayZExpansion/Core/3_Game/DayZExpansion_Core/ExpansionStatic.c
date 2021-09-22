@@ -702,6 +702,11 @@ class ExpansionStatic
 
 	static bool SurfaceIsWater(vector position)
 	{
+		string type;
+		GetGame().SurfaceGetType3D(position[0], position[1] + 0.1, position[2], type);
+		if (type.Contains("water"))
+			return true;
+
 		return SurfaceIsWater(position[0], position[2]);
 	}
 

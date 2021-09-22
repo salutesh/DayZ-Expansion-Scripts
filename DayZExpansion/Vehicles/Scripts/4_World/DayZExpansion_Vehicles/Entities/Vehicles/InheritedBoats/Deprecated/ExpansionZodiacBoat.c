@@ -27,7 +27,7 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 
 		m_TurnCoef					= 0.05;
 
-		m_Offset					= 1.9;
+		m_Offset					= 0.97;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZodiacBoat::Constructor - End");

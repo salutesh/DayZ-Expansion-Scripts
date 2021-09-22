@@ -80,6 +80,9 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	private float m_CyclicSideTarget;
 
 	private float m_AutoHoverAltitude;
+	private bool m_AutoHover;
+	private bool m_IsFreeLook;
+	private bool m_WasFreeLookPressed;
 	private vector m_AutoHoverSpeed;
 	private vector m_AutoHoverSpeedTarget;
 
@@ -107,19 +110,12 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	//! Animations
 	// ------------------------------------------------------------
 	private float m_RotorAnimationPosition;
-
-	// ------------------------------------------------------------
-	//! Controller, casted
-	// ------------------------------------------------------------
-	private ExpansionHelicopterController m_HeliController;
 	
 	private autoptr NoiseParams m_NoiseParams;
 		
 	// ------------------------------------------------------------
 	void ExpansionVehicleHelicopterBase()
 	{
-		Class.CastTo( m_HeliController, m_Controller );
-
 		RegisterNetSyncVariableFloat( "m_RotorSpeed" );
 		
 		m_NoiseParams = new NoiseParams();
@@ -271,37 +267,27 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		m_EnableTailRotorDamage = GetExpansionSettings().GetVehicle().EnableTailRotorDamage;
 		m_EnableHelicopterExplosions = GetExpansionSettings().GetVehicle().EnableHelicopterExplosions;
 	}
-	
-	// ------------------------------------------------------------
-	override ExpansionVehicleController GetControllerInstance()
-	{
-		return new ExpansionHelicopterController( this );
-	}
 
-	// ------------------------------------------------------------
 	bool IsAutoHover()
 	{
-		return m_HeliController.IsAutoHover();
+		return m_AutoHover;
 	}
 
-	// ------------------------------------------------------------
 	void SwitchAutoHover()
 	{
-		m_HeliController.SwitchAutoHover();
+		m_AutoHover = !m_AutoHover;
 
-		if ( m_HeliController.IsAutoHover() )
+		if ( IsAutoHover() )
 		{
-			m_AutoHoverAltitude = GetEstimatedPosition( 2.0 )[1];
+			m_AutoHoverAltitude = m_State.EstimatePosition( 2.0 )[1];
 		}
 	}
 
-	// ------------------------------------------------------------
 	override bool IsFreeLook()
 	{
-		return m_HeliController.IsFreeLook();
+		return m_IsFreeLook;
 	}
 
-	// ------------------------------------------------------------
 	override void SwitchGear()
 	{
 		Error( "Not implemented!" );
@@ -310,7 +296,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	private float GetLiftFactor()
 	{
 		int iMaxFlightEnvelope = m_MaxFlightEnvelope - 1;
-		float fHoriSpeedRel = Vector( m_LinearVelocityMS[0], 0, m_LinearVelocityMS[2] ).Length() / ( m_MaxSpeedMS * ( iMaxFlightEnvelope / 10.0 ) );
+		float fHoriSpeedRel = Vector( m_State.m_LinearVelocityMS[0], 0, m_State.m_LinearVelocityMS[2] ).Length() / ( m_MaxSpeedMS * ( iMaxFlightEnvelope / 10.0 ) );
 		float fCurrentEnvelope = iMaxFlightEnvelope * fHoriSpeedRel;
 		int iCurrentEnvelopeFloor = Math.Floor( fCurrentEnvelope );
 
@@ -328,16 +314,140 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		return Math.Lerp( fCurrentEnvelopeFloor, fCurrentEnvelopeFloorNext, fCurrentEnvelope - iCurrentEnvelopeFloor ) * coef;
 	}
 
-	protected override void OnHumanPilot( PlayerBase driver, float pDt )
+	override void OnHandleController(DayZPlayerImplement driver, float dt)
 	{
-		m_BackRotorSpeedTarget	= m_HeliController.GetAntiTorqueLeft()	- m_HeliController.GetAntiTorqueRight();
+		UAInterface input = driver.GetInputInterface();
 
-		if ( m_HeliController.IsAutoHover() )
+		float m_c_forward;
+		float m_c_backward;
+		float m_c_left;
+		float m_c_right;
+
+		#ifdef COMPONENT_SYSTEM
+		if (IsMissionClient())
+		{
+			if (GetExpansionClientSettings().UseHelicopterMouseControl)
+			{
+				bool isFreelook = input.SyncedValue("UAExpansionHeliFreeLook");
+
+				if (isFreelook && !m_WasFreeLookPressed)
+				{
+					m_WasFreeLookPressed = true;
+					m_IsFreeLook = !m_IsFreeLook;
+				}
+				else if (!isFreelook)
+				{
+					m_WasFreeLookPressed = false;
+				}
+			}
+			else
+			{
+				m_IsFreeLook = true;
+			}
+
+			if (!IsFreeLook())
+			{
+				//! Mouse control
+
+				if (GetExpansionClientSettings().UseInvertedMouseControl)
+				{
+					m_c_forward = input.SyncedValue("UAAimUp");
+					m_c_backward = input.SyncedValue("UAAimDown");
+				}
+				else
+				{
+					m_c_forward = input.SyncedValue("UAAimDown");
+					m_c_backward = input.SyncedValue("UAAimUp");
+				}
+
+				m_c_left = input.SyncedValue("UAAimLeft");
+				m_c_right = input.SyncedValue("UAAimRight");
+			}
+		}
+
+		float c_up = input.SyncedValue("UAExpansionHeliCollectiveUp");
+		float c_down = input.SyncedValue("UAExpansionHeliCollectiveDown");
+
+		float at_left = input.SyncedValue("UAExpansionHeliAntiTorqueLeft");
+		float at_right = input.SyncedValue("UAExpansionHeliAntiTorqueRight");
+
+		float c_forward = input.SyncedValue("UAExpansionHeliCyclicForward");
+		float c_backward = input.SyncedValue("UAExpansionHeliCyclicBackward");
+
+		float c_left = input.SyncedValue("UAExpansionHeliCyclicLeft");
+		float c_right = input.SyncedValue("UAExpansionHeliCyclicRight");
+		#else
+		if (IsMissionClient())
+		{
+			if (GetExpansionClientSettings().UseHelicopterMouseControl)
+			{
+				bool isFreelook = input.SyncedValue_ID(UAExpansionHeliFreeLook);
+
+				if (isFreelook && !m_WasFreeLookPressed)
+				{
+					m_WasFreeLookPressed = true;
+					m_IsFreeLook = !m_IsFreeLook;
+				}
+				else if (!isFreelook)
+				{
+					m_WasFreeLookPressed = false;
+				}
+			}
+			else
+			{
+				m_IsFreeLook = true;
+			}
+
+			if (!IsFreeLook())
+			{
+				//! Mouse control
+
+				if (GetExpansionClientSettings().UseInvertedMouseControl)
+				{
+					m_c_forward = input.SyncedValue_ID(UAAimUp);
+					m_c_backward = input.SyncedValue_ID(UAAimDown);
+				}
+				else
+				{
+					m_c_forward = input.SyncedValue_ID(UAAimDown);
+					m_c_backward = input.SyncedValue_ID(UAAimUp);
+				}
+
+				m_c_left = input.SyncedValue_ID(UAAimLeft);
+				m_c_right = input.SyncedValue_ID(UAAimRight);
+			}
+		}
+
+		float c_up = input.SyncedValue_ID(UAExpansionHeliCollectiveUp);
+		float c_down = input.SyncedValue_ID(UAExpansionHeliCollectiveDown);
+
+		float at_left = input.SyncedValue_ID(UAExpansionHeliAntiTorqueLeft);
+		float at_right = input.SyncedValue_ID(UAExpansionHeliAntiTorqueRight);
+
+		float c_forward = input.SyncedValue_ID(UAExpansionHeliCyclicForward);
+		float c_backward = input.SyncedValue_ID(UAExpansionHeliCyclicBackward);
+
+		float c_left = input.SyncedValue_ID(UAExpansionHeliCyclicLeft);
+		float c_right = input.SyncedValue_ID(UAExpansionHeliCyclicRight);
+		#endif
+
+		if (IsMissionClient() && !IsFreeLook())
+		{
+			c_forward += m_c_forward * GetExpansionClientSettings().HelicopterMouseVerticalSensitivity;
+			c_backward += m_c_backward * GetExpansionClientSettings().HelicopterMouseVerticalSensitivity;
+
+			c_left += m_c_left * GetExpansionClientSettings().HelicopterMouseHorizontalSensitivity;
+			c_right += m_c_right * GetExpansionClientSettings().HelicopterMouseHorizontalSensitivity;
+		}
+
+		m_BackRotorSpeedTarget = at_left - at_right;
+
+		if ( IsAutoHover() )
 		{
 			if ( IsMissionClient() )
 			{
-				float autoHoverHeight	= m_AutoHoverAltitude;
-				float autoHoverChange	= m_HeliController.GetCollectiveUp()	- m_HeliController.GetCollectiveDown();
+				float autoHoverHeight = m_AutoHoverAltitude;
+				float autoHoverChange = c_up - c_down;
 				
 				autoHoverHeight += autoHoverChange * 0.3;
 
@@ -347,7 +457,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 				autoHoverHeight -= surfaceY;
 
-				if ( m_LinearVelocity[2] > 11 )
+				if ( m_State.m_LinearVelocity[2] > 11 )
 					if ( autoHoverHeight < 11 )
 						autoHoverHeight = 11;
 
@@ -359,8 +469,8 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				m_AutoHoverAltitude = autoHoverHeight;
 
 				float change;
-				float fSpd = m_HeliController.GetCyclicForward()	- m_HeliController.GetCyclicBackward();
-				float sSpd = m_HeliController.GetCyclicRight()		- m_HeliController.GetCyclicLeft();
+				float fSpd = c_forward - c_backward;
+				float sSpd = c_right - c_left;
 
 				float sSpdMult = m_MaxSpeedMS * 0.7;
 				float fSpdMult = m_MaxSpeedMS;
@@ -368,10 +478,10 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				m_AutoHoverSpeedTarget[0] = sSpd * sSpdMult;
 				m_AutoHoverSpeedTarget[2] = fSpd * fSpdMult;
 
-				change = Math.Clamp( m_AutoHoverSpeedTarget[0] - m_AutoHoverSpeed[0], -sSpdMult * 0.5 * pDt, sSpdMult * 0.5 * pDt );
+				change = Math.Clamp( m_AutoHoverSpeedTarget[0] - m_AutoHoverSpeed[0], -sSpdMult * 0.5 * dt, sSpdMult * 0.5 * dt );
 				m_AutoHoverSpeed[0] = Math.Clamp( m_AutoHoverSpeed[0] + change, -sSpdMult, sSpdMult );
 
-				change = Math.Clamp( m_AutoHoverSpeedTarget[2] - m_AutoHoverSpeed[2], -fSpdMult * 0.5 * pDt, fSpdMult * 0.5 * pDt );
+				change = Math.Clamp( m_AutoHoverSpeedTarget[2] - m_AutoHoverSpeed[2], -fSpdMult * 0.5 * dt, fSpdMult * 0.5 * dt );
 				m_AutoHoverSpeed[2] = Math.Clamp( m_AutoHoverSpeed[2] + change, -fSpdMult, fSpdMult );
 			}
 
@@ -379,21 +489,18 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			m_CyclicSideTarget = 0.0;
 		} else
 		{
-			m_CyclicForwardTarget	= m_HeliController.GetCyclicForward()	- m_HeliController.GetCyclicBackward();
-			m_CyclicSideTarget		= m_HeliController.GetCyclicLeft()		- m_HeliController.GetCyclicRight();
+			if (IsMissionClient())
+			{
+				m_CyclicForwardTarget = c_forward - c_backward;
+				m_CyclicSideTarget = c_right - c_left;
+			}
 
 			m_AutoHoverAltitude		= GetPosition()[1];
 			m_AutoHoverSpeed		= "0 0 0";
 
-			float mainRotorInput	= m_HeliController.GetCollectiveUp()	- m_HeliController.GetCollectiveDown();
-			m_MainRotorSpeedTarget	= Math.Clamp( mainRotorInput, -0.25 * pDt, 0.25 * pDt ) + m_MainRotorSpeed;
+			float mainRotorInput	= c_up	- c_down;
+			m_MainRotorSpeedTarget	= Math.Clamp( mainRotorInput, -0.25 * dt, 0.25 * dt ) + m_MainRotorSpeed;
 		}
-	}
-
-	// ------------------------------------------------------------
-	protected override void OnAIPilot( ExpansionAIBase driver, float pDt )
-	{
-
 	}
 
 	// ------------------------------------------------------------
@@ -650,7 +757,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			float dotMO = dot - 1.0;
 			
 			const float maxVelocityMagnitude = 11.0; // ~40km/h
-			float impulseRequired = m_BodyMass * maxVelocityMagnitude * ( ( dotMO * dotMO * dotMO ) + 1.0 ) * 40.0; 
+			float impulseRequired = m_State.m_Mass * maxVelocityMagnitude * ( ( dotMO * dotMO * dotMO ) + 1.0 ) * 40.0; 
 
 			if ( other ) //! check done just incase
 				impulseRequired += Math.Max( dBodyGetMass( other ), 0.0 ) * maxVelocityMagnitude * 2.0;
@@ -773,7 +880,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			wreck.SetAltitude( GetWreckAltitude() );
 
 			wreck.SetHealth( 0.0 );
-			dBodySetMass( wreck, m_BodyMass );
+			dBodySetMass( wreck, m_State.m_Mass );
 
 			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Mass Apply" );
@@ -788,10 +895,10 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Tensor Apply" );
 			#endif
 
-			SetVelocity( wreck, m_LinearVelocity );
-			dBodySetAngularVelocity( wreck, m_AngularVelocity );
+			SetVelocity( wreck, m_State.m_LinearVelocity );
+			dBodySetAngularVelocity( wreck, m_State.m_AngularVelocity );
 
-			dBodyApplyForce( wreck, (m_LastLinearVelocity - m_LinearVelocity) * m_BodyMass );
+			dBodyApplyForce( wreck, m_State.m_LinearAcceleration * m_State.m_Mass );
 
 			#ifdef EXPANSIONVEHICLELOG
 			Print( "+ExpansionVehicleHelicopterBase::ExpansionOnExplodeServer - Self Delete" );
@@ -920,11 +1027,18 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	{
 		super.OnNetworkSend( ctx );
 
-		if ( m_HeliController.IsAutoHover() )
+		ctx.Write(m_AutoHover);
+
+		if ( IsAutoHover() )
 		{
 			ctx.Write( m_AutoHoverAltitude );
 			ctx.Write( m_AutoHoverSpeed );
 		} 
+		else
+		{
+			ctx.Write(m_CyclicForwardTarget);
+			ctx.Write(m_CyclicSideTarget);
+		}
 
 		ctx.Write( m_WindSpeedSync );
 	}
@@ -934,10 +1048,17 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	{
 		super.OnNetworkRecieve( ctx );
 
-		if ( m_HeliController.IsAutoHover() )
+		ctx.Read(m_AutoHover);
+
+		if ( IsAutoHover() )
 		{
 			ctx.Read( m_AutoHoverAltitude );
 			ctx.Read( m_AutoHoverSpeed );
+		}
+		else
+		{
+			ctx.Read(m_CyclicForwardTarget);
+			ctx.Read(m_CyclicSideTarget);
 		}
 
 		ctx.Read( m_WindSpeedSync );
@@ -961,11 +1082,6 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		instance.Add("Rotor Speed", m_RotorSpeed );
 		instance.Add("Lift Force Coef", m_LiftForceCoef );
 		
-		instance.Add("m_Transform", m_Transform.GetBasis() );
-		instance.Add("Side", m_Transform.data[0] );
-		instance.Add("Up ", m_Transform.data[1] );
-		instance.Add("Forward ", m_Transform.data[2] );
-		instance.Add("Position ", m_Transform.data[3] );
 		instance.Add("Applying Force", m_ExHeliForce );
 		instance.Add("Applying Torque", m_ExHeliTorque );
 
@@ -984,7 +1100,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			// if the heli isn't over water no force will be applied and the game will clean up physics for us
 			if ( m_WaterVolume < m_TotalVolume )
 			{
-				buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_BodyMass, 2.0, m_LinearVelocity, isAboveWater );
+				buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_State.m_Mass, 2.0, m_State.m_LinearVelocity, isAboveWater );
 
 				if ( !isAboveWater )
 				{
@@ -1005,14 +1121,14 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				GetGame().GetNoiseSystem().AddNoise( this, m_NoiseParams );
 			}
 
-			if ( !m_Hit && !m_HasDriver && !m_HeliController.IsAutoHover() )
+			if ( !m_Hit && !m_HasDriver && !IsAutoHover() )
 			{
 				m_MainRotorSpeedTarget = Math.RandomFloatInclusive( -1, 1 );
 				m_BackRotorSpeedTarget = Math.RandomFloatInclusive( -1, 1 );
 
 				m_CyclicSideTarget = Math.RandomFloatInclusive( -1, 1 );
 				m_CyclicForwardSpeed = Math.RandomFloatInclusive( -1, 1 );
-			} else if ( m_HeliController.IsAutoHover() )
+			} else if ( IsAutoHover() )
 			{
 				if ( !m_HasDriver )
 				{
@@ -1024,16 +1140,16 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				}
 
 				float estT = 80.0 * pDt;
-				vector estimatedPosition = GetEstimatedPosition( estT );
-				vector estimatedOrientation = Math3D.MatrixToAngles( GetEstimatedOrientation( estT ).data );
+				vector estimatedPosition = m_State.EstimatePosition( estT );
+				vector estimatedOrientation = m_State.EstimateOrientation( estT );
 				vector targetOrientation = vector.Zero;
 				
 				m_MainRotorSpeedTarget = Math.Clamp( m_AutoHoverAltitude - estimatedPosition[1], -0.25 * pDt, 0.25 * pDt ) + m_MainRotorSpeed;
 
 				if ( m_CyclicForwardTarget == 0 && m_CyclicSideTarget == 0 )
 				{
-					float forwardSpeed = m_LinearVelocityMS[2] - m_AutoHoverSpeed[2];
-					float sideSpeed = m_LinearVelocityMS[0] - m_AutoHoverSpeed[0];
+					float forwardSpeed = m_State.m_LinearVelocityMS[2] - m_AutoHoverSpeed[2];
+					float sideSpeed = m_State.m_LinearVelocityMS[0] - m_AutoHoverSpeed[0];
 
 					forwardSpeed = Math.Clamp( forwardSpeed, -25.0, 25.0 );
 					sideSpeed = Math.Clamp( sideSpeed, -45.0, 45.0 );
@@ -1071,7 +1187,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 				// gravity can still take over if it's in the sky, or somehow dayz wheels activate randomly
 				// this should still be fine though.
-				if ( m_LinearVelocity.Length() < pDt && m_LastLinearVelocity.Length() < pDt )
+				if ( m_State.m_LinearVelocity.Length() < pDt && m_State.m_LastLinearVelocity.Length() < pDt )
 					return;
 			}
 		}
@@ -1079,7 +1195,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		float change;
 
 		// see the speed at which we are free falling
-		float goingDown = Math.Clamp( ( -m_LinearVelocityMS[1] - m_MinAutoRotateSpeed ) / ( m_MaxAutoRotateSpeed - m_MinAutoRotateSpeed ), 0, 1 );
+		float goingDown = Math.Clamp( ( -m_State.m_LinearVelocityMS[1] - m_MinAutoRotateSpeed ) / ( m_MaxAutoRotateSpeed - m_MinAutoRotateSpeed ), 0, 1 );
 		float brakeRotor = Math.Max( Math.Max( m_MainRotorSpeed * 0.2, 0 ), -goingDown );
 
 		// https://en.wikipedia.org/wiki/Autorotation (https://en.wikipedia.org/wiki/Autorotation#/media/File:Airflow_in_auto-2.jpg)
@@ -1101,7 +1217,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		change = Math.Clamp( m_BackRotorSpeedTarget - m_BackRotorSpeed, -m_AntiTorqueSpeed * pDt, m_AntiTorqueSpeed * pDt );
 		m_BackRotorSpeed = Math.Clamp( m_BackRotorSpeed + change, -m_AntiTorqueMax, m_AntiTorqueMax );
 
-		if ( m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0 )
+		if ( m_State.m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0 )
 		{
 			change = Math.Clamp( Math.Clamp( m_CyclicForwardTarget, -2, 2 ) - m_CyclicForward, -m_CyclicForwardSpeed * pDt, m_CyclicForwardSpeed * pDt );
 			m_CyclicForward = Math.Clamp( m_CyclicForward + change, -m_CyclicForwardMax, m_CyclicForwardMax );
@@ -1125,19 +1241,19 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 				float liftFactor = GetLiftFactor();
 
-				float targetVelocity = ( m_LinearVelocityMS[1] + 3.0 ) - ( 18.0 * m_MainRotorSpeed * m_RotorSpeed * nearGround );
+				float targetVelocity = ( m_State.m_LinearVelocityMS[1] + 3.0 ) - ( 18.0 * m_MainRotorSpeed * m_RotorSpeed * nearGround );
 				if ( targetVelocity < -5 )
 					targetVelocity = -5;
 
 				targetVelocity *= pDt;
 				float collectiveCoef = Math.Max( ( 1.3 * liftFactor ) - ( ( Math.SquareSign( targetVelocity ) * 5.0 ) + ( targetVelocity * 80.0 ) ), 0 );
 				
-				force += Vector( 0, 1, 0 ) * collectiveCoef * m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_BodyMass;
+				force += Vector( 0, 1, 0 ) * collectiveCoef * m_AltitudeLimiter * m_RotorSpeed * m_RotorSpeed * m_LiftForceCoef * m_State.m_Mass;
 			}
 
 			// cyclic
 			{
-				float cyclicForce = m_CyclicForceCoef * m_BodyMass * m_RotorSpeed * m_RotorSpeed * m_AltitudeLimiter;
+				float cyclicForce = m_CyclicForceCoef * m_State.m_Mass * m_RotorSpeed * m_RotorSpeed * m_AltitudeLimiter;
 
 				torque[0] = torque[0] - ( cyclicForce * m_CyclicForward * m_CyclicForwardCoef * m_BoundingRadius );
 				torque[2] = torque[2] + ( cyclicForce * m_CyclicSide * m_CyclicSideCoef * m_BoundingRadius );
@@ -1147,11 +1263,11 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			{
 				const float tailRotateSqCoef = 0.00048;
 				const float tailRotateCoef = 0.012;
-				m_TailRotateFactor = ( m_LinearVelocityMS[2] * m_LinearVelocityMS[2] * tailRotateSqCoef ) + ( Math.AbsFloat( m_LinearVelocityMS[2] ) * tailRotateCoef );
+				m_TailRotateFactor = ( m_State.m_LinearVelocityMS[2] * m_State.m_LinearVelocityMS[2] * tailRotateSqCoef ) + ( Math.AbsFloat( m_State.m_LinearVelocityMS[2] ) * tailRotateCoef );
 
-				float forwardX = m_Transform.data[2][0];
-				float sideY = m_Transform.data[0][1];
-				float forwardZ = m_Transform.data[2][2];
+				float forwardX = m_State.m_Transform[2][0];
+				float sideY = m_State.m_Transform[0][1];
+				float forwardZ = m_State.m_Transform[2][2];
 
 				if ( forwardX == 0.0 && forwardZ == 0.0 )
 					m_Bank = Math.Sign( sideY );
@@ -1169,12 +1285,12 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * ( m_RotorSpeed + 0.1 );
 
 				const float maxSpeedTailEffect = 1.0 / 80.0; // at ~200km/h, tail rotor has no effect
-				float scaledSpeedFactor = 1.0 - Math.Min( Math.AbsFloat( m_LinearVelocityMS[2] * maxSpeedTailEffect ), 1.0 );
+				float scaledSpeedFactor = 1.0 - Math.Min( Math.AbsFloat( m_State.m_LinearVelocityMS[2] * maxSpeedTailEffect ), 1.0 );
 
 				float bankForce = Math.Asin( m_Bank ) * m_BankForceCoef * m_TailRotateFactor;
 				float tailRotorForce = m_BackRotorSpeed * m_TailForceCoef * tailRotorMalfunctionNeg;
 
-				float tailForce = ( bankForce + tailRotorForce - tailRotorMalfunctionTorque ) * 0.5 * scaledSpeedFactor * m_RotorSpeed * m_RotorSpeed * m_BoundingRadius * m_BodyMass;
+				float tailForce = ( bankForce + tailRotorForce - tailRotorMalfunctionTorque ) * 0.5 * scaledSpeedFactor * m_RotorSpeed * m_RotorSpeed * m_BoundingRadius * m_State.m_Mass;
 
 				// apply torque to change the heading of the heli
 				torque[1] = torque[1] - ( m_BoundingRadius * tailForce );
@@ -1186,10 +1302,10 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			// rotate to the direction of the speed
 			//TODO: back to the drawing board...
 			{
-				float heliSpeedY = m_LinearVelocityMS[1] * ( m_LinearVelocityMS[0] * 0.1 );
+				float heliSpeedY = m_State.m_LinearVelocityMS[1] * ( m_State.m_LinearVelocityMS[0] * 0.1 );
 
-				float rotateX = m_TailRotateFactor * ( ( m_LinearVelocityMS[0] * -0.500 ) + ( Math.SquareSign( m_LinearVelocityMS[0] ) * -0.010 ) ) * m_BodyMass;
-				float rotateY = m_TailRotateFactor * ( ( heliSpeedY * -0.005 ) + ( Math.SquareSign( heliSpeedY ) * -0.0003 ) ) * m_BodyMass;
+				float rotateX = m_TailRotateFactor * ( ( m_State.m_LinearVelocityMS[0] * -0.500 ) + ( Math.SquareSign( m_State.m_LinearVelocityMS[0] ) * -0.010 ) ) * m_State.m_Mass;
+				float rotateY = m_TailRotateFactor * ( ( heliSpeedY * -0.005 ) + ( Math.SquareSign( heliSpeedY ) * -0.0003 ) ) * m_State.m_Mass;
 
 				vector heliRotateDir = Vector( 0, 0, -m_BoundingRadius ) * Vector( rotateX, rotateY, 0 );
 
@@ -1202,9 +1318,9 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 			{
 				vector friction;
 
-				vector frictionSpeed = m_LinearVelocityMS;
+				vector frictionSpeed = m_State.m_LinearVelocityMS;
 				#ifdef EXPANSION_HELI_WIND
-				vector windSpeed = m_WindSpeedSync.InvMultiply3( m_Transform.GetBasis().data );
+				vector windSpeed = m_WindSpeedSync.InvMultiply3( m_State.m_Transform );
 				#else
 				vector windSpeed = "0 0 0";
 				#endif
@@ -1219,24 +1335,24 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 				// if the helicopter is turned on then more force is applied to create psuedo-friction
 				float stabilizeXY = 0.4 + ( m_RotorSpeed * m_RotorSpeed * 0.6 );
 
-				friction[0] = Math.SquareSign( frictionSpeed[0] ) * pDt * m_LinearFrictionCoef[0] * m_BodyMass * stabilizeXY;
-				friction[1] = Math.SquareSign( frictionSpeed[1] ) * pDt * m_LinearFrictionCoef[1] * m_BodyMass * stabilizeXY;
-				friction[2] = Math.SquareSign( frictionSpeed[2] ) * pDt * m_LinearFrictionCoef[2] * m_BodyMass;
+				friction[0] = Math.SquareSign( frictionSpeed[0] ) * pDt * m_LinearFrictionCoef[0] * m_State.m_Mass * stabilizeXY;
+				friction[1] = Math.SquareSign( frictionSpeed[1] ) * pDt * m_LinearFrictionCoef[1] * m_State.m_Mass * stabilizeXY;
+				friction[2] = Math.SquareSign( frictionSpeed[2] ) * pDt * m_LinearFrictionCoef[2] * m_State.m_Mass;
 
 				force -= friction * m_BodyFrictionCoef;
 			}
 
 			//! convert forces to worldspace
 			{
-				force = force.Multiply3( m_Transform.GetBasis().data );
-				torque = torque.Multiply3( m_Transform.GetBasis().data );
+				force = force.Multiply3( m_State.m_Transform );
+				torque = torque.Multiply3( m_State.m_Transform );
 			}
 
 			//! Angular Friction
 			{
 				vector t_friction;
 				
-				t_friction = m_AngularVelocity * m_BoundingRadius * ( m_RotorSpeed + 0.2 ) * ( m_AngularFrictionCoef + ( m_TailRotateFactor * 0.5 ) );
+				t_friction = m_State.m_AngularVelocity * m_BoundingRadius * ( m_RotorSpeed + 0.2 ) * ( m_AngularFrictionCoef + ( m_TailRotateFactor * 0.5 ) );
 				
 				torque -= t_friction;
 			}
@@ -1244,17 +1360,17 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 		// prevent helicopter from sinking in ocean
 		{
-			buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_BodyMass, 2.0, m_LinearVelocity, isAboveWater );
+			buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), 2.0, m_State.m_Mass, 2.0, m_State.m_LinearVelocity, isAboveWater );
 				
 			if ( !isAboveWater && IsMissionHost() && CanBeDamaged() )
 			{
-				float buoyancyAcceleration = buoyancyForce / m_BodyMass;
+				float buoyancyAcceleration = buoyancyForce * m_State.m_InvMass;
 				if ( buoyancyAcceleration > 1.0 )
 				{
 					AddHealth( "", "", -0.001 * buoyancyForce );
 				}
 
-				if ( buoyancyAcceleration > 10.0 )
+				if ( buoyancyAcceleration > 10.0 && m_EnableHelicopterExplosions )
 				{
 					Explode( DT_EXPLOSION, "RGD5Grenade_Ammo" );
 				}
@@ -1321,13 +1437,13 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	}
 
 	// ------------------------------------------------------------
-	override void OnEngineStop()
+	override void OnEngineStop(int index)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleHelicopterBase::OnEngineStop - Start");
 		#endif
 
-		super.OnEngineStop();
+		super.OnEngineStop(index);
 
 		m_RotorSpeedTarget = 0;
  
@@ -1337,13 +1453,13 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	}
 
 	// ------------------------------------------------------------
-	override void OnEngineStart()
+	override void OnEngineStart(int index)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleHelicopterBase::OnEngineStart - Start");
 		#endif
 
-		super.OnEngineStart();
+		super.OnEngineStart(index);
 
 		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
 		dBodyDynamic( this, true );
@@ -1351,7 +1467,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		m_RotorSpeedTarget = 1;
 
 		m_AutoHoverAltitude = GetPosition()[1];
-		m_AutoHoverSpeed = m_LinearVelocityMS;
+		m_AutoHoverSpeed = m_State.m_LinearVelocityMS;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleHelicopterBase::OnEngineStart - End");
@@ -1486,13 +1602,13 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
-		return 5;
+		return "0 5 0";
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
 		return 15;
 	}

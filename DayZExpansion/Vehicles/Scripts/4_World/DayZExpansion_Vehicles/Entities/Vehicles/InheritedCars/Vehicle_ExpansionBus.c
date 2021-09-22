@@ -41,16 +41,6 @@ class Vehicle_ExpansionBus extends ExpansionVehicleCarBase
 		#endif
 	}
 
-	override float GetTransportCameraDistance()
-	{
-		return 10.0;
-	}
-
-	override vector GetTransportCameraOffset()
-	{
-		return "-0.25 3.2 0";
-	}
-
 	// ------------------------------------------------------------
 	void ~Vehicle_ExpansionBus()
 	{
@@ -715,12 +705,15 @@ class Vehicle_ExpansionBus extends ExpansionVehicleCarBase
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
-		return 10;
+		return 10.0;
 	}
 
+	override vector GetTransportCameraOffset()
+	{
+		return "-0.25 3.2 0";
+	}
 
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )

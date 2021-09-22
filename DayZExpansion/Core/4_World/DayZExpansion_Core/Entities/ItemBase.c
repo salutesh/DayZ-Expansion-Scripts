@@ -42,7 +42,7 @@ modded class ItemBase
 		{
 			m_SafeZoneItems.Remove( i );
 		}
-	}		
+	}
 	//============================================
 	// GetExpansionSaveVersion
 	// OBSOLETE
@@ -590,6 +590,8 @@ modded class ItemBase
 			il.SetAttachment(weapon, NULL, InventorySlots.MAGAZINE);
 			
 			EntityAI magazine = SpawnEntity(className, il, ECE_IN_INVENTORY, RF_DEFAULT);
+			if (!magazine)
+				return NULL;
 
 			if (GetGame().IsServer())
 			{
@@ -600,7 +602,12 @@ modded class ItemBase
 			//! Important: Needs to be called BEFORE pushing bullet to chamber, otherwise save will occur in FSM transition
 			int stateId = weapon.ExpansionGetMagAttachedFSMStateID();
 
-			pushToChamberFromAttachedMagazine(weapon, weapon.GetCurrentMuzzle());
+			int muzzleIndex = weapon.GetCurrentMuzzle();
+			if (!weapon.IsChamberFull(muzzleIndex) || weapon.IsChamberFiredOut(muzzleIndex))
+			{
+				EXPrint("ExpansionCreateInInventory - pushing to chamber " + weapon);
+				pushToChamberFromAttachedMagazine(weapon, muzzleIndex);
+			}
 
 			if (stateId > -1)
 			{
@@ -642,10 +649,13 @@ modded class ItemBase
 	override void OnInventoryEnter(Man player)
 	{
 		super.OnInventoryEnter(player);
-		int i = m_SafeZoneItems.Find( this );
-		if ( i >= 0 )
+		if ( GetGame().IsServer() )
 		{
-			m_SafeZoneItems.Remove( i );
+			int i = m_SafeZoneItems.Find( this );
+			if ( i >= 0 )
+			{
+				m_SafeZoneItems.Remove( i );
+			}
 		}
 	};	
 	
@@ -653,14 +663,21 @@ modded class ItemBase
 	{
 		super.OnInventoryExit(player);
 		PlayerBase pb = PlayerBase.Cast(player);
-		if ( pb && pb.IsInSafeZone())
+		if ( GetGame().IsServer() && pb && pb.IsInSafeZone() && !IsInherited(ExpansionTemporaryOwnedContainer) )
+		{
+			SetLifetime(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
 			m_SafeZoneItems.Insert(this);
+		}
 	}
 	
     override void DeferredInit()
     {
 		super.DeferredInit();
-		if ( GetGame().IsServer() && !GetHierarchyRootPlayer() && ExpansionZoneModule.IsInside(GetPosition(), ExpansionZoneType.SAFE) && GetLifetime() != 0)
-			m_SafeZoneItems.Insert(this);			
+		if ( GetGame().IsServer() && !GetHierarchyParent() && GetLifetime() != 0 && ExpansionZoneModule.IsInsideSafeZone(GetPosition()) && !IsInherited(ExpansionTemporaryOwnedContainer))
+		{
+			if (GetLifetime() >= GetLifetimeMax())
+				SetLifetime(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
+			m_SafeZoneItems.Insert(this);
+		}
     }	
 }

@@ -10,12 +10,8 @@
  *
 */
 
-class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
+class ExpansionHumanCommandFall : ExpansionHumanCommandScript
 {
-	PlayerBase m_Player;
-	ExpansionHumanST m_Table;
-	HumanInputController m_Input;
-
 	float m_JumpTime;
 	float m_JumpMaxTime;
 	float m_JumpVelocity;
@@ -39,21 +35,17 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 
 	private bool m_LandEarlyExit;
 
-	void ExpansionHumanCommandFall( Human pHuman, float pYVelocity, ExpansionHumanST pTable )
+	void ExpansionHumanCommandFall( DayZPlayerImplement player, ExpansionHumanST table, float pYVelocity )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::ExpansionHumanCommandFall Start");
 		#endif
-
-		Class.CastTo( m_Player, pHuman );
-
-		m_Table = pTable;
+		
 		m_JumpVelocity = pYVelocity;
 
 		if ( m_JumpVelocity > 0 )
 			m_JumpMaxTime = m_JumpVelocity / 4.905;
 
-		m_Input = m_Player.GetInputController();
 		m_IsFalling = true;
 
 		m_LandEarlyExit = false;

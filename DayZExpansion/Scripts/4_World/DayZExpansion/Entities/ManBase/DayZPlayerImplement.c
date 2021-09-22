@@ -19,13 +19,6 @@ modded class DayZPlayerImplement
 	protected bool m_WasRaisedIronsight;
 	
 	// ------------------------------------------------------------
-	// DayZPlayerImplement SendChatMessage
-	// ------------------------------------------------------------
-	void SendChatMessage( string message )
-	{
-	}
-	
-	// ------------------------------------------------------------
 	// DayZPlayerImplement Constructor
 	// ------------------------------------------------------------
 	void DayZPlayerImplement()

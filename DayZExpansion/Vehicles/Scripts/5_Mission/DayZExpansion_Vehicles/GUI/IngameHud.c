@@ -710,7 +710,7 @@ modded class IngameHud
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
 
-		int engaged_gear = boat.GetGear();	
+		int engaged_gear = boat.GetController().GetGear();	
 			
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;
@@ -760,7 +760,7 @@ modded class IngameHud
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
 		m_VehicleSpeedValue.SetText( Math.Floor( bike.GetSpeedometer() ).ToString() );
 
-		int engaged_gear = bike.GetGear();
+		int engaged_gear = bike.GetController().GetGear();
 		
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;
@@ -841,7 +841,7 @@ modded class IngameHud
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
 		m_VehicleSpeedValue.SetText( Math.Floor( car.GetSpeedometer() ).ToString() );
 
-		int engaged_gear = car.GetGear();
+		int engaged_gear = car.GetController().GetGear();
 		
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;

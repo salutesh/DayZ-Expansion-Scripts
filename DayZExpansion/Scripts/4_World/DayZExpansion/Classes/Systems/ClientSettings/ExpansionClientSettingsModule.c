@@ -17,9 +17,6 @@ class ExpansionClientSettingsModule: JMModuleBase
 	private bool m_ColorGrading;
 	private bool m_ColorVignette;
 	
-	private float m_Distance;
-	private vector m_Offset;
-	
 	override bool IsServer()
 	{
 		return false;
@@ -54,11 +51,8 @@ class ExpansionClientSettingsModule: JMModuleBase
 			GetExpansionClientSettings().Load();
 		}
 			
-			
 		m_ColorGrading = GetExpansionClientSettings().ColorGrading;
 		m_ColorVignette = GetExpansionClientSettings().ColorVignette;
-		m_Distance = GetTransportCameraDistance();
-		m_Offset = GetTransportCameraOffset();
 		
 		UpdateColorGradingFromSettings();
 		UpdateColorVignetteFromSettings();
@@ -189,38 +183,10 @@ class ExpansionClientSettingsModule: JMModuleBase
 				DayZPlayerCamera3rdPersonVehicle camera = DayZPlayerCamera3rdPersonVehicle.Cast(player.GetCurrentCamera());
 				if (camera)
 				{
-					m_Distance = GetTransportCameraDistance();
-					m_Offset = GetTransportCameraOffset();
-					
-					camera.SetViewDistance(m_Distance);
-					camera.SetCameraOffset(m_Offset);
+					camera.m_ExDistanceMultiplier = GetExpansionClientSettings().VehicleCameraDistance;
+					camera.m_ExHeightMultiplier = GetExpansionClientSettings().VehicleCameraHeight;
 				}
 			}
 		}
 	}
-
-	private float GetCameraHeight()
-	{
-		return GetExpansionClientSettings().VehicleCameraHeight;
-	}
-
-	private float GetCameraDistance()
-	{
-		return GetExpansionClientSettings().VehicleCameraDistance;
-	}
-	
-	private float GetCameraOffsetX()
-	{
-		return GetExpansionClientSettings().VehicleCameraOffsetY;
-	}
-	
-	private float GetTransportCameraDistance()
-	{
-		return GetCameraDistance();
-	}
-	
-	private vector GetTransportCameraOffset()
-	{
-		return Vector(0, GetCameraHeight(), GetCameraOffsetX());
-	}
-}
+};

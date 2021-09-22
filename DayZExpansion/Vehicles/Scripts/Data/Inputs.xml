@@ -20,6 +20,8 @@
             <input name="UAExpansionPlaneRocket" loc="STR_EXPANSION_PLANE_ROCKET" visible="false" /> 
             <input name="UAExpansionPlaneFlare" loc="STR_EXPANSION_PLANE_FLARE" visible="false" />
 			<input name="UAExpansionPlaneEngine" loc="STR_EXPANSION_PLANE_ENGINE" />
+			<input name="UAExpansionPlaneEngineUp" loc="STR_EXPANSION_PLANE_ENGINE_UP" />
+			<input name="UAExpansionPlaneEngineDown" loc="STR_EXPANSION_PLANE_ENGINE_DOWN" />
             <input name="UAExpansionPlaneElevatorUp" loc="STR_EXPANSION_PLANE_ELEVATOR_UP" />
             <input name="UAExpansionPlaneElevatorDown" loc="STR_EXPANSION_PLANE_ELEVATOR_DOWN" />
             <input name="UAExpansionPlaneAileronLeft" loc="STR_EXPANSION_PLANE_AILERON_LEFT" />
@@ -131,7 +133,12 @@
             <btn name="kSpace" />
         </input>
         <input name="UAExpansionPlaneEngine">
+        </input>
+        <input name="UAExpansionPlaneEngineUp">
             <btn name="kLShift" />
+        </input>
+        <input name="UAExpansionPlaneEngineDown">
+            <btn name="kLControl" />
         </input>
         <input name="UAExpansionPlaneElevatorUp">
             <btn name="kS" />

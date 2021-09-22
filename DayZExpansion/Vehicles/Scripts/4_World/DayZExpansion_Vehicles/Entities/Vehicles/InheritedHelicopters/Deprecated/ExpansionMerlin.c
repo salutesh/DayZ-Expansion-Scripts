@@ -51,9 +51,6 @@ class ExpansionMerlin: ExpansionHelicopterScript
 
 		m_BankForceCoef								= 0.2;
 		m_TailForceCoef								= 6.0;
-
-		//! TODO: Null pointer here
-		RegisterNetSyncVariableBool( "m_MonitorEnabled" );
 	}
 
 	// ------------------------------------------------------------

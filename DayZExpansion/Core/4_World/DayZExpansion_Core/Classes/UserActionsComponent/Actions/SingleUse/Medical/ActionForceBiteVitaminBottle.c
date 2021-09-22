@@ -1,25 +1,21 @@
+/**
+ * ActionForceBiteVitaminBottle.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2021 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 modded class ActionForceBiteVitaminBottle
 {
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
-	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ActionForceBiteVitaminBottle::ActionCondition Start");
-		#endif
-		if (player)
-		{
-			if (player.IsInSafeZone())
-			{
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ActionForceBiteVitaminBottle::ActionCondition End");
-				#endif
-
-				return false;
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ActionForceBiteVitaminBottle::ActionCondition End");
-		#endif
+	{
+		if ( player.IsInSafeZone() )
+			return false;
 
 		return super.ActionCondition(player, target, item);
 	}

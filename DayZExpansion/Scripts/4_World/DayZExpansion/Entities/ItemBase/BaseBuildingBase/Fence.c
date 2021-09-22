@@ -46,8 +46,8 @@ modded class Fence
 	//! Only call this after settings have been loaded
 	bool CanAttachCodelock()
 	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CanAttachCodelock;
-		return attachMode == CodelockAttachMode.ExpansionAndFence || attachMode == CodelockAttachMode.ExpansionAndTentsAndFence;
+		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
+		return attachMode == ExpansionCodelockAttachMode.ExpansionAndFence || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
 	}
 
     override bool CanReceiveAttachment(EntityAI attachment, int slotId)
@@ -233,13 +233,14 @@ modded class Fence
 		{
 			if ( m_Locked || m_HasCode || ExpansionHasCodeLock("codelock") )
 			{
+				SetCode("");  //! Will unlock as well
+
 				ExpansionCodeLock codelock = ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));
 				if (codelock)
 				{
 					codelock.Delete();
 				}
 
-				SetCode( "" );
 			}
 		}
 	}
@@ -250,7 +251,6 @@ modded class Fence
 		
 		if ( item && ( slot_name == "Att_CombinationLock" ) && HasCode() )
 		{
-			Unlock();
 			SetCode("");
 		}
 	}
@@ -261,9 +261,6 @@ modded class Fence
 
         if ( constrution_part.IsGate() )
 		{
-            if ( IsLocked() )
-                Unlock();
-
             SetCode("");
         }
 
@@ -276,10 +273,7 @@ modded class Fence
 
         if ( constrution_part.IsGate() )
 		{
-            if ( IsLocked() )
-                Unlock();
-
-            SetCode("");
+			SetCode("");  //! Will unlock as well
 
 			if ( ExpansionHasCodeLock("") )
 			{

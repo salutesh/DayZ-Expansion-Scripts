@@ -131,6 +131,23 @@ modded class PlayerBase
 		return NULL;
 	}
 
+	//! GetPlayerByUID should probably be used over this where possible because it incurs less cost.
+	//! Functionality-wise, this is identical to COT's GetPlayerObjectByIdentity
+	static PlayerBase ExpansionGetPlayerByIdentity( PlayerIdentity identity )
+	{
+		if ( !GetGame().IsMultiplayer() )
+			return PlayerBase.Cast( GetGame().GetPlayer() );
+		
+		if ( identity == NULL )
+			return NULL;
+
+		int networkIdLowBits;
+		int networkIdHighBits;
+		GetGame().GetPlayerNetworkIDByIdentityID( identity.GetPlayerId(), networkIdLowBits, networkIdHighBits );
+
+		return PlayerBase.Cast( GetGame().GetObjectByNetworkId( networkIdLowBits, networkIdHighBits ) );
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentityUID
 	// ------------------------------------------------------------
@@ -258,7 +275,7 @@ modded class PlayerBase
 		super.OnConnect();
 
 		//! Make sure we check straight away if player connects in a safezone
-		if (!IsInSafeZone())
+		if (!IsInSafeZone() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
 	}
 
@@ -267,7 +284,7 @@ modded class PlayerBase
 		super.OnReconnect();
 
 		//! Make sure we check straight away if player reconnects in a safezone
-		if (!IsInSafeZone())
+		if (!IsInSafeZone() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
 	}
 

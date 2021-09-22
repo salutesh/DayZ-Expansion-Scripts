@@ -85,7 +85,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		if ( !m_TerritoryModule )
 			return false;
 		
-		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Disabled )
+		if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled )
 			return false;
 		
 		//! Is this a new flag ?
@@ -103,7 +103,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 				//! Is flag already a territory flag?
 				if ( flag.HasExpansionTerritoryInformation() )
 				{
-					if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Enabled )
+					if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Enabled )
 					{
 						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 						EXLogPrint("ExpansionActionEnterFlagMenu::ActionCondition - IS TERRITORY FLAG!");

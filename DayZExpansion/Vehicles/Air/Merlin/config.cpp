@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","Vehicle_ExpansionMerlinFrontWheel","Vehicle_ExpansionMerlinBackWheel","ExpansionMerlinCargoRamp","ExpansionMerlinWreck","ExpansionMerlin","Vehicle_ExpansionMerlin","ExpansionSpraycanGreen","ExpansionMerlin_Green","ExpansionSpraycanDahoman","ExpansionMerlin_Dahoman","ExpansionSpraycanIon","ExpansionMerlin_Ion","ExpansionSpraycanPresident","ExpansionMerlin_President","ExpansionSpraycanVrana","ExpansionMerlin_Vrana","ExpansionSpraycanWave","ExpansionMerlin_Wave"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core"};
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
 class CfgSlots

@@ -115,8 +115,8 @@ modded class TentBase
 	//! Only call this after settings have been loaded
 	bool CanAttachCodelock()
 	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CanAttachCodelock;
-		return attachMode == CodelockAttachMode.ExpansionAndTents || attachMode == CodelockAttachMode.ExpansionAndTentsAndFence;
+		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
+		return attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
 	}
 	
 	override bool CanReceiveItemIntoCargo(EntityAI item )
@@ -503,6 +503,8 @@ modded class TentBase
 		{
 			if ( m_Locked || m_HasCode || ExpansionHasCodeLock("codelock") )
 			{
+				SetCode("");  //! Will unlock as well
+				
 				ExpansionCodeLock codelock = ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_ExpansionCodeLock" ));
 				if (codelock)
 				{
@@ -514,8 +516,6 @@ modded class TentBase
 				{
 					codelock2.Delete();
 				}
-
-				SetCode( "" );
 			}
 		}
 	}

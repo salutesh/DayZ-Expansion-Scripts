@@ -30,32 +30,34 @@ class ExpansionVehicleCrew
 
 	private vector m_SeatTransform[4];
 
-	void ExpansionVehicleCrew( ExpansionVehicleBase vehicle, string name )
+	void ExpansionVehicleCrew(ExpansionVehicleBase vehicle, string name)
 	{
 		//Print( "ExpansionVehicleCrew - Start" );
-		
+
 		m_Vehicle = vehicle;
 		m_Name = name;
 
 		string getinpos_path = "CfgVehicles " + m_Vehicle.GetType() + " Crew " + name + " getInPos";
-		m_GetInPos = m_Vehicle.GetSelectionPositionMS( GetGame().ConfigGetTextOut( getinpos_path ) );
+		m_GetInPos = m_Vehicle.GetSelectionPositionMS(GetGame().ConfigGetTextOut(getinpos_path));
 
 		string getindir_path = "CfgVehicles " + m_Vehicle.GetType() + " Crew " + name + " getInDir";
-		m_GetInDir = m_Vehicle.GetSelectionPositionMS( GetGame().ConfigGetTextOut( getindir_path ) );
+		m_GetInDir = m_Vehicle.GetSelectionPositionMS(GetGame().ConfigGetTextOut(getindir_path));
+
+		m_GetInDir = vector.Direction(m_GetInPos, m_GetInDir).Normalized();
 
 		string action_selection_path = "CfgVehicles " + m_Vehicle.GetType() + " Crew " + name + " actionSel";
-		m_ActionSelection = GetGame().ConfigGetTextOut( action_selection_path );
+		m_ActionSelection = GetGame().ConfigGetTextOut(action_selection_path);
 		m_ActionSelection.ToLower();
 		m_ActionSelection.Trim();
-		
+
 		m_ComponentIndex = -1;
 
 		array<Selection> selections();
-		m_Vehicle.GetLODByName( "geometryView" ).GetSelections( selections );
-		
-		for ( int i = 0; i < 200; ++i )
+		m_Vehicle.GetLODByName("geometryView").GetSelections(selections);
+
+		for (int i = 0; i < 200; ++i)
 		{
-			if ( m_Vehicle.IsActionComponentPartOfSelection( i, m_ActionSelection, "view" ) )
+			if (m_Vehicle.IsActionComponentPartOfSelection(i, m_ActionSelection, "view"))
 			{
 				m_ComponentIndex = i;
 				break;
@@ -63,23 +65,23 @@ class ExpansionVehicleCrew
 		}
 
 		string is_driver_path = "CfgVehicles " + m_Vehicle.GetType() + " Crew " + name + " isDriver";
-		m_IsDriver = GetGame().ConfigGetInt( is_driver_path ) == 1;
+		m_IsDriver = GetGame().ConfigGetInt(is_driver_path) == 1;
 
 		string proxy_pos_path = "CfgVehicles " + m_Vehicle.GetType() + " Crew " + name + " proxyPos";
-		string proxyPos = GetGame().ConfigGetTextOut( proxy_pos_path );
+		string proxyPos = GetGame().ConfigGetTextOut(proxy_pos_path);
 
-		m_SeatTransform[0] = Vector( 1, 0, 0 );
-		m_SeatTransform[1] = Vector( 0, 1, 0 );
-		m_SeatTransform[2] = Vector( 0, 0, 1 );
-		m_SeatTransform[3] = Vector( 0, 0, 0 );
+		m_SeatTransform[0] = Vector(1, 0, 0);
+		m_SeatTransform[1] = Vector(0, 1, 0);
+		m_SeatTransform[2] = Vector(0, 0, 1);
+		m_SeatTransform[3] = Vector(0, 0, 0);
 
-		LOD lod = m_Vehicle.GetLODByName( "geometryView" );
-		Selection selection = lod.GetSelectionByName( proxyPos );
-		if ( selection )
+		LOD lod = m_Vehicle.GetLODByName("geometryView");
+		Selection selection = lod.GetSelectionByName(proxyPos);
+		if (selection)
 		{
-			m_SeatTransform[3] = selection.GetVertexPosition( lod, 0 );
-			m_SeatTransform[1] = vector.Direction(m_SeatTransform[3], selection.GetVertexPosition( lod, 1 )).Normalized();
-			m_SeatTransform[2] = -vector.Direction(m_SeatTransform[3], selection.GetVertexPosition( lod, 2 )).Normalized();
+			m_SeatTransform[3] = selection.GetVertexPosition(lod, 0);
+			m_SeatTransform[1] = vector.Direction(m_SeatTransform[3], selection.GetVertexPosition(lod, 1)).Normalized();
+			m_SeatTransform[2] = -vector.Direction(m_SeatTransform[3], selection.GetVertexPosition(lod, 2)).Normalized();
 			m_SeatTransform[0] = m_SeatTransform[1] * m_SeatTransform[2];
 		}
 	}
@@ -109,13 +111,13 @@ class ExpansionVehicleCrew
 		return m_IsDriver;
 	}
 
-	void GetIn( out vector pos, out vector dir )
+	void GetIn(out vector pos, out vector dir)
 	{
 		pos = m_GetInPos;
 		dir = m_GetInDir;
 	}
 
-	void GetTransform( out vector trans[4] )
+	void GetTransform(out vector trans[4])
 	{
 		trans[0] = m_SeatTransform[0];
 		trans[1] = m_SeatTransform[1];
@@ -123,14 +125,14 @@ class ExpansionVehicleCrew
 		trans[3] = m_SeatTransform[3];
 	}
 
-	void SetPlayer( DayZPlayerImplement player )
+	void SetPlayer(DayZPlayerImplement player)
 	{
 		m_Player = player;
 
 		m_Occupied = m_Player != NULL;
-		
-		if ( m_Occupied )
-			m_Player.GetNetworkID( m_NetworkIDLow, m_NetworkIDHigh );
+
+		if (m_Occupied)
+			m_Player.GetNetworkID(m_NetworkIDLow, m_NetworkIDHigh);
 	}
 
 	DayZPlayerImplement GetPlayer()
@@ -159,26 +161,27 @@ class ExpansionVehicleCrew
 			ctx.Read(m_NetworkIDHigh);
 		}
 
-		if ( m_Occupied )
+		if (m_Occupied)
 		{
-			PlayerBase player = PlayerBase.Cast( m_Player );
-			m_Player = DayZPlayerImplement.Cast( GetGame().GetObjectByNetworkId( m_NetworkIDLow, m_NetworkIDHigh ) );
+			PlayerBase player = PlayerBase.Cast(m_Player);
+			m_Player = DayZPlayerImplement.Cast(GetGame().GetObjectByNetworkId(m_NetworkIDLow, m_NetworkIDHigh));
 
-			if ( player != m_Player && m_Player != GetGame().GetPlayer() )
+			if (player != m_Player && m_Player != GetGame().GetPlayer())
 			{
-				vector tmPlayer[ 4 ];
-				vector tmTarget[ 4 ];
-				vector tmLocal[ 4 ];
+				vector tmPlayer[4];
+				vector tmTarget[4];
+				vector tmLocal[4];
 
-				m_Player.GetTransformWS( tmPlayer );
-				m_Vehicle.GetTransform( tmTarget );
-				Math3D.MatrixInvMultiply4( tmTarget, tmPlayer, tmLocal );
+				m_Player.GetTransformWS(tmPlayer);
+				m_Vehicle.GetTransform(tmTarget);
+				Math3D.MatrixInvMultiply4(tmTarget, tmPlayer, tmLocal);
 
-				m_Player.LinkToLocalSpaceOf( m_Vehicle, tmLocal );
+				m_Player.LinkToLocalSpaceOf(m_Vehicle, tmLocal);
 			}
-		} else
+		}
+		else
 		{
-			if ( m_Player && m_Player != GetGame().GetPlayer() )
+			if (m_Player && m_Player != GetGame().GetPlayer())
 			{
 				m_Player.UnlinkFromLocalSpace();
 			}
@@ -197,13 +200,15 @@ class ExpansionVehicleCrew
 	 */
 	void NetworkBubbleFix()
 	{
-		if ( m_Player )
+		if (m_Player)
 		{
-			m_Player.SetPosition( m_SeatTransform[3] );
+			vector ori = m_Player.GetOrientation();
+			m_Player.SetPosition(m_Player.GetPosition());
+			m_Player.SetOrientation(ori);
 
-			if ( GetExpansionSettings().GetDebug().DebugVehiclePlayerNetworkBubbleMode > 0 )
+			if (GetExpansionSettings().GetDebug().DebugVehiclePlayerNetworkBubbleMode > 0)
 			{
-				if ( GetExpansionSettings().GetDebug().DebugVehiclePlayerNetworkBubbleMode > 1 )
+				if (GetExpansionSettings().GetDebug().DebugVehiclePlayerNetworkBubbleMode > 1)
 				{
 					GetGame().RemoteObjectTreeDelete(m_Player);
 				}

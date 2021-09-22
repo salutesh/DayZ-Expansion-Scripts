@@ -126,7 +126,7 @@ modded class CarScript
 	{
 		super.EEInit();
 
-		if (IsMissionHost())
+		if (IsMissionHost() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
 	}
 };

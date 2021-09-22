@@ -180,7 +180,7 @@ WrapSpacerWidgetClass ExpansionItemTooltip {
    Rows 1
    {
     ItemPreviewWidgetClass ItemFrameWidget {
-     visible 0
+     visible 1
      clipchildren 1
      ignorepointer 1
      position 0 0
