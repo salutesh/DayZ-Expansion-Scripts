@@ -13,9 +13,9 @@
 #ifndef EXPANSION_OBSOLTE_CAMERA
 modded class DayZPlayerCamera3rdPerson
 {
-	override void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
+	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
-		super.Ex_OnUpdate(pDt, pOutResult);
+		super.OnUpdate(pDt, pOutResult);
 		
 		Ex_OnUpdate(pDt, pOutResult);
 
@@ -29,6 +29,18 @@ modded class DayZPlayerCamera3rdPerson
 		}
 
 		Ex_OnPostUpdate(pDt, pOutResult);
+	}
+
+	override void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
+	{
+		super.Ex_OnUpdate(pDt, pOutResult);
+
+		if (m_Ex_Player.IsAttached())
+		{
+			pOutResult.m_CollisionIgnoreEntity = m_pPlayer.GetParent();
+			pOutResult.m_fIgnoreParentRoll = 1.0;
+			pOutResult.m_fIgnoreParentPitch = 1.0;
+		}
 	}
 };
 #endif

@@ -219,7 +219,7 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion EntityAI SpawnInInventory
 	// ------------------------------------------------------------
-	static EntityAI SpawnInInventory(string name, EntityAI parent, int skinIndex = -1)
+	static EntityAI SpawnInInventory(string name, EntityAI parent, int skinIndex = -1, bool attachOnly = false)
 	{
 		EntityAI entity;
 
@@ -228,7 +228,9 @@ class ExpansionItemSpawnHelper
 			ItemBase parentItem = ItemBase.Cast(parent);
 			
 			if (parentItem)
-				entity = parentItem.ExpansionCreateInInventory(name);
+				entity = parentItem.ExpansionCreateInInventory(name, attachOnly);
+			else if (attachOnly)
+				entity = parent.GetInventory().CreateAttachment(name);
 			else
 				entity = parent.GetInventory().CreateInInventory(name);
 
@@ -242,6 +244,11 @@ class ExpansionItemSpawnHelper
 		}
 
 		return entity;
+	}
+
+	static EntityAI SpawnAttachment(string name, EntityAI parent, int skinIndex = -1)
+	{
+		return SpawnInInventory(name, parent, skinIndex, true);
 	}
 
 	// ------------------------------------------------------------

@@ -352,6 +352,10 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		DeployableInsideAEnemyTerritory.Insert("ExpansionSatchel");
 		DeployableInsideAEnemyTerritory.Insert("LandMineTrap");
 		DeployableInsideAEnemyTerritory.Insert("BearTrap");
+		DeployableInsideAEnemyTerritory.Insert("FishNetTrap");
+		DeployableInsideAEnemyTerritory.Insert("RabbitSnareTrap");
+		DeployableInsideAEnemyTerritory.Insert("SmallFishTrap");
+		DeployableInsideAEnemyTerritory.Insert("TripwireTrap");
 
 		ZonesAreNoBuildZones = true;
 
@@ -396,19 +400,26 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	#endif 
 	}
 	
+	TStringArray GetNoBuildZoneWhitelist()
+	{
+		return {"Fireplace", "LandMineTrap", "BearTrap", "FishNetTrap", "RabbitSnareTrap", "SmallFishTrap", "TripwireTrap"};
+	}
+	
 	// ------------------------------------------------------------	
 	void DefaultChernarusNonBuildingZones()
 	{
+		
+
 		//! Krasnostav Trader Camp
-		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Krasnostav Trader Camp", "11882 143 12466", 2000.0, {}, true, "");
+		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Krasnostav Trader Camp", "11882 143 12466", 1000.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 		
 		//! Green Mountain Trader Camp
-		zone = new ExpansionBuildNoBuildZone("Green Mountain Trader Camp", "3728.27 403 6003.6", 2000.0, {}, true, "");
+		zone = new ExpansionBuildNoBuildZone("Green Mountain Trader Camp", "3728.27 403 6003.6", 1000.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 		
 		//! Kamenka Trader Camp
-		zone = new ExpansionBuildNoBuildZone("Kamenka Trader Camp", "1143.14 6.9 2423.27", 2000.0, {}, true, "");
+		zone = new ExpansionBuildNoBuildZone("Kamenka Trader Camp", "1143.14 6.9 2423.27", 1000.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 	}
 	
@@ -416,15 +427,15 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	void DefaultNamalskNonBuildingZones()
 	{
 		//! Airsrip
-		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Airstrip Trader", "6305 26 9521", 4000.0, {}, true, "");
+		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Airstrip Trader", "6305 26 9521", 400.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 		
 		//! Jalovisko Trader Camp
-		zone = new ExpansionBuildNoBuildZone("Jalovisko Trader Camp", "8583.67 29 10515", 2000.0, {}, true, "");
+		zone = new ExpansionBuildNoBuildZone("Jalovisko Trader Camp", "8583.67 29 10515", 200.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 		
 		//!  Tara Harbor
-		zone = new ExpansionBuildNoBuildZone("Tara Harbor Boat Trader", "8043.45 10 7593.45", 2000.0, {}, true, "");
+		zone = new ExpansionBuildNoBuildZone("Tara Harbor Boat Trader", "8043.45 10 7593.45", 200.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 	}
 	
@@ -432,7 +443,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	void DefaultTakistanNonBuildingZones()
 	{
 		//! Marastar Oasis Trader Camp
-		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Marastar Trader Camp", "4611.26 4.6 12334.0", 2000.0, {}, true, "");
+		ExpansionBuildNoBuildZone zone = new ExpansionBuildNoBuildZone("Marastar Trader Camp", "4611.26 4.6 12334.0", 1000.0, GetNoBuildZoneWhitelist(), true, "");
 		Zones.Insert(zone);
 	}
 	

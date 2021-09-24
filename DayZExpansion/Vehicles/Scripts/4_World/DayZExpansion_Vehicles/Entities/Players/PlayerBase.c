@@ -189,10 +189,10 @@ modded class PlayerBase
 				{
 					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
 					cb.SetVehicleCommand( ehcv );
-					return true;
 				}
 
-				return false;
+				// Don't allow vanilla command handler to run from this point on, this is a replacement
+				return true;
 			}
 		}
 
@@ -209,6 +209,7 @@ modded class PlayerBase
 				}
 			}
 
+			// Let vanilla handle the break for vehicles, this is an addition to functionality, not replacement
 			return false;
 		}
 

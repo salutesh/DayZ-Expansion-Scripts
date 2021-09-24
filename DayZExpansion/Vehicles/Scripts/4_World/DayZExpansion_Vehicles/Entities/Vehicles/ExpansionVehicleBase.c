@@ -19,7 +19,7 @@ enum ExpansionVehicleDynamicState
 
 class ExpansionVehicleBase extends ItemBase
 {
-	private static ref set<ExpansionVehicleBase> m_allVehicles = new set<ExpansionVehicleBase>;
+	static ref set<ExpansionVehicleBase> m_allVehicles = new set<ExpansionVehicleBase>;
 
 	ref array<ref ExpansionVehicleCrew> m_Crew = new array<ref ExpansionVehicleCrew>();
 
@@ -35,18 +35,20 @@ class ExpansionVehicleBase extends ItemBase
 	int m_CurrentEngine;
 	int m_EnginesOn;
 
-	protected bool m_HasDriver;
+	bool m_RecievedInitialSync;
 
-	protected float m_MaxSpeed; // (km/h)
-	protected float m_MaxSpeedMS; // (m/s)
+	bool m_HasDriver;
 
-	protected float m_AltitudeFullForce; // (m)
-	protected float m_AltitudeNoForce; // (m)
+	float m_MaxSpeed;	// (km/h)
+	float m_MaxSpeedMS; // (m/s)
 
-	private float m_TimeSlice;
-	protected bool m_IsPhysicsHost;
+	float m_AltitudeFullForce; // (m)
+	float m_AltitudeNoForce;   // (m)
 
-	private float m_RenderFrameTimeSlice;
+	float m_TimeSlice;
+	bool m_IsPhysicsHost;
+
+	float m_RenderFrameTimeSlice;
 
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
@@ -54,132 +56,132 @@ class ExpansionVehicleBase extends ItemBase
 	float m_BoundingRadius;
 	vector m_BoundingBox[2];
 
-	private float m_AirDragCoefficient;
-	private float m_AirDragArea;
-	private float m_AirDragConstant;
+	float m_AirDragCoefficient;
+	float m_AirDragArea;
+	float m_AirDragConstant;
 
-	protected EffectSound m_HornSound;
+	EffectSound m_HornSound;
 
-	protected string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-	protected string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+	string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
+	string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
 
-	protected bool m_Exploded;
-	protected bool m_ExplodedSynchRemote;
-	protected int m_ExplosionSize;
+	bool m_Exploded;
+	bool m_ExplodedSynchRemote;
+	int m_ExplosionSize;
 
-	protected bool m_HornPlaying;
-	protected bool m_HornSynchRemote;
+	bool m_HornPlaying;
+	bool m_HornSynchRemote;
 
 	// Towing
-	protected vector m_TowPointCenter;
-	protected vector m_TowPointCenterSelf;
-	protected bool m_IsBeingTowed;
-	protected bool m_IsTowing;
+	vector m_TowPointCenter;
+	vector m_TowPointCenterSelf;
+	bool m_IsBeingTowed;
+	bool m_IsTowing;
 
-	protected EntityAI m_ParentTow;
-	protected int m_ParentTowNetworkIDLow;
-	protected int m_ParentTowNetworkIDHigh;
-	protected int m_ParentTowPersistentIDA;
-	protected int m_ParentTowPersistentIDB;
-	protected int m_ParentTowPersistentIDC;
-	protected int m_ParentTowPersistentIDD;
+	EntityAI m_ParentTow;
+	int m_ParentTowNetworkIDLow;
+	int m_ParentTowNetworkIDHigh;
+	int m_ParentTowPersistentIDA;
+	int m_ParentTowPersistentIDB;
+	int m_ParentTowPersistentIDC;
+	int m_ParentTowPersistentIDD;
 
-	protected EntityAI m_ChildTow;
-	protected int m_ChildTowNetworkIDLow;
-	protected int m_ChildTowNetworkIDHigh;
-	protected int m_ChildTowPersistentIDA;
-	protected int m_ChildTowPersistentIDB;
-	protected int m_ChildTowPersistentIDC;
-	protected int m_ChildTowPersistentIDD;
+	EntityAI m_ChildTow;
+	int m_ChildTowNetworkIDLow;
+	int m_ChildTowNetworkIDHigh;
+	int m_ChildTowPersistentIDA;
+	int m_ChildTowPersistentIDB;
+	int m_ChildTowPersistentIDC;
+	int m_ChildTowPersistentIDD;
 
-	protected ExpansionVehicleLockState m_VehicleLockedState;
+	ExpansionVehicleLockState m_VehicleLockedState;
 
 	//! After pairing a key, it's the ID of the master key.
 	//! This allows "changing locks" on vehicles so old paired keys no longer work
-	protected int m_PersistentIDA = 0;
-	protected int m_PersistentIDB = 0;
-	protected int m_PersistentIDC = 0;
-	protected int m_PersistentIDD = 0;
+	int m_PersistentIDA = 0;
+	int m_PersistentIDB = 0;
+	int m_PersistentIDC = 0;
+	int m_PersistentIDD = 0;
 
-	protected ref array<float> m_SoundVariables;
-	protected ref array<string> m_SoundControls;
-	protected ref array<ref ExpansionVehicleSound> m_SoundControllers;
+	ref array<float> m_SoundVariables;
+	ref array<string> m_SoundControls;
+	ref array<ref ExpansionVehicleSound> m_SoundControllers;
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 	vector m_DbgTransform[4];
 #endif
 
 	// Floating
-	protected float m_WaterVolume;
-	protected float m_TotalVolume;
+	float m_WaterVolume;
+	float m_TotalVolume;
 
 	// Effects
 	float m_AltitudeLimiter;
 
-	private ExpansionVehicleNetworkMode m_NetworkMode;
-	private vector m_LastCheckedNetworkPosition;
+	ExpansionVehicleNetworkMode m_NetworkMode;
+	vector m_LastCheckedNetworkPosition;
 
 	ref array<ref ExpansionPointLight> m_Lights;
 	ref array<ref Particle> m_Particles;
 
-	protected autoptr TStringArray m_Doors;
-	protected bool m_CanHaveLock;
+	autoptr TStringArray m_Doors;
+	bool m_CanHaveLock;
 
-	protected ref array<float> m_FluidCapacities;
+	ref array<float> m_FluidCapacities;
 
 	// Debugging
-	private ref array<Shape> m_DebugShapes;
+	ref array<Shape> m_DebugShapes;
 
 	//! CarScript
-	protected float m_Time;
+	float m_Time;
 
 	static float DROWN_ENGINE_THRESHOLD = 0.5;
 	static float DROWN_ENGINE_DAMAGE = 350.0;
 
 	//! keeps ammount of each fluid
-	protected float m_FuelAmmount;
-	protected float m_CoolantAmmount;
-	protected float m_OilAmmount;
-	protected float m_BrakeAmmount;
+	float m_FuelAmmount;
+	float m_CoolantAmmount;
+	float m_OilAmmount;
+	float m_BrakeAmmount;
 
 	//!
-	protected float m_dmgContactCoef;
-	protected float m_EnviroHeatComfortOverride;
+	float m_dmgContactCoef;
+	float m_EnviroHeatComfortOverride;
 
 	//!
-	protected float m_DrownTime;
+	float m_DrownTime;
 	static vector m_DrownEnginePos;
 
 	//!
-	protected float m_EngineHealth;
-	protected float m_RadiatorHealth;
-	protected float m_FuelTankHealth;
-	protected float m_BatteryHealth;
-	protected float m_PlugHealth;
+	float m_EngineHealth;
+	float m_RadiatorHealth;
+	float m_FuelTankHealth;
+	float m_BatteryHealth;
+	float m_PlugHealth;
 
 	//! Particles
-	protected ref EffVehicleSmoke m_coolantFx;
-	protected ref EffVehicleSmoke m_engineFx;
-	protected ref EffVehicleSmoke m_exhaustFx;
+	ref EffVehicleSmoke m_coolantFx;
+	ref EffVehicleSmoke m_engineFx;
+	ref EffVehicleSmoke m_exhaustFx;
 
-	protected int m_enginePtcFx;
-	protected int m_coolantPtcFx;
-	protected int m_exhaustPtcFx;
+	int m_enginePtcFx;
+	int m_coolantPtcFx;
+	int m_exhaustPtcFx;
 
-	protected vector m_exhaustPtcPos;
-	protected vector m_exhaustPtcDir;
-	protected vector m_enginePtcPos;
-	protected vector m_coolantPtcPos;
+	vector m_exhaustPtcPos;
+	vector m_exhaustPtcDir;
+	vector m_enginePtcPos;
+	vector m_coolantPtcPos;
 
-	protected vector m_fuelPos;
+	vector m_fuelPos;
 
-	protected vector m_enginePos;
-	protected vector m_frontPos;
-	protected vector m_backPos;
-	protected vector m_side_1_1Pos;
-	protected vector m_side_1_2Pos;
-	protected vector m_side_2_1Pos;
-	protected vector m_side_2_2Pos;
+	vector m_enginePos;
+	vector m_frontPos;
+	vector m_backPos;
+	vector m_side_1_1Pos;
+	vector m_side_1_2Pos;
+	vector m_side_2_1Pos;
+	vector m_side_2_2Pos;
 
 	//!Sounds
 	string m_EngineStartOK = "";
@@ -191,20 +193,20 @@ class ExpansionVehicleBase extends ItemBase
 	string m_CarDoorOpenSound = "";
 	string m_CarDoorCloseSound = "";
 
-	protected bool m_PlayCrashSoundLight;
-	protected bool m_PlayCrashSoundHeavy;
+	bool m_PlayCrashSoundLight;
+	bool m_PlayCrashSoundHeavy;
 
-	protected bool m_HeadlightsOn;
-	protected bool m_HeadlightsState;
-	protected bool m_BrakesArePressed; // synchronized variable
+	bool m_HeadlightsOn;
+	bool m_HeadlightsState;
+	bool m_BrakesArePressed; // synchronized variable
 
 	CarLightBase m_Headlight;
 	CarRearLightBase m_RearLight;
-	
-	protected bool m_EngineSync0;
-	protected bool m_EngineSync1;
-	protected bool m_EngineSync2;
-	protected bool m_EngineSync3;
+
+	bool m_EngineSync0;
+	bool m_EngineSync1;
+	bool m_EngineSync2;
+	bool m_EngineSync3;
 
 	// Memory points for lights
 	static string m_ReverseLightPoint = "light_reverse";
@@ -227,10 +229,10 @@ class ExpansionVehicleBase extends ItemBase
 	static const int SELECTION_ID_TAIL_LIGHT_R = 7;
 	static const int SELECTION_ID_DASHBOARD_LIGHT = 8;
 
-	protected float m_ModelAnchorPointY = -1;
+	float m_ModelAnchorPointY = -1;
 
-	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
-	protected bool m_SafeZone;
+	autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
+	bool m_SafeZone;
 
 	void ExpansionVehicleBase()
 	{
@@ -257,8 +259,8 @@ class ExpansionVehicleBase extends ItemBase
 
 		m_PlayCrashSoundLight = false;
 		m_PlayCrashSoundHeavy = false;
-		
-		RegisterNetSyncVariableInt( "m_CurrentEngine" );
+
+		RegisterNetSyncVariableInt("m_CurrentEngine");
 
 		RegisterNetSyncVariableBool("m_PlayCrashSoundLight");
 		RegisterNetSyncVariableBool("m_PlayCrashSoundHeavy");
@@ -699,13 +701,13 @@ class ExpansionVehicleBase extends ItemBase
 		float largestDistance = 32000.0;
 		vector contactMS = WorldToModel(extra.Position);
 
-		foreach (string damageZone : damageZones)
+		for (int i = 0; i < damageZones.Count(); i++)
 		{
-			vector pos = GetDamageZonePos(damageZone);
+			vector pos = GetDamageZonePos(damageZones[i]);
 			if (vector.Distance(pos, contactMS) < largestDistance)
 			{
 				zonePosition = pos;
-				zoneName = damageZone;
+				zoneName = damageZones[i];
 			}
 		}
 
@@ -883,6 +885,31 @@ class ExpansionVehicleBase extends ItemBase
 		OnAnimationUpdate(timeSlice);
 	}
 
+	void DBGDrawLine(vector start, vector end, int color = 0x44FFFFFF)
+	{
+		vector pts[2];
+		pts[0] = start;
+		pts[1] = end;
+
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		DBGAddShape(Shape.CreateLines(color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2));
+#endif
+	}
+
+	void DBGDrawSphere(vector position, float size, int color = 0x44FFFFFF)
+	{
+		DBGAddShape(Shape.CreateSphere(color, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, position, size));
+	}
+
+	void DGBDrawBoundingBox(vector transform[4], int color = 0x1fff7f7f)
+	{
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		Shape shape = Shape.Create(ShapeType.BBOX, color, ShapeFlags.TRANSP | ShapeFlags.NOZWRITE, m_BoundingBox[0], m_BoundingBox[1]);
+		shape.SetMatrix(transform);
+		DBGAddShape(shape);
+#endif
+	}
+
 	void DBGAddShape(Shape shape)
 	{
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
@@ -904,13 +931,13 @@ class ExpansionVehicleBase extends ItemBase
 		return m_IsPhysicsHost;
 	}
 
-	protected bool CanSimulate()
+	bool CanSimulate()
 	{
 		return true;
 	}
 
 	void HandleController(DayZPlayerImplement driver, float dt)
-	{				
+	{
 		if (CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != driver)
 			return;
 
@@ -927,10 +954,9 @@ class ExpansionVehicleBase extends ItemBase
 
 	void OnHandleController(DayZPlayerImplement driver, float dt)
 	{
-
 	}
 
-	protected void OnPreSimulation(float pDt)
+	void OnPreSimulation(float pDt)
 	{
 		if (IsMissionClient())
 		{
@@ -940,15 +966,15 @@ class ExpansionVehicleBase extends ItemBase
 		OnUpdate(pDt);
 	}
 
-	protected void OnNoSimulation(float pDt)
+	void OnNoSimulation(float pDt)
 	{
 	}
 
-	protected void OnSimulation(float pDt, out vector force, out vector torque)
+	void OnSimulation(float pDt, out vector force, out vector torque)
 	{
 	}
 
-	protected void OnPostSimulation(float pDt)
+	void OnPostSimulation(float pDt)
 	{
 		OnAnimationUpdate(pDt);
 
@@ -959,15 +985,15 @@ class ExpansionVehicleBase extends ItemBase
 		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, GetSpeedometer());
 		m_SoundVariables[5] = 1.0;
 
-		foreach (ExpansionVehicleSound sound : m_SoundControllers)
-			sound.Update(pDt, m_SoundVariables);
+		for (int i = 0; i < m_SoundControllers.Count(); i++)
+			m_SoundControllers[i].Update(pDt, m_SoundVariables);
 	}
 
-	protected void OnParticleUpdate(float pDt)
+	void OnParticleUpdate(float pDt)
 	{
 	}
 
-	protected void OnAnimationUpdate(float pDt)
+	void OnAnimationUpdate(float pDt)
 	{
 		for (int i = 0; i < m_Modules.Count(); i++)
 			m_Modules[i].Animate(m_State);
@@ -980,6 +1006,10 @@ class ExpansionVehicleBase extends ItemBase
 
 		instance.Add(m_Controller);
 		instance.Add(m_State);
+
+		instance.Add("ANG1", QuatToString(m_q1));
+		instance.Add("ANG2", QuatToString(m_q2));
+		instance.Add("ANG3", QuatToString(m_q3));
 
 		instance.Add("Is Physics Host", m_IsPhysicsHost);
 
@@ -997,7 +1027,7 @@ class ExpansionVehicleBase extends ItemBase
 	override void EOnSimulate(IEntity owner, float dt)
 	{
 		int i;
-		
+
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 		for (i = 0; i < m_DebugShapes.Count(); i++)
 			m_DebugShapes[i].Destroy();
@@ -1005,7 +1035,7 @@ class ExpansionVehicleBase extends ItemBase
 		m_DebugShapes.Clear();
 #endif
 
-/*
+		/*
 		GetTransform(m_DbgTransform);
 
 		for (i = 0; i < CrewSize(); i++)
@@ -1063,7 +1093,7 @@ class ExpansionVehicleBase extends ItemBase
 #endif
 
 				CalculateAltitudeLimiter();
-				
+
 				for (i = 0; i < m_Modules.Count(); i++)
 					m_Modules[i].PreSimulate(m_State);
 
@@ -1118,27 +1148,59 @@ class ExpansionVehicleBase extends ItemBase
 			SetSynchDirty();
 	}
 
+	float m_q1[4];
+	float m_q2[4];
+	float m_q3[4];
+
+	string QuatToString(float q[4])
+	{
+		return "" + q[0] + ", " + q[1] + ", " + q[2] + ", " + q[3];
+	}
+
+	void CopyVecToQuat(vector v, out float q[4])
+	{
+		q[0] = v[0];
+		q[1] = v[1];
+		q[2] = v[2];
+		q[3] = 0;
+	}
+
 	void HandleLerp(float pDt)
 	{
+		if (!m_RecievedInitialSync)
+			return;
+
+		vector t1[4];
+		vector t2[4];
+		vector t3[4];
+		GetTransform(t2);
+
 		m_State.m_TimeSince += pDt;
-		
+
 		vector linearVelocity;
 		vector angularVelocity;
 
-		vector newTransform[4];
-		ExpansionPhysics.IntegrateTransform(m_State.m_TargetTransform, m_State.m_SyncLinearVelocity + m_State.m_LinearVelocity, m_State.m_SyncAngularVelocity + m_State.m_AngularVelocity, m_State.m_TimeSince, newTransform);
-		ExpansionPhysics.CalculateVelocity(m_State.m_Transform, newTransform, pDt, linearVelocity, angularVelocity);
+		ExpansionPhysics.IntegrateTransform(m_State.m_TargetTransform, m_State.m_SyncLinearVelocity, m_State.m_SyncAngularVelocity, m_State.m_TimeSince, t1);
+		ExpansionPhysics.CalculateVelocity(t2, t1, pDt, linearVelocity, angularVelocity);
 
-		linearVelocity = vector.Lerp(m_State.m_LinearVelocity, linearVelocity, pDt);
+		DGBDrawBoundingBox(t2, 0x1f00AA00);
+		DGBDrawBoundingBox(m_State.m_TargetTransform, 0x1fAA0000);
+		DGBDrawBoundingBox(t1, 0x1f0000AA);
 
-		float q1[4];
-		float q2[4];
-		float q3[4];
-		ExpansionPhysics.QuatAxis(m_State.m_AngularVelocity, q1);
-		ExpansionPhysics.QuatAxis(angularVelocity, q2);
-		ExpansionPhysics.QuatSlerp(q3, q1, q2, pDt);
+		//m_State.m_AngularVelocity = "0 0 0";
+		//angularVelocity = "0 0 0";
+		//ExpansionPhysics.IntegrateTransform(t2, linearVelocity, angularVelocity, pDt, t3);
+		//DGBDrawBoundingBox(t3, 0x1f005555);
+		
+		//t3[0] = t1[0];
+		//t3[1] = t1[1];
+		//t3[2] = t1[2];
 
-		ExpansionPhysics.QuatToAxis(q3, angularVelocity);
+		//dBodySetTargetMatrix(this, t3, pDt);
+		
+		float strength = Math.Clamp(0.001 * vector.DistanceSq(t2[3], t1[3]), 0, 1.0);
+		
+		linearVelocity = vector.Lerp(m_State.m_LinearVelocity, linearVelocity, strength * pDt);
 
 		SetVelocity(this, linearVelocity);
 		dBodySetAngularVelocity(this, angularVelocity);
@@ -1148,6 +1210,8 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if (m_HasDriver)
 		{
+			m_RecievedInitialSync = true;
+
 			Math3D.YawPitchRollMatrix(ypr * Math.RAD2DEG, m_State.m_TargetTransform);
 			m_State.m_TargetTransform[3] = pos;
 
@@ -1197,7 +1261,10 @@ class ExpansionVehicleBase extends ItemBase
 				return;
 
 			if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
+			{
+				m_RecievedInitialSync = true;
 				m_State.OnRPC(ctx);
+			}
 
 			return;
 		}
@@ -1250,11 +1317,11 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	protected void OnNetworkSend(ParamsWriteContext ctx)
+	void OnNetworkSend(ParamsWriteContext ctx)
 	{
 	}
 
-	protected void OnNetworkRecieve(ParamsReadContext ctx)
+	void OnNetworkRecieve(ParamsReadContext ctx)
 	{
 	}
 
@@ -1405,7 +1472,7 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			auto engine = ExpansionVehicleEngine.Cast(module);
 			engine.m_EngineIndex = m_Engines.Count();
-			RegisterNetSyncVariableBool( "m_EngineSync" + engine.m_EngineIndex );
+			RegisterNetSyncVariableBool("m_EngineSync" + engine.m_EngineIndex);
 			if (engine.m_EngineIndex >= 4)
 			{
 				Error(GetType() + ": " + engine.m_EngineIndex + " engines added were added, max is 4.");
@@ -1416,7 +1483,7 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	private void CalculateAltitudeLimiter()
+	void CalculateAltitudeLimiter()
 	{
 		float altitude = GetPosition()[1];
 
@@ -1665,7 +1732,6 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-
 	//! Returns crew capacity of this vehicle.
 	int CrewSize()
 	{
@@ -1738,7 +1804,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		return m_Crew[posIdx].GetPlayer();
 	}
-	
+
 	bool IsCrew(int posIdx, PlayerIdentity identity)
 	{
 		if (posIdx >= m_Crew.Count())
@@ -1943,10 +2009,10 @@ class ExpansionVehicleBase extends ItemBase
 		excluded.Insert(this);
 		excluded.Insert(GetGame().GetPlayer());
 		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided);
-		foreach (Object o : collided)
+		vector minmax[2];
+		for (int i = 0; i < collided.Count(); i++)
 		{
-			vector minmax[2];
-			if (o.GetCollisionBox(minmax))
+			if (collided[i].GetCollisionBox(minmax))
 				return false;
 		}
 		return true;
@@ -1964,13 +2030,11 @@ class ExpansionVehicleBase extends ItemBase
 		excluded.Insert(GetGame().GetPlayer());
 		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided);
 		int color = ARGB(100, 0, 255, 0);
-		foreach (Object o : collided)
+		vector minmax[2];
+		for (int i = 0; i < collided.Count(); i++)
 		{
-			vector minmax[2];
-			if (o.GetCollisionBox(minmax))
-			{
+			if (collided[i].GetCollisionBox(minmax))
 				color = ARGB(100, 255, 0, 0);
-			}
 		}
 
 		return Debug.DrawCylinder(crewPos, horizontalExtents, playerHeight, color);
@@ -1979,7 +2043,7 @@ class ExpansionVehicleBase extends ItemBase
 	void Synchronize()
 	{
 	}
-	
+
 	override void SetActions()
 	{
 		AddAction(ExpansionActionFillFuel);
@@ -2319,16 +2383,16 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		switch (m_CurrentEngine)
 		{
-			case 0:
-				return "Car";
-			case 1:
-				if (IsHelicopter())
-					return "Helicopter";
-				else if (IsPlane())
-					return "Plane";
-				else if (IsBoat())
-					return "Boat";
-				break;
+		case 0:
+			return "Car";
+		case 1:
+			if (IsHelicopter())
+				return "Helicopter";
+			else if (IsPlane())
+				return "Plane";
+			else if (IsBoat())
+				return "Boat";
+			break;
 		}
 		return "UNKNOWN";
 	}
@@ -2432,11 +2496,15 @@ class ExpansionVehicleBase extends ItemBase
 		if (!m_Controller.m_State[index] && OnBeforeEngineStart(index))
 		{
 			m_Controller.m_State[index] = true;
-			
-			if (index == 0) m_EngineSync0 = true;
-			else if (index == 1) m_EngineSync1 = true;
-			else if (index == 2) m_EngineSync2 = true;
-			else if (index == 3) m_EngineSync3 = true;
+
+			if (index == 0)
+				m_EngineSync0 = true;
+			else if (index == 1)
+				m_EngineSync1 = true;
+			else if (index == 2)
+				m_EngineSync2 = true;
+			else if (index == 3)
+				m_EngineSync3 = true;
 
 			OnEngineStart(index);
 		}
@@ -2449,14 +2517,14 @@ class ExpansionVehicleBase extends ItemBase
 
 		\return true if the engine can start, false otherwise.
 	*/
-	protected bool OnBeforeEngineStart(int index)
+	bool OnBeforeEngineStart(int index)
 	{
 		// engine can start by default
 		return true;
 	}
 
 	//! Is called every time the engine starts.
-	protected void OnEngineStart(int index)
+	void OnEngineStart(int index)
 	{
 		m_EnginesOn++;
 
@@ -2470,10 +2538,14 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			m_Controller.m_State[index] = false;
 
-			if (index == 0) m_EngineSync0 = false;
-			else if (index == 1) m_EngineSync1 = false;
-			else if (index == 2) m_EngineSync2 = false;
-			else if (index == 3) m_EngineSync3 = false;
+			if (index == 0)
+				m_EngineSync0 = false;
+			else if (index == 1)
+				m_EngineSync1 = false;
+			else if (index == 2)
+				m_EngineSync2 = false;
+			else if (index == 3)
+				m_EngineSync3 = false;
 
 			OnEngineStop(index);
 		}
@@ -2482,7 +2554,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 
 	//! Is called every time the engine stops.
-	protected void OnEngineStop(int index)
+	void OnEngineStop(int index)
 	{
 		m_EnginesOn--;
 
@@ -2493,7 +2565,7 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return m_EnginesOn;
 	}
-	
+
 	int EngineStartAnimation(int index)
 	{
 		if (IsPlane())
@@ -2889,7 +2961,7 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if (!key)
 			return;
-			
+
 		key.PairToVehicle(this);
 
 		m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
@@ -3934,7 +4006,7 @@ class ExpansionVehicleBase extends ItemBase
 		return NULL;
 	}
 
-	protected void CheckVitalItem(bool isVital, string itemName)
+	void CheckVitalItem(bool isVital, string itemName)
 	{
 		if (!isVital)
 			return;
@@ -3947,7 +4019,7 @@ class ExpansionVehicleBase extends ItemBase
 			EngineStop();
 	}
 
-	protected void LeakFluid(CarFluid fluid)
+	void LeakFluid(CarFluid fluid)
 	{
 		float ammount = 0;
 
@@ -3970,7 +4042,7 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	protected void CarPartsHealthCheck()
+	void CarPartsHealthCheck()
 	{
 		if (GetGame().IsServer())
 		{

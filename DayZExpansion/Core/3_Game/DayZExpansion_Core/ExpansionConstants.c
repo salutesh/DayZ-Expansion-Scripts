@@ -476,8 +476,8 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
 //! IMPORTANT: When incrementing EXPANSION_VERSION_SAVE by any number n, always increment EXPANSION_VERSION_MODSTORAGE_SAVE by n+1!
 //! DO NOT under any circumstances use the constants EXPANSION_VERSION_SAVE and EXPANSION_VERSION_MODSTORAGE_SAVE in other files than this one!
 //! Use EXPANSION_VERSION_CURRENT_SAVE, EXPANSION_VERSION_CLIENT_SETTING_SAVE and EXPANSION_VERSION_MAP_MARKER_SAVE instead.
-static const int EXPANSION_VERSION_SAVE = 30;
-static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 31;  //! <-- NEEDS TO ALWAYS BE <EXPANSION_VERSION_SAVE> + 1!
+static const int EXPANSION_VERSION_SAVE = 32;
+static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 33;  //! <-- NEEDS TO ALWAYS BE <EXPANSION_VERSION_SAVE> + 1!
 
 #ifdef CF_MODULE_MODSTORAGE
 static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
@@ -492,10 +492,10 @@ static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_SAVE;
 //! Game SaveVersion at which 1st step of converting over to ModStorage should happen 
 //! after release of CF with ModStorage support.
 //! Final conversion step will happen with release of next DayZ version AFTER that.
-//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 121, set this also to 121,
-//! and final conversion will happen at game SaveVersion 122 automatically.
+//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 125, set this also to 125,
+//! and final conversion will happen at game SaveVersion 126 automatically.
 //! Currently postponed until CF ModStorage support has been finalized.
-static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 121;
+static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 125;
 
 //! Expansion storage save version after 1st conversion step to ModStorage
 static const int EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET = EXPANSION_VERSION_SAVE;

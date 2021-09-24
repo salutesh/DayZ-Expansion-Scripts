@@ -337,7 +337,7 @@ class cfgWeapons
 		scope = 2;
 		displayName = "$STR_EXPANSION_RPG7";
 		descriptionShort = "$STR_cfgWeapons_RPG71";
-		model = "\DZ\weapons\launchers\rpg7\rpg7.p3d";
+		model = "\DayZExpansion\Objects\Weapons\Firearms\RPG7\rpg.p3d";
 		itemSize[] = {8,6};
 		attachments[] = {};
 		hiddenSelectionsTextures[] = {};

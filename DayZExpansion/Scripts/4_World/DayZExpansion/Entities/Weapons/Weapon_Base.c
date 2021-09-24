@@ -155,4 +155,4 @@ modded class Weapon_Base
 		
 		AddAction(ExpansionActionCycleOpticsMode);		
 	}
-}
+};

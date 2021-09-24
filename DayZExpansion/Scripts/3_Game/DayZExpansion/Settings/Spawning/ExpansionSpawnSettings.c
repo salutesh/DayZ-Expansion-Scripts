@@ -68,9 +68,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 
 	ref ExpansionStartingGear StartingGear;
 	
-	int SpawnHealthValue;
-	int SpawnEnergyValue;
-	int SpawnWaterValue;
+	float SpawnHealthValue;
+	float SpawnEnergyValue;
+	float SpawnWaterValue;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;

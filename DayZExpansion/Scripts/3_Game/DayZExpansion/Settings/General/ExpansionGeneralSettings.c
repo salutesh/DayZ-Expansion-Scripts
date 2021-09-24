@@ -237,21 +237,18 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
+				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
+
 				if (settingsBase.m_Version < 2)
 				{
-					EXPrint("[ExpansionGeneralSettings] Load - Converting v1 \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
-					
-					//! Added with v2
-					SystemChatColor = settingsDefault.SystemChatColor;
-					AdminChatColor = settingsDefault.AdminChatColor;
-					GlobalChatColor = settingsDefault.GlobalChatColor;
-					DirectChatColor = settingsDefault.DirectChatColor;
-					TransportChatColor = settingsDefault.TransportChatColor;
-					PartyChatColor = settingsDefault.PartyChatColor;
-					TransmitterChatColor = settingsDefault.TransmitterChatColor;
-					
-					UpdateChatColors();
+					//! Chat colors added with v2, nothing to do here as chat colors are handled by UpdateChatColors below
 				}
+				else
+				{
+					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
+				}
+
+				UpdateChatColors();
 
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -342,19 +339,19 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	void UpdateChatColors()
 	{
 		//! Make sure none of the colors are zero (all transparent)
-		if (!SystemChatColor || SystemChatColor == 0)
+		if (!SystemChatColor)
 			SystemChatColor = ARGB(255, 186, 69, 186);
-		if (!AdminChatColor || AdminChatColor == 0)
+		if (!AdminChatColor)
 			AdminChatColor = ARGB(255, 192, 57, 43);
-		if (!GlobalChatColor || GlobalChatColor == 0)
+		if (!GlobalChatColor)
 			GlobalChatColor = ARGB(255, 88, 195, 247);
-		if (!DirectChatColor || DirectChatColor == 0)
+		if (!DirectChatColor)
 			DirectChatColor = ARGB(255, 255, 255, 255);
-		if (!TransportChatColor || TransportChatColor == 0)
+		if (!TransportChatColor)
 			TransportChatColor = ARGB(255, 255, 206, 9);
-		if (!PartyChatColor || PartyChatColor == 0)
+		if (!PartyChatColor)
 			PartyChatColor = ARGB(255, 10, 250, 122);
-		if (!TransmitterChatColor || TransmitterChatColor == 0)
+		if (!TransmitterChatColor)
 			TransmitterChatColor = ARGB(255, 249, 255, 73);
 	}
 	

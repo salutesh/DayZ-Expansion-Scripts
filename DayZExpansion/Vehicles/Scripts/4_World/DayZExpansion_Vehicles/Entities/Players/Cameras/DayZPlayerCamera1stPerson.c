@@ -21,12 +21,20 @@ modded class DayZPlayerCamera1stPerson
 		if (Class.CastTo(vehicle, m_pPlayer.GetParent()) || m_Ex_Player.IsAttached())
 		{
 			pOutResult.m_fInsideCamera = 0.0;
+			m_Ex_ForceHideHead = true;
 		}
 
 		if (m_Ex_Player.IsAttached())
 		{
+			pOutResult.m_CameraTM[3] = m_pPlayer.GetBonePositionMS(m_iBoneIndex);
+
+			pOutResult.m_CollisionIgnoreEntity = m_pPlayer.GetParent();
 			pOutResult.m_fIgnoreParentRoll = 1.0;
 			pOutResult.m_fIgnoreParentPitch = 1.0;
+			pOutResult.m_iDirectBone = -1.0;
+			pOutResult.m_iDirectBoneMode = 0;
+			pOutResult.m_fDistance = 0;
+			pOutResult.m_fPositionModelSpace = 1.0;
 		}
 	}
 };

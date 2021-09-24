@@ -12,22 +12,111 @@
 
 modded class ItemBase
 {
-	protected bool m_IsAttached;
-	protected EntityAI m_WorldAttachment;
+	protected EntityAI m_Expansion_WorldAttachment;
+	protected vector m_Expansion_AttachmentTransform[4];
+	protected bool m_Expansion_IsAttached;
+	protected int m_Expansion_AttachIDA;
+	protected int m_Expansion_AttachIDB;
+	protected int m_Expansion_AttachIDC;
+	protected int m_Expansion_AttachIDD;
+	protected dBlock m_Expansion_Block;
 	
-	//============================================
-	// ItemBase Constructor
-	//============================================
 	void ItemBase()
 	{
+		RegisterNetSyncVariableBool( "m_Expansion_IsAttached" );
+
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
 	}
 
-	//============================================
-	// LongDeferredInit
-	//============================================	
 	void LongDeferredInit()
 	{
+	}
+	
+	override void OnStoreSave( ParamsWriteContext ctx )
+	{
+		super.OnStoreSave( ctx );
+
+		//! If we are saving game version target for ModStorage support (1st stable) or later
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
+			return;
+		#endif
+
+		if ( m_Expansion_WorldAttachment && m_Expansion_IsAttached )
+		{
+			ctx.Write( m_Expansion_IsAttached );
+
+			m_Expansion_WorldAttachment.GetPersistentID( m_Expansion_AttachIDA, m_Expansion_AttachIDB, m_Expansion_AttachIDC, m_Expansion_AttachIDD );
+
+			ctx.Write( m_Expansion_AttachIDA );
+			ctx.Write( m_Expansion_AttachIDB );
+			ctx.Write( m_Expansion_AttachIDC );
+			ctx.Write( m_Expansion_AttachIDD );
+
+			vector tmItem[4];
+			vector tmParent[4];
+			GetTransform( tmItem );
+			m_Expansion_WorldAttachment.GetTransform( tmParent );
+			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_Expansion_AttachmentTransform );
+
+			ctx.Write( m_Expansion_AttachmentTransform[0] );
+			ctx.Write( m_Expansion_AttachmentTransform[1] );
+			ctx.Write( m_Expansion_AttachmentTransform[2] );
+			ctx.Write( m_Expansion_AttachmentTransform[3] );
+		} else
+		{
+			ctx.Write( false );
+		}
+	}
+
+	override bool OnStoreLoad( ParamsReadContext ctx, int version )
+	{
+		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
+			return false;
+
+		#ifdef CF_MODULE_MODSTORAGE
+		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
+			return true;
+		#endif
+
+		if (GetExpansionSaveVersion() < 32)
+			return true;
+
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsAttached ), "[" + this + "] Failed reading m_Expansion_IsAttached" ) )
+			return false;
+
+		if ( m_Expansion_IsAttached )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_AttachIDA ), "[" + this + "] Failed reading m_Expansion_AttachIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_AttachIDB ), "[" + this + "] Failed reading m_Expansion_AttachIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_AttachIDC ), "[" + this + "] Failed reading m_Expansion_AttachIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_AttachIDD ), "[" + this + "] Failed reading m_Expansion_AttachIDD" ) )
+				return false;
+				
+			vector transSide;
+			vector transUp;
+			vector transForward;
+			vector transPos;
+
+			if ( Expansion_Assert_False( ctx.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
+				return false;
+
+			m_Expansion_AttachmentTransform[0] = transSide;
+			m_Expansion_AttachmentTransform[1] = transUp;
+			m_Expansion_AttachmentTransform[2] = transForward;
+			m_Expansion_AttachmentTransform[3] = transPos;
+		}
+
+		return true;
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
@@ -42,7 +131,31 @@ modded class ItemBase
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return;
 
-		//! Write here
+		if ( m_Expansion_WorldAttachment && m_Expansion_IsAttached )
+		{
+			storage.Write( m_Expansion_IsAttached );
+
+			m_Expansion_WorldAttachment.GetPersistentID( m_Expansion_AttachIDA, m_Expansion_AttachIDB, m_Expansion_AttachIDC, m_Expansion_AttachIDD );
+
+			storage.Write( m_Expansion_AttachIDA );
+			storage.Write( m_Expansion_AttachIDB );
+			storage.Write( m_Expansion_AttachIDC );
+			storage.Write( m_Expansion_AttachIDD );
+
+			vector tmItem[4];
+			vector tmParent[4];
+			GetTransform( tmItem );
+			m_Expansion_WorldAttachment.GetTransform( tmParent );
+			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_Expansion_AttachmentTransform );
+
+			storage.Write( m_Expansion_AttachmentTransform[0] );
+			storage.Write( m_Expansion_AttachmentTransform[1] );
+			storage.Write( m_Expansion_AttachmentTransform[2] );
+			storage.Write( m_Expansion_AttachmentTransform[3] );
+		} else
+		{
+			storage.Write( false );
+		}
 	}
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
@@ -57,19 +170,122 @@ modded class ItemBase
 		if ( modName != "DZ_Expansion_Vehicles" )
 			return true;
 
-		//! Read here
+		if (GetExpansionSaveVersion() < 32)
+			return true;
+
+		if ( Expansion_Assert_False( storage.Read( m_Expansion_IsAttached ), "[" + this + "] Failed reading m_Expansion_IsAttached" ) )
+			return false;
+
+		if ( m_Expansion_IsAttached )
+		{
+			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDA ), "[" + this + "] Failed reading m_Expansion_AttachIDA" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDB ), "[" + this + "] Failed reading m_Expansion_AttachIDB" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDC ), "[" + this + "] Failed reading m_Expansion_AttachIDC" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDD ), "[" + this + "] Failed reading m_Expansion_AttachIDD" ) )
+				return false;
+				
+			vector transSide;
+			vector transUp;
+			vector transForward;
+			vector transPos;
+
+			if ( Expansion_Assert_False( storage.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
+				return false;
+			if ( Expansion_Assert_False( storage.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
+				return false;
+
+			m_Expansion_AttachmentTransform[0] = transSide;
+			m_Expansion_AttachmentTransform[1] = transUp;
+			m_Expansion_AttachmentTransform[2] = transForward;
+			m_Expansion_AttachmentTransform[3] = transPos;
+		}
 
 		return true;
 	}
 	#endif
 	
-	//============================================
-	// EEOnAfterLoad
-	//============================================
 	override void EEOnAfterLoad()
 	{
 		super.EEOnAfterLoad();
+		
+		if ( m_Expansion_IsAttached )
+		{
+			m_Expansion_WorldAttachment = GetGame().GetEntityByPersitentID( m_Expansion_AttachIDA, m_Expansion_AttachIDB, m_Expansion_AttachIDC, m_Expansion_AttachIDD );
+		
+			//! Same functionality as vanilla, delete if the storage owner is gone to prevent basebuilding appear randomly in the air
+			if ( !m_Expansion_WorldAttachment )
+			{
+				GetGame().ObjectDelete( this );
+			} else
+			{
+				LinkToLocalSpaceOf( m_Expansion_WorldAttachment, m_Expansion_AttachmentTransform );
+			}
+		}
 	}
+	
+	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
+	void CheckForAttachmentRaycast()
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ItemBase::CheckForAttachmentRaycast - Start" );
+		#endif
+
+		if ( m_Expansion_IsAttached && m_Expansion_WorldAttachment )
+		{
+			#ifdef EXPANSIONEXPRINT
+			EXPrint( "ItemBase::CheckForAttachmentRaycast - End - Already Attached" );
+			#endif
+
+			return;
+		}
+			
+		vector boundingBox[2];
+		float radius = ClippingInfo( boundingBox );
+
+		vector start = GetPosition() + Vector( 0, boundingBox[1][1], 0 );
+		vector end = GetPosition() - Vector( 0, boundingBox[0][1], 0 );
+
+		RaycastRVParams params = new RaycastRVParams( start, end, this, radius );
+		params.sorted = true;
+		params.type = ObjIntersectGeom;
+		params.flags = CollisionFlags.ALLOBJECTS;
+
+		//! Initiate the raycast
+		array< ref RaycastRVResult > results = new array< ref RaycastRVResult >();
+		if ( DayZPhysics.RaycastRVProxy( params, results ) )
+		{
+			Object target = ExpansionAttachmentHelper.FindBestAttach( this, results );
+
+			if ( target )
+			{
+				vector tmItem[4];
+				vector tmTarget[4];
+				vector tmLocal[4];
+
+				GetTransform( tmItem );
+				target.GetTransform( tmTarget );
+				Math3D.MatrixInvMultiply4( tmTarget, tmItem, tmLocal );
+
+				LinkToLocalSpaceOf( EntityAI.Cast( target ), tmLocal );
+			}
+		}
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint( "ItemBase::CheckForAttachmentRaycast - End" );
+		#endif
+	}
+	#else
+	void CheckForAttachmentRaycast()
+	{
+	}
+	#endif
 
 	//============================================
 	// GetHiddenSelectionIndex
@@ -332,7 +548,7 @@ modded class ItemBase
 	//============================================	
 	override bool IsInventoryVisible()
 	{
-		return ( m_IsAttached || super.IsInventoryVisible() );
+		return ( m_Expansion_IsAttached || super.IsInventoryVisible() );
 	}
 	
 	//============================================
@@ -382,16 +598,24 @@ modded class ItemBase
 		Print( pLocalSpaceMatrix[3] );
 		#endif
 
-		m_IsAttached = true;
-		m_WorldAttachment = pParent;
+		m_Expansion_IsAttached = true;
+		m_Expansion_WorldAttachment = pParent;
 
+		vector tmParent[4];
+		m_Expansion_WorldAttachment.GetTransform( tmParent );
+		Math3D.MatrixMultiply4( tmParent, pLocalSpaceMatrix, pLocalSpaceMatrix );
+
+		vector pos = pLocalSpaceMatrix[3];
 		SetTransform( pLocalSpaceMatrix );
 
-		m_WorldAttachment.AddChild( this, -1 );
-		m_WorldAttachment.Update();
+		m_Expansion_WorldAttachment.AddChild( this, -1 );
+		m_Expansion_WorldAttachment.Update();
+
+		CreateDynamicPhysics(PhxInteractionLayers.DYNAMICITEM);
+		m_Expansion_Block = dBodyCollisionBlock(m_Expansion_WorldAttachment, this);
 
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( "ItemBase::LinkToLocalSpaceOf - End - Target=" + m_WorldAttachment );
+		Print( "ItemBase::LinkToLocalSpaceOf - End - Target=" + m_Expansion_WorldAttachment );
 		#endif
 	}
 	
@@ -413,7 +637,7 @@ modded class ItemBase
 			return;
 		}
 
-		if ( !m_WorldAttachment )
+		if ( !m_Expansion_WorldAttachment )
 		{
 			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( "ItemBase::UnlinkFromLocalSpace - End - No World Attachment" );
@@ -422,18 +646,20 @@ modded class ItemBase
 			return;
 		}
 
-		m_IsAttached = false;
+		//dBodyRemoveBlock(this, m_Expansion_Block);
+
+		m_Expansion_IsAttached = false;
 
 		vector tmGlobal[4];
 
 		GetTransform( tmGlobal );
 
-		m_WorldAttachment.RemoveChild( this );
+		m_Expansion_WorldAttachment.RemoveChild( this );
 
 		SetTransform( tmGlobal );
 
-		m_WorldAttachment.Update();
-		m_WorldAttachment = NULL;
+		m_Expansion_WorldAttachment.Update();
+		m_Expansion_WorldAttachment = NULL;
 
 		Update();
 

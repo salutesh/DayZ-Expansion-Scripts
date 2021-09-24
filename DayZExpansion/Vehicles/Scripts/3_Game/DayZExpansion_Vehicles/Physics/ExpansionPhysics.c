@@ -38,9 +38,6 @@ class ExpansionPhysics
 
 	static vector GetVelocityInLocal(IEntity ent, vector relPos, vector linearVelocity, vector angularVelocity)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::GetVelocityInLocal - Return: " + linearVelocity + (angularVelocity * relPos).ToString());
-#endif
 		return linearVelocity + (angularVelocity * relPos);
 	}
 
@@ -51,10 +48,6 @@ class ExpansionPhysics
 										vector pos2,
 										vector normal)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::ResolveSingleBilateral - Start");
-#endif
-
 		float normalLenSqr = normal.LengthSq();
 		if (normalLenSqr > 1.1)
 		{
@@ -116,45 +109,54 @@ class ExpansionPhysics
 
 		float res = -contactDamping * rel_vel * jacDiagABInv;
 
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::ResolveSingleBilateral - Return: " + res.ToString());
-#endif
-
 		return res;
 	}
 
 	static float ComputeImpulseDenominator(vector pos, vector normal, Matrix3 invInertiaWS, float invMass)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::ComputeImpulseDenominator - Start");
-#endif
-
 		vector c0 = pos * normal;
 
 		vector vec = c0.Multiply3(invInertiaWS.data) * pos;
 
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::ComputeImpulseDenominator - Return: " + (invMass + vector.Dot(normal, vec)).ToString());
-#endif
-
 		return invMass + vector.Dot(normal, vec);
 	}
 
-	static void IntegrateTransform(vector curTrans[4], vector linVel, vector angVel, float timestep, inout vector predictedTrans[4])
+	static void IntegrateTransform(vector pTransform0[4], vector pLinVel, vector pAngVel, float pDt, inout vector pResult[4])
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::IntegrateTransform - Start");
-#endif
+		/*
+		vector futureAngularVelocity = pAngVel * pDt;
 
+		pResult[0][0] = 0.0;
+		pResult[1][1] = 0.0;
+		pResult[2][2] = 0.0;
+
+		pResult[0][1] = -futureAngularVelocity[2];
+		pResult[1][0] = futureAngularVelocity[2];
+		pResult[2][0] = -futureAngularVelocity[1];
+		pResult[0][2] = futureAngularVelocity[1];
+		pResult[1][2] = -futureAngularVelocity[0];
+		pResult[2][1] = futureAngularVelocity[0];
+
+		Math3D.MatrixMultiply3(pResult, pTransform0, pResult);
+
+		pResult[0] = pTransform0[0] + pResult[0];
+		pResult[1] = pTransform0[1] + pResult[1];
+		pResult[2] = pTransform0[2] + pResult[2];
+
+		pResult[0].Normalized();
+		pResult[1].Normalized();
+		pResult[2].Normalized();
+
+		pResult[3] = pTransform0[3] + (pLinVel * pDt);
+		*/
+
+		///*
 		vector m1[];
-		Math3D.YawPitchRollMatrix(angVel * timestep, m1);
-		Math3D.MatrixMultiply3(curTrans, m1, predictedTrans);
+		Math3D.YawPitchRollMatrix(pAngVel * pDt * Math.RAD2DEG, m1);
+		Math3D.MatrixMultiply3(pTransform0, m1, pResult);
 
-		predictedTrans[3] = curTrans[3] + (linVel * timestep);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPhysics::IntegrateTransform - End");
-#endif
+		pResult[3] = pTransform0[3] + (pLinVel * pDt);
+		//*/
 	}
 
 	static void CalculateVelocity(vector pTransform0[4], vector pTransform1[4], float pDt, out vector pLinVel, out vector pAngVel)
@@ -165,35 +167,74 @@ class ExpansionPhysics
 
 		pLinVel = (pTransform1[3] - pTransform0[3]) * invDt;
 
-		vector axis;
-		float angle;
-		CalculateAngularVelocity(pTransform0, pTransform1, axis, angle);
+		CalculateAngularVelocity(pTransform0, pTransform1, pAngVel);
 
-		pAngVel = axis * angle * invDt;
+		pAngVel = pAngVel * invDt;
 	}
 
-	static void CalculateAngularVelocity(vector pTransform0[4], vector pTransform1[4], out vector pAxis, out float pAngle)
+	static void CalculateAngularVelocity(vector pTransform0[4], vector pTransform1[4], out vector pAngVel)
 	{
-		vector m[3];
-		Math3D.MatrixInvMultiply3(pTransform0, pTransform1, m);
+		vector res[3];
+		Math3D.MatrixInvMultiply3(pTransform0, pTransform1, res);
 
-		float quatR[4];
-		Math3D.MatrixToQuat(m, quatR);
+		float q[4];
+		Math3D.MatrixToQuat(res, q);
 
-		pAngle = Math.Acos(quatR[3]);
-		pAxis = Vector(quatR[0], quatR[1], quatR[2]);
-
-		float len = pAxis.Length();
-		if (len < 0.000001)
+		float angle = 2.0 * Math.Acos(q[3]);
+		pAngVel = Vector(q[0], q[1], q[2]);
+		float len = pAngVel.Length();
+		if (len < 0.00001)
 		{
-			pAxis = "0 0 1";
+			pAngVel = "0 0 0";
 		}
 		else
 		{
-			pAxis[0] = pAxis[0] / len;
-			pAxis[1] = pAxis[1] / len;
-			pAxis[2] = pAxis[2] / len;
+			pAngVel[0] = pAngVel[0] * angle / len;
+			pAngVel[1] = pAngVel[1] * angle / len;
+			pAngVel[2] = pAngVel[2] * angle / len;
 		}
+	}
+
+	static void MatrixToQuat(vector mat[4], out float q[4])
+	{
+		float trace = mat[0][0] + mat[1][1] + mat[2][2];
+
+		float s;
+		int i;
+		int j;
+		int k;
+
+		if (trace > 0.0)
+		{
+			s = Math.Sqrt(trace + 1.0);
+			q[3] = (s * 0.5);
+			s = 0.5 / s;
+
+			q[0] = ((mat[2][1] - mat[1][2]) * s);
+			q[1] = ((mat[0][2] - mat[2][0]) * s);
+			q[2] = ((mat[1][0] - mat[0][1]) * s);
+			return;
+		}
+
+		if (mat[0][0] < mat[1][1])
+		{
+			i = 1;
+			if (mat[1][1] < mat[2][2])
+				i = 2;
+		}
+		else if (mat[0][0] < mat[2][2])
+			i = 2;
+
+		j = (i + 1) % 3;
+		k = (i + 2) % 3;
+
+		s = Math.Sqrt(mat[i][i] - mat[j][j] - mat[k][k] + 1.0);
+		q[i] = s * 0.5;
+		s = 0.5 / s;
+
+		q[3] = (mat[k][j] - mat[j][k]) * s;
+		q[j] = (mat[j][i] + mat[i][j]) * s;
+		q[k] = (mat[k][i] + mat[i][k]) * s;
 	}
 
 	static void QuatAxis(vector axis, out float qR[4])
@@ -252,7 +293,7 @@ class ExpansionPhysics
 
 	static void QuatToAxis(float q[4], out vector axis)
 	{
-		float scale = 2 * Math.Acos(q[3]);
+		float scale = 2.0 * Math.Acos(q[3]);
 		axis[0] = q[0] * scale;
 		axis[1] = q[1] * scale;
 		axis[2] = q[2] * scale;

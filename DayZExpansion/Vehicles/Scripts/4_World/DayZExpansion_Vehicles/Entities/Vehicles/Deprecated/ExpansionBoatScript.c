@@ -566,7 +566,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		if (ExpansionStatic.SurfaceIsWater(position))
 		{
 			float depth = g_Game.GetWaterDepth(position);
-			position[1] = position[1] + depth + m_Offset - 1;
+			position[1] = position[1] + depth + m_Offset - 1.05;
 			SetPosition(position);
 			SetOrientation(Vector(orientation[0], 0, 0));
 		}
@@ -623,7 +623,7 @@ class ExpansionBoatScript extends OffroadHatchback
 
 			vector transform[4];
 			GetTransform(transform);
-			transform[3][1] = position[1] + depth + m_Offset - 1;
+			transform[3][1] = position[1] + depth + m_Offset - 1.05;
 			SetTransform(transform);
 		}
 	}

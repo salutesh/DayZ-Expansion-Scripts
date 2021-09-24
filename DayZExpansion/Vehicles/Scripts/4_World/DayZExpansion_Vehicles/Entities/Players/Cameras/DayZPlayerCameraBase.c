@@ -14,6 +14,8 @@
 modded class DayZPlayerCameraBase
 {
 	PlayerBase m_Ex_Player;
+	bool m_Ex_ForceHideHead;
+	bool m_Ex_PreviousForceHideHead;
 
 	void DayZPlayerCameraBase(DayZPlayer pPlayer, HumanInputController pInput)
 	{
@@ -23,25 +25,36 @@ modded class DayZPlayerCameraBase
 	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
 		super.OnUpdate(pDt, pOutResult);
-		
+
 		Ex_OnUpdate(pDt, pOutResult);
 		Ex_OnPostUpdate(pDt, pOutResult);
 	}
 
 	void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
-
+		m_Ex_ForceHideHead = false;
 	}
 
 	void Ex_OnPostUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
-		if (pOutResult.m_fInsideCamera <= 0.7)
+		// This is only a fix for crashing issues that are currently present
+		if (!dBodyIsDynamic(pOutResult.m_CollisionIgnoreEntity))
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(m_Ex_Player.SetHeadInvisible_Ex, false);
+			pOutResult.m_CollisionIgnoreEntity = NULL;
+		}
+
+		if (m_Ex_PreviousForceHideHead == m_Ex_ForceHideHead)
+			return;
+
+		m_Ex_PreviousForceHideHead = m_Ex_ForceHideHead;
+
+		if (m_Ex_ForceHideHead)
+		{
+			m_Ex_Player.SetHeadInvisible_Ex(true);
 		}
 		else
 		{
-			m_Ex_Player.SetHeadInvisible_Ex(true);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(m_Ex_Player.SetHeadInvisible_Ex, false);
 		}
 	}
 };

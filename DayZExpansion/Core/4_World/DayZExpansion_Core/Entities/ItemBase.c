@@ -575,7 +575,7 @@ modded class ItemBase
 	}
 
 	//! This deals with spawning magazines on weapons correctly and should be used as a replacement for vanilla CreateInInventory
-	EntityAI ExpansionCreateInInventory(string className)
+	EntityAI ExpansionCreateInInventory(string className, bool attachOnly = false)
 	{
 		if (!GetInventory())
 			return NULL;
@@ -631,7 +631,15 @@ modded class ItemBase
 		}
 
 		//! Any other item
-		return GetInventory().CreateInInventory(className);
+		if (attachOnly)
+			return GetInventory().CreateAttachment(className);
+		else
+			return GetInventory().CreateInInventory(className);
+	}
+
+	EntityAI ExpansionCreateAttachment(string className)
+	{
+		return ExpansionCreateInInventory(className, true);
 	}
 
 	void OnEnterZone(ExpansionZoneType type)

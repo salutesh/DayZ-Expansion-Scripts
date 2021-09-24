@@ -32,6 +32,14 @@ class ExpansionString
 		return m_String.IndexOf(suffix) == m_String.Length() - suffixLength;
 	}
 
+	bool EqualsCaseInsensitive(string cmp)
+	{
+		string str = m_String;
+		str.ToLower();
+		cmp.ToLower();
+		return str == cmp;
+	}
+
 	//! Reimplement LastIndexOf (vanilla string.LastIndexOf is broken...)
 	int LastIndexOf(string sample)
 	{
