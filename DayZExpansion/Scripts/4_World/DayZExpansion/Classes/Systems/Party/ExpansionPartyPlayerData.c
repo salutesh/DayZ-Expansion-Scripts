@@ -35,12 +35,15 @@ class ExpansionPartyPlayerData
 
 	ExpansionPartyPlayerPermissions Permissions;
 	
-	void ExpansionPartyPlayerData()
+	ref ExpansionPartyData m_Party;
+
+	void ExpansionPartyPlayerData(ExpansionPartyData party)
 	{
 		m_TempMarkerData = new ExpansionPlayerMarkerData();
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 		CreateMarker();
 		Permissions = ExpansionPartyPlayerPermissions.NONE;
+		m_Party = party;
 	}
 
 	void ~ExpansionPartyPlayerData()
@@ -226,6 +229,11 @@ class ExpansionPartyPlayerData
 		return Name;
 	}
 	
+	ExpansionPartyData GetParty()
+	{
+		return m_Party;
+	}
+
 	ExpansionPartyPlayerPermissions ApplyPermissions(ExpansionPartyPlayerPermissions perm)
 	{
 		#ifdef EXPANSION_PARTY_MODULE_DEBUG

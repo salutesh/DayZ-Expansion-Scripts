@@ -53,6 +53,8 @@ class ExpansionLauncher_Base extends Rifle_Base
 	{
 	}
 	
+
+	
 	override void InitStateMachine()
 	{
 		// setup abilities
@@ -65,12 +67,12 @@ class ExpansionLauncher_Base extends Rifle_Base
 		WeaponStateBase E = new ELBEmpty(this, NULL, ELBAnimState.DEFAULT);
 		WeaponStateBase L = new ELBLoaded(this, NULL, ELBAnimState.DEFAULT);
 		// unstable (intermediate) states
-		WeaponStateBase Mech_L = new WeaponEjectBullet(this, NULL, WeaponActions.MECHANISM, WeaponActionMechanismTypes.MECHANISM_CLOSED);
+		WeaponStateBase Mech_L = new ExpansionUnloadHideBullet(this, NULL, WeaponActions.MECHANISM, WeaponActionMechanismTypes.MECHANISM_CLOSED);
 		
-		WeaponChambering Chamber_E = new WeaponChambering(this, NULL, WeaponActions.CHAMBERING, WeaponActionChamberingTypes.CHAMBERING_ONEBULLET_CLOSED);
+		ExpansionReloadShowBullet Chamber_E = new ExpansionReloadShowBullet(this, NULL, WeaponActions.CHAMBERING, WeaponActionChamberingTypes.CHAMBERING_ONEBULLET_CLOSED);
 		
 		WeaponStateBase Trigger_E = new WeaponDryFire(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_COCKED);
-		WeaponStateBase Trigger_L = new WeaponFireWithEject(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_NORMAL);
+		WeaponStateBase Trigger_L = new ExpansionFireBulletHide(this, NULL, WeaponActions.FIRE, WeaponActionFireTypes.FIRE_NORMAL);
 
 		
 
@@ -122,7 +124,7 @@ class ExpansionLauncher_Base extends Rifle_Base
 		}
 		m_fsm.SetInitialState(init_state);
 
-		SelectionBulletHide();
+		ExpansionHideWeaponPart("ammo", true);
 
 		m_fsm.Start();
 	}

@@ -107,6 +107,11 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 				m_FinalRatio = 0;
 			break;
 		}
+
+		if (m_FinalRatio == 0)
+		{
+			m_EngineIndex = 0;
+		}
 	}
 
 	ExpansionVehicleWheel AddWheel(string pName)
@@ -152,10 +157,9 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 
 		float brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
 		float steering = m_Controller.m_Yaw * m_MaxSteeringAngle;
-		float ratio = 1.0 / m_Wheels.Count();
 		for (int i = 0; i < m_Wheels.Count(); ++i)
 		{
-			m_Wheels[i].m_WheelTorque = torque * ratio;
+			m_Wheels[i].m_WheelTorque = torque;
 			m_Wheels[i].m_BrakeTorque = brake;
 			m_Wheels[i].m_Steering = steering;
 		}
@@ -278,10 +282,8 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 	{
 		float sp = pState.GetModelVelocityAt("0 0 0")[2];
 
-		float torque = 0;
-		if (m_EngineIndex != -1)
-			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio;
-			
+		float torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio;
+
 		float brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
 		float steering = m_Controller.m_Yaw;
 

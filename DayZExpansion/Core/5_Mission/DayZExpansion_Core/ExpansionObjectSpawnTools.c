@@ -15,9 +15,6 @@ class ExpansionObjectSpawnTools
 	static ref array<EntityAI> firePlacesToDelete = new array<EntityAI>;
 	static string objectFilesFolder;
 	static string traderFilesFolder;
-	#ifdef ENFUSION_AI_PROJECT
-	static string aiTraderFilesFolder;
-	#endif
 		
 	void ~ExpansionObjectSpawnTools()
 	{
@@ -35,9 +32,6 @@ class ExpansionObjectSpawnTools
 
 		objectFilesFolder = missionFolder + "\\expansion\\objects\\";
 		traderFilesFolder = missionFolder + "\\expansion\\traders\\";
-		#ifdef ENFUSION_AI_PROJECT
-		aiTraderFilesFolder = missionFolder + "\\expansion\\ai_traders\\";
-		#endif
 
 		if ( loadObjects && FileExist( objectFilesFolder ) )
 		{
@@ -51,11 +45,7 @@ class ExpansionObjectSpawnTools
 	#ifdef EXPANSIONMODMARKET
 		if ( loadTraders && FileExist( traderFilesFolder ) )
 		{
-			#ifdef ENFUSION_AI_PROJECT
-			traderFiles = ExpansionStatic.FindFilesInLocation(aiTraderFilesFolder);
-			#else
 			traderFiles = ExpansionStatic.FindFilesInLocation(traderFilesFolder);
-			#endif
 			if (traderFiles.Count() >= 0)
 			{
 
@@ -94,8 +84,8 @@ class ExpansionObjectSpawnTools
 	static void LoadMissionObjectsFile( string name )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Attempting to load mission object file: " + name );
-			#endif
+		EXLogPrint( "Attempting to load mission object file: " + name );
+		#endif
 
 		Object obj;
 		string className;
@@ -147,8 +137,8 @@ class ExpansionObjectSpawnTools
 		CloseFile( file );
 
 		#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Created all objects from mission object file: " + filePath );
-			#endif
+		EXLogPrint( "Created all objects from mission object file: " + filePath );
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -157,8 +147,8 @@ class ExpansionObjectSpawnTools
 	static void ProcessMissionObject(Object obj)
 	{
 		#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("Try to process mapping object: " + obj.ClassName());
-			#endif
+		EXLogPrint("Try to process mapping object: " + obj.ClassName());
+		#endif
 
 		ItemBase item;
 

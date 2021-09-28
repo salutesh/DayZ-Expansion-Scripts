@@ -140,7 +140,7 @@ class ExpansionVehicleGearbox : ExpansionVehicleModule
 		else if (m_Gear == 0)
 			ratio = -m_Reverse;
 		else if (m_Gear > 1)
-			ratio = m_Ratios[m_Gear];
+			ratio = m_Ratios[m_Gear - 2];
 
 		m_Controller.m_Clutch[m_ControlIndex] = m_Clutch;
 		m_Controller.m_Gear[m_ControlIndex] = m_Gear;

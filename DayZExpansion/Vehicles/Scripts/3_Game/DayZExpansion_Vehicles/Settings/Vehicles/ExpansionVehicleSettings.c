@@ -341,8 +341,6 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 
 		#ifdef EXPANSION_PLAYER_ATTACHMENT
 		s_ExpansionPlayerAttachment = PlayerAttachment;
-		#else
-		s_ExpansionPlayerAttachment = false;
 		#endif
 	}
 
@@ -379,10 +377,8 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		
 		#ifdef EXPANSION_PLAYER_ATTACHMENT
 		PlayerAttachment = true;
-		s_ExpansionPlayerAttachment = true;
 		#else
 		PlayerAttachment = false;
-		s_ExpansionPlayerAttachment = false;
 		#endif
 
 		Towing = true;
@@ -422,7 +418,11 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 	}
 };
 
+#ifdef EXPANSION_PLAYER_ATTACHMENT
 static bool s_ExpansionPlayerAttachment = true;
+#else
+static bool s_ExpansionPlayerAttachment;
+#endif
 
 enum ExpansionPPOGORIVMode
 {

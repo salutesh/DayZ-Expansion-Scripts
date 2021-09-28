@@ -278,6 +278,11 @@ modded class PlayerBase
 		return false;
 	}
 
+	bool Expansion_IsDriver()
+	{
+		return m_IsVehicleSeatDriver;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase OnCommandExpansionVehicleStart
 	// ------------------------------------------------------------
@@ -500,26 +505,38 @@ modded class PlayerBase
 	override void AfterStoreLoad()
 	{
 		super.AfterStoreLoad();
-		
+
+		if ( m_WasInVehicle )
+		{
+			ExpansionPPOGORIVMode mode = GetExpansionSettings().GetVehicle().PlacePlayerOnGroundOnReconnectInVehicle;
+
+			if (mode == ExpansionPPOGORIVMode.Disabled)
+				return;
+
+			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && m_Expansion_SessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
+				return;
+
+			//! Temp god mode just to be safe
+			SetAllowDamage(false);
+
+			//! CallLater so vehicle attachment code etc has a chance to run first
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlacePlayerOnGround, 1500);
+		}
+	}
+
+	void PlacePlayerOnGround()
+	{
 		if ( GetGame().IsServer() )
 		{
-			if ( m_WasInVehicle )
+			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_WasInVehicle + " is attached " + IsAttached() + " " + GetParent());
+
+			if ( !IsAttached() && !GetParent() )
 			{
-				ExpansionPPOGORIVMode mode = GetExpansionSettings().GetVehicle().PlacePlayerOnGroundOnReconnectInVehicle;
-
-				if (mode == ExpansionPPOGORIVMode.Disabled)
-					return;
-
-				if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && m_Expansion_SessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
-					return;
-
-				//EXPrint(ToString() + "::AfterStoreLoad - player pos " + GetPosition());
-
 				vector rayStart = GetPosition() + "0 0.6 0";
 
 				//! Ground or water surface position
 				vector ground = ExpansionStatic.GetSurfaceWaterPosition(GetPosition());
-				//EXPrint(ToString() + "::AfterStoreLoad - ground " + ground);
+				//EXPrint(ToString() + "::PlacePlayerOnGround - ground " + ground);
 
 				//! Move ray end up a bit from ground, so that if (e.g.) we are standing on the LHD,
 				//! our 1st raycast doesn't hit the (water) surface below (RaycastRV will ignore the LHD),
@@ -537,7 +554,7 @@ modded class PlayerBase
 				bool haveValidResult;
 				if ( DayZPhysics.RaycastRVProxy( params, results ) )
 				{
-					//EXPrint(ToString() + "::AfterStoreLoad - ray 1 hit results: " + results.Count());
+					//EXPrint(ToString() + "::PlacePlayerOnGround - ray 1 hit results: " + results.Count());
 					for (int i = 0; i < results.Count(); ++i)
 					{
 						RaycastRVResult currResult = results[i];
@@ -554,12 +571,12 @@ modded class PlayerBase
 							obj = currResult.obj;
 						}
 						
-						//EXPrint(ToString() + "::AfterStoreLoad - ray 1 hit result hierlvl " + currResult.hierLevel + " parent " + currResult.parent + " obj " + currResult.obj + " hit pos " + currResult.pos);
+						//EXPrint(ToString() + "::PlacePlayerOnGround - ray 1 hit result hierlvl " + currResult.hierLevel + " parent " + currResult.parent + " obj " + currResult.obj + " hit pos " + currResult.pos);
 						
 						if ( !obj || obj.IsTree() || obj.IsBush() || obj.IsScriptedLight() || obj.GetType() == string.Empty)
 							continue;
 						
-						//EXPrint(ToString() + "::AfterStoreLoad - ray 1 hit obj " + obj + " pos " + obj.GetPosition());
+						//EXPrint(ToString() + "::PlacePlayerOnGround - ray 1 hit obj " + obj + " pos " + obj.GetPosition());
 						if (obj.IsTransport())
 						{
 							//! If hit obj is more than 6m above ground, ignore it for next raycast
@@ -594,7 +611,7 @@ modded class PlayerBase
 
 					if (DayZPhysics.SphereCastBullet(rayStart, ground, 0.2, layerMask, ignoreObj, NULL, hitPos, NULL, NULL))
 					{
-						//EXPrint(ToString() + "::AfterStoreLoad - ray 2 hit pos " + hitPos);
+						//EXPrint(ToString() + "::PlacePlayerOnGround - ray 2 hit pos " + hitPos);
 						ground[1] = hitPos[1];
 					}
 				}
@@ -603,12 +620,16 @@ modded class PlayerBase
 				//! else just let them fall (no damage at that height)
 				if (ground[1] + 1.5 < GetPosition()[1])
 				{
-					EXPrint(ToString() + "::AfterStoreLoad - placing player " + GetPosition() + " -> " + ground);
+					EXPrint(ToString() + "::PlacePlayerOnGround - placing player " + GetPosition() + " -> " + ground);
 					SetPosition( ground );
 				}
 
 				m_WasInVehicle = false;
 			}
+
+			//! Disable temp god mode again if not in safezone
+			if (!IsInSafeZone())
+				SetAllowDamage(true);
 		}
 	}
 }

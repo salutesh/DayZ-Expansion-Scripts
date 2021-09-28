@@ -88,16 +88,6 @@ class CfgVehicles
 		TailReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
 		fuelCapacity = 55;
 		fuelConsumption = 13;
-		class Sounds
-		{
-			thrust = 0.6;
-			thrustTurbo = 1;
-			thrustGentle = 0.3;
-			thrustSmoothCoef = 0.02;
-			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"CivilianSedan_Engine_Offload_Ext_Rpm1_SoundSet","CivilianSedan_Engine_Offload_Ext_Rpm2_SoundSet","CivilianSedan_Engine_Offload_Ext_Rpm3_SoundSet","CivilianSedan_Engine_Offload_Ext_Rpm4_SoundSet","CivilianSedan_Engine_Offload_Ext_Rpm5_SoundSet","CivilianSedan_Engine_Ext_Rpm0_SoundSet","CivilianSedan_Engine_Ext_Rpm1_SoundSet","CivilianSedan_Engine_Ext_Rpm2_SoundSet","CivilianSedan_Engine_Ext_Rpm3_SoundSet","CivilianSedan_Engine_Ext_Rpm4_SoundSet","CivilianSedan_Engine_Ext_Rpm5_SoundSet","CivilianSedan_Engine_Ext_Broken_SoundSet","CivilianSedan_Tires_rock_slow_Ext_SoundSet","CivilianSedan_Tires_rock_fast_Ext_SoundSet","CivilianSedan_Tires_grass_slow_Ext_SoundSet","CivilianSedan_Tires_grass_fast_Ext_SoundSet","CivilianSedan_Tires_gravel_slow_Ext_SoundSet","CivilianSedan_Tires_gravel_fast_Ext_SoundSet","CivilianSedan_Tires_gravel_dust_fast_Ext_SoundSet","CivilianSedan_Tires_asphalt_slow_Ext_SoundSet","CivilianSedan_Tires_asphalt_fast_Ext_SoundSet","CivilianSedan_Tires_water_slow_Ext_SoundSet","CivilianSedan_Tires_water_fast_Ext_SoundSet","CivilianSedan_skid_dirt_SoundSet","CivilianSedan_dirt_turn_SoundSet","CivilianSedan_Rain_Ext_SoundSet","CivilianSedan_damper_left_SoundSet","CivilianSedan_damper_right_SoundSet"};
-			soundSetsInt[] = {"CivilianSedan_Tires_Asphalt_Fast_General_Int_SoundSet","CivilianSedan_Wind_SoundSet"};
-		};
 		class Crew: Crew
 		{
 			class Driver: Driver{};

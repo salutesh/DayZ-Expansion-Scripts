@@ -24,6 +24,8 @@ modded class DayZPlayerCameraBase
 
 	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
+		ForceFreelook(false);
+
 		super.OnUpdate(pDt, pOutResult);
 
 		Ex_OnUpdate(pDt, pOutResult);
@@ -38,7 +40,7 @@ modded class DayZPlayerCameraBase
 	void Ex_OnPostUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
 		// This is only a fix for crashing issues that are currently present
-		if (!dBodyIsDynamic(pOutResult.m_CollisionIgnoreEntity))
+		if (pOutResult.m_CollisionIgnoreEntity && !dBodyIsDynamic(pOutResult.m_CollisionIgnoreEntity))
 		{
 			pOutResult.m_CollisionIgnoreEntity = NULL;
 		}

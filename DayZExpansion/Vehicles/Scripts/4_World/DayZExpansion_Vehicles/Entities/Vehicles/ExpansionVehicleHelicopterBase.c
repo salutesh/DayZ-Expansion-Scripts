@@ -214,6 +214,9 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		//path = "CfgVehicles " + GetType() + " SimulationModule Cyclic Side animation";
 		//if ( GetGame().ConfigIsExisting( path ) )
 		//	m_Inertia = GetGame().ConfigGetTextOut( path );
+
+		if (IsMissionClient())
+			m_IsFreeLook = !GetExpansionClientSettings().UseHelicopterMouseControl;
 	}
 
 	// ------------------------------------------------------------

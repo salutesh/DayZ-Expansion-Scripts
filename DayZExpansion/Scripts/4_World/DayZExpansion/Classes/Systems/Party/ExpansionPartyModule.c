@@ -765,7 +765,7 @@ class ExpansionPartyModule: JMModuleBase
 		if (party && party.IsMember(playerID))
 		{
 			rpc.Write(true);
-			party.OnSend(rpc);
+			party.OnSend(rpc, playerID);
 		}
 		else
 		{
@@ -1139,7 +1139,10 @@ class ExpansionPartyModule: JMModuleBase
 		ExpansionPartyPlayerData party_player = UpdatePlayerPartyServer(identity.GetId());
 
 		if (party_player)
+		{
 			party_player.OnLeave();
+			party_player.GetParty().OnLeave(party_player);
+		}
 	}
 
 	//! OnInvokeConnect is called on each connect, reconnect, and respawn
@@ -1343,7 +1346,8 @@ class ExpansionPartyModule: JMModuleBase
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
-			//! TODO: We should only send data which actually changed, not all of it all the time
+			//! TODO: Currently, when a party marker is changed, all party markers are sent to party members.
+			//! This could be optimized.
 
 			if (m_Parties.Count() > 0)
 			{

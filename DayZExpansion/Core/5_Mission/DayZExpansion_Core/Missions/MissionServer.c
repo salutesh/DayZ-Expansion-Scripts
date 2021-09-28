@@ -160,7 +160,8 @@ modded class MissionServer
 	            continue;
 	        
 			Print(name);
-			if (ExpansionString(name).EndsWith("_Base"))
+			ExpansionString exName = new ExpansionString(name);
+			if (exName.EndsWith("_Base"))
 			{
 				Print("We hit a _Base");
 				continue;

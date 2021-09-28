@@ -98,6 +98,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
+
+		if (IsMissionClient())
+			m_IsFreeLook = !GetExpansionClientSettings().UseHelicopterMouseControl;
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()

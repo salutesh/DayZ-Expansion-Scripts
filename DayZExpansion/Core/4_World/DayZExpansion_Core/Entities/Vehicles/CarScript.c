@@ -43,6 +43,9 @@ modded class CarScript
 		EXPrint("CarScript::~CarScript - Start");
 		#endif
 
+		if (!GetGame())
+			return;
+
 		int i;
 
 		i = m_allVehicles.Find( this );

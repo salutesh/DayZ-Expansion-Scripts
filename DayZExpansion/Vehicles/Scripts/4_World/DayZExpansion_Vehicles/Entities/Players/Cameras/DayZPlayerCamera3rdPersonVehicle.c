@@ -49,21 +49,45 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		}
 	}
 
+	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
+	{
+		if (m_Ex_Player.GetCommand_ExpansionVehicle())
+		{
+			ForceFreelook(true);
+		}
+
+		super.OnUpdate(pDt, pOutResult);
+	}
+
 	override void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
 		super.Ex_OnUpdate(pDt, pOutResult);
 
+		bool freelook = true;
+
+		auto pbPlayer = PlayerBase.Cast(m_pPlayer);
+
+		auto hcv = pbPlayer.GetCommand_Vehicle();
+
 		ExpansionHelicopterScript d_helicopter;
-		if (m_pPlayer.GetCommand_Vehicle() && Class.CastTo(d_helicopter, m_pPlayer.GetParent()))
+		if (hcv && Class.CastTo(d_helicopter, m_pPlayer.GetParent()))
 		{
-			OnUpdateHelicopter(pDt, d_helicopter, d_helicopter.IsFreeLook(), pOutResult);
+			if (hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+				freelook = d_helicopter.IsFreeLook();
+
+			OnUpdateHelicopter(pDt, d_helicopter, freelook, pOutResult);
 			return;
 		}
 
+		auto ehcv = pbPlayer.GetCommand_ExpansionVehicle();
+
 		ExpansionVehicleHelicopterBase helicopter;
-		if (m_Ex_Player.GetCommand_ExpansionVehicle() && Class.CastTo(helicopter, m_pPlayer.GetParent()))
+		if (ehcv && Class.CastTo(helicopter, m_pPlayer.GetParent()))
 		{
-			OnUpdateHelicopter(pDt, helicopter, helicopter.IsFreeLook(), pOutResult);
+			if (ehcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+				freelook = helicopter.IsFreeLook();
+
+			OnUpdateHelicopter(pDt, helicopter, freelook, pOutResult);
 			return;
 		}
 	}

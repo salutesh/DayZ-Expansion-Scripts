@@ -54,7 +54,9 @@ modded class DayZPlayerCamera1stPersonVehicle
 			isFreeLook = heli.IsFreeLook();
 		}
 
-		if ( isHeliParent && !isFreeLook )
+		PlayerBase pb;
+
+		if ( isHeliParent && !isFreeLook && Class.CastTo(pb, m_pPlayer) && pb.Expansion_IsDriver() )
 		{
 			m_fUpDownAngle = 0;
 			m_fLeftRightAngle = 0;

@@ -37,6 +37,9 @@ modded class ItemBase
 	
 	void ~ItemBase()
 	{
+		if (!GetGame())
+			return;
+
 		int i = m_SafeZoneItems.Find( this );
 		if ( i >= 0 )
 		{

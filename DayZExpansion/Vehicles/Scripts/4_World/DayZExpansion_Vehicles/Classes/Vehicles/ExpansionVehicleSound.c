@@ -8,7 +8,7 @@ class ExpansionVehicleSoundShader
 		string path;
 		string expression;
 
-		expression = "0";
+		expression = "1";
 		path = "CfgSoundShaders " + name + " ex_volume";
 		if (GetGame().ConfigIsExisting(path))
 		{
@@ -19,7 +19,7 @@ class ExpansionVehicleSoundShader
 		Class.CastTo(m_Volume, CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, Expression));
 #endif
 
-		expression = "0";
+		expression = "1";
 		path = "CfgSoundShaders " + name + " ex_frequency";
 		if (GetGame().ConfigIsExisting(path))
 		{
@@ -36,9 +36,10 @@ class ExpansionVehicleSoundShader
 #ifdef CF_EXPRESSION
 		frequency = m_Frequency.Evaluate(variables);
 
-		if (frequency < 0.5 || frequency > 1.75)
+		if (frequency > 2.0)
 		{
-			volume = 0.0;
+			frequency = 2.0;
+			//volume = 0.0;
 		}
 		else
 		{
@@ -57,6 +58,14 @@ class ExpansionVehicleSoundManager
 		"doors",
 		"speed",
 		"thrust",
+		"water",
+		"rock",
+		"grass",
+		"gravel",
+		"asphalt",
+		"latSlipDrive",
+		"steerdelta",
+		"rain",
 	};
 
 	static ref map<string, ref ExpansionVehicleSoundShader> s_SoundShaders = new map<string, ref ExpansionVehicleSoundShader>();
@@ -121,6 +130,8 @@ class ExpansionVehicleSound
 			m_Offset[1] = values[1];
 			m_Offset[2] = values[2];
 		}
+
+		m_Offset = "0 0 0";
 	}
 
 	bool Update(float pDt, array<float> variables)
@@ -182,8 +193,8 @@ class ExpansionVehicleSound
 		instance.Add("Target Volume", m_TargetVolume);
 		instance.Add("Target Frequency", m_TargetFrequency);
 
-		instance.Add("Current Volume", m_CurrentVolume);
-		instance.Add("Current Frequency", m_CurrentFrequency);
+		//instance.Add("Current Volume", m_CurrentVolume);
+		//instance.Add("Current Frequency", m_CurrentFrequency);
 
 		return true;
 	}

@@ -577,6 +577,9 @@ modded class CarScript
 
 	bool ExpansionCanPlayerAttach()
 	{
+#ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
+		m_Expansion_CanPlayerAttach = true;
+#else
 		if (!m_Expansion_CanPlayerAttachSet)
 		{
 			m_Expansion_CanPlayerAttachSet = true;
@@ -589,8 +592,7 @@ modded class CarScript
 				}
 			}
 		}
-
-		m_Expansion_CanPlayerAttach = true;
+#endif
 
 		return m_Expansion_CanPlayerAttach;
 	}

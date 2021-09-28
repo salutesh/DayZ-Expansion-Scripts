@@ -67,6 +67,9 @@ class ExpansionCarKey extends ItemBase
 		EXLogPrint("ExpansionCarKey::~ExpansionCarKey - Start");
 		#endif
 		
+		if (!GetGame())
+			return;
+
 		m_AllKeys.RemoveItem(this);
 		
 		#ifdef EXPANSION_CARKEY_LOGGING

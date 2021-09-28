@@ -31,6 +31,9 @@ modded class ZombieBase
 	// ------------------------------------------------------------	
 	void ~ZombieBase()
 	{
+		if (!GetGame())
+			return;
+
 		int idx = m_allInfected.Find( this );
 		if ( idx >= 0 )
 		{

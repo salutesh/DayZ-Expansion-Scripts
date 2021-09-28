@@ -54,6 +54,13 @@ modded class Weapon_Base
 		EXPrint("Weapon_Base::Weapon_Base - End");
 		#endif
 	}
+	
+	void ExpansionHideWeaponPart(string WeaponSelectionS, bool state)
+	{
+		TStringArray selectionNames = new TStringArray;
+		ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
+		SetSimpleHiddenSelectionState( selectionNames.Find( WeaponSelectionS ), !state );
+	}
 
 	override void EOnSimulate( IEntity other, float dt )
 	{

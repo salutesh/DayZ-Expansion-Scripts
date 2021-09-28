@@ -34,6 +34,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	int m_CurrentEngine;
 	int m_EnginesOn;
+	float m_PreviousYaw;
 
 	bool m_RecievedInitialSync;
 
@@ -978,12 +979,61 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		OnAnimationUpdate(pDt);
 
+		//rpm
 		m_SoundVariables[0] = OnSound(CarSoundCtrl.RPM, EngineGetRPM());
+
+		//engineOn
 		m_SoundVariables[1] = OnSound(CarSoundCtrl.ENGINE, EngineIsOn());
-		m_SoundVariables[2] = OnSound(CarSoundCtrl.PLAYER, 0);
+
+		//campos
+		m_SoundVariables[2] = 1;
+		#ifndef DAYZ_1_13
+		auto player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+		{
+			if (!player.IsInThirdPerson())
+			{
+				if (player.GetParent() == this)
+				{
+					m_SoundVariables[2] = 0;
+				}
+			}
+		}
+		#endif
+
+		//doors
 		m_SoundVariables[3] = OnSound(CarSoundCtrl.DOORS, 0);
+
+		//speed
 		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, GetSpeedometer());
-		m_SoundVariables[5] = 1.0;
+
+		//thrust
+		m_SoundVariables[5] = 1.0;//m_Controller.m_Throttle[0];
+
+		//water
+		m_SoundVariables[6] = 0;
+
+		//rock
+		m_SoundVariables[7] = 0;
+
+		//grass
+		m_SoundVariables[8] = 0;
+		
+		//gravel
+		m_SoundVariables[9] = 0;
+		
+		//asphalt
+		m_SoundVariables[10] = 0;
+		
+		//latSlipDrive
+		m_SoundVariables[11] = 0;
+		
+		//steerdelta
+		m_SoundVariables[12] = m_Controller.m_Yaw - m_PreviousYaw;
+		m_PreviousYaw = m_Controller.m_Yaw;
+		
+		//rain
+		m_SoundVariables[13] = 0;
 
 		for (int i = 0; i < m_SoundControllers.Count(); i++)
 			m_SoundControllers[i].Update(pDt, m_SoundVariables);
@@ -1004,6 +1054,12 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		super.CF_OnDebugUpdate(instance, type);
 
+		int i;
+
+		instance.Add("Num Sounds", m_SoundControllers.Count());
+		for (i = 0; i < m_SoundControllers.Count(); i++)
+			instance.Add(m_SoundControllers[i]);
+
 		instance.Add(m_Controller);
 		instance.Add(m_State);
 
@@ -1014,7 +1070,7 @@ class ExpansionVehicleBase extends ItemBase
 		instance.Add("Is Physics Host", m_IsPhysicsHost);
 
 		instance.Add("Num Modules", m_Modules.Count());
-		for (int i = 0; i < m_Modules.Count(); i++)
+		for (i = 0; i < m_Modules.Count(); i++)
 			instance.Add(m_Modules[i]);
 
 		return true;

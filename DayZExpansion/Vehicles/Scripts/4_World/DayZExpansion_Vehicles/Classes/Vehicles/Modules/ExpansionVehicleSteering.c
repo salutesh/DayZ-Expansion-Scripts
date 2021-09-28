@@ -110,6 +110,9 @@ class ExpansionVehicleCarSteering : ExpansionVehicleSteering
 
 class ExpansionVehicleBikeSteering : ExpansionVehicleSteering
 {
+	float m_Current;
+	float m_Target;
+
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
 		UAInterface input = pDriver.GetInputInterface();
@@ -117,8 +120,11 @@ class ExpansionVehicleBikeSteering : ExpansionVehicleSteering
 		float left = input.SyncedValue_ID(UACarLeft);
 		float right = input.SyncedValue_ID(UACarRight);
 
-		float velocity = pState.m_LinearVelocity.Length();
+		float velocity = Math.AbsFloat(pState.m_LinearVelocityMS[2]);
 
-		m_Controller.m_Yaw = (right - left) / (velocity + 1.0);
+		m_Target = (right - left) / (Math.Max(velocity, 1.0));
+		m_Current += Math.Clamp(m_Target - m_Current, -20.0 * pState.m_DeltaTime, 20.0 * pState.m_DeltaTime);
+
+		m_Controller.m_Yaw = m_Current;
 	}
 };

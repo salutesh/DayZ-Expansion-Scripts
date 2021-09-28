@@ -280,9 +280,10 @@ class ExpansionIcons
 	// ------------------------------------------------------------
 	static string GetPath( string name )
 	{
-		if ( g_exp_MarkerIcons == NULL )
-			g_exp_MarkerIcons = new ExpansionIcons();
+		ExpansionIcon icon = Get(name);
+		if (!icon)
+			return string.Empty;
 	
-		return g_exp_MarkerIcons.m_IconMap.Get( name ).Path;
+		return icon.Path;
 	}
 }

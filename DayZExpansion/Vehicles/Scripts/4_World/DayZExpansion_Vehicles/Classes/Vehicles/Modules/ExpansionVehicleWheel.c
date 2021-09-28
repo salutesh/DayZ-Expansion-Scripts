@@ -23,6 +23,7 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 	float m_TraceRadius;
 
 	vector m_InitialTransform[4];
+	vector m_WheelOffset;
 
 	vector m_TransformWS[4];
 	vector m_TransformMS[4];
@@ -73,8 +74,6 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 	float m_AngularVelocity;
 	float m_AngularRotation;
 	float m_RPM;
-
-	float m_Mass;
 
 	float m_WheelTorque;
 	float m_BrakeTorque;
@@ -129,7 +128,7 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 				vector axis_start = m_Vehicle.GetMemoryPointPos(n_axis_start);
 				vector axis_end = m_Vehicle.GetMemoryPointPos(n_axis_end);
 				m_InitialTransform[1] = vector.Direction(axis_end, axis_start).Normalized();
-				m_InitialTransform[3] = m_InitialTransform[3] - axis_start;
+				m_WheelOffset = m_InitialTransform[3] - axis_start;
 			}
 		}
 	}
@@ -196,7 +195,6 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 
 		m_TraceRadius = m_Axle.m_WheelHubRadius;
 
-		m_Mass = dBodyGetMass(m_Vehicle) / 4.0;
 		m_Radius = m_WheelItem.m_Radius;
 
 		vector wheelTransform[4];
@@ -207,10 +205,11 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 
 		vector rotationTransform[4];
 		Math3D.YawPitchRollMatrix(Vector(m_Steering, 0, 0), rotationTransform);
+		rotationTransform[3] = m_WheelOffset;
 
 		Math3D.MatrixMultiply4(wheelTransform, rotationTransform, m_TransformMS);
 
-		m_TraceStart = m_InitialTransform[3];
+		m_TraceStart = m_TransformMS[3];
 
 		float safeChecking = 0; //Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 5.0; //! checking 2 frames ahead
 
@@ -227,14 +226,35 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 		m_RayStartWS = m_RayStartMS.Multiply4(pState.m_Transform);
 		m_RayEndWS = m_RayEndMS.Multiply4(pState.m_Transform);
 
-		pState.DBGDrawLineMS(m_TraceStart - (m_InitialTransform[1] * m_TraceUp), m_TraceStart + (m_InitialTransform[1] * m_TraceDown), 0xFFFFFFFFF);
+#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		//pState.DBGDrawLineMS(m_TraceStart - (m_InitialTransform[1] * m_TraceUp), m_TraceStart + (m_InitialTransform[1] * m_TraceDown), 0xFFFFFFFFF);
+#endif
 
 		m_HasContact = DayZPhysics.SphereCastBullet(m_RayStartWS, m_RayEndWS, m_TraceRadius, collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction);
+		
+		/*
+		int contactComponent;
+		set<Object> results = new set<Object>();
+		m_HasContact = DayZPhysics.RaycastRV(m_RayStartWS, m_RayEndWS, m_ContactPositionWS, m_ContactNormalWS, contactComponent, results, m_Vehicle, m_Vehicle, false, false, ObjIntersectGeom, m_TraceRadius, CollisionFlags.FIRSTCONTACT);
+		
+		m_ContactPosition = m_ContactPositionWS.InvMultiply4(pState.m_Transform);
+		m_ContactNormal = m_ContactNormalWS.InvMultiply3(pState.m_Transform);
+
+		m_ContactFraction = vector.Distance(m_TraceStart - (m_InitialTransform[1] * m_TraceUp), m_ContactPosition) / m_ContactLength;
+		*/
+
+#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
+		pState.DBGDrawSphereMS(m_TransformMS[3], 0.05, 0xFF0000FF);
+
+		pState.DBGDrawSphere(m_RayStartWS, m_TraceRadius, 0xFFFF0000);
+		pState.DBGDrawSphere(m_RayEndWS, m_TraceRadius, 0xFFFF0000);
+		pState.DBGDrawSphere(m_ContactPositionWS, m_TraceRadius, 0xFFFF00FF);
+
+		pState.DBGDrawLineDirectionMS(m_ContactPosition, m_ContactNormal, 0xFFFF00FF);
+#endif
+
 		if (m_HasContact)
 		{
-			m_ContactPosition = m_ContactPositionWS.InvMultiply4(pState.m_Transform);
-			m_ContactNormal = m_ContactNormalWS.InvMultiply3(pState.m_Transform);
-
 			float wheelDiff = vector.Dot(m_ContactNormal, m_InitialTransform[1]);
 			if (wheelDiff >= -0.1)
 			{
@@ -285,22 +305,7 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 			m_Surface = "";
 		}
 
-#ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		pState.DBGDrawImpulseMS(m_ContactPosition, m_ContactVelocity * m_Mass * pState.m_DeltaTime, 0x9900FF00);
-#endif
-
 		Math3D.MatrixMultiply4(pState.m_Transform, m_TransformMS, m_TransformWS);
-
-		/*
-		m_ContactVelocity = m_ContactVelocity.Multiply3(m_Vehicle.m_Transform);
-		m_ContactVelocity = m_ContactVelocity.InvMultiply3(m_TransformWS);
-
-		m_ContactNormal = m_ContactNormal.Multiply3(m_Vehicle.m_Transform);
-		m_ContactNormal = m_ContactNormal.InvMultiply3(m_TransformWS);
-
-		m_ContactPosition = m_ContactPosition.Multiply3(m_Vehicle.m_Transform);
-		m_ContactPosition = m_ContactPosition.InvMultiply3(m_TransformWS);
-		*/
 
 #ifndef EXPANSION_WHEEL_DEBUG_DISABLE
 		pState.DBGDrawSphere(m_TransformWS[3], 0.05, 0xFF0000FF);
@@ -325,9 +330,9 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 				m_SurfaceFriction = Surface.GetParamFloat(m_Surface, "friction");
 
 			m_WheelAcceleration = 0;
-			m_WheelAcceleration += m_Radius * m_WheelTorque * m_Mass;
+			m_WheelAcceleration += m_Radius * m_WheelTorque * pState.m_Mass;
 			m_WheelAcceleration -= Math.Sign(m_ContactVelocity[2]) * m_BrakeTorque * Math.Lerp(0.0, 1.0, Math.Clamp(Math.AbsFloat(m_ContactVelocity[2]), 0, 1));
-			m_WheelAcceleration -= (1.0 - m_SurfaceFriction) * m_WheelItem.m_TyreRollResistance * m_ContactVelocity[2] * m_Radius * m_Mass;
+			m_WheelAcceleration -= (1.0 - m_SurfaceFriction) * m_WheelItem.m_TyreRollResistance * m_ContactVelocity[2] * m_Radius * pState.m_Mass;
 
 			m_ForwardImpulse = m_WheelAcceleration;
 			m_AngularVelocity = m_ContactVelocity[2] / m_Radius;
@@ -338,7 +343,7 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 			else if (m_AngularRotation < 0)
 				m_AngularRotation += Math.PI2;
 
-			m_RPM = Math.AbsFloat((m_AngularVelocity * 30.0 * 0.10472) / (Math.PI * m_Radius * m_Radius));
+			m_RPM = Math.AbsFloat(m_AngularVelocity / (m_Radius * Math.PI / 30.0));
 
 			m_SideDot = vector.Dot(m_ContactVelocity.Normalized(), m_TransformMS[0]);
 			float sideCoef = 10.0;
