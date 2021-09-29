@@ -27,6 +27,7 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 	float m_BrakeBias;
 	float m_BrakeForce;
 	float m_FinalRatio;
+	float m_InvFinalRatio;
 	float m_WheelHubMass;
 	float m_WheelHubRadius;
 
@@ -90,6 +91,7 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 		if (m_EngineIndex == -1)
 		{
 			m_FinalRatio = 0;
+			m_InvFinalRatio = 0;
 			return;
 		}
 
@@ -110,7 +112,12 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 
 		if (m_FinalRatio == 0)
 		{
-			m_EngineIndex = 0;
+			m_EngineIndex = -1;
+			m_InvFinalRatio = 0;
+		}
+		else
+		{
+			m_InvFinalRatio = 1.0 / m_FinalRatio;
 		}
 	}
 
@@ -153,9 +160,12 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 	{
 		float torque = 0;
 		if (m_EngineIndex != -1)
-			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio;
+			torque = m_Controller.m_Torque[m_EngineIndex] * m_InvFinalRatio;
 
-		float brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+		float brake = 0;
+		if (m_ControlIndex != -1)
+			brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+
 		float steering = m_Controller.m_Yaw * m_MaxSteeringAngle;
 		for (int i = 0; i < m_Wheels.Count(); ++i)
 		{
@@ -167,8 +177,10 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 
 	override void Simulate(ExpansionPhysicsState pState)
 	{
-		if (m_FinalRatio != 0.0)
-			m_Controller.m_RPM[m_EngineIndex] = GetRPM() / m_FinalRatio;
+		if (m_EngineIndex == -1)
+			return;
+
+		m_Controller.m_RPM[m_EngineIndex] = GetRPM() * m_FinalRatio;
 	}
 };
 
@@ -192,10 +204,16 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 	{
 		float torque = 0;
 		if (m_EngineIndex != -1)
-			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio;
+			torque = m_Controller.m_Torque[m_EngineIndex] * m_InvFinalRatio;
 
 		m_Center.m_WheelTorque = torque;
-		m_Center.m_BrakeTorque = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+
+		float brake = 0;
+		if (m_ControlIndex != -1)
+			brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+
+		m_Center.m_BrakeTorque = brake;
+
 		m_Center.m_Steering = m_Controller.m_Yaw * m_MaxSteeringAngle;
 	}
 };
@@ -282,9 +300,14 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 	{
 		float sp = pState.GetModelVelocityAt("0 0 0")[2];
 
-		float torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio;
+		float torque = 0;
+		if (m_EngineIndex != -1)
+			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio;
 
-		float brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+		float brake = 0;
+		if (m_ControlIndex != -1)
+			brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+
 		float steering = m_Controller.m_Yaw;
 
 		m_AntiRollForce = Math.Clamp(sp * steering * 0.01 * pState.m_DeltaTime, -1, 1) * m_SwayBar;

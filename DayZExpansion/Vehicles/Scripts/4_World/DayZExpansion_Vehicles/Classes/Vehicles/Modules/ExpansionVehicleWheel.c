@@ -71,9 +71,13 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 	vector m_ForwardWS;
 	vector m_AxleWS;
 
-	float m_AngularVelocity;
-	float m_AngularRotation;
+	float m_Acceleration;
+	float m_Velocity;
+	float m_RotationPosition;
 	float m_RPM;
+
+	float m_ForwardForce;
+	float m_SideForce;
 
 	float m_WheelTorque;
 	float m_BrakeTorque;
@@ -83,11 +87,6 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 	string m_Surface;
 
 	float m_SurfaceFriction;
-
-	float m_WheelAcceleration;
-	float m_ForwardImpulse;
-	float m_SideDot;
-	float m_SideImpulse;
 
 	void ExpansionVehicleWheel(EntityAI pVehicle, string pName, ExpansionVehicleAxle pAxle)
 	{
@@ -150,36 +149,9 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 	{
 		instance.Add("Wheel", m_WheelHub);
 
-		//instance.Add("Ray Start (MS)", m_RayStartMS);
-		//instance.Add("Ray End (MS)", m_RayEndMS);
-		//instance.Add("Ray Start (WS)", m_RayStartWS);
-		//instance.Add("Ray End (WS)", m_RayEndWS);
-
-		//instance.Add("Previous", m_Vehicle.GetAnimationPhase(m_AnimDamper));
-		//instance.Add("New", m_SuspensionFraction);
-
-		instance.Add("Has Contact", m_HasContact);
-		//instance.Add("Contact Velocity", m_ContactVelocity);
-
-		instance.Add("Contact Length", m_ContactLength);
-		instance.Add("Suspension Length", m_SuspensionLength);
-
-		//instance.Add("Suspension Fraction", m_SuspensionFraction);
-		//instance.Add("Suspension Force", m_SuspensionForce);
-		//instance.Add("Trace Up", m_TraceUp);
-		//instance.Add("Trace Down", m_TraceDown);
-		//instance.Add("Travel Max Down", m_Axle.GetTravelMaxDown());
-
-		//instance.Add("Friction", m_SurfaceFriction);
-		//instance.Add("Torque", (m_WheelTorque * m_Mass));
-		//instance.Add("Brake", m_BrakeTorque);
-
-		//instance.Add("Acceleration", m_WheelAcceleration);
-		//instance.Add("Force", m_ForwardImpulse);
-
-		//instance.Add("SideImp", m_SideImp);
-
+		instance.Add("Contact", m_HasContact);
 		instance.Add("Surface", m_Surface);
+		instance.Add("Surface Friction", m_SurfaceFriction);
 
 		return true;
 	}
@@ -231,7 +203,7 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 #endif
 
 		m_HasContact = DayZPhysics.SphereCastBullet(m_RayStartWS, m_RayEndWS, m_TraceRadius, collisionLayerMask, m_Vehicle, m_ContactObject, m_ContactPositionWS, m_ContactNormalWS, m_ContactFraction);
-		
+
 		/*
 		int contactComponent;
 		set<Object> results = new set<Object>();
@@ -317,54 +289,56 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 		vector impulse;
 		vector impulseTorque;
 
-		m_RPM = 0;
+		m_SurfaceFriction = 1.0;
+
+		if (m_HasContact && m_Surface != "")
+			m_SurfaceFriction = Surface.GetParamFloat(m_Surface, "friction");
+
+		m_ForwardForce = m_WheelTorque * m_SurfaceFriction * pState.m_Mass * m_Radius;
+		m_ForwardForce -= m_WheelItem.m_TyreRollResistance * m_Velocity * pState.m_Mass;
 
 		if (m_HasContact)
 		{
 			impulse += m_SuspensionForce;
 			impulseTorque += m_ContactPosition * m_SuspensionForce;
 
-			m_SurfaceFriction = 0.95;
+			m_Velocity = m_ContactVelocity[2];
 
-			if (m_Surface != "")
-				m_SurfaceFriction = Surface.GetParamFloat(m_Surface, "friction");
-
-			m_WheelAcceleration = 0;
-			m_WheelAcceleration += m_Radius * m_WheelTorque * pState.m_Mass;
-			m_WheelAcceleration -= Math.Sign(m_ContactVelocity[2]) * m_BrakeTorque * Math.Lerp(0.0, 1.0, Math.Clamp(Math.AbsFloat(m_ContactVelocity[2]), 0, 1));
-			m_WheelAcceleration -= (1.0 - m_SurfaceFriction) * m_WheelItem.m_TyreRollResistance * m_ContactVelocity[2] * m_Radius * pState.m_Mass;
-
-			m_ForwardImpulse = m_WheelAcceleration;
-			m_AngularVelocity = m_ContactVelocity[2] / m_Radius;
-
-			m_AngularRotation += m_AngularVelocity * pState.m_DeltaTime;
-			if (m_AngularRotation > Math.PI2)
-				m_AngularRotation -= Math.PI2;
-			else if (m_AngularRotation < 0)
-				m_AngularRotation += Math.PI2;
-
-			m_RPM = Math.AbsFloat(m_AngularVelocity / (m_Radius * Math.PI / 30.0));
-
-			m_SideDot = vector.Dot(m_ContactVelocity.Normalized(), m_TransformMS[0]);
-			float sideCoef = 10.0;
+			m_ForwardForce -= Math.Sign(m_Velocity) * m_BrakeTorque * Math.Lerp(0.0, 1.0, Math.Clamp(Math.AbsFloat(m_Velocity), 0, 1));
+			//m_ForwardForce -= m_SurfaceFriction * m_Velocity * pState.m_Mass;
 
 			vector axle = m_TransformWS[0];
 			float proj = vector.Dot(axle, m_ContactNormalWS);
 			axle -= m_ContactNormalWS * proj;
 			axle.Normalize();
 
-			m_SideImpulse = ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3(pState.m_Transform), m_ContactObject, "0 0 0", axle);
+			m_SideForce = ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3(pState.m_Transform), m_ContactObject, "0 0 0", axle);
 
-			vector forward = m_TransformMS[2] * m_ForwardImpulse * pState.m_DeltaTime;
+			vector forward = m_TransformMS[2] * m_ForwardForce * pState.m_DeltaTime;
 
 			impulse += forward;
 			impulseTorque += m_ContactPosition * forward;
 
-			vector side = m_TransformMS[0] * m_SideImpulse * pState.m_DeltaTime;
+			vector side = m_TransformMS[0] * m_SideForce * pState.m_DeltaTime;
 
 			impulse += side;
 			impulseTorque += m_ContactPosition * side;
 		}
+
+		m_Acceleration = m_ForwardForce / pState.m_Mass;
+		m_Velocity += m_Acceleration * pState.m_DeltaTime;
+
+		m_RotationPosition += m_Velocity * pState.m_DeltaTime / m_Radius;
+		#ifndef DAYZ_1_13
+		m_RotationPosition = Math.WrapFloatInclusive(m_RotationPosition, 0, Math.PI2);
+		#else
+		if (m_RotationPosition > Math.PI2)
+			m_RotationPosition -= Math.PI2;
+		else if (m_RotationPosition < 0)
+			m_RotationPosition += Math.PI2;
+		#endif
+
+		m_RPM = Math.AbsFloat((m_Velocity * 30.0) / (Math.PI * m_Radius));
 
 		// convert wheel forces to world space
 		pState.m_Impulse += impulse.Multiply3(pState.m_Transform);
@@ -375,6 +349,6 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 	{
 		m_Vehicle.SetAnimationPhase(m_AnimDamper, m_SuspensionFraction);
 		m_Vehicle.SetAnimationPhase(m_AnimTurn, m_Steering * Math.DEG2RAD);
-		m_Vehicle.SetAnimationPhase(m_AnimRotation, m_AngularRotation);
+		m_Vehicle.SetAnimationPhase(m_AnimRotation, m_RotationPosition);
 	}
 };

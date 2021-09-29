@@ -24,6 +24,9 @@ class ExpansionItemTooltip: ExpansionScriptView
 	private bool m_ShowPreview = false;
 	private bool m_ShowContent = true;
 
+	private float m_ContentOffsetX;
+	private float m_ContentOffsetY;
+	
 	void ExpansionItemTooltip(EntityAI item)
 	{
 		m_Item = item;
@@ -586,13 +589,19 @@ class ExpansionItemTooltip: ExpansionScriptView
 		SetView();
 	}
 	
+	void SetContentOffset(float x, float y)
+	{
+		m_ContentOffsetX = x;
+		m_ContentOffsetY = y;
+	}
+	
 	override void OnShow()
 	{
 		super.OnShow();
 		
 		int x, y;
 		GetGame().GetMousePos(x, y);
-		GetLayoutRoot().SetPos(x + 0.0, y + 0.0, true);
+		GetLayoutRoot().SetPos(x + m_ContentOffsetX, y + m_ContentOffsetY, true);
 	}
 }
 
@@ -660,8 +669,8 @@ class ExpansionItemPreviewTooltip: ExpansionScriptView
 	ref ExpansionItemPreviewTooltipController m_ItemTooltipController;	
 	EntityAI m_Item;
 
-	protected float m_ContentOffsetX;
-	protected float m_ContentOffsetY;
+	private float m_ContentOffsetX;
+	private float m_ContentOffsetY;
 	
 	void ExpansionItemPreviewTooltip(EntityAI item)
 	{

@@ -1056,22 +1056,18 @@ class ExpansionVehicleBase extends ItemBase
 
 		int i;
 
-		instance.Add("Num Sounds", m_SoundControllers.Count());
-		for (i = 0; i < m_SoundControllers.Count(); i++)
-			instance.Add(m_SoundControllers[i]);
-
 		instance.Add(m_Controller);
 		instance.Add(m_State);
 
-		instance.Add("ANG1", QuatToString(m_q1));
-		instance.Add("ANG2", QuatToString(m_q2));
-		instance.Add("ANG3", QuatToString(m_q3));
-
-		instance.Add("Is Physics Host", m_IsPhysicsHost);
+		instance.Add("Physics Host", m_IsPhysicsHost);
 
 		instance.Add("Num Modules", m_Modules.Count());
 		for (i = 0; i < m_Modules.Count(); i++)
 			instance.Add(m_Modules[i]);
+
+		instance.Add("Num Sounds", m_SoundControllers.Count());
+		for (i = 0; i < m_SoundControllers.Count(); i++)
+			instance.Add(m_SoundControllers[i]);
 
 		return true;
 	}

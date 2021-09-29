@@ -41,11 +41,7 @@ class ExpansionVehicleEngine : ExpansionVehicleModule
 
 	float m_RPM;
 	float m_Torque;
-
-	float m_NewTorque;
-	float m_PreviousTorque;
-
-	float m_EffectiveTorque;
+	float m_Velocity;
 
 	ExpansionVehicleEngineType m_Type;
 	int m_Stage;
@@ -141,27 +137,34 @@ class ExpansionVehicleEngine : ExpansionVehicleModule
 	{
 		if (!m_Controller.m_State[m_EngineIndex])
 		{
-			m_EffectiveTorque = 0.0;
+			m_RPM = 0;
+			m_Torque = 0;
+			m_Controller.m_Torque[m_EngineIndex] = 0.0;
 			return;
 		}
 
-		float pGR = 1.0;
+		float gear = 1.0;
+		float invGear = 0.0;
 		if (m_GearIndex >= 0)
-			pGR = m_Controller.m_Ratio[m_GearIndex];
+			gear = m_Controller.m_Ratio[m_GearIndex];
 
-		m_RPM = Math.Clamp(ToRPM(m_Controller.m_RPM[m_EngineIndex] * pGR), m_RPMIdle, m_RPMMax);
+		if (gear != 0.0)
+		{
+			invGear = 1.0 / gear;
 
-		m_NewTorque = LookupTorque(m_RPM) * m_Controller.m_Throttle[m_ThrottleIndex];
-		m_Torque += (m_NewTorque - m_PreviousTorque) * (pState.m_DeltaTime / m_Inertia);
-		m_PreviousTorque = m_NewTorque;
+			m_RPM = Math.Max(m_Controller.m_RPM[m_EngineIndex] * gear, m_RPMIdle);
+		}
 
-		m_Torque = Math.Clamp(m_Torque, 0, m_TorqueMax);
+		m_Velocity = m_RPM * Math.PI / 60.0;
+		m_Torque = LookupTorque(m_RPM);
 
-		m_EffectiveTorque = 0.0;
-		if (pGR != 0)
-			m_EffectiveTorque = m_Torque / pGR;
+		if (gear == 0.0)
+		{
+			m_Velocity -= m_Inertia * m_Velocity * pState.m_DeltaTime;
+			m_RPM = Math.Max((m_Velocity * 60.0) / Math.PI, m_RPMIdle);
+		}
 
-		m_Controller.m_Torque[m_EngineIndex] = m_EffectiveTorque;
+		m_Controller.m_Torque[m_EngineIndex] = m_Torque * m_Controller.m_Throttle[m_ThrottleIndex] * m_Inertia * gear * pState.m_DeltaTime;
 	}
 
 #ifdef CF_DebugUI
@@ -177,6 +180,7 @@ class ExpansionVehicleEngine : ExpansionVehicleModule
 
 		instance.Add("RPM", m_RPM);
 		instance.Add("Torque", m_Torque);
+		instance.Add("Velocity", m_Velocity);
 
 		return true;
 	}
