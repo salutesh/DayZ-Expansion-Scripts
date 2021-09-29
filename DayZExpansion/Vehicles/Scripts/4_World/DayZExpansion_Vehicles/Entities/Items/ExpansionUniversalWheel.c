@@ -77,6 +77,32 @@ modded class Hatchback_02_Wheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
+modded class Truck_01_Wheel
+{
+	override void OnWasDetached( EntityAI parent, int slot_id )
+	{
+		super.OnWasDetached(parent, slot_id);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ConvertWheel, 500, false, parent, slot_id);
+	}
+	void ConvertWheel(EntityAI parent, int slot_id)
+	{		
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
+	}
+};
+modded class Truck_01_WheelDouble
+{
+	override void OnWasDetached( EntityAI parent, int slot_id )
+	{
+		super.OnWasDetached(parent, slot_id);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ConvertWheel, 500, false, parent, slot_id);
+	}
+	void ConvertWheel(EntityAI parent, int slot_id)
+	{		
+		ExpansionCarWheelChangeLambda lambda = new ExpansionCarWheelChangeLambda(this, "ExpansionUniversalWheel");
+		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
+	}
+};
 class ExpansionUAZWheel extends CarWheel
 {
 	override void OnWasDetached( EntityAI parent, int slot_id )
@@ -142,4 +168,6 @@ class ExpansionTractorBackWheel extends CarWheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
+class ExpansionBusWheel_Ruined extends CarWheel_Ruined {};
+class ExpansionBusWheelDouble_Ruinedel extends CarWheel_Ruined {};
 #endif

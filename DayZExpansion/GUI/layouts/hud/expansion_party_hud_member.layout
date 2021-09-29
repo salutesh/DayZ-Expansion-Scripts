@@ -396,7 +396,7 @@ WrapSpacerWidgetClass PartyMemberEntry {
  }
  {
   ScriptParamsClass {
-   Debug_Logging 1
+   Debug_Logging 0
   }
  }
 }

@@ -45,11 +45,8 @@ modded class PlayerBase
 		EXPrint("PlayerBase::PlayerBase - Start");
 		#endif
 
-		#ifndef EXPANSIONMODVEHICLE
-		//! PlayerBase in Vehicles_Scripts calls this on its own
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.DeferredClientInit, 100, false );
-		#endif
 		
 		m_TerritoryIdInside = -1;
 
@@ -89,6 +86,15 @@ modded class PlayerBase
 			#endif
 		}
 
+		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
+		if ( GetGame() && GetExpansionSettings().GetGeneral().EnableGravecross )
+		{
+		#ifdef ENFUSION_AI_PROJECT
+			if (!IsInherited(eAIBase))
+		#endif
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
+		}
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::~PlayerBase - End");
 		#endif
@@ -99,19 +105,12 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void EEKilled( Object killer )
 	{
-	#ifdef ENFUSION_AI_PROJECT
-		eAIBase eAI_Entity = eAIBase.Cast(this);
-	#endif
-		
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
-			eAI_Entity = eAIBase.Cast(this);
-			if (!eAI_Entity)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
-		#else
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
+			if (!IsInherited(eAIBase))
 		#endif
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
 		}
 		
 		super.EEKilled(killer);
@@ -144,7 +143,7 @@ modded class PlayerBase
 	override void DeferredClientInit()
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - Start");
+		EXPrint(ToString() + "::DeferredClientInit - Start");
 		#endif
 		
 		super.DeferredClientInit();
@@ -152,11 +151,12 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXLOGPRINT
 		if ( GetGame() && GetGame().GetPlayer() )
 		{
-			EXLogPrint( "Player Has Entered Network Bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
+			EXLogPrint( ToString() + " '" + GetIdentityName() + "' (id=" + GetIdentityUID() + ") has entered network bubble at " + GetPosition() + " while we are at " + GetGame().GetPlayer().GetPosition() );
 		}
 		#endif
 
-		if ( GetGame() && IsMissionClient() && GetModuleManager() )
+		//! Only run this on this client's player, not other playerbase entities (it will be handled in their client if they are players)
+		if ( GetGame() && IsMissionClient() && GetGame().GetPlayer() == this && GetModuleManager() )
 		{
 			ExpansionMarkerModule module;
 			if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionMarkerModule ) ) )
@@ -580,36 +580,6 @@ modded class PlayerBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion SendChatMessage 
-	// ------------------------------------------------------------
-	override void SendChatMessage( string message )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SendChatMessage - Start");
-		#endif
-
-		if ( IsMissionClient() )
-		{
-			GetGame().GetMission().OnEvent( ChatMessageEventTypeID, new ChatMessageEventParams( ExpansionChatChannels.CCDirect, "", message, "" ) );
-		}
-		else
-		{
-			array<Man> players = new array<Man>;
-			GetGame().GetPlayers( players );
-			
-			foreach( auto player : players  )
-			{
-				Param1<string> m_MessageParam = new Param1<string>(message);
-				GetGame().RPCSingleParam( player, ERPCs.RPC_USER_ACTION_MESSAGE, m_MessageParam, true, player.GetIdentity() );
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SendChatMessage - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// PlayerBase HasItem
 	// ------------------------------------------------------------
 	bool HasItem( string name, out EntityAI item )
@@ -700,60 +670,6 @@ modded class PlayerBase
 		return cmd;
 	}
 	*/
-
-	// ------------------------------------------------------------
-	// PlayerBase OnCommandExpansionVehicleStart
-	// ------------------------------------------------------------
-	override void OnCommandExpansionVehicleStart()
-	{
-		super.OnCommandExpansionVehicleStart();
-
-		if ( GetInventory() )
-			GetInventory().LockInventory( LOCK_FROM_SCRIPT );
-
-		ItemBase itemInHand = GetItemInHands();
-		EntityAI itemOnHead = FindAttachmentBySlotName( "Headgear" );
-
-		if ( itemInHand )
-		{
-			if ( itemInHand.GetCompEM() )
-			{
-				itemInHand.GetCompEM().SwitchOff();
-			}
-
-			GetItemAccessor().HideItemInHands(true);
-		}
-
-		if ( itemOnHead )
-		{
-			if ( itemOnHead.GetCompEM() )
-			{
-				itemOnHead.GetCompEM().SwitchOff();
-			}
-		}
-		
-		ExpansionHumanCommandVehicle hcv = GetCommand_ExpansionVehicle();
-		if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-		{
-			OnVehicleSeatDriverEnter();
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion HeadingModel
-	// ------------------------------------------------------------
-	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
-	{
-		if ( GetCommand_ExpansionVehicle() )
-		{
-			m_fLastHeadingDiff = 0;
-
-			pModel.m_fOrientationAngle = 0;
-			return true;
-		}
-
-		return super.HeadingModel( pDt, pModel );
-	}
 	
 	// ------------------------------------------------------------
 	// PlayerBase SetHasItemMap

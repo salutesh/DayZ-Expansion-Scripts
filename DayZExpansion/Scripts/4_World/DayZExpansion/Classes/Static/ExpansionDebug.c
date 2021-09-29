@@ -9,19 +9,3 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
-static string Expansion_Debug_Player( Man man )
-{
-	PlayerBase player = PlayerBase.Cast( man );
-	if ( player )
-	{
-		return "[" + player.GetIdentityName() + ":" + player.GetIdentityUID() + "] ";
-	}
-
-	if ( man )
-	{
-		return "[Unknown Player] ";
-	}
-
-	return "[NULL Player] ";
-};

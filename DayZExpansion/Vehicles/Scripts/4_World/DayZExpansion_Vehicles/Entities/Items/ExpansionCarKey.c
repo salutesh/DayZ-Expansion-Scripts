@@ -67,6 +67,9 @@ class ExpansionCarKey extends ItemBase
 		EXLogPrint("ExpansionCarKey::~ExpansionCarKey - Start");
 		#endif
 		
+		if (!GetGame())
+			return;
+
 		m_AllKeys.RemoveItem(this);
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
@@ -155,7 +158,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	// ExpansionCarKey SetMaster
 	// ------------------------------------------------------------
-	private void SetMaster(bool state)
+	void SetMaster(bool state)
 	{
 		m_IsMasterKey = state;
 	}

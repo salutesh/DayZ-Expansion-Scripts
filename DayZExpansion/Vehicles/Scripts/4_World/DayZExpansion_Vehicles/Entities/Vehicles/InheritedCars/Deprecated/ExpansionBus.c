@@ -504,7 +504,6 @@ class ExpansionBus extends OffroadHatchback
 		if ( !carDoor ) {
 			return CarDoorState.DOORS_MISSING;
 		}
-
 		*/
 
 		#ifdef EXPANSIONEXPRINT
@@ -522,35 +521,28 @@ class ExpansionBus extends OffroadHatchback
 		{
 			case CarSoundCtrl.DOORS:
 				float newValue = 0;
-
 				if ( GetCarDoorsState( "uazdriverdoor" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.4;
 				}
-
 				if ( GetCarDoorsState( "uazcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.4;
 				}
-
 				if ( GetCarDoorsState( "uazcargo1door" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.4;
 				}
-
 				if ( GetCarDoorsState( "uazcargo2door" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.4;
 				}
-
 				if ( newValue > 1 )
 					newValue = 1;
-
 				return newValue;
 			default:
 				break;
 		}
-
 		return oldValue;
 	}
 	*/
@@ -637,7 +629,6 @@ class ExpansionBus extends OffroadHatchback
 			if ( nextSeat == 16 )
 				return true;
 			return false;
-
 		}
 		
 		return false;
@@ -725,6 +716,9 @@ class ExpansionBus extends OffroadHatchback
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
+		if ( !super.CanObjectAttach( obj ) )
+			return false;
+		
  		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 		

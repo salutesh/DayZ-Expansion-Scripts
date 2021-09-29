@@ -49,9 +49,6 @@ class Vehicle_ExpansionMerlin: ExpansionVehicleHelicopterBase
 
 		m_BankForceCoef								= 0.2;
 		m_TailForceCoef								= 6.0;
-
-		//! TODO: Null pointer here
-		RegisterNetSyncVariableBool( "m_MonitorEnabled" );
 	}
 
 	// ------------------------------------------------------------
@@ -182,13 +179,13 @@ class Vehicle_ExpansionMerlin: ExpansionVehicleHelicopterBase
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
-		return 1;
+		return "0 1 0";
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
 		return 25;
 	}

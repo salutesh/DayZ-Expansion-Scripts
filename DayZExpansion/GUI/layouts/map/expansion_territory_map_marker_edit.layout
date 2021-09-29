@@ -74,7 +74,7 @@ GridSpacerWidgetClass marker_edit_panel {
      vexactpos 1
      hexactsize 0
      vexactsize 1
-     text "CANCEL"
+     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
     }
     ButtonWidgetClass marker_button_right {
      position 0 0
@@ -83,7 +83,7 @@ GridSpacerWidgetClass marker_edit_panel {
      vexactpos 1
      hexactsize 0
      vexactsize 1
-     text "EDIT"
+     text "#STR_EXPANSION_MAP_MARKER_EDIT_BUTTON_LABLE"
     }
    }
   }

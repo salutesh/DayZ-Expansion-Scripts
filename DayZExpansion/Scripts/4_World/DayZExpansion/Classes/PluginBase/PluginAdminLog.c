@@ -30,7 +30,7 @@ modded class PluginAdminLog
 			if (!m_KillfeedModule)
 				m_KillfeedModule = ExpansionKillFeedModule.Cast(GetModuleManager().GetModule(ExpansionKillFeedModule));
 			
-			if ( player && source && player.IPADACK() )
+			if ( player && source && !player.IPADACK() )
 			{
 				if ( player == source )	// deaths not caused by another object (starvation, dehydration)
 				{
@@ -44,7 +44,7 @@ modded class PluginAdminLog
 					m_KillfeedModule.OnKilledByWeapon( player, source );
 				}
 				else if ( player != source && source.IsInherited( PlayerBase ) ) // player with no weapon
-				{
+				{			
 					m_KillfeedModule.OnKilledByPlayer( player, source );
 				}
 				else if ( source.IsInherited( ZombieBase ) ) // zombie
@@ -52,7 +52,7 @@ modded class PluginAdminLog
 					m_KillfeedModule.OnKilledByZombie( player, source );
 				}
 				else if ( source.IsInherited( AnimalBase ) ) // animal
-				{
+				{	
 					m_KillfeedModule.OnKilledByAnimal( player, source );
 				}
 			}

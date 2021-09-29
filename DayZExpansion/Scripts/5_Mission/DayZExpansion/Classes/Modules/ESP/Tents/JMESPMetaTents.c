@@ -56,8 +56,8 @@ class JMESPMetaTents : JMESPMeta
 	//! Only call this after settings have been loaded
 	bool CanAttachCodelock()
 	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CanAttachCodelock;
-		return attachMode == CodelockAttachMode.ExpansionAndTents || attachMode == CodelockAttachMode.ExpansionAndTentsAndFence;
+		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
+		return attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
 	}
 
 	void SetCode( string code )

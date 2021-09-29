@@ -14,7 +14,6 @@ class ExpansionVodnikDoorDriver extends CarDoor {}
 class ExpansionVodnikDoorCoDriver extends CarDoor {}
 class ExpansionVodnikDoorCargo1 extends CarDoor {}
 class ExpansionVodnikDoorCargo2 extends CarDoor {}
-
 class ExpansionVodnik extends ExpansionBoatScript
 {
 	// ------------------------------------------------------------
@@ -23,13 +22,10 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::Constructor - Start");
 		#endif
-
 		//! Vanilla
 		m_dmgContactCoef			= 0.018;
-
 		//! Custom
 		m_MaxSpeed					= 20.0;
-
 		m_TurnCoef					= 0.15;
 	
 		m_Offset					= 1.8;
@@ -39,20 +35,16 @@ class ExpansionVodnik extends ExpansionBoatScript
 		m_EngineStartPlug = "Truck_01_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel = "Truck_01_engine_failed_start_fuel_SoundSet";
 		m_EngineStopFuel = "Truck_01_engine_stop_fuel_SoundSet";
-
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::Constructor - End");
 		#endif
 	}
-
 	override float GetTransportCameraDistance()
 	{
 		return 5.5;
 	}
-
 	override vector GetTransportCameraOffset()
 	{
 		return "0 0.8 0";
@@ -64,18 +56,15 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::GetAnimInstance");
 		#endif
-
 		// TODO: fix EXPANSION_VODNIK anims
 		return ExpansionVehicleAnimInstances.EX_CIVVAN;
 	}
-
 	// ------------------------------------------------------------
 	override CarRearLightBase CreateRearLight()
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::CreateRearLight");
 		#endif
-
 		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionRearCarLights) );
 	}
 	
@@ -85,17 +74,14 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::CreateFrontLight");
 		#endif
-
 		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionCarFrontLight) );
 	}
-
 	// ------------------------------------------------------------
 	override int GetSeatAnimationType( int posIdx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::GetSeatAnimationType");
 		#endif
-
 		switch( posIdx )
 		{
 		case 0:
@@ -119,10 +105,8 @@ class ExpansionVodnik extends ExpansionBoatScript
 		case 9:
 			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
 		}
-
 		return 0;
 	}
-
 	// ------------------------------------------------------------
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)
 	{
@@ -138,7 +122,6 @@ class ExpansionVodnik extends ExpansionBoatScript
 		
 		return super.GetDoorSelectionNameFromSeatPos(posIdx);
 	}
-
 	// ------------------------------------------------------------
 	override string GetDoorInvSlotNameFromSeatPos(int posIdx)
 	{
@@ -161,13 +144,11 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::GetCarDoorsState");
 		#endif
-
 		CarDoor carDoor;
 		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
 		if ( !carDoor ) {
 			return CarDoorState.DOORS_MISSING;
 		}
-
 		switch( slotType )
 		{
 			case "vodnikdriverdoor": {
@@ -192,7 +173,6 @@ class ExpansionVodnik extends ExpansionBoatScript
 				return CarDoorState.DOORS_MISSING;
 			}
 		}
-
 		return CarDoorState.DOORS_MISSING;
 	}
 	
@@ -202,48 +182,38 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::OnSound - Start");
 		#endif
-
 		switch ( ctrl )
 		{
 			case CarSoundCtrl.DOORS:
 				float newValue = 0;
-
 				if ( GetCarDoorsState( "vodnikdriverdoor" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.8;
 				}
-
 				if ( GetCarDoorsState( "vodnikcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
 				{
 					newValue += 0.8;
 				}
-
 				if ( newValue > 1 )
 					newValue = 1;
-
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionVodnik::OnSound - End");
 				#endif
-
 				return newValue;
 			default:
 				break;
 		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::OnSound - End");
 		#endif
-
 		return oldValue;
 	}
-
 	// ------------------------------------------------------------
 	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::CanReachDoorsFromSeat");
 		#endif
-
 		switch( pCurrentSeat )
 		{
 			case 0: 
@@ -265,24 +235,20 @@ class ExpansionVodnik extends ExpansionBoatScript
 		}	
 		return true;	
 	}
-
 	// ------------------------------------------------------------
 	override bool CanReachSeatFromDoors( string pSeatSelection, vector pFromPos, float pDistance = 1.0 )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::CanReachSeatFromDoors");
 		#endif
-
 		return true;		
 	}
-
 	// ------------------------------------------------------------
 	override string GetAnimSourceFromSelection( string selection )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::GetAnimSourceFromSelection");
 		#endif
-
 		switch( selection )
 		{
 			case "vodnikdriverdoor":
@@ -290,36 +256,29 @@ class ExpansionVodnik extends ExpansionBoatScript
 			case "vodnikcodriverdoor":
 				return "vodnikcodriverdoor";
 		}
-
 		return "";
 	}
-
 	// ------------------------------------------------------------
 	override bool CrewCanGetThrough( int posIdx )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::CrewCanGetThrough");
 		#endif
-
 		switch( posIdx )
 		{
 			case 0:
 				if ( GetCarDoorsState( "vodnikdriverdoor" ) == CarDoorState.DOORS_CLOSED )
 					return false;
-
 				return true;
 			break;
-
 			case 1:
 				if ( GetCarDoorsState( "vodnikcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
 					return false;
-
 				return true;
 			break;
 		}
 		return true;
 	}
-
 	// ------------------------------------------------------------
 	override float GetActionDistanceFuel()
 	{
@@ -331,19 +290,16 @@ class ExpansionVodnik extends ExpansionBoatScript
 	{
 		return "refill";
 	}
-
 	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
 		return false;
 	}
-
 	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
 	{
 		return true;
 	}
-
 	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
 	{
@@ -361,26 +317,21 @@ class ExpansionVodnik extends ExpansionBoatScript
 	{
 		return false;
 	}
-
 	// ------------------------------------------------------------
 	override bool IsVitalEngineBelt()
 	{
 		return false;
 	}
-
 	// ------------------------------------------------------------
 	override bool IsCar()
 	{
 		return true;
 	}
-
 	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
 		return 8;
 	}
-
-
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
@@ -389,7 +340,6 @@ class ExpansionVodnik extends ExpansionBoatScript
 		
 		return true;
 	}
-
 	// ------------------------------------------------------------
 	override bool LeavingSeatDoesAttachment( int posIdx )
 	{
@@ -399,20 +349,16 @@ class ExpansionVodnik extends ExpansionBoatScript
 			case 0:
 				return false;
 			break;
-
 			case 1:
 				return false;
 			break;
 		}
-
 		return true;
 	}
-
 	// --------------------------------------------------------- ---
 	override void UpdateLights(int new_gear = -1) 
 	{
 		super.UpdateLights( new_gear );
-
 		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) 
 		{
 			ItemBase battery;
@@ -422,10 +368,8 @@ class ExpansionVodnik extends ExpansionBoatScript
 			if ( battery )
 			{
 				int b;
-
 				vector color;
 				vector ambient;
-
 				if ( m_HeadlightsOn )
 				{
 					if ( m_Lights.Count() == 0 )
@@ -438,17 +382,13 @@ class ExpansionVodnik extends ExpansionBoatScript
 					for ( b = 0; b < m_Particles.Count(); b++ )
 					{
 						m_Particles[b].Stop( );
-
 						GetGame().ObjectDelete( m_Particles[b] );
 					}
-
 					for ( b =- 0; b < m_Lights.Count(); b++ )
 					{
 						m_Lights[b].ExpansionSetEnabled( false );
-
 						GetGame().ObjectDelete( m_Lights[b] );
 					}
-
 					m_Lights.Clear();
 				}
 			}

@@ -26,7 +26,7 @@ class Vehicle_ExpansionBicycle extends ExpansionVehicleBikeBase
 	//! Override functions
 	// ------------------------------------------------------------
 
-	override void OnEngineStart()
+	override void OnEngineStart(int index)
 	{
 		if ( IsMissionHost() )
 		{

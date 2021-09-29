@@ -34,7 +34,7 @@ class cfgWeapons
 		chamberSize = 5;
 		chamberedRound = "";
 		magazines[] = {};
-		chamberableFrom[] = {"Expansion_Ammo_8mm"};
+		chamberableFrom[] = {"Expansion_Ammo_8mm","TTC_Ammo_8mm"};
 		ejectType = 0;
 		recoilModifier[] = {1,1,1};
 		swayModifier[] = {2,2,1};

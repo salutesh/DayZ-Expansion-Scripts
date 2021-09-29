@@ -48,7 +48,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	void ExpansionNewsfeed( Widget parent )
 	{				
 		m_Root				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_newsfeed.layout", parent);
-		
+
 		m_Feedback			= Widget.Cast(m_Root.FindAnyWidget("feedback_tracker"));
 		m_FeedbackText		= TextWidget.Cast(m_Feedback.FindWidget("feedback_tracker_text" ));
 		m_Twitter			= Widget.Cast(m_Root.FindAnyWidget("twitter"));

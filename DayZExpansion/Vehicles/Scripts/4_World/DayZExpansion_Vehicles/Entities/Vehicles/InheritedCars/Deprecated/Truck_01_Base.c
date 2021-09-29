@@ -21,12 +21,6 @@ modded class Truck_01_Base
 		//	return "Truck_01_WheelDouble";
 	}
 
-	override bool LeavingSeatDoesAttachment( int posIdx )
-	{
-		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
-		return false;
-	}
-
 	override float GetTransportCameraDistance()
 	{
 		return 6.0;

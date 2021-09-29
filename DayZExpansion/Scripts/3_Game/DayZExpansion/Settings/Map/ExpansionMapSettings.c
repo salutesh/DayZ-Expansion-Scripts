@@ -364,6 +364,8 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		if (mapSettingsExist)
 		{
+			EXPrint("[ExpansionMapSettings] Load existing setting file:" + EXPANSION_MAP_SETTINGS);
+			
 			ExpansionMapSettings settingsDefault = new ExpansionMapSettings;
 			settingsDefault.Defaults();
 
@@ -399,6 +401,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionMapSettings] No existing setting file:" + EXPANSION_MAP_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -426,8 +429,6 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionMapSettings] Loading default settings");
-		
 		m_Version = VERSION;
 		
 		EnableMap = true;
@@ -465,6 +466,10 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
 		{
 			DefaultChernarusMarkers();
+		}
+		else if (worldName == "namalsk")
+		{
+			DefaultNamalskMarkers();
 		}
 		else if (worldName == "takistanplus")
 		{
@@ -546,6 +551,42 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetPosition(Vector(3698, 405, 5988));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
 
+		ServerMarkers.Insert(marker);
+	}
+	
+	void DefaultNamalskMarkers()
+	{
+		//! Airsrip Trader
+		ExpansionServerMarkerData marker = new ExpansionServerMarkerData("ServerMarker_Trader_Airfield");
+		marker.Set3D(true);
+		marker.SetName("Airsrip - Aircraft Trader");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(6305, 26, 9521));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+		
+		ServerMarkers.Insert(marker);
+		
+		//! Jalovisko Trader Camp
+		marker = new ExpansionServerMarkerData("ServerMarker_Trader_Jalovisko");
+		marker.Set3D(true);
+		marker.SetName("Traders - Jalovisko Camp");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(8583.67, 29, 10515));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+		
+		ServerMarkers.Insert(marker);
+		
+		//!  Tara Harbor
+		marker = new ExpansionServerMarkerData("ServerMarker_Trader_TaraHarbor");
+		marker.Set3D(true);
+		marker.SetName("Tara Harbor - Boats Trader");
+		marker.SetIconName("Trader");
+		marker.SetColor(-13710223);
+		marker.SetPosition(Vector(8043.45, 10, 7593.45));
+		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
+		
 		ServerMarkers.Insert(marker);
 	}
 	

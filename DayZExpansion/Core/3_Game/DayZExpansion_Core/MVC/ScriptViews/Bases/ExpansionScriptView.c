@@ -10,11 +10,22 @@
  *
 */
 
-class ExpansionViewController: ViewController {};
+class ExpansionViewController: ViewController 
+{
+	void ExpansionViewController()
+	{
+		Debug_Logging = false;
+	}
+};
 
 class ExpansionScriptViewBase: ScriptView
 {
 	private bool m_IsVisible = true;
+	
+	void ExpansionScriptViewBase()
+	{
+		Debug_Logging = false;
+	}
 	
 	void SetIsVisible(bool state)
 	{

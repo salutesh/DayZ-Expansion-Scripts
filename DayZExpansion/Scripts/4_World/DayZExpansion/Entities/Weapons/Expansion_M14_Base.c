@@ -15,10 +15,13 @@ class Expansion_M14_Base : RifleBoltLock_Base
 	override bool CanEnterIronsights()
 	{
 		ItemOptics optic = GetAttachedOptics();
+		
 		if (optic && Expansion_PMII25Optic.Cast(optic))
 			return true;
+
 		return super.CanEnterIronsights();
 	}
+
 	override RecoilBase SpawnRecoilObject()
 	{
 		return new SvdRecoil(this);
@@ -50,6 +53,7 @@ class Expansion_M14_Base : RifleBoltLock_Base
 		}	 
 		return super.CanReceiveAttachment(attachment, slotId);
 	}
+
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
 		if ( attachment.IsKindOf("Expansion_M1A_RailAtt") && ( FindAttachmentBySlotName("ExpansionSniperOptics") || FindAttachmentBySlotName("WeaponOptics") ) )
@@ -57,6 +61,7 @@ class Expansion_M14_Base : RifleBoltLock_Base
 			
 		return super.CanReleaseAttachment(attachment);
 	}
+
 	override bool CanDisplayAttachmentSlot( string slot_name )
 	{	
 		if (!super.CanDisplayAttachmentSlot(slot_name))

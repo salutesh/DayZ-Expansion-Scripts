@@ -12,7 +12,7 @@
 
 modded class ActionStopEngine
 {
-	private CarScript m_Car;
+	CarScript m_Car;
 
 	override void CreateConditionComponents()
 	{
@@ -22,58 +22,70 @@ modded class ActionStopEngine
 
 	override string GetText()
 	{
-		if (m_Car.IsPlane())
-		{
-			return "#STR_EXPANSION_UA_STOP_PLANE";
-		}
-		else if (m_Car.IsHelicopter())
-		{
-			return "#STR_EXPANSION_UA_STOP_HELICOPTER";
-		}
-		else if (m_Car.IsBoat())
-		{
-			return "#STR_EXPANSION_UA_STOP_CAR";
-		}
-
-		return "#STR_EXPANSION_UA_STOP_CAR";
+		return "#STR_EXPANSION_VEHICLE_ENGINE_STOP" + " " + m_Car.Expansion_EngineGetName() + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (!Class.CastTo(m_Car, player.GetParent()))
-			return false;
+		HumanCommandVehicle vehCmd = player.GetCommand_Vehicle();
 
-		if (m_Car.IsPlane())
+		if (vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 		{
-			m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-
-			return super.ActionCondition(player, target, item);
-		}
-		else if (m_Car.IsHelicopter())
-		{
-			m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-
-			return super.ActionCondition(player, target, item);
-		}
-		else if (m_Car.IsBoat())
-		{
-			m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
-
-			HumanCommandVehicle vehCmd = player.GetCommand_Vehicle();
-
-			if (vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			Transport trans = vehCmd.GetTransport();
+			if (trans)
 			{
-				if (m_Car.EngineIsOn())
+				if (Class.CastTo(m_Car, trans) && m_Car.Expansion_EngineIsOn())
 				{
-					return true;
+					m_CommandUID = m_Car.Expansion_EngineStopAnimation();
+
+					//if ( m_Car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+					if (m_Car.GetSpeedometer() <= 8)
+						return true;
 				}
 			}
-
-			return false;
 		}
+		return false;
+	}
 
-		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
+	override void OnExecuteServer(ActionData action_data)
+	{
+		HumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_Vehicle();
 
-		return super.ActionCondition(player, target, item);
+		if (vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+		{
+			Transport trans = vehCmd.GetTransport();
+			if (trans)
+			{
+				if (Class.CastTo(m_Car, trans) && m_Car.Expansion_EngineIsOn())
+				{
+					m_Car.Expansion_EngineStop();
+					
+					if (!GetGame().IsMultiplayer())
+					{
+						EffectSound sound = SEffectManager.PlaySound(m_Car.m_EngineStopFuel, m_Car.GetPosition());
+						sound.SetSoundAutodestroy(true);
+					}
+				}
+			}
+		}
+	}
+
+	override void OnExecuteClient(ActionData action_data)
+	{
+		HumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_Vehicle();
+
+		if (vehCmd && vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+		{
+			Transport trans = vehCmd.GetTransport();
+			if (trans)
+			{
+				if (Class.CastTo(m_Car, trans) && m_Car.Expansion_EngineIsOn())
+				{
+					m_Car.Expansion_EngineStop();
+					EffectSound sound = SEffectManager.PlaySound(m_Car.m_EngineStopFuel, m_Car.GetPosition());
+					sound.SetSoundAutodestroy(true);
+				}
+			}
+		}
 	}
 };

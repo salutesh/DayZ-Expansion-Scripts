@@ -33,8 +33,11 @@ modded class CarScript
 		EXPrint("CarScript::CarScript - Start");
 		#endif
 
-		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
-		m_ServerMarker = "";
+		if ( IsMissionHost() )
+		{
+			m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
+			m_ServerMarker = "";
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");

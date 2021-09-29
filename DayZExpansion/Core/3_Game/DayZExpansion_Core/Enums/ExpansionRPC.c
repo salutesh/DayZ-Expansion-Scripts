@@ -61,6 +61,8 @@ enum ExpansionMarketModuleRPC
 	CancelSell,
 	RequestTraderData,
 	LoadTraderData,
+	RequestTraderItems,
+	LoadTraderItems,
 	
 	//! ATM
 	RequestPlayerATMData,
@@ -112,7 +114,6 @@ enum ExpansionMarkerRPC
 enum ExpansionEntityRPC
 {
 	INVALID = 20180,
-	HasBeenKilled,
 	COUNT
 };
 
@@ -248,6 +249,8 @@ enum ExpansionSettingsRPC
 	PlayerList,
 	SocialMedia,
 	Log,
+	NameTags,
+	Hardline,
 
 	// when an admin requests these, not send under normal circumstances
 	SafeZone,
@@ -366,6 +369,13 @@ enum ExpansionCraftingModuleRPC
 {
 	INVALID = 40000,
 	RequestPrepareCrafting,
+	COUNT
+};
+
+enum ExpansionItemBaseModuleRPC
+{
+	INVALID = 40005,
+	PlayDestroySound,
 	COUNT
 };
 

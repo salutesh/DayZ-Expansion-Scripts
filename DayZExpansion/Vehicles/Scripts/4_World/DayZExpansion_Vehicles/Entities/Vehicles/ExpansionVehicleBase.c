@@ -17,255 +17,233 @@ enum ExpansionVehicleDynamicState
 	DYNAMIC
 };
 
-#ifdef EXPANSION_USING_TRANSPORT_BASE
-class ExpansionVehicleBase extends Transport
-#else
 class ExpansionVehicleBase extends ItemBase
-#endif
 {
-	private static ref set< ExpansionVehicleBase > m_allVehicles = new set< ExpansionVehicleBase >;
+	static ref set<ExpansionVehicleBase> m_allVehicles = new set<ExpansionVehicleBase>;
 
-	protected ref array< ref ExpansionVehicleAxle > m_Axles;
-	protected ref array< ref ExpansionVehicleCrew > m_Crew;
+	ref array<ref ExpansionVehicleCrew> m_Crew = new array<ref ExpansionVehicleCrew>();
 
-	protected ref array< ExpansionVehicleWheel > m_Wheels;
+	ref array<ref ExpansionVehicleModule> m_Modules = new array<ref ExpansionVehicleModule>();
+	ref array<ExpansionVehicleAxle> m_Axles = new array<ExpansionVehicleAxle>();
+	ref array<ExpansionVehicleWheel> m_Wheels = new array<ExpansionVehicleWheel>();
+	ref array<ExpansionVehicleAerofoil> m_Aerofoils = new array<ExpansionVehicleAerofoil>();
+	ref array<ExpansionVehicleEngine> m_Engines = new array<ExpansionVehicleEngine>();
 
-	protected ref ExpansionVehicleController m_Controller;
-	protected bool m_HasDriver;
-	
-	// ------------------------------------------------------------
-	//! Constant Values - Set in Constructor, Errors occur if not.
-	// ------------------------------------------------------------
-	protected float m_MaxSpeed; // (km/h)
-	protected float m_MaxSpeedMS; // (m/s)
+	ref ExpansionController m_Controller = new ExpansionController();
+	ref ExpansionPhysicsState m_State = new ExpansionPhysicsStateT<ExpansionVehicleBase>(this);
 
-	protected float m_AltitudeFullForce; // (m)
-	protected float m_AltitudeNoForce; // (m)
-	
-	protected float m_AirDragFrontTotal;
+	int m_CurrentEngine;
+	int m_EnginesOn;
+	float m_PreviousYaw;
 
-	float m_BodyMass;
-	float m_InvMass;
-	vector m_BodyCenterOfMass;
+	bool m_RecievedInitialSync;
 
-	private float m_TimeSlice;
-	protected bool m_IsPhysicsHost;
-	protected bool m_WasPhysicsHost;
-	protected bool m_IsForcingPhysics;
-	protected ExpansionVehicleDynamicState m_PhysicsState;
-	private float m_RenderFrameTime;
-	private float m_RenderFrameTimeSlice;
-	private int m_PhysicsCreationTimer;
+	bool m_HasDriver;
+
+	float m_MaxSpeed;	// (km/h)
+	float m_MaxSpeedMS; // (m/s)
+
+	float m_AltitudeFullForce; // (m)
+	float m_AltitudeNoForce;   // (m)
+
+	float m_TimeSlice;
+	bool m_IsPhysicsHost;
+
+	float m_RenderFrameTimeSlice;
+
 	bool m_PhysicsCreated;
 	bool m_PhysicsDestroyed;
-	
-	protected float m_BoundingRadius;
-	protected vector m_BoundingBox[2];
 
-	protected EffectSound m_HornSound;
+	float m_BoundingRadius;
+	vector m_BoundingBox[2];
 
-	protected string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
-	protected string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+	float m_AirDragCoefficient;
+	float m_AirDragArea;
+	float m_AirDragConstant;
 
-	protected bool m_Exploded;
-	protected bool m_ExplodedSynchRemote;
-	protected int m_ExplosionSize;
+	EffectSound m_HornSound;
 
-	protected bool m_HornPlaying;
-	protected bool m_HornSynchRemote;
+	string m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
+	string m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
+
+	bool m_Exploded;
+	bool m_ExplodedSynchRemote;
+	int m_ExplosionSize;
+
+	bool m_HornPlaying;
+	bool m_HornSynchRemote;
 
 	// Towing
-	protected vector m_TowPointCenter;
-	protected vector m_TowPointCenterSelf;
-	protected bool m_IsBeingTowed;
-	protected bool m_IsTowing;
+	vector m_TowPointCenter;
+	vector m_TowPointCenterSelf;
+	bool m_IsBeingTowed;
+	bool m_IsTowing;
 
-	protected EntityAI m_ParentTow;
-	protected int m_ParentTowNetworkIDLow;
-	protected int m_ParentTowNetworkIDHigh;
-	protected int m_ParentTowPersistentIDA;
-	protected int m_ParentTowPersistentIDB;
-	protected int m_ParentTowPersistentIDC;
-	protected int m_ParentTowPersistentIDD;
+	EntityAI m_ParentTow;
+	int m_ParentTowNetworkIDLow;
+	int m_ParentTowNetworkIDHigh;
+	int m_ParentTowPersistentIDA;
+	int m_ParentTowPersistentIDB;
+	int m_ParentTowPersistentIDC;
+	int m_ParentTowPersistentIDD;
 
-	protected EntityAI m_ChildTow;
-	protected int m_ChildTowNetworkIDLow;
-	protected int m_ChildTowNetworkIDHigh;
-	protected int m_ChildTowPersistentIDA;
-	protected int m_ChildTowPersistentIDB;
-	protected int m_ChildTowPersistentIDC;
-	protected int m_ChildTowPersistentIDD;
+	EntityAI m_ChildTow;
+	int m_ChildTowNetworkIDLow;
+	int m_ChildTowNetworkIDHigh;
+	int m_ChildTowPersistentIDA;
+	int m_ChildTowPersistentIDB;
+	int m_ChildTowPersistentIDC;
+	int m_ChildTowPersistentIDD;
 
-	protected bool m_EngineIsOn;
-
-	protected ExpansionVehicleLockState m_VehicleLockedState;
+	ExpansionVehicleLockState m_VehicleLockedState;
 
 	//! After pairing a key, it's the ID of the master key.
 	//! This allows "changing locks" on vehicles so old paired keys no longer work
-	protected int m_PersistentIDA = 0;
-	protected int m_PersistentIDB = 0;
-	protected int m_PersistentIDC = 0;
-	protected int m_PersistentIDD = 0;
+	int m_PersistentIDA = 0;
+	int m_PersistentIDB = 0;
+	int m_PersistentIDC = 0;
+	int m_PersistentIDD = 0;
 
-	protected ExpansionSoundProxyBase m_SoundProxy; //! not needed anymore
-	protected ref array< float > m_SoundVariables;
-	protected ref array< string > m_SoundControls;
-	protected ref array< ref ExpansionVehicleSound > m_SoundControllers;
+	ref array<float> m_SoundVariables;
+	ref array<string> m_SoundControls;
+	ref array<ref ExpansionVehicleSound> m_SoundControllers;
 
-	protected vector m_LinearVelocity; // World Space
-	protected vector m_LinearVelocityMS; // Model Space
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+	vector m_DbgTransform[4];
+#endif
 
-	protected vector m_LinearAcceleration; // World Space
-	protected vector m_LinearAccelerationMS; // Model Space
-
-	protected vector m_LastLinearVelocity; // World Space
-	protected vector m_LastLinearVelocityMS; // Model Space
-
-	protected vector m_AngularVelocity; // World Space
-	protected vector m_AngularVelocityMS; // Model Space
-
-	protected vector m_AngularAcceleration; // World Space
-	protected vector m_AngularAccelerationMS; // Model Space
-
-	protected vector m_LastAngularVelocity; // World Space
-	protected vector m_LastAngularVelocityMS; // Model Space
-
-	ref Transform m_Transform;
-	
 	// Floating
-	protected float m_WaterVolume;
-	protected float m_TotalVolume;
+	float m_WaterVolume;
+	float m_TotalVolume;
 
 	// Effects
-	protected float m_AltitudeLimiter;
+	float m_AltitudeLimiter;
 
-	vector m_InertiaTensor;
-	vector m_InvInertiaTensor;
+	ExpansionVehicleNetworkMode m_NetworkMode;
+	vector m_LastCheckedNetworkPosition;
 
-	private ref ExpansionVehicleSyncState m_SyncState;
-	private ExpansionVehicleNetworkMode m_NetworkMode;
-	private vector m_LastCheckedNetworkPosition;
+	ref array<ref ExpansionPointLight> m_Lights;
+	ref array<ref Particle> m_Particles;
 
-	ref array< ref ExpansionPointLight > m_Lights;
-	ref array< ref Particle > m_Particles;
+	autoptr TStringArray m_Doors;
+	bool m_CanHaveLock;
 
-	protected autoptr TStringArray m_Doors;
-	protected bool m_CanHaveLock;
-
-	protected bool m_ClutchState;
-
-	protected ref array< float > m_FluidCapacities;
+	ref array<float> m_FluidCapacities;
 
 	// Debugging
-	private ref array< Shape > m_DebugShapes;
-	private EntityAI m_DebugApple; //! yay ;(
+	ref array<Shape> m_DebugShapes;
 
 	//! CarScript
-	protected float m_Time;
+	float m_Time;
 
 	static float DROWN_ENGINE_THRESHOLD = 0.5;
 	static float DROWN_ENGINE_DAMAGE = 350.0;
-	
+
 	//! keeps ammount of each fluid
-	protected float m_FuelAmmount;
-	protected float m_CoolantAmmount;
-	protected float m_OilAmmount;
-	protected float m_BrakeAmmount;
+	float m_FuelAmmount;
+	float m_CoolantAmmount;
+	float m_OilAmmount;
+	float m_BrakeAmmount;
 
 	//!
-	protected float m_dmgContactCoef;
-	protected float m_EnviroHeatComfortOverride;
+	float m_dmgContactCoef;
+	float m_EnviroHeatComfortOverride;
 
 	//!
-	protected float m_DrownTime;
+	float m_DrownTime;
 	static vector m_DrownEnginePos;
-	
+
 	//!
-	protected float m_EngineHealth;
-	protected float m_RadiatorHealth;
-	protected float m_FuelTankHealth;
-	protected float m_BatteryHealth;
-	protected float m_PlugHealth;
+	float m_EngineHealth;
+	float m_RadiatorHealth;
+	float m_FuelTankHealth;
+	float m_BatteryHealth;
+	float m_PlugHealth;
 
 	//! Particles
-	protected ref EffVehicleSmoke m_coolantFx;
-	protected ref EffVehicleSmoke m_engineFx;
-	protected ref EffVehicleSmoke m_exhaustFx;
-		
-	protected int m_enginePtcFx;
-	protected int m_coolantPtcFx;
-	protected int m_exhaustPtcFx;
-	
-	protected vector m_exhaustPtcPos;
-	protected vector m_exhaustPtcDir;
-	protected vector m_enginePtcPos;
-	protected vector m_coolantPtcPos;
-	
-	protected vector m_fuelPos;
+	ref EffVehicleSmoke m_coolantFx;
+	ref EffVehicleSmoke m_engineFx;
+	ref EffVehicleSmoke m_exhaustFx;
 
-	protected vector m_enginePos;
-	protected vector m_frontPos;
-	protected vector m_backPos;
-	protected vector m_side_1_1Pos;
-	protected vector m_side_1_2Pos;
-	protected vector m_side_2_1Pos;
-	protected vector m_side_2_2Pos;	
-	
+	int m_enginePtcFx;
+	int m_coolantPtcFx;
+	int m_exhaustPtcFx;
+
+	vector m_exhaustPtcPos;
+	vector m_exhaustPtcDir;
+	vector m_enginePtcPos;
+	vector m_coolantPtcPos;
+
+	vector m_fuelPos;
+
+	vector m_enginePos;
+	vector m_frontPos;
+	vector m_backPos;
+	vector m_side_1_1Pos;
+	vector m_side_1_2Pos;
+	vector m_side_2_1Pos;
+	vector m_side_2_2Pos;
+
 	//!Sounds
 	string m_EngineStartOK = "";
 	string m_EngineStartBattery = "";
 	string m_EngineStartPlug = "";
 	string m_EngineStartFuel = "";
 	string m_EngineStopFuel = "";
-	
+
 	string m_CarDoorOpenSound = "";
 	string m_CarDoorCloseSound = "";
-	
-	protected bool m_PlayCrashSoundLight;
-	protected bool m_PlayCrashSoundHeavy;
-	
-	protected bool m_HeadlightsOn;
-	protected bool m_HeadlightsState;
-	protected bool m_BrakesArePressed; // synchronized variable
-	
-	CarLightBase 		m_Headlight;
-	CarRearLightBase 	m_RearLight;
-	
+
+	bool m_PlayCrashSoundLight;
+	bool m_PlayCrashSoundHeavy;
+
+	bool m_HeadlightsOn;
+	bool m_HeadlightsState;
+	bool m_BrakesArePressed; // synchronized variable
+
+	CarLightBase m_Headlight;
+	CarRearLightBase m_RearLight;
+
+	bool m_EngineSync0;
+	bool m_EngineSync1;
+	bool m_EngineSync2;
+	bool m_EngineSync3;
+
 	// Memory points for lights
 	static string m_ReverseLightPoint = "light_reverse";
 	static string m_LeftHeadlightPoint = "light_left";
 	static string m_RightHeadlightPoint = "light_right";
 	static string m_LeftHeadlightTargetPoint = "light_left_dir";
 	static string m_RightHeadlightTargetPoint = "light_right_dir";
-	
+
 	static string m_DrownEnginePoint = "drown_engine";
-	
+
 	// Model selection IDs for texture/material changes
 	// If each car needs different IDs, then feel free to remove the 'static' flag and overwrite these numbers down the hierarchy
-	static const int SELECTION_ID_FRONT_LIGHT_L 	= 0;
-	static const int SELECTION_ID_FRONT_LIGHT_R 	= 1;
-	static const int SELECTION_ID_BRAKE_LIGHT_L 	= 2;
-	static const int SELECTION_ID_BRAKE_LIGHT_R 	= 3;
-	static const int SELECTION_ID_REVERSE_LIGHT_L 	= 4;
-	static const int SELECTION_ID_REVERSE_LIGHT_R 	= 5;
-	static const int SELECTION_ID_TAIL_LIGHT_L 		= 6;
-	static const int SELECTION_ID_TAIL_LIGHT_R 		= 7;
-	static const int SELECTION_ID_DASHBOARD_LIGHT 	= 8;
+	static const int SELECTION_ID_FRONT_LIGHT_L = 0;
+	static const int SELECTION_ID_FRONT_LIGHT_R = 1;
+	static const int SELECTION_ID_BRAKE_LIGHT_L = 2;
+	static const int SELECTION_ID_BRAKE_LIGHT_R = 3;
+	static const int SELECTION_ID_REVERSE_LIGHT_L = 4;
+	static const int SELECTION_ID_REVERSE_LIGHT_R = 5;
+	static const int SELECTION_ID_TAIL_LIGHT_L = 6;
+	static const int SELECTION_ID_TAIL_LIGHT_R = 7;
+	static const int SELECTION_ID_DASHBOARD_LIGHT = 8;
 
-	protected float m_ModelAnchorPointY = -1;
-	
-	protected bool m_SafeZone;
+	float m_ModelAnchorPointY = -1;
 
-	// ------------------------------------------------------------
+	autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
+	bool m_SafeZone;
+
 	void ExpansionVehicleBase()
 	{
-		Print( "[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION - ARMA 4" );
-		
-		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
-		SetEventMask( EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE );
+		Print("[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION");
+
+		SetFlags(EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false);
+		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE);
 
 		m_Time = 0;
-		
+
 		// sets max health for all components at init
 		m_EngineHealth = 1;
 		m_FuelTankHealth = 1;
@@ -283,28 +261,29 @@ class ExpansionVehicleBase extends ItemBase
 		m_PlayCrashSoundLight = false;
 		m_PlayCrashSoundHeavy = false;
 
+		RegisterNetSyncVariableInt("m_CurrentEngine");
+
 		RegisterNetSyncVariableBool("m_PlayCrashSoundLight");
 		RegisterNetSyncVariableBool("m_PlayCrashSoundHeavy");
 		RegisterNetSyncVariableBool("m_HeadlightsOn");
 		RegisterNetSyncVariableBool("m_BrakesArePressed");
 
-		if 	( MemoryPointExists("ptcExhaust_end") )
+		if (MemoryPointExists("ptcExhaust_end"))
 		{
 			//Print( "CarScript Init " + GetType() );
 			m_exhaustPtcPos = GetMemoryPointPos("ptcExhaust_end");
-			if ( MemoryPointExists("ptcExhaust_start") )
+			if (MemoryPointExists("ptcExhaust_start"))
 			{
 				vector exhaustStart = GetMemoryPointPos("ptcExhaust_start");
-				vector tempOri = vector.Direction( exhaustStart, m_exhaustPtcPos);//.Normalized();//.VectorToAngles();
-				
+				vector tempOri = vector.Direction(exhaustStart, m_exhaustPtcPos); //.Normalized();//.VectorToAngles();
+
 				//m_exhaustPtcDir = tempOri;
 
 				m_exhaustPtcDir[0] = -tempOri[2];
 				m_exhaustPtcDir[1] = tempOri[1];
 				m_exhaustPtcDir[2] = tempOri[0];
-				
-				m_exhaustPtcDir = m_exhaustPtcDir.Normalized().VectorToAngles();
 
+				m_exhaustPtcDir = m_exhaustPtcDir.Normalized().VectorToAngles();
 			}
 		}
 		else
@@ -312,158 +291,231 @@ class ExpansionVehicleBase extends ItemBase
 			m_exhaustPtcPos = "0 0 0";
 			m_exhaustPtcDir = "1 1 1";
 		}
-	
-		if ( MemoryPointExists("ptcEnginePos") )
+
+		if (MemoryPointExists("ptcEnginePos"))
 			m_enginePtcPos = GetMemoryPointPos("ptcEnginePos");
 		else
-			m_enginePtcPos = "0 0 0";		
+			m_enginePtcPos = "0 0 0";
 
-		if ( MemoryPointExists("ptcCoolantPos") )
+		if (MemoryPointExists("ptcCoolantPos"))
 			m_coolantPtcPos = GetMemoryPointPos("ptcCoolantPos");
 		else
 			m_coolantPtcPos = "0 0 0";
 
-		if ( MemoryPointExists("refill") )
+		if (MemoryPointExists("refill"))
 			m_fuelPos = GetMemoryPointPos("refill");
 		else
 			m_fuelPos = "0 0 0";
-		
-		if ( MemoryPointExists("drown_engine") )
+
+		if (MemoryPointExists("drown_engine"))
 			m_DrownEnginePos = GetMemoryPointPos("drown_engine");
 		else
-			m_DrownEnginePos = "0 0 0";	
+			m_DrownEnginePos = "0 0 0";
 
-		if ( MemoryPointExists("dmgZone_engine") )
+		if (MemoryPointExists("dmgZone_engine"))
 			m_enginePos = GetMemoryPointPos("dmgZone_engine");
 		else
 			m_enginePos = "0 0 0";
 
-		if ( MemoryPointExists("dmgZone_front") )
+		if (MemoryPointExists("dmgZone_front"))
 			m_frontPos = GetMemoryPointPos("dmgZone_front");
 		else
 			m_frontPos = "0 0 0";
 
-		if ( MemoryPointExists("dmgZone_back") )
+		if (MemoryPointExists("dmgZone_back"))
 			m_backPos = GetMemoryPointPos("dmgZone_back");
 		else
-			m_backPos = "0 0 0";		
-				
-		if ( MemoryPointExists("dmgZone_fender_1_1") )
+			m_backPos = "0 0 0";
+
+		if (MemoryPointExists("dmgZone_fender_1_1"))
 			m_side_1_1Pos = GetMemoryPointPos("dmgZone_fender_1_1");
 		else
 			m_side_1_1Pos = "0 0 0";
 
-		if ( MemoryPointExists("dmgZone_fender_1_2") )
+		if (MemoryPointExists("dmgZone_fender_1_2"))
 			m_side_1_2Pos = GetMemoryPointPos("dmgZone_fender_1_2");
 		else
 			m_side_1_2Pos = "0 0 0";
-		
-		if ( MemoryPointExists("dmgZone_fender_2_1") )
+
+		if (MemoryPointExists("dmgZone_fender_2_1"))
 			m_side_2_1Pos = GetMemoryPointPos("dmgZone_fender_2_1");
 		else
 			m_side_2_1Pos = "0 0 0";
 
-		if ( MemoryPointExists("dmgZone_fender_2_2") )
+		if (MemoryPointExists("dmgZone_fender_2_2"))
 			m_side_2_2Pos = GetMemoryPointPos("dmgZone_fender_2_2");
 		else
 			m_side_2_2Pos = "0 0 0";
 
-		RegisterNetSyncVariableInt( "m_PersistentIDA" );
-		RegisterNetSyncVariableInt( "m_PersistentIDB" );
-		RegisterNetSyncVariableInt( "m_PersistentIDC" );
-		RegisterNetSyncVariableInt( "m_PersistentIDD" );
+		RegisterNetSyncVariableInt("m_PersistentIDA");
+		RegisterNetSyncVariableInt("m_PersistentIDB");
+		RegisterNetSyncVariableInt("m_PersistentIDC");
+		RegisterNetSyncVariableInt("m_PersistentIDD");
 
-		RegisterNetSyncVariableBool( "m_EngineIsOn" );
-		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
-		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" ); 
-		
-		RegisterNetSyncVariableFloat( "m_FuelAmmount", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_CoolantAmmount", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_OilAmmount", 0, 0, 4 );
-		RegisterNetSyncVariableFloat( "m_BrakeAmmount", 0, 0, 4 );
-		
-		RegisterNetSyncVariableInt( "m_NetworkMode" );
+		RegisterNetSyncVariableBool("m_HornSynchRemote");
+		RegisterNetSyncVariableBool("m_ExplodedSynchRemote");
 
-		m_Axles = new array< ref ExpansionVehicleAxle >;
-		m_Crew = new array< ref ExpansionVehicleCrew >;
+		RegisterNetSyncVariableFloat("m_FuelAmmount", 0, 0, 4);
+		RegisterNetSyncVariableFloat("m_CoolantAmmount", 0, 0, 4);
+		RegisterNetSyncVariableFloat("m_OilAmmount", 0, 0, 4);
+		RegisterNetSyncVariableFloat("m_BrakeAmmount", 0, 0, 4);
 
-		m_Wheels = new array< ExpansionVehicleWheel >;
+		RegisterNetSyncVariableInt("m_NetworkMode");
 
-		m_DebugShapes = new array< Shape >();
+		m_DebugShapes = new array<Shape>();
 
-		m_allVehicles.Insert( this );
-		
+		m_allVehicles.Insert(this);
+
 		string path;
-		
+
 		path = "CfgVehicles " + GetType() + " SimulationModule airDragFrontTotal";
-		if ( GetGame().ConfigIsExisting( path ) )
-			m_AirDragFrontTotal = GetGame().ConfigGetFloat( path );
+		if (GetGame().ConfigIsExisting(path))
+			m_AirDragCoefficient = GetGame().ConfigGetFloat(path);
+
+		vector airDragMin, airDragMax;
+		bool airDragOverride = true;
+
+		path = "CfgVehicles " + GetType() + " SimulationModule airDragSizeMin";
+		airDragOverride = airDragOverride & GetGame().ConfigIsExisting(path);
+		if (airDragOverride)
+			airDragMin = GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+
+		path = "CfgVehicles " + GetType() + " SimulationModule airDragSizeMax";
+		airDragOverride = airDragOverride & GetGame().ConfigIsExisting(path);
+		if (airDragOverride)
+			airDragMax = GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+
+		m_AirDragArea = -1;
+		if (airDragOverride)
+		{
+			float ad_w = Math.AbsFloat(airDragMin[0]) + Math.AbsFloat(airDragMax[0]);
+			float ad_h = Math.AbsFloat(airDragMin[1]) + Math.AbsFloat(airDragMax[1]);
+			m_AirDragArea = ad_w * ad_h;
+		}
 
 		int i = 0;
 		int count = 0;
 
-		path = "CfgVehicles " + GetType() + " SimulationModule Axles";
-		count = GetGame().ConfigGetChildrenCount( path );
+		path = "CfgVehicles " + GetType() + " SimulationModule Engines";
+		count = GetGame().ConfigGetChildrenCount(path);
 
-		for ( i = 0; i < count; i++ )
+		for (i = 0; i < count; i++)
+		{
+			string engineName;
+			GetGame().ConfigGetChildName(path, i, engineName);
+
+			string enginePath = path + " " + engineName;
+			AddModule(new ExpansionVehicleEngine(this, enginePath));
+		}
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Props";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
+		{
+			string propName;
+			GetGame().ConfigGetChildName(path, i, propName);
+
+			string propPath = path + " " + propName;
+			AddModule(new ExpansionVehicleProp(this, propPath));
+		}
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Buoyancy";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
+		{
+			string buoyancyName;
+			GetGame().ConfigGetChildName(path, i, buoyancyName);
+
+			string buoyancyPath = path + " " + buoyancyName;
+			AddModule(new ExpansionVehicleBuoyantPoint(this, buoyancyPath));
+		}
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Axles";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
 		{
 			string axleName;
-			GetGame().ConfigGetChildName( path, i, axleName );
+			GetGame().ConfigGetChildName(path, i, axleName);
 
 			string wheelPath = "CfgVehicles " + GetType() + " SimulationModule Axles " + axleName + " Wheels";
-			int wheelCount = GetGame().ConfigGetChildrenCount( wheelPath );
+			int wheelCount = GetGame().ConfigGetChildrenCount(wheelPath);
 
 			ExpansionVehicleAxle axle = NULL;
-			
-			if ( wheelCount == 1 )
-			{
-				axle = new ExpansionVehicleOneWheelAxle( this, axleName );
+			ExpansionVehicleWheel wheel = NULL;
 
-				axle.AddWheel( "Center", m_Wheels );
-			} else if ( wheelCount == 2 )
-			{
-				axle = new ExpansionVehicleTwoWheelAxle( this, axleName );
+			// Order matters, Axle must be added before the Wheel(s)
 
-				axle.AddWheel( "Left", m_Wheels );
-				axle.AddWheel( "Right", m_Wheels );
-			} else
+			if (wheelCount == 1)
 			{
-				axle = new ExpansionVehicleAxle( this, axleName );
+				axle = new ExpansionVehicleOneWheelAxle(this, axleName, i);
+				AddModule(axle);
 
-				for ( int j = 0; j < wheelCount; j++ )
+				wheel = axle.AddWheel("Center");
+				AddModule(wheel);
+			}
+			else if (wheelCount == 2)
+			{
+				axle = new ExpansionVehicleTwoWheelAxle(this, axleName, i);
+				AddModule(axle);
+
+				wheel = axle.AddWheel("Left");
+				AddModule(wheel);
+
+				wheel = axle.AddWheel("Right");
+				AddModule(wheel);
+			}
+			else if (wheelCount != 0)
+			{
+				axle = new ExpansionVehicleAxle(this, axleName, i);
+				AddModule(axle);
+
+				for (int j = 0; j < wheelCount; j++)
 				{
 					string wheelName;
-					GetGame().ConfigGetChildName( wheelPath, j, wheelName );
+					GetGame().ConfigGetChildName(wheelPath, j, wheelName);
 
-					axle.AddWheel( wheelName, m_Wheels );
+					wheel = axle.AddWheel(wheelName);
+					AddModule(wheel);
 				}
 			}
+		}
 
-			m_Axles.Insert( axle );
+		path = "CfgVehicles " + GetType() + " SimulationModule Aerofoils";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
+		{
+			string aerofoilName;
+			GetGame().ConfigGetChildName(path, i, aerofoilName);
+
+			AddModule(new ExpansionVehicleAerofoil(this, aerofoilName));
 		}
 
 		path = "CfgVehicles " + GetType() + " Crew";
-		count = GetGame().ConfigGetChildrenCount( path );
-		for ( i = 0; i < count; i++ )
+		count = GetGame().ConfigGetChildrenCount(path);
+		for (i = 0; i < count; i++)
 		{
 			string crewName;
-			GetGame().ConfigGetChildName( path, i, crewName );
+			GetGame().ConfigGetChildName(path, i, crewName);
 
-			m_Crew.Insert( new ExpansionVehicleCrew( this, crewName ) );
+			m_Crew.Insert(new ExpansionVehicleCrew(this, crewName));
 		}
 
-		m_SoundVariables = new array< float >();
+		m_SoundVariables = new array<float>();
 		for (i = 0; i < ExpansionVehicleSoundManager.s_SoundShaderParameters.Count(); i++)
 			m_SoundVariables.Insert(0);
 
-		m_SoundControllers = new array< ref ExpansionVehicleSound >();
+		m_SoundControllers = new array<ref ExpansionVehicleSound>();
 
-		if ( IsMissionClient() )
+		if (IsMissionClient())
 		{
 			path = "CfgVehicles " + GetType() + " Sounds soundSetsFilter";
-			array< string > soundSetNames = new array< string >();
-			GetGame().ConfigGetTextArray( path, soundSetNames );
-			for ( i = 0; i < soundSetNames.Count(); i++ )
+			array<string> soundSetNames = new array<string>();
+			GetGame().ConfigGetTextArray(path, soundSetNames);
+			for (i = 0; i < soundSetNames.Count(); i++)
 			{
 				m_SoundControllers.Insert(new ExpansionVehicleSound(this, soundSetNames[i]));
 			}
@@ -472,66 +524,45 @@ class ExpansionVehicleBase extends ItemBase
 		m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
 
 		m_Doors = new TStringArray;
-		ConfigGetTextArray( "doors", m_Doors );
+		ConfigGetTextArray("doors", m_Doors);
 
 		m_CanHaveLock = m_Doors.Count() > 0;
 
 		string cHSSE = "hornSoundSetEXT";
-		if ( ConfigIsExisting( cHSSE ) )
+		if (ConfigIsExisting(cHSSE))
 		{
-			m_HornSoundSetEXT = ConfigGetString( cHSSE );
-		} else
+			m_HornSoundSetEXT = ConfigGetString(cHSSE);
+		}
+		else
 		{
 			m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
 		}
-		
+
 		string cHSSI = "hornSoundSetINT";
-		if ( ConfigIsExisting( cHSSI ) )
+		if (ConfigIsExisting(cHSSI))
 		{
-			m_HornSoundSetINT = ConfigGetString( cHSSI );
-		} else
-		{		
+			m_HornSoundSetINT = ConfigGetString(cHSSI);
+		}
+		else
+		{
 			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
 		}
 
-		m_NetworkMode = ExpansionVehicleNetworkMode.CLIENT;
+		m_NetworkMode = ExpansionVehicleNetworkMode.SERVER;
 
-		m_SyncState = new ExpansionVehicleSyncState( this );
-		m_SyncState.RegisterNetVariables();
+		m_State.RegisterSync("m_State");
 
-		m_FluidCapacities = new array< float >();
-		m_FluidCapacities.Insert( ConfigGetFloat( "fuelCapacity" ) );
-		m_FluidCapacities.Insert( ConfigGetFloat( "oilCapacity" ) );
-		m_FluidCapacities.Insert( ConfigGetFloat( "brakeFluidCapacity" ) );
-		m_FluidCapacities.Insert( ConfigGetFloat( "coolantCapacity" ) );
+		m_FluidCapacities = new array<float>();
+		m_FluidCapacities.Insert(ConfigGetFloat("fuelCapacity"));
+		m_FluidCapacities.Insert(ConfigGetFloat("oilCapacity"));
+		m_FluidCapacities.Insert(ConfigGetFloat("brakeFluidCapacity"));
+		m_FluidCapacities.Insert(ConfigGetFloat("coolantCapacity"));
 
-		if ( IsMissionClient() )
-		{		
-			string sound_controller_path = "CfgVehicles " + GetType() + " soundController";
-			string sound_controller = GetGame().ConfigGetTextOut( sound_controller_path );
-		
-			if ( Class.CastTo( m_SoundProxy, GetGame().CreateObject( sound_controller, GetPosition(), true ) ) )
-			{
-				m_SoundProxy.SetPosition( "0 0 0" );
-				AddChild( m_SoundProxy, -1 );
-		
-				m_SoundProxy.SetExpansionVehicle( this );
-			}
-		}
+		m_Lights = new array<ref ExpansionPointLight>;
+		m_Particles = new array<ref Particle>;
 
-		m_Lights = new array< ref ExpansionPointLight >;
-		m_Particles = new array< ref Particle >;
-
-		m_Transform = new Transform;
-
-		m_Controller = GetControllerInstance();
-
-		ExpansionSettings.SI_Vehicle.Insert( OnSettingsUpdated );
+		ExpansionSettings.SI_Vehicle.Insert(OnSettingsUpdated);
 		OnSettingsUpdated();
-
-		// #ifdef EXPANSION_USING_TRANSPORT_BASE
-		// OnCreatePhysics();
-		// #endif
 
 		LoadConstantVariables();
 
@@ -541,82 +572,93 @@ class ExpansionVehicleBase extends ItemBase
 			SetAllowDamage(CanBeDamaged());
 	}
 
-	// ------------------------------------------------------------
 	void ~ExpansionVehicleBase()
 	{
-		ExpansionSettings.SI_Vehicle.Remove( OnSettingsUpdated );
+#ifdef CF_DebugUI
+		CF_Debug.Destroy(this);
+#endif
 
-		if (m_DebugApple)
-			GetGame().ObjectDelete(m_DebugApple);
+		ExpansionSettings.SI_Vehicle.Remove(OnSettingsUpdated);
 
 		int i;
 
-		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
-		for ( i = 0; i < m_DebugShapes.Count(); i++ )
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		for (i = 0; i < m_DebugShapes.Count(); i++)
 			m_DebugShapes[i].Destroy();
-		#endif
-		
+#endif
+
 		delete m_DebugShapes;
 
-		i = m_allVehicles.Find( this );
-		if ( i >= 0 )
+		i = m_allVehicles.Find(this);
+		if (i >= 0)
 		{
-			m_allVehicles.Remove( i );
+			m_allVehicles.Remove(i);
 		}
 	}
 
-	static set< ExpansionVehicleBase > GetAll()
+	static set<ExpansionVehicleBase> GetAll()
 	{
 		return m_allVehicles;
 	}
 
-	// ------------------------------------------------------------
 	override void EEDelete(EntityAI parent)
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
 		{
-			if ( SEffectManager.IsEffectExist( m_coolantPtcFx ) )
+			if (SEffectManager.IsEffectExist(m_coolantPtcFx))
 				SEffectManager.Stop(m_coolantPtcFx);
 
-			if ( SEffectManager.IsEffectExist( m_exhaustPtcFx ) )
-				SEffectManager.Stop( m_exhaustPtcFx );
+			if (SEffectManager.IsEffectExist(m_exhaustPtcFx))
+				SEffectManager.Stop(m_exhaustPtcFx);
 
-			if ( SEffectManager.IsEffectExist( m_enginePtcFx ) )
-				SEffectManager.Stop( m_enginePtcFx );
-			
-			if ( m_Headlight )
+			if (SEffectManager.IsEffectExist(m_enginePtcFx))
+				SEffectManager.Stop(m_enginePtcFx);
+
+			if (m_Headlight)
 				m_Headlight.Destroy();
-			
-			if ( m_RearLight )
+
+			if (m_RearLight)
 				m_RearLight.Destroy();
-			
 		}
 	}
 
-	// ------------------------------------------------------------
 	void LoadConstantVariables()
 	{
 	}
 
-	// ------------------------------------------------------------
 	void OnAfterLoadConstantVariables()
 	{
 	}
 
-	// ------------------------------------------------------------
 	override void DeferredInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleBase::DeferredInit - Start");
-		#endif
-
 		super.DeferredInit();
 
-		m_BoundingRadius = ClippingInfo( m_BoundingBox );
+#ifdef CF_DebugUI
+		CF_Debug.Create(this);
+#endif
 
-		m_MaxSpeedMS = m_MaxSpeed * ( 1.0 / 3.6 );
+		int i;
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
+		for (i = 0; i < m_Modules.Count(); i++)
+		{
+			m_Modules[i].Init();
+		}
+
+		m_BoundingRadius = ClippingInfo(m_BoundingBox);
+
+		if (m_AirDragArea == -1)
+		{
+			float w = Math.AbsFloat(m_BoundingBox[0][0]) + Math.AbsFloat(m_BoundingBox[1][0]);
+			float h = Math.AbsFloat(m_BoundingBox[0][1]) + Math.AbsFloat(m_BoundingBox[1][1]);
+			m_AirDragArea = w * h;
+		}
+
+		m_AirDragConstant = m_AirDragArea * m_AirDragCoefficient * 0.5;
+
+		m_MaxSpeedMS = m_MaxSpeed * (1.0 / 3.6);
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnAfterLoadConstantVariables, 100, false);
 
 		if (GetGame().IsClient())
 		{
@@ -624,89 +666,34 @@ class ExpansionVehicleBase extends ItemBase
 			rpc.Send(this, ExpansionVehicleRPC.RequestCrewSync, true, NULL);
 		}
 
-		if ( GetGame().IsServer() )
+		float minHeight = 0;
+		for (i = 0; i < m_Wheels.Count(); i++)
 		{
-			ExpansionNetSyncDebugObject netsync = ExpansionNetSyncDebugObject.Cast( GetGame().CreateObjectEx( "ExpansionNetSyncDebugObject", "0 0 0", ECE_PLACE_ON_SURFACE ) );
-			netsync.SetSyncObject(this);
-			m_DebugApple = netsync;
-		}
-		else
-		{
-			m_DebugApple = EntityAI.Cast( GetGame().CreateObjectEx( "Orange", "0 0 0", ECE_TRACE|ECE_LOCAL ) );
+			float height = m_Wheels[i].m_InitialTransform[3][1] - 0.5;
+			if (height < minHeight)
+			{
+				minHeight = height;
+			}
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleBase::DeferredInit - End");
-		#endif
+		vector position = GetOrigin();
+		position[1] = GetGame().SurfaceY(position[0], position[2]) - minHeight;
+		SetOrigin(position);
 	}
 
 	void OnSettingsUpdated()
 	{
-		m_NetworkMode = GetExpansionSettings().GetVehicle().VehicleSync;
+		//m_NetworkMode = GetExpansionSettings().GetVehicle().VehicleSync;
 
 		SetSynchDirty();
 	}
 
-	ExpansionVehicleDynamicState GetPhysicsState()
-	{
-		return m_PhysicsState;
-	}
-
-	private void CreateDynamic()
-	{
-		int physLayer = PhxInteractionLayers.VEHICLE_NOTERRAIN;
-
-		int interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN | PhxInteractionLayers.CHARACTER;
-		if ( m_IsPhysicsHost )
-		{
-			physLayer = PhxInteractionLayers.VEHICLE;
-			interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN | PhxInteractionLayers.DYNAMICITEM | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.CHARACTER | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE;
-		}
-		
-		interactLayer = physLayer;
-
-		Print( "[" + this + "] CreateDynamic m_IsPhysicsHost=" + m_IsPhysicsHost + " physLayer=" + physLayer + " interactLayer=" + interactLayer );
-		
-		CreateDynamicPhysics( physLayer );
-
-		//!breaks vehicles at high speed
-		SetDynamicPhysicsLifeTime( -1 );
-
-		dBodyDynamic( this, true );
-		dBodyActive( this, ActiveState.ALWAYS_ACTIVE );
-		dBodySetInteractionLayer( this, interactLayer );
-		dBodyEnableGravity( this, false );
-
-		//EnableDynamicCCD( true );
-		dBodyEnableCCD( this, m_BoundingRadius, m_BoundingRadius * 0.45 );
-		
-		dBodySetSleepingTreshold( this, 0.0, 0.0 );
-		dBodySetDamping( this, 0, 0 );
-
-		m_BodyMass = dBodyGetMass( this );
-		m_InvMass = 1.0 / m_BodyMass;
-		m_BodyCenterOfMass = dBodyGetCenterOfMass( this );
-
-		SetVelocity( this, m_LinearVelocity );
-		dBodySetAngularVelocity( this, m_AngularVelocity );
-
-		EnableCollisionsWithCharacter( false );
-
-		//SetAllowDamage( false ); //! Temporary
-	}
-
-	// ------------------------------------------------------------
 	override void OnCreatePhysics()
 	{
 	}
 
-	// ------------------------------------------------------------
 	override void EOnContact(IEntity other, Contact extra) //!EntityEvent.CONTACT
 	{
-		//Print( "[" + this + "] EOnContact " + other );
-
-		//GetGame().CreateObject("ExpansionDebugBox_Red", );
-
 		array<string> damageZones = new array<string>;
 		GetDamageZones(damageZones);
 
@@ -715,13 +702,13 @@ class ExpansionVehicleBase extends ItemBase
 		float largestDistance = 32000.0;
 		vector contactMS = WorldToModel(extra.Position);
 
-		foreach (string damageZone : damageZones)
+		for (int i = 0; i < damageZones.Count(); i++)
 		{
-			vector pos = GetDamageZonePos(damageZone);
+			vector pos = GetDamageZonePos(damageZones[i]);
 			if (vector.Distance(pos, contactMS) < largestDistance)
 			{
 				zonePosition = pos;
-				zoneName = damageZone;
+				zoneName = damageZones[i];
 			}
 		}
 
@@ -729,125 +716,119 @@ class ExpansionVehicleBase extends ItemBase
 			OnContact(zoneName, contactMS, other, extra);
 	}
 
-	// ------------------------------------------------------------
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EOnPostSimulate - Start");
-		#endif
-
-		if ( CanUpdateCarLock( timeSlice ) )
+		if (CanUpdateCarLock(timeSlice))
 		{
-			UpdateCarLock( timeSlice );
+			UpdateCarLock(timeSlice);
 		}
-
 
 		m_Time += timeSlice;
 
 		//! move it to constants.c const float CAR_UPDATE_INTERVAL = 1.0
-		if ( m_Time >= GameConstants.CARS_FLUIDS_TICK )
+		if (m_Time >= GameConstants.CARS_FLUIDS_TICK)
 		{
 			m_Time = 0;
 
 			CarPartsHealthCheck();
 
 			//First of all check if the car should stop the engine
-			if ( GetGame().IsServer() && (EngineIsOn() || MotorIsOn()) )
+			if (GetGame().IsServer() && EnginesOn() > 0)
 			{
-				if ( GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0 )
+				if (GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0)
 					EngineStop();
 
-				CheckVitalItem( IsVitalCarBattery(), "CarBattery" );
-				CheckVitalItem( IsVitalTruckBattery(), "TruckBattery" );
-				CheckVitalItem( IsVitalAircraftBattery(), "ExpansionAircraftBattery" );
-				CheckVitalItem( IsVitalHelicopterBattery(), "ExpansionHelicopterBattery" );
-				CheckVitalItem( IsVitalIgniterPlug(), "ExpansionIgniterPlug" );
-				CheckVitalItem( IsVitalHydraulicHoses(), "ExpansionHydraulicHoses" );
-				CheckVitalItem( IsVitalSparkPlug(), "SparkPlug" );
-				CheckVitalItem( IsVitalGlowPlug(), "GlowPlug" );
+				CheckVitalItem(IsVitalCarBattery(), "CarBattery");
+				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
+				CheckVitalItem(IsVitalAircraftBattery(), "ExpansionAircraftBattery");
+				CheckVitalItem(IsVitalHelicopterBattery(), "ExpansionHelicopterBattery");
+				CheckVitalItem(IsVitalIgniterPlug(), "ExpansionIgniterPlug");
+				CheckVitalItem(IsVitalHydraulicHoses(), "ExpansionHydraulicHoses");
+				CheckVitalItem(IsVitalSparkPlug(), "SparkPlug");
+				CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
 				// engine belt is not needed right now
 				//CheckVitalItem( IsVitalEngineBelt(), "EngineBelt" );
 			}
 
 			//! actions runned when the engine on
-			if ( EngineIsOn() || MotorIsOn() )
+			if (EnginesOn() > 0)
 			{
-				if ( GetGame().IsServer() )
+				if (GetGame().IsServer())
 				{
 					float dmg;
 
-					if ( EngineGetRPM() >= EngineGetRPMRedline() )
+					if (EngineGetRPM() >= EngineGetRPMRedline())
 					{
-						if ( EngineGetRPM() > EngineGetRPMMax() )
-							AddHealth( "Engine", "Health", -GetMaxHealth("Engine", "")); //CAR_RPM_DMG
-							
-						dmg = EngineGetRPM() * 0.001 * Math.RandomFloat( 0.02, 1.0 );  //CARS_TICK_DMG_MIN; //CARS_TICK_DMG_MAX
+						if (EngineGetRPM() > EngineGetRPMMax())
+							AddHealth("Engine", "Health", -GetMaxHealth("Engine", "")); //CAR_RPM_DMG
+
+						dmg = EngineGetRPM() * 0.001 * Math.RandomFloat(0.02, 1.0); //CARS_TICK_DMG_MIN; //CARS_TICK_DMG_MAX
 						//AddHealth( "Engine", "Health", -dmg); //CAR_RPM_DMG
-						ProcessDirectDamage( DT_CUSTOM, null, "Engine", "EnviroDmg", "0 0 0", dmg );
+						ProcessDirectDamage(DT_CUSTOM, null, "Engine", "EnviroDmg", "0 0 0", dmg);
 					}
 
 					//! leaking of coolant from radiator when damaged
-					if ( IsVitalRadiator() )
+					if (IsVitalRadiator())
 					{
-						if ( GetFluidFraction(CarFluid.COOLANT) > 0 && m_RadiatorHealth < 0.5 ) //CARS_LEAK_THRESHOLD
-							LeakFluid( CarFluid.COOLANT );
+						if (GetFluidFraction(CarFluid.COOLANT) > 0 && m_RadiatorHealth < 0.5) //CARS_LEAK_THRESHOLD
+							LeakFluid(CarFluid.COOLANT);
 					}
 
-					if ( GetFluidFraction(CarFluid.FUEL) > 0 && m_FuelTankHealth < 0.5 )
-						LeakFluid( CarFluid.FUEL );
+					if (GetFluidFraction(CarFluid.FUEL) > 0 && m_FuelTankHealth < 0.5)
+						LeakFluid(CarFluid.FUEL);
 
-					if ( GetFluidFraction(CarFluid.BRAKE) > 0 && m_EngineHealth < 0.5 )
-						LeakFluid( CarFluid.BRAKE );
+					if (GetFluidFraction(CarFluid.BRAKE) > 0 && m_EngineHealth < 0.5)
+						LeakFluid(CarFluid.BRAKE);
 
-					if ( GetFluidFraction(CarFluid.OIL) > 0 && m_EngineHealth < 0.5 )
-						LeakFluid( CarFluid.OIL );
+					if (GetFluidFraction(CarFluid.OIL) > 0 && m_EngineHealth < 0.5)
+						LeakFluid(CarFluid.OIL);
 
-					if ( m_EngineHealth < 0.25 )
-						LeakFluid( CarFluid.OIL );
-/*Commented out till indicator of Oil in HUD will be ready
+					if (m_EngineHealth < 0.25)
+						LeakFluid(CarFluid.OIL);
+					/*Commented out till indicator of Oil in HUD will be ready
 					if ( GetFluidFraction( CarFluid.OIL ) < 1 )
 					{
 						dmg = Math.Lerp( 0.02, 10, 1 - GetFluidFraction( CarFluid.OIL ) );  //CARS_TICK_DMG_MIN; //CARS_TICK_DMG_MAX
 						AddHealth( "Engine", "Health", -dmg);
 					}
 */
-					if ( IsVitalRadiator() )
+					if (IsVitalRadiator())
 					{
-						if ( GetFluidFraction( CarFluid.COOLANT ) < 0.5 && GetFluidFraction( CarFluid.COOLANT ) >= 0 )
+						if (GetFluidFraction(CarFluid.COOLANT) < 0.5 && GetFluidFraction(CarFluid.COOLANT) >= 0)
 						{
-							dmg = ( 1 - GetFluidFraction(CarFluid.COOLANT) ) * Math.RandomFloat( 0.02, 10.00 );  //CARS_DMG_TICK_MIN_COOLANT; //CARS_DMG_TICK_MAX_COOLANT
-							AddHealth( "Engine", "Health", -dmg );
+							dmg = (1 - GetFluidFraction(CarFluid.COOLANT)) * Math.RandomFloat(0.02, 10.00); //CARS_DMG_TICK_MIN_COOLANT; //CARS_DMG_TICK_MAX_COOLANT
+							AddHealth("Engine", "Health", -dmg);
 						}
 					}
 				}
-				
+
 				//FX only on Client and in Single
-				if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+				if (!GetGame().IsMultiplayer() || GetGame().IsClient())
 				{
-					if ( !SEffectManager.IsEffectExist( m_exhaustPtcFx ) )
+					if (!SEffectManager.IsEffectExist(m_exhaustPtcFx))
 					{
 						m_exhaustFx = new EffExhaustSmoke();
-						m_exhaustPtcFx = SEffectManager.PlayOnObject( m_exhaustFx, this, m_exhaustPtcPos, m_exhaustPtcDir );
+						m_exhaustPtcFx = SEffectManager.PlayOnObject(m_exhaustFx, this, m_exhaustPtcPos, m_exhaustPtcDir);
 					}
 
 					m_exhaustFx.SetParticleStateLight();
-				
-					if ( IsVitalRadiator() && SEffectManager.IsEffectExist( m_coolantPtcFx ) )
+
+					if (IsVitalRadiator() && SEffectManager.IsEffectExist(m_coolantPtcFx))
 						SEffectManager.Stop(m_coolantPtcFx);
-					
-					if ( IsVitalRadiator() && GetFluidFraction( CarFluid.COOLANT ) < 0.5 )
+
+					if (IsVitalRadiator() && GetFluidFraction(CarFluid.COOLANT) < 0.5)
 					{
-						if ( !SEffectManager.IsEffectExist( m_coolantPtcFx ) )
+						if (!SEffectManager.IsEffectExist(m_coolantPtcFx))
 						{
 							m_coolantFx = new EffCoolantSteam();
-							m_coolantPtcFx = SEffectManager.PlayOnObject( m_coolantFx, this, m_coolantPtcPos, Vector(0,0,0), true );
+							m_coolantPtcFx = SEffectManager.PlayOnObject(m_coolantFx, this, m_coolantPtcPos, Vector(0, 0, 0), true);
 						}
 
-						if ( GetFluidFraction( CarFluid.COOLANT ) > 0 )
+						if (GetFluidFraction(CarFluid.COOLANT) > 0)
 							m_coolantFx.SetParticleStateLight();
 						else
 							m_coolantFx.SetParticleStateHeavy();
-/*
+						/*
 						Particle ptc;
 						if ( GetCarDoorsState("NivaHood") == CarDoorState.DOORS_CLOSED )
 						{
@@ -869,7 +850,7 @@ class ExpansionVehicleBase extends ItemBase
 					}
 					else
 					{
-						if ( SEffectManager.IsEffectExist( m_coolantPtcFx ) )
+						if (SEffectManager.IsEffectExist(m_coolantPtcFx))
 							SEffectManager.Stop(m_coolantPtcFx);
 					}
 				}
@@ -877,994 +858,842 @@ class ExpansionVehicleBase extends ItemBase
 			else
 			{
 				//FX only on Client and in Single
-				if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+				if (!GetGame().IsMultiplayer() || GetGame().IsClient())
 				{
-					if ( SEffectManager.IsEffectExist( m_exhaustPtcFx ) )
+					if (SEffectManager.IsEffectExist(m_exhaustPtcFx))
 						SEffectManager.Stop(m_exhaustPtcFx);
-					
-					if ( SEffectManager.IsEffectExist( m_coolantPtcFx ) )
+
+					if (SEffectManager.IsEffectExist(m_coolantPtcFx))
 						SEffectManager.Stop(m_coolantPtcFx);
 				}
 			}
 		}
 
-		if ( !GetGame().IsClient() && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT )
+		if (!GetGame().IsClient() && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT)
 		{
 			return;
 		}
 	}
-	
-	// ------------------------------------------------------------
+
 	override void EOnPostFrame(IEntity other, int extra)
 	{
 		OnAnimationUpdate(m_RenderFrameTimeSlice);
 	}
-	
-	// ------------------------------------------------------------
+
 	override void EOnFrame(IEntity other, float timeSlice)
 	{
 		m_RenderFrameTimeSlice = timeSlice;
 		OnAnimationUpdate(timeSlice);
-
-		/*
-		if ( GetGame().IsClient() )
-		{
-			m_RenderFrameTime += timeSlice;
-
-			bool useSetTargetMatrix = GetExpansionSettings().GetDebug().DebugVehicleTransformSet == 1;
-
-			float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
-
-			ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ) + m_RenderFrameTime, m_SyncState.m_PredictedTransform );
-
-			if ( useSetTargetMatrix && dBodyIsDynamic( this ) )
-			{
-				dBodySetTargetMatrix( this, m_SyncState.m_PredictedTransform, 0.0 );
-			} else
-			{
-				SetTransform( m_SyncState.m_PredictedTransform );
-			}
-		}
-		*/
 	}
 
-	// ------------------------------------------------------------
-	void UpdateExpansionController()
+	void DBGDrawLine(vector start, vector end, int color = 0x44FFFFFF)
 	{
-		if ( m_Controller )
-			m_Controller.Update();
-	}
-	
-	// ------------------------------------------------------------
-	void DBGDrawImpulseMS( vector position, vector impulse, int color = 0x44FFFFFF )
-	{
-		DBGDrawImpulse( position.Multiply4( m_Transform.data ), impulse.Multiply3( m_Transform.data ), color );
-	}
-
-	// ------------------------------------------------------------
-	void DBGDrawImpulse( vector position, vector impulse, int color = 0x44FFFFFF )
-	{
-		vector acceleration = impulse;
-		acceleration[0] = acceleration[0] / m_TimeSlice / m_BodyMass;
-		acceleration[1] = acceleration[1] / m_TimeSlice / m_BodyMass;
-		acceleration[2] = acceleration[2] / m_TimeSlice / m_BodyMass;
-		
-		DBGDrawLine( position, position + acceleration, color );
-	}
-	
-	// ------------------------------------------------------------
-	void DBGDrawLineMS( vector start, vector end, int color = 0x44FFFFFF )
-	{
-		DBGDrawLine( start.Multiply4( m_Transform.data ), end.Multiply4( m_Transform.data ), color );
-	}
-
-	// ------------------------------------------------------------
-	void DBGDrawLine( vector start, vector end, int color = 0x44FFFFFF )
-	{
-		vector pts[2]
+		vector pts[2];
 		pts[0] = start;
 		pts[1] = end;
-		
-		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
-		DBGAddShape( Shape.CreateLines( color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2 ) );
-		#endif
-	}
-	
-	// ------------------------------------------------------------
-	void DBGDrawLineDirectionMS( vector start, vector direction, int color = 0x44FFFFFF )
-	{
-		DBGDrawLineDirection( start.Multiply4( m_Transform.data ), direction.Multiply3( m_Transform.data ), color );
-	}
-	
-	// ------------------------------------------------------------
-	void DBGDrawLineDirection( vector start, vector direction, int color = 0x44FFFFFF )
-	{
-		DBGDrawLine( start, start + direction, color );
+
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		DBGAddShape(Shape.CreateLines(color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2));
+#endif
 	}
 
-	// ------------------------------------------------------------
-	void DBGAddShape( Shape shape )
+	void DBGDrawSphere(vector position, float size, int color = 0x44FFFFFF)
 	{
-		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
-		m_DebugShapes.Insert( shape );
-		#endif
+		DBGAddShape(Shape.CreateSphere(color, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, position, size));
 	}
 
-	// ------------------------------------------------------------
-	int GetTimeForSync()
+	void DGBDrawBoundingBox(vector transform[4], int color = 0x1fff7f7f)
 	{
-		return GetSimulationTimeStamp();
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		Shape shape = Shape.Create(ShapeType.BBOX, color, ShapeFlags.TRANSP | ShapeFlags.NOZWRITE, m_BoundingBox[0], m_BoundingBox[1]);
+		shape.SetMatrix(transform);
+		DBGAddShape(shape);
+#endif
 	}
 
-	// ------------------------------------------------------------
+	void DBGAddShape(Shape shape)
+	{
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		m_DebugShapes.Insert(shape);
+#endif
+	}
+
+	vector DBGFixDebugPosition(inout vector position)
+	{
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		position = position.Multiply4(m_DbgTransform);
+#endif
+
+		return position;
+	}
+
 	bool IsPhysicsHost()
 	{
 		return m_IsPhysicsHost;
 	}
 
-	// ------------------------------------------------------------
-	protected bool CanSimulate()
+	bool CanSimulate()
 	{
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	protected void OnHumanPilot( PlayerBase driver, float pDt )
+	void HandleController(DayZPlayerImplement driver, float dt)
+	{
+		if (CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != driver)
+			return;
+
+		if (!driver.GetInputInterface())
+			return;
+
+		m_State.m_DeltaTime = dt;
+
+		for (int i = 0; i < m_Modules.Count(); i++)
+			m_Modules[i].Control(m_State, driver);
+
+		OnHandleController(driver, dt);
+	}
+
+	void OnHandleController(DayZPlayerImplement driver, float dt)
 	{
 	}
 
-	// ------------------------------------------------------------
-	protected void OnAIPilot( ExpansionAIBase driver, float pDt )
+	void OnPreSimulation(float pDt)
 	{
-	}
-
-	// ------------------------------------------------------------
-	protected void OnPreSimulation( float pDt )
-	{
-		if ( IsMissionClient() )
+		if (IsMissionClient())
 		{
-			OnParticleUpdate( pDt );
+			OnParticleUpdate(pDt);
 		}
-		
+
 		OnUpdate(pDt);
 	}
 
-	// ------------------------------------------------------------
-	protected void OnNoSimulation( float pDt )
-	{
-
-	}
-
-	// ------------------------------------------------------------
-	protected void OnSimulation( float pDt, out vector force, out vector torque )
+	void OnNoSimulation(float pDt)
 	{
 	}
 
-	// ------------------------------------------------------------
-	protected void OnPostSimulation( float pDt )
+	void OnSimulation(float pDt, out vector force, out vector torque)
 	{
-		OnAnimationUpdate( pDt );
-		
-		m_SoundVariables[0] = OnSound( CarSoundCtrl.RPM, EngineGetRPM() + 1200 );
-		m_SoundVariables[1] = OnSound( CarSoundCtrl.ENGINE, EngineIsOn() || MotorIsOn() );
-		m_SoundVariables[2] = OnSound( CarSoundCtrl.PLAYER, 0 );
-		m_SoundVariables[3] = OnSound( CarSoundCtrl.DOORS, 0 );
-		m_SoundVariables[4] = OnSound( CarSoundCtrl.SPEED, GetSpeedometer() );
-		m_SoundVariables[5] = 1.0;
-		
-		int start = TickCount(0);
-				
-		foreach ( ExpansionVehicleSound sound : m_SoundControllers )
-			sound.Update( pDt, m_SoundVariables );
-		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		
-		dbg_Vehicle.Set("Ticks", TickCount( start ) );
+	}
+
+	void OnPostSimulation(float pDt)
+	{
+		OnAnimationUpdate(pDt);
+
+		//rpm
+		m_SoundVariables[0] = OnSound(CarSoundCtrl.RPM, EngineGetRPM());
+
+		//engineOn
+		m_SoundVariables[1] = OnSound(CarSoundCtrl.ENGINE, EngineIsOn());
+
+		//campos
+		m_SoundVariables[2] = 1;
+		#ifndef DAYZ_1_13
+		auto player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+		{
+			if (!player.IsInThirdPerson())
+			{
+				if (player.GetParent() == this)
+				{
+					m_SoundVariables[2] = 0;
+				}
+			}
+		}
 		#endif
+
+		//doors
+		m_SoundVariables[3] = OnSound(CarSoundCtrl.DOORS, 0);
+
+		//speed
+		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, GetSpeedometer());
+
+		//thrust
+		m_SoundVariables[5] = 1.0;//m_Controller.m_Throttle[0];
+
+		//water
+		m_SoundVariables[6] = 0;
+
+		//rock
+		m_SoundVariables[7] = 0;
+
+		//grass
+		m_SoundVariables[8] = 0;
+		
+		//gravel
+		m_SoundVariables[9] = 0;
+		
+		//asphalt
+		m_SoundVariables[10] = 0;
+		
+		//latSlipDrive
+		m_SoundVariables[11] = 0;
+		
+		//steerdelta
+		m_SoundVariables[12] = m_Controller.m_Yaw - m_PreviousYaw;
+		m_PreviousYaw = m_Controller.m_Yaw;
+		
+		//rain
+		m_SoundVariables[13] = 0;
+
+		for (int i = 0; i < m_SoundControllers.Count(); i++)
+			m_SoundControllers[i].Update(pDt, m_SoundVariables);
 	}
 
-	// ------------------------------------------------------------
-	protected void OnParticleUpdate( float pDt )
+	void OnParticleUpdate(float pDt)
 	{
 	}
 
-	// ------------------------------------------------------------
-	protected void OnAnimationUpdate( float pDt )
+	void OnAnimationUpdate(float pDt)
 	{
-		for ( int i = 0; i < m_Axles.Count(); i++ )
-			m_Axles[i].Animate( pDt, m_IsPhysicsHost );
+		for (int i = 0; i < m_Modules.Count(); i++)
+			m_Modules[i].Animate(m_State);
 	}
-	
-	int stateF = -1;
+
+#ifdef CF_DebugUI
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		super.CF_OnDebugUpdate(instance, type);
+
+		int i;
+
+		instance.Add(m_Controller);
+		instance.Add(m_State);
+
+		instance.Add("Physics Host", m_IsPhysicsHost);
+
+		instance.Add("Num Modules", m_Modules.Count());
+		for (i = 0; i < m_Modules.Count(); i++)
+			instance.Add(m_Modules[i]);
+
+		instance.Add("Num Sounds", m_SoundControllers.Count());
+		for (i = 0; i < m_SoundControllers.Count(); i++)
+			instance.Add(m_SoundControllers[i]);
+
+		return true;
+	}
+#endif
+
 	int stateB = -1;
 	float stateTime = 0;
 
-	// ------------------------------------------------------------
-	override void EOnSimulate( IEntity owner, float dt ) 
+	override void EOnSimulate(IEntity owner, float dt)
 	{
-		//Print( "[" + this + "] EOnSimulate" );
+		int i;
 
-		#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
-		for ( int dbg = 0; dbg < m_DebugShapes.Count(); ++dbg )
-			m_DebugShapes[dbg].Destroy();
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		for (i = 0; i < m_DebugShapes.Count(); i++)
+			m_DebugShapes[i].Destroy();
 
 		m_DebugShapes.Clear();
-		#endif
+#endif
 
-		m_TimeSlice = dt;
+		/*
+		GetTransform(m_DbgTransform);
 
-		//if ( !CanSimulate() )
-		//	return;
+		for (i = 0; i < CrewSize(); i++)
+		{
+			vector crewPos;
+			vector crewDir;
 
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		CF_Debugger_Block dbg_Vehicle = CF.Debugger.Get("Vehicle", this);
-		dbg_Vehicle.SetBuffered(true, true);
-		#endif
+			CrewEntry(i, crewPos, crewDir);
 
-		DayZPlayerImplement driver = DayZPlayerImplement.Cast( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) );
+			m_State.DBGDrawLineDirectionMS(crewPos, crewDir);
+			m_State.DBGDrawSphereMS(crewPos, 0.5);
+		}
+*/
 
-		//Print(typename.EnumToString(ExpansionVehicleNetworkMode, m_NetworkMode));
-		//Print(driver);
-		//Print(GetGame().GetPlayer());
+		m_State.m_DeltaTime = dt;
 
-		bool prevForcingPhysics = m_IsForcingPhysics;
-		m_IsForcingPhysics = false;
+		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
 
-		m_WasPhysicsHost = m_IsPhysicsHost;
-
-		if ( !GetGame().IsMultiplayer() && GetGame().IsServer() )
+		if (GetGame().IsServer())
 		{
 			m_IsPhysicsHost = true;
-		} else if ( GetGame().IsClient() )
-		{
-			m_IsPhysicsHost = driver == GetGame().GetPlayer();
 
-			if ( m_IsPhysicsHost )
-			{
-				m_IsPhysicsHost = m_NetworkMode != ExpansionVehicleNetworkMode.SERVER_ONLY;
-			}
-
-			if ( !m_IsPhysicsHost )
-			{
-				m_IsForcingPhysics = true;
-			}
-		} else if ( GetGame().IsServer() )
-		{
-			m_IsPhysicsHost = m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT;
-
-			if ( !m_IsPhysicsHost )
-			{
-				//! TODO: Fix, causes server crash
-				m_IsPhysicsHost = driver == null || !driver.HasNetworkID() || !driver.IsAlive();
-			}
-
-			if ( m_IsPhysicsHost )
-			{
-				m_SyncState.m_LinearVelocity = GetVelocity( this );
-				m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
-				m_SyncState.m_Position = GetPosition();
-				m_SyncState.m_Orientation = GetOrientation();
-
-				m_SyncState.m_TimeDelta = 0;
-				m_SyncState.m_Time = GetTimeForSync();
-				m_SyncState.m_LastRecievedTime = GetTimeForSync();
-
-				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform );
-				m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
-			} else
-			{
-				m_IsForcingPhysics = true;
-
-				m_LinearVelocity = m_SyncState.m_LinearVelocity;
-				m_AngularVelocity = m_SyncState.m_AngularVelocity;
-			}
-
-			if ( vector.Distance( m_LastCheckedNetworkPosition, GetPosition() ) > 30.0 )
+			if (GetGame().IsMultiplayer() && vector.Distance(m_LastCheckedNetworkPosition, GetPosition()) > 30.0)
 			{
 				m_LastCheckedNetworkPosition = GetPosition();
 
-				for ( int cI = 0; cI < m_Crew.Count(); cI++ )
-					m_Crew[cI].NetworkBubbleFix();
-			}
-		} else
-		{
-			m_IsPhysicsHost = false;
-
-			Error("Should not reach here...");
-		}
-			
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE		
-		dbg_Vehicle.Set("Was Physics Host", m_WasPhysicsHost);
-		dbg_Vehicle.Set("Is Physics Host", m_IsPhysicsHost);
-		dbg_Vehicle.Set("Is Forcing Physics", m_IsForcingPhysics);
-		#endif
-
-		m_HasDriver = false;
-		if ( driver && m_IsPhysicsHost )
-		{
-			ExpansionAIBase aiDriver;
-			PlayerBase humanDriver;
-
-			if ( Class.CastTo( aiDriver, driver ) )
-			{
-				m_HasDriver = true;
-				
-				OnAIPilot( aiDriver, dt );
-			} else if ( Class.CastTo( humanDriver, driver ) )
-			{
-				m_HasDriver = true;
-
-				if ( !GetGame().IsClient() && GetGame().IsMultiplayer() )
-					m_Controller.Update();
-
-				OnHumanPilot( humanDriver, dt );
-			}
-		}
-
-		dBodyEnableGravity( this, false );
-		
-		OnPreSimulation( dt );
-
-		bool shouldCreateDynamic = (m_IsForcingPhysics || m_IsPhysicsHost);
-		bool shouldDestroyDynamic = (m_WasPhysicsHost != m_IsPhysicsHost) || (!m_IsPhysicsHost && !m_IsForcingPhysics);
-
-		if ( (m_WasPhysicsHost == m_IsPhysicsHost) && m_IsPhysicsHost && dBodyIsDynamic( this ) )
-		{
-			m_PhysicsState = ExpansionVehicleDynamicState.DYNAMIC;
-
-			stateF = 0; 
-			
-			float invDt = 1.0 / dt;
-
-			#ifdef EXPANSION_DEBUG_UI_VEHICLE		
-			dbg_Vehicle.Set("Mass", "" + m_BodyMass + " | " + m_BodyCenterOfMass);
-			dbg_Vehicle.Set("Linear Velocity (WS)", m_LinearVelocity);
-			dbg_Vehicle.Set("Linear Velocity (MS)", m_LinearVelocityMS);
-			#endif
-
-			m_InvInertiaTensor = dBodyGetLocalInertia( this );
-			
-			CalculateAltitudeLimiter();
-			
-			int i = 0;
-			int numWheelsGrounded = 0;
-			for ( i = 0; i < m_Axles.Count(); i++ )
-				m_Axles[i].SetupSimulation( dt, numWheelsGrounded );
-
-			vector force = vector.Zero;
-			vector torque = vector.Zero;
-			OnSimulation( dt, force, torque );
-
-			vector impulse = force * dt;
-			vector impulseTorque = torque * dt;
-			
-			for ( i = 0; i < m_Axles.Count(); i++ )
-				m_Axles[i].Simulate( dt, numWheelsGrounded, impulse, impulseTorque );
-
-			vector gravity = Vector(0, -9.8 * m_BodyMass * dt, 0);//.InvMultiply3(m_Transform.data);
-			impulse += gravity;//.Multiply3(m_Transform.data);
-			//impulseTorque += (gravity).Multiply3(m_Transform.data);
-
-			ApplyPhysics( dt, impulse, impulseTorque );
-			
-			if ( IsMissionClient() )
-				NetworkSend();
-		}
-		//else if ( shouldCreateDynamic && !dBodyIsDynamic( this ) )
-		else if ((shouldCreateDynamic && !dBodyIsDynamic(this)) || (shouldDestroyDynamic && dBodyIsDynamic(this)))
-		{
-			m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
-
-			stateF = 1;
-
-			CreateDynamic();
-		}
-		/*
-		else if ( shouldDestroyDynamic && dBodyIsDynamic( this ) )
-		{
-			m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
-
-			stateF = 2;
-			
-			SetDynamicPhysicsLifeTime( 0.001 );
-		}
-		*/
-		else if ( dBodyIsDynamic( this ) )
-		{
-			m_PhysicsState = ExpansionVehicleDynamicState.DYNAMIC;
-
-			stateF = 3;
-			
-			if ( GetGame().IsClient() )
-			{
-				float predictionDelta = ( GetTimeForSync() + m_SyncState.m_TimeDelta - m_SyncState.m_Time ) / 40.0;
-
-				ExpansionPhysics.IntegrateTransform( m_SyncState.m_InitialTransform, m_SyncState.m_LinearVelocity, m_SyncState.m_AngularVelocity, Math.Max( predictionDelta, 0.0 ), m_SyncState.m_PredictedTransform );
-
-				SetTransform( m_SyncState.m_PredictedTransform );
-			} else
-			{
-				SetTransform( m_SyncState.m_InitialTransform );
+				//for (i = 0; i < m_Crew.Count(); i++)
+				//	m_Crew[i].NetworkBubbleFix();
 			}
 
-			SetVelocity( this, m_SyncState.m_LinearVelocity );
-			dBodySetAngularVelocity( this, m_SyncState.m_AngularVelocity );
+			if (!driver)
+			{
+				GetTransform(m_State.m_TargetTransform);
+			}
+		}
+		else if (GetGame().IsClient())
+		{
+			m_IsPhysicsHost = driver == GetGame().GetPlayer();
+		}
+
+		m_HasDriver = driver && m_IsPhysicsHost;
+
+		dBodyEnableGravity(this, false);
+
+		OnPreSimulation(dt);
+
+		if (dBodyIsDynamic(this))
+		{
+			m_State.PreSimulate(dt);
+
+			if (m_IsPhysicsHost)
+			{
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+				m_State.EstimateTransform(dt, m_DbgTransform);
+#endif
+
+				CalculateAltitudeLimiter();
+
+				for (i = 0; i < m_Modules.Count(); i++)
+					m_Modules[i].PreSimulate(m_State);
+
+				vector force = vector.Zero;
+				vector torque = vector.Zero;
+
+				{
+					OnSimulation(dt, force, torque);
+				}
+
+				{
+					float speed = m_State.m_LinearVelocityMS[2];
+					float drag = m_AirDragConstant * -Expansion_GetDensity(GetPosition()) * speed * speed;
+					force += Vector(0, 0, drag).Multiply3(m_State.m_Transform);
+				}
+
+				m_State.m_Impulse = force * dt;
+				m_State.m_ImpulseTorque = torque * dt;
+
+				{
+					for (i = 0; i < m_Modules.Count(); i++)
+						m_Modules[i].Simulate(m_State);
+				}
+
+				{
+					vector gravity = Vector(0, -9.8 * m_State.m_Mass * dt, 0);
+					m_State.m_Impulse += gravity;
+				}
+
+				if (IsMissionClient())
+					NetworkSend();
+			}
+
+			m_State.PostSimulate(dt, m_IsPhysicsHost, m_NetworkMode, GetGame().IsServer());
+
+			if (!GetGame().IsServer() || (GetGame().IsServer() && m_NetworkMode == ExpansionVehicleNetworkMode.CLIENT))
+			{
+				if (!GetGame().IsServer() && m_HasDriver)
+				{
+					HandleLerp(dt);
+				}
+			}
 		}
 		else
 		{
-			m_PhysicsState = ExpansionVehicleDynamicState.STATIC;
-
-			stateF = 4;
+			m_State.CreateDynamic(m_IsPhysicsHost);
 		}
 
-		UpdateMotionStates( dt );
+		OnPostSimulation(dt);
 
-		if ( m_IsPhysicsHost )
-		{			
-			if ( !GetGame().IsClient() )
-			{
-				HandleSync_Server();
-			} else if ( !GetGame().IsServer() )
-			{
-				HandleSync_Client();
-			}
-		}
-
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.Set("StateF", stateF );
-		#endif
-
-		
-		if ( stateF != stateB )
-		{
-			Print( "" + this + " state changed to " + stateF + " from " + stateB );
-			stateB = stateF;
-		}
-
-		OnPostSimulation( dt );
-
-		if ( GetGame().IsMultiplayer() )
+		if (GetGame().IsMultiplayer())
 			SetSynchDirty();
-		
-		#ifdef EXPANSION_DEBUG_UI_VEHICLE
-		dbg_Vehicle.SwapBuffer();
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	private void HandleSync_Server()
+	float m_q1[4];
+	float m_q2[4];
+	float m_q3[4];
+
+	string QuatToString(float q[4])
 	{
-		switch ( m_NetworkMode )
-		{
-		case ExpansionVehicleNetworkMode.SERVER_ONLY:
-			m_SyncState.m_LinearVelocity = GetVelocity( this );
-			m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
-			return;
-		case ExpansionVehicleNetworkMode.PREDICTION:
-			return;
-		case ExpansionVehicleNetworkMode.CLIENT:
-			return;
-		}
+		return "" + q[0] + ", " + q[1] + ", " + q[2] + ", " + q[3];
 	}
 
-	// ------------------------------------------------------------
-	private void HandleSync_Client()
+	void CopyVecToQuat(vector v, out float q[4])
 	{
-		switch ( m_NetworkMode )
-		{
-		case ExpansionVehicleNetworkMode.SERVER_ONLY:
-			return;
-		case ExpansionVehicleNetworkMode.PREDICTION:
-			return;
-		case ExpansionVehicleNetworkMode.CLIENT:
-			m_SyncState.m_LinearVelocity = GetVelocity( this );
-			m_SyncState.m_AngularVelocity = dBodyGetAngularVelocity( this );
-			m_SyncState.m_Position = GetPosition();
-			m_SyncState.m_Orientation = GetOrientation();
-
-			m_SyncState.ClientSync();
-			return;
-		}
+		q[0] = v[0];
+		q[1] = v[1];
+		q[2] = v[2];
+		q[3] = 0;
 	}
 
-	// ------------------------------------------------------------
-	void MoveTo( float pDt, vector pTarget[4] )
+	void HandleLerp(float pDt)
 	{
-		if ( GetExpansionSettings().GetDebug().DebugVehicleTransformSet < 1 || !dBodyIsDynamic( this ) )
-		{
-			SetTransform( pTarget );
+		if (!m_RecievedInitialSync)
 			return;
-		}
 
-		vector transform[4];
-		GetTransform( transform );
+		vector t1[4];
+		vector t2[4];
+		vector t3[4];
+		GetTransform(t2);
+
+		m_State.m_TimeSince += pDt;
 
 		vector linearVelocity;
 		vector angularVelocity;
 
-		ExpansionPhysics.CalculateVelocity( pTarget, transform, pDt, linearVelocity, angularVelocity );
+		ExpansionPhysics.IntegrateTransform(m_State.m_TargetTransform, m_State.m_SyncLinearVelocity, m_State.m_SyncAngularVelocity, m_State.m_TimeSince, t1);
+		ExpansionPhysics.CalculateVelocity(t2, t1, pDt, linearVelocity, angularVelocity);
 
-		ApplyPhysics( pDt, linearVelocity * pDt, angularVelocity * pDt, false );
-	}
+		DGBDrawBoundingBox(t2, 0x1f00AA00);
+		DGBDrawBoundingBox(m_State.m_TargetTransform, 0x1fAA0000);
+		DGBDrawBoundingBox(t1, 0x1f0000AA);
 
-	// ------------------------------------------------------------
-	void UpdateMotionStates( float pDt )
-	{
-		m_Transform.Get( this );
-
-		m_LastLinearVelocity = m_LinearVelocity;
-		m_LinearVelocity = GetVelocity( this );
-		m_LinearAcceleration = ( m_LastLinearVelocity - m_LinearVelocity ) * pDt;
-
-		m_LastAngularVelocity = m_AngularVelocity;
-		m_AngularVelocity = dBodyGetAngularVelocity( this );
-		m_AngularAcceleration = ( m_LastAngularVelocity - m_AngularVelocity ) * pDt;
+		//m_State.m_AngularVelocity = "0 0 0";
+		//angularVelocity = "0 0 0";
+		//ExpansionPhysics.IntegrateTransform(t2, linearVelocity, angularVelocity, pDt, t3);
+		//DGBDrawBoundingBox(t3, 0x1f005555);
 		
-		m_LastLinearVelocityMS = m_LinearVelocityMS;
-		m_LinearVelocityMS = m_LinearVelocity.InvMultiply3( m_Transform.data );
-		m_LinearAccelerationMS = ( m_LastLinearVelocityMS - m_LinearVelocityMS ) * pDt;
+		//t3[0] = t1[0];
+		//t3[1] = t1[1];
+		//t3[2] = t1[2];
 
-		m_LastAngularVelocityMS = m_AngularVelocityMS;
-		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3( m_Transform.data );
-		m_AngularAccelerationMS = ( m_LastAngularVelocityMS - m_AngularVelocityMS ) * pDt;
+		//dBodySetTargetMatrix(this, t3, pDt);
+		
+		float strength = Math.Clamp(0.001 * vector.DistanceSq(t2[3], t1[3]), 0, 1.0);
+		
+		linearVelocity = vector.Lerp(m_State.m_LinearVelocity, linearVelocity, strength * pDt);
+
+		SetVelocity(this, linearVelocity);
+		dBodySetAngularVelocity(this, angularVelocity);
 	}
 
-	// ------------------------------------------------------------
-	void ApplyPhysics( float pDt, vector pImpulse, vector pImpulseTorque, bool pUseImpulse = true )
+	override bool OnNetworkTransformUpdate(out vector pos, out vector ypr)
 	{
-		if (pUseImpulse)
+		if (m_HasDriver)
 		{
-			dBodyApplyImpulse( this, pImpulse );
-			dBodyApplyTorqueImpulse( this, pImpulseTorque );
-		} else
-		{
-			SetVelocity(this, pImpulse);
-			dBodySetAngularVelocity(this, pImpulseTorque);
+			m_RecievedInitialSync = true;
+
+			Math3D.YawPitchRollMatrix(ypr * Math.RAD2DEG, m_State.m_TargetTransform);
+			m_State.m_TargetTransform[3] = pos;
+
+			pos = GetPosition();
+			ypr = GetOrientation() * Math.DEG2RAD;
+
+			return true;
 		}
+
+		return false;
 	}
 
-	void AnglesToQuat( vector angles, out float[] quat )
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
-		vector rotationMatrix[3];
-		Math3D.YawPitchRollMatrix( angles, rotationMatrix );
-		Math3D.MatrixToQuat( rotationMatrix, quat );
-	}
-
-	// ------------------------------------------------------------
-	// Mirek <3
-	// ------------------------------------------------------------
-	override bool OnNetworkTransformUpdate( out vector pos, out vector ypr )
-	{
-		m_RenderFrameTime = 0;
-
-		float dt = ( m_SyncState.m_LastRecievedTime - m_SyncState.m_Time ) / 40.0;
-		m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
-		m_SyncState.m_Time = GetTimeForSync();
-		m_SyncState.m_TimeDelta = 0;
-			
-		m_SyncState.m_Position = pos;
-		m_SyncState.m_Orientation = ypr * Math.RAD2DEG;
-		
-		Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform );
-		m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
-
-		pos = GetPosition();
-		ypr = GetOrientation() * Math.DEG2RAD;
-		
-		return true;
-	}
-
-	// ------------------------------------------------------------
-	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
-	{
-		super.OnRPC( sender, rpc_type, ctx );
+		super.OnRPC(sender, rpc_type, ctx);
 
 		int crewIdx;
 
-		switch ( rpc_type )
+		switch (rpc_type)
 		{
-			case ExpansionVehicleRPC.ControllerSync:
+		case ExpansionVehicleRPC.ControllerSync:
+		{
+			if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
 			{
-				if ( m_Controller )
+				OnNetworkRecieve(ctx);
+			}
+
+			return;
+		}
+		case ERPCs.RPC_EXPLODE_EVENT:
+		{
+			if (GetGame().IsClient())
+			{
+				Param2<int, string> params;
+
+				if (ctx.Read(params))
 				{
-					if ( CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER ) == PlayerBase.GetPlayerByUID( sender.GetId() ) )
-					{
-						if ( m_Controller.NetworkRecieve( ctx ) )
-						{
-							OnNetworkRecieve( ctx );
-						}
-					}
+					ExpansionOnExplodeClient(params.param1, params.param2);
 				}
-
-				return;
 			}
-			case ERPCs.RPC_EXPLODE_EVENT:
-			{
-				if ( GetGame().IsClient() )
-				{
-					Param2< int, string > params;
 
-					if ( ctx.Read( params ) )
-					{
-						ExpansionOnExplodeClient( params.param1, params.param2 );
-					}
-				}
-				
+			return;
+		}
+		case ExpansionVehicleRPC.ClientSync:
+		{
+			if (GetGame().IsClient() || m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT)
 				return;
-			}
-			case ExpansionVehicleRPC.ClientSync:
+
+			if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
 			{
-				if ( GetGame().IsClient() || m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT )
-					return;
-
-				int time;
-				ctx.Read( time );
-
-				// check if this is an old state and if so, remove it
-				if ( m_SyncState.m_Time > time )
-					return;
-
-				m_SyncState.m_LastRecievedTime = m_SyncState.m_Time;
-				m_SyncState.m_Time = time;
-
-				m_SyncState.m_ClientSimulationTime = time;
-
-				// time delta should always be positive, this is not the latency
-				m_SyncState.m_TimeDelta = GetTimeForSync() - time;
-
-				ctx.Read( m_SyncState.m_Position );
-				ctx.Read( m_SyncState.m_Orientation );
-				ctx.Read( m_SyncState.m_LinearVelocity );
-				ctx.Read( m_SyncState.m_AngularVelocity );
-				
-				Math3D.YawPitchRollMatrix( m_SyncState.m_Orientation, m_SyncState.m_InitialTransform );
-				m_SyncState.m_InitialTransform[3] = m_SyncState.m_Position;
-
-				return;
+				m_RecievedInitialSync = true;
+				m_State.OnRPC(ctx);
 			}
-			case ExpansionVehicleRPC.CrewSync:
-			{
-				ctx.Read(crewIdx);
 
+			return;
+		}
+		case ExpansionVehicleRPC.CrewSync:
+		{
+			ctx.Read(crewIdx);
+
+			m_Crew[crewIdx].OnRead(ctx);
+
+			return;
+		}
+		case ExpansionVehicleRPC.CrewSyncInit:
+		{
+			for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
 				m_Crew[crewIdx].OnRead(ctx);
 
-				return;
-			}
-			case ExpansionVehicleRPC.CrewSyncInit:
-			{
-				for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
-					m_Crew[crewIdx].OnRead(ctx);
+			return;
+		}
+		case ExpansionVehicleRPC.RequestCrewSync:
+		{
+			ScriptRPC rpc = new ScriptRPC();
+			for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
+				m_Crew[crewIdx].OnSend(rpc);
 
-				return;
-			}
-			case ExpansionVehicleRPC.RequestCrewSync:
-			{
-				ScriptRPC rpc = new ScriptRPC();
-				for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
-					m_Crew[crewIdx].OnSend(rpc);
+			rpc.Send(this, ExpansionVehicleRPC.CrewSyncInit, true, sender);
 
-				rpc.Send(this, ExpansionVehicleRPC.CrewSyncInit, true, sender);
-
-				return;
-			}
+			return;
+		}
 		}
 	}
 
-	// ------------------------------------------------------------
 	void NetworkSend()
 	{
-		if ( IsMissionOffline() )
+		if (IsMissionOffline())
 			return;
 
 		ScriptRPC rpc = new ScriptRPC();
 
-		m_Controller.NetworkSend( rpc );
-		OnNetworkSend( rpc );
+		OnNetworkSend(rpc);
 
-		if ( IsMissionHost() )
+		if (IsMissionHost())
 		{
-			Human human = CrewMember( DayZPlayerConstants.VEHICLESEAT_DRIVER );
-			if ( human != NULL )
-				rpc.Send( NULL, ExpansionVehicleRPC.ControllerSync, true, human.GetIdentity() );
-		} else
+			Human human = CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+			if (human != NULL)
+				rpc.Send(NULL, ExpansionVehicleRPC.ControllerSync, true, human.GetIdentity());
+		}
+		else
 		{
-			rpc.Send( NULL, ExpansionVehicleRPC.ControllerSync, true, NULL );
+			rpc.Send(NULL, ExpansionVehicleRPC.ControllerSync, true, NULL);
 		}
 	}
 
-	// ------------------------------------------------------------
-	protected void OnNetworkSend(  ParamsWriteContext ctx )
+	void OnNetworkSend(ParamsWriteContext ctx)
 	{
 	}
 
-	// ------------------------------------------------------------
-	protected void OnNetworkRecieve( ParamsReadContext ctx )
+	void OnNetworkRecieve(ParamsReadContext ctx)
 	{
 	}
 
-	// ------------------------------------------------------------
-	// Called only server side
-	// ------------------------------------------------------------
-	void OnEnterSafeZone()
+	/**
+	 * Called only server side
+	 */
+	override void OnEnterZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition());
+		if (type != ExpansionZoneType.SAFE)
+			return;
 
 		m_SafeZone = true;
 
-		if ( GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		if (GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone)
 			SetAllowDamage(false);
 	}
 
-	// ------------------------------------------------------------
-	// Called only server side
-	// ------------------------------------------------------------
-	void OnLeftSafeZone()
+	/**
+	 * Called only server side
+	 */
+	override void OnExitZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition());
+		if (type != ExpansionZoneType.SAFE)
+			return;
 
 		m_SafeZone = false;
 
-		if ( CanBeDamaged() )
+		if (CanBeDamaged())
 			SetAllowDamage(true);
 	}
 
-	// ------------------------------------------------------------
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (IsMissionHost())
+			m_Expansion_SafeZoneInstance.Update();
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
 
-		if ( GetCrashHeavySound() )
+		if (m_Controller.m_State[0] != m_EngineSync0)
+		{
+			m_Controller.m_State[0] = m_EngineSync0;
+
+			if (m_EngineSync0)
+			{
+				OnEngineStart(0);
+			}
+			else
+			{
+				OnEngineStop(0);
+			}
+		}
+
+		if (m_Controller.m_State[1] != m_EngineSync1)
+		{
+			m_Controller.m_State[1] = m_EngineSync1;
+
+			if (m_EngineSync1)
+			{
+				OnEngineStart(1);
+			}
+			else
+			{
+				OnEngineStop(1);
+			}
+		}
+
+		if (m_Controller.m_State[2] != m_EngineSync2)
+		{
+			m_Controller.m_State[2] = m_EngineSync2;
+
+			if (m_EngineSync2)
+			{
+				OnEngineStart(2);
+			}
+			else
+			{
+				OnEngineStop(2);
+			}
+		}
+
+		if (m_Controller.m_State[3] != m_EngineSync3)
+		{
+			m_Controller.m_State[3] = m_EngineSync3;
+
+			if (m_EngineSync3)
+			{
+				OnEngineStart(3);
+			}
+			else
+			{
+				OnEngineStop(3);
+			}
+		}
+
+		if (GetCrashHeavySound())
 			PlayCrashHeavySound();
-		else if ( GetCrashLightSound() )
+		else if (GetCrashLightSound())
 			PlayCrashLightSound();
-		
+
 		UpdateLights();
 
-		m_SyncState.OnVariablesSynchronized();
-
-		//if (m_PhysicsState == ExpansionVehicleDynamicState.DYNAMIC) OnAnimationUpdate(m_RenderFrameTimeSlice);
+		m_State.OnVariablesSynchronized(m_IsPhysicsHost);
 	}
 
-	// ------------------------------------------------------------
-	void ApplyAxleTorque( int axle, float torque )
+	ExpansionVehicleAxle GetAxle(int axle)
 	{
-		m_Axles[axle].ApplyTorque( torque );
+		return m_Axles[axle];
 	}
 
-	// ------------------------------------------------------------
-	void ApplyAxleBrake( int axle, float amt )
-	{
-		m_Axles[axle].ApplyBrake( amt );
-	}
-
-	// ------------------------------------------------------------
-	void ApplyAxleSteering( int axle, float amt )
-	{
-		m_Axles[axle].SetSteering( amt );
-	}
-
-	// ------------------------------------------------------------
 	float GetAxleCount()
 	{
 		return m_Axles.Count();
 	}
 
-	// ------------------------------------------------------------
 	float GetNumWheels()
 	{
 		return m_Wheels.Count();
 	}
 
-	// ------------------------------------------------------------
-	vector GetModelVelocityAt( vector relPos )
+	void AddModule(ExpansionVehicleModule module)
 	{
-		return m_LinearVelocityMS + ( m_AngularVelocityMS * relPos );
+		m_Modules.Insert(module);
+
+		if (module.IsInherited(ExpansionVehicleWheel))
+		{
+			m_Wheels.Insert(ExpansionVehicleWheel.Cast(module));
+			return;
+		}
+
+		if (module.IsInherited(ExpansionVehicleAxle))
+		{
+			m_Axles.Insert(ExpansionVehicleAxle.Cast(module));
+			return;
+		}
+
+		if (module.IsInherited(ExpansionVehicleAerofoil))
+		{
+			m_Aerofoils.Insert(ExpansionVehicleAerofoil.Cast(module));
+			return;
+		}
+
+		if (module.IsInherited(ExpansionVehicleEngine))
+		{
+			auto engine = ExpansionVehicleEngine.Cast(module);
+			engine.m_EngineIndex = m_Engines.Count();
+			RegisterNetSyncVariableBool("m_EngineSync" + engine.m_EngineIndex);
+			if (engine.m_EngineIndex >= 4)
+			{
+				Error(GetType() + ": " + engine.m_EngineIndex + " engines added were added, max is 4.");
+			}
+
+			m_Engines.Insert(engine);
+			return;
+		}
 	}
 
-	// ------------------------------------------------------------
-	vector GetWorldVelocityAt( vector relPos )
-	{
-		return GetModelVelocityAt( relPos ).Multiply3( m_Transform.GetBasis().data );
-	}
-
-	// ------------------------------------------------------------
-	vector GetEstimatedPosition( float pDt )
-	{
-		return GetPosition() + ( m_LinearVelocity * pDt );
-	}
-
-	// ------------------------------------------------------------
-	private void CalculateAltitudeLimiter()
+	void CalculateAltitudeLimiter()
 	{
 		float altitude = GetPosition()[1];
-		
-		if ( altitude > m_AltitudeFullForce )
+
+		if (altitude > m_AltitudeFullForce)
 		{
-			if ( altitude > m_AltitudeNoForce )
+			if (altitude > m_AltitudeNoForce)
 			{
 				m_AltitudeLimiter = 0;
-			} else
-			{
-				m_AltitudeLimiter = 1 - ( altitude - m_AltitudeFullForce ) * ( 1 / ( m_AltitudeNoForce - m_AltitudeFullForce ) );
 			}
-		} else
+			else
+			{
+				m_AltitudeLimiter = 1 - (altitude - m_AltitudeFullForce) * (1 / (m_AltitudeNoForce - m_AltitudeFullForce));
+			}
+		}
+		else
 		{
 			m_AltitudeLimiter = 1;
 		}
 	}
 
-	/**
-	 * Returns an extrapolated orientation based on the current velocity
-	 * 
-	 * @param pDt delta to extrapolate by
-	 * @return	current orientation extrapolated based on the time from the angular velocity
-	 * 			if pDt = 0, no extrapolation, if pDt = 1/40 then orientation next frame
-	 */
-	Matrix3 GetEstimatedOrientation( float pDt )
+	override void EEItemAttached(EntityAI item, string slot_name)
 	{
-		Matrix3 estimatedOrientation;
-		Matrix3.Tilda( ( ( m_AngularVelocity * pDt ) + ( m_AngularAcceleration * pDt ) ), estimatedOrientation );
-
-		Math3D.MatrixInvMultiply3( estimatedOrientation.data, m_Transform.data, estimatedOrientation.data );
-		
-		estimatedOrientation[0] = m_Transform[0] + estimatedOrientation[0];
-		estimatedOrientation[1] = m_Transform[1] + estimatedOrientation[1];
-		estimatedOrientation[2] = m_Transform[2] + estimatedOrientation[2];
-
-		estimatedOrientation[0].Normalized();
-		estimatedOrientation[1].Normalized();
-		estimatedOrientation[2].Normalized();
-
-		return estimatedOrientation;
-	}
-
-	// ------------------------------------------------------------
-	ExpansionVehicleAxle GetAxle( int axle )
-	{
-		return m_Axles[axle];
-	}
-
-	// ------------------------------------------------------------
-	override void EEItemAttached( EntityAI item, string slot_name ) 
-	{
-		super.EEItemAttached( item, slot_name );
-		if ( GetGame().IsServer() )
+		super.EEItemAttached(item, slot_name);
+		if (GetGame().IsServer())
 		{
-			if ( slot_name == "Reflector_1_1" )
-				SetHealth( "Reflector_1_1", "Health", item.GetHealth() );
+			if (slot_name == "Reflector_1_1")
+				SetHealth("Reflector_1_1", "Health", item.GetHealth());
 
-			if ( slot_name == "Reflector_2_1" )
-				SetHealth( "Reflector_2_1", "Health", item.GetHealth() );
+			if (slot_name == "Reflector_2_1")
+				SetHealth("Reflector_2_1", "Health", item.GetHealth());
 
-			if ( slot_name == "CarBattery" )
-				m_BatteryHealth = item.GetHealth01();
-					
-			if ( slot_name == "TruckBattery" )
+			if (slot_name == "CarBattery")
 				m_BatteryHealth = item.GetHealth01();
 
-			if ( slot_name == "SparkPlug" )
+			if (slot_name == "TruckBattery")
+				m_BatteryHealth = item.GetHealth01();
+
+			if (slot_name == "SparkPlug")
 				m_PlugHealth = item.GetHealth01();
-			
-			if ( slot_name == "GlowPlug" )
+
+			if (slot_name == "GlowPlug")
 				m_PlugHealth = item.GetHealth01();
-			
+
 			Synchronize();
 		}
 		UpdateHeadlightState();
 		UpdateLights();
 
 		ExpansionWheelBase wheel;
-		if ( !Class.CastTo( wheel, item ) )
+		if (!Class.CastTo(wheel, item))
 			return;
 
 		string slot = slot_name;
 		slot.ToLower();
 
-		for ( int i = 0; i < m_Wheels.Count(); i++ )
+		for (int i = 0; i < m_Wheels.Count(); i++)
 		{
-			string inv_slot = m_Wheels[i].GetInventorySlot();
+			string inv_slot = m_Wheels[i].m_InventorySlot;
 			inv_slot.ToLower();
-			
-			if ( inv_slot == slot )
+
+			if (inv_slot == slot)
 			{
-				m_Wheels[i].OnWheelAttach( wheel );
+				m_Wheels[i].OnWheelAttach(wheel);
 				return;
 			}
 		}
 	}
-	
+
 	// Updates state of attached headlight bulbs for faster access
 	void UpdateHeadlightState()
 	{
 		EntityAI bulb_L = FindAttachmentBySlotName("Reflector_1_1");
 		EntityAI bulb_R = FindAttachmentBySlotName("Reflector_2_1");
-		
-		if (bulb_L  &&  !bulb_L.IsRuined()  &&  bulb_R  &&  !bulb_R.IsRuined())
+
+		if (bulb_L && !bulb_L.IsRuined() && bulb_R && !bulb_R.IsRuined())
 		{
 			m_HeadlightsState = CarHeadlightBulbsState.BOTH;
 		}
-		else if (bulb_L  &&  !bulb_L.IsRuined())
+		else if (bulb_L && !bulb_L.IsRuined())
 		{
 			m_HeadlightsState = CarHeadlightBulbsState.LEFT;
 		}
-		else if (bulb_R  &&  !bulb_R.IsRuined())
+		else if (bulb_R && !bulb_R.IsRuined())
 		{
 			m_HeadlightsState = CarHeadlightBulbsState.RIGHT;
 		}
-		else if ( ( !bulb_L  ||  bulb_L.IsRuined() )  &&  ( !bulb_R  ||  bulb_R.IsRuined() ) )
+		else if ((!bulb_L || bulb_L.IsRuined()) && (!bulb_R || bulb_R.IsRuined()))
 		{
 			m_HeadlightsState = CarHeadlightBulbsState.NONE;
 		}
 	}
-	
+
 	override void OnAttachmentRuined(EntityAI attachment)
 	{
 		super.OnAttachmentRuined(attachment);
-		
+
 		UpdateHeadlightState();
 		UpdateLights();
 	}
 
-	// ------------------------------------------------------------
-	override void EEItemDetached( EntityAI item, string slot_name )
+	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-		super.EEItemAttached( item, slot_name );
-		if ( GetGame().IsServer() )
+		super.EEItemAttached(item, slot_name);
+		if (GetGame().IsServer())
 		{
 			//int slot_id = InventorySlots.GetSlotIdFromString(slot_name);
-			if ( IsScriptedLightsOn() )
+			if (IsScriptedLightsOn())
 			{
-				if ( slot_name == "CarBattery" || slot_name == "TruckBattery" )
+				if (slot_name == "CarBattery" || slot_name == "TruckBattery")
 				{
 					ToggleHeadlights();
 				}
 			}
 
-			if ( EngineIsOn() )
+			if (EngineIsOn())
 			{
 				//EngineBelt
-				if ( slot_name == "GlowPlug" || slot_name == "SparkPlug" || slot_name == "CarBattery" || slot_name == "TruckBattery" )
+				if (slot_name == "GlowPlug" || slot_name == "SparkPlug" || slot_name == "CarBattery" || slot_name == "TruckBattery")
 					EngineStop();
 			}
-			
-			if ( slot_name == "CarBattery" )
-				m_BatteryHealth = -1;
-					
-			if ( slot_name == "TruckBattery" )
+
+			if (slot_name == "CarBattery")
 				m_BatteryHealth = -1;
 
-			if ( slot_name == "SparkPlug" )
-				m_PlugHealth = -1;
-			
-			if ( slot_name == "GlowPlug" )
+			if (slot_name == "TruckBattery")
+				m_BatteryHealth = -1;
+
+			if (slot_name == "SparkPlug")
 				m_PlugHealth = -1;
 
-			if ( slot_name == "CarRadiator" )
+			if (slot_name == "GlowPlug")
+				m_PlugHealth = -1;
+
+			if (slot_name == "CarRadiator")
 			{
-				LeakAll( CarFluid.COOLANT );
-				SetHealth( "Radiator", "Health", 0);
+				LeakAll(CarFluid.COOLANT);
+				SetHealth("Radiator", "Health", 0);
 			}
 
 			Synchronize();
 		}
-		
+
 		UpdateHeadlightState();
 		UpdateLights();
 
 		ExpansionWheelBase wheel;
-		if ( !Class.CastTo( wheel, item ) )
+		if (!Class.CastTo(wheel, item))
 			return;
 
 		string slot = slot_name;
 		slot.ToLower();
 
-		for ( int i = 0; i < m_Wheels.Count(); i++ )
+		for (int i = 0; i < m_Wheels.Count(); i++)
 		{
-			string inv_slot = m_Wheels[i].GetInventorySlot();
+			string inv_slot = m_Wheels[i].m_InventorySlot;
 			inv_slot.ToLower();
 
-			if ( inv_slot == slot )
+			if (inv_slot == slot)
 			{
 				m_Wheels[i].OnWheelDetach();
 				return;
@@ -1872,60 +1701,56 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	// ------------------------------------------------------------
- ExpansionVehicleController GetExpansionController()
+	ExpansionController GetExpansionController()
 	{
 		return m_Controller;
 	}
 
-	// ------------------------------------------------------------
-	void SetAttachmentHealth( string itemName, float health )
+	ExpansionController GetController()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetAttachmentHealth - Start");
-		#endif
-		EntityAI item = FindAttachmentBySlotName( itemName );
-
-		if ( item )
-			item.SetHealth( "", "", health );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetAttachmentHealth - End");
-		#endif
+		return m_Controller;
 	}
 
-	void CreateLights( Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0 )
+	void SetAttachmentHealth(string itemName, float health)
+	{
+		EntityAI item = FindAttachmentBySlotName(itemName);
+
+		if (item)
+			item.SetHealth("", "", health);
+	}
+
+	void CreateLights(Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0)
 	{
 		array<Selection> lodSelections = new array<Selection>();
 
-		LOD lodLod = lod.GetLODByName( "memory" );
-		if ( lodLod )
+		LOD lodLod = lod.GetLODByName("memory");
+		if (lodLod)
 		{
-			if ( lodLod.GetSelections( lodSelections ) )
+			if (lodLod.GetSelections(lodSelections))
 			{
-				for ( int i = 0; i < lodSelections.Count(); i++ )
-				{	 
-					if ( lodSelections[i].GetName() == point )
+				for (int i = 0; i < lodSelections.Count(); i++)
+				{
+					if (lodSelections[i].GetName() == point)
 					{
-						for( int j = 0; j < lodSelections[i].GetVertexCount(); j++ )
+						for (int j = 0; j < lodSelections[i].GetVertexCount(); j++)
 						{
-							ExpansionPointLight light = ExpansionPointLight.Cast( ExpansionPointLight.CreateLight( type, "0 0 0" ) );
+							ExpansionPointLight light = ExpansionPointLight.Cast(ExpansionPointLight.CreateLight(type, "0 0 0"));
 							light.m_Val = default;
- 
-							light.SetRadiusTo( radius );
-							light.SetBrightnessTo( brigthness );
 
-							light.SetDiffuseColor( color[0], color[1], color[2] );
-							light.SetAmbientColor( ambient[0], ambient[1], ambient[2] );
-											
-							light.SetFlareVisible( flare );
-							light.SetCastShadow( shadows );
+							light.SetRadiusTo(radius);
+							light.SetBrightnessTo(brigthness);
 
-							light.AttachOnObject( lod, lodSelections[i].GetVertexPosition(lodLod, j), "0 0 0" );
+							light.SetDiffuseColor(color[0], color[1], color[2]);
+							light.SetAmbientColor(ambient[0], ambient[1], ambient[2]);
 
-							light.ExpansionSetEnabled( true );
+							light.SetFlareVisible(flare);
+							light.SetCastShadow(shadows);
 
-							m_Lights.Insert( light );
+							light.AttachOnObject(lod, lodSelections[i].GetVertexPosition(lodLod, j), "0 0 0");
+
+							light.ExpansionSetEnabled(true);
+
+							m_Lights.Insert(light);
 						}
 					}
 				}
@@ -1933,37 +1758,31 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	void CreateParticle( Object lod, string point, int type )
+	void CreateParticle(Object lod, string point, int type)
 	{
 		array<Selection> lodSelections = new array<Selection>();
 
-		LOD lodLod = lod.GetLODByName( "memory" );
-		if ( lodLod )
+		LOD lodLod = lod.GetLODByName("memory");
+		if (lodLod)
 		{
-			if ( lodLod.GetSelections( lodSelections ) )
+			if (lodLod.GetSelections(lodSelections))
 			{
-				for ( int i = 0; i < lodSelections.Count(); i++ )
-				{	 
-					if ( lodSelections[i].GetName() == point )
+				for (int i = 0; i < lodSelections.Count(); i++)
+				{
+					if (lodSelections[i].GetName() == point)
 					{
-						for( int j = 0; j < lodSelections[i].GetVertexCount(); j++ )
+						for (int j = 0; j < lodSelections[i].GetVertexCount(); j++)
 						{
-							Particle particle = Particle.PlayOnObject( type, lod, lodSelections[i].GetVertexPosition(lodLod, j) );
+							Particle particle = Particle.PlayOnObject(type, lod, lodSelections[i].GetVertexPosition(lodLod, j));
 							//! AddChild( particle.GetDirectParticleEffect(), -1, true );
 
-							m_Particles.Insert( particle );
+							m_Particles.Insert(particle);
 						}
 					}
 				}
 			}
 		}
 	}
-
-#ifndef EXPANSION_USING_TRANSPORT_BASE
-
-////////////////////////////////////////////////////////////////////
-// TRANSPORT CODE
-////////////////////////////////////////////////////////////////////
 
 	//! Returns crew capacity of this vehicle.
 	int CrewSize()
@@ -1973,14 +1792,14 @@ class ExpansionVehicleBase extends ItemBase
 
 	//! Returns crew member index based on action component index.
 	//! -1 is returned when no crew position corresponds to given component index.
-	int CrewPositionIndex( int componentIdx )
+	int CrewPositionIndex(int componentIdx)
 	{
 		//Print( "CrewPositionIndex" );
 		//Print( componentIdx );
-		for ( int i = 0; i < m_Crew.Count(); i++ )
+		for (int i = 0; i < m_Crew.Count(); i++)
 		{
 			//Print( m_Crew[i].GetComponentIndex() );
-			if ( m_Crew[i].GetComponentIndex() == componentIdx )
+			if (m_Crew[i].GetComponentIndex() == componentIdx)
 			{
 				return i;
 			}
@@ -1989,16 +1808,16 @@ class ExpansionVehicleBase extends ItemBase
 		return -1;
 	}
 
-	int CrewPositionIndexSelection( int componentIdx )
+	int CrewPositionIndexSelection(int componentIdx)
 	{
 		array<string> selections = new array<string>();
-		GetActionComponentNameList( componentIdx, selections );
-		
-		for ( int i = 0; i < selections.Count(); i++ )
+		GetActionComponentNameList(componentIdx, selections);
+
+		for (int i = 0; i < selections.Count(); i++)
 		{
-			for ( int j = 0; j < m_Crew.Count(); j++ )
+			for (int j = 0; j < m_Crew.Count(); j++)
 			{
-				if ( m_Crew[j].GetComponentSelection() == selections[i] )
+				if (m_Crew[j].GetComponentSelection() == selections[i])
 				{
 					return j;
 				}
@@ -2009,14 +1828,14 @@ class ExpansionVehicleBase extends ItemBase
 
 	//! Returns crew member index based on player's instance.
 	//! -1 is returned when the player is not isnide.
-	int CrewMemberIndex( Human player )
+	int CrewMemberIndex(Human player)
 	{
-		if ( player == NULL )
+		if (player == NULL)
 			return -1;
 
-		for ( int i = 0; i < m_Crew.Count(); i++ )
+		for (int i = 0; i < m_Crew.Count(); i++)
 		{
-			if ( m_Crew[i].GetPlayer() == player )
+			if (m_Crew[i].GetPlayer() == player)
 			{
 				return i;
 			}
@@ -2027,19 +1846,33 @@ class ExpansionVehicleBase extends ItemBase
 
 	//! Returns crew member based on position index.
 	//! Null can be returned if no Human is present on the given position.
-	Human CrewMember( int posIdx )
+	Human CrewMember(int posIdx)
 	{
-		if ( posIdx >= m_Crew.Count() )
+		if (posIdx >= m_Crew.Count())
 			return NULL;
 
-		if ( posIdx < 0 )
+		if (posIdx < 0)
 			return NULL;
-		
+
 		return m_Crew[posIdx].GetPlayer();
 	}
 
+	bool IsCrew(int posIdx, PlayerIdentity identity)
+	{
+		if (posIdx >= m_Crew.Count())
+			return false;
+
+		if (posIdx < 0)
+			return false;
+
+		if (!m_Crew[posIdx].GetPlayer())
+			return false;
+
+		return m_Crew[posIdx].GetPlayer().GetIdentity() == identity;
+	}
+
 	//! Performs transfer of player from world into vehicle on given position.
-	void CrewGetIn( Human player, int posIdx )
+	void CrewGetIn(Human player, int posIdx)
 	{
 		if (posIdx < 0 || posIdx >= m_Crew.Count())
 			return;
@@ -2052,17 +1885,10 @@ class ExpansionVehicleBase extends ItemBase
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
 		}
-		else
-		{
-			if (player == GetGame().GetPlayer())
-			{
-				m_PhysicsState = ExpansionVehicleDynamicState.TRANSITIONING;
-			}
-		}
 	}
 
 	//! Performs transfer of player from vehicle into world from given position.
-	Human CrewGetOut( int posIdx )
+	Human CrewGetOut(int posIdx)
 	{
 		if (posIdx < 0 || posIdx >= m_Crew.Count())
 			return null;
@@ -2076,7 +1902,8 @@ class ExpansionVehicleBase extends ItemBase
 			ScriptRPC rpc = new ScriptRPC();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
-		} else
+		}
+		else
 		{
 			if (human == GetGame().GetPlayer())
 			{
@@ -2086,12 +1913,11 @@ class ExpansionVehicleBase extends ItemBase
 		return human;
 	}
 
-	void CrewDeath( int posIdx )
+	void CrewDeath(int posIdx)
 	{
-
 	}
-	
-	void CrewEntry( int posIdx, out vector pos, out vector dir )
+
+	void CrewEntry(int posIdx, out vector pos, out vector dir)
 	{
 		if (posIdx < 0 || posIdx >= m_Crew.Count())
 			return;
@@ -2099,18 +1925,18 @@ class ExpansionVehicleBase extends ItemBase
 		m_Crew[posIdx].GetIn(pos, dir);
 	}
 
-	void CrewEntryWS( int posIdx, out vector pos, out vector dir )
+	void CrewEntryWS(int posIdx, out vector pos, out vector dir)
 	{
 		if (posIdx < 0 || posIdx >= m_Crew.Count())
 			return;
 
-		m_Crew[posIdx].GetIn( pos, dir );
+		m_Crew[posIdx].GetIn(pos, dir);
 
 		pos = ModelToWorld(pos);
 		dir = vector.Direction(GetPosition(), ModelToWorld(dir));
 	}
-	
-	void CrewTransform( int posIdx, out vector mat[4] )
+
+	void CrewTransform(int posIdx, out vector mat[4])
 	{
 		if (posIdx < 0 || posIdx >= m_Crew.Count())
 			return;
@@ -2118,7 +1944,7 @@ class ExpansionVehicleBase extends ItemBase
 		m_Crew[posIdx].GetTransform(mat);
 	}
 
-	void CrewTransformWS( int posIdx, out vector mat[4] )
+	void CrewTransformWS(int posIdx, out vector mat[4])
 	{
 		if (posIdx < 0 || posIdx >= m_Crew.Count())
 			return;
@@ -2132,13 +1958,13 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return ExpansionVehicleAnimInstances.EX_HATCHBACK;
 	}
-	
-	int GetSeatAnimationType( int posIdx )
+
+	int GetSeatAnimationType(int posIdx)
 	{
-		switch( posIdx )
+		switch (posIdx)
 		{
-			case 0:
-				return DayZPlayerConstants.VEHICLESEAT_DRIVER;
+		case 0:
+			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
 		}
 
 		return 0;
@@ -2149,35 +1975,35 @@ class ExpansionVehicleBase extends ItemBase
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
 	}
 
-	bool CrewCanGetThrough( int posIdx )
+	bool CrewCanGetThrough(int posIdx)
 	{
 		return true;
 	}
 
-	int GetCrewIndex( string selection )
+	int GetCrewIndex(string selection)
 	{
 		return -1;
 	}
 
-	bool CanReachSeatFromSeat( int currentSeat, int nextSeat )
+	bool CanReachSeatFromSeat(int currentSeat, int nextSeat)
 	{
-		return true;	
+		return true;
 	}
 
-	bool CanReachSeatFromDoors( string pSeatSelection, vector pFromPos, float pDistance = 1.0 )
+	bool CanReachSeatFromDoors(string pSeatSelection, vector pFromPos, float pDistance = 1.0)
 	{
 		string conPointName = GetDoorConditionPointFromSelection(pSeatSelection);
 		if (conPointName.Length() > 0)
 		{
-			if( MemoryPointExists(conPointName) )
+			if (MemoryPointExists(conPointName))
 			{
 				vector conPointMS = GetMemoryPointPos(conPointName);
 				vector conPointWS = ModelToWorld(conPointMS);
-				
+
 				//! skip the height for now
 				conPointWS[1] = 0;
 				pFromPos[1] = 0;
-				
+
 				if (vector.Distance(pFromPos, conPointWS) <= pDistance)
 				{
 					return true;
@@ -2185,84 +2011,82 @@ class ExpansionVehicleBase extends ItemBase
 			}
 		}
 
-		return false;		
+		return false;
 	}
 
-	bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
-		return true;		
+		return true;
 	}
 
-	int GetSeatIndexFromDoor( string pDoorSelection )
+	int GetSeatIndexFromDoor(string pDoorSelection)
 	{
 		//Potientially could be fixed some other way, currently follows the unfortunate pattern that CanReachDoorsFromSeat has created
 		switch (pDoorSelection)
 		{
-			case "DoorsDriver":
-				return 0;
-				break;
-			case "DoorsCoDriver":
-				return 1;
-				break;
-			case "DoorsCargo1":
-				return 2;
-				break;
-			case "DoorsCargo2":
-				return 3;
-				break;
+		case "DoorsDriver":
+			return 0;
+			break;
+		case "DoorsCoDriver":
+			return 1;
+			break;
+		case "DoorsCargo1":
+			return 2;
+			break;
+		case "DoorsCargo2":
+			return 3;
+			break;
 		}
 		return -1;
 	}
-	
-	bool IsIgnoredObject( Object o )
+
+	bool IsIgnoredObject(Object o)
 	{
 		if (!o)
-			return false;		
-		
-		EntityAI e = EntityAI.Cast(o);			
+			return false;
+
+		EntityAI e = EntityAI.Cast(o);
 		// CanBeSkinned means it is a dead entity which should not block the door
-		return ( ( e && e.IsZombie() ) || o.CanBeSkinned() || o.IsBush() || o.IsTree() );
+		return ((e && e.IsZombie()) || o.CanBeSkinned() || o.IsBush() || o.IsTree());
 	}
-	
-	bool IsAreaAtDoorFree( int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7 )
+
+	bool IsAreaAtDoorFree(int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7)
 	{
 		vector crewPos;
 		vector crewDir;
-		CrewEntryWS( currentSeat, crewPos, crewDir );
+		CrewEntryWS(currentSeat, crewPos, crewDir);
 		crewPos[1] = crewPos[1] + maxAllowedObjHeight + playerHeight * 0.5;
 		array<Object> excluded = new array<Object>;
 		array<Object> collided = new array<Object>;
 		excluded.Insert(this);
 		excluded.Insert(GetGame().GetPlayer());
-		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided); 
-		foreach (Object o : collided)
+		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided);
+		vector minmax[2];
+		for (int i = 0; i < collided.Count(); i++)
 		{
-			vector minmax[2];
-			if (o.GetCollisionBox(minmax))
+			if (collided[i].GetCollisionBox(minmax))
 				return false;
 		}
 		return true;
 	}
 
-	Shape DebugFreeAreaAtDoor( int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7 )
+	Shape DebugFreeAreaAtDoor(int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7)
 	{
 		vector crewPos;
 		vector crewDir;
-		CrewEntryWS( currentSeat, crewPos, crewDir );
+		CrewEntryWS(currentSeat, crewPos, crewDir);
 		crewPos[1] = crewPos[1] + maxAllowedObjHeight + playerHeight * 0.5;
 		array<Object> excluded = new array<Object>;
 		array<Object> collided = new array<Object>;
 		excluded.Insert(this);
 		excluded.Insert(GetGame().GetPlayer());
-		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided); 
+		GetGame().IsBoxColliding(crewPos, crewDir, Vector(horizontalExtents, playerHeight, horizontalExtents), excluded, collided);
 		int color = ARGB(100, 0, 255, 0);
-		foreach (Object o : collided)
+		vector minmax[2];
+		for (int i = 0; i < collided.Count(); i++)
 		{
-			vector minmax[2];
-			if (o.GetCollisionBox(minmax))
-			{
+			if (collided[i].GetCollisionBox(minmax))
 				color = ARGB(100, 255, 0, 0);
-			}
 		}
 
 		return Debug.DrawCylinder(crewPos, horizontalExtents, playerHeight, color);
@@ -2270,158 +2094,81 @@ class ExpansionVehicleBase extends ItemBase
 
 	void Synchronize()
 	{
-
 	}
-#else
-	static ref map<typename, ref TInputActionMap> m_AdvComTypeActionsMap = new map<typename, ref TInputActionMap>;
-	TInputActionMap m_InputActionMap;
-	bool m_ActionsInitialize;
-
-	void InitializeActions()
-	{
-		m_InputActionMap = m_AdvComTypeActionsMap.Get( this.Type() );
-		if(!m_InputActionMap)
-		{
-			TInputActionMap iam = new TInputActionMap;
-			m_InputActionMap = iam;
-			SetActions();
-			m_AdvComTypeActionsMap.Insert(this.Type(), m_InputActionMap);
-		}
-	}
-	
-	override void GetActions(typename action_input_type, out array<ActionBase_Basic> actions)
-	{
-		if(!m_ActionsInitialize)
-		{
-			m_ActionsInitialize = true;
-			InitializeActions();
-		}
-		
-		actions = m_InputActionMap.Get(action_input_type);
-	}
-
-	void AddAction(typename actionName)
-	{
-		ActionBase action = ActionManagerBase.GetAction(actionName);
-
-		if(!action)
-		{
-			Debug.LogError("Action " + actionName + " dosn't exist!");
-			return;
-		}		
-		
-		typename ai = action.GetInputType();
-		if(!ai)
-		{
-			m_ActionsInitialize = false;
-			return;
-		}
-		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
-		
-		if(!action_array)
-		{
-			action_array = new array<ActionBase_Basic>;
-			m_InputActionMap.Insert(ai, action_array);
-		}
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("+ " + this + " add action: " + action + " input " + ai);
-		#endif
-
-		action_array.Insert(action);
-	}
-	
-	void RemoveAction(typename actionName)
-	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-		ActionBase action = player.GetActionManager().GetAction(actionName);
-		typename ai = action.GetInputType();
-		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
-		
-		if(action_array)
-		{
-			action_array.RemoveItem(action);
-		}
-	}
-#endif
 
 	override void SetActions()
 	{
-		AddAction( ExpansionActionFillFuel );
-		AddAction( ExpansionActionSwitchLights );
+		AddAction(ExpansionActionFillFuel);
+		AddAction(ExpansionActionSwitchLights);
 
-		AddAction( ExpansionActionGetInExpansionVehicle );
-		AddAction( ExpansionActionOpenVehicleDoor );
-		AddAction( ExpansionActionCloseVehicleDoor );
+		AddAction(ExpansionActionGetInExpansionVehicle);
+		AddAction(ExpansionActionOpenVehicleDoor);
+		AddAction(ExpansionActionCloseVehicleDoor);
 	}
-
-////////////////////////////////////////////////////////////////////
-// CAR/CARSCRIPT CODE
-////////////////////////////////////////////////////////////////////
 
 	vector GetEnginePosWS()
 	{
-		return ModelToWorld( m_DrownEnginePos );
+		return ModelToWorld(m_DrownEnginePos);
 	}
-	
+
 	vector GetCoolantPtcPosWS()
 	{
-		return ModelToWorld( m_coolantPtcPos );
+		return ModelToWorld(m_coolantPtcPos);
 	}
 
 	vector GetRefillPointPosWS()
 	{
-		return ModelToWorld( m_fuelPos );
+		return ModelToWorld(m_fuelPos);
 	}
-	
+
 	vector GetEnginePointPosWS()
-	{	
-		return ModelToWorld( m_enginePos );
+	{
+		return ModelToWorld(m_enginePos);
 	}
 
 	vector GetFrontPointPosWS()
-	{	
-		return ModelToWorld( m_frontPos );
+	{
+		return ModelToWorld(m_frontPos);
 	}
 
 	vector GetBackPointPosWS()
-	{	
-		return ModelToWorld( m_backPos );
+	{
+		return ModelToWorld(m_backPos);
 	}
 
 	vector Get_1_1PointPosWS()
-	{	
-		return ModelToWorld( m_side_1_1Pos );
+	{
+		return ModelToWorld(m_side_1_1Pos);
 	}
 
 	vector Get_1_2PointPosWS()
-	{	
-		return ModelToWorld( m_side_1_2Pos );
+	{
+		return ModelToWorld(m_side_1_2Pos);
 	}
 
 	vector Get_2_1PointPosWS()
-	{	
-		return ModelToWorld( m_side_2_1Pos );
+	{
+		return ModelToWorld(m_side_2_1Pos);
 	}
 
 	vector Get_2_2PointPosWS()
-	{	
-		return ModelToWorld( m_side_2_2Pos );
+	{
+		return ModelToWorld(m_side_2_2Pos);
 	}
 
 	void OnBrakesPressed()
 	{
 		UpdateLights();
 	}
-	
+
 	void OnBrakesReleased()
 	{
 		UpdateLights();
 	}
 
-	void OnUpdate( float dt )
-    {
-/*
+	void OnUpdate(float dt)
+	{
+		/*
 //-----------------------------------------------------/
 //------PREARATION FOR DROWNING PLAYRS IN THE CARS-----/
 //-----------------------------------------------------/
@@ -2454,16 +2201,16 @@ class ExpansionVehicleBase extends ItemBase
             }
         }
 */
-		
-		if ( GetGame().IsServer() )
+
+		if (GetGame().IsServer())
 		{
-			if ( GetGame().GetWaterDepth( GetEnginePosWS() ) > 0 )
+			if (GetGame().GetWaterDepth(GetEnginePosWS()) > 0)
 			{
 				m_DrownTime += dt;
-				if ( m_DrownTime > DROWN_ENGINE_THRESHOLD )
+				if (m_DrownTime > DROWN_ENGINE_THRESHOLD)
 				{
 					// *dt to get damage per second
-					AddHealth( "Engine", "Health", -DROWN_ENGINE_DAMAGE * dt);
+					AddHealth("Engine", "Health", -DROWN_ENGINE_DAMAGE * dt);
 				}
 				//Debug.DrawSphere(GetCoolantPtcPosWS(), 0.2, COLOR_RED, ShapeFlags.NOZBUFFER | ShapeFlags.NOZWRITE);
 			}
@@ -2472,28 +2219,28 @@ class ExpansionVehicleBase extends ItemBase
 				m_DrownTime = 0;
 			}
 		}
-		
+
 		//FX only on Client and in Single
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
 		{
-			if ( IsDamageDestroyed() && GetGame().GetWaterDepth( GetEnginePosWS() ) <= 0 )
+			if (IsDamageDestroyed() && GetGame().GetWaterDepth(GetEnginePosWS()) <= 0)
 			{
-				if ( !SEffectManager.IsEffectExist( m_enginePtcFx ) )
+				if (!SEffectManager.IsEffectExist(m_enginePtcFx))
 				{
 					m_engineFx = new EffEngineSmoke();
-					m_enginePtcFx = SEffectManager.PlayOnObject( m_engineFx, this, m_enginePtcPos, Vector(0,0,0), true );
+					m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, m_enginePtcPos, Vector(0, 0, 0), true);
 					//m_engineFx.SetParticleStateLight();
 					m_engineFx.SetParticleStateHeavy();
 				}
 			}
 		}
-		
+
 		// Visualisation of brake lights for all players
-		float brake_coef = GetBrake();
-		
-		if ( brake_coef > 0 )
+		float brake_coef = GetController().GetBrake();
+
+		if (brake_coef > 0)
 		{
-			if ( !m_BrakesArePressed )
+			if (!m_BrakesArePressed)
 			{
 				m_BrakesArePressed = true;
 				SetSynchDirty();
@@ -2502,19 +2249,19 @@ class ExpansionVehicleBase extends ItemBase
 		}
 		else
 		{
-			if ( m_BrakesArePressed )
+			if (m_BrakesArePressed)
 			{
 				m_BrakesArePressed = false;
 				SetSynchDirty();
 				OnBrakesReleased();
 			}
 		}
-    }
+	}
 
 	//!	Returns the current speed of the vehicle in km/h.
 	float GetSpeedometer()
 	{
-		return GetVelocity( this ).Length() * 3.6;
+		return GetVelocity(this).Length() * 3.6;
 	}
 
 	/*!
@@ -2522,9 +2269,9 @@ class ExpansionVehicleBase extends ItemBase
 
 		\param fluid the specified fluid type
 	*/
-	float GetFluidCapacity( CarFluid fluid )
+	float GetFluidCapacity(CarFluid fluid)
 	{
-		return m_FluidCapacities.Get( fluid );
+		return m_FluidCapacities.Get(fluid);
 	}
 
 	/*!
@@ -2533,131 +2280,131 @@ class ExpansionVehicleBase extends ItemBase
 
 		\param[in] fluid the specified fluid type
 	*/
-	float GetFluidFraction( CarFluid fluid )
+	float GetFluidFraction(CarFluid fluid)
 	{
 		float amount;
-		switch ( fluid )
+		switch (fluid)
 		{
-			case CarFluid.FUEL:
-				amount = m_FuelAmmount;
-				break;
-			case CarFluid.OIL:
-				amount = m_CoolantAmmount;
-				break;
-			case CarFluid.BRAKE:
-				amount = m_OilAmmount;
-				break;
-			case CarFluid.COOLANT:
-				amount = m_BrakeAmmount;
-				break;
-			default:
-				return 0;
+		case CarFluid.FUEL:
+			amount = m_FuelAmmount;
+			break;
+		case CarFluid.OIL:
+			amount = m_CoolantAmmount;
+			break;
+		case CarFluid.BRAKE:
+			amount = m_OilAmmount;
+			break;
+		case CarFluid.COOLANT:
+			amount = m_BrakeAmmount;
+			break;
+		default:
+			return 0;
 		}
-		
-		return amount / GetFluidCapacity( fluid );
+
+		return amount / GetFluidCapacity(fluid);
 	}
 
 	//! Removes from the specified fluid the specified amount.
-	void Leak( CarFluid fluid, float amount )
+	void Leak(CarFluid fluid, float amount)
 	{
 		float previousAmt;
 		float newAmt;
 
-		switch ( fluid )
+		switch (fluid)
 		{
-			case CarFluid.FUEL:
-				previousAmt = m_FuelAmmount;
-				m_FuelAmmount -= amount;
-				newAmt = m_FuelAmmount;
-				break;
-			case CarFluid.OIL:
-				previousAmt = m_CoolantAmmount;
-				m_CoolantAmmount -= amount;
-				newAmt = m_CoolantAmmount;
-				break;
-			case CarFluid.BRAKE:
-				previousAmt = m_OilAmmount;
-				m_OilAmmount -= amount;
-				newAmt = m_OilAmmount;
-				break;
-			case CarFluid.COOLANT:
-				previousAmt = m_BrakeAmmount;
-				m_BrakeAmmount -= amount;
-				newAmt = m_BrakeAmmount;
-				break;
-			default:
-				return;
+		case CarFluid.FUEL:
+			previousAmt = m_FuelAmmount;
+			m_FuelAmmount -= amount;
+			newAmt = m_FuelAmmount;
+			break;
+		case CarFluid.OIL:
+			previousAmt = m_CoolantAmmount;
+			m_CoolantAmmount -= amount;
+			newAmt = m_CoolantAmmount;
+			break;
+		case CarFluid.BRAKE:
+			previousAmt = m_OilAmmount;
+			m_OilAmmount -= amount;
+			newAmt = m_OilAmmount;
+			break;
+		case CarFluid.COOLANT:
+			previousAmt = m_BrakeAmmount;
+			m_BrakeAmmount -= amount;
+			newAmt = m_BrakeAmmount;
+			break;
+		default:
+			return;
 		}
 
-		OnFluidChanged( fluid, previousAmt, newAmt );
+		OnFluidChanged(fluid, previousAmt, newAmt);
 	}
 
 	//! Removes all the specified fluid from vehicle.
-	void LeakAll( CarFluid fluid )
+	void LeakAll(CarFluid fluid)
 	{
 		float previousAmt;
 		float newAmt;
 
-		switch ( fluid )
+		switch (fluid)
 		{
-			case CarFluid.FUEL:
-				previousAmt = m_FuelAmmount;
-				m_FuelAmmount = 0;
-				break;
-			case CarFluid.OIL:
-				previousAmt = m_CoolantAmmount;
-				m_CoolantAmmount = 0;
-				break;
-			case CarFluid.BRAKE:
-				previousAmt = m_OilAmmount;
-				m_OilAmmount = 0;
-				break;
-			case CarFluid.COOLANT:
-				previousAmt = m_BrakeAmmount;
-				m_BrakeAmmount = 0;
-				break;
-			default:
-				return;
+		case CarFluid.FUEL:
+			previousAmt = m_FuelAmmount;
+			m_FuelAmmount = 0;
+			break;
+		case CarFluid.OIL:
+			previousAmt = m_CoolantAmmount;
+			m_CoolantAmmount = 0;
+			break;
+		case CarFluid.BRAKE:
+			previousAmt = m_OilAmmount;
+			m_OilAmmount = 0;
+			break;
+		case CarFluid.COOLANT:
+			previousAmt = m_BrakeAmmount;
+			m_BrakeAmmount = 0;
+			break;
+		default:
+			return;
 		}
 
-		OnFluidChanged( fluid, previousAmt, 0 );
+		OnFluidChanged(fluid, previousAmt, 0);
 	}
 
 	//! Adds to the specified fluid the specified amount.
-	void Fill( CarFluid fluid, float amount )
+	void Fill(CarFluid fluid, float amount)
 	{
 		float previousAmt;
 		float newAmt;
 
-		switch ( fluid )
+		switch (fluid)
 		{
-			case CarFluid.FUEL:
-				previousAmt = m_FuelAmmount;
-				m_FuelAmmount += amount;
-				newAmt = m_FuelAmmount;
-				break;
-			case CarFluid.OIL:
-				previousAmt = m_CoolantAmmount;
-				m_CoolantAmmount += amount;
-				newAmt = m_CoolantAmmount;
-				break;
-			case CarFluid.BRAKE:
-				previousAmt = m_OilAmmount;
-				m_OilAmmount += amount;
-				newAmt = m_OilAmmount;
-				break;
-			case CarFluid.COOLANT:
-				previousAmt = m_BrakeAmmount;
-				m_BrakeAmmount += amount;
-				newAmt = m_BrakeAmmount;
-				break;
-			default:
-				return;
+		case CarFluid.FUEL:
+			previousAmt = m_FuelAmmount;
+			m_FuelAmmount += amount;
+			newAmt = m_FuelAmmount;
+			break;
+		case CarFluid.OIL:
+			previousAmt = m_CoolantAmmount;
+			m_CoolantAmmount += amount;
+			newAmt = m_CoolantAmmount;
+			break;
+		case CarFluid.BRAKE:
+			previousAmt = m_OilAmmount;
+			m_OilAmmount += amount;
+			newAmt = m_OilAmmount;
+			break;
+		case CarFluid.COOLANT:
+			previousAmt = m_BrakeAmmount;
+			m_BrakeAmmount += amount;
+			newAmt = m_BrakeAmmount;
+			break;
+		default:
+			return;
 		}
 
-		OnFluidChanged( fluid, previousAmt, newAmt );
+		OnFluidChanged(fluid, previousAmt, newAmt);
 	}
-	
+
 	float GetEnviroHeatComfortOverride()
 	{
 		return Math.Clamp(m_EnviroHeatComfortOverride, -1, 1);
@@ -2671,52 +2418,150 @@ class ExpansionVehicleBase extends ItemBase
 		\param[in] newValue new fluid level
 		\param[in] oldValue previous fluid level before change
 	*/
-	void OnFluidChanged( CarFluid fluid, float newValue, float oldValue )
+	void OnFluidChanged(CarFluid fluid, float newValue, float oldValue)
 	{
 	}
-	
+
 	//!
 	bool IsMoving()
 	{
-		if ( GetSpeedometer() > 3.5 )
+		if (GetSpeedometer() > 3.5)
 			return true;
-		
+
 		return false;
 	}
 
-	//! Returns engine's max rpm before engine blows up.
+	string EngineGetName()
+	{
+		switch (m_CurrentEngine)
+		{
+		case 0:
+			return "Car";
+		case 1:
+			if (IsHelicopter())
+				return "Helicopter";
+			else if (IsPlane())
+				return "Plane";
+			else if (IsBoat())
+				return "Boat";
+			break;
+		}
+		return "UNKNOWN";
+	}
+
+	int EngineStartAnimation()
+	{
+		return EngineStartAnimation(m_CurrentEngine);
+	}
+
+	int EngineStopAnimation()
+	{
+		return EngineStopAnimation(m_CurrentEngine);
+	}
+
+	int EngineGetCurrent()
+	{
+		if (m_CurrentEngine < 0)
+			m_CurrentEngine = 0;
+		if (m_CurrentEngine >= m_Engines.Count())
+			m_CurrentEngine = 0;
+
+		return m_CurrentEngine;
+	}
+
+	int EngineGetCount()
+	{
+		return m_Engines.Count();
+	}
+
+	void EngineSetNext()
+	{
+		m_CurrentEngine++;
+		if (m_CurrentEngine >= m_Engines.Count())
+			m_CurrentEngine = 0;
+
+		SetSynchDirty();
+	}
+
 	float EngineGetRPMMax()
 	{
-		return 0;
+		return EngineGetRPMMax(m_CurrentEngine);
 	}
 
 	//! Returns engine's maximal working rpm without damaging the engine.
 	float EngineGetRPMRedline()
 	{
-		return 0;
+		return EngineGetRPMRedline(m_CurrentEngine);
 	}
 
 	//! Returns engine's rpm value.
 	float EngineGetRPM()
 	{
-		return 0;
+		return EngineGetRPM(m_CurrentEngine);
 	}
 
 	//! Returns true when engine is running, false otherwise.
 	bool EngineIsOn()
 	{
-		return m_EngineIsOn;
+		return EngineIsOn(m_CurrentEngine);
 	}
 
 	//! Starts the engine.
 	void EngineStart()
 	{
-		if ( OnBeforeEngineStart() )
-		{
-			m_EngineIsOn = true;
+		EngineStart(m_CurrentEngine);
+	}
 
-			OnEngineStart();
+	//! Stops the engine.
+	void EngineStop()
+	{
+		EngineStop(m_CurrentEngine);
+	}
+
+	//! Returns engine's max rpm before engine blows up.
+	float EngineGetRPMMax(int index)
+	{
+		return m_Engines[index].m_RPMMax;
+	}
+
+	//! Returns engine's maximal working rpm without damaging the engine.
+	float EngineGetRPMRedline(int index)
+	{
+		return m_Engines[index].m_RPMRedline;
+	}
+
+	//! Returns engine's rpm value.
+	float EngineGetRPM(int index)
+	{
+		return m_Engines[index].m_RPM;
+	}
+
+	//! Returns true when engine is running, false otherwise.
+	bool EngineIsOn(int index)
+	{
+		return m_Controller.m_State[index];
+	}
+
+	//! Starts the engine.
+	void EngineStart(int index)
+	{
+		if (!m_Controller.m_State[index] && OnBeforeEngineStart(index))
+		{
+			m_Controller.m_State[index] = true;
+
+			if (index == 0)
+				m_EngineSync0 = true;
+			else if (index == 1)
+				m_EngineSync1 = true;
+			else if (index == 2)
+				m_EngineSync2 = true;
+			else if (index == 3)
+				m_EngineSync3 = true;
+
+			OnEngineStart(index);
 		}
+
+		SetSynchDirty();
 	}
 
 	/*!
@@ -2724,66 +2569,77 @@ class ExpansionVehicleBase extends ItemBase
 
 		\return true if the engine can start, false otherwise.
 	*/
-	protected bool OnBeforeEngineStart()
+	bool OnBeforeEngineStart(int index)
 	{
 		// engine can start by default
 		return true;
 	}
 
 	//! Is called every time the engine starts.
-	protected void OnEngineStart()
+	void OnEngineStart(int index)
 	{
+		m_EnginesOn++;
+
 		UpdateLights();
 	}
 
 	//! Stops the engine.
-	void EngineStop()
+	void EngineStop(int index)
 	{
-		m_EngineIsOn = false;
+		if (m_Controller.m_State[index])
+		{
+			m_Controller.m_State[index] = false;
 
-		OnEngineStop();
+			if (index == 0)
+				m_EngineSync0 = false;
+			else if (index == 1)
+				m_EngineSync1 = false;
+			else if (index == 2)
+				m_EngineSync2 = false;
+			else if (index == 3)
+				m_EngineSync3 = false;
+
+			OnEngineStop(index);
+		}
+
+		SetSynchDirty();
 	}
 
 	//! Is called every time the engine stops.
-	protected void OnEngineStop()
+	void OnEngineStop(int index)
 	{
+		m_EnginesOn--;
+
 		UpdateLights();
 	}
 
-	//! Returns total number of gears.
-	int GetGearsCount()
+	int EnginesOn()
 	{
-		return 0;
+		return m_EnginesOn;
 	}
 
-	int GetGear()
+	int EngineStartAnimation(int index)
 	{
-		return 0;
+		if (IsPlane())
+			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
+		if (IsBoat())
+			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
+		if (IsHelicopter())
+			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
+
+		return DayZPlayerConstants.CMD_ACTIONMOD_STARTENGINE;
 	}
 
-	void SetClutchState( bool pState )
+	int EngineStopAnimation(int index)
 	{
-		m_ClutchState = pState;
-	}
+		if (IsPlane())
+			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
+		if (IsBoat())
+			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
+		if (IsHelicopter())
+			return DayZPlayerConstants.CMD_ACTIONMOD_ITEM_OFF;
 
-	float GetClutch()
-	{
-		return 0.0;
-	}
-
-	float GetSteering()
-	{
-		return 0.0;
-	}
-
-	float GetThrottle()
-	{
-		return 0.0;
-	}
-
-	float GetBrake()
-	{
-		return 0.0;
+		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
 	}
 
 	/*!
@@ -2792,7 +2648,7 @@ class ExpansionVehicleBase extends ItemBase
 		\param[in] newGear new gear level
 		\param[in] oldGear previous gear level before gear shift
 	*/
-	void OnGearChanged( int newGear, int oldGear )
+	void OnGearChanged(int newGear, int oldGear)
 	{
 		UpdateLights(newGear);
 	}
@@ -2805,17 +2661,17 @@ class ExpansionVehicleBase extends ItemBase
 		\param[in] other object with which the vehicle is colliding
 		\param[in] data contact properties
 	*/
-	void OnContact( string zoneName, vector localPos, IEntity other, Contact data )
+	void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
-		if ( zoneName == "" )
+		if (zoneName == "")
 		{
 			Print("CarScript >> ERROR >> OnContact dmg zone not defined!");
 			return;
 		}
-		
-		switch( zoneName )
+
+		switch (zoneName)
 		{
-/*
+			/*
 			case "dmgZone_lightsLF":
 				//Print("dmgZone_lightsLF");
 			break;
@@ -2824,67 +2680,66 @@ class ExpansionVehicleBase extends ItemBase
 				//Print("dmgZone_lightsRF");
 			break;
 */
-			default:
-				if ( GetGame().IsServer() && zoneName != "")
+		default:
+			if (GetGame().IsServer() && zoneName != "")
+			{
+				if (CanBeDamaged())
 				{
-					if ( CanBeDamaged() )
+					float dmgMin = 150.0;
+					float dmgThreshold = 750.0;
+					float dmgKillCrew = 3000.0;
+					float dmg = data.Impulse * m_dmgContactCoef;
+
+					if (dmg < dmgThreshold)
 					{
-						float dmgMin = 150.0;	
-						float dmgThreshold = 750.0;
-						float dmgKillCrew = 3000.0;
-						float dmg = data.Impulse * m_dmgContactCoef;
-
-						if ( dmg < dmgThreshold )
-						{					
-							if ( dmg > dmgMin )
-							{
-								//Print( GetType() + " >>> " + " smlHit >>> " + "zoneName: "  + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h");
-								AddHealth( zoneName, "Health", -dmg);
-								//m_PlayCrashSoundLight = true;
-								SynchCrashLightSound( true );
-							}
-						}
-						else
+						if (dmg > dmgMin)
 						{
-							//Print( GetType() + " >>> " + " BIGHit >>> " + "zoneName: " + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h" );
-							for( int i =0; i < CrewSize(); i++ )
-							{
-								Human crew = CrewMember( i );
-								if ( !crew )
-									continue;
-
-								PlayerBase player;
-								if ( Class.CastTo(player, crew ) )
-								{
-									if ( dmg > dmgKillCrew )
-									{		
-										player.SetHealth(0.0);
-									}
-									else
-									{
-										//deal shock to player
-										float shockTemp = Math.InverseLerp(dmgThreshold, dmgKillCrew, dmg);
-										float shock = Math.Lerp( 50, 100, shockTemp );
-										float hp = Math.Lerp( 2, 60, shockTemp );
-
-										player.AddHealth("", "Shock", -shock );
-										player.AddHealth("", "Health", -hp );
-										//Print( "SHOCK..........." + shock );
-										//Print( "HEALTH..........." + hp );
-									}
-								}
-							}
-
-							//m_PlayCrashSoundHeavy = true;
-							SynchCrashHeavySound( true );
-							ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg );
+							//Print( GetType() + " >>> " + " smlHit >>> " + "zoneName: "  + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h");
+							AddHealth(zoneName, "Health", -dmg);
+							//m_PlayCrashSoundLight = true;
+							SynchCrashLightSound(true);
 						}
 					}
+					else
+					{
+						//Print( GetType() + " >>> " + " BIGHit >>> " + "zoneName: " + zoneName + " >>> - " + dmg.ToString() + " HP >>> in " + GetSpeedometer() + " km/h" );
+						for (int i = 0; i < CrewSize(); i++)
+						{
+							Human crew = CrewMember(i);
+							if (!crew)
+								continue;
+
+							PlayerBase player;
+							if (Class.CastTo(player, crew))
+							{
+								if (dmg > dmgKillCrew)
+								{
+									player.SetHealth(0.0);
+								}
+								else
+								{
+									//deal shock to player
+									float shockTemp = Math.InverseLerp(dmgThreshold, dmgKillCrew, dmg);
+									float shock = Math.Lerp(50, 100, shockTemp);
+									float hp = Math.Lerp(2, 60, shockTemp);
+
+									player.AddHealth("", "Shock", -shock);
+									player.AddHealth("", "Health", -hp);
+									//Print( "SHOCK..........." + shock );
+									//Print( "HEALTH..........." + hp );
+								}
+							}
+						}
+
+						//m_PlayCrashSoundHeavy = true;
+						SynchCrashHeavySound(true);
+						ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg);
+					}
 				}
+			}
 			break;
 		}
-		
-		
+
 		UpdateHeadlightState();
 		UpdateLights();
 	}
@@ -2897,22 +2752,22 @@ class ExpansionVehicleBase extends ItemBase
 		\param[in] oldValue already computed value by the game code
 		\return new value of the specified sound controller.
 	*/
-	float OnSound( CarSoundCtrl ctrl, float oldValue )
+	float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
-		if ( GetGame().IsServer() )
+		if (GetGame().IsServer())
 		{
-			if ( GetCrashLightSound() )
+			if (GetCrashLightSound())
 				m_PlayCrashSoundLight = false;
-		
-			if ( GetCrashHeavySound() )
+
+			if (GetCrashHeavySound())
 				m_PlayCrashSoundHeavy = false;
 		}
-		
-		switch ( ctrl )
+
+		switch (ctrl)
 		{
-			// in this controller the higher returned value the more muted sounds inside the car
-			case CarSoundCtrl.DOORS:
-				break;
+		// in this controller the higher returned value the more muted sounds inside the car
+		case CarSoundCtrl.DOORS:
+			break;
 		}
 
 		// if you don't wanna change the behaviour, just return the old value.
@@ -2921,125 +2776,97 @@ class ExpansionVehicleBase extends ItemBase
 
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
 	{
-		super.EEHealthLevelChanged(oldLevel,newLevel,zone);
-		
-		if ( newLevel ==  GameConstants.STATE_RUINED )
+		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
+
+		if (newLevel == GameConstants.STATE_RUINED)
 		{
 			EffectSound sound_plug;
-			switch( zone )
+			switch (zone)
 			{
-				case "WindowLR":
-				case "WindowRR":
-					PlaySoundSet( sound_plug, "offroad_hit_window_small_SoundSet", 0, 0 );
+			case "WindowLR":
+			case "WindowRR":
+				PlaySoundSet(sound_plug, "offroad_hit_window_small_SoundSet", 0, 0);
 				break;
-				
-				case "WindowFront":
-				case "WindowBack":
-				case "WindowFrontLeft":
-				case "WindowFrontRight":
-					PlaySoundSet( sound_plug, "offroad_hit_window_large_SoundSet", 0, 0 );
+
+			case "WindowFront":
+			case "WindowBack":
+			case "WindowFrontLeft":
+			case "WindowFrontRight":
+				PlaySoundSet(sound_plug, "offroad_hit_window_large_SoundSet", 0, 0);
 				break;
 			}
 		}
 	}
 
-////////////////////////////////////////////////////////////////////
-// EXPANSION CODE
-////////////////////////////////////////////////////////////////////
-
 #ifdef EXPANSION_VEHICLE_TOWING
-	void CreateTow( Object tow )
+	void CreateTow(Object tow)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::CreateTow - Start");
-		#endif
-
 		CarScript cs;
 		ExpansionVehicleBase evs;
 
-		if ( !Class.CastTo( cs, tow ) && !Class.CastTo( evs, tow ) )
+		if (!Class.CastTo(cs, tow) && !Class.CastTo(evs, tow))
 			return;
 
-		if ( ( evs && evs.IsBeingTowed() ) || ( cs && cs.IsBeingTowed() ) || !IsMissionHost() )
+		if ((evs && evs.IsBeingTowed()) || (cs && cs.IsBeingTowed()) || !IsMissionHost())
 			return;
 
-		m_ChildTow = EntityAI.Cast( tow );
+		m_ChildTow = EntityAI.Cast(tow);
 		m_IsTowing = true;
 
-		m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
+		m_TowPointCenter = GetTowCenterPosition(m_ChildTow);
 
-		if ( cs )
-			cs.OnTowCreated( this, m_TowPointCenter );
-		else if ( evs )
-			evs.OnTowCreated( this, m_TowPointCenter );
-		
-		if ( !IsMissionOffline() )
+		if (cs)
+			cs.OnTowCreated(this, m_TowPointCenter);
+		else if (evs)
+			evs.OnTowCreated(this, m_TowPointCenter);
+
+		if (!IsMissionOffline())
 		{
-			m_ChildTow.GetNetworkID( m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh );
-			
+			m_ChildTow.GetNetworkID(m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh);
+
 			m_ChildTow.SetSynchDirty();
 			SetSynchDirty();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::CreateTow - End");
-		#endif
 	}
 
-	void OnTowCreated( Object parent, vector towPos )
+	void OnTowCreated(Object parent, vector towPos)
 	{
-		m_ParentTow = EntityAI.Cast( parent );
+		m_ParentTow = EntityAI.Cast(parent);
 		m_IsBeingTowed = true;
 		m_TowPointCenterSelf = towPos;
-		
-		if ( !IsMissionOffline() )
-			m_ParentTow.GetNetworkID( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh );
+
+		if (!IsMissionOffline())
+			m_ParentTow.GetNetworkID(m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh);
 	}
 
 	EntityAI GetTowedEntity()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::GetTowedEntity - Start");
-		#endif
-
-		if ( m_IsTowing )
+		if (m_IsTowing)
 			return m_ChildTow;
-		
-		return NULL;
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::GetTowedEntity - End");
-		#endif
+		return NULL;
 	}
 
 	void DestroyTow()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::DestroyTow - Start");
-		#endif
-
-		if ( m_IsTowing )
+		if (m_IsTowing)
 		{
 			CarScript cs;
 			ExpansionVehicleBase evs;
 
-			if ( Class.CastTo( cs, m_ChildTow ) )
+			if (Class.CastTo(cs, m_ChildTow))
 			{
 				cs.OnTowDestroyed();
-			} 
-			if ( Class.CastTo( evs, m_ChildTow ) )
+			}
+			if (Class.CastTo(evs, m_ChildTow))
 			{
 				evs.OnTowDestroyed();
 			}
-			
+
 			m_ChildTow = NULL;
 
 			m_IsTowing = false;
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::DestroyTow - End");
-		#endif
 	}
 
 	void OnTowDestroyed()
@@ -3049,13 +2876,13 @@ class ExpansionVehicleBase extends ItemBase
 	}
 #endif
 
-	vector GetTowCenterPosition( Object other )
+	vector GetTowCenterPosition(Object other)
 	{
 		vector minMax[2];
-		GetCollisionBox( minMax );
-		vector pos = Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() );
-		other.GetCollisionBox( minMax );
-		return pos + Vector( 0.0, 0.0, -minMax[1][2] );
+		GetCollisionBox(minMax);
+		vector pos = Vector(0.0, 0.0, minMax[0][2] - GetTowLength());
+		other.GetCollisionBox(minMax);
+		return pos + Vector(0.0, 0.0, -minMax[1][2]);
 	}
 
 	bool IsBeingTowed()
@@ -3067,13 +2894,13 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return m_IsTowing;
 	}
-	
+
 	vector GetTowPosition()
 	{
 		vector minMax[2];
-		GetCollisionBox( minMax );
+		GetCollisionBox(minMax);
 
-		return ModelToWorld( Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() ) );
+		return ModelToWorld(Vector(0.0, 0.0, minMax[0][2] - GetTowLength()));
 	}
 
 	vector GetTowDirection()
@@ -3083,23 +2910,26 @@ class ExpansionVehicleBase extends ItemBase
 
 	vector GetTowExtents()
 	{
-		return { 1.0, 1.0, 1.0 };
+		return {1.0, 1.0, 1.0};
 	}
 
 	float GetTowLength()
 	{
 		return 0.1;
 	}
-	
-	//! is it a car ? Is it already towing something ? And is it locked ?
-	bool CanConnectTow( notnull Object other )
+
+	/**
+	 * Is it a car ? Is it already towing something ? And is it locked ?
+	 */
+	bool CanConnectTow(notnull Object other)
 	{
 		ExpansionVehicleBase evs;
 		CarScript cs;
-		if ( Class.CastTo( evs, other ) )
+		if (Class.CastTo(evs, other))
 		{
 			return evs.IsCar() && !evs.IsTowing() && !evs.IsLocked();
-		} else if ( Class.CastTo( cs, other ) )
+		}
+		else if (Class.CastTo(cs, other))
 		{
 			return cs.IsCar() && !cs.IsTowing() && !cs.IsLocked();
 		}
@@ -3108,22 +2938,19 @@ class ExpansionVehicleBase extends ItemBase
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	ExpansionVehicleLockState GetLockedState()
 	{
 		return m_VehicleLockedState;
 	}
 
-	// ------------------------------------------------------------
 	void KeyMessage(string message)
 	{
 		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
 	}
 
-	// ------------------------------------------------------------
 	override bool IsLocked()
 	{
-		if ( HasKey() )
+		if (HasKey())
 		{
 			return m_VehicleLockedState == ExpansionVehicleLockState.LOCKED;
 		}
@@ -3131,49 +2958,41 @@ class ExpansionVehicleBase extends ItemBase
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	int GetPersistentIDA()
 	{
 		return m_PersistentIDA;
 	}
 
-	// ------------------------------------------------------------
 	int GetPersistentIDB()
 	{
 		return m_PersistentIDB;
 	}
 
-	// ------------------------------------------------------------
 	int GetPersistentIDC()
 	{
 		return m_PersistentIDC;
 	}
 
-	// ------------------------------------------------------------
 	int GetPersistentIDD()
 	{
 		return m_PersistentIDD;
 	}
 
-	// ------------------------------------------------------------
 	void SetPersistentIDA(int newIDA)
 	{
 		m_PersistentIDA = newIDA;
 	}
 
-	// ------------------------------------------------------------
 	void SetPersistentIDB(int newIDB)
 	{
 		m_PersistentIDB = newIDB;
 	}
 
-	// ------------------------------------------------------------
 	void SetPersistentIDC(int newIDC)
 	{
 		m_PersistentIDC = newIDC;
 	}
 
-	// ------------------------------------------------------------
 	void SetPersistentIDD(int newIDD)
 	{
 		m_PersistentIDD = newIDD;
@@ -3185,42 +3004,29 @@ class ExpansionVehicleBase extends ItemBase
 		m_VehicleLockedState = newLockState;
 	}
 
-	// ------------------------------------------------------------
 	bool HasKey()
 	{
 		return m_VehicleLockedState != ExpansionVehicleLockState.NOLOCK;
 	}
 
-	// ------------------------------------------------------------
-	void PairKeyTo( ExpansionCarKey key )
+	void PairKeyTo(ExpansionCarKey key)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PairKeyTo - Start");
-		#endif
+		if (!key)
+			return;
 
-		if ( key )
-		{
-			key.PairToVehicle( this );
+		key.PairToVehicle(this);
 
-			m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
+		m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
 
-			SetSynchDirty();
-		}
-
-		//KeyMessage( "PairKeyTo (" + this + ", " + key + ")" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PairKeyTo - End");
-		#endif
+		SetSynchDirty();
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ResetKeyPairing
-	// ------------------------------------------------------------
-	// Only call this after all keys have been confirmed to be removed
+
+	/**
+	 * Only call this after all keys have been confirmed to be removed
+	 */
 	void ResetKeyPairing()
 	{
-		if ( IsMissionHost() )
+		if (IsMissionHost())
 		{
 			m_PersistentIDA = 0;
 			m_PersistentIDB = 0;
@@ -3233,71 +3039,54 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	// ------------------------------------------------------------
 	bool CanBeLocked()
 	{
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	void OnCarDoorOpened( string source )
+	void OnCarDoorOpened(string source)
 	{
-		if ( HasKey() ) 
+		if (HasKey())
 		{
-			if ( m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK )
+			if (m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK)
 			{
 				m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
-				//KeyMessage( "OnCarDoorOpened::UNLOCKED" );
 				SetSynchDirty();
 			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	void OnCarDoorClosed( string source )
+	void OnCarDoorClosed(string source)
 	{
-
 	}
 
-	// ------------------------------------------------------------
-	bool IsCarKeys( ExpansionCarKey key )
+	bool IsCarKeys(ExpansionCarKey key)
 	{
-		if ( !HasKey() )
-		{
-			//KeyMessage( "IsCarKeys::HasKey" );
+		if (!HasKey())
 			return false;
-		}
 
-		if ( !key.IsPairedTo( this ) )
-		{
-			//KeyMessage( "IsCarKeys not paired!" );
+		if (!key.IsPairedTo(this))
 			return false;
-		}
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	void LockCar( ExpansionCarKey key = NULL )
+	void LockCar(ExpansionCarKey key = NULL)
 	{
-		if ( key && !IsCarKeys( key ) )
+		if (key && !IsCarKeys(key))
 			return;
 
 		m_VehicleLockedState = ExpansionVehicleLockState.READY_TO_LOCK;
-		//KeyMessage( "LockCar::READY_TO_LOCK" );
 
 		SetSynchDirty();
 	}
 
-	// ------------------------------------------------------------
-	void UnlockCar( ExpansionCarKey key = NULL )
+	void UnlockCar(ExpansionCarKey key = NULL)
 	{
-		if ( key && !IsCarKeys( key ) )
+		if (key && !IsCarKeys(key))
 			return;
 
 		m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
-		//KeyMessage( "UnlockCar::UNLOCKED" );
-
 		OnCarUnlocked();
 		SetSynchDirty();
 	}
@@ -3310,39 +3099,19 @@ class ExpansionVehicleBase extends ItemBase
 		SetSynchDirty();
 	}
 
-	// ------------------------------------------------------------
 	void OnCarLocked()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarLocked - Start");
-		#endif
-
-		//KeyMessage( "OnCarLocked" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarLocked - Stop");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	void OnCarUnlocked()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarUnlocked - Start");
-		#endif
-
-		//KeyMessage( "OnCarUnlocked" );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarUnlocked - End");
-		#endif
 	}
 
-	bool CanUpdateCarLock( float pDt )
+	bool CanUpdateCarLock(float pDt)
 	{
-		return ( HasKey() && m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK && IsMissionHost() );
+		return (HasKey() && m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK && IsMissionHost());
 	}
-	
+
 	bool DoorCount()
 	{
 		return m_Doors.Count();
@@ -3350,9 +3119,9 @@ class ExpansionVehicleBase extends ItemBase
 
 	bool AllDoorsClosed()
 	{
-		for ( int z = 0; z < m_Doors.Count(); z++ )
+		for (int z = 0; z < m_Doors.Count(); z++)
 		{
-			if ( GetCarDoorsState( m_Doors[z] ) != CarDoorState.DOORS_CLOSED )
+			if (GetCarDoorsState(m_Doors[z]) != CarDoorState.DOORS_CLOSED)
 			{
 				return false;
 			}
@@ -3361,188 +3130,130 @@ class ExpansionVehicleBase extends ItemBase
 		return true;
 	}
 
-	// ------------------------------------------------------------	
-	void UpdateCarLock( float pDt )
+	void UpdateCarLock(float pDt)
 	{
-		if ( AllDoorsClosed() || GetExpansionSettings() && !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors )
+		if (AllDoorsClosed() || GetExpansionSettings() && !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
 		{
 			m_VehicleLockedState = ExpansionVehicleLockState.LOCKED;
-
-			//KeyMessage( "OnCarDoorClosed::LOCKED" );
 
 			OnCarLocked();
 			SetSynchDirty();
 		}
 	}
-	
-	// ------------------------------------------------------------
+
 	void OnHornSoundPlay()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundPlay - Start");
-		#endif
-
 		string soundFile = m_HornSoundSetEXT;
-		if (GetGame().GetPlayer().IsCameraInsideVehicle()) soundFile = m_HornSoundSetINT;
+		if (GetGame().GetPlayer().IsCameraInsideVehicle())
+			soundFile = m_HornSoundSetINT;
 
-		m_HornSound = SEffectManager.PlaySoundOnObject( soundFile, this );
-		m_HornSound.SetSoundAutodestroy( true );
-		m_HornSound.SetSoundLoop( true );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundPlay - End");
-		#endif
+		m_HornSound = SEffectManager.PlaySoundOnObject(soundFile, this);
+		m_HornSound.SetSoundAutodestroy(true);
+		m_HornSound.SetSoundLoop(true);
 	}
 
-	// ------------------------------------------------------------
 	void OnHornSoundStop()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundStop - Start");
-		#endif
-
-		m_HornSound.SetSoundLoop( false );
+		m_HornSound.SetSoundLoop(false);
 		m_HornSound.SoundStop();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundStop - End");
-		#endif
 	}
-	
-	// ------------------------------------------------------------
-	void PlayHorn()
-	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PlayHorn - Start");
-		#endif
 
+	void PlayHorn()
+	{
 		m_HornSynchRemote = true;
 		m_HornPlaying = false;
 
 		SetSynchDirty();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PlayHorn - End");
-		#endif
 	}
-	
-	// ------------------------------------------------------------
-	void StopHorn()
-	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::StopHorn - Start");
-		#endif
 
+	void StopHorn()
+	{
 		m_HornSynchRemote = false;
 		m_HornPlaying = true;
 
 		SetSynchDirty();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::StopHorn - End");
-		#endif
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsSoundSynchRemote()
-	{	
+	{
 		return m_HornSynchRemote;
 	}
 
-	// ------------------------------------------------------------
-	override void Explode( int damageType, string ammoType = "" )
+	override void Explode(int damageType, string ammoType = "")
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::Explode - Start");
-		#endif
-
-		if ( GetGame().IsServer() && !m_Exploded )
+		if (GetGame().IsServer() && !m_Exploded)
 		{
-			if ( ammoType == "" )
-				ammoType = this.ConfigGetString( "ammoType" );
-			
-			if ( ammoType == "" )
+			if (ammoType == "")
+				ammoType = this.ConfigGetString("ammoType");
+
+			if (ammoType == "")
 				ammoType = "Dummy_Heavy";
 
-			ExpansionOnExplodeServer( damageType, ammoType );
+			ExpansionOnExplodeServer(damageType, ammoType);
 
-			if ( GetGame().IsServer() && !GetGame().IsMultiplayer() )
+			if (GetGame().IsServer() && !GetGame().IsMultiplayer())
 			{
-				ExpansionOnExplodeClient( damageType, ammoType );
-			} else 
-			{				
-				GetGame().RPCSingleParam( this, ERPCs.RPC_EXPLODE_EVENT, new Param2< int, string >( damageType, ammoType ), true );
+				ExpansionOnExplodeClient(damageType, ammoType);
+			}
+			else
+			{
+				GetGame().RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::Explode - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	// Explodes the vehicle on the server, telling the client that they should explode by setting the sync boolean.
-	// ------------------------------------------------------------	
-	void ExpansionOnExplodeServer( int damageType, string ammoType )
+	/**
+	 * Explodes the vehicle on the server, telling the client that they should explode by setting the sync boolean.
+	 */
+	void ExpansionOnExplodeServer(int damageType, string ammoType)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeServer - Start");
-		#endif
-
 		m_Exploded = true;
 		m_ExplodedSynchRemote = true;
 
-		LeakAll( CarFluid.COOLANT );
-		LeakAll( CarFluid.FUEL );
-		LeakAll( CarFluid.OIL );
-		LeakAll( CarFluid.BRAKE );
+		LeakAll(CarFluid.COOLANT);
+		LeakAll(CarFluid.FUEL);
+		LeakAll(CarFluid.OIL);
+		LeakAll(CarFluid.BRAKE);
 
-		SetHealth( "", "", 0.0 );
+		SetHealth("", "", 0.0);
 
-		SetAttachmentHealth( "ExpansionHelicopterBattery", 0.0 );
-		SetAttachmentHealth( "ExpansionAircraftBattery", 0.0 );
-		SetAttachmentHealth( "CarBattery", 0.0 );
-		SetAttachmentHealth( "TruckBattery", 0.0 );
+		SetAttachmentHealth("ExpansionHelicopterBattery", 0.0);
+		SetAttachmentHealth("ExpansionAircraftBattery", 0.0);
+		SetAttachmentHealth("CarBattery", 0.0);
+		SetAttachmentHealth("TruckBattery", 0.0);
 
-		SetAttachmentHealth( "GlowPlug", 0.0 );
-		SetAttachmentHealth( "SparkPlug", 0.0 );
-		
-		SetAttachmentHealth( "Reflector_1_1", 0.0 );
-		SetAttachmentHealth( "Reflector_2_1", 0.0 );
+		SetAttachmentHealth("GlowPlug", 0.0);
+		SetAttachmentHealth("SparkPlug", 0.0);
 
-		SetAttachmentHealth( "EngineBelt", 0.0 );
-		SetAttachmentHealth( "CarRadiator", 0.0 );
+		SetAttachmentHealth("Reflector_1_1", 0.0);
+		SetAttachmentHealth("Reflector_2_1", 0.0);
 
-		for ( int i = 0; i < CrewSize(); i++ )
+		SetAttachmentHealth("EngineBelt", 0.0);
+		SetAttachmentHealth("CarRadiator", 0.0);
+
+		for (int i = 0; i < CrewSize(); i++)
 		{
-			Human crew = CrewMember( i );
-			if ( !crew )
+			Human crew = CrewMember(i);
+			if (!crew)
 				continue;
 
-			crew.SetHealth( 0.0 );
+			crew.SetHealth(0.0);
 		}
 
-		vector force = GetVelocity( this ) * m_BodyMass;
-		force[1] = m_BodyMass * 10 + force[1];
-		dBodyApplyForce( this, force * 0.1 );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeServer - End");
-		#endif
+		vector force = GetVelocity(this) * m_State.m_Mass;
+		force[1] = m_State.m_Mass * 10 + force[1];
+		dBodyApplyForce(this, force * 0.1);
 	}
 
-	// ------------------------------------------------------------
-	// Explodes the vehicle on the client, setting that the client has already exploded
-	// ------------------------------------------------------------	
-	void ExpansionOnExplodeClient( int damageType, string ammoType )
+	/**
+	 * Explodes the vehicle on the client, setting that the client has already exploded
+	 */
+	void ExpansionOnExplodeClient(int damageType, string ammoType)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeClient - Start");
-		#endif
-
 		StopSounds();
-		EffectSound sound =	SEffectManager.PlaySound( "Expansion_Explosive_Vehicle_SoundSet", GetPosition() );
-		sound.SetSoundAutodestroy( true );
+		EffectSound sound = SEffectManager.PlaySound("Expansion_Explosive_Vehicle_SoundSet", GetPosition());
+		sound.SetSoundAutodestroy(true);
+
 		/*
 		ExpansionPointLight explosionLight = ExpansionPointLight.Cast( ScriptedLightBase.CreateLight( ExpansionPointLight, Vector( 0, 0, 0 ) )  ); 
 
@@ -3562,77 +3273,47 @@ class ExpansionVehicleBase extends ItemBase
 		//fire.SetOrientation( n );
 		//AddChild(fire, 0);
 		*/
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeClient - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	// The entity was already exploded but the client never knew about it (i.e. outside of network bubble)
-	// ------------------------------------------------------------	
+	/**
+	 * The entity was already exploded but the client never knew about it (i.e. outside of network bubble)
+	 */
 	void ExpansionOnSpawnExploded()
 	{
 		m_Exploded = true;
 
-//		m_SmokeParticle = Particle.PlayOnObject( ParticleList.SMOKING_HELI_WRECK, this, GetMemoryPointPos( "velka osa" ) );
-//		m_SmokeParticle.SetOrientation( n );
+		// m_SmokeParticle = Particle.PlayOnObject( ParticleList.SMOKING_HELI_WRECK, this, GetMemoryPointPos( "velka osa" ) );
+		// m_SmokeParticle.SetOrientation( n );
 	}
 
-	// ------------------------------------------------------------
-	// Does nothing, vanilla code shall not run
-	// ------------------------------------------------------------	
+	/**
+	 * Does nothing, vanilla code shall not run
+	 */
 	override void OnExplodeClient()
 	{
 	}
 
-	// ------------------------------------------------------------
-	// Does nothing, vanilla code shall not run
-	// ------------------------------------------------------------	
+	/**
+	 * Does nothing, vanilla code shall not run
+	 */
 	override void SynchExplosion()
 	{
 	}
 
-	// ------------------------------------------------------------
-	bool IsSurfaceWater( vector position )
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		if ( GetGame().SurfaceIsSea( position[0], position[2] ) )
-		{
-			return true;
-		} else if( GetGame().SurfaceIsPond( position[0], position[2] ) )
-		{
-			return true;
-		}
-		
-		return false;
-	}
-
-	void MotorStart()
-	{
-	}
-
-	void MotorStop()
-	{
-	}
-
-	bool MotorIsOn()
-	{
-		return false;
-	}
-	
-	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
-	{
-		if( !super.CanReceiveAttachment( attachment, slotId ) )
+		if (!super.CanReceiveAttachment(attachment, slotId))
 			return false;
 
 		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
 	}
 
-	override bool CanReleaseAttachment( EntityAI attachment )
+	override bool CanReleaseAttachment(EntityAI attachment)
 	{
-		if( !super.CanReleaseAttachment( attachment ) )
+		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
-		if ( ( EngineIsOn() || MotorIsOn() ) && IsMoving() )
+		if (EnginesOn() > 0 && IsMoving())
 			return false;
 
 		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
@@ -3642,7 +3323,7 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if (!super.IsInventoryVisible())
 			return false;
-		
+
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player)
 		{
@@ -3650,7 +3331,7 @@ class ExpansionVehicleBase extends ItemBase
 			if (!ehcv || ehcv.GetTransport() == this)
 				return true;
 		}
-	
+
 		if (GetExpansionSettings() && GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccess)
 			return true;
 
@@ -3664,434 +3345,405 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return false;
 	}
-	
+
 	void SwitchGear()
 	{
-		if ( GetAnimationPhase("gear" ) == 0 )
+		if (GetAnimationPhase("gear") == 0)
 		{
 			SetAnimationPhase("gear", 1);
-		} else 
+		}
+		else
 		{
 			SetAnimationPhase("gear", 0);
 		}
 	}
-	
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
-	{
-		super.CF_OnStoreSave( storage, modName );
 
-		if ( modName != "DZ_Expansion_Vehicles" )
+#ifdef CF_MODULE_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorage storage, string modName)
+	{
+		super.CF_OnStoreSave(storage, modName);
+
+		if (modName != "DZ_Expansion_Vehicles")
 			return;
 
-		storage.Write( m_PersistentIDA );
-		storage.Write( m_PersistentIDB );
-		storage.Write( m_PersistentIDC );
-		storage.Write( m_PersistentIDD );
+		storage.Write(m_PersistentIDA);
+		storage.Write(m_PersistentIDB);
+		storage.Write(m_PersistentIDC);
+		storage.Write(m_PersistentIDD);
 
 		int lockState = m_VehicleLockedState;
-		storage.Write( lockState );
+		storage.Write(lockState);
 
-		storage.Write( m_Exploded );
+		storage.Write(m_Exploded);
 
-		storage.Write( m_IsBeingTowed );
-		storage.Write( m_IsTowing );
+		storage.Write(m_IsBeingTowed);
+		storage.Write(m_IsTowing);
 
-		if ( m_IsBeingTowed )
+		if (m_IsBeingTowed)
 		{
-			storage.Write( m_ParentTowPersistentIDA );
-			storage.Write( m_ParentTowPersistentIDB );
-			storage.Write( m_ParentTowPersistentIDC );
-			storage.Write( m_ParentTowPersistentIDD );
+			storage.Write(m_ParentTowPersistentIDA);
+			storage.Write(m_ParentTowPersistentIDB);
+			storage.Write(m_ParentTowPersistentIDC);
+			storage.Write(m_ParentTowPersistentIDD);
 		}
 
-		if ( m_IsTowing )
+		if (m_IsTowing)
 		{
-			storage.Write( m_ChildTowPersistentIDA );
-			storage.Write( m_ChildTowPersistentIDB );
-			storage.Write( m_ChildTowPersistentIDC );
-			storage.Write( m_ChildTowPersistentIDD );
+			storage.Write(m_ChildTowPersistentIDA);
+			storage.Write(m_ChildTowPersistentIDB);
+			storage.Write(m_ChildTowPersistentIDC);
+			storage.Write(m_ChildTowPersistentIDD);
 		}
 	}
-	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+
+	override bool CF_OnStoreLoad(CF_ModStorage storage, string modName)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage, modName))
 			return false;
 
-		if ( modName != "DZ_Expansion_Vehicles" )
+		if (modName != "DZ_Expansion_Vehicles")
 			return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
+		if (Expansion_Assert_False(storage.Read(m_PersistentIDA), "[" + this + "] Failed reading m_PersistentIDA"))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
+		if (Expansion_Assert_False(storage.Read(m_PersistentIDB), "[" + this + "] Failed reading m_PersistentIDB"))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
+		if (Expansion_Assert_False(storage.Read(m_PersistentIDC), "[" + this + "] Failed reading m_PersistentIDC"))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
+		if (Expansion_Assert_False(storage.Read(m_PersistentIDD), "[" + this + "] Failed reading m_PersistentIDD"))
 			return false;
-		
+
 		int lockState;
-		if ( Expansion_Assert_False( storage.Read( lockState ), "[" + this + "] Failed reading lockState" ) )
+		if (Expansion_Assert_False(storage.Read(lockState), "[" + this + "] Failed reading lockState"))
 			return false;
 
 		m_VehicleLockedState = lockState;
 
-		if ( Expansion_Assert_False( storage.Read( m_Exploded ), "[" + this + "] Failed reading m_Exploded" ) )
+		if (Expansion_Assert_False(storage.Read(m_Exploded), "[" + this + "] Failed reading m_Exploded"))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+		if (Expansion_Assert_False(storage.Read(m_IsBeingTowed), "[" + this + "] Failed reading m_IsBeingTowed"))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+		if (Expansion_Assert_False(storage.Read(m_IsTowing), "[" + this + "] Failed reading m_IsTowing"))
 			return false;
 
-		if ( m_IsBeingTowed )
+		if (m_IsBeingTowed)
 		{
-			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDA), "[" + this + "] Failed reading m_ParentTowPersistentIDA"))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDB), "[" + this + "] Failed reading m_ParentTowPersistentIDB"))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDC), "[" + this + "] Failed reading m_ParentTowPersistentIDC"))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDD), "[" + this + "] Failed reading m_ParentTowPersistentIDD"))
 				return false;
 		}
 
-		if ( m_IsTowing )
+		if (m_IsTowing)
 		{
-			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDA), "[" + this + "] Failed reading m_ChildTowPersistentIDA"))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDB), "[" + this + "] Failed reading m_ChildTowPersistentIDB"))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDC), "[" + this + "] Failed reading m_ChildTowPersistentIDC"))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDD), "[" + this + "] Failed reading m_ChildTowPersistentIDD"))
 				return false;
 		}
 
 		return true;
 	}
-	#endif
+#endif
 
-	// ------------------------------------------------------------
 	override void EEOnAfterLoad()
 	{
 		super.EEOnAfterLoad();
-		
-		if ( m_IsTowing && !m_ChildTow )
+
+		if (m_IsTowing && !m_ChildTow)
 		{
-			m_ChildTow = GetGame().GetEntityByPersitentID( m_ChildTowPersistentIDA, m_ChildTowPersistentIDB, m_ChildTowPersistentIDC, m_ChildTowPersistentIDD );
-			if ( m_ChildTow )
+			m_ChildTow = GetGame().GetEntityByPersitentID(m_ChildTowPersistentIDA, m_ChildTowPersistentIDB, m_ChildTowPersistentIDC, m_ChildTowPersistentIDD);
+			if (m_ChildTow)
 			{
-				m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
-				
+				m_TowPointCenter = GetTowCenterPosition(m_ChildTow);
+
 				CarScript cs_child;
 				ExpansionVehicleBase evs_child;
-				
-				if ( Class.CastTo( cs_child, m_ChildTow ) )
-					cs_child.OnTowCreated( this, m_TowPointCenter );
-				else if ( Class.CastTo( evs_child, m_ChildTow ) )
-					evs_child.OnTowCreated( this, m_TowPointCenter );
-			} else
+
+				if (Class.CastTo(cs_child, m_ChildTow))
+					cs_child.OnTowCreated(this, m_TowPointCenter);
+				else if (Class.CastTo(evs_child, m_ChildTow))
+					evs_child.OnTowCreated(this, m_TowPointCenter);
+			}
+			else
 			{
 				m_IsTowing = false;
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
+
 	//! Called when entity is being created as new by CE/ Debug
 	override void EEOnCECreate()
 	{
-		#ifdef EXPANSIONEXPRINT
-		Print("CarScript::EEOnCECreate - Start");
-		#endif
-
 		super.EEOnCECreate();
 
-		float maxVolume = GetFluidCapacity( CarFluid.FUEL );
-		float amount = Math.RandomFloat(0.0, maxVolume * 0.35 );
+		float maxVolume = GetFluidCapacity(CarFluid.FUEL);
+		float amount = Math.RandomFloat(0.0, maxVolume * 0.35);
 
-		Fill( CarFluid.FUEL, amount );
+		Fill(CarFluid.FUEL, amount);
 
-		array< EntityAI > items = new array< EntityAI >;
-		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
-		for ( int i = 0; i < items.Count(); i++ )
+		array<EntityAI> items = new array<EntityAI>;
+		GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		for (int i = 0; i < items.Count(); i++)
 		{
 			ExpansionCarKey key;
-			if ( Class.CastTo( key, items[i] ) )
+			if (Class.CastTo(key, items[i]))
 			{
-				PairKeyTo( key );
+				PairKeyTo(key);
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		Print("CarScript::EEOnCECreate - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	override bool CanPutAsAttachment( EntityAI parent )
+	override bool CanPutAsAttachment(EntityAI parent)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	override bool CanPutInCargo( EntityAI parent )
+	override bool CanPutInCargo(EntityAI parent)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	override bool CanRemoveFromCargo( EntityAI parent )
+	override bool CanRemoveFromCargo(EntityAI parent)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	override bool CanPutIntoHands( EntityAI parent )
+	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------	
 	void StopSounds()
 	{
 	}
 
-	// ------------------------------------------------------------
 	bool IsExploded()
 	{
 		return m_Exploded;
 	}
 
-	// ------------------------------------------------------------
-	string GetAnimSourceFromSelection( string selection )
+	string GetAnimSourceFromSelection(string selection)
 	{
 		return "";
 	}
 
-	// ------------------------------------------------------------
-	string GetDoorConditionPointFromSelection( string selection )
+	string GetDoorConditionPointFromSelection(string selection)
 	{
 		return "";
 	}
-	
-	// ------------------------------------------------------------
+
 	string GetDoorSelectionNameFromSeatPos(int posIdx)
 	{
 		return "";
 	}
 
-	// ------------------------------------------------------------
 	string GetDoorInvSlotNameFromSeatPos(int posIdx)
 	{
 		return "";
 	}
 
-	// ------------------------------------------------------------
-	int GetCarDoorsState( string slotType )
+	int GetCarDoorsState(string slotType)
 	{
 		return CarDoorState.DOORS_MISSING;
 	}
 
-	// ------------------------------------------------------------
 	string GetActionCompNameCoolant()
 	{
 		return "radiator";
 	}
 
-	// ------------------------------------------------------------
 	float GetActionDistanceCoolant()
 	{
 		return 2.0;
 	}
 
-	// ------------------------------------------------------------
 	string GetActionCompNameFuel()
 	{
 		return "refill";
 	}
 
-	// ------------------------------------------------------------
 	float GetActionDistanceFuel()
 	{
 		return 1.5;
 	}
-	
-	// ------------------------------------------------------------
+
 	string GetActionCompNameOil()
 	{
 		//return "refill";
 		return "carradiator";
 	}
 
-	// ------------------------------------------------------------
 	float GetActionDistanceOil()
 	{
 		return 2.0;
 	}
-	
-	// ------------------------------------------------------------
+
 	string GetActionCompNameBrakes()
 	{
 		return "carradiator";
 	}
 
-	// ------------------------------------------------------------
 	float GetActionDistanceBrakes()
 	{
 		return 2.0;
 	}
 
-	// ------------------------------------------------------------
 	bool HasBattery()
 	{
 		ItemBase battery;
 
-		if (IsVitalCarBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+		if (IsVitalCarBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+		if (IsVitalTruckBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		if (IsVitalHelicopterBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+		if (IsVitalAircraftBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
 
-		if (!battery) return false;
+		if (!battery)
+			return false;
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	ItemBase GetBattery()
 	{
-		if (IsVitalCarBattery()) return ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery()) return ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery()) return ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery()) return ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+		if (IsVitalCarBattery())
+			return ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+		if (IsVitalTruckBattery())
+			return ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		if (IsVitalHelicopterBattery())
+			return ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+		if (IsVitalAircraftBattery())
+			return ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
 
 		return null;
 	}
 
-	// ------------------------------------------------------------
 	bool IsBatteryWorking()
 	{
 		ItemBase battery;
 
-		if (IsVitalCarBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery()) battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+		if (IsVitalCarBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+		if (IsVitalTruckBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+		if (IsVitalHelicopterBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+		if (IsVitalAircraftBattery())
+			battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
 
-		if (!battery || battery.IsRuined()) return false;
+		if (!battery || battery.IsRuined())
+			return false;
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalAircraftBattery()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalHelicopterBattery()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalIgniterPlug()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalHydraulicHoses()
 	{
 		return false;
 	}
-	
-	// ------------------------------------------------------------
+
 	bool IsVitalCarBattery()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalSparkPlug()
 	{
 		return true;
 	}
-	
-	// ------------------------------------------------------------
+
 	bool IsVitalRadiator()
 	{
 		return false;
 	}
-	
-	// ------------------------------------------------------------
+
 	bool IsVitalGlowPlug()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalEngineBelt()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsVitalTruckBattery()
 	{
 		return false;
 	}
 
-	//! Propper way to get if light is swiched on. Use instead of IsLightsOn().
 	bool IsScriptedLightsOn()
 	{
 		return m_HeadlightsOn;
 	}
-	
-	//! Switches headlights on/off, including the illumination of the control panel and synchronizes this change to all clients.
+
 	void ToggleHeadlights()
 	{
 		m_HeadlightsOn = !m_HeadlightsOn;
 		SetSynchDirty();
-		
+
 		UpdateLights();
 	}
 
-	bool IsReversing( int new_gear = -1 )
+	bool IsReversing(int new_gear = -1)
 	{
 		return false;
 	}
-	
-	//! Updates representation of lights. Call on server and client after change in relevant mechanics.
+
 	void UpdateLights(int new_gear = -1) // -1 is invalid gear.
 	{
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) // client side
 		{
 			ItemBase battery;
-			
-			if ( IsVitalCarBattery() ) 
-				battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
-			
+
+			if (IsVitalCarBattery())
+				battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
+
 			if (battery)
 			{
 				// HEADLIGHTS
-				
+
 				if (m_HeadlightsOn)
 				{
 					DashboardShineOn();
-					
-					if (!m_Headlight  &&  m_HeadlightsState != CarHeadlightBulbsState.NONE)
+
+					if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 					{
 						m_Headlight = CreateFrontLight();
 						TailLightsShineOn();
 					}
-					
+
 					if (m_HeadlightsState == CarHeadlightBulbsState.LEFT)
 					{
 						m_Headlight.AttachOnMemoryPoint(this, CarScript.m_LeftHeadlightPoint, CarScript.m_LeftHeadlightTargetPoint);
@@ -4101,7 +3753,7 @@ class ExpansionVehicleBase extends ItemBase
 					}
 					else if (m_HeadlightsState == CarHeadlightBulbsState.RIGHT)
 					{
-						m_Headlight.AttachOnMemoryPoint(this,CarScript. m_RightHeadlightPoint, CarScript.m_RightHeadlightTargetPoint);
+						m_Headlight.AttachOnMemoryPoint(this, CarScript.m_RightHeadlightPoint, CarScript.m_RightHeadlightTargetPoint);
 						m_Headlight.SegregateLight();
 						RightFrontLightShineOn();
 						LeftFrontLightShineOff();
@@ -4110,15 +3762,15 @@ class ExpansionVehicleBase extends ItemBase
 					{
 						vector local_pos_left = GetMemoryPointPos(CarScript.m_LeftHeadlightPoint);
 						vector local_pos_right = GetMemoryPointPos(CarScript.m_RightHeadlightPoint);
-						
-						vector local_pos_middle = (local_pos_left + local_pos_right) *0.5;
+
+						vector local_pos_middle = (local_pos_left + local_pos_right) * 0.5;
 						m_Headlight.AttachOnObject(this, local_pos_middle);
 						m_Headlight.AggregateLight();
 						LeftFrontLightShineOn();
 						RightFrontLightShineOn();
 					}
-					
-					if (m_Headlight  &&  m_HeadlightsState == CarHeadlightBulbsState.NONE)
+
+					if (m_Headlight && m_HeadlightsState == CarHeadlightBulbsState.NONE)
 					{
 						m_Headlight.FadeOut();
 						m_Headlight = null;
@@ -4133,47 +3785,48 @@ class ExpansionVehicleBase extends ItemBase
 					DashboardShineOff();
 					LeftFrontLightShineOff();
 					RightFrontLightShineOff();
-					
+
 					if (m_Headlight)
 					{
 						m_Headlight.FadeOut();
 						m_Headlight = null;
 					}
 				}
-			
+
 				// REAR LIGHTS (brakes, reverse & tail lights)
-			
-				if ( EngineIsOn() || MotorIsOn() )
+
+				if (EnginesOn() > 0)
 				{
 					int reverse_light_state = CarRearLightType.NONE;
-					
+
 					// reverse
-										
-					if ( IsReversing( new_gear ) )
+
+					if (IsReversing(new_gear))
 					{
 						reverse_light_state = CarRearLightType.REVERSE_ONLY;
 					}
-					
+
 					// brakes
-					
-					if ( m_BrakesArePressed )
+
+					if (m_BrakesArePressed)
 					{
-						if ( reverse_light_state == CarRearLightType.REVERSE_ONLY )
+						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
 						{
 							reverse_light_state = CarRearLightType.BRAKES_AND_REVERSE;
-						} else
+						}
+						else
 						{
 							reverse_light_state = CarRearLightType.BRAKES_ONLY;
 						}
 					}
-					
-					if (reverse_light_state != CarRearLightType.NONE	&&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
+
+					if (reverse_light_state != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE && !m_RearLight)
 					{
-						m_RearLight = CarRearLightBase.Cast( CreateRearLight() );
+						m_RearLight = CarRearLightBase.Cast(CreateRearLight());
 						vector local_pos = GetMemoryPointPos(CarScript.m_ReverseLightPoint);
 						m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
 					}
-					
+
 					if (m_RearLight)
 					{
 						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
@@ -4189,7 +3842,7 @@ class ExpansionVehicleBase extends ItemBase
 						else if (reverse_light_state == CarRearLightType.BRAKES_ONLY)
 						{
 							m_RearLight.SetAsSegregatedBrakeLight();
-							
+
 							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
 							{
 								ReverseLightsShineOff();
@@ -4200,7 +3853,7 @@ class ExpansionVehicleBase extends ItemBase
 						{
 							m_RearLight.AggregateLight();
 							m_RearLight.SetFadeOutTime(1);
-							
+
 							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
 							{
 								BrakeLightsShineOn();
@@ -4224,7 +3877,7 @@ class ExpansionVehicleBase extends ItemBase
 				{
 					BrakeLightsShineOff();
 					ReverseLightsShineOff();
-					
+
 					if (m_RearLight)
 					{
 						m_RearLight.FadeOut();
@@ -4239,13 +3892,13 @@ class ExpansionVehicleBase extends ItemBase
 				DashboardShineOff();
 				BrakeLightsShineOff();
 				ReverseLightsShineOff();
-				
+
 				if (m_RearLight)
 				{
 					m_RearLight.FadeOut();
 					m_RearLight = null;
 				}
-				
+
 				if (m_Headlight)
 				{
 					m_Headlight.FadeOut();
@@ -4254,97 +3907,97 @@ class ExpansionVehicleBase extends ItemBase
 			}
 		}
 	}
-	
+
 	void LeftFrontLightShineOn()
 	{
 		string material = ConfigGetString("frontReflectorMatOn");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_FRONT_LIGHT_L, material);
 		}
 	}
-	
+
 	void RightFrontLightShineOn()
 	{
 		string material = ConfigGetString("frontReflectorMatOn");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_FRONT_LIGHT_R, material);
 		}
 	}
-	
+
 	void LeftFrontLightShineOff()
 	{
 		string material = ConfigGetString("frontReflectorMatOff");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_FRONT_LIGHT_L, material);
 		}
 	}
-	
+
 	void RightFrontLightShineOff()
 	{
 		string material = ConfigGetString("frontReflectorMatOff");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_FRONT_LIGHT_R, material);
 		}
 	}
-	
+
 	void ReverseLightsShineOn()
 	{
 		string material = ConfigGetString("ReverseReflectorMatOn");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_REVERSE_LIGHT_L, material);
 			SetObjectMaterial(CarScript.SELECTION_ID_REVERSE_LIGHT_R, material);
 		}
 	}
-	
+
 	void ReverseLightsShineOff()
 	{
 		string material = ConfigGetString("ReverseReflectorMatOff");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_REVERSE_LIGHT_L, material);
 			SetObjectMaterial(CarScript.SELECTION_ID_REVERSE_LIGHT_R, material);
 		}
 	}
-	
+
 	void BrakeLightsShineOn()
 	{
 		string material = ConfigGetString("brakeReflectorMatOn");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_BRAKE_LIGHT_L, material);
 			SetObjectMaterial(CarScript.SELECTION_ID_BRAKE_LIGHT_R, material);
 		}
 	}
-	
+
 	void BrakeLightsShineOff()
 	{
 		string material = ConfigGetString("brakeReflectorMatOff");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_BRAKE_LIGHT_L, material);
 			SetObjectMaterial(CarScript.SELECTION_ID_BRAKE_LIGHT_R, material);
 		}
 	}
-	
+
 	void TailLightsShineOn()
 	{
 		string material = ConfigGetString("TailReflectorMatOn");
 		string material_off = ConfigGetString("TailReflectorMatOff");
-		
-		if (material != ""  &&  material_off != "")
+
+		if (material != "" && material_off != "")
 		{
 			if (m_HeadlightsState == CarHeadlightBulbsState.LEFT)
 			{
@@ -4363,93 +4016,91 @@ class ExpansionVehicleBase extends ItemBase
 			}
 		}
 	}
-	
+
 	void TailLightsShineOff()
 	{
 		string material = ConfigGetString("TailReflectorMatOff");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_TAIL_LIGHT_L, material);
 			SetObjectMaterial(CarScript.SELECTION_ID_TAIL_LIGHT_R, material);
 		}
 	}
-	
+
 	void DashboardShineOn()
 	{
 		string material = ConfigGetString("dashboardMatOn");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_DASHBOARD_LIGHT, material);
 		}
 	}
-	
+
 	void DashboardShineOff()
 	{
 		string material = ConfigGetString("dashboardMatOff");
-		
+
 		if (material != "")
 		{
 			SetObjectMaterial(CarScript.SELECTION_ID_DASHBOARD_LIGHT, material);
 		}
 	}
-	
-	// ------------------------------------------------------------
+
 	CarLightBase CreateRearLight()
 	{
 		return NULL;
 	}
-	
-	// ------------------------------------------------------------
+
 	CarLightBase CreateFrontLight()
 	{
 		return NULL;
 	}
 
-	protected void CheckVitalItem( bool isVital, string itemName )
+	void CheckVitalItem(bool isVital, string itemName)
 	{
-		if ( !isVital )
+		if (!isVital)
 			return;
 
 		EntityAI item = FindAttachmentBySlotName(itemName);
 
-		if ( !item )
+		if (!item)
 			EngineStop();
-		else if ( item.IsRuined() )
+		else if (item.IsRuined())
 			EngineStop();
 	}
 
-	protected void LeakFluid(CarFluid fluid)
+	void LeakFluid(CarFluid fluid)
 	{
 		float ammount = 0;
-		
+
 		switch (fluid)
 		{
-			case CarFluid.COOLANT:
-				ammount = (1- m_RadiatorHealth) * Math.RandomFloat(0.02, 0.05);//CARS_LEAK_TICK_MIN; CARS_LEAK_TICK_MAX
-				Leak(fluid, ammount);
+		case CarFluid.COOLANT:
+			ammount = (1 - m_RadiatorHealth) * Math.RandomFloat(0.02, 0.05); //CARS_LEAK_TICK_MIN; CARS_LEAK_TICK_MAX
+			Leak(fluid, ammount);
 			break;
-			
-			case CarFluid.OIL:
-				ammount =  ( 1 - m_EngineHealth ) * Math.RandomFloat(0.02, 1.0);//CARS_LEAK_OIL_MIN; CARS_LEAK_OIL_MAX
-				Leak(fluid, ammount);
+
+		case CarFluid.OIL:
+			ammount = (1 - m_EngineHealth) * Math.RandomFloat(0.02, 1.0); //CARS_LEAK_OIL_MIN; CARS_LEAK_OIL_MAX
+			Leak(fluid, ammount);
 			break;
-			
-			case CarFluid.FUEL:
-				ammount = ( 1 - m_FuelTankHealth ) * Math.RandomFloat(0.02, 0.05);//CARS_LEAK_TICK_MIN; CARS_LEAK_TICK_MAX
-				Leak(fluid, ammount);
+
+		case CarFluid.FUEL:
+			ammount = (1 - m_FuelTankHealth) * Math.RandomFloat(0.02, 0.05); //CARS_LEAK_TICK_MIN; CARS_LEAK_TICK_MAX
+			Leak(fluid, ammount);
 			break;
 		}
 	}
 
-	protected void CarPartsHealthCheck()
+	void CarPartsHealthCheck()
 	{
-		if ( GetGame().IsServer() )
+		if (GetGame().IsServer())
 		{
 			ItemBase radiator;
-			Class.CastTo( radiator, FindAttachmentBySlotName("CarRadiator"));
-			if ( radiator )
+			Class.CastTo(radiator, FindAttachmentBySlotName("CarRadiator"));
+			if (radiator)
 			{
 				m_RadiatorHealth = radiator.GetHealth01("", "");
 			}
@@ -4457,19 +4108,19 @@ class ExpansionVehicleBase extends ItemBase
 			{
 				m_RadiatorHealth = 0;
 			}
-			
+
 			m_EngineHealth = GetHealth01("Engine", "");
 
 			m_FuelTankHealth = GetHealth01("FuelTank", "");
 		}
 	}
-	
+
 	bool GetCrashLightSound()
 	{
 		return m_PlayCrashSoundLight;
 	}
-	
-	void SynchCrashLightSound( bool play )
+
+	void SynchCrashLightSound(bool play)
 	{
 		m_PlayCrashSoundLight = play;
 		SetSynchDirty();
@@ -4477,10 +4128,10 @@ class ExpansionVehicleBase extends ItemBase
 
 	void PlayCrashLightSound()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{		
-			EffectSound sound =	SEffectManager.PlaySound("offroad_hit_light_SoundSet", GetPosition() );
-			sound.SetSoundAutodestroy( true );
+		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		{
+			EffectSound sound = SEffectManager.PlaySound("offroad_hit_light_SoundSet", GetPosition());
+			sound.SetSoundAutodestroy(true);
 			m_PlayCrashSoundLight = false;
 		}
 	}
@@ -4490,113 +4141,91 @@ class ExpansionVehicleBase extends ItemBase
 		return m_PlayCrashSoundHeavy;
 	}
 
-	void SynchCrashHeavySound( bool play )
+	void SynchCrashHeavySound(bool play)
 	{
 		m_PlayCrashSoundHeavy = play;
 		SetSynchDirty();
 	}
-	
+
 	void PlayCrashHeavySound()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{		
-			EffectSound sound =	SEffectManager.PlaySound("offroad_hit_heavy_SoundSet", GetPosition() );
-			sound.SetSoundAutodestroy( true );
+		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		{
+			EffectSound sound = SEffectManager.PlaySound("offroad_hit_heavy_SoundSet", GetPosition());
+			sound.SetSoundAutodestroy(true);
 			m_PlayCrashSoundHeavy = false;
 		}
 	}
 
-	// ------------------------------------------------------------
 	bool IsPlane()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsBoat()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsHelicopter()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	bool IsCar()
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	bool CanObjectAttach( Object obj )
+	bool CanObjectAttach(Object obj)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	bool LeavingSeatDoesAttachment( int posIdx )
+	bool LeavingSeatDoesAttachment(int posIdx)
 	{
 		// only called if CanObjectAttach returns true.
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool CanBeDamaged()
 	{
-		if ( GetExpansionSettings().GetVehicle().DisableVehicleDamage )
+		if (GetExpansionSettings().GetVehicle().DisableVehicleDamage)
 		{
 			return false;
 		}
-		
-		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
+
+		if (GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone())
 		{
-			return !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone;
+			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	float GetCameraHeight()
-	{
-		return 1.3;
-	}
-
-	// ------------------------------------------------------------
-	float GetCameraDistance()
-	{
-		return 4.5;
-	}
 
 	float GetModelAnchorPointY()
 	{
-		if ( m_ModelAnchorPointY < 0 )
+		if (m_ModelAnchorPointY < 0)
 		{
 			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
-			if ( GetGame().ConfigIsExisting( path ) )
-				m_ModelAnchorPointY = GetGame().ConfigGetFloat( path );
+			if (GetGame().ConfigIsExisting(path))
+				m_ModelAnchorPointY = GetGame().ConfigGetFloat(path);
 			else
 				m_ModelAnchorPointY = 0.0;
-			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
 		}
 
 		return m_ModelAnchorPointY;
 	}
-	
-	// ------------------------------------------------------------
+
 	float GetTransportCameraDistance()
 	{
-		return GetCameraDistance();
+		return 6.0;
 	}
-	
-	// ------------------------------------------------------------
+
 	vector GetTransportCameraOffset()
 	{
-		return Vector( 0, GetCameraHeight(), 0 );
+		return "0 3.2 0";
 	}
 
 	bool IsFreeLook()
@@ -4609,36 +4238,26 @@ class ExpansionVehicleBase extends ItemBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	float GetWreckAltitude()
 	{
 		return 1;
 	}
 
-	// ------------------------------------------------------------
 	vector GetWreckOffset()
 	{
 		return "0 0 1";
 	}
 
-	// ------------------------------------------------------------
 	string GetWreck()
 	{
 		return GetType() + "Wreck";
 	}
-	
-	// ------------------------------------------------------------
+
 	string ExpansionGetWheelType(int slot_id)
 	{
 		return "ExpansionUniversalWheel"; //this should never happen
 	}
 
-	// ------------------------------------------------------------
-	ExpansionVehicleController GetControllerInstance()
-	{
-		return NULL;
-	}
-	
 	bool IsInSafeZone()
 	{
 		return m_SafeZone;

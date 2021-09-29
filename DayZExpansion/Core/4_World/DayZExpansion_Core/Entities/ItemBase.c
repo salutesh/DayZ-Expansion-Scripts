@@ -12,9 +12,6 @@
 
 modded class ItemBase
 {
-	protected bool m_HasBeenKilled;
-	protected bool m_DestroySoundPlayed;
-
 	//! TODO: After we finally switch over to CF_ModStorage, we may still need a way to access Expansion storage save version outside of CF_OnStoreLoad/Save (e.g. AfterStoreLoad).
 	//! For now, CF_OnStoreLoad will set it as well when used.
 	protected int m_ExpansionSaveVersion;
@@ -29,6 +26,7 @@ modded class ItemBase
 
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
+	protected autoptr ExpansionZoneItemCleanup m_Expansion_CleanupActor;
 
 	void ItemBase()
 	{
@@ -294,13 +292,6 @@ modded class ItemBase
 
 		super.OnVariablesSynchronized();
 
-		if ( m_HasBeenKilled && GetDestroySound() && !m_DestroySoundPlayed )
-		{
-			EXPrint("ItemBase::OnVariablesSynchronized - " + this + " - PlayDestroySound " + GetDestroySound());
-			SEffectManager.PlaySound( GetDestroySound(), GetPosition() );
-			m_DestroySoundPlayed = true;
-		}
-
 		if ( m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex )
 		{
 			m_CurrentSkinIndex = m_CurrentSkinSynchRemote;
@@ -561,7 +552,12 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		m_HasBeenKilled = true;
+		//TODO: store as global variable until new CF module system is added?
+		ExpansionItemBaseModule module;
+		if (Class.CastTo(module, GetModuleManager().GetModule(ExpansionItemBaseModule)))
+		{
+			module.PlayDestroySound(GetPosition(), GetDestroySound());
+		}
 
 		ExpansionOnDestroyed( killer );
 	}
@@ -571,7 +567,7 @@ modded class ItemBase
 	}
 
 	//! This deals with spawning magazines on weapons correctly and should be used as a replacement for vanilla CreateInInventory
-	EntityAI ExpansionCreateInInventory(string className)
+	EntityAI ExpansionCreateInInventory(string className, bool attachOnly = false)
 	{
 		if (!GetInventory())
 			return NULL;
@@ -586,6 +582,8 @@ modded class ItemBase
 			il.SetAttachment(weapon, NULL, InventorySlots.MAGAZINE);
 			
 			EntityAI magazine = SpawnEntity(className, il, ECE_IN_INVENTORY, RF_DEFAULT);
+			if (!magazine)
+				return NULL;
 
 			if (GetGame().IsServer())
 			{
@@ -596,7 +594,12 @@ modded class ItemBase
 			//! Important: Needs to be called BEFORE pushing bullet to chamber, otherwise save will occur in FSM transition
 			int stateId = weapon.ExpansionGetMagAttachedFSMStateID();
 
-			pushToChamberFromAttachedMagazine(weapon, weapon.GetCurrentMuzzle());
+			int muzzleIndex = weapon.GetCurrentMuzzle();
+			if (!weapon.IsChamberFull(muzzleIndex) || weapon.IsChamberFiredOut(muzzleIndex))
+			{
+				EXPrint("ExpansionCreateInInventory - pushing to chamber " + weapon);
+				pushToChamberFromAttachedMagazine(weapon, muzzleIndex);
+			}
 
 			if (stateId > -1)
 			{
@@ -620,6 +623,61 @@ modded class ItemBase
 		}
 
 		//! Any other item
-		return GetInventory().CreateInInventory(className);
+		if (attachOnly)
+			return GetInventory().CreateAttachment(className);
+		else
+			return GetInventory().CreateInInventory(className);
 	}
-}
+
+	EntityAI ExpansionCreateAttachment(string className)
+	{
+		return ExpansionCreateInInventory(className, true);
+	}
+
+	void OnEnterZone(ExpansionZoneType type)
+	{
+	}
+
+	void OnExitZone(ExpansionZoneType type)
+	{
+	}
+
+	override void OnInventoryEnter(Man player)
+	{
+		super.OnInventoryEnter(player);
+
+		m_Expansion_CleanupActor = null;
+	}
+	
+	override void OnInventoryExit(Man player)
+	{
+		super.OnInventoryExit(player);
+		PlayerBase pb = PlayerBase.Cast(player);
+
+		if (!pb || !pb.IsInSafeZone())
+			return;
+
+		ExpansionCreateCleanup();
+	}
+	
+    override void DeferredInit()
+    {
+		super.DeferredInit();
+
+		if (GetGame().IsServer() && !GetHierarchyParent() && ExpansionZoneModule.IsInsideSafeZone(GetPosition()) && !IsInherited(ExpansionTemporaryOwnedContainer))
+		{
+			ExpansionCreateCleanup();
+		}
+    }
+
+	void ExpansionCreateCleanup()
+	{
+		if (!GetGame().IsServer())
+			return;
+
+		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
+			return;
+
+		m_Expansion_CleanupActor = new ExpansionZoneItemCleanup(this);
+	}
+};

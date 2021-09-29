@@ -260,7 +260,7 @@ class CfgVehicles
 	class ExpansionSpraycanGreen;
 	class ExpansionSpraycanBlueline;
 	class ExpansionSpraycanDigital;
-	class ExpansionSpraycanEliptical;
+	class ExpansionSpraycanElliptical;
 	class ExpansionSpraycanFurious;
 	class ExpansionSpraycanGrayWatcher;
 	class ExpansionSpraycanJeans;
@@ -272,6 +272,7 @@ class CfgVehicles
 	class ExpansionSpraycanVrana;
 	class ExpansionSpraycanWasp;
 	class ExpansionSpraycanWave;
+	class ExpansionSpraycanCivilian;
 	class ExpansionSpraycanMedical;
 	class ExpansionSpraycanUber;
 	class ExpansionSpraycanDahoman;
@@ -282,7 +283,7 @@ class CfgVehicles
 	class ExpansionSpraycanMh6Default: ExpansionSpraycanGreen{};
 	class ExpansionSpraycanMh6Blueline: ExpansionSpraycanBlueline{};
 	class ExpansionSpraycanMh6Digital: ExpansionSpraycanDigital{};
-	class ExpansionSpraycanMh6Eliptical: ExpansionSpraycanEliptical{};
+	class ExpansionSpraycanMh6Elliptical: ExpansionSpraycanElliptical{};
 	class ExpansionSpraycanMh6Furious: ExpansionSpraycanFurious{};
 	class ExpansionSpraycanMh6GrayWatcher: ExpansionSpraycanGrayWatcher{};
 	class ExpansionSpraycanMh6Jeans: ExpansionSpraycanJeans{};
@@ -295,6 +296,7 @@ class CfgVehicles
 	class ExpansionSpraycanMh6Wasp: ExpansionSpraycanWasp{};
 	class ExpansionSpraycanMh6Wave: ExpansionSpraycanWave{};
 	class ExpansionSpraycanUh1hDefault: ExpansionSpraycanGreen{};
+	class ExpansionSpraycanUh1hCivilian: ExpansionSpraycanCivilian{};
 	class ExpansionSpraycanUh1hMedical: ExpansionSpraycanMedical{};
 	class ExpansionSpraycanUh1hUber: ExpansionSpraycanUber{};
 	class ExpansionSpraycanUh1hResistance: ExpansionSpraycanResistance{};

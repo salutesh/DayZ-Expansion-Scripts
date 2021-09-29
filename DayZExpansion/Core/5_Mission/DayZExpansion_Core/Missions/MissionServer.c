@@ -27,7 +27,7 @@ modded class MissionServer
 		#endif
 
 		CreateDayZExpansion();
-
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::MissionServer - End");
 		#endif
@@ -159,7 +159,8 @@ modded class MissionServer
 	            continue;
 	        
 			Print(name);
-			if (ExpansionString(name).EndsWith("_Base"))
+			ExpansionString exName = new ExpansionString(name);
+			if (exName.EndsWith("_Base"))
 			{
 				Print("We hit a _Base");
 				continue;
@@ -174,9 +175,9 @@ modded class MissionServer
 		JsonFileLoader<ExpansionClassNameDump>.JsonSaveFile("$profile:\\" + mustContain + "ClassNames.json", newDump);
 		delete newDump;
 	}
-}
+};
 
 class ExpansionClassNameDump
 {
 	ref array<string> ClassNames = new array<string>;
-}
+};

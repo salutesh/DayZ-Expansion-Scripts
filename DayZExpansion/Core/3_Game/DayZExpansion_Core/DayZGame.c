@@ -16,7 +16,8 @@ modded class DayZGame
 	protected string m_ExpansionLastestVersion;
 	protected ref ExpansionGame m_ExpansionGame;
 
-	protected float m_StartTime;
+	protected int m_Expansion_StartTimeStamp;  //! Approx. seconds since Epoch (not accurate)
+	protected int m_Expansion_StartTime;
 
 	protected vector m_WorldCenterPosition;
 	
@@ -29,13 +30,18 @@ modded class DayZGame
 		EXPrint("DayZGame::DayZGame - Start");
 		#endif
 
+		int year;
+		int month;
+		int day;
 		int hour;
 		int minute;
 		int second;
 
+		GetYearMonthDay(year, month, day);
 		GetHourMinuteSecond( hour, minute, second );
 
-		m_StartTime = hour * 3600 + minute * 60 + second;
+		m_Expansion_StartTime = hour * 3600 + minute * 60 + second;
+		m_Expansion_StartTimeStamp = (year - 1970) * 365 * 24 * 3600 + month * 31 * 24 * 3600 + day * 24 * 3600 + m_Expansion_StartTime;
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
@@ -125,9 +131,9 @@ modded class DayZGame
 		return version;
 	}
 
-	float GetStartTime()
+	int ExpansionGetStartTime()
 	{
-		return m_StartTime;
+		return m_Expansion_StartTime;
 	}
 
 	protected void SetWorldCenterPosition()

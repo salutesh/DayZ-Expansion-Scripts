@@ -12,6 +12,7 @@
 
 modded class Weapon_Base
 {
+	
 	//! Return -1 on unknown state
 	int ExpansionGetMagAttachedFSMStateID()
 	{

@@ -150,5 +150,7 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 	{
 		if ( action_data.m_Player.GetInventory() ) 
 			action_data.m_Player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
+
+		action_data.m_Player.SetInVehicle( true );
 	}
 }

@@ -12,114 +12,74 @@
 
 modded class DayZPlayerImplement
 {
-	protected ref ExpansionHumanST m_ExpansionST;
+	ref ExpansionHumanST m_ExpansionST;
 
-	private int m_Expansion_Vehicle_SeatIndex;
-
-	void DayZPlayerImplement()
-	{
-		RegisterNetSyncVariableInt("m_Expansion_Vehicle_SeatIndex");
-	}
-
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-	}
-
-	
-	// ------------------------------------------------------------
-	// DayZPlayerImplement StartCommand_ExpansionVehicle
-	// ------------------------------------------------------------
-	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
+	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle(ExpansionVehicleBase vehicle, int seatIdx, int seat_anim)
 	{
 		return NULL;
 	}
-	
-	// ------------------------------------------------------------
-	// DayZPlayerImplement GetCommand_ExpansionVehicle
-	// ------------------------------------------------------------
+
 	ExpansionHumanCommandVehicle GetCommand_ExpansionVehicle()
 	{
-		return ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
+		return ExpansionHumanCommandVehicle.Cast(GetCommand_Script());
 	}
-		
-	// ------------------------------------------------------------
-	// DayZPlayerImplement GetExpansionTransport
-	// ------------------------------------------------------------
+
 	ExpansionVehicleBase GetExpansionTransport()
 	{
 		ExpansionHumanCommandVehicle script;
-		if ( Class.CastTo( script, GetCommand_Script() ) )
+		if (Class.CastTo(script, GetCommand_Script()))
 		{
 			return script.GetTransport();
 		}
 
 		return NULL;
 	}
-	
+
 	void OnCommandExpansionVehicleStart()
 	{
 	}
-	
+
 	void OnCommandExpansionVehicleFinish()
 	{
 	}
-				
-	// ------------------------------------------------------------
-	// DayZPlayerImplement HeadingModel
-	// ------------------------------------------------------------
-	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
-	{		
-		if ( GetCommand_ExpansionVehicle() )
+
+	override bool HeadingModel(float pDt, SDayZPlayerHeadingModel pModel)
+	{
+		if (GetCommand_ExpansionVehicle())
 		{
 			m_fLastHeadingDiff = 0;
 
 			return false;
 		}
-		
-		return super.HeadingModel( pDt, pModel );
+
+		return super.HeadingModel(pDt, pModel);
 	}
-				
-	// ------------------------------------------------------------
-	// DayZPlayerImplement CameraHandler
-	// ------------------------------------------------------------
-	override int CameraHandler( int pCameraMode )
+
+	override int CameraHandler(int pCameraMode)
 	{
 		ExpansionVehicleBase exTrans;
 		ExpansionHumanCommandVehicle vehicleCommand = GetCommand_ExpansionVehicle();
-		if ( vehicleCommand )
+		if (vehicleCommand)
 			exTrans = vehicleCommand.GetTransport();
 
-		if ( m_Camera3rdPerson )
+		if (m_Camera3rdPerson)
 		{
-			if ( vehicleCommand && exTrans )
+			if (vehicleCommand && exTrans)
 			{
 				int cameraType = exTrans.Get3rdPersonCameraType();
-				if ( cameraType != -1 )
+				if (cameraType != -1)
 					return cameraType;
 			}
-
-			/*CarScript car;
-			if ( Class.CastTo( car, GetParent() ) && !GetCommand_Vehicle() )
-			{
-				int carCameraType = car.Get3rdPersonCameraType();
-				if ( carCameraType != -1 )
-				{
-					#ifdef EXPANSIONEXPRINT
-					EXPrint( "DayZPlayerImplement::CameraHandler - Return carCameraType: " + carCameraType.ToString() );
-					#endif
-					return carCameraType;
-				}
-			}*/
-		} else
+		}
+		else
 		{
-			if ( vehicleCommand )
+			if (vehicleCommand)
 			{
 				return DayZPlayerCameras.DAYZCAMERA_1ST_VEHICLE;
 			}
 		}
 
-		return super.CameraHandler( pCameraMode );
+		return super.CameraHandler(pCameraMode);
 	}
 
 	void SetHeadInvisible_Ex(bool invisible)
@@ -127,7 +87,7 @@ modded class DayZPlayerImplement
 		Head_Default player_head;
 		int slot_id = InventorySlots.GetSlotIdFromString("Head");
 		player_head = Head_Default.Cast(GetInventory().FindPlaceholderForSlot(slot_id));
-		
+
 		player_head.SetInvisible(invisible);
 
 		SetAttachmentInvisible_Ex("Head", invisible);
@@ -144,4 +104,4 @@ modded class DayZPlayerImplement
 		if (ent)
 			ent.SetInvisible(invisible);
 	}
-}
+};

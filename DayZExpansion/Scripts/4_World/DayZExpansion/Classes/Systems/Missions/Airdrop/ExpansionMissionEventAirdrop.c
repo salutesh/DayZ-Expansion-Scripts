@@ -243,56 +243,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion GetValueString
-	// ------------------------------------------------------------
-	protected string GetValueString( float total_value )
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::GetValueString - Start");
-		#endif
-		
-		if ( total_value < 0 )
-			return "0";
-	
-		int value = total_value;
-		string out_string;
-		
-		if ( value >= 1000 )
-		{
-			string value_string = value.ToString();
-			
-			int count;		
-			int first_length = value_string.Length() % 3;		//calculate position of the first separator
-			if ( first_length > 0 )
-			{
-				count = 3 - first_length;
-			}
-			
-			for ( int i = 0; i < value_string.Length(); ++i )
-			{
-				out_string += value_string.Get( i );
-				count ++;
-				
-				if ( count >= 3 )
-				{
-					out_string += " ";			//separator
-					count = 0;
-				}
-			}
-		}
-		else
-		{
-			out_string = value.ToString();
-		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::GetValueString - End and return out_string: " + out_string);
-		#endif
-		
-		return out_string;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion Event_OnUpdate
 	// ------------------------------------------------------------
 	// update tick for the mission

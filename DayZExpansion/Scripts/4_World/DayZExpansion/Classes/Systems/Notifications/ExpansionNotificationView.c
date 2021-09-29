@@ -114,25 +114,9 @@ class ExpansionNotificationView: ScriptView
 				NotificationIcon.SetColor(m_Data.GetColor());
 		}
 		
-		/*if (m_Data.GetObject() && NotificationPreview)
-		{
-			//! This is not working yet for some reason.
-			// The sended object in the NotificationRuntimeData should get displayed in the notification preview
-			// but even if the object is sended correcty and is not NULL here the preview stays empty?!
-			Print("ExpansionNotificationViewKillfeed::SetView - Object: " + m_Data.GetObject().ClassName());			
-			m_NotificationViewController.ObjectPreview = m_Data.GetObject();
-			propertiesToChange.Insert("ObjectPreview");
-			PreviewSpacer.Show(true);
-		}
-		else if (!m_Data.GetObject() && NotificationPreview)
-		{
-			PreviewSpacer.Show(false);
-		}*/
-		
 		m_NotificationViewController.NotifyPropertiesChanged(propertiesToChange);
 	}
 
-	//! TODO
 	void AnimateShowNotification(float timeslice)
 	{
 		m_ShowUpdateTime += timeslice;
@@ -145,7 +129,6 @@ class ExpansionNotificationView: ScriptView
 		}
 	}
 	
-	//! TODO
 	void AnimateHideNotification(float timeslice)
 	{
 		m_HideUpdateTime += timeslice;
@@ -245,6 +228,9 @@ class ExpansionNotificationView: ScriptView
 			case ExpansionNotificationType.KILLFEED:
 				m_NotificationHUD.RemoveNotificationKillfeedElemement(ExpansionNotificationViewKillfeed.Cast(this));
 				break;
+			case ExpansionNotificationType.MARKET:
+				m_NotificationHUD.RemoveNotificationMarketElemement(ExpansionNotificationViewMarket.Cast(this));
+				break;
 		}
 	}
 		
@@ -272,8 +258,6 @@ class ExpansionNotificationViewController: ExpansionViewController
 	string NotificationIcon;
 	string NotificationTitle;
 	string NotificationText;
-	
-	Object ObjectPreview;
 };
 
 class ExpansionNotificationViewToast extends ExpansionNotificationView
@@ -331,3 +315,17 @@ class ExpansionNotificationViewKillfeed extends ExpansionNotificationView
 	}
 };
 class ExpansionNotificationViewKillfeedController: ExpansionNotificationViewController {};
+
+class ExpansionNotificationViewMarket extends ExpansionNotificationView
+{
+	override typename GetControllerType() 
+	{
+		return ExpansionNotificationViewMarketController;
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/GUI/layouts/expansion_notification_market.layout";
+	}
+};
+class ExpansionNotificationViewMarketController: ExpansionNotificationViewController {};

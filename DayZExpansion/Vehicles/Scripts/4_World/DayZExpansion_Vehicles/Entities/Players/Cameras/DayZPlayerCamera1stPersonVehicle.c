@@ -1,5 +1,5 @@
 /**
- * DayZPlayerCamera1stPersonVehicle.c
+ * DayZPlayerCamera1stPerson.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,67 +10,17 @@
  *
 */
 
+#ifndef EXPANSION_OBSOLTE_CAMERA
 modded class DayZPlayerCamera1stPersonVehicle
 {
-	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
+	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
-		super.OnUpdate( pDt, pOutResult );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate Start");
-		#endif
+		super.OnUpdate(pDt, pOutResult);
 
-		ExpansionVehicleBase exVehicle;
-		m_bForceFreeLook = Class.CastTo( exVehicle, m_pPlayer.GetParent() );
-		m_bForceFreeLook = false;
-		
-		pOutResult.m_fUseHeading			= 0.0;
-		
-		if ( exVehicle )
+		if (m_Ex_Player.GetCommand_ExpansionVehicle())
 		{
-			pOutResult.m_fUseHeading		= 1.0;
-			pOutResult.m_fInsideCamera 		= 0.0;
-			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( true );
-		} else
-		{
-			PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( false );
+			ForceFreelook(true);
 		}
-
-		bool isFreeLook = false;
-		bool isHeliParent = false;
-
-		ExpansionHelicopterScript d_heli;
-		if ( Class.CastTo( d_heli, m_pPlayer.GetParent() ) )
-		{
-			isHeliParent = true;
-			isFreeLook = d_heli.IsFreeLook();
-		}
-
-		ExpansionVehicleHelicopterBase heli;
-		if ( Class.CastTo( heli, m_pPlayer.GetParent() ) )
-		{
-			isHeliParent = true;
-			isFreeLook = heli.IsFreeLook();
-		}
-
-		if ( isHeliParent && !isFreeLook )
-		{
-			m_fUpDownAngle = 0;
-			m_fLeftRightAngle = 0;
-
-			m_fUpDownAngleAdd = 0;
-			m_fLeftRightAngle = 0;
-			
-			Math3D.YawPitchRollMatrix( "0 0 0", pOutResult.m_CameraTM );
-
-			pOutResult.m_fUseHeading 			= 0.0;
-			pOutResult.m_fInsideCamera 			= 1.0;
-			pOutResult.m_fPositionModelSpace	= 1.0;
-			//pOutResult.m_CameraTM[3] 			= //m_pPlayer.GetBonePositionMS( m_iBoneIndex ) + m_OffsetLS;
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate End");
-		#endif
 	}
-}
+};
+#endif

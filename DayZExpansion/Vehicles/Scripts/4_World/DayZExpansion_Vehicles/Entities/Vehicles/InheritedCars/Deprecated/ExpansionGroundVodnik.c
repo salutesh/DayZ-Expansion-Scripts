@@ -36,6 +36,8 @@ class ExpansionVodnik extends Truck_01_Base
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
 
+		UpdateVisuals();
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::Constructor - End");
 		#endif
@@ -147,6 +149,41 @@ class ExpansionVodnik extends Truck_01_Base
 		
 		return super.GetDoorInvSlotNameFromSeatPos(posIdx);
 	}
+	
+	// ------------------------------------------------------------
+	// Expansion UpdateVisuals
+	// ------------------------------------------------------------
+	override void UpdateVisuals()
+	{
+		HideSelection( "antiwater" );
+
+/*
+//! For when we will add back the Amphibious Vodnik
+		if ( AllDoorsClosed() )
+		{
+			ShowSelection( "antiwater" );
+		} else {
+			HideSelection( "antiwater" );
+		}
+*/
+	}
+	
+	// ------------------------------------------------------------	
+	override void EEItemAttached( EntityAI item, string slot_name ) 
+	{
+		super.EEItemAttached( item, slot_name );
+
+		UpdateVisuals();
+	}
+	
+	// ------------------------------------------------------------	
+	override void EEItemDetached( EntityAI item, string slot_name )
+	{
+		super.EEItemDetached( item, slot_name );
+
+		UpdateVisuals();
+	}
+
 	
 	// ------------------------------------------------------------
 	override int GetCarDoorsState( string slotType )
@@ -377,6 +414,9 @@ class ExpansionVodnik extends Truck_01_Base
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
+		if ( !super.CanObjectAttach( obj ) )
+			return false;
+		
  		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 		

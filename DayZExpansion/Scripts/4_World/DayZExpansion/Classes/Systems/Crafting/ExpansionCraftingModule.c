@@ -39,9 +39,12 @@ class ExpansionCraftingModule: JMModuleBase
 		
 	}
 	
-	override bool IsEnabled()	
+	// ------------------------------------------------------------
+	// ExpansionCraftingModule IsEnabled
+	// ------------------------------------------------------------
+	override bool IsEnabled()
 	{
-		return false;
+		return (super.IsEnabled() && GetExpansionSettings().GetBook().CraftingCategories.Count() > 0);
 	}
 	
 	// ------------------------------------------------------------

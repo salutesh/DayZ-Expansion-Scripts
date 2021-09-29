@@ -111,19 +111,6 @@ class CfgVehicles
 				gentleCoef = 0.7;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
-			class Engine
-			{
-				inertia = 0.45;
-				torqueMax = 187;
-				torqueRpm = 2400;
-				powerMax = 73.5;
-				powerRpm = 4500;
-				rpmIdle = 1000;
-				rpmMin = 1050;
-				rpmClutch = 1250;
-				rpmRedline = 4700;
-				rpmMax = 6800;
-			};
 			class Gearbox
 			{
 				reverse = 1.0;
@@ -200,6 +187,93 @@ class CfgVehicles
 					};
 				};
 			};
+			class Engines
+			{
+				class Engine_1
+				{
+					type = "thrust";
+					inertia = 0.45;
+					torqueMax = 187;
+					torqueRpm = 2400;
+					powerMax = 73.5;
+					powerRpm = 4500;
+					rpmIdle = 1000;
+					rpmMin = 1050;
+					rpmClutch = 1250;
+					rpmRedline = 4700;
+					rpmMax = 6800;
+					start = "engine_1_start";
+					end = "engine_1_end";
+				};
+				class Engine_2: Engine_1
+				{
+					start = "engine_2_start";
+					end = "engine_2_end";
+				};
+				class Engine_3: Engine_1
+				{
+					start = "engine_3_start";
+					end = "engine_3_end";
+				};
+				class Engine_4: Engine_1
+				{
+					start = "engine_4_start";
+					end = "engine_4_end";
+				};
+			};
+			class Aerofoils
+			{
+				class WingLeft
+				{
+					type = "wing";
+					up = "0 1 0";
+					min = "af_wing_left_min";
+					max = "af_wing_left_max";
+					camber = 3.0;
+					maxControlAngle = 4.0;
+					stallAngle = 16.0;
+				};
+				class WingRight
+				{
+					type = "wing";
+					up = "0 1 0";
+					min = "af_wing_right_min";
+					max = "af_wing_right_max";
+					camber = 3.0;
+					maxControlAngle = 4.0;
+					stallAngle = 16.0;
+				};
+				class ElevatorLeft
+				{
+					type = "elevator";
+					up = "0 1 0";
+					min = "af_elevator_left_min";
+					max = "af_elevator_left_max";
+					camber = 0.5;
+					maxControlAngle = 5.0;
+					stallAngle = 16.0;
+				};
+				class ElevatorRight
+				{
+					type = "elevator";
+					up = "0 1 0";
+					min = "af_elevator_right_min";
+					max = "af_elevator_right_max";
+					camber = 0.5;
+					maxControlAngle = 5.0;
+					stallAngle = 16.0;
+				};
+				class Rudder
+				{
+					type = "rudder";
+					up = "1 0 0";
+					min = "af_rudder_min";
+					max = "af_rudder_max";
+					camber = 0.0;
+					maxControlAngle = 2.0;
+					stallAngle = 16.0;
+				};
+			};
 		};
 		class Crew: Crew
 		{
@@ -252,7 +326,7 @@ class CfgVehicles
 			soundSetsFilter[] = {"Expansion_An2_Engine_Ext_SoundSet"};
 			soundSetsInt[] = {"Expansion_An2_Engine_Int_SoundSet"};
 		};
-		class AnimationSources
+		class AnimationSources: AnimationSources
 		{
 			class rotor
 			{

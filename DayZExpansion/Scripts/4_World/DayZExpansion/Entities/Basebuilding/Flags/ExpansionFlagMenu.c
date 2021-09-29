@@ -82,7 +82,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		m_TerritoryDialogConfirmButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_ok_button" ) );
 		m_TerritoryDialogCancelButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "territory_dialog_cancel_button" ) );
 		
-		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice )
+		if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.NoFlagChoice )
 		{
 			m_FlagWindow.Show( false );
 			m_TerritoryWindow.Show( true );
@@ -98,7 +98,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	void LoadTextureList()
 	{
-		array<ref ExpansionFlagTexture> flagTextures = GetExpansionStatic().GetFlagTextures();
+		array<ref ExpansionFlagTexture> flagTextures = GetExpansionFlagTextures().GetAll();
 		if (flagTextures.Count() == 0)
 			return;
 		
@@ -211,7 +211,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		PPEffects.SetBlurMenu(0.5);
 		
 		//! Load and create flag texture list entrys
-		if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.Enabled )
+		if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Enabled )
 		{
 			LoadTextureList();
 		}
@@ -325,7 +325,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		{
 			m_TerritoryDialogWindow.Show( false );
 			
-			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice )
+			if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.NoFlagChoice )
 			{
 				m_TerritoryWindow.Show( true );
 			} else {
@@ -346,7 +346,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		
 		if( w == m_TerritoryCancelButton )
 		{
-			if ( GetExpansionSettings().GetBaseBuilding().EnableFlagMenu == FlagMenuMode.NoFlagChoice )
+			if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.NoFlagChoice )
 			{
 				Close();
 			} else {

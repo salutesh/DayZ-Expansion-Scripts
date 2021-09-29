@@ -410,13 +410,10 @@ modded class MissionGameplay
 		if ( !m_ExpansionHudRootWidget )
 		{
 			m_ExpansionHudRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/hud/expansion_hud.layout");
-			m_ExpansionHudRootWidget.Show( false );
+			m_ExpansionHudRootWidget.Show(false);
 			
 			m_ExpansionHud = new ExpansionIngameHud;
-			m_ExpansionHud.Init( m_ExpansionHudRootWidget );
-			
-			if (m_Hud && m_ExpansionHud)
-				m_Hud.SetExpansionHUD(true);
+			m_ExpansionHud.Init(m_ExpansionHudRootWidget);
 			
 			InitVoiceLevelIndicator();
 		}

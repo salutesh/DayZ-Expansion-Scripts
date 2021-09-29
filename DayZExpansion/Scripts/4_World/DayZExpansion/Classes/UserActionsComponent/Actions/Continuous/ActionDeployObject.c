@@ -81,7 +81,7 @@ modded class ActionDeployObject
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		
-		if ( ExpansionSafeZone_IsInside( player.GetPosition() ) )
+		if ( player.IsInSafeZone() )
 			return false;
 
 		//! NOTE: When making changes below, don't forget that the logic in ActionTogglePlaceObject::Start should be compatible!

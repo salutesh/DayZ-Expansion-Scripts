@@ -14,6 +14,8 @@ modded class ZombieBase
 {	
 	private static ref set< ZombieBase > m_allInfected = new set< ZombieBase >;
 	
+	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ZombieBase>(this);
+
 	protected bool m_SafeZone;
 	
 	// ------------------------------------------------------------
@@ -29,6 +31,9 @@ modded class ZombieBase
 	// ------------------------------------------------------------	
 	void ~ZombieBase()
 	{
+		if (!GetGame())
+			return;
+
 		int idx = m_allInfected.Find( this );
 		if ( idx >= 0 )
 		{
@@ -46,36 +51,42 @@ modded class ZombieBase
 	
 	
 	// ------------------------------------------------------------
-	// ZombieBase OnEnterSafeZone
+	// ZombieBase OnEnterZone
 	// ------------------------------------------------------------	
-	void OnEnterSafeZone()
+	void OnEnterZone(ExpansionZoneType type)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnEnterSafeZone - start");
+		EXPrint("ZombieBase::OnEnterZone - start");
 		#endif
 
-		m_SafeZone = true;
+		if (type == ExpansionZoneType.SAFE)
+		{
+			m_SafeZone = true;
 
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this ); 
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
+		}
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnEnterSafeZone - end");
+		EXPrint("ZombieBase::OnEnterZone - end");
 		#endif
 	}
 	
 	// ------------------------------------------------------------
-	// ZombieBase OnLeftSafeZone
+	// ZombieBase OnLeavingSafeZone
 	// ------------------------------------------------------------
-	void OnLeftSafeZone()
+	void OnExitZone(ExpansionZoneType type)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnLeftSafeZone - start");
+		EXPrint("ZombieBase::OnLeavingSafeZone - start");
 		#endif
 
-		m_SafeZone = false;
+		if (type == ExpansionZoneType.SAFE)
+		{
+			m_SafeZone = false;
+		}
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnLeftSafeZone - end");
+		EXPrint("ZombieBase::OnLeavingSafeZone - end");
 		#endif
 	}
 

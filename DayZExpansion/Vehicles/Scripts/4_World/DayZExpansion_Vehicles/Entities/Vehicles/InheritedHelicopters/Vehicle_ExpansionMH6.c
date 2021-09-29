@@ -127,13 +127,13 @@ class Vehicle_ExpansionMh6: ExpansionVehicleHelicopterBase
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
-		return 1;
+		return "0 1 0";
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
 		return 10;
 	}

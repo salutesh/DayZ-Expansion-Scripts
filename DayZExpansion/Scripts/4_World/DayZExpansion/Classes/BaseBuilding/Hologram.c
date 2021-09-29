@@ -86,6 +86,10 @@ modded class Hologram
 
 	void Hologram( PlayerBase player, vector pos, ItemBase item )
 	{
+		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
+		CF_Debug.Create(this);
+		#endif
+
 		m_UsingSnap = true;
 		m_projDirection = 0;
 
@@ -95,6 +99,10 @@ modded class Hologram
 	
 	void ~Hologram()
 	{
+		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
+		CF_Debug.Destroy(this);
+		#endif
+
 		ClearDebugObjects();
 	}
 
@@ -168,6 +176,30 @@ modded class Hologram
 
 		return GetGame().CreateObject( name, pos, true );
 	}
+
+	vector m_ExPointerRayStart;
+	vector m_ExPointerHitPosition;
+	vector m_ExPointerRayEnd;
+	vector m_ExProjectionPosition;
+	vector m_ExProjectionOrientation;
+
+	#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		instance.Add("Ray Start", m_ExPointerRayStart);
+		instance.Add("Hit Position", m_ExPointerHitPosition);
+		instance.Add("Ray End", m_ExPointerRayEnd);
+
+		instance.Add("Projection Position (MS)", m_PlacingPositionMS );
+		instance.Add("Projection Orientation (MS)", m_PlacingOrientationMS );
+
+		instance.Add("Player Position", m_Player.GetPosition() );
+
+		instance.Add("Projection Position", m_ExProjectionPosition );
+		instance.Add("Projection Orientation", m_ExProjectionOrientation );
+		return true;
+	}
+	#endif
 	
 	vector GetPointerPosition()
 	{
@@ -180,30 +212,21 @@ modded class Hologram
 		}
 
 		vector position = GetGame().GetCurrentCameraPosition();
-		vector rayStart = position + GetGame().GetCurrentCameraDirection() * 0.1;
-		vector rayEnd = position + GetGame().GetCurrentCameraDirection() * 3.0;
+		m_ExPointerRayStart = position + GetGame().GetCurrentCameraDirection() * 0.1;
+		m_ExPointerRayEnd = position + GetGame().GetCurrentCameraDirection() * 3.0;
 
 		Object hitObj;
-		vector hitPosition;
 		vector hitNormal;
 		float hitFraction;
 
-		if ( !DayZPhysics.RayCastBullet( rayStart, rayEnd, 0xFFFFFFFF, m_Projection, hitObj, hitPosition, hitNormal, hitFraction ) )
-			hitPosition = rayEnd;
-
-		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
-		CF_Debugger_Block dbg_Hologram = CF.Debugger.Get("Hologram");
-
-		dbg_Hologram.Set("Ray Start", rayStart );
-		dbg_Hologram.Set("Hit Position", hitPosition );
-		dbg_Hologram.Set("Ray End", rayEnd );
-		#endif
+		if ( !DayZPhysics.RayCastBullet( m_ExPointerRayStart, m_ExPointerRayEnd, 0xFFFFFFFF, m_Projection, hitObj, m_ExPointerHitPosition, hitNormal, hitFraction ) )
+			m_ExPointerHitPosition = m_ExPointerRayEnd;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Hologram::GetPointerPosition - End");
 		#endif
 
-		return hitPosition;
+		return m_ExPointerHitPosition;
 	}
 
 	override void UpdateHologram( float timeslice )
@@ -238,34 +261,26 @@ modded class Hologram
 			return;
 		}
 		
-		vector projPosition = GetProjectionEntityPosition( m_Player );
-		vector projOrientation;
+		m_ExProjectionPosition = GetProjectionEntityPosition( m_Player );
 
 		GenerateSnappingPosition( m_Projection );
 
 		if ( m_BBCanSnap )
 		{
-			projOrientation = AlignProjectionOnTerrain( timeslice );
-			HandleSnapping( projPosition, projOrientation );
+			m_ExProjectionOrientation = AlignProjectionOnTerrain( timeslice );
+			HandleSnapping( m_ExProjectionPosition, m_ExProjectionOrientation );
 
-			m_Projection.SetPosition( projPosition );
-		} else
+			m_Projection.SetPosition( m_ExProjectionPosition );
+		}
+		else
 		{
-			SetProjectionPosition( projPosition );
+			SetProjectionPosition( m_ExProjectionPosition );
 			
 			//! NOTE: Calling AlignProjectionOnTerrain depends on SetProjectionPosition being called FIRST for correct result!
-			projOrientation = AlignProjectionOnTerrain( timeslice );
+			m_ExProjectionOrientation = AlignProjectionOnTerrain( timeslice );
 		}
 
-		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
-		CF_Debugger_Block dbg_Hologram = CF.Debugger.Get("Hologram");
-
-		dbg_Hologram.Set("Player Position", m_Player.GetPosition() );
-		dbg_Hologram.Set("Projection Position", projPosition );
-		dbg_Hologram.Set("Projection Orientation", projOrientation );
-		#endif
-
-		SetProjectionOrientation( projOrientation );
+		SetProjectionOrientation( m_ExProjectionOrientation );
 
 		m_Projection.OnHologramBeingPlaced( m_Player );
 
@@ -472,16 +487,6 @@ modded class Hologram
 
 				m_PlacingOrientationMS[0] = Math.NormalizeAngle( m_PlacingOrientationMS[0] );
 				projOrientation[0] = Math.NormalizeAngle( projOrientation[0] );
-
-				#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
-				CF_Debugger_Block dbg_Hologram = CF.Debugger.Get("Hologram");
-
-				dbg_Hologram.Set("Projection Position (MS)", m_PlacingPositionMS );
-				dbg_Hologram.Set("Projection Orientation (MS)", m_PlacingOrientationMS );
-
-				dbg_Hologram.Set("Projection Position (WS)", projPosition );
-				dbg_Hologram.Set("Projection Orientation (WS)", projOrientation );
-				#endif
 			}
 		} else
 		{

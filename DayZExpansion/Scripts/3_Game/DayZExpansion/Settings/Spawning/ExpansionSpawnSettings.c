@@ -68,9 +68,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 
 	ref ExpansionStartingGear StartingGear;
 	
-	int SpawnHealthValue;
-	int SpawnEnergyValue;
-	int SpawnWaterValue;
+	float SpawnHealthValue;
+	float SpawnEnergyValue;
+	float SpawnWaterValue;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -259,6 +259,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 
 		if (spawnSettingsExist)
 		{
+			EXPrint("[ExpansionSpawnSettings] Load existing setting file:" + EXPANSION_SPAWN_SETTINGS);
+			
 			ExpansionSpawnSettings settingsDefault = new ExpansionSpawnSettings;
 			settingsDefault.Defaults();
 
@@ -349,6 +351,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionTerritorySettings] No existing setting file:" + EXPANSION_SPAWN_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -376,8 +379,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionSpawnSettings] Loading default settings");
-		
 		m_Version = VERSION;
 		
 		StartingGear.Defaults();
@@ -386,7 +387,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EnableSpawnSelection = false; 		//! Will be enabled if the map have a configured spawn location on generation
 		SpawnSelectionScreenMenuID = 1004;
 		
-		EnableSpawnSelection = false;
 		SpawnHealthValue = 100.0;	// 100 is max
 		SpawnEnergyValue = 500.0;	// 7500 is max
 		SpawnWaterValue = 500.0; 	// 5000 is max
@@ -413,6 +413,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 				ExpansionSpawnsDeerisle();
 			break;
 			case "namalsk":
+				SpawnEnergyValue = 1100;
+				SpawnWaterValue = 900;
 				ExpansionSpawnsNamalsk();
 			break;
 			case "chiemsee":
@@ -431,7 +433,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 				ExpansionSpawnsBanov();
 			break;
 			case "takistanplus":
-				ExpansionSpawnsTakistanPlus(); //! TODO
+				SpawnEnergyValue = 1100;
+				SpawnWaterValue = 900;
+				ExpansionSpawnsTakistanPlus();
 			break;
 			case "sandbox":
 				ExpansionSpawnsSandbox();

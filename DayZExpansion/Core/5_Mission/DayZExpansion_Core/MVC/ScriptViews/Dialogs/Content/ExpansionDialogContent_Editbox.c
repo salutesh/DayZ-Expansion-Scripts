@@ -47,7 +47,7 @@ class ExpansionDialogContent_Editbox: ExpansionDialogContentBase
 
 class ExpansionDialogContent_EditboxController: ExpansionViewController
 {
-
+	string EditBox;
 }
 
 class ExpansionMenuDialogContent_Editbox: ExpansionMenuDialogContentBase
@@ -56,7 +56,7 @@ class ExpansionMenuDialogContent_Editbox: ExpansionMenuDialogContentBase
 	
 	EditBoxWidget dialog_editbox;
 	
-	void ExpansionDialogContent_Editbox(ExpansionMenuDialogBase dialog)
+	void ExpansionMenuDialogContent_Editbox(ExpansionMenuDialogBase dialog)
 	{
 		m_Dialog = dialog;
 
@@ -88,8 +88,6 @@ class ExpansionMenuDialogContent_Editbox: ExpansionMenuDialogContentBase
 	
 	void SetEditboxText(string text)
 	{
-		//m_EditboxController.EditBox = text;
-		//m_EditboxController.NotifyPropertyChanged("EditBox");
 		dialog_editbox.SetText(text);
 	}
 	

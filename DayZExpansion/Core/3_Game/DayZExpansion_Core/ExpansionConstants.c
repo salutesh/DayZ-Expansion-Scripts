@@ -428,9 +428,8 @@ static const string EXPANSION_FLAG_COUNTRIES_RUSSIA = "DayZExpansion\\Objects\\S
 static const string EXPANSION_FLAG_COUNTRIES_UK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_uk_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_USA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_usa_co.paa";
 
-static const string EXPANSION_FLAG_COUNTRIES_SCOTTISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_scottish_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_FINNISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_finnish_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SWEDISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_swedish_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SCOTLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_scotland_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_SWEDEN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_sweden_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_SPAIN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_spain_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_BRAZIL = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_brazil_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_PORTUGAL = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_portugal_co.paa";
@@ -446,11 +445,11 @@ static const string EXPANSION_FLAG_COUNTRIES_CHEDAKI = "DayZExpansion\\Objects\\
 static const string EXPANSION_FLAG_COUNTRIES_NAPA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_napa_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_CDF = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_cdf_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_NUEVORICO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_nuevorico_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_BORDURIENS = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_borduriens_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_BORDURIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_borduria_co.paa";
 static const string EXPANSION_FLAG_LOGO_BIOHAZARD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_biohazard_co.paa";
 static const string EXPANSION_FLAG_LOGO_ANYONEINCHERNO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_anyoneincherno_co.paa";
 
-static const string EXPANSION_FLAG_COUNTRIES_IRISH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_irish_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_IRELAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_ireland_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_WALES = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_wales_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_SWITZERLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_switzerland_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_SKILAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_skilanka_co.paa";
@@ -458,7 +457,7 @@ static const string EXPANSION_FLAG_COUNTRIES_SOUTHAFRICA = "DayZExpansion\\Objec
 static const string EXPANSION_FLAG_COUNTRIES_SICILY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_sicily_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_OFFWITHHEAD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_offwithhead_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_GIBRALTAR = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_gibraltar_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CZECH = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_czech_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_CZECHIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_czechia_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_FARI = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_fari_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_FINLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_finland_co.paa";
 static const string EXPANSION_FLAG_LOGO_DAYZWHITE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_dayzwhite_co.paa";
@@ -477,8 +476,8 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
 //! IMPORTANT: When incrementing EXPANSION_VERSION_SAVE by any number n, always increment EXPANSION_VERSION_MODSTORAGE_SAVE by n+1!
 //! DO NOT under any circumstances use the constants EXPANSION_VERSION_SAVE and EXPANSION_VERSION_MODSTORAGE_SAVE in other files than this one!
 //! Use EXPANSION_VERSION_CURRENT_SAVE, EXPANSION_VERSION_CLIENT_SETTING_SAVE and EXPANSION_VERSION_MAP_MARKER_SAVE instead.
-static const int EXPANSION_VERSION_SAVE = 28;
-static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 29;
+static const int EXPANSION_VERSION_SAVE = 32;
+static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 33;  //! <-- NEEDS TO ALWAYS BE <EXPANSION_VERSION_SAVE> + 1!
 
 #ifdef CF_MODULE_MODSTORAGE
 static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;
@@ -493,10 +492,10 @@ static const int EXPANSION_VERSION_MAP_MARKER_SAVE = EXPANSION_VERSION_SAVE;
 //! Game SaveVersion at which 1st step of converting over to ModStorage should happen 
 //! after release of CF with ModStorage support.
 //! Final conversion step will happen with release of next DayZ version AFTER that.
-//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 121, set this also to 121,
-//! and final conversion will happen at game SaveVersion 122 automatically.
+//! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 125, set this also to 125,
+//! and final conversion will happen at game SaveVersion 126 automatically.
 //! Currently postponed until CF ModStorage support has been finalized.
-static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 121;
+static const int EXPANSION_VERSION_GAME_MODSTORAGE_TARGET = 125;
 
 //! Expansion storage save version after 1st conversion step to ModStorage
 static const int EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET = EXPANSION_VERSION_SAVE;

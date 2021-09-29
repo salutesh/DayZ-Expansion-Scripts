@@ -32,7 +32,7 @@ FrameWidgetClass ExpansionNumpadUI {
      hexactsize 0
      vexactsize 0
      scaled 1
-     text "Enter PIN(x)"
+     text "#STR_EXPANSION_BB_CODE_LOCK_PIN"
      font "gui/fonts/etelkatextpro"
      "exact text" 0
      "text halign" center

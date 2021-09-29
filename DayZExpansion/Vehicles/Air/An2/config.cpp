@@ -28,20 +28,12 @@ class CfgSlots
 		selection = "wheel_2_1";
 		ghostIcon = "wheel";
 	};
-	class Slot_expansion_ansmallwheel_1_2
+	class Slot_expansion_ansmallwheel_2
 	{
-		name = "expansion_ansmallwheel_1_2";
+		name = "expansion_ansmallwheel_2";
 		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK_DESC";
-		selection = "wheel_1_2";
-		ghostIcon = "wheel";
-	};
-	class Slot_expansion_ansmallwheel_2_2
-	{
-		name = "expansion_ansmallwheel_2_2";
-		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK_DESC";
-		selection = "wheel_2_2";
+		selection = "wheel_2";
 		ghostIcon = "wheel";
 	};
 };
@@ -50,6 +42,10 @@ class CfgVehicles
 	class SimulationModule;
 	class Axles;
 	class Wheels;
+	class Engines;
+	class Engine;
+	class Props;
+	class Prop;
 	class Front;
 	class Rear;
 	class Left;
@@ -94,7 +90,7 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK_DESC";
 		model = "\DayZExpansion\Vehicles\Air\An2\proxy\AnWheelSmall.p3d";
 		weight = 15000;
-		inventorySlot[] = {"expansion_ansmallwheel_1_2","expansion_ansmallwheel_2_2"};
+		inventorySlot[] = {"expansion_ansmallwheel_2"};
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
@@ -123,14 +119,16 @@ class CfgVehicles
 		vehicleClass = "Expansion_Plane";
 		fuelCapacity = 192;
 		fuelConsumption = 12;
-		attachments[] = {"ExpansionAircraftBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_anwheel_1_1","expansion_anwheel_2_1","expansion_ansmallwheel_1_2","expansion_ansmallwheel_2_2"};
+		attachments[] = {"ExpansionAircraftBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_anwheel_1_1","expansion_anwheel_2_1","expansion_ansmallwheel_2"};
 		hiddenSelections[] = {};
 		hiddenSelectionsTextures[] = {};
 		hiddenSelectionsMaterials[] = {};
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_RWD";
-			airDragFrontTotal = 0.928;
+			airDragFrontTotal = 1e-06;
+			airDragSizeMin = "drag_max";
+			airDragSizeMax = "drag_min";
 			class Steering
 			{
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};
@@ -145,19 +143,6 @@ class CfgVehicles
 				turboCoef = 5.0;
 				gentleCoef = 0.7;
 			};
-			class Engine
-			{
-				inertia = 0.45;
-				torqueMax = 187;
-				torqueRpm = 2400;
-				powerMax = 73.5;
-				powerRpm = 4500;
-				rpmIdle = 1000;
-				rpmMin = 1050;
-				rpmClutch = 1250;
-				rpmRedline = 4700;
-				rpmMax = 6800;
-			};
 			class Gearbox
 			{
 				reverse = 1.0;
@@ -170,7 +155,8 @@ class CfgVehicles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 25;
+					engine = -1;
+					maxSteeringAngle = 0;
 					brakeBias = 0.7;
 					brakeForce = 1000;
 					wheelHubMass = 10;
@@ -181,8 +167,8 @@ class CfgVehicles
 						stiffness = 60000;
 						compression = 2100;
 						damping = 5500;
-						travelMaxUp = 0.079;
-						travelMaxDown = 0.06;
+						travelMaxUp = 0.0;
+						travelMaxDown = 1.1;
 					};
 					class Wheels: Wheels
 					{
@@ -206,10 +192,10 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
+					engine = -1;
+					maxSteeringAngle = -45;
 					brakeBias = 0.3;
 					brakeForce = 1000;
-					finalRatio = 4.1;
 					wheelHubMass = 10;
 					wheelHubRadius = 0.15;
 					class Suspension
@@ -218,28 +204,108 @@ class CfgVehicles
 						stiffness = 34000;
 						compression = 2000;
 						damping = 5100;
-						travelMaxUp = 0.086;
-						travelMaxDown = 0.133;
+						travelMaxUp = 0.0;
+						travelMaxDown = 0.4;
 					};
 					class Wheels: Wheels
 					{
-						class Left: Left
+						class Center
 						{
-							inventorySlot = "expansion_ansmallwheel_1_2";
-							animTurn = "turnbackleft";
-							animRotation = "wheelbackleft";
-							animDamper = "damper_1_2";
-							wheelHub = "wheel_1_2_damper_land";
-						};
-						class Right: Right
-						{
-							inventorySlot = "expansion_ansmallwheel_2_2";
+							inventorySlot = "expansion_ansmallwheel_2";
 							animTurn = "turnbackright";
 							animRotation = "wheelbackright";
-							animDamper = "damper_2_2";
-							wheelHub = "wheel_2_2_damper_land";
+							animDamper = "damper_2";
+							wheelHub = "wheel_2_damper_land";
 						};
 					};
+				};
+			};
+			class Engines: Engines
+			{
+				class Engine: Engine
+				{
+					inertia = 0.5;
+					torqueMax = 29.1;
+					torqueRpm = 1670;
+					powerMax = 29.1;
+					powerRpm = 2200;
+					rpmIdle = 1000;
+					rpmMin = 1050;
+					rpmClutch = 1250;
+					rpmRedline = 2150;
+					rpmMax = 2250;
+					gear = -1;
+				};
+			};
+			class Props: Props
+			{
+				class Rotor
+				{
+					engine = 0;
+					start = "engine_1_end";
+					end = "engine_1_start";
+					type = "thruster";
+					animation = "rotor";
+					hiderotor = "hiderotor";
+					hiderotorblur = "hiderotorblur";
+				};
+			};
+			class Aerofoils
+			{
+				class WingLeft
+				{
+					type = "wing";
+					up = "0 1 0";
+					min = "af_wing_left_min";
+					max = "af_wing_left_max";
+					camber = 3.0;
+					maxControlAngle = 10.0;
+					stallAngle = 16.0;
+					animation = "aileronr";
+				};
+				class WingRight
+				{
+					type = "wing";
+					up = "0 1 0";
+					min = "af_wing_right_min";
+					max = "af_wing_right_max";
+					camber = 3.0;
+					maxControlAngle = 10.0;
+					stallAngle = 16.0;
+					animation = "aileronr";
+				};
+				class ElevatorLeft
+				{
+					type = "elevator";
+					up = "0 1 0";
+					min = "af_elevator_left_min";
+					max = "af_elevator_left_max";
+					camber = 3.0;
+					maxControlAngle = 10.0;
+					stallAngle = 16.0;
+					animation = "elevatorl";
+				};
+				class ElevatorRight
+				{
+					type = "elevator";
+					up = "0 1 0";
+					min = "af_elevator_right_min";
+					max = "af_elevator_right_max";
+					camber = 3.0;
+					maxControlAngle = 10.0;
+					stallAngle = 16.0;
+					animation = "elevatorr";
+				};
+				class Rudder
+				{
+					type = "rudder";
+					up = "1 0 0";
+					min = "af_rudder_min";
+					max = "af_rudder_max";
+					camber = 0.0;
+					maxControlAngle = 5.0;
+					stallAngle = 16.0;
+					animation = "rudder";
 				};
 			};
 		};
@@ -302,7 +368,7 @@ class CfgVehicles
 				name = "$STR_attachment_Chassis0";
 				description = "";
 				icon = "cat_vehicle_chassis";
-				attachmentSlots[] = {"expansion_anwheel_1_1","expansion_anwheel_2_1","expansion_ansmallwheel_1_2","expansion_ansmallwheel_2_2"};
+				attachmentSlots[] = {"expansion_anwheel_1_1","expansion_anwheel_2_1","expansion_ansmallwheel_2"};
 			};
 		};
 		class Sounds
@@ -315,67 +381,110 @@ class CfgVehicles
 			soundSetsFilter[] = {"Expansion_An2_Engine_Ext_SoundSet"};
 			soundSetsInt[] = {"Expansion_An2_Engine_Int_SoundSet"};
 		};
-		class AnimationSources
+		class AnimationSources: AnimationSources
 		{
+			class damper_1_1
+			{
+				source = "user";
+				initPhase = 0.4857;
+				animPeriod = 1e-06;
+			};
+			class damper_2_1: damper_1_1{};
 			class rotor
 			{
 				source = "user";
-				animPeriod = 0.0009999999;
+				animPeriod = 0.001;
 				initPhase = 0;
 			};
 			class hiderotor
 			{
 				source = "user";
-				animPeriod = 0.0009999999;
+				animPeriod = 0.001;
 				initPhase = 0;
 			};
-			class hiderotorblur
+			class hiderotorblur: hiderotor{};
+			class aileronl
 			{
 				source = "user";
-				animPeriod = 0.0009999999;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class AileronL
+			class aileronr
 			{
 				source = "user";
-				animPeriod = 1.0;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class AileronR
+			class flapl
 			{
 				source = "user";
-				animPeriod = 1.0;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class FlapL
+			class flapr
 			{
 				source = "user";
-				animPeriod = 1.0;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class FlapR
+			class elevatorl
 			{
 				source = "user";
-				animPeriod = 1.0;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class ElevatorL
+			class elevatorr
 			{
 				source = "user";
-				animPeriod = 1.0;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class ElevatorR
+			class rudder
 			{
 				source = "user";
-				animPeriod = 1.0;
+				animPeriod = 0.1;
 				initPhase = 0;
 			};
-			class Rudder
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
 			{
-				source = "user";
-				animPeriod = 1.0;
-				initPhase = 0;
+				class Health
+				{
+					hitpoints = 1000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Engine
+				{
+					fatalInjuryCoef = 0.001;
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					class Health
+					{
+						hitpoints = 1000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.7,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.5,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.3,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}}};
+					};
+					inventorySlots[] = {"CarBattery","SparkPlug","CarRadiator"};
+					inventorySlotsCoefs[] = {0.2,0.2,0.4};
+				};
+				class FuelTank
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fuelTank"};
+					class Health
+					{
+						hitpoints = 600;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
 			};
 		};
 	};
@@ -431,6 +540,6 @@ class CfgNonAIVehicles
 	class ProxyAnWheelSmall: ProxyVehiclePart
 	{
 		model = "\DayZExpansion\Vehicles\Air\An2\proxy\AnWheelSmall.p3d";
-		inventorySlot[] = {"expansion_ansmallwheel_1_2","expansion_ansmallwheel_2_2"};
+		inventorySlot[] = {"expansion_ansmallwheel_2"};
 	};
 };

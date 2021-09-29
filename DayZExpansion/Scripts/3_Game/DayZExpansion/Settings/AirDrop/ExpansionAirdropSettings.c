@@ -15,6 +15,8 @@
  **/
 class ExpansionAirdropSettings: ExpansionSettingBase
 {
+	static const int VERSION = 0;
+	
 	bool ServerMarkerOnDropLocation;
 	bool Server3DMarkerOnDropLocation;
 	bool ShowAirdropTypeOnMarker;
@@ -145,26 +147,30 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		
 		m_IsLoaded = true;
 		
-		if ( FileExist( EXPANSION_AIRDROP_SETTINGS ) )
+		bool save;
+
+		bool airdropSettingsExist = FileExist(EXPANSION_AIRDROP_SETTINGS);
+		
+		if (airdropSettingsExist)
 		{
-			Print("[ExpansionAirdropSettings] Loading settings");
+			EXPrint("[ExpansionAirdropSettings] Load existing setting file:" + EXPANSION_AIRDROP_SETTINGS);
 
 			JsonFileLoader<ExpansionAirdropSettings>.JsonLoadFile( EXPANSION_AIRDROP_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionAirdropSettings::Load - End - Loaded");
-			#endif
-
-			return true;
 		}
-
-		Defaults();
-		Save();
+		else
+		{
+			EXPrint("[ExpansionAirdropSettings] No existing setting file:" + EXPANSION_AIRDROP_SETTINGS + ". Creating defaults!");
+			Defaults();
+			save = true;
+		}
+		
+		if (save)
+			Save();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionAirdropSettings::Load - End - Not Loaded");
 		#endif
-		return false;
+		return airdropSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -188,8 +194,6 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionAirdropSettings] Loading default settings");
-		
 		ServerMarkerOnDropLocation = true;
 		Server3DMarkerOnDropLocation = true;
 		ShowAirdropTypeOnMarker = true;

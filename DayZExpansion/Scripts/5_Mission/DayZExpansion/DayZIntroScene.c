@@ -1,102 +1,46 @@
 #ifndef EXPANSION_MAINMENU_NEW_DISABLE
 class DayZIntroSceneExpansion
 {
-	protected Camera 							m_Camera;
-	protected vector 							m_CameraTrans[4];
-	protected vector 							m_CharacterPos;
-	protected vector 							m_CharacterRot;
-	protected Weather							m_Weather;	
-	protected vector 							m_Target;
+	protected Camera 					m_Camera;
+	protected vector 					m_CameraTrans[4];
+	protected vector 					m_CharacterPos;
+	protected vector 					m_CharacterRot;
+	protected Weather					m_Weather;	
+	protected vector 					m_Target;
 	protected ref IntroSceneCharacter	m_Character;
-	protected bool								m_EnableClick;
-	protected bool 								m_RotatingCharacter;
-	protected int 									m_RotatingCharacterMouseX;
-	protected int 									m_RotatingCharacterMouseY;
-	protected float 								m_RotatingCharacterRot;
-	protected float 								m_Radius;
-	protected float 								m_Radius_original;
-	protected float 								m_DiffX;
-	protected float 								m_DeltaX;
-	protected float 								m_DeltaZ;
-	protected float 								m_Angle;
-	protected float 								m_Angle_offset = 0;
-	protected float 								m_NewX = 0;
-	protected float 								m_NewZ = 0;
-	protected float 								m_BlurValue;
-	protected bool 								m_CanSpin = false;
-	protected string 								m_CurrentScene;
-	protected string 								m_WorldName;
-	protected ref array<Object>			m_SceneObjects;
+	protected bool		m_EnableClick;
+	protected bool 		m_RotatingCharacter;
+	protected int 		m_RotatingCharacterMouseX;
+	protected int 		m_RotatingCharacterMouseY;
+	protected float 	m_RotatingCharacterRot;
+	protected float 	m_Radius;
+	protected float 	m_Radius_original;
+	protected float 	m_DiffX;
+	protected float 	m_DeltaX;
+	protected float 	m_DeltaZ;
+	protected float 	m_Angle;
+	protected float 	m_Angle_offset = 0;
+	protected float 	m_NewX = 0;
+	protected float 	m_NewZ = 0;
+	protected float 	m_BlurValue;
+	protected bool 		m_CanSpin = false;
+	string currScenePath;
 	
-	// ------------------------------------------------------------
+	
 	void DayZIntroSceneExpansion()
 	{
-		PrepareScenes();
-	}
-	
-	// ------------------------------------------------------------
-	void ~DayZIntroSceneExpansion()
-	{
-		ClearSceneObjects();
-	}
-	
-	// ------------------------------------------------------------	
-	private void PrepareScenes()
-	{
-		Print("DayZIntroSceneExpansion::PrepareScenes - Start");
-				
-		m_WorldName = g_Game.GetWorldName();
-		
-		string expansion_path = "cfgExpansionCharacterScenes " + m_WorldName;
-		string vanilla_path = "cfgCharacterScenes " + m_WorldName;
-		string expansion_scene_path;
-		string vanilla_scene_path;
-		array<string> vanilla_scenes = new array<string>;
-		array<string> expansion_scenes = new array<string>;
-		string currentChildName;
-		
-		//! Get cfgCharacterScenes scenes just in case we have no configuration for the current loaded world in cfgExpansionCharacterScenes
-		for ( int j = 0; j< g_Game.ConfigGetChildrenCount(vanilla_path); j++ )
-		{
-			g_Game.ConfigGetChildName(vanilla_path, j, currentChildName);
-			vanilla_scene_path = vanilla_path + " " + currentChildName;
-			vanilla_scenes.Insert(vanilla_scene_path);
-		}
-		
-		for ( int i = 0; i < g_Game.ConfigGetChildrenCount(expansion_path); i++ )
-		{
-			g_Game.ConfigGetChildName(expansion_path, i, currentChildName);
-			
-			#ifdef EXPANSIONMODMARKET
-			if (currentChildName.Contains("market_update") || expansion_scenes.Count() == 0)
-			{
-			#endif
-				expansion_scene_path = expansion_path + " " + currentChildName;
-				expansion_scenes.Insert(expansion_scene_path);
-			#ifdef EXPANSIONMODMARKET
-			}
-			#endif
-		}
-		
-		if (expansion_scenes.Count() > 0)
-		{
-			SetScene(expansion_scenes);
-		}
-		else if (vanilla_scenes.Count() > 0)
-		{
-			SetScene(vanilla_scenes);
-		}
-		
-		Print("DayZIntroSceneExpansion::PrepareScenes - End");
-	}
-	
-	// ------------------------------------------------------------
-	private void SetScene(array<string> scenes)
-	{		
+
+
 		World world = g_Game.GetWorld();
-		int count = scenes.Count();
+		string root_path = "cfgExpansionCharacterScenes " + g_Game.GetWorldName();
+
+		int count = g_Game.ConfigGetChildrenCount(root_path);
 		int index = Math.RandomInt(0, count);
-		string scene_path = scenes[index];
+		//index = 4;
+		
+		string childName;
+		g_Game.ConfigGetChildName(root_path, index, childName);
+		string scene_path = root_path + " " + childName;	
 		SetScenePath(scene_path);
 		
 		if (world)
@@ -105,10 +49,8 @@ class DayZIntroSceneExpansion
 			g_Game.ConfigGetIntArray(scene_path + " date", date);
 			world.SetDate(date.Get(0), date.Get(1), date.Get(2), date.Get(3), date.Get(4));
 		}
-		
 		GetGame().ObjectDelete( m_Camera );
 		Class.CastTo(m_Camera, g_Game.CreateObject("staticcamera", g_Game.ConfigGetVector(scene_path + " CameraPosition"), true));
-		
 		if (m_Camera)
 		{
 			m_Camera.SetFOV(g_Game.ConfigGetFloat(scene_path + " fov"));
@@ -118,15 +60,14 @@ class DayZIntroSceneExpansion
 			m_Camera.SetOrientation(g_Game.ConfigGetVector(scene_path + " CameraOrientation"));
 			m_Character = new IntroSceneCharacter();
 			m_Character.LoadCharacterData(g_Game.ConfigGetVector(scene_path + " PlayerPosition"), g_Game.ConfigGetVector(scene_path + " PlayerOrientation"));
-			
-			//! Equip Player with scene specific stuff here
+			//Equip Player with scene specific shit here
 			CustomHandItem();
 			SetAnim();
 			TStringArray mapping = new TStringArray;
 			g_Game.ConfigGetTextArray(scene_path + " MappingFiles", mapping);
-			SpawnSceneObjects(mapping);
+			NobodyIsOnlineRightNowToHelpMeDoThisProperlySoImDoingThisRIP(mapping);
+
 		}
-		
 		float overcast, rain, windspeed, fog;
 		overcast = g_Game.ConfigGetFloat(scene_path + " overcast");
 		rain = g_Game.ConfigGetFloat(scene_path + " rain");
@@ -163,26 +104,19 @@ class DayZIntroSceneExpansion
 			m_CanSpin = true;
 		}
 	}
-	
-	// ------------------------------------------------------------
 	void SetScenePath(string path)
 	{
-		m_CurrentScene = path;
+		currScenePath = path;
 	}
-	
-	// ------------------------------------------------------------
 	string GetScenePath()
 	{
-		return m_CurrentScene;
+		return currScenePath;
 	}
-	
-	// ------------------------------------------------------------
 	void SetClickEnable( bool enable )
 	{
 		m_EnableClick = enable;
 	}
 	
-	// ------------------------------------------------------------
 	void SetAnim()
 	{		
 		if ( g_Game.ConfigGetInt(GetScenePath() + " CustomPose") != -1)
@@ -190,17 +124,15 @@ class DayZIntroSceneExpansion
 			m_Character.GetCharacterObj().StartCommand_Action(g_Game.ConfigGetInt(GetScenePath() + " CustomPose"), ActionBaseCB, DayZPlayerConstants.STANCEMASK_ALL);
 		};
 	}
-	
-	// ------------------------------------------------------------
 	void CustomHandItem()
 	{		
 		string item;
 		GetGame().ConfigGetText(GetScenePath() + " HandItem", item);
 		if ( item != "")
 		{
-			EntityAI handItem = m_Character.GetCharacterObj().GetInventory().CreateInInventory(item);
-			if (handItem)
-				m_Character.GetCharacterObj().LocalTakeEntityToHands(handItem);
+			if (m_Character.GetCharacterObj().GetItemInHands())
+				GetGame().ObjectDelete(m_Character.GetCharacterObj().GetItemInHands());
+			m_Character.GetCharacterObj().GetHumanInventory().CreateInHands(item);
 		};
 	}
 	// ------------------------------------------------------------
@@ -263,29 +195,19 @@ class DayZIntroSceneExpansion
 		{
 			CharacterRotate();
 		}
-		
-		string worldName = g_Game.GetWorldName();
-		if (m_WorldName != worldName)
-		{
-			PrepareScenes();
-		}
-	}	
-	
-	// ------------------------------------------------------------	
+	}		
 	IntroSceneCharacter GetIntroCharacter()
 	{
 		return m_Character;
 	}
-	
-	// ------------------------------------------------------------
 	protected void GetSelectedUserName()
 	{
 		string name;
 		BiosUserManager user_manager = GetGame().GetUserManager();
-		if ( user_manager )
+		if( user_manager )
 		{
 			BiosUser user = user_manager.GetSelectedUser();
-			if ( user )
+			if( user )
 			{
 				g_Game.SetPlayerGameName( user.GetName() );
 				return;
@@ -294,65 +216,53 @@ class DayZIntroSceneExpansion
 		g_Game.SetPlayerGameName(GameConstants.DEFAULT_CHARACTER_NAME);
 	}	
 
-	// ------------------------------------------------------------
-	private void SpawnSceneObjects(TStringArray filestoload)
+
+	void NobodyIsOnlineRightNowToHelpMeDoThisProperlySoImDoingThisRIP(TStringArray filestoload)
 	{
-		EntityAI traderProp;
 		string className;
 		vector position;
 		vector rotation;
 		string special;
-		TStringArray gear = new TStringArray;
-		
+		TStringArray attachments = new TStringArray;
 		for (int i = 0; i < filestoload.Count(); i++)
 		{
 			string name = filestoload[i];
 
 			string filePath = name + EXPANSION_MAPPING_EXT;
 			FileHandle file = OpenFile( filePath, FileMode.READ );
-			
 			if ( !file )
 				return;
-			
-			if ( m_SceneObjects )
-				ClearSceneObjects();
-			
-			m_SceneObjects = new array<Object>;
-			
-			while ( GetObjectFromFile( file, className, position, rotation, special, gear ) )
+			array< Object > objects = new array< Object >;
+			while ( GetObjectFromFile( file, className, position, rotation, special, attachments) )
 			{
+							
 				Object obj;
 
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("Spawning object with chached collition: " + className + " on pos: " + position.ToString());
 				#endif
 
-				obj = GetGame().CreateObjectEx(className, position, ECE_LOCAL);
-				
-				if (!obj)
-					continue;
+				obj = GetGame().CreateObject(className, position);
+					
 								
-				if ( position )
+				if( position )
 					obj.SetPosition( position );
 					
-				if ( rotation )
+				if( rotation )
 					obj.SetOrientation( rotation );
-				
-				if ( special == "true")
-					ProcessMissionObject( obj );
-				
-				if ( gear )
+
+				if ( attachments )
 				{
-					traderProp = EntityAI.Cast(obj);
-					if (traderProp)
+					EntityAI itemWithAttachment = EntityAI.Cast(obj);
+					if ( itemWithAttachment )
 					{
-						for( int j = 0; j < gear.Count(); j++ )
+						for (int j = 0; j < attachments.Count(); j++)
 						{
-							traderProp.GetInventory().CreateAttachment( gear[j] );
-						}
+							Print( itemWithAttachment.GetType() + attachments[j]);
+							itemWithAttachment.GetInventory().CreateAttachment(attachments[j]);
+						}					
 					}
 				}
-
 				#ifdef EXPANSIONEXPRINT
 				EXPrint("Succesfully spawned object with chached collition: " + className + " on pos: " + position.ToString());
 				#endif
@@ -361,113 +271,62 @@ class DayZIntroSceneExpansion
 				{
 					continue;
 				}
+					
 								
 				obj.SetPosition( position );
 				obj.SetOrientation( rotation );			
-				
-				if (className == "SharpWoodenStick")
-				{
-					LongWoodenStick stick = LongWoodenStick.Cast( obj );
-					stick.GetInventory().CreateAttachment("CowSteakMeat");
+				#ifdef NAMALSK_SURVIVAL
+				vfx_the_thing theThing = vfx_the_thing.Cast(obj);
+				if ( theThing )
+				{	
+					if ( Math.RandomInt(0, 2))
+						theThing.SetStable(true);
 				}
-				
-				m_SceneObjects.Insert(obj);	
+				#endif				
 			}
+			
 		}
 		
 	};
 	
-	// ------------------------------------------------------------	
-	private void ClearSceneObjects()
+	private bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out string special = "false", out TStringArray itemAttachments = NULL )
 	{
-		if (m_SceneObjects)
-		{
-			foreach (Object obj: m_SceneObjects)
-			{
-				g_Game.ObjectDelete(obj);
-			}
-			
-			m_SceneObjects.Clear();
-			delete m_SceneObjects;
-		}
-	}
-	
-	// ------------------------------------------------------------
-	private bool GetObjectFromFile(FileHandle file, out string name, out vector position, out vector rotation, out string special = "false", out TStringArray gear = null)
-	{
+		
 		string line;
 		int lineSize = FGets( file, line );
 
+		
 		if ( lineSize < 1 )
 			return false;
 		
-		TStringArray tokens = new TStringArray;
+		ref TStringArray tokens = new TStringArray;
 		line.Split( "|", tokens );
 
 		name = tokens.Get( 0 );		
 		position = tokens.Get( 1 ).ToVector();
 		rotation = tokens.Get( 2 ).ToVector();	
 		special = tokens.Get( 3 );
-		
 		string gear_array = tokens.Get( 4 );
 		TStringArray geartokens = new TStringArray;
 		gear_array.Split(",", geartokens);
-		gear = geartokens;
-		
+		itemAttachments = geartokens;
+	
+
 		return true;
 	}		
-	
-	// ------------------------------------------------------------
-	void ProcessMissionObject(Object obj)
-	{
-		if ( obj.IsInherited(ExpansionPointLight) )
-		{
-			ExpansionPointLight light = ExpansionPointLight.Cast( obj );
-			if ( light )
-			{
-				light.SetDiffuseColor(1,0,0);
-				light.SetLifetime(0);
-			}
-		}
-		else if ( obj.IsKindOf("Fireplace") )
-		{
-			Fireplace fireplace = Fireplace.Cast( obj );
-			if ( fireplace )
-			{
-				fireplace.GetInventory().CreateAttachment("Bark_Oak");
-				fireplace.GetInventory().CreateAttachment("Firewood");
-				fireplace.GetInventory().CreateAttachment("WoodenStick");
-				fireplace.StartFire();
-			}
-		}
-		else if ( obj.IsInherited(BarrelHoles_ColorBase) )
-		{
-			BarrelHoles_Red barrel = BarrelHoles_Red.Cast( obj );
-			if ( barrel ) 
-			{
-				barrel.Open();
-				barrel.GetInventory().CreateAttachment("Bark_Oak");
-				barrel.GetInventory().CreateAttachment("Firewood");
-				barrel.GetInventory().CreateAttachment("WoodenStick");
-				barrel.StartFire();
-			}
-		}
-	}
 };
-
 modded class CharacterCreationMenu
 {
 	DayZIntroSceneExpansion										m_CustomScene;
-	
-	// ------------------------------------------------------------	
 	void CharacterCreationMenu()
 	{
 		MissionMainMenu mission = MissionMainMenu.Cast( GetGame().GetMission() );
+		
+
 		m_CustomScene = mission.GetIntroSceneExpansion();
+		
 		//m_CustomScene.ResetIntroCamera();
 	}
-	
-	// ------------------------------------------------------------	
 	override PlayerBase GetPlayerObj()
 	{
 		if (m_Scene)
@@ -476,8 +335,6 @@ modded class CharacterCreationMenu
 			return m_CustomScene.GetIntroCharacter().GetCharacterObj();
 		return super.GetPlayerObj();
 	}
-	
-	// ------------------------------------------------------------	
 	override Widget Init()
 	{
 		#ifdef PLATFORM_CONSOLE
@@ -512,10 +369,18 @@ modded class CharacterCreationMenu
 		if( m_CustomScene && m_CustomScene.GetIntroCharacter() )
 		{
 			m_OriginalCharacterID = m_CustomScene.GetIntroCharacter().GetCharacterID();
+			/*#ifdef PLATFORM_CONSOLE
+				//m_CustomScene.GetIntroCharacter().SetToDefaultCharacter();
+				m_CustomScene.GetIntroCharacter().LoadCharacterData( m_CustomScene.GetIntroCharacter().GetCharacterObj().GetPosition(), m_CustomScene.GetIntroCharacter().GetCharacterObj().GetDirection(), true );
+			#endif;*/
 		}
 		if( m_Scene && m_Scene.GetIntroCharacter() )
 		{
 			m_OriginalCharacterID = m_Scene.GetIntroCharacter().GetCharacterID();
+			/*#ifdef PLATFORM_CONSOLE
+				//m_Scene.GetIntroCharacter().SetToDefaultCharacter();
+				m_Scene.GetIntroCharacter().LoadCharacterData( m_Scene.GetIntroCharacter().GetCharacterObj().GetPosition(), m_Scene.GetIntroCharacter().GetCharacterObj().GetDirection(), true );
+			#endif;*/
 		}
 		if (m_CustomScene)
 		{
@@ -617,8 +482,7 @@ modded class CharacterCreationMenu
 		CheckNewOptions();
 		return layoutRoot;
 	}
-	
-	// ------------------------------------------------------------
+
 	override void Apply()
 	{
 		string name;
@@ -646,7 +510,6 @@ modded class CharacterCreationMenu
 		GetGame().GetUIManager().Back();
 	}
 	
-	// ------------------------------------------------------------
 	override void Save()
 	{
 		if (m_CustomScene && m_CustomScene.GetIntroCharacter().IsDefaultCharacter() )
@@ -672,7 +535,6 @@ modded class CharacterCreationMenu
 		//GetGame().GetUIManager().Back();
 	}
 	
-	// ------------------------------------------------------------	
 	override void Back()
 	{
 		//bring back DefaultCharacter, if it exists (it should), or a previously played one.
@@ -695,8 +557,7 @@ modded class CharacterCreationMenu
 		};
 		GetGame().GetUIManager().Back();
 	}
-	
-	// ------------------------------------------------------------	
+
 	override void SetCharacter()
 	{
 		if (m_CustomScene && m_CustomScene.GetIntroCharacter().IsDefaultCharacter())
@@ -709,7 +570,6 @@ modded class CharacterCreationMenu
 		}
 	}
 	
-	// ------------------------------------------------------------		
 	override void RandomizeCharacter()
 	{
 		if (m_CustomScene)
@@ -765,7 +625,6 @@ modded class CharacterCreationMenu
 		CheckNewOptions();
 	}
 	
-	// ------------------------------------------------------------	
 	//Selector Events
 	override void GenderChanged()
 	{
@@ -789,7 +648,6 @@ modded class CharacterCreationMenu
 		SetCharacterSaved(false);
 	}
 	
-	// ------------------------------------------------------------		
 	override void SkinChanged()
 	{
 		if (m_CustomScene)
@@ -801,7 +659,6 @@ modded class CharacterCreationMenu
 		//layoutRoot.FindAnyWidget( "character_root" ).Show( m_CustomScene.GetIntroCharacter().IsDefaultCharacter() );
 	}
 	
-	// ------------------------------------------------------------		
 	override void TopChanged()
 	{
 		GetGame().GetMenuDefaultCharacterData().SetDefaultAttachment(InventorySlots.BODY,m_TopSelector.GetStringValue());
@@ -813,7 +670,6 @@ modded class CharacterCreationMenu
 		//m_CustomScene.GetIntroCharacter().SetAttachment( m_TopSelector.GetStringValue(), InventorySlots.BODY );
 	}
 	
-	// ------------------------------------------------------------		
 	override void BottomChanged()
 	{
 		GetGame().GetMenuDefaultCharacterData().SetDefaultAttachment(InventorySlots.LEGS,m_BottomSelector.GetStringValue());
@@ -826,7 +682,6 @@ modded class CharacterCreationMenu
 		//m_CustomScene.GetIntroCharacter().SetAttachment( m_BottomSelector.GetStringValue(), InventorySlots.LEGS );
 	}
 	
-	// ------------------------------------------------------------		
 	override void ShoesChanged()
 	{
 		GetGame().GetMenuDefaultCharacterData().SetDefaultAttachment(InventorySlots.FEET,m_ShoesSelector.GetStringValue());
@@ -838,8 +693,7 @@ modded class CharacterCreationMenu
 		SetCharacterSaved(false);
 		//m_CustomScene.GetIntroCharacter().SetAttachment( m_ShoesSelector.GetStringValue(), InventorySlots.FEET );
 	}	
-	
-	// ------------------------------------------------------------	
+
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
 	{
 		#ifndef PLATFORM_CONSOLE
@@ -853,9 +707,7 @@ modded class CharacterCreationMenu
 		}
 		#endif
 		return false;
-	}
-		
-	// ------------------------------------------------------------		
+	}	
 	override bool OnMouseButtonUp( Widget w, int x, int y, int button )
 	{
 		#ifndef PLATFORM_CONSOLE
@@ -867,8 +719,6 @@ modded class CharacterCreationMenu
 		#endif
 		return false;
 	}
-		
-	// ------------------------------------------------------------	
 	override void CheckNewOptions()
 	{
 		bool show_widgets;
@@ -888,9 +738,7 @@ modded class CharacterCreationMenu
 			m_GenderSelector.Focus();
 		if (!show_widgets)
 			SetFocus(m_RandomizeCharacter);
-	}
-		
-	// ------------------------------------------------------------		
+	}	
 	override void Refresh()
 	{
 		string name;
@@ -964,8 +812,7 @@ modded class CharacterCreationMenu
 		
 		m_Version.SetText( version );
 	}
-		
-	// ------------------------------------------------------------	
+	
 	override void Update(float timeslice)
 	{
 		if ( GetGame().GetInput().LocalPress("UAUIBack",false) )

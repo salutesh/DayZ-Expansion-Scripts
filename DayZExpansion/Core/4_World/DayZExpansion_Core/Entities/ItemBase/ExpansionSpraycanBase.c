@@ -20,7 +20,7 @@ class ExpansionSpraycanBase: ItemBase
 	// ------------------------------------------------------------	
 	override bool NameOverride( out string output )
 	{
-		output = ExpansionGetItemDisplayNameWithType(GetType());
+		output = ExpansionStatic.GetItemDisplayNameWithType(GetType());
 		return true;
 	}
 	
@@ -29,7 +29,7 @@ class ExpansionSpraycanBase: ItemBase
 	// ------------------------------------------------------------	
 	override bool DescriptionOverride(out string output)
 	{
-		output = ExpansionGetItemDescriptionWithType(GetType());
+		output = ExpansionStatic.GetItemDescriptionWithType(GetType());
 		return true;
 	}
 	

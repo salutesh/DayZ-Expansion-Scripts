@@ -28,13 +28,6 @@ class Vehicle_ExpansionLHD: Vehicle_ExpansionZodiacBoat
 		//! Vanilla
 		m_dmgContactCoef			= 0.018;
 
-		//! Custom
-		m_MaxSpeed				  = 25.0;
-
-		m_TurnCoef					= 0.2;
-	
-		m_Offset					= 4.0;
-
 		CreatePart( "ExpansionLHD1", lhd1 );
 		CreatePart( "ExpansionLHD2", lhd2 );
 		CreatePart( "ExpansionLHD3", lhd3 );
@@ -111,15 +104,15 @@ class Vehicle_ExpansionLHD: Vehicle_ExpansionZodiacBoat
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
-		return 40;
+		return "0 40 0";
 	}
 
 	// ------------------------------------------------------------
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
-		return 200;
+		return 100;
 	}
 
 	// ------------------------------------------------------------

@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionRPG7Base extends RifleSingleShot_Base
+class ExpansionRPG7Base extends ExpansionLauncher_Base
 {
 	void ExpansionRPG7Base()
 	{

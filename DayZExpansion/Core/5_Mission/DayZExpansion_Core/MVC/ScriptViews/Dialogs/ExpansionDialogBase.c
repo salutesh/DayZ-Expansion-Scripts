@@ -23,6 +23,19 @@ class ExpansionDialogContentSpacer: ExpansionDialogContentBase
 	}
 }
 
+class ExpansionMenuDialogContentSpacer: ExpansionMenuDialogContentBase
+{	
+	void ExpansionMenuDialogContentSpacer(ExpansionMenuDialogBase dialog)
+	{
+		m_Dialog = dialog;
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_content_spacer.layout";
+	}
+}
+
 class ExpansionDialogBase: ExpansionScriptView
 {
 	Widget dialog_base_header;
@@ -108,7 +121,7 @@ class ExpansionDialogBase: ExpansionScriptView
 	{
 		m_DialogBaseController.DialogButtons.Insert(button);
 	}
-	
+		
 	ExpansionScriptView GetParentView()
 	{
 		return m_ParentView;

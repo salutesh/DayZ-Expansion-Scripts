@@ -65,8 +65,8 @@ modded class JMESPMetaBaseBuilding
 	//! Only call this after settings have been loaded
 	bool CanAttachCodelockFence()
 	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CanAttachCodelock;
-		return attachMode == CodelockAttachMode.ExpansionAndFence || attachMode == CodelockAttachMode.ExpansionAndTentsAndFence;
+		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
+		return attachMode == ExpansionCodelockAttachMode.ExpansionAndFence || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
 	}
 
 	override private void UpdateButtonStates()

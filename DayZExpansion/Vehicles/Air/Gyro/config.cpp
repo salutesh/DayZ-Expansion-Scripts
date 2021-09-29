@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionGyrocopterWreck","ExpansionGyrocopter","Vehicle_ExpansionGyrocopter"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core"};
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
 class CfgVehicles

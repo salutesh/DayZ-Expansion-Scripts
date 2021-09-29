@@ -388,7 +388,7 @@ class ExpansionMissionModule: JMModuleBase
 			weights.Insert( m_Missions[i].Weight );
 		}
 		
-		int index = GetWeightedRandom( weights );
+		int index = ExpansionStatic.GetWeightedRandom( weights );
 
 		if ( index > -1 )
 		{

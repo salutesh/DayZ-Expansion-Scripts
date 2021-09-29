@@ -46,10 +46,13 @@ class Expansion_Vityaz_Base : RifleBoltFree_Base
 	override bool CanEnterIronsights()
 	{
 		ItemOptics optic = GetAttachedOptics();
+		
 		if (optic && PSO1Optic.Cast(optic) || PSO11Optic.Cast(optic))
 			return true;
+
 		return super.CanEnterIronsights();
 	}
+
 	override bool CanDisplayAttachmentSlot( string slot_name )
 	{
 		if (!super.CanDisplayAttachmentSlot(slot_name))

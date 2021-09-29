@@ -10,6 +10,8 @@
  *
 */
 
+#ifndef CF_MVVM
+
 modded class StringLocaliser
 {
 	private bool m_translatesparams;
@@ -124,3 +126,5 @@ modded class StringLocaliser
 		return string.Format( text, p1, p2, p3, p4, p5, p6, p7, p8, p9 );
 	}
 }
+
+#endif

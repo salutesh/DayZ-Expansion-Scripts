@@ -43,10 +43,10 @@ class Vehicle_Truck_01_Base extends ExpansionVehicleCarBase
 	{
 		return 6.0;
 	}
-
-	override float GetCameraHeight()
+	
+	override vector GetTransportCameraOffset()
 	{
-		return 3.2;
+		return "0 3.2 0";
 	}
 	
 	override int GetAnimInstance()

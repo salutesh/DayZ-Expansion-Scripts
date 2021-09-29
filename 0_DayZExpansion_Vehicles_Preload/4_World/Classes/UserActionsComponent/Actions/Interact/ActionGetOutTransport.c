@@ -74,14 +74,6 @@ modded class ActionGetOutTransport
 
 				vehCommand.KeepInVehicleSpaceAfterLeave( keepInVehicleSpaceAfterLeave );
 
-				if ( car.IsInherited( ExpansionZodiacBoat ) && !car.MotorIsOn() )
-				{
-					//! Hack fix to prevent jolting/spinning
-					SetVelocity( car, Vector( 0, 0, 0 ) );
-					dBodySetAngularVelocity( car, Vector( 0, 0, 0 ) );
-					dBodyActive( car, ActiveState.INACTIVE );
-				}
-
 				if ( keepInVehicleSpaceAfterLeave )
 				{
 					vehCommand.GetOutVehicle();
@@ -109,16 +101,7 @@ modded class ActionGetOutTransport
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast( action_data );
 
 		CarScript car = CarScript.Cast( got_action_data.m_Car );
-
-		if ( car && car.IsInherited( ExpansionZodiacBoat ) && !car.MotorIsOn() )
-		{
-			//! Hack fix to prevent jolting/spinning
-			SetVelocity( car, Vector( 0, 0, 0 ) );
-			dBodySetAngularVelocity( car, Vector( 0, 0, 0 ) );
-			dBodyActive( car, ActiveState.ACTIVE );
-			car.SetSynchDirty();
-		}
-
+		
 		vector playerPos = action_data.m_Player.GetPosition();
 
 		if ( car && car.IsBoat() )
@@ -134,6 +117,8 @@ modded class ActionGetOutTransport
 
 		if ( got_action_data.keepInVehicleSpaceAfterLeave )
 			return;
+
+		action_data.m_Player.SetInVehicle( false );
 
 		//! The following code is similar to vanilla ActionGetOutTransport::OnEndServer,
 		//! except that we don't use RaycastRV(Proxy) because it can return results that aren't even in the rays path or radius.

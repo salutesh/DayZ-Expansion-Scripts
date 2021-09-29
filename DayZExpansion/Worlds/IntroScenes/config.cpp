@@ -155,21 +155,22 @@ class cfgExpansionCharacterScenes
 		};
 		class namalsk_thething
 		{
+			CameraPosition[] = {3753.89,153.854,8243.78};
 			CameraOrientation[] = {89.7476,4.26434,0};
 			PlayerPosition[] = {3759.74,153.141,8243.85};
 			PlayerOrientation[] = {-75.0911,0,0};
-			fov = 1;
+			fov = 0.25;
 			DOFDistance = 0;
 			DOFBlur = 0;
 			Blur = 0;
 			Vignette = 0;
 			Sharpness = 0;
 			NearPlane = 0.07;
-			date[] = {2011,12,5,15,44};
+			date[] = {2011,2,27,17,45};
 			overcast = 0.941;
-			rain = 1;
-			fog = 0.755;
-			windspeed = 0.0339959;
+			rain = 0;
+			fog = 0.42;
+			windspeed = 0.312896;
 			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Namalsk/main_menu_scenes/MainMenu_Namalsk_TheThing"};
 			CustomPose = -1;
 			HandItem = "";

@@ -17,6 +17,8 @@ modded class CarScript
 {
 	private static ref set< CarScript > m_allVehicles = new set< CarScript >;
 	
+	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<CarScript>(this);
+	
 	// Safezone
 	protected bool m_SafeZone;
 	
@@ -40,6 +42,9 @@ modded class CarScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::~CarScript - Start");
 		#endif
+
+		if (!GetGame())
+			return;
 
 		int i;
 
@@ -84,7 +89,7 @@ modded class CarScript
 	{
 		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
 		{
-			return !GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone;
+			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
 
 		return true;
@@ -93,26 +98,38 @@ modded class CarScript
 	// ------------------------------------------------------------
 	// Called only server side
 	// ------------------------------------------------------------
-	void OnEnterSafeZone()
+	void OnEnterZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnEnterSafeZone " + GetPosition());
+		if (type != ExpansionZoneType.SAFE) return;
+
+		EXPrint(ToString() + "::OnEnterZone " + GetPosition());
 
 		m_SafeZone = true;
 
-		if ( GetExpansionSettings().GetSafeZone().EnableVehicleinvincibleInsideSafeZone )
+		if ( GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone )
 			SetAllowDamage(false);
 	}
 
 	// ------------------------------------------------------------
 	// Called only server side
 	// ------------------------------------------------------------
-	void OnLeftSafeZone()
+	void OnExitZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition());
+		if (type != ExpansionZoneType.SAFE) return;
+
+		EXPrint(ToString() + "::OnExitZone " + GetPosition());
 
 		m_SafeZone = false;
 
 		if ( CanBeDamaged() )
 			SetAllowDamage(true);
+	}
+
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (IsMissionHost() && GetExpansionSettings().GetSafeZone().Enabled)
+			m_Expansion_SafeZoneInstance.Update();
 	}
 };

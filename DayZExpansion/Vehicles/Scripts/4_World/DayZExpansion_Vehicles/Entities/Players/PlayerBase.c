@@ -15,6 +15,7 @@ modded class PlayerBase
 	private int m_ExpansionSaveVersion;
 
 	protected bool m_WasInVehicle;
+	protected int m_Expansion_SessionTimeStamp;
 	
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
@@ -24,11 +25,9 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - Start");
 		#endif
-
-		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
-		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.DeferredClientInit, 100, false );
-		}
+		
+		if (IsMissionHost())
+			m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTime();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
@@ -46,22 +45,6 @@ modded class PlayerBase
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::~PlayerBase - End");
-		#endif
-	}
-		
-	// ------------------------------------------------------------
-	// PlayerBase DeferredClientInit
-	// ------------------------------------------------------------
-	override void DeferredClientInit()
-	{		
-		super.DeferredClientInit();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::DeferredClientInit - End");
 		#endif
 	}
 
@@ -85,15 +68,9 @@ modded class PlayerBase
 		AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
 
 		AddAction( ExpansionActionSwitchSeats, InputActionMap );
-		
-		AddAction( ExpansionActionStartMotor, InputActionMap );
-		AddAction( ExpansionActionStopMotor, InputActionMap );
 
-		AddAction( ExpansionVehicleActionStartMotor, InputActionMap );
-		AddAction( ExpansionVehicleActionStopMotor, InputActionMap );
-
-		AddAction( ExpansionActionSwitchBoatController, InputActionMap );
-		AddAction( ExpansionActionSwitchBoatControllerInput, InputActionMap );
+		AddAction( ExpansionActionNextEngine, InputActionMap );
+		AddAction( ExpansionActionNextEngineInput, InputActionMap );
 
 		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
 		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
@@ -117,6 +94,9 @@ modded class PlayerBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::EOnContact - Start");
 		#endif
+
+		if( !IsAlive() || GetParent() == other || !IsMissionHost() )
+			return;
 
 		Transport transport;
 		if ( Class.CastTo( transport, other ) )
@@ -176,9 +156,11 @@ modded class PlayerBase
 				m_TransportHitRegistered = false;
 			}
 
-			if ( m_TransportHitVelocity.Length() > 2.5 )
+			if ( IsDamageDestroyed() && m_TransportHitVelocity.Length() > 3 )
 			{
-				// dBodyApplyImpulse( this, dBodyGetMass( this ) * m_TransportHitVelocity * 40.0 );
+				vector impulse = 40 * m_TransportHitVelocity;
+				impulse[1] = 40 * 1.5;
+				dBodyApplyImpulse(this, impulse);
 			}
 		}
 	}
@@ -195,16 +177,40 @@ modded class PlayerBase
 
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
 		{
-			ExpansionHumanCommandVehicle ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
-			if ( ehcv != NULL )
+			auto ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
+			if (ehcv)
 			{
+				if (!ehcv.IsGettingIn() && !ehcv.IsGettingOut() && !ehcv.IsSwitchSeat())
+				{
+					ehcv.GetTransport().HandleController(this, pDt);
+				}
+
 				if ( ehcv.WasGearChange() )
 				{
 					ExpansionGearChangeActionCallback cb = ExpansionGearChangeActionCallback.Cast( AddCommandModifier_Action( DayZPlayerConstants.CMD_ACTIONMOD_SHIFTGEAR, ExpansionGearChangeActionCallback ) );
 					cb.SetVehicleCommand( ehcv );
 				}
+
+				// Don't allow vanilla command handler to run from this point on, this is a replacement
 				return true;
 			}
+		}
+
+		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_VEHICLE )
+		{
+			auto hcv = GetCommand_Vehicle();
+
+			CarScript car;
+			if (Class.CastTo(car, hcv.GetTransport()))
+			{
+				if (!hcv.IsGettingIn() && !hcv.IsGettingOut() && !hcv.IsSwitchSeat())
+				{
+					car.Expansion_HandleController(this, pDt);
+				}
+			}
+
+			// Let vanilla handle the break for vehicles, this is an addition to functionality, not replacement
+			return false;
 		}
 
 		return false;
@@ -240,7 +246,7 @@ modded class PlayerBase
 		if ( m_ExpansionST == NULL )
 			m_ExpansionST = new ExpansionHumanST( this );
 	
-		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, vehicle, seatIdx, seat_anim, m_ExpansionST );
+		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, m_ExpansionST, vehicle, seatIdx, seat_anim );
 		StartCommand_Script( cmd );
 		return cmd;
 	}
@@ -270,6 +276,11 @@ modded class PlayerBase
 			return true;
 
 		return false;
+	}
+
+	bool Expansion_IsDriver()
+	{
+		return m_IsVehicleSeatDriver;
 	}
 
 	// ------------------------------------------------------------
@@ -331,6 +342,21 @@ modded class PlayerBase
 		}
 	}
 
+	//! Called on both server + client when attaching to vehicle
+	override void OnExpansionAttachTo( Object obj, vector transform[4] )
+	{
+		super.OnExpansionAttachTo(obj, transform);
+		
+		SetInVehicle( true );
+	}
+
+	//! Called on both server + client when detaching from vehicle
+	override void OnExpansionDetachFrom( Object obj )
+	{
+		super.OnExpansionDetachFrom(obj);
+		SetInVehicle( false );
+	}
+
 	// ------------------------------------------------------------
 	// Expansion HeadingModel
 	// ------------------------------------------------------------
@@ -390,6 +416,7 @@ modded class PlayerBase
 		super.OnStoreSave( ctx );
 		
 		ctx.Write( m_WasInVehicle );
+		ctx.Write( m_Expansion_SessionTimeStamp );
 	}
 	
 	// ------------------------------------------------------------
@@ -422,6 +449,12 @@ modded class PlayerBase
 		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 
+		if ( m_ExpansionSaveVersion < 30 )
+			return true;
+		
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_SessionTimeStamp ), "[" + this + "] Failed reading m_Expansion_SessionTimeStamp" ) )
+			return false;
+
 		return true;
 	}
 
@@ -438,6 +471,7 @@ modded class PlayerBase
 			return;
 
 		storage.Write( m_WasInVehicle );
+		storage.Write( m_Expansion_SessionTimeStamp );
 	}
 	
 	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
@@ -455,6 +489,12 @@ modded class PlayerBase
 		if ( Expansion_Assert_False( storage.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
 			return false;
 
+		if ( storage.GetVersion() < 30 )
+			return true;
+		
+		if ( Expansion_Assert_False( storage.Read( m_Expansion_SessionTimeStamp ), "[" + this + "] Failed reading m_Expansion_SessionTimeStamp" ) )
+			return false;
+
 		return true;
 	}
 	#endif
@@ -465,24 +505,56 @@ modded class PlayerBase
 	override void AfterStoreLoad()
 	{
 		super.AfterStoreLoad();
-		
+
+		if ( m_WasInVehicle )
+		{
+			ExpansionPPOGORIVMode mode = GetExpansionSettings().GetVehicle().PlacePlayerOnGroundOnReconnectInVehicle;
+
+			if (mode == ExpansionPPOGORIVMode.Disabled)
+				return;
+
+			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && m_Expansion_SessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
+				return;
+
+			//! Temp god mode just to be safe
+			SetAllowDamage(false);
+
+			//! CallLater so vehicle attachment code etc has a chance to run first
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlacePlayerOnGround, 1500);
+		}
+	}
+
+	void PlacePlayerOnGround()
+	{
 		if ( GetGame().IsServer() )
 		{
-			if ( m_WasInVehicle )
+			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_WasInVehicle + " is attached " + IsAttached() + " " + GetParent());
+
+			if ( !IsAttached() && !GetParent() )
 			{
-				vector rayStart = GetPosition();
-				vector rayEnd = rayStart + "0 -6000 0";
-				vector ground;
+				vector rayStart = GetPosition() + "0 0.6 0";
+
+				//! Ground or water surface position
+				vector ground = ExpansionStatic.GetSurfaceWaterPosition(GetPosition());
+				//EXPrint(ToString() + "::PlacePlayerOnGround - ground " + ground);
+
+				//! Move ray end up a bit from ground, so that if (e.g.) we are standing on the LHD,
+				//! our 1st raycast doesn't hit the (water) surface below (RaycastRV will ignore the LHD),
+				//! which would place the player in the water, inside the LHD's model
+				vector rayEnd = ground + "0 1.5 0";
+
+				Object ignoreObj = this;
 				
-				RaycastRVParams params = new RaycastRVParams( rayStart, rayEnd, this, 0.2 );
+				RaycastRVParams params = new RaycastRVParams( rayStart, rayEnd, ignoreObj, 0.2 );
 				params.sorted = true;
 				//params.type = ObjIntersectFire;
 				params.flags = CollisionFlags.ALLOBJECTS;
 				
 				array< ref RaycastRVResult > results = new array< ref RaycastRVResult >();
+				bool haveValidResult;
 				if ( DayZPhysics.RaycastRVProxy( params, results ) )
 				{
-					vector hitPos = vector.Zero;
+					//EXPrint(ToString() + "::PlacePlayerOnGround - ray 1 hit results: " + results.Count());
 					for (int i = 0; i < results.Count(); ++i)
 					{
 						RaycastRVResult currResult = results[i];
@@ -499,29 +571,65 @@ modded class PlayerBase
 							obj = currResult.obj;
 						}
 						
-						if ( !obj || obj.IsTree() || obj.IsBush() || obj.IsScriptedLight() || obj.IsTransport() || obj.GetType() == string.Empty)
+						//EXPrint(ToString() + "::PlacePlayerOnGround - ray 1 hit result hierlvl " + currResult.hierLevel + " parent " + currResult.parent + " obj " + currResult.obj + " hit pos " + currResult.pos);
+						
+						if ( !obj || obj.IsTree() || obj.IsBush() || obj.IsScriptedLight() || obj.GetType() == string.Empty)
 							continue;
 						
-						hitPos = currResult.pos;
-						break;
+						//EXPrint(ToString() + "::PlacePlayerOnGround - ray 1 hit obj " + obj + " pos " + obj.GetPosition());
+						if (obj.IsTransport())
+						{
+							//! If hit obj is more than 6m above ground, ignore it for next raycast
+							if (ground[1] + 6 < obj.GetPosition()[1])
+								ignoreObj = obj;
+							//! Move up from hit pos for next raycast so that if we are standing on a vehicle,
+							//! we don't get placed inside the vehicle's model
+							rayStart[1] = currResult.pos[1] + 3;
+							haveValidResult = false;
+						}
+						else
+						{
+							ground[1] = currResult.pos[1];
+							haveValidResult = true;
+						}
 					}
-					
-					if (hitPos != vector.Zero)
-					{
-						SetPosition( hitPos );
-					} else
-					{
-						ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
-						SetPosition( ground );
-					}
-				} else
+				}
+
+				if (!haveValidResult)
 				{
-					ground = Vector( GetPosition()[0], GetGame().SurfaceY( GetPosition()[0], GetPosition()[2] ), GetPosition()[2] );
+					//! Do another raycast
+
+					PhxInteractionLayers layerMask;
+
+					layerMask |= PhxInteractionLayers.BUILDING;
+					layerMask |= PhxInteractionLayers.VEHICLE;
+					layerMask |= PhxInteractionLayers.ROADWAY;
+					layerMask |= PhxInteractionLayers.TERRAIN;
+					layerMask |= PhxInteractionLayers.ITEM_LARGE;
+
+					vector hitPos;
+
+					if (DayZPhysics.SphereCastBullet(rayStart, ground, 0.2, layerMask, ignoreObj, NULL, hitPos, NULL, NULL))
+					{
+						//EXPrint(ToString() + "::PlacePlayerOnGround - ray 2 hit pos " + hitPos);
+						ground[1] = hitPos[1];
+					}
+				}
+
+				//! If player is more than 1.5m above ground, place them safely,
+				//! else just let them fall (no damage at that height)
+				if (ground[1] + 1.5 < GetPosition()[1])
+				{
+					EXPrint(ToString() + "::PlacePlayerOnGround - placing player " + GetPosition() + " -> " + ground);
 					SetPosition( ground );
 				}
 
 				m_WasInVehicle = false;
 			}
+
+			//! Disable temp god mode again if not in safezone
+			if (!IsInSafeZone())
+				SetAllowDamage(true);
 		}
 	}
 }

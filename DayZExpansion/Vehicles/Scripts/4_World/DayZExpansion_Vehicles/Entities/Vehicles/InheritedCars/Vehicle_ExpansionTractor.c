@@ -26,14 +26,16 @@ class Vehicle_ExpansionTractor extends ExpansionVehicleCarBase
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
 	}
 
+	// ------------------------------------------------------------
+	override vector GetTransportCameraOffset()
+	{
+		return "0 2.5 0";
+	}
+
+	// ------------------------------------------------------------
 	override float GetTransportCameraDistance()
 	{
 		return 3.5;
-	}
-
-	override float GetCameraHeight()
-	{
-		return 2.2;
 	}
 	
 	override int GetAnimInstance()

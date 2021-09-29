@@ -15,28 +15,28 @@ modded class DayZPlayerImplementJumpClimb
 	override void JumpOrClimb()
 	{
 		SHumanCommandClimbSettings hcls = m_Player.GetDayZPlayerType().CommandClimbSettingsW();
-		
-		if ( m_Player.m_MovementState.m_iMovement != DayZPlayerConstants.MOVEMENTIDX_IDLE )
+
+		if (m_Player.m_MovementState.m_iMovement != DayZPlayerConstants.MOVEMENTIDX_IDLE)
 			hcls.m_fFwMaxDistance = 2.5;
 		else
 			hcls.m_fFwMaxDistance = 1.2;
-		
-		HumanCommandClimb.DoClimbTest( m_Player, m_Player.Ex_ClimbResult, 0 );
-		if ( m_Player.Ex_ClimbResult.m_bIsClimb || m_Player.Ex_ClimbResult.m_bIsClimbOver )
-		{
-			if ( m_Player.CallExpansionClimbCode() )
-			{
-				int climbType = GetClimbType( m_Player.Ex_ClimbResult.m_fClimbHeight );	
 
-				if ( climbType != -1 && m_Player.CanClimb( climbType, m_Player.Ex_ClimbResult ) )
+		HumanCommandClimb.DoClimbTest(m_Player, m_Player.m_ExClimbResult, 0);
+		if (m_Player.m_ExClimbResult.m_bIsClimb || m_Player.m_ExClimbResult.m_bIsClimbOver)
+		{
+			if (m_Player.CallExpansionClimbCode())
+			{
+				int climbType = GetClimbType(m_Player.m_ExClimbResult.m_fClimbHeight);
+
+				if (climbType != -1 && m_Player.CanClimb(climbType, m_Player.m_ExClimbResult))
 				{
-					m_Player.OnClimbStart( climbType );
+					m_Player.OnClimbStart(climbType);
 					m_Player.StopHandEvent();
 
-					if ( climbType == 1 )
-						m_Player.DepleteStamina( EStaminaModifiers.VAULT );
-					else if ( climbType == 2 )
-						m_Player.DepleteStamina( EStaminaModifiers.CLIMB );
+					if (climbType == 1)
+						m_Player.DepleteStamina(EStaminaModifiers.VAULT);
+					else if (climbType == 2)
+						m_Player.DepleteStamina(EStaminaModifiers.CLIMB);
 				}
 
 				return;
@@ -49,10 +49,10 @@ modded class DayZPlayerImplementJumpClimb
 	private override void Jump()
 	{
 		m_bIsJumpInProgress = true;
-		m_Player.SetFallYDiff( m_Player.GetPosition()[1] );
+		m_Player.SetFallYDiff(m_Player.GetPosition()[1]);
 
 		m_Player.OnJumpStart();
-		m_Player.StartCommand_ExpansionFall( 2.6 ); 
+		m_Player.StartCommand_ExpansionFall(2.6);
 		m_Player.StopHandEvent();
 	}
 };

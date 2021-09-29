@@ -459,7 +459,6 @@ class ExpansionSafeBase extends Container_Base
 
 	override void ExpansionOnDestroyed( Object killer )
 	{
-		Unlock();
-		SetCode( "" );
+		SetCode("");  //! Will unlock as well
 	}
 }

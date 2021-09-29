@@ -232,7 +232,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		PlayerBase player = GetPlayerObjectByIdentity( sender );
 		if (player)
 		{
-			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
+				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
 			player.SetPosition(spawnPoint);
 			
 			CloseSpawnMenu(sender);
@@ -414,119 +415,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 				}
 			}
 		}
-		
-		/*int i;
-		EntityAI gear_item;
-		EntityAI itemTop;
-		EntityAI itemPants;
-		EntityAI itemBag;
-		EntityAI itemVest;
-		
-		if ( GetExpansionSettings().GetSpawn() )
-		{
-			ExpansionStartingGear gear;
-			if ( Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear) )
-			{
-				//! Add items to top/shirt/jacked
-				if ( gear.UseUpperGear )
-				{
-					itemTop = player.FindAttachmentBySlotName("Body");					
-					if ( itemTop )
-					{
-						for ( i = 0; i < gear.UpperGear.Count(); i++ )
-						{
-							itemTop.GetInventory().CreateInInventory( gear.UpperGear[i] );
-						}
-					}
-				}
-				
-				//! Add items to pants
-				if ( gear.UsePantsGear )
-				{
-					itemPants = player.FindAttachmentBySlotName("Legs");
-					if ( itemPants )
-					{					
-						for ( i = 0; i < gear.PantsGear.Count(); i++ )
-						{
-							itemPants.GetInventory().CreateInInventory( gear.PantsGear[i] );
-						}
-					}
-				}
-				
-				//! Add items to backpack
-				if ( gear.UseBackpackGear )
-				{
-					itemBag = player.FindAttachmentBySlotName("Back");
-					if ( itemBag )
-					{	
-						for ( i = 0; i < gear.BackpackGear.Count(); i++ )
-						{
-							gear_item = itemBag.GetInventory().CreateInInventory( gear.BackpackGear[i] );
-						}
-					}
-				}
-				
-				//! Add items to vest
-				if ( gear.UseVestGear )
-				{
-					itemVest = player.FindAttachmentBySlotName("Vest");
-					if ( itemVest )
-					{					
-						for ( i = 0; i < gear.VestGear.Count(); i++ )
-						{
-							gear_item = itemVest.GetInventory().CreateInInventory( gear.VestGear[i] );
-						}
-					}
-				}
-				
-				//! Add primary weapon and its attachments
-				if ( gear.UsePrimaryWeapon )
-				{
-					EntityAI item_primaryWeapon = player.GetInventory().CreateAttachmentEx( gear.PrimaryWeapon, InventorySlots.SHOULDER );			
-					if ( item_primaryWeapon && item_primaryWeapon.IsWeapon() )
-					{
-						for ( i = 0; i < gear.PrimaryWeaponAttachments.Count(); i++ )
-						{
-							gear_item = item_primaryWeapon.GetInventory().CreateAttachment( gear.PrimaryWeaponAttachments[i] );
-							if (!gear_item)
-							{
-								Error2( "ExpansionRespawnHandlerModule::SetExpansionStartingGear", "Could not create attachment item " + gear.PrimaryWeaponAttachments[i] + " for weapon " + gear.PrimaryWeapon + ". Please make sure you spawn the attachments in the correct order and the item is a valid attachment for the weapon " + gear.PrimaryWeapon + "! For further information please visit the wiki page for the spawn settings: \nhttps:\/\/github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-SpawnSettings\n");
-								continue;
-							}
-						}
-					}
-				}
-				
-				//! Add secondary weapon and its attachments
-				if ( gear.UseSecondaryWeapon )
-				{
-					EntityAI item_secondaryWeapon = player.GetInventory().CreateAttachmentEx( gear.SecondaryWeapon, InventorySlots.MELEE );
-					if ( item_secondaryWeapon && item_secondaryWeapon.IsWeapon() )
-					{
-						for ( i = 0; i < gear.SecondaryWeaponAttachments.Count(); i++ )
-						{
-							gear_item = item_secondaryWeapon.GetInventory().CreateAttachment( gear.SecondaryWeaponAttachments[i] );
-							if (!gear_item)
-							{
-								Error2( "ExpansionRespawnHandlerModule::SetExpansionStartingGear", "Could not create attachment item " + gear.SecondaryWeaponAttachments[i] + " for weapon " + gear.SecondaryWeapon + ". Please make sure you spawn the attachments in the correct order and the item is a valid attachment for the weapon " + gear.SecondaryWeapon + "! For further information please visit the wiki page for the spawn settings: \nhttps:\/\/github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-SpawnSettings\n");
-								continue;
-							}
-						}
-					}
-				}
-				
-				array< EntityAI > items = new array< EntityAI >;
-				player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
-				for ( i = 0; i < items.Count(); i++ )
-				{
-					if ( gear.ApplyEnergySources && items[i].HasEnergyManager() )
-						items[i].GetInventory().CreateAttachment( "Battery9V" );
-					
-					if ( gear.SetRandomHealth )
-						SetRandomHealth( items[i] );
-				}
-			}
-		}*/
 	}
 	
 	private void AddItem(PlayerBase player, ExpansionStartingGearItem item, inout EntityAI parent)

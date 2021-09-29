@@ -27,7 +27,7 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 
 		m_TurnCoef					= 0.05;
 
-		m_Offset					= 1.9;
+		m_Offset					= 0.97;
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZodiacBoat::Constructor - End");
@@ -146,6 +146,9 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
+		if ( !super.CanObjectAttach( obj ) )
+			return false;
+		
  		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 		

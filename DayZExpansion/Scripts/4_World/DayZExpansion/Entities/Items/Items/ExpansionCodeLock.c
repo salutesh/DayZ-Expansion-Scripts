@@ -22,8 +22,6 @@ class ExpansionCodeLock extends ItemBase
 	void ExpansionCodeLock()
 	{
 		m_KnownUIDs = new TStringArray;
-
-		RegisterNetSyncVariableBool( "m_HasBeenKilled" );
 	}
 
 	override void EEInit()

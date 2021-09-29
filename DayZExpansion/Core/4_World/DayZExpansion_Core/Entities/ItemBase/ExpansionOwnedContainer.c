@@ -14,7 +14,6 @@
 class ExpansionOwnedContainer: Container_Base
 {
 	protected string m_ExpansionContainerUID;
-	protected PlayerIdentity m_ExpansionContainerOwnerIdentity;
 
 	void ExpansionOwnedContainer()
 	{
@@ -68,7 +67,6 @@ class ExpansionOwnedContainer: Container_Base
 
 	void ExpansionSetContainerOwner(PlayerIdentity identity)
 	{
-		m_ExpansionContainerOwnerIdentity = identity;
 		if (identity)
 			ExpansionSetContainerOwner(identity.GetId());
 	}
@@ -114,11 +112,11 @@ class ExpansionOwnedContainer: Container_Base
 		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, NULL);
 	}
 
-	void ExpansionSendContainerUID()
+	void ExpansionSendContainerUID(PlayerIdentity target = null)
 	{
 		ScriptRPC rpc = new ScriptRPC;
 		rpc.Write(m_ExpansionContainerUID);
-		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, NULL);
+		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, target);
 	}
 
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
@@ -129,7 +127,7 @@ class ExpansionOwnedContainer: Container_Base
 		{
 			if (IsMissionHost())
 			{
-				ExpansionSendContainerUID();
+				ExpansionSendContainerUID(sender);
 			}
 			else
 			{
@@ -251,10 +249,14 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			return;
 
+		PlayerBase player = PlayerBase.GetPlayerByUID(m_ExpansionContainerUID);
+		if (!player || !player.GetIdentity())
+			return;
+
 		StringLocaliser title = new StringLocaliser("STR_EXPANSION_MARKET_TITLE");
 		StringLocaliser text = new StringLocaliser(msg);
 
-		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(m_ExpansionContainerOwnerIdentity);
+		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(player.GetIdentity());
 	}
 
 	void ExpansionCheckStorage()

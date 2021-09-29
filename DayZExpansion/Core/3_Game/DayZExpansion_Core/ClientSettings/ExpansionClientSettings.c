@@ -90,6 +90,11 @@ class ExpansionClientSettings
 	float VehicleCameraDistance;
 	float VehicleCameraOffsetY;
 	
+	bool MarketMenuCategoriesState;
+	bool MarketMenuSkipConfirmations;
+	bool MarketMenuFilterPurchasableState;
+	bool MarketMenuFilterSellableState;
+	
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
 	// -----------------------------------------------------------
@@ -392,6 +397,33 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::OnRead - End and return");
 		#endif
 		
+		if ( version < 29 )
+			return true;
+		
+		if ( !ctx.Read( MarketMenuCategoriesState ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuCategoriesState!");
+			return false;
+		}
+		
+		if ( !ctx.Read( MarketMenuSkipConfirmations ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuSkipConfirmations!");
+			return false;
+		}
+		
+		if ( !ctx.Read( MarketMenuFilterPurchasableState ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuFilterPurchasableState!");
+			return false;
+		}
+		
+		if ( !ctx.Read( MarketMenuFilterSellableState ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuFilterSellableState!");
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -483,9 +515,20 @@ class ExpansionClientSettings
 
 		ctx.Write( ShowMapMarkerList );
 		
+		if ( version < 26 )
+			return;
+		
 		ctx.Write( VehicleCameraHeight );
 		ctx.Write( VehicleCameraDistance );
 		ctx.Write( VehicleCameraOffsetY );
+		
+		if ( version < 29 )
+			return;
+			
+		ctx.Write( MarketMenuCategoriesState );
+		ctx.Write( MarketMenuSkipConfirmations );
+		ctx.Write( MarketMenuFilterPurchasableState );
+		ctx.Write( MarketMenuFilterSellableState );
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
@@ -625,9 +668,13 @@ class ExpansionClientSettings
 		
 		ShowMapMarkerList = true;
 		
-		VehicleCameraHeight = 1.3;
-		VehicleCameraDistance = 4.5;
-		VehicleCameraOffsetY = -5.0;
+		VehicleCameraHeight = 1.0;
+		VehicleCameraDistance = 1.0;
+		
+		MarketMenuCategoriesState = false;
+		MarketMenuSkipConfirmations = false;
+		MarketMenuFilterPurchasableState = false;
+		MarketMenuFilterSellableState = false;
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Defaults - End");
@@ -740,12 +787,20 @@ class ExpansionClientSettings
 		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0 );
 		
 		//! Option to change vehicle camera height
-		CreateSlider( "VehicleCameraHeight", "VEHICLE CAMERA HEIGHT", "VEHICLE CAMERA HEIGHT", "", 2.0, 10.0 );
-		CreateSlider( "VehicleCameraDistance", "VEHICLE CAMERA DISTANCE", "VEHICLE CAMERA DISTANCE", "", -3.0, 5.0 );
-		CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0 );
+		CreateSlider( "VehicleCameraHeight", "VEHICLE CAMERA HEIGHT", "VEHICLE CAMERA HEIGHT", "", 0.5, 10.0 );
+		CreateSlider( "VehicleCameraDistance", "VEHICLE CAMERA DISTANCE", "VEHICLE CAMERA DISTANCE", "", 0.5, 5.0 );
+		//CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0 );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
 
+		#ifdef EXPANSIONMODMARKET
+		CreateCategory( "MarketMenu", "MARKET MENU" );
+		CreateToggle( "MarketMenuCategoriesState", "MARKET CATEGORIES TOGGLE STATE", "MarketMenu", "" );
+		CreateToggle( "MarketMenuSkipConfirmations", "SKIP ALL MENU CONFIRMATIONS", "MarketMenu", "" );
+		CreateToggle( "MarketMenuFilterPurchasableState", "PURCHASABLES FILTER STATE", "MarketMenu", "" );
+		CreateToggle( "MarketMenuFilterSellableState", "SELLABLES FILTER STATE", "MarketMenu", "" );
+		#endif
+		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Init - End");
 		#endif

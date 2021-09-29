@@ -15,6 +15,8 @@
  **/
 class ExpansionDebugSettings: ExpansionSettingBase
 {
+	static const int VERSION = 0;
+	
 	bool ShowVehicleDebugMarkers;
 
 	int DebugVehicleSync;
@@ -136,26 +138,34 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		
 		m_IsLoaded = true;
 		
-		if ( FileExist( EXPANSION_DEBUG_SETTINGS ) )
+		bool save;
+		
+		bool debugSettingsExist = FileExist(EXPANSION_DEBUG_SETTINGS);
+		
+		if (debugSettingsExist)
 		{
-			Print("[ExpansionDebugSettings] Loading settings");
+			EXPrint("[ExpansionDebugSettings] Load existing setting file:" + EXPANSION_DEBUG_SETTINGS);
 
 			JsonFileLoader<ExpansionDebugSettings>.JsonLoadFile( EXPANSION_DEBUG_SETTINGS, this );
 	
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionDebugSettings::Load - End - Loaded");
 			#endif
-
-			return true;
 		}
-
-		Defaults();
-		Save();
+		else
+		{
+			EXPrint("[ExpansionDebugSettings] No existing setting file:" + EXPANSION_DEBUG_SETTINGS + ". Creating defaults!");
+			Defaults();
+			save = true;
+		}
+		
+		if (save)
+			Save();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionDebugSettings::Load - End - Not Loaded");
 		#endif
-		return false;
+		return debugSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -179,8 +189,8 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionDebugSettings] Loading default settings");
-
+		m_Version = VERSION;
+		
 		ShowVehicleDebugMarkers = false;
 
 		DebugVehicleSync = 0;

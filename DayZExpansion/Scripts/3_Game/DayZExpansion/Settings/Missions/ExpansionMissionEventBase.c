@@ -63,7 +63,7 @@ class ExpansionMissionEventBase
 		EXLogPrint("ExpansionMissionEventBase::~ExpansionMissionEventBase - Start");
 		#endif
 		
-		if ( GetGame().IsServer() )
+		if ( GetGame() && GetGame().IsServer() )
 		{
 			if ( m_IsRunning )
 			{

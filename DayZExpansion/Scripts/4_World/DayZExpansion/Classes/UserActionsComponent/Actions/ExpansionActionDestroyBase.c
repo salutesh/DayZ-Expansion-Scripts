@@ -71,15 +71,15 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		if ( !CanBeDestroyed( action_data.m_Target.GetParentOrObject() ) )
-			return;
+		Object target = action_data.m_Target.GetParentOrObject();
 
-		ItemBase targetItem = GetTargetItem( action_data.m_Target.GetParentOrObject() );
-
-		if ( targetItem )
+		if ( target )
 		{
-			float curHealth = targetItem.GetHealth();
-			float maxHealth = targetItem.GetMaxHealth( "", "Health" );
+			if ( !CanBeDestroyed( target ) )
+				return;
+
+			float curHealth = target.GetHealth();
+			float maxHealth = target.GetMaxHealth( "", "Health" );
 			float minHealth = Math.Floor( maxHealth * m_MinHealth01 );
 			float dmg = Math.Ceil( ( maxHealth - minHealth ) / m_Cycles );
 
@@ -88,7 +88,7 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 				if ( curHealth - dmg < minHealth )
 					dmg = curHealth - minHealth;
 
-				targetItem.DecreaseHealth( dmg );
+				target.DecreaseHealth( dmg );
 
 				super.OnFinishProgressServer( action_data );
 			} else
@@ -96,12 +96,17 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 				dmg = 0;
 			}
 
-			targetItem.RaidLog( action_data.m_MainItem, "", curHealth, dmg, 1.0 );
+			ItemBase targetItem = GetTargetItem( target );
 
-			if ( targetItem.GetHealth() <= minHealth )
+			if (targetItem)
 			{
-				if ( !targetItem.IsDamageDestroyed() )
-					targetItem.ExpansionOnDestroyed( action_data.m_Player );
+				targetItem.RaidLog( action_data.m_MainItem, "", curHealth, dmg, 1.0 );
+
+				if ( targetItem.GetHealth() <= minHealth )
+				{
+					if ( !targetItem.IsDamageDestroyed() )
+						targetItem.ExpansionOnDestroyed( action_data.m_Player );
+				}
 			}
 		}
 	}

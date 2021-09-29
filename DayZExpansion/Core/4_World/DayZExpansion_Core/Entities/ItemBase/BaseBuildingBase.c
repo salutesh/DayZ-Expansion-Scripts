@@ -12,7 +12,5 @@
 
 modded class BaseBuildingBase
 {
-	void ExpansionUpdateBaseBuildingStateFromPartBuilt(string part_name)
-	{
-	}
-}
+	void ExpansionUpdateBaseBuildingStateFromPartBuilt(string part_name) {}
+};

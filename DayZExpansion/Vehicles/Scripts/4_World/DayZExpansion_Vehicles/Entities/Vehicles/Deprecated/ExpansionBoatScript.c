@@ -35,9 +35,6 @@ class ExpansionBoatScript extends OffroadHatchback
 	private float m_TurnTarget;
 
 	private bool m_UseBoatController;
-
-	private bool m_MotorOn;
-	private bool m_MotorWasOn;
 	
 	// ------------------------------------------------------------
 	//! Effects
@@ -50,18 +47,11 @@ class ExpansionBoatScript extends OffroadHatchback
 
 	private Particle m_ParticleEngine;
 
-	private ExpansionBoatScriptSoundProxyBase m_BoatSoundProxy;
-
 	// ------------------------------------------------------------
 	//! Animations
 	// ------------------------------------------------------------
 	private float m_RotorAnimationPosition;
 	
-	// ------------------------------------------------------------
-	//! Controller, casted
-	// ------------------------------------------------------------
-	private ExpansionBoatController m_BoatController;
-
 	private bool m_IsInitialized;
 	private bool m_IsStoreLoaded;
 	private bool m_IsCECreated;
@@ -81,26 +71,40 @@ class ExpansionBoatScript extends OffroadHatchback
 
 		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE | EntityEvent.INIT );
 
-		RegisterNetSyncVariableBool( "m_MotorOn" );
-		
-		Class.CastTo( m_BoatController, m_Controller );
+		int i;
+		int count;
 
-		if ( IsMissionClient() )
+		string path;
+
+/*
+		path = "CfgVehicles " + GetType() + " SimulationModule Props";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
 		{
-			/*		
-			string sound_controller_path = "CfgVehicles " + GetType() + " Sounds boatSoundProxy";
-			string sound_controller = GetGame().ConfigGetTextOut( sound_controller_path );
-		
-			if ( Class.CastTo( m_BoatSoundProxy, GetGame().CreateObject( sound_controller, GetPosition(), true ) ) )
-			{
-				m_BoatSoundProxy.SetPosition( "0 0 0" );
-				AddChild( m_BoatSoundProxy, -1 );
+			string propName;
+			GetGame().ConfigGetChildName(path, i, propName);
 
-				m_BoatSoundProxy.SetBoat( this );
-			}
-			*/
+			string propPath = path + " " + propName;
+			AddModule(new ExpansionVehicleProp(this, propPath));
 		}
-		
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Buoyancy";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
+		{
+			string buoyancyName;
+			GetGame().ConfigGetChildName(path, i, buoyancyName);
+
+			string buoyancyPath = path + " " + buoyancyName;
+			AddModule(new ExpansionVehicleBuoyantPoint(this, buoyancyPath));
+		}
+
+		path = "CfgVehicles " + GetType() + " SimulationModule Throttle";
+		AddModule(new ExpansionVehicleCarThrottle(this, path));
+*/	
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::Constructor end");
 		#endif
@@ -163,42 +167,18 @@ class ExpansionBoatScript extends OffroadHatchback
 		EXPrint("ExpansionBoatScript::LongDeferredInit - End");
 		#endif
 	}
-	
-	override ExpansionVehicleController GetControllerInstance()
+
+	override void OnEngineStart(int index)
 	{
-		return new ExpansionBoatController( this );
-	}
+		super.OnEngineStart(index);
 
-	bool IsUsingBoatController()
-	{
-		return m_UseBoatController;
-	}
+		if (index == 1)
+		{
+			dBodyActive( this, ActiveState.ACTIVE );
+			dBodyDynamic( this, true );
 
-	void SetUsingBoatController( bool use )
-	{
-		m_UseBoatController = use;
-	}
-
-	override void MotorStart()
-	{
-		m_MotorOn = true;
-
-		dBodyActive( this, ActiveState.ACTIVE );
-		dBodyDynamic( this, true );
-
-		SetSynchDirty();
-	}
-
-	override void MotorStop()
-	{
-		m_MotorOn = false;
-
-		SetSynchDirty();
-	}
-
-	override bool MotorIsOn()
-	{
-		return m_MotorOn;
+			SetSynchDirty();
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -207,18 +187,33 @@ class ExpansionBoatScript extends OffroadHatchback
 		super.SetActions();
 	}
 
-	// ------------------------------------------------------------
-	protected override void OnHumanPilot( PlayerBase driver, float pDt )
+	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
 	{
-		float steering = m_BoatController.GetTurnLeft() - m_BoatController.GetTurnRight();
-		float brake = m_BoatController.GetBackward();
-		float thrust = m_BoatController.GetForward();
+		UAInterface input = driver.GetInputInterface();
+
+		#ifdef COMPONENT_SYSTEM
+		float forward = input.SyncedValue("UAExpansionBoatMoveForward");
+		float backward = input.SyncedValue("UAExpansionBoatMoveBackward");
+		float left = input.SyncedValue("UAExpansionBoatRotateLeft");
+		float right = input.SyncedValue("UAExpansionBoatRotateRight");
+		float turbo = input.SyncedValue("UAExpansionBoatTurbo");
+		#else
+		float forward = input.SyncedValue_ID(UAExpansionBoatMoveForward);
+		float backward = input.SyncedValue_ID(UAExpansionBoatMoveBackward);
+		float left = input.SyncedValue_ID(UAExpansionBoatRotateLeft);
+		float right = input.SyncedValue_ID(UAExpansionBoatRotateRight);
+		float turbo = input.SyncedValue_ID(UAExpansionBoatTurbo);
+		#endif
+
+		float steering = right - left;
+		float brake = backward;
+		float thrust = forward;
 
 		int gear = GetController().GetGear();
 
 		if ( brake > 0 )
 		{
-			m_ThrustTarget = -m_LinearVelocityMS[2] * ( 1.0 / m_MaxSpeedMS ) * 2.0;
+			m_ThrustTarget = -m_State.m_LinearVelocityMS[2] * ( 1.0 / m_MaxSpeedMS ) * 2.0;
 		} else
 		{
 			float ratio = 0;
@@ -240,9 +235,14 @@ class ExpansionBoatScript extends OffroadHatchback
 				steering = steering;
 			}
 
-			m_TurnTarget += Math.Clamp( steering - m_TurnTarget, -40.0 * pDt, 40.0 * pDt );
-			m_ThrustTarget += Math.Clamp( thrust - m_ThrustTarget, -40.0 * pDt, 40.0 * pDt );
+			m_TurnTarget += Math.Clamp( steering - m_TurnTarget, -40.0 * dt, 40.0 * dt );
+			m_ThrustTarget += Math.Clamp( thrust - m_ThrustTarget, -40.0 * dt, 40.0 * dt );
 		}
+		
+		//! Not used ATM
+		m_Controller.SetSteering(m_TurnTarget);
+		m_Controller.SetThrottle(thrust);
+		m_Controller.SetBrake(brake);
 	}
 
 	// ------------------------------------------------------------
@@ -312,9 +312,7 @@ class ExpansionBoatScript extends OffroadHatchback
 
 		SetAnimationPhase( "compasspointer", GetOrientation()[0] * Math.DEG2RAD );
 
-		float steering = m_BoatController.GetTurnLeft() - m_BoatController.GetTurnRight();
-
-		SetAnimationPhase( "drivingWheel", steering );
+		SetAnimationPhase( "drivingWheel", m_Controller.GetSteering() );
 
 		super.OnAnimationUpdate( pDt );
 	}
@@ -327,13 +325,32 @@ class ExpansionBoatScript extends OffroadHatchback
 		EntityAI item = FindAttachmentBySlotName(itemName);
 
 		if ( !item )
-			MotorStop();
+			Expansion_EngineStop(1);
 		else if ( item.IsRuined() )
-			MotorStop();
+			Expansion_EngineStop(1);
 	}
 
-	protected override void OnSimulation( float pDt, out vector force, out vector torque )
+	#ifdef CF_DebugUI
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
+		super.CF_OnDebugUpdate(instance, type);
+
+		instance.Add("Turn Target", m_TurnTarget );
+		instance.Add("Thrust Target", m_ThrustTarget );
+
+		instance.Add("Turn", m_Turn );
+		instance.Add("Thrust", m_Thrust );
+
+		return true;
+	}
+	#endif
+
+	protected override void OnSimulation(ExpansionPhysicsState pState)
+	{
+		vector force;
+		vector torque;
+		float pDt = pState.m_DeltaTime;
+
 		bool isAboveWater;
 		float buoyancyForce;
 
@@ -348,8 +365,9 @@ class ExpansionBoatScript extends OffroadHatchback
 		}
 
 		// To whomever reads this, this will be re-written
+		// Will be re-written soon :)
 
-		if ( !MotorIsOn() )
+		if ( !Expansion_EngineIsOn(1) )
 		{
 			m_TurnTarget = 0;
 			m_ThrustTarget = 0;
@@ -364,15 +382,15 @@ class ExpansionBoatScript extends OffroadHatchback
 		m_Thrust += Math.Clamp( change, -1.0 * pDt, 1.0 * pDt );
 		m_Thrust = Math.Clamp( m_Thrust, -1.0, 1.0 );
 
-		change = ( m_TurnTarget * m_Thrust ) - m_Turn;
+		change = m_TurnTarget - m_Turn;
 		m_Turn += Math.Clamp( change, -1.0 * pDt, 1.0 * pDt );
 		m_Turn = Math.Clamp( m_Turn, -1.0, 1.0 );
 
 		float linVel = 0;
 		if ( m_MaxSpeedMS > 0 )
-			linVel = m_LinearVelocityMS[2] * ( 1.0 / m_MaxSpeedMS );
+			linVel = m_State.m_LinearVelocityMS[2] * ( 1.0 / m_MaxSpeedMS );
 
-		buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), m_Offset, m_BodyMass, 0.5, m_LinearVelocity, isAboveWater );
+		buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), m_Offset, m_State.m_Mass, 0.5, m_State.m_LinearVelocity, isAboveWater );
 
 		float waterContactCoef = Math.Clamp( Math.Sign( buoyancyForce ), 0, 1 );
 
@@ -383,17 +401,16 @@ class ExpansionBoatScript extends OffroadHatchback
 
 			tForce[0] = 0;
 			tForce[1] = 0;
-			tForce[2] = thrust * m_BodyMass;
+			tForce[2] = thrust * m_State.m_Mass;
 
 			float linVelAbs = Math.AbsFloat( linVel );
-			float thrustAbs = Math.AbsFloat( m_Thrust );
 
 			float thrustCoef = 4.0 * linVelAbs;
 			thrustCoef = Math.Clamp( thrustCoef, 0.0, 4.0 );
+			thrustCoef *= thrustCoef;
 
-			float turnCoef = thrustCoef * thrustCoef * m_TurnCoef;
-			tCenter[0] = m_Turn * m_BoundingRadius * turnCoef;
-			tCenter[1] = -4.0;
+			tCenter[0] = -m_Turn * m_BoundingRadius * thrustCoef * m_TurnCoef;
+			tCenter[1] = -Math.Clamp( m_BoundingRadius * 2.0, 4, 8);
 			tCenter[2] = -m_BoundingRadius;
 
 			force += tForce;
@@ -408,8 +425,8 @@ class ExpansionBoatScript extends OffroadHatchback
 		
 		// convert forces to worldspace
 		{
-			force = force.Multiply3( m_Transform.GetBasis().data );
-			torque = torque.Multiply3( m_Transform.GetBasis().data );
+			force = force.Multiply3( m_State.m_Transform );
+			torque = torque.Multiply3( m_State.m_Transform );
 		}
 
 		// bouyancy forces
@@ -427,7 +444,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		{
 			// https://www.youtube.com/watch?v=weUDuqA6dF4?t=9
 			vector upWanted = Vector( 0, 1, 0 );
-			vector estOrient = GetEstimatedOrientation( 0.025 ).data[1];
+			vector estOrient = m_State.EstimateDirection( 0.025, 1 );
 
 			vector stabilize = vector.Zero;
 			stabilize[0] = upWanted[0] - estOrient[0];
@@ -435,24 +452,23 @@ class ExpansionBoatScript extends OffroadHatchback
 			stabilize[2] = upWanted[2] - estOrient[2];
 
 			// convert to local space
-			stabilize = stabilize.InvMultiply3( m_Transform.GetBasis().data );
+			stabilize = stabilize.InvMultiply3( m_State.m_Transform );
 
 			// in local space, limit the axis of movement
 			stabilize[0] = Math.Clamp( stabilize[0], -0.06, 0.06 );
 			stabilize[2] = Math.Clamp( stabilize[2], -0.3, 0.3 );
 
 			// convert to world space
-			stabilize = stabilize.Multiply3( m_Transform.GetBasis().data );
+			stabilize = stabilize.Multiply3( m_State.m_Transform );
 
 			// apply 800N*mass of torque to keep the ship upright, and then copy this to bike scripts
-			torque += Vector( 0, 400.0 * m_BodyMass, 0 ) * stabilize * waterContactCoef;
+			torque += Vector( 0, 400.0 * m_State.m_Mass, 0 ) * stabilize * waterContactCoef;
 		}
 
-		dBodySetDamping( this, 0.0, 0.5 );
+		dBodySetDamping(this, 0.0, 0.5);
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::UpdatePhysics end");
-		#endif
+		pState.m_Impulse += force * pState.m_DeltaTime;
+		pState.m_ImpulseTorque += torque * pState.m_DeltaTime;
 	}
 
 	override void EOnPostSimulate( IEntity other, float timeSlice )
@@ -467,10 +483,10 @@ class ExpansionBoatScript extends OffroadHatchback
 		{
 			m_BoatTime = 0;
 
-			if ( GetGame().IsServer() && MotorIsOn() )
+			if ( GetGame().IsServer() && Expansion_EngineIsOn(1) )
 			{
 				if ( GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0 )
-					MotorStop();
+					Expansion_EngineStop(1);
 
 				CheckVitalItem( IsVitalTruckBattery(), "TruckBattery" );
 				CheckVitalItem( IsVitalGlowPlug(), "GlowPlug" );
@@ -488,10 +504,10 @@ class ExpansionBoatScript extends OffroadHatchback
 	{
 		vector friction = vector.Zero;
 
-		friction[0] = -Math.SquareSign( m_LinearVelocityMS[0] ) * m_BodyMass * 0.8;
-		friction[1] = -Math.SquareSign( m_LinearVelocityMS[1] ) * m_BodyMass * 0.8;
+		friction[0] = -Math.SquareSign( m_State.m_LinearVelocityMS[0] ) * m_State.m_Mass * 0.8;
+		friction[1] = -Math.SquareSign( m_State.m_LinearVelocityMS[1] ) * m_State.m_Mass * 0.8;
 
-		friction[2] = -Math.SquareSign( m_LinearVelocityMS[2] ) * m_BodyMass * 0.0001;
+		friction[2] = -Math.SquareSign( m_State.m_LinearVelocityMS[2] ) * m_State.m_Mass * 0.0001;
 
 		return friction;
 	}
@@ -547,18 +563,20 @@ class ExpansionBoatScript extends OffroadHatchback
 		
 		vector position = GetPosition();
 		vector orientation = GetOrientation();
-		if ( g_Game.SurfaceIsSea( position[0], position[2] ) || g_Game.SurfaceIsPond( position[0], position[2] ) )
+		if (ExpansionStatic.SurfaceIsWater(position))
 		{
-			FloatyMcFloatSimple( position );
-			SetOrientation( Vector( orientation[0], 0, 0 ) );
+			float depth = g_Game.GetWaterDepth(position);
+			position[1] = position[1] + depth + m_Offset - 1.05;
+			SetPosition(position);
+			SetOrientation(Vector(orientation[0], 0, 0));
 		}
 
 		//! Activate boat so it doesn't sink to the sea floor if spawned by (e.g.) admin tool
 		//! and not loaded from storage/spawned by CE
-		if ( !m_IsStoreLoaded && !m_IsCECreated )
+		if (!m_IsStoreLoaded && !m_IsCECreated)
 		{
 			m_IsInitialized = true;
-			dBodyActive( this, ActiveState.ACTIVE );
+			dBodyActive(this, ActiveState.ACTIVE);
 		}
 
 		#ifdef EXPANSIONEXPRINT
@@ -583,10 +601,11 @@ class ExpansionBoatScript extends OffroadHatchback
 	{
 		if ( !m_IsInitialized )
 			return false;
-
-		if ( MotorIsOn() )
-			return true;
 		
+		//! Prevents the case where server can simulate but client doesn't, making the boat jitter
+		if (!GetGame().IsServer())
+			return m_CanSimulate;
+
 		return dBodyIsActive( this ) && dBodyIsDynamic( this );
 	}
 
@@ -594,22 +613,19 @@ class ExpansionBoatScript extends OffroadHatchback
 	{
 		super.OnNoSimulation( pDt );
 
-		if ( m_CanSimulate || GetGame().IsServer() )  //! For client side
-			return;
-
-		//! Make Boaty McBoat rise and fall with tide, no full simulation
 		vector position = GetPosition();
-		if ( g_Game.SurfaceIsSea( position[0], position[2] ) )
-			FloatyMcFloatSimple( position );
-	}
 
-	void FloatyMcFloatSimple( vector position )
-	{
-		//! Boaty McBoat should be submerged a little, not sit atop waterlevel
-		float depth = g_Game.GetWaterDepth( position );
-		position[1] = position[1] + depth + m_Offset - 1;
+		if (ExpansionStatic.SurfaceIsWater(position))
+		{
+			float depth = g_Game.GetWaterDepth( position );
+			if (depth > 10)  //! Sunken?
+				return;
 
-		SetPosition( position );
+			vector transform[4];
+			GetTransform(transform);
+			transform[3][1] = position[1] + depth + m_Offset - 1.05;
+			SetTransform(transform);
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -655,55 +671,6 @@ class ExpansionBoatScript extends OffroadHatchback
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
-
-		if ( m_MotorOn != m_MotorWasOn )
-		{
-			m_MotorWasOn = m_MotorOn;
-
-			if ( !m_MotorOn )
-				SEffectManager.PlaySound( m_EngineStopFuel, GetPosition() );
-		}
-	}
-
-	/**
-	 * @brief This updates the sound for the boat.
-	 * 
-	 * @param ctrl, sound control (in config) which will be updated
-	 * @param oldValue, engine defined value for the sound control
-	 */
-	float OnSoundBoat( CarSoundCtrl ctrl, float oldValue )
-	{
-		switch ( ctrl )
-		{
-			case CarSoundCtrl.RPM:
-			{
-				float speed = GetSpeedometer();
-				if ( speed > 100 )
-				{
-					return 50;
-				}
-				else
-				{
-					return speed / 2;
-				}
-				
-				break;
-			}
-			
-			case CarSoundCtrl.ENGINE:
-			{
-				if ( MotorIsOn() )
-				{
-					return 1;
-				}
-				else 
-				{
-					return 0;
-				}
-			}
-		}
-
-		return oldValue;
 	}
 	
 	/**
@@ -714,12 +681,12 @@ class ExpansionBoatScript extends OffroadHatchback
 	 */
 	override float OnSound( CarSoundCtrl ctrl, float oldValue )
 	{
-		if ( EngineIsOn() )
+		if ( Expansion_EngineIsOn(0) )
 		{
-			//! TODO: Why is this here? EngineIsOn is never true for boats?
 			return super.OnSound( ctrl, oldValue );
-		} 
-		else if ( MotorIsOn() )
+		}
+		
+		if ( Expansion_EngineIsOn(1) )
 		{
 			switch ( ctrl )
 			{
@@ -737,18 +704,10 @@ class ExpansionBoatScript extends OffroadHatchback
 				
 					break;
 				}
-			
+				
 				case CarSoundCtrl.ENGINE:
 				{
-					//! TODO: This check is redundant
-					if ( MotorIsOn() || EngineIsOn() )
-					{
-						return 1;
-					}
-					else 
-					{
-						return 0;
-					}
+					return 1;
 				}
 			}
 

@@ -10,13 +10,17 @@
  *
 */
 
-class ExpansionUAZDoorDriver extends CarDoor {}
-class ExpansionUAZDoorCoDriver extends CarDoor {}
-class ExpansionUAZDoorCargo1 extends CarDoor {}
-class ExpansionUAZDoorCargo2 extends CarDoor {}
+class ExpansionUAZDoorDriver extends CarDoor {};
+class ExpansionUAZDoorCoDriver extends CarDoor {};
+class ExpansionUAZDoorCargo1 extends CarDoor {};
+class ExpansionUAZDoorCargo2 extends CarDoor {};
+class ExpansionUAZDoorHood extends CarDoor {};
+class ExpansionUAZDoorTrunk extends CarDoor {}; // unused
 
 class ExpansionUAZ extends OffroadHatchback
 {
+	private bool m_HasRoof;
+
 	// ------------------------------------------------------------
 	void ExpansionUAZ()
 	{
@@ -38,6 +42,26 @@ class ExpansionUAZ extends OffroadHatchback
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUAZ::Constructor - End");
 		#endif
+	}
+
+	override void EEItemAttached ( EntityAI item, string slot_name ) 
+	{
+		if ( slot_name == "Material_Shelter_Fabric")
+		{
+			m_HasRoof = true;
+			AddProxyPhysics( "roof" );
+			ShowSelection( "roof" );
+		}
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		if ( slot_name == "Material_Shelter_Fabric")
+		{
+			m_HasRoof = false;
+			RemoveProxyPhysics( "roof" );
+			HideSelection( "roof" );
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -189,6 +213,14 @@ class ExpansionUAZ extends OffroadHatchback
 				}
 				break;
 			}
+			case "uazhooddoor": {
+				if ( GetAnimationPhase("uazhooddoor") > 0 ) {
+					return CarDoorState.DOORS_OPEN;
+				} else {
+					return CarDoorState.DOORS_CLOSED;
+				}
+				break;
+			}
 			case "uaztrunkdoor": {
 					return CarDoorState.DOORS_CLOSED;
 				//if ( GetAnimationPhase("uaztrunkdoor") > 0.5 ) {
@@ -213,12 +245,30 @@ class ExpansionUAZ extends OffroadHatchback
 
 		string attType = attachment.GetType();
 		
-		if ( EngineIsOn() )
+		
+		if ( EngineIsOn() || GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED )
 		{
 			if ( attType == "CarRadiator" || attType == "CarBattery" || attType == "SparkPlug" )
 				return false;
 		}
 
+		return true;
+	}
+
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+			return false;
+	
+		category_name.ToLower();
+		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
+		
+		if ( category_name.Contains( "engine" ) )
+		{
+			if ( GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED )
+				return false;
+		}
+				
 		return true;
 	}
 	
@@ -320,6 +370,7 @@ class ExpansionUAZ extends OffroadHatchback
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionUAZ::GetAnimSourceFromSelection");
 		#endif
+
 		switch( selection )
 		{
 			case "uazdriverdoor":
@@ -329,9 +380,11 @@ class ExpansionUAZ extends OffroadHatchback
 			case "uazcargo1door":
 				return "uazcargo1door";
 			case "uazcargo2door":
-				return "uazcargo2door";	
+				return "uazcargo2door";
+			case "uazhooddoor":
+				return "uazhooddoor";
 			case "uaztrunkdoor":
-				return "uaztrunkdoor";	
+				return "uaztrunkdoor";
 		}
 
 		return "";
@@ -385,6 +438,12 @@ class ExpansionUAZ extends OffroadHatchback
 		}
 
 		return false;
+	}
+
+	// ------------------------------------------------------------
+	override bool HasRoof()
+	{
+		return m_HasRoof;
 	}
 
 	// ------------------------------------------------------------
@@ -447,66 +506,62 @@ class ExpansionUAZ extends OffroadHatchback
 		return false;
 	}
 
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+		
+		if ( Class.CastTo(entity, this) )
+		{
+			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
+
+			entity.GetInventory().CreateInInventory( "CarBattery" );
+			entity.GetInventory().CreateInInventory( "SparkPlug" );
+			entity.GetInventory().CreateInInventory( "CarRadiator" );
+
+			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorDriver" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorCoDriver" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorCargo1" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorCargo2" );
+			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorHood" );
+
+			entity.GetInventory().CreateInInventory( "HeadlightH7" );
+			entity.GetInventory().CreateInInventory( "HeadlightH7" );
+		}
+
+		Fill( CarFluid.FUEL, 50 );
+		Fill( CarFluid.COOLANT, 6.0 );
+		Fill( CarFluid.OIL, 4.0 );
+	}
+};
+class ExpansionUAZRoofless extends ExpansionUAZ
+{
 	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
+	override bool HasRoof()
 	{
 		return false;
 	}
+};
 
-	// ------------------------------------------------------------
-	override bool LeavingSeatDoesAttachment( int posIdx )
-	{
-		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
-		return false;
-	}
-}
-
-class ExpansionUAZCargoRoofless extends ExpansionUAZ
+class ExpansionUAZCargoRoofless extends ExpansionUAZRoofless
 {
 	// ------------------------------------------------------------
 	void ExpansionUAZCargoRoofless()
 	{
 		m_dmgContactCoef = 0.018;
-
-		// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( EOnInit, 10000, false );
 	}
-
-	// ------------------------------------------------------------
-	/*override void EOnInit( IEntity other, int extra)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZCargoRoofless " + this + " EOnInit Start");
-		#endif
-	
-		GetInventory().CreateAttachmentEx("ExpansionUAZDoorTrunk", InventorySlots.GetSlotIdFromString("uaztrunkdoor"));
-	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZCargoRoofless " + this + " EOnInit Stop");
-		#endif
-	}*/
 
 	// ------------------------------------------------------------
 	override bool CanObjectAttach( Object obj )
 	{
+		if ( !super.CanObjectAttach( obj ) )
+			return false;
+		
  		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
 			return false;
 		
 		return true;
 	}
-}
-
-
-class ExpansionUAZDoorTrunk extends CarDoor 
-{
-	// ------------------------------------------------------------
-	override bool CanPutIntoHands( EntityAI parent )
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool CanPutInCargo ( EntityAI parent )
-	{
-		return false;
-	}
-}
+};

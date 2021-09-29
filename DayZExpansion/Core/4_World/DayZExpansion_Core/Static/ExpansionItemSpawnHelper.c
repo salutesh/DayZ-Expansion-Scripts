@@ -15,12 +15,12 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnOnParent
 	// ------------------------------------------------------------
-	static Object SpawnOnParent(string className, PlayerBase player, inout EntityAI parent, out int quantity, TStringArray attachments = NULL, int skinIndex = -1, bool magFullAmmo = true)
+	static Object SpawnOnParent(string className, PlayerBase player, inout EntityAI parent, out int quantity, TStringArray attachments = NULL, int skinIndex = -1, bool magFullAmmo = true, inout bool attachmentNotAttached = false)
 	{
 		ISHDebugPrint("SpawnOnParent - Start");
 
 		//! Try to spawn in inventory first
-		Object obj = SpawnInInventorySecure(className, player, parent);
+		Object obj = SpawnInInventorySecure(className, player, parent, skinIndex);
 
 		ItemBase item;
 		if (!Class.CastTo(item, obj))
@@ -58,6 +58,14 @@ class ExpansionItemSpawnHelper
 
 				return NULL;
 			}
+
+			if (skinIndex > -1 && item.ExpansionHasSkin(skinIndex))
+				item.ExpansionSetSkin(skinIndex);
+		}
+		else if (quantity == -1)
+		{
+			//! Ignore quantity
+			ISHDebugPrint("SpawnOnParent - Ignoring quantity");
 		}
 		else if (item.IsAmmoPile())
 		{
@@ -123,12 +131,12 @@ class ExpansionItemSpawnHelper
 
 			quantity--;
 		}
+		
+		if (item.CanBeDisinfected())
+			item.SetCleanness(1);
 
 		if (attachments)
-			SpawnAttachments( attachments, item );
-
-		if (skinIndex > -1)
-			item.ExpansionSetSkin(skinIndex);
+			SpawnAttachments( attachments, player, item, skinIndex, magFullAmmo, attachmentNotAttached );
 
 		ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
 
@@ -136,7 +144,7 @@ class ExpansionItemSpawnHelper
 	}
 	
 	//! Spawn in parent inventory, create player-owned temporary storage container if inventory full
-	static Object SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent)
+	static Object SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
 	{
 		bool canSpawnInInventory = GetGame().IsKindOf(className, "Inventory_Base") || GetGame().IsKindOf(className, "Magazine_Base") || GetGame().IsKindOf(className, "Rifle_Base") || GetGame().IsKindOf(className, "Pistol_Base") || GetGame().IsKindOf(className, "Archery_Base") || GetGame().IsKindOf(className, "Launcher_Base");
 
@@ -148,13 +156,13 @@ class ExpansionItemSpawnHelper
 
 		while (true)
 		{
-			Print("ExpansionItemSpawnHelper::SpawnInInventorySecure - parent: " + parent.ClassName());
+			ISHDebugPrint("ExpansionItemSpawnHelper::SpawnInInventorySecure - parent: " + parent.ClassName());
 
 			ExpansionTemporaryOwnedContainer storage = ExpansionTemporaryOwnedContainer.Cast(parent);
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(true);
 
-			obj = parent.GetInventory().CreateInInventory(className);
+			obj = SpawnInInventory(className, parent, skinIndex);
 
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(false);
@@ -162,7 +170,7 @@ class ExpansionItemSpawnHelper
 			if (obj || newStorage)
 				break;
 
-			Print("ExpansionItemSpawnHelper::SpawnInInventorySecure - creating temporary storage container at " + parent.GetPosition());
+			ISHDebugPrint("ExpansionItemSpawnHelper::SpawnInInventorySecure - creating temporary storage container at " + parent.GetPosition());
 
 			//! If it's an inventory item and couldn't be spawned in parent inventory (likely because it's full),
 			//! create new temporary storage container and set as parent
@@ -186,57 +194,132 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion SpawnAttachments
 	// ------------------------------------------------------------
+	//! Use this form when spawning locally (e.g. only client-side)
 	static void SpawnAttachments(TStringArray attachments, EntityAI parent, int skinIndex = -1)
 	{
-		if (parent.GetInventory())
+		foreach (string attachmentName: attachments)
 		{
-			ItemBase parentItem = ItemBase.Cast(parent);
-			foreach (string attachmentName: attachments)
-			{
-				ItemBase attachment;
+			SpawnInInventory(attachmentName, parent, skinIndex);
+		}
+	}
 
-				if (parentItem)
-					attachment = ItemBase.Cast(parentItem.ExpansionCreateInInventory(attachmentName));
-				else
-					attachment = ItemBase.Cast(parent.GetInventory().CreateAttachment(attachmentName));
-
-				if (attachment && skinIndex > -1 && attachment.ExpansionHasSkin(skinIndex))
-					attachment.ExpansionSetSkin(skinIndex);
-			}
+	//! Use this form when spawning normally (makes sure items get spawned when they don't fit in inventory)
+	static void SpawnAttachments(TStringArray attachments, PlayerBase player, EntityAI parent, int skinIndex = -1, bool magFullAmmo = true, inout bool attachmentNotAttached = false)
+	{
+		int quantity = -1;
+		foreach (string attachmentName: attachments)
+		{
+			EntityAI attachmentParent = parent;
+			SpawnOnParent(attachmentName, player, attachmentParent, quantity, NULL, skinIndex, magFullAmmo);
+			if (attachmentParent != parent)
+				attachmentNotAttached = true;
 		}
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion SpawnAttachment
+	// Expansion EntityAI SpawnInInventory
 	// ------------------------------------------------------------
-	static void SpawnAttachment(string name, EntityAI parent, out ItemBase attachment)
+	static EntityAI SpawnInInventory(string name, EntityAI parent, int skinIndex = -1, bool attachOnly = false)
 	{
+		EntityAI entity;
+
 		if (parent.GetInventory())
 		{
 			ItemBase parentItem = ItemBase.Cast(parent);
 			
 			if (parentItem)
-				attachment = ItemBase.Cast(parentItem.ExpansionCreateInInventory(name));
+				entity = parentItem.ExpansionCreateInInventory(name, attachOnly);
+			else if (attachOnly)
+				entity = parent.GetInventory().CreateAttachment(name);
 			else
-				attachment = ItemBase.Cast(parent.GetInventory().CreateAttachment(name));			
+				entity = parent.GetInventory().CreateInInventory(name);
+
+			if (entity)
+			{
+				ItemBase item = ItemBase.Cast(entity);
+
+				if (item && skinIndex > -1 && item.ExpansionHasSkin(skinIndex))
+					item.ExpansionSetSkin(skinIndex);
+			}
 		}
+
+		return entity;
+	}
+
+	static EntityAI SpawnAttachment(string name, EntityAI parent, int skinIndex = -1)
+	{
+		return SpawnInInventory(name, parent, skinIndex, true);
 	}
 
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
-	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector direction, out int quantity, TStringArray attachments = NULL, int skinIndex = -1 )
+	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int quantity, TStringArray attachments = NULL, int skinIndex = -1, inout bool attachmentNotAttached = false )
 	{		
 		ISHDebugPrint("SpawnVehicle - Start");
 
-		Object obj = GetGame().CreateObjectEx(className, position, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_PLACE_ON_SURFACE);
+		int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 
-		//! TODO: Add support for ExpansionVehicleBase
+		if (!GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+			flags |= ECE_TRACE;
+
+		Object obj = GetGame().CreateObjectEx(className, position, flags);
+
+		quantity--;
+
 		CarScript vehicle;
-		if (!Class.CastTo(vehicle, obj))
+		#ifdef EXPANSIONMODVEHICLE
+		ExpansionVehicleBase exVeh;
+		ExpansionCarKey key;
+		#endif
+		if (Class.CastTo(vehicle, obj))
 		{
-			quantity--;
+			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
+			vehicle.Fill(CarFluid.OIL, vehicle.GetFluidCapacity(CarFluid.OIL));
+			vehicle.Fill(CarFluid.BRAKE, vehicle.GetFluidCapacity(CarFluid.BRAKE));
+			vehicle.Fill(CarFluid.COOLANT, vehicle.GetFluidCapacity(CarFluid.COOLANT));
 
+			if (skinIndex > -1)
+				vehicle.ExpansionSetSkin(skinIndex);
+
+			#ifdef EXPANSIONMODVEHICLE
+			if (vehicle.CanBeLocked())
+			{
+				Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
+
+				if (key)
+				{
+					vehicle.PairKeyTo(key);
+					vehicle.LockCar(key);
+				}
+			}
+			#endif
+		}
+		#ifdef EXPANSIONMODVEHICLE
+		else if (Class.CastTo(exVeh, obj))
+		{
+			exVeh.Fill(CarFluid.FUEL, exVeh.GetFluidCapacity(CarFluid.FUEL));
+			exVeh.Fill(CarFluid.OIL, exVeh.GetFluidCapacity(CarFluid.OIL));
+			exVeh.Fill(CarFluid.BRAKE, exVeh.GetFluidCapacity(CarFluid.BRAKE));
+			exVeh.Fill(CarFluid.COOLANT, exVeh.GetFluidCapacity(CarFluid.COOLANT));
+
+			if (skinIndex > -1)
+				exVeh.ExpansionSetSkin(skinIndex);
+
+			if (exVeh.CanBeLocked())
+			{
+				Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
+
+				if (key)
+				{
+					exVeh.PairKeyTo(key);
+					exVeh.LockCar(key);
+				}
+			}
+		}
+		#endif
+		else
+		{
 			if (obj)
 			{
 				GetGame().ObjectDelete(obj);
@@ -247,35 +330,20 @@ class ExpansionItemSpawnHelper
 			return NULL;
 		}
 
-		vehicle.SetDirection(direction);
-		vehicle.SetPosition(position);
-
-		if (attachments)
-			SpawnAttachments(attachments, vehicle, skinIndex);
-
-		vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
-		vehicle.Fill(CarFluid.OIL, vehicle.GetFluidCapacity(CarFluid.OIL));
-		vehicle.Fill(CarFluid.BRAKE, vehicle.GetFluidCapacity(CarFluid.BRAKE));
-		vehicle.Fill(CarFluid.COOLANT, vehicle.GetFluidCapacity(CarFluid.COOLANT));
-
-		if (skinIndex > -1)
-			vehicle.ExpansionSetSkin(skinIndex);
-
 		#ifdef EXPANSIONMODVEHICLE
-		if (vehicle.CanBeLocked())
+		//! Prevent boat getting flung in the air or stuck on ground due to random physics interaction
+		if (obj.IsInherited(ExpansionBoatScript))
 		{
-			ExpansionCarKey key;
-			Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
-
-			if (key)
-			{
-				vehicle.PairKeyTo(key);
-				vehicle.LockCar(key);
-			}
+			SetVelocity( obj, Vector( 0, 0, 0 ) );
+			dBodySetAngularVelocity( obj, Vector( 0, 0, 0 ) );
+			dBodyActive( obj, ActiveState.INACTIVE );  //! Boat physics will get reactivated by its DeferredInit
 		}
 		#endif
 
-		quantity--;
+		obj.SetOrientation(orientation);
+
+		if (attachments)
+			SpawnAttachments(attachments, player, EntityAI.Cast(obj), skinIndex, false, attachmentNotAttached);
 
 		ISHDebugPrint("SpawnVehicle - End return obj:" + obj.ToString());	
 

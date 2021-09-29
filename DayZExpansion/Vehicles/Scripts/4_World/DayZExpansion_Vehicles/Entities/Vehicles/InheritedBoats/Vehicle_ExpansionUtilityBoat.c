@@ -22,13 +22,6 @@ class Vehicle_ExpansionUtilityBoat extends ExpansionVehicleBoatBase
 		//! Vanilla
 		m_dmgContactCoef			= 0.018;
 
-		//! Custom
-		m_MaxSpeed					= 60.0;
-
-		m_TurnCoef					= 0.075;
-	
-		m_Offset					= 0.66;
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Vehicle_ExpansionUtilityBoat::Constructor - End");
 		#endif

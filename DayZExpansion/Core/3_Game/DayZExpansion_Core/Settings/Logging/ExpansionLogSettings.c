@@ -15,6 +15,8 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
+	static const int VERSION = 0;
+	
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	
 	#ifdef EXPANSIONMODVEHICLE
@@ -181,28 +183,36 @@ class ExpansionLogSettings: ExpansionSettingBase
 		
 		m_IsLoaded = true;
 
-		m_FileTimestamp = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + GetDateTime() + ".log";
+		m_FileTimestamp = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetDateTime() + ".log";
 		
-		if ( FileExist( EXPANSION_LOG_SETTINGS ) )
+		bool save;
+		
+		bool  logSettingsExist = FileExist(EXPANSION_LOG_SETTINGS);
+		
+		if (logSettingsExist)
 		{
-			Print("[ExpansionLogSettings] Loading settings");
+			EXPrint("[ExpansionLogSettings] Load existing setting file:" + EXPANSION_LOG_SETTINGS);
 
 			JsonFileLoader<ExpansionLogSettings>.JsonLoadFile( EXPANSION_LOG_SETTINGS, this );
 	
 			#ifdef EXPANSIONEXPRINT
 			EXPrint("ExpansionLogSettings::Load - End - Loaded");
 			#endif
-
-			return true;
+		}
+		else
+		{
+			EXPrint("[ExpansionLogSettings] No existing setting file:" + EXPANSION_VEHICLE_SETTINGS + ". Creating defaults!");
+			Defaults();
+			save = true;
 		}
 
-		Defaults();
-		Save();
-
+		if (save)
+			Save();
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionLogSettings::Load - End - Not Loaded");
 		#endif
-		return false;
+		return logSettingsExist;
 	}
 
 	// ------------------------------------------------------------
@@ -226,8 +236,8 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionLogSettings] Loading default settings");
-
+		m_Version = VERSION;
+		
 		Safezone = true;
 
 		#ifdef EXPANSIONMODVEHICLE
@@ -272,7 +282,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 		}
 
 		m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);
-		FPrintln(m_FileLog, GetTime() + " " + text);
+		FPrintln(m_FileLog, ExpansionStatic.GetTime() + " " + text);
 		CloseFile(m_FileLog);
 	}
 };

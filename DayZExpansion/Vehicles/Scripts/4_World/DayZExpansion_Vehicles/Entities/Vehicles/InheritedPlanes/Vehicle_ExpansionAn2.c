@@ -25,14 +25,6 @@ class Vehicle_ExpansionAn2 extends ExpansionVehiclePlaneBase
 		m_dmgContactCoef							= 0.075;
 
 		m_MaxSpeed									= 500.0;
-
-		m_BodyFrictionCoef							= 10.0;
-
-		m_ElevatorForceCoef 						= 1.0;
-		m_AileronForceCoef 							= 0.8;
-
-		m_RudderForceCoef 							= 1.0;
-		m_RudderInfluence 							= 0.98;
 	}
 
 	// ------------------------------------------------------------
@@ -137,4 +129,16 @@ class Vehicle_ExpansionAn2 extends ExpansionVehiclePlaneBase
 		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
 		return true;
 	}
-}
+
+	// ------------------------------------------------------------
+	override vector GetTransportCameraOffset()
+	{
+		return "0 3 0";
+	}
+
+	// ------------------------------------------------------------
+	override float GetTransportCameraDistance()
+	{
+		return 10;
+	}
+};

@@ -10,50 +10,37 @@
  *
 */
 
+#ifndef EXPANSION_OBSOLTE_CAMERA
 modded class DayZPlayerCamera3rdPerson
 {
-	override void OnActivate( DayZPlayerCamera pPrevCamera, DayZPlayerCameraResult pPrevCameraResult )
+	override void OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPersonVehicle::OnActivate Start");
-		#endif
+		super.OnUpdate(pDt, pOutResult);
 		
-		super.OnActivate( pPrevCamera, pPrevCameraResult );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPersonVehicle::OnActivate End");
-		#endif
-	}
-
-	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
-	{
-		super.OnUpdate( pDt, pOutResult );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate Start");
-		#endif
-
-		PlayerBase.Cast( m_pPlayer ).SetHeadInvisible_Ex( false );
-
-		//Print( "OnUpdate" );
-		//Print( pOutResult.m_CollisionIgnoreEntity );
+		Ex_OnUpdate(pDt, pOutResult);
 
 		ExpansionVehicleBase vehicle;
-		if ( Class.CastTo( vehicle, pOutResult.m_CollisionIgnoreEntity ) )
+		if (Class.CastTo(vehicle, pOutResult.m_CollisionIgnoreEntity))
 		{
-			//Print( dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) );
-			//Print( vehicle.IsCreatingDynamic() );
-			if ( !dBodyIsDynamic( pOutResult.m_CollisionIgnoreEntity ) || vehicle.GetPhysicsState() < ExpansionVehicleDynamicState.DYNAMIC )
+			if (!dBodyIsDynamic(pOutResult.m_CollisionIgnoreEntity))
 			{
 				pOutResult.m_CollisionIgnoreEntity = NULL;
 			}
 		}
 
-		//Print( vehicle );
-		//Print( pOutResult.m_CollisionIgnoreEntity );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPersonVehicle::OnUpdate End");
-		#endif
+		Ex_OnPostUpdate(pDt, pOutResult);
 	}
-}
+
+	override void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)
+	{
+		super.Ex_OnUpdate(pDt, pOutResult);
+
+		if (m_Ex_Player.IsAttached())
+		{
+			pOutResult.m_CollisionIgnoreEntity = m_pPlayer.GetParent();
+			pOutResult.m_fIgnoreParentRoll = 1.0;
+			pOutResult.m_fIgnoreParentPitch = 1.0;
+		}
+	}
+};
+#endif

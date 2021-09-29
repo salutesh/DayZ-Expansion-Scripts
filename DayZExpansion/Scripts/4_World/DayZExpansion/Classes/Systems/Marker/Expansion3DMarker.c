@@ -173,7 +173,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		int markerColorR = 0;
 		int markerColorG = 0;
 		int markerColorB = 0;
-		IntToARGB( m_MarkerData.GetColor(), markerColorA, markerColorR, markerColorG, markerColorB );
+		ExpansionStatic.IntToARGB( m_MarkerData.GetColor(), markerColorA, markerColorR, markerColorG, markerColorB );
 		m_Image_Icon.SetColor( ARGB( m_Transparency, markerColorR, markerColorG, markerColorB ) );
 
 		return true;

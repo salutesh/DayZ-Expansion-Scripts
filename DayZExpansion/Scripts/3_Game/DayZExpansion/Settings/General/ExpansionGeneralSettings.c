@@ -29,8 +29,6 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool EnableLighthouses;
 	bool EnableHUDNightvisionOverlay;
 	bool DisableMagicCrosshair;
-	bool EnablePlayerTags;
-	int PlayerTagViewRange;
 	bool EnableAutoRun;
 	bool UnlimitedStamina;
 	bool UseDeathScreen;
@@ -43,7 +41,7 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
  **/
 class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
 	int SystemChatColor;			//! Added with v2
 	int AdminChatColor;			//! Added with v2
@@ -160,7 +158,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		TransportChatColor = s.TransportChatColor;
 		PartyChatColor = s.PartyChatColor;
 		TransmitterChatColor = s.TransmitterChatColor;
-		
+			
 		ExpansionGeneralSettingsBase sb = s;
 		CopyInternal( sb );
 		
@@ -190,8 +188,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EnableLighthouses = s.EnableLighthouses;
 		EnableHUDNightvisionOverlay = s.EnableHUDNightvisionOverlay;
 		DisableMagicCrosshair = s.DisableMagicCrosshair;
-		EnablePlayerTags = s.EnablePlayerTags;
-		PlayerTagViewRange = s.PlayerTagViewRange;
 		EnableAutoRun = s.EnableAutoRun;
 		UnlimitedStamina = s.UnlimitedStamina;
 		UseDeathScreen = s.UseDeathScreen;
@@ -230,6 +226,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 
 		if (generalSettingsExist)
 		{
+			EXPrint("[ExpansionGeneralSettings] Load existing setting file:" + EXPANSION_GENERAL_SETTINGS);
+			
 			ExpansionGeneralSettings settingsDefault = new ExpansionGeneralSettings;
 			settingsDefault.Defaults();
 
@@ -239,22 +237,19 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
+				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
+
 				if (settingsBase.m_Version < 2)
 				{
-					EXPrint("[ExpansionGeneralSettings] Load - Converting v1 \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
-					
-					//! Added with v2
-					SystemChatColor = settingsDefault.SystemChatColor;
-					AdminChatColor = settingsDefault.AdminChatColor;
-					GlobalChatColor = settingsDefault.GlobalChatColor;
-					DirectChatColor = settingsDefault.DirectChatColor;
-					TransportChatColor = settingsDefault.TransportChatColor;
-					PartyChatColor = settingsDefault.PartyChatColor;
-					TransmitterChatColor = settingsDefault.TransmitterChatColor;
-					
-					UpdateChatColors();
+					//! Chat colors added with v2, nothing to do here as chat colors are handled by UpdateChatColors below
 				}
-				
+				else
+				{
+					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
+				}
+
+				UpdateChatColors();
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -268,8 +263,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		}
 		else
 		{
+			EXPrint("[ExpansionGeneralSettings] No existing setting file:" + EXPANSION_GENERAL_SETTINGS + ". Creating defaults!");
 			Defaults();
-			UpdateChatColors();
 			save = true;
 		}
 		
@@ -277,7 +272,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			Save();
 		
 		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Load - End - Loaded: " + bookSettingsExist);
+		EXPrint("ExpansionGeneralSettings::Load - End - Loaded: " + generalSettingsExist);
 		#endif
 		
 		return generalSettingsExist;
@@ -304,7 +299,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		Print("[ExpansionGeneralSettings] Loading default settings");
+		m_Version = VERSION;
 		
 		PlayerLocationNotifier = true;
 		
@@ -325,9 +320,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EnableHUDNightvisionOverlay = true;
 
 		DisableMagicCrosshair = true;
-		EnablePlayerTags = true;
-		PlayerTagViewRange = 5;
-
+		
 		EnableAutoRun = true;
 		UnlimitedStamina = false;
 		

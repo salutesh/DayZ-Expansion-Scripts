@@ -26,6 +26,9 @@ class ExpansionPartyData
 	protected ref map< string, ExpansionPartyInviteData > InvitesMap;
 	protected ref map< string, ExpansionMarkerData > MarkersMap;
 	
+	protected bool m_SyncMarkers = true;
+	protected ref TStringArray m_OnlinePlayers;
+
 #ifdef EXPANSIONMODMARKET
 	protected int MoneyDeposited;
 #endif
@@ -44,6 +47,8 @@ class ExpansionPartyData
 		PlayersMap = new map< string, ExpansionPartyPlayerData >;
 		InvitesMap = new map< string, ExpansionPartyInviteData >;
 		MarkersMap = new map< string, ExpansionMarkerData >;
+
+		m_OnlinePlayers = new TStringArray;
 	
 	#ifdef EXPANSIONMODMARKET
 		MoneyDeposited = 0;
@@ -148,7 +153,7 @@ class ExpansionPartyData
 		string uid = pPb.GetIdentityUID();
 		string name = pPb.GetIdentityName();
 
-		ExpansionPartyPlayerData player = new ExpansionPartyPlayerData;
+		ExpansionPartyPlayerData player = new ExpansionPartyPlayerData(this);
 		player.UID = uid;
 		player.Name = name;
 		player.OnJoin( pPb );
@@ -308,6 +313,8 @@ class ExpansionPartyData
 		Markers.Insert( marker );
 		MarkersMap.Insert( marker.GetUID(), marker );
 
+		m_SyncMarkers = true;
+
 		return true;
 	}
 
@@ -330,6 +337,8 @@ class ExpansionPartyData
 		marker.OnStoreSave( ctx.GetWriteContext() );
 		orgi.OnStoreLoad( ctx.GetReadContext(), dummy_version );
 
+		m_SyncMarkers = true;
+
 		return true;
 	}
 
@@ -347,6 +356,9 @@ class ExpansionPartyData
 
 			MarkersMap.Remove( markerName );
 			delete marker;
+
+			m_SyncMarkers = true;
+
 			return true;
 		}
 
@@ -362,6 +374,9 @@ class ExpansionPartyData
 		if ( marker )
 		{
 			marker.SetPosition( markerPosition );
+
+			m_SyncMarkers = true;
+
 			return true;
 		}
 
@@ -475,7 +490,7 @@ class ExpansionPartyData
 		return Markers.Count();
 	}
 
-	void OnSend( ParamsWriteContext ctx )
+	void OnSend( ParamsWriteContext ctx, string playerID )
 	{
 		ctx.Write( PartyID );
 		ctx.Write( PartyName );
@@ -535,7 +550,20 @@ class ExpansionPartyData
 			ctx.Write( Invites[index].UID );
 		}
 
-		count = Markers.Count();
+		bool isPlayerOnline = m_OnlinePlayers.Find(playerID) > -1;
+
+		if (m_SyncMarkers || !isPlayerOnline)
+		{
+			count = Markers.Count();
+			m_SyncMarkers = false;
+			if (!isPlayerOnline)
+				m_OnlinePlayers.Insert(playerID);
+		}
+		else
+		{
+			count = -1;
+		}
+
 		ctx.Write( count );
 		for ( index = 0; index < count; ++index )
 		{
@@ -582,7 +610,7 @@ class ExpansionPartyData
 			player = PlayersMap.Get( uid );
 			if ( !player )
 			{
-				player = new ExpansionPartyPlayerData();
+				player = new ExpansionPartyPlayerData(this);
 				PlayersMap.Insert( uid, player );
 				Players.Insert( player );
 			}
@@ -685,39 +713,42 @@ class ExpansionPartyData
 		if ( !ctx.Read( count ) )
 			return false;
 
-		ExpansionMarkerData marker;
-		checkArr = MarkersMap.GetKeyArray();
-		for ( index = 0; index < count; ++index )
+		if (count > -1)
 		{
-			if ( !ctx.Read( uid ) )
-				return false;
-
-			removeIndex = checkArr.Find( uid );
-			if ( removeIndex != -1 )
-				checkArr.Remove( removeIndex );
-
-			marker = MarkersMap.Get( uid );
-			if ( !marker )
+			ExpansionMarkerData marker;
+			checkArr = MarkersMap.GetKeyArray();
+			for ( index = 0; index < count; ++index )
 			{
-				marker = ExpansionMarkerData.Create( ExpansionMapMarkerType.PARTY, uid );
-				MarkersMap.Insert( uid, marker );
-				Markers.Insert( marker );
-			}
+				if ( !ctx.Read( uid ) )
+					return false;
 
-			if ( !marker.OnRecieve( ctx ) )
-				return false;
-		}
-		for ( index = 0; index < checkArr.Count(); ++index )
-		{
-			marker = MarkersMap.Get( checkArr[index] );
-			if ( marker )
-			{
-				removeIndex = Markers.Find( marker );
+				removeIndex = checkArr.Find( uid );
 				if ( removeIndex != -1 )
-					Markers.RemoveOrdered( removeIndex );
+					checkArr.Remove( removeIndex );
 
-				MarkersMap.Remove( checkArr[index] );
-				delete marker;
+				marker = MarkersMap.Get( uid );
+				if ( !marker )
+				{
+					marker = ExpansionMarkerData.Create( ExpansionMapMarkerType.PARTY, uid );
+					MarkersMap.Insert( uid, marker );
+					Markers.Insert( marker );
+				}
+
+				if ( !marker.OnRecieve( ctx ) )
+					return false;
+			}
+			for ( index = 0; index < checkArr.Count(); ++index )
+			{
+				marker = MarkersMap.Get( checkArr[index] );
+				if ( marker )
+				{
+					removeIndex = Markers.Find( marker );
+					if ( removeIndex != -1 )
+						Markers.RemoveOrdered( removeIndex );
+
+					MarkersMap.Remove( checkArr[index] );
+					delete marker;
+				}
 			}
 		}
 	
@@ -785,7 +816,7 @@ class ExpansionPartyData
 			return false;
 		
 		for ( i = 0; i < countPlayers; ++i )
-			Players.Insert( new ExpansionPartyPlayerData );
+			Players.Insert( new ExpansionPartyPlayerData(this) );
 
 		for ( i = 0; i < Players.Count(); ++i )
 			if ( Expansion_Assert_False( Players[i].OnStoreLoad( ctx, version ), "Failed reading player [" + i + "]" ) )
@@ -834,6 +865,13 @@ class ExpansionPartyData
 	#endif
 		
 		return true;
+	}
+
+	void OnLeave(ExpansionPartyPlayerData player)
+	{
+		int idx = m_OnlinePlayers.Find(player.GetID());
+		if (idx > -1)
+			m_OnlinePlayers.Remove(idx);
 	}
 	
 	bool IsMember(string uid)

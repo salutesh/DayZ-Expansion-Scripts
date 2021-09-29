@@ -39,6 +39,15 @@ modded class Hologram
 		}
 		
 		vector from = GetGame().GetCurrentCameraPosition();
+		//adjusts raycast origin to player head approx. level (limits results behind the character)
+		if ( DayZPlayerCamera3rdPerson.Cast(player.GetCurrentCamera()) )
+		{
+			vector head_pos;
+			MiscGameplayFunctions.GetHeadBonePos(player,head_pos);
+			float dist = vector.Distance(head_pos,from);
+			from = from + GetGame().GetCurrentCameraDirection() * dist;
+		}
+		
 		vector to = from + ( GetGame().GetCurrentCameraDirection() * ( max_projection_dist + camera_to_player_distance ) );
 		vector contact_pos;
 		set<Object> hit_object = new set<Object>;
@@ -78,7 +87,6 @@ modded class Hologram
 		}
 		//! END part that is different from vanilla GetProjectionEntityPosition
 
-
 		float player_to_projection_distance = vector.Distance( player.GetPosition(), contact_pos );
 		vector player_to_projection_vector;
 
@@ -109,12 +117,17 @@ modded class Hologram
 		{
 			SetIsFloating( false );
 		}
+		#ifndef DAYZ_1_13
+		m_FromAdjusted = from;
+		#endif
 			
 		return contact_pos;
 	}
 
+	#ifdef DAYZ_1_13
 	//! Hack fix to prevent the issue of placeable items snapping to center of Expansion base building.
 	//! Similar to vanilla SetOnGround, except using RayCastBullet instead of RaycastRV, and actually placing object on ground correctly.
+	//! NOTE: DayZ 1.14 seems to have fixed this
 	override vector SetOnGround( vector position )
 	{
 		vector from = position;
@@ -143,4 +156,5 @@ modded class Hologram
 		
 		return contact_pos;
 	}
+	#endif
 }

@@ -75,13 +75,11 @@ modded class MainMenu
 
 		m_ScenePC					= m_Mission.GetIntroScenePC();
 		
-		
 		if( m_ScenePC )
 		{
 			m_ScenePC.ResetIntroCamera();
 		}
 
-		
 		m_PlayVideo.Show( false );
 		
 		m_PlayerName				= TextWidget.Cast( layoutRoot.FindAnyWidget("character_name_text") );
@@ -90,7 +88,27 @@ modded class MainMenu
 		string version;
 		GetGame().GetVersion( version );
 		string expansion_version;	
+				
+		//! Newsfeed
+		m_NewsfeedPanel = Widget.Cast(layoutRoot.FindAnyWidget("NewsFeedPanel"));
+		m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
 		
+		#ifdef EDITOR
+		TextWidget playLable = TextWidget.Cast(layoutRoot.FindAnyWidget("play_label"));
+		playLable.SetText("#STR_EDITOR_OPEN_EDITOR");
+		
+		ImageWidget logo = ImageWidget.Cast(layoutRoot.FindAnyWidget("dayz_logo"));
+		logo.SetFlags(WidgetFlags.STRETCH);
+		logo.LoadImageFile(0, "DayZEditor/gui/images/logo_editor_big.edds");
+		logo.SetImage(0);
+		m_NewsfeedPanel.Show(false);
+		
+		if ( GetDayZGame() )
+		{
+			expansion_version = GetDayZGame().GetExpansionClientVersion();
+			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version + " #STR_EDITOR_MAIN_MENU_VERSION" + " " + GetEditor().Version);
+		}
+		#else
 		if ( GetDayZGame() )
 		{
 			expansion_version = GetDayZGame().GetExpansionClientVersion();
@@ -100,12 +118,7 @@ modded class MainMenu
 		{
 			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
 		}
-		
-		//m_ModsInfoPanel = Widget.Cast(layoutRoot.FindAnyWidget("ModsDetailed"));
-		
-		//! Newsfeed
-		m_NewsfeedPanel = Widget.Cast(layoutRoot.FindAnyWidget("NewsFeedPanel"));
-		m_ExpansionNewsfeed = new ExpansionNewsfeed(m_NewsfeedPanel);
+		#endif
 		
 		GetGame().GetUIManager().ScreenFadeOut(0);
 
@@ -550,11 +563,11 @@ modded class MainMenuStats
 			float stat_value;
 			string stat_text;
 			
-			m_TimeSurvivedValue.SetText( GetTimeString( player.StatGet( AnalyticsManagerServer.STAT_PLAYTIME ) ) );
-			m_PlayersKilledValue.SetText( GetValueString( player.StatGet( AnalyticsManagerServer.STAT_PLAYERS_KILLED ) ) );
-			m_InfectedKilledValue.SetText( GetValueString( player.StatGet( AnalyticsManagerServer.STAT_INFECTED_KILLED ) ) );
-			m_DistanceTraveledValue.SetText( GetDistanceString( player.StatGet( AnalyticsManagerServer.STAT_DISTANCE ) ) );
-			m_LongRangeShotValue.SetText( GetDistanceString( player.StatGet( AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT ), true ) );
+			m_TimeSurvivedValue.SetText( ExpansionStatic.GetTimeString( player.StatGet( AnalyticsManagerServer.STAT_PLAYTIME ) ) );
+			m_PlayersKilledValue.SetText( ExpansionStatic.GetValueString( player.StatGet( AnalyticsManagerServer.STAT_PLAYERS_KILLED ) ) );
+			m_InfectedKilledValue.SetText( ExpansionStatic.GetValueString( player.StatGet( AnalyticsManagerServer.STAT_INFECTED_KILLED ) ) );
+			m_DistanceTraveledValue.SetText( ExpansionStatic.GetDistanceString( player.StatGet( AnalyticsManagerServer.STAT_DISTANCE ) ) );
+			m_LongRangeShotValue.SetText( ExpansionStatic.GetDistanceString( player.StatGet( AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT ), true ) );
 		}
 	}
 	

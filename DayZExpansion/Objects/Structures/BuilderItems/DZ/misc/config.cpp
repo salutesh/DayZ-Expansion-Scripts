@@ -633,4 +633,24 @@ class CfgVehicles
 	{
 		scope = 1;
 	};
+	class land_misc_barel_fire_1;
+	class land_misc_barel_fire_2;
+	class land_misc_barel_fire_3;
+	class land_misc_barel_fire_4;
+	class bldr_land_misc_barel_fire_4: land_misc_barel_fire_4
+	{
+		scope = 1;
+	};
+	class bldr_land_misc_barel_fire_3: land_misc_barel_fire_3
+	{
+		scope = 1;
+	};
+	class bldr_land_misc_barel_fire_2: land_misc_barel_fire_2
+	{
+		scope = 1;
+	};
+	class bldr_land_misc_barel_fire_1: land_misc_barel_fire_1
+	{
+		scope = 1;
+	};
 };

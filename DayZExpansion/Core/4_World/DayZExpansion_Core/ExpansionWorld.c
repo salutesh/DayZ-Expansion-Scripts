@@ -10,6 +10,4 @@
  *
 */
 
-class ExpansionWorld: ExpansionGame
-{
-};
+class ExpansionWorld: ExpansionGame {};

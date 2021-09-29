@@ -11,15 +11,7 @@
 */
 
 modded class ItemBase
-{	
-	protected EntityAI m_WorldAttachment;
-	protected vector m_AttachmentTransform[4];
-	protected bool m_IsAttached;
-	protected int m_AttachIDA;
-	protected int m_AttachIDB;
-	protected int m_AttachIDC;
-	protected int m_AttachIDD;
-
+{
 	protected ref ExpansionElectricityConnection m_ElectricitySource;
 	protected ref array< ItemBase > m_ElectricityConnections;
 
@@ -65,8 +57,6 @@ modded class ItemBase
 			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
 		}
 		
-		RegisterNetSyncVariableBool( "m_IsAttached" );
-
 		if ( IsMissionHost() && ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) ) )
 		{
 			m_DmgZones = new TStringArray;
@@ -315,7 +305,12 @@ modded class ItemBase
 				SetUser( player );
 		}
 
-		SetSynchDirty();
+		if (IsOpened())
+			SetSynchDirty();
+		else if (m_HasCode)
+			Lock();  //! Will call SetSynchDirty
+		else
+			Unlock();  //! Will call SetSynchDirty
 	}
 	
 	/**
@@ -781,32 +776,6 @@ modded class ItemBase
 			return;
 		#endif
 
-		if ( m_WorldAttachment && m_IsAttached )
-		{
-			ctx.Write( m_IsAttached );
-
-			m_WorldAttachment.GetPersistentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );
-
-			ctx.Write( m_AttachIDA );
-			ctx.Write( m_AttachIDB );
-			ctx.Write( m_AttachIDC );
-			ctx.Write( m_AttachIDD );
-
-			vector tmItem[4];
-			vector tmParent[4];
-			GetTransform( tmItem );
-			m_WorldAttachment.GetTransform( tmParent );
-			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_AttachmentTransform );
-
-			ctx.Write( m_AttachmentTransform[0] );
-			ctx.Write( m_AttachmentTransform[1] );
-			ctx.Write( m_AttachmentTransform[2] );
-			ctx.Write( m_AttachmentTransform[3] );
-		} else
-		{
-			ctx.Write( false );
-		}
-
 		m_ElectricitySource.OnStoreSave_OLD( ctx );
 
 		#ifdef EXPANSIONEXLOGPRINT
@@ -848,38 +817,11 @@ modded class ItemBase
 				m_CurrentSkinName = currentSkinName;
 		}
 
-		if ( Expansion_Assert_False( ctx.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
-			return false;
-
-		if ( m_IsAttached )
+		if (GetExpansionSaveVersion() < 32)
 		{
-			if ( Expansion_Assert_False( ctx.Read( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
+			bool isAttached;
+			if ( Expansion_Assert_False( ctx.Read( isAttached ), "[" + this + "] Failed reading isAttached" ) )
 				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
-				return false;
-				
-			vector transSide;
-			vector transUp;
-			vector transForward;
-			vector transPos;
-
-			if ( Expansion_Assert_False( ctx.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
-				return false;
-			if ( Expansion_Assert_False( ctx.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
-				return false;
-
-			m_AttachmentTransform[0] = transSide;
-			m_AttachmentTransform[1] = transUp;
-			m_AttachmentTransform[2] = transForward;
-			m_AttachmentTransform[3] = transPos;
 		}
 
 		if ( GetExpansionSaveVersion() < 8 )
@@ -909,32 +851,6 @@ modded class ItemBase
 
 		if ( modName != "DZ_Expansion" )
 			return;
-		
-		if ( m_WorldAttachment && m_IsAttached )
-		{
-			storage.Write( m_IsAttached );
-
-			m_WorldAttachment.GetPersistentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );
-
-			storage.Write( m_AttachIDA );
-			storage.Write( m_AttachIDB );
-			storage.Write( m_AttachIDC );
-			storage.Write( m_AttachIDD );
-
-			vector tmItem[4];
-			vector tmParent[4];
-			GetTransform( tmItem );
-			m_WorldAttachment.GetTransform( tmParent );
-			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_AttachmentTransform );
-
-			storage.Write( m_AttachmentTransform[0] );
-			storage.Write( m_AttachmentTransform[1] );
-			storage.Write( m_AttachmentTransform[2] );
-			storage.Write( m_AttachmentTransform[3] );
-		} else
-		{
-			storage.Write( false );
-		}
 
 		m_ElectricitySource.OnStoreSave( storage );
 	}
@@ -962,38 +878,11 @@ modded class ItemBase
 				m_CurrentSkinName = currentSkinName;
 		}
 
-		if ( Expansion_Assert_False( storage.Read( m_IsAttached ), "[" + this + "] Failed reading m_IsAttached" ) )
-			return false;
-
-		if ( m_IsAttached )
+		if (GetExpansionSaveVersion() < 32)
 		{
-			if ( Expansion_Assert_False( storage.Read( m_AttachIDA ), "[" + this + "] Failed reading m_AttachIDA" ) )
+			bool isAttached;
+			if ( Expansion_Assert_False( storage.Read( isAttached ), "[" + this + "] Failed reading isAttached" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_AttachIDB ), "[" + this + "] Failed reading m_AttachIDB" ) )
-				return false;
-			if ( Expansion_Assert_False( storage.Read( m_AttachIDC ), "[" + this + "] Failed reading m_AttachIDC" ) )
-				return false;
-			if ( Expansion_Assert_False( storage.Read( m_AttachIDD ), "[" + this + "] Failed reading m_AttachIDD" ) )
-				return false;
-				
-			vector transSide;
-			vector transUp;
-			vector transForward;
-			vector transPos;
-
-			if ( Expansion_Assert_False( storage.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
-				return false;
-			if ( Expansion_Assert_False( storage.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
-				return false;
-			if ( Expansion_Assert_False( storage.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
-				return false;
-			if ( Expansion_Assert_False( storage.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
-				return false;
-
-			m_AttachmentTransform[0] = transSide;
-			m_AttachmentTransform[1] = transUp;
-			m_AttachmentTransform[2] = transForward;
-			m_AttachmentTransform[3] = transPos;
 		}
 
 		m_ElectricitySource.OnStoreLoad( storage );
@@ -1012,20 +901,6 @@ modded class ItemBase
 		#endif
 
 		super.EEOnAfterLoad();
-		
-		if ( m_IsAttached )
-		{
-			m_WorldAttachment = GetGame().GetEntityByPersitentID( m_AttachIDA, m_AttachIDB, m_AttachIDC, m_AttachIDD );
-		
-			//! Same functionality as vanilla, delete if the storage owner is gone to prevent basebuilding appear randomly in the air
-			if ( !m_WorldAttachment )
-			{
-				GetGame().ObjectDelete( this );
-			} else
-			{
-				LinkToLocalSpaceOf( m_WorldAttachment, m_AttachmentTransform );
-			}
-		}
 
 		m_ElectricitySource.OnAfterLoad();
 
@@ -1035,93 +910,6 @@ modded class ItemBase
 		Print("ItemBase::EEOnAfterLoad - End");
 		#endif
 	}
-	
-	//============================================
-	// OnCreatePhysics
-	//============================================
-	override void OnCreatePhysics()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ItemBase::OnCreatePhysics - Start" );
-		#endif
-
-		super.OnCreatePhysics();
-
-		if ( !GetGame().IsServer() )
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint( "ItemBase::OnCreatePhysics - End - Not Server" );
-			#endif
-
-			return;
-		}
-
-		GetGame().GetCallQueue( CALL_CATEGORY_GAMEPLAY ).Call( CheckForAttachmentRaycast );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ItemBase::OnCreatePhysics - End" );
-		#endif
-	}
-		
-	//============================================
-	// CheckForAttachmentRaycast
-	//============================================
-	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
-	void CheckForAttachmentRaycast()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ItemBase::CheckForAttachmentRaycast - Start" );
-		#endif
-
-		if ( m_IsAttached && m_WorldAttachment )
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint( "ItemBase::CheckForAttachmentRaycast - End - Already Attached" );
-			#endif
-
-			return;
-		}
-			
-		vector boundingBox[2];
-		float radius = ClippingInfo( boundingBox );
-
-		vector start = GetPosition() + Vector( 0, boundingBox[1][1], 0 );
-		vector end = GetPosition() - Vector( 0, boundingBox[0][1], 0 );
-
-		RaycastRVParams params = new RaycastRVParams( start, end, this, radius );
-		params.sorted = true;
-		params.type = ObjIntersectGeom;
-		params.flags = CollisionFlags.ALLOBJECTS;
-
-		//! Initiate the raycast
-		array< ref RaycastRVResult > results = new array< ref RaycastRVResult >();
-		if ( DayZPhysics.RaycastRVProxy( params, results ) )
-		{
-			Object target = ExpansionAttachmentHelper.FindBestAttach( this, results );
-
-			if ( target )
-			{
-				vector tmItem[4];
-				vector tmTarget[4];
-				vector tmLocal[4];
-
-				GetTransform( tmItem );
-				target.GetTransform( tmTarget );
-				Math3D.MatrixInvMultiply4( tmTarget, tmItem, tmLocal );
-
-				LinkToLocalSpaceOf( EntityAI.Cast( target ), tmLocal );
-			}
-		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ItemBase::CheckForAttachmentRaycast - End" );
-		#endif
-	}
-	#else
-	void CheckForAttachmentRaycast()
-	{
-	}
-	#endif
 	
 	//============================================
 	// SkinMessage
@@ -1336,4 +1124,4 @@ modded class ItemBase
 		SetTakeable( true );
 		SetSynchDirty();
 	}
-}
+};

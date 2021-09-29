@@ -89,6 +89,46 @@ class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
 	
 	override void OnEnergyConsumed() {};
 	
+	override bool CanPutInCargo( EntityAI parent )
+	{
+		return false;
+	}
+	
+	override bool CanPutAsAttachment( EntityAI parent )
+	{
+		return false;
+	}
+	
+	override bool CanReceiveItemIntoCargo( EntityAI item )
+	{
+		return false;
+	}
+	
+	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
+	{
+		return false;
+	}
+	
+	override bool CanLoadAttachment( EntityAI attachment )
+	{		
+		return false;
+	}
+	
+	override bool CanBePlaced( Man player, vector position ) 
+	{ 
+		return false; 
+	}
+	
+	override bool IsInventoryVisible()
+	{
+		return false;
+	}
+	
+	override bool CanDetachAttachment(EntityAI parent)
+	{
+		return false;
+	}
+	
 	override bool CanPutIntoHands( EntityAI parent )
 	{
 		return false;
@@ -99,7 +139,27 @@ class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
 		return false;
 	}
 	
+	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
+	{
+		return false;
+	}
+	
+	override bool CanReleaseCargo(EntityAI cargo)
+	{
+		return false;
+	}
+	
+	override bool CanRemoveFromCargo(EntityAI parent)
+	{
+		return false;
+	}
+	
 	override bool CanReceiveItemIntoHands(EntityAI item_to_hands)
+	{
+		return false;
+	}
+	
+	override bool CanSaveItemInHands(EntityAI item_in_hands)
 	{
 		return false;
 	}
@@ -110,6 +170,26 @@ class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
 	}
 
 	override bool CanRemoveFromHands(EntityAI parent)
+	{
+		return false;
+	}
+	
+	override bool CanDisplayAttachmentSlot( string slot_name )
+	{
+		return false;
+	}
+	
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		return false;
+	}
+	
+	override bool CanDisplayCargo()
+	{
+		return false;
+	}
+	
+	override bool CanAssignToQuickbar()
 	{
 		return false;
 	}
@@ -177,6 +257,46 @@ class bldr_PortableGasLamp_Prop extends PortableGasLamp
 
 	override void OnEnergyConsumed() {};
 	
+	override bool CanPutInCargo( EntityAI parent )
+	{
+		return false;
+	}
+	
+	override bool CanPutAsAttachment( EntityAI parent )
+	{
+		return false;
+	}
+	
+	override bool CanReceiveItemIntoCargo( EntityAI item )
+	{
+		return false;
+	}
+	
+	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
+	{
+		return false;
+	}
+	
+	override bool CanLoadAttachment( EntityAI attachment )
+	{		
+		return false;
+	}
+	
+	override bool CanBePlaced( Man player, vector position ) 
+	{ 
+		return false; 
+	}
+	
+	override bool IsInventoryVisible()
+	{
+		return false;
+	}
+	
+	override bool CanDetachAttachment(EntityAI parent)
+	{
+		return false;
+	}
+	
 	override bool CanPutIntoHands( EntityAI parent )
 	{
 		return false;
@@ -187,7 +307,27 @@ class bldr_PortableGasLamp_Prop extends PortableGasLamp
 		return false;
 	}
 	
+	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
+	{
+		return false;
+	}
+	
+	override bool CanReleaseCargo(EntityAI cargo)
+	{
+		return false;
+	}
+	
+	override bool CanRemoveFromCargo(EntityAI parent)
+	{
+		return false;
+	}
+	
 	override bool CanReceiveItemIntoHands(EntityAI item_to_hands)
+	{
+		return false;
+	}
+	
+	override bool CanSaveItemInHands(EntityAI item_in_hands)
 	{
 		return false;
 	}
@@ -198,6 +338,26 @@ class bldr_PortableGasLamp_Prop extends PortableGasLamp
 	}
 
 	override bool CanRemoveFromHands(EntityAI parent)
+	{
+		return false;
+	}
+	
+	override bool CanDisplayAttachmentSlot( string slot_name )
+	{
+		return false;
+	}
+	
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		return false;
+	}
+	
+	override bool CanDisplayCargo()
+	{
+		return false;
+	}
+	
+	override bool CanAssignToQuickbar()
 	{
 		return false;
 	}
@@ -240,6 +400,46 @@ class bldr_Candle extends Candle
 	
 	override void OnEnergyConsumed() {};
 	
+	override bool CanPutInCargo( EntityAI parent )
+	{
+		return false;
+	}
+	
+	override bool CanPutAsAttachment( EntityAI parent )
+	{
+		return false;
+	}
+	
+	override bool CanReceiveItemIntoCargo( EntityAI item )
+	{
+		return false;
+	}
+	
+	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
+	{
+		return false;
+	}
+	
+	override bool CanLoadAttachment( EntityAI attachment )
+	{		
+		return false;
+	}
+	
+	override bool CanBePlaced( Man player, vector position ) 
+	{ 
+		return false; 
+	}
+	
+	override bool IsInventoryVisible()
+	{
+		return false;
+	}
+	
+	override bool CanDetachAttachment(EntityAI parent)
+	{
+		return false;
+	}
+	
 	override bool CanPutIntoHands( EntityAI parent )
 	{
 		return false;
@@ -250,7 +450,27 @@ class bldr_Candle extends Candle
 		return false;
 	}
 	
+	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
+	{
+		return false;
+	}
+	
+	override bool CanReleaseCargo(EntityAI cargo)
+	{
+		return false;
+	}
+	
+	override bool CanRemoveFromCargo(EntityAI parent)
+	{
+		return false;
+	}
+	
 	override bool CanReceiveItemIntoHands(EntityAI item_to_hands)
+	{
+		return false;
+	}
+	
+	override bool CanSaveItemInHands(EntityAI item_in_hands)
 	{
 		return false;
 	}
@@ -261,6 +481,26 @@ class bldr_Candle extends Candle
 	}
 
 	override bool CanRemoveFromHands(EntityAI parent)
+	{
+		return false;
+	}
+	
+	override bool CanDisplayAttachmentSlot( string slot_name )
+	{
+		return false;
+	}
+	
+	override bool CanDisplayAttachmentCategory( string category_name )
+	{
+		return false;
+	}
+	
+	override bool CanDisplayCargo()
+	{
+		return false;
+	}
+	
+	override bool CanAssignToQuickbar()
 	{
 		return false;
 	}
@@ -367,3 +607,8 @@ class bldr_Spotlight extends Spotlight
 		}
 	}
 }
+
+class bldr_land_misc_barel_fire_1 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_2 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_3 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_4 extends BuildingWithFireplace {};

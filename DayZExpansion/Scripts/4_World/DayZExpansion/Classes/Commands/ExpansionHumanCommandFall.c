@@ -10,12 +10,8 @@
  *
 */
 
-class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
+class ExpansionHumanCommandFall : ExpansionHumanCommandScript
 {
-	PlayerBase m_Player;
-	ExpansionHumanST m_Table;
-	HumanInputController m_Input;
-
 	float m_JumpTime;
 	float m_JumpMaxTime;
 	float m_JumpVelocity;
@@ -39,21 +35,17 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 
 	private bool m_LandEarlyExit;
 
-	void ExpansionHumanCommandFall( Human pHuman, float pYVelocity, ExpansionHumanST pTable )
+	void ExpansionHumanCommandFall( DayZPlayerImplement player, ExpansionHumanST table, float pYVelocity )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::ExpansionHumanCommandFall Start");
 		#endif
-
-		Class.CastTo( m_Player, pHuman );
-
-		m_Table = pTable;
+		
 		m_JumpVelocity = pYVelocity;
 
 		if ( m_JumpVelocity > 0 )
 			m_JumpMaxTime = m_JumpVelocity / 4.905;
 
-		m_Input = m_Player.GetInputController();
 		m_IsFalling = true;
 
 		m_LandEarlyExit = false;
@@ -117,12 +109,6 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		EXPrint("ExpansionHumanCommandFall::OnActivate - Start");
 		#endif
 
-		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
-		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
-
-		dbg_FallCommand.Set("Activated", "");
-		#endif
-
 		if ( m_JumpVelocity > 0 )
 		{
 			m_Table.CallJump( this );
@@ -139,12 +125,6 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::OnDeactivate - Start");
-		#endif
-
-		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
-		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
-
-		dbg_FallCommand.Set("Deactivated", "");
 		#endif
 
 		/*
@@ -200,11 +180,6 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 
 		if ( !m_IsFalling && m_LandType != -1 && m_Time == 0 )
 		{
-			#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
-			CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
-
-			dbg_FallCommand.Set("Not Falling", "");
-			#endif
 
 			m_Table.CallLand( this, m_LandType );	
 
@@ -353,12 +328,6 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::SetLanded Start");
 		#endif
-
-		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
-		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
-
-		dbg_FallCommand.Set("Set Landed", "");
-		#endif
 		
 		m_Time = 0;
 		m_IsFalling = false;
@@ -377,13 +346,6 @@ class ExpansionHumanCommandFall extends ExpansionHumanCommandScript
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionHumanCommandFall::Land - Start");
-		#endif
-
-		#ifdef EXPANSION_DEBUG_UI_FALLCOMMAND
-		CF_Debugger_Block dbg_FallCommand = CF.Debugger.Get("FallCommand", m_Player);
-
-		dbg_FallCommand.Set("Land", type);
-		dbg_FallCommand.Set("Is Falling", m_IsFalling);
 		#endif
 
 		m_LandType = type;

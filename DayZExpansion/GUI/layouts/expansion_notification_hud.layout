@@ -5,11 +5,12 @@ PanelWidgetClass ExpansionNotificationHUD {
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
+ position 0 0
  size 1 1
  halign center_ref
  valign center_ref
- hexactpos 0
- vexactpos 0
+ hexactpos 1
+ vexactpos 1
  hexactsize 0
  vexactsize 0
  scaled 1
@@ -24,10 +25,10 @@ PanelWidgetClass ExpansionNotificationHUD {
    inheritalpha 0
    ignorepointer 1
    keepsafezone 1
-   position 0.038 0.047
+   position 52 36
    size 0.25 0.9
-   hexactpos 0
-   vexactpos 0
+   hexactpos 1
+   vexactpos 1
    hexactsize 0
    vexactsize 0
    scaled 1
@@ -38,9 +39,10 @@ PanelWidgetClass ExpansionNotificationHUD {
      clipchildren 1
      ignorepointer 1
      keepsafezone 1
+     position 0 0
      size 1 1
-     hexactpos 0
-     vexactpos 0
+     hexactpos 1
+     vexactpos 1
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
@@ -64,11 +66,11 @@ PanelWidgetClass ExpansionNotificationHUD {
    inheritalpha 0
    ignorepointer 1
    keepsafezone 1
-   position 0 0.047
+   position 0 102
    size 0.4 0.9
    halign center_ref
-   hexactpos 0
-   vexactpos 0
+   hexactpos 1
+   vexactpos 1
    hexactsize 0
    vexactsize 0
    scaled 1
@@ -79,9 +81,10 @@ PanelWidgetClass ExpansionNotificationHUD {
      clipchildren 1
      ignorepointer 1
      keepsafezone 1
+     position 0 0
      size 1 1
-     hexactpos 0
-     vexactpos 0
+     hexactpos 1
+     vexactpos 1
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
@@ -102,12 +105,12 @@ PanelWidgetClass ExpansionNotificationHUD {
    inheritalpha 0
    ignorepointer 1
    keepsafezone 1
-   position 0.25 0.25
+   position 960 540
    size 0.15 0.4
    halign right_ref
    valign center_ref
-   hexactpos 0
-   vexactpos 0
+   hexactpos 1
+   vexactpos 1
    hexactsize 0
    vexactsize 0
    scaled 1
@@ -118,9 +121,10 @@ PanelWidgetClass ExpansionNotificationHUD {
      clipchildren 1
      ignorepointer 1
      keepsafezone 1
+     position 0 0
      size 1 1
-     hexactpos 0
-     vexactpos 0
+     hexactpos 1
+     vexactpos 1
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
@@ -137,22 +141,21 @@ PanelWidgetClass ExpansionNotificationHUD {
     }
    }
   }
-  PanelWidgetClass KillfeedContent {
+  PanelWidgetClass KillfeedsContent {
    visible 1
    disabled 0
    clipchildren 1
    inheritalpha 0
    ignorepointer 1
    keepsafezone 1
-   position 0.038 0.047
-   size 0.2 0.9
+   position 52 36
+   size 0.25 0.9
    halign right_ref
-   hexactpos 0
-   vexactpos 0
+   hexactpos 1
+   vexactpos 1
    hexactsize 0
    vexactsize 0
    scaled 1
-   priority 1
    draggable 0
    "no focus" 1
    {
@@ -160,9 +163,11 @@ PanelWidgetClass ExpansionNotificationHUD {
      clipchildren 1
      ignorepointer 1
      keepsafezone 1
+     position 0 0
      size 1 1
-     hexactpos 0
-     vexactpos 0
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
      hexactsize 0
      vexactsize 0
      scriptclass "ViewBinding"
@@ -174,6 +179,48 @@ PanelWidgetClass ExpansionNotificationHUD {
      {
       ScriptParamsClass {
        Binding_Name "NotificationKillfeedElements"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass MarketContent {
+   visible 1
+   disabled 0
+   clipchildren 1
+   inheritalpha 0
+   ignorepointer 1
+   keepsafezone 1
+   position 15 345
+   size 0.2 0.31
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   draggable 0
+   "no focus" 1
+   {
+    WrapSpacerWidgetClass MarketGrid {
+     clipchildren 1
+     ignorepointer 1
+     keepsafezone 1
+     position 0 0
+     size 1 3.89025
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     style Empty
+     "no focus" 1
+     Padding 5
+     Margin 0
+     "Size To Content V" 1
+     {
+      ScriptParamsClass {
+       Binding_Name "NotificationMarketElements"
       }
      }
     }

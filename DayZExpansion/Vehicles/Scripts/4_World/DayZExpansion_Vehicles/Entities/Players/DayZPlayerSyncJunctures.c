@@ -15,6 +15,7 @@ modded class DayZPlayerSyncJunctures
 	static const int EXPANSION_SJ_NEXT_LINK = 100;
 	static const int EXPANSION_SJ_GET_IN_TRANSPORT_UNLINK = 101;
 	static const int EXPANSION_SJ_PERFORM_CLIMB = 102;
+	static const int EXPANSION_SJ_UPDATE_TRANSFORM = 103;
 	
 	static void ExpansionSendNextLink( DayZPlayer pPlayer )
 	{

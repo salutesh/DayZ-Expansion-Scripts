@@ -12,104 +12,72 @@
 
 modded class ActionStartEngine
 {
-	override void CreateConditionComponents()  
+	CarScript m_Car;
+
+	override void CreateConditionComponents()
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTNone;
 	}
 
-	private CarScript m_Car;
-	
 	override string GetText()
 	{
-		if ( m_Car.IsPlane() )
-		{
-			return "#STR_EXPANSION_UA_START_PLANE";
-		} else if ( m_Car.IsHelicopter() )
-		{
-			return "#STR_EXPANSION_UA_START_HELICOPTER";
-		}
-
-		return "#STR_EXPANSION_UA_START_CAR";
+		return "#STR_EXPANSION_VEHICLE_ENGINE_START" + " " + m_Car.Expansion_EngineGetName() + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
 	}
 
-	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if ( !player )
+		if (!player)
 			return false;
-		
+
 		IEntity vehicle = player.GetParent();
-		if( !vehicle )
+		if (!vehicle)
 			return false;
 
-		ExpansionBoatScript boat;
-		if ( Class.CastTo( boat, vehicle ) )
-		{
-			m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
-
-			if ( IsMissionClient() )
-			{
-				if ( boat.IsUsingBoatController() )
-					return false;
-			}
-
-			if ( !boat.IsCar() )
-				return false;
-
-			if ( boat.MotorIsOn() )
-				return true;
-		} else if ( vehicle.IsInherited( ExpansionHelicopterScript ) || vehicle.IsInherited( ExpansionVehicleHelicopterBase ) || vehicle.IsInherited( ExpansionVehiclePlaneBase ) ) 
-		{
-			m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ITEM_TUNE;
-		} else 
-		{
-			m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_STARTENGINE;
-		}
-		
-		if ( vehicle.IsInherited(ExpansionVehicleBikeBase) )
-			return false;
-		
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
-		if ( vehCommand )
+		if (vehCommand)
 		{
-			if ( Class.CastTo( m_Car, vehCommand.GetTransport() ) && !m_Car.EngineIsOn() )
+			if (Class.CastTo(m_Car, vehCommand.GetTransport()) && !m_Car.Expansion_EngineIsOn())
 			{
-				if ( m_Car.GetHealthLevel( "Engine" ) >= GameConstants.STATE_RUINED )
+				m_CommandUID = m_Car.Expansion_EngineStartAnimation();
+
+				if (m_Car.GetHealthLevel("Engine") >= GameConstants.STATE_RUINED)
 					return false;
-				
-				if ( m_Car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+
+				if (m_Car.CrewMemberIndex(player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				{
-					if ( m_Car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED )
+					if (m_Car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
 						return true;
 
-					if ( !m_Car.HasKey() )
+					if (!m_Car.HasKey())
 						return true;
 
 					ExpansionCarKey key;
-					if ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1 )
+					if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1)
 					{
 						//!TODO:This is really inefficient, enumerate on the client, send the item to the server and the
 						//!		server can just perform the check to see if it is apart of the same hierarchy
 						array<EntityAI> playerItems = new array<EntityAI>;
-						player.GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, playerItems );
-						for ( int i = 0; i < playerItems.Count(); ++i )
+						player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, playerItems);
+						for (int i = 0; i < playerItems.Count(); ++i)
 						{
-							if ( !Class.CastTo( key, playerItems[i] ) )
+							if (!Class.CastTo(key, playerItems[i]))
 								continue;
 
-							if ( !m_Car.IsCarKeys( key ) )
+							if (!m_Car.IsCarKeys(key))
 								continue;
 
 							return true;
 						}
 
 						return false;
-					} else if ( GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 2 )
+					}
+					else if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 2)
 					{
-						if ( !Class.CastTo( key, player.GetItemInHands() ) )
+						if (!Class.CastTo(key, player.GetItemInHands()))
 							return false;
 
-						if ( !m_Car.IsCarKeys( key ) )
+						if (!m_Car.IsCarKeys(key))
 							return false;
 
 						return true;
@@ -124,68 +92,97 @@ modded class ActionStartEngine
 		return false;
 	}
 
-	override void OnStartServer( ActionData action_data )
+	override void OnStartServer(ActionData action_data)
 	{
-		super.OnStartServer( action_data );
+		super.OnStartServer(action_data);
 
 		CarScript car; //! Don't use m_Car, use this local variable and assign on action start. This is performed on the server.
-		if ( !Class.CastTo( car, action_data.m_Player.GetParent() ) )
+		if (!Class.CastTo(car, action_data.m_Player.GetParent()))
 			return;
 
-		car.SetCarBatteryStateForVanilla( true );
+		car.SetCarBatteryStateForVanilla(true);
 
-		if ( !car.EngineIsOn() )
+		if (!car.Expansion_EngineIsOn())
 		{
 			ExpansionHelicopterScript heli;
-			if ( Class.CastTo( heli, car ) )
+			if (Class.CastTo(heli, car))
 			{
 				EntityAI item2;
 				m_SparkCon = false;
 				m_BeltCon = false;
 				m_BatteryCon = false;
 
-				if ( heli.IsVitalIgniterPlug() || heli.IsVitalSparkPlug() || heli.IsVitalGlowPlug() )
+				if (heli.IsVitalIgniterPlug() || heli.IsVitalSparkPlug() || heli.IsVitalGlowPlug())
 				{
 					item2 = NULL;
-					if ( heli.IsVitalIgniterPlug() ) item2 = heli.FindAttachmentBySlotName( "ExpansionIgniterPlug" );
-					if ( heli.IsVitalSparkPlug() ) item2 = heli.FindAttachmentBySlotName( "SparkPlug" );
-					if ( heli.IsVitalGlowPlug() ) item2 = heli.FindAttachmentBySlotName( "GlowPlug" );
+					if (heli.IsVitalIgniterPlug())
+						item2 = heli.FindAttachmentBySlotName("ExpansionIgniterPlug");
+					if (heli.IsVitalSparkPlug())
+						item2 = heli.FindAttachmentBySlotName("SparkPlug");
+					if (heli.IsVitalGlowPlug())
+						item2 = heli.FindAttachmentBySlotName("GlowPlug");
 
-					if ( item2 && !item2.IsRuined() )
+					if (item2 && !item2.IsRuined())
 						m_SparkCon = true;
-				} else
+				}
+				else
 				{
 					m_SparkCon = true;
 				}
-				
-				if ( heli.IsVitalHydraulicHoses() || heli.IsVitalRadiator() )
+
+				if (heli.IsVitalHydraulicHoses() || heli.IsVitalRadiator())
 				{
 					item2 = NULL;
-					if ( heli.IsVitalHydraulicHoses() ) item2 = heli.FindAttachmentBySlotName( "ExpansionHydraulicHoses" );
-					if ( heli.IsVitalRadiator() ) item2 = heli.FindAttachmentBySlotName( "CarRadiator" );
+					if (heli.IsVitalHydraulicHoses())
+						item2 = heli.FindAttachmentBySlotName("ExpansionHydraulicHoses");
+					if (heli.IsVitalRadiator())
+						item2 = heli.FindAttachmentBySlotName("CarRadiator");
 
-					if ( item2 && !item2.IsRuined() )
+					if (item2 && !item2.IsRuined())
 						m_BeltCon = true;
-				} else
+				}
+				else
 				{
 					m_BeltCon = true;
 				}
-				if ( heli.IsVitalHelicopterBattery() || heli.IsVitalCarBattery() || heli.IsVitalTruckBattery() )
+
+				if (heli.IsVitalHelicopterBattery() || heli.IsVitalCarBattery() || heli.IsVitalTruckBattery())
 				{
 					item2 = NULL;
-					if ( heli.IsVitalHelicopterBattery() ) item2 = heli.FindAttachmentBySlotName( "ExpansionHelicopterBattery" );
-					if ( heli.IsVitalCarBattery() ) item2 = heli.FindAttachmentBySlotName( "CarBattery" );
-					if ( heli.IsVitalTruckBattery() ) item2 = heli.FindAttachmentBySlotName( "TruckBattery" );
+					if (heli.IsVitalHelicopterBattery())
+						item2 = heli.FindAttachmentBySlotName("ExpansionHelicopterBattery");
+					if (heli.IsVitalCarBattery())
+						item2 = heli.FindAttachmentBySlotName("CarBattery");
+					if (heli.IsVitalTruckBattery())
+						item2 = heli.FindAttachmentBySlotName("TruckBattery");
 
-					if ( item2 && !item2.IsRuined() )
+					if (item2 && !item2.IsRuined())
 						m_BatteryCon = true;
-				} else
+				}
+				else
 				{
 					m_BatteryCon = true;
 				}
 			}
 		}
 
-		car.SetCarBatteryStateForVanilla( false );
+		car.SetCarBatteryStateForVanilla(false);
 	}
-}
+
+	override void OnFinishProgressServer(ActionData action_data)
+	{
+		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
+		if (vehCommand)
+		{
+			CarScript car;
+			if (Class.CastTo(car, vehCommand.GetTransport()))
+			{
+				if (m_FuelCon && m_BeltCon && m_SparkCon && m_BatteryCon)
+				{
+					int current = car.Expansion_EngineGetCurrent();
+					car.Expansion_EngineStart(current);
+				}
+			}
+		}
+	}
+};

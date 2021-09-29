@@ -21,12 +21,6 @@ modded class OffroadHatchback
 		return "HatchbackWheel";
 	}
 
-	override bool LeavingSeatDoesAttachment( int posIdx )
-	{
-		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
-		return false;
-	}
-
 	override float GetCameraDistance()
 	{
 		return 3.5;

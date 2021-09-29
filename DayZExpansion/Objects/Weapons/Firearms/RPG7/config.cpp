@@ -25,8 +25,8 @@ class CfgAmmo
 	class ExpansionRocketRPG: Bullet_Base
 	{
 		scope = 2;
-		casing = "FxCartridge_Expansion_M203";
-		round = "FxRound_Expansion_M203";
+		casing = "FxCartridge_Expansion_RPG7";
+		round = "FxRound_Expansion_RPG7";
 		spawnPileType = "ExpansionAmmoRPG";
 		hit = 0;
 		model = "\dz\weapons\ammunition\rocket_rpg7_inflight.p3d";
@@ -169,7 +169,7 @@ class CfgMagazines
 		itemSize[] = {4,2};
 		displayName = "$STR_EXPANSION_RPG7_WARHEAD";
 		descriptionShort = "$STR_CfgMagazines_Ammo_LAW_HE1";
-		model = "\dz\weapons\ammunition\rocket_rpg7.p3d";
+		model = "DayZExpansion\Objects\Weapons\Firearms\RPG7\fx\rpg7_ammoheat_round.p3d";
 		rotationFlags = 34;
 		weight = 1800;
 		count = 1;
@@ -202,7 +202,7 @@ class cfgWeapons
 		absorbency = 0;
 		repairableWithKits[] = {5,1};
 		repairCosts[] = {30,25};
-		PPDOFProperties[] = {1,0.5,10,170,4,10};
+		PPDOFProperties[] = {0,0.0,0,0,0,0};
 		ironsightsExcludingOptics[] = {};
 		DisplayMagazine = 0;
 		WeaponLength = 0.981055;
@@ -337,11 +337,12 @@ class cfgWeapons
 		scope = 2;
 		displayName = "$STR_EXPANSION_RPG7";
 		descriptionShort = "$STR_cfgWeapons_RPG71";
-		model = "\DZ\weapons\launchers\rpg7\rpg7.p3d";
+		model = "\DayZExpansion\Objects\Weapons\Firearms\RPG7\rpg.p3d";
 		itemSize[] = {8,6};
 		attachments[] = {};
 		hiddenSelectionsTextures[] = {};
 		hiddenSelectionsMaterials[] = {};
+		simpleHiddenSelections[] = {"ammo"};
 		class Particles
 		{
 			class OnFire
@@ -368,6 +369,8 @@ class cfgWeapons
 };
 class cfgVehicles
 {
+	class FxCartridge;
+	class FxRound;
 	class HouseNoDestruct;
 	class Expansion_RPG_Explosion: HouseNoDestruct
 	{
@@ -381,6 +384,14 @@ class cfgVehicles
 		model = "\DZ\data\lightpoint.p3d";
 		ammoType = "ExpansionC4_Ammo";
 	};
+	class FxCartridge_Expansion_RPG7: FxCartridge
+	{
+		model = "DayZExpansion\Objects\Weapons\Firearms\RPG7\fx\rpg7_ammoheat_casing.p3d";
+	};
+	class FxRound_Expansion_RPG7: FxRound
+	{
+		model = "DayZExpansion\Objects\Weapons\Firearms\RPG7\fx\rpg7_ammoheat_fxround.p3d";
+	};
 };
 class CfgNonAIVehicles
 {
@@ -389,6 +400,6 @@ class CfgNonAIVehicles
 	{
 		scope = 2;
 		simulation = "magazine";
-		model = "DZ\weapons\ammunition\rocket_rpg7.p3d";
+		model = "DayZExpansion\Objects\Weapons\Firearms\RPG7\fx\rpg7_ammoheat_round.p3d";
 	};
 };

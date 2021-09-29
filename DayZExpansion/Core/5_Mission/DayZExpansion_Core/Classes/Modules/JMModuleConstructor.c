@@ -16,7 +16,8 @@ modded class JMModuleConstructor
 	{
 		// Gameplay modules
 		modules.Insert( ExpansionSkinModule );
-		modules.Insert( ExpansionSafeZoneModule );
+		modules.Insert( ExpansionZoneModule );
+		modules.Insert( ExpansionItemBaseModule );
 		
 		super.RegisterModules( modules );
 	}

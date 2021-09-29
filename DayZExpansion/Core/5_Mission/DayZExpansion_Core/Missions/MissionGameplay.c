@@ -52,7 +52,8 @@ modded class MissionGameplay
 
 		DestroyDayZExpansion();
 
-		g_exGlobalSettings.Unload();
+		if (g_exGlobalSettings)
+			g_exGlobalSettings.Unload();
 		
 		DestroyExpansionUIMenuManager();
 
@@ -100,7 +101,9 @@ modded class MissionGameplay
 		}
 		
 		//! Why is this here?
-		// GetDayZExpansion().OnUpdate( timeslice );
+		#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
+		GetDayZExpansion().OnUpdate( timeslice );
+		#endif
 
 		//! Checking for keyboard focus
 		bool inputIsFocused = false;
@@ -135,32 +138,7 @@ modded class MissionGameplay
 					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 			}
 		}
-		
-		#ifdef EXPANSIONMODVEHICLE
-		if ( playerPB )
-		{
-			HumanCommandVehicle hcv = playerPB.GetCommand_Vehicle();
-			if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			{
-				CarScript carScript = CarScript.Cast( hcv.GetTransport() );
-				if ( carScript )
-				{
-					carScript.UpdateExpansionController();
-				}
-			}
-
-			ExpansionHumanCommandVehicle ehcv = playerPB.GetCommand_ExpansionVehicle();
-			if ( ehcv && ehcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-			{
-				ExpansionVehicleBase expansionVehicleScript = ExpansionVehicleBase.Cast( ehcv.GetTransport() );
-				if ( expansionVehicleScript )
-				{
-					expansionVehicleScript.UpdateExpansionController();
-				}
-			}
-		}
-		#endif
-			
+					
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::OnUpdate - End");
 		#endif
@@ -196,16 +174,94 @@ modded class MissionGameplay
 			delete m_EXUIMenuManager;
 	}
 	
+	// ------------------------------------------------------------
+	// GetExpansionUIMenuManager
+	// ------------------------------------------------------------	
 	ExpansionUIMenuManager GetExpansionUIMenuManager()
 	{
 		return m_EXUIMenuManager;
 	}
-	
+
+	// ------------------------------------------------------------
+	// IsMenuOpened
+	// ------------------------------------------------------------
 	bool IsMenuOpened()
 	{
 		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			return true;
 		
 		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// OnMissionStart
+	// ------------------------------------------------------------	
+	override void OnMissionStart()
+	{
+		super.OnMissionStart();
+		
+		//! Unlock inputs again if not working ?!
+		LockInputs(false, false);
+		GetUApi().UpdateControls();
+		
+		#ifdef EDITOR
+		GetUApi().GetInputByName("UAExpansionMapToggle").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionMapDeleteMarker").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionQuickMarker").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionQuickMarker").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionGPSToggle").ForceDisable(true);
+		GetUApi().GetInputByName("UAExpansionPlayerListToggle").ForceDisable(true);
+		GetUApi().UpdateControls();
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// OnMissionFinish
+	// ------------------------------------------------------------
+	override void OnMissionFinish()
+	{
+		super.OnMissionFinish();
+		
+		//! Unlock inputs again if not working ?!
+		LockInputs(false, false);
+		GetUApi().UpdateControls();
+	}
+	
+	// ------------------------------------------------------------
+	// LockInputs
+	// ------------------------------------------------------------	
+	void LockInputs(bool state, bool lockMovement = true)
+	{
+		TIntArray inputIDs = new TIntArray;
+		GetUApi().GetActiveInputs(inputIDs);
+
+		TStringArray skip = new TStringArray;
+		skip.Insert("UAUIBack");
+
+		if (!lockMovement)
+		{
+			//! Allow player movement
+			skip.Insert("UAMoveForward");
+			skip.Insert("UAMoveBack");
+			skip.Insert("UAMoveLeft");
+			skip.Insert("UAMoveRight");
+			skip.Insert("UATurbo");
+			skip.Insert("UAWalkRunTemp");
+			skip.Insert("UAWalkRunToggle");
+		}
+
+		TIntArray skipIDs = new TIntArray;
+		foreach (string inputName : skip)
+		{
+			skipIDs.Insert(GetUApi().GetInputByName(inputName).ID());
+		}
+
+		foreach (int inputID : inputIDs)
+		{
+			if (skipIDs.Find(inputID) == -1)
+			{
+				GetUApi().GetInputByID(inputID).ForceDisable(state);
+			}
+		}
 	}
 };
