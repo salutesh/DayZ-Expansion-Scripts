@@ -64,6 +64,20 @@ modded class PlayerBase
 		}
 	}
 
+	static void Expansion_SendNear(ScriptRPC rpc, int id, vector position, float distance, Object target = null, bool guaranteed = false)
+	{
+		PlayerBase player = s_AllPlayers;
+		while (player)
+		{
+			if (player.GetIdentity() && vector.Distance(player.GetPosition(), position) < distance)
+			{
+				rpc.Send(target, id, guaranteed, player.GetIdentity());
+			}
+
+			player = player.m_Expansion_NextPlayer;
+		}
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentitySteam
 	// ------------------------------------------------------------

@@ -59,7 +59,7 @@ modded class DayZPlayerImplement
 	void DayZPlayerImplement()
 	{
 		//SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE);
-		SetEventMask(EntityEvent.FRAME | EntityEvent.POSTFRAME);
+		//SetEventMask(EntityEvent.FRAME | EntityEvent.POSTFRAME);
 
 		RegisterNetSyncVariableBool("m_IsAttached");
 
@@ -168,7 +168,7 @@ modded class DayZPlayerImplement
 
 	void PrepareForVehicleLink()
 	{
-		AttachmentDebugPrint("+DayZPlayerImplement::PrepareForVehicleLink");
+		//AttachmentDebugPrint("+DayZPlayerImplement::PrepareForVehicleLink");
 
 		m_ExIsPreparingVehicle = true;
 		m_ExPerformVehicleGetIn = false;
@@ -181,11 +181,11 @@ modded class DayZPlayerImplement
 
 		if (GetGame().IsServer())
 		{
-			AttachmentDebugPrint("Sending to client");
+			//AttachmentDebugPrint("Sending to client");
 			DayZPlayerSyncJunctures.ExpansionSendGetInTransportUnlink(this);
 		}
 
-		AttachmentDebugPrint("-DayZPlayerImplement::PrepareForVehicleLink");
+		//AttachmentDebugPrint("-DayZPlayerImplement::PrepareForVehicleLink");
 	}
 
 	bool CanPerformVehicleGetIn()
@@ -200,14 +200,14 @@ modded class DayZPlayerImplement
 
 	void EndVehiclePrep()
 	{
-		AttachmentDebugPrint("+DayZPlayerImplement::EndVehiclePrep");
+		//AttachmentDebugPrint("+DayZPlayerImplement::EndVehiclePrep");
 
 		m_ExIsPreparingVehicle = false;
 		m_ExPerformVehicleGetIn = false;
 
 		if (GetGame().IsClient())
 		{
-			AttachmentDebugPrint("Sending to server");
+			//AttachmentDebugPrint("Sending to server");
 
 			ScriptInputUserData ctx = new ScriptInputUserData;
 			ctx.Write(EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK);
@@ -215,7 +215,7 @@ modded class DayZPlayerImplement
 			ctx.Send();
 		}
 
-		AttachmentDebugPrint("-DayZPlayerImplement::EndVehiclePrep");
+		//AttachmentDebugPrint("-DayZPlayerImplement::EndVehiclePrep");
 	}
 
 	override bool IsInTransport()
@@ -264,7 +264,7 @@ modded class DayZPlayerImplement
 
 	void AttachTo(IEntity target, bool already_validated = false)
 	{
-		AttachmentDebugPrint("PlayerBase::AttachTo start");
+		//AttachmentDebugPrint("PlayerBase::AttachTo start");
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 
@@ -280,26 +280,26 @@ modded class DayZPlayerImplement
 				vector size[2];
 				m_ExAttachmentRadius = m_ExAttachmentObject.ClippingInfo(size);
 
-				AttachmentDebugPrint("PlayerBase::AttachTo success");
+				//AttachmentDebugPrint("PlayerBase::AttachTo success");
 			}
 			else
 			{
 				m_ExAttachmentObject = NULL;
 				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 
-				AttachmentDebugPrint("PlayerBase::AttachTo failure");
+				//AttachmentDebugPrint("PlayerBase::AttachTo failure");
 			}
 		}
 
 		if (m_ExAttachmentObject)
 			m_IsAttached = true;
 
-		AttachmentDebugPrint("PlayerBase::AttachTo end");
+		//AttachmentDebugPrint("PlayerBase::AttachTo end");
 	}
 
 	void Detach()
 	{
-		AttachmentDebugPrint("PlayerBase::Detach start");
+		//AttachmentDebugPrint("PlayerBase::Detach start");
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 		m_IsAttached = false;
@@ -309,7 +309,7 @@ modded class DayZPlayerImplement
 			m_ExPlayerLinkType = ExpansionPlayerLink.DETACH;
 		}
 
-		AttachmentDebugPrint("PlayerBase::Detach end");
+		//AttachmentDebugPrint("PlayerBase::Detach end");
 	}
 
 	override bool OnInputUserDataProcess(int userDataType, ParamsReadContext ctx)
@@ -343,13 +343,13 @@ modded class DayZPlayerImplement
 				}
 			}
 
-			AttachmentDebugPrint("PlayerBase::OnInputUserDataProcess end");
+			//AttachmentDebugPrint("PlayerBase::OnInputUserDataProcess end");
 			return true;
 		}
 
 		if (userDataType == EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK)
 		{
-			AttachmentDebugPrint("+DayZPlayerImplement::OnInputUserDataProcess - EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK");
+			//AttachmentDebugPrint("+DayZPlayerImplement::OnInputUserDataProcess - EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK");
 			m_ExPerformVehicleGetIn = true;
 
 			return true;
@@ -357,7 +357,7 @@ modded class DayZPlayerImplement
 
 		if (userDataType == EXPANSION_INPUT_UDT_PERFORM_CLIMB)
 		{
-			AttachmentDebugPrint("+DayZPlayerImplement::OnInputUserDataProcess - EXPANSION_INPUT_UDT_PERFORM_CLIMB");
+			//AttachmentDebugPrint("+DayZPlayerImplement::OnInputUserDataProcess - EXPANSION_INPUT_UDT_PERFORM_CLIMB");
 
 			m_ExPerformClimb = true;
 			return true;
@@ -376,24 +376,24 @@ modded class DayZPlayerImplement
 		switch (pJunctureID)
 		{
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_NEXT_LINK:
-			AttachmentDebugPrint("+DayZPlayerImplement::OnSyncJuncture - ExpansionReadNextLink");
+			//AttachmentDebugPrint("+DayZPlayerImplement::OnSyncJuncture - ExpansionReadNextLink");
 			DayZPlayerSyncJunctures.ExpansionReadNextLink(pCtx);
 
 			m_ExIsAwaitingServerLink = false;
-			AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadNextLink");
+			//AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadNextLink");
 			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_PERFORM_CLIMB:
-			AttachmentDebugPrint("+DayZPlayerImplement::OnSyncJuncture - ExpansionReadPerformClimb");
+			//AttachmentDebugPrint("+DayZPlayerImplement::OnSyncJuncture - ExpansionReadPerformClimb");
 			DayZPlayerSyncJunctures.ExpansionReadPerformClimb(pCtx, m_ExPerformClimb, m_ExPerformClimbAttach);
 
-			AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadPerformClimb");
+			//AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadPerformClimb");
 			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_GET_IN_TRANSPORT_UNLINK:
-			AttachmentDebugPrint("+DayZPlayerImplement::OnSyncJuncture - ExpansionReadGetInTransportUnlink");
+			//AttachmentDebugPrint("+DayZPlayerImplement::OnSyncJuncture - ExpansionReadGetInTransportUnlink");
 			DayZPlayerSyncJunctures.ExpansionReadGetInTransportUnlink(pCtx);
 
 			m_ExPerformVehicleGetIn = true;
-			AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadGetInTransportUnlink");
+			//AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadGetInTransportUnlink");
 			break;
 		}
 
@@ -667,7 +667,7 @@ modded class DayZPlayerImplement
 		// Attachment code
 		if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE && GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_REMOTE)
 		{
-			AttachmentDebugPrint("ExPlayerLinkType Changed");
+			//AttachmentDebugPrint("ExPlayerLinkType Changed");
 
 			changedState = true;
 
@@ -675,7 +675,7 @@ modded class DayZPlayerImplement
 			{
 			case ExpansionPlayerLink.DETACH:
 			{
-				AttachmentDebugPrint("START DETACH");
+				//AttachmentDebugPrint("START DETACH");
 
 				UnlinkFromLocalSpace();
 				m_IsAttached = false;
@@ -688,13 +688,13 @@ modded class DayZPlayerImplement
 
 				SetSynchDirty();
 
-				AttachmentDebugPrint("END DETACH");
+				//AttachmentDebugPrint("END DETACH");
 
 				break;
 			}
 			case ExpansionPlayerLink.ATTACH:
 			{
-				AttachmentDebugPrint("START ATTACH");
+				//AttachmentDebugPrint("START ATTACH");
 
 				GetTransform(m_ExTransformPlayer);
 				m_ExAttachmentObject.GetTransform(m_ExTransformTarget);
@@ -709,7 +709,7 @@ modded class DayZPlayerImplement
 
 				SetSynchDirty();
 
-				AttachmentDebugPrint("END ATTACH");
+				//AttachmentDebugPrint("END ATTACH");
 
 				break;
 			}
@@ -718,7 +718,7 @@ modded class DayZPlayerImplement
 			// Send the user input to the server
 			if (GetGame().IsClient())
 			{
-				AttachmentDebugPrint("Sending Context to Server");
+				//AttachmentDebugPrint("Sending Context to Server");
 
 				ScriptInputUserData ctx = new ScriptInputUserData;
 				ctx.Write(EXPANSION_INPUT_UDT_PLAYER_LINK);
@@ -729,7 +729,7 @@ modded class DayZPlayerImplement
 
 				ctx.Send();
 
-				AttachmentDebugPrint("Sent Context to Server");
+				//AttachmentDebugPrint("Sent Context to Server");
 			}
 			else if (GetGame().IsMultiplayer())
 			{
@@ -738,10 +738,11 @@ modded class DayZPlayerImplement
 
 			m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 
-			AttachmentDebugPrint("ExPlayerLinkType Processed");
+			//AttachmentDebugPrint("ExPlayerLinkType Processed");
 		}
 	}
 
+	/*
 	override void EOnPostFrame(IEntity other, int extra)
 	{
 		if (GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_REMOTE)
@@ -785,6 +786,7 @@ modded class DayZPlayerImplement
 		transform[3] = m_ExTransformPlayer[3];
 		SetTransform(transform);
 	}
+	*/
 
 	/*
 	override bool OnNetworkTransformUpdate(out vector pos, out vector ypr)

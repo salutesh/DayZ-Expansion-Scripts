@@ -140,7 +140,7 @@ class ExpansionActionConnectTow: ActionInteractBase
 								}
 							}
 
-							if ( other_car.ExpansionGetVehicleWeight() < car.ExpansionGetVehicleWeight()  )
+							if (dBodyGetMass(other_car) * 0.9 < dBodyGetMass(car)  )
 								return other_car;
 						}
 					}

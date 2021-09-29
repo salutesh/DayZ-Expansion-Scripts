@@ -22,7 +22,7 @@ modded class ActionStopEngine
 
 	override string GetText()
 	{
-		return "Stop " + m_Car.Expansion_EngineGetName() + " Engine";
+		return "#STR_EXPANSION_VEHICLE_ENGINE_STOP" + " " + m_Car.Expansion_EngineGetName() + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

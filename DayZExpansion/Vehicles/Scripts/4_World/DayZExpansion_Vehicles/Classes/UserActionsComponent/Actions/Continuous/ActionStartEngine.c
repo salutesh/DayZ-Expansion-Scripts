@@ -22,7 +22,7 @@ modded class ActionStartEngine
 
 	override string GetText()
 	{
-		return "Start " + m_Car.Expansion_EngineGetName() + " Engine";
+		return "#STR_EXPANSION_VEHICLE_ENGINE_START" + " " + m_Car.Expansion_EngineGetName() + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

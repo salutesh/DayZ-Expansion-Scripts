@@ -27,8 +27,7 @@ modded class MissionServer
 		#endif
 
 		CreateDayZExpansion();
-		if ( GetExpansionSettings().GetSafeZone().EnableForceSZCleanup) 
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionForceSZCleanup, GetExpansionSettings().GetSafeZone().ForceSZCleanupInterval, true);  
+		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::MissionServer - End");
 		#endif
@@ -176,19 +175,9 @@ modded class MissionServer
 		JsonFileLoader<ExpansionClassNameDump>.JsonSaveFile("$profile:\\" + mustContain + "ClassNames.json", newDump);
 		delete newDump;
 	}
-	void ExpansionForceSZCleanup()
-	{
-		set< ItemBase > szItems = ItemBase.ExpansionGetSafeZoneItems();
-		for (int i = szItems.Count() - 1; i >= 0; i--)
-		{
-			ItemBase currItem = szItems[i];
-			if (currItem.GetLifetime() == -1)
-				currItem.Delete();
-		}
-	}
-}
+};
 
 class ExpansionClassNameDump
 {
 	ref array<string> ClassNames = new array<string>;
-}
+};

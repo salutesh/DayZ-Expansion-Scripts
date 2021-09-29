@@ -95,8 +95,9 @@ class ExpansionZoneActor
 
 		while (g_ExpansionZoneActorCurrent)
 		{
+			ExpansionZoneActor next = g_ExpansionZoneActorCurrent.m_Next;
 			g_ExpansionZoneActorCurrent.OnUpdate();
-			g_ExpansionZoneActorCurrent = g_ExpansionZoneActorCurrent.m_Next;
+			g_ExpansionZoneActorCurrent = next;
 
 			if ((index++) > max)
 				return;

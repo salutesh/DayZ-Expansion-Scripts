@@ -181,6 +181,8 @@ modded class CarScript
 
 	private EffectSound m_SoundLock;
 
+	protected bool m_Expansion_EngineIsOn;
+
 	//! Settings
 	protected bool m_TowingEnabled;
 
@@ -202,7 +204,6 @@ modded class CarScript
 
 	protected float m_ModelAnchorPointY = -1;
 
-	protected float m_Expansion_VehicleWeight = -1;
 	protected bool m_Expansion_CanPlayerAttach;
 	protected bool m_Expansion_CanPlayerAttachSet;
 
@@ -242,6 +243,7 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
 
+		RegisterNetSyncVariableBool( "m_Expansion_EngineIsOn" );
 		RegisterNetSyncVariableBool( "m_CanSimulate" );
 
 		m_DebugShapes = new array< Shape >();
@@ -553,26 +555,6 @@ modded class CarScript
 	float GetTowLength()
 	{
 		return 0.1;
-	}
-
-	float ExpansionGetVehicleWeight()
-	{
-		if (m_Expansion_VehicleWeight < 0)
-		{
-			foreach ( ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig )
-			{
-				if ( IsKindOf( vehcfg.ClassName ) )
-				{
-					m_Expansion_VehicleWeight = vehcfg.Weight;
-					break;
-				}
-			}
-
-			if (m_Expansion_VehicleWeight < 0)
-				m_Expansion_VehicleWeight = GetWeight();
-		}
-
-		return m_Expansion_VehicleWeight;
 	}
 
 	bool ExpansionCanPlayerAttach()
@@ -2395,12 +2377,19 @@ modded class CarScript
 	{
 		m_Expansion_EnginesOn++;
 
-		if (index == 0)
-			return;
+		if (!m_Expansion_EngineIsOn)
+			SetAnimationPhase("EnableMonitor", 0);
 
-		dBodyActive(this, ActiveState.ACTIVE);
+		m_Expansion_EngineIsOn = true;
 
-		UpdateLights();
+		if (index != 0)
+		{
+			dBodyActive(this, ActiveState.ACTIVE);
+
+			UpdateLights();
+		}
+
+		SetSynchDirty();
 	}
 
 	//! Stops the engine.
@@ -2430,6 +2419,16 @@ modded class CarScript
 	protected void OnEngineStop(int index)
 	{
 		m_Expansion_EnginesOn--;
+
+		if (m_Expansion_EnginesOn <= 0)
+		{
+			m_Expansion_EnginesOn = 0;
+
+			m_Expansion_EngineIsOn = false;
+			SetAnimationPhase( "EnableMonitor", -1 );
+		}
+
+		SetSynchDirty();
 	}
 
 	int Expansion_EnginesOn()
@@ -3004,6 +3003,11 @@ modded class CarScript
 	override void OnEngineStop()
 	{
 		super.OnEngineStop();
+
+		//! Something (probably vanilla?) is calling OnEngineStop in a loop on client, EVEN IF ENGINE IS RUNNING WHYYY WTF
+		//! Prevent this by checking netsynched var that tells us if engine is really stopped or not
+		if ( GetGame().IsClient() && m_Expansion_EngineIsOn )
+			return;
 
 		OnEngineStop(0);
 	}

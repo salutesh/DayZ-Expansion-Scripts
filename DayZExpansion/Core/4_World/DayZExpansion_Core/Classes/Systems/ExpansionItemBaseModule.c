@@ -13,11 +13,12 @@
 /**@class		ExpansionItemBaseModule
  * @brief		
  **/
-class ExpansionItemBaseModule: JMModuleBase
+class ExpansionItemBaseModule : JMModuleBase
 {
 	void PlayDestroySound(vector position, string sound)
 	{
-		if (sound == string.Empty) return;
+		if (sound == string.Empty)
+			return;
 
 		if (!GetGame().IsMultiplayer())
 		{
@@ -29,43 +30,35 @@ class ExpansionItemBaseModule: JMModuleBase
 		rpc.Write(position);
 		rpc.Write(sound);
 
-		PlayerBase player = PlayerBase.s_AllPlayers;
-		while (player)
-		{
-			if (player.GetIdentity())
-			{
-				rpc.Send(player, ExpansionItemBaseModuleRPC.PlayDestroySound, false, null);
-			}
-
-			player = player.m_Expansion_NextPlayer;
-		}
+		PlayerBase.Expansion_SendNear(rpc, ExpansionItemBaseModuleRPC.PlayDestroySound, position, 100);
 	}
 
 	void PlayDestroySoundImpl(vector position, string sound)
 	{
 		SEffectManager.PlaySound(sound, position);
 	}
-	
+
 	override int GetRPCMin()
 	{
 		return ExpansionItemBaseModuleRPC.INVALID;
 	}
-	
+
 	override int GetRPCMax()
 	{
 		return ExpansionItemBaseModuleRPC.COUNT;
 	}
-	
-	#ifdef CF_BUGFIX_REF
+
+#ifdef CF_BUGFIX_REF
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
-	#else
+#else
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
-	#endif
+#endif
 	{
 		switch (rpc_type)
 		{
 		case ExpansionItemBaseModuleRPC.PlayDestroySound:
-			if (GetGame().IsServer()) return;
+			if (GetGame().IsServer())
+				return;
 
 			string sound;
 			vector position;

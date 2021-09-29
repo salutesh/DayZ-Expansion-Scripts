@@ -140,6 +140,6 @@
 #define EXPANSION_WHEEL_DEBUG_DISABLE
 #endif
 
-#ifdef DAYZ_1_13
+//#ifdef DAYZ_1_13
 #define EXPANSION_OBSOLTE_CAMERA
-#endif
+//#endif

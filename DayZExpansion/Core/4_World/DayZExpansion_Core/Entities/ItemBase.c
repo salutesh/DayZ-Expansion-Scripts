@@ -26,7 +26,7 @@ modded class ItemBase
 
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
-	private static ref set< ItemBase > m_SafeZoneItems = new set< ItemBase >;
+	protected autoptr ExpansionZoneItemCleanup m_Expansion_CleanupActor;
 
 	void ItemBase()
 	{
@@ -35,17 +35,6 @@ modded class ItemBase
 		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote", 0, m_Skins.Count() );
 	}
 	
-	void ~ItemBase()
-	{
-		if (!GetGame())
-			return;
-
-		int i = m_SafeZoneItems.Find( this );
-		if ( i >= 0 )
-		{
-			m_SafeZoneItems.Remove( i );
-		}
-	}
 	//============================================
 	// GetExpansionSaveVersion
 	// OBSOLETE
@@ -652,43 +641,43 @@ modded class ItemBase
 	void OnExitZone(ExpansionZoneType type)
 	{
 	}
-	static set< ItemBase > ExpansionGetSafeZoneItems()
-	{
-		return m_SafeZoneItems;
-	}
 
 	override void OnInventoryEnter(Man player)
 	{
 		super.OnInventoryEnter(player);
-		if ( GetGame().IsServer() )
-		{
-			int i = m_SafeZoneItems.Find( this );
-			if ( i >= 0 )
-			{
-				m_SafeZoneItems.Remove( i );
-			}
-		}
-	};	
+
+		m_Expansion_CleanupActor = null;
+	}
 	
 	override void OnInventoryExit(Man player)
 	{
 		super.OnInventoryExit(player);
 		PlayerBase pb = PlayerBase.Cast(player);
-		if ( GetGame().IsServer() && pb && pb.IsInSafeZone() && !IsInherited(ExpansionTemporaryOwnedContainer) )
-		{
-			SetLifetime(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
-			m_SafeZoneItems.Insert(this);
-		}
+
+		if (!pb || !pb.IsInSafeZone())
+			return;
+
+		ExpansionCreateCleanup();
 	}
 	
     override void DeferredInit()
     {
 		super.DeferredInit();
-		if ( GetGame().IsServer() && !GetHierarchyParent() && GetLifetime() != 0 && ExpansionZoneModule.IsInsideSafeZone(GetPosition()) && !IsInherited(ExpansionTemporaryOwnedContainer))
+
+		if (GetGame().IsServer() && !GetHierarchyParent() && ExpansionZoneModule.IsInsideSafeZone(GetPosition()) && !IsInherited(ExpansionTemporaryOwnedContainer))
 		{
-			if (GetLifetime() >= GetLifetimeMax())
-				SetLifetime(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
-			m_SafeZoneItems.Insert(this);
+			ExpansionCreateCleanup();
 		}
-    }	
-}
+    }
+
+	void ExpansionCreateCleanup()
+	{
+		if (!GetGame().IsServer())
+			return;
+
+		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
+			return;
+
+		m_Expansion_CleanupActor = new ExpansionZoneItemCleanup(this);
+	}
+};

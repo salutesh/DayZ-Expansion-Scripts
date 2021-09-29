@@ -27,7 +27,7 @@ class ExpansionActionNextEngine : ActionInteractBase
 
 	override string GetText()
 	{
-		return "Next Engine";
+		return "#STR_EXPANSION_VEHICLE_ENGINE_NEXT" + " " + "#STR_EXPANSION_VEHICLE_ENGINE";
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

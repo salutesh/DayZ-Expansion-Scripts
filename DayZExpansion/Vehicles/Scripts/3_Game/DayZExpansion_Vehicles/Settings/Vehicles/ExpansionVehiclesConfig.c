@@ -14,12 +14,10 @@ class ExpansionVehiclesConfig
 {
 	string ClassName;
 	bool CanPlayerAttach;
-	float Weight;
 
-	void ExpansionVehiclesConfig( string classname = "", bool canplayerattach = false, float weight = 1000 )
+	void ExpansionVehiclesConfig(string classname = "", bool canplayerattach = false)
 	{
 		ClassName = classname;
 		CanPlayerAttach = canplayerattach;
-		Weight = weight;
 	}
-}
+};

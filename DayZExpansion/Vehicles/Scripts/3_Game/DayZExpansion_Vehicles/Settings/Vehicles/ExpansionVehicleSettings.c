@@ -390,26 +390,26 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
 		RevvingOverMaxRPMRuinsEngineInstantly = false;
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("OffroadHatchback", false, 1150.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Hatchback_02", false, 1245.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Sedan_02", false, 915.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("CivilianSedan", false, 1420.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("OffroadHatchback", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Hatchback_02", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Sedan_02", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("CivilianSedan", false) );
 		
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Truck_01_Covered", false, 8650.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionTractor", false, 3420.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZ", false, 1250.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1200.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionBus", true, 9650.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionVodnik", true, 4650.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Truck_01_Covered", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionTractor", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZ", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionBus", true) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionVodnik", true) );
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUtilityBoat", true, 850.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionZodiacBoat", true, 370.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionLHD", true, 100460000.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUtilityBoat", true) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionZodiacBoat", true) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionLHD", true) );
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionGyrocopter", false, 850.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMh6", false, 1361.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUh1h", false, 7650.0) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMerlin", true, 12650.0) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionGyrocopter", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMh6", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUh1h", false) );
+		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMerlin", true) );
 	}
 	
 	override string SettingName()
