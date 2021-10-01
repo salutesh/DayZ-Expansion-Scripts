@@ -696,6 +696,13 @@ modded class DayZPlayerImplement
 			{
 				//AttachmentDebugPrint("START ATTACH");
 
+				if ( m_ExAttachmentObject.IsInherited( CarScript ) && !dBodyIsActive( m_ExAttachmentObject ) )
+				{
+					//! Potential fix for player getting teleported to the sea (desync)
+					EXPrint(GetType() + "::CommandHandler attach to " + m_ExAttachmentObject);
+					dBodyActive( m_ExAttachmentObject, ActiveState.ACTIVE );
+				}
+
 				GetTransform(m_ExTransformPlayer);
 				m_ExAttachmentObject.GetTransform(m_ExTransformTarget);
 				Math3D.MatrixInvMultiply4(m_ExTransformTarget, m_ExTransformPlayer, m_ExTransformLocal);

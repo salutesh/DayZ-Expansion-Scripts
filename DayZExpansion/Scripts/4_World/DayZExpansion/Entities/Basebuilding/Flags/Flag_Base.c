@@ -160,17 +160,17 @@ modded class Flag_Base
 		string texturePath = m_FlagTexturePath;
 		texturePath.ToLower();
 		ExpansionString exFlagTexturePath = new ExpansionString(texturePath);
-		if (exFlagTexturePath.EndsWith("/flag_borduriens_co.paa"))
+		if (exFlagTexturePath.EndsWith("\\flag_borduriens_co.paa"))
 			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_BORDURIA;
-		else if (exFlagTexturePath.EndsWith("/flag_czech_co.paa"))
+		else if (exFlagTexturePath.EndsWith("\\flag_czech_co.paa"))
 			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_CZECHIA;
-		else if (exFlagTexturePath.EndsWith("/flag_finnish_co.paa"))
+		else if (exFlagTexturePath.EndsWith("\\flag_finnish_co.paa"))
 			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_BORDURIA;
-		else if (exFlagTexturePath.EndsWith("/flag_irish_co.paa"))
+		else if (exFlagTexturePath.EndsWith("\\flag_irish_co.paa"))
 			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_IRELAND;
-		else if (exFlagTexturePath.EndsWith("/flag_scottish_co.paa"))
+		else if (exFlagTexturePath.EndsWith("\\flag_scottish_co.paa"))
 			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_SCOTLAND;
-		else if (exFlagTexturePath.EndsWith("/flag_swedish_co.paa"))
+		else if (exFlagTexturePath.EndsWith("\\flag_swedish_co.paa"))
 			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_SWEDEN;
 	}
 

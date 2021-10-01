@@ -486,24 +486,31 @@ modded class CarScript
 
 	void DestroyTow()
 	{
-		if ( m_IsTowing )
+		if ( !m_IsTowing )
+			return;
+
+		CarScript cs;
+		ExpansionVehicleBase evs;
+
+		if ( Class.CastTo( cs, m_ChildTow ) )
 		{
-			CarScript cs;
-			ExpansionVehicleBase evs;
-
-			if ( Class.CastTo( cs, m_ChildTow ) )
-			{
-				cs.OnTowDestroyed();
-			} 
-			if ( Class.CastTo( evs, m_ChildTow ) )
-			{
-				evs.OnTowDestroyed();
-			}
-			
-			m_ChildTow = NULL;
-
-			m_IsTowing = false;
+			cs.OnTowDestroyed();
 		}
+
+		if ( Class.CastTo( evs, m_ChildTow ) )
+		{
+			evs.OnTowDestroyed();
+		}
+
+		m_IsTowing = false;
+
+		if ( !IsMissionOffline() )
+		{
+			m_ChildTow.SetSynchDirty();
+			SetSynchDirty();
+		}
+		
+		m_ChildTow = NULL;
 	}
 
 	void OnTowDestroyed()
@@ -3592,6 +3599,8 @@ modded class CarScript
 			if ( dmg < GameConstants.CARS_CONTACT_DMG_MIN )
 			#endif
 				continue;
+			
+			int pddfFlags;
 
 			#ifdef DAYZ_1_13
 			if ( dmg < 750.0 )
@@ -3600,15 +3609,17 @@ modded class CarScript
 			#endif
 			{				
 				playLightSound = true;
+				pddfFlags = ProcessDirectDamageFlags.NO_TRANSFER;
 			}
 			else
 			{		
 				DamageCrew(dmg * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier);
 				playHeavySound = true;			
+				pddfFlags = 0;
 			}
 			
 			if ( CanBeDamaged() )
-				ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier );
+				ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier, pddfFlags );
 		}
 		
 		if (playLightSound)

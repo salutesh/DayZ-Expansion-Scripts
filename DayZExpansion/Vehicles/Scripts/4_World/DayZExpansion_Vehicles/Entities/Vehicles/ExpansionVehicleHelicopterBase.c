@@ -81,7 +81,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 
 	private float m_AutoHoverAltitude;
 	private bool m_AutoHover;
-	private bool m_IsFreeLook;
+	private bool m_IsFreeLook = true;
 	private bool m_WasFreeLookPressed;
 	private vector m_AutoHoverSpeed;
 	private vector m_AutoHoverSpeedTarget;
@@ -214,9 +214,6 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		//path = "CfgVehicles " + GetType() + " SimulationModule Cyclic Side animation";
 		//if ( GetGame().ConfigIsExisting( path ) )
 		//	m_Inertia = GetGame().ConfigGetTextOut( path );
-
-		if (IsMissionClient())
-			m_IsFreeLook = !GetExpansionClientSettings().UseHelicopterMouseControl;
 	}
 
 	// ------------------------------------------------------------

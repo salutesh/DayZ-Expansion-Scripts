@@ -490,7 +490,7 @@ class ExpansionPartyData
 		return Markers.Count();
 	}
 
-	void OnSend( ParamsWriteContext ctx, string playerID )
+	void OnSend( ParamsWriteContext ctx, bool syncMarkers = true, string playerID = string.Empty )
 	{
 		ctx.Write( PartyID );
 		ctx.Write( PartyName );
@@ -550,9 +550,9 @@ class ExpansionPartyData
 			ctx.Write( Invites[index].UID );
 		}
 
-		bool isPlayerOnline = m_OnlinePlayers.Find(playerID) > -1;
+		bool isPlayerOnline = playerID && m_OnlinePlayers.Find(playerID) > -1;
 
-		if (m_SyncMarkers || !isPlayerOnline)
+		if ((m_SyncMarkers || !isPlayerOnline) && syncMarkers)
 		{
 			count = Markers.Count();
 			m_SyncMarkers = false;

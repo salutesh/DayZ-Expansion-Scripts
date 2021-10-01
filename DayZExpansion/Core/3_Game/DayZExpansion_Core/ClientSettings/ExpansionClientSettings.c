@@ -647,7 +647,7 @@ class ExpansionClientSettings
 		UseCameraLock = false;
 		UseInvertedMouseControl = false;
 		
-		UseHelicopterMouseControl = true;
+		UseHelicopterMouseControl = false;
 		HelicopterMouseVerticalSensitivity = 1.0;
 		HelicopterMouseHorizontalSensitivity = 1.0;
 

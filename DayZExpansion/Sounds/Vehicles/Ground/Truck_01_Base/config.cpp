@@ -15,7 +15,7 @@ class CfgSoundSets{};
 class CfgVehicles
 {
 	class ExpansionVehicleCarBase;
-	class Truck_01_Base: ExpansionVehicleCarBase
+	class Vehicle_Truck_01_Base: ExpansionVehicleCarBase
 	{
 		class Sounds
 		{

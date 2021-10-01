@@ -15,7 +15,7 @@ class CfgSoundSets{};
 class CfgVehicles
 {
 	class ExpansionVehicleCarBase;
-	class OffroadHatchback: ExpansionVehicleCarBase
+	class Vehicle_OffroadHatchback: ExpansionVehicleCarBase
 	{
 		class Sounds
 		{

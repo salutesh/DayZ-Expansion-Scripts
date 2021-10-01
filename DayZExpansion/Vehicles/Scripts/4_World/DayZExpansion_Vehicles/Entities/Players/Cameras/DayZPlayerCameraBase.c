@@ -60,3 +60,4 @@ modded class DayZPlayerCameraBase
 		}
 	}
 };
+#endif

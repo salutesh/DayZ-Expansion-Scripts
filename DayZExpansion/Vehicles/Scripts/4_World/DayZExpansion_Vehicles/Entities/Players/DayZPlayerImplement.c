@@ -102,6 +102,17 @@ modded class DayZPlayerImplement
 		EntityAI ent = GetInventory().FindAttachment(slot_id);
 
 		if (ent)
-			ent.SetInvisible(invisible);
+			SetAttachmentInvisible_Ex(ent, invisible);
+	}
+
+	//! Vanilla has EntityAI::SetInvisibleRecursive, but it doesn't seem to work correctly (and it's messy, yuck)
+	void SetAttachmentInvisible_Ex(EntityAI ent, bool invisible)
+	{
+		ent.SetInvisible(invisible);
+
+		for (int i = 0; i < ent.GetInventory().AttachmentCount(); i++)
+		{
+			SetAttachmentInvisible_Ex(ent.GetInventory().GetAttachmentFromIndex(i), invisible);
+		}
 	}
 };

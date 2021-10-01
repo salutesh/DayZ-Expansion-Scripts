@@ -20,6 +20,7 @@ class ExpansionZoneItemCleanup : ExpansionZoneActor
 			{
 				m_Stage = 1;
 				m_LifeTime = 0;
+				m_Time = GetGame().GetTime();
 			}
 
 			return;
@@ -33,7 +34,7 @@ class ExpansionZoneItemCleanup : ExpansionZoneActor
 
 		int prev = m_Time;
 		m_Time = GetGame().GetTime();
-		m_LifeTime += prev - m_Time;
+		m_LifeTime += m_Time - prev;
 
 		if (m_LifeTime > 10000)
 		{

@@ -250,8 +250,6 @@ enum ExpansionSettingsRPC
 	SocialMedia,
 	Log,
 	NameTags,
-	Hardline,
-
 	// when an admin requests these, not send under normal circumstances
 	SafeZone,
 	Mission,
