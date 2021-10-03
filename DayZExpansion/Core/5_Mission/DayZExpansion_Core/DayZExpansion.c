@@ -32,6 +32,8 @@ class DayZExpansion: ExpansionWorld
 
 		//! Version checking
 		Expansion_LoadVersion();
+
+		GetExpansionSettings();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[CORE] DayZExpansion::DayZExpansion - End");
@@ -83,8 +85,6 @@ class DayZExpansion: ExpansionWorld
 	override void OnStart()
 	{
 		super.OnStart();
-
-		GetExpansionSettings();
 	}
 
 	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
@@ -111,7 +111,7 @@ static void CreateDayZExpansion()
 	
 	if ( g_exDayZ )
 	{
-		DestroyDayZExpansion();
+		return;
 	}
 
 	g_exDayZ = new DayZExpansion;

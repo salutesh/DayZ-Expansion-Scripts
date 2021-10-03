@@ -105,18 +105,6 @@ class ExpansionLHD: ExpansionZodiacBoat
 		obj.Update();
 	}
 
-	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
-		if ( !super.CanObjectAttach( obj ) )
-			return false;
-		
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 150.0 )
-			return false;
-		
-		return true;
-	}
-
 	override bool LeavingSeatDoesAttachment( int posIdx )
 	{
 		return true;
@@ -302,4 +290,4 @@ class bldr_expansion_lhd extends BuildingSuper
 			}
 		}
 	}
-}
+};

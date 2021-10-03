@@ -233,7 +233,6 @@ enum ExpansionSettingsRPC
 {
 	INVALID = 30000,
 	ListToLoad,
-	
 	Debug,
 	Book,
 	BaseBuilding,
@@ -250,11 +249,9 @@ enum ExpansionSettingsRPC
 	SocialMedia,
 	Log,
 	NameTags,
-	// when an admin requests these, not send under normal circumstances
 	SafeZone,
 	Mission,
 	AirDrop,
-	
 	COUNT
 };
 

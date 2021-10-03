@@ -149,18 +149,6 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 	}
 
 	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
-		if ( !super.CanObjectAttach( obj ) )
-			return false;
-		
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
-		
-		return true;
-	}
-
-	// ------------------------------------------------------------
 	override void UpdateLights(int new_gear = -1)
 	{
 		if ( IsMissionClient() )
@@ -351,4 +339,4 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 			}
 		}
 	}
-}
+};

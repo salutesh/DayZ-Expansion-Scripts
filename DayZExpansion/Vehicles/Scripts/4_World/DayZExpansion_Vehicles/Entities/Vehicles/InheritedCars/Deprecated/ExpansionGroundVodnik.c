@@ -410,19 +410,6 @@ class ExpansionVodnik extends Truck_01_Base
 		return 8;
 	}
 
-
-	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
-		if ( !super.CanObjectAttach( obj ) )
-			return false;
-		
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
-		
-		return true;
-	}
-
 	// ------------------------------------------------------------
 	override bool LeavingSeatDoesAttachment( int posIdx )
 	{
@@ -487,4 +474,4 @@ class ExpansionVodnik extends Truck_01_Base
 			}
 		}
 	}
-}
+};

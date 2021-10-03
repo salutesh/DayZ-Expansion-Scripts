@@ -143,7 +143,7 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
-		if (m_IsBeingTowed)
+		if (m_Expansion_IsBeingTowed)
 			return;
 
 		if (IsMissionHost() && m_Simulation.m_EnableHelicopterExplosions && CanBeDamaged())
@@ -557,62 +557,67 @@ class ExpansionHelicopterScript extends CarScript
 		return m_Simulation.m_AutoHoverAltitude;
 	}
 
-	override vector GetTowCenterPosition(Object other)
+	override bool Expansion_IsBeingTowed()
 	{
-		vector minMax[2];
-		GetCollisionBox(minMax);
-		vector pos = Vector(0.0, minMax[0][1] - GetTowLength() - GetTowExtents()[1], 0.0);
-		other.GetCollisionBox(minMax);
-		return pos + Vector(0.0, -minMax[1][1], 0.0);
+		return m_Expansion_IsBeingTowed;
 	}
 
-	override bool IsBeingTowed()
+	override bool Expansion_IsTowing()
 	{
-		return m_IsBeingTowed;
+		return m_Expansion_IsTowing;
 	}
 
-	override bool IsTowing()
+	override int Expansion_NumberTowConnections()
 	{
-		return m_IsTowing;
+		return 1;
 	}
 
-	override vector GetTowPosition()
+	override void Expansion_GetTowConnection(int index, out vector position, out vector size)
 	{
 		vector minMax[2];
 		GetCollisionBox(minMax);
 
-		return ModelToWorld(Vector(0.0, minMax[0][1] - GetTowLength(), 0.0));
+		position = Vector(0.0, minMax[1][1] + Expansion_GetTowLength(), 0.0);
+		size = "2.0 2.0 2.0";
 	}
 
-	override vector GetTowDirection()
+	override vector Expansion_GetTowPosition()
+	{
+		vector minMax[2];
+		GetCollisionBox(minMax);
+
+		return Vector(0.0, minMax[0][1] - Expansion_GetTowLength(), 0.0);
+	}
+
+	override vector Expansion_GetTowDirection()
 	{
 		vector transform[4];
 		GetTransform(transform);
 		return -transform[1];
 	}
 
-	override vector GetTowExtents()
-	{
-		return {2.0, 2.0, 2.0};
-	}
-
-	override float GetTowLength()
+	override float Expansion_GetTowLength()
 	{
 		return 5.0;
 	}
 
 	//! Is it already towing something ? And is it locked ?
-	override bool CanConnectTow(notnull Object other)
+	override bool Expansion_CanConnectTow(notnull Object other)
 	{
+		ItemBase item;
 		ExpansionVehicleBase evs;
 		CarScript cs;
 		if (Class.CastTo(evs, other))
 		{
-			return !evs.IsTowing() && !evs.IsLocked();
+			return evs.Expansion_NumberTowConnections() > 0 && !evs.Expansion_IsTowing() && !evs.IsLocked();
 		}
 		else if (Class.CastTo(cs, other))
 		{
-			return !cs.IsTowing() && !cs.IsLocked();
+			return cs.Expansion_NumberTowConnections() > 0 && !cs.Expansion_IsTowing() && !cs.IsLocked();
+		}
+		else if (Class.CastTo(item, other))
+		{
+			return item.Expansion_NumberTowConnections() > 0 && !item.Expansion_IsTowing();
 		}
 
 		//! don't...

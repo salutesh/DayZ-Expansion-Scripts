@@ -1161,7 +1161,10 @@ class ExpansionPartyModule: JMModuleBase
 		ExpansionPartyPlayerData party_player = UpdatePlayerPartyServer(identity.GetId());
 
 		if (party_player)
+		{
 			party_player.OnJoin(player);
+			party_player.GetParty().OnJoin(party_player);
+		}
 	}
 
 	private ExpansionPartyPlayerData UpdatePlayerPartyServer(string uid)

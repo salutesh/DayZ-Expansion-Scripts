@@ -329,14 +329,14 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 		m_Velocity += m_Acceleration * pState.m_DeltaTime;
 
 		m_RotationPosition += m_Velocity * pState.m_DeltaTime / m_Radius;
-		#ifndef DAYZ_1_13
+#ifndef DAYZ_1_13
 		m_RotationPosition = Math.WrapFloatInclusive(m_RotationPosition, 0, Math.PI2);
-		#else
+#else
 		if (m_RotationPosition > Math.PI2)
 			m_RotationPosition -= Math.PI2;
 		else if (m_RotationPosition < 0)
 			m_RotationPosition += Math.PI2;
-		#endif
+#endif
 
 		m_RPM = Math.AbsFloat((m_Velocity * 30.0) / (Math.PI * m_Radius));
 

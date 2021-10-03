@@ -1,5 +1,5 @@
 /**
- * ExpansionActionConnectTow.c
+ * ExpansionActionVehicleConnectTow.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,23 +10,11 @@
  *
 */
 
-class ExpansionActionConnectTowReciveData : ActionReciveData
-{
-	Object m_Car;
-	int m_Index;
-}
-
-class ExpansionActionConnectTowData : ActionData
-{
-	Object m_Car;
-	int m_Index;
-};
-
-class ExpansionActionConnectTow : ActionInteractBase
+class ExpansionActionVehicleConnectTow : ActionInteractBase
 {
 	bool m_IsWinch;
 
-	void ExpansionActionConnectTow()
+	void ExpansionActionVehicleConnectTow()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -107,9 +95,9 @@ class ExpansionActionConnectTow : ActionInteractBase
 		Human crew;
 		bool hasCrew;
 
-		auto vehCommand = player.GetCommand_Vehicle();
+		auto vehCommand = player.GetCommand_ExpansionVehicle();
 
-		CarScript car;
+		ExpansionVehicleBase car;
 		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
 		{
 			if (car.Expansion_IsTowing())
@@ -133,7 +121,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 					{
 						if (!other_car.Expansion_IsBeingTowed() && !other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
 						{
-							m_IsWinch = car.Expansion_IsHelicopter();
+							m_IsWinch = car.IsHelicopter();
 
 							//! Check if someone is inside the Vehicle the Helicopter is trying to winch
 							//! Goal is to prevent a exploit allowing to get inside people bases
@@ -220,9 +208,9 @@ class ExpansionActionConnectTow : ActionInteractBase
 
 		ExpansionActionConnectTowData action_data_b = ExpansionActionConnectTowData.Cast(action_data);
 
-		HumanCommandVehicle vehCommand = action_data_b.m_Player.GetCommand_Vehicle();
+		auto vehCommand = action_data_b.m_Player.GetCommand_ExpansionVehicle();
 
-		CarScript car;
+		ExpansionVehicleBase car;
 		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
 		{
 			if (car.CrewMemberIndex(action_data_b.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)

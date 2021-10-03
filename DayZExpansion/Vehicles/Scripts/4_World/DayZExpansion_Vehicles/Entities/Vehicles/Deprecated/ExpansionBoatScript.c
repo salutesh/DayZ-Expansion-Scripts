@@ -189,25 +189,32 @@ class ExpansionBoatScript extends OffroadHatchback
 
 	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
 	{
-		UAInterface input = driver.GetInputInterface();
+		float steering;
+		float brake;
+		float thrust;
 
-		#ifdef COMPONENT_SYSTEM
-		float forward = input.SyncedValue("UAExpansionBoatMoveForward");
-		float backward = input.SyncedValue("UAExpansionBoatMoveBackward");
-		float left = input.SyncedValue("UAExpansionBoatRotateLeft");
-		float right = input.SyncedValue("UAExpansionBoatRotateRight");
-		float turbo = input.SyncedValue("UAExpansionBoatTurbo");
-		#else
-		float forward = input.SyncedValue_ID(UAExpansionBoatMoveForward);
-		float backward = input.SyncedValue_ID(UAExpansionBoatMoveBackward);
-		float left = input.SyncedValue_ID(UAExpansionBoatRotateLeft);
-		float right = input.SyncedValue_ID(UAExpansionBoatRotateRight);
-		float turbo = input.SyncedValue_ID(UAExpansionBoatTurbo);
-		#endif
+		if (driver)
+		{
+			UAInterface input = driver.GetInputInterface();
 
-		float steering = right - left;
-		float brake = backward;
-		float thrust = forward;
+			#ifdef COMPONENT_SYSTEM
+			float forward = input.SyncedValue("UAExpansionBoatMoveForward");
+			float backward = input.SyncedValue("UAExpansionBoatMoveBackward");
+			float left = input.SyncedValue("UAExpansionBoatRotateLeft");
+			float right = input.SyncedValue("UAExpansionBoatRotateRight");
+			float turbo = input.SyncedValue("UAExpansionBoatTurbo");
+			#else
+			float forward = input.SyncedValue_ID(UAExpansionBoatMoveForward);
+			float backward = input.SyncedValue_ID(UAExpansionBoatMoveBackward);
+			float left = input.SyncedValue_ID(UAExpansionBoatRotateLeft);
+			float right = input.SyncedValue_ID(UAExpansionBoatRotateRight);
+			float turbo = input.SyncedValue_ID(UAExpansionBoatTurbo);
+			#endif
+
+			steering = right - left;
+			brake = backward;
+			thrust = forward;
+		}
 
 		int gear = GetController().GetGear();
 
@@ -759,7 +766,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		return 12;
 	}
 
-	override bool CanConnectTow( notnull Object other )
+	override bool Expansion_CanConnectTow( notnull Object other )
 	{
 		return false;
 	}

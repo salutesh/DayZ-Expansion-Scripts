@@ -142,15 +142,6 @@ class Vehicle_ExpansionUtilityBoat extends ExpansionVehicleBoatBase
 	}
 
 	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
-		
-		return true;
-	}
-
-	// ------------------------------------------------------------
 	override void UpdateLights(int new_gear = -1)
 	{
 		if ( IsMissionClient() )

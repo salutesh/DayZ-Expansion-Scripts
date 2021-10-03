@@ -34,9 +34,6 @@ class ExpansionClientSettings
 	bool UsePlaneMouseControl;
 
 	// Video
-	float DrawDistance;
-	bool ColorGrading;
-	bool ColorVignette;
 	bool CastLightShadows;
 
 	// Mapping
@@ -152,20 +149,27 @@ class ExpansionClientSettings
 		}
 		
 		// Video
-		if ( !ctx.Read( DrawDistance ) )
+		if (version < 36)
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read DrawDistance!");
-			return false;
-		}
-		if ( !ctx.Read( ColorGrading ) )
-		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ColorGrading!");
-			return false;
-		}
-		if ( !ctx.Read( ColorVignette ) )
-		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ColorVignette!");
-			return false;
+			//! These three were removed in version 36
+			float drawDistance;
+			if ( !ctx.Read( drawDistance ) )
+			{
+				EXPrint(ToString() + "::OnRead - ERROR: Could'nt read drawDistance!");
+				return false;
+			}
+			bool colorGrading;
+			if ( !ctx.Read( colorGrading ) )
+			{
+				EXPrint(ToString() + "::OnRead - ERROR: Could'nt read colorGrading!");
+				return false;
+			}
+			bool colorVignette;
+			if ( !ctx.Read( colorVignette ) )
+			{
+				EXPrint(ToString() + "::OnRead - ERROR: Could'nt read colorVignette!");
+				return false;
+			}
 		}
 		if ( !ctx.Read( CastLightShadows ) )
 		{
@@ -444,9 +448,6 @@ class ExpansionClientSettings
 		ctx.Write( UsePlaneMouseControl );
 
 		// Video
-		ctx.Write( DrawDistance );
-		ctx.Write( ColorGrading );
-		ctx.Write( ColorVignette );
 		ctx.Write( CastLightShadows );
 
 		// 3D Markers
@@ -614,9 +615,6 @@ class ExpansionClientSettings
 		EXLogPrint("ExpansionClientSettings::Defaults - Start");
 		#endif
 		
-		DrawDistance = 1600.0;
-		ColorGrading = true;
-		ColorVignette = true;
 		CastLightShadows = true;
 
 		Show3DClientMarkers = true;
@@ -692,12 +690,6 @@ class ExpansionClientSettings
 
 		CreateCategory( "VideoSettings", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO" );
 		
-		//! Option to change camera view distance 
-		// CreateSlider( "DrawDistance", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_DRAWDISTANCE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_DRAW_DISTANCE_DESC", 1600, 3000 );
-		//! Option to toggle color grading
-		CreateToggle( "ColorGrading", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_COLORGRADING", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_COLORGRADING_DESC" );
-		//! Option to toggle color vignette
-		CreateToggle( "ColorVignette", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_COLORVIGNETTE", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_COLORVIGNETTE_DESC" );
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
 		

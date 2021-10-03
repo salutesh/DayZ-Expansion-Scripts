@@ -127,6 +127,11 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 		return false;
 	}
 
+	override bool IsCar()
+	{
+		return true;
+	}
+
 	override float GetTransportCameraDistance()
 	{
 		return 4.0;

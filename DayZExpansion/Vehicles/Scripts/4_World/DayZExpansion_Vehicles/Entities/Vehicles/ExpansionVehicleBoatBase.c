@@ -119,7 +119,7 @@ class ExpansionVehicleBoatBase extends ExpansionVehicleCarBase
 		return 12;
 	}
 
-	override bool CanConnectTow(notnull Object other)
+	override bool Expansion_CanConnectTow(notnull Object other)
 	{
 		return false;
 	}

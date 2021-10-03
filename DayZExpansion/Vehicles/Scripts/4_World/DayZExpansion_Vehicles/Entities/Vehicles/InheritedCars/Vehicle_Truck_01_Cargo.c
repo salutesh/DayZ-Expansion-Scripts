@@ -12,11 +12,4 @@
 
 class Vehicle_Truck_01_Cargo extends Vehicle_Truck_01_Base
 {
-	override bool CanObjectAttach( Object obj )
-	{
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
-		
-		return true;
-	}
 };

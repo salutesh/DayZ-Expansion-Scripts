@@ -95,15 +95,6 @@ class Vehicle_ExpansionLHD: Vehicle_ExpansionZodiacBoat
 	}
 
 	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 150.0 )
-			return false;
-		
-		return true;
-	}
-
-	// ------------------------------------------------------------
 	override vector GetTransportCameraOffset()
 	{
 		return "0 40 0";

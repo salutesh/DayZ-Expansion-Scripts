@@ -507,8 +507,8 @@ modded class ItemBase
 			Print( veh );
 			#endif
 
-			bool carAttach = car && car.CanObjectAttach( this );
-			bool vehAttach = veh && veh.CanObjectAttach( this );
+			bool carAttach = car && car.Expansion_CanObjectAttach( this );
+			bool vehAttach = veh && veh.Expansion_CanObjectAttach( this );
 
 			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( carAttach );

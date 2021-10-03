@@ -35,13 +35,17 @@ class ExpansionVehicleCarSteering : ExpansionVehicleSteering
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		UAInterface input = pDriver.GetInputInterface();
+		m_Target = 0;
+		if (pDriver)
+		{
+			UAInterface input = pDriver.GetInputInterface();
 
-		float left = input.SyncedValue_ID(UACarLeft);
-		float right = input.SyncedValue_ID(UACarRight);
+			float left = input.SyncedValue_ID(UACarLeft);
+			float right = input.SyncedValue_ID(UACarRight);
 
-		m_Target = right - left;
-		
+			m_Target = right - left;
+		}
+
 		float currentAbs = Math.AbsFloat(m_Current);
 		float targetAbs = Math.AbsFloat(m_Target);
 		float velocity = pState.m_LinearVelocity.Length();
@@ -115,14 +119,20 @@ class ExpansionVehicleBikeSteering : ExpansionVehicleSteering
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		UAInterface input = pDriver.GetInputInterface();
+		m_Target = 0;
 
-		float left = input.SyncedValue_ID(UACarLeft);
-		float right = input.SyncedValue_ID(UACarRight);
+		if (pDriver)
+		{
+			UAInterface input = pDriver.GetInputInterface();
 
-		float velocity = Math.AbsFloat(pState.m_LinearVelocityMS[2]);
+			float left = input.SyncedValue_ID(UACarLeft);
+			float right = input.SyncedValue_ID(UACarRight);
 
-		m_Target = (right - left) / (Math.Max(velocity, 1.0));
+			float velocity = Math.AbsFloat(pState.m_LinearVelocityMS[2]);
+
+			m_Target = (right - left) / (Math.Max(velocity, 1.0));
+		}
+
 		m_Current += Math.Clamp(m_Target - m_Current, -20.0 * pState.m_DeltaTime, 20.0 * pState.m_DeltaTime);
 
 		m_Controller.m_Yaw = m_Current;

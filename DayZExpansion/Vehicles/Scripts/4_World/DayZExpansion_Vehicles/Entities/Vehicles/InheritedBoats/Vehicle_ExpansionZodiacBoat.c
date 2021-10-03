@@ -135,19 +135,10 @@ class Vehicle_ExpansionZodiacBoat extends ExpansionVehicleBoatBase
 
 		return false;
 	}
-
-	// ------------------------------------------------------------
-	override bool CanObjectAttach( Object obj )
-	{
- 		if ( vector.Distance( GetPosition(), obj.GetPosition() ) > m_BoundingRadius * 1.5 )
-			return false;
-		
-		return true;
-	}
 	
 	// ------------------------------------------------------------
 	override string GetActionCompNameFuel()
 	{
 		return "refill";
 	}
-}
+};

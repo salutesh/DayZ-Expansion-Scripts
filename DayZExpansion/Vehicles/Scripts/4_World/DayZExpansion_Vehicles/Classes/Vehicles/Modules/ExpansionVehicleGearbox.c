@@ -65,6 +65,9 @@ class ExpansionVehicleGearbox : ExpansionVehicleModule
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
+		if (!pDriver)
+			return;
+
 		UAInterface input = pDriver.GetInputInterface();
 
 		if (input.SyncedPress_ID(UACarShiftGearUp))

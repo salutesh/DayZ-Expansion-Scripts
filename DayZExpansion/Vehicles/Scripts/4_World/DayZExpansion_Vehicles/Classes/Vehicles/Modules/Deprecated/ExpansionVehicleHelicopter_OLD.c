@@ -254,7 +254,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		if (!m_Initialized)
+		if (!m_Initialized || !pDriver)
 			return;
 
 		UAInterface input = pDriver.GetInputInterface();

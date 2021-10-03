@@ -35,6 +35,8 @@ modded class DayZPlayerImplement
 	bool m_ExPerformClimbAttach;
 	bool m_ExPerformClimb;
 
+	bool m_ExForceUnlink;
+
 	bool m_IsAttached;
 
 	SHumanCommandClimbResult m_ExClimbResult;
@@ -68,9 +70,7 @@ modded class DayZPlayerImplement
 
 	void AttachmentDebugPrint(string message)
 	{
-#ifdef EXPANSION_PLAYER_ATTACHMENT_LOG
 		Print("[ATTACHMENT] " + Expansion_Debug_Player(this) + message);
-#endif
 	}
 
 	override void DeferredInit()
@@ -128,8 +128,6 @@ modded class DayZPlayerImplement
 
 		if (m_ExAttachmentObject == GetParent())
 		{
-			m_ExAttachmentObject = NULL;
-
 			StartCommand_Climb(m_ExClimbResult, m_ExClimbType);
 
 			m_ExClimbType = -1;
@@ -332,15 +330,23 @@ modded class DayZPlayerImplement
 			{
 				if (!ctx.Read(m_ExAttachmentObject))
 				{
-					m_ExAttachmentObject = NULL;
+					m_ExAttachmentObject = null;
 
 					Error("[ERROR] PlayerBase::OnInputUserDataProcess() -> Could not read parent object for EXPANSION_INPUT_UDT_PLAYER_LINK");
 				}
 
-				if (!m_ExAttachmentObject)
+				if (m_ExAttachmentObject == null || ExpansionAttachmentHelper.CanAttachTo(this, m_ExAttachmentObject) == false)
 				{
-					m_ExPlayerLinkType == ExpansionPlayerLink.NONE;
+					//AttachmentDebugPrint("Force Reject");
+
+					m_ExAttachmentObject = null;
+					m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
+
+					DayZPlayerSyncJunctures.ExpansionSendForceUnlink(this);
 				}
+
+				//AttachmentDebugPrint("m_ExAttachmentObject: " + m_ExAttachmentObject);
+				//AttachmentDebugPrint("m_ExPlayerLinkType: " + m_ExPlayerLinkType);
 			}
 
 			//AttachmentDebugPrint("PlayerBase::OnInputUserDataProcess end");
@@ -395,6 +401,12 @@ modded class DayZPlayerImplement
 			m_ExPerformVehicleGetIn = true;
 			//AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - ExpansionReadGetInTransportUnlink");
 			break;
+		case DayZPlayerSyncJunctures.EXPANSION_SJ_FORCE_UNLINK:
+			DayZPlayerSyncJunctures.ExpansionReadForceUnlink(pCtx);
+
+			m_ExForceUnlink = true;
+			m_ExIsAwaitingServerLink = false;
+			break;
 		}
 
 		//AttachmentDebugPrint("-DayZPlayerImplement::OnSyncJuncture - pJunctureID=" + pJunctureID);
@@ -402,21 +414,6 @@ modded class DayZPlayerImplement
 
 	ExpansionPlayerRaycastResult AttachRaycastCheck(int pCurrentCommandID)
 	{
-		//DayZPlayerConstants.COMMANDID_NONE
-		//DayZPlayerConstants.COMMANDID_MOVE
-		//DayZPlayerConstants.COMMANDID_ACTION
-		//DayZPlayerConstants.COMMANDID_MELEE
-		//DayZPlayerConstants.COMMANDID_MELEE2
-		//DayZPlayerConstants.COMMANDID_FALL
-		//DayZPlayerConstants.COMMANDID_DEATH
-		//DayZPlayerConstants.COMMANDID_DAMAGE
-		//DayZPlayerConstants.COMMANDID_LADDER
-		//DayZPlayerConstants.COMMANDID_SWIM
-		//DayZPlayerConstants.COMMANDID_UNCONSCIOUS
-		//DayZPlayerConstants.COMMANDID_VEHICLE
-		//DayZPlayerConstants.COMMANDID_CLIMB
-		//DayZPlayerConstants.COMMANDID_SCRIPT
-
 		IEntity parent = GetParent();
 		HumanCommandLadder ladderCommand = GetCommand_Ladder();
 		HumanCommandSwim swimCommand = GetCommand_Swim();
@@ -495,6 +492,23 @@ modded class DayZPlayerImplement
 
 		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
 
+		if (m_ExForceUnlink && IsMissionClient())
+		{
+			if (m_ExAttachmentObject == GetParent() && m_ExAttachmentObject)
+			{
+				UnlinkFromLocalSpace();
+				m_IsAttached = false;
+
+				OnExpansionDetachFrom(m_ExAttachmentObject);
+
+				//m_ExAttachmentObject.Update();
+
+				m_ExAttachmentObject = NULL;
+			}
+
+			m_ExForceUnlink = false;
+		}
+
 		if (!s_ExpansionPlayerAttachment)
 			return;
 
@@ -530,11 +544,13 @@ modded class DayZPlayerImplement
 			vector c_tmTarget[4];
 			vector c_tmLocal[4];
 
-			if (m_ExAttachmentObject.IsInherited(CarScript) && !dBodyIsActive(m_ExAttachmentObject))
+			m_ExPerformClimbAttach = false;
+
+			if (!dBodyIsActive(m_ExAttachmentObject) && IsMissionHost())
 			{
-				//! Potential fix for player getting teleported to the sea (desync)
-				EXPrint(GetType() + "::CommandHandler climb attach to " + m_ExAttachmentObject);
-				dBodyActive(m_ExAttachmentObject, ActiveState.ACTIVE);
+				DayZPlayerSyncJunctures.ExpansionSendForceUnlink(this);
+
+				return;
 			}
 
 			GetTransform(c_tmPlayer);
@@ -547,8 +563,6 @@ modded class DayZPlayerImplement
 			m_ExAttachmentObject.Update();
 
 			OnExpansionAttachTo(m_ExAttachmentObject, c_tmLocal);
-
-			m_ExPerformClimbAttach = false;
 
 			if (GetGame().IsServer())
 			{
@@ -565,102 +579,86 @@ modded class DayZPlayerImplement
 		if (IsPreparingVehicle())
 			return;
 
-		IEntity parent = GetParent();
+		Object parent = m_ExAttachmentObject;
 
 		if (IsMissionClient() && m_ExPlayerLinkType == ExpansionPlayerLink.NONE && !m_ExIsAwaitingServerLink)
 		{
-			//AttachmentDebugPrint("PlayerBase::CommandHandler - Ray Trace - Start");
-
-			//AttachmentDebugPrint("COMMANDID_NONE: " + DayZPlayerConstants.COMMANDID_NONE);
-			//AttachmentDebugPrint("COMMANDID_MOVE: " + DayZPlayerConstants.COMMANDID_MOVE);
-			//AttachmentDebugPrint("COMMANDID_ACTION: " + DayZPlayerConstants.COMMANDID_ACTION);
-			//AttachmentDebugPrint("COMMANDID_MELEE: " + DayZPlayerConstants.COMMANDID_MELEE);
-			//AttachmentDebugPrint("COMMANDID_MELEE2: " + DayZPlayerConstants.COMMANDID_MELEE2);
-			//AttachmentDebugPrint("COMMANDID_FALL: " + DayZPlayerConstants.COMMANDID_FALL);
-			//AttachmentDebugPrint("COMMANDID_DEATH: " + DayZPlayerConstants.COMMANDID_DEATH);
-			//AttachmentDebugPrint("COMMANDID_DAMAGE: " + DayZPlayerConstants.COMMANDID_DAMAGE);
-			//AttachmentDebugPrint("COMMANDID_LADDER: " + DayZPlayerConstants.COMMANDID_LADDER);
-			//AttachmentDebugPrint("COMMANDID_SWIM: " + DayZPlayerConstants.COMMANDID_SWIM);
-			//AttachmentDebugPrint("COMMANDID_UNCONSCIOUS: " + DayZPlayerConstants.COMMANDID_UNCONSCIOUS);
-			//AttachmentDebugPrint("COMMANDID_VEHICLE: " + DayZPlayerConstants.COMMANDID_VEHICLE);
-			//AttachmentDebugPrint("COMMANDID_CLIMB: " + DayZPlayerConstants.COMMANDID_CLIMB);
-			//AttachmentDebugPrint("COMMANDID_SCRIPT: " + DayZPlayerConstants.COMMANDID_SCRIPT);
-			//AttachmentDebugPrint("pCurrentCommandID: " + pCurrentCommandID);
-			//AttachmentDebugPrint("pCurrentCommandFinished: " + pCurrentCommandFinished);
-			//AttachmentDebugPrint("parent: " + parent);
-
-			m_ExRaycastResultType = AttachRaycastCheck(pCurrentCommandID);
-
-			//AttachmentDebugPrint("Res: " + m_ExRaycastResultType);
-
-			float castDistance = 1.0;
-			float castRadius = 0.2;
-
-			if (m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETECT_FALL)
+			// GetParent() and parent must match
+			if (parent == GetParent())
 			{
-				m_ExRaycastResultType = ExpansionPlayerRaycastResult.DETECT;
+				m_ExRaycastResultType = AttachRaycastCheck(pCurrentCommandID);
 
-				if (parent)
+				float castDistance = 1.0;
+				float castRadius = 0.2;
+
+				if (m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETECT_FALL)
 				{
-					castDistance += 1.0 * m_ExAttachmentRadius;
-					castRadius = 1.0;
-				}
-			}
+					m_ExRaycastResultType = ExpansionPlayerRaycastResult.DETECT;
 
-			if (m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETECT)
-			{
-				if (parent && parent.IsInherited(ExpansionZodiacBoat))
-					castRadius = 1;
-
-				m_ExRaycastRVParams.radius = castRadius;
-				m_ExRaycastRVParams.begPos = GetPosition() + Vector(0, 1.0, 0);
-				m_ExRaycastRVParams.endPos = GetPosition() - Vector(0, castDistance, 0);
-				m_ExRaycastRVParams.sorted = true;
-				m_ExRaycastRVParams.type = ObjIntersectGeom;
-				m_ExRaycastRVParams.flags = CollisionFlags.ALLOBJECTS;
-
-				// Initiate the raycast
-				if (DayZPhysics.RaycastRVProxy(m_ExRaycastRVParams, m_ExRaycastResults))
-				{
-					Object target = ExpansionAttachmentHelper.FindBestAttach(this, m_ExRaycastResults);
-
-					if (target != NULL)
+					if (m_ExAttachmentObject)
 					{
-						if (parent && parent != target) // Detach the player if the parent object is not the same as the target, we have to deal with attachment in next frame.
+						castDistance += 1.0 * m_ExAttachmentRadius;
+						castRadius = 1.0;
+					}
+				}
+
+				if (m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETECT)
+				{
+					if (m_ExAttachmentObject && m_ExAttachmentObject.IsInherited(ExpansionZodiacBoat))
+						castRadius = 1;
+
+					m_ExRaycastRVParams.radius = castRadius;
+					m_ExRaycastRVParams.begPos = GetPosition() + Vector(0, 1.0, 0);
+					m_ExRaycastRVParams.endPos = GetPosition() - Vector(0, castDistance, 0);
+					m_ExRaycastRVParams.sorted = true;
+					m_ExRaycastRVParams.type = ObjIntersectGeom;
+					m_ExRaycastRVParams.flags = CollisionFlags.ALLOBJECTS;
+
+					// Initiate the raycast
+					if (DayZPhysics.RaycastRVProxy(m_ExRaycastRVParams, m_ExRaycastResults))
+					{
+						Object target = ExpansionAttachmentHelper.FindBestAttach(this, m_ExRaycastResults);
+
+						if (target != NULL)
 						{
-							//AttachmentDebugPrint("aparent && parent != target");
+							if (parent && parent != target) // Detach the player if the parent object is not the same as the target, we have to deal with attachment in next frame.
+							{
+								//AttachmentDebugPrint("aparent && parent != target");
+
+								Detach();
+							}
+							else if (!parent) // If the parent is null, verify the target and attach the player
+							{
+								//AttachmentDebugPrint("a!parent");
+
+								AttachTo(target);
+							}
+						}
+						else if (parent && parent == m_ExAttachmentObject)
+						{
+							//AttachmentDebugPrint("dparent");
 
 							Detach();
 						}
-						else if (!parent) // If the parent is null, verify the target and attach the player
-						{
-							//AttachmentDebugPrint("a!parent");
-
-							AttachTo(target);
-						}
 					}
-					else if (parent && parent == m_ExAttachmentObject)
+					else if (parent && parent == m_ExAttachmentObject) // Currently have a parent when the raycast failed, forcefully detach the player
 					{
-						//AttachmentDebugPrint("dparent");
-
+						//AttachmentDebugPrint("drparent");
 						Detach();
 					}
 				}
-				else if (parent && parent == m_ExAttachmentObject) // Currently have a parent when the raycast failed, forcefully detach the player
+				else if (parent && m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETACH)
 				{
-					//AttachmentDebugPrint("drparent");
 					Detach();
 				}
 			}
-			else if (parent && m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETACH)
+			else if (parent)
 			{
 				Detach();
 			}
 
 			//AttachmentDebugPrint("PlayerBase::CommandHandler - Ray Trace - End");
 		}
-
-		bool changedState = false;
 
 		m_ExPlayerLinkTypeFrameDelayed = m_ExPlayerLinkType;
 
@@ -669,18 +667,23 @@ modded class DayZPlayerImplement
 		{
 			//AttachmentDebugPrint("ExPlayerLinkType Changed");
 
-			changedState = true;
-
 			switch (m_ExPlayerLinkType)
 			{
 			case ExpansionPlayerLink.DETACH:
 			{
 				//AttachmentDebugPrint("START DETACH");
 
-				UnlinkFromLocalSpace();
-				m_IsAttached = false;
+				if (m_ExAttachmentObject == GetParent())
+				{
+					UnlinkFromLocalSpace();
+				}
 
-				OnExpansionDetachFrom(m_ExAttachmentObject);
+				if (m_ExAttachmentObject)
+				{
+					OnExpansionDetachFrom(m_ExAttachmentObject);
+				}
+
+				m_IsAttached = false;
 
 				//m_ExAttachmentObject.Update();
 
@@ -695,13 +698,7 @@ modded class DayZPlayerImplement
 			case ExpansionPlayerLink.ATTACH:
 			{
 				//AttachmentDebugPrint("START ATTACH");
-
-				if ( m_ExAttachmentObject.IsInherited( CarScript ) && !dBodyIsActive( m_ExAttachmentObject ) )
-				{
-					//! Potential fix for player getting teleported to the sea (desync)
-					EXPrint(GetType() + "::CommandHandler attach to " + m_ExAttachmentObject);
-					dBodyActive( m_ExAttachmentObject, ActiveState.ACTIVE );
-				}
+				//AttachmentDebugPrint("m_ExAttachmentObject: " + m_ExAttachmentObject);
 
 				GetTransform(m_ExTransformPlayer);
 				m_ExAttachmentObject.GetTransform(m_ExTransformTarget);
@@ -727,14 +724,17 @@ modded class DayZPlayerImplement
 			{
 				//AttachmentDebugPrint("Sending Context to Server");
 
-				ScriptInputUserData ctx = new ScriptInputUserData;
-				ctx.Write(EXPANSION_INPUT_UDT_PLAYER_LINK);
-				ctx.Write(m_ExPlayerLinkType);
+				if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE)
+				{
+					ScriptInputUserData ctx = new ScriptInputUserData;
+					ctx.Write(EXPANSION_INPUT_UDT_PLAYER_LINK);
+					ctx.Write(m_ExPlayerLinkType);
 
-				if (m_ExPlayerLinkType == ExpansionPlayerLink.ATTACH)
-					ctx.Write(m_ExAttachmentObject);
+					if (m_ExPlayerLinkType == ExpansionPlayerLink.ATTACH)
+						ctx.Write(m_ExAttachmentObject);
 
-				ctx.Send();
+					ctx.Send();
+				}
 
 				//AttachmentDebugPrint("Sent Context to Server");
 			}
@@ -748,66 +748,6 @@ modded class DayZPlayerImplement
 			//AttachmentDebugPrint("ExPlayerLinkType Processed");
 		}
 	}
-
-	/*
-	override void EOnPostFrame(IEntity other, int extra)
-	{
-		if (GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_REMOTE)
-			return;
-
-		if (!m_IsAttached)
-			return;
-
-		if (!GetCommand_Move())
-			return;
-
-		GetTransform(m_ExTransformPlayer);
-		m_ExAttachmentObject.GetTransform(m_ExTransformTarget);
-
-		vector ori = m_ExAttachmentObject.GetOrientation();
-
-		vector transform[4];
-		Math3D.YawPitchRollMatrix(Vector(GetOrientation()[0], -ori[1], -ori[2]), transform);
-		transform[3] = m_ExTransformPlayer[3];
-		SetTransform(transform);
-	}
-
-	override void EOnFrame(IEntity other, float timeSlice)
-	{
-		if (GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_REMOTE)
-			return;
-
-		if (!m_IsAttached)
-			return;
-
-		if (!GetCommand_Move())
-			return;
-
-		GetTransform(m_ExTransformPlayer);
-		m_ExAttachmentObject.GetTransform(m_ExTransformTarget);
-
-		vector ori = m_ExAttachmentObject.GetOrientation();
-
-		vector transform[4];
-		Math3D.YawPitchRollMatrix(Vector(GetOrientation()[0], -ori[1], -ori[2]), transform);
-		transform[3] = m_ExTransformPlayer[3];
-		SetTransform(transform);
-	}
-	*/
-
-	/*
-	override bool OnNetworkTransformUpdate(out vector pos, out vector ypr)
-	{
-		if (m_ExAttachmentObject && GetCommand_Move())
-		{
-			pos = GetPosition();
-			ypr = GetOrientation() * Math.DEG2RAD; 
-			return true;
-		}
-
-		return super.OnNetworkTransformUpdate(pos, ypr);
-	}
-	*/
 
 	void OnExpansionAttachTo(Object obj, vector transform[4])
 	{
@@ -869,8 +809,15 @@ modded class DayZPlayerImplement
 		instance.Add(" BEST", ExpansionAttachmentHelper.FindBestAttach(this, m_ExRaycastResults));
 		for (int i = 0; i < m_ExRaycastResults.Count(); i++)
 		{
-			instance.Add(" OBJ", m_ExRaycastResults[i].obj);
-			instance.Add(" PAR", m_ExRaycastResults[i].parent);
+			instance.Add(" Object", m_ExRaycastResults[i].obj);
+			instance.Add(" Parent", m_ExRaycastResults[i].parent);
+			instance.Add(" Can Attach", ExpansionAttachmentHelper.CanAttachTo(this, m_ExRaycastResults[i].obj));
+		}
+
+		instance.Add("Vehicles", GetExpansionSettings().GetVehicle().VehiclesConfig.Count());
+		foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
+		{
+			instance.Add(" Name", vehcfg.ClassName);
 		}
 
 		return true;

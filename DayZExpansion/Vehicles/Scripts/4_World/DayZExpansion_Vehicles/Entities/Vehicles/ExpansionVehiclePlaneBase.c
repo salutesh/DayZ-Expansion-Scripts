@@ -227,7 +227,7 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 	// ------------------------------------------------------------
 	override bool IsCar()
 	{
-		return true;
+		return false;
 	}
 
 	// ------------------------------------------------------------
