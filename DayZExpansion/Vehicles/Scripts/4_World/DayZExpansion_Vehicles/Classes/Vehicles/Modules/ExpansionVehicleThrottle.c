@@ -72,6 +72,19 @@ class ExpansionVehicleCarThrottle : ExpansionVehicleThrottle
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
+		if (!pDriver)
+		{
+			m_Throttle = 0;
+			m_Brake = 1;
+			if (m_Controller.m_Ratio[m_ControlIndex] == 0)
+				m_Brake = 0;
+
+			m_Controller.m_Throttle[m_ControlIndex] = m_Throttle;
+			m_Controller.m_Brake[m_ControlIndex] = m_Brake;
+
+			return;
+		}
+
 		UAInterface input = pDriver.GetInputInterface();
 
 		float in = input.SyncedValue_ID(UACarForward);
@@ -109,50 +122,53 @@ class ExpansionVehiclePlaneThrottle : ExpansionVehicleThrottle
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		UAInterface input = pDriver.GetInputInterface();
-
-#ifdef COMPONENT_SYSTEM
-		float engine = input.SyncedValue("UAExpansionPlaneEngine");
-#else
-		float engine = input.SyncedValue_ID(UAExpansionPlaneEngine);
-#endif
-
-		if (m_VariableInput || engine != 0.0)
+		if (pDriver)
 		{
-			m_VariableInput = true;
-			m_Throttle = engine;
-		}
+			UAInterface input = pDriver.GetInputInterface();
 
 #ifdef COMPONENT_SYSTEM
-		m_UpPressed |= input.SyncedPress("UAExpansionPlaneEngineUp");
-		if (input.SyncedRelease("UAExpansionPlaneEngineUp"))
-			m_UpPressed = false;
-
-		m_DownPressed |= input.SyncedPress("UAExpansionPlaneEngineDown");
-		if (input.SyncedRelease("UAExpansionPlaneEngineDown"))
-			m_DownPressed = false;
+			float engine = input.SyncedValue("UAExpansionPlaneEngine");
 #else
-		m_UpPressed |= input.SyncedPress_ID(UAExpansionPlaneEngineUp);
-		if (input.SyncedRelease_ID(UAExpansionPlaneEngineUp))
-			m_UpPressed = false;
-
-		m_DownPressed |= input.SyncedPress_ID(UAExpansionPlaneEngineDown);
-		if (input.SyncedRelease_ID(UAExpansionPlaneEngineDown))
-			m_DownPressed = false;
+			float engine = input.SyncedValue_ID(UAExpansionPlaneEngine);
 #endif
 
-		if (m_UpPressed || m_DownPressed)
-		{
+			if (m_VariableInput || engine != 0.0)
+			{
+				m_VariableInput = true;
+				m_Throttle = engine;
+			}
+
 #ifdef COMPONENT_SYSTEM
-			float engine_up = input.SyncedValue("UAExpansionPlaneEngineUp");
-			float engine_down = input.SyncedValue("UAExpansionPlaneEngineDown");
+			m_UpPressed |= input.SyncedPress("UAExpansionPlaneEngineUp");
+			if (input.SyncedRelease("UAExpansionPlaneEngineUp"))
+				m_UpPressed = false;
+
+			m_DownPressed |= input.SyncedPress("UAExpansionPlaneEngineDown");
+			if (input.SyncedRelease("UAExpansionPlaneEngineDown"))
+				m_DownPressed = false;
 #else
-			float engine_up = input.SyncedValue_ID(UAExpansionPlaneEngineUp);
-			float engine_down = input.SyncedValue_ID(UAExpansionPlaneEngineDown);
+			m_UpPressed |= input.SyncedPress_ID(UAExpansionPlaneEngineUp);
+			if (input.SyncedRelease_ID(UAExpansionPlaneEngineUp))
+				m_UpPressed = false;
+
+			m_DownPressed |= input.SyncedPress_ID(UAExpansionPlaneEngineDown);
+			if (input.SyncedRelease_ID(UAExpansionPlaneEngineDown))
+				m_DownPressed = false;
 #endif
 
-			m_VariableInput = false;
-			m_Throttle += Math.Clamp((engine_up - engine_down) - m_Throttle, -0.5 * pState.m_DeltaTime, 0.5 * pState.m_DeltaTime);
+			if (m_UpPressed || m_DownPressed)
+			{
+#ifdef COMPONENT_SYSTEM
+				float engine_up = input.SyncedValue("UAExpansionPlaneEngineUp");
+				float engine_down = input.SyncedValue("UAExpansionPlaneEngineDown");
+#else
+				float engine_up = input.SyncedValue_ID(UAExpansionPlaneEngineUp);
+				float engine_down = input.SyncedValue_ID(UAExpansionPlaneEngineDown);
+#endif
+
+				m_VariableInput = false;
+				m_Throttle += Math.Clamp((engine_up - engine_down) - m_Throttle, -0.5 * pState.m_DeltaTime, 0.5 * pState.m_DeltaTime);
+			}
 		}
 
 		m_Throttle = Math.Clamp(m_Throttle, 0, 1);

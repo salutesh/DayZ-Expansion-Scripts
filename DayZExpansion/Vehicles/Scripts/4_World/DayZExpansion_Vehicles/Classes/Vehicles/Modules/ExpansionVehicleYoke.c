@@ -18,27 +18,34 @@ class ExpansionVehicleYoke : ExpansionVehicleSteering
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		UAInterface input = pDriver.GetInputInterface();
+		m_YawTarget = 0;
+		m_PitchTarget = 0;
+		m_RollTarget = 0;
 
-		#ifdef COMPONENT_SYSTEM
-		float yaw_left = input.SyncedValue("UAExpansionPlaneRudderLeft");
-		float yaw_right = input.SyncedValue("UAExpansionPlaneRudderRight");
-		float pitch_left = input.SyncedValue("UAExpansionPlaneElevatorUp");
-		float pitch_right = input.SyncedValue("UAExpansionPlaneElevatorDown");
-		float roll_left = input.SyncedValue("UAExpansionPlaneAileronLeft");
-		float roll_right = input.SyncedValue("UAExpansionPlaneAileronRight");
-		#else
-		float yaw_left = input.SyncedValue_ID(UAExpansionPlaneRudderLeft);
-		float yaw_right = input.SyncedValue_ID(UAExpansionPlaneRudderRight);
-		float pitch_left = input.SyncedValue_ID(UAExpansionPlaneElevatorUp);
-		float pitch_right = input.SyncedValue_ID(UAExpansionPlaneElevatorDown);
-		float roll_left = input.SyncedValue_ID(UAExpansionPlaneAileronLeft);
-		float roll_right = input.SyncedValue_ID(UAExpansionPlaneAileronRight);
-		#endif
+		if (pDriver)
+		{
+			UAInterface input = pDriver.GetInputInterface();
 
-		m_YawTarget = yaw_right - yaw_left;
-		m_PitchTarget = pitch_right - pitch_left;
-		m_RollTarget = roll_left - roll_right;
+#ifdef COMPONENT_SYSTEM
+			float yaw_left = input.SyncedValue("UAExpansionPlaneRudderLeft");
+			float yaw_right = input.SyncedValue("UAExpansionPlaneRudderRight");
+			float pitch_left = input.SyncedValue("UAExpansionPlaneElevatorUp");
+			float pitch_right = input.SyncedValue("UAExpansionPlaneElevatorDown");
+			float roll_left = input.SyncedValue("UAExpansionPlaneAileronLeft");
+			float roll_right = input.SyncedValue("UAExpansionPlaneAileronRight");
+#else
+			float yaw_left = input.SyncedValue_ID(UAExpansionPlaneRudderLeft);
+			float yaw_right = input.SyncedValue_ID(UAExpansionPlaneRudderRight);
+			float pitch_left = input.SyncedValue_ID(UAExpansionPlaneElevatorUp);
+			float pitch_right = input.SyncedValue_ID(UAExpansionPlaneElevatorDown);
+			float roll_left = input.SyncedValue_ID(UAExpansionPlaneAileronLeft);
+			float roll_right = input.SyncedValue_ID(UAExpansionPlaneAileronRight);
+#endif
+
+			m_YawTarget = yaw_right - yaw_left;
+			m_PitchTarget = pitch_right - pitch_left;
+			m_RollTarget = roll_left - roll_right;
+		}
 
 		m_Controller.m_Yaw += Math.Clamp(m_YawTarget - m_Controller.m_Yaw, -5.0 * pState.m_DeltaTime, 5.0 * pState.m_DeltaTime);
 		m_Controller.m_Pitch += Math.Clamp(m_PitchTarget - m_Controller.m_Pitch, -5.0 * pState.m_DeltaTime, 5.0 * pState.m_DeltaTime);

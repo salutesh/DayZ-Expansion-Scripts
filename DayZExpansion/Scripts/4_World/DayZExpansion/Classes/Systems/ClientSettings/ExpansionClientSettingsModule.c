@@ -14,9 +14,6 @@ class ExpansionClientSettingsModule: JMModuleBase
 {	
 	static ref ScriptInvoker m_SettingChanged = new ScriptInvoker;
 	
-	private bool m_ColorGrading;
-	private bool m_ColorVignette;
-	
 	override bool IsServer()
 	{
 		return false;
@@ -25,14 +22,6 @@ class ExpansionClientSettingsModule: JMModuleBase
 	override bool IsClient()
 	{
 		return true;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionClientSettingsModule Constructor
-	// ------------------------------------------------------------	
-	void ExpansionClientSettingsModule()
-	{
-		
 	}
 	
 	// ------------------------------------------------------------
@@ -50,12 +39,7 @@ class ExpansionClientSettingsModule: JMModuleBase
 		{
 			GetExpansionClientSettings().Load();
 		}
-			
-		m_ColorGrading = GetExpansionClientSettings().ColorGrading;
-		m_ColorVignette = GetExpansionClientSettings().ColorVignette;
 		
-		UpdateColorGradingFromSettings();
-		UpdateColorVignetteFromSettings();
 		UpdateMarkersFromSettings();	
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
@@ -83,40 +67,12 @@ class ExpansionClientSettingsModule: JMModuleBase
 		EXPrint( "ExpansionClientSettingsModule::OnSettingsUpdated - Start" );
 		#endif
 		
-		UpdateColorGradingFromSettings();
-		UpdateColorVignetteFromSettings();
 		UpdateMarkersFromSettings();
 		UpdateCameraFromSettings();
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXPrint( "ExpansionClientSettingsModule::OnSettingsUpdated - End" );
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionClientSettingsModule UpdateColorGradingFromSettings
-	// ------------------------------------------------------------
-	private void UpdateColorGradingFromSettings()
-	{
-		if ( GetGame().GetPlayer() && m_ColorGrading != GetExpansionClientSettings().ColorGrading )
-		{
-			m_ColorGrading = GetExpansionClientSettings().ColorGrading;
-			
-			PPEffects.UpdateSaturation();
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionClientSettingsModule UpdateColorVignetteFromSettings
-	// ------------------------------------------------------------
-	private void UpdateColorVignetteFromSettings()
-	{
-		if ( GetGame().GetPlayer() && m_ColorVignette != GetExpansionClientSettings().ColorVignette )
-		{
-			PPEffects.UpdateVignette();
-		
-			m_ColorVignette = GetExpansionClientSettings().ColorVignette;
-		}
 	}
 	
 	// ------------------------------------------------------------

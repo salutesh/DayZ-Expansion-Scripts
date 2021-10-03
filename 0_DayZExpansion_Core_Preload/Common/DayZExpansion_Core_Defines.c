@@ -51,6 +51,8 @@
 //! Enableif you want to enable vehicle towing
 #define EXPANSION_VEHICLE_TOWING
 
+//#define EXPANSION_SOUND_CRASH_IDENTIFY
+
 // Enable it if you want mission event debug logs enabled
 //#define EXPANSION_MISSION_EVENT_DEBUG
 

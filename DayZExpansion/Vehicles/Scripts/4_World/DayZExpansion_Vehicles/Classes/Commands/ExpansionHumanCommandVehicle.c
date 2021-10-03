@@ -226,7 +226,10 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 	override void PrePhysUpdate(float pDt)
 	{
-		if ((m_PreviousState == STATE_AWAIT && m_State == STATE_AWAIT) || m_State == STATE_JUMPED_OUT)
+		//if ((m_PreviousState == STATE_AWAIT && m_State == STATE_AWAIT) || m_State == STATE_JUMPED_OUT)
+		//	return;
+
+		if (m_State == STATE_JUMPED_OUT)
 			return;
 		
 		if (m_State == STATE_JUMPING_OUT)
@@ -273,8 +276,8 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 			dt = 1.0;
 		
 		float speed = m_TranslationSpeed;
-		if (m_State != STATE_PRE_GETTING_IN)
-			speed = translation.Length() / pDt;
+		//if (m_State != STATE_PRE_GETTING_IN)
+		//	speed = translation.Length() / pDt;
 
 		float len = translation.Normalize();
 		if (len > pDt)

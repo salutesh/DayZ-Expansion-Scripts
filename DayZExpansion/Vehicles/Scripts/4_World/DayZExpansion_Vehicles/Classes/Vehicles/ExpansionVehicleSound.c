@@ -1,108 +1,30 @@
-class ExpansionVehicleSoundShader
-{
-	private ref Expression m_Volume;
-	private ref Expression m_Frequency;
-
-	void ExpansionVehicleSoundShader(string name)
-	{
-		string path;
-		string expression;
-
-		expression = "1";
-		path = "CfgSoundShaders " + name + " ex_volume";
-		if (GetGame().ConfigIsExisting(path))
-		{
-			expression = GetGame().ConfigGetTextOut(path);
-		}
-
-#ifdef CF_EXPRESSION
-		Class.CastTo(m_Volume, CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, Expression));
-#endif
-
-		expression = "1";
-		path = "CfgSoundShaders " + name + " ex_frequency";
-		if (GetGame().ConfigIsExisting(path))
-		{
-			expression = GetGame().ConfigGetTextOut(path);
-		}
-
-#ifdef CF_EXPRESSION
-		Class.CastTo(m_Frequency, CF_ExpressionVM.Compile(expression, ExpansionVehicleSoundManager.s_SoundShaderParameters, Expression));
-#endif
-	}
-
-	void Calculate(array<float> variables, inout float volume, inout float frequency)
-	{
-#ifdef CF_EXPRESSION
-		frequency = m_Frequency.Evaluate(variables);
-
-		if (frequency > 2.0)
-		{
-			frequency = 2.0;
-			//volume = 0.0;
-		}
-		else
-		{
-			volume = m_Volume.Evaluate(variables);
-		}
-#endif
-	}
-};
-
-class ExpansionVehicleSoundManager
-{
-	static ref array<string> s_SoundShaderParameters = {
-		"rpm",
-		"engineOn",
-		"campos",
-		"doors",
-		"speed",
-		"thrust",
-		"water",
-		"rock",
-		"grass",
-		"gravel",
-		"asphalt",
-		"latSlipDrive",
-		"steerdelta",
-		"rain",
-	};
-
-	static ref map<string, ref ExpansionVehicleSoundShader> s_SoundShaders = new map<string, ref ExpansionVehicleSoundShader>();
-
-	static void Get(string name, out ExpansionVehicleSoundShader shader)
-	{
-		if (s_SoundShaders.Find(name, shader))
-			return;
-
-		shader = new ExpansionVehicleSoundShader(name);
-		s_SoundShaders[name] = shader;
-	}
-};
+/**
+ * ExpansionVehicleSoundManager.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2021 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
 class ExpansionVehicleSound
 {
-	private ExpansionVehicleBase m_Vehicle;
+	ExpansionVehicleBase m_Vehicle;
 
-	private bool m_HasVolume = true;
-	private bool m_HasFrequency = true;
+	ExpansionVehicleSoundShader m_Shader;
 
-	private ref ExpansionVehicleSoundShader m_Shader;
+	float m_Volume;
+	float m_Frequency;
 
-	private float m_TargetVolume;
-	private float m_TargetFrequency;
+	string m_SoundSetName;
 
-	private float m_CurrentVolume;
-	private float m_CurrentFrequency;
-
-	private vector m_Offset;
-
-	private string m_SoundSetName;
-
-	private ref SoundParams m_SoundParams;
-	private ref SoundObjectBuilder m_SoundObjectBuilder;
-	private ref SoundObject m_SoundObject;
-	private ref AbstractWave m_AbstractWave;
+	ref SoundParams m_SoundParams;
+	ref SoundObjectBuilder m_SoundObjectBuilder;
+	ref SoundObject m_SoundObject;
+	ref AbstractWave m_AbstractWave;
 
 	void ExpansionVehicleSound(ExpansionVehicleBase vehicle, string soundSetName)
 	{
@@ -123,15 +45,6 @@ class ExpansionVehicleSound
 		TFloatArray values = new TFloatArray;
 		if (GetGame().ConfigIsExisting(path))
 			GetGame().ConfigGetFloatArray(path, values);
-
-		if (values.Count() == 3)
-		{
-			m_Offset[0] = values[0];
-			m_Offset[1] = values[1];
-			m_Offset[2] = values[2];
-		}
-
-		m_Offset = "0 0 0";
 	}
 
 	bool Update(float pDt, array<float> variables)
@@ -143,14 +56,27 @@ class ExpansionVehicleSound
 				return false;
 		}
 
+#ifdef EXPANSION_SOUND_CRASH_IDENTIFY
+		Print(m_SoundSetName);
+#endif
+
 		if (!m_SoundObjectBuilder)
 		{
 			m_SoundObjectBuilder = new SoundObjectBuilder(m_SoundParams);
-			m_SoundObjectBuilder.UpdateEnvSoundControllers(m_Vehicle.GetPosition());
-
 			if (!m_SoundObjectBuilder)
 				return false;
+
+			m_SoundObjectBuilder.UpdateEnvSoundControllers(m_Vehicle.GetPosition());
+
+			for (int i = 0; i < ExpansionVehicleSoundManager.s_SoundShaderParameters.Count(); i++)
+			{
+				m_SoundObjectBuilder.SetVariable(ExpansionVehicleSoundManager.s_SoundShaderParameters[i], variables[i]);
+			}
 		}
+
+#ifdef EXPANSION_SOUND_CRASH_IDENTIFY
+		Print(m_SoundObjectBuilder);
+#endif
 
 		if (!m_SoundObject)
 		{
@@ -162,6 +88,16 @@ class ExpansionVehicleSound
 			m_SoundObject.SetKind(WaveKind.WAVEEFFECTEX);
 		}
 
+		/*
+		 * Sound object will fail to create - possible cause is a
+		 * parameter is defined in the config that is missing from
+		 * 's_SoundShaderParameters', or 'playTrigger' is defined
+		 * in the sound set.
+		 */
+#ifdef EXPANSION_SOUND_CRASH_IDENTIFY
+		Print(m_SoundObject);
+#endif
+
 		if (!m_AbstractWave)
 		{
 			m_AbstractWave = GetGame().GetSoundScene().Play3D(m_SoundObject, m_SoundObjectBuilder);
@@ -171,16 +107,13 @@ class ExpansionVehicleSound
 			if (!m_AbstractWave)
 				return false;
 		}
-		
-		m_AbstractWave.SetPosition(m_Vehicle.ModelToWorld(m_Offset));
 
-		m_Shader.Calculate(variables, m_TargetVolume, m_TargetFrequency);
+		m_AbstractWave.SetPosition(m_Vehicle.GetPosition());
 
-		m_AbstractWave.SetVolume(m_CurrentVolume);
-		m_AbstractWave.SetFrequency(m_CurrentFrequency);
+		m_Shader.Calculate(variables, m_Volume, m_Frequency);
 
-		m_CurrentVolume += Math.Clamp(m_TargetVolume - m_CurrentVolume, -20.0 * pDt, 20.0 * pDt);
-		m_CurrentFrequency += Math.Clamp(m_TargetFrequency - m_CurrentFrequency, -20.0 * pDt, 20.0 * pDt);
+		m_AbstractWave.SetVolume(m_Volume);
+		m_AbstractWave.SetFrequency(m_Frequency);
 
 		return true;
 	}
@@ -190,11 +123,8 @@ class ExpansionVehicleSound
 	{
 		instance.Add("Sound Set", m_SoundSetName);
 
-		instance.Add("Target Volume", m_TargetVolume);
-		instance.Add("Target Frequency", m_TargetFrequency);
-
-		//instance.Add("Current Volume", m_CurrentVolume);
-		//instance.Add("Current Frequency", m_CurrentFrequency);
+		instance.Add("Volume", m_Volume);
+		instance.Add("Frequency", m_Frequency);
 
 		return true;
 	}

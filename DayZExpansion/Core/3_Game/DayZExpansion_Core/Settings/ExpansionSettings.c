@@ -20,6 +20,8 @@ class ExpansionSettings
 	protected autoptr ExpansionLogSettings m_SettingsLog;
 	protected autoptr ExpansionSafeZoneSettings m_SettingsSafeZone;
 
+	protected bool m_GameInit = false;
+
 	protected bool m_SettingsLoaded;
 	protected bool m_Debug;
 	protected ref TStringArray m_NetworkedSettings;
@@ -107,11 +109,6 @@ class ExpansionSettings
 
 		m_SettingsLoaded = false;
 
-		if ( IsMissionOffline() )
-		{
-			OnServerInit();
-		}
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionSettings::OnClientInit - End");
 		#endif
@@ -194,14 +191,26 @@ class ExpansionSettings
 		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
 
 		m_NetworkedSettings = new TStringArray;
+	}
 
-		if ( IsMissionClient() )
+	void GameInit()
+	{
+		if (m_GameInit)
 		{
-			OnClientInit();
-		} else if ( IsMissionHost() )
-		{			
-			OnServerInit();
+			Unload();
+
+			m_GameInit = false;
 		}
+
+		if ( GetGame().IsMissionMainMenu() )
+			return;
+
+		if ( IsMissionHost() )  //! Server and offline mode
+			OnServerInit();
+		else
+			OnClientInit();
+
+		m_GameInit = true;
 	}
 	
 	// ------------------------------------------------------------
@@ -260,7 +269,7 @@ class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC m_SettingsDebug");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Log:
@@ -270,7 +279,7 @@ class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC m_SettingsLog");
 				#endif
 
-				break;
+				return true;
 			}
 		}
 
@@ -278,7 +287,7 @@ class ExpansionSettings
 		EXPrint("ExpansionSettings::OnRPC - End");
 		#endif
 
-		return true;
+		return false;
 	}
 	
 	// ------------------------------------------------------------

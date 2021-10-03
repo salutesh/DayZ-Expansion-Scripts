@@ -403,7 +403,7 @@ modded class PlayerBase
 	}
 	
 	// ------------------------------------------------------------
-	// PlayerBase SetTerritoryIDInside, only server side
+	// PlayerBase SetTerritoryIDInside, only client side
 	// ------------------------------------------------------------
 	void SetTerritoryIDInside(int territoryID)
 	{
@@ -411,7 +411,7 @@ modded class PlayerBase
 	}
 	
 	// ------------------------------------------------------------
-	// PlayerBase GetTerritoryIDInside, only server side
+	// PlayerBase GetTerritoryIDInside, only client side
 	// ------------------------------------------------------------
 	int GetTerritoryIDInside()
 	{

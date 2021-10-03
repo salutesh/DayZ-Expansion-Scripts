@@ -10,39 +10,38 @@
  *
 */
 
-
 /**@class		ExpansionVehicleSettingsBase
  * @brief		Vehicle settings base class
  **/
-class ExpansionVehicleSettingsBase: ExpansionSettingBase
+class ExpansionVehicleSettingsBase : ExpansionSettingBase
 {
-	ExpansionVehicleNetworkMode VehicleSync;				//! 0 = SERVER | 1 = CLIENT
+	ExpansionVehicleNetworkMode VehicleSync; //! 0 = SERVER | 1 = CLIENT
 
-	ExpansionVehicleKeyStartMode VehicleRequireKeyToStart; 	//! 0 = Disabled | 1 = Require key to start the engine (will check hands, cargo, inventory) | 2 = check only in the hand
-	bool VehicleRequireAllDoors;							//! If enabled, you will need all the doors to lock/unlock the car
-	bool VehicleLockedAllowInventoryAccess;					//! If enabled, will be able to see the vehicle inventory regardless of the car have all his doors
-	bool VehicleLockedAllowInventoryAccessWithoutDoors;		//! If enabled, will be able to see the vehicle inventory only if at least one car door is missing
-	int MasterKeyPairingMode;								//! -1 = infinite | 0 = disabled | 1 = limited (will use MasterKeyUses) | 2 = renewable with a electronicrepairkit and KeyGrinder (use MasterKeyUses) | 3 = renewable only with a KeyGrinder (use MasterKeyUses)
-	int MasterKeyUses;										//! Amount of times the masterkey can pair unpaired keys
+	ExpansionVehicleKeyStartMode VehicleRequireKeyToStart; //! 0 = Disabled | 1 = Require key to start the engine (will check hands, cargo, inventory) | 2 = check only in the hand
+	bool VehicleRequireAllDoors;						   //! If enabled, you will need all the doors to lock/unlock the car
+	bool VehicleLockedAllowInventoryAccess;				   //! If enabled, will be able to see the vehicle inventory regardless of the car have all his doors
+	bool VehicleLockedAllowInventoryAccessWithoutDoors;	   //! If enabled, will be able to see the vehicle inventory only if at least one car door is missing
+	int MasterKeyPairingMode;							   //! -1 = infinite | 0 = disabled | 1 = limited (will use MasterKeyUses) | 2 = renewable with a electronicrepairkit and KeyGrinder (use MasterKeyUses) | 3 = renewable only with a KeyGrinder (use MasterKeyUses)
+	int MasterKeyUses;									   //! Amount of times the masterkey can pair unpaired keys
 	bool CanPickLock;
 	autoptr TStringArray PickLockTools;
 	float PickLockChancePercent;
 	int PickLockTimeSeconds;
 	float PickLockToolDamagePercent;
-	bool EnableWindAerodynamics;							//! If enabled, wind simulation will be enabled
-	bool EnableTailRotorDamage;								//! If enabled, the rotor will be damageable
-	bool PlayerAttachment;									//! If enabled, allow players to be attached to vehicles while in movement
-	bool Towing;											//! If enabled, allow vehicle to tow other vehicles
-	bool EnableHelicopterExplosions;						//! If enabled, allow Helicopters to explode
-	bool DisableVehicleDamage;								//! If disabled, vehicles (cars, trucks) won't take any damages
-	float VehicleCrewDamageMultiplier;						//! Damage multiplier for the crew. How fast they will blackout or die.
-	float VehicleSpeedDamageMultiplier;						//! Damage multiplier for the speed of the car. Above 0 is weaker and below 0 is stronger.
+	bool EnableWindAerodynamics;		//! If enabled, wind simulation will be enabled
+	bool EnableTailRotorDamage;			//! If enabled, the rotor will be damageable
+	bool PlayerAttachment;				//! If enabled, allow players to be attached to vehicles while in movement
+	bool Towing;						//! If enabled, allow vehicle to tow other vehicles
+	bool EnableHelicopterExplosions;	//! If enabled, allow Helicopters to explode
+	bool DisableVehicleDamage;			//! If disabled, vehicles (cars, trucks) won't take any damages
+	float VehicleCrewDamageMultiplier;	//! Damage multiplier for the crew. How fast they will blackout or die.
+	float VehicleSpeedDamageMultiplier; //! Damage multiplier for the speed of the car. Above 0 is weaker and below 0 is stronger.
 }
 
 /**@class		ExpansionVehicleSettingsV2
  * @brief		Vehicle settings v2 class
  **/
-class ExpansionVehicleSettingsV2: ExpansionVehicleSettingsBase
+class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
 {
 	bool CanChangeLock;
 	autoptr TStringArray ChangeLockTools;
@@ -53,128 +52,194 @@ class ExpansionVehicleSettingsV2: ExpansionVehicleSettingsBase
 /**@class		ExpansionVehicleSettings
  * @brief		Vehicle settings class
  **/
-class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
+class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
 	static const int VERSION = 6;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
 
-	ref array < ref ExpansionVehiclesConfig > VehiclesConfig;
-	
-	[NonSerialized()]
-	private bool m_IsLoaded;
+	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
+
+	[NonSerialized()] bool m_IsLoaded;
 
 	// ------------------------------------------------------------
 	void ExpansionVehicleSettings()
 	{
-		#ifdef EXPANSIONEXPRINT
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::ExpansionVehicleSettings - Start");
-		#endif
+#endif
 
 		PickLockTools = new TStringArray;
 		ChangeLockTools = new TStringArray;
 
-		VehiclesConfig =  new array< ref ExpansionVehiclesConfig >;		
+		VehiclesConfig = new array<ref ExpansionVehiclesConfig>;
 
-		#ifdef EXPANSIONEXPRINT
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::ExpansionVehicleSettings - End");
-		#endif
+#endif
 	}
-	
-	// ------------------------------------------------------------
-	override bool OnRecieve( ParamsReadContext ctx )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::OnRecieve - Start");
-		#endif
-		ExpansionVehicleSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionVehicleSettings::OnRecieve setting");
-			return false;
-		}
 
-		CopyInternal( setting );
+	// ------------------------------------------------------------
+	override bool OnRecieve(ParamsReadContext ctx)
+	{
+#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionVehicleSettings::OnRecieve - Start");
+#endif
+
+		ctx.Read(VehicleSync);
+		ctx.Read(VehicleRequireKeyToStart);
+		ctx.Read(VehicleRequireAllDoors);
+		ctx.Read(VehicleLockedAllowInventoryAccess);
+		ctx.Read(VehicleLockedAllowInventoryAccessWithoutDoors);
+		ctx.Read(MasterKeyPairingMode);
+		ctx.Read(MasterKeyUses);
+		ctx.Read(CanPickLock);
+		ctx.Read(PickLockTools);
+		EXPrint("PickLockTools: " + PickLockTools.Count());
+		ctx.Read(PickLockChancePercent);
+		ctx.Read(PickLockTimeSeconds);
+		ctx.Read(PickLockToolDamagePercent);
+		ctx.Read(EnableWindAerodynamics);
+		ctx.Read(EnableTailRotorDamage);
+		ctx.Read(PlayerAttachment);
+		ctx.Read(Towing);
+		ctx.Read(EnableHelicopterExplosions);
+		ctx.Read(DisableVehicleDamage);
+		ctx.Read(VehicleCrewDamageMultiplier);
+		ctx.Read(VehicleSpeedDamageMultiplier);
+		ctx.Read(CanChangeLock);
+		ctx.Read(ChangeLockTools);
+		EXPrint("ChangeLockTools: " + ChangeLockTools.Count());
+		ctx.Read(ChangeLockTimeSeconds);
+		ctx.Read(ChangeLockToolDamagePercent);
+
+		ctx.Read(PlacePlayerOnGroundOnReconnectInVehicle);
+		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
+
+		VehiclesConfig.Clear();
+		TStringArray vehicles = new TStringArray;
+		ctx.Read(vehicles);
+		foreach (string name: vehicles)
+		{
+			EXPrint("Reading " + name);
+			VehiclesConfig.Insert(new ExpansionVehiclesConfig(name, true));
+		}
+		EXPrint("VehiclesConfig: " + VehiclesConfig.Count());
 
 		m_IsLoaded = true;
 
-		Update( NULL );
-		
-		#ifdef EXPANSIONEXPRINT
+		Update(NULL);
+
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::OnRecieve - End");
-		#endif
+#endif
 
 		return true;
 	}
-	
-	override void OnSend( ParamsWriteContext ctx )
-	{
-		ExpansionVehicleSettings thisSetting = this;
 
-		ctx.Write( thisSetting );
+	override void OnSend(ParamsWriteContext ctx)
+	{
+		ctx.Write(VehicleSync);
+		ctx.Write(VehicleRequireKeyToStart);
+		ctx.Write(VehicleRequireAllDoors);
+		ctx.Write(VehicleLockedAllowInventoryAccess);
+		ctx.Write(VehicleLockedAllowInventoryAccessWithoutDoors);
+		ctx.Write(MasterKeyPairingMode);
+		ctx.Write(MasterKeyUses);
+		ctx.Write(CanPickLock);
+		ctx.Write(PickLockTools);
+		ctx.Write(PickLockChancePercent);
+		ctx.Write(PickLockTimeSeconds);
+		ctx.Write(PickLockToolDamagePercent);
+		ctx.Write(EnableWindAerodynamics);
+		ctx.Write(EnableTailRotorDamage);
+		ctx.Write(PlayerAttachment);
+		ctx.Write(Towing);
+		ctx.Write(EnableHelicopterExplosions);
+		ctx.Write(DisableVehicleDamage);
+		ctx.Write(VehicleCrewDamageMultiplier);
+		ctx.Write(VehicleSpeedDamageMultiplier);
+		ctx.Write(CanChangeLock);
+		ctx.Write(ChangeLockTools);
+		ctx.Write(ChangeLockTimeSeconds);
+		ctx.Write(ChangeLockToolDamagePercent);
+
+		ctx.Write(PlacePlayerOnGroundOnReconnectInVehicle);
+		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
+
+		TStringArray vehicles = new TStringArray;
+		foreach (ExpansionVehiclesConfig vehicleConfig: VehiclesConfig)
+		{
+			if (vehicleConfig.CanPlayerAttach) // for now since this is the only variable, treat existance as true, non-existance as false
+			{
+				EXPrint("Sending " + vehicleConfig.ClassName);
+				vehicles.Insert(vehicleConfig.ClassName);
+			}
+		}
+		ctx.Write(vehicles);
 	}
 
 	// ------------------------------------------------------------
-	override int Send( PlayerIdentity identity )
+	override int Send(PlayerIdentity identity)
 	{
-		#ifdef EXPANSIONEXPRINT
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Send - Start");
-		#endif
-		
-		if ( !IsMissionHost() )
+#endif
+
+		if (!IsMissionHost())
 		{
 			return 0;
 		}
-		
+
 		ScriptRPC rpc = new ScriptRPC;
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Vehicle, true, identity );
-		
-		#ifdef EXPANSIONEXPRINT
+		OnSend(rpc);
+		rpc.Send(null, ExpansionSettingsRPC.Vehicle, true, identity);
+
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Send - End and return");
-		#endif
+#endif
 
 		return 0;
 	}
 
 	// ------------------------------------------------------------
-	override bool Copy( ExpansionSettingBase setting )
+	override bool Copy(ExpansionSettingBase setting)
 	{
 		ExpansionVehicleSettings s;
-		if ( !Class.CastTo( s, setting ) )
+		if (!Class.CastTo(s, setting))
 			return false;
 
-		CopyInternal( s );
+		CopyInternal(s);
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionVehicleSettings s )
+	void CopyInternal(ExpansionVehicleSettings s)
 	{
 		//#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - " + s);
 		//#endif
-		
+
 		PlacePlayerOnGroundOnReconnectInVehicle = s.PlacePlayerOnGroundOnReconnectInVehicle;
 		RevvingOverMaxRPMRuinsEngineInstantly = s.RevvingOverMaxRPMRuinsEngineInstantly;
 
 		VehiclesConfig.Clear();
 		for (int i = 0; i < s.VehiclesConfig.Count(); i++)
 		{
-			VehiclesConfig.Insert( s.VehiclesConfig[i] );
+			VehiclesConfig.Insert(s.VehiclesConfig[i]);
 		}
-		
+
 		ExpansionVehicleSettingsV2 settings_v2 = s;
-		CopyInternal( settings_v2 );
-		
-		#ifdef EXPANSIONEXPRINT
+		CopyInternal(settings_v2);
+
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
-		#endif
+#endif
 	}
-	
+
 	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionVehicleSettingsBase s )
+	void CopyInternal(ExpansionVehicleSettingsBase s)
 	{
 		//#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - Base - " + s);
@@ -201,31 +266,31 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		VehicleCrewDamageMultiplier = s.VehicleCrewDamageMultiplier;
 		VehicleSpeedDamageMultiplier = s.VehicleSpeedDamageMultiplier;
 
-		#ifdef EXPANSIONEXPRINT
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
-		#endif
+#endif
 	}
-	
+
 	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionVehicleSettingsV2 s )
+	void CopyInternal(ExpansionVehicleSettingsV2 s)
 	{
 		//#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - V2 - " + s);
 		//#endif
-		
-		CanChangeLock  = s.CanChangeLock;
+
+		CanChangeLock = s.CanChangeLock;
 		ChangeLockTimeSeconds = s.ChangeLockTimeSeconds;
 		ChangeLockToolDamagePercent = s.ChangeLockToolDamagePercent;
 		ChangeLockTools.Copy(s.ChangeLockTools);
-		
+
 		ExpansionVehicleSettingsBase sb = s;
-		CopyInternal( sb );
-		
-		#ifdef EXPANSIONEXPRINT
+		CopyInternal(sb);
+
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
-		#endif
+#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
@@ -237,13 +302,13 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 	{
 		m_IsLoaded = false;
 	}
-	
-		// ------------------------------------------------------------
+
+	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Load - Start");
-		#endif
+#endif
 
 		m_IsLoaded = true;
 
@@ -254,7 +319,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		if (vehicleSettingsExist)
 		{
 			EXPrint("[ExpansionVehicleSettings] Load existing setting file:" + EXPANSION_VEHICLE_SETTINGS);
-			
+
 			ExpansionVehicleSettings settingsDefault = new ExpansionVehicleSettings;
 			settingsDefault.Defaults();
 
@@ -277,7 +342,7 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 					JsonFileLoader<ExpansionVehicleSettingsV2>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, settings_v2);
 
 					CopyInternal(settings_v2);
-					
+
 					//! VehiclesConfig added with v4
 					VehiclesConfig = settingsDefault.VehiclesConfig;
 				}
@@ -310,15 +375,15 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 			save = true;
 		}
 
-		Update( NULL );
-		
+		Update(NULL);
+
 		if (save)
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
+
+#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVehicleSettings::Load - End - Loaded: " + vehicleSettingsExist);
-		#endif
-		
+#endif
+
 		return vehicleSettingsExist;
 	}
 
@@ -327,21 +392,21 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 	{
 		Print("[ExpansionVehicleSettings] Saving settings");
 
-		JsonFileLoader<ExpansionVehicleSettings>.JsonSaveFile( EXPANSION_VEHICLE_SETTINGS, this );
+		JsonFileLoader<ExpansionVehicleSettings>.JsonSaveFile(EXPANSION_VEHICLE_SETTINGS, this);
 
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
-	override void Update( ExpansionSettingBase setting )
+	override void Update(ExpansionSettingBase setting)
 	{
-		super.Update( setting );
+		super.Update(setting);
 
 		ExpansionSettings.SI_Vehicle.Invoke();
 
-		#ifdef EXPANSION_PLAYER_ATTACHMENT
+#ifdef EXPANSION_PLAYER_ATTACHMENT
 		s_ExpansionPlayerAttachment = PlayerAttachment;
-		#endif
+#endif
 	}
 
 	// ------------------------------------------------------------
@@ -363,55 +428,42 @@ class ExpansionVehicleSettings: ExpansionVehicleSettingsV2
 		PickLockChancePercent = 40;
 		PickLockTimeSeconds = 120;
 		PickLockToolDamagePercent = 10;
-		PickLockTools.Insert( "Lockpick" );
+		PickLockTools.Insert("Lockpick");
 
 		CanChangeLock = false;
 		ChangeLockTimeSeconds = 120;
 		ChangeLockToolDamagePercent = 10;
-		ChangeLockTools.Insert( "Screwdriver" );
+		ChangeLockTools.Insert("Screwdriver");
 
 		EnableWindAerodynamics = false; // Not ready, need tweaking
 		EnableTailRotorDamage = true;
 
 		EnableHelicopterExplosions = true;
-		
-		#ifdef EXPANSION_PLAYER_ATTACHMENT
+
+#ifdef EXPANSION_PLAYER_ATTACHMENT
 		PlayerAttachment = true;
-		#else
+#else
 		PlayerAttachment = false;
-		#endif
+#endif
 
 		Towing = true;
-		
+
 		DisableVehicleDamage = false;
 		VehicleCrewDamageMultiplier = 1.0;
 		VehicleSpeedDamageMultiplier = 1.0;
-		
+
 		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
 		RevvingOverMaxRPMRuinsEngineInstantly = false;
 
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("OffroadHatchback", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Hatchback_02", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Sedan_02", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("CivilianSedan", false) );
-		
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("Truck_01_Covered", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionTractor", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZ", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionBus", true) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionVodnik", true) );
-
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUtilityBoat", true) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionZodiacBoat", true) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionLHD", true) );
-
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionGyrocopter", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMh6", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionUh1h", false) );
-		VehiclesConfig.Insert( new ExpansionVehiclesConfig("ExpansionMerlin", true) );
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionVodnik", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUtilityBoat", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionZodiacBoat", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionLHD", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMerlin", true));
 	}
-	
+
 	override string SettingName()
 	{
 		return "Vehicle Settings";
@@ -429,4 +481,4 @@ enum ExpansionPPOGORIVMode
 	Disabled,
 	Always,
 	OnlyOnServerRestart
-}
+};

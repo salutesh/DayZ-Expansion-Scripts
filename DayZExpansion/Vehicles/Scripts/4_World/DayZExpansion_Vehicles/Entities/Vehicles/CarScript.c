@@ -133,26 +133,26 @@ modded class CarScript
 	protected float m_FluidCheckTime;
 
 	// Towing
-	protected vector m_TowPointCenter;
-	protected vector m_TowPointCenterSelf;
-	protected bool m_IsBeingTowed;
-	protected bool m_IsTowing;
+	protected vector m_Expansion_TowPointCenter;
+	protected int m_Expansion_TowConnectionIndex;
+	protected bool m_Expansion_IsBeingTowed;
+	protected bool m_Expansion_IsTowing;
 
-	protected EntityAI m_ParentTow;
-	protected int m_ParentTowNetworkIDLow;
-	protected int m_ParentTowNetworkIDHigh;
-	protected int m_ParentTowPersistentIDA;
-	protected int m_ParentTowPersistentIDB;
-	protected int m_ParentTowPersistentIDC;
-	protected int m_ParentTowPersistentIDD;
+	protected EntityAI m_Expansion_ParentTow;
+	protected int m_Expansion_ParentTowNetworkIDLow;
+	protected int m_Expansion_ParentTowNetworkIDHigh;
+	protected int m_Expansion_ParentTowPersistentIDA;
+	protected int m_Expansion_ParentTowPersistentIDB;
+	protected int m_Expansion_ParentTowPersistentIDC;
+	protected int m_Expansion_ParentTowPersistentIDD;
 
-	protected EntityAI m_ChildTow;
-	protected int m_ChildTowNetworkIDLow;
-	protected int m_ChildTowNetworkIDHigh;
-	protected int m_ChildTowPersistentIDA;
-	protected int m_ChildTowPersistentIDB;
-	protected int m_ChildTowPersistentIDC;
-	protected int m_ChildTowPersistentIDD;
+	protected EntityAI m_Expansion_ChildTow;
+	protected int m_Expansion_ChildTowNetworkIDLow;
+	protected int m_Expansion_ChildTowNetworkIDHigh;
+	protected int m_Expansion_ChildTowPersistentIDA;
+	protected int m_Expansion_ChildTowPersistentIDB;
+	protected int m_Expansion_ChildTowPersistentIDC;
+	protected int m_Expansion_ChildTowPersistentIDD;
 
 	// Physics
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
@@ -160,6 +160,7 @@ modded class CarScript
 #endif
 
 	protected bool m_IsPhysicsHost;
+	bool m_Expansion_AcceptingAttachment;
 	
 	protected float m_BoundingRadius;
 	protected vector m_BoundingBox[2];
@@ -234,12 +235,15 @@ modded class CarScript
 
 		RegisterNetSyncVariableInt( "m_Expansion_CurrentEngine" );
 
-		RegisterNetSyncVariableBool( "m_IsBeingTowed" );
-		RegisterNetSyncVariableBool( "m_IsTowing" );
-		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDLow" );
-		RegisterNetSyncVariableInt( "m_ParentTowNetworkIDHigh" );
-		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDLow" );
-		RegisterNetSyncVariableInt( "m_ChildTowNetworkIDHigh" );
+		RegisterNetSyncVariableBool( "m_Expansion_AcceptingAttachment" );
+
+		RegisterNetSyncVariableBool( "m_Expansion_IsBeingTowed" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsTowing" );
+		RegisterNetSyncVariableInt( "m_Expansion_TowConnectionIndex" );
+		RegisterNetSyncVariableInt( "m_Expansion_ParentTowNetworkIDLow" );
+		RegisterNetSyncVariableInt( "m_Expansion_ParentTowNetworkIDHigh" );
+		RegisterNetSyncVariableInt( "m_Expansion_ChildTowNetworkIDLow" );
+		RegisterNetSyncVariableInt( "m_Expansion_ChildTowNetworkIDHigh" );
 
 		RegisterNetSyncVariableBool( "m_HornSynchRemote" );
 
@@ -435,129 +439,173 @@ modded class CarScript
 		AddAction( ExpansionActionUnlockVehicle );
 	}
 
-#ifdef EXPANSION_VEHICLE_TOWING
-	void CreateTow( Object tow )
+	void Expansion_CreateTow( Object tow, int index )
 	{
-		CarScript cs;
-		ExpansionVehicleBase evs;
-
-		if ( !Class.CastTo( cs, tow ) && !Class.CastTo( evs, tow ) )
+		if (m_Expansion_IsTowing)
 			return;
 
-		if ( ( evs && evs.IsBeingTowed() ) || ( cs && cs.IsBeingTowed() ) || !IsMissionHost() )
+		CarScript car;
+		ItemBase item;
+
+		if ( !Class.CastTo( car, tow ) && !Class.CastTo( item, tow ) )
 			return;
 
-		m_ChildTow = EntityAI.Cast( tow );
-		m_IsTowing = true;
+		if ( ( item && item.Expansion_IsBeingTowed() ) || ( car && car.Expansion_IsBeingTowed() ) || !IsMissionHost() )
+			return;
 
-		m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
+		bool success = false;
 
-		if ( cs )
-			cs.OnTowCreated( this, m_TowPointCenter );
-		else if ( evs )
-			evs.OnTowCreated( this, m_TowPointCenter );
+		if ( car )
+			success = car.Expansion_OnTowCreated( this, Expansion_GetTowPosition(), index );
+		else if ( item )
+			success = item.Expansion_OnTowCreated( this, Expansion_GetTowPosition(), index );
+
+		if (!success)
+			return;
+			
+		m_Expansion_ChildTow = EntityAI.Cast( tow );
+		m_Expansion_IsTowing = true;
 		
 		if ( !IsMissionOffline() )
 		{
-			m_ChildTow.GetNetworkID( m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh );
+			m_Expansion_ChildTow.GetNetworkID( m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh );
 			
-			m_ChildTow.SetSynchDirty();
+			m_Expansion_ChildTow.SetSynchDirty();
 			SetSynchDirty();
 		}
 	}
 
-	void OnTowCreated( Object parent, vector towPos )
+	bool Expansion_OnTowCreated( Object parent, vector towPos, int index )
 	{
-		m_ParentTow = EntityAI.Cast( parent );
-		m_IsBeingTowed = true;
-		m_TowPointCenterSelf = towPos;
+		if (index < 0 || index >= Expansion_NumberTowConnections())
+			return false;
+
+		vector connectionPoint;
+		vector connectionSize;
+
+		Expansion_GetTowConnection(index, connectionPoint, connectionSize);
+
+		m_Expansion_TowPointCenter = towPos - connectionPoint;
+
+		m_Expansion_TowConnectionIndex = index;
+		m_Expansion_ParentTow = EntityAI.Cast( parent );
+		m_Expansion_IsBeingTowed = true;
 		
 		if ( !IsMissionOffline() )
-			m_ParentTow.GetNetworkID( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh );
+			m_Expansion_ParentTow.GetNetworkID( m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh );
+
+		return true;
 	}
 
-	EntityAI GetTowedEntity()
+	EntityAI Expansion_GetTowedEntity()
 	{
-		if ( m_IsTowing )
-			return m_ChildTow;
+		if ( m_Expansion_IsTowing )
+			return m_Expansion_ChildTow;
 		
 		return NULL;
 	}
 
-	void DestroyTow()
+	void Expansion_DestroyTow()
 	{
-		if ( m_IsTowing )
+		if ( !m_Expansion_IsTowing )
+			return;
+
+		CarScript cs;
+		ItemBase evs;
+
+		if ( Class.CastTo( cs, m_Expansion_ChildTow ) )
 		{
-			CarScript cs;
-			ExpansionVehicleBase evs;
-
-			if ( Class.CastTo( cs, m_ChildTow ) )
-			{
-				cs.OnTowDestroyed();
-			} 
-			if ( Class.CastTo( evs, m_ChildTow ) )
-			{
-				evs.OnTowDestroyed();
-			}
-			
-			m_ChildTow = NULL;
-
-			m_IsTowing = false;
+			cs.Expansion_OnTowDestroyed();
 		}
-	}
 
-	void OnTowDestroyed()
-	{
-		m_ParentTow = null;
-		m_IsBeingTowed = false;
-	}
-#endif
+		if ( Class.CastTo( evs, m_Expansion_ChildTow ) )
+		{
+			evs.Expansion_OnTowDestroyed();
+		}
 
-	vector GetTowCenterPosition( Object other )
-	{
-		//!todo: calculate from wheel positions
+		m_Expansion_IsTowing = false;
+
+		if ( !IsMissionOffline() )
+		{
+			m_Expansion_ChildTow.SetSynchDirty();
+			SetSynchDirty();
+		}
 		
-		vector minMax[2];
-		GetCollisionBox( minMax );
-		vector pos = Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() );
-		other.GetCollisionBox( minMax );
-		return pos + Vector( 0.0, 0.0, -minMax[1][2] );
+		m_Expansion_ChildTow = NULL;
 	}
 
-	bool IsBeingTowed()
+	void Expansion_OnTowDestroyed()
 	{
-		return m_IsBeingTowed;
+		m_Expansion_ParentTow = null;
+		m_Expansion_IsBeingTowed = false;
 	}
 
-	bool IsTowing()
+	bool Expansion_IsBeingTowed()
 	{
-		return m_IsTowing;
+		return m_Expansion_IsBeingTowed;
+	}
+
+	bool Expansion_IsTowing()
+	{
+		return m_Expansion_IsTowing;
 	}
 	
-	vector GetTowPosition()
+	int Expansion_NumberTowConnections()
+	{
+		return 1;
+	}
+
+	void Expansion_GetTowConnection(int index, out vector position, out vector size)
+	{
+		vector minMax[2];
+		GetCollisionBox(minMax);
+
+		position = Vector(0.0, 0.0, minMax[1][2] + Expansion_GetTowLength());
+		position[0] = dBodyGetCenterOfMass(this)[0];
+		position[2] = position[2] - dBodyGetCenterOfMass(this)[2];
+
+		size = "0.5 0.5 0.5";
+	}
+
+	bool Expansion_GetOverlappingTowConnection(vector towPosition, float towRadius, out int index)
+	{
+		index = -1;
+
+		towPosition = WorldToModel(towPosition);
+
+		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
+		{
+			vector conPos, conSize;
+			Expansion_GetTowConnection(i, conPos, conSize);
+
+			if (Math3D.IntersectSphereBox(towPosition, towRadius, conPos - conSize, conPos + conSize))
+			{
+				index = i;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	vector Expansion_GetTowPosition()
 	{
 		vector minMax[2];
 		GetCollisionBox( minMax );
-
-		return ModelToWorld( Vector( 0.0, 0.0, minMax[0][2] - GetTowLength() ) );
+		return Vector(0.0, 0.0, minMax[0][2] - dBodyGetCenterOfMass(this)[2]);
 	}
 
-	vector GetTowDirection()
+	vector Expansion_GetTowDirection()
 	{
 		return -GetDirection();
 	}
 
-	vector GetTowExtents()
+	float Expansion_GetTowLength()
 	{
-		return { 1.0, 1.0, 1.0 };
+		return 0.4;
 	}
 
-	float GetTowLength()
-	{
-		return 0.1;
-	}
-
-	bool ExpansionCanPlayerAttach()
+	bool Expansion_CanPlayerAttach()
 	{
 #ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
 		m_Expansion_CanPlayerAttach = true;
@@ -580,16 +628,20 @@ modded class CarScript
 	}
 
 	//! is it a car ? Is it already towing something ? And is it locked ?
-	bool CanConnectTow( notnull Object other )
+	bool Expansion_CanConnectTow( notnull Object other )
 	{
+		ItemBase item;
 		ExpansionVehicleBase evs;
 		CarScript cs;
 		if ( Class.CastTo( evs, other ) )
 		{
-			return evs.IsCar() && !evs.IsTowing() && !evs.IsLocked();
+			return evs.Expansion_NumberTowConnections() > 0 && evs.Expansion_IsCar() && !evs.Expansion_IsTowing() && !evs.IsLocked();
 		} else if ( Class.CastTo( cs, other ) )
 		{
-			return cs.IsCar() && !cs.IsTowing() && !cs.IsLocked();
+			return cs.Expansion_NumberTowConnections() > 0 && cs.Expansion_IsCar() && !cs.Expansion_IsTowing() && !cs.IsLocked();
+		} else if ( Class.CastTo( item, other ) )
+		{
+			return item.Expansion_NumberTowConnections() > 0 && !item.Expansion_IsTowing();
 		}
 
 		//! don't...
@@ -1406,7 +1458,32 @@ modded class CarScript
 	// ------------------------------------------------------------
 	bool CanObjectAttach( Object obj )
 	{
-		return ExpansionCanPlayerAttach();
+		return Expansion_CanPlayerAttach();
+	}
+
+	bool Expansion_IsPlane()
+	{
+		return IsPlane();
+	}
+
+	bool Expansion_IsBoat()
+	{
+		return IsBoat();
+	}
+
+	bool Expansion_IsHelicopter()
+	{
+		return IsHelicopter();
+	}
+
+	bool Expansion_IsCar()
+	{
+		return IsCar();
+	}
+
+	bool Expansion_CanObjectAttach(Object obj)
+	{
+		return Expansion_CanPlayerAttach();
 	}
 
 	// ------------------------------------------------------------
@@ -2055,28 +2132,35 @@ modded class CarScript
 		} else if ( GetGame().IsServer() )
 		{
 			m_IsPhysicsHost = true;
+
+			if (dBodyIsActive(this) && !m_Expansion_AcceptingAttachment)
+			{
+				m_Expansion_AcceptingAttachment = true;
+				SetSynchDirty();
+			}
+			else if (!dBodyIsActive(this) && m_Expansion_AcceptingAttachment)
+			{
+				m_Expansion_AcceptingAttachment = false;
+				SetSynchDirty();
+			}
 		} else
 		{
 			m_IsPhysicsHost = false;
 		}
 
-		//Print( this );
-		//Print( m_IsPhysicsHost );
-		//Print( m_IsBeingTowed );
-		//Print( m_ParentTow );
-
-		if ( m_IsPhysicsHost && m_TowingEnabled && m_IsBeingTowed )
+		if ( m_IsPhysicsHost && m_TowingEnabled && m_Expansion_IsBeingTowed )
 		{
-			if ( m_ParentTow ) // shouldn't ever be NULL but just incase
-			{
-				if ( dBodyIsActive( m_ParentTow ) && dBodyIsDynamic( m_ParentTow ) )
-				{
-					vector towTransform[4];
-					m_ParentTow.GetTransform( towTransform );
-					towTransform[3] = m_ParentTow.ModelToWorld( m_TowPointCenterSelf );
+			// shouldn't ever be NULL but just incase
+			if ( !m_Expansion_ParentTow )
+				return;
 
-					dBodySetTargetMatrix( this, towTransform, 1.0 / 40.0 );
-				}
+			if ( dBodyIsActive( m_Expansion_ParentTow ) && dBodyIsDynamic( m_Expansion_ParentTow ) )
+			{
+				vector towTransform[4];
+				m_Expansion_ParentTow.GetTransform( towTransform );
+				towTransform[3] = m_Expansion_ParentTow.ModelToWorld( m_Expansion_TowPointCenter );
+
+				dBodySetTargetMatrix( this, towTransform, dt );
 			}
 
 			return;
@@ -2134,6 +2218,16 @@ modded class CarScript
 
 		if ( m_IsPhysicsHost )
 		{
+			if (!driver && m_IsPhysicsHost)
+			{
+				m_State.m_DeltaTime = dt;
+
+				for (i = 0; i < m_Modules.Count(); i++)
+					m_Modules[i].Control(m_State, null);
+
+				Expansion_OnHandleController(null, dt);
+			}
+
 			m_State.PreSimulate(dt);
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
@@ -2562,23 +2656,24 @@ modded class CarScript
 
 		ctx.Write( m_allAttachments );
 
-		ctx.Write( m_IsBeingTowed );
-		ctx.Write( m_IsTowing );
+		ctx.Write( m_Expansion_IsBeingTowed );
+		ctx.Write( m_Expansion_IsTowing );
 
-		if ( m_IsBeingTowed )
+		if ( m_Expansion_IsBeingTowed )
 		{
-			ctx.Write( m_ParentTowPersistentIDA );
-			ctx.Write( m_ParentTowPersistentIDB );
-			ctx.Write( m_ParentTowPersistentIDC );
-			ctx.Write( m_ParentTowPersistentIDD );
+			ctx.Write( m_Expansion_TowConnectionIndex );
+			ctx.Write( m_Expansion_ParentTowPersistentIDA );
+			ctx.Write( m_Expansion_ParentTowPersistentIDB );
+			ctx.Write( m_Expansion_ParentTowPersistentIDC );
+			ctx.Write( m_Expansion_ParentTowPersistentIDD );
 		}
 
-		if ( m_IsTowing )
+		if ( m_Expansion_IsTowing )
 		{
-			ctx.Write( m_ChildTowPersistentIDA );
-			ctx.Write( m_ChildTowPersistentIDB );
-			ctx.Write( m_ChildTowPersistentIDC );
-			ctx.Write( m_ChildTowPersistentIDD );
+			ctx.Write( m_Expansion_ChildTowPersistentIDA );
+			ctx.Write( m_Expansion_ChildTowPersistentIDB );
+			ctx.Write( m_Expansion_ChildTowPersistentIDC );
+			ctx.Write( m_Expansion_ChildTowPersistentIDD );
 		}
 
 		ctx.Write( m_CurrentSkinName );
@@ -2663,46 +2758,52 @@ modded class CarScript
 
 		if ( GetExpansionSaveVersion() >= 7 )
 		{
-			if ( Expansion_Assert_False( ctx.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsBeingTowed ), "[" + this + "] Failed reading m_Expansion_IsBeingTowed" ) )
 				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsTowing ), "[" + this + "] Failed reading m_Expansion_IsTowing" ) )
 				return false;
 
-			if ( m_IsBeingTowed )
+			if ( m_Expansion_IsBeingTowed )
 			{
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+				if ( GetExpansionSaveVersion() >= 34 )
+				{
+					if ( Expansion_Assert_False( ctx.Read( m_Expansion_TowConnectionIndex ), "[" + this + "] Failed reading m_Expansion_TowConnectionIndex" ) )
+						return false;
+				}
+
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD" ) )
 					return false;
 			}
 
-			if ( m_IsTowing )
+			if ( m_Expansion_IsTowing )
 			{
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD" ) )
 					return false;
 			}
 
-			m_IsBeingTowed = false;
-			m_IsTowing = false;
+			m_Expansion_IsBeingTowed = false;
+			m_Expansion_IsTowing = false;
 
-			m_ParentTowPersistentIDA = 0;
-			m_ParentTowPersistentIDB = 0;
-			m_ParentTowPersistentIDC = 0;
-			m_ParentTowPersistentIDD = 0;
-			m_ChildTowPersistentIDA = 0;
-			m_ChildTowPersistentIDB = 0;
-			m_ChildTowPersistentIDC = 0;
-			m_ChildTowPersistentIDD = 0;
+			m_Expansion_ParentTowPersistentIDA = 0;
+			m_Expansion_ParentTowPersistentIDB = 0;
+			m_Expansion_ParentTowPersistentIDC = 0;
+			m_Expansion_ParentTowPersistentIDD = 0;
+			m_Expansion_ChildTowPersistentIDA = 0;
+			m_Expansion_ChildTowPersistentIDB = 0;
+			m_Expansion_ChildTowPersistentIDC = 0;
+			m_Expansion_ChildTowPersistentIDD = 0;
 		}
 		
 		SetSynchDirty();
@@ -2740,32 +2841,32 @@ modded class CarScript
 			if ( Expansion_Assert_False( ctx.Read( m_allAttachments ), "[" + this + "] Failed reading m_allAttachments" ) )
 				return false;
 
-			if ( Expansion_Assert_False( ctx.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsBeingTowed ), "[" + this + "] Failed reading m_Expansion_IsBeingTowed" ) )
 				return false;
-			if ( Expansion_Assert_False( ctx.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsTowing ), "[" + this + "] Failed reading m_Expansion_IsTowing" ) )
 				return false;
 
-			if ( m_IsBeingTowed )
+			if ( m_Expansion_IsBeingTowed )
 			{
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD" ) )
 					return false;
 			}
 
-			if ( m_IsTowing )
+			if ( m_Expansion_IsTowing )
 			{
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( ctx.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( ctx.Read( m_Expansion_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD" ) )
 					return false;
 			}
 
@@ -2775,17 +2876,17 @@ modded class CarScript
 			return true;
 		}
 
-		m_IsBeingTowed = false;
-		m_IsTowing = false;
+		m_Expansion_IsBeingTowed = false;
+		m_Expansion_IsTowing = false;
 
-		m_ParentTowPersistentIDA = 0;
-		m_ParentTowPersistentIDB = 0;
-		m_ParentTowPersistentIDC = 0;
-		m_ParentTowPersistentIDD = 0;
-		m_ChildTowPersistentIDA = 0;
-		m_ChildTowPersistentIDB = 0;
-		m_ChildTowPersistentIDC = 0;
-		m_ChildTowPersistentIDD = 0;
+		m_Expansion_ParentTowPersistentIDA = 0;
+		m_Expansion_ParentTowPersistentIDB = 0;
+		m_Expansion_ParentTowPersistentIDC = 0;
+		m_Expansion_ParentTowPersistentIDD = 0;
+		m_Expansion_ChildTowPersistentIDA = 0;
+		m_Expansion_ChildTowPersistentIDB = 0;
+		m_Expansion_ChildTowPersistentIDC = 0;
+		m_Expansion_ChildTowPersistentIDD = 0;
 
 		if ( GetExpansionSaveVersion() < 21 )
 			return true;
@@ -2835,23 +2936,24 @@ modded class CarScript
 		GetCurrentPosition();
 		storage.Write( m_Position );
 
-		storage.Write( m_IsBeingTowed );
-		storage.Write( m_IsTowing );
+		storage.Write( m_Expansion_IsBeingTowed );
+		storage.Write( m_Expansion_IsTowing );
 
-		if ( m_IsBeingTowed )
+		if ( m_Expansion_IsBeingTowed )
 		{
-			storage.Write( m_ParentTowPersistentIDA );
-			storage.Write( m_ParentTowPersistentIDB );
-			storage.Write( m_ParentTowPersistentIDC );
-			storage.Write( m_ParentTowPersistentIDD );
+			storage.Write( m_Expansion_TowConnectionIndex );
+			storage.Write( m_Expansion_ParentTowPersistentIDA );
+			storage.Write( m_Expansion_ParentTowPersistentIDB );
+			storage.Write( m_Expansion_ParentTowPersistentIDC );
+			storage.Write( m_Expansion_ParentTowPersistentIDD );
 		}
 
-		if ( m_IsTowing )
+		if ( m_Expansion_IsTowing )
 		{
-			storage.Write( m_ChildTowPersistentIDA );
-			storage.Write( m_ChildTowPersistentIDB );
-			storage.Write( m_ChildTowPersistentIDC );
-			storage.Write( m_ChildTowPersistentIDD );
+			storage.Write( m_Expansion_ChildTowPersistentIDA );
+			storage.Write( m_Expansion_ChildTowPersistentIDB );
+			storage.Write( m_Expansion_ChildTowPersistentIDC );
+			storage.Write( m_Expansion_ChildTowPersistentIDD );
 		}
 
 		storage.Write( m_CurrentSkinName );
@@ -2903,32 +3005,38 @@ modded class CarScript
 
 		if ( GetExpansionSaveVersion() >= 7 )
 		{
-			if ( Expansion_Assert_False( storage.Read( m_IsBeingTowed ), "[" + this + "] Failed reading m_IsBeingTowed" ) )
+			if ( Expansion_Assert_False( storage.Read( m_Expansion_IsBeingTowed ), "[" + this + "] Failed reading m_Expansion_IsBeingTowed" ) )
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_IsTowing ), "[" + this + "] Failed reading m_IsTowing" ) )
+			if ( Expansion_Assert_False( storage.Read( m_Expansion_IsTowing ), "[" + this + "] Failed reading m_Expansion_IsTowing" ) )
 				return false;
 
-			if ( m_IsBeingTowed )
+			if ( m_Expansion_IsBeingTowed )
 			{
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_ParentTowPersistentIDA" ) )
+				if ( GetExpansionSaveVersion() >= 34 )
+				{
+					if ( Expansion_Assert_False( storage.Read( m_Expansion_TowConnectionIndex ), "[" + this + "] Failed reading m_Expansion_TowConnectionIndex" ) )
+						return false;
+				}
+
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ParentTowPersistentIDA ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_ParentTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ParentTowPersistentIDB ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_ParentTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ParentTowPersistentIDC ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_ParentTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ParentTowPersistentIDD ), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD" ) )
 					return false;
 			}
 
-			if ( m_IsTowing )
+			if ( m_Expansion_IsTowing )
 			{
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_ChildTowPersistentIDA" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ChildTowPersistentIDA ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_ChildTowPersistentIDB" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ChildTowPersistentIDB ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_ChildTowPersistentIDC" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ChildTowPersistentIDC ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC" ) )
 					return false;
-				if ( Expansion_Assert_False( storage.Read( m_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_ChildTowPersistentIDD" ) )
+				if ( Expansion_Assert_False( storage.Read( m_Expansion_ChildTowPersistentIDD ), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD" ) )
 					return false;
 			}
 		}
@@ -2956,23 +3064,21 @@ modded class CarScript
 
 		super.EEOnAfterLoad();
 		
-		if ( m_IsTowing && !m_ChildTow )
+		if ( m_Expansion_IsTowing && !m_Expansion_ChildTow )
 		{
-			m_ChildTow = GetGame().GetEntityByPersitentID( m_ChildTowPersistentIDA, m_ChildTowPersistentIDB, m_ChildTowPersistentIDC, m_ChildTowPersistentIDD );
-			if ( m_ChildTow )
+			m_Expansion_ChildTow = GetGame().GetEntityByPersitentID( m_Expansion_ChildTowPersistentIDA, m_Expansion_ChildTowPersistentIDB, m_Expansion_ChildTowPersistentIDC, m_Expansion_ChildTowPersistentIDD );
+			if ( m_Expansion_ChildTow )
 			{
-				m_TowPointCenter = GetTowCenterPosition( m_ChildTow );
-				
 				CarScript cs_child;
-				ExpansionVehicleBase evs_child;
+				ItemBase evs_child;
 				
-				if ( Class.CastTo( cs_child, m_ChildTow ) )
-					cs_child.OnTowCreated( this, m_TowPointCenter );
-				else if ( Class.CastTo( evs_child, m_ChildTow ) )
-					evs_child.OnTowCreated( this, m_TowPointCenter );
+				if ( Class.CastTo( cs_child, m_Expansion_ChildTow ) )
+					cs_child.Expansion_OnTowCreated( this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex );
+				else if ( Class.CastTo( evs_child, m_Expansion_ChildTow ) )
+					evs_child.Expansion_OnTowCreated( this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex );
 			} else
 			{
-				m_IsTowing = false;
+				m_Expansion_IsTowing = false;
 			}
 		}
 
@@ -3090,20 +3196,20 @@ modded class CarScript
 			ExpansionOnSpawnExploded();
 		}
 
-		if ( m_IsBeingTowed )
+		if ( m_Expansion_IsBeingTowed )
 		{
-			m_ParentTow = EntityAI.Cast( GetGame().GetObjectByNetworkId( m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh ) );
+			m_Expansion_ParentTow = EntityAI.Cast( GetGame().GetObjectByNetworkId( m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh ) );
 		} else
 		{
-			m_ParentTow = NULL;
+			m_Expansion_ParentTow = NULL;
 		}
 
-		if ( m_IsTowing )
+		if ( m_Expansion_IsTowing )
 		{
-			m_ChildTow = EntityAI.Cast( GetGame().GetObjectByNetworkId( m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh ) );
+			m_Expansion_ChildTow = EntityAI.Cast( GetGame().GetObjectByNetworkId( m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh ) );
 		} else
 		{
-			m_ChildTow = NULL;
+			m_Expansion_ChildTow = NULL;
 		}
 
 		if ( m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex )
@@ -3508,7 +3614,7 @@ modded class CarScript
 
 	override void OnContact( string zoneName, vector localPos, IEntity other, Contact data )
 	{
-		if ( m_IsBeingTowed )
+		if ( m_Expansion_IsBeingTowed )
 			return;
 
 		ExpansionCheckTreeContact(other, data.Impulse);
@@ -3592,6 +3698,8 @@ modded class CarScript
 			if ( dmg < GameConstants.CARS_CONTACT_DMG_MIN )
 			#endif
 				continue;
+			
+			int pddfFlags;
 
 			#ifdef DAYZ_1_13
 			if ( dmg < 750.0 )
@@ -3600,15 +3708,17 @@ modded class CarScript
 			#endif
 			{				
 				playLightSound = true;
+				pddfFlags = ProcessDirectDamageFlags.NO_TRANSFER;
 			}
 			else
 			{		
 				DamageCrew(dmg * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier);
 				playHeavySound = true;			
+				pddfFlags = 0;
 			}
 			
 			if ( CanBeDamaged() )
-				ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier );
+				ProcessDirectDamage( DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier, pddfFlags );
 		}
 		
 		if (playLightSound)
@@ -3664,7 +3774,7 @@ modded class CarScript
 	override float GetBatteryConsumption()
 	{
 		//! Should prevent towed cars to consume the battery
-		if ( IsBeingTowed() )
+		if ( Expansion_IsBeingTowed() )
 			return 0;
 
 		return m_BatteryConsume;

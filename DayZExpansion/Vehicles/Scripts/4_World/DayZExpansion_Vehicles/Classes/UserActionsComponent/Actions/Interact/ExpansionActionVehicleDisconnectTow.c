@@ -1,5 +1,5 @@
 /**
- * ExpansionActionDisconnectTow.c
+ * ExpansionActionVehicleDisconnectTow.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,11 +10,11 @@
  *
 */
 
-class ExpansionActionDisconnectTow : ActionInteractBase
+class ExpansionActionVehicleDisconnectTow : ActionInteractBase
 {
 	bool m_IsWinch;
 
-	void ExpansionActionDisconnectTow()
+	void ExpansionActionVehicleDisconnectTow()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -40,9 +40,9 @@ class ExpansionActionDisconnectTow : ActionInteractBase
 		if (!GetExpansionSettings().GetVehicle().Towing)
 			return false;
 
-		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
+		auto vehCommand = player.GetCommand_ExpansionVehicle();
 
-		CarScript car;
+		ExpansionVehicleBase car;
 		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
 		{
 			if (car.CrewMemberIndex(player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
@@ -59,9 +59,9 @@ class ExpansionActionDisconnectTow : ActionInteractBase
 	{
 		super.OnStartServer(action_data);
 
-		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
+		auto vehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
 
-		CarScript car;
+		ExpansionVehicleBase car;
 		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
 		{
 			if (car.CrewMemberIndex(action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)

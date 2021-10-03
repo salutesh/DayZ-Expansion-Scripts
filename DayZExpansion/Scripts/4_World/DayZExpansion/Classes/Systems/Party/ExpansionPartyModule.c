@@ -765,7 +765,7 @@ class ExpansionPartyModule: JMModuleBase
 		if (party && party.IsMember(playerID))
 		{
 			rpc.Write(true);
-			party.OnSend(rpc, playerID);
+			party.OnSend(rpc, true, playerID);
 		}
 		else
 		{
@@ -1161,7 +1161,10 @@ class ExpansionPartyModule: JMModuleBase
 		ExpansionPartyPlayerData party_player = UpdatePlayerPartyServer(identity.GetId());
 
 		if (party_player)
+		{
 			party_player.OnJoin(player);
+			party_player.GetParty().OnJoin(party_player);
+		}
 	}
 
 	private ExpansionPartyPlayerData UpdatePlayerPartyServer(string uid)

@@ -26,7 +26,7 @@ modded class MissionServer
 		EXPrint("MissionServer::MissionServer - Start");
 		#endif
 
-		CreateDayZExpansion();
+		GetExpansionSettings().GameInit();
 		
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::MissionServer - End");
@@ -41,9 +41,7 @@ modded class MissionServer
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::~MissionServer - Start");
 		#endif
-		
-		DestroyDayZExpansion();
-		
+				
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::~MissionServer - End");
 		#endif

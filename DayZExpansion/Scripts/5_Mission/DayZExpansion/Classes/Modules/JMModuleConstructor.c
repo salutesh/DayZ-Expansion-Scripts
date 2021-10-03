@@ -28,26 +28,13 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionMonitorModule );		
 		modules.Insert( ExpansionKillFeedModule );
 		
-		modules.Insert( ExpansionESPModificationModule );
-		
-		//modules.Insert( ExpansionCraftingModule );
-
-		//TODO: Move to COT
-		modules.Insert( ExpansionCOTVehiclesModule );
-
-		modules.Insert( ExpansionCOTDebugModule );
+#ifdef JM_COT
 		modules.Insert( ExpansionCOTTerritoriesModule );
-		modules.Insert( ExpansionCOTAirdropModule );
-		modules.Insert( ExpansionCOTBaseBuildingModule );
-		modules.Insert( ExpansionCOTGeneralModule );
-		modules.Insert( ExpansionCOTMapModule );
-		modules.Insert( ExpansionCOTNotificationModule );
-		modules.Insert( ExpansionCOTPartyModule );
-		modules.Insert( ExpansionCOTRaidModule );
-		modules.Insert( ExpansionCOTSpawningModule );
-		modules.Insert( ExpansionCOTVehicleModule );
 
-		modules.Insert( ExpansionGameMissionSelecterModule );
+		modules.Insert( ExpansionESPModificationModule );
+		modules.Insert( ExpansionCOTVehiclesModule ); //!TODO: Move to COT
+#endif
+
 		modules.Insert( ExpansionClientSettingsModule );
 		modules.Insert( ExpansionRespawnHandlerModule );
 		

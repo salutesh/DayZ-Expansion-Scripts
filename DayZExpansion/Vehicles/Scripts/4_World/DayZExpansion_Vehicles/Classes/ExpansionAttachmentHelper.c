@@ -23,13 +23,19 @@ class ExpansionAttachmentHelper
 		CarScript car = NULL;
 		if (Class.CastTo(car, target))
 		{
-			return car.CanObjectAttach(child);
+			if (!car.m_Expansion_AcceptingAttachment)
+				return false;
+
+			return car.Expansion_CanObjectAttach(child);
 		}
 
 		ExpansionVehicleBase veh = NULL;
 		if (Class.CastTo(veh, target))
 		{
-			return veh.CanObjectAttach(child);
+			if (!veh.m_Expansion_AcceptingAttachment)
+				return false;
+
+			return veh.Expansion_CanObjectAttach(child);
 		}
 
 		return false;

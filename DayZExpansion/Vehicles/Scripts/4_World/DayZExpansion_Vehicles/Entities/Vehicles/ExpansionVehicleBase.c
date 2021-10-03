@@ -73,28 +73,6 @@ class ExpansionVehicleBase extends ItemBase
 	bool m_HornPlaying;
 	bool m_HornSynchRemote;
 
-	// Towing
-	vector m_TowPointCenter;
-	vector m_TowPointCenterSelf;
-	bool m_IsBeingTowed;
-	bool m_IsTowing;
-
-	EntityAI m_ParentTow;
-	int m_ParentTowNetworkIDLow;
-	int m_ParentTowNetworkIDHigh;
-	int m_ParentTowPersistentIDA;
-	int m_ParentTowPersistentIDB;
-	int m_ParentTowPersistentIDC;
-	int m_ParentTowPersistentIDD;
-
-	EntityAI m_ChildTow;
-	int m_ChildTowNetworkIDLow;
-	int m_ChildTowNetworkIDHigh;
-	int m_ChildTowPersistentIDA;
-	int m_ChildTowPersistentIDB;
-	int m_ChildTowPersistentIDC;
-	int m_ChildTowPersistentIDD;
-
 	ExpansionVehicleLockState m_VehicleLockedState;
 
 	//! After pairing a key, it's the ID of the master key.
@@ -260,6 +238,8 @@ class ExpansionVehicleBase extends ItemBase
 
 		m_PlayCrashSoundLight = false;
 		m_PlayCrashSoundHeavy = false;
+
+		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
 
 		RegisterNetSyncVariableInt("m_CurrentEngine");
 
@@ -512,9 +492,19 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (IsMissionClient())
 		{
-			path = "CfgVehicles " + GetType() + " Sounds soundSetsFilter";
 			array<string> soundSetNames = new array<string>();
+
+			path = "CfgVehicles " + GetType() + " Sounds soundSetsFilter";
 			GetGame().ConfigGetTextArray(path, soundSetNames);
+
+			for (i = 0; i < soundSetNames.Count(); i++)
+			{
+				m_SoundControllers.Insert(new ExpansionVehicleSound(this, soundSetNames[i]));
+			}
+
+			path = "CfgVehicles " + GetType() + " Sounds soundSetsInt";
+			GetGame().ConfigGetTextArray(path, soundSetNames);
+
 			for (i = 0; i < soundSetNames.Count(); i++)
 			{
 				m_SoundControllers.Insert(new ExpansionVehicleSound(this, soundSetNames[i]));
@@ -902,10 +892,10 @@ class ExpansionVehicleBase extends ItemBase
 		DBGAddShape(Shape.CreateSphere(color, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, position, size));
 	}
 
-	void DGBDrawBoundingBox(vector transform[4], int color = 0x1fff7f7f)
+	void DGBDrawBoundingBox(vector transform[4], vector box[2], int color = 0x1fff7f7f)
 	{
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
-		Shape shape = Shape.Create(ShapeType.BBOX, color, ShapeFlags.TRANSP | ShapeFlags.NOZWRITE, m_BoundingBox[0], m_BoundingBox[1]);
+		Shape shape = Shape.Create(ShapeType.BBOX, color, ShapeFlags.TRANSP | ShapeFlags.NOZWRITE, box[0], box[1]);
 		shape.SetMatrix(transform);
 		DBGAddShape(shape);
 #endif
@@ -987,7 +977,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		//campos
 		m_SoundVariables[2] = 1;
-		#ifndef DAYZ_1_13
+#ifndef DAYZ_1_13
 		auto player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player)
 		{
@@ -999,7 +989,7 @@ class ExpansionVehicleBase extends ItemBase
 				}
 			}
 		}
-		#endif
+#endif
 
 		//doors
 		m_SoundVariables[3] = OnSound(CarSoundCtrl.DOORS, 0);
@@ -1008,7 +998,7 @@ class ExpansionVehicleBase extends ItemBase
 		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, GetSpeedometer());
 
 		//thrust
-		m_SoundVariables[5] = 1.0;//m_Controller.m_Throttle[0];
+		m_SoundVariables[5] = m_Controller.m_Throttle[0];
 
 		//water
 		m_SoundVariables[6] = 0;
@@ -1018,22 +1008,28 @@ class ExpansionVehicleBase extends ItemBase
 
 		//grass
 		m_SoundVariables[8] = 0;
-		
+
 		//gravel
 		m_SoundVariables[9] = 0;
-		
+
 		//asphalt
 		m_SoundVariables[10] = 0;
-		
+
 		//latSlipDrive
 		m_SoundVariables[11] = 0;
-		
+
 		//steerdelta
 		m_SoundVariables[12] = m_Controller.m_Yaw - m_PreviousYaw;
 		m_PreviousYaw = m_Controller.m_Yaw;
-		
+
 		//rain
 		m_SoundVariables[13] = 0;
+
+		//damperLeft
+		m_SoundVariables[14] = 0;
+
+		//damperRight
+		m_SoundVariables[15] = 0;
 
 		for (int i = 0; i < m_SoundControllers.Count(); i++)
 			m_SoundControllers[i].Update(pDt, m_SoundVariables);
@@ -1102,6 +1098,11 @@ class ExpansionVehicleBase extends ItemBase
 		}
 */
 
+		//m_State.DBGDrawSphereMS("0 0 0", 0.5, 0x44AA00FF);
+		//m_State.DBGDrawSphereMS(dBodyGetCenterOfMass(this), 0.3, 0x44FF0022);
+
+		//DBGTowing();
+
 		m_State.m_DeltaTime = dt;
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
@@ -1122,6 +1123,17 @@ class ExpansionVehicleBase extends ItemBase
 			{
 				GetTransform(m_State.m_TargetTransform);
 			}
+
+			if (dBodyIsActive(this) && !m_Expansion_AcceptingAttachment)
+			{
+				m_Expansion_AcceptingAttachment = true;
+				SetSynchDirty();
+			}
+			else if (!dBodyIsActive(this) && m_Expansion_AcceptingAttachment)
+			{
+				m_Expansion_AcceptingAttachment = false;
+				SetSynchDirty();
+			}
 		}
 		else if (GetGame().IsClient())
 		{
@@ -1136,6 +1148,16 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (dBodyIsDynamic(this))
 		{
+			if (!driver && m_IsPhysicsHost)
+			{
+				m_State.m_DeltaTime = dt;
+
+				for (i = 0; i < m_Modules.Count(); i++)
+					m_Modules[i].Control(m_State, null);
+
+				OnHandleController(null, dt);
+			}
+
 			m_State.PreSimulate(dt);
 
 			if (m_IsPhysicsHost)
@@ -1235,23 +1257,23 @@ class ExpansionVehicleBase extends ItemBase
 		ExpansionPhysics.IntegrateTransform(m_State.m_TargetTransform, m_State.m_SyncLinearVelocity, m_State.m_SyncAngularVelocity, m_State.m_TimeSince, t1);
 		ExpansionPhysics.CalculateVelocity(t2, t1, pDt, linearVelocity, angularVelocity);
 
-		DGBDrawBoundingBox(t2, 0x1f00AA00);
-		DGBDrawBoundingBox(m_State.m_TargetTransform, 0x1fAA0000);
-		DGBDrawBoundingBox(t1, 0x1f0000AA);
+		//DGBDrawBoundingBox(t2, 0x1f00AA00);
+		//DGBDrawBoundingBox(m_State.m_TargetTransform, 0x1fAA0000);
+		//DGBDrawBoundingBox(t1, 0x1f0000AA);
 
 		//m_State.m_AngularVelocity = "0 0 0";
 		//angularVelocity = "0 0 0";
 		//ExpansionPhysics.IntegrateTransform(t2, linearVelocity, angularVelocity, pDt, t3);
 		//DGBDrawBoundingBox(t3, 0x1f005555);
-		
+
 		//t3[0] = t1[0];
 		//t3[1] = t1[1];
 		//t3[2] = t1[2];
 
 		//dBodySetTargetMatrix(this, t3, pDt);
-		
+
 		float strength = Math.Clamp(0.001 * vector.DistanceSq(t2[3], t1[3]), 0, 1.0);
-		
+
 		linearVelocity = vector.Lerp(m_State.m_LinearVelocity, linearVelocity, strength * pDt);
 
 		SetVelocity(this, linearVelocity);
@@ -2798,143 +2820,77 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-#ifdef EXPANSION_VEHICLE_TOWING
-	void CreateTow(Object tow)
+	void DBGTowing()
 	{
-		CarScript cs;
-		ExpansionVehicleBase evs;
+		vector transform[4];
+		GetTransform(transform);
 
-		if (!Class.CastTo(cs, tow) && !Class.CastTo(evs, tow))
-			return;
-
-		if ((evs && evs.IsBeingTowed()) || (cs && cs.IsBeingTowed()) || !IsMissionHost())
-			return;
-
-		m_ChildTow = EntityAI.Cast(tow);
-		m_IsTowing = true;
-
-		m_TowPointCenter = GetTowCenterPosition(m_ChildTow);
-
-		if (cs)
-			cs.OnTowCreated(this, m_TowPointCenter);
-		else if (evs)
-			evs.OnTowCreated(this, m_TowPointCenter);
-
-		if (!IsMissionOffline())
+		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
 		{
-			m_ChildTow.GetNetworkID(m_ChildTowNetworkIDLow, m_ChildTowNetworkIDHigh);
+			vector position;
+			vector size;
+			Expansion_GetTowConnection(i, position, size);
 
-			m_ChildTow.SetSynchDirty();
-			SetSynchDirty();
+			vector minMax[2];
+
+			minMax[0] = position - size;
+			minMax[1] = position + size;
+
+			DGBDrawBoundingBox(transform, minMax);
 		}
+
+		DBGDrawSphere(ModelToWorld(Expansion_GetTowPosition()), Expansion_GetTowLength());
 	}
 
-	void OnTowCreated(Object parent, vector towPos)
+	override int Expansion_NumberTowConnections()
 	{
-		m_ParentTow = EntityAI.Cast(parent);
-		m_IsBeingTowed = true;
-		m_TowPointCenterSelf = towPos;
-
-		if (!IsMissionOffline())
-			m_ParentTow.GetNetworkID(m_ParentTowNetworkIDLow, m_ParentTowNetworkIDHigh);
+		return 2;
 	}
 
-	EntityAI GetTowedEntity()
-	{
-		if (m_IsTowing)
-			return m_ChildTow;
-
-		return NULL;
-	}
-
-	void DestroyTow()
-	{
-		if (m_IsTowing)
-		{
-			CarScript cs;
-			ExpansionVehicleBase evs;
-
-			if (Class.CastTo(cs, m_ChildTow))
-			{
-				cs.OnTowDestroyed();
-			}
-			if (Class.CastTo(evs, m_ChildTow))
-			{
-				evs.OnTowDestroyed();
-			}
-
-			m_ChildTow = NULL;
-
-			m_IsTowing = false;
-		}
-	}
-
-	void OnTowDestroyed()
-	{
-		m_ParentTow = null;
-		m_IsBeingTowed = false;
-	}
-#endif
-
-	vector GetTowCenterPosition(Object other)
-	{
-		vector minMax[2];
-		GetCollisionBox(minMax);
-		vector pos = Vector(0.0, 0.0, minMax[0][2] - GetTowLength());
-		other.GetCollisionBox(minMax);
-		return pos + Vector(0.0, 0.0, -minMax[1][2]);
-	}
-
-	bool IsBeingTowed()
-	{
-		return m_IsBeingTowed;
-	}
-
-	bool IsTowing()
-	{
-		return m_IsTowing;
-	}
-
-	vector GetTowPosition()
+	override void Expansion_GetTowConnection(int index, out vector position, out vector size)
 	{
 		vector minMax[2];
 		GetCollisionBox(minMax);
 
-		return ModelToWorld(Vector(0.0, 0.0, minMax[0][2] - GetTowLength()));
+		if (index == 0)
+		{
+			position = Vector(0.0, -minMax[0][1], minMax[1][2] + Expansion_GetTowLength());
+		}
+
+		if (index == 1)
+		{
+			position = Vector(0.0, -minMax[0][1], minMax[0][2] - Expansion_GetTowLength());
+		}
+
+		position[0] = dBodyGetCenterOfMass(this)[0];
+		position[2] = position[2] - dBodyGetCenterOfMass(this)[2];
+
+		size = "0.5 0.5 0.5";
 	}
 
-	vector GetTowDirection()
+	override float Expansion_GetTowLength()
 	{
-		return -GetDirection();
+		return 0.4;
 	}
 
-	vector GetTowExtents()
+	override bool Expansion_CanConnectTow(notnull Object other)
 	{
-		return {1.0, 1.0, 1.0};
-	}
-
-	float GetTowLength()
-	{
-		return 0.1;
-	}
-
-	/**
-	 * Is it a car ? Is it already towing something ? And is it locked ?
-	 */
-	bool CanConnectTow(notnull Object other)
-	{
+		ItemBase item;
 		ExpansionVehicleBase evs;
 		CarScript cs;
 		if (Class.CastTo(evs, other))
 		{
-			return evs.IsCar() && !evs.IsTowing() && !evs.IsLocked();
+			return evs.Expansion_NumberTowConnections() > 0 && evs.Expansion_IsCar() && !evs.Expansion_IsTowing() && !evs.IsLocked();
 		}
 		else if (Class.CastTo(cs, other))
 		{
-			return cs.IsCar() && !cs.IsTowing() && !cs.IsLocked();
+			return cs.Expansion_NumberTowConnections() > 0 && cs.Expansion_IsCar() && !cs.Expansion_IsTowing() && !cs.IsLocked();
+		}
+		else if (Class.CastTo(item, other))
+		{
+			return item.Expansion_NumberTowConnections() > 0 && !item.Expansion_IsTowing();
 		}
 
-		//! don't...
 		return false;
 	}
 
@@ -3376,23 +3332,24 @@ class ExpansionVehicleBase extends ItemBase
 
 		storage.Write(m_Exploded);
 
-		storage.Write(m_IsBeingTowed);
-		storage.Write(m_IsTowing);
+		storage.Write(m_Expansion_IsBeingTowed);
+		storage.Write(m_Expansion_IsTowing);
 
-		if (m_IsBeingTowed)
+		if (m_Expansion_IsBeingTowed)
 		{
-			storage.Write(m_ParentTowPersistentIDA);
-			storage.Write(m_ParentTowPersistentIDB);
-			storage.Write(m_ParentTowPersistentIDC);
-			storage.Write(m_ParentTowPersistentIDD);
+			storage.Write(m_Expansion_TowConnectionIndex);
+			storage.Write(m_Expansion_ParentTowPersistentIDA);
+			storage.Write(m_Expansion_ParentTowPersistentIDB);
+			storage.Write(m_Expansion_ParentTowPersistentIDC);
+			storage.Write(m_Expansion_ParentTowPersistentIDD);
 		}
 
-		if (m_IsTowing)
+		if (m_Expansion_IsTowing)
 		{
-			storage.Write(m_ChildTowPersistentIDA);
-			storage.Write(m_ChildTowPersistentIDB);
-			storage.Write(m_ChildTowPersistentIDC);
-			storage.Write(m_ChildTowPersistentIDD);
+			storage.Write(m_Expansion_ChildTowPersistentIDA);
+			storage.Write(m_Expansion_ChildTowPersistentIDB);
+			storage.Write(m_Expansion_ChildTowPersistentIDC);
+			storage.Write(m_Expansion_ChildTowPersistentIDD);
 		}
 	}
 
@@ -3425,32 +3382,34 @@ class ExpansionVehicleBase extends ItemBase
 		if (Expansion_Assert_False(storage.Read(m_Exploded), "[" + this + "] Failed reading m_Exploded"))
 			return false;
 
-		if (Expansion_Assert_False(storage.Read(m_IsBeingTowed), "[" + this + "] Failed reading m_IsBeingTowed"))
+		if (Expansion_Assert_False(storage.Read(m_Expansion_IsBeingTowed), "[" + this + "] Failed reading m_Expansion_IsBeingTowed"))
 			return false;
-		if (Expansion_Assert_False(storage.Read(m_IsTowing), "[" + this + "] Failed reading m_IsTowing"))
+		if (Expansion_Assert_False(storage.Read(m_Expansion_IsTowing), "[" + this + "] Failed reading m_Expansion_IsTowing"))
 			return false;
 
-		if (m_IsBeingTowed)
+		if (m_Expansion_IsBeingTowed)
 		{
-			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDA), "[" + this + "] Failed reading m_ParentTowPersistentIDA"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_TowConnectionIndex), "[" + this + "] Failed reading m_Expansion_TowConnectionIndex"))
 				return false;
-			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDB), "[" + this + "] Failed reading m_ParentTowPersistentIDB"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA"))
 				return false;
-			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDC), "[" + this + "] Failed reading m_ParentTowPersistentIDC"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB"))
 				return false;
-			if (Expansion_Assert_False(storage.Read(m_ParentTowPersistentIDD), "[" + this + "] Failed reading m_ParentTowPersistentIDD"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC"))
+				return false;
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD"))
 				return false;
 		}
 
-		if (m_IsTowing)
+		if (m_Expansion_IsTowing)
 		{
-			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDA), "[" + this + "] Failed reading m_ChildTowPersistentIDA"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA"))
 				return false;
-			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDB), "[" + this + "] Failed reading m_ChildTowPersistentIDB"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB"))
 				return false;
-			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDC), "[" + this + "] Failed reading m_ChildTowPersistentIDC"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC"))
 				return false;
-			if (Expansion_Assert_False(storage.Read(m_ChildTowPersistentIDD), "[" + this + "] Failed reading m_ChildTowPersistentIDD"))
+			if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD"))
 				return false;
 		}
 
@@ -3462,24 +3421,22 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		super.EEOnAfterLoad();
 
-		if (m_IsTowing && !m_ChildTow)
+		if (m_Expansion_IsTowing && !m_Expansion_ChildTow)
 		{
-			m_ChildTow = GetGame().GetEntityByPersitentID(m_ChildTowPersistentIDA, m_ChildTowPersistentIDB, m_ChildTowPersistentIDC, m_ChildTowPersistentIDD);
-			if (m_ChildTow)
+			m_Expansion_ChildTow = GetGame().GetEntityByPersitentID(m_Expansion_ChildTowPersistentIDA, m_Expansion_ChildTowPersistentIDB, m_Expansion_ChildTowPersistentIDC, m_Expansion_ChildTowPersistentIDD);
+			if (m_Expansion_ChildTow)
 			{
-				m_TowPointCenter = GetTowCenterPosition(m_ChildTow);
-
 				CarScript cs_child;
 				ExpansionVehicleBase evs_child;
 
-				if (Class.CastTo(cs_child, m_ChildTow))
-					cs_child.OnTowCreated(this, m_TowPointCenter);
-				else if (Class.CastTo(evs_child, m_ChildTow))
-					evs_child.OnTowCreated(this, m_TowPointCenter);
+				if (Class.CastTo(cs_child, m_Expansion_ChildTow))
+					cs_child.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
+				else if (Class.CastTo(evs_child, m_Expansion_ChildTow))
+					evs_child.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
 			}
 			else
 			{
-				m_IsTowing = false;
+				m_Expansion_IsTowing = false;
 			}
 		}
 	}
@@ -4180,6 +4137,26 @@ class ExpansionVehicleBase extends ItemBase
 	bool CanObjectAttach(Object obj)
 	{
 		return false;
+	}
+
+	override bool Expansion_IsPlane()
+	{
+		return IsPlane();
+	}
+
+	override bool Expansion_IsBoat()
+	{
+		return IsBoat();
+	}
+
+	override bool Expansion_IsHelicopter()
+	{
+		return IsHelicopter();
+	}
+
+	override bool Expansion_IsCar()
+	{
+		return IsCar();
 	}
 
 	bool LeavingSeatDoesAttachment(int posIdx)

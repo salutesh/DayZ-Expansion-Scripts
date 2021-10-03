@@ -26,7 +26,7 @@ modded class MissionGameplay
 		EXPrint("MissionGameplay::MissionGameplay - Start");
 		#endif
 
-		CreateDayZExpansion();
+		GetExpansionSettings().GameInit();
 		
 		if ( IsMissionClient() )
 			GetExpansionClientSettings().Load();
@@ -49,8 +49,6 @@ modded class MissionGameplay
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::~MissionGameplay - Start");
 		#endif
-
-		DestroyDayZExpansion();
 
 		if (g_exGlobalSettings)
 			g_exGlobalSettings.Unload();

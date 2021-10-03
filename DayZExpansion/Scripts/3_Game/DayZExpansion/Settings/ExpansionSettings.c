@@ -224,7 +224,10 @@ modded class ExpansionSettings
 		EXPrint("[MAIN] ExpansionSettings::OnRPC - Start");
 		#endif
 
-		if ( !super.OnRPC( sender, target, rpc_type, ctx ) )
+		if (super.OnRPC(sender, target, rpc_type, ctx))
+			return true;
+
+		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
 			return false;
 		
 		switch ( rpc_type )
@@ -246,7 +249,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_BaseBuilding");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.General:
@@ -256,7 +259,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_General");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Map:
@@ -266,7 +269,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Map");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Notification:
@@ -276,7 +279,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Notification");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Raid:
@@ -286,7 +289,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Raid");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Party:
@@ -296,7 +299,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Party");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Spawn:
@@ -306,7 +309,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Spawn");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.Territory:
@@ -316,7 +319,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Territory");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.PlayerList:
@@ -326,7 +329,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC m_SettingsPlayerList");
 				#endif
 
-				break;
+				return true;
 			}
 			
 			case ExpansionSettingsRPC.SocialMedia:
@@ -336,7 +339,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC m_SettingsSocialMedia");
 				#endif
 
-				break;
+				return true;
 			}
 		}
 
@@ -344,7 +347,7 @@ modded class ExpansionSettings
 		EXPrint("[MAIN] ExpansionSettings::OnRPC - End");
 		#endif
 
-		return true;
+		return false;
 	}
 	
 	// ------------------------------------------------------------

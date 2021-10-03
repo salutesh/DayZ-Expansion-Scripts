@@ -65,7 +65,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_AutoHoverAltitude;
 	bool m_AutoHover;
 
-	bool m_IsFreeLook;
+	bool m_IsFreeLook = true;
 	bool m_WasFreeLookPressed;
 	float m_MouseVertSens;
 	float m_MouseHorzSens;
@@ -98,9 +98,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
-
-		if (IsMissionClient())
-			m_IsFreeLook = !GetExpansionClientSettings().UseHelicopterMouseControl;
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()
@@ -257,7 +254,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
-		if (!m_Initialized)
+		if (!m_Initialized || !pDriver)
 			return;
 
 		UAInterface input = pDriver.GetInputInterface();

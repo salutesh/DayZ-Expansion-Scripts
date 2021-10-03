@@ -115,7 +115,10 @@ modded class ExpansionSettings
 		EXPrint("[VEHICLES] ExpansionSettings::OnRPC - Start");
 		#endif
 
-		if ( !super.OnRPC( sender, target, rpc_type, ctx ) )
+		if (super.OnRPC(sender, target, rpc_type, ctx))
+			return true;
+
+		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
 			return false;
 		
 		switch ( rpc_type )
@@ -127,7 +130,7 @@ modded class ExpansionSettings
 				EXPrint("ExpansionSettings::OnRPC RPC_Vehicle");
 				#endif
 
-				break;
+				return true;
 			}
 		}
 
@@ -135,7 +138,7 @@ modded class ExpansionSettings
 		EXPrint("[VEHICLES] ExpansionSettings::OnRPC - End");
 		#endif
 
-		return true;
+		return false;
 	}
 	
 	// ------------------------------------------------------------

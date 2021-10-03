@@ -126,6 +126,11 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		return 3;
 	}
 
+	override bool IsCar()
+	{
+		return true;
+	}
+
 #ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{

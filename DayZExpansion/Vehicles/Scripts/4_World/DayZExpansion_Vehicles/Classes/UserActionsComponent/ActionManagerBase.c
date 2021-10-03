@@ -15,6 +15,30 @@
  **/
 modded class ActionManagerBase
 {
+	void ActionManagerBase(PlayerBase player)
+	{
+#ifdef CF_DebugUI
+		CF_Debug.Create(this);
+#endif
+	}
+
+	void ~ActionManagerBase()
+	{
+#ifdef CF_DebugUI
+		CF_Debug.Destroy(this);
+#endif
+	}
+
+#ifdef CF_DebugUI
+	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	{
+		instance.Add(m_PrimaryAction);
+		instance.Add(m_SecondaryAction);
+
+		return true;
+	}
+#endif
+
 	override bool ActionPossibilityCheck( int pCurrentCommandID )
 	{
 		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
@@ -25,4 +49,4 @@ modded class ActionManagerBase
 
 		return super.ActionPossibilityCheck( pCurrentCommandID );
 	}
-}
+};

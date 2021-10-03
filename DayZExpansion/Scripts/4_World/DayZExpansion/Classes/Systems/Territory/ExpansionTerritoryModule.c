@@ -26,7 +26,7 @@ class ExpansionTerritoryModule: JMModuleBase
 	protected float										m_TimeSliceCheckPlayer;
 	
 	//Client
-	protected ref map<int, ref ExpansionTerritory>		m_Territories;
+	protected ref map<int, ref ExpansionTerritory>		m_Territories;  //! Contains only territories which a client is member of
 	protected ref array<ref ExpansionTerritoryInvite> 	m_TerritoryInvites;
 	
 	// ------------------------------------------------------------
@@ -1901,6 +1901,8 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion FindNearestTerritoryFlag
 	// ------------------------------------------------------------
+	//! NOTE: Doesn't actually find the nearest flag, but checks if player is in a territory and returns that flag (or NULL).
+	//! Method not renamed to not break other mods.
 	TerritoryFlag FindNearestTerritoryFlag( PlayerBase player )
 	{
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -1915,31 +1917,13 @@ class ExpansionTerritoryModule: JMModuleBase
 			return null;
 		}
 		
-		vector position = player.GetPosition();
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase> ;
-		GetGame().GetObjectsAtPosition3D( position, GetExpansionSettings().GetTerritory().TerritorySize, objects, proxyCargos );
-		
-		if ( objects )
-		{
-			for ( int i = 0; i < objects.Count(); ++i )
-			{
-				TerritoryFlag flag = TerritoryFlag.Cast( objects.Get( i ) );
-				if ( flag && flag.HasExpansionTerritoryInformation() )
-				{
-					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-					EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and found flag: " + flag.ToString());
-					#endif
-					return flag;
-				}
-			}
-		}
+		TerritoryFlag flag = GetFlagAtPosition3D(player.GetPosition());
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and return NULL");
 		#endif
 		
-		return null;
+		return flag;
 	}
 	
 	// ------------------------------------------------------------
@@ -2108,6 +2092,34 @@ class ExpansionTerritoryModule: JMModuleBase
 		return !IsInsideOwnTerritory( position, territorySize, playerUID ) && IsInsideOwnTerritoryOrPerimeter( position, territorySize, perimeterSize, playerUID );
 	}
 	
+	TerritoryFlag GetFlagAtPosition3D( vector position, float territorySize = -1 )
+	{
+		if ( territorySize <= 0 )
+		{
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
+		}
+		
+		if ( IsMissionHost() )
+		{
+			foreach (int territoryID, TerritoryFlag flag: m_TerritoryFlags)
+			{
+				if (IsInTerritory(position, territorySize, flag))
+					return flag;
+			}
+		} else
+		{
+			set<TerritoryFlag> flags = TerritoryFlag.ExpansionGetAll();
+			
+			foreach (TerritoryFlag clientFlag: flags)
+			{
+				if (IsInTerritory(position, territorySize, clientFlag))
+					return clientFlag;
+			}
+		}
+
+		return NULL;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion IsInTerritory
 	// Can be called on client or server
@@ -2120,54 +2132,26 @@ class ExpansionTerritoryModule: JMModuleBase
 		EXLogPrint("ExpansionTerritoryModule::IsInTerritory - Start");
 		#endif
 		
-		if ( territorySize <= 0 )
-		{
-			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
-		}
-		
-		int i;
-		TerritoryFlag flag;
-		
-		if ( IsMissionHost() )
-		{
-			for ( i = 0; i < m_TerritoryFlags.Count(); ++i )
-			{
-				if ( Class.CastTo( flag, m_TerritoryFlags.GetElement(i) ) )
-				{
-					if ( flag.HasExpansionTerritoryInformation() && vector.Distance( flag.GetPosition(), position ) <= territorySize )
-					{
-						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-						EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
-						#endif
-						return true;
-					}
-				}
-			}
-		} else
-		{
-			array<Object> objects = new array<Object>;
-			array<CargoBase> proxyCargos = new array<CargoBase> ;
-			GetGame().GetObjectsAtPosition3D( position, territorySize, objects, proxyCargos );
-			
-			for ( i = 0; i < objects.Count(); ++i )
-			{
-				if ( Class.CastTo( flag, objects[i] ) )
-				{
-					if ( flag.HasExpansionTerritoryInformation() )
-					{
-						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-						EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
-						#endif
-						return true;
-					}
-				}
-			}
-		}
+		if (GetFlagAtPosition3D(position, territorySize))
+			return true;
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return false!");
 		#endif
 		
+		return false;
+	}
+
+	bool IsInTerritory(vector position, float territorySize, TerritoryFlag flag)
+	{
+		if ( flag.HasExpansionTerritoryInformation() && vector.Distance( flag.GetPosition(), position ) <= territorySize )
+		{
+			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
+			EXLogPrint("ExpansionTerritoryModule::IsInTerritory - End and return true!");
+			#endif
+			return true;
+		}
+
 		return false;
 	}
 

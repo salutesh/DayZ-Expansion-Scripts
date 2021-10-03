@@ -12,6 +12,8 @@
 
 modded class TerritoryFlag
 {
+	private static ref set<TerritoryFlag> m_Expansion_TerritoryFlags = new set< TerritoryFlag >;
+
 	//! Vanilla META DATA
 	const float MAX_ACTION_DETECTION_ANGLE_RAD = 1.3;	//1.3 RAD = ~75 DEG
 	const float MAX_ACTION_DETECTION_DISTANCE = 2.0;	//meters
@@ -46,6 +48,8 @@ modded class TerritoryFlag
 		RegisterNetSyncVariableBool( "m_IsTerritory" );
 		
 		//SetEventMask( EntityEvent.INIT );
+
+		m_Expansion_TerritoryFlags.Insert( this );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("TerritoryFlag::TerritoryFlag - End");
@@ -61,8 +65,22 @@ modded class TerritoryFlag
 		{
 			m_TerritoryModule.RemoveTerritoryFlag( m_TerritoryID );
 		}
+
+		if (!GetGame())
+			return;
+
+		int i = m_Expansion_TerritoryFlags.Find( this );
+		if ( i >= 0 )
+		{
+			m_Expansion_TerritoryFlags.Remove( i );
+		}
 	}
 	
+	static set<TerritoryFlag> ExpansionGetAll()
+	{
+		return m_Expansion_TerritoryFlags;
+	}
+
 	override void OnCEUpdate()
 	{
 		//! This is a bit ugly, but I see no other way...
