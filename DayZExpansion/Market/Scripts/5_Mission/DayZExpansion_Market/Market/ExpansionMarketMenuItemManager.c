@@ -1,0 +1,589 @@
+/**
+ * ExpansionMarketMenuItemManager.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2021 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
+class ExpansionMarketMenuItemManager: ExpansionScriptView
+{
+	protected ref ExpansionMarketMenuItemManagerController m_MarketItemManagerController;
+	protected ExpansionMarketMenu m_MarketMenu;
+	protected ExpansionMarketItem m_MarketItem;
+	
+	ScrollWidget market_item_manager_category_items_scroller;
+	
+	protected ItemPreviewWidget market_item_manager_preview;
+	protected ButtonWidget market_item_manager_back_button;
+	protected ImageWidget market_item_manager_back_button_icon;
+	
+	protected ButtonWidget button_close;
+	protected TextWidget button_close_label;
+	protected ButtonWidget button_reset;
+	protected TextWidget button_reset_label;
+	protected ButtonWidget button_save;
+	
+	protected ImageWidget market_item_manager_header;
+	protected TextWidget market_item_manager_header_text;
+	protected ImageWidget market_item_manager_options_background
+	
+	protected ButtonWidget preset_selector;
+	protected ScrollWidget preset_selector_container;
+	protected ImageWidget preset_selector_collapse_image;
+	protected ImageWidget preset_selector_expand_image;
+	protected Widget preset_selector_background;
+	protected Widget preset_editbox_background;
+	protected EditBoxWidget preset_editbox;
+	
+	protected ButtonWidget preset_editbox_clear;
+	protected ImageWidget market_filter_clear_icon;
+		
+	protected vector m_ItemOrientation;
+	protected int m_ItemRotationX;
+	protected int m_ItemRotationY;
+	protected int m_ItemScaleDelta;
+	
+	ref array<ref ExpansionMarketMenuItemManagerPreset> m_ItemManagerPresets = new array<ref ExpansionMarketMenuItemManagerPreset>;
+	
+	void ExpansionMarketMenuItemManager(ExpansionMarketMenu marketMenu)
+	{
+		m_MarketMenu = marketMenu;
+		
+		if (!m_MarketItemManagerController)
+			m_MarketItemManagerController = ExpansionMarketMenuItemManagerController.Cast(GetController());
+		
+		market_item_manager_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		market_item_manager_header_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		market_item_manager_options_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		
+		button_close_label.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		button_reset_label.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		preset_selector_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		preset_editbox_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+	}
+	
+	override string GetLayoutFile() 
+	{
+		return "DayZExpansion/Market/GUI/layouts/market/expansion_market_menu_item_manager.layout";
+	}
+	
+	override typename GetControllerType() 
+	{
+		return ExpansionMarketMenuItemManagerController;
+	}
+	
+	void SetMarketItem(ExpansionMarketItem marketItem)
+	{
+		m_MarketItem = marketItem;
+		UpdatePreview();
+		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
+		UpdateMainView();
+		LoadLocalItemPresets();
+		preset_selector_container.VScrollToPos(0);
+		m_MarketItemManagerController.PresetName = "";
+		m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
+	}
+	
+	void UpdatePreview()
+	{
+		if (m_MarketMenu.GetSelectedMarketItemElement())
+		{
+			m_MarketMenu.GetSelectedMarketItemElement().UpdatePreviewObject();
+		}
+		
+		if (m_MarketMenu.GetSelectedMarketItemElement())
+		{
+			m_MarketMenu.UpdatePreview();
+		}
+
+		RefreshPreview();
+	}
+
+	void RefreshPreview()
+	{
+		GetMarketItemManagerController().ItemPreview = m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject();
+		GetMarketItemManagerController().NotifyPropertyChanged("ItemPreview");
+	}
+	
+	void UpdateMainView()
+	{
+		m_MarketItemManagerController.ItemCategories.Clear();
+
+		m_MarketItemManagerController.ItemPreview = m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject();
+		m_MarketItemManagerController.NotifyPropertyChanged("ItemPreview");
+				
+		string className = m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType();
+		m_MarketItemManagerController.ItemName = ExpansionStatic.GetItemDisplayNameWithType(className);
+		m_MarketItemManagerController.NotifyPropertyChanged("ItemName");
+			
+		if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
+		{
+			AddCategory(className, "#STR_CfgMagazine0", {ExpansionMarketAttachType.MAGAZINE}, "magazine");
+			AddCategory(className, "#STR_CfgWeaponOptics0", {ExpansionMarketAttachType.OPTIC}, "weaponoptics");
+			AddCategory(className, "#STR_CfgSuppressor0", {ExpansionMarketAttachType.SUPPRESSOR}, "supressor");
+			AddCategory(className, "#STR_CfgWeaponWrap0", {ExpansionMarketAttachType.WRAP}, "weaponwrap");
+			AddCategory(className, "#STR_EXPANSION_CfgSwitch0", {ExpansionMarketAttachType.SWITCH}, "weaponflashlight");
+			AddCategory(className, "#STR_CfgButtstock0", {ExpansionMarketAttachType.BUTTSTOCK}, "buttstock");
+			AddCategory(className, "#STR_CfgHandguard0", {ExpansionMarketAttachType.HANDGUARD}, "handguard");
+			AddCategory(className, "#STR_CfgBayonet0", {ExpansionMarketAttachType.BAYONET}, "bayonet");
+			AddCategory(className, "#STR_EXPANSION_CfgRail0", {ExpansionMarketAttachType.RAIL}, "handguard");
+			AddCategory(className, "#STR_CfgFlashlight0", {ExpansionMarketAttachType.LIGHT}, "weaponflashlight");
+			AddCategory(className, "#STR_EXPANSION_CfgOther0", {ExpansionMarketAttachType.OTHER}, "shoulderright");
+		}
+		
+		if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
+		{
+			AddCategory(className, "#STR_CfgBelt_Left0", {ExpansionMarketAttachType.CANTEENS}, "canteen");
+			AddCategory(className, "#STR_CfgVestGrenade0", {ExpansionMarketAttachType.GRENADES}, "grenade");
+			AddCategory(className, "#STR_EXPANSION_CfgVestHolster", {ExpansionMarketAttachType.HOLSTERS}, "vestholster");
+			AddCategory(className, "#STR_CfgVestPouch0", {ExpansionMarketAttachType.POUCHES}, "vestpouches");
+			AddCategory(className, "#STR_EXPANSION_CfgVestPatch", {ExpansionMarketAttachType.PATCHES}, "vest");
+			AddCategory(className, "#STR_EXPANSION_CfgOther0", {ExpansionMarketAttachType.OTHER}, "vestholster");
+		}
+	}
+	
+	void AddCategory(string className, string title, array<ExpansionMarketAttachType> attachTypes, string icon)
+	{
+		TStringArray atts = m_MarketMenu.GetMarketFilters().GetAttachmentsByClassNameAndTypes(className, attachTypes);
+		if (atts.Count() > 0)
+		{
+			ExpansionMarketMenuItemManagerCategory itemCategory = new ExpansionMarketMenuItemManagerCategory(title, atts, this);
+			itemCategory.SetIcon("set:dayz_inventory image:" + icon);
+			m_MarketItemManagerController.ItemCategories.Insert(itemCategory);
+		}
+	}
+
+	void SetListView(TStringArray attachments)
+	{
+		market_item_manager_category_items_scroller.VScrollToPos(0);
+		m_MarketItemManagerController.CategoryItems.Clear();
+		TStringArray tempAttachments = new TStringArray;
+		foreach (string attachment: attachments)
+		{
+			int index = -1;
+			index = tempAttachments.Find(attachment);
+			if (index == -1)
+			{
+				tempAttachments.Insert(attachment);
+			}
+		}
+		
+		foreach (string tempAttachment: tempAttachments)
+		{
+			ExpansionMarketMenuItemManagerCategoryItem attachmentItem = new ExpansionMarketMenuItemManagerCategoryItem(tempAttachment, m_MarketMenu, this);
+			m_MarketItemManagerController.CategoryItems.Insert(attachmentItem);
+		}
+		
+		foreach (string attachmentName: m_MarketMenu.GetSelectedMarketItem().SpawnAttachments)
+		{
+			for (int i = 0; i < m_MarketItemManagerController.CategoryItems.Count(); i++)
+			{
+				ExpansionMarketMenuItemManagerCategoryItem categoryItem = m_MarketItemManagerController.CategoryItems[i];
+				string attachmentNameToLower = categoryItem.GetItemClassName();
+				attachmentNameToLower.ToLower();
+				if (categoryItem && attachmentNameToLower == attachmentName)
+				{
+					categoryItem.UpdateView();
+				}
+			}
+		}
+	}
+	
+	void UpdateListView()
+	{
+		for (int i = 0; i < m_MarketItemManagerController.CategoryItems.Count(); i++)
+		{
+			ExpansionMarketMenuItemManagerCategoryItem categoryItem = m_MarketItemManagerController.CategoryItems[i];
+			if (categoryItem)
+			{
+				categoryItem.UpdateView();
+			}
+		}
+	}
+	
+	void OnSavePresetButtonClick()
+	{
+		if (m_MarketItemManagerController.PresetName != "")
+		{
+			ExpansionMarketMenuItemManagerPreset preset = new ExpansionMarketMenuItemManagerPreset;
+			if (preset)
+			{
+				string className = m_MarketMenu.GetSelectedMarketItem().ClassName;
+				preset.ClassName = className;
+				preset.PresetName = m_MarketItemManagerController.PresetName;
+				if (m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Count() > 0)
+				{
+					foreach (string attachment: m_MarketMenu.GetSelectedMarketItem().SpawnAttachments)
+					{
+						preset.AddAttachment(attachment);
+					}
+					
+					bool saved = false;
+					if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
+					{
+						if (!FileExist(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className))
+							MakeDirectory(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className);
+						
+						preset.SaveItemPreset(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className + "\\");
+						saved = true;
+					}
+					else if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
+					{
+						if (ExpansionMarketFilters.IsVest(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
+						{
+							if (!FileExist(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className))
+								MakeDirectory(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className);
+							
+							preset.SaveItemPreset(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className + "\\");
+							saved = true;
+						}
+					}
+					
+					if (saved)
+					{
+						CreateNotification("#STR_EXPANSION_MARKET_PRESETS_SAVED");
+						LoadLocalItemPresets();	
+						m_MarketItemManagerController.PresetName = "";
+						m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
+					}
+				}
+				else
+				{
+					CreateErrorNotification("#STR_EXPANSION_MARKET_PRESETS_ERROR_NO_ATTACHMENTS");
+				}
+			}
+		}
+		else
+		{
+			CreateErrorNotification("#STR_EXPANSION_MARKET_PRESETS_ERROR_NAME");
+		}
+	}
+	
+	void LoadLocalItemPresets()
+	{
+		string className = m_MarketMenu.GetSelectedMarketItem().ClassName;
+		array<string> files;
+		string fileName;
+		ExpansionMarketMenuItemManagerPreset preset;
+		
+		m_ItemManagerPresets.Clear();
+		if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
+		{
+			if (FileExist(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className))
+			{
+				files =  ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className + "\\", ".json");
+				foreach (string weaponFile: files)
+				{
+					fileName = weaponFile.Substring(0, weaponFile.Length() - 5);
+					preset = ExpansionMarketMenuItemManagerPreset.LoadItemPreset(fileName, EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className + "\\");
+					if (preset && preset.ClassName == m_MarketMenu.GetSelectedMarketItem().ClassName)
+					{
+						if (IsPresetValidCheck(preset))
+							m_ItemManagerPresets.Insert(preset);
+					}
+				}
+			}
+		}
+		else if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
+		{
+			if (ExpansionMarketFilters.IsVest(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
+			{
+				if (FileExist(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className))
+				{
+					files =  ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className + "\\", ".json");
+					foreach (string vestFile: files)
+					{
+						fileName = vestFile.Substring(0, vestFile.Length() - 5);
+						preset = ExpansionMarketMenuItemManagerPreset.LoadItemPreset(fileName, EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className + "\\");
+						if (preset && preset.ClassName == m_MarketMenu.GetSelectedMarketItem().ClassName)
+						{
+							if (IsPresetValidCheck(preset))
+								m_ItemManagerPresets.Insert(preset);
+						}
+					}
+				}
+			}
+		}
+				
+		UpdatePresetElements();
+	}
+	
+	void UpdatePresetElements()
+	{
+		m_MarketItemManagerController.PresetsDropdownElements.Clear();
+		
+		for (int i = 0; i < m_ItemManagerPresets.Count(); i++)
+		{
+			ExpansionMarketMenuItemManagerPreset preset = m_ItemManagerPresets[i];
+			if (preset)
+			{
+				ExpansionMarketMenuItemManagerPresetElement presetElement = new ExpansionMarketMenuItemManagerPresetElement(preset, this);
+				m_MarketItemManagerController.PresetsDropdownElements.Insert(presetElement);
+			}
+		}
+		
+		preset_selector.Show(m_MarketItemManagerController.PresetsDropdownElements.Count() > 0);
+	}
+	
+	void OnPresetEditboxClearButtonClick()
+	{
+		m_MarketItemManagerController.PresetName = "";
+		m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
+	}
+	
+	void OnPresetSelectorClick()
+	{
+		preset_selector_container.VScrollToPos(0);
+		preset_selector_container.Show(!preset_selector_container.IsVisible());
+		preset_selector_collapse_image.Show(!preset_selector_collapse_image.IsVisible());
+		preset_selector_expand_image.Show(!preset_selector_expand_image.IsVisible());
+	}
+	
+	void SetAttachmentsFromPreset(ExpansionMarketMenuItemManagerPreset preset)
+	{
+		if (!IsPresetValidCheck(preset))
+		{
+			CreateErrorNotification("#STR_EXPANSION_MARKET_PRESETS_ERROR_INVALID");
+			return;
+		}
+		
+		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Clear();
+		foreach (string attachment: preset.ItemAttachments)
+		{
+			m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Insert(attachment);
+		}
+	
+		m_MarketItemManagerController.PresetName = preset.PresetName;
+		m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
+		
+		UpdateListView();
+		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
+		UpdateMenuViews();
+	}
+	
+	bool IsPresetValidCheck(ExpansionMarketMenuItemManagerPreset preset)
+	{
+		if (!preset.ItemAttachments || preset.ItemAttachments.Count() == 0)
+			return false;
+		
+		foreach (string attachment: preset.ItemAttachments)
+		{
+			string classNameToLower = attachment;
+			classNameToLower.ToLower();
+			
+			ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem(classNameToLower);
+			if (marketItem)
+			{
+				ExpansionMarketModule marketModule =  ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+				if (marketModule)
+				{
+					if (marketModule.GetClientZone().ItemExists(classNameToLower))
+						return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	void UpdateMenuViews(bool updatePreview = true)
+	{
+		m_MarketMenu.SetItemAttachmentsInfo(m_MarketMenu.GetSelectedMarketItemElement());
+
+		if (updatePreview)
+			UpdatePreview();
+		
+		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
+	}
+	
+	void DeleteItemPreset(ExpansionMarketMenuItemManagerPreset preset, string path)
+	{
+		array<string> files =  ExpansionStatic.FindFilesInLocation(path, ".json");
+		foreach (string file: files)
+		{
+			string fileName = file.Substring(0, file.Length() - 5);
+			if (preset.PresetName == fileName)
+			{
+				DeleteFile(path + file);
+				LoadLocalItemPresets();
+			}
+		}
+	}
+	
+	void OnCloseButtonClick()
+	{
+		Hide();
+		UpdatePreview();
+		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
+	}
+		
+	ExpansionMarketMenuItemManagerController GetMarketItemManagerController()
+	{
+		return m_MarketItemManagerController;
+	}
+	
+	void OnResetButtonClick()
+	{
+		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Clear();
+		
+		UpdateMenuViews();
+				
+		UpdateListView();
+	}
+		
+	void UpdateRotation(int mouse_x, int mouse_y, bool is_dragging)
+	{
+		vector o = m_ItemOrientation;
+		o[2] = o[2] + (m_ItemRotationY - mouse_y);
+		o[1] = o[1] - (m_ItemRotationX - mouse_x);
+		
+		market_item_manager_preview.SetModelOrientation(o);
+		
+		if (!is_dragging)
+		{
+			m_ItemOrientation = o;
+		}
+	}
+	
+	void UpdateScale()
+	{
+		float w, h, x, y;		
+		market_item_manager_preview.GetPos(x, y);
+		market_item_manager_preview.GetSize(w,h);
+		w = w + ( m_ItemScaleDelta / 8);
+		if ( w > 0.5 && w < 3 )
+		{
+			market_item_manager_preview.SetSize( w, h );
+			float new_x = x - ( m_ItemScaleDelta / 8 );
+			float new_y = y - ( m_ItemScaleDelta / 8 );
+			market_item_manager_preview.SetPos( new_x, new_y );
+		}
+	}
+	
+	override void OnHide()
+	{
+		super.OnHide();
+		m_MarketItem = NULL;
+		m_MarketItemManagerController.CategoryItems.Clear();
+		m_MarketItemManagerController.ItemCategories.Clear();
+		m_MarketMenu.HideItemManager();
+	}
+	
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	{	
+		super.OnMouseButtonDown(w, x, y, button);
+			
+		if (w == market_item_manager_preview)
+		{
+			GetGame().GetDragQueue().Call(this, "UpdateRotation");
+			g_Game.GetMousePos(m_ItemRotationX, m_ItemRotationY);
+			return true;
+		}		
+		return false;
+	}
+	
+	override bool OnMouseWheel(Widget  w, int  x, int  y, int wheel)
+	{
+		super.OnMouseWheel(w, x, y, wheel);
+		
+		if ( w == market_item_manager_preview )
+		{
+			m_ItemScaleDelta = wheel;
+			UpdateScale();
+		}
+		return false;
+	}
+	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		super.OnMouseEnter(w, x, y);
+		
+		switch (w)
+		{
+			case market_item_manager_back_button:
+				market_item_manager_back_button_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+			case button_close:
+				button_close.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+			case button_reset:
+				button_reset.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+			case preset_selector:
+				preset_selector_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+			case button_save:
+				button_save.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+			case preset_editbox_clear:
+				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+			case preset_editbox:
+				preset_editbox_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				break;
+		}		
+		return false;
+	}
+	
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		super.OnMouseLeave(w, enterW, x, y);
+		
+		switch (w)
+		{
+			case market_item_manager_back_button:
+				market_item_manager_back_button_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				break;
+			case button_close:
+				button_close.SetColor(ARGB(0, 0, 0, 0));
+				break;
+			case button_reset:
+				button_reset.SetColor(ARGB(0, 0, 0, 0));
+				break;
+			case preset_selector:
+				preset_selector_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+				break;
+			case button_save:
+				button_save.SetColor(ARGB(0, 0, 0, 0));
+				break;
+			case preset_editbox_clear:
+				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				break;
+			case preset_editbox:
+				preset_editbox_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+				break;
+		}
+			
+		return false;
+	}
+	
+	void CreateNotification(string text)
+	{
+		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", text, EXPANSION_NOTIFICATION_ICON_T_Gun, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create();
+	}
+	
+	void CreateErrorNotification(string text)
+	{
+		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", text, EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 3, ExpansionNotificationType.MARKET).Create();
+	}
+	
+	ExpansionMarketMenu GetMarketMenu()
+	{
+		return m_MarketMenu;
+	}
+};
+
+class ExpansionMarketMenuItemManagerController: ExpansionViewController
+{
+	ref ObservableCollection<ref ExpansionMarketMenuItemManagerCategory> ItemCategories = new ObservableCollection<ref ExpansionMarketMenuItemManagerCategory>(this);
+	ref ObservableCollection<ref ExpansionMarketMenuItemManagerCategoryItem> CategoryItems = new ObservableCollection<ref ExpansionMarketMenuItemManagerCategoryItem>(this);
+	ref ObservableCollection<ref ExpansionMarketMenuItemManagerPresetElement> PresetsDropdownElements = new ObservableCollection<ref ExpansionMarketMenuItemManagerPresetElement>(this);
+	Object ItemPreview;
+	string ItemName;
+	string PresetName;
+};

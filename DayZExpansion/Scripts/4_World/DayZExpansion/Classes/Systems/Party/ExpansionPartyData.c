@@ -884,7 +884,7 @@ class ExpansionPartyData
 	void SyncMarkers_RemovePlayer(ExpansionPartyPlayerData player)
 	{
 		int idx = m_SyncMarkersPlayers.Find(player.GetID());
-		if (idx == -1)
+		if (idx > -1)
 			m_SyncMarkersPlayers.Remove(idx);
 	}
 

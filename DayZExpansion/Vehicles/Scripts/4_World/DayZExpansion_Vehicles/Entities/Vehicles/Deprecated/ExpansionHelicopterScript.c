@@ -114,7 +114,7 @@ class ExpansionHelicopterScript extends CarScript
 
 		if (IsMissionHost() && !IsLanded())
 		{
-			//TODO: teleport to land instead
+			//TODO: teleport to land instead - but please not in autohover mode kthxbye
 
 			//! Makes it land safely after server restart if pilot died/disconnected
 			dBodyActive(this, ActiveState.ACTIVE);
@@ -202,26 +202,26 @@ class ExpansionHelicopterScript extends CarScript
 		PlayerBase player;
 		DayZPlayerCommandDeathCallback callback;
 
+		//! Seated players
 		for (int i = 0; i < CrewSize(); i++)
 		{
 			if (Class.CastTo(player, CrewMember(i)))
 			{
-				player.StartCommand_Fall(0);
-
 				CrewDeath(i);
 				CrewGetOut(i);
 
 				player.UnlinkFromLocalSpace();
 
-				player.SetAllowDamage(true);
 				player.SetHealth(0.0);
+				if (!player.GetHealth())
+					dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
 
-				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
-
-				RemoveChild(player);
+				//! Needs to be called at least one simulation frame (25ms) later
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
 			}
 		}
 
+		//! Attached players
 		IEntity child = GetChildren();
 		while (child)
 		{
@@ -230,14 +230,13 @@ class ExpansionHelicopterScript extends CarScript
 				child = child.GetSibling();
 
 				player.UnlinkFromLocalSpace();
-				RemoveChild(player);
 
-				player.SetAllowDamage(true);
 				player.SetHealth(0.0);
+				if (!player.GetHealth())
+					dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
 
-				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
-
-				player.StartCommand_Fall(0);
+				//! Needs to be called at least one simulation frame (25ms) later
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
 			}
 			else
 			{
@@ -334,7 +333,8 @@ class ExpansionHelicopterScript extends CarScript
 		if (!IsMissionOffline() && GetGame().GetPlayer().GetParent() == this)
 		{
 			GetGame().GetPlayer().UnlinkFromLocalSpace();
-			GetGame().GetPlayer().StartCommand_Fall(0);
+			//! Needs to be called at least one simulation frame (25ms) later
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().GetPlayer().StartCommand_Fall, 25, false, 0);
 		}
 	}
 
@@ -473,7 +473,7 @@ class ExpansionHelicopterScript extends CarScript
 	override bool CanSimulate()
 	{
 		//! Need to simulate for at least one frame, otherwise funky DayZ physics make heli explode when getting in
-		if (m_IsInitialized && IsLanded())
+		if ((ExpansionGame.IsClientOrOffline() || m_IsInitialized) && IsLanded())
 		{
 			//! Only simulate if rotor speed is above zero
 			//! Prevents premature stop of rotor animation and smoke particle on client

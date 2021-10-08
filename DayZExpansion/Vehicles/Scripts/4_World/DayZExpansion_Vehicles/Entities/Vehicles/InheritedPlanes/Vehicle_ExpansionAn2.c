@@ -132,4 +132,21 @@ class Vehicle_ExpansionAn2 extends ExpansionVehiclePlaneBase
 	{
 		return 10;
 	}
+
+	vector Expansion_GetTowPosition()
+	{
+		vector minMax[2];
+		GetCollisionBox(minMax);
+		return Vector(0.0, 1.5, (minMax[0][2] - dBodyGetCenterOfMass(this)[2]) - 2.0);
+	}
+
+	vector Expansion_GetTowDirection()
+	{
+		return -GetDirection();
+	}
+
+	float Expansion_GetTowLength()
+	{
+		return 3.0;
+	}
 };

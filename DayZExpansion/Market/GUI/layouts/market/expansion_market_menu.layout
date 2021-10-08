@@ -1,0 +1,2136 @@
+FrameWidgetClass ExpansionMarketMenu {
+ visible 1
+ clipchildren 0
+ ignorepointer 1
+ position 0 79
+ size 1 0.85
+ halign center_ref
+ valign center_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionMarketMenuController"
+ {
+  PanelWidgetClass market_menu_content {
+   visible 1
+   ignorepointer 1
+   position 0 -161
+   size 0.78 1.175
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   "no focus" 1
+   {
+    PanelWidgetClass market_panel {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     "no focus" 1
+     {
+      PanelWidgetClass market_frame {
+       visible 1
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       "no focus" 1
+       {
+        PanelWidgetClass market_header {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0.1059 0.1059 0.1059 0.9412
+         size 1 0.059
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+         "no focus" 1
+         {
+          TextWidgetClass market_text {
+           visible 1
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           position -0.15373 0
+           size 0.6 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           style Normal
+           text "UNKNOWN TRADER"
+           font "gui/fonts/etelkatextpro22"
+           "text offset" 25 2
+           "bold text" 0
+           "text sharpness" 1.014
+           "exact text" 0
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "MarketName"
+            }
+           }
+          }
+          ImageWidgetClass market_icon {
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           position 0.01 0
+           size 46 46
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           imageTexture "{764DDD38FF7B105D}DayZExpansion/Core/GUI/icons/hud/questionmark_64x64.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           {
+            ScriptParamsClass {
+             Binding_Name "MarketIcon"
+            }
+           }
+          }
+          PanelWidgetClass market_filter_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.35 0.771
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            ImageWidgetClass market_filter_background {
+             ignorepointer 1
+             color 0.2667 0.2667 0.2667 0.9412
+             position 0.00284 0
+             size 1 31
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             image0 ""
+             imageTexture "{5CCDBAA76FB55F9B}DayZExpansion/Market/GUI/textures/panel_background_01.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            EditBoxWidgetClass market_filter_box {
+             size 0.84 0.6
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style ServerBrowser
+             text "#STR_EXPANSION_UPPERCASE_SEARCH"
+             "limit visible" 0
+             "Use default text" 1
+             "exact text" 1
+             font "gui/fonts/etelkatextpro22"
+            }
+            ButtonWidgetClass market_filter_clear {
+             position 0.007 0
+             size 34 34
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             scaled 1
+             fixaspect fixwidth
+             scriptclass "ViewBinding"
+             style Empty
+             {
+              ImageWidgetClass market_filter_clear_icon {
+               visible 1
+               clipchildren 0
+               ignorepointer 1
+               color 0.9843 0.9882 0.9961 1
+               size 34 34
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               scriptclass ""
+               image0 ""
+               imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+              }
+             }
+             {
+              ScriptParamsClass {
+               Relay_Command "OnFilterButtonClick"
+              }
+             }
+            }
+            PanelWidgetClass market_filter_icon {
+             ignorepointer 1
+             position 0.02 0
+             size 0.5 0.5
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scaled 1
+             fixaspect fixwidth
+             {
+              ImageWidgetClass market_filter_search_icon {
+               ignorepointer 1
+               color 0.8627 0.8627 0.8627 1
+               size 28 28
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{0A37CC5D0C68964C}DayZExpansion/Core/GUI/icons/misc/T_Frying_Pan_256x256.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        ScrollWidgetClass market_categories_scroller {
+         visible 1
+         clipchildren 1
+         ignorepointer 0
+         color 1 1 1 0.549
+         position 0 0.06
+         size 1 0.86
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style blank
+         "Scrollbar V" 1
+         {
+          GridSpacerWidgetClass market_categories_container {
+           ignorepointer 1
+           keepsafezone 1
+           color 0 0 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           Padding 0
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           Columns 1
+           Rows 100
+           {
+            ScriptParamsClass {
+             Debug_Logging 1
+             Binding_Name "MarketCategories"
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass market_header_options {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0.1059 0.1059 0.1059 0.9412
+         position 0 0.04
+         size 1 0.04
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+         {
+          FrameWidgetClass market_item_sellables_panel {
+           visible 1
+           clipchildren 0
+           ignorepointer 0
+           color 0.8627 0.8627 0.8627 1
+           size 0.29 32
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           priority 100
+           {
+            CheckBoxWidgetClass market_item_sellables_checkbox {
+             position 0.01 0
+             size 32 32
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             scriptclass "ViewBinding"
+             style Expansnion_04
+             {
+              ScriptParamsClass {
+               Binding_Name "ShowSellables"
+               Two_Way_Binding 1
+              }
+             }
+            }
+            TextWidgetClass market_item_sellables_lable {
+             visible 1
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             position 0.05 0
+             size 0.8419 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass ""
+             style Bold
+             text "#STR_EXPANSION_MARKET_OPTION_FILTER_SELLABLES"
+             font "gui/fonts/etelkatextpro22"
+             "bold text" 1
+             "exact text" 0
+             "size to text h" 0
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          FrameWidgetClass market_item_purchasables_panel {
+           visible 1
+           clipchildren 0
+           ignorepointer 0
+           color 0.8627 0.8627 0.8627 1
+           position 0.01 0
+           size 0.29 32
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           priority 100
+           {
+            CheckBoxWidgetClass market_item_purchasables_checkbox {
+             position 0.01 0
+             size 32 32
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             scriptclass "ViewBinding"
+             style Expansnion_04
+             {
+              ScriptParamsClass {
+               Binding_Name "ShowPurchasables"
+               Two_Way_Binding 1
+              }
+             }
+            }
+            TextWidgetClass market_item_purchasables_lable {
+             visible 1
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             position 0.05 0
+             size 0.8419 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass ""
+             style Bold
+             text "#STR_EXPANSION_MARKET_OPTION_FILTER_PURCHASABLES"
+             font "gui/fonts/etelkatextpro22"
+             "bold text" 1
+             "exact text" 0
+             "size to text h" 0
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass market_footer {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0 0 0 0.9412
+         size 1 0.04
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+         {
+          ButtonWidgetClass market_footer_categories_toggle {
+           size 225 31
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Empty
+           {
+            ImageWidgetClass market_footer_categories_background {
+             ignorepointer 1
+             color 0.2667 0.2667 0.2667 0.9412
+             position 0 0
+             size 1 31
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             imageTexture "{022593E4D038D194}DayZExpansion/Market/GUI/textures/panel_background_02.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            TextWidgetClass market_footer_categories_label {
+             ignorepointer 1
+             position 0 0
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_MARKET_TOGGLE_CATEGORIES"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnToggleCategoriesButtonClick"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass dropdown_selector {
+       visible 0
+       clipchildren 0
+       inheritalpha 0
+       ignorepointer 0
+       color 0.2667 0.2667 0.2667 1
+       position 532.24896 11.44
+       size 0.29067 41
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style UIDefaultPanel
+       {
+        TextWidgetClass dropdown_text {
+         clipchildren 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_MARKET_FILTER_OPTIONS"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 10 0
+         text_proportion 0.55
+         "text valign" center
+        }
+        FrameWidgetClass dropdown_selector_button {
+         clipchildren 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign right_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         fixaspect inside
+         {
+          ImageWidgetClass dropdown_expand_image {
+           visible 0
+           clipchildren 0
+           inheritalpha 1
+           ignorepointer 1
+           size 0.7 0.7
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           image0 ""
+           imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           "flip v" 1
+           filter 1
+          }
+          ImageWidgetClass dropdown_collapse_image {
+           visible 1
+           clipchildren 0
+           inheritalpha 1
+           ignorepointer 1
+           size 0.7 0.7
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           image0 ""
+           imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           filter 1
+          }
+         }
+        }
+        ScrollWidgetClass dropdown_container {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 1 1 1 0
+         position 0.00002 1
+         size 1 74.14
+         halign center_ref
+         hexactpos 1
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style blank
+         "Scrollbar V" 1
+         {
+          GridSpacerWidgetClass dropdown_content {
+           visible 0
+           clipchildren 0
+           inheritalpha 0
+           ignorepointer 1
+           position 0 0
+           size 1.02 5
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           style Empty
+           Padding 0
+           Margin 0
+           "Size To Content V" 1
+           Columns 1
+           Rows 50
+           {
+            ScriptParamsClass {
+             Binding_Name "DropdownElements"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass market_loading {
+   visible 0
+   ignorepointer 0
+   color 0.0588 0.0588 0.0588 0.7843
+   position 0 0
+   size 1 2
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1000
+   style rover_sim_colorable
+   {
+    TextWidgetClass market_loading_text {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     text "#STR_EXPANSION_MARKET_LOADING"
+     font "gui/fonts/etelkatextpro28"
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+  PanelWidgetClass market_menu_info_header {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0.1059 0.1059 0.1059 0.9412
+   position 0 -161
+   size 0.22 0.07
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   style DayZDefaultPanel
+   {
+    ButtonWidgetClass player_info_content {
+     visible 1
+     ignorepointer 0
+     size 0.97 32
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     style Empty
+     {
+      ImageWidgetClass player_info_background {
+       ignorepointer 1
+       color 0.2667 0.2667 0.2667 0.9412
+       position 0 0
+       size 1 31
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       imageTexture "{5CCDBAA76FB55F9B}DayZExpansion/Market/GUI/textures/panel_background_01.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       "flip u" 1
+       "flip v" 1
+      }
+      PanelWidgetClass player_info_header_panel {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 0.94 1
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        TextWidgetClass player_info_header_text {
+         visible 1
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         size 0.5 0.8
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "#STR_EXPANSION_MARKET_CURRENCY_TITLE"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 0 0
+         "exact text" 0
+         "size to text v" 0
+         "text valign" center
+        }
+        TextWidgetClass player_total {
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         size 0.5 0.8
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         font "gui/fonts/etelkatextpro22"
+         "exact text" 0
+         "size to text v" 0
+         "text halign" right
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "PlayerTotalMoney"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass market_menu_info {
+   visible 1
+   ignorepointer 1
+   position 0 -0.00002
+   size 0.22 1.11
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   {
+    PanelWidgetClass menu_info_content {
+     visible 0
+     disabled 0
+     clipchildren 1
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      PanelWidgetClass menu_info_background {
+       visible 1
+       ignorepointer 1
+       color 0.1059 0.1059 0.1059 0.549
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style DayZDefaultPanel
+      }
+      FrameWidgetClass menu_info_container {
+       visible 1
+       ignorepointer 1
+       size 0.97 0.98
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        PanelWidgetClass menu_info_root {
+         visible 1
+         ignorepointer 1
+         position -2.46496 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         priority 3
+         style blank
+         "no focus" 1
+         {
+          ImageWidgetClass market_item_header_panel {
+           visible 1
+           ignorepointer 1
+           color 0.1059 0.1059 0.1059 0.9412
+           position 0 0
+           size 1 50
+           halign center_ref
+           hexactpos 0
+           vexactpos 1
+           hexactsize 0
+           vexactsize 1
+           priority 100
+           imageTexture "{022593E4D038D194}DayZExpansion/Market/GUI/textures/panel_background_02.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           {
+            TextWidgetClass market_item_header_text {
+             visible 1
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             position 0 0
+             size 1 0.69
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             style Bold
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 0 0
+             "exact text" 0
+             "text halign" center
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "MarketItemName"
+              }
+             }
+            }
+            PanelWidgetClass market_item_info_attachments {
+             visible 0
+             ignorepointer 1
+             size 0.1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             priority 899
+             style blank
+             {
+              ButtonWidgetClass market_item_info_attachments_button {
+               clipchildren 0
+               position 0 0
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               scriptclass ""
+               style Empty
+               {
+                ImageWidgetClass market_item_info_attachments_icon {
+                 clipchildren 0
+                 ignorepointer 1
+                 keepsafezone 0
+                 color 0.6275 0.8745 0.2314 1
+                 position 0 0
+                 size 44 44
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 image0 ""
+                 imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass market_item_info_frame {
+           visible 1
+           clipchildren 1
+           ignorepointer 1
+           position 0 0
+           size 1 0.77
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           "no focus" 1
+          }
+          PanelWidgetClass market_item_preview_container {
+           clipchildren 0
+           ignorepointer 0
+           position 0 -0.06
+           size 1 0.35
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           style blank
+           {
+            ItemPreviewWidgetClass market_item_preview {
+             visible 1
+             clipchildren 0
+             ignorepointer 0
+             keepsafezone 1
+             position 0 0
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             {
+              ScriptParamsClass {
+               Binding_Name "MarketItemPreview"
+              }
+             }
+            }
+            PlayerPreviewWidgetClass market_player_preview {
+             visible 0
+             clipchildren 0
+             ignorepointer 0
+             keepsafezone 1
+             position 0 0
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             {
+              ScriptParamsClass {
+               Binding_Name "MarketPlayerPreview"
+              }
+             }
+            }
+           }
+          }
+          FrameWidgetClass market_item_amount_panel {
+           clipchildren 0
+           ignorepointer 0
+           color 0.8627 0.8627 0.8627 1
+           position 0 0.15
+           size 0.97 0.1
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 100
+           {
+            TextWidgetClass market_item_info_stock_player {
+             visible 1
+             clipchildren 0
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             position 0 0
+             size 0.37 0.45
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             style Bold
+             font "gui/fonts/etelkatextpro22"
+             "bold text" 1
+             "exact text" 0
+             "text halign" center
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "MarketItemStockPlayer"
+              }
+             }
+            }
+            TextWidgetClass market_item_info_stock {
+             visible 1
+             clipchildren 0
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             size 0.37 0.45
+             halign right_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             style Bold
+             font "gui/fonts/etelkatextpro22"
+             "bold text" 1
+             "exact text" 0
+             "text halign" center
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "MarketItemStockTrader"
+              }
+             }
+            }
+            PanelWidgetClass market_item_amount_frame {
+             ignorepointer 1
+             position 0 0
+             size 1 0.5
+             halign center_ref
+             valign bottom_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             priority 100
+             {
+              PanelWidgetClass market_item_amount_button_panel {
+               ignorepointer 0
+               color 0 0 0 1
+               size 0.2 0.9
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style UIDefaultPanel
+               {
+                ButtonWidgetClass market_item_amount_button {
+                 color 0.3412 0.8118 1 0.1961
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 style Expansion_01
+                 {
+                  TextWidgetClass market_item_amount_text {
+                   clipchildren 1
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 1 1
+                   halign center_ref
+                   valign center_ref
+                   hexactpos 0
+                   vexactpos 0
+                   hexactsize 0
+                   vexactsize 0
+                   scriptclass "ViewBinding"
+                   style Bold
+                   font "gui/fonts/etelkatextpro22"
+                   "text color" 0 0 0 1
+                   "exact text" 0
+                   "size to text h" 0
+                   "size to text v" 0
+                   "text halign" center
+                   "text valign" center
+                   {
+                    ScriptParamsClass {
+                     Binding_Name "MarketQuantity"
+                    }
+                   }
+                  }
+                 }
+                 {
+                  ScriptParamsClass {
+                   Relay_Command "OnQuantityButtonClick"
+                  }
+                 }
+                }
+               }
+              }
+              PanelWidgetClass market_item_amount_left_panel {
+               clipchildren 1
+               ignorepointer 0
+               color 0 0 0 1
+               size 0.37 0.9
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style UIDefaultPanel
+               {
+                ImageWidgetClass market_item_amount_left_icon {
+                 visible 1
+                 clipchildren 0
+                 ignorepointer 1
+                 color 0.9059 0.298 0.2353 0.1569
+                 position 0 0
+                 size 25 25
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 priority 1
+                 image0 "set:expansion_iconset image:icon_minus"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+                ButtonWidgetClass market_item_amount_button_left {
+                 visible 1
+                 clipchildren 0
+                 color 0.9059 0.298 0.2353 0.1569
+                 position 0 0
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 style Expansion_01
+                 "disabled text color" 0.2353 0.2353 0.2353 1
+                 {
+                  ScriptParamsClass {
+                   Relay_Command "OnDecrementQuantityButtonClick"
+                  }
+                 }
+                }
+               }
+              }
+              PanelWidgetClass market_item_amount_right_panel {
+               clipchildren 1
+               ignorepointer 0
+               color 0 0 0 1
+               size 0.37 0.9
+               halign right_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style UIDefaultPanel
+               {
+                ImageWidgetClass market_item_amount_right_icon {
+                 visible 1
+                 clipchildren 0
+                 ignorepointer 1
+                 color 0.1804 0.8 0.4431 0.1569
+                 position 0 0
+                 size 25 25
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 priority 1
+                 image0 "set:expansion_iconset image:icon_plus"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+                ButtonWidgetClass market_item_amount_button_right {
+                 clipchildren 0
+                 color 0.1804 0.8 0.4431 0.1569
+                 position 0 0
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 style Expansion_01
+                 "disabled text color" 0.2353 0.2353 0.2353 1
+                 {
+                  ScriptParamsClass {
+                   Relay_Command "OnIncrementQuantityButtonClick"
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+            ImageWidgetClass market_item_info_stock_player_icon {
+             visible 0
+             ignorepointer 1
+             position 0.01 0.05
+             size 34 34
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             imageTexture "{BE953F1A32651696}DayZExpansion/Core/GUI/icons/misc/T_Powder_256x256.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            ImageWidgetClass market_item_info_stock_icon {
+             visible 0
+             ignorepointer 1
+             position 0.01 0.05
+             size 34 34
+             halign right_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             imageTexture "{BE953F1A32651696}DayZExpansion/Core/GUI/icons/misc/T_Powder_256x256.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            PanelWidgetClass market_item_info_quantity {
+             visible 1
+             ignorepointer 1
+             size 44 44
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             style blank
+             {
+              ButtonWidgetClass market_item_info_quantity_button {
+               clipchildren 0
+               position 0 0
+               size 44 44
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               scriptclass ""
+               style Empty
+               {
+                ImageWidgetClass market_item_info_quantity_icon {
+                 clipchildren 0
+                 ignorepointer 1
+                 keepsafezone 0
+                 color 0.6275 0.8745 0.2314 1
+                 position 0 0
+                 size 44 44
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 image0 ""
+                 imageTexture "{C0B1B0599B00CBE8}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass market_item_price_panel {
+           ignorepointer 1
+           position 0 0.05
+           size 0.97 0.1
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 100
+           {
+            PanelWidgetClass market_item_sell_panel {
+             visible 1
+             ignorepointer 1
+             color 0.1098 0.1098 0.1098 0.9412
+             size 0.37 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style UIDefaultPanel
+             {
+              PanelWidgetClass market_item_sell {
+               visible 0
+               color 0.9059 0.298 0.2353 0.1569
+               size 1 0.5
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               scriptclass ""
+               style blank
+               {
+                PanelWidgetClass market_item_sell_background {
+                 visible 1
+                 ignorepointer 1
+                 color 0 0 0 1
+                 size 1 1
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 style UIDefaultPanel
+                }
+                ButtonWidgetClass market_item_sell_button {
+                 visible 1
+                 color 0.9059 0.298 0.2353 0.1569
+                 size 1 1
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 style Expansion_01
+                 "disabled text color" 0.2353 0.2353 0.2353 1
+                 {
+                  ScriptParamsClass {
+                   Relay_Command "OnSellButtonClick"
+                  }
+                 }
+                }
+                TextWidgetClass market_item_sell_text {
+                 ignorepointer 1
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 text "[S] #STR_EXPANSION_MARKET_SELL"
+                 font "gui/fonts/etelkatextpro22"
+                 "exact text" 0
+                 "size to text h" 0
+                 "size to text v" 0
+                 "text halign" center
+                 "text valign" center
+                 {
+                  ScriptParamsClass {
+                   Relay_Command "OnSellButtonClick"
+                  }
+                 }
+                }
+               }
+              }
+              PanelWidgetClass market_item_sell_price_panel {
+               disabled 0
+               size 1 0.5
+               halign center_ref
+               valign bottom_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style blank
+               {
+                GridSpacerWidgetClass market_item_sell_price {
+                 disabled 0
+                 ignorepointer 1
+                 halign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 fixaspect fixwidth
+                 style Colorable
+                 "Size To Content H" 1
+                 Columns 2
+                 Rows 1
+                 {
+                  TextWidgetClass market_item_sell_price_text {
+                   visible 1
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 1 1
+                   halign right_ref
+                   valign center_ref
+                   hexactpos 0
+                   vexactpos 0
+                   hexactsize 0
+                   vexactsize 0
+                   scriptclass "ViewBinding"
+                   style Normal
+                   font "gui/fonts/etelkatextpro22"
+                   "text offset" 0 0
+                   "exact text" 0
+                   "size to text h" 1
+                   "text halign" right
+                   "text valign" center
+                   {
+                    ScriptParamsClass {
+                     Binding_Name "MarketItemTotalSellPrice"
+                    }
+                   }
+                  }
+                  PanelWidgetClass market_item_sell_price_icon_panel {
+                   visible 1
+                   ignorepointer 1
+                   position 0 0
+                   size 1 0.5
+                   halign left_ref
+                   valign center_ref
+                   hexactpos 0
+                   vexactpos 0
+                   hexactsize 0
+                   vexactsize 0
+                   style blank
+                   {
+                    ImageWidgetClass market_item_sell_price_icon {
+                     clipchildren 0
+                     ignorepointer 1
+                     keepsafezone 0
+                     size 16 16
+                     halign center_ref
+                     valign center_ref
+                     hexactpos 0
+                     vexactpos 0
+                     hexactsize 1
+                     vexactsize 1
+                     scriptclass "ViewBinding"
+                     image0 ""
+                     mode blend
+                     "src alpha" 1
+                     "no wrap" 1
+                     stretch 1
+                     {
+                      ScriptParamsClass {
+                       Binding_Name "CurrencySellIcon"
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+            PanelWidgetClass market_item_buy_panel {
+             visible 1
+             ignorepointer 1
+             color 0.1059 0.1059 0.1059 1
+             size 0.37 1
+             halign right_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style UIDefaultPanel
+             {
+              PanelWidgetClass market_item_buy {
+               visible 0
+               disabled 0
+               color 0.1804 0.8 0.4431 0.1569
+               size 1 0.5
+               halign right_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               scriptclass ""
+               style blank
+               {
+                PanelWidgetClass market_item_buy_background {
+                 visible 1
+                 ignorepointer 1
+                 color 0 0 0 1
+                 size 1 1
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 style UIDefaultPanel
+                }
+                ButtonWidgetClass market_item_buy_button {
+                 visible 1
+                 disabled 0
+                 color 0.1804 0.8 0.4431 0.1569
+                 size 1 1
+                 halign right_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 style Expansion_01
+                 {
+                  ScriptParamsClass {
+                   Relay_Command "OnBuyButtonClick"
+                  }
+                 }
+                }
+                TextWidgetClass market_item_buy_text {
+                 disabled 0
+                 ignorepointer 1
+                 position 0 0.02
+                 size 1 1
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 text "[B] #STR_EXPANSION_MARKET_BUY"
+                 font "gui/fonts/etelkatextpro22"
+                 "bold text" 0
+                 "exact text" 0
+                 "size to text h" 0
+                 "size to text v" 0
+                 "text halign" center
+                 "text valign" center
+                }
+               }
+              }
+              PanelWidgetClass market_item_buy_price_panel {
+               disabled 0
+               size 1 0.5
+               halign center_ref
+               valign bottom_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               style blank
+               {
+                GridSpacerWidgetClass market_item_buy_price {
+                 disabled 0
+                 ignorepointer 1
+                 halign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 fixaspect fixwidth
+                 style Colorable
+                 "Size To Content H" 1
+                 "Size To Content V" 1
+                 Columns 2
+                 Rows 1
+                 {
+                  TextWidgetClass market_item_buy_price_text {
+                   visible 1
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 1 1
+                   halign right_ref
+                   valign center_ref
+                   hexactpos 0
+                   vexactpos 0
+                   hexactsize 0
+                   vexactsize 0
+                   scriptclass "ViewBinding"
+                   style Normal
+                   font "gui/fonts/etelkatextpro22"
+                   "text offset" 0 0
+                   "exact text" 0
+                   "size to text h" 1
+                   "text halign" right
+                   "text valign" center
+                   {
+                    ScriptParamsClass {
+                     Binding_Name "MarketItemTotalBuyPrice"
+                    }
+                   }
+                  }
+                  PanelWidgetClass market_item_buy_price_icon_panel {
+                   visible 1
+                   ignorepointer 1
+                   position 0 0
+                   size 1 0.5
+                   halign left_ref
+                   valign center_ref
+                   hexactpos 0
+                   vexactpos 0
+                   hexactsize 0
+                   vexactsize 0
+                   style blank
+                   {
+                    ImageWidgetClass market_item_buy_price_icon {
+                     clipchildren 0
+                     ignorepointer 1
+                     keepsafezone 0
+                     position 0 0
+                     size 16 16
+                     halign center_ref
+                     valign center_ref
+                     hexactpos 0
+                     vexactpos 0
+                     hexactsize 1
+                     vexactsize 1
+                     scriptclass "ViewBinding"
+                     image0 ""
+                     mode blend
+                     "src alpha" 1
+                     "no wrap" 1
+                     stretch 1
+                     {
+                      ScriptParamsClass {
+                       Binding_Name "CurrencyBuyIcon"
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+          WrapSpacerWidgetClass market_item_description_container {
+           visible 1
+           clipchildren 0
+           ignorepointer 1
+           color 1 1 1 0
+           position 0 0.06
+           size 0.956 0.21
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 100
+           style Colorable
+           Padding 0
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           {
+            PanelWidgetClass market_item_description_scroll_indicator_header {
+             visible 0
+             disabled 0
+             clipchildren 1
+             ignorepointer 1
+             color 1 1 1 0.2353
+             position 0 0
+             size 1 0.1
+             halign center_ref
+             valign bottom_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style EditorPanel
+             {
+              ImageWidgetClass indicator_icon_1 {
+               ignorepointer 1
+               color 1 1 1 0.3922
+               position 0.02 0
+               size 22 22
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip v" 0
+              }
+              ImageWidgetClass indicator_icon_2 {
+               ignorepointer 1
+               color 1 1 1 0.3922
+               position 0 0
+               size 22 22
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip u" 1
+               "flip v" 0
+              }
+              ImageWidgetClass indicator_icon_3 {
+               ignorepointer 1
+               color 1 1 1 0.3922
+               position 0.02 0
+               size 22 22
+               halign right_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip v" 0
+              }
+             }
+            }
+            PanelWidgetClass market_item_description_scroll_indicator_footer {
+             visible 0
+             disabled 0
+             clipchildren 1
+             ignorepointer 1
+             color 1 1 1 0.2353
+             size 1 0.1
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             priority 1
+             style EditorPanel
+             {
+              ImageWidgetClass indicator_icon_0 {
+               ignorepointer 1
+               color 1 1 1 0.3922
+               position 0.02 0
+               size 22 22
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip v" 1
+              }
+              ImageWidgetClass indicator_icon_4 {
+               ignorepointer 1
+               color 1 1 1 0.3922
+               position 0 0
+               size 22 22
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip u" 1
+               "flip v" 1
+              }
+              ImageWidgetClass indicator_icon_5 {
+               ignorepointer 1
+               color 1 1 1 0.3922
+               position 0.02 0
+               size 22 22
+               halign right_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               image0 ""
+               imageTexture "{9F15DD575A256AEF}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode blend
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip v" 1
+              }
+             }
+            }
+            ScrollWidgetClass market_item_description_scroller {
+             visible 1
+             ignorepointer 0
+             keepsafezone 0
+             color 1 1 1 0.549
+             position 0.02 0
+             size 1.06 0.89
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass ""
+             style blank
+             "Scrollbar V" 1
+             {
+              GridSpacerWidgetClass market_item_description_spacer {
+               ignorepointer 1
+               size 1 1
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               fixaspect outside
+               Columns 1
+               Rows 1
+               {
+                RichTextWidgetClass market_item_description {
+                 clipchildren 1
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 position 0 0
+                 size 1 1
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 scriptclass "ViewBinding"
+                 font "gui/fonts/etelkatextpro22"
+                 "text offset" 0 5
+                 "exact text" 1
+                 "size to text h" 0
+                 "size to text v" 0
+                 wrap 1
+                 "condense whitespace" 1
+                 "strip newlines" 1
+                 {
+                  ScriptParamsClass {
+                   Binding_Name "MarketItemDesc"
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass market_item_info_item_manager_panel {
+           visible 0
+           clipchildren 1
+           ignorepointer 0
+           color 0 0 0 0.9412
+           position 0 0.255
+           size 0.97 32
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           priority 100
+           style UIDefaultPanel
+           {
+            TextWidgetClass market_item_info_attachments_setup_lable {
+             visible 1
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             position 0 0
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass ""
+             style Bold
+             text "#STR_EXPANSION_MARKET_CUSTOMIZE"
+             font "gui/fonts/etelkatextpro22"
+             "bold text" 1
+             "exact text" 0
+             "size to text h" 0
+             "text halign" center
+             "text valign" center
+            }
+            ButtonWidgetClass market_item_info_attachments_setup_button {
+             position 0 0
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             style Expansion_01
+             {
+              ScriptParamsClass {
+               Relay_Command "OnOpenItemManagerButtonClick"
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass market_item_info_attachments_panel {
+           visible 0
+           clipchildren 0
+           ignorepointer 0
+           color 0.8627 0.8627 0.8627 1
+           position 0 0.255
+           size 0.97 32
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           priority 100
+           {
+            CheckBoxWidgetClass market_item_info_attachments_checkbox {
+             position 0.01 0
+             size 32 32
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             scriptclass "ViewBinding"
+             style Expansnion_04
+             {
+              ScriptParamsClass {
+               Binding_Name "IncludeAttachments"
+               Two_Way_Binding 1
+              }
+             }
+            }
+            TextWidgetClass market_item_info_attachments_lable {
+             visible 1
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 1
+             position 0.05 0
+             size 0.8419 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass ""
+             style Bold
+             text "#STR_EXPANSION_MARKET_OPTION_ATTACHMENTS"
+             font "gui/fonts/etelkatextpro22"
+             "bold text" 1
+             "exact text" 0
+             "size to text h" 0
+             "text halign" right
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass skin_selector {
+           visible 0
+           clipchildren 0
+           inheritalpha 0
+           ignorepointer 0
+           color 0 0 0 0.9412
+           position 2.38428 664.42505
+           size 1 0.038
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           priority 100
+           style UIDefaultPanel
+           {
+            TextWidgetClass skin_selector_text {
+             clipchildren 0
+             ignorepointer 1
+             position 0 0
+             size 1 1
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_MARKET_VARIANTS"
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 10 0
+             text_proportion 0.55
+             "text valign" center
+            }
+            FrameWidgetClass skin_selector_button {
+             clipchildren 0
+             ignorepointer 1
+             position 0 0
+             size 1 1
+             halign right_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 0
+             fixaspect inside
+             {
+              ImageWidgetClass skin_selector_expand_image {
+               visible 0
+               clipchildren 0
+               inheritalpha 1
+               ignorepointer 1
+               size 0.7 0.7
+               halign center_ref
+               valign center_ref
+               hexactpos 1
+               vexactpos 1
+               hexactsize 0
+               vexactsize 0
+               image0 ""
+               imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode additive
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               "flip v" 1
+               filter 1
+              }
+              ImageWidgetClass skin_selector_collapse_image {
+               visible 1
+               clipchildren 0
+               inheritalpha 1
+               ignorepointer 1
+               size 0.7 0.7
+               halign center_ref
+               valign center_ref
+               hexactpos 1
+               vexactpos 1
+               hexactsize 0
+               vexactsize 0
+               image0 ""
+               imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+               mode additive
+               "src alpha" 1
+               "no wrap" 1
+               stretch 1
+               filter 1
+              }
+             }
+            }
+            ScrollWidgetClass skin_selector_container {
+             visible 0
+             clipchildren 1
+             ignorepointer 1
+             color 0 0 0 1
+             position -0.2411 1
+             size 1 299.14001
+             halign center_ref
+             hexactpos 1
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             style blank
+             "Scrollbar V" 1
+             {
+              WrapSpacerWidgetClass skin_selector_content {
+               visible 1
+               clipchildren 0
+               inheritalpha 0
+               ignorepointer 1
+               position 0 0
+               size 1 1
+               hexactpos 1
+               vexactpos 1
+               hexactsize 0
+               vexactsize 0
+               priority 2
+               scriptclass "ViewBinding"
+               style Empty
+               Padding 0
+               Margin 0
+               "Size To Content H" 1
+               "Size To Content V" 1
+               {
+                ScriptParamsClass {
+                 Binding_Name "SkinsDropdownElements"
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ImageWidgetClass vignette {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0 0 0 0.7843
+   position 0 0
+   size 2 2
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   fixaspect outside
+   imageTexture "{E6B3EF816E067499}Gui/textures/inventory_bgvignette.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 0
+   nocache 1
+  }
+ }
+}

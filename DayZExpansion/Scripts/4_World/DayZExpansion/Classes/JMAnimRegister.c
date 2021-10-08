@@ -1,13 +1,13 @@
-modded class JMAnimRegister
+modded class ModItemRegisterCallbacks
 {
-	override void OnRegisterEmptyHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterEmptyHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterEmptyHanded( pType, pBehavior );
+		super.RegisterEmptyHanded( pType, pBehavior );
 	}
 	
-	override void OnRegisterTwoHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterTwoHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterTwoHanded( pType, pBehavior );
+		super.RegisterTwoHanded( pType, pBehavior );
 		
 		//! Small Placables
 		pType.AddItemInHandsProfileIK("ExpansionCone", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/spotlight.anm");
@@ -27,9 +27,9 @@ modded class JMAnimRegister
 		pType.AddItemInHandsProfileIK("ExpansionLumber0_5", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/wooden_plank.anm");
 	}
 
-	override void OnRegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterOneHanded( pType, pBehavior );
+		super.RegisterOneHanded( pType, pBehavior );
 
 		//! Basebuilding Kits
 		pType.AddItemInHandsProfileIK("ExpansionBarbedWireKit", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/barbed_wire.anm");
@@ -74,19 +74,19 @@ modded class JMAnimRegister
 		pType.AddItemInHandsProfileIK("Expansion_Guitar", "DayZExpansion/Animations/Player/Props/player_main_guitar.asi", pBehavior, "dz/anims/anm/player/ik/gear/LongWoodenStick.anm");
 	}
 
-	override void OnRegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterRestrained( pType, pBehavior );
+		super.RegisterRestrained( pType, pBehavior );
 	}
 
-	override void OnRegisterSurrender( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterSurrender( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterSurrender( pType, pBehavior );
+		super.RegisterSurrender( pType, pBehavior );
 	}
 
-	override void OnRegisterHeavy( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterHeavy( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterHeavy( pType, pBehavior );
+		super.RegisterHeavy( pType, pBehavior );
 
 		//! Misc Placables
 		pType.AddItemInHandsProfileIK("ExpansionSignDanger", "dz/anims/workspaces/player/player_main/props/player_main_heavy_generator.asi", pBehavior, "dz/anims/anm/player/ik/heavy/hesco_box.anm");
@@ -108,18 +108,18 @@ modded class JMAnimRegister
 		#endif
 	}
 
-	override void OnRegisterPistol( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterPistol( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterPistol( pType, pBehavior );
+		super.RegisterPistol( pType, pBehavior );
 		
 		pType.AddItemInHandsProfileIK("Expansion_M9_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz75.asi", pBehavior, "dz/anims/anm/player/ik/weapons/CZ75.anm", "dz/anims/anm/player/reloads/CZ75/w_CZ75_states.anm");	
 		pType.AddItemInHandsProfileIK("Expansion_Longhorn_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_flaregun.asi", pBehavior, "dz/anims/anm/player/ik/weapons/flaregun.anm", "dz/anims/anm/player/reloads/Flaregun/w_Flaregun_states.anm");
 		
 	}
 
-	override void OnRegisterFireArms( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterFireArms( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterFireArms( pType, pBehavior );
+		super.RegisterFireArms( pType, pBehavior );
 		
 		pType.AddItemInHandsProfileIK("Expansion_M79_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_izh18.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_MPX_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_m4a1.asi", pBehavior, "dz/anims/anm/player/ik/weapons/m4a1_ik.anm", "dz/anims/anm/player/reloads/M4A1/w_M4A1_states.anm");	   
@@ -142,19 +142,19 @@ modded class JMAnimRegister
 		//pType.AddItemInHandsProfileIK("ExpansionLAWBase", "DayZExpansion/Animations/Player/Weapons/player_main_law.asi", pBehavior, "dz/anims/anm/player/ik/weapons/SKS.anm", "dz/anims/anm/player/reloads/SKS/w_SKS_states.anm");
 	}
 
-	override void OnRegisterArcheryItem( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterArcheryItem( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterArcheryItem( pType, pBehavior );
+		super.RegisterArcheryItem( pType, pBehavior );
 	}
 
-	override void OnRegisterLauncher( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterLauncher( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterLauncher( pType, pBehavior );
+		super.RegisterLauncher( pType, pBehavior );
 	}
 
-	override void OnBoneRemapping( DayZPlayerType pType )
+	override void CustomBoneRemapping( DayZPlayerType pType )
 	{
-		super.OnBoneRemapping( pType );
+		super.CustomBoneRemapping( pType );
 
 		array<string> DT11BoneRemap = { "release", "Weapon_Bone_02", "barrel", "Weapon_Bone_01", "trigger", "Weapon_Trigger","ejector","Weapon_Bone_03","bullet", "Weapon_Bullet", "bullet2", "Weapon_Bone_04", "snaploader", "Weapon_Bone_05" };
 		pType.AddItemBoneRemap("Expansion_DT11_Base", DT11BoneRemap);

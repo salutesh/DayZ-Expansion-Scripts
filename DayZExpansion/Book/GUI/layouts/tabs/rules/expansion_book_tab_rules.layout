@@ -1,0 +1,155 @@
+FrameWidgetClass ExpansionBookMenuTabRules {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionBookMenuTabRulesController"
+ {
+  PanelWidgetClass book_rules_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 937 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_menu_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass categories_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       scriptclass ""
+       text "#STR_EXPANSION_BOOK_TAB_SERVER_RULES"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass categories_lable_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass categories_list_scroller {
+       ignorepointer 0
+       position 0.02 0
+       size 1.02 0.91
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass categories_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Margin 0
+         "Size To Content V" 1
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "RulesCategories"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ScrollWidgetClass rules_list_scroller {
+       visible 1
+       ignorepointer 0
+       keepsafezone 1
+       position 0.02 0.05
+       size 1.02 0.9
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass rules_list_content {
+         ignorepointer 0
+         keepsafezone 1
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Margin 0
+         "Size To Content V" 1
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "Rules"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

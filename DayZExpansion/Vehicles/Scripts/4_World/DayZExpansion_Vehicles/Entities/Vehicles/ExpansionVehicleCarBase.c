@@ -23,42 +23,8 @@ class ExpansionVehicleCarBase extends ExpansionVehicleBase
 
 		if (m_Engines.Count() == 0)
 		{
-			path = "CfgVehicles " + GetType() + " SimulationModule drive";
-
-			ExpansionVehicleEngineType type;
-			if (GetGame().ConfigIsExisting(path))
-			{
-				string drive;
-				GetGame().ConfigGetText(path, drive);
-
-				if (drive == "DRIVE_RWD")
-				{
-					type = ExpansionVehicleEngineType.RWD;
-				}
-				else if (drive == "DRIVE_FWD")
-				{
-					type = ExpansionVehicleEngineType.FWD;
-				}
-				else if (drive == "DRIVE_AWD")
-				{
-					type = ExpansionVehicleEngineType.AWD;
-				}
-				else if (drive == "DRIVE_662")
-				{
-					type = ExpansionVehicleEngineType.AWD;
-				}
-				else if (drive == "DRIVE_642")
-				{
-					type = ExpansionVehicleEngineType.AWD;
-				}
-				else
-				{
-					type = ExpansionVehicleEngineType.AWD;
-				}
-			}
-
 			path = "CfgVehicles " + GetType() + " SimulationModule Engine";
-			AddModule(new ExpansionVehicleEngine(this, path, type));
+			AddModule(Expansion_CreateEngine(this, path));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Gearbox";

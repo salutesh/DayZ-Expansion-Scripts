@@ -1,0 +1,122 @@
+GridSpacerWidgetClass ExpansionTooltipServerSetting {
+ visible 1
+ clipchildren 1
+ ignorepointer 1
+ color 0 0 0 0.549
+ position 0 0
+ size 500 40
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 951
+ scriptclass "ExpansionTooltipServerSettingEntryController"
+ style DayZDefaultPanel
+ Padding 0
+ Margin 8
+ "Size To Content H" 1
+ "Size To Content V" 1
+ Columns 1
+ Rows 1
+ {
+  WrapSpacerWidgetClass TooltipContent {
+   visible 1
+   clipchildren 1
+   ignorepointer 1
+   color 0 0 0 0.549
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   style DayZDefaultPanel
+   Padding 5
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+   {
+    HtmlWidgetClass TooltipTitle {
+     visible 1
+     ignorepointer 1
+     color 0.8627 0.8627 0.8627 1
+     size 0.98 1
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     style DayZNormal
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0.8627 0.8627 0.8627 1
+     "exact text" 1
+     "size to text h" 1
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+     wrap 1
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "TooltipTitle"
+      }
+     }
+    }
+    PanelWidgetClass Separator {
+     ignorepointer 1
+     color 0.8627 0.8627 0.8627 1
+     size 0.94 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    WrapSpacerWidgetClass TooltipGrid {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     position 0 0
+     size 1 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scriptclass ""
+     Padding 3
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     {
+      RichTextWidgetClass TooltipText {
+       ignorepointer 1
+       position 0 0
+       size 0.98 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       wrap 1
+       {
+        ScriptParamsClass {
+         Binding_Name "TooltipText"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -27,10 +27,12 @@ class ExpansionVehicleBase extends ItemBase
 	ref array<ExpansionVehicleAxle> m_Axles = new array<ExpansionVehicleAxle>();
 	ref array<ExpansionVehicleWheel> m_Wheels = new array<ExpansionVehicleWheel>();
 	ref array<ExpansionVehicleAerofoil> m_Aerofoils = new array<ExpansionVehicleAerofoil>();
-	ref array<ExpansionVehicleEngine> m_Engines = new array<ExpansionVehicleEngine>();
+	ref array<ExpansionVehicleEngineBase> m_Engines = new array<ExpansionVehicleEngineBase>();
 
 	ref ExpansionController m_Controller = new ExpansionController();
 	ref ExpansionPhysicsState m_State = new ExpansionPhysicsStateT<ExpansionVehicleBase>(this);
+
+	ExpansionVehicleDifferentialType m_DifferentialType;
 
 	int m_CurrentEngine;
 	int m_EnginesOn;
@@ -45,6 +47,8 @@ class ExpansionVehicleBase extends ItemBase
 
 	float m_AltitudeFullForce; // (m)
 	float m_AltitudeNoForce;   // (m)
+
+	float m_Expansion_Mass;
 
 	float m_TimeSlice;
 	bool m_IsPhysicsHost;
@@ -373,6 +377,40 @@ class ExpansionVehicleBase extends ItemBase
 			m_AirDragArea = ad_w * ad_h;
 		}
 
+		path = "CfgVehicles " + GetType() + " SimulationModule drive";
+
+		m_DifferentialType = ExpansionVehicleDifferentialType.RWD;
+		if (GetGame().ConfigIsExisting(path))
+		{
+			string drive;
+			GetGame().ConfigGetText(path, drive);
+
+			if (drive == "DRIVE_RWD")
+			{
+				m_DifferentialType = ExpansionVehicleDifferentialType.RWD;
+			}
+			else if (drive == "DRIVE_FWD")
+			{
+				m_DifferentialType = ExpansionVehicleDifferentialType.FWD;
+			}
+			else if (drive == "DRIVE_AWD")
+			{
+				m_DifferentialType = ExpansionVehicleDifferentialType.AWD;
+			}
+			else if (drive == "DRIVE_662")
+			{
+				m_DifferentialType = ExpansionVehicleDifferentialType.AWD;
+			}
+			else if (drive == "DRIVE_642")
+			{
+				m_DifferentialType = ExpansionVehicleDifferentialType.AWD;
+			}
+			else
+			{
+				m_DifferentialType = ExpansionVehicleDifferentialType.AWD;
+			}
+		}
+
 		int i = 0;
 		int count = 0;
 
@@ -385,7 +423,7 @@ class ExpansionVehicleBase extends ItemBase
 			GetGame().ConfigGetChildName(path, i, engineName);
 
 			string enginePath = path + " " + engineName;
-			AddModule(new ExpansionVehicleEngine(this, enginePath));
+			AddModule(Expansion_CreateEngine(this, enginePath));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Props";
@@ -560,6 +598,13 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (IsMissionHost())
 			SetAllowDamage(CanBeDamaged());
+
+		//! This exists so it can be overridden (e.g.) by server owners who don't have access to unbinarized models
+		path = "CfgVehicles " + GetType() + " mass";
+		if (GetGame().ConfigIsExisting(path))
+			m_Expansion_Mass = GetGame().ConfigGetFloat(path);
+		else
+			m_Expansion_Mass = dBodyGetMass(this);
 	}
 
 	void ~ExpansionVehicleBase()
@@ -1081,7 +1126,9 @@ class ExpansionVehicleBase extends ItemBase
 			m_DebugShapes[i].Destroy();
 
 		m_DebugShapes.Clear();
-#endif
+
+		DBGTowing();
+
 
 		/*
 		GetTransform(m_DbgTransform);
@@ -1101,7 +1148,7 @@ class ExpansionVehicleBase extends ItemBase
 		//m_State.DBGDrawSphereMS("0 0 0", 0.5, 0x44AA00FF);
 		//m_State.DBGDrawSphereMS(dBodyGetCenterOfMass(this), 0.3, 0x44FF0022);
 
-		//DBGTowing();
+#endif
 
 		m_State.m_DeltaTime = dt;
 
@@ -1542,9 +1589,9 @@ class ExpansionVehicleBase extends ItemBase
 			return;
 		}
 
-		if (module.IsInherited(ExpansionVehicleEngine))
+		if (module.IsInherited(ExpansionVehicleEngineBase))
 		{
-			auto engine = ExpansionVehicleEngine.Cast(module);
+			auto engine = ExpansionVehicleEngineBase.Cast(module);
 			engine.m_EngineIndex = m_Engines.Count();
 			RegisterNetSyncVariableBool("m_EngineSync" + engine.m_EngineIndex);
 			if (engine.m_EngineIndex >= 4)
@@ -2892,6 +2939,11 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		return false;
+	}
+
+	float Expansion_GetMass()
+	{
+		return m_Expansion_Mass;
 	}
 
 	ExpansionVehicleLockState GetLockedState()

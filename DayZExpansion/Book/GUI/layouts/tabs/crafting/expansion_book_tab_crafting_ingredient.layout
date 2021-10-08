@@ -1,0 +1,175 @@
+PanelWidgetClass ExpansionBookMenuTabCraftingIngredient {
+ clipchildren 1
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 215 135
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionBookMenuTabCraftingIngredientController"
+ {
+  WrapSpacerWidgetClass ingredient_spacer {
+   clipchildren 1
+   inheritalpha 0
+   ignorepointer 1
+   position 0 0
+   size 215 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 0
+   scriptclass ""
+   Padding 0
+   Margin 0
+   "Size To Content V" 1
+   content_halign center
+   content_valign center
+   {
+    PanelWidgetClass ingredient_entry {
+     color 0.6863 0.2588 0.2588 1
+     size 215 32
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     scriptclass ""
+     style blank
+     {
+      ButtonWidgetClass ingredient_entry_button {
+       size 215 32
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       scriptclass "ViewBinding"
+       style Empty
+       {
+        TextWidgetClass ingredient_entry_label {
+         ignorepointer 1
+         color 0 0 0 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         scriptclass "ViewBinding"
+         text "#STR_EXPANSION_BOOK_CRAFTING_INGREDIENT_NAME"
+         font "gui/fonts/etelkatextpro22"
+         "text color" 0 0 0 1
+         "text offset" 5 1
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "ItemName"
+          }
+         }
+        }
+        ImageWidgetClass ingredient_entry_icon {
+         visible 0
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.02 0
+         size 22 22
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         priority 1
+         image0 "set:expansion_iconset image:icon_plus"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+       }
+       {
+        ScriptParamsClass {
+         Debug_Logging 0
+         Relay_Command "OnEntryButtonClick"
+        }
+       }
+      }
+      ImageWidgetClass ingredient_entry_background {
+       ignorepointer 1
+       position 0 0
+       size 215 32
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_5"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+     }
+    }
+    ItemPreviewWidgetClass ingredient_preview {
+     ignorepointer 1
+     position 10 10
+     size 215 100
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     {
+      ScriptParamsClass {
+       Binding_Name "ItemPreview"
+      }
+     }
+    }
+    PanelWidgetClass ingredient_line {
+     ignorepointer 1
+     color 0 0 0 1
+     size 1 3
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style DayZDefaultPanel
+    }
+   }
+  }
+  ButtonWidgetClass ingredient_button {
+   size 215 135
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    ScriptParamsClass {
+     Relay_Command "OnIngredientButtonClick"
+    }
+   }
+  }
+  PanelWidgetClass ingredient_frame {
+   visible 0
+   ignorepointer 1
+   color 0.1804 0.8 0.4431 1
+   size 215 135
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style EditorPanel
+  }
+ }
+}

@@ -1,0 +1,52 @@
+PanelWidgetClass ExpansionMarketMenu_CheckboxBase {
+ size 360 0.03
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 0
+ scriptclass "ExpansionMarketMenu_CheckboxBaseController"
+ {
+  CheckBoxWidgetClass checkbox {
+   position 0.01 0
+   size 32 32
+   halign right_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Expansnion_04
+   {
+    ScriptParamsClass {
+     Binding_Name "CheckboxState"
+    }
+   }
+  }
+  TextWidgetClass lable {
+   visible 1
+   ignorepointer 1
+   color 0.8627 0.8627 0.8627 1
+   position 0.05 0
+   size 0.8419 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Bold
+   text "#STR_EXPANSION_MARKET_OPTION_ATTACHMENTS"
+   font "gui/fonts/etelkatextpro22"
+   "bold text" 1
+   "exact text" 0
+   "size to text h" 0
+   "text halign" right
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "CheckboxLable"
+    }
+   }
+  }
+ }
+}

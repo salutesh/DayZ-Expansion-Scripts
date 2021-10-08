@@ -151,7 +151,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 									continue;
 							}
 
-							if (dBodyGetMass(other_car) * 0.9 < dBodyGetMass(car))
+							if (other_car.Expansion_GetMass() * 0.9 < car.Expansion_GetMass())
 							{
 								if (other_car.Expansion_GetOverlappingTowConnection(towPosition, 0.5, out_index))
 								{

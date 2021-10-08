@@ -18,11 +18,6 @@ class ExpansionActionDismantleFlagCB : ActionContinuousBaseCB
 	}
 };
 
-class ExpansionActionDismantleFlagActionData : ActionData
-{
-	bool m_IsDismantle;
-};
-
 class ExpansionActionDismantleFlag: ActionContinuousBase
 {
 	private bool m_IsDismantle;
@@ -34,12 +29,6 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH;
 		m_SpecialtyWeight = UASoftSkillsWeight.ROUGH_HIGH;
-	}
-	
-	override ActionData CreateActionData()
-	{
-		ActionData action_data = new ExpansionActionDismantleFlagActionData;
-		return action_data;
 	}
 	
 	override void CreateConditionComponents()  
@@ -66,6 +55,10 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 		if ( !GetExpansionSettings().GetBaseBuilding().SimpleTerritory )
 			return false;
 
+		//! Force the player to dismantle with tools
+		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagMode == ExpansionDismantleFlagMode.AnyoneWithTools )
+			return false;
+
 		m_IsDismantle = false;
 
 		//! This has to be a valid expansion territory flag
@@ -81,13 +74,9 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 		//! We don't need to check if we are in a territory.
 		m_IsDismantle = player.IsInsideOwnTerritory();
 
-		//! Force the player to dismantle with tools
-		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagMode == ExpansionDismantleFlagMode.AnyoneWithTools )
-				return false;
-
 		//! The Raider can't dismantle at all but the owner can
 		if ( GetExpansionSettings().GetBaseBuilding().DismantleFlagMode == ExpansionDismantleFlagMode.TerritoryMembersWithHands && !m_IsDismantle )
-				return false;
+			return false;
 
 		return true;
 	}
@@ -96,17 +85,15 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 	{
 		super.OnStart( action_data );
 
-		ExpansionActionDismantleFlagActionData ead_action_data = ExpansionActionDismantleFlagActionData.Cast( action_data );
-
-		ead_action_data.m_IsDismantle = false;
+		bool isDismantle = false;
 
 		if ( !TerritoryFlag.Cast( action_data.m_Target.GetObject() ).HasExpansionTerritoryInformation() )
-			ead_action_data.m_IsDismantle = true;
+			isDismantle = true;
 
 		if ( action_data.m_Player.IsInsideOwnTerritory() )
-			ead_action_data.m_IsDismantle = true;
+			isDismantle = true;
 
-		if ( ead_action_data.m_IsDismantle )
+		if ( isDismantle )
 			action_data.m_ActionComponent = new CAContinuousTime( 5 );
 		else
 			action_data.m_ActionComponent = new CAContinuousTime( 30 );

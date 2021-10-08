@@ -224,17 +224,12 @@ class CfgVehicles
 			{
 				class Engine: Engine
 				{
-					inertia = 0.5;
-					torqueMax = 29.1;
-					torqueRpm = 1670;
-					powerMax = 29.1;
-					powerRpm = 2200;
-					rpmIdle = 1000;
-					rpmMin = 1050;
-					rpmClutch = 1250;
-					rpmRedline = 2150;
-					rpmMax = 2250;
-					gear = -1;
+					type = "POINTS";
+					points[] = {1670.0,410.0,1910.0,615.0,2030.0,738.0,2100.0,820.0,2200.0,1000.0};
+					inertia = 1.16;
+					rpmMin = 1200;
+					rpmRedline = 2200;
+					rpmMax = 2300;
 				};
 			};
 			class Props: Props

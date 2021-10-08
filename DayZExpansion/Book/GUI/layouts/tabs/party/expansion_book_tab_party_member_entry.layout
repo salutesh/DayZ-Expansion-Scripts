@@ -1,0 +1,112 @@
+FrameWidgetClass ExpansionBookMenuTabPartyMemberEntry {
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 435 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ fixaspect fixwidth
+ scriptclass "ExpansionBookMenuTabPartyMemberEntryController"
+ {
+  PanelWidgetClass member_entry {
+   color 0.6863 0.2588 0.2588 1
+   position 0 0
+   size 435 32
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ButtonWidgetClass member_entry_button {
+     size 435 32
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     style Empty
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Relay_Command "OnEditButtonClick"
+      }
+     }
+    }
+    ImageWidgetClass member_entry_icon {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.05 0
+     size 32 32
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     image0 "set:expansion_iconset image:icon_group"
+     mode blend
+     "src alpha" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "ElementIcon"
+      }
+     }
+    }
+    TextWidgetClass member_entry_label {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.03 0
+     size 0.83 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     text "#STR_EXPANSION_BOOK_CATEGORY_NAME"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 5 1
+     "exact text" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "MemberName"
+      }
+     }
+    }
+    ImageWidgetClass member_entry_background {
+     ignorepointer 1
+     position 0 0
+     size 435 32
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     image0 "set:book_assets image:menu_element_1"
+     mode blend
+     "src alpha" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "Background"
+      }
+     }
+    }
+   }
+  }
+ }
+}

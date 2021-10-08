@@ -138,9 +138,9 @@ class ExpansionActionToolBase : ActionContinuousBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		Object target = action_data.m_Target.GetParentOrObject();
+		Object actualTargetObject = GetActualTargetObject( action_data.m_Target.GetParentOrObject() );
 
-		if ( !target )
+		if ( !actualTargetObject )
 			return;
 
 		if ( !action_data.m_MainItem.GetCompEM() )
@@ -149,12 +149,12 @@ class ExpansionActionToolBase : ActionContinuousBase
 			{
 				//! Damage tool if it does not have an energy manager or quantity
 
-				float maxHealth = target.GetMaxHealth( "", "Health" );
+				float maxHealth = actualTargetObject.GetMaxHealth( "", "Health" );
 				float minHealth = Math.Floor( maxHealth * m_MinHealth01 );
 		
 				float toolDamage = action_data.m_MainItem.GetMaxHealth() * m_ToolDamagePercent / 100.0;
 				//! If it's the last cycle and tool damage is set to 100%, the tool will be ruined no matter what
-				if ( target.GetHealth() > minHealth || m_ToolDamagePercent < 100.0 )
+				if ( actualTargetObject.GetHealth() > minHealth || m_ToolDamagePercent < 100.0 )
 					toolDamage /= m_Cycles;
 				action_data.m_MainItem.DecreaseHealth( toolDamage, false );
 			} else
@@ -168,8 +168,16 @@ class ExpansionActionToolBase : ActionContinuousBase
 		action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight / m_Cycles );
 	}
 
+	//! Just kept for compatibility with 3rd party mods
 	ItemBase GetTargetItem( Object targetObject )
 	{
-		return ItemBase.Cast( targetObject );
+		Error("DEPRECATED - please use ExpansionActionToolBase::GetActualTagetObject instead");
+		return ItemBase.Cast( GetActualTargetObject( targetObject ) );
+	}
+
+	//! Override this in derived classes to return a different object than targetObject
+	Object GetActualTargetObject( Object targetObject )
+	{
+		return targetObject;
 	}
 }

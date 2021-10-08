@@ -18,7 +18,18 @@ class ExpansionOwnedContainer: Container_Base
 	void ExpansionOwnedContainer()
 	{
 		if (GetGame().IsClient())  //! Only client, not server or COM
+		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionRequestContainerUID, 250);
+			SetInvisible(true);
+		}
+	}
+
+	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
+	{
+		if (!super.CanCombineAttachment(e, slot, stack_max_limit))
+			return false;
+
+		return !IsMissionClient() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanDisplayAttachmentSlot(string slot_name)
@@ -29,9 +40,21 @@ class ExpansionOwnedContainer: Container_Base
 		return ExpansionIsContainerOwner();
 	}
 
+	//! NOTE: Despite being a vanilla method, nothing in vanilla checks CanDisplayCargo.
+	//! We implement this ourself in 5_Mission/GUI/InventoryNew/Inherited/ContainerWithCargoAndAttachments.
 	override bool CanDisplayCargo()
 	{
 		return ExpansionIsContainerOwner();
+	}
+	
+	override bool CanLoadAttachment(EntityAI attachment)
+	{
+		return true;
+	}
+	
+	override bool CanLoadItemIntoCargo(EntityAI item)
+	{
+		return true;
 	}
 
 	override bool CanPutInCargo(EntityAI parent)
@@ -42,6 +65,46 @@ class ExpansionOwnedContainer: Container_Base
 	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return ExpansionIsContainerOwner(Man.Cast(parent));
+	}
+
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		return !IsMissionClient() || ExpansionIsContainerOwner();
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (!super.CanReceiveItemIntoCargo(item))
+			return false;
+
+		return !IsMissionClient() || ExpansionIsContainerOwner();
+	}
+
+	override bool CanReleaseAttachment(EntityAI attachment)
+	{
+		if (!super.CanReleaseAttachment(attachment))
+			return false;
+
+		return !IsMissionClient() || ExpansionIsContainerOwner();
+	}
+
+	override bool CanReleaseCargo(EntityAI cargo)
+	{
+		return !IsMissionClient() || ExpansionIsContainerOwner();
+	}
+
+	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
+	{
+		if (!super.CanSwapItemInCargo(child_entity, new_entity))
+			return false;
+
+		return !IsMissionClient() || ExpansionIsContainerOwner();
+	}
+
+	//! This hides the container from vicinity completely
+	override bool IsInventoryVisible()
+	{
+		return ExpansionIsContainerOwner();
 	}
 
 	override bool NameOverride(out string output)
@@ -103,7 +166,7 @@ class ExpansionOwnedContainer: Container_Base
 	//! Callable client/server
 	bool ExpansionIsContainerOwner(string uid)
 	{
-		return m_ExpansionContainerUID == uid;
+		return m_ExpansionContainerUID != string.Empty && m_ExpansionContainerUID == uid;
 	}
 
 	void ExpansionRequestContainerUID()
@@ -134,6 +197,10 @@ class ExpansionOwnedContainer: Container_Base
 				if (!ctx.Read(m_ExpansionContainerUID))
 				{
 					Error(ToString() + "::OnRPC ExpansionRPC.SyncOwnedContainerUID couldn't read m_ExpansionContainerUID");
+				}
+				else if (ExpansionIsContainerOwner())
+				{
+					SetInvisible(false);
 				}
 			}
 		}
@@ -216,27 +283,27 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 		//! Warn about pending deletion after 15 minutes
 		if (IsMissionClient())  //! Client or COM
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_MARKET_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+	}
+
+	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
+	{
+		return false;
 	}
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
 		return m_ExpansionCanReceiveItems;
 	}
-	
-	override bool CanLoadAttachment(EntityAI attachment)
-	{
-		return true;
-	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
 	{
 		return m_ExpansionCanReceiveItems;
 	}
-	
-	override bool CanLoadItemIntoCargo(EntityAI item)
+
+	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
 	{
-		return true;
+		return false;
 	}
 
 	void ExpansionSetCanReceiveItems(bool state)
@@ -267,7 +334,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 	void ExpansionDeleteStorage()
 	{
-		ExpansionStorageNotification("STR_EXPANSION_MARKET_TEMPORARY_STORAGE_EXPIRED");
+		ExpansionStorageNotification("STR_EXPANSION_TEMPORARY_STORAGE_EXPIRED");
 
 		GetGame().ObjectDelete(this);
 	}

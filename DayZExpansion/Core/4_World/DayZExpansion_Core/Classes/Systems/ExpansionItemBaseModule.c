@@ -63,8 +63,8 @@ class ExpansionItemBaseModule : JMModuleBase
 			string sound;
 			vector position;
 
-			ctx.Read(sound);
 			ctx.Read(position);
+			ctx.Read(sound);
 
 			PlayDestroySoundImpl(position, sound);
 			break;

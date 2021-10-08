@@ -1,39 +1,39 @@
-modded class JMAnimRegister
+modded class ModItemRegisterCallbacks
 {
-	override void OnRegisterEmptyHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterEmptyHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterEmptyHanded( pType, pBehavior );
+		super.RegisterEmptyHanded( pType, pBehavior );
 	}
 
-	override void OnRegisterTwoHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterTwoHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterTwoHanded( pType, pBehavior );
+		super.RegisterTwoHanded( pType, pBehavior );
 		
 		pType.AddItemInHandsProfileIK("ExpansionHelicopterBattery", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/batterytruck.anm");
 		pType.AddItemInHandsProfileIK("ExpansionAircraftBattery", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/batterytruck.anm");
 	}
 
-	override void OnRegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterOneHanded( pType, pBehavior );
+		super.RegisterOneHanded( pType, pBehavior );
 
 		pType.AddItemInHandsProfileIK("ExpansionHydraulicHoses", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/banana.anm");
 		pType.AddItemInHandsProfileIK("ExpansionCarKey", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");	
 	}
 
-	override void OnRegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterRestrained( pType, pBehavior );
+		super.RegisterRestrained( pType, pBehavior );
 	}
 
-	override void OnRegisterSurrender( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterSurrender( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterSurrender( pType, pBehavior );
+		super.RegisterSurrender( pType, pBehavior );
 	}
 
-	override void OnRegisterHeavy( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterHeavy( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterHeavy( pType, pBehavior );
+		super.RegisterHeavy( pType, pBehavior );
 
 		pType.AddItemInHandsProfileIK("ExpansionVodnikWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");
 		
@@ -88,28 +88,28 @@ modded class JMAnimRegister
 		pType.AddItemInHandsProfileIK("Vehicle_ExpansionMerlinBackWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");
 	}
 
-	override void OnRegisterPistol( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterPistol( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterPistol( pType, pBehavior );
+		super.RegisterPistol( pType, pBehavior );
 	}
 
-	override void OnRegisterFireArms( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterFireArms( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterFireArms( pType, pBehavior );
+		super.RegisterFireArms( pType, pBehavior );
 	}
 
-	override void OnRegisterArcheryItem( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterArcheryItem( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterArcheryItem( pType, pBehavior );
+		super.RegisterArcheryItem( pType, pBehavior );
 	}
 
-	override void OnRegisterLauncher( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterLauncher( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterLauncher( pType, pBehavior );
+		super.RegisterLauncher( pType, pBehavior );
 	}
 
-	override void OnBoneRemapping( DayZPlayerType pType )
+	override void CustomBoneRemapping( DayZPlayerType pType )
 	{
-		super.OnBoneRemapping( pType );
+		super.CustomBoneRemapping( pType );
 	}
 }

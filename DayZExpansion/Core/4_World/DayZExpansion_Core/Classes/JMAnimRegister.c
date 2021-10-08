@@ -10,11 +10,11 @@
  *
 */
 
-modded class JMAnimRegister
+modded class ModItemRegisterCallbacks
 {
-	override void OnRegisterHeavy( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterHeavy( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
-		super.OnRegisterHeavy( pType, pBehavior );
+		super.RegisterHeavy( pType, pBehavior );
 
 		pType.AddItemInHandsProfileIK("ExpansionTemporaryOwnedContainer", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior,			 		"dz/anims/anm/player/ik/heavy/wooden_crate.anm");
 	}

@@ -227,34 +227,41 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 
 		if (m_HasContact)
 		{
+			m_ContactPosition = m_ContactPositionWS.InvMultiply4(pState.m_Transform);
+			m_ContactNormal = m_ContactNormalWS.InvMultiply3(pState.m_Transform);
+
+			m_ContactVelocity = pState.GetModelVelocityAt(m_ContactPosition);
+
 			float wheelDiff = vector.Dot(m_ContactNormal, m_InitialTransform[1]);
 			if (wheelDiff >= -0.1)
 			{
-				m_HasContact = false;
+				m_SuspensionRelativeVelocity = 0.0;
+				m_SuspensionInvContact = 10.0;
 			}
 			else
 			{
-				m_ContactVelocity = pState.GetModelVelocityAt(m_ContactPosition);
-
 				float invWheelDiff = -1.0 / wheelDiff;
 				m_SuspensionRelativeVelocity = Math.Clamp(vector.Dot(m_ContactNormal, m_ContactVelocity) * invWheelDiff, -1, 1);
-
 				m_SuspensionInvContact = invWheelDiff;
-
-				m_SuspensionLength = m_ContactLength * (1.0 - m_ContactFraction);
-				m_SuspensionLength = Math.Clamp(m_SuspensionLength, 0, m_Axle.m_TravelMax);
-
-				m_SuspensionFraction = m_SuspensionLength / m_Axle.m_TravelMax;
-
-				float compressionDelta = m_Axle.m_Damping * m_SuspensionRelativeVelocity;
-				if (m_SuspensionRelativeVelocity < 0)
-					compressionDelta = m_Axle.m_Compression * m_SuspensionRelativeVelocity;
-				float suspension = m_Axle.m_Stiffness * m_SuspensionLength;
-
-				m_SuspensionForce = m_ContactNormal * (suspension - compressionDelta) * pState.m_DeltaTime;
-
-				GetGame().SurfaceGetType3D(m_ContactPositionWS[0], m_ContactPositionWS[1], m_ContactPositionWS[2], m_Surface);
 			}
+
+			m_SuspensionLength = m_ContactLength * (1.0 - m_ContactFraction);
+			m_SuspensionLength = Math.Clamp(m_SuspensionLength, 0, m_Axle.m_TravelMax);
+
+			m_SuspensionFraction = m_SuspensionLength / m_Axle.m_TravelMax;
+
+			float compression = m_Axle.m_Damping * m_SuspensionRelativeVelocity;
+			if (m_SuspensionRelativeVelocity < 0)
+				compression = m_Axle.m_Compression * m_SuspensionRelativeVelocity;
+
+			float suspension = m_Axle.m_Stiffness * m_SuspensionLength; // * m_SuspensionInvContact;
+			float suspensionForce = (suspension - compression) * pState.m_DeltaTime;
+			if (suspensionForce < 0)
+				suspensionForce = 0;
+
+			m_SuspensionForce = m_ContactNormal * suspensionForce;
+
+			GetGame().SurfaceGetType3D(m_ContactPositionWS[0], m_ContactPositionWS[1], m_ContactPositionWS[2], m_Surface);
 		}
 
 		if (!m_HasContact)
@@ -262,11 +269,10 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 			m_SuspensionForce = vector.Zero;
 
 			m_ContactFraction = 1.0;
-
 			m_ContactVelocity = "0 0 0";
 
 			m_SuspensionRelativeVelocity = 0.0;
-			m_SuspensionInvContact = 10.0;
+			m_SuspensionInvContact = 1.0;
 
 			m_ContactPosition = m_TraceStart + (m_InitialTransform[1] * m_TraceDown);
 			m_ContactNormal = -m_InitialTransform[1];
@@ -295,7 +301,7 @@ class ExpansionVehicleWheel : ExpansionVehicleModule
 			m_SurfaceFriction = Surface.GetParamFloat(m_Surface, "friction");
 
 		m_ForwardForce = m_WheelTorque * m_SurfaceFriction * pState.m_Mass * m_Radius;
-		m_ForwardForce -= m_WheelItem.m_TyreRollResistance * m_Velocity * pState.m_Mass;
+		m_ForwardForce -= m_WheelItem.m_TyreRollResistance * m_Velocity * pState.m_Mass; // / pState.m_DeltaTime;
 
 		if (m_HasContact)
 		{

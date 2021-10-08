@@ -37,10 +37,11 @@ modded class LoginTimeBase
 		super.Init();
 		
 		m_ImageBackground = ImageWidget.Cast( layoutRoot.FindAnyWidget("Background") );
-
+		
 		string world_name = "default";
 
-		if ( GetGame() )
+		//! Game object does not exist yet during parts of the loading process
+		if (GetGame())
 			GetGame().GetWorldName(world_name);
 
 		world_name.ToLower();

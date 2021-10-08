@@ -664,7 +664,7 @@ modded class ItemBase
     {
 		super.DeferredInit();
 
-		if (GetGame().IsServer() && !GetHierarchyParent() && ExpansionZoneModule.IsInsideSafeZone(GetPosition()) && !IsInherited(ExpansionTemporaryOwnedContainer))
+		if (GetGame().IsServer() && !GetHierarchyParent() && ExpansionZoneModule.IsInsideSafeZone(GetPosition()))
 		{
 			ExpansionCreateCleanup();
 		}
@@ -677,6 +677,15 @@ modded class ItemBase
 
 		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
 			return;
+
+		if (IsInherited(ExpansionTemporaryOwnedContainer))
+			return;
+
+		foreach (string name: GetExpansionSettings().GetSafeZone().ForceSZCleanup_ExcludedItems)
+		{
+			if (IsKindOf(name))
+				return;
+		}
 
 		m_Expansion_CleanupActor = new ExpansionZoneItemCleanup(this);
 	}

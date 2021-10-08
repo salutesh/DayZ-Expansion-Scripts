@@ -1,0 +1,534 @@
+FrameWidgetClass ExpansionBookMenuTabTerritoryMemberEdit {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionBookMenuTabTerritoryMemberEditController"
+ {
+  PanelWidgetClass book_member_edit_tab {
+   visible 1
+   ignorepointer 1
+   position 491 191
+   size 937 579
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_member_edit_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ImageWidgetClass book_member_options_label_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass book_member_options_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_TERRITORY_MANAGE_MEMBER"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass book_member_options_spacer {
+       ignorepointer 1
+       size 1 0.3
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 5
+       Margin 0
+       Columns 1
+       Rows 5
+       {
+        ButtonWidgetClass option_promote_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_promote_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_PROMOTE"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_promote_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_1"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnPromoteButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass option_demote_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_demote_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_DEMOTE"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_demote_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_3"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnDemoteButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass option_kick_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_kick_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_KICK"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_kick_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass ""
+           image0 "set:book_assets image:menu_element_4"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnKickButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass option_cancel_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_cancel_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_cancel_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_1"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnCancelButtonClick"
+          }
+         }
+        }
+       }
+      }
+      PlayerPreviewWidgetClass book_member_preview {
+       ignorepointer 0
+       position 0 0.09
+       size 1 0.6
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       {
+        ScriptParamsClass {
+         Debug_Logging 0
+         Binding_Name "MemberPreview"
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_member_edit_content_left {
+     visible 1
+     disabled 0
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass member_info_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_INFO"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass member_info_label_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_5"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      PanelWidgetClass member_info_content_left {
+       color 0.349 0.2 0.1451 1
+       position 0 0.05582
+       size 1 0.87786
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        GridSpacerWidgetClass member_info_spacer {
+         ignorepointer 1
+         position 0.01 0.0092
+         size 0.98 0.4
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Columns 1
+         Rows 7
+         {
+          PanelWidgetClass member_name_spacer {
+           visible 1
+           size 0.29 0.2
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass member_name_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_NAME"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 0
+             "text valign" center
+            }
+            TextWidgetClass member_name_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 0
+             "text halign" right
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Debug_Logging 0
+               Binding_Name "MemberName"
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass member_rank_spacer {
+           visible 1
+           size 0.29 0.2
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass member_rank_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_RANK"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 0
+             "text valign" center
+            }
+            TextWidgetClass member_rank_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 0
+             "text halign" right
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Debug_Logging 0
+               Binding_Name "MemberRank"
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass member_status_spacer {
+           size 0.29 0.2
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass member_status_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_STATUS"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 0
+             "text valign" center
+            }
+            TextWidgetClass member_status_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.15 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 0
+             "text halign" right
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Debug_Logging 0
+               Binding_Name "MemberStatus"
+              }
+             }
+            }
+            ImageWidgetClass member_status_icon {
+             ignorepointer 1
+             color 0 0 0 1
+             position 0.15 0
+             size 22 22
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             imageTexture "{E3D8C56427B83C70}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

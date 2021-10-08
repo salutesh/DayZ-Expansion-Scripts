@@ -1,0 +1,439 @@
+FrameWidgetClass ExpansionBookMenuTabTerritoryInvites {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionBookMenuTabTerritoryInvitesController"
+ {
+  PanelWidgetClass book_invites_tab {
+   visible 1
+   ignorepointer 1
+   position 491 191
+   size 937 579
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_invites_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ImageWidgetClass book_invites_options_label_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass book_invites_options_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_TERRITORY_INVITES_INFO"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      GridSpacerWidgetClass book_invites_options_spacer {
+       ignorepointer 1
+       position 0 0
+       size 1 0.24265
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 5
+       Margin 0
+       Columns 1
+       Rows 4
+       {
+        ButtonWidgetClass option_accept_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_accept_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_INVITE_ACCEPT"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_accept_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_1"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnAcceptButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass option_decline_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_decline_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_INVITE_DECLINE"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_decline_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_2"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnDeclineButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass option_cancel_button {
+         ignorepointer 0
+         position 0.023 0.058
+         size 0 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          TextWidgetClass option_cancel_label {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 0.6
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "text halign" center
+           "text valign" center
+          }
+          ImageWidgetClass option_cancel_background {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 "set:book_assets image:menu_element_3"
+           mode blend
+           "src alpha" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnCancelButtonClick"
+          }
+         }
+        }
+       }
+      }
+      ScrollWidgetClass invites_list_scroller {
+       ignorepointer 0
+       position 0.02 0.15
+       size 1.02 0.6
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass invites_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Margin 0
+         "Size To Content V" 1
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "TerritoryInviteEntrys"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_invites_edit_content_left {
+     visible 0
+     disabled 0
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass invites_info_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass invites_info_label_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_5"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      PanelWidgetClass invite_info_content_left {
+       visible 0
+       color 0.349 0.2 0.1451 1
+       position 0 0.05582
+       size 1 0.87786
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        GridSpacerWidgetClass invite_info_spacer {
+         ignorepointer 1
+         position 0.01 0.0092
+         size 0.98 0.4
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         Columns 1
+         Rows 7
+         {
+          PanelWidgetClass territory_name_spacer {
+           visible 1
+           size 0.29 0.2
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass territory_name_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_COT_TERRITORY_NAME"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
+             "text valign" center
+            }
+            TextWidgetClass territory_name_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
+             "text halign" right
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Debug_Logging 0
+               Binding_Name "TerritoryName"
+              }
+             }
+            }
+           }
+          }
+          PanelWidgetClass territory_id_spacer {
+           visible 1
+           size 0.29 0.2
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           {
+            TextWidgetClass territory_id_label {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_COT_TERRITORY_ID"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
+             "text valign" center
+            }
+            TextWidgetClass territory_id_value {
+             color 0 0 0 1
+             position 0 0
+             size 0.5 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro22"
+             "exact text" 1
+             "exact text size" 22
+             "text halign" right
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Debug_Logging 0
+               Binding_Name "TerritoryID"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
