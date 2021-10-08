@@ -1,0 +1,665 @@
+FrameWidgetClass ExpansionMarketMenuItemManager {
+ ignorepointer 1
+ position 0 0
+ size 0.7802 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionMarketMenuItemManagerController"
+ {
+  FrameWidgetClass market_item_manager {
+   visible 1
+   ignorepointer 1
+   keepsafezone 0
+   size 1.89 1.36
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   fixaspect inside
+   priority 1
+   {
+    PanelWidgetClass market_item_manager_panel_right {
+     visible 1
+     position 0.1692 0.065
+     size 0.6316 0.9
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ItemPreviewWidgetClass market_item_manager_preview {
+       keepsafezone 1
+       position 0 0
+       size 1 0.65
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       priority 100
+       scriptclass "ViewBinding"
+       "force flip enable" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "ItemPreview"
+        }
+       }
+      }
+      PanelWidgetClass market_item_manager_options {
+       ignorepointer 1
+       position 0 0
+       size 1 0.08
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 100
+       style UIDefaultPanel
+       {
+        ButtonWidgetClass button_reset {
+         color 0 0 0 0.9412
+         size 0.5 36
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         priority 1
+         scriptclass "ViewBinding"
+         style Expansion_01
+         {
+          TextWidgetClass button_reset_label {
+           ignorepointer 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           scriptclass ""
+           style Normal
+           text "#STR_EXPANSION_MARKET_PRESETS_CLEAR_BUTTON_LABEL"
+           font "gui/fonts/etelkatextpro28"
+           "text offset" 10 0
+           "exact text" 0
+           text_proportion 0.55
+           "text halign" center
+           "text valign" center
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnResetButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass button_close {
+         color 0 0 0 0.9412
+         size 0.5 36
+         halign right_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         priority 1
+         scriptclass "ViewBinding"
+         style Expansion_01
+         {
+          TextWidgetClass button_close_label {
+           ignorepointer 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           scriptclass ""
+           style Normal
+           text "#STR_EXPANSION_MARKET_PRESETS_CLOSE_BUTTON_LABEL"
+           font "gui/fonts/etelkatextpro28"
+           "text offset" 10 0
+           "exact text" 0
+           text_proportion 0.55
+           "text halign" center
+           "text valign" center
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnCloseButtonClick"
+          }
+         }
+        }
+        ButtonWidgetClass button_save {
+         color 0 0 0 0.9412
+         size 0.5 36
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         priority 1
+         scriptclass "ViewBinding"
+         style Expansion_01
+         {
+          TextWidgetClass button_save_label {
+           ignorepointer 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           scriptclass ""
+           style Normal
+           text "#STR_EXPANSION_MARKET_PRESETS_SAVE_BUTTON_LABEL"
+           font "gui/fonts/etelkatextpro28"
+           "text offset" 10 0
+           "exact text" 0
+           text_proportion 0.55
+           "text halign" center
+           "text valign" center
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnSavePresetButtonClick"
+          }
+         }
+        }
+        ImageWidgetClass market_item_manager_options_background {
+         visible 1
+         clipchildren 0
+         keepsafezone 0
+         color 0 0 0 0.9412
+         position 0 0
+         size 1 1
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         draggable 0
+         image0 "set:dayz_gui image:inv_header_1"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         "flip v" 1
+        }
+       }
+      }
+      ButtonWidgetClass preset_selector {
+       visible 0
+       disabled 0
+       clipchildren 0
+       inheritalpha 0
+       ignorepointer 0
+       position 0.003 0.65
+       size 0.99 0.038
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 200
+       scriptclass "ViewBinding"
+       style Empty
+       {
+        PanelWidgetClass preset_selector_background {
+         visible 1
+         ignorepointer 1
+         color 0 0 0 0.9412
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+        }
+        TextWidgetClass preset_selector_text {
+         clipchildren 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_MARKET_PRESETS_SELECTOR_LABEL"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 10 0
+         text_proportion 0.55
+         "text valign" center
+        }
+        PanelWidgetClass preset_selector_icon_panel {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign right_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         fixaspect inside
+         {
+          ImageWidgetClass preset_selector_expand_image {
+           visible 0
+           clipchildren 0
+           inheritalpha 1
+           ignorepointer 1
+           size 0.7 0.7
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           image0 ""
+           imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           "flip v" 1
+           filter 1
+          }
+          ImageWidgetClass preset_selector_collapse_image {
+           visible 1
+           clipchildren 0
+           inheritalpha 1
+           ignorepointer 1
+           position 0 0
+           size 0.7 0.7
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           image0 ""
+           imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           filter 1
+          }
+         }
+        }
+        ScrollWidgetClass preset_selector_container {
+         visible 0
+         clipchildren 1
+         ignorepointer 1
+         color 0 0 0 1
+         position -0.24107 1
+         size 0.98 4.8
+         halign center_ref
+         hexactpos 1
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style blank
+         "Scrollbar V" 1
+         {
+          WrapSpacerWidgetClass preset_selector_content {
+           visible 1
+           clipchildren 0
+           inheritalpha 0
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           priority 2
+           scriptclass "ViewBinding"
+           style Empty
+           Padding 0
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           {
+            ScriptParamsClass {
+             Binding_Name "PresetsDropdownElements"
+            }
+           }
+          }
+         }
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnPresetSelectorClick"
+        }
+       }
+      }
+      PanelWidgetClass preset_editbox_panel {
+       ignorepointer 1
+       position 0 0.08
+       size 1 0.05
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        PanelWidgetClass preset_editbox_background {
+         ignorepointer 1
+         color 0.2667 0.2667 0.2667 0.9412
+         position 0.00284 0
+         size 1 31
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style UIDefaultPanel
+        }
+        EditBoxWidgetClass preset_editbox {
+         position -0.02764 0
+         size 0.92 0.6
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style ServerBrowser
+         text "#STR_EXPANSION_MARKET_PRESETS_EDITBOX_LABEL"
+         "limit visible" 0
+         "Use default text" 1
+         "exact text" 1
+         font "gui/fonts/etelkatextpro22"
+         {
+          ScriptParamsClass {
+           Binding_Name "PresetName"
+           Two_Way_Binding 1
+          }
+         }
+        }
+        ButtonWidgetClass preset_editbox_clear {
+         position 0.007 0
+         size 34 34
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         fixaspect fixwidth
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          ImageWidgetClass market_filter_clear_icon {
+           visible 1
+           clipchildren 0
+           ignorepointer 1
+           color 0.9843 0.9882 0.9961 1
+           size 34 34
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass ""
+           image0 ""
+           imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnPresetEditboxClearButtonClick"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass market_item_manager_background {
+     visible 1
+     clipchildren 0
+     inheritalpha 1
+     ignorepointer 1
+     color 0.1059 0.1059 0.1059 0.549
+     size 1 0.955
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+    }
+    ImageWidgetClass market_item_manager_header {
+     visible 1
+     clipchildren 0
+     keepsafezone 0
+     color 0 0 0 0.9412
+     size 1 0.045
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     draggable 0
+     image0 "set:dayz_gui image:inv_header_3"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     {
+      TextWidgetClass market_item_manager_header_text {
+       position 0 0
+       size 1 1
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       scriptclass "ViewBinding"
+       style Normal
+       text "Item Name"
+       font "gui/fonts/sdf_MetronBook24"
+       "text offset" 10 0
+       "exact text" 0
+       text_proportion 0.55
+       "text halign" center
+       "text valign" center
+       {
+        ButtonWidgetClass market_item_manager_back_button {
+         visible 1
+         disabled 0
+         clipchildren 1
+         inheritalpha 0
+         ignorepointer 0
+         keepsafezone 0
+         position 0.015 0
+         size 0.8 0.8
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         fixaspect fixwidth
+         priority 1
+         userID 2
+         scriptclass "ViewBinding"
+         style Empty
+         "no focus" 1
+         text_offset 1 1
+         text_halign center
+         "text color" 1 1 1 1
+         switch normal
+         {
+          ImageWidgetClass market_item_manager_back_button_icon {
+           visible 1
+           ignorepointer 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           image0 ""
+           imageTexture "{EC53856041985A10}DayZExpansion/Core/GUI/icons/hud/cross_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 0
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnCloseButtonClick"
+          }
+         }
+        }
+       }
+       {
+        ScriptParamsClass {
+         Binding_Name "ItemName"
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass market_item_manager_panel_left {
+     ignorepointer 1
+     position -0.3205 0.065
+     size 0.3375 0.9
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     {
+      PanelWidgetClass market_item_manager_categories_panel {
+       clipchildren 1
+       ignorepointer 1
+       size 64 0.98
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 0
+       {
+        ScrollWidgetClass market_item_manager_categories_scroller {
+         clipchildren 0
+         ignorepointer 0
+         position 0 0
+         size 1.17 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         "Scrollbar V" 1
+         {
+          WrapSpacerWidgetClass market_item_manager_categories_content {
+           clipchildren 1
+           ignorepointer 0
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           Padding 5
+           Margin 0
+           "Size To Content V" 1
+           {
+            ScriptParamsClass {
+             Binding_Name "ItemCategories"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass market_item_manager_category_items_panel {
+       clipchildren 1
+       ignorepointer 1
+       position 0.08 0
+       size 0.84 0.98
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        ScrollWidgetClass market_item_manager_category_items_scroller {
+         clipchildren 1
+         ignorepointer 0
+         keepsafezone 0
+         position 0 0
+         size 1.024 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         "Scrollbar V" 1
+         {
+          WrapSpacerWidgetClass market_item_manager_category_items_content {
+           clipchildren 1
+           ignorepointer 0
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           Padding 5
+           Margin 0
+           "Size To Content V" 1
+           {
+            ScriptParamsClass {
+             Binding_Name "CategoryItems"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

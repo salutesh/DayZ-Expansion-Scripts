@@ -19,18 +19,6 @@ class ExpansionSafeZoneSettingsBase: ExpansionSettingBase
 	int  FrameRateCheckSafeZoneInMs;												// How often in ms the server need to check if the player is inside a Safezone
 	autoptr array<ref ExpansionSafeZoneCircle> CircleZones = new array< ref ExpansionSafeZoneCircle >;
 	autoptr array<ref ExpansionSafeZonePolygon> PolygonZones = new array< ref ExpansionSafeZonePolygon >;
-	
-	// ------------------------------------------------------------
-	void ExpansionSafeZoneSettingsBase()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettingsBase::ExpansionSafeZoneSettingsBase - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettingsBase::ExpansionSafeZoneSettingsBase - Start");
-		#endif
-	}
 }
 
 /**@class		ExpansionSafeZoneSettingsBase
@@ -46,15 +34,21 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	bool DisableVehicleDamageInSafeZone;
 	bool EnableForceSZCleanup;
 	int ForceSZCleanupInterval;
 	float ItemLifetimeInSafeZone;
+	autoptr TStringArray ForceSZCleanup_ExcludedItems;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
+
+	void ExpansionSafeZoneSettings()
+	{
+		ForceSZCleanup_ExcludedItems = new TStringArray;
+	}
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -201,7 +195,10 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 
 				if (settingsBase.m_Version < 4)
 					ItemLifetimeInSafeZone = settingsDefault.ItemLifetimeInSafeZone;
-				
+
+				if (settingsBase.m_Version < 5)
+					ForceSZCleanup_ExcludedItems = settingsDefault.ForceSZCleanup_ExcludedItems;
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -255,6 +252,10 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		ForceSZCleanupInterval = 60000;
 		EnableForceSZCleanup = true;
 		ItemLifetimeInSafeZone = 15 * 60;  //! 15 Minutes
+
+	#ifdef CARCOVER
+		ForceSZCleanup_ExcludedItems = {"CarCoverBase"};
+	#endif
 
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);

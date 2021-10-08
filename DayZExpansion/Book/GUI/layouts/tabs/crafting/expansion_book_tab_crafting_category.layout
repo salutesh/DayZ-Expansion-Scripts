@@ -1,0 +1,134 @@
+WrapSpacerWidgetClass ExpansionBookMenuTabCraftingCategory {
+ clipchildren 1
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 435 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionBookMenuTabCraftingCategoryController"
+ Padding 0
+ Margin 0
+ "Size To Content V" 1
+ content_halign center
+ content_valign center
+ {
+  PanelWidgetClass category_entry {
+   color 0.6863 0.2588 0.2588 1
+   size 435 32
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ButtonWidgetClass category_entry_button {
+     size 435 32
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     style Empty
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Relay_Command "OnEntryButtonClick"
+      }
+     }
+    }
+    ImageWidgetClass category_entry_icon {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.05 0
+     size 22 22
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     image0 ""
+     imageTexture "{F454FE0CCFC0677C}DayZExpansion/Core/GUI/icons/hud/square_64x64.edds"
+     mode blend
+     "src alpha" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "ElementIcon"
+      }
+     }
+    }
+    TextWidgetClass category_entry_label {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.03 0
+     size 0.84 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     text "#STR_EXPANSION_BOOK_CATEGORY_NAME"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 5 1
+     "exact text" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "CategoryName"
+      }
+     }
+    }
+    ImageWidgetClass category_entry_background {
+     ignorepointer 1
+     position 0 0
+     size 435 32
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 "set:book_assets image:menu_element_1"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+   }
+  }
+  WrapSpacerWidgetClass categories_spacer {
+   visible 0
+   ignorepointer 1
+   keepsafezone 1
+   position 0 10
+   size 435 0
+   valign bottom
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Empty
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "Results"
+    }
+   }
+  }
+ }
+}

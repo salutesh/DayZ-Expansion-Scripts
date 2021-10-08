@@ -168,19 +168,6 @@ class ExpansionBoatScript extends OffroadHatchback
 		#endif
 	}
 
-	override void OnEngineStart(int index)
-	{
-		super.OnEngineStart(index);
-
-		if (index == 1)
-		{
-			dBodyActive( this, ActiveState.ACTIVE );
-			dBodyDynamic( this, true );
-
-			SetSynchDirty();
-		}
-	}
-
 	// ------------------------------------------------------------
 	override void SetActions()
 	{
@@ -565,6 +552,10 @@ class ExpansionBoatScript extends OffroadHatchback
 		HideSelection( "hiderotorblur" );
 		ShowSelection( "hiderotor" );
 
+		//! There is no need to run any of the below on client in multiplayer
+		if (ExpansionGame.IsMultiplayerClient())
+			return;
+
 		SetVelocity( this, "0 0 0" );
 		dBodySetAngularVelocity( this, "0 0 0" );
 		
@@ -606,11 +597,11 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	protected override bool CanSimulate()
 	{
-		if ( !m_IsInitialized )
+		if (ExpansionGame.IsMultiplayerServer() && !m_IsInitialized)
 			return false;
 		
 		//! Prevents the case where server can simulate but client doesn't, making the boat jitter
-		if (!GetGame().IsServer())
+		if (ExpansionGame.IsMultiplayerClient())
 			return m_CanSimulate;
 
 		return dBodyIsActive( this ) && dBodyIsDynamic( this );

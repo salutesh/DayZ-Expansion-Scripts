@@ -143,11 +143,38 @@ class ExpansionController
 		res = string.Empty;
 		for (i = 0; i < maxControls; i++)
 		{
-			res += "" + m_Gear[i];
+			res += "" + m_State[i];
 			if (i < maxControls - 1)
 				res += ", ";
 		}
-		instance.Add("Gear", res);
+		instance.Add("State", res);
+
+		res = string.Empty;
+		for (i = 0; i < maxControls; i++)
+		{
+			res += "" + m_RPM[i];
+			if (i < maxControls - 1)
+				res += ", ";
+		}
+		instance.Add("RPM", res);
+
+		res = string.Empty;
+		for (i = 0; i < maxControls; i++)
+		{
+			res += "" + m_Torque[i];
+			if (i < maxControls - 1)
+				res += ", ";
+		}
+		instance.Add("Torque", res);
+
+		res = string.Empty;
+		for (i = 0; i < maxControls; i++)
+		{
+			res += "" + m_Clutch[i];
+			if (i < maxControls - 1)
+				res += ", ";
+		}
+		instance.Add("Clutch", res);
 
 		res = string.Empty;
 		for (i = 0; i < maxControls; i++)
@@ -161,11 +188,11 @@ class ExpansionController
 		res = string.Empty;
 		for (i = 0; i < maxControls; i++)
 		{
-			res += "" + m_State[i];
+			res += "" + m_Gear[i];
 			if (i < maxControls - 1)
 				res += ", ";
 		}
-		instance.Add("Ratio", res);
+		instance.Add("Gear", res);
 
 		res = string.Empty;
 		for (i = 0; i < maxControls; i++)

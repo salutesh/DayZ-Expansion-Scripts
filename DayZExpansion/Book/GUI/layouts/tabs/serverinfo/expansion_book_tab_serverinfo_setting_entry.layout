@@ -1,0 +1,108 @@
+WrapSpacerWidgetClass ExpansionBookMenuTabServerInfoSettingEntry {
+ visible 1
+ clipchildren 1
+ ignorepointer 0
+ position 0 0
+ size 1 32
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ scriptclass "ExpansionBookMenuTabServerInfoSettingBaseController"
+ style Empty
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ content_valign center
+ {
+  ImageWidgetClass setting_icon {
+   visible 0
+   clipchildren 1
+   ignorepointer 1
+   color 0.098 0.098 0.098 1
+   position 0 0
+   size 32 32
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   image0 ""
+   imageTexture "{4156EB06E189AFDA}DayZExpansion/Core/GUI/icons/hud/toothwheel_64x64.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 0
+   stretch 1
+   "flip u" 0
+   "flip v" 1
+   filter 1
+  }
+  PanelWidgetClass spacer1 {
+   ignorepointer 1
+   position 0.005 0.286
+   size 0.005 32
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+  }
+  TextWidgetClass setting_entry_setting_label {
+   clipchildren 0
+   ignorepointer 1
+   color 0.098 0.098 0.098 1
+   position 0.07 0
+   size 0.5 32
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   scriptclass "ViewBinding"
+   text "#STR_EXPANSION_BOOK_TAB_SERVER_SETTING_NAME"
+   font "gui/fonts/etelkatextpro22"
+   "text offset" 5 0
+   "exact text" 0
+   "size to text h" 0
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "SettingName"
+    }
+   }
+  }
+  PanelWidgetClass spacer0 {
+   ignorepointer 1
+   position 0.005 0.286
+   size 0.1 32
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+  }
+  TextWidgetClass setting_entry_val {
+   clipchildren 0
+   ignorepointer 1
+   color 0.098 0.098 0.098 1
+   position 0.8 0
+   size 0.3 32
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   scriptclass "ViewBinding"
+   text "#STR_EXPANSION_BOOK_SETTINGS_ENABLED"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 0
+   "size to text v" 0
+   "text halign" right
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "SettingState"
+    }
+   }
+  }
+ }
+}

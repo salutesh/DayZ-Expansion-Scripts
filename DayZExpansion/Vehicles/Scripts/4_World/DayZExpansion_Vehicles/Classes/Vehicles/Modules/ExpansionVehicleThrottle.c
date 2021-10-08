@@ -107,18 +107,6 @@ class ExpansionVehiclePlaneThrottle : ExpansionVehicleThrottle
 	bool m_VariableInput = false;
 	bool m_UpPressed;
 	bool m_DownPressed;
-	float m_MaxRPM;
-
-	override void Init()
-	{
-		super.Init();
-
-		auto vehicle = ExpansionVehicleBase.Cast(m_Vehicle);
-		if (vehicle)
-		{
-			m_MaxRPM = vehicle.EngineGetRPMRedline(m_ControlIndex);
-		}
-	}
 
 	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
 	{
@@ -174,6 +162,5 @@ class ExpansionVehiclePlaneThrottle : ExpansionVehicleThrottle
 		m_Throttle = Math.Clamp(m_Throttle, 0, 1);
 
 		m_Controller.m_Throttle[m_ControlIndex] = m_Throttle;
-		m_Controller.m_RPM[m_ControlIndex] = m_MaxRPM * m_Throttle * Math.PI / 30.0;
 	}
 };

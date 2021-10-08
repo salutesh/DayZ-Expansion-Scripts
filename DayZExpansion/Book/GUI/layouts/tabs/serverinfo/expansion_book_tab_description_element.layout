@@ -1,0 +1,68 @@
+GridSpacerWidgetClass ExpansionBookMenuTabServerInfoDescElement {
+ visible 1
+ clipchildren 1
+ inheritalpha 1
+ ignorepointer 1
+ keepsafezone 1
+ color 0.5 0.5 0.5 0.5
+ position 0 0
+ size 435 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 0
+ scriptclass "ExpansionBookMenuTabServerInfoDescElementController"
+ style Colorable
+ "Size To Content H" 1
+ "Size To Content V" 1
+ Columns 2
+ Rows 1
+ {
+  ImageWidgetClass icon {
+   color 0 0 0 1
+   position 0 0
+   size 12 12
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   imageTexture "{E3D8C56427B83C70}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+  HtmlWidgetClass text {
+   clipchildren 1
+   color 0 0 0 1
+   position 0 0
+   size 1 27
+   halign right_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   scriptclass "ViewBinding"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "exact text size" 22
+   "size to text h" 1
+   "size to text v" 1
+   "text valign" center
+   wrap 1
+   "condense whitespace" 1
+   "strip newlines" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "Text"
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+  }
+ }
+}

@@ -71,15 +71,18 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		Object target = action_data.m_Target.GetParentOrObject();
+		if ( !CanBeDestroyed( action_data.m_Target.GetParentOrObject() ) )
+			return;
 
-		if ( target )
+		Object actualTargetObject = GetActualTargetObject( action_data.m_Target.GetParentOrObject() );
+
+		if ( actualTargetObject )
 		{
-			if ( !CanBeDestroyed( target ) )
+			if ( !CanBeDestroyed( actualTargetObject ) )  //! Just incase actual target object is different from target object
 				return;
 
-			float curHealth = target.GetHealth();
-			float maxHealth = target.GetMaxHealth( "", "Health" );
+			float curHealth = actualTargetObject.GetHealth();
+			float maxHealth = actualTargetObject.GetMaxHealth( "", "Health" );
 			float minHealth = Math.Floor( maxHealth * m_MinHealth01 );
 			float dmg = Math.Ceil( ( maxHealth - minHealth ) / m_Cycles );
 
@@ -88,24 +91,25 @@ class ExpansionActionDestroyBase : ExpansionActionToolBase
 				if ( curHealth - dmg < minHealth )
 					dmg = curHealth - minHealth;
 
-				target.DecreaseHealth( dmg );
+				actualTargetObject.DecreaseHealth( dmg );
 
+				//! Deplete/damage tool
 				super.OnFinishProgressServer( action_data );
 			} else
 			{
 				dmg = 0;
 			}
 
-			ItemBase targetItem = GetTargetItem( target );
+			ItemBase actualTargetItem = ItemBase.Cast( actualTargetObject );
 
-			if (targetItem)
+			if (actualTargetItem)
 			{
-				targetItem.RaidLog( action_data.m_MainItem, "", curHealth, dmg, 1.0 );
+				actualTargetItem.RaidLog( action_data.m_MainItem, "", curHealth, dmg, 1.0 );
 
-				if ( targetItem.GetHealth() <= minHealth )
+				if ( actualTargetObject.GetHealth() <= minHealth )
 				{
-					if ( !targetItem.IsDamageDestroyed() )
-						targetItem.ExpansionOnDestroyed( action_data.m_Player );
+					if ( !actualTargetObject.IsDamageDestroyed() )
+						actualTargetItem.ExpansionOnDestroyed( action_data.m_Player );
 				}
 			}
 		}

@@ -81,15 +81,15 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 				return false;
 		}
 
-		ItemBase lockItem = GetTargetItem( target.GetParentOrObject() );
+		Object actualTargetObject = GetActualTargetObject( target.GetParentOrObject() );
 
-		if ( !lockItem )
+		if ( !actualTargetObject )
 			return false;
 
-		if ( !lockItem.IsInherited( CombinationLock ) && !lockItem.IsInherited( ExpansionCodeLock ) )
+		if ( !actualTargetObject.IsInherited( CombinationLock ) && !actualTargetObject.IsInherited( ExpansionCodeLock ) )
 			return false;
 
-		m_TargetName = lockItem.GetDisplayName();
+		m_TargetName = actualTargetObject.GetDisplayName();
 
 		return true;
 	}
@@ -103,28 +103,29 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 			return GetExpansionSettings().GetRaid().CanRaidLocksOnFences;
 
 		ExpansionWallBase wall;
-		if (Class.CastTo(wall, targetObject))
+		if (Class.CastTo(wall, targetObject) && (wall.HasDoor() || wall.HasGate()))
 		{
 			if ( wall.HasDoor() && GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyDoor )
 				return true;
 			else if ( wall.HasGate() && GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyGate )
 				return true;
+			return GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.Enabled;
 		}
 
-		return GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.Enabled;
+		return super.CanBeDestroyed( targetObject );
 	}
 
-	override ItemBase GetTargetItem( Object targetObject )
+	override Object GetActualTargetObject( Object targetObject )
 	{
 		ItemBase targetItem = ItemBase.Cast( targetObject );
 
 		if ( !targetItem || !targetItem.GetInventory() )
 			return NULL;
 
-		ItemBase lockItem = ItemBase.Cast( targetItem.FindAttachmentBySlotName( "Att_CombinationLock" ) );
-		if ( !lockItem )
-			lockItem = targetItem.ExpansionGetCodeLock();
+		Object lockObj = targetItem.FindAttachmentBySlotName( "Att_CombinationLock" );
+		if ( !lockObj )
+			lockObj = targetItem.ExpansionGetCodeLock();
 
-		return lockItem;
+		return lockObj;
 	}
 }

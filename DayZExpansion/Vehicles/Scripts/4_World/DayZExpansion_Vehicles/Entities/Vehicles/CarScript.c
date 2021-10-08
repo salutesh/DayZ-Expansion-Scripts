@@ -81,7 +81,7 @@ modded class CarScript
 	ref array<ExpansionVehicleAxle> m_Axles = new array<ExpansionVehicleAxle>();
 	ref array<ExpansionVehicleWheel> m_Wheels = new array<ExpansionVehicleWheel>();
 	ref array<ExpansionVehicleAerofoil> m_Aerofoils = new array<ExpansionVehicleAerofoil>();
-	ref array<ExpansionVehicleEngine> m_Engines = new array<ExpansionVehicleEngine>();
+	ref array<ExpansionVehicleEngineBase> m_Engines = new array<ExpansionVehicleEngineBase>();
 	
 	ref ExpansionController m_Controller = new ExpansionController();
 	ref ExpansionPhysicsState m_State = new ExpansionPhysicsStateT<CarScript>(this);
@@ -96,6 +96,8 @@ modded class CarScript
 
 	protected float m_AltitudeFullForce; // (m)
 	protected float m_AltitudeNoForce; // (m)
+
+	protected float m_Expansion_Mass;
 
 	// ------------------------------------------------------------
 	//! Member values
@@ -202,6 +204,7 @@ modded class CarScript
 	protected autoptr array< ExpansionSkin > m_Skins;
 
 	protected bool m_CanSimulate;
+	protected bool m_CanSimulate_Sync;
 
 	protected float m_ModelAnchorPointY = -1;
 
@@ -295,13 +298,20 @@ modded class CarScript
 			GetGame().ConfigGetChildName(path, i, engineName);
 
 			string enginePath = path + " " + engineName;
-			AddModule(new ExpansionVehicleEngine(this, enginePath));
+			AddModule(Expansion_CreateEngine(this, enginePath));
 		}
 
 		if (m_Engines.Count() == 0 && (!IsCar() || (IsCar() && IsBoat())))
 		{
-			AddModule(new ExpansionVehicleEngine(this, "CfgVehicles " + GetType() + " SimulationModule Engine"));
+			AddModule(Expansion_CreateEngine(this, "CfgVehicles " + GetType() + " SimulationModule Engine"));
 		}
+
+		//! This exists so it can be overridden (e.g.) by server owners who don't have access to unbinarized models
+		path = "CfgVehicles " + GetType() + " mass";
+		if (GetGame().ConfigIsExisting(path))
+			m_Expansion_Mass = GetGame().ConfigGetFloat(path);
+		else
+			m_Expansion_Mass = dBodyGetMass(this);
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
@@ -371,11 +381,15 @@ modded class CarScript
 
 	void LongDeferredInit()
 	{
+		ExDbgPrint("LongDeferredInit");
+
 		OnSettingsUpdated();
 	}
 
 	override void DeferredInit()
 	{
+		ExDbgPrint("DeferredInit - Start");
+
 		super.DeferredInit();
 
 		for (int i = 0; i < m_Modules.Count(); i++)
@@ -398,10 +412,15 @@ modded class CarScript
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
 
-		if ( IsMissionHost() )
+		if (ExpansionGame.IsMultiplayerServer())
 		{
+			//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats, no ill effect on cars)
+			dBodyActive(this, ActiveState.INACTIVE);
+
 			SetSynchDirty();
 		}
+
+		ExDbgPrint("DeferredInit - End");
 	}
 
 	void OnSettingsUpdated()
@@ -646,6 +665,11 @@ modded class CarScript
 
 		//! don't...
 		return false;
+	}
+
+	float Expansion_GetMass()
+	{
+		return m_Expansion_Mass;
 	}
 
 	ExpansionVehicleLockState GetLockedState()
@@ -2093,6 +2117,11 @@ modded class CarScript
 	}
 	#endif
 
+	void ExDbgPrint(string name)
+	{
+		EXPrint(ToString() + " (pos=" + GetPosition() + ") CarScript::" + name + " - dBodyIsActive " + dBodyIsActive(this) + " dBodyIsDynamic " + dBodyIsDynamic(this));
+	}
+
 	// ------------------------------------------------------------
 	override void EOnSimulate( IEntity owner, float dt ) 
 	{
@@ -2170,6 +2199,7 @@ modded class CarScript
 		{
 			if ( m_CanSimulate && GetGame().IsServer() )
 			{
+				ExDbgPrint("EEOnSimulate - CanSimulate false");
 				m_CanSimulate = false;
 				SetSynchDirty();
 			}
@@ -2180,6 +2210,7 @@ modded class CarScript
 
 		if ( !m_CanSimulate && GetGame().IsServer() )
 		{
+			ExDbgPrint("EEOnSimulate - CanSimulate true");
 			m_CanSimulate = true;
 		}
 
@@ -2290,9 +2321,9 @@ modded class CarScript
 			return;
 		}
 
-		if (module.IsInherited(ExpansionVehicleEngine))
+		if (module.IsInherited(ExpansionVehicleEngineBase))
 		{
-			auto engine = ExpansionVehicleEngine.Cast(module);
+			auto engine = ExpansionVehicleEngineBase.Cast(module);
 			engine.m_EngineIndex = m_Engines.Count() + 1;
 			RegisterNetSyncVariableBool( "m_Expansion_EngineSync" + engine.m_EngineIndex );
 			if (engine.m_EngineIndex >= 3)
@@ -2469,6 +2500,12 @@ modded class CarScript
 	//! Is called every time the engine starts.
 	protected void OnEngineStart(int index)
 	{
+		#ifdef TRADER
+		PlayerBase player = PlayerBase.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
+        if (player)
+            m_Trader_LastDriverId = player.GetIdentity().GetId();
+		#endif
+
 		m_Expansion_EnginesOn++;
 
 		if (!m_Expansion_EngineIsOn)
@@ -3226,6 +3263,12 @@ modded class CarScript
 			}
 
 			ExpansionOnSkinUpdate();
+		}
+
+		if (m_CanSimulate != m_CanSimulate_Sync)
+		{
+			ExDbgPrint("OnVariablesSynchronized - CanSimulate " + m_CanSimulate);
+			m_CanSimulate_Sync = m_CanSimulate;
 		}
 
 		#ifdef EXPANSIONEXPRINT

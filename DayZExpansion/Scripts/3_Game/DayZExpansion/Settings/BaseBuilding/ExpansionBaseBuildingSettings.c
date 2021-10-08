@@ -381,21 +381,33 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		GetTerritoryFlagKitAfterBuild = false;
 		
 	#ifdef EXPANSIONMODMARKET
-		string worldName;
-		GetGame().GetWorldName(worldName);
-		worldName.ToLower();
 		
-		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
 		{
-			DefaultChernarusNonBuildingZones();
+			world_name = world_name.Substring(0, world_name.Length() - 5);
 		}
-		else if (worldName == "namalsk")
+		
+		switch ( world_name )
 		{
-			DefaultNamalskNonBuildingZones();
-		}
-		else if (worldName == "takistanplus")
-		{
-			DefaultTakistanNonBuildingZones();
+			case "chernarusplus":
+			{
+				DefaultChernarusNonBuildingZones();
+				break;
+			}
+			case "namalsk":
+			{
+				DefaultNamalskNonBuildingZones();
+				break;
+			}
+			case "takistanplus":
+			{
+				DefaultTakistanNonBuildingZones();
+				break;
+			}
 		}
 	#endif 
 	}

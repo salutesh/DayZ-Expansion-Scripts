@@ -1,0 +1,62 @@
+WrapSpacerWidgetClass ExpansionMarketMenuTooltipElementEntry {
+ clipchildren 1
+ ignorepointer 1
+ size 1 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ priority 101
+ scriptclass "ExpansionMarketMenuItemTooltipEntryItemInfoController"
+ style Colorable
+ Padding 0
+ Margin 0
+ "Size To Content V" 1
+ {
+  ImageWidgetClass tooltip_icon {
+   ignorepointer 1
+   position 10 0
+   size 36 36
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   imageTexture "{D84C6CE70333A689}DayZExpansion/Core/GUI/icons/misc/T_FlareGunAmmo_256x256.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "EntryIcon"
+    }
+   }
+  }
+  RichTextWidgetClass tooltip_entry_text {
+   clipchildren 0
+   ignorepointer 1
+   position 20 0
+   size 0.87 1
+   halign right_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "size to text h" 1
+   "size to text v" 1
+   "text valign" center
+   wrap 1
+   "strip newlines" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "EntryText"
+    }
+   }
+  }
+ }
+}

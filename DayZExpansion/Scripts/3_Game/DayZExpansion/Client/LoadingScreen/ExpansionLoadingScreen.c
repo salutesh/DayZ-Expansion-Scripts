@@ -63,6 +63,7 @@ modded class LoadingScreen
 		string tmp;
 		m_ProgressText = TextWidget.Cast(m_WidgetRoot.FindAnyWidget("ProgressText"));
 		
+		//! Game object does not exist yet during parts of the loading process
 		if (GetGame())
 		{
 			m_ProgressText.Show( GetGame().CommandlineGetParam("loadingTest", tmp) );
@@ -156,10 +157,11 @@ modded class LoadingScreen
 			m_LoadingMessage.Show(false);
 			m_LoadingMessageAuthor.Show(false);
 		}
-
+		
 		string world_name = "default";
 
-		if ( GetGame() )
+		//! Game object does not exist yet during parts of the loading process
+		if (GetGame())
 			GetGame().GetWorldName(world_name);
 
 		world_name.ToLower();

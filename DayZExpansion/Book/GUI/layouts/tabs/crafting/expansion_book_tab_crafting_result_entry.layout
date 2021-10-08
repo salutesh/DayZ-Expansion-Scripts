@@ -1,0 +1,75 @@
+PanelWidgetClass ExpansionBookMenuTabCraftingResultEntry {
+ clipchildren 1
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 402 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionBookMenuTabCraftingResultEntryController"
+ {
+  ButtonWidgetClass result_entry_button {
+   visible 1
+   position 0 0
+   size 402 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 0
+   priority 1
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    TextWidgetClass result_entry_label {
+     ignorepointer 1
+     color 0 0 0 1
+     size 385 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     text "#STR_EXPANSION_BOOK_CRAFTING_ITEMNAME"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 5 1
+     "exact text" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "ItemName"
+      }
+     }
+    }
+    ImageWidgetClass resulte_entry_background {
+     clipchildren 0
+     ignorepointer 1
+     keepsafezone 0
+     position 0 0
+     size 402 1
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 0
+     image0 "set:book_assets image:menu_element_3"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+   }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnResultEntryButtonClick"
+    }
+   }
+  }
+ }
+}

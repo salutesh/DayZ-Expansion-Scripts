@@ -1,0 +1,131 @@
+WrapSpacerWidgetClass ExpansionBookMenuTabServerInfoSettingCategory {
+ inheritalpha 0
+ ignorepointer 0
+ position 0 0
+ size 435 32
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ fixaspect fixwidth
+ scriptclass "ExpansionBookMenuTabServerInfoSettingCategoryController"
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ {
+  PanelWidgetClass setting_category {
+   color 0.6863 0.2588 0.2588 1
+   position 0 0
+   size 435 32
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ButtonWidgetClass setting_category_button {
+     size 435 32
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     style Empty
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Relay_Command "OnEntryButtonClick"
+      }
+     }
+    }
+    ImageWidgetClass setting_category_icon {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.05 0
+     size 32 32
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     priority 1
+     scriptclass ""
+     image0 ""
+     imageTexture "{4156EB06E189AFDA}DayZExpansion/Core/GUI/icons/hud/toothwheel_64x64.edds"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+    TextWidgetClass setting_categorylabel {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.03 0
+     size 0.83 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     text "#STR_EXPANSION_BOOK_TAB_SERVER_SETTING_NAME"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 5 1
+     "exact text" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "SettingName"
+      }
+     }
+    }
+    ImageWidgetClass setting_category_background {
+     ignorepointer 1
+     position 0 0
+     size 435 32
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     image0 "set:book_assets image:menu_element_1"
+     mode blend
+     "src alpha" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "EntryBackground"
+      }
+     }
+    }
+   }
+  }
+  WrapSpacerWidgetClass settings_content {
+   visible 0
+   ignorepointer 1
+   position 10 10
+   size 435 0
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 0
+   scriptclass "ViewBinding"
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "Settings"
+    }
+   }
+  }
+ }
+}

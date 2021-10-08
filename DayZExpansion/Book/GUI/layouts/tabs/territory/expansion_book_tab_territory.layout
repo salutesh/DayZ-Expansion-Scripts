@@ -1,0 +1,441 @@
+FrameWidgetClass ExpansionBookMenuTabTerritory {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionBookMenuTabTerritoryController"
+ {
+  PanelWidgetClass book_territory_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 937 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_menu_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      ImageWidgetClass territory_members_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      TextWidgetClass territory_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       scriptclass "ViewBinding"
+       text "#STR_EXPANSION_BOOK_TERRITORY_MEMBERS_TITLE"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Debug_Logging 0
+         Binding_Name "TerritroyName"
+        }
+       }
+      }
+      PanelWidgetClass territory_delete_content {
+       ignorepointer 0
+       position 0.01 0.01
+       size 0.35 0.23
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        ButtonWidgetClass territory_delete_button {
+         clipchildren 0
+         color 0 0 0 1
+         position 0.00102 0.02571
+         size 0.9 0.8
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         scriptclass "ViewBinding"
+         style Empty
+         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         "text color" 0 0 0 1
+         {
+          TextWidgetClass territory_delete_button_label {
+           visible 1
+           disabled 0
+           clipchildren 1
+           ignorepointer 1
+           color 0 0 0 1
+           position 0 0
+           size 1 0.3
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY"
+           font "gui/fonts/etelkatextpro22"
+           "exact text" 0
+           "size to text h" 0
+           "size to text v" 0
+           "text halign" center
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Debug_Logging 0
+             Binding_Name "DeleteButtonLabel"
+            }
+           }
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Relay_Command "OnDeleteButtonClick"
+          }
+         }
+        }
+        ImageWidgetClass territory_delete_image {
+         disabled 0
+         clipchildren 0
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         imageTexture "{4B07193E966C799D}DayZExpansion/Book/GUI/textures/stick_note_3.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 0
+         stretch 1
+         nocache 0
+        }
+       }
+      }
+      ScrollWidgetClass member_list_scroller {
+       ignorepointer 0
+       position 0.02 0.15
+       size 1.02 0.6
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass member_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Margin 0
+         "Size To Content V" 1
+         {
+          TextWidgetClass member_list_info {
+           visible 1
+           ignorepointer 1
+           keepsafezone 0
+           color 0 0 0 1
+           position 0.102 1.2744
+           size 1 0.08
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_MEMBERS"
+           font "gui/fonts/etelkatextpro22"
+           "text offset" 5 0
+           "exact text" 0
+           "size to text h" 0
+           "size to text v" 0
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Debug_Logging 0
+             Binding_Name "MemberListInfo"
+            }
+           }
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "TerritoryMemberEntrys"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass group_players_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       text "#STR_EXPANSION_BOOK_TERRITORY_INVITE_TITLE"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass territory_players_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_1"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass player_list_scroller {
+       ignorepointer 0
+       position 0.02 0
+       size 1.02 0.8388
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass player_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Margin 0
+         "Size To Content V" 1
+         {
+          TextWidgetClass player_list_info {
+           visible 1
+           ignorepointer 1
+           keepsafezone 0
+           color 0 0 0 1
+           position 0.102 1.2744
+           size 1 0.05
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_PLAYERS"
+           font "gui/fonts/etelkatextpro22"
+           "text offset" 5 0
+           "exact text" 0
+           "size to text h" 0
+           "size to text v" 0
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Debug_Logging 0
+             Binding_Name "PlayerListInfo"
+            }
+           }
+          }
+         }
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "TerritoryPlayerEntrys"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass player_list_filter {
+       ignorepointer 1
+       position 0 0.09
+       size 1 32
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       style blank
+       {
+        ButtonWidgetClass player_list_filter_clear {
+         size 32 32
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         fixaspect fixwidth
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          ImageWidgetClass player_list_filter_clear_icon {
+           ignorepointer 1
+           color 0 0 0 1
+           size 32 32
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnRefreshButtonClick"
+          }
+         }
+        }
+        PanelWidgetClass player_list_filter_icon_panel {
+         ignorepointer 1
+         size 32 32
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         fixaspect fixwidth
+         {
+          ImageWidgetClass player_list_filter_icon {
+           ignorepointer 1
+           color 0 0 0 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           image0 ""
+           imageTexture "{0A37CC5D0C68964C}DayZExpansion/Core/GUI/icons/misc/T_Frying_Pan_256x256.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+          }
+         }
+        }
+        PanelWidgetClass player_list_filter_editbox_background {
+         color 0.4706 0.3804 0.2863 0.549
+         position 0.1 0
+         size 0.81 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+        EditBoxWidgetClass player_list_filter_editbox {
+         color 0 0 0 1
+         position 0.1 0
+         size 0.81 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         style EditorProperty
+         text "#STR_USRACT_SEARCH"
+         "Default text color" 0 0 0 1
+         "Use default text" 1
+         "exact text" 1
+         font "gui/fonts/etelkatextpro22"
+         "text color" 0 0 0 1
+         "disabled text color" 0 0 0 1
+         {
+          ScriptParamsClass {
+           Binding_Name "SearchFilter"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

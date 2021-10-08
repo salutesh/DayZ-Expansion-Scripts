@@ -40,6 +40,8 @@ class ExpansionVehicleProp : ExpansionVehicleModule
 
 	ExpansionVehiclePropType m_Type;
 
+	vector m_Velocity;
+
 	void ExpansionVehicleProp(EntityAI vehicle, string rootPath)
 	{
 		m_RotorRadius = 1.0;
@@ -110,21 +112,30 @@ class ExpansionVehicleProp : ExpansionVehicleModule
 		m_Direction = vector.Direction(start, end).Normalized();
 	}
 
+	override void PreSimulate(ExpansionPhysicsState pState)
+	{
+		m_Velocity = pState.GetModelVelocityAt(m_Position);
+	}
+
 	override void Simulate(ExpansionPhysicsState pState)
 	{
 		float torque = m_Controller.m_Torque[m_EngineIndex];
 		vector direction = m_Direction;
 
-		if (m_Type == ExpansionVehiclePropType.WATER)
-		{
-			direction = Vector(m_Direction[0], m_Direction[2], 0);
-			vector yaw = vector.YawToVector(direction.VectorToYaw() + (m_Controller.m_Yaw * m_MaxYaw));
-			direction = Vector(yaw[0], 0, yaw[1]);
-			direction.Normalize();
+		float yaw = m_Controller.m_Yaw * m_MaxYaw;
+		float pitch = m_Controller.m_Pitch * m_MaxPitch;
 
-			float depth = GetGame().GetWaterDepth(m_Vehicle.ModelToWorld(m_Position));
-			torque *= Math.Clamp((depth * 10.0) + 0.01, 0, 1);
+		if (yaw != 0 || pitch != 0)
+		{
+			vector controlledTransform[4];
+			Math3D.YawPitchRollMatrix(Vector(yaw, pitch, 0), controlledTransform);
+			direction = direction.Multiply3(controlledTransform);
+			m_Velocity = m_Velocity.Multiply3(controlledTransform);
 		}
+
+		//float rpm = (Math.AbsFloat(m_Velocity[2]) * 30.0) / (Math.PI * m_RotorRadius);
+
+		//m_Controller.m_RPM[m_EngineIndex] = Math.Max(rpm, m_Controller.m_RPM[m_EngineIndex]);
 
 		vector impulse = direction * (torque / m_RotorRadius) * pState.m_Mass * pState.m_DeltaTime;
 

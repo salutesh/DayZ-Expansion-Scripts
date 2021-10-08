@@ -1,0 +1,296 @@
+FrameWidgetClass ExpansionBookMenuTabServerinfo {
+ ignorepointer 1
+ position 0 0
+ size 1920 1080
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionBookMenuTabServerInfoController"
+ {
+  PanelWidgetClass book_server_info_tab {
+   visible 1
+   ignorepointer 1
+   position 0 200
+   size 937 579
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   priority 2
+   {
+    PanelWidgetClass book_menu_content_right {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 0.47 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass server_info_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       scriptclass ""
+       text "#STR_EXPANSION_BOOK_SERVERINFO_LABEL"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass server_info_lable_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass server_info_list_scroller {
+       ignorepointer 0
+       keepsafezone 1
+       position 0.02 0
+       size 1.02 0.9
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass server_info_list_content {
+         ignorepointer 0
+         color 0 0 0 0
+         position 0 0
+         size 1 1
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scriptclass ""
+         Margin 0
+         "Size To Content V" 1
+         {
+          WrapSpacerWidgetClass server_info_name {
+           visible 1
+           clipchildren 1
+           ignorepointer 0
+           position 0 0
+           size 1 0.1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ExpansionBookMenuTabServerInfoSettingBaseController"
+           style Empty
+           Padding 0
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           content_valign center
+           {
+            TextWidgetClass server_info_name_text {
+             clipchildren 0
+             ignorepointer 1
+             color 0.098 0.098 0.098 1
+             position 0.07 0
+             size 1 22
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             scriptclass "ViewBinding"
+             text "#STR_EXPANSION_BOOK_SERVERINFO_NAME"
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 5 0
+             "exact text" 0
+             "size to text h" 0
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "ServerName"
+              }
+             }
+            }
+           }
+          }
+          WrapSpacerWidgetClass server_info_ip {
+           visible 1
+           clipchildren 1
+           ignorepointer 0
+           position 0 0
+           size 1 0.1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ExpansionBookMenuTabServerInfoSettingBaseController"
+           style Empty
+           Padding 0
+           Margin 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           content_valign center
+           {
+            TextWidgetClass server_info_ip_text {
+             clipchildren 0
+             ignorepointer 1
+             color 0.098 0.098 0.098 1
+             position 0.07 0
+             size 1 22
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             scriptclass "ViewBinding"
+             text "127.0.0.1:2302"
+             font "gui/fonts/etelkatextpro22"
+             "text offset" 5 0
+             "exact text" 0
+             "size to text h" 0
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "ServerAdress"
+              }
+             }
+            }
+           }
+          }
+          WrapSpacerWidgetClass server_info_description_spacer {
+           visible 1
+           clipchildren 1
+           ignorepointer 0
+           keepsafezone 1
+           position 0 0
+           size 1 1
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           style Empty
+           Padding 0
+           Margin 0
+           "Size To Content V" 1
+           content_valign center
+           {
+            ScriptParamsClass {
+             Binding_Name "Descriptions"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass book_menu_content_left {
+     ignorepointer 1
+     size 0.47 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     {
+      TextWidgetClass settings_label {
+       ignorepointer 1
+       color 0 0 0 1
+       size 1 0.08
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       scriptclass ""
+       text "#STR_EXPANSION_BOOK_SERVERINFO_SETTINGS"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 0
+       "text halign" center
+       "text valign" center
+      }
+      ImageWidgetClass settings_lable_background {
+       ignorepointer 1
+       size 440 45
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 "set:book_assets image:menu_element_2"
+       mode blend
+       "src alpha" 1
+       stretch 1
+      }
+      ScrollWidgetClass settings_list_scroller {
+       ignorepointer 0
+       keepsafezone 1
+       position 0.02 0
+       size 1.02 0.9
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass settings_list_content {
+         ignorepointer 0
+         keepsafezone 1
+         color 0 0 0 0
+         position 0 0
+         size 1 1
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Margin 0
+         "Size To Content V" 1
+         {
+          ScriptParamsClass {
+           Debug_Logging 0
+           Binding_Name "SettingsCategories"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

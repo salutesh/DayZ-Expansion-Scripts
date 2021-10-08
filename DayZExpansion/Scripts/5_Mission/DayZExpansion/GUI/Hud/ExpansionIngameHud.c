@@ -422,8 +422,15 @@ class ExpansionIngameHud extends Hud
 		
 		if ( GetGame().GetPlayer() && GetGame().GetCurrentCameraPosition() )
 		{
-			GetGame().GetWorldName(worldName);
-			worldName.ToLower();
+		
+			string world_name = "empty";
+			GetGame().GetWorldName(world_name);
+			world_name.ToLower();
+			
+			if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+			{
+				world_name = world_name.Substring(0, world_name.Length() - 5);
+			}
 		
 			camera_pos = GetGame().GetCurrentCameraPosition();
 			camera_x = camera_pos[0];
@@ -432,48 +439,51 @@ class ExpansionIngameHud extends Hud
 			
 			multiplier = Math.Round(scale * 10);
 			
-			if ( worldName.Contains("chernarus") )	// CHERNARUS
+			
+			switch ( world_name )
 			{
-				if( scale >= 0.1 )
+				case "chernarusplus":
 				{
-					shift_x = 642.5;
-					shift_y = 485.5;
+					if( scale >= 0.1 )
+					{
+						shift_x = 642.5;
+						shift_y = 485.5;
+					}
+					break;
 				}
-			}
-			else if ( worldName.Contains("enoch") || worldName.Contains("namalsk") || worldName.Contains("esseker") )
-			{
-				// 12800 / 12800
-				if( scale >= 0.1 )
+				case "deerisle":
 				{
-					shift_x = 545.0;
-					shift_y = 412.5;
+					// 16374 / 16400
+					if( scale >= 0.1 )
+					{	
+						shift_x = 682.5;
+						shift_y = 525.5;
+					}
+					break;
 				}
-			}
-			else if ( worldName.Contains("deerisle") )	// DEERISLE
-			{
-				// 16374 / 16400
-				if( scale >= 0.1 )
-				{	
-					shift_x = 682.5;
-					shift_y = 525.5;
-				}
-			}
-			else if ( worldName.Contains("chiemsee") )	// CHIEMSEE
-			{
-				// 10240 / 10240
-				if( scale >= 0.1 )
+				case "chiemsee":
 				{
-					shift_x = 430;
-					shift_y = 327.5;
+					// 10240 / 10240
+					if( scale >= 0.1 )
+					{
+						shift_x = 430;
+						shift_y = 327.5;
+					}
+					break;
 				}
-			}
-			else if ( worldName.Contains("takistan") )	// TAKISTAN
-			{
-				// 12800 / 12800
-				if( scale >= 0.1 )
+				case "enoch":
+				case "namalsk":
+				case "esseker":
+				case "takistan":
+				case "takistanplus":
 				{
-					shift_x = 535.0;
-					shift_y = 412.0;
+					// 12800 / 12800
+					if( scale >= 0.1 )
+					{
+						shift_x = 545.0;
+						shift_y = 412.5;
+					}
+					break;
 				}
 			}
 			

@@ -134,8 +134,8 @@ class CfgVehicles
 						stiffness = 40000;
 						compression = 2100;
 						damping = 6500;
-						travelMaxUp = 0.1;
-						travelMaxDown = 0.3;
+						travelMaxUp = 0.3;
+						travelMaxDown = 0.1;
 					};
 					class Wheels: Wheels
 					{
@@ -163,8 +163,8 @@ class CfgVehicles
 						stiffness = 40000;
 						compression = 2100;
 						damping = 6500;
-						travelMaxUp = 0.1;
-						travelMaxDown = 0.3;
+						travelMaxUp = 0.3;
+						travelMaxDown = 0.1;
 					};
 					class Wheels: Wheels
 					{
@@ -191,17 +191,12 @@ class CfgVehicles
 			{
 				class Engine_1
 				{
-					type = "thrust";
-					inertia = 0.45;
-					torqueMax = 187;
-					torqueRpm = 2400;
-					powerMax = 73.5;
-					powerRpm = 4500;
-					rpmIdle = 1000;
-					rpmMin = 1050;
-					rpmClutch = 1250;
-					rpmRedline = 4700;
-					rpmMax = 6800;
+					type = "POINTS";
+					points[] = {1670.0,410.0,1910.0,615.0,2030.0,738.0,2100.0,820.0,2200.0,1000.0};
+					inertia = 1.16;
+					rpmMin = 1200;
+					rpmRedline = 2200;
+					rpmMax = 2300;
 					start = "engine_1_start";
 					end = "engine_1_end";
 				};

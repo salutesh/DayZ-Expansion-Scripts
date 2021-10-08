@@ -145,53 +145,6 @@ modded class DayZPlayerImplement
 	{		
 		return ExpansionHumanCommandFall.Cast( GetCommand_Script() );
 	}
-				
-	// ------------------------------------------------------------
-	// DayZPlayerImplement CameraHandler
-	// ------------------------------------------------------------
-	override int CameraHandler( int pCameraMode )
-	{
-		ExpansionVehicleBase exTrans;
-		ExpansionHumanCommandVehicle vehicleCommand = GetCommand_ExpansionVehicle();
-		if ( vehicleCommand )
-			exTrans = vehicleCommand.GetTransport();
-
-		if ( m_Camera3rdPerson )
-		{
-			if ( vehicleCommand && exTrans )
-			{
-				int cameraType = exTrans.Get3rdPersonCameraType();
-				if ( cameraType != -1 )
-					return cameraType;
-			}
-
-			/*CarScript car;
-			if ( Class.CastTo( car, GetParent() ) && !GetCommand_Vehicle() )
-			{
-				int carCameraType = car.Get3rdPersonCameraType();
-				if ( carCameraType != -1 )
-				{
-					#ifdef EXPANSIONEXPRINT
-					EXPrint( "DayZPlayerImplement::CameraHandler - Return carCameraType: " + carCameraType.ToString() );
-					#endif
-					return carCameraType;
-				}
-			}*/
-
-			//if ( HasParachute() )
-			//{
-			//	return DayZPlayerCameras.DAYZCAMERA_3RD_ERC;
-			//}
-		} else
-		{
-			if ( vehicleCommand )
-			{
-				return DayZPlayerCameras.DAYZCAMERA_1ST_VEHICLE;
-			}
-		}
-
-		return super.CameraHandler( pCameraMode );
-	}
 	
 	override bool IsShootingFromCamera()
 	{

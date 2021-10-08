@@ -1,0 +1,67 @@
+PanelWidgetClass ExpansionMarketMenuItemManagerCategory {
+ ignorepointer 1
+ size 62 62
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionMarketMenuItemManagerCategoryController"
+ style UIDefaultPanel
+ {
+  ButtonWidgetClass category_button {
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    PanelWidgetClass category_background {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0.8627
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style UIDefaultPanel
+    }
+    ImageWidgetClass category_icon {
+     ignorepointer 1
+     size 52 52
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     imageTexture "{5DBABBF71E9A061D}DayZExpansion/Core/GUI/icons/misc/T_Goose_256x256.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "CategoryIcon"
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnCategoryButtonClick"
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+  }
+ }
+}

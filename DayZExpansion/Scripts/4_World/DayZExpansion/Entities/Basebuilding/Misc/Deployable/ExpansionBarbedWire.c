@@ -124,8 +124,11 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 
 	override void ExpansionOnDestroyed( Object killer )
 	{
+		if ( !IsDamageDestroyed() )  //! When called by ExpansionActionDestroyBarbedWire health is at 1%, set health to 0 so EEKilled is called (destroy sound)
+			SetHealth( 0 );
+
 		//TODO: Maybe spawn wire as replacement?
-		if ( GetHealth() == 0 && !ToDelete() )
+		if ( !ToDelete() )
 			Delete();
 	}
 	

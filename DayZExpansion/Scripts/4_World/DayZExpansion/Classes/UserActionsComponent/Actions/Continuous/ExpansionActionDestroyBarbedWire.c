@@ -68,15 +68,15 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 		return GetExpansionSettings().GetRaid().CanRaidBarbedWire;
 	}
 
-	override ItemBase GetTargetItem( Object targetObject )
+	override Object GetActualTargetObject( Object targetObject )
 	{
 		if ( targetObject.IsInherited( ExpansionBarbedWire ) )
 		{
-			return ItemBase.Cast( targetObject );
+			return targetObject;
 		} else
 		{
 			BaseBuildingBase base_building = BaseBuildingBase.Cast( targetObject );
-			return ItemBase.Cast( base_building.FindAttachmentBySlotName( m_SlotName ) );
+			return base_building.FindAttachmentBySlotName( m_SlotName );
 		}
 	}
 }

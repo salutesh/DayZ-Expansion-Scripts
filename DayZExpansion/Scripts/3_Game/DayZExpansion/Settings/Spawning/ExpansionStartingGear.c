@@ -161,45 +161,44 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 		ApplyEnergySources = true;
 		SetRandomHealth = true;
 		
-		string worldName = "empty";
-		GetGame().GetWorldName(worldName);
-		worldName.ToLower();
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
+		{
+			world_name = world_name.Substring(0, world_name.Length() - 5);
+		}
 
 		UpperGear.Insert(new ExpansionStartingGearItem("Rag", 4));
 		UpperGear.Insert(new ExpansionStartingGearItem("Apple", 1));
 
-		if (worldName == "barnov")
+		switch ( world_name )
 		{
-			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-		}
-		else if (worldName == "chiemsee")
-		{
-			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-		}
-		else if (worldName == "esseker")
-		{
-			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-		}
-		else if (worldName == "enoch" || worldName == "enochgloom")
-		{
-			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-		}
-		else if (worldName == "deerisle")
-		{
-			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-		}
-		else if (worldName == "namalsk")
-		{
-			UsePantsGear = true;
-			UpperGear.Insert(new ExpansionStartingGearItem("RoadFlare", 2));
-			PantsGear.Insert(new ExpansionStartingGearItem("Heatpack", 1));
-			PantsGear.Insert(new ExpansionStartingGearItem("dzn_tool_watch", 1));
-		}
-		else if (worldName == "takistanplus")
-		{
-			UsePantsGear = true;
-			UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-			PantsGear.Insert(new ExpansionStartingGearItem("Compass", 1));
+			case "barnov":
+			case "chiemsee":
+			case "esseker":
+			case "enoch":
+			case "deerisle":
+			{
+				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+				break;
+			}
+			case "namalsk":
+			{
+				UpperGear.Insert(new ExpansionStartingGearItem("RoadFlare", 2));
+				PantsGear.Insert(new ExpansionStartingGearItem("Heatpack", 1));
+				PantsGear.Insert(new ExpansionStartingGearItem("dzn_tool_watch", 1));
+				UsePantsGear = true;
+				break;
+			}
+			case "takistanplus":
+			{
+				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+				PantsGear.Insert(new ExpansionStartingGearItem("Compass", 1));
+				UsePantsGear = true;
+				break;
+			}
 		}
 		
 		#ifdef EXPANSIONEXPRINT

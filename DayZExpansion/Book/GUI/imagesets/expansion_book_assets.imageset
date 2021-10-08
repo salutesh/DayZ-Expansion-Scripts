@@ -1,0 +1,86 @@
+ImageSetClass {
+ Name "book_assets"
+ RefSize 1920 1080
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{C34BE219C52FE377}DayZExpansion/Book/GUI/imagesets/expansion_book_assets.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass menu_element_1 {
+   Name "menu_element_1"
+   Pos 24 16
+   Size 435 45
+   Flags 0
+  }
+  ImageSetDefClass menu_element_2 {
+   Name "menu_element_2"
+   Pos 24 74
+   Size 435 45
+   Flags 0
+  }
+  ImageSetDefClass menu_element_3 {
+   Name "menu_element_3"
+   Pos 24 132
+   Size 435 45
+   Flags 0
+  }
+  ImageSetDefClass menu_element_4 {
+   Name "menu_element_4"
+   Pos 24 190
+   Size 435 45
+   Flags 0
+  }
+  ImageSetDefClass menu_element_5 {
+   Name "menu_element_5"
+   Pos 24 248
+   Size 435 45
+   Flags 0
+  }
+  ImageSetDefClass menu_element_6 {
+   Name "menu_element_6"
+   Pos 24 306
+   Size 435 45
+   Flags 0
+  }
+  ImageSetDefClass title_element_1 {
+   Name "title_element_1"
+   Pos 24 376
+   Size 440 45
+   Flags 0
+  }
+  ImageSetDefClass title_element_2 {
+   Name "title_element_2"
+   Pos 24 437
+   Size 440 45
+   Flags 0
+  }
+  ImageSetDefClass bookmark_element_1 {
+   Name "bookmark_element_1"
+   Pos 1331 12
+   Size 92 201
+   Flags 0
+  }
+  ImageSetDefClass bookmark_element_2 {
+   Name "bookmark_element_2"
+   Pos 1431 12
+   Size 92 201
+   Flags 0
+  }
+  ImageSetDefClass bookmark_element_3 {
+   Name "bookmark_element_3"
+   Pos 1531 12
+   Size 92 201
+   Flags 0
+  }
+  ImageSetDefClass page_corner {
+   Name "page_corner"
+   Pos 1785 12
+   Size 118 120
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

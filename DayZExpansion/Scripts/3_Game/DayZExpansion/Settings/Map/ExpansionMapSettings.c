@@ -459,21 +459,33 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		CompassColor = ARGB(255,255,255,255);
 		
 	#ifdef EXPANSIONMODMARKET
-		string worldName;
-		GetGame().GetWorldName(worldName);
-		worldName.ToLower();
 		
-		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
+		string world_name = "empty";
+		GetGame().GetWorldName(world_name);
+		world_name.ToLower();
+		
+		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
 		{
-			DefaultChernarusMarkers();
+			world_name = world_name.Substring(0, world_name.Length() - 5);
 		}
-		else if (worldName == "namalsk")
+		
+		switch ( world_name )
 		{
-			DefaultNamalskMarkers();
-		}
-		else if (worldName == "takistanplus")
-		{
-			DefaultTakistanMarkers();
+			case "chernarusplus":
+			{
+				DefaultChernarusMarkers();
+				break;
+			}
+			case "namalsk":
+			{
+				DefaultNamalskMarkers();
+				break;
+			}
+			case "takistanplus":
+			{
+				DefaultTakistanMarkers();
+				break;
+			}
 		}
 	#endif
 		

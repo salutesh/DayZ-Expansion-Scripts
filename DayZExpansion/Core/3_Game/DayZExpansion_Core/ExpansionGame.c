@@ -123,4 +123,31 @@ class ExpansionGame
 	{
 		return false;
 	}
+
+	static bool IsMultiplayerClient()
+	{
+		//! Check for `&& IsMultiplayer` is redundant here, comment for clarity
+		return GetGame().IsClient() /* && GetGame().IsMultiplayer() */;
+	}
+
+	static bool IsMultiplayerServer()
+	{
+		return GetGame().IsServer() && GetGame().IsMultiplayer();
+	}
+
+	static bool IsOffline()
+	{
+		return !GetGame().IsMultiplayer();
+	}
+
+	static bool IsClientOrOffline()
+	{
+		return GetGame().IsClient() || !GetGame().IsMultiplayer();
+	}
+
+	static bool IsServerOrOffline()
+	{
+		//! Check for `|| !IsMultiplayer` is redundant here, comment for clarity
+		return GetGame().IsServer() /* || !GetGame().IsMultiplayer() */;
+	}
 };

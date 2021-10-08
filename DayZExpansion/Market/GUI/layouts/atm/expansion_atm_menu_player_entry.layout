@@ -1,0 +1,78 @@
+PanelWidgetClass ExpansionATMMenuPlayerEntry {
+ ignorepointer 1
+ size 1 36
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ priority 1
+ scriptclass "ExpansionATMMenuPlayerEntryController"
+ style blank
+ {
+  PanelWidgetClass player_element_button_highlight {
+   visible 0
+   ignorepointer 1
+   color 0.9882 0.9882 0.9882 1
+   position 0 0
+   size 1 36
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   scriptclass ""
+   style UIDefaultPanel
+  }
+  PanelWidgetClass player_element_button_background {
+   ignorepointer 1
+   color 0.1176 0.1176 0.1176 0.9412
+   size 0.99 30
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   scriptclass ""
+   style UIDefaultPanel
+  }
+  ButtonWidgetClass player_element_button {
+   visible 1
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    TextWidgetClass player_element_text {
+     ignorepointer 1
+     position 20 0
+     size 0.9 1
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     text "Test"
+     font "gui/fonts/etelkatextpro22"
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "PlayerName"
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     Binding_Name "PlayerName"
+     Relay_Command "OnPlayerEntryButtonClick"
+    }
+   }
+  }
+ }
+}

@@ -37,7 +37,7 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 		if (m_Engines.Count() == 0)
 		{
 			path = "CfgVehicles " + GetType() + " SimulationModule Engine";
-			AddModule(new ExpansionVehicleEngine(this, path));
+			AddModule(Expansion_CreateEngine(this, path));
 		}
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Gearbox";

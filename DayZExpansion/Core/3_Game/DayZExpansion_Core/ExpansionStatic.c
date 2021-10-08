@@ -403,13 +403,13 @@ class ExpansionStatic
 		int hours = time_seconds / 3600;
 		if ( hours > 0 )
 		{
-			time_string += GetValueString( hours ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
+			time_string += GetValueString( hours ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
 		}
 		
 		time_string += " ";												//separator
 		
 		int minutes = ( time_seconds % 3600 ) / 60;
-		time_string += GetValueString( minutes ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
+		time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
 		
 		return time_string;
 	}
@@ -420,7 +420,7 @@ class ExpansionStatic
 		
 		if( weight < 0 )
 		{
-			weight_string =  "0" + " " + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";
+			weight_string =  "0 #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";
 			return weight_string;
 		}
 		
@@ -429,12 +429,11 @@ class ExpansionStatic
 		int kilograms = weight_grams / 1000;
 		if ( kilograms > 0 && !grams_only )
 		{
-			weight_string += GetValueString( kilograms ) + " " + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KG";				//kilograms
-			weight_string += " ";												//separator
+			weight_string = GetValueString( kilograms ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KG";				//kilograms
 		}
 		else
 		{
-			weight_string += GetValueString( weight_grams ) + " " + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";	//grams
+			weight_string = GetValueString( weight_grams ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";	//grams
 		}
 		
 		return weight_string;
@@ -455,12 +454,11 @@ class ExpansionStatic
 		int kilometers = distance_meters / 1000;
 		if ( kilometers > 0 && !meters_only )
 		{
-			distance_string += GetValueString( kilometers ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KM";				//kilometers
-			distance_string += " ";												//separator
+			distance_string = GetValueString( kilometers ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_KM";				//kilometers
 		}
 		else
 		{
-			distance_string += GetValueString( distance_meters ) + "#STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
+			distance_string = GetValueString( distance_meters ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
 		}
 		
 		return distance_string;
@@ -502,7 +500,7 @@ class ExpansionStatic
 			out_string = value.ToString();
 		}
 		
-		return out_string;
+		return out_string.Trim();
 	}
 
 	// ------------------------------------------------------------
