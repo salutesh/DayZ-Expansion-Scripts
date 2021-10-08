@@ -215,6 +215,9 @@ modded class CarScript
 	protected bool m_Expansion_EngineSync2;
 	protected bool m_Expansion_EngineSync3;
 
+	protected bool m_IsStoreLoaded;
+	protected bool m_IsCECreated;
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -367,6 +370,13 @@ modded class CarScript
 		#endif
 	}
 
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		m_IsStoreLoaded = true;
+	}
+
 	void LoadConstantVariables()
 	{
 	}
@@ -412,7 +422,7 @@ modded class CarScript
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
 
-		if (ExpansionGame.IsMultiplayerServer())
+		if (ExpansionGame.IsMultiplayerServer() && m_IsStoreLoaded)
 		{
 			//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats, no ill effect on cars)
 			dBodyActive(this, ActiveState.INACTIVE);
@@ -3573,8 +3583,9 @@ modded class CarScript
 		#endif
 
 		super.EEOnCECreate();
+
+		m_IsCECreated = true;
 		
-		//! There is no need for this now as no wild car spawns with a key rn?!
 		array< EntityAI > items = new array< EntityAI >;
 		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
 		for ( int i = 0; i < items.Count(); i++ )

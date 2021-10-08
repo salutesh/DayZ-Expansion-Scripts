@@ -53,8 +53,6 @@ class ExpansionBoatScript extends OffroadHatchback
 	private float m_RotorAnimationPosition;
 	
 	private bool m_IsInitialized;
-	private bool m_IsStoreLoaded;
-	private bool m_IsCECreated;
 
 	// ------------------------------------------------------------
 	//! Constructor
@@ -136,20 +134,6 @@ class ExpansionBoatScript extends OffroadHatchback
 		{
 			m_ParticleSideSecond.Stop();
 		}
-	}
-	
-	override void EEOnCECreate()
-	{
-		super.EEOnCECreate();
-
-		m_IsCECreated = true;
-	}
-
-	override void AfterStoreLoad()
-	{
-		super.AfterStoreLoad();
-
-		m_IsStoreLoaded = true;
 	}
 
 	// ------------------------------------------------------------
