@@ -48,13 +48,13 @@ static ExpansionVehicleEngineBase Expansion_CreateEngine(EntityAI vehicle, strin
 	return null;
 }
 
-class ExpansionVehicleEngineBase : ExpansionVehicleModule
+class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 {
 	int m_EngineIndex;
 	int m_GearIndex;
 	int m_ThrottleIndex;
 
-	float m_Inertia;
+	bool m_State;
 
 	float m_RPMIdle;
 	float m_RPMMin;
@@ -62,9 +62,11 @@ class ExpansionVehicleEngineBase : ExpansionVehicleModule
 	float m_RPMRedline;
 	float m_RPMMax;
 
-	float m_RPM;
-	float m_Torque;
-	float m_Velocity;
+	float m_Throttle;
+	float m_ThrottleRange;
+	float m_ThrottleIdle;
+
+	ExpansionVehicleGearbox m_Gearbox;
 
 	void ExpansionVehicleEngineBase(EntityAI vehicle, string rootPath)
 	{
@@ -107,28 +109,99 @@ class ExpansionVehicleEngineBase : ExpansionVehicleModule
 		m_RPMMax = 0;
 		if (GetGame().ConfigIsExisting(path))
 			m_RPMMax = GetGame().ConfigGetFloat(path);
+
+		m_Position = ExpansionVehiclesStatic.GetCenterSelection(m_Vehicle, "geometryView", "dmgzone_engine");
+	}
+
+	override void Init()
+	{
+		super.Init();
+
+		if (m_Vehicle.IsInherited(CarScript))
+			Init_CarScript();
+		else
+			Init_ExpansionVehicle();
+
+		m_Component = m_Gearbox;
+		m_Gearbox.m_Parent = this;
+
+		m_ThrottleIdle = m_RPMMin / m_RPMMax;
+		m_ThrottleRange = 1.0 - m_ThrottleIdle;
+	}
+
+	void Init_CarScript()
+	{
+		auto vehicle = CarScript.Cast(m_Vehicle);
+
+		if (m_GearIndex >= 0)
+			m_Gearbox = vehicle.m_Gearboxes[m_GearIndex];
+
+		if (!m_Gearbox)
+		{
+			ExpansionVehicleGearbox gBox = new ExpansionVehicleGearbox(m_Vehicle, "");
+			vehicle.AddModule(gBox);
+			m_Gearbox = gBox;
+			m_GearIndex = gBox.m_GearIndex;
+		}
+	}
+
+	void Init_ExpansionVehicle()
+	{
+		auto vehicle = ExpansionVehicleBase.Cast(m_Vehicle);
+
+		if (m_GearIndex >= 0)
+			m_Gearbox = vehicle.m_Gearboxes[m_GearIndex];
+
+		if (!m_Gearbox)
+		{
+			ExpansionVehicleGearbox gBox = new ExpansionVehicleGearbox(m_Vehicle, "");
+			vehicle.AddModule(gBox);
+			m_Gearbox = gBox;
+			m_GearIndex = gBox.m_GearIndex;
+		}
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-		m_RPM = m_Controller.m_RPM[m_EngineIndex];
-
 		m_Torque = 0;
-		if (m_Controller.m_State[m_EngineIndex])
-		{
-			if (m_RPM <= m_RPMMin)
-				m_RPM += m_RPMMin * pState.m_DeltaTime / m_Inertia;
 
-			m_Torque = CalculateTorque() * m_Controller.m_Throttle[m_ThrottleIndex] * m_Inertia * pState.m_DeltaTime;
-			m_RPM += m_Torque * pState.m_DeltaTime;// * pState.m_Mass;
+		m_Throttle = ((m_Controller.m_Throttle[m_ThrottleIndex] * m_ThrottleRange) + m_ThrottleIdle) * m_Controller.m_State[m_EngineIndex];
+		m_Throttle = Math.Clamp(m_Throttle, 0, 1);
+
+		float minTorque = -FromRPM(m_RPM);
+
+		if (m_Throttle > 0 && m_RPM < m_RPMMax)
+		{
+			m_Torque = (CalculateTorque(pState) - minTorque) * m_Throttle;
 		}
 
-		m_Velocity = m_RPM * Math.PI / 60.0;
-		m_Velocity -= m_Velocity * pState.m_DeltaTime / m_Inertia;
-		m_Velocity = Math.Max(m_Velocity, 0);
-		m_RPM = (m_Velocity * 60.0) / Math.PI;
+		m_Torque += minTorque;
 
-		m_Controller.m_RPM[m_EngineIndex] = m_RPM;
+		// apply a starting torque
+		if (m_Controller.m_State[m_EngineIndex] && m_State != m_Controller.m_State[m_EngineIndex])
+		{
+			m_Torque += FromRPM(m_RPMIdle);
+
+			if (m_RPM >= m_RPMIdle)
+			{
+				m_State = true;
+			}
+		}
+		else if (!m_Controller.m_State[m_EngineIndex])
+		{
+			m_State = false;
+		}
+
+		m_Torque -= m_Gearbox.m_Clutch * m_Gearbox.m_MaxClutchTorque;
+
+		if (m_Velocity + m_Torque < 0)
+		{
+			m_Torque = 0;
+			m_Velocity = 0;
+		}
+
+		super.PreSimulate(pState);
+
 		m_Controller.m_Torque[m_EngineIndex] = m_Torque;
 	}
 
@@ -137,35 +210,20 @@ class ExpansionVehicleEngineBase : ExpansionVehicleModule
 	{
 		super.CF_OnDebugUpdate(instance, type);
 
-		instance.Add("RPM", m_RPM);
-		instance.Add("Torque", m_Torque);
-		instance.Add("Velocity", m_Velocity);
+		instance.Add("Throttle", m_Throttle);
+		instance.Add("ThrottleRange", m_ThrottleRange);
+		instance.Add("ThrottleIdle", m_ThrottleIdle);
 
 		return true;
 	}
 #endif
-
-	static float Lerp(float a, float b, float t)
-	{
-		return (a * (1.0 - t)) + (b * t);
-	}
 
 	static float SmoothStep(float t)
 	{
 		return t * t * (3.0 - (2.0 * t));
 	}
 
-	static float FromRPM(float rpm)
-	{
-		return rpm * Math.PI / 30.0;
-	}
-
-	static float ToRPM(float rot)
-	{
-		return Math.AbsFloat(rot) * 30.0 / Math.PI;
-	}
-
-	float CalculateTorque()
+	float CalculateTorque(ExpansionPhysicsState pState)
 	{
 		return 0;
 	}

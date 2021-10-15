@@ -234,12 +234,13 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 					}
 					else if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
 					{
-						if (ExpansionMarketFilters.IsVest(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
+						if (ExpansionMarketFilters.IsCustomizableClothing(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
 						{
-							if (!FileExist(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className))
-								MakeDirectory(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className);
+							if (!FileExist(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className))
+								MakeDirectory(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className);
 							
-							preset.SaveItemPreset(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className + "\\");
+							VestCleanup(preset);
+							preset.SaveItemPreset(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className + "\\");
 							saved = true;
 						}
 					}
@@ -264,55 +265,54 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		}
 	}
 	
+	void VestCleanup(ExpansionMarketMenuItemManagerPreset preset)
+	{
+		string vestFile = EXPANSION_MARKET_VESTS_PRESETS_FOLDER + preset.ClassName + "\\" + preset.PresetName + ".json";
+		if (FileExist(vestFile))
+			DeleteFile(vestFile);
+	}
+
 	void LoadLocalItemPresets()
 	{
 		string className = m_MarketMenu.GetSelectedMarketItem().ClassName;
-		array<string> files;
-		string fileName;
-		ExpansionMarketMenuItemManagerPreset preset;
 		
 		m_ItemManagerPresets.Clear();
 		if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
 		{
-			if (FileExist(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className))
-			{
-				files =  ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className + "\\", ".json");
-				foreach (string weaponFile: files)
-				{
-					fileName = weaponFile.Substring(0, weaponFile.Length() - 5);
-					preset = ExpansionMarketMenuItemManagerPreset.LoadItemPreset(fileName, EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className + "\\");
-					if (preset && preset.ClassName == m_MarketMenu.GetSelectedMarketItem().ClassName)
-					{
-						if (IsPresetValidCheck(preset))
-							m_ItemManagerPresets.Insert(preset);
-					}
-				}
-			}
+			LoadLocalItemPresets(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className);
 		}
 		else if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
 		{
-			if (ExpansionMarketFilters.IsVest(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
+			if (ExpansionMarketFilters.IsCustomizableClothing(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
 			{
-				if (FileExist(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className))
-				{
-					files =  ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className + "\\", ".json");
-					foreach (string vestFile: files)
-					{
-						fileName = vestFile.Substring(0, vestFile.Length() - 5);
-						preset = ExpansionMarketMenuItemManagerPreset.LoadItemPreset(fileName, EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className + "\\");
-						if (preset && preset.ClassName == m_MarketMenu.GetSelectedMarketItem().ClassName)
-						{
-							if (IsPresetValidCheck(preset))
-								m_ItemManagerPresets.Insert(preset);
-						}
-					}
-				}
+				LoadLocalItemPresets(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className);
+				if (FileExist(EXPANSION_MARKET_VESTS_PRESETS_FOLDER))
+					LoadLocalItemPresets(EXPANSION_MARKET_VESTS_PRESETS_FOLDER + className);
 			}
 		}
 				
 		UpdatePresetElements();
 	}
 	
+	void LoadLocalItemPresets(string path)
+	{
+		if (FileExist(path))
+		{
+			array<string> files =  ExpansionStatic.FindFilesInLocation(path + "\\", ".json");
+			ExpansionMarketMenuItemManagerPreset preset;
+			foreach (string fileName: files)
+			{
+				fileName = fileName.Substring(0, fileName.Length() - 5);
+				preset = ExpansionMarketMenuItemManagerPreset.LoadItemPreset(fileName, path + "\\");
+				if (preset && preset.ClassName == m_MarketMenu.GetSelectedMarketItem().ClassName)
+				{
+					if (IsPresetValidCheck(preset))
+						m_ItemManagerPresets.Insert(preset);
+				}
+			}
+		}
+	}
+
 	void UpdatePresetElements()
 	{
 		m_MarketItemManagerController.PresetsDropdownElements.Clear();
@@ -361,8 +361,6 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		m_MarketItemManagerController.PresetName = preset.PresetName;
 		m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
 		
-		UpdateListView();
-		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
 		UpdateMenuViews();
 	}
 	
@@ -399,20 +397,18 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			UpdatePreview();
 		
 		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
+
+		UpdateListView();
 	}
 	
 	void DeleteItemPreset(ExpansionMarketMenuItemManagerPreset preset, string path)
 	{
-		array<string> files =  ExpansionStatic.FindFilesInLocation(path, ".json");
-		foreach (string file: files)
-		{
-			string fileName = file.Substring(0, file.Length() - 5);
-			if (preset.PresetName == fileName)
-			{
-				DeleteFile(path + file);
-				LoadLocalItemPresets();
-			}
-		}
+		string file = path + preset.ClassName + "\\" + preset.PresetName + ".json";
+		if (FileExist(file))
+			DeleteFile(file);
+		else if (path.IndexOf(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER) == 0)
+			VestCleanup(preset);
+		LoadLocalItemPresets();
 	}
 	
 	void OnCloseButtonClick()
@@ -432,8 +428,6 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Clear();
 		
 		UpdateMenuViews();
-				
-		UpdateListView();
 	}
 		
 	void UpdateRotation(int mouse_x, int mouse_y, bool is_dragging)

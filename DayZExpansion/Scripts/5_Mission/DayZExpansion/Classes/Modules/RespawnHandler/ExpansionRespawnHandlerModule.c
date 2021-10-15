@@ -48,22 +48,28 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ExpansionRespawnHandlerModule OnRPC
 	// ------------------------------------------------------------
 	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
 	#endif
 	{
 		switch ( rpc_type )
 		{
-		case ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu:
-			RPC_ShowSpawnMenu( sender, ctx );
-			break;
-		case ExpansionRespawnHandlerModuleRPC.SelectSpawn:
-			RPC_SelectSpawn( sender, ctx );
-			break;
-		case ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu:
-			RPC_CloseSpawnMenu( sender, ctx );
-			break;
+			case ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu:
+			{
+				RPC_ShowSpawnMenu(sender, ctx);
+				break;
+			}
+			case ExpansionRespawnHandlerModuleRPC.SelectSpawn:
+			{
+				RPC_SelectSpawn(sender, ctx);
+				break;
+			}
+			case ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu:
+			{
+				RPC_CloseSpawnMenu(sender, ctx);
+				break;
+			}
 		}
 	}
 	
@@ -81,8 +87,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		array<ref ExpansionSpawnLocation> territoryspawnlist = GetTerritoryList(sender);
 		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( territoryspawnlist );
-		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, sender );
+		rpc.Write(territoryspawnlist);
+		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, sender);
 
 		Print("ExpansionRespawnHandlerModule::ShowSpawnSelection - End");
 	}
@@ -95,12 +101,12 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
 		
-		if ( !IsMissionClient() )
+		if (!IsMissionClient())
 			return;
 
 		array<ref ExpansionSpawnLocation> territoryspawnlist;
 
-		if ( !ctx.Read( territoryspawnlist ) )
+		if (!ctx.Read(territoryspawnlist))
 		{
 			Print( "ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Could not read territoryspawnlist" );
 			return;
@@ -122,12 +128,12 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionClient() )
 			return;
 		
-		GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL );
+		GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL);
 		
-		if ( GetExpansionSettings().GetSpawn().SpawnOnTerritory )
+		if (GetExpansionSettings().GetSpawn().SpawnOnTerritory)
 		{
-			ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
-			if ( spawnSelectionMenu )
+			ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().GetMenu());
+			if (spawnSelectionMenu)
 			{
 				spawnSelectionMenu.FillList( territoryspawnlist, 1 );
 			}
@@ -144,12 +150,11 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionHost() )
 			return NULL;
 			
-		ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule(ExpansionTerritoryModule) );
-		
-		if ( !territories_module )
+		ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
+		if (!territories_module)
 			return NULL;
 
-		array< ref ExpansionSpawnLocation> SpawnLocations = new array< ref ExpansionSpawnLocation >;
+		array< ref ExpansionSpawnLocation> SpawnLocations = new array<ref ExpansionSpawnLocation>;
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 		int TimesIsMember = 0;
@@ -157,27 +162,26 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
 		{
 			TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
-			
 			ExpansionTerritory territory = currentFlag.GetTerritory();
-			if ( !territory )
+			if (!territory)
 				continue;
 
-			if ( !territory.IsMember( sender.GetId() ) )
+			if (!territory.IsMember(sender.GetId()))
 				continue;
 
 			TimesIsMember++;
 			
 			vector pos = territory.GetPosition();
 			// Offset player slighly horizontally and vertically so we don't spawn them on top of the flag pole
-			pos = Vector( pos[0] + 0.5, pos[1], pos[2] + 0.5 );
+			pos = Vector(pos[0] + 0.5, pos[1], pos[2] + 0.5);
 
-			positions.Insert( pos );
-			location = new ExpansionSpawnLocation( territory.GetTerritoryName(), positions );
-			SpawnLocations.Insert( location );
+			positions.Insert(pos);
+			location = new ExpansionSpawnLocation(territory.GetTerritoryName(), positions);
+			SpawnLocations.Insert(location);
 			positions.Clear();
 		}
 
-		if ( TimesIsMember > 0 )
+		if (TimesIsMember > 0)
 			return SpawnLocations;
 		else
 			return NULL;
@@ -192,8 +196,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		Print("ExpansionRespawnHandlerModule::SelectSpawn - Start");
 		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write( spawnPoint );
-		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true );
+		rpc.Write(spawnPoint);
+		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true);
 		
 		Print("ExpansionRespawnHandlerModule::SelectSpawn - End");
 	}
@@ -206,14 +210,14 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{	
 		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - Start");
 		
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 			return;
 		
-		if ( !sender )
+		if (!sender)
 			return;
 		
 		vector spawnPoint;
-		if ( !ctx.Read( spawnPoint ) )
+		if (!ctx.Read(spawnPoint))
 			return;
 		
 		Exec_SelectSpawn(sender, spawnPoint);
@@ -256,7 +260,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			return;
 		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Send( null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, sender );
+		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, sender);
 		
 		Print("ExpansionRespawnHandlerModule::CloseSpawnMenu - End");
 	}
@@ -286,10 +290,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionClient() )
 			return;
 		
-		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast( GetGame().GetUIManager().GetMenu() );
-		if ( spawnSelectionMenu )
+		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().GetMenu());
+		if (spawnSelectionMenu)
 		{
-			GetGame().GetUIManager().CloseMenu( MENU_EXPANSION_SPAWN_SELECTION_MENU );
+			GetGame().GetUIManager().CloseMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU);
 		}
 	}
 	
@@ -303,14 +307,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			return;
 		
 		ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
-
-		if ( !random_location )
+		if (!random_location)
 		{
 			Exec_CloseSpawnMenu();
 			return;
 		}
 		
-		SelectSpawn( random_location.Positions.GetRandomElement() );
+		SelectSpawn(random_location.Positions.GetRandomElement());
 	}
 	
 	// ------------------------------------------------------------
@@ -318,108 +321,103 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	void SetExpansionStartingGear(PlayerBase player)
 	{
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 			return;
 				
-		if ( GetExpansionSettings().GetSpawn() )
+		if (GetExpansionSettings().GetSpawn().StartingGear.EnableStartingGear)
 		{
-			int i;
-			EntityAI gear_item;
-			EntityAI itemTop;
-			EntityAI itemPants;
-			EntityAI itemBag;
-			EntityAI itemVest;
 			EntityAI parent = player;
 			ExpansionStartingGear gear;
 			
-			if ( Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear) )
+			if (Class.CastTo(gear, GetExpansionSettings().GetSpawn().StartingGear))
 			{
-				//! Add items to top/shirt/jacked or player if there is no space
-				if ( gear.UseUpperGear )
-				{
-					itemTop = player.FindAttachmentBySlotName("Body");					
-					if ( itemTop )
-					{
-						for ( i = 0; i < gear.UpperGear.Count(); i++ )
-						{
-							AddItem(player, gear.UpperGear[i], itemTop);
-						}
-					}
-					else
-					{
-						AddItem(player, gear.UpperGear[i], parent);
-					}
-				}
+				//! Add items to clothing (if present) or player
+				//! If items don't fit into inventory, they'll be placed in an ExpansionTemporaryOwnedContainer 
+
+				//! Add items to top/shirt/jacket
+				if (gear.UseUpperGear)
+					AddGear(player, gear.UpperGear, parent, "Body");
 				
 				//! Add items to pants
-				if ( gear.UsePantsGear )
-				{
-					itemPants = player.FindAttachmentBySlotName("Legs");					
-					if ( itemPants )
-					{
-						for ( i = 0; i < gear.PantsGear.Count(); i++ )
-						{
-							AddItem(player, gear.PantsGear[i], itemPants);
-						}
-					}
-					else
-					{
-						AddItem(player, gear.PantsGear[i], parent);
-					}
-				}
+				if (gear.UsePantsGear)
+					AddGear(player, gear.PantsGear, parent, "Legs");
 				
 				//! Add items to backpack
-				if ( gear.UseBackpackGear )
-				{
-					itemBag = player.FindAttachmentBySlotName("Back");					
-					if ( itemBag )
-					{
-						for ( i = 0; i < gear.BackpackGear.Count(); i++ )
-						{
-							AddItem(player, gear.BackpackGear[i], itemBag);
-						}
-					}
-					else
-					{
-						AddItem(player, gear.BackpackGear[i], parent);
-					}
-				}
+				if (gear.UseBackpackGear)
+					AddGear(player, gear.BackpackGear, parent, "Back");
 				
 				//! Add items to vest
-				if ( gear.UseVestGear )
-				{
-					itemVest = player.FindAttachmentBySlotName("Vest");					
-					if ( itemVest )
-					{
-						for ( i = 0; i < gear.VestGear.Count(); i++ )
-						{
-							AddItem(player, gear.VestGear[i], itemVest);
-						}
-					}
-					else
-					{
-						AddItem(player, gear.VestGear[i], parent);
-					}
-				}
+				if (gear.UseVestGear)
+					AddGear(player, gear.VestGear, parent, "Vest");
 				
 				//! Add primary weapon and its attachments
-				if ( gear.UsePrimaryWeapon )
-				{
+				if (gear.UsePrimaryWeapon)
 					AddItem(player, gear.PrimaryWeapon, parent);
-				}
 				
 				//! Add primary weapon and its attachments
-				if ( gear.UseSecondaryWeapon )
-				{
+				if (gear.UseSecondaryWeapon)
 					AddItem(player, gear.SecondaryWeapon, parent);
-				}
 			}
 		}
 	}
 	
-	private void AddItem(PlayerBase player, ExpansionStartingGearItem item, inout EntityAI parent)
+	private void AddGear(PlayerBase player, array< ref ExpansionStartingGearItem > gearItems, inout EntityAI parent, string slotName)
 	{
-		ExpansionItemSpawnHelper.SpawnOnParent(item.ClassName, player, parent, item.Quantity, NULL, -1, true);
+		EntityAI item = player.FindAttachmentBySlotName(slotName);
+		foreach (ExpansionStartingGearItem gearItem: gearItems)
+				{
+			if (item)
+			{
+				AddItem(player, gearItem, item);
+				//! When gear doesn't fit into item, a ExpansionTemporaryOwnedContainer will be created
+				//! and item reference will be changed in-place to this container. We need to update `out parent` in this case,
+				//! So that other gear that may be added will be placed into that container as well if they don't fit into their
+				//! respective player attachment slot item.
+				if (item.IsInherited(ExpansionTemporaryOwnedContainer))
+					parent = item;
+				}
+			else
+			{
+				AddItem(player, gearItem, parent);
+			}
+		}
+	}
+	
+	private void AddItem(PlayerBase player, ExpansionStartingGearItem gearItem, inout EntityAI parent)
+	{
+		int quantity = gearItem.Quantity;  //! SpawnOnParent will deduct spawned quantity!
+		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, quantity, gearItem.Attachments, -1, true));
+
+		if (!item)
+			return;
+
+		if (GetExpansionSettings().GetSpawn().StartingGear.SetRandomHealth)
+			SetRandomHealth(item);
+
+		if (!GetExpansionSettings().GetSpawn().StartingGear.ApplyEnergySources)
+			return;
+
+		bool hasEnergySourceSlot;
+		//hasEnergySourceSlot = item.GetInventory().HasInventorySlot(InventorySlots.GetSlotIdFromString("BatteryD"));  //! WHY THE FUCK does this not work?!?
+
+		TStringArray attachmentSlotNames = new TStringArray;
+		if (GetGame().ConfigIsExisting("CfgVehicles " + gearItem.ClassName + " attachments"))
+			GetGame().ConfigGetTextArray("CfgVehicles " + gearItem.ClassName + " attachments", attachmentSlotNames);
+		else if (GetGame().ConfigIsExisting("CfgWeapons " + gearItem.ClassName + " attachments"))
+			GetGame().ConfigGetTextArray("CfgWeapons " + gearItem.ClassName + " attachments", attachmentSlotNames);
+
+		foreach (string slotName: attachmentSlotNames)
+		{
+			slotName.ToLower();
+			if (slotName == "batteryd")
+			{
+				hasEnergySourceSlot = true;
+				break;
+			}
+		}
+
+		if (hasEnergySourceSlot)
+			item.GetInventory().CreateAttachment("Battery9V");  //! TODO: Should probably be able to deal with arbitrary power sources?
 	}
 	
 	// ------------------------------------------------------------
@@ -430,62 +428,38 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionHost() )
 			return;
 		
-		array<EntityAI> clothingArray = new array<EntityAI>;
-		
 		ExpansionStartingClothing startingClothing;
 		if (Class.CastTo(startingClothing, GetExpansionSettings().GetSpawn().StartingClothing))
 		{
-			EntityAI item_head = player.GetInventory().CreateAttachmentEx(startingClothing.Headgear.GetRandomElement(), InventorySlots.HEADGEAR);
-			clothingArray.Insert(item_head);
-			
-			EntityAI item_eyewear = player.GetInventory().CreateAttachmentEx(startingClothing.Glasses.GetRandomElement(), InventorySlots.EYEWEAR);
-			clothingArray.Insert(item_eyewear);
-			
-			EntityAI item_mask = player.GetInventory().CreateAttachmentEx(startingClothing.Masks.GetRandomElement(), InventorySlots.MASK);
-			clothingArray.Insert(item_mask);
-			
-			EntityAI item_body = player.GetInventory().CreateAttachmentEx(startingClothing.Tops.GetRandomElement(), InventorySlots.BODY);
-			clothingArray.Insert(item_body);
-			
-			EntityAI item_vest = player.GetInventory().CreateAttachmentEx(startingClothing.Vests.GetRandomElement(), InventorySlots.VEST);
-			clothingArray.Insert(item_vest);
-			
-			EntityAI item_gloves = player.GetInventory().CreateAttachmentEx(startingClothing.Gloves.GetRandomElement(), InventorySlots.GLOVES);
-			clothingArray.Insert(item_gloves);
-			
-			EntityAI item_legs = player.GetInventory().CreateAttachmentEx(startingClothing.Pants.GetRandomElement(), InventorySlots.LEGS);
-			clothingArray.Insert(item_legs);
-			
-			EntityAI item_hips = player.GetInventory().CreateAttachmentEx(startingClothing.Belts.GetRandomElement(), InventorySlots.HIPS);
-			clothingArray.Insert(item_hips);
-			
-			EntityAI item_feet = player.GetInventory().CreateAttachmentEx(startingClothing.Shoes.GetRandomElement(), InventorySlots.FEET);
-			clothingArray.Insert(item_feet);
-			
-			EntityAI item_arm = player.GetInventory().CreateAttachmentEx(startingClothing.Armbands.GetRandomElement(), InventorySlots.ARMBAND);
-			clothingArray.Insert(item_arm);
-			
-			EntityAI item_back = player.GetInventory().CreateAttachmentEx(startingClothing.Backpacks.GetRandomElement(), InventorySlots.BACK);
-			clothingArray.Insert(item_back);
-			
-			if (GetExpansionSettings().GetSpawn().StartingClothing.SetRandomHealth)
-			{
-				for (int i = 0; i < clothingArray.Count(); i++ )
-				{
-					SetRandomHealth(clothingArray[i]);
-				}
-			}
+			AddClothing(player, startingClothing.Headgear, InventorySlots.HEADGEAR);
+			AddClothing(player, startingClothing.Glasses, InventorySlots.EYEWEAR);
+			AddClothing(player, startingClothing.Masks, InventorySlots.MASK);
+			AddClothing(player, startingClothing.Tops, InventorySlots.BODY);
+			AddClothing(player, startingClothing.Vests, InventorySlots.VEST);
+			AddClothing(player, startingClothing.Gloves, InventorySlots.GLOVES);
+			AddClothing(player, startingClothing.Pants, InventorySlots.LEGS);
+			AddClothing(player, startingClothing.Belts, InventorySlots.HIPS);
+			AddClothing(player, startingClothing.Shoes, InventorySlots.FEET);
+			AddClothing(player, startingClothing.Armbands, InventorySlots.ARMBAND);
+			AddClothing(player, startingClothing.Backpacks, InventorySlots.BACK);
 			
 			SetExpansionStartingGear(player);
 		}
 	}
 	
+	private void AddClothing(PlayerBase player, TStringArray clothingItems, int slotId)
+	{
+		EntityAI clothing = player.GetInventory().CreateAttachmentEx(clothingItems.GetRandomElement(), slotId);
+		if (clothing && GetExpansionSettings().GetSpawn().StartingClothing.SetRandomHealth)
+			SetRandomHealth(clothing);
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule SetRandomHealth
 	// ------------------------------------------------------------
 	void SetRandomHealth(EntityAI itemEnt)
 	{
-		if ( itemEnt )
+		if (itemEnt)
 		{
 			int rndHlt = Math.RandomInt(55,100);
 			itemEnt.SetHealth("","",rndHlt);

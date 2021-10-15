@@ -90,15 +90,15 @@ class ExpansionStartingGearBase
  **/
 class ExpansionStartingGearV1: ExpansionStartingGearBase
 {
-	ref TStringArray UpperGear = new TStringArray;				// Array of classnames used for the upper gear
-	ref TStringArray PantsGear = new TStringArray;					// Array of classnames used for the pants gear
-	ref TStringArray BackpackGear = new TStringArray;			// Array of classnames used for the backpack gear
-	ref TStringArray VestGear = new TStringArray;					// Array of classnames used for the vest gear
+	autoptr TStringArray UpperGear = new TStringArray;				// Array of classnames used for the upper gear
+	autoptr TStringArray PantsGear = new TStringArray;					// Array of classnames used for the pants gear
+	autoptr TStringArray BackpackGear = new TStringArray;			// Array of classnames used for the backpack gear
+	autoptr TStringArray VestGear = new TStringArray;					// Array of classnames used for the vest gear
 	
 	string PrimaryWeapon;
-	ref TStringArray PrimaryWeaponAttachments = new TStringArray;
+	autoptr TStringArray PrimaryWeaponAttachments = new TStringArray;
 	string SecondaryWeapon;
-	ref TStringArray SecondaryWeaponAttachments = new TStringArray;
+	autoptr TStringArray SecondaryWeaponAttachments = new TStringArray;
 }
 
 /**@class		ExpansionStartingGear
@@ -115,29 +115,6 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 	
 	ref ExpansionStartingGearItem PrimaryWeapon;
 	ref ExpansionStartingGearItem SecondaryWeapon;
-	
-	// ------------------------------------------------------------
-	// ExpansionStartingGear Destructor
-	// ------------------------------------------------------------	
-	void ~ExpansionStartingGear()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGear::~ExpansionStartingGear - Start");
-		#endif
-		
-		UpperGear.Clear();
-		delete UpperGear;	
-		PantsGear.Clear();
-		delete PantsGear;		
-		BackpackGear.Clear();
-		delete BackpackGear;	
-		VestGear.Clear();
-		delete VestGear;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGear::~ExpansionStartingGear - End");
-		#endif
-	}
 
 	// ------------------------------------------------------------
 	// ExpansionStartingGear Defaults
@@ -213,54 +190,17 @@ class ExpansionStartingClothing
 	bool EnableCustomClothing;
 	bool SetRandomHealth;
 	
-	ref TStringArray Headgear = new TStringArray;
-	ref TStringArray Glasses = new TStringArray;
-	ref TStringArray Masks = new TStringArray;
-	ref TStringArray Tops = new TStringArray;
-	ref TStringArray Vests = new TStringArray;
-	ref TStringArray Gloves = new TStringArray;
-	ref TStringArray Pants = new TStringArray;
-	ref TStringArray Belts = new TStringArray;
-	ref TStringArray Shoes = new TStringArray;
-	ref TStringArray Armbands = new TStringArray;
-	ref TStringArray Backpacks = new TStringArray;
-	
-	// ------------------------------------------------------------
-	// ExpansionStartingClothing Destructor
-	// ------------------------------------------------------------	
-	void ~ExpansionStartingClothing()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingClothing::~ExpansionStartingClothing - Start");
-		#endif
-		
-		Headgear.Clear();
-		delete Headgear;	
-		Glasses.Clear();
-		delete Glasses;		
-		Masks.Clear();
-		delete Masks;	
-		Tops.Clear();
-		delete Tops;
-		Vests.Clear();
-		delete Vests;
-		Gloves.Clear();
-		delete Gloves;
-		Pants.Clear();
-		delete Pants;
-		Belts.Clear();
-		delete Belts;
-		Shoes.Clear();
-		delete Shoes;
-		Armbands.Clear();
-		delete Armbands;
-		Backpacks.Clear();
-		delete Backpacks;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingClothing::~ExpansionStartingClothing - End");
-		#endif
-	}
+	autoptr TStringArray Headgear = new TStringArray;
+	autoptr TStringArray Glasses = new TStringArray;
+	autoptr TStringArray Masks = new TStringArray;
+	autoptr TStringArray Tops = new TStringArray;
+	autoptr TStringArray Vests = new TStringArray;
+	autoptr TStringArray Gloves = new TStringArray;
+	autoptr TStringArray Pants = new TStringArray;
+	autoptr TStringArray Belts = new TStringArray;
+	autoptr TStringArray Shoes = new TStringArray;
+	autoptr TStringArray Armbands = new TStringArray;
+	autoptr TStringArray Backpacks = new TStringArray;
 	
 	// ------------------------------------------------------------
 	// ExpansionStartingClothing Defaults

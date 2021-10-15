@@ -33,8 +33,6 @@ class ExpansionBoatScript extends OffroadHatchback
 
 	private float m_Turn;
 	private float m_TurnTarget;
-
-	private bool m_UseBoatController;
 	
 	// ------------------------------------------------------------
 	//! Effects
@@ -65,7 +63,6 @@ class ExpansionBoatScript extends OffroadHatchback
 		
 		//!Values
 		m_Offset 					= 0.75;
-		m_UseBoatController			= true;
 
 		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE | EntityEvent.INIT );
 
@@ -547,8 +544,12 @@ class ExpansionBoatScript extends OffroadHatchback
 		vector orientation = GetOrientation();
 		if (ExpansionStatic.SurfaceIsWater(position))
 		{
+			float waterLineCorrection = 1.08;  //! Value works for all boats, makes waterline roughly match simulated waterline
+			float tideCorrection = GetTideCorrection(position);
+			if (tideCorrection > 0.2)
+				waterLineCorrection += tideCorrection - 0.2;  //! If surface is sea, place boat roughly below half point of tide to make it easier to climb in
 			float depth = g_Game.GetWaterDepth(position);
-			position[1] = position[1] + depth + m_Offset - 1.05;
+			position[1] = position[1] + depth + m_Offset - waterLineCorrection;
 			SetPosition(position);
 			SetOrientation(Vector(orientation[0], 0, 0));
 		}
@@ -566,6 +567,19 @@ class ExpansionBoatScript extends OffroadHatchback
 		#endif
 	}
 
+	float GetTideCorrection(vector position)
+	{
+		if (GetGame().SurfaceIsSea(position[0], position[2]))
+		{
+			vector waterSurfacePos = ExpansionStatic.GetSurfaceWaterPosition(position);
+			//! Based on Chernarus, where lowest and highest tide point are roughly 0.320801 and 0.820602, respectively
+			if (waterSurfacePos[1] > 0.32 && waterSurfacePos[1] < 1.0)
+				return waterSurfacePos[1] - 0.32;
+		}
+
+		return 0;
+	}
+
 	// ------------------------------------------------------------
 	override int Get3rdPersonCameraType()
 	{
@@ -578,36 +592,40 @@ class ExpansionBoatScript extends OffroadHatchback
 		return ExpansionVehicleAnimInstances.EX_HATCHBACK;
 	}
 
-	// ------------------------------------------------------------
-	protected override bool CanSimulate()
+	override bool Expansion_CanSimulate()
 	{
-		if (ExpansionGame.IsMultiplayerServer() && !m_IsInitialized)
+		if ((GetGame().IsServer() && GetGame().IsMultiplayer()) && !m_IsInitialized)
 			return false;
-		
-		//! Prevents the case where server can simulate but client doesn't, making the boat jitter
-		if (ExpansionGame.IsMultiplayerClient())
-			return m_CanSimulate;
 
-		return dBodyIsActive( this ) && dBodyIsDynamic( this );
+		return true;
 	}
 
-	protected override void OnNoSimulation( float pDt )
+	override bool Expansion_ShouldDisableSimulation()
 	{
-		super.OnNoSimulation( pDt );
+		vector velocity = GetVelocity(this);
+		// if velocity is greater than gravity in either direction then that means the boat is not floating
+		if (Math.AbsFloat(velocity[1]) > Math.AbsFloat(dGetGravity(this)[1]))
+			return false;
+		
+		// checking the velocity speed to see if it is moving (pushed/pulled/towed)
+		velocity[1] = 0;
+		if (velocity.LengthSq() > 0.1)
+			return false;
 
-		vector position = GetPosition();
+		if (m_ThrustTarget > 0.001) 
+			return false;
+			
+		if (m_Thrust > 0.001) 
+			return false;
 
-		if (ExpansionStatic.SurfaceIsWater(position))
+		float tideCorrection = GetTideCorrection(GetPosition());
+		if (tideCorrection > 0)
 		{
-			float depth = g_Game.GetWaterDepth( position );
-			if (depth > 10)  //! Sunken?
-				return;
-
-			vector transform[4];
-			GetTransform(transform);
-			transform[3][1] = position[1] + depth + m_Offset - 1.05;
-			SetTransform(transform);
+			//! If surface is sea, deactivate boat at roughly below half point of tide to make it easier to climb in again
+			return tideCorrection > 0.2 && tideCorrection < 0.21;
 		}
+
+		return true;
 	}
 
 	// ------------------------------------------------------------

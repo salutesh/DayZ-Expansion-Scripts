@@ -593,6 +593,7 @@ class ExpansionMarkerClientData : Managed
 		{
 			if ( m_PartyModule && m_PartyModule.IsClientInitialized() )
 			{
+				//! Player was in party and has left party, clear party marker info
 				m_MarkerInfo_Party.Clear();
 				m_MarkerInfo_PartyPlayers.Clear();
 			}

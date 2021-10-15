@@ -22,7 +22,7 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	// ------------------------------------------------------------
 	void ExpansionUh1h()
 	{
-		m_dmgContactCoef							= 0.6;
+		m_dmgContactCoef							= 0.06;
 		m_ExplosionSize								= 20;
 	}
 	

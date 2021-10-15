@@ -61,9 +61,9 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 		}
 		else if (m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
 		{
-			if (ExpansionMarketFilters.IsVest(m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().GetType()))
+			if (ExpansionMarketFilters.IsCustomizableClothing(m_MarketMenuItemManager.GetMarketMenu().GetSelectedMarketItemElement().GetPreviewObject().GetType()))
 			{
-				m_MarketMenuItemManager.DeleteItemPreset(m_Preset, EXPANSION_MARKET_VESTS_PRESETS_FOLDER + m_Preset.ClassName + "\\");
+				m_MarketMenuItemManager.DeleteItemPreset(m_Preset, EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + m_Preset.ClassName + "\\");
 			}
 		}
 	}

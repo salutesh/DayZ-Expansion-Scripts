@@ -12,8 +12,6 @@
 
 class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 {
-	vector m_Position;
-
 	float m_Depth;
 	vector m_Velocity;
 
@@ -23,6 +21,16 @@ class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 
 		path = rootPath + " point";
 		m_Position = m_Vehicle.GetMemoryPointPos(GetGame().ConfigGetTextOut(path));
+		
+		m_SelfDebugWindow = true;
+		
+		m_TEMP_DeferredInit = false;
+		m_SettingsChanged = false;
+		m_Control = false;
+		m_PreSimulate = true;
+		m_Simulate = true;
+		m_Animate = false;
+		m_Network = false;
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
@@ -52,8 +60,10 @@ class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 	}
 
 #ifdef CF_DebugUI
-	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
+		super.CF_OnDebugUpdate(instance, type);
+
 		instance.Add("Depth", m_Depth);
 
 		return true;

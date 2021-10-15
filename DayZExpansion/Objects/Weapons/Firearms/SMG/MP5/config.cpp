@@ -503,7 +503,7 @@ class CfgSlots
 	class Slot_Expansion_MP5ScopeRail
 	{
 		name = "Expansion_MP5ScopeRail";
-		displayName = "$STR_EXPANSION_MP5_SCOPE_RAIL_SLOT_NAME";
+		displayName = "$STR_EXPANSION_MP5_SCOPE_RAIL";
 		ghostIcon = "handguard";
 	};
 };

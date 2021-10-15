@@ -96,6 +96,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 				foreach (string item : settings_v3.Items)
 				{
+					item.ToLower();
 					settings.AddItem(item);
 				}
 			}
@@ -121,22 +122,28 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			settings.m_FileName = name;
 		}
 		
-		//! Make sure currencies are lowercase
-		TStringArray currencies = settings.Currencies;
-		settings.Currencies = new TStringArray;
-		foreach (string currency : currencies)
+		if (settingsBase.m_Version >= 5)
 		{
-			currency.ToLower();
-			settings.Currencies.Insert(currency);
+			//! Make sure currencies are lowercase
+			TStringArray currencies = settings.Currencies;
+			settings.Currencies = new TStringArray;
+			foreach (string currency : currencies)
+			{
+				currency.ToLower();
+				settings.Currencies.Insert(currency);
+			}
 		}
-		
-		//! Make sure item classnames are lowercase
-		map<string, ExpansionMarketTraderBuySell> items = settings.Items;
-		settings.Items = new map<string, ExpansionMarketTraderBuySell>;
-		foreach (string className, ExpansionMarketTraderBuySell buySell : items)
+			
+		if (settingsBase.m_Version >= 4)
 		{
-			className.ToLower();
-			settings.AddItem(className, buySell);
+			//! Make sure item classnames are lowercase
+			map<string, ExpansionMarketTraderBuySell> items = settings.Items;
+			settings.Items = new map<string, ExpansionMarketTraderBuySell>;
+			foreach (string className, ExpansionMarketTraderBuySell buySell : items)
+			{
+				className.ToLower();
+				settings.AddItem(className, buySell);
+			}
 		}
 		
 		settings.Finalize();
@@ -180,6 +187,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		#endif
 		
 		item.ToLower();
+		if (Items.Contains(item))
+			return;  //! Already added, possibly implicitly by adding a variant before the parent (which will add the parent first)
+
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( item );
 		if ( marketItem )
 		{
@@ -257,13 +267,13 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		{
 			foreach ( string attachment : item.MarketItem.SpawnAttachments )
 			{
-				if ( !Items.Contains( attachment ) )
+				if ( !Items.Contains( attachment ) && !toAdd.Contains( attachment ) )
 					toAdd.Insert( attachment, ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly );
 			}
 
 			foreach ( string variant : item.MarketItem.Variants )
 			{
-				if ( !Items.Contains( variant ) )
+				if ( !Items.Contains( variant ) && !toAdd.Contains( variant ) )
 					toAdd.Insert( variant, item.BuySell );
 			}
 		}

@@ -41,6 +41,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	protected TextWidget market_item_info_buy_price;
 	protected Widget market_item_fastbuy;
 	protected Widget market_item_fastsell;
+	protected Widget market_item_info_sell_price_panel;
 	
 	protected vector m_ItemPreviewOrientation = vector.Zero;
 	protected int m_ItemPreviewRotationX = 0;
@@ -211,9 +212,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		m_ItemController.ItemName = itemDisplayName;
 		m_ItemController.NotifyPropertyChanged("ItemName");
 		
-		UpdateView();
-		
 		UpdatePreviewObject();
+		
+		UpdateView();
 		
 		CreateTooltip();
 	}
@@ -319,17 +320,20 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		m_ItemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName, true);
 		m_PlayerStock = m_MarketModule.GetAmountInInventory(GetMarketItem(), m_MarketModule.LocalGetEntityInventory());
 		
-		UpdatePrice();
+		UpdatePrices();
 			
 		if (GetMarketMenu().GetMarketTrader().CanBuyItem(GetBaseItem().ClassName))
 		{		
-			if (GetMarketItem().IsStaticStock())
+			if (m_ItemStock > 0)
 			{
-				m_ItemController.ItemMarketStock = "∞";
-			}
-			else if (m_ItemStock > 0)
-			{
-				m_ItemController.ItemMarketStock = m_ItemStock.ToString() + " IN STOCK";
+				if (GetMarketItem().IsStaticStock())
+					m_ItemController.ItemMarketStock = "∞";
+				else 
+					m_ItemController.ItemMarketStock = m_ItemStock.ToString() + " IN STOCK";
+
+				ExpansionMarketCurrency playerWorth = m_MarketModule.GetPlayerWorth();
+
+				market_item_fastbuy.Show(playerWorth >= m_BuyPrice && m_BuyPrice > -1);
 			}
 			else
 			{
@@ -337,11 +341,15 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 					m_ItemController.ItemMarketStock = "OUT OF STOCK";
 				else
 					m_ItemController.ItemMarketStock = "N/A";
+
+				market_item_fastbuy.Show(false);
 			}
 		}
 		else
 		{
 			m_ItemController.ItemMarketStock = "CAN'T BUY";
+
+			market_item_fastbuy.Show(false);
 		}
 		
 		m_ItemController.NotifyPropertyChanged("ItemMarketStock");
@@ -349,17 +357,17 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (GetMarketMenu().GetMarketTrader().CanSellItem(GetBaseItem().ClassName))
 		{
 			if (m_PlayerStock >= 0)
-			{
 				m_ItemController.ItemPlayerStock = m_PlayerStock.ToString() + " ON YOU";
-			}
 			else
-			{
 				m_ItemController.ItemPlayerStock = "CAN'T SELL";
-			}
+
+			market_item_fastsell.Show(m_PlayerStock > 0 && m_SellPrice > -1);
 		}
 		else
 		{
 			m_ItemController.ItemPlayerStock = "CAN'T SELL";
+
+			market_item_fastsell.Show(false);
 		}
 
 		m_ItemController.NotifyPropertyChanged("ItemPlayerStock");
@@ -378,53 +386,6 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		CreateTooltip();
 		
-		if (m_PlayerStock >= 0)
-		{
-			if (m_PlayerStock == 0)
-			{
-				market_item_fastsell.Show(false);
-			}
-			else
-			{
-				ExpansionMarketSell marketSell = new ExpansionMarketSell;
-				marketSell.Item = GetMarketItem();
-				marketSell.Trader = GetMarketMenu().GetTraderObject();
-				int sellPrice;
-				if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_ItemStock, 1, marketSell))
-					sellPrice = marketSell.Price;	
-				else
-					sellPrice = -1;
-				
-				market_item_fastsell.Show(m_ItemStock >= 0 && sellPrice > -1);
-			}
-		}
-		else
-		{
-			market_item_fastsell.Show(false);
-		}
-		
-		if (m_ItemStock == 0)
-		{
-			market_item_fastbuy.Show(false);
-		}
-		else
-		{
-			ExpansionMarketCurrency playerWorth = m_MarketModule.GetPlayerWorth();
-			
-			int buyPrice;
-			ExpansionMarketCurrency price;
-			if (m_MarketModule.FindPriceOfPurchase(GetMarketItem(), m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, false))
-			{
-				buyPrice = price;
-				market_item_fastbuy.Show(playerWorth >= buyPrice && buyPrice > -1);
-			}
-			else
-			{
-				buyPrice = -1;
-				market_item_fastbuy.Show(false);
-			}
-		}
-		
 		GetMarketItem().m_UpdateView = false;
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
@@ -433,14 +394,56 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketMenuItem UpdatePrice
+	// ExpansionMarketMenuItem UpdatePrices
 	// ------------------------------------------------------------	
-	void UpdatePrice()
+	void UpdatePrices()
 	{
-		ExpansionMarketCurrency price;
-		m_MarketModule.FindPriceOfPurchase(GetMarketItem(), m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments());
-		m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(price, ",");
+		//! Buy price
+		ExpansionMarketCurrency price = 0;
+		if (m_MarketModule.FindPriceOfPurchase(GetMarketItem(), m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments()))
+		{
+			m_BuyPrice = price;
+			m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",", true);
+		}
+		else
+		{
+			m_BuyPrice = -1;
+			m_ItemController.ItemBuyPrice = "";
+		}
+
 		m_ItemController.NotifyPropertyChanged("ItemBuyPrice");
+
+		//! Sell price
+		if (m_PlayerStock > 0)
+		{
+			//! Player has the item
+			ExpansionMarketSell marketSell = new ExpansionMarketSell;
+			marketSell.Item = GetMarketItem();
+			marketSell.Trader = GetMarketMenu().GetTraderObject();
+			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_ItemStock, 1, marketSell))
+			{
+				m_SellPrice = marketSell.Price;
+				m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
+			}
+			else
+			{
+				m_SellPrice = -1;
+				m_ItemController.ItemSellPrice = "";
+			}
+		}
+		else
+		{
+			//! Player doesn't have the item.
+			float sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
+			if (sellPricePct < 0)
+				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
+			m_SellPrice = GetMarketItem().CalculatePrice(m_ItemStock + 1, sellPricePct / 100);
+			m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
+		}
+
+		m_ItemController.NotifyPropertyChanged("ItemSellPrice");
+		
+		market_item_info_sell_price_panel.Show(m_SellPrice > -1);
 	}
 	
 	// ------------------------------------------------------------
@@ -718,6 +721,7 @@ class ExpansionMarketMenuItemController: ExpansionViewController
 	string ItemMarketStock;
 	string ItemPlayerStock;
 	string ItemBuyPrice;
+	string ItemSellPrice;
 	Object Preview;
 	string CurrencyIcon;
 };

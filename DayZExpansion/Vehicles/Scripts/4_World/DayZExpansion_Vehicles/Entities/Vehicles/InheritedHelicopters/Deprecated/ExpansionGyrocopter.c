@@ -25,7 +25,7 @@ class ExpansionGyrocopter: ExpansionHelicopterScript
 		#endif
 
 		//! Vanilla
-		m_dmgContactCoef				 			= 0.005;
+		m_dmgContactCoef				 			= 0.05;
 
 		//! explosions
 		m_ExplosionSize								= 2;

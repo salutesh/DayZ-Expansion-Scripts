@@ -1123,6 +1123,8 @@ class ExpansionPartyModule: JMModuleBase
 	{
 		//! Clean-up needed on client
 		ClearPlayerParty();
+
+		m_IsClientInitialized = false;
 	}
 
 	//! OnClientDisconnect is called on each disconnect

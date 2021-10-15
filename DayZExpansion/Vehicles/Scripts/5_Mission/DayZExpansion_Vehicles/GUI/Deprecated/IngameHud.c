@@ -10,7 +10,7 @@
  *
 */
 
-
+#ifndef EXPANSION_VEHICLE_NEW_HUD
 modded class IngameHud
 {	
 	protected ref Widget		m_LeftHudPanel;
@@ -905,3 +905,4 @@ modded class IngameHud
 		#endif
 	}
 };
+#endif

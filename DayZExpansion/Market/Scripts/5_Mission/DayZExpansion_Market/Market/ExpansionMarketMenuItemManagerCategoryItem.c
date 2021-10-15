@@ -320,7 +320,6 @@ EXPrint("Adding " + classNameToLower);
 		//! UpdatePreview needs to be called before calling UpdateAttachments
 		m_MarketMenuItemManager.UpdatePreview();
 		UpdateAttachments();
-		m_MarketMenuItemManager.UpdateListView();
 		m_MarketMenuItemManager.UpdateMenuViews(false);
 	}
 		
@@ -370,7 +369,6 @@ EXPrint("Adding " + classNameToLower);
 			//! UpdatePreview needs to be called before calling UpdateAttachments
 			m_MarketMenuItemManager.UpdatePreview();
 			UpdateAttachments();
-			m_MarketMenuItemManager.UpdateListView();
 			m_MarketMenuItemManager.UpdateMenuViews(false);
 		}
 	}

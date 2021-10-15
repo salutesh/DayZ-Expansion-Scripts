@@ -315,81 +315,9 @@ modded class ItemBase
 	}
 
 	//============================================
-	// EEItemLocationChanged
-	//============================================	
-	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
-	override void EEItemLocationChanged( notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc )
-	{
-		#ifdef EXPANSIONEXPRINT
-		Print("ItemBase::EEItemLocationChanged - Start");
-		#endif
-
-		ExpansionAIBase new_player = null;
-		ExpansionAIBase old_player = null;
-		
-		if ( oldLoc.GetItem() )
-			old_player = ExpansionAIBase.Cast( oldLoc.GetItem().GetHierarchyRootPlayer() );
-
-		if ( newLoc.GetParent() )
-			new_player = ExpansionAIBase.Cast( newLoc.GetParent().GetHierarchyRootPlayer() );
-		
-		if ( !new_player && !old_player )
-		{	
-			super.EEItemLocationChanged( oldLoc, newLoc );
-
-			#ifdef EXPANSIONEXPRINT
-			Print("ItemBase::EEItemLocationChanged - End - Not AI");
-			#endif
-
-			return;
-		}
-
-		EntityAI old_owner = oldLoc.GetItem();
-		EntityAI new_owner = newLoc.GetItem();
-		OnItemLocationChanged( old_owner, new_owner );
-
-		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT && newLoc.GetType() == InventoryLocationType.ATTACHMENT )
-		{
-			OnItemAttachmentSlotChanged( oldLoc, newLoc );
-		}
-		
-		if ( oldLoc.GetType() == InventoryLocationType.ATTACHMENT )
-		{
-			if ( old_owner )
-				OnWasDetached( old_owner, oldLoc.GetSlot() );
-			else
-				Error("EntityAI::EEItemLocationChanged - detached, but old_owner is null");
-		}
-		
-		if ( newLoc.GetType() == InventoryLocationType.ATTACHMENT )
-		{
-			if ( new_owner )
-				OnWasAttached( newLoc.GetParent(), newLoc.GetSlot() );
-			else
-				Error("EntityAI::EEItemLocationChanged - attached, but new_owner is null");
-		}
-		
-		if ( newLoc.GetType() == InventoryLocationType.HANDS )
-		{
-			if ( new_player == old_player )
-			{
-			} else
-			{
-				if ( m_OldLocation )
-				{
-					m_OldLocation.Reset();
-				}
-			}
-		}
-		
-		#ifdef EXPANSIONEXPRINT
-		Print("ItemBase::EEItemLocationChanged - End");
-		#endif
-	}
-	
-	//============================================
 	// OnItemLocationChanged
 	//============================================	
+	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
 	override void OnItemLocationChanged( EntityAI old_owner, EntityAI new_owner )
 	{
 		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING

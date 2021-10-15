@@ -61,7 +61,7 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	// OnSettingsUpdated
 	// ------------------------------------------------------------
-	void OnSettingsUpdated()	
+	override void OnSettingsUpdated()	
 	{	
 		if ( IsMissionClient() )
 		{

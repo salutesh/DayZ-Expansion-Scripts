@@ -10,149 +10,87 @@
  *
 */
 
-class ExpansionVehicleGearbox : ExpansionVehicleModule
+enum ExpansionVehicleGearboxType
 {
-	int m_ControlIndex = 0;
+	DEFAULT,
+	ADVANCED
+};
+
+static ExpansionVehicleGearbox Expansion_CreateGearbox(EntityAI vehicle, string path)
+{
+	int type = ExpansionVehicleGearboxType.DEFAULT;
+	string typePath = path + " type";
+
+	if (GetGame().ConfigIsExisting(typePath))
+	{
+		switch (GetGame().ConfigGetType(typePath))
+		{
+		case CT_STRING:
+			string typeName;
+			GetGame().ConfigGetText(typePath, typeName);
+			typeName.ToUpper();
+			type = typename.StringToEnum(ExpansionVehicleGearboxType, typeName);
+			break;
+		default:
+			type = GetGame().ConfigGetInt(typePath);
+			break;
+		}
+	}
+
+	switch (type)
+	{
+	case ExpansionVehicleGearboxType.ADVANCED:
+		return new ExpansionVehicleGearboxAdvanced(vehicle, path);
+	case ExpansionVehicleGearboxType.DEFAULT:
+		return new ExpansionVehicleGearboxDefault(vehicle, path);
+	}
+
+	return null;
+};
+
+class ExpansionVehicleGearbox : ExpansionVehicleRotational
+{
+	int m_GearIndex;
 
 	float m_TimeToUncoupleClutch;
 	float m_TimeToCoupleClutch;
 	float m_MaxClutchTorque;
 
-	float m_Reverse;
 	ref array<float> m_Ratios = new array<float>();
+	ref array<string> m_Gears = new array<string>();
 
 	int m_Gear;
-	int m_TargetGear;
-
-	float m_Time;
-
 	float m_Clutch;
-	int m_ClutchState; // 0 - nothing, 1 - waiting, 2 - pressing, 3 - reached, 4 - releasing
 
 	void ExpansionVehicleGearbox(EntityAI pVehicle, string rootPath)
 	{
-		string path;
+		m_Clutch = 0;
+		m_Gear = 0;
+		m_Ratio = 1;
 
-		path = rootPath + " controller";
-		if (GetGame().ConfigIsExisting(path))
-			m_ControlIndex = GetGame().ConfigGetInt(path);
-
-		path = rootPath + " ratios";
-		if (GetGame().ConfigIsExisting(path))
-			GetGame().ConfigGetFloatArray(path, m_Ratios);
-
-		path = rootPath + " reverse";
-		if (GetGame().ConfigIsExisting(path))
-			m_Reverse = GetGame().ConfigGetFloat(path);
-
-		path = rootPath + " timeToUncoupleClutch";
-		if (GetGame().ConfigIsExisting(path))
-			m_TimeToUncoupleClutch = GetGame().ConfigGetFloat(path);
-
-		path = rootPath + " timeToCoupleClutch";
-		if (GetGame().ConfigIsExisting(path))
-			m_TimeToCoupleClutch = GetGame().ConfigGetFloat(path);
-
-		path = rootPath + " maxClutchTorque";
-		if (GetGame().ConfigIsExisting(path))
-			m_MaxClutchTorque = GetGame().ConfigGetFloat(path);
+		m_Position = "0.0 0.05 0.0";
 	}
 
 	int Count()
 	{
-		return m_Ratios.Count() + 1;
-	}
-
-	override void Control(ExpansionPhysicsState pState, DayZPlayerImplement pDriver)
-	{
-		if (!pDriver)
-			return;
-
-		UAInterface input = pDriver.GetInputInterface();
-
-		if (input.SyncedPress_ID(UACarShiftGearUp))
-		{
-			m_TargetGear++;
-		}
-		else if (input.SyncedPress_ID(UACarShiftGearDown))
-		{
-			m_TargetGear--;
-		}
-
-		if (m_TargetGear < 0)
-			m_TargetGear = 0;
-
-		if (m_TargetGear > Count())
-			m_TargetGear = Count();
-
-		auto hcv = ExpansionHumanCommandVehicle.Cast(pDriver.GetCommand_Script());
-		if (hcv)
-		{
-			if (m_TargetGear != m_Gear && m_ClutchState == 0)
-			{
-				hcv.SignalGearChange();
-
-				m_ClutchState = 2;
-				m_Time = 0;
-			}
-		}
+		return m_Ratios.Count();
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-		float clutchDt;
+		m_Controller.m_Clutch[m_GearIndex] = m_Clutch;
+		m_Controller.m_Gear[m_GearIndex] = m_Gear;
+		m_Controller.m_Ratio[m_GearIndex] = m_Ratio;
+		m_Controller.m_GearCount[m_GearIndex] = Count();
 
-		switch (m_ClutchState)
-		{
-		case 0:
-			m_Clutch = 0;
-			break;
-		case 1:
-			m_Clutch = 0;
-			m_Time += pState.m_DeltaTime;
-			if (m_Time > 0.5) // clutch simulation probably in a deadlock, reset
-			{
-				m_ClutchState = 0;
-				m_Time = 0;
-			}
-			break;
-		case 2:
-			m_Clutch += pState.m_DeltaTime / m_TimeToCoupleClutch;
-			if (m_Clutch >= 1.0)
-				m_ClutchState = 3;
-			break;
-		case 3:
-			m_Clutch = 1;
-
-			if (m_Gear != m_TargetGear)
-				m_Gear = m_TargetGear;
-
-			m_ClutchState = 4;
-			break;
-		case 4:
-			m_Clutch -= pState.m_DeltaTime / m_TimeToUncoupleClutch;
-			if (m_Clutch <= 0)
-				m_ClutchState = 0;
-			break;
-		}
-
-		float ratio = 0;
-
-		if (m_Clutch > 0.1)
-			ratio = 0;
-		else if (m_Gear == 0)
-			ratio = -m_Reverse;
-		else if (m_Gear > 1)
-			ratio = m_Ratios[m_Gear - 2];
-
-		m_Controller.m_Clutch[m_ControlIndex] = m_Clutch;
-		m_Controller.m_Gear[m_ControlIndex] = m_Gear;
-		m_Controller.m_Ratio[m_ControlIndex] = ratio;
+		super.PreSimulate(pState);
 	}
 
 #ifdef CF_DebugUI
-	bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
+	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
+		super.CF_OnDebugUpdate(instance, type);
+
 		instance.Add("Clutch", m_Clutch);
 		instance.Add("Gear", m_Gear);
 

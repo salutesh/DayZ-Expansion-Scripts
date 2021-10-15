@@ -22,8 +22,6 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 
 		AddItem("HeadlightH7_Box", 							30,		60,		1,		100,	0);
 		AddItem("HeadlightH7", 								30,		60,		1,		100,	0);
-		AddItem("CarBattery", 								100,	200,	1,		100,	0);
-		AddItem("TruckBattery", 							180,	360,	1,		100,	0);
 		AddItem("CarRadiator", 								200,	400,	1,		100,	0);
 
 		AddItem("TireRepairKit", 							220,	440,	1,		100,	0);

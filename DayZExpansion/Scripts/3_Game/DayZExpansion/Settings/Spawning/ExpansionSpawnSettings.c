@@ -90,20 +90,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	void ~ExpansionSpawnSettings()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::~ExpansionSpawnSettings - Start");
-		#endif
-		
-		delete StartingGear;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::~ExpansionSpawnSettings - End");
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		#ifdef EXPANSIONEXPRINT

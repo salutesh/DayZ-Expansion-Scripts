@@ -91,8 +91,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
 	[NonSerialized()]
-	protected autoptr array<ref ExpansionMarketTraderZoneReserved> m_TraderZonesReserved;		
-	[NonSerialized()]
 	protected autoptr array<ref ExpansionMarketTraderZone> m_TraderZones;
 	[NonSerialized()]
 	protected autoptr array<ref ExpansionMarketTrader> m_Traders;
@@ -114,13 +112,17 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		MarketVIPs = new array<string>;
 		
 		m_Categories = new map<int, ref ExpansionMarketCategory>;
-		m_TraderZonesReserved = new array<ref ExpansionMarketTraderZoneReserved>;
 		m_TraderZones = new array<ref ExpansionMarketTraderZone>;	
 		m_Traders = new array<ref ExpansionMarketTrader>;
 
 		//TraderPrint("ExpansionMarketSettings - End");
 	}
 	
+	void ~ExpansionMarketSettings()
+	{
+		EXPrint("~ExpansionMarketSettings");
+	}
+
 	// ------------------------------------------------------------
 	protected void LoadCategories()
 	{
@@ -326,7 +328,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 		if (!m_Categories.Count())
 		{
-			//! NEVER clear these, otherwise respawning will get rid of already synched categories and trader menu will be empty
+			//! NEVER clear these here (dealt with by ClearMarketCaches which is called on mission finish), otherwise respawning will get rid of already synched categories and trader menu will be empty
 			EXPrint("Syncing categories from network categories");
 			for (i = 0; i < s.NetworkCategories.Count(); i++)
 			{
@@ -1149,8 +1151,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		m_Traders.Insert(trader);
 	}
 
-	void ClearMarketTraders()
+	void ClearMarketCaches()
 	{
+		EXPrint("Clearing cached categories " + m_Categories.Count());
+		m_Categories.Clear();
 		EXPrint("Clearing cached traders " + m_Traders.Count());
 		m_Traders.Clear();
 	}

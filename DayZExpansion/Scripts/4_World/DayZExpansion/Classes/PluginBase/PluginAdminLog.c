@@ -30,7 +30,7 @@ modded class PluginAdminLog
 			if (!m_KillfeedModule)
 				m_KillfeedModule = ExpansionKillFeedModule.Cast(GetModuleManager().GetModule(ExpansionKillFeedModule));
 			
-			if ( player && source && !player.IPADACK() )
+			if ( player && source && !m_KillfeedModule.WasHitCheckDone() )
 			{
 				if ( player == source )	// deaths not caused by another object (starvation, dehydration)
 				{

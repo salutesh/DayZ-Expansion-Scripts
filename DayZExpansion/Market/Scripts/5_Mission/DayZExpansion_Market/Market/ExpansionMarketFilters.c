@@ -350,8 +350,8 @@ class ExpansionMarketFilters
 	
 	TStringArray GetAttachmentsByType(ExpansionMarketOutput output, ExpansionMarketAttachType attachType)
 	{
-		if (output.IsInherited(ExpansionMarketVest))
-			return GetVestAttachmentsByType(ExpansionMarketVest.Cast(output), attachType);
+		if (output.IsInherited(ExpansionMarketClothing))
+			return GetClothingAttachmentsByType(ExpansionMarketClothing.Cast(output), attachType);
 		else
 			return GetWeaponAttachmentsByType(ExpansionMarketWeapon.Cast(output), attachType);
 	}
@@ -398,9 +398,9 @@ class ExpansionMarketFilters
 	{
 		TStringArray attachments = new TStringArray;
 
-		if (IsVest(className))
+		if (IsCustomizableClothing(className))
 		{
-			GetAttachmentsByClassNameAndTypesEx(m_MarketOutputs.Vests.Get(className), attachTypes, attachments);
+			GetAttachmentsByClassNameAndTypesEx(m_MarketOutputs.Clothing.Get(className), attachTypes, attachments);
 		}
 		else
 		{
@@ -434,9 +434,9 @@ class ExpansionMarketFilters
 		}
 	}
 	
-	static bool IsVest(string className)
+	static bool IsCustomizableClothing(string className)
 	{
-		return GetGame().IsKindOf(className, "Clothing_Base") && ClassNameHierarchyContains(className, "CfgVehicles", {"vest", "chestrig"}, "Clothing_Base");
+		return GetGame().IsKindOf(className, "Clothing_Base") && ClassNameHierarchyContains(className, "CfgVehicles", {"vest", "chestrig", "bag", "backpack", "rucksack", "belt"}, "Clothing_Base");
 	}
 	
 	static bool IsWeapon(string className)
@@ -687,17 +687,17 @@ class ExpansionMarketFilters
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GenerateVestAttachmentDenom
+	// ExpansionMarketFilters GenerateClothingAttachmentDenom
 	// ------------------------------------------------------------	
-	void GenerateVestAttachmentDenom(string className)
+	void GenerateClothingAttachmentDenom(string className)
 	{
-		if (!m_MarketOutputs.Vests)
-			m_MarketOutputs.Vests = new map<string, ref ExpansionMarketVest>;	
+		if (!m_MarketOutputs.Clothing)
+			m_MarketOutputs.Clothing = new map<string, ref ExpansionMarketClothing>;	
 		
 		TStringArray inventory_slots = {};
 		string inventory_slot;
 		
-		if (IsVest(className) && !m_MarketOutputs.Vests.Contains(className))
+		if (IsCustomizableClothing(className) && !m_MarketOutputs.Clothing.Contains(className))
 		{
 			switch (GetGame().ConfigGetType("CfgVehicles " + className + " inventorySlot"))
 			{
@@ -715,12 +715,12 @@ class ExpansionMarketFilters
 
 			if (inventory_slots.Count() > 0 || inventory_slot != string.Empty)
 			{
-				ExpansionMarketVest vest = new ExpansionMarketVest();
-				vest.name = className;
+				ExpansionMarketClothing clothing = new ExpansionMarketClothing();
+				clothing.name = className;
 				
-				AddAttachmentDenom(vest, "CfgVehicles");
+				AddAttachmentDenom(clothing, "CfgVehicles");
 
-				m_MarketOutputs.Vests.Insert(className, vest);
+				m_MarketOutputs.Clothing.Insert(className, clothing);
 			}
 		}
 	}
@@ -742,8 +742,8 @@ class ExpansionMarketFilters
 					foreach (string attachment: m_AttachmentsMap[attachmentSlotName]) 
 					{
 						ExpansionMarketAttachType attachType;
-						if (output.IsInherited(ExpansionMarketVest))
-							attachType = GetVestAttachmentAttachType(attachment, attachmentSlotName);
+						if (output.IsInherited(ExpansionMarketClothing))
+							attachType = GetClothingAttachmentAttachType(attachment, attachmentSlotName);
 						else
 							attachType = GetWeaponAttachmentAttachType(attachment, attachmentSlotName);
 						TStringArray attachments = GetAttachmentsByType(output, attachType);
@@ -755,9 +755,9 @@ class ExpansionMarketFilters
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestAttachmentAttachType
+	// ExpansionMarketFilters GetClothingAttachmentAttachType
 	// ------------------------------------------------------------	
-	static ExpansionMarketAttachType GetVestAttachmentAttachType(string className, string slotName = "")
+	static ExpansionMarketAttachType GetClothingAttachmentAttachType(string className, string slotName = "")
 	{
 		string baseClassName;
 		string baseNameToLower;
@@ -807,85 +807,85 @@ class ExpansionMarketFilters
 	// ------------------------------------------------------------
 	// ExpansionMarketFilters HasAttachments
 	// ------------------------------------------------------------		
-	bool HasVestAttachments(string className)
+	bool HasClothingAttachments(string className)
 	{
-		if (GetVestPouchesByClassName(className).Count() > 0 ) return true;
-		if (GetVestHolstersByClassName(className).Count() > 0 ) return true;
-		if (GetVestCanteensByClassName(className).Count() > 0)  return true;
-		if (GetVestGrenadesByClassName(className).Count() > 0)  return true;
-		if (GetVestPatchesByClassName(className).Count() > 0)  return true;
-		if (GetVestAttachmentsByClassName(className).Count() > 0)  return true;
+		if (GetClothingPouchesByClassName(className).Count() > 0 ) return true;
+		if (GetClothingHolstersByClassName(className).Count() > 0 ) return true;
+		if (GetClothingCanteensByClassName(className).Count() > 0)  return true;
+		if (GetClothingGrenadesByClassName(className).Count() > 0)  return true;
+		if (GetClothingPatchesByClassName(className).Count() > 0)  return true;
+		if (GetClothingAttachmentsByClassName(className).Count() > 0)  return true;
 		
 		return false;
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestAttachmentsByType
+	// ExpansionMarketFilters GetClothingAttachmentsByType
 	// ------------------------------------------------------------	
-	TStringArray GetVestAttachmentsByType(ExpansionMarketVest vest, ExpansionMarketAttachType attachType)
+	TStringArray GetClothingAttachmentsByType(ExpansionMarketClothing clothing, ExpansionMarketAttachType attachType)
 	{
 		switch (attachType)
 		{
 			case ExpansionMarketAttachType.POUCHES:
-				return vest.pouches;
+				return clothing.pouches;
 			case ExpansionMarketAttachType.HOLSTERS:
-				return vest.holsters;
+				return clothing.holsters;
 			case ExpansionMarketAttachType.CANTEENS:
-				return vest.canteens;
+				return clothing.canteens;
 			case ExpansionMarketAttachType.GRENADES:
-				return vest.grenades;
+				return clothing.grenades;
 			case ExpansionMarketAttachType.PATCHES:
-				return vest.patches;
+				return clothing.patches;
 		}
 		
 		//! ExpansionMarketAttachType.OTHER
-		return vest.attachments;
+		return clothing.attachments;
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestAttachmentsByClassName
+	// ExpansionMarketFilters GetClothingAttachmentsByClassName
 	// ------------------------------------------------------------
-	TStringArray GetVestAttachmentsByClassName(string className)
+	TStringArray GetClothingAttachmentsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.OTHER});
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestPouchesByClassName
+	// ExpansionMarketFilters GetClothingPouchesByClassName
 	// ------------------------------------------------------------
-	TStringArray GetVestPouchesByClassName(string className)
+	TStringArray GetClothingPouchesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.POUCHES});
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestHolstersByClassName
+	// ExpansionMarketFilters GetClothingHolstersByClassName
 	// ------------------------------------------------------------
-	TStringArray GetVestHolstersByClassName(string className)
+	TStringArray GetClothingHolstersByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.HOLSTERS});
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestCanteensByClassName
+	// ExpansionMarketFilters GetClothingCanteensByClassName
 	// ------------------------------------------------------------
-	TStringArray GetVestCanteensByClassName(string className)
+	TStringArray GetClothingCanteensByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.CANTEENS});
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestGrenadesByClassName
+	// ExpansionMarketFilters GetClothingGrenadesByClassName
 	// ------------------------------------------------------------
-	TStringArray GetVestGrenadesByClassName(string className)
+	TStringArray GetClothingGrenadesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.GRENADES});
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetVestPatchesByClassName
+	// ExpansionMarketFilters GetClothingPatchesByClassName
 	// ------------------------------------------------------------
-	TStringArray GetVestPatchesByClassName(string className)
+	TStringArray GetClothingPatchesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.PATCHES});
 	}

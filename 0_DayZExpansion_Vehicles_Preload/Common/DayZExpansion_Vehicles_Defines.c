@@ -12,5 +12,9 @@
 
 #define EXPANSIONMODVEHICLE
 
+#ifdef CF_MVVM
+#define EXPANSION_VEHICLE_NEW_HUD
+#endif
+
 //! Enable it if you want to enable skinning system debug logs
 //#define EXPANSION_VEHICLE_SKIN_LOGGING

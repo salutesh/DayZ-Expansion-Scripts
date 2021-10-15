@@ -22,7 +22,6 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 
 	string m_Animation;
 
-	vector m_Position;
 	vector m_Up;
 
 	float m_Area;
@@ -44,7 +43,7 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 	float m_DragCoef;
 	float m_PressureCoef;
 
-	float m_Control;
+	float m_Input;
 	float m_Angle;
 	int m_Flap;
 
@@ -123,6 +122,16 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		path = rootPath + " animation";
 		if (GetGame().ConfigIsExisting(path))
 			m_Animation = GetGame().ConfigGetTextOut(path);
+
+		m_SelfDebugWindow = true;
+		
+		m_TEMP_DeferredInit = false;
+		m_SettingsChanged = false;
+		m_Control = false;
+		m_PreSimulate = true;
+		m_Simulate = true;
+		m_Animate = true;
+		m_Network = false;
 	}
 
 #ifdef CF_DebugUI
@@ -149,21 +158,21 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		switch (m_Type)
 		{
 		case ExpansionVehicleAerofoilType.Rudder:
-			m_Control = -m_Controller.m_Yaw;
+			m_Input = -m_Controller.m_Yaw;
 			break;
 
 		case ExpansionVehicleAerofoilType.Elevator:
-			m_Control = m_Controller.m_Pitch;
+			m_Input = m_Controller.m_Pitch;
 			break;
 
 		case ExpansionVehicleAerofoilType.Wing:
 			if (m_Position[0] < 0.0)
 			{
-				m_Control = -m_Controller.m_Roll;
+				m_Input = -m_Controller.m_Roll;
 			}
 			else
 			{
-				m_Control = m_Controller.m_Roll;
+				m_Input = m_Controller.m_Roll;
 			}
 			break;
 		}
@@ -173,7 +182,7 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 
 		m_AngleOfAttack = Math.Asin(vector.Dot(m_Up, m_AirFlowNormal)) * Math.RAD2DEG;
 
-		m_Angle = (m_Control * m_MaxControlAngle) + m_Camber;
+		m_Angle = (m_Input * m_MaxControlAngle) + m_Camber;
 
 		m_PressureCoef = m_Area * 0.5 * Expansion_GetDensity(pState.m_Transform[3]) * m_AirflowMagnitudeSq;
 
@@ -223,6 +232,6 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 
 	override void Animate(ExpansionPhysicsState pState)
 	{
-		m_Vehicle.SetAnimationPhase(m_Animation, m_Control);
+		m_Vehicle.SetAnimationPhase(m_Animation, m_Input);
 	}
 };

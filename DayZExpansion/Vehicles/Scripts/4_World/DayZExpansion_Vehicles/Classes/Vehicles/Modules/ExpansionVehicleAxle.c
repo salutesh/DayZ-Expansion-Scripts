@@ -17,24 +17,23 @@ enum ExpansionVehicleDifferentialType
 	AWD
 };
 
-class ExpansionVehicleAxle : ExpansionVehicleModule
+class ExpansionVehicleAxle : ExpansionVehicleRotational
 {
 	string m_Name;
 	int m_Index;
 
 	autoptr array<ref ExpansionVehicleWheel> m_Wheels = new array<ref ExpansionVehicleWheel>();
 
-	float m_WheelRadius;
-
 	float m_MaxSteeringAngle;
 
 	int m_ControlIndex;
-	int m_EngineIndex;
+
+	float m_EffectiveRatio;
+
+	float m_Brake;
 
 	float m_BrakeBias;
 	float m_BrakeForce;
-	float m_FinalRatio;
-	float m_InvFinalRatio;
 	float m_WheelHubMass;
 	float m_WheelHubRadius;
 
@@ -58,14 +57,10 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 		if (GetGame().ConfigIsExisting(path))
 			m_ControlIndex = GetGame().ConfigGetInt(path);
 
-		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " engine";
-		if (GetGame().ConfigIsExisting(path))
-			m_EngineIndex = GetGame().ConfigGetInt(path);
-
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " maxSteeringAngle";
 		m_MaxSteeringAngle = GetGame().ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " finalRatio";
-		m_FinalRatio = GetGame().ConfigGetFloat(path);
+		m_Ratio = GetGame().ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " brakeBias";
 		m_BrakeBias = GetGame().ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " brakeForce";
@@ -95,10 +90,20 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 	{
 		super.Init();
 
-		if (m_EngineIndex == -1)
+		int count;
+		int i;
+
+		count = m_Wheels.Count();
+		for (i = 0; i < count; i++)
 		{
-			m_FinalRatio = 0;
-			m_InvFinalRatio = 0;
+			m_Position = m_Position + m_Wheels[i].m_Position;
+		}
+
+		m_Position = m_Position * (1.0 / count);
+
+		if (m_ControlIndex == -1)
+		{
+			m_Ratio = 0;
 			return;
 		}
 
@@ -109,28 +114,31 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 		{
 		case ExpansionVehicleDifferentialType.RWD:
 			if (m_Index != vehicle.GetAxleCount() - 1)
-				m_FinalRatio = 0;
+				m_Ratio = 0;
 			break;
 		case ExpansionVehicleDifferentialType.FWD:
 			if (m_Index != 0)
-				m_FinalRatio = 0;
+				m_Ratio = 0;
 			break;
 		}
 
-		if (m_FinalRatio == 0)
+		if (m_Ratio == 0)
 		{
-			m_EngineIndex = -1;
-			m_InvFinalRatio = 0;
+			m_ControlIndex = -1;
 		}
-		else
+
+		if (m_ControlIndex >= 0)
 		{
-			m_InvFinalRatio = 1.0 / m_FinalRatio;
+			m_Parent = vehicle.m_Gearboxes[m_ControlIndex];
+			m_Parent.m_Component = this;
 		}
 	}
 
 	ExpansionVehicleWheel AddWheel(string pName)
 	{
 		ExpansionVehicleWheel wheel = new ExpansionVehicleWheel(m_Vehicle, pName, this);
+
+		wheel.m_Parent = this;
 
 		m_Wheels.Insert(wheel);
 
@@ -140,36 +148,15 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 #ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
-		float ratio = 0;
-		if (m_ControlIndex >= 0)
-			ratio = m_Controller.m_Ratio[m_ControlIndex];
+		super.CF_OnDebugUpdate(instance, type);
 
 		instance.Add("Index", m_ControlIndex);
-		instance.Add("Ratio", ratio);
 
 		return true;
 	}
 #endif
 
-	void UpdateWheelRadius()
-	{
-		for (int i = 0; i < m_Wheels.Count(); ++i)
-			m_WheelRadius += m_Wheels[i].m_Radius;
-
-		m_WheelRadius = m_WheelRadius / m_Wheels.Count();
-	}
-
-	float GetRPM()
-	{
-		float highest = 0;
-
-		for (int i = 0; i < m_Wheels.Count(); ++i)
-			if (m_Wheels[i].m_RPM > highest)
-				highest = m_Wheels[i].m_RPM;
-
-		return highest;
-	}
-
+	/*
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
 		float brake = 0.0;
@@ -183,7 +170,7 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 		float torque = 0.0;
 		if (m_EngineIndex != -1)
 		{
-			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio * gear;
+			torque = m_Controller.m_Torque[m_EngineIndex] * m_Ratio * gear;
 		}
 
 		float steering = m_Controller.m_Yaw * m_MaxSteeringAngle;
@@ -194,18 +181,7 @@ class ExpansionVehicleAxle : ExpansionVehicleModule
 			m_Wheels[i].m_Steering = steering;
 		}
 	}
-
-	override void Simulate(ExpansionPhysicsState pState)
-	{
-		if (m_EngineIndex == -1)
-			return;
-
-		float gear = 1.0;
-		if (m_ControlIndex >= 0)
-			gear = m_Controller.m_Ratio[m_ControlIndex];
-
-		m_Controller.m_RPM[m_EngineIndex] = Math.Max(GetRPM() * m_FinalRatio * gear, m_Controller.m_RPM[m_EngineIndex]);
-	}
+*/
 };
 
 class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
@@ -218,12 +194,7 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 
 		return m_Center;
 	}
-
-	override float GetRPM()
-	{
-		return m_Center.m_RPM;
-	}
-
+	/*
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
 		float brake = 0.0;
@@ -237,13 +208,14 @@ class ExpansionVehicleOneWheelAxle : ExpansionVehicleAxle
 		float torque = 0.0;
 		if (m_EngineIndex != -1)
 		{
-			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio * gear;
+			torque = m_Controller.m_Torque[m_EngineIndex] * m_Ratio * gear;
 		}
 
 		m_Center.m_WheelTorque = torque;
 		m_Center.m_BrakeTorque = brake;
 		m_Center.m_Steering = m_Controller.m_Yaw * m_MaxSteeringAngle;
 	}
+*/
 };
 
 class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
@@ -319,37 +291,38 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 		return super.AddWheel(pName);
 	}
 
-	override float GetRPM()
-	{
-		return Math.Max(m_Left.m_RPM, m_Right.m_RPM);
-	}
-
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
 		float sp = pState.GetModelVelocityAt("0 0 0")[2];
 
-		float brake = 0.0;
-		float gear = 1.0;
+		m_Brake = 0.0;
 		if (m_ControlIndex != -1)
-		{
-			brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
-			gear = m_Controller.m_Ratio[m_ControlIndex];
-		}
+			m_Brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
 
-		float torque = 0.0;
-		if (m_EngineIndex != -1)
-		{
-			torque = m_Controller.m_Torque[m_EngineIndex] * m_FinalRatio * gear;
-		}
-		
 		float steering = m_Controller.m_Yaw;
 
 		m_AntiRollForce = Math.Clamp(sp * steering * 0.01 * pState.m_DeltaTime, -1, 1) * m_SwayBar;
 
-		m_Left.m_WheelTorque = torque * 0.5;
-		m_Right.m_WheelTorque = torque * 0.5;
-		m_Left.m_BrakeTorque = brake;
-		m_Right.m_BrakeTorque = brake;
+		float j0 = 0;
+		float j1 = 1;
+		float j2 = 1;
+
+		if (m_Parent)
+			j0 = m_Parent.m_Inertia;
+
+		float jt = j0 + j1 + j2;
+
+		float m0 = m_Torque * m_Ratio;
+		float m1 = m_Left.m_TractionTorque;
+		float m2 = m_Right.m_TractionTorque;
+
+		float mt = m0 + m1 + m2;
+
+		// axles must be running at the same rpm
+		m_Acceleration = mt / jt;
+
+		m_Left.m_Torque = m_Acceleration;
+		m_Right.m_Torque = m_Acceleration;
 
 		m_Left.m_Steering = steering * m_MaxSteeringAngle;
 		m_Right.m_Steering = steering * m_MaxSteeringAngle;
@@ -364,32 +337,5 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 			m_Left.m_Steering = Math.AbsFloat(Math.RAD2DEG * leftFrontWheelSteer * 2.0 / Math.PI) * steering * Sign(m_MaxSteeringAngle);
 			m_Right.m_Steering = Math.AbsFloat(Math.RAD2DEG * rightFrontWheelSteer * 2.0 / Math.PI) * steering * Sign(m_MaxSteeringAngle);
 		}
-	}
-
-	override void Simulate(ExpansionPhysicsState pState)
-	{
-		float coef = pState.m_DeltaTime * pState.m_Mass;
-
-		float l = Math.Max(0, -m_AntiRollForce);
-		float r = Math.Max(0, m_AntiRollForce);
-
-		vector w1 = m_Left.m_ContactNormal * coef * l;
-		vector w2 = m_Right.m_ContactNormal * coef * r;
-		vector p1 = m_Left.m_ContactPosition;
-		vector p2 = m_Right.m_ContactPosition;
-
-		vector impulse;
-		vector impulseTorque;
-
-		impulse += w1;
-		impulseTorque += p1 * w1;
-
-		impulse += w2;
-		impulseTorque += p2 * w2;
-
-		//pImpulse += impulse.Multiply3( pState.m_Transform );
-		//pImpulseTorque += impulseTorque.Multiply3( pState.m_Transform );
-
-		super.Simulate(pState);
 	}
 };

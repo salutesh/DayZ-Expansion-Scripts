@@ -1089,7 +1089,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			if (total_monies > 0)
 			{
 				string currencyString = ExpansionStatic.IntToCurrencyString(total_monies, ",");
-				descriptions.Insert(monies[i].ToString() + " " + GetDisplayName(type) + " (" + currencyString + ")");
+				descriptions.Insert(monies[i].ToString() + " × " + GetDisplayName(type) + " (" + currencyString + ")");
 			}
 		}
 		
@@ -1161,10 +1161,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		else if (itemElement.GetPreviewObject().IsClothing())
 		{
-			if (ExpansionMarketFilters.IsVest(itemElement.GetPreviewObject().GetType()))
+			if (ExpansionMarketFilters.IsCustomizableClothing(itemElement.GetPreviewObject().GetType()))
 			{
-				m_MarketFilters.GenerateVestAttachmentDenom(itemElement.GetPreviewObject().GetType());
-				hasAttachments = m_MarketFilters.HasVestAttachments(itemElement.GetPreviewObject().GetType());
+				m_MarketFilters.GenerateClothingAttachmentDenom(itemElement.GetPreviewObject().GetType());
+				hasAttachments = m_MarketFilters.HasClothingAttachments(itemElement.GetPreviewObject().GetType());
 			}
 		}
 		
@@ -1572,36 +1572,19 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		marketSell.Item = GetSelectedMarketItem();
 		marketSell.Trader = m_TraderObject;
 		
-		string currencySellPriceString;
-		if (HasPlayerItem(GetSelectedMarketItem().ClassName))
+		m_SellPrice = GetSelectedMarketItemElement().m_SellPrice;
+		if (m_PlayerStock > 0)
 		{
-			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_TraderItemStock, m_Quantity, marketSell))
-			{
-				m_SellPrice = marketSell.Price;
-				MarketPrint("UpdateItemFieldFromBasicNetSync - m_SellPrice: " + m_SellPrice);			
-				currencySellPriceString = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
-				m_MarketMenuController.MarketItemTotalSellPrice = currencySellPriceString;
-				market_item_sell_price_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText)); 
-				market_item_sell_price_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText)); 
-			} 
+			if (m_SellPrice > -1)
+				m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
 			else
-			{
-				MarketPrint("UpdateItemFieldFromBasicNetSync - FindSellPrice false!");
-				m_SellPrice = -1;
 				m_MarketMenuController.MarketItemTotalSellPrice = "";
-				market_item_sell_price_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText)); 
-				market_item_sell_price_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-			}
+			market_item_sell_price_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText)); 
+			market_item_sell_price_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
 		}
 		else
 		{
-			int sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
-			int previewPrice = GetSelectedMarketItem().CalculatePrice(m_TraderItemStock + 1, sellPricePct / 100);
-			currencySellPriceString = ExpansionStatic.IntToCurrencyString(previewPrice, ",");
-			m_MarketMenuController.MarketItemTotalSellPrice = currencySellPriceString;
-			
+			m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
 			market_item_sell_price_text.SetColor(COLOR_EXPANSION_NOTIFICATION_EXPANSION);
 			market_item_sell_price_icon.SetColor(COLOR_EXPANSION_NOTIFICATION_EXPANSION);
 		}
@@ -1610,12 +1593,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		market_item_sell_price_icon.Show(m_SellPrice > -1);
 
 		ExpansionMarketCurrency price = 0;
-		string currencyBuyPriceString = "";
 		if (m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments()))
 		{
 			m_BuyPrice = price;
-			currencyBuyPriceString = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
-			m_MarketMenuController.MarketItemTotalBuyPrice = currencyBuyPriceString;
+			m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
 		}
 		else
 		{
@@ -1747,7 +1728,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			#endif
 			
 			if (monies[i] > 0)
-				sellDescriptions.Insert(prefix + monies[i].ToString() + " " + GetDisplayName(denoms[i]) + "\n");
+				sellDescriptions.Insert(prefix + monies[i].ToString() + " × " + GetDisplayName(denoms[i]) + "\n");
 		}
 		
 		monies.Clear();
@@ -1799,7 +1780,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 			if (monies[i] > 0)
 			{
-				buyDescriptions.Insert(prefix + monies[i].ToString() + " " + GetDisplayName(denoms[i]) + "\n");
+				buyDescriptions.Insert(prefix + monies[i].ToString() + " × " + GetDisplayName(denoms[i]) + "\n");
 			}
 			else
 			{

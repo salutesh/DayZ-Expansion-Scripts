@@ -396,6 +396,11 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 	}
 		
+	bool WasHitCheckDone()
+	{
+		return m_HitCheckDone;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule CalcBlood
 	// ------------------------------------------------------------

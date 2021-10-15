@@ -1,5 +1,5 @@
 /**
- * ExpansionVehicleBoatBase.c
+ * PipeWrench.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,9 +10,11 @@
  *
 */
 
-/**@class		ExpansionBoat
- * @brief		This class handle boat movement and physics
- **/
-class ExpansionVehicleBoatBase extends ExpansionVehicleCarBase
+modded class PipeWrench
 {
-};
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ExpansionActionRepairHelicopter);
+	}
+}

@@ -59,7 +59,7 @@ class ExpansionVehicleCarEngine : ExpansionVehicleEngineBase
 	}
 #endif
 
-	override float CalculateTorque()
+	override float CalculateTorque(ExpansionPhysicsState pState)
 	{
 		if (m_RPM >= m_PowerRPM && m_RPM <= m_RPMMax)
 		{
@@ -67,9 +67,9 @@ class ExpansionVehicleCarEngine : ExpansionVehicleEngineBase
 		}
 		else if (m_RPM >= m_TorqueRPM && m_RPM < m_PowerRPM)
 		{
-			return Lerp(m_TorqueMax, 1000.0 * m_PowerMax / FromRPM(m_PowerRPM), (m_RPM - m_TorqueRPM) / (m_PowerRPM - m_TorqueRPM));
+			return Math.Lerp(m_TorqueMax, 1000.0 * m_PowerMax / FromRPM(m_PowerRPM), (m_RPM - m_TorqueRPM) / (m_PowerRPM - m_TorqueRPM));
 		}
-		else if (m_RPM >= m_RPMIdle && m_RPM < m_TorqueRPM)
+		else if (m_RPM < m_TorqueRPM)
 		{
 			float a = m_Steepness * FromRPM(m_RPM) / FromRPM(m_TorqueRPM);
 			return m_TorqueMax * a * ((1.0 + (1.0 / m_Steepness)) / (1.0 + a));

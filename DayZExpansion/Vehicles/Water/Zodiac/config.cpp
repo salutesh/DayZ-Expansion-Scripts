@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Boat_Zodiac
 	{
-		units[] = {"ExpansionZodiacBoat","Vehicle_ExpansionZodiacBoat","ExpansionSpraycanOrange","ExpansionZodiacBoat_Orange","Vehicle_ExpansionZodiacBoat_Orange","ExpansionSpraycanBlack","ExpansionZodiacBoat_Black","Vehicle_ExpansionZodiacBoat_Black","ExpansionSpraycanGreen","ExpansionZodiacBoat_Green","Vehicle_ExpansionZodiacBoat_Green"};
+		units[] = {"ExpansionZodiacBoat","ExpansionSpraycanOrange","ExpansionZodiacBoat_Orange","ExpansionSpraycanBlack","ExpansionZodiacBoat_Black","ExpansionSpraycanGreen","ExpansionZodiacBoat_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -27,7 +27,6 @@ class CfgVehicles
 	class Driver;
 	class CoDriver;
 	class ExpansionBoatScript;
-	class ExpansionVehicleBoatBase;
 	class ExpansionZodiacBoat: ExpansionBoatScript
 	{
 		scope = 2;
@@ -179,157 +178,6 @@ class CfgVehicles
 			};
 		};
 	};
-	class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
-	{
-		scope = 2;
-		displayname = "[NOT READY]  ZODIAC";
-		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
-		modelAnchorPointY = 0.43;
-		vehicleClass = "Expansion_Boat";
-		fuelCapacity = 192;
-		fuelConsumption = 21;
-		attachments[] = {"CarRadiator","GlowPlug","TruckBattery"};
-		hiddenSelections[] = {"camo","antiwater"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa"};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat"};
-		defaultSkin = "Orange";
-		doors[] = {};
-		class Cargo
-		{
-			itemsCargoSize[] = {10,15};
-			allowOwnedCargoManipulation = 1;
-			openable = 0;
-		};
-		class GUIInventoryAttachmentsProps
-		{
-			class Engine
-			{
-				name = "$STR_attachment_Engine0";
-				description = "";
-				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"GlowPlug","TruckBattery"};
-				doors[] = {};
-			};
-		};
-		class SimulationModule
-		{
-			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.995;
-			class Steering
-			{
-				increaseSpeed[] = {0,45,60,23,100,12};
-				decreaseSpeed[] = {0,80,60,40,90,20};
-				centeringSpeed[] = {0,0,15,25,60,40,100,60};
-			};
-			class Throttle
-			{
-				reactionTime = 1.0;
-				defaultThrust = 0.85;
-				gentleThrust = 0.7;
-				turboCoef = 4.0;
-				gentleCoef = 0.75;
-			};
-			class Engine
-			{
-				inertia = 0.15;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
-				rpmIdle = 850;
-				rpmMin = 900;
-				rpmClutch = 1350;
-				rpmRedline = 6000;
-				rpmMax = 8000;
-			};
-			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
-			class Gearbox
-			{
-				reverse = 1.0;
-				ratios[] = {1.0};
-				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 260;
-			};
-			class Axles
-			{
-				class Front
-				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
-					wheelHubMass = 5;
-					wheelHubRadius = 0.15;
-					class Suspension
-					{
-						swayBar = 1700;
-						stiffness = 40000;
-						compression = 2100;
-						damping = 7500;
-						travelMaxUp = 0.0882;
-						travelMaxDown = 0.0833;
-					};
-					class Wheels
-					{
-						class Left
-						{
-							animDamper = "damper_1_1";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "turnfrontleft";
-							animRotation = "wheelfrontleft";
-							wheelHub = "wheel_1_1_damper_land";
-						};
-						class Right
-						{
-							animDamper = "damper_2_1";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "turnfrontright";
-							animRotation = "wheelfrontright";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-					};
-				};
-				class Rear
-				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 0;
-					wheelHubMass = 5;
-					wheelHubRadius = 0.15;
-					class Suspension
-					{
-						swayBar = 1800;
-						stiffness = 40000;
-						compression = 2200;
-						damping = 7600;
-						travelMaxUp = 0.1587;
-						travelMaxDown = 0.1059;
-					};
-					class Wheels
-					{
-						class Left
-						{
-							animDamper = "damper_1_2";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "wheelbackleft";
-							animRotation = "wheelbackleft";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-						class Right
-						{
-							animDamper = "damper_2_2";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "turnbackright";
-							animRotation = "wheelbackright";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-					};
-				};
-			};
-		};
-	};
 	class ExpansionSpraycanBase;
 	class ExpansionSpraycanOrange: ExpansionSpraycanBase
 	{
@@ -342,11 +190,6 @@ class CfgVehicles
 	class ExpansionZodiacBoat_Orange: ExpansionZodiacBoat
 	{
 		skinBase = "ExpansionZodiacBoat";
-		skinName = "Orange";
-	};
-	class Vehicle_ExpansionZodiacBoat_Orange: Vehicle_ExpansionZodiacBoat
-	{
-		skinBase = "Vehicle_ExpansionZodiacBoat";
 		skinName = "Orange";
 	};
 	class ExpansionSpraycanBlack: ExpansionSpraycanBase
@@ -362,11 +205,6 @@ class CfgVehicles
 		skinBase = "ExpansionZodiacBoat";
 		skinName = "Black";
 	};
-	class Vehicle_ExpansionZodiacBoat_Black: Vehicle_ExpansionZodiacBoat
-	{
-		skinBase = "Vehicle_ExpansionZodiacBoat";
-		skinName = "Black";
-	};
 	class ExpansionSpraycanGreen: ExpansionSpraycanBase
 	{
 		scope = 2;
@@ -378,11 +216,6 @@ class CfgVehicles
 	class ExpansionZodiacBoat_Green: ExpansionZodiacBoat
 	{
 		skinBase = "ExpansionZodiacBoat";
-		skinName = "Green";
-	};
-	class Vehicle_ExpansionZodiacBoat_Green: Vehicle_ExpansionZodiacBoat
-	{
-		skinBase = "Vehicle_ExpansionZodiacBoat";
 		skinName = "Green";
 	};
 };

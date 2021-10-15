@@ -24,6 +24,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	void ~ExpansionScriptViewMenu()
 	{
+		EXPrint("~" + ToString());
 		DestroyUpdateTimer();
 		
 		Hide();

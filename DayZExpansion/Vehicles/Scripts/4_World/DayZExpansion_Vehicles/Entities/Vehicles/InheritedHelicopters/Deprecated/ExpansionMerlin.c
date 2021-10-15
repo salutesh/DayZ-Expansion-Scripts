@@ -20,7 +20,7 @@ class ExpansionMerlin: ExpansionHelicopterScript
 	// ------------------------------------------------------------
 	void ExpansionMerlin()
 	{
-		m_dmgContactCoef							= 0.2;
+		m_dmgContactCoef							= 0.02;
 		m_ExplosionSize								= 50;
 
 		m_MaxSpeed									= 200.0;
@@ -101,6 +101,12 @@ class ExpansionMerlin: ExpansionHelicopterScript
 		return true;
 	}
 	
+	override bool IsAreaAtDoorFree( int currentSeat, float maxAllowedObjHeight = 0.5, float horizontalExtents = 0.5, float playerHeight = 1.7 )
+	{
+		//! Getting out of seat should never be blocked because you stay inside the vehicle
+		return true;
+	}
+
 	//! Batteries
 	// ------------------------------------------------------------
 	override bool IsVitalHelicopterBattery()
