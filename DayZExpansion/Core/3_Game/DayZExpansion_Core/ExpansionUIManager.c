@@ -118,13 +118,14 @@ class ExpansionUIManager
 		}
 	}
 	
-	void DestroySVMenu(int id)
+	void DestroySVMenu(int id, bool doDelete = true)
 	{
 		ExpansionScriptViewMenuBase viewMenu;
 		if (m_ActiveMenus.Find(id, viewMenu))
 		{
 			m_ActiveMenus.Remove(id);
-			delete viewMenu;
+			if (doDelete)
+				delete viewMenu;
 		}
 	}
 	

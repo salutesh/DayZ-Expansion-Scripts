@@ -54,7 +54,7 @@ static void EXLogPrint( int s )
 }
 
 //! Prints a hitch warning if elapsed time since startTime is above threshold
-static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0.025 )
+static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0.0125 )
 {
 	float elapsedTime = GetGame().GetTickTime() - startTime;
 	if (elapsedTime > threshold)
@@ -576,13 +576,30 @@ class ExpansionStatic
 	}
 	#endif
 
-	static string IntToCurrencyString(int number, string separator)
+	static string IntToCurrencyString(int number, string separator, bool shorten = false)
 	{
 		string moneyReversed = "";
 		string strNumber = number.ToString();
 		int processedCount = 0;
 		string money = "";
 		int i;
+		float dec = number;
+
+		if (shorten)
+		{
+			if (dec >= 1000000)
+			{
+				dec /= 1000000;
+				dec = Math.Round(dec * 100) / 100;
+				return dec.ToString() + "M";
+			}
+			else if (dec >= 1000)
+			{
+				dec /= 1000;
+				dec = Math.Round(dec * 100) / 100;
+				return dec.ToString() + "K";
+			}
+		}
 		
 		for (i = (strNumber.Length() - 1); i >= 0; i--)
 		{

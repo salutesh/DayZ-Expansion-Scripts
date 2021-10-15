@@ -107,11 +107,6 @@ class ExpansionMarketModule: JMModuleBase
 			{
 				MakeDirectory(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER);
 			}
-			
-			if (!FileExist(EXPANSION_MARKET_VESTS_PRESETS_FOLDER))
-			{
-				MakeDirectory(EXPANSION_MARKET_VESTS_PRESETS_FOLDER);
-			}
 		}
 		
 		MarketModulePrint("ExpansionMarketModule - End");
@@ -136,8 +131,12 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------	
 	override bool IsEnabled()
 	{
+		// Do not keep spammy prints on released builds
+		#ifdef EXPANSIONEXPRINT
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			EXPrint(ToString() + "::IsEnabled " + GetExpansionSettings().GetMarket().MarketSystemEnabled);
+		#endif
+
 		return GetExpansionSettings().GetMarket().MarketSystemEnabled;
 	}
 	
@@ -170,8 +169,8 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (IsMissionClient())
 		{
-			//! Clear cached traders so that they are requested from server again after (e.g.) reconnect, to make sure they are in sync
-			GetExpansionSettings().GetMarket().ClearMarketTraders();
+			//! Clear cached categories and traders so that they are requested from server again after (e.g.) reconnect, to make sure they are in sync
+			GetExpansionSettings().GetMarket().ClearMarketCaches();
 		}
 
 		MarketModulePrint("OnMissionFinish - End");
@@ -319,6 +318,7 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion FindSellPrice
 	// ------------------------------------------------------------
+	//! Check if item can be sold. `ExpansionMarketResult result` indicates reason if cannot be sold.
 	bool FindSellPrice(notnull PlayerBase player, array<EntityAI> items, int stock, int amountWanted, ExpansionMarketSell sell, out ExpansionMarketResult result = ExpansionMarketResult.Success)
 	{
 		MarketModulePrint("FindSellPrice - Start - stock " + stock + " wanted " + amountWanted);

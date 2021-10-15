@@ -18,12 +18,7 @@ class ExpansionMarketMenuItemManagerPreset
 	
 	void AddAttachment(string className)
 	{
-		int findIndex = -1;
-		findIndex = ItemAttachments.Find(className);
-		if (findIndex == -1)
-		{
-			ItemAttachments.Insert(className);
-		}
+		ItemAttachments.Insert(className);
 	}
 	
 	void RemoveAttachment(string className)

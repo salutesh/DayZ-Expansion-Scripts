@@ -67,10 +67,10 @@ modded class ItemBase
 		if (!IsMissionOffline())
 		{
 			m_Expansion_ChildTow.GetNetworkID(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh);
-
-			m_Expansion_ChildTow.SetSynchDirty();
-			SetSynchDirty();
 		}
+
+		if (GetGame().IsServer())
+			SetSynchDirty();
 	}
 
 	bool Expansion_OnTowCreated(Object parent, vector towPos, int index)
@@ -89,8 +89,11 @@ modded class ItemBase
 		m_Expansion_ParentTow = EntityAI.Cast(parent);
 		m_Expansion_IsBeingTowed = true;
 
-		if (!IsMissionOffline())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 			m_Expansion_ParentTow.GetNetworkID(m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh);
+
+		if (GetGame().IsServer())
+			SetSynchDirty();
 
 		return true;
 	}
@@ -114,6 +117,7 @@ modded class ItemBase
 			{
 				car.Expansion_OnTowDestroyed();
 			}
+
 			if (Class.CastTo(item, m_Expansion_ChildTow))
 			{
 				item.Expansion_OnTowDestroyed();
@@ -122,6 +126,9 @@ modded class ItemBase
 			m_Expansion_ChildTow = NULL;
 
 			m_Expansion_IsTowing = false;
+
+			if (GetGame().IsServer())
+				SetSynchDirty();
 		}
 	}
 
@@ -131,6 +138,9 @@ modded class ItemBase
 
 		m_Expansion_ParentTow = null;
 		m_Expansion_IsBeingTowed = false;
+
+		if (GetGame().IsServer())
+			SetSynchDirty();
 	}
 
 	bool Expansion_IsBeingTowed()
@@ -177,7 +187,7 @@ modded class ItemBase
 	{
 		vector minMax[2];
 		GetCollisionBox(minMax);
-		return Vector(0.0, 0.0, minMax[0][2] - dBodyGetCenterOfMass(this)[2]);
+		return Vector(0.0, minMax[0][1], minMax[0][2] - dBodyGetCenterOfMass(this)[2]);
 	}
 
 	vector Expansion_GetTowDirection()
@@ -223,9 +233,9 @@ modded class ItemBase
 		if (!m_Expansion_CanPlayerAttachSet)
 		{
 			m_Expansion_CanPlayerAttachSet = true;
-			foreach ( ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig )
+			foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
 			{
-				if ( IsKindOf( vehcfg.ClassName ) )
+				if (IsKindOf(vehcfg.ClassName))
 				{
 					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
 					break;
@@ -240,6 +250,32 @@ modded class ItemBase
 	bool Expansion_CanObjectAttach(Object obj)
 	{
 		return Expansion_CanPlayerAttach();
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (!IsMissionOffline())
+		{
+			if (m_Expansion_IsBeingTowed)
+			{
+				m_Expansion_ParentTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh));
+			}
+			else
+			{
+				m_Expansion_ParentTow = NULL;
+			}
+
+			if (m_Expansion_IsTowing)
+			{
+				m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
+			}
+			else
+			{
+				m_Expansion_ChildTow = NULL;
+			}
+		}
 	}
 
 	override void OnStoreSave(ParamsWriteContext ctx)

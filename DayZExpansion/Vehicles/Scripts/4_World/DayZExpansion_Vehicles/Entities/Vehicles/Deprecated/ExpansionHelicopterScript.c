@@ -58,6 +58,7 @@ class ExpansionHelicopterScript extends CarScript
 	bool m_IsInitialized;
 	vector m_LastKnownPosition;
 	bool m_IsLanded;
+	vector m_Expansion_IsLandedHitPos;
 
 	void ExpansionHelicopterScript()
 	{
@@ -146,7 +147,7 @@ class ExpansionHelicopterScript extends CarScript
 		if (m_Expansion_IsBeingTowed)
 			return;
 
-		if (IsMissionHost() && m_Simulation.m_EnableHelicopterExplosions && CanBeDamaged())
+		if (IsMissionHost() && !IsDamageDestroyed())
 		{
 			vector transform[4];
 			GetTransform(transform);
@@ -165,7 +166,7 @@ class ExpansionHelicopterScript extends CarScript
 			if (other) //! check done just incase
 				impulseRequired += Math.Max(dBodyGetMass(other), 0.0) * maxVelocityMagnitude * 2.0;
 
-			if (extra.Impulse > impulseRequired)
+			if (extra.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && extra.RelativeVelocityBefore.Length() >= maxVelocityMagnitude && !IsLanded()))
 			{
 #ifdef EXPANSIONVEHICLELOG
 				Print(dot);
@@ -175,12 +176,60 @@ class ExpansionHelicopterScript extends CarScript
 				Print(GetVelocity(this));
 				Print(dBodyGetAngularVelocity(this));
 #endif
-				//Print( "Boom!" );
-				//! Maybe instead just tick damage down instead?
-				//! Should have a way to repair the helicopter then though
-				Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
+				OnContact("", WorldToModel(extra.Position), other, extra);
 			}
 		}
+	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		bool isGlobal = !dmgZone || dmgZone == "GlobalHealth";
+
+		float dmg = damageResult.GetDamage(dmgZone, "Health");
+
+		//! Apply additional dmg if ammo type is grenade or rocket
+		//! One direct hit with a rocket blows up a MH6, two direct hits blow up a Merlin
+		//! Grenades take several more
+		float additionalDmg;
+		bool explode;
+		switch (ammo)
+		{
+			case "RGD5Grenade_Ammo":  //! Base dmg = 50
+			case "ExpansionRocket_Ammo":  //! Base dmg = 300
+				additionalDmg = dmg * 17 - dmg;
+				break;
+			case "EnviroDmg":
+				//! Never explode on collision
+				break;
+			default:
+				//! Explode if base dmg exceeded heli max health, or 1 in 50 chance if it exceeded current heli health
+				explode = isGlobal && (dmg > GetMaxHealth(dmgZone, "Health") || (Math.RandomInt(0, 50) < 1 && IsDamageDestroyed()));
+				break;
+		}
+
+		if (additionalDmg)
+		{
+			//! Explode if additional dmg exceeds current health
+			explode = isGlobal && additionalDmg > GetHealth(dmgZone, "Health");
+
+			DecreaseHealth(dmgZone, "Health", additionalDmg);
+		}
+
+		if (!explode && isGlobal)
+		{
+			//! Always damage engine proportionally when taking global damage
+			DecreaseHealth("Engine", "Health", (dmg + additionalDmg) * (GetMaxHealth("Engine", "Health") / GetMaxHealth(dmgZone, "Health")));
+		}
+
+		//#ifdef EXPANSIONEXPRINT
+		EXPrint(ToString() + " " + dmgZone + " has been damaged by " + source + " with " + ammo + " for " + (dmg + additionalDmg) + " health points, remaining health " + GetHealth(dmgZone, "Health") + ", explode " + explode);
+		//#endif
+
+		//! If explosions are disabled, the heli will just start burning once its health is depleted
+		if (explode && m_Simulation.m_EnableHelicopterExplosions)
+			Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
 	}
 
 	// ------------------------------------------------------------
@@ -200,7 +249,6 @@ class ExpansionHelicopterScript extends CarScript
 		}
 
 		PlayerBase player;
-		DayZPlayerCommandDeathCallback callback;
 
 		//! Seated players
 		for (int i = 0; i < CrewSize(); i++)
@@ -245,9 +293,9 @@ class ExpansionHelicopterScript extends CarScript
 		}
 
 		ExpansionWreck wreck;
-		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position + "0 2.5 0", ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
+		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
-			wreck.SetPosition(position + "0 2.5 0");
+			wreck.SetPosition(position);
 			wreck.SetOrientation(orientation);
 
 			wreck.CreateDynamicPhysics(PhxInteractionLayers.DYNAMICITEM);
@@ -258,17 +306,23 @@ class ExpansionHelicopterScript extends CarScript
 			wreck.SetAltitude(GetWreckAltitude());
 
 			wreck.SetHealth(0.0);
-			dBodySetMass(wreck, m_State.m_Mass);
 
-			vector inertiaM[3];
-			dBodyGetInvInertiaTensorWorld(this, inertiaM);
-			dBodySetInertiaTensorM(wreck, inertiaM);
-			dBodySetInertiaTensorV(wreck, dBodyGetLocalInertia(this));
+			dBodySetMass(wreck, dBodyGetMass(this));
 
-			SetVelocity(wreck, m_State.m_LinearVelocity);
-			dBodySetAngularVelocity(wreck, m_State.m_AngularVelocity);
+			//! If we are not simulating, these can be 0 and would prematurely disable wreck physics
+			if (m_State.m_Mass > 0 && m_State.m_LinearAcceleration.Length() > 0)
+			{
+				vector inertiaM[3];
+				dBodyGetInvInertiaTensorWorld(this, inertiaM);
+				dBodySetInertiaTensorM(wreck, inertiaM);
+				dBodySetInertiaTensorV(wreck, dBodyGetLocalInertia(this));
 
-			dBodyApplyForce(wreck, m_State.m_LinearAcceleration * m_State.m_Mass);
+				SetVelocity(wreck, m_State.m_LinearVelocity);
+				dBodySetAngularVelocity(wreck, m_State.m_AngularVelocity);
+
+				dBodyApplyForce(wreck, m_State.m_LinearAcceleration * m_State.m_Mass);
+			}
+			
 
 			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 
@@ -305,6 +359,7 @@ class ExpansionHelicopterScript extends CarScript
 					continue;
 				}
 
+				//! Deforestation is a go
 				if (obj.GetHealth("", "") > 0)
 				{
 					obj.SetHealth("", "", 0);
@@ -316,14 +371,10 @@ class ExpansionHelicopterScript extends CarScript
 				}
 			}
 
-			super.ExpansionOnExplodeServer(damageType, ammoType);
-
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, this);
 		}
-		else
-		{
-			super.ExpansionOnExplodeServer(damageType, ammoType);
-		}
+
+		super.ExpansionOnExplodeServer(damageType, ammoType);
 	}
 
 	override void ExpansionOnExplodeClient(int damageType, string ammoType)
@@ -335,6 +386,31 @@ class ExpansionHelicopterScript extends CarScript
 			GetGame().GetPlayer().UnlinkFromLocalSpace();
 			//! Needs to be called at least one simulation frame (25ms) later
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().GetPlayer().StartCommand_Fall, 25, false, 0);
+		}
+	}
+
+	protected override void OnSimulation(ExpansionPhysicsState pState)
+	{
+		if (IsLanded())
+		{
+			//! Bouncing/jolting/flipping fix
+			//! 0% momentum at zero vertical distance to ground and/or rotor off,
+			//! 50% momentum at zero vertical distance to ground and full rotor speed,
+			//! 100% momentum at >= 0.5m vertical distance to ground and full rotor speed,
+			//! linearly interpolated
+			float f = m_Simulation.m_RotorSpeed;
+			if (f > 0)
+			{
+				float y = m_LastKnownPosition[1] - GetModelAnchorPointY();
+				f *= ExpansionMath.LinearConversion(0, 0.5, y - m_Expansion_IsLandedHitPos[1], 0.5, 1, true);
+			}
+			vector linearVelocity = GetVelocity(this);
+			linearVelocity[0] = linearVelocity[0] * f;
+			linearVelocity[1] = linearVelocity[1] * m_Simulation.m_RotorSpeed;  //! Full lift only at full rotor speed
+			linearVelocity[2] = linearVelocity[2] * f;
+			SetVelocity(this, linearVelocity);
+			vector angularVelocity = dBodyGetAngularVelocity(this) * f;
+			dBodySetAngularVelocity(this, angularVelocity);
 		}
 	}
 
@@ -447,21 +523,20 @@ class ExpansionHelicopterScript extends CarScript
 		vector ori = GetOrientation();
 
 		if (ori[1] >= 45 || ori[1] <= -45 || ori[2] >= 45 || ori[2] <= -45)
-			offset += 10;
+			offset += 1;
 
 		//! Ray input
 		vector start = pos;
 		vector end = pos - Vector(0, GetModelAnchorPointY() + offset, 0);
 
 		//! Ray output
-		vector hit;
-		vector hitpos;
+		vector hitNormal;
 
 		//! Ray hitindex output
 		int hitindex;
 
 		//! Ray
-		m_IsLanded = DayZPhysics.RaycastRV(start, end, hitpos, hit, hitindex, NULL, NULL, this);
+		m_IsLanded = DayZPhysics.RaycastRV(start, end, m_Expansion_IsLandedHitPos, hitNormal, hitindex, NULL, NULL, this);
 
 #ifdef EXPANSIONEXPRINT
 		EXLogPrint(GetType() + "::IsLanded - End and return " + m_IsLanded);
@@ -470,21 +545,27 @@ class ExpansionHelicopterScript extends CarScript
 		return m_IsLanded;
 	}
 
-	override bool CanSimulate()
+	override bool Expansion_CanSimulate()
 	{
-		//! Need to simulate for at least one frame, otherwise funky DayZ physics make heli explode when getting in
-		if ((ExpansionGame.IsClientOrOffline() || m_IsInitialized) && IsLanded())
-		{
-			//! Only simulate if rotor speed is above zero
-			//! Prevents premature stop of rotor animation and smoke particle on client
-			//! Prevents heli bouncing around when not in use
+		if ((GetGame().IsServer() && GetGame().IsMultiplayer()) && !m_IsInitialized)
+			return false;
 
-			return m_Simulation.m_RotorSpeed > 0 || m_Simulation.m_RotorSpeedTarget > 0;
-		}
-		else
-		{
-			return dBodyIsActive(this) && dBodyIsDynamic(this);
-		}
+		return true;
+	}
+
+	override bool Expansion_ShouldDisableSimulation()
+	{
+		vector velocity = GetVelocity(this);
+		if (velocity.LengthSq() >= 0.1)
+			return false;
+
+		if (m_Simulation.m_RotorSpeed > 0.0)
+			return false;
+			
+		if (m_Simulation.m_RotorSpeedTarget > 0.0)
+			return false;
+
+		return true;
 	}
 
 	override bool IsVitalSparkPlug()

@@ -25,6 +25,7 @@ class ExpansionController
 
 	float m_Ratio[4];
 	int m_Gear[4];
+	int m_GearCount[4];
 
 	float m_Brake[4];
 
@@ -188,7 +189,7 @@ class ExpansionController
 		res = string.Empty;
 		for (i = 0; i < maxControls; i++)
 		{
-			res += "" + m_Gear[i];
+			res += "" + m_Gear[i] + "/" + m_GearCount[i];
 			if (i < maxControls - 1)
 				res += ", ";
 		}

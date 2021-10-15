@@ -43,7 +43,6 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		AddItem("Expansion_MP5_RailAtt", 		150,		300,	1,		100,	0);
 		AddItem("ExpansionReflexMRSOptic", 		150,		300,	1,		100,	0,	{"Battery9V"});
 		AddItem("ExpansionDeltapointOptic", 	150,		300,	1,		100,	0);
-		AddItem("ExpansionReflexMRSOptic", 		150,		300,	1,		100,	0,	{"Battery9V"});
 		AddItem("ExpansionEXPS3HoloOptic", 		200,		400,	1,		100,	0,	{"Battery9V"});
 		AddItem("ExpansionHAMROptic", 			400,		800,	1,		100,	0,	{"Battery9V","ExpansionDeltapointOptic"});
 		AddItem("Expansion_PMII25Optic", 		1100,		2200,	1,		100,	0);

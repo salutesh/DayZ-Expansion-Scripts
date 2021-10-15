@@ -59,29 +59,29 @@ modded class PlayerBase
 
 		super.SetActions( InputActionMap );
 		
-		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
+		//AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
 		
 		AddAction( ExpansionActionCarHorn, InputActionMap );
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
 
-		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
-		AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
+		//AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
+		//AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
 
-		AddAction( ExpansionActionSwitchSeats, InputActionMap );
+		//AddAction( ExpansionActionSwitchSeats, InputActionMap );
 
 		AddAction( ExpansionActionNextEngine, InputActionMap );
 		AddAction( ExpansionActionNextEngineInput, InputActionMap );
 
 		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
-		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
+		//AddAction( ExpansionVehicleActionPickLock, InputActionMap );
 		AddAction( ExpansionActionChangeVehicleLock, InputActionMap );
 
 		#ifdef EXPANSION_VEHICLE_TOWING
 		AddAction( ExpansionActionConnectTow, InputActionMap );
 		AddAction( ExpansionActionDisconnectTow, InputActionMap );
 
-		AddAction( ExpansionActionVehicleConnectTow, InputActionMap );
-		AddAction( ExpansionActionVehicleDisconnectTow, InputActionMap );
+		//AddAction( ExpansionActionVehicleConnectTow, InputActionMap );
+		//AddAction( ExpansionActionVehicleDisconnectTow, InputActionMap );
 		#endif
 
 		#ifdef EXPANSIONEXPRINT

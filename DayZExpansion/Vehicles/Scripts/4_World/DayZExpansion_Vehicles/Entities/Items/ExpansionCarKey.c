@@ -178,7 +178,10 @@ class ExpansionCarKey extends ItemBase
 	{
 		if ( !m_Vehicle )
 		{
+			// Do not keep spammy prints on released builds
+			#ifdef EXPANSIONEXPRINT
 			EXPrint(ToString() + "::GetKeyObject - looking for vehicle");
+			#endif
 			foreach ( CarScript car : CarScript.GetAll() )
 			{
 				if ( IsPairedTo( car ) )

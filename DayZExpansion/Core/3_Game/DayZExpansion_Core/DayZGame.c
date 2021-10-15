@@ -40,7 +40,7 @@ modded class DayZGame
 		GetYearMonthDay(year, month, day);
 		GetHourMinuteSecond( hour, minute, second );
 
-		m_Expansion_StartTime = hour * 3600 + minute * 60 + second;
+		m_Expansion_StartTime = hour * 3600 + minute * 60 + second - GetTickTime();
 		m_Expansion_StartTimeStamp = (year - 1970) * 365 * 24 * 3600 + month * 31 * 24 * 3600 + day * 24 * 3600 + m_Expansion_StartTime;
 
 		if (!FileExist(EXPANSION_FOLDER))

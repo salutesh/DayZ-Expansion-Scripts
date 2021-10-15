@@ -13,7 +13,7 @@
 class ExpansionMarketOutputs
 {
 	ref map<string, ref ExpansionMarketWeapon> Weapons = new map<string, ref ExpansionMarketWeapon>;
-	ref map<string, ref ExpansionMarketVest> Vests = new map<string, ref ExpansionMarketVest>;
+	ref map<string, ref ExpansionMarketClothing> Clothing = new map<string, ref ExpansionMarketClothing>;
 }
 
 class ExpansionMarketOutput
@@ -37,7 +37,7 @@ class ExpansionMarketWeapon: ExpansionMarketOutput
 	ref TStringArray lights = new TStringArray;
 }
 
-class ExpansionMarketVest: ExpansionMarketOutput
+class ExpansionMarketClothing: ExpansionMarketOutput
 {
 	ref TStringArray pouches = new TStringArray;
 	ref TStringArray holsters = new TStringArray;

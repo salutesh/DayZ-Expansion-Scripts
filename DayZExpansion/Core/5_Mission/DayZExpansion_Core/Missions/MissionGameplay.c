@@ -192,74 +192,18 @@ modded class MissionGameplay
 	}
 	
 	// ------------------------------------------------------------
-	// OnMissionStart
-	// ------------------------------------------------------------	
-	override void OnMissionStart()
-	{
-		super.OnMissionStart();
-		
-		//! Unlock inputs again if not working ?!
-		LockInputs(false, false);
-		GetUApi().UpdateControls();
-		
-		#ifdef EDITOR
-		GetUApi().GetInputByName("UAExpansionMapToggle").ForceDisable(true);
-		GetUApi().GetInputByName("UAExpansionMapDeleteMarker").ForceDisable(true);
-		GetUApi().GetInputByName("UAExpansionQuickMarker").ForceDisable(true);
-		GetUApi().GetInputByName("UAExpansionQuickMarker").ForceDisable(true);
-		GetUApi().GetInputByName("UAExpansionGPSToggle").ForceDisable(true);
-		GetUApi().GetInputByName("UAExpansionPlayerListToggle").ForceDisable(true);
-		GetUApi().UpdateControls();
-		#endif
-	}
-	
-	// ------------------------------------------------------------
 	// OnMissionFinish
 	// ------------------------------------------------------------
 	override void OnMissionFinish()
 	{
 		super.OnMissionFinish();
 		
-		//! Unlock inputs again if not working ?!
-		LockInputs(false, false);
-		GetUApi().UpdateControls();
-	}
-	
-	// ------------------------------------------------------------
-	// LockInputs
-	// ------------------------------------------------------------	
-	void LockInputs(bool state, bool lockMovement = true)
-	{
-		TIntArray inputIDs = new TIntArray;
-		GetUApi().GetActiveInputs(inputIDs);
-
-		TStringArray skip = new TStringArray;
-		skip.Insert("UAUIBack");
-
-		if (!lockMovement)
+		//! Close and destroy any open ScriptView menus. This will return control to the player and unlock all inputs
+		ExpansionUIManager manager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
+		ExpansionScriptViewMenuBase menu = manager.GetMenu();
+		if (menu)
 		{
-			//! Allow player movement
-			skip.Insert("UAMoveForward");
-			skip.Insert("UAMoveBack");
-			skip.Insert("UAMoveLeft");
-			skip.Insert("UAMoveRight");
-			skip.Insert("UATurbo");
-			skip.Insert("UAWalkRunTemp");
-			skip.Insert("UAWalkRunToggle");
-		}
-
-		TIntArray skipIDs = new TIntArray;
-		foreach (string inputName : skip)
-		{
-			skipIDs.Insert(GetUApi().GetInputByName(inputName).ID());
-		}
-
-		foreach (int inputID : inputIDs)
-		{
-			if (skipIDs.Find(inputID) == -1)
-			{
-				GetUApi().GetInputByID(inputID).ForceDisable(state);
-			}
+			manager.CloseMenu();
 		}
 	}
 };

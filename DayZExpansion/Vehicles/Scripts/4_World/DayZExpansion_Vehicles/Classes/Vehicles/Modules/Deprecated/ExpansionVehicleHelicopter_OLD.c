@@ -118,6 +118,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	override void Init()
 	{
+		super.Init();
+		
 		ExpansionHelicopterScript heli;
 		if (!Class.CastTo(heli, m_Vehicle))
 			return;
@@ -140,6 +142,14 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_EngineStartDuration = heli.m_EngineStartDuration;
 		m_LinearFrictionCoef = heli.m_LinearFrictionCoef;
 		m_AngularFrictionCoef = heli.m_AngularFrictionCoef;
+
+		m_TEMP_DeferredInit = true;
+		m_SettingsChanged = true;
+		m_Control = true;
+		m_PreSimulate = true;
+		m_Simulate = true;
+		m_Animate = true;
+		m_Network = true;
 	}
 
 	override void TEMP_DeferredInit()
@@ -410,12 +420,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			m_MainRotorSpeedTarget = Math.Clamp(mainRotorInput, -0.25 * pState.m_DeltaTime, 0.25 * pState.m_DeltaTime) + m_MainRotorSpeed;
 		}
 
-		m_RotorSpeedTarget = 0;
-		if (m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX])
-		{
-			m_RotorSpeedTarget = 1;
-		}
-
 		//! Not used ATM
 		m_Controller.SetYaw(m_BackRotorSpeedTarget);
 		m_Controller.SetRoll(m_CyclicSideTarget);
@@ -489,6 +493,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		bool isAboveWater;
 		float buoyancyForce;
 
+		m_RotorSpeedTarget = 0;
 		if (pState.m_Exploded)
 		{
 			// if the heli isn't over water no force will be applied and the game will clean up physics for us
@@ -514,6 +519,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 		else if (m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX])
 		{
+			m_RotorSpeedTarget = 1;
 			if (IsMissionHost() && m_NoiseParams)
 			{
 				GetGame().GetNoiseSystem().AddNoise(m_Vehicle, m_NoiseParams);
@@ -775,11 +781,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				{
 					m_Vehicle.AddHealth("", "", -0.001 * buoyancyForce);
 				}
-
-				if (buoyancyAcceleration > 10.0 && m_EnableHelicopterExplosions)
-				{
-					m_Vehicle.Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
-				}
 			}
 
 			force += Vector(0, buoyancyForce, 0);
@@ -934,7 +935,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 	}
 
-	override void OnNetworkSend(ParamsWriteContext ctx)
+	override void NetworkSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(m_AutoHover);
 
@@ -952,7 +953,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		ctx.Write(m_WindSpeedSync);
 	}
 
-	override void OnNetworkRecieve(ParamsReadContext ctx)
+	override void NetworkRecieve(ParamsReadContext ctx)
 	{
 		ctx.Read(m_AutoHover);
 

@@ -134,19 +134,11 @@ class ExpansionPhysicsState
 		derived.m_Transform[3] = m_Transform[3] + (derived.m_LinearVelocity * dt);
 	}
 
-	void CreateDynamic(bool physicsHost)
+	void CreateDynamic()
 	{
-		int physLayer = PhxInteractionLayers.VEHICLE_NOTERRAIN;
-
+		int physLayer = PhxInteractionLayers.VEHICLE;
 		int interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN;
-		if (GetGame().IsServer())
-		{
-			physLayer = PhxInteractionLayers.VEHICLE;
-			interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN;
-		}
-
-		interactLayer = physLayer;
-
+		
 		m_Entity.CreateDynamicPhysics(physLayer);
 
 		vector bbox[2];
