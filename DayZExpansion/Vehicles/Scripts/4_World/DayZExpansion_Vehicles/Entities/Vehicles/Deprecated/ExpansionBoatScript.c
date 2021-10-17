@@ -52,6 +52,8 @@ class ExpansionBoatScript extends OffroadHatchback
 	
 	private bool m_IsInitialized;
 
+	float m_Expansion_SDSCheckTime;
+
 	// ------------------------------------------------------------
 	//! Constructor
 	// ------------------------------------------------------------	
@@ -602,6 +604,19 @@ class ExpansionBoatScript extends OffroadHatchback
 
 	override bool Expansion_ShouldDisableSimulation()
 	{
+		//! Vanilla WILL NOT deactivate boats that are in water, so we need to do that ourself (handled in CarScript::EOnSimulate if no driver).
+		//! If a boat is on land though, DON'T return true here as it may cause boats to get pushed into the ground while vanilla collision code is running
+		//! (CarScript doesn't have collision in inactive state, so will move through terrain as if it weren't there if it's pushed by an outside force).
+		//! Vanilla WILL deactivate boats that are not in use and are on land the same as it does cars,
+		//! so there is no need for us to do that explicitly in that case.
+		if (!ExpansionStatic.SurfaceIsWater(GetPosition()))
+			return false;
+
+		//! Make sure to let simulation run for at least 20s so that collision can be handled by vanilla, otherwise boat may get deactivated
+		//! in CarScript::EOnSimulate prematurely if no driver and get pushed under water by still running vanilla collision code
+		if (GetGame().GetTickTime() - m_Expansion_SDSCheckTime < 20)
+			return false;
+
 		vector velocity = GetVelocity(this);
 		// if velocity is greater than gravity in either direction then that means the boat is not floating
 		if (Math.AbsFloat(velocity[1]) > Math.AbsFloat(dGetGravity(this)[1]))
@@ -618,14 +633,19 @@ class ExpansionBoatScript extends OffroadHatchback
 		if (m_Thrust > 0.001) 
 			return false;
 
+		bool result = true;
+
 		float tideCorrection = GetTideCorrection(GetPosition());
 		if (tideCorrection > 0)
 		{
 			//! If surface is sea, deactivate boat at roughly below half point of tide to make it easier to climb in again
-			return tideCorrection > 0.2 && tideCorrection < 0.21;
+			result = tideCorrection > 0.2 && tideCorrection < 0.21;
 		}
 
-		return true;
+		if (result)
+			m_Expansion_SDSCheckTime = GetGame().GetTickTime();
+
+		return result;
 	}
 
 	// ------------------------------------------------------------

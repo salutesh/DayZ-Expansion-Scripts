@@ -52,6 +52,7 @@ class CfgVehicles
 		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
 		modelAnchorPointY = 0.0;
 		vehicleClass = "Expansion_Helicopter";
+		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug"};

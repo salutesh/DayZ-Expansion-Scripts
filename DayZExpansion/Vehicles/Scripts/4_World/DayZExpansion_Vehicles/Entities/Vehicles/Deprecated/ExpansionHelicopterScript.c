@@ -144,6 +144,9 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
+		if (!m_IsInitialized)
+			return;
+
 		if (m_Expansion_IsBeingTowed)
 			return;
 
@@ -187,7 +190,7 @@ class ExpansionHelicopterScript extends CarScript
 
 		bool isGlobal = !dmgZone || dmgZone == "GlobalHealth";
 
-		float dmg = damageResult.GetDamage(dmgZone, "Health");
+		float dmg = damageResult.GetDamage(dmgZone, "");
 
 		//! Apply additional dmg if ammo type is grenade or rocket
 		//! One direct hit with a rocket blows up a MH6, two direct hits blow up a Merlin
@@ -205,27 +208,31 @@ class ExpansionHelicopterScript extends CarScript
 				break;
 			default:
 				//! Explode if base dmg exceeded heli max health, or 1 in 50 chance if it exceeded current heli health
-				explode = isGlobal && (dmg > GetMaxHealth(dmgZone, "Health") || (Math.RandomInt(0, 50) < 1 && IsDamageDestroyed()));
+				explode = isGlobal && (dmg > GetMaxHealth(dmgZone, "") || (Math.RandomInt(0, 50) < 1 && IsDamageDestroyed()));
 				break;
 		}
 
 		if (additionalDmg)
 		{
 			//! Explode if additional dmg exceeds current health
-			explode = isGlobal && additionalDmg > GetHealth(dmgZone, "Health");
+			explode = isGlobal && additionalDmg > GetHealth(dmgZone, "");
 
-			DecreaseHealth(dmgZone, "Health", additionalDmg);
+			DecreaseHealth(dmgZone, "", additionalDmg);
 		}
 
-		if (!explode && isGlobal)
+		#ifdef EXPANSIONEXPRINT
+		EXPrint(ToString() + " " + dmgZone + " has been damaged by " + source + " with " + ammo + " for " + (dmg + additionalDmg) + " health points, remaining health " + GetHealth(dmgZone, "") + ", explode " + explode);
+		#endif
+
+		if (isGlobal)
 		{
 			//! Always damage engine proportionally when taking global damage
-			DecreaseHealth("Engine", "Health", (dmg + additionalDmg) * (GetMaxHealth("Engine", "Health") / GetMaxHealth(dmgZone, "Health")));
+			float engineDmg = (dmg + additionalDmg) * (GetMaxHealth("Engine", "") / GetMaxHealth(dmgZone, ""));
+			#ifdef EXPANSIONEXPRINT
+			EXPrint("Damaging engine proportionally by " + engineDmg + " health points");
+			#endif
+			DecreaseHealth("Engine", "", engineDmg);
 		}
-
-		//#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + " " + dmgZone + " has been damaged by " + source + " with " + ammo + " for " + (dmg + additionalDmg) + " health points, remaining health " + GetHealth(dmgZone, "Health") + ", explode " + explode);
-		//#endif
 
 		//! If explosions are disabled, the heli will just start burning once its health is depleted
 		if (explode && m_Simulation.m_EnableHelicopterExplosions)
@@ -555,17 +562,11 @@ class ExpansionHelicopterScript extends CarScript
 
 	override bool Expansion_ShouldDisableSimulation()
 	{
-		vector velocity = GetVelocity(this);
-		if (velocity.LengthSq() >= 0.1)
-			return false;
-
-		if (m_Simulation.m_RotorSpeed > 0.0)
-			return false;
-			
-		if (m_Simulation.m_RotorSpeedTarget > 0.0)
-			return false;
-
-		return true;
+		//! NEVER return true for helis as it it interferes with vanilla collision handling and may cause the heli to get pushed into the ground
+		//! if the heli gets deactivated in CarScript::EOnSimulate if no driver while vanilla collision code is still running.
+		//! (CarScript doesn't have collision in inactive state, so will move through terrain as if it weren't there if it's pushed by an outside force).
+		//! Vanilla WILL deactivate helis that are not in use the same as it does cars, so there is no need for us to do that explicitly.
+		return false;
 	}
 
 	override bool IsVitalSparkPlug()

@@ -184,6 +184,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
 		modelAnchorPointY = 3.81;
 		vehicleClass = "Expansion_Helicopter";
+		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;
 		fuelConsumption = 95;
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2"};
