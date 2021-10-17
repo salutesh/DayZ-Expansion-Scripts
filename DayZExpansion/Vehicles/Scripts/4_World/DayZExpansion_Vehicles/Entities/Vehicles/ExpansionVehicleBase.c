@@ -26,6 +26,8 @@ class ExpansionVehicleBase extends ItemBase
 
 	ExpansionVehicleDifferentialType m_DifferentialType;
 
+	protected float m_dmgContactCoef;
+
 	static set<ExpansionVehicleBase> GetAll()
 	{
 		return new set<ExpansionVehicleBase>;
@@ -128,6 +130,15 @@ class ExpansionVehicleBase extends ItemBase
 	float EngineGetRPM()
 	{
 		return 0;
+	}
+
+	bool EngineIsOn()
+	{
+		return false;
+	}
+
+	void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+	{
 	}
 
 	int GetPersistentIDA()

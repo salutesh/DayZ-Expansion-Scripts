@@ -1572,18 +1572,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		marketSell.Item = GetSelectedMarketItem();
 		marketSell.Trader = m_TraderObject;
 		
-		m_SellPrice = GetSelectedMarketItemElement().m_SellPrice;
 		if (m_PlayerStock > 0)
 		{
-			if (m_SellPrice > -1)
+			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_TraderItemStock, m_Quantity, marketSell))
+			{
+				m_SellPrice = marketSell.Price;
 				m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
+			}
 			else
+			{
+				m_SellPrice = -1;
 				m_MarketMenuController.MarketItemTotalSellPrice = "";
+			}
 			market_item_sell_price_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText)); 
 			market_item_sell_price_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
 		}
 		else
 		{
+			float sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
+			if (sellPricePct < 0)
+				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
+			m_SellPrice = GetSelectedMarketItem().CalculatePrice(m_TraderItemStock + m_Quantity, sellPricePct / 100);
 			m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
 			market_item_sell_price_text.SetColor(COLOR_EXPANSION_NOTIFICATION_EXPANSION);
 			market_item_sell_price_icon.SetColor(COLOR_EXPANSION_NOTIFICATION_EXPANSION);

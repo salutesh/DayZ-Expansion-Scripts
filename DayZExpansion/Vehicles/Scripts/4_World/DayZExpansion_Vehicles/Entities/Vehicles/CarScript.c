@@ -227,6 +227,8 @@ modded class CarScript
 
 	float m_Expansion_FuelConsumptionPerTick;
 
+	bool m_Expansion_dBodyIsActive;  //! Used for debugging. PLEASE leave this in here.
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -457,10 +459,13 @@ modded class CarScript
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnAfterLoadConstantVariables, 100, false );
 
+		m_Expansion_dBodyIsActive = dBodyIsActive(this);
+
 		if (GetGame().IsServer() && m_IsStoreLoaded)
 		{
-			//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats, no ill effect on cars)
-			dBodyActive(this, ActiveState.INACTIVE);
+			//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats being always active when in water, not needed for cars)
+			if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
+				dBodyActive(this, ActiveState.INACTIVE);
 
 			SetSynchDirty();
 		}
@@ -2048,7 +2053,7 @@ modded class CarScript
 
 	bool Expansion_ShouldDisableSimulation()
 	{
-		return true;
+		return false;
 	}
 
 	void Expansion_HandleController(DayZPlayerImplement driver, float dt)
@@ -2229,8 +2234,23 @@ modded class CarScript
 			//! This needs to run on client as well so dust particle is stopped if no driver
 			OnNoSimulation( dt );
 			
+			#ifdef EXPANSION_CARSCRIPT_ACTIVESTATE_DEBUG
+			if (m_Expansion_dBodyIsActive)
+			{
+				EXPrint(ToString() + " " + GetPosition() + " CarScript::EOnSimulate dBodyIsActive false");
+				m_Expansion_dBodyIsActive = false;
+			}
+			#endif
+
 			return;
 		}
+		#ifdef EXPANSION_CARSCRIPT_ACTIVESTATE_DEBUG
+		else if (!m_Expansion_dBodyIsActive)
+		{
+			EXPrint(ToString() + " " + GetPosition() + " CarScript::EOnSimulate dBodyIsActive true");
+			m_Expansion_dBodyIsActive = true;
+		}
+		#endif
 
 		m_Controller.m_Yaw = GetController().GetSteering();
 		//m_Controller.m_Throttle[0] = GetController().GetThrust();
@@ -3689,6 +3709,8 @@ modded class CarScript
 	// ------------------------------------------------------------
 	string GetWreck()
 	{
+		if (GetGame().ConfigIsExisting("CfgVehicles " + GetType() + " wreck"))
+			return GetGame().ConfigGetTextOut("CfgVehicles " + GetType() + " wreck");
 		return GetType() + "Wreck";
 	}
 	

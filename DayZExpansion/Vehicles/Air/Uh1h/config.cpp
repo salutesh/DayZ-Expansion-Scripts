@@ -92,6 +92,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\uh1h.p3d";
 		modelAnchorPointY = 2.98;
 		vehicleClass = "Expansion_Helicopter";
+		wreck = "ExpansionUh1hWreck";
 		fuelCapacity = 119;
 		fuelConsumption = 99;
 		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2"};

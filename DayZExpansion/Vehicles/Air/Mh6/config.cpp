@@ -125,6 +125,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Air\Mh6\Mh6.p3d";
 		modelAnchorPointY = 0.0;
 		vehicleClass = "Expansion_Helicopter";
+		wreck = "ExpansionMh6Wreck";
 		fuelCapacity = 192;
 		fuelConsumption = 91;
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
