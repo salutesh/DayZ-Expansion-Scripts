@@ -1309,11 +1309,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void ClearSkins()
 	{
-		for (int i = 0; i < m_MarketMenuController.SkinsDropdownElements.Count(); i++)
-		{
-			delete m_MarketMenuController.SkinsDropdownElements[i];
-		}
-		
 		m_MarketMenuController.SkinsDropdownElements.Clear();
 	}
 	

@@ -246,6 +246,16 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		//! Add any missing items from categories
 		foreach (string fileName : Categories)
 		{
+			ExpansionMarketTraderBuySell catBuySell = ExpansionMarketTraderBuySell.CanBuyAndSell;
+
+			TStringArray parts = new TStringArray;
+			fileName.Split(":", parts);
+			if (parts.Count() == 2)
+			{
+				fileName = parts[0];
+				catBuySell = parts[1].ToInt();
+			}
+
 			ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(fileName);
 
 			if (!cat)
@@ -255,7 +265,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			{
 				if (!Items.Contains(marketItem.ClassName))
 				{
-					AddItemInternal(marketItem, ExpansionMarketTraderBuySell.CanBuyAndSell);
+					AddItemInternal(marketItem, catBuySell);
 				}
 			}
 		}

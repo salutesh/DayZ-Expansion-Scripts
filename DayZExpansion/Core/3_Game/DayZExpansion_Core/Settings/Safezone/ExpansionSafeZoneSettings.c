@@ -34,22 +34,19 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 
 	bool DisableVehicleDamageInSafeZone;
 	bool EnableForceSZCleanup;
-	int ForceSZCleanupInterval;
 	float ItemLifetimeInSafeZone;
-	autoptr TStringArray ForceSZCleanup_ExcludedItems;
+	autoptr TStringArray ForceSZCleanup_ExcludedItems = new TStringArray;
+	int ActorsPerTick;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
-
-	void ExpansionSafeZoneSettings()
-	{
-		ForceSZCleanup_ExcludedItems = new TStringArray;
-	}
 	
+	void ExpansionSafeZoneSettings() {}
+
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -103,11 +100,12 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionSafeZoneSettings s )
+	private void CopyInternal(ExpansionSafeZoneSettings s)
 	{
+		ActorsPerTick = s.ActorsPerTick;
+
 		DisableVehicleDamageInSafeZone = s.DisableVehicleDamageInSafeZone;
 		EnableForceSZCleanup = s.EnableForceSZCleanup;
-		ForceSZCleanupInterval = s.ForceSZCleanupInterval;
 		ItemLifetimeInSafeZone = s.ItemLifetimeInSafeZone;
 		
 		ExpansionSafeZoneSettingsBase sb = s;
@@ -115,7 +113,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal( ExpansionSafeZoneSettingsBase s)
+	private void CopyInternal(ExpansionSafeZoneSettingsBase s)
 	{
 		int i = 0;
 
@@ -187,10 +185,12 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 					JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, this);
 				}
 
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
 				if (settingsBase.m_Version < 3)
 				{
 					EnableForceSZCleanup = settingsDefault.EnableForceSZCleanup;
-					ForceSZCleanupInterval = settingsDefault.ForceSZCleanupInterval;
 				}
 
 				if (settingsBase.m_Version < 4)
@@ -199,8 +199,11 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 				if (settingsBase.m_Version < 5)
 					ForceSZCleanup_ExcludedItems = settingsDefault.ForceSZCleanup_ExcludedItems;
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (settingsBase.m_Version < 6)
+				{
+					FrameRateCheckSafeZoneInMs = 0;
+					ActorsPerTick = settingsDefault.ActorsPerTick;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -248,8 +251,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		Enabled = false;
 	#endif
 		DisableVehicleDamageInSafeZone = true;
-		FrameRateCheckSafeZoneInMs = 5000;
-		ForceSZCleanupInterval = 60000;
+		FrameRateCheckSafeZoneInMs = 0;
+		ActorsPerTick = 5;
 		EnableForceSZCleanup = true;
 		ItemLifetimeInSafeZone = 15 * 60;  //! 15 Minutes
 

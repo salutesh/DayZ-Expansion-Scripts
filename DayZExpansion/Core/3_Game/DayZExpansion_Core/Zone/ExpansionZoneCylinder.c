@@ -1,5 +1,5 @@
 /**
- * ExpansionZoneCircle.c
+ * ExpansionZoneCylinder.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,35 +10,43 @@
  *
 */
 
-/**@class		ExpansionZoneCircle
+/**@class		ExpansionZoneCylinder
  * @brief
  **/
-class ExpansionZoneCircle : ExpansionZone
+class ExpansionZoneCylinder : ExpansionZone
 {
 	vector m_Position;
 	float m_Radius;
+	float m_Height;
 
-	void ExpansionZoneCircle(ExpansionZoneType type, vector position, float radius)
+	void ExpansionZoneCylinder(ExpansionZoneType type, vector position, float radius, float height)
 	{
 #ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneCircle::ExpansionZoneCircle start");
+		EXPrint("ExpansionZoneCylinder::ExpansionZoneCylinder start");
 #endif
 
 		m_Position = position;
 		m_Radius = radius;
+		m_Height = height;
 
 #ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneCircle::ExpansionZoneCircle end");
+		EXPrint("ExpansionZoneCylinder::ExpansionZoneCylinder end");
 #endif
 	}
 
 	override void Check(vector position)
 	{
 #ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneCircle::Check");
+		EXPrint("ExpansionZoneCylinder::Check");
 #endif
 
 		if (s_InsideBuffer[m_Type])
+			return;
+
+		if (position[1] < m_Position[1])
+			return;
+
+		if (position[1] > m_Position[1] + m_Height)
 			return;
 
 		bool isInside = Math.IsPointInCircle(position, m_Radius, m_Position);

@@ -205,12 +205,13 @@ class ExpansionMarketCategory
 	}
 	
 	//! Adds all variants to m_Items and finalizes the category for use
-	void Finalize(bool addVariants = true)
+	void Finalize(bool addVariantsAndDefaultAttachments = true)
 	{
-		if (addVariants)
+		if (addVariantsAndDefaultAttachments)
 		{
 			foreach (ExpansionMarketItem item : Items)
 			{
+				item.AddDefaultAttachments();
 				AddVariants(item);
 			}
 		}
