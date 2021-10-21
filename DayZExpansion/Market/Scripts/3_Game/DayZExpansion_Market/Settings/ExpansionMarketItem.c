@@ -178,26 +178,30 @@ class ExpansionMarketItem
 		return GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().ConfigGetInt("CfgMagazines " + ClassName + " canBeSplit");
 	}
 
-	map<string, bool> GetAttachments(out int magAmmoCount)
+	map<string, bool> GetAttachmentTypes(out int magAmmoCount)
 	{
-		map<string, bool> attachments = new map<string, bool>;
+		map<string, bool> attachmentTypes = new map<string, bool>;
 
 		bool isMag = IsMagazine();
 
 		foreach (string attachmentName: SpawnAttachments)
 		{
-			bool isMagAmmo = isMag && GetGame().IsKindOf(attachmentName, "Ammunition_Base");
+			bool isMagAmmo = false;
+			if (!attachmentTypes.Find(attachmentName, isMagAmmo))
+			{
+				isMagAmmo = isMag && GetGame().IsKindOf(attachmentName, "Ammunition_Base");
+				attachmentTypes.Insert(attachmentName, isMagAmmo);
+			}
 			if (isMagAmmo)
 				magAmmoCount++;
-			attachments.Insert(attachmentName, isMagAmmo);
 		}
 
-		return attachments;
+		return attachmentTypes;
 	}
 
-	map<string, int> GetMagAmmoQuantities(map<string, bool> attachments, int magAmmoCount)
+	map<string, int> GetMagAmmoQuantities(map<string, bool> attachmentTypes, int magAmmoCount)
 	{
-		if (!attachments.Count() || !magAmmoCount || !IsMagazine())
+		if (!attachmentTypes.Count() || !magAmmoCount || !IsMagazine())
 			return NULL;
 
 		map<string, int> magAmmoCounts = new map<string, int>;
@@ -206,7 +210,7 @@ class ExpansionMarketItem
 		int totalAmmo;
 		while (totalAmmo < magCapacity)
 		{
-			foreach (string attachmentName, bool isMagAmmo: attachments)
+			foreach (string attachmentName, bool isMagAmmo: attachmentTypes)
 			{
 				if (isMagAmmo)
 				{

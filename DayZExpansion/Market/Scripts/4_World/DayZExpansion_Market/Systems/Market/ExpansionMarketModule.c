@@ -873,10 +873,10 @@ class ExpansionMarketModule: JMModuleBase
 		if (includeAttachments)
 		{
 			int magAmmoCount;
-			map<string, bool> attachments = item.GetAttachments(magAmmoCount);
-			map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachments, magAmmoCount);
+			map<string, bool> attachmentTypes = item.GetAttachmentTypes(magAmmoCount);
+			map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachmentTypes, magAmmoCount);
 
-			foreach (string attachmentName, bool isMagAmmo: attachments)
+			foreach (string attachmentName: item.SpawnAttachments)
 			{
 				ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName);
 				if (attachment)
@@ -884,6 +884,7 @@ class ExpansionMarketModule: JMModuleBase
 					int quantity = 1;
 
 					//! If parent item is a mag and we are buying with ammo "attachment", set quantity to ammo quantity
+					bool isMagAmmo = attachmentTypes.Get(attachmentName);
 					if (isMagAmmo)
 					{
 						quantity = magAmmoQuantities.Get(attachmentName);
@@ -970,10 +971,10 @@ class ExpansionMarketModule: JMModuleBase
 			if (includeAttachments)
 			{
 				int magAmmoCount;
-				map<string, bool> attachments = item.GetAttachments(magAmmoCount);
-				map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachments, magAmmoCount);
+				map<string, bool> attachmentTypes = item.GetAttachmentTypes(magAmmoCount);
+				map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachmentTypes, magAmmoCount);
 
-				foreach (string attachmentName, bool isMagAmmo: attachments)
+				foreach (string attachmentName: item.SpawnAttachments)
 				{
 					ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
 					if (attachment)
@@ -981,6 +982,7 @@ class ExpansionMarketModule: JMModuleBase
 						int quantity = 1;
 
 						//! If parent item is a mag and we are buying with ammo "attachment", set quantity to ammo quantity
+						bool isMagAmmo = attachmentTypes.Get(attachmentName);
 						if (isMagAmmo)
 						{
 							quantity = magAmmoQuantities.Get(attachmentName);
@@ -1080,13 +1082,14 @@ class ExpansionMarketModule: JMModuleBase
 			if (objEntity)
 			{
 				int magAmmoCount;
-				map<string, bool> attachments = item.GetAttachments(magAmmoCount);
+				map<string, bool> attachmentTypes = item.GetAttachmentTypes(magAmmoCount);
 
-				foreach (string attachmentName, bool isMagAmmoTmp: attachments)
+				foreach (string attachmentName: item.SpawnAttachments)
 				{
 					ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName);
 					if (attachment)
 					{
+						bool isMagAmmoTmp = attachmentTypes.Get(attachmentName);
 						if (isMagAmmoTmp)
 							continue;  //! Ammo "attachment" on mag
 
@@ -1107,7 +1110,7 @@ class ExpansionMarketModule: JMModuleBase
 					int totalAmmo;
 					while (totalAmmo < mag.GetAmmoMax())
 					{
-						foreach (string ammoName, bool isMagAmmo: attachments)
+						foreach (string ammoName, bool isMagAmmo: attachmentTypes)
 						{
 							if (isMagAmmo)
 							{
