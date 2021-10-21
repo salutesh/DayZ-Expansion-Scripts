@@ -63,8 +63,9 @@ modded class MissionServer
 			super.EquipCharacter(char_data);
 		}
 		
-		if ( GetExpansionSettings().GetSpawn().SpawnHealthValue <= m_player.GetMaxHealth("GlobalHealth", "Health") )
-			m_player.SetHealth("", "", GetExpansionSettings().GetSpawn().SpawnHealthValue );
+		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
+		if ( spawnHealth > 0 && spawnHealth <= m_player.GetMaxHealth("GlobalHealth", "Health") )
+			m_player.SetHealth("", "", spawnHealth );
 		
 		if ( GetExpansionSettings().GetSpawn().SpawnEnergyValue <= m_player.GetStatEnergy().GetMax() )
 			m_player.GetStatEnergy().Set( GetExpansionSettings().GetSpawn().SpawnEnergyValue );

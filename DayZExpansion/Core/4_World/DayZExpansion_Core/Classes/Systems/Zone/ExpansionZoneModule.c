@@ -17,11 +17,11 @@ class ExpansionZoneModule : JMModuleBase
 {
 	static const int COUNT = ExpansionZoneType.Count;
 
-	private int m_Interval = 100;
-	private int m_ActorsPerTick = 10;
-	private static bool s_ExEnabled = false;
+	int m_Interval = 100;
+	int m_ActorsPerTick = 10;
+	static bool s_ExEnabled = false;
 
-	private int m_TimeCounter = 0;
+	int m_TimeCounter = 0;
 
 	override void OnMissionLoaded()
 	{
@@ -32,7 +32,7 @@ class ExpansionZoneModule : JMModuleBase
 			return;
 
 		m_Interval = settings.FrameRateCheckSafeZoneInMs;
-		m_ActorsPerTick = 100; // settings.ActorsPerTicks;
+		m_ActorsPerTick = settings.ActorsPerTick;
 		s_ExEnabled = settings.Enabled;
 
 		bool failure = false;
@@ -133,12 +133,11 @@ class ExpansionZoneModule : JMModuleBase
 			return;
 
 		m_TimeCounter += timeslice * 1000;
-
 		if (m_TimeCounter < m_Interval)
 			return;
 
-		m_TimeCounter = 0;
-
 		ExpansionZoneActor.UpdateAll(m_ActorsPerTick);
+
+		m_TimeCounter = 0;
 	}
 };

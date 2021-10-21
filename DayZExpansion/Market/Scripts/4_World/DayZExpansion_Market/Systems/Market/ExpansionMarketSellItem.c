@@ -64,13 +64,16 @@ class ExpansionMarketSell
 	// ------------------------------------------------------------
 	// ExpansionMarketSell AddItem
 	// ------------------------------------------------------------
-	void AddItem(int remainAmount, int takenAmount, float incrementStockModifier, EntityAI item)
+	void AddItem(int remainAmount, int takenAmount, float incrementStockModifier, EntityAI item, string className = "")
 	{
 		Print( "ExpansionMarketSell::AddItem - Start - remaining " + remainAmount + ", taken " + takenAmount + ", increment stock modifier " + incrementStockModifier);
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
 		itemSell.RemainAmount = remainAmount;
 		itemSell.ItemRep = item;
+		if (!className && item)
+			className = item.GetType();
+		itemSell.ClassName = className;
 		Sell.Insert(itemSell);
 
 		itemSell.AddStockAmount = takenAmount * incrementStockModifier;
@@ -83,7 +86,7 @@ class ExpansionMarketSellItem
 {
 	int RemainAmount;
 	EntityAI ItemRep;
-	bool IsStackable;
+	string ClassName;
 
 	//! Amount to be added to trader stock when selling (including modifiers)
 	float AddStockAmount;
@@ -95,7 +98,7 @@ class ExpansionMarketSellItem
 	{
 		Print("ExpansionMarketSellItem::Debug - ExpansionMarketSellItem[" + i + "]: ");
 		Print("ExpansionMarketSellItem::Debug - RemainAmount: " + RemainAmount);
-		Print("ExpansionMarketSellItem::Debug - ItemRep: " + ItemRep);
+		Print("ExpansionMarketSellItem::Debug - ClassName: " + ClassName);
 	}
 	
 	// ------------------------------------------------------------
@@ -103,6 +106,9 @@ class ExpansionMarketSellItem
 	// ------------------------------------------------------------
 	void DestroyItem()
 	{
+		if (!ItemRep)
+			return;
+
 		if (RemainAmount == 0)
 		{
 			#ifdef EXPANSIONMODVEHICLE

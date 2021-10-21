@@ -402,14 +402,13 @@ class ExpansionHelicopterScript extends CarScript
 		{
 			//! Bouncing/jolting/flipping fix
 			//! 0% momentum at zero vertical distance to ground and/or rotor off,
-			//! 50% momentum at zero vertical distance to ground and full rotor speed,
 			//! 100% momentum at >= 0.5m vertical distance to ground and full rotor speed,
 			//! linearly interpolated
 			float f = m_Simulation.m_RotorSpeed;
 			if (f > 0)
 			{
-				float y = m_LastKnownPosition[1] - GetModelAnchorPointY();
-				f *= ExpansionMath.LinearConversion(0, 0.5, y - m_Expansion_IsLandedHitPos[1], 0.5, 1, true);
+				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
+				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 			}
 			vector linearVelocity = GetVelocity(this);
 			linearVelocity[0] = linearVelocity[0] * f;
@@ -524,26 +523,28 @@ class ExpansionHelicopterScript extends CarScript
 
 		m_LastKnownPosition = pos;
 
-		float offset = 0.5;
+		vector start = ModelToWorld(Vector(0, -GetModelAnchorPointY() + 0.5, 0));
+		vector end = ModelToWorld(Vector(0, -GetModelAnchorPointY() - 0.5, 0));
 
-		//! Add offset if pitch or roll are out of whack
-		vector ori = GetOrientation();
-
-		if (ori[1] >= 45 || ori[1] <= -45 || ori[2] >= 45 || ori[2] <= -45)
-			offset += 1;
-
-		//! Ray input
-		vector start = pos;
-		vector end = pos - Vector(0, GetModelAnchorPointY() + offset, 0);
-
-		//! Ray output
 		vector hitNormal;
-
-		//! Ray hitindex output
 		int hitindex;
+		set<Object> hitObjects = new set<Object>;
 
-		//! Ray
-		m_IsLanded = DayZPhysics.RaycastRV(start, end, m_Expansion_IsLandedHitPos, hitNormal, hitindex, NULL, NULL, this);
+		bool hit = DayZPhysics.RaycastRV(start, end, m_Expansion_IsLandedHitPos, hitNormal, hitindex, hitObjects, NULL, this);
+
+		if (hit && hitObjects.Count() > 0)
+		{
+			//! Ignore objects that are children (pilot, passengers...)
+			int hitChildCount;
+			foreach (Object hitObject: hitObjects)
+			{
+				if (hitObject.GetParent() == this)
+					hitChildCount++;
+			}
+			hit = hitChildCount < hitObjects.Count();
+		}
+
+		m_IsLanded = hit;
 
 #ifdef EXPANSIONEXPRINT
 		EXLogPrint(GetType() + "::IsLanded - End and return " + m_IsLanded);

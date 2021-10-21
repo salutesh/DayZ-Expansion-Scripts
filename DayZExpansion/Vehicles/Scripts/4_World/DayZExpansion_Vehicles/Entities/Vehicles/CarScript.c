@@ -2012,7 +2012,17 @@ modded class CarScript
 	{
 		if ( !IsInherited( ExpansionHelicopterScript ) || !IsInherited( ExpansionBoatScript ) ) 
 		{
-			return CarRearLightBase.Cast( ScriptedLightBase.CreateLight( OffroadHatchbackFrontLight ) );
+			return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(OffroadHatchbackRearLight) );
+		}
+
+		return NULL;
+	}
+
+	override CarLightBase CreateFrontLight()
+	{
+		if (!IsInherited(ExpansionHelicopterScript) || !IsInherited(ExpansionBoatScript))
+		{
+			return CarLightBase.Cast( ScriptedLightBase.CreateLight(OffroadHatchbackFrontLight) );
 		}
 
 		return NULL;
@@ -2091,6 +2101,11 @@ modded class CarScript
 	// ------------------------------------------------------------
 	protected void OnNoSimulation( float pDt )
 	{
+		if ( IsMissionClient() )
+		{
+			OnParticleUpdate( pDt );
+		}
+
 		OnAnimationUpdate( pDt );
 	}
 

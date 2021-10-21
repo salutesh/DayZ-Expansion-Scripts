@@ -79,16 +79,20 @@ class ExpansionZoneActor
 #endif
 	}
 
-	static void UpdateAll(int max = 10)
+	static void UpdateAll(int max)
 	{
 #ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionZoneActor::UpdateAll start");
 #endif
 
 		int index = 0;
+		bool passedHead = false;
 
 		if (!g_ExpansionZoneActorCurrent)
+		{
 			g_ExpansionZoneActorCurrent = g_ExpansionZoneActorHead;
+			passedHead = true;
+		}
 
 		for (int i = 0; i < COUNT; i++)
 			ExpansionZone.s_InsideBuffer[i] = false;
@@ -101,6 +105,13 @@ class ExpansionZoneActor
 
 			if ((index++) > max)
 				return;
+
+			// small chance duplicate entries will be processed, but doing a proper check will prove to be ineffcient
+			if (!passedHead && !g_ExpansionZoneActorCurrent)
+			{
+				g_ExpansionZoneActorCurrent = g_ExpansionZoneActorHead;
+				passedHead = true;
+			}
 		}
 
 #ifdef EXPANSIONEXPRINT
@@ -131,7 +142,6 @@ class ExpansionZoneActor
 #endif
 
 		m_Position = GetPosition();
-		m_Position[1] = 0;
 
 		ExpansionZone element = g_ExpansionZoneHead;
 		while (element)
@@ -218,7 +228,6 @@ class ExpansionZoneEntity<Class T> : ExpansionZoneActor
 #endif
 
 		m_Position = m_Instance.GetPosition();
-		m_Position[1] = 0;
 
 		ExpansionZone element = g_ExpansionZoneHead;
 		while (element)

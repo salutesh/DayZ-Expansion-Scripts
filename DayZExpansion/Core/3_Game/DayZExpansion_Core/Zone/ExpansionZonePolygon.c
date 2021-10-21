@@ -16,7 +16,7 @@
 class ExpansionZonePolygon : ExpansionZone
 {
 	vector m_Position;
-	float m_RadiusSq;
+	float m_Radius;
 
 	int m_Count;
 	float m_Positions_X[32];
@@ -65,15 +65,16 @@ class ExpansionZonePolygon : ExpansionZone
 		accumulatedArea *= 3.0;
 		if (accumulatedArea == 0.0)
 			return;
+
 		m_Position[0] = m_Position[0] / accumulatedArea;
 		m_Position[2] = m_Position[2] / accumulatedArea;
 
 		for (i = 0; i < m_Count; ++i)
 		{
-			float distance = vector.DistanceSq(m_Position, positions[i]);
-			if (distance > m_RadiusSq)
+			float distance = vector.Distance(m_Position, positions[i]);
+			if (distance > m_Radius)
 			{
-				m_RadiusSq = distance;
+				m_Radius = distance;
 			}
 		}
 
@@ -88,7 +89,9 @@ class ExpansionZonePolygon : ExpansionZone
 		EXPrint("ExpansionZonePolygon::Check");
 #endif
 
-		if (s_InsideBuffer[m_Type] || vector.DistanceSq(position, m_Position) > m_RadiusSq)
+		m_Position[1] = position[1];
+
+		if (s_InsideBuffer[m_Type] || !Math.IsPointInCircle(position, m_Radius, m_Position))
 			return;
 
 		bool ins = false;
@@ -118,6 +121,6 @@ class ExpansionZonePolygon : ExpansionZone
 
 	override string ToStr()
 	{
-		return super.ToStr() + " position=" + m_Position + " radius=" + m_RadiusSq;
+		return super.ToStr() + " position=" + m_Position + " radius=" + m_Radius;
 	}
 };

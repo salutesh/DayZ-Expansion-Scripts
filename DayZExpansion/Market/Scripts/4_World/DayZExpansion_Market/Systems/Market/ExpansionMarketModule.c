@@ -62,6 +62,9 @@ class ExpansionMarketModule: JMModuleBase
 	protected ref ExpansionTraderObjectBase m_OpenedClientTrader;
 	
 	ref array<ref ExpansionMarketATM_Data> m_ATMData;
+
+	static ref map<string, ExpansionMarketItem> s_AmmoItems = new map<string, ExpansionMarketItem>;
+	static ref map<string, string> s_AmmoBullets = new map<string, string>;
 	
 	// ------------------------------------------------------------
 	// ExpansionMarketModule Constructor
@@ -464,9 +467,6 @@ class ExpansionMarketModule: JMModuleBase
 
 	void FindAttachmentsSellPrice(EntityAI itemEntity, ExpansionMarketSell sell, inout map<string, float> addedStock = NULL)
 	{
-		if (!itemEntity.GetInventory())
-			return;
-
 		ExpansionMarketTraderZone zone;
 
 		if (GetGame().IsClient())
@@ -487,7 +487,43 @@ class ExpansionMarketModule: JMModuleBase
 		if (!addedStock)
 			addedStock = new map<string, float>;
 
-		for (int i = 0; i < itemEntity.GetInventory().AttachmentCount(); i++)
+		int i;
+
+		if (itemEntity.IsInherited(MagazineStorage))
+		{
+			//! Magazines
+			Magazine mag;
+			Class.CastTo(mag, itemEntity);
+
+			for (i = 0; i < mag.GetAmmoCount(); i++)
+			{
+				float damage;  //! NOTE: Damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
+				string bulletClassName;
+				mag.GetCartridgeAtIndex(i, damage, bulletClassName);
+				//EXPrint("Bullet: " + bulletClassName + ", " + "Damage: "+ damage.ToString());
+				ExpansionMarketItem ammoItem = NULL;
+				if (!s_AmmoItems.Find(bulletClassName, ammoItem))
+				{
+					string ammoClassName = GetGame().ConfigGetTextOut("CfgAmmo " + bulletClassName + " spawnPileType");
+					ammoClassName.ToLower();
+					ammoItem = GetExpansionSettings().GetMarket().GetItem(ammoClassName, false);
+					if (!ammoItem)
+						EXPrint("GetSellPriceModifier - market item " + ammoClassName + " (" + bulletClassName + ") does not exist");
+					s_AmmoItems.Insert(bulletClassName, ammoItem);
+				}
+				if (ammoItem)
+					FindAttachmentsSellPriceInternal(ammoItem, NULL, sell, addedStock, zone, initialSellPriceModifier * (1 - damage));
+			}
+
+			return;
+		}
+
+		//! Everything else
+
+		if (!itemEntity.GetInventory())
+			return;
+
+		for (i = 0; i < itemEntity.GetInventory().AttachmentCount(); i++)
 		{
 			EntityAI attachmentEntity = itemEntity.GetInventory().GetAttachmentFromIndex(i);
 
@@ -503,39 +539,50 @@ class ExpansionMarketModule: JMModuleBase
 			if (!attachment)
 				continue;
 
-			if (!sell.Trader.GetTraderMarket().CanSellItem(attachmentName))
-			{
-				EXPrint(ToString() + "::FindSellPrice - Cannot sell " + attachmentName + " to " + sell.Trader.GetTraderMarket().TraderName + " trader");
-				continue;
-			}
-
-			int stock = 1;
-			float curAddedStock;
-
-			float incrementStockModifier;
-			float modifier = GetSellPriceModifier(attachmentEntity, incrementStockModifier, initialSellPriceModifier);
-
-			if (!attachment.IsStaticStock())
-			{
-				stock = zone.GetStock(attachmentName);
-
-				if (stock < 0)  //! Attachment does not exist in trader zone - set min stock so price calc can work correctly
-					stock = attachment.MinStockThreshold;
-
-				if (addedStock.Find(attachmentName, curAddedStock))
-					addedStock.Set(attachmentName, curAddedStock + incrementStockModifier);
-				else
-					addedStock.Insert(attachmentName, incrementStockModifier);
-
-				curAddedStock += incrementStockModifier;
-			}
-
-			sell.AddItem(0, 1, incrementStockModifier, attachmentEntity);
-
-			sell.Price += attachment.CalculatePrice(stock + curAddedStock, modifier);
-
-			FindAttachmentsSellPrice(attachmentEntity, sell, addedStock);
+			FindAttachmentsSellPriceInternal(attachment, attachmentEntity, sell, addedStock, zone, initialSellPriceModifier);
 		}
+	}
+
+	protected void FindAttachmentsSellPriceInternal(ExpansionMarketItem attachment, EntityAI attachmentEntity, ExpansionMarketSell sell, inout map<string, float> addedStock, ExpansionMarketTraderZone zone, float initialSellPriceModifier)
+	{
+		if (!sell.Trader.GetTraderMarket().CanSellItem(attachment.ClassName))
+		{
+			EXPrint(ToString() + "::FindSellPrice - Cannot sell " + attachment.ClassName + " to " + sell.Trader.GetTraderMarket().TraderName + " trader");
+			return;
+		}
+
+		int stock = 1;
+		float curAddedStock;
+
+		float incrementStockModifier;
+		float modifier = initialSellPriceModifier;
+
+		if (attachmentEntity)
+			modifier = GetSellPriceModifier(attachmentEntity, incrementStockModifier, initialSellPriceModifier);
+		else
+			incrementStockModifier = 1;
+
+		if (!attachment.IsStaticStock())
+		{
+			stock = zone.GetStock(attachment.ClassName);
+
+			if (stock < 0)  //! Attachment does not exist in trader zone - set min stock so price calc can work correctly
+				stock = attachment.MinStockThreshold;
+
+			if (addedStock.Find(attachment.ClassName, curAddedStock))
+				addedStock.Set(attachment.ClassName, curAddedStock + incrementStockModifier);
+			else
+				addedStock.Insert(attachment.ClassName, incrementStockModifier);
+
+			curAddedStock += incrementStockModifier;
+		}
+
+		sell.AddItem(0, 1, incrementStockModifier, attachmentEntity, attachment.ClassName);
+
+		sell.Price += attachment.CalculatePrice(stock + curAddedStock, modifier);
+
+		if (attachmentEntity)
+			FindAttachmentsSellPrice(attachmentEntity, sell, addedStock);
 	}
 
 	//! Get sell price modifier, taking into account item condition (including quantity and food stage for food)
@@ -825,13 +872,27 @@ class ExpansionMarketModule: JMModuleBase
 
 		if (includeAttachments)
 		{
-			foreach (string attachmentName: item.SpawnAttachments)
+			int magAmmoCount;
+			map<string, bool> attachments = item.GetAttachments(magAmmoCount);
+			map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachments, magAmmoCount);
+
+			foreach (string attachmentName, bool isMagAmmo: attachments)
 			{
 				ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName);
 				if (attachment)
 				{
+					int quantity = 1;
+
+					//! If parent item is a mag and we are buying with ammo "attachment", set quantity to ammo quantity
+					if (isMagAmmo)
+					{
+						quantity = magAmmoQuantities.Get(attachmentName);
+						if (!quantity)
+							continue;
+					}
+
 					price = 0;  //! We only want the price of the current attachment (and its attachments, if any), not add to existing price
-					if (!FindPriceOfPurchase(attachment, zone, trader, 1, price, true, result))
+					if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, !isMagAmmo, result))
 					{
 						if (result == ExpansionMarketResult.FailedOutOfStock)
 							result = ExpansionMarketResult.FailedAttachmentOutOfStock;
@@ -843,7 +904,7 @@ class ExpansionMarketModule: JMModuleBase
 						return false;
 					}
 
-					reserved.AddReserved(zone, attachment.ClassName, 1, price);
+					reserved.AddReserved(zone, attachment.ClassName, quantity, price);
 				}
 			}
 		}
@@ -908,12 +969,26 @@ class ExpansionMarketModule: JMModuleBase
 
 			if (includeAttachments)
 			{
-				foreach (string attachmentName: item.SpawnAttachments)
+				int magAmmoCount;
+				map<string, bool> attachments = item.GetAttachments(magAmmoCount);
+				map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachments, magAmmoCount);
+
+				foreach (string attachmentName, bool isMagAmmo: attachments)
 				{
 					ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
 					if (attachment)
 					{
-						if (!FindPriceOfPurchase(attachment, zone, trader, 1, price, true, result, removedStock))
+						int quantity = 1;
+
+						//! If parent item is a mag and we are buying with ammo "attachment", set quantity to ammo quantity
+						if (isMagAmmo)
+						{
+							quantity = magAmmoQuantities.Get(attachmentName);
+							if (!quantity)
+								continue;
+						}
+
+						if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, true, result, removedStock))
 						{
 							if (result == ExpansionMarketResult.FailedOutOfStock)
 								result = ExpansionMarketResult.FailedAttachmentOutOfStock;
@@ -931,7 +1006,7 @@ class ExpansionMarketModule: JMModuleBase
 		
 		return ret;
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion Array<Object> Spawn
 	// ------------------------------------------------------------
@@ -1004,18 +1079,59 @@ class ExpansionMarketModule: JMModuleBase
 			EntityAI objEntity = EntityAI.Cast(obj);
 			if (objEntity)
 			{
-				foreach (string attachmentName: item.SpawnAttachments)
+				int magAmmoCount;
+				map<string, bool> attachments = item.GetAttachments(magAmmoCount);
+
+				foreach (string attachmentName, bool isMagAmmoTmp: attachments)
 				{
 					ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName);
 					if (attachment)
 					{
+						if (isMagAmmoTmp)
+							continue;  //! Ammo "attachment" on mag
+
+						//! Everything else
 						int attachmentQuantity = 1;
 						if (!Spawn(trader, attachment, player, objEntity, position, orientation, attachmentQuantity, true, skinIndex))
 							attachmentNotAttached = true;
 					}
 				}
+
 				if (objEntity.IsInherited(ExpansionTemporaryOwnedContainer))
 					parent = objEntity;
+
+				MagazineStorage mag;
+				if (Class.CastTo(mag, obj) && magAmmoCount > 0)
+				{
+					//! Fill up mag. If we have several ammo types, alternate them.
+					int totalAmmo;
+					while (totalAmmo < mag.GetAmmoMax())
+					{
+						foreach (string ammoName, bool isMagAmmo: attachments)
+						{
+							if (isMagAmmo)
+							{
+								string bulletName = "";
+								if (!s_AmmoBullets.Find(ammoName, bulletName))
+								{
+									bulletName = GetGame().ConfigGetTextOut("CfgMagazines " + ammoName + " ammo");
+									s_AmmoBullets.Insert(ammoName, bulletName);
+								}
+
+								if (bulletName)
+								{
+									mag.ServerStoreCartridge(0, bulletName);
+								}
+
+								totalAmmo++;
+								if (totalAmmo == mag.GetAmmoMax())
+									break;
+							}
+						}
+					}
+
+					mag.SetSynchDirty();
+				}
 			}
 		}
 
@@ -1196,15 +1312,18 @@ class ExpansionMarketModule: JMModuleBase
 	{	
 		MarketModulePrint("FindMoneyAndCountTypes - player " + player + " - amount " + amount);
 
-		if (amount <= 0)
+		if (amount < 0)
 		{
-			MarketModulePrint("FindMoneyAndCountTypes - amount is not a positive non-zero value - end and return false!");
+			MarketModulePrint("FindMoneyAndCountTypes - amount is not a positive value - end and return false!");
 			return false;
 		}
 
 		if (!monies)
 			monies = new array<int>;
 		
+		if (amount == 0)
+			return true;
+
 		array<ref array<ItemBase>> foundMoney = new array<ref array<ItemBase>>;
 		array<int> playerMonies = new array<int>;
 		
@@ -2050,6 +2169,7 @@ class ExpansionMarketModule: JMModuleBase
 		//! Compare that price to the one the player sent
 		if (!FindPurchasePriceAndReserve(item, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
 		{
+			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
 			reservedList.Debug();
 
 			reservedList.ClearReserved(zone);
@@ -2059,13 +2179,13 @@ class ExpansionMarketModule: JMModuleBase
 			
 			string cbtype = typename.EnumToString(ExpansionMarketResult, result);
 
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + " Item: " + reservedList.RootItem);
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + " Zone: " + zone.ToString());
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + " Count: " + count);
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + ": 1");
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + ": itemClassName " + itemClassName);
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + ": player " + player);
-			MarketModulePrint("Exec_RequestPurchase - Callback " + result + ": identity " + player.GetIdentity());
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + " Item: " + reservedList.RootItem);
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + " Zone: " + zone.ToString());
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + " Count: " + count);
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + ": 1");
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + ": itemClassName " + itemClassName);
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + ": player " + player);
+			MarketModulePrint("Exec_RequestPurchase - Callback " + cbtype + ": identity " + player.GetIdentity());
 
 			return;
 		}
@@ -2476,7 +2596,7 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 
-		sellList.Debug();
+		//sellList.Debug();
 		
 		sellList.Valid = true;
 		sellList.Time = GetGame().GetTime();
@@ -2575,12 +2695,12 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 
-		sell.Debug();
+		//sell.Debug();
 		
 		for (int j = 0; j < sell.Sell.Count(); j++)
 		{
-			zone.AddStock(sell.Sell[j].ItemRep.GetType(), sell.Sell[j].AddStockAmount);
-			if (!sell.Sell[j].ItemRep.IsPendingDeletion())
+			zone.AddStock(sell.Sell[j].ClassName, sell.Sell[j].AddStockAmount);
+			if (sell.Sell[j].ItemRep && !sell.Sell[j].ItemRep.IsPendingDeletion())
 				sell.Sell[j].DestroyItem();
 		}
 

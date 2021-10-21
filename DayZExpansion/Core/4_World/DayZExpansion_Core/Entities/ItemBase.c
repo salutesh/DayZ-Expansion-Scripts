@@ -26,7 +26,8 @@ modded class ItemBase
 
 	protected bool m_CanBeSkinned;
 	protected autoptr array< ExpansionSkin > m_Skins;
-	protected autoptr ExpansionZoneItemCleanup m_Expansion_CleanupActor;
+	protected bool m_Expansion_SZCleanup;
+	protected bool m_Expansion_IsStoreLoaded;
 
 	void ItemBase()
 	{
@@ -641,44 +642,82 @@ modded class ItemBase
 	void OnExitZone(ExpansionZoneType type)
 	{
 	}
-
-	override void OnInventoryEnter(Man player)
-	{
-		super.OnInventoryEnter(player);
-
-		m_Expansion_CleanupActor = null;
-	}
 	
-	override void OnInventoryExit(Man player)
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		super.OnInventoryExit(player);
-		PlayerBase pb = PlayerBase.Cast(player);
+		super.EEItemLocationChanged(oldLoc, newLoc);
 
-		if (!pb || !pb.IsInSafeZone())
+		if (!GetGame().IsServer())
 			return;
 
-		ExpansionCreateCleanup();
-	}
-	
-    override void DeferredInit()
-    {
-		super.DeferredInit();
-
-		if (GetGame().IsServer() && !GetHierarchyParent() && ExpansionZoneModule.IsInsideSafeZone(GetPosition()))
-		{
-			ExpansionCreateCleanup();
-		}
-    }
-
-	void ExpansionCreateCleanup()
-	{
-		if (!GetGame().IsServer())
+		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
 
 		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
 			return;
 
+		if (newLoc.GetType() == InventoryLocationType.GROUND)
+		{
+			ExpansionCreateCleanup();
+		}
+		else if (oldLoc.GetType() == InventoryLocationType.GROUND)
+		{
+			float lifetime = GetEconomyProfile().GetLifetime();
+			if (m_Expansion_SZCleanup || GetLifetimeMax() < lifetime)
+			{
+				m_Expansion_SZCleanup = false;
+
+				//! Make sure to reset max lifetime to value from CE
+				SetLifetimeMax(lifetime);
+			}
+		}
+	}
+
+	override void DeferredInit()
+    {
+		super.DeferredInit();
+
+		if (!m_Expansion_IsStoreLoaded)
+			return;
+
+		if (!GetExpansionSettings().GetSafeZone().Enabled)
+			return;
+
+		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
+			return;
+
+		ExpansionCreateCleanup();
+    }
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+		
+		m_Expansion_IsStoreLoaded = true;
+	}
+
+	override void OnCEUpdate()
+	{
+		super.OnCEUpdate();
+
+		if (m_Expansion_SZCleanup && GetLifetime() < 0)
+		{
+			GetGame().ObjectDelete(this);
+		}
+	}
+
+	void ExpansionCreateCleanup()
+	{
 		if (IsInherited(ExpansionTemporaryOwnedContainer))
+			return;
+
+		if (m_Expansion_SZCleanup)
+			return;
+
+		if (GetHierarchyParent())
+			return;
+
+		if (!ExpansionZoneModule.IsInsideSafeZone(GetPosition()))
 			return;
 
 		foreach (string name: GetExpansionSettings().GetSafeZone().ForceSZCleanup_ExcludedItems)
@@ -687,6 +726,11 @@ modded class ItemBase
 				return;
 		}
 
-		m_Expansion_CleanupActor = new ExpansionZoneItemCleanup(this);
+		m_Expansion_SZCleanup = true;
+
+		//! Using SetLifetimeMax here prevents the lifetime resetting to the value from CE
+		//! if this item can receive attachments/cargo and something is attached/put in cargo
+		//! while the item is on ground
+		SetLifetimeMax(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
 	}
 };

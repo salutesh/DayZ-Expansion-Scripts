@@ -426,7 +426,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	{
 		className.ToLower();
 		
-		Print("ExpansionMarketTraderZone::GetStock - ClassName: " + className);
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("ExpansionMarketTraderZone::GetStock - ClassName: " + className);
+		#endif
 
 		if (!ItemExists(className))
 		{
