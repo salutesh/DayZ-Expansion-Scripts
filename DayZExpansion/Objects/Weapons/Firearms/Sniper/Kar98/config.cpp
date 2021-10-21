@@ -34,15 +34,16 @@ class cfgWeapons
 		chamberSize = 5;
 		chamberedRound = "";
 		magazines[] = {};
-		chamberableFrom[] = {"Expansion_Ammo_8mm","TTC_Ammo_8mm"};
+		chamberableFrom[] = {"Expansion_Ammo_8mm","TTC_Ammo_8mm","Ammo_792x57"};
 		ejectType = 0;
 		recoilModifier[] = {1,1,1};
 		swayModifier[] = {2,2,1};
 		reloadSkips[] = {0.32,0.41,0.5,0.59,0.69,0.77};
 		reloadAction = "ReloadMosinFull";
 		shotAction = "ReloadMosinShort";
-		hiddenSelections[] = {};
-		hiddenSelectionsMaterials[] = {};
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\objects\weapons\firearms\sniper\kar98\data\kar98_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\objects\weapons\firearms\sniper\kar98\data\kar98.rvmat"};
 		modes[] = {"SemiAuto"};
 		class SemiAuto: Mode_SemiAuto
 		{

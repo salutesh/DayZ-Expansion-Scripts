@@ -500,7 +500,7 @@ class ExpansionMarketModule: JMModuleBase
 				float damage;  //! NOTE: Damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
 				string bulletClassName;
 				mag.GetCartridgeAtIndex(i, damage, bulletClassName);
-				EXPrint("Bullet: " + bulletClassName + ", " + "Damage: "+ damage.ToString());
+				//EXPrint("Bullet: " + bulletClassName + ", " + "Damage: "+ damage.ToString());
 				ExpansionMarketItem ammoItem = NULL;
 				if (!s_AmmoItems.Find(bulletClassName, ammoItem))
 				{
@@ -874,7 +874,7 @@ class ExpansionMarketModule: JMModuleBase
 		{
 			int magAmmoCount;
 			map<string, bool> attachments = item.GetAttachments(magAmmoCount);
-			int ammoQuantity = GetGame().ConfigGetInt("CfgMagazines " + item.ClassName + " count");
+			map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachments, magAmmoCount);
 
 			foreach (string attachmentName, bool isMagAmmo: attachments)
 			{
@@ -883,9 +883,13 @@ class ExpansionMarketModule: JMModuleBase
 				{
 					int quantity = 1;
 
-					//! If parent item is a mag and we are buying with ammo "attachment", set quantity to mag capacity
+					//! If parent item is a mag and we are buying with ammo "attachment", set quantity to ammo quantity
 					if (isMagAmmo)
-						quantity = ammoQuantity / magAmmoCount;
+					{
+						quantity = magAmmoQuantities.Get(attachmentName);
+						if (!quantity)
+							continue;
+					}
 
 					price = 0;  //! We only want the price of the current attachment (and its attachments, if any), not add to existing price
 					if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, !isMagAmmo, result))
@@ -967,7 +971,7 @@ class ExpansionMarketModule: JMModuleBase
 			{
 				int magAmmoCount;
 				map<string, bool> attachments = item.GetAttachments(magAmmoCount);
-				int ammoQuantity = GetGame().ConfigGetInt("CfgMagazines " + item.ClassName + " count");
+				map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachments, magAmmoCount);
 
 				foreach (string attachmentName, bool isMagAmmo: attachments)
 				{
@@ -976,9 +980,13 @@ class ExpansionMarketModule: JMModuleBase
 					{
 						int quantity = 1;
 
-						//! If parent item is a mag and we are buying with ammo "attachment", set quantity to mag capacity / magAmmoCount
+						//! If parent item is a mag and we are buying with ammo "attachment", set quantity to ammo quantity
 						if (isMagAmmo)
-							quantity = ammoQuantity / magAmmoCount;
+						{
+							quantity = magAmmoQuantities.Get(attachmentName);
+							if (!quantity)
+								continue;
+						}
 
 						if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, true, result, removedStock))
 						{
@@ -1096,8 +1104,8 @@ class ExpansionMarketModule: JMModuleBase
 				if (Class.CastTo(mag, obj) && magAmmoCount > 0)
 				{
 					//! Fill up mag. If we have several ammo types, alternate them.
-					int i;
-					while (i < mag.GetAmmoMax())
+					int totalAmmo;
+					while (totalAmmo < mag.GetAmmoMax())
 					{
 						foreach (string ammoName, bool isMagAmmo: attachments)
 						{
@@ -1114,11 +1122,11 @@ class ExpansionMarketModule: JMModuleBase
 								{
 									mag.ServerStoreCartridge(0, bulletName);
 								}
-							}
 
-							i++;
-							if (i == mag.GetAmmoMax())
-								break;
+								totalAmmo++;
+								if (totalAmmo == mag.GetAmmoMax())
+									break;
+							}
 						}
 					}
 
@@ -1304,15 +1312,18 @@ class ExpansionMarketModule: JMModuleBase
 	{	
 		MarketModulePrint("FindMoneyAndCountTypes - player " + player + " - amount " + amount);
 
-		if (amount <= 0)
+		if (amount < 0)
 		{
-			MarketModulePrint("FindMoneyAndCountTypes - amount is not a positive non-zero value - end and return false!");
+			MarketModulePrint("FindMoneyAndCountTypes - amount is not a positive value - end and return false!");
 			return false;
 		}
 
 		if (!monies)
 			monies = new array<int>;
 		
+		if (amount == 0)
+			return true;
+
 		array<ref array<ItemBase>> foundMoney = new array<ref array<ItemBase>>;
 		array<int> playerMonies = new array<int>;
 		

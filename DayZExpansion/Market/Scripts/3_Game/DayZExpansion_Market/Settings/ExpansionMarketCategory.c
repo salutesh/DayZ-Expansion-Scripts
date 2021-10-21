@@ -127,30 +127,6 @@ class ExpansionMarketCategory
 	{
 		className.ToLower();
 
-		if ( minPrice <= 0 ) 
-		{
-			Error("[ExpansionMarketCategory] The minimum price must be higher than 0 for '" + className + "'");
-			minPrice = 1;
-		}
-
-		if ( minStock < 0 ) 
-		{
-			Error("[ExpansionMarketCategory] The minimum stock must be 0 or higher for '" + className + "'");
-			minStock = 0;
-		}
-
-		if ( minPrice > maxPrice ) 
-		{
-			Error("[ExpansionMarketCategory] The minimum price must be lower than the maximum price for '" + className + "'");
-			maxPrice = minPrice;
-		}
-
-		if ( minStock > maxStock ) 
-		{
-			Error("[ExpansionMarketCategory] The minimum stock must be lower than or equal to the maximum stock for '" + className + "'");
-			maxStock = minStock;
-		}
-
 		if (ExpansionGame.IsServerOrOffline() && CheckDuplicate(className))
 			return NULL;
 

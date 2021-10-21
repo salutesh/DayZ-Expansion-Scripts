@@ -201,7 +201,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 
 				if (settingsBase.m_Version < 6)
 				{
-					FrameRateCheckSafeZoneInMs = 0;
+					FrameRateCheckSafeZoneInMs = settingsDefault.FrameRateCheckSafeZoneInMs;
 					ActorsPerTick = settingsDefault.ActorsPerTick;
 				}
 

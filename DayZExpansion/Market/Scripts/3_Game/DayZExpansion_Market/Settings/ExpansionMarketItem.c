@@ -72,6 +72,30 @@ class ExpansionMarketItem
 		ClassName = className;
 		ClassName.ToLower();
 
+		if ( minPrice < 0 )
+		{
+			Error("[ExpansionMarketItem] The minimum price must be 0 or higher for '" + className + "'");
+			minPrice = 0;
+		}
+
+		if ( minStock < 0 )
+		{
+			Error("[ExpansionMarketItem] The minimum stock must be 0 or higher for '" + className + "'");
+			minStock = 0;
+		}
+
+		if ( minPrice > maxPrice )
+		{
+			Error("[ExpansionMarketItem] The minimum price must be lower than or equal to the maximum price for '" + className + "'");
+			maxPrice = minPrice;
+		}
+
+		if ( minStock > maxStock )
+		{
+			Error("[ExpansionMarketItem] The minimum stock must be lower than or equal to the maximum stock for '" + className + "'");
+			maxStock = minStock;
+		}
+
 		MinPriceThreshold = minPrice;
 		MaxPriceThreshold = maxPrice;
 
@@ -169,6 +193,46 @@ class ExpansionMarketItem
 		}
 
 		return attachments;
+	}
+
+	map<string, int> GetMagAmmoQuantities(map<string, bool> attachments, int magAmmoCount)
+	{
+		if (!attachments.Count() || !magAmmoCount || !IsMagazine())
+			return NULL;
+
+		map<string, int> magAmmoCounts = new map<string, int>;
+		int magCapacity = GetGame().ConfigGetInt("CfgMagazines " + ClassName + " count");
+
+		int totalAmmo;
+		while (totalAmmo < magCapacity)
+		{
+			foreach (string attachmentName, bool isMagAmmo: attachments)
+			{
+				if (isMagAmmo)
+				{
+					int ammoQuantity;
+					if (!magAmmoCounts.Find(attachmentName, ammoQuantity))
+					{
+						if (magAmmoCount == 1)
+							ammoQuantity = magCapacity;
+						else
+							ammoQuantity = 1;
+						magAmmoCounts.Insert(attachmentName, ammoQuantity);
+						totalAmmo += ammoQuantity;
+					}
+					else
+					{
+						magAmmoCounts.Set(attachmentName, ammoQuantity + 1);
+						totalAmmo++;
+					}
+
+					if (totalAmmo == magCapacity)
+						break;
+				}
+			}
+		}
+
+		return magAmmoCounts;
 	}
 
 	void AddDefaultAttachments()
