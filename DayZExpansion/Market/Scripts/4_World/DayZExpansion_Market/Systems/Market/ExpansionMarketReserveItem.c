@@ -39,6 +39,7 @@ class ExpansionMarketReserve
 		Print("ExpansionMarketReserve - Trader: " + Trader);
 		Print("ExpansionMarketReserve - Time: " + Time);
 		Print("ExpansionMarketReserve - RootItem: " + RootItem);
+		Print("ExpansionMarketReserve - ClassName: " + RootItem.ClassName);
 		Print("ExpansionMarketReserve - Reserved[N=" + Reserved.Count() + "]:");
 	
 		for ( int i = 0; i < Reserved.Count(); i++ )

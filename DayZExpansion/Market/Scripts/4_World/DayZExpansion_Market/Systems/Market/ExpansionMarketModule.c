@@ -32,6 +32,133 @@ enum ExpansionMarketResult
 	FailedNotInPlayerPossession
 }
 
+class ExpansionMarketPlayerInventory
+{
+	PlayerBase m_Player;
+	ref array<EntityAI> m_Inventory;
+
+	void ExpansionMarketPlayerInventory(PlayerBase player)
+	{
+		m_Player = player;
+		m_Inventory = new array<EntityAI>;
+		Enumerate();
+	}
+
+	void ~ExpansionMarketPlayerInventory()
+	{
+		EXPrint("~ExpansionMarketPlayerInventory");
+	}
+
+	void Enumerate()
+	{
+		array<EntityAI> items = new array<EntityAI>;
+		m_Player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		AddPlayerItems(items);
+
+		array<EntityAI> driven = GetNearbyDrivenVehicles();
+		AddPlayerItems(driven, m_Inventory);
+	}
+
+	private void AddPlayerItems(array<EntityAI> items, array<EntityAI> existing = NULL)
+	{
+		foreach (EntityAI item: items)
+		{
+			item = SubstituteOwnedVehicle(item);
+
+			if (!item)
+				continue;
+
+			if (existing && existing.Find(item) > -1)
+				continue;
+
+			m_Inventory.Insert( item );
+		}
+	}
+	
+	EntityAI SubstituteOwnedVehicle(EntityAI item)
+	{
+		#ifdef EXPANSIONMODVEHICLE
+		//! If this is a master key of a vehicle, substitute the vehicle itself if it's close
+		ExpansionCarKey key;
+		if (Class.CastTo(key, item) && key.IsMaster())
+		{
+			Object keyObject = key.GetKeyObject();
+
+			if (keyObject && IsVehicleNearby(keyObject))
+				item = EntityAI.Cast(keyObject);
+		}
+		#endif
+
+		return item;
+	}
+	
+	array<EntityAI> GetNearbyDrivenVehicles(string className = "", int amount = -1)
+	{
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("GetNearbyDrivenVehicles - Start - " + m_Player + " '" + className + "' " + amount);
+		#endif
+
+		array<EntityAI> driven = new array<EntityAI>;
+
+		string type;
+
+		set<CarScript> cars = CarScript.GetAll();
+		foreach (CarScript car: cars)
+		{
+			type = car.GetType();
+			type.ToLower();
+			if ((!className || type == className) && car.ExpansionGetLastDriverUID() == m_Player.GetIdentityUID())
+			{
+				#ifdef EXPANSIONMODVEHICLE
+				if (car.IsLocked())
+					continue;
+				#endif
+
+				if (IsVehicleNearby(car))
+					driven.Insert(car);
+
+				if (driven.Count() == amount)
+					return driven;
+			}
+		}
+
+		#ifdef EXPANSIONMODVEHICLE
+		set<ExpansionVehicleBase> vehicles = ExpansionVehicleBase.GetAll();
+		foreach (ExpansionVehicleBase vehicle: vehicles)
+		{
+			type = vehicle.GetType();
+			type.ToLower();
+			if ((!className || type == className) && vehicle.ExpansionGetLastDriverUID() == m_Player.GetIdentityUID())
+			{
+				if (vehicle.IsLocked())
+					continue;
+
+				if (IsVehicleNearby(vehicle))
+					driven.Insert(vehicle);
+
+				if (driven.Count() == amount)
+					return driven;
+			}
+		}
+		#endif
+
+		#ifdef EXPANSIONEXPRINT
+		EXPrint("GetNearbyDrivenVehicles - End - driven: " + driven.Count());
+		#endif
+
+		return driven;
+	}
+	
+	bool IsVehicleNearby(Object vehicle)
+	{
+		float maxDistance = GetExpansionSettings().GetMarket().GetMaxVehicleDistanceToTrader(vehicle.GetType());
+
+		bool isNear = vector.Distance(m_Player.GetPosition(), vehicle.GetPosition()) <= maxDistance;
+
+		return isNear;
+	}
+}
+
 class ExpansionMarketModule: JMModuleBase
 {
 	static const float MAX_TRADER_INTERACTION_DISTANCE = 5;
@@ -45,8 +172,7 @@ class ExpansionMarketModule: JMModuleBase
 	static ref ScriptInvoker SI_ATMMenuPartyCallback = new ScriptInvoker();
 
 	//! Client
-	protected ref array<string>   m_LocalStringInventory;
-	protected ref array<EntityAI> m_LocalEntityInventory;
+	protected ref ExpansionMarketPlayerInventory m_LocalEntityInventory;
 	protected ref TIntArray m_TmpVariantIds;
 	protected int m_TmpVariantIdIdx;
 	protected ref map<int, ref ExpansionMarketCategory> m_TmpNetworkCats;
@@ -73,8 +199,6 @@ class ExpansionMarketModule: JMModuleBase
 	{
 		MarketModulePrint("ExpansionMarketModule - Start");
 		
-		m_LocalStringInventory = new array<string>;
-		m_LocalEntityInventory = new array<EntityAI>;
 		m_TmpVariantIds = new TIntArray;
 		m_TmpNetworkCats = new map<int, ref ExpansionMarketCategory>;
 		m_TmpNetworkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
@@ -120,7 +244,6 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ~ExpansionMarketModule()
 	{
-		delete m_LocalStringInventory;
 		delete m_LocalEntityInventory;
 		delete m_CurrencyTypes;
 		delete m_MoneyTypes;
@@ -385,9 +508,8 @@ class ExpansionMarketModule: JMModuleBase
 
 		MarketModulePrint("FindSellPrice - player inventory: " + items.Count() + " - looking for " + sell.Item.ClassName);
 		
-		for (int i = 0; i < items.Count(); i++) 
+		foreach (EntityAI itemEntity: items) 
 		{
-			EntityAI itemEntity = SubstituteVehicle(items[i], player, sell.Item);
 			string itemClassName = itemEntity.GetType();
 			itemClassName.ToLower();
 			
@@ -668,95 +790,6 @@ class ExpansionMarketModule: JMModuleBase
 		return modifier;
 	}
 	
-	EntityAI SubstituteVehicle( EntityAI item, PlayerBase player, ExpansionMarketItem marketItem = NULL )
-	{
-		#ifdef EXPANSIONMODVEHICLE
-		//! If this is a master key of a vehicle, substitute the vehicle itself if it's close
-		ExpansionCarKey key;
-		if (Class.CastTo(key, item) && key.IsMaster())
-		{
-			Object keyObject = key.GetKeyObject();
-			MarketModulePrint("SubstituteVehicle " + key + " " + keyObject);
-
-			if (keyObject && IsVehicleNearby(player, keyObject))
-				item = EntityAI.Cast(keyObject);
-		}
-		#endif
-
-		if (marketItem && marketItem.PurchaseType == 1 && item == player && player.GetIdentityUID())
-		{
-			MarketModulePrint("SubstituteVehicle - " + item);
-
-			array<EntityAI> driven = GetNearbyDrivenVehicles(player, marketItem.ClassName, 1);
-			if (driven.Count())
-				return driven[0];
-		}
-
-		return item;
-	}
-	
-	array<EntityAI> GetNearbyDrivenVehicles(PlayerBase player, string className = "", int amount = -1)
-	{
-		MarketModulePrint("GetNearbyDrivenVehicles - Start - " + player + " '" + className + "' " + amount);
-
-		array<EntityAI> driven = new array<EntityAI>;
-
-		string type;
-
-		set<CarScript> cars = CarScript.GetAll();
-		foreach (CarScript car: cars)
-		{
-			type = car.GetType();
-			type.ToLower();
-			if ((!className || type == className) && car.ExpansionGetLastDriverUID() == player.GetIdentityUID())
-			{
-				#ifdef EXPANSIONMODVEHICLE
-				if (car.IsLocked())
-					continue;
-				#endif
-
-				if (IsVehicleNearby(player, car))
-					driven.Insert(car);
-
-				if (driven.Count() == amount)
-					return driven;
-			}
-		}
-
-		#ifdef EXPANSIONMODVEHICLE
-		set<ExpansionVehicleBase> vehicles = ExpansionVehicleBase.GetAll();
-		foreach (ExpansionVehicleBase vehicle: vehicles)
-		{
-			type = vehicle.GetType();
-			type.ToLower();
-			if ((!className || type == className) && vehicle.ExpansionGetLastDriverUID() == player.GetIdentityUID())
-			{
-				if (vehicle.IsLocked())
-					continue;
-
-				if (IsVehicleNearby(player, vehicle))
-					driven.Insert(vehicle);
-
-				if (driven.Count() == amount)
-					return driven;
-			}
-		}
-		#endif
-
-		MarketModulePrint("GetNearbyDrivenVehicles - End - driven: " + driven.Count());
-
-		return driven;
-	}
-	
-	bool IsVehicleNearby(Object target, Object vehicle)
-	{
-		float maxDistance = GetExpansionSettings().GetMarket().GetMaxVehicleDistanceToTrader(vehicle.GetType());
-
-		bool isNear = vector.Distance(target.GetPosition(), vehicle.GetPosition()) <= maxDistance;
-
-		return isNear;
-	}
-	
 	// ------------------------------------------------------------
 	// Expansion GetItemAmount
 	// Returns the amount of the given item the player has, taking into account whether it's stackable or not.
@@ -919,7 +952,7 @@ class ExpansionMarketModule: JMModuleBase
 	// Expansion Bool FindPriceOfPurchase
 	// ------------------------------------------------------------
 	//! Returns true if item and attachments (if any) are in stock, false otherwise
-	bool FindPriceOfPurchase(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, int amountWanted, inout ExpansionMarketCurrency price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, inout map<string, int> removedStock = NULL)
+	bool FindPriceOfPurchase(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, int amountWanted, inout ExpansionMarketCurrency price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, inout map<string, int> removedStock = NULL, int level = 0)
 	{
 		MarketModulePrint("FindPriceOfPurchase - Start");
 
@@ -968,7 +1001,7 @@ class ExpansionMarketModule: JMModuleBase
 				curRemovedStock += 1;
 			}
 
-			if (includeAttachments)
+			if (includeAttachments && level < 3)
 			{
 				int magAmmoCount;
 				map<string, bool> attachmentTypes = item.GetAttachmentTypes(magAmmoCount);
@@ -990,7 +1023,7 @@ class ExpansionMarketModule: JMModuleBase
 								continue;
 						}
 
-						if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, true, result, removedStock))
+						if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, true, result, removedStock, level + 1))
 						{
 							if (result == ExpansionMarketResult.FailedOutOfStock)
 								result = ExpansionMarketResult.FailedAttachmentOutOfStock;
@@ -1031,7 +1064,7 @@ class ExpansionMarketModule: JMModuleBase
 		{
 			vector position = "0 0 0";
 			vector orientation = "0 0 0";
-			if (item.PurchaseType == 1)
+			if (item.IsVehicle())
 			{
 				if ( !reserve.Trader.HasVehicleSpawnPosition(item.ClassName, position, orientation) )
 				{
@@ -1040,7 +1073,7 @@ class ExpansionMarketModule: JMModuleBase
 				}
 			}
 
-			objs.Insert(Spawn(reserve.Trader.GetTraderMarket(), item, player, parent, position, orientation, quantity, includeAttachments, skinIndex, attachmentNotAttached));
+			objs.Insert(Spawn(reserve.Trader.GetTraderMarket(), item, player, parent, position, orientation, quantity, includeAttachments, skinIndex, 0, attachmentNotAttached));
 		}		
 		
 		MarketModulePrint("Spawn - End and return objects: " + objs.ToString());
@@ -1051,32 +1084,19 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion Object Spawn
 	// ------------------------------------------------------------
-	Object Spawn(ExpansionMarketTrader trader, ExpansionMarketItem item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int quantity, bool includeAttachments = true, int skinIndex = -1, inout bool attachmentNotAttached = false)
+	Object Spawn(ExpansionMarketTrader trader, ExpansionMarketItem item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int quantity, bool includeAttachments = true, int skinIndex = -1, int level = 0, inout bool attachmentNotAttached = false)
 	{		
 		MarketModulePrint("Spawn - Start");
 
 		Object obj;
 
-		switch (item.PurchaseType)
-		{
-			case 0:
-			{
-				MarketModulePrint("Spawn - case 0!");
-				
-				obj = ExpansionItemSpawnHelper.SpawnOnParent( item.ClassName, player, parent, quantity, NULL, skinIndex, false );
-				break;
-			}
-			case 1:
-			{
-				MarketModulePrint("Spawn - case 1!");
-				
-				obj = ExpansionItemSpawnHelper.SpawnVehicle( item.ClassName, player, parent, position, orientation, quantity, NULL, skinIndex );
-				break;
-			}
-		}
+		if (!item.IsVehicle())
+			obj = ExpansionItemSpawnHelper.SpawnOnParent( item.ClassName, player, parent, quantity, NULL, skinIndex, false );
+		else
+			obj = ExpansionItemSpawnHelper.SpawnVehicle( item.ClassName, player, parent, position, orientation, quantity, NULL, skinIndex );
 		
 		//! Now deal with attachments and attachments on attachments
-		if (obj && includeAttachments)
+		if (obj && includeAttachments && level < 3)
 		{
 			EntityAI objEntity = EntityAI.Cast(obj);
 			if (objEntity)
@@ -1095,7 +1115,7 @@ class ExpansionMarketModule: JMModuleBase
 
 						//! Everything else
 						int attachmentQuantity = 1;
-						if (!Spawn(trader, attachment, player, objEntity, position, orientation, attachmentQuantity, true, skinIndex))
+						if (!Spawn(trader, attachment, player, objEntity, position, orientation, attachmentQuantity, true, skinIndex, level + 1))
 							attachmentNotAttached = true;
 					}
 				}
@@ -2159,7 +2179,7 @@ class ExpansionMarketModule: JMModuleBase
 		//! If custom attachments are chosen, create a derivative of the market item with them and cache it
 		if (attachmentIDs && attachmentIDs.Count())
 		{
-			ExpansionMarketItem derivative = new ExpansionMarketItem(item.CategoryID, itemClassName, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.PurchaseType, NULL, item.Variants, item.ItemID, attachmentIDs);
+			ExpansionMarketItem derivative = new ExpansionMarketItem(item.CategoryID, itemClassName, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, NULL, item.Variants, item.ItemID, attachmentIDs);
 			derivative.SetAttachmentsFromIDs();
 			item = derivative;
 		}
@@ -2173,6 +2193,7 @@ class ExpansionMarketModule: JMModuleBase
 		if (!FindPurchasePriceAndReserve(item, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
 		{
 			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
+			EXPrint("Exec_RequestPurchase - Current stock: " + zone.GetStock(itemClassName, true));
 			reservedList.Debug();
 
 			reservedList.ClearReserved(zone);
@@ -2345,7 +2366,7 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketVehicleSpawnType spawnType;
 		ExpansionMarketResult result;
 		Object blockingObject;
-		if (item.PurchaseType == 1 && !reserve.Trader.HasVehicleSpawnPosition(itemClassName, spawnPos, spawnDir, spawnType, result, blockingObject, reservedItem.Amount))
+		if (item.IsVehicle() && !reserve.Trader.HasVehicleSpawnPosition(itemClassName, spawnPos, spawnDir, spawnType, result, blockingObject, reservedItem.Amount))
 		{
 			MarketModulePrint("Exec_ConfirmPurchase - HasVehicleSpawnPosition - Type: " + typename.EnumToString(ExpansionMarketVehicleSpawnType, spawnType));
 			MarketModulePrint("Exec_ConfirmPurchase - HasVehicleSpawnPosition - Callback: " + typename.EnumToString(ExpansionMarketResult, result));
@@ -2577,8 +2598,7 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 		
-		array<EntityAI> items = new array<EntityAI>;
-	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		ExpansionMarketPlayerInventory inventory = new ExpansionMarketPlayerInventory(player);
 
 		//! Result if the price the player has seen and agreed to in menu doesn't match anymore
 		//! the current item price of the trader because stock has changed enough to affect it
@@ -2586,11 +2606,13 @@ class ExpansionMarketModule: JMModuleBase
 		ExpansionMarketResult result = ExpansionMarketResult.FailedStockChange;
 
 		//! Compare that price to the one the player sent
-		if (!FindSellPrice(player, items, zone.GetStock(itemClassName), count, sellList, result) || sellList.Price != currentPrice)
+		if (!FindSellPrice(player, inventory.m_Inventory, zone.GetStock(itemClassName), count, sellList, result) || sellList.Price != currentPrice)
 		{
-			player.ClearMarketSell();
-
+			EXPrint("Exec_RequestSell - Player sent price: " + currentPrice);
+			EXPrint("Exec_RequestSell - Current stock: " + zone.GetStock(itemClassName, true));
 			sellList.Debug();
+
+			player.ClearMarketSell();
 			
 			MarketModulePrint("Callback " + typename.EnumToString(ExpansionMarketResult, result));
 
@@ -3205,43 +3227,15 @@ class ExpansionMarketModule: JMModuleBase
 	// -----------------------------------------------------------
 	array<EntityAI> LocalGetEntityInventory()
 	{
-		return m_LocalEntityInventory;
+		return m_LocalEntityInventory.m_Inventory;
 	}
 
 	// -----------------------------------------------------------
 	// Expansion EnumeratePlayerInventory
 	// -----------------------------------------------------------
 	void EnumeratePlayerInventory(PlayerBase player)
-	{		
-		array<EntityAI> items = new array<EntityAI>;
-		
-		if (player)
-		{
-			player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-
-			m_LocalStringInventory.Clear();
-			m_LocalEntityInventory.Clear();
-
-			AddPlayerItems(items, NULL, player);
-
-			array<EntityAI> driven = GetNearbyDrivenVehicles(player);
-
-			AddPlayerItems(driven, m_LocalEntityInventory, player);
-		}
-	}
-
-	private void AddPlayerItems(array<EntityAI> items, array<EntityAI> existing, PlayerBase player)
 	{
-		foreach (EntityAI item: items)
-		{
-			item = SubstituteVehicle(item, player);
-
-			if (existing && existing.Find(item) > -1)
-				continue;
-
-			m_LocalStringInventory.Insert( item.GetType() );
-			m_LocalEntityInventory.Insert( item );
-		}
+		m_LocalEntityInventory = new ExpansionMarketPlayerInventory(player);
 	}
 	
 	// ------------------------------------------------------------

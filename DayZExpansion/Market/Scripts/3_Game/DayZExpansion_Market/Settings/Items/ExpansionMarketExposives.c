@@ -21,32 +21,32 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		m_FileName = "Explosives_And_Grenades";
 		
 		// EXPLOSIVE GRANADES
-		AddItem("RGD5Grenade", 				300,		600,		1,		100,	0);
-		AddItem("M67Grenade", 				300,		600,		1,		100,	0);
+		AddItem("RGD5Grenade", 				300,		600,		1,		100);
+		AddItem("M67Grenade", 				300,		600,		1,		100);
 		
 		// FLASHBANGS
-		AddItem("FlashGrenade", 			250,		500,		1,		100,	0);
+		AddItem("FlashGrenade", 			250,		500,		1,		100);
 
 		// SMOKE GRANADES
 	#ifdef EXPANSIONMOD
-		AddItem("M18SmokeGrenade_Red", 		200,		400,		1,		100,	0, null, {"M18SmokeGrenade_Green", "M18SmokeGrenade_Yellow", "M18SmokeGrenade_Purple", "M18SmokeGrenade_White", "Expansion_M18SmokeGrenade_Teargas"});
-		AddItem("Expansion_M18SmokeGrenade_Teargas", 	260,	520,	1,		100,	0);
+		AddItem("M18SmokeGrenade_Red", 		200,		400,		1,		100, null, {"M18SmokeGrenade_Green", "M18SmokeGrenade_Yellow", "M18SmokeGrenade_Purple", "M18SmokeGrenade_White", "Expansion_M18SmokeGrenade_Teargas"});
+		AddItem("Expansion_M18SmokeGrenade_Teargas", 	260,	520,	1,		100);
 	#else
-		AddItem("M18SmokeGrenade_Red", 		200,		400,		1,		100,	0, null, {"M18SmokeGrenade_Green", "M18SmokeGrenade_Yellow", "M18SmokeGrenade_Purple", "M18SmokeGrenade_White"});
+		AddItem("M18SmokeGrenade_Red", 		200,		400,		1,		100, null, {"M18SmokeGrenade_Green", "M18SmokeGrenade_Yellow", "M18SmokeGrenade_Purple", "M18SmokeGrenade_White"});
 	#endif
-		/*AddItem("M18SmokeGrenade_Green", 	200,		400,		1,		100,	0);
-		AddItem("M18SmokeGrenade_Yellow", 	200,		400,		1,		100,	0);
-		AddItem("M18SmokeGrenade_Purple", 	200,		400,		1,		100,	0);
-		AddItem("M18SmokeGrenade_White", 	200,		400,		1,		100,	0);*/
-		AddItem("RDG2SmokeGrenade_Black", 	200,		400,		1,		100,	0, null, {"RDG2SmokeGrenade_White"});
-		//AddItem("RDG2SmokeGrenade_White", 	200,		400,		1,		100,	0 );
+		/*AddItem("M18SmokeGrenade_Green", 	200,		400,		1,		100);
+		AddItem("M18SmokeGrenade_Yellow", 	200,		400,		1,		100);
+		AddItem("M18SmokeGrenade_Purple", 	200,		400,		1,		100);
+		AddItem("M18SmokeGrenade_White", 	200,		400,		1,		100);*/
+		AddItem("RDG2SmokeGrenade_Black", 	200,		400,		1,		100, null, {"RDG2SmokeGrenade_White"});
+		//AddItem("RDG2SmokeGrenade_White", 	200,		400,		1,		100);
 		
 	#ifdef EXPANSIONMOD
 		// Airdrop smoke
-		//AddItem("ExpansionSupplySignal", 	1000000,	2000000,	1,		100,	1);
+		//AddItem("ExpansionSupplySignal", 	1000000,	2000000,	1,		100);
 
 		// EXPLOSIVE CHARGES
-		AddItem("ExpansionSatchel", 		500,		1000,		1,		100,	0);
+		AddItem("ExpansionSatchel", 		500,		1000,		1,		100);
 	#endif
 	}
 };

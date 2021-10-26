@@ -21,10 +21,10 @@ class ExpansionMarketBoats: ExpansionMarketCategory
 		m_FileName = "Boats";
 		
 	#ifdef EXPANSIONMODVEHICLE
-		//! AddItem("ExpansionAmphibiaBoat", 	15000,		17000,		1,		10,		1,		{"TruckBattery","GlowPlug"});
-		AddItem("ExpansionUtilityBoat", 		22000,		44000,		1,		10,		1,		{"TruckBattery","GlowPlug"});
-		AddItem("ExpansionZodiacBoat", 			22000,		44000,		1,		10,		1,		{"TruckBattery","GlowPlug"});
-		AddItem("ExpansionLHD", 			300000000,	600000000,		1,		1,		1,		{"TruckBattery","GlowPlug","HeadlightH7","HeadlightH7"});
+		//! AddItem("ExpansionAmphibiaBoat", 	15000,		17000,		1,		10,		{"TruckBattery","GlowPlug"});
+		AddItem("ExpansionUtilityBoat", 		22000,		44000,		1,		10,		{"TruckBattery","GlowPlug"});
+		AddItem("ExpansionZodiacBoat", 			22000,		44000,		1,		10,		{"TruckBattery","GlowPlug"});
+		AddItem("ExpansionLHD", 			300000000,	600000000,		1,		1,		{"TruckBattery","GlowPlug","HeadlightH7","HeadlightH7"});
 	#endif
 	}
 };

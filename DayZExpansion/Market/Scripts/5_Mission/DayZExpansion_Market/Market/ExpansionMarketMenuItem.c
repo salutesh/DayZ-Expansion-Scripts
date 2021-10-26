@@ -188,7 +188,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		market_item_info_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));
 
-		string previewClassName = m_MarketMenu.GetPreviewClassName(GetMarketItem().ClassName);
+		string previewClassName = m_MarketMenu.GetPreviewClassName(GetMarketItem().ClassName, true);
 		string itemDisplayName = m_MarketMenu.GetDisplayName(previewClassName);
 		string translate = Widget.TranslateString(itemDisplayName);
 		int nameLength = translate.Length();
@@ -267,7 +267,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
 			if (baseBuilding && baseBuilding.CanUseConstruction())
 			{
-				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower";
+				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
 				#ifdef EXPANSIONMOD
 				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
 				#endif
@@ -288,16 +288,16 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	}
 	
 	//! Spawn attachments and attachments on attachments
-	void SpawnAttachments(ExpansionMarketItem item, EntityAI parent)
+	void SpawnAttachments(ExpansionMarketItem item, EntityAI parent, int level = 0)
 	{
 		foreach (string attachmentName: item.SpawnAttachments)
 		{
 			EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachmentName, parent, m_CurrentSelectedSkinIndex);
-			if (attachmentEntity)
+			if (attachmentEntity && level < 3)
 			{
 				ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
 				if (attachment)
-					SpawnAttachments(attachment, attachmentEntity);
+					SpawnAttachments(attachment, attachmentEntity, level + 1);
 			}
 		}
 	}
@@ -317,7 +317,10 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (!m_MarketModule)
 			return;
 				
-		m_ItemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName, true);
+		if (GetMarketItem().IsStaticStock())
+			m_ItemStock = 1;
+		else
+			m_ItemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName, true);
 		m_PlayerStock = m_MarketModule.GetAmountInInventory(GetMarketItem(), m_MarketModule.LocalGetEntityInventory());
 		
 		UpdatePrices();
@@ -400,7 +403,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	{
 		//! Buy price
 		ExpansionMarketCurrency price = 0;
-		if (m_MarketModule.FindPriceOfPurchase(GetMarketItem(), m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments()))
+		//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
+		ExpansionMarketItem item = GetMarketItem();
+		if (m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments()))
 		{
 			m_BuyPrice = price;
 			m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",", true);

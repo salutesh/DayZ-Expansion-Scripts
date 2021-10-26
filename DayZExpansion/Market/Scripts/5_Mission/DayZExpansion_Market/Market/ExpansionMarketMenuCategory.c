@@ -15,16 +15,18 @@ class ExpansionMarketMenuCategoryColorHandler
 	protected Widget m_LayooutRoot;
 	protected Widget category_header_corners;
 	protected Widget category_header_background;
+	protected ImageWidget category_icon;
 	protected TextWidget category_title;
+	protected TextWidget category_info;
 
-	void ExpansionMarketMenuCategoryColorHandler(Widget layoutRoot)
+	void ExpansionMarketMenuCategoryColorHandler(Widget layoutRoot, string title_color)
 	{
 		m_LayooutRoot = layoutRoot;
 		
-		SetColors();
+		SetColors(title_color);
 	}
 	
-	void SetColors()
+	void SetColors(string title_color)
 	{
 		//! Category element corners
 		category_header_corners = Widget.Cast(m_LayooutRoot.FindAnyWidget("category_header_corners"));
@@ -34,9 +36,16 @@ class ExpansionMarketMenuCategoryColorHandler
 		category_header_background = Widget.Cast(m_LayooutRoot.FindAnyWidget("category_header_background"));
 		category_header_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorCategoryBackground));
 		
+		//! Category icon
+		category_icon = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("category_icon"));
+		category_icon.SetColor(ExpansionColor.HexToARGB(title_color));
+		
 		//! Category element text
 		category_title = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("category_title"));
-		category_title.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		category_title.SetColor(ExpansionColor.HexToARGB(title_color));
+
+		category_info = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("category_info"));
+		category_info.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
 	}
 }
 
@@ -50,14 +59,21 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	int m_ItemUpdateIdx;
 	ref array<ExpansionMarketItem> m_MarketItems;
 	ref TIntArray m_ItemIDs;
+	bool m_UpdateItemCount;
+	float m_UpdateItemCountTime;
+	string m_CategoryInfo_Loading;
+	int m_CategoryInfo_Loading_Idx;
+	string m_CategoryInfo_ItemCount;
 	
 	protected GridSpacerWidget category_items;
 	protected  ButtonWidget category_button;
 	protected ImageWidget category_expand_icon;
 	protected ImageWidget category_collapse_icon;
+	protected ImageWidget category_icon;
 		
 	bool IsExpanded = false;
 	static int UpdateCategoryID = -1;
+	static int ForceUpdateCategoryID = -1;
 	ref ExpansionMarketMenuCategoryColorHandler m_ColorHandler;
 	
 	// ------------------------------------------------------------
@@ -72,7 +88,9 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			m_CategoryController = ExpansionMarketMenuCategoryController.Cast(GetController());
 		
 		m_CategoryController.CategoryName = m_Category.DisplayName;
-		m_CategoryController.NotifyPropertyChanged("CategoryName");
+		if (m_Category.Icon != string.Empty)
+			m_CategoryController.CategoryIcon = ExpansionIcons.GetPath(m_Category.Icon);
+		m_CategoryController.NotifyPropertiesChanged({"CategoryName", "CategoryIcon"});
 
 		m_TempItems = tempItems;
 		m_MarketItems = new array<ExpansionMarketItem>;
@@ -81,7 +99,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		UpdateMarketItems();
 
 		if (!m_ColorHandler)
-			m_ColorHandler = new ExpansionMarketMenuCategoryColorHandler(GetLayoutRoot());
+			m_ColorHandler = new ExpansionMarketMenuCategoryColorHandler(GetLayoutRoot(), m_Category.Color);
 	}
 
 	void UpdateMarketItems()
@@ -91,6 +109,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		m_TempDisplayNames.Sort();
 
 		int idx;
+		int show;
 		foreach (string tempDisplayName: m_TempDisplayNames)
 		{
 			foreach (ExpansionMarketItem tempItem: m_TempItems[tempDisplayName])
@@ -98,8 +117,13 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 				tempItem.m_Idx = idx++;
 				if (m_MarketItems.Find(tempItem) == -1)
 					m_MarketItems.Insert(tempItem);
+				if (tempItem.m_ShowInMenu && m_Category.m_Finalized)
+					show++;
 			}
 		}
+
+		if (!IsUpdateTimerRunning() || !m_UpdateItemCount)
+			UpdateItemCount(show);
 	}
 
 	// ------------------------------------------------------------
@@ -161,6 +185,28 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		return m_CategoryController.MarketItems;
 	}
 
+	int GetShowItemsCount()
+	{
+		int show;
+		foreach (ExpansionMarketItem item: m_MarketItems)
+		{
+			if (item.m_ShowInMenu)
+				show++;
+		}
+		return show;
+	}
+
+	int GetShownItemsCount()
+	{
+		int shown;
+		for (int i = 0; i < m_CategoryController.MarketItems.Count(); i++)
+		{
+			if (m_CategoryController.MarketItems[i].IsVisible())
+				shown++;
+		}
+		return shown;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuCategory ClearCategoryItems
 	// ------------------------------------------------------------		
@@ -195,9 +241,15 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		if (UpdateCategoryID == -1 || (IsExpanded && IsVisible()))
 			UpdateCategoryID = m_Category.CategoryID;
 		else if (UpdateCategoryID != m_Category.CategoryID)
+		{
+			if (m_UpdateItemCount)
+				UpdateItemCount(-1);
 			return;
+		}
 
-		if (m_ItemUpdateIdx < m_TempItems.Count())
+		bool addItems = m_ItemUpdateIdx < m_TempItems.Count();
+
+		if (addItems)
 		{
 			//! We may still have items to add
 			bool isFiltered = m_MarketMenu.IsFiltered();
@@ -212,7 +264,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 				{
 					AddItem(tempItem);
 				}
-				else if (isFiltered)
+				else if (isFiltered && UpdateCategoryID != ForceUpdateCategoryID)
 				{
 					UpdateCategoryID = -1;
 				}
@@ -232,8 +284,75 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			}
 
 			if (UpdateCategoryID == m_Category.CategoryID)
+			{
 				UpdateCategoryID = -1;
+				ForceUpdateCategoryID = -1;
+			}
 		}
+
+		if (m_UpdateItemCount)
+		{
+			if (!addItems)
+			{
+				int show = GetShowItemsCount();
+				if (show > 0 && GetShownItemsCount() == show)
+				{
+					m_UpdateItemCount = false;
+					UpdateItemCount(show);
+					return;
+				}
+			}
+
+			UpdateItemCount(-1);
+		}
+	}
+
+	void UpdateItemCount(int itemCount)
+	{
+		if (itemCount < 0)
+		{
+			//! Show a little loading animation using middots (U+00B7) and a bullet point (U+2022)
+			m_UpdateItemCountTime += GetUpdateTickRate();
+			if (m_UpdateItemCountTime > 0.125)
+			{
+				m_UpdateItemCountTime = 0;
+				switch (m_CategoryInfo_Loading_Idx)
+				{
+					case 0:
+						m_CategoryInfo_Loading = "•··";
+						break;
+					case 1:
+					case 3:
+						m_CategoryInfo_Loading = "·•·";
+						break;
+					case 2:
+						m_CategoryInfo_Loading = "··•";
+						break;
+				}
+				if (m_CategoryInfo_Loading_Idx < 3)
+					m_CategoryInfo_Loading_Idx++;
+				else
+					m_CategoryInfo_Loading_Idx = 0;
+			}
+		}
+		else if (itemCount > 0)
+		{
+			m_CategoryInfo_Loading = "";
+			m_CategoryInfo_ItemCount = itemCount.ToString();
+		}
+		else
+		{
+			m_CategoryInfo_Loading = "";
+			m_CategoryInfo_ItemCount = "···";
+		}
+
+		m_CategoryController.CategoryInfo = m_CategoryInfo_Loading + " " + m_CategoryInfo_ItemCount + " ITEMS";
+		m_CategoryController.NotifyPropertyChanged("CategoryInfo");
+	}
+
+	bool IsUpdateTimerRunning()
+	{
+		return m_UpdateTimer.IsRunning();
 	}
 
 	// ------------------------------------------------------------
@@ -254,7 +373,13 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			//! Force update cycle to prioritize this category
 			//! Should only be used when toggling single category
 			if (forceUpdate && m_UpdateTimer.IsRunning())
+			{
 				UpdateCategoryID = m_Category.CategoryID;
+				ForceUpdateCategoryID = UpdateCategoryID;
+			}
+
+			if (GetShownItemsCount() < GetShowItemsCount())
+				m_UpdateItemCount = true;
 
 			category_collapse_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorCategoryCollapseIcon));
 		}
@@ -326,6 +451,8 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 class ExpansionMarketMenuCategoryController: ExpansionViewController
 {
 	string CategoryName;
+	string CategoryIcon;
+	string CategoryInfo;
 	ref ObservableCollection<ref ExpansionMarketMenuItem> MarketItems = new ObservableCollection<ref ExpansionMarketMenuItem>(this);
 	bool CategoryExpand;
 	

@@ -227,11 +227,16 @@ class ExpansionHelicopterScript extends CarScript
 		if (isGlobal)
 		{
 			//! Always damage engine proportionally when taking global damage
-			float engineDmg = (dmg + additionalDmg) * (GetMaxHealth("Engine", "") / GetMaxHealth(dmgZone, ""));
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("Damaging engine proportionally by " + engineDmg + " health points");
-			#endif
-			DecreaseHealth("Engine", "", engineDmg);
+			float engineMaxHealth = GetMaxHealth("Engine", "");
+			float engineHealth = GetHealth("Engine", "");
+			float engineHealthNew = engineMaxHealth * (engineMaxHealth / GetMaxHealth(dmgZone, ""));
+			if (engineHealthNew < engineHealth)
+			{
+				#ifdef EXPANSIONEXPRINT
+				EXPrint("Damaging engine proportionally by " + (engineHealth - engineHealthNew) + " health points");
+				#endif
+				SetHealth("Engine", "", engineHealthNew);
+			}
 		}
 
 		//! If explosions are disabled, the heli will just start burning once its health is depleted
@@ -300,6 +305,7 @@ class ExpansionHelicopterScript extends CarScript
 		}
 
 		ExpansionWreck wreck;
+		position[1] = position[1] - GetModelAnchorPointY() + 1;
 		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
 			wreck.SetPosition(position);
@@ -410,10 +416,7 @@ class ExpansionHelicopterScript extends CarScript
 				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
 				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 			}
-			vector linearVelocity = GetVelocity(this);
-			linearVelocity[0] = linearVelocity[0] * f;
-			linearVelocity[1] = linearVelocity[1] * m_Simulation.m_RotorSpeed;  //! Full lift only at full rotor speed
-			linearVelocity[2] = linearVelocity[2] * f;
+			vector linearVelocity = GetVelocity(this) * m_Simulation.m_RotorSpeed;
 			SetVelocity(this, linearVelocity);
 			vector angularVelocity = dBodyGetAngularVelocity(this) * f;
 			dBodySetAngularVelocity(this, angularVelocity);
@@ -518,7 +521,8 @@ class ExpansionHelicopterScript extends CarScript
 
 		vector pos = GetPosition();
 
-		if (m_LastKnownPosition && vector.Distance(pos, m_LastKnownPosition) < 0.01)
+		//! 1cm tolerance to last known position
+		if (m_LastKnownPosition && vector.DistanceSq(pos, m_LastKnownPosition) < 0.0001)
 			return m_IsLanded;
 
 		m_LastKnownPosition = pos;

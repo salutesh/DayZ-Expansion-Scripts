@@ -397,6 +397,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			UpdatePreview();
 		
 		m_MarketMenu.UpdateItemFieldFromBasicNetSync();
+		m_MarketMenu.GetSelectedMarketItemElement().UpdatePrices();
 
 		UpdateListView();
 	}

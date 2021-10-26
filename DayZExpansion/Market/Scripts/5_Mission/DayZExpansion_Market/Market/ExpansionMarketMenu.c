@@ -44,6 +44,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected int m_TraderItemStock;
 	protected int m_PlayerStock;
 	protected int m_BuyPrice;
+	protected ref ExpansionMarketSell m_MarketSell;
 	protected int m_SellPrice;
 	protected ExpansionMarketMenuState m_CurrentState = ExpansionMarketMenuState.LOADING;
 	protected float m_RequestMarketTraderDataAccum;
@@ -565,7 +566,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
 		{
-			int hiddenItemCount = 0;
+			int filteredItemCount = 0;
 			ExpansionMarketMenuCategory menuCategory = m_MarketMenuController.MarketCategories[i];
 			
 			MarketPrint("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -576,7 +577,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				foreach (ExpansionMarketItem tempItem: menuCategory.m_MarketItems)
 				{
 					if (!tempItem.m_ShowInMenu)
-						hiddenItemCount++;
+						filteredItemCount++;
 				}
 			}
 
@@ -600,7 +601,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 			
-			if (isFiltered && hiddenItemCount == menuCategory.m_MarketItems.Count())
+			if (isFiltered && filteredItemCount == menuCategory.m_MarketItems.Count())
 			{
 				menuCategory.Hide();
 				MarketPrint("ExpansionMarketMenu::UpdateMarketCategories - Hide category: " + menuCategory.m_CategoryController.CategoryName);
@@ -609,6 +610,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				menuCategory.Show();
 				MarketPrint("ExpansionMarketMenu::UpdateMarketCategories - Show category: " + menuCategory.m_CategoryController.CategoryName);
+				if (!menuCategory.IsUpdateTimerRunning() || !menuCategory.m_UpdateItemCount)
+				{
+					int show;
+					if (isFiltered)
+						show = menuCategory.m_MarketItems.Count() - filteredItemCount;
+					else
+						show = menuCategory.GetShowItemsCount();
+					menuCategory.UpdateItemCount(show);
+				}
 			}
 		}
 		
@@ -843,10 +853,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		if (m_CurrentState != ExpansionMarketMenuState.REQUESTING_SELECTED_ITEM)
 		{
-			m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+			if (!m_FirstCall || (m_Complete && complete))
+			{
+				m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 
-			UpdatePlayerCurrency();
-			UpdatePlayerItems();
+				UpdatePlayerCurrency();
+				UpdatePlayerItems();
+			}
 
 			UpdateFilterView();
 		}
@@ -1563,15 +1576,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
 		MarketPrint("UpdateItemFieldFromBasicNetSync - m_TraderItemStock: " + m_TraderItemStock);
 		
-		ExpansionMarketSell marketSell = new ExpansionMarketSell;
-		marketSell.Item = GetSelectedMarketItem();
-		marketSell.Trader = m_TraderObject;
+		m_MarketSell = new ExpansionMarketSell;
+		m_MarketSell.Item = GetSelectedMarketItem();
+		m_MarketSell.Trader = m_TraderObject;
 		
 		if (m_PlayerStock > 0)
 		{
-			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_TraderItemStock, m_Quantity, marketSell))
+			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_TraderItemStock, m_Quantity, m_MarketSell))
 			{
-				m_SellPrice = marketSell.Price;
+				m_SellPrice = m_MarketSell.Price;
 				m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
 			}
 			else
@@ -1856,7 +1869,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 
-			if (className == "fencekit" || className == "watchtowerkit")
+			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
 			{
 				//! Item name is kit name without "kit" at the end
 				string previewClassName = className.Substring(0, className.Length() - 3);
@@ -1970,7 +1983,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				case ExpansionMarketMenuState.REQUESTING_PURCHASE:
 				{
 					SetMenuState(ExpansionMarketMenuState.LOADING);
-					m_MarketModule.ConfirmPurchase(GetSelectedMarketItem().ClassName, PlayerBase.Cast(GetGame().GetPlayer()), GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex);
+					m_MarketModule.ConfirmPurchase(GetSelectedMarketItem().ClassName, PlayerBase.Cast(GetGame().GetPlayer()), GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex);
 					
 					break;
 				}
@@ -2005,6 +2018,16 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			if (result == ExpansionMarketResult.FailedStockChange)
 			{
 				MarketPrint("MenuCallback - The stock has changed meanwhile");
+				
+				EXPrint("MenuCallback - Current stock: " + m_MarketModule.GetClientZone().GetStock(GetSelectedMarketItem().ClassName, true));
+				if (m_MarketSell)
+				{
+					m_MarketSell.Debug();
+				}
+				else
+				{
+					//! TODO: Add purchase debug?
+				}
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_STOCK_CHANGED";
@@ -2143,6 +2166,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			SetIsLoading(true);
 			m_MarketModule.RequestTraderData(m_TraderObject);
 		}
+
+		m_MarketSell = NULL;
 	}
 
 	void RequestSelectedItem(ExpansionMarketMenuState menuState)
@@ -2195,7 +2220,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			return;
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_PURCHASE);
-		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex, GetCurrentSelectedAttachmentIDs());
+		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex, GetCurrentSelectedAttachmentIDs());
 		if (m_PurchaseDialog)
 			m_PurchaseDialog.Hide();
 	}

@@ -20,14 +20,14 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEELE_WEAPONS";
 		m_FileName = "Melee_Weapons";
 		
-		AddItem("BrassKnuckles_Dull", 		15,		30,		1,		100,	0);
-		AddItem("BrassKnuckles_Shiny", 		15,		30,		1,		100,	0);
-		AddItem("StunBaton", 				15,		30,		1,		100,	0);
-		AddItem("Broom", 					15,	 	30,		1,		100,	0);
-		AddItem("Broom_Birch", 				15,	 	30,		1,		100,	0);
-		AddItem("Pipe", 					25,		50,		1,		100,	0);
-		AddItem("CattleProd", 				25,		50,		1,		100,	0);
-		AddItem("BaseballBat", 				35,		70,		1,		100,	0);
-		AddItem("NailedBaseballBat", 		45,		90,		1,		100,	0);
+		AddItem("BrassKnuckles_Dull", 		15,		30,		1,		100);
+		AddItem("BrassKnuckles_Shiny", 		15,		30,		1,		100);
+		AddItem("StunBaton", 				15,		30,		1,		100);
+		AddItem("Broom", 					15,	 	30,		1,		100);
+		AddItem("Broom_Birch", 				15,	 	30,		1,		100);
+		AddItem("Pipe", 					25,		50,		1,		100);
+		AddItem("CattleProd", 				25,		50,		1,		100);
+		AddItem("BaseballBat", 				35,		70,		1,		100);
+		AddItem("NailedBaseballBat", 		45,		90,		1,		100);
 	}
 };

@@ -20,19 +20,19 @@ class ExpansionMarketTents: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_TENTS";
 		m_FileName = "Tents";
 	
-		AddItem("PartyTent", 						2600,	5200,	1,		100,	0, null, {"PartyTent_Blue", "PartyTent_Brown", "PartyTent_Lunapark"});
-		/*AddItem("PartyTent_Blue", 					2600,	5200,	1,		100,	0);
-		AddItem("PartyTent_Brown", 					2600,	5200,	1,		100,	0);
-		AddItem("PartyTent_Lunapark", 				2600,	5200,	1,		100,	0);*/
-		AddItem("MediumTent", 						3000,	6000,	1,		100,	0, null, {"MediumTent_Orange", "MediumTent_Green"});
-		/*AddItem("MediumTent_Orange", 				3000,	6000,	1,		100,	0);
-		AddItem("MediumTent_Green", 				3000,	6000,	1,		100,	0);*/
-		AddItem("LargeTent", 						6000,	12000,	1,		100,	0);
-		AddItem("CarTent", 							7000,	14000,	1,		100,	0);
+		AddItem("PartyTent", 						2600,	5200,	1,		100, null, {"PartyTent_Blue", "PartyTent_Brown", "PartyTent_Lunapark"});
+		/*AddItem("PartyTent_Blue", 					2600,	5200,	1,		100);
+		AddItem("PartyTent_Brown", 					2600,	5200,	1,		100);
+		AddItem("PartyTent_Lunapark", 				2600,	5200,	1,		100);*/
+		AddItem("MediumTent", 						3000,	6000,	1,		100, null, {"MediumTent_Orange", "MediumTent_Green"});
+		/*AddItem("MediumTent_Orange", 				3000,	6000,	1,		100);
+		AddItem("MediumTent_Green", 				3000,	6000,	1,		100);*/
+		AddItem("LargeTent", 						6000,	12000,	1,		100);
+		AddItem("CarTent", 							7000,	14000,	1,		100);
 
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionCamoTentKit",				2600,	5200,	1,		100,	0);
-		AddItem("ExpansionCamoBoxKit",				2600,	5200,	1,		100,	0);
+		AddItem("ExpansionCamoTentKit",				2600,	5200,	1,		100);
+		AddItem("ExpansionCamoBoxKit",				2600,	5200,	1,		100);
 	#endif
 	}
 };

@@ -377,10 +377,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 			return existingItem;
 		}
-		
-		int purchaseType = GetGame().IsKindOf(clsName, "CarScript") || GetGame().IsKindOf(clsName, "ExpansionVehicleCarBase") || GetGame().IsKindOf(clsName, "ExpansionBoatScript") || GetGame().IsKindOf(clsName, "ExpansionVehicleBoatBase") || GetGame().IsKindOf(clsName, "ExpansionHelicopterScript") || GetGame().IsKindOf(clsName, "ExpansionVehicleHelicopterBase") || GetGame().IsKindOf(clsName, "ExpansionVehiclePlaneBase");
 
-		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, purchaseType, NULL, networkItem.Variants, networkItem.ItemID, networkItem.AttachmentIDs);
+		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, networkItem.ItemID, networkItem.AttachmentIDs);
 
 		//TraderPrint("UpdateMarketItem_Client - End and return newly added item: " + item);
 

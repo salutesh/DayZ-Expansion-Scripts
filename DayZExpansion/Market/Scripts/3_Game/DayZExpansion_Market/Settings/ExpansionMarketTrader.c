@@ -180,7 +180,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	void AddItem( string item, ExpansionMarketTraderBuySell buySell = ExpansionMarketTraderBuySell.CanBuyAndSell )
+	ExpansionMarketTraderItem AddItem( string item, ExpansionMarketTraderBuySell buySell = ExpansionMarketTraderBuySell.CanBuyAndSell )
 	{
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("ExpansionMarketTrader::AddItem - Start");
@@ -188,30 +188,33 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		
 		item.ToLower();
 		if (Items.Contains(item))
-			return;  //! Already added, possibly implicitly by adding a variant before the parent (which will add the parent first)
+			return NULL;  //! Already added, possibly implicitly by adding a variant before the parent (which will add the parent first)
 
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( item );
 		if ( marketItem )
 		{
-			AddItemInternal( marketItem, buySell );
 			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + TraderName + " items array");
 			#endif
 
-			return;
+			return AddItemInternal( marketItem, buySell );
 		}
 
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( "[ExpansionMarketTrader] Error: The \"" + item + "\" does not exist in the market!" );
 		#endif
+
+		return NULL;
 	}
 
-	void AddItemInternal( ExpansionMarketItem marketItem, ExpansionMarketTraderBuySell buySell )
+	ExpansionMarketTraderItem AddItemInternal( ExpansionMarketItem marketItem, ExpansionMarketTraderBuySell buySell )
 	{
 		//! If this is a variant, check if parent is present, otherwise we need to add it first or it will fuck with network sync
 		if (marketItem.m_IsVariant && marketItem.m_StockOnly && !Items.Contains(marketItem.m_Parent.ClassName))
 			AddItemInternal( new ExpansionMarketTraderItem( marketItem.m_Parent, buySell ) );
-		AddItemInternal( new ExpansionMarketTraderItem( marketItem, buySell ) );
+		ExpansionMarketTraderItem item = new ExpansionMarketTraderItem( marketItem, buySell );
+		AddItemInternal( item );
+		return item;
 	}
 
 	void AddItemInternal( ExpansionMarketTraderItem item )
@@ -271,9 +274,14 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		}
 
 		//! Add any missing variants and attachments
+		AddAttachmentsAndVariants(m_Items);
+	}
+
+	void AddAttachmentsAndVariants(array<ref ExpansionMarketTraderItem> items)
+	{
 		map<string, ExpansionMarketTraderBuySell> toAdd = new map<string, ExpansionMarketTraderBuySell>;
 
-		foreach (ExpansionMarketTraderItem item : m_Items)
+		foreach (ExpansionMarketTraderItem item : items)
 		{
 			foreach ( string attachment : item.MarketItem.SpawnAttachments )
 			{
@@ -288,10 +296,18 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			}
 		}
 
+		array<ref ExpansionMarketTraderItem> addedItems = new array<ref ExpansionMarketTraderItem>;
+
 		foreach (string className, ExpansionMarketTraderBuySell buySell : toAdd)
 		{
-			AddItem( className, buySell );
+			ExpansionMarketTraderItem addedItem = AddItem( className, buySell );
+			if (addedItem)
+				addedItems.Insert(addedItem);
 		}
+
+		//! We need to do this recursively, since attachments and variants can themselves have attachments and variants...
+		if (addedItems.Count())
+			AddAttachmentsAndVariants(addedItems);
 	}
 
 	// ------------------------------------------------------------

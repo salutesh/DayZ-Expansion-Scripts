@@ -90,7 +90,7 @@ modded class PlayerBase
 		if ( GetGame() && GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
-			if (!IsInherited(eAIBase))
+			if (!IsAI())
 		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}
@@ -108,7 +108,7 @@ modded class PlayerBase
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
-			if (!IsInherited(eAIBase))
+			if (!IsAI())
 		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
 		}

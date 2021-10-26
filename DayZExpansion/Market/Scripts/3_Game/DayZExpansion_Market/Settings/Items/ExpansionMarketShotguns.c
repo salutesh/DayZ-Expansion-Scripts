@@ -23,12 +23,12 @@ class ExpansionMarketShotguns: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SHOTGUNS";
 		m_FileName = "Shotguns";
 		
-		AddItem("Mp133Shotgun", 			500,	1000,	1,		100,	0);
-		AddItem("Izh43Shotgun", 			900,	1800,	1,		100,	0);
-		AddItem("Saiga", 					1500,	3000,	1,		100,	0,	{"Saiga_Bttstck","Mag_Saiga_8Rnd"});
+		AddItem("Mp133Shotgun", 			500,	1000,	1,		100);
+		AddItem("Izh43Shotgun", 			900,	1800,	1,		100);
+		AddItem("Saiga", 					1500,	3000,	1,		100,	{"Saiga_Bttstck","Mag_Saiga_8Rnd"});
 	#ifdef EXPANSIONMOD	
-		AddItem("Expansion_BenelliM4", 		1500,	3000,	1,		100,	0);
-		AddItem("Expansion_DT11", 			800,	1600,	1,		100,	0);
+		AddItem("Expansion_BenelliM4", 		1500,	3000,	1,		100);
+		AddItem("Expansion_DT11", 			800,	1600,	1,		100);
 	#endif
 	}
 };

@@ -97,8 +97,9 @@ class ExpansionMarketSellItem
 	void Debug(int i)
 	{
 		Print("ExpansionMarketSellItem::Debug - ExpansionMarketSellItem[" + i + "]: ");
-		Print("ExpansionMarketSellItem::Debug - RemainAmount: " + RemainAmount);
 		Print("ExpansionMarketSellItem::Debug - ClassName: " + ClassName);
+		Print("ExpansionMarketSellItem::Debug - RemainAmount: " + RemainAmount);
+		Print("ExpansionMarketSellItem::Debug - AddStockAmount: " + AddStockAmount);
 	}
 	
 	// ------------------------------------------------------------

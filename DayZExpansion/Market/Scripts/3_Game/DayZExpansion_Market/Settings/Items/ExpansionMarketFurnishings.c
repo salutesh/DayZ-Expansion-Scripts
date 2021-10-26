@@ -21,8 +21,8 @@ class ExpansionMarketFurnishings: ExpansionMarketCategory
 		m_FileName = "Furnishings";
 		
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionGunrack", 		3500,	7000,	1,		100,	0);
-		AddItem("ExpansionStove", 			1500,	3000,	1,		100,	0);
+		AddItem("ExpansionGunrack", 		3500,	7000,	1,		100);
+		AddItem("ExpansionStove", 			1500,	3000,	1,		100);
 	#endif
 	}
 };

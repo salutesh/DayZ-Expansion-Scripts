@@ -20,13 +20,13 @@ class ExpansionMarketArmbands: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ARMBANDS";
 		m_FileName = "Armbands";
 
-		AddItem("Armband_White", 					15,		30,		1,		250,	0);
-		AddItem("Armband_Yellow", 					15,		30,		1,		250,	0);
-		AddItem("Armband_Orange", 					15,		30,		1,		250,	0);
-		AddItem("Armband_Red", 						15,		30,		1,		250,	0);
-		AddItem("Armband_Green",					15,		30,		1,		250,	0);
-		AddItem("Armband_Pink", 					15,		30,		1,		250,	0);
-		AddItem("Armband_Blue", 					15,		30,		1,		250,	0);
-		AddItem("Armband_Black", 					15,		30,		1,		250,	0);
+		AddItem("Armband_White", 					15,		30,		1,		250);
+		AddItem("Armband_Yellow", 					15,		30,		1,		250);
+		AddItem("Armband_Orange", 					15,		30,		1,		250);
+		AddItem("Armband_Red", 						15,		30,		1,		250);
+		AddItem("Armband_Green",					15,		30,		1,		250);
+		AddItem("Armband_Pink", 					15,		30,		1,		250);
+		AddItem("Armband_Blue", 					15,		30,		1,		250);
+		AddItem("Armband_Black", 					15,		30,		1,		250);
 	}
 };

@@ -31,7 +31,6 @@ class ExpansionMarketItem
 
 	int MaxStockThreshold;
 	int MinStockThreshold;
-	int PurchaseType;
 
 	autoptr array< string > SpawnAttachments;
 	autoptr array< string > Variants;
@@ -60,7 +59,7 @@ class ExpansionMarketItem
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketItem( int catID, string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, int purchaseType, array<string> attachments = null, array<string> variants = null, int itemID = -1, array<int> attachmentIDs = null)
+	void ExpansionMarketItem( int catID, string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int itemID = -1, array<int> attachmentIDs = null)
 	{
 		if (itemID == -1)
 			ItemID = ++m_CurrentItemId;
@@ -72,37 +71,11 @@ class ExpansionMarketItem
 		ClassName = className;
 		ClassName.ToLower();
 
-		if ( minPrice < 0 )
-		{
-			Error("[ExpansionMarketItem] The minimum price must be 0 or higher for '" + className + "'");
-			minPrice = 0;
-		}
-
-		if ( minStock < 0 )
-		{
-			Error("[ExpansionMarketItem] The minimum stock must be 0 or higher for '" + className + "'");
-			minStock = 0;
-		}
-
-		if ( minPrice > maxPrice )
-		{
-			Error("[ExpansionMarketItem] The minimum price must be lower than or equal to the maximum price for '" + className + "'");
-			maxPrice = minPrice;
-		}
-
-		if ( minStock > maxStock )
-		{
-			Error("[ExpansionMarketItem] The minimum stock must be lower than or equal to the maximum stock for '" + className + "'");
-			maxStock = minStock;
-		}
-
 		MinPriceThreshold = minPrice;
 		MaxPriceThreshold = maxPrice;
 
 		MinStockThreshold = minStock;
 		MaxStockThreshold = maxStock;
-
-		PurchaseType = purchaseType;
 
 		SpawnAttachments = new array< string >;
 		if ( attachments )
@@ -110,7 +83,11 @@ class ExpansionMarketItem
 			foreach ( string attClsName : attachments )
 			{
 				attClsName.ToLower();
-				SpawnAttachments.Insert( attClsName );
+				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
+				if (attClsName == ClassName)
+					Error("[ExpansionMarketItem] Trying to add " + ClassName + " as attachment to itself!");
+				else
+					SpawnAttachments.Insert( attClsName );
 			}
 		}
 
@@ -126,8 +103,38 @@ class ExpansionMarketItem
 
 		if ( attachmentIDs )
 			m_AttachmentIDs = attachmentIDs;
+
+		SanityCheckAndRepair();
 	}
 	
+	void SanityCheckAndRepair()
+	{
+
+		if ( MinPriceThreshold < 0 )
+		{
+			Error("[ExpansionMarketItem] The minimum price must be 0 or higher for '" + ClassName + "'");
+			MinPriceThreshold = 0;
+		}
+
+		if ( MinStockThreshold < 0 )
+		{
+			Error("[ExpansionMarketItem] The minimum stock must be 0 or higher for '" + ClassName + "'");
+			MinStockThreshold = 0;
+		}
+
+		if ( MinPriceThreshold > MaxPriceThreshold )
+		{
+			Error("[ExpansionMarketItem] The minimum price must be lower than or equal to the maximum price for '" + ClassName + "'");
+			MaxPriceThreshold = MinPriceThreshold;
+		}
+
+		if ( MinStockThreshold > MaxStockThreshold )
+		{
+			Error("[ExpansionMarketItem] The minimum stock must be lower than or equal to the maximum stock for '" + ClassName + "'");
+			MaxStockThreshold = MinStockThreshold;
+		}
+	}
+
 	void SetAttachmentsFromIDs()
 	{
 		SpawnAttachments.Clear();
@@ -241,6 +248,9 @@ class ExpansionMarketItem
 
 	void AddDefaultAttachments()
 	{
+		if (SpawnAttachments.Count())
+			return;
+
 		if (IsMagazine())
 		{
 			//! Add ammo "attachment" (use 1st ammo item) if not yet present
@@ -254,5 +264,10 @@ class ExpansionMarketItem
 					SpawnAttachments.Insert(ammo);
 			}
 		}
+	}
+
+	bool IsVehicle()
+	{
+		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase");
 	}
 }

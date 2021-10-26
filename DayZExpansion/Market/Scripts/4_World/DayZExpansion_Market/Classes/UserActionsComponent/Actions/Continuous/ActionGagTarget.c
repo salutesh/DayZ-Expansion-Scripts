@@ -1,5 +1,5 @@
 /**
- * ExpansionMarketBelts.c
+ * ActionGagTarget.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,17 +10,13 @@
  *
 */
 
-class ExpansionMarketBelts: ExpansionMarketCategory
+modded class ActionGagTarget
 {
-	override void Defaults()
+	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		super.Defaults();
+		if (target.GetObject().IsInherited(ExpansionTraderNPCBase))
+			return false;
 
-		CategoryID = 8;
-		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BELTS";
-		m_FileName = "Belts";
-
-		AddItem("CivilianBelt",		100,	200,	1,		100);
-		AddItem("MilitaryBelt", 	100,	200,	1,		100);
+		return super.ActionCondition(player, target, item);
 	}
 };

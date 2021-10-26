@@ -20,9 +20,9 @@ class ExpansionMarketFishing: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FISHING";
 		m_FileName = "Fishing";
 		
-		AddItem("Worm", 			2,		4,			1,		100,	0);
-		AddItem("BoneHook", 		5,		10,			1,		100,	0);
-		AddItem("Hook", 			7,		14,			1,		100,	0);
-		AddItem("FishingRod", 		60,		120,		1,		100,	0);
+		AddItem("Worm", 			2,		4,			1,		100);
+		AddItem("BoneHook", 		5,		10,			1,		100);
+		AddItem("Hook", 			7,		14,			1,		100);
+		AddItem("FishingRod", 		60,		120,		1,		100);
 	}
 };

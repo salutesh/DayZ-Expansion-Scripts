@@ -669,6 +669,10 @@ modded class ItemBase
 
 				//! Make sure to reset max lifetime to value from CE
 				SetLifetimeMax(lifetime);
+
+				#ifdef EXPANSION_SAFEZONE_DEBUG
+				EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] location changed " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+				#endif
 			}
 		}
 	}
@@ -702,7 +706,21 @@ modded class ItemBase
 
 		if (m_Expansion_SZCleanup && GetLifetime() < 0)
 		{
-			GetGame().ObjectDelete(this);
+			if (!GetHierarchyParent())
+			{
+				GetGame().ObjectDelete(this);
+
+				#ifdef EXPANSION_SAFEZONE_DEBUG
+				EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] deleted");
+				#endif
+			}
+			else
+			{
+				//! Failsafe - this should not be able to happen
+				m_Expansion_SZCleanup = false;
+
+				EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] ignored - object has parent");
+			}
 		}
 	}
 
@@ -732,5 +750,9 @@ modded class ItemBase
 		//! if this item can receive attachments/cargo and something is attached/put in cargo
 		//! while the item is on ground
 		SetLifetimeMax(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
+
+		#ifdef EXPANSION_SAFEZONE_DEBUG
+		EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] added");
+		#endif
 	}
 };
