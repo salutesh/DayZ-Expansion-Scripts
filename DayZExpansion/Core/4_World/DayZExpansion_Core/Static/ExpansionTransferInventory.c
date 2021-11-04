@@ -90,11 +90,11 @@ static void Expansion_PhysicsDropAttachments(EntityAI parent)
 	if (!GetGame().IsMultiplayer())
 		invMode = InventoryMode.LOCAL;
 
-	CarScript car;
-	bool exploded = Class.CastTo(car, parent) && car.IsExploded();
+	bool exploded;
 #ifdef EXPANSIONMODVEHICLE
+	CarScript car;
 	ExpansionVehicleBase vehicle;
-	exploded |= Class.CastTo(vehicle, parent) && vehicle.IsExploded();
+	exploded = (Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded());
 #endif
 
 	//! Popping attachments off changes attachment count, so do this in reverse order
@@ -114,6 +114,7 @@ static void Expansion_PhysicsDropAttachments(EntityAI parent)
 			mass = ib.GetWeight() / 1000;
 		vector force = velocity * mass;
 
+#ifdef EXPANSIONMODVEHICLE
 		//! If parent is exploded vehicle, make parts fly off violently
 		if (exploded)
 		{
@@ -121,6 +122,7 @@ static void Expansion_PhysicsDropAttachments(EntityAI parent)
 				force = entity.GetDirection(); //! If vehicle is standing still, use direction vector instead of velocity
 			force = force.Normalized() * 500;
 		}
+#endif
 
 		if (ib)
 		{
