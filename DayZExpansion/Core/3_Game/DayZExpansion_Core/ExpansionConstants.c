@@ -16,15 +16,19 @@
  */
 enum ExpansionChatChannels 
 {
+	//! Vanilla
 	CCSystem = 1,
 	CCAdmin = 2,
 	CCDirect = 4,
 	CCMegaphone = 8,
 	CCTransmitter = 16,
 	CCPublicAddressSystem = 32,
-	CCTransport = 64,
-	CCGlobal = 128,
-	CCTeam = 256
+	CCBattlEye = 64,
+
+	//! Expansion
+	CCTransport = 128,
+	CCGlobal = 256,
+	CCTeam = 512
 };
 
 const float EXP_FADE_TIMEOUT = 2.5;

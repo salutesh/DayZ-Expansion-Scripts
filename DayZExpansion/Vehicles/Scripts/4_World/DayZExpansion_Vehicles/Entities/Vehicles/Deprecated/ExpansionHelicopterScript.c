@@ -118,6 +118,7 @@ class ExpansionHelicopterScript extends CarScript
 			//TODO: teleport to land instead - but please not in autohover mode kthxbye
 
 			//! Makes it land safely after server restart if pilot died/disconnected
+			m_Simulation.m_RotorSpeed = 1;
 			dBodyActive(this, ActiveState.ACTIVE);
 		}
 	}
@@ -241,68 +242,55 @@ class ExpansionHelicopterScript extends CarScript
 
 		//! If explosions are disabled, the heli will just start burning once its health is depleted
 		if (explode && m_Simulation.m_EnableHelicopterExplosions)
-			Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
+			Explode(DT_EXPLOSION, ammo);
 	}
 
 	// ------------------------------------------------------------
 	override void ExpansionOnExplodeServer(int damageType, string ammoType)
 	{
-		vector position = GetPosition();
-		vector orientation = GetOrientation();
+		super.ExpansionOnExplodeServer(damageType, ammoType);
 
-		//SetInvisible( true );
-
-		EntityAI attachment;
-		for (int j = 0; j < GetInventory().AttachmentCount(); j++)
-		{
-			attachment = GetInventory().GetAttachmentFromIndex(j);
-
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 0, false, attachment);
-		}
-
-		PlayerBase player;
 
 		//! Seated players
+		Human crew;
 		for (int i = 0; i < CrewSize(); i++)
 		{
-			if (Class.CastTo(player, CrewMember(i)))
-			{
+			crew = CrewMember(i);
+
+			if (!crew)
+				continue;
+
+			if (!crew.IsAlive())
 				CrewDeath(i);
-				CrewGetOut(i);
 
-				player.UnlinkFromLocalSpace();
-
-				player.SetHealth(0.0);
-				if (!player.GetHealth())
-					dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
-
-				//! Needs to be called at least one simulation frame (25ms) later
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
-			}
+			Expansion_CrewGetOut(i);
 		}
 
 		//! Attached players
 		IEntity child = GetChildren();
+		PlayerBase player;
 		while (child)
 		{
 			if (Class.CastTo(player, child))
 			{
+				//! Need to get sibling before unlinking
 				child = child.GetSibling();
 
-				player.UnlinkFromLocalSpace();
-
-				player.SetHealth(0.0);
-				if (!player.GetHealth())
-					dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
-
-				//! Needs to be called at least one simulation frame (25ms) later
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
+				Expansion_PlayerUnlinkFall(player);
 			}
 			else
 			{
 				child = child.GetSibling();
 			}
 		}
+
+		Expansion_CreateWreck();
+	}
+
+	void Expansion_CreateWreck()
+	{
+		vector position = GetPosition();
+		vector orientation = GetOrientation();
 
 		ExpansionWreck wreck;
 		position[1] = position[1] - GetModelAnchorPointY() + 1;
@@ -335,9 +323,6 @@ class ExpansionHelicopterScript extends CarScript
 
 				dBodyApplyForce(wreck, m_State.m_LinearAcceleration * m_State.m_Mass);
 			}
-			
-
-			// GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( MiscGameplayFunctions.TransferInventory, 1, false, this, wreck, playerForTransfer );
 
 			array<Object> objects = new array<Object>;
 			array<CargoBase> proxy = new array<CargoBase>;
@@ -384,21 +369,121 @@ class ExpansionHelicopterScript extends CarScript
 				}
 			}
 
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(GetGame().ObjectDelete, this);
+			//! Delay removal of heli so killfeed can show "killed by" (needs the object to still exist)
+			dBodyActive(this, ActiveState.INACTIVE);
+			dBodyDynamic(this, false);
+			SetPosition("0 0 0");
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 5000, false, this);
 		}
-
-		super.ExpansionOnExplodeServer(damageType, ammoType);
 	}
 
 	override void ExpansionOnExplodeClient(int damageType, string ammoType)
 	{
 		super.ExpansionOnExplodeClient(damageType, ammoType);
 
-		if (!IsMissionOffline() && GetGame().GetPlayer().GetParent() == this)
+		PlayerBase player;
+		if (!IsMissionOffline() && Class.CastTo(player, GetGame().GetPlayer()) && player.GetParent() == this)
 		{
-			GetGame().GetPlayer().UnlinkFromLocalSpace();
+			bool isCrew;
+
+			for (int i = 0; i < CrewSize(); i++)
+			{
+				if (CrewMember(i) == player)
+				{
+					isCrew = true;
+
+					if (!player.IsAlive())
+						CrewDeath(i);
+
+					Expansion_CrewGetOut(i);
+					break;
+				}
+			}
+
+			if (!isCrew)
+				Expansion_PlayerUnlinkFall(player);
+		}
+	}
+
+	protected void Expansion_CrewGetOut(int i)
+	{
+		PlayerBase player = PlayerBase.Cast(CrewMember(i));
+
+		CrewGetOut(i);
+
+		if (player)
+			Expansion_PlayerUnlinkFall(player, true);
+	}
+
+	protected void Expansion_PlayerUnlinkFall(PlayerBase player, bool replaceWithDummy = false)
+	{
+		player.UnlinkFromLocalSpace();
+		player.DisableSimulation(false);
+
+		if (replaceWithDummy)
+		{
+			Expansion_ReplaceDeadPlayerWithDummy(player);
+		}
+		else
+		{
+			if (!player.IsAlive())
+				dBodySetInteractionLayer(player, PhxInteractionLayers.RAGDOLL);
+
 			//! Needs to be called at least one simulation frame (25ms) later
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().GetPlayer().StartCommand_Fall, 25, false, 0);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.StartCommand_Fall, 25, false, 0);
+		}
+	}
+
+	protected void Expansion_ReplaceDeadPlayerWithDummy(PlayerBase player)
+	{
+		if (!player.IsAlive())
+		{
+			vector position = player.GetPosition();
+
+			vector ground = ExpansionStatic.GetSurfaceWaterPosition(position);
+			vector start = Vector(position[0], GetPosition()[1] - GetModelAnchorPointY() - 0.1, position[2]);
+			vector end = Vector(position[0], ground[1], position[2]);
+
+			PhxInteractionLayers layerMask;
+			layerMask |= PhxInteractionLayers.BUILDING;
+			layerMask |= PhxInteractionLayers.VEHICLE;
+			layerMask |= PhxInteractionLayers.ITEM_LARGE;
+			layerMask |= PhxInteractionLayers.ROADWAY;
+			layerMask |= PhxInteractionLayers.TERRAIN;
+			layerMask |= PhxInteractionLayers.WATERLAYER;
+
+			vector hitPosition;
+
+			if (DayZPhysics.RayCastBullet( start, end, layerMask, player, NULL, hitPosition, NULL, NULL))
+				ground = hitPosition;
+
+			vector dummySpawnPosition = position;
+			//if (position[1] - ground[1] <= 2.53)
+				//dummySpawnPosition = ground;  //! If we died close to ground, spawn dummy on ground
+
+			EntityAI dummy = EntityAI.Cast(GetGame().CreateObject(player.GetType(), dummySpawnPosition));
+
+			ExpansionTransferInventory(player, dummy, true);
+
+			vector velocity = GetVelocity(this);
+			vector force = velocity * dBodyGetMass(dummy);
+			dBodyApplyImpulse(dummy, force);
+
+			float fallHeight = dummySpawnPosition[1] - ground[1];
+
+			if (fallHeight > 2.53)
+			{
+				//! Can't set health to 0, can leave our dummy in a visually awkward standing pose after falling.
+				//! Set health to 1 so the fall will kill it with a high probability (2.53m is roughly the height at which a player will start to take fall damage).
+				dummy.SetHealth(1);
+			}
+
+			//! Just in case fall doesn't kill our dummy (maybe because we died on ground), kill it later.
+			//! This may look a little awkward, but at least makes sure it's dead.
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(dummy.ProcessDirectDamage, Math.Sqrt((fallHeight * 2) / 9.81) * 1000, false, DT_CUSTOM, this, "", "FallDamage", "0 0 0", dummy.GetMaxHealth());
+
+			//! Needs to be called at least two simulation frames (50ms) later
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(player.Delete, 50, false);
 		}
 	}
 
@@ -576,7 +661,7 @@ class ExpansionHelicopterScript extends CarScript
 
 	override bool IsVitalSparkPlug()
 	{
-		return true;
+		return false;
 	}
 
 	override bool IsVitalRadiator()
@@ -589,12 +674,12 @@ class ExpansionHelicopterScript extends CarScript
 		return false;
 	}
 
-	bool IsVitalIgniterPlug()
+	override bool IsVitalIgniterPlug()
 	{
 		return false;
 	}
 
-	bool IsVitalHydraulicHoses()
+	override bool IsVitalHydraulicHoses()
 	{
 		return false;
 	}

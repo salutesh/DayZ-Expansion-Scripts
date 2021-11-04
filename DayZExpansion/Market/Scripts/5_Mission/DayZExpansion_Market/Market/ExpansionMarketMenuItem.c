@@ -53,6 +53,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	int m_BuyPrice = 0;
 	int m_SellPrice = 0;
 	
+	bool m_CanBuy;
+	bool m_CanSell;
+
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuItem Constructor
 	// ------------------------------------------------------------	
@@ -76,6 +79,12 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		market_item_header_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
 		market_item_info_stock_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
 		market_item_info_price_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		
+		if (GetExpansionSettings().GetMarket().CurrencyIcon != "")
+		{
+			m_ItemController.CurrencyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
+			m_ItemController.NotifyPropertyChanged("CurrencyIcon");
+		}
 		
 		SetView();
 	}
@@ -214,9 +223,10 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		UpdatePreviewObject();
 		
+		m_CanBuy = GetMarketMenu().GetMarketTrader().CanBuyItem(GetMarketItem().ClassName);
+		m_CanSell = GetMarketMenu().GetMarketTrader().CanSellItem(GetMarketItem().ClassName);
+
 		UpdateView();
-		
-		CreateTooltip();
 	}
 	
 	// ------------------------------------------------------------
@@ -325,7 +335,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		
 		UpdatePrices();
 			
-		if (GetMarketMenu().GetMarketTrader().CanBuyItem(GetBaseItem().ClassName))
+		if (m_CanBuy)
 		{		
 			if (m_ItemStock > 0)
 			{
@@ -333,10 +343,6 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 					m_ItemController.ItemMarketStock = "∞";
 				else 
 					m_ItemController.ItemMarketStock = m_ItemStock.ToString() + " IN STOCK";
-
-				ExpansionMarketCurrency playerWorth = m_MarketModule.GetPlayerWorth();
-
-				market_item_fastbuy.Show(playerWorth >= m_BuyPrice && m_BuyPrice > -1);
 			}
 			else
 			{
@@ -344,45 +350,33 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 					m_ItemController.ItemMarketStock = "OUT OF STOCK";
 				else
 					m_ItemController.ItemMarketStock = "N/A";
-
-				market_item_fastbuy.Show(false);
 			}
 		}
 		else
 		{
 			m_ItemController.ItemMarketStock = "CAN'T BUY";
-
-			market_item_fastbuy.Show(false);
 		}
 		
 		m_ItemController.NotifyPropertyChanged("ItemMarketStock");
 		
-		if (GetMarketMenu().GetMarketTrader().CanSellItem(GetBaseItem().ClassName))
+		if (m_CanSell)
 		{
 			if (m_PlayerStock >= 0)
 				m_ItemController.ItemPlayerStock = m_PlayerStock.ToString() + " ON YOU";
 			else
 				m_ItemController.ItemPlayerStock = "CAN'T SELL";
-
-			market_item_fastsell.Show(m_PlayerStock > 0 && m_SellPrice > -1);
 		}
 		else
 		{
 			m_ItemController.ItemPlayerStock = "CAN'T SELL";
-
-			market_item_fastsell.Show(false);
 		}
 
 		m_ItemController.NotifyPropertyChanged("ItemPlayerStock");
 				
+		UpdateButtons();
+
 		SetMarketStockColor();
 		SetPlayerStockColor();
-		
-		if (GetExpansionSettings().GetMarket().CurrencyIcon != "")
-		{
-			m_ItemController.CurrencyIcon = GetExpansionSettings().GetMarket().CurrencyIcon;
-			m_ItemController.NotifyPropertyChanged("CurrencyIcon");
-		}
 		
 		if (m_Tooltip)
 			DestroyTooltip();
@@ -396,6 +390,12 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		#endif
 	}
 	
+	void UpdateButtons()
+	{
+		market_item_fastbuy.Show(m_CanBuy && m_ItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
+		market_item_fastsell.Show(m_CanSell && m_PlayerStock > 0 && m_SellPrice > -1);
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuItem UpdatePrices
 	// ------------------------------------------------------------	
@@ -439,7 +439,9 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		else
 		{
 			//! Player doesn't have the item.
-			float sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
+			float sellPricePct = item.SellPricePercent;
+			if (sellPricePct < 0)
+				sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
 			if (sellPricePct < 0)
 				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
 			m_SellPrice = GetMarketItem().CalculatePrice(m_ItemStock + 1, sellPricePct / 100);

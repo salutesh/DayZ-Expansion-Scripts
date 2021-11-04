@@ -152,7 +152,6 @@ class ExpansionCraftingModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_RequestPrepareCrafting(PlayerBase player, ExpansionBookCraftingRecipe recipe)
 	{
-		//PlayerBase player = GetPlayerObjectByIdentity(sender);
 		if (player)
 		{	
 			array<EntityAI> playerIngredients1 = new array<EntityAI>;
@@ -247,7 +246,7 @@ class ExpansionCraftingModule: JMModuleBase
 			return;
 		}
 		
-		PlayerBase player = GetPlayerObjectByIdentity(senderRPC);
+		PlayerBase player = PlayerBase.GetPlayerByUID(senderRPC.GetId());
 		if (!player)
 		{
 			Error("ExpansionCraftingModule::RPC_RequestPrepareCrafting - Could not get player!");

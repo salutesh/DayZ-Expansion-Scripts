@@ -121,7 +121,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
+		if ( GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity() )
 		{
 			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
 			if ( m_KillfeedModule && !IPADACK() )

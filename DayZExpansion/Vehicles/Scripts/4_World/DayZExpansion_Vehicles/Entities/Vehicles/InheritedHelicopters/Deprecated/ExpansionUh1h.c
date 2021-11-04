@@ -64,56 +64,11 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	{
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
 	}
-	
-	//! Batteries
-	// ------------------------------------------------------------
-	override bool IsVitalHelicopterBattery()
-	{
-		return true;
-	}
 
-	// ------------------------------------------------------------
-	override bool IsVitalTruckBattery()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalCarBattery()
-	{
-		return false;
-	}
-
-	//! Plugs
-	// ------------------------------------------------------------
-	override bool IsVitalSparkPlug()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalGlowPlug()
-	{
-		return false;
-	}
-	
 	// ------------------------------------------------------------
 	override bool IsVitalIgniterPlug()
 	{
 		return true;
-	}
-	
-	//! Coolers
-	// ------------------------------------------------------------
-	override bool IsVitalRadiator()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalEngineBelt()
-	{
-		return false;
 	}
 
 	// ------------------------------------------------------------	
@@ -283,9 +238,8 @@ class ExpansionUh1h: ExpansionHelicopterScript
 			break;
 
 			case 1:
-				//Uncomment this once the door has been fixed
-				/*if ( GetCarDoorsState( "uh1hdoor_1_2" ) == CarDoorState.DOORS_CLOSED )
-					return false;*/
+				if ( GetCarDoorsState( "uh1hdoor_1_2" ) == CarDoorState.DOORS_CLOSED )
+					return false;
 
 				return true;
 			break;

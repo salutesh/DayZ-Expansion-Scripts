@@ -127,9 +127,9 @@ class ExpansionPhysicsState
 		derived.m_Transform[1] = m_Transform[1] + derived.m_Transform[1];
 		derived.m_Transform[2] = m_Transform[2] + derived.m_Transform[2];
 
-		derived.m_Transform[0].Normalized();
-		derived.m_Transform[1].Normalized();
-		derived.m_Transform[2].Normalized();
+		derived.m_Transform[0].Normalize();
+		derived.m_Transform[1].Normalize();
+		derived.m_Transform[2].Normalize();
 
 		derived.m_Transform[3] = m_Transform[3] + (derived.m_LinearVelocity * dt);
 	}
@@ -352,9 +352,9 @@ class ExpansionPhysicsState
 		mat[1] = m_Transform[1] + mat[1];
 		mat[2] = m_Transform[2] + mat[2];
 
-		mat[0].Normalized();
-		mat[1].Normalized();
-		mat[2].Normalized();
+		mat[0].Normalize();
+		mat[1].Normalize();
+		mat[2].Normalize();
 
 		return mat[direction];
 	}
@@ -389,9 +389,9 @@ class ExpansionPhysicsState
 		mat[1] = m_Transform[1] + mat[1];
 		mat[2] = m_Transform[2] + mat[2];
 
-		mat[0].Normalized();
-		mat[1].Normalized();
-		mat[2].Normalized();
+		mat[0].Normalize();
+		mat[1].Normalize();
+		mat[2].Normalize();
 
 		mat[3] = m_Transform[3] + (m_LinearVelocity * pDt) + (m_LinearAcceleration * pDt);
 	}

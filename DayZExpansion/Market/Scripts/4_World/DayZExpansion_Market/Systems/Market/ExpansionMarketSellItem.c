@@ -66,19 +66,24 @@ class ExpansionMarketSell
 	// ------------------------------------------------------------
 	void AddItem(int remainAmount, int takenAmount, float incrementStockModifier, EntityAI item, string className = "")
 	{
-		Print( "ExpansionMarketSell::AddItem - Start - remaining " + remainAmount + ", taken " + takenAmount + ", increment stock modifier " + incrementStockModifier);
+		if (!className && item)
+			className = item.GetType();
+
+		//#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionMarketSell::AddItem - Start - " + className + " remaining " + remainAmount + ", taken " + takenAmount + ", increment stock modifier " + incrementStockModifier);
+		//#endif
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
 		itemSell.RemainAmount = remainAmount;
 		itemSell.ItemRep = item;
-		if (!className && item)
-			className = item.GetType();
 		itemSell.ClassName = className;
 		Sell.Insert(itemSell);
 
 		itemSell.AddStockAmount = takenAmount * incrementStockModifier;
 		
-		Print( "ExpansionMarketSell::AddItem - End");
+		//#ifdef EXPANSIONEXPRINT
+		EXPrint( "ExpansionMarketSell::AddItem - End");
+		//#endif
 	}
 }
 

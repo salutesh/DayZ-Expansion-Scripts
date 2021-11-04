@@ -26,4 +26,9 @@ class ExpansionWheelBase : ItemBase
 		path = "CfgVehicles " + GetType() + " tyreTread";
 		m_TyreTread = GetGame().ConfigGetFloat(path);
 	}
+
+	override bool Expansion_CarContactActivates()
+	{
+		return true;
+	}
 };

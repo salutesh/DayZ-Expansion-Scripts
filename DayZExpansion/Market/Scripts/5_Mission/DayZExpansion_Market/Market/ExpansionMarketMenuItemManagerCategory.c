@@ -65,7 +65,7 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 				{
 					m_CategoryTooltip = new ExpansionMarketMenuTooltip();
 					m_CategoryTooltip.SetTitle(m_CategoryName);
-					m_CategoryTooltip.SetContentOffset(50.0, 0);
+					m_CategoryTooltip.SetContentOffset(0.019531, 0);
 					m_CategoryTooltip.Show();
 				}
 				break;

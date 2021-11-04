@@ -27,14 +27,14 @@ class ExpansionItemSpawnHelper
 		{
 			//! NULL or not an item
 
+			quantity--;
+
 			if (obj)
 			{
 				//! Not an item, but was spawned in inventory. Get rid of it.
 				//! TODO: This is just here for historical reasons, do we really need it?
 
 				GetGame().ObjectDelete(obj);
-
-				quantity--;
 
 				ISHDebugPrint("SpawnOnParent - End and return NULL!");
 
@@ -45,8 +45,6 @@ class ExpansionItemSpawnHelper
 			obj = GetGame().CreateObject(className, parent.GetPosition(), false, GetGame().IsKindOf(className, "DZ_LightAI"));
 			if (!Class.CastTo(item, obj))
 			{
-				quantity--;
-
 				if (obj)
 				{
 					ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
@@ -76,6 +74,11 @@ class ExpansionItemSpawnHelper
 			if (quantity < maxAmmo)
 			{
 				ammo.ServerSetAmmoCount(quantity);
+				quantity = 0;
+			}
+			else if (!maxAmmo)
+			{
+				Error("Error: " + className + " max ammo count is zero! Faulty config.cpp");
 				quantity = 0;
 			}
 			else
@@ -115,6 +118,11 @@ class ExpansionItemSpawnHelper
 			if (quantity < max)
 			{
 				item.SetQuantity(quantity);
+				quantity = 0;
+			}
+			else if (!max)
+			{
+				Error("Error: " + className + " max quantity/stack is zero! Faulty config.cpp");
 				quantity = 0;
 			}
 			else

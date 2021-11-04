@@ -656,6 +656,14 @@ modded class ItemBase
 		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
 			return;
 
+		//! Ignore unknown old location (item loaded from storage or newly created by CE or script)
+		if (oldLoc.GetType() == InventoryLocationType.UNKNOWN)
+			return;
+
+		#ifdef EXPANSION_SAFEZONE_DEBUG
+		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " location changed " + typename.EnumToString(InventoryLocationType, oldLoc.GetType()) + " -> " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+		#endif
+
 		if (newLoc.GetType() == InventoryLocationType.GROUND)
 		{
 			ExpansionCreateCleanup();
@@ -671,7 +679,7 @@ modded class ItemBase
 				SetLifetimeMax(lifetime);
 
 				#ifdef EXPANSION_SAFEZONE_DEBUG
-				EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] location changed " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " unmarked for cleanup - lifetime " + GetLifetime());
 				#endif
 			}
 		}
@@ -711,7 +719,7 @@ modded class ItemBase
 				GetGame().ObjectDelete(this);
 
 				#ifdef EXPANSION_SAFEZONE_DEBUG
-				EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] deleted");
+				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " deleted");
 				#endif
 			}
 			else
@@ -719,7 +727,7 @@ modded class ItemBase
 				//! Failsafe - this should not be able to happen
 				m_Expansion_SZCleanup = false;
 
-				EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] ignored - object has parent");
+				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " unmarked for cleanup - object has parent");
 			}
 		}
 	}
@@ -752,7 +760,7 @@ modded class ItemBase
 		SetLifetimeMax(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
 
 		#ifdef EXPANSION_SAFEZONE_DEBUG
-		EXPrint(ToString() + " " + GetPosition() + " [Expansion_SZCleanup] added");
+		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " marked for cleanup - lifetime " + GetLifetime());
 		#endif
 	}
 };

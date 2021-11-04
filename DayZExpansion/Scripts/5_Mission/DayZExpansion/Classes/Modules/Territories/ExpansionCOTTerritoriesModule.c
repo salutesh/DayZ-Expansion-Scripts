@@ -587,7 +587,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if ( !ctx.Read( netHigh ) )
 			return;
 		
-		PlayerBase player = GetPlayerObjectByIdentity( senderRPC );
+		PlayerBase player = PlayerBase.GetPlayerByUID(senderRPC.GetId());
 		if ( !player )
 			return;
 

@@ -372,6 +372,9 @@ modded class PlayerBase
 				
 			//TODO: expose to settings
 
+			//! Remove any previous call to OnLeftSafeZone from the queue
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(OnLeftSafeZone);
+
 			//! Delay actually leaving the safezone by 10 seconds
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
 		}

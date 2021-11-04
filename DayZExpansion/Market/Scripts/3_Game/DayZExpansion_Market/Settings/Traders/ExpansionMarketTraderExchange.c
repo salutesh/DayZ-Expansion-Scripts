@@ -24,9 +24,6 @@ class ExpansionMarketTraderExchange: ExpansionMarketTrader
 		m_FileName = "Exchange";
 		TraderIcon = "Trader";
 	
-		AddItem("ExpansionGoldBar");
-		AddItem("ExpansionGoldNugget");
-		AddItem("ExpansionSilverBar");	
-		AddItem("ExpansionSilverNugget");
+		Categories.Insert("Exchange");
 	}
 }

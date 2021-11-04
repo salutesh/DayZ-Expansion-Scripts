@@ -106,56 +106,11 @@ class ExpansionMerlin: ExpansionHelicopterScript
 		//! Getting out of seat should never be blocked because you stay inside the vehicle
 		return true;
 	}
-
-	//! Batteries
-	// ------------------------------------------------------------
-	override bool IsVitalHelicopterBattery()
-	{
-		return true;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalTruckBattery()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalCarBattery()
-	{
-		return false;
-	}
-
-	//! Plugs
-	// ------------------------------------------------------------
-	override bool IsVitalSparkPlug()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalGlowPlug()
-	{
-		return false;
-	}
 	
 	// ------------------------------------------------------------
 	override bool IsVitalIgniterPlug()
 	{
 		return true;
-	}
-	
-	//! Coolers
-	// ------------------------------------------------------------
-	override bool IsVitalRadiator()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalEngineBelt()
-	{
-		return false;
 	}
 
 	// ------------------------------------------------------------	

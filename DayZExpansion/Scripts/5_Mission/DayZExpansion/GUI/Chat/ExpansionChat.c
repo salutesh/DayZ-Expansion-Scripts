@@ -258,7 +258,7 @@ modded class Chat
 				#endif
 				return;
 			}
- 		} else if ( channel & CCAdmin )
+ 		} else if ( channel & CCAdmin || channel & CCBattlEye )
 		{
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.ADMIN_MESSAGES ) )
 			{
@@ -268,7 +268,7 @@ modded class Chat
 				return;
 			}
 		}
-		else if( channel & CCDirect || channel & CCMegaphone || channel & CCTransmitter || channel & CCPublicAddressSystem || channel & ExpansionChatChannels.CCTransport ) 
+		else if( channel & CCDirect || channel & CCMegaphone || channel & CCTransmitter || channel & CCPublicAddressSystem ) 
 		{
 			if ( g_Game.GetProfileOption( EDayZProfilesOptions.PLAYER_MESSAGES ) )
 			{

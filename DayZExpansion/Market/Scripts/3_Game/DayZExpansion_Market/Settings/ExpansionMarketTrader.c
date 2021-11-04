@@ -167,7 +167,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		TraderName = "NA";
 		DisplayName = "NA";
 		m_FileName = "INVALID-FILE-NAME";
-		TraderIcon = "Questionmark";
+		TraderIcon = "Trader";
 
 		DefaultCurrencies();
 	}
@@ -243,6 +243,11 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		}
 	}
 
+	void AddCategory(string fileName, ExpansionMarketTraderBuySell buySell)
+	{
+		Categories.Insert(fileName + ":" + buySell);
+	}
+
 	//! Adds any missing items, variants and attachments
 	void Finalize()
 	{
@@ -262,7 +267,10 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(fileName);
 
 			if (!cat)
+			{
+				EXPrint("[ExpansionMarketTrader] Error: Category " + fileName + " does not exist!");
 				continue;
+			}
 
 			foreach (ExpansionMarketItem marketItem : cat.Items)
 			{

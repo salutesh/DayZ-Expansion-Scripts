@@ -509,6 +509,10 @@ modded class PlayerBase
 	{
 		super.AfterStoreLoad();
 
+		int sessionTimeStamp = m_Expansion_SessionTimeStamp;
+
+		m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTime();
+
 		if ( m_WasInVehicle )
 		{
 			ExpansionPPOGORIVMode mode = GetExpansionSettings().GetVehicle().PlacePlayerOnGroundOnReconnectInVehicle;
@@ -516,7 +520,7 @@ modded class PlayerBase
 			if (mode == ExpansionPPOGORIVMode.Disabled)
 				return;
 
-			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && m_Expansion_SessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
+			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && sessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
 				return;
 
 			//! Temp god mode just to be safe
@@ -630,9 +634,9 @@ modded class PlayerBase
 				m_WasInVehicle = false;
 			}
 
-			//! Disable temp god mode again if not in safezone
+			//! Disable temp god mode again if not in safezone - after a delay or player may still die from fall dmg
 			if (!IsInSafeZone())
-				SetAllowDamage(true);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetAllowDamage, 1500, false, true);
 		}
 	}
 }

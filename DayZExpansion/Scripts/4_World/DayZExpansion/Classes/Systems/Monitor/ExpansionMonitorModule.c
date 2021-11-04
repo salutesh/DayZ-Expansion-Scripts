@@ -202,13 +202,13 @@ class ExpansionMonitorModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMonitorModule OnClientLogout
+	// ExpansionMonitorModule OnClientDisconnect
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnClientLogout(PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed)
+	override void OnClientDisconnect(PlayerBase player, PlayerIdentity identity, string uid)
 	{
 		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionMonitorModule::OnClientLogout - Start" );
+		EXPrint( "ExpansionMonitorModule::OnClientDisconnect - Start" );
 		#endif
 
 		if (!identity)
@@ -219,7 +219,7 @@ class ExpansionMonitorModule: JMModuleBase
 		RemovePlayerStates(playerID);
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionMonitorModule::OnClientLogout - End" );
+		EXPrint( "ExpansionMonitorModule::OnClientDisconnect - End" );
 		#endif
 	}
 	
@@ -283,7 +283,7 @@ class ExpansionMonitorModule: JMModuleBase
 		ExpansionSyncedPlayerStats stats = m_Stats.Get(playerID);
 		if (!stats)
 		{
-			Error("ExpansionMonitorModule::UpdateStats - Could not get player stats!");
+			Error("ExpansionMonitorModule::UpdateStats - Could not get player stats for player wirth id: " + playerID);
 			return;
 		}
 		
@@ -323,7 +323,7 @@ class ExpansionMonitorModule: JMModuleBase
 		ExpansionSyncedPlayerStates states = m_States.Get(playerID);
 		if (!states)
 		{
-			Error("ExpansionMonitorModule::UpdateStates - Could not get player stats!");
+			Error("ExpansionMonitorModule::UpdateStates - Could not get player states for player with id: " + playerID);
 			return;
 		}
 		

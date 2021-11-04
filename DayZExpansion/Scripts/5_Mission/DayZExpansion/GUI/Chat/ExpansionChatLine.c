@@ -147,6 +147,7 @@ class ExpansionChatLine
 			m_NameWidget.SetText(" " + "Game" + ": ");
 			break;
 		case CCAdmin:
+		case CCBattlEye:
 			ExpSenderSetColour(GetExpansionSettings().GetGeneral().AdminChatColor);	
 			ExpSetTextColor(GetExpansionSettings().GetGeneral().AdminChatColor);
 			

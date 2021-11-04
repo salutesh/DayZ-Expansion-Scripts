@@ -20,6 +20,9 @@ class ExpansionMarketReserve
 
 	ref ExpansionMarketItem RootItem;
 
+	//! Total amount to buy (without modifiers and attachments)
+	int TotalAmount;
+
 	ref array< ref ExpansionMarketReserveItem > Reserved;
 
 	void ExpansionMarketReserve()
@@ -63,6 +66,7 @@ class ExpansionMarketReserve
 	void ClearReserved( ExpansionMarketTraderZone zone )
 	{
 		Price = 0;
+		TotalAmount = 0;
 
 		if (zone)
 		{

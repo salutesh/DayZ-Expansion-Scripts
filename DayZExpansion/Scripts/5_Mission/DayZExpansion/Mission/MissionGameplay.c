@@ -287,9 +287,20 @@ modded class MissionGameplay
 		if (g_Game.GetProfileOption(EDayZProfilesOptions.PLAYER_MESSAGES))
 			return;
 
-		//! Initialize direct chat channel name to correct color
-		if ( m_ChatChannel == ExpansionChatChannels.CCDirect )
+		//! If we are no longer in a vehicle and last used channel was transport, switch to direct
+		if (m_ChatChannel == ExpansionChatChannels.CCTransport)
+		{
+			PlayerBase player = PlayerBase.Cast( g_Game.GetPlayer() );
+			Object parent = Object.Cast( player.GetParent() );
+
+			if (!parent || !parent.IsTransport() || !GetExpansionSettings().GetGeneral().EnableTransportChat)
+				SwitchChatChannelToDirect();
+		} 
+		else if ( m_ChatChannel == ExpansionChatChannels.CCDirect )
+		{
+			//! Initialize direct chat channel name to correct color
 			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
+		}
 				
 		exp_m_ChannelNameTimeoutTimer.Stop();
 		exp_m_ChannelTimeoutTimer.Stop();

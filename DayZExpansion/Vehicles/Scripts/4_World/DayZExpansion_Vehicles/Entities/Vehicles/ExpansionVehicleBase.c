@@ -221,6 +221,11 @@ class ExpansionVehicleBase extends ItemBase
 		return false;
 	}
 
+	int GetCarDoorsState(string slotType)
+	{
+		return CarDoorState.DOORS_MISSING;
+	}
+
 	bool IsBatteryWorking()
 	{
 		return false;

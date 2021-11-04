@@ -378,7 +378,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			return existingItem;
 		}
 
-		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, networkItem.ItemID, networkItem.AttachmentIDs);
+		int sellPricePercent = networkItem.Packed & 0x00ffffff;
+		if (sellPricePercent > 0x007fffff)
+			sellPricePercent -= 0x01000000;
+
+		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, sellPricePercent, networkItem.ItemID, networkItem.AttachmentIDs);
 
 		//TraderPrint("UpdateMarketItem_Client - End and return newly added item: " + item);
 
@@ -625,7 +629,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		
 		//! Cars - Vehicle Trader - Kamenka
 		position = new ExpansionMarketSpawnPosition;
-		position.Position = Vector(1150.0, 6.0, 2405.0);
+		position.Position = Vector(1145.0, 6.0, 2405.0);
 		position.Orientation = Vector(0.0, 0.0, 0.0);
 		LandSpawnPositions.Insert(position);
 		

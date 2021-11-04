@@ -63,8 +63,6 @@ static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0
 
 class ExpansionStatic
 {
-	private static ref map<string, float> s_BoundingRadii = new map<string, float>;
-
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
@@ -224,23 +222,41 @@ class ExpansionStatic
 	
 	static float GetBoundingRadius(string className)
 	{
+		vector minMax[2];
+		return ClippingInfo(className, minMax);
+	}
+
+	static float ClippingInfo(string className, out vector minMax[2])
+	{
 		float radius;
 
-		if (!s_BoundingRadii.Find(className, radius))
+		Object obj = GetGame().CreateObjectEx(className, "0 0 0", ECE_LOCAL);
+
+		if (obj)
 		{
-			Object obj = GetGame().CreateObjectEx(className, "0 0 0", ECE_LOCAL);
-
-			if (obj)
-			{
-				vector minMax[2];
-				radius = obj.ClippingInfo( minMax );
-				GetGame().ObjectDelete(obj);
-			}
-
-			s_BoundingRadii.Insert(className, radius);
+			radius = obj.ClippingInfo(minMax);
+			GetGame().ObjectDelete(obj);
 		}
 
 		return radius;
+	}
+
+	//! If collision box does not exist, minMax is set to clipping info (bounding box)
+	static bool GetCollisionBox(string className, out vector minMax[2])
+	{
+		bool hasCollisionBox;
+
+		Object obj = GetGame().CreateObjectEx(className, "0 0 0", ECE_LOCAL);
+
+		if (obj)
+		{
+			hasCollisionBox = obj.GetCollisionBox(minMax);
+			if (!hasCollisionBox)
+				obj.ClippingInfo(minMax);
+			GetGame().ObjectDelete(obj);
+		}
+
+		return hasCollisionBox;
 	}
 
 	static bool ItemExists(string type_name)

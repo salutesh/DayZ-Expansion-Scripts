@@ -178,7 +178,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_QuatityTooltip.Hide();
 			m_QuatityTooltip.SetTitle("#STR_EXPANSION_MARKET_TOOLTIP_QUANTITY_TITLE");
 			m_QuatityTooltip.SetText("#STR_EXPANSION_MARKET_TOOLTIP_QUANTITY_DESC");
-			m_QuatityTooltip.SetContentOffset(-700.0, -150.0);
+			m_QuatityTooltip.SetContentOffset(-0.273438, -0.104167);
 		}
 		
 		m_MarketMenuController.ShowSellables = GetExpansionClientSettings().MarketMenuFilterSellableState;
@@ -564,6 +564,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 		
+		bool includeAttachments = m_SelectedMarketItemElement && m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0;
+
 		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
 		{
 			int filteredItemCount = 0;
@@ -585,19 +587,66 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			for (int j = 0; j < itemCount; j++)
 			{
 				ExpansionMarketMenuItem menuItem =  menuCategory.GetItems()[j];
-				ExpansionMarketItem currentItem = menuItem.GetBaseItem();
+				ExpansionMarketItem currentBaseItem = menuItem.GetBaseItem();
+				ExpansionMarketItem currentItem = menuItem.GetMarketItem();
+
+				if (updateItemViews)
+				{
+					if (!currentItem.m_UpdateView && m_SelectedMarketItem)
+					{
+						if (includeAttachments)
+						{
+							//! The selected item was bought/sold with attachments,
+							//! update all attachments, all items that have one of the same attachments,
+							//! and items that have the selected item as attachment
+							foreach (string selectedAttachment: m_SelectedMarketItem.SpawnAttachments)
+							{
+								if (currentItem.ClassName == selectedAttachment)
+								{
+									currentItem.m_UpdateView = true;
+									break;
+								}
+
+								foreach (string attachment: currentItem.SpawnAttachments)
+								{
+									if (attachment == selectedAttachment || attachment == m_SelectedMarketItem.ClassName)
+									{
+										currentItem.m_UpdateView = true;
+										break;
+									}
+								}
+
+								if (currentItem.m_UpdateView)
+									break;
+							}
+						}
+						else
+						{
+							//! Update items that have the selected item as attachment
+							foreach (string currentAttachment: currentItem.SpawnAttachments)
+							{
+								if (currentAttachment == m_SelectedMarketItem.ClassName)
+								{
+									currentItem.m_UpdateView = true;
+									break;
+								}
+							}
+						}
+					}
+
+					if (currentItem.m_UpdateView)
+						menuItem.UpdateView();
+				}
 		
-				if (!currentItem.m_ShowInMenu)
+				if (!currentBaseItem.m_ShowInMenu)
 				{
 					menuItem.Hide();
-					MarketPrint("ExpansionMarketMenu::UpdateMarketCategories - Hide item: " + currentItem.ClassName);
+					MarketPrint("ExpansionMarketMenu::UpdateMarketCategories - Hide item: " + currentBaseItem.ClassName);
 				}
 				else
 				{
 					menuItem.Show();
-					if (updateItemViews && menuItem.GetMarketItem().m_UpdateView)
-						menuItem.UpdateView();
-					MarketPrint("ExpansionMarketMenu::UpdateMarketCategories - Show item: " + currentItem.ClassName);
+					MarketPrint("ExpansionMarketMenu::UpdateMarketCategories - Show item: " + currentBaseItem.ClassName);
 				}
 			}
 			
@@ -1090,49 +1139,62 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		ExpansionMarketCurrency worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_TraderMarket);
 		
-		string currencyPlayerTotalMoneyString = ExpansionStatic.IntToCurrencyString(worth, ",");
-		m_MarketMenuController.PlayerTotalMoney = currencyPlayerTotalMoneyString + " #STR_EXPANSION_MARKET_CURRENCY_TOTAL";
-		m_MarketMenuController.NotifyPropertyChanged("PlayerTotalMoney");
-		
 		TStringArray descriptions = new TStringArray;
+		TStringArray excludedCurrencys = new TStringArray;
 		for (int i = 0; i < monies.Count(); i++)
 		{
-			string type = m_MarketModule.GetMoneyType(i);
+			if (!monies[i])
+				continue;
+			string type = m_MarketModule.GetMoneyDenomination(i);
 			int total_monies = monies[i] * m_MarketModule.GetMoneyPrice(type);
-			if (total_monies > 0)
+			if (m_TraderMarket.Currencies.Find(type) == -1)
+			{
+				excludedCurrencys.Insert(GetDisplayName(type));
+			}
+			else
 			{
 				string currencyString = ExpansionStatic.IntToCurrencyString(total_monies, ",");
-				descriptions.Insert(monies[i].ToString() + " × " + GetDisplayName(type) + " (" + currencyString + ")");
+				descriptions.Insert(ExpansionStatic.IntToCurrencyString(monies[i], ",") + " × " + GetDisplayName(type) + " (" + currencyString + ")");
 			}
 		}
 		
 		monies.Clear();
 		
-		if (!m_CurrenciesTooltip && descriptions.Count() > 0)
+		string currencyPlayerTotalMoneyString = ExpansionStatic.IntToCurrencyString(worth, ",");
+		m_MarketMenuController.PlayerTotalMoney = currencyPlayerTotalMoneyString + " #STR_EXPANSION_MARKET_CURRENCY_TOTAL";
+		m_MarketMenuController.NotifyPropertyChanged("PlayerTotalMoney");
+		
+		if (!m_CurrenciesTooltip)
 		{
 			m_CurrenciesTooltip = new ExpansionMarketMenuTooltip();
 			m_CurrenciesTooltip.SetTitle("#STR_EXPANSION_MARKET_CURRENCY_DENOMS");
-			m_CurrenciesTooltip.SetContentOffset(-600.0, 10.0);
-			foreach (string desc: descriptions)
-			{
-				m_CurrenciesTooltip.AddEntry(desc);
-			}
-			
-			m_CurrenciesTooltip.Hide();
+			m_CurrenciesTooltip.SetContentOffset(-0.234375, 0.006944);
 		}
-		else if (m_CurrenciesTooltip && descriptions.Count() > 0)
+		else
 		{
 			m_CurrenciesTooltip.ClearEntries();
-			m_CurrenciesTooltip.SetContentOffset(-600.0, 10.0);
-			foreach (string descr: descriptions)
+		}
+
+		foreach (string desc: descriptions)
+		{
+			m_CurrenciesTooltip.AddEntry(desc);
+		}
+
+		if (excludedCurrencys.Count())
+		{
+			//! Show currencies this trader does not accept
+			m_CurrenciesTooltip.AddEntry("");
+			m_CurrenciesTooltip.AddEntry("This trader does not accept:");  //! TODO: localize this
+			foreach (string exclDesc: excludedCurrencys)
 			{
-				m_CurrenciesTooltip.AddEntry(descr);
+				m_CurrenciesTooltip.AddEntry(exclDesc);
 			}
-			
-			m_CurrenciesTooltip.Hide();
 		}
 		
+		m_CurrenciesTooltip.Hide();
+		
 		descriptions.Clear();
+		excludedCurrencys.Clear();
 	}
 		
 	// ------------------------------------------------------------
@@ -1528,7 +1590,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				m_AttachmentsTooltip = new ExpansionMarketMenuTooltip();
 				m_AttachmentsTooltip.Hide();
-				m_AttachmentsTooltip.SetContentOffset(-600.0, 10.0);
+				m_AttachmentsTooltip.SetContentOffset(-0.234375, 0.006944);
 				m_AttachmentsTooltip.SetTitle(ExpansionStatic.GetItemDisplayNameWithType(GetSelectedMarketItemElement().GetMarketItem().ClassName) + " #STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TITLE");
 				m_AttachmentsTooltip.SetText("#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TEXT");
 				m_AttachmentsTooltip.ClearEntries();
@@ -1571,8 +1633,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_TraderItemStock = m_MarketModule.GetClientZone().GetStock(GetSelectedMarketItem().ClassName, true);
 		m_PlayerStock = m_MarketModule.GetAmountInInventory(GetSelectedMarketItem(), m_MarketModule.LocalGetEntityInventory());
 		
-		ExpansionMarketReserve reserved = new ExpansionMarketReserve;
-		
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
 		MarketPrint("UpdateItemFieldFromBasicNetSync - m_TraderItemStock: " + m_TraderItemStock);
 		
@@ -1597,7 +1657,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		else
 		{
-			float sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
+			float sellPricePct = GetSelectedMarketItem().SellPricePercent;
+			if (sellPricePct < 0)
+				sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
 			if (sellPricePct < 0)
 				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
 			m_SellPrice = GetSelectedMarketItem().CalculatePrice(m_TraderItemStock + m_Quantity, sellPricePct / 100);
@@ -1721,19 +1783,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		array<int> monies = new array<int>;
 		int i;
 		string prefix;
-		int index = -1;
 		
+		TStringArray descriptions;
 		TStringArray sellDescriptions = new TStringArray;
+		TStringArray sellChangeDescriptions = new TStringArray;
 		TStringArray buyDescriptions = new TStringArray;
-		TStringArray excludedCurrencys = new TStringArray; 
+		TStringArray buyChangeDescriptions = new TStringArray;
 		
 		m_MarketModule.FindMoneyAndCountTypes(NULL, m_SellPrice, monies, false, GetSelectedMarketItem(), m_TraderMarket);
 		for (i = 0; i < monies.Count(); i++)
 		{
 			if (monies[i] > 0)
 			{
-				//! Player will get during transaction
+				//! Player will get during sell transaction
 				prefix = "+";
+				descriptions = sellDescriptions;
+			}
+			else if (monies[i] < 0)
+			{
+				//! Player will give during sell transaction (change)
+				prefix = "-";
+				descriptions = sellChangeDescriptions;
 			}
 			else
 			{
@@ -1741,50 +1811,60 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			
 			#ifdef EXPANSIONMODMARKET_DEBUG
-			MarketPrint("UpdateMonieDenominations - Sell - " + prefix + monies[i].ToString() + " " + GetDisplayName(denoms[i]));
+			MarketPrint("UpdateMonieDenominations - Sell - " + prefix + monies[i].ToString() + " " + denoms[i] + " " + GetDisplayName(denoms[i]));
 			#endif
 			
-			if (monies[i] > 0)
-				sellDescriptions.Insert(prefix + monies[i].ToString() + " × " + GetDisplayName(denoms[i]) + "\n");
+			if (monies[i] != 0)
+				descriptions.Insert(prefix + Math.AbsInt(monies[i]).ToString() + " × " + GetDisplayName(denoms[i]));
 		}
 		
 		monies.Clear();
 		
-		if (!m_SellDenomsTooltip && sellDescriptions.Count() > 0)
+		if (!m_SellDenomsTooltip)
 		{
 			m_SellDenomsTooltip = new ExpansionMarketMenuTooltip();
 			m_SellDenomsTooltip.Hide();
 			m_SellDenomsTooltip.SetTitle("#STR_EXPANSION_MARKET_YOU_GET");
-			m_SellDenomsTooltip.SetContentOffset(-700, -400);
-			foreach (string sellDesc: sellDescriptions)
-			{
-				m_SellDenomsTooltip.AddEntry(sellDesc);
-			}
+			m_SellDenomsTooltip.SetContentOffset(-0.273438, -0.277778);
 		}
-		else if (m_SellDenomsTooltip && sellDescriptions.Count() > 0)
+		else
 		{
 			m_SellDenomsTooltip.ClearEntries();
-			m_SellDenomsTooltip.SetContentOffset(-700, -400);
-			foreach (string sellDescr: sellDescriptions)
-			{
-				m_SellDenomsTooltip.AddEntry(sellDescr);
-			}
+		}
+
+		foreach (string sellDesc: sellDescriptions)
+		{
+			m_SellDenomsTooltip.AddEntry(sellDesc);
 		}
 		
 		sellDescriptions.Clear();
+
+		if (sellChangeDescriptions.Count())
+		{
+			m_SellDenomsTooltip.AddEntry("");
+			m_SellDenomsTooltip.AddEntry("#STR_EXPANSION_MARKET_YOU_PAY");
+			foreach (string sellChangeDesc: sellChangeDescriptions)
+			{
+				m_SellDenomsTooltip.AddEntry(sellChangeDesc);
+			}
+		}
+		
+		sellChangeDescriptions.Clear();
 		
 		m_MarketModule.FindMoneyAndCountTypes(PlayerBase.Cast(GetGame().GetPlayer()), m_BuyPrice, monies, false, GetSelectedMarketItem(), m_TraderMarket);
 		for (i = 0; i < monies.Count(); i++)
 		{
 			if (monies[i] < 0)
 			{
-				//! Player will get during transaction
+				//! Player will get during buy transaction (change)
 				prefix = "+";
+				descriptions = buyChangeDescriptions;
 			}
 			else if (monies[i] > 0)
 			{
-				//! Player will spend during transaction
+				//! Player will give during buy transaction
 				prefix = "-";
+				descriptions = buyDescriptions;
 			}
 			else
 			{
@@ -1792,47 +1872,45 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			
 			#ifdef EXPANSIONMODMARKET_DEBUG
-			MarketPrint("UpdateMonieDenominations - Buy - " + prefix + monies[i].ToString() + " " + GetDisplayName(denoms[i]));
+			MarketPrint("UpdateMonieDenominations - Buy - " + prefix + monies[i].ToString() + " " + denoms[i] + " " + GetDisplayName(denoms[i]));
 			#endif
 		
-			if (monies[i] > 0)
-			{
-				buyDescriptions.Insert(prefix + monies[i].ToString() + " × " + GetDisplayName(denoms[i]) + "\n");
-			}
-			else
-			{
-				index = -1;
-				index = m_TraderMarket.Currencies.Find(denoms[i]);
-				
-				if (index == -1)
-					excludedCurrencys.Insert(GetDisplayName(denoms[i]) + "\n");
-			}
+			if (monies[i] != 0)
+				descriptions.Insert(prefix + Math.AbsInt(monies[i]).ToString() + " × " + GetDisplayName(denoms[i]));
 		}
 		
 		monies.Clear();
 		
-		if (!m_BuyDenomsTooltip && buyDescriptions.Count() > 0)
+		if (!m_BuyDenomsTooltip)
 		{
 			m_BuyDenomsTooltip = new ExpansionMarketMenuTooltip();
 			m_BuyDenomsTooltip.Hide();
 			m_BuyDenomsTooltip.SetTitle("#STR_EXPANSION_MARKET_YOU_PAY");
-			m_BuyDenomsTooltip.SetContentOffset(-1000.0, -400.0);
-			foreach (string buyDesc: buyDescriptions)
-			{
-				m_BuyDenomsTooltip.AddEntry(buyDesc);
-			}
+			m_BuyDenomsTooltip.SetContentOffset(-0.390625, -0.277778);
 		}
-		else if (m_BuyDenomsTooltip && buyDescriptions.Count() > 0)
+		else
 		{
 			m_BuyDenomsTooltip.ClearEntries();
-			m_BuyDenomsTooltip.SetContentOffset(-1000.0, -400.0);
-			foreach (string buyDescr: buyDescriptions)
-			{
-				m_BuyDenomsTooltip.AddEntry(buyDescr);
-			}
+		}
+
+		foreach (string buyDesc: buyDescriptions)
+		{
+			m_BuyDenomsTooltip.AddEntry(buyDesc);
 		}
 		
 		buyDescriptions.Clear();
+
+		if (buyChangeDescriptions.Count())
+		{
+			m_BuyDenomsTooltip.AddEntry("");
+			m_BuyDenomsTooltip.AddEntry("#STR_EXPANSION_MARKET_YOU_GET");
+			foreach (string buyChangeDesc: buyChangeDescriptions)
+			{
+				m_BuyDenomsTooltip.AddEntry(buyChangeDesc);
+			}
+		}
+		
+		buyChangeDescriptions.Clear();
 	}
 
 	string GetDisplayName(string type)
@@ -1982,14 +2060,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				case ExpansionMarketMenuState.REQUESTING_PURCHASE:
 				{
-					SetMenuState(ExpansionMarketMenuState.LOADING);
+					SetMenuState(ExpansionMarketMenuState.CONFIRMING_PURCHASE);
 					m_MarketModule.ConfirmPurchase(GetSelectedMarketItem().ClassName, PlayerBase.Cast(GetGame().GetPlayer()), GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex);
 					
 					break;
 				}
 				case ExpansionMarketMenuState.REQUESTING_SELL:
 				{
-					SetMenuState(ExpansionMarketMenuState.LOADING);
+					SetMenuState(ExpansionMarketMenuState.CONFIRMING_SELL);
 					m_MarketModule.ConfirmSell(GetSelectedMarketItem().ClassName, PlayerBase.Cast(GetGame().GetPlayer()));
 					
 					break;
@@ -2020,9 +2098,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				MarketPrint("MenuCallback - The stock has changed meanwhile");
 				
 				EXPrint("MenuCallback - Current stock: " + m_MarketModule.GetClientZone().GetStock(GetSelectedMarketItem().ClassName, true));
-				if (m_MarketSell)
+				if (m_CurrentState == ExpansionMarketMenuState.REQUESTING_SELL || m_CurrentState == ExpansionMarketMenuState.CONFIRMING_SELL)
 				{
-					m_MarketSell.Debug();
+					if (m_MarketSell)
+						m_MarketSell.Debug();
 				}
 				else
 				{
@@ -2166,16 +2245,36 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			SetIsLoading(true);
 			m_MarketModule.RequestTraderData(m_TraderObject);
 		}
-
-		m_MarketSell = NULL;
 	}
 
 	void RequestSelectedItem(ExpansionMarketMenuState menuState)
 	{
 		EXPrint(ToString() + "::RequestSelectedItem - " + typename.EnumToString(ExpansionMarketMenuState, menuState));
+		TIntArray itemIDs = new TIntArray;
+		if (m_CurrentState == ExpansionMarketMenuState.CONFIRMING_SELL && m_MarketSell)
+		{
+			//! Last action was a sale. Request stock info for sale item and its attachments
+			foreach (ExpansionMarketSellItem sellItem: m_MarketSell.Sell)
+			{
+				string className = sellItem.ClassName;
+				className.ToLower();
+				ExpansionMarketItem item = GetExpansionSettings().GetMarket().GetItem(className, false);
+				if (item && itemIDs.Find(item.ItemID) == -1)
+					itemIDs.Insert(item.ItemID);
+			}
+		}
+		else
+		{
+			//! Last action was not a sale. Request stock info for selected item and its attachments
+			itemIDs.Insert(GetSelectedMarketItem().ItemID);
+			TIntArray attachmentIDs = GetCurrentSelectedAttachmentIDs(true);
+			foreach (int attachmentID: attachmentIDs)
+			{
+				if (itemIDs.Find(attachmentID) == -1)
+					itemIDs.Insert(attachmentID);
+			}
+		}
 		SetMenuState(menuState);
-		TIntArray itemIDs = GetCurrentSelectedAttachmentIDs(true);
-		itemIDs.Insert(GetSelectedMarketItem().ItemID);
 		m_MarketModule.RequestTraderItems(m_TraderObject, 0, m_TraderMarket.m_StockOnly, itemIDs);
 	}
 
@@ -3057,7 +3156,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	bool IsLoading()
 	{
-		return m_CurrentState == ExpansionMarketMenuState.LOADING || !m_Complete;
+		return m_CurrentState != ExpansionMarketMenuState.NONE || !m_Complete;
 	}
 		
 	// ------------------------------------------------------------
@@ -3243,6 +3342,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void SetMenuState(ExpansionMarketMenuState state)
 	{
+		EXPrint(ToString() + "::SetMenuState " + typename.EnumToString(ExpansionMarketMenuState, m_CurrentState) + " -> " + typename.EnumToString(ExpansionMarketMenuState, state));
 		m_CurrentState = state;
 	}
 	

@@ -29,6 +29,8 @@ class ExpansionMarketItem
 	ExpansionMarketCurrency MaxPriceThreshold;
 	ExpansionMarketCurrency MinPriceThreshold;
 
+	int SellPricePercent;
+
 	int MaxStockThreshold;
 	int MinStockThreshold;
 
@@ -59,7 +61,7 @@ class ExpansionMarketItem
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketItem( int catID, string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int itemID = -1, array<int> attachmentIDs = null)
+	void ExpansionMarketItem( int catID, string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int sellPricePercent = -1, int itemID = -1, array<int> attachmentIDs = null)
 	{
 		if (itemID == -1)
 			ItemID = ++m_CurrentItemId;
@@ -73,6 +75,8 @@ class ExpansionMarketItem
 
 		MinPriceThreshold = minPrice;
 		MaxPriceThreshold = maxPrice;
+
+		SellPricePercent = sellPricePercent;
 
 		MinStockThreshold = minStock;
 		MaxStockThreshold = maxStock;

@@ -153,8 +153,8 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 	{
 		super.OnShow();
 
+		GetGame().GetInput().ChangeGameFocus(1);
 		SetFocus( layoutRoot );
-		GetGame().GetMission().PlayerControlDisable( INPUT_EXCLUDE_ALL );
 		PPEffects.SetBlurMenu( 0.5 );
 		
 		m_Mission.GetHud().ShowHud( false );
@@ -171,7 +171,7 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 
 		if ( GetGame().GetMission() )
 		{
-			GetGame().GetMission().PlayerControlEnable( true );
+			GetGame().GetInput().ResetGameFocus();
 			PPEffects.SetBlurMenu( 0.0 );
 			
 			m_Mission.GetHud().ShowHud( true );

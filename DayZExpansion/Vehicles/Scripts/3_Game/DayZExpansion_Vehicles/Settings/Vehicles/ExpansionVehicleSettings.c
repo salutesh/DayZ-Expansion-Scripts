@@ -54,10 +54,12 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  **/
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
+	bool VehicleDropsRuinedDoors;
+	bool ExplodingVehicleDropsAttachments;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -357,6 +359,12 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 6)
 					RevvingOverMaxRPMRuinsEngineInstantly = settingsDefault.RevvingOverMaxRPMRuinsEngineInstantly;
 
+				if (settingsBase.m_Version < 7)
+				{
+					VehicleDropsRuinedDoors = settingsDefault.VehicleDropsRuinedDoors;
+					ExplodingVehicleDropsAttachments = settingsDefault.ExplodingVehicleDropsAttachments;
+				}
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -454,6 +462,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
 		RevvingOverMaxRPMRuinsEngineInstantly = false;
+		VehicleDropsRuinedDoors = true;
+		ExplodingVehicleDropsAttachments = true;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true));

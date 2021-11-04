@@ -212,7 +212,7 @@ EXPrint("Can NOT attach " + attachment);
 				if (!m_ItemTooltip && m_Object)
 				{
 					m_ItemTooltip = new ExpansionItemTooltip(m_Object);
-					m_ItemTooltip.SetContentOffset(50.0, -110.0);
+					m_ItemTooltip.SetContentOffset(0.019531, -0.076389);
 					m_ItemTooltip.SetShowItemPreview(true);
 					m_ItemTooltip.Show();
 				}
@@ -226,7 +226,7 @@ EXPrint("Can NOT attach " + attachment);
 					m_Tooltip = new ExpansionMarketMenuTooltip();
 					m_Tooltip.SetTitle("#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TITLE");
 					m_Tooltip.SetText("#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_DESC");
-					m_Tooltip.SetContentOffset(50.0, 0);
+					m_Tooltip.SetContentOffset(0.019531, 0);
 					m_Tooltip.Show();
 				}
 				break;

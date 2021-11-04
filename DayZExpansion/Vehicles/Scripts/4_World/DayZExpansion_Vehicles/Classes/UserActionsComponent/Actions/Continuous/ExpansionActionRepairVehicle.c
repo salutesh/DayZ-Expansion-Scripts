@@ -64,6 +64,6 @@ class ExpansionActionRepairHelicopter: ExpansionActionRepairVehicleBase
 		if (!heli || heli.IsDamageDestroyed())
 			return false;
 
-		return heli.GetHealthLevel() != GameConstants.STATE_PRISTINE;
+		return heli.GetHealthLevel() != GameConstants.STATE_PRISTINE || heli.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE;
 	}
 }

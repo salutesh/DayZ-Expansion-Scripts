@@ -56,7 +56,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 		
 		if ( IsMissionHost() )
 		{
-			PlayerBase player = GetPlayerObjectByIdentity(sender);
+			PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
 			bool canSendMessage = true;
 			string channelName = "";
 			
@@ -120,7 +120,8 @@ class ExpansionGlobalChatModule: JMModuleBase
 						return;
 
 					Object localParent = Object.Cast( g_Game.GetPlayer().GetParent() );
-					if (parent.IsTransport() && localParent == parent)
+					//! `parent` will only be non-NULL if player is in same network bubble as sender
+					if (parent && parent.IsTransport() && localParent == parent)
 						break;
 					else
 						return;

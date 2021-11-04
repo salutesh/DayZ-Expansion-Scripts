@@ -46,6 +46,8 @@ class ExpansionUAZ extends OffroadHatchback
 
 	override void EEItemAttached ( EntityAI item, string slot_name ) 
 	{
+		super.EEItemAttached(item, slot_name);
+
 		if ( slot_name == "Material_Shelter_Fabric")
 		{
 			m_HasRoof = true;
@@ -56,6 +58,8 @@ class ExpansionUAZ extends OffroadHatchback
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
+		super.EEItemDetached(item, slot_name);
+
 		if ( slot_name == "Material_Shelter_Fabric")
 		{
 			m_HasRoof = false;

@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef EXPANSION_SAFEZONE_BLOOD_TRANSFER_DISABLE
 modded class HemolyticReactionMdfr
 {
 	override void OnTick(PlayerBase player, float deltaT)
@@ -24,3 +25,4 @@ modded class HemolyticReactionMdfr
 			player.SetAllowDamage(false);
 	}
 }
+#endif
