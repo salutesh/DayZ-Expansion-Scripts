@@ -56,7 +56,7 @@ PanelWidgetClass ExpansionMarketMenuItemManagerCategoryItem {
      }
      {
       ScriptParamsClass {
-       Debug_Logging 1
+       Debug_Logging 0
        Relay_Command "OnItemCountIncrement"
       }
      }
@@ -112,7 +112,7 @@ PanelWidgetClass ExpansionMarketMenuItemManagerCategoryItem {
      style Empty
      {
       ScriptParamsClass {
-       Debug_Logging 1
+       Debug_Logging 0
        Relay_Command "OnLMButtonClick"
       }
      }

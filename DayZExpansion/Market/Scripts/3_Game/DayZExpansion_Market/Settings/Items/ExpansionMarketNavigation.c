@@ -20,21 +20,21 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_NAVIGATION";
 		m_FileName = "Navigation";
 		
-		AddItem("Compass", 						10,		20,		1,		100,	0);
-		AddItem("OrienteeringCompass", 			10,		20,		1,		100,	0);
+		AddItem("Compass", 						10,		20,		1,		100);
+		AddItem("OrienteeringCompass", 			10,		20,		1,		100);
 
 		if ( IsMapNamalsk() )
 		{
-			AddItem("dzn_map_namalsk", 			15,		30,		1,		100,	0);
+			AddItem("dzn_map_namalsk", 			15,		30,		1,		100);
 		}
 		else
 		{
-			AddItem("ChernarusMap", 			15,		30,		1,		100,	0);
+			AddItem("ChernarusMap", 			15,		30,		1,		100);
 		}
 
-		AddItem("Binoculars", 					30,		60,		1,		100,	0);	
+		AddItem("Binoculars", 					30,		60,		1,		100);	
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionGPS", 				30,		60,		1,		100,	0,	{"Battery9V"});
+		AddItem("ExpansionGPS", 				30,		60,		1,		100,	{"Battery9V"});
 	#endif
 	}
 };

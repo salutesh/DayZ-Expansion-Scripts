@@ -58,7 +58,7 @@ GridSpacerWidgetClass ExpansionMarketCategory {
     TextWidgetClass category_title {
      visible 1
      ignorepointer 1
-     position 0 0
+     position 104 0
      size 1 1
      valign center_ref
      hexactpos 1
@@ -71,11 +71,36 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      text "CATEGORY TITLE"
      font "gui/fonts/etelkatextpro22"
      "exact text" 0
-     "text halign" center
+     "text halign" left
      "text valign" center
      {
       ScriptParamsClass {
        Binding_Name "CategoryName"
+      }
+     }
+    }
+    TextWidgetClass category_info {
+     visible 1
+     ignorepointer 1
+     position 15 0
+     size 1 1
+     halign right_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     style Normal
+     text ""
+     font "gui/fonts/etelkatextpro22"
+     "exact text" 0
+     "text halign" right
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "CategoryInfo"
       }
      }
     }
@@ -138,6 +163,30 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      "no wrap" 1
      stretch 1
      "flip v" 1
+    }
+    ImageWidgetClass category_icon {
+     visible 1
+     ignorepointer 1
+     color 0.8627 0.8627 0.8627 1
+     position 57 0
+     size 38 38
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     image0 ""
+     imageTexture "{764DDD38FF7B105D}DayZExpansion/Core/GUI/icons/hud/questionmark_64x64.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "CategoryIcon"
+      }
+     }
     }
    }
   }

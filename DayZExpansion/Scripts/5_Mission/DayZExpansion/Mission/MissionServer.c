@@ -62,16 +62,6 @@ modded class MissionServer
 		{
 			super.EquipCharacter(char_data);
 		}
-		
-		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
-		if ( spawnHealth > 0 && spawnHealth <= m_player.GetMaxHealth("GlobalHealth", "Health") )
-			m_player.SetHealth("", "", spawnHealth );
-		
-		if ( GetExpansionSettings().GetSpawn().SpawnEnergyValue <= m_player.GetStatEnergy().GetMax() )
-			m_player.GetStatEnergy().Set( GetExpansionSettings().GetSpawn().SpawnEnergyValue );
-		
-		if ( GetExpansionSettings().GetSpawn().SpawnWaterValue <= m_player.GetStatWater().GetMax()  )
-			m_player.GetStatWater().Set( GetExpansionSettings().GetSpawn().SpawnWaterValue );
 	}
 	
 	// ------------------------------------------------------------
@@ -81,16 +71,18 @@ modded class MissionServer
 	{
 		PlayerBase player = super.OnClientNewEvent( identity, pos, ctx );
 		
-		if ( GetExpansionSettings().GetSpawn().EnableSpawnSelection )
-		{
-			int spawnLocationsCount = GetExpansionSettings().GetSpawn().SpawnLocations.Count();
-			bool territorySpawn = GetExpansionSettings().GetSpawn().SpawnOnTerritory && m_RespawnHandlerModule.GetTerritoryList( identity );
-
-			if ( spawnLocationsCount || territorySpawn )
-			{
-				m_RespawnHandlerModule.ShowSpawnSelection( player.GetIdentity() );
-			}
-		}
+		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
+		if (spawnHealth > 0 && spawnHealth <= player.GetMaxHealth("GlobalHealth", "Health"))
+			player.SetHealth("", "", spawnHealth );
+		
+		if (GetExpansionSettings().GetSpawn().SpawnEnergyValue <= player.GetStatEnergy().GetMax())
+			player.GetStatEnergy().Set(GetExpansionSettings().GetSpawn().SpawnEnergyValue);
+		
+		if (GetExpansionSettings().GetSpawn().SpawnWaterValue <= player.GetStatWater().GetMax())
+			player.GetStatWater().Set(GetExpansionSettings().GetSpawn().SpawnWaterValue);
+		
+		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
+			m_RespawnHandlerModule.StartSpawnSelection(player);
 
 		return player;
 	} 

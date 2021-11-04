@@ -21,7 +21,7 @@ class ExpansionMarketCrossbows: ExpansionMarketCategory
 		m_FileName = "Crossbows";
 	
 	#ifdef EXPANSIONMOD
-		AddItem("Expansion_Crossbow", 			800,		1600,		1,		100,	0);
+		AddItem("Expansion_Crossbow", 			800,		1600,		1,		100);
 	#endif
 	}
 };

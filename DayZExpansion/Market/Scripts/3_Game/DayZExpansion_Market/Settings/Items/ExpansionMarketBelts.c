@@ -20,7 +20,7 @@ class ExpansionMarketBelts: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_BELTS";
 		m_FileName = "Belts";
 
-		AddItem("CivilianBelt",		100,	200,	1,		100,	0);
-		AddItem("MilitaryBelt", 	100,	200,	1,		100,	0);
+		AddItem("CivilianBelt",		100,	200,	1,		100);
+		AddItem("MilitaryBelt", 	100,	200,	1,		100);
 	}
 };

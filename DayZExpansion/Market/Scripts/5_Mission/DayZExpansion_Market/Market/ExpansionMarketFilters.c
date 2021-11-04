@@ -324,23 +324,29 @@ class ExpansionMarketFilters
 			if (trader)
 			{
 				ExpansionMarketCurrency worth = m_MarketModule.GetPlayerWorth();
-				TStringArray items = trader.GetTraderMarket().Items.GetKeyArray();
-				foreach (string itemName : items) 
+				ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
+				float priceModifier = zone.BuyPricePercent / 100;
+				foreach (ExpansionMarketTraderItem tItem: trader.GetTraderMarket().m_Items) 
 				{
-					if (!trader.GetTraderMarket().CanBuyItem(itemName))
+					if (tItem.BuySell == ExpansionMarketTraderBuySell.CanOnlySell)
 						continue;
 
-					int itemStock = m_MarketModule.GetClientZone().GetStock(itemName, true);
-					if (itemStock < 1)
-						continue;
+					int itemStock;
+					if (tItem.MarketItem.IsStaticStock())
+					{
+						itemStock = 1;
+					}
+					else
+					{
+						itemStock = zone.GetStock(tItem.MarketItem.ClassName, true);
+						if (itemStock < 1)
+							continue;
+					}
 
-					ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem(itemName);
-					if (!marketItem)
-						continue;
-
-					ExpansionMarketCurrency price = 0;  //! Important: Make sure it's zero before calling FindPriceOfPurchase
-					if (m_MarketModule.FindPriceOfPurchase(marketItem, m_MarketModule.GetClientZone(), trader.GetTraderMarket(), 1, price, false) && worth >= price)
-						purchasables.Insert(itemName);
+					//! We are only interested in the base item price here, not including attachments
+					ExpansionMarketCurrency price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier);
+					if (worth >= price)
+						purchasables.Insert(tItem.MarketItem.ClassName);
 				}
 			}
 		}

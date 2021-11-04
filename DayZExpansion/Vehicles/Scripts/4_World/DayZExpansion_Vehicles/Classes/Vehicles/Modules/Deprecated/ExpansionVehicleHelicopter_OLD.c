@@ -514,8 +514,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			pState.m_Impulse += force * pState.m_DeltaTime;
 			pState.m_ImpulseTorque += torque * pState.m_DeltaTime;
-
-			return;
 		}
 		else if (m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX])
 		{
@@ -569,6 +567,14 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 					float targetPitchDiff = estimatedOrientation[1] - targetOrientation[1];
 					float targetRollDiff = estimatedOrientation[2] - targetOrientation[2];
 
+					//! Anti-wobble (below 10 km/h)
+					float absFwd = Math.AbsFloat(forwardSpeed);
+					float absSide = Math.AbsFloat(sideSpeed);
+					if (absFwd < 2.7778)
+						targetPitchDiff *= absFwd / 2.7778;
+					if (absSide < 2.7778)
+						targetRollDiff *= absSide / 2.7778;
+
 					m_CyclicForwardTarget = Math.Clamp(targetPitchDiff * 0.25, -1.0, 1.0);
 					m_CyclicSideTarget = Math.Clamp(targetRollDiff * 0.25, -1.0, 1.0);
 				}
@@ -619,6 +625,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		change = Math.Clamp(m_BackRotorSpeedTarget - m_BackRotorSpeed, -m_AntiTorqueSpeed * pDt, m_AntiTorqueSpeed * pDt);
 		m_BackRotorSpeed = Math.Clamp(m_BackRotorSpeed + change, -m_AntiTorqueMax, m_AntiTorqueMax);
+
+		if (pState.m_Exploded)
+			return;
 
 		if (pState.m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0)
 		{
@@ -794,23 +803,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	{
 		if (!m_Initialized)
 			return;
-
-		if (pState.m_Exploded)
-		{
-			if (m_DustParticle)
-			{
-				m_DustParticle.Stop();
-			}
-
-			if (m_WaterParticle)
-			{
-				m_WaterParticle.Stop();
-			}
-
-			m_Vehicle.HideSelection("hiderotor");
-			m_Vehicle.HideSelection("hiderotorblur");
-			return;
-		}
 
 		float n;
 

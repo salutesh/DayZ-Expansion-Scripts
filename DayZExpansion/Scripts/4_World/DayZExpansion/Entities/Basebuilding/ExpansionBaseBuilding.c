@@ -403,6 +403,31 @@ modded class ExpansionBaseBuilding
 		return false;
 	}
 
+	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
+	{
+		if ( !super.CanReceiveAttachment( attachment, slotId ) )
+			return false;
+
+		if (IsLastStage() && GetHealthLevel() == GameConstants.STATE_PRISTINE)
+		{
+			//! Do not allow to attach materials if fully built and not damaged
+
+			string slot_name = InventorySlots.GetSlotName( slotId );
+
+			switch (slot_name)
+			{
+				case "Material_Nails":
+				case "Material_WoodenPlanks":
+				case "Att_ExpansionLumber":
+				case "Att_ExpansionLumberThird":
+				case "Att_ExpansionLumberHalf":
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 	/**
 	\brief Opening gate on defined selection
 		\param 	

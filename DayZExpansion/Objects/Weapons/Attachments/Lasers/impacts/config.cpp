@@ -15,7 +15,7 @@ class CfgSlots
 	class Slot_expansionLaserBeam
 	{
 		name = "expansionLaserBeam";
-		displayName = "$STR_EXPANSION_ANPEQ15 Laser";
+		displayName = "$STR_EXPANSION_ANPEQ15";
 		ghostIcon = "suppressor";
 	};
 };

@@ -1,5 +1,5 @@
-/**
- * ActionForceBitePainkillerTablets.c
+/*
+ * ExpansionVehicleLockState.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,13 +10,13 @@
  *
 */
 
-modded class ActionForceBitePainkillerTablets
+enum ExpansionVehicleLockState
 {
-	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
-	{
-		if ( player.IsInSafeZone() )
-			return false;
-
-		return super.ActionCondition(player, target, item);
-	}
+	NOLOCK = 0,
+	UNLOCKED,
+	READY_TO_LOCK,
+	LOCKED,
+	FORCEDUNLOCKED,
+	//Use count here, for network optimization to know max
+	COUNT
 };

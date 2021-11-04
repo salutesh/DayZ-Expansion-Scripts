@@ -24,30 +24,9 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 		m_FileName = "Special";
 		TraderIcon = "Grenade";
 		
-		// EXPLOSIVE GRANADES
-		AddItem("RGD5Grenade");
-		AddItem("M67Grenade");
-		
-		// FLASHBANGS
-		AddItem("FlashGrenade");
-
-		// SMOKE GRANADES
-		AddItem("M18SmokeGrenade_Red");
-		//AddItem("M18SmokeGrenade_Green");
-		//AddItem("M18SmokeGrenade_Yellow");
-		//AddItem("M18SmokeGrenade_Purple");
-		//AddItem("M18SmokeGrenade_White");
-		AddItem("RDG2SmokeGrenade_Black");
-		//AddItem("RDG2SmokeGrenade_White");
+		Categories.Insert("Explosives_And_Grenades");
 		
 	#ifdef EXPANSIONMOD
-		AddItem("Expansion_M18SmokeGrenade_Teargas");
-		// Airdrop smoke
-		//AddItem("ExpansionSupplySignal");
-		
-		// EXPLOSIVES CHARGES
-		AddItem("ExpansionSatchel");
-
 		// LAUNCHERS
 		AddItem("ExpansionLAW");
 		AddItem("ExpansionRPG7");
@@ -70,7 +49,8 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 		//AddItem("Ammo_Expansion_M203_Sticky_Smoke_Green");
 		//AddItem("Ammo_Expansion_M203_Sticky_Smoke_Yellow");
 		//AddItem("Ammo_Expansion_M203_Sticky_Smoke_Purple");
-		//AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas");
+
+		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas");
 
 		AddItem("Ammo_Expansion_M203_HE");
 	#endif

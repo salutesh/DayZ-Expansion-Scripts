@@ -1,5 +1,5 @@
 /**
- * ActionForceBiteCharcoalTablets.c
+ * ActionGagTarget.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,11 +10,11 @@
  *
 */
 
-modded class ActionForceBiteCharcoalTablets
+modded class ActionGagTarget
 {
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( player.IsInSafeZone() )
+		if (target.GetObject().IsInherited(ExpansionTraderNPCBase))
 			return false;
 
 		return super.ActionCondition(player, target, item);

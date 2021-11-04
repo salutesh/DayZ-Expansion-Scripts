@@ -12,7 +12,9 @@
 
 class ExpansionMarketCategory
 {
-	int m_Version = 4;
+	static const int VERSION = 7;
+
+	int m_Version;
 
 	protected static ref map<string, int> m_CategoryIDs = new map<string, int>;
 	protected static ref map<string, int> s_GlobalItems = new map<string, int>;
@@ -24,6 +26,8 @@ class ExpansionMarketCategory
 	int CategoryID;
 
 	string DisplayName;
+	string Icon;
+	string Color;
 
 	//! NOTE: Normally we don't want to iterate over this, use GetItems() instead (contains all variants)
 	autoptr array< ref ExpansionMarketItem > Items = new array< ref ExpansionMarketItem >;
@@ -54,12 +58,33 @@ class ExpansionMarketCategory
 		
 		JsonFileLoader<ExpansionMarketCategory>.JsonLoadFile( EXPANSION_MARKET_FOLDER + name + ".json", category );
 
+		category.m_FileName = name;
+
+		if (category.m_Version < VERSION)
+		{
+			if (category.m_Version < 5)
+			{
+				category.Icon = "Deliver";
+				category.Color = GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText;
+			}
+
+			if (category.m_Version < 7)
+			{
+				foreach (ExpansionMarketItem itemV6OrLower : category.Items)
+				{
+					if (!itemV6OrLower.SellPricePercent)
+						itemV6OrLower.SellPricePercent = -1;
+				}
+			}
+
+			category.m_Version = VERSION;
+			category.Save();
+		}
+
 		if (!m_CategoryIDs.Contains(name))
 			m_CategoryIDs.Insert(name, m_CategoryIDs.Count() + 1);
 
 		category.CategoryID = m_CategoryIDs.Get(name);
-
-		category.m_FileName = name;
 		
 		//! Make sure we have no duplicates
 		array<ref ExpansionMarketItem> items = new array<ref ExpansionMarketItem>;
@@ -88,8 +113,14 @@ class ExpansionMarketCategory
 			foreach (string attachment : attachments)
 			{
 				attachment.ToLower();
-				item.SpawnAttachments.Insert(attachment);
+				//! Check if attachment is not same classname as parent to prevent infinite recursion (user error)
+				if (attachment == item.ClassName)
+					Error("[ExpansionMarketItem] Trying to add " + item.ClassName + " as attachment to itself!");
+				else
+					item.SpawnAttachments.Insert(attachment);
 			}
+
+			item.SanityCheckAndRepair();
 
 			category.AddItemInternal( item );
 		}
@@ -123,14 +154,14 @@ class ExpansionMarketCategory
 	// 'minPrice' the lowest the item will sell at when it has reached 'maxStock'
 	// 'maxPrice' the highest the item will sell at when it has reached 'minStock'
 	// ------------------------------------------------------------
-	ExpansionMarketItem AddItem( string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, int purchaseType = 0, array< string > attachments = NULL, array< string > variants = NULL, int itemID = -1, array<int> attachmentIDs = NULL )
+	ExpansionMarketItem AddItem( string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1, int itemID = -1, array<int> attachmentIDs = NULL )
 	{
 		className.ToLower();
 
 		if (ExpansionGame.IsServerOrOffline() && CheckDuplicate(className))
 			return NULL;
 
-		ExpansionMarketItem item = new ExpansionMarketItem( CategoryID, className, minPrice, maxPrice, minStock, maxStock, purchaseType, attachments, variants, itemID, attachmentIDs );
+		ExpansionMarketItem item = new ExpansionMarketItem( CategoryID, className, minPrice, maxPrice, minStock, maxStock, attachments, variants, sellPricePercent, itemID, attachmentIDs );
 
 		AddItemInternal( item );
 
@@ -143,9 +174,9 @@ class ExpansionMarketCategory
 	// 'minPrice' the lowest the item will sell at when it has reached 'maxStock'
 	// 'maxPrice' the highest the item will sell at when it has reached 'maxStock'
 	// ------------------------------------------------------------
-	ExpansionMarketItem AddStaticItem( string className, ExpansionMarketCurrency staticPrice, int purchaseType = 0, array< string > attachments = NULL, array< string > variants = NULL )
+	ExpansionMarketItem AddStaticItem( string className, ExpansionMarketCurrency staticPrice, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1 )
 	{
-		return AddItem( className, staticPrice, staticPrice, 1, 1, purchaseType, attachments, variants );
+		return AddItem( className, staticPrice, staticPrice, 1, 1, attachments, variants, sellPricePercent );
 	}
 	
 	bool CheckDuplicate(string className)
@@ -213,9 +244,12 @@ class ExpansionMarketCategory
 				ExpansionMarketItem variant;
 				if (!m_Items.Find(className, variant))
 				{
+					if (ExpansionGame.IsServerOrOffline() && CheckDuplicate(className))
+						continue;
+
 					if (variantIds)
 						variantId = variantIds[variantIdIdx];
-					variant = new ExpansionMarketItem( CategoryID, className, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.PurchaseType, item.SpawnAttachments, NULL, variantId, item.m_AttachmentIDs );
+					variant = new ExpansionMarketItem( CategoryID, className, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.SpawnAttachments, NULL, item.SellPricePercent, variantId, item.m_AttachmentIDs );
 					//! Variants that do not already have an entry only need to synch stock, they will be automatically added on client
 					variant.m_StockOnly = true;
 					variant.m_Parent = item;
@@ -358,6 +392,8 @@ class ExpansionMarketCategory
 	void Copy(ExpansionMarketNetworkCategory cat)
 	{
 		DisplayName = cat.Name;
+		Icon = cat.Icon;
+		Color = ExpansionColor.ARGBToHex(cat.Color);
 		CategoryID = cat.CategoryID;
 		m_FileName = cat.m_FileName;
 	}

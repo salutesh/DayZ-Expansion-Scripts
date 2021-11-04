@@ -595,4 +595,66 @@ modded class ItemBase
 		Print( "ItemBase::UnlinkFromLocalSpace - End" );
 		#endif
 	}
+
+	bool Expansion_ParentDrops(EntityAI parent)
+	{
+		if (Transport.Cast(parent))
+			return true;
+
+		if (ExpansionVehicleBase.Cast(parent))
+			return true;
+
+		return false;
+	}
+
+	bool Expansion_CarContactActivates()
+	{
+		if (IsInherited(CarWheel))
+			return true;
+
+		return false;
+	}
+
+	void Expansion_PhysicsDrop()
+	{
+		if (!GetGame().IsServer())
+			return;
+
+		EntityAI parent = GetHierarchyParent();
+		if (!Expansion_ParentDrops(parent))
+			return;
+
+		vector transform[4];
+		GetTransform(transform);
+
+		vector velocity = dBodyGetVelocityAt(parent, transform[3]);
+		float mass = dBodyGetMass(this);
+		if (!mass)
+			mass = GetWeight() / 1000;
+		vector force = velocity * mass;
+
+		CarScript car;
+		ExpansionVehicleBase vehicle;
+		bool exploded = (Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded());
+
+		//! If parent is exploded vehicle, make parts fly off violently
+		if (exploded)
+		{
+			if (!force.Length())
+				force = GetDirection(); //! If vehicle is standing still, use direction vector instead of velocity
+			force = force.Normalized() * 500;
+		}
+
+		InventoryLocation src = new InventoryLocation;
+		GetInventory().GetCurrentInventoryLocation(src);
+		InventoryLocation dst = new InventoryLocation;
+		dst.SetGround(this, transform);
+
+		InventoryMode invMode = InventoryMode.SERVER;
+		if (!GetGame().IsMultiplayer())
+			invMode = InventoryMode.LOCAL;
+
+		GetInventory().TakeToDst(invMode, src, dst);
+		ThrowPhysically(null, force);
+	}
 };

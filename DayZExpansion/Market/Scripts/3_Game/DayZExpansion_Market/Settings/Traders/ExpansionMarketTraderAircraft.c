@@ -25,11 +25,7 @@ class ExpansionMarketTraderAircraft: ExpansionMarketTrader
 		TraderIcon = "Helicopter";
 		
 	#ifdef EXPANSIONMODVEHICLE
-		// HELICOPTERS
-		AddItem("ExpansionGyrocopter");
-		AddItem("ExpansionMh6");
-		AddItem("ExpansionUh1h");
-		AddItem("ExpansionMerlin");
+		Categories.Insert("Helicopters");
 	#endif
 
 		// VEHICLE PARTS
@@ -37,6 +33,8 @@ class ExpansionMarketTraderAircraft: ExpansionMarketTrader
 		AddItem("TireRepairKit");
 
 	#ifdef EXPANSIONMODVEHICLE
+		AddItem("SparkPlug");  //! For Gyro
+		AddItem("CarBattery");  //! For Gyro
 		AddItem("ExpansionIgniterPlug");
 		AddItem("ExpansionHydraulicHoses");
 		AddItem("ExpansionHelicopterBattery");

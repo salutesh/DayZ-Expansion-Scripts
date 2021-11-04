@@ -20,24 +20,24 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EYEWEAR";
 		m_FileName = "Eyewear";
 
-		AddItem("SportGlasses_Orange", 				17,		34,		1,		100,	0, null, {"SportGlasses_Blue", "SportGlasses_Black", "SportGlasses_Green"});
-		AddItem("SportGlasses_Blue", 				18,		36,		1,		100,	0);
-		AddItem("SportGlasses_Black", 				20,		40,		1,		100,	0);
-		AddItem("SportGlasses_Green", 				20,		40,		1,		100,	0);
+		AddItem("SportGlasses_Orange", 				17,		34,		1,		100, null, {"SportGlasses_Blue", "SportGlasses_Black", "SportGlasses_Green"});
+		AddItem("SportGlasses_Blue", 				18,		36,		1,		100);
+		AddItem("SportGlasses_Black", 				20,		40,		1,		100);
+		AddItem("SportGlasses_Green", 				20,		40,		1,		100);
 		
-		AddItem("ThinFramesGlasses", 				20,		40,		1,		100,	0);
-		AddItem("ThickFramesGlasses", 				23,		46,		1,		100,	0);
+		AddItem("ThinFramesGlasses", 				20,		40,		1,		100);
+		AddItem("ThickFramesGlasses", 				23,		46,		1,		100);
 		
-		AddItem("DesignerGlasses", 					30,		60,		1,		100,	0);
+		AddItem("DesignerGlasses", 					30,		60,		1,		100);
 
-		AddItem("AviatorGlasses", 					40,		80,		1,		100,	0);
+		AddItem("AviatorGlasses", 					40,		80,		1,		100);
 	
-		AddItem("TacticalGoggles", 					60,		120,	1,		100,	0);
+		AddItem("TacticalGoggles", 					60,		120,	1,		100);
 		
-		AddItem("NVGHeadstrap", 					200,	400,	1,		100,	0);
+		AddItem("NVGHeadstrap", 					200,	400,	1,		100);
 	#ifdef EXPANSIONMOD		
 		//! Scrapped
-		//AddItem("ExpansionMilGoggles", 			60,		120,	1,		100,	0);
+		//AddItem("ExpansionMilGoggles", 			60,		120,	1,		100);
 	#endif
 	}
 };

@@ -71,7 +71,7 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 				if (!m_ItemTooltip && m_Object)
 				{
 					m_ItemTooltip = new ExpansionItemPreviewTooltip(m_Object);
-					m_ItemTooltip.SetContentOffset(-350, -190);
+					m_ItemTooltip.SetContentOffset(-0.136718, -0.131944);
 					m_ItemTooltip.Show();
 				}
 				break;

@@ -91,7 +91,7 @@ class ExpansionKillFeedModule: JMModuleBase
 				#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 				EXLogPrint( "ExpansionKillFeedModule::OnPlayerHitBy - DT_EXPLOSION" );
 				#endif
-				if( ammo == "ExpansionC4_Ammo" )									//! Expansion Satchel
+				if( ammo == "ExpansionC4_Ammo" || (source && !source.IsWeapon()) )	//! Expansion Satchel or other non-weapon explosion
 				{
 					OnExplosionHit(player, source);
 				}
@@ -368,7 +368,7 @@ class ExpansionKillFeedModule: JMModuleBase
 		EXLogPrint( "ExpansionKillFeedModule::OnExplosionHit - Start" );
 		#endif
 		
-		m_DisplayName = "";
+		m_DisplayName = source.GetType();
 		
 		//! Hardcoded condition for Expansion satchel item
 		if (source.ClassName() == "Expansion_C4_Explosion")

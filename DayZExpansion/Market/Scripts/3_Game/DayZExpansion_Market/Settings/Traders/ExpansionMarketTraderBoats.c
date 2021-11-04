@@ -24,11 +24,8 @@ class ExpansionMarketTraderBoats: ExpansionMarketTrader
 		m_FileName = "Boats";
 		TraderIcon = "Boat";
 	
-	#ifdef EXPANSIONMODVEHICLE	
-		//! AddItem("ExpansionAmphibiaBoat");
-		AddItem("ExpansionUtilityBoat");
-		AddItem("ExpansionZodiacBoat");
-		AddItem("ExpansionLHD");
+	#ifdef EXPANSIONMODVEHICLE
+		Categories.Insert("Boats");
 	#endif
 		
 		// VEHICLE PARTS

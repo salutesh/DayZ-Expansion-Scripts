@@ -12,6 +12,8 @@
 
 class ExpansionString
 {
+	static ref map<string, int> s_ToAscii = new map<string, int>;
+
 	protected string m_String;
 
 	void ExpansionString(string str)
@@ -54,6 +56,28 @@ class ExpansionString
 				break;
 		}
 		return lastIdx;
+	}
+
+	//! Reimplement ToAscii (vanilla string.ToAscii is broken...)
+	int ToAscii()
+	{
+		return ToAscii(m_String[0]);
+	}
+
+	static int ToAscii(string character)
+	{
+		if (!character)
+			return 0;
+
+		if (!s_ToAscii.Count())
+		{
+			for (int i = 0; i < 256; i++)
+			{
+				s_ToAscii.Insert(i.AsciiToString(), i);
+			}
+		}
+
+		return s_ToAscii.Get(character[0]);
 	}
 
 	/**

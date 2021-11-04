@@ -15,7 +15,7 @@ modded class ActionBuildPartCB
 {
 	override float SetCallbackDuration( ItemBase item )
 	{
-		if ( item.IsKindOf("ExpansionAdminHammer") )
+		if ( item && item.IsKindOf("ExpansionAdminHammer") )
 			return 0.1;
 		
 		return super.SetCallbackDuration(item);

@@ -20,16 +20,16 @@ class ExpansionMarketDrinks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_DRINKS";
 		m_FileName = "Drinks";
 
-		AddItem("SodaCan_Pipsi", 			10,			20,			1,		100,	0);
-		AddItem("SodaCan_Cola", 			10,			20,			1,		100,	0);
-		AddItem("SodaCan_Spite", 			10,			20,			1,		100,	0);
-		AddItem("SodaCan_Kvass", 			10,			20,			1,		100,	0);
-		AddItem("SodaCan_Fronta", 			10,			20,			1,		100,	0);
-		AddItem("WaterBottle", 				15,			30,			1,		100,	0);
-		AddItem("Canteen", 					18,			36,			1,		100,	0);
-		AddItem("Vodka", 					22,			44,			1,		100,	0);
+		AddItem("SodaCan_Pipsi", 			10,			20,			1,		100);
+		AddItem("SodaCan_Cola", 			10,			20,			1,		100);
+		AddItem("SodaCan_Spite", 			10,			20,			1,		100);
+		AddItem("SodaCan_Kvass", 			10,			20,			1,		100);
+		AddItem("SodaCan_Fronta", 			10,			20,			1,		100);
+		AddItem("WaterBottle", 				15,			30,			1,		100);
+		AddItem("Canteen", 					18,			36,			1,		100);
+		AddItem("Vodka", 					22,			44,			1,		100);
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionMilkBottle", 		15,			30,			1,		100,	0);
+		AddItem("ExpansionMilkBottle", 		15,			30,			1,		100);
 	#endif
 	}
 };

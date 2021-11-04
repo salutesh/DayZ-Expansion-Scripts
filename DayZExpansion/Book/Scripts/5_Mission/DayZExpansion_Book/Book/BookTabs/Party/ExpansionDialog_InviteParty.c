@@ -29,7 +29,7 @@ class ExpansionDialog_InviteParty: ExpansionDialogBookBase
 		{
 			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
-			m_Text.SetText("#STR_EXPANSION_BOOK_GROUP_INVITE_PLAYER");
+			m_Text.SetText("#STR_EXPANSION_BOOK_GROUP_INVITE_PLAYER_DESC");
 			m_Text.SetTextColor(ARGB(255,0,0,0));
 			m_Text.Show();
 		}

@@ -44,11 +44,8 @@ class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 		if (m_Depth <= 0)
 			return;
 
-#ifdef DAYZ_1_13
-		vector buoyancy = Vector(0, 9.8, 0) * pState.m_Mass * m_Depth * pState.m_DeltaTime * 0.5;
-#else
 		vector buoyancy = -dGetGravity(m_Vehicle) * pState.m_Mass * m_Depth * pState.m_DeltaTime * 0.5;
-#endif
+
 		vector drag = -m_Velocity * pState.m_Mass * pState.m_DeltaTime * 0.25;
 
 		vector impulse = (buoyancy + drag).InvMultiply3(pState.m_Transform);

@@ -20,6 +20,9 @@ class ExpansionMarketReserve
 
 	ref ExpansionMarketItem RootItem;
 
+	//! Total amount to buy (without modifiers and attachments)
+	int TotalAmount;
+
 	ref array< ref ExpansionMarketReserveItem > Reserved;
 
 	void ExpansionMarketReserve()
@@ -39,6 +42,7 @@ class ExpansionMarketReserve
 		Print("ExpansionMarketReserve - Trader: " + Trader);
 		Print("ExpansionMarketReserve - Time: " + Time);
 		Print("ExpansionMarketReserve - RootItem: " + RootItem);
+		Print("ExpansionMarketReserve - ClassName: " + RootItem.ClassName);
 		Print("ExpansionMarketReserve - Reserved[N=" + Reserved.Count() + "]:");
 	
 		for ( int i = 0; i < Reserved.Count(); i++ )
@@ -62,6 +66,7 @@ class ExpansionMarketReserve
 	void ClearReserved( ExpansionMarketTraderZone zone )
 	{
 		Price = 0;
+		TotalAmount = 0;
 
 		if (zone)
 		{

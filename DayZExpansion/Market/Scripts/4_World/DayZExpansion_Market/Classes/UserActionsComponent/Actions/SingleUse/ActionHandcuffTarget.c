@@ -1,5 +1,5 @@
 /**
- * ActionForceDrink.c
+ * ActionHandcuffTarget.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-modded class ActionForceDrink
+modded class ActionHandcuffTarget
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{

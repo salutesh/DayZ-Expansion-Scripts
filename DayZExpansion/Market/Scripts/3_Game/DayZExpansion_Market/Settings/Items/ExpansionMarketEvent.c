@@ -20,12 +20,12 @@ class ExpansionMarketEvent: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EVENT";
 		m_FileName = "Event";
 
-		AddItem("EasterEgg", 								1,		15,		1,		250,	0);
-		AddItem("CrookedNose", 								1,		15,		1,		250,	0);
-		AddItem("Cauldron", 								1,		15,		1,		250,	0);
-		AddItem("WitchHat", 								1,		15,		1,		250,	0);
-		AddItem("WitchHood_Black", 							1,		15,		1,		250,	0, null, {"WitchHood_Brown", "WitchHood_Red"});
-		//AddItem("WitchHood_Brown", 							1,		15,		1,		250,	0);
-		//AddItem("WitchHood_Red", 							1,		15,		1,		250,	0);
+		AddItem("EasterEgg", 								1,		15,		1,		250);
+		AddItem("CrookedNose", 								1,		15,		1,		250);
+		AddItem("Cauldron", 								1,		15,		1,		250);
+		AddItem("WitchHat", 								1,		15,		1,		250);
+		AddItem("WitchHood_Black", 							1,		15,		1,		250, null, {"WitchHood_Brown", "WitchHood_Red"});
+		//AddItem("WitchHood_Brown", 							1,		15,		1,		250);
+		//AddItem("WitchHood_Red", 							1,		15,		1,		250);
 	}
 };

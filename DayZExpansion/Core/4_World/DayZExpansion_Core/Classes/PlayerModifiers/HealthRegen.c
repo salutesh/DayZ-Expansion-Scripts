@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef EXPANSION_SAFEZONE_HEALTH_REGEN_DISABLE
 modded class HealthRegenMdfr
 {
 	override void OnTick(PlayerBase player, float deltaT)
@@ -24,3 +25,4 @@ modded class HealthRegenMdfr
 			player.SetAllowDamage(false);
 	}
 }
+#endif

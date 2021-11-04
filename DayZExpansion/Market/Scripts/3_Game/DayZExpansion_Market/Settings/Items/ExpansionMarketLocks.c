@@ -20,10 +20,10 @@ class ExpansionMarketLocks: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LOCKS";
 		m_FileName = "Locks";
 
-		AddItem("CombinationLock", 				700,		1400,		1,		100,	0);
-		AddItem("CombinationLock4", 			900,		1800,		1,		100,	0);
+		AddItem("CombinationLock", 				700,		1400,		1,		100);
+		AddItem("CombinationLock4", 			900,		1800,		1,		100);
 	#ifdef EXPANSIONMOD		
-		AddItem("ExpansionCodeLock", 			1500,		3000,		1,		100,	0);
+		AddItem("ExpansionCodeLock", 			1500,		3000,		1,		100);
 	#endif
 	}
 };

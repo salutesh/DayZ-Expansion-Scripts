@@ -20,17 +20,17 @@ class ExpansionMarketMeat: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_MEAT";
 		m_FileName = "Meat";
 
-		AddItem("BearSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("GoatSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("BoarSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("PigSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("DeerSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("WolfSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("CowSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("SheepSteakMeat", 				8,		16,		1,		100,	0);
-		AddItem("ChickenBreastMeat", 			8,		16,		1,		100,	0);
+		AddItem("BearSteakMeat", 				8,		16,		1,		100);
+		AddItem("GoatSteakMeat", 				8,		16,		1,		100);
+		AddItem("BoarSteakMeat", 				8,		16,		1,		100);
+		AddItem("PigSteakMeat", 				8,		16,		1,		100);
+		AddItem("DeerSteakMeat", 				8,		16,		1,		100);
+		AddItem("WolfSteakMeat", 				8,		16,		1,		100);
+		AddItem("CowSteakMeat", 				8,		16,		1,		100);
+		AddItem("SheepSteakMeat", 				8,		16,		1,		100);
+		AddItem("ChickenBreastMeat", 			8,		16,		1,		100);
 	#ifdef EXPANSIONMOD	
-		AddItem("RabbitLegMeat", 				8,		16,		1,		100,	0);
+		AddItem("RabbitLegMeat", 				8,		16,		1,		100);
 	#endif
 	}
 };

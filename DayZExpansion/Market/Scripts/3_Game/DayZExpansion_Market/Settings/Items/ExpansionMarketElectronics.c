@@ -20,13 +20,13 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_ELECTRONICS";
 		m_FileName = "Electronics";
 
-		AddItem("PersonalRadio", 					10,		20,		1,		100,	0,	{"Battery9V"});
-		AddItem("Megaphone", 						30,		60,		1,		100,	0,	{"Battery9V"});
-		AddItem("ElectronicRepairKit", 				35,		70,		1,		100,	0);
-		AddItem("CableReel", 						40,		80,		1,		100,	0);
-		AddItem("BatteryCharger", 					40,		80,		1,		100,	0);
-		AddItem("BaseRadio", 						50,		100,	1,		100,	0,	{"CarBattery"});
-		AddItem("Rangefinder", 						60,		120,	1,		100,	0,	{"Battery9V"});
-		AddItem("NVGoggles", 						400,	800,	1,		100,	0,	{"Battery9V"});
+		AddItem("PersonalRadio", 					10,		20,		1,		100,	{"Battery9V"});
+		AddItem("Megaphone", 						30,		60,		1,		100,	{"Battery9V"});
+		AddItem("ElectronicRepairKit", 				35,		70,		1,		100);
+		AddItem("CableReel", 						40,		80,		1,		100);
+		AddItem("BatteryCharger", 					40,		80,		1,		100);
+		AddItem("BaseRadio", 						50,		100,	1,		100,	{"CarBattery"});
+		AddItem("Rangefinder", 						60,		120,	1,		100,	{"Battery9V"});
+		AddItem("NVGoggles", 						400,	800,	1,		100,	{"Battery9V"});
 	}
 };

@@ -372,6 +372,9 @@ modded class PlayerBase
 				
 			//TODO: expose to settings
 
+			//! Remove any previous call to OnLeftSafeZone from the queue
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(OnLeftSafeZone);
+
 			//! Delay actually leaving the safezone by 10 seconds
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
 		}
@@ -396,7 +399,7 @@ modded class PlayerBase
 
 		#ifdef ENFUSION_AI_PROJECT
 		#ifdef EXPANSIONMODMARKET
-		if (IsInherited(eAIBase))
+		if (IsAI())
 		{
 			//! If this is a trader AI, we still want it to be able to raise hands in safezones
 			if (IsInherited(ExpansionTraderAIBase))
@@ -473,7 +476,7 @@ modded class PlayerBase
 
 		#ifdef ENFUSION_AI_PROJECT
 		#ifdef EXPANSIONMODMARKET
-		if (IsInherited(eAIBase))
+		if (IsAI())
 		{
 			//! If this is a trader AI, we don't want it to be able to take damage outside a safezone
 			if (IsInherited(ExpansionTraderAIBase))

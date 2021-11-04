@@ -20,11 +20,11 @@ class ExpansionMarketLaunchers: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_LAUNCHERS";
 		m_FileName = "Launchers";
 	
-		AddItem("Flaregun", 			500,		1000,		1,		100,	0);
+		AddItem("Flaregun", 			500,		1000,		1,		100);
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionLAW", 		2500,		5000,		1,		100,	0);
-		AddItem("ExpansionRPG7", 		2500,		5000,		1,		100,	0);
-		AddItem("Expansion_M79", 		2500,		5000,		1,		100,	0);
+		AddItem("ExpansionLAW", 		2500,		5000,		1,		100);
+		AddItem("ExpansionRPG7", 		2500,		5000,		1,		100);
+		AddItem("Expansion_M79", 		2500,		5000,		1,		100);
 	#endif
 	}
 };

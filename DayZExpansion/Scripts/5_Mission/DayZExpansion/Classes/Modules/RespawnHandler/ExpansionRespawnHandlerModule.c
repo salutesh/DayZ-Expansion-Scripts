@@ -10,8 +10,51 @@
  *
 */
 
+class ExpansionPlayerStats
+{
+	float m_Energy;
+	float m_Water;
+	float m_HeatComfort;
+	float m_Wetness;
+	float m_Stamina;
+
+	void ExpansionPlayerStats(PlayerBase player)
+	{
+		AcquireFrom(player);
+	}
+
+	void AcquireFrom(PlayerBase player)
+	{
+		m_Energy = player.GetStatEnergy().Get();
+		m_Water = player.GetStatWater().Get();
+		m_HeatComfort = player.GetStatHeatComfort().Get();
+		m_Wetness = player.GetStatWet().Get();
+		m_Stamina = player.GetStatStamina().Get();
+
+		EXPrint(ToString() + "::AcquireFrom " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") energy: " + m_Energy + " water: " + m_Water + " heat comfort: " + m_HeatComfort + " wetness: " + m_Wetness + " stamina: " + m_Stamina);
+	}
+
+	void ApplyTo(PlayerBase player)
+	{
+		player.GetStatEnergy().Set(m_Energy);
+		player.GetStatWater().Set(m_Water);
+		player.GetStatHeatComfort().Set(m_HeatComfort);
+		player.GetStatWet().Set(m_Wetness);
+		player.GetStatStamina().Set(m_Stamina);
+
+		EXPrint(ToString() + "::ApplyTo " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") energy: " + m_Energy + " water: " + m_Water + " heat comfort: " + m_HeatComfort + " wetness: " + m_Wetness + " stamina: " + m_Stamina);
+	}
+}
+
 class ExpansionRespawnHandlerModule: JMModuleBase
 {
+	ref map<string, ref ExpansionPlayerStats> m_PlayerStartStats;
+
+	void ExpansionRespawnHandlerModule()
+	{
+		m_PlayerStartStats = new ref map<string, ref ExpansionPlayerStats>;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule IsServer
 	// ------------------------------------------------------------	
@@ -79,18 +122,41 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ShowSpawnSelection(PlayerIdentity sender)
 	{
-		Print("ExpansionRespawnHandlerModule::ShowSpawnSelection - Start");
+		Error(ToString() + "::ShowSpawnSelection is deprecated, use " + ToString() + "::StartSpawnSelection");
+	}
+
+	void StartSpawnSelection(PlayerBase player)
+	{
+		Print("ExpansionRespawnHandlerModule::StartSpawnSelection - Start");
 		
 		if ( !IsMissionHost() )
 			return;
 
-		array<ref ExpansionSpawnLocation> territoryspawnlist = GetTerritoryList(sender);
+		PlayerIdentity identity = player.GetIdentity();
+		string uid = identity.GetId();
+
+		array<ref ExpansionSpawnLocation> territoryspawnlist = new array<ref ExpansionSpawnLocation>;
+
+		if (GetExpansionSettings().GetSpawn().SpawnOnTerritory)
+			territoryspawnlist = GetTerritoryList(identity);
+
+		if (!GetExpansionSettings().GetSpawn().SpawnLocations.Count() && !territoryspawnlist.Count())
+			return;
+
+		//! Store stats (to be restored once spawn selection ends)
+		m_PlayerStartStats.Insert(uid, new ExpansionPlayerStats(player));
+
+		//! Set temporary godmode
+		player.SetAllowDamage(false);
+
+		//! Move player out of harm's way
+		player.SetPosition("0 0 0");
 		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(territoryspawnlist);
-		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, sender);
+		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, identity);
 
-		Print("ExpansionRespawnHandlerModule::ShowSpawnSelection - End");
+		Print("ExpansionRespawnHandlerModule::StartSpawnSelection - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -99,7 +165,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
-		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
+		EXPrint("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
 		
 		if (!IsMissionClient())
 			return;
@@ -108,13 +174,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		if (!ctx.Read(territoryspawnlist))
 		{
-			Print( "ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Could not read territoryspawnlist" );
+			Print( "ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Could not read territoryspawnlist" );
 			return;
 		}
 		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1000, false, territoryspawnlist);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1, true, territoryspawnlist);
 		
-		Print("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - End");
+		EXPrint("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -123,14 +189,22 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_ShowSpawnMenu(array<ref ExpansionSpawnLocation> territoryspawnlist)
 	{
-		Print("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Start");
-		
-		if ( !IsMissionClient() )
+		if ( GetGame().GetUIManager().GetMenu() != NULL )
 			return;
-		
+
+		if ( GetDayZGame().GetMissionState() != DayZGame.MISSION_STATE_GAME )
+			return;
+
+		if ( !GetGame().GetMission().GetHud() )
+			return;
+
+		EXPrint("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Start");
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
+
 		GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL);
 		
-		if (GetExpansionSettings().GetSpawn().SpawnOnTerritory)
+		if (territoryspawnlist.Count())
 		{
 			ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().GetMenu());
 			if (spawnSelectionMenu)
@@ -139,7 +213,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			}
 		}
 		
-		Print("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - End");
+		EXPrint("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - End");
 	}
 
 	// ------------------------------------------------------------
@@ -233,14 +307,14 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{	
 		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - Start");
 		
-		PlayerBase player = GetPlayerObjectByIdentity( sender );
+		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
 		if (player)
 		{
 			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
 			player.SetPosition(spawnPoint);
 			
-			CloseSpawnMenu(sender);
+			EndSpawnSelection(player);
 
 			if (GetExpansionSettings().GetLog().SpawnSelection)
 				GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " spawned at " + spawnPoint);
@@ -254,17 +328,48 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	void CloseSpawnMenu(PlayerIdentity sender)
 	{
-		Print("ExpansionRespawnHandlerModule::CloseSpawnMenu - Start");
+		Error(ToString() + "::CloseSpawnMenu is deprecated, use " + ToString() + "::EndSpawnSelection");
+	}
+
+	void EndSpawnSelection(PlayerBase player)
+	{
+		Print("ExpansionRespawnHandlerModule::EndSpawnSelection - Start");
 		
 		if ( !IsMissionHost() )
 			return;
+
+		PlayerIdentity identity = player.GetIdentity();
+		string uid = identity.GetId();
+
+		//! Make sure clothes and contained items are dry after using spawn select in case we were in the water
+		ResetItemWetness(player);
+
+		//! Restore stats
+		ExpansionPlayerStats stats = m_PlayerStartStats.Get(uid);
+		stats.ApplyTo(player);
+		m_PlayerStartStats.Remove(uid);
+
+		//! Deactivate temporary godmode
+		player.SetAllowDamage(true);
 		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, sender);
+		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, identity);
 		
-		Print("ExpansionRespawnHandlerModule::CloseSpawnMenu - End");
+		Print("ExpansionRespawnHandlerModule::EndSpawnSelection - End");
 	}
 	
+	void ResetItemWetness(EntityAI parent)
+	{
+		array<EntityAI> items = new array<EntityAI>;
+		parent.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		ItemBase item;
+		foreach (EntityAI entity: items)
+		{
+			if (Class.CastTo(item, entity))
+				item.SetWet(0);
+		}
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule RPC_CloseSpawnMenu
 	// Called on client
@@ -276,7 +381,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionClient() )
 			return;
 		
-		Exec_CloseSpawnMenu();
+		//! Use CallLater to make menu disappear *after* player position has updated on client
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
 		
 		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - End");
 	}

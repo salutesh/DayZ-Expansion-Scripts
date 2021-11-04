@@ -1,5 +1,5 @@
 /**
- * ActionForceBiteTetracyclineAntibiotics.c
+ * ActionDigInStash.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,13 +10,13 @@
  *
 */
 
-modded class ActionForceBiteTetracyclineAntibiotics
+modded class ActionDigInStash
 {
-	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
+	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		if ( player.IsInSafeZone() )
 			return false;
 
-		return super.ActionCondition(player, target, item);
+		return super.ActionCondition( player, target, item );
 	}
-};
+}

@@ -62,56 +62,11 @@ class ExpansionMh6: ExpansionHelicopterScript
 	{
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
 	}
-	
-	// Batteries
-	// ------------------------------------------------------------
-	override bool IsVitalHelicopterBattery()
-	{
-		return true;
-	}
 
-	// ------------------------------------------------------------
-	override bool IsVitalTruckBattery()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalCarBattery()
-	{
-		return false;
-	}
-
-	//! Plugs
-	// ------------------------------------------------------------
-	override bool IsVitalSparkPlug()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalGlowPlug()
-	{
-		return false;
-	}
-	
 	// ------------------------------------------------------------
 	override bool IsVitalIgniterPlug()
 	{
 		return true;
-	}
-	
-	//! Coolers
-	// ------------------------------------------------------------
-	override bool IsVitalRadiator()
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	override bool IsVitalEngineBelt()
-	{
-		return false;
 	}
 
 	// ------------------------------------------------------------	

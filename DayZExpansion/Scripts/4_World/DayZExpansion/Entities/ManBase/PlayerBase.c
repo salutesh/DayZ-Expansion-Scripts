@@ -90,7 +90,7 @@ modded class PlayerBase
 		if ( GetGame() && GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
-			if (!IsInherited(eAIBase))
+			if (!IsAI())
 		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}
@@ -108,7 +108,7 @@ modded class PlayerBase
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
 		#ifdef ENFUSION_AI_PROJECT
-			if (!IsInherited(eAIBase))
+			if (!IsAI())
 		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
 		}
@@ -121,7 +121,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		if ( GetExpansionSettings().GetNotification().EnableKillFeed )
+		if ( GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity() )
 		{
 			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
 			if ( m_KillfeedModule && !IPADACK() )

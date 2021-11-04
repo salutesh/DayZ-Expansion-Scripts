@@ -25,10 +25,7 @@ class ExpansionMarketTraderFishing: ExpansionMarketTrader
 		TraderIcon = "Fishing";
 
 		// FISHING ITEMS
-		AddItem("Hook");
-		AddItem("BoneHook");
-		AddItem("Worm");
-		AddItem("FishingRod");
+		Categories.Insert("Fishing");
 		
 		// FISHES
 		AddItem("Carp");

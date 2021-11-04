@@ -23,10 +23,10 @@ class ExpansionMarketFish: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_FISH";
 		m_FileName = "Fish";
 
-		AddItem("CarpFilletMeat", 				8,			16,			1,		100,	0);
-		AddItem("MackerelFilletMeat", 			8,			16,			1,		100,	0);
-		AddItem("Carp", 						20,			40,			1,		100,	0);
-		AddItem("Sardines", 					20,			40,			1,		100,	0);
-		AddItem("Mackerel", 					20,			40,			1,		100,	0);
+		AddItem("CarpFilletMeat", 				8,			16,			1,		100);
+		AddItem("MackerelFilletMeat", 			8,			16,			1,		100);
+		AddItem("Carp", 						20,			40,			1,		100);
+		AddItem("Sardines", 					20,			40,			1,		100);
+		AddItem("Mackerel", 					20,			40,			1,		100);
 	}
 };

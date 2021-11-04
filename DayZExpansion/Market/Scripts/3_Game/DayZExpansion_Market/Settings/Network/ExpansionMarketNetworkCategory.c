@@ -13,6 +13,8 @@
 class ExpansionMarketNetworkCategory
 {
 	string Name;
+	string Icon;
+	int Color;
 
 	int CategoryID;
 
@@ -21,6 +23,8 @@ class ExpansionMarketNetworkCategory
 	void ExpansionMarketNetworkCategory( ExpansionMarketCategory category )
 	{
 		Name = category.DisplayName;
+		Icon = category.Icon;
+		Color = ExpansionColor.HexToARGB(category.Color);
 		CategoryID = category.CategoryID;
 		m_FileName = category.m_FileName;
 	}

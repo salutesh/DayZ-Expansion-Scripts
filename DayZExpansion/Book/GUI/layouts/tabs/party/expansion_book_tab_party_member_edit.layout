@@ -661,7 +661,7 @@ FrameWidgetClass ExpansionBookMenuTabPartyMemberEdit {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_PERM_DELETE"
+             text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_PERM_INVITE"
              font "gui/fonts/etelkatextpro22"
              "exact text" 0
              "text valign" center

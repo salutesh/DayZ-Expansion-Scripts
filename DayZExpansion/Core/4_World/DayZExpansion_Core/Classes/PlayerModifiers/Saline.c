@@ -10,6 +10,7 @@
  *
 */
 
+#ifndef EXPANSION_SAFEZONE_BLOOD_REGEN_DISABLE
 modded class SalineMdfr
 {
 	override void OnTick(PlayerBase player, float deltaT)
@@ -24,3 +25,4 @@ modded class SalineMdfr
 			player.SetAllowDamage(false);
 	}
 }
+#endif

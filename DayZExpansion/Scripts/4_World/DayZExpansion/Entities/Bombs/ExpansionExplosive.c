@@ -15,12 +15,12 @@
  **/
 class ExpansionExplosive extends ItemBase
 {
-	protected int m_Time;
+	protected int m_Time = 10;
 	protected int m_Timer;
 	protected float m_ExplosionTime;
 
-	protected bool m_Executed;
-	protected bool m_ExecutedSynchRemote;
+	protected bool m_Armed;
+	protected bool m_ArmedSynchRemote;
 
 	protected bool m_Exploded;
 	protected bool m_ExplodedSynchRemote;
@@ -30,30 +30,16 @@ class ExpansionExplosive extends ItemBase
 	protected Particle m_ParticleEfx;	
 
 	protected ref Timer	m_ExplosionTimer;
-	
-	protected bool m_PlayedSound;
 
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
 	void ExpansionExplosive()
 	{
-		SetEventMask( EntityEvent.FRAME );
-		
-		m_Executed = false;
-		m_ExecutedSynchRemote = false;
-
 		m_ExplosionTimer = new Timer();
 
 		RegisterNetSyncVariableInt( "m_Time" );
-		RegisterNetSyncVariableBool( "m_ExecutedSynchRemote" );
+		RegisterNetSyncVariableBool( "m_ArmedSynchRemote" );
 		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" );
-		RegisterNetSyncVariableBool( "m_PlayedSound" );
 	}
 
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
 	void ~ExpansionExplosive()
 	{
 		if ( GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer()) ) 
@@ -66,9 +52,6 @@ class ExpansionExplosive extends ItemBase
 		}
 	}
 
-	// ------------------------------------------------------------
-	// SetActions
-	// ------------------------------------------------------------
 	override void SetActions()
 	{
 		super.SetActions();
@@ -77,72 +60,44 @@ class ExpansionExplosive extends ItemBase
 		AddAction(ActionPlaceObject);
 	}
 
-	// ------------------------------------------------------------
-	// OnFrame
-	// ------------------------------------------------------------
 	void OnFrame()
 	{
-		if ( IsMissionHost() && m_Executed )
+		if ( IsMissionHost() && m_Armed && m_ExplosionTimer.GetRemaining() < 10 )
 		{
-			if (m_ExplosionTimer.GetRemaining() > 10 )
-			{
-				m_Time = 10;
-			}
-			else 
-			{
-				m_Time = Math.Round(m_ExplosionTimer.GetRemaining());
-			}
+			m_Time = Math.Round(m_ExplosionTimer.GetRemaining());
 
 			SetSynchDirty();
 		}
 
-		if ( IsMissionClient() && m_ExecutedSynchRemote && !m_PlayedSound)
+		if ( IsMissionClient() && m_ArmedSynchRemote )
 		{
 			TriggerSound(m_Time);
 		}
 	}
 
-	// ------------------------------------------------------------
-	// OnPlacementComplete
-	// ------------------------------------------------------------
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{
-		m_ExplosionTime = GetExpansionSettings().GetRaid().ExplosionTime; 
-
-		m_Executed = true;
-		m_ExecutedSynchRemote = true;
-		m_PlayedSound = false;
-		
 		if ( IsMissionHost() )
 		{
-			m_ExplosionTimer.Run( m_ExplosionTime, this, "TriggerExplosion", NULL, false ); 
-		}		
+			m_ExplosionTime = GetExpansionSettings().GetRaid().ExplosionTime;
 
-		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
-			GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Player \"" + player.GetIdentity().GetName() + "\" (id=" + player.GetIdentity().GetId() + " pos=" + player.GetPosition() + ")" + " deployed " + GetType() + " at " + GetPosition() );
-		
-		// That's the only fix I have found
-		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
+			m_Armed = true;
+			m_ArmedSynchRemote = true;
 
-		SetSynchDirty();
+			m_ExplosionTimer.Run( m_ExplosionTime, this, "TriggerExplosion", NULL, false );
+
+			if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
+				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Player \"" + player.GetIdentity().GetName() + "\" (id=" + player.GetIdentity().GetId() + " pos=" + player.GetPosition() + ")" + " deployed " + GetType() + " at " + GetPosition() );
+
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
+
+			SetSynchDirty();
+		}
 	}
 
-	// ------------------------------------------------------------
-	// CanPutInCargo
-	// ------------------------------------------------------------
 	override bool CanPutInCargo( EntityAI parent )
 	{
-		if( !super.CanPutInCargo(parent) ) 
-		{ 
-			return false;
-		}
-		
-		if( !m_Executed )
-		{
-			return true;
-		}
-
-		return false;
+		return super.CanPutInCargo(parent) && !m_Armed;
 	}
 
 	void RemoveLater()
@@ -169,7 +124,6 @@ class ExpansionExplosive extends ItemBase
 		{
 			m_Exploded = true;
 			m_ExplodedSynchRemote = true;
-			m_PlayedSound = true;
 
 			//! Explode( DT_EXPLOSION, "ExpansionRocket_Ammo" );
 			//ExpansionCreateExplosion( this, "ExpansionRocket_Ammo", 5, 500 );
@@ -188,27 +142,21 @@ class ExpansionExplosive extends ItemBase
 
 	void TriggerSound(int time)
 	{
-		if (time <= m_ExplosionTime )
+		if ( m_Timer < ( time * 100 ) )
 		{
-			if ( m_Timer < ( time * 100 ) )
-			{
-				m_Timer += 10;
-			}
-			else 
-			{
-				m_Timer = 0;
-				SoundC4Beep();
-			}
-		}	
+			m_Timer += 10;
+		}
+		else 
+		{
+			m_Timer = 0;
+			SoundC4Beep();
+		}
 	}
 	
 	protected void SoundC4Beep()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			EffectSound sound = SEffectManager.PlaySound("Expansion_Explosive_C4_SoundSet", GetPosition());
-			sound.SetSoundAutodestroy( true );
-		}
+		EffectSound sound = SEffectManager.PlaySound("Expansion_Explosive_C4_SoundSet", GetPosition());
+		sound.SetSoundAutodestroy( true );
 	}
 
 	private void HandleClientExplosion()
@@ -242,9 +190,6 @@ class ExpansionExplosive extends ItemBase
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( RemoveLater, 100, false );  
 	}
 
-	// ------------------------------------------------------------
-	// OnVariablesSynchronized
-	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
@@ -254,6 +199,12 @@ class ExpansionExplosive extends ItemBase
 			m_Exploded = true;
 			
 			HandleClientExplosion();
+		}
+		else if ( m_ArmedSynchRemote && !m_Armed )
+		{
+			m_Armed = true;
+
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnFrame, 1, true );
 		}
 	}
 

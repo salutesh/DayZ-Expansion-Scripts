@@ -24,14 +24,6 @@ class ExpansionMarketTraderEvent: ExpansionMarketTrader
 		m_FileName = "Event";
 		TraderIcon = "Questionmark";
 		
-		AddItem("EasterEgg");
-		AddItem("CrookedNose");
-		AddItem("Cauldron");
-		AddItem("WitchHat");
-		AddItem("WitchHood_Black");
-		//AddItem("WitchHood_Brown");
-		//AddItem("WitchHood_Red");
-		AddItem("Broom");
-		AddItem("Broom_Birch");
+		Categories.Insert("Event");
 	}
 }

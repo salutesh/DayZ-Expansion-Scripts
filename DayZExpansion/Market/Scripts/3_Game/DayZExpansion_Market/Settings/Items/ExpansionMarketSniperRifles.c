@@ -23,25 +23,25 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_SNIPER_RIFLES";
 		m_FileName = "Sniper_Rifles";
 
-		AddItem("VSS", 						1600,	3200,	1,		100,	0,	{"Mag_VSS_10Rnd"});
-		AddItem("ASVAL", 					1600,	3200,	1,		100,	0,	{"Mag_VAL_20Rnd"});
-		AddItem("B95", 						1700,	3400,	1,		100,	0);
-		AddItem("SVD", 						2000,	4000,	1,		100,	0,	{"Mag_SVD_10Rnd"});
+		AddItem("VSS", 						1600,	3200,	1,		100,	{"Mag_VSS_10Rnd"});
+		AddItem("ASVAL", 					1600,	3200,	1,		100,	{"Mag_VAL_20Rnd"});
+		AddItem("B95", 						1700,	3400,	1,		100);
+		AddItem("SVD", 						2000,	4000,	1,		100,	{"Mag_SVD_10Rnd"});
 
 		if (IsMapEnoch())
 		{
-			AddItem("Scout_Livonia", 		2100,	4200,	1,		100,	0,	{"Mag_Scout_5Rnd"});
+			AddItem("Scout_Livonia", 		2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
 		}
 		else if (IsMapChernarus())
 		{
-			AddItem("Scout_Chernarus", 		2100,	4200,	1,		100,	0,	{"Mag_Scout_5Rnd"});
+			AddItem("Scout_Chernarus", 		2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
 		}
 		else
 		{
-			AddItem("Scout", 				2100,	4200,	1,		100,	0,	{"Mag_Scout_5Rnd"});
+			AddItem("Scout", 				2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
 		}
 	#ifdef EXPANSIONMOD
-		AddItem("Expansion_AWM", 			5000,	10000,	1,		100,	0,	{"Mag_Expansion_AWM_5rnd"});
+		AddItem("Expansion_AWM", 			5000,	10000,	1,		100,	{"Mag_Expansion_AWM_5rnd"});
 	#endif
 	}
 };

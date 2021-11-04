@@ -20,8 +20,8 @@ class ExpansionMarketKits: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_KITS";
 		m_FileName = "Kits";
 		
-		AddItem("SewingKit", 					4,		8,		1,		100,	0);
-		AddItem("LeatherSewingKit", 			5,		10,		1,		100,	0);
-		AddItem("WeaponCleaningKit", 			8,		16,		1,		100,	0);
+		AddItem("SewingKit", 					4,		8,		1,		100);
+		AddItem("LeatherSewingKit", 			5,		10,		1,		100);
+		AddItem("WeaponCleaningKit", 			8,		16,		1,		100);
 	}
 };

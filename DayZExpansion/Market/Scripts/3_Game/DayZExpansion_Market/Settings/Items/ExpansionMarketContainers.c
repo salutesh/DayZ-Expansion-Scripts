@@ -20,23 +20,23 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CONTAINERS";
 		m_FileName = "Containers";
 
-		AddItem("SmallProtectorCase", 			70,			140,		1,		100,	0);
-		AddItem("AmmoBox", 						80,			160,		1,		100,	0);
-		AddItem("BarrelHoles_Blue", 			800,		1600,		1,		100,	0, null, {"BarrelHoles_Green", "BarrelHoles_Red", "BarrelHoles_Yellow"});
-		/*AddItem("BarrelHoles_Green", 			800,		1600,		1,		100,	0);
-		AddItem("BarrelHoles_Red", 				800,		1600,		1,		100,	0);
-		AddItem("BarrelHoles_Yellow", 			800,		1600,		1,		100,	0);*/
-		AddItem("Barrel_Blue", 					1500,		3000,		1,		100,	0, null, {"Barrel_Green", "Barrel_Red", "Barrel_Yellow"});
-		/*AddItem("Barrel_Green", 				1500,		3000,		1,		100,	0);
-		AddItem("Barrel_Red", 					1500,		3000,		1,		100,	0);
-		AddItem("Barrel_Yellow", 				1500,		3000,		1,		100,	0);*/
-		AddItem("SeaChest", 					2000,		4000,		1,		100,	0);
+		AddItem("SmallProtectorCase", 			70,			140,		1,		100);
+		AddItem("AmmoBox", 						80,			160,		1,		100);
+		AddItem("BarrelHoles_Blue", 			800,		1600,		1,		100, null, {"BarrelHoles_Green", "BarrelHoles_Red", "BarrelHoles_Yellow"});
+		/*AddItem("BarrelHoles_Green", 			800,		1600,		1,		100);
+		AddItem("BarrelHoles_Red", 				800,		1600,		1,		100);
+		AddItem("BarrelHoles_Yellow", 			800,		1600,		1,		100);*/
+		AddItem("Barrel_Blue", 					1500,		3000,		1,		100, null, {"Barrel_Green", "Barrel_Red", "Barrel_Yellow"});
+		/*AddItem("Barrel_Green", 				1500,		3000,		1,		100);
+		AddItem("Barrel_Red", 					1500,		3000,		1,		100);
+		AddItem("Barrel_Yellow", 				1500,		3000,		1,		100);*/
+		AddItem("SeaChest", 					2000,		4000,		1,		100);
 	
 	#ifdef EXPANSIONMOD
-		AddItem("ExpansionToolBox", 			500,		1000,		1,		100,	0);
-		AddItem("ExpansionSafeMini", 			4000,		8000,		1,		100,	0);
-		AddItem("ExpansionSafeMedium", 			6000,		12000,		1,		100,	0);
-		AddItem("ExpansionSafeLarge", 			8000,		16000,		1,		100,	0);
+		AddItem("ExpansionToolBox", 			500,		1000,		1,		100);
+		AddItem("ExpansionSafeMini", 			4000,		8000,		1,		100);
+		AddItem("ExpansionSafeMedium", 			6000,		12000,		1,		100);
+		AddItem("ExpansionSafeLarge", 			8000,		16000,		1,		100);
 	#endif
 	}
 };

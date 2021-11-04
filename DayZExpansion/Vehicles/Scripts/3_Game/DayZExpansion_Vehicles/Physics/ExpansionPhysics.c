@@ -143,9 +143,9 @@ class ExpansionPhysics
 		pResult[1] = pTransform0[1] + pResult[1];
 		pResult[2] = pTransform0[2] + pResult[2];
 
-		pResult[0].Normalized();
-		pResult[1].Normalized();
-		pResult[2].Normalized();
+		pResult[0].Normalize();
+		pResult[1].Normalize();
+		pResult[2].Normalize();
 
 		pResult[3] = pTransform0[3] + (pLinVel * pDt);
 		*/

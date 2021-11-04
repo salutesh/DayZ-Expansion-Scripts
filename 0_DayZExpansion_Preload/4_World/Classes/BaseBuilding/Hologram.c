@@ -117,44 +117,13 @@ modded class Hologram
 		{
 			SetIsFloating( false );
 		}
-		#ifndef DAYZ_1_13
 		m_FromAdjusted = from;
-		#endif
-			
+		
 		return contact_pos;
 	}
 
-	#ifdef DAYZ_1_13
-	//! Hack fix to prevent the issue of placeable items snapping to center of Expansion base building.
-	//! Similar to vanilla SetOnGround, except using RayCastBullet instead of RaycastRV, and actually placing object on ground correctly.
-	//! NOTE: DayZ 1.14 seems to have fixed this
 	override vector SetOnGround( vector position )
 	{
-		vector from = position;
-		vector ground;
-		float projection_diameter = GetProjectionDiameter();
-			
-		ground = Vector(0, - Math.Max( projection_diameter, SMALL_PROJECTION_GROUND ), 0);
-		
-		vector to = from + ground;
-		vector contact_pos;
-		
-		PhxInteractionLayers layerMask;
-		layerMask |= PhxInteractionLayers.BUILDING;
-		layerMask |= PhxInteractionLayers.DOOR;
-		layerMask |= PhxInteractionLayers.VEHICLE;
-		layerMask |= PhxInteractionLayers.ROADWAY;
-		layerMask |= PhxInteractionLayers.TERRAIN;
-		layerMask |= PhxInteractionLayers.ITEM_SMALL;
-		layerMask |= PhxInteractionLayers.ITEM_LARGE;
-		layerMask |= PhxInteractionLayers.FENCE;
-		
-		//DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, contact_component, NULL, NULL, m_Projection, false, false );
-		DayZPhysics.RayCastBullet( from, to, layerMask, m_Projection, null, contact_pos, m_ContactDir, null );
-		
-		contact_pos = HideWhenClose( contact_pos );  //! Fix for vanilla not assigning the result of calling HideWhenClose
-		
-		return contact_pos;
+		return HideWhenClose( super.SetOnGround( position ) );  //! Fix for vanilla not assigning the result of calling HideWhenClose
 	}
-	#endif
 }

@@ -24,30 +24,12 @@ class ExpansionMarketTraderVehicles: ExpansionMarketTrader
 		m_FileName = "Vehicles";
 		TraderIcon = "Car";
 		
-		// CARS
-		AddItem("OffroadHatchback");
-		AddItem("Hatchback_02");
-		AddItem("Sedan_02");
-		AddItem("CivilianSedan");
-		AddItem("Truck_01_Covered");	
-		//! Vanilla - Not released yet
-		//AddItem("Truck_02");
-		//AddItem("Van_01");
+		Categories.Insert("Cars");
 		
 	#ifdef EXPANSIONMODVEHICLE
-		AddItem("ExpansionTractor");
-		AddItem("ExpansionUAZ");
-		AddItem("ExpansionUAZRoofless");
-		AddItem("ExpansionUAZCargo");
-		AddItem("ExpansionUAZCargoRoofless");
-		AddItem("ExpansionBus");
-		AddItem("ExpansionVodnik");
-		
 		// BIKES
-		//! For the next vehicle update		
-		//AddItem("Vehicle_ExpansionOldBike");
-		//AddItem("Vehicle_ExpansionTT650");
-		//AddItem("Vehicle_Expansion250N");	
+		//! For the next vehicle update	
+		//Categories.Insert("Bikes");
 	#endif
 
 		// VEHICLE PARTS

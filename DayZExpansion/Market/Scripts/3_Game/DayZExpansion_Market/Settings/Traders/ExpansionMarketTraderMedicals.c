@@ -24,29 +24,6 @@ class ExpansionMarketTraderMedicals: ExpansionMarketTrader
 		m_FileName = "Medicals";
 		TraderIcon = "Medic Box";
 		
-		AddItem("CharcoalTablets");
-		AddItem("BandageDressing");
-		AddItem("DisinfectantAlcohol");
-		AddItem("PurificationTablets");
-		AddItem("BloodTestKit");
-		//AddItem("InjectionVial");
-		AddItem("Thermometer");
-		AddItem("VitaminBottle");
-		AddItem("DisinfectantSpray");
-		AddItem("TetracyclineAntibiotics");
-		AddItem("PainkillerTablets");
-		//AddItem("Rag");
-		//AddItem("Syringe");
-		AddItem("StartKitIV");
-		AddItem("Heatpack");
-		AddItem("SalineBag");
-		AddItem("BloodBagEmpty");
-		AddItem("FirstAidKit");
-		AddItem("Epinephrine");
-		AddItem("Morphine");
-		//AddItem("Splint");
-		AddItem("IodineTincture");
-		//AddItem("Defibrillator");
-		AddItem("AntiChemInjector");
+		Categories.Insert("Medical");
 	}
 }

@@ -656,6 +656,14 @@ modded class ItemBase
 		if (!GetExpansionSettings().GetSafeZone().EnableForceSZCleanup)
 			return;
 
+		//! Ignore unknown old location (item loaded from storage or newly created by CE or script)
+		if (oldLoc.GetType() == InventoryLocationType.UNKNOWN)
+			return;
+
+		#ifdef EXPANSION_SAFEZONE_DEBUG
+		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " location changed " + typename.EnumToString(InventoryLocationType, oldLoc.GetType()) + " -> " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+		#endif
+
 		if (newLoc.GetType() == InventoryLocationType.GROUND)
 		{
 			ExpansionCreateCleanup();
@@ -669,6 +677,10 @@ modded class ItemBase
 
 				//! Make sure to reset max lifetime to value from CE
 				SetLifetimeMax(lifetime);
+
+				#ifdef EXPANSION_SAFEZONE_DEBUG
+				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " unmarked for cleanup - lifetime " + GetLifetime());
+				#endif
 			}
 		}
 	}
@@ -702,7 +714,21 @@ modded class ItemBase
 
 		if (m_Expansion_SZCleanup && GetLifetime() < 0)
 		{
-			GetGame().ObjectDelete(this);
+			if (!GetHierarchyParent())
+			{
+				GetGame().ObjectDelete(this);
+
+				#ifdef EXPANSION_SAFEZONE_DEBUG
+				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " deleted");
+				#endif
+			}
+			else
+			{
+				//! Failsafe - this should not be able to happen
+				m_Expansion_SZCleanup = false;
+
+				EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " unmarked for cleanup - object has parent");
+			}
 		}
 	}
 
@@ -732,5 +758,9 @@ modded class ItemBase
 		//! if this item can receive attachments/cargo and something is attached/put in cargo
 		//! while the item is on ground
 		SetLifetimeMax(GetExpansionSettings().GetSafeZone().ItemLifetimeInSafeZone);
+
+		#ifdef EXPANSION_SAFEZONE_DEBUG
+		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " marked for cleanup - lifetime " + GetLifetime());
+		#endif
 	}
 };

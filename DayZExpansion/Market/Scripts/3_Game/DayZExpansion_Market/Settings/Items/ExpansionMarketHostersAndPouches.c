@@ -20,9 +20,9 @@ class ExpansionMarketHostersAndPouches: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_HOLSTERS";
 		m_FileName = "Holsters_And_Pouches";
 
-		AddItem("ChestHolster", 				60,			120,		1,		100,	0);	
-		AddItem("PlateCarrierHolster", 			60,			120,		1,		100,	0);
-		AddItem("PlateCarrierPouches", 			100,		200,		1,		100,	0);
-		AddItem("NylonKnifeSheath", 			30,			60,		1,		100,	0);
+		AddItem("ChestHolster", 				60,			120,		1,		100);	
+		AddItem("PlateCarrierHolster", 			60,			120,		1,		100);
+		AddItem("PlateCarrierPouches", 			100,		200,		1,		100);
+		AddItem("NylonKnifeSheath", 			30,			60,		1,		100);
 	}
 };

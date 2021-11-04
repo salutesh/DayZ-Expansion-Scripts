@@ -38,7 +38,7 @@ class ExpansionMarketNetworkItem: ExpansionMarketNetworkBaseItem
 	autoptr array< int > AttachmentIDs;
 	autoptr array< string > Variants;
 
-	ExpansionMarketTraderBuySell BuySell;
+	int Packed;
 
 	[NonSerialized()]
 	bool m_StockOnly;
