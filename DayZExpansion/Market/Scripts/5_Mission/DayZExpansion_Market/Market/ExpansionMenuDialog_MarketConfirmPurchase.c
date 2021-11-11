@@ -32,26 +32,35 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
 		if (!m_MarketMenu)
 			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentMenu);
 		
+		ExpansionMenuDialogContentSpacer spacer;
+		spacer = new ExpansionMenuDialogContentSpacer(this);
+		AddContent(spacer);
+		
 		if (!m_Text)
 		{
 			m_Text = new ExpansionMenuDialogContent_Text(this);
 			AddContent(m_Text);
 			
+			string amount = m_DialogData.Amount.ToString();
 			string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_DialogData.ClassName);
+			string price = ExpansionStatic.IntToCurrencyString(m_DialogData.Price, ",");
 			StringLocaliser text;
 			if (!m_DialogData.IncludeAttachments)
 			{
-				text = new StringLocaliser("STR_EXPANSION_MARKET_PURCHASE_DIALOG_TEXT", m_DialogData.Amount.ToString(), displayName, m_DialogData.Price.ToString());
+				text = new StringLocaliser("STR_EXPANSION_MARKET_PURCHASE_DIALOG_TEXT", amount, displayName, price);
 				m_Text.SetText(text.Format());
 			}
 			else
 			{
-				text = new StringLocaliser("STR_EXPANSION_MARKET_PURCHASE_DIALOG_TEXT_ATTACHMENTS", m_DialogData.Amount.ToString(), displayName, m_DialogData.Price.ToString());
+				text = new StringLocaliser("STR_EXPANSION_MARKET_PURCHASE_DIALOG_TEXT_ATTACHMENTS", amount, displayName, price);
 				m_Text.SetText(text.Format());
 			}
 			
 			m_Text.Show();
 		}
+		
+		spacer = new ExpansionMenuDialogContentSpacer(this);
+		AddContent(spacer);
 				
 		if (!m_AcceptButton)
 		{
@@ -66,6 +75,8 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
 			AddButton(m_CancelButton);
 			m_CancelButton.Show();
 		}
+
+		CenterVertically();
 	}
 	
 	// ------------------------------------------------------------

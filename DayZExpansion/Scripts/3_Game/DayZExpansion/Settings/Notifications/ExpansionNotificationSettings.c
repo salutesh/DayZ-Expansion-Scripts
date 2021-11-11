@@ -65,10 +65,11 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 {	
 	static const int VERSION = 2;
 	
-	bool ShowVictimOnKillFeed;
-	bool ShowDistanceOnKillFeed;
-	bool ShowKillerOnKillFeed;
-	bool ShowWeaponOnKillFeed;
+	//! These are not implemented, uncomment once done
+	//bool ShowVictimOnKillFeed;
+	//bool ShowDistanceOnKillFeed;
+	//bool ShowKillerOnKillFeed;
+	//bool ShowWeaponOnKillFeed;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -147,10 +148,11 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionNotificationSettings s )
 	{
-		ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
-		ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
-		ShowKillerOnKillFeed = s.ShowKillerOnKillFeed;
-		ShowWeaponOnKillFeed = s.ShowWeaponOnKillFeed;
+		//! These are not implemented, uncomment once done
+		//ShowDistanceOnKillFeed = s.ShowDistanceOnKillFeed;
+		//ShowVictimOnKillFeed = s.ShowVictimOnKillFeed;
+		//ShowKillerOnKillFeed = s.ShowKillerOnKillFeed;
+		//ShowWeaponOnKillFeed = s.ShowWeaponOnKillFeed;
 		
 		ExpansionNotificationSettingsBase sb = s;
 		CopyInternal( sb );
@@ -323,10 +325,11 @@ class ExpansionNotificationSettings: ExpansionNotificationSettingsBase
 		EnableKillFeed = true;
 		KillFeedMessageType = ExpansionAnnouncementType.NOTIFICATION;
 
-		ShowDistanceOnKillFeed = true;
-		ShowVictimOnKillFeed = true;
-		ShowKillerOnKillFeed = true;
-		ShowWeaponOnKillFeed = true;
+		//! These are not implemented, uncomment once done
+		//ShowDistanceOnKillFeed = true;
+		//ShowVictimOnKillFeed = true;
+		//ShowKillerOnKillFeed = true;
+		//ShowWeaponOnKillFeed = true;
 		
 		KillFeedFall = true;
 		KillFeedCarHitDriver = true;

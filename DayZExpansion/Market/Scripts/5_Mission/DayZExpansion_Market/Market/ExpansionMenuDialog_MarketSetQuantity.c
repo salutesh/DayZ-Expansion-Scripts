@@ -29,6 +29,10 @@ class ExpansionMenuDialog_MarketSetQuantity: ExpansionMenuDialogBase
 		if (!m_MarketMenu)
 			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentMenu);
 		
+		ExpansionMenuDialogContentSpacer spacer;
+		spacer = new ExpansionMenuDialogContentSpacer(this);
+		AddContent(spacer);
+		
 		if (!m_Text)
 		{
 			m_Text = new ExpansionMenuDialogContent_Text(this);
@@ -36,6 +40,9 @@ class ExpansionMenuDialog_MarketSetQuantity: ExpansionMenuDialogBase
 			m_Text.SetText("#STR_EXPANSION_MARKET_QUANTITY_DIALOG_TEXT");
 			m_Text.Show();
 		}
+		
+		spacer = new ExpansionMenuDialogContentSpacer(this);
+		AddContent(spacer);
 		
 		if (!m_Editbox)
 		{
@@ -59,6 +66,8 @@ class ExpansionMenuDialog_MarketSetQuantity: ExpansionMenuDialogBase
 			AddButton(m_CancelButton);
 			m_CancelButton.Show();
 		}
+
+		CenterVertically();
 	}
 	
 	// ------------------------------------------------------------

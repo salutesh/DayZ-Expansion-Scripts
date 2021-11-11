@@ -91,6 +91,7 @@ class ExpansionClientSettings
 	bool MarketMenuSkipConfirmations;
 	bool MarketMenuFilterPurchasableState;
 	bool MarketMenuFilterSellableState;
+	bool MarketMenuDisableSuccessNotifications;
 	
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
@@ -129,22 +130,22 @@ class ExpansionClientSettings
 		// Vehicles
 		if ( !ctx.Read( UseCameraLock ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UseCameraLock!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseCameraLock!");
 			return false;
 		}
 		if ( !ctx.Read( UseInvertedMouseControl ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UseInvertedMouseControl!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseInvertedMouseControl!");
 			return false;
 		}
 		if ( !ctx.Read( UseHelicopterMouseControl ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UseHelicopterMouseControl!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UseHelicopterMouseControl!");
 			return false;
 		}
 		if ( !ctx.Read( UsePlaneMouseControl ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read UsePlaneMouseControl!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UsePlaneMouseControl!");
 			return false;
 		}
 		
@@ -155,140 +156,140 @@ class ExpansionClientSettings
 			float drawDistance;
 			if ( !ctx.Read( drawDistance ) )
 			{
-				EXPrint(ToString() + "::OnRead - ERROR: Could'nt read drawDistance!");
+				EXPrint(ToString() + "::OnRead - ERROR: Couldn't read drawDistance!");
 				return false;
 			}
 			bool colorGrading;
 			if ( !ctx.Read( colorGrading ) )
 			{
-				EXPrint(ToString() + "::OnRead - ERROR: Could'nt read colorGrading!");
+				EXPrint(ToString() + "::OnRead - ERROR: Couldn't read colorGrading!");
 				return false;
 			}
 			bool colorVignette;
 			if ( !ctx.Read( colorVignette ) )
 			{
-				EXPrint(ToString() + "::OnRead - ERROR: Could'nt read colorVignette!");
+				EXPrint(ToString() + "::OnRead - ERROR: Couldn't read colorVignette!");
 				return false;
 			}
 		}
 		if ( !ctx.Read( CastLightShadows ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read CastLightShadows!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read CastLightShadows!");
 			return false;
 		}
 		
 		// 3D Markers
 		if ( !ctx.Read( Show3DClientMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DClientMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DClientMarkers!");
 			return false;
 		}
 		if ( !ctx.Read( Show3DPlayerMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DPlayerMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DPlayerMarkers!");
 			return false;
 		}
 		if ( !ctx.Read( Show3DPartyMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DPartyMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DPartyMarkers!");
 			return false;
 		}
 		if ( !ctx.Read( Show3DGlobalMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show3DGlobalMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DGlobalMarkers!");
 			return false;
 		}
 		
 		// 2D Markers
 		if ( !ctx.Read( Show2DClientMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DClientMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show2DClientMarkers!");
 			return false;
 		}
 		if ( !ctx.Read( Show2DPlayerMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DPlayerMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show2DPlayerMarkers!");
 			return false;
 		}
 		if ( !ctx.Read( Show2DPartyMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DPartyMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show2DPartyMarkers!");
 			return false;
 		}
 		if ( !ctx.Read( Show2DGlobalMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read Show2DGlobalMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show2DGlobalMarkers!");
 			return false;
 		}
 		
 		// Notifications
 		if ( !ctx.Read( ShowNotifications ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowNotifications!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowNotifications!");
 			return false;
 		}
 		if ( !ctx.Read( NotificationSound ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationSound!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read NotificationSound!");
 			return false;
 		}
 		if ( !ctx.Read( NotificationSoundLeaveJoin ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationSoundLeaveJoin!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read NotificationSoundLeaveJoin!");
 			return false;
 		}
 		if ( !ctx.Read( NotificationJoin ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationJoin!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read NotificationJoin!");
 			return false;
 		}
 		if ( !ctx.Read( NotificationLeave ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read NotificationLeave!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read NotificationLeave!");
 			return false;
 		}
 		
 		// Streamer mode
 		if ( !ctx.Read( StreamerMode ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read StreamerMode!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read StreamerMode!");
 			return false;
 		}
 		if ( !ctx.Read( ShowPINCode ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowPINCode!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowPINCode!");
 			return false;
 		}
 		
 		// HUD Settings
 		if ( !ctx.Read( EarplugLevel ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read EarplugLevel!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EarplugLevel!");
 			return false;
 		}
 		if ( !ctx.Read( AlphaColorHUDOnTopOfHeadOfPlayers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read AlphaColorHUDOnTopOfHeadOfPlayers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AlphaColorHUDOnTopOfHeadOfPlayers!");
 			return false;
 		}
 		if ( !ctx.Read( RedColorHUDOnTopOfHeadOfPlayers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read RedColorHUDOnTopOfHeadOfPlayers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read RedColorHUDOnTopOfHeadOfPlayers!");
 			return false;
 		}
 		if ( !ctx.Read( GreenColorHUDOnTopOfHeadOfPlayers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read GreenColorHUDOnTopOfHeadOfPlayers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read GreenColorHUDOnTopOfHeadOfPlayers!");
 			return false;
 		}
 		if ( !ctx.Read( BlueColorHUDOnTopOfHeadOfPlayers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read BlueColorHUDOnTopOfHeadOfPlayers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read BlueColorHUDOnTopOfHeadOfPlayers!");
 			return false;
 		}
 		if ( !ctx.Read( AlphaColorLookAtMinimum ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read AlphaColorLookAtMinimum!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AlphaColorLookAtMinimum!");
 			return false;
 		}
 		
@@ -298,12 +299,12 @@ class ExpansionClientSettings
 		// Chat settings
 		if ( !ctx.Read( HUDChatSize ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HUDChatSize!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatSize!");
 			return false;
 		}
 		if ( !ctx.Read( HUDChatFadeOut ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HUDChatFadeOut!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatFadeOut!");
 			return false;
 		}
 		
@@ -313,27 +314,27 @@ class ExpansionClientSettings
 		// more markers settings
 		if ( !ctx.Read( MemberMarkerType ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MemberMarkerType!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MemberMarkerType!");
 			return false;
 		}
 		if ( !ctx.Read( MarkerSize ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarkerSize!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarkerSize!");
 			return false;
 		}
 		if ( !ctx.Read( ShowMemberNameMarker ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowMemberNameMarker!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowMemberNameMarker!");
 			return false;
 		}
 		if ( !ctx.Read( ShowMemberDistanceMarker ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowMemberDistanceMarker!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowMemberDistanceMarker!");
 			return false;
 		}
 		if ( !ctx.Read( ForceColorMemberMarker ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ForceColorMemberMarker!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ForceColorMemberMarker!");
 			return false;
 		}
 		
@@ -342,13 +343,13 @@ class ExpansionClientSettings
 		
 		if ( !ctx.Read( ShowNameQuickMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowNameQuickMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowNameQuickMarkers!");
 			return false;
 		}
 		
 		if ( !ctx.Read( ShowDistanceQuickMarkers ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowDistanceQuickMarkers!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowDistanceQuickMarkers!");
 			return false;
 		}
 		
@@ -357,13 +358,13 @@ class ExpansionClientSettings
 		
 		if ( !ctx.Read( HelicopterMouseVerticalSensitivity ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HelicopterMouseVerticalSensitivity!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterMouseVerticalSensitivity!");
 			return false;
 		}
 		
 		if ( !ctx.Read( HelicopterMouseHorizontalSensitivity ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read HelicopterMouseHorizontalSensitivity!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterMouseHorizontalSensitivity!");
 			return false;
 		}
 		
@@ -372,7 +373,7 @@ class ExpansionClientSettings
 		
 		if ( !ctx.Read( ShowMapMarkerList ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read ShowMapMarkerList!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowMapMarkerList!");
 			return false;
 		}
 		
@@ -381,19 +382,19 @@ class ExpansionClientSettings
 		
 		if ( !ctx.Read( VehicleCameraHeight ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read VehicleCameraHeight!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraHeight!");
 			return false;
 		}
 		
 		if ( !ctx.Read( VehicleCameraDistance ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read VehicleCameraDistance!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraDistance!");
 			return false;
 		}
 		
 		if ( !ctx.Read( VehicleCameraOffsetY ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read VehicleCameraOffsetY!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraOffsetY!");
 			return false;
 		}
 
@@ -406,25 +407,34 @@ class ExpansionClientSettings
 		
 		if ( !ctx.Read( MarketMenuCategoriesState ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuCategoriesState!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuCategoriesState!");
 			return false;
 		}
 		
 		if ( !ctx.Read( MarketMenuSkipConfirmations ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuSkipConfirmations!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuSkipConfirmations!");
 			return false;
 		}
 		
 		if ( !ctx.Read( MarketMenuFilterPurchasableState ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuFilterPurchasableState!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuFilterPurchasableState!");
 			return false;
 		}
 		
 		if ( !ctx.Read( MarketMenuFilterSellableState ) )
 		{
-			EXPrint(ToString() + "::OnRead - ERROR: Could'nt read MarketMenuFilterSellableState!");
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuFilterSellableState!");
+			return false;
+		}
+		
+		if ( version < 38 )
+			return true;
+		
+		if ( !ctx.Read( MarketMenuDisableSuccessNotifications ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuDisableSuccessNotifications!");
 			return false;
 		}
 		
@@ -530,6 +540,11 @@ class ExpansionClientSettings
 		ctx.Write( MarketMenuSkipConfirmations );
 		ctx.Write( MarketMenuFilterPurchasableState );
 		ctx.Write( MarketMenuFilterSellableState );
+		
+		if ( version < 38 )
+			return;
+			
+		ctx.Write( MarketMenuDisableSuccessNotifications );
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
@@ -673,6 +688,7 @@ class ExpansionClientSettings
 		MarketMenuSkipConfirmations = false;
 		MarketMenuFilterPurchasableState = false;
 		MarketMenuFilterSellableState = false;
+		MarketMenuDisableSuccessNotifications = false;
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Defaults - End");
@@ -787,10 +803,11 @@ class ExpansionClientSettings
 
 		#ifdef EXPANSIONMODMARKET
 		CreateCategory( "MarketMenu", "MARKET MENU" );
-		CreateToggle( "MarketMenuCategoriesState", "MARKET CATEGORIES TOGGLE STATE", "MarketMenu", "" );
-		CreateToggle( "MarketMenuSkipConfirmations", "SKIP ALL MENU CONFIRMATIONS", "MarketMenu", "" );
-		CreateToggle( "MarketMenuFilterPurchasableState", "PURCHASABLES FILTER STATE", "MarketMenu", "" );
-		CreateToggle( "MarketMenuFilterSellableState", "SELLABLES FILTER STATE", "MarketMenu", "" );
+		CreateToggle( "MarketMenuCategoriesState", "MARKET CATEGORIES TOGGLE STATE", "MarketMenu", "Automatically expand all categories when opening trader menu (WARNING: Performance hit!)" );
+		CreateToggle( "MarketMenuSkipConfirmations", "SKIP ALL MENU CONFIRMATIONS", "MarketMenu", "Skip all confirmations for buying/selling." );
+		CreateToggle( "MarketMenuFilterPurchasableState", "PURCHASABLES FILTER STATE", "MarketMenu", "Show only puchasable items by default." );
+		CreateToggle( "MarketMenuFilterSellableState", "SELLABLES FILTER STATE", "MarketMenu", "Show only sellable items by default." );
+		CreateToggle( "MarketMenuDisableSuccessNotifications", "DISABLE SUCCESS NOTIFICATIONS", "MarketMenu", "Disable notifications for successful purchases and sales." );
 		#endif
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG

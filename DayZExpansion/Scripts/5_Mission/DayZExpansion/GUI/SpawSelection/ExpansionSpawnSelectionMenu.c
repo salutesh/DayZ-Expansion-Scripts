@@ -66,8 +66,6 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 		m_Map = MapWidget.Cast( layoutRoot.FindAnyWidget( "Map" ) );
 
 		Clear();
-				
-		FillList( GetExpansionSettings().GetSpawn().SpawnLocations, 0 );
 		
 		return layoutRoot;
 	}

@@ -85,5 +85,13 @@ modded class MissionServer
 			m_RespawnHandlerModule.StartSpawnSelection(player);
 
 		return player;
-	} 
+	}
+
+	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
+	{
+		super.OnClientReadyEvent(identity, player);
+
+		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
+			m_RespawnHandlerModule.CheckResumeSpawnSelection(player);
+	}
 }

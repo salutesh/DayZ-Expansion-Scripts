@@ -39,53 +39,12 @@ class ExpansionMarketPlayerItem
 		if (item.IsInherited(MagazineStorage))
 			IsMagazine = true;
 		
-		array< EntityAI > items = new array< EntityAI >;
-		item.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-		
-		string name;
-		int count;
-		EntityAI attachment;
-		int attachmentsCount;
-		
-		//! Container items
-		if (items && items.Count() > 0)
-		{
-			for (int i = 0; i < items.Count(); i++)
-			{
-				//! Skip attachments without cargo on vehicles
-				if (items[i].GetInventory().IsAttachment() && !items[i].HasAnyCargo())
-				{
-					if (items[i].GetHierarchyParent().IsInherited(CarScript))
-						continue;
-					#ifdef EXPANSIONMODVEHICLE
-					else if (items[i].GetHierarchyParent().IsInherited(ExpansionVehicleBase))
-						continue;
-					#endif
-				}
-
-				name = items[i].GetType();	
-				
-				if (items[i] == item)
-					continue;
-				
-				if (ContainerItems.Get(name))
-				{
-					count = ContainerItems.Get(name) + 1;
-					ContainerItems.Set(name, count);
-				}
-				else
-				{
-					ContainerItems.Insert(name, 1);
-				}
-			}
-		
-			items.Clear();
-		}
+		UpdateContainerItems(true);
 	}
 	
-	void UpdateContainerItems()
+	void UpdateContainerItems(bool ignoreItemKind = false)
 	{
-		if (Item.IsKindOf("Container_Base"))
+		if (ignoreItemKind || Item.IsKindOf("Container_Base"))
 		{
 			array< EntityAI > items = new array< EntityAI >;
 			Item.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
@@ -96,13 +55,26 @@ class ExpansionMarketPlayerItem
 			{	
 				for ( int i = 0; i < items.Count(); i++ )
 				{
-					string name = items[i].ClassName();
+					if (items[i] == Item)
+						continue;
+
+					//! Skip attachments without cargo on vehicles
+					if (items[i].GetInventory().IsAttachment() && !items[i].HasAnyCargo())
+					{
+						if (items[i].GetHierarchyParent().IsInherited(CarScript))
+							continue;
+						#ifdef EXPANSIONMODVEHICLE
+						else if (items[i].GetHierarchyParent().IsInherited(ExpansionVehicleBase))
+							continue;
+						#endif
+					}
+
+					string name = items[i].GetType();
 					int count;
 					
-					if (ContainerItems.Get(name))
+					if (ContainerItems.Find(name, count))
 					{
-						count = ContainerItems.Get(name) + 1;
-						ContainerItems.Set(name, count);
+						ContainerItems.Set(name, count + 1);
 					}
 					else
 					{

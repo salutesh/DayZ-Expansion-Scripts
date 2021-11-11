@@ -13,9 +13,9 @@ class CfgPatches
 class CfgVehicles
 {
 	class Switchable_Base;
-	class Expansion_ANPEQ15_Red: Switchable_Base
+	class Expansion_ANPEQ15_Base: Switchable_Base
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_ANPEQ15";
 		descriptionShort = "$STR_EXPANSION_ANPEQ15_DESC";
 		model = "DayZExpansion\Objects\Weapons\Attachments\Lasers\ANPEQ\peq.p3d";
@@ -37,13 +37,19 @@ class CfgVehicles
 			updateInterval = 30;
 		};
 	};
-	class Expansion_ANPEQ15_Green: Expansion_ANPEQ15_Red
+	class Expansion_ANPEQ15_Red: Expansion_ANPEQ15_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_ANPEQ15";
 		descriptionShort = "$STR_EXPANSION_ANPEQ15_DESC";
 	};
-	class Expansion_ANPEQ15_IR: Expansion_ANPEQ15_Red
+	class Expansion_ANPEQ15_Green: Expansion_ANPEQ15_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_ANPEQ15";
+		descriptionShort = "$STR_EXPANSION_ANPEQ15_DESC";
+	};
+	class Expansion_ANPEQ15_IR: Expansion_ANPEQ15_Base
 	{
 		scope = 0;
 		displayName = "ANPEQ15 IR";

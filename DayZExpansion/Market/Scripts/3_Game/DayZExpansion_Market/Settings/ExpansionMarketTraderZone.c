@@ -322,7 +322,10 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	// ------------------------------------------------------------
 	void ClearReservedStock( string className, int reserved )
 	{
-		Print("ExpansionMarketTraderZone::ClearReservedStock - Start");
+		#ifdef EXPANSIONMODMARKET_DEBUG
+		EXPrint("ExpansionMarketTraderZone::ClearReservedStock - Start");
+		#endif
+
 		className.ToLower();
 
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
@@ -331,14 +334,21 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 
 		if ( !marketItem.IsStaticStock() )
 		{
-			Print("ExpansionMarketTraderZone::ClearReservedStock - Clear reserved stock: Name: " + className + " || Reserved now: " + ReservedZone.ReservedStock.Get( className ) + " || To Remove: " + reserved);
+			#ifdef EXPANSIONMODMARKET_DEBUG
+			EXPrint("ExpansionMarketTraderZone::ClearReservedStock - Clear reserved stock: Name: " + className + " || Reserved now: " + ReservedZone.ReservedStock.Get( className ) + " || To Remove: " + reserved);
+			#endif
 			
 			int new_stock = ReservedZone.ReservedStock.Get( className ) - reserved;
 			ReservedZone.ReservedStock.Set( className, new_stock );
 			
-			Print("ExpansionMarketTraderZone::ClearReservedStock - Cleared reserved stock: Name: " + className + " || Reserved after: " + new_stock);
+			#ifdef EXPANSIONMODMARKET_DEBUG
+			EXPrint("ExpansionMarketTraderZone::ClearReservedStock - Cleared reserved stock: Name: " + className + " || Reserved after: " + new_stock);
+			#endif
 		}
-		Print("ExpansionMarketTraderZone::ClearReservedStock - End");
+
+		#ifdef EXPANSIONMODMARKET_DEBUG
+		EXPrint("ExpansionMarketTraderZone::ClearReservedStock - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -358,9 +368,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	{
 		className.ToLower();
 
-		//#ifdef EXPANSIONEXLOGPRINT
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionMarketTraderZone] RemoveStock | " + m_ZoneName + " | " + className + " | " + stock);
-		//#endif
+		#endif
 
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
 		if ( !marketItem )
@@ -368,9 +378,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		
 		if ( Stock.Contains( className ) )
 		{
-			//#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("[ExpansionMarketTraderZone] RemoveStock contains " + className );
-			//#endif
+			#endif
 
 			if ( !marketItem.IsStaticStock() )
 			{
@@ -382,9 +392,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 
 					ReservedZone.ReservedStock.Set( className, new_stock );
 
-					//#ifdef EXPANSIONEXLOGPRINT
+					#ifdef EXPANSIONEXLOGPRINT
 					EXLogPrint("[ExpansionMarketTraderZone] RemoveStock set " + className + " reserved stock : " + new_stock);
-					//#endif
+					#endif
 				} 
 				else
 				{
@@ -395,17 +405,17 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 
 					Stock.Set( className, new_stock );
 
-					//#ifdef EXPANSIONEXLOGPRINT
+					#ifdef EXPANSIONEXLOGPRINT
 					EXLogPrint("[ExpansionMarketTraderZone] RemoveStock set " + className + " stock : " + new_stock);
-					//#endif
+					#endif
 				}
 			}
 		} 
 		else 
 		{
-			//#ifdef EXPANSIONEXLOGPRINT
+			#ifdef EXPANSIONEXLOGPRINT
 			EXLogPrint("[ExpansionMarketTraderZone] RemoveStock does not contain " + className);
-			//#endif
+			#endif
 
 			Stock.Insert( className, 0 );
 			ReservedZone.ReservedStock.Insert( className, 0 );
