@@ -431,11 +431,14 @@ class ExpansionTraderObjectBase
 		{
 			if (!m_TraderZone.Stock.Contains(item.MarketItem.ClassName))
 			{
+				ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(item.MarketItem.CategoryID);
 				int newStock;
 				if (item.MarketItem.IsStaticStock())
 					newStock = 1;
 				else
 					newStock = item.MarketItem.MaxStockThreshold;
+				if (cat)
+					newStock = newStock * cat.InitStockPercent * 0.01;
 				m_TraderZone.Stock.Insert(item.MarketItem.ClassName, newStock);
 				updated = true;
 			}
@@ -489,7 +492,7 @@ class ExpansionTraderObjectBase
 	// ------------------------------------------------------------
 	// ExpansionTraderObjectBase HasVehicleSpawnPosition
 	// ------------------------------------------------------------
-	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionMarketVehicleSpawnType spawnType = 0, out ExpansionMarketResult result = 0, out Object blockingObject = NULL, int amountNeeded = 1)
+	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionMarketVehicleSpawnType spawnType = 0, out ExpansionMarketResult result = ExpansionMarketResult.Success, out Object blockingObject = NULL, int amountNeeded = 1)
 	{
 		//array<vector> positions;
 		array<ref ExpansionMarketSpawnPosition> positions;
@@ -521,8 +524,6 @@ class ExpansionTraderObjectBase
 			return false;
 		}
 
-		result = ExpansionMarketResult.Success;
-
 		map<ref ExpansionMarketSpawnPosition, float> foundPositions = new map<ref ExpansionMarketSpawnPosition, float>;
 
 		float minDistance = GetExpansionSettings().GetMarket().GetMinVehicleDistanceToTrader(className);
@@ -530,6 +531,7 @@ class ExpansionTraderObjectBase
 
 		ExpansionMarketSpawnPosition lastCheckedPos;
 
+		Object tempBlockingObject;
 		foreach (ExpansionMarketSpawnPosition position : positions)
 		{
 			float distance = vector.Distance( position.Position, m_TraderEntity.GetPosition() );
@@ -537,10 +539,11 @@ class ExpansionTraderObjectBase
 			if (distance < minDistance || distance > maxDistance)
 				continue;
 			
-			if (!VehicleSpawnPositionFree(position, className, blockingObject))
+			lastCheckedPos = position;
+
+			if (!VehicleSpawnPositionFree(position, className, tempBlockingObject))
 			{
-				result = ExpansionMarketResult.FailedVehicleSpawnOccupied;
-				lastCheckedPos = position;
+				blockingObject = tempBlockingObject;
 				continue;
 			}
 			
@@ -556,7 +559,7 @@ class ExpansionTraderObjectBase
 		
 		if (foundPositions.Count() >= amountNeeded)
 		{
-			float closestDistance = 1000;
+			float closestDistance = int.MAX;
 
 			//! Select closest one
 			foreach (ExpansionMarketSpawnPosition candidatePosition, float candidateDistance : foundPositions)
@@ -573,11 +576,15 @@ class ExpansionTraderObjectBase
 			EXPrint(ToString() + "::HasVehicleSpawnPosition - selected " + spawnPosition + " (distance " + closestDistance + ") for " + className);
 			#endif
 			
+			result = ExpansionMarketResult.Success;
+
 			return true;
 		}
 
 		if (!lastCheckedPos)
 			result = ExpansionMarketResult.FailedNotEnoughVehicleSpawnPositionsNear;
+		else if (blockingObject)
+			result = ExpansionMarketResult.FailedVehicleSpawnOccupied;
 
 		return false;
 	}

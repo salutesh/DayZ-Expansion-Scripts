@@ -12,6 +12,8 @@
 
 class ExpansionMenuDialogBase: ExpansionScriptView
 {
+	WrapSpacerWidget dialog_base;
+	WrapSpacerWidget dialog_base_spacer;
 	Widget dialog_base_header;
 	TextWidget dialog_base_title;
 	Widget dialog_base_footer;
@@ -105,6 +107,53 @@ class ExpansionMenuDialogBase: ExpansionScriptView
 	ExpansionScriptViewMenu GetParentMenu()
 	{
 		return m_ParentMenu;
+	}
+
+	void CenterVertically()
+	{
+		int screen_w, screen_h;
+		GetScreenSize(screen_w, screen_h);
+		//EXPrint("Screen " + screen_w + " x " + screen_h);
+		
+		float w, h;
+		GetActualSize(dialog_base_spacer, w, h);
+
+		//float x = (screen_w - w) * 0.5 / screen_w;
+		//float y = (screen_h - h) * 0.5 / screen_h;
+		//EXPrint("Dialog " + x + " " + y + " " + w + " x " + h);
+
+		float x, y;
+		dialog_base.GetPos(x, y);
+		dialog_base.SetPos(x, -h * 0.5 / screen_h, true);
+	}
+
+	//! @note not accurate, just adds heights of all spacer widgets it finds (so only works for vertical layouts),
+	//! doesn't (can't) take into account padding at right and bottom
+	static void GetActualSize(Widget parent, out float w, out float h)
+	{
+		float x, y;
+		parent.GetScreenPos(x, y);
+		parent.GetScreenSize(w, h);
+		//EXPrint("GetActualSize " + parent.GetName() + " " + x + " " + y + " " + w + " x " + h);
+
+		float child_x, child_y;
+		float child_w, child_h;
+		Widget child = parent.GetChildren();
+		while (child)
+		{
+			if (child.IsVisible() && child.IsInherited(SpacerWidget))
+			{
+				//child.GetScreenPos(child_x, child_y);
+				GetActualSize(child, child_w, child_h);
+				//if (child_x + child_w > x + w)
+					//w = child_x + child_w - x;
+				//if (child_y + child_h > y + h)
+					//h = child_y + child_h - y;
+				h += child_h;
+			}
+
+			child = child.GetSibling();
+		}
 	}
 }
 

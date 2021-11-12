@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
+#ifndef CF_DebugUI
 modded class InGameMenu
 {
 	protected static float 					DEAD_SCREEN_FADEIN_TIME = 3.0;					//fade starts as soon as deadscreen gets diplayed
@@ -359,3 +359,4 @@ modded class InGameMenu
 		m_DeadSceenStatsButtonPanel.Show( true );
 	}
 }
+#endif

@@ -330,7 +330,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (GetMarketItem().IsStaticStock())
 			m_ItemStock = 1;
 		else
-			m_ItemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName, true);
+			m_ItemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName);
 		m_PlayerStock = m_MarketModule.GetAmountInInventory(GetMarketItem(), m_MarketModule.LocalGetEntityInventory());
 		
 		UpdatePrices();
@@ -405,21 +405,22 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		ExpansionMarketCurrency price = 0;
 		//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
 		ExpansionMarketItem item = GetMarketItem();
-		if (m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments()))
+		m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments());
+		m_BuyPrice = price;
+		if (m_BuyPrice > -1)
 		{
-			m_BuyPrice = price;
 			m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",", true);
 		}
 		else
 		{
-			m_BuyPrice = -1;
 			m_ItemController.ItemBuyPrice = "";
 		}
 
 		m_ItemController.NotifyPropertyChanged("ItemBuyPrice");
+		market_item_info_buy_price_icon.Show(m_BuyPrice > -1);
 
 		//! Sell price
-		if (m_PlayerStock > 0)
+		if (m_PlayerStock != 0)
 		{
 			//! Player has the item
 			ExpansionMarketSell marketSell = new ExpansionMarketSell;
@@ -458,9 +459,11 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	// ------------------------------------------------------------		
 	void SetMarketStockColor()
 	{
-		if (!m_MarketModule)
-			return;
-		
+		market_item_info_stock.SetColor(GetMarketStockColor());
+	}
+	
+	int GetMarketStockColor()
+	{
 		int percent = 100;
 		if (GetMarketItem().MaxStockThreshold == 0)
 		{
@@ -468,60 +471,51 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		}
 		else if (!GetMarketItem().IsStaticStock())
 		{
-			int itemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName, true);
+			int itemStock = m_MarketModule.GetClientZone().GetStock(GetMarketItem().ClassName);
 			percent = Math.Round((itemStock / GetMarketItem().MaxStockThreshold) * 100);
 		}
-		
-		if (percent >= 75)
-		{
-			//! Color green
-			market_item_info_stock.SetColor(ARGB(255, 39, 174, 96));
-		}
-		else if (percent >= 50)
-		{
-			//! Color yelow
-			market_item_info_stock.SetColor(ARGB(255, 243, 156, 18));
-		}
-		else if (percent >= 25)
-		{
-			//! Color orange
-			market_item_info_stock.SetColor(ARGB(255, 211, 84, 0));
-		}
-		else if (percent >= 0)
+
+		if (!percent || !m_CanBuy)
 		{
 			//! Color red
-			market_item_info_stock.SetColor(ARGB(255, 192, 57, 43));
+			return ARGB(255, 192, 57, 43);
 		}
-				
-		if (m_ItemController.ItemMarketStock == "CAN'T BUY")
+		else if (percent < 25)
 		{
-			market_item_info_stock.SetColor(ARGB(255, 192, 57, 43));
+			//! Color orange
+			return ARGB(255, 243, 156, 18);
 		}
+		else if (percent < 50)
+		{
+			//! Color yellow
+			return ARGB(255, 243, 223, 0);
+		}
+		else if (percent < 75)
+		{
+			//! Color yellowgreen
+			return ARGB(255, 186, 223, 59);
+		}
+
+		//! Color green
+		return ARGB(255, 39, 174, 96);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuItem SetPlayerStockColor
 	// ------------------------------------------------------------	
 	void SetPlayerStockColor()
 	{
-		if (!m_MarketModule)
-			return;
-				
-		if (m_PlayerStock <= 0)
-		{
-			market_item_info_player_stock.SetColor(ARGB(255, 192, 57, 43));
-		}
-		else if (m_PlayerStock > 0)
-		{
-			market_item_info_player_stock.SetColor(ARGB(255, 41, 128, 185));
-		}
-		
-		if (m_ItemController.ItemPlayerStock == "CAN'T SELL")
-		{
-			market_item_info_player_stock.SetColor(ARGB(255, 192, 57, 43));
-		}
+		market_item_info_player_stock.SetColor(GetPlayerStockColor());
 	}
 	
+	int GetPlayerStockColor(bool check = true)
+	{
+		if (m_PlayerStock <= 0 || !m_CanSell || !check)
+			return ARGB(255, 192, 57, 43);
+
+		return ARGB(255, 41, 128, 185);
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuItem OnItemButtonClick
 	// ------------------------------------------------------------		

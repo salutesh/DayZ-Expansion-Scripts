@@ -3617,10 +3617,18 @@ modded class CarScript
 
 	string GetWreck()
 	{
-		if (GetGame().ConfigIsExisting("CfgVehicles " + GetType() + " wreck"))
-			return GetGame().ConfigGetTextOut("CfgVehicles " + GetType() + " wreck");
+		string path = "CfgVehicles " + GetType() + " wreck";
+		if (GetGame().ConfigIsExisting(path))
+			return GetGame().ConfigGetTextOut(path);
 
-		return GetType() + "Wreck";
+		string className = GetType() + "Wreck";
+
+		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
+			return className;
+
+		GetGame().ConfigGetBaseName("CfgVehicles " + GetType(), className);
+
+		return className + "Wreck";
 	}
 
 	string ExpansionGetWheelType(int slot_id)

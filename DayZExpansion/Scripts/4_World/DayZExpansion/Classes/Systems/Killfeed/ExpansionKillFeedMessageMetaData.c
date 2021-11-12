@@ -94,6 +94,9 @@ class ExpansionKillFeedMessageMetaData
 			case ExpansionKillFeedMessageType.WEAPON:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_KILLED_PLAYER_WEAPON";
 				break;
+			case ExpansionKillFeedMessageType.WEAPON_NODISTANCE:
+				message = "STR_EXPANSION_KILLFEED_PLAYER_KILLED_PLAYER_WEAPON_NODISTANCE";
+				break;
 			case ExpansionKillFeedMessageType.MELEWEAPON:
 				message = "STR_EXPANSION_KILLFEED_PLAYER_KILLED_PLAYER_MELE";
 				break;

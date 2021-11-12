@@ -216,6 +216,7 @@ enum ExpansionRespawnHandlerModuleRPC
 	ShowSpawnMenu,
 	SelectSpawn,
 	CloseSpawnMenu,
+	RequestPlacePlayerAtTempSafePosition,
 	COUNT
 };
 

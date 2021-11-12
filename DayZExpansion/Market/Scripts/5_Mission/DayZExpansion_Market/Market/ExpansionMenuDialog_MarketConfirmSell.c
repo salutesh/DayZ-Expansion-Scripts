@@ -18,6 +18,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 	
 	ref ExpansionMenuDialogContent_WrapSpacer m_WrapSpacer;
 	ref ExpansionMenuDialogContent_Text m_AdditionalText;
+	ref ExpansionMenuDialogContentSpacer m_AdditionalText_Spacer;
 	
 	ref ExpansionMarketMenu m_MarketMenu;
 	ref ExpansionMarketMenuDialogData m_DialogData;
@@ -45,16 +46,18 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			m_Text = new ExpansionMenuDialogContent_Text(this);
 			AddContent(m_Text);
 			
+			string amount = m_DialogData.Amount.ToString();
 			string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_DialogData.ClassName);
+			string price = ExpansionStatic.IntToCurrencyString(m_DialogData.Price, ",");
 			StringLocaliser text;
 			if (!m_DialogData.IncludeAttachments)
 			{
-				text = new StringLocaliser("STR_EXPANSION_MARKET_SELL_DIALOG_TEXT", m_DialogData.Amount.ToString(), displayName, m_DialogData.Price.ToString());
+				text = new StringLocaliser("STR_EXPANSION_MARKET_SELL_DIALOG_TEXT", amount, displayName, price);
 				m_Text.SetText(text.Format());
 			}
 			else
 			{
-				text = new StringLocaliser("STR_EXPANSION_MARKET_SELL_DIALOG_TEXT_ATTACHMENTS", m_DialogData.Amount.ToString(), displayName, m_DialogData.Price.ToString());
+				text = new StringLocaliser("STR_EXPANSION_MARKET_SELL_DIALOG_TEXT_ATTACHMENTS", amount, displayName, price);
 				m_Text.SetText(text.Format());
 			}
 						
@@ -83,10 +86,11 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			m_AdditionalText = new ExpansionMenuDialogContent_Text(this);
 			m_AdditionalText.SetTextColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
 			AddContent(m_AdditionalText);
-		}
+			m_AdditionalText.Hide();
 		
-		spacer = new ExpansionMenuDialogContentSpacer(this);
-		AddContent(spacer);
+			m_AdditionalText_Spacer = new ExpansionMenuDialogContentSpacer(this);
+			AddContent(m_AdditionalText_Spacer);
+		}
 		
 		if (!m_WrapSpacer)
 		{			
@@ -120,13 +124,12 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 	// ------------------------------------------------------------	
 	void PopulateAttachmentsList()
 	{
+		ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
 		ExpansionMarketPlayerItem playerItem;
 		array<ref ExpansionMarketPlayerItem> items = m_MarketMenu.GetPlayerItems();
 		
 		if (items.Count() == 0)
 			return;
-		
-		m_WrapSpacer.Show();
 		
 		ExpansionMenuDialogContentSpacer spacer;
 				
@@ -135,6 +138,8 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			string itemName = items[j].ClassName;
 			itemName.ToLower();
 			
+			itemName = marketModule.GetMarketItemClassName(marketModule.GetTrader().GetTraderMarket(), itemName);
+
 			if (itemName == m_MarketMenu.GetSelectedMarketItem().ClassName)
 			{
 				playerItem = items[j];
@@ -168,23 +173,17 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 				spacer = new ExpansionMenuDialogContentSpacer(this);
 				AddContent(spacer);
 			}
-			
-			if (playerItem.IsMagazine())
+			else if (playerItem.IsMagazine())
 			{
 				MagazineStorage magStorage = MagazineStorage.Cast(playerItem.Item);
 				if (magStorage.GetAmmoCount() > 0)
 				{
-					spacer = new ExpansionMenuDialogContentSpacer(this);
-					AddContent(spacer);
 					StringLocaliser text  = new StringLocaliser("STR_EXPANSION_MARKET_SELL_DIALOG_WARNING_MAG", magStorage.GetAmmoCount().ToString());
 					m_AdditionalText.SetText(text.Format());
 					m_AdditionalText.Show();
-					spacer = new ExpansionMenuDialogContentSpacer(this);
-					AddContent(spacer);
 				}
 			}
-			
-			if (playerItem.IsAttached())
+			else if (playerItem.IsAttached())
 			{
 				if (playerItem.GetItem().GetHierarchyParent())
 				{
@@ -199,6 +198,14 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 				}
 			}
 		}
+
+		if (!m_AdditionalText.IsVisible())
+			m_AdditionalText_Spacer.Hide();
+
+		if (!m_WrapSpacer.m_WrapSpacerController.SpacerContent.Count())
+			m_WrapSpacer.Hide();
+
+		CenterVertically();
 	}
 		
 	// ------------------------------------------------------------

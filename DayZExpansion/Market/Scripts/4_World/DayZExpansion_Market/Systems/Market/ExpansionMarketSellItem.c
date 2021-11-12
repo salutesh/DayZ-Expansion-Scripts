@@ -69,9 +69,9 @@ class ExpansionMarketSell
 		if (!className && item)
 			className = item.GetType();
 
-		//#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionMarketSell::AddItem - Start - " + className + " remaining " + remainAmount + ", taken " + takenAmount + ", increment stock modifier " + incrementStockModifier);
-		//#endif
+		#endif
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
 		itemSell.RemainAmount = remainAmount;
@@ -81,9 +81,9 @@ class ExpansionMarketSell
 
 		itemSell.AddStockAmount = takenAmount * incrementStockModifier;
 		
-		//#ifdef EXPANSIONEXPRINT
+		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionMarketSell::AddItem - End");
-		//#endif
+		#endif
 	}
 }
 

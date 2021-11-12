@@ -34,7 +34,11 @@ class CfgVehicles
 		soundUse = "craft_rounds";
 		emptySound = "craft_rounds";
 	};
-	class ExpansionGoldNugget: ExpansionMoneyBase
+	class ExpansionMoneyNugget_Base: ExpansionMoneyBase
+	{
+		scope = 0;
+	};
+	class ExpansionGoldNugget: ExpansionMoneyNugget_Base
 	{
 		scope = 2;
 		weight = 10;
@@ -43,7 +47,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_GOLD_NUGGET";
 		descriptionShort = "$STR_EXPANSION_GOLD_NUGGET_DESC";
 	};
-	class ExpansionSilverNugget: ExpansionMoneyBase
+	class ExpansionSilverNugget: ExpansionMoneyNugget_Base
 	{
 		scope = 2;
 		weight = 10;
@@ -52,7 +56,11 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_SILVER_NUGGET";
 		descriptionShort = "$STR_EXPANSION_SILVER_NUGGET_DESC";
 	};
-	class ExpansionSilverBar: ExpansionMoneyBase
+	class ExpansionMoneyBar_Base: ExpansionMoneyBase
+	{
+		scope = 0;
+	};
+	class ExpansionSilverBar: ExpansionMoneyBar_Base
 	{
 		scope = 2;
 		weight = 50;
@@ -61,7 +69,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_SILVER_BAR";
 		descriptionShort = "$STR_EXPANSION_SILVER_BAR_DESC";
 	};
-	class ExpansionGoldBar: ExpansionMoneyBase
+	class ExpansionGoldBar: ExpansionMoneyBar_Base
 	{
 		scope = 2;
 		weight = 50;

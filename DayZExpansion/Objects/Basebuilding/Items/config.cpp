@@ -6,7 +6,7 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionCodeLock","ExpansionLumber0_5","ExpansionLumber1","ExpansionLumber1_5","ExpansionLumber3"};
+		units[] = {"ExpansionCodeLock","ExpansionLumber1","ExpansionLumber1_5","ExpansionLumber3"};
 		weapons[] = {};
 	};
 };
@@ -138,7 +138,7 @@ class CfgVehicles
 	};
 	class ExpansionLumber0_5: ExpansionLumberBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_LUMBER_SMALL";
 		descriptionShort = "$STR_EXPANSION_LUMBER_SMALL_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Items\Lumber\Lumber_0_5.p3d";

@@ -301,6 +301,8 @@ class ExpansionMarketFilters
 				{
 					string type = item.GetType();
 					type.ToLower();
+			
+					type = m_MarketModule.GetMarketItemClassName(trader.GetTraderMarket(), type);
 
 					if (trader.GetTraderMarket().CanSellItem(type) && sellables.Find(type) == -1)
 						sellables.Insert(type);
@@ -338,7 +340,7 @@ class ExpansionMarketFilters
 					}
 					else
 					{
-						itemStock = zone.GetStock(tItem.MarketItem.ClassName, true);
+						itemStock = zone.GetStock(tItem.MarketItem.ClassName);
 						if (itemStock < 1)
 							continue;
 					}

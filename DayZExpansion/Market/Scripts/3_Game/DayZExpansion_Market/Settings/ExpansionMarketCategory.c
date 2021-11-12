@@ -12,7 +12,7 @@
 
 class ExpansionMarketCategory
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	int m_Version;
 
@@ -28,6 +28,7 @@ class ExpansionMarketCategory
 	string DisplayName;
 	string Icon;
 	string Color;
+	float InitStockPercent;
 
 	//! NOTE: Normally we don't want to iterate over this, use GetItems() instead (contains all variants)
 	autoptr array< ref ExpansionMarketItem > Items = new array< ref ExpansionMarketItem >;
@@ -76,6 +77,9 @@ class ExpansionMarketCategory
 						itemV6OrLower.SellPricePercent = -1;
 				}
 			}
+
+			if (category.m_Version < 8)
+				category.InitStockPercent = 75;
 
 			category.m_Version = VERSION;
 			category.Save();
@@ -252,7 +256,6 @@ class ExpansionMarketCategory
 					variant = new ExpansionMarketItem( CategoryID, className, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.SpawnAttachments, NULL, item.SellPricePercent, variantId, item.m_AttachmentIDs );
 					//! Variants that do not already have an entry only need to synch stock, they will be automatically added on client
 					variant.m_StockOnly = true;
-					variant.m_Parent = item;
 					AddItemInternal(variant, false);
 					#ifdef EXPANSIONEXPRINT
 					EXPrint("Added variant " + className + " (ID " + variant.ItemID + ", idx " + variantIdIdx + ")");
@@ -267,6 +270,7 @@ class ExpansionMarketCategory
 				}
 				#endif
 				variant.m_IsVariant = true;
+				variant.m_Parent = item;
 				item.Variants.Insert(className);
 			}
 		}

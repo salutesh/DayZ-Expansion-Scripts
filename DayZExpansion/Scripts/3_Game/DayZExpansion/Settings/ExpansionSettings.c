@@ -68,7 +68,6 @@ modded class ExpansionSettings
 		m_NetworkedSettings.Insert( "expansionnotificationsettings" );
 		m_NetworkedSettings.Insert( "expansionpartysettings" );
 		m_NetworkedSettings.Insert( "expansionraidsettings" );
-		m_NetworkedSettings.Insert( "expansionspawnsettings" );
 		m_NetworkedSettings.Insert( "expansionterritorysettings" );
 		m_NetworkedSettings.Insert( "expansionplayerlistsettings" );
 		m_NetworkedSettings.Insert( "expansionsocialmediasettings" );
@@ -205,7 +204,6 @@ modded class ExpansionSettings
 		m_SettingsNotification.Send( identity );
 		m_SettingsRaid.Send( identity );
 		m_SettingsParty.Send( identity );
-		m_SettingsSpawn.Send( identity );
 		m_SettingsTerritory.Send( identity );
 		m_SettingsPlayerList.Send( identity );
 		m_SettingsSocialMedia.Send( identity );

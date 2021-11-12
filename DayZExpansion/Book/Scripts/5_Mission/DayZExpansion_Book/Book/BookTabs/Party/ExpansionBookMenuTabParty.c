@@ -301,7 +301,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 			if (entry.m_Player.m_RUID == playerSync.m_RUID)
 			{
 				isInList = true;
-				continue;
+				break;
 			}
 		}
 		

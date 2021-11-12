@@ -33,6 +33,9 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
+		if ( player.IsInSafeZone() )
+			return false;
+
 		CarScript carScript = CarScript.Cast( target.GetParentOrObject() );
 
 		if ( carScript && carScript.IsLocked() && GetExpansionSettings().GetVehicle().CanPickLock )

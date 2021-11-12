@@ -230,7 +230,7 @@ class ExpansionHelicopterScript extends CarScript
 			//! Always damage engine proportionally when taking global damage
 			float engineMaxHealth = GetMaxHealth("Engine", "");
 			float engineHealth = GetHealth("Engine", "");
-			float engineHealthNew = engineMaxHealth * (engineMaxHealth / GetMaxHealth(dmgZone, ""));
+			float engineHealthNew = engineMaxHealth * GetHealth01(dmgZone, "");
 			if (engineHealthNew < engineHealth)
 			{
 				#ifdef EXPANSIONEXPRINT
