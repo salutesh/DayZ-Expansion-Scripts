@@ -152,6 +152,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if (!GetExpansionSettings().GetSpawn().SpawnLocations.Count() && (!territoryspawnlist || !territoryspawnlist.Count()))
 			return;
 
+		player.m_Expansion_SpawnSelect = true;
+
 		//! Store state (to be restored once spawn selection ends)
 		if (!m_PlayerStartStates.Contains(uid))
 		{
@@ -177,7 +179,15 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		//! If we have a player state, it means an earlier spawn select wasn't completed by the player
 		ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
 		if (state)
+		{
 			StartSpawnSelection(player);
+		}
+		else
+		{
+			player.StatRegister(AnalyticsManagerServer.STAT_DISTANCE);
+			player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
+			player.StatSyncToClient();
+		}
 
 		EXPrint(ToString() + "::CheckResumeSpawnSelection - End");
 	}
@@ -350,6 +360,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		player.SetAllowDamage(false);
 
 		//! Move player out of harm's way
+		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player spawned at " + player.GetPosition() + ", moving to <0 0 0>");
 		player.SetPosition("0 0 0");
 
 		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - End");
@@ -395,9 +406,14 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 				//! Zero vector means select random spawn
 				ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
 				if (random_location)
+				{
 					spawnPoint = random_location.Positions.GetRandomElement();
+					EXPrint(ToString() + "::Exec_SelectSpawn - selected random spawn point from " + random_location.Name);
+				}
 				else
+				{
 					Error(ToString() + "::Exec_SelectSpawn - Could not get random spawn location - spawn list is empty!");
+				}
 			}
 
 			if (spawnPoint == vector.Zero)
@@ -406,13 +422,19 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 				//! (this is not necessarily an error, it is valid to include the zero vector among spawn positions in the configuration)
 				ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
 				if (state)
+				{
 					spawnPoint = state.m_Position;
+					EXPrint(ToString() + "::Exec_SelectSpawn - selected original spawn point");
+				}
 				else
+				{
 					Error(ToString() + "::Exec_SelectSpawn - Player start state not found for player with id '" + uid + "'!");
+				}
 			}
 
 			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			EXPrint(ToString() + "::Exec_SelectSpawn - moving player to " + spawnPoint);
 			player.SetPosition(spawnPoint);
 			
 			EndSpawnSelection(player);
@@ -454,6 +476,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		//! Deactivate temporary godmode
 		player.SetAllowDamage(true);
+
+		player.m_PlayerOldPos = player.GetPosition();
+		player.m_Expansion_SpawnSelect = false;
+
+		player.StatRegister(AnalyticsManagerServer.STAT_DISTANCE);
+		player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
+		player.StatSyncToClient();
 		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, identity);

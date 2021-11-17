@@ -63,6 +63,8 @@ class ExpansionMarketCategory
 
 		if (category.m_Version < VERSION)
 		{
+			EXPrint("[ExpansionMarketCategory] Load - Converting v" + category.m_Version + " \"" + name + ".json\" to v" + VERSION);
+
 			if (category.m_Version < 5)
 			{
 				category.Icon = "Deliver";

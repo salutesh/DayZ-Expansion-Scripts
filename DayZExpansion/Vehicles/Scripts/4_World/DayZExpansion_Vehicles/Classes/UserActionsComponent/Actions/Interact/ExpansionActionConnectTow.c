@@ -126,6 +126,10 @@ class ExpansionActionConnectTow : ActionInteractBase
 
 				GetGame().IsBoxColliding(towPosition, car.Expansion_GetTowDirection(), "5 5 5", excluded, collided);
 
+				float radius = 0.5;
+				if (m_IsWinch)
+					radius += 0.5;
+
 				foreach (Object o : collided)
 				{
 					CarScript other_car;
@@ -153,7 +157,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 
 							if (other_car.Expansion_GetMass() * 0.9 < car.Expansion_GetMass())
 							{
-								if (other_car.Expansion_GetOverlappingTowConnection(towPosition, 0.5, out_index))
+								if (other_car.Expansion_GetOverlappingTowConnection(towPosition, radius, out_index))
 								{
 									out_car = other_car;
 									return true;
@@ -187,7 +191,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 									continue;
 							}
 
-							if (other_vehicle.Expansion_GetOverlappingTowConnection(towPosition, 0.5, out_index))
+							if (other_vehicle.Expansion_GetOverlappingTowConnection(towPosition, radius, out_index))
 							{
 								out_car = other_vehicle;
 								return true;

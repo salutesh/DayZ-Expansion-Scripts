@@ -67,7 +67,10 @@ class ExpansionMarketSell
 	void AddItem(int remainAmount, int takenAmount, float incrementStockModifier, EntityAI item, string className = "")
 	{
 		if (!className && item)
+		{
 			className = item.GetType();
+			className.ToLower();
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint( "ExpansionMarketSell::AddItem - Start - " + className + " remaining " + remainAmount + ", taken " + takenAmount + ", increment stock modifier " + incrementStockModifier);

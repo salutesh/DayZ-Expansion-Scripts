@@ -402,54 +402,56 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	void UpdatePrices()
 	{
 		//! Buy price
-		ExpansionMarketCurrency price = 0;
-		//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
-		ExpansionMarketItem item = GetMarketItem();
-		m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), m_MarketModule.GetTrader().GetTraderMarket(), 1, price, GetIncludeAttachments());
-		m_BuyPrice = price;
-		if (m_BuyPrice > -1)
+		if (m_CanBuy)
 		{
+			ExpansionMarketCurrency price = 0;
+			//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
+			ExpansionMarketItem item = GetMarketItem();
+			m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, GetIncludeAttachments());
+			m_BuyPrice = price;
 			m_ItemController.ItemBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",", true);
 		}
 		else
 		{
+			m_BuyPrice = -1;
 			m_ItemController.ItemBuyPrice = "";
 		}
 
-		m_ItemController.NotifyPropertyChanged("ItemBuyPrice");
 		market_item_info_buy_price_icon.Show(m_BuyPrice > -1);
 
 		//! Sell price
-		if (m_PlayerStock != 0)
+		if (m_CanSell)
 		{
-			//! Player has the item
-			ExpansionMarketSell marketSell = new ExpansionMarketSell;
-			marketSell.Item = GetMarketItem();
-			marketSell.Trader = GetMarketMenu().GetTraderObject();
-			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_ItemStock, 1, marketSell))
+			array<EntityAI> items;
+			if (m_PlayerStock != 0)
 			{
-				m_SellPrice = marketSell.Price;
-				m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
+				//! Player has the item
+				items = m_MarketModule.LocalGetEntityInventory();
 			}
 			else
 			{
-				m_SellPrice = -1;
-				m_ItemController.ItemSellPrice = "";
+				//! Player doesn't have the item. Use preview item.
+				items = new array<EntityAI>;
+				EntityAI previewEntity;
+				if (Class.CastTo(previewEntity, m_Object))
+					items.Insert(previewEntity);
 			}
+
+			ExpansionMarketSell marketSell = new ExpansionMarketSell;
+			marketSell.Item = GetMarketItem();
+			marketSell.Trader = GetMarketMenu().GetTraderObject();
+			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_ItemStock, 1, marketSell, m_PlayerStock != 0 || m_IncludeAttachments);
+			m_SellPrice = marketSell.Price;
+
+			m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
 		}
 		else
 		{
-			//! Player doesn't have the item.
-			float sellPricePct = item.SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
-			m_SellPrice = GetMarketItem().CalculatePrice(m_ItemStock + 1, sellPricePct / 100);
-			m_ItemController.ItemSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",", true);
+			m_SellPrice = -1;
+			m_ItemController.ItemSellPrice = "";
 		}
 
-		m_ItemController.NotifyPropertyChanged("ItemSellPrice");
+		m_ItemController.NotifyPropertiesChanged({"ItemSellPrice", "ItemBuyPrice"});
 		
 		market_item_info_sell_price_panel.Show(m_SellPrice > -1);
 	}
@@ -462,7 +464,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		market_item_info_stock.SetColor(GetMarketStockColor());
 	}
 	
-	int GetMarketStockColor()
+	int GetMarketStockColor(bool check = true)
 	{
 		int percent = 100;
 		if (GetMarketItem().MaxStockThreshold == 0)
@@ -475,7 +477,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			percent = Math.Round((itemStock / GetMarketItem().MaxStockThreshold) * 100);
 		}
 
-		if (!percent || !m_CanBuy)
+		if (!percent || !m_CanBuy || !check)
 		{
 			//! Color red
 			return ARGB(255, 192, 57, 43);

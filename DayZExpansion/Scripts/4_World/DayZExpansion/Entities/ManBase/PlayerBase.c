@@ -36,6 +36,8 @@ modded class PlayerBase
 	
 	ExpansionKillFeedModule m_KillfeedModule;
 	
+	bool m_Expansion_SpawnSelect;
+
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
 	// ------------------------------------------------------------
@@ -775,5 +777,11 @@ modded class PlayerBase
 	void WakePlayer()
 	{
 		this.AddHealth("","Shock", 100);
+	}
+
+	override void UpdatePlayerMeasures()
+	{
+		if (!m_Expansion_SpawnSelect)
+			super.UpdatePlayerMeasures();
 	}
 };

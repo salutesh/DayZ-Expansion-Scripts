@@ -296,15 +296,17 @@ class ExpansionMarketMenuDropdownElementController: ExpansionViewController
 {
 	string Text;
 	bool CheckBox;
+	bool WasChecked;
 	
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuDropdownElementController PropertyChanged
 	// ------------------------------------------------------------
 	override void PropertyChanged(string property_name)
 	{
-		if (property_name == "CheckBox")
+		if (property_name == "CheckBox" && CheckBox != WasChecked)
 		{
 			EXPrint("ExpansionMarketMenuDropdownElementController::PropertyChanged - CheckBox " + CheckBox + " " + Text);
+			WasChecked = CheckBox;
 						
 			ExpansionMarketMenuDropdownElement dropdownElement = ExpansionMarketMenuDropdownElement.Cast(GetParent());
 			if (dropdownElement)

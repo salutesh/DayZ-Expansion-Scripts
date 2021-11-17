@@ -73,7 +73,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected bool m_Complete;
 	protected ref map<string, string> m_TypeDisplayNames;
 	PlayerBase m_PlayerPreview;
-	protected bool m_IncludeAttachmentsData = true;
 	int CategoriesExpanded;
 	protected ref ExpansionMarketMenuColorHandler m_ColorHandler;
 	Object m_CurrentPreviewObject;
@@ -1147,8 +1146,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		TStringArray excludedCurrencys = new TStringArray;
 		for (int i = 0; i < monies.Count(); i++)
 		{
-			if (!monies[i])
-				continue;
 			string type = m_MarketModule.GetMoneyDenomination(i);
 			int total_monies = monies[i] * m_MarketModule.GetMoneyPrice(type);
 			if (m_TraderMarket.Currencies.Find(type) == -1)
@@ -1590,8 +1587,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		{
 			if (itemElement.GetMarketItem().SpawnAttachments.Count() > 0 && itemElement.GetIncludeAttachments())
 			{
-				m_IncludeAttachmentsData = true;
-				
 				m_AttachmentsTooltip = new ExpansionMarketMenuTooltip();
 				m_AttachmentsTooltip.Hide();
 				m_AttachmentsTooltip.SetContentOffset(-0.234375, 0.006944);
@@ -1605,10 +1600,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				market_item_info_attachments.Show(true);
 				market_item_info_attachments_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
-			}
-			else if (itemElement.GetMarketItem().SpawnAttachments.Count() == 0)
-			{
-				m_IncludeAttachmentsData = false;
 			}
 			//market_item_info_attachments_panel.Show(itemElement.GetMarketItem().SpawnAttachments.Count() > 0);
 			//market_item_info_attachments_setup_panel.Show(itemElement.GetMarketItem().SpawnAttachments.Count() > 0);
@@ -1644,89 +1635,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		m_MarketSell.Item = GetSelectedMarketItem();
 		m_MarketSell.Trader = m_TraderObject;
 		
-		if (m_PlayerStock != 0)
-		{
-			//! Player has the item
-			if (m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), m_MarketModule.LocalGetEntityInventory(), m_TraderItemStock, m_Quantity, m_MarketSell))
-			{
-				m_SellPrice = m_MarketSell.Price;
-				m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
-			}
-			else
-			{
-				m_SellPrice = -1;
-				m_MarketMenuController.MarketItemTotalSellPrice = "";
-			}
-			market_item_sell_price_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText)); 
-			market_item_sell_price_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		}
-		else
-		{
-			//! Player doesn't have the item.
-			float sellPricePct = GetSelectedMarketItem().SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = m_MarketModule.GetClientZone().SellPricePercent;
-			if (sellPricePct < 0)
-				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
-			m_SellPrice = GetSelectedMarketItem().CalculatePrice(m_TraderItemStock + m_Quantity, sellPricePct / 100);
-			m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
-			market_item_sell_price_text.SetColor(COLOR_EXPANSION_NOTIFICATION_EXPANSION);
-			market_item_sell_price_icon.SetColor(COLOR_EXPANSION_NOTIFICATION_EXPANSION);
-		}
-		
-		m_MarketMenuController.NotifyPropertyChanged("MarketItemTotalSellPrice");
-		market_item_sell_price_icon.Show(m_SellPrice > -1);
+		int color;
 
-		ExpansionMarketCurrency price = 0;
-		ExpansionMarketResult result;
-		ExpansionMarketReserve reserve;
-		map<string, int> removedStock;
-		m_OutOfStockList.Clear();
-		m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result, reserve, removedStock, m_OutOfStockList);
-		m_BuyPrice = price;
-		if (m_BuyPrice > -1)
-		{
-			m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
-		}
-		else
-		{
-			m_MarketMenuController.MarketItemTotalBuyPrice = "";
-		}
-				
-		m_MarketMenuController.NotifyPropertyChanged("MarketItemTotalBuyPrice");
-		market_item_buy_price_icon.Show(m_BuyPrice > -1);
-		
-		if (GetSelectedMarketItemElement().m_CanBuy)
-		{
-			if (m_TraderItemStock > 0)
-			{
-				if (GetSelectedMarketItem().IsStaticStock())
-					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_INSTOCK";
-				else
-					m_MarketMenuController.MarketItemStockTrader = m_TraderItemStock.ToString() + " #STR_EXPANSION_MARKET_ITEM_INSTOCK";
-			}
-			else
-			{
-				if (GetSelectedMarketItem().MaxStockThreshold > 0)
-					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
-				else
-					m_MarketMenuController.MarketItemStockTrader = "N/A";
-			}
-
-		}
-		else
-		{
-			m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
-		}
-
-		m_MarketMenuController.MarketQuantity = m_Quantity.ToString();
-
-		m_MarketMenuController.NotifyPropertiesChanged({"MarketItemStockTrader", "MarketQuantity"});
-
-		market_item_buy.Show(GetSelectedMarketItemElement().m_CanBuy && m_Quantity > 0 && m_TraderItemStock > 0 && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
-
-		market_item_info_stock.SetColor(GetSelectedMarketItemElement().GetMarketStockColor());
-		
 		if (GetSelectedMarketItemElement().m_CanSell)
 		{
 			if (m_PlayerStock >= 0)
@@ -1744,15 +1654,96 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				m_MarketMenuController.MarketItemStockPlayer = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
 			}
+
+			array<EntityAI> items;
+			if (m_PlayerStock != 0)
+			{
+				//! Player has the item
+				items = m_MarketModule.LocalGetEntityInventory();
+				color = ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText);
+			}
+			else
+			{
+				//! Player doesn't have the item. Use preview item.
+				items = new array<EntityAI>;
+				EntityAI previewEntity;
+				if (Class.CastTo(previewEntity, m_SelectedMarketItemElement.GetPreviewObject()))
+					items.Insert(previewEntity);
+				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
+			}
+
+			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments());
+			m_SellPrice = m_MarketSell.Price;
+
+			market_item_sell_price_text.SetColor(color); 
+			market_item_sell_price_icon.SetColor(color);
+
+			m_MarketMenuController.MarketItemTotalSellPrice = ExpansionStatic.IntToCurrencyString(m_SellPrice, ",");
 		}
 		else
 		{
+			m_SellPrice = -1;
 			m_MarketMenuController.MarketItemStockPlayer = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
+			m_MarketMenuController.MarketItemTotalSellPrice = "";
+		}
+		
+		market_item_sell_price_icon.Show(m_SellPrice > -1);
+		
+		if (GetSelectedMarketItemElement().m_CanBuy)
+		{
+			if (m_TraderItemStock > 0)
+			{
+				if (GetSelectedMarketItem().IsStaticStock())
+					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_INSTOCK";
+				else if (m_TraderItemStock >= m_Quantity)
+					m_MarketMenuController.MarketItemStockTrader = m_TraderItemStock.ToString() + " #STR_EXPANSION_MARKET_ITEM_INSTOCK";
+				else
+					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_NOT_ENOUGH";
+			}
+			else
+			{
+				if (GetSelectedMarketItem().MaxStockThreshold > 0)
+					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
+				else
+					m_MarketMenuController.MarketItemStockTrader = "N/A";
+			}
+
+			ExpansionMarketCurrency price = 0;
+			ExpansionMarketResult result;
+			ExpansionMarketReserve reserve;
+			map<string, int> removedStock;
+			m_OutOfStockList.Clear();
+			m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result, reserve, removedStock, m_OutOfStockList);
+			m_BuyPrice = price;
+
+			if (m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
+				color = ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText);
+			else
+				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
+
+			market_item_buy_price_text.SetColor(color); 
+			market_item_buy_price_icon.SetColor(color);
+
+			m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
+		}
+		else
+		{
+			m_BuyPrice = -1;
+			m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
+			m_MarketMenuController.MarketItemTotalBuyPrice = "";
 		}
 
-		m_MarketMenuController.NotifyPropertyChanged("MarketItemStockPlayer");
+		market_item_buy_price_icon.Show(m_BuyPrice > -1);
 
-		market_item_sell.Show(GetSelectedMarketItemElement().m_CanSell && m_Quantity > 0 && m_PlayerStock > 0 && m_SellPrice > -1);
+		m_MarketMenuController.MarketQuantity = m_Quantity.ToString();
+
+		m_MarketMenuController.NotifyPropertiesChanged({"MarketItemStockPlayer", "MarketItemTotalSellPrice", "MarketItemStockTrader", "MarketItemTotalBuyPrice", "MarketQuantity"});
+
+		market_item_buy.Show(GetSelectedMarketItemElement().m_CanBuy && m_Quantity > 0 && m_Quantity <= m_TraderItemStock && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
+
+		market_item_info_stock.SetColor(GetSelectedMarketItemElement().GetMarketStockColor(m_Quantity <= m_TraderItemStock));
+
+		market_item_sell.Show(GetSelectedMarketItemElement().m_CanSell && m_Quantity > 0 && m_Quantity <= m_PlayerStock && m_SellPrice > -1);
 
 		market_item_info_stock_player.SetColor(GetSelectedMarketItemElement().GetPlayerStockColor(m_Quantity <= m_PlayerStock));
 		
@@ -2319,7 +2310,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			dialogData.ClassName = GetSelectedMarketItem().ClassName;
 			dialogData.Amount = m_Quantity;
 			dialogData.Price = m_BuyPrice;
-			dialogData.IncludeAttachments = m_IncludeAttachmentsData;
+			dialogData.IncludeAttachments = m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0;
 			
 			m_PurchaseDialog = new ExpansionMenuDialog_MarketConfirmPurchase(this, dialogData);
 			m_PurchaseDialog.Show();
@@ -2365,7 +2356,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			dialogData.ClassName = m_SelectedMarketItem.ClassName;
 			dialogData.Amount = m_Quantity;
 			dialogData.Price = m_SellPrice;
-			dialogData.IncludeAttachments = m_IncludeAttachmentsData;
+			//! We always sell with attachments if the player's item has any.
+			//! Since MarketSell.Sell contains attachments first, all we need to do to figure out if the item being sold has atts
+			//! is to check if the first entry does not have the same class name as the selected market item.
+			dialogData.IncludeAttachments = m_MarketSell.Sell.Count() > 1 && m_MarketSell.Sell[0].ClassName != m_SelectedMarketItem.ClassName;
 			
 			m_SellDialog = new ExpansionMenuDialog_MarketConfirmSell(this, dialogData);
 			m_SellDialog.Show();
@@ -2413,14 +2407,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	void SetQuantity(string quantity)
 	{
 		m_Quantity = quantity.ToInt();
-		
+
 		if (m_QuantityDialog)
 		{
 			m_QuantityDialog.Hide();
 			delete m_QuantityDialog;
 		}
 		
-		UpdateItemFieldFromBasicNetSync();
+		UpdateQuantity();
 		SetMenuState(ExpansionMarketMenuState.NONE);	
 	}
 	
@@ -2545,19 +2539,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (!GetSelectedMarketItemElement())
 			return;
 
-		bool wasIncludingAttachments = GetSelectedMarketItemElement().GetIncludeAttachments();
-		m_IncludeAttachmentsData = GetMarketMenuController().IncludeAttachments;
-		GetSelectedMarketItemElement().SetIncludeAttachments(m_IncludeAttachmentsData);
+		GetSelectedMarketItemElement().SetIncludeAttachments(GetMarketMenuController().IncludeAttachments);
+		GetSelectedMarketItemElement().UpdatePreviewObject();
+		GetSelectedMarketItemElement().UpdateView();
+	
+		UpdatePreview();
 		UpdateItemFieldFromBasicNetSync();
 		SetItemAttachmentsInfo(GetSelectedMarketItemElement());
-		if (m_IncludeAttachmentsData != wasIncludingAttachments)
-		{
-			EXPrint("OnAttachmentsCheckboxStateChange() -> GetSelectedMarketItemElement().UpdateView()");
-			GetSelectedMarketItemElement().UpdateView();
-			GetSelectedMarketItemElement().UpdatePreviewObject();
-		}
-		
-		UpdatePreview();
 	}
 	
 	// ------------------------------------------------------------
@@ -2595,10 +2583,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				if (m_CurrenciesTooltip) m_CurrenciesTooltip.Show();
 				break;
 			case market_item_buy_price_panel:
-				if (m_BuyDenomsTooltip) m_BuyDenomsTooltip.Show();
+				if (m_BuyDenomsTooltip && ExpansionMarketMenuTooltipController.Cast(m_BuyDenomsTooltip.GetController()).SpacerEntries.Count())
+					m_BuyDenomsTooltip.Show();
 				break;
 			case market_item_sell_price_panel:
-				if (m_SellDenomsTooltip) m_SellDenomsTooltip.Show();
+				if (m_SellDenomsTooltip && ExpansionMarketMenuTooltipController.Cast(m_SellDenomsTooltip.GetController()).SpacerEntries.Count())
+					m_SellDenomsTooltip.Show();
 				break;
 			case market_footer_categories_toggle:
 				market_footer_categories_label.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorToggleCategoriesText));
@@ -3081,6 +3071,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	void SetFilterSellables(bool state)
 	{
 		m_ShowSellable = state;
+		m_MarketMenuController.ShowSellables = state;
 	}
 	
 	// ------------------------------------------------------------
@@ -3097,6 +3088,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	void SetFilterPurchasables(bool state)
 	{
 		m_ShowPurchasables = state;
+		m_MarketMenuController.ShowPurchasables = state;
 	}
 	
 	// ------------------------------------------------------------
@@ -3563,8 +3555,11 @@ class ExpansionMarketMenuController: ExpansionViewController
 	string CurrencySellIcon;
 	string CurrencyBuyIcon;
 	bool ShowSellables;
+	bool WasShowingSellables;
 	bool ShowPurchasables;
-	bool IncludeAttachments;
+	bool WasShowingPurchasables;
+	bool IncludeAttachments = true;
+	bool WasIncludingAttachments = true;
 	
 	// ------------------------------------------------------------
 	// ExpansionMarketMenuController PropertyChanged
@@ -3575,10 +3570,11 @@ class ExpansionMarketMenuController: ExpansionViewController
 		menu = ExpansionMarketMenu.Cast(GetParent());
 		if (property_name == "ShowSellables")
 		{
-			EXPrint("ExpansionMarketMenuController::PropertyChanged - ShowSellables " + ShowSellables);
-			GetExpansionClientSettings().MarketMenuFilterSellableState = ShowSellables;
-			if (menu)
+			if (menu && ShowSellables != WasShowingSellables)
 			{
+				EXPrint("ExpansionMarketMenuController::PropertyChanged - ShowSellables " + ShowSellables);
+				WasShowingSellables = ShowSellables;
+				GetExpansionClientSettings().MarketMenuFilterSellableState = ShowSellables;
 				menu.SetFilterSellables(ShowSellables);
 				menu.UpdateOptionFilterStrings();
 				menu.UpdateMarketCategories();
@@ -3586,10 +3582,11 @@ class ExpansionMarketMenuController: ExpansionViewController
 		}
 		else if (property_name == "ShowPurchasables")
 		{
-			EXPrint("ExpansionMarketMenuController::PropertyChanged - ShowPurchasables " + ShowPurchasables);
-			GetExpansionClientSettings().MarketMenuFilterPurchasableState = ShowPurchasables;
-			if (menu)
+			if (menu && ShowPurchasables != WasShowingPurchasables)
 			{
+				EXPrint("ExpansionMarketMenuController::PropertyChanged - ShowPurchasables " + ShowPurchasables);
+				WasShowingPurchasables = ShowPurchasables;
+				GetExpansionClientSettings().MarketMenuFilterPurchasableState = ShowPurchasables;
 				menu.SetFilterPurchasables(ShowPurchasables);
 				menu.UpdateOptionFilterStrings();
 				menu.UpdateMarketCategories();
@@ -3597,9 +3594,12 @@ class ExpansionMarketMenuController: ExpansionViewController
 		}
 		else if (property_name == "IncludeAttachments")
 		{
-			EXPrint("ExpansionMarketMenuController::PropertyChanged - IncludeAttachments " + IncludeAttachments);
-			if (menu)
+			if (menu && IncludeAttachments != WasIncludingAttachments)
+			{
+				EXPrint("ExpansionMarketMenuController::PropertyChanged - IncludeAttachments " + IncludeAttachments);
+				WasIncludingAttachments = IncludeAttachments;
 				menu.OnAttachmentsCheckboxStateChange();
+			}
 		}
 	}
 };
