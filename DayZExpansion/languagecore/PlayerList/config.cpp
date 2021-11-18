@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_LanguageCore
+	class DayZExpansion_LanguageCore_PlayerList
 	{
 		units[] = {};
 		weapons[] = {};

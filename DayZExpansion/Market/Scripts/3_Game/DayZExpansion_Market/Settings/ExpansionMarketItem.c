@@ -29,6 +29,12 @@ class ExpansionMarketItem
 	ExpansionMarketCurrency MaxPriceThreshold;
 	ExpansionMarketCurrency MinPriceThreshold;
 
+	//! @note this is a workaround for a serious Enforce bug (MaxPriceThreshold gets randomly reset to zero on client after a few buys/sells)
+	[NonSerialized()]
+	private int m_MaxPriceThreshold;
+	[NonSerialized()]
+	private int m_MinPriceThreshold;
+
 	int SellPricePercent;
 
 	int MaxStockThreshold;
@@ -137,6 +143,9 @@ class ExpansionMarketItem
 			Error("[ExpansionMarketItem] The minimum stock must be lower than or equal to the maximum stock for '" + ClassName + "'");
 			MaxStockThreshold = MinStockThreshold;
 		}
+
+		m_MinPriceThreshold = MinPriceThreshold;
+		m_MaxPriceThreshold = MaxPriceThreshold;
 	}
 
 	void SetAttachmentsFromIDs()
@@ -165,15 +174,15 @@ class ExpansionMarketItem
 	ExpansionMarketCurrency CalculatePrice(int stock, float modifier = 1.0)
 	{
 		#ifdef EXPANSIONMODMARKET_DEBUG
-		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock);
+		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock + " modifier " + modifier + " minstock " + MinStockThreshold + " maxstock " + MaxStockThreshold + " maxprice " + m_MaxPriceThreshold + " minprice " + m_MinPriceThreshold + " pct " + SellPricePercent);
 		#endif
 
 		float price;
 
 		if (!IsStaticStock() && MaxStockThreshold != 0)
-			price = ExpansionMath.PowerConversion(MinStockThreshold, MaxStockThreshold, stock, MaxPriceThreshold, MinPriceThreshold, 6.0);
+			price = ExpansionMath.PowerConversion(MinStockThreshold, MaxStockThreshold, stock, m_MaxPriceThreshold, m_MinPriceThreshold, 6.0);
 		else
-			price = MinPriceThreshold;
+			price = m_MinPriceThreshold;
 
 		price = Math.Round(price * modifier);
 

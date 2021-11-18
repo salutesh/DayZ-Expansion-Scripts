@@ -431,7 +431,7 @@ class ExpansionMarketModule: JMModuleBase
 	//! Find sell price and check if item can be sold. `ExpansionMarketResult result` indicates reason if cannot be sold.
 	bool FindSellPrice(notnull PlayerBase player, array<EntityAI> items, int stock, int amountWanted, ExpansionMarketSell sell, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success)
 	{
-		MarketModulePrint("FindSellPrice - Start - stock " + stock + " wanted " + amountWanted);
+		MarketModulePrint("FindSellPrice - " + sell.Item.ClassName + " - stock " + stock + " wanted " + amountWanted);
 		
 		if (!player)
 		{
@@ -903,14 +903,11 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	int GetItemAmount(EntityAI item)
 	{
-		int amount = -1;
+		int amount;
 		
 		ItemBase itemBase = ItemBase.Cast(item);
 		
 		MarketModulePrint("GetItemAmount - Item type:" + item.GetType());
-		
-		if (!CanSellItem(item))
-			return -1;
 		
 		if (item.IsKindOf("Container_Base"))
 		{
@@ -954,6 +951,9 @@ class ExpansionMarketModule: JMModuleBase
 			MarketModulePrint("GetItemAmount - Else");
 			amount = 1;
 		}
+		
+		if (!CanSellItem(item))
+			amount = -amount;
 		
 		return amount;
 	}
@@ -1018,8 +1018,6 @@ class ExpansionMarketModule: JMModuleBase
 	//! Returns true if item and attachments (if any) are in stock, false otherwise
 	bool FindPriceOfPurchase(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, int amountWanted, inout ExpansionMarketCurrency price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
 	{
-		MarketModulePrint("FindPriceOfPurchase - Start");
-
 		int stock;
 
 		if (item.IsStaticStock())
@@ -1027,13 +1025,13 @@ class ExpansionMarketModule: JMModuleBase
 		else
 			stock = zone.GetStock(item.ClassName);
 
+		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + stock + " wanted " + amountWanted);
+
 		if (!removedStock)
 			removedStock = new map<string, int>;
 		
 		if (!outOfStockList)
 			outOfStockList = new TStringArray;
-
-		bool ret = true;
 
 		int curRemovedStock;
 		if (!removedStock.Find(item.ClassName, curRemovedStock))
@@ -1042,7 +1040,6 @@ class ExpansionMarketModule: JMModuleBase
 		if (amountWanted > stock - curRemovedStock && !item.IsStaticStock())
 		{
 			result = ExpansionMarketResult.FailedOutOfStock;
-			ret = false;
 		}
 		
 		if (!trader.CanBuyItem(item.ClassName))
@@ -1071,7 +1068,7 @@ class ExpansionMarketModule: JMModuleBase
 
 			if (includeAttachments && level < 3)
 			{
-				int magAmmoCount;
+				int magAmmoCount = 0;
 				map<string, bool> attachmentTypes = item.GetAttachmentTypes(magAmmoCount);
 				map<string, int> magAmmoQuantities = item.GetMagAmmoQuantities(attachmentTypes, magAmmoCount);
 
@@ -1098,28 +1095,29 @@ class ExpansionMarketModule: JMModuleBase
 								result = ExpansionMarketResult.FailedAttachmentOutOfStock;
 								outOfStockList.Insert(attachmentName);
 							}
-							ret = false;
 						}
 					}
 				}
 			}
 		}
 				
+		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
+
 		itemPrice = Math.Round(itemPrice * priceModifier);
 		price += (ExpansionMarketCurrency) itemPrice;
 
-		if (ret && reserved)
+		if (result == ExpansionMarketResult.Success && reserved)
 		{
 			reserved.AddReserved(zone, item.ClassName, amountWanted, (ExpansionMarketCurrency) itemPrice);
 			removedStock.Set(item.ClassName, 0);
 		}
 
-		if (ret)
+		if (result == ExpansionMarketResult.Success)
 			MarketModulePrint("FindPriceOfPurchase - End and return true! price: " + price);
 		else
 			MarketModulePrint("FindPriceOfPurchase - End and return false! Zone stock is lower then requested amount or item is set to not be buyable!");
 		
-		return ret;
+		return result == ExpansionMarketResult.Success;
 	}
 
 	// ------------------------------------------------------------
@@ -1198,7 +1196,7 @@ class ExpansionMarketModule: JMModuleBase
 			EntityAI objEntity = EntityAI.Cast(obj);
 			if (objEntity)
 			{
-				int magAmmoCount;
+				int magAmmoCount = 0;
 				map<string, bool> attachmentTypes = item.GetAttachmentTypes(magAmmoCount);
 
 				foreach (string attachmentName: item.SpawnAttachments)
@@ -2288,20 +2286,25 @@ class ExpansionMarketModule: JMModuleBase
 			item = derivative;
 		}
 
-		//! Result if the price the player has seen and agreed to in menu doesn't match anymore
-		//! the current item price of the trader because stock has changed enough to affect it
-		//! (another player was quicker to get his transaction through)
-		ExpansionMarketResult result = ExpansionMarketResult.FailedStockChange;
+		ExpansionMarketResult result;
 
 		//! Compare that price to the one the player sent
 		if (!FindPurchasePriceAndReserve(item, count, reservedList, includeAttachments, result) || reservedList.Price != currentPrice)
 		{
+			//! Result if the price the player has seen and agreed to in menu doesn't match anymore
+			//! the current item price of the trader because stock has changed enough to affect it
+			//! (another player was quicker to get his transaction through)
+			if (result == ExpansionMarketResult.Success && reservedList.Price != currentPrice)
+				result = ExpansionMarketResult.FailedStockChange;
+
 			EXPrint("Exec_RequestPurchase - Player sent price: " + currentPrice);
 			EXPrint("Exec_RequestPurchase - Current stock: " + zone.GetStock(itemClassName, true));
 			reservedList.Debug();
 
 			reservedList.ClearReserved(zone);
 			player.ClearMarketReserve();
+
+			EXPrint("Callback " + typename.EnumToString(ExpansionMarketResult, result));
 
 			Callback(itemClassName, result, player.GetIdentity());
 			
@@ -2708,21 +2711,24 @@ class ExpansionMarketModule: JMModuleBase
 		if (!sellList.Item.IsStaticStock())
 			stock = zone.GetStock(itemClassName);
 
-		//! Result if the price the player has seen and agreed to in menu doesn't match anymore
-		//! the current item price of the trader because stock has changed enough to affect it
-		//! (another player was quicker to get his transaction through)
-		ExpansionMarketResult result = ExpansionMarketResult.FailedStockChange;
+		ExpansionMarketResult result;
 
 		//! Compare that price to the one the player sent
 		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result) || sellList.Price != currentPrice)
 		{
+			//! Result if the price the player has seen and agreed to in menu doesn't match anymore
+			//! the current item price of the trader because stock has changed enough to affect it
+			//! (another player was quicker to get his transaction through)
+			if (result == ExpansionMarketResult.Success && sellList.Price != currentPrice)
+				result = ExpansionMarketResult.FailedStockChange;
+
 			EXPrint("Exec_RequestSell - Player sent price: " + currentPrice);
 			EXPrint("Exec_RequestSell - Current stock: " + zone.GetStock(itemClassName));
 			sellList.Debug();
 
 			player.ClearMarketSell();
 			
-			MarketModulePrint("Callback " + typename.EnumToString(ExpansionMarketResult, result));
+			EXPrint("Callback " + typename.EnumToString(ExpansionMarketResult, result));
 
 			Callback(itemClassName, result, player.GetIdentity());
 			
@@ -3446,7 +3452,7 @@ class ExpansionMarketModule: JMModuleBase
 
 			//! Check if item is attachment that can be released
 			if (item.GetInventory().IsAttachment())
-				return item.GetHierarchyParent().CanReleaseAttachment(item) && item.GetHierarchyParent().GetInventory().CanRemoveAttachment(item);
+				return !item.IsMagazine() && item.GetHierarchyParent().CanReleaseAttachment(item) && item.GetHierarchyParent().GetInventory().CanRemoveAttachment(item);
 		}
 
 		#ifdef EXPANSIONMODVEHICLE

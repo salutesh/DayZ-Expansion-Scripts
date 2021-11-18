@@ -43,6 +43,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected bool m_PlayerPosAnimRunning;
 	protected int m_Quantity = 1;
 	protected int m_TraderItemStock;
+	protected bool m_TraderHasQuantity;
 	protected int m_PlayerStock;
 	protected int m_BuyPrice;
 	protected ref ExpansionMarketSell m_MarketSell;
@@ -1623,9 +1624,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			return;
 
 		if (GetSelectedMarketItem().IsStaticStock())
+		{
 			m_TraderItemStock = 1;
+			m_TraderHasQuantity = true;
+		}
 		else
+		{
 			m_TraderItemStock = m_MarketModule.GetClientZone().GetStock(GetSelectedMarketItem().ClassName);
+			m_TraderHasQuantity = m_TraderItemStock >= m_Quantity;
+		}
 		m_PlayerStock = m_MarketModule.GetAmountInInventory(GetSelectedMarketItem(), m_MarketModule.LocalGetEntityInventory());
 		
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
@@ -1695,7 +1702,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				if (GetSelectedMarketItem().IsStaticStock())
 					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_INSTOCK";
-				else if (m_TraderItemStock >= m_Quantity)
+				else if (m_TraderHasQuantity)
 					m_MarketMenuController.MarketItemStockTrader = m_TraderItemStock.ToString() + " #STR_EXPANSION_MARKET_ITEM_INSTOCK";
 				else
 					m_MarketMenuController.MarketItemStockTrader = "#STR_EXPANSION_MARKET_ITEM_NOT_ENOUGH";
@@ -1739,9 +1746,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		m_MarketMenuController.NotifyPropertiesChanged({"MarketItemStockPlayer", "MarketItemTotalSellPrice", "MarketItemStockTrader", "MarketItemTotalBuyPrice", "MarketQuantity"});
 
-		market_item_buy.Show(GetSelectedMarketItemElement().m_CanBuy && m_Quantity > 0 && m_Quantity <= m_TraderItemStock && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
+		market_item_buy.Show(GetSelectedMarketItemElement().m_CanBuy && m_Quantity > 0 && m_TraderHasQuantity && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
 
-		market_item_info_stock.SetColor(GetSelectedMarketItemElement().GetMarketStockColor(m_Quantity <= m_TraderItemStock));
+		market_item_info_stock.SetColor(GetSelectedMarketItemElement().GetMarketStockColor(m_TraderHasQuantity));
 
 		market_item_sell.Show(GetSelectedMarketItemElement().m_CanSell && m_Quantity > 0 && m_Quantity <= m_PlayerStock && m_SellPrice > -1);
 
