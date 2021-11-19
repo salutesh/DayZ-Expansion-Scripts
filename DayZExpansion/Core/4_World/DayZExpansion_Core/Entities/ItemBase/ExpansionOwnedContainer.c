@@ -320,7 +320,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (!player || !player.GetIdentity())
 			return;
 
-		StringLocaliser title = new StringLocaliser("STR_EXPANSION_MARKET_TITLE");
+		StringLocaliser title = new StringLocaliser("STR_EXPANSION_TEMPORARY_STORAGE");
 		StringLocaliser text = new StringLocaliser(msg);
 
 		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(player.GetIdentity());

@@ -60,6 +60,8 @@ class ExpansionHelicopterScript extends CarScript
 	bool m_IsLanded;
 	vector m_Expansion_IsLandedHitPos;
 
+	float m_Expansion_LastContactImpulse;
+
 	void ExpansionHelicopterScript()
 	{
 		SetEventMask(EntityEvent.CONTACT | EntityEvent.SIMULATE);
@@ -145,14 +147,31 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
+		//! Expansion helis do not receive vanilla OnContact (for some reason?), but some 3rd party ones do.
+		//! Only call OnContact if impulse is different from last impulse handled by OnContact.
+		//! Call order Expansion helis: EOnContact (called by base game), then OnContact (called by Expansion EOnContact)
+		//! Call order 3rd party helis: OnContact (called by base game), then EOnContact (same)
+		if (extra.Impulse && extra.Impulse != m_Expansion_LastContactImpulse)
+		{
+			OnContact("", WorldToModel(extra.Position), other, extra);
+			m_Expansion_LastContactImpulse = 0;
+		}
+	}
+
+	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+	{
 		if (!m_IsInitialized)
 			return;
 
 		if (m_Expansion_IsBeingTowed)
 			return;
 
-		if (IsMissionHost() && !IsDamageDestroyed())
+		bool resetImpulse = GetGame().IsServer() && !IsDamageDestroyed();
+
+		if (resetImpulse)
 		{
+			m_Expansion_LastContactImpulse = data.Impulse;
+
 			vector transform[4];
 			GetTransform(transform);
 
@@ -170,19 +189,24 @@ class ExpansionHelicopterScript extends CarScript
 			if (other) //! check done just incase
 				impulseRequired += Math.Max(dBodyGetMass(other), 0.0) * maxVelocityMagnitude * 2.0;
 
-			if (extra.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && extra.RelativeVelocityBefore.Length() >= maxVelocityMagnitude && !IsLanded()))
+			if (data.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && data.RelativeVelocityBefore.Length() >= maxVelocityMagnitude && !IsLanded()))
 			{
 #ifdef EXPANSIONVEHICLELOG
 				Print(dot);
 				Print(impulseRequired);
 				Print(other);
-				Print(extra.Impulse);
+				Print(data.Impulse);
 				Print(GetVelocity(this));
 				Print(dBodyGetAngularVelocity(this));
 #endif
-				OnContact("", WorldToModel(extra.Position), other, extra);
+				resetImpulse = false;
 			}
 		}
+
+		if (resetImpulse)
+			data.Impulse = 0;  //! Make sure we take no damage while conditions are not met
+
+		super.OnContact(zoneName, localPos, other, data);
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -222,7 +246,7 @@ class ExpansionHelicopterScript extends CarScript
 		}
 
 		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + " " + dmgZone + " has been damaged by " + source + " with " + ammo + " for " + (dmg + additionalDmg) + " health points, remaining health " + GetHealth(dmgZone, "") + ", explode " + explode);
+		EXPrint(ToString() + " (mass " + m_State.m_Mass + ") " + dmgZone + " has been damaged by " + source + " with " + ammo + " for " + (dmg + additionalDmg) + " health points, remaining health " + GetHealth(dmgZone, "") + ", explode " + explode);
 		#endif
 
 		if (isGlobal)
@@ -293,7 +317,8 @@ class ExpansionHelicopterScript extends CarScript
 		vector orientation = GetOrientation();
 
 		ExpansionWreck wreck;
-		position[1] = position[1] - GetModelAnchorPointY() + 1;
+		vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
+		position[1] = modelBottomPos[1] + 1;
 		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
 			wreck.SetPosition(position);
@@ -441,7 +466,8 @@ class ExpansionHelicopterScript extends CarScript
 			vector position = player.GetPosition();
 
 			vector ground = ExpansionStatic.GetSurfaceWaterPosition(position);
-			vector start = Vector(position[0], GetPosition()[1] - GetModelAnchorPointY() - 0.1, position[2]);
+			vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
+			vector start = Vector(position[0], modelBottomPos[1] - 0.1, position[2]);
 			vector end = Vector(position[0], ground[1], position[2]);
 
 			PhxInteractionLayers layerMask;

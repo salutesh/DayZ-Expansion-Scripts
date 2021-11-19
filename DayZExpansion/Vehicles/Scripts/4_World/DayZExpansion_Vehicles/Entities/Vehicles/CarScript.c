@@ -1784,25 +1784,6 @@ modded class CarScript
 			UpdateCarLock(timeSlice);
 		}
 
-		if (IsMissionClient())
-		{
-			if (IsDamageDestroyed())
-			{
-				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionVehiclePlaneBase) || IsInherited(ExpansionBoatScript))
-				{
-					if (m_engineFx)
-					{
-						m_engineFx.SetParticleStateExpansion();
-					}
-
-					if (m_Particles.Count() <= 0)
-					{
-						CreateParticle(this, "fire_pos", ParticleList.EXPANSION_FIRE_HELICOPTER);
-					}
-				}
-			}
-		}
-
 #ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EOnPostSimulate - End");
 #endif
@@ -1847,7 +1828,7 @@ modded class CarScript
 		}
 	}
 
-	void CreateParticle(Object lod, string point, int type)
+	void CreateParticle(Object lod, string point, int type, vector local_ori = "0 0 0", bool force_world_rotation = false)
 	{
 		array<Selection> lodSelections = new array<Selection>();
 
@@ -1862,15 +1843,20 @@ modded class CarScript
 					{
 						for (int j = 0; j < lodSelections[i].GetVertexCount(); j++)
 						{
-							Particle particle = Particle.PlayOnObject(type, lod, lodSelections[i].GetVertexPosition(lodLod, j));
-							//! AddChild( particle.GetDirectParticleEffect(), -1, true );
-
-							m_Particles.Insert(particle);
+							CreateParticleEx(type, lod, lodSelections[i].GetVertexPosition(lodLod, j), local_ori, force_world_rotation);
 						}
 					}
 				}
 			}
 		}
+	}
+
+	void CreateParticleEx(int type, Object parent_obj, vector local_pos = "0 0 0", vector local_ori = "0 0 0", bool force_world_rotation = false)
+	{
+		Particle particle = Particle.PlayOnObject(type, parent_obj, local_pos, local_ori, force_world_rotation);
+		//! AddChild( particle.GetDirectParticleEffect(), -1, true );
+
+		m_Particles.Insert(particle);
 	}
 
 	override void UpdateLights(int new_gear = -1)
@@ -3302,16 +3288,18 @@ modded class CarScript
 			}
 		}
 
+		bool isGlobalOrEngineRuined = (!zone || zone == "GlobalHealth" || zone == "Engine") && newLevel == GameConstants.STATE_RUINED;
+
 		if (IsMissionClient())
 		{
 			if (zone == "Engine" && newLevel >= GameConstants.STATE_DAMAGED)
 			{
 				if (!SEffectManager.IsEffectExist(m_enginePtcFx))
 				{
-					if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionVehiclePlaneBase) || IsInherited(ExpansionBoatScript)) 
+					if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript)) 
 					{
 						m_engineFx = new EffEngineSmoke();
-						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, GetMemoryPointPos("fire_pos"));
+						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, GetMemoryPointPos("fire_pos"), "0 0 0", true);
 					}
 				}
 
@@ -3327,9 +3315,27 @@ modded class CarScript
 			{
 				m_engineFx.Stop();
 			}
+
+			if (isGlobalOrEngineRuined)
+			{
+				if (IsInherited(ExpansionHelicopterScript))
+				{
+					if (m_engineFx)
+					{
+						m_engineFx.SetParticleStateExpansion();
+					}
+
+					if (!m_Particles.Count())
+					{
+						CreateParticle(this, "fire_pos", ParticleList.EXPANSION_FIRE_HELICOPTER, "0 0 0", true);
+						if (!m_Particles.Count())
+							CreateParticleEx(ParticleList.EXPANSION_FIRE_HELICOPTER, this, "0 0 0", "0 0 0", true);
+					}
+				}
+			}
 		}
 		
-		if (IsMissionHost() && (!zone || zone == "GlobalHealth" || zone == "Engine") && newLevel == GameConstants.STATE_RUINED && Expansion_EngineIsOn())
+		if (IsMissionHost() && isGlobalOrEngineRuined && Expansion_EngineIsOn())
 			Expansion_EngineStop();
 
 #ifdef EXPANSIONEXPRINT
