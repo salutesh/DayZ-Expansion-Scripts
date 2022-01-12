@@ -1,22 +1,28 @@
+/**
+ * ModStructure.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2021 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+ */
+
 #ifdef CF_MODULE_MODSTORAGE
 modded class ModStructure
 {
-	override bool OnLoad( string modName )
+	const static CF_String DZ_Expansion = "DZ_Expansion";
+
+	override bool CF_OnLoad(CF_String modName)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("ModStructure::OnLoad " + m_Name + " (" + modName + ")");
-		#endif
+		if (!CF_String.EqualsIgnoreCase(modName, DZ_Expansion))
+		{
+			return super.CF_OnLoad(modName);
+		}
 
-		if ( m_Name != "DZ_Expansion" )
-			return super.OnLoad( modName );
-
-		//! Set the storage version for this mod
-		SetStorageVersion( EXPANSION_VERSION_CURRENT_SAVE );
-
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("ModStructure::OnLoad storage version = " + m_StorageVersion);
-		#endif
-
+		SetStorageVersion(EXPANSION_VERSION_CURRENT_SAVE);
 		return true;
 	}
 };

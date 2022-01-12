@@ -177,9 +177,9 @@ class ExpansionMarketModule: JMModuleBase
 	protected int m_TmpVariantIdIdx;
 	protected ref map<int, ref ExpansionMarketCategory> m_TmpNetworkCats;
 	protected ref array<ref ExpansionMarketNetworkBaseItem> m_TmpNetworkBaseItems;
-	protected ExpansionMarketCurrency m_PlayerWorth;
+	protected int m_PlayerWorth;
 
-	ref map<string, ExpansionMarketCurrency> m_MoneyTypes;
+	ref map<string, int> m_MoneyTypes;
 	ref array<string> m_MoneyDenominations;
 
 	protected ref ExpansionMarketTraderZone m_ClientMarketZone;
@@ -202,7 +202,7 @@ class ExpansionMarketModule: JMModuleBase
 		m_TmpNetworkCats = new map<int, ref ExpansionMarketCategory>;
 		m_TmpNetworkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
 
-		m_MoneyTypes = new map<string, ExpansionMarketCurrency>;
+		m_MoneyTypes = new map<string, int>;
 		m_MoneyDenominations = new array<string>;
 
 		m_ClientMarketZone = new ExpansionMarketClientTraderZone;
@@ -307,11 +307,11 @@ class ExpansionMarketModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionMarketCurrency GetMoneyPrice
+	// Expansion int GetMoneyPrice
 	// ------------------------------------------------------------	
-	ExpansionMarketCurrency GetMoneyPrice(string type)
+	int GetMoneyPrice(string type)
 	{
-		ExpansionMarketCurrency price;
+		int price;
 		if (m_MoneyTypes && m_MoneyTypes.Contains(type))
 		{
 			price = m_MoneyTypes.Get(type);
@@ -352,7 +352,7 @@ class ExpansionMarketModule: JMModuleBase
 			//! It's OK to not use GetItems() here since we don't need variants
 			foreach (ExpansionMarketItem marketItem: category.Items)
 			{
-				ExpansionMarketCurrency worth = marketItem.MinPriceThreshold;
+				int worth = marketItem.MinPriceThreshold;
 				
 				Print(marketItem);
 				Print(worth);
@@ -372,8 +372,8 @@ class ExpansionMarketModule: JMModuleBase
 			min_idx = i;
 			for (j = i + 1; j < m_MoneyDenominations.Count(); j++) 
 			{
-				ExpansionMarketCurrency jMoney = GetMoneyPrice(m_MoneyDenominations[j]);
-				ExpansionMarketCurrency minIndexMoney = GetMoneyPrice(m_MoneyDenominations[min_idx]);
+				int jMoney = GetMoneyPrice(m_MoneyDenominations[j]);
+				int minIndexMoney = GetMoneyPrice(m_MoneyDenominations[min_idx]);
 				if (jMoney < minIndexMoney)
 				{
 					min_idx = j;
@@ -586,13 +586,13 @@ class ExpansionMarketModule: JMModuleBase
 
 				if (canSell)
 				{
-					sell.Price += (ExpansionMarketCurrency) price;
+					sell.Price += (int) price;
 				}
 				else
 				{
 					float unsellableAttachmentsPrice = sell.Price - currentPrice;
 					unsellablePrice += price + unsellableAttachmentsPrice;
-					sell.Price -= (ExpansionMarketCurrency) unsellableAttachmentsPrice;
+					sell.Price -= (int) unsellableAttachmentsPrice;
 				}
 
 				if (amountWanted == 0)
@@ -607,7 +607,7 @@ class ExpansionMarketModule: JMModuleBase
 		if (result == ExpansionMarketResult.Success)
 			result = ExpansionMarketResult.FailedNotInPlayerPossession;
 		else if (result == ExpansionMarketResult.FailedCannotSell && !sell.Price)
-			sell.Price += (ExpansionMarketCurrency) unsellablePrice;
+			sell.Price += (int) unsellablePrice;
 
 		MarketModulePrint("FindSellPrice - End and return false");
 		return false;
@@ -772,7 +772,7 @@ class ExpansionMarketModule: JMModuleBase
 			price += attachment.CalculatePrice(stock + curAddedStock);
 		}
 
-		sell.Price += (ExpansionMarketCurrency) Math.Round(price * modifier);
+		sell.Price += (int) Math.Round(price * modifier);
 
 		if (canSell && !attachment.IsStaticStock())
 		{
@@ -998,7 +998,7 @@ class ExpansionMarketModule: JMModuleBase
 		reserved.RootItem = item;
 		reserved.TotalAmount = amountWanted;
 		
-		ExpansionMarketCurrency price;
+		int price;
 		if (!FindPriceOfPurchase(item, zone, trader, amountWanted, price, includeAttachments, result, reserved))
 		{
 			MarketModulePrint("FindPurchasePriceAndReserve - ExpansionMarketItem " + item.ClassName + " is out of stock or item is set to not be buyable! End and return false!");
@@ -1016,7 +1016,7 @@ class ExpansionMarketModule: JMModuleBase
 	// Expansion Bool FindPriceOfPurchase
 	// ------------------------------------------------------------
 	//! Returns true if item and attachments (if any) are in stock, false otherwise
-	bool FindPriceOfPurchase(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, int amountWanted, inout ExpansionMarketCurrency price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
+	bool FindPriceOfPurchase(ExpansionMarketItem item, ExpansionMarketTraderZone zone, ExpansionMarketTrader trader, int amountWanted, inout int price, bool includeAttachments = true, out ExpansionMarketResult result = ExpansionMarketResult.Success, out ExpansionMarketReserve reserved = NULL, inout map<string, int> removedStock = NULL, out TStringArray outOfStockList = NULL, int level = 0)
 	{
 		int stock;
 
@@ -1104,11 +1104,11 @@ class ExpansionMarketModule: JMModuleBase
 		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
 
 		itemPrice = Math.Round(itemPrice * priceModifier);
-		price += (ExpansionMarketCurrency) itemPrice;
+		price += (int) itemPrice;
 
 		if (result == ExpansionMarketResult.Success && reserved)
 		{
-			reserved.AddReserved(zone, item.ClassName, amountWanted, (ExpansionMarketCurrency) itemPrice);
+			reserved.AddReserved(zone, item.ClassName, amountWanted, (int) itemPrice);
 			removedStock.Set(item.ClassName, 0);
 		}
 
@@ -1274,7 +1274,7 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion SpawnMoney
 	// ------------------------------------------------------------
-	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, ExpansionMarketCurrency amount, bool useExisingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
+	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, int amount, bool useExisingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
 	{	
 		MarketModulePrint("SpawnMoney - Start");	
 		
@@ -1315,9 +1315,9 @@ class ExpansionMarketModule: JMModuleBase
 			}
 		}
 		
-		ExpansionMarketCurrency remainingAmount = amount;
+		int remainingAmount = amount;
 		int lastCurrencyIdx = m_MoneyDenominations.Count() - 1;
-		ExpansionMarketCurrency minAmount = GetMoneyPrice(m_MoneyDenominations[lastCurrencyIdx]);
+		int minAmount = GetMoneyPrice(m_MoneyDenominations[lastCurrencyIdx]);
 
 		for (int currentDenomination = 0; currentDenomination < m_MoneyDenominations.Count(); currentDenomination++)
 		{
@@ -1333,12 +1333,12 @@ class ExpansionMarketModule: JMModuleBase
 				continue;
 			}
 
-			ExpansionMarketCurrency denomPrice = GetMoneyPrice(type);
-			ExpansionMarketCurrency divAmount = remainingAmount / denomPrice;
+			int denomPrice = GetMoneyPrice(type);
+			int divAmount = remainingAmount / denomPrice;
 
 			int toSpawn = Math.Floor(divAmount);
 
-			ExpansionMarketCurrency amountSpawned = denomPrice * toSpawn;
+			int amountSpawned = denomPrice * toSpawn;
 
 			if (divAmount < 1)
 				continue;
@@ -1426,7 +1426,7 @@ class ExpansionMarketModule: JMModuleBase
 	//! If player is given, use money in player inventory (if enough), otherwise use amounts that would be needed
 	//! Out array <monies> contains needed amounts for each money type to reach total <amount>
 	//! Note: Out array <monies> is always ordered from highest to lowest value currency
-	bool FindMoneyAndCountTypes(PlayerBase player, ExpansionMarketCurrency amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
+	bool FindMoneyAndCountTypes(PlayerBase player, int amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
 	{	
 		MarketModulePrint("FindMoneyAndCountTypes - player " + player + " - amount " + amount);
 
@@ -1481,10 +1481,10 @@ class ExpansionMarketModule: JMModuleBase
 			}
 		}
 
-		ExpansionMarketCurrency foundAmount = 0;
+		int foundAmount = 0;
 		int lastCurrencyIdx = m_MoneyDenominations.Count() - 1;
-		ExpansionMarketCurrency minAmount = GetMoneyPrice(m_MoneyDenominations[lastCurrencyIdx]);
-		ExpansionMarketCurrency remainingAmount = amount;
+		int minAmount = GetMoneyPrice(m_MoneyDenominations[lastCurrencyIdx]);
+		int remainingAmount = amount;
 
 		string info = "Would reserve";
 		if (reserve)
@@ -1502,7 +1502,7 @@ class ExpansionMarketModule: JMModuleBase
 				continue;
 			}
 
-			ExpansionMarketCurrency denomPrice = GetMoneyPrice(m_MoneyDenominations[j]);
+			int denomPrice = GetMoneyPrice(m_MoneyDenominations[j]);
 			float divAmount = remainingAmount / denomPrice;
 			int toReserve = Math.Floor(divAmount);
 			int reserved = 0;
@@ -1548,7 +1548,7 @@ class ExpansionMarketModule: JMModuleBase
 				checkedCurrentDenom++;
 			}
 
-			ExpansionMarketCurrency amountReserve = reserved * denomPrice;
+			int amountReserve = reserved * denomPrice;
 			foundAmount += amountReserve;
 			remainingAmount -= amountReserve;
 
@@ -1627,7 +1627,7 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion Float GetPlayerWorth
 	// ------------------------------------------------------------
-	ExpansionMarketCurrency GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL)
+	int GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL)
 	{
 		m_PlayerWorth = 0;
 
@@ -1676,7 +1676,7 @@ class ExpansionMarketModule: JMModuleBase
 		return m_PlayerWorth;
 	}
 	
-	ExpansionMarketCurrency GetPlayerWorth()
+	int GetPlayerWorth()
 	{
 		return m_PlayerWorth;
 	}
@@ -2057,7 +2057,7 @@ class ExpansionMarketModule: JMModuleBase
 
 			//! Order needs to match highest to lowest currency value
 			rpc.Write(m_MoneyDenominations);
-			array < ExpansionMarketCurrency > values = new array< ExpansionMarketCurrency >;
+			array < int > values = new array< int >;
 			foreach ( string moneyName: m_MoneyDenominations )
 			{
 				values.Insert(GetMoneyPrice(moneyName));
@@ -2078,7 +2078,7 @@ class ExpansionMarketModule: JMModuleBase
 		MarketModulePrint("RPC_MoneyDenominations - Start");
 		
 		array<string> keys = new array<string>;
-		array<ExpansionMarketCurrency> values = new array<ExpansionMarketCurrency>;
+		array<int> values = new array<int>;
 
 		if (!ctx.Read(keys) || !ctx.Read(values))
 			return;
@@ -2109,7 +2109,7 @@ class ExpansionMarketModule: JMModuleBase
 	// Expansion RequestPurchase
 	// Client only
 	// ------------------------------------------------------------
-	void RequestPurchase(string itemClassName, int count, ExpansionMarketCurrency currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
+	void RequestPurchase(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -2147,7 +2147,7 @@ class ExpansionMarketModule: JMModuleBase
 		if (!ctx.Read(count))
 			return;
 			
-		ExpansionMarketCurrency currentPrice;
+		int currentPrice;
 		if (!ctx.Read(currentPrice))
 			return;
 
@@ -2214,7 +2214,7 @@ class ExpansionMarketModule: JMModuleBase
 	// Expansion Exec_RequestPurchase
 	//	Server only
 	// ------------------------------------------------------------
-	private void Exec_RequestPurchase(notnull PlayerBase player, string itemClassName, int count, ExpansionMarketCurrency currentPrice, ExpansionTraderObjectBase trader, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
+	private void Exec_RequestPurchase(notnull PlayerBase player, string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
 		MarketModulePrint("Exec_RequestPurchase - Sart");
 		
@@ -2601,7 +2601,7 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion RequestSell
 	// ------------------------------------------------------------
-	void RequestSell(string itemClassName, int count, ExpansionMarketCurrency currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL)
+	void RequestSell(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL)
 	{
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -2637,7 +2637,7 @@ class ExpansionMarketModule: JMModuleBase
 		if (!ctx.Read(count))
 			return;
 			
-		ExpansionMarketCurrency currentPrice;
+		int currentPrice;
 		if (!ctx.Read(currentPrice))
 			return;
 
@@ -2657,7 +2657,7 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion Exec_RequestSell
 	// ------------------------------------------------------------
-	private void Exec_RequestSell(notnull PlayerBase player, string itemClassName, int count, ExpansionMarketCurrency currentPrice, ExpansionTraderObjectBase trader)
+	private void Exec_RequestSell(notnull PlayerBase player, string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader)
 	{
 		MarketModulePrint("Exec_RequestSell - Sart");
 		

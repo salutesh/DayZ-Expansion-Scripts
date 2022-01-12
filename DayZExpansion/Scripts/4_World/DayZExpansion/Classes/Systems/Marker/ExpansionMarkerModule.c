@@ -122,7 +122,7 @@ class ExpansionMarkerModule: JMModuleBase
 			{
 				bool found = false;
 
-				for ( int i = 1; i < m_AllData.Count(); ++i )
+				for ( int i = 0; i < m_AllData.Count(); ++i )
 				{
 					if ( m_AllData[i].Equals( address, port ) )
 					{
@@ -313,11 +313,16 @@ class ExpansionMarkerModule: JMModuleBase
 					
 					return false;
 				}
-				
+
 				ExpansionMarkerClientData newServer = null;
-				for ( int i = 1; i < m_AllData.Count(); ++i )
+				for ( int i = 0; i < m_AllData.Count(); ++i )
+				{
 					if ( m_AllData[i].Equals( ip, port ) )
+					{
 						newServer = m_AllData[i];
+						break;
+					}
+				}
 				
 				if ( !newServer )
 				{

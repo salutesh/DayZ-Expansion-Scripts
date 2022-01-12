@@ -404,7 +404,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		//! Buy price
 		if (m_CanBuy)
 		{
-			ExpansionMarketCurrency price = 0;
+			int price = 0;
 			//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
 			ExpansionMarketItem item = GetMarketItem();
 			m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, GetIncludeAttachments());

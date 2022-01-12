@@ -19,7 +19,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	
 	EditBoxWidget AmountValue;
 	int m_Amount = 0;
-	ExpansionMarketCurrency m_PlayerMoney;
+	int m_PlayerMoney;
 	
 	protected Widget atm_transfer;
 	protected Widget atm_party;

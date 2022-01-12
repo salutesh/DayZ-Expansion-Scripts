@@ -184,6 +184,25 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		#endif
 	}
 	
+	static void Sort(array<ref ExpansionMapMarkerListEntry> listEntries)
+	{
+		TStringArray markerNames = new TStringArray;
+
+		foreach (ExpansionMapMarkerListEntry entry: listEntries)
+		{
+			markerNames.Insert(entry.GetData().GetName());
+		}
+
+		markerNames.Sort();
+
+		foreach (ExpansionMapMarkerListEntry currentEntry: listEntries)
+		{
+			string name = currentEntry.GetData().GetName();
+			int index = markerNames.Find(name);
+			currentEntry.SetSort(index, false);
+		}
+	}
+	
 	// ------------------------------------------------------------
 	// AddPersonalEntry
 	// ------------------------------------------------------------
@@ -196,9 +215,17 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		ExpansionMapMarkerListEntry entry = new ExpansionMapMarkerListEntry(m_MapMenu, m_PersonalMarkersContent, marker);
 		m_PersonalMarkers.Insert(entry);
 		
+		Sort(m_PersonalMarkers);
+
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::AddPersonalEntry - End");
 		#endif
+	}
+
+	void UpdatePersonalEntry(ExpansionMapMarkerListEntry listEntry)
+	{
+		listEntry.Update();
+		Sort(m_PersonalMarkers);
 	}
 
 	// ------------------------------------------------------------
@@ -230,17 +257,25 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		#endif
 	}
 	
+	ExpansionMapMarkerListEntry GetEntry(ExpansionMapMarker marker, array<ref ExpansionMapMarkerListEntry> listEntries)
+	{
+		foreach (ExpansionMapMarkerListEntry listEntry: listEntries)
+		{
+			if ( listEntry && listEntry.GetMarker() == marker )
+				return listEntry;
+		}
+
+		return NULL;
+	}
+
+	ExpansionMapMarkerListEntry GetPersonalEntry(ExpansionMapMarker marker)
+	{
+		return GetEntry(marker, m_PersonalMarkers);
+	}
+
 	bool HasPersonalEntry(ExpansionMapMarker marker)
 	{
-		for ( int i = 0; i < m_PersonalMarkers.Count(); ++i )
-		{
-			if ( m_PersonalMarkers[i] != NULL )
-				if ( m_PersonalMarkers[i].GetMarker() != NULL )
-					if ( m_PersonalMarkers[i].GetMarker() == marker )
-						return true;
-		}	
-		
-		return false;
+		return GetPersonalEntry(marker) != NULL;
 	}
 		
 	// ------------------------------------------------------------
@@ -255,9 +290,17 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		ExpansionMapMarkerListEntry entry = new ExpansionMapMarkerListEntry(m_MapMenu, m_PartyMarkersContent, marker);
 		m_PartyMarkers.Insert(entry);
 		
+		Sort(m_PartyMarkers);
+		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::AddPartyEntry - End");
 		#endif
+	}
+
+	void UpdatePartyEntry(ExpansionMapMarkerListEntry listEntry)
+	{
+		listEntry.Update();
+		Sort(m_PartyMarkers);
 	}
 
 	// ------------------------------------------------------------
@@ -286,18 +329,15 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemovePartyEntry - End");
 		#endif
 	}
+
+	ExpansionMapMarkerListEntry GetPartyEntry(ExpansionMapMarker marker)
+	{
+		return GetEntry(marker, m_PartyMarkers);
+	}
 	
 	bool HasPartyEntry(ExpansionMapMarker marker)
 	{
-		for ( int i = 0; i < m_PartyMarkers.Count(); ++i )
-		{
-			if ( m_PartyMarkers[i] != NULL )
-				if ( m_PartyMarkers[i].GetMarker() != NULL )
-					if ( m_PartyMarkers[i].GetMarker() == marker )
-						return true;
-		}
-		
-		return false;
+		return GetPartyEntry(marker) != NULL;
 	}
 	
 	// ------------------------------------------------------------
@@ -313,11 +353,19 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		{
 			ExpansionMapMarkerListEntry entry = new ExpansionMapMarkerListEntry(m_MapMenu, m_MemberMarkersContent, marker);
 			m_MemberMarkers.Insert(entry);
+		
+			Sort(m_MemberMarkers);
 		}
 		
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::AddMemberEntry - End");
 		#endif
+	}
+
+	void UpdateMemberEntry(ExpansionMapMarkerListEntry listEntry)
+	{
+		listEntry.Update();
+		Sort(m_MemberMarkers);
 	}
 
 	// ------------------------------------------------------------
@@ -346,18 +394,15 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemoveMemberEntry - End");
 		#endif
 	}
+
+	ExpansionMapMarkerListEntry GetMemberEntry(ExpansionMapMarker marker)
+	{
+		return GetEntry(marker, m_MemberMarkers);
+	}
 	
 	bool HasMemberEntry(ExpansionMapMarker marker)
 	{
-		for ( int i = 0; i < m_MemberMarkers.Count(); ++i )
-		{
-			if ( m_MemberMarkers[i] != NULL )
-				if ( m_MemberMarkers[i].GetMarker() != NULL )
-					if ( m_MemberMarkers[i].GetMarker() == marker )
-						return true;
-		}
-		
-		return false;
+		return GetMemberEntry(marker) != NULL;
 	}
 	
 	// ------------------------------------------------------------
@@ -403,18 +448,15 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionMapMarkerList::RemoveServerEntry - End");
 		#endif
 	}
+
+	ExpansionMapMarkerListEntry GetServerEntry(ExpansionMapMarker marker)
+	{
+		return GetEntry(marker, m_ServerMarkers);
+	}
 	
 	bool HasServerEntry(ExpansionMapMarker marker)
 	{
-		for ( int i = 0; i < m_ServerMarkers.Count(); ++i )
-		{
-			if ( m_ServerMarkers[i] != NULL )
-				if ( m_ServerMarkers[i].GetMarker() != NULL )
-					if ( m_ServerMarkers[i].GetMarker() == marker )
-						return true;
-		}
-		
-		return false;
+		return GetServerEntry(marker) != NULL;
 	}
 	
 	// ------------------------------------------------------------

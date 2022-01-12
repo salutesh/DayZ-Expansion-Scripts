@@ -267,6 +267,14 @@ modded class CarScript
 		else
 			m_Expansion_Mass = dBodyGetMass(this);
 
+		path = "CfgVehicles " + GetType() + " hornSoundSetEXT";
+		if (GetGame().ConfigIsExisting(path))
+			m_HornSoundSetEXT = GetGame().ConfigGetTextOut(path);
+
+		path = "CfgVehicles " + GetType() + " hornSoundSetINT";
+		if (GetGame().ConfigIsExisting(path))
+			m_HornSoundSetINT = GetGame().ConfigGetTextOut(path);
+
 #ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
 #endif
@@ -2877,149 +2885,118 @@ modded class CarScript
 	}
 
 #ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave(CF_ModStorage storage, string modName)
+	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
 	{
-#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] CarScript::CF_OnStoreSave " + this + " " + modName);
-#endif
+		super.CF_OnStoreSave(storage);
 
-		super.CF_OnStoreSave(storage, modName);
-
-		if (modName != "DZ_Expansion_Vehicles")
-			return;
-
-		storage.Write(m_PersistentIDA);
-		storage.Write(m_PersistentIDB);
-		storage.Write(m_PersistentIDC);
-		storage.Write(m_PersistentIDD);
+		auto ctx = storage[ModStructure.DZ_Expansion_Vehicles];
+		if (!ctx) return;
+		
+		ctx.Write(m_PersistentIDA);
+		ctx.Write(m_PersistentIDB);
+		ctx.Write(m_PersistentIDC);
+		ctx.Write(m_PersistentIDD);
 
 		int lockState = m_VehicleLockedState;
-		storage.Write(lockState);
+		ctx.Write(lockState);
 
-		storage.Write(m_Exploded);
-
-		//storage.Write( m_CurrentSkinName );
+		ctx.Write(m_Exploded);
 
 		GetCurrentOrientation();
-		storage.Write(m_Orientation);
+		ctx.Write(m_Orientation);
 
 		GetCurrentPosition();
-		storage.Write(m_Position);
+		ctx.Write(m_Position);
 
-		storage.Write(m_Expansion_IsBeingTowed);
-		storage.Write(m_Expansion_IsTowing);
+		ctx.Write(m_Expansion_IsBeingTowed);
+		ctx.Write(m_Expansion_IsTowing);
 
 		if (m_Expansion_IsBeingTowed)
 		{
-			storage.Write(m_Expansion_TowConnectionIndex);
-			storage.Write(m_Expansion_ParentTowPersistentIDA);
-			storage.Write(m_Expansion_ParentTowPersistentIDB);
-			storage.Write(m_Expansion_ParentTowPersistentIDC);
-			storage.Write(m_Expansion_ParentTowPersistentIDD);
+			ctx.Write(m_Expansion_TowConnectionIndex);
+			ctx.Write(m_Expansion_ParentTowPersistentIDA);
+			ctx.Write(m_Expansion_ParentTowPersistentIDB);
+			ctx.Write(m_Expansion_ParentTowPersistentIDC);
+			ctx.Write(m_Expansion_ParentTowPersistentIDD);
 		}
 
 		if (m_Expansion_IsTowing)
 		{
-			storage.Write(m_Expansion_ChildTowPersistentIDA);
-			storage.Write(m_Expansion_ChildTowPersistentIDB);
-			storage.Write(m_Expansion_ChildTowPersistentIDC);
-			storage.Write(m_Expansion_ChildTowPersistentIDD);
+			ctx.Write(m_Expansion_ChildTowPersistentIDA);
+			ctx.Write(m_Expansion_ChildTowPersistentIDB);
+			ctx.Write(m_Expansion_ChildTowPersistentIDC);
+			ctx.Write(m_Expansion_ChildTowPersistentIDD);
 		}
 
-		storage.Write(m_CurrentSkinName);
+		ctx.Write(m_CurrentSkinName);
 	}
 
-	override bool CF_OnStoreLoad(CF_ModStorage storage, string modName)
+	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
 	{
-#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] CarScript::CF_OnStoreLoad " + this + " " + modName);
-#endif
-
-		if (!super.CF_OnStoreLoad(storage, modName))
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if (modName != "DZ_Expansion_Vehicles")
-			return true;
-
-		m_ExpansionSaveVersion = storage.GetVersion();
-
-		if (Expansion_Assert_False(storage.Read(m_PersistentIDA), "[" + this + "] Failed reading m_PersistentIDA"))
+		auto ctx = storage[ModStructure.DZ_Expansion_Vehicles];
+		if (!ctx) return true;
+	
+		if (!ctx.Read(m_PersistentIDA))
 			return false;
 
-		if (Expansion_Assert_False(storage.Read(m_PersistentIDB), "[" + this + "] Failed reading m_PersistentIDB"))
+		if (!ctx.Read(m_PersistentIDB))
 			return false;
 
-		if (Expansion_Assert_False(storage.Read(m_PersistentIDC), "[" + this + "] Failed reading m_PersistentIDC"))
+		if (!ctx.Read(m_PersistentIDC))
 			return false;
 
-		if (Expansion_Assert_False(storage.Read(m_PersistentIDD), "[" + this + "] Failed reading m_PersistentIDD"))
+		if (!ctx.Read(m_PersistentIDD))
 			return false;
 
 		int lockState;
-		if (Expansion_Assert_False(storage.Read(lockState), "[" + this + "] Failed reading lockState"))
+		if (!ctx.Read(lockState))
 			return false;
-
 		m_VehicleLockedState = lockState;
 
-		if (Expansion_Assert_False(storage.Read(m_Exploded), "[" + this + "] Failed reading m_Exploded"))
+		if (!ctx.Read(m_Exploded))
 			return false;
 
-		//if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
-		//	return false;
-
-		if (Expansion_Assert_False(storage.Read(m_Orientation), "[" + this + "] Failed reading m_Orientation"))
+		if (!ctx.Read(m_Orientation))
 			return false;
 
-		if (Expansion_Assert_False(storage.Read(m_Position), "[" + this + "] Failed reading m_Position"))
+		if (!ctx.Read(m_Position))
 			return false;
 
-		if (GetExpansionSaveVersion() >= 7)
+		if (!ctx.Read(m_Expansion_IsBeingTowed))
+			return false;
+
+		if (!ctx.Read(m_Expansion_IsTowing))
+			return false;
+
+		if (m_Expansion_IsBeingTowed)
 		{
-			if (Expansion_Assert_False(storage.Read(m_Expansion_IsBeingTowed), "[" + this + "] Failed reading m_Expansion_IsBeingTowed"))
-				return false;
-			if (Expansion_Assert_False(storage.Read(m_Expansion_IsTowing), "[" + this + "] Failed reading m_Expansion_IsTowing"))
+			if (!ctx.Read(m_Expansion_TowConnectionIndex))
 				return false;
 
-			if (m_Expansion_IsBeingTowed)
-			{
-				if (GetExpansionSaveVersion() >= 34)
-				{
-					if (Expansion_Assert_False(storage.Read(m_Expansion_TowConnectionIndex), "[" + this + "] Failed reading m_Expansion_TowConnectionIndex"))
-						return false;
-				}
-
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA"))
-					return false;
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB"))
-					return false;
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC"))
-					return false;
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD"))
-					return false;
-			}
-
-			if (m_Expansion_IsTowing)
-			{
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA"))
-					return false;
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB"))
-					return false;
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC"))
-					return false;
-				if (Expansion_Assert_False(storage.Read(m_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD"))
-					return false;
-			}
+			if (!ctx.Read(m_Expansion_ParentTowPersistentIDA))
+				return false;
+			if (!ctx.Read(m_Expansion_ParentTowPersistentIDB))
+				return false;
+			if (!ctx.Read(m_Expansion_ParentTowPersistentIDC))
+				return false;
+			if (!ctx.Read(m_Expansion_ParentTowPersistentIDD))
+				return false;
 		}
 
-		if (GetExpansionSaveVersion() < 21)
-			return true;
-
-		string currentSkinName = m_CurrentSkinName;
-
-		storage.Read(m_CurrentSkinName);
-
-		if (m_CurrentSkinName == "")
-			m_CurrentSkinName = currentSkinName;
+		if (m_Expansion_IsTowing)
+		{
+			if (!ctx.Read(m_Expansion_ChildTowPersistentIDA))
+				return false;
+			if (!ctx.Read(m_Expansion_ChildTowPersistentIDB))
+				return false;
+			if (!ctx.Read(m_Expansion_ChildTowPersistentIDC))
+				return false;
+			if (!ctx.Read(m_Expansion_ChildTowPersistentIDD))
+				return false;
+		}
 
 		return true;
 	}
@@ -3318,7 +3295,7 @@ modded class CarScript
 
 			if (isGlobalOrEngineRuined)
 			{
-				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
+				if (IsInherited(ExpansionHelicopterScript))
 				{
 					if (m_engineFx)
 					{
@@ -3453,18 +3430,10 @@ modded class CarScript
 		{
 			m_HornSoundSetEXT = m_CurrentSkin.HornEXT;
 		}
-		else
-		{
-			m_HornSoundSetEXT = "Expansion_Horn_Ext_SoundSet";
-		}
 
 		if (m_CurrentSkin.HornINT != "")
 		{
 			m_HornSoundSetINT = m_CurrentSkin.HornINT;
-		}
-		else
-		{
-			m_HornSoundSetINT = "Expansion_Horn_Int_SoundSet";
 		}
 
 		for (int i = 0; i < m_CurrentSkin.HiddenSelections.Count(); i++)
@@ -3590,9 +3559,21 @@ modded class CarScript
 		{
 			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
 			if (GetGame().ConfigIsExisting(path))
+			{
 				m_ModelAnchorPointY = GetGame().ConfigGetFloat(path);
+			}
 			else
-				m_ModelAnchorPointY = 0.0;
+			{
+				//! @note will be exact for helis w/o separate wheels
+				vector minMax[2];
+				GetCollisionBox(minMax);
+				vector modelPos = WorldToModel(GetPosition());
+				float diff = modelPos[1] - minMax[0][1];
+				if (diff > 0)
+					m_ModelAnchorPointY = diff;
+				else
+					m_ModelAnchorPointY = 0;
+			}
 #ifdef EXPANSIONEXPRINT
 			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
 #endif

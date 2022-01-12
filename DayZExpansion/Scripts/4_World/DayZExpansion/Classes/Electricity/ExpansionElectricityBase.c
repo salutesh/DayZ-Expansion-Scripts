@@ -25,11 +25,11 @@ class ExpansionElectricityBase
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
-	void OnStoreSave( CF_ModStorage storage )
+	void OnStoreSave(CF_ModStorage ctx)
 	{
 	}
 
-	bool OnStoreLoad( CF_ModStorage storage )
+	bool OnStoreLoad(CF_ModStorage ctx)
 	{
 	}
 	#endif

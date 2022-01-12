@@ -20,7 +20,6 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionLocatorModule );
 		modules.Insert( ExpansionPartyModule );
 		modules.Insert( ExpansionMarkerModule );
-		modules.Insert( ExpansionMissionModule );
 		modules.Insert( ExpansionTerritoryModule );
 		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionWorldMappingModule );

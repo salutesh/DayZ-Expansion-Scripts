@@ -841,51 +841,26 @@ modded class ItemBase
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("ItemBase::CF_OnStoreSave " + this + " " + modName);
-		#endif
+		super.CF_OnStoreSave(storage);
 
-		super.CF_OnStoreSave( storage, modName );
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return;
 
-		if ( modName != "DZ_Expansion" )
-			return;
-
-		m_ElectricitySource.OnStoreSave( storage );
+		m_ElectricitySource.OnStoreSave(ctx);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("ItemBase::CF_OnStoreLoad " + this + " " + modName);
-		#endif
-
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( GetExpansionSaveVersion() < 22 )
-		{
-			string currentSkinName = m_CurrentSkinName;
-
-			if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
-				return false;
-
-			if ( m_CurrentSkinName == "" )
-				m_CurrentSkinName = currentSkinName;
-		}
-
-		if (GetExpansionSaveVersion() < 32)
-		{
-			bool isAttached;
-			if ( Expansion_Assert_False( storage.Read( isAttached ), "[" + this + "] Failed reading isAttached" ) )
-				return false;
-		}
-
-		m_ElectricitySource.OnStoreLoad( storage );
+		if (!m_ElectricitySource.OnStoreLoad(ctx))
+			return false;
 
 		return true;
 	}

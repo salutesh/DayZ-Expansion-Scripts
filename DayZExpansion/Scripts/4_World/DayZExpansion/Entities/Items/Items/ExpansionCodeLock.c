@@ -73,43 +73,41 @@ class ExpansionCodeLock extends ItemBase
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_KnownUIDs.Count() );
+		ctx.Write( m_KnownUIDs.Count() );
 		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
 		{
-			storage.Write( m_KnownUIDs[i] );
+			ctx.Write( m_KnownUIDs[i] );
 		}
 	}
-
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	
+	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( storage.GetVersion() >= 20 )
+		int count;
+		if (!ctx.Read(count))
+			return false;
+
+		for (int i = 0; i < count; i++)
 		{
-			int count;
-			if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading m_KnownUIDs count" ) )
+			string knownUID;
+			if (!ctx.Read(knownUID))
 				return false;
 
-			for ( int i = 0; i < count; i++ )
-			{
-				string knownUID;
-				if ( Expansion_Assert_False( storage.Read( knownUID ), "[" + this + "] Failed reading m_KnownUIDs[" + i + "]" ) )
-					return false;
-				m_KnownUIDs.Insert( knownUID );
-			}
+			m_KnownUIDs.Insert( knownUID );
 		}
-		
+
 		return true;
 	}
 	#endif

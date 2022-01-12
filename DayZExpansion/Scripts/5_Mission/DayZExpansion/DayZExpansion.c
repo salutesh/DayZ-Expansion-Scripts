@@ -66,7 +66,6 @@ modded class DayZExpansion
 			ExpansionSettings.SI_Map.Invoke();
 			ExpansionSettings.SI_SafeZone.Invoke();
 			ExpansionSettings.SI_Spawn.Invoke();
-			ExpansionSettings.SI_Mission.Invoke();
 			ExpansionSettings.SI_BaseBuilding.Invoke();
 			
 			GetModuleManager().OnSettingsUpdated();

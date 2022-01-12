@@ -1,3 +1,10 @@
+#define _ARMA_
+
+class CfgPatches
+{
+	class DayZExpansion_NameTags_Preload
+	{
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {};

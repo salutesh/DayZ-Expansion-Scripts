@@ -42,12 +42,14 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 	protected CheckBoxWidget m_State3DCheckbox;
 	protected CheckBoxWidget m_StatePartyCheckbox;
+	protected CheckBoxWidget m_StateDragLockCheckbox;
 
 	private int m_PrimaryColor;
 	private int m_HoverColor;
 
 	private bool m_MouseHover;
 	private bool m_Creating;
+	private bool m_DragLocked;
 
 	protected ExpansionMapMenu m_MapMenu;
 	private ExpansionMarkerModule m_MarkerModule;
@@ -147,6 +149,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 		Class.CastTo( m_State3DCheckbox, layoutRoot.FindAnyWidget( "marker_state_3d_checkbox" ) );
 		Class.CastTo( m_StatePartyCheckbox, layoutRoot.FindAnyWidget( "marker_state_party_checkbox" ) );
+		Class.CastTo( m_StateDragLockCheckbox, layoutRoot.FindAnyWidget( "marker_state_lock_checkbox" ) );
 
 		for (int i = 0; i < ExpansionIcons.Count(); ++i)
 		{
@@ -300,6 +303,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			if ( CanEdit() )
 			{
 				m_State3DCheckbox.SetChecked( m_Data.Is3D() );
+				m_StateDragLockCheckbox.SetChecked(m_Data.GetLockState());
 			}
 		}
 		
@@ -570,6 +574,19 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		#endif
 	}
 	
+	bool IsDragLocked()
+	{
+		return m_DragLocked && !ExpansionStatic.Key_SHIFT();
+	}
+
+	override bool OnDrag( Widget w, int x, int y )
+	{
+		if ( IsDragLocked() )
+			return false;
+
+		return super.OnDrag( w, x, y );
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMapMarker OnDrop
 	// ------------------------------------------------------------
@@ -580,6 +597,9 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		#endif
 		
 		super.OnDrop();
+
+		if ( IsDragLocked() && !IsDragging() )
+			return;
 
 		if ( IsCreating() )
 			return;
@@ -778,6 +798,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_Data.SetColor( m_PrimaryColor );
 			m_Data.SetPosition( GetPosition() );
 			m_Data.Set3D( m_State3DCheckbox.IsChecked() );
+			m_Data.SetLockState( m_StateDragLockCheckbox.IsChecked() );
 	
 			ExpansionMapMenu menu;
 			if ( Class.CastTo( menu, GetGame().GetUIManager().GetMenu() ) )
@@ -868,6 +889,20 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		{
 			SetPrimaryColor( ARGB( 255, m_ColorRGB_Red.GetCurrent(), m_ColorRGB_Green.GetCurrent(), m_ColorRGB_Blue.GetCurrent() ) );
 
+			return true;
+		}
+		
+		if (w != NULL && w == m_StateDragLockCheckbox)
+		{
+			if (m_StateDragLockCheckbox.IsChecked())
+			{
+				m_DragLocked = true;
+			}
+			else
+			{
+				m_DragLocked = false;
+			}
+			
 			return true;
 		}
 

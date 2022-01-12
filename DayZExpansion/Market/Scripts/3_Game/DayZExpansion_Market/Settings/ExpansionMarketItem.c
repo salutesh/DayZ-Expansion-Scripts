@@ -26,8 +26,8 @@ class ExpansionMarketItem
 
 	string ClassName;
 
-	ExpansionMarketCurrency MaxPriceThreshold;
-	ExpansionMarketCurrency MinPriceThreshold;
+	int MaxPriceThreshold;
+	int MinPriceThreshold;
 
 	//! @note this is a workaround for a serious Enforce bug (MaxPriceThreshold gets randomly reset to zero on client after a few buys/sells)
 	[NonSerialized()]
@@ -67,7 +67,7 @@ class ExpansionMarketItem
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketItem( int catID, string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int sellPricePercent = -1, int itemID = -1, array<int> attachmentIDs = null)
+	void ExpansionMarketItem( int catID, string className, int minPrice, int maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int sellPricePercent = -1, int itemID = -1, array<int> attachmentIDs = null)
 	{
 		if (itemID == -1)
 			ItemID = ++m_CurrentItemId;
@@ -171,7 +171,7 @@ class ExpansionMarketItem
 	// Expansion CalculatePrice
 	// Calculates the current price of the item for one item at the current stock level
 	// ------------------------------------------------------------
-	ExpansionMarketCurrency CalculatePrice(int stock, float modifier = 1.0)
+	int CalculatePrice(int stock, float modifier = 1.0)
 	{
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock + " modifier " + modifier + " minstock " + MinStockThreshold + " maxstock " + MaxStockThreshold + " maxprice " + m_MaxPriceThreshold + " minprice " + m_MinPriceThreshold + " pct " + SellPricePercent);
@@ -190,7 +190,7 @@ class ExpansionMarketItem
 		EXPrint("ExpansionMarketItem::CalculatePrice - End and return calculated price: " + price);
 		#endif
 		
-		return (ExpansionMarketCurrency) price;
+		return (int) price;
 	}
 
 	bool IsMagazine()

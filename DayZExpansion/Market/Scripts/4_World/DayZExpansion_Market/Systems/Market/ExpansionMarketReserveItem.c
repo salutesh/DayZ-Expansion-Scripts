@@ -14,7 +14,7 @@ class ExpansionMarketReserve
 {
 	bool Valid;
 
-	ExpansionMarketCurrency Price;
+	int Price;
 	ref ExpansionTraderObjectBase Trader;
 	int Time;
 
@@ -51,7 +51,7 @@ class ExpansionMarketReserve
 		}
 	}
 
-	void AddReserved(ExpansionMarketTraderZone zone, string clsName, int amt, ExpansionMarketCurrency pce)
+	void AddReserved(ExpansionMarketTraderZone zone, string clsName, int amt, int pce)
 	{
 		Price += pce;
 		
@@ -84,7 +84,7 @@ class ExpansionMarketReserveItem
 {
 	string ClassName;
 	int Amount;
-	ExpansionMarketCurrency Price;
+	int Price;
 
 	void Debug(int i)
 	{
@@ -94,7 +94,7 @@ class ExpansionMarketReserveItem
 		Print("Price: " + string.ToString(Price));
 	}
 
-	void ExpansionMarketReserveItem( string clsName, int amt, ExpansionMarketCurrency pce )
+	void ExpansionMarketReserveItem( string clsName, int amt, int pce )
 	{
 		ClassName = clsName;
 		Amount = amt;

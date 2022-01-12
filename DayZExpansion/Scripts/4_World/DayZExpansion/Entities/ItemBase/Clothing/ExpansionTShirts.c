@@ -1,1 +1,0 @@
-class ExpansionTee extends TShirt_ColorBase {};

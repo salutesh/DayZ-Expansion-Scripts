@@ -271,58 +271,56 @@ class ExpansionSafeBase extends Container_Base
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
-		
-		storage.Write( m_IsOpen );
-		storage.Write( m_Locked );
-		storage.Write( m_Code );
-		storage.Write( m_HasCode );
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_KnownUIDs.Count() );
+		ctx.Write( m_IsOpen );
+		ctx.Write( m_Locked );
+		ctx.Write( m_Code );
+		ctx.Write( m_HasCode );
+
+		ctx.Write( m_KnownUIDs.Count() );
 		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
 		{
-			storage.Write( m_KnownUIDs[i] );
+			ctx.Write( m_KnownUIDs[i] );
 		}
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+		if (!ctx.Read(m_IsOpen))
 			return false;
 
-		m_CodeLength = m_Code.Length();
-
-		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
+		if (!ctx.Read(m_Locked))
 			return false;
 
-		if ( storage.GetVersion() >= 20 )
+		if (!ctx.Read(m_Code))
+			return false;
+
+		if (!ctx.Read(m_HasCode))
+			return false;
+
+		int count;
+		if (!ctx.Read(count))
+			return false;
+
+		for (int i = 0; i < count; i++)
 		{
-			int count;
-			if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading m_KnownUIDs count" ) )
+			string knownUID;
+			if (!ctx.Read(knownUID))
 				return false;
 
-			for ( int i = 0; i < count; i++ )
-			{
-				string knownUID;
-				if ( Expansion_Assert_False( storage.Read( knownUID ), "[" + this + "] Failed reading m_KnownUIDs[" + i + "]" ) )
-					return false;
-				m_KnownUIDs.Insert( knownUID );
-			}
+			m_KnownUIDs.Insert( knownUID );
 		}
 
 		return true;

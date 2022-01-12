@@ -81,7 +81,9 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		//AddItem("Mag_CLIP762x54_5Rnd", 		1,		12,		1,		100);
 		//AddItem("Mag_CLIP762x39_10Rnd", 		5,		7,		1,		100);
 		
-		AddItem("Mag_FAMAS_25Rnd", 			220,	440,	1,		100);
+		AddItem("Mag_FAMAS_25Rnd", 				220,	440,	1,		100);
+		
+		AddItem("Mag_Aug_30Rnd", 				220,	440,	1,		100);
 	#ifdef EXPANSIONMOD	
 		AddItem("Mag_Expansion_Taser", 			20,		40,		1,		100);
 

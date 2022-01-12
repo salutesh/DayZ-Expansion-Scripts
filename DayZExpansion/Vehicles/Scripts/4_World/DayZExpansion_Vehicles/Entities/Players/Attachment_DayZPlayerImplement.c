@@ -89,8 +89,6 @@ modded class DayZPlayerImplement
 #endif
 	}
 
-	void StartCommand_ExpansionFall(float pYVelocity);
-
 	bool CallExpansionClimbCode()
 	{
 		Object attchObh;
@@ -461,7 +459,7 @@ modded class DayZPlayerImplement
 
 				if (PhysicsIsFalling(true))
 				{
-					StartCommand_ExpansionFall(0);
+					StartCommand_Fall(0);
 					m_FallYDiff = GetPosition()[1];
 
 					return true;

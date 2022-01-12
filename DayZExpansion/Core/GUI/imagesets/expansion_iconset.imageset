@@ -4,7 +4,7 @@ ImageSetClass {
  Textures {
   ImageSetTextureClass {
    mpix 1
-   path "{5A5F526F8FCAD6DC}DayZExpansion/Core/GUI/imagesets/expansion_iconset.edds"
+   path "{D0C3E59C0D792EC2}DayZExpansion/Core/GUI/imagesets/expansion_iconset.edds"
   }
  }
  Images {
@@ -239,6 +239,12 @@ ImageSetClass {
   ImageSetDefClass icon_guilded {
    Name "icon_guilded"
    Pos 375 163
+   Size 34 34
+   Flags 0
+  }
+  ImageSetDefClass icon_paypal {
+   Name "icon_paypal"
+   Pos 415 163
    Size 34 34
    Flags 0
   }

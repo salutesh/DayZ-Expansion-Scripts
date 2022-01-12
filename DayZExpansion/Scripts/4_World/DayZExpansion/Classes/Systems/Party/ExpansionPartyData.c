@@ -26,7 +26,11 @@ class ExpansionPartyData
 	protected ref map< string, ExpansionPartyInviteData > InvitesMap;
 	protected ref map< string, ExpansionMarkerData > MarkersMap;
 	
+	//! Server
 	protected ref TStringArray m_SyncMarkersPlayers;
+
+	//! Client
+	bool m_MarkersSynced;
 
 #ifdef EXPANSIONMODMARKET
 	protected int MoneyDeposited;
@@ -415,7 +419,7 @@ class ExpansionPartyData
 		
 		if (file.Open(EXPANSION_GROUPS_FOLDER + PartyID + ".bin", FileMode.WRITE))
 		{
-			file.Write(EXPANSION_VERSION_CURRENT_SAVE);
+			file.Write(EXPANSION_VERSION_MAP_MARKER_SAVE);
 			OnStoreSave(file);
 			
 			file.Close();
@@ -430,7 +434,7 @@ class ExpansionPartyData
 		if ( !IsMissionHost() )
 			return;
 		
-		if (EXPANSION_VERSION_CURRENT_SAVE >= 4)
+		if (EXPANSION_VERSION_MAP_MARKER_SAVE >= 4)
 		{
 			DeleteFile( EXPANSION_GROUPS_FOLDER + PartyID + ".bin" );
 		}
@@ -752,6 +756,8 @@ class ExpansionPartyData
 					delete marker;
 				}
 			}
+
+			m_MarkersSynced = true;
 		}
 	
 	#ifdef EXPANSIONMODMARKET

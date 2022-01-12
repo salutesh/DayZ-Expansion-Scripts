@@ -184,45 +184,40 @@ modded class Fence
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_Locked );
-		storage.Write( m_Code );
-		storage.Write( m_HasCode );
+		ctx.Write(m_Locked);
+		ctx.Write(m_Code);
+		ctx.Write(m_HasCode);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( storage.GetVersion() < 19 )
-			return true;
-
-		if ( Expansion_Assert_False( storage.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+		if (!ctx.Read(m_Locked))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+
+		if (!ctx.Read(m_Code))
+			return false;
+
+		if (!ctx.Read(m_HasCode))
 			return false;
 
 		m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-			return false;
+		if (!CanAttachCodelock())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.ExpansionCodeLockRemove, 1000, false);
 		
-		//! If Code Locks on the Fence it will remove them Just calling later so simplify and ensure that the code lock has been created
-		if ( !CanAttachCodelock() )
-		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ExpansionCodeLockRemove, 1000, false );
-		}
-
 		return true;
 	}
 	#endif

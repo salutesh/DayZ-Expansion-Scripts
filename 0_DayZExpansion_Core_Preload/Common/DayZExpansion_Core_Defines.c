@@ -26,9 +26,6 @@
 #define EXPANSION_ITEM_ATTACHING_DISABLE
 //#define EXPANSION_ITEM_ATTACHING_LOGGING
 
-//! Enable it if you want to DISABLE chicken stuff
-#define EXPANSION_CHICKEN_DISABLE
-
 #define EXPANSION_HELI_WIND
 //#define EXPANSION_HELI_WIND_DEBUG
 #define EXPANSION_HELI_CONTACT_NORMAL_DISABLE
@@ -46,7 +43,6 @@
 
 //! Enable to check player count mins for missions
 #define EXPANSION_MISSION_PLAYERCOUNT_CHECK
-//#define EXPANSION_MISSION_HORDE
 
 //! Enableif you want to enable vehicle towing
 #define EXPANSION_VEHICLE_TOWING

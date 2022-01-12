@@ -182,43 +182,4 @@ modded class CarScript
 
 		return true;
 	}
-
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
-	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("CarScript::CF_OnStoreSave " + this + " " + modName);
-		#endif
-
-		super.CF_OnStoreSave( storage, modName );
-
-		if ( modName != "DZ_Expansion" )
-			return;
-	}
-
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
-	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("CarScript::CF_OnStoreLoad " + this + " " + modName);
-		#endif
-
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
-			return false;
-
-		if ( modName != "DZ_Expansion" )
-			return true;
-
-		if ( GetExpansionSaveVersion() >= 21 )
-			return true;
-
-		string currentSkinName = m_CurrentSkinName;
-
-		storage.Read( m_CurrentSkinName );
-
-		if ( m_CurrentSkinName == "" )
-			m_CurrentSkinName = currentSkinName;
-		
-		return true;
-	}
-	#endif
 };

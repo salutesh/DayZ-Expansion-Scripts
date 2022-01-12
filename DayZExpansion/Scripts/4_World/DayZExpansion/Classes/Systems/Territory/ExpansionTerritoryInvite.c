@@ -17,26 +17,20 @@ class ExpansionTerritoryInvite
 	string UID;
 
 	#ifdef CF_MODULE_MODSTORAGE
-	// ------------------------------------------------------------
-	// Expansion OnStoreSave
-	// ------------------------------------------------------------
-	void OnStoreSave( CF_ModStorage storage )
+	void OnStoreSave(CF_ModStorage ctx)
 	{
-		storage.Write( TerritoryID );
-		storage.Write( TerritoryName );
-		storage.Write( UID );
+		ctx.Write(TerritoryID);
+		ctx.Write(TerritoryName);
+		ctx.Write(UID);
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnStoreLoad
-	// ------------------------------------------------------------
-	bool OnStoreLoad( CF_ModStorage storage )
+	bool OnStoreLoad( CF_ModStorage ctx )
 	{
-		if ( Expansion_Assert_False( storage.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
+		if (!ctx.Read(TerritoryID))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
+		if (!ctx.Read(TerritoryName))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( UID ), "[" + this + "] Failed reading UID" ) )
+		if (!ctx.Read(UID))
 			return false;
 
 		return true;

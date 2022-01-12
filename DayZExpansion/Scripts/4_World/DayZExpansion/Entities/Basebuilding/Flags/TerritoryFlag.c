@@ -363,52 +363,49 @@ modded class TerritoryFlag
 	}
 
 	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
-		
-		storage.Write( m_IsTerritory );
-		if ( m_IsTerritory )
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return;
+
+		ctx.Write(m_IsTerritory);
+		if (m_IsTerritory)
 		{
-			storage.Write( m_FlagTexturePath );
-			storage.Write( m_OwnerID );
-			storage.Write( m_TerritoryID );		
+			ctx.Write(m_FlagTexturePath);
+			ctx.Write(m_OwnerID);
+			ctx.Write(m_TerritoryID);		
 			
-			m_Territory.OnStoreSave( storage );
+			m_Territory.OnStoreSave(ctx);
 		}
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[ModStructure.DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_IsTerritory ), "[" + this + "] Failed reading m_IsTerritory" ) )
+		if (!ctx.Read(m_IsTerritory))
 			return false;
 
-		if ( !m_IsTerritory )
-			return true;
+		if (m_IsTerritory)
+		{
+			if (!ctx.Read(m_FlagTexturePath))
+				return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
-			return false;
-		
-		SetFlagTexture( m_FlagTexturePath );
-		//AnimateFlag( 1 - GetRefresherTime01() );
-		
-		if ( Expansion_Assert_False( storage.Read( m_OwnerID ), "[" + this + "] Failed reading m_OwnerID" ) )
-			return false;
-		
-		if ( Expansion_Assert_False( storage.Read( m_TerritoryID ), "[" + this + "] Failed reading m_TerritoryID" ) )
-			return false;
-		
-		if ( !m_Territory.OnStoreLoad( storage ) )
-			return false;
+			if (!ctx.Read(m_OwnerID))
+				return false;
+
+			if (!ctx.Read(m_TerritoryID))
+				return false;
+
+			if (!m_Territory.OnStoreLoad(ctx))
+				return false;
+		}
 
 		return true;
 	}

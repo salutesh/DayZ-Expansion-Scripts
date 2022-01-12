@@ -17,15 +17,13 @@ const int EXPANSION_MARKER_VIS_MAP = 4;
 class ExpansionMarkerData
 {
 	protected string m_UID;
-
 	protected int m_Visibility;
-
 	protected bool m_Is3D;
 	protected string m_Text;
 	protected string m_IconName;
 	protected int m_Color;
-
 	protected vector m_Position;
+	protected bool m_Locked = false;
 
 	[NonSerialized()]
 	protected Object m_Object;
@@ -86,6 +84,7 @@ class ExpansionMarkerData
 			dst.m_IconName = src.m_IconName;
 			dst.m_Color = src.m_Color;
 			dst.m_Position = src.m_Position;
+			dst.m_Locked = src.m_Locked;
 			dst.m_Object = src.m_Object;
 			dst.m_ObjectNetworkLow = src.m_ObjectNetworkLow;
 			dst.m_ObjectNetworkHigh = src.m_ObjectNetworkHigh;
@@ -130,6 +129,16 @@ class ExpansionMarkerData
 		if ( m_Object )
 			m_Position = m_Object.GetPosition();
 		return m_Position;
+	}
+
+	void SetLockState( bool locked )
+	{
+		m_Locked = locked;
+	}
+	
+	bool GetLockState()
+	{
+		return m_Locked;
 	}
 
 	void Update()
@@ -282,6 +291,8 @@ class ExpansionMarkerData
 		
 		ctx.Write( m_Position );
 
+		ctx.Write( m_Locked );
+		
 		if ( m_Object )
 		{
 			ctx.Write( true );
@@ -309,6 +320,9 @@ class ExpansionMarkerData
 		if ( !ctx.Read( m_Position ) )
 			return false;
 
+		if ( !ctx.Read( m_Locked ) )
+			return false;
+
 		bool hasObject;
 		if ( !ctx.Read( hasObject ) )
 			return false;
@@ -331,6 +345,7 @@ class ExpansionMarkerData
 		ctx.Write( m_IconName );
 		ctx.Write( m_Color );
 		ctx.Write( m_Position );
+		ctx.Write( m_Locked );
 	}
 	
 	bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -349,6 +364,12 @@ class ExpansionMarkerData
 		
 		if ( Expansion_Assert_False( ctx.Read( m_Position ), "[" + this + "] Failed reading m_Position" ) )
 			return false;
+		
+		if ( version >= 38 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+				return false;
+		}
 		
 		return true;
 	}

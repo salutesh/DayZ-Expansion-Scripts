@@ -40,5 +40,7 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		AddItem("HighCapacityVest_Olive", 		230,		460,		1,		100);
 		
 		AddItem("PlateCarrierVest", 			250,		500,		1,		100);
+		
+		AddItem("HuntingVest", 					90,			500,		1,		100);
 	}
 };

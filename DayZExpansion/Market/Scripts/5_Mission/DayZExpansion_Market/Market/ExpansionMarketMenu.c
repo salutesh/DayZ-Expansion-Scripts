@@ -1141,7 +1141,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		array<int> monies = new array<int>;
 		
-		ExpansionMarketCurrency worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_TraderMarket);
+		int worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_TraderMarket);
 		
 		TStringArray descriptions = new TStringArray;
 		TStringArray excludedCurrencys = new TStringArray;
@@ -1715,7 +1715,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					m_MarketMenuController.MarketItemStockTrader = "N/A";
 			}
 
-			ExpansionMarketCurrency price = 0;
+			int price = 0;
 			ExpansionMarketResult result;
 			ExpansionMarketReserve reserve;
 			map<string, int> removedStock;
@@ -2074,12 +2074,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 							msgId = "SELL";
 							formattedPrice = m_MarketMenuController.MarketItemTotalSellPrice;
 						}
-						else
+						else if (state == ExpansionMarketMenuState.CONFIRMING_PURCHASE)
 						{
 							msgId = "PURCHASE";
 							formattedPrice = m_MarketMenuController.MarketItemTotalBuyPrice;
 						}
-						ExpansionNotification("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS", new StringLocaliser("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS_TEXT", m_MarketMenuController.MarketItemName, formattedAmount, formattedPrice), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create();
+						if (msgId)
+							ExpansionNotification("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS", new StringLocaliser("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS_TEXT", m_MarketMenuController.MarketItemName, formattedAmount, formattedPrice), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create();
 					}
 
 					AfterNetworkCallback();
