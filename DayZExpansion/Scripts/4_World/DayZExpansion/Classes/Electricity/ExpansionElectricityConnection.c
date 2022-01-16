@@ -88,7 +88,7 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
+	#ifdef CF_MODSTORAGE
 	override void OnStoreSave(CF_ModStorage ctx)
 	{		
 		ctx.Write(m_IsPaired);

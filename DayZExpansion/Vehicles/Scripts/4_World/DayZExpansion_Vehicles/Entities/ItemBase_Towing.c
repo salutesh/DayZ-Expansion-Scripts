@@ -283,7 +283,7 @@ modded class ItemBase
 		super.OnStoreSave(ctx);
 
 //! If we are saving game version target for ModStorage support (1st stable) or later
-#ifdef CF_MODULE_MODSTORAGE
+#ifdef CF_MODSTORAGE
 		if (GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 			return;
 #endif
@@ -314,7 +314,7 @@ modded class ItemBase
 		if (Expansion_Assert_False(super.OnStoreLoad(ctx, version), "[" + this + "] Failed reading OnStoreLoad super"))
 			return false;
 
-#ifdef CF_MODULE_MODSTORAGE
+#ifdef CF_MODSTORAGE
 		if (version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET)
 			return true;
 #endif

@@ -59,7 +59,7 @@ modded class ItemBase
 		#endif
 
 		//! If we are saving after game version target for ModStorage support (1st stable)
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -71,7 +71,7 @@ modded class ItemBase
 		ctx.Write( m_ExpansionSaveVersion );
 
 		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -101,7 +101,7 @@ modded class ItemBase
 		EXPrint("[CORE] ItemBase::OnStoreLoad " + this + " " + version);
 		#endif
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -109,7 +109,7 @@ modded class ItemBase
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[CORE] [" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -135,23 +135,23 @@ modded class ItemBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
 
-		auto ctx = storage[ModStructure.DZ_Expansion_Core];
+		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
 
 		ctx.Write(m_CurrentSkinName);
 	}
 	
-	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		auto ctx = storage[ModStructure.DZ_Expansion_Core];
+		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return true;
 
 		if (!ctx.Read(m_CurrentSkinName))

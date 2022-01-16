@@ -16,7 +16,7 @@ class ExpansionTerritoryMember
 	protected string m_Name;
 	protected ExpansionTerritoryRank m_Rank;
 
-	#ifdef CF_MODULE_MODSTORAGE
+	#ifdef CF_MODSTORAGE
 	void OnStoreSave(CF_ModStorage ctx)
 	{
 		ctx.Write(m_ID);

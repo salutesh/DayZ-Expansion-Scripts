@@ -134,23 +134,23 @@ modded class CarScript
 			m_Expansion_SafeZoneInstance.Update();
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
 
-		auto ctx = storage[ModStructure.DZ_Expansion_Core];
+		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
 
 		ctx.Write(m_CurrentSkinName);
 	}
 	
-	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		auto ctx = storage[ModStructure.DZ_Expansion_Core];
+		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return true;
 
 		if (!ctx.Read(m_CurrentSkinName))

@@ -356,7 +356,7 @@ class ExpansionTerritory
 		return true;
 	}
 	
-	#ifdef CF_MODULE_MODSTORAGE
+	#ifdef CF_MODSTORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------

@@ -24,7 +24,7 @@ class ExpansionElectricityBase
 	{
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
+	#ifdef CF_MODSTORAGE
 	void OnStoreSave(CF_ModStorage ctx)
 	{
 	}

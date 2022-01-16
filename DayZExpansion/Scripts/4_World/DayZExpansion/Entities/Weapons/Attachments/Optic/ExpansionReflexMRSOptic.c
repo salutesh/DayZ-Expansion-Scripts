@@ -152,7 +152,7 @@ class ExpansionReflexMRSOptic: ItemOptics
 	
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -170,7 +170,7 @@ class ExpansionReflexMRSOptic: ItemOptics
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -181,23 +181,23 @@ class ExpansionReflexMRSOptic: ItemOptics
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave(map<string, CF_ModStorage> storage)
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
 
-		auto ctx = storage[ModStructure.DZ_Expansion];
+		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return;
 
 		ctx.Write(m_CurrentMode);
 	}
 	
-	override bool CF_OnStoreLoad(map<string, CF_ModStorage> storage)
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		auto ctx = storage[ModStructure.DZ_Expansion];
+		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return true;
 
 		if (!ctx.Read(m_CurrentMode))

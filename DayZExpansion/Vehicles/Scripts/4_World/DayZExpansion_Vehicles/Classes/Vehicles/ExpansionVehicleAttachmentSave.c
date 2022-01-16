@@ -21,7 +21,7 @@ class ExpansionVehicleAttachmentSave
 		m_Orientation = orientation;
 	}
 
-#ifdef CF_MODULE_MODSTORAGE
+#ifdef CF_MODSTORAGE
 	void OnWrite(CF_ModStorage ctx)
 	{
 		ctx.Write(m_Position);
