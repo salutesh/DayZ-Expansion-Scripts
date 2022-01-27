@@ -96,178 +96,178 @@ class ExpansionATMMenuColorHandler
 	{
 		//! Menu vignette
 		atm_vignette = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_vignette"));
-		atm_vignette.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorVignette));
+		atm_vignette.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorVignette"));
 		
 		//! Personal ATM Header
 		atm_header = Widget.Cast(m_LayooutRoot.FindAnyWidget("atm_header"));
-		atm_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		atm_header.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 		
 		//! Personal ATM Header text
 		atm_text = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_text"));
-		atm_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		atm_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Max description
 		MaxLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("MaxLabel"));
-		MaxLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		MaxLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Max value
 		MaxValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("MaxValue"));
-		MaxValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		MaxValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Money deposited description
 		MoneyDepositLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("MoneyDepositLabel"));
-		MoneyDepositLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		MoneyDepositLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Money deposited value
 		MoneyDepositValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("MoneyDepositValue"));
-		MoneyDepositValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		MoneyDepositValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Player money description
 		PlayerMoneyLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PlayerMoneyLabel"));
-		PlayerMoneyLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PlayerMoneyLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Amount description
 		AmountLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("AmountLabel"));
-		AmountLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		AmountLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Amount value editbox
 		AmountValue = EditBoxWidget.Cast(m_LayooutRoot.FindAnyWidget("AmountValue"));
-		AmountValue.SetTextColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		AmountValue.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Amount background
 		AmountBackground = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("AmountBackground"));
-		AmountBackground.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		AmountBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		// Withdraw button
 		ButtonWithdraw = ButtonWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonWithdraw"));
-		ButtonWithdraw.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSellButton));
+		ButtonWithdraw.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSellButton"));
 		
 		// Withdraw button text
 		ButtonWithdrawLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonWithdrawLabel"));
-		ButtonWithdrawLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		ButtonWithdrawLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Withdraw button background
 		ButtonWithdrawBackground = Widget.Cast(m_LayooutRoot.FindAnyWidget("ButtonWithdrawBackground"));
-		ButtonWithdrawBackground.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		ButtonWithdrawBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		// Deposit button
 		ButtonDeposit = ButtonWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonDeposit"));
-		ButtonDeposit.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorBuyButton));
+		ButtonDeposit.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorBuyButton"));
 		
 		// Deposit button text
 		ButtonDepositLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonDepositLabel"));
-		ButtonDepositLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		ButtonDepositLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Deposit button background
 		ButtonDepositBackground = Widget.Cast(m_LayooutRoot.FindAnyWidget("ButtonDepositBackground"));
-		ButtonDepositBackground.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		ButtonDepositBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		// Prsonal ATM seperator line
 		atm_separator = Widget.Cast(m_LayooutRoot.FindAnyWidget("atm_separator"));
-		atm_separator.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		atm_separator.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		//! Transfer Header
 		atm_transfer_header = Widget.Cast(m_LayooutRoot.FindAnyWidget("atm_transfer_header"));
-		atm_transfer_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		atm_transfer_header.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 		
 		//! Transfer Header text
 		atm_transfer_text = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_transfer_text"));
-		atm_transfer_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		atm_transfer_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		//! Search filter button
 		atm_filter_clear = ButtonWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_filter_clear"));
-		atm_filter_clear.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+		atm_filter_clear.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 		
 		// Search editbox
 		atm_filter_box = EditBoxWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_filter_box"));
-		atm_filter_box.SetTextColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		atm_filter_box.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Search editbox background
 		atm_filter_background = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_filter_background"));
-		atm_filter_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		atm_filter_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		// Transfer button
 		ButtonTransfere = ButtonWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonTransfere"));
-		ButtonTransfere.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSetQuantityButton));
+		ButtonTransfere.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSetQuantityButton"));
 		
 		// Transfer button text
 		ButtonTransfereLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonTransfereLabel"));
-		ButtonTransfereLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		ButtonTransfereLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Transfer button background
 		ButtonTransfereBackground = Widget.Cast(m_LayooutRoot.FindAnyWidget("ButtonTransfereBackground"));
-		ButtonTransfereBackground.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		ButtonTransfereBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		//! Party Header
 		atm_party_header = Widget.Cast(m_LayooutRoot.FindAnyWidget("atm_party_header"));
-		atm_party_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		atm_party_header.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 		
 		//! Party Header text
 		atm_party_text = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("atm_party_text"));
-		atm_party_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		atm_party_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party name description
 		PartyNameLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyNameLabel"));
-		PartyNameLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyNameLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party name value
 		PartyNameValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyNameValue"));
-		PartyNameValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyNameValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party id description
 		PartyIDLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyIDLabel"));
-		PartyIDLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyIDLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party id value
 		PartyIDValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyIDValue"));
-		PartyIDValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyIDValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party owner description
 		PartyOwnerLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyOwnerLabel"));
-		PartyOwnerLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyOwnerLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party owner value
 		PartyOwnerValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyOwnerValue"));
-		PartyOwnerValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyOwnerValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party max money description
 		PartyMaxLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyMaxLabel"));
-		PartyMaxLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyMaxLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party max money value
 		PartyMaxValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyMaxValue"));
-		PartyMaxValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyMaxValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party money description
 		PartyMoneyDepositLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyMoneyDepositLabel"));
-		PartyMoneyDepositLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyMoneyDepositLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party money value
 		PartyMoneyDepositValue = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyMoneyDepositValue"));
-		PartyMoneyDepositValue.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyMoneyDepositValue.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party deposit button 
 		PartyButtonDeposit = ButtonWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyButtonDeposit"));
-		PartyButtonDeposit.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorBuyButton));
+		PartyButtonDeposit.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorBuyButton"));
 		
 		// Partry deposit button background
 		PartyButtonDepositBackground = Widget.Cast(m_LayooutRoot.FindAnyWidget("PartyButtonDepositBackground"));
-		PartyButtonDepositBackground.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		PartyButtonDepositBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		// Party deposit button text
 		ButtonPartyTransferLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("ButtonPartyTransferLabel"));
-		ButtonPartyTransferLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		ButtonPartyTransferLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		// Party withdraw button 
 		PartyButtonWithdraw = ButtonWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyButtonWithdraw"));
-		PartyButtonWithdraw.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSellButton));
+		PartyButtonWithdraw.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSellButton"));
 		
 		// Partry withdraw button background
 		PartyButtonWithdrawBackground = Widget.Cast(m_LayooutRoot.FindAnyWidget("PartyButtonWithdrawBackground"));
-		PartyButtonWithdrawBackground.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		PartyButtonWithdrawBackground.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		// Party withdraw button text
 		PartyButtonWithdrawLabel = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("PartyButtonWithdrawLabel"));
-		PartyButtonWithdrawLabel.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		PartyButtonWithdrawLabel.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 	}
 };

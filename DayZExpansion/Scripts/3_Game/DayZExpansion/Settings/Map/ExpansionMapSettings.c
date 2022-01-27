@@ -357,6 +357,11 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		#endif
 
 		m_IsLoaded = true;
+			
+		//! Move existing settings file over from old location in $profile to new location in $mission
+		string fileNameOld = EXPANSION_SETTINGS_FOLDER + "MapSettings.json";
+		if (FileExist(fileNameOld))
+			MoveSettings(fileNameOld, EXPANSION_MAP_SETTINGS);
 
 		bool save;
 

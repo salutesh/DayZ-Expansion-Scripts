@@ -29,6 +29,7 @@ class ExpansionIngameHud extends Hud
 	protected bool															m_ExpansionPartyMemberSetting;
 	protected bool															m_ExpansionCompassSetting;
 	protected bool															m_ExpansionHudCompassState;
+	protected bool															m_ExpansionHudCompassDesiredState;
 	
 	//! GPS
 	protected Widget														m_GPSPanel;
@@ -78,6 +79,7 @@ class ExpansionIngameHud extends Hud
 		m_ExpansionEarplugState = false;
 		m_AddedCompassSettings = false;
 		m_ExpansionHudCompassState = false;
+		m_ExpansionHudCompassDesiredState = true;
 				
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshExpansionHudVisibility);
 		
@@ -537,9 +539,19 @@ class ExpansionIngameHud extends Hud
 	// ------------------------------------------------------------
 	void ShowCompass( bool show )
 	{
+		if (!m_ExpansionHudCompassDesiredState)
+			return;
+
 		m_ExpansionHudCompassState = show;
 		
 		RefreshExpansionHudVisibility();
+	}
+
+	void SetShowCompass( bool show )
+	{
+		ShowCompass( show );
+
+		m_ExpansionHudCompassDesiredState = show;
 	}
 	
 	// ------------------------------------------------------------

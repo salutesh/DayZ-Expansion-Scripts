@@ -94,14 +94,27 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		EXPrint("ExpansionBaseBuildingSettings::OnRecieve - Start");
 		#endif
 		
-		ExpansionBaseBuildingSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionBaseBuildingSettings::OnRecieve setting");
-			return false;
-		}
+		ctx.Read(CanBuildAnywhere);
+		ctx.Read(AllowBuildingWithoutATerritory);
+		ctx.Read(CanCraftVanillaBasebuilding);
+		ctx.Read(CanCraftExpansionBasebuilding);
+		ctx.Read(DestroyFlagOnDismantle);
+		ctx.Read(DismantleOutsideTerritory);
+		ctx.Read(DismantleInsideTerritory);
+		ctx.Read(DismantleAnywhere);
+		ctx.Read(CodelockActionsAnywhere)
+		ctx.Read(CodeLockLength);
+		ctx.Read(DoDamageWhenEnterWrongCodeLock);
+		ctx.Read(DamageWhenEnterWrongCodeLock);
+		ctx.Read(RememberCode);
+		ctx.Read(CanCraftTerritoryFlagKit);
+		ctx.Read(SimpleTerritory);
+		ctx.Read(AutomaticFlagOnCreation);
+		ctx.Read(GetTerritoryFlagKitAfterBuild);
 
-		CopyInternal( setting );
+		ctx.Read(CodelockAttachMode);
+		ctx.Read(DismantleFlagMode);
+		ctx.Read(FlagMenuMode);
 		
 		m_IsLoaded = true;
 
@@ -116,9 +129,30 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ExpansionBaseBuildingSettings thisSetting = this;
+		ctx.Write(CanBuildAnywhere);
+		ctx.Write(AllowBuildingWithoutATerritory);
+		//! Do not send deployable items to clients
+		ctx.Write(CanCraftVanillaBasebuilding);
+		ctx.Write(CanCraftExpansionBasebuilding);
+		ctx.Write(DestroyFlagOnDismantle);
+		ctx.Write(DismantleOutsideTerritory);
+		ctx.Write(DismantleInsideTerritory);
+		ctx.Write(DismantleAnywhere);
+		ctx.Write(CodelockActionsAnywhere)
+		ctx.Write(CodeLockLength);
+		ctx.Write(DoDamageWhenEnterWrongCodeLock);
+		ctx.Write(DamageWhenEnterWrongCodeLock);
+		ctx.Write(RememberCode);
+		ctx.Write(CanCraftTerritoryFlagKit);
+		ctx.Write(SimpleTerritory);
+		ctx.Write(AutomaticFlagOnCreation);
+		ctx.Write(GetTerritoryFlagKitAfterBuild);
 
-		ctx.Write( thisSetting );
+		//! Do not send zones to clients
+
+		ctx.Write(CodelockAttachMode);
+		ctx.Write(DismantleFlagMode);
+		ctx.Write(FlagMenuMode);
 	}
 
 	// ------------------------------------------------------------
@@ -233,6 +267,11 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		#endif
 
 		m_IsLoaded = true;
+			
+		//! Move existing settings file over from old location in $profile to new location in $mission
+		string fileNameOld = EXPANSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
+		if (FileExist(fileNameOld))
+			MoveSettings(fileNameOld, EXPANSION_BASE_BUILDING_SETTINGS);
 
 		bool save;
 

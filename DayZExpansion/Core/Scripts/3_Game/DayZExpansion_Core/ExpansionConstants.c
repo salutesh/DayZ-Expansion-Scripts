@@ -45,13 +45,7 @@ const int LIQUID_MILK = 65536;
  * Expansion Input Type
  * @{
  */
-const int INPUT_EXCLUDE_CHAT_EXPANSION		= 50;		// Create with ai
-
-/**
- * Expansion Missing type
- * @{
- */
-const int ECE_ENABLEAI		= 0x800;		// Create with ai
+const int INPUT_EXCLUDE_CHAT_EXPANSION		= 50;
 
 /**
  * Expansion UI Menu IDs
@@ -90,41 +84,29 @@ static const int COLOR_EXPANSION_NOTIFICATION_EXPANSION = ARGB( 255, 226, 65, 66
 static const int COLOR_EXPANSION_NOTIFICATION_MISSION = ARGB(255, 235, 59, 90);
 
 /**
- * Expansion Option Acces Types
- * @{
- */
-const int AT_LIGHT_DETAIL = 63;
-const int AT_MARKERS_SETTINGS = 64;
-
-/**
- * Expansion Profile Name Types
- * @{
- */
-const string EXPANSION_CAST_SHADOW_PROFILE_NAME = "EXPANSION_CAST_SHADOW_PROFILE";
-const string EXPANSION_MARKERS_SETTINGS_PROFILE_NAME = "EXPANSION_MARKERS_PROFILE";
-
-/**
  * Expansion Path
  * @{
  */
 static const string EXPANSION_FOLDER = "$profile:ExpansionMod\\";
+static const string EXPANSION_MISSION_FOLDER = "$mission:expansion\\";
 
 static const string EXPANSION_SETTINGS_FOLDER = EXPANSION_FOLDER + "Settings\\";
+static const string EXPANSION_MISSION_SETTINGS_FOLDER = EXPANSION_MISSION_FOLDER + "settings\\";
 static const string EXPANSION_LOG_FOLDER = EXPANSION_FOLDER + "Logs\\";
-static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_FOLDER + "Missions\\";
+static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_MISSION_FOLDER + "missions\\";
 static const string EXPANSION_GROUPS_FOLDER = EXPANSION_FOLDER + "Groups\\";
 
 static const string EXPANSION_MAPPING_FOLDER = "DayZExpansion/Scripts/Data/Mapping/";
 static const string EXPANSION_MAPPING_EXT = ".map";
 
 static const string EXPANSION_GENERAL_SETTINGS = EXPANSION_SETTINGS_FOLDER + "GeneralSettings.json";
-static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
-static const string EXPANSION_SPAWN_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SpawnSettings.json";
+static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
+static const string EXPANSION_SPAWN_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "SpawnSettings.json";
 static const string EXPANSION_AIRDROP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "AirdropSettings.json";
 static const string EXPANSION_BOT_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BotSettings.json";
-static const string EXPANSION_MAP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MapSettings.json";
+static const string EXPANSION_MAP_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "MapSettings.json";
 static const string EXPANSION_PARTY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "PartySettings.json";
-static const string EXPANSION_SAFE_ZONES_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SafeZoneSettings.json";
+static const string EXPANSION_SAFE_ZONES_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "SafeZoneSettings.json";
 static const string EXPANSION_MISSION_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MissionSettings.json";
 static const string EXPANSION_NOTIFICATION_SETTINGS = EXPANSION_SETTINGS_FOLDER + "NotificationSettings.json";
 static const string EXPANSION_RAID_SETTINGS = EXPANSION_SETTINGS_FOLDER + "RaidSettings.json";
@@ -481,8 +463,8 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
 //! IMPORTANT: When incrementing EXPANSION_VERSION_SAVE by any number n, always increment EXPANSION_VERSION_MODSTORAGE_SAVE by n+1!
 //! DO NOT under any circumstances use the constants EXPANSION_VERSION_SAVE and EXPANSION_VERSION_MODSTORAGE_SAVE in other files than this one!
 //! Use EXPANSION_VERSION_CURRENT_SAVE instead.
-static const int EXPANSION_VERSION_SAVE = 36;  //! Always increment this by 2, not 1!
-static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 37;  //! <-- NEEDS TO ALWAYS BE <EXPANSION_VERSION_SAVE> + 1!
+static const int EXPANSION_VERSION_SAVE = 38;  //! Always increment this by 2, not 1!
+static const int EXPANSION_VERSION_MODSTORAGE_SAVE = 39;  //! <-- NEEDS TO ALWAYS BE <EXPANSION_VERSION_SAVE> + 1!
 
 #ifdef CF_MODSTORAGE
 static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_MODSTORAGE_SAVE;

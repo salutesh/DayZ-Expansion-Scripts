@@ -27,7 +27,6 @@ class ExpansionSafeBase extends Container_Base
 
 		RegisterNetSyncVariableBool( "m_IsOpen" );
 		RegisterNetSyncVariableBool( "m_Locked" );
-		RegisterNetSyncVariableBool( "m_HasCode" );
 		RegisterNetSyncVariableInt( "m_CodeLength" );
 	}
 
@@ -157,15 +156,6 @@ class ExpansionSafeBase extends Container_Base
 		return m_IsOpen;
 	}
 	
-	/**
-	\brief Returning if safe is locked
-		\param 	
-	*/
-	override bool IsLocked()
-	{
-		return m_HasCode && m_Locked;
-	}
-	
 	protected void SoundCodeLockLocked()
 	{
 		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
@@ -230,7 +220,6 @@ class ExpansionSafeBase extends Container_Base
 		ctx.Write( m_IsOpen );
 		ctx.Write( m_Locked );
 		ctx.Write( m_Code );
-		ctx.Write( m_HasCode );
 
 		ctx.Write( m_KnownUIDs );
 	}
@@ -258,8 +247,12 @@ class ExpansionSafeBase extends Container_Base
 
 		m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-			return false;
+		if ( m_ExpansionSaveVersion < 38 )
+		{
+			bool hasCode;
+			if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
+				return false;
+		}
 
 		if ( m_ExpansionSaveVersion >= 20 )
 		{
@@ -281,7 +274,6 @@ class ExpansionSafeBase extends Container_Base
 		ctx.Write( m_IsOpen );
 		ctx.Write( m_Locked );
 		ctx.Write( m_Code );
-		ctx.Write( m_HasCode );
 
 		ctx.Write( m_KnownUIDs.Count() );
 		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
@@ -307,8 +299,14 @@ class ExpansionSafeBase extends Container_Base
 		if (!ctx.Read(m_Code))
 			return false;
 
-		if (!ctx.Read(m_HasCode))
-			return false;
+		m_CodeLength = m_Code.Length();
+
+		if (ctx.GetVersion() < 38)
+		{
+			bool hasCode;
+			if (!ctx.Read(hasCode))
+				return false;
+		}
 
 		int count;
 		if (!ctx.Read(count))
@@ -363,7 +361,7 @@ class ExpansionSafeBase extends Container_Base
 			SetOrientation( orientation );
 
 			if( HasCode() && !IsLocked() && !IsOpened() )
-				Lock();
+				ExpansionLock();
 
 			SetSynchDirty();
 		}	

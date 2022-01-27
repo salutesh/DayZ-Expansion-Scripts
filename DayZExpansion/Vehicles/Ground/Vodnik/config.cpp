@@ -141,7 +141,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_VODNIK";
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\vodnik.p3d";
-		modelAnchorPointY = 2.19;
+		modelZeroPointDistanceFromGround = 2.19;
 		vehicleClass = "Expansion_Car";
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_mod_out_co.paa"};

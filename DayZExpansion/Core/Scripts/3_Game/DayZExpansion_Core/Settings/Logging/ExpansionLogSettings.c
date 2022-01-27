@@ -65,6 +65,10 @@ class ExpansionLogSettings: ExpansionSettingBase
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionLogSettings::OnRecieve - Start");
 		#endif
+
+		//Not sent to client under normal operation
+		m_IsLoaded = true;
+
 		ExpansionLogSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -95,23 +99,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::Send - Start");
-		#endif
-		
-		if ( !IsMissionHost() )
-		{
-			return 0;
-		}
-		
-		ScriptRPC rpc = new ScriptRPC;
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Log, true, identity );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::Send - End and return");
-		#endif
-		return 0;
+		//Not sent to client
 	}
 
 	// ------------------------------------------------------------
@@ -277,11 +265,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 		}
 
 		if ( !FileExist( m_FileTimestamp ) )
-		{
 			m_FileLog = OpenFile(m_FileTimestamp, FileMode.WRITE);
-		}
-
-		m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);
+		else
+			m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);
 		FPrintln(m_FileLog, ExpansionStatic.GetTime() + " " + text);
 		CloseFile(m_FileLog);
 	}

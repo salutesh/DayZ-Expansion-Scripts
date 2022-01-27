@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 {
 	protected Widget m_Root;
@@ -37,7 +38,7 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTVehiclesMapMarker(Widget parent, MapWidget mapwidget, vector pos, int color, string icon, ExpansionVehicleMetaData vehicle, ExpansionCOTVehiclesMenu menu)
 	{
-		m_Root 				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/COT/vehicles/Vehicles_Marker.layout", parent);
+		m_Root 				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Vehicles/GUI/layouts/COT/vehicles/Vehicles_Marker.layout", parent);
 
 		m_Name				= TextWidget.Cast( m_Root.FindAnyWidget("marker_name") );
 		m_Icon				= ImageWidget.Cast( m_Root.FindAnyWidget("marker_icon") );
@@ -237,3 +238,4 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 		}
 	}
 };
+#endif

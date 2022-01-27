@@ -192,6 +192,11 @@ modded class ItemBase
 		#endif
 	}
 
+	bool ExpansionIsLocked()
+	{
+		return false;
+	}
+
 	bool IsLocked()
 	{
 		return false;

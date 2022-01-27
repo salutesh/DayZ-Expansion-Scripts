@@ -27,7 +27,7 @@ class ExpansionNotificationHUD: ScriptView
 	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/GUI/layouts/expansion_notification_hud.layout";
+		return "DayZExpansion/Core/GUI/layouts/expansion_notification_hud.layout";
 	}
 	
 	void AddNotificationToatsElemement(ExpansionNotificationViewToast element)

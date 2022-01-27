@@ -15,18 +15,12 @@ class CF_VehicleSurface
 	float RollResistance = GetValueFloat("rollResistance");
 	float RollDrag = GetValueFloat("rollDrag");
 
-	/**
-	 * @brief Private constructor to prevent outside creation of the class
-	 */
-	private void CF_VehicleSurface()
+	void CF_VehicleSurface()
 	{
 		s_VehicleSurfaces[s_LastSurface] = this;
 	}
 	
-	/**
-	 * @brief Private constructor to prevent from marking as ref
-	 */
-	private void ~CF_VehicleSurface()
+	void ~CF_VehicleSurface()
 	{
 	}
 

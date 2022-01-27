@@ -42,6 +42,8 @@ modded class MissionServer
 		EXPrint("MissionServer::~MissionServer - Start");
 		#endif
 				
+		DestroyNotificationSystem();
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionServer::~MissionServer - End");
 		#endif

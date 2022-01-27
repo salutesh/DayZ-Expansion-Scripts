@@ -59,9 +59,9 @@ class ExpansionATMMenuPlayerEntry: ExpansionScriptView
 	// ------------------------------------------------------------	
 	void SetView()
 	{
-		player_element_button_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
-		//player_element_button.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSetQuantityButton));
-		player_element_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		player_element_button_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
+		//player_element_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSetQuantityButton"));
+		player_element_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		m_ATMMenuPlayerEntryController.PlayerName = m_Player.m_PlayerName;
 		m_ATMMenuPlayerEntryController.NotifyPropertyChanged("PlayerName");

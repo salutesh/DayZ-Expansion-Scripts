@@ -90,7 +90,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_BUS";
 		model = "\DayZExpansion\Vehicles\Ground\Bus\Ikarus.p3d";
-		modelAnchorPointY = 0.1;
+		modelZeroPointDistanceFromGround = 0.1;
 		vehicleClass = "Expansion_Car";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2"};
 		doors[] = {};

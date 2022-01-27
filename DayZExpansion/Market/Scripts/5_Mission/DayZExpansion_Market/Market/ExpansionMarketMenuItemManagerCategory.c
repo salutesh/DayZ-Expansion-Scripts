@@ -60,7 +60,7 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 		{
 			case category_button:
 			{
-				category_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				category_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				if (!m_CategoryTooltip) 
 				{
 					m_CategoryTooltip = new ExpansionMarketMenuTooltip();
@@ -82,7 +82,7 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 		{
 			case category_button:
 			{
-				category_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+				category_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 				if (m_CategoryTooltip) 
 					delete m_CategoryTooltip;
 				break;

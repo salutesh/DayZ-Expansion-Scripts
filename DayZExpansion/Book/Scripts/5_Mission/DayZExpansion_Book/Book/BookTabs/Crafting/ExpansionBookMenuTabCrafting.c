@@ -268,11 +268,6 @@ class ExpansionBookMenuTabCrafting: ExpansionBookMenuTabBase
 	
 	void OnPrepareButtonClick()
 	{
-		Print("Test");
-		#ifdef EXPANSIONMOD
-		ExpansionCraftingModule module = ExpansionCraftingModule.Cast(GetModuleManager().GetModule(ExpansionCraftingModule));
-		module.RequestPrepareCrafting(m_SelectedRecipe);
-		#endif
 	}
 			
 	override void OnBackButtonClick()

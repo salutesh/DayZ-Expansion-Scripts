@@ -614,8 +614,11 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	
 	private void AddItem(PlayerBase player, ExpansionStartingGearItem gearItem, inout EntityAI parent)
 	{
-		int quantity = gearItem.Quantity;  //! SpawnOnParent will deduct spawned quantity!
-		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, quantity, gearItem.Attachments, -1, true));
+		if (!gearItem.ClassName)
+			return;
+
+		int remainingAmount = gearItem.Quantity;  //! SpawnOnParent will deduct spawned amount!
+		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, remainingAmount, gearItem.Quantity, gearItem.Attachments, -1, true));
 
 		if (!item)
 			return;

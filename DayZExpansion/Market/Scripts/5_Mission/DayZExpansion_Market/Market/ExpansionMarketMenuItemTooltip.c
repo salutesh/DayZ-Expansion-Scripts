@@ -34,9 +34,9 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 		if (!m_TooltipController)
 			m_TooltipController = ExpansionMarketMenuItemTooltipController.Cast(GetController());
 		
-		tooltip_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));
-		tooltip_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorTooltipsHeaders));
-		tooltip_content.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorTooltipsBackground));
+		tooltip_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
+		tooltip_header.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorTooltipsHeaders"));
+		tooltip_content.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorTooltipsBackground"));
 		
 		SetView();
 	}
@@ -55,7 +55,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	{
 		m_TooltipController.TooltipTitle = ExpansionStatic.GetItemDisplayNameWithType(m_ItemElement.GetMarketItem().ClassName);
 		m_TooltipController.NotifyPropertyChanged("TooltipTitle");
-		tooltip_title.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoTitle));
+		tooltip_title.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoTitle"));
 		
 		CheckForItemInfos();
 	}
@@ -104,7 +104,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 						text = new StringLocaliser("STR_EXPANSION_MARKET_ITEM_TOOLTIP_OTHERITEMS", countItems.ToString());			
 						itemInfoEntry.SetText(text.Format());
 						itemInfoEntry.SetIcon("Info");
-						itemInfoEntry.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoHasContainerItems));
+						itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoHasContainerItems"));
 						m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
 						
 						m_HasItems = true;
@@ -126,7 +126,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 						text = new StringLocaliser("STR_EXPANSION_MARKET_ITEM_TOOLTIP_ATTACHMENTS", countAttachments.ToString());
 						itemInfoEntry.SetText(text.Format());
 						itemInfoEntry.SetIcon("Info");
-						itemInfoEntry.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoHasAttachments));
+						itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoHasAttachments"));
 						m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
 						
 						m_HasAttachments = true;
@@ -138,7 +138,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 					itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
 					itemInfoEntry.SetText("#STR_EXPANSION_MARKET_ITEM_TOOLTIP_ONSLOT");
 					itemInfoEntry.SetIcon("Info");
-					itemInfoEntry.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIsEquipped));
+					itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIsEquipped"));
 					m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
 					
 					m_IsEquiped = true;
@@ -155,7 +155,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 						text = new StringLocaliser("STR_EXPANSION_MARKET_ITEM_TOOLTIP_BULLETS", magStorage.GetAmmoCount().ToString());
 						itemInfoEntry.SetText(text.Format());
 						itemInfoEntry.SetIcon("Info");
-						itemInfoEntry.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoHasBullets));
+						itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoHasBullets"));
 						m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
 						
 						m_HasAmmo = true;
@@ -182,7 +182,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 					
 					itemInfoEntry.SetText(text.Format());
 					itemInfoEntry.SetIcon("Info");
-					itemInfoEntry.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIsAttachment));
+					itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIsAttachment"));
 					m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
 					
 					m_IsAttached = true;

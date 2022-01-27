@@ -10,10 +10,11 @@
  *
 */
 
-modded class EffVehicleSmoke
+modded class EffEngineSmoke
 {
-	void SetParticleStateExpansion()
+	override void Event_OnFrameUpdate(float time_delta)
 	{
-		SetParticleState( -1 );
+		if (GetParticle())
+			super.Event_OnFrameUpdate(time_delta);
 	}
 };

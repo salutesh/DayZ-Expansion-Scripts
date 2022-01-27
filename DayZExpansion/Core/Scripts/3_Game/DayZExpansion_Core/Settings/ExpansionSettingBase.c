@@ -67,6 +67,11 @@ class ExpansionSettingBase
 		{
 			MakeDirectory( EXPANSION_SETTINGS_FOLDER );
 		}
+		
+		if ( !FileExist( EXPANSION_MISSION_SETTINGS_FOLDER ) )
+		{
+			ExpansionStatic.MakeDirectoryRecursive( EXPANSION_MISSION_SETTINGS_FOLDER );
+		}
 
 		return OnSave();
 	}
@@ -119,5 +124,39 @@ class ExpansionSettingBase
 	string SettingName()
 	{
 		return "Base Settings";
+	}
+
+	//! @note if moving a directory, make sure paths end with "\\"
+	bool MoveSettings(string srcPath, string dstPath, string ext = "")
+	{
+		EXPrint("Moving " + srcPath + " to " + dstPath);
+		if (ExpansionStatic.CopyFileOrDirectoryTree(srcPath, dstPath, ext, true))
+		{
+			//! Use original src path for info line
+			string infoLine = "Info: '" + srcPath + "' has moved to '" + dstPath + "'.";
+
+			ExpansionString src = new ExpansionString(srcPath);
+			int lastIdx = src.LastIndexOf("\\");
+			if (lastIdx == srcPath.Length() - 1)
+			{
+				//! It's a directory. Strip trailing backslash and go again
+				srcPath = srcPath.Substring(0, lastIdx);
+				src = new ExpansionString(srcPath);
+				lastIdx = src.LastIndexOf("\\");
+			}
+
+			string hintFileName = srcPath.Substring(0, lastIdx + 1) + srcPath.Substring(lastIdx + 1, srcPath.Length() - lastIdx - 1) + " ReadMe.txt";
+
+			FileHandle hintFile = OpenFile(hintFileName, FileMode.WRITE);
+			FPrintln(hintFile, infoLine);
+			FPrintln(hintFile, "Feel free to delete this ReadMe file at your convenience.");
+			CloseFile(hintFile);
+			return true;
+		}
+		else
+		{
+			Error("ERROR: Could not move " + srcPath + " to " + dstPath + "!");
+			return false;
+		}
 	}
 }

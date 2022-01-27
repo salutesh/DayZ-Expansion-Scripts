@@ -305,11 +305,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 
-	private bool ExpansionHasCodeLock()
-	{
-		return FindAttachmentBySlotName( "Att_ExpansionCodeLock_1" ) || FindAttachmentBySlotName( "Att_ExpansionCodeLock_2" );
-	}
-
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		if (m_HasDoor)
@@ -537,17 +532,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		}
 
 		return true;
-	}
-	
-	override void EEItemDetached(EntityAI item, string slot_name)
-	{
-		super.EEItemDetached(item, slot_name);
-		
-		if ( item && (slot_name == "Att_ExpansionCodeLock_1" || slot_name == "Att_ExpansionCodeLock_2") && HasCode() )
-		{
-			//Reset code on the building
-			SetCode("");
-		}
 	}
 	
 	override bool CanDisplayAttachmentCategory( string category_name )
@@ -810,8 +794,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void UnlockAndOpen( string selection ) 
 	{
-		if ( m_HasCode )
-			super.Unlock();
+		super.Unlock();
 
 		if ( m_HasDoor )
 		{
@@ -836,6 +819,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				Close( m_CurrentBuild + "_gate_r" );
 		}
 
-		super.Lock();
+		ExpansionLock();
 	}
 }

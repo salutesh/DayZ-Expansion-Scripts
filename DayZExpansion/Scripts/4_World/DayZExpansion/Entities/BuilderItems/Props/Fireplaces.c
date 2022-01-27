@@ -73,11 +73,41 @@ class bldr_fire_barrel extends BarrelHoles_Red
 	override void SoundBarrelOpenPlay() {};
 	
 	override void SoundBarrelClosePlay() {};
+
+	override bool CanExtinguishFire()
+	{
+		return false;
+	}
+
+	override bool CanPutInCargo( EntityAI parent )
+	{
+		return false;
+	}
+
+	override bool CanPutIntoHands( EntityAI parent )
+	{
+		return false;
+	}
 }
 
 class bldr_fireplace extends Fireplace
 {
 	override protected void SpendFireConsumable( float amount ) {};
+
+	override bool CanExtinguishFire()
+	{
+		return false;
+	}
+
+	override bool CanPutInCargo( EntityAI parent )
+	{
+		return false;
+	}
+
+	override bool CanPutIntoHands( EntityAI parent )
+	{
+		return false;
+	}
 }
 
 class bldr_Chemlight_ColorBase extends Chemlight_ColorBase

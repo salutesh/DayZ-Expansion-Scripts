@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 const int EXVT_NONE = 0;
 const int EXVT_CAR = 2;
 const int EXVT_BOAT = 4;
@@ -202,7 +203,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	override string GetLayoutRoot()
 	{
-		return "DayZExpansion/GUI/layouts/COT/vehicles/Vehicles_Menu.layout";
+		return "DayZExpansion/Vehicles/GUI/layouts/COT/vehicles/Vehicles_Menu.layout";
 	}
 	
 	// ------------------------------------------------------------
@@ -619,3 +620,4 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		return m_Vehicles;
 	}
 };
+#endif

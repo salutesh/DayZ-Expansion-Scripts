@@ -39,7 +39,7 @@ modded class DayZPlayerImplement
 
 	bool m_IsAttached;
 
-	SHumanCommandClimbResult m_ExClimbResult;
+	ref SHumanCommandClimbResult m_ExClimbResult;
 	int m_ExClimbType;
 
 	float m_ExAttachmentRadius;

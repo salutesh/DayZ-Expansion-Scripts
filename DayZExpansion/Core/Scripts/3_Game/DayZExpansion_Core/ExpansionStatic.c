@@ -259,6 +259,26 @@ class ExpansionStatic
 		return hasCollisionBox;
 	}
 
+	static bool HasQuantity(string item_name)
+	{
+		float min;
+		float max;
+
+		if (GetGame().IsKindOf(item_name, "Magazine_Base"))
+		{
+			max = GetGame().ConfigGetInt("CfgMagazines " + item_name + " count");
+		}
+		else
+		{
+			min = GetGame().ConfigGetInt("CfgVehicles " + item_name + " varQuantityMin");
+			max = GetGame().ConfigGetFloat("CfgVehicles " + item_name + " varStackMax");
+			if (!max)
+				max = GetGame().ConfigGetInt("CfgVehicles " + item_name + " varQuantityMax");
+		}
+
+		return max - min > 0;
+	}
+
 	static bool ItemExists(string type_name)
 	{
 		return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
@@ -554,6 +574,8 @@ class ExpansionStatic
 	static array< string > FindFilesInLocation( string folder, string ext = "" )
 	{
 		array< string > files = new array< string >;
+		if (!FileExist(folder))
+			return files;
 		string fileName;
 		FileAttr fileAttr;
 		FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
@@ -574,6 +596,115 @@ class ExpansionStatic
 		}
 		CloseFindFile( findFileHandle );
 		return files;
+	}
+
+	static bool MakeDirectoryRecursive(string path)
+	{
+		TStringArray parts();
+		path.Split("\\", parts);
+		path = "";
+		foreach (string part: parts)
+		{
+			path += part + "\\";
+			if (part.IndexOf(":") == part.Length() - 1)
+				continue;
+			if (!FileExist(path) && !MakeDirectory(path))
+			{
+				EXPrint("ERROR: MakeDirectoryRecursive " + path + " failed");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//! Copies the directory tree rooted in srcDir to dstDir.
+	//! If `ext` is given, limit to files and directories with that extension.
+	//! If `move` is true and copying is successful, removes srcDir afterwards if empty.
+	static bool CopyDirectoryTree(string srcDir, string dstDir, string ext = "", bool move = false)
+	{
+		ExpansionString srcDirEx = new ExpansionString(srcDir);
+		if (srcDirEx.LastIndexOf("\\") != srcDir.Length() - 1)
+			srcDir += "\\";
+
+		ExpansionString dstDirEx = new ExpansionString(dstDir);
+		if (dstDirEx.LastIndexOf("\\") != dstDir.Length() - 1)
+			dstDir += "\\";
+
+		if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
+			return false;
+
+		string fileName;
+		FileAttr fileAttr;
+		FindFileHandle findFileHandle = FindFile(srcDir + "*" + ext, fileName, fileAttr, 0);
+
+		if (!findFileHandle)
+		{
+			EXPrint("ERROR: CopyDirectoryTree " + srcDir + " " + dstDir + " findFileHandle is NULL");
+			return false;
+		}
+
+		if (fileName.Length() > 0 && !CopyFileOrDirectoryTree(srcDir + fileName, dstDir + fileName, ext, move, fileAttr))
+		{
+			EXPrint("ERROR: CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
+			CloseFindFile(findFileHandle);
+			return false;
+		}
+
+		while (FindNextFile(findFileHandle, fileName, fileAttr))
+		{
+			if (fileName.Length() > 0 && !CopyFileOrDirectoryTree(srcDir + fileName, dstDir + fileName, ext, move, fileAttr))
+			{
+				EXPrint("ERROR: CopyDirectoryTree " + srcDir + fileName + " " + dstDir + fileName + " ext " + ext + " move " + move + " failed");
+				CloseFindFile(findFileHandle);
+				return false;
+			}
+		}
+
+		CloseFindFile(findFileHandle);
+
+		if (move && (!ext || !FindFilesInLocation(srcDir).Count()) && !DeleteFile(srcDir))
+		{
+			EXPrint("ERROR: CopyDirectoryTree remove src failed");
+			return false;
+		}
+
+		return true;
+	}
+
+	//! @note if copying a directory, make sure paths end with "\\" or provide fileAttr parameter
+	static bool CopyFileOrDirectoryTree(string srcPath, string dstPath, string ext = "", bool move = false, FileAttr fileAttr = 0)
+	{
+		bool isDir = (fileAttr & FileAttr.DIRECTORY);
+		ExpansionString srcPathEx = new ExpansionString(srcPath);
+		if (!isDir && srcPathEx.LastIndexOf("\\") == srcPath.Length() - 1)
+			isDir = true;
+
+		if (isDir)
+		{
+			if (!CopyDirectoryTree(srcPath, dstPath, ext, move))
+				return false;
+		}
+		else
+		{
+			ExpansionString dstPathEx = new ExpansionString(dstPath);
+			string dstDir = dstPath.Substring(0, dstPathEx.LastIndexOf("\\"));
+			if (!FileExist(dstDir) && !MakeDirectoryRecursive(dstDir))
+				return false;
+
+			if (!CopyFile(srcPath, dstPath))
+			{
+				EXPrint("ERROR: CopyFileOrDirectoryTree copy failed");
+				return false;
+			}
+
+			if (move && !DeleteFile(srcPath))
+			{
+				EXPrint("ERROR: CopyFileOrDirectoryTree remove src failed");
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	#ifdef ENFUSION_AI_PROJECT

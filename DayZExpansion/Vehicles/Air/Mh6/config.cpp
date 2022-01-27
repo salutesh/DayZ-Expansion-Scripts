@@ -123,7 +123,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_MH6";
 		model = "\DayZExpansion\Vehicles\Air\Mh6\Mh6.p3d";
-		modelAnchorPointY = 0.0;
+		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Helicopter";
 		wreck = "ExpansionMh6Wreck";
 		fuelCapacity = 192;

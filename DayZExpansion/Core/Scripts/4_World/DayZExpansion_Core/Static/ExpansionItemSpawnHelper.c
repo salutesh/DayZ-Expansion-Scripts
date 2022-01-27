@@ -15,9 +15,12 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnOnParent
 	// ------------------------------------------------------------
-	static Object SpawnOnParent(string className, PlayerBase player, inout EntityAI parent, out int quantity, TStringArray attachments = NULL, int skinIndex = -1, bool magFullAmmo = true, inout bool attachmentNotAttached = false)
+	static Object SpawnOnParent(string className, PlayerBase player, inout EntityAI parent, out int remainingAmount, int quantityPercent = -1, TStringArray attachments = NULL, int skinIndex = -1, bool magFillAmmo = true, inout bool attachmentNotAttached = false)
 	{
 		ISHDebugPrint("SpawnOnParent - Start");
+
+		if (quantityPercent < 0)
+			quantityPercent = 100;
 
 		//! Try to spawn in inventory first
 		Object obj = SpawnInInventorySecure(className, player, parent, skinIndex);
@@ -27,7 +30,7 @@ class ExpansionItemSpawnHelper
 		{
 			//! NULL or not an item
 
-			quantity--;
+			remainingAmount--;
 
 			if (obj)
 			{
@@ -60,10 +63,10 @@ class ExpansionItemSpawnHelper
 			if (skinIndex > -1 && item.ExpansionHasSkin(skinIndex))
 				item.ExpansionSetSkin(skinIndex);
 		}
-		else if (quantity == -1)
+		else if (remainingAmount == -1)
 		{
-			//! Ignore quantity
-			ISHDebugPrint("SpawnOnParent - Ignoring quantity");
+			//! Ignore remaining amount
+			ISHDebugPrint("SpawnOnParent - Ignoring remaining amount and quantity");
 		}
 		else if (item.IsAmmoPile())
 		{
@@ -71,20 +74,20 @@ class ExpansionItemSpawnHelper
 			Ammunition_Base ammo = Ammunition_Base.Cast(item);
 			int maxAmmo = ammo.GetAmmoMax();
 
-			if (quantity < maxAmmo)
+			if (remainingAmount < maxAmmo)
 			{
-				ammo.ServerSetAmmoCount(quantity);
-				quantity = 0;
+				ammo.ServerSetAmmoCount(remainingAmount);
+				remainingAmount = 0;
 			}
 			else if (!maxAmmo)
 			{
 				Error("Error: " + className + " max ammo count is zero! Faulty config.cpp");
-				quantity = 0;
+				remainingAmount = 0;
 			}
 			else
 			{
 				ammo.ServerSetAmmoCount(maxAmmo);
-				quantity -= maxAmmo;
+				remainingAmount -= maxAmmo;
 			}
 
 			ISHDebugPrint("SpawnOnParent - AMMO - End and return obj: " + obj.ToString());
@@ -94,41 +97,43 @@ class ExpansionItemSpawnHelper
 			//! Magazines
 			Magazine mag = Magazine.Cast(item);
 
-			quantity--;
+			remainingAmount--;
 
-			if (!magFullAmmo)
+			if (magFillAmmo)
+				mag.ServerSetAmmoCount(mag.GetAmmoMax() * quantityPercent / 100)
+			else
 				mag.ServerSetAmmoCount(0);
 
 			ISHDebugPrint("SpawnOnParent - MAGAZINE - End and return obj: " + obj.ToString());
 		}
 		else if (item.IsInherited(Edible_Base))
 		{
-			//! Consumables like food, sodacans, bottles, pills...
+			//! Consumables like food, sodacans, bottles, pills, gas canisters...
 
-			quantity--;
+			remainingAmount--;
 
 			if (item.HasQuantity())
-				item.SetQuantity(item.GetQuantityMax());
+				item.SetQuantity(item.GetQuantityMax() * quantityPercent / 100);
 		}
 		else if (item.ConfigGetBool("canBeSplit"))
 		{
 			//! Stackable items
 			int max = item.GetQuantityMax();
 
-			if (quantity < max)
+			if (remainingAmount < max)
 			{
-				item.SetQuantity(quantity);
-				quantity = 0;
+				item.SetQuantity(remainingAmount);
+				remainingAmount = 0;
 			}
 			else if (!max)
 			{
 				Error("Error: " + className + " max quantity/stack is zero! Faulty config.cpp");
-				quantity = 0;
+				remainingAmount = 0;
 			}
 			else
 			{
 				item.SetQuantity(max);
-				quantity -= max;
+				remainingAmount -= max;
 			}
 
 			ISHDebugPrint("SpawnOnParent - STACKABLE");
@@ -137,14 +142,14 @@ class ExpansionItemSpawnHelper
 		{
 			//! Everything else
 
-			quantity--;
+			remainingAmount--;
 		}
 		
 		if (item.CanBeDisinfected())
 			item.SetCleanness(1);
 
 		if (attachments)
-			SpawnAttachments( attachments, player, item, skinIndex, magFullAmmo, attachmentNotAttached );
+			SpawnAttachments( attachments, player, item, quantityPercent, skinIndex, magFillAmmo, attachmentNotAttached );
 
 		ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
 
@@ -212,13 +217,13 @@ class ExpansionItemSpawnHelper
 	}
 
 	//! Use this form when spawning normally (makes sure items get spawned when they don't fit in inventory)
-	static void SpawnAttachments(TStringArray attachments, PlayerBase player, EntityAI parent, int skinIndex = -1, bool magFullAmmo = true, inout bool attachmentNotAttached = false)
+	static void SpawnAttachments(TStringArray attachments, PlayerBase player, EntityAI parent, int quantityPercent = -1, int skinIndex = -1, bool magFillAmmo = true, inout bool attachmentNotAttached = false)
 	{
-		int quantity = -1;
+		int remainingAmount = -1;
 		foreach (string attachmentName: attachments)
 		{
 			EntityAI attachmentParent = parent;
-			SpawnOnParent(attachmentName, player, attachmentParent, quantity, NULL, skinIndex, magFullAmmo);
+			SpawnOnParent(attachmentName, player, attachmentParent, remainingAmount, quantityPercent, NULL, skinIndex, magFillAmmo);
 			if (attachmentParent != parent)
 				attachmentNotAttached = true;
 		}
@@ -262,7 +267,7 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
-	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int quantity, TStringArray attachments = NULL, int skinIndex = -1, inout bool attachmentNotAttached = false )
+	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, TStringArray attachments = NULL, int skinIndex = -1, inout bool attachmentNotAttached = false )
 	{		
 		ISHDebugPrint("SpawnVehicle - Start");
 
@@ -273,7 +278,7 @@ class ExpansionItemSpawnHelper
 
 		Object obj = GetGame().CreateObjectEx(className, position, flags);
 
-		quantity--;
+		remainingAmount--;
 
 		CarScript vehicle;
 		#ifdef EXPANSIONMODVEHICLE

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 {
 	protected Widget m_Root;
@@ -26,7 +27,7 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTVehiclesListEntry(Widget parent, ExpansionCOTVehiclesMenu menu, ExpansionVehicleMetaData vehicle)
 	{
-		m_Root					= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/vehicles/Vehicles_List_Entry_New.layout", parent );
+		m_Root					= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/COT/vehicles/Vehicles_List_Entry_New.layout", parent );
 		m_VehicleName			= TextWidget.Cast( m_Root.FindAnyWidget( "vehicle_name" ) );
 		m_VehicleID				= TextWidget.Cast( m_Root.FindAnyWidget( "vehicle_id" ) );
 		m_EditButton			= ButtonWidget.Cast( m_Root.FindAnyWidget( "edit_button" ) );
@@ -116,3 +117,4 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 		return false;
 	}
 };
+#endif

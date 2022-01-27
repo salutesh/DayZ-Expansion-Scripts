@@ -24,8 +24,6 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		
 		AddItem("PoliceVest", 					35,			70,			1,		100);
 		
-		AddItem("HuntingVest", 					55,			110,		1,		100);
-		
 		AddItem("PressVest_Blue", 				85,			170,		1,		100, null, {"PressVest_LightBlue"});
 		AddItem("PressVest_LightBlue", 			90,			180,		1,		100);
 		

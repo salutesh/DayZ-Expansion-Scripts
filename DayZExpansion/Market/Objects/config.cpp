@@ -108,13 +108,13 @@ class CfgVehicles
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_v3.p3d";
 		rotationFlags = 12;
 	};
-	class Animal_UrsusArctos_Preview: HouseNoDestruct
+	class Animal_UrsusArctos_ExpansionMarketPreview: HouseNoDestruct
 	{
 		displayName = "$STR_CfgVehicles_Animal_UrsusArctos0";
 		descriptionShort = "$STR_CfgVehicles_Animal_UrsusArctos1";
 		model = "\DZ\animals_bliss\ursus_arctos\ursus_arctos.p3d";
 	};
-	class ZmbM_HermitSkinny_Beige_Preview: HouseNoDestruct
+	class ZmbM_HermitSkinny_Beige_ExpansionMarketPreview: HouseNoDestruct
 	{
 		displayName = "$STR_cfgvehicles_infected0";
 		descriptionShort = "$STR_cfgvehicles_infected1";

@@ -665,7 +665,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		switch (w)
 		{
 		case atm_filter_clear:
-			atm_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+			atm_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 			break;
 		}
 		
@@ -680,7 +680,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		switch (w)
 		{
 		case atm_filter_clear:
-			atm_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+			atm_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 			break;
 		}
 		

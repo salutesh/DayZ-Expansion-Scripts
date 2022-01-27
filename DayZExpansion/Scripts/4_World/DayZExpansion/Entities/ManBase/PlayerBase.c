@@ -182,9 +182,9 @@ modded class PlayerBase
 		super.SetActions( InputActionMap );
 				
 		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
-		AddAction( ExpansionActionCrackSafe );
-		AddAction( ExpansionActionDestroyBarbedWire );
-		AddAction( ExpansionActionDestroyLock );
+		AddAction( ExpansionActionCrackSafe, InputActionMap );
+		AddAction( ExpansionActionDestroyBarbedWire, InputActionMap );
+		AddAction( ExpansionActionDestroyLock, InputActionMap );
 		//AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
 		//AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
 

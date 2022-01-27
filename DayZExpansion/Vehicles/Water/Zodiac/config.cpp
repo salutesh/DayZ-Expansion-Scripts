@@ -32,7 +32,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
-		modelAnchorPointY = 0.43;
+		modelZeroPointDistanceFromGround = 0.43;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

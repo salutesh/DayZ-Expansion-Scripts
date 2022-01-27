@@ -18,7 +18,6 @@ class ExpansionMarketSettingsBase: ExpansionSettingBase
 	bool MarketSystemEnabled = true;
 	
 	autoptr array<ref ExpansionMarketNetworkCategory> NetworkCategories;
-	autoptr array<ref ExpansionMarketAmmoBoxesForAmmo> MarketAmmoBoxes;
 	string CurrencyIcon;
 	bool ATMSystemEnabled = true;
 	int MaxDepositMoney = 100000;
@@ -26,7 +25,6 @@ class ExpansionMarketSettingsBase: ExpansionSettingBase
 	bool ATMPlayerTransferEnabled = true;
 	bool ATMPartyLockerEnabled = true;
 	int MaxPartyDepositMoney = 100000;
-	autoptr array<string> MarketVIPs;
 }
 
 /**@class		ExpansionMarketSettingsV1
@@ -73,7 +71,9 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
+
+	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
 	bool UseWholeMapForATMPlayerList;
 	float SellPricePercent;
@@ -108,12 +108,45 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		WaterSpawnPositions = new array<ref ExpansionMarketSpawnPosition>;
 		NetworkCategories = new array<ref ExpansionMarketNetworkCategory>;
 		MarketMenuColors = new ExpansionMarketMenuColors;
-		MarketAmmoBoxes = new array<ref ExpansionMarketAmmoBoxesForAmmo>;
-		MarketVIPs = new array<string>;
 		
 		m_Categories = new map<int, ref ExpansionMarketCategory>;
 		m_TraderZones = new array<ref ExpansionMarketTraderZone>;	
 		m_Traders = new array<ref ExpansionMarketTrader>;
+
+		//! Ammo boxes and corresponding ammo are only needed on client
+		if (!GetGame().IsDedicatedServer() && !s_MarketAmmoBoxes.Count())
+		{
+			int count = GetGame().ConfigGetChildrenCount("CfgVehicles");
+		
+			EXPrint(ToString() + " - enumerating " + count + " CfgVehicles entries");
+
+			for (int i = 0; i < count; i++)
+			{
+				string className;
+
+				GetGame().ConfigGetChildName("CfgVehicles", i, className);
+				if (!GetGame().IsKindOf(className, "Box_Base"))
+					continue;
+
+				string path = "CfgVehicles " + className + " Resources";
+				if (GetGame().ConfigIsExisting(path))
+				{
+					int resCount = GetGame().ConfigGetChildrenCount(path);
+
+					for (int j = 0; j < resCount; j++)
+					{
+						string childName;
+						GetGame().ConfigGetChildName(path, j, childName);
+						if (!GetGame().IsKindOf(childName, "Ammunition_Base"))
+							continue;
+
+						s_MarketAmmoBoxes.Insert(childName, className);
+					}
+				}
+			}
+
+			EXPrint(ToString() + " - found " + s_MarketAmmoBoxes.Count() + " ammo boxes with corresponding ammo");
+		}
 
 		//TraderPrint("ExpansionMarketSettings - End");
 	}
@@ -128,16 +161,16 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("LoadCategories - Start");
 		
-		if (!FileExist(EXPANSION_MARKET_FOLDER))
+		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_FOLDER, ".json");
+
+		if (!files.Count())
 		{
 			EXPrint("[ExpansionMarketSettings] No existing market category setting files at:" + EXPANSION_MARKET_FOLDER + ". Creating defaults!");
 			
-			MakeDirectory(EXPANSION_MARKET_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_FOLDER);
 			DefaultCategories();
 			return;
 		}
-
-		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_FOLDER, ".json");
 
 		foreach (string fileName : files)
 		{
@@ -160,16 +193,21 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("LoadTraderZones - Start");
 		
-		if (!FileExist(EXPANSION_TRADER_ZONES_FOLDER))
+		//! Move existing files over from old location in $profile to new location in $mission
+		string folderNameOld = EXPANSION_FOLDER + "TraderZones\\";
+		if (FileExist(folderNameOld))
+			MoveSettings(folderNameOld, EXPANSION_TRADER_ZONES_FOLDER);
+
+		array<string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_ZONES_FOLDER, ".json");
+
+		if (!files.Count())
 		{
 			EXPrint("[ExpansionMarketSettings] No existing market zone setting files at:" + EXPANSION_TRADER_ZONES_FOLDER + ". Creating defaults!");
 			
-			MakeDirectory(EXPANSION_TRADER_ZONES_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_TRADER_ZONES_FOLDER);
 			DefaultTraderZones();
 			return;
 		}
-
-		array<string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_ZONES_FOLDER, ".json");
 		
 		foreach (string fileName : files)
 		{
@@ -189,18 +227,18 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("LoadTraders - Start");
 		
-		if (!FileExist(EXPANSION_TRADER_FOLDER))
+		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_FOLDER, ".json");
+
+		if (!files.Count())
 		{
 			EXPrint("[ExpansionMarketSettings] No existing trader setting files at:" + EXPANSION_TRADER_FOLDER + ". Creating defaults!");
 
-			MakeDirectory(EXPANSION_TRADER_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_TRADER_FOLDER);
 
 			DefaultTraders();
 
 			return;
 		}
-
-		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_FOLDER, ".json");
 		
 		foreach (string fileName : files)
 		{
@@ -218,14 +256,28 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("OnRecieve - Start");
 		
-		ExpansionMarketSettings setting;
-		if (!ctx.Read(setting))
-		{
-			Error("ExpansionMarketSettings::OnRecieve setting");
-			return false;
-		}
+		ExpansionMarketSettings s = new ExpansionMarketSettings;
 
-		CopyInternal(setting);
+		ctx.Read(s.MarketSystemEnabled);
+		ctx.Read(s.NetworkCategories);
+		ctx.Read(s.CurrencyIcon);
+		ctx.Read(s.ATMSystemEnabled);
+		ctx.Read(s.MaxDepositMoney);
+		ctx.Read(s.DefaultDepositMoney);
+		ctx.Read(s.ATMPlayerTransferEnabled);
+		ctx.Read(s.ATMPartyLockerEnabled);
+		ctx.Read(s.MaxPartyDepositMoney);
+
+		ctx.Read(s.UseWholeMapForATMPlayerList);
+		ctx.Read(s.SellPricePercent);
+		ctx.Read(s.NetworkBatchSize);
+		ctx.Read(s.MaxVehicleDistanceToTrader);
+		ctx.Read(s.MaxLargeVehicleDistanceToTrader);
+		ctx.Read(s.LargeVehicles);
+
+		s.MarketMenuColors.OnReceive(ctx);
+
+		CopyInternal(s);
 
 		MarketMenuColors.Update();
 		
@@ -240,8 +292,25 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	
 	override void OnSend(ParamsWriteContext ctx)
 	{
-		ExpansionMarketSettings thisSetting = this;
-		ctx.Write(thisSetting);
+		ctx.Write(MarketSystemEnabled);
+		ctx.Write(NetworkCategories);
+		ctx.Write(CurrencyIcon);
+		ctx.Write(ATMSystemEnabled);
+		ctx.Write(MaxDepositMoney);
+		ctx.Write(DefaultDepositMoney);
+		ctx.Write(ATMPlayerTransferEnabled);
+		ctx.Write(ATMPartyLockerEnabled);
+		ctx.Write(MaxPartyDepositMoney);
+
+		ctx.Write(UseWholeMapForATMPlayerList);
+		ctx.Write(SellPricePercent);
+		ctx.Write(NetworkBatchSize);
+		ctx.Write(MaxVehicleDistanceToTrader);
+		ctx.Write(MaxLargeVehicleDistanceToTrader);
+		ctx.Write(LargeVehicles);
+		//! Do not send vehicle spawn positions (only used on server)
+
+		MarketMenuColors.OnSend(ctx);
 	}
 	
 	// ------------------------------------------------------------
@@ -347,7 +416,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		EXPrint(ToString() + "::CopyInternal " + s);
 
-		MarketAmmoBoxes = s.MarketAmmoBoxes;
 		CurrencyIcon = s.CurrencyIcon;
 		
 		ATMSystemEnabled = s.ATMSystemEnabled;
@@ -356,8 +424,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ATMPlayerTransferEnabled = s.ATMPlayerTransferEnabled;
 		ATMPartyLockerEnabled = s.ATMPartyLockerEnabled;
 		MaxPartyDepositMoney = s.MaxPartyDepositMoney;
-				
-		MarketVIPs.Copy(s.MarketVIPs);
 	}
 	
 	// ------------------------------------------------------------
@@ -378,11 +444,15 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			return existingItem;
 		}
 
-		int sellPricePercent = networkItem.Packed & 0x00ffffff;
-		if (sellPricePercent > 0x007fffff)
-			sellPricePercent -= 0x01000000;
+		int sellPricePercent = networkItem.Packed & 0x0000ffff;
+		if (sellPricePercent > 0x00007fff)
+			sellPricePercent -= 0x00010000;
 
-		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, sellPricePercent, networkItem.ItemID, networkItem.AttachmentIDs);
+		int quantityPercent = (networkItem.Packed & 0x00ff0000) >> 16;
+		if (quantityPercent > 0x7f)
+			quantityPercent -= 0x100;
+
+		ExpansionMarketItem item = category.AddItem(clsName, networkItem.MinPriceThreshold, networkItem.MaxPriceThreshold, networkItem.MinStockThreshold, networkItem.MaxStockThreshold, NULL, networkItem.Variants, sellPricePercent, quantityPercent, networkItem.ItemID, networkItem.AttachmentIDs);
 
 		//TraderPrint("UpdateMarketItem_Client - End and return newly added item: " + item);
 
@@ -410,7 +480,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		LargeVehicles.Insert("expansionlhd");
 		DefaultTraderSpawnAreas();
 		MarketMenuColors.Update();
-		DefaultMarketAmmoBoxes();
 		
 		CurrencyIcon = "DayZExpansion/Market/GUI/icons/coinstack2_64x64.edds";
 		SellPricePercent = 75;
@@ -758,38 +827,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	protected void DefaultMarketAmmoBoxes()
-	{
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_556x45","AmmoBox_556x45_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_556x45Tracer","AmmoBox_556x45Tracer_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_545x39","AmmoBox_545x39_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_545x39Tracer","AmmoBox_545x39Tracer_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_762x39","AmmoBox_762x39_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_762x39Tracer","AmmoBox_762x39Tracer_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_308Win","AmmoBox_308Win_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_308WinTracer","AmmoBox_308WinTracer_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_762x54","AmmoBox_762x54_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_762x54Tracer","AmmoBox_762x54Tracer_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_22","AmmoBox_22_50Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_380","AmmoBox_380_35rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_9x19","AmmoBox_9x19_25rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_45ACP","AmmoBox_45ACP_25rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_357","AmmoBox_357_20Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_12gaPellets","AmmoBox_00buck_10rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_12gaSlug","AmmoBox_12gaSlug_10Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_12gaRubberSlug","AmmoBox_12gaRubberSlug_10Rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_9x39AP","AmmoBox_9x39AP_20rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_9x39","AmmoBox_9x39_20rnd"));
-		
-	#ifdef EXPANSIONMOD
-		//! Expansion
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Expansion_Ammo_8mm","Expansion_AmmoBox_8mm_15rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_Expansion_46x30","AmmoBox_Expansion_46x30_25rnd"));
-		MarketAmmoBoxes.Insert(new ExpansionMarketAmmoBoxesForAmmo("Ammo_Expansion_338","AmmoBox_Expansion_338_15rnd"));
-	#endif
-	}
-	
-	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
 		return m_IsLoaded;
@@ -807,6 +844,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		//TraderPrint("Load - Start");
 
 		m_IsLoaded = true;
+			
+		//! Move existing settings file over from old location in $profile to new location in $mission
+		string fileNameOld = EXPANSION_SETTINGS_FOLDER + "MarketSettings.json";
+		if (FileExist(fileNameOld))
+			MoveSettings(fileNameOld, EXPANSION_MARKET_SETTINGS);
 
 		bool marketSettingsExist = FileExist(EXPANSION_MARKET_SETTINGS);
 
@@ -856,41 +898,41 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 					JsonFileLoader<ExpansionMarketSettingsV2>.JsonLoadFile(EXPANSION_MARKET_SETTINGS, settings_v2);
 
-					MarketMenuColors.BaseColorVignette = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorVignette);
-					MarketMenuColors.BaseColorHeaders = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorHeaders);
-					MarketMenuColors.BaseColorLabels = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorLabels);
-					MarketMenuColors.BaseColorText = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorTexts);
-					MarketMenuColors.BaseColorCheckboxes = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorCheckboxes);
-					MarketMenuColors.BaseColorInfoSectionBackground = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorInfoSectionBackground);
-					MarketMenuColors.BaseColorTooltipsBackground = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.BaseColorTooltipsBackground);
-					MarketMenuColors.ColorDecreaseQuantityButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorDecreaseQuantityButton);
-					MarketMenuColors.ColorDecreaseQuantityIcon = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorDecreaseQuantityIcon);
-					MarketMenuColors.ColorSetQuantityButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorSetQuantityButton);
-					MarketMenuColors.ColorIncreaseQuantityButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorIncreaseQuantityButton);
-					MarketMenuColors.ColorIncreaseQuantityIcon = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorIncreaseQuantityIcon);
-					MarketMenuColors.ColorSellPanel = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorSellPanel);
-					MarketMenuColors.ColorSellButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorSellButton);
-					MarketMenuColors.ColorBuyPanel = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorBuyPanel);
-					MarketMenuColors.ColorBuyButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorBuyButton);
-					MarketMenuColors.ColorMarketIcon = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorMarketIcon);
-					MarketMenuColors.ColorFilterOptionsButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorFilterOptionsButton);
-					MarketMenuColors.ColorFilterOptionsIcon = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorFilterOptionsIcon);
-					MarketMenuColors.ColorSearchFilterButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorSearchFilterButton);
-					MarketMenuColors.ColorCategoryButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorCategoryButton);
-					MarketMenuColors.ColorCategoryCollapseIcon = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorCategoryCollapseIcon);
-					MarketMenuColors.ColorCurrencyDenominationText = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorCurrencyDenominationTexts);
-					MarketMenuColors.ColorItemButton = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemButton);
-					MarketMenuColors.ColorItemInfoIcon = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoIcon);
-					MarketMenuColors.ColorItemInfoTitle = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoTitle);
-					MarketMenuColors.ColorItemInfoHasContainerItems = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoHasContainerItems);
-					MarketMenuColors.ColorItemInfoHasAttachments = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoHasAttachments);
-					MarketMenuColors.ColorItemInfoHasBullets = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoHasBullets);
-					MarketMenuColors.ColorItemInfoIsAttachment = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoIsAttachment);
-					MarketMenuColors.ColorItemInfoIsEquipped = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoIsEquiped);
-					MarketMenuColors.ColorItemInfoAttachments = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorItemInfoAttachments);
-					MarketMenuColors.ColorToggleCategoriesText = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorToggleCategoriesText);
-					MarketMenuColors.ColorCategoryCorners = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorCategoryCorners);
-					MarketMenuColors.ColorCategoryBackground = ExpansionColor.ARGBToHex(settings_v2.MarketMenuColors.ColorCategoryBackground);
+					MarketMenuColors.Set("BaseColorVignette", settings_v2.MarketMenuColors.BaseColorVignette);
+					MarketMenuColors.Set("BaseColorHeaders", settings_v2.MarketMenuColors.BaseColorHeaders);
+					MarketMenuColors.Set("BaseColorLabels", settings_v2.MarketMenuColors.BaseColorLabels);
+					MarketMenuColors.Set("BaseColorText", settings_v2.MarketMenuColors.BaseColorTexts);
+					MarketMenuColors.Set("BaseColorCheckboxes", settings_v2.MarketMenuColors.BaseColorCheckboxes);
+					MarketMenuColors.Set("BaseColorInfoSectionBackground", settings_v2.MarketMenuColors.BaseColorInfoSectionBackground);
+					MarketMenuColors.Set("BaseColorTooltipsBackground", settings_v2.MarketMenuColors.BaseColorTooltipsBackground);
+					MarketMenuColors.Set("ColorDecreaseQuantityButton", settings_v2.MarketMenuColors.ColorDecreaseQuantityButton);
+					MarketMenuColors.Set("ColorDecreaseQuantityIcon", settings_v2.MarketMenuColors.ColorDecreaseQuantityIcon);
+					MarketMenuColors.Set("ColorSetQuantityButton", settings_v2.MarketMenuColors.ColorSetQuantityButton);
+					MarketMenuColors.Set("ColorIncreaseQuantityButton", settings_v2.MarketMenuColors.ColorIncreaseQuantityButton);
+					MarketMenuColors.Set("ColorIncreaseQuantityIcon", settings_v2.MarketMenuColors.ColorIncreaseQuantityIcon);
+					MarketMenuColors.Set("ColorSellPanel", settings_v2.MarketMenuColors.ColorSellPanel);
+					MarketMenuColors.Set("ColorSellButton", settings_v2.MarketMenuColors.ColorSellButton);
+					MarketMenuColors.Set("ColorBuyPanel", settings_v2.MarketMenuColors.ColorBuyPanel);
+					MarketMenuColors.Set("ColorBuyButton", settings_v2.MarketMenuColors.ColorBuyButton);
+					MarketMenuColors.Set("ColorMarketIcon", settings_v2.MarketMenuColors.ColorMarketIcon);
+					MarketMenuColors.Set("ColorFilterOptionsButton", settings_v2.MarketMenuColors.ColorFilterOptionsButton);
+					MarketMenuColors.Set("ColorFilterOptionsIcon", settings_v2.MarketMenuColors.ColorFilterOptionsIcon);
+					MarketMenuColors.Set("ColorSearchFilterButton", settings_v2.MarketMenuColors.ColorSearchFilterButton);
+					MarketMenuColors.Set("ColorCategoryButton", settings_v2.MarketMenuColors.ColorCategoryButton);
+					MarketMenuColors.Set("ColorCategoryCollapseIcon", settings_v2.MarketMenuColors.ColorCategoryCollapseIcon);
+					MarketMenuColors.Set("ColorCurrencyDenominationText", settings_v2.MarketMenuColors.ColorCurrencyDenominationTexts);
+					MarketMenuColors.Set("ColorItemButton", settings_v2.MarketMenuColors.ColorItemButton);
+					MarketMenuColors.Set("ColorItemInfoIcon", settings_v2.MarketMenuColors.ColorItemInfoIcon);
+					MarketMenuColors.Set("ColorItemInfoTitle", settings_v2.MarketMenuColors.ColorItemInfoTitle);
+					MarketMenuColors.Set("ColorItemInfoHasContainerItems", settings_v2.MarketMenuColors.ColorItemInfoHasContainerItems);
+					MarketMenuColors.Set("ColorItemInfoHasAttachments", settings_v2.MarketMenuColors.ColorItemInfoHasAttachments);
+					MarketMenuColors.Set("ColorItemInfoHasBullets", settings_v2.MarketMenuColors.ColorItemInfoHasBullets);
+					MarketMenuColors.Set("ColorItemInfoIsAttachment", settings_v2.MarketMenuColors.ColorItemInfoIsAttachment);
+					MarketMenuColors.Set("ColorItemInfoIsEquipped", settings_v2.MarketMenuColors.ColorItemInfoIsEquiped);
+					MarketMenuColors.Set("ColorItemInfoAttachments", settings_v2.MarketMenuColors.ColorItemInfoAttachments);
+					MarketMenuColors.Set("ColorToggleCategoriesText", settings_v2.MarketMenuColors.ColorToggleCategoriesText);
+					MarketMenuColors.Set("ColorCategoryCorners", settings_v2.MarketMenuColors.ColorCategoryCorners);
+					MarketMenuColors.Set("ColorCategoryBackground", settings_v2.MarketMenuColors.ColorCategoryBackground);
 
 					ExpansionMarketSettingsBaseV2 settingsBaseV2;
 					JsonFileLoader<ExpansionMarketSettingsBaseV2>.JsonLoadFile(EXPANSION_MARKET_SETTINGS, settingsBaseV2);
@@ -1009,22 +1051,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		JsonFileLoader<ExpansionMarketSettings>.JsonSaveFile(EXPANSION_MARKET_SETTINGS, this);
 
 		NetworkCategories = cats;
-
-		for (int i = 0; i < GetCategories().Count(); i++)
-		{
-			if (GetCategories().GetElement(i))
-				GetCategories().GetElement(i).Save();
-		}
-
-		for (int j = 0; j < m_TraderZones.Count(); j++)
-		{
-			m_TraderZones[j].Save();
-		}
-
-		for (int k = 0; k < m_Traders.Count(); k++)
-		{
-			m_Traders[k].Save();
-		}
 
 		return true;
 	}
@@ -1164,14 +1190,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	// ------------------------------------------------------------
 	string GetAmmoBoxWithAmmoName(string name)
 	{
-		for (int i = 0; i < MarketAmmoBoxes.Count(); i++)
-		{
-			ExpansionMarketAmmoBoxesForAmmo current = MarketAmmoBoxes[i];
-			if (current.Ammo == name)
-				return current.AmmoBox;
-		}
-		
-		return "";
+		return s_MarketAmmoBoxes.Get(name);
 	}
 
 	// ------------------------------------------------------------

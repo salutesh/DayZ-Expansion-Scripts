@@ -54,6 +54,7 @@ modded class MissionGameplay
 			g_exGlobalSettings.Unload();
 		
 		DestroyExpansionUIMenuManager();
+		DestroyNotificationSystem();
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::~MissionGameplay - End");

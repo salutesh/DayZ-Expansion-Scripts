@@ -92,7 +92,7 @@ class ExpansionUh1h: ExpansionHelicopterScript
 	// ------------------------------------------------------------
 	override float GetCameraHeight()
 	{
-		return 0;
+		return 1;
 	}
 
 	// ------------------------------------------------------------

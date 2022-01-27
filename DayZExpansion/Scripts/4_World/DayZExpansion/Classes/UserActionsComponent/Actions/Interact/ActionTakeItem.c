@@ -17,12 +17,11 @@ modded class ActionTakeItem
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
-		//! Disallow taking codelock if it is attached to base building and has code
+		//! Disallow taking codelock if it is attached and has code
 		//! to prevent taking it accidentally
 		//! (have to go into inventory and drag from slot to remove)
-		BaseBuildingBase base_building = BaseBuildingBase.Cast( target.GetParent() );
 		ExpansionCodeLock codelock = ExpansionCodeLock.Cast( target.GetObject() );
-		if ( base_building && codelock && base_building.HasCode() )
+		if ( target.GetParent() && codelock && codelock.HasCode() )
 			return false;
 		
 		return true;

@@ -21,7 +21,7 @@ class CfgVehicles
 		hornSoundSetINT = "Expansion_LHD_Horn_Int_SoundSet";
 		displayname = "$STR_EXPANSION_VEHICLE_LHD";
 		model = "\DayZExpansion\Vehicles\Water\Carrier\LHD.p3d";
-		modelAnchorPointY = 12.1;
+		modelZeroPointDistanceFromGround = 12.1;
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

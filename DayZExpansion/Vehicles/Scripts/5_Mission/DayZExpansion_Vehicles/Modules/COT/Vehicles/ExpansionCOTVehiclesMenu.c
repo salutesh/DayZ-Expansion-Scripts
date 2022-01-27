@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionCOTVehiclesMenu: JMFormBase
 {
 	private ExpansionCOTVehiclesModule m_Module;
@@ -427,3 +428,4 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 		return false;
 	}
 };
+#endif

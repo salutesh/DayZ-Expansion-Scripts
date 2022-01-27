@@ -28,7 +28,7 @@ class ExpansionObjectSpawnTools
 	//! @note No-op, only kept for backwards compat with old init files
 	static void FindMissionFiles(string missionFolder, bool loadObjects, bool loadTraders)
 	{
-		Error("DEPRECATED - calling FindMissionFiles from init.c is no longer needed");
+		Print("DEPRECATED - calling FindMissionFiles from init.c is no longer needed");
 	}
 
 	static void FindMissionFiles(bool loadObjects, bool loadTraders)

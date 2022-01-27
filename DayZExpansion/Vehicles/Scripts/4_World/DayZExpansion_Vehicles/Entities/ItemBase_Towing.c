@@ -2,7 +2,6 @@ modded class ItemBase
 {
 	bool m_Expansion_AcceptingAttachment;
 	bool m_Expansion_CanPlayerAttach;
-	bool m_Expansion_CanPlayerAttachSet;
 
 	dJoint m_Expansion_TowJoint;
 	int m_Expansion_TowConnectionIndex;
@@ -229,19 +228,6 @@ modded class ItemBase
 	{
 #ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
 		m_Expansion_CanPlayerAttach = true;
-#else
-		if (!m_Expansion_CanPlayerAttachSet)
-		{
-			m_Expansion_CanPlayerAttachSet = true;
-			foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
-			{
-				if (IsKindOf(vehcfg.ClassName))
-				{
-					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
-					break;
-				}
-			}
-		}
 #endif
 
 		return m_Expansion_CanPlayerAttach;

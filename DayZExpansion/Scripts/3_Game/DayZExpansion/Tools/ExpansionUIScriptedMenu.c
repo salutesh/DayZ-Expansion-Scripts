@@ -39,6 +39,9 @@ class ExpansionUIScriptedMenu extends UIScriptedMenu
 	{
 		Mission mission = GetGame().GetMission();
 		
+		if (!mission)
+			return;
+
 		mission.GetHud().ShowHudUI(state);
 		mission.GetHud().ShowQuickbarUI(state);
 	}

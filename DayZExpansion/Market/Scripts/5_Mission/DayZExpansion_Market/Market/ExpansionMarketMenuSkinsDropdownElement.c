@@ -67,7 +67,7 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 		{
 			case dropdown_element_button:
 			{
-				dropdown_element_button.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsButton));
+				dropdown_element_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsButton"));
 				if (!m_ItemTooltip && m_Object)
 				{
 					m_ItemTooltip = new ExpansionItemPreviewTooltip(m_Object);

@@ -17,7 +17,6 @@ class ExpansionSpawnSettingsBase: ExpansionSettingBase
 {
 	ref ExpansionStartingClothing StartingClothing;
 	bool EnableSpawnSelection;
-	int SpawnSelectionScreenMenuID;
 	bool SpawnOnTerritory;
 	ref array< ref ExpansionSpawnLocation > SpawnLocations;
 	
@@ -64,7 +63,7 @@ class ExpansionSpawnSettingsV1: ExpansionSpawnSettingsBase
  **/
 class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	ref ExpansionStartingGear StartingGear;
 	
@@ -96,6 +95,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		EXPrint("ExpansionSpawnSettings::OnRecieve - Start");
 		#endif
 		
+		//Not sent to client under normal operation
+		m_IsLoaded = true;
+
 		ExpansionSpawnSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -135,23 +137,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Send - Start");
-		#endif
-		
-		if ( !IsMissionHost() )
-		{
-			return 0;
-		}
-		
-		ScriptRPC rpc = new ScriptRPC;
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Spawn, true, identity );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Send - End and return");
-		#endif
-		return 0;
+		//Not sent to client
 	}
 
 	// ------------------------------------------------------------
@@ -204,7 +190,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		StartingClothing = s.StartingClothing;
 		EnableSpawnSelection = s.EnableSpawnSelection;
-		SpawnSelectionScreenMenuID = s.SpawnSelectionScreenMenuID;
 		SpawnOnTerritory = s.SpawnOnTerritory;
 		
 		SpawnLocations.Clear();
@@ -238,6 +223,11 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		#endif
 
 		m_IsLoaded = true;
+			
+		//! Move existing settings file over from old location in $profile to new location in $mission
+		string fileNameOld = EXPANSION_SETTINGS_FOLDER + "SpawnSettings.json";
+		if (FileExist(fileNameOld))
+			MoveSettings(fileNameOld, EXPANSION_SPAWN_SETTINGS);
 
 		bool save;
 
@@ -277,33 +267,33 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 					//! Expansion starting gear string arrays have been removed and replaced with a class array with version 2.
 					foreach ( string upperName : settings_v1.StartingGear.UpperGear )
 					{
-						StartingGear.UpperGear.Insert( new ExpansionStartingGearItem( upperName, 1 ) );
+						StartingGear.UpperGear.Insert( new ExpansionStartingGearItem( upperName ) );
 					}
 					
 					foreach ( string pantsName : settings_v1.StartingGear.PantsGear )
 					{
-						StartingGear.PantsGear.Insert( new ExpansionStartingGearItem( pantsName, 1 ) );
+						StartingGear.PantsGear.Insert( new ExpansionStartingGearItem( pantsName ) );
 					}
 					
 					foreach ( string backName : settings_v1.StartingGear.BackpackGear )
 					{
-						StartingGear.BackpackGear.Insert( new ExpansionStartingGearItem( backName, 1 ) );
+						StartingGear.BackpackGear.Insert( new ExpansionStartingGearItem( backName ) );
 					}
 					
 					foreach ( string vestName : settings_v1.StartingGear.VestGear )
 					{
-						StartingGear.VestGear.Insert( new ExpansionStartingGearItem(vestName, 1) );
+						StartingGear.VestGear.Insert( new ExpansionStartingGearItem(vestName) );
 					}
 
 					if (settings_v1.StartingGear.PrimaryWeapon != "")
 					{
 						if (settings_v1.StartingGear.PrimaryWeaponAttachments.Count() > 0)
 						{
-							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon, 1, settings_v1.StartingGear.PrimaryWeaponAttachments);
+							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon, -1, settings_v1.StartingGear.PrimaryWeaponAttachments);
 						}
 						else
 						{
-							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon, 1);
+							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon);
 						}
 					}
 					
@@ -311,17 +301,35 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 					{
 						if (settings_v1.StartingGear.SecondaryWeaponAttachments.Count() > 0)
 						{
-							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon, 1, settings_v1.StartingGear.SecondaryWeaponAttachments);
+							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon, -1, settings_v1.StartingGear.SecondaryWeaponAttachments);
 						}
 						else
 						{
-							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon, 1);
+							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon);
 						}
 					}
 				
 					SpawnHealthValue = settingsDefault.SpawnHealthValue;	 //! SpawnHealthValue was added with version 2.
 					SpawnEnergyValue = settingsDefault.SpawnEnergyValue;	 //! SpawnEnergyValue was added with version 2.
 					SpawnWaterValue = settingsDefault.SpawnWaterValue;	 //! SpawnWaterValue was added with version 2.
+				}
+				else
+				{
+					JsonFileLoader<ExpansionSpawnSettings>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, this);
+
+					if (settingsBase.m_Version < 3)
+					{
+						array<ref ExpansionStartingGearItem> weapons = {StartingGear.PrimaryWeapon, StartingGear.SecondaryWeapon};
+						array<ref array<ref ExpansionStartingGearItem>> startingGear = {StartingGear.UpperGear, StartingGear.PantsGear, StartingGear.BackpackGear, StartingGear.VestGear, weapons};
+						foreach (array<ref ExpansionStartingGearItem> gearItems: startingGear)
+						{
+							foreach (ExpansionStartingGearItem gearItem: gearItems)
+							{
+								if (gearItem.Quantity == 1 || !gearItem.ClassName)
+									gearItem.Quantity = -1;
+							}
+						}
+					}
 				}
 
 				//! Copy over old settings that haven't changed
@@ -371,7 +379,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		StartingClothing.Defaults();
 		
 		EnableSpawnSelection = false; 		//! Will be enabled if the map have a configured spawn location on generation
-		SpawnSelectionScreenMenuID = 1004;
 		
 		SpawnHealthValue = 100.0;	// 100 is max
 		SpawnEnergyValue = 500.0;	// 7500 is max

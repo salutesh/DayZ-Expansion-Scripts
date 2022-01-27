@@ -30,11 +30,11 @@ class ExpansionMarketMenuCategoryColorHandler
 	{
 		//! Category element corners
 		category_header_corners = Widget.Cast(m_LayooutRoot.FindAnyWidget("category_header_corners"));
-		category_header_corners.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorCategoryCorners));
+		category_header_corners.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorCategoryCorners"));
 		
 		//! Category element background
 		category_header_background = Widget.Cast(m_LayooutRoot.FindAnyWidget("category_header_background"));
-		category_header_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorCategoryBackground));
+		category_header_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorCategoryBackground"));
 		
 		//! Category icon
 		category_icon = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("category_icon"));
@@ -45,7 +45,7 @@ class ExpansionMarketMenuCategoryColorHandler
 		category_title.SetColor(ExpansionColor.HexToARGB(title_color));
 
 		category_info = TextWidget.Cast(m_LayooutRoot.FindAnyWidget("category_info"));
-		category_info.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		category_info.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 	}
 }
 
@@ -381,7 +381,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			if (GetShownItemsCount() < GetShowItemsCount())
 				m_UpdateItemCount = true;
 
-			category_collapse_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorCategoryCollapseIcon));
+			category_collapse_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorCategoryCollapseIcon"));
 		}
 		else
 		{
@@ -408,7 +408,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		switch (w)
 		{
 		case category_button:
-			category_button.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorCategoryButton));
+			category_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorCategoryButton"));
 			break;
 		}
 		

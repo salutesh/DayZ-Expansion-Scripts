@@ -36,20 +36,29 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool UseNewsFeedInGameMenu;
 }
 
+
+/**@class		ExpansionGeneralSettingsV2
+ * @brief		General settings v2 class
+ **/
+class ExpansionGeneralSettingsV3: ExpansionGeneralSettingsBase
+{
+	int SystemChatColor;
+	int AdminChatColor;
+	int GlobalChatColor;
+	int DirectChatColor;
+	int TransportChatColor;
+	int PartyChatColor;
+	int TransmitterChatColor;
+}
+
 /**@class		ExpansionGeneralSettings
  * @brief		General settings class
  **/
 class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 	
-	int SystemChatColor;			//! Added with v2
-	int AdminChatColor;			//! Added with v2
-	int GlobalChatColor;			//! Added with v2
-	int DirectChatColor;			//! Added with v2
-	int TransportChatColor;		//! Added with v2
-	int PartyChatColor;				//! Added with v2
-	int TransmitterChatColor;	//! Added with v2
+	ref ExpansionChatColors ChatColors;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -58,6 +67,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	void ExpansionGeneralSettings()
 	{
 		Mapping = new ExpansionMapping;
+		ChatColors = new ExpansionChatColors;
 	}
 
 	// ------------------------------------------------------------
@@ -73,16 +83,28 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EXPrint("ExpansionGeneralSettings::OnRecieve - Start");
 		#endif
 		
-		ExpansionGeneralSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionGeneralSettings::OnRecieve setting");
-			return false;
-		}
+		ctx.Read(PlayerLocationNotifier);
+		ctx.Read(EnableGlobalChat);
+		ctx.Read(EnablePartyChat);
+		ctx.Read(EnableTransportChat);
+		ctx.Read(DisableShootToUnlock);
+		ctx.Read(EnableGravecross);
+		ctx.Read(GravecrossDeleteBody);
+		ctx.Read(GravecrossTimeThreshold);
+		ctx.Read(EnableLamps);
+		ctx.Read(EnableGenerators);
+		ctx.Read(EnableLighthouses);
+		ctx.Read(EnableHUDNightvisionOverlay);
+		ctx.Read(DisableMagicCrosshair);
+		ctx.Read(EnableAutoRun);
+		ctx.Read(UnlimitedStamina);
+		ctx.Read(UseDeathScreen);
+		ctx.Read(UseDeathScreenStatistics);
+		ctx.Read(UseNewsFeedInGameMenu);
+		
+		ChatColors.OnReceive(ctx);
 
-		CopyInternal( setting );
-
-		UpdateChatColors();
+		ChatColors.Update();
 
 		m_IsLoaded = true;
 
@@ -97,9 +119,27 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ExpansionGeneralSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
+		ctx.Write(PlayerLocationNotifier);
+		ctx.Write(EnableGlobalChat);
+		ctx.Write(EnablePartyChat);
+		ctx.Write(EnableTransportChat);
+		ctx.Write(DisableShootToUnlock);
+		ctx.Write(EnableGravecross);
+		ctx.Write(GravecrossDeleteBody);
+		ctx.Write(GravecrossTimeThreshold);
+		//! Do not send mapping
+		ctx.Write(EnableLamps);
+		ctx.Write(EnableGenerators);
+		ctx.Write(EnableLighthouses);
+		ctx.Write(EnableHUDNightvisionOverlay);
+		ctx.Write(DisableMagicCrosshair);
+		ctx.Write(EnableAutoRun);
+		ctx.Write(UnlimitedStamina);
+		ctx.Write(UseDeathScreen);
+		ctx.Write(UseDeathScreenStatistics);
+		ctx.Write(UseNewsFeedInGameMenu);
+		
+		ChatColors.OnSend(ctx);
 	}
 
 	// ------------------------------------------------------------
@@ -150,14 +190,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");
 		#endif
 		
-		//! Added with v2
-		SystemChatColor = s.SystemChatColor;
-		AdminChatColor = s.AdminChatColor;
-		GlobalChatColor = s.GlobalChatColor;
-		DirectChatColor = s.DirectChatColor;
-		TransportChatColor = s.TransportChatColor;
-		PartyChatColor = s.PartyChatColor;
-		TransmitterChatColor = s.TransmitterChatColor;
+		ChatColors = s.ChatColors;
 			
 		ExpansionGeneralSettingsBase sb = s;
 		CopyInternal( sb );
@@ -239,16 +272,26 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			{
 				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 2)
+				if (settingsBase.m_Version < 4)
 				{
-					//! Chat colors added with v2, nothing to do here as chat colors are handled by UpdateChatColors below
+					ExpansionGeneralSettingsV3 settings_v3;
+
+					JsonFileLoader<ExpansionGeneralSettingsV3>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, settings_v3);
+
+					ChatColors.Set("SystemChatColor", settings_v3.SystemChatColor);
+					ChatColors.Set("AdminChatColor", settings_v3.AdminChatColor);
+					ChatColors.Set("GlobalChatColor", settings_v3.GlobalChatColor);
+					ChatColors.Set("DirectChatColor", settings_v3.DirectChatColor);
+					ChatColors.Set("TransportChatColor", settings_v3.TransportChatColor);
+					ChatColors.Set("PartyChatColor", settings_v3.PartyChatColor);
+					ChatColors.Set("TransmitterChatColor", settings_v3.TransmitterChatColor);
 				}
 				else
 				{
 					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 				}
 
-				UpdateChatColors();
+				ChatColors.Update();
 
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -329,30 +372,11 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		
 		UseNewsFeedInGameMenu = true;
 		
-		UpdateChatColors();
+		ChatColors.Update();
 		
 		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");
 		#endif
-	}
-
-	void UpdateChatColors()
-	{
-		//! Make sure none of the colors are zero (all transparent)
-		if (!SystemChatColor)
-			SystemChatColor = ARGB(255, 186, 69, 186);
-		if (!AdminChatColor)
-			AdminChatColor = ARGB(255, 192, 57, 43);
-		if (!GlobalChatColor)
-			GlobalChatColor = ARGB(255, 88, 195, 247);
-		if (!DirectChatColor)
-			DirectChatColor = ARGB(255, 255, 255, 255);
-		if (!TransportChatColor)
-			TransportChatColor = ARGB(255, 255, 206, 9);
-		if (!PartyChatColor)
-			PartyChatColor = ARGB(255, 10, 250, 122);
-		if (!TransmitterChatColor)
-			TransmitterChatColor = ARGB(255, 249, 255, 73);
 	}
 	
 	// ------------------------------------------------------------

@@ -46,6 +46,8 @@ modded class Weapon_Base
 				stateId = PistolStableStateID.CLO_JAM_BU1_MA1;
 			else
 				stateId = PistolStableStateID.CLO_CHG_BU1_MA1;
+#ifdef DAYZ_1_15
+		//! DayZ 1.15
 		} else if ( IsInherited( CZ527_Base ) )
 		{
 			if ( IsChamberEmpty( mi ) )
@@ -56,8 +58,6 @@ modded class Weapon_Base
 				stateId = CZ527StableStateID.CZ527_CLO_BUF_MA1;
 			else
 				stateId = CZ527StableStateID.CZ527_CLO_BU1_MA1;
-		} else if ( IsInherited( Repeater_Base ) )
-		{
 		} else if ( IsInherited( Scout_Base ) )
 		{
 			if ( IsChamberEmpty( mi ) )
@@ -68,6 +68,22 @@ modded class Weapon_Base
 				stateId = SCOUTStableStateID.SCOUT_CLO_BUF_MA1;
 			else
 				stateId = SCOUTStableStateID.SCOUT_CLO_BU1_MA1;
+#else
+		//! DayZ 1.16 or above
+		} else if ( IsInherited( BoltActionRifle_ExternalMagazine_Base ) )
+		{
+			//! E.g. CZ527, Scout
+			if ( IsChamberEmpty( mi ) )
+				stateId = BAREMStableStateID.BAREM_CLO_BU0_MA1;
+			else if ( IsChamberJammed( mi ) )
+				stateId = BAREMStableStateID.BAREM_JAM_BU1_MA1;
+			else if ( IsChamberFiredOut( mi ) )
+				stateId = BAREMStableStateID.BAREM_CLO_BUF_MA1;
+			else
+				stateId = BAREMStableStateID.BAREM_CLO_BU1_MA1;
+#endif
+		} else if ( IsInherited( Repeater_Base ) )
+		{
 		} else if ( IsInherited( RifleBoltFree_Base ) )
 		{
 			//! E.g. AKM, Sporter 22, Saiga, MP5, VSS

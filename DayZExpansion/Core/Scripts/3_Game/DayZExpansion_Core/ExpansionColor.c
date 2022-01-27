@@ -109,4 +109,29 @@ class ExpansionColor
 
 		return hex;
 	}
+
+	static int ToARGB(string format)
+	{
+		TStringArray parts();
+		if (format.IndexOf(",") > -1)
+			format.Split(",", parts);
+		else if (format.IndexOf(" ") > -1)
+			format.Split(" ", parts);
+		else
+			return HexToARGB(format);
+
+		int color[4];
+		color[3] = 255;  //! Init alpha to fully opaque
+
+		int i;
+		foreach (string part: parts)
+		{
+			part.TrimInPlace();
+			if (!part)
+				continue;
+			color[i++] = part.ToInt();
+		}
+
+		return ARGB(color[3], color[0], color[1], color[2]);
+	}
 }

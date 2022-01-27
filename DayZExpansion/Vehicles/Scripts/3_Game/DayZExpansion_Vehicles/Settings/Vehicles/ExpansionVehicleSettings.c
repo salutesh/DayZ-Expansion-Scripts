@@ -119,16 +119,6 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
 
-		VehiclesConfig.Clear();
-		TStringArray vehicles = new TStringArray;
-		ctx.Read(vehicles);
-		foreach (string name: vehicles)
-		{
-			EXPrint("Reading " + name);
-			VehiclesConfig.Insert(new ExpansionVehiclesConfig(name, true));
-		}
-		EXPrint("VehiclesConfig: " + VehiclesConfig.Count());
-
 		m_IsLoaded = true;
 
 		Update(NULL);
@@ -170,16 +160,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
 
-		TStringArray vehicles = new TStringArray;
-		foreach (ExpansionVehiclesConfig vehicleConfig: VehiclesConfig)
-		{
-			if (vehicleConfig.CanPlayerAttach) // for now since this is the only variable, treat existance as true, non-existance as false
-			{
-				EXPrint("Sending " + vehicleConfig.ClassName);
-				vehicles.Insert(vehicleConfig.ClassName);
-			}
-		}
-		ctx.Write(vehicles);
+		//! Don't send VehiclesConfig
 	}
 
 	// ------------------------------------------------------------

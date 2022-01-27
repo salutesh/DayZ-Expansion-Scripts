@@ -22,7 +22,7 @@ class ExpansionStartingGearItem
 	// ------------------------------------------------------------
 	// ExpansionStartingGearItem Constructor
 	// ------------------------------------------------------------
-	void ExpansionStartingGearItem(string className, int quantity, array<string> attachments = null)
+	void ExpansionStartingGearItem(string className, int quantity = -1, array<string> attachments = null)
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionStartingGearItem::ExpansionStartingGearItem - Start");
@@ -148,7 +148,7 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 		}
 
 		UpperGear.Insert(new ExpansionStartingGearItem("Rag", 4));
-		UpperGear.Insert(new ExpansionStartingGearItem("Apple", 1));
+		UpperGear.Insert(new ExpansionStartingGearItem("Apple"));
 
 		switch ( world_name )
 		{
@@ -158,21 +158,21 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 			case "enoch":
 			case "deerisle":
 			{
-				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
+				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White"));
 				break;
 			}
 			case "namalsk":
 			{
 				UpperGear.Insert(new ExpansionStartingGearItem("RoadFlare", 2));
-				PantsGear.Insert(new ExpansionStartingGearItem("Heatpack", 1));
-				PantsGear.Insert(new ExpansionStartingGearItem("dzn_tool_watch", 1));
+				PantsGear.Insert(new ExpansionStartingGearItem("Heatpack"));
+				PantsGear.Insert(new ExpansionStartingGearItem("dzn_tool_watch"));
 				UsePantsGear = true;
 				break;
 			}
 			case "takistanplus":
 			{
-				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White", 1));
-				PantsGear.Insert(new ExpansionStartingGearItem("Compass", 1));
+				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White"));
+				PantsGear.Insert(new ExpansionStartingGearItem("Compass"));
 				UsePantsGear = true;
 				break;
 			}

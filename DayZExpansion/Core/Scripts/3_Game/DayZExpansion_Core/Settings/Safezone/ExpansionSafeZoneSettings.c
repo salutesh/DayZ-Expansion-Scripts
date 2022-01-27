@@ -155,6 +155,11 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		#endif
 
 		m_IsLoaded = true;
+			
+		//! Move existing settings file over from old location in $profile to new location in $mission
+		string fileNameOld = EXPANSION_SETTINGS_FOLDER + "SafeZoneSettings.json";
+		if (FileExist(fileNameOld))
+			MoveSettings(fileNameOld, EXPANSION_SAFE_ZONES_SETTINGS);
 
 		bool save;
 

@@ -153,10 +153,9 @@ modded class CarScript
 	protected bool m_CanBeSkinned;
 	protected autoptr array<ExpansionSkin> m_Skins;
 
-	protected float m_ModelAnchorPointY = -1;
+	protected float m_ModelZeroPointDistanceFromGround = -1;
 
 	protected bool m_Expansion_CanPlayerAttach;
-	protected bool m_Expansion_CanPlayerAttachSet;
 
 	protected bool m_Expansion_EngineSync1;
 	protected bool m_Expansion_EngineSync2;
@@ -186,6 +185,7 @@ modded class CarScript
 		RegisterNetSyncVariableInt("m_Expansion_CurrentEngine");
 
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
+		RegisterNetSyncVariableInt("m_Expansion_CanPlayerAttach");
 
 		RegisterNetSyncVariableBool("m_Expansion_IsBeingTowed");
 		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
@@ -274,6 +274,18 @@ modded class CarScript
 		path = "CfgVehicles " + GetType() + " hornSoundSetINT";
 		if (GetGame().ConfigIsExisting(path))
 			m_HornSoundSetINT = GetGame().ConfigGetTextOut(path);
+
+		if (GetGame().IsServer())
+		{
+			foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
+			{
+				if (IsKindOf(vehcfg.ClassName))
+				{
+					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
+					break;
+				}
+			}
+		}
 
 #ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::CarScript - End");
@@ -610,19 +622,6 @@ modded class CarScript
 	{
 #ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
 		m_Expansion_CanPlayerAttach = true;
-#else
-		if (!m_Expansion_CanPlayerAttachSet)
-		{
-			m_Expansion_CanPlayerAttachSet = true;
-			foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
-			{
-				if (IsKindOf(vehcfg.ClassName))
-				{
-					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
-					break;
-				}
-			}
-		}
 #endif
 
 		return m_Expansion_CanPlayerAttach;
@@ -3269,6 +3268,18 @@ modded class CarScript
 
 		if (IsMissionClient())
 		{
+			vector fxPos;
+			if (MemoryPointExists("fire_pos"))
+			{
+				fxPos = GetMemoryPointPos("fire_pos");
+			}
+			else
+			{
+				vector minMax[2];
+				GetCollisionBox(minMax);
+				fxPos = Vector(0, (minMax[1][1] - minMax[0][1]) / 2, 0);
+			}
+
 			if (zone == "Engine" && newLevel >= GameConstants.STATE_DAMAGED)
 			{
 				if (!SEffectManager.IsEffectExist(m_enginePtcFx))
@@ -3276,7 +3287,7 @@ modded class CarScript
 					if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript)) 
 					{
 						m_engineFx = new EffEngineSmoke();
-						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, GetMemoryPointPos("fire_pos"), "0 0 0", true);
+						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, fxPos, "0 0 0", true);
 					}
 				}
 
@@ -3298,15 +3309,13 @@ modded class CarScript
 				if (IsInherited(ExpansionHelicopterScript))
 				{
 					if (m_engineFx)
-					{
-						m_engineFx.SetParticleStateExpansion();
-					}
+						m_engineFx.Stop();
 
 					if (!m_Particles.Count())
 					{
 						CreateParticle(this, "fire_pos", ParticleList.EXPANSION_FIRE_HELICOPTER, "0 0 0", true);
 						if (!m_Particles.Count())
-							CreateParticleEx(ParticleList.EXPANSION_FIRE_HELICOPTER, this, "0 0 0", "0 0 0", true);
+							CreateParticleEx(ParticleList.EXPANSION_FIRE_HELICOPTER, this, fxPos, "0 0 0", true);
 					}
 				}
 			}
@@ -3553,33 +3562,31 @@ modded class CarScript
 		return 4.5;
 	}
 
-	float GetModelAnchorPointY()
+	float GetModelZeroPointDistanceFromGround()
 	{
-		if (m_ModelAnchorPointY < 0)
+		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
-			string path = "CfgVehicles " + GetType() + " modelAnchorPointY";
+			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
 			if (GetGame().ConfigIsExisting(path))
 			{
-				m_ModelAnchorPointY = GetGame().ConfigGetFloat(path);
+				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
 			}
 			else
 			{
-				//! @note will be exact for helis w/o separate wheels
 				vector minMax[2];
 				GetCollisionBox(minMax);
-				vector modelPos = WorldToModel(GetPosition());
-				float diff = modelPos[1] - minMax[0][1];
+				float diff = -minMax[0][1];
 				if (diff > 0)
-					m_ModelAnchorPointY = diff;
+					m_ModelZeroPointDistanceFromGround = diff;
 				else
-					m_ModelAnchorPointY = 0;
+					m_ModelZeroPointDistanceFromGround = 0;
 			}
 #ifdef EXPANSIONEXPRINT
-			EXPrint(GetType() + " modelAnchorPointY " + m_ModelAnchorPointY);
+			EXPrint(GetType() + " modelZeroPointDistanceFromGround " + m_ModelZeroPointDistanceFromGround);
 #endif
 		}
 
-		return m_ModelAnchorPointY;
+		return m_ModelZeroPointDistanceFromGround;
 	}
 
 	override float GetTransportCameraDistance()

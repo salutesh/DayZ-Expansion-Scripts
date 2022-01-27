@@ -30,7 +30,6 @@ modded class ExpansionBaseBuilding
 	//! Local values
 	// ------------------------------------------------------------
 	protected bool m_WasSynced;
-	protected bool m_WasLocked;
 
 	protected string m_CurrentBuild;
 
@@ -39,10 +38,6 @@ modded class ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ExpansionBaseBuilding()
 	{
-		RegisterNetSyncVariableBool( "m_Locked" );
-		RegisterNetSyncVariableBool( "m_HasCode" );
-		RegisterNetSyncVariableInt( "m_CodeLength" );
-		
 		SetAllowDamage(CanBeDamaged());
 	}
 
@@ -384,15 +379,6 @@ modded class ExpansionBaseBuilding
 		}
 	}
 
-	/**
-	\brief Returning if wall is locked
-		\param 	
-	*/
-	override bool IsLocked()
-	{
-		return m_HasCode && m_Locked;
-	}
-
 	bool IsPartBuilt( string part_name )
 	{
 		ConstructionPart construction_part = GetConstruction().GetConstructionParts().Get( part_name );
@@ -481,41 +467,7 @@ modded class ExpansionBaseBuilding
 	{
 		super.OnVariablesSynchronized();
 
-		if ( m_WasSynced && m_WasLocked != m_Locked )
-		{
-			if ( m_Locked )
-				SoundCodeLockLocked();
-			else
-				SoundCodeLockUnlocked();
-		}
-
-		m_WasLocked = m_Locked;
 		m_WasSynced = true;
-
-		ExpansionCodeLock codelock = ExpansionGetCodeLock();
-		if ( codelock )
-			codelock.UpdateVisuals();
-	}
-
-	/**
-	\brief Saving class to storage
-		\param 	
-	*/
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		#ifdef CF_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-				
-		ctx.Write( m_Locked );
-		ctx.Write( m_Code );
-		ctx.Write( m_HasCode );
 	}
 
 	/**
@@ -532,6 +484,9 @@ modded class ExpansionBaseBuilding
 			return true;
 		#endif
 		
+		if ( m_ExpansionSaveVersion >= 38 )
+			return true;
+
 		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
@@ -539,7 +494,8 @@ modded class ExpansionBaseBuilding
 
 		m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
+		bool hasCode;
+		if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
 			return false;
 
 		return true;
@@ -552,10 +508,6 @@ modded class ExpansionBaseBuilding
 
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return;
-
-		ctx.Write(m_Locked);
-		ctx.Write(m_Code);
-		ctx.Write(m_HasCode);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -565,12 +517,19 @@ modded class ExpansionBaseBuilding
 
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return true;
+		
+		if ( ctx.GetVersion() >= 38 )
+			return true;
 
 		if (!ctx.Read(m_Locked))
 			return false;
 		if (!ctx.Read(m_Code))
 			return false;
-		if (!ctx.Read(m_HasCode))
+
+		m_CodeLength = m_Code.Length();
+
+		bool hasCode;
+		if (!ctx.Read(hasCode))
 			return false;
 
 		return true;
@@ -611,24 +570,6 @@ modded class ExpansionBaseBuilding
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_END, GetPosition());
 			sound.SetSoundAutodestroy( true );
-		}
-	}
-	
-	protected void SoundCodeLockLocked()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
-		}
-	}
-	
-	protected void SoundCodeLockUnlocked()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
 		}
 	}
 }

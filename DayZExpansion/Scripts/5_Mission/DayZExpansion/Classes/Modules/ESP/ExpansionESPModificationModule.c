@@ -101,11 +101,17 @@ class ExpansionESPModificationModule : JMModuleBase
 		{
 			meta.SetCode( code );
 		} else {
-			JMESPMetaContainer metac = JMESPMetaContainer.Cast( m_BaseModule.EXP_GetMeta( target ) );
-			if ( metac )
+			JMESPMetaTents metat = JMESPMetaTents.Cast( m_BaseModule.EXP_GetMeta( target ) );
+			if ( metat )
 			{
-				metac.SetCode( code );
-			} 
+				metat.SetCode( code );
+			} else {
+				JMESPMetaContainer metac = JMESPMetaContainer.Cast( m_BaseModule.EXP_GetMeta( target ) );
+				if ( metac )
+				{
+					metac.SetCode( code );
+				}
+			}
 		}
 	}
 

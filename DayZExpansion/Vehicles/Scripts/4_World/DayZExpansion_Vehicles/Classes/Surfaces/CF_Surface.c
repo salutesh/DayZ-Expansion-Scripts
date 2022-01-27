@@ -35,18 +35,12 @@ class CF_Surface
 
 	CF_VehicleSurface VehicleSurface = GetValueVehicleSurface("vpSurface");
 
-	/**
-	 * @brief Private constructor to prevent outside creation of the class
-	 */
-	private void CF_Surface()
+	void CF_Surface()
 	{
 		s_Surfaces[s_LastSurface] = this;
 	}
 	
-	/**
-	 * @brief Private constructor to prevent from marking as ref
-	 */
-	private void ~CF_Surface()
+	void ~CF_Surface()
 	{
 	}
 

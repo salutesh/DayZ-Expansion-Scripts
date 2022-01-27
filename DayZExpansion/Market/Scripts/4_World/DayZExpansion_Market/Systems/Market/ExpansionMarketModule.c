@@ -13,6 +13,10 @@
 enum ExpansionMarketResult
 {
 	Success = 0,
+	RequestSellSuccess,
+	RequestPurchaseSuccess,
+	SellSuccess,
+	PurchaseSuccess,
 	FailedReserveTime,
 	FailedNoCount,
 	FailedUnknown,
@@ -792,42 +796,44 @@ class ExpansionMarketModule: JMModuleBase
 	//! and from 0.0 to <modifier> for food items, depending on quantity and food stage (when applicable, non-raw food will have a value of 0.0).
 	static float GetSellPriceModifier(EntityAI item, out float incrementStockModifier, float modifier = 0.75)
 	{
+		float conditionModifier = 1.0;
+		float quantityModifier = 1.0;
+
 		switch (item.GetHealthLevel())
 		{
 			case GameConstants.STATE_PRISTINE:
 				break;
 
 			case GameConstants.STATE_WORN:
-				modifier *= 0.75;
+				conditionModifier = 0.75;
 				break;
 
 			case GameConstants.STATE_DAMAGED:
-				modifier *= 0.5;
+				conditionModifier = 0.5;
 				break;
 
 			case GameConstants.STATE_BADLY_DAMAGED:
-				modifier *= 0.25;
+				conditionModifier = 0.25;
 				break;
 
 			case GameConstants.STATE_RUINED:
-				modifier = 0;
+				conditionModifier = 0;
 				break;
 		}
 
 		//! Selling ruined items shall not increase stock
-		incrementStockModifier = modifier > 0;  //! 0.0 or 1.0
+		incrementStockModifier = conditionModifier > 0;  //! 0.0 or 1.0
 
-		if (modifier && item.IsKindOf("Edible_Base"))
+		//! Food and liquid containers
+		Edible_Base edible;
+		if (conditionModifier && Class.CastTo(edible, item))
 		{
-			//! Food and liquid containers
-			Edible_Base edible = Edible_Base.Cast(item);
-
 			float minFactor;
 			if (!edible.ConfigGetBool("varQuantityDestroyOnMin"))
 				minFactor = 0.25;  //! Quarter price at zero quantity for e.g. liquid containers
 
 			if (edible.HasQuantity() && !edible.IsFullQuantity())  //! Full modifier at full quantity
-				modifier *= ExpansionMath.LinearConversion(0.0, 1.0, edible.GetQuantity() / edible.GetQuantityMax(), minFactor, 1, true);
+				quantityModifier = ExpansionMath.LinearConversion(0.0, 1.0, edible.GetQuantity() / edible.GetQuantityMax(), minFactor, 1, true);
 
 			if (edible.HasFoodStage())
 			{
@@ -835,34 +841,36 @@ class ExpansionMarketModule: JMModuleBase
 				{
 					case FoodStageType.RAW:
 						//! Let quantity and condition influence stock increment modifier
-						incrementStockModifier = modifier;
+						incrementStockModifier = conditionModifier == 1 && quantityModifier >= 0.75;  //! 0.0 or 1.0
 						break;
 
 					//! Selling non-raw food shall not increase stock
 
 					case FoodStageType.BAKED:
-						modifier *= 0.75;
+						quantityModifier *= 0.75;
 						incrementStockModifier = 0;
 						break;
 
 					case FoodStageType.BOILED:
-						modifier *= 0.5;
+						quantityModifier *= 0.5;
 						incrementStockModifier = 0;
 						break;
 
 					case FoodStageType.DRIED:
-						modifier *= 0.25;
+						quantityModifier *= 0.25;
 						incrementStockModifier = 0;
 						break;
 
 					case FoodStageType.BURNED:
 					case FoodStageType.ROTTEN:
-						modifier = 0;
+						quantityModifier = 0;
 						incrementStockModifier = 0;
 						break;
 				}
 			}
 		}
+
+		modifier *= conditionModifier * quantityModifier;
 
 		MarketModulePrint("GetSellPriceModifier " + item.ToString() + " (" + item.GetType() + ") -> " + modifier + " incrementStock " + incrementStockModifier);
 
@@ -1137,10 +1145,10 @@ class ExpansionMarketModule: JMModuleBase
 			return objs;
 		}
 
-		int quantity = reserve.TotalAmount;
-		while (quantity > 0)
+		int remainingAmount = reserve.TotalAmount;
+		while (remainingAmount > 0)
 		{
-			int quantityBefore = quantity;
+			int remainingAmountBefore = remainingAmount;
 
 			vector position = "0 0 0";
 			vector orientation = "0 0 0";
@@ -1148,12 +1156,12 @@ class ExpansionMarketModule: JMModuleBase
 			{
 				if ( !reserve.Trader.HasVehicleSpawnPosition(item.ClassName, position, orientation) )
 				{
-					quantity--;
+					remainingAmount--;
 					continue;
 				}
 			}
 
-			Object obj = Spawn(reserve.Trader.GetTraderMarket(), item, player, parent, position, orientation, quantity, includeAttachments, skinIndex, 0, attachmentNotAttached);
+			Object obj = Spawn(reserve.Trader.GetTraderMarket(), item, player, parent, position, orientation, remainingAmount, includeAttachments, skinIndex, 0, attachmentNotAttached);
 
 			objs.Insert(obj);
 
@@ -1163,7 +1171,7 @@ class ExpansionMarketModule: JMModuleBase
 				break;
 			}
 
-			if (quantity == quantityBefore)
+			if (remainingAmount == remainingAmountBefore)
 			{
 				//! Should not be possible, just in case...
 				Error("Error: Spawning " + item.ClassName + " did not affect remaining amount!");
@@ -1179,16 +1187,16 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion Object Spawn
 	// ------------------------------------------------------------
-	Object Spawn(ExpansionMarketTrader trader, ExpansionMarketItem item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int quantity, bool includeAttachments = true, int skinIndex = -1, int level = 0, inout bool attachmentNotAttached = false)
+	Object Spawn(ExpansionMarketTrader trader, ExpansionMarketItem item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, bool includeAttachments = true, int skinIndex = -1, int level = 0, inout bool attachmentNotAttached = false)
 	{		
 		MarketModulePrint("Spawn - Start");
 
 		Object obj;
 
 		if (!item.IsVehicle())
-			obj = ExpansionItemSpawnHelper.SpawnOnParent( item.ClassName, player, parent, quantity, NULL, skinIndex, false );
+			obj = ExpansionItemSpawnHelper.SpawnOnParent( item.ClassName, player, parent, remainingAmount, item.QuantityPercent, NULL, skinIndex, false );
 		else
-			obj = ExpansionItemSpawnHelper.SpawnVehicle( item.ClassName, player, parent, position, orientation, quantity, NULL, skinIndex );
+			obj = ExpansionItemSpawnHelper.SpawnVehicle( item.ClassName, player, parent, position, orientation, remainingAmount, NULL, skinIndex );
 		
 		//! Now deal with attachments and attachments on attachments
 		if (obj && includeAttachments && level < 3)
@@ -1223,7 +1231,11 @@ class ExpansionMarketModule: JMModuleBase
 				{
 					//! Fill up mag. If we have several ammo types, alternate them.
 					int totalAmmo;
-					while (totalAmmo < mag.GetAmmoMax())
+					int quantityPercent = item.QuantityPercent;
+					if (quantityPercent < 0)
+						quantityPercent = 100;
+					int ammoMax = Math.Ceil(mag.GetAmmoMax() * quantityPercent / 100);
+					while (totalAmmo < ammoMax)
 					{
 						foreach (string ammoName, bool isMagAmmo: attachmentTypes)
 						{
@@ -1242,7 +1254,7 @@ class ExpansionMarketModule: JMModuleBase
 								}
 
 								totalAmmo++;
-								if (totalAmmo == mag.GetAmmoMax())
+								if (totalAmmo == ammoMax)
 									break;
 							}
 						}
@@ -1975,12 +1987,13 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion Callback
 	// ------------------------------------------------------------
-	void Callback(string itemClassName, ExpansionMarketResult result, PlayerIdentity playerIdent, int option = -1, Object object = NULL)
+	void Callback(string itemClassName, ExpansionMarketResult result, PlayerIdentity playerIdent, int option1 = -1, int option2 = -1, Object object = NULL)
 	{
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(itemClassName);
 		rpc.Write(result);
-		rpc.Write(option);
+		rpc.Write(option1);
+		rpc.Write(option2);
 		rpc.Write(object);
 		rpc.Send(NULL, ExpansionMarketModuleRPC.Callback, true, playerIdent);
 	}
@@ -2006,10 +2019,17 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 
-		int option;
-		if (!ctx.Read(option))
+		int option1;
+		if (!ctx.Read(option1))
 		{
-			Error("RPC_Callback - Could not read param int option!");
+			Error("RPC_Callback - Could not read param int option1!");
+			return;
+		}
+
+		int option2;
+		if (!ctx.Read(option2))
+		{
+			Error("RPC_Callback - Could not read param int option2!");
 			return;
 		}
 
@@ -2020,9 +2040,9 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 
-		MarketModulePrint("RPC_Callback - result: " + result + " option: " + option + " object: " + object);
+		MarketModulePrint("RPC_Callback - result: " + result + " option1: " + option1 + " option2: " + option2 + " object: " + object);
 		
-		SI_Callback.Invoke(result, option, object);
+		SI_Callback.Invoke(itemClassName, result, option1, option2, object);
 		
 		MarketModulePrint("RPC_Callback - End");
 	}
@@ -2281,7 +2301,7 @@ class ExpansionMarketModule: JMModuleBase
 		//! If custom attachments are chosen, create a derivative of the market item with them and cache it
 		if (attachmentIDs && attachmentIDs.Count())
 		{
-			ExpansionMarketItem derivative = new ExpansionMarketItem(item.CategoryID, itemClassName, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, NULL, item.Variants, item.SellPricePercent, item.ItemID, attachmentIDs);
+			ExpansionMarketItem derivative = new ExpansionMarketItem(item.CategoryID, itemClassName, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, NULL, item.Variants, item.SellPricePercent, item.QuantityPercent, item.ItemID, attachmentIDs);
 			derivative.SetAttachmentsFromIDs();
 			item = derivative;
 		}
@@ -2306,7 +2326,7 @@ class ExpansionMarketModule: JMModuleBase
 
 			EXPrint("Callback " + typename.EnumToString(ExpansionMarketResult, result));
 
-			Callback(itemClassName, result, player.GetIdentity());
+			Callback(itemClassName, result, player.GetIdentity(), count, (int) includeAttachments);
 			
 			string cbtype = typename.EnumToString(ExpansionMarketResult, result);
 
@@ -2351,7 +2371,7 @@ class ExpansionMarketModule: JMModuleBase
 		// !TODO: Finish method RemoveReservedStock in PlayerBase
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveReservedStock, 30000, false, player, itemClassName);
 		
-		Callback(itemClassName, ExpansionMarketResult.Success, player.GetIdentity());
+		Callback(itemClassName, ExpansionMarketResult.RequestPurchaseSuccess, player.GetIdentity(), (int) includeAttachments, skinIndex);
 		
 		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to purchase %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().TraderName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
 		
@@ -2482,7 +2502,7 @@ class ExpansionMarketModule: JMModuleBase
 
 			ClearReserved(player, true);
 
-			Callback(itemClassName, result, player.GetIdentity(), spawnType, blockingObject);
+			Callback(itemClassName, result, player.GetIdentity(), spawnType, -1, blockingObject);
 			return;
 		}
 
@@ -2514,12 +2534,13 @@ class ExpansionMarketModule: JMModuleBase
 
 		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has bought %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) for a price of %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), reserve.RootItem.ClassName, reserve.TotalAmount, reserve.Trader.GetTraderMarket().TraderName, reserve.Trader.GetDisplayName(), reserve.Trader.GetTraderZone().m_DisplayName, reserve.Trader.GetTraderZone().Position.ToString(), reserve.Price));	
 		
+		Callback(itemClassName, ExpansionMarketResult.PurchaseSuccess, player.GetIdentity(), reserve.TotalAmount, reserve.Price);
+		
 		//! Need to clear reserved after a purchase
 		ClearReserved(player);
 		
 		zone.Save();
 
-		Callback(itemClassName, ExpansionMarketResult.Success, player.GetIdentity());
 		MarketModulePrint("Exec_ConfirmPurchase - End");
 	}
 
@@ -2730,7 +2751,7 @@ class ExpansionMarketModule: JMModuleBase
 			
 			EXPrint("Callback " + typename.EnumToString(ExpansionMarketResult, result));
 
-			Callback(itemClassName, result, player.GetIdentity());
+			Callback(itemClassName, result, player.GetIdentity(), count);
 			
 			return;
 		}
@@ -2742,7 +2763,7 @@ class ExpansionMarketModule: JMModuleBase
 		sellList.Debug();
 		#endif
 
-		Callback(itemClassName, ExpansionMarketResult.Success, player.GetIdentity());
+		Callback(itemClassName, ExpansionMarketResult.RequestSellSuccess, player.GetIdentity());
 		
 		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to sell %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().TraderName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
 
@@ -2849,9 +2870,9 @@ class ExpansionMarketModule: JMModuleBase
 
 		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has sold %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) and got %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, sell.TotalAmount, sell.Trader.GetTraderMarket().TraderName, sell.Trader.GetDisplayName(), sell.Trader.GetTraderZone().m_DisplayName, sell.Trader.GetTraderZone().Position.ToString(), sell.Price));	
 		
-		player.ClearMarketSell();
+		Callback(itemClassName, ExpansionMarketResult.SellSuccess, player.GetIdentity(), sell.TotalAmount, sell.Price);
 		
-		Callback(itemClassName, ExpansionMarketResult.Success, player.GetIdentity());
+		player.ClearMarketSell();
 		
 		CheckSpawn(player, parent);
 		

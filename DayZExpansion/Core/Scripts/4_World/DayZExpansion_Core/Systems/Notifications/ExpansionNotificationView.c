@@ -67,7 +67,8 @@ class ExpansionNotificationView: ScriptView
 	{
 		if (GetExpansionClientSettings().ShowNotifications && GetExpansionClientSettings().NotificationSound && GetGame() && GetGame().GetPlayer() && (!m_Data.m_LeaveJoinNotif || (m_Data.m_LeaveJoinNotif && GetExpansionClientSettings().NotificationSoundLeaveJoin)))
 		{
-			SEffectManager.PlaySoundOnObject("Expansion_Hint_Sound_SoundSet", GetGame().GetPlayer(), 0, 0.15, false);
+			if (GetGame().ConfigIsExisting("CfgSoundSets Expansion_Hint_Sound_SoundSet"))  //! Hint sound is part of Licensed
+				SEffectManager.PlaySoundOnObject("Expansion_Hint_Sound_SoundSet", GetGame().GetPlayer(), 0, 0.15, false);
 		}
 		
 		GetLayoutRoot().Show(true);
@@ -269,7 +270,7 @@ class ExpansionNotificationViewToast extends ExpansionNotificationView
 	
 	override string GetLayoutFile() 
 	{		
-		return "DayZExpansion/GUI/layouts/expansion_notification_toast.layout";
+		return "DayZExpansion/Core/GUI/layouts/expansion_notification_toast.layout";
 	}
 };
 class ExpansionNotificationViewToastController: ExpansionNotificationViewController {};
@@ -283,7 +284,7 @@ class ExpansionNotificationViewBaguette extends ExpansionNotificationView
 	
 	override string GetLayoutFile() 
 	{		
-		return "DayZExpansion/GUI/layouts/expansion_notification_baguette.layout";
+		return "DayZExpansion/Core/GUI/layouts/expansion_notification_baguette.layout";
 	}
 };
 class ExpansionNotificationViewBaguetteController: ExpansionNotificationViewController {};
@@ -297,7 +298,7 @@ class ExpansionNotificationViewActivity extends ExpansionNotificationView
 	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/GUI/layouts/expansion_notification_activity.layout";
+		return "DayZExpansion/Core/GUI/layouts/expansion_notification_activity.layout";
 	}
 };
 class ExpansionNotificationViewActivityController: ExpansionNotificationViewController {};
@@ -311,7 +312,7 @@ class ExpansionNotificationViewKillfeed extends ExpansionNotificationView
 	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/GUI/layouts/expansion_notification_killfeed.layout";
+		return "DayZExpansion/Core/GUI/layouts/expansion_notification_killfeed.layout";
 	}
 };
 class ExpansionNotificationViewKillfeedController: ExpansionNotificationViewController {};
@@ -325,7 +326,7 @@ class ExpansionNotificationViewMarket extends ExpansionNotificationView
 	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/GUI/layouts/expansion_notification_market.layout";
+		return "DayZExpansion/Core/GUI/layouts/expansion_notification_market.layout";
 	}
 };
 class ExpansionNotificationViewMarketController: ExpansionNotificationViewController {};

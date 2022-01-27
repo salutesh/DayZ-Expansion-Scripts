@@ -75,10 +75,10 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 		switch (w)
 		{
 			case dropdown_element_button:
-				dropdown_element_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				dropdown_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case dropdown_element_clear:
-				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				market_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 		}		
 		return false;
@@ -91,10 +91,10 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 		switch (w)
 		{
 			case dropdown_element_button:
-				dropdown_element_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+				dropdown_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 				break;
 			case dropdown_element_clear:
-				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				market_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 				break;
 		}
 			
