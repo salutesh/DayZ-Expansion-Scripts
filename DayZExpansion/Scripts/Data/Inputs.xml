@@ -7,6 +7,7 @@
 			<input name="UAExpansionMapToggle" loc="STR_EXPANSION_TOGGLE_MAP" />
 			<input name="UAExpansionPlayerListToggle" loc="STR_EXPANSION_TOGGLE_PLAYER_LIST" />
 			<input name="UAExpansionGPSToggle" loc="STR_EXPANSION_TOGGLE_GPS" />
+			<input name="UAExpansionCompassToggle" loc="STR_EXPANSION_TOGGLE_COMPASS" />            
 			<input name="UAExpansionGPSMapScaleDown" loc="STR_EXPANSION_GPS_MAP_SCALE_DOWN" />
 			<input name="UAExpansionGPSMapScaleUp" loc="STR_EXPANSION_GPS_MAP_SCALE_UP" />
             <input name="UAExpansionEarplugsToggle" loc="STR_EXPANSION_TOGGLE_EARPLUGS" />
@@ -33,6 +34,7 @@
 			<input name="UAExpansionMapToggle" />
 			<input name="UAExpansionPlayerListToggle" />
 			<input name="UAExpansionGPSToggle" />
+			<input name="UAExpansionCompassToggle" />
 			<input name="UAExpansionGPSMapScaleDown" />
 			<input name="UAExpansionGPSMapScaleUp" />
 			<input name="UAExpansionEarplugsToggle" />
@@ -57,6 +59,9 @@
         </input>
 		<input name="UAExpansionGPSToggle">
             <btn name="kN" />
+        </input>
+		<input name="UAExpansionCompassToggle">
+            <btn name="kI" />
         </input>
 		<input name="UAExpansionGPSMapScaleDown">
             <btn name="mWheelDown" />

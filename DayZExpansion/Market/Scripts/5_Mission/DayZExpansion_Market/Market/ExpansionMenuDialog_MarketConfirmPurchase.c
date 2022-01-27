@@ -43,7 +43,8 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
 			
 			string amount = m_DialogData.Amount.ToString();
 			string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_DialogData.ClassName);
-			string price = ExpansionStatic.IntToCurrencyString(m_DialogData.Price, ",");
+			//! Can't use ExpansionStatic.IntToCurrencyString because UI will omit places before a comma?!? NOT a bug with IntToCurrencyString
+			string price = m_DialogData.Price.ToString();
 			StringLocaliser text;
 			if (!m_DialogData.IncludeAttachments)
 			{

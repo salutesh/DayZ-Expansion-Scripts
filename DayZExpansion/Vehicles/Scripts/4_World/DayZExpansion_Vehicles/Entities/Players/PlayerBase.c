@@ -220,28 +220,6 @@ modded class PlayerBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion StartCommand_ExpansionFall
-	// ------------------------------------------------------------
-	override void StartCommand_ExpansionFall( float pYVelocity )
-	{
-		#ifndef EXPANSION_DISABLE_FALL
-		if ( !s_ExpansionPlayerAttachment )
-		{
-			StartCommand_Fall( pYVelocity );
-			return;
-		}
-
-		if ( m_ExpansionST == NULL )
-			m_ExpansionST = new ExpansionHumanST( this );
-
-		ExpansionHumanCommandFall cmd = new ExpansionHumanCommandFall( this, pYVelocity, m_ExpansionST );
-		StartCommand_Script( cmd );
-		#else
-		StartCommand_Fall( pYVelocity );
-		#endif
-	}
-
-	// ------------------------------------------------------------
 	// Expansion StartCommand_ExpansionVehicle
 	// ------------------------------------------------------------
 	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
@@ -396,7 +374,7 @@ modded class PlayerBase
 		#endif
 
 		//! If we are saving after game version target for ModStorage support (1st stable)
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -408,7 +386,7 @@ modded class PlayerBase
 		ctx.Write( m_ExpansionSaveVersion );
 
 		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -431,7 +409,7 @@ modded class PlayerBase
 		EXPrint("[VEHICLES] PlayerBase::OnStoreLoad " + this + " " + version);
 		#endif
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -439,7 +417,7 @@ modded class PlayerBase
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -461,41 +439,30 @@ modded class PlayerBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] PlayerBase::CF_OnStoreSave " + this + " " + modName);
-		#endif
+		super.CF_OnStoreSave(storage);
 
-		super.CF_OnStoreSave( storage, modName );
+		auto ctx = storage[DZ_Expansion_Vehicles];
+		if (!ctx) return;
 
-		if ( modName != "DZ_Expansion_Vehicles" )
-			return;
-
-		storage.Write( m_WasInVehicle );
-		storage.Write( m_Expansion_SessionTimeStamp );
+		ctx.Write(m_WasInVehicle);
+		ctx.Write(m_Expansion_SessionTimeStamp);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] PlayerBase::CF_OnStoreLoad " + this + " " + modName);
-		#endif
-
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion_Vehicles" )
-			return true;
+		auto ctx = storage[DZ_Expansion_Vehicles];
+		if (!ctx) return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
+		if (!ctx.Read(m_WasInVehicle))
 			return false;
 
-		if ( storage.GetVersion() < 30 )
-			return true;
-		
-		if ( Expansion_Assert_False( storage.Read( m_Expansion_SessionTimeStamp ), "[" + this + "] Failed reading m_Expansion_SessionTimeStamp" ) )
+		if (!ctx.Read(m_Expansion_SessionTimeStamp))
 			return false;
 
 		return true;

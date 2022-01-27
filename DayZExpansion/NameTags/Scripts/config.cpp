@@ -1,6 +1,13 @@
+#define _ARMA_
+
+class CfgPatches
+{
+	class DayZExpansion_NameTags_Scripts
+	{
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core"};
+		requiredAddons[] = {"DayZExpansion_Core_Scripts"};
 	};
 };
 class CfgMods
@@ -9,7 +16,6 @@ class CfgMods
 	{
 		dir = "DayZExpansion/NameTags";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
-		inputs = "DayZExpansion/NameTags/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
 		name = "$STR_MOD_EXPANSION_NAME";

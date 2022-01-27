@@ -43,7 +43,7 @@ class cfgWeapons
 		{
 			soundSetShot[] = {"MP5K_Shot_SoundSet","MP5K_Tail_SoundSet","MP5K_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
-			reloadTime = 0.125;
+			reloadTime = 0.12;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;
@@ -54,7 +54,7 @@ class cfgWeapons
 			soundSetShot[] = {"MP5K_Shot_SoundSet","MP5K_Tail_SoundSet","MP5K_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
 			burst = 3;
-			reloadTime = 0.067;
+			reloadTime = 0.065;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;
@@ -64,7 +64,7 @@ class cfgWeapons
 		{
 			soundSetShot[] = {"MP5K_Shot_SoundSet","MP5K_Tail_SoundSet","MP5K_InteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
-			reloadTime = 0.075;
+			reloadTime = 0.065;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;
@@ -348,7 +348,7 @@ class cfgWeapons
 		{
 			soundSetShot[] = {"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
-			reloadTime = 0.125;
+			reloadTime = 0.12;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;
@@ -359,7 +359,7 @@ class cfgWeapons
 			soundSetShot[] = {"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
 			burst = 3;
-			reloadTime = 0.067;
+			reloadTime = 0.065;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;
@@ -369,7 +369,7 @@ class cfgWeapons
 		{
 			soundSetShot[] = {"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"};
 			soundSetShotExt[] = {{"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"}};
-			reloadTime = 0.075;
+			reloadTime = 0.065;
 			recoil = "recoil_mp5";
 			recoilProne = "recoil_mp5_prone";
 			dispersion = 0.003;

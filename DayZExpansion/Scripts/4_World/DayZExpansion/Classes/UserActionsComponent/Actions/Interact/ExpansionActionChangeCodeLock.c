@@ -18,7 +18,6 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 	//! WARNING: If 'IsLocal' is false, refactor this
 	protected ItemBase m_Target;
 	protected TentBase m_Tent;
-	protected bool m_IsTentAllowed;
 	
 	// -----------------------------------------------------------
 	// ExpansionActionChangeCodeLock Destructor

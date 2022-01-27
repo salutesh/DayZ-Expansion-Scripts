@@ -12,7 +12,7 @@
 
 class ExpansionMarketCategory
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	int m_Version;
 
@@ -82,6 +82,15 @@ class ExpansionMarketCategory
 
 			if (category.m_Version < 8)
 				category.InitStockPercent = 75;
+
+			if (category.m_Version < 9)
+			{
+				foreach (ExpansionMarketItem itemV8OrLower : category.Items)
+				{
+					if (!itemV8OrLower.QuantityPercent)
+						itemV8OrLower.QuantityPercent = -1;
+				}
+			}
 
 			category.m_Version = VERSION;
 			category.Save();
@@ -160,14 +169,14 @@ class ExpansionMarketCategory
 	// 'minPrice' the lowest the item will sell at when it has reached 'maxStock'
 	// 'maxPrice' the highest the item will sell at when it has reached 'minStock'
 	// ------------------------------------------------------------
-	ExpansionMarketItem AddItem( string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1, int itemID = -1, array<int> attachmentIDs = NULL )
+	ExpansionMarketItem AddItem( string className, int minPrice, int maxPrice, int minStock, int maxStock, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = NULL )
 	{
 		className.ToLower();
 
 		if (ExpansionGame.IsServerOrOffline() && CheckDuplicate(className))
 			return NULL;
 
-		ExpansionMarketItem item = new ExpansionMarketItem( CategoryID, className, minPrice, maxPrice, minStock, maxStock, attachments, variants, sellPricePercent, itemID, attachmentIDs );
+		ExpansionMarketItem item = new ExpansionMarketItem( CategoryID, className, minPrice, maxPrice, minStock, maxStock, attachments, variants, sellPricePercent, quantityPercent, itemID, attachmentIDs );
 
 		AddItemInternal( item );
 
@@ -180,9 +189,9 @@ class ExpansionMarketCategory
 	// 'minPrice' the lowest the item will sell at when it has reached 'maxStock'
 	// 'maxPrice' the highest the item will sell at when it has reached 'maxStock'
 	// ------------------------------------------------------------
-	ExpansionMarketItem AddStaticItem( string className, ExpansionMarketCurrency staticPrice, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1 )
+	ExpansionMarketItem AddStaticItem( string className, int staticPrice, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1, int quantityPercent = -1 )
 	{
-		return AddItem( className, staticPrice, staticPrice, 1, 1, attachments, variants, sellPricePercent );
+		return AddItem( className, staticPrice, staticPrice, 1, 1, attachments, variants, sellPricePercent, quantityPercent );
 	}
 	
 	bool CheckDuplicate(string className)
@@ -255,7 +264,7 @@ class ExpansionMarketCategory
 
 					if (variantIds)
 						variantId = variantIds[variantIdIdx];
-					variant = new ExpansionMarketItem( CategoryID, className, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.SpawnAttachments, NULL, item.SellPricePercent, variantId, item.m_AttachmentIDs );
+					variant = new ExpansionMarketItem( CategoryID, className, item.MinPriceThreshold, item.MaxPriceThreshold, item.MinStockThreshold, item.MaxStockThreshold, item.SpawnAttachments, NULL, item.SellPricePercent, item.QuantityPercent, variantId, item.m_AttachmentIDs );
 					//! Variants that do not already have an entry only need to synch stock, they will be automatically added on client
 					variant.m_StockOnly = true;
 					AddItemInternal(variant, false);

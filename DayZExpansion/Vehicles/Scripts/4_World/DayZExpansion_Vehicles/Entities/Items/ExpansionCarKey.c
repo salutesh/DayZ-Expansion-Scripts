@@ -623,7 +623,7 @@ class ExpansionCarKey extends ItemBase
 	// ------------------------------------------------------------
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -659,7 +659,7 @@ class ExpansionCarKey extends ItemBase
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -699,57 +699,52 @@ class ExpansionCarKey extends ItemBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion_Vehicles" )
-			return;
+		auto ctx = storage[DZ_Expansion_Vehicles];
+		if (!ctx) return;
 
-		storage.Write( m_PersistentIDA );
-		storage.Write( m_PersistentIDB );
-		storage.Write( m_PersistentIDC );
-		storage.Write( m_PersistentIDD );
-		storage.Write( m_VehicleDisplayName );
-		
-		storage.Write( MasterKeyUses );
-		storage.Write( m_IsMasterKey );
+		ctx.Write(m_PersistentIDA);
+		ctx.Write(m_PersistentIDB);
+		ctx.Write(m_PersistentIDC);
+		ctx.Write(m_PersistentIDD);
+		ctx.Write(m_VehicleDisplayName);
+
+		ctx.Write(MasterKeyUses);
+		ctx.Write(m_IsMasterKey);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion_Vehicles" )
-			return true;
+		auto ctx = storage[DZ_Expansion_Vehicles];
+		if (!ctx) return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDA ), "[" + this + "] Failed reading m_PersistentIDA" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDB ), "[" + this + "] Failed reading m_PersistentIDB" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDC ), "[" + this + "] Failed reading m_PersistentIDC" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_PersistentIDD ), "[" + this + "] Failed reading m_PersistentIDD" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_VehicleDisplayName ), "[" + this + "] Failed reading m_VehicleDisplayName" ) )
+		if (!ctx.Read(m_PersistentIDA))
 			return false;
 
-		if ( storage.GetVersion() < 19 )
-		{
-			if ( IsPaired() )
-			{				
-				SetMaster(true); //! Keys from old storage should be master keys if already paired
-				SetMasterUses(-1, false);
-			}
-		} else {
-			if ( Expansion_Assert_False( storage.Read( MasterKeyUses ), "[" + this + "] Failed reading MasterKeyUses" ) )
-				return false;
+		if (!ctx.Read(m_PersistentIDB))
+			return false;
 
-			if ( Expansion_Assert_False( storage.Read( m_IsMasterKey ), "[" + this + "] Failed reading m_IsMasterKey" ) )
-				return false;
-		}
+		if (!ctx.Read(m_PersistentIDC))
+			return false;
+
+		if (!ctx.Read(m_PersistentIDD))
+			return false;
+
+		if (!ctx.Read(m_VehicleDisplayName))
+			return false;
+
+		if (!ctx.Read(MasterKeyUses))
+			return false;
+
+		if (!ctx.Read(m_IsMasterKey))
+			return false;
 
 		return true;
 	}

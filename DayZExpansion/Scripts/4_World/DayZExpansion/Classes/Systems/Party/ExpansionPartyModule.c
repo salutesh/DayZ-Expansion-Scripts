@@ -901,7 +901,7 @@ class ExpansionPartyModule: JMModuleBase
 		party.UpdateMarker(marker);
 		party.Save();
 
-		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_ADDED").Success(senderRPC);
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_CHANGED").Success(senderRPC);
 
 		UpdatePartyMembersServer(partyId);
 	}
@@ -1138,12 +1138,14 @@ class ExpansionPartyModule: JMModuleBase
 		if (!player || !identity)
 			return;
 
-		ExpansionPartyPlayerData party_player = UpdatePlayerPartyServer(identity.GetId());
+		ExpansionPartyPlayerData party_player = GetPartyPlayerData(identity.GetId());
 
 		if (party_player)
 		{
 			party_player.OnLeave();
 			party_player.GetParty().OnLeave(party_player);
+			
+			UpdatePartyMembersServer(party_player.GetParty());
 		}
 	}
 
@@ -1160,24 +1162,24 @@ class ExpansionPartyModule: JMModuleBase
 
 		SyncPlayerInvitesServer(player);
 
-		ExpansionPartyPlayerData party_player = UpdatePlayerPartyServer(identity.GetId());
+		ExpansionPartyPlayerData party_player = GetPartyPlayerData(identity.GetId());
 
 		if (party_player)
 		{
 			party_player.OnJoin(player);
 			party_player.GetParty().OnJoin(party_player);
+			
+			UpdatePartyMembersServer(party_player.GetParty());
 		}
 	}
 
-	private ExpansionPartyPlayerData UpdatePlayerPartyServer(string uid)
+	ExpansionPartyPlayerData GetPartyPlayerData(string uid)
 	{
 		foreach (int i, ExpansionPartyData data : m_Parties)
 		{
 			ExpansionPartyPlayerData party_player = data.GetPlayer(uid);
 			if (!party_player)
 				continue;
-
-			UpdatePartyMembersServer(data);
 
 			return party_player;
 		}

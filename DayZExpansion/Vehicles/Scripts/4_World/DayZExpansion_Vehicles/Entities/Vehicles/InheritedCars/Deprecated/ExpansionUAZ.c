@@ -487,7 +487,7 @@ class ExpansionUAZ extends OffroadHatchback
 		EXPrint("ExpansionUAZ::IsVitalRadiator");
 		#endif
 
-		return false;
+		return true;
 	}
 	
 	// ------------------------------------------------------------

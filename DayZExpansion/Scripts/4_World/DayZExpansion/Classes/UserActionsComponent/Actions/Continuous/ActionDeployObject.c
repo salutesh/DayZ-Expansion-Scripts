@@ -84,9 +84,12 @@ modded class ActionDeployObject
 		if ( player.IsInSafeZone() )
 			return false;
 
-		//! NOTE: When making changes below, don't forget that the logic in ActionTogglePlaceObject::Start should be compatible!
-
-		bool doPlacementCheckForBuildZone;
+		bool isDisallowedOutsideBuildZone;
+		bool isDisallowedOutsideTerritory;
+		bool isDisallowedInEnemyTerritory;
+		bool isDisallowedNearEnemyTerritory;
+		string title;
+		string text;
 
 		if ( GetExpansionSettings().GetBaseBuilding().Zones.Count() )
 		{
@@ -108,11 +111,29 @@ modded class ActionDeployObject
 				}
 
 				if ( !isItemAllowed )
+				{
+					text = zone.CustomMessage;
+
+					if ( GetExpansionSettings().GetBaseBuilding().ZonesAreNoBuildZones )
+					{
+						title = "STR_EXPANSION_NOBUILD_ZONE_TITLE";
+						if ( !text )
+							text = "STR_EXPANSION_NOBUILD_ZONE_ITEM_DISALLOWED";
+					} else
+					{
+						title = "STR_EXPANSION_BUILD_ZONE_TITLE";
+						if ( !text )
+							text = "STR_EXPANSION_BUILD_ZONE_ITEM_DISALLOWED";
+					}
+
+					ExpansionNotification(new StringLocaliser(title, zone.Name), new StringLocaliser(text)).Error(player.GetIdentity());
+
 					return false;
+				}
 			} else if ( !GetExpansionSettings().GetBaseBuilding().ZonesAreNoBuildZones )
 			{
 				//! Zones are "build" zones, so if player isn't inside one, disallow placing if not whitelisted
-				doPlacementCheckForBuildZone = true;
+				isDisallowedOutsideBuildZone = true;
 			}
 		}
 
@@ -120,25 +141,19 @@ modded class ActionDeployObject
 			return super.ActionCondition( player, target, item );
 
 		if ( GetExpansionSettings().GetBaseBuilding() )
-		{		
-			int i;
-
-			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true && !doPlacementCheckForBuildZone )
+		{
+			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true && !isDisallowedOutsideBuildZone )
 			{
 				//! Flag can be placed if outside any territory/perimeter or if inside own territory/perimeter
 				//! Other items can be placed if not in enemy territory or if item is whitelisted
 
 				if ( player.IsInTerritory() )
 				{
-					return ActionTogglePlaceObject.CanDeployInTerritory( player, item );
+					isDisallowedInEnemyTerritory = !CanDeployInTerritory( player, item );
 				}
 				else if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
 				{
-					return false;
-				}
-				else
-				{
-					return true;
+					isDisallowedNearEnemyTerritory = true;
 				}
 			}
 			else
@@ -148,31 +163,71 @@ modded class ActionDeployObject
 
 				if ( player.IsInTerritory() )
 				{
-					return ActionTogglePlaceObject.CanDeployInTerritory( player, item );
+					isDisallowedInEnemyTerritory = !CanDeployInTerritory( player, item );
 				}
 				else
 				{
-					for (i = 0; i < GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory.Count(); ++i)
+					isDisallowedOutsideTerritory = !GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory;
+					foreach (string deployable: GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory)
 					{
-						string deployable = GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory[i];
 						if ( ( item.CanMakeGardenplot() && deployable == "GardenPlot" ) || item.IsKindOf( deployable ) )
 						{
+							isDisallowedOutsideBuildZone = false;
+							isDisallowedOutsideTerritory = false;
 							if ( item.IsInherited( TerritoryFlagKit ) && player.IsInPerimeter() && !player.IsInsideOwnPerimeter() )
 							{
-								return false;
+								isDisallowedNearEnemyTerritory = true;
 							}
-							else
-							{
-								return true;
-							}
+							break;
 						}
 					}
-					
-					return false;
 				}
 			}
 		}
 		
+		if (isDisallowedOutsideTerritory)
+		{
+			title = "STR_EXPANSION_TERRITORY_TITLE";
+			text = "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED";
+		}
+		else if (isDisallowedInEnemyTerritory)
+		{
+			title = "STR_EXPANSION_TERRITORY_TITLE";
+			text = "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY";
+		}
+		else if (isDisallowedNearEnemyTerritory)
+		{
+			title = "STR_EXPANSION_TERRITORY_TITLE";
+			text = "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY_NEAR";
+		}
+		else if (isDisallowedOutsideBuildZone)
+		{
+			title = "STR_EXPANSION_BUILD_ZONE_REQUIRED_TITLE";
+			text = GetExpansionSettings().GetBaseBuilding().BuildZoneRequiredCustomMessage;
+			if ( !text )
+				text = "STR_EXPANSION_BUILD_ZONE_REQUIRED";
+		}
+		else
+		{
+			return true;
+		}
+
+		ExpansionNotification("STR_EXPANSION_BUILD_ZONE_REQUIRED_TITLE", text).Error(player.GetIdentity());
+
+		return false;
+	}
+
+	static bool CanDeployInTerritory( PlayerBase player, ItemBase item )
+	{
+		if ( player.IsInsideOwnTerritory() )
+			return true;
+
+		foreach (string deployable: GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory)
+		{
+			if ( ( item.CanMakeGardenplot() && deployable == "GardenPlot" ) || item.IsKindOf( deployable ) )
+				return true;
+		}
+
 		return false;
 	}
 

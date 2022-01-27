@@ -193,10 +193,12 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 			Print("ExpansionSpawnSelectionMenu::OnClick - m_Confirm");
 			if ( m_SelectedSpawnPoint != Vector( 0, 0, 0 ) )
 				m_RespawnModule.SelectSpawn( m_SelectedSpawnPoint );
+			m_Confirm.Enable(false);
 			break;
 		case m_Random:
 			Print("ExpansionSpawnSelectionMenu::OnClick - m_Random");
 			m_RespawnModule.SelectRandomSpawn();
+			m_Random.Enable(false);
 			break;
 		}
 		

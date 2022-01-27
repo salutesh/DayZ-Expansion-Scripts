@@ -280,7 +280,8 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 
 		for ( ; index < end; ++index )
 		{
-			uid = m_MarkerModule.GetData().PersonalGet( index ).GetUID();
+			ExpansionMarkerData markerData = m_MarkerModule.GetData().PersonalGet( index );
+			uid = markerData.GetUID();
 			removeIndex = m_PersonalMarkersCheckArr.Find( uid );
 			if ( removeIndex != -1 )
 				m_PersonalMarkersCheckArr.Remove( removeIndex );
@@ -294,11 +295,17 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 				m_Markers.Insert( marker );
 			}
 			
-			marker.SetMarkerData( m_MarkerModule.GetData().PersonalGet( index ) );
+			ExpansionMapMarkerListEntry listEntry = m_MarkerList.GetPersonalEntry( marker );
+
+			marker.SetMarkerData( markerData );
 			marker.SetMapMenu( this );
 			
-			if ( !m_MarkerList.HasPersonalEntry( marker ) )
+			if ( !listEntry )
 				m_MarkerList.AddPersonalEntry( marker );
+			else if ( listEntry.GetName() != markerData.GetName() )
+				m_MarkerList.UpdatePersonalEntry( listEntry );
+			else
+				listEntry.Update();
 			
 			m_PersonalMarkersUpdateIndex++;
 		}
@@ -414,12 +421,18 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 				m_PartyMarkers.Insert( uid, marker );
 				m_Markers.Insert( marker );
 			}
+			
+			ExpansionMapMarkerListEntry listEntry = m_MarkerList.GetPartyEntry( marker );
 
 			marker.SetMarkerData( markers[index] );
 			marker.SetMapMenu( this );
 			
-			if ( !m_MarkerList.HasPartyEntry( marker ) )
+			if ( !listEntry )
 				m_MarkerList.AddPartyEntry( marker );
+			else if ( listEntry.GetName() != markers[index].GetName() )
+				m_MarkerList.UpdatePartyEntry( listEntry );
+			else
+				listEntry.Update();
 
 			m_PartyMarkersUpdateIndex++;
 		}
@@ -498,11 +511,15 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 				m_Markers.Insert( marker );
 			}
 
+			ExpansionMapMarkerListEntry listEntry = m_MarkerList.GetServerEntry( marker );
+
 			marker.SetMarkerData( m_MarkerModule.GetData().ServerGet( index ) );
 			marker.SetMapMenu( this );
 
-			if ( !m_MarkerList.HasServerEntry( marker ) )
+			if ( !listEntry )
 				m_MarkerList.AddServerEntry( marker );
+			else
+				listEntry.Update();
 			
 			m_ServerMarkersUpdateIndex++;
 		}
@@ -607,11 +624,17 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 				m_Markers.Insert( marker );
 			}
 
+			ExpansionMapMarkerListEntry listEntry = m_MarkerList.GetMemberEntry( marker );
+
 			marker.SetMarkerData( players[index].Marker );
 			marker.SetMapMenu( this );
 
-			if ( !m_MarkerList.HasMemberEntry( marker ) )
+			if ( !listEntry )
 				m_MarkerList.AddMemberEntry( marker );
+			else if ( listEntry.GetName() != players[index].Marker.GetName() )
+				m_MarkerList.UpdateMemberEntry( listEntry );
+			else
+				listEntry.Update();
 			
 			m_PlayerMarkersUpdateIndex++;
 		}
@@ -1323,56 +1346,9 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 				m_DoUpdateMarkers = false;
 			}
 		}
-
-		if ( m_MarkerList.IsListVisible() && m_Time >= 0.25 )
-		{
-			UpdateMarkerList();
-			m_Time = 0;
-		}
 		
 		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMenu::Update - End");
-		#endif
-	}
-	
-	private void UpdateMarkerList()
-	{
-		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
-		EXLogPrint("ExpansionMapMenu::UpdateMarkerList - Start");
-		#endif
-		
-		int j;
-		ExpansionMapMarkerListEntry entry;
-		for ( j = 0; j < m_MarkerList.GetPersonalEntrys().Count(); ++j )
-		{			
-			entry = m_MarkerList.GetPersonalEntrys()[j];
-			if (entry)
-				entry.Update();
-		}
-		
-		for ( j = 0; j < m_MarkerList.GetPartyEntrys().Count(); ++j )
-		{
-			entry = m_MarkerList.GetPartyEntrys()[j];
-			if (entry)
-				entry.Update();
-		}
-		
-		for ( j = 0; j < m_MarkerList.GetMemberEntrys().Count(); ++j )
-		{
-			entry = m_MarkerList.GetMemberEntrys()[j];			
-			if (entry)
-				entry.Update();
-		}
-		
-		for ( j = 0; j < m_MarkerList.GetServerEntrys().Count(); ++j )
-		{
-			entry = m_MarkerList.GetServerEntrys()[j];			
-			if (entry)
-				entry.Update();
-		}
-		
-		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
-		EXLogPrint("ExpansionMapMenu::UpdateMarkerList - End");
 		#endif
 	}
 	

@@ -27,7 +27,6 @@ class ExpansionSafeBase extends Container_Base
 
 		RegisterNetSyncVariableBool( "m_IsOpen" );
 		RegisterNetSyncVariableBool( "m_Locked" );
-		RegisterNetSyncVariableBool( "m_HasCode" );
 		RegisterNetSyncVariableInt( "m_CodeLength" );
 	}
 
@@ -157,15 +156,6 @@ class ExpansionSafeBase extends Container_Base
 		return m_IsOpen;
 	}
 	
-	/**
-	\brief Returning if safe is locked
-		\param 	
-	*/
-	override bool IsLocked()
-	{
-		return m_HasCode && m_Locked;
-	}
-	
 	protected void SoundCodeLockLocked()
 	{
 		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
@@ -217,7 +207,7 @@ class ExpansionSafeBase extends Container_Base
 	*/
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -230,7 +220,6 @@ class ExpansionSafeBase extends Container_Base
 		ctx.Write( m_IsOpen );
 		ctx.Write( m_Locked );
 		ctx.Write( m_Code );
-		ctx.Write( m_HasCode );
 
 		ctx.Write( m_KnownUIDs );
 	}
@@ -244,7 +233,7 @@ class ExpansionSafeBase extends Container_Base
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -258,8 +247,12 @@ class ExpansionSafeBase extends Container_Base
 
 		m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-			return false;
+		if ( m_ExpansionSaveVersion < 38 )
+		{
+			bool hasCode;
+			if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
+				return false;
+		}
 
 		if ( m_ExpansionSaveVersion >= 20 )
 		{
@@ -270,59 +263,62 @@ class ExpansionSafeBase extends Container_Base
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
-		
-		storage.Write( m_IsOpen );
-		storage.Write( m_Locked );
-		storage.Write( m_Code );
-		storage.Write( m_HasCode );
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_KnownUIDs.Count() );
+		ctx.Write( m_IsOpen );
+		ctx.Write( m_Locked );
+		ctx.Write( m_Code );
+
+		ctx.Write( m_KnownUIDs.Count() );
 		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
 		{
-			storage.Write( m_KnownUIDs[i] );
+			ctx.Write( m_KnownUIDs[i] );
 		}
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
+		if (!ctx.Read(m_IsOpen))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+
+		if (!ctx.Read(m_Locked))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+
+		if (!ctx.Read(m_Code))
 			return false;
 
 		m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
+		if (ctx.GetVersion() < 38)
+		{
+			bool hasCode;
+			if (!ctx.Read(hasCode))
+				return false;
+		}
+
+		int count;
+		if (!ctx.Read(count))
 			return false;
 
-		if ( storage.GetVersion() >= 20 )
+		for (int i = 0; i < count; i++)
 		{
-			int count;
-			if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading m_KnownUIDs count" ) )
+			string knownUID;
+			if (!ctx.Read(knownUID))
 				return false;
 
-			for ( int i = 0; i < count; i++ )
-			{
-				string knownUID;
-				if ( Expansion_Assert_False( storage.Read( knownUID ), "[" + this + "] Failed reading m_KnownUIDs[" + i + "]" ) )
-					return false;
-				m_KnownUIDs.Insert( knownUID );
-			}
+			m_KnownUIDs.Insert( knownUID );
 		}
 
 		return true;
@@ -365,7 +361,7 @@ class ExpansionSafeBase extends Container_Base
 			SetOrientation( orientation );
 
 			if( HasCode() && !IsLocked() && !IsOpened() )
-				Lock();
+				ExpansionLock();
 
 			SetSynchDirty();
 		}	

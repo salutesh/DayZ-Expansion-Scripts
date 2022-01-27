@@ -33,9 +33,10 @@ class ExpansionActionOpen: ActionInteractBase
 		{
 			if ( m_Target.IsInherited( ExpansionSafeBase ) )
 				return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
-			if ( m_Target.IsInherited( ExpansionWallBase ) && ExpansionWallBase.Cast( m_Target ).HasDoor() )
-				return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
-			return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+			ExpansionWallBase wall;
+			if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || m_Target.GetType() == "Fence" )
+				return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+			return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
 		}
 
 		return "#open";

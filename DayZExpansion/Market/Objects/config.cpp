@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Market_Objects
 	{
-		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderAIMirek","ExpansionTraderAIDenis","ExpansionTraderAIBoris","ExpansionTraderAICyril","ExpansionTraderAIElias","ExpansionTraderAIFrancis","ExpansionTraderAIGuo","ExpansionTraderAIHassan","ExpansionTraderAIIndar","ExpansionTraderAIJose","ExpansionTraderAIKaito","ExpansionTraderAILewis","ExpansionTraderAIManua","ExpansionTraderAINiki","ExpansionTraderAIOliver","ExpansionTraderAIPeter","ExpansionTraderAIQuinn","ExpansionTraderAIRolf","ExpansionTraderAISeth","ExpansionTraderAITaiki","ExpansionTraderAILinda","ExpansionTraderAIMaria","ExpansionTraderAIFrida","ExpansionTraderAIGabi","ExpansionTraderAIHelga","ExpansionTraderAIIrena","ExpansionTraderAIJudy","ExpansionTraderAIKeiko","ExpansionTraderAIEva","ExpansionTraderAINaomi"};
+		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderBaty","ExpansionTraderAIMirek","ExpansionTraderAIDenis","ExpansionTraderAIBoris","ExpansionTraderAICyril","ExpansionTraderAIElias","ExpansionTraderAIFrancis","ExpansionTraderAIGuo","ExpansionTraderAIHassan","ExpansionTraderAIIndar","ExpansionTraderAIJose","ExpansionTraderAIKaito","ExpansionTraderAILewis","ExpansionTraderAIManua","ExpansionTraderAINiki","ExpansionTraderAIOliver","ExpansionTraderAIPeter","ExpansionTraderAIQuinn","ExpansionTraderAIRolf","ExpansionTraderAISeth","ExpansionTraderAITaiki","ExpansionTraderAILinda","ExpansionTraderAIMaria","ExpansionTraderAIFrida","ExpansionTraderAIGabi","ExpansionTraderAIHelga","ExpansionTraderAIIrena","ExpansionTraderAIJudy","ExpansionTraderAIKeiko","ExpansionTraderAIEva","ExpansionTraderAINaomi","ExpansionTraderAIBaty"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs","DZ_Animals_ursus_arctos","DZ_Characters","DZ_Characters_Zombies"};
@@ -45,6 +45,7 @@ class CfgVehicles
 	class SurvivorF_Keiko;
 	class SurvivorF_Eva;
 	class SurvivorF_Naomi;
+	class SurvivorF_Baty;
 	class ZmbM_HermitSkinny_Base;
 	class ZmbM_JournalistSkinny;
 	class ExpansionTraderStaticBase: HouseNoDestruct
@@ -107,13 +108,13 @@ class CfgVehicles
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_v3.p3d";
 		rotationFlags = 12;
 	};
-	class Animal_UrsusArctos_Preview: HouseNoDestruct
+	class Animal_UrsusArctos_ExpansionMarketPreview: HouseNoDestruct
 	{
 		displayName = "$STR_CfgVehicles_Animal_UrsusArctos0";
 		descriptionShort = "$STR_CfgVehicles_Animal_UrsusArctos1";
 		model = "\DZ\animals_bliss\ursus_arctos\ursus_arctos.p3d";
 	};
-	class ZmbM_HermitSkinny_Beige_Preview: HouseNoDestruct
+	class ZmbM_HermitSkinny_Beige_ExpansionMarketPreview: HouseNoDestruct
 	{
 		displayName = "$STR_cfgvehicles_infected0";
 		descriptionShort = "$STR_cfgvehicles_infected1";
@@ -306,6 +307,12 @@ class CfgVehicles
 		displayName = "Naomi";
 		vehicleClass = "Expansion_Trader";
 	};
+	class ExpansionTraderBaty: SurvivorF_Baty
+	{
+		scope = 2;
+		displayName = "Baty";
+		vehicleClass = "Expansion_Trader";
+	};
 	class ExpansionTraderAIMirek: ExpansionTraderMirek{};
 	class ExpansionTraderAIDenis: ExpansionTraderDenis{};
 	class ExpansionTraderAIBoris: ExpansionTraderBoris{};
@@ -336,4 +343,5 @@ class CfgVehicles
 	class ExpansionTraderAIKeiko: ExpansionTraderKeiko{};
 	class ExpansionTraderAIEva: ExpansionTraderEva{};
 	class ExpansionTraderAINaomi: ExpansionTraderNaomi{};
+	class ExpansionTraderAIBaty: ExpansionTraderBaty{};
 };

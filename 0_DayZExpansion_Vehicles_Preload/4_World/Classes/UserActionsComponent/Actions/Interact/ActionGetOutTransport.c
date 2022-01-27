@@ -155,7 +155,7 @@ modded class ActionGetOutTransport
 		if (car && car.IsBoat())
 		{
 			//! Prevent player glitching below boat
-			float vehicleY = car.GetPosition()[1] - car.GetModelAnchorPointY();
+			float vehicleY = car.GetPosition()[1] - car.GetModelZeroPointDistanceFromGround();
 			if (playerPos[1] < vehicleY + 0.5)
 			{
 				playerPos[1] = vehicleY + 0.5;

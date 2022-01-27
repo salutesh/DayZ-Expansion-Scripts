@@ -106,7 +106,7 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 					{
 						UpdateCompass();
 					}
-					else if ( GetExpansionSettings().GetMap().NeedCompassItemForHUDCompass && GetExpansionSettings().GetMap().NeedGPSItemForHUDCompass )
+					else if (!GetExpansionHud().GetCompassState())
 					{
 						CompassShow();
 					}
@@ -177,7 +177,7 @@ class ExpansionIngameHudEventHandler extends ScriptedWidgetEventHandler
 	void UpdateCompass()
 	{
 		if ( m_Player )
-		{			
+		{
 			if ( GetExpansionHud().GetCompassState() )
 			{
 				#ifdef EXPANSIONEXLOGPRINT

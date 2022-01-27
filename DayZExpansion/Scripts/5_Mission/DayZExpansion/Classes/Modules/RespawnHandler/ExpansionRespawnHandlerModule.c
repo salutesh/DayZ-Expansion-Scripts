@@ -50,7 +50,7 @@ class ExpansionPlayerState
 
 class ExpansionRespawnHandlerModule: JMModuleBase
 {
-	const static string EXPANSION_SPAWNSELECT_PLAYERSTATES = EXPANSION_FOLDER + "playerstates.bin";
+	protected string s_FileName;
 
 	ref map<string, ref ExpansionPlayerState> m_PlayerStartStates;
 
@@ -136,13 +136,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 	void StartSpawnSelection(PlayerBase player)
 	{
-		Print("ExpansionRespawnHandlerModule::StartSpawnSelection - Start");
-		
 		if ( !IsMissionHost() )
 			return;
 
 		PlayerIdentity identity = player.GetIdentity();
 		string uid = identity.GetId();
+
+		EXPrint(ToString() + "::StartSpawnSelection - Start -  player " + identity.GetName() + " (id=" + uid + ")");
 
 		array<ref ExpansionSpawnLocation> territoryspawnlist;
 
@@ -256,9 +256,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL));
 
 		//! In case spawn select menu could not be created, player will stay at original position and spawn select won't show
-		if (!spawnSelectionMenu)
+		if (!spawnSelectionMenu || !spawnSelectionMenu.IsVisible())
 		{
-			Error(ToString() + "::Exec_ShowSpawnMenu - Spawn selection menu could not be created!");
+			Error(ToString() + "::Exec_ShowSpawnMenu - Spawn selection menu could not be created or shown!");
 			return;
 		}
 
@@ -360,7 +360,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		player.SetAllowDamage(false);
 
 		//! Move player out of harm's way
-		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player spawned at " + player.GetPosition() + ", moving to <0 0 0>");
+		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") spawned at " + player.GetPosition() + ", moving to <0 0 0>");
 		player.SetPosition("0 0 0");
 
 		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - End");
@@ -401,6 +401,13 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		PlayerBase player = PlayerBase.GetPlayerByUID(uid);
 		if (player)
 		{
+			ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
+			if (!state)
+			{
+				Error(ToString() + "::Exec_SelectSpawn - Player start state not found for player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ")!");
+				return;
+			}
+
 			if (spawnPoint == vector.Zero)
 			{
 				//! Zero vector means select random spawn
@@ -420,24 +427,16 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			{
 				//! If spawn point is still zero vector, use original spawn position
 				//! (this is not necessarily an error, it is valid to include the zero vector among spawn positions in the configuration)
-				ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
-				if (state)
-				{
-					spawnPoint = state.m_Position;
-					EXPrint(ToString() + "::Exec_SelectSpawn - selected original spawn point");
-				}
-				else
-				{
-					Error(ToString() + "::Exec_SelectSpawn - Player start state not found for player with id '" + uid + "'!");
-				}
+				spawnPoint = state.m_Position;
+				EXPrint(ToString() + "::Exec_SelectSpawn - selected original spawn point");
 			}
 
 			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
-			EXPrint(ToString() + "::Exec_SelectSpawn - moving player to " + spawnPoint);
+			EXPrint(ToString() + "::Exec_SelectSpawn - moving player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") to " + spawnPoint);
 			player.SetPosition(spawnPoint);
 			
-			EndSpawnSelection(player);
+			EndSpawnSelection(player, state);
 
 			if (GetExpansionSettings().GetLog().SpawnSelection)
 				GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + uid + ")" + " spawned at " + spawnPoint);
@@ -454,7 +453,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		Error(ToString() + "::CloseSpawnMenu is deprecated, use " + ToString() + "::EndSpawnSelection");
 	}
 
-	void EndSpawnSelection(PlayerBase player)
+	void EndSpawnSelection(PlayerBase player, ExpansionPlayerState state)
 	{
 		Print("ExpansionRespawnHandlerModule::EndSpawnSelection - Start");
 		
@@ -468,7 +467,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		ResetItemWetness(player);
 
 		//! Restore state
-		ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
 		state.ApplyTo(player);
 		m_PlayerStartStates.Remove(uid);
 
@@ -616,8 +614,11 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	
 	private void AddItem(PlayerBase player, ExpansionStartingGearItem gearItem, inout EntityAI parent)
 	{
-		int quantity = gearItem.Quantity;  //! SpawnOnParent will deduct spawned quantity!
-		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, quantity, gearItem.Attachments, -1, true));
+		if (!gearItem.ClassName)
+			return;
+
+		int remainingAmount = gearItem.Quantity;  //! SpawnOnParent will deduct spawned amount!
+		EntityAI item = EntityAI.Cast(ExpansionItemSpawnHelper.SpawnOnParent(gearItem.ClassName, player, parent, remainingAmount, gearItem.Quantity, gearItem.Attachments, -1, true));
 
 		if (!item)
 			return;
@@ -701,8 +702,23 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{
 		super.OnMissionStart();
 
-		if (!IsMissionHost())
+		if (!GetGame().IsDedicatedServer())
 			return;
+
+		string filename_old = EXPANSION_FOLDER + "playerstates.bin";
+
+		int instance_id = GetGame().ServerConfigGetInt( "instanceId" );
+		string folder = "$mission:storage_" + instance_id + "\\expansion";
+		s_FileName = folder + "\\spawnselect.bin";
+
+		if (!FileExist(folder))
+			MakeDirectory(folder);
+
+		if (!FileExist(s_FileName) && FileExist(filename_old))
+		{
+			if (CopyFile(filename_old, s_FileName))
+				DeleteFile(filename_old);
+		}
 
 		//! Load all states of players that haven't finished spawn select
 		Load();
@@ -712,7 +728,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{
 		super.OnMissionFinish();
 
-		if (!IsMissionHost())
+		if (!GetGame().IsDedicatedServer())
 			return;
 
 		//! Save all states of players that haven't finished spawn select
@@ -722,7 +738,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	void Save()
 	{
 		FileSerializer file = new FileSerializer;
-		if (file.Open(EXPANSION_SPAWNSELECT_PLAYERSTATES, FileMode.WRITE))
+		if (file.Open(s_FileName, FileMode.WRITE))
 		{
 			EXPrint(ToString() + "::Save - writing " + m_PlayerStartStates.Count() + " player states");
 
@@ -743,11 +759,11 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 	void Load()
 	{
-		if (!FileExist(EXPANSION_SPAWNSELECT_PLAYERSTATES))
+		if (!FileExist(s_FileName))
 			return;
 
 		FileSerializer file = new FileSerializer;
-		if (file.Open(EXPANSION_SPAWNSELECT_PLAYERSTATES, FileMode.READ))
+		if (file.Open(s_FileName, FileMode.READ))
 		{
 			//! Can't do it the sane, elegant way, causes server crash when accessing m_PlayerStartStates. Have to do it the awkward, BS way
 			//file.Read(m_PlayerStartStates);

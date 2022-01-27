@@ -106,10 +106,10 @@ EXPrint("Attached: " + count + " " + classNameLower);
 
 		string color;
 		if (m_CanBeAttachedOrReplaceConflicting)
-			color = GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders;
+			color = "BaseColorHeaders";
 		else
-			color = GetExpansionSettings().GetMarket().MarketMenuColors.ColorSellButton;
-		item_element_background.SetColor(ExpansionColor.HexToARGB(color));
+			color = "ColorSellButton";
+		item_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get(color));
 
 		int count = GetCount();
 		item_element_decrement.Show(count > 0);
@@ -206,7 +206,7 @@ EXPrint("Can NOT attach " + attachment);
 			{
 				if (m_CanBeAttachedOrReplaceConflicting)
 				{
-					item_element_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+					item_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				}
 				
 				if (!m_ItemTooltip && m_Object)
@@ -220,7 +220,7 @@ EXPrint("Can NOT attach " + attachment);
 			}
 			case item_element_tooltip:
 			{
-				item_element_tooltip_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
+				item_element_tooltip_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 				if (!m_Tooltip) 
 				{
 					m_Tooltip = new ExpansionMarketMenuTooltip();
@@ -233,12 +233,12 @@ EXPrint("Can NOT attach " + attachment);
 			}
 			case item_element_increment:
 			{
-				item_element_increment.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorIncreaseQuantityButton));
+				item_element_increment.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorIncreaseQuantityButton"));
 				break;
 			}
 			case item_element_decrement:
 			{
-				item_element_decrement.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorDecreaseQuantityButton));
+				item_element_decrement.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorDecreaseQuantityButton"));
 				break;
 			}
 		}		
@@ -255,7 +255,7 @@ EXPrint("Can NOT attach " + attachment);
 			{
 				if (m_CanBeAttachedOrReplaceConflicting)
 				{
-					item_element_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+					item_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 				}
 				
 				if (m_ItemTooltip)
@@ -267,7 +267,7 @@ EXPrint("Can NOT attach " + attachment);
 			}
 			case item_element_tooltip:
 			{
-				item_element_tooltip_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				item_element_tooltip_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 				if (m_Tooltip) 
 				{
 					m_Tooltip.Hide();

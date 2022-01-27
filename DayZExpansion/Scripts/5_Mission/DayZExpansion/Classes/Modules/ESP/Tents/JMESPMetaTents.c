@@ -44,20 +44,13 @@ class JMESPMetaTents : JMESPMeta
 		TentBase tent;
 		if ( Class.CastTo( tent, target ) )
 		{
-			if ( CanAttachCodelock() )
+			if ( tent.ExpansionCanAttachCodeLock() )
 			{
 				return tent.ExpansionHasCodeLock( "codelock" );
 			}
 		}
 
 		return false;
-	}
-
-	//! Only call this after settings have been loaded
-	bool CanAttachCodelock()
-	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
-		return attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
 	}
 
 	void SetCode( string code )

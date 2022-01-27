@@ -12,11 +12,9 @@
 
 modded class ExpansionSettings
 {
-	static ref ScriptInvoker SI_Airdrop = new ScriptInvoker();
 	static ref ScriptInvoker SI_BaseBuilding = new ScriptInvoker();
 	static ref ScriptInvoker SI_General = new ScriptInvoker();
 	static ref ScriptInvoker SI_Map = new ScriptInvoker();
-	static ref ScriptInvoker SI_Mission = new ScriptInvoker();
 	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
 	static ref ScriptInvoker SI_Party = new ScriptInvoker();
 	static ref ScriptInvoker SI_Raid = new ScriptInvoker();
@@ -25,11 +23,9 @@ modded class ExpansionSettings
 	static ref ScriptInvoker SI_PlayerList = new ScriptInvoker();
 	static ref ScriptInvoker SI_SocialMedia = new ScriptInvoker();
 	
-	protected autoptr ExpansionAirdropSettings m_SettingsAirdrop;
 	protected autoptr ExpansionBaseBuildingSettings m_SettingsBaseBuilding;
 	protected autoptr ExpansionGeneralSettings m_SettingsGeneral;
 	protected autoptr ExpansionMapSettings m_SettingsMap;
-	protected autoptr ExpansionMissionSettings m_SettingsMission;
 	protected autoptr ExpansionNotificationSettings m_SettingsNotification;
 	protected autoptr ExpansionPartySettings m_SettingsParty;
 	protected autoptr ExpansionSpawnSettings m_SettingsSpawn;
@@ -47,11 +43,9 @@ modded class ExpansionSettings
 		EXPrint("[MAIN] ExpansionSettings::OnServerInit - Start");
 		#endif
 
-		LoadSetting( m_SettingsAirdrop );
 		LoadSetting( m_SettingsBaseBuilding );
 		LoadSetting( m_SettingsGeneral );
 		LoadSetting( m_SettingsMap );
-		LoadSetting( m_SettingsMission );
 		LoadSetting( m_SettingsNotification );
 		LoadSetting( m_SettingsParty );
 		LoadSetting( m_SettingsRaid );
@@ -60,11 +54,9 @@ modded class ExpansionSettings
 		LoadSetting( m_SettingsPlayerList);
 		LoadSetting( m_SettingsSocialMedia);
 
-		//m_NetworkedSettings.Insert( "expansionairdropsettings" );
 		m_NetworkedSettings.Insert( "expansionbasebuildingsettings" );
 		m_NetworkedSettings.Insert( "expansiongeneralsettings" );
 		m_NetworkedSettings.Insert( "expansionmapsettings" );
-		// m_NetworkedSettings.Insert( "expansionmissionsettings" );
 		m_NetworkedSettings.Insert( "expansionnotificationsettings" );
 		m_NetworkedSettings.Insert( "expansionpartysettings" );
 		m_NetworkedSettings.Insert( "expansionraidsettings" );
@@ -84,11 +76,9 @@ modded class ExpansionSettings
 	{
 		super.Unload();
 
-		m_SettingsAirdrop.Unload();
 		m_SettingsBaseBuilding.Unload();
 		m_SettingsGeneral.Unload();
 		m_SettingsMap.Unload();
-		m_SettingsMission.Unload();
 		m_SettingsNotification.Unload();
 		m_SettingsRaid.Unload();
 		m_SettingsParty.Unload();
@@ -117,9 +107,6 @@ modded class ExpansionSettings
 
 		if ( m_SettingsLoaded )
 			return;
-		
-		if ( !IsSettingLoaded( m_SettingsAirdrop, m_SettingsLoaded ) )
-			return;
 
 		if ( !IsSettingLoaded( m_SettingsBaseBuilding, m_SettingsLoaded ) )
 			return;
@@ -128,9 +115,6 @@ modded class ExpansionSettings
 			return;
 
 		if ( !IsSettingLoaded( m_SettingsMap, m_SettingsLoaded ) )
-			return;
-
-		if ( !IsSettingLoaded( m_SettingsMission, m_SettingsLoaded ) )
 			return;
 
 		if ( !IsSettingLoaded( m_SettingsNotification, m_SettingsLoaded ) )
@@ -166,11 +150,9 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	override void Init()
 	{
-		m_SettingsAirdrop = new ExpansionAirdropSettings;
 		m_SettingsBaseBuilding = new ExpansionBaseBuildingSettings;
 		m_SettingsGeneral = new ExpansionGeneralSettings;
 		m_SettingsMap = new ExpansionMapSettings;
-		m_SettingsMission = new ExpansionMissionSettings;
 		m_SettingsNotification = new ExpansionNotificationSettings;
 		m_SettingsRaid = new ExpansionRaidSettings;
 		m_SettingsParty = new ExpansionPartySettings;
@@ -197,7 +179,6 @@ modded class ExpansionSettings
 
 		super.Send( identity );
 
-		m_SettingsAirdrop.Send( identity );
 		m_SettingsBaseBuilding.Send( identity );
 		m_SettingsGeneral.Send( identity );
 		m_SettingsMap.Send( identity );
@@ -229,17 +210,7 @@ modded class ExpansionSettings
 			return false;
 		
 		switch ( rpc_type )
-		{
-			case ExpansionSettingsRPC.AirDrop:
-			{
-				Expansion_Assert_False( m_SettingsAirdrop.OnRecieve( ctx ), "Failed reading AirDrop settings" );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_AirDrop");
-				#endif
-
-				break;
-			}
-			
+		{			
 			case ExpansionSettingsRPC.BaseBuilding:
 			{
 				Expansion_Assert_False( m_SettingsBaseBuilding.OnRecieve( ctx ), "Failed reading BaseBuilding settings" );
@@ -362,11 +333,9 @@ modded class ExpansionSettings
 
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
-			m_SettingsAirdrop.Save();
 			m_SettingsBaseBuilding.Save();
 			m_SettingsGeneral.Save();
 			m_SettingsMap.Save();
-			m_SettingsMission.Save();
 			m_SettingsNotification.Save();
 			m_SettingsRaid.Save();
 			m_SettingsParty.Save();
@@ -379,14 +348,6 @@ modded class ExpansionSettings
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("[MAIN] ExpansionSettings::Save - End");
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionAirdropSettings GetAirdrop
-	// ------------------------------------------------------------
-	ExpansionAirdropSettings GetAirdrop()
-	{
-		return m_SettingsAirdrop;
 	}
 	
 	// ------------------------------------------------------------
@@ -403,14 +364,6 @@ modded class ExpansionSettings
 	ExpansionMapSettings GetMap()
 	{
 		return m_SettingsMap;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionMissionSettings GetMission
-	// ------------------------------------------------------------
-	ExpansionMissionSettings GetMission()
-	{
-		return m_SettingsMission;
 	}
 	
 	// ------------------------------------------------------------

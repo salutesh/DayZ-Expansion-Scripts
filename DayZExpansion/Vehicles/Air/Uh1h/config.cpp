@@ -90,7 +90,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_UH1H";
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\uh1h.p3d";
-		modelAnchorPointY = 2.98;
+		modelZeroPointDistanceFromGround = 2.98;
 		vehicleClass = "Expansion_Helicopter";
 		wreck = "ExpansionUh1hWreck";
 		fuelCapacity = 119;

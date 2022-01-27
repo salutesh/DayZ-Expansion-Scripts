@@ -48,7 +48,8 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			
 			string amount = m_DialogData.Amount.ToString();
 			string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_DialogData.ClassName);
-			string price = ExpansionStatic.IntToCurrencyString(m_DialogData.Price, ",");
+			//! Can't use ExpansionStatic.IntToCurrencyString because UI will omit places before a comma?!? NOT a bug with IntToCurrencyString
+			string price = m_DialogData.Price.ToString();
 			StringLocaliser text;
 			if (!m_DialogData.IncludeAttachments)
 			{
@@ -84,7 +85,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 		if (!m_AdditionalText)
 		{
 			m_AdditionalText = new ExpansionMenuDialogContent_Text(this);
-			m_AdditionalText.SetTextColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
+			m_AdditionalText.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 			AddContent(m_AdditionalText);
 			m_AdditionalText.Hide();
 		
@@ -100,7 +101,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			PopulateAttachmentsList();
 		}
 		
-		dialog_info_button.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));
+		dialog_info_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
 	}
 	
 	// ------------------------------------------------------------
@@ -157,7 +158,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 					name = playerItem.ContainerItems.GetKey(i);
 					int quantity = playerItem.ContainerItems.Get(name);
 					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(name));	
-					entry.SetTextColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));	
+					entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
 					m_WrapSpacer.AddSpacerContent(entry);
 				}
 				
@@ -189,7 +190,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 				{
 					name = ExpansionStatic.GetItemDisplayNameWithType(playerItem.GetItem().GetHierarchyParent().Type().ToString());
 					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(name));	
-					entry.SetTextColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));	
+					entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
 					m_WrapSpacer.AddSpacerContent(entry);
 					m_AdditionalText.SetText("#STR_EXPANSION_MARKET_SELL_DIALOG_WARNING_ATTACHED");
 					m_AdditionalText.Show();

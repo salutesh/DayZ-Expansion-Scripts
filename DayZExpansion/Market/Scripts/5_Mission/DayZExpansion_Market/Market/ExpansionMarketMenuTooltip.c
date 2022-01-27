@@ -28,11 +28,11 @@ class ExpansionMarketMenuTooltip: ExpansionScriptView
 		if (!m_TooltipController)
 			m_TooltipController = ExpansionMarketMenuTooltipController.Cast(GetController());
 		
-		tooltip_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));
-		tooltip_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorTooltipsHeaders));
-		tooltip_content.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorTooltipsBackground));
-		tooltip_title.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
-		tooltip_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
+		tooltip_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
+		tooltip_header.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorTooltipsHeaders"));
+		tooltip_content.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorTooltipsBackground"));
+		tooltip_title.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
+		tooltip_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 	}
 	
 	void ~ExpansionMarketMenuTooltip()

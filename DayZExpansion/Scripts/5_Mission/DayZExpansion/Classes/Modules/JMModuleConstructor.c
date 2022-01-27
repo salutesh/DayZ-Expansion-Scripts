@@ -16,11 +16,9 @@ modded class JMModuleConstructor
 	{
 		// Gameplay modules
 		modules.Insert( ExpansionGlobalChatModule );
-		modules.Insert( ExpansionNotificationModule );	
 		modules.Insert( ExpansionLocatorModule );
 		modules.Insert( ExpansionPartyModule );
 		modules.Insert( ExpansionMarkerModule );
-		modules.Insert( ExpansionMissionModule );
 		modules.Insert( ExpansionTerritoryModule );
 		modules.Insert( ExpansionInteriorBuildingModule );
 		modules.Insert( ExpansionWorldMappingModule );
@@ -32,7 +30,6 @@ modded class JMModuleConstructor
 		modules.Insert( ExpansionCOTTerritoriesModule );
 
 		modules.Insert( ExpansionESPModificationModule );
-		modules.Insert( ExpansionCOTVehiclesModule ); //!TODO: Move to COT
 #endif
 
 		modules.Insert( ExpansionClientSettingsModule );

@@ -14,7 +14,7 @@ class ExpansionMarketSell
 {
 	bool Valid;
 
-	ExpansionMarketCurrency Price;
+	int Price;
 	ref ExpansionTraderObjectBase Trader;
 	int Time;
 

@@ -53,20 +53,13 @@ modded class JMESPMetaBaseBuilding
 		}
 		else if ( Class.CastTo( fence, target ) )
 		{
-			if ( CanAttachCodelockFence() )
+			if ( fence.ExpansionCanAttachCodeLock() )
 			{
 				return fence.ExpansionHasCodeLock( "codelock" );
 			}
 		}
 
 		return false;
-	}
-
-	//! Only call this after settings have been loaded
-	bool CanAttachCodelockFence()
-	{
-		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
-		return attachMode == ExpansionCodelockAttachMode.ExpansionAndFence || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
 	}
 
 	override private void UpdateButtonStates()

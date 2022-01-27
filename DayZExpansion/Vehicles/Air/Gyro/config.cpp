@@ -50,7 +50,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
 		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
-		modelAnchorPointY = 0.0;
+		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Helicopter";
 		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;

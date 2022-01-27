@@ -14,16 +14,6 @@
 
 modded class Fence
 {
-	protected bool m_WasSynced;
-	protected bool m_WasLocked;
-
-	void Fence()
-	{
-		RegisterNetSyncVariableBool( "m_Locked" );
-		RegisterNetSyncVariableBool( "m_HasCode" );
-		RegisterNetSyncVariableInt( "m_CodeLength" );
-	}
-	
 	override void SetActions()
 	{
 		super.SetActions();
@@ -44,7 +34,7 @@ modded class Fence
 	}
 
 	//! Only call this after settings have been loaded
-	bool CanAttachCodelock()
+	bool ExpansionCanAttachCodeLock()
 	{
 		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
 		return attachMode == ExpansionCodelockAttachMode.ExpansionAndFence || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
@@ -52,9 +42,20 @@ modded class Fence
 
     override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		if ( attachment.IsInherited( ExpansionCodeLock ) && GetExpansionSettings().GetBaseBuilding() )
+		if ( GetExpansionSettings().GetBaseBuilding() )
 		{
-			if ( !CanAttachCodelock() )
+			if ( attachment.IsInherited( ExpansionCodeLock ) )
+			{
+				if ( !ExpansionCanAttachCodeLock() )
+					return false;
+
+				//! Safety to prevent attaching Expansion Code Lock if another lock is already present (e.g. silver Code Lock from RoomService's mod)
+				if ( FindAttachmentBySlotName( "Att_CombinationLock" ) )
+					return false;
+			}
+
+			//! Safety to prevent attaching other locks (e.g. silver Code Lock from RoomService's mod) if Expansion Code Lock is already present
+			if ( attachment.IsKindOf( "CombinationLock" ) && ExpansionGetCodeLock() )
 				return false;
 		}
 
@@ -70,93 +71,24 @@ modded class Fence
 	{
 		return ExpansionIsOpenable() && !IsOpened() && ( !IsLocked() || IsKnownUser( player ) );
 	}
-	
-	protected void SoundCodeLockLocked()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
-		}
-	}
-	
-	protected void SoundCodeLockUnlocked()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
-		}
-	}
-
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-
-		if ( m_WasSynced && m_WasLocked != m_Locked )
-		{
-			if ( m_Locked )
-				SoundCodeLockLocked();
-			else
-				SoundCodeLockUnlocked();
-		}
-
-		m_WasLocked = m_Locked;
-		m_WasSynced = true;
-
-		ExpansionCodeLock codelock = ExpansionGetCodeLock();
-		if ( codelock )
-			codelock.UpdateVisuals();
-	}
-	
-	override bool ExpansionHasCodeLock( string selection )
-	{
-		ExpansionCodeLock codelock = ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" )) ;
-
-		//! check if attachment is code lock
-		if ( codelock )
-			return true;
-
-		return super.ExpansionHasCodeLock( selection );
-	}
 
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));
 	}
 
+	//! Vanilla fence overrides modded ItemBase::IsLocked, so we need to override
 	override bool IsLocked()
 	{
-		if ( m_Locked )
-			return true;
-
-		return super.IsLocked();
+		return super.IsLocked() || ExpansionIsLocked();
 	}
 	
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		#ifdef CF_MODULE_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-				
-		ctx.Write( m_Locked );
-		ctx.Write( m_Code );
-		ctx.Write( m_HasCode );
-	}
-
-
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -164,18 +96,23 @@ modded class Fence
 		if ( m_ExpansionSaveVersion < 19 )
 			return true;
 
-		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-			return false;
+		if ( m_ExpansionSaveVersion < 38 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+				return false;
+	
+			if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+				return false;
 
-		m_CodeLength = m_Code.Length();
-
-		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-			return false;
+			m_CodeLength = m_Code.Length();
+	
+			bool hasCode;
+			if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
+				return false;
+		}
 		
 		//! If Code Locks on the Fence it will remove them Just calling later so simplify and ensure that the code lock has been created
-		if ( !CanAttachCodelock() )
+		if ( !ExpansionCanAttachCodeLock() )
 		{
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ExpansionCodeLockRemove, 1000, false );
 		}
@@ -183,75 +120,52 @@ modded class Fence
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
-
-		storage.Write( m_Locked );
-		storage.Write( m_Code );
-		storage.Write( m_HasCode );
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return;
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( storage.GetVersion() < 19 )
-			return true;
-
-		if ( Expansion_Assert_False( storage.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-			return false;
-
-		m_CodeLength = m_Code.Length();
-
-		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-			return false;
-		
-		//! If Code Locks on the Fence it will remove them Just calling later so simplify and ensure that the code lock has been created
-		if ( !CanAttachCodelock() )
+		if (ctx.GetVersion() < 38)
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ExpansionCodeLockRemove, 1000, false );
+			if (!ctx.Read(m_Locked))
+				return false;
+
+			if (!ctx.Read(m_Code))
+				return false;
+
+			m_CodeLength = m_Code.Length();
+
+			bool hasCode;
+			if (!ctx.Read(hasCode))
+				return false;
 		}
 
+		if (!ExpansionCanAttachCodeLock())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.ExpansionCodeLockRemove, 1000, false);
+		
 		return true;
 	}
 	#endif
 	
 	void ExpansionCodeLockRemove()
 	{
-		if ( !CanAttachCodelock() )
+		if ( !ExpansionCanAttachCodeLock() )
 		{
-			if ( m_Locked || m_HasCode || ExpansionHasCodeLock("codelock") )
-			{
-				SetCode("");  //! Will unlock as well
-
-				ExpansionCodeLock codelock = ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));
-				if (codelock)
-				{
-					codelock.Delete();
-				}
-
-			}
-		}
-	}
-	
-	override void EEItemDetached(EntityAI item, string slot_name)
-	{
-		super.EEItemDetached(item, slot_name);
-		
-		if ( item && ( slot_name == "Att_CombinationLock" ) && HasCode() )
-		{
-			SetCode("");
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+				codelock.Delete();
 		}
 	}
 	
@@ -261,7 +175,9 @@ modded class Fence
 
         if ( constrution_part.IsGate() )
 		{
-            SetCode("");
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if ( codelock )
+				codelock.UnlockServer( player, this );
         }
 
         super.OnPartDismantledServer(player, part_name, action_id);
@@ -273,18 +189,9 @@ modded class Fence
 
         if ( constrution_part.IsGate() )
 		{
-			SetCode("");  //! Will unlock as well
-
-			if ( ExpansionHasCodeLock("") )
-			{
-			 	ExpansionCodeLock codelock = ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));
-
-				if ( codelock )
-				{
-					float health = codelock.GetHealth("", "");
-					codelock.AddHealth("", "Health", -health);
-				}
-			}
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if ( codelock )
+				codelock.UnlockServer( player, this );
         }
 
 		super.OnPartDestroyedServer( player, part_name, action_id );
@@ -301,6 +208,6 @@ modded class Fence
 	{
 		CloseFence();
 
-		Lock();
+		ExpansionLock();
 	}
 };

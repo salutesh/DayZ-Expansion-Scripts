@@ -21,17 +21,20 @@ class ExpansionVehicleAttachmentSave
 		m_Orientation = orientation;
 	}
 
-#ifdef CF_MODULE_MODSTORAGE
-	void OnWrite(CF_ModStorage storage)
+#ifdef CF_MODSTORAGE
+	void OnWrite(CF_ModStorage ctx)
 	{
-		storage.Write(m_Position);
-		storage.Write(m_Orientation);
+		ctx.Write(m_Position);
+		ctx.Write(m_Orientation);
 	}
 
-	bool OnRead(CF_ModStorage storage)
+	bool OnRead(CF_ModStorage ctx)
 	{
-		storage.Read(m_Position);
-		storage.Read(m_Orientation);
+		if (!ctx.Read(m_Position))
+			return false;
+			
+		if (!ctx.Read(m_Orientation))
+			return false;
 
 		return true;
 	}

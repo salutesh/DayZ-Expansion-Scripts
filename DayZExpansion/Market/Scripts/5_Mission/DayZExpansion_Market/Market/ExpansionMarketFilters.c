@@ -299,6 +299,9 @@ class ExpansionMarketFilters
 
 				foreach (EntityAI item : items) 
 				{
+					if (!item)
+						continue;
+
 					string type = item.GetType();
 					type.ToLower();
 			
@@ -325,7 +328,7 @@ class ExpansionMarketFilters
 			ExpansionTraderObjectBase trader = m_MarketModule.GetTrader();
 			if (trader)
 			{
-				ExpansionMarketCurrency worth = m_MarketModule.GetPlayerWorth();
+				int worth = m_MarketModule.GetPlayerWorth();
 				ExpansionMarketTraderZone zone = m_MarketModule.GetClientZone();
 				float priceModifier = zone.BuyPricePercent / 100;
 				foreach (ExpansionMarketTraderItem tItem: trader.GetTraderMarket().m_Items) 
@@ -346,7 +349,7 @@ class ExpansionMarketFilters
 					}
 
 					//! We are only interested in the base item price here, not including attachments
-					ExpansionMarketCurrency price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier);
+					int price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier);
 					if (worth >= price)
 						purchasables.Insert(tItem.MarketItem.ClassName);
 				}

@@ -84,10 +84,4 @@ class CfgVehicles
 	{
 		scope = 1;
 	};
-	class M18SmokeGrenade_Purple;
-	class ExpansionSupplySignal: M18SmokeGrenade_Purple
-	{
-		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
-		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
-	};
 };

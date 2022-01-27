@@ -1,0 +1,280 @@
+PanelWidgetClass Expansion_RPMPanel {
+ clipchildren 0
+ size 214 201
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "CF_PanelWidget"
+ style blank
+ {
+  ImageWidgetClass Expansion_RPMDial {
+   clipchildren 1
+   color 0.6275 0.6275 0.6275 1
+   size 195 164
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "CF_ImageWidget"
+   image0 ""
+   imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 1
+   nocache 0
+   Mask "{A794C8AEB6A0287B}gui/textures/cardial_big_mask.edds"
+   "Transition width" 0
+   Progress 0.8
+   {
+    ImageWidgetClass Expansion_RPMDialRedline {
+     visible 1
+     clipchildren 0
+     color 1 0 0 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "CF_ImageWidget"
+     image0 ""
+     imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     "flip u" 1
+     filter 1
+     nocache 0
+     pivot 0 0
+     Mask "{A794C8AEB6A0287B}gui/textures/cardial_big_mask.edds"
+     "Transition width" 0
+     Progress 0.2
+     {
+      ScriptParamsClass {
+       MaskProgress "m_RPM_MaskNeg"
+      }
+     }
+    }
+    ImageWidgetClass Expansion_RPMDialOptimal {
+     visible 0
+     clipchildren 0
+     color 1 1 1 0.7843
+     size 1 1
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     scriptclass "CF_ImageWidget"
+     image0 ""
+     imageTexture "{DD4435A772DFE53F}gui/textures/cardial_big.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     "flip u" 1
+     "flip v" 0
+     filter 1
+     nocache 0
+     pivot 0 0
+     Mask "{A794C8AEB6A0287B}gui/textures/cardial_big_mask.edds"
+     "Transition width" 0
+     Progress 0.8
+     {
+      ScriptParamsClass {
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     MaskProgress "m_RPM_Mask"
+    }
+   }
+  }
+  ImageWidgetClass Expansion_RPMPointer {
+   visible 1
+   clipchildren 0
+   position 0 -0.15
+   size 18 111
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   scriptclass "CF_ImageWidget"
+   image0 "set:dayz_gui image:large_pointer"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 1
+   nocache 0
+   rotation 0 0 -90
+   pivot 0.5 0.77
+   {
+    ScriptParamsClass {
+     Yaw "m_RPM_Rotation"
+    }
+   }
+  }
+  TextWidgetClass Expansion_RPMLabel {
+   clipchildren 0
+   size 1 18
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   scriptclass "CF_TextWidget"
+   style None
+   text "r/min"
+   font "gui/fonts/sdf_MetronBook72"
+   "shadow offset" 1 1
+   "italic text" 0
+   "exact text" 0
+   "size to text h" 0
+   "size to text v" 0
+   "text halign" center
+   "text valign" center
+   {
+    ScriptParamsClass {
+    }
+   }
+  }
+  PanelWidgetClass Expansion_GearsIndicator {
+   visible 0
+   clipchildren 0
+   position 0 16
+   size 0.4 0.4
+   halign center_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "CF_PanelWidget"
+   style blank
+   {
+    TextWidgetClass Expansion_Current {
+     size 0.33 0.5
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "CF_TextWidget"
+     style None
+     text "3"
+     font "gui/fonts/sdf_MetronBook72"
+     "shadow offset" 2 2
+     "bold text" 1
+     "exact text" 0
+     "text halign" center
+     {
+      ScriptParamsClass {
+       Text "m_GearCurrent"
+      }
+     }
+    }
+    TextWidgetClass Expansion_Prev {
+     color 0.6824 0.6824 0.6824 1
+     position -0.33 0.05
+     size 0.33 0.4
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "CF_TextWidget"
+     style Normal
+     text "2"
+     font "gui/fonts/sdf_MetronBook72"
+     "shadow offset" 1 1
+     "italic text" 0
+     "exact text" 0
+     "text halign" center
+     {
+      ScriptParamsClass {
+       Visible "m_GearPreviousShow"
+       Text "m_GearPrevious"
+      }
+     }
+    }
+    TextWidgetClass Expansion_Next {
+     color 0.6824 0.6824 0.6824 1
+     position 0.33 0.05
+     size 0.33 0.4
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "CF_TextWidget"
+     style None
+     text "4"
+     font "gui/fonts/sdf_MetronBook72"
+     "shadow offset" 1 1
+     "exact text" 0
+     "text halign" center
+     {
+      ScriptParamsClass {
+       Visible "m_GearNextShow"
+       Text "m_GearNext"
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     Visible "m_HasGears"
+    }
+   }
+  }
+  ImageWidgetClass Expansion_EngineLight {
+   visible 0
+   position -45 -15
+   size 38 38
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   image0 "set:dayz_gui image:icon_engine_alert"
+   mode blend
+   "src alpha" 1
+  }
+  ImageWidgetClass Expansion_OilLight {
+   visible 0
+   position 45 -15
+   size 50 38
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   image0 "set:dayz_gui image:oil"
+   mode blend
+   "src alpha" 1
+  }
+ }
+ {
+  ScriptParamsClass {
+   Model "ExpansionVehicleEngineModuleUI"
+  }
+ }
+}

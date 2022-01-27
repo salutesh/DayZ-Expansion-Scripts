@@ -39,7 +39,7 @@ modded class DayZPlayerImplement
 
 	bool m_IsAttached;
 
-	SHumanCommandClimbResult m_ExClimbResult;
+	ref SHumanCommandClimbResult m_ExClimbResult;
 	int m_ExClimbType;
 
 	float m_ExAttachmentRadius;
@@ -88,8 +88,6 @@ modded class DayZPlayerImplement
 		CF_Debug.Destroy(this);
 #endif
 	}
-
-	void StartCommand_ExpansionFall(float pYVelocity);
 
 	bool CallExpansionClimbCode()
 	{
@@ -461,7 +459,7 @@ modded class DayZPlayerImplement
 
 				if (PhysicsIsFalling(true))
 				{
-					StartCommand_ExpansionFall(0);
+					StartCommand_Fall(0);
 					m_FallYDiff = GetPosition()[1];
 
 					return true;

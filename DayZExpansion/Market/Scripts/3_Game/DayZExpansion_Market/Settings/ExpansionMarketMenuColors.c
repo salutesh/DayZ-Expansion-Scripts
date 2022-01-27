@@ -62,7 +62,7 @@ class ExpansionMarketMenuColorsV2
  * @brief		Market color settings class
  **/
 
-class ExpansionMarketMenuColors
+class ExpansionMarketMenuColors: ExpansionColorSettingsBase
 {
 	string BaseColorVignette;
 	string BaseColorHeaders;
@@ -107,111 +107,111 @@ class ExpansionMarketMenuColors
 	void Update()
 	{
 		if (!BaseColorVignette)
-			BaseColorVignette = ExpansionColor.ARGBToHex(200, 0, 0, 0);
+			Set("BaseColorVignette", ARGB(200, 0, 0, 0));
 		
 		if (!BaseColorHeaders)
-			BaseColorHeaders = ExpansionColor.ARGBToHex(255, 19, 23, 27);								//! Expansion dark gray
+			Set("BaseColorHeaders", ARGB(255, 19, 23, 27));								//! Expansion dark gray
 	
 		if (!BaseColorLabels)
-			BaseColorLabels = ExpansionColor.ARGBToHex(255, 39, 39, 45);									//! Expansion bright gray 
+			Set("BaseColorLabels", ARGB(255, 39, 39, 45));									//! Expansion bright gray 
 		
 		if (!BaseColorText)
-			BaseColorText = ExpansionColor.ARGBToHex(255, 251, 252, 254);								//! Expansion white
+			Set("BaseColorText", ARGB(255, 251, 252, 254));								//! Expansion white
 		
 		if (!BaseColorCheckboxes)
-			BaseColorCheckboxes = ExpansionColor.ARGBToHex(255, 251, 252, 254);						//! Expansion white
+			Set("BaseColorCheckboxes", ARGB(255, 251, 252, 254));						//! Expansion white
 		
 		if (!BaseColorInfoSectionBackground)
-			BaseColorInfoSectionBackground = ExpansionColor.ARGBToHex(140, 34, 37, 38);			//! Expansion gray 
+			Set("BaseColorInfoSectionBackground", ARGB(140, 34, 37, 38));			//! Expansion gray 
 		
 		if (!BaseColorTooltipsBackground)
-			BaseColorTooltipsBackground = ExpansionColor.ARGBToHex(220, 0, 0, 0);						//! Expansion bright gray
+			Set("BaseColorTooltipsBackground", ARGB(220, 0, 0, 0));						//! Expansion bright gray
 		
 		if (!BaseColorTooltipsHeaders)
-			BaseColorTooltipsHeaders = ExpansionColor.ARGBToHex(240, 0, 0, 0);							//! Expansion bright black 
+			Set("BaseColorTooltipsHeaders", ARGB(240, 0, 0, 0));							//! Expansion bright black 
 		
 		if (!ColorDecreaseQuantityButton)
-			ColorDecreaseQuantityButton = ExpansionColor.ARGBToHex(20, 221, 38, 38);					//! Expansion red 3
+			Set("ColorDecreaseQuantityButton", ARGB(20, 221, 38, 38));					//! Expansion red 3
 		
 		if (!ColorDecreaseQuantityIcon)
-			ColorDecreaseQuantityIcon = ExpansionColor.ARGBToHex(40, 221, 38, 38);					//! Expansion red 3
+			Set("ColorDecreaseQuantityIcon", ARGB(40, 221, 38, 38));					//! Expansion red 3
 		
 		if (!ColorSetQuantityButton)
-			ColorSetQuantityButton = ExpansionColor.ARGBToHex(20, 199, 38, 81); 						//! Expansion red
+			Set("ColorSetQuantityButton", ARGB(20, 199, 38, 81)); 						//! Expansion red
 		
 		if (!ColorIncreaseQuantityButton)
-			ColorIncreaseQuantityButton = ExpansionColor.ARGBToHex(20, 160, 204, 113);				//! Expansion green
+			Set("ColorIncreaseQuantityButton", ARGB(20, 160, 204, 113));				//! Expansion green
 		
 		if (!ColorIncreaseQuantityIcon)
-			ColorIncreaseQuantityIcon = ExpansionColor.ARGBToHex(40, 160, 204, 113);					//! Expansion green
+			Set("ColorIncreaseQuantityIcon", ARGB(40, 160, 204, 113));					//! Expansion green
 		
 		if (!ColorSellPanel)
-			ColorSellPanel = ExpansionColor.ARGBToHex(255, 39, 39, 45);										//! Expansion bright gray 
+			Set("ColorSellPanel", ARGB(255, 39, 39, 45));										//! Expansion bright gray 
 		
 		if (!ColorSellButton)
-			ColorSellButton = ExpansionColor.ARGBToHex(40, 221, 38, 38);									//! Expansion red 3
+			Set("ColorSellButton", ARGB(40, 221, 38, 38));									//! Expansion red 3
 		
 		if (!ColorBuyPanel)
-			ColorBuyPanel = ExpansionColor.ARGBToHex(255, 39, 39, 45);										//! Expansion bright gray 
+			Set("ColorBuyPanel", ARGB(255, 39, 39, 45));										//! Expansion bright gray 
 		
 		if (!ColorBuyButton)
-			ColorBuyButton = ExpansionColor.ARGBToHex(40, 160, 204, 113);									//! Expansion green
+			Set("ColorBuyButton", ARGB(40, 160, 204, 113));									//! Expansion green
 		
 		if (!ColorMarketIcon)
-			ColorMarketIcon = ExpansionColor.ARGBToHex(140, 226, 65, 66);									//! Expansion red 2
+			Set("ColorMarketIcon", ARGB(140, 226, 65, 66));									//! Expansion red 2
 		
 		if (!ColorFilterOptionsButton)
-			ColorFilterOptionsButton = ExpansionColor.ARGBToHex(140, 199, 38, 81);						//! Expansion red
+			Set("ColorFilterOptionsButton", ARGB(140, 199, 38, 81));						//! Expansion red
 		
 		if (!ColorFilterOptionsIcon)
-			ColorFilterOptionsIcon = ExpansionColor.ARGBToHex(140, 199, 38, 81);							//! Expansion red
+			Set("ColorFilterOptionsIcon", ARGB(140, 199, 38, 81));							//! Expansion red
 		
 		if (!ColorSearchFilterButton)
-			ColorSearchFilterButton = ExpansionColor.ARGBToHex(140, 199, 38, 81);						//! Expansion red
+			Set("ColorSearchFilterButton", ARGB(140, 199, 38, 81));						//! Expansion red
 		
 		if (!ColorCategoryButton)	
-			ColorCategoryButton = ExpansionColor.ARGBToHex(140, 199, 38, 81);							//! Expansion red
+			Set("ColorCategoryButton", ARGB(140, 199, 38, 81));							//! Expansion red
 		
 		if (!ColorCategoryCollapseIcon)
-			ColorCategoryCollapseIcon = ExpansionColor.ARGBToHex(140, 199, 38, 81);					//! Expansion red
+			Set("ColorCategoryCollapseIcon", ARGB(140, 199, 38, 81));					//! Expansion red
 		
 		if (!ColorCurrencyDenominationText)
-			ColorCurrencyDenominationText = ExpansionColor.ARGBToHex(255, 255, 180, 24);			//! Expansion yellow
+			Set("ColorCurrencyDenominationText", ARGB(255, 255, 180, 24));			//! Expansion yellow
 		
 		if (!ColorItemButton)
-			ColorItemButton = ExpansionColor.ARGBToHex(140, 199, 38, 81); 								//! Expansion red
+			Set("ColorItemButton", ARGB(140, 199, 38, 81)); 								//! Expansion red
 		
 		if (!ColorItemInfoIcon)		
-			ColorItemInfoIcon = ExpansionColor.ARGBToHex(255, 255, 180, 24);								//! Expansion yellow
+			Set("ColorItemInfoIcon", ARGB(255, 255, 180, 24));								//! Expansion yellow
 		
 		if (!ColorItemInfoTitle)
-			ColorItemInfoTitle = ExpansionColor.ARGBToHex(255, 255, 180, 24);								//! Expansion yellow
+			Set("ColorItemInfoTitle", ARGB(255, 255, 180, 24));								//! Expansion yellow
 		
 		if (!ColorItemInfoHasContainerItems)
-			ColorItemInfoHasContainerItems = ExpansionColor.ARGBToHex(255, 255, 180, 24);		//! Expansion yellow
+			Set("ColorItemInfoHasContainerItems", ARGB(255, 255, 180, 24));		//! Expansion yellow
 			
 		if (!ColorItemInfoHasAttachments)
-			ColorItemInfoHasAttachments = ExpansionColor.ARGBToHex(255, 255, 180, 24);			//! Expansion yellow
+			Set("ColorItemInfoHasAttachments", ARGB(255, 255, 180, 24));			//! Expansion yellow
 			
 		if (!ColorItemInfoHasBullets)
-			ColorItemInfoHasBullets = ExpansionColor.ARGBToHex(255, 255, 180, 24);						//! Expansion yellow
+			Set("ColorItemInfoHasBullets", ARGB(255, 255, 180, 24));						//! Expansion yellow
 			
 		if (!ColorItemInfoIsAttachment)	
-			ColorItemInfoIsAttachment = ExpansionColor.ARGBToHex(255, 255, 180, 24);				//! Expansion yellow
+			Set("ColorItemInfoIsAttachment", ARGB(255, 255, 180, 24));				//! Expansion yellow
 			
 		if (!ColorItemInfoIsEquipped)	
-			ColorItemInfoIsEquipped = ExpansionColor.ARGBToHex(255, 255, 180, 24);					//! Expansion yellow
+			Set("ColorItemInfoIsEquipped", ARGB(255, 255, 180, 24));					//! Expansion yellow
 			
 		if (!ColorItemInfoAttachments)
-			ColorItemInfoAttachments = ExpansionColor.ARGBToHex(255, 255, 180, 24);					//! Expansion yellow
+			Set("ColorItemInfoAttachments", ARGB(255, 255, 180, 24));					//! Expansion yellow
 
 		if (!ColorToggleCategoriesText)
-			ColorToggleCategoriesText = ExpansionColor.ARGBToHex(140, 199, 38, 81);					//! Expansion red
+			Set("ColorToggleCategoriesText", ARGB(140, 199, 38, 81));					//! Expansion red
 			
 		if (!ColorCategoryCorners)
-			ColorCategoryCorners = ExpansionColor.ARGBToHex(255, 251, 252, 254);						//! Expansion white
+			Set("ColorCategoryCorners", ARGB(255, 251, 252, 254));						//! Expansion white
 			
 		if (!ColorCategoryBackground)	
-			ColorCategoryBackground = ExpansionColor.ARGBToHex(255, 34, 37, 38);						//! Expansion gray 
+			Set("ColorCategoryBackground", ARGB(255, 34, 37, 38));						//! Expansion gray 
 	}
 }

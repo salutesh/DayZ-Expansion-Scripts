@@ -26,8 +26,8 @@ class ExpansionMarketItem
 
 	string ClassName;
 
-	ExpansionMarketCurrency MaxPriceThreshold;
-	ExpansionMarketCurrency MinPriceThreshold;
+	int MaxPriceThreshold;
+	int MinPriceThreshold;
 
 	//! @note this is a workaround for a serious Enforce bug (MaxPriceThreshold gets randomly reset to zero on client after a few buys/sells)
 	[NonSerialized()]
@@ -39,6 +39,8 @@ class ExpansionMarketItem
 
 	int MaxStockThreshold;
 	int MinStockThreshold;
+
+	int QuantityPercent;
 
 	autoptr array< string > SpawnAttachments;
 	autoptr array< string > Variants;
@@ -67,7 +69,7 @@ class ExpansionMarketItem
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketItem( int catID, string className, ExpansionMarketCurrency minPrice, ExpansionMarketCurrency maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int sellPricePercent = -1, int itemID = -1, array<int> attachmentIDs = null)
+	void ExpansionMarketItem( int catID, string className, int minPrice, int maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = null)
 	{
 		if (itemID == -1)
 			ItemID = ++m_CurrentItemId;
@@ -86,6 +88,8 @@ class ExpansionMarketItem
 
 		MinStockThreshold = minStock;
 		MaxStockThreshold = maxStock;
+
+		QuantityPercent = quantityPercent;
 
 		SpawnAttachments = new array< string >;
 		if ( attachments )
@@ -171,7 +175,7 @@ class ExpansionMarketItem
 	// Expansion CalculatePrice
 	// Calculates the current price of the item for one item at the current stock level
 	// ------------------------------------------------------------
-	ExpansionMarketCurrency CalculatePrice(int stock, float modifier = 1.0)
+	int CalculatePrice(int stock, float modifier = 1.0)
 	{
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock + " modifier " + modifier + " minstock " + MinStockThreshold + " maxstock " + MaxStockThreshold + " maxprice " + m_MaxPriceThreshold + " minprice " + m_MinPriceThreshold + " pct " + SellPricePercent);
@@ -190,7 +194,7 @@ class ExpansionMarketItem
 		EXPrint("ExpansionMarketItem::CalculatePrice - End and return calculated price: " + price);
 		#endif
 		
-		return (ExpansionMarketCurrency) price;
+		return (int) price;
 	}
 
 	bool IsMagazine()
@@ -228,7 +232,11 @@ class ExpansionMarketItem
 		int magCapacity = GetGame().ConfigGetInt("CfgMagazines " + ClassName + " count");
 
 		int totalAmmo;
-		while (totalAmmo < magCapacity)
+		int quantityPercent = QuantityPercent;
+		if (quantityPercent < 0)
+			quantityPercent = 100;
+		int ammoMax = Math.Ceil(magCapacity * quantityPercent / 100);
+		while (totalAmmo < ammoMax)
 		{
 			foreach (string attachmentName, bool isMagAmmo: attachmentTypes)
 			{
@@ -238,7 +246,7 @@ class ExpansionMarketItem
 					if (!magAmmoCounts.Find(attachmentName, ammoQuantity))
 					{
 						if (magAmmoCount == 1)
-							ammoQuantity = magCapacity;
+							ammoQuantity = ammoMax;
 						else
 							ammoQuantity = 1;
 						magAmmoCounts.Insert(attachmentName, ammoQuantity);
@@ -250,7 +258,7 @@ class ExpansionMarketItem
 						totalAmmo++;
 					}
 
-					if (totalAmmo == magCapacity)
+					if (totalAmmo == ammoMax)
 						break;
 				}
 			}
@@ -264,9 +272,9 @@ class ExpansionMarketItem
 		if (SpawnAttachments.Count())
 			return;
 
-		if (IsMagazine())
+		if (IsMagazine() && QuantityPercent)
 		{
-			//! Add ammo "attachment" (use 1st ammo item) if not yet present
+			//! Add ammo "attachment" (use 1st ammo item) if not yet present and quantity is not zero
 			TStringArray ammoItems = new TStringArray;
 			GetGame().ConfigGetTextArray("CfgMagazines " + ClassName + " ammoItems", ammoItems);
 			if (ammoItems.Count())

@@ -29,8 +29,8 @@ class ExpansionMarketNetworkItem: ExpansionMarketNetworkBaseItem
 
 	string ClassName;
 
-	ExpansionMarketCurrency MaxPriceThreshold;
-	ExpansionMarketCurrency MinPriceThreshold;
+	int MaxPriceThreshold;
+	int MinPriceThreshold;
 
 	int MaxStockThreshold;
 	int MinStockThreshold;

@@ -32,7 +32,8 @@ class ExpansionPropaneTorch extends ItemBase
 {
 	Particle					m_FireParticle;
 
-	static vector				m_ParticleLocalPos = Vector( 0.053, 0.255, 0 );
+	//! @note for a doofus like me: Use object builder front/back view to easily determine particle pos if model changes again -lava76
+	static vector				m_ParticleLocalPos = Vector( 0.058, 0.2, 0 );
 
 	ExpansionPropaneTorchLight	m_Light;
 

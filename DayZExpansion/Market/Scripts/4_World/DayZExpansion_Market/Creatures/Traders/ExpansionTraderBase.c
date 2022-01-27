@@ -357,59 +357,52 @@ class ExpansionTraderObjectBase
 	// ExpansionTraderObjectBase RPC_TraderObject
 	// ------------------------------------------------------------
 	private void RPC_TraderObject(ParamsReadContext ctx, PlayerIdentity sender)
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::RPC_TraderObject");
-		#endif
-		
-		if (IsMissionHost())
+	{		
+		if (GetGame().IsServer())
 		{
 			if (!m_Trader)
 				return;
 
 			ScriptRPC rpc = new ScriptRPC();
 
-			//! Items are sent via market module
-			map<string, ExpansionMarketTraderBuySell> items = m_Trader.Items;
-			m_Trader.Items = NULL;
-
-			rpc.Write(m_Trader);
-
-			m_Trader.Items = items;
-
 			rpc.Write(m_Trader.m_FileName);
+			rpc.Write(m_Trader.TraderName);
+			rpc.Write(m_Trader.DisplayName);
+			rpc.Write(m_Trader.TraderIcon);
+			rpc.Write(m_Trader.Currencies);
+			rpc.Write(m_Trader.Categories);
 
 			rpc.Send(this.GetTraderEntity(), ExpansionMarketRPC.TraderObject, true, sender);
-			return;
-		}
-
-		if (!ctx.Read(m_Trader))
-		{
-			Error("ExpansionTraderObjectBase::RPC_TraderObject - Error reading m_Trader param");
-		}
-
-		if (!ctx.Read(m_Trader.m_FileName))
-		{
-			Error("ExpansionTraderObjectBase::RPC_TraderObject - Error reading m_Trader.m_FileName param");
-		}
-
-		ExpansionMarketTrader trader = GetExpansionSettings().GetMarket().GetMarketTrader(m_Trader.m_FileName);
-		if (trader)
-		{
-			//! Use cached trader
-			EXPrint("RPC_TraderObject - using cached trader " + trader.m_FileName);
-			m_Trader = trader;
-			EXPrint("RPC_TraderObject - trader items " + m_Trader.Items.Count());
 		}
 		else
 		{
-			//! Cache trader
-			EXPrint("RPC_TraderObject - caching trader " + m_Trader.m_FileName);
-			m_Trader.m_Items = new array<ref ExpansionMarketTraderItem>;
-			GetExpansionSettings().GetMarket().AddMarketTrader(m_Trader);
-		}
+			string fileName;
+			if (!ctx.Read(fileName))
+				return;
+				
+			m_Trader = GetExpansionSettings().GetMarket().GetMarketTrader(fileName);
+			if (!m_Trader)
+			{
+				m_Trader = new ExpansionMarketTrader;
+				m_Trader.m_FileName = fileName;
+				GetExpansionSettings().GetMarket().AddMarketTrader(m_Trader);
+			}
 
-		EXPrint("RPC_TraderObject - trader currencies " + m_Trader.Currencies.Count());
+			if (!ctx.Read(m_Trader.TraderName))
+				return;
+
+			if (!ctx.Read(m_Trader.DisplayName))
+				return;
+
+			if (!ctx.Read(m_Trader.TraderIcon))
+				return;
+
+			if (!ctx.Read(m_Trader.Currencies))
+				return;
+
+			if (!ctx.Read(m_Trader.Categories))
+				return;
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -950,6 +943,7 @@ class ExpansionTraderAIJudy: ExpansionTraderAIBase {};
 class ExpansionTraderAIKeiko: ExpansionTraderAIBase {};
 class ExpansionTraderAIEva: ExpansionTraderAIBase {};
 class ExpansionTraderAINaomi: ExpansionTraderAIBase {};
+class ExpansionTraderAIBaty: ExpansionTraderAIBase {};
 #endif
 
 class ExpansionTraderMirek: ExpansionTraderNPCBase {};
@@ -982,5 +976,6 @@ class ExpansionTraderJudy: ExpansionTraderNPCBase {};
 class ExpansionTraderKeiko: ExpansionTraderNPCBase {};
 class ExpansionTraderEva: ExpansionTraderNPCBase {};
 class ExpansionTraderNaomi: ExpansionTraderNPCBase {};
+class ExpansionTraderBaty: ExpansionTraderNPCBase {};
 
 class ExpansionTraderZmbM_JournalistSkinny: ExpansionTraderZombieBase {};

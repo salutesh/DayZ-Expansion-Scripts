@@ -606,6 +606,9 @@ class ExpansionMarkerClientData : Managed
 
 		ExpansionPartyData party = m_PartyModule.GetParty();
 
+		if (!party.m_MarkersSynced)
+			return;
+
 		int index;
 		string uid;
 		int removeIndex;
@@ -626,7 +629,7 @@ class ExpansionMarkerClientData : Managed
 			} else
 			{
 				//! It's a new marker
-				info = new ExpansionMarkerClientInfo( markers[index].GetUID() );
+				info = new ExpansionMarkerClientInfo( uid );
 				m_MarkerInfo_Party.Insert( uid, info );
 			}
 		}

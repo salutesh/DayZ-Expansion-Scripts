@@ -70,15 +70,15 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (!m_MarketModule)
 			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
 		
-		market_item_header_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		market_item_header_text_small.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		market_item_header_text_verysmall.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		market_item_header_text_smallerthensmall.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		market_item_info_stock.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		market_item_header_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		market_item_header_text_small.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		market_item_header_text_verysmall.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		market_item_header_text_smallerthensmall.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		market_item_info_stock.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
-		market_item_header_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
-		market_item_info_stock_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
-		market_item_info_price_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		market_item_header_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
+		market_item_info_stock_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
+		market_item_info_price_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		if (GetExpansionSettings().GetMarket().CurrencyIcon != "")
 		{
@@ -195,7 +195,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (!m_MarketModule)
 			return;
 		
-		market_item_info_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));
+		market_item_info_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
 
 		string previewClassName = m_MarketMenu.GetPreviewClassName(GetMarketItem().ClassName, true);
 		string itemDisplayName = m_MarketMenu.GetDisplayName(previewClassName);
@@ -404,7 +404,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		//! Buy price
 		if (m_CanBuy)
 		{
-			ExpansionMarketCurrency price = 0;
+			int price = 0;
 			//! Can't pass in GetMarketItem() to FindPriceOfPurchase directly, causes NULL pointer. Fuck you EnforceScript.
 			ExpansionMarketItem item = GetMarketItem();
 			m_MarketModule.FindPriceOfPurchase(item, m_MarketModule.GetClientZone(), GetMarketMenu().GetMarketTrader(), 1, price, GetIncludeAttachments());
@@ -525,7 +525,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	{
 		m_MarketMenu.SetItemInfo(this);
 		if (!m_MarketMenu.IsLoading())
-			m_MarketMenu.RequestSelectedItem(ExpansionMarketMenuState.REQUESTING_SELECTED_ITEM);
+			m_MarketMenu.RequestSelectedItem(ExpansionMarketMenuState.REQUESTING_SELECTED_ITEM, GetMarketItem().ClassName);
 	}
 	
 	// ------------------------------------------------------------
@@ -600,7 +600,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		switch (w)
 		{
 		case market_item_button:
-			market_item_button.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemButton));
+			market_item_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemButton"));
 			if (!m_ItemTooltip && m_Object)
 			{
 				m_ItemTooltip = new ExpansionItemTooltip(m_Object);
@@ -630,7 +630,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			break;
 		case market_item_info_button:
 			if (m_Tooltip) m_Tooltip.Hide();
-			market_item_info_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoIcon));
+			market_item_info_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
 			break;
 		}
 		

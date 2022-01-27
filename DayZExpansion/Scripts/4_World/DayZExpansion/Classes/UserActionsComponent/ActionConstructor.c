@@ -36,12 +36,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionTurnOnGeneratorOnGround );
 		actions.Insert( ExpansionActionTurnOffGeneratorOnGround );
 
-		//! Paracute
-		#ifdef EXPANSION_PARACHUTE_ENABLE
-		//actions.Insert( ExpansionActionOpenParachute );
-		//actions.Insert( ExpansionActionCutParachute );
-		#endif
-
 		actions.Insert( ExpansionActionClose );
 		actions.Insert( ExpansionActionOpen );
 

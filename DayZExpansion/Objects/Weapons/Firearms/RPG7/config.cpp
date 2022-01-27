@@ -349,7 +349,7 @@ class cfgWeapons
 			{
 				class MuzzleFlash
 				{
-					overrideParticle = "DayZExpansion/Particles/Explosions/Expansion_World_Dust";
+					overrideParticle = "Expansion_World_Dust";
 					ignoreIfSuppressed = 1;
 				};
 			};

@@ -19,28 +19,52 @@ class ExpansionCodeLock extends ItemBase
 	static protected const string GREEN_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_g.rvmat";
 	static protected const string DEFAULT_MATERIAL 	= "DayZExpansion\\Objects\\Basebuilding\\Items\\Codelock\\data\\codelock.rvmat";
 
+	protected EffectSound m_Sound;
+	
+	protected bool m_WasSynced;
+	protected bool m_WasLocked;
+
 	void ExpansionCodeLock()
 	{
 		m_KnownUIDs = new TStringArray;
+
+		RegisterNetSyncVariableBool( "m_Locked" );
+		RegisterNetSyncVariableInt( "m_CodeLength" );
 	}
 
-	override void EEInit()
+	override void DeferredInit()
 	{
-		super.EEInit();
+		super.DeferredInit();
 
 		UpdateVisuals();
 
 		ItemBase parent = ItemBase.Cast( GetHierarchyParent() );
-		if ( parent && parent.IsLocked() )
+		if ( parent )
 		{
-			SetSlotLock( parent, true );
-			SetTakeable( false );
+			if ( GetGame().IsServer() && !HasCode() && parent.HasCode() )
+			{
+				EXPrint(ToString() + "::DeferredInit - migrating code from " + parent.ToString() + " " + parent.GetPosition());
+
+				//! Migrate code
+				SetCode(parent.GetCode(), NULL, false, false);
+
+				//! Migrate locked state
+				if (parent.IsLocked())
+					ExpansionLock();
+
+				parent.SetCode("", NULL, true, false);
+			}
+			else if ( IsLocked() )
+			{
+				SetSlotLock( parent, true );
+				SetTakeable( false );
+			}
 		}
 	}
 
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -50,6 +74,8 @@ class ExpansionCodeLock extends ItemBase
 
 		super.OnStoreSave( ctx );
 
+		ctx.Write( m_Locked );
+		ctx.Write( m_Code );
 		ctx.Write( m_KnownUIDs );
 	}
 
@@ -58,10 +84,20 @@ class ExpansionCodeLock extends ItemBase
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
+
+		if ( m_ExpansionSaveVersion >= 38 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+				return false;
+
+			m_CodeLength = m_Code.Length();
+		}
 
 		if ( m_ExpansionSaveVersion >= 20 )
 		{
@@ -72,44 +108,55 @@ class ExpansionCodeLock extends ItemBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_KnownUIDs.Count() );
+		ctx.Write( m_Locked );
+		ctx.Write( m_Code );
+
+		ctx.Write( m_KnownUIDs.Count() );
 		for ( int i = 0; i < m_KnownUIDs.Count(); i++ )
 		{
-			storage.Write( m_KnownUIDs[i] );
+			ctx.Write( m_KnownUIDs[i] );
 		}
 	}
-
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( storage.GetVersion() >= 20 )
+		if ( ctx.GetVersion() >= 38 )
 		{
-			int count;
-			if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading m_KnownUIDs count" ) )
+			if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
+				return false;
+			if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
 				return false;
 
-			for ( int i = 0; i < count; i++ )
-			{
-				string knownUID;
-				if ( Expansion_Assert_False( storage.Read( knownUID ), "[" + this + "] Failed reading m_KnownUIDs[" + i + "]" ) )
-					return false;
-				m_KnownUIDs.Insert( knownUID );
-			}
+			m_CodeLength = m_Code.Length();
 		}
-		
+
+		int count;
+		if (!ctx.Read(count))
+			return false;
+
+		for (int i = 0; i < count; i++)
+		{
+			string knownUID;
+			if (!ctx.Read(knownUID))
+				return false;
+
+			m_KnownUIDs.Insert( knownUID );
+		}
+
 		return true;
 	}
 	#endif
@@ -119,6 +166,8 @@ class ExpansionCodeLock extends ItemBase
 		super.SetActions();
 		
 		AddAction( ExpansionActionAttachCodeLock );
+		//AddAction( ExpansionActionEnterCodeLock );
+		//AddAction( ExpansionActionChangeCodeLock );
 	}
 	
 	override bool CanDetachAttachment(EntityAI parent)
@@ -150,30 +199,16 @@ class ExpansionCodeLock extends ItemBase
 		super.OnWasDetached( parent, slot_id );
 
 		UpdateVisuals();
-	}
 
-	void SetSlotLock( EntityAI parent, bool state )
-	{
-		InventoryLocation inventory_location = new InventoryLocation;
-		GetInventory().GetCurrentInventoryLocation( inventory_location );			
-		parent.GetInventory().SetSlotLock( inventory_location.GetSlot(), state );
-	}
-	
-	bool IsLockAttached()
-	{
-		EntityAI parent = GetHierarchyParent();
-
-		if ( !parent )
-			return false;
-
-		return parent.IsInherited( BaseBuildingBase ) || parent.IsInherited( TentBase );
+		if (GetGame().IsServer())
+			SetCode("");
 	}
 
 	void UnlockServer( EntityAI player, EntityAI parent )
 	{
-		if ( IsLockAttached() )
+		if ( parent && GetInventory().IsAttachment() )
 		{
-			ItemBase.Cast( parent ).Unlock();
+			Unlock();
 			ExpansionDropServer( PlayerBase.Cast( player ) );
 		}
 	}
@@ -192,6 +227,24 @@ class ExpansionCodeLock extends ItemBase
 		UnlockServer( EntityAI.Cast( killer ), GetHierarchyParent() );
 	}
 		
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if ( m_WasSynced && m_WasLocked != m_Locked )
+		{
+			if ( m_Locked )
+				SoundCodeLockLocked();
+			else
+				SoundCodeLockUnlocked();
+		}
+
+		m_WasLocked = m_Locked;
+		m_WasSynced = true;
+
+		UpdateVisuals();
+	}
+
 	// --- VISUALS
 	void UpdateVisuals()
 	{
@@ -218,7 +271,7 @@ class ExpansionCodeLock extends ItemBase
 		if ( !IsMissionClient() )
 			return;
 
-		if ( parent && parent.IsLocked() )
+		if ( parent && IsLocked() )
 		{
 			SetObjectMaterial( 0, DEFAULT_MATERIAL );
 			SetObjectMaterial( 1, GREEN_LIGHT_GLOW );
@@ -228,6 +281,24 @@ class ExpansionCodeLock extends ItemBase
 			SetObjectMaterial( 0, RED_LIGHT_GLOW );
 			SetObjectMaterial( 1, DEFAULT_MATERIAL );
 			SetObjectMaterial( 2, DEFAULT_MATERIAL );
+		}
+	}
+	
+	protected void SoundCodeLockLocked()
+	{
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		{
+			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
+		}
+	}
+	
+	protected void SoundCodeLockUnlocked()
+	{
+		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		{
+			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
+			m_Sound.SetSoundAutodestroy( true );
 		}
 	}
 }

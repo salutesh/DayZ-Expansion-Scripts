@@ -317,7 +317,7 @@ class ExpansionHelicopterScript extends CarScript
 		vector orientation = GetOrientation();
 
 		ExpansionWreck wreck;
-		vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
+		vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
 		position[1] = modelBottomPos[1] + 1;
 		if (Class.CastTo(wreck, GetGame().CreateObjectEx(GetWreck(), position, ECE_CREATEPHYSICS | ECE_UPDATEPATHGRAPH)))
 		{
@@ -466,7 +466,7 @@ class ExpansionHelicopterScript extends CarScript
 			vector position = player.GetPosition();
 
 			vector ground = ExpansionStatic.GetSurfaceWaterPosition(position);
-			vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
+			vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
 			vector start = Vector(position[0], modelBottomPos[1] - 0.1, position[2]);
 			vector end = Vector(position[0], ground[1], position[2]);
 
@@ -524,7 +524,7 @@ class ExpansionHelicopterScript extends CarScript
 			float f = m_Simulation.m_RotorSpeed;
 			if (f > 0)
 			{
-				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelAnchorPointY(), 0));
+				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
 				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 			}
 			vector linearVelocity = GetVelocity(this) * m_Simulation.m_RotorSpeed;
@@ -638,8 +638,8 @@ class ExpansionHelicopterScript extends CarScript
 
 		m_LastKnownPosition = pos;
 
-		vector start = ModelToWorld(Vector(0, -GetModelAnchorPointY() + 0.5, 0));
-		vector end = ModelToWorld(Vector(0, -GetModelAnchorPointY() - 0.5, 0));
+		vector start = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround() + 0.5, 0));
+		vector end = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround() - 0.5, 0));
 
 		vector hitNormal;
 		int hitindex;

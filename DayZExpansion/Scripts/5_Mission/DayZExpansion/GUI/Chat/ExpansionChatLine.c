@@ -141,15 +141,15 @@ class ExpansionChatLine
 		switch (message.Channel)
 		{
 		case CCSystem:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().SystemChatColor);
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().SystemChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("SystemChatColor"));
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("SystemChatColor"));
 
 			m_NameWidget.SetText(" " + "Game" + ": ");
 			break;
 		case CCAdmin:
 		case CCBattlEye:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().AdminChatColor);	
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().AdminChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("AdminChatColor"));	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("AdminChatColor"));
 			
 			if ( message.From )
 			{
@@ -160,14 +160,14 @@ class ExpansionChatLine
 			}
 			break;
 		case CCTransmitter:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().TransmitterChatColor);	
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().TransmitterChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("TransmitterChatColor"));	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("TransmitterChatColor"));
 
 			m_NameWidget.SetText(" " + "PAS" + ": ");
 			break;
 		case ExpansionChatChannels.CCTransport:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().TransportChatColor);	
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().TransportChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("TransportChatColor"));	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("TransportChatColor"));
 			
 			if ( message.From )
 			{
@@ -178,8 +178,8 @@ class ExpansionChatLine
 			}
 			break;
 		case ExpansionChatChannels.CCGlobal:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().GlobalChatColor);	
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().GlobalChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("GlobalChatColor"));	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("GlobalChatColor"));
 			
 			if ( message.From )
 			{
@@ -190,8 +190,8 @@ class ExpansionChatLine
 			}
 			break;
 		case ExpansionChatChannels.CCTeam:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().PartyChatColor);	
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().PartyChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("PartyChatColor"));	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("PartyChatColor"));
 			
 			if (message.From)
 			{
@@ -202,8 +202,8 @@ class ExpansionChatLine
 			}
 			break;
 		default:
-			ExpSenderSetColour(GetExpansionSettings().GetGeneral().DirectChatColor);	
-			ExpSetTextColor(GetExpansionSettings().GetGeneral().DirectChatColor);
+			ExpSenderSetColour(GetExpansionSettings().GetGeneral().ChatColors.Get("DirectChatColor"));	
+			ExpSetTextColor(GetExpansionSettings().GetGeneral().ChatColors.Get("DirectChatColor"));
 
 			if (message.From)
 			{

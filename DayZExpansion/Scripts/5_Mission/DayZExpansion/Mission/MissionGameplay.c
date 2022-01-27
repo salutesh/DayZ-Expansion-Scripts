@@ -85,22 +85,6 @@ modded class MissionGameplay
 		EXPrint("MissionGameplay::MissionGameplay - End");
 		#endif
 	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~MissionGameplay()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::~MissionGameplay - Start");
-		#endif
-
-		DestroyNotificationSystem();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionGameplay::~MissionGameplay - End");
-		#endif
-	}
 	
 	// ------------------------------------------------------------
 	// Expansion SwitchChatChannelToGlobal
@@ -116,7 +100,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 
 			m_ChatChannelName.SetText("Global Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().GlobalChatColor);
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().ChatColors.Get("GlobalChatColor"));
 		} else
 		{
 			SwitchChatChannelToTeam();
@@ -143,7 +127,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 
 			m_ChatChannelName.SetText("Team Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().PartyChatColor);
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().ChatColors.Get("PartyChatColor"));
 		} else
 		{
 			SwitchChatChannelToTransport();
@@ -171,7 +155,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 
 			m_ChatChannelName.SetText("Transport Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().TransportChatColor);
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().ChatColors.Get("TransportChatColor"));
 		} else
 		{
 			SwitchChatChannelToAdmin();
@@ -196,7 +180,7 @@ modded class MissionGameplay
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 
 			m_ChatChannelName.SetText("Admin Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().AdminChatColor);
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().ChatColors.Get("AdminChatColor"));
 		} 
 		else
 		{
@@ -220,7 +204,7 @@ modded class MissionGameplay
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 
 		m_ChatChannelName.SetText("Direct Chat");
-		m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
+		m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().ChatColors.Get("DirectChatColor"));
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("MissionGameplay::SwitchChatChannelToDirect - End");
@@ -299,7 +283,7 @@ modded class MissionGameplay
 		else if ( m_ChatChannel == ExpansionChatChannels.CCDirect )
 		{
 			//! Initialize direct chat channel name to correct color
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().DirectChatColor);
+			m_ChatChannelName.SetColor(GetExpansionSettings().GetGeneral().ChatColors.Get("DirectChatColor"));
 		}
 				
 		exp_m_ChannelNameTimeoutTimer.Stop();
@@ -678,6 +662,15 @@ modded class MissionGameplay
 						if ( GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_ExpansionHud.IsInitialized() && m_ExpansionHud.GetGPSMapState() )
 						{
 							IncreaseGPSMapScale();
+						}
+					}
+
+					//! Expansion Compass Hud
+					if ( input.LocalPress( "UAExpansionCompassToggle", false ) )
+					{
+						if ( GetExpansionSettings().GetMap().EnableHUDCompass )
+						{
+							m_ExpansionHud.SetShowCompass( !m_ExpansionHud.GetCompassState() );
 						}
 					}
 					

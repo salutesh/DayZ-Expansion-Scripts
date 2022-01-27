@@ -29,5 +29,6 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 		AddItem("CattleProd", 				25,		50,		1,		100);
 		AddItem("BaseballBat", 				35,		70,		1,		100);
 		AddItem("NailedBaseballBat", 		45,		90,		1,		100);
+		AddItem("BarbedBaseballBat", 		45,		90,		1,		100);
 	}
 };

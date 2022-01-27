@@ -1141,7 +1141,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		array<int> monies = new array<int>;
 		
-		ExpansionMarketCurrency worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_TraderMarket);
+		int worth = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, m_TraderMarket);
 		
 		TStringArray descriptions = new TStringArray;
 		TStringArray excludedCurrencys = new TStringArray;
@@ -1600,7 +1600,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 				
 				market_item_info_attachments.Show(true);
-				market_item_info_attachments_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
+				market_item_info_attachments_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 			}
 			//market_item_info_attachments_panel.Show(itemElement.GetMarketItem().SpawnAttachments.Count() > 0);
 			//market_item_info_attachments_setup_panel.Show(itemElement.GetMarketItem().SpawnAttachments.Count() > 0);
@@ -1638,6 +1638,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("UpdateItemFieldFromBasicNetSync - GetSelectedMarketItem().ClassName: " + GetSelectedMarketItem().ClassName);
 		MarketPrint("UpdateItemFieldFromBasicNetSync - m_TraderItemStock: " + m_TraderItemStock);
 		
+		//! TODO: Give each transaction an unique ID and MarketSell?
 		m_MarketSell = new ExpansionMarketSell;
 		m_MarketSell.Item = GetSelectedMarketItem();
 		m_MarketSell.Trader = m_TraderObject;
@@ -1667,7 +1668,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				//! Player has the item
 				items = m_MarketModule.LocalGetEntityInventory();
-				color = ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText);
+				color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText");
 			}
 			else
 			{
@@ -1715,16 +1716,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					m_MarketMenuController.MarketItemStockTrader = "N/A";
 			}
 
-			ExpansionMarketCurrency price = 0;
+			int price = 0;
 			ExpansionMarketResult result;
-			ExpansionMarketReserve reserve;
-			map<string, int> removedStock;
-			m_OutOfStockList.Clear();
-			m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result, reserve, removedStock, m_OutOfStockList);
+			m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result);
 			m_BuyPrice = price;
 
 			if (m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
-				color = ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText);
+				color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText");
 			else
 				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
 
@@ -2035,78 +2033,90 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	// ExpansionMarketMenu MenuCallback
 	// ------------------------------------------------------------
-	void MenuCallback(ExpansionMarketResult result, int option = -1, Object object = NULL)
+	//! @note option1 and option2 can have different meaning depending on result
+	void MenuCallback(string itemClassName, ExpansionMarketResult result, int option1 = -1, int option2 = -1, Object object = NULL)
 	{
 		MarketPrint("MenuCallback - Start - " + typename.EnumToString(ExpansionMarketResult, result));
-		
-		if (result == ExpansionMarketResult.Success)
-		{
-			ExpansionMarketMenuState state = m_CurrentState;
-			
-			switch (state)
-			{
-				case ExpansionMarketMenuState.REQUESTING_PURCHASE:
-				{
-					SetMenuState(ExpansionMarketMenuState.CONFIRMING_PURCHASE);
-					m_MarketModule.ConfirmPurchase(GetSelectedMarketItem().ClassName, PlayerBase.Cast(GetGame().GetPlayer()), GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex);
-					
-					break;
-				}
-				case ExpansionMarketMenuState.REQUESTING_SELL:
-				{
-					SetMenuState(ExpansionMarketMenuState.CONFIRMING_SELL);
-					m_MarketModule.ConfirmSell(GetSelectedMarketItem().ClassName, PlayerBase.Cast(GetGame().GetPlayer()));
-					
-					break;
-				}
-				default:
-				{
-					//! Transaction went through
-					PlayMarketSound();
-					
-					if (!GetExpansionClientSettings().MarketMenuDisableSuccessNotifications)
-					{
-						string formattedAmount = m_Quantity.ToString() + "x";
-						string formattedPrice;
-						string msgId;
-						if (state == ExpansionMarketMenuState.CONFIRMING_SELL)
-						{
-							msgId = "SELL";
-							formattedPrice = m_MarketMenuController.MarketItemTotalSellPrice;
-						}
-						else
-						{
-							msgId = "PURCHASE";
-							formattedPrice = m_MarketMenuController.MarketItemTotalBuyPrice;
-						}
-						ExpansionNotification("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS", new StringLocaliser("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS_TEXT", m_MarketMenuController.MarketItemName, formattedAmount, formattedPrice), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create();
-					}
 
-					AfterNetworkCallback();
-				}
+		int amount;
+		int price;
+		bool includeAttachments;
+		int skinIndex;
+
+		string title;
+		string text;
+		string msgId;
+		StringLocaliser loc;
+		string icon = EXPANSION_NOTIFICATION_ICON_ERROR;
+		int color = COLOR_EXPANSION_NOTIFICATION_ERROR;
+		bool notify = true;
+		bool sale = result == ExpansionMarketResult.SellSuccess;
+
+		if (result >= ExpansionMarketResult.FailedNoVehicleSpawnPositions && result <= ExpansionMarketResult.FailedVehicleSpawnOccupied)
+		{
+			msgId = typename.EnumToString(ExpansionMarketVehicleSpawnType, option1);
+		}
+
+		switch (result)
+		{
+			case ExpansionMarketResult.RequestPurchaseSuccess:
+			{
+				includeAttachments = option1;
+				skinIndex = option2;
+				m_MarketModule.ConfirmPurchase(itemClassName, PlayerBase.Cast(GetGame().GetPlayer()), includeAttachments, skinIndex);
+				return;
 			}
-		} 
-		else
-		{
-			string title;
-			string text;
-			string tmp;
-			StringLocaliser loc;
-
-			if (result >= ExpansionMarketResult.FailedNoVehicleSpawnPositions && result <= ExpansionMarketResult.FailedVehicleSpawnOccupied)
+	
+			case ExpansionMarketResult.RequestSellSuccess:
 			{
-				tmp = typename.EnumToString(ExpansionMarketVehicleSpawnType, option);
+				m_MarketModule.ConfirmSell(itemClassName, PlayerBase.Cast(GetGame().GetPlayer()));
+				return;
 			}
 
-			if (result == ExpansionMarketResult.FailedStockChange)
+			case ExpansionMarketResult.SellSuccess:
+			case ExpansionMarketResult.PurchaseSuccess:
+			{
+				//! Transaction went through
+				PlayMarketSound();
+
+				notify = !GetExpansionClientSettings().MarketMenuDisableSuccessNotifications;
+				if (notify)
+				{
+					string formattedAmount = option1.ToString() + "x";
+					//! Can't use ExpansionStatic.IntToCurrencyString because UI will omit places before a comma?!? NOT a bug with IntToCurrencyString
+					string formattedPrice = option2.ToString();
+
+					if (sale)
+						msgId = "SELL";
+					else	
+						msgId = "PURCHASE";
+
+					title = "STR_EXPANSION_TRADER_" + msgId + "_SUCCESS";
+					loc = new StringLocaliser("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS_TEXT", GetDisplayName(itemClassName), formattedAmount, formattedPrice);
+					text = loc.Format();
+					icon = EXPANSION_NOTIFICATION_ICON_INFO;
+					color = COLOR_EXPANSION_NOTIFICATION_SUCCSESS;
+				}
+
+				break;
+			}
+
+			case ExpansionMarketResult.FailedStockChange:
 			{
 				MarketPrint("MenuCallback - The stock has changed meanwhile");
-				
-				EXPrint("MenuCallback - Current stock: " + m_MarketModule.GetClientZone().GetStock(GetSelectedMarketItem().ClassName));
-				if (m_CurrentState == ExpansionMarketMenuState.REQUESTING_SELL || m_CurrentState == ExpansionMarketMenuState.CONFIRMING_SELL)
+	
+				EXPrint("MenuCallback - Current stock: " + m_MarketModule.GetClientZone().GetStock(itemClassName));
+				//! If it was a purchase request, option2 will be includeAttachments (0 or 1)
+				//! If it was a sell request, option2 will be -1
+				if (option2 == -1)
 				{
 					if (m_MarketSell)
+					{
+						if (m_MarketSell.Item && m_MarketSell.Item.ClassName != itemClassName)
+							EXPrint("MenuCallback - WARNING: MarketSell item class name " + m_MarketSell.Item.ClassName + " != " + itemClassName);
+						
 						m_MarketSell.Debug();
+					}
 				}
 				else
 				{
@@ -2115,21 +2125,32 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_STOCK_CHANGED";
-			} 
-			else if (result == ExpansionMarketResult.FailedOutOfStock)
+				break;
+			}
+
+			case ExpansionMarketResult.FailedOutOfStock:
 			{
 				MarketPrint("MenuCallback - The item is out of stock");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_OUT_OF_STOCK";
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedAttachmentOutOfStock)
+
+			case ExpansionMarketResult.FailedAttachmentOutOfStock:
 			{
 				MarketPrint("MenuCallback - The item is out of stock");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_ATTACHMENT_OUT_OF_STOCK";
 
+				amount = option1;
+				includeAttachments = (bool) option2;
+				ExpansionMarketResult resultTmp;
+				ExpansionMarketReserve reserve;
+				map<string, int> removedStock;
+				m_OutOfStockList.Clear();
+				m_MarketModule.FindPriceOfPurchase(GetExpansionSettings().GetMarket().GetItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
 				if (m_OutOfStockList.Count())
 				{
 					loc = new StringLocaliser(text);
@@ -2141,49 +2162,61 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					string outOfStock = ExpansionString.JoinStrings(attDisplayNames);
 					text = loc.Format() + " (" + outOfStock + ")";
 				}
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedNotEnoughMoney)
+
+			case ExpansionMarketResult.FailedNotEnoughMoney:
 			{
 				MarketPrint("MenuCallback - player did not have enough money");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_NOT_ENOGH_MONEY";
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedReserveTime) 
+
+			case ExpansionMarketResult.FailedReserveTime:
 			{ 
 				MarketPrint("MenuCallback - 30 seconds have passed");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_RESERVATION_FAILED";
-			} 
-			else if (result == ExpansionMarketResult.FailedNoCount) 
+				break;
+			}
+
+			case ExpansionMarketResult.FailedNoCount:
 			{ 
 				MarketPrint("MenuCallback - player did not set item count");
 				
 				title = "STR_EXPANSION_TRADER_TRANSACTION_FAILED";
 				text = "STR_EXPANSION_TRADER_NONZERO";
-			} 
-			else if (result == ExpansionMarketResult.FailedNoVehicleSpawnPositions)
+				break;
+			}
+
+			case ExpansionMarketResult.FailedNoVehicleSpawnPositions:
 			{
 				MarketPrint("MenuCallback - no vehicle spawn positions");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
-				text = "STR_EXPANSION_TRADER_NO_" + tmp + "_SPAWN_POSITIONS";
+				text = "STR_EXPANSION_TRADER_NO_" + msgId + "_SPAWN_POSITIONS";
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedNotEnoughVehicleSpawnPositionsNear)
+
+			case ExpansionMarketResult.FailedNotEnoughVehicleSpawnPositionsNear:
 			{
 				MarketPrint("MenuCallback - not enough vehicle spawn positions near trader");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
-				text = "STR_EXPANSION_TRADER_NOT_ENOUGH_" + tmp + "_SPAWN_POSITIONS_NEAR";
-				float minDistance = GetExpansionSettings().GetMarket().GetMinVehicleDistanceToTrader(GetSelectedMarketItem().ClassName);
-				float maxDistance = GetExpansionSettings().GetMarket().GetMaxVehicleDistanceToTrader(GetSelectedMarketItem().ClassName);
+				text = "STR_EXPANSION_TRADER_NOT_ENOUGH_" + msgId + "_SPAWN_POSITIONS_NEAR";
+				float minDistance = GetExpansionSettings().GetMarket().GetMinVehicleDistanceToTrader(itemClassName);
+				float maxDistance = GetExpansionSettings().GetMarket().GetMaxVehicleDistanceToTrader(itemClassName);
 				loc = new StringLocaliser(text, minDistance.ToString(), maxDistance.ToString());
 				text = loc.Format();
 				
 				MarketPrint("MenuCallback - " + text);
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedVehicleSpawnOccupied)
+
+			case ExpansionMarketResult.FailedVehicleSpawnOccupied:
 			{
 				MarketPrint("MenuCallback - vehicle spawn occupied");
 				
@@ -2201,81 +2234,76 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 						displayName = object.GetDisplayName();
 					text = loc.Format() + " (" + displayName + ")";
 				}
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedTooFarAway)
+
+			case ExpansionMarketResult.FailedTooFarAway:
 			{
 				MarketPrint("MenuCallback - player is too far from trader");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_TOO_FAR_AWAY";
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedCannotSell)
+
+			case ExpansionMarketResult.FailedCannotSell:
 			{
 				MarketPrint("MenuCallback - cannot sell this item to this trader");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_CANNOTSELL";
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedCannotBuy)
+
+			case ExpansionMarketResult.FailedCannotBuy:
 			{
 				MarketPrint("MenuCallback - cannot buy this item at this trader");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_CANNOTBUY";
+				break;
 			}
-			else if (result == ExpansionMarketResult.FailedNotInPlayerPossession)
+
+			case ExpansionMarketResult.FailedNotInPlayerPossession:
 			{
 				MarketPrint("MenuCallback - cannot sell something that is not in player's possession");
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "STR_EXPANSION_TRADER_NOT_IN_PLAYER_POSSESSION";
+				break;
 			}
-			else
+			
+			default:
 			{
 				MarketPrint("MenuCallback - unknown error");
 
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "UNKNOWN ERROR";
+				break;
 			}
-
-			ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 3, ExpansionNotificationType.MARKET).Create();
-		
-			AfterNetworkCallback();
 		}
+
+		if (notify)
+			ExpansionNotification(title, text, icon, color, 3, ExpansionNotificationType.MARKET).Create();
+	
+		RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
 				
 		MarketPrint("MenuCallback - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu AfterNetworkCallback
-	// ------------------------------------------------------------	
-	void AfterNetworkCallback()
-	{
-		if (GetSelectedMarketItem())
-		{
-			EXPrint("AfterNetworkCallback - has market item - request selected item");
-			RequestSelectedItem(ExpansionMarketMenuState.LOADING);
-		}
-		else
-		{
-			EXPrint("AfterNetworkCallback - no market item - request trader data");
-			SetIsLoading(true);
-			m_MarketModule.RequestTraderData(m_TraderObject);
-		}
-	}
 
-	void RequestSelectedItem(ExpansionMarketMenuState menuState)
+	void RequestSelectedItem(ExpansionMarketMenuState menuState, string itemClassName = string.Empty, bool sale = false)
 	{
-		EXPrint(ToString() + "::RequestSelectedItem - " + typename.EnumToString(ExpansionMarketMenuState, menuState));
+		EXPrint(ToString() + "::RequestSelectedItem - " + itemClassName + " - sale " + sale);
+		ExpansionMarketItem item;
 		TIntArray itemIDs = new TIntArray;
-		if (m_CurrentState == ExpansionMarketMenuState.CONFIRMING_SELL && m_MarketSell)
+		if (sale && m_MarketSell && m_MarketSell.Item && m_MarketSell.Item.ClassName == itemClassName)
 		{
 			//! Last action was a sale. Request stock info for sale item and its attachments
 			foreach (ExpansionMarketSellItem sellItem: m_MarketSell.Sell)
 			{
 				string className = sellItem.ClassName;
 				className.ToLower();
-				ExpansionMarketItem item = GetExpansionSettings().GetMarket().GetItem(className, false);
+				item = GetExpansionSettings().GetMarket().GetItem(className, false);
 				if (item && itemIDs.Find(item.ItemID) == -1)
 					itemIDs.Insert(item.ItemID);
 			}
@@ -2283,8 +2311,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		else
 		{
 			//! Last action was not a sale. Request stock info for selected item and its attachments
-			itemIDs.Insert(GetSelectedMarketItem().ItemID);
-			TIntArray attachmentIDs = GetCurrentSelectedAttachmentIDs(true);
+			item = GetExpansionSettings().GetMarket().GetItem(itemClassName, false);
+			itemIDs.Insert(item.ItemID);
+			TIntArray attachmentIDs = GetCurrentSelectedAttachmentIDs(true, item);
 			foreach (int attachmentID: attachmentIDs)
 			{
 				if (itemIDs.Find(attachmentID) == -1)
@@ -2576,12 +2605,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		switch (w)
 		{
 			case market_filter_clear:
-				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				market_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case dropdown_selector:
-				dropdown_selector.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsButton));
-				dropdown_collapse_image.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsIcon));
-				dropdown_expand_image.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsIcon));
+				dropdown_selector.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsButton"));
+				dropdown_collapse_image.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsIcon"));
+				dropdown_expand_image.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsIcon"));
 				break;
 			case market_item_info_attachments_button:
 				if (m_AttachmentsTooltip) m_AttachmentsTooltip.Show();
@@ -2598,21 +2627,21 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					m_SellDenomsTooltip.Show();
 				break;
 			case market_footer_categories_toggle:
-				market_footer_categories_label.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorToggleCategoriesText));
+				market_footer_categories_label.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorToggleCategoriesText"));
 				break;
 			case market_item_info_attachments_checkbox:
-				market_item_info_attachments_checkbox.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSetQuantityButton));
+				market_item_info_attachments_checkbox.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSetQuantityButton"));
 				break;
 			case skin_selector:
-				skin_selector.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsButton));
-				skin_selector_expand_image.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsIcon));
-				skin_selector_collapse_image.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorFilterOptionsIcon));
+				skin_selector.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsButton"));
+				skin_selector_expand_image.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsIcon"));
+				skin_selector_collapse_image.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorFilterOptionsIcon"));
 				break;
 			case market_item_info_quantity_button:
 				if (m_QuatityTooltip) m_QuatityTooltip.Show();
 				break;
 			case market_item_info_attachments_setup_button:
-				market_item_info_attachments_setup_button.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSetQuantityButton));
+				market_item_info_attachments_setup_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSetQuantityButton"));
 				break;
 		}		
 		return false;
@@ -2649,10 +2678,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				market_footer_categories_label.SetColor(ARGB(255, 255, 255, 255));
 				break;
 			case market_item_info_attachments_checkbox:
-				market_item_info_attachments_checkbox.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				market_item_info_attachments_checkbox.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 				break;
 			case skin_selector:
-				skin_selector.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+				skin_selector.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 				skin_selector_expand_image.SetColor(ARGB(240, 251, 252, 254));
 				skin_selector_collapse_image.SetColor(ARGB(240, 251, 252, 254));
 				break;

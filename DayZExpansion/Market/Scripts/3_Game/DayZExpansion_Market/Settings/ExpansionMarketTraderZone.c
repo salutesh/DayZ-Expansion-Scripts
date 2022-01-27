@@ -248,10 +248,11 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		item.Variants = new array< string >;
 		item.Variants.Copy(tItem.MarketItem.Variants);
 
-		//! Network optimization: Pack BuySell and SellPricePercent into one 32-bit int (8 bits for BuySell, 24 bits for SellPricePercent)
-		//! Note that for SellPricePercent, we use 0x0..0x007fffff for 0..8388607 and 0x00800000..0x00ffffff for -8388608..-1, this needs to be dealt with when decoding!
+		//! Network optimization: Pack BuySell, QuantityPercent and SellPricePercent into one 32-bit int (8 bits for BuySell and QuantityPercent, 16 bits for SellPricePercent)
+		//! @note for QuantityPercent, we use 0x0..0x7f for 0..127 and 0x80..0xff for -128..-1, this needs to be dealt with when decoding!
+		//! @note for SellPricePercent, we use 0x0..0x00007fff for 0..32767 and 0x00008000..0x0000ffff for -32768..-1, this needs to be dealt with when decoding!
 		int buySell = tItem.BuySell;
-		item.Packed = ((buySell & 0xff) << 24) | (tItem.MarketItem.SellPricePercent & 0x00ffffff);
+		item.Packed = ((buySell & 0xff) << 24) | ((tItem.MarketItem.QuantityPercent & 0xff) << 16) | (tItem.MarketItem.SellPricePercent & 0x0000ffff);
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketTraderZone::GetNetworkItemSerialization - End " + tItem.MarketItem.ClassName);

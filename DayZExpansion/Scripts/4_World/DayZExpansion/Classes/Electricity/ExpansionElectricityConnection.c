@@ -88,52 +88,36 @@ class ExpansionElectricityConnection: ExpansionElectricityBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void OnStoreSave( CF_ModStorage storage )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionElectricityConnection::OnStoreSave - Start");
-		#endif
-		
-		storage.Write( m_IsPaired );
+	#ifdef CF_MODSTORAGE
+	override void OnStoreSave(CF_ModStorage ctx)
+	{		
+		ctx.Write(m_IsPaired);
 
 		if ( m_IsPaired )
 		{
-			storage.Write( m_SourceA );
-			storage.Write( m_SourceB );
-			storage.Write( m_SourceD );
-			storage.Write( m_SourceC );
+			ctx.Write(m_SourceA);
+			ctx.Write(m_SourceB);
+			ctx.Write(m_SourceD);
+			ctx.Write(m_SourceC);
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionElectricityConnection::OnStoreSave - End");
-		#endif
 	}
 
-	override bool OnStoreLoad( CF_ModStorage storage )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionElectricityConnection::OnStoreLoad - Start");
-		#endif
-		
-		if ( Expansion_Assert_False( storage.Read( m_IsPaired ), "[" + this + "] Failed reading m_IsPaired" ) )
+	override bool OnStoreLoad(CF_ModStorage ctx)
+	{		
+		if (!ctx.Read(m_IsPaired))
 			return false;
 
-		if ( m_IsPaired )
+		if (m_IsPaired)
 		{
-			if ( Expansion_Assert_False( storage.Read( m_SourceA ), "[" + this + "] Failed reading m_SourceA" ) )
+			if (!ctx.Read(m_SourceA))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_SourceB ), "[" + this + "] Failed reading m_SourceB" ) )
+			if (!ctx.Read(m_SourceB))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_SourceD ), "[" + this + "] Failed reading m_SourceD" ) )
+			if (!ctx.Read(m_SourceD))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_SourceC ), "[" + this + "] Failed reading m_SourceC" ) )
+			if (!ctx.Read(m_SourceC))
 				return false;
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionElectricityConnection::OnStoreLoad - End");
-		#endif
 		
 		return true;
 	}

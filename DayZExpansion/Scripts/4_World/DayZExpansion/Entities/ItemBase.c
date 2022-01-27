@@ -28,9 +28,8 @@ modded class ItemBase
 	ref map< string, float > m_CurrentHealth;
 
 	protected bool m_Locked;
-	protected string m_Code;  //! NEVER set this directly. Use SetCode()
+	protected string m_Code;  //! Only set on server, not synced to client. NEVER set this directly. Use SetCode()
 	protected int m_CodeLength;  //! Unlike m_Code, this should be synched to clients for items that use codes
-	protected bool m_HasCode;
 
 	protected ref TStringArray m_KnownUIDs;
 	protected bool m_KnownUIDsRequested;
@@ -217,7 +216,7 @@ modded class ItemBase
 	}
 	
 	/**
-	\brief Returning if wall/safe is open
+	\brief Returning if item is open
 		\param 	
 	*/
 	bool IsOpened()
@@ -262,8 +261,7 @@ modded class ItemBase
 
 	void UnlockAndOpen( string selection ) 
 	{
-		if ( m_HasCode )
-			Unlock();
+		Unlock();
 
 		Open( selection );
 	}
@@ -281,71 +279,159 @@ modded class ItemBase
 		if ( IsOpened() )
 			Close( selection );
 
-		if ( m_HasCode )
-			Lock();
+		ExpansionLock();
 	}
 	
 	/**
-	\brief Set code of wall/safe/fence
+	\brief Set code of item
 		\param 	
 	*/
-	void SetCode( string code, PlayerBase player = NULL )
+	void SetCode( string code, PlayerBase player = NULL, bool setUser = true, bool updateLock = true )
 	{
-		m_Code = code;
-		m_CodeLength = code.Length();
-		m_HasCode = code != "";
-		m_Locked = false;
-
-		if ( GetExpansionSettings().GetBaseBuilding().RememberCode )
+		if (!GetGame().IsServer())
 		{
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
-			if ( codelock )
-				codelock.SetUser( player );
-			else if ( IsInherited( ExpansionSafeBase ) )
-				SetUser( player );
+			Error("ERROR: ItemBase::SetCode called on client!");
+			return;
 		}
 
-		if (IsOpened())
+		//! Check for m_Code allows to set empty code on parent after migration of code to attached codelock
+		if (!m_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+			{
+				codelock.SetCode(code, player, setUser, updateLock);
+				return;
+			}
+		}
+
+		m_Code = code;
+		m_CodeLength = code.Length();
+		m_Locked = false;
+
+		if (m_KnownUIDs && setUser && GetExpansionSettings().GetBaseBuilding().RememberCode)
+			SetUser( player );
+
+		if (IsOpened() || !updateLock)
 			SetSynchDirty();
-		else if (m_HasCode)
-			Lock();  //! Will call SetSynchDirty
+		else if (m_Code)
+			ExpansionLock();  //! Will call SetSynchDirty
 		else
 			Unlock();  //! Will call SetSynchDirty
 	}
 	
 	/**
-	\brief Returning code of wall/safe/fence
+	\brief Returning code of item
 		\param 	
+		@note Remember that m_Code only exists on server!
+		
 	*/
 	string GetCode()
 	{
+		if (!m_Code && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+				return codelock.GetCode();
+		}
+
 		return m_Code;
 	}
 
 	/**
-	\brief Returning code length of wall/safe/fence
+	\brief Returning code length of item
 		\param 	
 	*/
 	int GetCodeLength()
 	{
+		if (!m_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+				return codelock.GetCodeLength();
+		}
+
 		return m_CodeLength;
 	}
 
 	/**
-	\brief Returning if the wall/safe has a code
+	\brief Returning if the item has a code
 		\param 	
+		@note Remember that m_Code only exists on server! Use m_CodeLength > 0 to check for code on both server and client
 	*/
 	bool HasCode()
 	{
-		return m_HasCode;
+		if (!m_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+				return codelock.HasCode();
+		}
+
+		return m_CodeLength > 0;
+	}
+
+	override bool ExpansionIsLocked()
+	{
+		if (!m_CodeLength && !IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+				return codelock.IsLocked();
+		}
+
+		return m_CodeLength > 0 && m_Locked;
+	}
+
+	override bool IsLocked()
+	{
+		return ExpansionIsLocked();
 	}
 
 	/**
-	\brief Returning if the wall/safe has a code
+	\brief Returning if the item has a codelock attached
 		\param "selection" selection for codelock
 	*/
 	bool ExpansionHasCodeLock( string selection )
 	{
+		return ExpansionHasCodeLock();
+	}
+
+	/**
+	\brief Returning if the item has a codelock attached
+	*/
+	bool ExpansionHasCodeLock()
+	{
+		return ExpansionGetCodeLock() != NULL;
+	}
+
+	bool ExpansionHasCodeLockSlot()
+	{
+		TStringArray attachments();
+		TStringArray slots();
+		string path;
+
+		if (IsWeapon())
+			path = "CfgWeapons";
+		else if (IsMagazine())
+			path = "CfgMagazines";
+		else
+			path = "CfgVehicles";
+
+		GetGame().ConfigGetTextArray(path + " " + GetType() + " attachments", attachments);
+		GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", slots);
+
+		foreach (string attachment: attachments)
+		{
+			attachment.ToLower();
+			foreach (string slot: slots)
+			{
+				slot.ToLower();
+				if (attachment == slot)
+					return true;
+			}
+		}
+
 		return false;
 	}
 
@@ -355,24 +441,40 @@ modded class ItemBase
 	*/
 	ExpansionCodeLock ExpansionGetCodeLock()
 	{
-		return null;
+		return ExpansionCodeLock.Cast(GetAttachmentByConfigTypeName("ExpansionCodeLock"));
+	}
+
+	void SetSlotLock( EntityAI parent, bool state )
+	{
+		InventoryLocation inventory_location = new InventoryLocation;
+		GetInventory().GetCurrentInventoryLocation( inventory_location );			
+		parent.GetInventory().SetSlotLock( inventory_location.GetSlot(), state );
 	}
 
 	/**
 	\brief Locking base build/safe
 		\param 	
 	*/
-	void Lock()
+	void ExpansionLock()
 	{
-		if ( m_HasCode )
+		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+			{
+				codelock.ExpansionLock();
+				return;
+			}
+		}
+
+		if (m_Code)
 		{
 			m_Locked = true;
 
-			ExpansionCodeLock codelock = ExpansionGetCodeLock();
-			if ( codelock )
+			if (GetHierarchyParent() && GetInventory().IsAttachment())
 			{
-				codelock.SetSlotLock( this, true );
-				codelock.SetTakeable( false );
+				SetSlotLock( GetHierarchyParent(), true );
+				SetTakeable( false );
 			}
 		}
 
@@ -385,20 +487,29 @@ modded class ItemBase
 	*/
 	void Unlock()
 	{
+		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+			{
+				codelock.Unlock();
+				return;
+			}
+		}
+
 		m_Locked = false;
 
-		ExpansionCodeLock codelock = ExpansionGetCodeLock();
-		if ( codelock )
+		if (GetHierarchyParent() && GetInventory().IsAttachment())
 		{
-			codelock.SetSlotLock( this, false );
-			codelock.SetTakeable( true );
+			SetSlotLock( GetHierarchyParent(), false );
+			SetTakeable( true );
 		}
 
 		SetSynchDirty();
 	}
 	
 	/**
-	\brief Failed attempt to unlock base build/safe
+	\brief Failed attempt to unlock item
 		\param 	
 	*/
 	void FailedUnlock()
@@ -443,14 +554,20 @@ modded class ItemBase
 		if ( !player || !player.GetIdentity() || !GetExpansionSettings().GetBaseBuilding().RememberCode )
 			return false;
 
-		ExpansionCodeLock codelock = ExpansionGetCodeLock();
-		if ( codelock )
-			return codelock.IsKnownUser( player );
+		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
+		{
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if ( codelock )
+				return codelock.IsKnownUser( player );
+		}
 
-		if ( GetGame().IsClient() && m_KnownUIDs && !m_KnownUIDsSet && !m_KnownUIDsRequested )
+		if (!m_KnownUIDs)
+			return false;
+
+		if ( GetGame().IsClient() && !m_KnownUIDsSet && !m_KnownUIDsRequested )
 			RequestKnownUIDs();
 
-		return m_KnownUIDs && m_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
+		return m_KnownUIDs.Find( player.GetIdentityUID() ) > -1;
 	}
 
 	void AddUser( PlayerBase player )
@@ -665,6 +782,9 @@ modded class ItemBase
 
 				SetCode( code, player );
 
+				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
+					GetExpansionSettings().GetLog().PrintLog( "ExpansionCodelock ("+ GetPosition() + ") Code set by " + playerDesc + " and the code is "+ code );
+
 				SendServerLockReply( true, false, sender );
 				return;
 			}
@@ -771,7 +891,7 @@ modded class ItemBase
 		super.OnStoreSave( ctx );
 
 		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return;
 		#endif
@@ -801,7 +921,7 @@ modded class ItemBase
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -840,52 +960,27 @@ modded class ItemBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("ItemBase::CF_OnStoreSave " + this + " " + modName);
-		#endif
+		super.CF_OnStoreSave(storage);
 
-		super.CF_OnStoreSave( storage, modName );
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return;
 
-		if ( modName != "DZ_Expansion" )
-			return;
-
-		m_ElectricitySource.OnStoreSave( storage );
+		m_ElectricitySource.OnStoreSave(ctx);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("ItemBase::CF_OnStoreLoad " + this + " " + modName);
-		#endif
-
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( GetExpansionSaveVersion() < 22 )
-		{
-			string currentSkinName = m_CurrentSkinName;
-
-			if ( Expansion_Assert_False( storage.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
-				return false;
-
-			if ( m_CurrentSkinName == "" )
-				m_CurrentSkinName = currentSkinName;
-		}
-
-		if (GetExpansionSaveVersion() < 32)
-		{
-			bool isAttached;
-			if ( Expansion_Assert_False( storage.Read( isAttached ), "[" + this + "] Failed reading isAttached" ) )
-				return false;
-		}
-
-		m_ElectricitySource.OnStoreLoad( storage );
+		if (!m_ElectricitySource.OnStoreLoad(ctx))
+			return false;
 
 		return true;
 	}

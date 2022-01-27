@@ -57,14 +57,14 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		if (!m_MarketItemManagerController)
 			m_MarketItemManagerController = ExpansionMarketMenuItemManagerController.Cast(GetController());
 		
-		market_item_manager_header.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
-		market_item_manager_header_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		market_item_manager_options_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+		market_item_manager_header.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
+		market_item_manager_header_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		market_item_manager_options_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 		
-		button_close_label.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		button_reset_label.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		preset_selector_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
-		preset_editbox_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		button_close_label.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		button_reset_label.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		preset_selector_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
+		preset_editbox_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 	}
 	
 	override string GetLayoutFile() 
@@ -501,25 +501,25 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		switch (w)
 		{
 			case market_item_manager_back_button:
-				market_item_manager_back_button_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				market_item_manager_back_button_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case button_close:
-				button_close.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				button_close.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case button_reset:
-				button_reset.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				button_reset.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case preset_selector:
-				preset_selector_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				preset_selector_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case button_save:
-				button_save.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				button_save.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case preset_editbox_clear:
-				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				market_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 			case preset_editbox:
-				preset_editbox_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSearchFilterButton));
+				preset_editbox_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSearchFilterButton"));
 				break;
 		}		
 		return false;
@@ -532,7 +532,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 		switch (w)
 		{
 			case market_item_manager_back_button:
-				market_item_manager_back_button_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				market_item_manager_back_button_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 				break;
 			case button_close:
 				button_close.SetColor(ARGB(0, 0, 0, 0));
@@ -541,16 +541,16 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 				button_reset.SetColor(ARGB(0, 0, 0, 0));
 				break;
 			case preset_selector:
-				preset_selector_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorHeaders));
+				preset_selector_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 				break;
 			case button_save:
 				button_save.SetColor(ARGB(0, 0, 0, 0));
 				break;
 			case preset_editbox_clear:
-				market_filter_clear_icon.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+				market_filter_clear_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 				break;
 			case preset_editbox:
-				preset_editbox_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+				preset_editbox_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 				break;
 		}
 			

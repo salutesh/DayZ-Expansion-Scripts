@@ -16,6 +16,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	
 	private Widget m_ListPanel;
 	private ImageWidget m_Icon;
+	private string m_Text;
 	private TextWidget m_Name;
 	private ButtonWidget m_3DToggle;
 	private ImageWidget m_3DToggleIcon;
@@ -94,7 +95,8 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 			m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
 			m_Icon.SetImage(0);
 			m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
-			m_Name.SetText(m_Marker.GetMarkerData().GetName());
+			m_Text = m_Marker.GetMarkerData().GetName();
+			m_Name.SetText(m_Text);
 			m_Name.SetColor(m_Marker.GetMarkerData().GetColor());
 			
 			m_3DToggleIcon.LoadImageFile(0, EXPANSION_NOTIFICATION_ICON_3D_OFF);
@@ -135,7 +137,8 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 			m_Icon.LoadImageFile(0, ExpansionIcons.GetPath(m_Marker.GetMarkerData().GetIconName()));
 			m_Icon.SetImage(0);
 			m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
-			m_Name.SetText(m_Marker.GetMarkerData().GetName());
+			m_Text = m_Marker.GetMarkerData().GetName();
+			m_Name.SetText(m_Text);
 			m_Name.SetColor(m_Marker.GetMarkerData().GetColor());
 			
 			if ( !m_Marker.GetMarkerData().Is3D() )
@@ -222,6 +225,11 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		return m_MarkerData;
 	}
 	
+	string GetName()
+	{
+		return m_Text;
+	}
+
 	// ------------------------------------------------------------
 	// Update
 	// ------------------------------------------------------------
@@ -337,5 +345,10 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 	ExpansionUITooltip GetTooltip()
 	{
 		return m_InfoTooltip;
+	}
+
+	void SetSort(int sort, bool immedUpdate = true)
+	{
+		m_Root.SetSort(sort, immedUpdate);
 	}
 }

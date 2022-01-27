@@ -1,5 +1,5 @@
 /**
- * ExpansionMarketAmmoBoxesForAmmo.c
+ * ExpansionMarketSpawnPosition.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

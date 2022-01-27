@@ -107,18 +107,6 @@ modded class CarScript
 
 		super.EEOnCECreate();
 		
-		//! There is no need for this now as no wild car spawns with a key rn?!
-		/*array< EntityAI > items = new array< EntityAI >;
-		GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
-		for ( int i = 0; i < items.Count(); i++ )
-		{
-			ExpansionCarKey key;
-			if ( Class.CastTo( key, items[i] ) )
-			{
-				PairKeyTo( key );
-			}
-		}*/
-		
 		if ( GetExpansionSettings().GetDebug().ShowVehicleDebugMarkers )
 		{
 			CreateServerMarker();
@@ -136,7 +124,7 @@ modded class CarScript
 		EXPrint("CarScript::OnStoreSave " + this + " " + GetGame().SaveVersion());
 		#endif
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -161,7 +149,7 @@ modded class CarScript
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -182,43 +170,4 @@ modded class CarScript
 
 		return true;
 	}
-
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
-	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("CarScript::CF_OnStoreSave " + this + " " + modName);
-		#endif
-
-		super.CF_OnStoreSave( storage, modName );
-
-		if ( modName != "DZ_Expansion" )
-			return;
-	}
-
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
-	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("CarScript::CF_OnStoreLoad " + this + " " + modName);
-		#endif
-
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
-			return false;
-
-		if ( modName != "DZ_Expansion" )
-			return true;
-
-		if ( GetExpansionSaveVersion() >= 21 )
-			return true;
-
-		string currentSkinName = m_CurrentSkinName;
-
-		storage.Read( m_CurrentSkinName );
-
-		if ( m_CurrentSkinName == "" )
-			m_CurrentSkinName = currentSkinName;
-		
-		return true;
-	}
-	#endif
 };

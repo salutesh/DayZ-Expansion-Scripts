@@ -2,7 +2,6 @@ modded class ItemBase
 {
 	bool m_Expansion_AcceptingAttachment;
 	bool m_Expansion_CanPlayerAttach;
-	bool m_Expansion_CanPlayerAttachSet;
 
 	dJoint m_Expansion_TowJoint;
 	int m_Expansion_TowConnectionIndex;
@@ -229,19 +228,6 @@ modded class ItemBase
 	{
 #ifdef EXPANSION_PLAYER_ATTACHMENT_CANATTACH_OVERRIDE
 		m_Expansion_CanPlayerAttach = true;
-#else
-		if (!m_Expansion_CanPlayerAttachSet)
-		{
-			m_Expansion_CanPlayerAttachSet = true;
-			foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
-			{
-				if (IsKindOf(vehcfg.ClassName))
-				{
-					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
-					break;
-				}
-			}
-		}
 #endif
 
 		return m_Expansion_CanPlayerAttach;
@@ -283,7 +269,7 @@ modded class ItemBase
 		super.OnStoreSave(ctx);
 
 //! If we are saving game version target for ModStorage support (1st stable) or later
-#ifdef CF_MODULE_MODSTORAGE
+#ifdef CF_MODSTORAGE
 		if (GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 			return;
 #endif
@@ -314,7 +300,7 @@ modded class ItemBase
 		if (Expansion_Assert_False(super.OnStoreLoad(ctx, version), "[" + this + "] Failed reading OnStoreLoad super"))
 			return false;
 
-#ifdef CF_MODULE_MODSTORAGE
+#ifdef CF_MODSTORAGE
 		if (version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET)
 			return true;
 #endif

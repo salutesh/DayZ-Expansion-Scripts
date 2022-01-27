@@ -37,7 +37,7 @@ modded class ItemBase
 		super.OnStoreSave( ctx );
 
 		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return;
 		#endif
@@ -74,7 +74,7 @@ modded class ItemBase
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -119,28 +119,24 @@ modded class ItemBase
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] ItemBase::CF_OnStoreSave " + this + " " + modName);
-		#endif
+		super.CF_OnStoreSave(storage);
 
-		super.CF_OnStoreSave( storage, modName );
-
-		if ( modName != "DZ_Expansion_Vehicles" )
-			return;
+		auto ctx = storage[DZ_Expansion_Vehicles];
+		if (!ctx) return;
 
 		if ( m_Expansion_WorldAttachment && m_Expansion_IsAttached )
 		{
-			storage.Write( m_Expansion_IsAttached );
+			ctx.Write( m_Expansion_IsAttached );
 
 			m_Expansion_WorldAttachment.GetPersistentID( m_Expansion_AttachIDA, m_Expansion_AttachIDB, m_Expansion_AttachIDC, m_Expansion_AttachIDD );
 
-			storage.Write( m_Expansion_AttachIDA );
-			storage.Write( m_Expansion_AttachIDB );
-			storage.Write( m_Expansion_AttachIDC );
-			storage.Write( m_Expansion_AttachIDD );
+			ctx.Write( m_Expansion_AttachIDA );
+			ctx.Write( m_Expansion_AttachIDB );
+			ctx.Write( m_Expansion_AttachIDC );
+			ctx.Write( m_Expansion_AttachIDD );
 
 			vector tmItem[4];
 			vector tmParent[4];
@@ -148,43 +144,36 @@ modded class ItemBase
 			m_Expansion_WorldAttachment.GetTransform( tmParent );
 			Math3D.MatrixInvMultiply4( tmParent, tmItem, m_Expansion_AttachmentTransform );
 
-			storage.Write( m_Expansion_AttachmentTransform[0] );
-			storage.Write( m_Expansion_AttachmentTransform[1] );
-			storage.Write( m_Expansion_AttachmentTransform[2] );
-			storage.Write( m_Expansion_AttachmentTransform[3] );
+			ctx.Write( m_Expansion_AttachmentTransform[0] );
+			ctx.Write( m_Expansion_AttachmentTransform[1] );
+			ctx.Write( m_Expansion_AttachmentTransform[2] );
+			ctx.Write( m_Expansion_AttachmentTransform[3] );
 		} else
 		{
-			storage.Write( false );
+			ctx.Write( false );
 		}
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] ItemBase::CF_OnStoreLoad " + this + " " + modName);
-		#endif
-
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion_Vehicles" )
-			return true;
+		auto ctx = storage[DZ_Expansion_Vehicles];
+		if (!ctx) return true;
 
-		if (GetExpansionSaveVersion() < 32)
-			return true;
-
-		if ( Expansion_Assert_False( storage.Read( m_Expansion_IsAttached ), "[" + this + "] Failed reading m_Expansion_IsAttached" ) )
+		if (!ctx.Read(m_Expansion_IsAttached))
 			return false;
 
 		if ( m_Expansion_IsAttached )
 		{
-			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDA ), "[" + this + "] Failed reading m_Expansion_AttachIDA" ) )
+			if (!ctx.Read(m_Expansion_AttachIDA))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDB ), "[" + this + "] Failed reading m_Expansion_AttachIDB" ) )
+			if (!ctx.Read(m_Expansion_AttachIDB))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDC ), "[" + this + "] Failed reading m_Expansion_AttachIDC" ) )
+			if (!ctx.Read(m_Expansion_AttachIDC))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( m_Expansion_AttachIDD ), "[" + this + "] Failed reading m_Expansion_AttachIDD" ) )
+			if (!ctx.Read(m_Expansion_AttachIDD))
 				return false;
 				
 			vector transSide;
@@ -192,13 +181,13 @@ modded class ItemBase
 			vector transForward;
 			vector transPos;
 
-			if ( Expansion_Assert_False( storage.Read( transSide ), "[" + this + "] Failed reading transSide" ) )
+			if (!ctx.Read(transSide))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( transUp ), "[" + this + "] Failed reading transUp" ) )
+			if (!ctx.Read(transUp))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( transForward ), "[" + this + "] Failed reading transForward" ) )
+			if (!ctx.Read(transForward))
 				return false;
-			if ( Expansion_Assert_False( storage.Read( transPos ), "[" + this + "] Failed reading transPos" ) )
+			if (!ctx.Read(transPos))
 				return false;
 
 			m_Expansion_AttachmentTransform[0] = transSide;

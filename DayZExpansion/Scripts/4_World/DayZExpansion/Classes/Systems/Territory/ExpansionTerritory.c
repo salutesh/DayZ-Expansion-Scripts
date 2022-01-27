@@ -356,37 +356,37 @@ class ExpansionTerritory
 		return true;
 	}
 	
-	#ifdef CF_MODULE_MODSTORAGE
+	#ifdef CF_MODSTORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave
 	// ------------------------------------------------------------
-	void OnStoreSave( CF_ModStorage storage )
+	void OnStoreSave(CF_ModStorage ctx)
 	{
-		storage.Write( TerritoryID );
-		storage.Write( TerritoryName );
-		storage.Write( TerritoryPosition );
-		storage.Write( TerritoryLevel );
-		storage.Write( TerritoryOwnerID );
-		storage.Write( TerritoryFlagTexturePath );
+		ctx.Write(TerritoryID);
+		ctx.Write(TerritoryName);
+		ctx.Write(TerritoryPosition);
+		ctx.Write(TerritoryLevel);
+		ctx.Write(TerritoryOwnerID);
+		ctx.Write(TerritoryFlagTexturePath);
 
 		int count;
 		int index;
 
 		index = 0;
 		count = TerritoryMembers.Count();
-		storage.Write( count );
-		while ( index < count )
+		ctx.Write(count);
+		while (index < count)
 		{
-			TerritoryMembers[index].OnStoreSave( storage );
+			TerritoryMembers[index].OnStoreSave(ctx);
 			index++;
 		}
 
 		index = 0;
 		count = Invites.Count();
-		storage.Write( count );
-		while ( index < count )
+		ctx.Write(count);
+		while (index < count)
 		{
-			Invites[index].OnStoreSave( storage );
+			Invites[index].OnStoreSave(ctx);
 			index++;
 		}
 	}
@@ -394,48 +394,51 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	// Expansion OnStoreLoad
 	// ------------------------------------------------------------
-	bool OnStoreLoad( CF_ModStorage storage )
+	bool OnStoreLoad(CF_ModStorage ctx)
 	{
-		if ( Expansion_Assert_False( storage.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
+		if (!ctx.Read(TerritoryID))
 			return false;
 			
-		if ( Expansion_Assert_False( storage.Read( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
+		if (!ctx.Read(TerritoryName))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( TerritoryPosition ), "[" + this + "] Failed reading TerritoryPosition" ) )
+		if (!ctx.Read(TerritoryPosition))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( TerritoryLevel ), "[" + this + "] Failed reading TerritoryLevel" ) )
+		if (!ctx.Read(TerritoryLevel))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( TerritoryOwnerID ), "[" + this + "] Failed reading TerritoryOwnerID" ) )
+		if (!ctx.Read(TerritoryOwnerID))
 			return false;
 
-		if ( Expansion_Assert_False( storage.Read( TerritoryFlagTexturePath ), "[" + this + "] Failed reading TerritoryFlagTexturePath" ) )
+		if (!ctx.Read(TerritoryFlagTexturePath))
 			return false;
 
 		int count;
 		int index;
 
 		index = 0;
-		if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading count" ) )
+		if (!ctx.Read(count))
 			return false;
+
 		while ( index < count )
 		{
 			ExpansionTerritoryMember member = new ExpansionTerritoryMember();
-			member.OnStoreLoad( storage );
-			TerritoryMembers.Insert( member ); 
+			member.OnStoreLoad(ctx);
+			TerritoryMembers.Insert(member); 
 			index++;
 		}
 
 		index = 0;
-		if ( Expansion_Assert_False( storage.Read( count ), "[" + this + "] Failed reading count" ) )
+		
+		if (!ctx.Read(count))
 			return false;
+
 		while ( index < count )
 		{
 			ExpansionTerritoryInvite invite = new ExpansionTerritoryInvite();
-			invite.OnStoreLoad( storage );
-			Invites.Insert( invite ); 
+			invite.OnStoreLoad(ctx);
+			Invites.Insert(invite); 
 			index++;
 		}
 		

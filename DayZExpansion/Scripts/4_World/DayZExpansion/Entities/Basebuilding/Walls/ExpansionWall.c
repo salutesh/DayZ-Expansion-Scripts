@@ -85,7 +85,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -111,7 +111,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -146,58 +146,58 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return true;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_HasWindow );
-		storage.Write( m_HasDoor );
-		storage.Write( m_HasGate );
-		storage.Write( m_HasWall );
-		storage.Write( m_IsOpened );
-		storage.Write( m_IsOpened1 );
-		storage.Write( m_IsOpened2 );
-		storage.Write( m_IsOpened3 );
-		storage.Write( m_IsOpened4 );
+		ctx.Write(m_HasWindow);
+		ctx.Write(m_HasDoor);
+		ctx.Write(m_HasGate);
+		ctx.Write(m_HasWall);
+		ctx.Write(m_IsOpened);
+		ctx.Write(m_IsOpened1);
+		ctx.Write(m_IsOpened2);
+		ctx.Write(m_IsOpened3);
+		ctx.Write(m_IsOpened4);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( Expansion_Assert_False( storage.Read( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
+		if (!ctx.Read(m_HasWindow))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
-			return false;
-		if ( Expansion_Assert_False( storage.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
-			return false;
-
-		if ( storage.GetVersion() < 18 )
-			return true;
-
-		if ( Expansion_Assert_False( storage.Read( m_HasWall ), "[" + this + "] Failed reading m_HasWall" ) )
+			
+		if (!ctx.Read(m_HasDoor))
 			return false;
 
-		if ( GetExpansionSaveVersion() < 23 )
-			return true;
+		if (!ctx.Read(m_HasGate))
+			return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
+		if (!ctx.Read(m_HasWall))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened1 ), "[" + this + "] Failed reading m_IsOpened1" ) )
+
+		if (!ctx.Read(m_IsOpened))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened2 ), "[" + this + "] Failed reading m_IsOpened2" ) )
+
+		if (!ctx.Read(m_IsOpened1))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened3 ), "[" + this + "] Failed reading m_IsOpened3" ) )
+			
+		if (!ctx.Read(m_IsOpened2))
 			return false;
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened4 ), "[" + this + "] Failed reading m_IsOpened4" ) )
+
+		if (!ctx.Read(m_IsOpened3))
+			return false;
+
+		if (!ctx.Read(m_IsOpened4))
 			return false;
 
 		return true;
@@ -305,11 +305,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return false;
 	}
 
-	private bool ExpansionHasCodeLock()
-	{
-		return FindAttachmentBySlotName( "Att_ExpansionCodeLock_1" ) || FindAttachmentBySlotName( "Att_ExpansionCodeLock_2" );
-	}
-
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		if (m_HasDoor)
@@ -331,6 +326,43 @@ class ExpansionWallBase: ExpansionBaseBuilding
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		return false;
+	}
+
+	override bool IsPlayerInside( PlayerBase player, string selection )
+	{
+		//! This is an almost verbatim copy of vanilla fence code, EXCEPT...
+		vector player_pos = player.GetPosition();
+		vector fence_pos = GetPosition();
+		vector ref_dir = GetDirection();
+		ref_dir[1] = 0;
+		ref_dir.Normalize();
+		 
+		vector x[2];
+		vector b1,b2;
+		ExpansionGetCollisionBox(x);  //! <-- ...EXCEPT this
+		b1 = x[0];
+		b2 = x[1];
+
+		vector dir_to_fence = fence_pos - player_pos;
+		dir_to_fence[1] = 0;
+		float len = dir_to_fence.Length();
+
+		dir_to_fence.Normalize();
+		
+		vector ref_dir_angle = ref_dir.VectorToAngles();
+		vector dir_to_fence_angle = dir_to_fence.VectorToAngles();
+		vector test_angles = dir_to_fence_angle - ref_dir_angle;
+		
+		vector test_position = test_angles.AnglesToVector() * len;
+		
+		if(test_position[0] < b1[0] || test_position[0] > b2[0] || test_position[2] < 0.2 || test_position[2] > 2.2 )
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	override bool ExpansionIsOpenable()
@@ -500,17 +532,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		}
 
 		return true;
-	}
-	
-	override void EEItemDetached(EntityAI item, string slot_name)
-	{
-		super.EEItemDetached(item, slot_name);
-		
-		if ( item && (slot_name == "Att_ExpansionCodeLock_1" || slot_name == "Att_ExpansionCodeLock_2") && HasCode() )
-		{
-			//Reset code on the building
-			SetCode("");
-		}
 	}
 	
 	override bool CanDisplayAttachmentCategory( string category_name )
@@ -773,8 +794,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void UnlockAndOpen( string selection ) 
 	{
-		if ( m_HasCode )
-			super.Unlock();
+		super.Unlock();
 
 		if ( m_HasDoor )
 		{
@@ -799,6 +819,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				Close( m_CurrentBuild + "_gate_r" );
 		}
 
-		super.Lock();
+		ExpansionLock();
 	}
 }

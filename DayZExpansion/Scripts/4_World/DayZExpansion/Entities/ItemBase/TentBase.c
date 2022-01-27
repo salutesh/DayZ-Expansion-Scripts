@@ -21,17 +21,9 @@ modded class TentBase
 	protected bool m_IsOpened4 = true;
 	protected bool m_IsOpened5 = true;
 	protected bool m_IsOpened6 = true;
-	
-	protected bool m_WasSynced;
-	protected bool m_WasLocked;
-
-	protected EffectSound m_Sound;
 
 	void TentBase()
 	{
-		RegisterNetSyncVariableBool( "m_Locked" );
-		RegisterNetSyncVariableBool( "m_HasCode" );
-		RegisterNetSyncVariableInt( "m_CodeLength" );
 		RegisterNetSyncVariableBool( "m_IsOpened" );
 		RegisterNetSyncVariableBool( "m_IsOpened1" );
 		RegisterNetSyncVariableBool( "m_IsOpened2" );
@@ -100,12 +92,12 @@ modded class TentBase
 		}
 
 		
-		if ( m_HasCode && m_IsOpened != wasOpened )
+		if ( HasCode() && m_IsOpened != wasOpened )
 		{
 			if ( m_IsOpened )
 				Unlock();
 			else
-				Lock();
+				ExpansionLock();
 		} else
 		{
 			SetSynchDirty();
@@ -113,7 +105,7 @@ modded class TentBase
 	}
 
 	//! Only call this after settings have been loaded
-	bool CanAttachCodelock()
+	bool ExpansionCanAttachCodeLock()
 	{
 		int attachMode = GetExpansionSettings().GetBaseBuilding().CodelockAttachMode;
 		return attachMode == ExpansionCodelockAttachMode.ExpansionAndTents || attachMode == ExpansionCodelockAttachMode.ExpansionAndFenceAndTents;
@@ -121,9 +113,9 @@ modded class TentBase
 	
 	override bool CanReceiveItemIntoCargo(EntityAI item )
 	{
-        if (m_Locked && GetExpansionSettings().GetBaseBuilding() )
+        if (IsLocked() && GetExpansionSettings().GetBaseBuilding() )
 		{
-			if ( CanAttachCodelock() )
+			if ( ExpansionCanAttachCodeLock() )
 			{
            	 	return false;
 			}
@@ -135,9 +127,9 @@ modded class TentBase
 
     override bool CanReleaseCargo(EntityAI cargo)
 	{
-        if ( m_Locked && GetExpansionSettings().GetBaseBuilding() )
+        if ( IsLocked() && GetExpansionSettings().GetBaseBuilding() )
 		{
-			if ( CanAttachCodelock() )
+			if ( ExpansionCanAttachCodeLock() )
 			{
            	 	return false;
 			}
@@ -152,7 +144,7 @@ modded class TentBase
 		{
 			if ( attachment.IsInherited( ExpansionCodeLock ) )
 			{
-				if ( !CanAttachCodelock() )
+				if ( !ExpansionCanAttachCodeLock() )
 					return false;
 
 				//! Safety to prevent attaching Expansion Code Lock if another lock is already present in different slot (e.g. silver Code Lock from RoomService's mod)
@@ -192,9 +184,9 @@ modded class TentBase
 	
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
-        if ( m_Locked && GetExpansionSettings().GetBaseBuilding() )
+        if ( IsLocked() && GetExpansionSettings().GetBaseBuilding() )
 		{
-			if ( CanAttachCodelock() )
+			if ( ExpansionCanAttachCodeLock() )
 			{
            	 	return false;
 			}
@@ -217,79 +209,15 @@ modded class TentBase
 	{
 		return !m_IsOpened && ( !IsLocked() || IsKnownUser( player ) );
 	}
-	
-	protected void SoundCodeLockLocked()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
-		}
-	}
-	
-	protected void SoundCodeLockUnlocked()
-	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
-		{
-			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
-			m_Sound.SetSoundAutodestroy( true );
-		}
-	}
-
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-
-		if ( m_WasSynced && m_WasLocked != m_Locked )
-		{
-			if ( m_Locked )
-				SoundCodeLockLocked();
-			else
-				SoundCodeLockUnlocked();
-		}
-
-		m_WasLocked = m_Locked;
-		m_WasSynced = true;
-
-		ExpansionCodeLock codelock = ExpansionGetCodeLock();
-		if ( codelock )
-			codelock.UpdateVisuals();
-	}
-	
-	override bool ExpansionHasCodeLock( string selection )
-	{
-		if ( ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_ExpansionCodeLock" )) )
-		{
-			return true;
-		}
-
-		return false;
-	}
 
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_ExpansionCodeLock" ));
 	}
 
-	override bool IsLocked()
-	{
-		return m_HasCode && m_Locked;
-	}
-	
-	override bool CanBePacked()
-	{
-		if ( IsLocked() )
-		{
-			return false;
-		}
-
-		return super.CanBePacked();
-	}
-
-
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -299,9 +227,6 @@ modded class TentBase
 
 		super.OnStoreSave( ctx );
 		
-		ctx.Write( m_Locked );
-		ctx.Write( m_Code );
-		ctx.Write( m_HasCode );
 		ctx.Write( m_IsOpened );
 		ctx.Write( m_IsOpened1 );
 		ctx.Write( m_IsOpened2 );
@@ -317,7 +242,7 @@ modded class TentBase
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODULE_MODSTORAGE
+		#ifdef CF_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -327,21 +252,19 @@ modded class TentBase
 
 		bool loadingsuccessfull = true;
 
-		if ( Expansion_Assert_False( ctx.Read( m_Locked ) , "[" + this + "] Failed reading m_Locked" ))
+		if ( m_ExpansionSaveVersion < 38 )
 		{
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-		{
-			loadingsuccessfull = false;
-		}
+			if ( Expansion_Assert_False( ctx.Read( m_Locked ) , "[" + this + "] Failed reading m_Locked" ))
+				loadingsuccessfull = false;
+			
+			if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
+				loadingsuccessfull = false;
 
-		m_CodeLength = m_Code.Length();
+			m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( ctx.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-		{
-			loadingsuccessfull = false;
+			bool hasCode;
+			if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
+				loadingsuccessfull = false;
 		}
 		
 		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
@@ -387,7 +310,7 @@ modded class TentBase
 		}
 		
 		//! If Code Locks on the tents it will remove them Just calling later so simplify and ensure that the code lock has been created
-		if ( !CanAttachCodelock() )
+		if ( !ExpansionCanAttachCodeLock() )
 		{
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ExpansionCodeLockRemove, 1000, false );
 		}
@@ -395,128 +318,81 @@ modded class TentBase
 		return loadingsuccessfull;
 	}
 
-	#ifdef CF_MODULE_MODSTORAGE
-	override void CF_OnStoreSave( CF_ModStorage storage, string modName )
+	#ifdef CF_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
-		super.CF_OnStoreSave( storage, modName );
+		super.CF_OnStoreSave(storage);
 
-		if ( modName != "DZ_Expansion" )
-			return;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return;
 
-		storage.Write( m_Locked );
-		storage.Write( m_Code );
-		storage.Write( m_HasCode );
-		storage.Write( m_IsOpened );
-		storage.Write( m_IsOpened1 );
-		storage.Write( m_IsOpened2 );
-		storage.Write( m_IsOpened3 );
-		storage.Write( m_IsOpened4 );
-		storage.Write( m_IsOpened5 );
-		storage.Write( m_IsOpened6 );
+		ctx.Write(m_IsOpened);
+		ctx.Write(m_IsOpened1);
+		ctx.Write(m_IsOpened2);
+		ctx.Write(m_IsOpened3);
+		ctx.Write(m_IsOpened4);
+		ctx.Write(m_IsOpened5);
+		ctx.Write(m_IsOpened6);
 	}
 	
-	override bool CF_OnStoreLoad( CF_ModStorage storage, string modName )
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
-		if ( !super.CF_OnStoreLoad( storage, modName ) )
+		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
-		if ( modName != "DZ_Expansion" )
-			return true;
+		auto ctx = storage[DZ_Expansion];
+		if (!ctx) return true;
 
-		if ( storage.GetVersion() < 19 )
-			return true;
+		if (ctx.GetVersion() < 38)
+		{
+			if (!ctx.Read(m_Locked))
+				return false;
+				
+			if (!ctx.Read(m_Code))
+				return false;
 
-		bool loadingsuccessfull = true;
+			m_CodeLength = m_Code.Length();
 
-		if ( Expansion_Assert_False( storage.Read( m_Locked ) , "[" + this + "] Failed reading m_Locked" ))
-		{
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( storage.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-		{
-			loadingsuccessfull = false;
+			bool hasCode;
+			if (!ctx.Read(hasCode))
+				return false;
 		}
 
-		m_CodeLength = m_Code.Length();
+		if (!ctx.Read(m_IsOpened))
+			return false;
 
-		if ( Expansion_Assert_False( storage.Read( m_HasCode ), "[" + this + "] Failed reading m_HasCode" ) )
-		{
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
-		{
-			m_IsOpened = true;
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened1 ), "[" + this + "] Failed reading m_IsOpened1" ) )
-		{
-			m_IsOpened1 = true;
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened2 ), "[" + this + "] Failed reading mm_IsOpened2_Locked" ) )
-		{
-			m_IsOpened2 = true;
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened3 ), "[" + this + "] Failed reading m_IsOpened3" ) )
-		{
-			m_IsOpened3 = true;
-			loadingsuccessfull = false;
-		}
-		
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened4 ), "[" + this + "] Failed reading m_IsOpened4" ) )
-		{
-			m_IsOpened4 = true;
-			loadingsuccessfull = false;
-		}
+		if (!ctx.Read(m_IsOpened1))
+			return false;
 			
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened5 ), "[" + this + "] Failed reading m_IsOpened5" ) )
-		{
-			m_IsOpened5 = true;
-			loadingsuccessfull = false;
-		}
+		if (!ctx.Read(m_IsOpened2))
+			return false;
+
+		if (!ctx.Read(m_IsOpened3))
+			return false;
+
+		if (!ctx.Read(m_IsOpened4))
+			return false;
+
+		if (!ctx.Read(m_IsOpened5))
+			return false;
+
+		if (!ctx.Read(m_IsOpened6))
+			return false;
+
+		if (!ExpansionCanAttachCodeLock())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.ExpansionCodeLockRemove, 1000, false);
 		
-		if ( Expansion_Assert_False( storage.Read( m_IsOpened6 ), "[" + this + "] Failed reading m_IsOpened6" ) )
-		{
-			m_IsOpened6 = true;
-			loadingsuccessfull = false;
-		}
-		
-		//! If Code Locks on the tents it will remove them Just calling later so simplify and ensure that the code lock has been created
-		if ( !CanAttachCodelock() )
-		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ExpansionCodeLockRemove, 1000, false );
-		}
-		
-		return loadingsuccessfull;
+		return true;
 	}
 	#endif
 	
 	void ExpansionCodeLockRemove()
 	{
-		if ( !CanAttachCodelock() )
+		if ( !ExpansionCanAttachCodeLock() )
 		{
-			if ( m_Locked || m_HasCode || ExpansionHasCodeLock("codelock") )
-			{
-				SetCode("");  //! Will unlock as well
-				
-				ExpansionCodeLock codelock = ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_ExpansionCodeLock" ));
-				if (codelock)
-				{
-					codelock.Delete();
-				}
-
-				ExpansionCodeLock codelock2 = ExpansionCodeLock.Cast(GetAttachmentByConfigTypeName("ExpansionCodeLock"));
-				if (codelock2)
-				{
-					codelock2.Delete();
-				}
-			}
+			ExpansionCodeLock codelock = ExpansionGetCodeLock();
+			if (codelock)
+				codelock.Delete();
 		}
 	}
 
@@ -524,20 +400,10 @@ modded class TentBase
 	{
         if ( slot_name == "Att_ExpansionCodeLock" )
 		{
-			return CanAttachCodelock();
+			return ExpansionCanAttachCodeLock();
 		}
 
 		return super.CanDisplayAttachmentSlot( slot_name );
-	}
-	
-	override void EEItemDetached(EntityAI item, string slot_name)
-	{
-		super.EEItemDetached(item, slot_name);
-		
-		if ( item && ( slot_name == "Att_ExpansionCodeLock" ) && HasCode() )
-		{
-			SetCode("");
-		}
 	}
 
 	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )

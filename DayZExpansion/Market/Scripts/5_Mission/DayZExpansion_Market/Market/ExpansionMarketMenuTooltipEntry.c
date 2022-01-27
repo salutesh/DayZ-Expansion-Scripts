@@ -23,7 +23,7 @@ class ExpansionMarketMenuTooltipEntry: ExpansionScriptView
 		if (!m_TooltipEntryController)
 			m_TooltipEntryController = ExpansionMarketMenuTooltipEntryController.Cast(GetController());
 		
-		tooltip_entry_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+		tooltip_entry_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		SetView();
 	}
@@ -51,7 +51,7 @@ class ExpansionMarketMenuTooltipEntry: ExpansionScriptView
 		}
 		
 		m_TooltipEntryController.NotifyPropertyChanged("EntryText");
-		tooltip_entry_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorItemInfoAttachments));
+		tooltip_entry_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 	}
 }
 class ExpansionMarketMenuTooltipEntryController: ExpansionViewController

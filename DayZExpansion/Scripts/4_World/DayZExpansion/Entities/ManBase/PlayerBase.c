@@ -181,12 +181,10 @@ modded class PlayerBase
 
 		super.SetActions( InputActionMap );
 				
-		//AddAction( ExpansionActionOpenParachute, InputActionMap );
-		//AddAction( ExpansionActionCutParachute, InputActionMap );
 		AddAction( ExpansionActionSelectNextPlacement, InputActionMap );
-		AddAction( ExpansionActionCrackSafe );
-		AddAction( ExpansionActionDestroyBarbedWire );
-		AddAction( ExpansionActionDestroyLock );
+		AddAction( ExpansionActionCrackSafe, InputActionMap );
+		AddAction( ExpansionActionDestroyBarbedWire, InputActionMap );
+		AddAction( ExpansionActionDestroyLock, InputActionMap );
 		//AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
 		//AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
 
@@ -618,18 +616,7 @@ modded class PlayerBase
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion CanJump
-	// ------------------------------------------------------------
-	override bool CanJump()
-	{
-		if ( GetCommand_ExpansionFall() )
-			return false;
-
-		return super.CanJump();
-	}
-	
+		
 	// ------------------------------------------------------------
 	// Expansion IsTargetInActiveRefresherRange
 	// ------------------------------------------------------------	

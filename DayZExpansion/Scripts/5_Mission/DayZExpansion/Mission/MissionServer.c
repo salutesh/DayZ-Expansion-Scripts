@@ -33,22 +33,6 @@ modded class MissionServer
 		EXPrint("MissionServer::MissionServer - End");
 		#endif
 	}
-
-	// ------------------------------------------------------------
-	// MissionServer Destructor
-	// ------------------------------------------------------------
-	void ~MissionServer()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::~MissionServer - Start");
-		#endif
-		
-		DestroyNotificationSystem();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::~MissionServer - End");
-		#endif
-	}
 	
 	// ------------------------------------------------------------
 	// EquipCharacter

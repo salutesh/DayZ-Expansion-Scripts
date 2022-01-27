@@ -201,8 +201,6 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 	protected TextWidget dropdown_element_text;
 	protected CheckBoxWidget dropdown_element_checkbox;
 	protected ImageWidget dropdown_element_background;
-
-	bool m_Update;
 	
 	void ExpansionMarketMenuDropdownElement(ExpansionMarketMenu menu, StringLocaliser text)
 	{
@@ -212,9 +210,9 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 		if (!m_ElementController)
 			m_ElementController = ExpansionMarketMenuDropdownElementController.Cast(GetController());
 			
-		dropdown_element_text.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
-		dropdown_element_checkbox.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorCheckboxes));
-		dropdown_element_background.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorLabels));
+		dropdown_element_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
+		dropdown_element_checkbox.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorCheckboxes"));
+		dropdown_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		SetView();
 	}
@@ -247,24 +245,18 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 	
 	void SetChecked(bool state, bool update = true)
 	{
-		m_Update = update;
+		if (!update)
+			m_ElementController.WasChecked = state;
 		m_ElementController.CheckBox = state;
 		m_ElementController.NotifyPropertyChanged("CheckBox");
 	}
 	
 	void ApplyFilter()
 	{
-		EXPrint(ToString() + "::ApplyFilter - update " + m_Update);
-		if (m_Update)
-		{
-			m_MarketMenu.SetDropdownState();
-			m_MarketMenu.UpdateOptionFilterStrings();
-			m_MarketMenu.UpdateMarketCategories();
-		}
-		else
-		{
-			m_Update = true;
-		}
+		EXPrint(ToString() + "::ApplyFilter");
+		m_MarketMenu.SetDropdownState();
+		m_MarketMenu.UpdateOptionFilterStrings();
+		m_MarketMenu.UpdateMarketCategories();
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -272,7 +264,7 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 		switch (w)
 		{
 		case dropdown_element_checkbox:
-			dropdown_element_checkbox.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.ColorSetQuantityButton));
+			dropdown_element_checkbox.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSetQuantityButton"));
 			break;
 		}
 		
@@ -284,7 +276,7 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 		switch (w)
 		{
 		case dropdown_element_checkbox:
-			dropdown_element_checkbox.SetColor(ExpansionColor.HexToARGB(GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText));
+			dropdown_element_checkbox.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 			break;
 		}
 		
