@@ -163,7 +163,7 @@ class CF_Surface
 		return str;
 	}
 
-	[CF_EventSubscriber(CF_Surface._GetAllSurfaces, CF_LifecycleEvents.OnMissionCreate)]
+	//[CF_EventSubscriber(CF_Surface._GetAllSurfaces, CF_LifecycleEvents.OnMissionCreate)]
 	static void _GetAllSurfaces()
 	{
 		string path = "cfgSurfaces";

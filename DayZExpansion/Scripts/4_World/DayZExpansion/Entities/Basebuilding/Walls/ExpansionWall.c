@@ -330,6 +330,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override bool IsPlayerInside( PlayerBase player, string selection )
 	{
+		if ( !IsLastStage() )
+			return true;
+
 		//! This is an almost verbatim copy of vanilla fence code, EXCEPT...
 		vector player_pos = player.GetPosition();
 		vector fence_pos = GetPosition();
@@ -339,7 +342,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		 
 		vector x[2];
 		vector b1,b2;
-		ExpansionGetCollisionBox(x);  //! <-- ...EXCEPT this
+		ExpansionGetCollisionBox(x);  //! <-- ...EXCEPT this...
 		b1 = x[0];
 		b2 = x[1];
 
@@ -361,7 +364,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		}
 		else
 		{
-			return true;
+			return player_pos[1] <= fence_pos[1] + 3;  //! <-- ...and this (i.e. don't allow dismantling from above)
 		}
 	}
 

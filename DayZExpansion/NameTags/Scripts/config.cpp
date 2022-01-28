@@ -16,7 +16,6 @@ class CfgMods
 	{
 		dir = "DayZExpansion/NameTags";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
-		inputs = "DayZExpansion/NameTags/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
 		name = "$STR_MOD_EXPANSION_NAME";

@@ -91,7 +91,8 @@ modded class ActionDeployObject
 		string title;
 		string text;
 
-		if ( GetExpansionSettings().GetBaseBuilding().Zones.Count() )
+		//! @note zones are not sent to client (intentional)
+		if ( GetGame().IsServer() && GetExpansionSettings().GetBaseBuilding().Zones.Count() )
 		{
 			ExpansionBuildNoBuildZone zone = player.GetBuildNoBuildZone();
 
@@ -165,8 +166,9 @@ modded class ActionDeployObject
 				{
 					isDisallowedInEnemyTerritory = !CanDeployInTerritory( player, item );
 				}
-				else
+				else if (GetGame().IsServer())
 				{
+					//! @note deployables are not sent to client (intentional)
 					isDisallowedOutsideTerritory = !GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory;
 					foreach (string deployable: GetExpansionSettings().GetBaseBuilding().DeployableOutsideATerritory)
 					{
@@ -212,16 +214,17 @@ modded class ActionDeployObject
 			return true;
 		}
 
-		ExpansionNotification("STR_EXPANSION_BUILD_ZONE_REQUIRED_TITLE", text).Error(player.GetIdentity());
+		ExpansionNotification(title, text).Error(player.GetIdentity());
 
 		return false;
 	}
 
 	static bool CanDeployInTerritory( PlayerBase player, ItemBase item )
 	{
-		if ( player.IsInsideOwnTerritory() )
+		if ( !GetGame().IsServer() || player.IsInsideOwnTerritory() )
 			return true;
 
+		//! @note deployables are not sent to client (intentional)
 		foreach (string deployable: GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory)
 		{
 			if ( ( item.CanMakeGardenplot() && deployable == "GardenPlot" ) || item.IsKindOf( deployable ) )

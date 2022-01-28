@@ -16,7 +16,6 @@ class CfgMods
 	{
 		dir = "DayZExpansion/Missions";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
-		inputs = "DayZExpansion/Missions/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
 		name = "$STR_MOD_EXPANSION_NAME";

@@ -20,6 +20,7 @@ class ExpansionActionConvertFloorCB : ActionContinuousBaseCB
 
 class ExpansionActionConvertFloor : ActionContinuousBase
 {
+	//! Set and use this on client only!
 	ExpansionFloorBase m_ExpansionFloor;
 
 	void ExpansionActionConvertFloor()
@@ -53,9 +54,12 @@ class ExpansionActionConvertFloor : ActionContinuousBase
 		if ( player.IsInTerritory() && !player.IsInsideOwnTerritory() )
 			return false;
 
-		m_ExpansionFloor = ExpansionFloorBase.Cast( target.GetObject() );
+		ExpansionFloorBase floor = ExpansionFloorBase.Cast( target.GetObject() );
 
-		if ( !m_ExpansionFloor || !m_ExpansionFloor.IsPlayerInside( player, "" ) )
+		if (!GetGame().IsDedicatedServer())
+			m_ExpansionFloor = floor;
+
+		if ( !floor || !floor.IsLastStage() || !floor.IsPlayerInside( player, "" ) )
 			return false;
 
 		return true;
@@ -63,10 +67,11 @@ class ExpansionActionConvertFloor : ActionContinuousBase
 
 	override void OnFinishProgressServer( ActionData action_data )
 	{
-		if ( !m_ExpansionFloor )
+		ExpansionFloorBase floor = ExpansionFloorBase.Cast( action_data.m_Target.GetObject() );
+		if ( !floor )
 			return;
 
-		m_ExpansionFloor.SetRoof( !m_ExpansionFloor.IsRoof() );
+		floor.SetRoof( !floor.IsRoof() );
 
 		action_data.m_MainItem.DecreaseHealth( 1 / 100 * action_data.m_MainItem.GetMaxHealth( "", "Health" ), false );  //! 1%
 		action_data.m_Player.GetSoftSkillsManager().AddSpecialty( m_SpecialtyWeight );
