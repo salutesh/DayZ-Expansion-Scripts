@@ -373,7 +373,6 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		DeployableOutsideATerritory.Insert("ExpansionSatchel");
 		DeployableOutsideATerritory.Insert("Fireplace");
 		DeployableOutsideATerritory.Insert("TerritoryFlagKit");
-		DeployableOutsideATerritory.Insert("TerritoryFlag");
 		DeployableOutsideATerritory.Insert("MediumTent");
 		DeployableOutsideATerritory.Insert("LargeTent");
 		DeployableOutsideATerritory.Insert("CarTent");
@@ -381,11 +380,17 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		DeployableOutsideATerritory.Insert("ExpansionCamoTentKit");
 		DeployableOutsideATerritory.Insert("ExpansionCamoBoxKit");
 		DeployableOutsideATerritory.Insert("ShelterKit");
+		DeployableOutsideATerritory.Insert("LandMineTrap");
 		DeployableOutsideATerritory.Insert("BearTrap");
+		DeployableOutsideATerritory.Insert("FishNetTrap");
+		DeployableOutsideATerritory.Insert("RabbitSnareTrap");
+		DeployableOutsideATerritory.Insert("SmallFishTrap");
+		DeployableOutsideATerritory.Insert("TripwireTrap");
 		DeployableOutsideATerritory.Insert("ExpansionSafeLarge");
 		DeployableOutsideATerritory.Insert("ExpansionSafeMedium");
 		DeployableOutsideATerritory.Insert("ExpansionSafeSmall");
 		DeployableOutsideATerritory.Insert("SeaChest");
+		DeployableOutsideATerritory.Insert("WoodenCrate");
 		DeployableOutsideATerritory.Insert("GardenPlot");
 		
 		DeployableInsideAEnemyTerritory.Insert("ExpansionSatchel");

@@ -121,6 +121,13 @@ class ExpansionGame
 	// ------------------------------------------------------------
 	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
+		if ( rpc_type == ExpansionRPC.CreateNotification )
+		{
+			NotificationSystem.RPC_ExpansionCreateNotification( sender, target, ctx );
+
+			return true;
+		}
+
 		return false;
 	}
 
