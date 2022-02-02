@@ -238,6 +238,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{
 		//! Return if game is not yet ready to show spawn menu
 
+		if ( GetDayZGame().IsLoading() )
+			return;
+
 		if ( GetGame().GetUIManager().GetMenu() != NULL )
 			return;
 

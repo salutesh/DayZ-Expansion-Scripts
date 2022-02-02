@@ -26,7 +26,6 @@ modded class PlayerBase
 	protected bool m_SafeZone;
 	protected bool m_SafeZoneSynchRemote;
 	protected bool m_LeavingSafeZone;
-	protected bool m_WasDamageAllowedBeforeEnteringSZ;
 
 	#ifdef ENFUSION_AI_PROJECT
 	private autoptr eAIFaction m_eAI_Faction_NotInSafeZone;
@@ -430,20 +429,7 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = true;
 
-		//! Check for godmode
-		float health = GetHealth();
-		if (health > 99)
-			SetHealth(health - 1);
-		else
-			SetHealth(health + 1);
-
-		m_WasDamageAllowedBeforeEnteringSZ = GetHealth() != health;
-
-		if (m_WasDamageAllowedBeforeEnteringSZ)
-		{
-			SetHealth(health);
-			SetAllowDamage(false);
-		}
+		SetAllowDamage(false);
 		
 		if ( GetIdentity() )
 		{
@@ -515,9 +501,7 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = false;
 
-		if (m_WasDamageAllowedBeforeEnteringSZ)
-			SetAllowDamage(true);
-
+		SetAllowDamage(true);
 		SetCanRaise(true);
 	
 		if ( GetIdentity() )
