@@ -26,6 +26,7 @@ modded class PlayerBase
 	protected bool m_SafeZone;
 	protected bool m_SafeZoneSynchRemote;
 	protected bool m_LeavingSafeZone;
+	protected bool m_WasDamageAllowedBeforeEnteringSZ;
 
 	#ifdef ENFUSION_AI_PROJECT
 	private autoptr eAIFaction m_eAI_Faction_NotInSafeZone;
@@ -182,16 +183,21 @@ modded class PlayerBase
 	// PlayerBase AddPlayer
 	// Only called server side, to get only alive players
 	// ------------------------------------------------------------
-	static void AddPlayer( PlayerBase player )
+	static void AddPlayer( PlayerBase player, PlayerIdentity identity )
 	{
 		if ( !player )
 			return;
 
-		if ( player.GetIdentity() )
+		if ( identity )
 		{
-			player.m_PlayerUID = player.GetIdentity().GetId();
-			player.m_PlayerSteam = player.GetIdentity().GetPlainId();
-			player.m_PlayerName = player.GetIdentity().GetName();
+			player.m_PlayerUID = identity.GetId();
+			player.m_PlayerSteam = identity.GetPlainId();
+			player.m_PlayerName = identity.GetName();
+		}
+		else
+		{
+			//! Leave the EXPrint in here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
+			EXPrint("WARNING: Player without identity cannot be added! " + player);
 		}
 
 		if ( player.m_PlayerUID != "" )
@@ -424,7 +430,20 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = true;
 
-		SetAllowDamage(false);
+		//! Check for godmode
+		float health = GetHealth();
+		if (health > 99)
+			SetHealth(health - 1);
+		else
+			SetHealth(health + 1);
+
+		m_WasDamageAllowedBeforeEnteringSZ = GetHealth() != health;
+
+		if (m_WasDamageAllowedBeforeEnteringSZ)
+		{
+			SetHealth(health);
+			SetAllowDamage(false);
+		}
 		
 		if ( GetIdentity() )
 		{
@@ -496,7 +515,9 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = false;
 
-		SetAllowDamage(true);
+		if (m_WasDamageAllowedBeforeEnteringSZ)
+			SetAllowDamage(true);
+
 		SetCanRaise(true);
 	
 		if ( GetIdentity() )

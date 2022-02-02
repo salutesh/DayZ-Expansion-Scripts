@@ -100,7 +100,7 @@ class ExpansionItemSpawnHelper
 			remainingAmount--;
 
 			if (magFillAmmo)
-				mag.ServerSetAmmoCount(mag.GetAmmoMax() * quantityPercent / 100);
+				mag.ServerSetAmmoCount(Math.Round(mag.GetAmmoMax() * quantityPercent / 100));
 			else
 				mag.ServerSetAmmoCount(0);
 

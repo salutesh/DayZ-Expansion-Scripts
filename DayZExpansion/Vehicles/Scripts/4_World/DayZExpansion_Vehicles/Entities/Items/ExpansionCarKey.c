@@ -122,6 +122,28 @@ class ExpansionCarKey extends ItemBase
 		#endif
 	}
 	
+	override void OnInventoryEnter(Man player)
+	{
+		super.OnInventoryEnter(player);
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+		{
+			pb.SetHasCarKey(this, true);
+		}
+	}
+	
+	override void OnInventoryExit(Man player)
+	{
+		super.OnInventoryExit(player);
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+		{
+			pb.SetHasCarKey(this, false);
+		}
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCarKey GetMasterUses
 	// ------------------------------------------------------------

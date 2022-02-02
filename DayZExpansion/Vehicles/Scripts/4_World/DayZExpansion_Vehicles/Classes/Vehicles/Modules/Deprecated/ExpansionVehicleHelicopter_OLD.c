@@ -94,10 +94,15 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	Particle m_DustParticle;
 	Particle m_WaterParticle;
 
+	float m_ForcePilotSyncIntervalSeconds;
+	float m_ForcePilotSyncTick;
+
 	void ExpansionVehicleHelicopter_OLD(EntityAI pVehicle)
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
+
+		m_ForcePilotSyncIntervalSeconds = GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds;
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()
@@ -358,6 +363,13 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			c_left += input.SyncedValue_ID(UAAimLeft) * m_MouseHorzSens;
 			c_right += input.SyncedValue_ID(UAAimRight) * m_MouseHorzSens;
+		}
+		
+		if (IsAutoHover() && pDriver && !GetGame().IsDedicatedServer() && GetExpansionClientSettings().TurnOffAutoHoverDuringFlight)
+		{
+			//! Automatically deactivate autohover if forward/backward/left/right input is detected (20% sensitivity)
+			if (c_forward > 0.2 || c_backward > 0.2 || c_right > 0.2 || c_left > 0.2)
+				SwitchAutoHover();
 		}
 
 		m_BackRotorSpeedTarget = at_left - at_right;
@@ -964,6 +976,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		if (!m_EnableWind)
 			m_WindSpeedSync = "0 0 0";
+
+		if (!GetGame().IsDedicatedServer() || !m_ForcePilotSyncIntervalSeconds)
+			return;
+
+		m_ForcePilotSyncTick += 0.025;
+		if (m_ForcePilotSyncTick > m_ForcePilotSyncIntervalSeconds)
+		{
+			m_ForcePilotSyncTick = 0;
+			dBodyDynamic(m_Vehicle, false);
+			m_Vehicle.SetPosition(m_Vehicle.GetPosition());
+			m_Vehicle.SetOrientation(m_Vehicle.GetOrientation());
+			dBodyDynamic(m_Vehicle, true);
+			m_Vehicle.SetSynchDirty();
+		}
 	}
 
 	bool IsAutoHover()

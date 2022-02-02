@@ -135,7 +135,11 @@ modded class MissionServer
 	{
 		GetExpansionSettings().Send( identity );
 		
-		PlayerBase.AddPlayer( player );
+		//! Leave this here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
+		if ( !player.GetIdentity() )
+			EXPrint("WARNING: Player without identity connecting! " + player + " " + identity);
+
+		PlayerBase.AddPlayer( player, identity );
 		
 		//! Do after, because some modules use PlayerIdentity setup inside AddPlayer of PlayerBase class
 		super.InvokeOnConnect( player, identity );

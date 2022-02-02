@@ -63,6 +63,8 @@ static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0
 
 class ExpansionStatic
 {
+	static const string BASE16 = "0123456789ABCDEF";
+
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
@@ -284,6 +286,65 @@ class ExpansionStatic
 		return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
 	}
 
+	//! TODO: Maybe use CF_Byte after next CF update?
+	static TIntArray IntToByteArray(int n)
+	{
+		TIntArray bytes();
+
+		for (int i = 0; i < 4; i++)
+			bytes.Insert((n >> (24 - i * 8)) & 255);
+
+		return bytes;
+	}
+
+	//! TODO: Maybe remove and use CF_Encoding::ToHex instead after next CF update?
+	static string ByteArrayToHex(TIntArray bytes)
+	{
+		string hex;
+
+		foreach (int byte: bytes)
+			hex += ByteToHex(byte);
+
+		return hex;
+	}
+
+	static int ByteArrayToInt(TIntArray bytes)
+	{
+		int n;
+
+		for (int i = 0; i < 4; i++)
+			n |= bytes[i] << (24 - i * 8);
+
+		return n;
+	}
+
+	//! TODO: Maybe remove and use CF_Byte::ToHex instead after next CF update?
+	static string ByteToHex(int byte)
+	{
+		return BASE16[(int) Math.Floor(byte / 16)] + BASE16[byte % 16];
+	}
+
+	static string IntToHex(int n)
+	{
+		return ByteArrayToHex(IntToByteArray(n));
+	}
+
+	static int HexToInt(string hex)
+	{
+		hex.ToUpper();
+
+		int n;
+
+		for (int i = 0; i < hex.Length(); i++)
+		{
+			//! Snatched from Dabs Framework
+			n += BASE16.IndexOf(hex[i]) * Math.Pow(16, Math.AbsInt(i - hex.Length() + 1));
+		}
+
+		return n;
+	}
+
+	//! TODO: These should be moved to ExpansionColor
 	// ------------------------------------------------------------
 	// Expansion RGBtoInt
 	// ------------------------------------------------------------

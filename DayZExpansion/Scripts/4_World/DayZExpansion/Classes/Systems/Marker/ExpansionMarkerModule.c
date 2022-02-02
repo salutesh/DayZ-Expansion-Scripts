@@ -540,32 +540,14 @@ class ExpansionMarkerModule: JMModuleBase
 			m_TimeAccumulator = 0;
 		}
 
-		array< int > removing = new array< int >();
-		//Print( m_3DMarkers.Count() );
-		for ( int i = 0; i < m_3DMarkers.Count(); ++i )
+		for ( int i = m_3DMarkers.Count() - 1; i >= 0; i-- )
 		{
-			if ( !m_3DMarkers[i] )
-				continue;
-
-			//! TODO: NULL Pointer with this condition
-			if ( !m_3DMarkers[i].Update( timeslice ) )
+			if ( !m_3DMarkers[i] || !m_3DMarkers[i].Update( timeslice ) )
 			{
-				//Print( "ExpansionMarkerModule::OnUpdate - Removing - " + m_3DMarkers[i] );
-
-				removing.Insert( i );
-			} else
-			{
-				//Print( "ExpansionMarkerModule::OnUpdate - Keeping - " + m_3DMarkers[i] );
-			}
-		}
-
-		for ( i = 0; i < removing.Count(); ++i )
-		{
-			Expansion3DMarker marker = m_3DMarkers[i];
-
-			m_3DMarkers.Remove( removing[i] );
-
-			delete marker;
+				Expansion3DMarker marker = m_3DMarkers[i];
+				m_3DMarkers.Remove(i);
+				delete marker;
+			} 
 		}
 	}
 	

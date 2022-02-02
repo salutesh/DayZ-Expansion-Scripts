@@ -96,6 +96,7 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 		// basic weapon states
 		// close-jammed | nobullet-bullet-fireout bullet | nomag-mag
 		// regexp: [CLJ][01F][01]
+#ifdef DAYZ_1_15
 		C00 = new CZ527_CLO_BU0_MA0(this, NULL, RBLAnimState.DEFAULT);
 		C10 = new CZ527_CLO_BU1_MA0(this, NULL, RBLAnimState.DEFAULT);
 		C01 = new CZ527_CLO_BU0_MA1(this, NULL, RBLAnimState.DEFAULT);
@@ -104,6 +105,17 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 		CF1 = new CZ527_CLO_BUF_MA1(this, NULL, RBLAnimState.DEFAULT);
 		JF0 = new CZ527_JAM_BU1_MA0(this, NULL, RBLAnimState.JAMMED);
 		JF1 = new CZ527_JAM_BU1_MA1(this, NULL, RBLAnimState.JAMMED);
+#else
+		C00 = new BAREM_CLO_BU0_MA0(this, NULL, RBLAnimState.DEFAULT);
+		C10 = new BAREM_CLO_BU1_MA0(this, NULL, RBLAnimState.DEFAULT);
+		C01 = new BAREM_CLO_BU0_MA1(this, NULL, RBLAnimState.DEFAULT);
+		C11 = new BAREM_CLO_BU1_MA1(this, NULL, RBLAnimState.DEFAULT);
+		CF0 = new BAREM_CLO_BUF_MA0(this, NULL, RBLAnimState.DEFAULT);
+		CF1 = new BAREM_CLO_BUF_MA1(this, NULL, RBLAnimState.DEFAULT);
+		JF0 = new BAREM_JAM_BU1_MA0(this, NULL, RBLAnimState.JAMMED);
+		JF1 = new BAREM_JAM_BU1_MA1(this, NULL, RBLAnimState.JAMMED);
+#endif
+		
 
 		// unstable (intermediate) states
 		WeaponStateBase Mech_C00 = new WeaponCharging(this, NULL, WeaponActions.MECHANISM, GetWeaponSpecificCommand(WeaponActions.MECHANISM, WeaponActionMechanismTypes.MECHANISM_CLOSED));

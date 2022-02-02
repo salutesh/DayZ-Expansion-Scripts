@@ -39,7 +39,7 @@ class ExpansionCodeLock extends ItemBase
 		UpdateVisuals();
 
 		ItemBase parent = ItemBase.Cast( GetHierarchyParent() );
-		if ( parent )
+		if ( parent && parent.ExpansionGetCodeLock() == this )
 		{
 			if ( GetGame().IsServer() && !HasCode() && parent.HasCode() )
 			{
@@ -59,6 +59,11 @@ class ExpansionCodeLock extends ItemBase
 				SetSlotLock( parent, true );
 				SetTakeable( false );
 			}
+		}
+		else if ( GetGame().IsServer() && HasCode() )
+		{
+			EXPrint(ToString() + "::DeferredInit - removing code from unattached " + ToString() + " " + GetPosition());
+			SetCode("");
 		}
 	}
 

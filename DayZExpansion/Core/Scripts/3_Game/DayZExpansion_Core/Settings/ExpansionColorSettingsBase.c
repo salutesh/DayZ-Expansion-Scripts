@@ -27,9 +27,20 @@ class ExpansionColorSettingsBase
 
 	void Set(string name, int color)
 	{
-		string hexcolor = ExpansionColor.ARGBToHex(color);
-		EnScript.SetClassVar(this, name, 0, hexcolor);
+		EnScript.SetClassVar(this, name, 0, ExpansionColor.ARGBToHex(color));
 
+		_Set(name, color);
+	}
+
+	void Set(string name, string color)
+	{
+		EnScript.SetClassVar(this, name, 0, color);
+
+		_Set(name, ExpansionColor.ToARGB(color));
+	}
+
+	void _Set(string name, int color)
+	{
 		if (m_Colors.Contains(name))
 			m_Colors.Set(name, color);
 		else
@@ -45,10 +56,10 @@ class ExpansionColorSettingsBase
 			if (type.GetVariableType(i) != string)
 				continue;
 
-			string hexcolor;
-			type.GetVariableValue(this, i, hexcolor);
+			string color;
+			type.GetVariableValue(this, i, color);
 			//! Network optimization: We send the color as int
-			ctx.Write(ExpansionColor.ToARGB(hexcolor));
+			ctx.Write(ExpansionColor.ToARGB(color));
 		}
 	}
 
@@ -65,6 +76,22 @@ class ExpansionColorSettingsBase
 			ctx.Read(color);
 			string name = type.GetVariableName(i);
 			Set(name, color);
+		}
+	}
+
+	void Update()
+	{
+		typename type = Type();
+		int count = type.GetVariableCount();
+		for (int i = 0; i < count; i++)
+		{
+			if (type.GetVariableType(i) != string)
+				continue;
+
+			string name = type.GetVariableName(i);
+			string color;
+			type.GetVariableValue(this, i, color);
+			_Set(name, ExpansionColor.ToARGB(color));
 		}
 	}
 }

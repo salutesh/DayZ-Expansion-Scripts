@@ -104,114 +104,117 @@ class ExpansionMarketMenuColors: ExpansionColorSettingsBase
 	string ColorCategoryCorners;
 	string ColorCategoryBackground;
 
-	void Update()
+	override void Update()
 	{
-		if (!BaseColorVignette)
+		super.Update();
+
+		//! Make sure none of the colors are zero (all transparent) and set defaults
+		if (!Get("BaseColorVignette"))
 			Set("BaseColorVignette", ARGB(200, 0, 0, 0));
 		
-		if (!BaseColorHeaders)
+		if (!Get("BaseColorHeaders"))
 			Set("BaseColorHeaders", ARGB(255, 19, 23, 27));								//! Expansion dark gray
 	
-		if (!BaseColorLabels)
+		if (!Get("BaseColorLabels"))
 			Set("BaseColorLabels", ARGB(255, 39, 39, 45));									//! Expansion bright gray 
 		
-		if (!BaseColorText)
+		if (!Get("BaseColorText"))
 			Set("BaseColorText", ARGB(255, 251, 252, 254));								//! Expansion white
 		
-		if (!BaseColorCheckboxes)
+		if (!Get("BaseColorCheckboxes"))
 			Set("BaseColorCheckboxes", ARGB(255, 251, 252, 254));						//! Expansion white
 		
-		if (!BaseColorInfoSectionBackground)
+		if (!Get("BaseColorInfoSectionBackground"))
 			Set("BaseColorInfoSectionBackground", ARGB(140, 34, 37, 38));			//! Expansion gray 
 		
-		if (!BaseColorTooltipsBackground)
+		if (!Get("BaseColorTooltipsBackground"))
 			Set("BaseColorTooltipsBackground", ARGB(220, 0, 0, 0));						//! Expansion bright gray
 		
-		if (!BaseColorTooltipsHeaders)
+		if (!Get("BaseColorTooltipsHeaders"))
 			Set("BaseColorTooltipsHeaders", ARGB(240, 0, 0, 0));							//! Expansion bright black 
 		
-		if (!ColorDecreaseQuantityButton)
+		if (!Get("ColorDecreaseQuantityButton"))
 			Set("ColorDecreaseQuantityButton", ARGB(20, 221, 38, 38));					//! Expansion red 3
 		
-		if (!ColorDecreaseQuantityIcon)
+		if (!Get("ColorDecreaseQuantityIcon"))
 			Set("ColorDecreaseQuantityIcon", ARGB(40, 221, 38, 38));					//! Expansion red 3
 		
-		if (!ColorSetQuantityButton)
+		if (!Get("ColorSetQuantityButton"))
 			Set("ColorSetQuantityButton", ARGB(20, 199, 38, 81)); 						//! Expansion red
 		
-		if (!ColorIncreaseQuantityButton)
+		if (!Get("ColorIncreaseQuantityButton"))
 			Set("ColorIncreaseQuantityButton", ARGB(20, 160, 204, 113));				//! Expansion green
 		
-		if (!ColorIncreaseQuantityIcon)
+		if (!Get("ColorIncreaseQuantityIcon"))
 			Set("ColorIncreaseQuantityIcon", ARGB(40, 160, 204, 113));					//! Expansion green
 		
-		if (!ColorSellPanel)
+		if (!Get("ColorSellPanel"))
 			Set("ColorSellPanel", ARGB(255, 39, 39, 45));										//! Expansion bright gray 
 		
-		if (!ColorSellButton)
+		if (!Get("ColorSellButton"))
 			Set("ColorSellButton", ARGB(40, 221, 38, 38));									//! Expansion red 3
 		
-		if (!ColorBuyPanel)
+		if (!Get("ColorBuyPanel"))
 			Set("ColorBuyPanel", ARGB(255, 39, 39, 45));										//! Expansion bright gray 
 		
-		if (!ColorBuyButton)
+		if (!Get("ColorBuyButton"))
 			Set("ColorBuyButton", ARGB(40, 160, 204, 113));									//! Expansion green
 		
-		if (!ColorMarketIcon)
+		if (!Get("ColorMarketIcon"))
 			Set("ColorMarketIcon", ARGB(140, 226, 65, 66));									//! Expansion red 2
 		
-		if (!ColorFilterOptionsButton)
+		if (!Get("ColorFilterOptionsButton"))
 			Set("ColorFilterOptionsButton", ARGB(140, 199, 38, 81));						//! Expansion red
 		
-		if (!ColorFilterOptionsIcon)
+		if (!Get("ColorFilterOptionsIcon"))
 			Set("ColorFilterOptionsIcon", ARGB(140, 199, 38, 81));							//! Expansion red
 		
-		if (!ColorSearchFilterButton)
+		if (!Get("ColorSearchFilterButton"))
 			Set("ColorSearchFilterButton", ARGB(140, 199, 38, 81));						//! Expansion red
 		
-		if (!ColorCategoryButton)	
+		if (!Get("ColorCategoryButton"))	
 			Set("ColorCategoryButton", ARGB(140, 199, 38, 81));							//! Expansion red
 		
-		if (!ColorCategoryCollapseIcon)
+		if (!Get("ColorCategoryCollapseIcon"))
 			Set("ColorCategoryCollapseIcon", ARGB(140, 199, 38, 81));					//! Expansion red
 		
-		if (!ColorCurrencyDenominationText)
+		if (!Get("ColorCurrencyDenominationText"))
 			Set("ColorCurrencyDenominationText", ARGB(255, 255, 180, 24));			//! Expansion yellow
 		
-		if (!ColorItemButton)
+		if (!Get("ColorItemButton"))
 			Set("ColorItemButton", ARGB(140, 199, 38, 81)); 								//! Expansion red
 		
-		if (!ColorItemInfoIcon)		
+		if (!Get("ColorItemInfoIcon"))		
 			Set("ColorItemInfoIcon", ARGB(255, 255, 180, 24));								//! Expansion yellow
 		
-		if (!ColorItemInfoTitle)
+		if (!Get("ColorItemInfoTitle"))
 			Set("ColorItemInfoTitle", ARGB(255, 255, 180, 24));								//! Expansion yellow
 		
-		if (!ColorItemInfoHasContainerItems)
+		if (!Get("ColorItemInfoHasContainerItems"))
 			Set("ColorItemInfoHasContainerItems", ARGB(255, 255, 180, 24));		//! Expansion yellow
 			
-		if (!ColorItemInfoHasAttachments)
+		if (!Get("ColorItemInfoHasAttachments"))
 			Set("ColorItemInfoHasAttachments", ARGB(255, 255, 180, 24));			//! Expansion yellow
 			
-		if (!ColorItemInfoHasBullets)
+		if (!Get("ColorItemInfoHasBullets"))
 			Set("ColorItemInfoHasBullets", ARGB(255, 255, 180, 24));						//! Expansion yellow
 			
-		if (!ColorItemInfoIsAttachment)	
+		if (!Get("ColorItemInfoIsAttachment"))	
 			Set("ColorItemInfoIsAttachment", ARGB(255, 255, 180, 24));				//! Expansion yellow
 			
-		if (!ColorItemInfoIsEquipped)	
+		if (!Get("ColorItemInfoIsEquipped"))	
 			Set("ColorItemInfoIsEquipped", ARGB(255, 255, 180, 24));					//! Expansion yellow
 			
-		if (!ColorItemInfoAttachments)
+		if (!Get("ColorItemInfoAttachments"))
 			Set("ColorItemInfoAttachments", ARGB(255, 255, 180, 24));					//! Expansion yellow
 
-		if (!ColorToggleCategoriesText)
+		if (!Get("ColorToggleCategoriesText"))
 			Set("ColorToggleCategoriesText", ARGB(140, 199, 38, 81));					//! Expansion red
 			
-		if (!ColorCategoryCorners)
+		if (!Get("ColorCategoryCorners"))
 			Set("ColorCategoryCorners", ARGB(255, 251, 252, 254));						//! Expansion white
 			
-		if (!ColorCategoryBackground)	
+		if (!Get("ColorCategoryBackground"))	
 			Set("ColorCategoryBackground", ARGB(255, 34, 37, 38));						//! Expansion gray 
 	}
 }

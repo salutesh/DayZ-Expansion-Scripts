@@ -1637,9 +1637,9 @@ class ExpansionMarketModule: JMModuleBase
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion Float GetPlayerWorth
+	// Expansion Int GetPlayerWorth
 	// ------------------------------------------------------------
-	int GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL)
+	int GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{
 		m_PlayerWorth = 0;
 
@@ -1673,6 +1673,10 @@ class ExpansionMarketModule: JMModuleBase
 				string type = money.GetType();
 				type.ToLower();
 
+				//! If we interact wit a ATM we skip all invalid currency types that are not in the main currency array of the market settings
+				if (isATM && GetExpansionSettings().GetMarket().Currencies.Find(type) == -1)
+					continue;
+				
 				//! Always include all money types the player has, even if trader would not accept
 				int idx = m_MoneyDenominations.Find(type);
 				monies[idx] = monies[idx] + money.GetQuantity();
@@ -1688,6 +1692,9 @@ class ExpansionMarketModule: JMModuleBase
 		return m_PlayerWorth;
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion Int GetPlayerWorth
+	// ------------------------------------------------------------
 	int GetPlayerWorth()
 	{
 		return m_PlayerWorth;

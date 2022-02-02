@@ -55,22 +55,7 @@ modded class ActionStartEngine
 					ExpansionCarKey key;
 					if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1)
 					{
-						//!TODO:This is really inefficient, enumerate on the client, send the item to the server and the
-						//!		server can just perform the check to see if it is apart of the same hierarchy
-						array<EntityAI> playerItems = new array<EntityAI>;
-						player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, playerItems);
-						for (int i = 0; i < playerItems.Count(); ++i)
-						{
-							if (!Class.CastTo(key, playerItems[i]))
-								continue;
-
-							if (!m_Car.IsCarKeys(key))
-								continue;
-
-							return true;
-						}
-
-						return false;
+						return player.HasKeyForCar(m_Car);
 					}
 					else if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 2)
 					{

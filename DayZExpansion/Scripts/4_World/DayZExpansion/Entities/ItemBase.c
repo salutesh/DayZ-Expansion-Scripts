@@ -230,7 +230,7 @@ modded class ItemBase
 	*/
 	bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		return false;
+		return !IsLocked() || IsKnownUser( player );
 	}
 
 	/**

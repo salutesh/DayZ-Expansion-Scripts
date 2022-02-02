@@ -32,6 +32,7 @@ class ExpansionClientSettings
 	float HelicopterMouseVerticalSensitivity;
 	float HelicopterMouseHorizontalSensitivity;
 	bool UsePlaneMouseControl;
+	bool TurnOffAutoHoverDuringFlight;
 
 	// Video
 	bool CastLightShadows;
@@ -73,6 +74,7 @@ class ExpansionClientSettings
 	float GreenColorHUDOnTopOfHeadOfPlayers;
 	float BlueColorHUDOnTopOfHeadOfPlayers;
 	float AlphaColorLookAtMinimum;
+	bool DefaultMarkerLockState;
 	
 	// Chat Settings
 	ExpansionClientUIChatSize HUDChatSize;
@@ -105,11 +107,11 @@ class ExpansionClientSettings
 		m_Categories = new array< ref ExpansionClientSettingCategory >;
 		
 		Init();
+		Defaults();
 
 		if ( !FileExist( EXPANSION_CLIENT_SETTINGS ) || !Load() )
 		{
 			Print( "Creating client settings." );
-			Defaults();
 			Save();
 		}
 		
@@ -438,6 +440,21 @@ class ExpansionClientSettings
 			return false;
 		}
 		
+		if ( version < 39 )
+			return true;
+		
+		if ( !ctx.Read( DefaultMarkerLockState ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DefaultMarkerLockState!");
+			return false;
+		}
+		
+		if ( !ctx.Read( TurnOffAutoHoverDuringFlight ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read TurnOffAutoHoverDuringFlight!");
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -545,6 +562,13 @@ class ExpansionClientSettings
 			return;
 			
 		ctx.Write( MarketMenuDisableSuccessNotifications );
+		
+		if ( version < 39 )
+			return;
+		
+		ctx.Write( DefaultMarkerLockState );
+			
+		ctx.Write( TurnOffAutoHoverDuringFlight );
 		
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::OnSave - End");
@@ -690,6 +714,9 @@ class ExpansionClientSettings
 		MarketMenuFilterSellableState = false;
 		MarketMenuDisableSuccessNotifications = false;
 		
+		DefaultMarkerLockState = false;
+		TurnOffAutoHoverDuringFlight = true;
+				
 		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
 		EXLogPrint("ExpansionClientSettings::Defaults - End");
 		#endif
@@ -724,13 +751,15 @@ class ExpansionClientSettings
 		
 		//! Option to toggle view of all personal 2D Map-Markers
 		CreateToggle( "Show2DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS_DESC" );
-		//! Option to toggle view of all 2D Party Player-Markers
+		//! Option to toggle view of all 2D party Player-Markers
 		CreateToggle( "Show2DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPLAYERMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPLAYERMARKERS_DESC" );
-		//! Option to toggle view of all 2D Party Map-Markers
+		//! Option to toggle view of all 2D party Map-Markers
 		CreateToggle( "Show2DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DPARTYMARKERS_DESC" );
-		//! Option to toggle view of all 2D Global Server-Markers
+		//! Option to toggle view of all 2D global Server-Markers
 		CreateToggle( "Show2DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS_DESC" );
-	
+		//! Option to set default marker lock state for new created map markers.
+		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
+		
 		CreateCategory( "Notifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS" );
 
 		//! Option to toggle notification sounds
@@ -793,6 +822,7 @@ class ExpansionClientSettings
 		CreateToggle( "UseHelicopterMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_CONTROL_DESC" );
 		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0 );
 		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0 );
+		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
 		
 		//! Option to change vehicle camera height
 		CreateSlider( "VehicleCameraHeight", "VEHICLE CAMERA HEIGHT", "VEHICLE CAMERA HEIGHT", "", 0.5, 10.0 );

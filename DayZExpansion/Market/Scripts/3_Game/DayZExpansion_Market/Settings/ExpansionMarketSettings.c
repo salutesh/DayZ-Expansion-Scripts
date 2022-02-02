@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
@@ -87,6 +87,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	autoptr array<ref ExpansionMarketSpawnPosition> WaterSpawnPositions;
 
 	ref ExpansionMarketMenuColors MarketMenuColors;
+	
+	autoptr TStringArray Currencies;
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -113,6 +115,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		m_TraderZones = new array<ref ExpansionMarketTraderZone>;	
 		m_Traders = new array<ref ExpansionMarketTrader>;
 
+		Currencies = new TStringArray;
+		
 		//! Ammo boxes and corresponding ammo are only needed on client
 		if (!GetGame().IsDedicatedServer() && !s_MarketAmmoBoxes.Count())
 		{
@@ -274,6 +278,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Read(s.MaxVehicleDistanceToTrader);
 		ctx.Read(s.MaxLargeVehicleDistanceToTrader);
 		ctx.Read(s.LargeVehicles);
+		ctx.Read(s.Currencies);
 
 		s.MarketMenuColors.OnReceive(ctx);
 
@@ -308,6 +313,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Write(MaxVehicleDistanceToTrader);
 		ctx.Write(MaxLargeVehicleDistanceToTrader);
 		ctx.Write(LargeVehicles);
+		ctx.Write(Currencies);
 		//! Do not send vehicle spawn positions (only used on server)
 
 		MarketMenuColors.OnSend(ctx);
@@ -361,6 +367,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		MaxLargeVehicleDistanceToTrader = s.MaxLargeVehicleDistanceToTrader;
 		
 		LargeVehicles.Copy(s.LargeVehicles);
+		
+		Currencies.Copy(s.Currencies);
 
 		int i;
 		ExpansionMarketSpawnPosition position;
@@ -492,6 +500,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ATMPartyLockerEnabled = true;
 		MaxPartyDepositMoney = 100000;
 		UseWholeMapForATMPlayerList = false;
+		
+		Currencies.Insert("expansiongoldbar");
+		Currencies.Insert("expansiongoldnugget");
+		Currencies.Insert("expansionsilverbar");
+		Currencies.Insert("expansionsilvernugget");
 	}
 
 	// ------------------------------------------------------------
@@ -992,9 +1005,12 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 					MarketMenuColors.BaseColorTooltipsHeaders = settingsDefault.MarketMenuColors.BaseColorTooltipsHeaders;
 				}
 				
+				if (settingsBase.m_Version < 9)
+				{
+					Currencies.Copy(settingsDefault.Currencies);
+				}
+				
 				CopyInternal(settingsBase);
-
-				MarketMenuColors.Update();
 
 				m_Version = VERSION;
 				save = true;
@@ -1003,6 +1019,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			{
 				JsonFileLoader<ExpansionMarketSettings>.JsonLoadFile(EXPANSION_MARKET_SETTINGS, this);
 			}
+
+			MarketMenuColors.Update();
 
 			if (NetworkCategories.Count() > 0)
 			{

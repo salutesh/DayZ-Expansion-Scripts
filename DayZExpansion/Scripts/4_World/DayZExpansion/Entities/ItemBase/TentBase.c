@@ -210,11 +210,6 @@ modded class TentBase
 		return !m_IsOpened && ( !IsLocked() || IsKnownUser( player ) );
 	}
 
-	override ExpansionCodeLock ExpansionGetCodeLock()
-	{
-		return ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_ExpansionCodeLock" ));
-	}
-
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
 		#ifdef CF_MODSTORAGE

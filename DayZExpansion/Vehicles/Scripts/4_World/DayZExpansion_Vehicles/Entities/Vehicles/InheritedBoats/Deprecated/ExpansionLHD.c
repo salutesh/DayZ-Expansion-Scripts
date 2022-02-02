@@ -213,11 +213,11 @@ class ExpansionLHD: ExpansionZodiacBoat
 
 class bldr_expansion_lhd extends BuildingSuper
 {
-	ref array< ref Particle > m_Particles;
+	ref array< Particle > m_Particles;
 
 	void bldr_expansion_lhd()
 	{
-		m_Particles = new array< ref Particle >;
+		m_Particles = new array< Particle >;
 
 		if ( IsMissionClient() )
 		{
