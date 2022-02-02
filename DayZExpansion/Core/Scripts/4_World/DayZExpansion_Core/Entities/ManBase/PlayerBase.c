@@ -389,6 +389,18 @@ modded class PlayerBase
 		#endif
 	}
 
+	bool Expansion_HasAdminToolGodMode()
+	{
+		bool godMode;
+#ifdef JM_COT
+		godMode |= COTHasGodMode();
+#endif
+#ifdef VPPADMINTOOLS
+		godMode |= GodModeStatus();
+#endif
+		return godMode;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase OnEnterSafeZone, server + client
 	// ------------------------------------------------------------
@@ -429,7 +441,8 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = true;
 
-		SetAllowDamage(false);
+		if (!Expansion_HasAdminToolGodMode())
+			SetAllowDamage(false);
 		
 		if ( GetIdentity() )
 		{
@@ -501,7 +514,9 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = false;
 
-		SetAllowDamage(true);
+		if (!Expansion_HasAdminToolGodMode())
+			SetAllowDamage(true);
+
 		SetCanRaise(true);
 	
 		if ( GetIdentity() )
