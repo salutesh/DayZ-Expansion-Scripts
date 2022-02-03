@@ -122,7 +122,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		array<int> monies = new array<int>;
 		m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
-		m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies);		
+		m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, NULL, true);		
 		m_ATMMenuController.PlayerMoneyValue = m_PlayerMoney.ToString();
 		m_ATMMenuController.NotifyPropertyChanged("PlayerMoneyValue");
 		monies.Clear();
@@ -187,7 +187,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		{
 			array<int> monies = new array<int>;
 			m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
-			m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies);
+			m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, NULL, true);
 		}
 
 		m_ATMMenuController.PlayerMoneyValue = m_PlayerMoney.ToString();

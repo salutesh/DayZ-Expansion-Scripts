@@ -20,22 +20,24 @@ class ExpansionChatColors: ExpansionColorSettingsBase
 	string PartyChatColor;
 	string TransmitterChatColor;
 
-	void Update()
+	override void Update()
 	{
-		//! Make sure none of the colors are zero (all transparent)
-		if (!SystemChatColor)
+		super.Update();
+
+		//! Make sure none of the colors are zero (all transparent) and set defaults
+		if (!Get("SystemChatColor"))
 			Set("SystemChatColor", ARGB(255, 186, 69, 186));
-		if (!AdminChatColor)
+		if (!Get("AdminChatColor"))
 			Set("AdminChatColor", ARGB(255, 192, 57, 43));
-		if (!GlobalChatColor)
+		if (!Get("GlobalChatColor"))
 			Set("GlobalChatColor", ARGB(255, 88, 195, 247));
-		if (!DirectChatColor)
+		if (!Get("DirectChatColor"))
 			Set("DirectChatColor", ARGB(255, 255, 255, 255));
-		if (!TransportChatColor)
+		if (!Get("TransportChatColor"))
 			Set("TransportChatColor", ARGB(255, 255, 206, 9));
-		if (!PartyChatColor)
+		if (!Get("PartyChatColor"))
 			Set("PartyChatColor", ARGB(255, 10, 250, 122));
-		if (!TransmitterChatColor)
+		if (!Get("TransmitterChatColor"))
 			Set("TransmitterChatColor", ARGB(255, 249, 255, 73));
 	}
 }

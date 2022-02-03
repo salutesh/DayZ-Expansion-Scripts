@@ -28,6 +28,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 	private float m_OriginalHeight;
 
 	private ExpansionMarkerModule m_MarkerModule;
+	private ExpansionPartyModule m_PartyModule;
 	
 	private string m_LayoutPath;
 	
@@ -54,6 +55,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		SetMarkerData( data );
 
 		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		Class.CastTo( m_PartyModule, GetModuleManager().GetModule( ExpansionPartyModule ) );
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshAlphaMinColor );
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingChanged );
@@ -103,6 +105,12 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 	{
 		if ( !m_LayoutRoot || !m_MarkerData )
 			return false;
+
+		if ( m_MarkerData.GetType() == ExpansionMapMarkerType.PARTY || m_MarkerData.GetType() == ExpansionMapMarkerType.PLAYER )
+		{
+			if ( !m_PartyModule.HasParty() )
+				return false;
+		}
 
 		if ( m_MarkerData.GetType() != ExpansionMapMarkerType.PARTY_QUICK )
 		{

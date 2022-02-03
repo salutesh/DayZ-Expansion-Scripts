@@ -12,36 +12,18 @@
 
 class ExpansionColor
 {
-	static const ref TStringArray HEX_BYTES = {
-		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"
-	};
-
 	//! DayZ ARGB int to RRGGBBAA hex color string
 	static string ARGBToHex(int color)
 	{
-		int a, r, g, b;
+		TIntArray argb = ExpansionStatic.IntToByteArray(color);
 
-		a = color >> 24;
-		if (a < 0)
-			a += 256;
-		r = (color & 0x00ff0000) >> 16;
-		g = (color & 0x0000ff00) >> 8;
-		b = (color & 0x000000ff);
-
-		return ARGBToHex(a, r, g, b);
+		return ARGBToHex(argb[0], argb[1], argb[2], argb[3]);
 	}
 
 	//! ARGB to RRGGBBAA hex color string
 	static string ARGBToHex(int a, int r, int g, int b)
 	{
-		string hexcolor;
-
-		hexcolor += IntToHex(r);
-		hexcolor += IntToHex(g);
-		hexcolor += IntToHex(b);
-		hexcolor += IntToHex(a);
-
-		return hexcolor;
+		return ExpansionStatic.ByteArrayToHex({r, g, b, a});
 	}
 
 	//! RGB, RGBA, RRGGBB or RRGGBBAA hex color string to DayZ ARGB color int
@@ -69,45 +51,10 @@ class ExpansionColor
 
 		for (int i = 0; i < hex.Length() / 2; i++)
 		{
-			color[i] = HexToInt(hex.Substring(i * 2, 2));
+			color[i] = ExpansionStatic.HexToInt(hex.Substring(i * 2, 2));
 		}
 
 		return ARGB(color[3], color[0], color[1], color[2]);
-	}
-
-	static int HexToInt(string hex)
-	{
-		hex.ToUpper();
-
-		int n;
-
-		for (int i = 0; i < hex.Length(); i++)
-		{
-			//! Snatched from Dabs Framework
-			n += HEX_BYTES.Find(hex[i]) * Math.Pow(16, Math.AbsInt(i - hex.Length() + 1));
-		}
-
-		return n;
-	}
-
-	static string IntToHex(int n, int mod = 2)
-	{
-		string hex;
-
-		while (true)
-		{
-			hex = HEX_BYTES[n % 16] + hex;
-			n /= 16;
-			if (n <= 0)
-				break;
-		}
-
-		while (hex.Length() % mod)
-		{
-			hex = "0" + hex;
-		}
-
-		return hex;
 	}
 
 	static int ToARGB(string format)

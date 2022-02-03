@@ -473,7 +473,7 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_SAVE;
 #endif
 
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 38;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 39;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 38;  //! Also used for groups
 
 //! Game SaveVersion at which 1st step of converting over to ModStorage should happen 

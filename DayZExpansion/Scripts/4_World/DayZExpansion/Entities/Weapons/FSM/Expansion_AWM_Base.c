@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef DAYZ_1_15
 class Expansion_AWM_Base: BoltActionRifle_Base
 {
 	ref WeaponStateBase C00;
@@ -21,6 +22,10 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 	ref	WeaponStateBase JF0;
 	ref	WeaponStateBase JF1;
 		
+#else
+class Expansion_AWM_Base: BoltActionRifle_ExternalMagazine_Base
+{
+#endif
 	//Debug menu Spawn Ground Special
 	override void OnDebugSpawn()
 	{
@@ -49,6 +54,7 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 
 		return true;
 	}	
+
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
 		if  ( attachment.IsKindOf("ItemOptics") )
@@ -67,11 +73,13 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 		}	 
 		return super.CanReceiveAttachment(attachment, slotId);
 	}
+
 	override RecoilBase SpawnRecoilObject()
 	{
 		return new CZ527Recoil(this);
 	}
 	
+#ifdef DAYZ_1_15
 	override void InitStateMachine()
 	{
 		m_abilities.Insert(new AbilityRecord(WeaponActions.RELOAD, GetWeaponSpecificCommand(WeaponActions.RELOAD, WeaponActionReloadTypes.RELOADSRIFLE_MAGAZINE_BULLET)));
@@ -103,7 +111,7 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 		CF0 = new CZ527_CLO_BUF_MA0(this, NULL, RBLAnimState.DEFAULT);
 		CF1 = new CZ527_CLO_BUF_MA1(this, NULL, RBLAnimState.DEFAULT);
 		JF0 = new CZ527_JAM_BU1_MA0(this, NULL, RBLAnimState.JAMMED);
-		JF1 = new CZ527_JAM_BU1_MA1(this, NULL, RBLAnimState.JAMMED);
+		JF1 = new CZ527_JAM_BU1_MA1(this, NULL, RBLAnimState.JAMMED);		
 
 		// unstable (intermediate) states
 		WeaponStateBase Mech_C00 = new WeaponCharging(this, NULL, WeaponActions.MECHANISM, GetWeaponSpecificCommand(WeaponActions.MECHANISM, WeaponActionMechanismTypes.MECHANISM_CLOSED));
@@ -377,4 +385,5 @@ class Expansion_AWM_Base: BoltActionRifle_Base
 		AddAction(FirearmActionDetachMagazine);
 		//AddAction(ActionAdvancedDetachMagazine);
 	}
-}
+#endif
+};

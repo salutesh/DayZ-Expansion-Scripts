@@ -182,16 +182,21 @@ modded class PlayerBase
 	// PlayerBase AddPlayer
 	// Only called server side, to get only alive players
 	// ------------------------------------------------------------
-	static void AddPlayer( PlayerBase player )
+	static void AddPlayer( PlayerBase player, PlayerIdentity identity )
 	{
 		if ( !player )
 			return;
 
-		if ( player.GetIdentity() )
+		if ( identity )
 		{
-			player.m_PlayerUID = player.GetIdentity().GetId();
-			player.m_PlayerSteam = player.GetIdentity().GetPlainId();
-			player.m_PlayerName = player.GetIdentity().GetName();
+			player.m_PlayerUID = identity.GetId();
+			player.m_PlayerSteam = identity.GetPlainId();
+			player.m_PlayerName = identity.GetName();
+		}
+		else
+		{
+			//! Leave the EXPrint in here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
+			EXPrint("WARNING: Player without identity cannot be added! " + player);
 		}
 
 		if ( player.m_PlayerUID != "" )
@@ -384,11 +389,29 @@ modded class PlayerBase
 		#endif
 	}
 
+	bool Expansion_HasAdminToolGodMode()
+	{
+		bool godMode;
+#ifdef JM_COT
+		godMode |= COTHasGodMode();
+#endif
+#ifdef VPPADMINTOOLS
+		godMode |= GodModeStatus();
+#endif
+		return godMode;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase OnEnterSafeZone, server + client
 	// ------------------------------------------------------------
 	void OnEnterSafeZone()
 	{
+		//! Avoid exploit where you are just outside safezone, get shot uncon, fall backwards into safezone,
+		//! then disconnect and reconnect to dupe your character
+		//! (your other unconscious body will still be on the ground inside safezone due to having gained godmode from it)
+		if (IsUnconscious())
+			return;
+
 		EXPrint(ToString() + "::OnEnterSafeZone");
 		Print(m_LeavingSafeZone);
 		Print(m_SafeZone);
@@ -424,7 +447,8 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = true;
 
-		SetAllowDamage(false);
+		if (!Expansion_HasAdminToolGodMode())
+			SetAllowDamage(false);
 		
 		if ( GetIdentity() )
 		{
@@ -496,7 +520,9 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = false;
 
-		SetAllowDamage(true);
+		if (!Expansion_HasAdminToolGodMode())
+			SetAllowDamage(true);
+
 		SetCanRaise(true);
 	
 		if ( GetIdentity() )

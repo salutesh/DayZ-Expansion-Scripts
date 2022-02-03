@@ -674,6 +674,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			m_State3DContainer.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
 			m_State3DCheckbox.Show( GetExpansionSettings().GetMap().CanCreate3DMarker );
 			m_State3DCheckbox.SetChecked( false );
+			m_StateDragLockCheckbox.SetChecked(GetExpansionClientSettings().DefaultMarkerLockState);
 
 			m_LeftButton.SetText( "#STR_EXPANSION_MAP_MARKER_CANCEL_BUTTON_LABLE" );
 			m_RightButton.SetText( "#STR_EXPANSION_MAP_MARKER_CREATE_BUTTON_LABLE" );

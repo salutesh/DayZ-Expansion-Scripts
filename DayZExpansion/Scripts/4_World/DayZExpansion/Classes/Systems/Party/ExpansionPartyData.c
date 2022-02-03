@@ -160,6 +160,7 @@ class ExpansionPartyData
 		player.UID = uid;
 		player.Name = name;
 		player.OnJoin( pPb );
+		OnJoin( player );
 		player.CreateMarker();
 		player.ApplyPermissions(ExpansionPartyPlayerPermissions.NONE);
 		
@@ -260,6 +261,8 @@ class ExpansionPartyData
 		{
 			Players.RemoveItem( player );
 			PlayersMap.Remove( uid );
+			player.OnLeave();
+			OnLeave( player );
 			return true;
 		}
 

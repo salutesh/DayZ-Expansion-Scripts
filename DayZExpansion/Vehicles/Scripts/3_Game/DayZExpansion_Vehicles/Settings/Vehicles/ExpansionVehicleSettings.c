@@ -54,12 +54,13 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  **/
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
 	bool VehicleDropsRuinedDoors;
 	bool ExplodingVehicleDropsAttachments;
+	float ForcePilotSyncIntervalSeconds;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -207,6 +208,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		PlacePlayerOnGroundOnReconnectInVehicle = s.PlacePlayerOnGroundOnReconnectInVehicle;
 		RevvingOverMaxRPMRuinsEngineInstantly = s.RevvingOverMaxRPMRuinsEngineInstantly;
 
+		ForcePilotSyncIntervalSeconds = s.ForcePilotSyncIntervalSeconds;
+
 		VehiclesConfig.Clear();
 		for (int i = 0; i < s.VehiclesConfig.Count(); i++)
 		{
@@ -346,6 +349,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					ExplodingVehicleDropsAttachments = settingsDefault.ExplodingVehicleDropsAttachments;
 				}
 
+				if (settingsBase.m_Version < 8)
+					ForcePilotSyncIntervalSeconds = settingsDefault.ForcePilotSyncIntervalSeconds;
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -445,6 +451,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		RevvingOverMaxRPMRuinsEngineInstantly = false;
 		VehicleDropsRuinedDoors = true;
 		ExplodingVehicleDropsAttachments = true;
+
+		ForcePilotSyncIntervalSeconds = 1.0;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true));

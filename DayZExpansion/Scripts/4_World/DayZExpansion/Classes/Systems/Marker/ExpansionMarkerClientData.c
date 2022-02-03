@@ -594,10 +594,14 @@ class ExpansionMarkerClientData : Managed
 			if ( m_PartyModule && m_PartyModule.IsClientInitialized() )
 			{
 				//! Player was in party and has left party, clear party marker info
+				//! @note party marker info is *only* synched when changed, so *only* clear if party module is initialized!
 				m_MarkerInfo_Party.Clear();
-				m_MarkerInfo_PartyPlayers.Clear();
 			}
-			
+
+			//! Player was in party and has left party, clear player marker info
+			//! @note party player marker info is synched on each update, so it's ok to clear here
+			m_MarkerInfo_PartyPlayers.Clear();
+
 			return;
 		}
 

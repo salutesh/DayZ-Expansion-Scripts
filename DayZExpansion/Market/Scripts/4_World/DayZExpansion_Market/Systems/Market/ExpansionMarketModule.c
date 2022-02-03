@@ -1286,13 +1286,20 @@ class ExpansionMarketModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion SpawnMoney
 	// ------------------------------------------------------------
-	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, int amount, bool useExisingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
+	array<ItemBase> SpawnMoney(PlayerBase player, inout EntityAI parent, int amount, bool useExisingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{	
 		MarketModulePrint("SpawnMoney - Start");	
 		
 		array<ItemBase> monies = new array<ItemBase>;
 
 		array<ref array<ItemBase>> foundMoney;
+
+		TStringArray currencies;
+
+		if (trader)
+			currencies = trader.Currencies;
+		else if (isATM)
+			currencies = GetExpansionSettings().GetMarket().Currencies;
 
 		if (useExisingStacks)
 		{
@@ -1316,8 +1323,8 @@ class ExpansionMarketModule: JMModuleBase
 					string existingType = existingMoney.GetType();
 					existingType.ToLower();
 
-					//! Ignore currencies this trader does not accept
-					if (trader && trader.Currencies.Find(existingType) == -1)
+					//! Ignore currencies this trader/ATM does not accept
+					if (currencies && currencies.Find(existingType) == -1)
 						continue;
 
 					int idx = m_MoneyDenominations.Find(existingType);
@@ -1335,8 +1342,8 @@ class ExpansionMarketModule: JMModuleBase
 		{
 			string type = m_MoneyDenominations[currentDenomination];
 
-			//! Ignore currencies this trader does not accept
-			if (trader && trader.Currencies.Find(type) == -1)
+			//! Ignore currencies this trader/ATM does not accept
+			if (currencies && currencies.Find(type) == -1)
 				continue;
 
 			if (marketItem && GetItemCategory(marketItem).IsExchange() && currentDenomination < lastCurrencyIdx && type == marketItem.ClassName)
@@ -1426,9 +1433,9 @@ class ExpansionMarketModule: JMModuleBase
 	}
 	
 	// From Tyler so CallFunctionParams works
-	array<ItemBase> SpawnMoneyEx(PlayerBase player, inout EntityAI parent, int amount, bool useExistingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
+	array<ItemBase> SpawnMoneyEx(PlayerBase player, inout EntityAI parent, int amount, bool useExistingStacks = true, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{
-		return SpawnMoney(player, parent, amount, useExistingStacks, marketItem, trader);
+		return SpawnMoney(player, parent, amount, useExistingStacks, marketItem, trader, isATM);
 	}
 
 	// ------------------------------------------------------------
@@ -1438,7 +1445,7 @@ class ExpansionMarketModule: JMModuleBase
 	//! If player is given, use money in player inventory (if enough), otherwise use amounts that would be needed
 	//! Out array <monies> contains needed amounts for each money type to reach total <amount>
 	//! Note: Out array <monies> is always ordered from highest to lowest value currency
-	bool FindMoneyAndCountTypes(PlayerBase player, int amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
+	bool FindMoneyAndCountTypes(PlayerBase player, int amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{	
 		MarketModulePrint("FindMoneyAndCountTypes - player " + player + " - amount " + amount);
 
@@ -1465,6 +1472,13 @@ class ExpansionMarketModule: JMModuleBase
 			playerMonies.Insert(0);
 		}
 
+		TStringArray currencies;
+
+		if (trader)
+			currencies = trader.Currencies;
+		else if (isATM)
+			currencies = GetExpansionSettings().GetMarket().Currencies;
+
 		ItemBase money;
 		int playerWorth;
 
@@ -1480,8 +1494,8 @@ class ExpansionMarketModule: JMModuleBase
 					string type = money.GetType();
 					type.ToLower();
 
-					//! Ignore currencies this trader does not accept
-					if (trader && trader.Currencies.Find(type) == -1)
+					//! Ignore currencies this trader/ATM does not accept
+					if (currencies && currencies.Find(type) == -1)
 						continue;
 
 					int idx = m_MoneyDenominations.Find(type);
@@ -1504,8 +1518,8 @@ class ExpansionMarketModule: JMModuleBase
 
 		for (int j = 0; j < foundMoney.Count(); j++)
 		{
-			//! Ignore currencies this trader does not accept
-			if (!player && trader && trader.Currencies.Find(m_MoneyDenominations[j]) == -1)
+			//! Ignore currencies this trader/ATM does not accept
+			if (!player && currencies && currencies.Find(m_MoneyDenominations[j]) == -1)
 				continue;
 
 			if (marketItem && GetItemCategory(marketItem).IsExchange() && j < lastCurrencyIdx && m_MoneyDenominations[j] == marketItem.ClassName)
@@ -1574,8 +1588,8 @@ class ExpansionMarketModule: JMModuleBase
 		//! Find lowest value currency that would push us to or over the required amount
 		for (int i = foundMoney.Count() - 1; i >= 0; i--)
 		{
-			//! Ignore currencies this trader does not accept
-			if (!player && trader && trader.Currencies.Find(m_MoneyDenominations[i]) == -1)
+			//! Ignore currencies this trader/ATM does not accept
+			if (!player && currencies && currencies.Find(m_MoneyDenominations[i]) == -1)
 				continue;
 
 			if (marketItem && GetItemCategory(marketItem).IsExchange() && i < lastCurrencyIdx && m_MoneyDenominations[i] == marketItem.ClassName)
@@ -1631,15 +1645,15 @@ class ExpansionMarketModule: JMModuleBase
 	}
 
 	// Tyler requested, <3
-	bool FindMoneyAndCountTypesEx(PlayerBase player, int amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL)
+	bool FindMoneyAndCountTypesEx(PlayerBase player, int amount, out array<int> monies, bool reserve = false, ExpansionMarketItem marketItem = NULL, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{
-		return FindMoneyAndCountTypes(player, amount, monies, reserve, marketItem, trader);
+		return FindMoneyAndCountTypes(player, amount, monies, reserve, marketItem, trader, isATM);
 	}
 		
 	// ------------------------------------------------------------
-	// Expansion Float GetPlayerWorth
+	// Expansion Int GetPlayerWorth
 	// ------------------------------------------------------------
-	int GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL)
+	int GetPlayerWorth(PlayerBase player, out array<int> monies, ExpansionMarketTrader trader = NULL, bool isATM = false)
 	{
 		m_PlayerWorth = 0;
 
@@ -1662,6 +1676,13 @@ class ExpansionMarketModule: JMModuleBase
 			return m_PlayerWorth;
 		}
 
+		TStringArray currencies;
+
+		if (trader)
+			currencies = trader.Currencies;
+		else if (isATM)
+			currencies = GetExpansionSettings().GetMarket().Currencies;
+
 		array<EntityAI> items = new array<EntityAI>;
 	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
@@ -1672,13 +1693,13 @@ class ExpansionMarketModule: JMModuleBase
 			{
 				string type = money.GetType();
 				type.ToLower();
-
-				//! Always include all money types the player has, even if trader would not accept
+				
+				//! Always include all money types the player has, even if trader/ATM would not accept
 				int idx = m_MoneyDenominations.Find(type);
 				monies[idx] = monies[idx] + money.GetQuantity();
 
-				//! Do not include currencies this trader does not accept in player overall worth calc
-				if (trader && trader.Currencies.Find(type) == -1)
+				//! Do not include currencies this trader/ATM does not accept in player overall worth calc
+				if (currencies && currencies.Find(type) == -1)
 					continue;
 
 				m_PlayerWorth += GetMoneyPrice(type) * money.GetQuantity();
@@ -1688,6 +1709,9 @@ class ExpansionMarketModule: JMModuleBase
 		return m_PlayerWorth;
 	}
 	
+	// ------------------------------------------------------------
+	// Expansion Int GetPlayerWorth
+	// ------------------------------------------------------------
 	int GetPlayerWorth()
 	{
 		return m_PlayerWorth;
@@ -3802,7 +3826,7 @@ class ExpansionMarketModule: JMModuleBase
 		}
 		
 		array<int> monies = new array<int>;		
-		if (!FindMoneyAndCountTypes(player, amount, monies, true))
+		if (!FindMoneyAndCountTypes(player, amount, monies, true, NULL, NULL, true))
 		{
 			Error("ExpansionMarketModule::Exec_RequestDepositMoney - Could not find player money!");			
 			UnlockMoney(player);
@@ -3815,7 +3839,7 @@ class ExpansionMarketModule: JMModuleBase
 		int removed = RemoveMoney(player);
 		if (removed - amount > 0)
 		{
-		    SpawnMoney(player, parent, removed - amount);
+		    SpawnMoney(player, parent, removed - amount, true, NULL, NULL, true);
 
 			CheckSpawn(player, parent);
 		}
@@ -3965,7 +3989,7 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}	
 		
-		SpawnMoney(player, parent, amount);
+		SpawnMoney(player, parent, amount, true, NULL, NULL, true);
 
 		CheckSpawn(player, parent);
 		

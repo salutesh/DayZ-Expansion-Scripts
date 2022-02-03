@@ -36,7 +36,7 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 		ExpansionCarKey key;
 		
 		//! The intention is for vehicles to only be unlockable from outside if player has its key (or admin key) in hand,
-		//! and to ALWAYS be unlockable from inside (so player can't accidentally lock themself in)
+		//! and to be unlockable from inside if they can't get out otherwise (so player can't accidentally lock themself in)
 
 		if ( player.GetCommand_Vehicle() )
 		{
@@ -44,6 +44,19 @@ class ExpansionActionUnlockVehicle: ActionInteractBase
 				return false;
 
 			if ( !car.HasKey() )
+				return false;
+
+			int seat = car.CrewMemberIndex( player );
+			//! If it's an even number, also check n+1
+			//! If it's an uneven number, also check n-1
+			//! So if you sit on driver seat and driver door is closed, but codriver door is open or missing, you can't unlock from inside.
+			//! Similarly, if you sit on passenger seat and door on your side is locked, but door on other side is open or missing, you can't unlock from inside.
+			int opposite_seat;
+			if ( seat % 2 )
+				opposite_seat = seat - 1;
+			else
+				opposite_seat = seat + 1;
+			if ( seat >= 0 && ( car.CrewCanGetThrough( seat ) || car.CrewCanGetThrough( opposite_seat ) ) )
 				return false;
 		} else
 		{

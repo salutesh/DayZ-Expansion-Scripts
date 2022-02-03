@@ -38,6 +38,8 @@ modded class CarScript
 
 	int m_Expansion_EnginesOn;
 
+	bool m_Expansion_HasPilot;
+
 	// ------------------------------------------------------------
 	//! Constant Values - Set in Constructor, Errors occur if not.
 	// ------------------------------------------------------------
@@ -123,8 +125,8 @@ modded class CarScript
 	protected Particle m_SmokeParticle;
 
 	// Lights
-	ref array<ref ExpansionPointLight> m_Lights;
-	ref array<ref Particle> m_Particles;
+	ref array<ExpansionPointLight> m_Lights;
+	ref array<Particle> m_Particles;
 
 	protected vector m_Orientation;
 	protected vector m_Position;
@@ -185,7 +187,7 @@ modded class CarScript
 		RegisterNetSyncVariableInt("m_Expansion_CurrentEngine");
 
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
-		RegisterNetSyncVariableInt("m_Expansion_CanPlayerAttach");
+		RegisterNetSyncVariableBool("m_Expansion_CanPlayerAttach");
 
 		RegisterNetSyncVariableBool("m_Expansion_IsBeingTowed");
 		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
@@ -201,8 +203,8 @@ modded class CarScript
 
 		m_DebugShapes = new array<Shape>();
 
-		m_Lights = new array<ref ExpansionPointLight>;
-		m_Particles = new array<ref Particle>;
+		m_Lights = new array<ExpansionPointLight>;
+		m_Particles = new array<Particle>;
 
 		m_Doors = new TStringArray;
 		ConfigGetTextArray("doors", m_Doors);
@@ -1193,6 +1195,15 @@ modded class CarScript
 				{
 					m_Event_NetworkRecieve.NetworkRecieve(ctx);
 				}
+
+				//! Leave this here for pilot desync debug. TODO: Needs to be adapted when we ever have AI drivers.
+				if (driverBase && !driverBase.GetIdentityUID())
+					EXPrint("WARNING: Received controller sync, but driver has no identity! " + driverBase.GetIdentity());
+			}
+			else
+			{
+				//! Leave this here for pilot desync debug
+				EXPrint("WARNING: Received controller sync, but m_Controller is NULL!");
 			}
 
 			return;
@@ -2037,6 +2048,19 @@ modded class CarScript
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
 
+		//! Detect if pilot has been disconnected
+		if (!driver && m_Expansion_HasPilot)
+		{
+			ExpansionHelicopterScript heli;
+			m_Expansion_HasPilot = false;
+			if (Class.CastTo(heli, this))
+			{
+				if (!heli.IsAutoHover())
+					heli.SwitchAutoHover();  //! Turn autohover on
+				Expansion_EngineStop();  //! Stop engine. Heli will autorotate to ground.
+			}
+		}
+
 		if (GetGame().IsClient())
 		{
 			m_IsPhysicsHost = driver == GetGame().GetPlayer();
@@ -2202,6 +2226,12 @@ modded class CarScript
 #ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EOnSimulate - End");
 #endif
+	}
+
+	void SetHasPilot(bool state)
+	{
+		//! So we are able to detect if pilot got disconnected or got out on own accord
+		m_Expansion_HasPilot = state;
 	}
 
 	void AddModule(ExpansionVehicleModule module)

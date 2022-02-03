@@ -35,6 +35,7 @@ class ExpansionSemiShotGunEmpty extends WeaponStableState
 	override int GetCurrentStateID () { return ExpansionSemiShotGunStableStateID.Empty; }
 	override bool HasBullet () { return false; }
 	override bool IsJammed () { return false; }
+	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
 class ExpansionSemiShotGunDry extends WeaponStableState
 {
@@ -44,6 +45,7 @@ class ExpansionSemiShotGunDry extends WeaponStableState
 	override bool HasBullet () { return false; }
 	override bool IsJammed () { return false; }
 	override bool IsBoltOpen () { return true; }
+	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
 class ExpansionSemiShotGunLoaded extends WeaponStableState
 {
@@ -53,6 +55,7 @@ class ExpansionSemiShotGunLoaded extends WeaponStableState
 	override bool HasBullet () { return true; }
 	override bool HasMagazine () { return false; }
 	override bool IsJammed () { return false; }
+	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
 class ExpansionSemiShotGunJammed extends WeaponStateJammed
 {
@@ -62,6 +65,7 @@ class ExpansionSemiShotGunJammed extends WeaponStateJammed
 	override bool HasBullet () { return true; }
 	override bool IsJammed () { return true; }
 	override bool IsBoltOpen () { return true; }
+	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
 
 class ExpansionSemiShotGun extends Rifle_Base

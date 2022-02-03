@@ -17,6 +17,8 @@ modded class PlayerBase
 	protected bool m_WasInVehicle;
 	protected int m_Expansion_SessionTimeStamp;
 	
+	ref array<ExpansionCarKey> m_Expansion_CarKeys;
+
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
 	// ------------------------------------------------------------
@@ -29,6 +31,8 @@ modded class PlayerBase
 		if (IsMissionHost())
 			m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTime();
 		
+		m_Expansion_CarKeys = new array<ExpansionCarKey>;
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("PlayerBase::PlayerBase - End");
 		#endif
@@ -353,6 +357,29 @@ modded class PlayerBase
 		}
 
 		return super.HeadingModel( pDt, pModel );
+	}
+
+	void SetHasCarKey(ExpansionCarKey key, bool state = true)
+	{
+		int idx = m_Expansion_CarKeys.Find(key);
+		if (idx == -1 && state)
+			m_Expansion_CarKeys.Insert(key);
+		else if (!state)
+			m_Expansion_CarKeys.Remove(idx);
+	}
+
+	bool HasKeyForCar(CarScript car)
+	{
+		if (!car.HasKey())
+			return false;
+
+		foreach (ExpansionCarKey key: m_Expansion_CarKeys)
+		{
+			if (key.IsPairedTo(car))
+				return true;
+		}
+
+		return false;
 	}
 
 	// ------------------------------------------------------------

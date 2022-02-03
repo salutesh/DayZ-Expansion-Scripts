@@ -49,6 +49,17 @@ modded class MissionServer
 		#endif
 	}
 
+	override void HandleBody(PlayerBase player)
+	{
+		//! Avoid exploit where you are just outside safezone, get shot uncon, fall backwards into safezone,
+		//! then disconnect and reconnect to dupe your character
+		//! (your other unconscious body will still be on the ground inside safezone due to having gained godmode from it)
+		if (player.IsUnconscious() || player.IsRestrained())
+			player.SetAllowDamage(true);
+
+		super.HandleBody(player);
+	}
+
 	// ------------------------------------------------------------
 	// OnMissionStart
 	// ------------------------------------------------------------
@@ -135,7 +146,11 @@ modded class MissionServer
 	{
 		GetExpansionSettings().Send( identity );
 		
-		PlayerBase.AddPlayer( player );
+		//! Leave this here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
+		if ( !player.GetIdentity() )
+			EXPrint("WARNING: Player without identity connecting! " + player + " " + identity);
+
+		PlayerBase.AddPlayer( player, identity );
 		
 		//! Do after, because some modules use PlayerIdentity setup inside AddPlayer of PlayerBase class
 		super.InvokeOnConnect( player, identity );

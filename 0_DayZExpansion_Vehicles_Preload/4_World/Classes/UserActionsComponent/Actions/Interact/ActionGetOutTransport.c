@@ -167,6 +167,8 @@ modded class ActionGetOutTransport
 			return;
 
 		action_data.m_Player.SetInVehicle(false);
+		if (car && car.IsHelicopter())
+			car.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
 
 		//! The following code is similar to vanilla ActionGetOutTransport::OnEndServer,
 		//! except that we don't use RaycastRV(Proxy) because it can return results that aren't even in the rays path or radius.
