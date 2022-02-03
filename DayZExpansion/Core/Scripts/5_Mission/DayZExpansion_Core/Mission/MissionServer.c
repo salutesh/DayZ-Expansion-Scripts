@@ -49,6 +49,17 @@ modded class MissionServer
 		#endif
 	}
 
+	override void HandleBody(PlayerBase player)
+	{
+		//! Avoid exploit where you are just outside safezone, get shot uncon, fall backwards into safezone,
+		//! then disconnect and reconnect to dupe your character
+		//! (your other unconscious body will still be on the ground inside safezone due to having gained godmode from it)
+		if (player.IsUnconscious() || player.IsRestrained())
+			player.SetAllowDamage(true);
+
+		super.HandleBody(player);
+	}
+
 	// ------------------------------------------------------------
 	// OnMissionStart
 	// ------------------------------------------------------------

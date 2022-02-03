@@ -406,6 +406,12 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void OnEnterSafeZone()
 	{
+		//! Avoid exploit where you are just outside safezone, get shot uncon, fall backwards into safezone,
+		//! then disconnect and reconnect to dupe your character
+		//! (your other unconscious body will still be on the ground inside safezone due to having gained godmode from it)
+		if (IsUnconscious())
+			return;
+
 		EXPrint(ToString() + "::OnEnterSafeZone");
 		Print(m_LeavingSafeZone);
 		Print(m_SafeZone);

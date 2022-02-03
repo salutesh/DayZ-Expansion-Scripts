@@ -55,8 +55,10 @@ class ExpansionMarketCategory
 	// ------------------------------------------------------------
 	static ExpansionMarketCategory Load(string name)
 	{
+		ExpansionMarketCategory categoryDefault = new ExpansionMarketCategory;
+		categoryDefault.Defaults();
+
 		ExpansionMarketCategory category = new ExpansionMarketCategory;
-		
 		JsonFileLoader<ExpansionMarketCategory>.JsonLoadFile( EXPANSION_MARKET_FOLDER + name + ".json", category );
 
 		category.m_FileName = name;
@@ -67,8 +69,8 @@ class ExpansionMarketCategory
 
 			if (category.m_Version < 5)
 			{
-				category.Icon = "Deliver";
-				category.Color = GetExpansionSettings().GetMarket().MarketMenuColors.BaseColorText;
+				category.Icon = categoryDefault.Icon;
+				category.Color = categoryDefault.Color;
 			}
 
 			if (category.m_Version < 7)
@@ -81,7 +83,7 @@ class ExpansionMarketCategory
 			}
 
 			if (category.m_Version < 8)
-				category.InitStockPercent = 75;
+				category.InitStockPercent = categoryDefault.InitStockPercent;
 
 			if (category.m_Version < 9)
 			{
@@ -158,8 +160,12 @@ class ExpansionMarketCategory
 	// ------------------------------------------------------------
 	void Defaults()
 	{
+		m_Version = VERSION;
 		CategoryID = -1;
 		DisplayName = "N/A";
+		Icon = "Deliver";
+		Color = "FBFCFEFF";
+		InitStockPercent = 75;
 		m_FileName = "INVALID-FILE-NAME";
 	}
 
