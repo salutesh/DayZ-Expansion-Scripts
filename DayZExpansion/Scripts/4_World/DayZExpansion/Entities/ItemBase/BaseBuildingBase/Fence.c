@@ -14,23 +14,31 @@
 
 modded class Fence
 {
-	override void SetActions()
+	override void AddAction(typename actionName)
 	{
-		super.SetActions();
+		super.AddAction(actionName);
 
-		RemoveAction( ActionOpenFence );
-		RemoveAction( ActionCloseFence );
-
-		AddAction( ActionOpenFence );
-
-		//! Order matters. Have ExpansionActionEnterCodeLock AFTER ActionOpenFence
-		//! so that "Open locked" shows on locked doors/gates without having to cycle through actions in the UI.
-		AddAction( ExpansionActionEnterCodeLock );
-		AddAction( ExpansionActionChangeCodeLock );
+		if (actionName == ActionOpenFence)
+		{
+			//! Order matters. Have ExpansionActionEnterCodeLock AFTER ActionOpenFence
+			//! so that "Open locked" shows on locked doors/gates without having to cycle through actions in the UI.
+			AddAction(ExpansionActionEnterCodeLock);
+			AddAction(ExpansionActionChangeCodeLock);
+		}
 
 		//! Order matters. Have ActionCloseFence AFTER ExpansionActionEnterCodeLock
 		//! so that "Lock" shows on opened doors/gates without having to cycle through actions in the UI.
-		AddAction( ActionCloseFence );
+	}
+
+	override void RemoveAction(typename actionName)
+	{
+		super.RemoveAction(actionName);
+
+		if (actionName == ActionOpenFence)
+		{
+			RemoveAction(ExpansionActionEnterCodeLock);
+			RemoveAction(ExpansionActionChangeCodeLock);
+		}
 	}
 
 	//! Only call this after settings have been loaded
@@ -66,21 +74,27 @@ modded class Fence
 	{
 		return HasHinges();
 	}
-	
-	override bool ExpansionCanOpen( PlayerBase player, string selection )
-	{
-		return ExpansionIsOpenable() && !IsOpened() && ( !IsLocked() || IsKnownUser( player ) );
-	}
 
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));
 	}
 
-	//! Vanilla fence overrides modded ItemBase::IsLocked, so we need to override
-	override bool IsLocked()
+	//! @note vanilla fence overrides modded ItemBase::IsLocked, so super calls Fence::IsLocked
+	override bool ExpansionIsLocked()
 	{
-		return super.IsLocked() || ExpansionIsLocked();
+		return super.IsLocked() || super.ExpansionIsLocked();
+	}
+
+	override bool CanOpenFence()
+	{
+		if (!super.CanOpenFence())
+			return false;
+
+		if (HasHinges() && !IsOpened() && !ExpansionIsLocked())
+			return true;
+		
+		return false;
 	}
 	
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -197,11 +211,12 @@ modded class Fence
 		super.OnPartDestroyedServer( player, part_name, action_id );
 	}
 
-	override void OpenFence()
+	override void SetOpenedState( bool state )
 	{
-		Unlock();
+		if ( state )
+			Unlock();
 
-		super.OpenFence();
+		super.SetOpenedState( state );
 	}
 
 	override void CloseAndLock( string selection )

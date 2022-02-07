@@ -18,10 +18,12 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 		if ( targetObject.IsInherited( TentBase ) )
 			m_Time =  GetExpansionSettings().GetRaid().LockOnTentRaidToolTimeSeconds;
-		else if ( targetObject.IsInherited( Fence ) )
+		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) )
+			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
+		else if ( targetObject.IsInherited( BaseBuildingBase ) )
 			m_Time =  GetExpansionSettings().GetRaid().LockOnFenceRaidToolTimeSeconds;
 		else
-			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
+			m_Time = GetExpansionSettings().GetRaid().SafeRaidToolTimeSeconds;
 
 		m_Cycles = GetExpansionSettings().GetRaid().LockRaidToolCycles;
 		m_MinHealth01 = 0.01;  //! 1% health
@@ -33,18 +35,23 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		if ( !super.DestroyCondition( player, target, item, camera_check ) )
 			return false;
 
-		if ( GetExpansionSettings().GetRaid().LockRaidTools.Find( item.GetType() ) == -1 )
-			return false;
-
 		ItemBase targetItem = ItemBase.Cast( target.GetParentOrObject() );
 
 		if ( !targetItem )
 			return false;
 
-		if ( !targetItem.IsInherited( BaseBuildingBase ) && !targetItem.IsInherited( TentBase ) )
+		Object actualTargetObject = GetActualTargetObject( target.GetParentOrObject() );
+
+		if ( !actualTargetObject )
 			return false;
 
-		if ( !targetItem.IsLocked() )
+		if ( !actualTargetObject.IsInherited( CombinationLock ) && !actualTargetObject.IsInherited( ExpansionCodeLock ) )
+			return false;
+
+		if ( !targetItem.ExpansionIsLocked() )
+			return false;
+
+		if ( GetExpansionSettings().GetRaid().LockRaidTools.Find( item.GetType() ) == -1 )
 			return false;
 
 		if ( targetItem.IsInherited( TentBase ) && IsMissionClient() )
@@ -80,14 +87,6 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 			if ( !selection.Contains( "lock" ) && !targetItem.ExpansionIsOpenable( selection ) )
 				return false;
 		}
-
-		Object actualTargetObject = GetActualTargetObject( target.GetParentOrObject() );
-
-		if ( !actualTargetObject )
-			return false;
-
-		if ( !actualTargetObject.IsInherited( CombinationLock ) && !actualTargetObject.IsInherited( ExpansionCodeLock ) )
-			return false;
 
 		m_TargetName = actualTargetObject.GetDisplayName();
 

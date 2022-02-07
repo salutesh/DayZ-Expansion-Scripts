@@ -413,7 +413,7 @@ class ExpansionTerritoryModule: JMModuleBase
 			}
 
 			ExpansionUIScriptedMenu menu;
-			if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
+			if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( EXPANSION_MENU_BOOK ) ) )
 			{
 				menu.Refresh();
 			}
@@ -910,7 +910,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		SetTerritoryInvites( invites );
 		
 		ExpansionUIScriptedMenu menu;
-		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) ) )
+		if ( Class.CastTo( menu, GetGame().GetUIManager().FindMenu( EXPANSION_MENU_BOOK ) ) )
 		{
 			menu.Refresh();
 		}

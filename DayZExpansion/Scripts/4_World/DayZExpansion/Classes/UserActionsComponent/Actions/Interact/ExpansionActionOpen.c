@@ -29,7 +29,7 @@ class ExpansionActionOpen: ActionInteractBase
 
 	override string GetText()
 	{
-		if ( m_Target && m_Target.IsLocked() )
+		if ( m_Target && m_Target.ExpansionIsLocked() )
 		{
 			if ( m_Target.IsInherited( ExpansionSafeBase ) )
 				return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
@@ -55,12 +55,12 @@ class ExpansionActionOpen: ActionInteractBase
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		if ( !m_Target || ( m_Target.IsLocked() && !m_Target.IsKnownUser( action_data.m_Player ) ) )
+		if ( !m_Target || ( m_Target.ExpansionIsLocked() && !m_Target.IsKnownUser( action_data.m_Player ) ) )
 			return;
 
 		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( m_Target.IsLocked() )
+		if ( m_Target.ExpansionIsLocked() )
 			m_Target.UnlockAndOpen( selection );
 		else
 			m_Target.Open( selection );

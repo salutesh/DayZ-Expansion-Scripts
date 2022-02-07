@@ -49,12 +49,12 @@ class ExpansionCodeLock extends ItemBase
 				SetCode(parent.GetCode(), NULL, false, false);
 
 				//! Migrate locked state
-				if (parent.IsLocked())
+				if (parent.ExpansionIsLocked())
 					ExpansionLock();
 
 				parent.SetCode("", NULL, true, false);
 			}
-			else if ( IsLocked() )
+			else if ( ExpansionIsLocked() )
 			{
 				SetSlotLock( parent, true );
 				SetTakeable( false );
@@ -184,7 +184,7 @@ class ExpansionCodeLock extends ItemBase
 		
 		ItemBase target = ItemBase.Cast( parent );
 
-		if ( target && target.IsLocked() )
+		if ( target && target.ExpansionIsLocked() )
 		{
 			return false;
 		}
@@ -276,7 +276,7 @@ class ExpansionCodeLock extends ItemBase
 		if ( !IsMissionClient() )
 			return;
 
-		if ( parent && IsLocked() )
+		if ( parent && ExpansionIsLocked() )
 		{
 			SetObjectMaterial( 0, DEFAULT_MATERIAL );
 			SetObjectMaterial( 1, GREEN_LIGHT_GLOW );
@@ -307,3 +307,7 @@ class ExpansionCodeLock extends ItemBase
 		}
 	}
 }
+
+#ifndef CodeLock
+typedef ExpansionCodeLock CodeLock;
+#endif

@@ -120,6 +120,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
 
+		ctx.Read(ForcePilotSyncIntervalSeconds);
+
 		m_IsLoaded = true;
 
 		Update(NULL);
@@ -160,6 +162,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Write(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
+
+		ctx.Write(ForcePilotSyncIntervalSeconds);
 
 		//! Don't send VehiclesConfig
 	}

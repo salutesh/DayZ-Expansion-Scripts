@@ -12,11 +12,10 @@
 
 class ExpansionWallBase: ExpansionBaseBuilding
 {
-	protected bool m_IsOpened;
-	protected bool m_IsOpened1;
-	protected bool m_IsOpened2;
-	protected bool m_IsOpened3;
-	protected bool m_IsOpened4;
+	protected bool m_Expansion_IsOpened1;
+	protected bool m_Expansion_IsOpened2;
+	protected bool m_Expansion_IsOpened3;
+	protected bool m_Expansion_IsOpened4;
 
 	protected bool m_WasOpen;
 	protected bool m_WasOpen1;
@@ -30,11 +29,10 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	void ExpansionWallBase()
 	{
-		RegisterNetSyncVariableBool( "m_IsOpened" );
-		RegisterNetSyncVariableBool( "m_IsOpened1" );
-		RegisterNetSyncVariableBool( "m_IsOpened2" );
-		RegisterNetSyncVariableBool( "m_IsOpened3" );
-		RegisterNetSyncVariableBool( "m_IsOpened4" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened1" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened2" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened3" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened4" );
 		RegisterNetSyncVariableBool( "m_HasWindow" );
 		RegisterNetSyncVariableBool( "m_HasDoor" );
 		RegisterNetSyncVariableBool( "m_HasGate" );
@@ -99,11 +97,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		ctx.Write( m_HasDoor );
 		ctx.Write( m_HasGate );
 		ctx.Write( m_HasWall );
-		ctx.Write( m_IsOpened );
-		ctx.Write( m_IsOpened1 );
-		ctx.Write( m_IsOpened2 );
-		ctx.Write( m_IsOpened3 );
-		ctx.Write( m_IsOpened4 );
+		ctx.Write( m_Expansion_IsOpened );
+		ctx.Write( m_Expansion_IsOpened1 );
+		ctx.Write( m_Expansion_IsOpened2 );
+		ctx.Write( m_Expansion_IsOpened3 );
+		ctx.Write( m_Expansion_IsOpened4 );
 	}
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -132,15 +130,15 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( GetExpansionSaveVersion() < 23 )
 			return true;
 
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened ), "[" + this + "] Failed reading m_Expansion_IsOpened" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened1 ), "[" + this + "] Failed reading m_IsOpened1" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened1 ), "[" + this + "] Failed reading m_Expansion_IsOpened1" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened2 ), "[" + this + "] Failed reading m_IsOpened2" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened2 ), "[" + this + "] Failed reading m_Expansion_IsOpened2" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened3 ), "[" + this + "] Failed reading m_IsOpened3" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened3 ), "[" + this + "] Failed reading m_Expansion_IsOpened3" ) )
 			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened4 ), "[" + this + "] Failed reading m_IsOpened4" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened4 ), "[" + this + "] Failed reading m_Expansion_IsOpened4" ) )
 			return false;
 		
 		return true;
@@ -158,11 +156,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		ctx.Write(m_HasDoor);
 		ctx.Write(m_HasGate);
 		ctx.Write(m_HasWall);
-		ctx.Write(m_IsOpened);
-		ctx.Write(m_IsOpened1);
-		ctx.Write(m_IsOpened2);
-		ctx.Write(m_IsOpened3);
-		ctx.Write(m_IsOpened4);
+		ctx.Write(m_Expansion_IsOpened);
+		ctx.Write(m_Expansion_IsOpened1);
+		ctx.Write(m_Expansion_IsOpened2);
+		ctx.Write(m_Expansion_IsOpened3);
+		ctx.Write(m_Expansion_IsOpened4);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -185,19 +183,19 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if (!ctx.Read(m_HasWall))
 			return false;
 
-		if (!ctx.Read(m_IsOpened))
+		if (!ctx.Read(m_Expansion_IsOpened))
 			return false;
 
-		if (!ctx.Read(m_IsOpened1))
+		if (!ctx.Read(m_Expansion_IsOpened1))
 			return false;
 			
-		if (!ctx.Read(m_IsOpened2))
+		if (!ctx.Read(m_Expansion_IsOpened2))
 			return false;
 
-		if (!ctx.Read(m_IsOpened3))
+		if (!ctx.Read(m_Expansion_IsOpened3))
 			return false;
 
-		if (!ctx.Read(m_IsOpened4))
+		if (!ctx.Read(m_Expansion_IsOpened4))
 			return false;
 
 		return true;
@@ -230,14 +228,14 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		super.OnVariablesSynchronized();
 
-		bool door_changed = m_HasDoor && m_WasOpen != m_IsOpened;
-		bool door_opened = door_changed && m_IsOpened;
+		bool door_changed = m_HasDoor && m_WasOpen != m_Expansion_IsOpened;
+		bool door_opened = door_changed && m_Expansion_IsOpened;
 
-		bool gate_l_changed = m_HasGate && m_WasOpen1 != m_IsOpened1;
-		bool gate_l_opened = gate_l_changed && m_IsOpened1;
+		bool gate_l_changed = m_HasGate && m_WasOpen1 != m_Expansion_IsOpened1;
+		bool gate_l_opened = gate_l_changed && m_Expansion_IsOpened1;
 
-		bool gate_r_changed = m_HasGate && m_WasOpen2 != m_IsOpened2;
-		bool gate_r_opened = gate_r_changed && m_IsOpened2;
+		bool gate_r_changed = m_HasGate && m_WasOpen2 != m_Expansion_IsOpened2;
+		bool gate_r_opened = gate_r_changed && m_Expansion_IsOpened2;
 
 		if ( wasSynched && ( door_changed || gate_l_changed || gate_r_changed ) )
 		{
@@ -247,9 +245,9 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				SoundGateCloseStart();
 		}
 
-		m_WasOpen = m_IsOpened;
-		m_WasOpen1 = m_IsOpened1;
-		m_WasOpen2 = m_IsOpened2;
+		m_WasOpen = m_Expansion_IsOpened;
+		m_WasOpen1 = m_Expansion_IsOpened1;
+		m_WasOpen2 = m_Expansion_IsOpened2;
 
 		UpdateVisuals();
 	}
@@ -266,7 +264,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		UpdateVisuals();
 
 		//! Restore state of opened windows/door/gate
-		if ( m_IsOpened || m_IsOpened1 || m_IsOpened2 || m_IsOpened3 || m_IsOpened4 )
+		if ( m_Expansion_IsOpened || m_Expansion_IsOpened1 || m_Expansion_IsOpened2 || m_Expansion_IsOpened3 || m_Expansion_IsOpened4 )
 			Open( "" );
 	}
 
@@ -275,7 +273,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( attachment.IsInherited( ExpansionCodeLock ) )
 		{
 			ExpansionCodeLock codelock = ExpansionCodeLock.Cast( attachment );
-			if ( !codelock.IsLocked() )
+			if ( !codelock.ExpansionIsLocked() )
 			{
 				return true;
 			}
@@ -616,13 +614,13 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				return true;
 		}
 
-		if ( m_HasDoor && ( !IsLocked() || IsKnownUser( player ) ) )
+		if ( m_HasDoor && ( !ExpansionIsLocked() || IsKnownUser( player ) ) )
 		{
 			if ( selection == (m_CurrentBuild + "_door") && GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) < 0.5 )
 				return true;
 		}
 
-		if ( m_HasGate && ( !IsLocked() || IsKnownUser( player ) ) )
+		if ( m_HasGate && ( !ExpansionIsLocked() || IsKnownUser( player ) ) )
 		{
 			if ( selection == (m_CurrentBuild + "_gate_l") && GetAnimationPhase( m_CurrentBuild +"_gate_l_rotate" ) < 0.5 )
 				return true;
@@ -671,65 +669,58 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		return false;
 	}
-
-	override bool IsOpened()
-	{
-		return m_IsOpened;
-	}
 	
 	override void Open( string selection ) 
 	{	
 		if ( IsMissionHost() && m_HasWindow )
 		{
-			if (selection == (m_CurrentBuild + "_window_ll") || m_IsOpened1)
+			if (selection == (m_CurrentBuild + "_window_ll") || m_Expansion_IsOpened1)
 			{
-				m_IsOpened1 = true;
+				m_Expansion_IsOpened1 = true;
 				SetAnimationPhase( m_CurrentBuild + "_window_ll_rotate", 1 );
 			}
-			if (selection == (m_CurrentBuild + "_window_lr") || m_IsOpened2)
+			if (selection == (m_CurrentBuild + "_window_lr") || m_Expansion_IsOpened2)
 			{
-				m_IsOpened2 = true;
+				m_Expansion_IsOpened2 = true;
 				SetAnimationPhase( m_CurrentBuild + "_window_lr_rotate", 1 );
 			}
-			if (selection == (m_CurrentBuild + "_window_rl") || m_IsOpened3)
+			if (selection == (m_CurrentBuild + "_window_rl") || m_Expansion_IsOpened3)
 			{
-				m_IsOpened3 = true;
+				m_Expansion_IsOpened3 = true;
 				SetAnimationPhase( m_CurrentBuild + "_window_rl_rotate", 1 );
 			}
-			if (selection == (m_CurrentBuild + "_window_rr") || m_IsOpened4)
+			if (selection == (m_CurrentBuild + "_window_rr") || m_Expansion_IsOpened4)
 			{
-				m_IsOpened4 = true;
+				m_Expansion_IsOpened4 = true;
 				SetAnimationPhase( m_CurrentBuild + "_window_rr_rotate", 1 );
 			}
 
-			m_IsOpened = true;
+			m_Expansion_IsOpened = true;
 		}
 
 		if ( IsMissionHost() && m_HasDoor )
 		{
-			if (selection == (m_CurrentBuild + "_door") || m_IsOpened)
+			if (selection == (m_CurrentBuild + "_door") || m_Expansion_IsOpened)
 				SetAnimationPhase( m_CurrentBuild + "_door_rotate", 1 );
 
-			m_IsOpened = true;
+			m_Expansion_IsOpened = true;
 		}
 
 		if ( IsMissionHost() && m_HasGate )
 		{
-			if (selection == (m_CurrentBuild + "_gate_l") || m_IsOpened1)
+			if (selection == (m_CurrentBuild + "_gate_l") || m_Expansion_IsOpened1)
 			{
-				m_IsOpened1 = true;
+				m_Expansion_IsOpened1 = true;
 				SetAnimationPhase( m_CurrentBuild + "_gate_l_rotate", 1 );
 			}
-			if (selection == (m_CurrentBuild + "_gate_r") || m_IsOpened2)
+			if (selection == (m_CurrentBuild + "_gate_r") || m_Expansion_IsOpened2)
 			{
-				m_IsOpened2 = true;
+				m_Expansion_IsOpened2 = true;
 				SetAnimationPhase( m_CurrentBuild + "_gate_r_rotate", 1 );
 			}
 
-			m_IsOpened = true;
+			m_Expansion_IsOpened = true;
 		}
-		
-		super.Open( selection );
 
 		SetSynchDirty();
 	}
@@ -740,30 +731,30 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		{
 			if (selection == (m_CurrentBuild + "_window_ll"))
 			{
-				m_IsOpened1 = false;
+				m_Expansion_IsOpened1 = false;
 				SetAnimationPhase( m_CurrentBuild + "_window_ll_rotate", 0 );
 			}
 			if (selection == (m_CurrentBuild + "_window_lr"))
 			{
-				m_IsOpened2 = false;
+				m_Expansion_IsOpened2 = false;
 				SetAnimationPhase( m_CurrentBuild + "_window_lr_rotate", 0 );
 			}
 			if (selection == (m_CurrentBuild + "_window_rl"))
 			{
-				m_IsOpened3 = false;
+				m_Expansion_IsOpened3 = false;
 				SetAnimationPhase( m_CurrentBuild+ "_window_rl_rotate", 0 );
 			}
 			if (selection == (m_CurrentBuild + "_window_rr"))
 			{
-				m_IsOpened4 = false;
+				m_Expansion_IsOpened4 = false;
 				SetAnimationPhase( m_CurrentBuild + "_window_rr_rotate", 0 );
 			}
 
-			m_IsOpened = false;
-			m_IsOpened = m_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5;
-			m_IsOpened = m_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_lr_rotate" ) < 0.5;
-			m_IsOpened = m_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_rl_rotate" ) < 0.5;
-			m_IsOpened = m_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_rr_rotate" ) < 0.5;
+			m_Expansion_IsOpened = false;
+			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5;
+			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_lr_rotate" ) < 0.5;
+			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_rl_rotate" ) < 0.5;
+			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_rr_rotate" ) < 0.5;
 		}
 
 		if ( IsMissionHost() && m_HasDoor )
@@ -771,27 +762,25 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			if (selection == (m_CurrentBuild + "_door"))
 				SetAnimationPhase( m_CurrentBuild + "_door_rotate", 0 );
 
-			m_IsOpened = GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) < 0.5;
+			m_Expansion_IsOpened = GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) < 0.5;
 		}
 
 		if ( IsMissionHost() && m_HasGate )
 		{
 			if (selection == (m_CurrentBuild + "_gate_l"))
 			{
-				m_IsOpened1 = false;
+				m_Expansion_IsOpened1 = false;
 				SetAnimationPhase( m_CurrentBuild + "_gate_l_rotate", 0 );
 			}
 			if (selection == (m_CurrentBuild + "_gate_r"))
 			{
-				m_IsOpened2 = false;
+				m_Expansion_IsOpened2 = false;
 				SetAnimationPhase( m_CurrentBuild + "_gate_r_rotate", 0 );
 			}
 
-			m_IsOpened = GetAnimationPhase( m_CurrentBuild + "_gate_l_rotate" ) < 0.5 && GetAnimationPhase( m_CurrentBuild + "_gate_r_rotate" ) < 0.5;
+			m_Expansion_IsOpened = GetAnimationPhase( m_CurrentBuild + "_gate_l_rotate" ) < 0.5 && GetAnimationPhase( m_CurrentBuild + "_gate_r_rotate" ) < 0.5;
 		}
 		
-		super.Close( selection );
-
 		SetSynchDirty();
 	}
 
@@ -811,7 +800,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void CloseAndLock( string selection )
 	{
-		if ( m_HasDoor && IsOpened() )
+		if ( m_HasDoor && ExpansionIsOpened() )
 		{
 			Close( m_CurrentBuild + "_door" );
 		} else if ( m_HasGate )

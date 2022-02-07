@@ -39,7 +39,7 @@ class ExpansionActionCloseAndLockSafe: ActionInteractBase
 
 		string selection = tgtSafe.GetActionComponentName( target.GetComponentIndex() );
 
-		return tgtSafe.!IsLocked() && tgtSafe.HasCode();
+		return tgtSafe.!ExpansionIsLocked() && tgtSafe.HasCode();
 	}
 	
 	override void OnStartServer( ActionData action_data )

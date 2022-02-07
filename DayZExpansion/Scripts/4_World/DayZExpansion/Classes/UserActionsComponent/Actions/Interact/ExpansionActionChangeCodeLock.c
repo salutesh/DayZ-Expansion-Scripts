@@ -66,7 +66,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 			m_Target = ItemBase.Cast( target.GetObject() );
 		}
 		
-		if ( m_Target && !m_Target.IsLocked() && m_Target.HasCode() )
+		if ( m_Target && !m_Target.ExpansionIsLocked() && m_Target.HasCode() )
 		{
 			if ( m_Tent && !m_Target.IsOpened() )
 			{
@@ -122,7 +122,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 		
 		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( !m_Target.IsLocked() && m_Target.HasCode() )
+		if ( !m_Target.ExpansionIsLocked() && m_Target.HasCode() )
 		{
 			ExpansionCodeLockUI menu = ExpansionCodeLockUI.Cast( GetGame().GetUIManager().EnterScriptedMenu( MENU_EXPANSION_CODELOCK_MENU, NULL ) );
 			if ( menu )

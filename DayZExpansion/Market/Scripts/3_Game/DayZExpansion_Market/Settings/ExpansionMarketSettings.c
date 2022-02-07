@@ -618,6 +618,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		{
 			m_TraderZones.Insert(new ExpansionMarketMarastarZone);
 		}
+		else
+		{
+			m_TraderZones.Insert(new ExpansionMarketTraderZone);
+		}
 		
 		for (int i = 0; i < m_TraderZones.Count(); i++)
 		{
@@ -1034,10 +1038,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			if (save)
 				Save();
 
-			foreach (string largeVehicle : LargeVehicles)
-			{
-				largeVehicle.ToLower();
-			}
+			LargeVehicles = StringArrayToLower(LargeVehicles);
+
+			Currencies = StringArrayToLower(Currencies);
 		}
 
 		LoadCategories();
@@ -1234,5 +1237,16 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	override string SettingName()
 	{
 		return "Market Settings";
+	}
+
+	static TStringArray StringArrayToLower(TStringArray input)
+	{
+		TStringArray output();
+		foreach (string entry : input)
+		{
+			entry.ToLower();
+			output.Insert(entry);
+		}
+		return output;
 	}
 }

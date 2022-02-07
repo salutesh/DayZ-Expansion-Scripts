@@ -66,6 +66,8 @@ class ExpansionPhysicsState
 	float m_AngularAccelerationY;
 	float m_AngularAccelerationZ;
 
+	float m_ForcePilotSyncTick;
+
 	void ExpansionPhysicsState(EntityAI vehicle)
 	{
 		m_Entity = vehicle;
@@ -194,7 +196,7 @@ class ExpansionPhysicsState
 		m_Center = dBodyGetCenterOfMass(m_Entity);
 	}
 
-	void PostSimulate(float pDt, bool isPhysHost, ExpansionVehicleNetworkMode mode, bool isServer)
+	void PostSimulate(float pDt, bool isPhysHost, ExpansionVehicleNetworkMode mode, bool isServer, DayZPlayerImplement driver = NULL)
 	{
 		if (dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
 		{
@@ -224,39 +226,43 @@ class ExpansionPhysicsState
 		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3(m_Transform);
 		m_AngularAccelerationMS = (m_LastAngularVelocityMS - m_AngularVelocityMS) * m_DeltaTime;
 
-		// Only Client sync mode will attempt to overwrite the server values
-		// Server will still perform the simulation for moments when the client desyncs
-		// When the client resyncs, the client will force the vehicle to a certain position
-		// The client will transmit all contact events to the server
-		if (!isServer && mode == ExpansionVehicleNetworkMode.CLIENT)
+		if (isServer && mode == ExpansionVehicleNetworkMode.CLIENT)
+			return;
+		else if (!isServer && mode == ExpansionVehicleNetworkMode.SERVER)
+			return;
+
+		float forcePilotSyncIntervalSeconds = GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds;
+		if (!forcePilotSyncIntervalSeconds)
+			return;
+
+		m_ForcePilotSyncTick += pDt;
+		if (m_ForcePilotSyncTick > forcePilotSyncIntervalSeconds)
 		{
+			#ifdef EXPANSIONEXPRINT
+			EXPrint(ToString() + "::PostSimulate - ExpansionVehicleRPC.ClientSync");
+			#endif
+
+			m_ForcePilotSyncTick = 0;
+
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write(m_Entity.GetSimulationTimeStamp());
 			rpc.Write(m_Transform[3]);
 			rpc.Write(Math3D.MatrixToAngles(m_Transform));
+/*
 			rpc.Write(m_LinearVelocity);
 			rpc.Write(m_AngularVelocity);
 			rpc.Write(m_LinearAcceleration);
 			rpc.Write(m_AngularAcceleration);
-			rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, NULL);
-		}
-		else if (isServer)
-		{
-			m_Time = m_Entity.GetSimulationTimeStamp();
-
-			m_LinearVelocityX = m_LinearVelocity[0];
-			m_LinearVelocityY = m_LinearVelocity[1];
-			m_LinearVelocityZ = m_LinearVelocity[2];
-			m_AngularVelocityX = m_AngularVelocity[0];
-			m_AngularVelocityY = m_AngularVelocity[1];
-			m_AngularVelocityZ = m_AngularVelocity[2];
-
-			m_LinearAccelerationX = m_LinearAcceleration[0];
-			m_LinearAccelerationY = m_LinearAcceleration[1];
-			m_LinearAccelerationZ = m_LinearAcceleration[2];
-			m_AngularAccelerationX = m_AngularAcceleration[0];
-			m_AngularAccelerationY = m_AngularAcceleration[1];
-			m_AngularAccelerationZ = m_AngularAcceleration[2];
+*/
+			if ( isServer )
+			{
+				if (driver && driver.GetIdentity())
+					rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, driver.GetIdentity());
+			}
+			else
+			{
+				rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, NULL);
+			}
 		}
 	}
 
@@ -265,8 +271,15 @@ class ExpansionPhysicsState
 		int time;
 		ctx.Read(time);
 
+		#ifdef EXPANSIONEXPRINT
+		EXPrint(ToString() + "::OnRPC - time " + time);
+		#endif
+
 		// check if this is an old state and if so, remove it
 		if (m_Time > time)
+			return;
+
+		if (time - m_Time <= GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds * 1000)
 			return;
 
 		m_Time = time;
@@ -283,11 +296,21 @@ class ExpansionPhysicsState
 		Math3D.YawPitchRollMatrix(ori, m_TargetTransform);
 		m_TargetTransform[3] = pos;
 
+		m_Entity.SetTransform(m_TargetTransform);
+
+		if (GetGame().IsServer())
+		{
+			Transport transport;
+			if (Class.CastTo(transport, m_Entity))
+				transport.Synchronize();
+		}
+/*
 		ctx.Read(m_SyncLinearVelocity);
 		ctx.Read(m_SyncAngularVelocity);
 
 		ctx.Read(m_SyncLinearAcceleration);
 		ctx.Read(m_SyncAngularAcceleration);
+*/
 	}
 
 	vector GetModelVelocityAt(vector relPos)

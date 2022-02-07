@@ -14,23 +14,23 @@
 
 modded class TentBase
 {
-	protected bool m_IsOpened = true;
-	protected bool m_IsOpened1 = true;
-	protected bool m_IsOpened2 = true;
-	protected bool m_IsOpened3 = true;
-	protected bool m_IsOpened4 = true;
-	protected bool m_IsOpened5 = true;
-	protected bool m_IsOpened6 = true;
+	protected bool m_Expansion_IsOpened1 = true;
+	protected bool m_Expansion_IsOpened2 = true;
+	protected bool m_Expansion_IsOpened3 = true;
+	protected bool m_Expansion_IsOpened4 = true;
+	protected bool m_Expansion_IsOpened5 = true;
+	protected bool m_Expansion_IsOpened6 = true;
 
 	void TentBase()
 	{
-		RegisterNetSyncVariableBool( "m_IsOpened" );
-		RegisterNetSyncVariableBool( "m_IsOpened1" );
-		RegisterNetSyncVariableBool( "m_IsOpened2" );
-		RegisterNetSyncVariableBool( "m_IsOpened3" );
-		RegisterNetSyncVariableBool( "m_IsOpened4" );
-		RegisterNetSyncVariableBool( "m_IsOpened5" );
-		RegisterNetSyncVariableBool( "m_IsOpened6" );
+		m_Expansion_IsOpened = true;
+
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened1" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened2" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened3" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened4" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened5" );
+		RegisterNetSyncVariableBool( "m_Expansion_IsOpened6" );
 	}
 	
 	override void SetActions()
@@ -50,51 +50,51 @@ modded class TentBase
 	
 	protected void ToggleTentOpening( string state )
 	{
-		bool wasOpened = m_IsOpened;
+		bool wasOpened = m_Expansion_IsOpened;
 
 		//! toggleing an closed door so it would now be open
 		if (state == "entrancec")
 		{
-			m_IsOpened = true;
+			m_Expansion_IsOpened = true;
 		}
 		//! toggleing an open door so it would now be closed
 		else if (state == "entranceo")
 		{
-			m_IsOpened = false;
+			m_Expansion_IsOpened = false;
 		}
 		else //! Might Be Party Tent
 		{
 			//Party Tent Logic
 			if ( state.Contains("door") )
 			{
-				if (state == "door1o"){      m_IsOpened1 = false; }
-				else if (state == "door1c"){ m_IsOpened1 = true;  }
-				else if (state == "door2o"){ m_IsOpened2 = false; }
-				else if (state == "door2c"){ m_IsOpened2 = true;  }
-				else if (state == "door3o"){ m_IsOpened3 = false; }
-				else if (state == "door3c"){ m_IsOpened3 = true;  }
-				else if (state == "door4o"){ m_IsOpened4 = false; }
-				else if (state == "door4c"){ m_IsOpened4 = true;  }
-				else if (state == "door5o"){ m_IsOpened5 = false; }
-				else if (state == "door5c"){ m_IsOpened5 = true;  }
-				else if (state == "door6o"){ m_IsOpened6 = false; }
-				else if (state == "door6c"){ m_IsOpened6 = true;  }
+				if (state == "door1o"){      m_Expansion_IsOpened1 = false; }
+				else if (state == "door1c"){ m_Expansion_IsOpened1 = true;  }
+				else if (state == "door2o"){ m_Expansion_IsOpened2 = false; }
+				else if (state == "door2c"){ m_Expansion_IsOpened2 = true;  }
+				else if (state == "door3o"){ m_Expansion_IsOpened3 = false; }
+				else if (state == "door3c"){ m_Expansion_IsOpened3 = true;  }
+				else if (state == "door4o"){ m_Expansion_IsOpened4 = false; }
+				else if (state == "door4c"){ m_Expansion_IsOpened4 = true;  }
+				else if (state == "door5o"){ m_Expansion_IsOpened5 = false; }
+				else if (state == "door5c"){ m_Expansion_IsOpened5 = true;  }
+				else if (state == "door6o"){ m_Expansion_IsOpened6 = false; }
+				else if (state == "door6c"){ m_Expansion_IsOpened6 = true;  }
 				else { return; } //Wasn't Party Tent :) No need to continue any more :)
 			} else { return; } //Wasn't Party Tent :) Probly a large tent window, no need to continue any more :)
 			
 			//! if any doors are open its now a closed door
-			if ( m_IsOpened1 || m_IsOpened2 || m_IsOpened3 || m_IsOpened4 || m_IsOpened5 || m_IsOpened6 )
+			if ( m_Expansion_IsOpened1 || m_Expansion_IsOpened2 || m_Expansion_IsOpened3 || m_Expansion_IsOpened4 || m_Expansion_IsOpened5 || m_Expansion_IsOpened6 )
 			{
-				m_IsOpened = true;
+				m_Expansion_IsOpened = true;
 			} else {
-				m_IsOpened = false;
+				m_Expansion_IsOpened = false;
 			}
 		}
 
 		
-		if ( HasCode() && m_IsOpened != wasOpened )
+		if ( HasCode() && m_Expansion_IsOpened != wasOpened )
 		{
-			if ( m_IsOpened )
+			if ( m_Expansion_IsOpened )
 				Unlock();
 			else
 				ExpansionLock();
@@ -113,7 +113,7 @@ modded class TentBase
 	
 	override bool CanReceiveItemIntoCargo(EntityAI item )
 	{
-        if (IsLocked() && GetExpansionSettings().GetBaseBuilding() )
+        if (ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -127,7 +127,7 @@ modded class TentBase
 
     override bool CanReleaseCargo(EntityAI cargo)
 	{
-        if ( IsLocked() && GetExpansionSettings().GetBaseBuilding() )
+        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -184,7 +184,7 @@ modded class TentBase
 	
 	override bool CanReleaseAttachment( EntityAI attachment )
 	{
-        if ( IsLocked() && GetExpansionSettings().GetBaseBuilding() )
+        if ( ExpansionIsLocked() && GetExpansionSettings().GetBaseBuilding() )
 		{
 			if ( ExpansionCanAttachCodeLock() )
 			{
@@ -195,19 +195,9 @@ modded class TentBase
         return super.CanReleaseAttachment(attachment);
 	}
 	
-	override bool IsOpened()
-	{
-		return m_IsOpened;
-	}
-
-	override bool ExpansionIsOpenable()
-	{
-		return true;
-	}
-	
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		return !m_IsOpened && ( !IsLocked() || IsKnownUser( player ) );
+		return !m_Expansion_IsOpened && ( !ExpansionIsLocked() || IsKnownUser( player ) );
 	}
 
 	override void OnStoreSave(ParamsWriteContext ctx)
@@ -222,13 +212,13 @@ modded class TentBase
 
 		super.OnStoreSave( ctx );
 		
-		ctx.Write( m_IsOpened );
-		ctx.Write( m_IsOpened1 );
-		ctx.Write( m_IsOpened2 );
-		ctx.Write( m_IsOpened3 );
-		ctx.Write( m_IsOpened4 );
-		ctx.Write( m_IsOpened5 );
-		ctx.Write( m_IsOpened6 );
+		ctx.Write( m_Expansion_IsOpened );
+		ctx.Write( m_Expansion_IsOpened1 );
+		ctx.Write( m_Expansion_IsOpened2 );
+		ctx.Write( m_Expansion_IsOpened3 );
+		ctx.Write( m_Expansion_IsOpened4 );
+		ctx.Write( m_Expansion_IsOpened5 );
+		ctx.Write( m_Expansion_IsOpened6 );
 	}
 
 
@@ -262,45 +252,45 @@ modded class TentBase
 				loadingsuccessfull = false;
 		}
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened ), "[" + this + "] Failed reading m_Expansion_IsOpened" ) )
 		{
-			m_IsOpened = true;
+			m_Expansion_IsOpened = true;
 			loadingsuccessfull = false;
 		}
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened1 ), "[" + this + "] Failed reading m_IsOpened1" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened1 ), "[" + this + "] Failed reading m_Expansion_IsOpened1" ) )
 		{
-			m_IsOpened1 = true;
+			m_Expansion_IsOpened1 = true;
 			loadingsuccessfull = false;
 		}
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened2 ), "[" + this + "] Failed reading mm_IsOpened2_Locked" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened2 ), "[" + this + "] Failed reading mm_Expansion_IsOpened2_Locked" ) )
 		{
-			m_IsOpened2 = true;
+			m_Expansion_IsOpened2 = true;
 			loadingsuccessfull = false;
 		}
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened3 ), "[" + this + "] Failed reading m_IsOpened3" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened3 ), "[" + this + "] Failed reading m_Expansion_IsOpened3" ) )
 		{
-			m_IsOpened3 = true;
+			m_Expansion_IsOpened3 = true;
 			loadingsuccessfull = false;
 		}
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened4 ), "[" + this + "] Failed reading m_IsOpened4" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened4 ), "[" + this + "] Failed reading m_Expansion_IsOpened4" ) )
 		{
-			m_IsOpened4 = true;
+			m_Expansion_IsOpened4 = true;
 			loadingsuccessfull = false;
 		}
 			
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened5 ), "[" + this + "] Failed reading m_IsOpened5" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened5 ), "[" + this + "] Failed reading m_Expansion_IsOpened5" ) )
 		{
-			m_IsOpened5 = true;
+			m_Expansion_IsOpened5 = true;
 			loadingsuccessfull = false;
 		}
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened6 ), "[" + this + "] Failed reading m_IsOpened6" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened6 ), "[" + this + "] Failed reading m_Expansion_IsOpened6" ) )
 		{
-			m_IsOpened6 = true;
+			m_Expansion_IsOpened6 = true;
 			loadingsuccessfull = false;
 		}
 		
@@ -321,13 +311,13 @@ modded class TentBase
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return;
 
-		ctx.Write(m_IsOpened);
-		ctx.Write(m_IsOpened1);
-		ctx.Write(m_IsOpened2);
-		ctx.Write(m_IsOpened3);
-		ctx.Write(m_IsOpened4);
-		ctx.Write(m_IsOpened5);
-		ctx.Write(m_IsOpened6);
+		ctx.Write(m_Expansion_IsOpened);
+		ctx.Write(m_Expansion_IsOpened1);
+		ctx.Write(m_Expansion_IsOpened2);
+		ctx.Write(m_Expansion_IsOpened3);
+		ctx.Write(m_Expansion_IsOpened4);
+		ctx.Write(m_Expansion_IsOpened5);
+		ctx.Write(m_Expansion_IsOpened6);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -353,25 +343,25 @@ modded class TentBase
 				return false;
 		}
 
-		if (!ctx.Read(m_IsOpened))
+		if (!ctx.Read(m_Expansion_IsOpened))
 			return false;
 
-		if (!ctx.Read(m_IsOpened1))
+		if (!ctx.Read(m_Expansion_IsOpened1))
 			return false;
 			
-		if (!ctx.Read(m_IsOpened2))
+		if (!ctx.Read(m_Expansion_IsOpened2))
 			return false;
 
-		if (!ctx.Read(m_IsOpened3))
+		if (!ctx.Read(m_Expansion_IsOpened3))
 			return false;
 
-		if (!ctx.Read(m_IsOpened4))
+		if (!ctx.Read(m_Expansion_IsOpened4))
 			return false;
 
-		if (!ctx.Read(m_IsOpened5))
+		if (!ctx.Read(m_Expansion_IsOpened5))
 			return false;
 
-		if (!ctx.Read(m_IsOpened6))
+		if (!ctx.Read(m_Expansion_IsOpened6))
 			return false;
 
 		if (!ExpansionCanAttachCodeLock())

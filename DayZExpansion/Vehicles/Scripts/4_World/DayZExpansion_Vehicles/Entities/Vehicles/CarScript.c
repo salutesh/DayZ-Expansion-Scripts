@@ -170,6 +170,8 @@ modded class CarScript
 
 	bool m_Expansion_dBodyIsActive;  //! Used for debugging. PLEASE leave this in here.
 
+	bool m_Expansion_VehicleSync;
+
 	void CarScript()
 	{
 #ifdef EXPANSIONEXPRINT
@@ -426,6 +428,8 @@ modded class CarScript
 	void OnSettingsUpdated()
 	{
 		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
+
+		m_Expansion_VehicleSync = GetExpansionSettings().GetVehicle().VehicleSync;
 
 		m_Event_SettingsChanged.SettingsChanged();
 	}
@@ -1220,6 +1224,11 @@ modded class CarScript
 				}
 			}
 
+			return;
+		}
+		case ExpansionVehicleRPC.ClientSync:
+		{
+			m_State.OnRPC(ctx);
 			return;
 		}
 		case ExpansionVehicleRPC.PlayLockSound:
@@ -2216,7 +2225,7 @@ modded class CarScript
 			}
 		}
 
-		m_State.PostSimulate(dt, m_IsPhysicsHost, ExpansionVehicleNetworkMode.SERVER, false);
+		m_State.PostSimulate(dt, m_IsPhysicsHost, m_Expansion_VehicleSync, GetGame().IsServer(), driver);
 
 		OnPostSimulation(dt);
 

@@ -12,40 +12,70 @@
 
 modded class ActionOpenFence
 {
-	Fence m_Fence;
+	bool m_Expansion_HasCodeLock;
+	bool m_Expansion_CanOpen;
+	bool m_Expansion_IsLocked;
+	bool m_Expansion_HasGate;
 
 	override string GetText()
 	{
-		if ( m_Fence && m_Fence.IsLocked() )
+		if (m_Expansion_IsLocked)
 		{
-			return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+			if (m_Expansion_HasGate)
+				return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+
+			return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
+		}
+
+		return "#open";
+	}
+
+	override bool Can(PlayerBase player, ActionTarget target, ItemBase item, int condition_mask)
+	{
+		Object targetObject = target.GetObject();
+		Fence fence = Fence.Cast( targetObject );
+
+		if (fence)
+		{
+			m_Expansion_HasCodeLock = fence.ExpansionHasCodeLock();
+
+			if (m_Expansion_HasCodeLock)
+			{
+				m_Expansion_CanOpen = fence.ExpansionCanOpen( player, "" );
+
+				//! Not locked by combination lock, but locked by Expansion codelock
+				m_Expansion_IsLocked = !fence.IsLocked() && fence.ExpansionIsLocked();
+
+				if (m_Expansion_IsLocked && m_Expansion_CanOpen)
+				{
+					string type = fence.GetType();
+					type.ToLower();
+
+					m_Expansion_HasGate = type == "fence" || type.Contains("gate");
+				}
+			}
 		}
 		else
-			return "#open";
+		{
+			m_Expansion_HasCodeLock = false;
+			m_Expansion_CanOpen = false;
+		}
+
+		return super.Can(player, target, item, condition_mask);
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		Object targetObject = target.GetObject();
-		if ( targetObject && targetObject.CanUseConstruction() )
-		{
-			m_Fence = Fence.Cast( targetObject );
-			
-			if ( m_Fence )
-			{
-				if ( m_Fence.ExpansionGetCodeLock() )
-					return m_Fence.ExpansionCanOpen( player, "" );
+		if ( m_Expansion_HasCodeLock )
+			return m_Expansion_CanOpen;
 
-				return super.ActionCondition( player, target, item );
-			}
-		}
-		
-		return false;
+		return super.ActionCondition( player, target, item );
 	}
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		if ( !m_Fence || ( m_Fence.ExpansionGetCodeLock() && !m_Fence.ExpansionCanOpen( action_data.m_Player, "" ) ) )
+		Fence fence = Fence.Cast( action_data.m_Target.GetObject() );
+		if ( !fence || ( fence.ExpansionHasCodeLock() && !fence.ExpansionCanOpen( action_data.m_Player, "" ) ) )
 			return;
 
 		super.OnStartServer( action_data );

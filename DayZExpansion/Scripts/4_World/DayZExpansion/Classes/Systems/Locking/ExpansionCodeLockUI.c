@@ -55,7 +55,7 @@ class ExpansionCodeLockUI extends ExpansionLockUIBase
 	{
 		if ( m_Target )
 		{
-			if ( m_Target.IsLocked() )
+			if ( m_Target.ExpansionIsLocked() )
 			{
 				m_LockStateIcon.SetColor(m_LockedColor);
 			} else

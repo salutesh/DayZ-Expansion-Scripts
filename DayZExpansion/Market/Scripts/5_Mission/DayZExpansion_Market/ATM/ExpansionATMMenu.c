@@ -246,6 +246,12 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			return;
 		}
 		
+		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED", "STR_EXPANSION_ATM_NO_CURRENCIES_DEFINED").Error();
+			return;
+		}
+
 		m_MarketModule.RequestWithdrawMoney(m_Amount);
 	}
 	
@@ -474,14 +480,14 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		//! Make sure we dont send negative or 0 amounts
 		if (m_Amount <= 0)
 		{
-			ExpansionNotification("STR_EXPANSION_ATM_TRANSFER_FAILED", "STR_EXPANSION_ATM_NONZERO").Error();
+			ExpansionNotification("STR_EXPANSION_ATM_UI_TRANSFER_PLAYER", "STR_EXPANSION_ATM_NONZERO").Error();
 			return;
 		}
 				
 		//! We only can only transfer what we have deposited
 		if (m_Amount > m_ATMData.MoneyDeposited)
 		{
-			ExpansionNotification("STR_EXPANSION_ATM_TRANSFER_FAILED", "STR_EXPANSION_ATM_AMOUNT_MAX_ERROR").Error();
+			ExpansionNotification("STR_EXPANSION_ATM_UI_TRANSFER_PLAYER", "STR_EXPANSION_ATM_AMOUNT_MAX_ERROR").Error();
 			return;
 		}
 		
@@ -575,6 +581,13 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		if (m_Amount > m_Party.GetMoneyDeposited())
 		{
 			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED", "STR_EXPANSION_ATM_AMOUNT_MAX_ERROR").Error();
+			return;
+		}
+		
+		//! We can only withdraw money to your personal account until we reach max. depending on server setting
+		if ((m_ATMData.MoneyDeposited + m_Amount) > GetExpansionSettings().GetMarket().MaxDepositMoney)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED",  new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_MAX_ERROR", GetExpansionSettings().GetMarket().MaxDepositMoney.ToString())).Error();
 			return;
 		}
 		

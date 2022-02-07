@@ -15,8 +15,6 @@
  **/
 class ExpansionBarrierGate: ExpansionBaseBuilding
 {
-	protected bool m_IsOpened;
-
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -107,10 +105,6 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		//! Door open animation
 		if (selection == "gate")
 			SetAnimationPhase( "gate", 0 );
-
-		m_IsOpened = true;
-
-		SetSynchDirty();
 		
 		super.Open( selection );
 	}
@@ -123,10 +117,6 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		//! Door open animation
 		if (selection == "gate")
 			SetAnimationPhase( "gate", 1 );
-
-		m_IsOpened = false;
-		
-		SetSynchDirty();
 		
 		super.Close( selection );
 	}
@@ -143,7 +133,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 
 		super.OnStoreSave( ctx );
 
-		ctx.Write( m_IsOpened );
+		ctx.Write( m_Expansion_IsOpened );
 	}
 
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
@@ -156,7 +146,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 			return true;
 		#endif
 
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpened ), "[" + this + "] Failed reading m_IsOpened" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened ), "[" + this + "] Failed reading m_Expansion_IsOpened" ) )
 			return false;
 
 		return true;
@@ -170,7 +160,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return;
 
-		ctx.Write(m_IsOpened);
+		ctx.Write(m_Expansion_IsOpened);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -181,7 +171,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_IsOpened))
+		if (!ctx.Read(m_Expansion_IsOpened))
 			return false;
 
 		return true;
@@ -203,7 +193,7 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	{
 		super.AfterStoreLoad();
 
-		if ( m_IsOpened )
+		if ( m_Expansion_IsOpened )
 		{
 			SetAnimationPhase( "gate", 0 );
 		} else 
