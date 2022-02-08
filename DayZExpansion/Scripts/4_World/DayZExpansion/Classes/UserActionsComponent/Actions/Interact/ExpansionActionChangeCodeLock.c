@@ -68,7 +68,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 		
 		if ( m_Target && !m_Target.ExpansionIsLocked() && m_Target.HasCode() )
 		{
-			if ( m_Tent && !m_Target.IsOpened() )
+			if ( m_Tent && !m_Target.IsOpen() )
 			{
 				//! If CodelockActionsAnywhere is OFF, then "Change code"
 				//! will only be possible from the tent entrance
@@ -104,7 +104,7 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
-			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
+			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpen();
 		}
 		
 		return false;

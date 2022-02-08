@@ -54,6 +54,10 @@ modded class ActionOpenFence
 					m_Expansion_HasGate = type == "fence" || type.Contains("gate");
 				}
 			}
+			else
+			{
+				m_Expansion_IsLocked = false;
+			}
 		}
 		else
 		{

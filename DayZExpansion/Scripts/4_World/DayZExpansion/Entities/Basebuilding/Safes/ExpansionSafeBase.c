@@ -68,35 +68,10 @@ class ExpansionSafeBase extends Container_Base
 	{
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion CanOpen
-	// ------------------------------------------------------------
-	override bool ExpansionCanOpen( PlayerBase player, string selection )
-	{
-		if ( ExpansionIsLocked() && !IsKnownUser( player ) )
-			return false;
-
-		if ( !ExpansionIsOpened() )
-			return true;
-
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CanClose
-	// ------------------------------------------------------------
-	override bool ExpansionCanClose( PlayerBase player, string selection )
-	{
-		return CanClose( selection );
-	}
 
 	override bool CanClose( string selection )
 	{
-		if ( ExpansionIsOpened() && !IsRuined())
-			return true;
-			
-		return false;
+		return super.CanClose(selection) && !IsRuined();
 	}
 	
 	// ------------------------------------------------------------

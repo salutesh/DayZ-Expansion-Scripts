@@ -77,6 +77,8 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 
 		if ( m_Target )
 		{
+			m_IsKnownUser = m_Target.IsKnownUser( player );
+
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 			if ( m_Tent )
 			{
@@ -109,20 +111,16 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 						return false;
 				}
 
-				if ( m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened() )
+				if ( m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpen() )
 					return true;
 
-				if ( m_Target.ExpansionIsLocked() || ( m_Target.HasCode() && !m_Target.IsOpened() ) )
+				if ( m_Target.ExpansionIsLocked() || ( m_Target.HasCode() && !m_Target.IsOpen() ) )
 					return true;
 
 				return false;
 			}
 
-			if (m_Target.ExpansionHasCodeLock( selection ))
-			{
-				m_IsKnownUser = m_Target.IsKnownUser( player );
-				return true;
-			}
+			return m_Target.ExpansionHasCodeLock( selection );
 		}
 		
 		return false;

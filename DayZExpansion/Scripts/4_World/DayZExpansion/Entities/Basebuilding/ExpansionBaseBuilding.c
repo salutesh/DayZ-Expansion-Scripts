@@ -400,9 +400,7 @@ modded class ExpansionBaseBuilding
 		return true;
 	}
 
-	//! BaseBuildingBase/Fence compatibility. All actions dealing with opened/closed items should thus use IsOpened(),
-	//! not ExpansionIsOpened(), although the latter is preferred when it is purely an Expansion item we are dealing with
-	//! @note this overrides BaseBuildingBase::IsOpened
+	//! @note this overrides BaseBuildingBase::IsOpened and restores ItemBase::IsOpened
 	override bool IsOpened()
 	{
 		return ExpansionIsOpened();

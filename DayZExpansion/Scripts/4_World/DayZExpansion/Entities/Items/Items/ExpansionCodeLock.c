@@ -214,6 +214,9 @@ class ExpansionCodeLock extends ItemBase
 		if ( parent && GetInventory().IsAttachment() )
 		{
 			Unlock();
+			ItemBase item;
+			if (parent.GetInventory() && parent.GetInventory().IsInventoryLocked() && Class.CastTo(item, parent) && !item.IsOpen())
+				item.Open();
 			ExpansionDropServer( PlayerBase.Cast( player ) );
 		}
 	}
