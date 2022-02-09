@@ -214,7 +214,7 @@ modded class Fence
 	override void SetOpenedState( bool state )
 	{
 		if ( state )
-			Unlock();
+			ExpansionUnlock();
 
 		super.SetOpenedState( state );
 	}

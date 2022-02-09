@@ -213,7 +213,7 @@ class ExpansionCodeLock extends ItemBase
 	{
 		if ( parent && GetInventory().IsAttachment() )
 		{
-			Unlock();
+			ExpansionUnlock();
 			ItemBase item;
 			if (parent.GetInventory() && parent.GetInventory().IsInventoryLocked() && Class.CastTo(item, parent) && !item.IsOpen())
 				item.Open();
@@ -310,7 +310,3 @@ class ExpansionCodeLock extends ItemBase
 		}
 	}
 }
-
-#ifndef CodeLock
-typedef ExpansionCodeLock CodeLock;
-#endif

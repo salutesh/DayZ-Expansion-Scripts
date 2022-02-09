@@ -786,7 +786,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void UnlockAndOpen( string selection ) 
 	{
-		super.Unlock();
+		super.ExpansionUnlock();
 
 		if ( m_HasDoor )
 		{

@@ -29,7 +29,7 @@ modded class TentBase
 		if ( HasCode() )
 		{
 			if ( ExpansionIsOpened() )
-				Unlock();
+				ExpansionUnlock();
 			else
 				ExpansionLock();
 		}

@@ -1,5 +1,5 @@
 /**
- * ActionOpenFence.c
+ * ActionCloseFence.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

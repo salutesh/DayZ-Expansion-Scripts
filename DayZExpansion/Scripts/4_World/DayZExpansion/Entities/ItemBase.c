@@ -202,7 +202,7 @@ modded class ItemBase
 		if (m_Expansion_IsOpenable)
 			AddAction(ExpansionActionOpen);
 
-		if (!IsInherited(Fence) /*&& ExpansionFindCodeLockSlot()*/)
+		if (!IsInherited(Fence) && ExpansionFindCodeLockSlot())
 		{
 			//! Order matters. Have ExpansionActionEnterCodeLock AFTER ExpansionActionOpen
 			//! so that "Open locked" shows on locked items without having to cycle through actions in the UI.
@@ -302,7 +302,7 @@ modded class ItemBase
 	*/
 	bool CanClose( string selection )
 	{
-		return ExpansionIsOpened();
+		return IsOpen();
 	}
 
 	/**
@@ -327,7 +327,7 @@ modded class ItemBase
 
 	void UnlockAndOpen( string selection ) 
 	{
-		Unlock();
+		ExpansionUnlock();
 
 		Open( selection );
 	}
@@ -395,7 +395,7 @@ modded class ItemBase
 		else if (HasCode())
 			ExpansionLock();  //! Will call SetSynchDirty
 		else
-			Unlock();  //! Will call SetSynchDirty
+			ExpansionUnlock();  //! Will call SetSynchDirty
 	}
 	
 	/**
@@ -485,6 +485,9 @@ modded class ItemBase
 
 	bool ExpansionFindCodeLockSlot(out string slotName = "")
 	{
+		if (!GetInventory().GetAttachmentSlotsCount())
+			return false;
+
 		string path;
 
 		if (IsWeapon())
@@ -531,13 +534,6 @@ modded class ItemBase
 		return ExpansionCodeLock.Cast(GetAttachmentByConfigTypeName("ExpansionCodeLock"));
 	}
 
-#ifndef CodeLock
-	CodeLock GetCodeLock()
-	{
-		return CodeLock.Cast(GetAttachmentByConfigTypeName("Att_CombinationLock"));
-	}
-#endif
-
 	void SetSlotLock( EntityAI parent, bool state )
 	{
 		InventoryLocation inventory_location = new InventoryLocation;
@@ -579,14 +575,14 @@ modded class ItemBase
 	\brief Unlocking base build/safe
 		\param 	
 	*/
-	void Unlock()
+	void ExpansionUnlock()
 	{
 		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
 			{
-				codelock.Unlock();
+				codelock.ExpansionUnlock();
 				return;
 			}
 		}
@@ -602,6 +598,11 @@ modded class ItemBase
 		SetSynchDirty();
 	}
 	
+	void Unlock()
+	{
+		ExpansionUnlock();
+	}
+
 	/**
 	\brief Failed attempt to unlock item
 		\param 	
@@ -841,7 +842,7 @@ modded class ItemBase
 						AddUser( player );
 				}
 
-				Unlock();
+				ExpansionUnlock();
 				SendServerLockReply( true, false, sender );
 				return;
 			}
