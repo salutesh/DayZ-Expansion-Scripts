@@ -96,6 +96,90 @@ modded class ItemBase
 	{
 	}
 
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (m_Expansion_IsOpenable && !ExpansionIsOpened() && GetInventory() && GetInventory().GetCargo())
+			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
+	}
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		if (m_Expansion_IsOpenable && ExpansionIsOpened() && GetInventory() && GetInventory().GetCargo())
+			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+	}
+
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		if (!super.CanPutInCargo(parent))
+			return false;
+
+		if (ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		if (!super.CanPutIntoHands(parent))
+			return false;
+		
+		if (ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		if (!super.CanReceiveAttachment(attachment, slotId))
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure already attached items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (!super.CanReceiveItemIntoCargo(item))
+			return false;
+
+		if (m_Expansion_IsOpenable && !ExpansionIsOpened())
+			return false;
+
+		return true;
+	}
+
+	override bool CanReleaseAttachment(EntityAI attachment)
+	{
+		if (!super.CanReleaseAttachment(attachment))
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure already attached items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+    override bool CanReleaseCargo(EntityAI cargo)
+	{
+		if (!super.CanReleaseCargo(cargo))
+			return false;
+
+		if (m_Expansion_IsOpenable && !ExpansionIsOpened())
+			return false;
+
+		return true;
+	}
+
 	void UpdateCurrentHealthMap( string caller = "" )
 	{
 		if ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) )
@@ -320,6 +404,9 @@ modded class ItemBase
 
 		if (!m_Expansion_IsOpenable)
 			return;
+	
+		if (GetInventory() && GetInventory().GetCargo())
+			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
 
 		m_Expansion_IsOpened = true;
 		SetSynchDirty();
@@ -347,6 +434,9 @@ modded class ItemBase
 
 		if (!m_Expansion_IsOpenable)
 			return;
+		
+		if (GetInventory() && GetInventory().GetCargo())
+			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 
 		m_Expansion_IsOpened = false;
 		SetSynchDirty();

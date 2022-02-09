@@ -41,8 +41,8 @@ class JMESPMetaContainer : JMESPMeta
 
 	bool HasCodeLock()
 	{
-		ExpansionSafeBase safe;
-		if ( Class.CastTo( safe, target ) )
+		ItemBase item;
+		if ( Class.CastTo( item, target ) && item.HasCode() )
 		{
 			return true;
 		}

@@ -28,13 +28,6 @@ class ExpansionSafeBase extends Container_Base
 		RegisterNetSyncVariableInt( "m_CodeLength" );
 	}
 
-	override void EEInit()
-	{
-		super.EEInit();
-
-		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
-	}
-
 	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
@@ -89,8 +82,6 @@ class ExpansionSafeBase extends Container_Base
 	{
 		//! Door open animation
 		SetAnimationPhase( "safe_door", 1 );
-	
-		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
 
 		super.Open( selection );
 	}
@@ -102,8 +93,6 @@ class ExpansionSafeBase extends Container_Base
 	{
 		//! Door close animation
 		SetAnimationPhase( "safe_door", 0 );
-		
-		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 		
 		super.Close( selection );
 	}
@@ -286,7 +275,6 @@ class ExpansionSafeBase extends Container_Base
 
 		if ( m_Expansion_IsOpened )
 		{
-			GetInventory().UnlockInventory( HIDE_INV_FROM_SCRIPT );
 			SetAnimationPhase( "safe_door", 1 );
 		} else
 		{
@@ -339,7 +327,7 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 
-		if ( GetNumberOfItems() == 0 && !ExpansionIsOpened() && !ExpansionIsLocked() )
+		if ( GetNumberOfItems() == 0 && !ExpansionIsOpened() )
 		{
 			return true;
 		}
@@ -357,31 +345,12 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 		
-		if ( GetNumberOfItems() == 0 && !ExpansionIsOpened() && !ExpansionIsLocked() )
+		if ( GetNumberOfItems() == 0 && !ExpansionIsOpened() )
 		{
 			return true;
 		}
 
 		return false;
-	}
-
-	// ------------------------------------------------------------
-	// CanReceiveItemIntoCargo
-	// ------------------------------------------------------------
-	override bool CanReceiveItemIntoCargo(EntityAI item)
-	{
-		if ( ExpansionIsOpened() )
-			return super.CanReceiveItemIntoCargo( item );
-
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// CanReleaseCargo
-	// ------------------------------------------------------------
-	override bool CanReleaseCargo(EntityAI cargo)
-	{
-		return ExpansionIsOpened();
 	}
 
 	// ------------------------------------------------------------
