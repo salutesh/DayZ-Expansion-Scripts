@@ -46,7 +46,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 	{
 		if ( m_Target && m_Target.HasCode() )
 		{
-			if ( !m_Target.IsLocked() )
+			if ( !m_Target.ExpansionIsLocked() )
 				return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
 
 			if ( m_IsKnownUser )
@@ -79,7 +79,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 
 			string selection = m_Target.GetActionComponentName( target.GetComponentIndex() );
 
-			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened();
+			return m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpen();
 		}
 		
 		return false;
@@ -97,7 +97,7 @@ class ExpansionActionEnterSafeLock: ActionInteractBase
 		
 		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( m_Target.IsLocked() || !m_Target.HasCode() )
+		if ( m_Target.ExpansionIsLocked() || !m_Target.HasCode() )
 		{
 			if ( m_Target.HasCode() && m_IsKnownUser )
 			{

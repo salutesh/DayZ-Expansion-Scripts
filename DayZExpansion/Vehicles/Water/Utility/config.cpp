@@ -41,11 +41,11 @@ class CfgVehicles
 		fuelCapacity = 192;
 		fuelConsumption = 21;
 		doors[] = {};
-		hiddenSelections[] = {"camo","antiwater"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Utility\data\rhib_co.paa"};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat"};
+		hiddenSelections[] = {"light_1_1","light_2_1","camo","antiwater"};
+		hiddenSelectionsTextures[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib_co.paa",""};
+		hiddenSelectionsMaterials[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat"""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\bus\data\bus_exterior_on.rvmat";
-		frontReflectorMatOff = "";
+		frontReflectorMatOff = "dayzexpansion\vehicles\water\utility\data\rhib.rvmat";
 		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery"};
 		class Cargo
 		{

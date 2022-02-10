@@ -122,9 +122,10 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	void Defaults()
 	{
 		m_Version = VERSION;
-		m_ZoneName = "NA";
-		m_DisplayName = "NA";
-		m_FileName = "INVALID-FILE-NAME";
+		m_ZoneName = "World";
+		m_DisplayName = "World Trader Zone";
+		Position = "7500 0 7500"; 	
+		Radius = 15000;
 		BuyPricePercent = 100;
 		SellPricePercent = -1;  //! -1 = Use global sell price percentage
 	}

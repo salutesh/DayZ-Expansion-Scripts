@@ -47,7 +47,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 	{
 		if ( m_Target && m_Target.HasCode() )
 		{
-			if ( !m_Target.IsLocked() )
+			if ( !m_Target.ExpansionIsLocked() )
 				return "#STR_EXPANSION_BB_CODE_CLOSE_LOCK";
 
 			if ( m_IsKnownUser )
@@ -111,17 +111,17 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 						return false;
 				}
 
-				if ( m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpened() )
+				if ( m_Target.ExpansionHasCodeLock( selection ) && !m_Target.IsOpen() )
 					return true;
 
-				if ( m_Target.IsLocked() || ( m_Target.HasCode() && !m_Target.IsOpened() ) )
+				if ( m_Target.ExpansionIsLocked() || ( m_Target.HasCode() && !m_Target.IsOpen() ) )
 					return true;
 
 				return false;
 			}
 
 			return m_Target.ExpansionHasCodeLock( selection );
-		}		
+		}
 		
 		return false;
 	}
@@ -138,7 +138,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		
 		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( m_Target.IsLocked() || !m_Target.HasCode() )
+		if ( m_Target.ExpansionIsLocked() || !m_Target.HasCode() )
 		{
 			if ( m_Target.HasCode() && m_IsKnownUser )
 			{

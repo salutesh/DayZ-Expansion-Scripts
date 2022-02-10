@@ -670,7 +670,7 @@ modded class MissionGameplay
 					{
 						if ( GetExpansionSettings().GetMap().EnableHUDCompass )
 						{
-							m_ExpansionHud.SetShowCompass( !m_ExpansionHud.GetCompassState() );
+							m_ExpansionHud.SetCompassToggleState();
 						}
 					}
 					

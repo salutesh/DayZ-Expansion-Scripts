@@ -58,20 +58,6 @@ modded class ExpansionBaseBuilding
 		AddAction( ActionFoldBaseBuildingObject );
 
 		AddAction( ExpansionActionDamageBaseBuilding );
-
-		AddAction( ExpansionActionOpen );
-
-		if ( IsInherited( ExpansionWallBase ) )
-		{
-			//! Order matters. Have ExpansionActionEnterCodeLock AFTER ExpansionActionOpen
-			//! so that "Open locked" shows on locked doors/gates without having to cycle through actions in the UI.
-			AddAction( ExpansionActionEnterCodeLock );
-			AddAction( ExpansionActionChangeCodeLock );
-		}
-
-		//! Order matters. Have ExpansionActionClose AFTER ExpansionActionEnterCodeLock
-		//! so that "Lock" shows on opened doors/gates without having to cycle through actions in the UI.
-		AddAction( ExpansionActionClose );
 	}
 
 	override void EEInit()
@@ -414,22 +400,10 @@ modded class ExpansionBaseBuilding
 		return true;
 	}
 
-	/**
-	\brief Opening gate on defined selection
-		\param 	
-	*/
-	override void Open( string selection ) 
+	//! @note this overrides BaseBuildingBase::IsOpened and restores ItemBase::IsOpened
+	override bool IsOpened()
 	{
-		super.Open( selection );
-	}
-	
-	/**
-	\brief Closing gate on defined selection
-		\param 	
-	*/
-	override void Close( string selection ) 
-	{
-		super.Close( selection );
+		return ExpansionIsOpened();
 	}
 
 	override bool CanBeDamaged()

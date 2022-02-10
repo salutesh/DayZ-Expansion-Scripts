@@ -52,7 +52,7 @@ class ExpansionNumpadUI extends ExpansionLockUIBase
 	{
 		if ( m_Target )
 		{
-			if ( m_Target.IsLocked() )
+			if ( m_Target.ExpansionIsLocked() )
 			{
 				m_LockStateIcon.SetImage( 0);
 				m_LockStateIcon.SetColor( m_LockedColor );

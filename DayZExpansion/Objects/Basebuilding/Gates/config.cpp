@@ -36,6 +36,7 @@ class CfgVehicles
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Construction";
+		expansionIsOpenable = 1;
 		displayName = "$STR_EXPANSION_GATE";
 		descriptionShort = "$STR_EXPANSION_GATE_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Gates\BarrierGate.p3d";

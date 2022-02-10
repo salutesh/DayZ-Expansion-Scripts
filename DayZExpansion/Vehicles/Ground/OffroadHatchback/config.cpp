@@ -344,6 +344,21 @@ class CfgVehicles
 					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 				};
 			};
+			class DamageZones
+			{
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{""}}};
+					};
+					componentNames[] = {"dmgZone_doors"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+			};
 		};
 	};
 	class HatchbackTrunk: CarDoor

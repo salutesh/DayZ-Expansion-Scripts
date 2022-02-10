@@ -18,6 +18,7 @@ class CfgVehicles
 		scope = 0;
 		displayname = "$STR_EXPANSION_SAFE";
 		vehicleClass = "Expansion_Construction";
+		expansionIsOpenable = 1;
 		overrideDrawArea = "8.0";
 		carveNavmesh = 1;
 		heavyItem = 1;

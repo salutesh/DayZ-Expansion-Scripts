@@ -19,6 +19,8 @@ class ExpansionCodeLock extends ItemBase
 	static protected const string GREEN_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_g.rvmat";
 	static protected const string DEFAULT_MATERIAL 	= "DayZExpansion\\Objects\\Basebuilding\\Items\\Codelock\\data\\codelock.rvmat";
 
+	protected static ref TStringArray s_Expansion_InventorySlots = new TStringArray;
+
 	protected EffectSound m_Sound;
 	
 	protected bool m_WasSynced;
@@ -49,12 +51,12 @@ class ExpansionCodeLock extends ItemBase
 				SetCode(parent.GetCode(), NULL, false, false);
 
 				//! Migrate locked state
-				if (parent.IsLocked())
+				if (parent.ExpansionIsLocked())
 					ExpansionLock();
 
 				parent.SetCode("", NULL, true, false);
 			}
-			else if ( IsLocked() )
+			else if ( ExpansionIsLocked() )
 			{
 				SetSlotLock( parent, true );
 				SetTakeable( false );
@@ -184,7 +186,7 @@ class ExpansionCodeLock extends ItemBase
 		
 		ItemBase target = ItemBase.Cast( parent );
 
-		if ( target && target.IsLocked() )
+		if ( target && target.ExpansionIsLocked() )
 		{
 			return false;
 		}
@@ -213,7 +215,10 @@ class ExpansionCodeLock extends ItemBase
 	{
 		if ( parent && GetInventory().IsAttachment() )
 		{
-			Unlock();
+			ExpansionUnlock();
+			ItemBase item;
+			if (parent.GetInventory() && parent.GetInventory().IsInventoryLocked() && Class.CastTo(item, parent) && !item.IsOpen())
+				item.Open();
 			ExpansionDropServer( PlayerBase.Cast( player ) );
 		}
 	}
@@ -232,6 +237,14 @@ class ExpansionCodeLock extends ItemBase
 		UnlockServer( EntityAI.Cast( killer ), GetHierarchyParent() );
 	}
 		
+	static TStringArray Expansion_GetInventorySlots()
+	{
+		if (!s_Expansion_InventorySlots.Count())
+			GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", s_Expansion_InventorySlots);
+
+		return s_Expansion_InventorySlots;
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
@@ -276,7 +289,7 @@ class ExpansionCodeLock extends ItemBase
 		if ( !IsMissionClient() )
 			return;
 
-		if ( parent && IsLocked() )
+		if ( parent && ExpansionIsLocked() )
 		{
 			SetObjectMaterial( 0, DEFAULT_MATERIAL );
 			SetObjectMaterial( 1, GREEN_LIGHT_GLOW );

@@ -27,9 +27,6 @@ class ExpansionStove extends FireplaceBase
 	//cooking
 	protected const float PARAM_COOKING_TIME_INC_COEF			= 0.5;		//cooking time increase coeficient, can be used when balancing how fast a food can be cooked
 
-	//! Expansion is open switch
-	protected bool m_IsOpen;
-
 	// ------------------------------------------------------------
 	// Expansion GetCookingEquipment
 	// ------------------------------------------------------------
@@ -55,14 +52,6 @@ class ExpansionStove extends FireplaceBase
 	}
 
 	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void ExpansionStove()
-	{
-		RegisterNetSyncVariableBool("m_IsOpen");
-	}
-
-	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
 	void ~ExpansionStove()
@@ -79,8 +68,6 @@ class ExpansionStove extends FireplaceBase
 		AddAction(ActionLightItemOnFire);
 		AddAction(ActionTurnOnWhileOnGround);
 		AddAction(ActionTurnOffWhileOnGround);
-		AddAction(ExpansionActionOpen);
-		AddAction(ExpansionActionClose);
 
 		AddAction(ActionTogglePlaceObject);
 		AddAction(ActionPlaceObject);
@@ -143,14 +130,6 @@ class ExpansionStove extends FireplaceBase
 	}
 
 	// ------------------------------------------------------------
-	// Expansion ExpansionIsOpenable
-	// ------------------------------------------------------------
-	override bool ExpansionIsOpenable()
-	{
-		return true;
-	}
-
-	// ------------------------------------------------------------
 	// Expansion CanOpen
 	// ------------------------------------------------------------
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
@@ -181,14 +160,10 @@ class ExpansionStove extends FireplaceBase
 	// Expansion Open
 	// ------------------------------------------------------------
 	override void Open( string selection ) 
-	{	
-		m_IsOpen = true;
-
+	{
 		//! Door open animation
 		if (selection == "doors1")
 			SetAnimationPhase( "doors1", 1 );
-
-		SetSynchDirty();
 		
 		super.Open( selection );
 	}
@@ -197,24 +172,12 @@ class ExpansionStove extends FireplaceBase
 	// Expansion Close
 	// ------------------------------------------------------------
 	override void Close( string selection ) 
-	{	
-		m_IsOpen = false;
-
+	{
 		//! Door open animation
 		if (selection == "doors1")
 			SetAnimationPhase( "doors1", 0 );
 		
-		SetSynchDirty();
-		
 		super.Close( selection );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion IsOpened
-	// ------------------------------------------------------------
-	override bool IsOpened()
-	{
-		return m_IsOpen;
 	}
 
 	//returns if item attached to fireplace is fuel
@@ -584,7 +547,7 @@ class ExpansionStove extends FireplaceBase
 		
 		if( GetInventory().AttachmentCount() == 0 )
 		{
-			return !IsOpened() && !IsIgnited();
+			return !ExpansionIsOpened() && !IsIgnited();
 		}
 
 		return false;
@@ -602,7 +565,7 @@ class ExpansionStove extends FireplaceBase
 		
 		if( GetInventory().AttachmentCount() == 0 )
 		{
-			return !IsOpened() && !IsIgnited();
+			return !ExpansionIsOpened() && !IsIgnited();
 		}
 
 		return false;

@@ -750,4 +750,32 @@ modded class ItemBase
 		EXPrint("[CORE][Expansion_SZCleanup] " + ToString() + " " + GetPosition() + " marked for cleanup - lifetime " + GetLifetime());
 		#endif
 	}
+
+	TStringArray Expansion_GetAttachmentSlots()
+	{
+		TStringArray attachments();
+
+		string path;
+
+		if (IsWeapon())
+			path = CFG_WEAPONSPATH;
+		else if (IsMagazine())
+			path = CFG_MAGAZINESPATH;
+		else
+			path = CFG_VEHICLESPATH;
+
+		path += " " + GetType();
+
+		if (GetGame().ConfigIsExisting(path))
+			GetGame().ConfigGetTextArray(path + " attachments", attachments);
+
+		return attachments;
+	}
+
+	bool Expansion_HasAttachmentSlot(string slotName)
+	{
+		TStringArray attachments = Expansion_GetAttachmentSlots();
+
+		return ExpansionStatic.StringArrayContainsIgnoreCase(attachments, slotName);
+	}
 };

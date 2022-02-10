@@ -643,7 +643,8 @@ class ExpansionMarketModule: JMModuleBase
 				mag.GetCartridgeAtIndex(i, damage, cartTypeName);
 	
 				//! Need to round, otherwise value might not match between server and client
-				damage = Math.Round(damage * 10) * 0.01;
+				//! TODO: Fuck it, my assumption is this still leads to different values on client and server sometimes due to DayZ being DayZ, so just set damage to 0
+				damage = 0; //Math.Round(damage * 10) * 0.01;
 				MarketModulePrint("Bullet: " + cartTypeName + ", " + "Damage: "+ damage.ToString());
 
 				float sellPriceModifierCur = 1 - damage; 
@@ -3825,6 +3826,20 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 		
+		//! We can only deposit money until we reach max. depending on server setting
+		if (data.MoneyDeposited + amount > GetExpansionSettings().GetMarket().MaxDepositMoney)
+		{
+			Error("ExpansionMarketModule::Exec_RequestDepositMoney - Receiving player would go over max allowed deposit money value!");
+			
+			return;
+		}
+		
+		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		{
+			Error("ExpansionMarketModule::Exec_RequestDepositMoney - No currencies defined for ATM!");
+			return;
+		}
+
 		array<int> monies = new array<int>;		
 		if (!FindMoneyAndCountTypes(player, amount, monies, true, NULL, NULL, true))
 		{
@@ -3971,7 +3986,7 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (data.MoneyDeposited < amount)
 		{
-			Error("ExpansionMarketModule::Exec_RequestWithdrawMoney - Tryed to deposit more money then in inventory!");
+			Error("ExpansionMarketModule::Exec_RequestWithdrawMoney - Tried to withdraw more money than in account!");
 			return;
 		}
 		
@@ -3989,6 +4004,12 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}	
 		
+		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		{
+			Error("ExpansionMarketModule::Exec_RequestWithdrawMoney - No currencies defined for ATM!");
+			return;
+		}
+
 		SpawnMoney(player, parent, amount, true, NULL, NULL, true);
 
 		CheckSpawn(player, parent);
@@ -4144,7 +4165,7 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (data_receiver.MoneyDeposited + amount > GetExpansionSettings().GetMarket().MaxDepositMoney)
 		{
-			//! TODO: This case can only be checked server side, so client should be notified in case of failure
+			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED", new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_MAX_ERROR", GetExpansionSettings().GetMarket().MaxDepositMoney.ToString())).Error(ident);
 			Error("ExpansionMarketModule::Exec_RequestTransferMoneyToPlayer - Receiving player would go over max allowed deposit money value!");
 			return;
 		}
@@ -4332,12 +4353,14 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (data.MoneyDeposited < amount)
 		{
+			Error("ExpansionMarketModule::Exec_RequestPartyTransferMoney - Tried to deposit more money then in inventory!");
 			return;
 		}
 		
 		ExpansionPartyModule module = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
 		if (!module)
 		{
+			Error("ExpansionMarketModule::Exec_RequestPartyTransferMoney - Could not get party party module!");
 			return;
 		}
 		
@@ -4345,6 +4368,7 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (party.GetMoneyDeposited() + amount > GetExpansionSettings().GetMarket().MaxPartyDepositMoney)
 		{
+			Error("ExpansionMarketModule::Exec_RequestPartyTransferMoney - Receiving party would go over max allowed deposit money value!");
 			return;
 		}
 		
@@ -4523,6 +4547,13 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (party.GetMoneyDeposited() < amount)
 		{
+			Error("ExpansionMarketModule::Exec_RequestPartyWithdrawMoney - Tried to withdraw more money than in account!");
+			return;
+		}
+		
+		if (data.MoneyDeposited + amount > GetExpansionSettings().GetMarket().MaxDepositMoney)
+		{
+			Error("ExpansionMarketModule::Exec_RequestPartyWithdrawMoney - Receiving player would go over max allowed deposit money value!");
 			return;
 		}
 		

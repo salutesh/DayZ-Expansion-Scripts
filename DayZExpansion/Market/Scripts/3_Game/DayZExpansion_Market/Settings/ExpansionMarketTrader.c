@@ -125,13 +125,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		if (settingsBase.m_Version >= 5)
 		{
 			//! Make sure currencies are lowercase
-			TStringArray currencies = settings.Currencies;
-			settings.Currencies = new TStringArray;
-			foreach (string currency : currencies)
-			{
-				currency.ToLower();
-				settings.Currencies.Insert(currency);
-			}
+			settings.Currencies = ExpansionMarketSettings.StringArrayToLower(settings.Currencies);
 		}
 			
 		if (settingsBase.m_Version >= 4)

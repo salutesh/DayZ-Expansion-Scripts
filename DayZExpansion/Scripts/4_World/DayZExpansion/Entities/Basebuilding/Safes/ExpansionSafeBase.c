@@ -15,7 +15,6 @@ class ExpansionSafeBase extends Container_Base
 	protected EffectSound m_Sound;
 	
 	protected bool m_WasSynced;
-	protected bool m_IsOpen;
 	protected bool m_WasLocked;
 
 	// ------------------------------------------------------------
@@ -25,16 +24,8 @@ class ExpansionSafeBase extends Container_Base
 	{
 		m_KnownUIDs = new TStringArray;
 
-		RegisterNetSyncVariableBool( "m_IsOpen" );
 		RegisterNetSyncVariableBool( "m_Locked" );
 		RegisterNetSyncVariableInt( "m_CodeLength" );
-	}
-
-	override void EEInit()
-	{
-		super.EEInit();
-
-		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
 	}
 
 	// ------------------------------------------------------------
@@ -70,42 +61,10 @@ class ExpansionSafeBase extends Container_Base
 	{
 		return true;
 	}
-	// ------------------------------------------------------------
-	// Expansion ExpansionIsOpenable
-	// ------------------------------------------------------------
-	override bool ExpansionIsOpenable()
-	{
-		return true;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CanOpen
-	// ------------------------------------------------------------
-	override bool ExpansionCanOpen( PlayerBase player, string selection )
-	{
-		if ( IsLocked() && !IsKnownUser( player ) )
-			return false;
-
-		if ( !IsOpened() )
-			return true;
-
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CanClose
-	// ------------------------------------------------------------
-	override bool ExpansionCanClose( PlayerBase player, string selection )
-	{
-		return CanClose( selection );
-	}
 
 	override bool CanClose( string selection )
 	{
-		if ( IsOpened() && !IsRuined())
-			return true;
-			
-		return false;
+		return super.CanClose(selection) && !IsRuined();
 	}
 	
 	// ------------------------------------------------------------
@@ -121,13 +80,8 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override void Open( string selection ) 
 	{
-		m_IsOpen = true;
-
 		//! Door open animation
 		SetAnimationPhase( "safe_door", 1 );
-	
-		GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
-		SetSynchDirty();
 
 		super.Open( selection );
 	}
@@ -137,23 +91,10 @@ class ExpansionSafeBase extends Container_Base
 	// ------------------------------------------------------------
 	override void Close( string selection ) 
 	{
-		m_IsOpen = false;
-
 		//! Door close animation
 		SetAnimationPhase( "safe_door", 0 );
 		
-		GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
-		SetSynchDirty();
-		
 		super.Close( selection );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion IsOpened
-	// ------------------------------------------------------------
-	override bool IsOpened()
-	{
-		return m_IsOpen;
 	}
 	
 	protected void SoundCodeLockLocked()
@@ -217,7 +158,7 @@ class ExpansionSafeBase extends Container_Base
 
 		super.OnStoreSave( ctx );
 		
-		ctx.Write( m_IsOpen );
+		ctx.Write( m_Expansion_IsOpened );
 		ctx.Write( m_Locked );
 		ctx.Write( m_Code );
 
@@ -238,7 +179,7 @@ class ExpansionSafeBase extends Container_Base
 			return true;
 		#endif
 		
-		if ( Expansion_Assert_False( ctx.Read( m_IsOpen ), "[" + this + "] Failed reading m_IsOpen" ) )
+		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened ), "[" + this + "] Failed reading m_Expansion_IsOpened" ) )
 			return false;
 		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
 			return false;
@@ -271,7 +212,7 @@ class ExpansionSafeBase extends Container_Base
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return;
 
-		ctx.Write( m_IsOpen );
+		ctx.Write( m_Expansion_IsOpened );
 		ctx.Write( m_Locked );
 		ctx.Write( m_Code );
 
@@ -290,7 +231,7 @@ class ExpansionSafeBase extends Container_Base
 		auto ctx = storage[DZ_Expansion];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_IsOpen))
+		if (!ctx.Read(m_Expansion_IsOpened))
 			return false;
 
 		if (!ctx.Read(m_Locked))
@@ -332,9 +273,8 @@ class ExpansionSafeBase extends Container_Base
 	{
 		super.AfterStoreLoad();
 
-		if ( m_IsOpen )
+		if ( m_Expansion_IsOpened )
 		{
-			GetInventory().UnlockInventory( HIDE_INV_FROM_SCRIPT );
 			SetAnimationPhase( "safe_door", 1 );
 		} else
 		{
@@ -360,7 +300,7 @@ class ExpansionSafeBase extends Container_Base
 			SetPosition( position );
 			SetOrientation( orientation );
 
-			if( HasCode() && !IsLocked() && !IsOpened() )
+			if( HasCode() && !ExpansionIsLocked() && !ExpansionIsOpened() )
 				ExpansionLock();
 
 			SetSynchDirty();
@@ -387,7 +327,7 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 
-		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
+		if ( GetNumberOfItems() == 0 && !ExpansionIsOpened() )
 		{
 			return true;
 		}
@@ -405,31 +345,12 @@ class ExpansionSafeBase extends Container_Base
 			return false;
 		}
 		
-		if ( GetNumberOfItems() == 0 && !IsOpened() && !IsLocked() )
+		if ( GetNumberOfItems() == 0 && !ExpansionIsOpened() )
 		{
 			return true;
 		}
 
 		return false;
-	}
-
-	// ------------------------------------------------------------
-	// CanReceiveItemIntoCargo
-	// ------------------------------------------------------------
-	override bool CanReceiveItemIntoCargo(EntityAI item)
-	{
-		if ( IsOpened() )
-			return super.CanReceiveItemIntoCargo( item );
-
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// CanReleaseCargo
-	// ------------------------------------------------------------
-	override bool CanReleaseCargo(EntityAI cargo)
-	{
-		return IsOpened();
 	}
 
 	// ------------------------------------------------------------

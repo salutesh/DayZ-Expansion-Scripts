@@ -32,7 +32,7 @@ class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 
 		ExpansionSafeBase safe = ExpansionSafeBase.Cast( target.GetObject() );
 
-		if ( !safe || !safe.IsLocked() )
+		if ( !safe || !safe.ExpansionIsLocked() )
 			return false;
 
 		if ( GetExpansionSettings().GetRaid().SafeRaidTools.Find( item.GetType() ) == -1 )

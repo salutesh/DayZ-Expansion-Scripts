@@ -29,13 +29,20 @@ class ExpansionActionOpen: ActionInteractBase
 
 	override string GetText()
 	{
-		if ( m_Target && m_Target.IsLocked() )
+		if ( m_Target && m_Target.ExpansionIsLocked() )
 		{
+			string type = m_Target.GetType();
 			if ( m_Target.IsInherited( ExpansionSafeBase ) )
 				return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
 			ExpansionWallBase wall;
-			if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || m_Target.GetType() == "Fence" )
+			if ( (Class.CastTo( wall, m_Target ) && wall.HasGate()) || type == "Fence" )
 				return "#STR_EXPANSION_OPEN_LOCKED_GATE";
+			if ( m_Target.IsKindOf( "Container_Base" ) && !m_Target.IsBuilding() )
+			{
+				if ( type.Contains("Safe") )
+					return "#STR_EXPANSION_OPEN_LOCKED_SAFE";
+				return "#STR_EXPANSION_OPEN_LOCKED_CONTAINER";
+			}
 			return "#STR_EXPANSION_OPEN_LOCKED_DOOR";
 		}
 
@@ -55,12 +62,12 @@ class ExpansionActionOpen: ActionInteractBase
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		if ( !m_Target || ( m_Target.IsLocked() && !m_Target.IsKnownUser( action_data.m_Player ) ) )
+		if ( !m_Target || ( m_Target.ExpansionIsLocked() && !m_Target.IsKnownUser( action_data.m_Player ) ) )
 			return;
 
 		string selection = m_Target.GetActionComponentName( action_data.m_Target.GetComponentIndex() );
 
-		if ( m_Target.IsLocked() )
+		if ( m_Target.ExpansionIsLocked() )
 			m_Target.UnlockAndOpen( selection );
 		else
 			m_Target.Open( selection );

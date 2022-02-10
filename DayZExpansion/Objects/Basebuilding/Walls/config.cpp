@@ -50,6 +50,7 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_BB_WALL_BASE";
 		model = "\DayZExpansion\Objects\Basebuilding\Walls\Wall_6x3.p3d";
 		vehicleClass = "Expansion_Construction";
+		expansionIsOpenable = 1;
 		bounding = "BSphere";
 		overrideDrawArea = "3.0";
 		forceFarBubble = "true";

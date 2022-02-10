@@ -12,6 +12,8 @@
 
 modded class ItemBase
 {
+	protected static ref TTypeNameStringMap s_Expansion_CodeLockSlotNames = new TTypeNameStringMap;
+
 	protected ref ExpansionElectricityConnection m_ElectricitySource;
 	protected ref array< ItemBase > m_ElectricityConnections;
 
@@ -27,6 +29,8 @@ modded class ItemBase
 	ref TStringArray m_DmgZones;
 	ref map< string, float > m_CurrentHealth;
 
+	protected bool m_Expansion_IsOpenable;
+	protected bool m_Expansion_IsOpened;
 	protected bool m_Locked;
 	protected string m_Code;  //! Only set on server, not synced to client. NEVER set this directly. Use SetCode()
 	protected int m_CodeLength;  //! Unlike m_Code, this should be synched to clients for items that use codes
@@ -45,7 +49,15 @@ modded class ItemBase
 		EXPrint("ItemBase::ItemBase - Classname: " + ClassName());
 		EXPrint("ItemBase::ItemBase - Type: " + GetType());
 		#endif
-		
+			
+		//! Only register for netsync if config value is true, don't use ExpansionIsOpenable() here
+		//! for compatibility with 3rd party modded items which may not wish to set the config value
+		//! and have their own means of syncing open/closed state but still want to override
+		//! ExpansionIsOpenable for other means (e.g. action conditions)
+		m_Expansion_IsOpenable = ConfigGetBool("expansionIsOpenable");
+		if (m_Expansion_IsOpenable)
+			RegisterNetSyncVariableBool( "m_Expansion_IsOpened" );
+
 		m_ElectricitySource = new ExpansionElectricityConnection( this );
 		m_ElectricityConnections = new array< ItemBase >();
 		if ( ExpansionCanRecievePower() )
@@ -84,6 +96,98 @@ modded class ItemBase
 	//============================================
 	void ~ItemBase()
 	{
+	}
+
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (m_Expansion_IsOpenable && !ExpansionIsOpened() && GetInventory() && GetInventory().GetCargo())
+			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
+	}
+
+	override void AfterStoreLoad()
+	{
+		super.AfterStoreLoad();
+
+		if (m_Expansion_IsOpenable && ExpansionIsOpened() && GetInventory() && GetInventory().GetCargo())
+			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+	}
+
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		if (!super.CanPutInCargo(parent))
+			return false;
+
+		if (ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		if (!super.CanPutIntoHands(parent))
+			return false;
+		
+		if (ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
+	{
+		if (!super.CanReceiveAttachment(attachment, slotId))
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure already attached items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		if (!super.CanReceiveItemIntoCargo(item))
+			return false;
+
+		if (m_Expansion_IsOpenable && !ExpansionIsOpened())
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure cargo items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+	override bool CanReleaseAttachment(EntityAI attachment)
+	{
+		if (!super.CanReleaseAttachment(attachment))
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure already attached items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
+		return true;
+	}
+
+    override bool CanReleaseCargo(EntityAI cargo)
+	{
+		if (!super.CanReleaseCargo(cargo))
+			return false;
+
+		if (m_Expansion_IsOpenable && !ExpansionIsOpened())
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure cargo items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
+		return true;
 	}
 
 	void UpdateCurrentHealthMap( string caller = "" )
@@ -182,6 +286,30 @@ modded class ItemBase
 		}
 	}
 	
+	override void SetActions()
+	{
+		super.SetActions();
+
+		if (IsInherited(ExpansionSafeBase) || IsInherited(TentBase))
+			return;
+
+		if (m_Expansion_IsOpenable)
+			AddAction(ExpansionActionOpen);
+
+		if (!IsInherited(Fence) && ExpansionFindCodeLockSlot())
+		{
+			//! Order matters. Have ExpansionActionEnterCodeLock AFTER ExpansionActionOpen
+			//! so that "Open locked" shows on locked items without having to cycle through actions in the UI.
+			AddAction(ExpansionActionEnterCodeLock);
+			AddAction(ExpansionActionChangeCodeLock);
+		}
+
+		//! Order matters. Have ExpansionActionClose AFTER ExpansionActionEnterCodeLock
+		//! so that "Lock" shows on opened items without having to cycle through actions in the UI.
+		if (m_Expansion_IsOpenable)
+			AddAction(ExpansionActionClose);
+	}
+
 	//============================================
 	// IsBasebuilding
 	//============================================	
@@ -203,7 +331,7 @@ modded class ItemBase
 	*/
 	bool ExpansionIsOpenable()
 	{
-		return false;
+		return m_Expansion_IsOpenable;
 	}
 
 	/**
@@ -219,65 +347,114 @@ modded class ItemBase
 	\brief Returning if item is open
 		\param 	
 	*/
+	bool ExpansionIsOpened()
+	{
+		return m_Expansion_IsOpened;
+	}
+
+	//! @note vanilla BaseBuildingBase and Fence overwrite our ItemBase::IsOpened
 	bool IsOpened()
 	{
-		return false;
+		return ExpansionIsOpened();
+	}
+
+	//! All actions dealing with opened/closed state should use IsOpen() for best compatibility with vanilla and 3rd party modded items,
+	//! not ExpansionIsOpened(), although the latter is preferred when it is purely an Expansion item we are dealing with
+	override bool IsOpen()
+	{
+		if (!super.IsOpen())
+			return false;
+
+		if (ExpansionIsOpenable())
+			return IsOpened();
+
+		//! @note vanilla by default returns true, we need to keep this compatible
+		return true;
 	}
 
 	/**
-	\brief Returning if player can open gate/safe from selection
+	\brief Returning if player can open item from selection
 		\param 
 	*/
 	bool ExpansionCanOpen( PlayerBase player, string selection )
 	{
-		return !IsLocked() || IsKnownUser( player );
+		return ExpansionIsOpenable( selection ) && !IsOpen() && ( !ExpansionIsLocked() || IsKnownUser( player ) );
 	}
 
 	/**
-	\brief Returning if player can close gate/safe from selection
+	\brief Returning if player can close item from selection
 		\param 
 	*/
 	bool ExpansionCanClose( PlayerBase player, string selection )
 	{
-		return CanClose( selection );
+		return ExpansionIsOpenable() && CanClose( selection );
 	}
 	
 	/**
-	\brief Returning if player can close gate/safe from selection
+	\brief Returning if player can close item from selection
 		\param 	
 	*/
 	bool CanClose( string selection )
 	{
-		return false;
+		return IsOpen();
 	}
 
 	/**
-	\brief Opening gate/safe on defined selection
+	\brief Opening item on defined selection
 		\param 	
 	*/
 	void Open( string selection ) 
 	{
+		Open();
+	}
+
+	override void Open()
+	{
+		super.Open();
+
+		if (!m_Expansion_IsOpenable)
+			return;
+	
+		if (GetInventory() && GetInventory().GetCargo())
+			GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
+
+		m_Expansion_IsOpened = true;
+		SetSynchDirty();
 	}
 
 	void UnlockAndOpen( string selection ) 
 	{
-		Unlock();
+		ExpansionUnlock();
 
 		Open( selection );
 	}
 	
 	/**
-	\brief Closing gate/safe on defined selection
+	\brief Closing item on defined selection
 		\param 	
 	*/
 	void Close( string selection ) 
 	{
+		Close();
+	}
+
+	override void Close()
+	{
+		super.Close();
+
+		if (!m_Expansion_IsOpenable)
+			return;
+		
+		if (GetInventory() && GetInventory().GetCargo())
+			GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
+
+		m_Expansion_IsOpened = false;
+		SetSynchDirty();
 	}
 
 	void CloseAndLock( string selection )
 	{
-		if ( IsOpened() )
-			Close( selection );
+		Close( selection );
 
 		ExpansionLock();
 	}
@@ -301,23 +478,24 @@ modded class ItemBase
 			if (codelock)
 			{
 				codelock.SetCode(code, player, setUser, updateLock);
-				return;
 			}
 		}
+		else
+		{
+			m_Code = code;
+			m_CodeLength = code.Length();
+			m_Locked = false;
 
-		m_Code = code;
-		m_CodeLength = code.Length();
-		m_Locked = false;
+			if (m_KnownUIDs && setUser && GetExpansionSettings().GetBaseBuilding().RememberCode)
+				SetUser( player );
+		}
 
-		if (m_KnownUIDs && setUser && GetExpansionSettings().GetBaseBuilding().RememberCode)
-			SetUser( player );
-
-		if (IsOpened() || !updateLock)
+		if (IsOpen() || !updateLock)
 			SetSynchDirty();
-		else if (m_Code)
+		else if (HasCode())
 			ExpansionLock();  //! Will call SetSynchDirty
 		else
-			Unlock();  //! Will call SetSynchDirty
+			ExpansionUnlock();  //! Will call SetSynchDirty
 	}
 	
 	/**
@@ -377,7 +555,7 @@ modded class ItemBase
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
-				return codelock.IsLocked();
+				return codelock.ExpansionIsLocked();
 		}
 
 		return m_CodeLength > 0 && m_Locked;
@@ -405,34 +583,33 @@ modded class ItemBase
 		return ExpansionGetCodeLock() != NULL;
 	}
 
-	bool ExpansionHasCodeLockSlot()
+	bool ExpansionFindCodeLockSlot(out string slotName = "")
 	{
-		TStringArray attachments();
-		TStringArray slots();
-		string path;
+		if (!GetInventory().GetAttachmentSlotsCount())
+			return false;
 
-		if (IsWeapon())
-			path = "CfgWeapons";
-		else if (IsMagazine())
-			path = "CfgMagazines";
-		else
-			path = "CfgVehicles";
+		if (s_Expansion_CodeLockSlotNames.Find(Type(), slotName))
+			return slotName != "";
 
-		GetGame().ConfigGetTextArray(path + " " + GetType() + " attachments", attachments);
-		GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", slots);
+		TStringArray attachments = Expansion_GetAttachmentSlots();
 
-		foreach (string attachment: attachments)
+		if (attachments.Count())
 		{
-			attachment.ToLower();
+			TStringArray slots = ExpansionCodeLock.Expansion_GetInventorySlots();
+
 			foreach (string slot: slots)
 			{
-				slot.ToLower();
-				if (attachment == slot)
-					return true;
+				if (ExpansionStatic.StringArrayContainsIgnoreCase(attachments, slot))
+				{
+					slotName = slot;
+					break;
+				}
 			}
 		}
 
-		return false;
+		s_Expansion_CodeLockSlotNames.Insert(Type(), slotName);
+
+		return slotName != "";
 	}
 
 	/**
@@ -485,14 +662,14 @@ modded class ItemBase
 	\brief Unlocking base build/safe
 		\param 	
 	*/
-	void Unlock()
+	void ExpansionUnlock()
 	{
 		if (!IsInherited(ExpansionCodeLock) && !IsInherited(ExpansionSafeBase))
 		{
 			ExpansionCodeLock codelock = ExpansionGetCodeLock();
 			if (codelock)
 			{
-				codelock.Unlock();
+				codelock.ExpansionUnlock();
 				return;
 			}
 		}
@@ -508,6 +685,11 @@ modded class ItemBase
 		SetSynchDirty();
 	}
 	
+	void Unlock()
+	{
+		ExpansionUnlock();
+	}
+
 	/**
 	\brief Failed attempt to unlock item
 		\param 	
@@ -661,7 +843,7 @@ modded class ItemBase
 					return;
 				}
 				
-				if ( !HasCode() || IsLocked() )
+				if ( !HasCode() || ExpansionIsLocked() )
 				{
 					SendServerLockReply( false, false, sender );
 					return;
@@ -695,10 +877,10 @@ modded class ItemBase
 					return;
 				}
 				
-				if ( !HasCode() || !IsLocked() )
+				if ( !HasCode() || !ExpansionIsLocked() )
 				{
 					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !IsLocked()");
+					EXLogPrint("ItemBase::OnRPC ExpansionLockRPC.UNLOCK !HasCode() || !ExpansionIsLocked()");
 					#endif
 					
 					SendServerLockReply( false, false, sender );
@@ -747,7 +929,7 @@ modded class ItemBase
 						AddUser( player );
 				}
 
-				Unlock();
+				ExpansionUnlock();
 				SendServerLockReply( true, false, sender );
 				return;
 			}

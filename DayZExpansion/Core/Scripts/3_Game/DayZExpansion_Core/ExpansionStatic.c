@@ -383,6 +383,20 @@ class ExpansionStatic
 		blue =  ( value ) & 255;
 	}
 
+	static bool StringArrayContainsIgnoreCase(TStringArray elements, string search)
+	{
+		search.ToLower();
+
+		foreach (string element: elements)
+		{
+			element.ToLower();
+			if (element == search)
+				return true;
+		}
+
+		return false;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion GetTime
 	// ------------------------------------------------------------

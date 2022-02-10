@@ -94,15 +94,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	Particle m_DustParticle;
 	Particle m_WaterParticle;
 
-	float m_ForcePilotSyncIntervalSeconds;
-	float m_ForcePilotSyncTick;
-
 	void ExpansionVehicleHelicopter_OLD(EntityAI pVehicle)
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
-
-		m_ForcePilotSyncIntervalSeconds = GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds;
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()
@@ -976,20 +971,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		if (!m_EnableWind)
 			m_WindSpeedSync = "0 0 0";
-
-		if (!GetGame().IsDedicatedServer() || !m_ForcePilotSyncIntervalSeconds)
-			return;
-
-		m_ForcePilotSyncTick += 0.025;
-		if (m_ForcePilotSyncTick > m_ForcePilotSyncIntervalSeconds)
-		{
-			m_ForcePilotSyncTick = 0;
-			dBodyDynamic(m_Vehicle, false);
-			m_Vehicle.SetPosition(m_Vehicle.GetPosition());
-			m_Vehicle.SetOrientation(m_Vehicle.GetOrientation());
-			dBodyDynamic(m_Vehicle, true);
-			m_Vehicle.SetSynchDirty();
-		}
 	}
 
 	bool IsAutoHover()

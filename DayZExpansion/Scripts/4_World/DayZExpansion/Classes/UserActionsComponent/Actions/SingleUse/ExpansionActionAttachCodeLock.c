@@ -36,7 +36,7 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 			if ( IsMissionClient() )
 			{
 				if ( !targetObject )  //! Only on client, NULL on server as we cannot use proxies here
-					return -1;
+					return InventorySlots.INVALID;
 
 				//! Only allow attaching codelocks to the entrances of tents, as tents may be used to block off areas,
 				//! so we don't want players to be able to attach codelocks from anywhere.
@@ -58,7 +58,7 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 				}
 
 				if ( !isEntrance )
-					return -1;
+					return InventorySlots.INVALID;
 			}
 
 			slotName = "Att_ExpansionCodeLock";
@@ -69,25 +69,23 @@ class ExpansionActionAttachCodeLock: ActionSingleUseBase
 			ExpansionWallBase wall;
 			Fence fence;
 
+			targetItem = ItemBase.Cast( targetObject );
+
 			if ( Class.CastTo( wall, targetObject ) )
 			{
 				if ( wall.HasDoor() )
 					slotName = "Att_ExpansionCodeLock_1";
 				else if ( wall.HasGate() )
 					slotName = "Att_ExpansionCodeLock_2";
-				else
-					return -1;
 			}
 			else if ( Class.CastTo( fence, targetObject ) && fence.HasFullyConstructedGate() )
 				slotName = "Att_CombinationLock";
-			else
-				return -1;
-
-			targetItem = ItemBase.Cast( targetObject );
-		} else
-		{
-			return -1;
+			else if ( targetItem && targetItem.IsOpen() && !targetItem.ExpansionIsLocked() )
+				targetItem.ExpansionFindCodeLockSlot( slotName );
 		}
+
+		if ( !slotName )
+			return InventorySlots.INVALID;
 
 		return InventorySlots.GetSlotIdFromString( slotName );
 	}

@@ -666,6 +666,7 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_STOVE_DESC";
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\furniture\Kitchenstove_Elec.p3d";
 		vehicleClass = "Expansion_Construction";
+		expansionIsOpenable = 1;
 		heavyItem = 1;
 		lootCategory = "Tools";
 		useEntityHierarchy = "true";

@@ -4,73 +4,14 @@
 			"HiddenSelection": "dmgZone_chassis",
 			"RVTexture": "",
 			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_front",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_back",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_roof",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_fender_1_1",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_fender_1_2",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_fender_2_1",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-		},
-		{
-			"HiddenSelection": "dmgZone_fender_2_2",
-			"RVTexture": "",
-			"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
 		}
 	],
 	"DamageZones": [
 		{
-			"Zone": "Chassis",
-			"HiddenSelection": "dmgZone_chassis",
-			"HealthLevels": [
-				{
-					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-				},
-				{
-					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body.rvmat"
-				},
-				{
-					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body_damage.rvmat"
-				},
-				{
-					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body_damage.rvmat"
-				},
-				{
-					"RVTexture": "",
-					"RVMaterial": "dz\\vehicles\\wheeled\\sedan_02\\data\\red\\sedan_02_body_destruct.rvmat"
-				}
-			]
-		},
-		{
 			"Zone": "Front",
-			"HiddenSelection": "dmgZone_front",
+			"HiddenSelections": [
+				"dmgZone_front"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
@@ -96,7 +37,9 @@
 		},
 		{
 			"Zone": "Back",
-			"HiddenSelection": "dmgZone_back",
+			"HiddenSelections": [
+				"dmgZone_back"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
@@ -122,7 +65,9 @@
 		},
 		{
 			"Zone": "Roof",
-			"HiddenSelection": "dmgZone_roof",
+			"HiddenSelections": [
+				"dmgZone_roof"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
@@ -148,7 +93,9 @@
 		},
 		{
 			"Zone": "Fender_1_1",
-			"HiddenSelection": "dmgZone_fender_1_1",
+			"HiddenSelections": [
+				"dmgZone_fender_1_1"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
@@ -174,7 +121,9 @@
 		},
 		{
 			"Zone": "Fender_1_2",
-			"HiddenSelection": "dmgZone_fender_1_2",
+			"HiddenSelections": [
+				"dmgZone_fender_1_2"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
@@ -200,7 +149,9 @@
 		},
 		{
 			"Zone": "Fender_2_1",
-			"HiddenSelection": "dmgZone_fender_2_1",
+			"HiddenSelections": [
+				"dmgZone_fender_2_1"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
@@ -226,7 +177,9 @@
 		},
 		{
 			"Zone": "Fender_2_2",
-			"HiddenSelection": "dmgZone_fender_2_2",
+			"HiddenSelections": [
+				"dmgZone_fender_2_2"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",

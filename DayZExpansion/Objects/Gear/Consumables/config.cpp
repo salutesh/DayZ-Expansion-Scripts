@@ -12,7 +12,7 @@ class CfgPatches
 };
 class CfgLiquidDefinitions
 {
-	class Milk
+	class ExpansionMilk
 	{
 		type = 65536;
 		displayName = "Milk";
