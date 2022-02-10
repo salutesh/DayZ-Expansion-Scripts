@@ -19,6 +19,8 @@ class ExpansionCodeLock extends ItemBase
 	static protected const string GREEN_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_g.rvmat";
 	static protected const string DEFAULT_MATERIAL 	= "DayZExpansion\\Objects\\Basebuilding\\Items\\Codelock\\data\\codelock.rvmat";
 
+	protected static ref TStringArray s_Expansion_InventorySlots = new TStringArray;
+
 	protected EffectSound m_Sound;
 	
 	protected bool m_WasSynced;
@@ -235,6 +237,14 @@ class ExpansionCodeLock extends ItemBase
 		UnlockServer( EntityAI.Cast( killer ), GetHierarchyParent() );
 	}
 		
+	static TStringArray Expansion_GetInventorySlots()
+	{
+		if (!s_Expansion_InventorySlots.Count())
+			GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", s_Expansion_InventorySlots);
+
+		return s_Expansion_InventorySlots;
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();

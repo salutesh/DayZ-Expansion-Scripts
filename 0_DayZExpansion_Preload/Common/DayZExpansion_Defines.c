@@ -14,6 +14,9 @@
 
 #define EXPANSIONMOD
 
+//! TODO: Move this to BaseBuilding mod once split
+#define EXPANSIONMODBASEBUILDING
+
 //#define EXPANSION_VICINITY_DEBUG
 
 //! Enable it if you want to DISABLE chicken stuff

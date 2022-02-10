@@ -17,4 +17,17 @@ class CfgVehicles
 	{
 		attachments[] = {"CarBattery","TruckBattery","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
 	};
+	class SeaChest;
+	class ExpansionLockableChest: SeaChest
+	{
+		attachments[] = {"Att_ExpansionCodeLock"};
+	};
+	class ExpansionOpenableChest: SeaChest
+	{
+		expansionIsOpenable = 1;
+	};
+	class ExpansionOpenableLockableChest: ExpansionLockableChest
+	{
+		expansionIsOpenable = 1;
+	};
 };

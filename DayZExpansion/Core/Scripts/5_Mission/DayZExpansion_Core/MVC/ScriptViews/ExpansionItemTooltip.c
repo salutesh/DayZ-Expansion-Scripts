@@ -465,7 +465,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 					break;
 				}
 
-				case LIQUID_MILK:
+				case EXPANSION_LIQUID_MILK:
 				{
 					text = "MILK";
 					color = Colors.COLOR_LIQUID;

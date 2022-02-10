@@ -39,7 +39,7 @@ const float EXP_FADE_IN_DURATION = 0.25;
  * Expansion liquids types
  * @{
  */
-const int LIQUID_MILK = 65536;
+const int EXPANSION_LIQUID_MILK = 65536;
 
 /**
  * Expansion Input Type

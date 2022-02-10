@@ -12,6 +12,8 @@
 
 modded class ItemBase
 {
+	protected static ref TTypeNameStringMap s_Expansion_CodeLockSlotNames = new TTypeNameStringMap;
+
 	protected ref ExpansionElectricityConnection m_ElectricitySource;
 	protected ref array< ItemBase > m_ElectricityConnections;
 
@@ -154,6 +156,10 @@ modded class ItemBase
 		if (m_Expansion_IsOpenable && !ExpansionIsOpened())
 			return false;
 
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure cargo items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
+			return false;
+
 		return true;
 	}
 
@@ -175,6 +181,10 @@ modded class ItemBase
 			return false;
 
 		if (m_Expansion_IsOpenable && !ExpansionIsOpened())
+			return false;
+
+		//! Check for m_Initialized set by vanilla DeferredInit() to make sure cargo items can be loaded from storage even if this is locked
+		if (m_Initialized && ExpansionIsLocked())
 			return false;
 
 		return true;
@@ -578,41 +588,28 @@ modded class ItemBase
 		if (!GetInventory().GetAttachmentSlotsCount())
 			return false;
 
-		string path;
+		if (s_Expansion_CodeLockSlotNames.Find(Type(), slotName))
+			return slotName != "";
 
-		if (IsWeapon())
-			path = CFG_WEAPONSPATH;
-		else if (IsMagazine())
-			path = CFG_MAGAZINESPATH;
-		else
-			path = CFG_VEHICLESPATH;
+		TStringArray attachments = Expansion_GetAttachmentSlots();
 
-		path += " " + GetType();
-
-		if (!GetGame().ConfigIsExisting(path))
-			return false;
-
-		TStringArray attachments();
-		TStringArray slots();
-
-		GetGame().ConfigGetTextArray(path + " attachments", attachments);
-		GetGame().ConfigGetTextArray("CfgVehicles ExpansionCodeLock inventorySlot", slots);
-
-		foreach (string attachment: attachments)
+		if (attachments.Count())
 		{
-			attachment.ToLower();
+			TStringArray slots = ExpansionCodeLock.Expansion_GetInventorySlots();
+
 			foreach (string slot: slots)
 			{
-				slot.ToLower();
-				if (attachment == slot)
+				if (ExpansionStatic.StringArrayContainsIgnoreCase(attachments, slot))
 				{
 					slotName = slot;
-					return true;
+					break;
 				}
 			}
 		}
 
-		return false;
+		s_Expansion_CodeLockSlotNames.Insert(Type(), slotName);
+
+		return slotName != "";
 	}
 
 	/**

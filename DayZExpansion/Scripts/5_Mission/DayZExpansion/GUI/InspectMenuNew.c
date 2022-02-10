@@ -67,7 +67,7 @@ modded class InspectMenuNew
 					break;
 				}
 
-				case LIQUID_MILK:
+				case EXPANSION_LIQUID_MILK:
 				{
 					WidgetTrySetText(root_widget, "ItemLiquidTypeWidget", "MILK", Colors.COLOR_LIQUID);
 					break;

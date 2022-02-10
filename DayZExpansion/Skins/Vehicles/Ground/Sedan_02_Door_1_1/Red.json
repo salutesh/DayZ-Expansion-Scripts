@@ -9,7 +9,9 @@
 	"DamageZones": [
 		{
 			"Zone": "Doors",
-			"HiddenSelection": "dmgZone_doors",
+			"HiddenSelections": [
+				"dmgZone_doors"
+			],
 			"HealthLevels": [
 				{
 					"RVTexture": "",
