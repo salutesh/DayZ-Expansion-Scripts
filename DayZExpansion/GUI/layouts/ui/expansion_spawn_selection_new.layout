@@ -197,7 +197,7 @@ FrameWidgetClass ExpansionSpawnSelectionUI {
        vexactpos 0
        hexactsize 0
        vexactsize 0
-       text "#STR_EXPANSION_SPAWN_RANDOM_NAME"
+       text "#STR_EXPANSION_SPAWNSELECTION_RANDOM"
        font "gui/fonts/etelkatextpro"
        "text halign" center
        "text valign" center

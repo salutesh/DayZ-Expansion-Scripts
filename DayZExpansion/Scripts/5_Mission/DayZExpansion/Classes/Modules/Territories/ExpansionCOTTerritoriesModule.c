@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 const int EXDE_NONE = 0;
 const int EXDE_DESTROYED = 2;
 
@@ -712,4 +713,5 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendObjectData - End");
 		#endif
 	}
-}
+};
+#endif

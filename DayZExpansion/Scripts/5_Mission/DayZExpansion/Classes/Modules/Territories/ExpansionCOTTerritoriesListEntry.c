@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionCOTTerritoriesListEntry extends ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
@@ -102,4 +103,5 @@ class ExpansionCOTTerritoriesListEntry extends ScriptedWidgetEventHandler
 
 		return false;
 	}
-}
+};
+#endif

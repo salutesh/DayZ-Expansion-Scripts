@@ -3040,7 +3040,7 @@ class ExpansionMarketModule: JMModuleBase
 	//! Send trader items to client in batches
 	protected void LoadTraderItems(ExpansionTraderObjectBase trader, PlayerIdentity ident, int start = 0, bool stockOnly = false, TIntArray itemIDs = NULL)
 	{
-		EXPrint("LoadTraderItems - Start - start: " + start + " stockOnly: " + stockOnly);
+		MarketModulePrint("LoadTraderItems - Start - start: " + start + " stockOnly: " + stockOnly);
 
 		if (!trader)
 		{
@@ -3068,7 +3068,7 @@ class ExpansionMarketModule: JMModuleBase
 				if (itemIDsTmp.Find(itemID) == -1)
 					itemIDsTmp.Insert(itemID);
 			}
-			EXPrint(ToString() + "::LoadTraderItems - IDs: " + itemIDsTmp);
+			MarketModulePrint(ToString() + "::LoadTraderItems - IDs: " + itemIDsTmp);
 		}
 
 		int next = trader.GetNetworkSerialization(networkItemsTmp, start, stockOnly, itemIDsTmp);
@@ -3104,7 +3104,7 @@ class ExpansionMarketModule: JMModuleBase
 		rpc.Write(networkItems);
 		rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.LoadTraderItems, true, ident);
 
-		EXPrint("LoadTraderItems - End - start: " + start + " end: " + next);
+		MarketModulePrint("LoadTraderItems - End - start: " + start + " end: " + next);
 	}
 	
 	// ------------------------------------------------------------

@@ -228,7 +228,7 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 	
 	override bool CanShow()
 	{
-		return !m_PartyModule.HasParty();
+		return !m_PartyModule.HasParty() && GetExpansionSettings().GetBook().EnablePartyTab;
 	}
 	
 	override void Refresh()

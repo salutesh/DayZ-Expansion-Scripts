@@ -1,0 +1,133 @@
+GridSpacerWidgetClass UIActionContentRows {
+ position 0 0
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ "Size To Content V" 1
+ Columns 1
+ Rows 10
+ {
+  GridSpacerWidgetClass Content_Row_00 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_01 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_02 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_03 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_04 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_05 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_06 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_07 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_08 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+  GridSpacerWidgetClass Content_Row_09 {
+   visible 0
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   "Size To Content V" 1
+   Columns 1
+   Rows 100
+  }
+ }
+}

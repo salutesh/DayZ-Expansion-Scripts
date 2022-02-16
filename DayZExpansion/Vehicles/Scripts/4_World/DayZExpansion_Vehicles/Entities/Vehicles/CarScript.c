@@ -671,16 +671,13 @@ modded class CarScript
 	protected void KeyMessage(string message)
 	{
 #ifdef EXPANSION_CARKEY_LOGGING
+#ifdef JM_COT
 		if (IsMissionClient())
 		{
 			Message(GetPlayer(), message);
-
-			Print(message);
 		}
-		else
-		{
-			Print(message);
-		}
+#endif
+		Print(message);
 #endif
 	}
 

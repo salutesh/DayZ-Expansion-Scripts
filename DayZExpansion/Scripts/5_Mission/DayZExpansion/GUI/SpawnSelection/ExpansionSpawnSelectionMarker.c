@@ -32,7 +32,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesMapMarker CanEditName
+	// ExpansionSpawnSelectionMarker CanEditName
 	// ------------------------------------------------------------	
 	override bool CanEditName()
 	{
@@ -40,7 +40,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesMapMarker CanEdit
+	// ExpansionSpawnSelectionMarker CanEdit
 	// ------------------------------------------------------------	
 	override bool CanEdit()
 	{
@@ -48,7 +48,7 @@ class ExpansionSpawnSelectionMarker extends ExpansionMapMarker
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesMapMarker Update
+	// ExpansionSpawnSelectionMarker Update
 	// ------------------------------------------------------------	
 	override void Update( float pDt )
 	{

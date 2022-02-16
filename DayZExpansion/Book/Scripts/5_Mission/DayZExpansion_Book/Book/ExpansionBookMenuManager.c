@@ -35,27 +35,42 @@ class ExpansionBookMenuManager
 	void RegisterBookMenuTabs(ExpansionBookMenu book_menu)
 	{
 		#ifdef EXPANSIONMOD
-		m_PlayerProfileTab = new ExpansionBookMenuTabPlayerProfile(book_menu);
-		m_Tabs.Insert(m_PlayerProfileTab);
+		if (GetExpansionSettings().GetBook().EnableStatusTab)
+		{
+			m_PlayerProfileTab = new ExpansionBookMenuTabPlayerProfile(book_menu);
+			m_Tabs.Insert(m_PlayerProfileTab);
+		}
 		
-		m_TerritoryTab = new ExpansionBookMenuTabTerritory(book_menu);
-		m_Tabs.Insert(m_TerritoryTab);
+		if (GetExpansionSettings().GetBook().EnableTerritoryTab)
+		{
+			m_TerritoryTab = new ExpansionBookMenuTabTerritory(book_menu);
+			m_Tabs.Insert(m_TerritoryTab);
+			
+			m_TerritoryInvitesTab = new ExpansionBookMenuTabTerritoryInvites(book_menu)	;
+			m_Tabs.Insert(m_TerritoryInvitesTab);
+		}
 		
-		m_TerritoryInvitesTab = new ExpansionBookMenuTabTerritoryInvites(book_menu)	;
-		m_Tabs.Insert(m_TerritoryInvitesTab);
-		
-		m_PartyTab = new ExpansionBookMenuTabParty(book_menu);
-		m_Tabs.Insert(m_PartyTab);
-		
-		m_PartyInvitesTab = new ExpansionBookMenuTabPartyInvites(book_menu);
-		m_Tabs.Insert(m_PartyInvitesTab);
+		if (GetExpansionSettings().GetBook().EnablePartyTab)
+		{
+			m_PartyTab = new ExpansionBookMenuTabParty(book_menu);
+			m_Tabs.Insert(m_PartyTab);
+			
+			m_PartyInvitesTab = new ExpansionBookMenuTabPartyInvites(book_menu);
+			m_Tabs.Insert(m_PartyInvitesTab);
+		}
 		#endif
 		
-		m_RulesTab = new ExpansionBookMenuTabRules(book_menu);
-		m_Tabs.Insert(m_RulesTab);
+		if (GetExpansionSettings().GetBook().EnableServerRulesTab)
+		{
+			m_RulesTab = new ExpansionBookMenuTabRules(book_menu);
+			m_Tabs.Insert(m_RulesTab);
+		}
 		
-		m_ServerInfoTab = new ExpansionBookMenuTabServerInfo(book_menu);
-		m_Tabs.Insert(m_ServerInfoTab);
+		if (GetExpansionSettings().GetBook().EnableServerInfoTab)
+		{
+			m_ServerInfoTab = new ExpansionBookMenuTabServerInfo(book_menu);
+			m_Tabs.Insert(m_ServerInfoTab);
+		}
 		
 		//m_NotesTab = new ExpansionBookMenuTabNotes(book_menu);
 		//m_Tabs.Insert(m_NotesTab);

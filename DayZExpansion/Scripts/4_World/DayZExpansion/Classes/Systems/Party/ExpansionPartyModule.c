@@ -1152,7 +1152,10 @@ class ExpansionPartyModule: JMModuleBase
 	//! OnInvokeConnect is called on each connect, reconnect, and respawn
 	override void OnInvokeConnect(PlayerBase player, PlayerIdentity identity)
 	{
+		#ifdef EXPANSIONEXPRINT
 		EXPrint(ToString() + "::OnInvokeConnect " + identity.GetId());
+		#endif
+
 
 		if (!IsMissionHost())
 			return;

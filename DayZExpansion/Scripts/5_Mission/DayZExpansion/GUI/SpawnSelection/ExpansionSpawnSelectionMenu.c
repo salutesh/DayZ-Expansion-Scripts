@@ -178,6 +178,10 @@ class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
 			
 			Clear();
 		}
+
+		//! If menu gets closed via nonstandard means, choose last selected spawn point
+		if (!m_RespawnModule.m_SpawnSelected)
+			m_RespawnModule.SelectSpawn(m_SelectedSpawnPoint);
 	}
 	
 	// ------------------------------------------------------------

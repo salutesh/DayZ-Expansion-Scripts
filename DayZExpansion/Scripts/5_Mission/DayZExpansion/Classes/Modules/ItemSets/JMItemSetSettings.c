@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 modded class JMItemSetSettings
 {
 	override void Defaults()
@@ -331,4 +332,5 @@ modded class JMItemSetSettings
 
 		ItemSets.Insert( file.Name, file );
 	}
-}
+};
+#endif

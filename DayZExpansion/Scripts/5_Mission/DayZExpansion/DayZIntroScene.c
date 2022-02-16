@@ -65,7 +65,7 @@ class DayZIntroSceneExpansion
 			SetAnim();
 			TStringArray mapping = new TStringArray;
 			g_Game.ConfigGetTextArray(scene_path + " MappingFiles", mapping);
-			NobodyIsOnlineRightNowToHelpMeDoThisProperlySoImDoingThisRIP(mapping);
+			CreateSzeneObjects(mapping);
 
 		}
 		float overcast, rain, windspeed, fog;
@@ -217,7 +217,7 @@ class DayZIntroSceneExpansion
 	}	
 
 
-	void NobodyIsOnlineRightNowToHelpMeDoThisProperlySoImDoingThisRIP(TStringArray filestoload)
+	void CreateSzeneObjects(TStringArray filestoload)
 	{
 		string className;
 		vector position;
@@ -229,13 +229,13 @@ class DayZIntroSceneExpansion
 			string name = filestoload[i];
 
 			string filePath = name + EXPANSION_MAPPING_EXT;
-			FileHandle file = OpenFile( filePath, FileMode.READ );
-			if ( !file )
-				return;
-			array< Object > objects = new array< Object >;
-			while ( GetObjectFromFile( file, className, position, rotation, special, attachments) )
-			{
-							
+			FileHandle file = OpenFile(filePath, FileMode.READ);
+			if (!file)
+				continue;
+			
+			array<Object> objects = new array<Object>;
+			while (GetObjectFromFile(file, className, position, rotation, special, attachments))
+			{	
 				Object obj;
 
 				#ifdef EXPANSIONEXPRINT
@@ -243,7 +243,8 @@ class DayZIntroSceneExpansion
 				#endif
 
 				obj = GetGame().CreateObject(className, position);
-					
+				if (!obj)
+					continue;
 								
 				if( position )
 					obj.SetPosition( position );
@@ -268,10 +269,7 @@ class DayZIntroSceneExpansion
 				#endif
 
 				if ( !obj )
-				{
-					continue;
-				}
-					
+					continue;					
 								
 				obj.SetPosition( position );
 				obj.SetOrientation( rotation );			

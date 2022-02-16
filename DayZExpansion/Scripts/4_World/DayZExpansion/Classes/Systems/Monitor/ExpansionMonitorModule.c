@@ -362,7 +362,9 @@ class ExpansionMonitorModule: JMModuleBase
 		EXPrint("ExpansionMonitorModule::AddPlayerStats - Start");
 		#endif
 		
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::AddPlayerStats - Add player stats for with ID: " + playerID);
+		#endif
 		
 		if (!m_Stats.Contains(playerID)) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
 		{
@@ -388,7 +390,9 @@ class ExpansionMonitorModule: JMModuleBase
 		EXPrint("ExpansionMonitorModule::AddPlayerStats - Start");
 		#endif
 		
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionMonitorModule::AddPlayerStats - Add player states for player with ID: " + playerID);
+		#endif
 
 		if (!m_States.Contains(playerID)) //! RemovePlayerStats would never be called if AddPlayerStats was called twice (logout cancelled or reconnected in time)
 		{

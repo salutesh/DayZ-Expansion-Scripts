@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 modded class JMESPMetaBaseBuilding
 {
 	ExpansionESPModificationModule exp_Module;
@@ -110,3 +111,4 @@ modded class JMESPMetaBaseBuilding
 		exp_Module.RemoveCode( target );
 	}
 };
+#endif

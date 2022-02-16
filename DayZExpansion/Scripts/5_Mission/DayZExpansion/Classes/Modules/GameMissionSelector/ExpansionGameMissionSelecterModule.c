@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionGameMissionSelecterModule: JMRenderableModuleBase
 {
 	void ExpansionGameMissionSelecterModule()
@@ -42,4 +43,5 @@ class ExpansionGameMissionSelecterModule: JMRenderableModuleBase
 	{
 		return false;
 	}
-}
+};
+#endif
