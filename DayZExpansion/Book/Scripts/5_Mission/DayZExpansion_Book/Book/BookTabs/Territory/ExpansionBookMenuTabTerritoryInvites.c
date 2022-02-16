@@ -227,7 +227,7 @@ class ExpansionBookMenuTabTerritoryInvites: ExpansionBookMenuTabBase
 	
 	override bool CanShow()
 	{
-		return true;
+		return GetExpansionSettings().GetBook().EnableTerritoryTab;
 	}
 };
 

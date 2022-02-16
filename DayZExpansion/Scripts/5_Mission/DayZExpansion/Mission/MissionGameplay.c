@@ -1013,12 +1013,14 @@ modded class MissionGameplay
 		Man man = GetGame().GetPlayer();
 		PlayerBase player = PlayerBase.Cast(man);
 		
+		#ifdef JM_COT
 		//! Offline Check?!
 		if ( !GetPermissionsManager().GetClientPlayer() )
 		{
 			m_DataSent = true;
 			return;
 		}
+		#endif
 
 		string guid = "OFFLINE";
 

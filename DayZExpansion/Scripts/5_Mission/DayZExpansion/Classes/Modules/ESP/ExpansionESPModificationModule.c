@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 modded class JMESPModule
 {
 	JMESPMeta EXP_GetMeta( Object target )
@@ -252,3 +253,4 @@ class ExpansionESPModificationModule : JMModuleBase
 		car.UnlockCar(adminkey);
 	}
 };
+#endif

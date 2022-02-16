@@ -45,9 +45,9 @@ modded class TerritoryFlagKit
 			//! If the server hoster doesn't want to build with the vanilla way the entire flag pole
 			if (GetExpansionSettings().GetBaseBuilding().SimpleTerritory)
 			{
-				totem.GetConstruction().COT_BuildPart( "base", player_base, false );
-				totem.GetConstruction().COT_BuildPart( "support", player_base, false );
-				totem.GetConstruction().COT_BuildPart( "pole", player_base, false );
+				totem.GetConstruction().AdminBuildPartServer( player_base, "base", AT_BUILD_PART );
+				totem.GetConstruction().AdminBuildPartServer( player_base, "support", AT_BUILD_PART );
+				totem.GetConstruction().AdminBuildPartServer( player_base, "pole", AT_BUILD_PART );
 			}
 		}
 	}

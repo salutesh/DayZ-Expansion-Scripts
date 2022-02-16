@@ -279,6 +279,10 @@ class ExpansionPhysicsState
 		if (m_Time > time)
 			return;
 
+		CarScript car;
+		if (Class.CastTo(car, m_Entity) && car.Expansion_IsBeingTowed())
+			return;
+
 		if (time - m_Time <= GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds * 1000)
 			return;
 

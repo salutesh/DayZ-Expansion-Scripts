@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionCOTTerritoriesMapMarker extends ExpansionMapMarker
 {
 	private JMFormBase m_Menu;
@@ -112,4 +113,5 @@ class ExpansionCOTTerritoriesMapMarker extends ExpansionMapMarker
 
 		return false;
 	}
-}
+};
+#endif

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionGameMissionSelecterForm extends JMFormBase
 {
 	private Widget m_ActionsWrapper;
@@ -148,3 +149,4 @@ class ExpansionGameMissionSelecterForm extends JMFormBase
 		}
 	}
 };
+#endif

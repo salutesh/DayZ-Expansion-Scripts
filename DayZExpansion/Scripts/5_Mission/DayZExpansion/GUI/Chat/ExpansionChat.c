@@ -111,7 +111,7 @@ modded class Chat
 
 			m_Position = 1;
 			
-			if ( Class.CastTo( m_ContentRow, UIActionManager.CreateActionRows( m_Content ) ) )
+			if ( Class.CastTo( m_ContentRow, CreateActionRows( m_Content ) ) )
 			{
 				int totalInContentRow = 100;
 				int currentContentRow = 0;
@@ -137,7 +137,14 @@ modded class Chat
 		EXPrint("Chat::Init End");
 		#endif
 	}
-	
+
+	static Widget CreateActionRows( Widget parent )
+	{
+		Widget widget = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/chat/expansion_chat_contentrows.layout", parent );
+
+		return widget;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionChat CreateChatLines
 	// ------------------------------------------------------------
@@ -181,7 +188,7 @@ modded class Chat
 
 			m_Position = 1;
 			
-			if ( Class.CastTo( m_ContentRow, UIActionManager.CreateActionRows( m_Content ) ) )
+			if ( Class.CastTo( m_ContentRow, CreateActionRows( m_Content ) ) )
 			{
 				int totalInContentRow = 100;
 				int currentContentRow = 0;

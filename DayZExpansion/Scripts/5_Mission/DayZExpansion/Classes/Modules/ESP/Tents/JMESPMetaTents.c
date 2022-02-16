@@ -9,6 +9,8 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+
+#ifdef JM_COT
 class JMESPMetaTents : JMESPMeta
 {
 	ExpansionESPModificationModule exp_Module;
@@ -74,3 +76,4 @@ class JMESPMetaTents : JMESPMeta
 		exp_Module.RemoveCode( target );
 	}
 };
+#endif

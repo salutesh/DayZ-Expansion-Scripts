@@ -171,7 +171,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 			batchSize = count;
 		}
 		
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("GetNetworkSerialization - start: " + start + " batch size: " + batchSize);
+		#endif
 
 		for (int i = start; i < count; i++)
 		{

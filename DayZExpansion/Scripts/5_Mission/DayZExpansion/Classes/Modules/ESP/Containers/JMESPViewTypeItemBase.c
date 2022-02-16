@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 modded class JMESPViewTypeItemBase
 {
 	void JMESPViewTypeItemBase()
@@ -17,3 +18,4 @@ modded class JMESPViewTypeItemBase
 		MetaType = JMESPMetaContainer;
 	}
 };
+#endif

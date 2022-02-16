@@ -31,6 +31,7 @@ class ExpansionKillFeedModule: JMModuleBase
 	// void EventOnPlayerKilled(ExpansionPlayerDeathType deathType, PlayerBase player, PlayerBase killer = null, EntityAI source = null)
 	static ref ScriptInvoker				s_EventOnPlayerDeath = new ScriptInvoker();
 	
+#ifdef JM_COT
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule GetWebhookTitle
 	// ------------------------------------------------------------		
@@ -46,6 +47,7 @@ class ExpansionKillFeedModule: JMModuleBase
 	{
 		types.Insert( "Killfeed" );
 	}
+#endif
 
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnPlayerHitBy
@@ -58,7 +60,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 		
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
+		#endif
 		m_HitCheckDone = false;
 		
 		if (GetExpansionSettings().GetLog().Killfeed)
@@ -149,7 +153,9 @@ class ExpansionKillFeedModule: JMModuleBase
 				if(m_Source && m_Source.IsInherited(PlayerBase))
 				{
 					m_PlayerPrefix2 = GetPlayerPrefix( m_Source.GetIdentity() );
+					#ifdef JM_COT
 					m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
+					#endif
 				}
 			
 				if( car.IsCar() )
@@ -178,7 +184,9 @@ class ExpansionKillFeedModule: JMModuleBase
 				m_DisplayName = "";
 				m_DisplayName = source.ClassName();
 				
+				#ifdef JM_COT
 				m_PlayerSteamWebhook2 = player.FormatSteamWebhook();
+				#endif
 
 				if( m_Source )
 				{
@@ -427,7 +435,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 			
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
+		#endif
 				
 		m_StatWater = player.GetStatWater();
 		m_StatEnergy = player.GetStatEnergy();
@@ -472,7 +482,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		if (player)
 		{
 			m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+			#ifdef JM_COT
 			m_PlayerSteamWebhook = player.FormatSteamWebhook();
+			#endif
 					
 			// Check if player has something in hands
 			m_ItemEntity = EntityAI.Cast( player.GetHumanInventory().GetEntityInHands() );
@@ -705,7 +717,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 			
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
+		#endif
 		
 		m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
 		m_PlayerPrefix2 = "";
@@ -719,7 +733,9 @@ class ExpansionKillFeedModule: JMModuleBase
 			EXLogPrint("ExpansionKillFeedModule::OnKilledByWeapon - m_Source : " + m_Source.ToString());
 			#endif
 			m_PlayerPrefix2 = this.GetPlayerPrefix( m_Source.GetIdentity() );
+			#ifdef JM_COT
 			m_PlayerSteamWebhook2 = m_Source.FormatSteamWebhook();
+			#endif
 			
 			if( player.GetIdentity() != m_Source.GetIdentity() )
 			{
@@ -769,7 +785,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 			
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
+		#endif
 		
 		m_Source = PlayerBase.Cast(EntityAI.Cast(source));
 		m_PlayerPrefix2 = "";
@@ -780,7 +798,9 @@ class ExpansionKillFeedModule: JMModuleBase
 			if( player.GetIdentity() != m_Source.GetIdentity() )
 			{
 				m_PlayerPrefix2 = this.GetPlayerPrefix( m_Source.GetIdentity() );
+				#ifdef JM_COT
 				m_PlayerSteamWebhook2 = m_Source.FormatSteamWebhook();
+				#endif
 				
 				if(m_PlayerPrefix2 != "" || m_PlayerSteamWebhook2 != "") // Got player name
 				{
@@ -806,7 +826,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 		
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();			
+		#endif
 			
 		ZombieBase zombie = ZombieBase.Cast(EntityAI.Cast(source));
 		if(zombie)
@@ -831,7 +853,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 		
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();			
+		#endif
 			
 		m_DisplayName = "";
 		m_DisplayName = source.ClassName();
@@ -868,7 +892,9 @@ class ExpansionKillFeedModule: JMModuleBase
 		#endif
 		
 		m_PlayerPrefix = GetPlayerPrefix( player.GetIdentity() );
+		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();	
+		#endif
 			
 		if (source)
 		{
@@ -1054,6 +1080,8 @@ class ExpansionKillFeedModule: JMModuleBase
 		
 		if ( GetExpansionSettings().GetNotification().EnableKillFeedDiscordMsg )
 		{
+			#ifdef JM_COT
+
 			JMWebhookDiscordMessage discord_message = m_Webhook.CreateDiscordMessage();
 	   		JMWebhookDiscordEmbed discord_embed = discord_message.GetEmbed();
 	
@@ -1091,6 +1119,12 @@ class ExpansionKillFeedModule: JMModuleBase
 			discord_embed.AddField( "Kill-Feed", localizer.Format() );
 			
 			m_Webhook.Post( "Killfeed", discord_message );
+
+			#else
+
+			Error("Killfeed Discord message requires COT (Community Online Tools)");
+
+			#endif
 		}
 		
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG

@@ -12,6 +12,7 @@
 
 class ExpansionPlayerState
 {
+	float m_Health;
 	float m_Energy;
 	float m_Water;
 	float m_HeatComfort;
@@ -26,6 +27,7 @@ class ExpansionPlayerState
 
 	void AcquireFrom(PlayerBase player)
 	{
+		m_Health = player.GetHealth();
 		m_Energy = player.GetStatEnergy().Get();
 		m_Water = player.GetStatWater().Get();
 		m_HeatComfort = player.GetStatHeatComfort().Get();
@@ -38,6 +40,7 @@ class ExpansionPlayerState
 
 	void ApplyTo(PlayerBase player)
 	{
+		player.SetHealth(m_Health);
 		player.GetStatEnergy().Set(m_Energy);
 		player.GetStatWater().Set(m_Water);
 		player.GetStatHeatComfort().Set(m_HeatComfort);
@@ -53,6 +56,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	protected string s_FileName;
 
 	ref map<string, ref ExpansionPlayerState> m_PlayerStartStates;
+
+	bool m_SpawnSelected;
 
 	void ExpansionRespawnHandlerModule()
 	{
@@ -227,7 +232,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		//! Call this periodically via call queue (will check if game is ready to show menu, then clean itself up)
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1, true, spawnlist, territoryspawnlist);
 		
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - End");
+		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -254,8 +261,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		EXPrint("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Start");
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
-
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL));
 
 		//! In case spawn select menu could not be created, player will stay at original position and spawn select won't show
@@ -273,7 +278,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		RequestPlacePlayerAtTempSafePosition();
 		
+		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -329,6 +336,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	{
 		Print("ExpansionRespawnHandlerModule::SelectSpawn - Start");
 		
+		m_SpawnSelected = true;
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
+
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(spawnPoint);
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true);
@@ -359,12 +370,17 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			return;
 		}
 
-		//! Set temporary godmode
-		player.SetAllowDamage(false);
+		//! Make it less likely to freeze or starve to death while in the cold deep (stats are returned to saved values once spawn select ends)
+		player.SetHealth(100);
+		player.GetStatEnergy().Set(player.GetStatEnergy().GetMax());
+		player.GetStatWater().Set(player.GetStatWater().GetMax());
+		player.GetStatHeatComfort().Set(1);
 
 		//! Move player out of harm's way
-		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") spawned at " + player.GetPosition() + ", moving to <0 0 0>");
-		player.SetPosition("0 0 0");
+		vector pos = player.GetPosition();
+		pos[1] = -1000;
+		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") spawned at " + player.GetPosition() + ", moving to " + pos);
+		player.SetPosition(pos);
 
 		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - End");
 	}
@@ -436,6 +452,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+			spawnPoint[1] = spawnPoint[1] + 1;  //! Hack fix for inability to open inv after spawn: Let them fall a bit, that'll unlock it
 			EXPrint(ToString() + "::Exec_SelectSpawn - moving player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") to " + spawnPoint);
 			player.SetPosition(spawnPoint);
 			
@@ -475,8 +492,8 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		Save();
 
-		//! Deactivate temporary godmode
-		player.SetAllowDamage(true);
+		//! Remove any sickness player may have gained while in the cold deep
+		player.RemoveAllAgents();
 
 		player.m_PlayerOldPos = player.GetPosition();
 		player.m_Expansion_SpawnSelect = false;

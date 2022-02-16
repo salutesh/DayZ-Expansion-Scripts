@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 class ExpansionCOTTerritoriesMenu: JMFormBase
 {
 	private ExpansionCOTTerritoriesModule m_Module;
@@ -883,4 +884,5 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			m_MapMarkers[i].Update(0.5);
 		}
 	}
-}
+};
+#endif

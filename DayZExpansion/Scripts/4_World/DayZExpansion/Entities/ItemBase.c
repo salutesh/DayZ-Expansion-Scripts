@@ -1187,22 +1187,6 @@ modded class ItemBase
 		Print("ItemBase::EEOnAfterLoad - End");
 		#endif
 	}
-	
-	//============================================
-	// SkinMessage
-	//============================================
-	protected void SkinMessage( string message )
-	{
-		if ( IsMissionClient() )
-		{
-			Message( GetPlayer(), message );
-		} else
-		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( message );
-			#endif
-		}	
-	}
 
 	//============================================
 	// GetHiddenSelectionIndex

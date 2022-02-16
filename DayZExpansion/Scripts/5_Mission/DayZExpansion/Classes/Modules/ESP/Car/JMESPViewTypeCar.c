@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 modded class JMESPViewTypeCar
 {
 	void JMESPViewTypeCar()
@@ -22,3 +23,4 @@ modded class JMESPViewTypeCar
 		Colour = ARGB( 255, 255, 109, 237 );
 	}
 };
+#endif

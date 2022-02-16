@@ -206,7 +206,7 @@ modded class Hologram
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("Hologram::GetPointerPosition - Start");
 		#endif
-		if ( !GetPlayer() )
+		if ( !GetGame().GetPlayer() )
 		{
 			return "0 0 0";
 		}
@@ -324,7 +324,7 @@ modded class Hologram
 		array< Object > objects = new array< Object >;
 		array< CargoBase > proxyCargos = new array< CargoBase >;
 
-		GetGame().GetObjectsAtPosition3D( GetPlayer().GetPosition(), LARGE_PROJECTION_DISTANCE_LIMIT * 2.0, objects, proxyCargos );
+		GetGame().GetObjectsAtPosition3D( GetGame().GetPlayer().GetPosition(), LARGE_PROJECTION_DISTANCE_LIMIT * 2.0, objects, proxyCargos );
 
 		GenerateSnappingPositions( objects, snappingData );
 

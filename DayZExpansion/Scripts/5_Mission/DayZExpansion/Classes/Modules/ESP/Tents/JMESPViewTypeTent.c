@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef JM_COT
 modded class JMESPViewTypeTent
 {
 	void JMESPViewTypeTent()
@@ -22,3 +23,4 @@ modded class JMESPViewTypeTent
 		Colour = ARGB( 255, 80, 112, 255 );
 	}
 };
+#endif
