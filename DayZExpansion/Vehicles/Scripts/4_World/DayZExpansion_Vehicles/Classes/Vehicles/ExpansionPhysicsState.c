@@ -198,7 +198,14 @@ class ExpansionPhysicsState
 
 	void PostSimulate(float pDt, bool isPhysHost, ExpansionVehicleNetworkMode mode, bool isServer, DayZPlayerImplement driver = NULL)
 	{
-		if (dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
+		bool applyPhysics;
+
+		if (isServer)
+			applyPhysics = true;
+		else
+			applyPhysics = (mode == ExpansionVehicleNetworkMode.PREDICTION);
+
+		if (applyPhysics && dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
 		{
 			dBodyApplyImpulse(m_Entity, m_Impulse);
 			dBodyApplyTorqueImpulse(m_Entity, m_ImpulseTorque);
@@ -226,7 +233,7 @@ class ExpansionPhysicsState
 		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3(m_Transform);
 		m_AngularAccelerationMS = (m_LastAngularVelocityMS - m_AngularVelocityMS) * m_DeltaTime;
 
-		if (isServer && mode == ExpansionVehicleNetworkMode.CLIENT)
+		if (isServer && mode != ExpansionVehicleNetworkMode.SERVER)
 			return;
 		else if (!isServer && mode == ExpansionVehicleNetworkMode.SERVER)
 			return;
@@ -280,7 +287,7 @@ class ExpansionPhysicsState
 			return;
 
 		CarScript car;
-		if (Class.CastTo(car, m_Entity) && car.Expansion_IsBeingTowed())
+		if (Class.CastTo(car, m_Entity) && (car.Expansion_IsTowing() || car.Expansion_IsBeingTowed()))
 			return;
 
 		if (time - m_Time <= GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds * 1000)

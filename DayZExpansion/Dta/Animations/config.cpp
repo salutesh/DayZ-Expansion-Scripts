@@ -18,7 +18,7 @@ class CfgVehicles
 		class enfAnimSys
 		{
 			meshObject = "dz\characters\bodies\player_testing.xob";
-			graphName = "DayZExpansion\Animations\Player\Graphs\player_main.agr";
+			graphName = "DayZExpansion\Animations\Player\player_main.agr";
 			defaultInstance = "DayZExpansion\Animations\Player\player_main.asi";
 			skeletonName = "player_testing.xob";
 			startNode = "MasterControl";

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_UAZ
 	{
-		units[] = {"ExpansionStaticWreckUAZ","ExpansionStaticWreckUAZRoofless","ExpansionUAZWheel","ExpansionUAZDoorDriver","ExpansionUAZDoorCoDriver","ExpansionUAZDoorCargo1","ExpansionUAZDoorCargo2","ExpansionUAZDoorTrunk","ExpansionUAZDoorHood","ExpansionUAZ","ExpansionUAZRoofless","ExpansionUAZCargoRoofless","ExpansionUAZCargo","ExpansionSpraycanGreen","ExpansionUAZ_Green","ExpansionUAZCargo_Green","ExpansionUAZRoofless_Green","ExpansionUAZCargoRoofless_Green","ExpansionUAZDoorDriver_Green","ExpansionUAZDoorCoDriver_Green","ExpansionUAZDoorCargo1_Green","ExpansionUAZDoorCargo2_Green","ExpansionUAZDoorHood_Green","ExpansionSpraycanBlack","ExpansionUAZ_Black","ExpansionUAZCargo_Black","ExpansionUAZRoofless_Black","ExpansionUAZCargoRoofless_Black","ExpansionUAZDoorDriver_Black","ExpansionUAZDoorCoDriver_Black","ExpansionUAZDoorCargo1_Black","ExpansionUAZDoorCargo2_Black","ExpansionUAZDoorHood_Black","ExpansionSpraycanLightGreen","ExpansionUAZ_LightGreen","ExpansionUAZCargo_LightGreen","ExpansionUAZRoofless_LightGreen","ExpansionUAZCargoRoofless_LightGreen","ExpansionUAZDoorDriver_LightGreen","ExpansionUAZDoorCoDriver_LightGreen","ExpansionUAZDoorCargo1_LightGreen","ExpansionUAZDoorCargo2_LightGreen","ExpansionUAZDoorHood_LightGreen"};
+		units[] = {"ExpansionStaticWreckUAZ","ExpansionStaticWreckUAZRoofless","ExpansionUAZWheel","ExpansionUAZWheel_Ruined","ExpansionUAZDoorDriver","ExpansionUAZDoorCoDriver","ExpansionUAZDoorCargo1","ExpansionUAZDoorCargo2","ExpansionUAZ","ExpansionUAZRoofless","ExpansionUAZCargoRoofless","ExpansionUAZCargo","ExpansionSpraycanGreen","ExpansionUAZ_Green","ExpansionUAZCargo_Green","ExpansionUAZRoofless_Green","ExpansionUAZCargoRoofless_Green","ExpansionUAZDoorDriver_Green","ExpansionUAZDoorCoDriver_Green","ExpansionUAZDoorCargo1_Green","ExpansionUAZDoorCargo2_Green","ExpansionSpraycanBlack","ExpansionUAZ_Black","ExpansionUAZCargo_Black","ExpansionUAZRoofless_Black","ExpansionUAZCargoRoofless_Black","ExpansionUAZDoorDriver_Black","ExpansionUAZDoorCoDriver_Black","ExpansionUAZDoorCargo1_Black","ExpansionUAZDoorCargo2_Black","ExpansionSpraycanLightGreen","ExpansionUAZ_LightGreen","ExpansionUAZCargo_LightGreen","ExpansionUAZRoofless_LightGreen","ExpansionUAZCargoRoofless_LightGreen","ExpansionUAZDoorDriver_LightGreen","ExpansionUAZDoorCoDriver_LightGreen","ExpansionUAZDoorCargo1_LightGreen","ExpansionUAZDoorCargo2_LightGreen"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -97,8 +97,9 @@ class CfgVehicles
 {
 	class CarScript;
 	class HatchbackWheel;
+	class CarWheel;
+	class CarDoor;
 	class Inventory_Base;
-	class CivSedanDoors_Driver;
 	class SimulationModule;
 	class Axles;
 	class Front;
@@ -110,7 +111,6 @@ class CfgVehicles
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class CivilianSedan;
 	class HouseNoDestruct;
 	class ExpansionStaticWreckUAZ: HouseNoDestruct
 	{
@@ -229,7 +229,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionUAZWheel: HatchbackWheel
+	class ExpansionUAZWheel: CarWheel
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
@@ -237,7 +237,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\UAZWheel.p3d";
 		weight = 15000;
 		inventorySlot[] = {"uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
-		rotationFlags = 4;
+		rotationFlags = 8;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.416;
@@ -251,73 +251,302 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"dayzexpansion\vehicles\ground\uaz\data\uaz_exterior_01.rvmat"}},{0.7,{"dayzexpansion\vehicles\ground\uaz\data\uaz_exterior_01.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_damage.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_damage.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_damage.rvmat"}}};
 				};
 			};
 		};
 	};
-	class ExpansionUAZDoorDriver: CivSedanDoors_Driver
+	class ExpansionUAZWheel_Ruined: CarWheel
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL_DESC";
+		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\UAZWheel_Destroyed.p3d";
+		weight = 15000;
+		inventorySlot[] = {"uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
+		rotationFlags = 8;
+		physLayer = "item_large";
+		radiusByDamage[] = {0.2};
+		radius = 0.2;
+		width = 0.316;
+		tyreRollResistance = 0.015;
+		tyreTread = 0.5;
+	};
+	class ExpansionUAZDoorDriver: CarDoor
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_LEFT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_LEFT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazdriverdoor.p3d";
-		hiddenSelections[] = {"camo"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa"};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
+		hiddenSelections[] = {"camo","dmgZone_doors"};
+		hiddenSelectionsTextures[] = {"",""};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
 		weight = 15000;
+		defaultSkin = "Green";
 		itemSize[] = {10,10};
 		itemBehaviour = 0;
 		inventorySlot = "uazdriverdoor";
 		rotationFlags = 8;
 		physLayer = "item_large";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 2000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 500;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					transferToGlobalCoef = 0;
+					componentNames[] = {"dmgZone_doorwindowLeft"};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 2000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					componentNames[] = {"dmgZone_doors"};
+				};
+			};
+		};
 	};
-	class ExpansionUAZDoorCoDriver: ExpansionUAZDoorDriver
+	class ExpansionUAZDoorCoDriver: CarDoor
 	{
+		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_RIGHT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_FRONT_RIGHT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazcodriverdoor.p3d";
+		hiddenSelections[] = {"camo","dmgZone_doors"};
+		hiddenSelectionsTextures[] = {"",""};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
+		weight = 15000;
+		defaultSkin = "Green";
+		itemSize[] = {10,10};
 		inventorySlot = "uazcodriverdoor";
 		rotationFlags = 4;
 		itemBehaviour = 0;
+		physLayer = "item_large";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 2000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 500;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					transferToGlobalCoef = 0;
+					componentNames[] = {"dmgZone_doorwindowRight"};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 2000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					componentNames[] = {"dmgZone_doors"};
+				};
+			};
+		};
 	};
-	class ExpansionUAZDoorCargo1: ExpansionUAZDoorDriver
+	class ExpansionUAZDoorCargo1: CarDoor
 	{
+		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_BACK_LEFT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_BACK_LEFT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazcargo1door.p3d";
+		hiddenSelections[] = {"camo","dmgZone_doors"};
+		hiddenSelectionsTextures[] = {"",""};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
+		weight = 15000;
+		defaultSkin = "Green";
+		itemSize[] = {10,10};
 		inventorySlot = "uazcargo1door";
-		rotationFlags = 4;
+		rotationFlags = 8;
 		itemBehaviour = 0;
+		physLayer = "item_large";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 2000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 500;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					transferToGlobalCoef = 0;
+					componentNames[] = {"dmgZone_doorwindowRLeft"};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 2000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					componentNames[] = {"dmgZone_doors"};
+				};
+			};
+		};
 	};
-	class ExpansionUAZDoorCargo2: ExpansionUAZDoorDriver
+	class ExpansionUAZDoorCargo2: CarDoor
 	{
+		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_BACK_RIGHT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_BACK_RIGHT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazcargo2door.p3d";
+		hiddenSelections[] = {"camo","dmgZone_doors"};
+		hiddenSelectionsTextures[] = {"",""};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
+		weight = 15000;
+		defaultSkin = "Green";
+		itemSize[] = {10,10};
 		inventorySlot = "uazcargo2door";
-		rotationFlags = 4;
+		rotationFlags = 8;
 		itemBehaviour = 0;
+		physLayer = "item_large";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 2000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Window
+				{
+					class Health
+					{
+						hitpoints = 500;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					transferToGlobalCoef = 0;
+					componentNames[] = {"dmgZone_doorwindowRRight"};
+				};
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 2000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					componentNames[] = {"dmgZone_doors"};
+				};
+			};
+		};
 	};
-	class ExpansionUAZDoorTrunk: ExpansionUAZDoorDriver
+	class ExpansionUAZDoorTrunk: CarDoor
 	{
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_TRUNK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_TRUNK_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazTrunkdoor.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
 		inventorySlot = "uaztrunkdoor";
 		rotationFlags = 4;
 		itemBehaviour = 0;
 	};
-	class ExpansionUAZDoorHood: ExpansionUAZDoorDriver
+	class ExpansionUAZDoorHood: CarDoor
 	{
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_HOOD";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_HOOD_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazHooddoor.p3d";
+		hiddenSelections[] = {"camo","dmgZone_doors"};
+		hiddenSelectionsTextures[] = {"",""};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
+		weight = 15000;
+		itemSize[] = {10,10};
+		defaultSkin = "Green";
 		inventorySlot = "uazhooddoor";
 		rotationFlags = 2;
 		itemBehaviour = 0;
+		physLayer = "item_large";
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 2000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Doors
+				{
+					class Health
+					{
+						hitpoints = 2000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+					componentNames[] = {"dmgZone_doors"};
+				};
+			};
+		};
 	};
-	class ExpansionUAZBase: CivilianSedan
+	class ExpansionUAZBase: CarScript
 	{
 		scope = 0;
 		displayName = "";
@@ -328,7 +557,7 @@ class CfgVehicles
 		defaultSkin = "Green";
 		fuelCapacity = 40;
 		fuelConsumption = 10;
-		class Crew: Crew
+		class Crew
 		{
 			class Driver: Driver
 			{
@@ -424,11 +653,17 @@ class CfgVehicles
 					{
 						class Left: Left
 						{
+							animTurn = "turnfrontleft";
+							animRotation = "wheelfrontleft";
+							wheelHub = "wheel_1_1_damper_land";
 							animDamper = "damper_1_1";
 							inventorySlot = "uazwheel_1_1";
 						};
 						class Right: Right
 						{
+							animTurn = "turnfrontright";
+							animRotation = "wheelfrontright";
+							wheelHub = "wheel_2_1_damper_land";
 							animDamper = "damper_2_1";
 							inventorySlot = "uazwheel_2_1";
 						};
@@ -444,10 +679,10 @@ class CfgVehicles
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						swayBar = 1800;
-						stiffness = 21000;
-						compression = 2200;
-						damping = 7600;
+						swayBar = 1700;
+						stiffness = 32500;
+						compression = 2250;
+						damping = 8750;
 						travelMaxUp = 0.1587;
 						travelMaxDown = 0.1059;
 					};
@@ -455,11 +690,17 @@ class CfgVehicles
 					{
 						class Left: Left
 						{
+							animTurn = "turnbackleft";
+							animRotation = "wheelbackleft";
+							wheelHub = "wheel_1_2_damper_land";
 							animDamper = "damper_1_2";
 							inventorySlot = "uazwheel_1_2";
 						};
 						class Right: Right
 						{
+							animTurn = "turnbacktright";
+							animRotation = "wheelbackright";
+							wheelHub = "wheel_2_2_damper_land";
 							animDamper = "damper_2_2";
 							inventorySlot = "uazwheel_2_2";
 						};
@@ -565,11 +806,12 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZ.p3d";
-		modelZeroPointDistanceFromGround = 1.67;
+		modelZeroPointDistanceFromGround = 0.13;
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2"};
-		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa"};
-		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat"};
+		defaultSkin = "Green";
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgZone_roof","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
+		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","DZ\\gear\\camping\\data\\tent_pristine_co.paa","","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
 		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
 		dashboardMatOff = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboard.rvmat";
 		frontReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan_lights.rvmat";
@@ -626,12 +868,204 @@ class CfgVehicles
 				attachmentSlots[] = {"uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
 			};
 		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					class Health
+					{
+						hitpoints = 3000;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					memoryPoints[] = {"dmgZone_chassis"};
+					componentNames[] = {"dmgZone_chassis"};
+					transferToZonesNames[] = {"Engine"};
+					transferToZonesThreshold[] = {0.4};
+					transferToZonesCoefs[] = {0.3};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Front
+				{
+					class Health
+					{
+						hitpoints = 1200;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					transferToZonesNames[] = {"Reflector_1_1","Reflector_2_1","WindowFront","Engine","Radiator"};
+					transferToZonesThreshold[] = {0.5,0.8,0.8};
+					transferToZonesCoefs[] = {0.8,0.6,0.6};
+					memoryPoints[] = {"dmgZone_front"};
+					componentNames[] = {"dmgZone_front"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"uazhooddoor","CarRadiator","uazwheel_1_1","uazwheel_2_1"};
+					inventorySlotsCoefs[] = {0.8,0.5,0.4,0.4};
+				};
+				class Radiator
+				{
+					class Health
+					{
+						hitpoints = 800;
+						transferToGlobalCoef = 0;
+					};
+					memoryPoints[] = {};
+					componentNames[] = {};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"CarRadiator"};
+				};
+				class Back
+				{
+					class Health
+					{
+						hitpoints = 1500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					transferToZonesNames[] = {"Fender_1_2","Fender_2_2"};
+					transferToZonesCoefs[] = {0.2,0.2};
+					memoryPoints[] = {"dmgZone_back"};
+					componentNames[] = {"dmgZone_back"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"uazwheel_1_2","uazwheel_2_2"};
+				};
+				class Roof
+				{
+					class Health
+					{
+						hitpoints = 700;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"DZ\gear\camping\data\tent_pristine_co.paa"}},{0.7,{"DZ\gear\camping\data\tent_worn_co.paa"}},{0.5,{"DZ\gear\camping\data\tent_worn_co.paa"}},{0.3,{"DZ\gear\camping\data\tent_damage_co.paa"}},{0.0,{"DZ\gear\camping\data\tent_destruct_co.paa"}}};
+					};
+					memoryPoints[] = {"dmgZone_roof"};
+					componentNames[] = {"dmgZone_roof"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"Material_Shelter_Fabric"};
+				};
+				class Fender_1_1
+				{
+					class Health
+					{
+						hitpoints = 1200;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					transferToZonesNames[] = {"Front","Reflector_1_1","Engine","CarRadiator","WindowFront","Battery"};
+					transferToZonesCoefs[] = {0.3,0.3,0.6,0.5,0.4,0.7};
+					memoryPoints[] = {"dmgzone_fender_FL"};
+					componentNames[] = {"dmgzone_fender_FL"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"uazwheel_1_1","uazhooddoor"};
+				};
+				class Fender_1_2: Fender_1_1
+				{
+					transferToZonesNames[] = {"Back","FuelTank"};
+					transferToZonesThreshold[] = {0.2,0.2,0.2};
+					transferToZonesCoefs[] = {0.3,0.2,0.7};
+					memoryPoints[] = {"dmgzone_fender_BL"};
+					componentNames[] = {"dmgzone_fender_BL"};
+					inventorySlots[] = {"uazwheel_1_2"};
+				};
+				class Fender_2_1: Fender_1_1
+				{
+					transferToZonesNames[] = {"Front","Reflector_2_1","Engine","CarRadiator","WindowFront","Battery"};
+					transferToZonesCoefs[] = {0.3,0.3,0.6,0.5,0.4,0.7};
+					memoryPoints[] = {"dmgzone_fender_FR"};
+					componentNames[] = {"dmgzone_fender_FR"};
+					inventorySlots[] = {"uazwheel_2_1","uazhooddoor"};
+				};
+				class Fender_2_2: Fender_1_1
+				{
+					transferToZonesNames[] = {"Back","FuelTank"};
+					transferToZonesThreshold[] = {0.2,0.2,0.2};
+					transferToZonesCoefs[] = {0.3,0.2,0.7};
+					memoryPoints[] = {"dmgzone_fender_BR"};
+					componentNames[] = {"dmgzone_fender_BR"};
+					inventorySlots[] = {"uazwheel_2_2"};
+				};
+				class WindowFront
+				{
+					class Health
+					{
+						hitpoints = 800;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.7,{"dz\vehicles\wheeled\hatchback_02\data\hatchback_02_windows.rvmat"}},{0.5,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\hatchback_02\data\glass_i_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					memoryPoints[] = {"dmgZone_windowFront"};
+					componentNames[] = {"dmgZone_windowFront"};
+					inventorySlots[] = {};
+				};
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 1000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					fatalInjuryCoef = 0.001;
+					inventorySlots[] = {"CarBattery","SparkPlug"};
+					inventorySlotsCoefs[] = {0.2,0.1,0.2};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 2500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_lights_1_1"};
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 10;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\headlights_glass.rvmat"}},{0.7,{}},{0.5,{"dz\vehicles\wheeled\offroadhatchback\data\glass_i_damage.rvmat"}},{0.3,{}},{0.0,{"dz\vehicles\wheeled\offroadhatchback\data\glass_i_destruct.rvmat"}}};
+					};
+					displayName = "$STR_CfgVehicleDmg_Reflector0";
+					transferToZonesNames[] = {"Front","Fender_1_1"};
+					transferToZonesCoefs[] = {1.0,1.0};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0,0.3};
+				};
+				class Reflector_2_1: Reflector_1_1
+				{
+					memoryPoints[] = {"dmgZone_lights_2_1"};
+					componentNames[] = {"dmgZone_lights_2_1"};
+					transferToZonesNames[] = {"Front","Fender_2_1"};
+					inventorySlots[] = {"Reflector_2_1"};
+				};
+			};
+		};
 	};
 	class ExpansionUAZRoofless: ExpansionUAZ
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ_ROOFLESS";
 		vehicleClass = "Expansion_Car";
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
+		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
 		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
 		class AnimationSources: AnimationSources
 		{
@@ -685,6 +1119,9 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ_CARGO_ROOFLESS";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZCargoRoofless.p3d";
 		vehicleClass = "Expansion_Car";
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
+		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
 		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
 		class AnimationSources: AnimationSources
 		{
@@ -722,20 +1159,6 @@ class CfgVehicles
 				proxyPos = "crewCoDriver";
 				getInPos = "pos_codriver";
 				getInDir = "pos_codriver_dir";
-			};
-			class Cargo1
-			{
-				actionSel = "";
-				proxyPos = "";
-				getInPos = "";
-				getInDir = "";
-			};
-			class Cargo2
-			{
-				actionSel = "";
-				proxyPos = "";
-				getInPos = "";
-				getInDir = "";
 			};
 		};
 		class GUIInventoryAttachmentsProps
@@ -798,20 +1221,6 @@ class CfgVehicles
 				proxyPos = "crewCoDriver";
 				getInPos = "pos_codriver";
 				getInDir = "pos_codriver_dir";
-			};
-			class Cargo1
-			{
-				actionSel = "";
-				proxyPos = "";
-				getInPos = "";
-				getInDir = "";
-			};
-			class Cargo2
-			{
-				actionSel = "";
-				proxyPos = "";
-				getInPos = "";
-				getInDir = "";
 			};
 		};
 	};

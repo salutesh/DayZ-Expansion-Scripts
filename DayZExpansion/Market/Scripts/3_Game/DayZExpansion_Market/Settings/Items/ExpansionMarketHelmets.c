@@ -49,7 +49,7 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 		AddItem("DirtBikeHelmet_Black", 			65,		130,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
 		AddItem("DirtBikeHelmet_Khaki", 			70,		140,	1,		100, {"DirtBikeHelmet_Mouthguard", "DirtBikeHelmet_Visor"});
 
-		AddItem("MotoHelmet_Lime", 					70,		140,	1,		100, null, {"MotoHelmet_Blue", "MotoHelmet_Red", "MotoHelmet_White", "MotoHelmet_Grey", "MotoHelmet_Black", "MotoHelmet_Green", "DarkMotoHelmet_Lime", "DarkMotoHelmet_Blue", "DarkMotoHelmet_Red", "DarkMotoHelmet_White", "DarkMotoHelmet_Grey", "DarkMotoHelmet_Black", "DarkMotoHelmet_Green"});
+		AddItem("MotoHelmet_Lime", 					70,		140,	1,		100, null, {"MotoHelmet_Blue", "MotoHelmet_Red", "MotoHelmet_Yellow", "MotoHelmet_White", "MotoHelmet_Grey", "MotoHelmet_Black", "MotoHelmet_Green", "DarkMotoHelmet_Lime", "DarkMotoHelmet_Blue", "DarkMotoHelmet_Red", "DarkMotoHelmet_White", "DarkMotoHelmet_Grey", "DarkMotoHelmet_Black", "DarkMotoHelmet_Green"});
 		/*AddItem("MotoHelmet_Blue", 				70,		140,	1,		100);
 		AddItem("MotoHelmet_Red", 					70,		140,	1,		100);
 		AddItem("MotoHelmet_White", 				70,		140,	1,		100);*/

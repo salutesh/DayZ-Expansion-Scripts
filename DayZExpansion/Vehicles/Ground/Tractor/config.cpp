@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Tractor
 	{
-		units[] = {"ExpansionTractorFrontWheel","ExpansionTractorBackWheel","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","ExpansionTractor","ExpansionSpraycanRed","ExpansionTractor_Red","ExpansionSpraycanBlue","ExpansionTractor_Blue","ExpansionSpraycanGreen","ExpansionTractor_Green"};
+		units[] = {"ExpansionTractorFrontWheel","ExpansionTractorFrontWheel_Ruined","ExpansionTractorBackWheel","ExpansionTractorBackWheel_Ruined","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","ExpansionTractor","ExpansionSpraycanRed","ExpansionTractor_Red","ExpansionSpraycanBlue","ExpansionTractor_Blue","ExpansionSpraycanGreen","ExpansionTractor_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
@@ -63,6 +63,7 @@ class CfgVehicles
 {
 	class CarDoor;
 	class CarScript;
+	class CarWheel;
 	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
@@ -77,12 +78,42 @@ class CfgVehicles
 	class AnimationSources;
 	class Truck_01_WheelDouble;
 	class CivSedanDoors_Driver;
-	class ExpansionTractorFrontWheel: Truck_01_WheelDouble
+	class ExpansionTractorFrontWheel: CarWheel
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\ExpansionTractorFrontWheel.p3d";
+		inventorySlot[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1"};
+		rotationFlags = 4;
+		repairableWithKits[] = {6};
+		repairCosts[] = {30.0};
+		physLayer = "item_large";
+		itemSize[] = {6,6};
+		weight = 35000;
+		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
+		radius = 0.55;
+		width = 0.211;
+		tyreRollResistance = 0.015;
+		tyreTread = 1.5;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{"dayzexpansion\vehicles\ground\tractor\data\traktor_2.rvmat"}},{0.7,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class ExpansionTractorFrontWheel_Ruined: CarWheel
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT_DESC";
+		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\tractor2_front_wheel_destroyed.p3d";
 		inventorySlot[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1"};
 		rotationFlags = 4;
 		physLayer = "item_large";
@@ -106,12 +137,53 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionTractorBackWheel: Truck_01_WheelDouble
+	class ExpansionTractorBackWheel: CarWheel
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\ExpansionTractorBackWheel.p3d";
+		inventorySlot[] = {"ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2"};
+		rotationFlags = 4;
+		repairableWithKits[] = {6};
+		repairCosts[] = {30.0};
+		physLayer = "item_large";
+		itemSize[] = {8,8};
+		weight = 50000;
+		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
+		radius = 0.718;
+		width = 0.012;
+		tyreRollResistance = 0.015;
+		tyreTread = 1.5;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 500;
+					healthLevels[] = {{1.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.7,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}}};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class drop
+				{
+					soundset = "hatchbackwheel_drop_SoundSet";
+					id = 898;
+				};
+			};
+		};
+	};
+	class ExpansionTractorBackWheel_Ruined: CarWheel
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK_DESC";
+		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\tractor2_back_wheel_destroyed.p3d";
 		inventorySlot[] = {"ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2"};
 		rotationFlags = 4;
 		physLayer = "item_large";
@@ -210,18 +282,21 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\Tractor2.p3d";
+		modelZeroPointDistanceFromGround = 0.06;
 		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1"};
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_2_2","camo"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\tractor_2_co.paa"};
-		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo","dmgZone_front","dmgZone_back","dmgZone_roof"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\tractor_2_co.paa","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat"};
 		doors[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver"};
 		applySkinsTo[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver"};
 		defaultSkin = "Red";
 		fuelCapacity = 67;
 		fuelConsumption = 13;
 		batterySlot = "CarBattery";
-		frontReflectorMatOn = "DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_on.rvmat";
-		frontReflectorMatOff = "DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat";
+		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
+		dashboardMatOff = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboard.rvmat";
+		frontReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\civiliansedan_lights.rvmat";
+		frontReflectorMatOff = "dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
 		brakeReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
 		brakeReflectorMatOff = "DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat";
 		ReverseReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
@@ -231,6 +306,7 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
+			centralDiffRatio = 1.45;
 			airDragFrontTotal = 0.905;
 			class Steering
 			{
@@ -250,6 +326,7 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
+				steepness = 1.5;
 				torqueMax = 150;
 				torqueRpm = 1500;
 				powerMax = 39.7;
@@ -410,7 +487,7 @@ class CfgVehicles
 						hitpoints = 3000;
 						transferToGlobalCoef = 0;
 					};
-					componentNames[] = {"undercarriage"};
+					componentNames[] = {"dmgzone_chassis"};
 					fatalInjuryCoef = -1;
 					inventorySlots[] = {};
 				};
@@ -420,13 +497,13 @@ class CfgVehicles
 					{
 						hitpoints = 2000;
 						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{""}},{0.7,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}}};
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 					};
-					transferToZonesNames[] = {"engine","Reflector_1_1","Reflector_2_1"};
+					transferToZonesNames[] = {"Engine","Reflector_1_1","Reflector_2_1"};
 					transferToZonesThreshold[] = {0.25,0.3,0.3};
 					transferToZonesCoefs[] = {0.2,0.3,0.3};
 					memoryPoints[] = {"dmgZone_front"};
-					componentNames[] = {"front"};
+					componentNames[] = {"dmgZone_front"};
 					fatalInjuryCoef = -1;
 					inventorySlotsCoefs[] = {0.3,0.3,0.3};
 					inventorySlots[] = {"Slot_ExpansionTractorFrontWheel_1_1","Slot_ExpansionTractorFrontWheel_2_1","Reflector_1_1","Reflector_2_1"};
@@ -437,12 +514,12 @@ class CfgVehicles
 					{
 						hitpoints = 1000;
 						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.7,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}}};
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 					};
 					transferToZonesNames[] = {"WindowBack"};
 					transferToZonesCoefs[] = {0.3};
 					memoryPoints[] = {"dmgZone_back"};
-					componentNames[] = {"back"};
+					componentNames[] = {"dmgZone_back"};
 					fatalInjuryCoef = -1;
 					inventorySlotsCoefs[] = {};
 					inventorySlots[] = {};
@@ -453,10 +530,10 @@ class CfgVehicles
 					{
 						hitpoints = 700;
 						transferToGlobalCoef = 0;
-						healthLevels[] = {{1.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.7,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}}};
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 					};
 					memoryPoints[] = {"dmgZone_roof"};
-					componentNames[] = {"roof"};
+					componentNames[] = {"dmgZone_roof"};
 					fatalInjuryCoef = -1;
 					inventorySlots[] = {};
 				};
@@ -539,7 +616,7 @@ class CfgVehicles
 						healthLevels[] = {{1.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2.rvmat"}},{0.7,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.5,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.3,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}},{0.0,{"DayZExpansion\Vehicles\Ground\Tractor\data\traktor_2_destruct.rvmat"}}};
 					};
 					memoryPoints[] = {"dmgZone_engine"};
-					componentNames[] = {"engine"};
+					componentNames[] = {"dmgZone_engine"};
 					fatalInjuryCoef = 0.001;
 					inventorySlotsCoefs[] = {0.2,0.2};
 					inventorySlots[] = {"CarBattery","SparkPlug","FuelTank"};

@@ -14,5 +14,6 @@ enum ExpansionVehicleNetworkMode
 {
 	SERVER,
 	CLIENT,
+	PREDICTION,
 	COUNT
 };

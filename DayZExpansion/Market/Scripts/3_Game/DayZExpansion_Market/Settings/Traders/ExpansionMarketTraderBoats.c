@@ -24,23 +24,8 @@ class ExpansionMarketTraderBoats: ExpansionMarketTrader
 		m_FileName = "Boats";
 		TraderIcon = "Boat";
 	
-	#ifdef EXPANSIONMODVEHICLE
 		Categories.Insert("Boats");
-	#endif
-		
-		// VEHICLE PARTS
-		AddItem("HeadlightH7_Box");
-		AddItem("TruckBattery");
-
-	#ifdef EXPANSIONMODVEHICLE
-		AddItem("GlowPlug");
-		
-		// VEHICLE KEYS
-		AddItem("ExpansionCarKey");
-	#endif
-		
-		// LIQUIDS
-		//AddItem("EngineOil");
-		AddItem("CanisterGasoline");
+		AddCategory("Vehicle_Parts", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+		AddCategory("Batteries", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 	}
 }

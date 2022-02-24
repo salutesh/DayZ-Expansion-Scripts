@@ -24,38 +24,8 @@ class ExpansionMarketTraderAircraft: ExpansionMarketTrader
 		m_FileName = "Aircraft";
 		TraderIcon = "Helicopter";
 		
-	#ifdef EXPANSIONMODVEHICLE
 		Categories.Insert("Helicopters");
-	#endif
-
-		// VEHICLE PARTS
-		AddItem("HeadlightH7_Box");
-		AddItem("TireRepairKit");
-
-	#ifdef EXPANSIONMODVEHICLE
-		AddItem("SparkPlug");  //! For Gyro
-		AddItem("CarBattery");  //! For Gyro
-		AddItem("ExpansionIgniterPlug");
-		AddItem("ExpansionHydraulicHoses");
-		AddItem("ExpansionHelicopterBattery");
-
-		AddItem("ExpansionMerlinBackWheel");
-		AddItem("ExpansionMerlinFrontWheel");
-
-		AddItem("ExpansionUh1hDoor_1_1");
-		AddItem("ExpansionUh1hDoor_1_2");
-
-		AddItem("Expansion_Mh6_Door_1_1");
-		AddItem("Expansion_Mh6_Door_1_2");
-		AddItem("Expansion_Mh6_Door_2_1");
-		AddItem("Expansion_Mh6_Door_2_2");
-		
-		// VEHICLE KEYS
-		AddItem("ExpansionCarKey");
-	#endif
-
-		// LIQUIDS
-		//AddItem("EngineOil");
-		AddItem("CanisterGasoline");
+		AddCategory("Vehicle_Parts", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+		AddCategory("Batteries", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 	}
 }

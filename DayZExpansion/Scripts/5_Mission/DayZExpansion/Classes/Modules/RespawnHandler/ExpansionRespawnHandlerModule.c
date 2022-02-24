@@ -176,7 +176,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	
 	void CheckResumeSpawnSelection(PlayerBase player)
 	{
+		#ifdef EXPANSIONEXPRINT
 		EXPrint(ToString() + "::CheckResumeSpawnSelection - Start");
+		#endif
 
 		PlayerIdentity identity = player.GetIdentity();
 		string uid = identity.GetId();
@@ -194,7 +196,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			player.StatSyncToClient();
 		}
 
+		#ifdef EXPANSIONEXPRINT
 		EXPrint(ToString() + "::CheckResumeSpawnSelection - End");
+		#endif
 	}
 
 	// ------------------------------------------------------------

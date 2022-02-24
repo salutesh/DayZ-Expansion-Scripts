@@ -145,7 +145,7 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("ExpansionCrossbow_Base", "DayZExpansion/Animations/Player/weapons/player_main_Expansion_Crossbow.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Vityaz_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_akm.asi", pBehavior, "dz/anims/anm/player/ik/weapons/akm.anm", "dz/anims/anm/player/reloads/AKM/w_akm_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_MP5SD", "DayZExpansion/Animations/Player/Weapons/player_main_Expansion_MP5SD.asi", pBehavior, "dz/anims/anm/player/ik/weapons/fn_fal.anm",  "dz/anims/anm/player/reloads/FNFal/w_FNFal_states.anm");
-		pType.AddItemInHandsProfileIK("Expansion_W1873_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_repeater.asi", pBehavior, "dz/anims/anm/player/ik/weapons/repeater.anm","dz/anims/anm/player/reloads/Mosin_1903/w_repeater_states.anm");
+		//pType.AddItemInHandsProfileIK("Expansion_W1873_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_repeater.asi", pBehavior, "dz/anims/anm/player/ik/weapons/repeater.anm", "dz/anims/anm/player/reloads/repeater/w_repeater_states.anm");
 			
 		pType.AddItemInHandsProfileIK("ExpansionRPG7Base", "DayZExpansion/Animations/Player/Weapons/player_main_rpg.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
 		//pType.AddItemInHandsProfileIK("ExpansionLAWBase", "DayZExpansion/Animations/Player/Weapons/player_main_law.asi", pBehavior, "dz/anims/anm/player/ik/weapons/SKS.anm", "dz/anims/anm/player/reloads/SKS/w_SKS_states.anm");

@@ -36,7 +36,7 @@ class ExpansionMarketOptics: ExpansionMarketCategory
 		AddItem("PSO1Optic", 					1100,		2200,	1,		100,	{"Battery9V"});
 		AddItem("PSO11Optic", 					1400,		2800,	1,		100,	{"Battery9V"});
 		AddItem("KazuarOptic", 					2200,		4400,	1,		100,	{"Battery9V"});
-		AddItem("StarlightOptic", 					2400,		4800,	1,		100,	{"Battery9V"});
+		AddItem("StarlightOptic", 				2400,		4800,	1,		100,	{"Battery9V"});
 		
 	#ifdef EXPANSIONMOD	
 		AddItem("Expansion_M1A_RailAtt", 		150,		300,	1,		100);

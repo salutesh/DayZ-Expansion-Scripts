@@ -178,7 +178,7 @@ modded class CarScript
 		EXPrint("CarScript::CarScript - Start");
 #endif
 
-		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT);
+		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE);
 
 		RegisterNetSyncVariableInt("m_PersistentIDA");
 		RegisterNetSyncVariableInt("m_PersistentIDB");
@@ -430,6 +430,8 @@ modded class CarScript
 		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
 
 		m_Expansion_VehicleSync = GetExpansionSettings().GetVehicle().VehicleSync;
+
+		EXLogPrint( ToString() + "::OnSettingsUpdated - towing enabled " + m_TowingEnabled + " - vehicle sync " + typename.EnumToString( ExpansionVehicleNetworkMode, m_Expansion_VehicleSync ) );
 
 		m_Event_SettingsChanged.SettingsChanged();
 	}
