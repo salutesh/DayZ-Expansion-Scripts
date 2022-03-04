@@ -13,6 +13,34 @@
 	],
     "DamageZones": [
 		{
+			"Zone": "Chassis",
+			"HiddenSelections": [
+				"dmgZone_chassis"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\uaz\\new_data\\uaz_exterior_01.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\uaz\\new_data\\uaz_exterior_01.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\uaz\\new_data\\uaz_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\uaz\\new_data\\uaz_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\uaz\\new_data\\uaz_exterior_destruct.rvmat"
+				}
+			]
+		},
+		{
 			"Zone": "Front",
 			"HiddenSelections": [
 				"dmgZone_front"
@@ -65,34 +93,6 @@
 				{
 					"RVTexture": "",
 					"RVMaterial": "dayzexpansion\\vehicles\\ground\\uaz\\new_data\\uaz_exterior_destruct.rvmat"
-				}
-			]
-		},
-		{
-			"Zone": "Roof",
-			"HiddenSelections": [
-				"dmgZone_roof"
-			],
-			"HealthLevels": [
-				{
-					"RVTexture": "DZ\\gear\\camping\\data\\tent_pristine_co.paa",
-					"RVMaterial": ""
-				},
-				{
-					"RVTexture": "DZ\\gear\\camping\\data\\tent_worn_co.paa",
-					"RVMaterial": ""
-				},
-				{
-					"RVTexture": "DZ\\gear\\camping\\data\\tent_worn_co.paa",
-					"RVMaterial": ""
-				},
-				{
-					"RVTexture": "DZ\\gear\\camping\\data\\tent_damage_co.paa",
-					"RVMaterial": ""
-				},
-				{
-					"RVTexture": "DZ\\gear\\camping\\data\\tent_destruct_co.paa",
-					"RVMaterial": ""
 				}
 			]
 		},

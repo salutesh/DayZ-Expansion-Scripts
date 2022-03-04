@@ -49,13 +49,24 @@ class CfgVehicles
 		rotationFlags = 12;
 		inventorySlot[] = {"BusWheel_1_1","BusWheel_2_1"};
 		radiusByDamage[] = {0,0.51,0.3,0.45,0.9998,0.38,0.9999,0.3};
-		radius = 0.51;
+		radius = 0.496;
 		friction = 0.999;
 		width = 0.213;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.8;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 700;
+					healthLevels[] = {{1.0,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel.rvmat"}},{0.7,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel.rvmat"}},{0.5,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel_damage.rvmat"}},{0.0,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel_destruct.rvmat"}}};
+				};
+			};
+		};
 	};
-	class ExpansionBusWheel_Ruined: ExpansionBusWheel
+	class ExpansionBusWheel_Ruined: CarWheel
 	{
 		scope = 2;
 		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_destroyed.p3d";
@@ -68,37 +79,67 @@ class CfgVehicles
 		radius = 0.3;
 		friction = -1.0;
 		width = 0.213;
-	};
-	class ExpansionBusWheelDouble: ExpansionBusWheel
-	{
-		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_rear.p3d";
-		displayName = "$STR_TransitBusWheelDouble0";
-		width = 0.426;
-		inventorySlot[] = {"BusWheel_1_2","BusWheel_2_2"};
 		tyreRollResistance = 0.015;
 		tyreTread = 0.8;
 	};
-	class ExpansionBusWheelDouble_Ruined: ExpansionBusWheelDouble
+	class ExpansionBusWheelDouble: CarWheel
 	{
+		scope = 2;
+		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_rear.p3d";
+		displayName = "$STR_TransitBusWheelDouble0";
+		itemSize[] = {6,6};
+		weight = 25000;
+		physLayer = "item_large";
+		rotationFlags = 12;
+		width = 0.315;
+		radiusByDamage[] = {0,0.51,0.3,0.45,0.9998,0.38,0.9999,0.3};
+		radius = 0.496;
+		friction = 0.999;
+		inventorySlot[] = {"BusWheel_1_2","BusWheel_2_2"};
+		tyreRollResistance = 0.015;
+		tyreTread = 0.8;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 700;
+					healthLevels[] = {{1.0,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel.rvmat"}},{0.7,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel.rvmat"}},{0.5,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel_damage.rvmat"}},{0.3,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel_damage.rvmat"}},{0.0,{"dz\vehicles\wheeled\transitbus\data\ikarus_wheel_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class ExpansionBusWheelDouble_Ruined: CarWheel
+	{
+		scope = 2;
 		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_rear_destroyed.p3d";
 		displayName = "$STR_TransitBusWheelDouble_Ruined0";
+		itemSize[] = {6,6};
+		weight = 25000;
+		physLayer = "item_large";
+		rotationFlags = 12;
 		width = 0.426;
+		radius = 0.3;
+		friction = -1.0;
 		inventorySlot[] = {"BusWheel_1_2","BusWheel_2_2"};
+		tyreRollResistance = 0.015;
+		tyreTread = 0.8;
 	};
 	class ExpansionBus: CarScript
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_BUS";
 		model = "\DayZExpansion\Vehicles\Ground\Bus\Ikarus.p3d";
-		modelZeroPointDistanceFromGround = 0.1;
+		modelZeroPointDistanceFromGround = 0.11;
 		vehicleClass = "Expansion_Car";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2"};
 		doors[] = {};
 		fuelCapacity = 62;
 		fuelConsumption = 11;
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior_co.paa"};
-		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo","dmgzone_BL","dmgzone_BR","dmgzone_FL","dmgzone_ML","dmgzone_FR","dmgzone_front","dmgzone_back","dmgzone_roof"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior_co.paa","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_exterior.rvmat"};
 		defaultSkin = "Blue";
 		dashboardMatOn = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboarde.rvmat";
 		dashboardMatOff = "dz\vehicles\wheeled\transitbus\data\ikarus_dashboard.rvmat";
@@ -282,7 +323,7 @@ class CfgVehicles
 				reactionTime = 1.2;
 				defaultThrust = 0.85;
 				gentleThrust = 0.7;
-				turboCoef = 4.0;
+				turboCoef = 5.0;
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
@@ -320,9 +361,9 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1700;
-						stiffness = 40000;
+						stiffness = 45000;
 						compression = 2100;
-						damping = 7500;
+						damping = 8500;
 						travelMaxUp = 0.0882;
 						travelMaxDown = 0.0833;
 					};
@@ -357,9 +398,9 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1800;
-						stiffness = 40000;
+						stiffness = 45000;
 						compression = 2200;
-						damping = 7600;
+						damping = 8600;
 						travelMaxUp = 0.1587;
 						travelMaxDown = 0.1059;
 					};
@@ -407,6 +448,245 @@ class CfgVehicles
 				animPeriod = 1e-05;
 			};
 			class damper_2_2: damper_1_2{};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 5000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					class Health
+					{
+						hitpoints = 3000;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					memoryPoints[] = {"dmgZone_chassis"};
+					componentNames[] = {"dmgZone_chassis"};
+					transferToZonesNames[] = {"Engine"};
+					transferToZonesThreshold[] = {0.4};
+					transferToZonesCoefs[] = {0.3};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Front: Chassis
+				{
+					memoryPoints[] = {"dmgzone_front"};
+					transferToZonesNames[] = {"Engine","Reflector_1_1","Reflector_2_1"};
+					transferToZonesThreshold[] = {0.8,1,1};
+					transferToZonesCoefs[] = {0.6,0.5,0.5};
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgzone_front"};
+				};
+				class FrontLeft: Chassis
+				{
+					transferToZonesNames[] = {};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {};
+					memoryPoints[] = {"dmgzone_FL"};
+					componentNames[] = {"dmgzone_FL"};
+				};
+				class MidLeft: Chassis
+				{
+					transferToZonesNames[] = {};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {};
+					memoryPoints[] = {"dmgzone_ML"};
+					componentNames[] = {"dmgzone_ML"};
+				};
+				class BackLeft: Chassis
+				{
+					transferToZonesNames[] = {};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {};
+					memoryPoints[] = {"dmgzone_BL"};
+					componentNames[] = {"dmgzone_BL"};
+				};
+				class FrontRight: Chassis
+				{
+					transferToZonesNames[] = {};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {};
+					memoryPoints[] = {"dmgzone_FR"};
+					componentNames[] = {"dmgzone_FR"};
+				};
+				class BackRight: Chassis
+				{
+					transferToZonesNames[] = {};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {};
+					memoryPoints[] = {"dmgzone_BR"};
+					componentNames[] = {"dmgzone_BR"};
+				};
+				class Back: Chassis
+				{
+					transferToZonesNames[] = {"Engine","Radiator"};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {0.2,0.2};
+					inventorySlots[] = {"TruckBattery","SparkPlug"};
+					inventorySlotsCoefs[] = {0.2,0.2};
+					memoryPoints[] = {"dmgzone_back"};
+					componentNames[] = {"dmgzone_back"};
+				};
+				class Roof: Chassis
+				{
+					transferToZonesNames[] = {};
+					transferToZonesThreshold[] = {};
+					transferToZonesCoefs[] = {};
+					memoryPoints[] = {"dmgzone_roof"};
+					componentNames[] = {"dmgzone_roof"};
+				};
+				class WindowFront
+				{
+					class Health
+					{
+						hitpoints = 700;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dayzexpansion\vehicles\ground\bus\data\bus_windows.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in.rvmat"}},{0.7,{"dayzexpansion\vehicles\ground\bus\data\bus_windows.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in.rvmat"}},{0.5,{"dayzexpansion\vehicles\ground\bus\data\bus_windows_damage.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in_damage.rvmat"}},{0.3,{"dayzexpansion\vehicles\ground\bus\data\bus_windows_damage.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					memoryPoints[] = {"dmgZone_windowFront"};
+					componentNames[] = {"dmgZone_windowFront"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class WindowBack: WindowFront
+				{
+					memoryPoints[] = {"dmgZone_windowback"};
+					componentNames[] = {"dmgZone_windowback"};
+				};
+				class Window_1_1
+				{
+					class Health
+					{
+						hitpoints = 500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dayzexpansion\vehicles\ground\bus\data\bus_windows.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in.rvmat"}},{0.7,{"dayzexpansion\vehicles\ground\bus\data\bus_windows.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in.rvmat"}},{0.5,{"dayzexpansion\vehicles\ground\bus\data\bus_windows_damage.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in_damage.rvmat"}},{0.3,{"dayzexpansion\vehicles\ground\bus\data\bus_windows_damage.rvmat","DayZExpansion\Vehicles\Ground\Bus\Data\bus_windows_in_damage.rvmat"}},{0.0,"hidden"}};
+					};
+					memoryPoints[] = {"dmgZone_window_1_1"};
+					componentNames[] = {"dmgZone_window_1_1"};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Window_1_2: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_1_2"};
+					componentNames[] = {"dmgZone_window_1_2"};
+				};
+				class Window_1_3: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_1_3"};
+					componentNames[] = {"dmgZone_window_1_3"};
+				};
+				class Window_1_4: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_1_4"};
+					componentNames[] = {"dmgZone_window_1_4"};
+				};
+				class Window_1_5: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_1_5"};
+					componentNames[] = {"dmgZone_window_1_5"};
+				};
+				class Window_1_6: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_1_6"};
+					componentNames[] = {"dmgZone_window_1_6"};
+				};
+				class Window_1_7: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_1_7"};
+					componentNames[] = {"dmgZone_window_1_7"};
+				};
+				class Window_2_1: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_2_1"};
+					componentNames[] = {"dmgZone_window_2_1"};
+				};
+				class Window_2_2: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_2_2"};
+					componentNames[] = {"dmgZone_window_2_2"};
+				};
+				class Window_2_3: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_2_3"};
+					componentNames[] = {"dmgZone_window_2_3"};
+				};
+				class Window_2_4: Window_1_1
+				{
+					memoryPoints[] = {"dmgZone_window_2_4"};
+					componentNames[] = {"dmgZone_window_2_4"};
+				};
+				class Radiator
+				{
+					class Health
+					{
+						hitpoints = 800;
+						transferToGlobalCoef = 0;
+					};
+					memoryPoints[] = {};
+					componentNames[] = {};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"CarRadiator"};
+				};
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 1000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					fatalInjuryCoef = 0.001;
+					inventorySlots[] = {"TruckBattery","SparkPlug"};
+					inventorySlotsCoefs[] = {0.2,0.1,0.2};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 2500;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_lights_1_1"};
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 10;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\headlights_glass.rvmat"}},{0.7,{}},{0.5,{"dz\vehicles\wheeled\offroadhatchback\data\glass_i_damage.rvmat"}},{0.3,{}},{0.0,{"dz\vehicles\wheeled\offroadhatchback\data\glass_i_destruct.rvmat"}}};
+					};
+					displayName = "$STR_CfgVehicleDmg_Reflector0";
+					transferToZonesNames[] = {"Front"};
+					transferToZonesCoefs[] = {1.0};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
+				class Reflector_2_1: Reflector_1_1
+				{
+					memoryPoints[] = {"dmgZone_lights_2_1"};
+					componentNames[] = {"dmgZone_lights_2_1"};
+					transferToZonesNames[] = {"Front"};
+					inventorySlots[] = {"Reflector_2_1"};
+				};
+			};
 		};
 		class GUIInventoryAttachmentsProps
 		{

@@ -66,7 +66,7 @@ modded class Flag_Base
 	// ------------------------------------------------------------
 	void SetFlagTexture(string texturePath)
 	{
-		if ( !IsMissionHost() )
+		if ( !IsMissionHost() || !texturePath )
 			return;
 		
 		m_FlagTexturePath = texturePath;

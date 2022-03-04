@@ -17,7 +17,7 @@ class ExpansionUAZDoorCargo2 extends CarDoor {};
 class ExpansionUAZDoorHood extends CarDoor {};
 class ExpansionUAZDoorTrunk extends CarDoor {}; // unused
 
-class ExpansionUAZ extends OffroadHatchback
+class ExpansionUAZ extends CarScript
 {
 	private bool m_HasRoof;
 

@@ -6,7 +6,260 @@
 			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\Bus\\Data\\bus_weeb_exterior.rvmat"
 		}
 	],
-	"DamageZones": [],
+	"DamageZones": [
+		{
+			"Zone": "Chassis",
+			"HiddenSelections": [
+				"dmgZone_chassis"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Front",
+			"HiddenSelections": [
+				"dmgzone_front"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Back",
+			"HiddenSelections": [
+				"dmgzone_back"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Roof",
+			"HiddenSelections": [
+				"dmgzone_roof"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "FrontLeft",
+			"HiddenSelections": [
+				"dmgzone_FL"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "MidLeft",
+			"HiddenSelections": [
+				"dmgzone_ML"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "BackLeft",
+			"HiddenSelections": [
+				"dmgzone_BL"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "FrontRight",
+			"HiddenSelections": [
+				"dmgzone_FR"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "BackRight",
+			"HiddenSelections": [
+				"dmgzone_BR"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\bus\\data\\bus_exterior_damage.rvmat"
+				}
+			]
+		}
+	],
 	"HornEXT": "Expansion_Truck_Horn_Ext_SoundSet",
 	"HornINT": "Expansion_Truck_Horn_Int_SoundSet"
 }

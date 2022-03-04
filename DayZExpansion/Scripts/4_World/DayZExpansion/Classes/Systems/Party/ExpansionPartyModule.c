@@ -386,6 +386,12 @@ class ExpansionPartyModule: JMModuleBase
 					return;
 				}
 
+				if (data.MoneyDeposited + party.GetMoneyDeposited() > GetExpansionSettings().GetMarket().MaxDepositMoney)
+				{
+					ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED",  new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_MAX_ERROR", GetExpansionSettings().GetMarket().MaxDepositMoney.ToString())).Error(sender);
+					return;
+				}
+
 				data.AddMoney(party.GetMoneyDeposited());
 				data.Save();
 			}

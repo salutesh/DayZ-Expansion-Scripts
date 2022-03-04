@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-/*
+
 class ExpansionVodnikDoorDriver extends CarDoor {}
 class ExpansionVodnikDoorCoDriver extends CarDoor {}
 class ExpansionVodnikDoorCargo1 extends CarDoor {}
@@ -28,7 +28,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		m_MaxSpeed					= 20.0;
 		m_TurnCoef					= 0.15;
 	
-		m_Offset					= 1.8;
+		m_Offset					= -0.4;
 		
 		m_EngineStartOK = "Truck_01_engine_start_SoundSet";
 		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
@@ -37,6 +37,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		m_EngineStopFuel = "Truck_01_engine_stop_fuel_SoundSet";
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::Constructor - End");
 		#endif
@@ -56,8 +57,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::GetAnimInstance");
 		#endif
-		// TODO: fix EXPANSION_VODNIK anims
-		return ExpansionVehicleAnimInstances.EX_CIVVAN;
+		return ExpansionVehicleAnimInstances.EX_SEDAN;
 	}
 	// ------------------------------------------------------------
 	override CarRearLightBase CreateRearLight()
@@ -139,16 +139,46 @@ class ExpansionVodnik extends ExpansionBoatScript
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion UpdateVisuals
+	// ------------------------------------------------------------
+	override void UpdateVisuals()
+	{
+		if ( AllDoorsClosed() )
+		{
+			ShowSelection( "antiwater" );
+		} else {
+			HideSelection( "antiwater" );
+		}
+	}
+
+	// ------------------------------------------------------------	
+	override void EEItemAttached( EntityAI item, string slot_name ) 
+	{
+		super.EEItemAttached( item, slot_name );
+
+		UpdateVisuals();
+	}
+	
+	// ------------------------------------------------------------	
+	override void EEItemDetached( EntityAI item, string slot_name )
+	{
+		super.EEItemDetached( item, slot_name );
+
+		UpdateVisuals();
+	}
+
+	
+	// ------------------------------------------------------------
 	override int GetCarDoorsState( string slotType )
 	{
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionVodnik::GetCarDoorsState");
 		#endif
+
 		CarDoor carDoor;
-		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
-		if ( !carDoor ) {
+		if ( !Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) ) )
 			return CarDoorState.DOORS_MISSING;
-		}
+
 		switch( slotType )
 		{
 			case "vodnikdriverdoor": {
@@ -388,4 +418,3 @@ class ExpansionVodnik extends ExpansionBoatScript
 		}
 	}
 }
-*/

@@ -36,10 +36,6 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 	
 	#ifdef EXPANSIONMOD	
 		Categories.Insert("Crossbows");
-	#endif
-		
-		Categories.Insert("Melee_Weapons");
-		Categories.Insert("Ammo");
 
 		//! Specify CanBuyAndSellAsAttachmentOnly to hide them from the "Ammo" category (these items are available in the "Special" trader)
 		AddItem("ExpansionAmmoLAW", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
@@ -49,6 +45,10 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_White", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("Ammo_Expansion_M203_HE", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+	#endif
+		
+		Categories.Insert("Melee_Weapons");
+		Categories.Insert("Ammo");
 
 		Categories.Insert("Ammo_Boxes");
 		Categories.Insert("Knifes");

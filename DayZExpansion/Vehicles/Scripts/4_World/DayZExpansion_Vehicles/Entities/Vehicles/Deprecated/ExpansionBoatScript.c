@@ -66,7 +66,7 @@ class ExpansionBoatScript extends OffroadHatchback
 		//!Values
 		m_Offset 					= 0.75;
 
-		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE | EntityEvent.INIT );
+		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE );
 
 		int i;
 		int count;
@@ -101,6 +101,14 @@ class ExpansionBoatScript extends OffroadHatchback
 		path = "CfgVehicles " + GetType() + " SimulationModule Throttle";
 		AddModule(new ExpansionVehicleCarThrottle(this, path));
 */	
+
+		if ( GetGame().IsServer() )
+		{
+			int selectionIndex = GetHiddenSelectionIndex("antiwater");
+			SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
+			SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
+		}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::Constructor end");
@@ -470,8 +478,6 @@ class ExpansionBoatScript extends OffroadHatchback
 			}
 		}
 
-		super.EOnPostSimulate( other, timeSlice );
-
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::EOnPostSimulate - End");
 		#endif
@@ -782,5 +788,10 @@ class ExpansionBoatScript extends OffroadHatchback
 	override bool Expansion_CanConnectTow( notnull Object other )
 	{
 		return false;
+	}
+
+	override void UpdateVisuals()
+	{
+		ShowSelection("antiwater");
 	}
 }

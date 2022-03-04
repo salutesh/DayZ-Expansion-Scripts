@@ -43,7 +43,7 @@ class CfgVehicles
 		doors[] = {};
 		hiddenSelections[] = {"light_1_1","light_2_1","camo","antiwater"};
 		hiddenSelectionsTextures[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib_co.paa",""};
-		hiddenSelectionsMaterials[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat"""};
+		hiddenSelectionsMaterials[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat",""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\bus\data\bus_exterior_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\water\utility\data\rhib.rvmat";
 		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery"};
@@ -98,6 +98,12 @@ class CfgVehicles
 				source = "user";
 				animPeriod = 2;
 				initPhase = 0;
+			};
+			class antiwater
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
 			};
 		};
 		class SimulationModule: SimulationModule
@@ -227,6 +233,16 @@ class CfgVehicles
 				icon = "cat_vehicle_engine";
 				attachmentSlots[] = {"GlowPlug","TruckBattery"};
 			};
+		};
+		class Sounds
+		{
+			thrust = 0.6;
+			thrustTurbo = 1;
+			thrustGentle = 0.3;
+			thrustSmoothCoef = 0.02;
+			camposSmoothCoef = 0.03;
+			soundSetsFilter[] = {"Expansion_Utility_Engine_Ext_SoundSet","offroad_Engine_Offload_Ext_Rpm2_SoundSet","offroad_Engine_Offload_Ext_Rpm3_SoundSet","offroad_Engine_Offload_Ext_Rpm4_SoundSet","offroad_Engine_Offload_Ext_Rpm5_SoundSet","Expansion_Utility_Idle_Ext_SoundSet","offroad_Engine_Ext_Rpm1_SoundSet","offroad_Engine_Ext_Rpm2_SoundSet","offroad_Engine_Ext_Rpm3_SoundSet","offroad_Engine_Ext_Rpm4_SoundSet","offroad_Engine_Ext_Rpm5_SoundSet","offroad_Engine_Ext_Broken_SoundSet","offroad_Tires_rock_slow_Ext_SoundSet","offroad_Tires_rock_fast_Ext_SoundSet","offroad_Tires_grass_slow_Ext_SoundSet","offroad_Tires_grass_fast_Ext_SoundSet","offroad_Tires_gravel_slow_Ext_SoundSet","offroad_Tires_gravel_fast_Ext_SoundSet","offroad_Tires_gravel_dust_fast_Ext_SoundSet","offroad_Tires_asphalt_slow_Ext_SoundSet","offroad_Tires_asphalt_fast_Ext_SoundSet","offroad_Tires_water_slow_Ext_SoundSet","offroad_Tires_water_fast_Ext_SoundSet","Offroad_skid_dirt_SoundSet","offroad_dirt_turn_SoundSet","offroad_Rain_Ext_SoundSet","offroad_damper_left_SoundSet","offroad_damper_right_SoundSet"};
+			soundSetsInt[] = {"Offroad_Tires_Asphalt_Fast_General_Int_SoundSet","Offroad_Wind_SoundSet"};
 		};
 	};
 	class ExpansionSpraycanBase;

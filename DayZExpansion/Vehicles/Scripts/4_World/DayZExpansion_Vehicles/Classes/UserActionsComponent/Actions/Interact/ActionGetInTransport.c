@@ -153,7 +153,7 @@ modded class ActionGetInTransport
 			//AttachmentDebugPrint(action_data.m_Player, "vehCommand parent=" + action_data.m_Player.GetParent());
 
 			vehCommand.SetVehicleType(car.GetAnimInstance());
-			action_data.m_Player.GetItemAccessor().HideItemInHands(true);
+			action_data.m_Player.TryHideItemInHands(true);
 
 			GetDayZGame().GetBacklit().OnEnterCar();
 			if (action_data.m_Player.GetInventory())

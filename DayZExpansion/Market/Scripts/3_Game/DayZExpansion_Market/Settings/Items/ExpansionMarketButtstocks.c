@@ -38,6 +38,8 @@ class ExpansionMarketButtstocks: ExpansionMarketCategory
 		AddItem("M4_OEBttstck", 				150,	300,	1,		100);
 		AddItem("M4_MPBttstck", 				150,	300,	1,		100);
 		AddItem("M4_CQBBttstck", 				150,	300,	1,		100);
+
+		AddItem("PP19_Bttstck", 				150,	300,	1,		100);
 			
 		AddItem("GhillieAtt_Tan", 				220,	440,	1,		100, null, {"GhillieAtt_Woodland", "GhillieAtt_Mossy"});
 		//AddItem("GhillieAtt_Woodland", 			220,	440,	1,		100);

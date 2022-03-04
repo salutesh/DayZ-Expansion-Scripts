@@ -456,7 +456,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		VehicleDropsRuinedDoors = true;
 		ExplodingVehicleDropsAttachments = true;
 
-		ForcePilotSyncIntervalSeconds = 1.0;
+		ForcePilotSyncIntervalSeconds = 0.0;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true));

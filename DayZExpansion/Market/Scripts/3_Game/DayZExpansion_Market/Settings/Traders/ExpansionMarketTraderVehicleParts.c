@@ -25,5 +25,8 @@ class ExpansionMarketTraderVehicleParts: ExpansionMarketTrader
 		TraderIcon = "Gas";
 		
 		Categories.Insert("Vehicle_Parts");
+
+		AddItem("TireRepairKit");
+		AddItem("CanisterGasoline");
 	}
 }

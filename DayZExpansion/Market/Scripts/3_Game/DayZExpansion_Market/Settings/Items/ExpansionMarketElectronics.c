@@ -28,5 +28,11 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 		AddItem("BaseRadio", 						50,		100,	1,		100,	{"CarBattery"});
 		AddItem("Rangefinder", 						60,		120,	1,		100,	{"Battery9V"});
 		AddItem("NVGoggles", 						400,	800,	1,		100,	{"Battery9V"});
+		
+		AddItem("AlarmClock_Blue", 					30,		80,		1,		100, null, {"AlarmClock_Green", "AlarmClock_Red"});
+
+#ifdef NAMALSK_SURVIVAL
+		AddItem("dzn_tool_watch", 					40,		100,	1,		100, null, {"dzn_tool_watch2"});
+#endif
 	}
 };

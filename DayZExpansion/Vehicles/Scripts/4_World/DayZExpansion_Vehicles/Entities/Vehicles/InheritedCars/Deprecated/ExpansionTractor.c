@@ -51,13 +51,15 @@ class ExpansionTractor extends CarScript
 	override CarLightBase CreateFrontLight()
 	{
 		//TractorFrontLight
-		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionRearCarLights) );
+		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionCarFrontLight) );
+		
 	}
 
 	override CarRearLightBase CreateRearLight()
 	{
 		//TractorRearLight
-		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionCarFrontLight) );
+		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionRearCarLights) );
+		
 	}
 
 	override string ExpansionGetWheelType(int slot_id)

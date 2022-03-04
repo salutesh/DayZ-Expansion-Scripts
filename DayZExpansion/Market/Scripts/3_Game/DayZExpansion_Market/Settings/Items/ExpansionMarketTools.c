@@ -45,6 +45,7 @@ class ExpansionMarketTools: ExpansionMarketCategory
 
 	#ifdef EXPANSIONMOD
 		AddItem("ExpansionPropaneTorch", 		250,	500,	1,		100);
+		AddItem("ExpansionBoltCutter", 			200,	450,	1,		100);
 	#endif
 	}
 };

@@ -38,6 +38,8 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 
 		AddItem("Mag_CZ61_20Rnd", 				100,	200,	1,		100);
 
+		AddItem("Mag_PP19_64Rnd", 				100,	200,	1,		100);
+
 		AddItem("Mag_UMP_25Rnd", 				150,	300,	1,		100);
 
 		AddItem("Mag_MP5_15Rnd", 				150,	300,	1,		100);

@@ -27,6 +27,7 @@ class ExpansionMarketSubmachineGuns: ExpansionMarketCategory
 		AddItem("UMP45", 				800,	1600,	1,		100,	{"Mag_UMP_25Rnd"});
 		AddItem("MP5K", 				1000,	2000,	1,		100,	{"MP5k_StockBttstck","MP5_PlasticHndgrd","Mag_MP5_30Rnd"});
 		AddItem("AKS74U", 				1100,	2200,	1,		100,	{"AKS74U_Bttstck","Mag_AK74_30Rnd"});
+		AddItem("PP19", 				1100,	2200,	1,		100,	{"PP19_Bttstck","Mag_PP19_64Rnd"});
 
 	#ifdef EXPANSIONMOD	
 		AddItem("Expansion_Kedr", 		700,	1400,	1,		100,	{"Mag_Expansion_Kedr_20Rnd"});

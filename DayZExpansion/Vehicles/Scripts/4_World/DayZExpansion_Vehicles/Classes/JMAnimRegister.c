@@ -13,6 +13,7 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("ExpansionAircraftBattery", "dz/anims/workspaces/player/player_main/weapons/player_main_2h_extinguisher.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/hunting_g.anm");
 		
 		pType.AddItemInHandsProfileIK("ExpansionMerlinFrontWheel", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/batterytruck.anm");
+		pType.AddItemInHandsProfileIK("ExpansionUAZWheel_Ruined", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/batterytruck.anm");
 	}
 
 	override void RegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
@@ -39,18 +40,25 @@ modded class ModItemRegisterCallbacks
 
 		pType.AddItemInHandsProfileIK("ExpansionVodnikWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");
 		
-		pType.AddItemInHandsProfileIK("ExpansionBusWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheel.anm");
-		pType.AddItemInHandsProfileIK("ExpansionBusWheelDouble", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheeldouble.anm");
-		pType.AddItemInHandsProfileIK("ExpansionBusWheel_Ruined", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheel_ruined.anm");
-		pType.AddItemInHandsProfileIK("ExpansionBusWheelDouble_Ruined", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheeldouble_ruined.anm");
+		pType.AddItemInHandsProfileIK("ExpansionBusWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheel.anm");
+		pType.AddItemInHandsProfileIK("ExpansionBusWheelDouble", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheeldouble.anm");
+		pType.AddItemInHandsProfileIK("ExpansionBusWheel_Ruined", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheel_ruined.anm");
+		pType.AddItemInHandsProfileIK("ExpansionBusWheelDouble_Ruined", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheeldouble_ruined.anm");
 		
-		pType.AddItemInHandsProfileIK("ExpansionTractorFrontWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheel.anm");
-		pType.AddItemInHandsProfileIK("ExpansionTractorBackWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheeldouble.anm");
+		pType.AddItemInHandsProfileIK("ExpansionTractorFrontWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheel.anm");
+		pType.AddItemInHandsProfileIK("ExpansionTractorBackWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheeldouble.anm");
+		pType.AddItemInHandsProfileIK("ExpansionTractorFrontWheel_Ruined", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheel.anm");
+		pType.AddItemInHandsProfileIK("ExpansionTractorBackWheel_Ruined", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheeldouble.anm");
 		
-		pType.AddItemInHandsProfileIK("ExpansionVodnikWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/v3s_wheel.anm");
+		pType.AddItemInHandsProfileIK("ExpansionVodnikWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/v3s/truck_01_wheel.anm");
 		
 		pType.AddItemInHandsProfileIK("ExpansionUAZWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback/Hatchback_wheel.anm");
-		
+        pType.AddItemInHandsProfileIK("ExpansionUAZDoorDriver", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sedan_02/sedan_02_Trunk.anm");
+		pType.AddItemInHandsProfileIK("ExpansionUAZDoorCoDriver", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sedan_02/sedan_02_Trunk.anm");
+		pType.AddItemInHandsProfileIK("ExpansionUAZDoorCargo1", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sedan_02/sedan_02_Trunk.anm");
+		pType.AddItemInHandsProfileIK("ExpansionUAZDoorCargo2", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sedan_02/sedan_02_Trunk.anm");
+		pType.AddItemInHandsProfileIK("ExpansionUAZDoorHood", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback/hatchback_hood.anm");
+
 		pType.AddItemInHandsProfileIK("ExpansionAnWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");
 		pType.AddItemInHandsProfileIK("ExpansionAnWheelSmall", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");
 		
