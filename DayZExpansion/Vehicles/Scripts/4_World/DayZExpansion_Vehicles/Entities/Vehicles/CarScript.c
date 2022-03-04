@@ -431,7 +431,9 @@ modded class CarScript
 
 		m_Expansion_VehicleSync = GetExpansionSettings().GetVehicle().VehicleSync;
 
+		#ifdef EXPANSIONEXLOGPRINT
 		EXLogPrint( ToString() + "::OnSettingsUpdated - towing enabled " + m_TowingEnabled + " - vehicle sync " + typename.EnumToString( ExpansionVehicleNetworkMode, m_Expansion_VehicleSync ) );
+		#endif
 
 		m_Event_SettingsChanged.SettingsChanged();
 	}
@@ -1789,8 +1791,6 @@ modded class CarScript
 #ifdef EXPANSIONEXPRINT
 		EXPrint("CarScript::EOnPostSimulate - Start");
 #endif
-
-		super.EOnPostSimulate(other, timeSlice);
 
 		//! Prevent vanilla fluid checks from running
 		m_Time = -1;

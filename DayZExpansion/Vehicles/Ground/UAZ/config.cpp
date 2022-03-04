@@ -240,8 +240,8 @@ class CfgVehicles
 		rotationFlags = 8;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.416;
-		width = 0.316;
+		radius = 0.384;
+		width = 0.214;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
 		class DamageSystem
@@ -680,7 +680,7 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1700;
-						stiffness = 32500;
+						stiffness = 21000;
 						compression = 2250;
 						damping = 8750;
 						travelMaxUp = 0.1587;

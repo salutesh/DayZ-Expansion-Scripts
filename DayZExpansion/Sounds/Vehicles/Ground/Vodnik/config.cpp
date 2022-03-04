@@ -10,4 +10,3 @@ class CfgPatches
 		requiredAddons[] = {"DZ_Sounds_Effects"};
 	};
 };
-class CfgVehicles{};

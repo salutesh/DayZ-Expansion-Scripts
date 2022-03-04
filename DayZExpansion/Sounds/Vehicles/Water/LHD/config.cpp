@@ -103,28 +103,3 @@ class CfgSoundSets
 		volumeFactor = 1;
 	};
 };
-class CfgVehicles
-{
-	class ExpansionBoatScript;
-	class ExpansionBoatScriptSoundProxyBase;
-	class ExpansionLHDAudio: ExpansionBoatScriptSoundProxyBase
-	{
-		class Sounds
-		{
-			thrust = 0.6;
-			thrustTurbo = 1;
-			thrustGentle = 0.3;
-			thrustSmoothCoef = 0.02;
-			camposSmoothCoef = 0.03;
-			soundSetsFilter[] = {"Expansion_boat_lhd_loop_Ext_SoundSet"};
-			soundSetsInt[] = {"offroad_Wind_SoundSet"};
-		};
-	};
-	class ExpansionLHD: ExpansionBoatScript
-	{
-		class Sounds
-		{
-			boatSoundProxy = "ExpansionLHDAudio";
-		};
-	};
-};

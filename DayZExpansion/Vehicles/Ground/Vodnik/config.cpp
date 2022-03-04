@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionVodnikWheel","ExpansionVodnikDoorDriver","ExpansionVodnikDoorCoDriver","ExpansionVodnik","ExpansionSpraycanCamo","ExpansionVodnik_Camo","ExpansionVodnikDoorDriver_Camo","ExpansionVodnikDoorCoDriver_Camo","ExpansionSpraycanCamoMedical","ExpansionVodnik_CamoMedical","ExpansionVodnikDoorDriver_CamoMedical","ExpansionVodnikDoorCoDriver_CamoMedical"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled"};
+		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
 	};
 };
 class CfgSlots
@@ -86,21 +86,21 @@ class CfgVehicles
 	class Crew;
 	class Driver;
 	class CoDriver;
-	class OffroadHatchback;
+	class ExpansionBoatScript;
 	class ExpansionVodnikWheel: Truck_01_WheelDouble
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\proxy\VodnikWheel.p3d";
-		weight = 1500;
+		weight = 15000;
 		inventorySlot[] = {"vodnikwheel_1_1","vodnikwheel_1_2","vodnikwheel_2_1","vodnikwheel_2_2"};
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.656;
 		width = 0.316;
-		tyreRollResistance = 0.015;
+		tyreRollResistance = 0.07;
 		tyreTread = 0.7;
 		class DamageSystem
 		{
@@ -136,22 +136,23 @@ class CfgVehicles
 		rotationFlags = 4;
 		itemBehaviour = 0;
 	};
-	class ExpansionVodnik: OffroadHatchback
+	class ExpansionVodnik: ExpansionBoatScript
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_VODNIK";
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\vodnik.p3d";
-		modelZeroPointDistanceFromGround = 2.19;
+		modelZeroPointDistanceFromGround = 0;
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_mod_out_co.paa"};
-		hiddenSelectionsMaterials[] = {"","","","","","","","","","","dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_module.rvmat"};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med","antiwater"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","","",""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass.rvmat";
 		TailReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01_on.rvmat";
 		TailReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01.rvmat";
 		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","vodnikwheel_1_1","vodnikwheel_1_2","vodnikwheel_2_1","vodnikwheel_2_2","vodnikdriverdoor","vodnikcodriverdoor"};
 		doors[] = {"vodnikdriverdoor","vodnikcodriverdoor"};
+		defaultSkin = "Camo";
 		applySkinsTo[] = {"vodnikdriverdoor","vodnikcodriverdoor"};
 		fuelCapacity = 42;
 		fuelConsumption = 13;
@@ -171,11 +172,67 @@ class CfgVehicles
 				getInPos = "pos_codriver";
 				getInDir = "pos_codriver_dir";
 			};
+			class Cargo1
+			{
+				actionSel = "seat_cargo1";
+				proxyPos = "crewCargo1";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+			class Cargo2
+			{
+				actionSel = "seat_cargo2";
+				proxyPos = "crewCargo2";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo3
+			{
+				actionSel = "seat_cargo3";
+				proxyPos = "crewCargo3";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+			class Cargo4
+			{
+				actionSel = "seat_cargo4";
+				proxyPos = "crewCargo4";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo5
+			{
+				actionSel = "seat_cargo5";
+				proxyPos = "crewCargo5";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+			class Cargo6
+			{
+				actionSel = "seat_cargo6";
+				proxyPos = "crewCargo6";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
+			class Cargo7
+			{
+				actionSel = "seat_cargo7";
+				proxyPos = "crewCargo7";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
+			};
+			class Cargo8
+			{
+				actionSel = "seat_cargo8";
+				proxyPos = "crewCargo8";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
+			};
 		};
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.1;
+			airDragFrontTotal = 0.8;
 			class Steering
 			{
 				increaseSpeed[] = {0,75,60,23,100,12};
@@ -194,15 +251,15 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
+				torqueMax = 420;
+				torqueRpm = 1800;
+				powerMax = 130.0;
+				powerRpm = 2800;
 				rpmIdle = 850;
 				rpmMin = 900;
-				rpmClutch = 1850;
-				rpmRedline = 11000;
-				rpmMax = 14000;
+				rpmClutch = 1250;
+				rpmRedline = 3600;
+				rpmMax = 4200;
 			};
 			class Gearbox
 			{
@@ -286,12 +343,6 @@ class CfgVehicles
 		};
 		class AnimationSources: AnimationSources
 		{
-			class med
-			{
-				source = "user";
-				animPeriod = 0.01;
-				initPhase = 1;
-			};
 			class damper_1_1
 			{
 				source = "user";
@@ -313,6 +364,12 @@ class CfgVehicles
 				animPeriod = 0.5;
 			};
 			class vodnikcodriverdoor: vodnikdriverdoor{};
+			class antiwater
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
 		};
 		class Sounds
 		{
