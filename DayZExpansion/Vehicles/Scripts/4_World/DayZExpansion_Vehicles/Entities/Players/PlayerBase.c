@@ -236,6 +236,18 @@ modded class PlayerBase
 		return cmd;
 	}
 
+	override void TryHideItemInHands(bool hide, bool force = false)
+	{
+		if (!hide && IsAttached())
+		{
+			//! Vanilla turns false (= show) into true (= hide) if parent is transport (additional check added to IsInVehicle with 1.16). Force show item in hands.
+			super.TryHideItemInHands(false, true);
+			return;
+		}
+
+		super.TryHideItemInHands(hide, force);
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetInVehicle
 	// ------------------------------------------------------------

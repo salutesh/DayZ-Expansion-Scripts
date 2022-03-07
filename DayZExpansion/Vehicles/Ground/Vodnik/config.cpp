@@ -86,6 +86,9 @@ class CfgVehicles
 	class Crew;
 	class Driver;
 	class CoDriver;
+	class DamageSystem;
+	class DamageZones;
+	class GlobalHealth;
 	class ExpansionBoatScript;
 	class ExpansionVodnikWheel: Truck_01_WheelDouble
 	{
@@ -427,6 +430,85 @@ class CfgVehicles
 				description = "";
 				icon = "cat_vehicle_chassis";
 				attachmentSlots[] = {"vodnikwheel_1_1","vodnikwheel_1_2","vodnikwheel_2_1","vodnikwheel_2_2","vodnikdriverdoor","vodnikcodriverdoor"};
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 10000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					class Health
+					{
+						hitpoints = 5000;
+						transferToGlobalCoef = 0;
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {};
+					inventorySlots[] = {};
+				};
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 2500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = 0.001;
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 1600;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fuelTank"};
+					inventorySlots[] = {};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					componentNames[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
+				class Reflector_2_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_2_1"};
+					componentNames[] = {"dmgZone_lights_2_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_2_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
 			};
 		};
 	};

@@ -12,6 +12,9 @@ class CfgPatches
 };
 class CfgVehicles
 {
+	class DamageSystem;
+	class DamageZones;
+	class GlobalHealth;
 	class HouseNoDestruct;
 	class ExpansionBoatScript;
 	class ExpansionLHD: ExpansionBoatScript
@@ -158,6 +161,57 @@ class CfgVehicles
 							wheelHub = "wheel_2_1_damper_land";
 						};
 					};
+				};
+			};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					class Health
+					{
+						hitpoints = 500000;
+						transferToGlobalCoef = 0;
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {};
+					inventorySlots[] = {};
+				};
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 250000;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = 0.001;
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 160000;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fuelTank"};
+					inventorySlots[] = {};
 				};
 			};
 		};

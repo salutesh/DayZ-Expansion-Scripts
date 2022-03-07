@@ -42,6 +42,12 @@ class ExpansionVodnik extends ExpansionBoatScript
 		EXPrint("ExpansionVodnik::Constructor - End");
 		#endif
 	}
+
+	override string ExpansionGetWheelType(int slot_id)
+	{
+		return "ExpansionVodnikWheel";
+	}
+
 	override float GetTransportCameraDistance()
 	{
 		return 5.5;

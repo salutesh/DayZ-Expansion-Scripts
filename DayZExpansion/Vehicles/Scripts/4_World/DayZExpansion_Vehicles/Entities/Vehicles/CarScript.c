@@ -3344,7 +3344,7 @@ modded class CarScript
 
 			if (isGlobalOrEngineRuined)
 			{
-				if (IsInherited(ExpansionHelicopterScript))
+				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
 				{
 					if (m_engineFx)
 						m_engineFx.Stop();

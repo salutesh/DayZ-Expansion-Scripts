@@ -41,7 +41,9 @@ class ExpansionActionNextEngine : ActionInteractBase
 				if (car.Expansion_EngineGetCount() <= 1)
 					return false;
 
-				return true;
+				Human driver = car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+				if (driver && driver == player)
+					return true;
 			}
 		}
 
