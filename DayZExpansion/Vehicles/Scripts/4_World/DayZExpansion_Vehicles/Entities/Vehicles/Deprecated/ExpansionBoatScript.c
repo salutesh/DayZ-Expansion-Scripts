@@ -110,13 +110,13 @@ class ExpansionBoatScript extends CarScript
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 
-		if ( GetGame().IsServer() )
-		{
-			int selectionIndex = GetHiddenSelectionIndex("antiwater");
-			SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
-			SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
-		}
+		//if ( GetGame().IsServer() )
+		//{
+			//int selectionIndex = GetHiddenSelectionIndex("antiwater");
+			//SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
+			//SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
+			//GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
+		//}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::Constructor end");

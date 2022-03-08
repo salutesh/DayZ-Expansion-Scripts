@@ -234,6 +234,16 @@ modded class IngameHud
 
 		super.RefreshVehicleHud( timeslice );
 
+		if (m_CurrentVehicle && !m_CurrentVehicle.m_State.m_IsSync)
+		{
+			m_VehicleSpeedValue.SetText( "!SYNC" );
+			m_VehicleSpeedValue.SetColor( ARGB(255, 255, 0, 0) );
+		}
+		else
+		{
+			m_VehicleSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
+		}
+
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("IngameHud::RefreshVehicleHud - End");
 		#endif
@@ -255,7 +265,17 @@ modded class IngameHud
 		m_HelicopterSpeedPointer.SetRotation( 0, 0, h_speed_value * 360 - 130, true );
 		m_HelicopterAltitudePointer.SetRotation( 0, 0, ( h_alt_value / 1600) * 360 - 130, true );
 		
-		m_HelicopterSpeedValue.SetText( Math.Floor( helicopter.GetSpeedometer() ).ToString() );
+		if (!helicopter.m_State.m_IsSync)
+		{
+			m_HelicopterSpeedValue.SetText( "!SYNC" );
+			m_HelicopterSpeedValue.SetColor( ARGB(255, 255, 0, 0) );
+		}
+		else
+		{
+			m_HelicopterSpeedValue.SetText( Math.Floor( helicopter.GetSpeedometer() ).ToString() );
+			m_HelicopterSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
+		}
+
 		m_HelicopterAltitudeValue.SetText( Math.Floor( helicopter.GetPosition()[1] ).ToString() );
 
 		m_HelicopterFuelPointer.SetRotation( 0, 0, helicopter.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
@@ -308,7 +328,17 @@ modded class IngameHud
 
 		m_BoatRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_BoatSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
-		m_BoatSpeedValue.SetText( Math.Floor( boat.GetSpeedometer() ).ToString() );
+		
+		if (!boat.m_State.m_IsSync)
+		{
+			m_BoatSpeedValue.SetText( "!SYNC" );
+			m_BoatSpeedValue.SetColor( ARGB(255, 255, 0, 0) );
+		}
+		else
+		{
+			m_BoatSpeedValue.SetText( Math.Floor( boat.GetSpeedometer() ).ToString() );
+			m_BoatSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
+		}
 
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );

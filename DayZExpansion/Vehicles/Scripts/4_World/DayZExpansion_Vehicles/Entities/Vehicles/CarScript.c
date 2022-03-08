@@ -203,6 +203,8 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool("m_Expansion_EngineIsOn");
 
+		m_State.RegisterSync("m_State");
+
 		m_DebugShapes = new array<Shape>();
 
 		m_Lights = new array<ExpansionPointLight>;
@@ -2091,6 +2093,7 @@ modded class CarScript
 			if (!driver && Expansion_CanSimulate())
 			{
 				m_State.m_DeltaTime = dt;
+				m_State.m_IsSync = true;
 
 				m_Event_Control.Control(m_State, null);
 
@@ -3115,6 +3118,8 @@ modded class CarScript
 #endif
 
 		super.OnVariablesSynchronized();
+
+		m_State.OnVariablesSynchronized();
 
 		m_Controller.m_State[0] = EngineIsOn();
 
