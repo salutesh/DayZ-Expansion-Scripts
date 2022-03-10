@@ -13,12 +13,18 @@ modded class Truck_01_Base
 {
 	override string ExpansionGetWheelType(int slot_id)
 	{
-		return "Truck_01_Wheel";
+		string slot_name = InventorySlots.GetSlotName(slot_id);
 
-		//if ( mycondition )
-		//	return "Truck_01_Wheel";
-		//else 
-		//	return "Truck_01_WheelDouble";
+		switch (slot_name)
+		{
+			case "Truck_01_Wheel_1_2":
+			case "Truck_01_Wheel_2_2":
+			case "Truck_01_Wheel_1_3":
+			case "Truck_01_Wheel_2_3":
+				return "Truck_01_WheelDouble";
+		}
+
+		return "Truck_01_Wheel";
 	}
 
 	override float GetTransportCameraDistance()

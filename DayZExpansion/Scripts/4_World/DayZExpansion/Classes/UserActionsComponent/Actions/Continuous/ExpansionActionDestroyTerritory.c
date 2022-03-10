@@ -162,6 +162,6 @@ class ExpansionActionDestroyTerritory: ActionContinuousBase
 	
 	override string GetAdminLogMessage(ActionData action_data)
 	{
-		return " detroyed " + action_data.m_Target.GetObject().GetDisplayName() + " with " + action_data.m_MainItem.GetDisplayName();
+		return " destroyed " + action_data.m_Target.GetObject().GetDisplayName() + " with " + action_data.m_MainItem.GetDisplayName();
 	}
 }

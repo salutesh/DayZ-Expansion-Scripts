@@ -68,6 +68,13 @@ class Expansion_M203Round_Smoke_Colorbase extends SmokeGrenadeBase
 	}
 
 	void ~Expansion_M203Round_Smoke_Colorbase() {}
+
+	override void SetActions()
+	{
+		super.SetActions();
+
+		RemoveAction(ActionUnpin);
+	}
 }
 
 class Expansion_M203Round_Smoke_White extends Expansion_M203Round_Smoke_Colorbase

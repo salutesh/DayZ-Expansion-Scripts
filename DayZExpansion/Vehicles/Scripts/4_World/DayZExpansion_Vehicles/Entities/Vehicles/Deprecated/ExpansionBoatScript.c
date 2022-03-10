@@ -13,7 +13,7 @@
 /**@class		ExpansionBoat
  * @brief		This class handle boat movement and physics
  **/
-class ExpansionBoatScript extends OffroadHatchback
+class ExpansionBoatScript extends CarScript
 {
 	protected float m_BoatTime;
 
@@ -101,14 +101,22 @@ class ExpansionBoatScript extends OffroadHatchback
 		path = "CfgVehicles " + GetType() + " SimulationModule Throttle";
 		AddModule(new ExpansionVehicleCarThrottle(this, path));
 */	
+		m_EngineStartOK = "offroad_engine_start_SoundSet";
+		m_EngineStartBattery = "offroad_engine_failed_start_battery_SoundSet";
+		m_EngineStartPlug = "offroad_engine_failed_start_sparkplugs_SoundSet";
+		m_EngineStartFuel = "offroad_engine_failed_start_fuel_SoundSet";
+		m_EngineStopFuel = "offroad_engine_stop_fuel_SoundSet";
+		
+		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
+		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 
-		if ( GetGame().IsServer() )
-		{
-			int selectionIndex = GetHiddenSelectionIndex("antiwater");
-			SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
-			SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
-		}
+		//if ( GetGame().IsServer() )
+		//{
+			//int selectionIndex = GetHiddenSelectionIndex("antiwater");
+			//SetObjectTexture(selectionIndex, "dz\\data\\data\\antiwater_ca.paa");
+			//SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
+			//GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
+		//}
 
 		#ifdef EXPANSIONEXPRINT
 		EXPrint("ExpansionBoatScript::Constructor end");
@@ -483,6 +491,13 @@ class ExpansionBoatScript extends OffroadHatchback
 		#endif
 	}
 
+	override void OnUpdate( float dt )
+	{
+		super.OnUpdate( dt );
+
+		m_DrownTime = 0;  //! Prevent vanilla engine drown damage
+	}
+
 	private vector GetLinearFrictionForce()
 	{
 		vector friction = vector.Zero;
@@ -782,7 +797,7 @@ class ExpansionBoatScript extends OffroadHatchback
 	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
-		return 12;
+		return 3.5;
 	}
 
 	override bool Expansion_CanConnectTow( notnull Object other )

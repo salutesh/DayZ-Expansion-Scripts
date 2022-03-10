@@ -68,6 +68,19 @@ class ExpansionPhysicsState
 
 	float m_ForcePilotSyncTick;
 
+	float m_PositionX;
+	float m_PositionY;
+	float m_PositionZ;
+	vector m_SyncPosition;
+
+	float m_OrientationX;
+	float m_OrientationY;
+	float m_OrientationZ;
+	vector m_SyncOrientation;
+
+	bool m_IsSync;
+	float m_TimeSinceSync;
+
 	void ExpansionPhysicsState(EntityAI vehicle)
 	{
 		m_Entity = vehicle;
@@ -75,12 +88,13 @@ class ExpansionPhysicsState
 
 	void RegisterSync(string varName)
 	{
+/*
 		m_Entity.RegisterNetSyncVariableInt(varName + ".m_Time");
-
+*/
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityX", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityY", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityZ", 0, 0, 4);
-
+/*
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityX", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityY", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityZ", 0, 0, 4);
@@ -92,12 +106,33 @@ class ExpansionPhysicsState
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationX", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationY", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationZ", 0, 0, 4);
+*/
+
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_PositionX", 0, 0, 2);
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_PositionY", 0, 0, 2);
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_PositionZ", 0, 0, 2);
+
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_OrientationX", 0, 0, 2);
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_OrientationY", 0, 0, 2);
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_OrientationZ", 0, 0, 2);
 	}
 
 	void Init()
 	{
 		m_BoundingRadius = m_Entity.ClippingInfo(m_BoundingBox);
 		m_MaxSpeedMS = m_MaxSpeed * (1.0 / 3.6);
+
+		vector pos = m_Entity.GetPosition();
+		m_PositionX = pos[0];
+		m_PositionY = pos[1];
+		m_PositionZ = pos[2];
+
+		vector ori = m_Entity.GetOrientation();
+		m_OrientationX = ori[0];
+		m_OrientationY = ori[1];
+		m_OrientationZ = ori[2];
+
+		m_IsSync = true;
 	}
 
 	void Derive(inout ExpansionPhysicsState derived, float dt)
@@ -170,19 +205,24 @@ class ExpansionPhysicsState
 			item.EnableCollisionsWithCharacter(false);
 	}
 
-	void OnVariablesSynchronized(bool isPhysHost)
+	void OnVariablesSynchronized()
 	{
 		m_TimeSince = (m_Time - m_Entity.GetSimulationTimeStamp()) / 1000.0;
 		if (m_TimeSince < 0)
 			m_TimeSince = 0;
 
+		m_SyncPosition = Vector(m_PositionX, m_PositionY, m_PositionZ);
+		m_SyncOrientation = Vector(m_OrientationX, m_OrientationY, m_OrientationZ);
+
 		//m_LastLinearVelocity = m_LinearVelocity;
 		m_SyncLinearVelocity = Vector(m_LinearVelocityX, m_LinearVelocityY, m_LinearVelocityZ);
+/*
 		m_SyncLinearAcceleration = Vector(m_LinearAccelerationX, m_LinearAccelerationY, m_LinearAccelerationZ);
 
 		//m_LastAngularVelocity = m_AngularVelocity;
 		m_SyncAngularVelocity = Vector(m_AngularVelocityX, m_AngularVelocityY, m_AngularVelocityZ);
 		m_SyncAngularAcceleration = Vector(m_AngularAccelerationX, m_AngularAccelerationY, m_AngularAccelerationZ);
+*/
 	}
 
 	void PreSimulate(float pDt)
@@ -198,17 +238,50 @@ class ExpansionPhysicsState
 
 	void PostSimulate(float pDt, bool isPhysHost, ExpansionVehicleNetworkMode mode, bool isServer, DayZPlayerImplement driver = NULL)
 	{
-		bool applyPhysics;
-
-		if (isServer)
-			applyPhysics = true;
-		else
-			applyPhysics = (mode == ExpansionVehicleNetworkMode.PREDICTION);
-
-		if (applyPhysics && dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
+		if (!isServer && isPhysHost)
 		{
-			dBodyApplyImpulse(m_Entity, m_Impulse);
-			dBodyApplyTorqueImpulse(m_Entity, m_ImpulseTorque);
+			//! Client - player is driver
+
+			if (m_IsSync || m_TimeSinceSync > 1)
+			{
+				//! If distance between position on client and last synced position from server is greater
+				//! than what the vehicle could realistically have traveled in one second, assume desync
+				float velocity = m_SyncLinearVelocity.Length();
+				m_IsSync = vector.DistanceSq(m_SyncPosition, m_Entity.GetPosition()) <= velocity * velocity + 1;
+				m_TimeSinceSync = 0;
+			}
+			else
+			{
+				m_TimeSinceSync += pDt;
+			}
+		}
+
+		if (isServer || !isPhysHost || m_IsSync)
+		{
+			if (dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
+			{
+				dBodyApplyImpulse(m_Entity, m_Impulse);
+				dBodyApplyTorqueImpulse(m_Entity, m_ImpulseTorque);
+			}
+		}
+		else
+		{
+			//! Client - player is driver - desynced
+
+			SetVelocity(m_Entity, "0 0 0");
+			dBodySetAngularVelocity(m_Entity, "0 0 0");
+			dBodyDynamic(m_Entity, false);
+
+			if (m_SyncPosition != vector.Zero)
+			{
+				Math3D.YawPitchRollMatrix(m_SyncOrientation, m_TargetTransform);
+				m_TargetTransform[3] = m_SyncPosition;
+				m_Entity.SetTransform(m_TargetTransform);
+
+				SetVelocity(m_Entity, "0 0 0");
+				dBodySetAngularVelocity(m_Entity, "0 0 0");
+				dBodyDynamic(m_Entity, true);
+			}
 		}
 
 		m_Impulse = vector.Zero;
@@ -233,6 +306,26 @@ class ExpansionPhysicsState
 		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3(m_Transform);
 		m_AngularAccelerationMS = (m_LastAngularVelocityMS - m_AngularVelocityMS) * m_DeltaTime;
 
+		if (isServer)
+		{
+			m_LinearVelocityX = m_LinearVelocity[0];
+			m_LinearVelocityY = m_LinearVelocity[1];
+			m_LinearVelocityZ = m_LinearVelocity[2];
+
+			//vector pos = m_Transform[3];
+			vector pos = EstimatePosition(pDt);
+			m_PositionX = pos[0];
+			m_PositionY = pos[1];
+			m_PositionZ = pos[2];
+
+			//vector ori = Math3D.MatrixToAngles(m_Transform);
+			vector ori = EstimateOrientation(pDt);
+			m_OrientationX = ori[0];
+			m_OrientationY = ori[1];
+			m_OrientationZ = ori[2];
+		}
+
+/*
 		if (isServer && mode != ExpansionVehicleNetworkMode.SERVER)
 			return;
 		else if (!isServer && mode == ExpansionVehicleNetworkMode.SERVER)
@@ -255,12 +348,10 @@ class ExpansionPhysicsState
 			rpc.Write(m_Entity.GetSimulationTimeStamp());
 			rpc.Write(m_Transform[3]);
 			rpc.Write(Math3D.MatrixToAngles(m_Transform));
-/*
 			rpc.Write(m_LinearVelocity);
 			rpc.Write(m_AngularVelocity);
 			rpc.Write(m_LinearAcceleration);
 			rpc.Write(m_AngularAcceleration);
-*/
 			if ( isServer )
 			{
 				if (driver && driver.GetIdentity())
@@ -271,6 +362,7 @@ class ExpansionPhysicsState
 				rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, NULL);
 			}
 		}
+*/
 	}
 
 	void OnRPC(ParamsReadContext ctx)

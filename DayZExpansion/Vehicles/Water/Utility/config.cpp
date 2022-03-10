@@ -26,6 +26,9 @@ class CfgVehicles
 	class Crew;
 	class Driver;
 	class CoDriver;
+	class DamageSystem;
+	class DamageZones;
+	class GlobalHealth;
 	class ExpansionBoatScript;
 	class OffroadHatchback;
 	class HatchbackWheel;
@@ -243,6 +246,85 @@ class CfgVehicles
 			camposSmoothCoef = 0.03;
 			soundSetsFilter[] = {"Expansion_Utility_Engine_Ext_SoundSet","offroad_Engine_Offload_Ext_Rpm2_SoundSet","offroad_Engine_Offload_Ext_Rpm3_SoundSet","offroad_Engine_Offload_Ext_Rpm4_SoundSet","offroad_Engine_Offload_Ext_Rpm5_SoundSet","Expansion_Utility_Idle_Ext_SoundSet","offroad_Engine_Ext_Rpm1_SoundSet","offroad_Engine_Ext_Rpm2_SoundSet","offroad_Engine_Ext_Rpm3_SoundSet","offroad_Engine_Ext_Rpm4_SoundSet","offroad_Engine_Ext_Rpm5_SoundSet","offroad_Engine_Ext_Broken_SoundSet","offroad_Tires_rock_slow_Ext_SoundSet","offroad_Tires_rock_fast_Ext_SoundSet","offroad_Tires_grass_slow_Ext_SoundSet","offroad_Tires_grass_fast_Ext_SoundSet","offroad_Tires_gravel_slow_Ext_SoundSet","offroad_Tires_gravel_fast_Ext_SoundSet","offroad_Tires_gravel_dust_fast_Ext_SoundSet","offroad_Tires_asphalt_slow_Ext_SoundSet","offroad_Tires_asphalt_fast_Ext_SoundSet","offroad_Tires_water_slow_Ext_SoundSet","offroad_Tires_water_fast_Ext_SoundSet","Offroad_skid_dirt_SoundSet","offroad_dirt_turn_SoundSet","offroad_Rain_Ext_SoundSet","offroad_damper_left_SoundSet","offroad_damper_right_SoundSet"};
 			soundSetsInt[] = {"Offroad_Tires_Asphalt_Fast_General_Int_SoundSet","Offroad_Wind_SoundSet"};
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 10000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+			class DamageZones
+			{
+				class Chassis
+				{
+					class Health
+					{
+						hitpoints = 5000;
+						transferToGlobalCoef = 0;
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {};
+					inventorySlots[] = {};
+				};
+				class Engine
+				{
+					class Health
+					{
+						hitpoints = 2500;
+						transferToGlobalCoef = 1;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = 0.001;
+					memoryPoints[] = {"dmgZone_engine"};
+					componentNames[] = {"dmgZone_engine"};
+					inventorySlots[] = {};
+					inventorySlotsCoefs[] = {};
+				};
+				class FuelTank
+				{
+					class Health
+					{
+						hitpoints = 1600;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					fatalInjuryCoef = -1;
+					componentNames[] = {"dmgZone_fuelTank"};
+					inventorySlots[] = {};
+				};
+				class Reflector_1_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_1_1"};
+					componentNames[] = {"dmgZone_lights_1_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_1_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
+				class Reflector_2_1
+				{
+					fatalInjuryCoef = -1;
+					memoryPoints[] = {"dmgZone_lights_2_1"};
+					componentNames[] = {"dmgZone_lights_2_1"};
+					class Health
+					{
+						hitpoints = 20;
+						transferToGlobalCoef = 0;
+						healthLevels[] = {{1.0,{},{}},{0.7,{}},{0.5,{},{}},{0.3,{}},{0.0,{},{}}};
+					};
+					inventorySlots[] = {"Reflector_2_1"};
+					inventorySlotsCoefs[] = {1.0};
+				};
+			};
 		};
 	};
 	class ExpansionSpraycanBase;
