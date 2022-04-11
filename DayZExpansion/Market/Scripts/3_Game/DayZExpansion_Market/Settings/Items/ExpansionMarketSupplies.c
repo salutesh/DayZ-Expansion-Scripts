@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -57,7 +57,7 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 		AddItem("HescoBox", 					650,	1300,	1,		100);
 		AddItem("PowerGenerator", 				3000,	6000,	1,		100);
 
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODBASEBUILDING
 		//AddItem("ExpansionLumber0_5", 		50,		100,	1,		100);
 		AddItem("ExpansionLumber1", 			50,		100,	1,		100);
 		AddItem("ExpansionLumber1_5", 			50,		100,	1,		100);

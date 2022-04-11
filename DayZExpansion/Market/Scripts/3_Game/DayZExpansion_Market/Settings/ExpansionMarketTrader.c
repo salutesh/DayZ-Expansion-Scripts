@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -176,10 +176,10 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	// ------------------------------------------------------------
 	ExpansionMarketTraderItem AddItem( string item, ExpansionMarketTraderBuySell buySell = ExpansionMarketTraderBuySell.CanBuyAndSell )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMarketTrader::AddItem - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "AddItem");
+#endif
+	
 		item.ToLower();
 		if (Items.Contains(item))
 			return NULL;  //! Already added, possibly implicitly by adding a variant before the parent (which will add the parent first)
@@ -187,16 +187,12 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( item );
 		if ( marketItem )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + TraderName + " items array");
-			#endif
+			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + TraderName + " items array");
 
 			return AddItemInternal( marketItem, buySell );
 		}
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "[ExpansionMarketTrader] Error: The \"" + item + "\" does not exist in the market!" );
-		#endif
+		CF_Log.Warn( "[ExpansionMarketTrader] Error: The \"" + item + "\" does not exist in the market!" );
 
 		return NULL;
 	}

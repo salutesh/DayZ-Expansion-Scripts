@@ -29,21 +29,6 @@ class CfgVehicles
 class CfgNonAIVehicles
 {
 	class StaticObject;
-	class ExpansionLampLightBase: StaticObject{};
-	class Static_Lamp_City1: ExpansionLampLightBase{};
-	class Static_Lamp_City1_amp: ExpansionLampLightBase{};
-	class Static_Lamp_City2: ExpansionLampLightBase{};
-	class Static_Lamp_City3: ExpansionLampLightBase{};
-	class Static_Lamp_Ind: ExpansionLampLightBase{};
-	class Static_Lamp_Rail: ExpansionLampLightBase{};
-	class Static_Power_Pole_Wood1_Lamp: ExpansionLampLightBase{};
-	class Static_Power_Pole_Conc4_Lamp: ExpansionLampLightBase{};
-	class Static_Power_Pole_Wood1_Lamp_Amp: ExpansionLampLightBase{};
-	class Static_Power_Pole_Conc4_Lamp_Amp: ExpansionLampLightBase{};
-	class Static_Power_Pole_Conc4_Lamp_Trail_B: StaticObject{};
-	class Static_Power_Pole_Conc4_Lamp_Trail_G: StaticObject{};
-	class Static_Power_Pole_Conc4_Lamp_Trail_R: StaticObject{};
-	class Static_Power_Pole_Conc4_Lamp_Trail_Y: StaticObject{};
 	class Static_hangar_lamp: StaticObject{};
 	class Static_light_bathroom: StaticObject{};
 	class Static_light_kitchen_03: StaticObject{};

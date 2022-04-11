@@ -91,7 +91,7 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_BB_FLOOR_BASE";
 		model = "\DayZExpansion\Objects\Basebuilding\Floors\Floor_6x6.p3d";
 		vehicleClass = "Expansion_Construction";
-		createProxyPhysicsOnInit = "true";
+		createProxyPhysicsOnInit = "false";
 		createdProxiesOnInit[] = {"Deployed"};
 		bounding = "BSphere";
 		overrideDrawArea = "3.0";

@@ -11,9 +11,10 @@
 */
 
 #ifndef JM_COT
-//! TODO: This is a stub. Could in theory be extended to support other admin tools
 class ExpansionPermissionsManager
 {
+	bool m_AdminToolsToggledOn;
+
 	void ExpansionPermissionsManager()
 	{
 	}
@@ -28,11 +29,48 @@ class ExpansionPermissionsManager
 
 	bool HasPermission( string permission )
 	{
+		if ( GetGame().IsClient() )
+		{
+			Man player = GetGame().GetPlayer();
+			if (player && player.GetIdentity() )
+				return HasPermission( permission, player.GetIdentity() );
+		}
+
 		return false;
 	}
 
 	bool HasPermission( string permission, PlayerIdentity ihp )
 	{
+		switch ( permission )
+		{
+			case "Admin.Chat":
+			case "Expansion.Territories.Edit":
+				#ifdef VPPADMINTOOLS
+				PermissionManager pm = GetPermissionManager();
+				if (!pm)
+					return false;
+				if (!GetGame().IsDedicatedServer())
+					return IsAdminToolsToggledOn();
+				//! I'm lazy and so SuperAdmins as well as anyone in group Admins will get blanket permission
+				if (pm.IsSuperAdmin(ihp.GetPlainId()))
+					return true;
+				UserGroup group = pm.GetUserGroup(ihp.GetPlainId());
+				if (group && group.GetGroupName() == "Admins")
+					return true;
+				#endif
+				break;
+		}
+
+		return false;
+	}
+
+	bool IsAdminToolsToggledOn()
+	{
+		#ifdef VPPADMINTOOLS
+		MissionBaseWorld mission = MissionBaseWorld.Cast(GetGame().GetMission());
+		return mission && mission.VPPAT_AdminToolsToggled();
+		#endif
+
 		return false;
 	}
 }
@@ -49,5 +87,15 @@ ref ExpansionPermissionsManager GetPermissionsManager()
 	Assert_Null( g_ExpansionPermissionsManager );
 
 	return g_ExpansionPermissionsManager;
+}
+#endif
+
+#ifdef JM_COT
+modded class JMPermissionManager
+{
+	bool IsAdminToolsToggledOn()
+	{
+		return GetCommunityOnlineToolsBase().IsActive();
+	}
 }
 #endif

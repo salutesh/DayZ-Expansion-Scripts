@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -49,9 +49,10 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
 	float ChangeLockToolDamagePercent;
 }
 
-/**@class		ExpansionVehicleSettings
+/**
+ * @class		ExpansionVehicleSettings
  * @brief		Vehicle settings class
- **/
+ */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
 	static const int VERSION = 8;
@@ -64,30 +65,26 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
-	[NonSerialized()] bool m_IsLoaded;
+	[NonSerialized()]
+	bool m_IsLoaded;
 
-	// ------------------------------------------------------------
 	void ExpansionVehicleSettings()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::ExpansionVehicleSettings - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
 #endif
 
 		PickLockTools = new TStringArray;
 		ChangeLockTools = new TStringArray;
 
 		VehiclesConfig = new array<ref ExpansionVehiclesConfig>;
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::ExpansionVehicleSettings - End");
-#endif
 	}
 
 	// ------------------------------------------------------------
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::OnRecieve - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
 #endif
 
 		ctx.Read(VehicleSync);
@@ -99,7 +96,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(MasterKeyUses);
 		ctx.Read(CanPickLock);
 		ctx.Read(PickLockTools);
-		EXPrint("PickLockTools: " + PickLockTools.Count());
+
 		ctx.Read(PickLockChancePercent);
 		ctx.Read(PickLockTimeSeconds);
 		ctx.Read(PickLockToolDamagePercent);
@@ -113,22 +110,16 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(VehicleSpeedDamageMultiplier);
 		ctx.Read(CanChangeLock);
 		ctx.Read(ChangeLockTools);
-		EXPrint("ChangeLockTools: " + ChangeLockTools.Count());
+
 		ctx.Read(ChangeLockTimeSeconds);
 		ctx.Read(ChangeLockToolDamagePercent);
 
 		ctx.Read(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
 
-		ctx.Read(ForcePilotSyncIntervalSeconds);
-
 		m_IsLoaded = true;
 
 		Update(NULL);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::OnRecieve - End");
-#endif
 
 		return true;
 	}
@@ -163,16 +154,13 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
 
-		ctx.Write(ForcePilotSyncIntervalSeconds);
-
 		//! Don't send VehiclesConfig
 	}
 
-	// ------------------------------------------------------------
 	override int Send(PlayerIdentity identity)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Send - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
 #endif
 
 		if (!IsMissionHost())
@@ -184,16 +172,16 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		OnSend(rpc);
 		rpc.Send(null, ExpansionSettingsRPC.Vehicle, true, identity);
 
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Send - End and return");
-#endif
-
 		return 0;
 	}
 
 	// ------------------------------------------------------------
 	override bool Copy(ExpansionSettingBase setting)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
+#endif
+
 		ExpansionVehicleSettings s;
 		if (!Class.CastTo(s, setting))
 			return false;
@@ -202,13 +190,12 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	void CopyInternal(ExpansionVehicleSettings s)
 	{
-		//#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - " + s);
-		//#endif
-
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+		
 		PlacePlayerOnGroundOnReconnectInVehicle = s.PlacePlayerOnGroundOnReconnectInVehicle;
 		RevvingOverMaxRPMRuinsEngineInstantly = s.RevvingOverMaxRPMRuinsEngineInstantly;
 
@@ -222,19 +209,14 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ExpansionVehicleSettingsV2 settings_v2 = s;
 		CopyInternal(settings_v2);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
-#endif
 	}
 
-	// ------------------------------------------------------------
 	void CopyInternal(ExpansionVehicleSettingsBase s)
 	{
-		//#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - Base - " + s);
-		//#endif
-
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+		
 		VehicleSync = s.VehicleSync; // Not ready
 		VehicleRequireKeyToStart = s.VehicleRequireKeyToStart;
 		VehicleRequireAllDoors = s.VehicleRequireAllDoors;
@@ -255,19 +237,14 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		DisableVehicleDamage = s.DisableVehicleDamage;
 		VehicleCrewDamageMultiplier = s.VehicleCrewDamageMultiplier;
 		VehicleSpeedDamageMultiplier = s.VehicleSpeedDamageMultiplier;
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
-#endif
 	}
 
-	// ------------------------------------------------------------
 	void CopyInternal(ExpansionVehicleSettingsV2 s)
 	{
-		//#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::CopyInternal - Start - V2 - " + s);
-		//#endif
-
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+		
 		CanChangeLock = s.CanChangeLock;
 		ChangeLockTimeSeconds = s.ChangeLockTimeSeconds;
 		ChangeLockToolDamagePercent = s.ChangeLockToolDamagePercent;
@@ -275,29 +252,22 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ExpansionVehicleSettingsBase sb = s;
 		CopyInternal(sb);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::CopyInternal - End");
-#endif
 	}
 
-	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
 		return m_IsLoaded;
 	}
 
-	// ------------------------------------------------------------
 	override void Unload()
 	{
 		m_IsLoaded = false;
 	}
 
-	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Load - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
 #endif
 
 		m_IsLoaded = true;
@@ -379,14 +349,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		if (save)
 			Save();
 
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionVehicleSettings::Load - End - Loaded: " + vehicleSettingsExist);
-#endif
-
 		return vehicleSettingsExist;
 	}
 
-	// ------------------------------------------------------------
 	override bool OnSave()
 	{
 		Print("[ExpansionVehicleSettings] Saving settings");
@@ -396,19 +361,13 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override void Update(ExpansionSettingBase setting)
 	{
 		super.Update(setting);
 
 		ExpansionSettings.SI_Vehicle.Invoke();
-
-#ifdef EXPANSION_PLAYER_ATTACHMENT
-		s_ExpansionPlayerAttachment = PlayerAttachment;
-#endif
 	}
 
-	// ------------------------------------------------------------
 	override void Defaults()
 	{
 		m_Version = VERSION;
@@ -456,7 +415,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		VehicleDropsRuinedDoors = true;
 		ExplodingVehicleDropsAttachments = true;
 
-		ForcePilotSyncIntervalSeconds = 0.0;
+		ForcePilotSyncIntervalSeconds = 1.0;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true));
@@ -472,12 +431,6 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		return "Vehicle Settings";
 	}
 };
-
-#ifdef EXPANSION_PLAYER_ATTACHMENT
-static bool s_ExpansionPlayerAttachment = true;
-#else
-static bool s_ExpansionPlayerAttachment;
-#endif
 
 enum ExpansionPPOGORIVMode
 {

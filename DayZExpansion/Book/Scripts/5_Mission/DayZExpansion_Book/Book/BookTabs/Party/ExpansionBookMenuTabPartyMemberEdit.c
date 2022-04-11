@@ -3,14 +3,14 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-#ifdef EXPANSIONMOD
+#ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 {
 	ExpansionBookMenuTabPartyMemberEditController m_MemberEditController;
@@ -53,7 +53,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 	
 	protected bool m_MouseButtonIsDown;
 	
-	ExpansionPartyPlayerPermissions m_Permissions;
+	int m_Permissions;
 	
 	void ExpansionBookMenuTabPartyMemberEdit(ExpansionBookMenu book_menu)
 	{
@@ -128,7 +128,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		if (!GetMemberPartyData())
 			return;
 	
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::SetTab - Member Can Edit: " + GetMemberPartyData().CanEdit());
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::SetTab - Member Can Kick: " + GetMemberPartyData().CanKick());
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::SetTab - Member Can Delete: " + GetMemberPartyData().CanDelete());
@@ -142,7 +142,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		if (!m_MemberEditController)
 			m_MemberEditController = ExpansionBookMenuTabPartyMemberEditController.Cast(GetController());
 		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("ExpansionBookMenuTabTerritoryMemberEdit::SetTab - Member: " + GetMemberPartyData());
 		#endif
 		
@@ -241,8 +241,8 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 			return;
 		}
 		
-		ExpansionPartyPlayerPermissions perm = GetMemberPartyData().GetPermissions();
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		int perm = GetMemberPartyData().GetPermissions();
+		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::OnSaveButtonClick - Member Permissions before change: " + perm.ToString());
 		#endif
 		//! Edit
@@ -252,7 +252,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		}
 		else
 		{
-			perm = GetMemberPartyData().RemovePermission(ExpansionPartyPlayerPermissions.CAN_EDIT);
+			perm &= ~ExpansionPartyPlayerPermissions.CAN_EDIT;
 		}
 		
 		//! Kick
@@ -262,7 +262,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		}
 		else
 		{
-			perm = GetMemberPartyData().RemovePermission(ExpansionPartyPlayerPermissions.CAN_KICK);
+			perm &= ~ExpansionPartyPlayerPermissions.CAN_KICK;
 		}
 		
 		//! Delete
@@ -272,7 +272,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		}
 		else
 		{
-			perm = GetMemberPartyData().RemovePermission(ExpansionPartyPlayerPermissions.CAN_DELETE);
+			perm &= ~ExpansionPartyPlayerPermissions.CAN_DELETE;
 		}
 		
 		//! Invite
@@ -282,7 +282,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		}
 		else
 		{
-			perm = GetMemberPartyData().RemovePermission(ExpansionPartyPlayerPermissions.CAN_DELETE);
+			perm &= ~ExpansionPartyPlayerPermissions.CAN_INVITE;
 		}
 		
 	#ifdef EXPANSIONMODMARKET
@@ -295,13 +295,13 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		else
 		{
 			if (GetMemberPartyData().CanWithdrawMoney())
-				perm = GetMemberPartyData().RemovePermission(ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY);
+				perm &= ~ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY;
 		}
 	#endif
 		
 		m_PartyModule.UpdatePermissions(GetMemberPartyData().GetID(), perm);
 		
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::OnSaveButtonClick - Member Permissions after change: " + perm.ToString());
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::OnSaveButtonClick - Member Permissions: " + GetMemberPartyData().Permissions.ToString());
 		#endif

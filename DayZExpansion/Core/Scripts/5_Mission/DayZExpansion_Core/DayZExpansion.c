@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -26,29 +26,25 @@ class DayZExpansion: ExpansionWorld
 	// ------------------------------------------------------------
 	void DayZExpansion()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[CORE] DayZExpansion::DayZExpansion - Start");
-		#endif
-
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZExpansion");
+#endif
+	
 		//! Version checking
 		Expansion_LoadVersion();
 
 		GetExpansionSettings();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[CORE] DayZExpansion::DayZExpansion - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
 	// Expansion Expansion_LoadVersion
 	// ------------------------------------------------------------
 	void Expansion_LoadVersion()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::Expansion_LoadVersion - Start");
-		#endif
-		
+	{		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "Expansion_LoadVersion");
+#endif
+	
 		m_Version = GetDayZGame().GetExpansionClientVersion();
 
 		array<string> values = new array<string>();
@@ -65,10 +61,6 @@ class DayZExpansion: ExpansionWorld
 		//string versionTest;
 		//GetGame().ConfigGetText( "CfgMods DZ_Expansion version", versionTest );
 		//Print( versionTest );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZExpansion::Expansion_LoadVersion - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -105,9 +97,9 @@ static DayZExpansion GetDayZExpansion()
 
 static void CreateDayZExpansion()
 {
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("CreateDayZExpansion - Start");
-	#endif
+#ifdef EXPANSIONTRACE
+	auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "CreateDayZExpansion");
+#endif
 	
 	if ( g_exDayZ )
 	{
@@ -117,21 +109,13 @@ static void CreateDayZExpansion()
 	g_exDayZ = new DayZExpansion;
 
 	GetDayZGame().SetExpansionGame( g_exDayZ );
-	
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("CreateDayZExpansion - End");
-	#endif
 }
 
 static void DestroyDayZExpansion()
-{
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("DestroyDayZExpansion - Start");
-	#endif
-	
+{	
+#ifdef EXPANSIONTRACE
+	auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "DestroyDayZExpansion");
+#endif
+
 	delete g_exDayZ;
-	
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("DestroyDayZExpansion - End");
-	#endif
 }

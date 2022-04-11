@@ -14,83 +14,103 @@ GridSpacerWidgetClass ExpansionNotificationViewBaguette {
  Columns 1
  Rows 1
  {
-  GridSpacerWidgetClass NotificationColor {
+  GridSpacerWidgetClass Notification {
    inheritalpha 0
-   color 0.9882 0.9882 0.9882 0.4706
+   ignorepointer 1
+   keepsafezone 0
    position 0 0
-   size 1 32
+   size 1 1
    hexactpos 1
    vexactpos 1
    hexactsize 0
-   vexactsize 1
-   scriptclass ""
-   style UIDefaultPanel
+   vexactsize 0
+   scaled 1
+   draggable 0
+   style Empty
+   "no focus" 1
    Padding 0
-   Margin 5
+   Margin 0
+   "Size To Content H" 1
    "Size To Content V" 1
-   Columns 1
    Rows 1
    {
-    GridSpacerWidgetClass Content {
+    GridSpacerWidgetClass NotificationElement {
      inheritalpha 0
-     color 0.1059 0.1059 0.1059 0.4706
+     ignorepointer 1
+     keepsafezone 0
      position 0 0
-     size 1 32
+     size 1 1
      hexactpos 1
      vexactpos 1
      hexactsize 0
-     vexactsize 1
-     scriptclass ""
-     style UIDefaultPanel
+     vexactsize 0
+     scaled 1
+     draggable 0
+     style Empty
+     "no focus" 1
      Padding 0
      Margin 0
+     "Size To Content H" 1
      "Size To Content V" 1
+     content_valign center
      Columns 1
-     Rows 2
      {
       GridSpacerWidgetClass TopSpacer {
        inheritalpha 0
        ignorepointer 1
        position 0 0
-       size 1 32
+       size 1 0.08
        hexactpos 1
        vexactpos 1
        hexactsize 0
-       vexactsize 1
+       vexactsize 0
        style Empty
-       Padding 10
+       Padding 0
        Margin 0
        "Size To Content H" 1
        "Size To Content V" 1
        Columns 2
        Rows 1
        {
-        ImageWidgetClass NotificationIcon {
-         visible 1
+        PanelWidgetClass NotificationIconPanel {
          ignorepointer 1
-         position 0 0
-         size 32 32
-         halign center_ref
-         valign center_ref
+         position 10 10
+         size 34 34
          hexactpos 1
          vexactpos 1
          hexactsize 1
          vexactsize 1
-         fixaspect fixwidth
-         scriptclass "ViewBinding"
-         image0 ""
-         mode blend
-         "src alpha" 1
-         "no wrap" 1
-         stretch 1
+         "no focus" 1
          {
-          ScriptParamsClass {
-           Binding_Name "NotificationIcon"
+          ImageWidgetClass NotificationIcon {
+           visible 1
+           ignorepointer 1
+           position 0 0
+           size 32 32
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           scriptclass "ViewBinding"
+           image0 ""
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           {
+            ScriptParamsClass {
+             Binding_Name "NotificationIcon"
+            }
+           }
           }
          }
         }
         RichTextWidgetClass NotificationTitle {
-         inheritalpha 1
+         visible 1
+         inheritalpha 0
          ignorepointer 1
          position 0 0
          size 1 1
@@ -99,12 +119,17 @@ GridSpacerWidgetClass ExpansionNotificationViewBaguette {
          hexactsize 0
          vexactsize 0
          scriptclass "ViewBinding"
-         font "gui/fonts/sdf_MetronBook24"
+         style DayZNormal
+         font "gui/fonts/etelkatextpro28"
+         "text offset" 2 0
          "exact text" 1
          "exact text size" 22
-         "size to text h" 0
-         "size to text v" 0
+         "size to text h" 1
+         "size to text v" 1
          "text valign" center
+         wrap 1
+         "condense whitespace" 1
+         "strip newlines" 1
          {
           ScriptParamsClass {
            Binding_Name "NotificationTitle"
@@ -113,36 +138,75 @@ GridSpacerWidgetClass ExpansionNotificationViewBaguette {
         }
        }
       }
-      GridSpacerWidgetClass BottomSpacer {
+      GridSpacerWidgetClass NotificationColorSpacer {
        visible 1
+       disabled 1
+       inheritalpha 0
        ignorepointer 1
-       color 1 1 1 0.9961
+       keepsafezone 0
        position 0 0
-       size 1 30
+       size 1 5
        hexactpos 1
        vexactpos 1
        hexactsize 0
        vexactsize 1
        style Empty
-       Padding 10
+       "no focus" 1
+       Padding 0
+       Margin 0
+       Columns 1
+       Rows 1
+       {
+        PanelWidgetClass NotificationColor {
+         visible 1
+         disabled 1
+         ignorepointer 1
+         color 1 1 1 0.4706
+         position 5 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         fixaspect fixwidth
+         style rover_sim_colorable
+        }
+       }
+      }
+      GridSpacerWidgetClass BottomSpacer {
+       visible 1
+       ignorepointer 1
+       color 1 1 1 0.9961
+       position 0 0
+       size 1 0.08
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style Empty
+       "no focus" 1
+       Padding 0
        Margin 0
        "Size To Content H" 1
        "Size To Content V" 1
        Columns 2
        Rows 1
        {
-        FrameWidgetClass Spacer {
-         inheritalpha 1
+        WrapSpacerWidgetClass NotificationTextSpacer {
+         visible 1
          ignorepointer 1
          position 0 0
-         size 32 32
+         size 34 1
          hexactpos 1
          vexactpos 1
          hexactsize 1
-         vexactsize 1
+         vexactsize 0
+         style Empty
         }
         RichTextWidgetClass NotificationText {
-         inheritalpha 1
+         visible 1
+         inheritalpha 0
          ignorepointer 1
          position 0 0
          size 1 1
@@ -151,16 +215,47 @@ GridSpacerWidgetClass ExpansionNotificationViewBaguette {
          hexactsize 0
          vexactsize 0
          scriptclass "ViewBinding"
-         font "gui/fonts/sdf_MetronBook24"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 2 0
          "exact text" 1
-         "exact text size" 18
+         "size to text h" 1
          "size to text v" 1
+         "text valign" center
          wrap 1
          {
           ScriptParamsClass {
            Binding_Name "NotificationText"
           }
          }
+        }
+       }
+      }
+      WrapSpacerWidgetClass FotterSpacer {
+       visible 1
+       ignorepointer 1
+       color 1 1 1 0.9961
+       position 0 0
+       size 1 0.116
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style Empty
+       "no focus" 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       {
+        PanelWidgetClass Spacer1 {
+         ignorepointer 1
+         position 11 6
+         size 1 5
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         "no focus" 1
         }
        }
       }

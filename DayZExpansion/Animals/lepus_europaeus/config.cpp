@@ -7,20 +7,13 @@ class CfgPatches
 		units[] = {"Animal_lepuseuropaeus","RabbitPelt"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Animals"};
+		requiredAddons[] = {"DZ_Animals","DZ_Gear_Consumables"};
 	};
 };
 class CfgVehicles
 {
 	class AnimalBase;
-	class Inventory_Base;
-	class Pelt_Base: Inventory_Base{};
-	class Edible_Base: Inventory_Base{};
-	class NutritionModifiers;
-	class BaseFoodStageTransitions;
-	class MeatStageTransitions: BaseFoodStageTransitions{};
-	class AnimalCorpsesStageTransitions: BaseFoodStageTransitions{};
-	class FoodAnimationSources;
+	class Pelt_Base;
 	class RabbitPelt: Pelt_Base
 	{
 		scope = 2;
@@ -46,8 +39,8 @@ class CfgVehicles
 		simulation = "dayzanimal";
 		scope = 2;
 		model = "\DayZExpansion\Animals\lepus_europaeus\lepus_europaeus.p3d";
-		displayName = "$STR_EXPANSION_AI_LEPUS_EUROOAEUS";
-		descriptionShort = "$STR_EXPANSION_AI_LEPUS_EUROOAEUS_DESC";
+		displayName = "$STR_EXPANSION_AI_LEPUS_EUROPAEUS";
+		descriptionShort = "$STR_EXPANSION_AI_LEPUS_EUROPAEUS_DESC";
 		aiAgentTemplate = "AmbientLife";
 		class DamageSystem
 		{

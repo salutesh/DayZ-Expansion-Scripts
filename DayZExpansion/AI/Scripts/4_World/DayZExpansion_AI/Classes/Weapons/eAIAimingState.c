@@ -1,0 +1,5 @@
+enum eAIAimingState
+{
+	INACTIVE,
+	ACTIVE
+};

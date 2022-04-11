@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -42,6 +42,8 @@ class ExpansionClientSettings
 	bool Show3DPlayerMarkers;
 	bool Show3DPartyMarkers;
 	bool Show3DGlobalMarkers;
+	
+	bool Show3DPartyMemberIcon;
 
 	bool Show2DClientMarkers;
 	bool Show2DPlayerMarkers;
@@ -100,9 +102,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void ExpansionClientSettings()
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::ExpansionClientSettings - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionClientSettings");
+#endif
 		
 		m_Categories = new array< ref ExpansionClientSettingCategory >;
 		
@@ -114,10 +116,6 @@ class ExpansionClientSettings
 			Print( "Creating client settings." );
 			Save();
 		}
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::ExpansionClientSettings - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -125,9 +123,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private bool OnRead( ParamsReadContext ctx, int version )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::OnRead - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.SETTINGS, this, "OnRead").Add(ctx).Add(version);
+#endif
 		
 		// Vehicles
 		if ( !ctx.Read( UseCameraLock ) )
@@ -399,10 +397,6 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraOffsetY!");
 			return false;
 		}
-
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::OnRead - End and return");
-		#endif
 		
 		if ( version < 29 )
 			return true;
@@ -455,17 +449,26 @@ class ExpansionClientSettings
 			return false;
 		}
 		
+		if ( version < 40 )
+			return true;
+		
+		if ( !ctx.Read( Show3DPartyMemberIcon ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DPartyMemberIcon!");
+			return false;
+		}
+		
 		return true;
 	}
 	
 	// -----------------------------------------------------------
 	// ExpansionClientSettings OnSave
 	// -----------------------------------------------------------
-	private void OnSave( ParamsWriteContext ctx, int version )
+	private void OnSave( ParamsWriteContext ctx )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::OnSave - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSave").Add(ctx);
+#endif
 		
 		// Vehicles
 		ctx.Write( UseCameraLock );
@@ -507,16 +510,10 @@ class ExpansionClientSettings
 		ctx.Write( GreenColorHUDOnTopOfHeadOfPlayers );
 		ctx.Write( BlueColorHUDOnTopOfHeadOfPlayers );
 		ctx.Write( AlphaColorLookAtMinimum );
-
-		if ( version < 7 )
-			return;
 		
 		// Chat settings
 		ctx.Write( HUDChatSize );
 		ctx.Write( HUDChatFadeOut );
-
-		if ( version < 8 )
-			return;
 
 		// More markers settings
 		ctx.Write( MemberMarkerType );
@@ -525,54 +522,30 @@ class ExpansionClientSettings
 		ctx.Write( ShowMemberDistanceMarker );
 		ctx.Write( ForceColorMemberMarker );
 		
-		if ( version < 9 )
-			return;
-		
 		ctx.Write( ShowNameQuickMarkers );
 		ctx.Write( ShowDistanceQuickMarkers );
 
-		
-		if ( version < 13 )
-			return;
-
 		ctx.Write( HelicopterMouseVerticalSensitivity );
 		ctx.Write( HelicopterMouseHorizontalSensitivity );
-		
-		if ( version < 18 )
-			return;
 
 		ctx.Write( ShowMapMarkerList );
-		
-		if ( version < 26 )
-			return;
 		
 		ctx.Write( VehicleCameraHeight );
 		ctx.Write( VehicleCameraDistance );
 		ctx.Write( VehicleCameraOffsetY );
-		
-		if ( version < 29 )
-			return;
 			
 		ctx.Write( MarketMenuCategoriesState );
 		ctx.Write( MarketMenuSkipConfirmations );
 		ctx.Write( MarketMenuFilterPurchasableState );
 		ctx.Write( MarketMenuFilterSellableState );
-		
-		if ( version < 38 )
-			return;
 			
 		ctx.Write( MarketMenuDisableSuccessNotifications );
-		
-		if ( version < 39 )
-			return;
 		
 		ctx.Write( DefaultMarkerLockState );
 			
 		ctx.Write( TurnOffAutoHoverDuringFlight );
 		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::OnSave - End");
-		#endif
+		ctx.Write( Show3DPartyMemberIcon );
 	}
 	
 	// -----------------------------------------------------------
@@ -580,9 +553,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	bool Load()
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Load");
+#endif
 
 		FileSerializer file = new FileSerializer;
 		
@@ -613,10 +586,6 @@ class ExpansionClientSettings
 		}
 		
 		return true;
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Load - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -624,25 +593,20 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void Save()
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
+#endif
 			
 		FileSerializer file = new FileSerializer;
 		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ) )
 		{
-			int version = EXPANSION_VERSION_CLIENT_SETTING_SAVE;
-			EXPrint("Saving Expansion client settings version " + version);
-			file.Write( version );
+			EXPrint("Saving Expansion client settings version " + EXPANSION_VERSION_CLIENT_SETTING_SAVE);
+			file.Write( EXPANSION_VERSION_CLIENT_SETTING_SAVE );
 			
-			OnSave( file, version );
+			OnSave( file );
 			
 			file.Close();
 		}
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Load - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -650,10 +614,10 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void Defaults()
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
+#endif
+
 		CastLightShadows = true;
 
 		Show3DClientMarkers = true;
@@ -716,10 +680,7 @@ class ExpansionClientSettings
 		
 		DefaultMarkerLockState = false;
 		TurnOffAutoHoverDuringFlight = true;
-				
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Defaults - End");
-		#endif
+		Show3DPartyMemberIcon = true;
 	}
 	
 	// -----------------------------------------------------------
@@ -727,9 +688,9 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void Init()
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Init - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Init");
+#endif
 
 		CreateCategory( "VideoSettings", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO" );
 		
@@ -746,6 +707,10 @@ class ExpansionClientSettings
 		CreateToggle( "Show3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS_DESC" );
 		//! Option to toggle view of all 3D Global Server-Markers
 		CreateToggle( "Show3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS_DESC" );
+		#ifdef EXPANSIONMODGROUPS
+		//! Option to show/hide the icon that gets displayed next to party member markers
+		CreateToggle( "Show3DPartyMemberIcon", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON_DESC" );
+		#endif
 		
 		CreateCategory( "2DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D" );
 		
@@ -759,7 +724,7 @@ class ExpansionClientSettings
 		CreateToggle( "Show2DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS_DESC" );
 		//! Option to set default marker lock state for new created map markers.
 		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
-		
+
 		CreateCategory( "Notifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS" );
 
 		//! Option to toggle notification sounds
@@ -839,10 +804,6 @@ class ExpansionClientSettings
 		CreateToggle( "MarketMenuFilterSellableState", "SELLABLES FILTER STATE", "MarketMenu", "Show only sellable items by default." );
 		CreateToggle( "MarketMenuDisableSuccessNotifications", "DISABLE SUCCESS NOTIFICATIONS", "MarketMenu", "Disable notifications for successful purchases and sales." );
 		#endif
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::Init - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -850,14 +811,18 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void OnSettingsUpdated(typename type, ExpansionSettingSerializationBase setting)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSettingsUpdated");
+#endif
+
 		GetExpansionClientSettings().SI_UpdateSetting.Invoke();
 	}
 
 	private void CreateCategory( string name, string displayName )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateCategory - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateCategory");
+#endif
 		
 		ExpansionClientSettingCategory category = new ExpansionClientSettingCategory;
 
@@ -866,10 +831,6 @@ class ExpansionClientSettings
 
 		m_Categories.Insert( category );
 		m_CurrentCategory = category;
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateCategory - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -877,10 +838,10 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private void CreateToggle( string variable, string name, string detailLabel, string detailContent )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateToggle - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateToggle");
+#endif
+
 		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
 
 		setting.m_Variable = variable;
@@ -890,10 +851,6 @@ class ExpansionClientSettings
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateToggle - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -901,10 +858,10 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min, float max )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateSlider - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateSlider");
+#endif
+
 		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
 
 		setting.m_Variable = variable;
@@ -916,10 +873,6 @@ class ExpansionClientSettings
 		setting.m_Max = max;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateSlider - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -928,10 +881,10 @@ class ExpansionClientSettings
 	//! TODO: Not working.
 	private void CreateInt( string variable, string name, string detailLabel, string detailContent )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateInt - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateInt");
+#endif
+
 		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
 
 		setting.m_Variable = variable;
@@ -941,10 +894,6 @@ class ExpansionClientSettings
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateInt - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -952,10 +901,10 @@ class ExpansionClientSettings
 	// ----------------------------------------------------------
 	private void CreateEnum( string variable, typename enm, string name, string detailLabel, string detailContent )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateEnum - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateEnum");
+#endif
+
 		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
 
 		setting.m_Variable = variable;
@@ -973,10 +922,6 @@ class ExpansionClientSettings
 		}
 
 		m_CurrentCategory.m_Settings.Insert( setting );
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateEnum - End");
-		#endif
 	}
 	
 	// -----------------------------------------------------------
@@ -984,10 +929,10 @@ class ExpansionClientSettings
 	// ----------------------------------------------------------
 	private void CreateString( string variable, string name, string detailLabel, string detailContent )
 	{
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateString - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateString");
+#endif
+
 		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
 
 		setting.m_Variable = variable;
@@ -997,28 +942,21 @@ class ExpansionClientSettings
 		setting.m_DetailContent = detailContent;
 
 		m_CurrentCategory.m_Settings.Insert( setting );
-		
-		#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-		EXLogPrint("ExpansionClientSettings::CreateString - End");
-		#endif
 	}
 }
 
 static ref ExpansionClientSettings g_ExClientSettings;
 
-ExpansionClientSettings GetExpansionClientSettings()
+static ExpansionClientSettings GetExpansionClientSettings()
 {
-	#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-	EXLogPrint("ExpansionClientSettings::GetExpansionClientSettings - Start");
-	#endif
-	
+#ifdef EXPANSIONTRACE
+	auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, "GetExpansionClientSettings");
+#endif
+
 	if ( !g_ExClientSettings )
 	{
 		g_ExClientSettings = new ExpansionClientSettings;
 	}
 
-	#ifdef EXPANSION_CLIENT_SETTINGS_DEBUG
-	EXLogPrint( "ExpansionClientSettings::GetExpansionClientSettings - Return: " + g_ExClientSettings.ToString() );
-	#endif
 	return g_ExClientSettings;
 }

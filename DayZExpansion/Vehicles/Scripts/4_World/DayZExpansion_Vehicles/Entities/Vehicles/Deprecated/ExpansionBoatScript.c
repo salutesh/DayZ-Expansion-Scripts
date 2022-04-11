@@ -3,12 +3,12 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
 /**@class		ExpansionBoat
  * @brief		This class handle boat movement and physics
@@ -17,26 +17,16 @@ class ExpansionBoatScript extends CarScript
 {
 	protected float m_BoatTime;
 
-	// ------------------------------------------------------------
-	//! Static Values
-	// ------------------------------------------------------------	
-	// To whomever reads this, this will be re-written
 	protected float m_Offset;
 
 	protected float m_TurnCoef;
 
-	// ------------------------------------------------------------
-	//! Local values
-	// ------------------------------------------------------------
 	private float m_Thrust;
 	private float m_ThrustTarget;
 
 	private float m_Turn;
 	private float m_TurnTarget;
-	
-	// ------------------------------------------------------------
-	//! Effects
-	// ------------------------------------------------------------	
+
 	private Particle m_ParticleFirst;
 	private Particle m_ParticleSecond;
 
@@ -45,35 +35,25 @@ class ExpansionBoatScript extends CarScript
 
 	private Particle m_ParticleEngine;
 
-	// ------------------------------------------------------------
-	//! Animations
-	// ------------------------------------------------------------
 	private float m_RotorAnimationPosition;
-	
+
 	private bool m_IsInitialized;
 
 	float m_Expansion_SDSCheckTime;
 
-	// ------------------------------------------------------------
-	//! Constructor
-	// ------------------------------------------------------------	
 	void ExpansionBoatScript()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::Constructor start");
-		#endif
-		
-		//!Values
-		m_Offset 					= 0.75;
+		//! Values
+		m_Offset = 0.75;
 
-		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE );
+		SetEventMask(EntityEvent.CONTACT | EntityEvent.SIMULATE);
 
 		int i;
 		int count;
 
 		string path;
 
-/*
+		/*
 		path = "CfgVehicles " + GetType() + " SimulationModule Props";
 		count = GetGame().ConfigGetChildrenCount(path);
 
@@ -100,7 +80,8 @@ class ExpansionBoatScript extends CarScript
 
 		path = "CfgVehicles " + GetType() + " SimulationModule Throttle";
 		AddModule(new ExpansionVehicleCarThrottle(this, path));
-*/	
+		*/
+
 		m_EngineStartOK = "offroad_engine_start_SoundSet";
 		m_EngineStartBattery = "offroad_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "offroad_engine_failed_start_sparkplugs_SoundSet";
@@ -117,64 +98,62 @@ class ExpansionBoatScript extends CarScript
 			//SetObjectMaterial(selectionIndex, "dayzexpansion\\particles\\materials\\world\\data\\expansion_material_antiwater.rvmat");
 			//GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(UpdateVisuals);
 		//}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::Constructor end");
-		#endif
 	}
 
 	void ~ExpansionBoatScript()
 	{
-		if ( m_ParticleEngine )
+		if (m_ParticleEngine)
 		{
 			m_ParticleEngine.Stop();
 		}
 
-		if ( m_ParticleFirst ) 
+		if (m_ParticleFirst)
 		{
 			m_ParticleFirst.Stop();
 		}
-			
-		if ( m_ParticleSecond ) 
+
+		if (m_ParticleSecond)
 		{
 			m_ParticleSecond.Stop();
 		}
 
-		if ( m_ParticleSideFirst ) 
+		if (m_ParticleSideFirst)
 		{
 			m_ParticleSideFirst.Stop();
 		}
-			
-		if ( m_ParticleSideSecond ) 
+
+		if (m_ParticleSideSecond)
 		{
 			m_ParticleSideSecond.Stop();
 		}
 	}
 
-	// ------------------------------------------------------------
 	override void LongDeferredInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::LongDeferredInit - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "LongDeferredInit");
+#endif
+
 		super.LongDeferredInit();
 
 		m_IsInitialized = true;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::LongDeferredInit - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	override void SetActions()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SetActions");
+#endif
+
 		super.SetActions();
 	}
 
 	override void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "Expansion_OnHandleController").Add(driver).Add(dt);
+#endif
+
 		float steering;
 		float brake;
 		float thrust;
@@ -183,19 +162,19 @@ class ExpansionBoatScript extends CarScript
 		{
 			UAInterface input = driver.GetInputInterface();
 
-			#ifdef COMPONENT_SYSTEM
+#ifdef COMPONENT_SYSTEM
 			float forward = input.SyncedValue("UAExpansionBoatMoveForward");
 			float backward = input.SyncedValue("UAExpansionBoatMoveBackward");
 			float left = input.SyncedValue("UAExpansionBoatRotateLeft");
 			float right = input.SyncedValue("UAExpansionBoatRotateRight");
 			float turbo = input.SyncedValue("UAExpansionBoatTurbo");
-			#else
+#else
 			float forward = input.SyncedValue_ID(UAExpansionBoatMoveForward);
 			float backward = input.SyncedValue_ID(UAExpansionBoatMoveBackward);
 			float left = input.SyncedValue_ID(UAExpansionBoatRotateLeft);
 			float right = input.SyncedValue_ID(UAExpansionBoatRotateRight);
 			float turbo = input.SyncedValue_ID(UAExpansionBoatTurbo);
-			#endif
+#endif
 
 			steering = right - left;
 			brake = backward;
@@ -204,139 +183,141 @@ class ExpansionBoatScript extends CarScript
 
 		int gear = GetController().GetGear();
 
-		if ( brake > 0 )
+		if (brake > 0)
 		{
-			m_ThrustTarget = -m_State.m_LinearVelocityMS[2] * ( 1.0 / m_MaxSpeedMS ) * 2.0;
-		} else
+			m_ThrustTarget = -m_State.m_LinearVelocityMS[2] * (1.0 / m_MaxSpeedMS) * 2.0;
+		}
+		else
 		{
 			float ratio = 0;
 
-			if ( gear == CarGear.REVERSE )
+			if (gear == CarGear.REVERSE)
 			{
 				thrust *= -1.0;
 
 				steering = -steering;
-			} else if ( gear == CarGear.NEUTRAL )
+			}
+			else if (gear == CarGear.NEUTRAL)
 			{
 				thrust = 0;
 
 				steering = 0;
-			} else
+			}
+			else
 			{
 				thrust *= 1.0;
 
 				steering = steering;
 			}
 
-			m_TurnTarget += Math.Clamp( steering - m_TurnTarget, -40.0 * dt, 40.0 * dt );
-			m_ThrustTarget += Math.Clamp( thrust - m_ThrustTarget, -40.0 * dt, 40.0 * dt );
+			m_TurnTarget += Math.Clamp(steering - m_TurnTarget, -40.0 * dt, 40.0 * dt);
+			m_ThrustTarget += Math.Clamp(thrust - m_ThrustTarget, -40.0 * dt, 40.0 * dt);
 		}
-		
+
 		//! Not used ATM
 		m_Controller.SetSteering(m_TurnTarget);
 		m_Controller.SetThrottle(thrust);
 		m_Controller.SetBrake(brake);
 	}
 
-	// ------------------------------------------------------------
-	protected override void OnParticleUpdate( float pDt )
+	protected override void OnParticleUpdate(float pDt)
 	{
-		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine")); 
+		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine"));
 		//! TODO: Make particles for reverse gear too
-		if ( enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 5 ) 
+		if (enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 5)
 		{
 			if (!m_ParticleEngine && MemoryPointExists("engine"))
 			{
-				m_ParticleEngine = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_ENGINE, this, GetMemoryPointPos("engine"), Vector(0, 90, 0));	
+				m_ParticleEngine = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_ENGINE, this, GetMemoryPointPos("engine"), Vector(0, 90, 0));
 			}
 
 			if (!m_ParticleFirst && MemoryPointExists("waterdecal"))
 			{
-				m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_DECAL, this, GetMemoryPointPos("waterdecal") + Vector(0, 0, 2.5), Vector(-180, 0, 0));	
+				m_ParticleFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_DECAL, this, GetMemoryPointPos("waterdecal") + Vector(0, 0, 2.5), Vector(-180, 0, 0));
 			}
 
 			if (!m_ParticleSideFirst && MemoryPointExists("waterstream1_side"))
 			{
-				m_ParticleSideFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream1_side"), Vector(-25, 90, 0));	
+				m_ParticleSideFirst = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream1_side"), Vector(-25, 90, 0));
 			}
 
 			if (!m_ParticleSideSecond && MemoryPointExists("waterstream2_side"))
 			{
-				m_ParticleSideSecond = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream2_side"), Vector(25, 90, 0));	
+				m_ParticleSideSecond = Particle.PlayOnObject(ParticleList.EXPANSION_BOAT_WATER, this, GetMemoryPointPos("waterstream2_side"), Vector(25, 90, 0));
 			}
-		} else 
+		}
+		else
 		{
-			if ( m_ParticleEngine )
+			if (m_ParticleEngine)
 			{
 				m_ParticleEngine.Stop();
 			}
 
-			if ( m_ParticleFirst ) 
+			if (m_ParticleFirst)
 			{
 				m_ParticleFirst.Stop();
 			}
-				
-			if ( m_ParticleSecond ) 
+
+			if (m_ParticleSecond)
 			{
 				m_ParticleSecond.Stop();
-			}	
+			}
 
-			if ( m_ParticleSideFirst ) 
+			if (m_ParticleSideFirst)
 			{
 				m_ParticleSideFirst.Stop();
 			}
-				
-			if ( m_ParticleSideSecond ) 
+
+			if (m_ParticleSideSecond)
 			{
 				m_ParticleSideSecond.Stop();
 			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	protected override void OnAnimationUpdate( float pDt )
+	protected override void OnAnimationUpdate(float pDt)
 	{
 		m_RotorAnimationPosition += m_Thrust * 10 * 0.0001;
 
-		if ( m_RotorAnimationPosition >= 1 )
+		if (m_RotorAnimationPosition >= 1)
 			m_RotorAnimationPosition -= 1;
 
-		SetAnimationPhase("rotor", m_RotorAnimationPosition );
+		SetAnimationPhase("rotor", m_RotorAnimationPosition);
 
-		SetAnimationPhase( "compasspointer", GetOrientation()[0] * Math.DEG2RAD );
+		SetAnimationPhase("compasspointer", GetOrientation()[0] * Math.DEG2RAD);
 
-		SetAnimationPhase( "drivingWheel", m_Controller.GetSteering() );
+		SetAnimationPhase("drivingWheel", m_Controller.GetSteering());
 
-		super.OnAnimationUpdate( pDt );
+		super.OnAnimationUpdate(pDt);
 	}
-	
-	override protected void CheckVitalItem( bool isVital, string itemName )
+
+	override protected void CheckVitalItem(bool isVital, string itemName)
 	{
-		if ( !isVital )
+		if (!isVital)
 			return;
 
 		EntityAI item = FindAttachmentBySlotName(itemName);
 
-		if ( !item )
+		if (!item)
 			Expansion_EngineStop(1);
-		else if ( item.IsRuined() )
+		else if (item.IsRuined())
 			Expansion_EngineStop(1);
 	}
 
-	#ifdef CF_DebugUI
+#ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
 		super.CF_OnDebugUpdate(instance, type);
 
-		instance.Add("Turn Target", m_TurnTarget );
-		instance.Add("Thrust Target", m_ThrustTarget );
+		instance.Add("Turn Target", m_TurnTarget);
+		instance.Add("Thrust Target", m_ThrustTarget);
 
-		instance.Add("Turn", m_Turn );
-		instance.Add("Thrust", m_Thrust );
+		instance.Add("Turn", m_Turn);
+		instance.Add("Thrust", m_Thrust);
 
 		return true;
 	}
-	#endif
+#endif
 
 	protected override void OnSimulation(ExpansionPhysicsState pState)
 	{
@@ -347,9 +328,9 @@ class ExpansionBoatScript extends CarScript
 		bool isAboveWater;
 		float buoyancyForce;
 
-		if ( m_Exploded )
+		if (m_Exploded)
 		{
-			if ( dBodyIsActive( this ) )
+			if (dBodyIsActive(this))
 			{
 				// floaty mc float
 			}
@@ -360,50 +341,50 @@ class ExpansionBoatScript extends CarScript
 		// To whomever reads this, this will be re-written
 		// Will be re-written soon :)
 
-		if ( !Expansion_EngineIsOn(1) )
+		if (!Expansion_EngineIsOn(1))
 		{
 			m_TurnTarget = 0;
 			m_ThrustTarget = 0;
 		}
 
-		vector tForce			= vector.Zero;
-		vector tCenter			= vector.Zero;
+		vector tForce = vector.Zero;
+		vector tCenter = vector.Zero;
 
 		float change;
 
 		change = m_ThrustTarget - m_Thrust;
-		m_Thrust += Math.Clamp( change, -1.0 * pDt, 1.0 * pDt );
-		m_Thrust = Math.Clamp( m_Thrust, -1.0, 1.0 );
+		m_Thrust += Math.Clamp(change, -1.0 * pDt, 1.0 * pDt);
+		m_Thrust = Math.Clamp(m_Thrust, -1.0, 1.0);
 
 		change = m_TurnTarget - m_Turn;
-		m_Turn += Math.Clamp( change, -1.0 * pDt, 1.0 * pDt );
-		m_Turn = Math.Clamp( m_Turn, -1.0, 1.0 );
+		m_Turn += Math.Clamp(change, -1.0 * pDt, 1.0 * pDt);
+		m_Turn = Math.Clamp(m_Turn, -1.0, 1.0);
 
 		float linVel = 0;
-		if ( m_MaxSpeedMS > 0 )
-			linVel = m_State.m_LinearVelocityMS[2] * ( 1.0 / m_MaxSpeedMS );
+		if (m_MaxSpeedMS > 0)
+			linVel = m_State.m_LinearVelocityMS[2] * (1.0 / m_MaxSpeedMS);
 
-		buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition( GetPosition(), m_Offset, m_State.m_Mass, 0.5, m_State.m_LinearVelocity, isAboveWater );
+		buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition(GetPosition(), m_Offset, m_State.m_Mass, 0.5, m_State.m_LinearVelocity, isAboveWater);
 
-		float waterContactCoef = Math.Clamp( Math.Sign( buoyancyForce ), 0, 1 );
+		float waterContactCoef = Math.Clamp(Math.Sign(buoyancyForce), 0, 1);
 
 		// thrust
-		if ( buoyancyForce > 0 )
+		if (buoyancyForce > 0)
 		{
-			float thrust = ( 3.0 * m_Thrust ) - ( 2.0 * linVel );
+			float thrust = (3.0 * m_Thrust) - (2.0 * linVel);
 
 			tForce[0] = 0;
 			tForce[1] = 0;
 			tForce[2] = thrust * m_State.m_Mass;
 
-			float linVelAbs = Math.AbsFloat( linVel );
+			float linVelAbs = Math.AbsFloat(linVel);
 
 			float thrustCoef = 4.0 * linVelAbs;
-			thrustCoef = Math.Clamp( thrustCoef, 0.0, 4.0 );
+			thrustCoef = Math.Clamp(thrustCoef, 0.0, 4.0);
 			thrustCoef *= thrustCoef;
 
 			tCenter[0] = -m_Turn * m_BoundingRadius * thrustCoef * m_TurnCoef;
-			tCenter[1] = -Math.Clamp( m_BoundingRadius * 2.0, 4, 8);
+			tCenter[1] = -Math.Clamp(m_BoundingRadius * 2.0, 4, 8);
 			tCenter[2] = -m_BoundingRadius;
 
 			force += tForce;
@@ -411,19 +392,19 @@ class ExpansionBoatScript extends CarScript
 		}
 
 		// friction
-		if ( buoyancyForce > 0 )
+		if (buoyancyForce > 0)
 		{
 			force += GetLinearFrictionForce();
 		}
-		
+
 		// convert forces to worldspace
 		{
-			force = force.Multiply3( m_State.m_Transform );
-			torque = torque.Multiply3( m_State.m_Transform );
+			force = force.Multiply3(m_State.m_Transform);
+			torque = torque.Multiply3(m_State.m_Transform);
 		}
 
 		// bouyancy forces
-		if ( buoyancyForce > 0 )
+		if (buoyancyForce > 0)
 		{
 			tForce[0] = 0;
 			tForce[1] = buoyancyForce;
@@ -433,11 +414,11 @@ class ExpansionBoatScript extends CarScript
 		}
 
 		// stabilize
-		if ( buoyancyForce > 0 )
+		if (buoyancyForce > 0)
 		{
 			// https://www.youtube.com/watch?v=weUDuqA6dF4?t=9
-			vector upWanted = Vector( 0, 1, 0 );
-			vector estOrient = m_State.EstimateDirection( 0.025, 1 );
+			vector upWanted = Vector(0, 1, 0);
+			vector estOrient = m_State.EstimateDirection(0.025, 1);
 
 			vector stabilize = vector.Zero;
 			stabilize[0] = upWanted[0] - estOrient[0];
@@ -445,17 +426,17 @@ class ExpansionBoatScript extends CarScript
 			stabilize[2] = upWanted[2] - estOrient[2];
 
 			// convert to local space
-			stabilize = stabilize.InvMultiply3( m_State.m_Transform );
+			stabilize = stabilize.InvMultiply3(m_State.m_Transform);
 
 			// in local space, limit the axis of movement
-			stabilize[0] = Math.Clamp( stabilize[0], -0.06, 0.06 );
-			stabilize[2] = Math.Clamp( stabilize[2], -0.3, 0.3 );
+			stabilize[0] = Math.Clamp(stabilize[0], -0.06, 0.06);
+			stabilize[2] = Math.Clamp(stabilize[2], -0.3, 0.3);
 
 			// convert to world space
-			stabilize = stabilize.Multiply3( m_State.m_Transform );
+			stabilize = stabilize.Multiply3(m_State.m_Transform);
 
 			// apply 800N*mass of torque to keep the ship upright, and then copy this to bike scripts
-			torque += Vector( 0, 400.0 * m_State.m_Mass, 0 ) * stabilize * waterContactCoef;
+			torque += Vector(0, 400.0 * m_State.m_Mass, 0) * stabilize * waterContactCoef;
 		}
 
 		dBodySetDamping(this, 0.0, 0.5);
@@ -464,31 +445,23 @@ class ExpansionBoatScript extends CarScript
 		pState.m_ImpulseTorque += torque * pState.m_DeltaTime;
 	}
 
-	override void EOnPostSimulate( IEntity other, float timeSlice )
+	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::EOnPostSimulate - Start");
-		#endif
-
 		m_BoatTime += timeSlice;
 
-		if ( m_BoatTime >= GameConstants.CARS_FLUIDS_TICK )
+		if (m_BoatTime >= GameConstants.CARS_FLUIDS_TICK)
 		{
 			m_BoatTime = 0;
 
-			if ( GetGame().IsServer() && Expansion_EngineIsOn(1) )
+			if (GetGame().IsServer() && Expansion_EngineIsOn(1))
 			{
-				if ( GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0 )
+				if (GetFluidFraction(CarFluid.FUEL) <= 0 || m_EngineHealth <= 0)
 					Expansion_EngineStop(1);
 
-				CheckVitalItem( IsVitalTruckBattery(), "TruckBattery" );
-				CheckVitalItem( IsVitalGlowPlug(), "GlowPlug" );
+				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
+				CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::EOnPostSimulate - End");
-		#endif
 	}
 
 	override void OnUpdate( float dt )
@@ -502,75 +475,55 @@ class ExpansionBoatScript extends CarScript
 	{
 		vector friction = vector.Zero;
 
-		friction[0] = -Math.SquareSign( m_State.m_LinearVelocityMS[0] ) * m_State.m_Mass * 0.8;
-		friction[1] = -Math.SquareSign( m_State.m_LinearVelocityMS[1] ) * m_State.m_Mass * 0.8;
+		friction[0] = -Math.SquareSign(m_State.m_LinearVelocityMS[0]) * m_State.m_Mass * 0.8;
+		friction[1] = -Math.SquareSign(m_State.m_LinearVelocityMS[1]) * m_State.m_Mass * 0.8;
 
-		friction[2] = -Math.SquareSign( m_State.m_LinearVelocityMS[2] ) * m_State.m_Mass * 0.0001;
+		friction[2] = -Math.SquareSign(m_State.m_LinearVelocityMS[2]) * m_State.m_Mass * 0.0001;
 
 		return friction;
 	}
 
-	override void ExpansionOnExplodeClient( int damageType, string ammoType )
+	override void ExpansionOnExplodeClient(int damageType, string ammoType)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::ExpansionOnExplodeClient start");
-		#endif
-		super.ExpansionOnExplodeClient( damageType, ammoType );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::ExpansionOnExplodeClient end");
-		#endif
+		super.ExpansionOnExplodeClient(damageType, ammoType);
 	}
 
 	override void ExpansionOnSpawnExploded()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::ExpansionOnSpawnExploded - Start");
-		#endif
-
 		super.ExpansionOnSpawnExploded();
 
 		if (m_ParticleEngine)
 			m_ParticleEngine.Stop();
-		
-		if (m_ParticleFirst) 
+
+		if (m_ParticleFirst)
 			m_ParticleFirst.Stop();
 
-		if (m_ParticleSecond) 
+		if (m_ParticleSecond)
 			m_ParticleSecond.Stop();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::ExpansionOnSpawnExploded - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	override void DeferredInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::DeferredInit start");
-		#endif
-
 		super.DeferredInit();
 
-		HideSelection( "hiderotorblur" );
-		ShowSelection( "hiderotor" );
+		HideSelection("hiderotorblur");
+		ShowSelection("hiderotor");
 
 		//! There is no need to run any of the below on client in multiplayer
 		if (ExpansionGame.IsMultiplayerClient())
 			return;
 
-		SetVelocity( this, "0 0 0" );
-		dBodySetAngularVelocity( this, "0 0 0" );
-		
+		SetVelocity(this, "0 0 0");
+		dBodySetAngularVelocity(this, "0 0 0");
+
 		vector position = GetPosition();
 		vector orientation = GetOrientation();
 		if (ExpansionStatic.SurfaceIsWater(position))
 		{
-			float waterLineCorrection = 1.08;  //! Value works for all boats, makes waterline roughly match simulated waterline
+			float waterLineCorrection = 1.08; //! Value works for all boats, makes waterline roughly match simulated waterline
 			float tideCorrection = GetTideCorrection(position);
 			if (tideCorrection > 0.2)
-				waterLineCorrection += tideCorrection - 0.2;  //! If surface is sea, place boat roughly below half point of tide to make it easier to climb in
+				waterLineCorrection += tideCorrection - 0.2; //! If surface is sea, place boat roughly below half point of tide to make it easier to climb in
 			float depth = g_Game.GetWaterDepth(position);
 			position[1] = position[1] + depth + m_Offset - waterLineCorrection;
 			SetPosition(position);
@@ -584,10 +537,6 @@ class ExpansionBoatScript extends CarScript
 			m_IsInitialized = true;
 			dBodyActive(this, ActiveState.ACTIVE);
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatScript::DeferredInit end");
-		#endif
 	}
 
 	float GetTideCorrection(vector position)
@@ -603,20 +552,30 @@ class ExpansionBoatScript extends CarScript
 		return 0;
 	}
 
-	// ------------------------------------------------------------
 	override int Get3rdPersonCameraType()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Get3rdPersonCameraType");
+#endif
+
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
 	}
 
-	// ------------------------------------------------------------
 	override int GetAnimInstance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
+
 		return ExpansionVehicleAnimInstances.EX_HATCHBACK;
 	}
 
 	override bool Expansion_CanSimulate()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_CanSimulate");
+#endif
+
 		if ((GetGame().IsServer() && GetGame().IsMultiplayer()) && !m_IsInitialized)
 			return false;
 
@@ -625,6 +584,10 @@ class ExpansionBoatScript extends CarScript
 
 	override bool Expansion_ShouldDisableSimulation()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_ShouldDisableSimulation");
+#endif
+
 		//! Vanilla WILL NOT deactivate boats that are in water, so we need to do that ourself (handled in CarScript::EOnSimulate if no driver).
 		//! If a boat is on land though, DON'T return true here as it may cause boats to get pushed into the ground while vanilla collision code is running
 		//! (CarScript doesn't have collision in inactive state, so will move through terrain as if it weren't there if it's pushed by an outside force).
@@ -642,16 +605,16 @@ class ExpansionBoatScript extends CarScript
 		// if velocity is greater than gravity in either direction then that means the boat is not floating
 		if (Math.AbsFloat(velocity[1]) > Math.AbsFloat(dGetGravity(this)[1]))
 			return false;
-		
+
 		// checking the velocity speed to see if it is moving (pushed/pulled/towed)
 		velocity[1] = 0;
 		if (velocity.LengthSq() > 0.1)
 			return false;
 
-		if (m_ThrustTarget > 0.001) 
+		if (m_ThrustTarget > 0.001)
 			return false;
-			
-		if (m_Thrust > 0.001) 
+
+		if (m_Thrust > 0.001)
 			return false;
 
 		bool result = true;
@@ -669,10 +632,13 @@ class ExpansionBoatScript extends CarScript
 		return result;
 	}
 
-	// ------------------------------------------------------------
-	override int GetSeatAnimationType( int posIdx )
+	override int GetSeatAnimationType(int posIdx)
 	{
-		switch( posIdx )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
+		switch (posIdx)
 		{
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
@@ -685,27 +651,39 @@ class ExpansionBoatScript extends CarScript
 		return 0;
 	}
 
-	// ------------------------------------------------------------
-	override bool CrewCanGetThrough( int posIdx )
+	override bool CrewCanGetThrough(int posIdx)
 	{
-		return true;
-	}
-	
-	// ------------------------------------------------------------
-	override bool IsVitalGlowPlug()
-	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
+
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	override bool IsVitalTruckBattery()
+	override bool IsVitalGlowPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalGlowPlug");
+#endif
+
 		return true;
 	}
-	
-	// ------------------------------------------------------------
+
+	override bool IsVitalTruckBattery()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalTruckBattery");
+#endif
+
+		return true;
+	}
+
 	override bool IsVitalCarBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		return false;
 	}
 
@@ -713,95 +691,116 @@ class ExpansionBoatScript extends CarScript
 	{
 		super.OnVariablesSynchronized();
 	}
-	
+
 	/**
 	 * @brief This updates the sound for the car.
-	 * 
+	 *
 	 * @param ctrl, sound control (in config) which will be updated
 	 * @param oldValue, engine defined value for the sound control
 	 */
-	override float OnSound( CarSoundCtrl ctrl, float oldValue )
+	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
-		if ( Expansion_EngineIsOn(0) )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
+#endif
+
+		if (Expansion_EngineIsOn(0))
 		{
-			return super.OnSound( ctrl, oldValue );
+			return super.OnSound(ctrl, oldValue);
 		}
-		
-		if ( Expansion_EngineIsOn(1) )
+
+		if (Expansion_EngineIsOn(1))
 		{
-			switch ( ctrl )
+			switch (ctrl)
 			{
-				case CarSoundCtrl.RPM:
+			case CarSoundCtrl.RPM:
+			{
+				float speed = GetSpeedometer();
+				if (speed > 100)
 				{
-					float speed = GetSpeedometer();
-					if ( speed > 100 )
-					{
-						return 50;
-					}
-					else
-					{
-						return speed / 2;
-					}
-				
-					break;
+					return 50;
 				}
-				
-				case CarSoundCtrl.ENGINE:
+				else
 				{
-					return 1;
+					return speed / 2;
 				}
+
+				break;
+			}
+
+			case CarSoundCtrl.ENGINE:
+			{
+				return 1;
+			}
 			}
 
 			return oldValue;
 		}
 
-		return super.OnSound( ctrl, oldValue );
+		return super.OnSound(ctrl, oldValue);
 	}
 
-	// ------------------------------------------------------------
 	override CarLightBase CreateRearLight()
 	{
-		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight( ExpansionRearBoatLights ) );
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateRearLight");
+#endif
+
+		return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionRearBoatLights));
 	}
 
-	// ------------------------------------------------------------
-	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
-		return true;		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
+
+		return true;
 	}
 
-	// ------------------------------------------------------------
-	override bool CanReachSeatFromDoors( string pSeatSelection, vector pFromPos, float pDistance = 1.0 )
+	override bool CanReachSeatFromDoors(string pSeatSelection, vector pFromPos, float pDistance = 1.0)
 	{
-		return true;		
+		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsCar()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");
+#endif
+
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsBoat()
 	{
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override float GetCameraHeight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+#endif
+
 		return 1.5;
 	}
 
-	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
+#endif
+
 		return 3.5;
 	}
 
-	override bool Expansion_CanConnectTow( notnull Object other )
+	override bool Expansion_CanConnectTow(notnull Object other)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_CanConnectTow").Add(other);
+#endif
+
 		return false;
 	}
 
@@ -809,4 +808,4 @@ class ExpansionBoatScript extends CarScript
 	{
 		ShowSelection("antiwater");
 	}
-}
+};

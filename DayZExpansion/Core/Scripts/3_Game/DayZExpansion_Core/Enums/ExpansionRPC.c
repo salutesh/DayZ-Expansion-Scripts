@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -63,6 +63,7 @@ enum ExpansionMarketModuleRPC
 	LoadTraderData,
 	RequestTraderItems,
 	LoadTraderItems,
+	ExitTrader,
 	
 	//! ATM
 	RequestPlayerATMData,
@@ -108,6 +109,7 @@ enum ExpansionVehicleRPC
 enum ExpansionMarkerRPC
 {
 	INVALID = 20160,
+	CreateDeathMarker,
 	COUNT
 };
 
@@ -133,7 +135,8 @@ enum ExpansionMonitorRPC
 	RequestPlayerStats,
 	SendPlayerStats,
 	RequestPlayerStates,
-	SendPlayerStates
+	SendPlayerStates,
+	SyncLastDeathPos,
 	COUNT
 };
 
@@ -217,6 +220,7 @@ enum ExpansionRespawnHandlerModuleRPC
 	SelectSpawn,
 	CloseSpawnMenu,
 	RequestPlacePlayerAtTempSafePosition,
+	CheckPlayerCooldowns,
 	COUNT
 };
 
@@ -253,110 +257,112 @@ enum ExpansionSettingsRPC
 	SafeZone,
 	Mission,
 	AirDrop,
+	Chat,
+	NotificationScheduler,
 	COUNT
 };
 
 enum ExpansionCOTBookModuleRPC
-{
-	INVALID = 30020,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTBaseBuildingModuleRPC
-{
-	INVALID = 30025,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTMapModuleRPC
 {
 	INVALID = 30030,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTMarketModuleRPC
+enum ExpansionCOTBaseBuildingModuleRPC
 {
 	INVALID = 30035,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTNotificationModuleRPC
+enum ExpansionCOTMapModuleRPC
 {
 	INVALID = 30040,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTPartyModuleRPC
+enum ExpansionCOTMarketModuleRPC
 {
 	INVALID = 30045,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTRaidModuleRPC
+enum ExpansionCOTNotificationModuleRPC
 {
 	INVALID = 30050,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTSpawnModuleRPC
+enum ExpansionCOTPartyModuleRPC
 {
 	INVALID = 30055,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTTerritoryModuleRPC
+enum ExpansionCOTRaidModuleRPC
 {
 	INVALID = 30060,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTVehicleModuleRPC
+enum ExpansionCOTSpawnModuleRPC
 {
 	INVALID = 30065,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTGeneralModuleRPC
+enum ExpansionCOTTerritoryModuleRPC
 {
 	INVALID = 30070,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTSafeZoneModuleRPC
+enum ExpansionCOTVehicleModuleRPC
+{
+	INVALID = 30075,
+	Update,
+	COUNT
+};
+
+enum ExpansionCOTGeneralModuleRPC
 {
 	INVALID = 30080,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTMissionModuleRPC
+enum ExpansionCOTSafeZoneModuleRPC
 {
 	INVALID = 30085,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTAirDropModuleRPC
+enum ExpansionCOTMissionModuleRPC
 {
 	INVALID = 30090,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTDebugModuleRPC
+enum ExpansionCOTAirDropModuleRPC
 {
 	INVALID = 30095,
+	Update,
+	COUNT
+};
+
+enum ExpansionCOTDebugModuleRPC
+{
+	INVALID = 30100,
 	Update,
 	COUNT
 };

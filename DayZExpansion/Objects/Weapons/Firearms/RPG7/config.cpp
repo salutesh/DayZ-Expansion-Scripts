@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Firearms_RPG7
 	{
-		units[] = {"Expansion_RPG_Explosion","Expansion_C4_Explosion"};
+		units[] = {"Expansion_RPG_Explosion"};
 		weapons[] = {"ExpansionRPG7"};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
@@ -377,12 +377,6 @@ class cfgVehicles
 		scope = 2;
 		model = "\DZ\data\lightpoint.p3d";
 		ammoType = "ExpansionRocket_Ammo";
-	};
-	class Expansion_C4_Explosion: HouseNoDestruct
-	{
-		scope = 2;
-		model = "\DZ\data\lightpoint.p3d";
-		ammoType = "ExpansionC4_Ammo";
 	};
 	class FxCartridge_Expansion_RPG7: FxCartridge
 	{

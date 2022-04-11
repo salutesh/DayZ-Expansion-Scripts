@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -36,29 +36,12 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool UseNewsFeedInGameMenu;
 }
 
-
-/**@class		ExpansionGeneralSettingsV2
- * @brief		General settings v2 class
- **/
-class ExpansionGeneralSettingsV3: ExpansionGeneralSettingsBase
-{
-	int SystemChatColor;
-	int AdminChatColor;
-	int GlobalChatColor;
-	int DirectChatColor;
-	int TransportChatColor;
-	int PartyChatColor;
-	int TransmitterChatColor;
-}
-
 /**@class		ExpansionGeneralSettings
  * @brief		General settings class
  **/
 class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 {
-	static const int VERSION = 4;
-	
-	ref ExpansionChatColors ChatColors;
+	static const int VERSION = 5;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -67,7 +50,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	void ExpansionGeneralSettings()
 	{
 		Mapping = new ExpansionMapping;
-		ChatColors = new ExpansionChatColors;
 	}
 
 	// ------------------------------------------------------------
@@ -79,10 +61,10 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::OnRecieve - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRecieve");
+#endif
+
 		ctx.Read(PlayerLocationNotifier);
 		ctx.Read(EnableGlobalChat);
 		ctx.Read(EnablePartyChat);
@@ -101,19 +83,11 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Read(UseDeathScreen);
 		ctx.Read(UseDeathScreenStatistics);
 		ctx.Read(UseNewsFeedInGameMenu);
-		
-		ChatColors.OnReceive(ctx);
-
-		ChatColors.Update();
 
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_General.Invoke();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::OnRecieve - End");
-		#endif
-
 		return true;
 	}
 	
@@ -138,17 +112,15 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Write(UseDeathScreen);
 		ctx.Write(UseDeathScreenStatistics);
 		ctx.Write(UseNewsFeedInGameMenu);
-		
-		ChatColors.OnSend(ctx);
 	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Send - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
+
 		if ( !IsMissionHost() )
 		{
 			return 0;
@@ -158,54 +130,42 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.General, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Send - End and return");
-		#endif
 		return 0;
 	}
 
 	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Copy - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
+#endif
+
 		ExpansionGeneralSettings settings = ExpansionGeneralSettings.Cast( setting );
 		if ( !settings )
 			return false;
 
 		CopyInternal( settings );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Send - End and return");
-		#endif
 		return true;
 	}
 	
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionGeneralSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");
-		#endif
-		
-		ChatColors = s.ChatColors;
-			
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		ExpansionGeneralSettingsBase sb = s;
 		CopyInternal( sb );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionGeneralSettingsBase s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::CopyInternal - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 		
 		PlayerLocationNotifier = s.PlayerLocationNotifier;
 		EnableGlobalChat = s.EnableGlobalChat;
@@ -226,10 +186,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		UseDeathScreen = s.UseDeathScreen;
 		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
 		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -247,9 +203,9 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
 
 		m_IsLoaded = true;
 
@@ -272,26 +228,14 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			{
 				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 4)
+				if (settingsBase.m_Version < 0)
 				{
-					ExpansionGeneralSettingsV3 settings_v3;
-
-					JsonFileLoader<ExpansionGeneralSettingsV3>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, settings_v3);
-
-					ChatColors.Set("SystemChatColor", settings_v3.SystemChatColor);
-					ChatColors.Set("AdminChatColor", settings_v3.AdminChatColor);
-					ChatColors.Set("GlobalChatColor", settings_v3.GlobalChatColor);
-					ChatColors.Set("DirectChatColor", settings_v3.DirectChatColor);
-					ChatColors.Set("TransportChatColor", settings_v3.TransportChatColor);
-					ChatColors.Set("PartyChatColor", settings_v3.PartyChatColor);
-					ChatColors.Set("TransmitterChatColor", settings_v3.TransmitterChatColor);
+					//! Placeholder
 				}
 				else
 				{
 					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 				}
-
-				ChatColors.Update();
 
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -313,10 +257,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		
 		if (save)
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionGeneralSettings::Load - End - Loaded: " + generalSettingsExist);
-		#endif
 		
 		return generalSettingsExist;
 	}
@@ -371,12 +311,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		UseDeathScreenStatistics = true;
 		
 		UseNewsFeedInGameMenu = true;
-		
-		ChatColors.Update();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionGeneralSettings] Default settings loaded!");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

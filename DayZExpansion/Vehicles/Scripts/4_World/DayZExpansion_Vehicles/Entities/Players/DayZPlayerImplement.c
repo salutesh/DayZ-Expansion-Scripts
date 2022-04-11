@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -29,7 +29,7 @@ modded class DayZPlayerImplement
 		ExpansionHumanCommandVehicle script;
 		if (Class.CastTo(script, GetCommand_Script()))
 		{
-			return script.GetTransport();
+			return script.GetExpansionVehicle();
 		}
 
 		return NULL;
@@ -60,7 +60,7 @@ modded class DayZPlayerImplement
 		ExpansionVehicleBase exTrans;
 		ExpansionHumanCommandVehicle vehicleCommand = GetCommand_ExpansionVehicle();
 		if (vehicleCommand)
-			exTrans = vehicleCommand.GetTransport();
+			exTrans = vehicleCommand.GetExpansionVehicle();
 
 		if (m_Camera3rdPerson)
 		{
@@ -114,5 +114,16 @@ modded class DayZPlayerImplement
 		{
 			SetAttachmentInvisible_Ex(ent.GetInventory().GetAttachmentFromIndex(i), invisible);
 		}
+	}
+
+	override bool IsInTransport()
+	{
+		if (GetCommand_Vehicle())
+			return true;
+
+		if (ExpansionHumanCommandVehicle.Cast(GetCommand_Script()))
+			return true;
+
+		return false;
 	}
 };

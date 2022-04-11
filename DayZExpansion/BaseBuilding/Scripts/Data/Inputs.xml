@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<modded_inputs>
+    <inputs>
+        <actions>
+            <input name="UAExpansionSnappingDirectionNext" visible="false" />
+            <input name="UAExpansionSnappingDirectionPrevious" visible="false" />
+            <input name="UAExpansionSnappingToggle" loc="STR_EXPANSION_TOGGLE_SNAPPING" />
+            <input name="UAExpansionHologramNextPlacing" loc="STR_EXPANSION_TOGGLE_SNAPPING" visible="false" />
+        </actions>
+		
+		<exclude name="chatexpansion">
+			<input name="UAExpansionSnappingDirectionNext" />
+			<input name="UAExpansionSnappingDirectionPrevious" />
+			<input name="UAExpansionSnappingToggle" />
+		</exclude>
+    </inputs>
+
+    <preset>
+        <input name="UAExpansionSnappingDirectionNext">
+            <btn name="mWheelUp" />
+        </input>
+        <input name="UAExpansionSnappingDirectionPrevious">
+            <btn name="mWheelDown" />
+        </input>
+        <input name="UAExpansionSnappingToggle">
+            <btn name="kX" />
+        </input>
+    </preset>
+</modded_inputs>

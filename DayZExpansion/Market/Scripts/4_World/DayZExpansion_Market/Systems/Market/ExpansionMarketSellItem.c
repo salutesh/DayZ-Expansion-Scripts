@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -66,15 +66,15 @@ class ExpansionMarketSell
 	// ------------------------------------------------------------
 	void AddItem(int remainAmount, int takenAmount, float incrementStockModifier, EntityAI item, string className = "")
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "AddItem");
+#endif
+
 		if (!className && item)
 		{
 			className = item.GetType();
 			className.ToLower();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionMarketSell::AddItem - Start - " + className + " remaining " + remainAmount + ", taken " + takenAmount + ", increment stock modifier " + incrementStockModifier);
-		#endif
 		
 		ExpansionMarketSellItem itemSell = new ExpansionMarketSellItem;
 		itemSell.RemainAmount = remainAmount;
@@ -83,10 +83,6 @@ class ExpansionMarketSell
 		Sell.Insert(itemSell);
 
 		itemSell.AddStockAmount = takenAmount * incrementStockModifier;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ExpansionMarketSell::AddItem - End");
-		#endif
 	}
 }
 

@@ -1,0 +1,37 @@
+FrameWidgetClass rootFrame {
+ position 0 0
+ size 250 66
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ {
+  TextWidgetClass TextWidget0 {
+   ignorepointer 1
+   position 0 0
+   size 1 22
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+  }
+  TextWidgetClass TextWidget1 {
+   ignorepointer 1
+   position 0 22
+   size 1 22
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+  }
+  TextWidgetClass TextWidget2 {
+   ignorepointer 1
+   position 0 44
+   size 1 22
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+  }
+ }
+}

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -186,16 +186,12 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	override bool OnMouseEnter( Widget w, int x, int y )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionOptionSettingWidget::OnMouseEnter - w: " + w.GetName() );
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "OnMouseEnter");
+#endif
+	
 		if ( w == selectWidget )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionOptionSettingWidget::OnMouseEnter - selectWidget");
-			#endif
-
 			m_Menu.ShowDetails( m_Setting.m_DetailLabel, m_Setting.m_DetailContent );
 			selectWidget.SetColor( ARGB( 255, 0, 0, 0 ) );
 			settingLabel.SetColor( ARGB( 255, 255, 0, 0 ) );
@@ -213,16 +209,12 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	override bool OnMouseLeave( Widget w, Widget enterW, int x, int y )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionOptionSettingWidget::OnMouseLeave - w: " + w.GetName() );
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "OnMouseLeave");
+#endif
+	
 		if ( w == selectWidget )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("ExpansionOptionSettingWidget::OnMouseLeave - selectWidget");
-			#endif
-
 			m_Menu.HideDetails();
 			selectWidget.SetColor( ARGB( 0, 0, 0, 0 ) );
 			settingLabel.SetColor( ARGB( 255, 255, 255, 255 ) );
@@ -239,4 +231,4 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	{
 		return m_Setting;
 	}
-}
+};

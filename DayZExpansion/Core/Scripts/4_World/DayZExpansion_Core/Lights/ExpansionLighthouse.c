@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -22,9 +22,9 @@ class ExpansionLighthouse extends SpotLightBase
 	// ------------------------------------------------------------
 	void ExpansionLighthouse()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLighthouse::ExpansionLighthouse - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "ExpansionLighthouse");
+#endif
 		
 		SetVisibleDuringDaylight( false );
 		SetRadius( 300 );
@@ -35,10 +35,6 @@ class ExpansionLighthouse extends SpotLightBase
 		SetEnabled( true );
 		SetFlareVisible( true );
 		SetSpotLightAngle( 100 );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLighthouse::ExpansionLighthouse - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -46,14 +42,10 @@ class ExpansionLighthouse extends SpotLightBase
 	// ------------------------------------------------------------
 	void ~ExpansionLighthouse()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLighthouse::~ExpansionLighthouse - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLighthouse::~ExpansionLighthouse - End");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "~ExpansionLighthouse");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -61,23 +53,21 @@ class ExpansionLighthouse extends SpotLightBase
 	// ------------------------------------------------------------
 	override void OnFrameLightSource(IEntity other, float timeSlice)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnFrameLightSource");
+#endif
+		
 		super.OnFrameLightSource( other, timeSlice);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLighthouse::OnFrameLightSource - Start");
-		#endif
-		
+				
 		if (m_Val < 360)
 			m_Val += 25 * timeSlice;
 		else
 			m_Val = 0;
 
 		this.SetOrientation(Vector(m_Val, 0, 0));
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLighthouse::OnFrameLightSource - End");
-		#endif
 	}
 	
-	override void CheckIfParentIsInCargo() {}
-}
+	override void CheckIfParentIsInCargo()
+	{
+	}
+};

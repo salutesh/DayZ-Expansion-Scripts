@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -23,17 +23,9 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void MissionServer()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::MissionServer - Start");
-		#endif
-
 		Class.CastTo(m_RespawnHandlerModule, GetModuleManager().GetModule(ExpansionRespawnHandlerModule));
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::MissionServer - End");
-		#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	// EquipCharacter
 	// ------------------------------------------------------------
@@ -54,6 +46,8 @@ modded class MissionServer
 	override PlayerBase OnClientNewEvent( PlayerIdentity identity, vector pos, ParamsReadContext ctx )
 	{
 		PlayerBase player = super.OnClientNewEvent( identity, pos, ctx );
+		if (!player) //! Hacky fix
+			player = m_player;
 		
 		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
 		if (spawnHealth > 0 && spawnHealth <= player.GetMaxHealth("GlobalHealth", "Health"))

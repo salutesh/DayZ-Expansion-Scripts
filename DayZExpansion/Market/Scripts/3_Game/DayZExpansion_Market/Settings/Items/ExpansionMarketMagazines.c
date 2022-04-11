@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -86,7 +86,14 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		AddItem("Mag_FAMAS_25Rnd", 				220,	440,	1,		100);
 		
 		AddItem("Mag_Aug_30Rnd", 				220,	440,	1,		100);
-	#ifdef EXPANSIONMOD	
+
+	#ifdef DAYZ_1_17
+		AddItem("Mag_P1_8Rnd", 					45,		90,		1,		100);
+
+		AddItem("Mag_CZ550_4rnd", 				150,	250,	1,		100);
+		AddItem("Mag_CZ550_10rnd", 				210,	320,	1,		100);
+	#endif
+	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Mag_Expansion_Taser", 			20,		40,		1,		100);
 
 		AddItem("Mag_Expansion_M9_15Rnd", 		40,		80,		1,		100);

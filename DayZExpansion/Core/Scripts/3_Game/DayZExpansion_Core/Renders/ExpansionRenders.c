@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -57,7 +57,7 @@ class ExpansionCircleRender
     void Render(MapWidget mapWidget)
     {	
 		m_MapWidget = mapWidget;
-		Widget layoutCanvas = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/map/expansion_map_canvaslayout.layout", m_Parent);
+		Widget layoutCanvas = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/map/expansion_map_canvaslayout.layout", m_Parent);
 		m_CanvasWidget = CanvasWidget.Cast( layoutCanvas.FindAnyWidget( "CanvasWidget" ) );
 		
         for (int i = 0; i < m_Circles.Count(); i++)

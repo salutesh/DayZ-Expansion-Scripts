@@ -12,6 +12,14 @@ modded class NotificationRuntimeData
 	ExpansionNotificationType m_Type;
 	Object m_Object;
 	
+	override string GetIcon()
+	{
+		if (!m_StaticData.m_Icon.Contains(":") && !m_StaticData.m_Icon.Contains("\\"))
+			return ExpansionIcons.GetPath(m_StaticData.m_Icon);
+
+		return m_StaticData.m_Icon;
+	}
+	
 	void SetType(ExpansionNotificationType type)
 	{
 		m_Type = type;

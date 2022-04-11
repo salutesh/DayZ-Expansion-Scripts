@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -28,7 +28,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	ref ExpansionATMMenuTransferDialog m_TransferDialog;
 	ref ExpansionATMMenuPartyTransferDialog m_PartyTransferDialog;
 	
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODGROUPS
 	ref ExpansionPartyData m_Party;
 	#endif
 	
@@ -56,7 +56,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		ExpansionMarketModule.SI_ATMMenuInvoker.Insert(SetPlayerATMData);
 		ExpansionMarketModule.SI_ATMMenuCallback.Insert(OnCallback);
 		ExpansionMarketModule.SI_ATMMenuTransferCallback.Insert(OnTransferCallback);
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODGROUPS
 		ExpansionMarketModule.SI_ATMMenuPartyCallback.Insert(OnPartyCallback);
 		#endif
 		
@@ -114,6 +114,10 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void SetView()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "SetView");
+#endif
+
 		m_ATMMenuController.MaxValue = GetExpansionSettings().GetMarket().MaxDepositMoney.ToString();
 		m_ATMMenuController.NotifyPropertyChanged("MaxValue");
 		
@@ -137,7 +141,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		if (GetExpansionSettings().GetMarket().ATMPartyLockerEnabled)
 		{
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODGROUPS
 			//PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 			ExpansionPartyModule module = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
 			
@@ -163,8 +167,8 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			m_ATMMenuController.PartyMoneyDepositValue = m_Party.GetMoneyDeposited().ToString();
 			m_ATMMenuController.NotifyPropertyChanged("PartyMoneyDepositValue");
 			
-			Print("CanWithdrawMoney: " + GetPlayerPartyData().CanWithdrawMoney());
-			Print("Permissons: " + GetPlayerPartyData().GetPermissions());
+			CF_Log.Debug("CanWithdrawMoney: " + GetPlayerPartyData().CanWithdrawMoney());
+			CF_Log.Debug("Permissons: " + GetPlayerPartyData().GetPermissions());
 			
 			if (m_Party && GetPlayerPartyData().CanWithdrawMoney())
 			{
@@ -193,7 +197,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_ATMMenuController.PlayerMoneyValue = m_PlayerMoney.ToString();
 		m_ATMMenuController.NotifyPropertyChanged("PlayerMoneyValue");
 	
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODGROUPS
 		if (GetExpansionSettings().GetMarket().ATMPartyLockerEnabled && m_Party)
 		{
 			m_ATMMenuController.PartyMoneyDepositValue = m_Party.GetMoneyDeposited().ToString();
@@ -511,7 +515,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void OnTransferPartyButtonClick()
 	{
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODGROUPS
 		if (!m_Party)
 			return;
 				
@@ -555,7 +559,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void OnWithdrawPartyButtonClick()
 	{
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODGROUPS
 		if (!m_Party)
 			return;
 		
@@ -600,13 +604,13 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void ConfirmPartyTransfer()
 	{
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODGROUPS
 		m_PartyTransferDialog.Hide();
 		m_MarketModule.RequestPartyTransferMoney(m_Amount, m_Party.GetPartyID());
 		#endif
 	}
 	
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODGROUPS
 	// ------------------------------------------------------------
 	// ExpansionATMMenu GetPlayerPartyData
 	// ------------------------------------------------------------
@@ -626,13 +630,16 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		UpdateView();
 	}
 	
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODGROUPS
 	// ------------------------------------------------------------
 	// ExpansionATMMenu OnPartyCallback
 	// ------------------------------------------------------------
 	void OnPartyCallback(int amount, ExpansionPartyData party, ExpansionMarketATM_Data data, int state)
 	{
-		Print("OnPartyCallback");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "OnPartyCallback");
+#endif
+
 		m_Party = party;
 		m_ATMData = data;
 		

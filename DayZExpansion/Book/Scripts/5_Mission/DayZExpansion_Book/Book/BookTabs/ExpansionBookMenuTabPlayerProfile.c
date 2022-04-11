@@ -3,14 +3,13 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-#ifdef EXPANSIONMOD
 class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabPlayerProfileController m_PlayerProfileController;
@@ -36,6 +35,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		if (!m_PlayerProfileController)
 			m_PlayerProfileController = ExpansionBookMenuTabPlayerProfileController.Cast(GetController());
 		
+#ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
@@ -43,15 +43,18 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		monitorModule.m_StatsInvoker.Insert(SetStats);
 		m_PlayerID = GetGame().GetPlayer().GetIdentity().GetId();
 		monitorModule.RequestPlayerStats(m_PlayerID);
+#endif
 	}
 	
 	void ~ExpansionBookMenuTabPlayerProfile()
 	{
+#ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
 		
 		monitorModule.m_StatsInvoker.Remove(SetStats);
+#endif
 	}
 	
 	void SetStats(ExpansionSyncedPlayerStats stats)
@@ -66,8 +69,10 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " Kills";		
 		m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " Kills";		
 
+		bool showHabStats;
+
 		#ifdef HEROESANDBANDITSMOD
-		bool showHabStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
+		showHabStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
 		if (showHabStats)
 		{
 			m_PlayerProfileController.HaB_Affinity = g_HeroesAndBanditsPlayer.getAffinity().DisplayName;
@@ -90,13 +95,14 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 
 			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_Affinity", "HaB_Level", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
 		}
+		#endif
+
 		hab_suicides_spacer.Show(showHabStats);
 		hab_affinity_spacer.Show(showHabStats);
 		hab_level_spacer.Show(showHabStats);
 		hab_humanity_spacer.Show(showHabStats);
 		hab_medic_spacer.Show(showHabStats);
 		hab_raid_spacer.Show(showHabStats);
-		#endif
 
 		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);	
 		m_PlayerProfileController.ProfileWeight = ExpansionStatic.GetWeightString(stats.m_Weight);
@@ -203,12 +209,14 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	
 	override void Update()
 	{
+#ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
 		
 		string playerID = GetGame().GetPlayer().GetIdentity().GetId();
 		monitorModule.RequestPlayerStats(playerID);
+#endif
 	}
 };
 
@@ -242,4 +250,3 @@ class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 	string HaB_Suicides;
 	#endif
 };
-#endif

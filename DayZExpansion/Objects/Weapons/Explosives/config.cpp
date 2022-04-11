@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Explosives
 	{
-		units[] = {"ExpansionSatchel"};
+		units[] = {"ExpansionSatchel","Expansion_C4_Explosion"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
@@ -83,5 +83,11 @@ class CfgVehicles
 	class ExpansionExplosiveBase: ExpansionExplosive
 	{
 		scope = 1;
+	};
+	class Expansion_C4_Explosion: HouseNoDestruct
+	{
+		scope = 2;
+		model = "\DZ\data\lightpoint.p3d";
+		ammoType = "ExpansionC4_Ammo";
 	};
 };

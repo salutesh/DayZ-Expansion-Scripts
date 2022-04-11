@@ -411,8 +411,8 @@ FrameWidgetClass ExpansionMarketMenu {
          style UIDefaultPanel
          {
           ButtonWidgetClass market_footer_categories_toggle {
+           position 0.3 0
            size 225 31
-           halign center_ref
            valign center_ref
            hexactpos 0
            vexactpos 0
@@ -455,6 +455,55 @@ FrameWidgetClass ExpansionMarketMenu {
            {
             ScriptParamsClass {
              Relay_Command "OnToggleCategoriesButtonClick"
+            }
+           }
+          }
+          ButtonWidgetClass market_footer_close_menu {
+           position 0.3 0
+           size 225 31
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Empty
+           {
+            ImageWidgetClass market_footer_close_menu_background {
+             ignorepointer 1
+             color 0.2667 0.2667 0.2667 0.9412
+             position 0 0
+             size 1 31
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             imageTexture "{022593E4D038D194}DayZExpansion/Market/GUI/textures/panel_background_02.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            TextWidgetClass market_footer_close_menu_label {
+             ignorepointer 1
+             position 0 0
+             size 1 1
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "#STR_EXPANSION_MARKET_CLOSE_MENU"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnCloseMenuButtonClick"
             }
            }
           }

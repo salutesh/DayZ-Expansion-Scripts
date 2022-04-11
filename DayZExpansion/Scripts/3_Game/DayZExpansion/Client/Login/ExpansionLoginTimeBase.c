@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,28 +14,57 @@ modded class LoginTimeBase
 {
 	protected ImageWidget m_ImageBackground;
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
+
+	static float s_Expansion_LoadingTime = -1;
+	static float s_Expansion_LoadingTimeStamp = -1;
+	bool m_Expansion_Init;
 	
 	void LoginTimeBase()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoginTimeBase::LoginTimeBase - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "LoginTimeBase");
+#endif
 		
-		JsonFileLoader< ref array< ref ExpansionLoadingScreenBackground > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingImages.json", m_Backgrounds );
-	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoginTimeBase::LoginTimeBase - Stop");
-		#endif
+		m_Backgrounds = ExpansionLoadingScreenBackgrounds.Get();
 	}
 	
 	override Widget Init()
 	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoginTimeBase::Init - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Init");
+#endif
 		
-		super.Init();
-		
+		if (!m_Expansion_Init)
+		{
+			m_Expansion_Init = true;
+			//EXPrint(ToString() + "::Init");
+			super.Init();
+			
+			UpdateLoadingBackground(true);
+		}
+
+		return layoutRoot;
+	}
+
+	void UpdateLoadingBackground(bool force = false)
+	{
+		float loadingTime = s_Expansion_LoadingTime;
+		float tickTime = GetGame().GetTickTime();
+
+		if (s_Expansion_LoadingTimeStamp < 0)
+			s_Expansion_LoadingTime = 0;
+		else
+			s_Expansion_LoadingTime += tickTime - s_Expansion_LoadingTimeStamp;
+
+		s_Expansion_LoadingTimeStamp = tickTime;
+
+		//! Show each loading screen at least five seconds
+		if (!force && s_Expansion_LoadingTime > -1 && s_Expansion_LoadingTime < 5)
+			return;
+
+		//EXPrint(ToString() + "::UpdateLoadingBackground - " + force + " - " + s_Expansion_LoadingTime);
+		s_Expansion_LoadingTime = 0;
+
 		m_ImageBackground = ImageWidget.Cast( layoutRoot.FindAnyWidget("Background") );
 		
 		string world_name = "default";
@@ -63,12 +92,14 @@ modded class LoginTimeBase
 		}
 		
 		if (backgrounds)
-			m_ImageBackground.LoadImageFile( 0, backgrounds.Path.GetRandomElement() );
+			m_ImageBackground.LoadImageFile( 0, backgrounds.GetRandomPath() );
+	}
 
-		return layoutRoot;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoginTimeBase::Init - End");
-		#endif
+	override void Update( float timeslice )
+	{
+		super.Update(timeslice);
+
+		if (m_Expansion_Init && IsVisible())
+			UpdateLoadingBackground();
 	}
 };

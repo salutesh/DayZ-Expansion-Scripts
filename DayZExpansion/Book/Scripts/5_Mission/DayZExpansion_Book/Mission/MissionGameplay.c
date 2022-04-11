@@ -3,16 +3,19 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
+/**@class		MissionGameplay
+ * @brief		
+ **/
 modded class MissionGameplay
-{	
-    override void OnUpdate( float timeslice )   
+{
+    override void OnUpdate(float timeslice)   
 	{
 		super.OnUpdate(timeslice);
 		
@@ -23,7 +26,7 @@ modded class MissionGameplay
 			//! Reference to focused windget
 			Widget focusedWidget = GetFocus();
 	
-			if ( focusedWidget )
+			if (focusedWidget)
 			{
 				if (focusedWidget.ClassName().Contains("EditBoxWidget"))
 				{
@@ -35,12 +38,13 @@ modded class MissionGameplay
 				}
 			}
 	
-			Man man 						= GetGame().GetPlayer(); 	//! Refernce to man
-			Input input 					= GetGame().GetInput(); 	//! Reference to input
-			UIScriptedMenu topMenu 			= m_UIManager.GetMenu(); 	//! Expansion reference to menu
-			PlayerBase playerPB 			= PlayerBase.Cast( man );	//! Expansion reference to player
+			Man man = GetGame().GetPlayer(); 	//! Refernce to man
+			Input input = GetGame().GetInput(); 	//! Reference to input
+			UIScriptedMenu topMenu = m_UIManager.GetMenu(); 	//! Expansion reference to menu
+			PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
 			ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 			
+			//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
 			if (playerPB && playerPB.GetHumanInventory()) 
 			{
 				if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())

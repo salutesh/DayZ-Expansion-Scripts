@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -98,9 +98,9 @@ class ExpansionMarketPlayerInventory
 	
 	array<EntityAI> GetNearbyDrivenVehicles(string className = "", int amount = -1)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("GetNearbyDrivenVehicles - Start - " + m_Player + " '" + className + "' " + amount);
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "GetNearbyDrivenVehicles");
+#endif
 
 		array<EntityAI> driven = new array<EntityAI>;
 
@@ -144,10 +144,6 @@ class ExpansionMarketPlayerInventory
 					return driven;
 			}
 		}
-		#endif
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("GetNearbyDrivenVehicles - End - driven: " + driven.Count());
 		#endif
 
 		return driven;
@@ -251,20 +247,6 @@ class ExpansionMarketModule: JMModuleBase
 		delete m_MoneyDenominations;
 		delete m_ClientMarketZone;
 		delete m_ATMData;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketModule IsEnabled
-	// ------------------------------------------------------------	
-	override bool IsEnabled()
-	{
-		// Do not keep spammy prints on released builds
-		#ifdef EXPANSIONEXPRINT
-		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
-			EXPrint(ToString() + "::IsEnabled " + GetExpansionSettings().GetMarket().MarketSystemEnabled);
-		#endif
-
-		return GetExpansionSettings().GetMarket().MarketSystemEnabled;
 	}
 	
 	// ------------------------------------------------------------
@@ -1905,6 +1887,11 @@ class ExpansionMarketModule: JMModuleBase
 				RPC_LoadTraderItems(ctx, sender, target);
 				break;
 			}
+			case ExpansionMarketModuleRPC.ExitTrader:
+			{
+				RPC_ExitTrader(ctx, sender, target);
+				break;
+			}
 			case ExpansionMarketModuleRPC.RequestPlayerATMData:
 			{
 				RPC_RequestPlayerATMData(ctx, sender, target);
@@ -1945,7 +1932,7 @@ class ExpansionMarketModule: JMModuleBase
 				RPC_ConfirmTransferMoneyToPlayer(ctx, sender, target);
 				break;
 			}
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODGROUPS
 			case ExpansionMarketModuleRPC.RequestPartyTransferMoney:
 			{
 				RPC_RequestPartyTransferMoney(ctx, sender, target);
@@ -2964,7 +2951,7 @@ class ExpansionMarketModule: JMModuleBase
 			
 			if (!trader)
 			{
-				Error("ExpansionMarkerModule::RequestTraderData - Trader is NULL!");
+				Error("ExpansionMarketModule::RequestTraderData - Trader is NULL!");
 				return;
 			}
 			
@@ -2995,11 +2982,11 @@ class ExpansionMarketModule: JMModuleBase
 			return;
 		}
 
-		string uid = senderRPC.GetId();
+		trader.m_TradingPlayers.Insert(senderRPC.GetId(), true);
 
 		float startTime = GetGame().GetTickTime();
 
-		LoadTraderData(trader, uid);
+		LoadTraderData(trader, senderRPC);
 
 		EXPrintHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData", startTime);
 
@@ -3010,18 +2997,10 @@ class ExpansionMarketModule: JMModuleBase
 	// Expansion LoadTraderData - server
 	// ------------------------------------------------------------
 	//! Send trader data to client
-	void LoadTraderData(ExpansionTraderObjectBase trader, string uid)
+	void LoadTraderData(ExpansionTraderObjectBase trader, PlayerIdentity ident)
 	{
 		MarketModulePrint("LoadTraderData - Sart");
 
-		PlayerBase player = PlayerBase.GetPlayerByUID(uid);
-		if (!player)
-		{
-			Error("ExpansionMarketModule::SendTraderData - Player is NULL!");
-			return;
-		}
-
-		PlayerIdentity ident = player.GetIdentity();
 		if (!ident)
 		{
 			Error("ExpansionMarketModule::SendTraderData - Player identity is NULL!");
@@ -3148,7 +3127,7 @@ class ExpansionMarketModule: JMModuleBase
 		
 		if (!trader)
 		{
-			Error("ExpansionMarkerModule::RequestTraderItems - Trader is NULL!");
+			Error("ExpansionMarketModule::RequestTraderItems - Trader is NULL!");
 			return;
 		}
 		
@@ -3365,6 +3344,26 @@ class ExpansionMarketModule: JMModuleBase
 		}
 		
 		MarketModulePrint("RPC_LoadTraderItems - End");
+	}
+
+	//! Exit trader - client
+	void ExitTrader(ExpansionTraderObjectBase trader, PlayerIdentity ident)
+	{
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.ExitTrader, true, NULL);
+	}
+	
+	//! Exit trader - server
+	void RPC_ExitTrader(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
+		if (!trader)
+		{
+			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not get ExpansionTraderObjectBase!");
+			return;
+		}
+
+		trader.m_TradingPlayers.Remove(senderRPC.GetId());
 	}
 
 	bool IsMoney(string type)
@@ -4276,7 +4275,7 @@ class ExpansionMarketModule: JMModuleBase
 		MarketModulePrint("Exec_ConfirmTransferMoneyToPlayer - End");
 	}
 	
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODGROUPS
 	// ------------------------------------------------------------
 	// Expansion RequestPartyTransferMoney
 	// ------------------------------------------------------------	

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -35,9 +35,10 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
+
 		ExpansionDebugSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -51,10 +52,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 
 		ExpansionSettings.SI_Debug.Invoke();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::OnRecieve - End");
-		#endif
-
 		return true;
 	}
 	
@@ -68,9 +65,9 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::Send - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
 		
 		if ( !IsMissionHost() )
 		{
@@ -81,9 +78,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Debug, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::Send - End and return");
-		#endif
 		return 0;
 	}
 
@@ -101,9 +95,9 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionDebugSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::CopyInternal - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 
 		ShowVehicleDebugMarkers = s.ShowVehicleDebugMarkers;
 
@@ -111,10 +105,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		DebugVehicleTransformSet = s.DebugVehicleTransformSet;
 
 		DebugVehiclePlayerNetworkBubbleMode = s.DebugVehiclePlayerNetworkBubbleMode;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -132,10 +122,10 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::Load - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
+
 		m_IsLoaded = true;
 		
 		bool save;
@@ -147,10 +137,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 			EXPrint("[ExpansionDebugSettings] Load existing setting file:" + EXPANSION_DEBUG_SETTINGS);
 
 			JsonFileLoader<ExpansionDebugSettings>.JsonLoadFile( EXPANSION_DEBUG_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionDebugSettings::Load - End - Loaded");
-			#endif
 		}
 		else
 		{
@@ -162,9 +148,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		if (save)
 			Save();
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDebugSettings::Load - End - Not Loaded");
-		#endif
 		return debugSettingsExist;
 	}
 

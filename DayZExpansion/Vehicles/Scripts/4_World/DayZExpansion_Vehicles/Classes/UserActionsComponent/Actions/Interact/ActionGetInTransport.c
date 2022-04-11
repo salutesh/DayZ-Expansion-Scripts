@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -30,9 +30,6 @@ modded class ActionGetInTransport
 			return false;
 
 		CarScript car = CarScript.Cast(target.GetObject());
-
-		if (!s_ExpansionPlayerAttachment && player.GetParent())
-			return false;
 
 		// Temp fix for being able to enter Uh1h despite being locked
 		ExpansionUh1h uh1h = ExpansionUh1h.Cast(target.GetObject());
@@ -73,11 +70,10 @@ modded class ActionGetInTransport
 		if (action_data.m_Player.GetParent())
 		{
 			//AttachmentDebugPrint(action_data.m_Player, "parent=" + action_data.m_Player.GetParent());
-			if (s_ExpansionPlayerAttachment)
-			{
-				//AttachmentDebugPrint(action_data.m_Player, "Attaching Enabled");
-				action_data.m_Player.PrepareForVehicleLink();
-			}
+
+			//AttachmentDebugPrint(action_data.m_Player, "Attaching Enabled");
+			
+			action_data.m_Player.Expansion_PrepareGettingInVehicle();
 
 			//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::Start");
 			return;

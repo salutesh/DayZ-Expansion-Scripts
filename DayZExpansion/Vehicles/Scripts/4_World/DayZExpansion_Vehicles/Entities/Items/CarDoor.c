@@ -22,6 +22,10 @@ modded class CarDoor
 
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_3(ExpansionTracing.VEHICLES, this, "EEHealthLevelChanged").Add(oldLevel).Add(newLevel).Add(zone);
+#endif
+
 		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 
 		if (!m_Initialized)

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -31,7 +31,7 @@ class ExpansionMarketAssaultRifles: ExpansionMarketCategory
 		AddItem("Aug", 					1600,		3200,	1,		100,	{"Mag_Aug_30Rnd"});
 		AddItem("AugShort", 			1500,		3200,	1,		100,	{"Mag_Aug_30Rnd"});
 	
-	#ifdef EXPANSIONMOD	
+	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Expansion_M16", 		160,		560,	1,		100,	{"Mag_STANAG_30Rnd"});
 		AddItem("Expansion_G36", 		160,		560,	1,		100,	{"Mag_Expansion_G36_30Rnd"});
 	#endif

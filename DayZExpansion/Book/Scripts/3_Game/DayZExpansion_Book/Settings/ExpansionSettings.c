@@ -3,162 +3,138 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
 modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Book = new ScriptInvoker();
 	protected autoptr ExpansionBookSettings m_SettingsBook;
-		
-	// ------------------------------------------------------------
-	// Expansion OnServerInit
-	// ------------------------------------------------------------
+
 	override protected void OnServerInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[BOOK] ExpansionSettings::OnServerInit - Start");
-		#endif
-		
-		LoadSetting( m_SettingsBook );
-		
-		m_NetworkedSettings.Insert( "expansionbooksettings" );
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+#endif
+
+		LoadSetting(m_SettingsBook);
+
+		m_NetworkedSettings.Insert("expansionbooksettings");
+
 		super.OnServerInit();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[BOOK] ExpansionSettings::OnServerInit - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	override void Unload()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Unload");
+#endif
+
 		super.Unload();
 
 		m_SettingsBook.Unload();
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion CheckSettingsLoaded
-	// Called on Client
-	// ------------------------------------------------------------
+
+	/**
+	 * @brief Called on client
+	 */
 	override protected void CheckSettingsLoaded()
-	{		
-		if ( !IsMissionClient() )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CheckSettingsLoaded");
+#endif
+
+		if (!IsMissionClient())
 		{
 			m_SettingsLoaded = true;
 
 			return;
 		}
 
-		if ( m_SettingsLoaded )
+		if (m_SettingsLoaded)
 			return;
-		
-		if ( !IsSettingLoaded( m_SettingsBook, m_SettingsLoaded ) )
+
+		if (!IsSettingLoaded(m_SettingsBook, m_SettingsLoaded))
 			return;
 
 		super.CheckSettingsLoaded();
 	}
-	
-	// ------------------------------------------------------------
-	// Override Init
-	// ------------------------------------------------------------
+
 	override void Init()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Init");
+#endif
+
 		m_SettingsBook = new ExpansionBookSettings;
 
 		super.Init();
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Send
-	// Can only be called on the server.
-	// ------------------------------------------------------------
-	override void Send( notnull PlayerIdentity identity )
-	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "[BOOK] ExpansionSettings::SendSettings - Start identity : " + identity );
-		#endif
 
-		if ( IsMissionClient() )
+	/**
+	 * @brief Called on server
+	 */
+	override void Send(notnull PlayerIdentity identity)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
+
+		if (IsMissionClient())
 			return;
 
-		super.Send( identity );
+		super.Send(identity);
 
-		m_SettingsBook.Send( identity );
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[BOOK] ExpansionSettings::SendSettings - End");
-		#endif
+		m_SettingsBook.Send(identity);
 	}
-	
-	// ------------------------------------------------------------
-	// OnRPC
-	// ------------------------------------------------------------
-	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
+
+	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[BOOK] ExpansionSettings::OnRPC - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_4(ExpansionTracing.SETTINGS, this, "OnRPC").Add(sender).Add(target).Add(rpc_type).Add(ctx);
+#endif
 
 		if (super.OnRPC(sender, target, rpc_type, ctx))
 			return true;
-		
-		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
+
+		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
 			return false;
-		
-		switch ( rpc_type )
+
+		switch (rpc_type)
 		{
-			case ExpansionSettingsRPC.Book:
-			{
-				Expansion_Assert_False( m_SettingsBook.OnRecieve( ctx ), "Failed reading Book settings" );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_Book");
-				#endif
-
-				return true;
-			}
+		case ExpansionSettingsRPC.Book:
+		{
+			Expansion_Assert_False(m_SettingsBook.OnRecieve(ctx), "Failed reading Book settings");
+			return true;
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[BOOK] ExpansionSettings::OnRPC - End");
-		#endif
+		}
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Save
-	// Called on server
-	// ------------------------------------------------------------
+
+	/**
+	 * @brief Called on server
+	 */
 	override void Save()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[BOOK] ExpansionSettings::Save - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Init");
+#endif
 
 		super.Save();
 
-		if ( IsMissionHost() && GetGame().IsMultiplayer() )
+		if (IsMissionHost() && GetGame().IsMultiplayer())
 		{
 			m_SettingsBook.Save();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[BOOK] ExpansionSettings::Save - End");
-		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionBookSettings GetBook
-	// ------------------------------------------------------------
+
 	ExpansionBookSettings GetBook()
 	{
 		return m_SettingsBook;
 	}
-}
+};

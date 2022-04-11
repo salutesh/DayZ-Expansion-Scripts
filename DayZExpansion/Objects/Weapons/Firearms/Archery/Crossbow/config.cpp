@@ -27,7 +27,7 @@ class cfgWeapons
 		displayName = "$STR_EXPANSION_CROSSBOW";
 		descriptionShort = "$STR_EXPANSION_CROSSBOW_DESC";
 		model = "\DZ\weapons\archery\crossbow\crossbow.p3d";
-		attachments[] = {};
+		attachments[] = {"weaponOpticsCrossbow"};
 		itemSize[] = {9,3};
 		weight = 1500;
 		absorbency = 0;

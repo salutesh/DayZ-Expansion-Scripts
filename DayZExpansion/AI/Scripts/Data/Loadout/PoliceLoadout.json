@@ -1,0 +1,76 @@
+{
+    "Shirts": [
+        "PoliceJacket",
+        "PoliceJacketOrel"
+    ],
+    "Pants": [
+        "PolicePants",
+        "PolicePantsOrel"
+    ],
+    "Shoes": [
+        "CombatBoots_Black"
+    ],
+    "BackPacks": [
+        ""
+    ],
+    "Vests": [
+        "PoliceVest"
+    ],
+    "Headgear": [
+        "",
+        "DirtBikeHelmet_Police",
+        "PoliceCap",
+        "OfficerHat"
+    ],
+    "Gloves": [
+        "LeatherGloves_Black",
+        "TacticalGloves_Black",
+        "WorkingGloves_Black"
+    ],
+    "Misc": [
+        "",
+        "MilitaryBelt"
+    ],
+    "ClothesHealth": [
+        10,
+        100
+    ],	
+    "WeaponMelee": [
+        "Pickaxe",
+        "WoodAxe",
+        "FirefighterAxe",
+        "Shovel"
+    ],
+    "WeaponRifle": [
+        "M4A1",
+        "AKM",
+        "SVD",
+        "M4A1"
+    ],
+    "WeaponRifleMagCount": [
+        1,
+        2
+    ],
+    "WeaponHandgun": [
+        ""
+    ],
+    "WeaponHandgunMagCount": [
+        1,
+        2
+    ],	
+    "WeaponHealth": [
+        10,
+        100
+    ],	
+    "Loot": [
+        "SodaCan_Cola"
+    ],
+    "LootRandom": [
+        "Rope",
+        "Screwdriver"
+    ],
+    "LootHealth": [
+        10,
+        100
+    ]
+}

@@ -3,81 +3,41 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class ExpansionPlayerState
+class ExpansionLastPlayerSpawnLocation
 {
-	float m_Health;
-	float m_Energy;
-	float m_Water;
-	float m_HeatComfort;
-	float m_Wetness;
-	float m_Stamina;
-	vector m_Position;
-
-	void ExpansionPlayerState(PlayerBase player)
+	int Index;
+	bool IsTerritory;
+	
+	void ExpansionLastPlayerSpawnLocation(int index, bool isTerritory)
 	{
-		AcquireFrom(player);
-	}
-
-	void AcquireFrom(PlayerBase player)
-	{
-		m_Health = player.GetHealth();
-		m_Energy = player.GetStatEnergy().Get();
-		m_Water = player.GetStatWater().Get();
-		m_HeatComfort = player.GetStatHeatComfort().Get();
-		m_Wetness = player.GetStatWet().Get();
-		m_Stamina = player.GetStatStamina().Get();
-		m_Position = player.GetPosition();
-
-		EXPrint(ToString() + "::AcquireFrom " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") energy: " + m_Energy + " water: " + m_Water + " heat comfort: " + m_HeatComfort + " wetness: " + m_Wetness + " stamina: " + m_Stamina);
-	}
-
-	void ApplyTo(PlayerBase player)
-	{
-		player.SetHealth(m_Health);
-		player.GetStatEnergy().Set(m_Energy);
-		player.GetStatWater().Set(m_Water);
-		player.GetStatHeatComfort().Set(m_HeatComfort);
-		player.GetStatWet().Set(m_Wetness);
-		player.GetStatStamina().Set(m_Stamina);
-
-		EXPrint(ToString() + "::ApplyTo " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") energy: " + m_Energy + " water: " + m_Water + " heat comfort: " + m_HeatComfort + " wetness: " + m_Wetness + " stamina: " + m_Stamina);
+		Index = index;
+		IsTerritory = isTerritory;
 	}
 }
 
 class ExpansionRespawnHandlerModule: JMModuleBase
 {
 	protected string s_FileName;
-
 	ref map<string, ref ExpansionPlayerState> m_PlayerStartStates;
-
 	bool m_SpawnSelected;
+	ref array<ref ExpansionRespawnDelayTimer> m_PlayerRespawnDelays;
+	ref map<string, ref ExpansionLastPlayerSpawnLocation> m_PlayerLastIndex;
 
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule Constructor
+	// ------------------------------------------------------------	
 	void ExpansionRespawnHandlerModule()
 	{
 		m_PlayerStartStates = new ref map<string, ref ExpansionPlayerState>;
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule IsServer
-	// ------------------------------------------------------------	
-	override bool IsServer()
-	{
-		return true;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule IsClient
-	// ------------------------------------------------------------
-	override bool IsClient()
-	{
-		return true;
+		m_PlayerRespawnDelays = new array<ref ExpansionRespawnDelayTimer>;
+		m_PlayerLastIndex = new ref map<string, ref ExpansionLastPlayerSpawnLocation>;
 	}
 	
 	// ------------------------------------------------------------
@@ -90,7 +50,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule GetRPCMax
-	// ------------------------------------------------------------
+	// ------------------------------------------------------------	
 	override int GetRPCMax()
 	{
 		return ExpansionRespawnHandlerModuleRPC.COUNT;
@@ -105,7 +65,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
 	#endif
 	{
-		switch ( rpc_type )
+		switch (rpc_type)
 		{
 			case ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu:
 			{
@@ -127,32 +87,33 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 				RPC_RequestPlacePlayerAtTempSafePosition(sender, ctx);
 				break;
 			}
+			case ExpansionRespawnHandlerModuleRPC.CheckPlayerCooldowns:
+			{
+				RPC_CheckPlayerCooldowns(sender, ctx);
+				break;
+			}
 		}
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule ShowSpawnSelection
+	// ExpansionRespawnHandlerModule StartSpawnSelection
 	// Called on server
 	// ------------------------------------------------------------
-	void ShowSpawnSelection(PlayerIdentity sender)
-	{
-		Error(ToString() + "::ShowSpawnSelection is deprecated, use " + ToString() + "::StartSpawnSelection");
-	}
-
 	void StartSpawnSelection(PlayerBase player)
 	{
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
+			return;
+		
+		if (!player || !player.GetIdentity())
 			return;
 
 		PlayerIdentity identity = player.GetIdentity();
 		string uid = identity.GetId();
-
-		EXPrint(ToString() + "::StartSpawnSelection - Start -  player " + identity.GetName() + " (id=" + uid + ")");
-
-		array<ref ExpansionSpawnLocation> territoryspawnlist;
+		
+		array<ref ExpansionSpawnLocation> territoryspawnlist = new array<ref ExpansionSpawnLocation>;
 
 		if (GetExpansionSettings().GetSpawn().SpawnOnTerritory)
-			territoryspawnlist = GetTerritoryList(identity);
+			territoryspawnlist = GetTerritoryList(identity.GetId());
 
 		if (!GetExpansionSettings().GetSpawn().SpawnLocations.Count() && (!territoryspawnlist || !territoryspawnlist.Count()))
 			return;
@@ -165,21 +126,25 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			m_PlayerStartStates.Insert(uid, new ExpansionPlayerState(player));
 			Save();
 		}
-
+		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(GetExpansionSettings().GetSpawn().SpawnLocations);
 		rpc.Write(territoryspawnlist);
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, identity);
-
-		Print("ExpansionRespawnHandlerModule::StartSpawnSelection - End");
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule CheckResumeSpawnSelection
+	// ------------------------------------------------------------
 	void CheckResumeSpawnSelection(PlayerBase player)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::CheckResumeSpawnSelection - Start");
-		#endif
-
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.UI, this, "CheckResumeSpawnSelection").Add(player);
+#endif
+		
+		if (!player)
+			return;
+		
 		PlayerIdentity identity = player.GetIdentity();
 		string uid = identity.GetId();
 
@@ -195,10 +160,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
 			player.StatSyncToClient();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::CheckResumeSpawnSelection - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -207,7 +168,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
-		EXPrint("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.UI, this, "RPC_ShowSpawnMenu").Add(sender).Add(ctx);
+#endif
 		
 		if (!IsMissionClient())
 			return;
@@ -232,13 +195,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			Error(ToString() + "::RPC_ShowSpawnMenu - No spawn locations!");
 			return;
 		}
-
+		
 		//! Call this periodically via call queue (will check if game is ready to show menu, then clean itself up)
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_ShowSpawnMenu, 1, true, spawnlist, territoryspawnlist);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRespawnHandlerModule::RPC_ShowSpawnMenu - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -247,71 +206,82 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void Exec_ShowSpawnMenu(array<ref ExpansionSpawnLocation> spawnlist, array<ref ExpansionSpawnLocation> territoryspawnlist)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Exec_ShowSpawnMenu");
+#endif
+		
 		//! Return if game is not yet ready to show spawn menu
 
-		if ( GetDayZGame().IsLoading() )
+		if (GetDayZGame().IsLoading())
 			return;
 
-		if ( GetGame().GetUIManager().GetMenu() != NULL )
+		if (GetGame().GetUIManager().GetMenu() != NULL)
 			return;
 
-		if ( GetDayZGame().GetMissionState() != DayZGame.MISSION_STATE_GAME )
+		if (GetDayZExpansion().GetExpansionUIManager().GetMenu() != NULL)
 			return;
 
-		if ( !GetGame().GetMission().GetHud() )
+		if (GetDayZGame().GetMissionState() != DayZGame.MISSION_STATE_GAME )
+			return;
+
+		if (!GetGame().GetMission().GetHud())
 			return;
 
 		//! Game is ready to show menu
 
-		EXPrint("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - Start");
-
-		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().EnterScriptedMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU, NULL));
-
+		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().CreateSVMenu(EXPANSION_MENU_SPAWNSELECTION));
 		//! In case spawn select menu could not be created, player will stay at original position and spawn select won't show
 		if (!spawnSelectionMenu || !spawnSelectionMenu.IsVisible())
 		{
 			Error(ToString() + "::Exec_ShowSpawnMenu - Spawn selection menu could not be created or shown!");
 			return;
 		}
-
+		
 		if (spawnlist)
-			spawnSelectionMenu.FillList( spawnlist, 0 );
+			spawnSelectionMenu.FillList(spawnlist, 0);
 
 		if (territoryspawnlist)
-			spawnSelectionMenu.FillList( territoryspawnlist, 1 );
-
+			spawnSelectionMenu.FillList(territoryspawnlist, 1);
+		
 		RequestPlacePlayerAtTempSafePosition();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRespawnHandlerModule::Exec_ShowSpawnMenu - End");
-		#endif
+	#ifdef EXPANSIONMONITORMODULE
+		if (GetExpansionSettings().GetSpawn().CreateDeathMarker)
+		{
+			ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+			if (monitorModule)
+				spawnSelectionMenu.CreateDeathMarker(monitorModule.GetLastDeathPosClient());
+		}
+	#endif
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu GetTerritoryList
+	// ExpansionRespawnHandlerModule GetTerritoryList
+	// Called on server
 	// ------------------------------------------------------------	
-	array< ref ExpansionSpawnLocation> GetTerritoryList(PlayerIdentity sender)
+	array<ref ExpansionSpawnLocation> GetTerritoryList(string playerUID)
 	{
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 			return NULL;
 			
+#ifdef EXPANSIONMODBASEBUILDING
 		ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
 		if (!territories_module)
 			return NULL;
 
-		array< ref ExpansionSpawnLocation> SpawnLocations = new array<ref ExpansionSpawnLocation>;
+		array<ref ExpansionSpawnLocation> SpawnLocations = new array<ref ExpansionSpawnLocation>;
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 		int TimesIsMember = 0;
 	
-		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
+		for (int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i)
 		{
 			TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
 			ExpansionTerritory territory = currentFlag.GetTerritory();
 			if (!territory)
 				continue;
 
-			if (!territory.IsMember(sender.GetId()))
+			if (!territory.IsMember(playerUID))
 				continue;
 
 			TimesIsMember++;
@@ -321,34 +291,75 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			pos = Vector(pos[0] + 0.5, pos[1], pos[2] + 0.5);
 
 			positions.Insert(pos);
-			location = new ExpansionSpawnLocation(territory.GetTerritoryName(), positions);
+			location = new ExpansionSpawnLocation(territory.GetTerritoryName(), positions, true);
 			SpawnLocations.Insert(location);
 			positions.Clear();
 		}
-
+		
 		if (TimesIsMember > 0)
 			return SpawnLocations;
-		else
-			return NULL;
+#endif
+
+		return NULL;
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule SelectSpawn
 	// Called from client
 	// ------------------------------------------------------------
-	void SelectSpawn(vector spawnPoint)
+	void SelectSpawn(int index, vector spawnPoint, bool isTerritory = false, bool useCooldown = false)
 	{
-		Print("ExpansionRespawnHandlerModule::SelectSpawn - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Exec_ShowSpawnMenu");
+#endif
 		
 		m_SpawnSelected = true;
 
+		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns && useCooldown)
+		{
+			bool hasCooldown = false;
+			string playerUID = GetGame().GetPlayer().GetIdentity().GetId();
+			foreach (ExpansionRespawnDelayTimer timer: m_PlayerRespawnDelays)
+			{
+				if (timer.PlayerUID == playerUID && timer.Index == index && timer.IsTerritory() == isTerritory)
+				{
+					int cooldownTime = timer.GetTimeDiff();
+					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
+					{
+						if (cooldownTime < (GetExpansionSettings().GetSpawn().RespawnCooldown + timer.GetPunishment()))
+						{
+							hasCooldown = true;
+						}
+					}
+					else
+					{
+						if (cooldownTime < GetExpansionSettings().GetSpawn().RespawnCooldown)
+						{
+							hasCooldown = true;
+						}
+					}
+				}
+			}
+			
+			if (!hasCooldown)
+			{
+				AddCooldown(playerUID, index, isTerritory);
+			}
+			else
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_SPAWNSELECTION_POINT_LOCKED"), new StringLocaliser("STR_EXPANSION_SPAWNSELECTION_POINT_LOCKED_DESC"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR).Create();
+				return;
+			}
+		}
+		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
 
 		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write(index);
 		rpc.Write(spawnPoint);
+		rpc.Write(isTerritory);
+		rpc.Write(useCooldown);
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true);
-		
-		Print("ExpansionRespawnHandlerModule::SelectSpawn - End");
 	}
 	
 	void RequestPlacePlayerAtTempSafePosition()
@@ -359,8 +370,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 	void RPC_RequestPlacePlayerAtTempSafePosition(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - Start");
-	
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "RPC_RequestPlacePlayerAtTempSafePosition");
+#endif
+		
 		if (!IsMissionHost())
 			return;
 		
@@ -382,11 +395,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 
 		//! Move player out of harm's way
 		vector pos = player.GetPosition();
-		pos[1] = -1000;
+		pos[1] = -500;
 		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") spawned at " + player.GetPosition() + ", moving to " + pos);
 		player.SetPosition(pos);
-
-		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - End");
 	}
 
 	// ------------------------------------------------------------
@@ -395,7 +406,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void RPC_SelectSpawn(PlayerIdentity sender, ParamsReadContext ctx)
 	{	
-		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "RPC_SelectSpawn");
+#endif
 		
 		if (!IsMissionHost())
 			return;
@@ -403,83 +416,124 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if (!sender)
 			return;
 		
+		int pointIndex;
+		if (!ctx.Read(pointIndex))
+			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read spawn point index!");
+		
 		vector spawnPoint;
 		if (!ctx.Read(spawnPoint)) //! @note failing to read spawn point should still call exec so proper cleanup is done
-			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read spawn point!");
+			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read spawn point position!");
 		
-		Exec_SelectSpawn(sender, spawnPoint);
+		bool isTerritory;
+		if (!ctx.Read(isTerritory)) //! @note failing to read spawn point should still call exec so proper cleanup is done
+			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read bool isTerritory!");
 		
-		Print("ExpansionRespawnHandlerModule::RPC_SelectSpawn - End");
+		bool useCooldown;
+		if (!ctx.Read(useCooldown)) //! @note failing to read spawn point should still call exec so proper cleanup is done
+			Error(ToString() + "::RPC_SelectSpawn - ERROR: Could not read bool useCooldown!");
+				
+		Exec_SelectSpawn(sender, pointIndex, spawnPoint, isTerritory, useCooldown);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule Exec_SelectSpawn
 	// Called on server
 	// ------------------------------------------------------------
-	private void Exec_SelectSpawn(PlayerIdentity sender, vector spawnPoint)
-	{	
-		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - Start");
+	private void Exec_SelectSpawn(PlayerIdentity sender, int pointIndex, vector spawnPoint, bool isTerritory = false, bool useCooldown = false)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Exec_SelectSpawn");
+#endif
 		
 		string uid = sender.GetId();
-		PlayerBase player = PlayerBase.GetPlayerByUID(uid);
-		if (player)
+		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns && useCooldown)
 		{
-			ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
-			if (!state)
+			bool hasCooldown = false;
+			foreach (ExpansionRespawnDelayTimer timer: m_PlayerRespawnDelays)
 			{
-				Error(ToString() + "::Exec_SelectSpawn - Player start state not found for player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ")!");
+				if (timer.PlayerUID == uid && timer.Index == pointIndex && timer.IsTerritory() == isTerritory)
+				{
+					int cooldownTime = timer.GetTimeDiff();
+					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
+					{
+						if (cooldownTime < (GetExpansionSettings().GetSpawn().RespawnCooldown + timer.GetPunishment()))
+						{
+							hasCooldown = true;
+						}
+					}
+					else
+					{
+						if (cooldownTime < GetExpansionSettings().GetSpawn().RespawnCooldown)
+						{
+							hasCooldown = true;
+						}
+					}
+				}
+			}
+			
+			if (!hasCooldown)
+			{
+				AddCooldown(sender.GetId(), pointIndex, isTerritory);
+			}
+			else
+			{
+				ExpansionNotification(new StringLocaliser("STR_EXPANSION_SPAWNSELECTION_POINT_LOCKED"), new StringLocaliser("STR_EXPANSION_SPAWNSELECTION_POINT_LOCKED_DESC"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR).Create(sender);
 				return;
 			}
-
-			if (spawnPoint == vector.Zero)
-			{
-				//! Zero vector means select random spawn
-				ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
-				if (random_location)
-				{
-					spawnPoint = random_location.Positions.GetRandomElement();
-					EXPrint(ToString() + "::Exec_SelectSpawn - selected random spawn point from " + random_location.Name);
-				}
-				else
-				{
-					Error(ToString() + "::Exec_SelectSpawn - Could not get random spawn location - spawn list is empty!");
-				}
-			}
-
-			if (spawnPoint == vector.Zero)
-			{
-				//! If spawn point is still zero vector, use original spawn position
-				//! (this is not necessarily an error, it is valid to include the zero vector among spawn positions in the configuration)
-				spawnPoint = state.m_Position;
-				EXPrint(ToString() + "::Exec_SelectSpawn - selected original spawn point");
-			}
-
-			if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
-				spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
-			spawnPoint[1] = spawnPoint[1] + 1;  //! Hack fix for inability to open inv after spawn: Let them fall a bit, that'll unlock it
-			EXPrint(ToString() + "::Exec_SelectSpawn - moving player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") to " + spawnPoint);
-			player.SetPosition(spawnPoint);
-			
-			EndSpawnSelection(player, state);
-
-			if (GetExpansionSettings().GetLog().SpawnSelection)
-				GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + uid + ")" + " spawned at " + spawnPoint);
 		}
-		Print("ExpansionRespawnHandlerModule::Exec_SelectSpawn - End");
+		
+		PlayerBase player = PlayerBase.GetPlayerByUID(uid);
+		if (!player)
+			return;
+		
+		ExpansionPlayerState state = m_PlayerStartStates.Get(uid);
+		if (!state)
+		{
+			Error(ToString() + "::Exec_SelectSpawn - Player start state not found for player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ")!");
+			return;
+		}
+
+		if (spawnPoint == vector.Zero)
+		{
+			//! Zero vector means select random spawn
+			ExpansionSpawnLocation random_location = GetExpansionSettings().GetSpawn().SpawnLocations.GetRandomElement();
+			if (random_location)
+			{
+				spawnPoint = random_location.Positions.GetRandomElement();
+			}
+			else
+			{
+				Error(ToString() + "::Exec_SelectSpawn - Could not get random spawn location - spawn list is empty!");
+			}
+		}
+
+		if (spawnPoint == vector.Zero)
+		{
+			//! If spawn point is still zero vector, use original spawn position
+			//! (this is not necessarily an error, it is valid to include the zero vector among spawn positions in the configuration)
+			spawnPoint = state.m_Position;
+		}
+
+		if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
+			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
+		spawnPoint[1] = spawnPoint[1] + 1;  //! Hack fix for inability to open inv after spawn: Let them fall a bit, that'll unlock it
+		player.SetPosition(spawnPoint);
+					
+		EndSpawnSelection(player, state);
+
+		if (GetExpansionSettings().GetLog().SpawnSelection)
+			GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] Player \"" + sender.GetName() + "\" (id=" + uid + ")" + " spawned at " + spawnPoint);
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule CloseSpawnMenu
+	// ExpansionRespawnHandlerModule EndSpawnSelection
 	// Called on server
 	// ------------------------------------------------------------
-	void CloseSpawnMenu(PlayerIdentity sender)
-	{
-		Error(ToString() + "::CloseSpawnMenu is deprecated, use " + ToString() + "::EndSpawnSelection");
-	}
-
 	void EndSpawnSelection(PlayerBase player, ExpansionPlayerState state)
 	{
-		Print("ExpansionRespawnHandlerModule::EndSpawnSelection - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "EndSpawnSelection");
+#endif
 		
 		if ( !IsMissionHost() )
 			return;
@@ -508,8 +562,6 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, identity);
-		
-		Print("ExpansionRespawnHandlerModule::EndSpawnSelection - End");
 	}
 	
 	void ResetItemWetness(EntityAI parent)
@@ -529,16 +581,16 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
-	{	
-		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - Start");
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "RPC_CloseSpawnMenu");
+#endif
 		
 		if ( !IsMissionClient() )
 			return;
 		
 		//! Use CallLater to make menu disappear *after* player position has updated on client
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Exec_CloseSpawnMenu, 1000, false);
-		
-		Print("ExpansionRespawnHandlerModule::RPC_CloseSpawnMenu - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -550,10 +602,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if ( !IsMissionClient() )
 			return;
 		
-		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetGame().GetUIManager().GetMenu());
+		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		if (spawnSelectionMenu)
 		{
-			GetGame().GetUIManager().CloseMenu(MENU_EXPANSION_SPAWN_SELECTION_MENU);
+			GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 		}
 	}
 	
@@ -563,10 +615,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 	// ------------------------------------------------------------
 	void SelectRandomSpawn()
 	{
-		if ( !IsMissionClient() )
+		if (!IsMissionClient())
 			return;
 		
-		SelectSpawn(vector.Zero);
+		SelectSpawn(-1, vector.Zero);
 	}
 	
 	// ------------------------------------------------------------
@@ -613,12 +665,15 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			}
 		}
 	}
-	
+
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule AddGear
+	// ------------------------------------------------------------	
 	private void AddGear(PlayerBase player, array< ref ExpansionStartingGearItem > gearItems, inout EntityAI parent, string slotName)
 	{
 		EntityAI item = player.FindAttachmentBySlotName(slotName);
 		foreach (ExpansionStartingGearItem gearItem: gearItems)
-				{
+		{
 			if (item)
 			{
 				AddItem(player, gearItem, item);
@@ -635,7 +690,10 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 			}
 		}
 	}
-	
+
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule AddItem
+	// ------------------------------------------------------------
 	private void AddItem(PlayerBase player, ExpansionStartingGearItem gearItem, inout EntityAI parent)
 	{
 		if (!gearItem.ClassName)
@@ -675,7 +733,7 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		if (hasEnergySourceSlot)
 			item.GetInventory().CreateAttachment("Battery9V");  //! TODO: Should probably be able to deal with arbitrary power sources?
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule ExpansionEquipCharacter
 	// ------------------------------------------------------------
@@ -722,6 +780,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		}
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule OnMissionStart
+	// ------------------------------------------------------------
 	override void OnMissionStart()
 	{
 		super.OnMissionStart();
@@ -748,6 +809,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		Load();
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule OnMissionFinish
+	// ------------------------------------------------------------
 	override void OnMissionFinish()
 	{
 		super.OnMissionFinish();
@@ -759,13 +823,14 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		Save();
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule Save
+	// ------------------------------------------------------------
 	void Save()
 	{
 		FileSerializer file = new FileSerializer;
 		if (file.Open(s_FileName, FileMode.WRITE))
 		{
-			EXPrint(ToString() + "::Save - writing " + m_PlayerStartStates.Count() + " player states");
-
 			//! Can't do it the sane, elegant way, causes server crash when accessing m_PlayerStartStates. Have to do it the awkward, BS way
 			//file.Write(m_PlayerStartStates);
 
@@ -781,6 +846,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		}
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule Load
+	// ------------------------------------------------------------
 	void Load()
 	{
 		if (!FileExist(s_FileName))
@@ -791,12 +859,9 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 		{
 			//! Can't do it the sane, elegant way, causes server crash when accessing m_PlayerStartStates. Have to do it the awkward, BS way
 			//file.Read(m_PlayerStartStates);
-			//EXPrint(ToString() + "::Load - read " + m_PlayerStartStates.Count() + " player states");
 
 			int count;
 			file.Read(count);
-
-			EXPrint(ToString() + "::Load - reading " + count + " player states");
 
 			string uid;
 			ExpansionPlayerState state;
@@ -808,8 +873,164 @@ class ExpansionRespawnHandlerModule: JMModuleBase
 					m_PlayerStartStates.Insert(uid, state);
 			}
 
-
 			file.Close();
 		}
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule AddCooldown
+	// ------------------------------------------------------------	
+	void AddCooldown(string playerUID, int index, bool isTerritory)
+	{
+		if (!m_PlayerRespawnDelays)
+			m_PlayerRespawnDelays = new array<ref ExpansionRespawnDelayTimer>;
+		
+		bool hasCooldownEntry = false;
+		//! Check if player has a exiting cooldown entry for this spawn point index
+		foreach (ExpansionRespawnDelayTimer timer: m_PlayerRespawnDelays)
+		{
+			if (timer.PlayerUID == playerUID && timer.Index == index && timer.IsTerritory() == isTerritory)
+			{
+				if (GetExpansionSettings().GetSpawn().PunishMultispawn)
+				{
+					//! Check if this is the same spawnpoint the player used before
+					ExpansionLastPlayerSpawnLocation lastLocation = m_PlayerLastIndex.Get(playerUID);
+					if (lastLocation && lastLocation.Index == index && lastLocation.IsTerritory == isTerritory)
+					{
+						//! Check if the player used this spawn point in the timeframe set in PunishTimeframe spawn settings
+						if (timer.GetTimeDiff() < GetExpansionSettings().GetSpawn().PunishTimeframe)
+						{
+							timer.AddPunishment(GetExpansionSettings().GetSpawn().PunishCooldown);
+						}
+						else
+						{
+							if (timer.GetPunishment() > 0)
+								timer.SetPunishment(0);
+						}
+					}
+				}	
+				
+				hasCooldownEntry = true;
+				timer.SetTime(); //! Update timestamp for this hasCooldownEntry
+				continue;
+			}
+		}
+		
+		//! Add new cooldown entry
+		if (!hasCooldownEntry)
+		{
+			m_PlayerRespawnDelays.Insert(new ExpansionRespawnDelayTimer(playerUID, index, isTerritory));
+		}
+		
+		//! Save last used spawnpoint index
+		ExpansionLastPlayerSpawnLocation last;
+		if (m_PlayerLastIndex.Get(playerUID))
+		{	
+			last = m_PlayerLastIndex.Get(playerUID);
+			last.Index = index;
+			last.IsTerritory = isTerritory;
+			m_PlayerLastIndex.Set(playerUID, last);
+		}
+		else
+		{
+			last = new ExpansionLastPlayerSpawnLocation(index ,isTerritory);
+			m_PlayerLastIndex.Insert(playerUID, last);
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule RespawnCountdownCheck
+	// Called on server
+	// ------------------------------------------------------------
+	void RespawnCountdownCheck(string playerUID)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.RESPAWN, this, "RespawnCountdownCheck");
+#endif
+
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+			return;
+		
+		if (!m_PlayerRespawnDelays || m_PlayerRespawnDelays.Count() == 0)
+			return;
+		
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+		if (!player)
+			return;
+		
+		ref array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
+		int i;
+		for (i = 0; i < m_PlayerRespawnDelays.Count(); ++i)
+		{
+			ExpansionRespawnDelayTimer timer = m_PlayerRespawnDelays[i];
+			if (timer.PlayerUID == playerUID)
+			{
+				playerCooldowns.Insert(timer);
+			}
+		}
+		
+		ref map<string, ref ExpansionLastPlayerSpawnLocation> lastIndex = new map<string, ref ExpansionLastPlayerSpawnLocation>;
+		foreach (string playerID, ref ExpansionLastPlayerSpawnLocation last: m_PlayerLastIndex)
+		{
+			if (playerID == playerUID)
+				lastIndex.Insert(playerUID, last);
+		}
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write(playerCooldowns);
+		rpc.Write(lastIndex);
+		rpc.Send(NULL, ExpansionRespawnHandlerModuleRPC.CheckPlayerCooldowns, true, player.GetIdentity());
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule RPC_CheckPlayerCooldowns
+	// Called on client
+	// ------------------------------------------------------------
+	private void RPC_CheckPlayerCooldowns(PlayerIdentity sender, ParamsReadContext ctx)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.RESPAWN, this, "RPC_CheckPlayerCooldowns").Add(sender).Add(ctx);
+#endif
+		
+		if (!IsMissionClient())
+			return;
+
+		ref array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
+		if (!ctx.Read(playerCooldowns))
+		{
+			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player cooldowns list");
+		}
+		
+		ref map<string, ref ExpansionLastPlayerSpawnLocation> lastIndex = new map<string, ref ExpansionLastPlayerSpawnLocation>;
+		if (!ctx.Read(lastIndex))
+		{
+			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player last index");
+		}
+		
+		if (!m_PlayerRespawnDelays)
+			m_PlayerRespawnDelays = new array<ref ExpansionRespawnDelayTimer>;
+			
+		m_PlayerRespawnDelays.Clear();
+		for (int i = 0; i < playerCooldowns.Count(); ++i)
+		{
+			m_PlayerRespawnDelays.Insert(playerCooldowns[i]);
+		}
+		
+		m_PlayerLastIndex.Insert(lastIndex.GetKey(0), lastIndex.GetElement(0));
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionRespawnHandlerModule OnInvokeConnect
+	// ------------------------------------------------------------	
+	override void OnInvokeConnect(PlayerBase player, PlayerIdentity identity)
+	{
+		if (!player)
+			return;
+		
+		if (!identity)
+			return;
+		
+		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns)
+			RespawnCountdownCheck(identity.GetId());
 	}
 }

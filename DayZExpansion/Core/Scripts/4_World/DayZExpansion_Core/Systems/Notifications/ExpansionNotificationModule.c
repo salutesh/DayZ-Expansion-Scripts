@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -21,11 +21,11 @@ class ExpansionNotificationModule: JMModuleBase
 	
 	// ------------------------------------------------------------
 	void ExpansionNotificationModule()
-	{		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::ExpansionNotificationModule - Start");
-		#endif
-		
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "ExpansionNotificationModule");
+#endif
+
 		m_Notifications = new array<ref ExpansionNotificationView>;
 		m_NotificationData = new array<ref NotificationRuntimeData>;
 	
@@ -34,27 +34,19 @@ class ExpansionNotificationModule: JMModuleBase
 			NotificationSystem.BindOnAdd(AddNotification);
 			NotificationSystem.BindOnRemove(RemoveNotification);
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::ExpansionNotificationModule - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	void ~ExpansionNotificationModule()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::~ExpansionNotificationModule - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "~ExpansionNotificationModule");
+#endif
+
 		if (IsMissionClient())
 		{
 			m_NotificationHUD = NULL;
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::~ExpansionNotificationModule - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -66,10 +58,10 @@ class ExpansionNotificationModule: JMModuleBase
 	// ------------------------------------------------------------
 	void AddNotification(NotificationRuntimeData data)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::AddNotification - Start");
-		#endif
-	
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotification");
+#endif
+
 		if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowNotifications)
 		{
 			if (!data)
@@ -107,15 +99,15 @@ class ExpansionNotificationModule: JMModuleBase
 			m_NotificationData.InsertAt(data, 0);
 			m_Notifications[0].ShowNotification();
 		}
-			
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::AddNotification - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	void AddNotificationElement(ExpansionNotificationView notificationElement, ExpansionNotificationType type)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotificationElement");
+#endif
+
 		switch (type)
 		{
 			case ExpansionNotificationType.TOAST:
@@ -142,10 +134,10 @@ class ExpansionNotificationModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RemoveNotification(NotificationRuntimeData data)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RemoveNotification - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "RemoveNotification");
+#endif
+
 		if (!data)
 			return;
 
@@ -153,19 +145,15 @@ class ExpansionNotificationModule: JMModuleBase
 
 		if (index >= 0)
 			HideNotification( index );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RemoveNotification - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
 	void HideNotification(int index)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::HideNotification - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "HideNotification");
+#endif
+
 		if (GetGame().IsMultiplayer() && GetGame().IsServer())
 			return;
 
@@ -176,10 +164,6 @@ class ExpansionNotificationModule: JMModuleBase
 			return;
 
 		m_Notifications[index].HideNotification();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::HideNotification - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -187,25 +171,21 @@ class ExpansionNotificationModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RemovingNotification(ExpansionNotificationView notif)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RemovingNotification - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "RemovingNotification");
+#endif
+
 		if (!notif)
 			return;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RemovingNotification - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	void RemoveNotification(ExpansionNotificationView notif)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RemoveNotification - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "RemoveNotification");
+#endif
+
 		if (!notif)
 			return;
 
@@ -216,19 +196,15 @@ class ExpansionNotificationModule: JMModuleBase
 			m_Notifications.RemoveOrdered(index);
 			m_NotificationData.RemoveOrdered(index);
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::RemoveNotification - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	override void OnUpdate(float timeslice)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::OnUpdate - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "OnUpdate");
+#endif
+
 		super.OnUpdate(timeslice);
 
 		if (!IsMissionClient())
@@ -241,10 +217,6 @@ class ExpansionNotificationModule: JMModuleBase
 
 			m_Notifications[i].Update(timeslice);
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationModule::OnUpdate - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -288,4 +260,4 @@ class ExpansionNotificationModule: JMModuleBase
 			m_NotificationHUD = new ExpansionNotificationHUD;
 		}
 	}
-}
+};

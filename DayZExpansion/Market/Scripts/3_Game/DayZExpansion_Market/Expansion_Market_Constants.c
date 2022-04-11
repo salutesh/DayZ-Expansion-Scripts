@@ -3,15 +3,15 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-const int EXPANSION_MENU_MARKET = 3;
-const int EXPANSION_MENU_ATM = 4;
+const int EXPANSION_MENU_MARKET = EXPANSION_MENU_START + 3;
+const int EXPANSION_MENU_ATM = EXPANSION_MENU_START + 4;
 
 //! Server
 static const string EXPANSION_MARKET_FOLDER = EXPANSION_FOLDER + "Market\\";

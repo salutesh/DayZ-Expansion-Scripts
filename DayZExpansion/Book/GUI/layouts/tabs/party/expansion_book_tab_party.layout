@@ -173,34 +173,6 @@ FrameWidgetClass ExpansionBookMenuTabParty {
          Margin 0
          "Size To Content V" 1
          {
-          TextWidgetClass member_list_info {
-           visible 1
-           ignorepointer 1
-           keepsafezone 0
-           color 0 0 0 1
-           position 0.102 1.2744
-           size 1 0.08
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           scriptclass "ViewBinding"
-           text "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_MEMBERS"
-           font "gui/fonts/etelkatextpro22"
-           "text offset" 5 0
-           "exact text" 0
-           "size to text h" 0
-           "size to text v" 0
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Debug_Logging 0
-             Binding_Name "MemberListInfo"
-            }
-           }
-          }
-         }
-         {
           ScriptParamsClass {
            Debug_Logging 0
            Binding_Name "PartyMemberEntrys"
@@ -352,34 +324,6 @@ FrameWidgetClass ExpansionBookMenuTabParty {
          scriptclass "ViewBinding"
          Margin 0
          "Size To Content V" 1
-         {
-          TextWidgetClass player_list_info {
-           visible 1
-           ignorepointer 1
-           keepsafezone 0
-           color 0 0 0 1
-           position 0.102 1.2744
-           size 1 0.05
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           scriptclass "ViewBinding"
-           text "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_PLAYERS"
-           font "gui/fonts/etelkatextpro22"
-           "text offset" 5 0
-           "exact text" 0
-           "size to text h" 0
-           "size to text v" 0
-           "text valign" center
-           {
-            ScriptParamsClass {
-             Debug_Logging 0
-             Binding_Name "PlayerListInfo"
-            }
-           }
-          }
-         }
          {
           ScriptParamsClass {
            Debug_Logging 0

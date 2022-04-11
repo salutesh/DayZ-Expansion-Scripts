@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,11 +15,11 @@ modded class DayZPlayerCamera1stPerson
 {	
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "OnUpdate").Add(pDt);
+#endif
+
 		super.OnUpdate( pDt, pOutResult );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPerson::OnUpdate Start");
-		#endif
 		
 		pOutResult.m_fInsideCamera = 1.0;
 
@@ -82,20 +82,6 @@ modded class DayZPlayerCamera1stPerson
 		Math3D.MatrixInvMultiply4(playerTransform, cameraTransform, pOutResult.m_CameraTM);
 		
 		pOutResult.m_CameraTM[3] = pOutResult.m_CameraTM[3] + m_OffsetLS;	
-			
-		//DisplayMatrix4("CameraTM", pOutResult.m_CameraTM);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera1stPerson::OnUpdate End");
-		#endif
-	}
-	
-	void DisplayMatrix4(string name, vector matrix[4])
-	{
-	}
-	
-	void DisplayMatrix3(string name, vector matrix[3])
-	{
 	}
 };
 #endif

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -30,9 +30,11 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 		AddItem("NVGoggles", 						400,	800,	1,		100,	{"Battery9V"});
 		
 		AddItem("AlarmClock_Blue", 					30,		80,		1,		100, null, {"AlarmClock_Green", "AlarmClock_Red"});
-
-#ifdef NAMALSK_SURVIVAL
+		#ifdef DAYZ_1_17
+		AddItem("KitchenTimer", 					30,		80,		1,		100);
+		#endif
+		#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_tool_watch", 					40,		100,	1,		100, null, {"dzn_tool_watch2"});
-#endif
+		#endif
 	}
 };

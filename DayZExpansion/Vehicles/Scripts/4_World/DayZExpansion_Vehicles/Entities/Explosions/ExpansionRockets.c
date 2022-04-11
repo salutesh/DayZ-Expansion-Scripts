@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -27,10 +27,6 @@ class ExpansionRocket extends Roadflare
    
 	void ExpansionRocket()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] Constructor start");
-		#endif
-
 		SetEventMask(EntityEvent.CONTACT | EntityEvent.SIMULATE);
 
 		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() ) 
@@ -44,19 +40,10 @@ class ExpansionRocket extends Roadflare
 		RegisterNetSyncVariableBool( "m_ExplodedSynchRemote" );
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveLater, 30000, false ); 
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] Constructor end");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	void ~ExpansionRocket()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] Deconstructor start");
-		#endif
-
 		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
 		{
 			if ( m_ParticleEfx )
@@ -71,35 +58,18 @@ class ExpansionRocket extends Roadflare
 			if ( m_FlareLight )
 				GetGame().ObjectDelete( m_FlareLight );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] Deconstructor end");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	void SpawnSounds()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] SpawnSounds start");
-		#endif
-
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer()) 
 		{
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] SpawnSounds end");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	void SpawnParticles()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] SpawnParticles start");
-		#endif
-
 		// m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_ROCKET_SMOKE, this);
 
 		if ( !m_FlareLight )
@@ -113,34 +83,18 @@ class ExpansionRocket extends Roadflare
 			m_FlareLight.AttachOnObject( this, "0 0 0" );
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] SpawnParticles end");
-		#endif
 	}
 
-	// ------------------------------------------------------------
 	void RemoveLater()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] RemoveLater start");
-		#endif
-
 		ToDelete();
 
 		SetPosition( vector.Zero );
 		GetGame().ObjectDelete( this );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] RemoveLater end");
-		#endif
 	}
 
 	override void EOnContact(IEntity other, Contact extra) 
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "[ExpansionRocket] EOnContact start" );
-		#endif
-
 		if ( IsMissionHost() && !m_Exploded )
 		{
 			m_Exploded = true;
@@ -159,10 +113,6 @@ class ExpansionRocket extends Roadflare
 				SetSynchDirty();
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[ExpansionRocket] EOnContact end");
-		#endif
 	}
 
 	private void HandleClientExplosion()
@@ -204,15 +154,8 @@ class ExpansionRocket extends Roadflare
 		p4.SetOrientation(n);
 	}
 
-	// ------------------------------------------------------------
-	// OnVariablesSynchronized
-	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRocket::OnVariablesSynchronized - Start");
-		#endif
-
 		super.OnVariablesSynchronized();
 
 		if ( m_ExplodedSynchRemote && !m_Exploded ) 
@@ -221,23 +164,13 @@ class ExpansionRocket extends Roadflare
 			
 			HandleClientExplosion();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRocket::OnVariablesSynchronized - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	// CanPutInCargo
-	// ------------------------------------------------------------
 	override bool CanPutInCargo (EntityAI parent)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// CanPutIntoHands
-	// ------------------------------------------------------------
 	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return false;

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -52,6 +52,10 @@ class ExpansionBookMenuTabCraftingResult: ExpansionScriptView
 	
 	void SetView()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.BOOK, this, "SetView");
+#endif
+
 		result_collapse_button.Show(true);
 
 		m_ResultController.ResultName = m_Recipe.GetDisplayName();
@@ -71,6 +75,10 @@ class ExpansionBookMenuTabCraftingResult: ExpansionScriptView
 	
 	void OnResultButtonClick()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.BOOK, this, "OnResultButtonClick");
+#endif
+
 		CheckRecipe();
 
 		m_CraftingTab.GetCraftingTabController().Ingredients1.Clear();
@@ -154,10 +162,14 @@ class ExpansionBookMenuTabCraftingResult: ExpansionScriptView
 
 	void CheckRecipe()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.BOOK, this, "CheckRecipe");
+#endif
+
 		if (m_RecipeChecked)
 			return;
 
-		EXPrint(ToString() + "::CheckRecipe");
+		CF_Log.Debug(ToString() + "::CheckRecipe");
 
 		m_RecipeChecked = true;
 

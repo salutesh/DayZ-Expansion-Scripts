@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fsm name="Master">
+	<files>
+		<file name="Vehicles"/>
+		<file name="Fighting"/>
+		<file name="Reloading"/>
+	</files>
+	<states default="Idle">
+		<state name="Idle">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.OverridePath();
+
+				if (unit.IsRaised())
+					unit.RaiseWeapon(false);
+
+				if (unit.GetLookDirectionRecalculate())
+					unit.LookAtDirection(&quot;0 0 1&quot;);
+
+				if (unit.GetAimDirectionRecalculate())
+					unit.AimAtDirection(&quot;0 0 1&quot;);
+			</event_entry>
+			<event_exit></event_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Unconscious">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.OverridePosition(unit.GetPosition());
+			</event_entry>
+			<guard_exit>
+				return !(unit.IsUnconscious());
+			</guard_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Trading">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.OverridePosition(unit.GetPosition());
+			</event_entry>
+			<guard_exit>
+				return !(unit.IsTrading());
+			</guard_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="FollowFormation">
+			<variables>
+				<variable name="group" type="eAIGroup" />
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+				unit.OverridePosition(group.GetFormationPosition(unit));
+
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="TraversingWaypoints">
+			<variables>
+				<variable name="path" type="ref array<vector>" />
+				<variable name="behaviour" type="eAIWaypointBehavior" />
+				<variable name="backtracking" type="bool" />
+				<variable name="index" type="int" />
+				<variable name="threshold" type="float" default="1.0"/>
+				<variable name="previousDistance" type="float" />
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				path = unit.GetGroup().GetWaypoints();
+				if (path.Count() == 0)
+				{
+					path = { unit.GetPosition() };
+				}
+				behaviour = unit.GetGroup().GetWaypointBehaviour();
+			</event_entry>
+			<event_exit></event_exit>
+			<event_update>
+				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
+				if (distance &lt; threshold)
+				{
+					if (backtracking) index--;
+					else index++;
+					threshold = 1.0;
+				}
+				else if (Math.AbsFloat(distance - previousDistance) &lt; 0.01)
+				{
+					//! We seem to not be getting closer to the waypoint, possibly the path is blocked.
+					//! Increase threshold until we are within distance.
+					threshold += 0.01;
+				}
+
+				previousDistance = distance;
+
+				if (index &lt; 0) 
+				{
+					if (behaviour == eAIWaypointBehavior.REVERSE)
+					{
+						backtracking = false;
+						index = 1;
+					}
+				}
+				else if (index == path.Count())
+				{
+					if (behaviour == eAIWaypointBehavior.REVERSE)
+					{
+						backtracking = true;
+						index = path.Count() - 2;
+					} 
+					else if (behaviour == eAIWaypointBehavior.LOOP)
+					{
+						backtracking = false;
+						index = 0;
+					}
+				}
+
+				index = Math.Clamp(index, 0, path.Count() - 1);
+
+				unit.OverridePosition(path[index]);
+
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Vehicles" fsm="Vehicles">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+		</state>
+		<state name="Fighting" fsm="Fighting">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.UpdateAimArbitration();
+			</event_entry>
+			<event_exit>
+				unit.StopAimArbitration();
+			</event_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Weapon_Reloading" fsm="Reloading">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="551" y="94" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.UpdateAimArbitration();
+			</event_entry>
+			<event_exit>
+				unit.StopAimArbitration();
+			</event_exit>
+		</state>
+		<state name="Weapon_Unjamming">
+			<variables>
+				<variable name="weapon" type="Weapon_Base" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.RaiseWeapon(true);
+
+				unit.StartActionObject(eAIActionWeaponUnjam, null);
+			</event_entry>
+			<event_exit>
+				unit.RaiseWeapon(false);
+			</event_exit>
+			<event_update>
+				if (!unit.GetWeaponManager()) return EXIT;
+
+				if (unit.GetWeaponManager().IsRunning()) return CONTINUE;
+
+                return EXIT;
+            </event_update>
+		</state>
+	</states>
+	<transitions>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                if (!(unit.IsUnconscious())) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Unconscious" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                if (unit.IsUnconscious()) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Unconscious" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                if (!(unit.IsTrading())) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Trading" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                if (unit.IsTrading()) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Trading" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+
+                dst.group = unit.GetGroup();
+                if (!dst.group) return FAIL;
+
+				if (dst.group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
+
+                auto leader = dst.group.GetLeader();
+                if (!leader || leader == unit) return FAIL;
+
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Idle" />
+			<to_state name="FollowFormation" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+
+                auto group = unit.GetGroup();
+                if (!group) return FAIL;
+
+				// we are the leader so we traverse the waypoints
+                auto leader = group.GetLeader();
+                if (leader &amp;&amp; leader != unit) return FAIL;
+
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Idle" />
+			<to_state name="TraversingWaypoints" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
+
+				return FAIL;
+            </guard>
+			<event name="" />
+			<from_state name="TraversingWaypoints" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                auto group = unit.GetGroup();
+				if (group &amp;&amp; group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
+				
+                if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
+
+				return FAIL;
+            </guard>
+			<event name="" />
+			<from_state name="FollowFormation" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+				if (GetGame().GetTime() - dst.sub_fsm.last_attempt_time &lt; 5000) return FAIL;
+
+				if (!Class.CastTo(dst.sub_fsm.weapon, unit.GetItemInHands())) return FAIL;
+
+				int mi = dst.sub_fsm.weapon.GetCurrentMuzzle();
+				Magazine mag = dst.sub_fsm.weapon.GetMagazine(mi);
+				if (mag &amp;&amp; mag.GetAmmoCount() &gt; 0 &amp;&amp; !dst.sub_fsm.weapon.IsChamberFiredOut(mi)) return FAIL;
+
+				if (!dst.sub_fsm.weapon.IsChamberEmpty(mi) &amp;&amp; !dst.sub_fsm.weapon.IsChamberFiredOut(mi)) return FAIL;
+				if (dst.sub_fsm.weapon.IsChamberJammed(mi)) return FAIL;
+
+				// don't move to the state if the action manager is operating
+				if (!unit.GetActionManager() || unit.GetActionManager().GetRunningAction()) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Weapon_Reloading" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+				if (!Class.CastTo(dst.weapon, unit.GetItemInHands())) return FAIL;
+
+				if (!unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Weapon_Unjamming" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Weapon_Reloading" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Weapon_Unjamming" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                if (unit.GetThreatToSelf() &lt; 0.4) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Fighting" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                if (unit.GetThreatToSelf() &gt; 0.2) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Fighting" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                auto group = unit.GetGroup();
+                if (!group) return FAIL;
+
+				if (group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
+
+                auto leader = group.GetLeader();
+                if (!leader || leader == unit) return FAIL;
+
+                if (!leader.IsInTransport()) return FAIL;
+
+				Transport transport;
+                if (!Class.CastTo(transport, leader.GetParent())) return FAIL;
+
+				//TODO: make this event based instead and store as a variable within CarScript.
+				//Prevents looping through the crew and insteads just compares a bool.
+				for (int i = 1; i &lt; transport.CrewSize(); i++)
+				{
+					if (transport.CrewMember(i) == null)
+					{
+               			return SUCCESS;
+					}
+				}
+
+                return FAIL;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Vehicles" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Vehicles" />
+			<to_state name="Idle" />
+		</transition>
+	</transitions>
+</fsm>

@@ -1,0 +1,29 @@
+enum eAICommands
+{
+	// Movement
+	MOV_STOP,
+	MOV_GOTO,
+	MOV_RTF, // Return to formation
+	MOV_GETIN,
+	// Formation 
+	FOR_VEE,
+	FOR_FILE,
+	FOR_WALL,
+	FOR_COL,
+	// Status
+	STA_SITREP, // report health and ammo level
+	STA_POSITION, // report position
+	STA_THREATS,
+	STA_UNUSED,
+	// Debug
+	DEB_SPAWNALLY,
+	DEB_SPAWNSENTRY,
+	DEB_SPAWNZOM,
+	DEB_SPAWNWOLF,
+	DEB_SPAWNBEAR,
+	DEB_CLEARALL,
+	DEB_AIMAP, // TODO
+	DEB_GRPMGR, // TODO
+	DEB_TARGET_CREATE,
+	DEB_TARGET_DESTROY,
+};

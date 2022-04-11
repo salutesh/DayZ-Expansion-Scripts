@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -29,5 +29,8 @@ class ExpansionMarketKnifes: ExpansionMarketCategory
 		AddItem("Machete", 						12,		24,		1,		100);
 		AddItem("CrudeMachete", 				12,		24,		1,		100);
 		AddItem("OrientalMachete", 				12,		24,		1,		100);
+		#ifdef DAYZ_1_17
+		AddItem("Cleaver", 						10,		20,		1,		100);
+		#endif
 	}
 };

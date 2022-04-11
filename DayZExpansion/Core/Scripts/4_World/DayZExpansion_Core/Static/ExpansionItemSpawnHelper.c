@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -17,7 +17,9 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	static Object SpawnOnParent(string className, PlayerBase player, inout EntityAI parent, out int remainingAmount, int quantityPercent = -1, TStringArray attachments = NULL, int skinIndex = -1, bool magFillAmmo = true, inout bool attachmentNotAttached = false)
 	{
-		ISHDebugPrint("SpawnOnParent - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnOnParent");
+#endif
 
 		if (quantityPercent < 0)
 			quantityPercent = 100;
@@ -39,8 +41,6 @@ class ExpansionItemSpawnHelper
 
 				GetGame().ObjectDelete(obj);
 
-				ISHDebugPrint("SpawnOnParent - End and return NULL!");
-
 				return NULL;
 			}
 
@@ -50,12 +50,8 @@ class ExpansionItemSpawnHelper
 			{
 				if (obj)
 				{
-					ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
-
 					return obj;
 				}
-
-				ISHDebugPrint("SpawnOnParent - End and return NULL!");
 
 				return NULL;
 			}
@@ -66,7 +62,6 @@ class ExpansionItemSpawnHelper
 		else if (remainingAmount == -1)
 		{
 			//! Ignore remaining amount
-			ISHDebugPrint("SpawnOnParent - Ignoring remaining amount and quantity");
 		}
 		else if (item.IsAmmoPile())
 		{
@@ -89,8 +84,6 @@ class ExpansionItemSpawnHelper
 				ammo.ServerSetAmmoCount(maxAmmo);
 				remainingAmount -= maxAmmo;
 			}
-
-			ISHDebugPrint("SpawnOnParent - AMMO - End and return obj: " + obj.ToString());
 		}
 		else if (item.IsMagazine())
 		{
@@ -103,8 +96,6 @@ class ExpansionItemSpawnHelper
 				mag.ServerSetAmmoCount(Math.Round(mag.GetAmmoMax() * quantityPercent / 100));
 			else
 				mag.ServerSetAmmoCount(0);
-
-			ISHDebugPrint("SpawnOnParent - MAGAZINE - End and return obj: " + obj.ToString());
 		}
 		else if (item.IsInherited(Edible_Base))
 		{
@@ -135,8 +126,6 @@ class ExpansionItemSpawnHelper
 				item.SetQuantity(max);
 				remainingAmount -= max;
 			}
-
-			ISHDebugPrint("SpawnOnParent - STACKABLE");
 		}
 		else
 		{
@@ -151,14 +140,16 @@ class ExpansionItemSpawnHelper
 		if (attachments)
 			SpawnAttachments( attachments, player, item, quantityPercent, skinIndex, magFillAmmo, attachmentNotAttached );
 
-		ISHDebugPrint("SpawnOnParent - End and return obj: " + obj.ToString());
-
 		return obj;
 	}
 	
 	//! Spawn in parent inventory, create player-owned temporary storage container if inventory full
 	static Object SpawnInInventorySecure(string className, PlayerBase player, inout EntityAI parent, int skinIndex = -1)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnInInventorySecure");
+#endif
+
 		bool canSpawnInInventory = GetGame().IsKindOf(className, "Inventory_Base") || GetGame().IsKindOf(className, "Magazine_Base") || GetGame().IsKindOf(className, "Rifle_Base") || GetGame().IsKindOf(className, "Pistol_Base") || GetGame().IsKindOf(className, "Archery_Base") || GetGame().IsKindOf(className, "Launcher_Base");
 
 		if (!canSpawnInInventory)
@@ -169,8 +160,6 @@ class ExpansionItemSpawnHelper
 
 		while (true)
 		{
-			ISHDebugPrint("ExpansionItemSpawnHelper::SpawnInInventorySecure - parent: " + parent.ClassName());
-
 			ExpansionTemporaryOwnedContainer storage = ExpansionTemporaryOwnedContainer.Cast(parent);
 			if (storage)
 				storage.ExpansionSetCanReceiveItems(true);
@@ -182,8 +171,6 @@ class ExpansionItemSpawnHelper
 
 			if (obj || newStorage)
 				break;
-
-			ISHDebugPrint("ExpansionItemSpawnHelper::SpawnInInventorySecure - creating temporary storage container at " + parent.GetPosition());
 
 			//! If it's an inventory item and couldn't be spawned in parent inventory (likely because it's full),
 			//! create new temporary storage container and set as parent
@@ -269,7 +256,9 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, TStringArray attachments = NULL, int skinIndex = -1, inout bool attachmentNotAttached = false )
 	{		
-		ISHDebugPrint("SpawnVehicle - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnVehicle");
+#endif
 
 		int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 
@@ -337,8 +326,6 @@ class ExpansionItemSpawnHelper
 			{
 				GetGame().ObjectDelete(obj);
 			}
-
-			ISHDebugPrint("SpawnVehicle - End return NULL!");		
 			
 			return NULL;
 		}
@@ -358,15 +345,10 @@ class ExpansionItemSpawnHelper
 		if (attachments)
 			SpawnAttachments(attachments, player, EntityAI.Cast(obj), skinIndex, false, attachmentNotAttached);
 
-		ISHDebugPrint("SpawnVehicle - End return obj:" + obj.ToString());	
-
 		return obj;
 	}
 
 	protected static void ISHDebugPrint(string text)
 	{
-	#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionItemSpawnHelper::" + text);
-	#endif
 	}
 }

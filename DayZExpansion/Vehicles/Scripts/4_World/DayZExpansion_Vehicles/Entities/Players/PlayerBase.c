@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -19,89 +19,53 @@ modded class PlayerBase
 	
 	ref array<ExpansionCarKey> m_Expansion_CarKeys;
 
-	// ------------------------------------------------------------
-	// PlayerBase Constructor
-	// ------------------------------------------------------------
 	void PlayerBase()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::PlayerBase - Start");
-		#endif
-		
 		if (IsMissionHost())
 			m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTime();
 		
 		m_Expansion_CarKeys = new array<ExpansionCarKey>;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::PlayerBase - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase Destructor
-	// ------------------------------------------------------------
-	void ~PlayerBase()
+	override void Init()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::~PlayerBase - Start");
-		#endif
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::~PlayerBase - End");
-		#endif
+		super.Init();
+		
+		m_ExpansionST = new ExpansionHumanST(this);
 	}
 
-	// ------------------------------------------------------------
-	// Expansion SetActions
-	// ------------------------------------------------------------
 	override void SetActions( out TInputActionMap InputActionMap )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions start");
-		#endif
-
 		super.SetActions( InputActionMap );
 		
-		//AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
+		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
 		
 		AddAction( ExpansionActionCarHorn, InputActionMap );
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
 
-		//AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
-		//AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
+		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
+		AddAction( ExpansionVehicleActionStopEngine, InputActionMap );
 
-		//AddAction( ExpansionActionSwitchSeats, InputActionMap );
+		AddAction( ExpansionActionSwitchSeats, InputActionMap );
 
 		AddAction( ExpansionActionNextEngine, InputActionMap );
 		AddAction( ExpansionActionNextEngineInput, InputActionMap );
 
 		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
-		//AddAction( ExpansionVehicleActionPickLock, InputActionMap );
+		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
 		AddAction( ExpansionActionChangeVehicleLock, InputActionMap );
 
 		#ifdef EXPANSION_VEHICLE_TOWING
 		AddAction( ExpansionActionConnectTow, InputActionMap );
 		AddAction( ExpansionActionDisconnectTow, InputActionMap );
 
-		//AddAction( ExpansionActionVehicleConnectTow, InputActionMap );
-		//AddAction( ExpansionActionVehicleDisconnectTow, InputActionMap );
-		#endif
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::SetActions end");
+		AddAction( ExpansionActionVehicleConnectTow, InputActionMap );
+		AddAction( ExpansionActionVehicleDisconnectTow, InputActionMap );
 		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion EOnContact
-	// ------------------------------------------------------------
 	override private void EOnContact( IEntity other, Contact extra )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::EOnContact - Start");
-		#endif
-
 		if( !IsAlive() || GetParent() == other || !IsMissionHost() )
 			return;
 
@@ -116,23 +80,13 @@ modded class PlayerBase
 		{
 			ExpansionRegisterTransportHit( vehicle );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::EOnContact - End");
-		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion ExpansionRegisterTransportHit
-	// ------------------------------------------------------------
 	override void RegisterTransportHit( Transport transport )
 	{
 		// Preventing vanilla (and other mods) code from running
 	}
 	
-	// ------------------------------------------------------------
-	// PlayerBase ExpansionRegisterTransportHit
-	// ------------------------------------------------------------
 	void ExpansionRegisterTransportHit( EntityAI transport )
 	{
 		bool hasParent = false;
@@ -172,9 +126,6 @@ modded class PlayerBase
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion ModCommandHandlerInside
-	// ------------------------------------------------------------
 	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	
 	{
 		if ( super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished ) )
@@ -187,9 +138,13 @@ modded class PlayerBase
 			auto ehcv = ExpansionHumanCommandVehicle.Cast( GetCommand_Script() );
 			if (ehcv)
 			{
-				if (!ehcv.IsGettingIn() && !ehcv.IsGettingOut() && !ehcv.IsSwitchSeat())
+				ExpansionVehicleBase expansionVehicle;
+				if (Class.CastTo(expansionVehicle, ehcv.GetObject()))
 				{
-					ehcv.GetTransport().HandleController(this, pDt);
+					if (!ehcv.IsGettingIn() && !ehcv.IsGettingOut() && !ehcv.IsSwitchSeat())
+					{
+						expansionVehicle.HandleController(this, pDt);
+					}
 				}
 
 				if ( ehcv.WasGearChange() )
@@ -223,15 +178,10 @@ modded class PlayerBase
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion StartCommand_ExpansionVehicle
-	// ------------------------------------------------------------
 	override ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle( ExpansionVehicleBase vehicle, int seatIdx, int seat_anim )
 	{
-		if ( m_ExpansionST == NULL )
-			m_ExpansionST = new ExpansionHumanST( this );
-	
-		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, m_ExpansionST, vehicle, seatIdx, seat_anim );
+		//WARNING: memory leak
+		ExpansionHumanCommandVehicle cmd = new ExpansionHumanCommandVehicle( this, m_ExpansionST, vehicle, seatIdx, seat_anim, false );
 		StartCommand_Script( cmd );
 		return cmd;
 	}
@@ -248,17 +198,11 @@ modded class PlayerBase
 		super.TryHideItemInHands(hide, force);
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase GetInVehicle
-	// ------------------------------------------------------------
 	bool GetInVehicle( )
 	{
 		return m_WasInVehicle;
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase SetInVehicle
-	// ------------------------------------------------------------
 	void SetInVehicle( bool state )
 	{
 		m_WasInVehicle = state;
@@ -280,66 +224,40 @@ modded class PlayerBase
 		return m_IsVehicleSeatDriver;
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase OnCommandExpansionVehicleStart
-	// ------------------------------------------------------------
 	override void OnCommandExpansionVehicleStart()
 	{
-		super.OnCommandExpansionVehicleStart();
-
-		if ( GetInventory() )
-			GetInventory().LockInventory( LOCK_FROM_SCRIPT );
-
-		ItemBase itemInHand = GetItemInHands();
-		EntityAI itemOnHead = FindAttachmentBySlotName( "Headgear" );
-
-		if ( itemInHand )
-		{
-			if ( itemInHand.GetCompEM() )
-			{
-				itemInHand.GetCompEM().SwitchOff();
-			}
-
-			GetItemAccessor().HideItemInHands(true);
-		}
-
-		if ( itemOnHead )
-		{
-			if ( itemOnHead.GetCompEM() )
-			{
-				itemOnHead.GetCompEM().SwitchOff();
-			}
-		}
+		m_AnimCommandStarting = HumanMoveCommandID.CommandVehicle;
 		
-		ExpansionHumanCommandVehicle hcv = GetCommand_ExpansionVehicle();
+		if ( GetInventory() )
+			GetInventory().LockInventory(LOCK_FROM_SCRIPT);
+		
+		ItemBase itemInHand = GetItemInHands();
+		EntityAI itemOnHead = FindAttachmentBySlotName("Headgear");
+
+		if ( itemInHand && itemInHand.GetCompEM() )
+			itemInHand.GetCompEM().SwitchOff();
+
+		TryHideItemInHands(true);
+
+		if ( itemOnHead && itemOnHead.GetCompEM() )
+			itemOnHead.GetCompEM().SwitchOff();
+		
+		auto hcv = GetCommand_ExpansionVehicle();
 		if ( hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-		{
 			OnVehicleSeatDriverEnter();
-		}
 	}
 	
-	// ------------------------------------------------------------
-	// PlayerBase OnCommandExpansionVehicleFinish
-	// ------------------------------------------------------------
 	override void OnCommandExpansionVehicleFinish()
 	{
-		super.OnCommandExpansionVehicleFinish();
-
 		if ( GetInventory() )
 			GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
-			
-		if ( GetItemInHands() )
-		{
-			GetItemAccessor().HideItemInHands(false);
-		}
+		
+		TryHideItemInHands(false, true);
 		
 		if ( m_IsVehicleSeatDriver )
-		{
 			OnVehicleSeatDriverLeft();
-		}
 	}
 
-	//! Called on both server + client when attaching to vehicle
 	override void OnExpansionAttachTo( Object obj, vector transform[4] )
 	{
 		super.OnExpansionAttachTo(obj, transform);
@@ -347,16 +265,13 @@ modded class PlayerBase
 		SetInVehicle( true );
 	}
 
-	//! Called on both server + client when detaching from vehicle
 	override void OnExpansionDetachFrom( Object obj )
 	{
 		super.OnExpansionDetachFrom(obj);
+
 		SetInVehicle( false );
 	}
 
-	// ------------------------------------------------------------
-	// Expansion HeadingModel
-	// ------------------------------------------------------------
 	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
 	{
 		if ( GetCommand_ExpansionVehicle() )
@@ -393,19 +308,29 @@ modded class PlayerBase
 
 		return false;
 	}
+	
+	bool HasKeyForCar(ExpansionVehicleBase vehicle)
+	{
+		if (!vehicle.HasKey())
+			return false;
 
-	// ------------------------------------------------------------
-	// Expansion GetExpansionSaveVersion
-	// OBSOLETE
-	// ------------------------------------------------------------
+		foreach (ExpansionCarKey key: m_Expansion_CarKeys)
+		{
+			if (key.IsPairedTo(vehicle))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @deprecated
+	 */
 	int GetExpansionSaveVersion()
 	{
 		return m_ExpansionSaveVersion;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnStoreSave
-	// ------------------------------------------------------------
 	override void OnStoreSave( ParamsWriteContext ctx )
 	{
 		#ifdef EXPANSION_STORAGE_DEBUG
@@ -413,7 +338,7 @@ modded class PlayerBase
 		#endif
 
 		//! If we are saving after game version target for ModStorage support (1st stable)
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -425,7 +350,7 @@ modded class PlayerBase
 		ctx.Write( m_ExpansionSaveVersion );
 
 		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 		{
 			super.OnStoreSave( ctx );
@@ -439,16 +364,13 @@ modded class PlayerBase
 		ctx.Write( m_Expansion_SessionTimeStamp );
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion OnStoreLoad
-	// ------------------------------------------------------------
 	override bool OnStoreLoad( ParamsReadContext ctx, int version )
 	{
 		#ifdef EXPANSION_STORAGE_DEBUG
 		EXPrint("[VEHICLES] PlayerBase::OnStoreLoad " + this + " " + version);
 		#endif
 
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -456,7 +378,7 @@ modded class PlayerBase
 		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
 			return false;
 
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return super.OnStoreLoad( ctx, version );
 		#endif
@@ -478,7 +400,7 @@ modded class PlayerBase
 		return true;
 	}
 
-	#ifdef CF_MODSTORAGE
+	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
@@ -508,11 +430,12 @@ modded class PlayerBase
 	}
 	#endif
 	
-	// ------------------------------------------------------------
-	// Expansion AfterStoreLoad
-	// ------------------------------------------------------------
 	override void AfterStoreLoad()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "LongDeferredInit");
+#endif
+
 		super.AfterStoreLoad();
 
 		int sessionTimeStamp = m_Expansion_SessionTimeStamp;
@@ -539,7 +462,8 @@ modded class PlayerBase
 
 	void PlacePlayerOnGround()
 	{
-		if ( GetGame().IsServer() )
+		//todo: branchless ??
+		if ( GetGame().IsServer() ) 
 		{
 			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_WasInVehicle + " is attached " + IsAttached() + " " + GetParent());
 
@@ -645,4 +569,4 @@ modded class PlayerBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetAllowDamage, 1500, false, true);
 		}
 	}
-}
+};

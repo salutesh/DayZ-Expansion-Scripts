@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -36,9 +36,9 @@ modded class MainMenu
 	// ------------------------------------------------------------
 	override Widget Init()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Init - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "UpdateItemInfoLiquidType");
+#endif
 		
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/gui/layouts/expansion_main_menu.layout" );
 		
@@ -131,11 +131,7 @@ modded class MainMenu
 		GetDayZGame().GetBacklit().MainMenu_OnShow();
 	
 		g_Game.SetLoadState( DayZLoadState.MAIN_MENU_CONTROLLER_SELECT );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Init - End");
-		#endif
-		
+				
 		return layoutRoot;
 	}
 	
@@ -181,10 +177,10 @@ modded class MainMenu
 	// Override Refresh
 	// ------------------------------------------------------------
 	override void Refresh()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Refresh - Start");
-		#endif
+	{		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Refresh");
+#endif
 		
 		string version;
 		GetGame().GetVersion( version );
@@ -201,20 +197,16 @@ modded class MainMenu
 		}
 		
 		HideModWarning();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::Refresh - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Override OnShow
 	// ------------------------------------------------------------
 	override void OnShow()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::OnShow - Start");
-		#endif
+	{	
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "OnShow");
+#endif
 		
 		SetFocus( null );
 		OnChangeCharacter();
@@ -224,16 +216,9 @@ modded class MainMenu
 		/*ExpansionBook book = ExpansionBook.Cast( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) );
 		if ( book && book.IsVisible() )
 		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("MainMenu::OnShow - Book menu is still opened in main menu. Force closeing!");
-			#endif
-
 			book.Close();
 		}*/
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::OnShow - End");
-		#endif
 		return;
 	}
 	
@@ -242,18 +227,16 @@ modded class MainMenu
 	// ------------------------------------------------------------
 	void HideModWarning()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::HideModWarning - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "HideModWarning");
+#endif
 		
 		// Hide moded game warning in the main menu
 		if ( m_ModdedWarning )
 			m_ModdedWarning.Show(false);
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MainMenu::HideModWarning - End");
-		#endif
 	}
+
 	#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
 	{

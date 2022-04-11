@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -19,9 +19,9 @@ modded class IngameHud
 	
 	void IngameHud()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::IngameHud - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "IngameHud");
+#endif
 
 		string path = GetExpansionSettings().GetNameTags().PlayerTagsIcon;
 		if (path != string.Empty)
@@ -40,15 +40,8 @@ modded class IngameHud
 		{
 			m_PlayerTagIconPath = "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds";
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::IngameHud - End");
-		#endif
 	}
 	
-	//============================================
-	// Expansion Update
-	//============================================
 	override void Update( float timeslice )
 	{
 		super.Update(timeslice);
@@ -62,10 +55,7 @@ modded class IngameHud
 			ShowPlayerTagEx(timeslice);
 		}
 	}
-	
-	//============================================
-	// Override RefreshPlayerTagsEx
-	//============================================
+
 	void RefreshPlayerTagsEx()
 	{
 		if (!GetGame().GetPlayer())
@@ -84,7 +74,7 @@ modded class IngameHud
 
 		bool isInSafeZone = safeZone && playerA && playerA.IsInSafeZone();
 
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODBASEBUILDING
 		bool isInTerritory = territory && playerA && playerA.IsInTerritory();
 	#endif
 
@@ -106,7 +96,7 @@ modded class IngameHud
 			if (safeZone && isInSafeZone && playerB && playerB.IsInSafeZone())
 				check = true;
 
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODBASEBUILDING
 			if (territory && isInTerritory && playerB && playerB.IsInTerritory())
 				check = true;
 		#endif
@@ -128,9 +118,6 @@ modded class IngameHud
 		}
 	}
 	
-	//============================================
-	// Override ShowPlayerTagEx
-	//============================================
 	void ShowPlayerTagEx( float timeslice )
 	{
 		if (m_CurrentTaggedPlayer && m_CurrentTaggedPlayer.GetIdentity() && m_CurrentTaggedPlayer.IsAlive())
@@ -178,4 +165,4 @@ modded class IngameHud
 			}
 		}
 	}
-}
+};

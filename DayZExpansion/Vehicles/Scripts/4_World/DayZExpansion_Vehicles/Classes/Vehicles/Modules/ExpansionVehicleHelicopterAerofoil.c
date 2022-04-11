@@ -1,0 +1,4 @@
+class ExpansionVehicleHelicopterAerofoil : ExpansionVehicleAerofoil
+{
+
+};

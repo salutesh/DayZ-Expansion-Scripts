@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -152,7 +152,8 @@ class ExpansionTraderNPCBase extends DayZPlayer
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		m_TraderObject.OnRPC(sender, rpc_type, ctx);
+		if (m_TraderObject)
+			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 	
 	// ------------------------------------------------------------
@@ -216,6 +217,11 @@ class ExpansionTraderNPCBase extends DayZPlayer
 	{
 		SetTraderObject(new ExpansionTraderObjectBase(this, fileName));
 	}
+
+	bool Expansion_IsTrader()
+	{
+		return true;
+	}
 };
 
 /**@class		ExpansionTraderObjectBase
@@ -231,16 +237,20 @@ class ExpansionTraderObjectBase
 
 	private EntityAI m_TraderEntity;
 	
+	ref map<string, bool> m_TradingPlayers;
+
 	// ------------------------------------------------------------
 	// ExpansionTraderObjectBase Constructor
 	// ------------------------------------------------------------
 	void ExpansionTraderObjectBase(EntityAI traderEntity, string fileName = "")
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::ExpansionTraderObjectBase");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "ExpansionTraderObjectBase");
+#endif
 		
 		m_allTraderObjects.Insert(this);
+
+		m_TradingPlayers = new map<string, bool>;
 
 		SetTraderEntity(traderEntity);
 		LoadTrader(fileName);
@@ -251,7 +261,9 @@ class ExpansionTraderObjectBase
 	// ------------------------------------------------------------
 	void ~ExpansionTraderObjectBase()
 	{
-		EXPrint(ToString() + "::~ExpansionTraderObjectBase");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "~ExpansionTraderObjectBase");
+#endif
 
 		if (!GetGame())
 			return;
@@ -291,35 +303,40 @@ class ExpansionTraderObjectBase
 	// ------------------------------------------------------------
 	void LoadTraderHost(string fileName)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "LoadTraderHost");
+#endif
+
 		if (!m_TraderEntity)
 		{
 			Error(ToString() + "::LoadTraderHost - ERROR: Trader does not have entity!");
 			return;
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::LoadTraderHost - m_TraderEntity: " + m_TraderEntity + " " + m_TraderEntity.GetType());
-		#endif
+		CF_Log.Debug(ToString() + "::LoadTraderHost - m_TraderEntity: " + m_TraderEntity + " " + m_TraderEntity.GetType());
 
 		m_Trader = GetExpansionSettings().GetMarket().GetMarketTrader(fileName);
 		if (!m_Trader)
 		{
 			if (fileName)
-				Error(ToString() + "::LoadTraderHost - ERROR: Trader does not exist: " + fileName);
+			{
+				CF_Log.Error(ToString() + "::LoadTraderHost - ERROR: Trader does not exist: " + fileName);
+			}
 			return;
 		}
 
 		m_TraderZone = GetExpansionSettings().GetMarket().GetTraderZoneByPosition(m_TraderEntity.GetPosition());
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::LoadTraderHost - m_Trader: " + m_Trader);
-		#endif
+		
+		CF_Log.Debug(ToString() + "::LoadTraderHost - m_Trader: " + m_Trader);
+
 		if (!m_TraderZone)
 		{
-			Error(ToString() + "::LoadTraderHost - ERROR: Trader is not within a trader zone: " + m_TraderEntity + " " + m_TraderEntity.GetPosition());
+			CF_Log.Error(ToString() + "::LoadTraderHost - ERROR: Trader is not within a trader zone: " + m_TraderEntity + " " + m_TraderEntity.GetPosition());
 			return;
 		}
 
-		EXPrint(ToString() + "::LoadTraderHost - trader zone: " + m_TraderZone.m_FileName);
+		CF_Log.Debug(ToString() + "::LoadTraderHost - trader zone: " + m_TraderZone.m_FileName);
+
 		UpdateTraderZone();
 	}
 	
@@ -487,28 +504,30 @@ class ExpansionTraderObjectBase
 	// ------------------------------------------------------------
 	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionMarketVehicleSpawnType spawnType = 0, out ExpansionMarketResult result = ExpansionMarketResult.Success, out Object blockingObject = NULL, int amountNeeded = 1)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "HasVehicleSpawnPosition");
+#endif
+
 		//array<vector> positions;
 		array<ref ExpansionMarketSpawnPosition> positions;
 
-		if (GetGame().IsKindOf(className, "ExpansionBoatScript") || GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+		string vehicleClass = GetGame().ConfigGetTextOut("CfgVehicles " + className + " vehicleClass");
+
+		switch (vehicleClass)
 		{
-			positions = GetExpansionSettings().GetMarket().WaterSpawnPositions;
-			spawnType = ExpansionMarketVehicleSpawnType.WATER;
-		} 
-		else if (GetGame().IsKindOf(className, "ExpansionHelicopterScript") || GetGame().IsKindOf(className, "ExpansionVehicleHelicopterBase"))
-		{
-			positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
-			spawnType = ExpansionMarketVehicleSpawnType.AIR;
-		} 
-		else if (GetGame().IsKindOf(className, "ExpansionVehiclePlaneBase") || GetGame().IsKindOf(className, "ExpansionVehiclePlaneBase"))
-		{
-			positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
-			spawnType = ExpansionMarketVehicleSpawnType.AIR;
-		} 
-		else
-		{
-			positions = GetExpansionSettings().GetMarket().LandSpawnPositions;
-			spawnType = ExpansionMarketVehicleSpawnType.LAND;
+			case "Expansion_Boat":
+			case "Expansion_Ship":
+				positions = GetExpansionSettings().GetMarket().WaterSpawnPositions;
+				spawnType = ExpansionMarketVehicleSpawnType.WATER;
+				break;
+			case "Expansion_Helicopter":
+			case "Expansion_Plane":
+				positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
+				spawnType = ExpansionMarketVehicleSpawnType.AIR;
+				break;
+			default:
+				positions = GetExpansionSettings().GetMarket().LandSpawnPositions;
+				spawnType = ExpansionMarketVehicleSpawnType.LAND;
 		}
 
 		if (!positions || !positions.Count())
@@ -540,15 +559,12 @@ class ExpansionTraderObjectBase
 				continue;
 			}
 			
-			#ifdef EXPANSIONEXPRINT
-			EXPrint(ToString() + "::HasVehicleSpawnPosition - found candidate " + position.Position + " (distance " + distance + ") for " + className);
-			#endif
+			CF_Log.Debug(ToString() + "::HasVehicleSpawnPosition - found candidate " + position.Position + " (distance " + distance + ") for " + className);
+
 			foundPositions.Insert(position, distance);
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::HasVehicleSpawnPosition - found " + foundPositions.Count() + " candidate spawn positions for " + className + ", needed " + amountNeeded);
-		#endif
+		CF_Log.Debug(ToString() + "::HasVehicleSpawnPosition - found " + foundPositions.Count() + " candidate spawn positions for " + className + ", needed " + amountNeeded);
 		
 		if (foundPositions.Count() >= amountNeeded)
 		{
@@ -565,9 +581,7 @@ class ExpansionTraderObjectBase
 				}
 			}
 			
-			#ifdef EXPANSIONEXPRINT
-			EXPrint(ToString() + "::HasVehicleSpawnPosition - selected " + spawnPosition + " (distance " + closestDistance + ") for " + className);
-			#endif
+			CF_Log.Debug(ToString() + "::HasVehicleSpawnPosition - selected " + spawnPosition + " (distance " + closestDistance + ") for " + className);
 			
 			result = ExpansionMarketResult.Success;
 
@@ -587,6 +601,10 @@ class ExpansionTraderObjectBase
 	// ------------------------------------------------------------	
 	private bool VehicleSpawnPositionFree(ExpansionMarketSpawnPosition position, string className, out Object blockingObject = NULL)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "VehicleSpawnPositionFree");
+#endif
+
 		vector size;
 		if (!s_VehicleSizes.Find(className, size))
 		{
@@ -626,13 +644,20 @@ class ExpansionTraderObjectBase
 			}
 			s_VehicleSizes.Insert(className, size);
 		}
+
 		blockingObject = ExpansionGetObjectBlockingPosition(position, size);
-		EXPrint("VehicleSpawnPositionFree " + className + " size " + size + " pos " + position.Position + " ori " + position.Orientation + " blocking " + blockingObject);
+
+		CF_Log.Debug("VehicleSpawnPositionFree " + className + " size " + size + " pos " + position.Position + " ori " + position.Orientation + " blocking " + blockingObject);
+		
 		return blockingObject == NULL;
 	}
 	
 	Object ExpansionGetObjectBlockingPosition(ExpansionMarketSpawnPosition position, vector size)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "ExpansionGetObjectBlockingPosition");
+#endif
+
 		array<Object> excluded_objects = new array<Object>;
 		array<Object> objects = new array<Object>;
 		
@@ -674,9 +699,10 @@ class ExpansionTraderObjectBase
 
 	void SetTraderEntity(EntityAI entity)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::SetTraderEntity " + entity + " " + entity.GetType());
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.MARKET, this, "SetTraderEntity").Add(entity);
+#endif
+
 		m_TraderEntity = entity;
 	}
 
@@ -741,15 +767,17 @@ class ExpansionTraderStaticBase extends BuildingSuper
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		m_TraderObject.OnRPC(sender, rpc_type, ctx);
+		if (m_TraderObject)
+			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "SetTraderObject");
+#endif
+
 		m_TraderObject = traderObject;
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::SetTraderObject " + m_TraderObject + " " + GetPosition());
-		#endif
 	}
 
 	ExpansionTraderObjectBase GetTraderObject()
@@ -760,6 +788,11 @@ class ExpansionTraderStaticBase extends BuildingSuper
 	void LoadTrader(string fileName = "")
 	{
 		SetTraderObject(new ExpansionTraderObjectBase(this, fileName));
+	}
+
+	bool Expansion_IsTrader()
+	{
+		return true;
 	}
 }
 
@@ -818,15 +851,17 @@ class ExpansionTraderZombieBase extends ZombieBase
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		m_TraderObject.OnRPC(sender, rpc_type, ctx);
+		if (m_TraderObject)
+			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "SetTraderObject");
+#endif
+
 		m_TraderObject = traderObject;
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::SetTraderObject " + m_TraderObject + " " + GetPosition());
-		#endif
 	}
 
 	ExpansionTraderObjectBase GetTraderObject()
@@ -852,6 +887,11 @@ class ExpansionTraderZombieBase extends ZombieBase
 
 		m_SafeZone = false;
 	}
+
+	bool Expansion_IsTrader()
+	{
+		return true;
+	}
 }
 
 #ifdef ENFUSION_AI_PROJECT
@@ -872,6 +912,10 @@ class ExpansionTraderAIBase extends eAIBase
 			SetAllowDamage(false);
 		}
 
+#ifdef EXPANSIONMODAI
+		SetMovementSpeedLimit(1.0);  //! Always walk
+#endif
+
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
 	}
@@ -883,15 +927,17 @@ class ExpansionTraderAIBase extends eAIBase
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		m_TraderObject.OnRPC(sender, rpc_type, ctx);
+		if (m_TraderObject)
+			m_TraderObject.OnRPC(sender, rpc_type, ctx);
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "SetTraderObject");
+#endif
+
 		m_TraderObject = traderObject;
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::SetTraderObject " + m_TraderObject + " " + GetPosition());
-		#endif
 	}
 
 	ExpansionTraderObjectBase GetTraderObject()
@@ -904,12 +950,28 @@ class ExpansionTraderAIBase extends eAIBase
 		SetTraderObject(new ExpansionTraderObjectBase(this, fileName));
 	}
 
+#ifdef EXPANSIONMODAI
+	override bool PlayerIsEnemy(EntityAI other)
+#else
 	override bool PlayerIsEnemy(PlayerBase other)
+#endif
 	{
 		if ( !IsInSafeZone() )
 			return false;
 
 		return super.PlayerIsEnemy(other);
+	}
+
+#ifdef EXPANSIONMODAI
+	override bool IsTrading()
+	{
+		return m_TraderObject && m_TraderObject.m_TradingPlayers.Count() > 0;
+	}
+#endif
+
+	override bool Expansion_IsTrader()
+	{
+		return true;
 	}
 }
 

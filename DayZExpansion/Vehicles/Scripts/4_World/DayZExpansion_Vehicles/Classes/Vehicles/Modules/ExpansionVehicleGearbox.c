@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -51,6 +51,7 @@ static ExpansionVehicleGearbox Expansion_CreateGearbox(EntityAI vehicle, string 
 class ExpansionVehicleGearbox : ExpansionVehicleRotational
 {
 	int m_GearIndex;
+	ExpansionVehicleEngineBase m_Engine;
 
 	float m_TimeToUncoupleClutch;
 	float m_TimeToCoupleClutch;
@@ -60,7 +61,11 @@ class ExpansionVehicleGearbox : ExpansionVehicleRotational
 	ref array<string> m_Gears = new array<string>();
 
 	int m_Gear;
+
 	float m_Clutch;
+	float m_ClutchTorque;
+
+	float m_DeltaVelocity;
 
 	void ExpansionVehicleGearbox(EntityAI pVehicle, string rootPath)
 	{
@@ -82,7 +87,7 @@ class ExpansionVehicleGearbox : ExpansionVehicleRotational
 		m_Controller.m_Gear[m_GearIndex] = m_Gear;
 		m_Controller.m_Ratio[m_GearIndex] = m_Ratio;
 		m_Controller.m_GearCount[m_GearIndex] = Count();
-
+		
 		super.PreSimulate(pState);
 	}
 
@@ -92,7 +97,9 @@ class ExpansionVehicleGearbox : ExpansionVehicleRotational
 		super.CF_OnDebugUpdate(instance, type);
 
 		instance.Add("Clutch", m_Clutch);
+		instance.Add("Clutch Torque", m_ClutchTorque);
 		instance.Add("Gear", m_Gear);
+		instance.Add("Delta Velocity", m_DeltaVelocity);
 
 		return true;
 	}

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -37,6 +37,14 @@ class ExpansionVehicleModuleEvent
 		}
 
 		current.m_Next = newEvent;
+	}
+
+	void AddStart(ExpansionVehicleModule module)
+	{
+		ExpansionVehicleModuleEvent newEvent = new ExpansionVehicleModuleEvent(module);
+
+		newEvent.m_Next = m_Next;
+		m_Next = newEvent;
 	}
 
 	void TEMP_DeferredInit()
@@ -90,6 +98,17 @@ class ExpansionVehicleModuleEvent
 		{
 			ExpansionVehicleModule module = evt.m_Value;
 			module.Simulate(pState);
+			evt = evt.m_Next;
+		}
+	}
+
+	void PostSimulate(ExpansionPhysicsState pState)
+	{
+		ExpansionVehicleModuleEvent evt = this.m_Next;
+		while (evt)
+		{
+			ExpansionVehicleModule module = evt.m_Value;
+			module.PostSimulate(pState);
 			evt = evt.m_Next;
 		}
 	}

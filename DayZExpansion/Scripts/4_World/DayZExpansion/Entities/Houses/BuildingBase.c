@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -28,18 +28,15 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	void BuildingBase()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::BuildingBase - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "BuildingBase");
+#endif
 		
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000, false);
 		
 		if( GetExpansionSettings().GetGeneral().DisableShootToUnlock )
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetGodMode, 8000, false);
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::BuildingBase - End");
-		#endif
 	}
 		
 	// ------------------------------------------------------------
@@ -47,17 +44,13 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	void ~BuildingBase()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::~BuildingBase - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "~BuildingBase");
+#endif
 
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
 		//UnloadInterior();
 		//UnloadIvys();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::~BuildingBase - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -65,9 +58,9 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	bool IsBuildingListed()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::IsBuildingListed - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "IsBuildingListed");
+#endif
 		
 		for ( int x = 0; x < GetExpansionSettings().GetGeneral().Mapping.Interiors.Count(); ++x )
 		{
@@ -78,10 +71,6 @@ modded class BuildingBase
 		}
 
 		return false;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::IsBuildingListed - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -89,9 +78,9 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	void OnSettingsUpdated()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::OnSettingsUpdated - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "OnSettingsUpdated");
+#endif
 		
 		if ( IsMissionHost() )
 		{
@@ -109,10 +98,6 @@ modded class BuildingBase
 					UnloadIvys();
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::OnSettingsUpdated - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -120,9 +105,9 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	void ReloadCustomObjects()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::ReloadCustomObjects - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "ReloadCustomObjects");
+#endif
 		
 		if ( HasInterior() ) {
 			if ( GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors && IsBuildingListed() )
@@ -137,10 +122,6 @@ modded class BuildingBase
 			else
 				UnloadIvys();
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::ReloadCustomObjects - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -245,10 +226,6 @@ modded class BuildingBase
 				return NULL;
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("BuildingBase::SpawnInteriorObject spawning " + type + " for " + GetType() + " at " + position);
-		#endif
-
 		// don't use CreateObject, it does a bunch of unnecessary stuff
 		int flags = ECE_CREATEPHYSICS;
 		if ( IsMissionClient() )
@@ -303,15 +280,14 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	void LoadInterior()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadInterior");
+#endif
+		
 		if (m_InteriorsLoaded) {
 			return;
 		}
-		
-		//Print("Loading Interior");
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("BuildingBase::LoadInterior - Start");
-		#endif
+				
 
 		if ( !m_InteriorModule ) {
 			Class.CastTo( m_InteriorModule, GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
@@ -319,16 +295,11 @@ modded class BuildingBase
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
 		
-		thread SpawnInterior();
+		SpawnInterior();
 		m_InteriorsLoaded = true;
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
 		m_InteriorModule.SaveCachedCollisions();
-		
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("BuildingBase::LoadInterior - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -336,34 +307,34 @@ modded class BuildingBase
 	// ------------------------------------------------------------	
 	void LoadIvys()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadIvys");
+#endif
+		
 		if (m_IvysLoaded || !IsMissionClient()) {
 			return;
 		}
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("BuildingBase::LoadIvys - Start");
-		#endif
-		
+				
 		if (!m_InteriorModule) {
 			Class.CastTo(m_InteriorModule, GetModuleManager().GetModule(ExpansionInteriorBuildingModule));
 		}
 		
 		if (m_InteriorModule.ShouldIvySpawn(GetPosition())) {
-			thread SpawnIvys();
+			SpawnIvys();
 		}
 		
 		m_IvysLoaded = true;
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("BuildingBase::LoadIvys - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// BuildingBase UnloadInterior
 	// ------------------------------------------------------------		
 	void UnloadInterior()
-	{		
+	{	
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "UnloadInterior");
+#endif
+		
 		if (!m_InteriorsLoaded) {
 			return;
 		}		
@@ -388,6 +359,10 @@ modded class BuildingBase
 	// ------------------------------------------------------------		
 	void UnloadIvys()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "UnloadIvys");
+#endif
+		
 		if (!m_IvysLoaded) {
 			return;
 		}
@@ -422,84 +397,18 @@ modded class BuildingBase
 
 	protected void SpawnInterior();
 	protected void SpawnIvys();
-	
-	// ------------------------------------------------------------
-	// BuildingBase Explode
-	// ------------------------------------------------------------
- 	override void Explode(int damageType, string ammoType = "")
-	{
-		super.Explode(damageType, ammoType);
-
-		ExpansionExplode( this, ammoType );
-	}
-
-	static void ExpansionExplode( EntityAI entity, string ammoType )
-	{
-		if ( !IsMissionHost() )
-			return;
-
-		float explosionDamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
-		float blastDropoff = 1;
-		float blastDistance;
-		float blastRange = 5;
-		float blastDropoffRange = 2.5;
-		bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
-
-		for ( int x = 0; x < GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist.Count(); x++ )
-		{
-			if ( entity.IsKindOf( GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist[x] ) )
-			{
-				dealDamage = true;
-				break;
-			}
-		}
-
-		if ( !dealDamage )
-			return;
-
-		//(point - min ) / (max - min ) 
-		if (ammoType == "")
-			ammoType = entity.ConfigGetString("ammoType");
-		
-
-		string dmgPath = "CfgAmmo" + " " + ammoType + " " + "DamageApplied" + " " + "Health" + " " + "Damage";
-		int explosionDamage = GetGame().ConfigGetInt(dmgPath);
-		
-		array<Object> nearest_objects = new array<Object>;
-		array<CargoBase> proxy_cargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D( entity.GetPosition(), blastRange, nearest_objects, proxy_cargos );
-		for ( int i = 0; i < nearest_objects.Count(); i++ )
-		{
-			ItemBase nearest_item = ItemBase.Cast( nearest_objects.Get(i) );
-
-			if ( nearest_item && nearest_item.IsInherited( ExpansionBaseBuilding ) && nearest_item.CanBeDamaged() )
-			{
-				blastDistance = vector.Distance(nearest_item.GetPosition(), entity.GetPosition());
-				if (blastDistance > blastDropoffRange)
-					blastDropoff = (1 - (blastDistance - blastDropoffRange) / (blastRange - blastDropoffRange));
-				else 
-					blastDropoff = 1;
-				
-				float health = nearest_item.m_CurrentHealth["GlobalHealth"];
-				nearest_item.AddHealth( "GlobalHealth", "Health", -( explosionDamage * blastDropoff * explosionDamageMultiplier ) ); 
-				nearest_item.m_CurrentHealth["GlobalHealth"] = nearest_item.GetHealth();
-				nearest_item.RaidLog( entity, "GlobalHealth", health, explosionDamage * blastDropoff, explosionDamageMultiplier );
-			}
-		}
-	}
 
 	void SetGodMode()
 	{
 		this.SetAllowDamage(false);
 	}
+
 	// ------------------------------------------------------------
 	// BuildingBase RemoveInterior
 	// ------------------------------------------------------------
-	/*void RemoveInterior()
+	/*
+	void RemoveInterior()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("BuildingBase::RemoveInterior - Start GetPosition() : " + GetPosition());
-		#endif
 		if ( GetGame() )
 		{
 			for ( int i = 0; i < m_InteriorObjects.Count(); ++i )
@@ -509,8 +418,7 @@ modded class BuildingBase
 			
 			BuildingBaseSpawned.AllSpawned.RemoveItem(GetPosition());
 		}
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("BuildingBase::RemoveInterior - End GetPosition() : " + GetPosition());
-		#endif
-	}*/
-}
+	}
+	*/
+};
+

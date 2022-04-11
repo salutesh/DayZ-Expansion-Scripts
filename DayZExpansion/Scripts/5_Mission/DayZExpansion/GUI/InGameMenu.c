@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -60,10 +60,10 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	override Widget Init()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::Init - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Init");
+#endif
+
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_ingamemenu.layout");
 		m_RespawnButton 			= layoutRoot.FindAnyWidget( "respawn_button" );
 		m_RestartDeadRandomButton	= layoutRoot.FindAnyWidget( "respawn_button_random" );
@@ -155,10 +155,6 @@ modded class InGameMenu
 		
 		Refresh();
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::Init - End");
-		#endif
-
 		return layoutRoot;
 	}
 	
@@ -167,9 +163,10 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	override protected void SetGameVersion()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::SetGameVersion - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "SetGameVersion");
+#endif
+
 		TextWidget version_widget = TextWidget.Cast( layoutRoot.FindAnyWidget("version") );
 		string version;
 		GetGame().GetVersion( version );
@@ -184,10 +181,6 @@ modded class InGameMenu
 		{
 			version_widget.SetText( "DayZ SA #main_menu_version" + " " + version );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::SetGameVersion - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -213,6 +206,7 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	void GetValuesFromMonitor()
 	{
+#ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitor;
 		if ( !Class.CastTo( monitor, GetModuleManager().GetModule(ExpansionMonitorModule)))
 			return;
@@ -227,6 +221,7 @@ modded class InGameMenu
 		m_InfectedKilled = player_stats.m_InfectedKilled;
 		m_AnimalsKilled = player_stats.m_AnimalsKilled;
 		m_LongestShot = player_stats.m_LongestShot;
+#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -257,21 +252,14 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	void DeadScreenShow(float timeslice)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.UI, this, "DeadScreenShow").Add(timeslice);
+#endif
+
 		float new_deadscreen_val;
-		if ( m_DeadScreenImageFadeInLevel != 1 )
-		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("InGameMenu::DeadScreenShow - 1");
-			#endif
+		if ( m_DeadScreenImageFadeInLevel == 1 ) return;
 
 			m_DeadScreenRoot.Show( true );
-			
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("InGameMenu::DeadScreenShow - 2");
-			#endif
 			
 			new_deadscreen_val = m_DeadScreenFadeInLevel + m_DeadScreenFadeInIncrement * timeslice;
 			if ( new_deadscreen_val < 1 )
@@ -279,29 +267,15 @@ modded class InGameMenu
 			else
 				m_DeadScreenFadeInLevel = 1;
 			
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("InGameMenu::DeadScreenShow - 3");
-			#endif
-			
 			if ( m_DeadScreenFadeInLevel > 0.5 )
 			{
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("InGameMenu::DeadScreenShow - 4");
-				#endif
 				float new_logo_val = m_DeadScreenImageFadeInLevel + m_DeadScreenImageFadeInIncrement * timeslice;
 				if ( new_deadscreen_val < 1 )
 					m_DeadScreenImageFadeInLevel = new_logo_val;
 				else
 					m_DeadScreenImageFadeInLevel = 1;
-				
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("InGameMenu::DeadScreenShow - 5");
-				#endif
 			}
 			
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("InGameMenu::DeadScreenShow - 5");
-			#endif
 			
 			m_DeadScreenRoot.SetAlpha( m_DeadScreenFadeInLevel );
 			m_DeadScreen.SetAlpha( m_DeadScreenFadeInLevel );
@@ -312,14 +286,6 @@ modded class InGameMenu
 			
 			if(m_ExpansionNewsfeed)
 				m_ExpansionNewsfeed.ShowNewsfeed(false);
-			
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("InGameMenu::DeadScreenShow - 6");
-			#endif
-		}
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InGameMenu::DeadScreenShow - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -358,5 +324,5 @@ modded class InGameMenu
 		m_DeadSceenStatsPanel.Show( false );
 		m_DeadSceenStatsButtonPanel.Show( true );
 	}
-}
+};
 #endif

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -16,26 +16,18 @@ modded class NotificationSystem
 
 	void NotificationSystem()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::NotificationSystem - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "NotificationSystem");
+#endif
 		
 		m_ExNotifications = new array< ref NotificationRuntimeData >;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::NotificationSystem " + m_Instance);
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::NotificationSystem - End");
-		#endif
 	}
 
 	static void Create_Expansion( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Create_Expansion - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Create_Expansion");
+#endif
 
 		if ( IsMissionHost() )
 		{
@@ -56,10 +48,6 @@ modded class NotificationSystem
 
 			m_Instance.ExpansionCreateNotification( title, text, icon, color, time, sendTo, type, obj );
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Create_Expansion - End");
-		#endif
 	}
 
 	static void Create_Expansion( string title, string text, string icon, int color, float time = 7, PlayerIdentity sendTo = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
@@ -89,13 +77,9 @@ modded class NotificationSystem
 
 	private static void Exec_ExpansionCreateNotification(  StringLocaliser title, StringLocaliser text, string icon, int color, float time, ExpansionNotificationType type = ExpansionNotificationType.TOAST, Object obj = NULL )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_ExpansionCreateNotification - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_ExpansionCreateNotification title.GetText() : " + title.GetText());
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Exec_ExpansionCreateNotification");
+#endif
 		
 		bool joinNotif = false;
 		bool leaveNotif = false;
@@ -114,7 +98,7 @@ modded class NotificationSystem
 			return;
 		
 		bool leaveJoinNotif = joinNotif || leaveNotif;
-		
+
 		NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
 		data.SetColor( color );
 		data.m_LeaveJoinNotif = leaveJoinNotif;
@@ -122,10 +106,6 @@ modded class NotificationSystem
 		data.SetObject( obj );
 		
 		m_Instance.AddNotif( data );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::Exec_ExpansionCreateNotification - End");
-		#endif
 	}
 	
 	#ifdef CF_BUGFIX_REF
@@ -133,9 +113,9 @@ modded class NotificationSystem
 	{
 		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
+#endif
 		
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
@@ -158,10 +138,6 @@ modded class NotificationSystem
 			return;
 
 		Exec_ExpansionCreateNotification( title, text, icon, color, time );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -169,18 +145,14 @@ modded class NotificationSystem
 	// ------------------------------------------------------------
 	override void AddNotif(  NotificationRuntimeData data )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::AddNotif - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");
+#endif
 		
 		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
 
 		m_ExNotifications.Insert( data );
 		m_OnNotificationAdded.Invoke( data );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::AddNotif - End");
-		#endif
 	}
 	#else
 	
@@ -188,9 +160,9 @@ modded class NotificationSystem
 	{
 		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::RPC_CreateNotification - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
+#endif
 		
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
@@ -213,35 +185,28 @@ modded class NotificationSystem
 			return;
 
 		Exec_ExpansionCreateNotification( title, text, icon, color, time );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::RPC_CreateNotification - End");
-		#endif
+
 	}
 
 	override void AddNotif( ref NotificationRuntimeData data )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::AddNotif - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");
+#endif
+
 		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
 
 		m_ExNotifications.Insert( data );
 		m_OnNotificationAdded.Invoke( data );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::AddNotif - End");
-		#endif
 	}
 	#endif
 	
 	static void RPC_ExpansionCreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::RPC_ExpansionCreateNotification - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_ExpansionCreateNotification");
+#endif
+
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
 			return;
@@ -271,17 +236,14 @@ modded class NotificationSystem
 			return;
 
 		Exec_ExpansionCreateNotification( title, text, icon, color, time, type, obj );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("NotificationSystem::RPC_ExpansionCreateNotification - End");
-		#endif
 	}
 
 	override static void Update(float timeslice)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Update - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Update");
+#endif
+
 		
 		if ( m_Instance && IsMissionClient() )
 		{
@@ -300,29 +262,19 @@ modded class NotificationSystem
 				m_Instance.m_OnNotificationRemoved.Invoke( removed );
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::Update - End");
-		#endif
 	}
 
 	override NotificationData GetNotificationData( NotificationType type )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::GetNotificationData - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "GetNotificationData");
+#endif
 		
 		if ( m_DataArray.Contains(type) )
 		{
-			#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::GetNotificationData - Return: " + m_DataArray.Get( type ).ToString() );
-		#endif
 			return m_DataArray.Get( type );
 		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("NotificationSystem::GetNotificationData - Return: null");
-		#endif
 		return null;
 	}
 };

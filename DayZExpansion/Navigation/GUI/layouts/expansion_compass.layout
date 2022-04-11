@@ -1,0 +1,136 @@
+PanelWidgetClass ExpansionCompass {
+ visible 0
+ clipchildren 0
+ ignorepointer 1
+ keepsafezone 1
+ position 0 -0.002
+ size 0.35 32
+ halign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ {
+  PanelWidgetClass CompassBackground {
+   visible 0
+   clipchildren 1
+   ignorepointer 1
+   color 0 0 0 0.549
+   size 1 1
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style EditorPanel
+  }
+  PanelWidgetClass CompassSpacer {
+   ignorepointer 1
+   position 0 0
+   size 1 32
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   {
+    ImageWidgetClass CompassImage {
+     clipchildren 1
+     ignorepointer 1
+     keepsafezone 1
+     color 0.8627 0.8627 0.8627 1
+     position 0 0
+     size 3.15 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     imageTexture "{3436B1815E2BCB0A}DayZExpansion/GUI/textures/compass.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 0
+     stretch 1
+     "flip u" 0
+     "flip v" 0
+     filter 1
+    }
+   }
+  }
+  FrameWidgetClass CompassBadgesSpacer {
+   visible 1
+   position 0 0.067
+   size 12 6
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   fixaspect fixwidth
+   {
+    PanelWidgetClass CompassBadgeNotifierDivider {
+     color 0 0 0 0.549
+     position 0 0
+     size 3 6
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+   }
+  }
+  FrameWidgetClass CompassBadgesSpacer0 {
+   visible 1
+   position 0.243 0.065
+   size 12 6
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   fixaspect fixwidth
+   {
+    PanelWidgetClass CompassBadgeNotifierDivider0 {
+     color 0 0 0 0.549
+     position 0 0
+     size 3 6
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+   }
+  }
+  FrameWidgetClass CompassBadgesSpacer1 {
+   visible 1
+   position 0.243 0.065
+   size 12 6
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   fixaspect fixwidth
+   {
+    PanelWidgetClass CompassBadgeNotifierDivider1 {
+     color 0 0 0 0.549
+     position 0 0
+     size 3 6
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     style rover_sim_colorable
+    }
+   }
+  }
+ }
+}

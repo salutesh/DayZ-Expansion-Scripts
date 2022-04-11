@@ -2,6 +2,8 @@ class ExpansionPhysicsState
 {
 	EntityAI m_Entity;
 	float m_DeltaTime;
+	float m_Substep;
+	float m_SubstepTime;
 
 	vector m_Impulse;
 	vector m_ImpulseTorque;
@@ -12,8 +14,7 @@ class ExpansionPhysicsState
 	vector m_LinearAcceleration;   // World Space
 	vector m_LinearAccelerationMS; // Model Space
 
-	vector m_LastLinearVelocity;   // World Space
-	vector m_LastLinearVelocityMS; // Model Space
+	vector m_LastLinearVelocity; // World Space
 
 	vector m_AngularVelocity;	// World Space
 	vector m_AngularVelocityMS; // Model Space
@@ -21,8 +22,7 @@ class ExpansionPhysicsState
 	vector m_AngularAcceleration;	// World Space
 	vector m_AngularAccelerationMS; // Model Space
 
-	vector m_LastAngularVelocity;	// World Space
-	vector m_LastAngularVelocityMS; // Model Space
+	vector m_LastAngularVelocity; // World Space
 
 	vector m_SyncLinearVelocity;	  // World Space
 	vector m_SyncLinearAcceleration;  // World Space
@@ -31,6 +31,8 @@ class ExpansionPhysicsState
 
 	vector m_Transform[4];
 	vector m_TargetTransform[4];
+
+	vector m_TensorWorld[4];
 
 	int m_Time;
 	float m_TimeSince;
@@ -66,8 +68,6 @@ class ExpansionPhysicsState
 	float m_AngularAccelerationY;
 	float m_AngularAccelerationZ;
 
-	float m_ForcePilotSyncTick;
-
 	float m_PositionX;
 	float m_PositionY;
 	float m_PositionZ;
@@ -88,13 +88,12 @@ class ExpansionPhysicsState
 
 	void RegisterSync(string varName)
 	{
-/*
 		m_Entity.RegisterNetSyncVariableInt(varName + ".m_Time");
-*/
+
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityX", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityY", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityZ", 0, 0, 4);
-/*
+
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityX", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityY", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularVelocityZ", 0, 0, 4);
@@ -106,7 +105,13 @@ class ExpansionPhysicsState
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationX", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationY", 0, 0, 4);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_AngularAccelerationZ", 0, 0, 4);
-*/
+	}
+
+	void RegisterSync_CarScript(string varName)
+	{
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityX", 0, 0, 4);
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityY", 0, 0, 4);
+		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_LinearVelocityZ", 0, 0, 4);
 
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_PositionX", 0, 0, 2);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_PositionY", 0, 0, 2);
@@ -135,67 +140,30 @@ class ExpansionPhysicsState
 		m_IsSync = true;
 	}
 
-	void Derive(inout ExpansionPhysicsState derived, float dt)
-	{
-		dt *= m_DeltaTime;
-
-		derived.m_LastLinearVelocity = m_LinearVelocity;
-		derived.m_LastAngularVelocity = m_AngularVelocity;
-
-		derived.m_LinearVelocity = derived.m_LinearVelocity + (derived.m_LinearAcceleration * dt);
-		derived.m_AngularVelocity = derived.m_AngularVelocity + (derived.m_AngularAcceleration * dt);
-
-		vector futureAngularVelocity = derived.m_AngularVelocity * dt;
-
-		derived.m_Transform[0][0] = 0.0;
-		derived.m_Transform[1][1] = 0.0;
-		derived.m_Transform[2][2] = 0.0;
-
-		derived.m_Transform[0][1] = -futureAngularVelocity[2];
-		derived.m_Transform[1][0] = futureAngularVelocity[2];
-		derived.m_Transform[2][0] = -futureAngularVelocity[1];
-		derived.m_Transform[0][2] = futureAngularVelocity[1];
-		derived.m_Transform[1][2] = -futureAngularVelocity[0];
-		derived.m_Transform[2][1] = futureAngularVelocity[0];
-
-		Math3D.MatrixInvMultiply3(derived.m_Transform, m_Transform, derived.m_Transform);
-
-		derived.m_Transform[0] = m_Transform[0] + derived.m_Transform[0];
-		derived.m_Transform[1] = m_Transform[1] + derived.m_Transform[1];
-		derived.m_Transform[2] = m_Transform[2] + derived.m_Transform[2];
-
-		derived.m_Transform[0].Normalize();
-		derived.m_Transform[1].Normalize();
-		derived.m_Transform[2].Normalize();
-
-		derived.m_Transform[3] = m_Transform[3] + (derived.m_LinearVelocity * dt);
-	}
-
 	void CreateDynamic()
 	{
 		int physLayer = PhxInteractionLayers.VEHICLE;
 		int interactLayer = PhxInteractionLayers.VEHICLE | PhxInteractionLayers.VEHICLE_NOTERRAIN;
-		
+
 		m_Entity.CreateDynamicPhysics(physLayer);
 
 		vector bbox[2];
 		float radius = m_Entity.ClippingInfo(bbox);
 
-		//!breaks vehicles at high speed
 		m_Entity.SetDynamicPhysicsLifeTime(-1);
 
-		dBodyDynamic(m_Entity, true);
+		//dBodyDynamic(m_Entity, true);
 		dBodyActive(m_Entity, ActiveState.ALWAYS_ACTIVE);
 		dBodySetInteractionLayer(m_Entity, interactLayer);
 		dBodyEnableGravity(m_Entity, false);
 
-		//EnableDynamicCCD( true );
+		//m_Entity.EnableDynamicCCD( true );
 		dBodyEnableCCD(m_Entity, radius, radius * 0.45);
 
 		dBodySetSleepingTreshold(m_Entity, 0.0, 0.0);
 		dBodySetDamping(m_Entity, 0, 0);
 
-		PreSimulate(m_DeltaTime);
+		SetupSimulation(m_DeltaTime);
 
 		SetVelocity(m_Entity, m_LinearVelocity);
 		dBodySetAngularVelocity(m_Entity, m_AngularVelocity);
@@ -205,7 +173,22 @@ class ExpansionPhysicsState
 			item.EnableCollisionsWithCharacter(false);
 	}
 
-	void OnVariablesSynchronized()
+	void OnVariablesSynchronized(bool isPhysHost)
+	{
+		m_TimeSince = (m_Time - m_Entity.GetSimulationTimeStamp()) / 1000.0;
+		if (m_TimeSince < 0)
+			m_TimeSince = 0;
+
+		//m_LastLinearVelocity = m_LinearVelocity;
+		m_SyncLinearVelocity = Vector(m_LinearVelocityX, m_LinearVelocityY, m_LinearVelocityZ);
+		m_SyncLinearAcceleration = Vector(m_LinearAccelerationX, m_LinearAccelerationY, m_LinearAccelerationZ);
+
+		//m_LastAngularVelocity = m_AngularVelocity;
+		m_SyncAngularVelocity = Vector(m_AngularVelocityX, m_AngularVelocityY, m_AngularVelocityZ);
+		m_SyncAngularAcceleration = Vector(m_AngularAccelerationX, m_AngularAccelerationY, m_AngularAccelerationZ);
+	}
+
+	void OnVariablesSynchronized_CarScript()
 	{
 		m_TimeSince = (m_Time - m_Entity.GetSimulationTimeStamp()) / 1000.0;
 		if (m_TimeSince < 0)
@@ -216,28 +199,35 @@ class ExpansionPhysicsState
 
 		//m_LastLinearVelocity = m_LinearVelocity;
 		m_SyncLinearVelocity = Vector(m_LinearVelocityX, m_LinearVelocityY, m_LinearVelocityZ);
-/*
-		m_SyncLinearAcceleration = Vector(m_LinearAccelerationX, m_LinearAccelerationY, m_LinearAccelerationZ);
-
-		//m_LastAngularVelocity = m_AngularVelocity;
-		m_SyncAngularVelocity = Vector(m_AngularVelocityX, m_AngularVelocityY, m_AngularVelocityZ);
-		m_SyncAngularAcceleration = Vector(m_AngularAccelerationX, m_AngularAccelerationY, m_AngularAccelerationZ);
-*/
 	}
 
-	void PreSimulate(float pDt)
+	void SetupSimulation(float pDt)
 	{
-		m_DeltaTime = pDt;
-
 		m_Entity.GetTransform(m_Transform);
 
 		m_Mass = dBodyGetMass(m_Entity);
 		m_InvMass = 1.0 / m_Mass;
 		m_Center = dBodyGetCenterOfMass(m_Entity);
+
+		dBodyGetInvInertiaTensorWorld(m_Entity, m_TensorWorld);
+
+		m_LinearVelocity = GetVelocity(m_Entity);
+		m_AngularVelocity = dBodyGetAngularVelocity(m_Entity);
 	}
 
-	void PostSimulate(float pDt, bool isPhysHost, ExpansionVehicleNetworkMode mode, bool isServer, DayZPlayerImplement driver = NULL)
+	void ApplyPhysics(float pDt, vector impulse, vector impulseTorque)
 	{
+		if (dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
+		{
+			SetVelocity(m_Entity, m_LinearVelocity);
+			dBodySetAngularVelocity(m_Entity, m_AngularVelocity);
+		}
+	}
+
+	void ApplyPhysics_CarScript(float pDt, vector impulse, vector impulseTorque, bool isPhysHost)
+	{
+		bool isServer = GetGame().IsServer();
+
 		if (!isServer && isPhysHost)
 		{
 			//! Client - player is driver
@@ -258,11 +248,7 @@ class ExpansionPhysicsState
 
 		if (isServer || !isPhysHost || m_IsSync)
 		{
-			if (dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
-			{
-				dBodyApplyImpulse(m_Entity, m_Impulse);
-				dBodyApplyTorqueImpulse(m_Entity, m_ImpulseTorque);
-			}
+			ApplyPhysics(pDt, impulse, impulseTorque);
 		}
 		else
 		{
@@ -284,28 +270,6 @@ class ExpansionPhysicsState
 			}
 		}
 
-		m_Impulse = vector.Zero;
-		m_ImpulseTorque = vector.Zero;
-
-		if (!isPhysHost)
-			return;
-
-		m_LastLinearVelocity = m_LinearVelocity;
-		m_LinearVelocity = GetVelocity(m_Entity);
-		m_LinearAcceleration = (m_LastLinearVelocity - m_LinearVelocity) * m_DeltaTime;
-
-		m_LastAngularVelocity = m_AngularVelocity;
-		m_AngularVelocity = dBodyGetAngularVelocity(m_Entity);
-		m_AngularAcceleration = (m_LastAngularVelocity - m_AngularVelocity) * m_DeltaTime;
-
-		m_LastLinearVelocityMS = m_LinearVelocityMS;
-		m_LinearVelocityMS = m_LinearVelocity.InvMultiply3(m_Transform);
-		m_LinearAccelerationMS = (m_LastLinearVelocityMS - m_LinearVelocityMS) * m_DeltaTime;
-
-		m_LastAngularVelocityMS = m_AngularVelocityMS;
-		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3(m_Transform);
-		m_AngularAccelerationMS = (m_LastAngularVelocityMS - m_AngularVelocityMS) * m_DeltaTime;
-
 		if (isServer)
 		{
 			m_LinearVelocityX = m_LinearVelocity[0];
@@ -324,26 +288,80 @@ class ExpansionPhysicsState
 			m_OrientationY = ori[1];
 			m_OrientationZ = ori[2];
 		}
+	}
 
-/*
-		if (isServer && mode != ExpansionVehicleNetworkMode.SERVER)
-			return;
-		else if (!isServer && mode == ExpansionVehicleNetworkMode.SERVER)
-			return;
+	void SetupSubstep(float pDt, float pSubstepDT, inout float pTime)
+	{
+		m_Substep = pSubstepDT;
+		m_DeltaTime = pDt * pSubstepDT;
+		m_SubstepTime = pTime;
+		pTime += pSubstepDT;
 
-		float forcePilotSyncIntervalSeconds = GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds;
-		if (!forcePilotSyncIntervalSeconds)
-			return;
+		m_Impulse = vector.Zero;
+		m_ImpulseTorque = vector.Zero;
+	}
 
-		m_ForcePilotSyncTick += pDt;
-		if (m_ForcePilotSyncTick > forcePilotSyncIntervalSeconds)
+	void PostSubtep(inout vector impulse, inout vector impulseTorque)
+	{
+		impulse = impulse + m_Impulse;
+		impulseTorque = impulseTorque + m_ImpulseTorque;
+
+		DBGDrawLineDirectionMS(Vector(0, 0, (m_SubstepTime - 0.5) * 2.0), m_Impulse.Multiply3(m_Transform), ARGB(255, 255, m_Substep * 255, 255));
+
+		m_LastLinearVelocity = m_LinearVelocity;
+		m_LinearAcceleration = m_Impulse * m_InvMass;
+		m_LinearVelocity = m_LinearVelocity + m_LinearAcceleration;
+
+		m_LastAngularVelocity = m_AngularVelocity;
+		m_AngularAcceleration = m_ImpulseTorque.InvMultiply3(m_TensorWorld);
+		m_AngularVelocity = m_AngularVelocity + m_AngularAcceleration;
+
+		m_LinearVelocityMS = m_LinearVelocity.InvMultiply3(m_Transform);
+		m_LinearAccelerationMS = m_LinearAcceleration.InvMultiply3(m_Transform);
+
+		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3(m_Transform);
+		m_AngularAccelerationMS = m_AngularAcceleration.InvMultiply3(m_Transform);
+
+		vector mat[3];
+		mat[0] = m_Transform[0];
+		mat[1] = m_Transform[1];
+		mat[2] = m_Transform[2];
+
+		m_Transform[0][0] = 0.0;
+		m_Transform[1][1] = 0.0;
+		m_Transform[2][2] = 0.0;
+
+		m_Transform[0][1] = -m_AngularAcceleration[2];
+		m_Transform[1][0] = m_AngularAcceleration[2];
+		m_Transform[2][0] = -m_AngularAcceleration[1];
+		m_Transform[0][2] = m_AngularAcceleration[1];
+		m_Transform[1][2] = -m_AngularAcceleration[0];
+		m_Transform[2][1] = m_AngularAcceleration[0];
+
+		Math3D.MatrixInvMultiply3(m_Transform, m_Transform, m_Transform);
+
+		m_Transform[0] = mat[0] + m_Transform[0];
+		m_Transform[1] = mat[1] + m_Transform[1];
+		m_Transform[2] = mat[2] + m_Transform[2];
+
+		m_Transform[0].Normalize();
+		m_Transform[1].Normalize();
+		m_Transform[2].Normalize();
+
+		m_Transform[3] = m_Transform[3] + m_LinearAcceleration;
+
+		m_Impulse = vector.Zero;
+		m_ImpulseTorque = vector.Zero;
+	}
+
+	void SendData(ExpansionVehicleNetworkMode mode, bool isServer)
+	{
+		// Only Client sync mode will attempt to overwrite the server values
+		// Server will still perform the simulation for moments when the client desyncs
+		// When the client resyncs, the client will force the vehicle to a certain position
+		// The client will transmit all contact events to the server
+		if (!isServer && mode == ExpansionVehicleNetworkMode.CLIENT)
 		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint(ToString() + "::PostSimulate - ExpansionVehicleRPC.ClientSync");
-			#endif
-
-			m_ForcePilotSyncTick = 0;
-
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write(m_Entity.GetSimulationTimeStamp());
 			rpc.Write(m_Transform[3]);
@@ -352,17 +370,26 @@ class ExpansionPhysicsState
 			rpc.Write(m_AngularVelocity);
 			rpc.Write(m_LinearAcceleration);
 			rpc.Write(m_AngularAcceleration);
-			if ( isServer )
-			{
-				if (driver && driver.GetIdentity())
-					rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, driver.GetIdentity());
-			}
-			else
-			{
-				rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, NULL);
-			}
+			rpc.Send(m_Entity, ExpansionVehicleRPC.ClientSync, false, NULL);
 		}
-*/
+		else if (isServer)
+		{
+			m_Time = m_Entity.GetSimulationTimeStamp();
+
+			m_LinearVelocityX = m_LinearVelocity[0];
+			m_LinearVelocityY = m_LinearVelocity[1];
+			m_LinearVelocityZ = m_LinearVelocity[2];
+			m_AngularVelocityX = m_AngularVelocity[0];
+			m_AngularVelocityY = m_AngularVelocity[1];
+			m_AngularVelocityZ = m_AngularVelocity[2];
+
+			m_LinearAccelerationX = m_LinearAcceleration[0];
+			m_LinearAccelerationY = m_LinearAcceleration[1];
+			m_LinearAccelerationZ = m_LinearAcceleration[2];
+			m_AngularAccelerationX = m_AngularAcceleration[0];
+			m_AngularAccelerationY = m_AngularAcceleration[1];
+			m_AngularAccelerationZ = m_AngularAcceleration[2];
+		}
 	}
 
 	void OnRPC(ParamsReadContext ctx)
@@ -370,19 +397,8 @@ class ExpansionPhysicsState
 		int time;
 		ctx.Read(time);
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::OnRPC - time " + time);
-		#endif
-
 		// check if this is an old state and if so, remove it
 		if (m_Time > time)
-			return;
-
-		CarScript car;
-		if (Class.CastTo(car, m_Entity) && (car.Expansion_IsTowing() || car.Expansion_IsBeingTowed()))
-			return;
-
-		if (time - m_Time <= GetExpansionSettings().GetVehicle().ForcePilotSyncIntervalSeconds * 1000)
 			return;
 
 		m_Time = time;
@@ -399,21 +415,11 @@ class ExpansionPhysicsState
 		Math3D.YawPitchRollMatrix(ori, m_TargetTransform);
 		m_TargetTransform[3] = pos;
 
-		m_Entity.SetTransform(m_TargetTransform);
-
-		if (GetGame().IsServer())
-		{
-			Transport transport;
-			if (Class.CastTo(transport, m_Entity))
-				transport.Synchronize();
-		}
-/*
 		ctx.Read(m_SyncLinearVelocity);
 		ctx.Read(m_SyncAngularVelocity);
 
 		ctx.Read(m_SyncLinearAcceleration);
 		ctx.Read(m_SyncAngularAcceleration);
-*/
 	}
 
 	vector GetModelVelocityAt(vector relPos)
@@ -575,7 +581,7 @@ class ExpansionPhysicsState
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 		position = DBGFixDebugPosition(position);
 
-		DBGAddShape(Shape.CreateSphere(color, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, position, size));
+		DBGAddShape(Shape.CreateSphere(color, ShapeFlags.TRANSP | ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, position, size));
 #endif
 	}
 

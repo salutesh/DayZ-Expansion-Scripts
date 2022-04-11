@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -105,7 +105,7 @@ modded class ActionGetOutTransport
 			if (Class.CastTo(car, vehCommand.GetTransport()))
 			{
 				float speed = car.GetSpeedometer();
-				bool keepInVehicleSpaceAfterLeave = s_ExpansionPlayerAttachment && car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
+				bool keepInVehicleSpaceAfterLeave = car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
 
 				auto got_action_data = GetOutTransportActionData.Cast(action_data);
 				got_action_data.m_StartLocation = got_action_data.m_Player.GetPosition();
@@ -122,6 +122,7 @@ modded class ActionGetOutTransport
 
 				if (got_action_data.m_KeepInVehicleSpaceAfterLeave)
 				{
+					action_data.m_Player.Expansion_GettingOutVehicle();
 					vehCommand.GetOutVehicle();
 				}
 				else if (speed <= 8)

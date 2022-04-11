@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -55,6 +55,8 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 	int m_ThrottleIndex;
 
 	bool m_State;
+	
+	float m_RPM;
 
 	float m_RPMIdle;
 	float m_RPMMin;
@@ -66,7 +68,15 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 	float m_ThrottleRange;
 	float m_ThrottleIdle;
 
+	float m_MinTorque;
+	float m_MaxTorque;
+
 	ExpansionVehicleGearbox m_Gearbox;
+
+	string m_DamageZone;
+	float m_Health;
+
+	float m_FuelConsumption;
 
 	void ExpansionVehicleEngineBase(EntityAI vehicle, string rootPath)
 	{
@@ -110,7 +120,14 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 		if (GetGame().ConfigIsExisting(path))
 			m_RPMMax = GetGame().ConfigGetFloat(path);
 
-		m_Position = ExpansionVehiclesStatic.GetCenterSelection(m_Vehicle, "geometryView", "dmgzone_engine");
+		path = rootPath + " damageZone";
+		m_DamageZone = "Engine";
+		if (GetGame().ConfigIsExisting(path))
+			m_DamageZone = GetGame().ConfigGetTextOut(path);
+
+		m_Position = ExpansionVehiclesStatic.GetCenterSelection(m_Vehicle, "geometryView", "dmgzone_" + m_DamageZone);
+
+		m_FuelConsumption = GetGame().ConfigGetFloat("CfgVehicles " + m_Vehicle.GetType() + " fuelConsumption");
 	}
 
 	override void Init()
@@ -121,11 +138,13 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			Init_CarScript();
 		else
 			Init_ExpansionVehicle();
+		
+		AddComponent(m_Gearbox);
 
-		m_Component = m_Gearbox;
-		m_Gearbox.m_Parent = this;
+		m_Gearbox.m_Engine = this;
+		m_GearIndex = m_Gearbox.m_GearIndex;
 
-		m_ThrottleIdle = m_RPMMin / m_RPMMax;
+		m_ThrottleIdle = m_RPMIdle / m_RPMMax;
 		m_ThrottleRange = 1.0 - m_ThrottleIdle;
 	}
 
@@ -141,7 +160,6 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			ExpansionVehicleGearbox gBox = new ExpansionVehicleGearbox(m_Vehicle, "");
 			vehicle.AddModule(gBox);
 			m_Gearbox = gBox;
-			m_GearIndex = gBox.m_GearIndex;
 		}
 	}
 
@@ -157,31 +175,21 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			ExpansionVehicleGearbox gBox = new ExpansionVehicleGearbox(m_Vehicle, "");
 			vehicle.AddModule(gBox);
 			m_Gearbox = gBox;
-			m_GearIndex = gBox.m_GearIndex;
 		}
 	}
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
 		m_Torque = 0;
-
+		m_MinTorque = CalculateMinTorque();
+		
 		m_Throttle = ((m_Controller.m_Throttle[m_ThrottleIndex] * m_ThrottleRange) + m_ThrottleIdle) * m_Controller.m_State[m_EngineIndex];
 		m_Throttle = Math.Clamp(m_Throttle, 0, 1);
-
-		float minTorque = -FromRPM(m_RPM);
-
-		if (m_Throttle > 0 && m_RPM < m_RPMMax)
-		{
-			m_Torque = (CalculateTorque(pState) - minTorque) * m_Throttle;
-		}
-
-		m_Torque += minTorque;
 
 		// apply a starting torque
 		if (m_Controller.m_State[m_EngineIndex] && m_State != m_Controller.m_State[m_EngineIndex])
 		{
-			m_Torque += FromRPM(m_RPMIdle);
-
+			m_Torque = 50.0;
 			if (m_RPM >= m_RPMIdle)
 			{
 				m_State = true;
@@ -191,28 +199,46 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 		{
 			m_State = false;
 		}
-
-		m_Torque -= m_Gearbox.m_Clutch * m_Gearbox.m_MaxClutchTorque;
+		else if (m_State)
+		{
+			m_MaxTorque = CalculateTorque(pState);
+			m_Torque = (m_MaxTorque - m_MinTorque) * m_Throttle;
+		}
+		
+		m_Torque += m_MinTorque;
 
 		if (m_Velocity + m_Torque < 0)
 		{
-			m_Torque = 0;
-			m_Velocity = 0;
+			m_Velocity = 0.0;
+			m_Controller.m_State[m_EngineIndex] = false;
 		}
-
-		super.PreSimulate(pState);
 
 		m_Controller.m_Torque[m_EngineIndex] = m_Torque;
 	}
+	
+	override void ProcessTorque(ExpansionPhysicsState pState)
+	{
+	}
 
+	override void ProcessAcceleration(ExpansionPhysicsState pState)
+	{
+		super.ProcessAcceleration(pState);
+
+		m_RPM = ToRPM(m_Velocity);
+	}
+	
 #ifdef CF_DebugUI
 	override bool CF_OnDebugUpdate(CF_Debug instance, CF_DebugUI_Type type)
 	{
 		super.CF_OnDebugUpdate(instance, type);
 
+		instance.Add("RPM", m_RPM);
 		instance.Add("Throttle", m_Throttle);
-		instance.Add("ThrottleRange", m_ThrottleRange);
-		instance.Add("ThrottleIdle", m_ThrottleIdle);
+		instance.Add("Throttle Range", m_ThrottleRange);
+		instance.Add("Throttle Idle", m_ThrottleIdle);
+		instance.Add("Min Torque", m_MinTorque);
+		instance.Add("Max Torque", m_MaxTorque);
+		instance.Add("Engine Torque", (m_MaxTorque * m_Throttle));
 
 		return true;
 	}
@@ -226,5 +252,51 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 	float CalculateTorque(ExpansionPhysicsState pState)
 	{
 		return 0;
+	}
+
+	float CalculateMinTorque()
+	{
+		return -1.125 * m_RPM / 60.0;
+	}
+
+	void ProcessHealth(float pDt, float pFuel, float pCoolant, float pOil, float pBrake, out float pOutHealth, out float pOutFuel)
+	{
+		float dmg;
+
+		m_Health = m_Vehicle.GetHealth01(m_DamageZone, "");
+		pOutHealth += m_Health;
+
+		if (pFuel <= 0.0 || m_Health <= 0.0)
+		{
+			m_Controller.m_State[m_EngineIndex] = false;
+		}
+
+		if (m_RPM >= m_RPMRedline)
+		{
+			if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
+				m_Vehicle.AddHealth(m_DamageZone, "Health", -m_Vehicle.GetMaxHealth(m_DamageZone, "") * pDt);
+
+			dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
+		}
+
+		if (pCoolant >= 0 && pCoolant < 0.5)
+		{
+			dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
+		}
+
+		if (pOil < 1.0)
+		{
+			dmg += Math.Lerp(0.02, 10, 1.0 - pOil);
+		}
+
+		if (dmg != 0.0)
+		{
+			m_Vehicle.AddHealth(m_DamageZone, "Health", -dmg);
+		}
+
+		if (m_RPM >= m_RPMIdle)
+		{
+			pOutFuel += m_FuelConsumption * pDt / 3600.0;
+		}
 	}
 };

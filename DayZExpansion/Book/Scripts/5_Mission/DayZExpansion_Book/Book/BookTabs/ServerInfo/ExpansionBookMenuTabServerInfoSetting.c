@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -74,7 +74,7 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 	{
 		switch (name)
 		{
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODBASEBUILDING
 			//! BaseBuilding
 			case "Expansion.Settings.BaseBuilding.CanCraftVanillaBasebuilding":
 				m_Name = "#STR_EXPANSION_SETTINGS_BB_CANCRAFTVANILLABASEBUILDING";
@@ -110,7 +110,9 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 				m_Name = "#STR_EXPANSION_SETTINGS_BB_PROJECTILEDAMAGEMULTIPLIER";
 				m_Setting = GetExpansionSettings().GetRaid().ProjectileDamageMultiplier.ToString();
 				break;
+			#endif
 
+			#ifdef EXPANSIONMODNAVIGATION
 			//! Map
 			case "Expansion.Settings.Map.NeedGPSItemForKeyBinding":
 				m_Name = "#STR_EXPANSION_SETTINGS_GEN_NEEDGPSITEMFORKEYBINDING";
@@ -120,7 +122,9 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 				m_Name = "#STR_EXPANSION_SETTINGS_GEN_NEEDMAPITEMFORKEYBINDING";
 				m_Setting = BoolToString(GetExpansionSettings().GetMap().NeedMapItemForKeyBinding);
 				break;
+			#endif
 
+			#ifdef EXPANSIONMODGROUPS
 			//! Party
 			case "Expansion.Settings.Party.MaxMembersInParty":
 				m_Name = "#STR_EXPANSION_SETTINGS_P_MAXINPARTY";
@@ -130,7 +134,9 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 				m_Name = "#STR_EXPANSION_SETTINGS_P_USEWHOLEMAPFORINVITELIST";
 				m_Setting = BoolToString(GetExpansionSettings().GetParty().UseWholeMapForInviteList);
 				break;
+			#endif
 
+			#ifdef EXPANSIONMODBASEBUILDING
 			//! Territory
 			case "Expansion.Settings.Territory.TerritorySize":
 				m_Name = "#STR_EXPANSION_SETTINGS_T_TERRITORYSIZE";

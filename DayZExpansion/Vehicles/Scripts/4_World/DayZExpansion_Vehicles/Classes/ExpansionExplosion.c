@@ -3,21 +3,18 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-// ------------------------------------------------------------
-// Expansion ExpansionCreateExplosion
-// ------------------------------------------------------------	
 static void ExpansionCreateExplosion( Object ent, string ammoType, float radius = 5, float healthDiv = 1 )
 {
-	#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionCreateExplosion - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+	auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, "ExpansionCreateExplosion").Add(ent).Add(ammoType).Add(radius).Add(healthDiv);
+#endif
 
 	array<CargoBase> cargos = new array<CargoBase>;
 	array<Object> objects = new array<Object>;
@@ -54,8 +51,4 @@ static void ExpansionCreateExplosion( Object ent, string ammoType, float radius 
 			}
 		}
 	}
-
-	#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionCreateExplosion - End");
-		#endif
-}
+};

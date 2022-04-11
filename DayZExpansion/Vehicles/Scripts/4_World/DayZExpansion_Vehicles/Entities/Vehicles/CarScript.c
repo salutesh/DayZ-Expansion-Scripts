@@ -3,16 +3,19 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-/**@class		CarScript
+CarScript g_Expansion_Car;
+
+/**
+ * @class		CarScript
  * @brief		
- **/
+ */
 modded class CarScript
 {
 	private static ref array<ExpansionVehicleAttachmentSave> m_allAttachments = new array<ExpansionVehicleAttachmentSave>;
@@ -40,9 +43,12 @@ modded class CarScript
 
 	bool m_Expansion_HasPilot;
 
-	// ------------------------------------------------------------
-	//! Constant Values - Set in Constructor, Errors occur if not.
-	// ------------------------------------------------------------
+	ref array<ref ExpansionDoor> m_Doors = new array<ref ExpansionDoor>();
+	ref map<string, ExpansionDoor> m_DoorMap = new map<string, ExpansionDoor>();
+
+	// ------------------------------------------------------------ //
+	// Constant Values - Set in Constructor, Errors occur if not.   //
+	// ------------------------------------------------------------ //
 	protected float m_MaxSpeed; // (km/h)
 	protected float m_MaxSpeedMS; // (m/s)
 
@@ -51,9 +57,9 @@ modded class CarScript
 
 	protected float m_Expansion_Mass;
 
-	// ------------------------------------------------------------
-	//! Member values
-	// ------------------------------------------------------------
+	// ------------------------------------------------------------ //
+	// Member values                                                //
+	// ------------------------------------------------------------ //
 	private int m_ExpansionSaveVersion;
 
 	protected int m_Expansion_MinimumEngine;
@@ -114,7 +120,6 @@ modded class CarScript
 #endif
 
 	protected bool m_IsPhysicsHost;
-	bool m_Expansion_AcceptingAttachment;
 
 	protected float m_BoundingRadius;
 	protected vector m_BoundingBox[2];
@@ -131,7 +136,6 @@ modded class CarScript
 	protected vector m_Orientation;
 	protected vector m_Position;
 
-	protected autoptr TStringArray m_Doors;
 	protected bool m_CanHaveLock;
 
 	private EffectSound m_SoundLock;
@@ -166,17 +170,11 @@ modded class CarScript
 	protected bool m_IsStoreLoaded;
 	protected bool m_IsCECreated;
 
-	float m_Expansion_FuelConsumptionPerTick;
-
-	bool m_Expansion_dBodyIsActive;  //! Used for debugging. PLEASE leave this in here.
-
-	bool m_Expansion_VehicleSync;
+	bool m_Expansion_dBodyIsActive; //! Used for debugging. PLEASE leave this in here.
 
 	void CarScript()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::CarScript - Start");
-#endif
+		g_Expansion_Car = this;
 
 		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE);
 
@@ -203,17 +201,60 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool("m_Expansion_EngineIsOn");
 
-		m_State.RegisterSync("m_State");
+		m_State.RegisterSync_CarScript("m_State");
+
+		//m_DoorJoints.Insert(new ExpansionCarDoorJoint(this, "axis_doors_driver", "doors_driver"));
 
 		m_DebugShapes = new array<Shape>();
 
 		m_Lights = new array<ExpansionPointLight>;
 		m_Particles = new array<Particle>;
 
-		m_Doors = new TStringArray;
-		ConfigGetTextArray("doors", m_Doors);
+		int i;
+		int count;
+		string path;
 
-		m_CanHaveLock = m_Doors.Count() > 0;
+		if (ConfigIsExisting("ExpansionAttachments"))
+		{
+			path = "CfgVehicles " + GetType() + " ExpansionAttachments";
+			count = GetGame().ConfigGetChildrenCount(path);
+
+			m_CanHaveLock = false;
+			for (i = 0; i < count; i++)
+			{
+				string attachmentName;
+				GetGame().ConfigGetChildName(path, i, attachmentName);
+
+				string attachmentPath = path + " " + attachmentName;
+				m_Doors.Insert(new ExpansionDoor(this, attachmentName, attachmentPath));
+
+				m_CanHaveLock |= m_Doors[i].m_IsDoor;
+				
+				string slotName = m_Doors[i].m_InventorySlot;
+				slotName.ToLower();
+
+				m_DoorMap.Insert(slotName, m_Doors[i]);
+			}
+		}
+		
+		if (ConfigIsExisting("doors"))
+		{
+			TStringArray doors();
+			ConfigGetTextArray("doors", doors);
+
+			foreach (auto door : doors)
+			{
+				if (!m_DoorMap.Contains(door))
+				{
+					m_Doors.Insert(new ExpansionDoor(this, door, string.Empty));
+					
+					door.ToLower();
+					m_DoorMap.Insert(door, m_Doors[i]);
+					
+					m_CanHaveLock |= true;
+				}
+			}
+		}
 
 		LoadConstantVariables();
 
@@ -228,7 +269,9 @@ modded class CarScript
 		ExpansionSetupSkins();
 
 		if (IsMissionHost())
+		{
 			SetAllowDamage(CanBeDamaged());
+		}
 
 		m_Expansion_MinimumEngine = 0;
 		if (!IsCar())
@@ -236,13 +279,11 @@ modded class CarScript
 
 		m_Expansion_MaximumEngine = 1;
 
-		int i;
-		int count;
-
-		string path;
-
 		path = "CfgVehicles " + GetType() + " SimulationModule Engines";
 		count = GetGame().ConfigGetChildrenCount(path);
+
+		AddModule(new ExpansionVehicleEngine_CarScript(this, "CfgVehicles " + GetType() + " SimulationModule Engine"));
+		AddModule(new ExpansionVehicleGearbox_CarScript(this, "CfgVehicles " + GetType() + " SimulationModule Gearbox"));
 
 		for (i = 0; i < count; i++)
 		{
@@ -253,18 +294,41 @@ modded class CarScript
 			AddModule(Expansion_CreateEngine(this, enginePath));
 		}
 
-		if (m_Engines.Count() == 0 && (!IsCar() || (IsCar() && IsBoat())))
+		path = "CfgVehicles " + GetType() + " SimulationModule Gearboxes";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
 		{
-			AddModule(Expansion_CreateEngine(this, "CfgVehicles " + GetType() + " SimulationModule Engine"));
+			string gearName;
+			GetGame().ConfigGetChildName(path, i, gearName);
+
+			string gearPath = path + " " + gearName;
+			AddModule(Expansion_CreateGearbox(this, gearPath));
 		}
 
-		if (m_Gearboxes.Count() == 0)
+		path = "CfgVehicles " + GetType() + " SimulationModule Props";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
 		{
-			path = "CfgVehicles " + GetType() + " SimulationModule Gearbox";
-			AddModule(Expansion_CreateGearbox(this, path));
+			string propName;
+			GetGame().ConfigGetChildName(path, i, propName);
+
+			string propPath = path + " " + propName;
+			AddModule(new ExpansionVehicleProp(this, propPath));
 		}
 
-		m_Expansion_FuelConsumptionPerTick = GameConstants.CARS_FLUIDS_TICK * GetGame().ConfigGetFloat("CfgVehicles " + GetType() + " fuelConsumption") / 3600;
+		path = "CfgVehicles " + GetType() + " SimulationModule Buoyancy";
+		count = GetGame().ConfigGetChildrenCount(path);
+
+		for (i = 0; i < count; i++)
+		{
+			string buoyancyName;
+			GetGame().ConfigGetChildName(path, i, buoyancyName);
+
+			string buoyancyPath = path + " " + buoyancyName;
+			AddModule(new ExpansionVehicleBuoyantPoint(this, buoyancyPath));
+		}
 
 		//! This exists so it can be overridden (e.g.) by server owners who don't have access to unbinarized models
 		path = "CfgVehicles " + GetType() + " mass";
@@ -292,18 +356,10 @@ modded class CarScript
 				}
 			}
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::CarScript - End");
-#endif
 	}
 
 	void ~CarScript()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::~CarScript - Start");
-#endif
-
 		int i;
 
 		if (IsMissionClient())
@@ -338,14 +394,14 @@ modded class CarScript
 #endif
 
 		delete m_DebugShapes;
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::~CarScript - End");
-#endif
 	}
 
 	override void AfterStoreLoad()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "LongDeferredInit");
+#endif
+
 		super.AfterStoreLoad();
 
 		m_IsStoreLoaded = true;
@@ -362,6 +418,10 @@ modded class CarScript
 
 	void LongDeferredInit()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "LongDeferredInit");
+#endif
+
 		OnSettingsUpdated();
 	}
 
@@ -431,12 +491,6 @@ modded class CarScript
 	{
 		m_TowingEnabled = GetExpansionSettings().GetVehicle().Towing;
 
-		m_Expansion_VehicleSync = GetExpansionSettings().GetVehicle().VehicleSync;
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( ToString() + "::OnSettingsUpdated - towing enabled " + m_TowingEnabled + " - vehicle sync " + typename.EnumToString( ExpansionVehicleNetworkMode, m_Expansion_VehicleSync ) );
-		#endif
-
 		m_Event_SettingsChanged.SettingsChanged();
 	}
 
@@ -456,6 +510,10 @@ modded class CarScript
 
 	override void SetActions()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SetActions");
+#endif
+
 		super.SetActions();
 
 		AddAction(ExpansionActionPairKey);
@@ -476,26 +534,34 @@ modded class CarScript
 		if (!Class.CastTo(car, tow) && !Class.CastTo(item, tow))
 			return;
 
-		if ((item && item.Expansion_IsBeingTowed()) || (car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
+		if ((car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
 			return;
 
+		m_Expansion_ChildTow = EntityAI.Cast(tow);
+		m_Expansion_IsTowing = true;
+		m_Expansion_TowConnectionIndex = index;
+
+		bool success = false;
+
 		if (car)
-			m_Expansion_IsTowing = car.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), index);
+			success = car.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
 		else if (item)
-			m_Expansion_IsTowing = item.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), index);
+			success = item.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
 
-		if (m_Expansion_IsTowing)
+		if (!success)
 		{
-			Class.CastTo(m_Expansion_ChildTow, tow);
-
-			if (!IsMissionOffline())
-			{
-				m_Expansion_ChildTow.GetNetworkID(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh);
-			}
+			m_Expansion_ChildTow = null;
+			m_Expansion_IsTowing = false;
+			m_Expansion_TowConnectionIndex = -1;
+			return;
 		}
 
-		if (GetGame().IsServer())
+		if (!GetGame().IsClient())
+		{
+			m_Expansion_ChildTow.GetNetworkID(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh);
+
 			SetSynchDirty();
+		}
 	}
 
 	bool Expansion_OnTowCreated(Object parent, vector towPos, int index)
@@ -510,7 +576,6 @@ modded class CarScript
 
 		m_Expansion_TowPointCenter = towPos - connectionPoint;
 
-		m_Expansion_TowConnectionIndex = index;
 		m_Expansion_ParentTow = EntityAI.Cast(parent);
 		m_Expansion_IsBeingTowed = true;
 
@@ -541,12 +606,12 @@ modded class CarScript
 
 		if (Class.CastTo(cs, m_Expansion_ChildTow))
 		{
-			cs.Expansion_OnTowDestroyed();
+			cs.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
 		}
 
 		if (Class.CastTo(evs, m_Expansion_ChildTow))
 		{
-			evs.Expansion_OnTowDestroyed();
+			evs.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
 		}
 
 		m_Expansion_ChildTow = NULL;
@@ -556,13 +621,35 @@ modded class CarScript
 			SetSynchDirty();
 	}
 
-	void Expansion_OnTowDestroyed()
+	void Expansion_OnTowDestroyed(EntityAI parent, int connectionIndex)
 	{
 		m_Expansion_ParentTow = null;
 		m_Expansion_IsBeingTowed = false;
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
+	}
+
+	void Expansion_DBGTowing()
+	{
+		vector transform[4];
+		GetTransform(transform);
+
+		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
+		{
+			vector position;
+			vector size;
+			Expansion_GetTowConnection(i, position, size);
+
+			vector minMax[2];
+
+			minMax[0] = position - size;
+			minMax[1] = position + size;
+
+			DGBDrawBoundingBox(transform, minMax);
+		}
+
+		DBGDrawSphere(ModelToWorld(Expansion_GetTowPosition()), Expansion_GetTowLength());
 	}
 
 	bool Expansion_IsBeingTowed()
@@ -577,11 +664,19 @@ modded class CarScript
 
 	int Expansion_NumberTowConnections()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
+#endif
+
 		return 1;
 	}
 
 	void Expansion_GetTowConnection(int index, out vector position, out vector size)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_GetTowConnection").Add(index);
+#endif
+
 		vector minMax[2];
 		GetCollisionBox(minMax);
 
@@ -615,6 +710,10 @@ modded class CarScript
 
 	vector Expansion_GetTowPosition()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowPosition");
+#endif
+
 		vector minMax[2];
 		GetCollisionBox(minMax);
 		return Vector(0.0, minMax[0][1], minMax[0][2] - dBodyGetCenterOfMass(this)[2]);
@@ -622,11 +721,19 @@ modded class CarScript
 
 	vector Expansion_GetTowDirection()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowDirection");
+#endif
+
 		return -GetDirection();
 	}
 
 	float Expansion_GetTowLength()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowLength");
+#endif
+
 		return 0.4;
 	}
 
@@ -644,6 +751,10 @@ modded class CarScript
 	 */
 	bool Expansion_CanConnectTow(notnull Object other)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_CanConnectTow").Add(other);
+#endif
+
 		ItemBase item;
 		ExpansionVehicleBase evs;
 		CarScript cs;
@@ -866,10 +977,6 @@ modded class CarScript
 
 	void OnCarLocked()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarLocked - Start");
-#endif
-
 		KeyMessage("OnCarLocked");
 
 		if (GetGame().IsServer())
@@ -877,18 +984,10 @@ modded class CarScript
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Send(this, ExpansionVehicleRPC.PlayLockSound, true, NULL);
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarLocked - Stop");
-#endif
 	}
 
 	void OnCarUnlocked()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarUnlocked - Start");
-#endif
-
 		KeyMessage("OnCarUnlocked");
 
 		if (GetGame().IsServer())
@@ -896,18 +995,10 @@ modded class CarScript
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Send(this, ExpansionVehicleRPC.PlayLockSound, true, NULL);
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnCarUnlocked - End");
-#endif
 	}
 
 	void OnHornSoundPlay()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundPlay - Start");
-#endif
-
 		string soundFile = m_HornSoundSetEXT;
 		if (GetGame().GetPlayer().IsCameraInsideVehicle())
 			soundFile = m_HornSoundSetINT;
@@ -915,56 +1006,28 @@ modded class CarScript
 		m_HornSound = SEffectManager.PlaySoundOnObject(soundFile, this);
 		m_HornSound.SetSoundAutodestroy(true);
 		m_HornSound.SetSoundLoop(true);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundPlay - End");
-#endif
 	}
 
 	void OnHornSoundStop()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundStop - Start");
-#endif
-
 		m_HornSound.SetSoundLoop(false);
 		m_HornSound.SoundStop();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnHornSoundStop - End");
-#endif
 	}
 
 	void PlayHorn()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PlayHorn - Start");
-#endif
-
 		m_HornSynchRemote = true;
 		m_HornPlaying = false;
 
 		SetSynchDirty();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::PlayHorn - End");
-#endif
 	}
 
 	void StopHorn()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::StopHorn - Start");
-#endif
-
 		m_HornSynchRemote = false;
 		m_HornPlaying = true;
 
 		SetSynchDirty();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::StopHorn - End");
-#endif
 	}
 
 	bool IsSoundSynchRemote()
@@ -974,10 +1037,6 @@ modded class CarScript
 
 	override void Explode(int damageType, string ammoType = "")
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::Explode - Start");
-#endif
-
 		if (GetGame().IsServer() && !m_Exploded)
 		{
 			if (ammoType == "")
@@ -997,10 +1056,6 @@ modded class CarScript
 				GetGame().RPCSingleParam(this, ERPCs.RPC_EXPLODE_EVENT, new Param2<int, string>(damageType, ammoType), true);
 			}
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::Explode - End");
-#endif
 	}
 
 	/**
@@ -1008,8 +1063,8 @@ modded class CarScript
 	 */
 	void ExpansionOnExplodeServer(int damageType, string ammoType)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeServer - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "ExpansionOnExplodeServer").Add(damageType).Add(ammoType);
 #endif
 
 		m_Exploded = true;
@@ -1022,7 +1077,7 @@ modded class CarScript
 
 		TStringArray dmgZones = new TStringArray;
 		GetDamageZones(dmgZones);
-		foreach (string dmgZone: dmgZones)
+		foreach (string dmgZone : dmgZones)
 		{
 			SetHealth(dmgZone, "", 0);
 		}
@@ -1064,10 +1119,6 @@ modded class CarScript
 		dBodyApplyForce(this, Vector(0, 20.0 * m_State.m_Mass, 0));
 
 		ExpansionCreateExplosion(this, "", 2.5, 100);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeServer - End");
-#endif
 	}
 
 	/**
@@ -1075,8 +1126,8 @@ modded class CarScript
 	 */
 	void ExpansionOnExplodeClient(int damageType, string ammoType)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeClient - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "ExpansionOnExplodeClient").Add(damageType).Add(ammoType);
 #endif
 
 		StopSounds();
@@ -1148,10 +1199,6 @@ modded class CarScript
 		float strength_factor = Math.InverseLerp(GameConstants.CAMERA_SHAKE_GRENADE_DISTANCE, 0, distance_to_player);
 
 		// GetGame().GetPlayer().GetCurrentCamera().SpawnCameraShake( strength_factor * 16.0 );
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnExplodeClient - End");
-#endif
 	}
 
 	/**
@@ -1159,15 +1206,7 @@ modded class CarScript
 	 */
 	void ExpansionOnSpawnExploded()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSpawnExploded - Start");
-#endif
-
 		m_Exploded = true;
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSpawnExploded - End");
-#endif
 	}
 
 	/**
@@ -1186,10 +1225,6 @@ modded class CarScript
 
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnRPC - Start");
-#endif
-
 		switch (rpc_type)
 		{
 		case ExpansionVehicleRPC.ControllerSync:
@@ -1229,11 +1264,6 @@ modded class CarScript
 
 			return;
 		}
-		case ExpansionVehicleRPC.ClientSync:
-		{
-			m_State.OnRPC(ctx);
-			return;
-		}
 		case ExpansionVehicleRPC.PlayLockSound:
 		{
 			if (GetGame().IsClient() || !GetGame().IsMultiplayer())
@@ -1248,10 +1278,6 @@ modded class CarScript
 		}
 
 		super.OnRPC(sender, rpc_type, ctx);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnRPC - End");
-#endif
 	}
 
 	void NetworkSend()
@@ -1281,27 +1307,28 @@ modded class CarScript
 
 	bool IsVitalIgniterPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalIgniterPlug");
+#endif
+
 		return false;
 	}
 
 	bool IsVitalHydraulicHoses()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHydraulicHoses");
+#endif
+
 		return false;
 	}
 
 	void SetAttachmentHealth(string itemName, float health)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetAttachmentHealth - Start");
-#endif
 		EntityAI item = FindAttachmentBySlotName(itemName);
 
 		if (item)
 			item.SetHealth("", "", health);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::SetAttachmentHealth - End");
-#endif
 	}
 
 	override EntityAI FindAttachmentBySlotName(string slot_name)
@@ -1386,16 +1413,28 @@ modded class CarScript
 
 	bool IsVitalHelicopterBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		return false;
 	}
 
 	bool IsVitalAircraftBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalAircraftBattery");
+#endif
+
 		return false;
 	}
 
 	bool IsCar()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");
+#endif
+
 		return true;
 	}
 
@@ -1406,6 +1445,10 @@ modded class CarScript
 
 	bool IsHelicopter()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsHelicopter");
+#endif
+
 		return false;
 	}
 
@@ -1444,16 +1487,20 @@ modded class CarScript
 		return IsCar();
 	}
 
-	bool Expansion_CanObjectAttach(Object obj)
+	override bool Expansion_CanObjectAttach(Object obj)
 	{
 		return Expansion_CanPlayerAttach();
 	}
 
 	/**
 	 * @note only called if CanObjectAttach returns true.
-	 */ 
+	 */
 	bool LeavingSeatDoesAttachment(int posIdx)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "LeavingSeatDoesAttachment").Add(posIdx);
+#endif
+
 		return false;
 	}
 
@@ -1469,26 +1516,31 @@ modded class CarScript
 
 	override bool OnBeforeSwitchLights(bool toOn)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnBeforeSwitchLights - Start");
-#endif
-
 		SetCarBatteryStateForVanilla(true);
 
 		bool ret = super.OnBeforeSwitchLights(toOn);
 
 		SetCarBatteryStateForVanilla(false);
 
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnBeforeSwitchLights - End");
-#endif
-
 		return ret;
 	}
 
 	override bool OnBeforeEngineStart()
 	{
-		if (!super.OnBeforeEngineStart())
+#ifndef DAYZ_1_16
+		SetCarBatteryStateForVanilla(true);
+#endif
+
+		bool result;
+
+		if (super.OnBeforeEngineStart())
+			result = true;
+
+#ifdef DAYZ_1_16
+		SetCarBatteryStateForVanilla(false);
+#endif
+
+		if (!result)
 			return false;
 
 		return OnBeforeEngineStart(0);
@@ -1496,64 +1548,29 @@ modded class CarScript
 
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEItemAttached - Start");
-#endif
-
-		if (m_IsPhysicsHost)
-		{
-			string slot = slot_name;
-			slot.ToLower();
-			if (slot.Contains("wheel"))
-			{
-				vector force = Vector(0, m_State.m_Mass * 50.0, 0);
-
-				string selection = "";
-				InventorySlots.GetSelectionForSlotId(InventorySlots.GetSlotIdFromString(slot_name), selection);
-				vector position = GetSelectionPositionMS(selection);
-
-				//dBodyApplyForceAt( this, ModelToWorld( position ), force );
-			}
-		}
-
-		if (IsMissionHost())
+		if (GetGame().IsServer())
 		{
 			if (slot_name == "ExpansionHelicopterBattery")
 				m_BatteryHealth = item.GetHealth01();
 
 			if (slot_name == "ExpansionAircraftBattery")
 				m_BatteryHealth = item.GetHealth01();
+
+#ifdef EXPANSION_VEHICLE_DOOR_JOINTS
+			ExpansionDoor door;
+			slot_name.ToLower();
+			if (m_DoorMap.Find(slot_name, door))
+			{
+				door.SetDoor(CarDoor.Cast(item));
+			}
+#endif
 		}
 
 		super.EEItemAttached(item, slot_name);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEItemAttached - End");
-#endif
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEItemDetached - Start");
-#endif
-
-		if (m_IsPhysicsHost)
-		{
-			string slot = slot_name;
-			slot.ToLower();
-			if (slot.Contains("wheel"))
-			{
-				vector force = Vector(0, m_State.m_Mass * 50.0, 0);
-
-				string selection = "";
-				InventorySlots.GetSelectionForSlotId(InventorySlots.GetSlotIdFromString(slot_name), selection);
-				vector position = GetSelectionPositionMS(selection);
-
-				//dBodyApplyForceAt( this, ModelToWorld( position ), force );
-			}
-		}
-
 		if (IsMissionHost())
 		{
 			if (IsScriptedLightsOn())
@@ -1594,10 +1611,6 @@ modded class CarScript
 		}
 
 		super.EEItemDetached(item, slot_name);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEItemDetached - End");
-#endif
 	}
 
 	override bool IsIgnoredObject(Object o)
@@ -1628,7 +1641,7 @@ modded class CarScript
 	{
 		for (int z = 0; z < m_Doors.Count(); z++)
 		{
-			if (GetCarDoorsState(m_Doors[z]) != CarDoorState.DOORS_CLOSED)
+			if (GetCarDoorsState(m_Doors[z].m_InventorySlot) != CarDoorState.DOORS_CLOSED)
 			{
 				return false;
 			}
@@ -1659,70 +1672,75 @@ modded class CarScript
 
 	void UpdateHealth(float pDt)
 	{
+		float time = m_FluidCheckTime;
 		m_FluidCheckTime = 0;
 
-		CarPartsHealthCheck();
-
-		if ( IsMissionHost() && Expansion_EngineIsOn() )
+		if (GetGame().IsServer())
 		{
-			if ( GetFluidFraction( CarFluid.FUEL ) <= 0 || m_EngineHealth <= 0 )
-				Expansion_EngineStop();
+			ItemBase radiator;
+			Class.CastTo(radiator, FindAttachmentBySlotName("CarRadiator"));
+			if (radiator)
+			{
+				m_RadiatorHealth = radiator.GetHealth01("", "");
+			}
+			else
+			{
+				m_RadiatorHealth = 0;
+			}
 
-			CheckVitalItem( IsVitalCarBattery(), "CarBattery" );
-			CheckVitalItem( IsVitalTruckBattery(), "TruckBattery" );
-			CheckVitalItem( IsVitalSparkPlug(), "SparkPlug" );
-			CheckVitalItem( IsVitalGlowPlug(), "GlowPlug" );
-			CheckVitalItem( IsVitalHelicopterBattery(), "ExpansionHelicopterBattery" );
-			CheckVitalItem( IsVitalAircraftBattery(), "ExpansionAircraftBattery" );
+			m_FuelTankHealth = GetHealth01("FuelTank", "");
 		}
 
-		if ( Expansion_EngineIsOn() )
+		if (GetGame().IsServer() && Expansion_EnginesOn() > 0)
 		{
-			if ( IsMissionHost() )
+			CheckVitalItem(IsVitalCarBattery(), "CarBattery");
+			CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
+			CheckVitalItem(IsVitalAircraftBattery(), "ExpansionAircraftBattery");
+			CheckVitalItem(IsVitalHelicopterBattery(), "ExpansionHelicopterBattery");
+			CheckVitalItem(IsVitalIgniterPlug(), "ExpansionIgniterPlug");
+			CheckVitalItem(IsVitalHydraulicHoses(), "ExpansionHydraulicHoses");
+			CheckVitalItem(IsVitalSparkPlug(), "SparkPlug");
+			CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
+			// engine belt is not needed right now
+			//CheckVitalItem(IsVitalEngineBelt(), "EngineBelt");
+		}
+
+		if (Expansion_EnginesOn() > 0)
+		{
+			if (GetGame().IsServer())
 			{
-				float dmg;
-				
-				if ( EngineGetRPM() >= EngineGetRPMRedline() )
+				float fuel = GetFluidFraction(CarFluid.FUEL);
+				float coolant = GetFluidFraction(CarFluid.COOLANT);
+				float oil = GetFluidFraction(CarFluid.OIL);
+				float brake = GetFluidFraction(CarFluid.BRAKE);
+				if (!IsVitalRadiator())
+					coolant = 1.0;
+
+				float fuelConsumption;
+				m_EngineHealth = 0;
+				for (int i = 0; i < m_Engines.Count(); i++)
 				{
-					if ( EngineGetRPM() > EngineGetRPMMax() && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly )
-						AddHealth( "Engine", "Health", -GetMaxHealth("Engine", ""));
-						
-					dmg = EngineGetRPM() * 0.001 * Math.RandomFloat( 0.02, 1.0 ); 
-				
-					ProcessDirectDamage( DT_CUSTOM, null, "Engine", "EnviroDmg", "0 0 0", dmg );
+					m_Engines[i].ProcessHealth(time, fuel, coolant, oil, brake, m_EngineHealth, fuelConsumption);
 				}
+				m_EngineHealth = m_EngineHealth / m_Engines.Count();
 
-				if ( IsVitalRadiator() )
-				{
-					if ( GetFluidFraction(CarFluid.COOLANT) > 0 && m_RadiatorHealth < 0.5 ) 
-						LeakFluid( CarFluid.COOLANT );
-				}
+				//! leaking of coolant from radiator when damaged
+				if (IsVitalRadiator() && coolant > 0.0 && m_RadiatorHealth < 0.5) //CARS_LEAK_THRESHOLD
+					LeakFluid(CarFluid.COOLANT);
 
-				if ( GetFluidFraction(CarFluid.FUEL) > 0 && m_FuelTankHealth < 0.5 )
-					LeakFluid( CarFluid.FUEL );
+				if (fuel > 0.0 && m_FuelTankHealth < 0.5)
+					LeakFluid(CarFluid.FUEL);
 
-				if ( GetFluidFraction(CarFluid.BRAKE) > 0 && m_EngineHealth < 0.5 )
-					LeakFluid( CarFluid.BRAKE );
+				if (brake > 0.0 && m_EngineHealth < 0.5)
+					LeakFluid(CarFluid.BRAKE);
 
-				if ( GetFluidFraction(CarFluid.OIL) > 0 && m_EngineHealth < 0.5 )
-					LeakFluid( CarFluid.OIL );
+				if (oil > 0.0 && m_EngineHealth < 0.5)
+					LeakFluid(CarFluid.OIL);
 
-				if ( m_EngineHealth < 0.25 )
-					LeakFluid( CarFluid.OIL );
-
-				if ( IsVitalRadiator() )
-				{
-					if ( GetFluidFraction( CarFluid.COOLANT ) < 0.5 && GetFluidFraction( CarFluid.COOLANT ) >= 0 )
-					{
-						dmg = ( 1 - GetFluidFraction(CarFluid.COOLANT) ) * Math.RandomFloat( 0.02, 10.00 ); 
-						AddHealth( "Engine", "Health", -dmg );
-					}
-				}
-
-				if (m_Expansion_CurrentEngine > 0)
-					Leak(CarFluid.FUEL, m_Expansion_FuelConsumptionPerTick);
+				if (fuelConsumption > 0.0)
+					Leak(CarFluid.FUEL, fuelConsumption);
 			}
-			
+
 			if (IsMissionClient())
 			{
 				if (!SEffectManager.IsEffectExist(m_exhaustPtcFx))
@@ -1790,10 +1808,6 @@ modded class CarScript
 
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EOnPostSimulate - Start");
-#endif
-
 		//! Prevent vanilla fluid checks from running
 		m_Time = -1;
 
@@ -1811,10 +1825,6 @@ modded class CarScript
 		{
 			UpdateCarLock(timeSlice);
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EOnPostSimulate - End");
-#endif
 	}
 
 	void CreateLights(Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0)
@@ -1889,8 +1899,8 @@ modded class CarScript
 
 	override void UpdateLights(int new_gear = -1)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::UpdateLights - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "UpdateLights").Add(new_gear);
 #endif
 
 		SetCarBatteryStateForVanilla(true);
@@ -1898,17 +1908,16 @@ modded class CarScript
 		super.UpdateLights(new_gear);
 
 		SetCarBatteryStateForVanilla(false);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::UpdateLights - End");
-#endif
 	}
 
 	override CarRearLightBase CreateRearLight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateRearLight");
+#endif
 		if (!IsInherited(ExpansionHelicopterScript) || !IsInherited(ExpansionBoatScript))
 		{
-			return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(OffroadHatchbackRearLight) );
+			return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(OffroadHatchbackRearLight));
 		}
 
 		return NULL;
@@ -1916,9 +1925,13 @@ modded class CarScript
 
 	override CarLightBase CreateFrontLight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
+
 		if (!IsInherited(ExpansionHelicopterScript) || !IsInherited(ExpansionBoatScript))
 		{
-			return CarLightBase.Cast( ScriptedLightBase.CreateLight(OffroadHatchbackFrontLight) );
+			return CarLightBase.Cast(ScriptedLightBase.CreateLight(OffroadHatchbackFrontLight));
 		}
 
 		return NULL;
@@ -1954,11 +1967,19 @@ modded class CarScript
 
 	bool Expansion_CanSimulate()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_CanSimulate");
+#endif
+
 		return false;
 	}
 
 	bool Expansion_ShouldDisableSimulation()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_ShouldDisableSimulation");
+#endif
+
 		return false;
 	}
 
@@ -1982,6 +2003,10 @@ modded class CarScript
 
 	void Expansion_OnHandleController(DayZPlayerImplement driver, float dt)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "Expansion_OnHandleController").Add(driver).Add(dt);
+#endif
+
 	}
 
 	protected void OnPreSimulation(float pDt)
@@ -1994,9 +2019,9 @@ modded class CarScript
 
 	protected void OnNoSimulation(float pDt)
 	{
-		if ( IsMissionClient() )
+		if (IsMissionClient())
 		{
-			OnParticleUpdate( pDt );
+			OnParticleUpdate(pDt);
 		}
 
 		OnAnimationUpdate(pDt);
@@ -2043,10 +2068,6 @@ modded class CarScript
 
 	override void EOnSimulate(IEntity owner, float dt)
 	{
-#ifdef EXPANSION_CARSCRIPT_LOGGING
-		EXLogPrint("[" + this + "] EOnSimulate");
-#endif
-
 		int i;
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
@@ -2054,6 +2075,8 @@ modded class CarScript
 			m_DebugShapes[i].Destroy();
 
 		m_DebugShapes.Clear();
+
+		Expansion_DBGTowing();
 #endif
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));
@@ -2079,6 +2102,9 @@ modded class CarScript
 		{
 			m_IsPhysicsHost = true;
 
+#ifdef DIAG
+			m_Expansion_AcceptingAttachment = true;
+#else
 			if (dBodyIsActive(this) && !m_Expansion_AcceptingAttachment)
 			{
 				m_Expansion_AcceptingAttachment = true;
@@ -2089,6 +2115,7 @@ modded class CarScript
 				m_Expansion_AcceptingAttachment = false;
 				SetSynchDirty();
 			}
+#endif
 
 			if (!driver && Expansion_CanSimulate())
 			{
@@ -2113,21 +2140,38 @@ modded class CarScript
 			Error("Game is both not server or client");
 		}
 
-		if (m_IsPhysicsHost && m_Expansion_IsBeingTowed)
+		if (m_IsPhysicsHost)
 		{
-			// shouldn't ever be NULL but just incase
-			if (!m_Expansion_ParentTow)
-				return;
-
-			if (m_TowingEnabled && dBodyIsActive(m_Expansion_ParentTow) && dBodyIsDynamic(m_Expansion_ParentTow))
+#ifdef EXPANSION_VEHICLE_DOOR_JOINTS
+			foreach (auto door : m_Doors)
 			{
-				vector towTransform[4];
-				m_Expansion_ParentTow.GetTransform(towTransform);
-				towTransform[3] = m_Expansion_ParentTow.ModelToWorld(m_Expansion_TowPointCenter);
-
-				dBodySetTargetMatrix(this, towTransform, dt);
+				door.OnUpdate(dt);
 			}
+#endif
 
+			if (m_Expansion_IsBeingTowed)
+			{
+				// shouldn't ever be NULL but just incase
+				if (!m_Expansion_ParentTow)
+					return;
+
+				if (m_TowingEnabled && dBodyIsActive(m_Expansion_ParentTow) && dBodyIsDynamic(m_Expansion_ParentTow))
+				{
+					vector towTransform[4];
+					m_Expansion_ParentTow.GetTransform(towTransform);
+					towTransform[3] = m_Expansion_ParentTow.ModelToWorld(m_Expansion_TowPointCenter);
+
+					dBodySetTargetMatrix(this, towTransform, dt);
+				}
+
+				return;
+			}
+		}
+
+
+
+		if (!Expansion_CanSimulate())
+		{
 			return;
 		}
 
@@ -2140,7 +2184,7 @@ modded class CarScript
 		 */
 		if (!dBodyIsActive(this))
 		{
-			if (GetGame().IsServer() && !Expansion_CanSimulate())
+			if (GetGame().IsServer())
 			{
 				SetVelocity(this, "0 0 0");
 				dBodySetAngularVelocity(this, "0 0 0");
@@ -2152,24 +2196,24 @@ modded class CarScript
 
 			//! This needs to run on client as well so dust particle is stopped if no driver
 			OnNoSimulation(dt);
-			
-			#ifdef EXPANSION_CARSCRIPT_ACTIVESTATE_DEBUG
+
+#ifdef EXPANSION_CARSCRIPT_ACTIVESTATE_DEBUG
 			if (m_Expansion_dBodyIsActive)
 			{
 				EXPrint(ToString() + " " + GetPosition() + " CarScript::EOnSimulate dBodyIsActive false");
 				m_Expansion_dBodyIsActive = false;
 			}
-			#endif
+#endif
 
 			return;
 		}
-		#ifdef EXPANSION_CARSCRIPT_ACTIVESTATE_DEBUG
+#ifdef EXPANSION_CARSCRIPT_ACTIVESTATE_DEBUG
 		else if (!m_Expansion_dBodyIsActive)
 		{
 			EXPrint(ToString() + " " + GetPosition() + " CarScript::EOnSimulate dBodyIsActive true");
 			m_Expansion_dBodyIsActive = true;
 		}
-		#endif
+#endif
 
 		m_Controller.m_Yaw = GetController().GetSteering();
 		//m_Controller.m_Throttle[0] = GetController().GetThrust();
@@ -2192,51 +2236,52 @@ modded class CarScript
 			m_Controller.m_Ratio[0] = 0;
 		}
 
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EOnSimulate - Start");
-#endif
-
 		OnPreSimulation(dt);
 
 		m_State.m_HasDriver = driver && m_IsPhysicsHost;
 		m_State.m_Exploded = m_Exploded;
 
+		vector impulse;
+		vector impulseTorque;
+
 		if (m_IsPhysicsHost)
 		{
-			m_State.PreSimulate(dt);
+			m_State.SetupSimulation(dt);
+
+			int substeps = 1;
+			float substepDT = 1.0 / substeps;
+			float substepTime = 0.0;
+			for (i = 0; i < substeps; i++)
+			{
+				m_State.SetupSubstep(dt, substepDT, substepTime);
+
+				m_State.CalculateAltitudeLimiter();
+
+				m_Event_PreSimulate.PreSimulate(m_State);
+
+				OnSimulation(m_State);
+
+				m_Event_Simulate.Simulate(m_State);
+
+				m_State.PostSubtep(impulse, impulseTorque);
+			}
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 			m_State.EstimateTransform(dt, m_DbgTransform);
 #endif
-
-			m_State.CalculateAltitudeLimiter();
-			
-			m_Event_PreSimulate.PreSimulate(m_State);
-
-			OnSimulation(m_State);
-			
-			//OnSimulation(m_State);
-			//force = force * 0.5;
-			//torque = torque * 0.5;
-
-			m_Event_Simulate.Simulate(m_State);
-
-			if ( IsMissionClient() )
-			{
-				NetworkSend();
-			}
 		}
 
-		m_State.PostSimulate(dt, m_IsPhysicsHost, m_Expansion_VehicleSync, GetGame().IsServer(), driver);
+		if (m_IsPhysicsHost && GetGame().IsClient())
+		{
+			NetworkSend();
+		}
+
+		m_State.ApplyPhysics_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost);
 
 		OnPostSimulation(dt);
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EOnSimulate - End");
-#endif
 	}
 
 	void SetHasPilot(bool state)
@@ -2279,7 +2324,7 @@ modded class CarScript
 
 			m_Engines.Insert(engine);
 
-			m_Expansion_MaximumEngine = m_Engines.Count() + 1;
+			m_Expansion_MaximumEngine = m_Engines.Count();
 			return;
 		}
 
@@ -2466,7 +2511,6 @@ modded class CarScript
 		SetSynchDirty();
 	}
 
-	
 	/**
 	 * @brief Is called every time the game wants to start the engine.
 	 * @return true if the engine can start, false otherwise.
@@ -2476,7 +2520,60 @@ modded class CarScript
 		if (m_Exploded)
 			return false;
 
-		return true;
+		bool result = true;
+
+#ifndef DAYZ_1_16
+		if (!Expansion_EngineIsOn())
+		{
+			SetCarBatteryStateForVanilla(true);
+
+			EntityAI item2;
+
+			if (IsVitalIgniterPlug() || IsVitalSparkPlug() || IsVitalGlowPlug())
+			{
+				item2 = NULL;
+				if (IsVitalIgniterPlug())
+					item2 = FindAttachmentBySlotName("ExpansionIgniterPlug");
+				if (IsVitalSparkPlug())
+					item2 = FindAttachmentBySlotName("SparkPlug");
+				if (IsVitalGlowPlug())
+					item2 = FindAttachmentBySlotName("GlowPlug");
+
+				if (!item2 || item2.IsRuined())
+					result = false;
+			}
+
+			if (IsVitalHydraulicHoses() || IsVitalRadiator())
+			{
+				item2 = NULL;
+				if (IsVitalHydraulicHoses())
+					item2 = FindAttachmentBySlotName("ExpansionHydraulicHoses");
+				if (IsVitalRadiator())
+					item2 = FindAttachmentBySlotName("CarRadiator");
+
+				if (!item2 || item2.IsRuined())
+					result = false;
+			}
+
+			if (IsVitalHelicopterBattery() || IsVitalCarBattery() || IsVitalTruckBattery())
+			{
+				item2 = NULL;
+				if (IsVitalHelicopterBattery())
+					item2 = FindAttachmentBySlotName("ExpansionHelicopterBattery");
+				if (IsVitalCarBattery())
+					item2 = FindAttachmentBySlotName("CarBattery");
+				if (IsVitalTruckBattery())
+					item2 = FindAttachmentBySlotName("TruckBattery");
+
+				if (!item2 || item2.IsRuined())
+					result = false;
+			}
+
+			SetCarBatteryStateForVanilla(false);
+		}
+#endif
+
+		return result;
 	}
 
 	/**
@@ -2582,6 +2679,31 @@ modded class CarScript
 		return DayZPlayerConstants.CMD_ACTIONMOD_STOPENGINE;
 	}
 
+	void DBGDrawLine(vector start, vector end, int color = 0x44FFFFFF)
+	{
+		vector pts[2];
+		pts[0] = start;
+		pts[1] = end;
+
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		DBGAddShape(Shape.CreateLines(color, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, pts, 2));
+#endif
+	}
+
+	void DBGDrawSphere(vector position, float size, int color = 0x44FFFFFF)
+	{
+		DBGAddShape(Shape.CreateSphere(color, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, position, size));
+	}
+
+	void DGBDrawBoundingBox(vector transform[4], vector box[2], int color = 0x1fff7f7f)
+	{
+#ifndef EXPANSION_DEBUG_SHAPES_DISABLE
+		Shape shape = Shape.Create(ShapeType.BBOX, color, ShapeFlags.TRANSP | ShapeFlags.NOZWRITE, box[0], box[1]);
+		shape.SetMatrix(transform);
+		DBGAddShape(shape);
+#endif
+	}
+
 	void DBGAddShape(Shape shape)
 	{
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
@@ -2633,7 +2755,7 @@ modded class CarScript
 #endif
 
 //! If we are saving after game version target for ModStorage support (1st stable)
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 		if (GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 		{
 			super.OnStoreSave(ctx);
@@ -2645,7 +2767,7 @@ modded class CarScript
 		ctx.Write(m_ExpansionSaveVersion);
 
 //! If we are saving game version target for ModStorage support (1st stable) or later
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 		if (GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 		{
 			super.OnStoreSave(ctx);
@@ -2673,25 +2795,8 @@ modded class CarScript
 
 		ctx.Write(m_allAttachments);
 
-		ctx.Write(m_Expansion_IsBeingTowed);
-		ctx.Write(m_Expansion_IsTowing);
-
-		if (m_Expansion_IsBeingTowed)
-		{
-			ctx.Write(m_Expansion_TowConnectionIndex);
-			ctx.Write(m_Expansion_ParentTowPersistentIDA);
-			ctx.Write(m_Expansion_ParentTowPersistentIDB);
-			ctx.Write(m_Expansion_ParentTowPersistentIDC);
-			ctx.Write(m_Expansion_ParentTowPersistentIDD);
-		}
-
-		if (m_Expansion_IsTowing)
-		{
-			ctx.Write(m_Expansion_ChildTowPersistentIDA);
-			ctx.Write(m_Expansion_ChildTowPersistentIDB);
-			ctx.Write(m_Expansion_ChildTowPersistentIDC);
-			ctx.Write(m_Expansion_ChildTowPersistentIDD);
-		}
+		ctx.Write(false);
+		ctx.Write(false);
 
 		ctx.Write(m_CurrentSkinName);
 	}
@@ -2705,7 +2810,7 @@ modded class CarScript
 		EXPrint("[VEHICLES] CarScript::OnStoreLoad " + this + " " + version);
 #endif
 
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 		if (version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 			return super.OnStoreLoad(ctx, version);
 #endif
@@ -2713,7 +2818,7 @@ modded class CarScript
 		if (Expansion_Assert_False(ctx.Read(m_ExpansionSaveVersion), "[" + this + "] Failed reading m_ExpansionSaveVersion"))
 			return false;
 
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 		if (m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET)
 			return super.OnStoreLoad(ctx, version);
 #endif
@@ -2774,54 +2879,57 @@ modded class CarScript
 		if (Expansion_Assert_False(ctx.Read(m_allAttachments), "[" + this + "] Failed reading m_allAttachments"))
 			return false;
 
+		bool l_Expansion_IsBeingTowed;
+		bool l_Expansion_IsTowing;
+
+		int l_Expansion_TowConnectionIndex;
+
+		int l_Expansion_ParentTowPersistentIDA;
+		int l_Expansion_ParentTowPersistentIDB;
+		int l_Expansion_ParentTowPersistentIDD;
+		int l_Expansion_ParentTowPersistentIDC;
+
+		int l_Expansion_ChildTowPersistentIDA;
+		int l_Expansion_ChildTowPersistentIDB;
+		int l_Expansion_ChildTowPersistentIDD;
+		int l_Expansion_ChildTowPersistentIDC;
+
 		if (GetExpansionSaveVersion() >= 7)
 		{
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_IsBeingTowed), "[" + this + "] Failed reading m_Expansion_IsBeingTowed"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_IsBeingTowed), "[" + this + "] Failed reading l_Expansion_IsBeingTowed"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_IsTowing), "[" + this + "] Failed reading m_Expansion_IsTowing"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_IsTowing), "[" + this + "] Failed reading l_Expansion_IsTowing"))
 				return false;
 
-			if (m_Expansion_IsBeingTowed)
+			if (l_Expansion_IsBeingTowed)
 			{
 				if (GetExpansionSaveVersion() >= 34)
 				{
-					if (Expansion_Assert_False(ctx.Read(m_Expansion_TowConnectionIndex), "[" + this + "] Failed reading m_Expansion_TowConnectionIndex"))
+					if (Expansion_Assert_False(ctx.Read(l_Expansion_TowConnectionIndex), "[" + this + "] Failed reading l_Expansion_TowConnectionIndex"))
 						return false;
 				}
 
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDA"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDB"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDC"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDD"))
 					return false;
 			}
 
-			if (m_Expansion_IsTowing)
+			if (l_Expansion_IsTowing)
 			{
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDA"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDB"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDC"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDD"))
 					return false;
 			}
-
-			m_Expansion_IsBeingTowed = false;
-			m_Expansion_IsTowing = false;
-
-			m_Expansion_ParentTowPersistentIDA = 0;
-			m_Expansion_ParentTowPersistentIDB = 0;
-			m_Expansion_ParentTowPersistentIDC = 0;
-			m_Expansion_ParentTowPersistentIDD = 0;
-			m_Expansion_ChildTowPersistentIDA = 0;
-			m_Expansion_ChildTowPersistentIDB = 0;
-			m_Expansion_ChildTowPersistentIDC = 0;
-			m_Expansion_ChildTowPersistentIDD = 0;
 		}
 
 		SetSynchDirty();
@@ -2859,32 +2967,38 @@ modded class CarScript
 			if (Expansion_Assert_False(ctx.Read(m_allAttachments), "[" + this + "] Failed reading m_allAttachments"))
 				return false;
 
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_IsBeingTowed), "[" + this + "] Failed reading m_Expansion_IsBeingTowed"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_IsBeingTowed), "[" + this + "] Failed reading l_Expansion_IsBeingTowed"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_IsTowing), "[" + this + "] Failed reading m_Expansion_IsTowing"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_IsTowing), "[" + this + "] Failed reading l_Expansion_IsTowing"))
 				return false;
 
-			if (m_Expansion_IsBeingTowed)
+			if (l_Expansion_IsBeingTowed)
 			{
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA"))
+				if (GetExpansionSaveVersion() >= 34)
+				{
+					if (Expansion_Assert_False(ctx.Read(l_Expansion_TowConnectionIndex), "[" + this + "] Failed reading l_Expansion_TowConnectionIndex"))
+						return false;
+				}
+
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDA"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDB"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDC"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDD"))
 					return false;
 			}
 
-			if (m_Expansion_IsTowing)
+			if (l_Expansion_IsTowing)
 			{
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDA"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDB"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDC"))
 					return false;
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDD"))
 					return false;
 			}
 
@@ -2893,18 +3007,6 @@ modded class CarScript
 #endif
 			return true;
 		}
-
-		m_Expansion_IsBeingTowed = false;
-		m_Expansion_IsTowing = false;
-
-		m_Expansion_ParentTowPersistentIDA = 0;
-		m_Expansion_ParentTowPersistentIDB = 0;
-		m_Expansion_ParentTowPersistentIDC = 0;
-		m_Expansion_ParentTowPersistentIDD = 0;
-		m_Expansion_ChildTowPersistentIDA = 0;
-		m_Expansion_ChildTowPersistentIDB = 0;
-		m_Expansion_ChildTowPersistentIDC = 0;
-		m_Expansion_ChildTowPersistentIDD = 0;
 
 		if (GetExpansionSaveVersion() < 21)
 			return true;
@@ -2924,7 +3026,7 @@ modded class CarScript
 		return true;
 	}
 
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
@@ -3044,30 +3146,7 @@ modded class CarScript
 
 	override void EEOnAfterLoad()
 	{
-#ifdef EXPANSIONEXLOGPRINT
-		Print("CarScript::EEOnAfterLoad - Start " + GetType() + " " + GetPosition());
-#endif
-
 		super.EEOnAfterLoad();
-
-		if (m_Expansion_IsTowing && !m_Expansion_ChildTow)
-		{
-			m_Expansion_ChildTow = GetGame().GetEntityByPersitentID(m_Expansion_ChildTowPersistentIDA, m_Expansion_ChildTowPersistentIDB, m_Expansion_ChildTowPersistentIDC, m_Expansion_ChildTowPersistentIDD);
-			if (m_Expansion_ChildTow)
-			{
-				CarScript cs_child;
-				ItemBase evs_child;
-
-				if (Class.CastTo(cs_child, m_Expansion_ChildTow))
-					cs_child.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
-				else if (Class.CastTo(evs_child, m_Expansion_ChildTow))
-					evs_child.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
-			}
-			else
-			{
-				m_Expansion_IsTowing = false;
-			}
-		}
 
 #ifdef EXPANSION_VEHICLE_SKIN_LOGGING
 		Print(m_CanBeSkinned);
@@ -3085,10 +3164,6 @@ modded class CarScript
 #ifdef EXPANSION_VEHICLE_SKIN_LOGGING
 		Print(m_CurrentSkinIndex);
 		Print(m_CurrentSkin);
-#endif
-
-#ifdef EXPANSIONEXLOGPRINT
-		Print("CarScript::EEOnAfterLoad - End");
 #endif
 	}
 
@@ -3113,13 +3188,9 @@ modded class CarScript
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnVariablesSynchronized - Start");
-#endif
-
 		super.OnVariablesSynchronized();
 
-		m_State.OnVariablesSynchronized();
+		m_State.OnVariablesSynchronized_CarScript();
 
 		m_Controller.m_State[0] = EngineIsOn();
 
@@ -3218,18 +3289,10 @@ modded class CarScript
 
 			ExpansionOnSkinUpdate();
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::OnVariablesSynchronized - End");
-#endif
 	}
 
 	protected void ExpansionSetupSkins()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetupSkins - Start");
-#endif
-
 		m_Skins = new array<ExpansionSkin>;
 
 		if (Class.CastTo(m_SkinModule, GetModuleManager().GetModule(ExpansionSkinModule)))
@@ -3257,10 +3320,6 @@ modded class CarScript
 
 			ExpansionOnSkinUpdate();
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetupSkins - End");
-#endif
 	}
 
 	override array<ExpansionSkin> ExpansionGetSkins()
@@ -3275,11 +3334,11 @@ modded class CarScript
 
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
 	{
-		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEHealthLevelChanged - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_3(ExpansionTracing.VEHICLES, this, "EEHealthLevelChanged").Add(oldLevel).Add(newLevel).Add(zone);
 #endif
+
+		super.EEHealthLevelChanged(oldLevel, newLevel, zone);
 
 		if (m_CanBeSkinned)
 		{
@@ -3366,18 +3425,10 @@ modded class CarScript
 		
 		if (IsMissionHost() && isGlobalOrEngineRuined && Expansion_EngineIsOn())
 			Expansion_EngineStop();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::EEHealthLevelChanged - End");
-#endif
 	}
 
 	override void ExpansionSetSkin(int skinIndex)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetSkin - Start");
-#endif
-
 #ifdef EXPANSION_SKIN_LOGGING
 		Print(m_CanBeSkinned);
 		Print(skinIndex);
@@ -3418,18 +3469,10 @@ modded class CarScript
 		ExpansionOnSkinUpdate();
 
 		SetSynchDirty();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionSetSkin - End");
-#endif
 	}
 
 	void ExpansionOnSkinDamageZoneUpdate(ExpansionSkinDamageZone zone, int level)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinDamageZoneUpdate - Start");
-#endif
-
 #ifdef EXPANSION_SKIN_LOGGING
 		Print(zone);
 		Print(level);
@@ -3457,23 +3500,13 @@ modded class CarScript
 				SetObjectMaterial(selectionIndex, healthLevel.RVMaterial);
 			}
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinDamageZoneUpdate - End");
-#endif
 	}
 
 	void ExpansionOnSkinUpdate()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinUpdate - Start");
-#endif
-
 		if (!m_CurrentSkin)
 		{
-#ifdef EXPANSIONEXPRINT
-			EXPrint("ItemBase::ExpansionOnSkinUpdate called but m_CurrentSkin is NULL!");
-#endif
+			CF_Log.Debug("ItemBase::ExpansionOnSkinUpdate called but m_CurrentSkin is NULL!");
 
 			return;
 		}
@@ -3509,10 +3542,6 @@ modded class CarScript
 		{
 			ExpansionOnSkinDamageZoneUpdate(m_CurrentSkin.DamageZones[i], GetHealthLevel(m_CurrentSkin.DamageZones[i].Zone));
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::ExpansionOnSkinUpdate - End");
-#endif
 	}
 
 	bool IsSurfaceWater(vector position)
@@ -3531,6 +3560,10 @@ modded class CarScript
 
 	override bool CanReleaseAttachment(EntityAI attachment)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CanReleaseAttachment").Add(attachment);
+#endif
+
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
@@ -3558,6 +3591,10 @@ modded class CarScript
 
 	void SwitchGear()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SwitchGear");
+#endif
+
 		if (GetAnimationPhase("gear") == 0)
 		{
 			SetAnimationPhase("gear", 1);
@@ -3568,13 +3605,8 @@ modded class CarScript
 		}
 	}
 
-	//! Called when entity is being created as new by CE/ Debug
 	override void EEOnCECreate()
 	{
-#ifdef EXPANSIONEXPRINT
-		Print("CarScript::EEOnCECreate - Start");
-#endif
-
 		super.EEOnCECreate();
 
 		m_IsCECreated = true;
@@ -3589,19 +3621,23 @@ modded class CarScript
 				PairKeyTo(key);
 			}
 		}
-
-#ifdef EXPANSIONEXPRINT
-		Print("CarScript::EEOnCECreate - End");
-#endif
 	}
 
 	float GetCameraHeight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+#endif
+
 		return 1.3;
 	}
 
 	float GetCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
+#endif
+
 		return 4.5;
 	}
 
@@ -3624,9 +3660,8 @@ modded class CarScript
 				else
 					m_ModelZeroPointDistanceFromGround = 0;
 			}
-#ifdef EXPANSIONEXPRINT
-			EXPrint(GetType() + " modelZeroPointDistanceFromGround " + m_ModelZeroPointDistanceFromGround);
-#endif
+
+			CF_Log.Debug(GetType() + " modelZeroPointDistanceFromGround " + m_ModelZeroPointDistanceFromGround);
 		}
 
 		return m_ModelZeroPointDistanceFromGround;
@@ -3634,21 +3669,37 @@ modded class CarScript
 
 	override float GetTransportCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
+#endif
+
 		return GetCameraDistance();
 	}
 
 	override vector GetTransportCameraOffset()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
+#endif
+
 		return Vector(0, GetCameraHeight(), 0);
 	}
 
 	float GetWreckAltitude()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetWreckAltitude");
+#endif
+
 		return 1;
 	}
 
 	vector GetWreckOffset()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetWreckOffset");
+#endif
+
 		return "0 0 1";
 	}
 
@@ -3675,12 +3726,31 @@ modded class CarScript
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "EOnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
+#endif
+
 		auto item = ItemBase.Cast(other);
 		if (item && !dBodyIsDynamic(item) && item.Expansion_CarContactActivates() && !item.GetHierarchyParent())
 		{
-			item.CreateDynamicPhysics(PhxInteractionLayers.DYNAMICITEM);
-			// if contact is maintained then the lifetime will exceed 10 seconds until the object rests
-			item.SetDynamicPhysicsLifeTime(10.0);
+			item.ExpansionCreateDynamicFromContact(this, data.Position, data);
+		}
+
+		if (s_ExpansionPhysicsStructure_Enabled)
+		{
+			auto bakedObject = ExpansionBakedMapObject.Cast(other);
+			if (bakedObject)
+			{
+				bakedObject.Create(this, data.Position, data);
+				return;
+			}
+
+			auto staticObject = ExpansionStaticMapObject.Cast(other);
+			if (staticObject)
+			{
+				staticObject.Create(this, data.Position, data);
+				return;
+			}
 		}
 
 		if (m_Expansion_IsBeingTowed)
@@ -3693,30 +3763,25 @@ modded class CarScript
 
 	void ExpansionCheckTreeContact(IEntity other, float impulse)
 	{
+		if (impulse < 7500)
+			return;
+
 		Object tree = Object.Cast(other);
-		if (tree)
+		if (tree && (tree.IsTree() || tree.IsBush()))
 		{
-			if (tree.IsTree() || tree.IsBush())
-			{
-				//EXPrint(ToString() + " " + GetPosition() + " hit tree, impulse: " + impulse);
+			EntityAI cutting_tool = EntityAI.Cast(GetGame().CreateObject("WoodAxe", vector.Zero, false, true));
 
-				if (impulse > 7500)
-				{
-					EntityAI cutting_tool = EntityAI.Cast(GetGame().CreateObject("WoodAxe", vector.Zero, false, true));
+			if (IsMissionClient())
+				SoundHardTreeFallingPlay();
 
-					if (IsMissionClient())
-						SoundHardTreeFallingPlay();
+			if (GetGame().IsServer())
+				tree.DecreaseHealth("", "", 100, true);
 
-					if (GetGame().IsServer())
-						tree.DecreaseHealth("", "", 100, true);
+			tree.OnTreeCutDown(cutting_tool);
 
-					tree.OnTreeCutDown(cutting_tool);
+			dBodyDestroy(tree);
 
-					dBodyDestroy(tree);
-
-					GetGame().ObjectDelete(cutting_tool);
-				}
-			}
+			GetGame().ObjectDelete(cutting_tool);
 		}
 	}
 
@@ -3802,5 +3867,13 @@ modded class CarScript
 			return 0;
 
 		return m_BatteryConsume;
+	}
+	
+	override void EEKilled( Object killer )
+	{
+		super.EEKilled( killer );
+
+		if (GetExpansionSettings().GetLog().VehicleDestroyed)
+    		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] "+GetType()+" was destroyed at pos=" + GetPosition());
 	}
 };

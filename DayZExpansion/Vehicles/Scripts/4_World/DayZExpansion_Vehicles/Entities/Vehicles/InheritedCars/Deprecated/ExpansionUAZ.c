@@ -3,31 +3,43 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
-class ExpansionUAZDoorDriver extends CarDoor {};
-class ExpansionUAZDoorCoDriver extends CarDoor {};
-class ExpansionUAZDoorCargo1 extends CarDoor {};
-class ExpansionUAZDoorCargo2 extends CarDoor {};
-class ExpansionUAZDoorHood extends CarDoor {};
-class ExpansionUAZDoorTrunk extends CarDoor {}; // unused
+class ExpansionUAZDoorDriver extends CarDoor
+{
+};
+
+class ExpansionUAZDoorCoDriver extends CarDoor
+{
+};
+
+class ExpansionUAZDoorCargo1 extends CarDoor
+{
+};
+
+class ExpansionUAZDoorCargo2 extends CarDoor
+{
+};
+
+class ExpansionUAZDoorHood extends CarDoor
+{
+};
+
+class ExpansionUAZDoorTrunk extends CarDoor
+{
+};
 
 class ExpansionUAZ extends CarScript
 {
-	private bool m_HasRoof;
+	bool m_HasRoof;
 
-	// ------------------------------------------------------------
 	void ExpansionUAZ()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::Constructor - Start");
-		#endif
-
 		m_dmgContactCoef = 0.040;
 
 		m_EngineStartOK = "Hatchback_02_engine_start_SoundSet";
@@ -35,24 +47,20 @@ class ExpansionUAZ extends CarScript
 		m_EngineStartPlug = "Hatchback_02_engine_failed_start_sparkplugs_SoundSet";
 		m_EngineStartFuel = "Hatchback_02_engine_failed_start_fuel_SoundSet";
 		m_EngineStopFuel = "offroad_engine_stop_fuel_SoundSet";
-		
+
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::Constructor - End");
-		#endif
 	}
 
-	override void EEItemAttached ( EntityAI item, string slot_name ) 
+	override void EEItemAttached(EntityAI item, string slot_name)
 	{
 		super.EEItemAttached(item, slot_name);
 
-		if ( slot_name == "Material_Shelter_Fabric")
+		if (slot_name == "Material_Shelter_Fabric")
 		{
 			m_HasRoof = true;
-			AddProxyPhysics( "roof" );
-			ShowSelection( "roof" );
+			AddProxyPhysics("roof");
+			ShowSelection("roof");
 		}
 	}
 
@@ -60,58 +68,53 @@ class ExpansionUAZ extends CarScript
 	{
 		super.EEItemDetached(item, slot_name);
 
-		if ( slot_name == "Material_Shelter_Fabric")
+		if (slot_name == "Material_Shelter_Fabric")
 		{
 			m_HasRoof = false;
-			RemoveProxyPhysics( "roof" );
-			HideSelection( "roof" );
+			RemoveProxyPhysics("roof");
+			HideSelection("roof");
 		}
 	}
 
-	// ------------------------------------------------------------
 	override string ExpansionGetWheelType(int slot_id)
 	{
 		return "ExpansionUAZWheel";
 	}
 
-	// ------------------------------------------------------------
 	override int GetAnimInstance()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::GetAnimInstance");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
 
 		return ExpansionVehicleAnimInstances.EXPANSION_UAZ;
 	}
 
-	// ------------------------------------------------------------
 	override CarRearLightBase CreateRearLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::CreateRearLight");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateRearLight");
+#endif
 
-		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionRearCarLights) );
+		return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionRearCarLights));
 	}
-	
-	// ------------------------------------------------------------
+
 	override CarLightBase CreateFrontLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::CreateFrontLight");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
 
-		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionCarFrontLight) );
+		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionCarFrontLight));
 	}
 
-	// ------------------------------------------------------------
-	override int GetSeatAnimationType( int posIdx )
+	override int GetSeatAnimationType(int posIdx)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::GetSeatAnimationType");
-		#endif
-		
-		switch( posIdx )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
+		switch (posIdx)
 		{
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
@@ -126,386 +129,413 @@ class ExpansionUAZ extends CarScript
 		return 0;
 	}
 
-	// ------------------------------------------------------------
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)
 	{
-		switch( posIdx )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetDoorSelectionNameFromSeatPos").Add(posIdx);
+#endif
+
+		switch (posIdx)
 		{
 		case 0:
 			return "uazdriverdoor";
-		break;
+			break;
 		case 1:
 			return "uazcodriverdoor";
-		break;
+			break;
 		case 2:
 			return "uazcargo1door";
-		break;
+			break;
 		case 3:
 			return "uazcargo2door";
-		break;
+			break;
 		}
-		
+
 		return super.GetDoorSelectionNameFromSeatPos(posIdx);
 	}
 
-	// ------------------------------------------------------------
 	override string GetDoorInvSlotNameFromSeatPos(int posIdx)
 	{
-		switch( posIdx )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetDoorInvSlotNameFromSeatPos").Add(posIdx);
+#endif
+
+		switch (posIdx)
 		{
 		case 0:
 			return "uazdriverdoor";
-		break;
+			break;
 		case 1:
 			return "uazcodriverdoor";
-		break;
+			break;
 		case 2:
 			return "uazcargo1door";
-		break;
+			break;
 		case 3:
 			return "uazcargo2door";
-		break;
+			break;
 		}
-		
+
 		return super.GetDoorInvSlotNameFromSeatPos(posIdx);
 	}
-	
-	// ------------------------------------------------------------
-	override int GetCarDoorsState( string slotType )
+
+	override int GetCarDoorsState(string slotType)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::GetCarDoorsState");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetCarDoorsState").Add(slotType);
+#endif
+
 		CarDoor carDoor;
-		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
-		if ( !carDoor ) {
+		Class.CastTo(carDoor, FindAttachmentBySlotName(slotType));
+		if (!carDoor)
+		{
 			return CarDoorState.DOORS_MISSING;
 		}
 
-		switch( slotType )
+		switch (slotType)
 		{
-			case "uazdriverdoor": {
-				if ( GetAnimationPhase("uazdriverdoor") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
-				}
-				break;
+		case "uazdriverdoor":
+		{
+			if (GetAnimationPhase("uazdriverdoor") > 0)
+			{
+				return CarDoorState.DOORS_OPEN;
 			}
-			case "uazcodriverdoor": {
-				if ( GetAnimationPhase("uazcodriverdoor") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
-				}
-				break;
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
 			}
-			case "uazcargo1door": {
-				if ( GetAnimationPhase("uazcargo1door") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
-				}
-				break;
+			break;
+		}
+		case "uazcodriverdoor":
+		{
+			if (GetAnimationPhase("uazcodriverdoor") > 0)
+			{
+				return CarDoorState.DOORS_OPEN;
 			}
-			case "uazcargo2door": {
-				if ( GetAnimationPhase("uazcargo2door") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
-				}
-				break;
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
 			}
-			case "uazhooddoor": {
-				if ( GetAnimationPhase("uazhooddoor") > 0 ) {
-					return CarDoorState.DOORS_OPEN;
-				} else {
-					return CarDoorState.DOORS_CLOSED;
-				}
-				break;
+			break;
+		}
+		case "uazcargo1door":
+		{
+			if (GetAnimationPhase("uazcargo1door") > 0)
+			{
+				return CarDoorState.DOORS_OPEN;
 			}
-			case "uaztrunkdoor": {
-					return CarDoorState.DOORS_CLOSED;
-				//if ( GetAnimationPhase("uaztrunkdoor") > 0.5 ) {
-				//	return CarDoorState.DOORS_OPEN;
-				//} else {
-				//	return CarDoorState.DOORS_CLOSED;
-				//}
-				break;
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
 			}
-			default: {
-				return CarDoorState.DOORS_MISSING;
+			break;
+		}
+		case "uazcargo2door":
+		{
+			if (GetAnimationPhase("uazcargo2door") > 0)
+			{
+				return CarDoorState.DOORS_OPEN;
 			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		case "uazhooddoor":
+		{
+			if (GetAnimationPhase("uazhooddoor") > 0)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		case "uaztrunkdoor":
+		{
+			return CarDoorState.DOORS_CLOSED;
+			// if ( GetAnimationPhase("uaztrunkdoor") > 0.5 ) {
+			//	return CarDoorState.DOORS_OPEN;
+			// } else {
+			//	return CarDoorState.DOORS_CLOSED;
+			// }
+			break;
+		}
+		default:
+		{
+			return CarDoorState.DOORS_MISSING;
+		}
 		}
 
 		return CarDoorState.DOORS_MISSING;
 	}
-	
-	override bool CanReleaseAttachment( EntityAI attachment )
+
+	override bool CanReleaseAttachment(EntityAI attachment)
 	{
-		if( !super.CanReleaseAttachment( attachment ) )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CanReleaseAttachment").Add(attachment);
+#endif
+
+		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
 		string attType = attachment.GetType();
-		
-		
-		if ( EngineIsOn() || GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED )
+
+		if (EngineIsOn() || GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED)
 		{
-			if ( attType == "CarRadiator" || attType == "CarBattery" || attType == "SparkPlug" )
+			if (attType == "CarRadiator" || attType == "CarBattery" || attType == "SparkPlug")
 				return false;
 		}
 
 		return true;
 	}
 
-	override bool CanDisplayAttachmentCategory( string category_name )
+	override bool CanDisplayAttachmentCategory(string category_name)
 	{
-		if ( !super.CanDisplayAttachmentCategory( category_name ) )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CanDisplayAttachmentCategory").Add(category_name);
+#endif
+
+		if (!super.CanDisplayAttachmentCategory(category_name))
 			return false;
-	
+
 		category_name.ToLower();
-		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
-		
-		if ( category_name.Contains( "engine" ) )
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
+		if (category_name.Contains("engine"))
 		{
-			if ( GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED )
+			if (GetCarDoorsState("uazhooddoor") == CarDoorState.DOORS_CLOSED)
 				return false;
 		}
-				
+
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	override float OnSound( CarSoundCtrl ctrl, float oldValue )
+
+	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::OnSound - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
+#endif
 
-		switch ( ctrl )
+		switch (ctrl)
 		{
-			case CarSoundCtrl.DOORS:
-				float newValue = 0;
+		case CarSoundCtrl.DOORS:
+			float newValue = 0;
 
-				if ( GetCarDoorsState( "uazdriverdoor" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
+			if (GetCarDoorsState("uazdriverdoor") == CarDoorState.DOORS_CLOSED)
+			{
+				newValue += 0.4;
+			}
 
-				if ( GetCarDoorsState( "uazcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
+			if (GetCarDoorsState("uazcodriverdoor") == CarDoorState.DOORS_CLOSED)
+			{
+				newValue += 0.4;
+			}
 
-				if ( GetCarDoorsState( "uazcargo1door" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
+			if (GetCarDoorsState("uazcargo1door") == CarDoorState.DOORS_CLOSED)
+			{
+				newValue += 0.4;
+			}
 
-				if ( GetCarDoorsState( "uazcargo2door" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
+			if (GetCarDoorsState("uazcargo2door") == CarDoorState.DOORS_CLOSED)
+			{
+				newValue += 0.4;
+			}
 
-				if ( newValue > 1 )
-					newValue = 1;
+			if (newValue > 1)
+				newValue = 1;
 
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionUAZ::OnSound - End");
-				#endif
-
-				return newValue;
-			default:
-				break;
+			return newValue;
+		default:
+			break;
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::OnSound - End");
-		#endif
-		
 		return oldValue;
 	}
 
-	// ------------------------------------------------------------
-	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::CanReachDoorsFromSeat");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
 
-		switch( pCurrentSeat )
+		switch (pCurrentSeat)
 		{
-			case 0: {
-				if (pDoorsSelection == "uazdriverdoor")
-				{
-					return true;
-				}
-				break;
+		case 0:
+		{
+			if (pDoorsSelection == "uazdriverdoor")
+			{
+				return true;
 			}
-			case 1: {
-				if (pDoorsSelection == "uazcodriverdoor")
-				{
-					return true;
-				}
-				break;
+			break;
+		}
+		case 1:
+		{
+			if (pDoorsSelection == "uazcodriverdoor")
+			{
+				return true;
 			}
-			case 2: {
-				if (pDoorsSelection == "uazcargo1door")
-				{
-					return true;
-				}
-				break;
+			break;
+		}
+		case 2:
+		{
+			if (pDoorsSelection == "uazcargo1door")
+			{
+				return true;
 			}
-			case 3: {
-				if (pDoorsSelection == "uazcargo2door")
-				{
-					return true;
-				}
-				break;
+			break;
+		}
+		case 3:
+		{
+			if (pDoorsSelection == "uazcargo2door")
+			{
+				return true;
 			}
-		}	
-		return false;	
+			break;
+		}
+		}
+		return false;
 	}
 
-	// ------------------------------------------------------------
-	override string GetAnimSourceFromSelection( string selection )
+	override string GetAnimSourceFromSelection(string selection)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::GetAnimSourceFromSelection");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetAnimSourceFromSelection").Add(selection);
+#endif
 
-		switch( selection )
+		switch (selection)
 		{
-			case "uazdriverdoor":
-				return "uazdriverdoor";
-			case "uazcodriverdoor":
-				return "uazcodriverdoor";
-			case "uazcargo1door":
-				return "uazcargo1door";
-			case "uazcargo2door":
-				return "uazcargo2door";
-			case "uazhooddoor":
-				return "uazhooddoor";
-			case "uaztrunkdoor":
-				return "uaztrunkdoor";
+		case "uazdriverdoor":
+			return "uazdriverdoor";
+		case "uazcodriverdoor":
+			return "uazcodriverdoor";
+		case "uazcargo1door":
+			return "uazcargo1door";
+		case "uazcargo2door":
+			return "uazcargo2door";
+		case "uazhooddoor":
+			return "uazhooddoor";
+		case "uaztrunkdoor":
+			return "uaztrunkdoor";
 		}
 
 		return "";
 	}
 
-	// ------------------------------------------------------------
-	override bool CrewCanGetThrough( int posIdx )
+	override bool CrewCanGetThrough(int posIdx)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::CrewCanGetThrough");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
 
-		switch( posIdx )
+		switch (posIdx)
 		{
-			case 0: {
-				if ( GetAnimationPhase("uazdriverdoor") > 0 ) {
-					return true;
-				}
-				if ( FindAttachmentBySlotName("uazdriverdoor") == NULL ) 
-					return true;
-				
-				break;
+		case 0:
+		{
+			if (GetAnimationPhase("uazdriverdoor") > 0)
+			{
+				return true;
 			}
-			case 1: {
-				if ( GetAnimationPhase("uazcodriverdoor") > 0 ) {
-					return true;
-				}
-				if ( FindAttachmentBySlotName("uazcodriverdoor") == NULL ) 
-					return true;
-				
-				break;
+			if (FindAttachmentBySlotName("uazdriverdoor") == NULL)
+				return true;
+
+			break;
+		}
+		case 1:
+		{
+			if (GetAnimationPhase("uazcodriverdoor") > 0)
+			{
+				return true;
 			}
-			case 2: {
-				if ( GetAnimationPhase("uazcargo1door") > 0 ) {
-					return true;
-				}
-				if ( FindAttachmentBySlotName("uazcargo1door") == NULL ) 
-					return true;
-				
-				break;
+			if (FindAttachmentBySlotName("uazcodriverdoor") == NULL)
+				return true;
+
+			break;
+		}
+		case 2:
+		{
+			if (GetAnimationPhase("uazcargo1door") > 0)
+			{
+				return true;
 			}
-			case 3: {
-				if ( GetAnimationPhase("uazcargo2door") > 0 ) {
-					return true;
-				}
-				if ( FindAttachmentBySlotName("uazcargo2door") == NULL ) 
-					return true;
-				
-				break;
+			if (FindAttachmentBySlotName("uazcargo1door") == NULL)
+				return true;
+
+			break;
+		}
+		case 3:
+		{
+			if (GetAnimationPhase("uazcargo2door") > 0)
+			{
+				return true;
 			}
+			if (FindAttachmentBySlotName("uazcargo2door") == NULL)
+				return true;
+
+			break;
+		}
 		}
 
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool HasRoof()
 	{
 		return m_HasRoof;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::IsVitalCarBattery");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::IsVitalTruckBattery");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalTruckBattery");
+#endif
 
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::IsVitalSparkPlug");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalSparkPlug");
+#endif
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsVitalRadiator()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::IsVitalRadiator");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalRadiator");
+#endif
 
 		return true;
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsVitalGlowPlug()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::IsVitalGlowPlug");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalGlowPlug");
+#endif
 
 		return false;
 	}
-
-	// ------------------------------------------------------------
 	override bool IsVitalEngineBelt()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::IsVitalEngineBelt");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalEngineBelt");
+#endif
 
 		return false;
 	}
@@ -513,36 +543,36 @@ class ExpansionUAZ extends CarScript
 	override void OnDebugSpawn()
 	{
 		EntityAI entity;
-		
-		if ( Class.CastTo(entity, this) )
+
+		if (Class.CastTo(entity, this))
 		{
-			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZWheel" );
+			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
+			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
+			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
+			entity.GetInventory().CreateInInventory("ExpansionUAZWheel");
 
-			entity.GetInventory().CreateInInventory( "CarBattery" );
-			entity.GetInventory().CreateInInventory( "SparkPlug" );
-			entity.GetInventory().CreateInInventory( "CarRadiator" );
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
 
-			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorDriver" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorCoDriver" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorCargo1" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorCargo2" );
-			entity.GetInventory().CreateInInventory( "ExpansionUAZDoorHood" );
+			entity.GetInventory().CreateInInventory("ExpansionUAZDoorDriver");
+			entity.GetInventory().CreateInInventory("ExpansionUAZDoorCoDriver");
+			entity.GetInventory().CreateInInventory("ExpansionUAZDoorCargo1");
+			entity.GetInventory().CreateInInventory("ExpansionUAZDoorCargo2");
+			entity.GetInventory().CreateInInventory("ExpansionUAZDoorHood");
 
-			entity.GetInventory().CreateInInventory( "HeadlightH7" );
-			entity.GetInventory().CreateInInventory( "HeadlightH7" );
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
 		}
 
-		Fill( CarFluid.FUEL, 50 );
-		Fill( CarFluid.COOLANT, 6.0 );
-		Fill( CarFluid.OIL, 4.0 );
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
 	}
 };
+
 class ExpansionUAZRoofless extends ExpansionUAZ
 {
-	// ------------------------------------------------------------
 	override bool HasRoof()
 	{
 		return false;
@@ -551,7 +581,6 @@ class ExpansionUAZRoofless extends ExpansionUAZ
 
 class ExpansionUAZCargoRoofless extends ExpansionUAZRoofless
 {
-	// ------------------------------------------------------------
 	void ExpansionUAZCargoRoofless()
 	{
 		m_dmgContactCoef = 0.018;

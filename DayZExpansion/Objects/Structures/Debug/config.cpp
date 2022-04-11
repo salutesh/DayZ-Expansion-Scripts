@@ -24,6 +24,7 @@ class CfgVehicles
 	{
 		scope = 2;
 		displayName = "Admin Hammer";
+		expansionIsAdminTool = 1;
 	};
 	class ExpansionDebugRod: Inventory_Base
 	{

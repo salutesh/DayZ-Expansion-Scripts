@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,9 +15,10 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
-	static const int VERSION = 0;
-	
+	static const int VERSION = 2;
+
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
+	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
 	
 	#ifdef EXPANSIONMODVEHICLE
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
@@ -25,24 +26,40 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool VehicleLockPicking;	//! If enabled, generate logs about lockpicking a vehicle
 	#endif
 
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODBASEBUILDING
 	bool BaseBuildingRaiding;	//! If enabled, generate logs about raiding expansion basebuilding and safes
 	bool CodeLockRaiding;		//! If enabled, generate logs about codelock raiding (wrong core)
 	bool Territory;				//! If enabled, generate logs about creating, deleting territories and inviting players
+	#endif
 
+	#ifdef EXPANSIONMOD
 	bool Killfeed;				//! If enabled, generate logs based on the killfeed module
-	bool Party;					//! If enabled, generate logs when the player create a party or invite someone
-	bool Chat;					//! If enabled, generate logs of the chat
-	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
 	bool SpawnSelection;		//! If enabled, generate logs when the player spawn
-	
+	#endif
+
+	#ifdef EXPANSIONMODGROUPS
+	bool Party;					//! If enabled, generate logs when the player create a party or invite someone
+	#endif
+
+	#ifdef EXPANSIONMODMISSIONS
 	bool MissionAirdrop;		//! If enabled, generate logs of spawned airdrops from missions or player called
-	//bool MissionHorde;		//! TODO
+	//bool MissionHorde;		//! Will log Horde missions
+	#endif
+
+	#ifdef EXPANSIONMODCHAT
+	bool Chat;					//! If enabled, generate logs of the chat
 	#endif
 
 	#ifdef EXPANSIONMODMARKET
 	bool Market;				//! If enabled, generate logs for market system actions by all players
 	bool ATM;					//! If enabled, generate logs for ATM system actions by all players
+	#endif
+
+	bool LogToScripts; 			// Should the prints be logged in the scripts logs ?
+	bool LogToADM; 				// Should the prints be logged in the ADM logs ?
+
+	#ifdef EXPANSIONMODVEHICLE
+	bool VehicleDestroyed; 		// Print a log when a vehicle is destroyed
 	#endif
 	
 	[NonSerialized()]
@@ -62,9 +79,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
 
 		//Not sent to client under normal operation
 		m_IsLoaded = true;
@@ -82,10 +99,6 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		ExpansionSettings.SI_Log.Invoke();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::OnRecieve - End");
-		#endif
-
 		return true;
 	}
 	
@@ -116,9 +129,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionLogSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::CopyInternal - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 
 		Safezone = s.Safezone;
 
@@ -128,25 +141,42 @@ class ExpansionLogSettings: ExpansionSettingBase
 		VehicleLockPicking = s.VehicleLockPicking;
 		#endif
 
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODBASEBUILDING
 		BaseBuildingRaiding = s.BaseBuildingRaiding;
 		CodeLockRaiding = s.CodeLockRaiding;
-		Killfeed = s.Killfeed;
-		Party = s.Party;
 		Territory = s.Territory;
-		Chat = s.Chat;
-		AdminTools = s.AdminTools;
+		#endif
+
+		#ifdef EXPANSIONMOD
+		Killfeed = s.Killfeed;
 		SpawnSelection = s.SpawnSelection;
+		#endif
+
+		#ifdef EXPANSIONMODMISSIONS
 		MissionAirdrop = s.MissionAirdrop;
+		//MissionHorde = s.MissionHorde;
+		#endif
+		
+		#ifdef EXPANSIONMODGROUPS
+		Party = s.Party;
+		#endif
+
+		#ifdef EXPANSIONMODCHAT
+		Chat = s.Chat;
 		#endif
 
 		#ifdef EXPANSIONMODMARKET
 		Market = s.Market;
 		ATM = s.ATM;
 		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::CopyInternal - End");
+
+		AdminTools = s.AdminTools;
+
+		LogToScripts = s.LogToScripts;
+		LogToADM = s.LogToADM;
+
+		#ifdef EXPANSIONMODVEHICLE
+		VehicleDestroyed = s.VehicleDestroyed;
 		#endif
 	}
 	
@@ -164,42 +194,56 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 	// ------------------------------------------------------------
 	override bool OnLoad()
-	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::Load - Start");
-		#endif
-		
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
+
 		m_IsLoaded = true;
 
 		m_FileTimestamp = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetDateTime() + ".log";
-		
+
 		bool save;
-		
+
 		bool  logSettingsExist = FileExist(EXPANSION_LOG_SETTINGS);
-		
+
 		if (logSettingsExist)
 		{
 			EXPrint("[ExpansionLogSettings] Load existing setting file:" + EXPANSION_LOG_SETTINGS);
+			
+			ExpansionLogSettings settingsDefault = new ExpansionLogSettings;
+			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionLogSettings>.JsonLoadFile( EXPANSION_LOG_SETTINGS, this );
-	
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionLogSettings::Load - End - Loaded");
-			#endif
+			JsonFileLoader<ExpansionLogSettings>.JsonLoadFile(EXPANSION_LOG_SETTINGS, this);
+
+			if (m_Version < VERSION)
+			{
+				if (m_Version < 2)
+				{
+					EXPrint("[ExpansionLogSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_LOG_SETTINGS + "\" to v" + VERSION);
+					
+					//! New with v2
+					LogToScripts = settingsDefault.LogToScripts;
+					LogToADM = settingsDefault.LogToADM;
+					#ifdef EXPANSIONMODVEHICLE
+					VehicleDestroyed = settingsDefault.VehicleDestroyed;
+					#endif
+				}
+
+				m_Version = VERSION;
+				save = true;
+			}
 		}
 		else
 		{
-			EXPrint("[ExpansionLogSettings] No existing setting file:" + EXPANSION_VEHICLE_SETTINGS + ". Creating defaults!");
+			EXPrint("[ExpansionLogSettings] No existing setting file:" + EXPANSION_LOG_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
-
+		
 		if (save)
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionLogSettings::Load - End - Not Loaded");
-		#endif
+
 		return logSettingsExist;
 	}
 
@@ -227,23 +271,40 @@ class ExpansionLogSettings: ExpansionSettingBase
 		m_Version = VERSION;
 		
 		Safezone = true;
+		AdminTools = true;
+
+		LogToScripts = false;
+		LogToADM = false;
 
 		#ifdef EXPANSIONMODVEHICLE
+		VehicleDestroyed = true;
 		VehicleCarKey = true;
 		VehicleTowing = true;
 		VehicleLockPicking = true;
 		#endif
 
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODBASEBUILDING
 		BaseBuildingRaiding = true;
 		CodeLockRaiding = true;
-		Killfeed = true;
-		Party = true;
 		Territory = true;
-		Chat = true;
-		AdminTools = true;
+		#endif
+
+		#ifdef EXPANSIONMOD
+		Killfeed = true;
 		SpawnSelection = true;
+		#endif
+
+		#ifdef EXPANSIONMODMISSIONS
 		MissionAirdrop = true;
+		//MissionHorde = true;
+		#endif
+		
+		#ifdef EXPANSIONMODGROUPS
+		Party = true;
+		#endif
+
+		#ifdef EXPANSIONMODCHAT
+		Chat = true;
 		#endif
 		
 		#ifdef EXPANSIONMODMARKET
@@ -264,11 +325,25 @@ class ExpansionLogSettings: ExpansionSettingBase
 			MakeDirectory( EXPANSION_LOG_FOLDER );
 		}
 
-		if ( !FileExist( m_FileTimestamp ) )
-			m_FileLog = OpenFile(m_FileTimestamp, FileMode.WRITE);
-		else
-			m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);
-		FPrintln(m_FileLog, ExpansionStatic.GetTime() + " " + text);
-		CloseFile(m_FileLog);
+		string output = ExpansionStatic.GetTime() + " " + text;
+
+		if ( LogToScripts || LogToADM )
+		{
+			if ( LogToScripts )
+			{
+				Print(output);
+			}
+			if ( LogToADM )
+			{
+				GetGame().AdminLog(output);
+			}
+		} else {
+			if ( !FileExist( m_FileTimestamp ) )
+				m_FileLog = OpenFile(m_FileTimestamp, FileMode.WRITE);
+			else
+				m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);
+			FPrintln(m_FileLog, output);
+			CloseFile(m_FileLog);
+		}
 	}
 };

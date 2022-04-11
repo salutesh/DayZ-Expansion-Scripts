@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -22,17 +22,13 @@ class ExpansionSkins : Managed
 	// ------------------------------------------------------------	
 	void ExpansionSkins( string defaultSkin )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::ExpansionSkins - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "ExpansionSkins");
+#endif
+
 		m_DefaultSkin = defaultSkin;
 		m_Skins = new map< string, ref ExpansionSkin >;
 		m_Order = new array< string >;
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::ExpansionSkins - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -40,16 +36,12 @@ class ExpansionSkins : Managed
 	// ------------------------------------------------------------	
 	void ~ExpansionSkins()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::~ExpansionSkins - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "~ExpansionSkins");
+#endif
+
 		delete m_Skins;
 		delete m_Order;
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::~ExpansionSkins - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -57,19 +49,15 @@ class ExpansionSkins : Managed
 	// ------------------------------------------------------------	
 	void AddSkin( string name, string path )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::AddSkin - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "AddSkin");
+#endif
+
 		ExpansionSkin skin = new ExpansionSkin;
 		JsonFileLoader< ExpansionSkin >.JsonLoadFile( path, skin );
 		
 		m_Skins.Insert( name, skin );
 		m_Order.Insert( name );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::AddSkin - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

@@ -3,14 +3,14 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-#ifdef EXPANSIONMOD
+#ifdef EXPANSIONMODBASEBUILDING
 class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabTerritoryMemberEditController m_MemberEditController;
@@ -111,9 +111,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		
 		if (!m_MemberEditController)
 			m_MemberEditController = ExpansionBookMenuTabTerritoryMemberEditController.Cast(GetController());
-		
-		Print("ExpansionBookMenuTabTerritoryMemberEdit::SetTab - Member: " + member);
-		
+			
 		if (IsPlayerOnline(member.GetID()))
 		{
 			SetMemberPreview(member.GetID());
@@ -154,10 +152,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 	}
 	
 	void OnPromoteButtonClick()
-	{
-		Print("OnPromoteButtonClick - Member: " + m_Member);
-		Print("OnPromoteButtonClick - Territory: " + m_Territory);
-		
+	{	
 		if (!m_Member)
 			return;
 		

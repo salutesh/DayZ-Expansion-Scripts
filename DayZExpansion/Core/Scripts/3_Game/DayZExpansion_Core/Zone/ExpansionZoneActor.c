@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -26,8 +26,8 @@ class ExpansionZoneActor
 
 	void ExpansionZoneActor()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::ExpansionZoneActor start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "ExpansionZoneActor");
 #endif
 
 		m_Next = g_ExpansionZoneActorHead;
@@ -39,16 +39,12 @@ class ExpansionZoneActor
 		}
 
 		g_ExpansionZoneActorHead = this;
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::ExpansionZoneActor end");
-#endif
 	}
 
 	void ~ExpansionZoneActor()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::~ExpansionZoneActor start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "~ExpansionZoneActor");
 #endif
 
 		if (!g_ExpansionZoneActorHead)
@@ -73,16 +69,12 @@ class ExpansionZoneActor
 		{
 			m_Prev.m_Next = m_Next;
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::~ExpansionZoneActor end");
-#endif
 	}
 
 	static void UpdateAll(int max)
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::UpdateAll start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, "ExpansionZoneActor", "UpdateAll");
 #endif
 
 		int index = 0;
@@ -113,32 +105,24 @@ class ExpansionZoneActor
 				passedHead = true;
 			}
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::UpdateAll end");
-#endif
 	}
 
 	void Update()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::Update start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "Update");
 #endif
 
 		for (int i = 0; i < COUNT; i++)
 			ExpansionZone.s_InsideBuffer[i] = false;
 
 		OnUpdate();
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::Update end");
-#endif
 	}
 
 	protected void OnUpdate()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::OnUpdate start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnUpdate");
 #endif
 
 		m_Position = GetPosition();
@@ -160,10 +144,6 @@ class ExpansionZoneActor
 			m_Inside[i] = ExpansionZone.s_InsideBuffer[i];
 			ExpansionZone.s_InsideBuffer[i] = false;
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionZoneActor::OnUpdate end");
-#endif
 	}
 
 	void OnEnterZone(ExpansionZoneType type);
@@ -223,8 +203,8 @@ class ExpansionZoneEntity<Class T> : ExpansionZoneActor
 
 	override void OnUpdate()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::OnUpdate start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnUpdate");
 #endif
 
 		m_Position = m_Instance.GetPosition();
@@ -246,9 +226,5 @@ class ExpansionZoneEntity<Class T> : ExpansionZoneActor
 			m_Inside[i] = ExpansionZone.s_InsideBuffer[i];
 			ExpansionZone.s_InsideBuffer[i] = false;
 		}
-
-#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::OnUpdate end");
-#endif
 	}
 };

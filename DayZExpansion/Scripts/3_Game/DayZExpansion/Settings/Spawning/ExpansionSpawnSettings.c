@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,46 +15,20 @@
  **/
 class ExpansionSpawnSettingsBase: ExpansionSettingBase
 {
+	ref array<ref ExpansionSpawnLocation> SpawnLocations;
 	ref ExpansionStartingClothing StartingClothing;
 	bool EnableSpawnSelection;
 	bool SpawnOnTerritory;
-	ref array< ref ExpansionSpawnLocation > SpawnLocations;
 	
 	// ------------------------------------------------------------
 	void ExpansionSpawnSettingsBase()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettingsBase::ExpansionSpawnSettingsBase - Start");
-		#endif
-		
-		StartingClothing = new ExpansionStartingClothing;
-		SpawnLocations = new array< ref ExpansionSpawnLocation >;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettingsBase::ExpansionSpawnSettingsBase - End");
-		#endif
-	}
-}
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnSettingsBase");
+#endif
 
-/**@class		ExpansionSpawnSettingsV1
- * @brief		Spawn settings base class
- **/
-class ExpansionSpawnSettingsV1: ExpansionSpawnSettingsBase
-{
-	ref ExpansionStartingGearV1 StartingGear;
-	
-	// ------------------------------------------------------------
-	void ExpansionSpawnSettingsV1()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettingsV1::ExpansionSpawnSettingsV1 - Start");
-		#endif
-		
-		StartingGear = new ExpansionStartingGearV1;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettingsV1::ExpansionSpawnSettingsV1 - End");
-		#endif
+		SpawnLocations = new array<ref ExpansionSpawnLocation>;
+		StartingClothing = new ExpansionStartingClothing;
 	}
 }
 
@@ -63,13 +37,21 @@ class ExpansionSpawnSettingsV1: ExpansionSpawnSettingsBase
  **/
 class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 {
-	static const int VERSION = 3;
-
+	static const int VERSION = 4;
+	
 	ref ExpansionStartingGear StartingGear;
 	
 	float SpawnHealthValue;
 	float SpawnEnergyValue;
 	float SpawnWaterValue;
+	
+	bool EnableRespawnCooldowns;
+	int RespawnCooldown;
+	bool RespawnUTCTime;
+	bool PunishMultispawn;
+	int PunishCooldown;
+	int PunishTimeframe;
+	bool CreateDeathMarker;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -77,117 +59,104 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnSettings()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - Start");
-		#endif
-		
 		StartingGear = new ExpansionStartingGear;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
 		
-		//Not sent to client under normal operation
-		m_IsLoaded = true;
-
-		ExpansionSpawnSettings setting;
-		if ( !ctx.Read( setting ) )
+		if (!ctx.Read(EnableRespawnCooldowns))
 		{
-			Error("ExpansionSpawnSettings::OnRecieve setting");
+			Error("ExpansionSpawnSettings::OnRecieve RespawnCooldown");
 			return false;
 		}
 
-		CopyInternal( setting );
-
-		m_IsLoaded = true;
-
-		ExpansionSettings.SI_Spawn.Invoke();
+		if (!ctx.Read(RespawnCooldown))
+		{
+			Error("ExpansionSpawnSettings::OnRecieve RespawnCooldown");
+			return false;
+		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::OnRecieve - End");
-		#endif
-
+		if (!ctx.Read(RespawnUTCTime))
+		{
+			Error("ExpansionSpawnSettings::OnRecieve RespawnUTCTime");
+			return false;
+		}
+		
+		if (!ctx.Read(PunishMultispawn))
+		{
+			Error("ExpansionSpawnSettings::OnRecieve PunishMultispawn");
+			return false;
+		}
+		
+		if (!ctx.Read(PunishCooldown))
+		{
+			Error("ExpansionSpawnSettings::OnRecieve PunishCooldown");
+			return false;
+		}
+		
+		if (!ctx.Read(PunishTimeframe))
+		{
+			Error("ExpansionSpawnSettings::OnRecieve PunishTimeframe");
+			return false;
+		}
+		
+		if (!ctx.Read(CreateDeathMarker))
+		{
+			Error("ExpansionSpawnSettings::OnRecieve CreateDeathMarker");
+			return false;
+		}
+		
+		m_IsLoaded = true;
+		
 		return true;
 	}
 	
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::OnSend - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
+#endif
 		
-		ExpansionSpawnSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
-		
-		#ifdef OnSend
-		EXPrint("ExpansionSpawnSettings::ExpansionSpawnSettings - End");
-		#endif
+		ctx.Write( EnableRespawnCooldowns );
+		ctx.Write( RespawnCooldown );
+		ctx.Write( RespawnUTCTime );
+		ctx.Write( PunishMultispawn );
+		ctx.Write( PunishCooldown );
+		ctx.Write( PunishTimeframe );
+		ctx.Write( CreateDeathMarker );
 	}
 
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		//Not sent to client
-	}
-
-	// ------------------------------------------------------------
-	override bool Copy( ExpansionSettingBase setting )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Copy - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
+		if ( !IsMissionHost() )
+		{
+			return 0;
+		}
 		
-		ExpansionSpawnSettings s;
-		if ( !Class.CastTo( s, setting ) )
-			return false;
-
-		CopyInternal( s );
+		ScriptRPC rpc = new ScriptRPC;
+		OnSend( rpc );
+		rpc.Send( null, ExpansionSettingsRPC.Spawn, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::Copy - End");
-		#endif
-		
-		return true;
-	}
-	
-	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionSpawnSettings s )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::CopyInternal - Start");
-		#endif
-		
-		//! Added with v2
-		StartingGear = s.StartingGear;		
-		SpawnHealthValue = s.SpawnHealthValue;
-		SpawnEnergyValue = s.SpawnEnergyValue;
-		SpawnWaterValue = s.SpawnWaterValue;
-
-		ExpansionSpawnSettingsBase sb = s;
-		CopyInternal( sb );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::CopyInternal - End");
-		#endif
+		return 0;
 	}
 	
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionSpawnSettingsBase s)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::CopyInternal - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		StartingClothing = s.StartingClothing;
 		EnableSpawnSelection = s.EnableSpawnSelection;
 		SpawnOnTerritory = s.SpawnOnTerritory;
@@ -197,10 +166,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		{
 			SpawnLocations.Insert( s.SpawnLocations[i] );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -218,9 +183,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::OnLoad - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
 
 		m_IsLoaded = true;
 			
@@ -241,99 +206,41 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 			settingsDefault.Defaults();
 
 			ExpansionSpawnSettingsBase settingsBase;
-
 			JsonFileLoader<ExpansionSpawnSettingsBase>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, settingsBase);
-
 			if (settingsBase.m_Version < VERSION)
 			{
-				if (settingsBase.m_Version < 2)
+				EXPrint("[ExpansionSpawnSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_SPAWN_SETTINGS + "\" to v" + VERSION);
+
+				//! @note loading v1 StartingGear no longer supported (removed), will just use defaults
+				//! v2 added SpawnHealth/Energy/Water
+				//! v3 just removed unused SpawnSelectionScreenMenuID
+				//! v4 added cooldowns, respawn punishment and death markers
+
+				if (settingsBase.m_Version > 1)
 				{
-					EXPrint("[ExpansionSpawnSettings] Load - Converting v1 \"" + EXPANSION_SPAWN_SETTINGS + "\" to v" + VERSION);
-
-					ExpansionSpawnSettingsV1 settings_v1;
-					JsonFileLoader<ExpansionSpawnSettingsV1>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, settings_v1);
-					
-					//! Copy over old  StartingGear settings that haven't changed
-					StartingGear.EnableStartingGear = settings_v1.StartingGear.EnableStartingGear;
-					StartingGear.UseUpperGear = settings_v1.StartingGear.UseUpperGear;
-					StartingGear.UsePantsGear = settings_v1.StartingGear.UsePantsGear;
-					StartingGear.UseBackpackGear = settings_v1.StartingGear.UseBackpackGear;	
-					StartingGear.UseVestGear = settings_v1.StartingGear.UseVestGear;
-					StartingGear.UsePrimaryWeapon = settings_v1.StartingGear.UsePrimaryWeapon;	
-					StartingGear.UseSecondaryWeapon = settings_v1.StartingGear.UseSecondaryWeapon;			
-					StartingGear.ApplyEnergySources = settings_v1.StartingGear.ApplyEnergySources;		
-					StartingGear.SetRandomHealth = settings_v1.StartingGear.SetRandomHealth;
-					
-					//! Expansion starting gear string arrays have been removed and replaced with a class array with version 2.
-					foreach ( string upperName : settings_v1.StartingGear.UpperGear )
-					{
-						StartingGear.UpperGear.Insert( new ExpansionStartingGearItem( upperName ) );
-					}
-					
-					foreach ( string pantsName : settings_v1.StartingGear.PantsGear )
-					{
-						StartingGear.PantsGear.Insert( new ExpansionStartingGearItem( pantsName ) );
-					}
-					
-					foreach ( string backName : settings_v1.StartingGear.BackpackGear )
-					{
-						StartingGear.BackpackGear.Insert( new ExpansionStartingGearItem( backName ) );
-					}
-					
-					foreach ( string vestName : settings_v1.StartingGear.VestGear )
-					{
-						StartingGear.VestGear.Insert( new ExpansionStartingGearItem(vestName) );
-					}
-
-					if (settings_v1.StartingGear.PrimaryWeapon != "")
-					{
-						if (settings_v1.StartingGear.PrimaryWeaponAttachments.Count() > 0)
-						{
-							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon, -1, settings_v1.StartingGear.PrimaryWeaponAttachments);
-						}
-						else
-						{
-							StartingGear.PrimaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.PrimaryWeapon);
-						}
-					}
-					
-					if (settings_v1.StartingGear.SecondaryWeapon != "")
-					{
-						if (settings_v1.StartingGear.SecondaryWeaponAttachments.Count() > 0)
-						{
-							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon, -1, settings_v1.StartingGear.SecondaryWeaponAttachments);
-						}
-						else
-						{
-							StartingGear.SecondaryWeapon = new ExpansionStartingGearItem(settings_v1.StartingGear.SecondaryWeapon);
-						}
-					}
-				
-					SpawnHealthValue = settingsDefault.SpawnHealthValue;	 //! SpawnHealthValue was added with version 2.
-					SpawnEnergyValue = settingsDefault.SpawnEnergyValue;	 //! SpawnEnergyValue was added with version 2.
-					SpawnWaterValue = settingsDefault.SpawnWaterValue;	 //! SpawnWaterValue was added with version 2.
+					JsonFileLoader<ExpansionSpawnSettings>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, this);
 				}
 				else
 				{
-					JsonFileLoader<ExpansionSpawnSettings>.JsonLoadFile(EXPANSION_SPAWN_SETTINGS, this);
-
-					if (settingsBase.m_Version < 3)
-					{
-						array<ref ExpansionStartingGearItem> weapons = {StartingGear.PrimaryWeapon, StartingGear.SecondaryWeapon};
-						array<ref array<ref ExpansionStartingGearItem>> startingGear = {StartingGear.UpperGear, StartingGear.PantsGear, StartingGear.BackpackGear, StartingGear.VestGear, weapons};
-						foreach (array<ref ExpansionStartingGearItem> gearItems: startingGear)
-						{
-							foreach (ExpansionStartingGearItem gearItem: gearItems)
-							{
-								if (gearItem.Quantity == 1 || !gearItem.ClassName)
-									gearItem.Quantity = -1;
-							}
-						}
-					}
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
 				}
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (settingsBase.m_Version < 4)
+				{
+					foreach (ExpansionSpawnLocation currentLocation: SpawnLocations)
+					{
+						currentLocation.SetUseCooldown(true);
+					}
+					
+					EnableRespawnCooldowns = settingsDefault.EnableRespawnCooldowns;
+					RespawnUTCTime = settingsDefault.RespawnUTCTime;
+					RespawnCooldown = settingsDefault.RespawnCooldown;
+					PunishMultispawn = settingsDefault.PunishMultispawn;
+					PunishCooldown = settingsDefault.PunishCooldown;
+					PunishTimeframe = settingsDefault.PunishTimeframe;
+					CreateDeathMarker = settingsDefault.CreateDeathMarker;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -353,10 +260,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		if (save)
 			Save();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSpawnSettings::OnLoad - End");
-		#endif
-		
 		return spawnSettingsExist;
 	}
 
@@ -369,7 +272,19 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 
 		return true;
 	}
+	
+	// ------------------------------------------------------------
+	override void Update( ExpansionSettingBase setting )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
+#endif
 
+		super.Update( setting );
+
+		ExpansionSettings.SI_Spawn.Invoke();
+	}
+	
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
@@ -380,10 +295,18 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		EnableSpawnSelection = false; 		//! Will be enabled if the map have a configured spawn location on generation
 		
-		SpawnHealthValue = 100.0;	// 100 is max
-		SpawnEnergyValue = 500.0;	// 7500 is max
-		SpawnWaterValue = 500.0; 	// 5000 is max
+		SpawnHealthValue = 100.0;	//! 100 is max
+		SpawnEnergyValue = 500.0;	//! 7500 is max
+		SpawnWaterValue = 500.0; 	//! 5000 is max
 
+		EnableRespawnCooldowns = true; //! Enable cooldown system for the spawn selection menu
+		RespawnUTCTime = false; //! UTC time is used for respawn point cooldown calcualtion
+		RespawnCooldown = 120; //! Respawn delay time in seconds
+		PunishMultispawn = true; //! If player uses the same spawn point twice or more then punish the player with additonal cooldown time
+		PunishCooldown = 120; // ! If "PunishMultispawn" is enabled and a player uses the same spawn point twice or more then punish the player with additonal cooldown time that is set here.
+		PunishTimeframe = 300; //! If "PunishMultispawn" is enabled and a player respawns twice or more on the same spawn point then he will get a additonal cooldown punishment set in the "PunishCooldown" setting. This setting here will mark the timeframe for when the player gets this punishment or not.
+		CreateDeathMarker = true; //! Create a marker on the spawn selection map on the players last position where the player died.
+		
 		//! Set default markers depending on map name
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
@@ -445,9 +368,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsChernarus()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsChernarus::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsChernarus");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -460,6 +383,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 14142.4, 3.3, 13290.2 ) );
 		positions.Insert( Vector( 13910.9, 4.3, 13624.9 ) );
 		location = new ExpansionSpawnLocation( "Svetloyarsk", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -469,6 +393,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 13052.9, 6.1, 9894.7 ) );
 		positions.Insert( Vector( 13207.2, 2.3, 10193.7 ) );
 		location = new ExpansionSpawnLocation( "Berezino", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -478,6 +403,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 13345.6, 1.87793, 6987.36 ) );
 		positions.Insert( Vector( 13383, 2.75516, 6815.89 ) );
 		location = new ExpansionSpawnLocation( "Solnich", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -487,6 +413,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 13515.912109, 2.679648, 6117.384277 ) );
 		positions.Insert( Vector( 13534.671875, 1.644669, 6234.750000 ) );
 		location = new ExpansionSpawnLocation( "Solnichniy", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -496,6 +423,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 11992.250000, 1.982081, 3404.554443 ) );
 		positions.Insert( Vector( 11859.343750, 1.901515, 3367.714844 ) );
 		location = new ExpansionSpawnLocation( "Kamyshovo", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -507,6 +435,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9428.458008, 2.254453, 1826.218506 ) );
 		positions.Insert( Vector( 9153.536133, 3.421117, 1914.300659 ) );
 		location = new ExpansionSpawnLocation( "Elektrozavodsk", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -517,6 +446,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7419.497070, 1.768386, 2576.503906 ) );
 		positions.Insert( Vector( 8139.250000, 1.151711, 2802.356445 ) );
 		location = new ExpansionSpawnLocation( "Chernogorsk", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -526,6 +456,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 4269.422852, 1.289235, 2245.660889 ) );
 		positions.Insert( Vector( 4111.905762, 1.566264, 2193.932617 ) );
 		location = new ExpansionSpawnLocation( "Balota", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -535,6 +466,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 3507.422852, 2.008609, 2101.454590 ) );
 		positions.Insert( Vector( 3366.985352, 1.902521, 2002.414063 ) );
 		location = new ExpansionSpawnLocation( "Komarovo", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -544,13 +476,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1708.523071, 1.958309, 2031.263672 ) );
 		positions.Insert( Vector( 1563.325684, 2.174132, 2063.254883 ) );
 		location = new ExpansionSpawnLocation( "Kamenka", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsChernarus::Defaults - End");
-		#endif
-
 	}
 	
 	// ------------------------------------------------------------
@@ -558,10 +486,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsLivonia()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsLivonia::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsLivonia");
+#endif
+
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -574,6 +502,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1772.424316, 275.384155, 9837.327148 ) );
 		positions.Insert( Vector( 1107.232178, 282.667786, 9262.442383 ) );
 		location = new ExpansionSpawnLocation( "Bielawa", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -584,6 +513,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 4053.288818, 242.455200, 11554.082031 ) );
 		positions.Insert( Vector( 3397.184326, 263.205750, 11606.515625 ) );
 		location = new ExpansionSpawnLocation( "Lukow", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -594,6 +524,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7015.449219, 172.516708, 11113.072266 ) );
 		positions.Insert( Vector( 6426.084473, 201.526901, 11602.169922 ) );
 		location = new ExpansionSpawnLocation( "Brena", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -603,6 +534,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8294.539063, 174.662094, 11968.569336 ) );
 		positions.Insert( Vector( 8553.800781, 187.723114, 12174.582031 ) );
 		location = new ExpansionSpawnLocation( "Kolembrody", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -614,13 +546,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 11187.933594, 170.951965, 11216.284180 ) );
 		positions.Insert( Vector( 10829.276367, 173.663818, 11294.203125 ) );
 		location = new ExpansionSpawnLocation( "Grabin", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsLivonia::Defaults - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -628,10 +556,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsSandbox()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsSandbox::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsSandbox");
+#endif
+
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -643,6 +571,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 292.435364, 10.012502, 94.893372 ) );
 		positions.Insert( Vector( 329.115234, 10.012492 ,220.430328 ) );
 		location = new ExpansionSpawnLocation( "Top Left", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -652,6 +581,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 159.996994, 10.012480, 1088.825195 ) );
 		positions.Insert( Vector( 215.231918, 10.012502, 1236.653809 ) );
 		location = new ExpansionSpawnLocation( "Top Right", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -661,6 +591,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1168.290771, 10.012502, 1169.665527 ) );
 		positions.Insert( Vector( 1229.704712, 10.012502, 1133.009155 ) );
 		location = new ExpansionSpawnLocation( "Bottom Right", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -670,6 +601,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 1157.629028, 10.012501, 146.891006 ) );
 		positions.Insert( Vector( 1254.572998, 10.012502, 184.080612 ) );
 		location = new ExpansionSpawnLocation( "Bottom Left", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -680,12 +612,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 828.482178, 10.012494, 580.280029 ) );
 		positions.Insert( Vector( 838.387878, 10.012502, 743.722046 ) );
 		location = new ExpansionSpawnLocation( "Middle", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsSandbox::Defaults - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -693,10 +622,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsDeerisle()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsDeerIsle::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsDeerisle");
+#endif
+
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -710,6 +639,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 10230.116211, 3.189571, 4238.677246 ) );
 		positions.Insert( Vector( 10098.096680, 16.852987, 4507.153809 ) );
 		location = new ExpansionSpawnLocation( "Smallville", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -720,6 +650,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 10027.609375, 46.279781, 5010.659668 ) );
 		positions.Insert( Vector( 10299.725586, 43.082348, 5171.118652 ) );
 		location = new ExpansionSpawnLocation( "Oceanville", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -730,6 +661,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 10266.131836, 8.428172, 5572.642578 ) );
 		positions.Insert( Vector( 10339.783203, 7.476208, 5502.157227 ) );
 		location = new ExpansionSpawnLocation( "Fisher Camp", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -742,13 +674,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9289.031250, 39.871628, 5421.801270 ) );
 		positions.Insert( Vector( 9479.124023, 27.024431, 5234.839844 ) );
 		location = new ExpansionSpawnLocation( "Unnnamed Town", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsDeerIsle::Defaults - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -756,9 +684,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsNamalsk()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsNamalsk::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsNamalsk");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -775,6 +703,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7999.814941, 4.266075, 7226.579590 ) );
 		positions.Insert( Vector( 7999.422852, 3.917540, 7135.880859 ) );
 		location = new ExpansionSpawnLocation( "Tara Harbor", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -786,6 +715,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7029.282227, 4.738458, 5508.801758 ) );
 		positions.Insert( Vector( 6907.666504, 2.793373, 5516.155273 ) );
 		location = new ExpansionSpawnLocation( "Tara SawMill", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -798,6 +728,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 6077.612793, 3.505146, 5477.541016 ) );
         positions.Insert( Vector( 5994.918457, 1.527500, 5409.187988 ) );
 		location = new ExpansionSpawnLocation( "Brensk Marsh", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -809,6 +740,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 4073.524658, 3.821608, 4738.167480 ) );
 		positions.Insert( Vector( 4016.597656, 3.288769, 4808.031250 ) );
 		location = new ExpansionSpawnLocation( "Brensk", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -834,6 +766,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 7665.194824, 2.558721, 11813.786133 )	);
 		positions.Insert( Vector( 7766.950195, 1.250474, 11752.501953 )	);
 		location = new ExpansionSpawnLocation( "Lubjansk", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -845,6 +778,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8763.146484, 2.962097, 10880.047852 )	);
 		positions.Insert( Vector( 8831.335938, 3.817108, 10787.751953 )	);
 		location = new ExpansionSpawnLocation( "Jalovisko", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -858,12 +792,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8995.268555, 2.661735, 9906.744141 ) );
 		positions.Insert( Vector( 8928.280273, 3.379394, 9872.879883 ) );
 		location = new ExpansionSpawnLocation( "Nemsk", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsNamalsk::Defaults - End");
-		#endif
 	}
 
 	
@@ -872,9 +803,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsChiemsee()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsChiemsee::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsChiemsee");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -901,12 +832,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 8079.215820, 71.149635, 8437.955078 ) );
 		positions.Insert( Vector( 8141.916504, 60.722095, 8174.657227 ) );
 		location = new ExpansionSpawnLocation( "Woods", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsChiemsee::Defaults - End");
-		#endif
 
 	}
 	
@@ -915,10 +843,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsEsseker()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsEsseker::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsEsseker");
+#endif
+
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -935,6 +863,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 7811.805176, 86.072418, 5737.385254 ) );
         positions.Insert( Vector( 9117.009766, 108.684692, 5944.108398 ) );
 		location = new ExpansionSpawnLocation( "Esseker", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -945,6 +874,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 6702.913574, 144.765900, 5345.629395 ) );
         positions.Insert( Vector( 6637.131836, 122.660553, 5451.673340 ) );
 		location = new ExpansionSpawnLocation( "Neptune Resort", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -958,6 +888,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 5011.791504, 179.612839, 4967.582520 ) );
         positions.Insert( Vector( 5250.353516, 159.675873, 5055.750000 ) );
 		location = new ExpansionSpawnLocation( "Kula", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -973,6 +904,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 6079.798340, 113.399956, 6272.316406 ) );
         positions.Insert( Vector( 6236.822266, 143.239914, 6384.316895 ) );
 		location = new ExpansionSpawnLocation( "Gulash", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -987,6 +919,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 5969.068359, 220.182510, 6833.822754 ) );
         positions.Insert( Vector( 6095.966309, 203.902664, 6624.937012 ) );
 		location = new ExpansionSpawnLocation( "Lug", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -999,6 +932,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 7566.331055, 155.758224, 7064.740234 ) );
         positions.Insert( Vector( 7432.634277, 151.480347, 7056.217773 ) );
 		location = new ExpansionSpawnLocation( "Posetra", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
@@ -1011,12 +945,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
         positions.Insert( Vector( 10367.518555, 101.088333, 7714.915039 ) );
         positions.Insert( Vector( 9956.348633, 158.499130, 7899.201660 ) );
 		location = new ExpansionSpawnLocation( "Woods", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsEsseker::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1024,9 +955,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsRostow()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsRostow::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsRostow");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -1038,10 +969,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		location = new ExpansionSpawnLocation( "Default", positions );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsRostow::Defaults - End");
-		#endif
 
 	}
 	
@@ -1050,9 +977,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsBanov()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsBanov::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsBanov");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -1065,6 +992,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 5171.1289, 200.18545, 131.65123 ) );
 		positions.Insert( Vector( 4631.9119, 189.56954, 258.21246 ) );
 		location = new ExpansionSpawnLocation( "Biskupice", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -1074,6 +1002,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 85.104818, 231.41718, 2825.7216 ) );
 		positions.Insert( Vector( 165.49123, 224.92475, 2974.2948 ) );
 		location = new ExpansionSpawnLocation( "Velk DrzKovce", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -1083,6 +1012,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 3549.0623, 214.12825, 298.71454 ) );
 		positions.Insert( Vector( 2797.7924, 200.21935, 492.45524 ) );
 		location = new ExpansionSpawnLocation( "Dvorec", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -1091,6 +1021,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 2097.75175, 212.307278, 2055.90928 ) );
 		positions.Insert( Vector( 1642.57025, 217.200197, 2410.49076 ) );
 		location = new ExpansionSpawnLocation( "Sliezska Osada", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -1100,6 +1031,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 9461.86517, 235.765487, 1518.16187 ) );
 		positions.Insert( Vector( 9158.06197, 238.032089, 1466.68098 ) );
 		location = new ExpansionSpawnLocation( "Miezgovce", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 		
@@ -1108,13 +1040,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert( Vector( 12854.290874, 312.78805927, 415.34608721 ) );
 		positions.Insert( Vector( 13184.400587, 292.25089746, 520.99919917 ) );
 		location = new ExpansionSpawnLocation( "Latkovce", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsBanov::Defaults - End");
-		#endif
-
 	}
 
 	// ------------------------------------------------------------
@@ -1122,9 +1050,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsValning()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsValning::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsValning");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -1134,13 +1062,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		//! Default
 		positions.Insert( Vector( 100, 100, 100 ) );
 		location = new ExpansionSpawnLocation( "Default", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsValning::Defaults - End");
-		#endif
-
 	}	
 
 	// ------------------------------------------------------------
@@ -1148,9 +1072,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsTakistanPlus()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsTakistanPlus::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsTakistanPlus");
+#endif
 
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
@@ -1209,6 +1133,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert(Vector(1019.343476, 0.0, 2705.736882));
 		positions.Insert(Vector(1321.431657, 0.0, 1608.622952));
 		location = new ExpansionSpawnLocation("Zayda", positions);
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
 		positions.Clear();
 		
@@ -1219,6 +1144,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert(Vector(10409.731986, 167.144, 10024.542597));
 		positions.Insert(Vector(9939.707119, 0.0, 10203.334406));
 		location = new ExpansionSpawnLocation("Al Badair", positions);
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
 		positions.Clear();
 		
@@ -1271,13 +1197,9 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		positions.Insert(Vector(10264.161987, 0.0, 7599.142477));
 		positions.Insert(Vector(9210.257382, 0.0, 8353.979933));
 		location = new ExpansionSpawnLocation("Imarat", positions);
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsTakistanPlus::Defaults - End");
-		#endif
-
 	}
 	
 	// ------------------------------------------------------------
@@ -1285,10 +1207,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionSpawnsExpansionTest()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsExpansionTest::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsExpansionTest");
+#endif
+
 		array<vector> positions = new array<vector>;
 		ExpansionSpawnLocation location;
 
@@ -1297,36 +1219,37 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		//! Airstrip
 		positions.Insert( Vector( 1072.486816, 43.562496 ,1101.662109 ) );
 		location = new ExpansionSpawnLocation( "Airstrip", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
 		//! Watchtower
 		positions.Insert( Vector( 932.087341, 80.662506, 1399.989014 ) );
 		location = new ExpansionSpawnLocation( "Watchtower", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
 		//! Village
 		positions.Insert( Vector( 794.725647, 43.832951, 1165.473389 ) );
 		location = new ExpansionSpawnLocation( "Village", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
 		//! Port
 		positions.Insert( Vector( 928.760437, 6.862098, 792.848206 ) );
 		location = new ExpansionSpawnLocation( "Port", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
 
 		//! Lake
 		positions.Insert( Vector( 885.015503, 44.101490, 1263.654053 ) );
 		location = new ExpansionSpawnLocation( "Lake", positions );
+		location.SetUseCooldown( true );
 		SpawnLocations.Insert( location );
 		positions.Clear();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSpawnsExpansionTest::Defaults - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -22,23 +22,19 @@ class ExpansionNotificationSystem
 	// ------------------------------------------------------------
 	void CreateNotification( StringLocaliser title, StringLocaliser text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSystem::CreateNotification - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "NOTIFICATION: " + title.Format() + ": " + text.Format() );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "CreateNotification");
+#endif
 
 		ExpansionNotification( title, text, icon, color, time, type ).Create( identity );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNotificationSystem::CreateNotification - End");
-		#endif
 	}
 
 	void CreateNotification( string title, string text, string icon, int color, float time = 7, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "CreateNotification");
+#endif
+
 		CreateNotification( new StringLocaliser( title ), new StringLocaliser( text ), icon, color, time, identity, type );
 	}
 };
@@ -50,9 +46,9 @@ static ref ExpansionNotificationSystem g_exNotificationBase;
 // ------------------------------------------------------------
 static ExpansionNotificationSystem GetNotificationSystem()
 {
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("ExpansionNotificationSystem::GetNotificationSystem - Start");
-	#endif
+#ifdef EXPANSIONTRACE
+	auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "GetNotificationSystem");
+#endif
 	
 	EXPrint("DEPRECATED: ExpansionNotificationSystem is deprecated, use ExpansionNotification instead");
 	
@@ -60,10 +56,6 @@ static ExpansionNotificationSystem GetNotificationSystem()
 	{
 		g_exNotificationBase = new ExpansionNotificationSystem();
 	}
-	
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("ExpansionNotificationSystem::GetNotificationSystem - Return: " + g_exNotificationBase.ToString() );
-	#endif
 	
 	return g_exNotificationBase;
 }
@@ -73,15 +65,11 @@ static ExpansionNotificationSystem GetNotificationSystem()
 // ------------------------------------------------------------
 static void DestroyNotificationSystem()
 {
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("ExpansionNotificationSystem::DestroyNotificationSystem - Start");
-	#endif
-	
-	delete g_exNotificationBase;
-	
-	#ifdef EXPANSIONEXPRINT
-	EXPrint("ExpansionNotificationSystem::DestroyNotificationSystem - End");
-	#endif
+#ifdef EXPANSIONTRACE
+	auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "DestroyNotificationSystem");
+#endif
+	if (g_exNotificationBase)
+		delete g_exNotificationBase;
 }
 
 class ExpansionNotificationTemplate<Class T>
@@ -110,14 +98,10 @@ class ExpansionNotificationTemplate<Class T>
 
 	void Create( string icon, int color, PlayerIdentity identity = NULL, ExpansionNotificationType type = ExpansionNotificationType.TOAST )
 	{
-		#ifdef EXPANSIONMOD
 		if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().EnableNotification )
 		{
-		#endif
 			NotificationSystem.Create_Expansion( m_Title, m_Text, icon, color, m_Time, identity, type );
-		#ifdef EXPANSIONMOD
 		}
-		#endif
 	}
 
 	void Error( PlayerIdentity identity = NULL )

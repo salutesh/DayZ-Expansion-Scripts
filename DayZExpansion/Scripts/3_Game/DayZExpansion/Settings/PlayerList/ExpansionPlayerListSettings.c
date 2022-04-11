@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -28,9 +28,10 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
+
 		ExpansionPlayerListSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -44,10 +45,6 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 
 		ExpansionSettings.SI_PlayerList.Invoke();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::OnRecieve - End");
-		#endif
-
 		return true;
 	}
 	
@@ -66,10 +63,9 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::Send - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
 		if ( !IsMissionHost() )
 		{
 			return 0;
@@ -79,9 +75,6 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.PlayerList, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::Send - End and return");
-		#endif
 		return 0;
 	}
 
@@ -103,16 +96,12 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionPlayerListSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::CopyInternal - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 
 		EnablePlayerList = s.EnablePlayerList;
 		EnableTooltip = s.EnableTooltip;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -136,10 +125,10 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{	
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::Load - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
+
 		m_IsLoaded = true;
 		
 		bool save;
@@ -162,9 +151,6 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 		if (save)
 			Save();
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPlayerListSettings::Load - End - Not Loaded");
-		#endif
 		return playerListSettingsExist;
 	}
 

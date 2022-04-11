@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -37,9 +37,10 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
+
 		ExpansionNameTagsSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -52,11 +53,7 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_NameTags.Invoke();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::OnRecieve - End");
-		#endif
-
+	
 		return true;
 	}
 	
@@ -75,10 +72,10 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::Send - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
+
 		if ( !IsMissionHost() )
 		{
 			return 0;
@@ -88,9 +85,6 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.NameTags, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::Send - End and return");
-		#endif
 		return 0;
 	}
 
@@ -110,16 +104,12 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionNameTagsSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::CopyInternal - Start");
-		#endif
-				
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		ExpansionNameTagsSettingsBase sb = s;
 		CopyInternal( sb );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -127,19 +117,15 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionNameTagsSettingsBase s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::CopyInternal - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		EnablePlayerTags = s.EnablePlayerTags;
 		PlayerTagViewRange = s.PlayerTagViewRange;
 		PlayerTagsIcon = s.PlayerTagsIcon;
 		ShowPlayerTagsInSafeZones = s.ShowPlayerTagsInSafeZones;
 		ShowPlayerTagsInTerritories = s.ShowPlayerTagsInTerritories;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -161,9 +147,9 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
 
 		m_IsLoaded = true;
 
@@ -199,10 +185,6 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		
 		if (save)
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionNameTagsSettings::Load - End - Loaded: " + nameTagsSettingsExist);
-		#endif
 		
 		return nameTagsSettingsExist;
 	}
