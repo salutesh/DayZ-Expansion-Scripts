@@ -125,7 +125,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 	// ------------------------------------------------------------	
 	void PopulateAttachmentsList()
 	{
-		ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+		ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 		ExpansionMarketPlayerItem playerItem;
 		array<ref ExpansionMarketPlayerItem> items = m_MarketMenu.GetPlayerItems();
 		

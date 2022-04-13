@@ -370,7 +370,7 @@ modded class ItemBase
 
 		m_Skins = new array< ExpansionSkin >;
 
-		if ( Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) ) )
+		if ( CF_Modules<ExpansionSkinModule>.Get(m_SkinModule) )
 		{
 			m_SkinModule.RetrieveSkins( GetType(), m_Skins, m_CurrentSkinName );
 		}
@@ -571,7 +571,7 @@ modded class ItemBase
 
 		//TODO: store as global variable until new CF module system is added?
 		ExpansionItemBaseModule module;
-		if (Class.CastTo(module, GetModuleManager().GetModule(ExpansionItemBaseModule)))
+		if (CF_Modules<ExpansionItemBaseModule>.Get(module))
 		{
 			module.PlayDestroySound(GetPosition(), GetDestroySound());
 		}
@@ -614,7 +614,9 @@ modded class ItemBase
 			int muzzleIndex = weapon.GetCurrentMuzzle();
 			if (!weapon.IsChamberFull(muzzleIndex) || weapon.IsChamberFiredOut(muzzleIndex))
 			{
+				#ifdef EXPANSIONEXPRINT
 				EXPrint("ExpansionCreateInInventory - pushing to chamber " + weapon);
+				#endif
 				pushToChamberFromAttachedMagazine(weapon, muzzleIndex);
 			}
 

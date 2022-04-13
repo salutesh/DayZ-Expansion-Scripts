@@ -10,7 +10,8 @@
  *
 */
 
-class ExpansionSkinModule: JMModuleBase
+[CF_RegisterModule(ExpansionSkinModule)]
+class ExpansionSkinModule: CF_ModuleWorld
 {	
 	private autoptr map< string, ref ExpansionSkins > m_Skins = new map< string, ref ExpansionSkins >;
 	private autoptr map< string, string > m_SkinBase = new map< string, string >;
@@ -24,6 +25,8 @@ class ExpansionSkinModule: JMModuleBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "OnInit");
 #endif
+
+		super.OnInit();
 
 		int mod_count = GetGame().ConfigGetChildrenCount( "CfgMods" );
 		

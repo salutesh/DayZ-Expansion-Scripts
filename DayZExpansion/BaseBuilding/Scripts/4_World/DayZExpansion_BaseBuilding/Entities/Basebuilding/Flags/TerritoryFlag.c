@@ -39,7 +39,7 @@ modded class TerritoryFlag
 		EXLogPrint("TerritoryFlag::TerritoryFlag - Start");
 		#endif
 		
-		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
+		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
 		
 		m_TerritoryID = -1;
 		m_Territory = new ExpansionTerritory(-1, "", 1, "", vector.Zero, "");
@@ -428,7 +428,7 @@ modded class TerritoryFlag
 	// ------------------------------------------------------------
 	override void EOnInit(IEntity other, int extra)
 	{
-		m_TerritoryModule = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule( ExpansionTerritoryModule ) );
+		m_TerritoryModule = ExpansionTerritoryModule.Cast( CF_ModuleCoreManager.Get( ExpansionTerritoryModule ) );
 	}
 	
 	// ------------------------------------------------------------

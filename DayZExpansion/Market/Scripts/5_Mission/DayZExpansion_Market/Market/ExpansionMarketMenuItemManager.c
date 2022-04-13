@@ -377,7 +377,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem(classNameToLower);
 			if (marketItem)
 			{
-				ExpansionMarketModule marketModule =  ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+				ExpansionMarketModule marketModule =  ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 				if (marketModule)
 				{
 					if (marketModule.GetClientZone().ItemExists(classNameToLower))

@@ -23,7 +23,7 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void MissionServer()
 	{
-		Class.CastTo(m_RespawnHandlerModule, GetModuleManager().GetModule(ExpansionRespawnHandlerModule));
+		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnHandlerModule);
 	}
 
 	// ------------------------------------------------------------

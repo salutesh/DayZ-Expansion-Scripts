@@ -1,5 +1,5 @@
 /**
- * ExpansionKillfeedModule.c
+ * ExpansionKillFeedModule.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,8 @@
  *
 */
 
-class ExpansionKillFeedModule: JMModuleBase
+[CF_RegisterModule(ExpansionKillFeedModule)]
+class ExpansionKillFeedModule: CF_ModuleWorld
 {
 	private string							m_PlayerPrefix;
 	private string							m_PlayerSteamWebhook;
@@ -27,15 +28,30 @@ class ExpansionKillFeedModule: JMModuleBase
 	private EntityAI 						m_ItemEntity;
 	
 	private bool								m_HitCheckDone;
+
+#ifdef JM_COT
+	protected JMWebhookModule m_Webhook;
+#endif
 	
 	// void EventOnPlayerKilled(ExpansionPlayerDeathType deathType, PlayerBase player, PlayerBase killer = null, EntityAI source = null)
 	static ref ScriptInvoker				s_EventOnPlayerDeath = new ScriptInvoker();
+
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableRPC();
+		
+#ifdef JM_COT
+		CF_Modules<JMWebhookModule>.Get(m_Webhook);
+#endif
+	}
 	
 #ifdef JM_COT
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule GetWebhookTitle
 	// ------------------------------------------------------------		
-	override string GetWebhookTitle()
+	string GetWebhookTitle()
 	{
 		return "Killfeed Module";
 	}
@@ -43,9 +59,64 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule GetWebhookTypes
 	// ------------------------------------------------------------	
-	override void GetWebhookTypes( out array< string > types )
+	void GetWebhookTypes( out array< string > types )
 	{
 		types.Insert( "Killfeed" );
+	}
+
+	string GetModuleName()
+	{
+		return ClassName();
+	}
+
+	void SendWebhook( string type, string message )
+	{
+		if ( !m_Webhook || IsMissionOffline() )
+			return;
+
+		auto msg = m_Webhook.CreateDiscordMessage();
+
+		msg.GetEmbed().AddField( GetWebhookTitle(), message, false );
+
+		m_Webhook.Post( GetModuleName() + type, msg );
+	}
+
+	void SendWebhook( string type, JMPlayerInstance player, string message )
+	{
+		#ifdef JM_COT_WEBHOOK_DEBUG
+		Print( "+ExpansionKillFeedModule::SendWebhook() - Admin" );
+		#endif
+		if ( !m_Webhook || !player || IsMissionOffline() )
+			return;
+
+		auto msg = m_Webhook.CreateDiscordMessage( player, "Admin Account: " );
+
+		msg.GetEmbed().AddField( GetWebhookTitle(), message, false );
+
+		#ifdef JM_COT_WEBHOOK_DEBUG
+		Print( "name=" + GetModuleName() + type );
+		Print( "message=" + message );
+		#endif
+
+		m_Webhook.Post( GetModuleName() + type, msg );
+		
+		#ifdef JM_COT_WEBHOOK_DEBUG
+		Print( "-ExpansionKillFeedModule::SendWebhook() - Admin" );
+		#endif
+	}
+
+	void GetSubCommands(inout array<ref JMCommand> commands)
+	{
+	}
+
+	void AddSubCommand(inout array<ref JMCommand> commands, string command, string function, string permission)
+	{
+		commands.Insert(new JMSubCommand(this, command, function, permission));
+	}
+
+	array<string> GetCommandNames()
+	{
+		return new array<string>();
 	}
 #endif
 
@@ -1261,16 +1332,16 @@ class ExpansionKillFeedModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionKillFeedModule OnRPC
 	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		switch ( rpc_type )
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 		case ExpansionKillFeedModuleRPC.SendMessage:
-			RPC_SendMessage( sender, ctx );
+			RPC_SendMessage( rpc.Sender, rpc.Context );
 			break;
 		}
 	}

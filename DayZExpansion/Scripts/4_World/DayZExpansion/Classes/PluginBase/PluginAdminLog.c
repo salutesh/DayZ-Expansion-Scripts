@@ -28,7 +28,7 @@ modded class PluginAdminLog
 		if ( GetExpansionSettings().GetNotification().EnableKillFeed && player.GetIdentity() )
 		{
 			if (!m_KillfeedModule)
-				m_KillfeedModule = ExpansionKillFeedModule.Cast(GetModuleManager().GetModule(ExpansionKillFeedModule));
+				m_KillfeedModule = ExpansionKillFeedModule.Cast(CF_ModuleCoreManager.Get(ExpansionKillFeedModule));
 			
 			if ( player && source && !m_KillfeedModule.WasHitCheckDone() )
 			{

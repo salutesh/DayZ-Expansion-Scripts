@@ -93,7 +93,7 @@ modded class MissionServer
 		
 		GetDayZExpansion().OnLoaded();
 
-		GetModuleManager().OnSettingsUpdated();
+		CF_ModuleCoreManager.OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
 	
 	// ------------------------------------------------------------

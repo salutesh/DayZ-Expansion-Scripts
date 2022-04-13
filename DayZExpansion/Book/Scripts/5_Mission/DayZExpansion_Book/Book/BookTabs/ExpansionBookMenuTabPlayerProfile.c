@@ -36,7 +36,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			m_PlayerProfileController = ExpansionBookMenuTabPlayerProfileController.Cast(GetController());
 		
 #ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
 		
@@ -49,7 +49,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	void ~ExpansionBookMenuTabPlayerProfile()
 	{
 #ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
 		
@@ -210,7 +210,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	override void Update()
 	{
 #ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
 		

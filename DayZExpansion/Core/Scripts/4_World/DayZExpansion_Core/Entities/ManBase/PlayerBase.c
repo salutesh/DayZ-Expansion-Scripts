@@ -571,7 +571,7 @@ modded class PlayerBase
 	override void EEKilled( Object killer )
 	{
 	#ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (monitorModule && GetIdentity() != NULL)
 		{
 			string playerUID = GetIdentity().GetId();

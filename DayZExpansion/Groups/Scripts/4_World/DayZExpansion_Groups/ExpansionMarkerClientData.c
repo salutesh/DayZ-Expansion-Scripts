@@ -17,7 +17,7 @@ modded class ExpansionMarkerClientData
 
 	void ExpansionMarkerClientData()
 	{
-		Class.CastTo(m_PartyModule, GetModuleManager().GetModule(ExpansionPartyModule));
+		CF_Modules<ExpansionPartyModule>.Get(m_PartyModule);
 	}
 
 	override int PartyCount()

@@ -24,7 +24,7 @@
 	{
 		if (IsMissionHost())
 		{
-			m_MarkerModule = ExpansionMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMarkerModule));
+			m_MarkerModule = ExpansionMarkerModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 			m_ServerMarker = "";
 		}
 	}

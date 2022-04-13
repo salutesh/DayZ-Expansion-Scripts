@@ -482,16 +482,22 @@ class ExpansionVodnik extends ExpansionBoatScript
 				{
 					for (b = 0; b < m_Particles.Count(); b++)
 					{
-						m_Particles[b].Stop();
+						if ( m_Particles[b] )
+						{
+							m_Particles[b].Stop();
 
-						GetGame().ObjectDelete(m_Particles[b]);
+							GetGame().ObjectDelete(m_Particles[b]);
+						}
 					}
 
-					for (b = -0; b < m_Lights.Count(); b++)
+					for (b = 0; b < m_Lights.Count(); b++)
 					{
-						m_Lights[b].ExpansionSetEnabled(false);
+						if ( m_Lights[b] )
+						{
+							m_Lights[b].ExpansionSetEnabled(false);
 
-						GetGame().ObjectDelete(m_Lights[b]);
+							GetGame().ObjectDelete(m_Lights[b]);
+						}
 					}
 
 					m_Lights.Clear();

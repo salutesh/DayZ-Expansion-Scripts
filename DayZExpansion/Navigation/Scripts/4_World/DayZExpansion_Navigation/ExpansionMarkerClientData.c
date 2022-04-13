@@ -29,7 +29,7 @@ class ExpansionMarkerClientData : Managed
 
 	void ExpansionMarkerClientData()
 	{
-		Class.CastTo(m_MarkerModule, GetModuleManager().GetModule(ExpansionMarkerModule));
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 
 		m_PersonalMarkers = new array<ref ExpansionMarkerData>();
 

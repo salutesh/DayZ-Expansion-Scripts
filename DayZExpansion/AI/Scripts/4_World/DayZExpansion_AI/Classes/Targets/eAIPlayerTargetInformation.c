@@ -11,29 +11,58 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override float GetThreat(eAIBase ai = null)
 	{
+		if (m_Player.GetHealth("", "") <= 0.0)
+			return 0.0;
+
 		float levelFactor = 0.5;
 
 		if (ai)
 		{
-			float distance = GetDistance(ai) * DISTANCE_COEF;
-			if (distance > 1.0)
-				levelFactor = levelFactor / distance;
+			if (!ai.PlayerIsEnemy(m_Player))
+				return 0.0;
 
-			vector direction = vector.Direction(ai.GetPosition(), GetPosition(ai));
+			auto player = PlayerBase.Cast(GetEntity());
+			if (player && player.IsUnconscious())
+				return 0.0;
 
-			float dot = vector.Dot(ai.GetDirection(), direction);
-			dot += 1.0;
-			dot *= 0.5;
-			dot -= 0.33;
-			dot *= 2.0;
-			dot *= dot * (dot + 0.9) * dot;
-			dot += 0.07;
-			dot = Math.Clamp(dot, 0, 1);
+			// the further away the player, the less likely they will be a threat
+			float distance = GetDistance(ai);
+			levelFactor = 10 / distance;
 
-			levelFactor = levelFactor * dot;
+			//! AI weapon
+			auto hands = ai.GetHumanInventory().GetEntityInHands();
+			if (hands)
+			{
+				AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
+
+				//! Enemy weapon
+				auto enemyHands = m_Player.GetHumanInventory().GetEntityInHands();
+				if (enemyHands)
+					AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor);
+			}
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
+	}
+
+	void AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor)
+	{
+		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base))
+		{
+			levelFactor *= 100;
+		}
+		else if (weapon.IsInherited(Rifle_Base))
+		{
+			levelFactor *= 100;
+		}
+		else if (weapon.IsInherited(Pistol_Base))
+		{
+			levelFactor *= 10;
+		}
+		else if (weapon.IsInherited(Weapon_Base))
+		{
+			levelFactor *= 10;
+		}
 	}
 
 	override bool ShouldRemove(eAIBase ai = null)

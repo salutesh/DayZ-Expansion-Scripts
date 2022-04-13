@@ -10,9 +10,19 @@
  *
 */
 
-class ExpansionClientSettingsModule : JMModuleBase
+[CF_RegisterModule(ExpansionClientSettingsModule)]
+class ExpansionClientSettingsModule : CF_ModuleWorld
 {
 	static ref ScriptInvoker m_SettingChanged = new ScriptInvoker;
+
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableClientLogout();
+		EnableInvokeConnect();
+		EnableSettingsChanged();
+	}
 
 	override bool IsServer()
 	{
@@ -24,25 +34,29 @@ class ExpansionClientSettingsModule : JMModuleBase
 		return true;
 	}
 
-	override void OnInvokeConnect(PlayerBase player, PlayerIdentity identity)
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		if (player)
+		super.OnInvokeConnect(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (cArgs.Player)
 		{
 			GetExpansionClientSettings().Load();
 		}
 
-		OnSettingsUpdated();
+		OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
 
-	override void OnClientLogout(PlayerBase player, PlayerIdentity identity, int logoutTime, bool authFailed)
+	override void OnClientLogout(Class sender, CF_EventArgs args)
 	{
-		if (player)
+		super.OnClientLogout(sender, args);
+
+		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
+
+		if (cArgs.Player)
 		{
 			GetExpansionClientSettings().Save();
 		}
-	}
-
-	override void OnSettingsUpdated()
-	{
 	}
 };

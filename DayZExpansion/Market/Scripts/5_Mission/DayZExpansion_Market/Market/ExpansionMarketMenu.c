@@ -153,7 +153,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_MarketMenuController = ExpansionMarketMenuController.Cast(GetController());
 		
 		if (!m_MarketModule)
-			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 		
 		if (!m_FilterOptionStrings)
 			m_FilterOptionStrings = new TStringArray;
@@ -1483,7 +1483,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		ExpansionMarketMenuSkinsDropdownElement dropdownElement;
 		array<ref ExpansionMarketMenuSkinsDropdownElement> currentElements;
 
-		ExpansionSkinModule skinModule = ExpansionSkinModule.Cast(GetModuleManager().GetModule(ExpansionSkinModule));
+		ExpansionSkinModule skinModule = ExpansionSkinModule.Cast(CF_ModuleCoreManager.Get(ExpansionSkinModule));
 		if (skinModule)
 		{
 			array<ExpansionSkin> skins = new array<ExpansionSkin>;
@@ -2211,7 +2211,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				MarketPrint("MenuCallback - The stock has changed meanwhile");
 	
-				EXPrint("MenuCallback - Current stock: " + m_MarketModule.GetClientZone().GetStock(itemClassName));
 				//! If it was a purchase request, option2 will be includeAttachments (0 or 1)
 				//! If it was a sell request, option2 will be -1
 				if (option2 == -1)
@@ -2219,14 +2218,29 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					if (m_MarketSell)
 					{
 						if (m_MarketSell.Item && m_MarketSell.Item.ClassName != itemClassName)
-							EXPrint("MenuCallback - WARNING: MarketSell item class name " + m_MarketSell.Item.ClassName + " != " + itemClassName);
+							EXLogPrint("MenuCallback - WARNING: MarketSell item class name " + m_MarketSell.Item.ClassName + " != " + itemClassName);
 						
-						m_MarketSell.Debug();
+						EXLogPrint("===============================================================================");
+
+						EXLogPrint("| MARKET SELL REQUEST FAILED!");
+						EXLogPrint("| Price mismatch between client and server.");
+			
+						EXLogPrint("| Result code: " + typename.EnumToString(ExpansionMarketResult, result));
+
+						EXLogPrint("|");
+						EXLogPrint("| CLIENT transaction data");
+						EXLogPrint("| -----------------------");
+						EXLogPrint("| Total sell price: " + m_SellPrice);
+						auto sellDebug = new ExpansionMarketSellDebug(m_MarketSell, m_MarketModule.GetClientZone());
+						sellDebug.Dump();
+						
+						EXLogPrint("===============================================================================");
 					}
 				}
 				else
 				{
 					//! TODO: Add purchase debug?
+					EXLogPrint("MenuCallback - Current stock: " + m_MarketModule.GetClientZone().GetStock(itemClassName));
 				}
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
@@ -2387,12 +2401,22 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				text = "UNKNOWN ERROR";
 				break;
 			}
+
+			case ExpansionMarketResult.FailedItemDoesNotExistInTrader:
+			{
+				MarketPrint("MenuCallback - item does not exist in trader: " + itemClassName);
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Transaction failed: " + GetDisplayName(itemClassName) + " (" + itemClassName + ") does not exist in the trader's item list.";
+				break;
+			}
 		}
 
 		if (notify)
 			ExpansionNotification(title, text, icon, color, 3, ExpansionNotificationType.MARKET).Create();
 	
-		RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
+		if (result != ExpansionMarketResult.FailedItemDoesNotExistInTrader)
+			RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
 				
 		MarketPrint("MenuCallback - End");
 	}
@@ -2510,10 +2534,18 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			dialogData.ClassName = m_SelectedMarketItem.ClassName;
 			dialogData.Amount = m_Quantity;
 			dialogData.Price = m_SellPrice;
+
 			//! We always sell with attachments if the player's item has any.
-			//! Since MarketSell.Sell contains attachments first, all we need to do to figure out if the item being sold has atts
-			//! is to check if the first entry does not have the same class name as the selected market item.
-			dialogData.IncludeAttachments = m_MarketSell.Sell.Count() > 1 && m_MarketSell.Sell[0].ClassName != m_SelectedMarketItem.ClassName;
+			//! Since MarketSell.Sell contains the main item(s) and their attachments, all we need to do to figure out if the item being sold has atts
+			//! is to check if any entry does not have the same class name as the selected market item.
+			foreach (ExpansionMarketSellItem sellItem: m_MarketSell.Sell)
+			{
+				if (sellItem.ClassName != m_SelectedMarketItem.ClassName)
+				{
+					dialogData.IncludeAttachments = true;
+					break;
+				}
+			}
 			
 			m_SellDialog = new ExpansionMenuDialog_MarketConfirmSell(this, dialogData);
 			m_SellDialog.Show();
@@ -2542,7 +2574,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_SELL);
-		m_MarketModule.RequestSell(GetSelectedMarketItem().ClassName, m_Quantity, m_SellPrice, m_TraderObject);
+		m_MarketModule.RequestSell(GetSelectedMarketItem().ClassName, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);
 		if (m_SellDialog)
 			m_SellDialog.Hide();
 		
@@ -3779,7 +3811,9 @@ class ExpansionMarketMenuController: ExpansionViewController
 	// ------------------------------------------------------------
 	override void PropertyChanged(string property_name)
 	{
+	#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketMenuController::PropertyChanged - Start");
+	#endif
 		ExpansionMarketMenu menu;
 		menu = ExpansionMarketMenu.Cast(GetParent());
 		if (property_name == "ShowSellables")
@@ -3816,6 +3850,8 @@ class ExpansionMarketMenuController: ExpansionViewController
 			}
 		}
 		
+	#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketMenuController::PropertyChanged - End");
+	#endif
 	}
 };

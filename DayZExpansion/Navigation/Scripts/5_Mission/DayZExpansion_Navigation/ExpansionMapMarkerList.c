@@ -146,7 +146,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 
 		m_MapMenu = mapmenu;
 
-		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		m_MarkerModule = ExpansionMarkerModule.Cast( CF_ModuleCoreManager.Get( ExpansionMarkerModule ) );
 		
 		m_PersonalMarkers = new array<ref ExpansionMapMarkerListEntry>();
 	#ifdef EXPANSIONMODGROUPS

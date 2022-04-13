@@ -56,7 +56,7 @@ class ActionInviteToGroup: ActionInteractBase
 		if (!targetPlayer.GetIdentity())
 			return false;
 		
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		if (GetGame().IsClient())
 			return partyModule.GetParty() != null;
@@ -70,7 +70,7 @@ class ActionInviteToGroup: ActionInteractBase
 		PlayerBase targetPlayer = PlayerBase.Cast(target);
 		if (targetPlayer)
 		{
-			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 			string targetUID = targetPlayer.GetIdentity().GetId();
 			partyModule.InvitePlayer(targetUID);
 		}

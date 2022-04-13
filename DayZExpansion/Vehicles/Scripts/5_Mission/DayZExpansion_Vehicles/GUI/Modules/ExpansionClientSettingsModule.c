@@ -1,8 +1,8 @@
 modded class ExpansionClientSettingsModule
 {
-	override void OnSettingsUpdated()
+	override void OnSettingsChanged(Class sender, CF_EventArgs args)
 	{
-		super.OnSettingsUpdated();
+		super.OnSettingsChanged(sender, args);
 
 		if (GetGame() && GetGame().GetPlayer())
 		{

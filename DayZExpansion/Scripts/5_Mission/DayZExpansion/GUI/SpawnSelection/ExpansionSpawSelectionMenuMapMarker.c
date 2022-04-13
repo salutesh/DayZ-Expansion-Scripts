@@ -22,7 +22,7 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 		
 	void ExpansionSpawSelectionMenuMapMarker(Widget parent, MapWidget mapWidget, bool autoInit = true)
 	{
-		Class.CastTo(m_RespawnModule, GetModuleManager().GetModule(ExpansionRespawnHandlerModule));
+		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
 	}
 	
 	void SetIsTerritory(bool state)
@@ -36,7 +36,7 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 		{
 			foreach (ExpansionRespawnDelayTimer timer: m_RespawnModule.m_PlayerRespawnDelays)
 			{
-				if (timer.Index == m_Index && timer.HasCooldown() && timer.IsTerritory() == m_IsTerritory)
+				if (timer.Index == m_Index && timer.HasCooldown())
 				{
 					int cooldownTime = timer.GetTimeDiff();
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
@@ -58,7 +58,7 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 						}
 					}
 				}
-				else if (timer.Index == m_Index && !timer.HasCooldown() && timer.IsTerritory() == m_IsTerritory)
+				else if (timer.Index == m_Index && !timer.HasCooldown())
 				{
 					OnCooldownEnd();
 				}

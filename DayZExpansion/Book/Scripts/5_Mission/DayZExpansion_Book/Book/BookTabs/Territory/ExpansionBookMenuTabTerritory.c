@@ -53,7 +53,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		m_BookMenu = book_menu;
 		
 		if (!m_TerritoryModule)
-			m_TerritoryModule = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
+			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 		
 		if (!m_TerritoryTabController)
 			m_TerritoryTabController = ExpansionBookMenuTabTerritoryController.Cast(GetController());

@@ -49,12 +49,18 @@ PanelWidgetClass ExpansionSpawnSelectionMenuEntry {
      vexactpos 0
      hexactsize 1
      vexactsize 1
+     scriptclass "ViewBinding"
      image0 ""
      imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
      mode blend
      "src alpha" 1
      "no wrap" 1
      stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "EntryIcon"
+      }
+     }
     }
     TextWidgetClass name {
      clipchildren 0

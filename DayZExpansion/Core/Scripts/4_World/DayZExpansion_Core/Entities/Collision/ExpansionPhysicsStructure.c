@@ -1,4 +1,4 @@
-static bool s_ExpansionPhysicsStructure_Enabled = true;
+static bool s_ExpansionPhysicsStructure_Enabled = false;
 
 class ExpansionPhysicsStructure : ItemBase
 {

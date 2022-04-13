@@ -14,8 +14,10 @@ modded class JMModuleConstructor
 {
 	override void RegisterModules( out TTypenameArray modules )
 	{
-		modules.Insert( ExpansionMissionModule );
-        
+#ifdef JM_COT
+		modules.Insert( ExpansionCOTGroupModule );
+#endif
+		
 		super.RegisterModules( modules );
 	}
-};
+}

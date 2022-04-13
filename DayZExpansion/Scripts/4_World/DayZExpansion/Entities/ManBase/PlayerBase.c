@@ -43,6 +43,15 @@ modded class PlayerBase
 		}
 	}
 	
+	/*override void Init()
+	{
+		super.Init();
+		
+		//! Vehicles mod will set this if loaded
+		if (!m_ExpansionST)
+			m_ExpansionST = new ExpansionHumanST(this);
+	}*/
+
 	// ------------------------------------------------------------
 	// Override EEKilled
 	// ------------------------------------------------------------
@@ -66,7 +75,7 @@ modded class PlayerBase
 	{
 		if ( GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity() )
 		{
-			m_KillfeedModule = ExpansionKillFeedModule.Cast( GetModuleManager().GetModule( ExpansionKillFeedModule ) );
+			m_KillfeedModule = ExpansionKillFeedModule.Cast( CF_ModuleCoreManager.Get( ExpansionKillFeedModule ) );
 			if ( m_KillfeedModule && !IPADACK() )
 			{
 				UpdateIPADACK( !IsAlive() );

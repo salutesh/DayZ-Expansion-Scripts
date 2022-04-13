@@ -20,15 +20,24 @@ modded class JMESPModule
 	}
 };
 
-class ExpansionESPModificationModule : JMModuleBase
+[CF_RegisterModule(ExpansionESPModificationModule)]
+class ExpansionESPModificationModule : CF_ModuleGame
 {
 	private JMESPModule m_BaseModule;
 
-	override void OnMissionStart()
+	override void OnInit()
 	{
-		super.OnMissionStart();
+		super.OnInit();
+
+		EnableMissionStart();
+		EnableRPC();
+	}
+
+	override void OnMissionStart(Class sender, CF_EventArgs args)
+	{
+		super.OnMissionStart(sender, args);
 		
-		m_BaseModule = JMESPModule.Cast( GetModuleManager().GetModule( JMESPModule ) );
+		m_BaseModule = JMESPModule.Cast( CF_ModuleCoreManager.Get( JMESPModule ) );
 	}
 
 	override int GetRPCMin()

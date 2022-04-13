@@ -41,7 +41,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		m_BookMenu = book_menu;
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		if (!m_PartyTabController)
 			m_PartyTabController = ExpansionBookMenuTabPartyController.Cast(GetController());

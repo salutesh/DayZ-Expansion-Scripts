@@ -19,23 +19,21 @@ modded class ExpansionESPModificationModule
 		GetPermissionsManager().RegisterPermission( "ESP.Object.BaseBuilding.Codelock" );
 	}
 
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		switch ( rpc_type )
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 		case ExpansionESPModificationModuleRPC.RequestCode:
-			RPC_RequestCode( ctx, sender, target );
+			RPC_RequestCode( rpc.Context, rpc.Sender, rpc.Target );
 			return;
 		case ExpansionESPModificationModuleRPC.RemoveCode:
-			RPC_RemoveCode( ctx, sender, target );
+			RPC_RemoveCode( rpc.Context, rpc.Sender, rpc.Target );
 			return;
 		}
 
-		super.OnRPC(sender, target, rpc_type, ctx);
+		super.OnRPC(sender, args);
 	}
 
 	//! ===============================================

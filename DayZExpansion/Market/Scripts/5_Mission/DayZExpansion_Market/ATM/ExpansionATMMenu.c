@@ -51,7 +51,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			m_ATMMenuController = ExpansionATMMenuController.Cast(GetController());
 		
 		if (!m_MarketModule)
-			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 		
 		ExpansionMarketModule.SI_ATMMenuInvoker.Insert(SetPlayerATMData);
 		ExpansionMarketModule.SI_ATMMenuCallback.Insert(OnCallback);
@@ -143,7 +143,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		{
 			#ifdef EXPANSIONMODGROUPS
 			//PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-			ExpansionPartyModule module = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			ExpansionPartyModule module = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 			
 			if (!module || !module.HasParty())
 				return;

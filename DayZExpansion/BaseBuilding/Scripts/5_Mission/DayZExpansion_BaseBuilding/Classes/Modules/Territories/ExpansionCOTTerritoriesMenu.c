@@ -352,7 +352,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		
 		if ( m_CurrentTerritory )
 		{
-			ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule(ExpansionTerritoryModule) );
+			ExpansionTerritoryModule territories_module = ExpansionTerritoryModule.Cast( CF_ModuleCoreManager.Get(ExpansionTerritoryModule) );
 			if (!territories_module)
 				return;
 			

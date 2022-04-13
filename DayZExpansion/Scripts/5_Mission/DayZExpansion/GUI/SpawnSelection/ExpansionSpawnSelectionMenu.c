@@ -22,6 +22,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	private bool m_HasCooldown = false;
 	private bool m_SelectedSpawnIsTerritory = false;
 	private bool m_SelectedSpawnUseCooldown = false;
+	private int m_NextListIndex = 0;
 	
 	private Widget MapSpacer;
 	private MapWidget Map_Widget;
@@ -34,7 +35,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	{
 		m_MapMarkers =  new array<ref ExpansionSpawSelectionMenuMapMarker>;
 		
-		Class.CastTo(m_RespawnModule, GetModuleManager().GetModule(ExpansionRespawnHandlerModule));
+		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
 		Class.CastTo(m_Mission, MissionGameplay.Cast(GetGame().GetMission()));
 		Class.CastTo(m_SpawnSelectionMenuController, GetController());
 		
@@ -58,7 +59,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	}
 	
 	void FillList(array<ref ExpansionSpawnLocation> SpawnLocations, int type = 0)
-	{		
+	{
 		if (!SpawnLocations)
 			return;
 
@@ -81,13 +82,11 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 				isTerritory = true;
 			break;
 		}
-		
+				
 		for (int i = 0; i < SpawnLocations.Count(); i++)
 		{
-			//int entryCount;
-			//entryCount = m_SpawnSelectionMenuController.SpawnLocationEntries.Count() + 1;
 			ExpansionSpawnLocation currenLocation = SpawnLocations[i];
-			ExpansionSpawSelectionMenuLocationEntry location_entry = new ExpansionSpawSelectionMenuLocationEntry(i, currenLocation);
+			ExpansionSpawSelectionMenuLocationEntry location_entry = new ExpansionSpawSelectionMenuLocationEntry(m_NextListIndex, currenLocation, isTerritory);
 			m_SpawnSelectionMenuController.SpawnLocationEntries.Insert(location_entry);
 			
 			//! Create map marker for territory
@@ -106,6 +105,8 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			marker.Show(); //! Need to show marker or it will never show up and color and icons dont get applied
 			
 			m_MapMarkers.Insert(marker);
+			
+			m_NextListIndex++;
 		}
 	}
 	
@@ -171,7 +172,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 
 		//! If menu gets closed via nonstandard means, choose last selected spawn point
 		if (!m_RespawnModule.m_SpawnSelected)
-			m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPoint);
+			m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPoint, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
 	}
 	
 	void Spawn()

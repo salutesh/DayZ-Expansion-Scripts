@@ -45,7 +45,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 	void ExpansionMapMarker(Widget parent, MapWidget mapWidget, bool autoInit = true)
 	{
 		m_IconTypesArray = new array<ref ExpansionMapMarkerIconItem>;
-		Class.CastTo(m_MarkerModule, GetModuleManager().GetModule(ExpansionMarkerModule));
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 	}
 
 	void ~ExpansionMapMarker()
@@ -54,7 +54,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		delete m_PositionToolTip;
 	}
 
-	protected override void OnInit(Widget layoutRoot)
+	override void OnInit(Widget layoutRoot)
 	{
 		super.OnInit(layoutRoot);
 
@@ -313,7 +313,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 #ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
 			ExpansionPartyModule party;
-			if (Class.CastTo(party, GetModuleManager().GetModule(ExpansionPartyModule)))
+			if (CF_Modules<ExpansionPartyModule>.Get(party))
 				party.UpdatePositionMarker(m_Data.GetUID(), GetPosition());
 			break;
 #endif
@@ -361,7 +361,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 #ifdef EXPANSIONMODGROUPS
 			ExpansionPartyModule party;
-			if (Class.CastTo(party, GetModuleManager().GetModule(ExpansionPartyModule)))
+			if (CF_Modules<ExpansionPartyModule>.Get(party))
 				canCreateParty = party.HasParty() && GetExpansionSettings().GetParty().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties;
 #endif
 

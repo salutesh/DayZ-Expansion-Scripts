@@ -47,23 +47,31 @@ modded class PlayerBase
 	{
 		if (m_MarketReserve != NULL && m_MarketReserve.Valid)
 		{
-			Print("PlayerBase::IsMarketItemReserved - 1");
+#ifdef EXPANSIONMODMARKET_DEBUG
+			EXPrint("PlayerBase::IsMarketItemReserved - 1");
+#endif
 			if (m_MarketReserve.RootItem.ClassName == className)
 			{
-				Print("PlayerBase::IsMarketItemReserved - 2");
-				Print("PlayerBase::IsMarketItemReserved - m_MarketReserve.Time: " + m_MarketReserve.Time);
-				Print("PlayerBase::IsMarketItemReserved - GetGame().GetTime() - 30000: " + (GetGame().GetTime() - 30000));
+#ifdef EXPANSIONMODMARKET_DEBUG
+				EXPrint("PlayerBase::IsMarketItemReserved - 2");
+				EXPrint("PlayerBase::IsMarketItemReserved - m_MarketReserve.Time: " + m_MarketReserve.Time);
+				EXPrint("PlayerBase::IsMarketItemReserved - GetGame().GetTime() - 30000: " + (GetGame().GetTime() - 30000));
+#endif
 				if (m_MarketReserve.Time >= GetGame().GetTime() - 30000)
 				{
 					//! Still within 30 second timelimit until item reservation expires
-					Print("PlayerBase::IsMarketItemReserved - End and return true!");
+#ifdef EXPANSIONMODMARKET_DEBUG
+					EXPrint("PlayerBase::IsMarketItemReserved - End and return true!");
+#endif
 					return true;
 				}
 			}
 		}
 
 		//! After 30 seconds, reservation is no longer valid
-		Print("PlayerBase::IsMarketItemReserved - End and return false!");
+#ifdef EXPANSIONMODMARKET_DEBUG
+		EXPrint("PlayerBase::IsMarketItemReserved - End and return false!");
+#endif
 		return false;
 	}
 	

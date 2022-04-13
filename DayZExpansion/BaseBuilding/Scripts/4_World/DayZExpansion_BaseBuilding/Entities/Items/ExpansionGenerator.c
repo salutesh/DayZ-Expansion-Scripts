@@ -112,7 +112,7 @@ class ExpansionGenerator: ItemBase
 			return;
 
 		ExpansionWorldMappingModule module;
-		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionWorldMappingModule ) ) )
+		if ( CF_Modules<ExpansionWorldMappingModule>.Get(module) )
 		{
 			module.TurnOnGenerator( GetPosition() );
 		}
@@ -130,7 +130,7 @@ class ExpansionGenerator: ItemBase
 			return;
 
 		ExpansionWorldMappingModule module;
-		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionWorldMappingModule ) ) )
+		if ( CF_Modules<ExpansionWorldMappingModule>.Get(module) )
 		{
 			module.TurnOffGenerator( GetPosition() );
 		}

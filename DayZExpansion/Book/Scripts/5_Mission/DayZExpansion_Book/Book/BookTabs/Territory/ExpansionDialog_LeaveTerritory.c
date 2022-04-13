@@ -70,7 +70,7 @@ class ExpansionDialogButton_Text_TerritroyLeave_Accept: ExpansionDialogBookButto
 			m_TerritoryTab = ExpansionBookMenuTabTerritory.Cast(m_LeaveTerritoryDialog.GetParentView());
 		
 		if (!m_TerritoryModule)
-			m_TerritoryModule = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
+			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 		
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

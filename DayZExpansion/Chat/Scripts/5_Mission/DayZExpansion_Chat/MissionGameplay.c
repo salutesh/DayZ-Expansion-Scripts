@@ -151,7 +151,7 @@ modded class MissionGameplay
 	void SwitchChatChannelToTeam()
 	{
 #ifdef EXPANSIONMODGROUPS
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 
 		if (partyModule.HasParty() && GetExpansionSettings().GetChat().EnablePartyChat)
 		{

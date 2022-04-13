@@ -54,6 +54,6 @@ class ExpansionSpraycanBase: ItemBase
 	// ------------------------------------------------------------
 	ExpansionSkinModule GetSkinModule()
 	{
-		return ExpansionSkinModule.Cast(GetModuleManager().GetModule(ExpansionSkinModule));
+		return ExpansionSkinModule.Cast(CF_ModuleCoreManager.Get(ExpansionSkinModule));
 	}
 };

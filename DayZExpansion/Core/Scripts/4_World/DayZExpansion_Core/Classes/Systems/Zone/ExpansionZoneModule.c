@@ -13,7 +13,8 @@
 /**@class		ExpansionZoneModule
  * @brief		
  **/
-class ExpansionZoneModule : JMModuleBase
+[CF_RegisterModule(ExpansionZoneModule)]
+class ExpansionZoneModule : CF_ModuleWorld
 {
 	static const int COUNT = ExpansionZoneType.Count;
 
@@ -23,9 +24,21 @@ class ExpansionZoneModule : JMModuleBase
 
 	int m_TimeCounter = 0;
 
-	override void OnMissionLoaded()
+	override void OnInit()
 	{
-		super.OnMissionLoaded();
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnInit");
+#endif
+
+		super.OnInit();
+
+		EnableMissionLoaded();
+		EnableUpdate();
+	}
+
+	override void OnMissionLoaded(Class sender, CF_EventArgs args)
+	{
+		super.OnMissionLoaded(sender, args);
 
 		auto settings = GetExpansionSettings().GetSafeZone();
 		if (!settings)
@@ -123,16 +136,20 @@ class ExpansionZoneModule : JMModuleBase
 		return ExpansionZone.s_InsideBuffer[type];
 	}
 
-	override void OnUpdate(float timeslice)
+	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnUpdate");
 #endif
 
+		super.OnUpdate(sender, args);
+
+		auto update = CF_EventUpdateArgs.Cast(args);
+
 		if (!s_ExEnabled)
 			return;
 
-		m_TimeCounter += timeslice * 1000;
+		m_TimeCounter += update.DeltaTime * 1000;
 		if (m_TimeCounter < m_Interval)
 			return;
 

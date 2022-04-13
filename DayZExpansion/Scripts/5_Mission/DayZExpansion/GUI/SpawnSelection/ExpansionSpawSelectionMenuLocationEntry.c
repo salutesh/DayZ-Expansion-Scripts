@@ -18,6 +18,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	private ExpansionRespawnHandlerModule m_RespawnModule;
 	private bool m_HasCooldown = false;
 	private bool m_IsLocked = false;
+	private bool m_IsTerritroy = false;
 	
 	private ButtonWidget spawn_entry;
 	private Widget background;
@@ -27,15 +28,16 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	private ImageWidget cooldown_icon;
 	private TextWidget cooldown;
 	
-	void ExpansionSpawSelectionMenuLocationEntry(int index, ExpansionSpawnLocation location)
+	void ExpansionSpawSelectionMenuLocationEntry(int index, ExpansionSpawnLocation location, bool isTerritory)
 	{
 		m_Index = index;
 		m_Location = location;
-	
-		Class.CastTo(m_SpawnSelectionEntryController, GetController());
-		Class.CastTo(m_RespawnModule, GetModuleManager().GetModule(ExpansionRespawnHandlerModule));
+		m_IsTerritroy = isTerritory;
 		
-		SetDisplayName(m_Location.Name);
+		Class.CastTo(m_SpawnSelectionEntryController, GetController());
+		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
+		
+		SetEntry();
 	}
 
 	override string GetLayoutFile()
@@ -47,14 +49,23 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	{
 		return ExpansionSpawSelectionMenuLocationEntryController;
 	}
-	
+
+	private void SetEntry()
+	{
+		SetDisplayName(m_Location.Name);
+		if (!m_IsTerritroy)
+			SetIcon(ExpansionIcons.GetPath("Marker"));
+		else
+			SetIcon(ExpansionIcons.GetPath("Territory"));
+	}
+		
 	private void UpdateCooldown()
 	{
 		if (m_RespawnModule)
 		{
 			foreach (ExpansionRespawnDelayTimer timer: m_RespawnModule.m_PlayerRespawnDelays)
 			{
-				if (timer.Index == m_Index && timer.HasCooldown() && m_Location.IsTerritory() == timer.IsTerritory())
+				if (timer.Index == m_Index && timer.HasCooldown())
 				{
 					int cooldownTime = timer.GetTimeDiff();
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
@@ -78,7 +89,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 						}
 					}
 				}
-				else if (timer.Index == m_Index && !timer.HasCooldown() && m_Location.IsTerritory() == timer.IsTerritory())
+				else if (timer.Index == m_Index && !timer.HasCooldown())
 				{
 					OnCooldownEnd();
 				}
@@ -207,6 +218,12 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		m_SpawnSelectionEntryController.NotifyPropertyChanged("Cooldown");
 	}
 	
+	void SetIcon(string icon)
+	{
+		m_SpawnSelectionEntryController.EntryIcon = icon;
+		m_SpawnSelectionEntryController.NotifyPropertyChanged("EntryIcon");
+	}
+	
 	bool HasCooldown()
 	{
 		return m_HasCooldown;
@@ -226,6 +243,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 
 class ExpansionSpawSelectionMenuLocationEntryController: ExpansionViewController 
 {
+	string EntryIcon;
 	string LocationName;
 	string Cooldown;
 };

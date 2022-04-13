@@ -101,7 +101,7 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 				m_OptionsWidgets[i].Apply();
 			}
 	
-			GetModuleManager().OnSettingsUpdated();
+			CF_ModuleCoreManager.OnSettingsChanged(this, CF_EventArgs.Empty);
 			GetExpansionClientSettings().Save();
 		}
 	}

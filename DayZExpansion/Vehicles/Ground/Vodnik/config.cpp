@@ -477,11 +477,14 @@ class CfgVehicles
 				{
 					class Health
 					{
-						hitpoints = 5000;
+						hitpoints = 3000;
 						transferToGlobalCoef = 0;
 					};
 					fatalInjuryCoef = -1;
-					componentNames[] = {};
+					componentNames[] = {"dmgzone_chassis"};
+					memoryPoints[] = {"dmgzone_chassis"};
+					transferTozonesNames[] = {"Engine"};
+					transferTozonesCoefs[] = {0.4};
 					inventorySlots[] = {};
 				};
 				class Engine
@@ -489,14 +492,26 @@ class CfgVehicles
 					class Health
 					{
 						hitpoints = 2500;
-						transferToGlobalCoef = 1;
+						transferToGlobalCoef = 0;
 						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 					};
 					fatalInjuryCoef = 0.001;
 					memoryPoints[] = {"dmgZone_engine"};
 					componentNames[] = {"dmgZone_engine"};
-					inventorySlots[] = {};
-					inventorySlotsCoefs[] = {};
+					inventorySlots[] = {"TruckBattery","SparkPlug","CarRadiator"};
+					inventorySlotsCoefs[] = {0.04,0.04,0.04};
+				};
+				class Radiator
+				{
+					class Health
+					{
+						hitpoints = 800;
+						transferToGlobalCoef = 0;
+					};
+					memoryPoints[] = {};
+					componentNames[] = {};
+					fatalInjuryCoef = -1;
+					inventorySlots[] = {"CarRadiator"};
 				};
 				class FuelTank
 				{

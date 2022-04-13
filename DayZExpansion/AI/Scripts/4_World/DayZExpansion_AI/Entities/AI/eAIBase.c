@@ -132,6 +132,10 @@ class eAIBase extends PlayerBase
 
 		LookAtDirection("0 0 1");
 		AimAtDirection("0 0 1");
+		
+		//! Vehicles mod will set this in PlayerBase::Init if loaded
+		if (!m_ExpansionST)
+			m_ExpansionST = new ExpansionHumanST(this);
 	}
 
 	static void ReloadAllFSM()

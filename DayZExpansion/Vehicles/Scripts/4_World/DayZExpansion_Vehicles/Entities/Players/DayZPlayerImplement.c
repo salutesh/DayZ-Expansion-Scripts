@@ -12,8 +12,6 @@
 
 modded class DayZPlayerImplement
 {
-	ref ExpansionHumanST m_ExpansionST;
-
 	ExpansionHumanCommandVehicle StartCommand_ExpansionVehicle(ExpansionVehicleBase vehicle, int seatIdx, int seat_anim)
 	{
 		return NULL;

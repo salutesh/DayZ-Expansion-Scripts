@@ -59,4 +59,13 @@ class ExpansionScriptViewMenuBase: ScriptView
 	}
 	
 	void Refresh();
+
+	bool UseMouse()
+	{
+		#ifdef PLATFORM_CONSOLE
+		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		#else
+		return true;
+		#endif
+	}
 };

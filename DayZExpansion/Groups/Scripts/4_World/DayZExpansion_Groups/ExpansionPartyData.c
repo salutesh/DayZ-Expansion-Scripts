@@ -551,7 +551,6 @@ class ExpansionPartyData
 		{
 			ctx.Write( Players[index].UID );
 			ctx.Write( Players[index].Name );
-			//ctx.Write( Players[index].Promoted );			
 			ctx.Write( Players[index].Permissions );
 
 		#ifdef EXPANSIONMODNAVIGATION
@@ -624,8 +623,7 @@ class ExpansionPartyData
 
 	bool OnRecieve( ParamsReadContext ctx )
 	{
-		// PartyID is read in ExpansionPartyModule
-		
+		// PartyID is read in ExpansionPartyModule		
 		if ( !ctx.Read( PartyName ) )
 			return false;
 		if ( !ctx.Read( OwnerUID ) )
@@ -665,9 +663,6 @@ class ExpansionPartyData
 
 			if ( !ctx.Read( player.Name ) )
 				return false;
-			
-			/*if ( !ctx.Read( player.Promoted ) )
-				return false;*/
 			
 			if ( !ctx.Read( player.Permissions ) )
 				return false;
@@ -992,6 +987,11 @@ class ExpansionPartyData
 	void AddMoney(int amount)
 	{
 		MoneyDeposited += amount;
+	}
+	
+	void SetMoney(int amount)
+	{
+		MoneyDeposited = amount;
 	}
 #endif
 };

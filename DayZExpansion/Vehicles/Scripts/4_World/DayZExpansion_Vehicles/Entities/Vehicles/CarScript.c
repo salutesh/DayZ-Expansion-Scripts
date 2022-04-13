@@ -264,7 +264,7 @@ modded class CarScript
 
 		RegisterNetSyncVariableInt("m_CurrentSkinSynchRemote");
 
-		Class.CastTo(m_SkinModule, GetModuleManager().GetModule(ExpansionSkinModule));
+		CF_Modules<ExpansionSkinModule>.Get(m_SkinModule);
 
 		ExpansionSetupSkins();
 
@@ -3295,7 +3295,7 @@ modded class CarScript
 	{
 		m_Skins = new array<ExpansionSkin>;
 
-		if (Class.CastTo(m_SkinModule, GetModuleManager().GetModule(ExpansionSkinModule)))
+		if (CF_Modules<ExpansionSkinModule>.Get(m_SkinModule))
 		{
 			m_SkinModule.RetrieveSkins(GetType(), m_Skins, m_CurrentSkinName);
 		}

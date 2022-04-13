@@ -18,22 +18,16 @@ enum ExpansionPartyModuleRPC
 	LeaveParty,
 	RemovePartyMember,
 	UpdatePlayer,
-
 	CreateMarker,
 	UpdateMarker,
 	UpdatePositionMarker,
 	DeleteMarker,
-	
 	InvitePlayer,
 	DeclineInvite,
 	AcceptInvite,
-	
 	SyncPlayerInvites,
-
 	UpdateQuickMarker,
-	
 	UpdatePermissions,
-	
 	COUNT
 };
 
@@ -139,6 +133,14 @@ enum ExpansionMonitorRPC
 	SyncLastDeathPos,
 	COUNT
 };
+
+enum ExpansionDataCollectionRPC
+{
+	INVALID = 20350,
+	RequestPlayerData,
+	SendPlayerData,
+	COUNT
+}
 
 enum ExpansionTerritoryModuleRPC
 {
@@ -297,72 +299,83 @@ enum ExpansionCOTNotificationModuleRPC
 	COUNT
 };
 
-enum ExpansionCOTPartyModuleRPC
+enum ExpansionCOTGroupModuleRPC
 {
 	INVALID = 30055,
-	Update,
+	EditGroupName,
+	EditGroupMemberPerm,
+	DeleteGroup,
+	ChangeOwner,
+	UpdatePermissions,
+	InvitePlayer,
+	ChangeMoney,
+	KickMember,
+	SendGroupsToClient,
+	RequestGroups,
+	SendGroupUpdate,
+	Callback
 	COUNT
 };
 
 enum ExpansionCOTRaidModuleRPC
-{
-	INVALID = 30060,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTSpawnModuleRPC
-{
-	INVALID = 30065,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTTerritoryModuleRPC
-{
-	INVALID = 30070,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTVehicleModuleRPC
-{
-	INVALID = 30075,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTGeneralModuleRPC
 {
 	INVALID = 30080,
 	Update,
 	COUNT
 };
 
+enum ExpansionCOTSpawnModuleRPC
+{
+	INVALID = 30100,
+	Update,
+	COUNT
+};
+
+enum ExpansionCOTTerritoryModuleRPC
+{
+	INVALID = 30120,
+	Update,
+	COUNT
+};
+
+enum ExpansionCOTVehicleModuleRPC
+{
+	INVALID = 30140,
+	Update,
+	COUNT
+};
+
+enum ExpansionCOTGeneralModuleRPC
+{
+	INVALID = 30160,
+	Update,
+	COUNT
+};
+
 enum ExpansionCOTSafeZoneModuleRPC
 {
-	INVALID = 30085,
+	INVALID = 30180,
 	Update,
 	COUNT
 };
 
 enum ExpansionCOTMissionModuleRPC
 {
-	INVALID = 30090,
+	INVALID = 30200,
 	Update,
 	COUNT
 };
 
 enum ExpansionCOTAirDropModuleRPC
 {
-	INVALID = 30095,
+	INVALID = 30220,
 	Update,
 	COUNT
 };
 
 enum ExpansionCOTDebugModuleRPC
 {
-	INVALID = 30100,
+	INVALID = 30240,
 	Update,
 	COUNT
 };

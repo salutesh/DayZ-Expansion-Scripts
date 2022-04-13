@@ -31,7 +31,8 @@ modded class PlayerBase
 	{
 		super.Init();
 		
-		m_ExpansionST = new ExpansionHumanST(this);
+		if (!m_ExpansionST)
+			m_ExpansionST = new ExpansionHumanST(this);
 	}
 
 	override void SetActions( out TInputActionMap InputActionMap )

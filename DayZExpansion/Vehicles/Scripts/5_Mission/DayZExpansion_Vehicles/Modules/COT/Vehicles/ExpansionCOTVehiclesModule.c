@@ -239,7 +239,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTVehiclesModule GetServerVehicle
+	// ExpansionCOTVehiclesModule UpdateVehiclesMetaData
 	// ------------------------------------------------------------
 	private void UpdateVehiclesMetaData()
 	{

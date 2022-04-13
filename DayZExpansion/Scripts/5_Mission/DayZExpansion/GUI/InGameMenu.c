@@ -208,7 +208,7 @@ modded class InGameMenu
 	{
 #ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitor;
-		if ( !Class.CastTo( monitor, GetModuleManager().GetModule(ExpansionMonitorModule)))
+		if ( !CF_Modules<ExpansionMonitorModule>.Get(monitor))
 			return;
 		
 		ExpansionSyncedPlayerStats player_stats = monitor.GetClientStats();

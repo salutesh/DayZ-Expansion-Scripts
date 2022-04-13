@@ -15,7 +15,8 @@
  **/
 
 #ifdef EXPANSIONMONITORMODULE
-class ExpansionMonitorModule: JMModuleBase
+[CF_RegisterModule(ExpansionMonitorModule)]
+class ExpansionMonitorModule: CF_ModuleWorld
 {
 	private const float UPDATE_TICK_TIME = 1.0; // refreshes 100 players every ten seconds
 	private const int UPDATE_PLAYERS_PER_TICK = 10;
@@ -48,12 +49,22 @@ class ExpansionMonitorModule: JMModuleBase
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "OnInit");
 #endif
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{
-			m_Stats = new map<string, ref ExpansionSyncedPlayerStats>;
-			m_States = new map<string, ref ExpansionSyncedPlayerStates>;
-			m_UpdateQueueTimer = 0;
-		}
+		super.OnInit();
+
+		EnableClientDisconnect();
+		EnableClientReady();
+		EnableClientRespawn();
+		EnableInvokeConnect();
+		EnableInvokeDisconnect();
+		EnableRPC();
+		EnableUpdate();
+
+		//EXPrint(ToString() + "::OnInit - GetGame() " + GetGame());  // OK
+		//EXPrint(ToString() + "::OnInit - GetGame().IsServer() " + GetGame().IsServer());  // true on client during init
+		//EXPrint(ToString() + "::OnInit - GetGame().IsMultiplayer() " + GetGame().IsMultiplayer());  // false on client during init
+
+		m_Stats = new map<string, ref ExpansionSyncedPlayerStats>;
+		m_States = new map<string, ref ExpansionSyncedPlayerStates>;
 
 		m_ClientStats = new ExpansionSyncedPlayerStats;
 		m_ClientStates = new ExpansionSyncedPlayerStates;
@@ -81,37 +92,37 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule OnRPC
 	// Called on client
 	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
-	#else
-	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		switch ( rpc_type )
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 		case ExpansionMonitorRPC.SyncStats:
-			m_ClientStats.OnRecieve(ctx);
+			m_ClientStats.OnRecieve(rpc.Context);
 			break;
 		case ExpansionMonitorRPC.SyncStates:
-			m_ClientStates.OnRecieve(ctx);
+			m_ClientStates.OnRecieve(rpc.Context);
 			break;
 		case ExpansionMonitorRPC.SendMessage:
-			RPC_SendMessage(ctx);
+			RPC_SendMessage(rpc.Context);
 			break;
 		case ExpansionMonitorRPC.RequestPlayerStats:
-			RPC_RequestPlayerStats(ctx, sender);
+			RPC_RequestPlayerStats(rpc.Context, rpc.Sender);
 			break;
 		case ExpansionMonitorRPC.SendPlayerStats:
-			RPC_SendPlayerStats(ctx);
+			RPC_SendPlayerStats(rpc.Context);
 			break;
 		case ExpansionMonitorRPC.RequestPlayerStates:
-			RPC_RequestPlayerStates(ctx, sender);
+			RPC_RequestPlayerStates(rpc.Context, rpc.Sender);
 			break;
 		case ExpansionMonitorRPC.SendPlayerStates:
-			RPC_SendPlayerStates(ctx);
+			RPC_SendPlayerStates(rpc.Context);
 			break;
 			case ExpansionMonitorRPC.SyncLastDeathPos:
-			RPC_SyncLastDeathPos(ctx, sender);
+			RPC_SyncLastDeathPos(rpc.Context, rpc.Sender);
 			break;
 		}
 	}
@@ -119,17 +130,21 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnClientReady
 	// ------------------------------------------------------------
-	override void OnClientReady( PlayerBase player, PlayerIdentity identity )
+	override void OnClientReady(Class sender, CF_EventArgs args)
 	{
-		if (GetExpansionSettings().GetNotification().ShowPlayerJoinServer && identity)
+		super.OnClientReady(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (GetExpansionSettings().GetNotification().ShowPlayerJoinServer && cArgs.Identity)
 		{			
 			if (GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.NOTIFICATION) 
 			{
-				ExpansionNotification("STR_EXPANSION_PLAYER_JOINED_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
+				ExpansionNotification("STR_EXPANSION_PLAYER_JOINED_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", cArgs.Identity.GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
 			} 
 			else if (GetExpansionSettings().GetNotification().JoinMessageType == ExpansionAnnouncementType.CHAT)
 			{
-				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", identity.GetName()));
+				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_JOINED_TEXT", cArgs.Identity.GetName()));
 			}
 		}
 	}
@@ -137,41 +152,49 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnInvokeConnect
 	// ------------------------------------------------------------
-	override void OnInvokeConnect(PlayerBase player, PlayerIdentity identity)
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "OnInvokeConnect");
 #endif
 
-		if (!player)
+		super.OnInvokeConnect(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (!cArgs.Player)
 			return;
 		
-		string playerID = player.GetIdentity().GetId();
+		string playerID = cArgs.Player.GetIdentity().GetId();
 		AddPlayerStats(playerID);
 		AddPlayerStates(playerID);
 		
-		SyncLastDeathPos(player);
+		SyncLastDeathPos(cArgs.Player);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnInvokeDisconnect
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnInvokeDisconnect(PlayerBase player)
+	override void OnInvokeDisconnect(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "OnInvokeDisconnect");
 #endif
 
-		if (GetExpansionSettings().GetNotification().ShowPlayerLeftServer && player.GetIdentity()) 
+		super.OnInvokeDisconnect(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (GetExpansionSettings().GetNotification().ShowPlayerLeftServer && cArgs.Player.GetIdentity()) 
 		{			
 			if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.NOTIFICATION) 
 			{
-				ExpansionNotification("STR_EXPANSION_PLAYER_LEFT_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
+				ExpansionNotification("STR_EXPANSION_PLAYER_LEFT_TITLE", new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", cArgs.Player.GetIdentity().GetName()), EXPANSION_NOTIFICATION_ICON_PERSONA).Info();
 			} 
 			else if (GetExpansionSettings().GetNotification().LeftMessageType == ExpansionAnnouncementType.CHAT)
 			{
-				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", player.GetIdentity().GetName()));
+				ServerChatMessage(new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TITLE"), new StringLocaliser("STR_EXPANSION_PLAYER_LEFT_TEXT", cArgs.Player.GetIdentity().GetName()));
 			}
 		}
 	}
@@ -180,16 +203,20 @@ class ExpansionMonitorModule: JMModuleBase
 	// ExpansionMonitorModule OnClientDisconnect
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnClientDisconnect(PlayerBase player, PlayerIdentity identity, string uid)
+	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "OnClientDisconnect");
 #endif
 
-		if (!identity)
+		super.OnClientDisconnect(sender, args);
+
+		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
+
+		if (!cArgs.Identity)
 			return;
 		
-		string playerID = identity.GetId();
+		string playerID = cArgs.Identity.GetId();
 		RemovePlayerStats(playerID);
 		RemovePlayerStates(playerID);
 	}
@@ -197,14 +224,16 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule OnUpdate
 	// ------------------------------------------------------------
-	override void OnUpdate(float timeslice)
+	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
-		super.OnUpdate( timeslice );
+		super.OnUpdate(sender, args);
 		
 		if (IsMissionClient() || !GetExpansionSettings().GetMonitoring().Enabled)
 			return;
+
+		auto update = CF_EventUpdateArgs.Cast(args);
 		
-		m_UpdateQueueTimer += timeslice;
+		m_UpdateQueueTimer += update.DeltaTime;
 		if ( m_UpdateQueueTimer >= UPDATE_TICK_TIME )
 		{
 			if (m_Stats.Count() > 0)
@@ -958,12 +987,16 @@ class ExpansionMonitorModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule OnClientRespawn
 	// ------------------------------------------------------------	
-	override void OnClientRespawn(PlayerBase player, PlayerIdentity identity)
+	override void OnClientRespawn(Class sender, CF_EventArgs args)
 	{
-		if (!player)
+		super.OnClientRespawn(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (!cArgs.Player)
 			return;
 		
-		SyncLastDeathPos(player);
+		SyncLastDeathPos(cArgs.Player);
 	}
 };
 #endif

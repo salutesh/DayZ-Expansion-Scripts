@@ -68,7 +68,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			m_ItemController = ExpansionMarketMenuItemController.Cast(GetController());
 		
 		if (!m_MarketModule)
-			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 		
 		market_item_header_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		market_item_header_text_small.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));

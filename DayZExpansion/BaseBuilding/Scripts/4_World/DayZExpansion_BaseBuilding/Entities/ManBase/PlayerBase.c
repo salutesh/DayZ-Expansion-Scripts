@@ -23,7 +23,7 @@ modded class PlayerBase
 	{
 		m_TerritoryIdInside = -1;
 
-		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
+		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
 	}
 	
 	// ------------------------------------------------------------

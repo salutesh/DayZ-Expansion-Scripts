@@ -45,7 +45,7 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 		if (!m_TraderObject)
 			return false;
 
-		if (!Class.CastTo(m_MarketModule, GetModuleManager().GetModule(ExpansionMarketModule)))
+		if (!CF_Modules<ExpansionMarketModule>.Get(m_MarketModule))
 			return false;
 
 		if (!m_MarketModule.CanOpenMenu())

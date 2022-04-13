@@ -13,11 +13,13 @@
 /**@class		ExpansionNotificationModule
  * @brief		This class handle notification toasts system
  **/
-class ExpansionNotificationModule: JMModuleBase
+[CF_RegisterModule(ExpansionNotificationModule)]
+class ExpansionNotificationModule: CF_ModuleWorld
 {
 	ref array<ref ExpansionNotificationView> m_Notifications;
 	ref array<ref NotificationRuntimeData> m_NotificationData;
 	ref ExpansionNotificationHUD m_NotificationHUD;
+	bool m_Expansion_Bind;
 	
 	// ------------------------------------------------------------
 	void ExpansionNotificationModule()
@@ -28,12 +30,6 @@ class ExpansionNotificationModule: JMModuleBase
 
 		m_Notifications = new array<ref ExpansionNotificationView>;
 		m_NotificationData = new array<ref NotificationRuntimeData>;
-	
-		if (IsMissionClient())
-		{		
-			NotificationSystem.BindOnAdd(AddNotification);
-			NotificationSystem.BindOnRemove(RemoveNotification);
-		}
 	}
 	
 	// ------------------------------------------------------------
@@ -47,6 +43,24 @@ class ExpansionNotificationModule: JMModuleBase
 		{
 			m_NotificationHUD = NULL;
 		}
+	}
+
+	override void OnInit()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "OnInit");
+#endif
+
+		super.OnInit();
+
+		EnableMissionLoaded();
+		EnableMissionStart();
+		EnableUpdate();
+	}
+
+	override bool IsServer()
+	{
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -199,23 +213,22 @@ class ExpansionNotificationModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	override void OnUpdate(float timeslice)
+	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "OnUpdate");
 #endif
 
-		super.OnUpdate(timeslice);
+		super.OnUpdate(sender, args);
 
-		if (!IsMissionClient())
-			return;
+		auto update = CF_EventUpdateArgs.Cast(args);
 
 		for (int i = 0; i < m_Notifications.Count(); i++)
 		{
 			if (!m_Notifications[i])
 				continue;
 
-			m_Notifications[i].Update(timeslice);
+			m_Notifications[i].Update(update.DeltaTime);
 		}
 	}
 	
@@ -224,40 +237,27 @@ class ExpansionNotificationModule: JMModuleBase
 	{
 		m_NotificationHUD = notificationHUD;
 	}
-	
-	// ------------------------------------------------------------
-	override void OnMissionLoaded()
+
+	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		if (IsMissionClient())
+		super.OnMissionStart(sender, args);
+	
+		if (!m_Expansion_Bind)
 		{
-			if (m_NotificationHUD)
-				delete m_NotificationHUD;
-			
-			m_NotificationHUD = new ExpansionNotificationHUD;
+			m_Expansion_Bind = true;
+			NotificationSystem.BindOnAdd(AddNotification);
+			NotificationSystem.BindOnRemove(RemoveNotification);
 		}
 	}
+	
+	// ------------------------------------------------------------
+	override void OnMissionLoaded(Class sender, CF_EventArgs args)
+	{
+		super.OnMissionLoaded(sender, args);
+
+		if (m_NotificationHUD)
+			delete m_NotificationHUD;
 		
-	// ------------------------------------------------------------
-	override void OnClientReconnect(PlayerBase player, PlayerIdentity identity)
-	{
-		if (IsMissionClient())
-		{
-			if (m_NotificationHUD)
-				delete m_NotificationHUD;
-			
-			m_NotificationHUD = new ExpansionNotificationHUD;
-		}
-	}
-	
-	// ------------------------------------------------------------
-	override void OnInvokeConnect( PlayerBase player, PlayerIdentity identity )
-	{
-		if (IsMissionClient())
-		{
-			if (m_NotificationHUD)
-				delete m_NotificationHUD;
-			
-			m_NotificationHUD = new ExpansionNotificationHUD;
-		}
+		m_NotificationHUD = new ExpansionNotificationHUD;
 	}
 };

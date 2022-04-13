@@ -10,7 +10,8 @@
  *
 */
 
-class ExpansionWorldMappingModule: JMModuleBase
+[CF_RegisterModule(ExpansionWorldMappingModule)]
+class ExpansionWorldMappingModule: CF_ModuleWorld
 {
 	static ref ScriptInvoker SI_LampEnable = new ScriptInvoker();
 	static ref ScriptInvoker SI_LampDisable = new ScriptInvoker();
@@ -48,13 +49,20 @@ class ExpansionWorldMappingModule: JMModuleBase
 	override void OnInit()
 	{
 		super.OnInit();
+		
+		EnableMissionFinish();
+		EnableMissionLoaded();
+		EnableRPC();
+		EnableSettingsChanged();
 	}
  	
 	// ------------------------------------------------------------
 	// Expansion OnMissionLoaded
 	// ------------------------------------------------------------
-	override void OnMissionLoaded()
+	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
+		super.OnMissionLoaded(sender, args);
+
 		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
 
 		if ( !IsMissionOffline() && IsMissionClient() )
@@ -67,16 +75,25 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion OnMissionFinish
 	// ------------------------------------------------------------   
-	override void OnMissionFinish()
+	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
+		super.OnMissionFinish(sender, args);
+
 		UnloadMapping( m_Objects.GetKeyArray() );
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion OnSettingsUpdated
-	// ------------------------------------------------------------
-	override void OnSettingsUpdated()
+	void OnSettingsUpdated()
 	{
+		OnSettingsChanged(this, CF_EventArgs.Empty);
+	}
+
+	// ------------------------------------------------------------
+	// Expansion OnSettingsChanged
+	// ------------------------------------------------------------
+	override void OnSettingsChanged(Class sender, CF_EventArgs args)
+	{
+		super.OnSettingsChanged(sender, args);
+
 		if ( !GetExpansionSettings().GetGeneral() )
 			return;
 
@@ -134,7 +151,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------	
 	private void LoadMapping( TStringArray files )
 	{
-		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
+		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( CF_ModuleCoreManager.Get( ExpansionInteriorBuildingModule ) );
 		
 		if ( m_InteriorModule )
 		{
@@ -237,7 +254,7 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void LoadFile( string name )
 	{
-		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
+		m_InteriorModule = ExpansionInteriorBuildingModule.Cast( CF_ModuleCoreManager.Get( ExpansionInteriorBuildingModule ) );
 		
 		if (!m_InteriorModule)
 			return;
@@ -491,22 +508,22 @@ class ExpansionWorldMappingModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Expansion OnRPC
 	// ------------------------------------------------------------	
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		switch ( rpc_type )
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 		case ExpansionWorldMappingModuleRPC.TurnOn:
-			RPC_TurnOn( ctx, sender, target );
+			RPC_TurnOn( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		case ExpansionWorldMappingModuleRPC.TurnOff:
-			RPC_TurnOff( ctx, sender, target );
+			RPC_TurnOff( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		case ExpansionWorldMappingModuleRPC.Load:
-			RPC_Load( ctx, sender, target );
+			RPC_Load( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		}
 	}

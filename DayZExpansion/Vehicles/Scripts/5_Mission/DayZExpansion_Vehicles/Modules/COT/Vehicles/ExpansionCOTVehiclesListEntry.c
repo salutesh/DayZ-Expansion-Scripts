@@ -78,7 +78,7 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
 		if ( m_EditButton && w == m_EditButton )
-		{			
+		{
 			if ( m_COTVehicleMenu && m_Vehicle )
 			{
 				m_COTVehicleMenu.SetVehicleInfo( m_Vehicle );

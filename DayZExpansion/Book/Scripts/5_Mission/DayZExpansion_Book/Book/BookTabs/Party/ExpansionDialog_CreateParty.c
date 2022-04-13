@@ -97,7 +97,7 @@ class ExpansionDialogButton_Text_CreateParty_Accept: ExpansionDialogBookButton_T
 			m_CreatePartyDialog = ExpansionDialog_CreateParty.Cast(m_Dialog);
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

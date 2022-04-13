@@ -44,7 +44,7 @@ class ExpansionAirdropContainerManager
 		InfectedSpawnInterval = GetExpansionSettings().GetAirdrop().InfectedSpawnInterval;
 
 		#ifdef EXPANSIONMODNAVIGATION
-		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 		#endif
 	}
 

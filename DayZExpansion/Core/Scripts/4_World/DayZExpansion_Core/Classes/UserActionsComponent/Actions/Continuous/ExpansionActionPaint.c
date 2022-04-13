@@ -33,7 +33,7 @@ class ExpansionActionPaint: ActionContinuousBase
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
 		m_SpecialtyWeight = UASoftSkillsWeight.PRECISE_LOW;
 
-		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
+		CF_Modules<ExpansionSkinModule>.Get(m_SkinModule);
 	}
 	
 	override void CreateConditionComponents()  

@@ -51,4 +51,6 @@ class ExpansionTracing
 	static bool RESPAWN;
 	
 	static bool MARKER;
+	
+	static bool DATACOLLECTION;
 };

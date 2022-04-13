@@ -1,4 +1,17 @@
-class ExpansionMissionModule: JMModuleBase
+/**
+ * ExpansionMissionModule.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
+[CF_RegisterModule(ExpansionMissionModule)]
+class ExpansionMissionModule: CF_ModuleWorld
 {
 	static ref ScriptInvoker SI_Started = new ScriptInvoker();
 	static ref ScriptInvoker SI_Ended = new ScriptInvoker();
@@ -24,7 +37,7 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionMissionModule()
 	{
-		ExpansionSettings.SI_Mission.Insert( OnSettingsUpdated );
+		ExpansionSettings.SI_Mission.Insert( OnSettingsChanged );
 
 		m_MissionConstructor = ExpansionMissionConstructor;
 	}
@@ -34,7 +47,7 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ~ExpansionMissionModule()
 	{
-		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
+		ExpansionSettings.SI_Mission.Remove( OnSettingsChanged );
 
 		if(m_lowPlayerCheckRunning)
 		{
@@ -66,6 +79,8 @@ class ExpansionMissionModule: JMModuleBase
 	{
 		super.OnInit();
 
+		EnableMissionLoaded();
+
 		SI_OnMissionEnd.Insert( RemoveMission );
 
 		m_Missions = new array< ref ExpansionMissionEventBase >;
@@ -84,13 +99,13 @@ class ExpansionMissionModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMissionModule OnMissionLoaded
 	// ------------------------------------------------------------
-	override void OnMissionLoaded()
+	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "OnMissionLoaded");
 #endif
 	
-		super.OnMissionLoaded();
+		super.OnMissionLoaded(sender, args);
 
 		ExpansionMissionConstructor missionConstructor;
 		if ( Class.CastTo( missionConstructor, m_MissionConstructor.Spawn() ) )

@@ -70,7 +70,7 @@ class ExpansionDialogButton_Text_PartyInvite_Accept: ExpansionDialogBookButton_T
 			m_PartyTab = ExpansionBookMenuTabParty.Cast(m_PartyInviteDialog.GetParentView());
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

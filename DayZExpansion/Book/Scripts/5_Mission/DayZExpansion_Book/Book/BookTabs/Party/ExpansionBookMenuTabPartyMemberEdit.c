@@ -66,7 +66,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 			m_PartyTab = ExpansionBookMenuTabParty.Cast(GetParentTab());
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 	}
 	
 	override string GetLayoutFile() 

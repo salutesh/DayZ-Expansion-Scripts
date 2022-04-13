@@ -435,7 +435,7 @@ PanelWidgetClass ExpansionGPS {
      hexactsize 0
      vexactsize 0
      priority 2
-     imageTexture "{11F16516797A17F7}DayZExpansion/GUI/textures/gps_new.edds"
+     imageTexture "{11F16516797A17F7}DayZExpansion/Navigation/GUI/textures/gps_new.edds"
      mode blend
      "src alpha" 1
      "no wrap" 0

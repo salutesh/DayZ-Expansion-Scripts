@@ -171,141 +171,141 @@ class CfgVehicles
 			{
 				actionSel = "seat_cargo1";
 				proxyPos = "crewCargo1";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo1";
+				getInDir = "pos_cargo1_dir";
 			};
 			class Cargo2
 			{
 				actionSel = "seat_cargo2";
 				proxyPos = "crewCargo2";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
 			};
 			class Cargo3
 			{
 				actionSel = "seat_cargo3";
 				proxyPos = "crewCargo3";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo3";
+				getInDir = "pos_cargo3_dir";
 			};
 			class Cargo4
 			{
 				actionSel = "seat_cargo4";
 				proxyPos = "crewCargo4";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo4";
+				getInDir = "pos_cargo4_dir";
 			};
 			class Cargo5
 			{
 				actionSel = "seat_cargo5";
 				proxyPos = "crewCargo5";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo5";
+				getInDir = "pos_cargo5_dir";
 			};
 			class Cargo6
 			{
 				actionSel = "seat_cargo6";
 				proxyPos = "crewCargo6";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo6";
+				getInDir = "pos_cargo6_dir";
 			};
 			class Cargo7
 			{
 				actionSel = "seat_cargo7";
 				proxyPos = "crewCargo7";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo7";
+				getInDir = "pos_cargo7_dir";
 			};
 			class Cargo8
 			{
 				actionSel = "seat_cargo8";
 				proxyPos = "crewCargo8";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo8";
+				getInDir = "pos_cargo8_dir";
 			};
 			class Cargo9
 			{
 				actionSel = "seat_cargo9";
 				proxyPos = "crewCargo9";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo9";
+				getInDir = "pos_cargo9_dir";
 			};
 			class Cargo10
 			{
 				actionSel = "seat_cargo10";
 				proxyPos = "crewCargo10";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo10";
+				getInDir = "pos_cargo10_dir";
 			};
 			class Cargo11
 			{
 				actionSel = "seat_cargo11";
 				proxyPos = "crewCargo11";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo11";
+				getInDir = "pos_cargo11_dir";
 			};
 			class Cargo12
 			{
 				actionSel = "seat_cargo12";
 				proxyPos = "crewCargo12";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo12";
+				getInDir = "pos_cargo12_dir";
 			};
 			class Cargo13
 			{
 				actionSel = "seat_cargo13";
 				proxyPos = "crewCargo13";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo13";
+				getInDir = "pos_cargo13_dir";
 			};
 			class Cargo14
 			{
 				actionSel = "seat_cargo14";
 				proxyPos = "crewCargo14";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo14";
+				getInDir = "pos_cargo14_dir";
 			};
 			class Cargo15
 			{
 				actionSel = "seat_cargo15";
 				proxyPos = "crewCargo15";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo15";
+				getInDir = "pos_cargo15_dir";
 			};
 			class Cargo16
 			{
 				actionSel = "seat_cargo16";
 				proxyPos = "crewCargo16";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo16";
+				getInDir = "pos_cargo16_dir";
 			};
 			class Cargo17
 			{
 				actionSel = "seat_cargo17";
 				proxyPos = "crewCargo17";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo17";
+				getInDir = "pos_cargo17_dir";
 			};
 			class Cargo18
 			{
 				actionSel = "seat_cargo18";
 				proxyPos = "crewCargo18";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo18";
+				getInDir = "pos_cargo18_dir";
 			};
 			class Cargo19
 			{
 				actionSel = "seat_cargo19";
 				proxyPos = "crewCargo19";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo19";
+				getInDir = "pos_cargo19_dir";
 			};
 			class Cargo20
 			{
 				actionSel = "seat_cargo20";
 				proxyPos = "crewCargo20";
-				getInPos = "pos_codriver";
-				getInDir = "pos_codriver_dir";
+				getInPos = "pos_cargo20";
+				getInDir = "pos_cargo20_dir";
 			};
 		};
 		class SimulationModule: SimulationModule
@@ -330,14 +330,15 @@ class CfgVehicles
 			class Engine
 			{
 				inertia = 0.15;
-				torqueMax = 114;
+				torqueMax = 150;
+				steepness = 10;
 				torqueRpm = 3400;
-				powerMax = 56.7;
+				powerMax = 70;
 				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
 				rpmClutch = 1350;
-				rpmRedline = 6000;
+				rpmRedline = 6500;
 				rpmMax = 8000;
 			};
 			class Gearbox
@@ -361,11 +362,11 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1700;
-						stiffness = 45000;
-						compression = 2100;
-						damping = 8500;
-						travelMaxUp = 0.0882;
-						travelMaxDown = 0.0833;
+						stiffness = 49000;
+						compression = 2400;
+						damping = 8090;
+						travelMaxUp = 0.05;
+						travelMaxDown = 0.15;
 					};
 					class Wheels: Wheels
 					{
@@ -398,11 +399,11 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1800;
-						stiffness = 45000;
-						compression = 2200;
-						damping = 8600;
-						travelMaxUp = 0.1587;
-						travelMaxDown = 0.1059;
+						stiffness = 50000;
+						compression = 2700;
+						damping = 8290;
+						travelMaxUp = 0.05;
+						travelMaxDown = 0.15;
 					};
 					class Wheels: Wheels
 					{

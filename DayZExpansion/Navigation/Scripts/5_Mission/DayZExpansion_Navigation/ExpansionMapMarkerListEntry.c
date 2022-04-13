@@ -62,7 +62,7 @@ class ExpansionMapMarkerListEntry extends ScriptedWidgetEventHandler
 		m_MapMenu = map_menu;
 		m_Marker = marker;
 		m_MarkerData = marker.GetMarkerData();
-		m_MarkerModule = ExpansionMarkerModule.Cast( GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		m_MarkerModule = ExpansionMarkerModule.Cast( CF_ModuleCoreManager.Get( ExpansionMarkerModule ) );
 		
 		m_InfoTooltip = new ExpansionUITooltip("<p>" + "X:" + m_Marker.GetMarkerData().GetPosition()[0] + " Y:" + m_Marker.GetMarkerData().GetPosition()[1] + " Z:" + m_Marker.GetMarkerData().GetPosition()[2] + "</p>");
 		m_InfoTooltip.SetTextPos("center");

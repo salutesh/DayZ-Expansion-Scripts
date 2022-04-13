@@ -92,10 +92,10 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 
 		m_DeletingMarkers = new set< ExpansionMapMarker >();
 		Class.CastTo( m_PlayerB, GetGame().GetPlayer() );
-		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 
 		#ifdef EXPANSIONMODGROUPS
-		Class.CastTo( m_PartyModule, GetModuleManager().GetModule( ExpansionPartyModule ) );
+		CF_Modules<ExpansionPartyModule>.Get(m_PartyModule);
 		#endif
 				
 		#ifdef EXPANSION_MAP_MENU_DEBUG

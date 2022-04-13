@@ -96,6 +96,12 @@ class eAITarget
 			if (mag && mag.GetAmmoCount() > 0)
 				return false;
 		}
+		else
+		{
+			auto player = PlayerBase.Cast(GetEntity());
+			if (player && player.IsUnconscious())
+				return false;
+		}
 
 		return true;
 	}

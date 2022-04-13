@@ -290,7 +290,7 @@ modded class BuildingBase
 				
 
 		if ( !m_InteriorModule ) {
-			Class.CastTo( m_InteriorModule, GetModuleManager().GetModule( ExpansionInteriorBuildingModule ) );
+			CF_Modules<ExpansionInteriorBuildingModule>.Get(m_InteriorModule);
 		}
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
@@ -316,7 +316,7 @@ modded class BuildingBase
 		}
 				
 		if (!m_InteriorModule) {
-			Class.CastTo(m_InteriorModule, GetModuleManager().GetModule(ExpansionInteriorBuildingModule));
+			CF_Modules<ExpansionInteriorBuildingModule>.Get(m_InteriorModule);
 		}
 		
 		if (m_InteriorModule.ShouldIvySpawn(GetPosition())) {

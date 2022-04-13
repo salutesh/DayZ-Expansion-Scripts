@@ -63,7 +63,7 @@ modded class ItemBase
 			return false;
 
 		ExpansionMarketModule module;
-		if (Class.CastTo(module, GetModuleManager().GetModule(ExpansionMarketModule)))
+		if (CF_Modules<ExpansionMarketModule>.Get(module))
 			return module.IsMoney(this);
 
 		return false;

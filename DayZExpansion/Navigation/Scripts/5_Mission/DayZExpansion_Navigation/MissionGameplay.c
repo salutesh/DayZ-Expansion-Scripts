@@ -25,7 +25,7 @@ modded class MissionGameplay
 
 	void MissionGameplay()
 	{
-		Class.CastTo(m_MarkerModule, GetModuleManager().GetModule(ExpansionMarkerModule));
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 	}
 
 	override void OnUpdate(float timeslice)

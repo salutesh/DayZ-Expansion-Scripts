@@ -13,7 +13,9 @@
 /**@class		ExpansionGlobalChatModule
  * @brief		This class handle global chat
  **/
-class ExpansionGlobalChatModule: JMModuleBase
+
+[CF_RegisterModule(ExpansionGlobalChatModule)]
+class ExpansionGlobalChatModule: CF_ModuleWorld
 {
 #ifdef EXPANSIONMODGROUPS
 	protected ref ExpansionPartyModule m_PartyModule;
@@ -29,6 +31,13 @@ class ExpansionGlobalChatModule: JMModuleBase
 		GetPermissionsManager().RegisterPermission( "Admin.Chat" );
 	}
 	
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableRPC();
+	}
+
 	// ------------------------------------------------------------
 	void AddChatMessage( ParamsReadContext ctx, PlayerIdentity sender, Object target )
 	{
@@ -43,7 +52,7 @@ class ExpansionGlobalChatModule: JMModuleBase
 
 #ifdef EXPANSIONMODGROUPS
 		if (!m_PartyModule) // i tried this in OnInit, and it still gave me errors
-			m_PartyModule = ExpansionPartyModule.Cast( GetModuleManager().GetModule(ExpansionPartyModule) );
+			m_PartyModule = ExpansionPartyModule.Cast( CF_ModuleCoreManager.Get(ExpansionPartyModule) );
 #endif
 
 		if ( !ctx.Read( data ) )
@@ -165,20 +174,20 @@ class ExpansionGlobalChatModule: JMModuleBase
 	// Override OnRPC
 	// ------------------------------------------------------------
 	
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnRPC");
 #endif
 
-		switch ( rpc_type )
+		switch ( rpc.ID )
 		{
 			case ExpansionGlobalChatRPC.AddChatMessage:
-				AddChatMessage( ctx, sender, target );
+				AddChatMessage( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		}
 	}

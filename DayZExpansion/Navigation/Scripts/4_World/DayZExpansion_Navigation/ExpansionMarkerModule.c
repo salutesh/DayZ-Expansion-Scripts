@@ -10,7 +10,8 @@
  *
 */
 
-class ExpansionMarkerModule: JMModuleBase
+[CF_RegisterModule(ExpansionMarkerModule)]
+class ExpansionMarkerModule: CF_ModuleWorld
 {
 	protected ExpansionMarkerClientData m_CurrentData;
 	protected ref array<ref ExpansionMarkerClientData> m_AllData;
@@ -45,6 +46,12 @@ class ExpansionMarkerModule: JMModuleBase
 		#endif
 		
 		super.OnInit();
+
+		EnableMissionFinish();
+		EnableMissionLoaded();
+		EnableRPC();
+		EnableSettingsChanged();
+		EnableUpdate();
 
 		m_3DMarkers = new array<ref Expansion3DMarker>();
 		m_AllData = new array<ref ExpansionMarkerClientData>();
@@ -94,13 +101,13 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule OnMissionLoaded
 	// ------------------------------------------------------------
-	override void OnMissionLoaded()
+	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::OnMissionLoaded - Start");
 		#endif
 
-		super.OnMissionLoaded();
+		super.OnMissionLoaded(sender, args);
 		
 		ReadLocalServerMarkers();
 
@@ -152,13 +159,13 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule OnMissionFinish
 	// ------------------------------------------------------------
-	override void OnMissionFinish()
+	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::OnMissionFinish - Start");
 		#endif
 
-		super.OnMissionFinish();
+		super.OnMissionFinish(sender, args);
 
 		SaveLocalServerMarkers();
 
@@ -168,18 +175,21 @@ class ExpansionMarkerModule: JMModuleBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnSettingsUpdated
+	// ExpansionMarkerModule OnSettingsChanged
 	// ------------------------------------------------------------
-	override void OnSettingsUpdated()
+	
+	override void OnSettingsChanged(Class sender, CF_EventArgs args)
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - Start");
+		EXPrint("ExpansionMarkerModule::OnSettingsChanged - Start");
 		#endif
+
+		super.OnSettingsChanged(sender, args);
 
 		Refresh();
 
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - End");
+		EXPrint("ExpansionMarkerModule::OnSettingsChanged - End");
 		#endif
 	}
 	
@@ -381,17 +391,17 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule OnRPC
 	// ------------------------------------------------------------	
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		switch ( rpc_type )
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 			case ExpansionMarkerRPC.CreateDeathMarker:
 			{
-				RPC_CreateDeathMarker(sender, ctx);
+				RPC_CreateDeathMarker(rpc.Sender, rpc.Context);
 				break;
 			}
 		}
@@ -552,14 +562,16 @@ class ExpansionMarkerModule: JMModuleBase
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule OnUpdate
 	// ------------------------------------------------------------	
-	override void OnUpdate( float timeslice )
+	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
-		super.OnUpdate( timeslice );
+		super.OnUpdate(sender, args);
 
 		if (!IsMissionClient())
 			return;
 
-		m_TimeAccumulator += timeslice;
+		auto update = CF_EventUpdateArgs.Cast(args);
+
+		m_TimeAccumulator += update.DeltaTime;
 		if ( m_TimeAccumulator > 1.0 )
 		{
 			Refresh();
@@ -569,7 +581,7 @@ class ExpansionMarkerModule: JMModuleBase
 
 		for ( int i = m_3DMarkers.Count() - 1; i >= 0; i-- )
 		{
-			if ( !m_3DMarkers[i] || !m_3DMarkers[i].Update( timeslice ) )
+			if ( !m_3DMarkers[i] || !m_3DMarkers[i].Update( update.DeltaTime ) )
 			{
 				Expansion3DMarker marker = m_3DMarkers[i];
 				m_3DMarkers.Remove(i);

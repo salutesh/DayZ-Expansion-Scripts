@@ -20,7 +20,7 @@ modded class IngameHud
 	{
 		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
 		{
-			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 			if (partyModule && partyModule.m_PartyHUDInvoker)
 			{
 				partyModule.m_PartyHUDInvoker.Remove(UpdatePartyHUD);
@@ -37,7 +37,7 @@ modded class IngameHud
 			if (!m_PartyHUD)
 			{
 				m_PartyHUD = new ExpansionPartyHud();
-				ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+				ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 				if (partyModule && partyModule.m_PartyHUDInvoker)
 				{
 					partyModule.m_PartyHUDInvoker.Insert(UpdatePartyHUD);
@@ -52,7 +52,7 @@ modded class IngameHud
 			return;
 		
 		map<string, string> partyPlayers = new map<string, string>;
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		if (partyModule)
 		{
 			ref ExpansionPartyData partyData = partyModule.GetParty();			

@@ -10,11 +10,19 @@
  *
 */
 
-class ExpansionAutorunModule: JMModuleBase
+[CF_RegisterModule(ExpansionAutorunModule)]
+class ExpansionAutorunModule: CF_ModuleWorld
 {
 	protected int m_AutoWalkMode = 0;
 	protected int m_OldAutoWalkMode = m_AutoWalkMode;
 	protected bool m_StartedWithSprint = false;
+
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableRPC();
+	}
 
 	// ------------------------------------------------------------
 	// Expansion SHIFT
@@ -214,24 +222,24 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnRPC");
 #endif
 
-		switch ( rpc_type )
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 			case ExpansionAutoRunRPC.AUTORUNSYNC:
-				AutorunSync( ctx, sender, target );
+				AutorunSync( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 			
 			case ExpansionAutoRunRPC.AUTORUNDISABLE:
-				AutorunDisable( ctx, sender, target );
+				AutorunDisable( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		}
 	}

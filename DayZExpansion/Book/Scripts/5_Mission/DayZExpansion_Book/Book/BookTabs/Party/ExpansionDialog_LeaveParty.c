@@ -70,7 +70,7 @@ class ExpansionDialogButton_Text_PartyLeave_Accept: ExpansionDialogBookButton_Te
 			m_PartyTab = ExpansionBookMenuTabParty.Cast(m_LeavePartyDialog.GetParentView());
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

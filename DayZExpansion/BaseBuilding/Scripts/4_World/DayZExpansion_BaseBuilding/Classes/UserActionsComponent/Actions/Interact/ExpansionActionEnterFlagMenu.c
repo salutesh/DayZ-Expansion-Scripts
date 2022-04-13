@@ -31,7 +31,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon = CursorIcons.CloseDoors;
 		
-		Class.CastTo( m_TerritoryModule, GetModuleManager().GetModule( ExpansionTerritoryModule ) );
+		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionActionEnterFlagMenu::ExpansionActionEnterFlagMenu - End");
@@ -185,7 +185,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		#endif
 		
 		ExpansionTerritoryModule module;
-		if ( Class.CastTo( module, GetModuleManager().GetModule( ExpansionTerritoryModule ) ) )
+		if ( CF_Modules<ExpansionTerritoryModule>.Get(module) )
 		{
 			module.CloseMenus();
 		}

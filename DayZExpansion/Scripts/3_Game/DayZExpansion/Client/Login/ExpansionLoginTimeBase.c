@@ -18,6 +18,7 @@ modded class LoginTimeBase
 	static float s_Expansion_LoadingTime = -1;
 	static float s_Expansion_LoadingTimeStamp = -1;
 	bool m_Expansion_Init;
+	string m_Expansion_CurrentBackground;
 	
 	void LoginTimeBase()
 	{
@@ -33,14 +34,21 @@ modded class LoginTimeBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Init");
 #endif
-		
+		EXPrint(ToString() + "::Init");
+		super.Init();
+
+		m_ImageBackground = ImageWidget.Cast( layoutRoot.FindAnyWidget("Background") );
+
 		if (!m_Expansion_Init)
 		{
+			//! For some reason, LoginQueueStatic::Init gets called twice (not by us, by base game apparently?)
 			m_Expansion_Init = true;
-			//EXPrint(ToString() + "::Init");
-			super.Init();
 			
 			UpdateLoadingBackground(true);
+		}
+		else if (m_Expansion_CurrentBackground)
+		{
+			m_ImageBackground.LoadImageFile( 0, m_Expansion_CurrentBackground );
 		}
 
 		return layoutRoot;
@@ -64,8 +72,6 @@ modded class LoginTimeBase
 
 		//EXPrint(ToString() + "::UpdateLoadingBackground - " + force + " - " + s_Expansion_LoadingTime);
 		s_Expansion_LoadingTime = 0;
-
-		m_ImageBackground = ImageWidget.Cast( layoutRoot.FindAnyWidget("Background") );
 		
 		string world_name = "default";
 
@@ -92,7 +98,10 @@ modded class LoginTimeBase
 		}
 		
 		if (backgrounds)
-			m_ImageBackground.LoadImageFile( 0, backgrounds.GetRandomPath() );
+		{
+			m_Expansion_CurrentBackground = backgrounds.GetRandomPath();
+			m_ImageBackground.LoadImageFile( 0, m_Expansion_CurrentBackground );
+		}
 	}
 
 	override void Update( float timeslice )

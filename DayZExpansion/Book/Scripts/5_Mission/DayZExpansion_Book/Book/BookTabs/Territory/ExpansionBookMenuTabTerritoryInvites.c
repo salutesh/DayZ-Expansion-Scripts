@@ -33,7 +33,7 @@ class ExpansionBookMenuTabTerritoryInvites: ExpansionBookMenuTabBase
 			m_InvitesController = ExpansionBookMenuTabTerritoryInvitesController.Cast(GetController());
 		
 		if (!m_TerritoryModule)
-			m_TerritoryModule = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
+			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 	}
 	
 	override string GetLayoutFile() 

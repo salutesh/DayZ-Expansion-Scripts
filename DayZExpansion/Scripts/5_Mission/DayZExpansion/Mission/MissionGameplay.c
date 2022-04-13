@@ -27,7 +27,7 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	void MissionGameplay()
 	{
-		Class.CastTo( m_AutoRunModule, GetModuleManager().GetModule( ExpansionAutorunModule ) );
+		CF_Modules<ExpansionAutorunModule>.Get(m_AutoRunModule);
 		m_DataSent = false;
 	}
 

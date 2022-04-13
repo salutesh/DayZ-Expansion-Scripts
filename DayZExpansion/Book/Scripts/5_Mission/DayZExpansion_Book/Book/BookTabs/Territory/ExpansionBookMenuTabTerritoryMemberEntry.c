@@ -33,7 +33,7 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 			m_EntryController = ExpansionBookMenuTabTerritoryMemberEntryController.Cast(GetController());
 		
 		if (!m_TerritoryModule)
-			m_TerritoryModule = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
+			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 		
 		SetEntry(m_Member);
 	}

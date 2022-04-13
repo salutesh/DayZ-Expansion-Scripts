@@ -20,6 +20,11 @@ class ExpansionNotificationHUD: ScriptView
 			m_NotificationHUDController = ExpansionNotificationHUDController.Cast(GetController());
 	}
 	
+	void ~ExpansionNotificationHUD()
+	{
+
+	}
+	
 	override typename GetControllerType() 
 	{
 		return ExpansionNotificationHUDController;
@@ -32,11 +37,17 @@ class ExpansionNotificationHUD: ScriptView
 	
 	void AddNotificationToatsElemement(ExpansionNotificationViewToast element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		m_NotificationHUDController.NotificationToastElements.Insert(element);
 	}
 	
 	void RemoveNotificationToastElemement(ExpansionNotificationViewToast element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		int index = -1;
 		index = m_NotificationHUDController.NotificationToastElements.Find(element);
 		if (index > -1)
@@ -45,6 +56,9 @@ class ExpansionNotificationHUD: ScriptView
 	
 	void AddNotificationBaguetteElemement(ExpansionNotificationViewBaguette element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		if (m_NotificationHUDController.NotificationBaguetteElements.Count() > 2)
 			HideBaguetteElements();
 		
@@ -53,6 +67,9 @@ class ExpansionNotificationHUD: ScriptView
 	
 	void RemoveNotificationBaguetteElemement(ExpansionNotificationViewBaguette element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		int index = -1;
 		index = m_NotificationHUDController.NotificationBaguetteElements.Find(element);
 		if (index > -1)
@@ -60,7 +77,10 @@ class ExpansionNotificationHUD: ScriptView
 	}
 	
 	void HideBaguetteElements()
-	{		
+	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		for (int i = 0; i < m_NotificationHUDController.NotificationBaguetteElements.Count(); i++)
 		{
 			ExpansionNotificationViewBaguette view = m_NotificationHUDController.NotificationBaguetteElements[i];
@@ -69,7 +89,10 @@ class ExpansionNotificationHUD: ScriptView
 	}
 	
 	void AddNotificationActivityElemement(ExpansionNotificationViewActivity element)
-	{		
+	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		if (m_NotificationHUDController.NotificationActivityElements.Count() > 2)
 			HideActivityElements();
 		
@@ -78,6 +101,9 @@ class ExpansionNotificationHUD: ScriptView
 	
 	void RemoveNotificationActivityElemement(ExpansionNotificationViewActivity element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		int index = -1;
 		index = m_NotificationHUDController.NotificationActivityElements.Find(element);
 		if (index > -1)
@@ -86,6 +112,9 @@ class ExpansionNotificationHUD: ScriptView
 	
 	void HideActivityElements()
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		for (int i = 0; i < m_NotificationHUDController.NotificationActivityElements.Count(); i++)
 		{
 			ExpansionNotificationViewActivity view = m_NotificationHUDController.NotificationActivityElements[i];
@@ -94,12 +123,18 @@ class ExpansionNotificationHUD: ScriptView
 	}
 	
 	void AddNotificationKillfeedElemement(ExpansionNotificationViewKillfeed element)
-	{				
+	{		
+		if (!m_NotificationHUDController)
+			return;
+				
 		m_NotificationHUDController.NotificationKillfeedElements.Insert(element);
 	}
 	
 	void RemoveNotificationKillfeedElemement(ExpansionNotificationViewKillfeed element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		int index = -1;
 		index = m_NotificationHUDController.NotificationKillfeedElements.Find(element);
 		if (index > -1)
@@ -107,12 +142,18 @@ class ExpansionNotificationHUD: ScriptView
 	}
 	
 	void AddNotificationMarketElemement(ExpansionNotificationViewMarket element)
-	{				
+	{
+		if (!m_NotificationHUDController)
+			return;
+			
 		m_NotificationHUDController.NotificationMarketElements.Insert(element);
 	}
 	
 	void RemoveNotificationMarketElemement(ExpansionNotificationViewMarket element)
 	{
+		if (!m_NotificationHUDController)
+			return;
+		
 		int index = -1;
 		index = m_NotificationHUDController.NotificationMarketElements.Find(element);
 		if (index > -1)

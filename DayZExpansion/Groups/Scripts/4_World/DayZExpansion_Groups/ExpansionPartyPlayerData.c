@@ -24,11 +24,8 @@ class ExpansionPartyPlayerData
 {
 	string UID;
 	string Name;
-	bool Promoted;
-
 	PlayerBase Player;
 	int Permissions;
-	
 	ref ExpansionPartyData m_Party;
 
 	void ExpansionPartyPlayerData(ExpansionPartyData party)
@@ -62,7 +59,7 @@ class ExpansionPartyPlayerData
         if (version < 26)
         {
             bool promoted;
-            if (Expansion_Assert_False(ctx.Read(promoted), "[" + this + "] Failed reading Promoted"))
+            if (Expansion_Assert_False(ctx.Read(promoted), "[" + this + "] Failed reading obsolete promoted"))
                 return false;
 
             if (promoted)
@@ -97,39 +94,21 @@ class ExpansionPartyPlayerData
 	//! Add the passed in permissions (single value or bitmask) to current permissions
 	int AddPermission(int perm)
 	{
-		#ifdef EXPANSIONMODGROUPS_DEBUG
-		EXLogPrint("ExpansionPartyPlayerData::AddPermission - Add permission: " + perm.ToString());
-		#endif
 		Permissions |= perm;
-		#ifdef EXPANSIONMODGROUPS_DEBUG
-		EXLogPrint("ExpansionPartyPlayerData::AddPermission - Permissions: " + Permissions.ToString());
-		#endif
 		return Permissions;
 	}
 	
 	//! Remove the passed in permissions (single value or bitmask) from current permissions
 	int RemovePermission(int perm)
 	{
-		#ifdef EXPANSIONMODGROUPS_DEBUG
-		EXLogPrint("ExpansionPartyPlayerData::RemovePermission - Remove permission: " + perm.ToString());
-		#endif
 		Permissions &= ~perm;
-		#ifdef EXPANSIONMODGROUPS_DEBUG
-		EXLogPrint("ExpansionPartyPlayerData::RemovePermission - Permissions: " + Permissions.ToString());
-		#endif
 		return Permissions;
 	}
 	
 	//! Set permissions EXACTLY to the passed in single value or bitmask, replacing current permissions
 	int SetPermissions(int perm)
 	{
-		#ifdef EXPANSIONMODGROUPS_DEBUG
-		EXLogPrint("ExpansionPartyPlayerData::SetPermissions - Set Permissions: " + perm.ToString());
-		#endif
 		Permissions = perm;
-		#ifdef EXPANSIONMODGROUPS_DEBUG
-		EXLogPrint("ExpansionPartyPlayerData::SetPermissions - Permissions: " + Permissions.ToString());
-		#endif
 		return Permissions;
 	}
 	
@@ -158,7 +137,7 @@ class ExpansionPartyPlayerData
 		return (GetPermissions() & ExpansionPartyPlayerPermissions.CAN_DELETE) != 0;
 	}
 	
-#ifdef EXPANSIONMODMARKET	
+#ifdef EXPANSIONMODMARKET
 	bool CanWithdrawMoney()
 	{
 		return (GetPermissions() & ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY) != 0;

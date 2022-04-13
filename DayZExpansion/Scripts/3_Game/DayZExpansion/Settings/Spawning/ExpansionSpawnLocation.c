@@ -17,9 +17,9 @@ class ExpansionSpawnLocation
 	bool UseCooldown;
 	
 	[NonSerialized()]
-	bool IsTerritory = false;
+	bool IsTerritory;
 	
-	void ExpansionSpawnLocation( string name, array< vector > positions, bool isTerritory = false )
+	void ExpansionSpawnLocation(string name, array< vector > positions, bool isTerritory = false)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnLocation");
@@ -43,6 +43,11 @@ class ExpansionSpawnLocation
 	{
 		ExpansionSpawnLocation dst = new ExpansionSpawnLocation( src.Name, new array< vector >() );
 		return dst;
+	}
+	
+	void SetIsTerritory(bool state)
+	{
+		IsTerritory = state;
 	}
 	
 	bool IsTerritory()

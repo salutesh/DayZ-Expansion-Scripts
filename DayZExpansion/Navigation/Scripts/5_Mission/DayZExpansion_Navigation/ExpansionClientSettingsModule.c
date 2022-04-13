@@ -1,10 +1,10 @@
 modded class ExpansionClientSettingsModule
 {
-	override void OnSettingsUpdated()
+	override void OnSettingsChanged(Class sender, CF_EventArgs args)
 	{
-		super.OnSettingsUpdated();
+		super.OnSettingsChanged(sender, args);
 
-		ExpansionMarkerModule module = ExpansionMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMarkerModule));
+		ExpansionMarkerModule module = ExpansionMarkerModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 		if (module)
 		{
 			// PERSONAL MARKERS

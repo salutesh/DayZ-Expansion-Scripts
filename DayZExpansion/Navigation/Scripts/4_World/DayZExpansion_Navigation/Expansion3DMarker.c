@@ -56,9 +56,9 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 
 		SetMarkerData( data );
 
-		Class.CastTo( m_MarkerModule, GetModuleManager().GetModule( ExpansionMarkerModule ) );
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 	#ifdef EXPANSIONMODGROUPS
-		Class.CastTo( m_PartyModule, GetModuleManager().GetModule( ExpansionPartyModule ) );
+		CF_Modules<ExpansionPartyModule>.Get(m_PartyModule);
 	#endif
 		
 		GetExpansionClientSettings().SI_UpdateSetting.Insert( RefreshAlphaMinColor );

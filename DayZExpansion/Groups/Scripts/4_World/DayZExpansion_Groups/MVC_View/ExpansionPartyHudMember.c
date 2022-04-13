@@ -50,7 +50,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		m_PartyMemberController = ExpansionPartyHudMemberController.Cast(GetController());
 		
 #ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (monitorModule)
 		{
 			monitorModule.m_StatsInvoker.Insert(OnDataRecived);
@@ -67,7 +67,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	void ~ExpansionPartyHudMember()
 	{
 #ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (monitorModule)
 		{
 			monitorModule.m_StatsInvoker.Remove(OnDataRecived);
@@ -326,7 +326,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	void Update()
 	{				
 #ifdef EXPANSIONMONITORMODULE
-		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(GetModuleManager().GetModule(ExpansionMonitorModule));
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (monitorModule)
 		{
 			monitorModule.RequestPlayerStats(m_PlayerID);

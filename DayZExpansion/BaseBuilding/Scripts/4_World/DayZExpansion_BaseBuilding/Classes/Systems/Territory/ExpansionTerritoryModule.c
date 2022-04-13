@@ -10,7 +10,8 @@
  *
 */
 
-class ExpansionTerritoryModule: JMModuleBase
+[CF_RegisterModule(ExpansionTerritoryModule)]
+class ExpansionTerritoryModule: CF_ModuleWorld
 {
 	///////////////////////// STATIC VARS /////////////////////////////////
 	static const int 									m_TerritorySize_Level_1 = 50;
@@ -61,25 +62,37 @@ class ExpansionTerritoryModule: JMModuleBase
 	{
 	}
 	
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableClientRespawn();
+		EnableInvokeConnect();
+		EnableRPC();
+		EnableUpdate();
+	}
+
 	// ------------------------------------------------------------
 	// Override OnClientRespawn
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnClientRespawn( PlayerBase player, PlayerIdentity identity )
+	override void OnClientRespawn(Class sender, CF_EventArgs args)
 	{
-		OnInvokeConnect( player, identity );
+		OnInvokeConnect(sender, args);
 	}
 	
 	// ------------------------------------------------------------
 	// Override OnPlayerConnect
 	// Called on server
 	// ------------------------------------------------------------
-	override void OnInvokeConnect( PlayerBase player, PlayerIdentity identity )
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		if ( !player )
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if ( !cArgs.Player )
 			return;
 
-		string uid = identity.GetId();
+		string uid = cArgs.Identity.GetId();
 
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - Start uid : " + uid + " m_TerritoryFlags.Count() : " + m_TerritoryFlags.Count());
@@ -110,7 +123,7 @@ class ExpansionTerritoryModule: JMModuleBase
 				#endif
 
 				UpdateClient( territory.GetTerritoryID() );
-				UpdateClient( territory.GetTerritoryID(), player );
+				UpdateClient( territory.GetTerritoryID(), cArgs.Player );
 			}
 		}
 		
@@ -120,7 +133,7 @@ class ExpansionTerritoryModule: JMModuleBase
 		}
 		
 		//Sync invites
-		SyncPlayerInvitesServer( player );
+		SyncPlayerInvitesServer( cArgs.Player );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnPlayerConnect - End");
@@ -130,12 +143,14 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnUpdate
 	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
+	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
 		if (!IsMissionClient() || (!GetExpansionSettings().GetNotification() && !GetExpansionSettings().GetNotification().ShowTerritoryNotifications))
 			return;
-			
-		m_TimeSliceCheckPlayer += timeslice;
+
+		auto update = CF_EventUpdateArgs.Cast(args);
+
+		m_TimeSliceCheckPlayer += update.DeltaTime;
 		
 		if ( m_TimeSliceCheckPlayer > 2.5 )
 		{
@@ -165,120 +180,120 @@ class ExpansionTerritoryModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::OnRPC - Start");
 		#endif
 		
-		switch ( rpc_type )
+		switch ( rpc.ID )
 		{
 		case ExpansionTerritoryModuleRPC.OpenFlagMenu:
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_OpenFlagMenu");
 			#endif
 			TerritoryFlag flag;
-			if ( Class.CastTo( flag, target ) )
+			if ( Class.CastTo( flag, rpc.Target ) )
 			{
 				GetGame().GetUIManager().EnterScriptedMenu( flag.GetTerritoryMenuID(), GetGame().GetUIManager().GetMenu() );
 			}
 			break;
 		case ExpansionTerritoryModuleRPC.CreateTerritory:
-			RPC_CreateTerritory( ctx, sender, target );
+			RPC_CreateTerritory( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_CreateTerritory");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.ChangeTexture:
-			RPC_ChangeFlagTexture( ctx, sender, target );
+			RPC_ChangeFlagTexture( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_ChangeFlagTexture");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.DeleteTerritoryPlayer:
-			RPC_DeleteTerritoryPlayer( ctx, sender, target );
+			RPC_DeleteTerritoryPlayer( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteTerritoryPlayer");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.DeleteTerritoryAdmin:
-			RPC_DeleteTerritoryAdmin( ctx, sender, target );
+			RPC_DeleteTerritoryAdmin( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeleteTerritoryAdmin");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.UpdateClient:
-			RPC_UpdateClient( ctx, sender, target );
+			RPC_UpdateClient( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_UpdateClient");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.AcceptInvite:
-			RPC_AcceptInvite( ctx, sender, target );
+			RPC_AcceptInvite( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_AcceptInvite");
 			#endif
 			
 		case ExpansionTerritoryModuleRPC.DeclineInvite:
-			RPC_DeclineInvite( ctx, sender, target );
+			RPC_DeclineInvite( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DeclineInvite");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.SyncPlayerInvites:
-			RPC_SyncPlayerInvitesClient( ctx, sender, target );
+			RPC_SyncPlayerInvitesClient( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_SyncPlayerInvitesClient");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.RequestInvitePlayer:
-			RPC_RequestInvitePlayer( ctx, sender, target );
+			RPC_RequestInvitePlayer( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_RequestInvitePlayer");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.PromoteMember:
-			RPC_PromoteMember( ctx, sender, target );
+			RPC_PromoteMember( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_PromoteMember");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.DemoteMember:
-			RPC_DemoteMember( ctx, sender, target );
+			RPC_DemoteMember( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_DemoteMember");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.KickMember:
-			RPC_KickMember( ctx, sender, target );
+			RPC_KickMember( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_KickMember");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.Leave:
-			RPC_Leave( ctx, sender, target );
+			RPC_Leave( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_Leave");
 			#endif
 
 			break;
 		case ExpansionTerritoryModuleRPC.PlayerEnteredTerritory:
-			RPC_PlayerEnteredTerritory( ctx, sender, target );
+			RPC_PlayerEnteredTerritory( rpc.Context, rpc.Sender, rpc.Target );
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_PlayerEnteredTerritory");
 			#endif

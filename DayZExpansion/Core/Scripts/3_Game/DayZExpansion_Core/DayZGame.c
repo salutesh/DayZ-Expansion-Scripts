@@ -223,4 +223,91 @@ modded class DayZGame
 		
 		super.OnRPC(sender, target, rpc_type, ctx);
 	}
+
+	override void CancelLoginTimeCountdown()
+	{
+		super.CancelLoginTimeCountdown();
+		GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_CancelLoginTimeCountdown);
+	}
+
+	void Expansion_CancelLoginTimeCountdown()
+	{
+		while (true)
+		{
+			auto menu = GetUIManager().GetMenu();
+			if (!menu)
+				break;
+
+			auto loginTime = LoginTimeBase.Cast(menu);
+			if (!loginTime)
+				break;
+
+			EXLogPrint("Closing " + loginTime);
+
+			if (loginTime.IsStatic())
+			{
+				loginTime.Hide();
+				delete loginTime;
+			}
+			else
+			{
+				loginTime.Close();
+			}
+
+			Expansion_UnlockControls();
+		}
+	}
+
+	bool Expansion_UseMouse()
+	{
+		#ifdef PLATFORM_CONSOLE
+		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		#else
+		return true;
+		#endif
+	}
+
+	bool Expansion_UseKeyboard()
+	{
+		#ifdef PLATFORM_CONSOLE
+		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		#else
+		return true;
+		#endif
+	}
+
+	bool Expansion_UseGamepad()
+	{
+		return true;
+	}
+
+	void Expansion_UnlockControls()
+	{
+		if (Expansion_UseMouse())
+		{
+			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_MOUSE);
+		}
+
+		auto menu = GetUIManager().GetMenu();
+		auto scriptViewMenu = GetExpansionGame().GetExpansionUIManager().GetMenu();
+
+		if ((menu && menu.UseMouse()) || (scriptViewMenu && scriptViewMenu.UseMouse()))
+		{
+			GetUIManager().ShowUICursor(true);
+		}
+		else
+		{
+			GetUIManager().ShowUICursor(false);
+		}
+
+		if (Expansion_UseKeyboard())
+		{
+			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_KEYBOARD);
+		}
+		
+		if (Expansion_UseGamepad())
+		{
+			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_GAMEPAD);
+		}
+	}
 };

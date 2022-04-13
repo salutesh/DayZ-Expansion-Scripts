@@ -70,7 +70,7 @@ class ExpansionDialogButton_Text_TerritroyDelete_Accept: ExpansionDialogBookButt
 			m_TerritoryTab = ExpansionBookMenuTabTerritory.Cast(m_DeleteTerritoryDialog.GetParentView());
 		
 		if (!m_TerritoryModule)
-			m_TerritoryModule = ExpansionTerritoryModule.Cast(GetModuleManager().GetModule(ExpansionTerritoryModule));
+			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 		
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

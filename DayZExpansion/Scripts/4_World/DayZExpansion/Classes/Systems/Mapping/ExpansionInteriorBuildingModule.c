@@ -16,7 +16,8 @@ class IviesPosition
 	float   	radius;	
 }
 
-class ExpansionInteriorBuildingModule: JMModuleBase
+[CF_RegisterModule(ExpansionInteriorBuildingModule)]
+class ExpansionInteriorBuildingModule: CF_ModuleWorld
 {
 	protected bool m_IsUnloadingInteriors;
 	protected bool m_IsLoadingInteriors;
@@ -66,25 +67,25 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	override void OnInit()
 	{
 		super.OnInit();
+
+		//EnableSettingsChanged();
 	}
 
-	
-	// ------------------------------------------------------------
-	// Expansion OnMissionFinish
-	// ------------------------------------------------------------
-	override void OnMissionFinish()
+	void OnSettingsUpdated()
 	{
-		super.OnMissionFinish();		
+		//OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
 
 	// ------------------------------------------------------------
-	// Expansion OnSettingsUpdated
+	// Expansion OnSettingsChanged
 	// ------------------------------------------------------------
-	override void OnSettingsUpdated()
+/*	override void OnSettingsChanged(Class sender, CF_EventArgs args)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "OnSettingsUpdated");
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "OnSettingsChanged");
 #endif
+
+		super.OnSettingsChanged(sender, args);
 
 		if ( !GetExpansionSettings().GetGeneral() || g_Game.IsLoading() )
 			return;
@@ -96,7 +97,7 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		//LoadInteriors(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
 		//LoadIvys(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
 	}
-	
+*/
 	
 	void AddBuildingSpawned( string type, vector pos )
 	{

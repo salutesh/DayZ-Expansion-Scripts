@@ -64,7 +64,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	{			
 		if (m_ItemElement.m_MarketMenu.HasPlayerItem(m_ItemElement.GetMarketItem().ClassName))
 		{
-			ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 
 			array<ref ExpansionMarketPlayerItem> items = m_ItemElement.GetMarketMenu().GetPlayerItems();
 			

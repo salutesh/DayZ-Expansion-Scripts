@@ -33,7 +33,7 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 			m_InvitesController = ExpansionBookMenuTabPartyInvitesController.Cast(GetController());
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 	}
 	
 	override string GetLayoutFile() 

@@ -14,17 +14,6 @@ modded class JMModuleConstructor
 {
 	override void RegisterModules( out TTypenameArray modules )
 	{
-		// Gameplay modules
-		modules.Insert( ExpansionNotificationModule );
-		modules.Insert( ExpansionSkinModule );
-		modules.Insert( ExpansionZoneModule );
-		modules.Insert( ExpansionItemBaseModule );
-#ifdef EXPANSIONMONITORMODULE
-		modules.Insert( ExpansionMonitorModule );
-#endif
-		
-		modules.Insert( ExpansionClientSettingsModule );
-		
 #ifdef JM_COT
 #ifdef EXPANSIONCOTESPMODULE
 		modules.Insert( ExpansionESPModificationModule );

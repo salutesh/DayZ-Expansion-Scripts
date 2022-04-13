@@ -42,7 +42,7 @@ class ExpansionMarketFilters
 	void ExpansionMarketFilters()
 	{
 		if (!m_MarketModule)
-			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 
 		if (!m_AttachmentsMap)
 		{

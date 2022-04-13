@@ -14,9 +14,6 @@ modded class JMModuleConstructor
 {
 	override void RegisterModules( out TTypenameArray modules )
 	{
-		// Gameplay modules
-		modules.Insert( ExpansionTerritoryModule );
-		
 #ifdef JM_COT
 		modules.Insert( ExpansionCOTTerritoriesModule );
 #endif

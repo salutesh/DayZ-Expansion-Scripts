@@ -47,7 +47,7 @@ PanelWidgetClass ExpansionCompass {
      vexactpos 0
      hexactsize 0
      vexactsize 0
-     imageTexture "{3436B1815E2BCB0A}DayZExpansion/GUI/textures/compass.edds"
+     imageTexture "{3436B1815E2BCB0A}DayZExpansion/Navigation/GUI/textures/compass.edds"
      mode blend
      "src alpha" 1
      "no wrap" 0

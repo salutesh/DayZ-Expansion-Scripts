@@ -42,7 +42,7 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return false;
 		
-		if (!Class.CastTo(m_MarketModule, GetModuleManager().GetModule(ExpansionMarketModule)))
+		if (!CF_Modules<ExpansionMarketModule>.Get(m_MarketModule))
 			return false;
 
 		if (!m_MarketModule.CanOpenMenu())

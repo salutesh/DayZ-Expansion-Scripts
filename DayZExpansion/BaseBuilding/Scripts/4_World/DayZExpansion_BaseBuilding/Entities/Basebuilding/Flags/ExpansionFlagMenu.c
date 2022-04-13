@@ -46,7 +46,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------	
 	void ExpansionFlagMenu()
 	{
-		m_TerritoryModule = ExpansionTerritoryModule.Cast( GetModuleManager().GetModule( ExpansionTerritoryModule ) );
+		m_TerritoryModule = ExpansionTerritoryModule.Cast( CF_ModuleCoreManager.Get( ExpansionTerritoryModule ) );
 		m_TextureEntrys = new array<ref ExpansionFlagMenuTextureEntry>;
 		
 		m_CurrentSelectedTexture = "";

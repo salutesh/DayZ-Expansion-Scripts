@@ -53,7 +53,7 @@ modded class PlayerBase
 		if (GetGame() && IsMissionClient() && GetGame().GetPlayer() == this && GetModuleManager())
 		{
 			ExpansionMarkerModule module;
-			if (Class.CastTo(module, GetModuleManager().GetModule(ExpansionMarkerModule)))
+			if (CF_Modules<ExpansionMarkerModule>.Get(module))
 				module.Refresh();
 		}
 	}
@@ -209,7 +209,7 @@ modded class PlayerBase
 		
 		if (GetExpansionSettings().GetMap().CreateDeathMarker)
 		{
-			ExpansionMarkerModule module = ExpansionMarkerModule.Cast(GetModuleManager().GetModule(ExpansionMarkerModule));
+			ExpansionMarkerModule module = ExpansionMarkerModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 			if (module && GetIdentity() != NULL)
 				module.CreateDeathMarkerServer(GetPosition(), GetIdentity());
 		}

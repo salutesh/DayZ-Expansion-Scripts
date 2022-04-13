@@ -23,7 +23,7 @@ class JMESPMetaCar : JMESPMeta
 
 	override void Create( JMESPModule mod )
 	{
-		Class.CastTo( exp_Module, GetModuleManager().GetModule( ExpansionESPModificationModule ) );
+		CF_Modules<ExpansionESPModificationModule>.Get(exp_Module);
 
 		super.Create( mod );
 	}
