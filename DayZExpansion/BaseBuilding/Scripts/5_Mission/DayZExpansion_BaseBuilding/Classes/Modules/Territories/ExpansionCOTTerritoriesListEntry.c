@@ -26,7 +26,7 @@ class ExpansionCOTTerritoriesListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void ExpansionCOTTerritoriesListEntry(Widget parent, ExpansionCOTTerritoriesMenu menu, ExpansionTerritory territory)
 	{
-		m_Root					= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_List_Entry_New.layout", parent );
+		m_Root					= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/BaseBuilding/GUI/layouts/COT/territories/Territories_List_Entry_New.layout", parent );
 		m_TerritoryName			= TextWidget.Cast( m_Root.FindAnyWidget( "territory_name" ) );
 		m_TerritoryID			= TextWidget.Cast( m_Root.FindAnyWidget( "territory_id" ) );
 		m_EditButton			= ButtonWidget.Cast( m_Root.FindAnyWidget( "edit_button" ) );

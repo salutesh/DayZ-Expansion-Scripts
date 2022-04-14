@@ -21,14 +21,16 @@ modded class ActionConstructor
 	override void RegisterActions( TTypenameArray actions )
 	{
 		super.RegisterActions( actions );
-
-		actions.Insert( ExpansionActionWritePaper );
+		
+		//! Generator
+		actions.Insert( ExpansionActionTurnOnGeneratorOnGround );
+		actions.Insert( ExpansionActionTurnOffGeneratorOnGround );
 
 		//! Music
-		#ifdef EXPANSION_GUITAR_ENABLE
+		//#ifdef EXPANSION_GUITAR_ENABLE
 		//actions.Insert( ExpansionActionStartPlayingGuitar );
 		//actions.Insert( ExpansionActionStopPlayingGuitar );
-		#endif
+		//#endif
 		
 		//! Removed because it wont be in first release
 		//actions.Insert( ExpansionActionTakeChicken );
@@ -37,5 +39,6 @@ modded class ActionConstructor
 
 		//! Misc
 		actions.Insert( ActionLickBattery );
+		actions.Insert( ExpansionActionWritePaper );
 	}
 }

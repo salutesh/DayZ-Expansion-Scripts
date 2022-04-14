@@ -313,7 +313,8 @@ enum ExpansionCOTGroupModuleRPC
 	SendGroupsToClient,
 	RequestGroups,
 	SendGroupUpdate,
-	Callback
+	Callback,
+	CreateMarker,
 	COUNT
 };
 

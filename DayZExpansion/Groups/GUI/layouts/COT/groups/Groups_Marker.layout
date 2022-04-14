@@ -6,6 +6,7 @@ FrameWidgetClass ExpansionVehicleMapMarker {
  vexactpos 1
  hexactsize 1
  vexactsize 1
+ draggable 1
  {
   PanelWidgetClass marker_panel {
    clipchildren 1

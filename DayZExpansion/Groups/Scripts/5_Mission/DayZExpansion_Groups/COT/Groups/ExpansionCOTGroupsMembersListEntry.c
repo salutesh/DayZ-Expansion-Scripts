@@ -18,7 +18,7 @@ class ExpansionCOTGroupsMembersListEntry extends ScriptedWidgetEventHandler
 	private ButtonWidget m_EditButton;
 	private ImageWidget m_OnlineIcon;
 	
-	private ref ExpansionCOTGroupsMenu m_COTGroupsMenu;
+	private ExpansionCOTGroupsMenu m_COTGroupsMenu;
 	private ExpansionPartyPlayerData m_PlayerData;
 	
 	// ------------------------------------------------------------

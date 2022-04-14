@@ -181,6 +181,9 @@
 				<position_destination x="0" y="0.3" />
 			</editor_data>
 			<guard>
+				//! TODO: Fix weapon change in MP
+				if (GetGame().IsMultiplayer()) return FAIL;
+
 				dst.item = unit.GetWeaponToUse(true);
 
 				if (!dst.item) return FAIL;

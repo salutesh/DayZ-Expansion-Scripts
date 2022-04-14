@@ -11,6 +11,7 @@
 */
 
 #ifdef JM_COT
+#ifdef EXPANSIONMODNAVIGATION
 class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
@@ -18,13 +19,13 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 	private TextWidget m_MarkerName;
 	private ButtonWidget m_EditButton;
 	
-	private ref ExpansionMarkerData m_Marker;
-	protected ref ExpansionCOTGroupsMenu m_COTGroupsMenu;
+	private ExpansionCOTGroupsMapMarker m_Marker;
+	private ExpansionCOTGroupsMenu m_COTGroupsMenu;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTGroupsMarkerListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionCOTGroupsMarkerListEntry(Widget parent, ExpansionMarkerData marker, ExpansionCOTGroupsMenu menu)
+	void ExpansionCOTGroupsMarkerListEntry(Widget parent, ExpansionCOTGroupsMapMarker marker, ExpansionCOTGroupsMenu menu)
 	{
 		m_Root	= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Markers_List_Entry.layout", parent);
 		m_MarkerIcon = ImageWidget.Cast(m_Root.FindAnyWidget("marker_icon"));
@@ -55,10 +56,27 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 		if (!m_Marker)
 			return;
 		
-		m_MarkerIcon.LoadImageFile(0, m_Marker.GetIcon());
-		m_MarkerIcon.SetColor(m_Marker.GetColor());
-		m_MarkerName.SetText(m_Marker.GetName());
-		m_MarkerName.SetColor(m_Marker.GetColor());
+		m_MarkerIcon.LoadImageFile(0, m_Marker.GetMarkerData().GetIcon());
+		m_MarkerIcon.SetColor(m_Marker.GetMarkerData().GetColor());
+		m_MarkerName.SetText(m_Marker.GetMarkerData().GetName());
+		m_MarkerName.SetColor(m_Marker.GetMarkerData().GetColor());
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMarkerListEntry SetIcon
+	// ------------------------------------------------------------	
+	void SetIcon(string path)
+	{
+		m_MarkerIcon.LoadImageFile(0, path);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMarkerListEntry SetColor
+	// ------------------------------------------------------------
+	void SetColor(int color)
+	{
+		m_MarkerIcon.SetColor(color);
+		m_MarkerName.SetColor(color);
 	}
 	
 	// ------------------------------------------------------------
@@ -68,7 +86,7 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 	{
 		if (m_EditButton && w == m_EditButton && m_Marker)
 		{
-			m_COTGroupsMenu.SetGroupMapFocus(m_Marker.GetPosition());
+			m_COTGroupsMenu.EditMarker(m_Marker, true);
 		}
 		
 		return false;
@@ -96,12 +114,21 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 	{
 		if (m_EditButton && w == m_EditButton && m_Marker)
 		{
-			m_MarkerName.SetColor(m_Marker.GetColor());
-			m_MarkerIcon.SetColor(m_Marker.GetColor());
+			m_MarkerName.SetColor(m_Marker.GetMarkerData().GetColor());
+			m_MarkerIcon.SetColor(m_Marker.GetMarkerData().GetColor());
 			return true;
 		}
 
 		return false;
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsListEntry GetMarker
+	// ------------------------------------------------------------		
+	ExpansionCOTGroupsMapMarker GetMarker()
+	{
+		return m_Marker;
+	}
 };
+#endif
 #endif

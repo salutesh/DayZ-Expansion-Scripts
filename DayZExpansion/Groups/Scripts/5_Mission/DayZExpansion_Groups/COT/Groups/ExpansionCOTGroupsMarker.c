@@ -11,189 +11,121 @@
 */
 
 #ifdef JM_COT
-class ExpansionCOTGroupsMapMarker extends ScriptedWidgetEventHandler
+#ifdef EXPANSIONMODNAVIGATION
+class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 {
-	private Widget m_Root;
-	private TextWidget m_Name;
-	private ImageWidget m_Icon;
-	private ButtonWidget m_MarkerButton;
-	private MapWidget m_MapWidget;
-	private ref Timer m_MarkerUpdateTimer;
-	
-	private ref ExpansionMarkerData m_Marker;
 	private ExpansionCOTGroupsMenu m_COTGroupsMenu;
-
-	private vector m_MarkerPos;
-		
-	// ------------------------------------------------------------
-	// Expansion ExpansionCOTGroupsMapMarker Constructor
-	// ------------------------------------------------------------
-	void ExpansionCOTGroupsMapMarker(Widget parent, MapWidget mapwidget, ExpansionMarkerData marker, ExpansionCOTGroupsMenu menu)
+	
+	void ExpansionCOTGroupsMapMarker(Widget parent, MapWidget mapWidget, bool autoInit = true)
 	{
-		m_Root = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Groups_Marker.layout", parent);
-		m_Name = TextWidget.Cast(m_Root.FindAnyWidget("marker_name"));
-		m_Icon	= ImageWidget.Cast(m_Root.FindAnyWidget("marker_icon"));
-		m_MarkerButton	= ButtonWidget.Cast(m_Root.FindAnyWidget("marker_button"));
-
-		m_MapWidget = mapwidget;
-				
-		m_Marker = marker;
+		
+	}
+	
+	void SetCOTGroupsMenu(ExpansionCOTGroupsMenu menu)
+	{
 		m_COTGroupsMenu = menu;
-		
-		SetMarker();
-		
-		m_Root.SetHandler(this);
-		RunUpdateTimer();
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker Deconstructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTGroupsMapMarker()
+	override void Update(float pDt)
 	{
-		StopUpdateTimer();
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker SetMarker
-	// ------------------------------------------------------------	
-	void SetMarker()
-	{
-		if (!m_Marker)
-			return;
-		
-		m_MarkerPos = m_Marker.GetPosition();
-		
-		m_Name.SetText(m_Marker.GetName());
-		m_Name.SetColor(m_Marker.GetColor());
-		m_Icon.LoadImageFile(0, m_Marker.GetIcon());
-		m_Icon.SetColor(m_Marker.GetColor());
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker Update
-	// ------------------------------------------------------------
-	void Update(float timeslice)
-	{
-		if (!m_MapWidget)
-			return;
-
-		vector mapPos = m_MapWidget.MapToScreen(m_MarkerPos);
-
-		float x, y;
-		m_Root.GetParent().GetScreenPos(x, y);
-		m_Root.SetPos(mapPos[0] - x, mapPos[1] - y, true);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker OnMouseEnter
-	// ------------------------------------------------------------	
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		if (m_MarkerButton && w == m_MarkerButton)
+		if (!IsDragging())
 		{
-			StopUpdateTimer();
+			float x, y;
+			vector mapPos = GetMapWidget().MapToScreen(GetPosition());
+			GetLayoutRoot().GetParent().GetScreenPos(x, y);
+			GetLayoutRoot().SetPos(mapPos[0] - x, mapPos[1] - y, true);
+		}
+	}
+	
+	override void OnMarkerClick()
+	{
+		m_COTGroupsMenu.EditMarker(this);
+	}
+	
+	override bool OnDrag(Widget w, int x, int y)
+	{
+		if (w != NULL && IsDragWidget(w) && CanDrag())
+		{
+			m_LayoutRoot.GetPos(m_DragOffsetX, m_DragOffsetY);
 			
-			m_Icon.SetColor(ARGB(255,255,255,255));
-			m_Name.SetColor(ARGB(255,255,255,255));
+			Print("ExpansionCOTGroupsMapMarker::OnDrag - Layout position: X: " + m_DragOffsetX + " | Y: " + m_DragOffsetY);
+			Print("ExpansionCOTGroupsMapMarker::OnDrag - Drag position: X: " + x + " | Y: " + y);
+			
+			m_DragOffsetX = x - m_DragOffsetX;
+			m_DragOffsetY = y - m_DragOffsetY;
+			
+			Print("ExpansionCOTGroupsMapMarker::OnDrag - Drag offset: X: " + m_DragOffsetX + " | Y: " + m_DragOffsetY);
+			
+			m_Dragging = true;
 			return true;
 		}
-
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker OnMouseLeave
-	// ------------------------------------------------------------	
-	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	override bool OnDragging(Widget w, int x, int y, Widget reciever)
 	{
-		if (m_MarkerButton && w == m_MarkerButton)
+		if (w != NULL && IsDragWidget(w) && CanDrag())
 		{
-			RunUpdateTimer();
-			
-			m_Icon.SetColor(m_Marker.GetColor());
-			m_Name.SetColor(m_Marker.GetColor());
+			Print("ExpansionCOTGroupsMapMarker::OnDragging - Position: X: " + (x - m_DragOffsetX) + " | Y: " + (y - m_DragOffsetY));
+			SetPosition(x - m_DragOffsetX, y - m_DragOffsetY);
 			return true;
 		}
-
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker OnClick
-	// ------------------------------------------------------------
-	/*override bool OnClick(Widget w, int x, int y, int button)
+	override bool OnDrop(Widget w, int x, int y, Widget reciever)
 	{
-		if (m_MarkerButton && w == m_MarkerButton)
+		if (w != NULL && IsDragWidget(w) && CanDrag())
 		{
-			//! Do nothing for now.
+			Print("ExpansionCOTGroupsMapMarker::OnDrop - Position: X: " + (x - m_DragOffsetX) + " | Y: " + (y - m_DragOffsetY));
+			SetPosition(x - m_DragOffsetX, y - m_DragOffsetY, true);
+			m_Dragging = false;
 			return true;
 		}
-
 		return false;
-	}*/
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker SetPosition
-	// ------------------------------------------------------------
-	void SetPosition(float x, float y)
-	{
-		m_Root.SetPos(x, y, true);
-		m_MarkerPos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker GetMarkerPos
-	// ------------------------------------------------------------	
-	vector GetMarkerPos()
+	override void OnDrop()
 	{
-		return m_MarkerPos;
+		super.OnDrop();
+
+		
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion HideMarker
-	// ------------------------------------------------------------
-	void HideMarker()
+	override void SetPosition(int x, int y, bool performDropEvent = false)
 	{
-		m_Root.Show(false);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ShowMarker
-	// ------------------------------------------------------------
-	void ShowMarker()
-	{
-		m_Root.Show(true);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion StopUpdateTimer
-	// ------------------------------------------------------------
-	void StopUpdateTimer()
-	{
-		if (m_MarkerUpdateTimer && m_MarkerUpdateTimer.IsRunning())
+		if (IsCreating())
 		{
-			m_MarkerUpdateTimer.Stop();
-			m_MarkerUpdateTimer = NULL;
-			
-			delete m_MarkerUpdateTimer;
+			m_CreationPosX = x;
+			m_CreationPosY = y;
+		}
+		
+		//m_LayoutRoot.SetPos(x, y, true);
+		vector newPos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
+		SetPosition(newPos, performDropEvent);
+	}
+
+	override void SetPosition(vector position, bool performDropEvent = false)
+	{
+		position[1] = GetGame().SurfaceY(position[0], position[2]) + 1.0;
+		
+		m_WorldPosition = position;
+		vector mPos = m_MapWidget.MapToScreen(m_WorldPosition);
+		
+		Print("ExpansionCOTGroupsMapMarker::SetPosition - World position: X: " + m_WorldPosition[0] + " | Y: " + m_WorldPosition[2]);
+		Print("ExpansionCOTGroupsMapMarker::SetPosition - Map position: X: " + mPos[0] + " | Y: " + mPos[2]);
+		
+		m_LayoutRoot.SetPos(mPos[0], mPos[1], true);
+		if (performDropEvent)
+		{
+			OnDrop();
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMapMarker RunUpdateTimer
-	// ------------------------------------------------------------
-	void RunUpdateTimer()
+	override bool CanDrag()
 	{
-		if (!m_MarkerUpdateTimer)
-		{
-			m_MarkerUpdateTimer = new Timer(CALL_CATEGORY_GUI);
-			if (!m_MarkerUpdateTimer.IsRunning())
-			{
-				m_MarkerUpdateTimer.Run(0.01, this, "Update", NULL, true); // Call Update all 0.01 seconds
-			}
-		}
+		return false;
 	}
 };
+#endif
 #endif

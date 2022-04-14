@@ -23,14 +23,12 @@ modded class IngameHud
 	int m_NVBatteryState;
 
 	Widget m_EarPlugsPanel;
-
-	autoptr ExpansionLocatorUI m_Expansion_LocatorUI;
 	
 	override void Init(Widget hud_panel_widget)
 	{
 		super.Init(hud_panel_widget);
 
-		m_NVPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/expansion_night_vision.layout");
+		m_NVPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_night_vision.layout");
 		if (m_NVPanel)
 		{
 			m_NVPanel.Show(false);
@@ -46,9 +44,7 @@ modded class IngameHud
 			m_NVBatteryVal = TextWidget.Cast(m_NVPanel.FindAnyWidget("NVBatteryVal"));
 		}
 
-		m_EarPlugsPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Core/GUI/layouts/expansion_earplugs.layout");
-
-		m_Expansion_LocatorUI = new ExpansionLocatorUI();
+		m_EarPlugsPanel = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/expansion_earplugs.layout");
 	}
 
 	override void Update(float timeslice)

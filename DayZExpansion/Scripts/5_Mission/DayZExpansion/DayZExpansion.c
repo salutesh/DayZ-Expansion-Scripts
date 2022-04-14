@@ -36,7 +36,6 @@ modded class DayZExpansion
 		if ( IsMissionHost() )
 		{
 			ExpansionSettings.SI_General.Invoke();
-			ExpansionSettings.SI_SafeZone.Invoke();
 			ExpansionSettings.SI_Spawn.Invoke();
 		}
 

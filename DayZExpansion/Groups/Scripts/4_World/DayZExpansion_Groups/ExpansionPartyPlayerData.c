@@ -137,10 +137,8 @@ class ExpansionPartyPlayerData
 		return (GetPermissions() & ExpansionPartyPlayerPermissions.CAN_DELETE) != 0;
 	}
 	
-#ifdef EXPANSIONMODMARKET
 	bool CanWithdrawMoney()
 	{
 		return (GetPermissions() & ExpansionPartyPlayerPermissions.CAN_WITHDRAW_MONEY) != 0;
 	}
-#endif
 };

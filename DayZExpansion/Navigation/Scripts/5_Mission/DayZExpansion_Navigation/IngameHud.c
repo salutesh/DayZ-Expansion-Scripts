@@ -53,6 +53,8 @@ modded class IngameHud
 	PlayerBase m_Player;
 	bool m_ExpansionCompassToggle;
 
+	autoptr ExpansionLocatorUI m_Expansion_LocatorUI;
+
 	void IngameHud()
 	{
 		m_AddedCompassSettings = false;
@@ -106,6 +108,8 @@ modded class IngameHud
 			m_CompassPanel.Show(false);
 			m_CompassImage = ImageWidget.Cast(m_CompassPanel.FindAnyWidget("CompassImage"));
 		}
+
+		m_Expansion_LocatorUI = new ExpansionLocatorUI();
 	}
 
 	override void Update(float timeslice)

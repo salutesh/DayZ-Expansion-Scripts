@@ -31,7 +31,7 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::ExpansionCOTTerritoriesMemberListEntry - Start");
 		#endif
 		
-		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_MemberList_Entry_New.layout", parent ) );
+		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/BaseBuilding/GUI/layouts/COT/territories/Territories_MemberList_Entry_New.layout", parent ) );
 		m_MemberName			= TextWidget.Cast( m_Root.FindAnyWidget( "member_name" ) );
 		m_MemberID				= TextWidget.Cast( m_Root.FindAnyWidget( "owner_id" ) );
 		m_EditMemberButton		= ButtonWidget.Cast( m_Root.FindAnyWidget( "member_entry" ) );

@@ -380,7 +380,7 @@ FrameWidgetClass ExpansionNumpadUI {
    vexactpos 0
    hexactsize 0
    vexactsize 0
-   imageTexture "{FBCB1F0B60E57FF4}DayZExpansion/GUI/textures/numpad.edds"
+   imageTexture "{FBCB1F0B60E57FF4}DayZExpansion/BaseBuilding/GUI/textures/numpad.edds"
    mode blend
    "src alpha" 1
    "no wrap" 1

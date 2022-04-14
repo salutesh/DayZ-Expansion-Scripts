@@ -15,10 +15,6 @@
  **/
 class ExpansionGeneralSettingsBase: ExpansionSettingBase
 {
-	bool PlayerLocationNotifier;
-	bool EnableGlobalChat;
-	bool EnablePartyChat;
-	bool EnableTransportChat;
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
@@ -41,7 +37,7 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
  **/
 class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -65,10 +61,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRecieve");
 #endif
 
-		ctx.Read(PlayerLocationNotifier);
-		ctx.Read(EnableGlobalChat);
-		ctx.Read(EnablePartyChat);
-		ctx.Read(EnableTransportChat);
 		ctx.Read(DisableShootToUnlock);
 		ctx.Read(EnableGravecross);
 		ctx.Read(GravecrossDeleteBody);
@@ -93,10 +85,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ctx.Write(PlayerLocationNotifier);
-		ctx.Write(EnableGlobalChat);
-		ctx.Write(EnablePartyChat);
-		ctx.Write(EnableTransportChat);
 		ctx.Write(DisableShootToUnlock);
 		ctx.Write(EnableGravecross);
 		ctx.Write(GravecrossDeleteBody);
@@ -167,10 +155,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 		
-		PlayerLocationNotifier = s.PlayerLocationNotifier;
-		EnableGlobalChat = s.EnableGlobalChat;
-		EnablePartyChat = s.EnablePartyChat;
-		EnableTransportChat = s.EnableTransportChat;
 		EnableGravecross = s.EnableGravecross;
 		DisableShootToUnlock = s.DisableShootToUnlock;
 		GravecrossDeleteBody = s.GravecrossDeleteBody;
@@ -231,14 +215,14 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 				if (settingsBase.m_Version < 0)
 				{
 					//! Placeholder
+
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
 				}
 				else
 				{
 					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 				}
-
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
 
 				m_Version = VERSION;
 				save = true;
@@ -284,11 +268,6 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	{
 		m_Version = VERSION;
 		
-		PlayerLocationNotifier = true;
-		
-		EnableGlobalChat = true;
-		EnablePartyChat = true;
-		EnableTransportChat = true;
 		DisableShootToUnlock = false;
 		EnableGravecross = false;
 		GravecrossDeleteBody = true;

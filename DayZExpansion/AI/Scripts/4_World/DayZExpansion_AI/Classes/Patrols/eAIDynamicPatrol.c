@@ -8,6 +8,7 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_MinimumRadius;
 	float m_MaximumRadius;
 	float m_DespawnRadius; // m_MaximumRadius + 10%
+	float m_MovementSpeedLimit;
 	int m_NumberOfAI;
 	int m_RespawnTime;
 	string m_Loadout;
@@ -29,10 +30,11 @@ class eAIDynamicPatrol : eAIPatrol
 	 * @param respawnTime the time between patrol spawns
 	 * @param minR miminum distance between the patrol and nearest player for a patrol to not (re)spawn
 	 * @param maxR maximum distance between the patrol and nearest player for a patrol to (re)spawn
+	 * @param speedLimit movement speed limit 1.0 = walk, 2.0 = jog, 3.0 = sprint
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "SoldierLoadout.json", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800)
+	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "SoldierLoadout.json", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -49,6 +51,7 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_MinimumRadius = minR;
 		patrol.m_MaximumRadius = maxR;
 		patrol.m_DespawnRadius = maxR * 1.1;
+		patrol.m_MovementSpeedLimit = speedLimit;
 		patrol.m_Faction = faction;
 		patrol.m_CanSpawn = true;
 		if (patrol.m_Faction == null) patrol.m_Faction = new eAIFactionCivilian();
@@ -69,6 +72,8 @@ class eAIDynamicPatrol : eAIPatrol
 
 		HumanLoadout.Apply(ai, m_Loadout);
 				
+		ai.SetMovementSpeedLimit(m_MovementSpeedLimit);
+
 		return ai;
 	}
 

@@ -428,7 +428,7 @@ FrameWidgetClass ExpansionCodeLockUI {
    hexactsize 0
    vexactsize 0
    priority 2
-   imageTexture "{66233335C1E70027}DayZExpansion/GUI/textures/codelock/codelock.edds"
+   imageTexture "{66233335C1E70027}DayZExpansion/BaseBuilding/GUI/textures/codelock/codelock.edds"
    mode blend
    "src alpha" 1
    stretch 1

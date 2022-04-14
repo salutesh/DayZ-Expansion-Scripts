@@ -86,6 +86,16 @@ class DayZExpansion: ExpansionWorld
 
 		return super.OnRPC( sender, target, rpc_type, ctx );
 	}
+
+	override void OnLoaded()
+	{
+		if ( IsMissionHost() )
+		{
+			ExpansionSettings.SI_SafeZone.Invoke();
+		}
+
+		super.OnLoaded();
+	}
 }
 
 static ref DayZExpansion g_exDayZ;

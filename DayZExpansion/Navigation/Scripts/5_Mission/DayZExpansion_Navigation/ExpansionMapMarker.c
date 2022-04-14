@@ -12,7 +12,7 @@
 
 class ExpansionMapMarker : ExpansionMapWidgetBase
 {
-	private ref ExpansionMarkerData m_Data;
+	protected ref ExpansionMarkerData m_Data;
 
 	protected WrapSpacerWidget m_IconEntries;
 	protected ref array<ref ExpansionMapMarkerIconItem> m_IconTypesArray;
@@ -33,12 +33,12 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 
 	protected Widget m_EditPanel;
 	
-	private bool m_Creating;
-	private int m_CreationPosX;
-	private int m_CreationPosY;
+	protected bool m_Creating;
+	protected int m_CreationPosX;
+	protected int m_CreationPosY;
 
 	protected ExpansionMapMenu m_MapMenu;
-	private ExpansionMarkerModule m_MarkerModule;
+	protected ExpansionMarkerModule m_MarkerModule;
 
 	protected ref ExpansionUITooltip m_PositionToolTip;
 
@@ -205,7 +205,7 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 		}
 	}
 
-	private bool ShouldHide()
+	bool ShouldHide()
 	{
 		if (!m_Data.IsMapVisible())
 			return true;

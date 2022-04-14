@@ -31,12 +31,6 @@ class ExpansionMapSettingsBase: ExpansionSettingBase
 	bool EnableServerMarkers;							//! Show server markers
 	bool ShowNameOnServerMarkers;				//! Show the name of server markers
 	bool ShowDistanceOnServerMarkers;			//! Show the distance of server markers
-
-	// v2
-	bool EnableHUDCompass;							//! Allow player to use HUD Compass.
-	bool NeedCompassItemForHUDCompass;		//! Requires Compass Item to show the hud compass.
-	bool NeedGPSItemForHUDCompass;			//! Requires GPS Item to show the hud compass.		
-	int CompassColor;										//! Color of the HUD Compass.
 		
 	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
 	//! Failure will result in ServerMarkers incurring a memory leak on the client.
@@ -48,9 +42,19 @@ class ExpansionMapSettingsBase: ExpansionSettingBase
  **/
 class ExpansionMapSettings: ExpansionMapSettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 	
+	//! v2
+	bool EnableHUDCompass;							//! Allow player to use HUD Compass.
+	bool NeedCompassItemForHUDCompass;		//! Requires Compass Item to show the hud compass.
+	bool NeedGPSItemForHUDCompass;			//! Requires GPS Item to show the hud compass.		
+	int CompassColor;										//! Color of the HUD Compass.
+
+	//! v3
 	bool CreateDeathMarker;							//! Create a personal marker on the players last death position.
+
+	//! v4 (moved from GeneralSettings)
+	bool PlayerLocationNotifier;
 	
 	[NonSerialized()]
 	private ref map< string, ExpansionMarkerData > ServerMarkersMap;
@@ -179,6 +183,8 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 			return false;
 		if ( !ctx.Read( CreateDeathMarker ) )
 			return false;
+		if ( !ctx.Read( PlayerLocationNotifier ) )
+			return false;
 
 		int count = 0;
 		int index = 0;
@@ -252,6 +258,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		ctx.Write( NeedGPSItemForHUDCompass );
 		ctx.Write( CompassColor );
 		ctx.Write( CreateDeathMarker );
+		ctx.Write( PlayerLocationNotifier );
 		
 		int count = 0;
 		int index = 0;
@@ -299,7 +306,17 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionMapSettings s, bool copyServerMarkers = true )
 	{
+		//! v2
+		EnableHUDCompass = s.EnableHUDCompass;
+		NeedCompassItemForHUDCompass = s.NeedCompassItemForHUDCompass;
+		NeedGPSItemForHUDCompass = s.NeedGPSItemForHUDCompass;
+		CompassColor = s.CompassColor;
+
+		//! v3
 		CreateDeathMarker = s.CreateDeathMarker;
+
+		//! v4 (moved from GeneralSettings)
+		PlayerLocationNotifier = s.PlayerLocationNotifier;
 		
 		ExpansionMapSettingsBase sb = s;
 		CopyInternal( sb, copyServerMarkers );
@@ -311,7 +328,6 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		if ( copyServerMarkers )
 		{
 			ServerMarkers.Clear();
-			Print("CopyInternal::s.ServerMarkers"+s.ServerMarkers.Count());
 
 			for (int i = 0; i < s.ServerMarkers.Count(); i++)
 			{
@@ -335,12 +351,6 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		EnableHUDGPS = s.EnableHUDGPS;
 		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
 		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
-		
-		//! v2
-		EnableHUDCompass = s.EnableHUDCompass;
-		NeedCompassItemForHUDCompass = s.NeedCompassItemForHUDCompass;
-		NeedGPSItemForHUDCompass = s.NeedGPSItemForHUDCompass;
-		CompassColor = s.CompassColor;
 	}
 	
 	// ------------------------------------------------------------
@@ -386,15 +396,32 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
+				EXPrint("[ExpansionMapSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_MAP_SETTINGS + "\" to v" + VERSION);
+
+				if (settingsBase.m_Version < 2)
+				{
+					//! New with v2
+					CopyInternal(settingsDefault);
+
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
+				}
+				else
+				{
+					JsonFileLoader<ExpansionMapSettings>.JsonLoadFile(EXPANSION_MAP_SETTINGS, this);
+				}
+
 				if (settingsBase.m_Version < 3)
 				{
-					EXPrint("[ExpansionMapSettings] Load - Converting v1 \"" + EXPANSION_MAP_SETTINGS + "\" to v" + VERSION);
-					
 					//! New with v3
-					CopyInternal(settingsDefault);
+					CreateDeathMarker = settingsDefault.CreateDeathMarker;
 				}
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+
+				if (settingsBase.m_Version < 4)
+				{
+					//! New with v4 (moved from GeneralSettings)
+					PlayerLocationNotifier = settingsDefault.PlayerLocationNotifier;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -465,6 +492,8 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		NeedGPSItemForHUDCompass = true;
 		CompassColor = ARGB(255,255,255,255);
 		CreateDeathMarker = true;
+		
+		PlayerLocationNotifier = true;
 		
 	#ifdef EXPANSIONMODMARKET
 		

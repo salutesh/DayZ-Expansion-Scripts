@@ -140,11 +140,6 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 				RPC_InvitePlayer(ctx, sender);
 				break;
 			}
-			case ExpansionCOTGroupModuleRPC.ChangeMoney:
-			{
-				RPC_ChangeMoney(ctx, sender);
-				break;
-			}
 			case ExpansionCOTGroupModuleRPC.KickMember:
 			{
 				RPC_KickMember(ctx, sender);
@@ -170,6 +165,20 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 				RPC_Callback(ctx, sender);
 				break;
 			}
+		#ifdef EXPANSIONMODMARKET
+			case ExpansionCOTGroupModuleRPC.ChangeMoney:
+			{
+				RPC_ChangeMoney(ctx, sender);
+				break;
+			}
+		#endif
+		#ifdef EXPANSIONMODNAVIGATION
+			case ExpansionCOTGroupModuleRPC.CreateMarker:
+			{
+				RPC_CreateGroupMarker(ctx, sender);
+				break;
+			}
+		#endif
 		}
 	}
 	
@@ -223,7 +232,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		int partiesCount = module.GetAllParties().Count();
 		rpc.Write(callBack);
 		rpc.Write(partiesCount);
-	
+		
 		for (int i = 0; i < partiesCount; i++)
 		{
 			ExpansionPartyData party = module.GetAllParties().GetElement(i);
@@ -249,7 +258,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!IsMissionClient())
 			return;
 		
-		bool callBack;
+		int callBack;
 		if (!ctx.Read(callBack))
 			return;
 		
@@ -257,22 +266,16 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!ctx.Read(partiesCount))
 			return;
 		
+		m_Parties.Clear();
+		
 		for (int i = 0; i < partiesCount; i++)
 		{
 			if (!OnReceiveGroupClient(ctx))
 				continue;
 		}
 		
-		switch (callBack)
-		{
-			case ExpansionCOTGroupsMenuCallback.GroupsInit:
-				GetModuleSI().Invoke(ExpansionCOTGroupsMenuCallback.GroupsInit);
-				break;
-			case ExpansionCOTGroupsMenuCallback.GroupsUpdate:
-				GetModuleSI().Invoke(ExpansionCOTGroupsMenuCallback.GroupsUpdate);
-				break;
-		}
-		
+		GetModuleSI().Invoke(callBack);
+				
 		Print("ExpansionCOTGroupModule::RPC_SendGroupsToClient - End");
 	}
 	
@@ -295,10 +298,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (Expansion_Assert_False(party.OnRecieve(ctx), "Failed to read party"))
 			return false;
 
-		if (m_Parties.Get(partyID))
-			m_Parties.Set(partyID, party);
-		else
-			m_Parties.Insert(partyID, party);
+		m_Parties.Insert(partyID, party);
 				
 		return true;
 	}
@@ -742,6 +742,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		Print("ExpansionCOTGroupModule::ChangeMoney - End");
 	}
 	
+#ifdef EXPANSIONMODMARKET
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule RPC_UpdatePermissions
 	// Called on Server
@@ -795,6 +796,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		
 		Print("ExpansionCOTGroupModule::RPC_ChangeMoney - End");
 	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule KickMember
@@ -914,6 +916,56 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (!OnReceiveGroupClient(ctx))
 				return;
 	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupModule CreateGroupMarker
+	// Called on Client
+	// ------------------------------------------------------------
+	void CreateGroupMarker(ExpansionMarkerData marker, int partyID)
+	{
+		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateGroupMarker shall only be called on client!"))
+			return;
+		
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write(partyID);
+		marker.OnSend(rpc);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.CreateMarker, true, NULL);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupModule RPC_CreateGroupMarker
+	// Called on Client
+	// ------------------------------------------------------------
+	private void RPC_CreateGroupMarker(ParamsReadContext ctx, PlayerIdentity sender)
+	{
+		int partyID;
+		if (!ctx.Read(partyID))
+			return;
+		
+		ExpansionMarkerData marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.PARTY);
+		if (!marker.OnRecieve(ctx))
+			return;
+		
+		ExpansionPartyModule partyModule;
+		if (!CF_Modules<ExpansionPartyModule>.Get(partyModule))
+			return;
+		
+		ExpansionPartyData party = partyModule.GetPartyByID(partyID);
+		if (!party || partyID == -1)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
+			return;
+		}
+
+		party.AddMarker(marker);
+		party.Save();
+
+		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_MARKER_ADDED").Success(sender);
+
+		partyModule.UpdatePartyMembersServer(partyID);
+	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule Callback

@@ -25,17 +25,11 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 	// ------------------------------------------------------------
 	override void Update(float pDt)
 	{
-		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
-		EXLogPrint("ExpansionMapMarkerPlayerArrow::Update - Start");
-		#endif
-		
-		//! Steve: Dont call super here as we dont need the stuff from the parent classes?!
-		SetPosition(GetGame().GetCurrentCameraPosition());
+		float x, y;
+		vector mapPos = GetMapWidget().MapToScreen(GetGame().GetCurrentCameraPosition());
+		GetLayoutRoot().GetParent().GetScreenPos(x, y);
+		GetLayoutRoot().SetPos(mapPos[0] - x, mapPos[1] - y, true);
 		GetDragWidget().SetRotation(0, 0, GetMapDirection(), true);
-		
-		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
-		EXLogPrint("ExpansionMapMarkerPlayerArrow::Update - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------

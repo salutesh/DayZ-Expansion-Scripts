@@ -31,10 +31,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionDisconnectElectricityToSource );
 		
 		actions.Insert( ExpansionActionTogglePowerSwitch );
-		
-		//! Generator
-		actions.Insert( ExpansionActionTurnOnGeneratorOnGround );
-		actions.Insert( ExpansionActionTurnOffGeneratorOnGround );
 
 		actions.Insert( ExpansionActionClose );
 		actions.Insert( ExpansionActionOpen );

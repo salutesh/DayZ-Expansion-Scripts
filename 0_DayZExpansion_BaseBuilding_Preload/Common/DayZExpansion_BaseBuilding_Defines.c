@@ -16,6 +16,9 @@
 
 //#define EXPANSION_VICINITY_DEBUG
 
+//! Enable it if you want to DISABLE chicken stuff
+#define EXPANSION_CHICKEN_DISABLE
+
 #ifndef EXPANSIONCOTESPMODULE
 #define EXPANSIONCOTESPMODULE
 #endif

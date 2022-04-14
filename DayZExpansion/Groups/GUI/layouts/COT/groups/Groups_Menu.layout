@@ -3,8 +3,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
  ignorepointer 1
  position 0 0
  size 1400 1000
- hexactpos 0
- vexactpos 0
+ hexactpos 1
+ vexactpos 1
  hexactsize 1
  vexactsize 1
  draggable 1
@@ -60,8 +60,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     ScrollWidgetClass groups_list_scroller {
      ignorepointer 0
-     position 0 0.05
-     size 1.035 0.75
+     position 0.03 0.06
+     size 1.005 0.72
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -84,8 +84,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass groups_list_buttons {
      ignorepointer 1
-     position 0 0
-     size 1 0.2
+     size 0.95 0.2
+     halign center_ref
      valign bottom_ref
      hexactpos 0
      vexactpos 0
@@ -162,8 +162,9 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass group_info_spacer {
      ignorepointer 1
-     position 0 0.05
-     size 1 0.7
+     position 0 0.07
+     size 0.95 0.7
+     halign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -273,8 +274,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
         }
        }
       }
-      WrapSpacerWidgetClass group_info_owner {
-       ignorepointer 1
+      WrapSpacerWidgetClass "group_owner info_name" {
+       ignorepointer 0
        size 1 20
        hexactpos 0
        vexactpos 0
@@ -285,28 +286,69 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
        "Size To Content H" 1
        "Size To Content V" 1
        {
-        TextWidgetClass info_owner_label {
+        TextWidgetClass "group_owner info_name_label" {
          ignorepointer 1
+         position 0 0
          size 0.2 1
          hexactpos 0
          vexactpos 0
          hexactsize 0
          vexactsize 0
          style Bold
-         text "Group Owner:"
+         text "Owner Name:"
          "text offset" 5 0
          "text valign" center
         }
-        TextWidgetClass info_owner_value {
-         ignorepointer 1
-         size 1 1
+        TextWidgetClass "group_owner info_name_value" {
+         ignorepointer 0
+         position 0 0
+         size 0.64 1
          halign right_ref
          hexactpos 0
          vexactpos 0
          hexactsize 0
          vexactsize 0
+         style Normal
+         "exact text" 0
+        }
+       }
+      }
+      WrapSpacerWidgetClass "group_owner uid_name" {
+       ignorepointer 0
+       size 1 20
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       {
+        TextWidgetClass "group_owner uid_name_label" {
+         ignorepointer 1
+         position 0 0
+         size 0.2 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "Owner UID:"
          "text offset" 5 0
          "text valign" center
+        }
+        TextWidgetClass "group_owner uid_name_value" {
+         ignorepointer 0
+         position 0 0
+         size 0.64 1
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Normal
+         "exact text" 0
         }
        }
       }
@@ -400,11 +442,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
      Margin 0
      "Size To Content H" 1
      "Size To Content V" 1
+     content_halign center
      {
       ButtonWidgetClass copy_group_info_button {
        visible 1
        position 0.03 0.029
-       size 1 20
+       size 0.9 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -426,7 +469,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       }
       ButtonWidgetClass invite_self_button {
        position 0.03 0.029
-       size 1 20
+       size 0.9 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -448,7 +491,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       }
       ButtonWidgetClass delete_group_button {
        position 0.03 0.029
-       size 1 20
+       size 0.9 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -471,7 +514,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       ButtonWidgetClass group_edit_button {
        visible 1
        position 0.03 0.029
-       size 1 20
+       size 0.9 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -534,8 +577,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     ScrollWidgetClass members_list_scroller {
      ignorepointer 0
-     position 0 0.05
-     size 1.035 0.75
+     position 0.03 0.06
+     size 1.015 0.72
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -558,8 +601,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass members_list_buttons {
      ignorepointer 1
-     position 0 0
-     size 1 0.2
+     size 0.95 0.2
+     halign center_ref
      valign bottom_ref
      hexactpos 0
      vexactpos 0
@@ -647,8 +690,9 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass member_info_spacer {
      ignorepointer 1
-     position 0 0.05
-     size 1 0.7
+     position 0 0.07
+     size 0.95 0.7
+     halign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -982,17 +1026,18 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
      Margin 0
      "Size To Content H" 1
      "Size To Content V" 1
+     content_halign center
      {
       ButtonWidgetClass copy_member_info_button {
        visible 1
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
        vexactsize 1
        {
-        TextWidgetClass copy_member_info_label {
+        TextWidgetClass copy_member_info_button_label {
          ignorepointer 1
          size 1 1
          hexactpos 0
@@ -1008,7 +1053,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       }
       ButtonWidgetClass save_member_perm_button {
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1030,7 +1075,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       }
       ButtonWidgetClass setowner_member_perm_button {
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1052,7 +1097,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       }
       ButtonWidgetClass kick_member_button {
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1075,7 +1120,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       ButtonWidgetClass cancel_member_edit_button {
        visible 1
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1094,51 +1139,6 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
          "text valign" center
         }
        }
-      }
-     }
-    }
-   }
-  }
-  PanelWidgetClass map_window_panel {
-   visible 0
-   ignorepointer 1
-   position 0 0
-   size 0.75 0.54
-   halign right_ref
-   valign bottom_ref
-   hexactpos 0
-   vexactpos 0
-   hexactsize 0
-   vexactsize 0
-   priority 1
-   style Outline
-   {
-    PanelWidgetClass group_map_panel {
-     visible 1
-     clipchildren 1
-     ignorepointer 0
-     keepsafezone 1
-     position 0 0
-     size 1 1
-     halign center_ref
-     valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     {
-      MapWidgetClass group_map {
-       visible 1
-       clipchildren 1
-       keepsafezone 1
-       position 0 0
-       size 1 1
-       halign right_ref
-       hexactpos 0
-       vexactpos 0
-       hexactsize 0
-       vexactsize 0
-       scriptclass ""
       }
      }
     }
@@ -1182,8 +1182,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     ScrollWidgetClass players_list_scroller {
      ignorepointer 0
-     position 0 0.05
-     size 1.035 0.75
+     position 0.03 0.05
+     size 1.015 0.73
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -1206,8 +1206,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass players_list_buttons {
      ignorepointer 1
-     position 0 0
-     size 1 0.2
+     size 0.95 0.2
+     halign center_ref
      valign bottom_ref
      hexactpos 0
      vexactpos 0
@@ -1295,8 +1295,9 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass player_info_spacer {
      ignorepointer 1
-     position 0 0.05
-     size 1 0.7
+     position 0 0.06
+     size 0.95 0.7
+     halign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -1333,7 +1334,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
         TextWidgetClass player_info_name_value {
          ignorepointer 0
          position 0 0
-         size 0.8 1
+         size 0.79 1
          halign right_ref
          hexactpos 0
          vexactpos 0
@@ -1370,7 +1371,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
         }
         TextWidgetClass player_info_uid_value {
          ignorepointer 1
-         size 0.8 1
+         size 0.79 1
          halign right_ref
          hexactpos 0
          vexactpos 0
@@ -1407,7 +1408,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
         }
         TextWidgetClass player_info_group_value {
          ignorepointer 1
-         size 0.8 1
+         size 0.79 1
          halign right_ref
          hexactpos 0
          vexactpos 0
@@ -1439,7 +1440,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    {
     WrapSpacerWidgetClass player_buttons_spacer {
      ignorepointer 1
-     size 1 0.85
+     size 0.95 0.85
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -1448,11 +1449,13 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
      Margin 0
      "Size To Content H" 1
      "Size To Content V" 1
+     content_halign center
+     content_valign center
      {
       ButtonWidgetClass player_invite_button {
        visible 1
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1475,7 +1478,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       ButtonWidgetClass player_set_owner_button {
        visible 1
        position 0.03 0.029
-       size 1 20
+       size 0.95 20
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1497,8 +1500,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
       }
       ButtonWidgetClass cancel_player_edit_button {
        visible 1
-       position 0.03 0.029
-       size 1 20
+       size 0.95 20
+       valign bottom_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -1560,8 +1563,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     ScrollWidgetClass markers_list_scroller {
      ignorepointer 0
-     position 0 0.05
-     size 1.035 0.75
+     position 0.03 0.05
+     size 1.005 0.73
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -1584,8 +1587,8 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
     }
     WrapSpacerWidgetClass markers_list_buttons {
      ignorepointer 1
-     position 0 0
-     size 1 0.2
+     size 0.95 0.2
+     halign center_ref
      valign bottom_ref
      hexactpos 0
      vexactpos 0
@@ -1673,6 +1676,426 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
      "text halign" center
      "text valign" center
      wrap 1
+    }
+   }
+  }
+  PanelWidgetClass marker_edit_panel {
+   visible 0
+   ignorepointer 1
+   position 0 0
+   size 0.2 0.54
+   halign right_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   style Outline
+   {
+    PanelWidgetClass marker_edit_label_panel {
+     ignorepointer 1
+     position 0 0
+     size 1 20
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style blank
+     {
+      TextWidgetClass marker_edit_label {
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       style Bold
+       text "EDIT MARKER"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    GridSpacerWidgetClass marker_color_picker_container_rgb {
+     ignorepointer 1
+     position 0 0.05
+     size 0.95 0.15
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Columns 1
+     {
+      SliderWidgetClass marker_color_red_slider {
+       clipchildren 0
+       ignorepointer 0
+       color 1 0 0 1
+       size 0.8 0
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       "no focus" 0
+       "next down" ""
+       maximum 255
+       current 255
+       "fill in" 1
+       "listen to input" 1
+      }
+      SliderWidgetClass marker_color_green_slider {
+       clipchildren 0
+       ignorepointer 0
+       color 0 1 0 1
+       position 0 0
+       size 0.8 0
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       "no focus" 0
+       "next down" ""
+       maximum 255
+       current 255
+       "fill in" 1
+       "listen to input" 1
+      }
+      SliderWidgetClass marker_color_blue_slider {
+       clipchildren 0
+       ignorepointer 0
+       color 0 0 1 1
+       position 0 0
+       size 0.8 0
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Default
+       "no focus" 0
+       "next down" ""
+       maximum 255
+       current 255
+       "fill in" 1
+       "listen to input" 1
+      }
+     }
+    }
+    ScrollWidgetClass marker_icons_scroller {
+     ignorepointer 0
+     position 0.03 -0.09
+     size 1.005 0.37
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     "Scrollbar V" 1
+     {
+      WrapSpacerWidgetClass marker_icons_content {
+       ignorepointer 0
+       color 0 0 0 0
+       position 0 0
+       size 0.96 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       Padding 1
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+      }
+     }
+    }
+    PanelWidgetClass marker_state_options {
+     ignorepointer 0
+     position 0 0.3
+     size 0.95 44
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     {
+      PanelWidgetClass marker_state_3d_container {
+       ignorepointer 0
+       size 1 22
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        CheckBoxWidgetClass marker_state_3d_checkbox {
+         size 22 22
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         style Expansnion_03
+        }
+        TextWidgetClass marker_state_3d_label {
+         ignorepointer 1
+         size 0.9 1
+         halign right_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_MAP_MARKER_OPTION_3D_LABLE"
+         "text offset" 2 0
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass marker_state_lock_container {
+       ignorepointer 0
+       size 1 22
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        CheckBoxWidgetClass marker_state_lock_checkbox {
+         ignorepointer 0
+         size 22 22
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         style Expansnion_03
+        }
+        TextWidgetClass marker_state_lock_label {
+         ignorepointer 1
+         size 0.9 1
+         halign right_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_MAP_MARKER_OPTION_LOCK_LABLE"
+         "text offset" 2 0
+         "size to text h" 0
+         "size to text v" 1
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    WrapSpacerWidgetClass marker_edit_buttons {
+     ignorepointer 1
+     size 0.95 0.2
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     {
+      ButtonWidgetClass marker_save_button {
+       position 0.026 0.068
+       size 1 20
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass marker_save_button_label {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "SAVE MARKER"
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      ButtonWidgetClass marker_create_button {
+       visible 1
+       position 0.026 0.068
+       size 1 20
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass marker_create_button_label {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "CREATE MARKER"
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      ButtonWidgetClass marker_delete_button {
+       position 0.026 0.068
+       size 1 20
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass marker_delete_button_label {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "DELETE MARKER"
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      ButtonWidgetClass marker_cancel_button {
+       position 0.026 0.068
+       size 1 20
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass marker_cancel_button_label {
+         ignorepointer 1
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Bold
+         text "CANCEL"
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass spacer7 {
+     ignorepointer 1
+     position 0 0.2
+     size 0.9 2
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    PanelWidgetClass spacer8 {
+     ignorepointer 1
+     position 0 0.04
+     size 0.9 2
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    EditBoxWidgetClass marker_name {
+     position 0 0.24
+     size 0.95 26
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style EditorProperty
+     font "gui/fonts/etelkatextpro22"
+    }
+   }
+  }
+  PanelWidgetClass map_window_panel {
+   visible 0
+   clipchildren 1
+   ignorepointer 1
+   position 0.025 0.23
+   size 0.55 0.54
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 50
+   scriptclass ""
+   style Outline
+   {
+    WindowWidgetClass map_window {
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Default
+     {
+      PanelWidgetClass map_panel {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style blank
+       {
+        MapWidgetClass group_map {
+         ignorepointer 0
+         position 0 0
+         size 1 1
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+        }
+       }
+      }
+     }
     }
    }
   }

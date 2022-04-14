@@ -46,7 +46,7 @@ class ExpansionLocatorUI extends ScriptedWidgetEventHandler
 
 	void SetupWidgets()
 	{
-		m_LocatorRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/expansion_locator.layout" );
+		m_LocatorRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Navigation/GUI/layouts/expansion_locator.layout" );
 		m_LocatorCityName = TextWidget.Cast( m_LocatorRoot.FindAnyWidget( "ExpansionCityName" ) );
 		m_LocatorTime = TextWidget.Cast( m_LocatorRoot.FindAnyWidget( "ExpansionTime" ) );
 		m_LocatorRoot.Show( false );

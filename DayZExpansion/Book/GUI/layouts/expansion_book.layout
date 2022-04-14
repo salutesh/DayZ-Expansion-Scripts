@@ -216,7 +216,7 @@ FrameWidgetClass ExpansionBookMenu {
      vexactsize 0
      scriptclass "ViewBinding"
      style Empty
-     font "DayZExpansion/GUI/fonts/etelkatextpro24"
+     font "DayZExpansion/Core/GUI/fonts/etelkatextpro24"
      "text color" 0 0 0 1
      {
       TextWidgetClass back_button_label {

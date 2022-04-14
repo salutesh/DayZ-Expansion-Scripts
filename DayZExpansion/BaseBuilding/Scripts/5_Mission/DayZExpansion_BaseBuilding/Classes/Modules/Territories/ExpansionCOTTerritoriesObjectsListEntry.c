@@ -31,7 +31,7 @@ class ExpansionCOTTerritoriesObjectsListEntry extends ScriptedWidgetEventHandler
 		EXLogPrint("ExpansionCOTTerritoriesObjectsListEntry::ExpansionCOTTerritoriesObjectsListEntry - Start");
 		#endif
 		
-		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/COT/territories/Territories_ObjectList_Entry_New.layout", parent ) );
+		m_Root					= Widget.Cast( GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/BaseBuilding/GUI/layouts/COT/territories/Territories_ObjectList_Entry_New.layout", parent ) );
 		m_ObjectName			= TextWidget.Cast( m_Root.FindAnyWidget( "object_name" ) );
 		m_ObjectID				= TextWidget.Cast( m_Root.FindAnyWidget( "object_id" ) );
 		m_StatusIcon			= ImageWidget.Cast( m_Root.FindAnyWidget( "object_status_icon" ) );

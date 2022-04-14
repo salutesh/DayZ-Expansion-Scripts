@@ -125,7 +125,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	override string GetLayoutRoot()
 	{
-		return "DayZExpansion/GUI/layouts/COT/territories/Territories_Menu.layout";
+		return "DayZExpansion/BaseBuilding/GUI/layouts/COT/territories/Territories_Menu.layout";
 	}
 	
 	// ------------------------------------------------------------

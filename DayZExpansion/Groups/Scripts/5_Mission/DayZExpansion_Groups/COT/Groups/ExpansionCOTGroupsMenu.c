@@ -17,18 +17,31 @@ enum ExpansionCOTGroupsMenuCallback
 	GroupsUpdate,
 	GroupUpdate,
 	MemberUpdate,
+	MarkersUpdate
 }
 
 class ExpansionCOTGroupsMenu: JMFormBase
 {
 	private ExpansionCOTGroupModule m_Module;
-	//private ExpansionPartyModule m_GroupsModule;
 	
 	private ref array<ref ExpansionCOTGroupsListEntry> m_GroupEntries;
 	private ref array<ref ExpansionCOTGroupsMembersListEntry> m_MemberEntries;
-	private ref array<ref ExpansionCOTGroupsMapMarker> m_GroupMarkers;
-	private ref array<ref ExpansionCOTGroupsMarkerListEntry> m_GroupMarkerEntries;
 	private ref array<ref ExpansionCOTGroupsPlayersListEntry> m_ServerPlayers;
+
+#ifdef EXPANSIONMODNAVIGATION
+	private ExpansionMarkerModule m_MarkerModule;
+	private ref array<ref ExpansionCOTGroupsMarkerListEntry> m_GroupMarkerEntries;
+	private ref array<ref ExpansionCOTGroupsMapMarker> m_GroupMarkers;
+	private ref array<ref ExpansionCOTGroupsIconListEntry> m_MarkerIcons;
+	private ExpansionCOTGroupsMapMarker m_CurrentSelectedMarker;
+	private ExpansionIcon m_CurrentSelectedIcon;
+	private string m_CurrentIconPath;
+	private int m_PrimaryColor;
+	private bool m_IsEdittingMarker = false;
+	private bool m_IsCreatingMarker = false;
+	private int m_CreationPosX;
+	private int m_CreationPosY;
+#endif
 	
 	private ExpansionPartyData m_CurrentSelectedGroup;
 	private ExpansionPartyPlayerData m_CurrentSelectedGroupMember;
@@ -44,13 +57,14 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	private EditBoxWidget m_GroupNameValue;
 	private ButtonWidget m_GroupChangeNameButton;
 	private TextWidget m_GroupIDValue;
-	private TextWidget m_GroupOwnerValue;
-	private ButtonWidget m_GroupCopyInfoButton;
+	private TextWidget m_GroupOwnerNameValue;
+	private TextWidget m_GroupOwnerUIDValue;
 	
 	private Widget m_GroupButtonsPanel;
 	private ButtonWidget m_GroupDeleteButton;
 	private ButtonWidget m_GroupInviteSelfButton;
 	private ButtonWidget m_GroupEditButton;
+	private ButtonWidget m_GroupCopyInfoButton;
 
 #ifdef EXPANSIONMODNAVIGATION
 	private Widget m_GroupMapPanel;
@@ -58,6 +72,20 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	
 	private Widget m_MarkersListPanel;
 	private GridSpacerWidget m_MarkersListContent;
+	
+	private Widget m_MarkerEditPanel;
+	private SliderWidget m_ColorRedSlider;
+	private SliderWidget m_ColorGreenSlider;
+	private SliderWidget m_ColorBlueSlider;
+	private WrapSpacerWidget m_MarkerIconsContent;
+	private Widget m_Marker3DCheckboxPanel;
+	private CheckBoxWidget m_Marker3DCheckbox;
+	private CheckBoxWidget m_MarkerLockedCheckbox;
+	private EditBoxWidget m_MarkerNameEditbox;
+	private ButtonWidget m_MarkerSaveButton;
+	private ButtonWidget m_MarkerCreateButton;
+	private ButtonWidget m_MarkerDeleteButton;
+	private ButtonWidget m_MarkerCancelButton;
 #endif
 	
 	private Widget m_MembersListPanel;	
@@ -111,9 +139,14 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	{
 		m_GroupEntries = new array<ref ExpansionCOTGroupsListEntry>;
 		m_MemberEntries = new array<ref ExpansionCOTGroupsMembersListEntry>;
-		m_GroupMarkers  = new array<ref ExpansionCOTGroupsMapMarker>;
-		m_GroupMarkerEntries = new array<ref ExpansionCOTGroupsMarkerListEntry>;
 		m_ServerPlayers = new array<ref ExpansionCOTGroupsPlayersListEntry>;
+	
+	#ifdef EXPANSIONMODNAVIGATION
+		m_GroupMarkerEntries = new array<ref ExpansionCOTGroupsMarkerListEntry>;
+		m_GroupMarkers  = new array<ref ExpansionCOTGroupsMapMarker>;
+		m_MarkerIcons = new array<ref ExpansionCOTGroupsIconListEntry>;
+		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -123,9 +156,13 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	{		
 		m_GroupEntries.Clear();
 		m_MemberEntries.Clear();
-		m_GroupMarkers.Clear();
-		m_GroupMarkerEntries.Clear();
 		m_ServerPlayers.Clear();
+	
+	#ifdef EXPANSIONMODNAVIGATION
+		m_GroupMarkerEntries.Clear();
+		m_GroupMarkers.Clear();
+		m_MarkerIcons.Clear();
+	#endif
 		
 		delete layoutRoot;
 	}
@@ -150,43 +187,28 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		//! Group list
 		m_GroupsListPanel = Widget.Cast(layoutRoot.FindAnyWidget("groups_list_panel"));
 		m_GroupsListContent = GridSpacerWidget.Cast(layoutRoot.FindAnyWidget("groups_list_content"));
-		
-		//! Group list refresh button
 		m_GroupsListRefreshButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("groups_refresh_button"));
 		
 		//! Group info panel
 		m_GroupInfoPanel = Widget.Cast(layoutRoot.FindAnyWidget("group_info_panel"));
-		
 		m_GroupNameLabel = TextWidget.Cast(layoutRoot.FindAnyWidget("info_name_label"));
 		m_GroupNameValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("info_name_value"));
 		m_GroupChangeNameButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("info_change_name_button"));
-		
 		m_GroupIDValue = TextWidget.Cast(layoutRoot.FindAnyWidget("info_id_value"));
-		m_GroupOwnerValue = TextWidget.Cast(layoutRoot.FindAnyWidget("info_owner_value"));
-		m_GroupCopyInfoButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("copy_group_info_button"));
+		m_GroupOwnerNameValue = TextWidget.Cast(layoutRoot.FindAnyWidget("group_owner info_name_value"));
+		m_GroupOwnerUIDValue = TextWidget.Cast(layoutRoot.FindAnyWidget("group_owner uid_name_value"));
 				
-		//! Members list
-		m_MembersListPanel = Widget.Cast(layoutRoot.FindAnyWidget("members_list_panel"));
-		m_MembersListContent = GridSpacerWidget.Cast(layoutRoot.FindAnyWidget("members_list_content"));
-		
-		//! Members list refresh button
-		m_MembersListRefreshButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("members_refresh_button"));
-		
 		//! Group buttons panel
 		m_GroupButtonsPanel = Widget.Cast(layoutRoot.FindAnyWidget("group_buttons_panel"));
+		m_GroupCopyInfoButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("copy_group_info_button"));
 		m_GroupDeleteButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("delete_group_button"));
 		m_GroupInviteSelfButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("invite_self_button")); 
 		m_GroupEditButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("group_edit_button"));
 		
-	#ifdef EXPANSIONMODNAVIGATION
-		//! Map
-		m_GroupMapPanel = Widget.Cast(layoutRoot.FindAnyWidget("map_window_panel"));
-		m_GroupMap = MapWidget.Cast(layoutRoot.FindAnyWidget("group_map"));
-		
-		//! Markers list
-		m_MarkersListPanel = Widget.Cast(layoutRoot.FindAnyWidget("markers_list_panel"));
-		m_MarkersListContent = GridSpacerWidget.Cast(layoutRoot.FindAnyWidget("markers_list_content"));
-	#endif
+		//! Members list
+		m_MembersListPanel = Widget.Cast(layoutRoot.FindAnyWidget("members_list_panel"));
+		m_MembersListContent = GridSpacerWidget.Cast(layoutRoot.FindAnyWidget("members_list_content"));
+		m_MembersListRefreshButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("members_refresh_button"));
 		
 		//! Member info panel
 		m_MemberInfoPanel = Widget.Cast(layoutRoot.FindAnyWidget("member_info_panel"));
@@ -205,6 +227,31 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		m_MemberKickButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("kick_member_button"));
 		m_MemberEditCancelButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("cancel_member_edit_button"));
 		m_MemberCopyInfoButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("copy_member_info_button"));
+		
+	#ifdef EXPANSIONMODNAVIGATION
+		//! Map
+		m_GroupMapPanel = Widget.Cast(layoutRoot.FindAnyWidget("map_window_panel"));
+		m_GroupMap = MapWidget.Cast(layoutRoot.FindAnyWidget("group_map"));
+		
+		//! Markers list
+		m_MarkersListPanel = Widget.Cast(layoutRoot.FindAnyWidget("markers_list_panel"));
+		m_MarkersListContent = GridSpacerWidget.Cast(layoutRoot.FindAnyWidget("markers_list_content"));
+		
+		//! Marker edit panel
+		m_MarkerEditPanel = Widget.Cast(layoutRoot.FindAnyWidget("marker_edit_panel"));
+		m_ColorRedSlider = SliderWidget.Cast(layoutRoot.FindAnyWidget("marker_color_red_slider"));
+		m_ColorGreenSlider = SliderWidget.Cast(layoutRoot.FindAnyWidget("marker_color_green_slider"));
+		m_ColorBlueSlider = SliderWidget.Cast(layoutRoot.FindAnyWidget("marker_color_blue_slider"));
+		m_MarkerIconsContent = WrapSpacerWidget.Cast(layoutRoot.FindAnyWidget("marker_icons_content"));
+		m_Marker3DCheckboxPanel = Widget.Cast(layoutRoot.FindAnyWidget("marker_state_3d_container"));
+		m_Marker3DCheckbox = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("marker_state_3d_checkbox"));
+		m_MarkerLockedCheckbox = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("marker_state_lock_checkbox"));
+		m_MarkerNameEditbox = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("marker_name")); 
+		m_MarkerSaveButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("marker_save_button"));
+		m_MarkerCreateButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("marker_create_button"));
+		m_MarkerDeleteButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("marker_delete_button"));
+		m_MarkerCancelButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("marker_cancel_button"));
+	#endif
 	
 	#ifdef EXPANSIONMODMARKET
 		m_MemberPermWithdraw = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("member_perm_withdraw_checkbox"));
@@ -231,12 +278,13 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		m_PlayerSetOwnerButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("player_set_owner_button"));
 		m_PlayerEditCancelButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("cancel_player_edit_button"));
 		
+		//! Edit panel
 		m_EditPanel = Widget.Cast(layoutRoot.FindAnyWidget("edit_info_panel"));
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu SetViewGroupEdit
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void SetViewGroupEdit()
 	{		
 		m_GroupsListPanel.Show(true);
@@ -261,6 +309,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	#ifdef EXPANSIONMODNAVIGATION
 		m_GroupMapPanel.Show(false);
 		m_MarkersListPanel.Show(false);
+		m_MarkerEditPanel.Show(false);
 	#endif
 		m_PlayerInfoPanel.Show(false);
 		m_PlayerButtonsPanel.Show(false);
@@ -282,6 +331,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	#ifdef EXPANSIONMODNAVIGATION
 		m_GroupMapPanel.Show(false);
 		m_MarkersListPanel.Show(false);
+		m_MarkerEditPanel.Show(false);
 	#endif
 		
 		m_EditPanel.Show(true);
@@ -401,7 +451,8 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		
 		m_GroupNameValue.SetText(group.GetPartyName());
 		m_GroupIDValue.SetText(group.GetPartyID().ToString());
-		m_GroupOwnerValue.SetText(group.GetOwnerName() + " - " + group.GetOwnerUID());
+		m_GroupOwnerNameValue.SetText(group.GetOwnerName());
+		m_GroupOwnerUIDValue.SetText(group.GetOwnerUID());
 	
 	#ifdef EXPANSIONMODMARKET
 		m_GroupMoneyPanel.Show(true);
@@ -483,45 +534,6 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		else
 			m_MemberSetOwnerButton.Show(true);
 	}
-
-#ifdef EXPANSIONMODNAVIGATION
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu SetMemberInfo
-	// ------------------------------------------------------------
-	private void AddGroupMarkers()
-	{
-		if (!m_CurrentSelectedGroup)
-			return;
-		
-		m_GroupMarkers.Clear();
-		m_GroupMarkerEntries.Clear();
-				
-		array<ref ExpansionMarkerData> markers = new array<ref ExpansionMarkerData>;
-		markers = m_CurrentSelectedGroup.GetAllMarkers();		
-		for (int i = 0; i < markers.Count(); i++)
-		{
-			ExpansionMarkerData markerData = markers[i];
-			ExpansionCOTGroupsMapMarker marker = new ExpansionCOTGroupsMapMarker(m_GroupMapPanel, m_GroupMap, markerData, this);
-			m_GroupMarkers.Insert(marker);
-			
-			ExpansionCOTGroupsMarkerListEntry markerEntry = ExpansionCOTGroupsMarkerListEntry(m_MarkersListContent, markerData, this);
-			m_GroupMarkerEntries.Insert(markerEntry);
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu SetGroupMapFocus
-	// ------------------------------------------------------------
-	void SetGroupMapFocus(vector position)
-	{
-		vector mapPos = m_GroupMap.MapToScreen(position);
-		float x, y;
-		m_GroupMap.GetScreenPos(x, y);
-		vector newPos = Vector(mapPos[0] + x, mapPos[1] + y, 0);
-		m_GroupMap.SetScale(0.10);
-		m_GroupMap.SetMapPos(newPos);
-	}
-#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu EditGroupName
@@ -552,6 +564,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		FillMemberList(false);
 	}
 	
+#ifdef EXPANSIONMODMARKET
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu EditGroupMoney
 	// ------------------------------------------------------------	
@@ -564,6 +577,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		if (value > -1)
 			m_Module.ChangeMoney(m_CurrentSelectedGroup.GetPartyID(), value);
 	}
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu OnlyNumbersCheck
@@ -600,6 +614,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	#ifdef EXPANSIONMODNAVIGATION
 		m_GroupMapPanel.Show(false);
 		m_MarkersListPanel.Show(false);
+		m_MarkerEditPanel.Show(false);
 	#endif
 	}
 	
@@ -728,12 +743,309 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		int partyID = m_CurrentSelectedGroup.GetPartyID();
 		m_Module.KickMember(partyID, playerUID);
 	}
+
+#ifdef EXPANSIONMODNAVIGATION
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SetMemberInfo
+	// ------------------------------------------------------------
+	private void AddGroupMarkers()
+	{
+		if (!m_CurrentSelectedGroup)
+			return;
+		
+		m_GroupMarkers.Clear();
+		m_GroupMarkerEntries.Clear();
+			
+		if (m_CurrentSelectedGroup.GetAllMarkers().Count() == 0)
+			return;
+		
+		for (int i = 0; i < m_CurrentSelectedGroup.GetAllMarkers().Count(); i++)
+		{
+			ExpansionMarkerData markerData = m_CurrentSelectedGroup.GetAllMarkers()[i];
+			ExpansionCOTGroupsMapMarker marker = new ExpansionCOTGroupsMapMarker(m_GroupMapPanel, m_GroupMap, false);
+			marker.Init();
+			m_GroupMarkers.Insert(marker);
+			marker.SetCOTGroupsMenu(this);
+			marker.SetMarkerData(markerData);
+			marker.Show();
+			
+			if (m_CurrentSelectedMarker && m_CurrentSelectedMarker.GetMarkerData().GetUID() == markerData.GetUID())
+				m_CurrentSelectedMarker = marker;
+						
+			ExpansionCOTGroupsMarkerListEntry markerEntry = ExpansionCOTGroupsMarkerListEntry(m_MarkersListContent, marker, this);
+			m_GroupMarkerEntries.Insert(markerEntry);
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu EditMarker
+	// ------------------------------------------------------------
+	void EditMarker(ExpansionCOTGroupsMapMarker marker, bool focus = false)
+	{
+		m_CurrentSelectedMarker = marker;
+		
+		m_MarkerIcons.Clear();
+		
+		SetIsEdittingMarker(true);
+		//m_CurrentSelectedMarker.IsEditting(true);
+				
+		if (m_CurrentSelectedMarker.GetMarkerData().GetExpansionIcon())
+			UpdateMarkerListSelection(m_CurrentSelectedMarker.GetMarkerData().GetExpansionIcon());
+		else if (m_CurrentSelectedMarker.GetMarkerData().GetIcon() != string.Empty)
+			m_CurrentIconPath = m_CurrentSelectedMarker.GetMarkerData().GetIcon();
+		
+		m_MarkerEditPanel.Show(true);
+		m_MarkerCreateButton.Show(false);
+		
+		if (focus)
+		{
+			float offsetX, offsetY;
+			vector worldPos = m_CurrentSelectedMarker.GetPosition();						
+			vector offset = Vector(worldPos[0] + offsetX, worldPos[2] - offsetY, 0);
+			vector mapPos = Vector(offset[0], offset[1], 0);
+			
+			Print(offsetX);
+			Print(offsetY);
+			Print(worldPos);
+			Print(offset);
+			Print(mapPos);
+			
+			m_GroupMap.SetScale(0.50);
+			m_GroupMap.SetMapPos(mapPos);
+		}
+		
+		array<ExpansionIcon> iconsSorted = ExpansionIcons.Sorted();
+		foreach (ExpansionIcon icon: iconsSorted)
+		{
+			ExpansionCOTGroupsIconListEntry iconEntry = new ExpansionCOTGroupsIconListEntry(m_MarkerIconsContent, icon, m_CurrentSelectedMarker);
+			m_MarkerIcons.Insert(iconEntry);
+		}
+		
+		SetPrimaryMarkerColor(m_CurrentSelectedMarker.GetMarkerData().GetColor());
+		m_Marker3DCheckboxPanel.Show(GetExpansionSettings().GetMap().CanCreate3DMarker);
+		m_Marker3DCheckbox.SetChecked(m_CurrentSelectedMarker.GetMarkerData().Is3D());
+		m_MarkerLockedCheckbox.SetChecked(m_CurrentSelectedMarker.GetMarkerData().GetLockState());
+		m_MarkerNameEditbox.SetText(m_CurrentSelectedMarker.GetMarkerData().GetName());
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SetPrimaryMarkerColor
+	// ------------------------------------------------------------
+	void SetPrimaryMarkerColor(int color)
+	{
+		if (!m_CurrentSelectedMarker)
+			return;
+		
+		m_PrimaryColor = color;
+		
+		int a = (color >> 24) & 0xFF;
+		int r = (color >> 16) & 0xFF;
+		int g = (color >> 8) & 0xFF;
+		int b = (color)&0xFF;
+
+		m_ColorRedSlider.SetCurrent(r);
+		m_ColorGreenSlider.SetCurrent(g);
+		m_ColorBlueSlider.SetCurrent(b);
+
+		m_CurrentSelectedMarker.SetPrimaryColor(m_PrimaryColor);
+		
+		int i;
+		for (i = 0; i < m_GroupMarkerEntries.Count(); ++i)
+		{
+			ExpansionCOTGroupsMarkerListEntry listEntry = m_GroupMarkerEntries[i];
+			if (listEntry.GetMarker().GetMarkerData().GetUID() == m_CurrentSelectedMarker.GetMarkerData().GetUID())
+				listEntry.SetColor(m_PrimaryColor);
+		}
+		
+		for (i = 0; i < m_MarkerIcons.Count(); ++i)
+		{
+			m_MarkerIcons[i].SetColor(m_PrimaryColor);
+		}
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu UpdateMarkerListSelection
+	// ------------------------------------------------------------	
+	void UpdateMarkerListSelection(ExpansionIcon icon)
+	{
+		if (!m_CurrentSelectedMarker)
+			return;
+		
+		m_CurrentSelectedIcon = icon;
+		m_CurrentIconPath = m_CurrentSelectedIcon.Path;
+		m_CurrentSelectedMarker.SetIcon(m_CurrentIconPath);
+		
+		int i;
+		for (i = 0; i < m_GroupMarkerEntries.Count(); ++i)
+		{
+			ExpansionCOTGroupsMarkerListEntry listEntry = m_GroupMarkerEntries[i];
+			if (listEntry.GetMarker().GetMarkerData().GetUID() == m_CurrentSelectedMarker.GetMarkerData().GetUID())
+				listEntry.SetIcon(m_CurrentIconPath);
+		}
+		
+		for (i = 0; i < m_MarkerIcons.Count(); ++i)
+		{
+			m_MarkerIcons[i].UpdateSelection(icon);
+		}
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SaveMarker
+	// ------------------------------------------------------------
+	void SaveMarker()
+	{
+		if (!m_CurrentSelectedMarker || !m_MarkerModule)
+			return;
+
+		if (m_MarkerNameEditbox.GetName() != string.Empty)
+			m_CurrentSelectedMarker.GetMarkerData().SetName(m_MarkerNameEditbox.GetText());
+		
+		m_CurrentSelectedMarker.GetMarkerData().SetIcon(m_CurrentSelectedIcon);
+		m_CurrentSelectedMarker.GetMarkerData().SetColor(m_PrimaryColor);
+		m_CurrentSelectedMarker.GetMarkerData().SetPosition(m_CurrentSelectedMarker.GetPosition());
+		m_CurrentSelectedMarker.GetMarkerData().Set3D(m_Marker3DCheckbox.IsChecked());
+		m_CurrentSelectedMarker.GetMarkerData().SetLockState(m_MarkerLockedCheckbox.IsChecked());
+		
+		if (m_MarkerModule.UpdateMarker(m_CurrentSelectedMarker.GetMarkerData()))
+			m_Module.RequestGroups(ExpansionCOTGroupsMenuCallback.MarkersUpdate);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu DeleteMarker
+	// ------------------------------------------------------------	
+	void DeleteMarker()
+	{
+		if (!m_CurrentSelectedMarker || !m_MarkerModule)
+			return;
+				
+		string uid = m_CurrentSelectedMarker.GetMarkerData().GetUID();
+		if (!m_MarkerModule.GetData().PartyRemove(uid))
+			return;
+		
+		int i;
+		for (i = 0; i < m_GroupMarkerEntries.Count(); ++i)
+		{
+			if (m_GroupMarkerEntries[i].GetMarker().GetMarkerData().GetUID() == uid)
+				m_GroupMarkerEntries.Remove(i);
+		}
+		
+		for (i = 0; i < m_GroupMarkers.Count(); ++i)
+		{
+			if (m_GroupMarkers[i].GetMarkerData().GetUID() == uid)
+				m_GroupMarkers.Remove(i);
+		}
+		
+		m_Module.RequestGroups(ExpansionCOTGroupsMenuCallback.GroupUpdate);
+		
+		CancelMarkerEdit();
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu CancelMarkerEdit
+	// ------------------------------------------------------------
+	void CancelMarkerEdit()
+	{
+		m_CurrentSelectedMarker = NULL;
+		
+		SetIsEdittingMarker(false);
+		//m_CurrentSelectedMarker.SetIsEditting(false);
+		
+		m_MarkerEditPanel.Show(false);
+		
+		SetGroupInfo(m_CurrentSelectedGroup);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu CreateNewMarker
+	// ------------------------------------------------------------
+	void CreateNewMarker(int x, int y)
+	{
+		m_CreationPosX = x;
+		m_CreationPosY = y;
+		
+		ExpansionCOTGroupsMapMarker marker = new ExpansionCOTGroupsMapMarker(m_GroupMapPanel, m_GroupMap, false);
+		marker.Init();
+		
+		marker.SetCreation( true );
+		marker.SetPosition(m_CreationPosX, m_CreationPosY);
+		marker.SetIcon(ExpansionIcons.Get(0));
+		marker.SetCreation(true);
+		marker.SetCOTGroupsMenu(this);
+		
+		m_GroupMarkers.Insert(marker);
+		
+		m_CurrentSelectedMarker = marker;
+		
+		EditMarker(m_CurrentSelectedMarker, false);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu OnCreateNewMarkerButtonClick
+	// ------------------------------------------------------------
+	void OnCreateNewMarkerButtonClick()
+	{
+		if (!m_CurrentSelectedMarker || !m_CurrentSelectedGroup)
+			return;
+
+		ExpansionMarkerData markerData = ExpansionMarkerData.Create(ExpansionMapMarkerType.PARTY);
+		markerData.SetName(m_MarkerNameEditbox.GetText());
+		markerData.SetIcon(m_CurrentSelectedIcon);
+		markerData.SetColor(m_PrimaryColor);
+		markerData.SetPosition(Vector(m_CreationPosX, m_CreationPosY, 0));
+		markerData.Set3D(m_Marker3DCheckbox.IsChecked());
+		markerData.SetLockState(m_MarkerLockedCheckbox.IsChecked());
+		m_CurrentSelectedMarker.SetMarkerData(markerData);
+		
+		m_Module.CreateGroupMarker(markerData, m_CurrentSelectedGroup.GetPartyID());
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu IsRGBSlider
+	// ------------------------------------------------------------
+	bool IsRGBSlider(Widget w)
+	{
+		return (w == m_ColorRedSlider || w == m_ColorGreenSlider || w == m_ColorBlueSlider);
+	}
+
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu OnClick
+	// ------------------------------------------------------------
+	override bool OnChange(Widget w, int x, int y, bool finished)
+	{
+		if (w != NULL && IsRGBSlider(w))
+		{
+			SetPrimaryMarkerColor(ARGB(255, m_ColorRedSlider.GetCurrent(), m_ColorGreenSlider.GetCurrent(), m_ColorBlueSlider.GetCurrent()));
+			return true;
+		}
+
+		return super.OnChange(w, x, y, finished);
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnDoubleClick
+	// ------------------------------------------------------------
+	/*override bool OnDoubleClick( Widget w, int x, int y, int button )
+	{
+		if (button == MouseState.LEFT)
+		{
+			if (w == m_GroupMap && !IsEdittingMarker() && !IsCreatingMarker())
+			{
+				int mouse_x, mouse_y;
+				GetGame().GetMousePos(mouse_x, mouse_y);
+				CreateNewMarker(mouse_x, mouse_y);
+				return true;
+			}
+		}
+		
+		return false;
+	}*/
+#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu OnClick
 	// ------------------------------------------------------------	
 	override bool OnClick(Widget w, int x, int y, int button)
-	{		
+	{
 		if (w == m_GroupsListRefreshButton)
 		{
 			m_Module.RequestGroups(ExpansionCOTGroupsMenuCallback.GroupsUpdate);
@@ -749,17 +1061,12 @@ class ExpansionCOTGroupsMenu: JMFormBase
 			EditGroup();
 			return true;
 		}
-		else if (w == m_GroupDeleteButton)
+		if (w == m_GroupDeleteButton)
 		{
 			DeleteGroup();
 			return true;
 		}
-		else if (w == m_GroupChangeMoneyButton)
-		{
-			EditGroupMoney();
-			return true;
-		}
-		else if (w == m_PlayersListRefreshButton)
+		if (w == m_PlayersListRefreshButton)
 		{
 			ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
 			if (dataModule)
@@ -815,9 +1122,41 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		else if (w == m_MemberKickButton)
 		{
 			KickMember();
+			return true;
 		}
+	
+	#ifdef EXPANSIONMODMARKET
+		if (w == m_GroupChangeMoneyButton)
+		{
+			EditGroupMoney();
+			return true;
+		}
+	#endif
 		
-		return false;
+	#ifdef EXPANSIONMODNAVIGATION
+		if (w == m_MarkerSaveButton)
+		{
+			SaveMarker();
+			return true;
+		}
+		else if (w == m_MarkerDeleteButton)
+		{
+			DeleteMarker();
+			return true;
+		}
+		else if (w == m_MarkerCancelButton)
+		{
+			CancelMarkerEdit();
+			return true;
+		}
+		else if (w == m_MarkerCreateButton)
+		{
+			OnCreateNewMarkerButtonClick();
+			return true;
+		}
+	#endif
+		
+		return super.OnClick(w, x, y, button);
 	}
 	
 	// ------------------------------------------------------------
@@ -886,10 +1225,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	// ExpansionCOTGroupsMenu MenuCallback
 	// ------------------------------------------------------------
 	void MenuCallback(int type)
-	{
-		Print("ExpansionCOTGroupsMenu::MenuCallback - Start");
-		Print("ExpansionCOTGroupsMenu::MenuCallback - Type: " + type);
-		
+	{		
 		switch (type)
 		{
 			case ExpansionCOTGroupsMenuCallback.GroupsInit:
@@ -920,24 +1256,42 @@ class ExpansionCOTGroupsMenu: JMFormBase
 					SetMemberInfo(m_CurrentSelectedGroupMember);
 				break;
 			}
+		#ifdef EXPANSIONMODNAVIGATION
+			case ExpansionCOTGroupsMenuCallback.MarkersUpdate:
+			{
+				FillGroupList(false);
+				if (m_CurrentSelectedGroup)
+					SetGroupInfo(m_CurrentSelectedGroup);
+				if (m_CurrentSelectedMarker)
+					EditMarker(m_CurrentSelectedMarker);
+				break;
+			}
+		#endif
 		}
-		
-		Print("ExpansionCOTGroupsMenu::MenuCallback - End");
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu HighlightWidget
 	// ------------------------------------------------------------		
 	void HighlightWidget(Widget w)
-	{		
+	{
 		if (w.GetName().Contains("_button"))	
 		{
-			ButtonWidget button = ButtonWidget.Cast(w.FindAnyWidget(w.GetName())); 
-			TextWidget label = TextWidget.Cast(w.FindAnyWidget(w.GetName() + "_label"));
+			ButtonWidget button = ButtonWidget.Cast(w);
+			if (button)
+				button.SetColor(ARGB(255, 255, 255, 255));
 			
-			button.SetColor(ARGB(255, 255, 255, 255));
-			label.SetColor(ARGB(255, 0, 0, 0));
+			TextWidget label = TextWidget.Cast(w.FindAnyWidget(w.GetName() + "_label"));
+			if (label)
+				label.SetColor(ARGB(255, 0, 0, 0));
 		}	
+		
+		if (w.GetName().Contains("_checkbox"))	
+		{
+			CheckBoxWidget checkbox = CheckBoxWidget.Cast(w);
+			if (checkbox)
+				checkbox.SetColor(ARGB(255, 41, 128, 185));
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -947,11 +1301,20 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	{
 		if (w.GetName().Contains("_button"))	
 		{
-			ButtonWidget button = ButtonWidget.Cast(w.FindAnyWidget(w.GetName() + "_button")); 
-			TextWidget label = TextWidget.Cast(w.FindAnyWidget(w.GetName() + "_label"));
+			ButtonWidget button = ButtonWidget.Cast(w);
+			if (button)
+				button.SetColor(ARGB(255, 0, 0, 0));
 			
-			button.SetColor(ARGB(255, 0, 0, 0));
-			label.SetColor(ARGB(255, 255, 255, 255));
+			TextWidget label = TextWidget.Cast(w.FindAnyWidget(w.GetName() + "_label"));
+			if (label)
+				label.SetColor(ARGB(255, 255, 255, 255));
+		}
+		
+		if (w.GetName().Contains("_checkbox"))	
+		{
+			CheckBoxWidget checkbox = CheckBoxWidget.Cast(w);
+			if (checkbox)
+				checkbox.SetColor(ARGB(255, 255, 255, 255));
 		}
 	}
 		
@@ -964,13 +1327,78 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	}
 	
 	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu IsFocusWidget
+	// ------------------------------------------------------------		
+	bool IsFocusWidget(Widget w)
+	{
+		if (w == m_GroupsListRefreshButton || w == m_GroupChangeNameButton || w == m_GroupCopyInfoButton || w == m_GroupDeleteButton || w == m_GroupInviteSelfButton || w == m_GroupEditButton || w == m_MembersListRefreshButton)
+			return true;
+		
+		if (w == m_MemberPermInvite || w == m_MemberPermKick || w == m_MemberPermEdit || w == m_MemberPermDelete)
+			return true;
+		
+		if (w == m_MemberSavePermButton || w == m_MemberSetOwnerButton || w == m_MemberKickButton || w == m_MemberEditCancelButton || w == m_MemberCopyInfoButton)
+			return true;
+				
+		if (w == m_PlayersListRefreshButton || w == m_PlayerInviteButton || w == m_PlayerSetOwnerButton || w == m_PlayerEditCancelButton)
+			return true;
+	#ifdef EXPANSIONMODNAVIGATION
+		if (w == m_MarkerSaveButton || w == m_MarkerDeleteButton || w == m_MarkerCancelButton || w == m_MarkerCreateButton)
+			return true;
+	#endif
+		
+	#ifdef EXPANSIONMODMARKET
+		if (w == m_MemberPermWithdraw || w == m_GroupChangeMoneyButton)
+			return true;
+	#endif
+		
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu IsEdittingMarker
+	// ------------------------------------------------------------	
+	bool IsEdittingMarker()
+	{
+		return m_IsEdittingMarker;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SetIsEdittingMarker
+	// ------------------------------------------------------------	
+	void SetIsEdittingMarker(bool state)
+	{
+		m_IsEdittingMarker = state;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu IsCreatingMarker
+	// ------------------------------------------------------------
+	bool IsCreatingMarker()
+	{
+		return m_IsCreatingMarker;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SetIsCreatingMarker
+	// ------------------------------------------------------------	
+	void SetIsCreatingMarker(bool state)
+	{
+		m_IsCreatingMarker = state;
+	}
+	
+	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu OnMouseEnter
 	// ------------------------------------------------------------
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{	
 		super.OnMouseEnter(w, x, y);
-		
-		HighlightWidget(w);
+
+		if (IsFocusWidget(w))
+		{
+			HighlightWidget(w);
+			return true;
+		}
 		
 		return false;
 	}
@@ -982,9 +1410,30 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	{		
 		super.OnMouseEnter(w, x, y);
 		
-		NormaliseWidget(w);
+		if (IsFocusWidget(w))
+		{
+			NormaliseWidget(w);
+			return true;
+		}
 		
 		return false;
 	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu OnMouseLeave
+	// ------------------------------------------------------------	
+	override void Update()
+	{
+		//! Update group map markers
+		for (int i = 0; i < m_GroupMarkers.Count(); ++i)
+		{
+			if (m_GroupMarkers[i])
+			{
+				m_GroupMarkers[i].Update(0.1);
+			}
+		}
+	}
+#endif
 };
 #endif

@@ -227,35 +227,28 @@ modded class DayZGame
 	override void CancelLoginTimeCountdown()
 	{
 		super.CancelLoginTimeCountdown();
-		GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_CancelLoginTimeCountdown);
-	}
 
-	void Expansion_CancelLoginTimeCountdown()
-	{
-		while (true)
+		auto menu = GetUIManager().GetMenu();
+		if (!menu)
+			return;
+
+		auto loginTime = LoginTimeBase.Cast(menu);
+		if (!loginTime)
+			return;
+
+		EXLogPrint("Closing " + loginTime);
+
+		if (loginTime.IsStatic())
 		{
-			auto menu = GetUIManager().GetMenu();
-			if (!menu)
-				break;
-
-			auto loginTime = LoginTimeBase.Cast(menu);
-			if (!loginTime)
-				break;
-
-			EXLogPrint("Closing " + loginTime);
-
-			if (loginTime.IsStatic())
-			{
-				loginTime.Hide();
-				delete loginTime;
-			}
-			else
-			{
-				loginTime.Close();
-			}
-
-			Expansion_UnlockControls();
+			loginTime.Hide();
+			delete loginTime;
 		}
+		else
+		{
+			loginTime.Close();
+		}
+
+		Expansion_UnlockControls();
 	}
 
 	bool Expansion_UseMouse()

@@ -11,7 +11,7 @@
 */
 
 //! Used for third party mods, if they want to know if expansion assets mod is loaded
-#define EXPANSIONMODASSETS
+#define EXPANSIONMODMAPASSETS
 
 //! Used for assets mod debugging
 //#define EXPANSION_ASSETS_DEBUG

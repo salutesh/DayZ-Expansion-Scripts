@@ -15,7 +15,7 @@ class ExpansionBookMenuManager
 	autoptr array<ref ExpansionBookMenuTabBase> m_Tabs = new array<ref ExpansionBookMenuTabBase>;
 	
 	//TODO: move to main Mod
-	#ifdef EXPANSIONMOD	
+	#ifdef EXPANSIONMONITORMODULE	
 	ref ExpansionBookMenuTabPlayerProfile m_PlayerProfileTab;
 	#endif
 
@@ -42,13 +42,15 @@ class ExpansionBookMenuManager
 	
 	void RegisterBookMenuTabs(ExpansionBookMenu book_menu)
 	{
-		#ifdef EXPANSIONMODBASEBUILDING
+		#ifdef EXPANSIONMONITORMODULE
 		if (GetExpansionSettings().GetBook().EnableStatusTab)
 		{
 			m_PlayerProfileTab = new ExpansionBookMenuTabPlayerProfile(book_menu);
 			m_Tabs.Insert(m_PlayerProfileTab);
 		}
+		#endif
 		
+		#ifdef EXPANSIONMODBASEBUILDING
 		if (GetExpansionSettings().GetBook().EnableTerritoryTab)
 		{
 			m_TerritoryTab = new ExpansionBookMenuTabTerritory(book_menu);
@@ -131,7 +133,7 @@ class ExpansionBookMenuManager
 		return m_Tabs;
 	}
 		
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMONITORMODULE
 	ExpansionBookMenuTabPlayerProfile GetPlayerProfileTab()
 	{
 		return m_PlayerProfileTab;

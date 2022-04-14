@@ -65,10 +65,10 @@ class ExpansionLocatorModule: CF_ModuleGame
 			if ( !GetGame() )
 				return;
 
-			if ( !GetExpansionSettings().GetGeneral() )
+			if ( !GetExpansionSettings().GetMap() )
 				return;
 
-			if ( !GetExpansionSettings().GetGeneral().PlayerLocationNotifier )
+			if ( !GetExpansionSettings().GetMap().PlayerLocationNotifier )
 				return;
 
 			CheckPlayer();

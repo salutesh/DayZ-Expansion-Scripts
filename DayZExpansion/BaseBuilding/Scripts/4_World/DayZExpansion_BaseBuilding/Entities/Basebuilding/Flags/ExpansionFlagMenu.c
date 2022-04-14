@@ -57,7 +57,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/flag/expansion_flag_menu.layout");
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/BaseBuilding/GUI/layouts/flag/expansion_flag_menu.layout");
 		
 		//! Flag Window
 		m_FlagWindow = Widget.Cast( layoutRoot.FindAnyWidget( "flag_window_content" ) );

@@ -31,6 +31,7 @@ modded class DayZGame
 			FPrintln(file, "Please install:");
 			FPrintln(file, "@DayZ-Expansion-BaseBuilding");
 			FPrintln(file, "@DayZ-Expansion-Weapons");
+			FPrintln(file, "@DayZ-Expansion-Animations");
 			FPrintln(file, "This requirement will be removed sometime after the release of DayZ 1.17");
 			CloseFile(file);
 			RequestExit(1);
