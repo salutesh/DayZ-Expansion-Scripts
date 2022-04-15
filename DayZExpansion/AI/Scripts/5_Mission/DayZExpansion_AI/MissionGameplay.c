@@ -61,10 +61,14 @@ modded class MissionGameplay
 		}
 
 		// If we want to close the command menu, and our menu is open
-		if (m_eAIRadialKey.LocalRelease() && GetGame().GetUIManager().GetMenu() == eAICommandMenu.instance)
+		if (m_eAIRadialKey.LocalRelease())
 		{
-			eAICommandMenu.instance.OnMenuRelease();
-			GetUIManager().Back();
+			auto menu = GetGame().GetUIManager().GetMenu();
+			if (menu && menu == eAICommandMenu.instance)
+			{
+				eAICommandMenu.instance.OnMenuRelease();
+				GetUIManager().Back();
+			}
 		}
 	}
 };

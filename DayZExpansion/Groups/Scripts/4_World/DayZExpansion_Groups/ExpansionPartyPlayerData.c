@@ -28,10 +28,24 @@ class ExpansionPartyPlayerData
 	int Permissions;
 	ref ExpansionPartyData m_Party;
 
+	//! These have to be here so that marker data can be retained when Navigation mod is not loaded
+	ref ExpansionPlayerMarkerData m_TempMarkerData;
+	ref ExpansionPlayerMarkerData Marker;
+
 	void ExpansionPartyPlayerData(ExpansionPartyData party)
 	{
 		Permissions = ExpansionPartyPlayerPermissions.NONE;
 		m_Party = party;
+		m_TempMarkerData = new ExpansionPlayerMarkerData();
+	}
+	
+	void ~ExpansionPartyPlayerData()
+	{
+		if ( m_TempMarkerData )
+			delete m_TempMarkerData;
+
+		if ( Marker )
+			delete Marker;
 	}
 
 	void OnLeave()	{}
@@ -46,6 +60,17 @@ class ExpansionPartyPlayerData
 		ctx.Write(UID);
 		ctx.Write(Name);
 		ctx.Write(Permissions);
+
+		if ( Marker )
+		{
+			m_TempMarkerData = ExpansionPlayerMarkerData.Cast(ExpansionMarkerData.Copy(Marker));
+
+			Marker.OnStoreSave(ctx);
+		} 
+		else
+		{
+			m_TempMarkerData.OnStoreSave(ctx);
+		}
 	}
 	
 	bool OnStoreLoad(ParamsReadContext ctx, int version)
@@ -69,6 +94,11 @@ class ExpansionPartyPlayerData
         {
 			 if (Expansion_Assert_False(ctx.Read(Permissions), "[" + this + "] Failed reading Permissions"))
             	return false;
+        }
+ 
+        if (version >= 9)
+        {
+            m_TempMarkerData.OnStoreLoad(ctx, version);
         }
                  
         return true;

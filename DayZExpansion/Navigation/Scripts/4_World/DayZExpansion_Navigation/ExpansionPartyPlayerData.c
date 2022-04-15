@@ -13,25 +13,16 @@
 #ifdef EXPANSIONMODGROUPS
 modded class ExpansionPartyPlayerData
 {
-	ref ExpansionPlayerMarkerData m_TempMarkerData;
-	ref ExpansionPlayerMarkerData Marker;
 	ref ExpansionPartyQuickMarkerData QuickMarker;
 	
 	void ExpansionPartyPlayerData(ExpansionPartyData party)
 	{
-		m_TempMarkerData = new ExpansionPlayerMarkerData();
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 		CreateMarker();
 	}
 	
 	void ~ExpansionPartyPlayerData()
 	{
-		if ( m_TempMarkerData )
-			delete m_TempMarkerData;
-
-		if ( Marker )
-			delete Marker;
-
 		if ( QuickMarker )
 			delete QuickMarker;
 			
@@ -134,22 +125,6 @@ modded class ExpansionPartyPlayerData
 			QuickMarker.SetName(Name);
 		}
 	}
-		
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		super.OnStoreSave(ctx);
-
-		if ( Marker )
-		{
-			m_TempMarkerData = ExpansionPlayerMarkerData.Cast(ExpansionMarkerData.Copy(Marker));
-
-			Marker.OnStoreSave(ctx);
-		} 
-		else
-		{
-			m_TempMarkerData.OnStoreSave(ctx);
-		}
-	}
 	
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
     {
@@ -159,10 +134,6 @@ modded class ExpansionPartyPlayerData
         if (version < 9)
         {
             CreateMarker();
-        } 
-		else
-        {
-            m_TempMarkerData.OnStoreLoad(ctx, version);
         }
  
         InitMarker();

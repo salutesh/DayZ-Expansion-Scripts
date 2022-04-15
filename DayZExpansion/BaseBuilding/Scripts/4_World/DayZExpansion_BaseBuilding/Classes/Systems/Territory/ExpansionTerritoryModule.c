@@ -426,12 +426,14 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				}
 				#endif
 			}
-
+			
+		#ifdef EXPANSIONMODBOOK
 			ExpansionUIScriptedMenu menu;
 			if (Class.CastTo( menu, GetGame().GetUIManager().FindMenu(EXPANSION_MENU_BOOK)))
 			{
 				menu.Refresh();
 			}
+		#endif
 		}
 	}
 	
@@ -922,12 +924,13 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 
 		SetTerritoryInvites( invites );
-		
+	#ifdef EXPANSIONMODBOOK
 		ExpansionUIScriptedMenu menu;
 		if (Class.CastTo(menu, GetGame().GetUIManager().FindMenu(EXPANSION_MENU_BOOK)))
 		{
 			menu.Refresh();
 		}
+	#endif
 	}
 		
 	// ------------------------------------------------------------
@@ -2059,10 +2062,10 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 					EXPrint("territory pos " + currTerritory.GetPosition());
 					EXPrint("dist " + dist);
 					EXPrint("isMember " + currTerritory.IsMember(playerUID));
-					EXPrint("canEdit " + CanEditTerritory(playerUID));
+					//EXPrint("canEdit " + CanEditTerritory(playerUID));
 					#endif
 
-					if ( dist <= territorySizeSq && ( currTerritory.IsMember(playerUID) || CanEditTerritory(playerUID) ) )
+					if ( dist <= territorySizeSq && ( currTerritory.IsMember(playerUID) /*|| CanEditTerritory(playerUID)*/ ) )
 					{
 						#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 						EXLogPrint("ExpansionTerritoryModule::IsInsideOwnTerritory - ID " + flag.GetTerritoryID() + " \"" + currTerritory.GetTerritoryName() + "\"");
@@ -2074,8 +2077,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		}
 		else
 		{
-			if ( CanEditTerritory(playerUID) && IsInTerritory( position, territorySize ) )
-				return true;
+			/*if ( CanEditTerritory(playerUID) && IsInTerritory( position, territorySize ) )
+				return true;*/
 
 			territorySizeSq = territorySize * territorySize;
 
@@ -2113,7 +2116,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		return false;
 	}
 
-	bool CanEditTerritory(string playerUID)
+	/*bool CanEditTerritory(string playerUID)
 	{
 		if (GetGame().IsClient())
 			return GetPermissionsManager().IsAdminToolsToggledOn();
@@ -2123,7 +2126,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return GetPermissionsManager().HasPermission("Expansion.Territories.Edit", player.GetIdentity());
 
 		return false;
-	}
+	}*/
 
 	// ------------------------------------------------------------
 	// Expansion IsInsideOwnTerritoryOrPerimeter

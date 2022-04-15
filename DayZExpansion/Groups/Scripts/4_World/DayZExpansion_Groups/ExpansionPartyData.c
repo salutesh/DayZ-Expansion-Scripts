@@ -20,9 +20,7 @@ class ExpansionPartyData
 
 	protected ref array< ref ExpansionPartyPlayerData > Players;
 	protected ref array< ref ExpansionPartyInviteData > Invites;
-#ifdef EXPANSIONMODNAVIGATION
 	protected ref array< ref ExpansionMarkerData > Markers;
-#endif
 
 	protected ref map< string, ExpansionPartyPlayerData > PlayersMap;
 	protected ref map< string, ExpansionPartyInviteData > InvitesMap;
@@ -45,9 +43,7 @@ class ExpansionPartyData
 
 		Players = new array< ref ExpansionPartyPlayerData >;
 		Invites = new array< ref ExpansionPartyInviteData >;
-	#ifdef EXPANSIONMODNAVIGATION
 		Markers = new array< ref ExpansionMarkerData >;
-	#endif
 
 		PlayersMap = new map< string, ExpansionPartyPlayerData >;
 		InvitesMap = new map< string, ExpansionPartyInviteData >;
@@ -68,17 +64,13 @@ class ExpansionPartyData
 			delete Players[i];
 		for ( i = 0; i < Invites.Count(); ++i )
 			delete Invites[i];
-	#ifdef EXPANSIONMODNAVIGATION
 		for ( i = 0; i < Markers.Count(); ++i )
 			delete Markers[i];
-	#endif
 
 		delete Players;
 		delete Invites;
 
-	#ifdef EXPANSIONMODNAVIGATION
 		delete Markers;
-	#endif
 
 		delete PlayersMap;
 		delete InvitesMap;
@@ -755,10 +747,10 @@ class ExpansionPartyData
 			}
 		}
 
+	#ifdef EXPANSIONMODNAVIGATION
 		if ( !ctx.Read( count ) )
 			return false;
 
-	#ifdef EXPANSIONMODNAVIGATION
 		if (count > -1)
 		{
 			ExpansionMarkerData marker;
@@ -830,17 +822,13 @@ class ExpansionPartyData
 		for ( i = 0; i < Invites.Count(); ++i)
 			Invites[i].OnStoreSave( ctx );
 
-	#ifdef EXPANSIONMODNAVIGATION
+		//! Always write markers so you don't loose them if Navigation mod is not loaded
 		ctx.Write( Markers.Count() );
 		for ( i = 0; i < Markers.Count(); ++i )
 		{
 			ctx.Write( Markers[i].GetUID() );
 			Markers[i].OnStoreSave( ctx );
 		}
-	#else
-		//! Always write zero marker count so it doesn't cause issues when navigation is added later
-		ctx.Write( 0 );
-	#endif
 
 		//! Always write money deposited so it doesn't cause issues when market is added later
 		ctx.Write( MoneyDeposited );
@@ -887,12 +875,11 @@ class ExpansionPartyData
 			if ( Expansion_Assert_False( Invites[i].OnStoreLoad( ctx, version ), "Failed reading invite [" + i + "]" ) )
 				return false;
 
-		//! Always read marker count so it doesn't cause issues when navigation is added later
+		//! Always read markers so you don't loose them if Navigation mod is not loaded
 		int countMarkers;
 		if ( Expansion_Assert_False( ctx.Read( countMarkers ), "Failed reading marker count" ) )
 			return false;
 
-	#ifdef EXPANSIONMODNAVIGATION
 		for ( i = 0; i < countMarkers; ++i )
 			Markers.Insert( ExpansionMarkerData.Create( ExpansionMapMarkerType.PARTY ) );
 
@@ -914,7 +901,6 @@ class ExpansionPartyData
 			if ( Expansion_Assert_False( Markers[i].OnStoreLoad( ctx, version ), "Failed reading marker [" + i + "]" ) )
 				return false;
 		}
-	#endif
 
 		//! Read money deposited so it doesn't cause issues when market is added later
 		bool readMoneyDeposited;

@@ -13,8 +13,6 @@
 #ifndef JM_COT
 class ExpansionPermissionsManager
 {
-	bool m_AdminToolsToggledOn;
-
 	void ExpansionPermissionsManager()
 	{
 	}
@@ -29,19 +27,19 @@ class ExpansionPermissionsManager
 
 	bool HasPermission( string permission )
 	{
-		if ( GetGame().IsClient() )
+		/*if ( GetGame().IsClient() )
 		{
 			Man player = GetGame().GetPlayer();
 			if (player && player.GetIdentity() )
 				return HasPermission( permission, player.GetIdentity() );
-		}
+		}*/
 
 		return false;
 	}
 
 	bool HasPermission( string permission, PlayerIdentity ihp )
 	{
-		switch ( permission )
+		/*switch ( permission )
 		{
 			case "Admin.Chat":
 			case "Expansion.Territories.Edit":
@@ -59,20 +57,20 @@ class ExpansionPermissionsManager
 					return true;
 				#endif
 				break;
-		}
+		}*/
 
 		return false;
 	}
 
-	bool IsAdminToolsToggledOn()
-	{
-		#ifdef VPPADMINTOOLS
-		MissionBaseWorld mission = MissionBaseWorld.Cast(GetGame().GetMission());
-		return mission && mission.VPPAT_AdminToolsToggled();
-		#endif
+	//bool IsAdminToolsToggledOn()
+	//{
+		//#ifdef VPPADMINTOOLS
+		//MissionBaseWorld mission = MissionBaseWorld.Cast(GetGame().GetMission());
+		//return mission && mission.VPPAT_AdminToolsToggled();
+		//#endif
 
-		return false;
-	}
+		//return false;
+	//}
 }
 
 ref ExpansionPermissionsManager g_ExpansionPermissionsManager;
@@ -90,12 +88,12 @@ ref ExpansionPermissionsManager GetPermissionsManager()
 }
 #endif
 
-#ifdef JM_COT
-modded class JMPermissionManager
-{
-	bool IsAdminToolsToggledOn()
-	{
-		return GetCommunityOnlineToolsBase().IsActive();
-	}
-}
-#endif
+//#ifdef JM_COT
+//modded class JMPermissionManager
+//{
+	//bool IsAdminToolsToggledOn()
+	//{
+		//return GetCommunityOnlineToolsBase().IsActive();
+	//}
+//}
+//#endif

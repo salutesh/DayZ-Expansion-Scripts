@@ -84,7 +84,6 @@ class Expansion_M14_Base: RifleBoltLock_Base
 		EntityAI entity;
 		if ( Class.CastTo(entity, this) )
 		{
-			entity.GetInventory().CreateInInventory( "Expansion_M1A_RailAtt" );
 			entity.SpawnEntityOnGroundPos("Mag_Expansion_M14_10Rnd", entity.GetPosition());
 		}
 	}	

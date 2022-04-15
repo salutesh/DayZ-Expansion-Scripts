@@ -771,7 +771,6 @@ class ExpansionPartyModule: CF_ModuleWorld
 		{
 			if (!OnReceivePartyClient(ctx, m_Party))
 			{
-				Error("ExpansionPartyModule::RPC_UpdatePlayerClient can't read party");
 				return;
 			}
 		}

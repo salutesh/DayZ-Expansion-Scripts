@@ -686,6 +686,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		}
 		else
 		{
+	#ifdef EXPANSIONMODVEHICLE
 			ExpansionHelicopterScript heli;
 			ExpansionBoatScript boat;
 			if (Class.CastTo(heli, car))
@@ -698,8 +699,11 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			}
 			else
 			{
+	#endif
 				stance = 4;
+	#ifdef EXPANSIONMODVEHICLE
 			}
+	#endif
 		}
 		
 		return stance;

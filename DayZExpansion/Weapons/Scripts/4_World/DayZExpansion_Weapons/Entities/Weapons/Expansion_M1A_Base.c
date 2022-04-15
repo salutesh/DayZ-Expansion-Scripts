@@ -61,7 +61,6 @@ class Expansion_M1A_Base: RifleBoltLock_Base
 	{
 		if ( attachment.IsKindOf("Expansion_M1A_RailAtt") && FindAttachmentBySlotName("ExpansionSniperOptics") )
 			return false;
-			
 
 		return super.CanReleaseAttachment(attachment);
 	}
@@ -89,6 +88,7 @@ class Expansion_M1A_Base: RifleBoltLock_Base
 		if ( Class.CastTo(entity, this) )
 		{
 			entity.GetInventory().CreateInInventory( "Expansion_M1A_RailAtt" );
+			entity.GetInventory().CreateInInventory( "Expansion_PMII25Optic" );
 			entity.SpawnEntityOnGroundPos("Mag_Expansion_M14_20Rnd", entity.GetPosition());
 		}
 	}

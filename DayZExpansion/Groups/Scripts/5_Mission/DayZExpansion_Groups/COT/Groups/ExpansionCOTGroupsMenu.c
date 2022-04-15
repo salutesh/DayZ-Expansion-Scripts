@@ -1039,6 +1039,38 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		
 		return false;
 	}*/
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu IsEdittingMarker
+	// ------------------------------------------------------------	
+	bool IsEdittingMarker()
+	{
+		return m_IsEdittingMarker;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SetIsEdittingMarker
+	// ------------------------------------------------------------	
+	void SetIsEdittingMarker(bool state)
+	{
+		m_IsEdittingMarker = state;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu IsCreatingMarker
+	// ------------------------------------------------------------
+	bool IsCreatingMarker()
+	{
+		return m_IsCreatingMarker;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionCOTGroupsMenu SetIsCreatingMarker
+	// ------------------------------------------------------------	
+	void SetIsCreatingMarker(bool state)
+	{
+		m_IsCreatingMarker = state;
+	}
 #endif
 	
 	// ------------------------------------------------------------
@@ -1353,38 +1385,6 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	#endif
 		
 		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu IsEdittingMarker
-	// ------------------------------------------------------------	
-	bool IsEdittingMarker()
-	{
-		return m_IsEdittingMarker;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu SetIsEdittingMarker
-	// ------------------------------------------------------------	
-	void SetIsEdittingMarker(bool state)
-	{
-		m_IsEdittingMarker = state;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu IsCreatingMarker
-	// ------------------------------------------------------------
-	bool IsCreatingMarker()
-	{
-		return m_IsCreatingMarker;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu SetIsCreatingMarker
-	// ------------------------------------------------------------	
-	void SetIsCreatingMarker(bool state)
-	{
-		m_IsCreatingMarker = state;
 	}
 	
 	// ------------------------------------------------------------

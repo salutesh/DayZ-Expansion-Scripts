@@ -87,9 +87,7 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	}
 	
 	private void OnPlayerConnect(PlayerBase player)
-	{
-		Print("ExpansionDataCollectionModule::OnPlayerConnect - Start");
-		
+	{		
 		if (!IsMissionHost())
 			return;
 		
@@ -107,21 +105,7 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 			playerData.SetFromPlayerBase(player);
 			m_PlayerData.Insert(playerUID, playerData);
 		}
-		
-		Print("ExpansionDataCollectionModule::OnPlayerConnect - End");
 	}
-	
-	/*override void OnInvokeDisconnect(Class sender, CF_EventArgs args)
-	{
-		super.OnInvokeDisconnect(sender, args);
-		
-		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
-
-		if (!cArgs.UID)
-			return;
-		
-		OnPlayerDisconnect(cArgs.UID);
-	}*/
 	
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
@@ -137,10 +121,7 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	}
 	
 	private void OnPlayerDisconnect(string playerUID)
-	{
-		Print("ExpansionDataCollectionModule::OnPlayerDisconnect - Start");
-		Print("ExpansionDataCollectionModule::OnPlayerDisconnect - Player UID: " + playerUID);
-		
+	{		
 		if (!IsMissionHost())
 			return;
 		
@@ -150,29 +131,21 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 			playerData = m_PlayerData.Get(playerUID);
 			m_PlayerData.Remove(playerUID);
 		}
-		
-		Print("ExpansionDataCollectionModule::OnPlayerDisconnect - End");
 	}
 	
 	//! Client
 	void RequestPlayerData()
-	{
-		Print("ExpansionDataCollectionModule::RequestPlayerData - Start");
-		
+	{		
 		if (!IsMissionClient())
 			return;
 		
 		ScriptRPC rpc = new ScriptRPC();
  		rpc.Send(NULL, ExpansionDataCollectionRPC.RequestPlayerData, false);
-		
-		Print("ExpansionDataCollectionModule::RequestPlayerData - End");
 	}
 	
 	//! Server
 	void RPC_RequestPlayerData(ParamsReadContext ctx, PlayerIdentity sender)
-	{
-		Print("ExpansionDataCollectionModule::RPC_RequestPlayerData - Start");
-		
+	{		
 		if (!IsMissionHost())
 			return;
 		
@@ -190,15 +163,11 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		}
 		
  		rpc.Send(NULL, ExpansionDataCollectionRPC.SendPlayerData, false, sender);
-		
-		Print("ExpansionDataCollectionModule::RPC_RequestPlayerData - End");
 	}
 	
 	//! Client
 	void RPC_SendPlayerData(ParamsReadContext ctx)
 	{
-		Print("ExpansionDataCollectionModule::RPC_SendPlayerData - Start");
-		
 		if (!IsMissionClient())
 			return;
 		
@@ -213,14 +182,10 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		}
 		
 		GetModuleSI().Invoke();
-		
-		Print("ExpansionDataCollectionModule::RPC_SendPlayerData - End");
 	}
 	
 	bool OnReceivePlayerData(ParamsReadContext ctx)
-	{
-		Print("ExpansionDataCollectionModule::OnReceivePlayerData - Start");
-		
+	{		
 		string playerUID;
 		if (Expansion_Assert_False(ctx.Read(playerUID), "Failed to read player UID"))
 			return false;
@@ -236,8 +201,6 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 			return false;
 		
 		m_PlayerData.Insert(playerUID, player);
-		
-		Print("ExpansionDataCollectionModule::OnReceivePlayerData - End and return true");
 		return true;
 	}
 	
@@ -280,8 +243,6 @@ class ExpansionPlayerDataCollection: ExpansionDataCollection
 	{
 		PlayerUID = player.GetIdentity().GetId();
 		Name = player.GetIdentity().GetName();
-		
-		Print("ExpansionPlayerDataCollection::SetFromPlayerBase - Player UID: " + PlayerUID + " | Name: " + Name);
 	}
 	
 	override void OnSend(ParamsWriteContext ctx)
