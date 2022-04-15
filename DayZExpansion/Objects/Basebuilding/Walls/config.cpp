@@ -56,7 +56,7 @@ class CfgVehicles
 		forceFarBubble = "true";
 		carveNavmesh = 1;
 		physLayer = "item_large";
-		createProxyPhysicsOnInit = "false";
+		createProxyPhysicsOnInit = "true";
 		createdProxiesOnInit[] = {"Deployed"};
 		rotationFlags = 2;
 		attachments[] = {"Material_Nails","Material_WoodenPlanks","Att_ExpansionLumber","Att_ExpansionLumberThird","Att_ExpansionLumberHalf","Att_ExpansionCodeLock_1","Att_ExpansionCodeLock_2"};
