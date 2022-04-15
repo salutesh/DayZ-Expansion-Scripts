@@ -584,8 +584,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		EXLogPrint("ExpansionMapMenu::UpdatePlayerMarkers - Start");
 		#endif
 		
-		#ifdef EXPANSIONMODGROUPS
-
 		int removeIndex = 0;
 		int index = m_PlayerMarkersUpdateIndex;
 
@@ -686,8 +684,6 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 
 			m_PlayerMarkersUpdated = true;
 		}
-
-		#endif
 		
 		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMenu::UpdatePlayerMarkers - End");
